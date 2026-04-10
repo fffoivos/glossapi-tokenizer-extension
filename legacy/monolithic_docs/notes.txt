@@ -1,0 +1,196 @@
+- Presence of short words like "δὲ" (found in /home/foivos/Projects/glossapi-tokenizer-extension/artifacts/20260408T160000Z/outputs/nanochat_plus_hplt/variants/added_20480/tokenizer.json)
+with unusual accent; is this ancient greek? why is it so common / in which texts?
+
+- New token statistics: how many have greek / how many latin script? how many have polytonic accents? how many have no accents? how many are uppercase? Also calculate overlap between these fields and create a venn diagram (I might ask for more than one if it looks too messy)
+
+- Which are the tokens that had overlap with the new tokens? Create a file with them
+
+
+Answers from 2026-04-09
+=======================
+
+Q: Is `.../added_20480/tokenizer.json` the final Apertus tokenizer plus the new Greek tokens?
+
+A: Yes. That file is the full saved fast-tokenizer artifact for that variant, not just a delta.
+It contains:
+- the original Apertus tokenizer pipeline
+- the original Apertus byte-level BPE model
+- the appended Greek added tokens for this run
+
+The builder does:
+- load base Apertus tokenizer
+- `add_tokens(...)`
+- `save_pretrained(...)`
+
+So `added_20480/tokenizer.json` is a complete tokenizer artifact for that variant.
+
+
+Q: Why does `tokenizer.json` look like it mixes several token schemes?
+
+A: Because it really does contain several layers:
+
+1. `added_tokens`
+- This contains pre-existing control/special tokens and the new Greek added tokens.
+- These entries need metadata such as `single_word`, `lstrip`, `rstrip`, `normalized`, `special`.
+- In the saved `nanochat_plus_hplt` tokenizer there are:
+  - `996` special added tokens
+  - `4` pre-existing non-special added tokens from Apertus: `\\begin{`, `\\end{`, `\\text{`, `\\boxed{`
+  - `20480` newly added Greek tokens with ids `131072` through `151551`
+
+2. Tokenizer pipeline
+- `pre_tokenizer`: regex `Split` + `ByteLevel`
+- `post_processor`: inserts things like `<s>`
+- `decoder`: `ByteLevel`
+
+3. `model`
+- This is the original Apertus byte-level BPE model.
+- `model.vocab` is the base BPE vocabulary.
+- `model.merges` is the learned merge table.
+
+So this tokenizer is not a newly retrained Greek BPE tokenizer. It is:
+- original Apertus byte-level BPE
+- plus appended Greek added tokens
+
+
+Q: What are the strange pairs like `["Ù", "Ĭ"]` in `model.merges`?
+
+A: Those are byte-level BPE merge pairs from the original Apertus tokenizer.
+They are not intended to look like readable Greek units.
+Because the tokenizer is byte-level and Greek is UTF-8, many internal merge symbols look like odd Latin/Unicode fragments.
+
+
+Q: Did we remove overlapping existing tokens before adding the new ones?
+
+A: Not by deleting tokens from the tokenizer.
+
+What we did instead:
+- score Greek words from the corpus
+- tokenize each candidate with the base Apertus tokenizer
+- drop candidates that are already `1` token in the base tokenizer
+- add the remaining top-`N` words as new added tokens
+
+So overlap handling is:
+- filter candidates before the add step
+- do not delete old Apertus vocab entries
+
+The old tokenizer stays intact underneath. New tokens are appended at the end with new ids.
+
+
+Q: Did the final vocab size stay divisible by `128`?
+
+A: Yes, for the completed `+20480` runs.
+
+Verified values:
+- base Apertus vocab size: `131072`
+- requested added size: `20480`
+- actual added count: `20480`
+- final vocab size: `151552`
+
+`151552` is divisible by `128`.
+
+I also added a guard in the builder so future runs fail if:
+- `added_count != requested_size`
+- final vocab size does not equal base + requested size
+- final vocab size is not divisible by `128`
+
+
+Q: Do the new Greek tokens have lower priority than the original Apertus tokenizer?
+
+A: No.
+
+We used `tokenizer.add_tokens(AddedToken(...))`.
+In Hugging Face fast tokenizers, `added_tokens` are matched before the underlying BPE model.
+
+So the behavior is:
+- first try to match an added token
+- if no added token matches, fall back to the original Apertus BPE
+
+This means the new Greek tokens are higher-priority exact matches, not lower-priority fallback matches.
+
+What limits the regression risk is narrower:
+- candidates already covered as `1` token by base Apertus were filtered out
+- Greek tokens were added with `single_word=True`
+- Greek tokens were added with `lstrip=True`
+
+So they only trigger on constrained whole-word matches, but they still override the old decomposition when they match.
+
+
+Q: What is the main limitation of the current approach?
+
+A: This is an added-token extension, not a true BPE extension or BPE retraining.
+
+That means:
+- we did not relearn merges
+- we did not rebuild the underlying byte-level BPE vocabulary
+- we appended Greek whole-word tokens on top of the existing tokenizer
+
+This is useful for quick fertility gains, but it is not the same as doing a proper tokenizer retraining or merge-extension pass.
+If we want the original tokenizer to keep priority by default and improve Greek more natively, we likely need a true BPE extension/retraining approach rather than `add_tokens(...)`.
+
+
+Concrete outputs for the missing requests
+========================================
+
+These were computed from:
+- `/home/foivos/Projects/glossapi-tokenizer-extension/artifacts/20260408T160000Z/outputs/nanochat_plus_hplt/variants/added_20480/tokenizer.json`
+
+Artifacts:
+- stats JSON:
+  - `/home/foivos/Projects/glossapi-tokenizer-extension/artifacts/20260408T160000Z/analysis/nanochat_plus_hplt_added_20480/added_token_stats.json`
+- stats markdown:
+  - `/home/foivos/Projects/glossapi-tokenizer-extension/artifacts/20260408T160000Z/analysis/nanochat_plus_hplt_added_20480/added_token_stats.md`
+- pre-existing non-special added tokens:
+  - `/home/foivos/Projects/glossapi-tokenizer-extension/artifacts/20260408T160000Z/analysis/nanochat_plus_hplt_added_20480/preexisting_non_special_added_tokens.json`
+- exact overlap with base vocab:
+  - `/home/foivos/Projects/glossapi-tokenizer-extension/artifacts/20260408T160000Z/analysis/nanochat_plus_hplt_added_20480/exact_overlap_with_base_vocab.txt`
+- exact overlap with pre-existing non-special added tokens:
+  - `/home/foivos/Projects/glossapi-tokenizer-extension/artifacts/20260408T160000Z/analysis/nanochat_plus_hplt_added_20480/exact_overlap_with_preexisting_non_special_added_tokens.txt`
+- venn diagrams:
+  - `/home/foivos/Projects/glossapi-tokenizer-extension/artifacts/20260408T160000Z/analysis/nanochat_plus_hplt_added_20480/venn_greek_polytonic_uppercase.svg`
+  - `/home/foivos/Projects/glossapi-tokenizer-extension/artifacts/20260408T160000Z/analysis/nanochat_plus_hplt_added_20480/venn_greek_latin_uppercase.svg`
+
+Pre-existing non-special added tokens
+-------------------------------------
+
+These are the only pre-existing non-special added tokens I found in the Apertus tokenizer:
+- `\begin{` (id `14`)
+- `\end{` (id `15`)
+- `\text{` (id `16`)
+- `\boxed{` (id `17`)
+
+New token statistics for the `+20480` tokenizer
+-----------------------------------------------
+
+Counts over the `20480` newly added tokens:
+- Greek script: `20480`
+- Latin script: `0`
+- Polytonic: `140`
+- No accents: `1209`
+- Uppercase: `991`
+
+Pairwise overlaps:
+- Greek and polytonic: `140`
+- Greek and no accents: `1209`
+- Greek and uppercase: `991`
+- Polytonic and uppercase: `2`
+- Polytonic and no accents: `1`
+- No accents and uppercase: `974`
+- Anything involving Latin: `0`
+
+Exact combination counts:
+- `has_greek`: `19117`
+- `has_greek+has_polytonic`: `137`
+- `has_greek+has_polytonic+is_uppercase`: `2`
+- `has_greek+has_polytonic+no_accents`: `1`
+- `has_greek+is_uppercase`: `15`
+- `has_greek+no_accents`: `234`
+- `has_greek+no_accents+is_uppercase`: `974`
+
+Overlap with existing token strings
+-----------------------------------
+
+For exact string overlap:
+- overlap with base Apertus `model.vocab`: `0`
+- overlap with pre-existing non-special added tokens: `0`
+
+So the overlap files are currently empty because there were no exact string collisions in the saved `+20480` tokenizer artifact.

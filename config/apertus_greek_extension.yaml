@@ -1,0 +1,221 @@
+schema_version: 1
+
+project:
+  name: glossapi-tokenizer-extension
+  updated_at: 2026-04-09
+  phase: corpus_design
+  objective: >
+    Extend swiss-ai/Apertus-8B-2509 for Greek by learning genuinely useful Greek
+    BPE units from curated Greek corpora, then extending Apertus through
+    model.vocab and model.merges while preserving the published tokenizer
+    mechanics.
+
+status:
+  current_stage: design_and_data_freeze
+  shipping_method:
+    target: merge_rule_bpe_extension
+    not_allowed:
+      - add_tokens_whole_word_extension
+      - tokenizer_replacement_as_first_step
+  previous_baseline:
+    name: 2026-04-08_add_tokens_sweep
+    kept_as: diagnostic_only
+    use_cases:
+      - fertility_sanity_check
+      - evidence_that_greek_adaptation_is_worth_doing
+      - negative_control_against_true_merge_extension
+  next_gate: freeze_deduplicated_training_manifests
+
+apertus_compatibility:
+  tokenizer_family: BPE
+  tokenizer_backend: HuggingFace_fast_tokenizer
+  tokenizer_artifact_format: huggingface_tokenizer_directory
+  tokenizer_files_required:
+    - tokenizer.json
+    - tokenizer_config.json
+    - special_tokens_map.json
+  base_vocab_size: 131072
+  final_vocab_multiple: 128
+  ids:
+    bos_token_id: 1
+    eos_token_id: 2
+    pad_token_id: 3
+    reserved_front_block_size: 1000
+    reserved_front_block_end_id: 999
+    placeholder_special_id_range:
+      start: 73
+      end: 999
+  tokenizer_config:
+    add_bos_token: true
+    add_eos_token: false
+    add_prefix_space: false
+    normalizer: null
+  special_tokens_behavior:
+    lstrip: false
+    rstrip: false
+    normalized: false
+    single_word: false
+  pretokenizer:
+    type: Sequence
+    split_regex_source: apertus_tekken_regex
+    byte_level:
+      add_prefix_space: false
+      trim_offsets: true
+      use_regex: false
+  decoder:
+    type: ByteLevel
+    add_prefix_space: true
+    trim_offsets: true
+    use_regex: true
+  bpe_model:
+    ignore_merges: true
+    dropout: null
+    unk_token: null
+    continuing_subword_prefix: null
+    end_of_word_suffix: null
+    fuse_unk: false
+    byte_fallback: false
+  extension_constraints:
+    do_not_change_first_1000_ids: true
+    do_not_change_special_token_behavior: true
+    do_not_change_regex_or_byte_level_regime: true
+    extend_through_model_vocab_and_model_merges: true
+  model_resize:
+    tie_word_embeddings: false
+    resize_embed_tokens: true
+    resize_lm_head: true
+
+corpus:
+  training_views:
+    - glossapi_only
+    - glossapi_plus_hplt
+  nanochat:
+    role: primary_downstream_aligned_greek_corpus
+    train_split: nanochat_train
+    holdout_splits:
+      - nanochat_eval
+  hplt:
+    role: representative_open_web_greek_supplement
+    target_size_policy: roughly_match_nanochat_scale_for_first_round
+    quality_filter:
+      status: provisional_default
+      keep_bins:
+        - 8
+        - 9
+        - 10
+      note: bins_below_8_currently_look_not_worth_keeping
+    stratify_by:
+      - source_host
+      - content_type_when_available
+      - web_register_level_1
+      - web_register_level_2_canonical
+      - length_bin
+      - crawl_id
+    shard_sampling:
+      allow_contiguous_prefix_sampling: false
+      method: randomized_or_reservoir_across_shard_positions
+    source_overlap_controls:
+      exclude_same_source_overlap_with_nanochat_when_feasible: true
+      compare_mirrored_collections_when_feasible: true
+  deduplication:
+    required_before_bpe_training: true
+    applies_to:
+      - hplt_candidate_pool
+      - combined_nanochat_hplt_training_pool
+    order:
+      - reduce_same_source_overlap
+      - canonical_url_dedup
+      - exact_text_dedup
+      - near_duplicate_dedup
+      - freeze_training_manifest
+    rules:
+      reject_duplicate_documents: true
+      reject_near_duplicates_before_tokenizer_training: true
+      do_not_assume_hplt_release_is_fully_deduplicated: true
+      use_hplt_cluster_size_as_hint_only: true
+
+review:
+  manual_training_sample_review:
+    sample_size: 200
+    source: frozen_deduplicated_training_pool
+    stratify_by:
+      - corpus_source
+      - source_family
+      - length_bin
+      - modern_monotonic_vs_polytonic_or_historical
+    checks:
+      - greek_language_validity
+      - domain_balance
+      - ocr_noise
+      - boilerplate_or_junk
+      - polytonic_load
+    outputs:
+      - review_sample.jsonl
+      - txt_bundle
+      - reviewer_notes
+
+evaluation:
+  heldout_sets:
+    - nanochat_eval
+    - hplt_eval
+    - modern_greek_eval
+  optional_sets:
+    - polytonic_stress_eval
+  constraints:
+    training_and_evaluation_documents_must_not_overlap: true
+  primary_decision_set: modern_greek_eval
+
+bpe_discovery:
+  training_method: true_greek_bpe_training
+  must_match_apertus_pretokenization: true
+  working_vocab_target_range:
+    min: 40000
+    max: 50000
+  training_variants:
+    - glossapi_only
+    - glossapi_plus_hplt
+  candidate_selection:
+    reject_single_document_artifacts: true
+    require_cross_source_or_cross_domain_support: true
+    downweight:
+      - polytonic_only_units
+      - boilerplate_fragments
+      - markup_artifacts
+      - source_specific_noise
+
+extension_selection:
+  analytic_cutoff_sweep:
+    requested_new_token_counts:
+      - 5000
+      - 10000
+      - 15000
+      - 20000
+  shipped_build:
+    align_final_new_token_count_to_multiple_of: 128
+    pick_smallest_size_that_captures_most_greek_gain: true
+  tokenizer_variant_decision:
+    compare:
+      - glossapi_only
+      - glossapi_plus_hplt
+    default_preference: glossapi_only
+    upgrade_to_glossapi_plus_hplt_if_relative_gain_on_modern_greek_eval_at_least: 0.05
+
+model_adaptation:
+  initialization_candidates:
+    - mean_of_subtokens
+    - FOCUS
+    - token_distillation
+  phases:
+    - frozen_base_warmup
+    - full_continued_pretraining
+  multilingual_replay_ratio_for_full_cpt: tbd
+
+artifacts:
+  must_preserve:
+    - frozen_deduplicated_training_manifests
+    - heldout_eval_manifests
+    - tokenizer_diff_manifest
+    - fertility_reports
+    - model_resize_and_init_record
+  baseline_artifacts_kept_for_reference:
+    - /home/foivos/Projects/glossapi-tokenizer-extension/artifacts/20260408T160000Z

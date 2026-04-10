@@ -1,0 +1,61 @@
+- [x] Confirm the baseline Apertus tokenizer structure: `BPE`, `131072` vocab, regex split plus `ByteLevel`, fixed specials.
+- [x] Benchmark the current Greek fertility gap against Krikri and Gemma 4 on the curated sample.
+- [x] Prepare the GlossAPI Greek nanochat train/val/test data export path.
+- [x] Prove that GCP CPU-only infrastructure can run the Greek tokenizer experiments end-to-end.
+- [x] Finish the `add_tokens(...)` baseline run and preserve its artifacts as a diagnostic comparison, not as the final method.
+- [x] Confirm that the intended path is true Greek `BPE` training plus merge-rule extension, not `add_tokens(...)`.
+- [x] Create a working project config that captures the locked Apertus settings, corpus recipe, dedup requirement, evaluation plan, and target end state.
+- [ ] Rewrite any stale scripts or docs that still imply `add_tokens(...)` is the candidate shipping method.
+- [x] Inspect the actual training/inference stack that will consume the tokenizer and confirm whether it relies on `tokenizer.json`, `tokenizer_config.json`, `special_tokens_map.json`, or any Tekken-specific loader assumptions.
+- [x] Inspect HPLT metadata fields available for source-aware Greek sampling.
+- [x] Export the HPLT `web-register` labels in full words and document the mixed simplified-plus-legacy schema.
+- [ ] Build an HPLT manifest with at least: shard, document id, URL or host, content type, and character count.
+- [ ] Define the first `hplt_matched_sample` target size relative to nanochat.
+- [ ] Detect same-source overlap between nanochat and HPLT and define exclusion rules before final sampling.
+- [ ] Run canonical-URL, exact-text, and near-duplicate dedup for the combined training candidate pool before any proper `BPE` training.
+- [ ] Define minimum cross-source or cross-domain support rules for candidate subwords so one-document artifacts do not dominate the extension.
+- [ ] Define the actual row-sampling strategy for sorted HPLT shards so domain-clumped prefixes do not bias the matched sample.
+- [ ] Freeze the first training manifest for:
+  - `nanochat_train`
+  - `hplt_matched_sample`
+  - candidate mixed training pool
+- [ ] Finish the exact full-pass HPLT Greek representative review sample now running under:
+  - `hplt-review-sample-20260409-fast.service`
+- [ ] Create a manually reviewable `200`-document sample from the frozen training pool.
+- [ ] Review that sample for domain balance, OCR noise, polytonic load, and obvious junk.
+- [ ] Freeze held-out fertility sets for:
+  - `nanochat_eval`
+  - `hplt_eval`
+  - `modern_greek_eval`
+- [ ] Decide whether to keep a separate `polytonic_stress_eval` slice.
+- [ ] Design the compatible Greek `BPE` training config to match Apertus pretokenization as closely as needed.
+- [ ] Lock the first discovery-tokenizer vocab size around `40k-50k`.
+- [ ] Train the first true Greek `BPE` tokenizer on `nanochat_train`.
+- [ ] Train the first true Greek `BPE` tokenizer on the mixed nanochat-plus-HPLT sample.
+- [ ] Diff the learned tokenizer outputs against Apertus `model.vocab` and `model.merges`.
+- [ ] Run the analytic cutoff sweep around:
+  - `5k`
+  - `10k`
+  - `15k`
+  - `20k`
+- [ ] After identifying the elbow, build the nearest valid `128`-aligned extension variant or a small local probe around that region.
+- [ ] Enforce final vocab divisibility by `128` in the merge-rule extension builder.
+- [ ] Build a tokenizer regression checklist that verifies exact preservation of:
+  - the first `1000` token ids
+  - special-token behavior
+  - regex split behavior
+  - byte-level encode/decode behavior
+- [ ] Produce extension manifests listing every new token id, string, merge provenance, and source counts.
+- [ ] Evaluate the extensions on held-out fertility test sets.
+- [ ] Run a non-Greek smoke test to detect regressions.
+- [ ] Pick the smallest extension size that captures most of the Greek gain.
+- [ ] Define the decision rule for choosing `GlossAPI-only` vs `GlossAPI + HPLT`, with an explicit minimum held-out gain threshold for the more complex variant.
+- [ ] Compare new-row initialization methods:
+  - mean-of-subtokens
+  - `FOCUS`
+  - token distillation
+- [ ] Define the two-phase model adaptation schedule:
+  - frozen-base warmup
+  - full continued pretraining
+- [ ] Choose the English or multilingual replay ratio for the full-CPT phase to reduce catastrophic forgetting.
+- [ ] Define model-side embedding and `lm_head` resize/init policy for the chosen extension.
