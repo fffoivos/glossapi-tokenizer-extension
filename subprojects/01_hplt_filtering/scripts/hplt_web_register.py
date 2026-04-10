@@ -112,6 +112,74 @@ HPLT_SCHEMA_MAIN_ORDER = list(MAIN_LABELS.keys())
 HPLT_SCHEMA_SUBLABEL_ORDER = list(ALL_SUBLABELS.keys())
 
 
+# Collapse the mixed HPLT schema into a canonical non-overlapping second level.
+CANONICAL_SUBLABEL_COLLAPSE = OrderedDict(
+    [
+        ("it", "it"),
+        ("fs", "it"),
+        ("ta", "os"),
+        ("tv", "os"),
+        ("os", "os"),
+        ("ne", "ne"),
+        ("sr", "sr"),
+        ("nb", "nb"),
+        ("pb", "nb"),
+        ("tb", "nb"),
+        ("on", "on"),
+        ("ha", "on"),
+        ("ma", "on"),
+        ("re", "re"),
+        ("fh", "oh"),
+        ("ht", "oh"),
+        ("ts", "oh"),
+        ("oh", "oh"),
+        ("en", "en"),
+        ("ra", "ra"),
+        ("dtp", "dtp"),
+        ("dp", "dtp"),
+        ("dt", "dtp"),
+        ("fi", "fi"),
+        ("lt", "lt"),
+        ("oi", "oi"),
+        ("cm", "oi"),
+        ("ib", "oi"),
+        ("tr", "oi"),
+        ("rv", "rv"),
+        ("ob", "ob"),
+        ("rs", "rs"),
+        ("av", "av"),
+        ("oo", "oo"),
+        ("ds", "ds"),
+        ("ed", "ed"),
+        ("oe", "oe"),
+        ("ad", "oe"),
+        ("le", "oe"),
+        ("pa", "oe"),
+        ("df", "df"),
+        ("of", "of"),
+        ("qa", "qa"),
+        ("rr", "rr"),
+        ("ol", "ol"),
+        ("po", "po"),
+        ("pr", "pr"),
+        ("sl", "sl"),
+    ]
+)
+
+
+def _build_canonical_sublabels() -> OrderedDict[str, dict[str, str]]:
+    canonical = OrderedDict()
+    for code in CANONICAL_SUBLABEL_COLLAPSE.values():
+        if code in canonical:
+            continue
+        canonical[code] = ALL_SUBLABELS[code]
+    return canonical
+
+
+CANONICAL_SUBLABELS = _build_canonical_sublabels()
+CANONICAL_SUBLABEL_ORDER = list(CANONICAL_SUBLABELS.keys())
+
+
 def label_name(code: str) -> str:
     if code in MAIN_LABELS:
         return MAIN_LABELS[code]
@@ -124,6 +192,26 @@ def parent_label(code: str) -> str | None:
     if code in ALL_SUBLABELS:
         return str(ALL_SUBLABELS[code]["parent"])
     return None
+
+
+def canonical_sub_label(code: str | None) -> str | None:
+    if code is None:
+        return None
+    return CANONICAL_SUBLABEL_COLLAPSE.get(code)
+
+
+def category_tuple_codes_from_sub_label(code: str | None) -> tuple[str | None, str | None]:
+    canonical_code = canonical_sub_label(code)
+    if canonical_code is None:
+        return None, None
+    return parent_label(canonical_code), canonical_code
+
+
+def category_tuple_labels_from_sub_label(code: str | None) -> tuple[str | None, str | None]:
+    parent_code, canonical_code = category_tuple_codes_from_sub_label(code)
+    if parent_code is None or canonical_code is None:
+        return None, None
+    return label_name(parent_code), label_name(canonical_code)
 
 
 def sorted_scores(web_register: dict[str, float] | None, codes: Iterable[str]) -> list[tuple[str, float]]:
@@ -146,4 +234,3 @@ def top_sub_label(web_register: dict[str, float] | None) -> tuple[str | None, fl
     if not scores:
         return None, 0.0
     return scores[0]
-
