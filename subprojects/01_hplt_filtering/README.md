@@ -2,15 +2,17 @@
 
 ## Scope
 
-Build a clean, source-aware, quality-aware filtered view of Greek HPLT that is suitable to feed downstream corpus assembly.
+Build a clean, source-aware, quality-aware filtered view of Greek HPLT that is suitable for upload into the upstream canonical GlossAPI source-parquet dataset.
 
 ## Already Decided
 
 - do not sample contiguous prefixes from sorted HPLT shards
 - use HPLT metadata for stratification
 - treat quality bins `8-10` as the current default keep range
+- exclude `Machine translated or generated` content from final training data
 - use `web-register` information for content diversity analysis
-- do not trust released HPLT dedup as sufficient by itself
+- HPLT-specific provenance should be preserved in `source_metadata_json`
+- HPLT should be normalized into the existing canonical source-parquet schema before upload
 
 ## Relevant Existing Assets
 
@@ -25,11 +27,11 @@ Build a clean, source-aware, quality-aware filtered view of Greek HPLT that is s
 
 ## Deliverable
 
-A frozen filtered HPLT manifest with:
-- shard
-- document id
-- URL or host
-- content type
-- quality bin
-- register labels
-- character count
+Upload-ready HPLT parquet file(s) in the canonical schema used by:
+- `fffoivos/glossapi-greek-nanochat-pretraining-dataset`
+- `data/*.parquet`
+
+The shipped HPLT slice must:
+- exclude `Machine translated or generated`
+- preserve the canonical top-level columns
+- map HPLT-specific provenance into `source_metadata_json`

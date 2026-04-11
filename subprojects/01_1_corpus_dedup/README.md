@@ -2,21 +2,19 @@
 
 ## Scope
 
-Deduplicate HPLT and GlossAPI candidate data before tokenizer training.
+Document and verify the dedup contract inherited from the upstream GlossAPI corpus dataset pipeline.
 
 ## Already Decided
 
-- dedup is mandatory before any proper `BPE` training
-- same-source overlap reduction comes before text-level dedup
-- canonical URL dedup should be included
-- exact-text and near-duplicate dedup should both be included
-- HPLT `cluster_size` is only a hint, not a guarantee
+- the training corpus must still be deduplicated before proper `BPE` training
+- for this project, HPLT prep should not reimplement a separate local dedup builder stage
+- the upstream corpus dataset pipeline is the owner of cleaning and dedup for the uploaded source parquets
+- downstream tokenizer/CPT builders should consume that prepared result lightly
+- HPLT `cluster_size` remains a useful audit hint, not a guarantee
 
-## Required Order
+## Role In This Project
 
-1. same-source overlap reduction
-2. canonical URL dedup
-3. exact-text dedup
-4. near-duplicate dedup
-5. freeze training manifest
-
+This subproject is now mostly a verification boundary:
+- confirm what dedup guarantees the upstream dataset pipeline provides
+- confirm what builder-time dedup, if any, still remains lightweight downstream
+- avoid drifting into a second independent dedup workflow here

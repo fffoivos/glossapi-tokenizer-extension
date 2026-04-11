@@ -1,7 +1,6 @@
 # TODO
 
-- define exact canonical URL normalization rules
-- define exact duplicate and near-duplicate thresholds
-- decide whether dedup operates before or after HPLT stratified sampling, or both
-- produce a dedup report with removed-count breakdowns by source and rule
-
+- document the dedup guarantees already provided by the upstream corpus dataset pipeline
+- verify whether any lightweight downstream dedup annotations still remain in the builder flow
+- record which dedup metadata artifacts downstream consumers are allowed to rely on
+- avoid introducing a second independent local dedup pipeline for HPLT prep

@@ -2,7 +2,7 @@
 
 ## Scope
 
-Freeze the training and eval corpus views that will feed tokenizer discovery.
+Freeze the training and eval corpus views that will feed tokenizer discovery, using the same CPT-ready dataset that will be used for Apertus continued pretraining.
 
 ## Already Decided
 
@@ -11,7 +11,9 @@ Freeze the training and eval corpus views that will feed tokenizer discovery.
   - `GlossAPI + HPLT`
 - HPLT should initially be matched roughly to nanochat scale
 - held-out evaluation documents must not overlap with training documents
-- the `200`-document human review should come from the frozen deduplicated training pool
+- the `200`-document human review should come from the filtered upload-candidate pool or the refreshed CPT-ready dataset
+- downstream mixing should happen after HPLT has already been normalized into the canonical source-parquet schema
+- the downstream builder should stay lightweight after HF download
 
 ## Deliverables
 
@@ -22,4 +24,3 @@ Freeze the training and eval corpus views that will feed tokenizer discovery.
   - `nanochat_eval`
   - `hplt_eval`
   - `modern_greek_eval`
-

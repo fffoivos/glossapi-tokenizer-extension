@@ -5,7 +5,8 @@ Clean workspace for extending `swiss-ai/Apertus-8B-2509` for Greek.
 The active method is:
 - discover Greek morphology-respecting units through true `BPE` training
 - replicate Apertus tokenization behavior as exactly as possible
-- build a diverse, deduplicated training corpus before any tokenizer training
+- filter HPLT and normalize it into the existing canonical GlossAPI source-parquet schema
+- consume the same CPT-ready dataset for both continued pretraining and tokenizer experiments
 - extend Apertus through `model.vocab` and `model.merges`, not `add_tokens(...)`
 
 The old whole-word `add_tokens(...)` sweep is retained only as a legacy baseline and has been moved out of the active planning path.

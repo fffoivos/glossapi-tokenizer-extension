@@ -2,16 +2,17 @@ schema_version: 1
 
 project:
   name: glossapi-tokenizer-extension
-  updated_at: 2026-04-09
+  updated_at: 2026-04-11
   phase: corpus_design
   objective: >
     Extend swiss-ai/Apertus-8B-2509 for Greek by learning genuinely useful Greek
-    BPE units from curated Greek corpora, then extending Apertus through
-    model.vocab and model.merges while preserving the published tokenizer
-    mechanics.
+    BPE units from curated Greek corpora. HPLT enters the workflow by being
+    filtered, normalized into the canonical GlossAPI source-parquet schema,
+    uploaded into the upstream HF dataset, and then consumed by the lightweight
+    CPT/tokenizer builder.
 
 status:
-  current_stage: design_and_data_freeze
+  current_stage: hplt_filtering_and_upload_spec
   shipping_method:
     target: merge_rule_bpe_extension
     not_allowed:
@@ -24,7 +25,43 @@ status:
       - fertility_sanity_check
       - evidence_that_greek_adaptation_is_worth_doing
       - negative_control_against_true_merge_extension
-  next_gate: freeze_deduplicated_training_manifests
+  next_gate: freeze_hplt_upload_schema_and_filter_spec
+
+dataset_integration:
+  upstream_hf_dataset:
+    repo_id: fffoivos/glossapi-greek-nanochat-pretraining-dataset
+    stage: broad_canonical_source_parquets
+    path_glob: data/*.parquet
+  downstream_builder:
+    role: lightweight_subset_mix_split_and_chunk_builder
+    must_not_redefine_cleaning_or_dedup_policy: true
+  canonical_source_parquet_schema:
+    columns:
+      - source_dataset
+      - source_doc_id
+      - text
+      - title
+      - author
+      - source_metadata_json
+      - is_historical_or_polytonic
+      - contains_math
+      - contains_latex
+      - greek_percentage
+      - latin_percentage
+      - polytonic_ratio
+      - table_ratio
+      - greek_badness_score
+      - mojibake_badness_score
+      - needs_ocr
+      - is_empty
+      - filter
+      - ocr_success
+      - quality_method
+      - reevaluated_at
+  hplt_mapping_defaults:
+    title: null_when_not_credibly_available
+    author: null_when_not_credibly_available
+    hplt_specific_provenance_goes_to_source_metadata_json: true
 
 apertus_compatibility:
   tokenizer_family: BPE
@@ -91,11 +128,13 @@ corpus:
     - glossapi_plus_hplt
   nanochat:
     role: primary_downstream_aligned_greek_corpus
+    source: upstream_hf_dataset_builder_output
     train_split: nanochat_train
     holdout_splits:
       - nanochat_eval
   hplt:
     role: representative_open_web_greek_supplement
+    integration_target: upstream_hf_canonical_source_parquets
     target_size_policy: roughly_match_nanochat_scale_for_first_round
     quality_filter:
       status: provisional_default
@@ -104,6 +143,33 @@ corpus:
         - 9
         - 10
       note: bins_below_8_currently_look_not_worth_keeping
+    content_filter:
+      status: decided
+      exclude_main_register_codes:
+        - MT
+      exclude_main_register_labels:
+        - Machine translated or generated
+      note: exclude_mt_from_final_training_dataset_even_if_other_quality_signals_pass
+    upload_mapping:
+      top_level_fields_from_hplt:
+        - source_dataset
+        - source_doc_id
+        - text
+        - title
+        - author
+      source_metadata_json_fields:
+        - url
+        - host
+        - content_type
+        - crawl_id
+        - quality_bin
+        - filter
+        - lang
+        - prob
+        - cluster_size
+        - register_level_1
+        - register_level_2
+        - raw_web_register_optional
     stratify_by:
       - source_host
       - content_type_when_available
@@ -118,26 +184,16 @@ corpus:
       exclude_same_source_overlap_with_nanochat_when_feasible: true
       compare_mirrored_collections_when_feasible: true
   deduplication:
-    required_before_bpe_training: true
-    applies_to:
-      - hplt_candidate_pool
-      - combined_nanochat_hplt_training_pool
-    order:
-      - reduce_same_source_overlap
-      - canonical_url_dedup
-      - exact_text_dedup
-      - near_duplicate_dedup
-      - freeze_training_manifest
-    rules:
-      reject_duplicate_documents: true
-      reject_near_duplicates_before_tokenizer_training: true
-      do_not_assume_hplt_release_is_fully_deduplicated: true
-      use_hplt_cluster_size_as_hint_only: true
+    handled_by_upstream_dataset_pipeline: true
+    tokenizer_project_scope:
+      - consume_the_resulting_cleaned_and_deduplicated_dataset
+      - do_not_reimplement_dedup_as_a_separate_local_builder_stage
+    note: corpus_must_still_be_deduplicated_but_that_work_is_owned_by_the_upstream_dataset_pipeline
 
 review:
   manual_training_sample_review:
     sample_size: 200
-    source: frozen_deduplicated_training_pool
+    source: filtered_or_frozen_hplt_upload_candidate_pool
     stratify_by:
       - corpus_source
       - source_family
@@ -153,6 +209,9 @@ review:
       - review_sample.jsonl
       - txt_bundle
       - reviewer_notes
+  audit_samples:
+    may_include_excluded_classes_for_filter_validation: true
+    note: machine_translated_or_generated_can_still_appear_in_review_or_audit_samples
 
 evaluation:
   heldout_sets:
@@ -167,6 +226,7 @@ evaluation:
 
 bpe_discovery:
   training_method: true_greek_bpe_training
+  training_data_source: same_cpt_ready_dataset_used_for_apertus_continued_pretraining
   must_match_apertus_pretokenization: true
   working_vocab_target_range:
     min: 40000
@@ -212,7 +272,8 @@ model_adaptation:
 
 artifacts:
   must_preserve:
-    - frozen_deduplicated_training_manifests
+    - frozen_hplt_upload_spec
+    - frozen_hplt_filter_manifests
     - heldout_eval_manifests
     - tokenizer_diff_manifest
     - fertility_reports
