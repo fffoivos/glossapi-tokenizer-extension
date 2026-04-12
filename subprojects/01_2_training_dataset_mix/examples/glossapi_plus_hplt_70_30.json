@@ -1,0 +1,20 @@
+{
+  "entries": [
+    {
+      "name": "all_non_hplt",
+      "exclude_sources": [
+        "HPLT/ell_Grek_ge8_no_mt_clean60"
+      ],
+      "fraction": 1.0,
+      "fraction_mode": "of_group"
+    },
+    {
+      "name": "hplt",
+      "include_sources": [
+        "HPLT/ell_Grek_ge8_no_mt_clean60"
+      ],
+      "fraction": 0.3,
+      "fraction_mode": "of_total"
+    }
+  ]
+}
