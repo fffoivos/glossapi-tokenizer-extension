@@ -13,7 +13,9 @@ Freeze the training and eval corpus views that will feed tokenizer discovery, us
 - held-out evaluation documents must not overlap with training documents
 - the `200`-document human review should come from the filtered upload-candidate pool or the refreshed CPT-ready dataset
 - downstream mixing should happen after HPLT has already been normalized into the canonical source-parquet schema
-- the downstream builder should stay lightweight after HF download
+- downstream builder work should stay lightweight after HF download
+- local mix freezing can proceed from the local prepared dataset without waiting for the HF upload to complete
+- `openarchives.gr` rows with `needs_ocr == true` must remain excluded in the dataset fed into tokenizer work
 
 ## Deliverables
 
@@ -24,3 +26,7 @@ Freeze the training and eval corpus views that will feed tokenizer discovery, us
   - `nanochat_eval`
   - `hplt_eval`
   - `modern_greek_eval`
+
+## Operational Input
+
+The intended input here is the refreshed local prepared-source dataset that already includes the filtered HPLT slice, not the exploratory review samples.

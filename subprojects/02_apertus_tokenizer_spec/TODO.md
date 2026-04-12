@@ -4,4 +4,4 @@
 - pin the exact post-processor template
 - pin the full special-token inventory and ids
 - add a toy compatibility test that proves a patched tokenizer still round-trips correctly under the HF stack
-
+- add a toy merge-rule extension proof that exercises `model.vocab` and `model.merges` without using `add_tokens(...)`

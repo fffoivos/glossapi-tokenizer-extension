@@ -2,15 +2,20 @@
 
 This repo is intentionally split into smaller subprojects.
 
-## Order Of Work
+## Parallel Tracks
+
+### Tokenizer Critical Path
+
+1. [01_2_training_dataset_mix](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_2_training_dataset_mix/README.md)
+2. [02_apertus_tokenizer_spec](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_apertus_tokenizer_spec/README.md)
+3. [02_1_tokenizer_experiments](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/README.md)
+4. [02_2_tokenizer_implementation](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_2_tokenizer_implementation/README.md)
+5. [03_apertus_extension_and_embedding_adaptation](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/03_apertus_extension_and_embedding_adaptation/README.md)
+
+### Dataset Operational Sidetrack
 
 1. [01_hplt_filtering](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_hplt_filtering/README.md)
-2. [01_2_training_dataset_mix](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_2_training_dataset_mix/README.md)
-3. [01_1_corpus_dedup](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/README.md)
-4. [02_apertus_tokenizer_spec](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_apertus_tokenizer_spec/README.md)
-5. [02_1_tokenizer_experiments](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/README.md)
-6. [02_2_tokenizer_implementation](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_2_tokenizer_implementation/README.md)
-7. [03_apertus_extension_and_embedding_adaptation](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/03_apertus_extension_and_embedding_adaptation/README.md)
+2. [01_1_corpus_dedup](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/README.md)
 
 ## Canonical Sources Of Truth
 
@@ -27,8 +32,8 @@ This repo is intentionally split into smaller subprojects.
 
 ## Current Status
 
-- HPLT filtering and upload-spec freeze are active
-- no upload-ready HPLT parquet has been frozen yet
+- the filtered HPLT local slice already exists in the canonical source-parquet tree on `home`
+- the HF upload is an operational sidetrack, not the critical path for tokenizer work
 - no true Greek `BPE` tokenizer has been trained yet
 - no merge-rule Apertus extension has been built yet
-- the next hard gate is a frozen HPLT upload spec into the upstream corpus dataset
+- the next hard gate on the tokenizer path is freezing local manifests and the literal Apertus tokenizer-replication checklist

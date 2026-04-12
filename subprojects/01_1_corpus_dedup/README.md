@@ -11,6 +11,7 @@ Document and verify the dedup contract inherited from the upstream GlossAPI corp
 - the upstream corpus dataset pipeline is the owner of cleaning and dedup for the uploaded source parquets
 - downstream tokenizer/CPT builders should consume that prepared result lightly
 - HPLT `cluster_size` remains a useful audit hint, not a guarantee
+- published `dedup_metadata` refresh is a later operational step and does not block tokenizer progress
 
 ## Role In This Project
 
@@ -18,3 +19,4 @@ This subproject is now mostly a verification boundary:
 - confirm what dedup guarantees the upstream dataset pipeline provides
 - confirm what builder-time dedup, if any, still remains lightweight downstream
 - avoid drifting into a second independent dedup workflow here
+- refresh published `dedup_metadata` only after the intended dataset state is settled

@@ -2,17 +2,18 @@ schema_version: 1
 
 project:
   name: glossapi-tokenizer-extension
-  updated_at: 2026-04-11
-  phase: corpus_design
+  updated_at: 2026-04-12
+  phase: parallel_hplt_upload_and_tokenizer_prep
   objective: >
     Extend swiss-ai/Apertus-8B-2509 for Greek by learning genuinely useful Greek
     BPE units from curated Greek corpora. HPLT enters the workflow by being
     filtered, normalized into the canonical GlossAPI source-parquet schema,
     uploaded into the upstream HF dataset, and then consumed by the lightweight
-    CPT/tokenizer builder.
+    CPT/tokenizer builder. The tokenizer critical path can proceed from the
+    local prepared dataset without waiting for the HF upload to finish.
 
 status:
-  current_stage: hplt_filtering_and_upload_spec
+  current_stage: parallel_local_tokenizer_prep_and_hplt_upload
   shipping_method:
     target: merge_rule_bpe_extension
     not_allowed:
@@ -25,7 +26,7 @@ status:
       - fertility_sanity_check
       - evidence_that_greek_adaptation_is_worth_doing
       - negative_control_against_true_merge_extension
-  next_gate: freeze_hplt_upload_schema_and_filter_spec
+  next_gate: freeze_local_manifests_and_literal_apertus_replication_checklist
 
 dataset_integration:
   upstream_hf_dataset:
@@ -62,6 +63,12 @@ dataset_integration:
     title: null_when_not_credibly_available
     author: null_when_not_credibly_available
     hplt_specific_provenance_goes_to_source_metadata_json: true
+  operational_release_path:
+    use_existing_dataset_scripts_only: true
+    intended_scripts:
+      - /home/foivos/data/glossapi_work/assemble_hf_release.py
+      - /home/foivos/data/glossapi_work/prepare_publish_release.py
+      - /home/foivos/data/glossapi_work/publish_hf_release.py
 
 apertus_compatibility:
   tokenizer_family: BPE
@@ -183,12 +190,36 @@ corpus:
     source_overlap_controls:
       exclude_same_source_overlap_with_nanochat_when_feasible: true
       compare_mirrored_collections_when_feasible: true
+  openarchives:
+    keep_rule:
+      require_needs_ocr_false: true
+      note: do_not_reintroduce_openarchives_rows_marked_needs_ocr_true_into_tokenizer_or_cpt_inputs
   deduplication:
     handled_by_upstream_dataset_pipeline: true
     tokenizer_project_scope:
       - consume_the_resulting_cleaned_and_deduplicated_dataset
       - do_not_reimplement_dedup_as_a_separate_local_builder_stage
     note: corpus_must_still_be_deduplicated_but_that_work_is_owned_by_the_upstream_dataset_pipeline
+
+execution:
+  parallel_tracks:
+    tokenizer_critical_path:
+      - freeze_local_training_manifests
+      - verify_openarchives_needs_ocr_exclusion
+      - freeze_eval_manifests
+      - lock_literal_apertus_replication_checklist
+      - export_bpe_training_text
+      - run_discovery_bpe_training
+      - diff_new_units_against_apertus
+      - run_cutoff_sweep
+      - implement_merge_rule_extension
+    dataset_operational_sidetrack:
+      - keep_hplt_upload_running
+      - rerun_local_prepared_source_dataset_with_hplt_included
+      - refresh_published_dedup_metadata_later
+  upload_blocking_policy:
+    hf_upload_must_not_block_local_tokenizer_progress: true
+    dedup_metadata_refresh_must_not_block_local_tokenizer_progress: true
 
 review:
   manual_training_sample_review:
@@ -258,25 +289,3 @@ extension_selection:
       - glossapi_only
       - glossapi_plus_hplt
     default_preference: glossapi_only
-    upgrade_to_glossapi_plus_hplt_if_relative_gain_on_modern_greek_eval_at_least: 0.05
-
-model_adaptation:
-  initialization_candidates:
-    - mean_of_subtokens
-    - FOCUS
-    - token_distillation
-  phases:
-    - frozen_base_warmup
-    - full_continued_pretraining
-  multilingual_replay_ratio_for_full_cpt: tbd
-
-artifacts:
-  must_preserve:
-    - frozen_hplt_upload_spec
-    - frozen_hplt_filter_manifests
-    - heldout_eval_manifests
-    - tokenizer_diff_manifest
-    - fertility_reports
-    - model_resize_and_init_record
-  baseline_artifacts_kept_for_reference:
-    - /home/foivos/Projects/glossapi-tokenizer-extension/artifacts/20260408T160000Z

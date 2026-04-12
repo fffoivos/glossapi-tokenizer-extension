@@ -13,6 +13,7 @@ Build a clean, source-aware, quality-aware filtered view of Greek HPLT that is s
 - use `web-register` information for content diversity analysis
 - HPLT-specific provenance should be preserved in `source_metadata_json`
 - HPLT should be normalized into the existing canonical source-parquet schema before upload
+- the tokenizer path may proceed from the local canonical source-parquet tree without waiting for the HF upload to finish
 
 ## Relevant Existing Assets
 
@@ -24,8 +25,10 @@ Build a clean, source-aware, quality-aware filtered view of Greek HPLT that is s
   - `/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_hplt_filtering/scripts/analyze_hplt_quality_bins.py`
 - register mapping:
   - `/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_hplt_filtering/scripts/hplt_web_register.py`
+- upload builder:
+  - `/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_hplt_filtering/scripts/build_hplt_hf_slice.py`
 
-## Deliverable
+## Deliverables
 
 Upload-ready HPLT parquet file(s) in the canonical schema used by:
 - `fffoivos/glossapi-greek-nanochat-pretraining-dataset`
@@ -35,3 +38,10 @@ The shipped HPLT slice must:
 - exclude `Machine translated or generated`
 - preserve the canonical top-level columns
 - map HPLT-specific provenance into `source_metadata_json`
+
+## Operational Note
+
+This subproject is the first step of the dataset sidetrack:
+1. build and upload the filtered HPLT slice
+2. rerun the full local prepared-source dataset with HPLT included using the existing dataset scripts
+3. hand the resulting local prepared dataset to the tokenizer track without waiting for HF upload completion
