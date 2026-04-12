@@ -50,6 +50,7 @@ class ShardResult:
     rows_seen: int
     rows_kept: int
     rows_skipped_mt: int
+    rows_skipped_badness: int
     rows_skipped_empty: int
     rows_written: int
     part_files: list[str]
@@ -68,6 +69,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--workers", type=int, default=DEFAULT_WORKERS)
     parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE)
     parser.add_argument("--rows-per-part", type=int, default=DEFAULT_PART_ROWS)
+    parser.add_argument("--quality-mode", choices=["score_only", "corpus_clean"], default="corpus_clean")
+    parser.add_argument("--greek-badness-max", type=float, default=60.0)
+    parser.add_argument("--clean-num-threads", type=int, default=max(1, min(8, os.cpu_count() or 1)))
     parser.add_argument("--max-docs", type=int, default=None)
     parser.add_argument("--max-chars", type=int, default=None)
     parser.add_argument("--summary-json", type=Path, default=None)
@@ -188,12 +192,110 @@ def build_base_row(raw_row: dict[str, Any], *, dataset_name: str, shard: str, qu
         "mojibake_badness_score": None,
         "needs_ocr": False,
         "is_empty": False,
-        "filter": raw_row.get("filter"),
+        "filter": None,
         "ocr_success": None,
         "quality_method": None,
         "reevaluated_at": None,
         "_top_main_code": main_code,
     }
+
+
+def load_target_schema(target_schema_path: Path) -> pa.Schema:
+    if target_schema_path.exists():
+        return pq.read_schema(target_schema_path)
+    return pipeline.CANONICAL_ARROW_SCHEMA
+
+
+def score_rows_with_corpus_clean(
+    rows: list[dict[str, Any]],
+    *,
+    dataset_name: str,
+    clean_num_threads: int,
+    greek_badness_max: float,
+) -> tuple[list[dict[str, Any]], int]:
+    from glossapi import Corpus  # lazy import; only needed on worker builds
+
+    with tempfile.TemporaryDirectory(prefix=f"corpus_clean_{dataset_name.replace('/', '_')}_") as tmpdir:
+        tmp_root = Path(tmpdir)
+        corpus = Corpus(input_dir=tmp_root / "input", output_dir=tmp_root / "output")
+        filename_map: dict[str, dict[str, Any]] = {}
+        for idx, row in enumerate(rows):
+            stem = f"doc_{idx:06d}"
+            md_path = corpus.markdown_dir / f"{stem}.md"
+            md_path.parent.mkdir(parents=True, exist_ok=True)
+            md_path.write_text(row["text"].strip() + "\n", encoding="utf-8")
+            filename_map[f"{stem}.pdf"] = row
+        corpus.clean(
+            input_dir=corpus.markdown_dir,
+            drop_bad=False,
+            write_cleaned_files=False,
+            num_threads=clean_num_threads,
+        )
+        parquet_path = corpus.output_dir / "download_results" / "download_results.parquet"
+        frame = pd.read_parquet(parquet_path)
+        kept: list[dict[str, Any]] = []
+        dropped_badness = 0
+        for record in frame.to_dict("records"):
+            filename = str(record.get("filename") or "")
+            row = filename_map.get(filename)
+            if row is None:
+                continue
+            for field in (
+                "greek_percentage",
+                "latin_percentage",
+                "polytonic_ratio",
+                "table_ratio",
+                "greek_badness_score",
+                "len_greek",
+                "mojibake_badness_score",
+                "needs_ocr",
+                "is_empty",
+                "filter",
+                "ocr_success",
+                "quality_method",
+                "reevaluated_at",
+            ):
+                if field in record:
+                    row[field] = record[field]
+            if row.get("quality_method") in (None, ""):
+                row["quality_method"] = "corpus.clean"
+            score = row.get("greek_badness_score")
+            if score not in (None, "") and float(score) > greek_badness_max:
+                dropped_badness += 1
+                continue
+            kept.append(row)
+    return kept, dropped_badness
+
+
+def score_rows(
+    rows: list[dict[str, Any]],
+    *,
+    dataset_name: str,
+    quality_mode: str,
+    clean_num_threads: int,
+    greek_badness_max: float,
+) -> tuple[list[dict[str, Any]], int]:
+    if not rows:
+        return [], 0
+    if quality_mode == "score_only":
+        scored = pipeline.batch_score_missing_quality(rows, dataset_name)
+        dropped_badness = 0
+        if greek_badness_max is not None:
+            kept = []
+            for item in scored:
+                score = item.get("greek_badness_score")
+                if score not in (None, "") and float(score) > greek_badness_max:
+                    dropped_badness += 1
+                    continue
+                kept.append(item)
+            scored = kept
+        return scored, dropped_badness
+    return score_rows_with_corpus_clean(
+        rows,
+        dataset_name=dataset_name,
+        clean_num_threads=clean_num_threads,
+        greek_badness_max=greek_badness_max,
+    )
 
 
 class PartWriter:
@@ -253,14 +355,17 @@ def process_shard(
     rows_per_part: int,
     data_root: Path,
     target_schema_path: Path,
+    quality_mode: str,
+    greek_badness_max: float,
+    clean_num_threads: int,
     max_docs: int | None,
     max_chars: int | None,
     log_every_rows: int,
 ) -> ShardResult:
     quality_bin = shard_quality_bin(shard)
     if quality_bin < quality_min:
-        return ShardResult(shard, quality_bin, 0, 0, 0, 0, 0, [])
-    target_schema = pq.read_schema(target_schema_path)
+        return ShardResult(shard, quality_bin, 0, 0, 0, 0, 0, 0, [])
+    target_schema = load_target_schema(target_schema_path)
     target_columns = list(target_schema.names)
     writer = PartWriter(
         data_root=data_root,
@@ -272,7 +377,7 @@ def process_shard(
     )
     url = base_url.rstrip('/') + '/' + shard
     batch: list[dict[str, Any]] = []
-    rows_seen = rows_kept = rows_skipped_mt = rows_skipped_empty = rows_written = 0
+    rows_seen = rows_kept = rows_skipped_mt = rows_skipped_badness = rows_skipped_empty = rows_written = 0
     chars_kept = 0
     for raw_row in stream_hplt_rows(url):
         rows_seen += 1
@@ -296,11 +401,19 @@ def process_shard(
                 'rows_seen': rows_seen,
                 'rows_kept': rows_kept,
                 'rows_skipped_mt': rows_skipped_mt,
+                'rows_skipped_badness': rows_skipped_badness,
                 'rows_skipped_empty': rows_skipped_empty,
                 'rows_written_so_far': rows_written,
             }, ensure_ascii=False), flush=True)
         if len(batch) >= batch_size:
-            scored = pipeline.batch_score_missing_quality(batch, dataset_name)
+            scored, dropped_badness = score_rows(
+                batch,
+                dataset_name=dataset_name,
+                quality_mode=quality_mode,
+                clean_num_threads=clean_num_threads,
+                greek_badness_max=greek_badness_max,
+            )
+            rows_skipped_badness += dropped_badness
             for item in scored:
                 item['is_historical_or_polytonic'] = pipeline.derive_historical_flag(dataset_name, polytonic_ratio=item.get('polytonic_ratio'))
                 item['is_empty'] = False if pipeline.clean_text(item.get('text')) else True
@@ -312,7 +425,14 @@ def process_shard(
         if max_chars is not None and chars_kept >= max_chars:
             break
     if batch:
-        scored = pipeline.batch_score_missing_quality(batch, dataset_name)
+        scored, dropped_badness = score_rows(
+            batch,
+            dataset_name=dataset_name,
+            quality_mode=quality_mode,
+            clean_num_threads=clean_num_threads,
+            greek_badness_max=greek_badness_max,
+        )
+        rows_skipped_badness += dropped_badness
         for item in scored:
             item['is_historical_or_polytonic'] = pipeline.derive_historical_flag(dataset_name, polytonic_ratio=item.get('polytonic_ratio'))
             item['is_empty'] = False if pipeline.clean_text(item.get('text')) else True
@@ -325,6 +445,7 @@ def process_shard(
         rows_seen=rows_seen,
         rows_kept=rows_kept,
         rows_skipped_mt=rows_skipped_mt,
+        rows_skipped_badness=rows_skipped_badness,
         rows_skipped_empty=rows_skipped_empty,
         rows_written=rows_written,
         part_files=[str(path) for path in writer.created],
@@ -405,6 +526,9 @@ def main() -> None:
                     rows_per_part=args.rows_per_part,
                     data_root=data_root,
                     target_schema_path=SCHEMA_SOURCE,
+                    quality_mode=args.quality_mode,
+                    greek_badness_max=args.greek_badness_max,
+                    clean_num_threads=args.clean_num_threads,
                     max_docs=args.max_docs,
                     max_chars=args.max_chars,
                     log_every_rows=args.log_every_rows,
@@ -425,6 +549,9 @@ def main() -> None:
                     rows_per_part=args.rows_per_part,
                     data_root=data_root,
                     target_schema_path=SCHEMA_SOURCE,
+                    quality_mode=args.quality_mode,
+                    greek_badness_max=args.greek_badness_max,
+                    clean_num_threads=args.clean_num_threads,
                     max_docs=args.max_docs,
                     max_chars=args.max_chars,
                     log_every_rows=args.log_every_rows,
@@ -447,6 +574,9 @@ def main() -> None:
         'quality_min': args.quality_min,
         'exclude_main_register': sorted(set(args.exclude_main_register)),
         'require_filter': args.require_filter,
+        'quality_mode': args.quality_mode,
+        'greek_badness_max': args.greek_badness_max,
+        'clean_num_threads': args.clean_num_threads,
         'removed_existing_parts': [str(path) for path in removed],
         'shards': [asdict(item) for item in results],
         'part_file_count': len(part_files),

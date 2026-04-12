@@ -9,11 +9,12 @@ project:
     BPE units from curated Greek corpora. HPLT enters the workflow by being
     filtered, normalized into the canonical GlossAPI source-parquet schema,
     uploaded into the upstream HF dataset, and then consumed by the lightweight
-    CPT/tokenizer builder. The tokenizer critical path can proceed from the
-    local prepared dataset without waiting for the HF upload to finish.
+    CPT/tokenizer builder. Discovery uses true BPE learning with Apertus-matched
+    front-end tokenization behavior, then merges back only the selected new BPE
+    units into Apertus through model.vocab and model.merges.
 
 status:
-  current_stage: parallel_local_tokenizer_prep_and_hplt_upload
+  current_stage: gcp_worker_tokenizer_prep_and_parallel_hplt_upload
   shipping_method:
     target: merge_rule_bpe_extension
     not_allowed:
@@ -26,7 +27,12 @@ status:
       - fertility_sanity_check
       - evidence_that_greek_adaptation_is_worth_doing
       - negative_control_against_true_merge_extension
-  next_gate: freeze_local_manifests_and_literal_apertus_replication_checklist
+  execution_boundary:
+    coordination_host: home
+    coordination_host_must_not_run_worker_jobs: true
+    tokenizer_worker_platform: gcp
+    tokenizer_worker_lifecycle: minimal_instance_stop_when_done
+  next_gate: freeze_worker_manifests_and_literal_apertus_replication_checklist
 
 dataset_integration:
   upstream_hf_dataset:
@@ -123,7 +129,9 @@ apertus_compatibility:
     do_not_change_first_1000_ids: true
     do_not_change_special_token_behavior: true
     do_not_change_regex_or_byte_level_regime: true
+    preserve_exact_front_end_behavior_during_discovery: true
     extend_through_model_vocab_and_model_merges: true
+    do_not_ship_added_tokens_path: true
   model_resize:
     tie_word_embeddings: false
     resize_embed_tokens: true
@@ -137,6 +145,7 @@ corpus:
     glossapi_share: 70
     hplt_share: 30
     unit: training_token_mass
+    apply_after_filtering: true
   nanochat:
     role: primary_downstream_aligned_greek_corpus
     source: upstream_hf_dataset_builder_output
@@ -154,6 +163,10 @@ corpus:
         - 9
         - 10
       note: bins_below_8_currently_look_not_worth_keeping
+    corpus_clean_filter:
+      required: true
+      tool: glossapi_corpus_clean
+      drop_when_greek_badness_score_gt: 60
     content_filter:
       status: decided
       exclude_main_register_codes:
@@ -208,7 +221,7 @@ corpus:
 execution:
   parallel_tracks:
     tokenizer_critical_path:
-      - freeze_local_training_manifests
+      - freeze_worker_training_manifests
       - verify_openarchives_needs_ocr_exclusion
       - freeze_eval_manifests
       - lock_literal_apertus_replication_checklist
@@ -218,12 +231,24 @@ execution:
       - run_cutoff_sweep
       - implement_merge_rule_extension
     dataset_operational_sidetrack:
-      - keep_hplt_upload_running
-      - rerun_local_prepared_source_dataset_with_hplt_included
+      - rebuild_and_upload_corrected_hplt_slice_on_gcp
+      - rerun_prepared_source_dataset_with_hplt_included
       - refresh_published_dedup_metadata_later
   upload_blocking_policy:
     hf_upload_must_not_block_local_tokenizer_progress: true
     dedup_metadata_refresh_must_not_block_local_tokenizer_progress: true
+
+tokenizer_experiments:
+  discovery_tokenizer:
+    vocab_size: 50000
+    purpose: overgenerate_candidate_bpe_units_before_merge_back_selection
+    learning_mode: true_bpe_training
+    forbid_surface_form_frequency_additions: true
+    must_match_apertus_front_end_behavior: true
+  merge_back:
+    selection_happens_after_discovery: true
+    may_drop_short_or_low_value_units_before_apertus_merge: true
+    final_new_token_count_expected_to_be_much_less_than_50000: true
 
 review:
   manual_training_sample_review:
@@ -253,6 +278,15 @@ evaluation:
     - nanochat_eval
     - hplt_eval
     - modern_greek_eval
+  fertility_tests:
+    run_on: apertus_compatible_merged_variants
+    not_on: raw_discovery_tokenizer_alone
+    cutoff_targets:
+      - 5000
+      - 10000
+      - 15000
+      - 20000
+    final_whole_tokenizer_vocab_must_be_divisible_by: 128
   optional_sets:
     - polytonic_stress_eval
   constraints:
@@ -279,10 +313,10 @@ bpe_discovery:
 extension_selection:
   analytic_cutoff_sweep:
     requested_new_token_counts:
-      - 5000
-      - 10000
-      - 15000
-      - 20000
+      - 10240
+      - 15360
+      - 20480
+      - 25600
   shipped_build:
     align_final_new_token_count_to_multiple_of: 128
     pick_smallest_size_that_captures_most_greek_gain: true

@@ -36,6 +36,8 @@ Upload-ready HPLT parquet file(s) in the canonical schema used by:
 
 The shipped HPLT slice must:
 - exclude `Machine translated or generated`
+- run real `Corpus.clean(..., write_cleaned_files=False, drop_bad=False)` scoring
+- drop rows with `greek_badness_score > 60`
 - preserve the canonical top-level columns
 - map HPLT-specific provenance into `source_metadata_json`
 

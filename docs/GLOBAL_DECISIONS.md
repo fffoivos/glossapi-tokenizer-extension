@@ -37,6 +37,8 @@ This means:
 - that cleaning/dedup work is owned by the upstream dataset pipeline, not by a separate tokenizer-project builder stage
 - HPLT should be sampled with metadata awareness, not raw prefix sampling
 - HPLT should currently be treated with a provisional `>=8` quality-bin filter
+- after that metadata filter, HPLT must also run through real `corpus.clean`-compatible quality scoring before it is accepted as the tokenizer/CPT slice
+- rows with `greek_badness_score > 60` must be excluded from the HPLT tokenizer/CPT slice
 - HPLT documents labeled `Machine translated or generated` must be excluded from the final training dataset
 - same-source overlap between GlossAPI and HPLT should be reduced before final freeze
 - `openarchives.gr` rows with `needs_ocr == true` must remain excluded from the CPT-ready dataset used for tokenizer work
@@ -49,8 +51,19 @@ Use the existing dataset-build scripts as the operational path. Do not invent a 
 
 - compare `GlossAPI-only` vs `GlossAPI + HPLT`
 - use a discovery tokenizer vocab fixed at `50k` for the first discovery runs
-- run analytic cutoffs around `5k`, `10k`, `15k`, `20k`
+- the `50k` stage is discovery only, not the final number of new Apertus tokens
+- discovery must use true `BPE` learning, not word-frequency additions or `add_tokens(...)`
+- preserve the Apertus front-end behavior during discovery: same normalization, same regex split, same byte-level regime
+- after discovery, diff learned units against Apertus and drop units that should not be merged back as new tokenizer entries
+- run analytic cutoffs in the `10k` to `25k` region on Apertus-compatible merged variants
+- the current working cutoff grid is:
+  - `10240`
+  - `15360`
+  - `20480`
+  - `25600`
+- fertility tests must be run on those merged Apertus-compatible variants, not on a raw standalone discovery tokenizer
 - only snap the shipped build to a `128`-aligned size after the elbow is identified
+- the divisibility rule applies to the whole final tokenizer, not just the newly added units
 - tokenizer experiments should read from the same CPT-ready dataset used for continued pretraining
 - the mixed `GlossAPI + HPLT` view should use a `70/30` split by training-token mass
 
@@ -58,13 +71,21 @@ Use the existing dataset-build scripts as the operational path. Do not invent a 
 
 There are now two parallel tracks:
 
+Execution boundary:
+- `home` is coordination-only for this project
+- do not run tokenizer filtering, export, or training workloads on `home`
+- operational tokenizer work should run on GCP workers and be stopped when done
+
 1. Tokenizer critical path
-- freeze local downstream manifests from the local CPT-ready dataset
+- freeze downstream manifests from the CPT-ready dataset
 - freeze eval manifests
 - lock the literal Apertus tokenizer-replication checklist
-- export local BPE-training text
-- train discovery tokenizers
-- implement merge-rule extension
+- export BPE-training text on the chosen worker
+- train discovery tokenizers on the chosen worker
+- diff learned units against Apertus
+- assemble Apertus-compatible merged tokenizer variants
+- run fertility tests at multiple cutoffs
+- implement the final merge-rule extension
 
 2. Dataset operational sidetrack
 - finish uploading the filtered HPLT slice into the upstream HF dataset
