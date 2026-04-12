@@ -14,6 +14,8 @@ Parallel execution:
 - `openarchives.gr` rows with `needs_ocr == true` must stay excluded from the CPT-ready dataset used for tokenizer work
 - HPLT is being prepared for the upstream HF corpus dataset, not as a separate tokenizer-only corpus
 - the downstream CPT/tokenizer builder is expected to stay lightweight after HF download
+- the first discovery tokenizer runs are locked to `50k` vocab
+- the mixed `GlossAPI + HPLT` tokenizer view is locked to `70/30` by training-token mass
 - local tokenizer progress does not need to wait for the HF upload to finish once the filtered HPLT parquet slice exists locally
 - the workspace has now been split into smaller subprojects
 

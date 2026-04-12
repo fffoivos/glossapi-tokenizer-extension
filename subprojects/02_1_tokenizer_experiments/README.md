@@ -6,8 +6,9 @@ Research the tokenizer discovery experiments before implementation is frozen.
 
 ## Already Decided
 
-- discovery tokenizers should use a working vocab around `40k-50k`
+- discovery tokenizers should use a working vocab fixed at `50k` for the first runs
 - compare `GlossAPI-only` vs `GlossAPI + HPLT`
+- the mixed view uses `70/30` GlossAPI/HPLT by training-token mass
 - evaluate candidate extension sizes analytically around:
   - `5k`
   - `10k`

@@ -4,7 +4,7 @@
 
 1. Freeze the local downstream builder inputs for:
 - `GlossAPI-only`
-- `GlossAPI + HPLT`
+- `GlossAPI + HPLT` at `70/30` by training-token mass
 
 2. Verify that `openarchives.gr` rows with `needs_ocr == true` are still excluded from the CPT-ready local dataset used for tokenizer work.
 

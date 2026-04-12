@@ -9,7 +9,7 @@ Freeze the training and eval corpus views that will feed tokenizer discovery, us
 - compare two tokenizer-training views:
   - `GlossAPI-only`
   - `GlossAPI + HPLT`
-- HPLT should initially be matched roughly to nanochat scale
+- the mixed `GlossAPI + HPLT` tokenizer-training view should use a `70/30` split by training-token mass
 - held-out evaluation documents must not overlap with training documents
 - the `200`-document human review should come from the filtered upload-candidate pool or the refreshed CPT-ready dataset
 - downstream mixing should happen after HPLT has already been normalized into the canonical source-parquet schema

@@ -48,10 +48,11 @@ Use the existing dataset-build scripts as the operational path. Do not invent a 
 ## Experimental Structure
 
 - compare `GlossAPI-only` vs `GlossAPI + HPLT`
-- use a discovery tokenizer vocab around `40k-50k`
+- use a discovery tokenizer vocab fixed at `50k` for the first discovery runs
 - run analytic cutoffs around `5k`, `10k`, `15k`, `20k`
 - only snap the shipped build to a `128`-aligned size after the elbow is identified
 - tokenizer experiments should read from the same CPT-ready dataset used for continued pretraining
+- the mixed `GlossAPI + HPLT` view should use a `70/30` split by training-token mass
 
 ## Execution Structure
 
@@ -73,7 +74,6 @@ There are now two parallel tracks:
 
 ## Open Decisions
 
-- exact HPLT mixing ratio
 - exact HPLT-to-canonical-schema field mapping inside `source_metadata_json`
 - exact literal tokenizer replication checklist beyond the already confirmed settings
 - new-row initialization method

@@ -133,6 +133,10 @@ corpus:
   training_views:
     - glossapi_only
     - glossapi_plus_hplt
+  mixed_view_policy:
+    glossapi_share: 70
+    hplt_share: 30
+    unit: training_token_mass
   nanochat:
     role: primary_downstream_aligned_greek_corpus
     source: upstream_hf_dataset_builder_output
@@ -259,9 +263,7 @@ bpe_discovery:
   training_method: true_greek_bpe_training
   training_data_source: same_cpt_ready_dataset_used_for_apertus_continued_pretraining
   must_match_apertus_pretokenization: true
-  working_vocab_target_range:
-    min: 40000
-    max: 50000
+  working_vocab_target: 50000
   training_variants:
     - glossapi_only
     - glossapi_plus_hplt
