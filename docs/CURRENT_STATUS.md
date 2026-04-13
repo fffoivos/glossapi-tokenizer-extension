@@ -5,6 +5,7 @@
 Parallel execution:
 - tokenizer-spec freeze and GCP worker setup for the corrected HPLT rebuild
 - tokenizer-data preparation from the corrected CPT-ready dataset once that slice exists
+- plan-level separation of a cheap uploader-instance sidetrack for final HF publication
 
 ## What Is Settled
 
@@ -17,6 +18,7 @@ Parallel execution:
 - the first discovery tokenizer runs are locked to `50k` vocab
 - the mixed `GlossAPI + HPLT` tokenizer view is locked to `70/30` by training-token mass
 - local tokenizer progress does not need to wait for the HF upload to finish once the filtered HPLT parquet slice exists locally
+- final HF publication should happen from a separate cheap uploader instance using the official large-folder HF upload path
 - the workspace has now been split into smaller subprojects
 
 ## What Exists Now
@@ -37,6 +39,7 @@ Parallel execution:
 - no true Greek `BPE` discovery tokenizer
 - no implemented merge-rule extension
 - no model adaptation plan beyond high-level constraints
+- no armed cheap-instance uploader track yet for publishing the full updated dataset snapshot plus refreshed dedup metadata
 
 ## Current Trust Boundary
 

@@ -25,6 +25,7 @@ This means:
 - HPLT must be integrated into `fffoivos/glossapi-greek-nanochat-pretraining-dataset`
 - the integration target is the upstream broad corpus stage under `data/*.parquet`
 - HPLT must be uploaded in the existing canonical `21`-column source-parquet schema
+- the published source parquets remain undeduplicated; deduplication is applied downstream through refreshed `dedup_metadata`
 - HPLT-specific provenance should live in `source_metadata_json`
 - `title` and `author` should only be promoted to top-level if they are credibly available
 - the downstream builder should stay lightweight after HF download
@@ -46,6 +47,17 @@ This means:
 ## Operational Constraint
 
 Use the existing dataset-build scripts as the operational path. Do not invent a second independent release builder when the current work can be expressed through the existing release pipeline and overlays.
+
+## Upload Constraint
+
+- dataset publication must run on a separate cheap uploader instance, not on the tokenizer worker
+- that uploader track must stay independent of the tokenizer critical path
+- the uploader payload must include:
+  - the complete filtered HPLT source parquet slice
+  - the refreshed `dedup_metadata` bundle so downstream builder-time dedup works
+- the upload path should use the official Hugging Face large-folder upload mechanism, not an ad hoc custom uploader
+- `publish_hf_release.py` is the intended upload entrypoint and should use the official large-folder upload strategy
+- the upload instance should be configured for Xet-backed uploads when available
 
 ## Experimental Structure
 

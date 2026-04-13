@@ -39,6 +39,7 @@ dataset_integration:
     repo_id: fffoivos/glossapi-greek-nanochat-pretraining-dataset
     stage: broad_canonical_source_parquets
     path_glob: data/*.parquet
+    published_source_parquets_are_undeduplicated: true
   downstream_builder:
     role: lightweight_subset_mix_split_and_chunk_builder
     must_not_redefine_cleaning_or_dedup_policy: true
@@ -75,6 +76,21 @@ dataset_integration:
       - /home/foivos/data/glossapi_work/assemble_hf_release.py
       - /home/foivos/data/glossapi_work/prepare_publish_release.py
       - /home/foivos/data/glossapi_work/publish_hf_release.py
+  uploader_track:
+    separate_from_tokenizer_worker: true
+    instance_profile: cheap_single_purpose_uploader
+    lifecycle: create_or_start_for_upload_then_stop
+    must_not_block_tokenizer_critical_path: true
+    staged_payload:
+      - complete_filtered_hplt_source_parquets
+      - refreshed_dedup_metadata_bundle
+    upload_method:
+      script: /home/foivos/data/glossapi_work/publish_hf_release.py
+      huggingface_api_path: HfApi.upload_large_folder
+      prefer_xet_backend_when_available: true
+      preferred_high_performance_env:
+        - HF_XET_HIGH_PERFORMANCE=1
+      note: use_official_large_folder_upload_path_for_large_dataset_publication
 
 apertus_compatibility:
   tokenizer_family: BPE
@@ -234,6 +250,8 @@ execution:
       - rebuild_and_upload_corrected_hplt_slice_on_gcp
       - rerun_prepared_source_dataset_with_hplt_included
       - refresh_published_dedup_metadata_later
+      - stage_release_on_separate_cheap_uploader_instance
+      - publish_release_with_official_hf_large_folder_upload
   upload_blocking_policy:
     hf_upload_must_not_block_local_tokenizer_progress: true
     dedup_metadata_refresh_must_not_block_local_tokenizer_progress: true

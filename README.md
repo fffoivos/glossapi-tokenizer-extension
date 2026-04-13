@@ -15,7 +15,7 @@ The old whole-word `add_tokens(...)` sweep is retained only as a legacy baseline
 
 There are two parallel tracks:
 - tokenizer critical path: freeze local manifests, freeze the literal Apertus tokenizer spec, export local BPE-training text, run discovery tokenizers, and implement the merge-rule extension
-- dataset operational sidetrack: finish HPLT upload, rerun the local prepared-source dataset with HPLT included using the existing dataset scripts, and refresh published dedup metadata later
+- dataset operational sidetrack: finish HPLT filtering and integration work, refresh published dedup metadata, and publish the updated upstream dataset from a separate cheap uploader instance using the official large-folder HF upload path
 
 The tokenizer critical path does not need to wait for the HF upload once the filtered HPLT slice exists locally on `home`.
 
