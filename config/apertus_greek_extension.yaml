@@ -88,8 +88,11 @@ dataset_integration:
       script: /home/foivos/data/glossapi_work/publish_hf_release.py
       huggingface_api_path: HfApi.upload_large_folder
       prefer_xet_backend_when_available: true
-      preferred_high_performance_env:
+      optional_high_performance_env:
         - HF_XET_HIGH_PERFORMANCE=1
+      high_performance_mode_requires:
+        - high_bandwidth_path
+        - at_least_64gb_ram
       note: use_official_large_folder_upload_path_for_large_dataset_publication
 
 apertus_compatibility:
