@@ -11,7 +11,7 @@ import sqlite3
 import time
 import unicodedata
 from collections import defaultdict, deque
-from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, wait
+from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, as_completed, wait
 from concurrent.futures.process import BrokenProcessPool
 from dataclasses import dataclass
 try:
@@ -86,6 +86,7 @@ DEFAULT_MAX_BUCKET_SIZE = 5000
 DEFAULT_NEAR_CLUSTER_CHUNK_DOCS = 4096
 DEFAULT_NEAR_CLUSTER_MAX_COMPONENTS = 256
 DEFAULT_NEAR_CANDIDATE_MAX_WORKERS = 8
+DEFAULT_NEAR_CANDIDATE_PARTITION_MAX_WORKERS = 8
 NEAR_CANDIDATE_BUCKET_PREFIX_LEN = 1
 SHORT_DOC_TOKEN_THRESHOLD = 20
 DEFAULT_EDGE_AUDIT_SAMPLE_SIZE = 256
@@ -113,6 +114,19 @@ def near_candidate_worker_cap() -> int:
         raise ValueError("GLOSSAPI_NEAR_CANDIDATE_MAX_WORKERS must be an integer") from exc
     if value < 1:
         raise ValueError("GLOSSAPI_NEAR_CANDIDATE_MAX_WORKERS must be >= 1")
+    return value
+
+
+def near_candidate_partition_worker_cap() -> int:
+    raw = os.environ.get("GLOSSAPI_NEAR_CANDIDATE_PARTITION_MAX_WORKERS", "").strip()
+    if not raw:
+        return DEFAULT_NEAR_CANDIDATE_PARTITION_MAX_WORKERS
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise ValueError("GLOSSAPI_NEAR_CANDIDATE_PARTITION_MAX_WORKERS must be an integer") from exc
+    if value < 1:
+        raise ValueError("GLOSSAPI_NEAR_CANDIDATE_PARTITION_MAX_WORKERS must be >= 1")
     return value
 
 RELAXED_TRANSLATION = str.maketrans(
@@ -5079,6 +5093,31 @@ def _run_near_candidate_stage(
         if previous_run_root is not None
         else {}
     )
+    pending_band_indexes = sorted(pending_chunks_by_band)
+    partition_worker_count = effective_worker_count(
+        min(max_workers, near_candidate_partition_worker_cap()),
+        len(pending_band_indexes),
+    )
+    if partition_worker_count == 1:
+        for band_index in pending_band_indexes:
+            prefixes = prepare_candidate_bucket_partitions_for_band(stage_root, band_index=band_index)
+            append_debug_trace(
+                trace_path,
+                f"near_candidates:partitions_ready band={band_index:02d} prefixes={len(prefixes)}",
+            )
+    elif pending_band_indexes:
+        with ProcessPoolExecutor(max_workers=partition_worker_count, mp_context=PROCESS_POOL_CONTEXT) as executor:
+            future_map = {
+                executor.submit(prepare_candidate_bucket_partitions_for_band, stage_root, band_index=band_index): band_index
+                for band_index in pending_band_indexes
+            }
+            for future in as_completed(future_map):
+                band_index = future_map[future]
+                prefixes = future.result()
+                append_debug_trace(
+                    trace_path,
+                    f"near_candidates:partitions_ready band={band_index:02d} prefixes={len(prefixes)}",
+                )
     worker_count = effective_worker_count(min(max_workers, near_candidate_worker_cap()), len(pending_chunks))
     append_debug_trace(
         trace_path,
@@ -5086,12 +5125,7 @@ def _run_near_candidate_stage(
     )
     if worker_count == 1:
         signature_map, signature_meta = load_signature_index(signatures_path)
-        for band_index in sorted(pending_chunks_by_band):
-            prefixes = prepare_candidate_bucket_partitions_for_band(stage_root, band_index=band_index)
-            append_debug_trace(
-                trace_path,
-                f"near_candidates:partitions_ready band={band_index:02d} prefixes={len(prefixes)}",
-            )
+        for band_index in pending_band_indexes:
             for chunk_spec in pending_chunks_by_band[band_index]:
                 bucket_prefix = str(chunk_spec["bucket_prefix"])
                 result = build_candidate_band_chunk(
@@ -5198,12 +5232,7 @@ def _run_near_candidate_stage(
                         )
 
                 submit_buffer = max(worker_count * 2, worker_count)
-                for band_index in sorted(pending_chunks_by_band):
-                    prefixes = prepare_candidate_bucket_partitions_for_band(stage_root, band_index=band_index)
-                    append_debug_trace(
-                        trace_path,
-                        f"near_candidates:partitions_ready band={band_index:02d} prefixes={len(prefixes)}",
-                    )
+                for band_index in pending_band_indexes:
                     for chunk_spec in pending_chunks_by_band[band_index]:
                         future = executor.submit(
                             build_candidate_band_chunk,
