@@ -91,6 +91,12 @@ Parallel execution:
 - uploader handoff no longer has to wait for dedup to exist:
   - the repo now supports `source_only` handoff preparation for the corrected HPLT/source release snapshot
   - uploader staging now respects the manifest `sync_paths` instead of blindly syncing the entire working release root
+- because the cheap uploader host is currently unreachable, source-only HF publication is temporarily running from the active GCP worker:
+  - staged source-only root:
+    - `/home/foivos/data/glossapi_work/hf_upload_stage_source_only/hf_release_publish`
+  - live upload log:
+    - `/home/foivos/data/glossapi_work/logs/hf_upload_source_only_20260414.log`
+  - this is an operational fallback, not the intended permanent uploader topology
 - builder replay has one important efficiency guard now in place:
   - when `builder_metadata_v2` exports family membership, builder replay no longer loads `near_candidate_pairs.parquet` unnecessarily
 - the downstream builder/tokenizer efficiency plan is now tracked explicitly in:

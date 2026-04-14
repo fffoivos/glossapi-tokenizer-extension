@@ -88,6 +88,11 @@
 - preserve builder semantics while reducing unnecessary bundle loads
 - benchmark tokenizer throughput on worker hardware before freezing runtime defaults
 
+11. Treat the current worker-side source-only upload as an explicit temporary fallback:
+- the intended permanent target is still the separate cheap uploader host
+- while that host is unreachable, keep the worker upload low-priority and isolated from dedup
+- once the cheap uploader host is reachable again, move the publication path back there
+
 ## Immediate Risks
 
 - the exploratory HPLT review sample is not the same thing as the final upload-ready HPLT slice
