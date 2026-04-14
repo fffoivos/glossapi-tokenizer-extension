@@ -42,6 +42,8 @@ class LinuxProcessSampler:
         self._thread: threading.Thread | None = None
         self.peak_self_rss_kb = 0
         self.peak_total_child_rss_kb = 0
+        self.peak_self_pss_kb = 0
+        self.peak_total_child_pss_kb = 0
         self.peak_child_count = 0
 
     def _read_rss_kb(self, pid: int) -> int:
@@ -51,6 +53,18 @@ class LinuxProcessSampler:
                     if line.startswith("VmRSS:"):
                         return int(line.split()[1])
         except FileNotFoundError:
+            return 0
+        return 0
+
+    def _read_pss_kb(self, pid: int) -> int:
+        try:
+            with open(f"/proc/{pid}/smaps_rollup", encoding="utf-8") as handle:
+                for line in handle:
+                    if line.startswith("Pss:"):
+                        return int(line.split()[1])
+        except FileNotFoundError:
+            return 0
+        except PermissionError:
             return 0
         return 0
 
@@ -88,10 +102,13 @@ class LinuxProcessSampler:
     def _loop(self) -> None:
         while not self._stop.is_set():
             self.peak_self_rss_kb = max(self.peak_self_rss_kb, self._read_rss_kb(self.pid))
+            self.peak_self_pss_kb = max(self.peak_self_pss_kb, self._read_pss_kb(self.pid))
             child_pids = self._descendant_pids()
             total_child_rss = sum(self._read_rss_kb(child_pid) for child_pid in child_pids)
+            total_child_pss = sum(self._read_pss_kb(child_pid) for child_pid in child_pids)
             self.peak_child_count = max(self.peak_child_count, len(child_pids))
             self.peak_total_child_rss_kb = max(self.peak_total_child_rss_kb, total_child_rss)
+            self.peak_total_child_pss_kb = max(self.peak_total_child_pss_kb, total_child_pss)
             time.sleep(0.1)
 
     def __enter__(self) -> "LinuxProcessSampler":
@@ -311,6 +328,7 @@ def run_near_candidate_efficiency_smoke(
     finally:
         conn.close()
     peak_total_child_rss_mb = sampler.peak_total_child_rss_kb / 1024.0
+    peak_total_child_pss_mb = sampler.peak_total_child_pss_kb / 1024.0
     if max_total_rss_mb is not None and peak_total_child_rss_mb > max_total_rss_mb:
         raise RuntimeError(
             f"near_candidates peak child RSS exceeded limit: {peak_total_child_rss_mb:.1f} MB > {max_total_rss_mb:.1f} MB"
@@ -325,6 +343,7 @@ def run_near_candidate_efficiency_smoke(
         "elapsed_seconds": round(elapsed, 3),
         "peak_child_count": int(sampler.peak_child_count),
         "peak_total_child_rss_mb": round(peak_total_child_rss_mb, 3),
+        "peak_total_child_pss_mb": round(peak_total_child_pss_mb, 3),
         "summary": summary,
     }
 

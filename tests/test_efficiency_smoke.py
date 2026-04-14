@@ -39,4 +39,5 @@ def test_efficiency_smoke_harness_runs(tmp_path: Path) -> None:
     assert summary["near_candidates"]["requested_workers"] == 12
     assert summary["near_candidates"]["capped_workers"] == 8
     assert summary["near_candidates"]["start_method"] in {"spawn", "fork"}
+    assert summary["near_candidates"]["peak_total_child_pss_mb"] >= 0
     assert summary["near_candidates"]["summary"]["candidate_pair_rows"] > 0
