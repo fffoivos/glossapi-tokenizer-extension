@@ -1657,3 +1657,59 @@ def test_full_dedup_pipeline_splits_weak_member_from_multi_doc_near_component(tm
     assert decisions_by_id["relaxed-2"]["decision_stage"] == text_dedup.RELAXED_STAGE
     assert decisions_by_id["short"]["decision_stage"] == "kept_after_exact"
     assert candidate_doc_pairs
+
+
+def test_near_dedup_accepts_high_similarity_pair_even_when_length_ratio_is_low(tmp_path: Path) -> None:
+    input_root = tmp_path / "input"
+    state_root = tmp_path / "state"
+    run_root = tmp_path / "run"
+
+    short_tokens = ["αλφα", "βητα"] * 40
+    long_tokens = ["αλφα", "βητα"] * 120
+    rows = [
+        make_test_row("demo", "book", " ".join(long_tokens)),
+        make_test_row("demo", "chapter", " ".join(short_tokens)),
+    ]
+    write_test_snapshot(input_root / "demo.parquet", rows)
+
+    payload = text_dedup.run_dedup_pipeline(
+        input_root=input_root,
+        state_root=state_root,
+        run_root=run_root,
+        max_workers=2,
+        minhash_threshold=0.80,
+        num_perm=256,
+        bands=32,
+        rows_per_band=8,
+        shingle_mode="token",
+        shingle_size=2,
+    )
+
+    candidate_pairs = pq.read_table(run_root / "stage_02_near" / "candidate_pairs.parquet").to_pylist()
+    assert len(candidate_pairs) == 1
+    pair = candidate_pairs[0]
+    assert {pair["doc_key_left"], pair["doc_key_right"]} == {
+        text_dedup.stable_doc_key("demo", "book"),
+        text_dedup.stable_doc_key("demo", "chapter"),
+    }
+    assert pair["estimated_jaccard"] >= 0.80
+    assert pair["length_ratio"] < 0.70
+    assert pair["accepted_reason"] == "lsh_threshold"
+    assert pair["likely_containment_flag"] is True
+
+    near_clusters = pq.read_table(run_root / "stage_02_near" / "near_clusters.parquet").to_pylist()
+    near_clusters_by_id = {row["member_source_doc_id"]: row for row in near_clusters}
+    assert near_clusters_by_id["book"]["cluster_size"] == 2
+    assert near_clusters_by_id["chapter"]["cluster_size"] == 2
+    assert near_clusters_by_id["book"]["dropped"] is False
+    assert near_clusters_by_id["chapter"]["dropped"] is True
+    assert near_clusters_by_id["chapter"]["accepted_reason"] == "representative_validation"
+    assert near_clusters_by_id["chapter"]["length_ratio"] < 0.70
+
+    decisions = pq.read_table(run_root / "final" / "dedup_decisions.parquet").to_pylist()
+    decisions_by_id = {row["source_doc_id"]: row for row in decisions}
+    assert decisions_by_id["book"]["decision"] == "keep"
+    assert decisions_by_id["book"]["decision_stage"] == "kept_after_near"
+    assert decisions_by_id["chapter"]["decision"] == "drop"
+    assert decisions_by_id["chapter"]["decision_stage"] == "near_duplicate"
+    assert payload["near"]["candidates"]["candidate_pair_rows"] == 1

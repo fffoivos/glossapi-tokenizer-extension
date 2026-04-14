@@ -67,6 +67,9 @@ Parallel execution:
   - `16` workers on `m3-megamem-64` (`976 GB`) drove memory to about `955 / 960 GB`
   - the stage still had `0 / 32` completed bands
   - the worker was stopped to preserve state and avoid guest instability
+- the hard near-dedup `length_ratio` admission gate has been removed in the repo-backed code:
+  - high-similarity short-vs-long pairs are now allowed to reach representative selection
+  - `length_ratio` is still preserved as metadata and audit signal
 
 ## What Is Not Done Yet
 

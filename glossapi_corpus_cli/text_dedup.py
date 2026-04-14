@@ -4533,8 +4533,6 @@ def build_candidate_band_chunk(
                     shorter = min(left_token_count, right_token_count)
                     longer = max(left_token_count, right_token_count)
                     length_ratio = 0.0 if longer == 0 else float(shorter / longer)
-                    if length_ratio < 0.70:
-                        continue
                     estimated_jaccard = signature_jaccard(signature_map[left_key], signature_map[right_key])
                     if estimated_jaccard < minhash_threshold:
                         continue
@@ -4548,7 +4546,7 @@ def build_candidate_band_chunk(
                             "token_count_right": int(right_token_count),
                             "length_ratio": float(length_ratio),
                             "likely_containment_flag": bool(length_ratio < 0.85),
-                            "accepted_reason": "lsh_threshold+length_guard",
+                            "accepted_reason": "lsh_threshold",
                             "bucket_match_bands": 1,
                         }
                     )
@@ -4924,7 +4922,7 @@ def _resolve_near_component(
         shorter = min(left_tokens, right_tokens)
         length_ratio = 0.0 if longer == 0 else float(shorter / longer)
         estimated_jaccard = signature_jaccard(signature_map[representative], signature_map[doc_key])
-        if estimated_jaccard >= minhash_threshold and length_ratio >= 0.70:
+        if estimated_jaccard >= minhash_threshold:
             accepted.append(doc_key)
         else:
             weak_members.append(doc_key)
