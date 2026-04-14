@@ -4934,10 +4934,11 @@ def _run_near_candidate_stage(
             trace_path,
             "near_candidates:legacy_chunk_migration:done mode=archive",
         )
+    bucket_prefixes = near_candidate_bucket_prefixes()
     chunk_specs = [
         {"band_index": band_index, "bucket_prefix": bucket_prefix}
         for band_index in range(bands)
-        for bucket_prefix in prepare_candidate_bucket_partitions_for_band(stage_root, band_index=band_index)
+        for bucket_prefix in bucket_prefixes
     ]
     chunk_keys = [
         near_candidate_chunk_key(band_index=int(spec["band_index"]), bucket_prefix=str(spec["bucket_prefix"]))
@@ -4993,6 +4994,9 @@ def _run_near_candidate_stage(
         )
         != "completed"
     ]
+    pending_chunks_by_band: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    for chunk_spec in pending_chunks:
+        pending_chunks_by_band[int(chunk_spec["band_index"])].append(chunk_spec)
     oversized_bucket_count = 0
     oversized_bucket_member_rows = 0
     subdivided_bucket_count = 0
@@ -5037,54 +5041,59 @@ def _run_near_candidate_stage(
     )
     if worker_count == 1:
         signature_map, signature_meta = load_signature_index(signatures_path)
-        for chunk_spec in pending_chunks:
-            band_index = int(chunk_spec["band_index"])
-            bucket_prefix = str(chunk_spec["bucket_prefix"])
-            result = build_candidate_band_chunk(
-                stage_root=stage_root,
-                band_index=band_index,
-                bucket_prefix=bucket_prefix,
-                bands=bands,
-                rows_per_band=rows_per_band,
-                minhash_threshold=minhash_threshold,
-                signature_map=signature_map,
-                signature_meta=signature_meta,
-                previous_band_summary=previous_bucket_summary.get(band_index, {}),
-                previous_stage_root=None if previous_run_root is None else previous_run_root / "stage_02_near",
-                max_bucket_size=max_bucket_size,
+        for band_index in sorted(pending_chunks_by_band):
+            prefixes = prepare_candidate_bucket_partitions_for_band(stage_root, band_index=band_index)
+            append_debug_trace(
+                trace_path,
+                f"near_candidates:partitions_ready band={band_index:02d} prefixes={len(prefixes)}",
             )
-            oversized_bucket_count += int(result["oversized_bucket_count"])
-            oversized_bucket_member_rows += int(result["oversized_bucket_member_rows"])
-            subdivided_bucket_count += int(result["subdivided_bucket_count"])
-            fallback_chunked_bucket_count += int(result["fallback_chunked_bucket_count"])
-            fallback_chunked_member_rows += int(result["fallback_chunked_member_rows"])
-            reused_bucket_count += int(result["reused_bucket_count"])
-            recomputed_bucket_count += int(result["recomputed_bucket_count"])
-            mark_stage_chunk_complete(
-                conn,
-                run_id=run_id,
-                stage=NEAR_CANDIDATE_STAGE,
-                chunk_key=str(result["chunk_key"]),
-                artifact_path=Path(str(result["artifact_path"])),
-                row_count=int(result["row_count"]),
-            )
-            total_chunks, completed_chunks = stage_chunk_counts(conn, run_id=run_id, stage=NEAR_CANDIDATE_STAGE)
-            upsert_stage_progress(
-                conn,
-                run_id=run_id,
-                stage=NEAR_CANDIDATE_STAGE,
-                status="running",
-                total_chunks=total_chunks,
-                completed_chunks=completed_chunks,
-                progress_path=progress_path,
-                payload={
-                    "run_id": run_id,
-                    "stage": NEAR_CANDIDATE_STAGE,
-                    "status": "running",
-                    "total_chunks": total_chunks,
-                    "completed_chunks": completed_chunks,
-                },
-            )
+            for chunk_spec in pending_chunks_by_band[band_index]:
+                bucket_prefix = str(chunk_spec["bucket_prefix"])
+                result = build_candidate_band_chunk(
+                    stage_root=stage_root,
+                    band_index=band_index,
+                    bucket_prefix=bucket_prefix,
+                    bands=bands,
+                    rows_per_band=rows_per_band,
+                    minhash_threshold=minhash_threshold,
+                    signature_map=signature_map,
+                    signature_meta=signature_meta,
+                    previous_band_summary=previous_bucket_summary.get(band_index, {}),
+                    previous_stage_root=None if previous_run_root is None else previous_run_root / "stage_02_near",
+                    max_bucket_size=max_bucket_size,
+                )
+                oversized_bucket_count += int(result["oversized_bucket_count"])
+                oversized_bucket_member_rows += int(result["oversized_bucket_member_rows"])
+                subdivided_bucket_count += int(result["subdivided_bucket_count"])
+                fallback_chunked_bucket_count += int(result["fallback_chunked_bucket_count"])
+                fallback_chunked_member_rows += int(result["fallback_chunked_member_rows"])
+                reused_bucket_count += int(result["reused_bucket_count"])
+                recomputed_bucket_count += int(result["recomputed_bucket_count"])
+                mark_stage_chunk_complete(
+                    conn,
+                    run_id=run_id,
+                    stage=NEAR_CANDIDATE_STAGE,
+                    chunk_key=str(result["chunk_key"]),
+                    artifact_path=Path(str(result["artifact_path"])),
+                    row_count=int(result["row_count"]),
+                )
+                total_chunks, completed_chunks = stage_chunk_counts(conn, run_id=run_id, stage=NEAR_CANDIDATE_STAGE)
+                upsert_stage_progress(
+                    conn,
+                    run_id=run_id,
+                    stage=NEAR_CANDIDATE_STAGE,
+                    status="running",
+                    total_chunks=total_chunks,
+                    completed_chunks=completed_chunks,
+                    progress_path=progress_path,
+                    payload={
+                        "run_id": run_id,
+                        "stage": NEAR_CANDIDATE_STAGE,
+                        "status": "running",
+                        "total_chunks": total_chunks,
+                        "completed_chunks": completed_chunks,
+                    },
+                )
     elif pending_chunks:
         try:
             pool_context, initializer, initargs = candidate_pool_initializer_config(signatures_path)
@@ -5094,26 +5103,19 @@ def _run_near_candidate_stage(
                 initializer=initializer,
                 initargs=initargs,
             ) as executor:
-                future_map = {
-                    executor.submit(
-                        build_candidate_band_chunk,
-                        stage_root=stage_root,
-                        band_index=int(chunk_spec["band_index"]),
-                        bucket_prefix=str(chunk_spec["bucket_prefix"]),
-                        bands=bands,
-                        rows_per_band=rows_per_band,
-                        minhash_threshold=minhash_threshold,
-                        previous_band_summary=previous_bucket_summary.get(int(chunk_spec["band_index"]), {}),
-                        previous_stage_root=None if previous_run_root is None else previous_run_root / "stage_02_near",
-                        max_bucket_size=max_bucket_size,
-                    ): near_candidate_chunk_key(
-                        band_index=int(chunk_spec["band_index"]),
-                        bucket_prefix=str(chunk_spec["bucket_prefix"]),
-                    )
-                    for chunk_spec in pending_chunks
-                }
-                while future_map:
-                    done, _ = wait(future_map, return_when=FIRST_COMPLETED)
+                future_map: dict[Any, str] = {}
+
+                def drain_completed(*, wait_mode: Any) -> None:
+                    nonlocal oversized_bucket_count
+                    nonlocal oversized_bucket_member_rows
+                    nonlocal subdivided_bucket_count
+                    nonlocal fallback_chunked_bucket_count
+                    nonlocal fallback_chunked_member_rows
+                    nonlocal reused_bucket_count
+                    nonlocal recomputed_bucket_count
+                    if not future_map:
+                        return
+                    done, _ = wait(set(future_map), return_when=wait_mode)
                     for future in done:
                         future_map.pop(future)
                         result = future.result()
@@ -5149,6 +5151,35 @@ def _run_near_candidate_stage(
                                 "completed_chunks": completed_chunks,
                             },
                         )
+
+                submit_buffer = max(worker_count * 2, worker_count)
+                for band_index in sorted(pending_chunks_by_band):
+                    prefixes = prepare_candidate_bucket_partitions_for_band(stage_root, band_index=band_index)
+                    append_debug_trace(
+                        trace_path,
+                        f"near_candidates:partitions_ready band={band_index:02d} prefixes={len(prefixes)}",
+                    )
+                    for chunk_spec in pending_chunks_by_band[band_index]:
+                        future = executor.submit(
+                            build_candidate_band_chunk,
+                            stage_root=stage_root,
+                            band_index=band_index,
+                            bucket_prefix=str(chunk_spec["bucket_prefix"]),
+                            bands=bands,
+                            rows_per_band=rows_per_band,
+                            minhash_threshold=minhash_threshold,
+                            previous_band_summary=previous_bucket_summary.get(band_index, {}),
+                            previous_stage_root=None if previous_run_root is None else previous_run_root / "stage_02_near",
+                            max_bucket_size=max_bucket_size,
+                        )
+                        future_map[future] = near_candidate_chunk_key(
+                            band_index=band_index,
+                            bucket_prefix=str(chunk_spec["bucket_prefix"]),
+                        )
+                    while len(future_map) >= submit_buffer:
+                        drain_completed(wait_mode=FIRST_COMPLETED)
+                while future_map:
+                    drain_completed(wait_mode=FIRST_COMPLETED)
         except BrokenProcessPool:
             append_debug_trace(trace_path, f"near_candidates:broken_process_pool worker_count={worker_count} retry=serial")
             return _run_near_candidate_stage(
