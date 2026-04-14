@@ -32,6 +32,10 @@ The redesign is not successful if it only preserves correctness while still satu
 Current empirical note from the first worker stress checks on April 14, 2026:
 - external measurements on the `m3-megamem-64` worker showed lower total system memory under the shared-state `fork` path than under `spawn` on the same synthetic `near_candidates` workload
 - however, the in-process efficiency harness still failed to capture worker child memory correctly, so worker-memory conclusions must currently be based on external measurements, not the harness summary fields
+- after fixing the sampler, the corrected worker-side comparison on `16,384` synthetic docs with `16` workers produced:
+  - `spawn`: `elapsed_seconds = 128.081`, `peak_total_child_pss_mb = 1542.139`
+  - `fork`: `elapsed_seconds = 129.547`, `peak_total_child_pss_mb = 587.563`
+- this is now strong evidence that the shared-state `fork` path is the correct default operating mode for Linux workers
 
 ### 3. Resumability
 

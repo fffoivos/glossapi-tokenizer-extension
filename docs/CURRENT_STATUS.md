@@ -72,8 +72,13 @@ Parallel execution:
   - `length_ratio` is still preserved as metadata and audit signal
 - the first repo-backed worker stress checks have now run on the `m3-megamem-64` box:
   - worker-side correctness smoke for the efficiency harness passed
-  - external mid-run measurements on the same `near_candidates` workload show lower total system memory under `fork` than under `spawn`
-  - the in-process efficiency sampler is still under-reporting worker child memory, so external measurements are the current trustworthy source for that comparison
+  - corrected worker-side stress comparison on `near_candidates` with `16,384` synthetic docs and `16` workers now shows:
+    - `spawn`: `elapsed_seconds = 128.081`, `peak_total_child_pss_mb = 1542.139`
+    - `fork`: `elapsed_seconds = 129.547`, `peak_total_child_pss_mb = 587.563`
+  - this confirms the shared-state `fork` execution path materially reduces effective worker memory without hurting throughput on the tested workload
+  - benchmark artifacts live on the worker under:
+    - `/home/foivos/data/glossapi_work/perf_runs/near_candidates_redesign_20260414_v7/spawn/summary.json`
+    - `/home/foivos/data/glossapi_work/perf_runs/near_candidates_redesign_20260414_v7/fork/summary.json`
 
 ## What Is Not Done Yet
 
