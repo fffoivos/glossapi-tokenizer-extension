@@ -52,7 +52,7 @@ class LinuxProcessSampler:
                 for line in handle:
                     if line.startswith("VmRSS:"):
                         return int(line.split()[1])
-        except FileNotFoundError:
+        except (FileNotFoundError, ProcessLookupError):
             return 0
         return 0
 
@@ -62,9 +62,7 @@ class LinuxProcessSampler:
                 for line in handle:
                     if line.startswith("Pss:"):
                         return int(line.split()[1])
-        except FileNotFoundError:
-            return 0
-        except PermissionError:
+        except (FileNotFoundError, ProcessLookupError, PermissionError):
             return 0
         return 0
 
