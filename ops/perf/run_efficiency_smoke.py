@@ -54,8 +54,8 @@ class LinuxProcessSampler:
             return 0
         return 0
 
-    def _child_pids(self) -> list[int]:
-        children: list[int] = []
+    def _process_table(self) -> dict[int, int]:
+        table: dict[int, int] = {}
         proc_root = Path("/proc")
         for entry in proc_root.iterdir():
             if not entry.name.isdigit():
@@ -71,14 +71,24 @@ class LinuxProcessSampler:
                 ppid = int(parts[1])
             except (ValueError, IndexError):
                 continue
-            if ppid == self.pid:
-                children.append(int(entry.name))
-        return children
+            table[int(entry.name)] = ppid
+        return table
+
+    def _descendant_pids(self) -> list[int]:
+        process_table = self._process_table()
+        descendants: list[int] = []
+        queue: list[int] = [self.pid]
+        while queue:
+            parent_pid = queue.pop()
+            child_pids = [pid for pid, ppid in process_table.items() if ppid == parent_pid]
+            descendants.extend(child_pids)
+            queue.extend(child_pids)
+        return descendants
 
     def _loop(self) -> None:
         while not self._stop.is_set():
             self.peak_self_rss_kb = max(self.peak_self_rss_kb, self._read_rss_kb(self.pid))
-            child_pids = self._child_pids()
+            child_pids = self._descendant_pids()
             total_child_rss = sum(self._read_rss_kb(child_pid) for child_pid in child_pids)
             self.peak_child_count = max(self.peak_child_count, len(child_pids))
             self.peak_total_child_rss_kb = max(self.peak_total_child_rss_kb, total_child_rss)
@@ -310,7 +320,8 @@ def run_near_candidate_efficiency_smoke(
         "docs_input": docs,
         "group_size": group_size,
         "requested_workers": requested_workers,
-        "capped_workers": min(requested_workers, text_dedup.DEFAULT_NEAR_CANDIDATE_MAX_WORKERS, bands),
+        "capped_workers": min(requested_workers, text_dedup.near_candidate_worker_cap(), bands),
+        "start_method": text_dedup.candidate_process_pool_context().get_start_method(),
         "elapsed_seconds": round(elapsed, 3),
         "peak_child_count": int(sampler.peak_child_count),
         "peak_total_child_rss_mb": round(peak_total_child_rss_mb, 3),
