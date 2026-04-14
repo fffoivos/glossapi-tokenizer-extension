@@ -98,6 +98,7 @@ DEFAULT_GREEK_DIACRITIC_POLICY = "preserve"
 GREEK_DIACRITIC_POLICIES = {"preserve", "strip"}
 PROCESS_POOL_CONTEXT = mp.get_context("spawn")
 PARQUET_COMPRESSION = "zstd"
+NEAR_CANDIDATE_FLUSH_ROWS = 4096
 NEAR_BUCKET_SUMMARY_FLUSH_ROWS = 4096
 NEAR_TOUCHED_DOC_FLUSH_ROWS = 4096
 
@@ -3956,6 +3957,13 @@ def candidate_bucket_shard_path(stage_root: Path, *, band_index: int, bucket_has
     return candidate_band_shard_root(stage_root, band_index=band_index) / f"{hashed_filename(bucket_hash)}.parquet"
 
 
+def candidate_chunk_shard_path(stage_root: Path, *, band_index: int, chunk_suffix: str | None = None) -> Path:
+    shard_root = candidate_band_shard_root(stage_root, band_index=band_index)
+    if chunk_suffix:
+        return shard_root / f"{chunk_suffix}.parquet"
+    return shard_root / "band.parquet"
+
+
 def bucket_summary_shard_path(stage_root: Path, *, band_index: int, chunk_suffix: str | None = None) -> Path:
     shard_root = stage_root / "shards" / "bucket_summaries"
     ensure_dir(shard_root)
@@ -4617,82 +4625,63 @@ def iter_partition_bucket_members(stage_root: Path, *, band_index: int, bucket_p
         yield current_bucket_hash, current_members
 
 
-def write_candidate_rows_for_bucket(
+def append_candidate_rows_for_bucket(
     *,
     candidate_groups: list[list[dict[str, Any]]],
-    candidate_path: Path,
+    writer: pq.ParquetWriter | None,
+    temp_path: Path,
+    row_buffer: list[dict[str, Any]],
     minhash_threshold: float,
     signature_map: SignatureLookup | dict[str, np.ndarray],
     signature_meta: SignatureMetadataLookup,
-) -> int:
-    writer: pq.ParquetWriter | None = None
+) -> tuple[pq.ParquetWriter | None, list[dict[str, Any]], int]:
     rows_written = 0
-    temp_path = temp_output_path(candidate_path)
-    row_buffer: list[dict[str, Any]] = []
     seen_pairs: set[tuple[str, str]] = set()
-    try:
-        for candidate_group in candidate_groups:
-            if len(candidate_group) < 2:
-                continue
-            ordered = sorted(candidate_group, key=lambda row: str(row["doc_key"]))
-            for left_index in range(len(ordered)):
-                for right_index in range(left_index + 1, len(ordered)):
-                    left_key = str(ordered[left_index]["doc_key"])
-                    right_key = str(ordered[right_index]["doc_key"])
-                    pair_key = (left_key, right_key)
-                    if pair_key in seen_pairs:
-                        continue
-                    seen_pairs.add(pair_key)
-                    left_token_count = signature_meta.token_count(left_key)
-                    right_token_count = signature_meta.token_count(right_key)
-                    shorter = min(left_token_count, right_token_count)
-                    longer = max(left_token_count, right_token_count)
-                    length_ratio = 0.0 if longer == 0 else float(shorter / longer)
-                    estimated_jaccard = signature_jaccard(signature_map[left_key], signature_map[right_key])
-                    if estimated_jaccard < minhash_threshold:
-                        continue
-                    row_buffer.append(
-                        {
-                            "doc_key_left": left_key,
-                            "doc_key_right": right_key,
-                            "estimated_jaccard": float(estimated_jaccard),
-                            "shingle_mode": signature_meta.shingle_mode(left_key),
-                            "token_count_left": int(left_token_count),
-                            "token_count_right": int(right_token_count),
-                            "length_ratio": float(length_ratio),
-                            "likely_containment_flag": bool(length_ratio < 0.85),
-                            "accepted_reason": "lsh_threshold",
-                            "bucket_match_bands": 1,
-                        }
+    for candidate_group in candidate_groups:
+        if len(candidate_group) < 2:
+            continue
+        ordered = sorted(candidate_group, key=lambda row: str(row["doc_key"]))
+        for left_index in range(len(ordered)):
+            for right_index in range(left_index + 1, len(ordered)):
+                left_key = str(ordered[left_index]["doc_key"])
+                right_key = str(ordered[right_index]["doc_key"])
+                pair_key = (left_key, right_key)
+                if pair_key in seen_pairs:
+                    continue
+                seen_pairs.add(pair_key)
+                left_token_count = signature_meta.token_count(left_key)
+                right_token_count = signature_meta.token_count(right_key)
+                shorter = min(left_token_count, right_token_count)
+                longer = max(left_token_count, right_token_count)
+                length_ratio = 0.0 if longer == 0 else float(shorter / longer)
+                estimated_jaccard = signature_jaccard(signature_map[left_key], signature_map[right_key])
+                if estimated_jaccard < minhash_threshold:
+                    continue
+                row_buffer.append(
+                    {
+                        "doc_key_left": left_key,
+                        "doc_key_right": right_key,
+                        "estimated_jaccard": float(estimated_jaccard),
+                        "shingle_mode": signature_meta.shingle_mode(left_key),
+                        "token_count_left": int(left_token_count),
+                        "token_count_right": int(right_token_count),
+                        "length_ratio": float(length_ratio),
+                        "likely_containment_flag": bool(length_ratio < 0.85),
+                        "accepted_reason": "lsh_threshold",
+                        "bucket_match_bands": 1,
+                    }
+                )
+                if len(row_buffer) >= NEAR_CANDIDATE_FLUSH_ROWS:
+                    writer, appended = append_rows_to_parquet_writer(
+                        writer,
+                        rows=row_buffer,
+                        temp_path=temp_path,
+                        schema=CANDIDATE_PAIR_SCHEMA,
+                        row_group_size=NEAR_CANDIDATE_FLUSH_ROWS,
                     )
-                    if len(row_buffer) >= 4096:
-                        writer, appended = append_rows_to_parquet_writer(
-                            writer,
-                            rows=row_buffer,
-                            temp_path=temp_path,
-                            schema=CANDIDATE_PAIR_SCHEMA,
-                        )
-                        rows_written += appended
-                        row_buffer = []
-        if row_buffer:
-            writer, appended = append_rows_to_parquet_writer(
-                writer,
-                rows=row_buffer,
-                temp_path=temp_path,
-                schema=CANDIDATE_PAIR_SCHEMA,
-            )
-            rows_written += appended
-        finalize_parquet_writer(
-            writer,
-            temp_path=temp_path,
-            destination=candidate_path,
-            schema=CANDIDATE_PAIR_SCHEMA,
-        )
-    except Exception:
-        if temp_path.exists():
-            temp_path.unlink()
-        raise
-    return rows_written
+                    rows_written += appended
+                    row_buffer = []
+    return writer, row_buffer, rows_written
 
 
 def build_candidate_band_chunk(
@@ -4716,12 +4705,16 @@ def build_candidate_band_chunk(
         signature_meta = _CANDIDATE_WORKER_SIGNATURE_META
     previous_band_summary = previous_band_summary or {}
     chunk_suffix = None if bucket_prefix is None else f"prefix_{bucket_prefix}"
+    candidate_path = candidate_chunk_shard_path(stage_root, band_index=band_index, chunk_suffix=chunk_suffix)
     bucket_summary_path = bucket_summary_shard_path(stage_root, band_index=band_index, chunk_suffix=chunk_suffix)
     touched_doc_path = touched_doc_shard_path(stage_root, band_index=band_index, chunk_suffix=chunk_suffix)
+    candidate_writer: pq.ParquetWriter | None = None
     bucket_summary_writer: pq.ParquetWriter | None = None
     touched_doc_writer: pq.ParquetWriter | None = None
+    candidate_temp_path = temp_output_path(candidate_path)
     bucket_summary_temp_path = temp_output_path(bucket_summary_path)
     touched_doc_temp_path = temp_output_path(touched_doc_path)
+    candidate_buffer: list[dict[str, Any]] = []
     bucket_summary_buffer: list[dict[str, Any]] = []
     touched_doc_buffer: list[dict[str, Any]] = []
     total_candidate_rows = 0
@@ -4732,6 +4725,20 @@ def build_candidate_band_chunk(
     fallback_chunked_member_rows = 0
     reused_bucket_count = 0
     recomputed_bucket_count = 0
+
+    def flush_candidate_buffer() -> None:
+        nonlocal candidate_writer
+        nonlocal candidate_buffer
+        if not candidate_buffer:
+            return
+        candidate_writer, _ = append_rows_to_parquet_writer(
+            candidate_writer,
+            rows=candidate_buffer,
+            temp_path=candidate_temp_path,
+            schema=CANDIDATE_PAIR_SCHEMA,
+            row_group_size=NEAR_CANDIDATE_FLUSH_ROWS,
+        )
+        candidate_buffer = []
 
     def flush_bucket_summary_buffer() -> None:
         nonlocal bucket_summary_writer
@@ -4771,7 +4778,6 @@ def build_candidate_band_chunk(
             bucket_summary_row: dict[str, Any]
             candidate_row_count = 0
             member_digest = bucket_member_digest(members, signature_map=signature_map, signature_meta=signature_meta)
-            candidate_path = candidate_bucket_shard_path(stage_root, band_index=band_index, bucket_hash=bucket_hash)
             previous_row = previous_band_summary.get(bucket_hash)
             previous_candidate_path = None
             if previous_stage_root is not None:
@@ -4806,8 +4812,12 @@ def build_candidate_band_chunk(
                         previous_candidate_path = None
                 else:
                     reused_bucket_count += 1
-                    atomic_copy(previous_candidate_path, candidate_path)
-                    candidate_row_count = int(pq.ParquetFile(previous_candidate_path).metadata.num_rows)
+                    candidate_row_count = 0
+                    for batch_rows in iter_parquet_batches(previous_candidate_path):
+                        candidate_buffer.extend(batch_rows)
+                        candidate_row_count += len(batch_rows)
+                        if len(candidate_buffer) >= NEAR_CANDIDATE_FLUSH_ROWS:
+                            flush_candidate_buffer()
                     bucket_summary_row = {
                         "band_index": int(band_index),
                         "bucket_hash": bucket_hash,
@@ -4843,9 +4853,11 @@ def build_candidate_band_chunk(
                 subdivided_bucket_count += int(subdivision_stats["subdivided_bucket_count"])
                 fallback_chunked_bucket_count += int(subdivision_stats["fallback_chunked_bucket_count"])
                 fallback_chunked_member_rows += int(subdivision_stats["fallback_chunked_member_rows"])
-            candidate_row_count = write_candidate_rows_for_bucket(
+            candidate_writer, candidate_buffer, candidate_row_count = append_candidate_rows_for_bucket(
                 candidate_groups=candidate_groups,
-                candidate_path=candidate_path,
+                writer=candidate_writer,
+                temp_path=candidate_temp_path,
+                row_buffer=candidate_buffer,
                 minhash_threshold=minhash_threshold,
                 signature_map=signature_map,
                 signature_meta=signature_meta,
@@ -4861,8 +4873,15 @@ def build_candidate_band_chunk(
             bucket_summary_buffer.append(bucket_summary_row)
             if len(bucket_summary_buffer) >= NEAR_BUCKET_SUMMARY_FLUSH_ROWS:
                 flush_bucket_summary_buffer()
+        flush_candidate_buffer()
         flush_bucket_summary_buffer()
         flush_touched_doc_buffer()
+        finalize_parquet_writer(
+            candidate_writer,
+            temp_path=candidate_temp_path,
+            destination=candidate_path,
+            schema=CANDIDATE_PAIR_SCHEMA,
+        )
         finalize_parquet_writer(
             bucket_summary_writer,
             temp_path=bucket_summary_temp_path,
@@ -4876,7 +4895,7 @@ def build_candidate_band_chunk(
             schema=TOUCHED_DOC_SCHEMA,
         )
     except Exception:
-        for temp_path in (bucket_summary_temp_path, touched_doc_temp_path):
+        for temp_path in (candidate_temp_path, bucket_summary_temp_path, touched_doc_temp_path):
             if temp_path.exists():
                 temp_path.unlink()
         raise

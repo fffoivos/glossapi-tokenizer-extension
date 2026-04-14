@@ -899,9 +899,11 @@ def test_candidate_band_chunk_subdivides_oversized_buckets(tmp_path: Path) -> No
         max_bucket_size=2,
     )
 
+    candidate_paths = sorted((stage_root / "shards" / "candidate_pairs" / "band_00").glob("*.parquet"))
     candidate_rows = []
-    for path in sorted((stage_root / "shards" / "candidate_pairs" / "band_00").glob("*.parquet")):
+    for path in candidate_paths:
         candidate_rows.extend(pq.read_table(path).to_pylist())
+    assert len(candidate_paths) == 1
     assert result["row_count"] == 2
     assert result["oversized_bucket_count"] == 1
     assert result["oversized_bucket_member_rows"] == 3
@@ -946,6 +948,7 @@ def test_candidate_band_chunk_batches_bucket_summary_and_touched_doc_writes(
     signature_meta = build_signature_metadata_lookup(signature_meta_rows)
 
     monkeypatch.setattr(text_dedup, "NEAR_BUCKET_SUMMARY_FLUSH_ROWS", 2)
+    monkeypatch.setattr(text_dedup, "NEAR_CANDIDATE_FLUSH_ROWS", 2)
     monkeypatch.setattr(text_dedup, "NEAR_TOUCHED_DOC_FLUSH_ROWS", 4)
 
     text_dedup.build_candidate_band_chunk(
@@ -960,10 +963,14 @@ def test_candidate_band_chunk_batches_bucket_summary_and_touched_doc_writes(
     )
 
     bucket_summary_path = text_dedup.bucket_summary_shard_path(stage_root, band_index=0)
+    candidate_path = text_dedup.candidate_chunk_shard_path(stage_root, band_index=0)
     touched_doc_path = text_dedup.touched_doc_shard_path(stage_root, band_index=0)
+    candidate_parquet = pq.ParquetFile(candidate_path)
     bucket_summary_parquet = pq.ParquetFile(bucket_summary_path)
     touched_doc_parquet = pq.ParquetFile(touched_doc_path)
 
+    assert candidate_parquet.metadata.num_rows == 3
+    assert candidate_parquet.metadata.num_row_groups == 2
     assert bucket_summary_parquet.metadata.num_rows == 3
     assert bucket_summary_parquet.metadata.num_row_groups == 2
     assert touched_doc_parquet.metadata.num_rows == 6
