@@ -8,9 +8,26 @@ fi
 
 WORKING_RELEASE_ROOT="$1"
 STATE_ROOT="$2"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
 LATEST_SUCCESS_JSON="${STATE_ROOT}/latest_success.json"
-PYTHON_BIN="${HOME}/venvs/glossapi-corpus-clean/bin/python"
-PUBLISH_SCRIPT="${HOME}/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/scripts/publish_dedup_overlay_into_working_release.py"
+PYTHON_BIN="${TOKENIZER_PIPELINE_PYTHON_BIN:-}"
+if [ -z "${PYTHON_BIN}" ]; then
+  for candidate in \
+    "${HOME}/venvs/glossapi-corpus-clean/bin/python" \
+    "${HOME}/data/glossapi_work/.venv/bin/python" \
+    "$(command -v python3)"; do
+    if [ -n "${candidate}" ] && [ -x "${candidate}" ]; then
+      PYTHON_BIN="${candidate}"
+      break
+    fi
+  done
+fi
+if [ -z "${PYTHON_BIN}" ] || [ ! -x "${PYTHON_BIN}" ]; then
+  echo "Could not resolve a usable Python interpreter for dedup overlay publish" >&2
+  exit 1
+fi
+PUBLISH_SCRIPT="${REPO_ROOT}/subprojects/01_1_corpus_dedup/scripts/publish_dedup_overlay_into_working_release.py"
 
 while [ ! -f "${LATEST_SUCCESS_JSON}" ]; do
   sleep 60

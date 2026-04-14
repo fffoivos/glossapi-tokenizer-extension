@@ -15,8 +15,10 @@ Document and verify the dedup contract inherited from the upstream GlossAPI corp
 
 ## Role In This Project
 
-This subproject is now mostly a verification boundary:
-- confirm what dedup guarantees the upstream dataset pipeline provides
-- confirm what builder-time dedup, if any, still remains lightweight downstream
-- avoid drifting into a second independent dedup workflow here
-- refresh published `dedup_metadata` only after the intended dataset state is settled
+This subproject now has two roles:
+- document the dedup contract inherited by downstream builder consumers
+- own the scaling repair for the exact dedup implementation used to refresh `dedup_metadata`
+
+The active repair plans are:
+- [PIPELINE_RECOVERY_AND_SCALE_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_RECOVERY_AND_SCALE_PLAN.md)
+- [DEDUP_SCRIPT_REPAIR_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)

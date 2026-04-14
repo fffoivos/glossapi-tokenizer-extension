@@ -6,12 +6,13 @@ import json
 import shutil
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Publish the latest dedup builder metadata bundle into a working release snapshot.")
     parser.add_argument("--working-release-root", type=Path, required=True)
     parser.add_argument("--state-root", type=Path, required=True)
-    parser.add_argument("--code-root", type=Path, default=Path("/home/foivos/data/glossapi_work"))
+    parser.add_argument("--code-root", type=Path, default=REPO_ROOT)
     parser.add_argument("--published-at", default=None, help="Optional YYYY-MM-DD string for dedup_metadata/latest.json")
     return parser.parse_args()
 

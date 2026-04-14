@@ -9,12 +9,30 @@ fi
 WORKING_RELEASE_ROOT="$1"
 STATE_ROOT="$2"
 MIX_ROOT="$3"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
 LATEST_JSON="${WORKING_RELEASE_ROOT}/dedup_metadata/latest.json"
 LATEST_SUCCESS_JSON="${STATE_ROOT}/latest_success.json"
 HPLT_INTEGRATION_SUMMARY="${WORKING_RELEASE_ROOT}/hplt_integration_summary.json"
-PYTHON_BIN="${HOME}/venvs/glossapi-corpus-clean/bin/python"
+PYTHON_BIN="${TOKENIZER_PIPELINE_PYTHON_BIN:-}"
+if [ -z "${PYTHON_BIN}" ]; then
+  for candidate in \
+    "${HOME}/venvs/glossapi-corpus-clean/bin/python" \
+    "${HOME}/data/glossapi_work/.venv/bin/python" \
+    "$(command -v python3)"; do
+    if [ -n "${candidate}" ] && [ -x "${candidate}" ]; then
+      PYTHON_BIN="${candidate}"
+      break
+    fi
+  done
+fi
+if [ -z "${PYTHON_BIN}" ] || [ ! -x "${PYTHON_BIN}" ]; then
+  echo "Could not resolve a usable Python interpreter for mix build" >&2
+  exit 1
+fi
 TOKENIZER_REPO_ROOT="${HOME}/Projects/glossapi-tokenizer-extension"
-export PYTHONPATH="${HOME}/data/glossapi_work"
+TOKENIZER_REPO_ROOT="${REPO_ROOT}"
+export PYTHONPATH="${REPO_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
 export GLOSSAPI_WORK_ROOT="${HOME}/data/glossapi_work"
 
 while [ ! -f "${LATEST_JSON}" ] || [ ! -f "${LATEST_SUCCESS_JSON}" ] || [ ! -f "${HPLT_INTEGRATION_SUMMARY}" ]; do

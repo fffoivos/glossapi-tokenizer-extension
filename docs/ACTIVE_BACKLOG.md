@@ -2,41 +2,59 @@
 
 ## Tokenizer Critical Path
 
-1. Rebuild the HPLT slice on a GCP worker with the real final filter path:
+1. Freeze the current pathological dedup run before more work is lost:
+- stop the live process cleanly
+- snapshot `state.sqlite`, `state.sqlite-wal`, `state.sqlite-shm`, and the run root
+- preserve the strict exact outputs already produced
+
+2. Repair the dedup exact-stage export path according to:
+- [PIPELINE_RECOVERY_AND_SCALE_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_RECOVERY_AND_SCALE_PLAN.md)
+- [DEDUP_SCRIPT_REPAIR_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)
+- golden rule:
+  - dedup functionality must remain the same
+  - only efficiency, storage strategy, and parallelism may change
+
+3. Resume the current dedup run from saved state instead of restarting from raw corpus input.
+
+4. Rebuild the HPLT slice on a GCP worker with the real final filter path:
 - quality bins `>=8`
 - exclude `Machine translated or generated`
 - run real `Corpus.clean(..., write_cleaned_files=False, drop_bad=False)` scoring
 - drop rows with `greek_badness_score > 60`
 
-2. Freeze the worker-side downstream builder inputs for:
+5. Freeze the worker-side downstream builder inputs for:
 - `GlossAPI-only`
 - `GlossAPI + HPLT` at `70/30` by training-token mass
 
-3. Verify that `openarchives.gr` rows with `needs_ocr == true` are still excluded from the CPT-ready dataset used for tokenizer work.
+6. Verify that `openarchives.gr` rows with `needs_ocr == true` are still excluded from the CPT-ready dataset used for tokenizer work.
 
-4. Freeze the held-out eval manifests from the same prepared source-parquet tree.
+7. Freeze the held-out eval manifests from the same prepared source-parquet tree.
 
-5. Lock the literal Apertus tokenizer-replication checklist, including the exact tokenizer files and a toy extension proof.
+8. Lock the literal Apertus tokenizer-replication checklist, including the exact tokenizer files and a toy extension proof.
 
-6. Add a small contract-verification suite for the whole pipeline:
+9. Keep the contract-verification suite green as the pipeline changes:
 - synthetic tests for schema, markers, and stage-to-stage contracts
-- tiny real-document smoke runs for each stage so the contracts are also exercised on real HPLT/GlossAPI records
+- uploader-handoff contract tests
+- tiny real-document smoke runs so the contracts are also exercised on real HPLT/GlossAPI records
+- exact-stage golden equivalence tests between old and repaired code
+- exact-stage resume equivalence tests
+- downstream contract equivalence tests after repaired dedup outputs
 
-7. Export BPE-training text for the two training views from the CPT-ready dataset on the chosen GCP worker.
+10. Export BPE-training text for the two training views from the CPT-ready dataset on the chosen GCP worker.
 
-8. Start true Greek `BPE` discovery experiments from the frozen worker-side manifests.
+11. Start true Greek `BPE` discovery experiments from the frozen worker-side manifests.
 
-9. Diff learned Greek units against Apertus `model.vocab` and `model.merges`.
+12. Diff learned Greek units against Apertus `model.vocab` and `model.merges`.
 
-10. Run the analytic cutoff sweep on merged variants at:
+13. Run the analytic cutoff sweep on merged variants at:
 - `10240`
 - `15360`
 - `20480`
 - `25600`
 
-11. Only after the elbow is known, choose the shipped `128`-aligned extension size.
+14. Only after the elbow is known, choose the shipped `128`-aligned extension size.
 
-12. Implement and test the merge-rule extension.
+15. Implement and test the merge-rule extension.
 
 ## Dataset Operational Sidetrack
 
@@ -50,7 +68,7 @@
 
 5. Provision a separate cheap uploader instance for HF publication work.
 
-6. Stage the complete filtered HPLT source parquet slice on that uploader instance, without applying physical dataset deduplication to the published source parquets.
+6. Use the repo-owned uploader handoff under `ops/upload/` to stage the complete filtered HPLT source parquet slice on that uploader instance, without applying physical dataset deduplication to the published source parquets.
 
 7. Stage the refreshed `dedup_metadata` bundle on that uploader instance so downstream builder-time dedup works after HF download.
 
@@ -64,3 +82,5 @@
 - the exact tokenizer-replication spec is still missing some literal details and a proof-of-mechanism test
 - the current HF uploader strategy is poor for observability and recovery on very large patches
 - the old baseline workflow still exists for reference, so active work must stay within the new canonical files
+- the current dedup exact-stage implementation is not scaling to the full working release
+- SQLite is acting as both control plane and heavy data plane during exact-stage finalization

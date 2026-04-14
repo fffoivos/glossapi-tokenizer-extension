@@ -44,6 +44,13 @@ This means:
 - same-source overlap between GlossAPI and HPLT should be reduced before final freeze
 - `openarchives.gr` rows with `needs_ocr == true` must remain excluded from the CPT-ready dataset used for tokenizer work
 
+## Dedup Repair Constraint
+
+- the dedup implementation may be changed for efficiency, storage layout, resumability, and parallelism
+- dedup functionality must remain the same
+- exact and near dedup decisions must remain semantically equivalent after the repair
+- the repaired path must pass golden equivalence, resume equivalence, and downstream contract tests before it becomes the live default
+
 ## Operational Constraint
 
 Use the existing dataset-build scripts as the operational path. Do not invent a second independent release builder when the current work can be expressed through the existing release pipeline and overlays.
@@ -89,6 +96,7 @@ Execution boundary:
 - operational tokenizer work should run on GCP workers and be stopped when done
 
 1. Tokenizer critical path
+- salvage and repair the current dedup run without changing dedup semantics
 - freeze downstream manifests from the CPT-ready dataset
 - freeze eval manifests
 - lock the literal Apertus tokenizer-replication checklist

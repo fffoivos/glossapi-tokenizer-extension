@@ -8,16 +8,43 @@ The active method is:
 - filter HPLT and normalize it into the existing canonical GlossAPI source-parquet schema
 - consume the same CPT-ready dataset for both continued pretraining and tokenizer experiments
 - extend Apertus through `model.vocab` and `model.merges`, not `add_tokens(...)`
+- preserve dedup functionality while improving dedup efficiency and scalability
 
 The old whole-word `add_tokens(...)` sweep is retained only as a legacy baseline and has been moved out of the active planning path.
+
+## Canonical Code Root
+
+This repo is now the canonical source for the active tokenizer pipeline code.
+
+That includes:
+- `glossapi_corpus_cli/`
+- stage orchestration scripts under `subprojects/`
+- upload handoff scripts under `ops/upload/`
+- smoke and efficiency harnesses under `ops/`
+- the active test suite under `tests/`
+
+The workspace copy under `/home/foivos/data/glossapi_work/` is no longer the development source of truth for pipeline code. It remains a data/workspace root and deployment target only.
+
+## Test Matrix
+
+The active repo-local verification matrix includes:
+- script proof tests
+- stage-to-stage contract tests
+- resumability regressions
+- tiny real-document end-to-end smoke runs
+- efficiency smokes for streaming mix build and near-candidate execution
 
 ## Execution Shape
 
 There are two parallel tracks:
-- tokenizer critical path: freeze local manifests, freeze the literal Apertus tokenizer spec, export local BPE-training text, run discovery tokenizers, and implement the merge-rule extension
+- tokenizer critical path: repair and resume dedup without changing its decisions, freeze local manifests, freeze the literal Apertus tokenizer spec, export local BPE-training text, run discovery tokenizers, and implement the merge-rule extension
 - dataset operational sidetrack: finish HPLT filtering and integration work, refresh published dedup metadata, and publish the updated upstream dataset from a separate cheap uploader instance using the official large-folder HF upload path
 
 The tokenizer critical path does not need to wait for the HF upload once the filtered HPLT slice exists locally on `home`.
+
+The active dedup recovery and scale plans are:
+- [PIPELINE_RECOVERY_AND_SCALE_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_RECOVERY_AND_SCALE_PLAN.md)
+- [DEDUP_SCRIPT_REPAIR_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)
 
 ## Canonical Files
 

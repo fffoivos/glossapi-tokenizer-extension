@@ -22,9 +22,8 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 from huggingface_hub import HfApi
 
-TOKENIZER_REPO_ROOT = Path("/home/foivos/Projects/glossapi-tokenizer-extension")
+TOKENIZER_REPO_ROOT = Path(__file__).resolve().parents[3]
 HF_RELEASE_ROOT = Path("/home/foivos/data/glossapi_work/hf_release_publish")
-GLOSSAPI_WORK_ROOT = Path("/home/foivos/data/glossapi_work")
 DEFAULT_HPLT_BASE_URL = "https://data.hplt-project.org/three/sorted/ell_Grek/"
 DEFAULT_DATASET_NAME = "HPLT/ell_Grek_ge8_no_mt"
 DEFAULT_REPO_ID = "fffoivos/glossapi-greek-nanochat-pretraining-dataset"
@@ -34,8 +33,7 @@ DEFAULT_WORKERS = max(1, min(4, os.cpu_count() or 1))
 SCHEMA_SOURCE = HF_RELEASE_ROOT / "data" / "openarchives.gr.part-00000.parquet"
 
 sys.path.insert(0, str(TOKENIZER_REPO_ROOT / "subprojects" / "01_hplt_filtering" / "scripts"))
-sys.path.insert(0, str(GLOSSAPI_WORK_ROOT))
-sys.path.insert(0, str(HF_RELEASE_ROOT))
+sys.path.insert(0, str(TOKENIZER_REPO_ROOT))
 
 import hplt_web_register as hplt_register  # noqa: E402
 from glossapi_corpus_cli import pipeline  # noqa: E402
@@ -76,6 +74,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-chars", type=int, default=None)
     parser.add_argument("--summary-json", type=Path, default=None)
     parser.add_argument("--log-every-rows", type=int, default=100000)
+    parser.add_argument("--metadata-only", action="store_true", help="Skip shard processing and rebuild release metadata/summary from existing parquet parts.")
     parser.add_argument("--no-upload", action="store_true")
     parser.add_argument("--commit-message", default="Add filtered HPLT Greek slice (>=8, no MT)")
     parser.add_argument("--commit-description", default="Adds the filtered HPLT Greek source parquet slice and refreshes release metadata files.")
@@ -461,11 +460,99 @@ def remove_existing_dataset_parts(data_root: Path, dataset_name: str) -> list[Pa
     return removed
 
 
-def refresh_release_metadata(release_root: Path) -> dict[str, Any]:
+def current_dataset_parts(release_root: Path, dataset_name: str) -> list[Path]:
+    stem = dataset_name.replace('/', '__')
+    return sorted((release_root / 'data').glob(f'{stem}*.parquet'))
+
+
+def build_lightweight_validation(release_root: Path, row_counts: pd.DataFrame) -> pd.DataFrame:
+    frame = row_counts[["source_dataset", "row_count"]].copy()
+    frame["empty_text_rows"] = pd.Series([pd.NA] * len(frame), dtype="Int64")
+    frame["duplicate_source_doc_id_rows"] = pd.Series([pd.NA] * len(frame), dtype="Int64")
+    frame["source_metadata_leaks"] = pd.Series([pd.NA] * len(frame), dtype="Int64")
+    frame.to_csv(release_root / 'validation_summary.csv', index=False)
+    return frame
+
+
+def build_lightweight_prepare_manifest(release_root: Path, dataset_name: str) -> dict[str, Any]:
+    sources: list[dict[str, Any]] = []
+    totals = {
+        'row_count': 0,
+        'chars': None,
+        'non_whitespace_chars': None,
+        'utf8_bytes': None,
+        'approx_word_count': None,
+    }
+    for path in current_dataset_parts(release_root, dataset_name):
+        row_count = int(pq.ParquetFile(path).metadata.num_rows)
+        sources.append(
+            {
+                'source_dataset': dataset_name,
+                'path': str(Path('data') / path.name),
+                'row_count': row_count,
+                'chars': None,
+                'non_whitespace_chars': None,
+                'utf8_bytes': None,
+                'approx_word_count': None,
+            }
+        )
+        totals['row_count'] += row_count
+    manifest = {
+        'source_count': int(len(sources)),
+        'totals': totals,
+        'sources': sources,
+        'mode': 'lightweight_single_dataset',
+    }
+    (release_root / 'prepare_manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    return manifest
+
+
+def load_existing_shard_results(release_root: Path) -> list[ShardResult]:
+    run_log = release_root / 'run.log'
+    if not run_log.exists():
+        return []
+    by_shard: dict[str, ShardResult] = {}
+    for line in run_log.read_text(encoding='utf-8', errors='replace').splitlines():
+        line = line.strip()
+        if not line.startswith('{'):
+            continue
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if payload.get('event') != 'shard_complete':
+            continue
+        try:
+            result = ShardResult(
+                shard=str(payload['shard']),
+                quality_bin=int(payload['quality_bin']),
+                rows_seen=int(payload['rows_seen']),
+                rows_kept=int(payload['rows_kept']),
+                rows_skipped_mt=int(payload['rows_skipped_mt']),
+                rows_skipped_badness=int(payload['rows_skipped_badness']),
+                rows_skipped_empty=int(payload['rows_skipped_empty']),
+                rows_written=int(payload['rows_written']),
+                part_files=[str(path) for path in payload.get('part_files', [])],
+            )
+        except (KeyError, TypeError, ValueError):
+            continue
+        by_shard[result.shard] = result
+    return sorted(by_shard.values(), key=lambda item: (item.quality_bin, item.shard))
+
+
+def refresh_release_metadata(release_root: Path, *, dataset_name: str | None = None) -> dict[str, Any]:
     row_counts = build_row_counts(release_root)
-    validation = build_validation(release_root)
-    validation.to_csv(release_root / 'validation_summary.csv', index=False)
-    prepare_manifest = build_prepare_manifest(release_root)
+    dataset_names = {str(value) for value in row_counts.get('source_dataset', pd.Series(dtype='string')).dropna().astype(str)}
+    if dataset_name is not None and len(dataset_names) == 1 and dataset_names == {dataset_name}:
+        validation = build_lightweight_validation(release_root, row_counts)
+        prepare_manifest = build_lightweight_prepare_manifest(release_root, dataset_name)
+        validation_mode = 'lightweight_single_dataset'
+        prepare_manifest_mode = 'lightweight_single_dataset'
+    else:
+        validation = build_validation(release_root)
+        prepare_manifest = build_prepare_manifest(release_root)
+        validation_mode = 'full'
+        prepare_manifest_mode = 'full'
     write_readme(release_root, row_counts)
     return {
         'row_counts_csv': str(release_root / 'row_counts.csv'),
@@ -475,6 +562,8 @@ def refresh_release_metadata(release_root: Path) -> dict[str, Any]:
         'row_count_total': int(row_counts['row_count'].sum()),
         'source_dataset_count': int(len(row_counts)),
         'prepare_manifest_source_count': int(prepare_manifest.get('source_count', 0)),
+        'validation_mode': validation_mode,
+        'prepare_manifest_mode': prepare_manifest_mode,
     }
 
 
@@ -489,13 +578,17 @@ def stage_patch_root(release_root: Path, part_files: list[Path]) -> Path:
 
 
 def upload_patch(patch_root: Path, repo_id: str, commit_message: str, commit_description: str) -> None:
+    del commit_message
+    del commit_description
     api = HfApi()
-    api.upload_folder(
+    api.create_repo(repo_id=repo_id, repo_type='dataset', exist_ok=True)
+    api.upload_large_folder(
         repo_id=repo_id,
         repo_type='dataset',
         folder_path=patch_root,
-        commit_message=commit_message,
-        commit_description=commit_description,
+        num_workers=2,
+        print_report=True,
+        print_report_every=60,
     )
 
 
@@ -508,64 +601,71 @@ def main() -> None:
 
     shards = args.only_shards or list_shards(args.hplt_base_url, args.quality_min)
     shards = [name for name in shards if shard_quality_bin(name) >= args.quality_min]
-    removed = remove_existing_dataset_parts(data_root, args.dataset_name)
-
-    worker_count = max(1, min(args.workers, len(shards)))
     results: list[ShardResult] = []
-    if worker_count == 1:
-        for shard in shards:
-            results.append(
-                process_shard(
-                    shard,
-                    base_url=args.hplt_base_url,
-                    dataset_name=args.dataset_name,
-                    quality_min=args.quality_min,
-                    exclude_main_registers=set(args.exclude_main_register),
-                    require_filter=args.require_filter,
-                    batch_size=args.batch_size,
-                    rows_per_part=args.rows_per_part,
-                    data_root=data_root,
-                    target_schema_path=SCHEMA_SOURCE,
-                    quality_mode=args.quality_mode,
-                    greek_badness_max=args.greek_badness_max,
-                    clean_num_threads=args.clean_num_threads,
-                    max_docs=args.max_docs,
-                    max_chars=args.max_chars,
-                    log_every_rows=args.log_every_rows,
-                )
-            )
+    if args.metadata_only:
+        removed = []
+        results = load_existing_shard_results(release_root)
+        if not results:
+            raise RuntimeError(f"No shard_complete events found in {release_root / 'run.log'} for --metadata-only resume")
     else:
-        with cf.ProcessPoolExecutor(max_workers=worker_count) as executor:
-            futures = [
-                executor.submit(
-                    process_shard,
-                    shard,
-                    base_url=args.hplt_base_url,
-                    dataset_name=args.dataset_name,
-                    quality_min=args.quality_min,
-                    exclude_main_registers=set(args.exclude_main_register),
-                    require_filter=args.require_filter,
-                    batch_size=args.batch_size,
-                    rows_per_part=args.rows_per_part,
-                    data_root=data_root,
-                    target_schema_path=SCHEMA_SOURCE,
-                    quality_mode=args.quality_mode,
-                    greek_badness_max=args.greek_badness_max,
-                    clean_num_threads=args.clean_num_threads,
-                    max_docs=args.max_docs,
-                    max_chars=args.max_chars,
-                    log_every_rows=args.log_every_rows,
+        removed = remove_existing_dataset_parts(data_root, args.dataset_name)
+        worker_count = max(1, min(args.workers, len(shards)))
+        if worker_count == 1:
+            for shard in shards:
+                results.append(
+                    process_shard(
+                        shard,
+                        base_url=args.hplt_base_url,
+                        dataset_name=args.dataset_name,
+                        quality_min=args.quality_min,
+                        exclude_main_registers=set(args.exclude_main_register),
+                        require_filter=args.require_filter,
+                        batch_size=args.batch_size,
+                        rows_per_part=args.rows_per_part,
+                        data_root=data_root,
+                        target_schema_path=SCHEMA_SOURCE,
+                        quality_mode=args.quality_mode,
+                        greek_badness_max=args.greek_badness_max,
+                        clean_num_threads=args.clean_num_threads,
+                        max_docs=args.max_docs,
+                        max_chars=args.max_chars,
+                        log_every_rows=args.log_every_rows,
+                    )
                 )
-                for shard in shards
-            ]
-            for future in cf.as_completed(futures):
-                result = future.result()
-                print(json.dumps({'event': 'shard_complete', **asdict(result)}, ensure_ascii=False), flush=True)
-                results.append(result)
+        else:
+            with cf.ProcessPoolExecutor(max_workers=worker_count) as executor:
+                futures = [
+                    executor.submit(
+                        process_shard,
+                        shard,
+                        base_url=args.hplt_base_url,
+                        dataset_name=args.dataset_name,
+                        quality_min=args.quality_min,
+                        exclude_main_registers=set(args.exclude_main_register),
+                        require_filter=args.require_filter,
+                        batch_size=args.batch_size,
+                        rows_per_part=args.rows_per_part,
+                        data_root=data_root,
+                        target_schema_path=SCHEMA_SOURCE,
+                        quality_mode=args.quality_mode,
+                        greek_badness_max=args.greek_badness_max,
+                        clean_num_threads=args.clean_num_threads,
+                        max_docs=args.max_docs,
+                        max_chars=args.max_chars,
+                        log_every_rows=args.log_every_rows,
+                    )
+                    for shard in shards
+                ]
+                for future in cf.as_completed(futures):
+                    result = future.result()
+                    print(json.dumps({'event': 'shard_complete', **asdict(result)}, ensure_ascii=False), flush=True)
+                    results.append(result)
     results.sort(key=lambda item: (item.quality_bin, item.shard))
     part_files = [Path(path) for result in results for path in result.part_files]
+    if not part_files:
+        part_files = current_dataset_parts(release_root, args.dataset_name)
     print(json.dumps({'event': 'metadata_refresh_start', 'release_root': str(release_root), 'part_file_count': len(part_files)}, ensure_ascii=False), flush=True)
-    metadata_summary = refresh_release_metadata(release_root)
+    metadata_summary = refresh_release_metadata(release_root, dataset_name=args.dataset_name)
     print(json.dumps({'event': 'metadata_refresh_done', 'row_count_total': metadata_summary['row_count_total'], 'source_dataset_count': metadata_summary['source_dataset_count']}, ensure_ascii=False), flush=True)
     summary = {
         'dataset_name': args.dataset_name,
@@ -582,6 +682,7 @@ def main() -> None:
         'part_file_count': len(part_files),
         'rows_written_total': sum(item.rows_written for item in results),
         'metadata_refresh': metadata_summary,
+        'metadata_only': args.metadata_only,
         'upload_performed': not args.no_upload,
     }
     summary_json.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')

@@ -1,0 +1,19 @@
+Narrative | News report
+Opinion | Opinion blog
+Informational description / explanation | Description of a thing or person
+Informational persuasion | Description with intent to sell
+Narrative | Narrative blog
+Opinion | Advice
+Opinion | Review
+Narrative | Sports report
+Spoken | Interview
+Opinion | Denominational religious blog / sermon
+Informational description / explanation | Legal terms and conditions
+Informational description / explanation | Research article
+Informational description / explanation | Encyclopedia article
+How-to / instructional | Recipe
+Informational description / explanation | FAQ about information
+Informational persuasion | News and opinion blog or editorial
+Machine translated or generated | No subcategory
+Interactive discussion | No subcategory
+Lyrical | No subcategory

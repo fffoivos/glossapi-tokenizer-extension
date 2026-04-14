@@ -20,6 +20,7 @@ Parallel execution:
 - local tokenizer progress does not need to wait for the HF upload to finish once the filtered HPLT parquet slice exists locally
 - final HF publication should happen from a separate cheap uploader instance using the official large-folder HF upload path
 - the workspace has now been split into smaller subprojects
+- the repo itself is now the canonical source for the active pipeline code, tests, and orchestration scripts
 
 ## What Exists Now
 
@@ -28,6 +29,36 @@ Parallel execution:
 - the old score-only HF upload attempt has been stopped and should be treated as invalid
 - the canonical Apertus constraints and tokenizer-extension direction are documented
 - the old `add_tokens(...)` baseline is retained only as diagnostic background
+- the repo now has uploader-handoff scripts under `ops/upload/` for:
+  - validating a working release snapshot
+  - preparing a cheap-uploader handoff manifest
+  - launching or locally staging the uploader handoff
+- the contract suite now covers:
+  - synthetic stage-to-stage contracts
+  - uploader-handoff contracts
+  - tiny real-document smoke through HPLT build, integration, dedup, dedup overlay, mix build, uploader handoff, and tiny discovery training
+- the repo-local validation matrix now also includes:
+  - resumability regressions for dedup stage handoff
+  - efficiency smoke coverage for streaming mix build and near-candidate execution
+- the active GCP tokenizer worker has been rearmed from the repo tree at:
+  - `/home/foivos/Projects/glossapi-tokenizer-extension`
+- the repo-backed worker chain currently includes:
+  - dedup resume
+  - dedup overlay watcher
+  - mix watcher
+  - training watcher
+  - uploader handoff prep watcher
+  - uploader launch watcher
+- the current live dedup run has exposed a design bottleneck:
+  - row-group chunk computation completed
+  - the run is stuck in `stage_01_exact` finalization
+  - the pathological path is the SQLite-heavy `relaxed_exact` export/finalization tail
+- the recovery and repair plans are now tracked explicitly in:
+  - [PIPELINE_RECOVERY_AND_SCALE_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_RECOVERY_AND_SCALE_PLAN.md)
+  - [DEDUP_SCRIPT_REPAIR_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)
+- the repair plans now explicitly treat semantic equivalence as the golden rule:
+  - same dedup functionality
+  - improved efficiency only
 
 ## What Is Not Done Yet
 
@@ -39,7 +70,9 @@ Parallel execution:
 - no true Greek `BPE` discovery tokenizer
 - no implemented merge-rule extension
 - no model adaptation plan beyond high-level constraints
-- no armed cheap-instance uploader track yet for publishing the full updated dataset snapshot plus refreshed dedup metadata
+- no live armed cheap-instance uploader service yet for publishing the full updated dataset snapshot plus refreshed dedup metadata
+- no repaired dedup exact-stage export path yet
+- no finalized post-restart progress report for the repo-backed near-dedup continuation yet
 
 ## Current Trust Boundary
 
