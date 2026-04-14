@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import multiprocessing as mp
 import shutil
 import unicodedata
 from pathlib import Path
@@ -1383,6 +1384,60 @@ def test_near_candidate_worker_cap_env_override(monkeypatch) -> None:
         min(32, text_dedup.near_candidate_worker_cap()),
         32,
     ) == 16
+
+
+def test_candidate_pool_initializer_config_preloads_state_for_fork(monkeypatch, tmp_path: Path) -> None:
+    if "fork" not in mp.get_all_start_methods():
+        pytest.skip("fork start method is not available on this platform")
+    signatures_path = tmp_path / "signatures.parquet"
+    calls: list[Path] = []
+    fake_map = object()
+    fake_meta = object()
+
+    monkeypatch.setenv("GLOSSAPI_NEAR_CANDIDATE_START_METHOD", "fork")
+    monkeypatch.setattr(text_dedup, "_CANDIDATE_WORKER_SIGNATURE_MAP", None)
+    monkeypatch.setattr(text_dedup, "_CANDIDATE_WORKER_SIGNATURE_META", None)
+    monkeypatch.setattr(text_dedup, "_CANDIDATE_WORKER_SIGNATURE_PATH", None)
+
+    def fake_load(path: Path):
+        calls.append(path)
+        return fake_map, fake_meta
+
+    monkeypatch.setattr(text_dedup, "load_signature_index", fake_load)
+
+    context, initializer, initargs = text_dedup.candidate_pool_initializer_config(signatures_path)
+    assert context.get_start_method() == "fork"
+    assert initializer is None
+    assert initargs == ()
+    assert calls == [signatures_path]
+    assert text_dedup._CANDIDATE_WORKER_SIGNATURE_MAP is fake_map
+    assert text_dedup._CANDIDATE_WORKER_SIGNATURE_META is fake_meta
+    assert text_dedup._CANDIDATE_WORKER_SIGNATURE_PATH == signatures_path
+
+    text_dedup.candidate_pool_initializer_config(signatures_path)
+    assert calls == [signatures_path]
+
+
+def test_candidate_pool_initializer_config_uses_initializer_for_spawn(monkeypatch, tmp_path: Path) -> None:
+    signatures_path = tmp_path / "signatures.parquet"
+    calls: list[Path] = []
+
+    monkeypatch.setenv("GLOSSAPI_NEAR_CANDIDATE_START_METHOD", "spawn")
+    monkeypatch.setattr(text_dedup, "_CANDIDATE_WORKER_SIGNATURE_MAP", None)
+    monkeypatch.setattr(text_dedup, "_CANDIDATE_WORKER_SIGNATURE_META", None)
+    monkeypatch.setattr(text_dedup, "_CANDIDATE_WORKER_SIGNATURE_PATH", None)
+
+    def fake_load(path: Path):
+        calls.append(path)
+        return object(), object()
+
+    monkeypatch.setattr(text_dedup, "load_signature_index", fake_load)
+
+    context, initializer, initargs = text_dedup.candidate_pool_initializer_config(signatures_path)
+    assert context.get_start_method() == "spawn"
+    assert initializer is text_dedup.init_candidate_worker
+    assert initargs == (str(signatures_path),)
+    assert calls == []
 
 
 def test_resolve_near_component_splits_weak_member_after_representative_validation() -> None:

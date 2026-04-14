@@ -3231,11 +3231,39 @@ def load_signature_index(signatures_path: Path) -> tuple[SignatureLookup, Signat
 
 _CANDIDATE_WORKER_SIGNATURE_MAP: SignatureLookup | None = None
 _CANDIDATE_WORKER_SIGNATURE_META: SignatureMetadataLookup | None = None
+_CANDIDATE_WORKER_SIGNATURE_PATH: Path | None = None
+
+
+def candidate_process_pool_context():
+    raw = os.environ.get("GLOSSAPI_NEAR_CANDIDATE_START_METHOD", "").strip().lower()
+    if raw:
+        return mp.get_context(raw)
+    if os.name == "posix" and "fork" in mp.get_all_start_methods():
+        return mp.get_context("fork")
+    return PROCESS_POOL_CONTEXT
+
+
+def preload_candidate_worker_state(signatures_path: Path) -> None:
+    global _CANDIDATE_WORKER_SIGNATURE_MAP, _CANDIDATE_WORKER_SIGNATURE_META, _CANDIDATE_WORKER_SIGNATURE_PATH
+    if _CANDIDATE_WORKER_SIGNATURE_PATH == signatures_path and _CANDIDATE_WORKER_SIGNATURE_MAP is not None:
+        return
+    _CANDIDATE_WORKER_SIGNATURE_MAP, _CANDIDATE_WORKER_SIGNATURE_META = load_signature_index(signatures_path)
+    _CANDIDATE_WORKER_SIGNATURE_PATH = signatures_path
+
+
+def candidate_pool_initializer_config(signatures_path: Path):
+    context = candidate_process_pool_context()
+    if context.get_start_method() == "fork":
+        preload_candidate_worker_state(signatures_path)
+        return context, None, ()
+    return context, init_candidate_worker, (str(signatures_path),)
 
 
 def init_candidate_worker(signatures_path: str) -> None:
-    global _CANDIDATE_WORKER_SIGNATURE_MAP, _CANDIDATE_WORKER_SIGNATURE_META
-    _CANDIDATE_WORKER_SIGNATURE_MAP, _CANDIDATE_WORKER_SIGNATURE_META = load_signature_index(Path(signatures_path))
+    global _CANDIDATE_WORKER_SIGNATURE_MAP, _CANDIDATE_WORKER_SIGNATURE_META, _CANDIDATE_WORKER_SIGNATURE_PATH
+    signatures_path_obj = Path(signatures_path)
+    _CANDIDATE_WORKER_SIGNATURE_MAP, _CANDIDATE_WORKER_SIGNATURE_META = load_signature_index(signatures_path_obj)
+    _CANDIDATE_WORKER_SIGNATURE_PATH = signatures_path_obj
 
 
 def near_component_subgraphs(nodes: set[str], adjacency: dict[str, set[str]]) -> list[set[str]]:
@@ -4733,11 +4761,12 @@ def _run_near_candidate_stage(
             )
     elif pending_bands:
         try:
+            pool_context, initializer, initargs = candidate_pool_initializer_config(signatures_path)
             with ProcessPoolExecutor(
                 max_workers=worker_count,
-                mp_context=PROCESS_POOL_CONTEXT,
-                initializer=init_candidate_worker,
-                initargs=(str(signatures_path),),
+                mp_context=pool_context,
+                initializer=initializer,
+                initargs=initargs,
             ) as executor:
                 future_map = {
                     executor.submit(

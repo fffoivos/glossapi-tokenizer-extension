@@ -21,6 +21,7 @@
 - preserve our semantics, but replace the current near-candidate execution shape with a more streaming, merge-based design
 - reference:
   - [HF_DEDUP_INVESTIGATION.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/HF_DEDUP_INVESTIGATION.md)
+  - [NEAR_DEDUP_REDESIGN_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/NEAR_DEDUP_REDESIGN_PLAN.md)
 
 5. Rebuild the HPLT slice on a GCP worker with the real final filter path:
 - quality bins `>=8`
