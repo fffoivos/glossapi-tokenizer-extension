@@ -70,6 +70,10 @@ Parallel execution:
 - the hard near-dedup `length_ratio` admission gate has been removed in the repo-backed code:
   - high-similarity short-vs-long pairs are now allowed to reach representative selection
   - `length_ratio` is still preserved as metadata and audit signal
+- the first repo-backed worker stress checks have now run on the `m3-megamem-64` box:
+  - worker-side correctness smoke for the efficiency harness passed
+  - external mid-run measurements on the same `near_candidates` workload show lower total system memory under `fork` than under `spawn`
+  - the in-process efficiency sampler is still under-reporting worker child memory, so external measurements are the current trustworthy source for that comparison
 
 ## What Is Not Done Yet
 

@@ -29,6 +29,10 @@ The redesigned near-dedup path must materially improve:
 
 The redesign is not successful if it only preserves correctness while still saturating memory before making durable progress.
 
+Current empirical note from the first worker stress checks on April 14, 2026:
+- external measurements on the `m3-megamem-64` worker showed lower total system memory under the shared-state `fork` path than under `spawn` on the same synthetic `near_candidates` workload
+- however, the in-process efficiency harness still failed to capture worker child memory correctly, so worker-memory conclusions must currently be based on external measurements, not the harness summary fields
+
 ### 3. Resumability
 
 Resumability is a core requirement.
@@ -216,6 +220,7 @@ Required benchmark layers:
 - worker-class machine
 - real-ish larger subset
 - must remain below a defined memory ceiling
+- must also preserve basic operability such as stable SSH access and no unexpected stop/restart loops
 
 ## Efficiency Acceptance Criteria
 
@@ -225,6 +230,7 @@ These should be refined as we gain measurements, but the redesign should aim for
 - materially lower peak memory than the current `16`-worker attempt
 - no guest-access instability under the selected operating point
 - enough headroom that `available` memory does not approach zero during normal operation
+- worker-memory instrumentation must itself be trustworthy enough to distinguish `spawn` from `fork`
 
 ## Resume Policy
 
