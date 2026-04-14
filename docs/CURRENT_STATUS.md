@@ -42,6 +42,8 @@ Parallel execution:
   - efficiency smoke coverage for streaming mix build and near-candidate execution
 - the detailed per-stage verification state is tracked in:
   - [STAGE_VERIFICATION_CHECKLIST.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/STAGE_VERIFICATION_CHECKLIST.md)
+- the plan has now explicitly diverged into an HF/DataTrove comparison for the near-dedup path:
+  - [HF_DEDUP_INVESTIGATION.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/HF_DEDUP_INVESTIGATION.md)
 - the active GCP tokenizer worker has been rearmed from the repo tree at:
   - `/home/foivos/Projects/glossapi-tokenizer-extension`
 - the repo-backed worker chain currently includes:
@@ -61,6 +63,10 @@ Parallel execution:
 - the repair plans now explicitly treat semantic equivalence as the golden rule:
   - same dedup functionality
   - improved efficiency only
+- the latest live scaling attempt established that the current near-candidate execution path is still not efficient enough:
+  - `16` workers on `m3-megamem-64` (`976 GB`) drove memory to about `955 / 960 GB`
+  - the stage still had `0 / 32` completed bands
+  - the worker was stopped to preserve state and avoid guest instability
 
 ## What Is Not Done Yet
 
@@ -75,6 +81,7 @@ Parallel execution:
 - no live armed cheap-instance uploader service yet for publishing the full updated dataset snapshot plus refreshed dedup metadata
 - no repaired dedup exact-stage export path yet
 - no finalized post-restart progress report for the repo-backed near-dedup continuation yet
+- no replacement near-candidate implementation yet based on the HF/DataTrove investigation
 
 ## Current Trust Boundary
 
