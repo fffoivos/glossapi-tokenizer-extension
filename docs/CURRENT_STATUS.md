@@ -17,6 +17,11 @@ Parallel execution:
 - the downstream CPT/tokenizer builder is expected to stay lightweight after HF download
 - the first discovery tokenizer runs are locked to `50k` vocab
 - the mixed `GlossAPI + HPLT` tokenizer view is locked to `70/30` by training-token mass
+- the tokenizer experiment plan now explicitly includes four comparison arms:
+  - fresh discovery `BPE` on `GlossAPI-only`
+  - fresh discovery `BPE` on `GlossAPI + HPLT`
+  - continuous `BPE` from Apertus on `GlossAPI-only`
+  - continuous `BPE` from Apertus on `GlossAPI + HPLT`
 - local tokenizer progress does not need to wait for the HF upload to finish once the filtered HPLT parquet slice exists locally
 - final HF publication should happen from a separate cheap uploader instance using the official large-folder HF upload path
 - the workspace has now been split into smaller subprojects
@@ -115,6 +120,7 @@ Parallel execution:
 - no frozen downstream manifests for `GlossAPI-only` vs `GlossAPI + HPLT`
 - no frozen held-out eval manifests derived from the refreshed upstream dataset
 - no true Greek `BPE` discovery tokenizer
+- no continuous-`BPE` comparison run from the Apertus base tokenizer yet
 - no implemented merge-rule extension
 - no model adaptation plan beyond high-level constraints
 - no live armed cheap-instance uploader service yet for publishing the full updated dataset snapshot plus refreshed dedup metadata

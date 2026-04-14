@@ -71,12 +71,18 @@ Use the existing dataset-build scripts as the operational path. Do not invent a 
 
 ## Experimental Structure
 
-- compare `GlossAPI-only` vs `GlossAPI + HPLT`
-- use a discovery tokenizer vocab fixed at `50k` for the first discovery runs
-- the `50k` stage is discovery only, not the final number of new Apertus tokens
-- discovery must use true `BPE` learning, not word-frequency additions or `add_tokens(...)`
+- compare four tokenizer-training arms, not just two corpus views:
+  - fresh discovery `BPE` on `GlossAPI-only`
+  - fresh discovery `BPE` on `GlossAPI + HPLT`
+  - continuous `BPE` training starting from Apertus on `GlossAPI-only`
+  - continuous `BPE` training starting from Apertus on `GlossAPI + HPLT`
+- use a discovery tokenizer vocab fixed at `50k` for the first fresh-discovery runs
+- the continuous-BPE arm should start from the Apertus tokenizer and merge table and be allowed to add roughly the same estimated extension budget we are already considering, i.e. up to about `25k` new units
+- the `50k` stage is discovery/comparison only, not the final number of new Apertus tokens
+- fresh discovery must use true `BPE` learning, not word-frequency additions or `add_tokens(...)`
+- continuous `BPE` is now an explicit comparison arm, not a replacement for fresh discovery by default
 - preserve the Apertus front-end behavior during discovery: same normalization, same regex split, same byte-level regime
-- after discovery, diff learned units against Apertus and drop units that should not be merged back as new tokenizer entries
+- after fresh discovery or continuous `BPE`, diff learned units against Apertus and drop units that should not be merged back as new tokenizer entries
 - run analytic cutoffs in the `10k` to `25k` region on Apertus-compatible merged variants
 - the current working cutoff grid is:
   - `10240`
@@ -84,6 +90,7 @@ Use the existing dataset-build scripts as the operational path. Do not invent a 
   - `20480`
   - `25600`
 - fertility tests must be run on those merged Apertus-compatible variants, not on a raw standalone discovery tokenizer
+- the four experiment arms should be compared on the same evaluation bundle before narrowing to the best one or two candidates
 - only snap the shipped build to a `128`-aligned size after the elbow is identified
 - the divisibility rule applies to the whole final tokenizer, not just the newly added units
 - tokenizer experiments should read from the same CPT-ready dataset used for continued pretraining
@@ -104,7 +111,8 @@ Execution boundary:
 - freeze eval manifests
 - lock the literal Apertus tokenizer-replication checklist
 - export BPE-training text on the chosen worker
-- train discovery tokenizers on the chosen worker
+- train the four tokenizer comparison arms on the chosen worker
+- compare the four arms on the same evaluation bundle
 - diff learned units against Apertus
 - assemble Apertus-compatible merged tokenizer variants
 - run fertility tests at multiple cutoffs

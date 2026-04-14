@@ -42,21 +42,32 @@
 - tokenizer throughput sweep for `RAYON_NUM_THREADS` and batch size
 - freeze runtime defaults after the sweep
 
-10. Export BPE-training text for the two training views from the CPT-ready dataset on the chosen GCP worker.
+10. Export BPE-training text for the two corpus views from the CPT-ready dataset on the chosen GCP worker:
+- `GlossAPI-only`
+- `GlossAPI + HPLT` at `70/30`
 
-11. Start true Greek `BPE` discovery experiments from the frozen worker-side manifests.
+11. Run the full four-arm tokenizer experiment matrix from the frozen worker-side manifests:
+- fresh discovery `BPE` on `GlossAPI-only`
+- fresh discovery `BPE` on `GlossAPI + HPLT`
+- continuous `BPE` from Apertus on `GlossAPI-only`
+- continuous `BPE` from Apertus on `GlossAPI + HPLT`
 
-12. Diff learned Greek units against Apertus `model.vocab` and `model.merges`.
+12. Compare all four tokenizer arms on the same evaluation bundle:
+- fertility/compression metrics
+- tokenization behavior on the primary Greek eval set
+- practical extension quality relative to Apertus compatibility
 
-13. Run the analytic cutoff sweep on merged variants at:
+13. Diff the best one or two learned Greek-unit sets against Apertus `model.vocab` and `model.merges`.
+
+14. Run the analytic cutoff sweep on merged variants at:
 - `10240`
 - `15360`
 - `20480`
 - `25600`
 
-14. Only after the elbow is known, choose the shipped `128`-aligned extension size.
+15. Only after the elbow is known, choose the shipped `128`-aligned extension size.
 
-15. Implement and test the merge-rule extension.
+16. Implement and test the merge-rule extension.
 
 ## Dataset Operational Sidetrack
 
