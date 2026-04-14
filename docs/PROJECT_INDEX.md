@@ -32,6 +32,8 @@ This repo is intentionally split into smaller subprojects.
   - [HF_DEDUP_INVESTIGATION.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/HF_DEDUP_INVESTIGATION.md)
 - functional issues TODO:
   - [FUNCTIONAL_ISSUES_TODO.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/FUNCTIONAL_ISSUES_TODO.md)
+- near dedup memory-footprint TODO:
+  - [NEAR_DEDUP_MEMORY_FOOTPRINT_TODO.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/NEAR_DEDUP_MEMORY_FOOTPRINT_TODO.md)
 - near dedup redesign plan:
   - [NEAR_DEDUP_REDESIGN_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/NEAR_DEDUP_REDESIGN_PLAN.md)
 - machine-readable config:

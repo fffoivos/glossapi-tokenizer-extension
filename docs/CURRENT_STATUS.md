@@ -44,6 +44,8 @@ Parallel execution:
   - [STAGE_VERIFICATION_CHECKLIST.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/STAGE_VERIFICATION_CHECKLIST.md)
 - the plan has now explicitly diverged into an HF/DataTrove comparison for the near-dedup path:
   - [HF_DEDUP_INVESTIGATION.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/HF_DEDUP_INVESTIGATION.md)
+- the active memory-footprint reduction checklist for the near-dedup hot path is tracked in:
+  - [NEAR_DEDUP_MEMORY_FOOTPRINT_TODO.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/NEAR_DEDUP_MEMORY_FOOTPRINT_TODO.md)
 - the active GCP tokenizer worker has been rearmed from the repo tree at:
   - `/home/foivos/Projects/glossapi-tokenizer-extension`
 - the repo-backed worker chain currently includes:
@@ -53,10 +55,9 @@ Parallel execution:
   - training watcher
   - uploader handoff prep watcher
   - uploader launch watcher
-- the current live dedup run has exposed a design bottleneck:
-  - row-group chunk computation completed
-  - the run is stuck in `stage_01_exact` finalization
-  - the pathological path is the SQLite-heavy `relaxed_exact` export/finalization tail
+- the current live dedup run has already cleared the exact-stage bottleneck:
+  - exact finalization is parquet-backed and completed
+  - the active bottleneck is now `stage_02_near` candidate generation
 - the recovery and repair plans are now tracked explicitly in:
   - [PIPELINE_RECOVERY_AND_SCALE_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_RECOVERY_AND_SCALE_PLAN.md)
   - [DEDUP_SCRIPT_REPAIR_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)
@@ -79,6 +80,14 @@ Parallel execution:
   - benchmark artifacts live on the worker under:
     - `/home/foivos/data/glossapi_work/perf_runs/near_candidates_redesign_20260414_v7/spawn/summary.json`
     - `/home/foivos/data/glossapi_work/perf_runs/near_candidates_redesign_20260414_v7/fork/summary.json`
+- the first end-to-end memory reduction is now in the repo-backed near-candidate path:
+  - `build_candidate_band_chunk(...)` now streams one bucket at a time from the band shard inputs
+  - candidate-pair rows, bucket summaries, and touched-doc outputs are written incrementally instead of being accumulated fully in memory
+  - this reduces peak per-worker memory without changing dedup decisions
+- the second near-candidate memory reduction is also now in the repo-backed path:
+  - `near_candidates` no longer checkpoints only whole bands
+  - the stage now partitions each band into bucket-hash prefix member shards and checkpoints `band + prefix` chunks
+  - this should reduce time-to-first-durable-progress and lower the amount of work lost on interruption
 
 ## What Is Not Done Yet
 
@@ -91,9 +100,9 @@ Parallel execution:
 - no implemented merge-rule extension
 - no model adaptation plan beyond high-level constraints
 - no live armed cheap-instance uploader service yet for publishing the full updated dataset snapshot plus refreshed dedup metadata
-- no repaired dedup exact-stage export path yet
 - no finalized post-restart progress report for the repo-backed near-dedup continuation yet
-- no replacement near-candidate implementation yet based on the HF/DataTrove investigation
+- no final measurement yet for the new prefix-chunk near-candidate design on the worker
+- no individual bucket-shard authoritative resume boundary yet
 
 ## Current Trust Boundary
 

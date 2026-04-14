@@ -832,19 +832,26 @@ def test_char_shingle_mode_does_not_require_token_threshold() -> None:
 
 def test_candidate_band_chunk_subdivides_oversized_buckets(tmp_path: Path) -> None:
     stage_root = tmp_path / "stage_02_near"
-    band_path = stage_root / "shards" / "lsh_buckets" / "band_00" / "demo.parquet"
-    band_path.parent.mkdir(parents=True, exist_ok=True)
+    band_root = stage_root / "shards" / "lsh_buckets" / "band_00"
+    band_root.mkdir(parents=True, exist_ok=True)
+    pq.write_table(
+        pa.Table.from_pylist(
+                [
+                    {
+                        "doc_key": "doc-a",
+                        "band_index": 0,
+                        "bucket_hash": "same-bucket",
+                        "token_count": 80,
+                        "char_count": 400,
+                    "shingle_mode": "token",
+                },
+            ]
+        ),
+        band_root / "demo_a.parquet",
+    )
     pq.write_table(
         pa.Table.from_pylist(
             [
-                {
-                    "doc_key": "doc-a",
-                    "band_index": 0,
-                    "bucket_hash": "same-bucket",
-                    "token_count": 80,
-                    "char_count": 400,
-                    "shingle_mode": "token",
-                },
                 {
                     "doc_key": "doc-b",
                     "band_index": 0,
@@ -863,7 +870,7 @@ def test_candidate_band_chunk_subdivides_oversized_buckets(tmp_path: Path) -> No
                 },
             ]
         ),
-        band_path,
+        band_root / "demo_b.parquet",
     )
     signature_map = {
         "doc-a": np.array([1, 2, 3, 4], dtype=np.uint64),

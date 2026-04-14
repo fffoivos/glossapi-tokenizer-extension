@@ -86,6 +86,7 @@ DEFAULT_MAX_BUCKET_SIZE = 5000
 DEFAULT_NEAR_CLUSTER_CHUNK_DOCS = 4096
 DEFAULT_NEAR_CLUSTER_MAX_COMPONENTS = 256
 DEFAULT_NEAR_CANDIDATE_MAX_WORKERS = 8
+NEAR_CANDIDATE_BUCKET_PREFIX_LEN = 1
 SHORT_DOC_TOKEN_THRESHOLD = 20
 DEFAULT_EDGE_AUDIT_SAMPLE_SIZE = 256
 DEFAULT_CLUSTER_AUDIT_SAMPLE_SIZE = 128
@@ -3918,20 +3919,36 @@ def candidate_band_shard_root(stage_root: Path, *, band_index: int) -> Path:
     return shard_root
 
 
+def candidate_bucket_partition_root(stage_root: Path, *, band_index: int) -> Path:
+    partition_root = stage_root / "shards" / "bucket_members" / f"band_{band_index:02d}"
+    ensure_dir(partition_root)
+    return partition_root
+
+
+def candidate_bucket_partition_path(stage_root: Path, *, band_index: int, bucket_prefix: str) -> Path:
+    return candidate_bucket_partition_root(stage_root, band_index=band_index) / f"prefix_{bucket_prefix}.parquet"
+
+
+def candidate_bucket_partition_complete_path(stage_root: Path, *, band_index: int) -> Path:
+    return candidate_bucket_partition_root(stage_root, band_index=band_index) / "_COMPLETE"
+
+
 def candidate_bucket_shard_path(stage_root: Path, *, band_index: int, bucket_hash: str) -> Path:
     return candidate_band_shard_root(stage_root, band_index=band_index) / f"{hashed_filename(bucket_hash)}.parquet"
 
 
-def bucket_summary_shard_path(stage_root: Path, *, band_index: int) -> Path:
+def bucket_summary_shard_path(stage_root: Path, *, band_index: int, chunk_suffix: str | None = None) -> Path:
     shard_root = stage_root / "shards" / "bucket_summaries"
     ensure_dir(shard_root)
-    return shard_root / f"band_{band_index:02d}.parquet"
+    suffix = "" if not chunk_suffix else f"__{chunk_suffix}"
+    return shard_root / f"band_{band_index:02d}{suffix}.parquet"
 
 
-def touched_doc_shard_path(stage_root: Path, *, band_index: int) -> Path:
+def touched_doc_shard_path(stage_root: Path, *, band_index: int, chunk_suffix: str | None = None) -> Path:
     shard_root = stage_root / "shards" / "touched_doc_keys"
     ensure_dir(shard_root)
-    return shard_root / f"band_{band_index:02d}.parquet"
+    suffix = "" if not chunk_suffix else f"__{chunk_suffix}"
+    return shard_root / f"band_{band_index:02d}{suffix}.parquet"
 
 
 def compute_near_signature_chunk(
@@ -4437,113 +4454,164 @@ def load_bucket_summary(path: Path) -> dict[int, dict[str, dict[str, Any]]]:
     return summary
 
 
-def build_candidate_band_chunk(
-    *,
-    stage_root: Path,
-    band_index: int,
-    bands: int,
-    rows_per_band: int,
-    minhash_threshold: float,
-    max_bucket_size: int,
-    signature_map: SignatureLookup | dict[str, np.ndarray] | None = None,
-    signature_meta: SignatureMetadataLookup | None = None,
-    previous_band_summary: dict[str, dict[str, Any]] | None = None,
-    previous_stage_root: Path | None = None,
-) -> dict[str, Any]:
-    if signature_map is None or signature_meta is None:
-        if _CANDIDATE_WORKER_SIGNATURE_MAP is None or _CANDIDATE_WORKER_SIGNATURE_META is None:
-            raise ValueError("candidate worker signature index is not initialized")
-        signature_map = _CANDIDATE_WORKER_SIGNATURE_MAP
-        signature_meta = _CANDIDATE_WORKER_SIGNATURE_META
-    previous_band_summary = previous_band_summary or {}
-    band_dir = stage_root / "shards" / "lsh_buckets" / f"band_{band_index:02d}"
-    bucket_members: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    if band_dir.exists():
+def near_candidate_bucket_prefixes() -> list[str]:
+    width = max(1, NEAR_CANDIDATE_BUCKET_PREFIX_LEN)
+    return [format(index, f"0{width}x") for index in range(16**width)]
+
+
+def near_candidate_chunk_key(*, band_index: int, bucket_prefix: str) -> str:
+    return f"band:{band_index:02d}:prefix:{bucket_prefix}"
+
+
+def prepare_candidate_bucket_partitions_for_band(stage_root: Path, *, band_index: int) -> list[str]:
+    partition_root = candidate_bucket_partition_root(stage_root, band_index=band_index)
+    complete_path = candidate_bucket_partition_complete_path(stage_root, band_index=band_index)
+    prefixes = near_candidate_bucket_prefixes()
+    if complete_path.exists() and all(
+        candidate_bucket_partition_path(stage_root, band_index=band_index, bucket_prefix=prefix).exists()
+        for prefix in prefixes
+    ):
+        return prefixes
+    if partition_root.exists():
+        shutil.rmtree(partition_root)
+    ensure_dir(partition_root)
+    writers: dict[str, pq.ParquetWriter | None] = {prefix: None for prefix in prefixes}
+    temp_paths = {
+        prefix: temp_output_path(candidate_bucket_partition_path(stage_root, band_index=band_index, bucket_prefix=prefix))
+        for prefix in prefixes
+    }
+    buffers: dict[str, list[dict[str, Any]]] = {prefix: [] for prefix in prefixes}
+    try:
+        band_dir = stage_root / "shards" / "lsh_buckets" / f"band_{band_index:02d}"
         for path in sorted(band_dir.glob("*.parquet")):
             for batch_rows in iter_parquet_batches(path):
                 for row in batch_rows:
-                    bucket_members[str(row["bucket_hash"])].append(row)
-    bucket_summary_rows: list[dict[str, Any]] = []
-    touched_doc_keys: set[str] = set()
-    oversized_bucket_count = 0
-    oversized_bucket_member_rows = 0
-    subdivided_bucket_count = 0
-    fallback_chunked_bucket_count = 0
-    fallback_chunked_member_rows = 0
-    reused_bucket_count = 0
-    recomputed_bucket_count = 0
-    for members in bucket_members.values():
-        if len(members) < 2:
-            bucket_hash = str(members[0]["bucket_hash"])
-            member_digest = bucket_member_digest(members, signature_map=signature_map, signature_meta=signature_meta)
-            bucket_summary_rows.append(
-                {
-                    "band_index": int(band_index),
-                    "bucket_hash": bucket_hash,
-                    "member_count": int(len(members)),
-                    "member_digest": member_digest,
-                    "candidate_row_count": 0,
-                }
-            )
-            continue
-        bucket_hash = str(members[0]["bucket_hash"])
-        member_digest = bucket_member_digest(members, signature_map=signature_map, signature_meta=signature_meta)
-        candidate_path = candidate_bucket_shard_path(stage_root, band_index=band_index, bucket_hash=bucket_hash)
-        previous_row = previous_band_summary.get(bucket_hash)
-        previous_candidate_path = None
-        if previous_stage_root is not None:
-            previous_candidate_path = candidate_bucket_shard_path(previous_stage_root, band_index=band_index, bucket_hash=bucket_hash)
-        if (
-            previous_row is not None
-            and str(previous_row["member_digest"]) == member_digest
-        ):
-            if previous_candidate_path is None or not previous_candidate_path.exists():
-                if int(previous_row.get("candidate_row_count", 0) or 0) == 0:
-                    reused_bucket_count += 1
-                    bucket_summary_rows.append(
+                    bucket_hash = str(row["bucket_hash"])
+                    prefix = bucket_hash[:NEAR_CANDIDATE_BUCKET_PREFIX_LEN]
+                    buffers[prefix].append(
                         {
-                            "band_index": int(band_index),
+                            "doc_key": str(row["doc_key"]),
+                            "band_index": int(row["band_index"]),
                             "bucket_hash": bucket_hash,
-                            "member_count": int(len(members)),
-                            "member_digest": member_digest,
-                            "candidate_row_count": 0,
+                            "token_count": int(row["token_count"]),
+                            "char_count": int(row["char_count"]),
+                            "shingle_mode": str(row["shingle_mode"]),
                         }
                     )
-                    continue
-            if previous_candidate_path is None or not previous_candidate_path.exists():
-                previous_candidate_path = None
-            else:
-                reused_bucket_count += 1
-                atomic_copy(previous_candidate_path, candidate_path)
-                bucket_summary_rows.append(
-                    {
-                        "band_index": int(band_index),
-                        "bucket_hash": bucket_hash,
-                        "member_count": int(len(members)),
-                        "member_digest": member_digest,
-                        "candidate_row_count": int(pq.ParquetFile(previous_candidate_path).metadata.num_rows),
-                    }
+                for prefix, rows in buffers.items():
+                    if len(rows) >= 4096:
+                        writers[prefix], _ = append_rows_to_parquet_writer(
+                            writers[prefix],
+                            rows=rows,
+                            temp_path=temp_paths[prefix],
+                            schema=LSH_BUCKET_SCHEMA,
+                        )
+                        buffers[prefix] = []
+        for prefix, rows in buffers.items():
+            if rows:
+                writers[prefix], _ = append_rows_to_parquet_writer(
+                    writers[prefix],
+                    rows=rows,
+                    temp_path=temp_paths[prefix],
+                    schema=LSH_BUCKET_SCHEMA,
                 )
-                continue
-        recomputed_bucket_count += 1
-        touched_doc_keys.update(str(row["doc_key"]) for row in members)
-        candidate_groups = [members]
-        if len(members) > max_bucket_size:
-            oversized_bucket_count += 1
-            oversized_bucket_member_rows += len(members)
-            candidate_groups, subdivision_stats = subdivide_oversized_bucket_members(
-                members,
-                signature_map=signature_map,
-                band_index=band_index,
-                bands=bands,
-                rows_per_band=rows_per_band,
-                max_bucket_size=max_bucket_size,
+        for prefix in prefixes:
+            finalize_parquet_writer(
+                writers[prefix],
+                temp_path=temp_paths[prefix],
+                destination=candidate_bucket_partition_path(stage_root, band_index=band_index, bucket_prefix=prefix),
+                schema=LSH_BUCKET_SCHEMA,
             )
-            subdivided_bucket_count += int(subdivision_stats["subdivided_bucket_count"])
-            fallback_chunked_bucket_count += int(subdivision_stats["fallback_chunked_bucket_count"])
-            fallback_chunked_member_rows += int(subdivision_stats["fallback_chunked_member_rows"])
-        candidate_rows: list[dict[str, Any]] = []
-        seen_pairs: set[tuple[str, str]] = set()
+        complete_path.write_text(json.dumps({"band_index": int(band_index), "prefixes": prefixes}, indent=2))
+    except Exception:
+        shutil.rmtree(partition_root, ignore_errors=True)
+        raise
+    return prefixes
+
+
+def iter_band_bucket_members(stage_root: Path, *, band_index: int) -> Any:
+    band_dir = stage_root / "shards" / "lsh_buckets" / f"band_{band_index:02d}"
+    band_paths = sorted(band_dir.glob("*.parquet"))
+    if not band_paths:
+        return
+    current_bucket_hash: str | None = None
+    current_members: list[dict[str, Any]] = []
+    for row in iter_duckdb_query_rows(
+        """
+        SELECT doc_key, bucket_hash, token_count, char_count, shingle_mode
+        FROM read_parquet(?)
+        ORDER BY bucket_hash, doc_key
+        """,
+        [str(band_dir / "*.parquet")],
+        batch_size=4096,
+        threads=1,
+    ):
+        bucket_hash = str(row["bucket_hash"])
+        if current_bucket_hash is not None and bucket_hash != current_bucket_hash:
+            yield current_bucket_hash, current_members
+            current_members = []
+        current_bucket_hash = bucket_hash
+        current_members.append(
+            {
+                "doc_key": str(row["doc_key"]),
+                "bucket_hash": bucket_hash,
+                "token_count": int(row["token_count"]),
+                "char_count": int(row["char_count"]),
+                "shingle_mode": str(row["shingle_mode"]),
+            }
+        )
+    if current_bucket_hash is not None:
+        yield current_bucket_hash, current_members
+
+
+def iter_partition_bucket_members(stage_root: Path, *, band_index: int, bucket_prefix: str) -> Any:
+    partition_path = candidate_bucket_partition_path(stage_root, band_index=band_index, bucket_prefix=bucket_prefix)
+    if not partition_path.exists():
+        return
+    current_bucket_hash: str | None = None
+    current_members: list[dict[str, Any]] = []
+    for row in iter_duckdb_query_rows(
+        """
+        SELECT doc_key, bucket_hash, token_count, char_count, shingle_mode
+        FROM read_parquet(?)
+        ORDER BY bucket_hash, doc_key
+        """,
+        [str(partition_path)],
+        batch_size=4096,
+        threads=1,
+    ):
+        bucket_hash = str(row["bucket_hash"])
+        if current_bucket_hash is not None and bucket_hash != current_bucket_hash:
+            yield current_bucket_hash, current_members
+            current_members = []
+        current_bucket_hash = bucket_hash
+        current_members.append(
+            {
+                "doc_key": str(row["doc_key"]),
+                "bucket_hash": bucket_hash,
+                "token_count": int(row["token_count"]),
+                "char_count": int(row["char_count"]),
+                "shingle_mode": str(row["shingle_mode"]),
+            }
+        )
+    if current_bucket_hash is not None:
+        yield current_bucket_hash, current_members
+
+
+def write_candidate_rows_for_bucket(
+    *,
+    candidate_groups: list[list[dict[str, Any]]],
+    candidate_path: Path,
+    minhash_threshold: float,
+    signature_map: SignatureLookup | dict[str, np.ndarray],
+    signature_meta: SignatureMetadataLookup,
+) -> int:
+    writer: pq.ParquetWriter | None = None
+    rows_written = 0
+    temp_path = temp_output_path(candidate_path)
+    row_buffer: list[dict[str, Any]] = []
+    seen_pairs: set[tuple[str, str]] = set()
+    try:
         for candidate_group in candidate_groups:
             if len(candidate_group) < 2:
                 continue
@@ -4564,7 +4632,7 @@ def build_candidate_band_chunk(
                     estimated_jaccard = signature_jaccard(signature_map[left_key], signature_map[right_key])
                     if estimated_jaccard < minhash_threshold:
                         continue
-                    candidate_rows.append(
+                    row_buffer.append(
                         {
                             "doc_key_left": left_key,
                             "doc_key_right": right_key,
@@ -4578,28 +4646,208 @@ def build_candidate_band_chunk(
                             "bucket_match_bands": 1,
                         }
                     )
-        candidate_row_count = write_group_parquet(candidate_rows, candidate_path, schema=CANDIDATE_PAIR_SCHEMA)
-        bucket_summary_rows.append(
-            {
+                    if len(row_buffer) >= 4096:
+                        writer, appended = append_rows_to_parquet_writer(
+                            writer,
+                            rows=row_buffer,
+                            temp_path=temp_path,
+                            schema=CANDIDATE_PAIR_SCHEMA,
+                        )
+                        rows_written += appended
+                        row_buffer = []
+        if row_buffer:
+            writer, appended = append_rows_to_parquet_writer(
+                writer,
+                rows=row_buffer,
+                temp_path=temp_path,
+                schema=CANDIDATE_PAIR_SCHEMA,
+            )
+            rows_written += appended
+        finalize_parquet_writer(
+            writer,
+            temp_path=temp_path,
+            destination=candidate_path,
+            schema=CANDIDATE_PAIR_SCHEMA,
+        )
+    except Exception:
+        if temp_path.exists():
+            temp_path.unlink()
+        raise
+    return rows_written
+
+
+def build_candidate_band_chunk(
+    *,
+    stage_root: Path,
+    band_index: int,
+    bucket_prefix: str | None = None,
+    bands: int,
+    rows_per_band: int,
+    minhash_threshold: float,
+    max_bucket_size: int,
+    signature_map: SignatureLookup | dict[str, np.ndarray] | None = None,
+    signature_meta: SignatureMetadataLookup | None = None,
+    previous_band_summary: dict[str, dict[str, Any]] | None = None,
+    previous_stage_root: Path | None = None,
+) -> dict[str, Any]:
+    if signature_map is None or signature_meta is None:
+        if _CANDIDATE_WORKER_SIGNATURE_MAP is None or _CANDIDATE_WORKER_SIGNATURE_META is None:
+            raise ValueError("candidate worker signature index is not initialized")
+        signature_map = _CANDIDATE_WORKER_SIGNATURE_MAP
+        signature_meta = _CANDIDATE_WORKER_SIGNATURE_META
+    previous_band_summary = previous_band_summary or {}
+    chunk_suffix = None if bucket_prefix is None else f"prefix_{bucket_prefix}"
+    bucket_summary_path = bucket_summary_shard_path(stage_root, band_index=band_index, chunk_suffix=chunk_suffix)
+    touched_doc_path = touched_doc_shard_path(stage_root, band_index=band_index, chunk_suffix=chunk_suffix)
+    bucket_summary_writer: pq.ParquetWriter | None = None
+    touched_doc_writer: pq.ParquetWriter | None = None
+    bucket_summary_temp_path = temp_output_path(bucket_summary_path)
+    touched_doc_temp_path = temp_output_path(touched_doc_path)
+    total_candidate_rows = 0
+    oversized_bucket_count = 0
+    oversized_bucket_member_rows = 0
+    subdivided_bucket_count = 0
+    fallback_chunked_bucket_count = 0
+    fallback_chunked_member_rows = 0
+    reused_bucket_count = 0
+    recomputed_bucket_count = 0
+    try:
+        member_iter = (
+            iter_band_bucket_members(stage_root, band_index=band_index)
+            if bucket_prefix is None
+            else iter_partition_bucket_members(stage_root, band_index=band_index, bucket_prefix=bucket_prefix)
+        )
+        for bucket_hash, members in member_iter or []:
+            bucket_summary_row: dict[str, Any]
+            candidate_row_count = 0
+            member_digest = bucket_member_digest(members, signature_map=signature_map, signature_meta=signature_meta)
+            candidate_path = candidate_bucket_shard_path(stage_root, band_index=band_index, bucket_hash=bucket_hash)
+            previous_row = previous_band_summary.get(bucket_hash)
+            previous_candidate_path = None
+            if previous_stage_root is not None:
+                previous_candidate_path = candidate_bucket_shard_path(previous_stage_root, band_index=band_index, bucket_hash=bucket_hash)
+            if len(members) < 2:
+                bucket_summary_row = {
+                    "band_index": int(band_index),
+                    "bucket_hash": bucket_hash,
+                    "member_count": int(len(members)),
+                    "member_digest": member_digest,
+                    "candidate_row_count": 0,
+                }
+                bucket_summary_writer, _ = append_rows_to_parquet_writer(
+                    bucket_summary_writer,
+                    rows=[bucket_summary_row],
+                    temp_path=bucket_summary_temp_path,
+                    schema=BUCKET_SUMMARY_SCHEMA,
+                )
+                continue
+            elif (
+                previous_row is not None
+                and str(previous_row["member_digest"]) == member_digest
+            ):
+                if previous_candidate_path is None or not previous_candidate_path.exists():
+                    if int(previous_row.get("candidate_row_count", 0) or 0) == 0:
+                        reused_bucket_count += 1
+                        bucket_summary_row = {
+                            "band_index": int(band_index),
+                            "bucket_hash": bucket_hash,
+                            "member_count": int(len(members)),
+                            "member_digest": member_digest,
+                            "candidate_row_count": 0,
+                        }
+                    else:
+                        previous_candidate_path = None
+                else:
+                    reused_bucket_count += 1
+                    atomic_copy(previous_candidate_path, candidate_path)
+                    candidate_row_count = int(pq.ParquetFile(previous_candidate_path).metadata.num_rows)
+                    bucket_summary_row = {
+                        "band_index": int(band_index),
+                        "bucket_hash": bucket_hash,
+                        "member_count": int(len(members)),
+                        "member_digest": member_digest,
+                        "candidate_row_count": candidate_row_count,
+                    }
+                if previous_candidate_path is None and int(previous_row.get("candidate_row_count", 0) or 0) != 0:
+                    recomputed_bucket_count += 1
+                else:
+                    total_candidate_rows += int(bucket_summary_row["candidate_row_count"])
+                    bucket_summary_writer, _ = append_rows_to_parquet_writer(
+                        bucket_summary_writer,
+                        rows=[bucket_summary_row],
+                        temp_path=bucket_summary_temp_path,
+                        schema=BUCKET_SUMMARY_SCHEMA,
+                    )
+                    continue
+            else:
+                recomputed_bucket_count += 1
+            touched_doc_writer, _ = append_rows_to_parquet_writer(
+                touched_doc_writer,
+                rows=[{"doc_key": str(row["doc_key"])} for row in members],
+                temp_path=touched_doc_temp_path,
+                schema=TOUCHED_DOC_SCHEMA,
+            )
+            candidate_groups = [members]
+            if len(members) > max_bucket_size:
+                oversized_bucket_count += 1
+                oversized_bucket_member_rows += len(members)
+                candidate_groups, subdivision_stats = subdivide_oversized_bucket_members(
+                    members,
+                    signature_map=signature_map,
+                    band_index=band_index,
+                    bands=bands,
+                    rows_per_band=rows_per_band,
+                    max_bucket_size=max_bucket_size,
+                )
+                subdivided_bucket_count += int(subdivision_stats["subdivided_bucket_count"])
+                fallback_chunked_bucket_count += int(subdivision_stats["fallback_chunked_bucket_count"])
+                fallback_chunked_member_rows += int(subdivision_stats["fallback_chunked_member_rows"])
+            candidate_row_count = write_candidate_rows_for_bucket(
+                candidate_groups=candidate_groups,
+                candidate_path=candidate_path,
+                minhash_threshold=minhash_threshold,
+                signature_map=signature_map,
+                signature_meta=signature_meta,
+            )
+            bucket_summary_row = {
                 "band_index": int(band_index),
                 "bucket_hash": bucket_hash,
                 "member_count": int(len(members)),
                 "member_digest": member_digest,
                 "candidate_row_count": int(candidate_row_count),
             }
+            total_candidate_rows += int(candidate_row_count)
+            bucket_summary_writer, _ = append_rows_to_parquet_writer(
+                bucket_summary_writer,
+                rows=[bucket_summary_row],
+                temp_path=bucket_summary_temp_path,
+                schema=BUCKET_SUMMARY_SCHEMA,
+            )
+        finalize_parquet_writer(
+            bucket_summary_writer,
+            temp_path=bucket_summary_temp_path,
+            destination=bucket_summary_path,
+            schema=BUCKET_SUMMARY_SCHEMA,
         )
-    bucket_summary_path = bucket_summary_shard_path(stage_root, band_index=band_index)
-    write_group_parquet(bucket_summary_rows, bucket_summary_path, schema=BUCKET_SUMMARY_SCHEMA)
-    touched_doc_path = touched_doc_shard_path(stage_root, band_index=band_index)
-    write_group_parquet(
-        [{"doc_key": doc_key} for doc_key in sorted(touched_doc_keys)],
-        touched_doc_path,
-        schema=TOUCHED_DOC_SCHEMA,
-    )
+        finalize_parquet_writer(
+            touched_doc_writer,
+            temp_path=touched_doc_temp_path,
+            destination=touched_doc_path,
+            schema=TOUCHED_DOC_SCHEMA,
+        )
+    except Exception:
+        for temp_path in (bucket_summary_temp_path, touched_doc_temp_path):
+            if temp_path.exists():
+                temp_path.unlink()
+        raise
     return {
-        "chunk_key": f"band:{band_index:02d}",
+        "chunk_key": (
+            f"band:{band_index:02d}"
+            if bucket_prefix is None
+            else near_candidate_chunk_key(band_index=band_index, bucket_prefix=bucket_prefix)
+        ),
         "artifact_path": str(bucket_summary_path),
-        "row_count": int(sum(int(row["candidate_row_count"]) for row in bucket_summary_rows)),
+        "row_count": int(total_candidate_rows),
         "oversized_bucket_count": int(oversized_bucket_count),
         "oversized_bucket_member_rows": int(oversized_bucket_member_rows),
         "subdivided_bucket_count": int(subdivided_bucket_count),
@@ -4626,7 +4874,42 @@ def _run_near_candidate_stage(
 ) -> dict[str, Any]:
     stage_root = run_root / "stage_02_near"
     signatures_path = stage_root / "signatures.parquet"
-    chunk_keys = [f"band:{band_index:02d}" for band_index in range(bands)]
+    existing_chunk_keys = [
+        str(row["chunk_key"])
+        for row in conn.execute(
+            "SELECT chunk_key FROM run_stage_chunks WHERE run_id = ? AND stage = ?",
+            (run_id, NEAR_CANDIDATE_STAGE),
+        ).fetchall()
+    ]
+    uses_legacy_band_only_chunks = bool(existing_chunk_keys) and all(":prefix:" not in key for key in existing_chunk_keys)
+    if uses_legacy_band_only_chunks:
+        conn.execute("DELETE FROM run_stage_chunks WHERE run_id = ? AND stage = ?", (run_id, NEAR_CANDIDATE_STAGE))
+        conn.execute("DELETE FROM stage_progress WHERE run_id = ? AND stage = ?", (run_id, NEAR_CANDIDATE_STAGE))
+        for relative in [
+            Path("candidate_pairs.parquet"),
+            Path("candidate_pairs.sqlite"),
+            Path("bucket_summary.parquet"),
+            Path("touched_doc_keys.parquet"),
+        ]:
+            path = stage_root / relative
+            if path.exists():
+                path.unlink()
+        for relative_dir in [
+            stage_root / "shards" / "candidate_pairs",
+            stage_root / "shards" / "bucket_summaries",
+            stage_root / "shards" / "touched_doc_keys",
+        ]:
+            if relative_dir.exists():
+                shutil.rmtree(relative_dir)
+    chunk_specs = [
+        {"band_index": band_index, "bucket_prefix": bucket_prefix}
+        for band_index in range(bands)
+        for bucket_prefix in prepare_candidate_bucket_partitions_for_band(stage_root, band_index=band_index)
+    ]
+    chunk_keys = [
+        near_candidate_chunk_key(band_index=int(spec["band_index"]), bucket_prefix=str(spec["bucket_prefix"]))
+        for spec in chunk_specs
+    ]
     register_stage_chunks(conn, run_id=run_id, stage=NEAR_CANDIDATE_STAGE, chunk_keys=chunk_keys)
     total_chunks, completed_chunks = stage_chunk_counts(conn, run_id=run_id, stage=NEAR_CANDIDATE_STAGE)
     progress_path = progress_file_path(run_root, NEAR_CANDIDATE_STAGE)
@@ -4665,10 +4948,19 @@ def _run_near_candidate_stage(
             "completed_chunks": completed_chunks,
         },
     )
-    pending_bands = [
-        band_index
-        for band_index in range(bands)
-        if stage_chunk_status(conn, run_id=run_id, stage=NEAR_CANDIDATE_STAGE, chunk_key=f"band:{band_index:02d}") != "completed"
+    pending_chunks = [
+        spec
+        for spec in chunk_specs
+        if stage_chunk_status(
+            conn,
+            run_id=run_id,
+            stage=NEAR_CANDIDATE_STAGE,
+            chunk_key=near_candidate_chunk_key(
+                band_index=int(spec["band_index"]),
+                bucket_prefix=str(spec["bucket_prefix"]),
+            ),
+        )
+        != "completed"
     ]
     oversized_bucket_count = 0
     oversized_bucket_member_rows = 0
@@ -4707,17 +4999,20 @@ def _run_near_candidate_stage(
         if previous_run_root is not None
         else {}
     )
-    worker_count = effective_worker_count(min(max_workers, near_candidate_worker_cap()), len(pending_bands))
+    worker_count = effective_worker_count(min(max_workers, near_candidate_worker_cap()), len(pending_chunks))
     append_debug_trace(
         trace_path,
-        f"near_candidates:start pending_bands={len(pending_bands)} worker_count={worker_count} max_bucket_size={max_bucket_size}",
+        f"near_candidates:start pending_chunks={len(pending_chunks)} worker_count={worker_count} max_bucket_size={max_bucket_size}",
     )
     if worker_count == 1:
         signature_map, signature_meta = load_signature_index(signatures_path)
-        for band_index in pending_bands:
+        for chunk_spec in pending_chunks:
+            band_index = int(chunk_spec["band_index"])
+            bucket_prefix = str(chunk_spec["bucket_prefix"])
             result = build_candidate_band_chunk(
                 stage_root=stage_root,
                 band_index=band_index,
+                bucket_prefix=bucket_prefix,
                 bands=bands,
                 rows_per_band=rows_per_band,
                 minhash_threshold=minhash_threshold,
@@ -4759,7 +5054,7 @@ def _run_near_candidate_stage(
                     "completed_chunks": completed_chunks,
                 },
             )
-    elif pending_bands:
+    elif pending_chunks:
         try:
             pool_context, initializer, initargs = candidate_pool_initializer_config(signatures_path)
             with ProcessPoolExecutor(
@@ -4772,15 +5067,19 @@ def _run_near_candidate_stage(
                     executor.submit(
                         build_candidate_band_chunk,
                         stage_root=stage_root,
-                        band_index=band_index,
+                        band_index=int(chunk_spec["band_index"]),
+                        bucket_prefix=str(chunk_spec["bucket_prefix"]),
                         bands=bands,
                         rows_per_band=rows_per_band,
                         minhash_threshold=minhash_threshold,
-                        previous_band_summary=previous_bucket_summary.get(band_index, {}),
+                        previous_band_summary=previous_bucket_summary.get(int(chunk_spec["band_index"]), {}),
                         previous_stage_root=None if previous_run_root is None else previous_run_root / "stage_02_near",
                         max_bucket_size=max_bucket_size,
-                    ): band_index
-                    for band_index in pending_bands
+                    ): near_candidate_chunk_key(
+                        band_index=int(chunk_spec["band_index"]),
+                        bucket_prefix=str(chunk_spec["bucket_prefix"]),
+                    )
+                    for chunk_spec in pending_chunks
                 }
                 while future_map:
                     done, _ = wait(future_map, return_when=FIRST_COMPLETED)
