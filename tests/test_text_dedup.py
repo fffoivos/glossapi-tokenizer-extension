@@ -1447,6 +1447,98 @@ def test_candidate_pool_initializer_config_uses_initializer_for_spawn(monkeypatc
     assert calls == []
 
 
+def test_near_candidate_legacy_band_migration_archives_old_outputs(tmp_path: Path) -> None:
+    input_root = tmp_path / "input"
+    state_root = tmp_path / "state"
+    run_root = tmp_path / "run"
+    input_root.mkdir()
+    near_tokens = [f"λέξη{i}" for i in range(60)]
+    near_tokens_variant = list(near_tokens)
+    near_tokens_variant[20] = "παραλλαγή"
+    rows = [
+        make_test_row("demo", "exact-a", "Καλημέρα κόσμε"),
+        make_test_row("demo", "exact-b", "Καλημέρα κόσμε"),
+        make_test_row("demo", "near-a", " ".join(near_tokens)),
+        make_test_row("demo", "near-b", " ".join(near_tokens_variant)),
+    ]
+    write_test_snapshot(input_root / "demo.parquet", rows)
+    text_dedup.run_dedup_pipeline(
+        input_root=input_root,
+        state_root=state_root,
+        run_root=run_root,
+        max_workers=1,
+        minhash_threshold=0.80,
+        num_perm=128,
+        bands=32,
+        rows_per_band=4,
+        shingle_mode="token",
+        shingle_size=2,
+    )
+
+    stage_root = run_root / "stage_02_near"
+    assert (stage_root / "candidate_pairs.parquet").exists()
+    assert (stage_root / "shards" / "candidate_pairs").exists()
+
+    conn = text_dedup.connect_db(state_root)
+    try:
+        with conn:
+            conn.execute(
+                "DELETE FROM run_stage_chunks WHERE run_id = ? AND stage = ?",
+                (run_root.name, text_dedup.NEAR_CANDIDATE_STAGE),
+            )
+            text_dedup.register_stage_chunks(
+                conn,
+                run_id=run_root.name,
+                stage=text_dedup.NEAR_CANDIDATE_STAGE,
+                chunk_keys=[f"band:{index:02d}" for index in range(32)],
+            )
+            conn.execute(
+                "DELETE FROM stage_progress WHERE run_id = ? AND stage = ?",
+                (run_root.name, text_dedup.NEAR_CANDIDATE_STAGE),
+            )
+        config = json.loads((run_root / "run_config.json").read_text())["config"]
+        summary = text_dedup._run_near_candidate_stage(
+            conn,
+            run_id=run_root.name,
+            run_root=run_root,
+            state_root=state_root,
+            config=config,
+            minhash_threshold=0.80,
+            bands=32,
+            rows_per_band=4,
+            max_workers=1,
+            max_bucket_size=text_dedup.DEFAULT_MAX_BUCKET_SIZE,
+        )
+    finally:
+        conn.close()
+
+    assert summary["candidate_pair_rows"] >= 1
+    progress = json.loads((run_root / "progress" / f"{text_dedup.NEAR_CANDIDATE_STAGE}.json").read_text())
+    assert progress["candidate_pair_rows"] >= 1
+    conn = text_dedup.connect_db(state_root)
+    try:
+        status_row = conn.execute(
+            "SELECT status FROM stage_progress WHERE run_id = ? AND stage = ?",
+            (run_root.name, text_dedup.NEAR_CANDIDATE_STAGE),
+        ).fetchone()
+        total_chunks, completed_chunks = text_dedup.stage_chunk_counts(
+            conn,
+            run_id=run_root.name,
+            stage=text_dedup.NEAR_CANDIDATE_STAGE,
+        )
+    finally:
+        conn.close()
+    assert status_row is not None and str(status_row["status"]) == "completed"
+    assert total_chunks == completed_chunks == 32 * len(text_dedup.near_candidate_bucket_prefixes())
+    legacy_root = stage_root / "legacy_reset"
+    assert legacy_root.exists()
+    archived_names = [path.name for path in legacy_root.iterdir()]
+    assert any(name.startswith("candidate_pairs.parquet.") for name in archived_names)
+    assert any(name.startswith("candidate_pairs.") for name in archived_names)
+    assert (stage_root / "candidate_pairs.parquet").exists()
+    assert (stage_root / "shards" / "bucket_members").exists()
+
+
 def test_resolve_near_component_splits_weak_member_after_representative_validation() -> None:
     component = {"doc-a", "doc-b", "doc-c", "doc-d"}
     adjacency = {

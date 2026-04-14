@@ -635,6 +635,20 @@ def temp_output_path(path: Path) -> Path:
     return path.parent / f".{path.name}.{uuid4().hex}.tmp"
 
 
+def archival_path(path: Path, *, archive_root: Path) -> Path:
+    ensure_dir(archive_root)
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    return archive_root / f"{path.name}.{stamp}.{uuid4().hex}"
+
+
+def archive_existing_path(path: Path, *, archive_root: Path) -> Path | None:
+    if not path.exists():
+        return None
+    destination = archival_path(path, archive_root=archive_root)
+    path.replace(destination)
+    return destination
+
+
 def atomic_replace(src: Path, dest: Path) -> None:
     ensure_dir(dest.parent)
     src.replace(dest)
@@ -4874,6 +4888,8 @@ def _run_near_candidate_stage(
 ) -> dict[str, Any]:
     stage_root = run_root / "stage_02_near"
     signatures_path = stage_root / "signatures.parquet"
+    progress_path = progress_file_path(run_root, NEAR_CANDIDATE_STAGE)
+    trace_path = progress_dir(run_root) / "near_candidate_trace.log"
     existing_chunk_keys = [
         str(row["chunk_key"])
         for row in conn.execute(
@@ -4883,6 +4899,11 @@ def _run_near_candidate_stage(
     ]
     uses_legacy_band_only_chunks = bool(existing_chunk_keys) and all(":prefix:" not in key for key in existing_chunk_keys)
     if uses_legacy_band_only_chunks:
+        archive_root = stage_root / "legacy_reset"
+        append_debug_trace(
+            trace_path,
+            "near_candidates:legacy_chunk_migration:start mode=archive",
+        )
         conn.execute("DELETE FROM run_stage_chunks WHERE run_id = ? AND stage = ?", (run_id, NEAR_CANDIDATE_STAGE))
         conn.execute("DELETE FROM stage_progress WHERE run_id = ? AND stage = ?", (run_id, NEAR_CANDIDATE_STAGE))
         for relative in [
@@ -4892,15 +4913,27 @@ def _run_near_candidate_stage(
             Path("touched_doc_keys.parquet"),
         ]:
             path = stage_root / relative
-            if path.exists():
-                path.unlink()
+            archived = archive_existing_path(path, archive_root=archive_root)
+            if archived is not None:
+                append_debug_trace(
+                    trace_path,
+                    f"near_candidates:legacy_chunk_migration:archived path={archived.relative_to(stage_root)}",
+                )
         for relative_dir in [
             stage_root / "shards" / "candidate_pairs",
             stage_root / "shards" / "bucket_summaries",
             stage_root / "shards" / "touched_doc_keys",
         ]:
-            if relative_dir.exists():
-                shutil.rmtree(relative_dir)
+            archived = archive_existing_path(relative_dir, archive_root=archive_root)
+            if archived is not None:
+                append_debug_trace(
+                    trace_path,
+                    f"near_candidates:legacy_chunk_migration:archived path={archived.relative_to(stage_root)}",
+                )
+        append_debug_trace(
+            trace_path,
+            "near_candidates:legacy_chunk_migration:done mode=archive",
+        )
     chunk_specs = [
         {"band_index": band_index, "bucket_prefix": bucket_prefix}
         for band_index in range(bands)
@@ -4912,8 +4945,6 @@ def _run_near_candidate_stage(
     ]
     register_stage_chunks(conn, run_id=run_id, stage=NEAR_CANDIDATE_STAGE, chunk_keys=chunk_keys)
     total_chunks, completed_chunks = stage_chunk_counts(conn, run_id=run_id, stage=NEAR_CANDIDATE_STAGE)
-    progress_path = progress_file_path(run_root, NEAR_CANDIDATE_STAGE)
-    trace_path = progress_dir(run_root) / "near_candidate_trace.log"
     existing_summary = read_json_if_exists(progress_path)
     near_candidate_required_paths = [
         stage_root / "candidate_pairs.parquet",
