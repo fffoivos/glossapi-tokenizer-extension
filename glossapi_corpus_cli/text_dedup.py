@@ -2808,16 +2808,18 @@ def combine_parquet_files(paths: list[Path], destination: Path, *, schema: pa.Sc
         for path in sorted(paths):
             if not path.exists():
                 continue
-            table = pq.read_table(path)
-            if writer is None:
-                writer = pq.ParquetWriter(temp_path, schema)
-            writer.write_table(table.cast(schema))
-            rows_written += table.num_rows
+            parquet_file = pq.ParquetFile(path)
+            for batch in parquet_file.iter_batches(batch_size=8192):
+                table = pa.Table.from_batches([batch]).cast(schema)
+                if writer is None:
+                    writer = pq.ParquetWriter(temp_path, schema, compression=PARQUET_COMPRESSION)
+                writer.write_table(table)
+                rows_written += table.num_rows
     finally:
         if writer is not None:
             writer.close()
     if writer is None:
-        pq.write_table(schema.empty_table(), temp_path)
+        pq.write_table(schema.empty_table(), temp_path, compression=PARQUET_COMPRESSION)
     atomic_replace(temp_path, destination)
     return rows_written
 
@@ -3431,6 +3433,17 @@ def aggregate_bucket_summary_shards(stage_root: Path) -> tuple[int, Path]:
         schema=BUCKET_SUMMARY_SCHEMA,
     )
     return bucket_summary_rows, bucket_summary_path
+
+
+def summarize_bucket_summary_shards(stage_root: Path) -> tuple[int, Path]:
+    bucket_summary_path = stage_root / "bucket_summary.parquet"
+    if bucket_summary_path.exists():
+        return parquet_num_rows(bucket_summary_path), bucket_summary_path
+    shard_paths = sorted((stage_root / "shards" / "bucket_summaries").glob("*.parquet"))
+    return (
+        sum(parquet_num_rows(path) for path in shard_paths),
+        stage_root / "shards" / "bucket_summaries",
+    )
 
 
 def aggregate_touched_doc_shards(stage_root: Path) -> tuple[int, Path]:
@@ -4487,11 +4500,23 @@ def bucket_member_digest(
 
 
 def load_bucket_summary(path: Path) -> dict[int, dict[str, dict[str, Any]]]:
-    if not path.exists():
+    paths: list[Path]
+    if path.exists():
+        if path.is_dir():
+            paths = sorted(path.glob("*.parquet"))
+        else:
+            paths = [path]
+    elif path.name == "bucket_summary.parquet":
+        shard_root = path.parent / "shards" / "bucket_summaries"
+        paths = sorted(shard_root.glob("*.parquet")) if shard_root.exists() else []
+    else:
+        paths = []
+    if not paths:
         return {}
     summary: dict[int, dict[str, dict[str, Any]]] = defaultdict(dict)
-    for row in iter_parquet_rows(path):
-        summary[int(row["band_index"])][str(row["bucket_hash"])] = row
+    for source_path in paths:
+        for row in iter_parquet_rows(source_path):
+            summary[int(row["band_index"])][str(row["bucket_hash"])] = row
     return summary
 
 
@@ -5008,7 +5033,6 @@ def _run_near_candidate_stage(
     existing_summary = read_json_if_exists(progress_path)
     near_candidate_required_paths = [
         stage_root / "candidate_pairs.parquet",
-        stage_root / "bucket_summary.parquet",
         stage_root / "touched_doc_keys.parquet",
     ]
     if existing_summary is not None and completed_chunks == total_chunks and total_chunks > 0 and all_paths_exist(near_candidate_required_paths):
@@ -5084,8 +5108,8 @@ def _run_near_candidate_stage(
             "max_bucket_size",
         ],
         required_relative_paths=[
-            Path("stage_02_near") / "bucket_summary.parquet",
             Path("stage_02_near") / "candidate_pairs.parquet",
+            Path("stage_02_near") / "shards" / "bucket_summaries",
         ],
     )
     previous_bucket_summary = (
@@ -5338,9 +5362,9 @@ def _run_near_candidate_stage(
                 max_workers=1,
                 max_bucket_size=max_bucket_size,
             )
-    bucket_summary_rows, bucket_summary_path = aggregate_bucket_summary_shards(stage_root)
     touched_doc_count, touched_doc_path = aggregate_touched_doc_shards(stage_root)
     candidate_pair_rows, candidate_pairs_db_path = aggregate_candidate_shards_to_parquet(stage_root)
+    bucket_summary_rows, bucket_summary_path = summarize_bucket_summary_shards(stage_root)
     summary = {
         "run_id": run_id,
         "stage": NEAR_CANDIDATE_STAGE,

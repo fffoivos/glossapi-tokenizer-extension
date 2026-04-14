@@ -977,6 +977,35 @@ def test_candidate_band_chunk_batches_bucket_summary_and_touched_doc_writes(
     assert touched_doc_parquet.metadata.num_row_groups == 2
 
 
+def test_load_bucket_summary_falls_back_to_shards_when_combined_file_is_absent(tmp_path: Path) -> None:
+    stage_root = tmp_path / "stage_02_near"
+    rows = [
+        {
+            "band_index": 0,
+            "bucket_hash": "bucket-a",
+            "member_count": 3,
+            "member_digest": "digest-a",
+            "candidate_row_count": 1,
+        },
+        {
+            "band_index": 1,
+            "bucket_hash": "bucket-b",
+            "member_count": 2,
+            "member_digest": "digest-b",
+            "candidate_row_count": 0,
+        },
+    ]
+    shard_path = text_dedup.bucket_summary_shard_path(stage_root, band_index=0, chunk_suffix="prefix_00")
+    text_dedup.write_group_parquet(rows, shard_path, schema=text_dedup.BUCKET_SUMMARY_SCHEMA)
+
+    summary = text_dedup.load_bucket_summary(stage_root / "bucket_summary.parquet")
+
+    assert summary[0]["bucket-a"]["member_digest"] == "digest-a"
+    assert int(summary[0]["bucket-a"]["candidate_row_count"]) == 1
+    assert summary[1]["bucket-b"]["member_digest"] == "digest-b"
+    assert int(summary[1]["bucket-b"]["candidate_row_count"]) == 0
+
+
 def test_full_dedup_pipeline_runs_stage_2_only_on_exact_survivors(tmp_path: Path) -> None:
     input_root = tmp_path / "input"
     state_root = tmp_path / "state"
