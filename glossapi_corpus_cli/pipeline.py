@@ -2912,8 +2912,9 @@ def load_builder_dedup_bundle(dedup_metadata_root: Path) -> tuple[dict[str, Any]
         raise ValueError(f"builder doc metadata missing under {dedup_metadata_root}")
     family_membership = pd.read_parquet(family_membership_path) if family_membership_path.exists() else pd.DataFrame()
     near_pairs = pd.DataFrame()
-    # The builder_metadata_v2 path prefers exported family membership. Only load near pairs
-    # for legacy bundles or empty membership exports, where they are still needed.
+    # The builder_metadata_v2 path prefers exported family membership. We still keep
+    # near_candidate_pairs.parquet in the bundle as an evidence/audit artifact, but
+    # only load it here for legacy bundles or empty membership exports.
     if family_membership.empty and near_pairs_path.exists():
         near_pairs = pd.read_parquet(near_pairs_path)
     return manifest, pd.read_parquet(doc_metadata_path), family_membership, near_pairs

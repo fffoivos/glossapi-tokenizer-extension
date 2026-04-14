@@ -32,7 +32,6 @@ These are the parts we must preserve:
 - near admission rules:
   - MinHash/LSH candidateing
   - similarity threshold `>= 0.85`
-  - `length_ratio >= 0.70`
 - keeper selection:
   - OCR validity
   - `needs_ocr`
@@ -40,6 +39,10 @@ These are the parts we must preserve:
   - metadata tie-breaks
 - downstream builder metadata contracts
 - resumability across stages
+
+Historical note:
+- the old hard `length_ratio >= 0.70` admission gate was removed
+- short-vs-long high-similarity pairs are now allowed to reach representative selection
 
 ## What HF/DataTrove Does Better
 
@@ -76,7 +79,6 @@ It does not match our full semantics.
 
 Mismatches:
 - it does not include our upstream `strict_exact` / `relaxed_exact` path
-- it does not include our `length_ratio >= 0.70` validation rule in the same way
 - it does not include our representative/keeper policy
 - it does not produce our builder metadata outputs
 - it does not implement our stage contracts or resume markers
@@ -160,5 +162,9 @@ This gives us:
 ## Status
 
 Current operational consequence:
-- the large live run was stopped intentionally after the `16`-worker `near_candidates` attempt saturated memory
-- the next dedup implementation step should be a near-candidate redesign based on the points above before resuming the full pipeline again
+- the old `16`-worker whole-band attempt remains the motivating failure case
+- the live run has now resumed on the redesigned prefix-chunk path and has made durable chunk progress
+- the cheap uploader host is currently unreachable, so a temporary low-priority `source_only` HF upload is running from the active GCP worker
+- the intended steady state is still:
+  - cheap uploader host for publication
+  - tokenizer worker for dedup, mix build, and training

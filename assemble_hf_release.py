@@ -229,14 +229,13 @@ This release was staged locally from the existing GlossAPI workspace.
 
 - Raw corpora live under `/home/foivos/data/glossapi_raw`
 - Reevaluation outputs live under `/home/foivos/data/glossapi_work/reeval`
-- Python environment is available at `/home/foivos/data/glossapi_work/.venv`
+- Python environment is available at `/home/foivos/venvs/glossapi-corpus-clean`
 
 ## 1. Build the canonical corpus shards
 
 ```bash
-source /home/foivos/data/glossapi_work/.venv/bin/activate
-glossapi-corpus build --output-root /home/foivos/data/glossapi_work/unified_corpus --no-include-external --workers 4
-python - <<'PY'
+/home/foivos/venvs/glossapi-corpus-clean/bin/python -m glossapi_corpus_cli.cli build --output-root /home/foivos/data/glossapi_work/unified_corpus --no-include-external --workers 4
+/home/foivos/venvs/glossapi-corpus-clean/bin/python - <<'PY'
 from glossapi_corpus_cli.pipeline import build_dataset_to_parquet
 for name in ['HuggingFaceFW/finewiki', 'HuggingFaceFW/finepdfs-edu', 'AI-team-UoA/greek_legal_code', 'OPUS/OpenSubtitles-el-v2018']:
     print(build_dataset_to_parquet(name, '/home/foivos/data/glossapi_work/_external_builds', False))
@@ -246,8 +245,7 @@ PY
 ## 2. Stage the Hugging Face release directory
 
 ```bash
-source /home/foivos/data/glossapi_work/.venv/bin/activate
-python /home/foivos/data/glossapi_work/assemble_hf_release.py
+/home/foivos/venvs/glossapi-corpus-clean/bin/python /home/foivos/Projects/glossapi-tokenizer-extension/assemble_hf_release.py
 ```
 
 This step:
@@ -263,8 +261,7 @@ This step:
 
 ```bash
 export HF_TOKEN=...
-source /home/foivos/data/glossapi_work/.venv/bin/activate
-python /home/foivos/data/glossapi_work/publish_hf_release.py \
+/home/foivos/venvs/glossapi-corpus-clean/bin/python /home/foivos/Projects/glossapi-tokenizer-extension/publish_hf_release.py \
   --release-root /home/foivos/data/glossapi_work/hf_release \
   --repo-id <username>/glossapi-greek-nanochat-pretraining-dataset \
   --private

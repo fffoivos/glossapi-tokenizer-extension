@@ -485,8 +485,7 @@ This publish snapshot was prepared locally from the staged release workspace.
 ## 1. Prepare the publish snapshot
 
 ```bash
-source /home/foivos/data/glossapi_work/.venv/bin/activate
-python /home/foivos/data/glossapi_work/prepare_publish_release.py --input-root /home/foivos/data/glossapi_work/hf_release --output-root /home/foivos/data/glossapi_work/hf_release_publish
+/home/foivos/venvs/glossapi-corpus-clean/bin/python /home/foivos/Projects/glossapi-tokenizer-extension/prepare_publish_release.py --input-root /home/foivos/data/glossapi_work/hf_release --output-root /home/foivos/data/glossapi_work/hf_release_publish
 ```
 
 This step:
@@ -503,8 +502,7 @@ This step:
 
 ```bash
 export HF_TOKEN=...
-source /home/foivos/data/glossapi_work/.venv/bin/activate
-python /home/foivos/data/glossapi_work/publish_hf_release.py --release-root /home/foivos/data/glossapi_work/hf_release_publish --repo-id <username>/glossapi-greek-nanochat-pretraining-dataset --private
+/home/foivos/venvs/glossapi-corpus-clean/bin/python /home/foivos/Projects/glossapi-tokenizer-extension/publish_hf_release.py --release-root /home/foivos/data/glossapi_work/hf_release_publish --repo-id <username>/glossapi-greek-nanochat-pretraining-dataset --private
 ```
 """
     (output_root / "BUILD_REPLICATION.md").write_text(text, encoding="utf-8")

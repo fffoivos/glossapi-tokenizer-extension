@@ -433,6 +433,38 @@ def test_wait_for_prepare_uploader_handoff_shell(tmp_path: Path) -> None:
     assert (handoff_root / "handoff_summary.json").exists()
 
 
+def test_wait_for_prepare_source_only_uploader_handoff_shell(tmp_path: Path) -> None:
+    working_root = tmp_path / "working_release"
+    handoff_root = tmp_path / "handoff"
+
+    _write_canonical_rows(
+        working_root / "data" / "hplt.parquet",
+        [
+            _base_row(
+                source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60",
+                source_doc_id="hplt-1",
+                text="ελληνικό κείμενο hplt",
+            )
+        ],
+    )
+    (working_root / "README.md").write_text("# dataset\n", encoding="utf-8")
+    (working_root / "hplt_integration_summary.json").write_text(
+        json.dumps({"new_dataset_name": "HPLT/ell_Grek_ge8_no_mt_clean60"}, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    script = TOKENIZER_REPO_ROOT / "ops" / "upload" / "wait_for_hplt_and_prepare_source_only_handoff.sh"
+    env = os.environ.copy()
+    env["TOKENIZER_PIPELINE_PYTHON_BIN"] = str(GLOSSAPI_WORK_ROOT / ".venv" / "bin" / "python")
+    subprocess.run(["bash", str(script), str(working_root), str(handoff_root)], check=True, env=env)
+
+    manifest = json.loads((handoff_root / "uploader_handoff.json").read_text(encoding="utf-8"))
+    assert manifest["scope"] == "source_only"
+    assert manifest["contracts"]["dedup_latest_run_id"] is None
+    assert "data" in manifest["sync_paths"]
+    assert "dedup_metadata" not in manifest["sync_paths"]
+
+
 def test_launch_uploader_handoff_local_stage(tmp_path: Path, monkeypatch) -> None:
     working_root = tmp_path / "working_release"
     handoff_root = tmp_path / "handoff"

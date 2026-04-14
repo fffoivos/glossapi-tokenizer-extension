@@ -58,6 +58,9 @@ Use the existing dataset-build scripts as the operational path. Do not invent a 
 ## Upload Constraint
 
 - dataset publication must run on a separate cheap uploader instance, not on the tokenizer worker
+- temporary exception:
+  - if the cheap uploader instance is unreachable, a low-priority `source_only` upload may run from the active GCP worker
+  - this is a fallback only, not the intended steady-state topology
 - that uploader track must stay independent of the tokenizer critical path
 - the uploader payload must include:
   - the complete filtered HPLT source parquet slice

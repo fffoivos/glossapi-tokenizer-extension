@@ -24,6 +24,7 @@ It is separate from the near-dedup redesign work, but it follows the same core c
   - `dedup_family_membership.parquet`
   - `near_candidate_pairs.parquet`
 - when `dedup_family_membership.parquet` exists, builder replay should not need to load `near_candidate_pairs.parquet`
+- `near_candidate_pairs.parquet` is still intentionally retained in the bundle as an evidence/audit artifact
 
 ### Tokenizer
 

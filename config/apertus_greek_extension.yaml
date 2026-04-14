@@ -2,8 +2,8 @@ schema_version: 1
 
 project:
   name: glossapi-tokenizer-extension
-  updated_at: 2026-04-12
-  phase: parallel_hplt_upload_and_tokenizer_prep
+  updated_at: 2026-04-14
+  phase: repo_backed_near_dedup_and_source_upload_fallback
   objective: >
     Extend swiss-ai/Apertus-8B-2509 for Greek by learning genuinely useful Greek
     BPE units from curated Greek corpora. HPLT enters the workflow by being
@@ -14,7 +14,7 @@ project:
     units into Apertus through model.vocab and model.merges.
 
 status:
-  current_stage: gcp_worker_tokenizer_prep_and_parallel_hplt_upload
+  current_stage: gcp_worker_near_dedup_plus_temporary_source_only_upload
   shipping_method:
     target: merge_rule_bpe_extension
     not_allowed:
@@ -73,19 +73,22 @@ dataset_integration:
   operational_release_path:
     use_existing_dataset_scripts_only: true
     intended_scripts:
-      - /home/foivos/data/glossapi_work/assemble_hf_release.py
-      - /home/foivos/data/glossapi_work/prepare_publish_release.py
-      - /home/foivos/data/glossapi_work/publish_hf_release.py
+      - /home/foivos/Projects/glossapi-tokenizer-extension/assemble_hf_release.py
+      - /home/foivos/Projects/glossapi-tokenizer-extension/prepare_publish_release.py
+      - /home/foivos/Projects/glossapi-tokenizer-extension/publish_hf_release.py
   uploader_track:
     separate_from_tokenizer_worker: true
     instance_profile: cheap_single_purpose_uploader
     lifecycle: create_or_start_for_upload_then_stop
     must_not_block_tokenizer_critical_path: true
+    temporary_exception:
+      allowed_when_cheap_uploader_unreachable: true
+      mode: low_priority_source_only_upload_from_active_gcp_worker
     staged_payload:
       - complete_filtered_hplt_source_parquets
       - refreshed_dedup_metadata_bundle
     upload_method:
-      script: /home/foivos/data/glossapi_work/publish_hf_release.py
+      script: /home/foivos/Projects/glossapi-tokenizer-extension/publish_hf_release.py
       huggingface_api_path: HfApi.upload_large_folder
       prefer_xet_backend_when_available: true
       optional_high_performance_env:

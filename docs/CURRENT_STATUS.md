@@ -3,9 +3,9 @@
 ## Active Phase
 
 Parallel execution:
-- tokenizer-spec freeze and GCP worker setup for the corrected HPLT rebuild
-- tokenizer-data preparation from the corrected CPT-ready dataset once that slice exists
-- plan-level separation of a cheap uploader-instance sidetrack for final HF publication
+- repo-backed `stage_02_near` continuation on the active GCP worker
+- temporary source-only HF upload fallback from the same worker while the cheap uploader host is unreachable
+- downstream builder/tokenizer contract and efficiency hardening in the canonical repo
 
 ## What Is Settled
 
@@ -58,13 +58,17 @@ Parallel execution:
 - the current live dedup run has already cleared the exact-stage bottleneck:
   - exact finalization is parquet-backed and completed
   - the active bottleneck is now `stage_02_near` candidate generation
+- the current live near-candidate run is no longer in the old “`0 / 32` and rising to OOM” state:
+  - the stage now checkpoints `band + prefix` chunks
+  - the live worker has already advanced past the first completed chunk on the preserved run
+  - current evidence points to bounded memory rather than linear growth through chunk rollover
 - the recovery and repair plans are now tracked explicitly in:
   - [PIPELINE_RECOVERY_AND_SCALE_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_RECOVERY_AND_SCALE_PLAN.md)
   - [DEDUP_SCRIPT_REPAIR_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)
 - the repair plans now explicitly treat semantic equivalence as the golden rule:
   - same dedup functionality
   - improved efficiency only
-- the latest live scaling attempt established that the current near-candidate execution path is still not efficient enough:
+- the failed pre-redesign `16`-worker attempt is now historical context, not the current live shape:
   - `16` workers on `m3-megamem-64` (`976 GB`) drove memory to about `955 / 960 GB`
   - the stage still had `0 / 32` completed bands
   - the worker was stopped to preserve state and avoid guest instability
@@ -99,6 +103,7 @@ Parallel execution:
   - this is an operational fallback, not the intended permanent uploader topology
 - builder replay has one important efficiency guard now in place:
   - when `builder_metadata_v2` exports family membership, builder replay no longer loads `near_candidate_pairs.parquet` unnecessarily
+  - `near_candidate_pairs.parquet` is still intentionally retained as an evidence/audit artifact in the exported bundle
 - the downstream builder/tokenizer efficiency plan is now tracked explicitly in:
   - [BUILDER_TOKENIZER_EFFICIENCY_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/BUILDER_TOKENIZER_EFFICIENCY_PLAN.md)
 

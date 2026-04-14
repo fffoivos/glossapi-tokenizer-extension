@@ -6377,6 +6377,9 @@ def export_builder_metadata_bundle(
     existing_manifest = read_json_if_exists(manifest_path)
     if existing_manifest is not None:
         files_payload = dict(existing_manifest.get("files", {}))
+        # near_candidate_pairs.parquet remains part of the required exported bundle even
+        # though the modern builder path prefers family membership, because we still want
+        # the raw near-pair evidence available for audit/debugging.
         required_paths = [
             bundle_root / "doc_dedup_metadata.parquet",
             bundle_root / "strict_exact_memberships.parquet",
