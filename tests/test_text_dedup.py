@@ -1376,6 +1376,15 @@ def test_near_cluster_stage_can_resume_from_partial_component_chunks(tmp_path: P
     assert all(row["accepted_reason"] == "singleton" for row in near_clusters)
 
 
+def test_near_candidate_worker_cap_env_override(monkeypatch) -> None:
+    monkeypatch.setenv("GLOSSAPI_NEAR_CANDIDATE_MAX_WORKERS", "16")
+    assert text_dedup.near_candidate_worker_cap() == 16
+    assert text_dedup.effective_worker_count(
+        min(32, text_dedup.near_candidate_worker_cap()),
+        32,
+    ) == 16
+
+
 def test_resolve_near_component_splits_weak_member_after_representative_validation() -> None:
     component = {"doc-a", "doc-b", "doc-c", "doc-d"}
     adjacency = {

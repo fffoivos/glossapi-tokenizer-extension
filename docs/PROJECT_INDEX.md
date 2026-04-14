@@ -26,6 +26,8 @@ This repo is intentionally split into smaller subprojects.
   - [CURRENT_STATUS.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/CURRENT_STATUS.md)
 - active backlog:
   - [ACTIVE_BACKLOG.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/ACTIVE_BACKLOG.md)
+- stage verification checklist:
+  - [STAGE_VERIFICATION_CHECKLIST.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/STAGE_VERIFICATION_CHECKLIST.md)
 - machine-readable config:
   - [apertus_greek_extension.yaml](/home/foivos/Projects/glossapi-tokenizer-extension/config/apertus_greek_extension.yaml)
 - legacy material that should not drive new execution:

@@ -40,6 +40,8 @@ Parallel execution:
 - the repo-local validation matrix now also includes:
   - resumability regressions for dedup stage handoff
   - efficiency smoke coverage for streaming mix build and near-candidate execution
+- the detailed per-stage verification state is tracked in:
+  - [STAGE_VERIFICATION_CHECKLIST.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/STAGE_VERIFICATION_CHECKLIST.md)
 - the active GCP tokenizer worker has been rearmed from the repo tree at:
   - `/home/foivos/Projects/glossapi-tokenizer-extension`
 - the repo-backed worker chain currently includes:

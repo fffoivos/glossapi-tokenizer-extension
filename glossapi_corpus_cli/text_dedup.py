@@ -97,6 +97,19 @@ DEFAULT_GREEK_DIACRITIC_POLICY = "preserve"
 GREEK_DIACRITIC_POLICIES = {"preserve", "strip"}
 PROCESS_POOL_CONTEXT = mp.get_context("spawn")
 
+
+def near_candidate_worker_cap() -> int:
+    raw = os.environ.get("GLOSSAPI_NEAR_CANDIDATE_MAX_WORKERS", "").strip()
+    if not raw:
+        return DEFAULT_NEAR_CANDIDATE_MAX_WORKERS
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise ValueError("GLOSSAPI_NEAR_CANDIDATE_MAX_WORKERS must be an integer") from exc
+    if value < 1:
+        raise ValueError("GLOSSAPI_NEAR_CANDIDATE_MAX_WORKERS must be >= 1")
+    return value
+
 RELAXED_TRANSLATION = str.maketrans(
     {
         "’": "'",
@@ -4668,7 +4681,7 @@ def _run_near_candidate_stage(
         if previous_run_root is not None
         else {}
     )
-    worker_count = effective_worker_count(min(max_workers, DEFAULT_NEAR_CANDIDATE_MAX_WORKERS), len(pending_bands))
+    worker_count = effective_worker_count(min(max_workers, near_candidate_worker_cap()), len(pending_bands))
     append_debug_trace(
         trace_path,
         f"near_candidates:start pending_bands={len(pending_bands)} worker_count={worker_count} max_bucket_size={max_bucket_size}",
