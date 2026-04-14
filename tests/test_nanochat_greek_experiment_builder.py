@@ -14,7 +14,21 @@ import pyarrow.parquet as pq
 
 WORK_ROOT = Path(__file__).resolve().parents[1]
 BUILDER_PATH = WORK_ROOT / "nanochat_glossapi_en_vs_el" / "prepare_glossapi_greek_experiment_data.py"
-PYTHON_BIN = WORK_ROOT / ".venv" / "bin" / "python"
+PYTHON_BIN = Path(
+    os.environ.get("TOKENIZER_PIPELINE_PYTHON_BIN")
+    or next(
+        (
+            str(candidate)
+            for candidate in (
+                WORK_ROOT / ".venv" / "bin" / "python",
+                Path("/home/foivos/data/glossapi_work/.venv/bin/python"),
+                Path(sys.executable),
+            )
+            if candidate.exists()
+        ),
+        sys.executable,
+    )
+)
 
 if str(WORK_ROOT) not in sys.path:
     sys.path.insert(0, str(WORK_ROOT))
