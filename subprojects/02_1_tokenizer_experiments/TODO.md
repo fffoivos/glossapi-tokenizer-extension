@@ -1,11 +1,24 @@
 # TODO
 
-- define the exact fertility metric bundle for model selection
-- define the exact decision rule for the elbow
-- define the exact comparison rule for the four tokenizer arms:
-  - fresh discovery `BPE` on `GlossAPI-only`
-  - fresh discovery `BPE` on `GlossAPI + HPLT`
-  - continuous `BPE` from Apertus on `GlossAPI-only`
-  - continuous `BPE` from Apertus on `GlossAPI + HPLT`
+- run the four-arm comparison with the fixed intrinsic metric bundle:
+  - `bytes_per_token`
+  - `tokens_per_byte`
+  - fertility
+  - added-token utilization rate
+  - vocabulary utilization rate
+  - unreachable added tokens
+  - byte-fallback rate
+- run that bundle on the common held-out evaluation slices:
+  - `GlossAPI` held-out
+  - `HPLT` held-out
+  - mixed `GlossAPI + HPLT` held-out
+  - `modern_greek_eval`
+- define the exact decision rule for the elbow after evaluating merged Apertus-compatible variants at:
+  - `10240`
+  - `15360`
+  - `20480`
+  - `25600`
+- run fertility tests on the merged Apertus-compatible variants, not just on the raw standalone tokenizer arms
+- promote the best one or two arms to downstream training/evaluation only after the intrinsic and fertility filters
 - review whether additional modern-Greek-only control slices are needed
 - define the exact continuous-`BPE` training procedure starting from the Apertus tokenizer and merge table

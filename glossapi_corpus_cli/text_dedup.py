@@ -97,6 +97,9 @@ OVERSIZED_BUCKET_TOKEN_BIN = 32
 DEFAULT_GREEK_DIACRITIC_POLICY = "preserve"
 GREEK_DIACRITIC_POLICIES = {"preserve", "strip"}
 PROCESS_POOL_CONTEXT = mp.get_context("spawn")
+PARQUET_COMPRESSION = "zstd"
+NEAR_BUCKET_SUMMARY_FLUSH_ROWS = 4096
+NEAR_TOUCHED_DOC_FLUSH_ROWS = 4096
 
 
 def near_candidate_worker_cap() -> int:
@@ -2169,13 +2172,15 @@ def append_rows_to_parquet_writer(
     rows: list[dict[str, Any]],
     temp_path: Path,
     schema: pa.Schema,
+    compression: str = PARQUET_COMPRESSION,
+    row_group_size: int | None = None,
 ) -> tuple[pq.ParquetWriter | None, int]:
     if not rows:
         return writer, 0
     table = table_from_pylist(rows, schema)
     if writer is None:
-        writer = pq.ParquetWriter(temp_path, schema)
-    writer.write_table(table)
+        writer = pq.ParquetWriter(temp_path, schema, compression=compression)
+    writer.write_table(table, row_group_size=row_group_size)
     return writer, len(rows)
 
 
@@ -2189,7 +2194,7 @@ def finalize_parquet_writer(
     if writer is not None:
         writer.close()
     else:
-        pq.write_table(schema.empty_table(), temp_path)
+        pq.write_table(schema.empty_table(), temp_path, compression=PARQUET_COMPRESSION)
     atomic_replace(temp_path, destination)
 
 
@@ -4717,6 +4722,8 @@ def build_candidate_band_chunk(
     touched_doc_writer: pq.ParquetWriter | None = None
     bucket_summary_temp_path = temp_output_path(bucket_summary_path)
     touched_doc_temp_path = temp_output_path(touched_doc_path)
+    bucket_summary_buffer: list[dict[str, Any]] = []
+    touched_doc_buffer: list[dict[str, Any]] = []
     total_candidate_rows = 0
     oversized_bucket_count = 0
     oversized_bucket_member_rows = 0
@@ -4725,6 +4732,35 @@ def build_candidate_band_chunk(
     fallback_chunked_member_rows = 0
     reused_bucket_count = 0
     recomputed_bucket_count = 0
+
+    def flush_bucket_summary_buffer() -> None:
+        nonlocal bucket_summary_writer
+        nonlocal bucket_summary_buffer
+        if not bucket_summary_buffer:
+            return
+        bucket_summary_writer, _ = append_rows_to_parquet_writer(
+            bucket_summary_writer,
+            rows=bucket_summary_buffer,
+            temp_path=bucket_summary_temp_path,
+            schema=BUCKET_SUMMARY_SCHEMA,
+            row_group_size=NEAR_BUCKET_SUMMARY_FLUSH_ROWS,
+        )
+        bucket_summary_buffer = []
+
+    def flush_touched_doc_buffer() -> None:
+        nonlocal touched_doc_writer
+        nonlocal touched_doc_buffer
+        if not touched_doc_buffer:
+            return
+        touched_doc_writer, _ = append_rows_to_parquet_writer(
+            touched_doc_writer,
+            rows=touched_doc_buffer,
+            temp_path=touched_doc_temp_path,
+            schema=TOUCHED_DOC_SCHEMA,
+            row_group_size=NEAR_TOUCHED_DOC_FLUSH_ROWS,
+        )
+        touched_doc_buffer = []
+
     try:
         member_iter = (
             iter_band_bucket_members(stage_root, band_index=band_index)
@@ -4748,12 +4784,9 @@ def build_candidate_band_chunk(
                     "member_digest": member_digest,
                     "candidate_row_count": 0,
                 }
-                bucket_summary_writer, _ = append_rows_to_parquet_writer(
-                    bucket_summary_writer,
-                    rows=[bucket_summary_row],
-                    temp_path=bucket_summary_temp_path,
-                    schema=BUCKET_SUMMARY_SCHEMA,
-                )
+                bucket_summary_buffer.append(bucket_summary_row)
+                if len(bucket_summary_buffer) >= NEAR_BUCKET_SUMMARY_FLUSH_ROWS:
+                    flush_bucket_summary_buffer()
                 continue
             elif (
                 previous_row is not None
@@ -4786,21 +4819,15 @@ def build_candidate_band_chunk(
                     recomputed_bucket_count += 1
                 else:
                     total_candidate_rows += int(bucket_summary_row["candidate_row_count"])
-                    bucket_summary_writer, _ = append_rows_to_parquet_writer(
-                        bucket_summary_writer,
-                        rows=[bucket_summary_row],
-                        temp_path=bucket_summary_temp_path,
-                        schema=BUCKET_SUMMARY_SCHEMA,
-                    )
+                    bucket_summary_buffer.append(bucket_summary_row)
+                    if len(bucket_summary_buffer) >= NEAR_BUCKET_SUMMARY_FLUSH_ROWS:
+                        flush_bucket_summary_buffer()
                     continue
             else:
                 recomputed_bucket_count += 1
-            touched_doc_writer, _ = append_rows_to_parquet_writer(
-                touched_doc_writer,
-                rows=[{"doc_key": str(row["doc_key"])} for row in members],
-                temp_path=touched_doc_temp_path,
-                schema=TOUCHED_DOC_SCHEMA,
-            )
+            touched_doc_buffer.extend({"doc_key": str(row["doc_key"])} for row in members)
+            if len(touched_doc_buffer) >= NEAR_TOUCHED_DOC_FLUSH_ROWS:
+                flush_touched_doc_buffer()
             candidate_groups = [members]
             if len(members) > max_bucket_size:
                 oversized_bucket_count += 1
@@ -4831,12 +4858,11 @@ def build_candidate_band_chunk(
                 "candidate_row_count": int(candidate_row_count),
             }
             total_candidate_rows += int(candidate_row_count)
-            bucket_summary_writer, _ = append_rows_to_parquet_writer(
-                bucket_summary_writer,
-                rows=[bucket_summary_row],
-                temp_path=bucket_summary_temp_path,
-                schema=BUCKET_SUMMARY_SCHEMA,
-            )
+            bucket_summary_buffer.append(bucket_summary_row)
+            if len(bucket_summary_buffer) >= NEAR_BUCKET_SUMMARY_FLUSH_ROWS:
+                flush_bucket_summary_buffer()
+        flush_bucket_summary_buffer()
+        flush_touched_doc_buffer()
         finalize_parquet_writer(
             bucket_summary_writer,
             temp_path=bucket_summary_temp_path,

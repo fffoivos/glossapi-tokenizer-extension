@@ -91,6 +91,24 @@ Use the existing dataset-build scripts as the operational path. Do not invent a 
   - `25600`
 - fertility tests must be run on those merged Apertus-compatible variants, not on a raw standalone discovery tokenizer
 - the four experiment arms should be compared on the same evaluation bundle before narrowing to the best one or two candidates
+- the shared tokenizer evaluation bundle must include:
+  - `bytes_per_token`
+  - `tokens_per_byte`
+  - fertility
+  - added-token utilization rate
+  - vocabulary utilization rate
+  - unreachable added tokens
+  - byte-fallback rate
+- the shared tokenizer evaluation slices must include:
+  - `GlossAPI` held-out
+  - `HPLT` held-out
+  - mixed `GlossAPI + HPLT` held-out
+  - `modern_greek_eval`
+- the evaluation phase is staged:
+  - intrinsic tokenizer comparison across all four arms
+  - Apertus-compatible mergeback and cutoff comparison
+  - fertility tests on merged variants
+  - downstream confirmation on the best one or two arms
 - only snap the shipped build to a `128`-aligned size after the elbow is identified
 - the divisibility rule applies to the whole final tokenizer, not just the newly added units
 - tokenizer experiments should read from the same CPT-ready dataset used for continued pretraining

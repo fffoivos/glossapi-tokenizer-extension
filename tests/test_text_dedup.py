@@ -913,6 +913,63 @@ def test_candidate_band_chunk_subdivides_oversized_buckets(tmp_path: Path) -> No
     }
 
 
+def test_candidate_band_chunk_batches_bucket_summary_and_touched_doc_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    stage_root = tmp_path / "stage_02_near"
+    band_root = stage_root / "shards" / "lsh_buckets" / "band_00"
+    band_root.mkdir(parents=True, exist_ok=True)
+    rows = []
+    signature_map: dict[str, np.ndarray] = {}
+    signature_meta_rows: dict[str, dict[str, Any]] = {}
+    for bucket_index in range(3):
+        for member_index in range(2):
+            doc_key = f"doc-{bucket_index}-{member_index}"
+            rows.append(
+                {
+                    "doc_key": doc_key,
+                    "band_index": 0,
+                    "bucket_hash": f"bucket-{bucket_index}",
+                    "token_count": 80,
+                    "char_count": 400,
+                    "shingle_mode": "token",
+                }
+            )
+            signature_map[doc_key] = np.array([bucket_index + 1] * 4, dtype=np.uint64)
+            signature_meta_rows[doc_key] = {
+                "token_count": 80,
+                "char_count": 400,
+                "shingle_mode": "token",
+            }
+    pq.write_table(pa.Table.from_pylist(rows), band_root / "demo.parquet")
+    signature_meta = build_signature_metadata_lookup(signature_meta_rows)
+
+    monkeypatch.setattr(text_dedup, "NEAR_BUCKET_SUMMARY_FLUSH_ROWS", 2)
+    monkeypatch.setattr(text_dedup, "NEAR_TOUCHED_DOC_FLUSH_ROWS", 4)
+
+    text_dedup.build_candidate_band_chunk(
+        stage_root=stage_root,
+        band_index=0,
+        bands=1,
+        rows_per_band=4,
+        minhash_threshold=0.80,
+        signature_map=signature_map,
+        signature_meta=signature_meta,
+        max_bucket_size=8,
+    )
+
+    bucket_summary_path = text_dedup.bucket_summary_shard_path(stage_root, band_index=0)
+    touched_doc_path = text_dedup.touched_doc_shard_path(stage_root, band_index=0)
+    bucket_summary_parquet = pq.ParquetFile(bucket_summary_path)
+    touched_doc_parquet = pq.ParquetFile(touched_doc_path)
+
+    assert bucket_summary_parquet.metadata.num_rows == 3
+    assert bucket_summary_parquet.metadata.num_row_groups == 2
+    assert touched_doc_parquet.metadata.num_rows == 6
+    assert touched_doc_parquet.metadata.num_row_groups == 2
+
+
 def test_full_dedup_pipeline_runs_stage_2_only_on_exact_survivors(tmp_path: Path) -> None:
     input_root = tmp_path / "input"
     state_root = tmp_path / "state"
