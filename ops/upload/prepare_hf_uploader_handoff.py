@@ -32,6 +32,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num-workers", type=int, default=4)
     parser.add_argument("--print-report-every", type=int, default=60)
     parser.add_argument("--hplt-dataset-name", default=None)
+    parser.add_argument(
+        "--source-only",
+        action="store_true",
+        help="Prepare a source/HPLT-only upload handoff without requiring dedup_metadata/latest.json yet.",
+    )
     parser.add_argument("--summary-json", type=Path, default=None)
     parser.add_argument("--use-hf-xet-high-performance", action="store_true")
     return parser.parse_args()
@@ -68,9 +73,13 @@ def discover_hplt_dataset_name(working_root: Path, explicit_name: str | None) ->
     return str(dataset_name)
 
 
-def collect_release_paths(working_root: Path) -> list[str]:
-    release_paths = ["data", "dedup_metadata"]
+def collect_release_paths(working_root: Path, *, include_dedup_metadata: bool) -> list[str]:
+    release_paths = ["data"]
+    if include_dedup_metadata:
+        release_paths.append("dedup_metadata")
     optional_files = [
+        "README.md",
+        "BUILD_REPLICATION.md",
         "row_counts.csv",
         "validation_summary.csv",
         "prepare_manifest.json",
@@ -91,7 +100,7 @@ def main() -> None:
 
     if not data_root.exists():
         raise SystemExit(f"Missing working release data dir: {data_root}")
-    if not dedup_latest_path.exists():
+    if not args.source_only and not dedup_latest_path.exists():
         raise SystemExit(f"Missing dedup latest pointer: {dedup_latest_path}")
 
     hplt_dataset_name = discover_hplt_dataset_name(working_root, args.hplt_dataset_name)
@@ -110,13 +119,18 @@ def main() -> None:
     if not hplt_files:
         raise SystemExit(f"No parquet files for HPLT dataset {hplt_dataset_name} under {data_root}")
 
-    dedup_latest = json.loads(dedup_latest_path.read_text(encoding="utf-8"))
-    builder_metadata_root = working_root / str(dedup_latest["builder_metadata_root"])
-    if not builder_metadata_root.exists():
-        raise SystemExit(f"Missing builder metadata root from latest.json: {builder_metadata_root}")
+    dedup_latest: dict[str, Any] | None = None
+    builder_metadata_root: Path | None = None
+    if not args.source_only:
+        dedup_latest = json.loads(dedup_latest_path.read_text(encoding="utf-8"))
+        builder_metadata_root = working_root / str(dedup_latest["builder_metadata_root"])
+        if not builder_metadata_root.exists():
+            raise SystemExit(f"Missing builder metadata root from latest.json: {builder_metadata_root}")
 
     visibility = resolve_visibility(args)
-    unit_name = f"{args.remote_unit_prefix}-{dedup_latest['latest_run_id']}"
+    timestamp_tag = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    unit_suffix = dedup_latest["latest_run_id"] if dedup_latest else f"source-only-{timestamp_tag}"
+    unit_name = f"{args.remote_unit_prefix}-{unit_suffix}"
     publish_args = [
         args.remote_python,
         args.publish_script_path,
@@ -145,7 +159,8 @@ def main() -> None:
         "schema_version": 1,
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "working_release_root": str(working_root),
-        "sync_paths": collect_release_paths(working_root),
+        "sync_paths": collect_release_paths(working_root, include_dedup_metadata=not args.source_only),
+        "scope": "source_only" if args.source_only else "full",
         "repo_id": args.repo_id,
         "visibility": visibility,
         "dataset_server": {
@@ -169,9 +184,9 @@ def main() -> None:
             "hplt_dataset_name": hplt_dataset_name,
             "hplt_file_count": len(hplt_files),
             "hplt_row_count_total": hplt_row_count_total,
-            "dedup_latest_run_id": dedup_latest["latest_run_id"],
-            "dedup_builder_metadata_root": str(builder_metadata_root),
-            "dedup_path": dedup_latest.get("path"),
+            "dedup_latest_run_id": dedup_latest["latest_run_id"] if dedup_latest else None,
+            "dedup_builder_metadata_root": str(builder_metadata_root) if builder_metadata_root else None,
+            "dedup_path": dedup_latest.get("path") if dedup_latest else None,
         },
         "paths": {
             "manifest_path": str(manifest_path),
@@ -188,10 +203,11 @@ def main() -> None:
         "remote_upload_command_path": str(launch_command_path),
         "repo_id": args.repo_id,
         "visibility": visibility,
+        "scope": "source_only" if args.source_only else "full",
         "hplt_dataset_name": hplt_dataset_name,
         "hplt_file_count": len(hplt_files),
         "hplt_row_count_total": hplt_row_count_total,
-        "dedup_latest_run_id": dedup_latest["latest_run_id"],
+        "dedup_latest_run_id": dedup_latest["latest_run_id"] if dedup_latest else None,
     }
     summary_path = args.summary_json.resolve() if args.summary_json else handoff_root / "handoff_summary.json"
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

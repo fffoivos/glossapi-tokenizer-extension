@@ -88,6 +88,13 @@ Parallel execution:
   - `near_candidates` no longer checkpoints only whole bands
   - the stage now partitions each band into bucket-hash prefix member shards and checkpoints `band + prefix` chunks
   - this should reduce time-to-first-durable-progress and lower the amount of work lost on interruption
+- uploader handoff no longer has to wait for dedup to exist:
+  - the repo now supports `source_only` handoff preparation for the corrected HPLT/source release snapshot
+  - uploader staging now respects the manifest `sync_paths` instead of blindly syncing the entire working release root
+- builder replay has one important efficiency guard now in place:
+  - when `builder_metadata_v2` exports family membership, builder replay no longer loads `near_candidate_pairs.parquet` unnecessarily
+- the downstream builder/tokenizer efficiency plan is now tracked explicitly in:
+  - [BUILDER_TOKENIZER_EFFICIENCY_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/BUILDER_TOKENIZER_EFFICIENCY_PLAN.md)
 
 ## What Is Not Done Yet
 
@@ -100,6 +107,7 @@ Parallel execution:
 - no implemented merge-rule extension
 - no model adaptation plan beyond high-level constraints
 - no live armed cheap-instance uploader service yet for publishing the full updated dataset snapshot plus refreshed dedup metadata
+- no completed worker-side source-only HF upload run yet for the corrected HPLT/source snapshot
 - no finalized post-restart progress report for the repo-backed near-dedup continuation yet
 - no final measurement yet for the new prefix-chunk near-candidate design on the worker
 - no individual bucket-shard authoritative resume boundary yet

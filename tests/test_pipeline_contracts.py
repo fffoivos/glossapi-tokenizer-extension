@@ -341,6 +341,52 @@ def test_prepare_uploader_handoff_contract(tmp_path: Path, monkeypatch) -> None:
     assert "dedup_metadata" in manifest["sync_paths"]
 
 
+def test_prepare_uploader_handoff_source_only_contract(tmp_path: Path, monkeypatch) -> None:
+    working_root = tmp_path / "working_release"
+    handoff_root = tmp_path / "handoff"
+
+    _write_canonical_rows(
+        working_root / "data" / "hplt.parquet",
+        [
+            _base_row(
+                source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60",
+                source_doc_id="hplt-1",
+                text="ελληνικό κείμενο hplt",
+            )
+        ],
+    )
+    (working_root / "README.md").write_text("# dataset\n", encoding="utf-8")
+    (working_root / "hplt_integration_summary.json").write_text(
+        json.dumps({"new_dataset_name": "HPLT/ell_Grek_ge8_no_mt_clean60"}, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "prepare_hf_uploader_handoff.py",
+            "--working-release-root",
+            str(working_root),
+            "--handoff-root",
+            str(handoff_root),
+            "--repo-id",
+            "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+            "--public",
+            "--source-only",
+        ],
+    )
+    prepare_hf_uploader_handoff.main()
+
+    manifest = json.loads((handoff_root / "uploader_handoff.json").read_text(encoding="utf-8"))
+    assert manifest["scope"] == "source_only"
+    assert manifest["contracts"]["hplt_dataset_name"] == "HPLT/ell_Grek_ge8_no_mt_clean60"
+    assert manifest["contracts"]["dedup_latest_run_id"] is None
+    assert "data" in manifest["sync_paths"]
+    assert "README.md" in manifest["sync_paths"]
+    assert "dedup_metadata" not in manifest["sync_paths"]
+
+
 def test_wait_for_prepare_uploader_handoff_shell(tmp_path: Path) -> None:
     working_root = tmp_path / "working_release"
     state_root = tmp_path / "state"
@@ -425,6 +471,8 @@ def test_launch_uploader_handoff_local_stage(tmp_path: Path, monkeypatch) -> Non
         json.dumps({"new_dataset_name": "HPLT/ell_Grek_ge8_no_mt_clean60"}, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    (working_root / "README.md").write_text("# dataset\n", encoding="utf-8")
+    (working_root / "notes.tmp").write_text("do not stage me\n", encoding="utf-8")
 
     monkeypatch.setattr(
         sys,
@@ -461,8 +509,72 @@ def test_launch_uploader_handoff_local_stage(tmp_path: Path, monkeypatch) -> Non
     assert staged_root.exists()
     assert (staged_root / "data" / "hplt.parquet").exists()
     assert (staged_root / "dedup_metadata" / "latest.json").exists()
+    assert (staged_root / "README.md").exists()
+    assert not (staged_root / "notes.tmp").exists()
     assert launch_summary["sync_executed"] is True
     assert launch_summary["launch_executed"] is False
+
+
+def test_launch_uploader_handoff_local_stage_source_only(tmp_path: Path, monkeypatch) -> None:
+    working_root = tmp_path / "working_release"
+    handoff_root = tmp_path / "handoff"
+    local_stage_root = tmp_path / "local_uploader"
+
+    _write_canonical_rows(
+        working_root / "data" / "hplt.parquet",
+        [
+            _base_row(
+                source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60",
+                source_doc_id="hplt-1",
+                text="ελληνικό κείμενο hplt",
+            )
+        ],
+    )
+    (working_root / "README.md").write_text("# dataset\n", encoding="utf-8")
+    (working_root / "dedup_metadata").mkdir(parents=True, exist_ok=True)
+    (working_root / "dedup_metadata" / "latest.json").write_text("{}\n", encoding="utf-8")
+    (working_root / "hplt_integration_summary.json").write_text(
+        json.dumps({"new_dataset_name": "HPLT/ell_Grek_ge8_no_mt_clean60"}, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "prepare_hf_uploader_handoff.py",
+            "--working-release-root",
+            str(working_root),
+            "--handoff-root",
+            str(handoff_root),
+            "--repo-id",
+            "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+            "--public",
+            "--source-only",
+        ],
+    )
+    prepare_hf_uploader_handoff.main()
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "launch_hf_uploader_handoff.py",
+            "--handoff-json",
+            str(handoff_root / "uploader_handoff.json"),
+            "--local-stage-root",
+            str(local_stage_root),
+            "--skip-launch",
+        ],
+    )
+    launch_hf_uploader_handoff.main()
+
+    launch_summary = json.loads((handoff_root / "launch_summary.json").read_text(encoding="utf-8"))
+    staged_root = Path(str(launch_summary["staged_release_root"]))
+    assert staged_root.exists()
+    assert (staged_root / "data" / "hplt.parquet").exists()
+    assert (staged_root / "README.md").exists()
+    assert not (staged_root / "dedup_metadata").exists()
 
 
 def test_wait_for_uploader_handoff_launch_shell(tmp_path: Path, monkeypatch) -> None:

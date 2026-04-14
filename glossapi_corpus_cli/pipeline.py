@@ -2390,10 +2390,22 @@ def materialize_drop_action_deduped_mix(
         dedup_inter_dataset_policy=dedup_inter_dataset_policy,
         dedup_source_weights_path=dedup_source_weights_path,
     )
-    pd.DataFrame({"doc_key": duplicate_frame.apply(lambda row: stable_doc_key(str(row["source_dataset"]), str(row["source_doc_id"])), axis=1)}).drop_duplicates().to_parquet(
-        duplicate_doc_keys_path,
-        index=False,
-    )
+    if "doc_key" in duplicate_frame.columns:
+        duplicate_doc_keys = duplicate_frame[["doc_key"]].copy()
+    else:
+        duplicate_doc_keys = pd.DataFrame(
+            {
+                "doc_key": [
+                    stable_doc_key(str(source_dataset), str(source_doc_id))
+                    for source_dataset, source_doc_id in zip(
+                        duplicate_frame["source_dataset"],
+                        duplicate_frame["source_doc_id"],
+                        strict=True,
+                    )
+                ]
+            }
+        )
+    duplicate_doc_keys.drop_duplicates().to_parquet(duplicate_doc_keys_path, index=False)
     deduped_duplicate_frame[["doc_key"]].drop_duplicates().to_parquet(selected_duplicate_doc_keys_path, index=False)
     con = duckdb.connect()
     try:
@@ -2899,7 +2911,11 @@ def load_builder_dedup_bundle(dedup_metadata_root: Path) -> tuple[dict[str, Any]
     if not doc_metadata_path.exists():
         raise ValueError(f"builder doc metadata missing under {dedup_metadata_root}")
     family_membership = pd.read_parquet(family_membership_path) if family_membership_path.exists() else pd.DataFrame()
-    near_pairs = pd.read_parquet(near_pairs_path) if near_pairs_path.exists() else pd.DataFrame()
+    near_pairs = pd.DataFrame()
+    # The builder_metadata_v2 path prefers exported family membership. Only load near pairs
+    # for legacy bundles or empty membership exports, where they are still needed.
+    if family_membership.empty and near_pairs_path.exists():
+        near_pairs = pd.read_parquet(near_pairs_path)
     return manifest, pd.read_parquet(doc_metadata_path), family_membership, near_pairs
 
 
@@ -3251,10 +3267,13 @@ def apply_builder_dedup(
     )
     source_weights = load_dedup_source_weights(dedup_source_weights_path)
     enriched = frame.copy()
-    enriched["doc_key"] = [
-        stable_doc_key(str(source_dataset), str(source_doc_id))
-        for source_dataset, source_doc_id in zip(enriched["source_dataset"], enriched["source_doc_id"], strict=True)
-    ]
+    if "doc_key" in enriched.columns and not enriched["doc_key"].isna().any():
+        enriched["doc_key"] = enriched["doc_key"].astype(str)
+    else:
+        enriched["doc_key"] = [
+            stable_doc_key(str(source_dataset), str(source_doc_id))
+            for source_dataset, source_doc_id in zip(enriched["source_dataset"], enriched["source_doc_id"], strict=True)
+        ]
     doc_columns = [column for column in doc_metadata.columns if column not in {"doc_key", "source_dataset", "source_doc_id"}]
     enriched = enriched.merge(
         doc_metadata.rename(columns={column: f"dedup_{column}" for column in doc_columns}),

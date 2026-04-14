@@ -83,6 +83,11 @@
 
 9. Verify the uploader instance is configured for the best officially recommended HF large-dataset path, including Xet-backed uploads when available, before the next publication run.
 
+10. Keep the downstream builder/tokenizer efficiency work explicit:
+- use [BUILDER_TOKENIZER_EFFICIENCY_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/BUILDER_TOKENIZER_EFFICIENCY_PLAN.md)
+- preserve builder semantics while reducing unnecessary bundle loads
+- benchmark tokenizer throughput on worker hardware before freezing runtime defaults
+
 ## Immediate Risks
 
 - the exploratory HPLT review sample is not the same thing as the final upload-ready HPLT slice

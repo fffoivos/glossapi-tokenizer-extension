@@ -3,9 +3,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shlex
 import shutil
 import subprocess
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -31,10 +33,27 @@ def run_command(cmd: list[str], *, dry_run: bool) -> subprocess.CompletedProcess
     return subprocess.run(cmd, check=True, text=True, capture_output=True)
 
 
-def local_stage_copy(source_root: Path, dest_root: Path) -> None:
+def _link_or_copy(src: Path, dst: Path) -> None:
+    try:
+        os.link(src, dst)
+    except OSError:
+        shutil.copy2(src, dst)
+
+
+def stage_release_subset(*, source_root: Path, dest_root: Path, sync_paths: list[str]) -> None:
     if dest_root.exists():
         shutil.rmtree(dest_root)
-    shutil.copytree(source_root, dest_root)
+    dest_root.mkdir(parents=True, exist_ok=True)
+    for relative in sync_paths:
+        src = (source_root / relative).resolve()
+        dst = dest_root / relative
+        if not src.exists():
+            raise SystemExit(f"Missing manifest sync path under source root: {src}")
+        if src.is_dir():
+            shutil.copytree(src, dst, copy_function=lambda a, b: _link_or_copy(Path(a), Path(b)))
+        else:
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            _link_or_copy(src, dst)
 
 
 def main() -> None:
@@ -43,6 +62,7 @@ def main() -> None:
     manifest = json.loads(handoff_json.read_text(encoding="utf-8"))
 
     source_root = Path(str(manifest["working_release_root"])).resolve()
+    sync_paths = [str(path) for path in manifest.get("sync_paths", [])]
     host = str(manifest["dataset_server"]["host"])
     user = str(manifest["dataset_server"]["user"])
     remote_release_root = str(manifest["dataset_server"]["remote_release_root"])
@@ -74,15 +94,23 @@ def main() -> None:
         ]
     )
 
+    staged_source_root: Path | None = None
+    temp_stage_dir: str | None = None
     if not args.skip_sync:
         if args.local_stage_root is not None:
             local_stage_root = args.local_stage_root.resolve()
-            staged_release_root = str((local_stage_root / Path(remote_release_root).name).resolve())
-            commands["local_stage_copy"] = f"copytree {source_root} -> {staged_release_root}"
+            staged_source_root = (local_stage_root / Path(remote_release_root).name).resolve()
+            staged_release_root = str(staged_source_root)
+            commands["local_stage_subset"] = f"stage {sync_paths} from {source_root} -> {staged_release_root}"
             if not args.dry_run:
                 local_stage_root.mkdir(parents=True, exist_ok=True)
-                local_stage_copy(source_root, Path(staged_release_root))
+                stage_release_subset(source_root=source_root, dest_root=staged_source_root, sync_paths=sync_paths)
         else:
+            temp_stage_dir = tempfile.mkdtemp(prefix=f"{Path(remote_release_root).name}.", dir=str(handoff_json.parent))
+            staged_source_root = (Path(temp_stage_dir) / Path(remote_release_root).name).resolve()
+            commands["temp_stage_subset"] = f"stage {sync_paths} from {source_root} -> {staged_source_root}"
+            if not args.dry_run:
+                stage_release_subset(source_root=source_root, dest_root=staged_source_root, sync_paths=sync_paths)
             ssh_mkdir = ssh_base + [
                 f"{user}@{host}",
                 f"mkdir -p {shlex.quote(remote_release_root)}",
@@ -98,7 +126,7 @@ def main() -> None:
                 "--delete",
                 "-e",
                 rsync_ssh,
-                f"{source_root}/",
+                f"{staged_source_root}/",
                 f"{user}@{host}:{remote_release_root}/",
             ])
             commands["ssh_mkdir"] = shlex.join(ssh_mkdir)
@@ -126,6 +154,8 @@ def main() -> None:
         "skip_launch": bool(args.skip_launch),
         "local_stage_root": str(args.local_stage_root.resolve()) if args.local_stage_root else None,
         "staged_release_root": staged_release_root,
+        "sync_paths": sync_paths,
+        "temp_stage_dir": temp_stage_dir,
         "commands": commands,
         "sync_executed": not args.skip_sync and not args.dry_run,
         "launch_executed": not args.skip_launch and not args.dry_run and args.local_stage_root is None,
