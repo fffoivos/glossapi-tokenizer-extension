@@ -80,7 +80,7 @@ class LinuxProcessSampler:
             except (FileNotFoundError, ProcessLookupError):
                 continue
             try:
-                _pid, _comm, rest = raw.split(")", 1)
+                _prefix, rest = raw.split(")", 1)
                 parts = rest.strip().split()
                 ppid = int(parts[1])
             except (ValueError, IndexError):
