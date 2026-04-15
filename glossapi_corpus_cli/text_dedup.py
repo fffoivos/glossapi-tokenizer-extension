@@ -85,6 +85,7 @@ DEFAULT_LARGE_COMPONENT_THRESHOLD = 50
 DEFAULT_MAX_BUCKET_SIZE = 5000
 DEFAULT_NEAR_CLUSTER_CHUNK_DOCS = 4096
 DEFAULT_NEAR_CLUSTER_MAX_COMPONENTS = 256
+DEFAULT_NEAR_CLUSTER_MAX_WORKERS = 8
 DEFAULT_NEAR_CANDIDATE_MAX_WORKERS = 8
 DEFAULT_NEAR_CANDIDATE_PARTITION_MAX_WORKERS = 8
 NEAR_CANDIDATE_BUCKET_PREFIX_LEN = 1
@@ -127,6 +128,19 @@ def near_candidate_partition_worker_cap() -> int:
         raise ValueError("GLOSSAPI_NEAR_CANDIDATE_PARTITION_MAX_WORKERS must be an integer") from exc
     if value < 1:
         raise ValueError("GLOSSAPI_NEAR_CANDIDATE_PARTITION_MAX_WORKERS must be >= 1")
+    return value
+
+
+def near_cluster_worker_cap() -> int:
+    raw = os.environ.get("GLOSSAPI_NEAR_CLUSTER_MAX_WORKERS", "").strip()
+    if not raw:
+        return DEFAULT_NEAR_CLUSTER_MAX_WORKERS
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise ValueError("GLOSSAPI_NEAR_CLUSTER_MAX_WORKERS must be an integer") from exc
+    if value < 1:
+        raise ValueError("GLOSSAPI_NEAR_CLUSTER_MAX_WORKERS must be >= 1")
     return value
 
 RELAXED_TRANSLATION = str.maketrans(
@@ -3269,6 +3283,9 @@ def load_signature_index(signatures_path: Path) -> tuple[SignatureLookup, Signat
 _CANDIDATE_WORKER_SIGNATURE_MAP: SignatureLookup | None = None
 _CANDIDATE_WORKER_SIGNATURE_META: SignatureMetadataLookup | None = None
 _CANDIDATE_WORKER_SIGNATURE_PATH: Path | None = None
+_CLUSTER_WORKER_SIGNATURE_MAP: SignatureLookup | None = None
+_CLUSTER_WORKER_SIGNATURE_META: SignatureMetadataLookup | None = None
+_CLUSTER_WORKER_ADJACENCY: dict[str, set[str]] | None = None
 
 
 def candidate_process_pool_context():
@@ -3301,6 +3318,44 @@ def init_candidate_worker(signatures_path: str) -> None:
     signatures_path_obj = Path(signatures_path)
     _CANDIDATE_WORKER_SIGNATURE_MAP, _CANDIDATE_WORKER_SIGNATURE_META = load_signature_index(signatures_path_obj)
     _CANDIDATE_WORKER_SIGNATURE_PATH = signatures_path_obj
+
+
+def near_cluster_process_pool_context():
+    raw = os.environ.get("GLOSSAPI_NEAR_CLUSTER_START_METHOD", "").strip().lower()
+    if raw:
+        return mp.get_context(raw)
+    if os.name == "posix" and "fork" in mp.get_all_start_methods():
+        return mp.get_context("fork")
+    return PROCESS_POOL_CONTEXT
+
+
+def preload_cluster_worker_state(
+    *,
+    signature_map: SignatureLookup,
+    signature_meta: SignatureMetadataLookup,
+    adjacency: dict[str, set[str]],
+) -> None:
+    global _CLUSTER_WORKER_SIGNATURE_MAP, _CLUSTER_WORKER_SIGNATURE_META, _CLUSTER_WORKER_ADJACENCY
+    _CLUSTER_WORKER_SIGNATURE_MAP = signature_map
+    _CLUSTER_WORKER_SIGNATURE_META = signature_meta
+    _CLUSTER_WORKER_ADJACENCY = adjacency
+
+
+def cluster_pool_initializer_config(
+    *,
+    signature_map: SignatureLookup,
+    signature_meta: SignatureMetadataLookup,
+    adjacency: dict[str, set[str]],
+):
+    context = near_cluster_process_pool_context()
+    if context.get_start_method() == "fork":
+        preload_cluster_worker_state(
+            signature_map=signature_map,
+            signature_meta=signature_meta,
+            adjacency=adjacency,
+        )
+        return context, None, ()
+    return context, None, ()
 
 
 def near_component_subgraphs(nodes: set[str], adjacency: dict[str, set[str]]) -> list[set[str]]:
@@ -3505,6 +3560,46 @@ def build_near_cluster_chunk_specs(
         current_components.append(component)
         current_doc_count += component_doc_count
     flush_chunk()
+    return chunk_specs
+
+
+def build_near_cluster_singleton_chunk_specs(
+    doc_keys: list[str],
+    *,
+    start_index: int = 0,
+    target_doc_count: int = DEFAULT_NEAR_CLUSTER_CHUNK_DOCS,
+) -> list[dict[str, Any]]:
+    if len(doc_keys) <= max(target_doc_count, DEFAULT_NEAR_CLUSTER_MAX_COMPONENTS):
+        base_specs = build_near_cluster_chunk_specs([{doc_key} for doc_key in doc_keys])
+        adjusted_specs: list[dict[str, Any]] = []
+        for offset, spec in enumerate(base_specs):
+            singleton_keys = [str(component["doc_keys"][0]) for component in list(spec["components"])]
+            chunk_index = start_index + offset
+            first_doc_key = singleton_keys[0]
+            adjusted_specs.append(
+                {
+                    "chunk_key": f"singleton_chunk:{chunk_index:05d}:{blake3(first_doc_key.encode('utf-8')).hexdigest()[:16]}",
+                    "chunk_index": chunk_index,
+                    "singleton_doc_keys": singleton_keys,
+                    "doc_count": len(singleton_keys),
+                }
+            )
+        return adjusted_specs
+    chunk_specs: list[dict[str, Any]] = []
+    for offset in range(0, len(doc_keys), target_doc_count):
+        chunk_doc_keys = list(doc_keys[offset : offset + target_doc_count])
+        if not chunk_doc_keys:
+            continue
+        chunk_index = start_index + len(chunk_specs)
+        first_doc_key = str(chunk_doc_keys[0])
+        chunk_specs.append(
+            {
+                "chunk_key": f"singleton_chunk:{chunk_index:05d}:{blake3(first_doc_key.encode('utf-8')).hexdigest()[:16]}",
+                "chunk_index": chunk_index,
+                "singleton_doc_keys": chunk_doc_keys,
+                "doc_count": len(chunk_doc_keys),
+            }
+        )
     return chunk_specs
 
 
@@ -5562,20 +5657,93 @@ def _resolve_near_component(
     return all_rows, all_summaries
 
 
+def singleton_near_component_rows(
+    doc_key: str,
+    *,
+    signature_meta: SignatureMetadataLookup,
+    doc_meta: dict[str, dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    source = doc_meta[doc_key]
+    cluster_id = cluster_id_for_doc_keys("near", [doc_key])
+    return (
+        [
+            {
+                "cluster_id": cluster_id,
+                "kept_doc_key": doc_key,
+                "member_doc_key": doc_key,
+                "member_source_dataset": str(source["source_dataset"]),
+                "member_source_doc_id": str(source["source_doc_id"]),
+                "dropped": False,
+                "estimated_jaccard": 1.0,
+                "shingle_mode": signature_meta.shingle_mode(doc_key),
+                "token_count": signature_meta.token_count(doc_key),
+                "char_count": signature_meta.char_count(doc_key),
+                "length_ratio": 1.0,
+                "likely_containment_flag": False,
+                "accepted_reason": "singleton",
+                "cluster_size": 1,
+                "component_size": 1,
+                "large_component_audit_flag": False,
+            }
+        ],
+        [
+            {
+                "cluster_id": cluster_id,
+                "decision_stage": "near_duplicate",
+                "cluster_size": 1,
+                "dropped_count": 0,
+                "kept_doc_key": doc_key,
+                "mixed_source": False,
+                "large_component_audit_flag": False,
+                "narrow_margin_flag": False,
+            }
+        ],
+    )
+
+
 def resolve_near_cluster_chunk(
     *,
     stage_root: Path,
     chunk_spec: dict[str, Any],
-    adjacency: dict[str, set[str]],
-    signature_map: SignatureLookup,
-    signature_meta: SignatureMetadataLookup,
-    doc_meta: dict[str, dict[str, Any]],
+    adjacency: dict[str, set[str]] | None = None,
+    signature_map: SignatureLookup | None = None,
+    signature_meta: SignatureMetadataLookup | None = None,
+    doc_meta: dict[str, dict[str, Any]] | None = None,
+    state_root: Path | None = None,
+    run_id: str | None = None,
     minhash_threshold: float,
     large_component_threshold: int,
 ) -> dict[str, Any]:
+    if adjacency is None:
+        adjacency = _CLUSTER_WORKER_ADJACENCY
+    if signature_map is None:
+        signature_map = _CLUSTER_WORKER_SIGNATURE_MAP
+    if signature_meta is None:
+        signature_meta = _CLUSTER_WORKER_SIGNATURE_META
+    if adjacency is None or signature_map is None or signature_meta is None:
+        raise ValueError("near cluster worker state is not initialized")
+    if doc_meta is None:
+        if state_root is None or run_id is None:
+            raise ValueError("state_root and run_id are required when doc_meta is not provided")
+        doc_keys = set(chunk_spec.get("singleton_doc_keys", []))
+        for component_payload in list(chunk_spec.get("components", [])):
+            doc_keys.update(component_payload["doc_keys"])
+        reader = connect_db_reader(state_root)
+        try:
+            doc_meta = load_run_doc_metadata(reader, run_id=run_id, doc_keys=sorted(doc_keys))
+        finally:
+            reader.close()
     chunk_rows: list[dict[str, Any]] = []
     chunk_summaries: list[dict[str, Any]] = []
-    for component_payload in list(chunk_spec["components"]):
+    for doc_key in list(chunk_spec.get("singleton_doc_keys", [])):
+        resolved_rows, resolved_summaries = singleton_near_component_rows(
+            str(doc_key),
+            signature_meta=signature_meta,
+            doc_meta=doc_meta,
+        )
+        chunk_rows.extend(resolved_rows)
+        chunk_summaries.extend(resolved_summaries)
+    for component_payload in list(chunk_spec.get("components", [])):
         resolved_rows, resolved_summaries = _resolve_near_component(
             set(component_payload["doc_keys"]),
             adjacency=adjacency,
@@ -5687,6 +5855,7 @@ def _run_near_cluster_stage(
 ) -> dict[str, Any]:
     stage_root = run_root / "stage_02_near"
     progress_path = progress_file_path(run_root, NEAR_CLUSTER_STAGE)
+    trace_path = progress_dir(run_root) / "near_cluster_trace.log"
     existing_summary = read_json_if_exists(progress_path)
     near_cluster_required_paths = [
         stage_root / "near_clusters.parquet",
@@ -5707,8 +5876,29 @@ def _run_near_cluster_stage(
             payload=existing_summary,
         )
         return existing_summary
+    upsert_stage_progress(
+        conn,
+        run_id=run_id,
+        stage=NEAR_CLUSTER_STAGE,
+        status="running",
+        total_chunks=1,
+        completed_chunks=0,
+        progress_path=progress_path,
+        payload={
+            "run_id": run_id,
+            "stage": NEAR_CLUSTER_STAGE,
+            "status": "running",
+            "phase": "prelude",
+            "total_chunks": 1,
+            "completed_chunks": 0,
+        },
+    )
+    append_debug_trace(trace_path, "near_clusters:start")
     signature_map, signature_meta = load_signature_index(stage_root / "signatures.parquet")
-    doc_meta = load_run_doc_metadata(conn, run_id=run_id, doc_keys=sorted(signature_map))
+    append_debug_trace(
+        trace_path,
+        f"near_clusters:signatures_loaded docs={len(signature_map.row_by_doc_key)}",
+    )
     adjacency: dict[str, set[str]] = defaultdict(set)
     candidate_pair_rows = 0
     for batch_rows in iter_parquet_batches(stage_root / "candidate_pairs.parquet"):
@@ -5718,7 +5908,17 @@ def _run_near_cluster_stage(
             adjacency[left].add(right)
             adjacency[right].add(left)
             candidate_pair_rows += 1
-    components = near_component_subgraphs(set(signature_map), adjacency)
+    append_debug_trace(
+        trace_path,
+        f"near_clusters:adjacency_loaded candidate_pair_rows={candidate_pair_rows} nodes={len(adjacency)}",
+    )
+    connected_doc_keys = set(adjacency)
+    connected_components = near_component_subgraphs(set(connected_doc_keys), adjacency) if connected_doc_keys else []
+    singleton_doc_keys = [str(doc_key) for doc_key in signature_map.row_by_doc_key if doc_key not in connected_doc_keys]
+    append_debug_trace(
+        trace_path,
+        f"near_clusters:components connected={len(connected_components)} singletons={len(singleton_doc_keys)}",
+    )
     touched_doc_keys = load_touched_doc_keys(stage_root / "touched_doc_keys.parquet")
     previous_run_root = latest_compatible_run_root(
         state_root=state_root,
@@ -5747,13 +5947,13 @@ def _run_near_cluster_stage(
         ],
     )
     reusable_cluster_ids: set[str] = set()
-    recompute_components: list[set[str]] = components
+    recompute_components: list[set[str]] = connected_components
     if previous_run_root is not None:
         previous_cluster_id_by_doc, previous_digest_by_id, previous_size_by_id = load_previous_cluster_membership(
             previous_run_root / "stage_02_near" / "near_clusters.parquet"
         )
         recompute_components = []
-        for component in components:
+        for component in connected_components:
             if component & touched_doc_keys:
                 recompute_components.append(component)
                 continue
@@ -5769,7 +5969,12 @@ def _run_near_cluster_stage(
                 recompute_components.append(component)
                 continue
             reusable_cluster_ids.add(previous_cluster_id)
-    cluster_chunk_specs = build_near_cluster_chunk_specs(recompute_components)
+    component_chunk_specs = build_near_cluster_chunk_specs(recompute_components)
+    singleton_chunk_specs = build_near_cluster_singleton_chunk_specs(
+        singleton_doc_keys,
+        start_index=len(component_chunk_specs),
+    )
+    cluster_chunk_specs = [*component_chunk_specs, *singleton_chunk_specs]
     reusable_chunk_key = "reuse:previous_components"
     cluster_chunk_keys = [str(chunk_spec["chunk_key"]) for chunk_spec in cluster_chunk_specs]
     if reusable_cluster_ids:
@@ -5795,7 +6000,11 @@ def _run_near_cluster_stage(
             "status": "running",
             "total_chunks": total_chunks,
             "completed_chunks": completed_chunks,
-        },
+            },
+        )
+    append_debug_trace(
+        trace_path,
+        f"near_clusters:chunks_registered total={total_chunks} reusable={len(reusable_cluster_ids)} component_chunks={len(component_chunk_specs)} singleton_chunks={len(singleton_chunk_specs)}",
     )
     reused_cluster_count = len(reusable_cluster_ids)
     if reusable_cluster_ids and stage_chunk_status(conn, run_id=run_id, stage=NEAR_CLUSTER_STAGE, chunk_key=reusable_chunk_key) != "completed":
@@ -5831,44 +6040,157 @@ def _run_near_cluster_stage(
                 "reused_summary_rows": int(reused_summary_rows),
             },
         )
-    for chunk_spec in cluster_chunk_specs:
-        if stage_chunk_status(conn, run_id=run_id, stage=NEAR_CLUSTER_STAGE, chunk_key=str(chunk_spec["chunk_key"])) == "completed":
-            continue
-        result = resolve_near_cluster_chunk(
-            stage_root=stage_root,
-            chunk_spec=chunk_spec,
-            adjacency=adjacency,
-            signature_map=signature_map,
-            signature_meta=signature_meta,
-            doc_meta=doc_meta,
-            minhash_threshold=minhash_threshold,
-            large_component_threshold=large_component_threshold,
+    pending_cluster_chunk_specs = [
+        chunk_spec
+        for chunk_spec in cluster_chunk_specs
+        if stage_chunk_status(conn, run_id=run_id, stage=NEAR_CLUSTER_STAGE, chunk_key=str(chunk_spec["chunk_key"])) != "completed"
+    ]
+    cluster_worker_count = 1
+    if pending_cluster_chunk_specs:
+        pool_context = near_cluster_process_pool_context()
+        if pool_context.get_start_method() == "fork":
+            cluster_worker_count = effective_worker_count(
+                min(max_workers, near_cluster_worker_cap()),
+                len(pending_cluster_chunk_specs),
+            )
+        append_debug_trace(
+            trace_path,
+            f"near_clusters:chunk_resolution_start pending_chunks={len(pending_cluster_chunk_specs)} worker_count={cluster_worker_count}",
         )
-        mark_stage_chunk_complete(
-            conn,
-            run_id=run_id,
-            stage=NEAR_CLUSTER_STAGE,
-            chunk_key=str(result["chunk_key"]),
-            artifact_path=Path(str(result["artifact_path"])),
-            row_count=int(result["row_count"]),
-        )
-        total_chunks, completed_chunks = stage_chunk_counts(conn, run_id=run_id, stage=NEAR_CLUSTER_STAGE)
-        upsert_stage_progress(
-            conn,
-            run_id=run_id,
-            stage=NEAR_CLUSTER_STAGE,
-            status="running",
-            total_chunks=total_chunks,
-            completed_chunks=completed_chunks,
-            progress_path=progress_path,
-            payload={
-                "run_id": run_id,
-                "stage": NEAR_CLUSTER_STAGE,
-                "status": "running",
-                "total_chunks": total_chunks,
-                "completed_chunks": completed_chunks,
-            },
-        )
+    if cluster_worker_count == 1:
+        for chunk_spec in pending_cluster_chunk_specs:
+            result = resolve_near_cluster_chunk(
+                stage_root=stage_root,
+                chunk_spec=chunk_spec,
+                adjacency=adjacency,
+                signature_map=signature_map,
+                signature_meta=signature_meta,
+                state_root=state_root,
+                run_id=run_id,
+                minhash_threshold=minhash_threshold,
+                large_component_threshold=large_component_threshold,
+            )
+            mark_stage_chunk_complete(
+                conn,
+                run_id=run_id,
+                stage=NEAR_CLUSTER_STAGE,
+                chunk_key=str(result["chunk_key"]),
+                artifact_path=Path(str(result["artifact_path"])),
+                row_count=int(result["row_count"]),
+            )
+            total_chunks, completed_chunks = stage_chunk_counts(conn, run_id=run_id, stage=NEAR_CLUSTER_STAGE)
+            upsert_stage_progress(
+                conn,
+                run_id=run_id,
+                stage=NEAR_CLUSTER_STAGE,
+                status="running",
+                total_chunks=total_chunks,
+                completed_chunks=completed_chunks,
+                progress_path=progress_path,
+                payload={
+                    "run_id": run_id,
+                    "stage": NEAR_CLUSTER_STAGE,
+                    "status": "running",
+                    "total_chunks": total_chunks,
+                    "completed_chunks": completed_chunks,
+                },
+            )
+    elif pending_cluster_chunk_specs:
+        try:
+            pool_context, initializer, initargs = cluster_pool_initializer_config(
+                signature_map=signature_map,
+                signature_meta=signature_meta,
+                adjacency=adjacency,
+            )
+            with ProcessPoolExecutor(
+                max_workers=cluster_worker_count,
+                mp_context=pool_context,
+                initializer=initializer,
+                initargs=initargs,
+            ) as executor:
+                future_map = {
+                    executor.submit(
+                        resolve_near_cluster_chunk,
+                        stage_root=stage_root,
+                        chunk_spec=chunk_spec,
+                        state_root=state_root,
+                        run_id=run_id,
+                        minhash_threshold=minhash_threshold,
+                        large_component_threshold=large_component_threshold,
+                    ): str(chunk_spec["chunk_key"])
+                    for chunk_spec in pending_cluster_chunk_specs
+                }
+                while future_map:
+                    done, _ = wait(set(future_map), return_when=FIRST_COMPLETED)
+                    for future in done:
+                        chunk_key = future_map.pop(future)
+                        result = future.result()
+                        mark_stage_chunk_complete(
+                            conn,
+                            run_id=run_id,
+                            stage=NEAR_CLUSTER_STAGE,
+                            chunk_key=chunk_key,
+                            artifact_path=Path(str(result["artifact_path"])),
+                            row_count=int(result["row_count"]),
+                        )
+                        total_chunks, completed_chunks = stage_chunk_counts(conn, run_id=run_id, stage=NEAR_CLUSTER_STAGE)
+                        upsert_stage_progress(
+                            conn,
+                            run_id=run_id,
+                            stage=NEAR_CLUSTER_STAGE,
+                            status="running",
+                            total_chunks=total_chunks,
+                            completed_chunks=completed_chunks,
+                            progress_path=progress_path,
+                            payload={
+                                "run_id": run_id,
+                                "stage": NEAR_CLUSTER_STAGE,
+                                "status": "running",
+                                "total_chunks": total_chunks,
+                                "completed_chunks": completed_chunks,
+                            },
+                        )
+        except BrokenProcessPool:
+            append_debug_trace(trace_path, f"near_clusters:broken_process_pool worker_count={cluster_worker_count} retry=serial")
+            for chunk_spec in pending_cluster_chunk_specs:
+                if stage_chunk_status(conn, run_id=run_id, stage=NEAR_CLUSTER_STAGE, chunk_key=str(chunk_spec["chunk_key"])) == "completed":
+                    continue
+                result = resolve_near_cluster_chunk(
+                    stage_root=stage_root,
+                    chunk_spec=chunk_spec,
+                    adjacency=adjacency,
+                    signature_map=signature_map,
+                    signature_meta=signature_meta,
+                    state_root=state_root,
+                    run_id=run_id,
+                    minhash_threshold=minhash_threshold,
+                    large_component_threshold=large_component_threshold,
+                )
+                mark_stage_chunk_complete(
+                    conn,
+                    run_id=run_id,
+                    stage=NEAR_CLUSTER_STAGE,
+                    chunk_key=str(result["chunk_key"]),
+                    artifact_path=Path(str(result["artifact_path"])),
+                    row_count=int(result["row_count"]),
+                )
+                total_chunks, completed_chunks = stage_chunk_counts(conn, run_id=run_id, stage=NEAR_CLUSTER_STAGE)
+                upsert_stage_progress(
+                    conn,
+                    run_id=run_id,
+                    stage=NEAR_CLUSTER_STAGE,
+                    status="running",
+                    total_chunks=total_chunks,
+                    completed_chunks=completed_chunks,
+                    progress_path=progress_path,
+                    payload={
+                        "run_id": run_id,
+                        "stage": NEAR_CLUSTER_STAGE,
+                        "status": "running",
+                        "total_chunks": total_chunks,
+                        "completed_chunks": completed_chunks,
+                    },
+                )
     cluster_paths = sorted((stage_root / "shards" / "near_clusters").glob("*.parquet"))
     cluster_summary_paths = sorted((stage_root / "shards" / "cluster_summaries").glob("*.parquet"))
     cluster_rows = combine_parquet_files(cluster_paths, stage_root / "near_clusters.parquet", schema=NEAR_CLUSTER_SCHEMA)
