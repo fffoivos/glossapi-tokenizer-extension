@@ -3603,6 +3603,14 @@ def build_near_cluster_singleton_chunk_specs(
     return chunk_specs
 
 
+def uses_legacy_near_cluster_component_only_layout(chunk_keys: list[str]) -> bool:
+    data_chunk_keys = [str(chunk_key) for chunk_key in chunk_keys if str(chunk_key) != "reuse:previous_components"]
+    return bool(data_chunk_keys) and all(
+        chunk_key.startswith("component_chunk:") and not chunk_key.startswith("singleton_chunk:")
+        for chunk_key in data_chunk_keys
+    )
+
+
 def load_run_config_payload(run_root: Path) -> dict[str, Any] | None:
     config_path = run_root / "run_config.json"
     if not config_path.exists():
@@ -5912,13 +5920,31 @@ def _run_near_cluster_stage(
         trace_path,
         f"near_clusters:adjacency_loaded candidate_pair_rows={candidate_pair_rows} nodes={len(adjacency)}",
     )
-    connected_doc_keys = set(adjacency)
-    connected_components = near_component_subgraphs(set(connected_doc_keys), adjacency) if connected_doc_keys else []
-    singleton_doc_keys = [str(doc_key) for doc_key in signature_map.row_by_doc_key if doc_key not in connected_doc_keys]
-    append_debug_trace(
-        trace_path,
-        f"near_clusters:components connected={len(connected_components)} singletons={len(singleton_doc_keys)}",
-    )
+    existing_cluster_chunk_keys = [
+        str(row["chunk_key"])
+        for row in conn.execute(
+            "SELECT chunk_key FROM run_stage_chunks WHERE run_id = ? AND stage = ?",
+            (run_id, NEAR_CLUSTER_STAGE),
+        )
+    ]
+    uses_legacy_component_only_layout = uses_legacy_near_cluster_component_only_layout(existing_cluster_chunk_keys)
+    if uses_legacy_component_only_layout:
+        components = near_component_subgraphs(set(signature_map), adjacency)
+        connected_components = components
+        singleton_doc_keys: list[str] = []
+        append_debug_trace(
+            trace_path,
+            f"near_clusters:components legacy_component_only=true total={len(components)}",
+        )
+    else:
+        connected_doc_keys = set(adjacency)
+        connected_components = near_component_subgraphs(set(connected_doc_keys), adjacency) if connected_doc_keys else []
+        singleton_doc_keys = [str(doc_key) for doc_key in signature_map.row_by_doc_key if doc_key not in connected_doc_keys]
+        components = connected_components
+        append_debug_trace(
+            trace_path,
+            f"near_clusters:components connected={len(connected_components)} singletons={len(singleton_doc_keys)}",
+        )
     touched_doc_keys = load_touched_doc_keys(stage_root / "touched_doc_keys.parquet")
     previous_run_root = latest_compatible_run_root(
         state_root=state_root,
@@ -5947,13 +5973,13 @@ def _run_near_cluster_stage(
         ],
     )
     reusable_cluster_ids: set[str] = set()
-    recompute_components: list[set[str]] = connected_components
+    recompute_components: list[set[str]] = components
     if previous_run_root is not None:
         previous_cluster_id_by_doc, previous_digest_by_id, previous_size_by_id = load_previous_cluster_membership(
             previous_run_root / "stage_02_near" / "near_clusters.parquet"
         )
         recompute_components = []
-        for component in connected_components:
+        for component in components:
             if component & touched_doc_keys:
                 recompute_components.append(component)
                 continue
@@ -5970,10 +5996,12 @@ def _run_near_cluster_stage(
                 continue
             reusable_cluster_ids.add(previous_cluster_id)
     component_chunk_specs = build_near_cluster_chunk_specs(recompute_components)
-    singleton_chunk_specs = build_near_cluster_singleton_chunk_specs(
-        singleton_doc_keys,
-        start_index=len(component_chunk_specs),
-    )
+    singleton_chunk_specs: list[dict[str, Any]] = []
+    if not uses_legacy_component_only_layout:
+        singleton_chunk_specs = build_near_cluster_singleton_chunk_specs(
+            singleton_doc_keys,
+            start_index=len(component_chunk_specs),
+        )
     cluster_chunk_specs = [*component_chunk_specs, *singleton_chunk_specs]
     reusable_chunk_key = "reuse:previous_components"
     cluster_chunk_keys = [str(chunk_spec["chunk_key"]) for chunk_spec in cluster_chunk_specs]

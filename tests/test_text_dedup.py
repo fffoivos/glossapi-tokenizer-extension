@@ -1477,6 +1477,26 @@ def test_near_cluster_stage_can_resume_from_partial_component_chunks(tmp_path: P
     assert all(row["accepted_reason"] == "singleton" for row in near_clusters)
 
 
+def test_uses_legacy_near_cluster_component_only_layout_detects_component_chunks() -> None:
+    assert text_dedup.uses_legacy_near_cluster_component_only_layout(
+        [
+            "reuse:previous_components",
+            "component_chunk:00000:abc",
+            "component_chunk:00001:def",
+        ]
+    )
+
+
+def test_uses_legacy_near_cluster_component_only_layout_rejects_singleton_chunks() -> None:
+    assert not text_dedup.uses_legacy_near_cluster_component_only_layout(
+        [
+            "reuse:previous_components",
+            "component_chunk:00000:abc",
+            "singleton_chunk:00001:def",
+        ]
+    )
+
+
 def test_near_candidate_worker_cap_env_override(monkeypatch) -> None:
     monkeypatch.setenv("GLOSSAPI_NEAR_CANDIDATE_MAX_WORKERS", "16")
     assert text_dedup.near_candidate_worker_cap() == 16
