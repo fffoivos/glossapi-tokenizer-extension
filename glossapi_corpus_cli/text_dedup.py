@@ -5860,7 +5860,7 @@ def _run_near_cluster_stage(
     config: dict[str, Any],
     minhash_threshold: float,
     large_component_threshold: int,
-    max_workers: int,
+    max_workers: int = 1,
 ) -> dict[str, Any]:
     stage_root = run_root / "stage_02_near"
     progress_path = progress_file_path(run_root, NEAR_CLUSTER_STAGE)
