@@ -1,0 +1,132 @@
+# THRESHOLDS.yaml — rejection policy for the cleaner iteration loop
+#
+# Consumed by scripts/run_cleaner_iteration.py. Every threshold carries
+# (a) the value, (b) the signal name, (c) the calibration status, and
+# (d) a note on when it may change.
+#
+# Status legend:
+#   locked        = validated against full-canonical-corpus review, stable
+#   provisional   = calibrated on partial sample, expect review and churn
+#   pending       = has a placeholder value, not yet under review
+
+version: "wave_1_20260423"
+
+# -----------------------------------------------------------------------------
+# Upstream pre-existing signals (never overwritten; read-only here)
+# -----------------------------------------------------------------------------
+upstream_signals:
+  # For reference only: the docs already filtered out by upstream corpus.clean
+  # at publication time (needs_ocr=true → excluded from hf_release publish).
+  # We do not reapply these.
+  note: >
+    greek_badness_score / mojibake_badness_score / needs_ocr / ocr_success /
+    filter / quality_method / greek_percentage / latin_percentage come from
+    the upstream corpus.clean run and are preserved unchanged in this
+    subproject's output. No rejection is driven by these here — upstream
+    already applied its policy.
+
+# -----------------------------------------------------------------------------
+# New charset residue / punctuation signals (additive mojibake detector)
+# -----------------------------------------------------------------------------
+charset_filter:
+  moji_residue_ratio:
+    threshold: 0.25
+    direction: ">"   # reject when > threshold
+    status: provisional
+    reviewed_on: 2026-04-22
+    reviewer: sub-agent on 25-doc borderline band [0.20, 0.40]
+    note: >
+      Sub-agent found ~3/11 false-negatives in the [0.21, 0.27] band
+      (MacGreek/PUA-encoded Greek leaking through at 0.30). 0.25 closes
+      the leak without sacrificing precision. Sub-agent found 0 false
+      positives above 0.30.
+
+  ascii_punct_ratio:
+    threshold: 0.30
+    direction: ">"
+    status: provisional
+    reviewed_on: 2026-04-22
+    reviewer: sub-agent on 25-doc borderline band [0.20, 0.40]
+    note: >
+      0 miscalls in the 25-doc review at 0.30. Legit Greek with heavy
+      ToC/math/citation punctuation sits comfortably below 0.30, mojibake
+      sits above. Later wave-2 review (56 + 1000 docs) shows the combined
+      metric (punct + moji) tracks format density, not corruption — this
+      specific axis still catches font-substitution-ASCII-symbol mojibake.
+
+  greek_letter_ratio:
+    threshold: 0.02
+    direction: "<"   # reject when < threshold
+    status: provisional
+    reviewed_on: 2026-04-22
+    reviewer: sub-agent on 25-doc borderline band [0.02, 0.15]
+    note: >
+      Sub-agent found 9/25 (36%) false-drops at the initial 0.05 cutoff.
+      Bilingual Greek PhDs / EU treaties / openarchives theses have
+      substantial Greek content but denominator is inflated by table
+      scaffolding, base64 blobs, LaTeX math, English refs. Shifted to
+      0.02 to keep them while still catching pure non-Greek docs.
+
+  combined_mojibake_noise_ratio:
+    formula: "moji_residue_ratio + ascii_punct_ratio"
+    status: pending   # NOT used for rejection yet
+    note: >
+      Emitted as a score column for review. Per 2026-04-23 sub-agent
+      review of 56 docs across [0, 86.7%] deletion: this combined metric
+      tracks format density (ToC dot-leaders, tables, LaTeX math) not
+      mojibake. Did NOT catch the actually-corrupted docs found in the
+      review (Greek-to-Greek codepage swap). Kept as a diagnostic signal
+      but NOT promoted to a rejection rule.
+
+# -----------------------------------------------------------------------------
+# Deletion % rejection (doc too damaged by cleaner)
+# -----------------------------------------------------------------------------
+deletion_threshold:
+  pct_chars_removed_non_empty:
+    threshold: null   # TO BE DECIDED
+    direction: ">"
+    status: pending
+    reviewed_on: null
+    reviewer: null
+    note: >
+      Under review on a 1000-doc sample (500 random <20% + 500 random
+      >=20%) at reports/2026-04-23_wave/. Sub-agent review of 56 docs
+      found high-deletion docs are often format-heavy but readable
+      (ToC / Europarl committee rosters), not broken. User review
+      needed before a cutoff lands. Candidates in discussion: 20%,
+      40%, higher, or disabled entirely in favor of charset filter.
+
+# -----------------------------------------------------------------------------
+# Absolute content size floor
+# -----------------------------------------------------------------------------
+min_content_size:
+  content_chars_kept:
+    threshold: null   # TO BE DECIDED
+    direction: "<"
+    status: pending
+    note: >
+      A 974-char output doc was found in review — the surviving content
+      may be too small to usefully train on. Candidates: <500 chars
+      → drop, <2000 → flag for review. No decision yet.
+
+# -----------------------------------------------------------------------------
+# Known-open detector gaps (NOT thresholds — fixes pending)
+# -----------------------------------------------------------------------------
+open_gaps:
+  greek_to_greek_codepage_mojibake:
+    status: open
+    note: >
+      E.g. "Διδαςκαλία ξζνων γλωςςών ςτθν Ευρώπθ" for
+      "Διδασκαλία ξένων γλωσσών στην Ευρώπη" — wrong-codepage Greek
+      where bytes stay inside the Greek Unicode block. Our three ratios
+      ALL miss this. Upstream `greek_badness_score ≥ 90` catches both
+      cases observed in review (0076 and 0129). Needs a bigram-plausibility
+      detector or we rely on upstream signal as complementary axis.
+
+  duplicated_letter_font_mojibake:
+    status: open
+    note: >
+      E.g. "ΚΚΛΛΗΗΡΡΟΟΝΝΟΟΜΜΙΙΚΚΗΗ" for "ΚΛΗΡΟΝΟΜΙΚΗ" — font-level
+      duplication from PDF extraction. Doc 0117 in wave-2 review. Not
+      caught by any current ratio. Needs a bigram-frequency detector
+      or run-length-based heuristic.
