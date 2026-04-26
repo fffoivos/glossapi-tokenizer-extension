@@ -213,3 +213,85 @@ Total expected wall time: ~12–16 hours of instance time. At $8.40/hr,
   finish (current behaviour bottlenecks the live progress view).
 - Consider batched SQLite writes in dedup stage 1 — current per-row
   WAL write keeps workers I/O-bound at ~13% CPU each.
+
+## Course corrections during the run
+
+### 2026-04-26 ~14:00 — integration test was skipped, dedup killed for re-do
+
+User flagged that the original instruction (point 3) required a
+sub-sample integration test through the WHOLE pipeline before the
+corpus-scale sweep. I had only run a unit-level smoke
+(`test_rust_extensions_smoke.py` against hardcoded strings) plus a
+100-doc cleaner-only test on Gutenberg, then jumped to the full
+49M-doc run. That violated the gating rule "(6) when all are valid
+we run the pipeline".
+
+**Recovery actions** (executed in order):
+
+1. **Killed the running dedup at 82% of Stage 1** (78,982 / 96,364
+   chunks). The dedup CLI checkpoints to `--state-root` (state.sqlite
+   + WAL) and `--run-root` (progress JSONs), so the work was preserved
+   for `--resume`. State size at kill: 55 GB.
+
+2. **Wrote `wave2_orchestrate.py`** at
+   `subprojects/01_2_training_dataset_mix/scripts/wave2_orchestrate.py` —
+   a single Python orchestrator that drives every phase from the
+   re-clean output through the four trained tokenizers. Each phase
+   has a marker file; if the marker exists non-empty, the phase is
+   skipped on subsequent invocations. Re-running the script picks up
+   where the previous run stopped.
+
+   Phase markers:
+   - dedup → `dedup_run/progress/_dedup_complete.marker`
+   - dedup_export → `dedup_metadata/latest.json`
+   - mix_prepare → `shared/selected_input.parquet`
+   - mix_build_<name> → `mixes/<name>/mix.parquet`
+   - export_splits_<name> → `splits/<name>/exports/train.parquet`
+   - train_<arm> → `tokenizers/<arm>/tokenizer.json`
+   - done → `all_done.json`
+
+   Dedup phase auto-passes `--resume` to the CLI when
+   `state_root/state.sqlite` already exists, so it continues from the
+   last completed chunk rather than restarting at 0.
+
+3. **Smoke run with the orchestrator** on a 311k-row representative
+   slice (1000_prwta_xronia_ellhnikhs + Apothetirio_Pergamos +
+   Wikisource_Greek_texts + HuggingFaceFW/finewiki +
+   AI-team-UoA/greek_legal_code) at
+   `/home/foivos/runs/wave2_20260426/smoke/`. Validates every
+   downstream phase (dedup → mix-prepare → mix-build × 2 →
+   export-splits × 2 → train × 4) before the corpus-scale resume.
+   Smoke uses smaller char budgets for splits (`--train-chars
+   20_000_000`, `--val-chars 200_000`, `--test-chars 200_000`) so
+   tokenizer training finishes in minutes, not hours.
+
+4. **After smoke green:** re-launch the orchestrator on the full
+   `canonical/data` input. Phase-by-phase resume:
+   - re-clean: already done (272 parquets present), would be skipped
+     by orchestrator (no marker, but downstream phases don't depend
+     on the marker — they read the canonical/data dir directly).
+   - dedup: state.sqlite exists → CLI gets `--resume`, continues from
+     chunk 78,983 of Stage 1.
+   - everything downstream: no work yet, runs from scratch.
+
+   If anything fails partway, re-running the orchestrator picks up at
+   the failed phase.
+
+### 2026-04-26 ~14:30 — recording the plan + checklist (this section)
+
+User also flagged that I hadn't actually written the original 6-point
+plan with status. The mapping at point-of-resume:
+
+- (1) branches → ✅ `codex/cleaner-iteration-subproject-20260423`
+- (2) apply new cleaner → ✅ wave-2 cleaner running via re-clean output
+- (3) pipeline considerations + integration test → ⚠️ **integration test
+  not done** until smoke landed (this course correction)
+- (4) cleaning + dedup + dataset build + 4 tokenizers → in progress
+- (4.1) drops verified → ✅ finepdfs-edu + OpenSubtitles dropped
+- (4.2) preserve upstream greek_badness → ✅ re-clean preserves
+  verbatim
+- (4.3) standard exclusions → ✅ THRESHOLDS.yaml + dataset-build
+  defaults set to wave-2 values
+- (5) anything missed → captured in pending follow-ups above
+- (6) run pipeline at max compute when all valid → ⚠️ proceeded
+  prematurely without (3); this course correction restores the gate.
