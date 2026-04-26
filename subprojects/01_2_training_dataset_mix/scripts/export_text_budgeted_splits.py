@@ -15,8 +15,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--input-root", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--threads", type=int, default=8)
-    parser.add_argument("--badness-lt", type=float, default=10.0)
-    parser.add_argument("--mojibake-lte", type=float, default=None)
+    # Wave-2 standard exclusion thresholds (THRESHOLDS.yaml § standard_exclusions).
+    # `greek_badness_score > 60` and `mojibake_badness_score > 0.1` are dropped
+    # (i.e. keep when score is below the cutoff).
+    parser.add_argument("--badness-lt", type=float, default=60.0,
+                        help="Drop rows with greek_badness_score >= this. Wave-2 default: 60.")
+    parser.add_argument("--mojibake-lte", type=float, default=0.1,
+                        help="Drop rows with mojibake_badness_score > this. Wave-2 default: 0.1.")
+    parser.add_argument("--greek-ratio-gte", type=float, default=0.5,
+                        help="Drop rows with charset_greek_ratio < this. Wave-2 default: 0.5.")
+    parser.add_argument("--require-non-empty-content", action="store_true", default=True,
+                        help="Drop rows with content_chars_kept == 0 (cleaner output is all markers/whitespace). Wave-2 default: on.")
+    parser.add_argument("--no-require-non-empty-content", dest="require_non_empty_content",
+                        action="store_false",
+                        help="Disable the empty-after-comments filter (override wave-2 default).")
     parser.add_argument("--train-chars", type=int, required=True)
     parser.add_argument("--val-chars", type=int, required=True)
     parser.add_argument("--test-chars", type=int, required=True)
@@ -60,11 +72,39 @@ def main() -> None:
     has_chars = has_column(glob_path, "chars")
     has_needs_ocr = has_column(glob_path, "needs_ocr")
     has_ocr_success = has_column(glob_path, "ocr_success")
+    has_charset_greek = has_column(glob_path, "charset_greek_ratio")
+    has_content_chars_kept = has_column(glob_path, "content_chars_kept")
 
     chars_expr = "coalesce(src.chars, length(src.text))" if has_chars else "length(src.text)"
+
+    # Wave-2 standard exclusion predicates. The `IS NULL` clauses keep
+    # rows whose upstream score is missing; the upstream of this stage
+    # (Corpus.clean + post-clean scoring) is responsible for ensuring
+    # every row carries a greek_badness_score / mojibake_badness_score
+    # before it reaches this filter. If a column is missing entirely
+    # from the input parquet, treat as "no signal" → no rejection by
+    # that axis (so the filter is robust to schema drift but the
+    # upstream pipeline must guarantee the column exists for the
+    # filter to actually fire).
     mojibake_pred = "TRUE"
     if args.mojibake_lte is not None:
-        mojibake_pred = f"(src.mojibake_badness_score IS NULL OR src.mojibake_badness_score <= {args.mojibake_lte})"
+        mojibake_pred = (
+            f"(src.mojibake_badness_score IS NULL "
+            f"OR src.mojibake_badness_score <= {args.mojibake_lte})"
+        )
+
+    greek_ratio_pred = "TRUE"
+    if has_charset_greek and args.greek_ratio_gte is not None:
+        greek_ratio_pred = (
+            f"(src.charset_greek_ratio IS NULL "
+            f"OR src.charset_greek_ratio >= {args.greek_ratio_gte})"
+        )
+
+    non_empty_pred = "TRUE"
+    if args.require_non_empty_content and has_content_chars_kept:
+        non_empty_pred = (
+            "(src.content_chars_kept IS NULL OR src.content_chars_kept > 0)"
+        )
 
     if has_needs_ocr and has_ocr_success:
         needs_ocr_pred = "CASE WHEN src.source_dataset='openarchives.gr' THEN coalesce(src.needs_ocr,false)=FALSE ELSE (coalesce(src.needs_ocr,false)=FALSE OR coalesce(src.ocr_success,false)=TRUE) END"
@@ -93,6 +133,8 @@ def main() -> None:
         FROM read_parquet({glob_sql}, union_by_name=true) AS src
         WHERE src.greek_badness_score < {args.badness_lt}
           AND {mojibake_pred}
+          AND {greek_ratio_pred}
+          AND {non_empty_pred}
           AND {needs_ocr_pred}
         """
     )
@@ -169,6 +211,10 @@ def main() -> None:
         "threads": args.threads,
         "badness_lt": args.badness_lt,
         "mojibake_lte": args.mojibake_lte,
+        "greek_ratio_gte": args.greek_ratio_gte,
+        "require_non_empty_content": args.require_non_empty_content,
+        "has_charset_greek": has_charset_greek,
+        "has_content_chars_kept": has_content_chars_kept,
         "train_chars": args.train_chars,
         "val_chars": args.val_chars,
         "test_chars": args.test_chars,

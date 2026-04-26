@@ -9,7 +9,66 @@
 #   provisional   = calibrated on partial sample, expect review and churn
 #   pending       = has a placeholder value, not yet under review
 
-version: "wave_1_20260423"
+version: "wave_2_20260426"
+
+# -----------------------------------------------------------------------------
+# Wave 2 standard exclusion settings (user-set 2026-04-26 — these are the
+# defaults; the dataset-build pipeline applies them. Override per-run if
+# needed via the corresponding CLI args.)
+# -----------------------------------------------------------------------------
+standard_exclusions:
+  greek_badness_score:
+    rule: "drop when greek_badness_score > 60"
+    keep_when: "greek_badness_score <= 60"
+    threshold: 60
+    direction: ">"
+    status: locked
+    note: >
+      For datasets WITH upstream greek_badness_score (the canonical
+      glossapi-cleaned datasets): preserve as-is, apply threshold.
+      For datasets WITHOUT upstream score (HPLT, Wikipedia/finewiki,
+      openbook_gr, etc.): compute greek_badness_score post-cleaning
+      via `glossapi.Corpus` so this filter applies uniformly. The
+      filter must NOT skip null-scored rows — null = "not computed
+      yet" indicates a pipeline gap to fix, not implicit pass.
+
+  mojibake_badness_score:
+    rule: "drop when mojibake_badness_score > 0.1"
+    keep_when: "mojibake_badness_score <= 0.1"
+    threshold: 0.1
+    direction: ">"
+    status: locked
+    note: >
+      Tighter than wave-1 charset_filter.moji_residue_ratio (0.25).
+      Wave-2 selection philosophy: post-cleaner training-quality
+      cutoff, not bottom-of-barrel. Same upstream-vs-fresh rule as
+      greek_badness above.
+
+  charset_greek_ratio:
+    rule: "drop when charset_greek_ratio < 0.5"
+    keep_when: "charset_greek_ratio >= 0.5"
+    threshold: 0.5
+    direction: "<"
+    status: locked
+    note: >
+      Tighter than wave-1 greek_letter_ratio (0.02). At least half
+      the letter chars of the cleaned body must be Greek for the
+      doc to enter tokenizer training. Reads charset_greek_ratio
+      column emitted by clean_and_stats_rowsharded.py / the
+      Corpus.clean output.
+
+  empty_after_comments:
+    rule: "drop when content_chars_kept == 0"
+    keep_when: "content_chars_kept > 0"
+    threshold: 0
+    direction: "=="
+    status: locked
+    note: >
+      content_chars_kept is the cleaner's per-doc count of chars on
+      lines that are NOT comment markers (<!-- line-removed -->,
+      <!-- text-missing -->, <!-- table-removed -->). A doc whose
+      cleaned body is entirely markers + whitespace has
+      content_chars_kept == 0 and is dropped from training.
 
 # -----------------------------------------------------------------------------
 # Upstream pre-existing signals (never overwritten; read-only here)
