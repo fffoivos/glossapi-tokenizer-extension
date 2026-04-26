@@ -567,6 +567,11 @@ def extract_eurlex_title(text: str) -> str | None:
 
 def download_selected_external_sources(force: bool = False) -> dict[str, list[Path]]:
     ensure_dir(EXTERNAL_ROOT)
+    # Wave-2: gate every download by EXTERNAL_DATASETS so dropping a
+    # dataset from the whitelist also stops it from being downloaded.
+    # Pre-wave-2 the download list was hardcoded and downloaded
+    # finepdfs-edu / OpenSubtitles even after they were dropped from
+    # the build whitelist.
     repo_patterns = {
         "HuggingFaceFW/finewiki": ["data/elwiki/*.parquet", "README.md"],
         "HuggingFaceFW/finepdfs-edu": ["data/ell_Grek/train/*.parquet", "README.md"],
@@ -574,6 +579,8 @@ def download_selected_external_sources(force: bool = False) -> dict[str, list[Pa
     }
     downloaded: dict[str, list[Path]] = {}
     for repo_id, patterns in repo_patterns.items():
+        if repo_id not in EXTERNAL_DATASETS:
+            continue
         repo_root = EXTERNAL_ROOT / repo_id.replace("/", "__")
         ensure_dir(repo_root)
         files = list_repo_files(repo_id, repo_type="dataset")
@@ -597,8 +604,9 @@ def download_selected_external_sources(force: bool = False) -> dict[str, list[Pa
                 )
             paths.append(local_path)
         downloaded[repo_id] = paths
-    opensubtitles_path = ensure_opensubtitles_el_source(force=force)
-    downloaded[OPENSUBTITLES_EL_DATASET] = [opensubtitles_path]
+    if OPENSUBTITLES_EL_DATASET in EXTERNAL_DATASETS:
+        opensubtitles_path = ensure_opensubtitles_el_source(force=force)
+        downloaded[OPENSUBTITLES_EL_DATASET] = [opensubtitles_path]
     return downloaded
 
 
