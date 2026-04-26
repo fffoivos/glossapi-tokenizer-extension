@@ -2,6 +2,76 @@
 
 ## Active Wave
 
+**wave 2 — pipeline cleanup landing** (2026-04-25 → 2026-04-26)
+
+See `CLEANER_PIPELINE_CLEANUP_PLAN_2026-04-25.md` (this folder) and
+`eellak/glossAPI/rust/glossapi_rs_cleaner/CHANGES_2026_04_25.md` for
+the full record. Highlights:
+
+- **Pilot B is the production Phase-A default**
+  (`PhaseAMode::ParserSurgicalVerified` →
+  `md_format_surgical::format_surgical_checked`). Parser-backed,
+  preview-preserving. LineBased is regression-test-only.
+- **Unified Rule B** owns all PostScript-glyph + PDF-font residue;
+  four engines collapsed to two (Rule B + R1∪R2). No bare-word
+  matchers (`GLYPH`, `hyphenminus` no longer trigger).
+- **Per-char ops in 2 groups** — Group 1 STRIP + Group 2 FOLD.
+  Adobe Symbol PUA + µ→μ folded via `fold_codepoint`; soft-hyphen
+  strip via `is_unicode_noise_char`.
+- **European-content preference.** KEEP Latin-1 + Latin-Ext-A +
+  Cyrillic + Cyrillic Supp entirely; STRIP Latin-Ext-B except
+  Romanian {Ș, ș, Ț, ț}; STRIP IPA / Latin-Ext-Additional / Coptic.
+  R1∪R2 residue range narrowed to U+0180..U+024F minus Romanian
+  to match.
+- **Per-rule counters in `CleanStats`** —
+  `rule_a_match_count`, `rule_b_match_count`, `residue_line_drop_count`.
+  Production driver (`clean_and_stats_rowsharded.py`) sources parquet
+  counter columns from these directly. Matcher (`glossapi_rs_noise`)
+  no longer invoked per-row in production cleaning. Matcher PyO3
+  surface preserved for `Corpus.clean_token_category_debug` and the
+  `export_token_category_debug{,_parquet}.py` scripts.
+- **`Corpus.clean` and `clean_text` share `build_script_char_sets`.**
+  Both auto-add `punctuation`, `numbers`, `common_symbols` regardless
+  of `scripts_to_keep`. Fixes a silent bug where the directory
+  pipeline stripped ASCII punct + digits when callers passed
+  restricted scripts.
+- **`clean_text` PyO3 gains `phase_a_mode` arg** (parity with
+  `clean_text_with_stats`).
+- **`cmark_gfm_oracle::is_available` cached** via OnceLock — used to
+  spawn `cmark-gfm --help` per doc. cmark-gfm is OPTIONAL dev tool;
+  production uses in-process `dual_verify`. Do NOT install on prod
+  hosts.
+- **`\n{3+}` → `\n\n` post-loop normalize.** Lossless under markdown
+  preview; cleans up runs left by per-char strip emptying adjacent
+  PUA-bracket-glyph lines.
+- **Bug fixes:**
+  - `noise_metrics` token-category export now emits CHAR offsets
+    (was BYTE offsets — Greek prefixes silently shifted slice
+    boundaries).
+  - `perf_mixed_doc_throughput_floor` marked `#[ignore]`
+    (release-only; was failing every `cargo test`).
+  - Empty-content `table_remover` edge case.
+
+Branches:
+- `eellak/glossAPI` `cleanup/cleaner-pipeline-20260425` — 2 commits
+  (cleaner architecture + cleaning_scripts triage).
+- `fffoivos/glossapi-tokenizer-extension`
+  `codex/cleaner-iteration-subproject-20260423` — adds
+  `train_bpe_from_text_shards.py` + `inspect_bpe_vocab_denoising.py`
+  to `subprojects/02_1_tokenizer_experiments/scripts/` (the
+  iteration-loop counterpart on the tokenizer side).
+
+Test status: 374 cleaner unit tests pass + 10 noise tests pass +
+30+ Python smoke checks pass. 0 build warnings.
+
+100-doc end-to-end validation on
+`openarchives.gr.part-00000.parquet`: 100/100 cleaned, 18.7% chars
+removed, 25 docs/sec via Pilot B + in-process `dual_verify`. Gzipped
+shards validated byte-identical to
+`squash(clean_text_with_stats(raw, …))` — no hidden alteration.
+
+## Earlier Wave
+
 **wave 1 — cleaner refactor + charset filter v1** (2026-04-22 → 2026-04-23)
 
 ## What's Settled (this wave)
