@@ -6,6 +6,7 @@ import io
 import importlib.util
 import json
 import math
+import multiprocessing as mp
 import os
 import re
 import shutil
@@ -79,10 +80,20 @@ GLOSSAPI_INCLUDED_DATASETS = [
 ]
 
 EXTERNAL_DATASETS = [
+    # Wave-2 (2026-04-26) external scope per user direction:
+    # - keep finewiki (Greek Wikipedia from the FineWeb pipeline) and
+    #   greek_legal_code (AI-team-UoA).
+    # - drop HuggingFaceFW/finepdfs-edu — PDF residue post-cleaning is
+    #   not trustworthy enough for tokenizer training input.
+    # - drop OPUS OpenSubtitles — subtitle prose is not representative
+    #   for a tokenizer training distribution.
+    # The drop affects EXTERNAL_DATASETS only; the per-dataset
+    # iter_*_rows / STREAM_DATASET_BUILDERS / FRAME_DATASET_BUILDERS
+    # entries below stay available for ad-hoc / discovery use but are
+    # never invoked during a `build` run as long as they're not in
+    # this whitelist.
     "HuggingFaceFW/finewiki",
-    "HuggingFaceFW/finepdfs-edu",
     "AI-team-UoA/greek_legal_code",
-    OPENSUBTITLES_EL_DATASET,
 ]
 
 CANONICAL_COLUMNS = [
@@ -2164,6 +2175,71 @@ def build_mix_should_stream(
     return family_membership_path is not None
 
 
+def default_mix_prepare_workers() -> int:
+    override = os.environ.get("GLOSSAPI_MIX_PREPARE_WORKERS")
+    if override:
+        try:
+            value = int(override)
+        except ValueError:
+            value = 1
+        return max(1, value)
+    cpu_count = os.cpu_count() or 1
+    return max(1, min(16, cpu_count))
+
+
+def _iter_filtered_mix_frames_from_parquet(
+    path: Path,
+    *,
+    include_sources: list[str] | None = None,
+    exclude_sources: list[str] | None = None,
+    exclude_needs_ocr_sources: list[str] | None = None,
+    quality_preset: str = "none",
+    historical_mode: str = "include",
+    math_mode: str = "include",
+    latex_mode: str = "include",
+    batch_size: int = 2048,
+) -> Iterator[pd.DataFrame]:
+    parquet = pq.ParquetFile(path)
+    for batch in parquet.iter_batches(batch_size=batch_size):
+        frame = batch.to_pandas()
+        frame = finalize_frame(frame)
+        if include_sources:
+            frame = frame[frame["source_dataset"].isin(include_sources)]
+        if exclude_sources:
+            frame = frame[~frame["source_dataset"].isin(exclude_sources)]
+        if exclude_needs_ocr_sources:
+            frame = frame[
+                ~(
+                    frame["source_dataset"].isin(exclude_needs_ocr_sources)
+                    & frame["needs_ocr"].fillna(False)
+                )
+            ]
+        if frame.empty:
+            continue
+        frame = apply_quality_preset(frame, quality_preset)
+        if historical_mode == "exclude":
+            frame = frame[frame["is_historical_or_polytonic"].fillna(False) == False]  # noqa: E712
+        elif historical_mode == "only":
+            frame = frame[frame["is_historical_or_polytonic"].fillna(False)]
+        if math_mode == "exclude":
+            frame = frame[frame["contains_math"].fillna(False) == False]  # noqa: E712
+        elif math_mode == "only":
+            frame = frame[frame["contains_math"].fillna(False)]
+        if latex_mode == "exclude":
+            frame = frame[frame["contains_latex"].fillna(False) == False]  # noqa: E712
+        elif latex_mode == "only":
+            frame = frame[frame["contains_latex"].fillna(False)]
+        if frame.empty:
+            continue
+        frame = frame.reset_index(drop=True)
+        frame["doc_key"] = [
+            stable_doc_key(str(source_dataset), str(source_doc_id))
+            for source_dataset, source_doc_id in zip(frame["source_dataset"], frame["source_doc_id"], strict=True)
+        ]
+        frame["source_mix_chars"] = frame_char_mass(frame)
+        yield frame[[*CANONICAL_COLUMNS, "doc_key", "source_mix_chars"]]
+
+
 def iter_filtered_mix_frames(
     output_root: Path,
     *,
@@ -2178,45 +2254,53 @@ def iter_filtered_mix_frames(
 ) -> Iterator[pd.DataFrame]:
     data_root = output_root / "data"
     for path in sorted(data_root.glob("*.parquet")):
-        parquet = pq.ParquetFile(path)
-        for batch in parquet.iter_batches(batch_size=batch_size):
-            frame = batch.to_pandas()
-            frame = finalize_frame(frame)
-            if include_sources:
-                frame = frame[frame["source_dataset"].isin(include_sources)]
-            if exclude_sources:
-                frame = frame[~frame["source_dataset"].isin(exclude_sources)]
-            if exclude_needs_ocr_sources:
-                frame = frame[
-                    ~(
-                        frame["source_dataset"].isin(exclude_needs_ocr_sources)
-                        & frame["needs_ocr"].fillna(False)
-                    )
-                ]
-            if frame.empty:
-                continue
-            frame = apply_quality_preset(frame, quality_preset)
-            if historical_mode == "exclude":
-                frame = frame[frame["is_historical_or_polytonic"].fillna(False) == False]  # noqa: E712
-            elif historical_mode == "only":
-                frame = frame[frame["is_historical_or_polytonic"].fillna(False)]
-            if math_mode == "exclude":
-                frame = frame[frame["contains_math"].fillna(False) == False]  # noqa: E712
-            elif math_mode == "only":
-                frame = frame[frame["contains_math"].fillna(False)]
-            if latex_mode == "exclude":
-                frame = frame[frame["contains_latex"].fillna(False) == False]  # noqa: E712
-            elif latex_mode == "only":
-                frame = frame[frame["contains_latex"].fillna(False)]
-            if frame.empty:
-                continue
-            frame = frame.reset_index(drop=True)
-            frame["doc_key"] = [
-                stable_doc_key(str(source_dataset), str(source_doc_id))
-                for source_dataset, source_doc_id in zip(frame["source_dataset"], frame["source_doc_id"], strict=True)
-            ]
-            frame["source_mix_chars"] = frame_char_mass(frame)
-            yield frame[[*CANONICAL_COLUMNS, "doc_key", "source_mix_chars"]]
+        yield from _iter_filtered_mix_frames_from_parquet(
+            path,
+            include_sources=include_sources,
+            exclude_sources=exclude_sources,
+            exclude_needs_ocr_sources=exclude_needs_ocr_sources,
+            quality_preset=quality_preset,
+            historical_mode=historical_mode,
+            math_mode=math_mode,
+            latex_mode=latex_mode,
+            batch_size=batch_size,
+        )
+
+
+def filter_mix_parquet_file_to_shard(
+    path_str: str,
+    destination_str: str,
+    *,
+    include_sources: list[str] | None = None,
+    exclude_sources: list[str] | None = None,
+    exclude_needs_ocr_sources: list[str] | None = None,
+    quality_preset: str = "none",
+    historical_mode: str = "include",
+    math_mode: str = "include",
+    latex_mode: str = "include",
+    batch_size: int = 2048,
+) -> dict[str, Any]:
+    path = Path(path_str)
+    destination = Path(destination_str)
+    rows_written = write_mix_frames_to_parquet(
+        destination,
+        _iter_filtered_mix_frames_from_parquet(
+            path,
+            include_sources=include_sources,
+            exclude_sources=exclude_sources,
+            exclude_needs_ocr_sources=exclude_needs_ocr_sources,
+            quality_preset=quality_preset,
+            historical_mode=historical_mode,
+            math_mode=math_mode,
+            latex_mode=latex_mode,
+            batch_size=batch_size,
+        ),
+    )
+    return {
+        "source_path": str(path),
+        "destination_path": str(destination),
+        "rows_written": int(rows_written),
+    }
 
 
 def write_mix_frames_to_parquet(
@@ -2259,21 +2343,85 @@ def materialize_filtered_mix_input(
     historical_mode: str,
     math_mode: str,
     latex_mode: str,
+    workers: int | None = None,
 ) -> dict[str, Any]:
-    rows_written = write_mix_frames_to_parquet(
-        destination,
-        iter_filtered_mix_frames(
-            output_root,
-            include_sources=include_sources,
-            exclude_sources=exclude_sources,
-            exclude_needs_ocr_sources=exclude_needs_ocr_sources,
-            quality_preset=quality_preset,
-            historical_mode=historical_mode,
-            math_mode=math_mode,
-            latex_mode=latex_mode,
-        ),
-    )
-    return {"rows_written": rows_written, "path": str(destination)}
+    data_root = output_root / "data"
+    source_paths = sorted(data_root.glob("*.parquet"))
+    if not source_paths:
+        pq.write_table(mix_intermediate_schema().empty_table(), destination, compression="zstd")
+        return {"rows_written": 0, "path": str(destination), "worker_count": 0, "source_file_count": 0}
+    if workers is None:
+        workers = default_mix_prepare_workers()
+    worker_count = max(1, min(workers, len(source_paths)))
+    if worker_count == 1:
+        rows_written = write_mix_frames_to_parquet(
+            destination,
+            iter_filtered_mix_frames(
+                output_root,
+                include_sources=include_sources,
+                exclude_sources=exclude_sources,
+                exclude_needs_ocr_sources=exclude_needs_ocr_sources,
+                quality_preset=quality_preset,
+                historical_mode=historical_mode,
+                math_mode=math_mode,
+                latex_mode=latex_mode,
+            ),
+        )
+        return {
+            "rows_written": rows_written,
+            "path": str(destination),
+            "worker_count": 1,
+            "source_file_count": len(source_paths),
+        }
+    with tempfile.TemporaryDirectory(prefix="glossapi_mix_filter_shards_", dir=str(destination.parent)) as temp_dir:
+        shard_root = Path(temp_dir)
+        shard_paths = [shard_root / f"filtered_{idx:05d}.parquet" for idx in range(len(source_paths))]
+        rows_written = 0
+        non_empty_shards: list[Path] = []
+        with cf.ProcessPoolExecutor(max_workers=worker_count, mp_context=mp.get_context("spawn")) as executor:
+            futures = [
+                executor.submit(
+                    filter_mix_parquet_file_to_shard,
+                    str(source_path),
+                    str(shard_path),
+                    include_sources=include_sources,
+                    exclude_sources=exclude_sources,
+                    exclude_needs_ocr_sources=exclude_needs_ocr_sources,
+                    quality_preset=quality_preset,
+                    historical_mode=historical_mode,
+                    math_mode=math_mode,
+                    latex_mode=latex_mode,
+                )
+                for source_path, shard_path in zip(source_paths, shard_paths, strict=True)
+            ]
+            for future in cf.as_completed(futures):
+                item = future.result()
+                rows_written += int(item["rows_written"])
+                if int(item["rows_written"]) > 0:
+                    non_empty_shards.append(Path(item["destination_path"]))
+        if not non_empty_shards:
+            pq.write_table(mix_intermediate_schema().empty_table(), destination, compression="zstd")
+        elif len(non_empty_shards) == 1:
+            shutil.copy2(non_empty_shards[0], destination)
+        else:
+            con = duckdb.connect()
+            try:
+                con.execute(
+                    f"""
+                    COPY (
+                        SELECT *
+                        FROM read_parquet({sql_quote(str((shard_root / '*.parquet').resolve()))})
+                    ) TO {sql_quote(str(destination))} (FORMAT parquet, COMPRESSION zstd)
+                    """
+                )
+            finally:
+                con.close()
+    return {
+        "rows_written": rows_written,
+        "path": str(destination),
+        "worker_count": worker_count,
+        "source_file_count": len(source_paths),
+    }
 
 
 def prepare_reduced_builder_bundle(
@@ -2337,6 +2485,7 @@ def materialize_drop_action_deduped_mix(
     dedup_inter_dataset_policy: str,
     dedup_source_weights_path: Path | None,
     temp_root: Path,
+    deduped_output_path: Path | None = None,
 ) -> tuple[Path, dict[str, Any] | None]:
     dedup_action = validate_dedup_action(dedup_action)
     if dedup_action not in {"drop_intra", "drop_intra_and_inter"}:
@@ -2347,7 +2496,7 @@ def materialize_drop_action_deduped_mix(
     duplicate_rows_path = temp_root / "duplicate_rows.parquet"
     duplicate_doc_keys_path = temp_root / "duplicate_doc_keys.parquet"
     selected_duplicate_doc_keys_path = temp_root / "selected_duplicate_doc_keys.parquet"
-    deduped_output_path = temp_root / "deduped_mix_input.parquet"
+    deduped_output_path = deduped_output_path or (temp_root / "deduped_mix_input.parquet")
     reduced_bundle_root = temp_root / "reduced_builder_bundle"
     con = duckdb.connect()
     try:
@@ -2424,6 +2573,83 @@ def materialize_drop_action_deduped_mix(
     finally:
         con.close()
     return deduped_output_path, dedup_summary
+
+
+def summarize_mix_intermediate_path(input_path: Path) -> dict[str, Any]:
+    con = duckdb.connect()
+    try:
+        rows, chars = con.execute(
+            f"""
+            SELECT count(*), coalesce(sum(source_mix_chars), 0)
+            FROM read_parquet({sql_quote(str(input_path))})
+            """
+        ).fetchone()
+    finally:
+        con.close()
+    return {
+        "path": str(input_path),
+        "rows": int(rows or 0),
+        "chars": int(chars or 0),
+    }
+
+
+def materialize_streaming_mix_selected_input(
+    output_root: Path,
+    *,
+    destination: Path,
+    include_sources: list[str] | None,
+    exclude_sources: list[str] | None,
+    exclude_needs_ocr_sources: list[str] | None,
+    quality_preset: str,
+    historical_mode: str,
+    math_mode: str,
+    latex_mode: str,
+    dedup_metadata_root: Path | None,
+    dedup_action: str,
+    dedup_exact_stage: str,
+    dedup_similarity_threshold: float | None,
+    dedup_inter_dataset_policy: str,
+    dedup_source_weights_path: Path | None,
+) -> dict[str, Any]:
+    ensure_dir(destination.parent)
+    if destination.exists():
+        destination.unlink()
+    with tempfile.TemporaryDirectory(prefix="glossapi_mix_prelude_", dir=str(destination.parent)) as temp_dir:
+        temp_root = Path(temp_dir)
+        filtered_input_path = temp_root / "filtered_input.parquet"
+        filtered_summary = materialize_filtered_mix_input(
+            output_root,
+            destination=filtered_input_path,
+            include_sources=include_sources,
+            exclude_sources=exclude_sources,
+            exclude_needs_ocr_sources=exclude_needs_ocr_sources,
+            quality_preset=quality_preset,
+            historical_mode=historical_mode,
+            math_mode=math_mode,
+            latex_mode=latex_mode,
+        )
+        dedup_summary: dict[str, Any] | None = None
+        if dedup_metadata_root is not None and validate_dedup_action(dedup_action) in {"drop_intra", "drop_intra_and_inter"}:
+            _, dedup_summary = materialize_drop_action_deduped_mix(
+                filtered_input_path,
+                dedup_metadata_root=dedup_metadata_root,
+                dedup_action=dedup_action,
+                dedup_exact_stage=dedup_exact_stage,
+                dedup_similarity_threshold=dedup_similarity_threshold,
+                dedup_inter_dataset_policy=dedup_inter_dataset_policy,
+                dedup_source_weights_path=dedup_source_weights_path,
+                temp_root=temp_root,
+                deduped_output_path=destination,
+            )
+        else:
+            filtered_input_path.replace(destination)
+        selected_input_summary = summarize_mix_intermediate_path(destination)
+        return {
+            "filtered_input": filtered_summary,
+            "selected_input": selected_input_summary,
+            "dedup_action": dedup_action,
+            "dedup_summary": dedup_summary,
+        }
 
 
 def source_mix_entry_condition_sql(entry: Mapping[str, Any]) -> str:
@@ -2599,7 +2825,7 @@ def apply_source_mix_to_parquet(
         )
         overlap = con.execute(
             f"""
-            SELECT doc_key, count(*) AS overlap_count
+            SELECT doc_key, count(DISTINCT entry_name) AS overlap_count
             FROM ({overlap_sql})
             GROUP BY doc_key
             HAVING overlap_count > 1
@@ -2773,6 +2999,57 @@ def summarize_mix_output(mix_output_path: Path) -> tuple[int, int, list[dict[str
     return rows_kept, estimated_tokens_total, per_source_records, per_pool_records
 
 
+def build_mix_output_from_selected_input(
+    selected_input_path: Path,
+    *,
+    mix_output_path: Path,
+    source_mix_config_path: Path | None,
+) -> dict[str, Any]:
+    ensure_dir(mix_output_path.parent)
+    with tempfile.TemporaryDirectory(prefix="glossapi_mix_finalize_", dir=str(mix_output_path.parent)) as temp_dir:
+        temp_root = Path(temp_dir)
+        temp_mix_output_path = temp_root / mix_output_path.name
+        source_mix_summary: dict[str, Any] | None = None
+        if source_mix_config_path is not None:
+            source_mix_summary = apply_source_mix_to_parquet(
+                selected_input_path,
+                output_path=temp_mix_output_path,
+                source_mix_config_path=source_mix_config_path,
+                temp_root=temp_root,
+            )
+        else:
+            con = duckdb.connect()
+            try:
+                con.execute(
+                    f"""
+                    COPY (
+                        SELECT {", ".join(CANONICAL_COLUMNS)}
+                        FROM read_parquet({sql_quote(str(selected_input_path))})
+                        ORDER BY doc_key, source_dataset, source_doc_id
+                    ) TO {sql_quote(str(temp_mix_output_path))} (FORMAT parquet, COMPRESSION zstd)
+                    """
+                )
+            finally:
+                con.close()
+        rows_kept, estimated_tokens_total, per_source_records, per_pool_records = summarize_mix_output(temp_mix_output_path)
+        temp_mix_output_path.replace(mix_output_path)
+        pd.DataFrame(per_source_records).to_csv(mix_output_path.with_suffix(".summary.csv"), index=False)
+        if per_pool_records:
+            pd.DataFrame(per_pool_records).to_csv(mix_output_path.with_suffix(".pool_summary.csv"), index=False)
+        if source_mix_summary is not None:
+            mix_output_path.with_suffix(".source_mix_summary.json").write_text(
+                json.dumps(source_mix_summary, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        return {
+            "rows_kept": int(rows_kept),
+            "estimated_tokens": int(estimated_tokens_total),
+            "per_source": per_source_records,
+            "per_pool": per_pool_records,
+            "source_mix": source_mix_summary,
+        }
+
+
 def build_mix_export_streaming(
     output_root: Path,
     mix_output_path: Path,
@@ -2794,11 +3071,10 @@ def build_mix_export_streaming(
 ) -> dict[str, Any]:
     ensure_dir(mix_output_path.parent)
     with tempfile.TemporaryDirectory(prefix="glossapi_mix_", dir=str(mix_output_path.parent)) as temp_dir:
-        temp_root = Path(temp_dir)
-        filtered_input_path = temp_root / "filtered_input.parquet"
-        materialize_filtered_mix_input(
+        selected_input_path = Path(temp_dir) / "selected_input.parquet"
+        selected_input_payload = materialize_streaming_mix_selected_input(
             output_root,
-            destination=filtered_input_path,
+            destination=selected_input_path,
             include_sources=include_sources,
             exclude_sources=exclude_sources,
             exclude_needs_ocr_sources=exclude_needs_ocr_sources,
@@ -2806,59 +3082,23 @@ def build_mix_export_streaming(
             historical_mode=historical_mode,
             math_mode=math_mode,
             latex_mode=latex_mode,
+            dedup_metadata_root=dedup_metadata_root,
+            dedup_action=dedup_action,
+            dedup_exact_stage=dedup_exact_stage,
+            dedup_similarity_threshold=dedup_similarity_threshold,
+            dedup_inter_dataset_policy=dedup_inter_dataset_policy,
+            dedup_source_weights_path=dedup_source_weights_path,
         )
-        dedup_summary: dict[str, Any] | None = None
-        selected_input_path = filtered_input_path
-        if dedup_metadata_root is not None and validate_dedup_action(dedup_action) in {"drop_intra", "drop_intra_and_inter"}:
-            selected_input_path, dedup_summary = materialize_drop_action_deduped_mix(
-                filtered_input_path,
-                dedup_metadata_root=dedup_metadata_root,
-                dedup_action=dedup_action,
-                dedup_exact_stage=dedup_exact_stage,
-                dedup_similarity_threshold=dedup_similarity_threshold,
-                dedup_inter_dataset_policy=dedup_inter_dataset_policy,
-                dedup_source_weights_path=dedup_source_weights_path,
-                temp_root=temp_root,
-            )
-        source_mix_summary: dict[str, Any] | None = None
-        if source_mix_config_path is not None:
-            source_mix_summary = apply_source_mix_to_parquet(
-                selected_input_path,
-                output_path=mix_output_path,
-                source_mix_config_path=source_mix_config_path,
-                temp_root=temp_root,
-            )
-        else:
-            con = duckdb.connect()
-            try:
-                con.execute(
-                    f"""
-                    COPY (
-                        SELECT {", ".join(CANONICAL_COLUMNS)}
-                        FROM read_parquet({sql_quote(str(selected_input_path))})
-                        ORDER BY doc_key, source_dataset, source_doc_id
-                    ) TO {sql_quote(str(mix_output_path))} (FORMAT parquet, COMPRESSION zstd)
-                    """
-                )
-            finally:
-                con.close()
-        rows_kept, estimated_tokens_total, per_source_records, per_pool_records = summarize_mix_output(mix_output_path)
-        pd.DataFrame(per_source_records).to_csv(mix_output_path.with_suffix(".summary.csv"), index=False)
-        if per_pool_records:
-            pd.DataFrame(per_pool_records).to_csv(mix_output_path.with_suffix(".pool_summary.csv"), index=False)
-        if source_mix_summary is not None:
-            mix_output_path.with_suffix(".source_mix_summary.json").write_text(
-                json.dumps(source_mix_summary, ensure_ascii=False, indent=2),
-                encoding="utf-8",
-            )
+        output_payload = build_mix_output_from_selected_input(
+            selected_input_path,
+            mix_output_path=mix_output_path,
+            source_mix_config_path=source_mix_config_path,
+        )
         return {
-            "rows_kept": int(rows_kept),
-            "estimated_tokens": int(estimated_tokens_total),
-            "per_source": per_source_records,
-            "per_pool": per_pool_records,
+            **output_payload,
             "dedup_action": dedup_action,
-            "dedup_summary": dedup_summary,
-            "source_mix": source_mix_summary,
+            "dedup_summary": selected_input_payload["dedup_summary"],
+            "selected_input": selected_input_payload["selected_input"],
         }
 
 
