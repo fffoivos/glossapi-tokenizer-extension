@@ -1,0 +1,215 @@
+# Wave-2 production pipeline run — 2026-04-26
+
+Live run notes for the cleanup-wave-2 corpus → tokenizer pipeline.
+Captures the plan as executed, decisions made when reality didn't
+match the plan, issues hit + fixes, and the per-phase timeline.
+
+Updated incrementally as the run proceeds.
+
+## Plan as authorized
+
+User instruction (2026-04-26):
+- Run cleaning, dedup, dataset build, and tokenizer training for the
+  4 mixes (glossapi-only / glossapi+HPLT-70-30 × fresh-discovery /
+  continuous-from-Apertus).
+- Drop `HuggingFaceFW/finepdfs-edu` AND `OPUS/OpenSubtitles-el-v2018`
+  from the build whitelist (revised from earlier "include OpenSubtitles"
+  call).
+- Apply HPLT special filter (≥8 quality bin, exclude `_no_mt`
+  automatic-translation) and random-sample what remains until it
+  fills the 30% slot.
+- Standard exclusion thresholds (THRESHOLDS.yaml `wave_2_20260426`,
+  `standard_exclusions`):
+  - greek_badness_score > 60 → drop
+  - mojibake_badness_score > 0.1 → drop
+  - charset_greek_ratio < 0.5 → drop
+  - empty after HTML-comment strip (content_chars_kept == 0) → drop
+- Use the FULL gcloud instance (64 vCPUs, no half-share).
+- Rerun everything; reuse nothing from past runs.
+- Land artifacts back to home; stop the instance when done.
+
+Branches in play:
+- `eellak/glossAPI` `cleanup/cleaner-pipeline-20260425` — wave-2 cleaner
+  (Pilot B default + per-rule counters + new char-set policy).
+- `fffoivos/glossapi-tokenizer-extension`
+  `codex/cleaner-iteration-subproject-20260423` — wave-2 thresholds in
+  THRESHOLDS.yaml, EXTERNAL_DATASETS narrowed to {finewiki,
+  greek_legal_code}, download gate honoring the whitelist, charset_greek
+  + non-empty filters added to `export_text_budgeted_splits.py`.
+
+## Phase-by-phase status
+
+### Phase 0 — on-home prep (DONE)
+
+- Edited THRESHOLDS.yaml — bumped to wave_2_20260426; added
+  `standard_exclusions` block with the four locked thresholds.
+- Edited `export_text_budgeted_splits.py` — defaults
+  `--badness-lt 60`, `--mojibake-lte 0.1`, added `--greek-ratio-gte 0.5`
+  and `--require-non-empty-content` (default on); both new filters are
+  schema-drift-safe.
+- Edited `glossapi_corpus_cli/pipeline.py` — narrowed EXTERNAL_DATASETS
+  to `[finewiki, greek_legal_code]`; gated
+  `download_selected_external_sources` by whitelist (otherwise it would
+  hardcoded-download finepdfs-edu + OpenSubtitles regardless).
+- All committed and pushed.
+
+### Phase 1 — re-clean from most-upstream we have on instance (DONE)
+
+**Decision: re-clean canonical-schema parquets in-place rather than
+running `corpus_cli build` from raw.**
+
+The pipeline as documented expects raw glossapi sources at
+`/home/foivos/data/glossapi_raw/hf/...`. The instance HAS NO raw
+glossapi sources — only canonical-schema parquets at
+`/home/foivos/data/glossapi_work/hf_release_publish_working/data/`
+(49.7M docs across 22 sources). The user said "the most upstream we
+have on the instance" — that's `hf_release_publish_working/data/`.
+
+Issues hit + fixes:
+
+1. **`build_canonical_corpus` crash on missing reeval data.** First
+   attempt was `python -m glossapi_corpus_cli.cli build`. It crashed
+   with `FileNotFoundError: …/Projects/glossapi-tokenizer-extension/reeval/Wikisource_Greek_texts/document_level.parquet`.
+   Cause: pipeline.py has
+   `WORK_ROOT = Path(os.environ.get("GLOSSAPI_WORK_ROOT", str(CODE_ROOT)))`,
+   so without the env var it looks inside the tokenizer-extension repo
+   for reeval data. Fix tried: set `GLOSSAPI_WORK_ROOT=/home/foivos/data/glossapi_work`.
+   That points at `…/glossapi_work/reeval/` — which is also empty on
+   this instance. So `build` is unusable here without re-running the
+   reeval step from raw, which we don't have.
+
+2. **`download_selected_external_sources` ignored whitelist.** The
+   first build run pulled finepdfs-edu (~5 GB Greek-slice) before being
+   killed. Fixed in pipeline.py to gate by EXTERNAL_DATASETS, deleted
+   the partial download, restarted.
+
+3. **Decision: write a focused `reclean_canonical_to_parquet.py` driver.**
+   Rather than fight `build`'s reeval dependency, wrote a small
+   parallel driver that reads each canonical parquet, runs
+   `cleaner.clean_text_with_stats` per row, and writes a new parquet
+   with all original columns preserved (greek_badness_score,
+   mojibake_badness_score, etc. stay verbatim) plus 18 wave-2 columns
+   (rule_a/b counts, residue_line_drop_count, charset ratios,
+   phase_a_fallback_reason, etc.). 64-worker ProcessPool, batch_size 512,
+   resumable via output-existence check. Lives at
+   `/home/foivos/runs/wave2_20260426/reclean_canonical_to_parquet.py`.
+
+4. **Issue: parent harvested in submission order, blocking on slow tasks.**
+   `for ar, (inp,out) in zip(async_results, tasks): r = ar.get()` waits
+   on submission-order, so a slow HPLT task at position N blocks
+   harvesting positions N+1..M even when those finished. Workers kept
+   running but summary jsonl lagged. Symptom: 272 outputs on disk,
+   only 264 in summary, parent at <1% CPU, workers at 100%. Did not
+   fix during the run (would have required restart); it self-resolved
+   when the slowest worker finished its final assigned task.
+
+5. **One worker write got killed mid-stream during the kill+restart cycle.**
+   The first kill of the early run left some output parquets in a
+   partially-written state. Wiped + restarted clean.
+
+**Result.** 274 input tasks (272 produce output, 2 dropped per
+EXTERNAL_DATASETS — finepdfs-edu, OpenSubtitles). 49,332,970 rows
+re-cleaned. 4.48% chars removed in aggregate. Runtime: 67 min wall.
+
+Output: `/home/foivos/data/glossapi_work_wave2_20260426/canonical/data/*.parquet`.
+Schema: original `hf_release_publish_working` schema verbatim + 18 new
+columns (see `reclean_canonical_to_parquet.py` for the field list).
+
+### Phase 2 — dedup (RUNNING)
+
+`python -m glossapi_corpus_cli.cli dedup-text run`
+- `--input-root` = wave-2 canonical/
+- `--state-root` = `/home/foivos/runs/wave2_20260426/dedup_state/`
+- `--run-root` = `/home/foivos/runs/wave2_20260426/dedup_run/`
+- `--max-workers 64`
+- `--greek-diacritic-policy preserve` (was wrong flag name first time —
+  CLI uses `--greek-diacritic-policy`, not `--greek-diacritics`).
+
+Stage 1 (exact-stage chunk compute):
+- 96,364 chunks total
+- progress: 58,835/96,364 (61%) at 2h 24min
+- rate: ~408 chunks/min
+- ETA Stage 1 complete: ~3h 50m total elapsed.
+- Workers I/O-bound on the SQLite WAL writes — load avg ~3 across the
+  64 cores, so we're under-utilizing CPU. No fix planned within this
+  run; a future iteration could batch-write to bulk reduce sqlite
+  contention.
+
+Stage 2 (near-dup MinHash) hasn't started.
+
+### Phase 3 — mix prepare + build (NOT STARTED)
+
+Configs at:
+- `subprojects/01_2_training_dataset_mix/examples/glossapi_only_all_non_hplt.json`
+- `subprojects/01_2_training_dataset_mix/examples/glossapi_plus_hplt_70_30.json`
+
+Will invoke `mix-prepare-selected-input` followed by
+`mix-build-from-selected-input` once dedup overlay is published.
+
+Wave-2 thresholds apply at this stage via the dataset-build SQL
+filter (greek_badness_score < 60 etc.). The cleaned parquets carry
+both upstream `greek_badness_score` (preserved) and the new
+`charset_greek_ratio` / `content_chars_kept` columns from the re-clean.
+
+### Phase 4 — tokenizer training (NOT STARTED)
+
+Four arms (50k vocab for fresh, 25.6k extension for continuous):
+- F1: fresh discovery on glossapi-only
+- F2: fresh discovery on glossapi + HPLT 70/30
+- C1: continuous-BPE-from-Apertus on glossapi-only
+- C2: continuous-BPE-from-Apertus on glossapi + HPLT 70/30
+
+Scripts:
+- `subprojects/02_1_tokenizer_experiments/scripts/train_discovery_tokenizer.py`
+  (F1, F2)
+- `subprojects/02_1_tokenizer_experiments/scripts/train_continuous_bpe_tokenizer.py`
+  (C1, C2)
+
+### Phase 5 — pull artifacts back + stop instance (NOT STARTED)
+
+Tokenizer outputs → home. Final `gcloud compute instances stop`.
+
+## Cumulative timeline
+
+| Phase | Started | Finished | Wall time |
+|---|---|---|---|
+| 0 — home prep | 2026-04-26 ~early | 2026-04-26 06:14 UTC | ~30 min |
+| 1 — re-clean (49.3M docs) | 2026-04-26 06:18 UTC | 2026-04-26 ~07:25 UTC | 67 min |
+| 2 — dedup | 2026-04-26 ~07:46 UTC | (running, ETA stage 1 ~10:05 UTC) | est. 5–6 h |
+| 3 — mix | TBD | TBD | est. ~30 min |
+| 4 — tokenizer training | TBD | TBD | est. 4–8 h (4 arms, parallel where possible) |
+| 5 — pull + stop | TBD | TBD | ~30 min |
+
+Total expected wall time: ~12–16 hours of instance time. At $8.40/hr,
+~$100–135 spend.
+
+## Standing decisions log
+
+- **Re-clean from canonical, not from raw** (Phase 1, decision 1) —
+  raw glossapi sources not on this instance; canonical hf_release_publish_working
+  is the most-upstream we have. User's "most upstream we have on the
+  instance" condition explicitly allows this.
+- **`reclean_canonical_to_parquet.py` instead of `build`** (Phase 1,
+  decision 3) — `build` requires reeval data we don't have. Custom
+  driver is simpler + faster + does exactly what wave-2 needs.
+- **Pilot B as the cleaner default** (per the cleanup plan that
+  shipped) — re-clean uses `phase_a_mode="parser_surgical_verified"`.
+- **Greek-badness preservation** — the re-clean driver never writes
+  the upstream `greek_badness_score` / `mojibake_badness_score`
+  columns; they pass through verbatim. For datasets that lack these
+  upstream (none in the current `hf_release_publish_working` set —
+  every dataset there was already corpus.clean'd), no fresh scoring
+  is needed.
+
+## Pending follow-ups (post-run)
+
+- Land the `download_selected_external_sources` whitelist gate +
+  EXTERNAL_DATASETS narrowing on `main` after the run is verified.
+- Document in CLAUDE.md that `GLOSSAPI_WORK_ROOT` MUST be set when
+  invoking the corpus_cli on the gcloud instance — current default
+  silently looks inside the repo dir.
+- `reclean_canonical_to_parquet.py` should use `as_completed` instead
+  of submission-order harvest so the summary jsonl streams as tasks
+  finish (current behaviour bottlenecks the live progress view).
+- Consider batched SQLite writes in dedup stage 1 — current per-row
+  WAL write keeps workers I/O-bound at ~13% CPU each.
