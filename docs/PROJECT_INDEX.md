@@ -38,6 +38,18 @@ This repo is intentionally split into smaller subprojects.
   - [NEAR_DEDUP_REDESIGN_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/NEAR_DEDUP_REDESIGN_PLAN.md)
 - builder/tokenizer efficiency plan:
   - [BUILDER_TOKENIZER_EFFICIENCY_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/BUILDER_TOKENIZER_EFFICIENCY_PLAN.md)
+- pipeline e2e verification plan:
+  - [PIPELINE_E2E_VERIFICATION_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_VERIFICATION_PLAN.md)
+- pipeline e2e verification todo:
+  - [PIPELINE_E2E_VERIFICATION_TODO.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_VERIFICATION_TODO.md)
+- pipeline e2e stage chain:
+  - [PIPELINE_E2E_STAGE_CHAIN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_STAGE_CHAIN.md)
+- pipeline e2e worker run report:
+  - [PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md)
+- pipeline stage parallelism review:
+  - [PIPELINE_STAGE_PARALLELISM_REVIEW_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_STAGE_PARALLELISM_REVIEW_20260415.md)
+- pipeline stage progress review:
+  - [PIPELINE_STAGE_PROGRESS_REVIEW_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_STAGE_PROGRESS_REVIEW_20260415.md)
 - machine-readable config:
   - [apertus_greek_extension.yaml](/home/foivos/Projects/glossapi-tokenizer-extension/config/apertus_greek_extension.yaml)
 - legacy material that should not drive new execution:
@@ -47,7 +59,8 @@ This repo is intentionally split into smaller subprojects.
 
 - the filtered HPLT local slice already exists in the canonical source-parquet tree on `home`
 - the HF upload is an operational sidetrack, not the critical path for tokenizer work
-- the active blocker is dedup exact-stage repair and salvage, not tokenizer training logic
+- dedup is complete and the active blocker is the long serial tokenizer mix stage
 - no true Greek `BPE` tokenizer has been trained yet
 - no merge-rule Apertus extension has been built yet
-- the next hard gate on the tokenizer path is resuming dedup with unchanged semantics, then freezing local manifests and the literal Apertus tokenizer-replication checklist
+- the worker-side downstream chain is now truly verified through tokenizer training on a bounded real-doc smoke run
+- the next hard gate on the tokenizer path is improving mix throughput and stage transparency on the full-size live chain

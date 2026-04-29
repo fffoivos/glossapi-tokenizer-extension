@@ -1,5 +1,27 @@
 # TODO — 01_0 Cleaning Iteration
 
+## Current Wave 3 — tokenizer-guided cleaner patch
+
+Source plan:
+`WAVE3_CLEANER_PATCH_PLAN_2026-04-28.md`.
+
+- [ ] Implement run quantization as a true floor ladder
+      (`4 → 3`) across the selected separator/run classes.
+- [ ] Generalize escaped Markdown run handling beyond `\_` to the
+      other escaped run characters.
+- [ ] Quantize Markdown table separators, setext underlines, and ATX
+      7+ heading/noise runs in the Markdown-aware code paths.
+- [ ] Verify the fenced-code bypass for `µ`, soft hyphen, and
+      non-newline controls; patch only impossible-noise cleanup inside
+      fences if confirmed.
+- [ ] Extend existing glyph Rule A/B machinery for bare `GLYPH` and
+      high-confidence glyph names (`/hyphenminus`, `/ellipsis`,
+      `/elipsis`, `/period`, `/comma`, `/space`, `/colon`).
+- [ ] Keep intentional HTML comment placeholders and dingbat /
+      pictograph tokens.
+- [ ] Defer mojibake repair and Cyrillic / homoglyph folding to
+      eellak/glossAPI issue #99.
+
 ## Wave 1 — closing
 
 - [ ] User review of `deletion_band_500x500` sample → lock

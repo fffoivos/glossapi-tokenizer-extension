@@ -1,0 +1,12 @@
+{
+  "entries": [
+    {
+      "name": "hplt",
+      "include_sources": [
+        "HPLT/ell_Grek_ge8_no_mt_clean60"
+      ],
+      "fraction": 1.0,
+      "fraction_mode": "of_group"
+    }
+  ]
+}

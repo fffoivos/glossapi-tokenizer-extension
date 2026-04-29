@@ -44,6 +44,9 @@ DEDUP_ACTIONS = {"ignore", "annotate", "drop_intra", "drop_intra_and_inter"}
 DEDUP_EXACT_STAGE_OPTIONS = {"strict_only", "strict_and_relaxed"}
 DEDUP_INTER_DATASET_POLICIES = {"quality_first", "share_aware"}
 SOURCE_MIX_FRACTION_MODES = {"of_group", "of_total"}
+DEFAULT_STANDARD_BADNESS_LT = 60.0
+DEFAULT_STANDARD_MOJIBAKE_LTE = 0.1
+DEFAULT_STANDARD_GREEK_RATIO_GTE = 0.5
 OPENSUBTITLES_EL_DATASET = "OPUS/OpenSubtitles-el-v2018"
 OPENSUBTITLES_EL_URL = "https://object.pouta.csc.fi/OPUS-OpenSubtitles/v2018/xml/el.zip"
 OPENSUBTITLES_EL_FILENAME = "el.zip"
@@ -699,6 +702,17 @@ def maybe_float(value: Any) -> float | None:
         return None
 
 
+def quality_value_missing(value: Any) -> bool:
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return value.strip() == ""
+    try:
+        return bool(pd.isna(value))
+    except Exception:
+        return False
+
+
 def decode_noise_score_row(score_row: Any) -> dict[str, Any]:
     row = list(score_row)
     if len(row) < 6:
@@ -852,8 +866,7 @@ def batch_score_missing_quality(rows: list[dict[str, Any]], dataset_name: str) -
     missing = [
         row
         for row in rows
-        if row.get("greek_badness_score") in (None, "")
-        and row.get("quality_method") in (None, "")
+        if quality_value_missing(row.get("greek_badness_score"))
     ]
     if not missing:
         return rows
@@ -870,14 +883,22 @@ def batch_score_missing_quality(rows: list[dict[str, Any]], dataset_name: str) -
             metrics = decode_noise_score_row(score_row)
             name = Path(str(metrics["md_path"])).name
             row = filename_map[name]
-            row["greek_badness_score"] = float(metrics["greek_badness_score"])
-            row["latin_percentage"] = float(metrics["latin_percentage"])
-            row["table_ratio"] = float(metrics["table_ratio"])
-            row["polytonic_ratio"] = float(metrics["polytonic_ratio"])
-            row["len_greek"] = int(metrics["len_greek"])
-            row["greek_percentage"] = derive_greek_percentage(None, row["latin_percentage"])
-            row["quality_method"] = "glossapi_rs_noise"
-            row["reevaluated_at"] = reevaluated_at
+            if quality_value_missing(row.get("greek_badness_score")):
+                row["greek_badness_score"] = float(metrics["greek_badness_score"])
+            if quality_value_missing(row.get("latin_percentage")):
+                row["latin_percentage"] = float(metrics["latin_percentage"])
+            if quality_value_missing(row.get("table_ratio")):
+                row["table_ratio"] = float(metrics["table_ratio"])
+            if quality_value_missing(row.get("polytonic_ratio")):
+                row["polytonic_ratio"] = float(metrics["polytonic_ratio"])
+            if quality_value_missing(row.get("len_greek")):
+                row["len_greek"] = int(metrics["len_greek"])
+            if quality_value_missing(row.get("greek_percentage")):
+                row["greek_percentage"] = derive_greek_percentage(None, row["latin_percentage"])
+            if quality_value_missing(row.get("quality_method")):
+                row["quality_method"] = "glossapi_rs_noise"
+            if quality_value_missing(row.get("reevaluated_at")):
+                row["reevaluated_at"] = reevaluated_at
     return rows
 
 
@@ -2675,14 +2696,190 @@ def source_mix_entry_condition_sql(entry: Mapping[str, Any]) -> str:
     return " AND ".join(f"({clause})" for clause in clauses)
 
 
+def combine_sql_conditions(*conditions: str | None) -> str:
+    normalized = [condition for condition in conditions if condition and condition != "TRUE"]
+    if not normalized:
+        return "TRUE"
+    return " AND ".join(f"({condition})" for condition in normalized)
+
+
+def standard_training_filter_sql(
+    column_names: set[str],
+    *,
+    table_alias: str | None = "src",
+    badness_lt: float = DEFAULT_STANDARD_BADNESS_LT,
+    mojibake_lte: float | None = DEFAULT_STANDARD_MOJIBAKE_LTE,
+    allow_missing_badness_scores: bool = False,
+    greek_ratio_gte: float | None = DEFAULT_STANDARD_GREEK_RATIO_GTE,
+    require_non_empty_content: bool = True,
+) -> tuple[str, dict[str, Any]]:
+    predicates: list[str] = []
+    column_prefix = f"{table_alias}." if table_alias else ""
+    summary = {
+        "badness_lt": badness_lt,
+        "mojibake_lte": mojibake_lte,
+        "allow_missing_badness_scores": allow_missing_badness_scores,
+        "greek_ratio_gte": greek_ratio_gte,
+        "require_non_empty_content": require_non_empty_content,
+        "has_greek_badness": "greek_badness_score" in column_names,
+        "has_mojibake_badness": "mojibake_badness_score" in column_names,
+        "has_charset_greek": "charset_greek_ratio" in column_names,
+        "has_content_chars_kept": "content_chars_kept" in column_names,
+        "has_needs_ocr": "needs_ocr" in column_names,
+        "has_ocr_success": "ocr_success" in column_names,
+    }
+
+    if "greek_badness_score" in column_names:
+        greek_score = f"try_cast({column_prefix}greek_badness_score as DOUBLE)"
+        if allow_missing_badness_scores:
+            predicates.append(f"({greek_score} IS NULL OR {greek_score} < {float(badness_lt)})")
+        else:
+            predicates.append(f"({greek_score} IS NOT NULL AND {greek_score} < {float(badness_lt)})")
+    elif not allow_missing_badness_scores:
+        raise ValueError("input is missing greek_badness_score; cannot apply production badness filter")
+
+    if mojibake_lte is not None:
+        if "mojibake_badness_score" in column_names:
+            mojibake_score = f"try_cast({column_prefix}mojibake_badness_score as DOUBLE)"
+            if allow_missing_badness_scores:
+                predicates.append(f"({mojibake_score} IS NULL OR {mojibake_score} <= {float(mojibake_lte)})")
+            else:
+                predicates.append(f"({mojibake_score} IS NOT NULL AND {mojibake_score} <= {float(mojibake_lte)})")
+        elif not allow_missing_badness_scores:
+            raise ValueError("input is missing mojibake_badness_score; cannot apply production badness filter")
+
+    if greek_ratio_gte is not None and "charset_greek_ratio" in column_names:
+        predicates.append(
+            f"({column_prefix}charset_greek_ratio IS NULL OR {column_prefix}charset_greek_ratio >= {float(greek_ratio_gte)})"
+        )
+
+    if require_non_empty_content and "content_chars_kept" in column_names:
+        predicates.append(f"({column_prefix}content_chars_kept IS NULL OR {column_prefix}content_chars_kept > 0)")
+
+    if "needs_ocr" in column_names and "ocr_success" in column_names:
+        predicates.append(
+            f"CASE WHEN {column_prefix}source_dataset='openarchives.gr' "
+            f"THEN coalesce({column_prefix}needs_ocr,false)=FALSE "
+            f"ELSE (coalesce({column_prefix}needs_ocr,false)=FALSE OR coalesce({column_prefix}ocr_success,false)=TRUE) END"
+        )
+    elif "needs_ocr" in column_names:
+        predicates.append(f"coalesce({column_prefix}needs_ocr,false)=FALSE")
+
+    return " AND ".join(predicates) if predicates else "TRUE", summary
+
+
+def materialize_standard_training_filtered_selected_input(
+    input_path: Path,
+    *,
+    output_path: Path,
+    badness_lt: float = DEFAULT_STANDARD_BADNESS_LT,
+    mojibake_lte: float | None = DEFAULT_STANDARD_MOJIBAKE_LTE,
+    allow_missing_badness_scores: bool = False,
+    greek_ratio_gte: float | None = DEFAULT_STANDARD_GREEK_RATIO_GTE,
+    require_non_empty_content: bool = True,
+) -> dict[str, Any]:
+    column_names = set(pq.read_schema(input_path).names)
+    predicate_sql, filter_summary = standard_training_filter_sql(
+        column_names,
+        table_alias="src",
+        badness_lt=badness_lt,
+        mojibake_lte=mojibake_lte,
+        allow_missing_badness_scores=allow_missing_badness_scores,
+        greek_ratio_gte=greek_ratio_gte,
+        require_non_empty_content=require_non_empty_content,
+    )
+    con = duckdb.connect()
+    try:
+        rows_before, chars_before = con.execute(
+            f"""
+            SELECT count(*), coalesce(sum(source_mix_chars), 0)
+            FROM read_parquet({sql_quote(str(input_path))})
+            """
+        ).fetchone()
+        con.execute(
+            f"""
+            COPY (
+                SELECT src.*
+                FROM read_parquet({sql_quote(str(input_path))}) AS src
+                WHERE {predicate_sql}
+                ORDER BY src.doc_key, src.source_dataset, src.source_doc_id
+            ) TO {sql_quote(str(output_path))} (FORMAT parquet, COMPRESSION zstd)
+            """
+        )
+        rows_after, chars_after = con.execute(
+            f"""
+            SELECT count(*), coalesce(sum(source_mix_chars), 0)
+            FROM read_parquet({sql_quote(str(output_path))})
+            """
+        ).fetchone()
+    finally:
+        con.close()
+    return {
+        "input_path": str(input_path),
+        "output_path": str(output_path),
+        "rows_before": int(rows_before or 0),
+        "chars_before": int(chars_before or 0),
+        "rows_after": int(rows_after or 0),
+        "chars_after": int(chars_after or 0),
+        **filter_summary,
+    }
+
+
+def summarize_standard_training_filter_for_selected_input(
+    input_path: Path,
+    *,
+    badness_lt: float = DEFAULT_STANDARD_BADNESS_LT,
+    mojibake_lte: float | None = DEFAULT_STANDARD_MOJIBAKE_LTE,
+    allow_missing_badness_scores: bool = False,
+    greek_ratio_gte: float | None = DEFAULT_STANDARD_GREEK_RATIO_GTE,
+    require_non_empty_content: bool = True,
+) -> tuple[str, dict[str, Any]]:
+    column_names = set(pq.read_schema(input_path).names)
+    predicate_sql, filter_summary = standard_training_filter_sql(
+        column_names,
+        table_alias=None,
+        badness_lt=badness_lt,
+        mojibake_lte=mojibake_lte,
+        allow_missing_badness_scores=allow_missing_badness_scores,
+        greek_ratio_gte=greek_ratio_gte,
+        require_non_empty_content=require_non_empty_content,
+    )
+    con = duckdb.connect()
+    try:
+        rows_before, chars_before = con.execute(
+            f"""
+            SELECT count(*), coalesce(sum(source_mix_chars), 0)
+            FROM read_parquet({sql_quote(str(input_path))})
+            """
+        ).fetchone()
+        rows_after, chars_after = con.execute(
+            f"""
+            SELECT count(*), coalesce(sum(source_mix_chars), 0)
+            FROM read_parquet({sql_quote(str(input_path))})
+            WHERE {predicate_sql}
+            """
+        ).fetchone()
+    finally:
+        con.close()
+    return predicate_sql, {
+        "input_path": str(input_path),
+        "rows_before": int(rows_before or 0),
+        "chars_before": int(chars_before or 0),
+        "rows_after": int(rows_after or 0),
+        "chars_after": int(chars_after or 0),
+        **filter_summary,
+    }
+
+
 def select_source_mix_rows_to_parquet(
     *,
     input_path: Path,
     output_path: Path,
     entry: Mapping[str, Any],
     requested_chars_int: int,
+    input_filter_sql: str | None = None,
 ) -> dict[str, Any]:
-    condition = source_mix_entry_condition_sql(entry)
+    condition = combine_sql_conditions(input_filter_sql, source_mix_entry_condition_sql(entry))
     con = duckdb.connect()
     try:
         available_rows, available_chars = con.execute(
@@ -2813,8 +3010,10 @@ def apply_source_mix_to_parquet(
     output_path: Path,
     source_mix_config_path: Path,
     temp_root: Path,
+    input_filter_sql: str | None = None,
 ) -> dict[str, Any]:
     entries = load_source_mix_config(source_mix_config_path)
+    base_condition = input_filter_sql or "TRUE"
     con = duckdb.connect()
     try:
         rows_before, chars_before = con.execute(
@@ -2823,11 +3022,20 @@ def apply_source_mix_to_parquet(
             FROM read_parquet({sql_quote(str(input_path))})
             """
         ).fetchone()
+        eligible_rows, eligible_chars = con.execute(
+            f"""
+            SELECT count(*), coalesce(sum(source_mix_chars), 0)
+            FROM read_parquet({sql_quote(str(input_path))})
+            WHERE {base_condition}
+            """
+        ).fetchone()
         rows_before = int(rows_before or 0)
         chars_before = int(chars_before or 0)
+        eligible_rows = int(eligible_rows or 0)
+        eligible_chars = int(eligible_chars or 0)
         overlap_sql = " UNION ALL ".join(
             [
-                f"SELECT doc_key, {sql_quote(str(entry['name']))} AS entry_name FROM read_parquet({sql_quote(str(input_path))}) WHERE {source_mix_entry_condition_sql(entry)}"
+                f"SELECT doc_key, {sql_quote(str(entry['name']))} AS entry_name FROM read_parquet({sql_quote(str(input_path))}) WHERE {combine_sql_conditions(base_condition, source_mix_entry_condition_sql(entry))}"
                 for entry in entries
             ]
         )
@@ -2850,7 +3058,7 @@ def apply_source_mix_to_parquet(
         used_rows = 0
         used_chars = 0
         for entry in entries:
-            condition = source_mix_entry_condition_sql(entry)
+            condition = combine_sql_conditions(base_condition, source_mix_entry_condition_sql(entry))
             available_rows, available_chars = con.execute(
                 f"""
                 SELECT count(*), coalesce(sum(source_mix_chars), 0)
@@ -2910,6 +3118,7 @@ def apply_source_mix_to_parquet(
             output_path=component_path,
             entry=entry,
             requested_chars_int=int(math.floor(float(entry["requested_chars"]) + 1e-9)),
+            input_filter_sql=base_condition,
         )
         component_paths.append(component_path)
         entry_summaries.append(entry_summary)
@@ -2938,14 +3147,129 @@ def apply_source_mix_to_parquet(
         "rows_after": rows_after,
         "chars_before": chars_before,
         "chars_after": chars_after,
-        "unmatched_rows": int(rows_before - sum(entry["available_rows"] for entry in resolved_entries)),
-        "unmatched_chars": int(chars_before - sum(entry["available_chars"] for entry in resolved_entries)),
+        "eligible_rows_before_source_mix": eligible_rows,
+        "eligible_chars_before_source_mix": eligible_chars,
+        "filtered_out_rows_before_source_mix": int(rows_before - eligible_rows),
+        "filtered_out_chars_before_source_mix": int(chars_before - eligible_chars),
+        "unmatched_rows": int(eligible_rows - sum(entry["available_rows"] for entry in resolved_entries)),
+        "unmatched_chars": int(eligible_chars - sum(entry["available_chars"] for entry in resolved_entries)),
         "target_mix_chars_total": None if target_mix_chars_total is None else float(target_mix_chars_total),
         "entries": entry_summaries,
     }
 
 
 def summarize_mix_output(mix_output_path: Path) -> tuple[int, int, list[dict[str, Any]], list[dict[str, Any]]]:
+    try:
+        return summarize_mix_output_duckdb(mix_output_path)
+    except Exception:
+        # Keep the old PyArrow/Pandas summarizer as a compatibility fallback
+        # for older DuckDB builds that lack the regex/list functions used by
+        # the parallel SQL path.
+        return summarize_mix_output_pyarrow(mix_output_path)
+
+
+def summarize_mix_output_duckdb(mix_output_path: Path) -> tuple[int, int, list[dict[str, Any]], list[dict[str, Any]]]:
+    if os.environ.get("GLOSSAPI_FAST_MIX_SUMMARY") == "1":
+        token_expr = (
+            "CASE "
+            "WHEN length(coalesce(CAST(text AS VARCHAR), '')) = 0 THEN 0 "
+            "ELSE CAST(ceil(length(coalesce(CAST(text AS VARCHAR), '')) / 4.0) AS BIGINT) "
+            "END"
+        )
+    else:
+        token_expr = (
+            "list_count(regexp_extract_all("
+            "coalesce(CAST(text AS VARCHAR), ''), "
+            r"'[\p{L}\p{N}_]+|[^\p{L}\p{N}_\s]'"
+            "))"
+        )
+    con = duckdb.connect()
+    try:
+        threads = max(1, os.cpu_count() or 1)
+        con.execute(f"PRAGMA threads={threads}")
+        path_sql = sql_quote(str(mix_output_path))
+        columns = {
+            str(row[0])
+            for row in con.execute(
+                f"DESCRIBE SELECT * FROM read_parquet({path_sql})"
+            ).fetchall()
+        }
+        pool_enabled = {"dedup_pool_key", "dedup_is_shared_pool", "dedup_pool_source_count"}.issubset(columns)
+        summary_columns = [
+            "source_dataset",
+            f"{token_expr} AS estimated_tokens",
+        ]
+        if pool_enabled:
+            summary_columns.extend(
+                [
+                    "dedup_pool_key",
+                    "dedup_is_shared_pool",
+                    "dedup_pool_source_count",
+                ]
+            )
+        con.execute(
+            f"""
+            CREATE TEMP TABLE mix_summary AS
+            SELECT {", ".join(summary_columns)}
+            FROM read_parquet({path_sql})
+            """
+        )
+        total_row = con.execute(
+            """
+            SELECT count(*) AS rows, coalesce(sum(estimated_tokens), 0) AS estimated_tokens
+            FROM mix_summary
+            """
+        ).fetchone()
+        rows_kept = int(total_row[0] or 0)
+        estimated_tokens_total = int(total_row[1] or 0)
+        per_source_records = [
+            {
+                "source_dataset": str(row[0]),
+                "rows": int(row[1] or 0),
+                "estimated_tokens": int(row[2] or 0),
+            }
+            for row in con.execute(
+                f"""
+                SELECT
+                    source_dataset,
+                    count(*) AS rows,
+                    coalesce(sum(estimated_tokens), 0) AS estimated_tokens
+                FROM mix_summary
+                GROUP BY source_dataset
+                ORDER BY estimated_tokens DESC, rows DESC, source_dataset
+                """
+            ).fetchall()
+        ]
+        per_pool_records: list[dict[str, Any]] = []
+        if pool_enabled:
+            per_pool_records = [
+                {
+                    "dedup_pool_key": row[0],
+                    "dedup_is_shared_pool": row[1],
+                    "dedup_pool_source_count": row[2],
+                    "rows": int(row[3] or 0),
+                    "estimated_tokens": int(row[4] or 0),
+                }
+                for row in con.execute(
+                    f"""
+                    SELECT
+                        dedup_pool_key,
+                        dedup_is_shared_pool,
+                        dedup_pool_source_count,
+                        count(*) AS rows,
+                        coalesce(sum(estimated_tokens), 0) AS estimated_tokens
+                    FROM mix_summary
+                    GROUP BY dedup_pool_key, dedup_is_shared_pool, dedup_pool_source_count
+                    ORDER BY estimated_tokens DESC, rows DESC, dedup_pool_key
+                    """
+                ).fetchall()
+            ]
+        return rows_kept, estimated_tokens_total, per_source_records, per_pool_records
+    finally:
+        con.close()
+
+
+def summarize_mix_output_pyarrow(mix_output_path: Path) -> tuple[int, int, list[dict[str, Any]], list[dict[str, Any]]]:
     parquet = pq.ParquetFile(mix_output_path)
     columns = set(parquet.schema_arrow.names)
     per_source: dict[str, dict[str, int]] = defaultdict(lambda: {"rows": 0, "estimated_tokens": 0})
@@ -3012,18 +3336,37 @@ def build_mix_output_from_selected_input(
     *,
     mix_output_path: Path,
     source_mix_config_path: Path | None,
+    apply_standard_split_filters: bool = False,
+    badness_lt: float = DEFAULT_STANDARD_BADNESS_LT,
+    mojibake_lte: float | None = DEFAULT_STANDARD_MOJIBAKE_LTE,
+    allow_missing_badness_scores: bool = False,
+    greek_ratio_gte: float | None = DEFAULT_STANDARD_GREEK_RATIO_GTE,
+    require_non_empty_content: bool = True,
 ) -> dict[str, Any]:
     ensure_dir(mix_output_path.parent)
     with tempfile.TemporaryDirectory(prefix="glossapi_mix_finalize_", dir=str(mix_output_path.parent)) as temp_dir:
         temp_root = Path(temp_dir)
         temp_mix_output_path = temp_root / mix_output_path.name
+        source_input_path = selected_input_path
+        input_filter_sql: str | None = None
+        standard_split_filter_summary: dict[str, Any] | None = None
+        if apply_standard_split_filters:
+            input_filter_sql, standard_split_filter_summary = summarize_standard_training_filter_for_selected_input(
+                selected_input_path,
+                badness_lt=badness_lt,
+                mojibake_lte=mojibake_lte,
+                allow_missing_badness_scores=allow_missing_badness_scores,
+                greek_ratio_gte=greek_ratio_gte,
+                require_non_empty_content=require_non_empty_content,
+            )
         source_mix_summary: dict[str, Any] | None = None
         if source_mix_config_path is not None:
             source_mix_summary = apply_source_mix_to_parquet(
-                selected_input_path,
+                source_input_path,
                 output_path=temp_mix_output_path,
                 source_mix_config_path=source_mix_config_path,
                 temp_root=temp_root,
+                input_filter_sql=input_filter_sql,
             )
         else:
             con = duckdb.connect()
@@ -3032,7 +3375,8 @@ def build_mix_output_from_selected_input(
                     f"""
                     COPY (
                         SELECT {", ".join(CANONICAL_COLUMNS)}
-                        FROM read_parquet({sql_quote(str(selected_input_path))})
+                        FROM read_parquet({sql_quote(str(source_input_path))})
+                        WHERE {input_filter_sql or "TRUE"}
                         ORDER BY doc_key, source_dataset, source_doc_id
                     ) TO {sql_quote(str(temp_mix_output_path))} (FORMAT parquet, COMPRESSION zstd)
                     """
@@ -3054,6 +3398,7 @@ def build_mix_output_from_selected_input(
             "estimated_tokens": int(estimated_tokens_total),
             "per_source": per_source_records,
             "per_pool": per_pool_records,
+            "standard_split_filter": standard_split_filter_summary,
             "source_mix": source_mix_summary,
         }
 

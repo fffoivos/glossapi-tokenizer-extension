@@ -4,6 +4,11 @@
 
 Research the tokenizer discovery experiments before implementation is frozen.
 
+## Current Execution Plan
+
+- [CONTINUOUS_BPE_EXTENSION_PLAN.md](./CONTINUOUS_BPE_EXTENSION_PLAN.md)
+- [CONTINUOUS_BPE_EXTENSION_TODO.md](./CONTINUOUS_BPE_EXTENSION_TODO.md)
+
 ## Already Decided
 
 - discovery tokenizers should use a working vocab fixed at `50k` for the first runs

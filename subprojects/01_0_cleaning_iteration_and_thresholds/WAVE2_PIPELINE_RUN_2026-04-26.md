@@ -6,6 +6,31 @@ match the plan, issues hit + fixes, and the per-phase timeline.
 
 Updated incrementally as the run proceeds.
 
+## Latest status override — 2026-04-28
+
+The incremental notes below preserve the run history, but the current
+state is:
+
+- Phase 1 re-clean: done.
+- Phase 2 dedup: done, 49,292,755 input docs → 49,090,905 kept.
+- Phase 3 mix: done for both `glossapi_only` and
+  `glossapi_plus_hplt_70_30`.
+- Phase 4 export splits: done for both mixes.
+- Phase 5 tokenizer training:
+  - F1 fresh discovery: done.
+  - F2 fresh discovery: done.
+  - C1 continuous BPE: stopped by user during the single-core
+    `count_segments` phase.
+  - C2 continuous BPE: not started.
+- `all_done.json` was not emitted.
+- No wave2 orchestrator / tokenizer / dedup process was running at the
+  last check.
+
+The immediate next cleaner work is no longer to wait for C1/C2. Use
+`WAVE3_CLEANER_PATCH_PLAN_2026-04-28.md` for the narrowed wave-3
+cleaner patch, and repair continuous-BPE parallelism before retrying
+C1/C2.
+
 ## Plan as authorized
 
 User instruction (2026-04-26):
@@ -115,7 +140,7 @@ Output: `/home/foivos/data/glossapi_work_wave2_20260426/canonical/data/*.parquet
 Schema: original `hf_release_publish_working` schema verbatim + 18 new
 columns (see `reclean_canonical_to_parquet.py` for the field list).
 
-### Phase 2 — dedup (RUNNING)
+### Phase 2 — dedup (DONE; initial live snapshot below)
 
 `python -m glossapi_corpus_cli.cli dedup-text run`
 - `--input-root` = wave-2 canonical/
@@ -137,7 +162,7 @@ Stage 1 (exact-stage chunk compute):
 
 Stage 2 (near-dup MinHash) hasn't started.
 
-### Phase 3 — mix prepare + build (NOT STARTED)
+### Phase 3 — mix prepare + build (DONE; initial plan below)
 
 Configs at:
 - `subprojects/01_2_training_dataset_mix/examples/glossapi_only_all_non_hplt.json`
@@ -151,7 +176,7 @@ filter (greek_badness_score < 60 etc.). The cleaned parquets carry
 both upstream `greek_badness_score` (preserved) and the new
 `charset_greek_ratio` / `content_chars_kept` columns from the re-clean.
 
-### Phase 4 — tokenizer training (NOT STARTED)
+### Phase 4 — tokenizer training (PARTIAL; initial plan below)
 
 Four arms (50k vocab for fresh, 25.6k extension for continuous):
 - F1: fresh discovery on glossapi-only
@@ -165,11 +190,15 @@ Scripts:
 - `subprojects/02_1_tokenizer_experiments/scripts/train_continuous_bpe_tokenizer.py`
   (C1, C2)
 
-### Phase 5 — pull artifacts back + stop instance (NOT STARTED)
+### Phase 5 — pull artifacts back + stop instance (PARTIAL / NOT STOPPED)
 
 Tokenizer outputs → home. Final `gcloud compute instances stop`.
 
 ## Cumulative timeline
+
+The first table below is the older live estimate from the initial run
+notes; the latest status override at the top supersedes incomplete
+`TBD` / `running` cells.
 
 | Phase | Started | Finished | Wall time |
 |---|---|---|---|
@@ -295,3 +324,134 @@ plan with status. The mapping at point-of-resume:
 - (5) anything missed → captured in pending follow-ups above
 - (6) run pipeline at max compute when all valid → ⚠️ proceeded
   prematurely without (3); this course correction restores the gate.
+
+### 2026-04-26 ~11:37 UTC — smoke caught real bug: HPLT missing from sample
+
+First end-to-end smoke run of `wave2_orchestrate.py` exposed exactly
+the kind of pre-flight bug the integration test was meant to catch.
+
+**Symptom.** smoke/canonical/data was symlink-only to 5 small datasets
+(1000_prwta_xronia + Apothetirio + Wikisource + finewiki +
+greek_legal_code). HPLT was missing entirely. Phase
+`mix_glossapi_only` succeeded (1.9 GB mix.parquet, 6:46 wall) and
+`export_splits_glossapi_only` succeeded (29 s wall), but
+`mix_glossapi_plus_hplt_70_30` raised
+`ValueError: source mix entry 'hplt' matched zero rows` — the
+`include_sources: ["HPLT/ell_Grek_ge8_no_mt_clean60"]` filter found
+no matching rows because the smoke canonical contained none.
+
+**Confirmed selector is correct.** Read source_dataset values from a
+production HPLT canonical part: unique == `["HPLT/ell_Grek_ge8_no_mt_clean60"]`,
+exact match for the mix config. Bug was sample completeness, not
+selector wording. Production would NOT have hit this; the smoke
+sampler had under-covered the source matrix.
+
+**Fix.** Sliced 30k rows from
+`HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00000.parquet` into
+`smoke/canonical/data/…smoke.parquet` (320 MB) so smoke now covers all
+6 sources required by the two mix configs. Re-launched orchestrator
+in resume mode — `mix_glossapi_only` skipped via marker
+(`mixes/glossapi_only/mix.parquet` already exists),
+`export_splits_glossapi_only` skipped too, run resumes at
+`mix_glossapi_plus_hplt_70_30`.
+
+**Lessons for any future smoke set.** Smoke canonical must include
+≥1 part of every dataset family the production mix configs reference,
+even if just a 30k slice. A coverage check at orchestrator start
+(read all mix configs, assert each `include_sources` entry has ≥1
+matching dataset in input-root) would have failed loud upfront —
+candidate for a follow-up.
+
+**Second failure on the same phase (still 11:41 UTC) — share math.**
+After adding the 30k-row HPLT slice, mix_glossapi_plus_hplt_70_30
+re-failed with `cannot satisfy requested of_total share`. The 5
+non-HPLT datasets supply 4.51 GB chars over 311,731 rows. With HPLT
+at 30% of_total, target_total = 4.51 GB / 0.7 = 6.45 GB and HPLT
+needs ≥ 1.93 GB chars. The 30k slice (~520 MB chars) was 4× too
+small. Replaced with a symlink to the full part-00000 (3.43 GB
+chars, 196k rows) — that satisfies the share and the mix code
+sub-samples down to 1.93 GB during build. Symlink avoids copying
+1.8 GB of parquet for a smoke run.
+
+**Third bug surfaced (11:55 UTC) — orchestrator continuous-train args
+mismatched script signature.** train_F1/F2 succeeded (discovery script
+matched its `--vocab-size --input-glob --output-dir --name`). train_C1
+failed rc=2 — `train_continuous_bpe_tokenizer.py` requires
+`--base-tokenizer-dir` and `--target-vocab-size`, but the orchestrator
+was passing `--target-extension-units` and no base-dir. Fixed in
+`subprojects/01_2_training_dataset_mix/scripts/wave2_orchestrate.py`:
+added `APERTUS_BASE_VOCAB = 131072` and
+`BASE_TOKENIZER_DIR = $GLOSSAPI_WORK_ROOT/tokenizer_base_snapshots/apertus_8b_2509_20260415`
+constants; `phase_train_continuous` now passes `--base-tokenizer-dir`
+and computes `--target-vocab-size = APERTUS_BASE_VOCAB +
+target_extension_units` (= 156672 with default 25600). Also corrected
+the C1/C2 markers — discovery-trained tokenizers land at
+`<out>/tokenizer.json` directly, but continuous-trained ones land at
+`<out>/tokenizer/tokenizer.json`. Synced the fix to the instance via
+gcloud scp.
+
+**Fourth (cosmetic) — empty val/test on the hplt smoke mix.**
+`export_text_budgeted_splits.py` filled train to its 20 MB budget
+(129 docs, 19.99 MB chars) and then dropped all 21,060 remaining
+input rows directly to `drop` rather than allocating to val/test
+first. Build_assigned_done splits omitted val and test entirely.
+Likely a budget-priority bug — train consumes first and leaves
+nothing for val/test when train_budget « total. Production won't
+hit this because prod train_chars=100 GB » total mix; test/val will
+get their 50 MB budgets. Flagged for follow-up but not blocking.
+
+**Smoke green-light at 12:01:10 UTC.** All four tokenizers produced:
+F1 (5.18 MB tokenizer.json), F2, C1 (`tokenizer/tokenizer.json` at
+156,672 vocab), C2. all_done.json marker emitted. Total elapsed
+across the three smoke restarts ≈ 21 min. Production restart can now
+proceed: dedup state at chunk 78,983 of Stage 1 (state.sqlite 55 GB +
+WAL still in place at `/home/foivos/runs/wave2_20260426/dedup_state/`),
+orchestrator will auto-pass `--resume`.
+
+### 2026-04-27 ~01:16 UTC — Stage 2 crash: disk full at near_candidates
+
+After Stage 1 finished cleanly at 18:25 UTC and Stage 2's
+`near_signatures` consolidated at ~23:00 UTC, the dedup CLI advanced
+to `near_candidates`. It wrote 112 of 512 chunks before crashing with
+`OSError: [Errno 28] No space left on device`. Disk: 3.0 TB / 3.0 TB
+used, 1 GB free. State.sqlite + run dir totalled 1.07 TB just in
+dedup intermediates.
+
+**Stage 1 vs Stage 2 storage delta** (lessons for future runs):
+
+| | Stage 1 (exact) | Stage 2 (near-dup) |
+|---|---|---|
+| input docs | 49,292,755 | 49,265,342 (1,948 short/skipped) |
+| dedup drops | 25,465 (0.052%) | (incomplete; ~21.9% through near_candidates) |
+| canonical input read | 175 GB chars | n/a (consumes Stage 1 outputs) |
+| big intermediates | state.sqlite 71 GB, run_docs_inventory 16 GB, snapshot_manifest 9 GB, docs_exact 23 GB, strict+relaxed memberships 10 GB, exact_survivor shards 199 GB | signatures.parquet 59 GB + signatures.npy 47 GB, lsh_buckets.parquet 117 GB, shards/lsh_buckets 225 GB (per-band), shards/signatures 65 GB, bucket_members 84 GB, bucket_summaries 24 GB |
+| stage total intermediate | ≈ 330 GB | ≈ 750 GB |
+| wall time on instance | ≈ 2h post-resume (excl. earlier serial-rebuild that I killed) | ≈ 4-5h for near_signatures + ~30min into near_candidates |
+
+**Why Stage 2 storage explodes.** MinHash with `num_perm=128, bands=32,
+rows_per_band=4` produces 32 LSH bucket entries per doc × 49M docs =
+1.58 billion bucket-row entries (matches `lsh_bucket_rows` from
+near_signatures progress). Each band-shard bucket parquet is kept
+separately AND consolidated into `lsh_buckets.parquet` — duplicate
+storage, no auto-cleanup hook. Same pattern with signatures: per-shard
+65 GB AND consolidated 59 GB parquet + 47 GB .npy mat.
+
+**Disk capacity rule of thumb for full-corpus dedup:** at least
+4-5× the canonical input size, ideally 6× to absorb temp+orphan
+artifacts. Wave-2 canonical is 175 GB → 700-1000 GB minimum, and we
+ran with a 3 TB root that was already 73% full from earlier work.
+
+**What's safe to delete at this stage** (verified by code-reading
+`text_dedup.py`):
+
+- `stage_02_near/shards/signatures/` — 65 GB; consolidated into
+  `signatures.parquet` at line 4461 of text_dedup.py. No later stage
+  reads the per-shard files.
+- `stage_02_near/shards/lsh_buckets/` — 225 GB; consolidated into
+  `lsh_buckets.parquet` at line 4467. No later stage reads per-band.
+- `stage_01_exact/shards/exact_survivors/` — 199 GB; only consumed by
+  `compute_near_signature_chunk` (line 4129). near_signatures is
+  done; no later stage references the survivor shards.
+
+Total recoverable: **489 GB**. After cleanup, `--resume` continues
+near_candidates from chunk 113.

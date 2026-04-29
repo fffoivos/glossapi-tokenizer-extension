@@ -1,5 +1,28 @@
 # Current Status — 01_0 Cleaning Iteration
 
+## Current Override — Wave 3 Scope (2026-04-28)
+
+The active work is now the tokenizer-guided wave-3 cleaner patch, not
+the older wave-2 cleanup landing described below. Use these as the
+current entry points:
+
+- `HANDOFF_2026-04-28.md`
+- `WAVE3_CLEANER_PATCH_PLAN_2026-04-28.md`
+- `corpus_clean_normalization/NORMALIZATION_DESIGN_20260420.md`
+
+Current decisions:
+
+- F1 and F2 fresh tokenizers finished; C1 was stopped during the
+  single-core `count_segments` phase; C2 has not run.
+- The next cleaner patch should prioritize run quantization, escaped
+  Markdown runs, Markdown-aware table/setext/ATX quantization, minimal
+  fenced-code impossible-noise cleanup, and a narrow glyph Rule A/B
+  extension.
+- Mojibake repair and Cyrillic / homoglyph folding are deferred to
+  eellak/glossAPI issue #99.
+- Intentional HTML comment placeholders are kept.
+- Pictograph / dingbat tokens are kept.
+
 ## Active Wave
 
 **wave 2 — pipeline cleanup landing** (2026-04-25 → 2026-04-26)

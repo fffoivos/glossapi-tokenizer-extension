@@ -5,6 +5,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -463,6 +464,314 @@ def test_wait_for_prepare_source_only_uploader_handoff_shell(tmp_path: Path) -> 
     assert manifest["contracts"]["dedup_latest_run_id"] is None
     assert "data" in manifest["sync_paths"]
     assert "dedup_metadata" not in manifest["sync_paths"]
+
+
+def test_wait_for_build_tokenizer_mixes_shell_parallel_and_resumable(tmp_path: Path) -> None:
+    working_root = tmp_path / "working_release"
+    state_root = tmp_path / "state"
+    mix_root = tmp_path / "mixes"
+    builder_root = working_root / "dedup_metadata" / "run-004" / "builder_metadata"
+
+    builder_root.mkdir(parents=True, exist_ok=True)
+    (builder_root / "manifest.json").write_text(
+        json.dumps(
+            {
+                "builder_metadata_version": "builder_metadata_v2",
+                "files": {
+                    "doc_metadata": "doc_dedup_metadata.parquet",
+                    "family_membership": "dedup_family_membership.parquet",
+                    "near_candidate_pairs": "near_candidate_pairs.parquet",
+                },
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    pq.write_table(pa.table({"doc_key": pa.array([], type=pa.string())}), builder_root / "doc_dedup_metadata.parquet")
+    pq.write_table(pa.table({"doc_key": pa.array([], type=pa.string())}), builder_root / "dedup_family_membership.parquet")
+    pq.write_table(pa.table({"left_doc_key": pa.array([], type=pa.string())}), builder_root / "near_candidate_pairs.parquet")
+    (working_root / "dedup_metadata" / "latest.json").write_text(
+        json.dumps(
+            {
+                "latest_run_id": "run-004",
+                "builder_metadata_root": "dedup_metadata/run-004/builder_metadata",
+                "path": "dedup_metadata/run-004",
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (state_root / "latest_success.json").parent.mkdir(parents=True, exist_ok=True)
+    (state_root / "latest_success.json").write_text(
+        json.dumps({"run_id": "run-004", "run_root": str(state_root / "runs" / "run-004")}, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    (working_root / "hplt_integration_summary.json").write_text(
+        json.dumps({"new_dataset_name": "HPLT/ell_Grek_ge8_no_mt_clean60"}, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    fake_python = tmp_path / "fake_python.py"
+    fake_python.write_text(
+        "\n".join(
+            [
+                "#!/usr/bin/env python3",
+                "from __future__ import annotations",
+                "import json",
+                "import os",
+                "import sys",
+                "import time",
+                "from pathlib import Path",
+                f"REAL_PYTHON = {sys.executable!r}",
+                "if len(sys.argv) > 1 and sys.argv[1] == '-':",
+                "    os.execv(REAL_PYTHON, [REAL_PYTHON, *sys.argv[1:]])",
+                "if len(sys.argv) > 3 and sys.argv[1:4] == ['-m', 'glossapi_corpus_cli.cli', 'mix-prepare-selected-input']:",
+                "    selected_input_path = None",
+                "    args = sys.argv[4:]",
+                "    idx = 0",
+                "    while idx < len(args):",
+                "        arg = args[idx]",
+                "        if arg == '--selected-input-path':",
+                "            selected_input_path = Path(args[idx + 1])",
+                "            idx += 2",
+                "            continue",
+                "        idx += 1",
+                "    if selected_input_path is None:",
+                "        raise SystemExit('missing selected input path')",
+                "    selected_input_path.parent.mkdir(parents=True, exist_ok=True)",
+                "    time.sleep(1.2)",
+                "    selected_input_path.write_text('fake selected input\\n', encoding='utf-8')",
+                "    (selected_input_path.parent / 'prelude_done.json').write_text(",
+                "        json.dumps({'prepared_at': time.time()}, ensure_ascii=False, indent=2) + '\\n',",
+                "        encoding='utf-8',",
+                "    )",
+                "    print(json.dumps({'selected_input': {'path': str(selected_input_path), 'rows': 1, 'chars': 1}}, ensure_ascii=False))",
+                "    raise SystemExit(0)",
+                "if len(sys.argv) > 3 and sys.argv[1:4] == ['-m', 'glossapi_corpus_cli.cli', 'mix-build-from-selected-input']:",
+                "    selected_input_path = None",
+                "    output_path = None",
+                "    config_path = None",
+                "    args = sys.argv[4:]",
+                "    idx = 0",
+                "    while idx < len(args):",
+                "        arg = args[idx]",
+                "        if arg == '--selected-input-path':",
+                "            selected_input_path = Path(args[idx + 1])",
+                "            idx += 2",
+                "            continue",
+                "        if arg == '--mix-output-path':",
+                "            output_path = Path(args[idx + 1])",
+                "            idx += 2",
+                "            continue",
+                "        if arg == '--source-mix-config-path':",
+                "            config_path = Path(args[idx + 1])",
+                "            idx += 2",
+                "            continue",
+                "        idx += 1",
+                "    if selected_input_path is None or output_path is None or config_path is None:",
+                "        raise SystemExit('missing mix args')",
+                "    if not selected_input_path.exists():",
+                "        raise SystemExit('selected input missing')",
+                "    output_path.parent.mkdir(parents=True, exist_ok=True)",
+                "    (output_path.parent / 'runner_start.json').write_text(",
+                "        json.dumps({'started_at': time.time(), 'config_path': str(config_path), 'selected_input_path': str(selected_input_path)}, ensure_ascii=False, indent=2) + '\\n',",
+                "        encoding='utf-8',",
+                "    )",
+                "    time.sleep(1.2)",
+                "    output_path.write_text('fake parquet placeholder\\n', encoding='utf-8')",
+                "    output_path.with_suffix('.summary.csv').write_text(",
+                "        'source_dataset,rows,estimated_tokens\\nalpha,1,1\\n',",
+                "        encoding='utf-8',",
+                "    )",
+                "    (output_path.parent / 'runner_end.json').write_text(",
+                "        json.dumps({'finished_at': time.time()}, ensure_ascii=False, indent=2) + '\\n',",
+                "        encoding='utf-8',",
+                "    )",
+                "    print(json.dumps({'rows_kept': 1}, ensure_ascii=False))",
+                "    raise SystemExit(0)",
+                "os.execv(REAL_PYTHON, [REAL_PYTHON, *sys.argv[1:]])",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    fake_python.chmod(0o755)
+
+    script = TOKENIZER_REPO_ROOT / "subprojects" / "01_2_training_dataset_mix" / "scripts" / "wait_for_dedup_overlay_and_build_tokenizer_mixes.sh"
+    env = os.environ.copy()
+    env["TOKENIZER_PIPELINE_PYTHON_BIN"] = str(fake_python)
+    env["TOKENIZER_MIX_MAX_JOBS"] = "2"
+
+    started = time.monotonic()
+    subprocess.run(["bash", str(script), str(working_root), str(state_root), str(mix_root)], check=True, env=env)
+    elapsed = time.monotonic() - started
+
+    glossapi_status = json.loads((mix_root / "glossapi_only" / "build_status.json").read_text(encoding="utf-8"))
+    mixed_status = json.loads((mix_root / "glossapi_plus_hplt_70_30" / "build_status.json").read_text(encoding="utf-8"))
+    prelude_status = json.loads((mix_root / "_shared" / "prepare_status.json").read_text(encoding="utf-8"))
+    prelude_summary = json.loads((mix_root / "_shared" / "selected_input_summary.json").read_text(encoding="utf-8"))
+    glossapi_start = json.loads((mix_root / "glossapi_only" / "runner_start.json").read_text(encoding="utf-8"))
+    mixed_start = json.loads((mix_root / "glossapi_plus_hplt_70_30" / "runner_start.json").read_text(encoding="utf-8"))
+    prelude_done = json.loads((mix_root / "_shared" / "prelude_done.json").read_text(encoding="utf-8"))
+
+    assert elapsed < 3.3
+    assert prelude_status["state"] == "completed"
+    assert prelude_summary["selected_input"]["path"].endswith("selected_input.parquet")
+    assert glossapi_status["state"] == "completed"
+    assert mixed_status["state"] == "completed"
+    assert glossapi_start["started_at"] >= prelude_done["prepared_at"]
+    assert mixed_start["started_at"] >= prelude_done["prepared_at"]
+    assert abs(float(glossapi_start["started_at"]) - float(mixed_start["started_at"])) < 0.8
+    assert (mix_root / "glossapi_only" / "mix.parquet").exists()
+    assert (mix_root / "glossapi_plus_hplt_70_30" / "mix.parquet").exists()
+
+    subprocess.run(["bash", str(script), str(working_root), str(state_root), str(mix_root)], check=True, env=env)
+    glossapi_status_rerun = json.loads((mix_root / "glossapi_only" / "build_status.json").read_text(encoding="utf-8"))
+    mixed_status_rerun = json.loads((mix_root / "glossapi_plus_hplt_70_30" / "build_status.json").read_text(encoding="utf-8"))
+    prelude_status_rerun = json.loads((mix_root / "_shared" / "prepare_status.json").read_text(encoding="utf-8"))
+    assert glossapi_status_rerun["note"] == "skipped_existing_output"
+    assert mixed_status_rerun["note"] == "skipped_existing_output"
+    assert prelude_status_rerun["note"] == "skipped_existing_selected_input"
+
+
+def test_wait_for_tokenizer_mixes_launches_each_training_when_its_mix_is_ready(tmp_path: Path) -> None:
+    mix_root = tmp_path / "mixes"
+    training_root = tmp_path / "training"
+    glossapi_mix = mix_root / "glossapi_only" / "mix.parquet"
+    mixed_mix = mix_root / "glossapi_plus_hplt_70_30" / "mix.parquet"
+    glossapi_build_status = mix_root / "glossapi_only" / "build_status.json"
+    mixed_build_status = mix_root / "glossapi_plus_hplt_70_30" / "build_status.json"
+    glossapi_mix.parent.mkdir(parents=True, exist_ok=True)
+    mixed_mix.parent.mkdir(parents=True, exist_ok=True)
+    glossapi_mix.write_text("ready\n", encoding="utf-8")
+    glossapi_build_status.write_text(
+        json.dumps(
+            {
+                "mix_name": "glossapi_only",
+                "state": "completed",
+                "mix_output_path": str(glossapi_mix),
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    mixed_mix.write_text("", encoding="utf-8")
+    mixed_build_status.write_text(
+        json.dumps(
+            {
+                "mix_name": "glossapi_plus_hplt_70_30",
+                "state": "running",
+                "mix_output_path": str(mixed_mix),
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    fake_python = tmp_path / "fake_train_python.py"
+    fake_python.write_text(
+        "\n".join(
+            [
+                "#!/usr/bin/env python3",
+                "from __future__ import annotations",
+                "import json",
+                "import os",
+                "import sys",
+                "import time",
+                "from pathlib import Path",
+                f"REAL_PYTHON = {sys.executable!r}",
+                "if len(sys.argv) > 1 and sys.argv[1].endswith('train_discovery_tokenizer.py'):",
+                "    output_dir = None",
+                "    run_name = None",
+                "    input_glob = None",
+                "    args = sys.argv[2:]",
+                "    idx = 0",
+                "    while idx < len(args):",
+                "        arg = args[idx]",
+                "        if arg == '--output-dir':",
+                "            output_dir = Path(args[idx + 1])",
+                "            idx += 2",
+                "            continue",
+                "        if arg == '--name':",
+                "            run_name = args[idx + 1]",
+                "            idx += 2",
+                "            continue",
+                "        if arg == '--input-glob':",
+                "            input_glob = args[idx + 1]",
+                "            idx += 2",
+                "            continue",
+                "        idx += 1",
+                "    if output_dir is None or run_name is None or input_glob is None:",
+                "        raise SystemExit('missing training args')",
+                "    output_dir.mkdir(parents=True, exist_ok=True)",
+                "    (output_dir / 'runner_start.json').write_text(",
+                "        json.dumps({'started_at': time.time(), 'run_name': run_name, 'input_glob': input_glob}, ensure_ascii=False, indent=2) + '\\n',",
+                "        encoding='utf-8',",
+                "    )",
+                "    time.sleep(0.4)",
+                "    (output_dir / 'training_summary.json').write_text(",
+                "        json.dumps({'ok': True, 'run_name': run_name}, ensure_ascii=False, indent=2) + '\\n',",
+                "        encoding='utf-8',",
+                "    )",
+                "    raise SystemExit(0)",
+                "os.execv(REAL_PYTHON, [REAL_PYTHON, *sys.argv[1:]])",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    fake_python.chmod(0o755)
+
+    delayed_mix_creator = tmp_path / "delayed_mixed_mix.sh"
+    delayed_mix_creator.write_text(
+        "\n".join(
+            [
+                "#!/usr/bin/env bash",
+                "set -euo pipefail",
+                "sleep 1",
+                f"printf 'ready\\n' > {mixed_mix}",
+                f"python3 - <<'PY'\nimport json\nfrom pathlib import Path\nPath({str(mixed_build_status)!r}).write_text(json.dumps({{'mix_name': 'glossapi_plus_hplt_70_30', 'state': 'completed', 'mix_output_path': {str(mixed_mix)!r}}}, ensure_ascii=False, indent=2) + '\\n', encoding='utf-8')\nPY",
+                f"python3 - <<'PY'\nimport json, time\nfrom pathlib import Path\nPath({str((mix_root / 'glossapi_plus_hplt_70_30' / 'mix_created.json'))!r}).write_text(json.dumps({{'created_at': time.time()}}, ensure_ascii=False, indent=2) + '\\n', encoding='utf-8')\nPY",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    delayed_mix_creator.chmod(0o755)
+    delayed_proc = subprocess.Popen(["bash", str(delayed_mix_creator)])
+
+    script = TOKENIZER_REPO_ROOT / "subprojects" / "02_1_tokenizer_experiments" / "scripts" / "wait_for_tokenizer_mixes_and_launch_training.sh"
+    env = os.environ.copy()
+    env["TOKENIZER_TRAINING_PYTHON_BIN"] = str(fake_python)
+    env["TOKENIZER_TRAINING_LAUNCH_MODE"] = "inline"
+    env["TOKENIZER_TRAINING_INSTALL_DEPS"] = "0"
+    env["TOKENIZER_TRAINING_WAIT_INTERVAL_SECONDS"] = "1"
+    env["TOKENIZER_TRAINING_GLOSSAPI_NAME"] = "glossapi_only_test"
+    env["TOKENIZER_TRAINING_MIXED_NAME"] = "glossapi_plus_hplt_70_30_test"
+
+    subprocess.run(["bash", str(script), str(mix_root), str(training_root)], check=True, env=env)
+    delayed_proc.wait(timeout=5)
+
+    glossapi_start = json.loads((training_root / "glossapi_only_test" / "runner_start.json").read_text(encoding="utf-8"))
+    mixed_start = json.loads((training_root / "glossapi_plus_hplt_70_30_test" / "runner_start.json").read_text(encoding="utf-8"))
+    mixed_mix_created = json.loads((mix_root / "glossapi_plus_hplt_70_30" / "mix_created.json").read_text(encoding="utf-8"))
+    glossapi_status = json.loads((training_root / "glossapi_only_test.launch_status.json").read_text(encoding="utf-8"))
+    mixed_status = json.loads((training_root / "glossapi_plus_hplt_70_30_test.launch_status.json").read_text(encoding="utf-8"))
+
+    assert glossapi_status["state"] == "completed"
+    assert mixed_status["state"] == "completed"
+    assert glossapi_start["started_at"] < mixed_mix_created["created_at"]
+    assert mixed_start["started_at"] >= mixed_mix_created["created_at"]
+    assert (training_root / "glossapi_only_test" / "training_summary.json").exists()
+    assert (training_root / "glossapi_plus_hplt_70_30_test" / "training_summary.json").exists()
 
 
 def test_launch_uploader_handoff_local_stage(tmp_path: Path, monkeypatch) -> None:

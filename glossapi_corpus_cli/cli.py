@@ -86,6 +86,85 @@ def mix_command(
     typer.echo(json.dumps(payload, ensure_ascii=False, indent=2))
 
 
+@app.command("mix-prepare-selected-input")
+def mix_prepare_selected_input_command(
+    output_root: Path = typer.Option(pipeline.DEFAULT_OUTPUT_ROOT, help="Canonical dataset root"),
+    selected_input_path: Path = typer.Option(..., help="Parquet path for the shared filtered+deduped selected input"),
+    include_sources: list[str] = typer.Option(None, help="Explicit source_dataset whitelist"),
+    exclude_sources: list[str] = typer.Option(None, help="Explicit source_dataset blacklist"),
+    exclude_needs_ocr_sources: list[str] = typer.Option(
+        None,
+        help="Drop rows with needs_ocr=true for these source_dataset values before mix export",
+    ),
+    quality_preset: str = typer.Option("none", help="none|modern_strict|modern_relaxed|historical_tolerant"),
+    historical_mode: str = typer.Option("include", help="include|exclude|only"),
+    math_mode: str = typer.Option("include", help="include|exclude|only"),
+    latex_mode: str = typer.Option("include", help="include|exclude|only"),
+    dedup_metadata_root: Path | None = typer.Option(None, help="Builder-facing dedup metadata bundle root"),
+    dedup_action: str = typer.Option("ignore", help="ignore|annotate|drop_intra|drop_intra_and_inter"),
+    dedup_exact_stage: str = typer.Option("strict_and_relaxed", help="strict_only|strict_and_relaxed"),
+    dedup_similarity_threshold: float | None = typer.Option(None, help="Builder-time near-dup threshold; must be >= exported pair floor"),
+    dedup_inter_dataset_policy: str = typer.Option("share_aware", help="quality_first|share_aware"),
+    dedup_source_weights_path: Path | None = typer.Option(None, help="Optional JSON mapping source_dataset to positive weight"),
+) -> None:
+    payload = pipeline.materialize_streaming_mix_selected_input(
+        output_root=output_root,
+        destination=selected_input_path,
+        include_sources=include_sources or None,
+        exclude_sources=exclude_sources or None,
+        exclude_needs_ocr_sources=exclude_needs_ocr_sources or None,
+        quality_preset=quality_preset,
+        historical_mode=historical_mode,
+        math_mode=math_mode,
+        latex_mode=latex_mode,
+        dedup_metadata_root=dedup_metadata_root,
+        dedup_action=dedup_action,
+        dedup_exact_stage=dedup_exact_stage,
+        dedup_similarity_threshold=dedup_similarity_threshold,
+        dedup_inter_dataset_policy=dedup_inter_dataset_policy,
+        dedup_source_weights_path=dedup_source_weights_path,
+    )
+    typer.echo(json.dumps(payload, ensure_ascii=False, indent=2))
+
+
+@app.command("mix-build-from-selected-input")
+def mix_build_from_selected_input_command(
+    selected_input_path: Path = typer.Option(..., help="Shared filtered+deduped selected input parquet"),
+    mix_output_path: Path = typer.Option(..., help="Parquet path for the final mix output"),
+    source_mix_config_path: Path | None = typer.Option(
+        None,
+        help="Optional JSON config describing grouped/per-dataset source mix fractions after filtering and dedup",
+    ),
+    apply_standard_split_filters: bool = typer.Option(
+        False,
+        "--standard-split-filters",
+        help="Apply the production split badness/OCR filters before resolving source-mix fractions",
+    ),
+    badness_lt: float = typer.Option(
+        pipeline.DEFAULT_STANDARD_BADNESS_LT,
+        help="When --standard-split-filters is enabled, drop greek_badness_score >= this threshold",
+    ),
+    mojibake_lte: float = typer.Option(
+        pipeline.DEFAULT_STANDARD_MOJIBAKE_LTE,
+        help="When --standard-split-filters is enabled, drop mojibake_badness_score > this threshold",
+    ),
+    allow_missing_badness_scores: bool = typer.Option(
+        False,
+        help="When --standard-split-filters is enabled, keep rows with missing score values",
+    ),
+) -> None:
+    payload = pipeline.build_mix_output_from_selected_input(
+        selected_input_path=selected_input_path,
+        mix_output_path=mix_output_path,
+        source_mix_config_path=source_mix_config_path,
+        apply_standard_split_filters=apply_standard_split_filters,
+        badness_lt=badness_lt,
+        mojibake_lte=mojibake_lte,
+        allow_missing_badness_scores=allow_missing_badness_scores,
+    )
+    typer.echo(json.dumps(payload, ensure_ascii=False, indent=2))
+
+
 @app.command("nanochat")
 def nanochat_command(
     output_root: Path = typer.Option(pipeline.DEFAULT_OUTPUT_ROOT, help="Canonical dataset root"),

@@ -179,6 +179,65 @@ def test_write_parquet_rows_keeps_canonical_schema_when_later_batches_are_null(t
     assert pd.isna(frame.loc[1, "len_greek"])
 
 
+def test_batch_score_missing_quality_scores_missing_badness_even_with_existing_method(monkeypatch) -> None:
+    def fake_score_markdown_directory_detailed(input_dir: str, n_threads: int | None):
+        paths = sorted(Path(input_dir).glob("*.md"))
+        assert len(paths) == 1
+        return [(str(paths[0]), 12.5, 3.0, 0.2, 0.01, 123)]
+
+    monkeypatch.setattr(
+        pipeline.glossapi_rs_noise,
+        "score_markdown_directory_detailed",
+        fake_score_markdown_directory_detailed,
+    )
+    rows = [
+        {
+            "source_dataset": "HPLT/ell_Grek_ge8_no_mt_clean60",
+            "source_doc_id": "hplt-1",
+            "text": "κείμενο",
+            "greek_badness_score": None,
+            "mojibake_badness_score": 0.07,
+            "quality_method": "corpus.clean",
+            "latin_percentage": 4.0,
+        }
+    ]
+
+    scored = pipeline.batch_score_missing_quality(rows, "HPLT/ell_Grek_ge8_no_mt_clean60")
+
+    assert scored[0]["greek_badness_score"] == 12.5
+    assert scored[0]["mojibake_badness_score"] == 0.07
+    assert scored[0]["quality_method"] == "corpus.clean"
+    assert scored[0]["latin_percentage"] == 4.0
+    assert scored[0]["table_ratio"] == 0.2
+    assert scored[0]["polytonic_ratio"] == 0.01
+    assert scored[0]["len_greek"] == 123
+
+
+def test_batch_score_missing_quality_preserves_existing_badness_without_rescoring(monkeypatch) -> None:
+    def fail_score_markdown_directory_detailed(input_dir: str, n_threads: int | None):
+        raise AssertionError("existing scored rows should not be rescored")
+
+    monkeypatch.setattr(
+        pipeline.glossapi_rs_noise,
+        "score_markdown_directory_detailed",
+        fail_score_markdown_directory_detailed,
+    )
+    rows = [
+        {
+            "source_dataset": "already-scored",
+            "source_doc_id": "doc-1",
+            "text": "κείμενο",
+            "greek_badness_score": 3.0,
+            "mojibake_badness_score": 0.08,
+            "quality_method": "previous-cleaner",
+        }
+    ]
+
+    scored = pipeline.batch_score_missing_quality(rows, "already-scored")
+
+    assert scored == rows
+
+
 def test_metadata_json_normalizes_placeholder_url_to_null() -> None:
     payload = pipeline.metadata_json({"url": "  NA  ", "permanent_url": "https://example.com/doc"})
     parsed = json.loads(payload)
@@ -325,6 +384,16 @@ def write_canonical_snapshot(output_root: Path, rows: list[dict[str, object]]) -
     data_root = output_root / "data"
     data_root.mkdir(parents=True, exist_ok=True)
     pq.write_table(pa.Table.from_pylist(rows, schema=pipeline.CANONICAL_ARROW_SCHEMA), data_root / "sample.parquet")
+
+
+def write_canonical_snapshot_parts(output_root: Path, parts: list[list[dict[str, object]]]) -> None:
+    data_root = output_root / "data"
+    data_root.mkdir(parents=True, exist_ok=True)
+    for idx, rows in enumerate(parts):
+        pq.write_table(
+            pa.Table.from_pylist(rows, schema=pipeline.CANONICAL_ARROW_SCHEMA),
+            data_root / f"sample_{idx:02d}.parquet",
+        )
 
 
 def write_source_mix_config(path: Path, entries: list[dict[str, object]]) -> None:
@@ -744,6 +813,260 @@ def test_build_mix_export_supports_group_and_total_share_source_mix(tmp_path: Pa
     assert non_hplt_chars == 70
     assert payload["source_mix"]["chars_after"] == 100
     assert [item["name"] for item in payload["source_mix"]["entries"]] == ["all_non_hplt", "hplt"]
+
+
+def test_shared_selected_input_finalize_matches_direct_streaming_mix(tmp_path: Path) -> None:
+    output_root = tmp_path / "corpus"
+    mix_config_path = tmp_path / "source_mix.json"
+    rows = [
+        make_canonical_row(source_dataset="alpha", source_doc_id="a-1", text="α" * 35),
+        make_canonical_row(source_dataset="beta", source_doc_id="b-1", text="β" * 35),
+        make_canonical_row(source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60", source_doc_id="h-1", text="η" * 15),
+        make_canonical_row(source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60", source_doc_id="h-2", text="θ" * 15),
+        make_canonical_row(source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60", source_doc_id="h-3", text="ι" * 15),
+    ]
+    write_canonical_snapshot(output_root, rows)
+    write_source_mix_config(
+        mix_config_path,
+        [
+            {
+                "name": "all_non_hplt",
+                "exclude_sources": ["HPLT/ell_Grek_ge8_no_mt_clean60"],
+                "fraction": 1.0,
+                "fraction_mode": "of_group",
+            },
+            {
+                "name": "hplt",
+                "include_sources": ["HPLT/ell_Grek_ge8_no_mt_clean60"],
+                "fraction": 0.30,
+                "fraction_mode": "of_total",
+            },
+        ],
+    )
+
+    direct_payload = pipeline.build_mix_export(
+        output_root=output_root,
+        mix_output_path=tmp_path / "direct_mix.parquet",
+        source_mix_config_path=mix_config_path,
+    )
+    prelude_payload = pipeline.materialize_streaming_mix_selected_input(
+        output_root=output_root,
+        destination=tmp_path / "selected_input.parquet",
+        include_sources=None,
+        exclude_sources=None,
+        exclude_needs_ocr_sources=None,
+        quality_preset="none",
+        historical_mode="include",
+        math_mode="include",
+        latex_mode="include",
+        dedup_metadata_root=None,
+        dedup_action="ignore",
+        dedup_exact_stage="strict_and_relaxed",
+        dedup_similarity_threshold=None,
+        dedup_inter_dataset_policy="share_aware",
+        dedup_source_weights_path=None,
+    )
+    shared_payload = pipeline.build_mix_output_from_selected_input(
+        selected_input_path=tmp_path / "selected_input.parquet",
+        mix_output_path=tmp_path / "shared_mix.parquet",
+        source_mix_config_path=mix_config_path,
+    )
+
+    direct_frame = pd.read_parquet(tmp_path / "direct_mix.parquet")
+    shared_frame = pd.read_parquet(tmp_path / "shared_mix.parquet")
+    pd.testing.assert_frame_equal(direct_frame, shared_frame)
+    assert prelude_payload["selected_input"]["rows"] == len(rows)
+    assert shared_payload["rows_kept"] == direct_payload["rows_kept"]
+    assert shared_payload["estimated_tokens"] == direct_payload["estimated_tokens"]
+    assert shared_payload["source_mix"]["chars_after"] == direct_payload["source_mix"]["chars_after"]
+
+
+def test_build_mix_from_selected_input_can_apply_standard_filters_before_source_share(tmp_path: Path) -> None:
+    mix_config_path = tmp_path / "source_mix.json"
+    selected_input_path = tmp_path / "selected_input.parquet"
+    mix_output_path = tmp_path / "mix.parquet"
+    write_source_mix_config(
+        mix_config_path,
+        [
+            {
+                "name": "all_non_hplt",
+                "exclude_sources": ["HPLT/ell_Grek_ge8_no_mt_clean60"],
+                "fraction": 1.0,
+                "fraction_mode": "of_group",
+            },
+            {
+                "name": "hplt",
+                "include_sources": ["HPLT/ell_Grek_ge8_no_mt_clean60"],
+                "fraction": 0.30,
+                "fraction_mode": "of_total",
+            },
+        ],
+    )
+    rows = []
+    for row in [
+        make_canonical_row(source_dataset="alpha", source_doc_id="a-valid", text="α" * 70, greek_badness_score=1.0),
+        make_canonical_row(source_dataset="beta", source_doc_id="b-missing-mojibake", text="β" * 100, greek_badness_score=1.0),
+        make_canonical_row(
+            source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60",
+            source_doc_id="h-1",
+            text="η" * 15,
+            greek_badness_score=1.0,
+        ),
+        make_canonical_row(
+            source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60",
+            source_doc_id="h-2",
+            text="θ" * 15,
+            greek_badness_score=1.0,
+        ),
+        make_canonical_row(
+            source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60",
+            source_doc_id="h-3",
+            text="ι" * 15,
+            greek_badness_score=1.0,
+        ),
+    ]:
+        row["doc_key"] = pipeline.stable_doc_key(str(row["source_dataset"]), str(row["source_doc_id"]))
+        row["source_mix_chars"] = len(str(row["text"]))
+        rows.append(row)
+    rows[1]["mojibake_badness_score"] = None
+    pq.write_table(pa.Table.from_pylist(rows, schema=pipeline.mix_intermediate_schema()), selected_input_path)
+
+    payload = pipeline.build_mix_output_from_selected_input(
+        selected_input_path,
+        mix_output_path=mix_output_path,
+        source_mix_config_path=mix_config_path,
+        apply_standard_split_filters=True,
+    )
+
+    frame = pd.read_parquet(mix_output_path)
+    assert "b-missing-mojibake" not in set(frame["source_doc_id"])
+    assert int((frame["source_dataset"] == "HPLT/ell_Grek_ge8_no_mt_clean60").sum()) == 2
+    assert payload["standard_split_filter"]["rows_before"] == 5
+    assert payload["standard_split_filter"]["rows_after"] == 4
+    assert payload["source_mix"]["entries"][0]["available_chars"] == 70
+    assert payload["source_mix"]["entries"][1]["selected_chars"] == 30
+    hplt_chars = int(frame.loc[frame["source_dataset"] == "HPLT/ell_Grek_ge8_no_mt_clean60", "text"].str.len().sum())
+    assert hplt_chars / int(frame["text"].str.len().sum()) == 0.30
+
+
+def test_parallel_selected_input_prelude_matches_direct_mix_for_multi_file_input(tmp_path: Path, monkeypatch) -> None:
+    output_root = tmp_path / "corpus"
+    mix_config_path = tmp_path / "source_mix.json"
+    part_one = [
+        make_canonical_row(source_dataset="alpha", source_doc_id="a-1", text="α" * 35),
+        make_canonical_row(source_dataset="beta", source_doc_id="b-1", text="β" * 35),
+    ]
+    part_two = [
+        make_canonical_row(source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60", source_doc_id="h-1", text="η" * 15),
+        make_canonical_row(source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60", source_doc_id="h-2", text="θ" * 15),
+        make_canonical_row(source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60", source_doc_id="h-3", text="ι" * 15),
+    ]
+    write_canonical_snapshot_parts(output_root, [part_one, part_two])
+    write_source_mix_config(
+        mix_config_path,
+        [
+            {
+                "name": "all_non_hplt",
+                "exclude_sources": ["HPLT/ell_Grek_ge8_no_mt_clean60"],
+                "fraction": 1.0,
+                "fraction_mode": "of_group",
+            },
+            {
+                "name": "hplt",
+                "include_sources": ["HPLT/ell_Grek_ge8_no_mt_clean60"],
+                "fraction": 0.30,
+                "fraction_mode": "of_total",
+            },
+        ],
+    )
+
+    direct_payload = pipeline.build_mix_export(
+        output_root=output_root,
+        mix_output_path=tmp_path / "direct_mix.parquet",
+        source_mix_config_path=mix_config_path,
+    )
+    monkeypatch.setenv("GLOSSAPI_MIX_PREPARE_WORKERS", "2")
+    prelude_payload = pipeline.materialize_streaming_mix_selected_input(
+        output_root=output_root,
+        destination=tmp_path / "selected_input.parquet",
+        include_sources=None,
+        exclude_sources=None,
+        exclude_needs_ocr_sources=None,
+        quality_preset="none",
+        historical_mode="include",
+        math_mode="include",
+        latex_mode="include",
+        dedup_metadata_root=None,
+        dedup_action="ignore",
+        dedup_exact_stage="strict_and_relaxed",
+        dedup_similarity_threshold=None,
+        dedup_inter_dataset_policy="share_aware",
+        dedup_source_weights_path=None,
+    )
+    shared_payload = pipeline.build_mix_output_from_selected_input(
+        selected_input_path=tmp_path / "selected_input.parquet",
+        mix_output_path=tmp_path / "shared_mix.parquet",
+        source_mix_config_path=mix_config_path,
+    )
+
+    direct_frame = pd.read_parquet(tmp_path / "direct_mix.parquet")
+    shared_frame = pd.read_parquet(tmp_path / "shared_mix.parquet")
+    pd.testing.assert_frame_equal(direct_frame, shared_frame)
+    assert prelude_payload["filtered_input"]["worker_count"] == 2
+    assert prelude_payload["filtered_input"]["source_file_count"] == 2
+    assert shared_payload["rows_kept"] == direct_payload["rows_kept"]
+
+
+def test_build_mix_from_selected_input_allows_repeated_doc_keys_within_one_entry(tmp_path: Path) -> None:
+    mix_config_path = tmp_path / "source_mix.json"
+    selected_input_path = tmp_path / "selected_input.parquet"
+    mix_output_path = tmp_path / "mix.parquet"
+    write_source_mix_config(
+        mix_config_path,
+        [
+            {
+                "name": "all_non_hplt",
+                "exclude_sources": ["HPLT/ell_Grek_ge8_no_mt_clean60"],
+                "fraction": 1.0,
+                "fraction_mode": "of_group",
+            }
+        ],
+    )
+    repeated_doc_key = pipeline.stable_doc_key("alpha", "a-1")
+    rows = [
+        {
+            **make_canonical_row(source_dataset="alpha", source_doc_id="a-1", text="α" * 20),
+            "doc_key": repeated_doc_key,
+            "source_mix_chars": 20,
+        },
+        {
+            **make_canonical_row(source_dataset="alpha", source_doc_id="a-1", text="β" * 15),
+            "doc_key": repeated_doc_key,
+            "source_mix_chars": 15,
+        },
+        {
+            **make_canonical_row(
+                source_dataset="HPLT/ell_Grek_ge8_no_mt_clean60",
+                source_doc_id="h-1",
+                text="η" * 10,
+            ),
+            "doc_key": pipeline.stable_doc_key("HPLT/ell_Grek_ge8_no_mt_clean60", "h-1"),
+            "source_mix_chars": 10,
+        },
+    ]
+    pq.write_table(pa.Table.from_pylist(rows, schema=pipeline.mix_intermediate_schema()), selected_input_path)
+
+    payload = pipeline.build_mix_output_from_selected_input(
+        selected_input_path,
+        mix_output_path=mix_output_path,
+        source_mix_config_path=mix_config_path,
+    )
+
+    frame = pd.read_parquet(mix_output_path)
+    assert frame["source_dataset"].tolist() == ["alpha", "alpha"]
+    assert frame["source_doc_id"].tolist() == ["a-1", "a-1"]
+    assert payload["rows_kept"] == 2
+    assert payload["source_mix"]["entries"][0]["selected_rows"] == 2
 
 
 def test_apply_source_mix_config_supports_total_share_only_configs(tmp_path: Path) -> None:

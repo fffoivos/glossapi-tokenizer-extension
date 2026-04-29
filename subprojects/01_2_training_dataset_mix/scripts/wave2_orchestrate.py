@@ -48,6 +48,11 @@ PROJECT_ROOT = Path(os.environ.get(
 ))
 GLOSSAPI_WORK_ROOT = os.environ.get("GLOSSAPI_WORK_ROOT", "/home/foivos/data/glossapi_work")
 PYTHON = os.environ.get("PYTHON_BIN", sys.executable)
+APERTUS_BASE_VOCAB = 131072
+BASE_TOKENIZER_DIR = os.environ.get(
+    "APERTUS_BASE_TOKENIZER_DIR",
+    f"{GLOSSAPI_WORK_ROOT}/tokenizer_base_snapshots/apertus_8b_2509_20260415",
+)
 
 MIX_CONFIGS = {
     "glossapi_only": PROJECT_ROOT / "subprojects/01_2_training_dataset_mix/examples/glossapi_only_all_non_hplt.json",
@@ -85,13 +90,19 @@ def run_cmd(cmd: List[str], log_path: Path, env_extra: Optional[dict] = None) ->
     """Run a subprocess with output appended to log_path. Return exit code."""
     log_path.parent.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
+    # Make sure subprocesses can import `glossapi_corpus_cli` regardless of
+    # working directory — prepend the tokenizer-extension repo root to
+    # PYTHONPATH.
+    repo_root = str(PROJECT_ROOT)
+    existing_pp = env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = repo_root + (":" + existing_pp if existing_pp else "")
     if env_extra:
         env.update(env_extra)
     print(f"[{now_iso()}] cmd: {' '.join(str(c) for c in cmd)}", flush=True)
     with open(log_path, "ab") as fh:
         fh.write(f"\n[{now_iso()}] CMD: {' '.join(str(c) for c in cmd)}\n".encode("utf-8"))
         fh.flush()
-        proc = subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT, env=env)
+        proc = subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT, env=env, cwd=repo_root)
     return proc.returncode
 
 
@@ -113,6 +124,8 @@ def main() -> int:
     p.add_argument("--test-chars", type=int, default=None)
     p.add_argument("--seed-salt", default="wave2_20260426")
     p.add_argument("--max-workers", type=int, default=64)
+    p.add_argument("--row-group-size", type=int, default=2048,
+                   help="Rows per split-export parquet row group; smaller groups improve continuous-BPE parallelism.")
     args = p.parse_args()
 
     # Defaults for budget by mode.
@@ -159,39 +172,61 @@ def main() -> int:
         return run_cmd(cmd, log_dir / "dedup.log", env_extra={"GLOSSAPI_WORK_ROOT": GLOSSAPI_WORK_ROOT})
 
     def phase_dedup_export_metadata() -> int:
+        # The dedup CLI's export-builder-metadata writes the bundle into
+        # <run_root>/builder_metadata/. We mirror it (via symlink) at
+        # `dedup_metadata/` so the rest of the pipeline can consume it
+        # at a stable path, and we explicitly invoke the CLI to ensure
+        # the bundle is finalized.
         cmd = [
             PYTHON, "-m", "glossapi_corpus_cli.cli", "dedup-text", "export-builder-metadata",
+            "--state-root", str(state_root),
             "--run-root", str(dedup_run),
-            "--metadata-root", str(dedup_metadata),
         ]
-        return run_cmd(cmd, log_dir / "dedup_export.log", env_extra={"GLOSSAPI_WORK_ROOT": GLOSSAPI_WORK_ROOT})
+        rc = run_cmd(cmd, log_dir / "dedup_export.log", env_extra={"GLOSSAPI_WORK_ROOT": GLOSSAPI_WORK_ROOT})
+        if rc != 0:
+            return rc
+        bundle_src = dedup_run / "builder_metadata"
+        if not bundle_src.exists():
+            return 1
+        # Mirror at dedup_metadata/ for downstream mix: replace empty dir
+        # with a symlink (or copy if symlink not appropriate). Tolerate
+        # pre-existing equivalent symlink on resume.
+        if dedup_metadata.is_symlink() or dedup_metadata.exists():
+            try:
+                if dedup_metadata.is_symlink():
+                    if dedup_metadata.resolve() == bundle_src.resolve():
+                        return 0
+                    dedup_metadata.unlink()
+                elif dedup_metadata.is_dir() and not any(dedup_metadata.iterdir()):
+                    dedup_metadata.rmdir()
+            except OSError:
+                pass
+        dedup_metadata.symlink_to(bundle_src, target_is_directory=True)
+        return 0
 
-    def phase_mix_prepare() -> int:
-        """Materialize selected_input.parquet (filtered + dedup-applied)."""
-        cmd = [
-            PYTHON, "-m", "glossapi_corpus_cli.cli", "mix-prepare-selected-input",
-            "--output-root", str(input_root),
-            "--selected-input-path", str(shared / "selected_input.parquet"),
-        ]
-        if args.skip_dedup:
-            cmd += ["--dedup-action", "ignore"]
-        else:
-            cmd += [
-                "--dedup-metadata-root", str(dedup_metadata),
-                "--dedup-action", "drop_intra_and_inter",
-            ]
-        return run_cmd(cmd, log_dir / "mix_prepare.log", env_extra={"GLOSSAPI_WORK_ROOT": GLOSSAPI_WORK_ROOT})
-
-    def phase_mix_build(mix_name: str) -> Callable[[], int]:
+    def phase_mix(mix_name: str) -> Callable[[], int]:
+        """Single-step `mix` command — does filter + dedup-apply + per-config
+        output in one shot. The split into mix-prepare-selected-input +
+        mix-build-from-selected-input lives only on local working trees
+        (not in the codex branch); use the committed `mix` until that
+        landing actually merges."""
         cfg = MIX_CONFIGS[mix_name]
         def _go() -> int:
             cmd = [
-                PYTHON, "-m", "glossapi_corpus_cli.cli", "mix-build-from-selected-input",
-                "--selected-input-path", str(shared / "selected_input.parquet"),
+                PYTHON, "-m", "glossapi_corpus_cli.cli", "mix",
+                "--output-root", str(input_root),
                 "--mix-output-path", str(mixes_root / mix_name / "mix.parquet"),
                 "--source-mix-config-path", str(cfg),
             ]
-            return run_cmd(cmd, log_dir / f"mix_build_{mix_name}.log", env_extra={"GLOSSAPI_WORK_ROOT": GLOSSAPI_WORK_ROOT})
+            if args.skip_dedup:
+                cmd += ["--dedup-action", "ignore"]
+            else:
+                cmd += [
+                    "--dedup-metadata-root", str(dedup_metadata),
+                    "--dedup-action", "drop_intra_and_inter",
+                ]
+            return run_cmd(cmd, log_dir / f"mix_{mix_name}.log",
+                           env_extra={"GLOSSAPI_WORK_ROOT": GLOSSAPI_WORK_ROOT})
         return _go
 
     def phase_export_splits(mix_name: str) -> Callable[[], int]:
@@ -207,6 +242,7 @@ def main() -> int:
                 "--train-chars", str(args.train_chars),
                 "--val-chars", str(args.val_chars),
                 "--test-chars", str(args.test_chars),
+                "--row-group-size", str(args.row_group_size),
                 "--seed-salt", args.seed_salt + "_" + mix_name,
             ]
             return run_cmd(cmd, log_dir / f"export_splits_{mix_name}.log",
@@ -237,12 +273,16 @@ def main() -> int:
             arm_name = "C1_glossapi_only" if mix_name == "glossapi_only" else "C2_glossapi_plus_hplt_70_30"
             export_train = splits_root / mix_name / "exports" / "train.parquet"
             out_dir = tokenizers_root / arm_name
+            target_vocab_size = APERTUS_BASE_VOCAB + int(args.target_extension_units)
             cmd = [
                 PYTHON,
                 str(PROJECT_ROOT / "subprojects/02_1_tokenizer_experiments/scripts/train_continuous_bpe_tokenizer.py"),
+                "--base-tokenizer-dir", BASE_TOKENIZER_DIR,
                 "--input-glob", str(export_train),
                 "--output-dir", str(out_dir),
-                "--target-extension-units", str(args.target_extension_units),
+                "--target-vocab-size", str(target_vocab_size),
+                "--num-workers", str(args.max_workers),
+                "--row-group-chunk-size", "1",
                 "--name", arm_name,
             ]
             return run_cmd(cmd, log_dir / f"train_{arm_name}.log",
@@ -278,15 +318,13 @@ def main() -> int:
     dedup_marker = dedup_run / "progress" / "_dedup_complete.marker"
     if not args.skip_dedup:
         phases.append(Phase("dedup", dedup_marker, lambda: _wrap_dedup(phase_dedup, dedup_marker)))
-        phases.append(Phase("dedup_export", dedup_metadata / "latest.json", phase_dedup_export_metadata))
-
-    phases.append(Phase("mix_prepare", shared / "selected_input.parquet", phase_mix_prepare))
+        phases.append(Phase("dedup_export", dedup_metadata / "manifest.json", phase_dedup_export_metadata))
 
     for mix_name in MIX_CONFIGS:
         phases.append(Phase(
-            f"mix_build_{mix_name}",
+            f"mix_{mix_name}",
             mixes_root / mix_name / "mix.parquet",
-            phase_mix_build(mix_name),
+            phase_mix(mix_name),
         ))
         phases.append(Phase(
             f"export_splits_{mix_name}",
@@ -307,12 +345,12 @@ def main() -> int:
     ))
     phases.append(Phase(
         "train_C1_glossapi_only",
-        tokenizers_root / "C1_glossapi_only" / "tokenizer.json",
+        tokenizers_root / "C1_glossapi_only" / "tokenizer" / "tokenizer.json",
         phase_train_continuous("glossapi_only"),
     ))
     phases.append(Phase(
         "train_C2_glossapi_plus_hplt",
-        tokenizers_root / "C2_glossapi_plus_hplt_70_30" / "tokenizer.json",
+        tokenizers_root / "C2_glossapi_plus_hplt_70_30" / "tokenizer" / "tokenizer.json",
         phase_train_continuous("glossapi_plus_hplt_70_30"),
     ))
     phases.append(Phase("done", run_root / "all_done.json", phase_done))

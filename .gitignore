@@ -11,6 +11,13 @@ __pycache__/
 artifacts/
 outputs/
 tmp/
+**/target/
+subprojects/**/runs/
+subprojects/01_0_cleaning_iteration_and_thresholds/rust/glyphscan/
+corpus_clean_normalization/runs/
+tokenizer_analysis/inspection/
+tokenizer_analysis/hf_snapshots/
+tokenizer_analysis/__pycache__/
 
 *.log
 *.jsonl
@@ -23,3 +30,4 @@ tmp/
 *.pem
 *.key
 
+CLAUDE.md

@@ -3943,9 +3943,14 @@ def _run_exact_stage_core(
                 },
             )
             return existing_summary
-    append_debug_trace(trace_path, "exact_stage:run_docs_inventory:start")
-    inventory_rows = write_run_docs_inventory(conn, run_id=run_id, path=run_docs_inventory_path(run_root))
-    append_debug_trace(trace_path, f"exact_stage:run_docs_inventory:done rows={inventory_rows}")
+    inventory_path_obj = run_docs_inventory_path(run_root)
+    if inventory_path_obj.exists() and inventory_path_obj.stat().st_size > 0:
+        append_debug_trace(trace_path, "exact_stage:run_docs_inventory:reuse")
+        inventory_rows = int(pq.read_metadata(inventory_path_obj).num_rows)
+    else:
+        append_debug_trace(trace_path, "exact_stage:run_docs_inventory:start")
+        inventory_rows = write_run_docs_inventory(conn, run_id=run_id, path=inventory_path_obj)
+        append_debug_trace(trace_path, f"exact_stage:run_docs_inventory:done rows={inventory_rows}")
     append_debug_trace(trace_path, "exact_stage:strict:start")
     strict_summary = build_stage_results(
         conn,

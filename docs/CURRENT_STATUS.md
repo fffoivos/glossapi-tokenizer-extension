@@ -3,9 +3,10 @@
 ## Active Phase
 
 Parallel execution:
-- repo-backed `stage_02_near` continuation on the active GCP worker
+- live post-dedup downstream continuation on the active GCP worker
+- bounded worker-side true E2E verification of the repo-owned downstream chain
 - temporary source-only HF upload fallback from the same worker while the cheap uploader host is unreachable
-- downstream builder/tokenizer contract and efficiency hardening in the canonical repo
+- downstream builder/tokenizer contract, efficiency, and observability hardening in the canonical repo
 
 ## What Is Settled
 
@@ -54,19 +55,19 @@ Parallel execution:
 - the active GCP tokenizer worker has been rearmed from the repo tree at:
   - `/home/foivos/Projects/glossapi-tokenizer-extension`
 - the repo-backed worker chain currently includes:
-  - dedup resume
   - dedup overlay watcher
   - mix watcher
   - training watcher
   - uploader handoff prep watcher
   - uploader launch watcher
-- the current live dedup run has already cleared the exact-stage bottleneck:
-  - exact finalization is parquet-backed and completed
-  - the active bottleneck is now `stage_02_near` candidate generation
-- the current live near-candidate run is no longer in the old “`0 / 32` and rising to OOM” state:
-  - the stage now checkpoints `band + prefix` chunks
-  - the live worker has already advanced past the first completed chunk on the preserved run
-  - current evidence points to bounded memory rather than linear growth through chunk rollover
+- dedup is now finished on the active worker chain:
+  - final dedup outputs exist under `/home/foivos/data/glossapi_work/analysis/dedup/text_publish/runs/exact_stage_20260413T025237Z/final`
+  - builder metadata bundle exists under `/home/foivos/data/glossapi_work/analysis/dedup/text_publish/runs/exact_stage_20260413T025237Z/builder_metadata`
+- the live full-size downstream chain is no longer blocked by a dead overlay path:
+  - overlay publish completed into `/home/foivos/data/glossapi_work/hf_release_publish_working/dedup_metadata/latest.json`
+  - uploader handoff prep completed into `/home/foivos/data/glossapi_work/uploader_handoff_20260414`
+  - uploader-ready local stage completed with `/home/foivos/data/glossapi_work/uploader_handoff_20260414/launch_summary.json`
+  - the active remaining bottleneck is tokenizer mix build under `/home/foivos/data/glossapi_work/tokenizer_mixes_20260413`
 - the recovery and repair plans are now tracked explicitly in:
   - [PIPELINE_RECOVERY_AND_SCALE_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_RECOVERY_AND_SCALE_PLAN.md)
   - [DEDUP_SCRIPT_REPAIR_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)
@@ -111,6 +112,21 @@ Parallel execution:
   - `near_candidate_pairs.parquet` is still intentionally retained as an evidence/audit artifact in the exported bundle
 - the downstream builder/tokenizer efficiency plan is now tracked explicitly in:
   - [BUILDER_TOKENIZER_EFFICIENCY_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/BUILDER_TOKENIZER_EFFICIENCY_PLAN.md)
+- the explicit recovery plan for validating the real worker-side chain after dedup is now tracked in:
+  - [PIPELINE_E2E_VERIFICATION_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_VERIFICATION_PLAN.md)
+  - [PIPELINE_E2E_VERIFICATION_TODO.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_VERIFICATION_TODO.md)
+  - [PIPELINE_E2E_STAGE_CHAIN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_STAGE_CHAIN.md)
+  - [PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md)
+  - [PIPELINE_STAGE_PARALLELISM_REVIEW_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_STAGE_PARALLELISM_REVIEW_20260415.md)
+  - [PIPELINE_STAGE_PROGRESS_REVIEW_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_STAGE_PROGRESS_REVIEW_20260415.md)
+- the repo-owned downstream chain has now been truly exercised on the worker through tokenizer training completion on a bounded real-doc smoke run:
+  - smoke root:
+    - `/home/foivos/data/glossapi_work/smoke_runs/e2e_verify_20260415T085623Z`
+  - report:
+    - [PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md)
+- the remaining downstream audit result is now explicit:
+  - mix build is the main serial throughput bottleneck
+  - tokenizer training is the main progress-transparency gap
 
 ## What Is Not Done Yet
 
@@ -125,9 +141,11 @@ Parallel execution:
 - no model adaptation plan beyond high-level constraints
 - no live armed cheap-instance uploader service yet for publishing the full updated dataset snapshot plus refreshed dedup metadata
 - no completed worker-side source-only HF upload run yet for the corrected HPLT/source snapshot
-- no finalized post-restart progress report for the repo-backed near-dedup continuation yet
-- no final measurement yet for the new prefix-chunk near-candidate design on the worker
-- no individual bucket-shard authoritative resume boundary yet
+- no frozen production answer yet for whether the full-size live training launcher should stay inline or return to the canonical dual-service path
+- no downstream per-stage structured progress JSON or trace contracts yet for:
+  - mix build
+  - tokenizer training
+  - uploader local stage / launch
 
 ## Current Trust Boundary
 

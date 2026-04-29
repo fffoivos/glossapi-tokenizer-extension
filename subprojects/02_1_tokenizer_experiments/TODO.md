@@ -1,5 +1,9 @@
 # TODO
 
+- follow the numbered execution plan in:
+  - `CONTINUOUS_BPE_EXTENSION_PLAN.md`
+  - `CONTINUOUS_BPE_EXTENSION_TODO.md`
+
 - run the four-arm comparison with the fixed intrinsic metric bundle:
   - `bytes_per_token`
   - `tokens_per_byte`

@@ -262,3 +262,130 @@ The repair is good enough only if all of these are true:
 6. Tiny real-doc smoke still passes.
 7. Medium-scale smoke completes in a sane time.
 8. Downstream overlay, mix build, and training still accept the outputs without contract changes.
+
+## Wave-2 empirical findings (2026-04-26 → 2026-04-27, 49.3M docs)
+
+Concrete per-call-site notes from the wave-2 production run, including
+where parallelism actually broke and what fixed (or could fix) it. All
+line numbers reference `glossapi_corpus_cli/text_dedup.py` at commit
+state of `cleanup/cleaner-pipeline-20260425`.
+
+### Single-threaded paths confirmed pathological at 49M scale
+
+1. **`build_stage_results` strict + relaxed exact rebuild** (line 2243-2415)
+   - Outer Python loop reads `iter_exact_stage_rows` ordered by
+     `exact_strict_hash` (or relaxed) for partitions=1 (strict) /
+     partitions=256 (relaxed), accumulates a `current_group` list,
+     calls `flush_group` per hash boundary. DuckDB threads=8 inside
+     `iter_exact_stage_rows` only.
+   - **Observed cost.** Killed strict at ~2h with 38 GB membership
+     parquet half-written; projected total 4-8h serial.
+   - **Wave-2 workaround.** `subprojects/01_1_corpus_dedup/scripts/parallel_exact_stages.py`
+     pre-builds the 6 parquet files (strict_exact_{memberships,groups,
+     drop_list}, relaxed_exact_{memberships,groups,drop_list}) in
+     **32 seconds total** using DuckDB at 64 threads with
+     `arg_min(doc_key, prio_struct)` and an inline priority STRUCT
+     mirroring `selection_priority_tuple`. Then `build_stage_results`
+     hits the `{stage}:reuse_existing_parquet` fast-path at line 2262-2269.
+   - **Library-side repair.** Replace the inner Python group-by with
+     a single DuckDB query per stage. Drop `partitions=1` for strict
+     entirely. The script already proves the semantics match.
+
+2. **`write_run_docs_inventory`** (line 1769)
+   - SQLite stream → parquet, single-threaded.
+   - **Observed cost.** 24 min for 49.3M rows.
+   - **Wave-2 workaround.** Patched line 3946-3953 to skip
+     regeneration if `run_docs_inventory.parquet` already exists +
+     non-empty (uses `pq.read_metadata().num_rows` for the row count
+     it would have returned).
+   - **Library-side repair.** Same skip-if-exists guard, OR use
+     DuckDB attached to sqlite to parallelize the SELECT *.
+
+3. **`write_snapshot_manifest`** (line 2418-2440)
+   - SQLite SELECT * stream → parquet, single thread.
+   - **Observed cost.** 10 min for 49.3M rows, 9.13 GB output.
+   - **Library-side repair.** Materialize directly from
+     `run_docs_inventory.parquet` via DuckDB (the inventory has the
+     same superset of fields). No need to round-trip through sqlite.
+
+4. **`write_docs_exact_export`** (line 2442+)
+   - Internal DuckDB query at 64 threads, but the consumer side
+     `fetch_record_batch(rows_per_batch=2048)` → `ParquetWriter.write_table`
+     is single-threaded.
+   - **Observed cost.** 3:45 min (relatively fast because in-memory
+     DuckDB held the whole join result before flushing). Output
+     22.97 GB.
+   - **Library-side repair.** Have DuckDB write the parquet
+     directly with `COPY TO 'docs_exact.parquet' (FORMAT parquet, …)`
+     instead of streaming through Python.
+
+5. **`_run_near_cluster_stage` SQLite insertion loop** (lines 6236-6280)
+   - **The single biggest pathology this run.** After `near_clusters.parquet`
+     and `cluster_summary.parquet` are written, the code re-reads
+     `near_clusters.parquet` row-by-row and `INSERT`s every row
+     (~40M, including singleton rows) into `run_near_results` with
+     `conn.commit()` per batch. SQLite WAL fsyncs serialize.
+   - **Observed cost.** ~1.5+ hours single-threaded. State.sqlite
+     grew from 71 GB to 89 GB. write_bytes on the proc grew at
+     10.8 GB/min (mostly WAL churn).
+   - **Use of run_near_results.** Only consumed at line 7271 for a
+     `COUNT(*)` and `SUM(dropped)` summary stat — pure cosmetic.
+   - **Library-side repair.** Drop the per-row INSERT entirely.
+     Replace the summary at line 7271 with `SELECT COUNT(*),
+     SUM(dropped) FROM read_parquet('near_clusters.parquet')` via
+     duckdb. Saves ~1-2 hours of single-threaded work on every
+     49M-doc dedup run.
+
+6. **`_build_final_exports`** (line 6410+)
+   - Same anti-pattern as `write_docs_exact_export`: DuckDB query
+     internal-parallel, single-thread parquet writer downstream.
+   - **Observed cost.** Currently in flight; expected 10-30 min.
+   - **Library-side repair.** Same — use `COPY (... ) TO ... (FORMAT
+     parquet)` instead of fetch-record-batch.
+
+### Parallel-but-undersized
+
+7. **`_run_near_cluster_stage` chunk resolution** uses
+   `cluster_worker_count` (default 8) — see line 6092 trace. The
+   `--max-workers 64` flag does not propagate. For 12,619 chunks at
+   8 workers it took ~6 min, so not load-bearing today, but worth
+   raising the default cap or honoring `--max-workers`.
+
+### Storage architecture issues
+
+8. **Per-shard + consolidated double storage** in Stage 2.
+   `combine_parquet_files` writes the consolidated `signatures.parquet`
+   (59 GB) and `lsh_buckets.parquet` (117 GB) but leaves the
+   per-shard `shards/signatures/` (65 GB) and `shards/lsh_buckets/`
+   (225 GB) on disk. **Cost.** 290 GB of redundant intermediate.
+   - **Repair.** After `combine_parquet_files` succeeds, delete the
+     source shard dirs. Add a `--keep-shards` flag for debugging.
+
+9. **`exact_survivor` shards never cleaned up** after near_signatures
+   consumed them. 199 GB of stage_01 survivor shards persisted
+   through Stage 2 into final_export.
+   - **Repair.** Delete `stage_01_exact/shards/exact_survivors/` at
+     end of `_run_near_signature_stage` (or guard with --keep-shards).
+
+10. **No disk preflight.** A 49M-doc dedup run requires ≥1 TB of
+    intermediate + state. The CLI doesn't check `df` upfront, so the
+    run died with `OSError errno 28` 6h into Stage 2 with no
+    actionable warning.
+    - **Repair.** At `_run_near_signature_stage` start, estimate
+      `lsh_bucket_rows ≈ rows × bands × 1.5` and required disk; bail
+      with a clear "needs N GB more, free up or attach more disk"
+      message if not satisfied.
+
+### Order of repairs by ROI
+
+For the next dedup library iteration, attack in this order:
+
+1. Drop the `run_near_results` per-row INSERT loop (saves 1-2 hr per run).
+2. Replace strict/relaxed `build_stage_results` with the
+   parallel_exact_stages.py DuckDB approach (saves 4-8 hr per run).
+3. Skip-if-exists guards for inventory + snapshot_manifest (saves 30+ min on every resume).
+4. Auto-cleanup of consolidated stages' per-shard intermediates
+   (saves 200-300 GB disk, prevents disk-full crash).
+5. Use `COPY TO parquet` directly instead of fetch_record_batch +
+   ParquetWriter for docs_exact and final_exports (saves several min each).
+6. Disk preflight at Stage 2 start.
