@@ -1,0 +1,71 @@
+{
+  "canonical_key": "eng_Latn_fineweb_hq",
+  "lang_code": "en",
+  "lang_bit": 0,
+  "n_lang_bits": 60,
+  "total_sample": 1007476136,
+  "tier_breakdown": {
+    "T0": {
+      "tokens": 0,
+      "mass": 0,
+      "mass_pct": 0.0
+    },
+    "T2": {
+      "tokens": 76593,
+      "mass": 822677646,
+      "mass_pct": 81.65728364210108
+    },
+    "T3": {
+      "tokens": 2582,
+      "mass": 182041455,
+      "mass_pct": 18.06905875932331
+    },
+    "T4": {
+      "tokens": 35904,
+      "mass": 1982052,
+      "mass_pct": 0.19673438696715692
+    },
+    "T5": {
+      "tokens": 1131,
+      "mass": 774983,
+      "mass_pct": 0.07692321160845839
+    }
+  },
+  "modes": [
+    {
+      "mode": "strict",
+      "tiers": [
+        "T0"
+      ],
+      "tokens": 0,
+      "mass": 0,
+      "mass_pct": 0.0,
+      "out_jsonl": "en/eng_Latn_fineweb_hq__strict.jsonl"
+    },
+    {
+      "mode": "premise",
+      "tiers": [
+        "T0",
+        "T2"
+      ],
+      "tokens": 76593,
+      "mass": 822677646,
+      "mass_pct": 81.65728364210108,
+      "out_jsonl": "en/eng_Latn_fineweb_hq__premise.jsonl"
+    },
+    {
+      "mode": "premise_sub",
+      "tiers": [
+        "T0",
+        "T2",
+        "T3"
+      ],
+      "tokens": 79175,
+      "mass": 1004719101,
+      "mass_pct": 99.72634240142439,
+      "out_jsonl": "en/eng_Latn_fineweb_hq__premise_sub.jsonl"
+    }
+  ],
+  "premise_text": "In the eng_Latn_fineweb_hq dataset, tokens whose chars are all en-admissible (bitmask_and has bit 0) default to en under the 'premise' mode. T0 is char-evidenced (no premise needed). T3 is substrate (universal). The 'premise_sub' mode adds T3 to capture full corpus infrastructure.",
+  "char_membership_schema_version": 4
+}

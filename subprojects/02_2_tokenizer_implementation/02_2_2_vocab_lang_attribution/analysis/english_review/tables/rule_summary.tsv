@@ -1,0 +1,6 @@
+name	predicate	vocab_size	fired	mass_pct
+English MAXIMAL	bit 0 set in bitmask_and	82243	77014	99.51267315928092
+English DISTINCTIVE (no substrate)	bit 0 set AND popcount < 55	78226	74308	75.0672363722972
+English pure-pan-Latin	bit 0 set AND popcount == 28	72188	68665	69.06794097080092
+English near-pan-Latin	bit 0 set AND popcount in {27, 28}	78226	74308	75.0672363722972
+script-flag-only (has_latin)	any Latin codepoint in decoded	89313	83317	75.41748315793507

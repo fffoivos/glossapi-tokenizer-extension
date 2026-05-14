@@ -1,0 +1,7 @@
+tier	tokens	mass	mass_pct	description
+T0_definitely_de	103	4963019	0.493446432081971	char-evidenced (bitmask_and == {de} only)
+T1_definitely_germanic_latn	0	0	0.0	char-evidenced family (family_and == {Germanic-Latn} only) — premise picks de over en/nl/da/nb/sv/is
+T2_premise_de	77645	845472197	84.06077813406624	premise (bitmask_and has de-bit; chars also admit other locales)
+T3_substrate	2843	153498172	15.261502183349428	substrate (every in-scope locale admits all chars)
+T4_excluded	31824	1342567	0.13348425544633125	char evidence rules de out (token has a non-de-admissible char)
+T5_unknown	1026	510829	0.05078899505603367	char tool cannot evaluate (partial_utf8 / byte_unmapped / special)

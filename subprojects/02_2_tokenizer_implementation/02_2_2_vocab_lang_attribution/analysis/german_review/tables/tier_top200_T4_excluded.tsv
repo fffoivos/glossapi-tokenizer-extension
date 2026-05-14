@@ -1,0 +1,201 @@
+rank	token_id	decoded	count	mass_pct	basis	popcount
+1	1337	'é'	29026	0.0029	non_de_latin_char	13
+2	13566	'Г'	9790	0.0010	foreign_script	5
+3	1755	' à'	9567	0.0010	non_de_latin_char	7
+4	113972	'Ă'	9205	0.0009	non_de_latin_char	2
+5	1924	'és'	8887	0.0009	non_de_latin_char	13
+6	1502	'á'	8046	0.0008	non_de_latin_char	8
+7	1529	'í'	7242	0.0007	non_de_latin_char	9
+8	2720	'â'	7122	0.0007	non_de_latin_char	4
+9	2439	'の'	7046	0.0007	foreign_script	1
+10	4547	'ā'	6762	0.0007	non_de_latin_char	1
+11	82803	'Ã'	6697	0.0007	non_de_latin_char	2
+12	2267	'ée'	6620	0.0007	non_de_latin_char	13
+13	1506	'ó'	6363	0.0006	non_de_latin_char	11
+14	16096	'ō'	6137	0.0006	no_in_scope_locale_admits	0
+15	2855	'án'	5760	0.0006	non_de_latin_char	8
+16	81613	' Café'	5565	0.0006	non_de_latin_char	13
+17	4187	'を'	5369	0.0005	foreign_script	1
+18	96897	'Â'	5210	0.0005	non_de_latin_char	4
+19	11333	' José'	5101	0.0005	non_de_latin_char	13
+20	1921	'à'	4441	0.0004	non_de_latin_char	7
+21	2739	'َ'	4228	0.0004	foreign_script	1
+22	3975	'ón'	3789	0.0004	non_de_latin_char	11
+23	24577	' André'	3723	0.0004	non_de_latin_char	13
+24	4093	'ø'	3710	0.0004	non_de_latin_char	2
+25	2747	'én'	3695	0.0004	non_de_latin_char	13
+26	2713	'的'	3587	0.0004	foreign_script	3
+27	2650	'に'	3584	0.0004	foreign_script	1
+28	4715	'î'	3567	0.0004	non_de_latin_char	2
+29	2381	'š'	3521	0.0004	non_de_latin_char	9
+30	7701	'ī'	3425	0.0003	non_de_latin_char	1
+31	1754	'è'	3384	0.0003	non_de_latin_char	4
+32	4385	'ِ'	3368	0.0003	foreign_script	1
+33	77834	' Pokémon'	3257	0.0003	non_de_latin_char	13
+34	2514	'č'	3253	0.0003	non_de_latin_char	7
+35	5509	'ín'	3224	0.0003	non_de_latin_char	9
+36	15357	' â'	3200	0.0003	non_de_latin_char	4
+37	2631	'ë'	3190	0.0003	non_de_latin_char	2
+38	3291	'ité'	3125	0.0003	non_de_latin_char	13
+39	2411	'ú'	3096	0.0003	non_de_latin_char	9
+40	20118	' François'	3047	0.0003	non_de_latin_char	5
+41	1940	'ç'	3000	0.0003	non_de_latin_char	5
+42	7884	'ï'	2916	0.0003	non_de_latin_char	3
+43	2624	'ñ'	2853	0.0003	non_de_latin_char	1
+44	34772	' René'	2844	0.0003	non_de_latin_char	13
+45	2114	'ê'	2838	0.0003	non_de_latin_char	3
+46	2803	'å'	2790	0.0003	non_de_latin_char	4
+47	2600	'ş'	2776	0.0003	non_de_latin_char	2
+48	10095	'ū'	2707	0.0003	non_de_latin_char	2
+49	19288	' São'	2669	0.0003	non_de_latin_char	2
+50	9267	'ð'	2653	0.0003	non_de_latin_char	1
+51	3269	'ès'	2641	0.0003	non_de_latin_char	4
+52	2312	'は'	2561	0.0003	foreign_script	1
+53	2894	'ère'	2427	0.0002	non_de_latin_char	4
+54	2353	'ía'	2407	0.0002	non_de_latin_char	9
+55	2322	'ér'	2401	0.0002	non_de_latin_char	13
+56	7213	'ْ'	2398	0.0002	foreign_script	1
+57	3723	'ć'	2341	0.0002	non_de_latin_char	4
+58	16930	'ľ'	2320	0.0002	non_de_latin_char	1
+59	3322	'が'	2318	0.0002	foreign_script	1
+60	3422	'ò'	2285	0.0002	non_de_latin_char	5
+61	3242	' α'	2269	0.0002	foreign_script	2
+62	3404	'ُ'	2244	0.0002	foreign_script	1
+63	5892	'æ'	2160	0.0002	non_de_latin_char	4
+64	2797	'ô'	2157	0.0002	non_de_latin_char	5
+65	6344	'û'	2118	0.0002	non_de_latin_char	1
+66	6072	'ière'	2103	0.0002	non_de_latin_char	4
+67	1334	'е'	2079	0.0002	foreign_script	5
+68	13192	' Š'	2051	0.0002	non_de_latin_char	9
+69	1668	' в'	2048	0.0002	foreign_script	5
+70	6041	'ème'	2041	0.0002	non_de_latin_char	4
+71	5467	'β'	1948	0.0002	foreign_script	2
+72	3716	'ém'	1928	0.0002	non_de_latin_char	13
+73	2546	'ž'	1874	0.0002	non_de_latin_char	9
+74	11324	'َّ'	1836	0.0002	foreign_script	1
+75	1756	' и'	1829	0.0002	foreign_script	5
+76	7904	'É'	1820	0.0002	non_de_latin_char	13
+77	8850	' β'	1804	0.0002	foreign_script	2
+78	2705	'ás'	1790	0.0002	non_de_latin_char	8
+79	4664	' É'	1767	0.0002	non_de_latin_char	13
+80	5728	'ár'	1756	0.0002	non_de_latin_char	8
+81	3462	'ées'	1716	0.0002	non_de_latin_char	13
+82	11780	'する'	1713	0.0002	foreign_script	1
+83	16794	'ová'	1690	0.0002	non_de_latin_char	8
+84	2244	'ão'	1674	0.0002	non_de_latin_char	2
+85	98763	' Chávez'	1667	0.0002	non_de_latin_char	8
+86	4759	'él'	1661	0.0002	non_de_latin_char	13
+87	3062	'ý'	1633	0.0002	non_de_latin_char	4
+88	2201	'ł'	1542	0.0002	non_de_latin_char	1
+89	2458	'ă'	1515	0.0002	non_de_latin_char	2
+90	5513	'ça'	1514	0.0002	non_de_latin_char	5
+91	69610	'ğan'	1512	0.0002	non_de_latin_char	2
+92	1713	'α'	1499	0.0001	foreign_script	2
+93	8475	'ák'	1489	0.0001	non_de_latin_char	8
+94	20512	'ović'	1489	0.0001	non_de_latin_char	4
+95	13677	' Č'	1482	0.0001	non_de_latin_char	7
+96	22652	' Dé'	1482	0.0001	non_de_latin_char	13
+97	16560	'ます'	1477	0.0001	foreign_script	1
+98	18806	' María'	1472	0.0001	non_de_latin_char	9
+99	2701	'で'	1468	0.0001	foreign_script	1
+100	19001	'lé'	1462	0.0001	non_de_latin_char	13
+101	1538	'д'	1459	0.0001	foreign_script	5
+102	2748	'ét'	1454	0.0001	non_de_latin_char	13
+103	56150	' Château'	1441	0.0001	non_de_latin_char	4
+104	26921	' García'	1416	0.0001	non_de_latin_char	9
+105	10049	'ène'	1415	0.0001	non_de_latin_char	4
+106	13557	'éra'	1404	0.0001	non_de_latin_char	13
+107	7467	'ña'	1402	0.0001	non_de_latin_char	1
+108	4711	'ア'	1391	0.0001	foreign_script	1
+109	2761	'ación'	1385	0.0001	non_de_latin_char	11
+110	4052	'éd'	1380	0.0001	non_de_latin_char	13
+111	30723	' López'	1372	0.0001	non_de_latin_char	11
+112	5910	'ño'	1359	0.0001	non_de_latin_char	1
+113	21493	'ël'	1351	0.0001	non_de_latin_char	2
+114	15904	' Ç'	1348	0.0001	non_de_latin_char	5
+115	3595	'ğ'	1339	0.0001	non_de_latin_char	2
+116	4785	'ì'	1313	0.0001	non_de_latin_char	2
+117	4210	'ég'	1296	0.0001	non_de_latin_char	13
+118	43448	'します'	1284	0.0001	foreign_script	1
+119	1838	'ν'	1278	0.0001	foreign_script	2
+120	8243	'ré'	1261	0.0001	non_de_latin_char	13
+121	1780	'ı'	1256	0.0001	non_de_latin_char	2
+122	7546	'ères'	1217	0.0001	non_de_latin_char	4
+123	2407	'と'	1212	0.0001	foreign_script	1
+124	4624	'ál'	1210	0.0001	non_de_latin_char	8
+125	36810	' Sánchez'	1206	0.0001	non_de_latin_char	8
+126	9498	' Á'	1184	0.0001	non_de_latin_char	8
+127	5013	'して'	1179	0.0001	foreign_script	1
+128	2492	'ј'	1178	0.0001	foreign_script	2
+129	34394	' Québec'	1177	0.0001	non_de_latin_char	13
+130	1902	' на'	1171	0.0001	foreign_script	5
+131	80800	' Côte'	1171	0.0001	non_de_latin_char	5
+132	61411	'éry'	1155	0.0001	non_de_latin_char	13
+133	26884	' Ž'	1142	0.0001	non_de_latin_char	9
+134	33358	' Pérez'	1130	0.0001	non_de_latin_char	13
+135	25064	' وَ'	1125	0.0001	foreign_script	1
+136	21059	' Ré'	1111	0.0001	non_de_latin_char	13
+137	6474	'ė'	1085	0.0001	non_de_latin_char	1
+138	75033	' Cé'	1083	0.0001	non_de_latin_char	13
+139	17992	' Ş'	1075	0.0001	non_de_latin_char	2
+140	28086	' Å'	1070	0.0001	non_de_latin_char	4
+141	48721	' Musée'	1070	0.0001	non_de_latin_char	13
+142	8547	'ē'	1046	0.0001	non_de_latin_char	1
+143	34093	'ński'	1039	0.0001	non_de_latin_char	1
+144	4923	' Г'	1038	0.0001	foreign_script	5
+145	48532	' Ø'	1035	0.0001	non_de_latin_char	2
+146	4833	'ów'	1034	0.0001	non_de_latin_char	11
+147	4141	'éc'	1023	0.0001	non_de_latin_char	13
+148	44261	' Lé'	1015	0.0001	non_de_latin_char	13
+149	4847	' è'	1005	0.0001	non_de_latin_char	4
+150	31896	' González'	986	0.0001	non_de_latin_char	8
+151	3938	'ス'	985	0.0001	foreign_script	1
+152	2930	'ě'	983	0.0001	non_de_latin_char	1
+153	4799	'リ'	980	0.0001	foreign_script	1
+154	1712	'ь'	979	0.0001	foreign_script	3
+155	5012	'ân'	977	0.0001	non_de_latin_char	4
+156	2768	'な'	964	0.0001	foreign_script	1
+157	1570	'я'	962	0.0001	foreign_script	3
+158	2113	'ã'	960	0.0001	non_de_latin_char	2
+159	48202	'ğlu'	941	0.0001	non_de_latin_char	2
+160	41164	' Français'	932	0.0001	non_de_latin_char	5
+161	2463	'ка'	922	0.0001	foreign_script	5
+162	4324	' á'	911	0.0001	non_de_latin_char	8
+163	33198	' Rodríguez'	911	0.0001	non_de_latin_char	9
+164	54899	' Frédéric'	905	0.0001	non_de_latin_char	13
+165	34981	' Fernández'	904	0.0001	non_de_latin_char	8
+166	92743	' Málaga'	904	0.0001	non_de_latin_char	8
+167	42069	' Río'	896	0.0001	non_de_latin_char	9
+168	3735	' μ'	893	0.0001	foreign_script	2
+169	2998	'在'	892	0.0001	foreign_script	3
+170	9389	'ós'	886	0.0001	non_de_latin_char	11
+171	2162	'ς'	884	0.0001	foreign_script	2
+172	5111	'С'	870	0.0001	foreign_script	5
+173	1614	' с'	869	0.0001	foreign_script	5
+174	97238	'ān'	854	0.0001	non_de_latin_char	1
+175	36397	'iqué'	850	0.0001	non_de_latin_char	13
+176	54794	' Gérard'	850	0.0001	non_de_latin_char	13
+177	10085	'év'	843	0.0001	non_de_latin_char	13
+178	37396	' Bé'	840	0.0001	non_de_latin_char	13
+179	49507	' Andrés'	837	0.0001	non_de_latin_char	13
+180	1315	'а'	828	0.0001	foreign_script	5
+181	3903	'ın'	821	0.0001	non_de_latin_char	2
+182	1753	'і'	820	0.0001	foreign_script	1
+183	55481	'ács'	819	0.0001	non_de_latin_char	8
+184	60297	'Ç'	819	0.0001	non_de_latin_char	5
+185	97014	'ּ'	819	0.0001	foreign_script	1
+186	61230	' Nicolás'	814	0.0001	non_de_latin_char	8
+187	2393	'い'	810	0.0001	foreign_script	1
+188	5804	'ís'	808	0.0001	non_de_latin_char	9
+189	7464	'ún'	806	0.0001	non_de_latin_char	9
+190	9051	'ør'	804	0.0001	non_de_latin_char	2
+191	2843	' не'	802	0.0001	foreign_script	5
+192	36952	'ík'	790	0.0001	non_de_latin_char	9
+193	25326	'َا'	788	0.0001	foreign_script	1
+194	7792	'ità'	786	0.0001	non_de_latin_char	7
+195	104880	'ָ'	785	0.0001	foreign_script	1
+196	3405	'人'	780	0.0001	foreign_script	3
+197	5862	'成'	780	0.0001	foreign_script	3
+198	6912	'タ'	777	0.0001	foreign_script	1
+199	3774	'ù'	776	0.0001	non_de_latin_char	3
+200	15987	'サ'	766	0.0001	foreign_script	1

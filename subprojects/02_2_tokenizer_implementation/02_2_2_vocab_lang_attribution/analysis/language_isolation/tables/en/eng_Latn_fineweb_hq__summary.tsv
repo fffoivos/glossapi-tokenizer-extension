@@ -1,0 +1,4 @@
+mode	tiers	tokens	mass	mass_pct	out_jsonl
+strict	T0	0	0	0.0	en/eng_Latn_fineweb_hq__strict.jsonl
+premise	T0,T2	76593	822677646	81.65728364210108	en/eng_Latn_fineweb_hq__premise.jsonl
+premise_sub	T0,T2,T3	79175	1004719101	99.72634240142439	en/eng_Latn_fineweb_hq__premise_sub.jsonl

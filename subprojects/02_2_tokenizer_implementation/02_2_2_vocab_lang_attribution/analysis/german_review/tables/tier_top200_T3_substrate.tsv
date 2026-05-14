@@ -1,0 +1,201 @@
+rank	token_id	decoded	count	mass_pct	basis	popcount
+1	1044	','	35709518	3.5504	all_55_locales_admit	55
+2	1046	'.'	23588152	2.3452	all_55_locales_admit	55
+3	1032	' '	10224864	1.0166	all_55_locales_admit	55
+4	1626	'.\n'	8696430	0.8646	all_55_locales_admit	55
+5	1049	'1'	7607544	0.7564	all_55_locales_admit	55
+6	1048	'0'	7325512	0.7283	all_55_locales_admit	55
+7	1050	'2'	5667471	0.5635	all_55_locales_admit	55
+8	1010	'\n'	5146086	0.5116	all_55_locales_admit	55
+9	1045	'-'	3967063	0.3944	all_55_locales_admit	55
+10	1319	' ('	3113794	0.3096	all_55_locales_admit	55
+11	1057	'9'	3057095	0.3040	all_55_locales_admit	55
+12	1058	':'	3008981	0.2992	all_55_locales_admit	55
+13	1051	'3'	2719549	0.2704	all_55_locales_admit	55
+14	1053	'5'	2561677	0.2547	all_55_locales_admit	55
+15	1052	'4'	2289924	0.2277	all_55_locales_admit	55
+16	1056	'8'	2059953	0.2048	all_55_locales_admit	55
+17	1054	'6'	1899771	0.1889	all_55_locales_admit	55
+18	1055	'7'	1802618	0.1792	all_55_locales_admit	55
+19	1041	')'	1782802	0.1773	all_55_locales_admit	55
+20	2990	' „'	1384551	0.1377	all_55_locales_admit	55
+21	1429	' "'	1207765	0.1201	all_55_locales_admit	55
+22	1462	' -'	1019069	0.1013	all_55_locales_admit	55
+23	1482	'“'	864952	0.0860	all_55_locales_admit	55
+24	1775	' –'	839274	0.0834	all_55_locales_admit	55
+25	1034	'"'	820784	0.0816	all_55_locales_admit	55
+26	1063	'?'	749846	0.0746	all_55_locales_admit	55
+27	9551	'?\n'	722731	0.0719	all_55_locales_admit	55
+28	1877	':\n'	678070	0.0674	all_55_locales_admit	55
+29	1059	';'	551842	0.0549	all_55_locales_admit	55
+30	1047	'/'	510040	0.0507	all_55_locales_admit	55
+31	1574	'),'	402355	0.0400	all_55_locales_admit	55
+32	1577	').'	358898	0.0357	all_55_locales_admit	55
+33	1033	'!'	331765	0.0330	all_55_locales_admit	55
+34	1456	')\n'	320396	0.0319	all_55_locales_admit	55
+35	1124	'|'	313780	0.0312	all_55_locales_admit	55
+36	30540	'||'	313545	0.0312	all_55_locales_admit	55
+37	10829	'“,'	240206	0.0239	all_55_locales_admit	55
+38	4342	').\n'	225860	0.0225	all_55_locales_admit	55
+39	2129	' “'	225579	0.0224	all_55_locales_admit	55
+40	1897	'",'	224357	0.0223	all_55_locales_admit	55
+41	11330	'!\n'	212875	0.0212	all_55_locales_admit	55
+42	1520	',\n'	212330	0.0211	all_55_locales_admit	55
+43	12827	'.“'	201727	0.0201	all_55_locales_admit	55
+44	23685	'|\n'	194562	0.0193	all_55_locales_admit	55
+45	14466	'„'	191840	0.0191	all_55_locales_admit	55
+46	3046	' »'	184924	0.0184	all_55_locales_admit	55
+47	1093	']'	184605	0.0184	all_55_locales_admit	55
+48	1365	';\n'	183094	0.0182	all_55_locales_admit	55
+49	1987	' /'	173471	0.0172	all_55_locales_admit	55
+50	1037	'%'	153440	0.0153	all_55_locales_admit	55
+51	1091	'['	146018	0.0145	all_55_locales_admit	55
+52	1766	' ['	138563	0.0138	all_55_locales_admit	55
+53	1414	'”'	137712	0.0137	all_55_locales_admit	55
+54	3897	' ,'	130853	0.0130	all_55_locales_admit	55
+55	2820	']\n'	127102	0.0126	all_55_locales_admit	55
+56	28021	' §'	125170	0.0124	all_55_locales_admit	55
+57	2345	'://'	117183	0.0117	all_55_locales_admit	55
+58	1748	' &'	116714	0.0116	all_55_locales_admit	55
+59	1947	' «'	115766	0.0115	all_55_locales_admit	55
+60	2247	' .'	114387	0.0114	all_55_locales_admit	55
+61	1040	'('	113059	0.0112	all_55_locales_admit	55
+62	15611	'-\n'	108581	0.0108	all_55_locales_admit	55
+63	1039	"'"	108166	0.0108	all_55_locales_admit	55
+64	1882	'–'	107336	0.0107	all_55_locales_admit	55
+65	1992	'»'	107166	0.0107	all_55_locales_admit	55
+66	3443	'«'	105651	0.0105	all_55_locales_admit	55
+67	1312	' |'	97763	0.0097	all_55_locales_admit	55
+68	16216	'“.'	94764	0.0094	all_55_locales_admit	55
+69	3109	'.,'	94710	0.0094	all_55_locales_admit	55
+70	1576	" '"	94629	0.0094	all_55_locales_admit	55
+71	3871	'".'	89066	0.0089	all_55_locales_admit	55
+72	19553	'."\n'	88647	0.0088	all_55_locales_admit	55
+73	2545	' %'	86167	0.0086	all_55_locales_admit	55
+74	2880	'...'	83705	0.0083	all_55_locales_admit	55
+75	1510	'…'	77175	0.0077	all_55_locales_admit	55
+76	2613	'."'	73284	0.0073	all_55_locales_admit	55
+77	1042	'*'	71109	0.0071	all_55_locales_admit	55
+78	1376	' ='	69510	0.0069	all_55_locales_admit	55
+79	8925	'.['	66899	0.0067	all_55_locales_admit	55
+80	11180	' …'	65473	0.0065	all_55_locales_admit	55
+81	5203	'.)'	62932	0.0063	all_55_locales_admit	55
+82	18532	'-,'	62693	0.0062	all_55_locales_admit	55
+83	50283	'“\n'	60967	0.0061	all_55_locales_admit	55
+84	6421	' ...'	59675	0.0059	all_55_locales_admit	55
+85	16832	'...\n'	58522	0.0058	all_55_locales_admit	55
+86	1095	'_'	58257	0.0058	all_55_locales_admit	55
+87	6702	'‘'	57750	0.0057	all_55_locales_admit	55
+88	1471	'’'	57323	0.0057	all_55_locales_admit	55
+89	1737	' :'	54347	0.0054	all_55_locales_admit	55
+90	1061	'='	51621	0.0051	all_55_locales_admit	55
+91	1867	' +'	49131	0.0049	all_55_locales_admit	55
+92	2251	' —'	48827	0.0049	all_55_locales_admit	55
+93	24483	'".\n'	47753	0.0047	all_55_locales_admit	55
+94	49208	' ‚'	46963	0.0047	all_55_locales_admit	55
+95	4244	'):'	46033	0.0046	all_55_locales_admit	55
+96	39653	'..\n'	44646	0.0044	all_55_locales_admit	55
+97	20340	' €'	43132	0.0043	all_55_locales_admit	55
+98	2241	'"\n'	41559	0.0041	all_55_locales_admit	55
+99	10226	'”,'	38746	0.0039	all_55_locales_admit	55
+100	1043	'+'	38463	0.0038	all_55_locales_admit	55
+101	12984	'«,'	38224	0.0038	all_55_locales_admit	55
+102	18988	' .\n'	37060	0.0037	all_55_locales_admit	55
+103	4688	'\n\n\n'	36717	0.0037	all_55_locales_admit	55
+104	83917	'.«\n'	34457	0.0034	all_55_locales_admit	55
+105	1659	' $'	34151	0.0034	all_55_locales_admit	55
+106	2569	' #'	32401	0.0032	all_55_locales_admit	55
+107	13939	'•'	31764	0.0032	all_55_locales_admit	55
+108	1035	'#'	31510	0.0031	all_55_locales_admit	55
+109	14223	'.:'	30691	0.0031	all_55_locales_admit	55
+110	50692	'§'	28852	0.0029	all_55_locales_admit	55
+111	1791	'..'	28469	0.0028	all_55_locales_admit	55
+112	2811	'":'	28431	0.0028	all_55_locales_admit	55
+113	3006	' >'	28119	0.0028	all_55_locales_admit	55
+114	20213	' ...\n'	27726	0.0028	all_55_locales_admit	55
+115	56683	'…\n'	27330	0.0027	all_55_locales_admit	55
+116	25566	' („'	27253	0.0027	all_55_locales_admit	55
+117	9381	'.)\n'	27018	0.0027	all_55_locales_admit	55
+118	13131	'.-'	26167	0.0026	all_55_locales_admit	55
+119	50698	'?«'	26027	0.0026	all_55_locales_admit	55
+120	1062	'>'	25956	0.0026	all_55_locales_admit	55
+121	3082	' ?'	25224	0.0025	all_55_locales_admit	55
+122	4225	',"'	24046	0.0024	all_55_locales_admit	55
+123	6885	' °'	23984	0.0024	all_55_locales_admit	55
+124	57829	'"-'	22877	0.0023	all_55_locales_admit	55
+125	38556	'“)'	22587	0.0022	all_55_locales_admit	55
+126	6182	'»,'	22242	0.0022	all_55_locales_admit	55
+127	1364	' *'	22188	0.0022	all_55_locales_admit	55
+128	102119	'“-'	22168	0.0022	all_55_locales_admit	55
+129	24362	'.”\n'	21711	0.0022	all_55_locales_admit	55
+130	1038	'&'	20605	0.0020	all_55_locales_admit	55
+131	7504	' ("'	20416	0.0020	all_55_locales_admit	55
+132	26875	'®'	20319	0.0020	all_55_locales_admit	55
+133	3077	'].'	20158	0.0020	all_55_locales_admit	55
+134	73769	'!«'	19851	0.0020	all_55_locales_admit	55
+135	1267	'\n\n'	19412	0.0019	all_55_locales_admit	55
+136	4370	' )'	19312	0.0019	all_55_locales_admit	55
+137	4162	' ‘'	18994	0.0019	all_55_locales_admit	55
+138	102872	'?“'	18760	0.0019	all_55_locales_admit	55
+139	3455	');'	18383	0.0018	all_55_locales_admit	55
+140	7085	' •'	18294	0.0018	all_55_locales_admit	55
+141	4428	'")'	18261	0.0018	all_55_locales_admit	55
+142	39210	'-)'	17926	0.0018	all_55_locales_admit	55
+143	4372	'°'	17787	0.0018	all_55_locales_admit	55
+144	107577	' …\n'	16791	0.0017	all_55_locales_admit	55
+145	16077	'²'	16492	0.0016	all_55_locales_admit	55
+146	4295	' ;'	16395	0.0016	all_55_locales_admit	55
+147	95223	'!“'	16391	0.0016	all_55_locales_admit	55
+148	113585	'©'	16338	0.0016	all_55_locales_admit	55
+149	1468	');\n'	16156	0.0016	all_55_locales_admit	55
+150	1674	'—'	16108	0.0016	all_55_locales_admit	55
+151	10555	'?"'	16075	0.0016	all_55_locales_admit	55
+152	4479	'.”'	15922	0.0016	all_55_locales_admit	55
+153	19602	'/\n'	15688	0.0016	all_55_locales_admit	55
+154	1064	'@'	15521	0.0015	all_55_locales_admit	55
+155	25819	'.«'	15479	0.0015	all_55_locales_admit	55
+156	51200	'€'	15305	0.0015	all_55_locales_admit	55
+157	83979	' (§'	15305	0.0015	all_55_locales_admit	55
+158	3605	'],'	15296	0.0015	all_55_locales_admit	55
+159	14010	'”.'	15015	0.0015	all_55_locales_admit	55
+160	1534	' <'	14596	0.0015	all_55_locales_admit	55
+161	14617	'.).'	14572	0.0014	all_55_locales_admit	55
+162	17405	'!"'	14538	0.0014	all_55_locales_admit	55
+163	54784	'´'	14326	0.0014	all_55_locales_admit	55
+164	3640	'):\n'	14089	0.0014	all_55_locales_admit	55
+165	63586	'-/'	13711	0.0014	all_55_locales_admit	55
+166	45509	'??'	13520	0.0013	all_55_locales_admit	55
+167	2096	"',"	13436	0.0013	all_55_locales_admit	55
+168	12733	'.),'	13379	0.0013	all_55_locales_admit	55
+169	7290	'!!'	13362	0.0013	all_55_locales_admit	55
+170	4254	' --'	13282	0.0013	all_55_locales_admit	55
+171	103562	' -,'	13237	0.0013	all_55_locales_admit	55
+172	19486	'.\n\n\n'	12609	0.0013	all_55_locales_admit	55
+173	2126	' @'	11981	0.0012	all_55_locales_admit	55
+174	80189	' ›'	11943	0.0012	all_55_locales_admit	55
+175	121675	' ↑'	11864	0.0012	all_55_locales_admit	55
+176	71488	'?"\n'	11861	0.0012	all_55_locales_admit	55
+177	8891	'·'	11778	0.0012	all_55_locales_admit	55
+178	62332	'!"\n'	11540	0.0011	all_55_locales_admit	55
+179	32268	' ?\n'	11365	0.0011	all_55_locales_admit	55
+180	99812	' ©'	11308	0.0011	all_55_locales_admit	55
+181	4094	' ·'	11245	0.0011	all_55_locales_admit	55
+182	13331	'....'	11107	0.0011	all_55_locales_admit	55
+183	1036	'$'	10610	0.0011	all_55_locales_admit	55
+184	85766	'‹'	10545	0.0010	all_55_locales_admit	55
+185	3052	' (*'	10463	0.0010	all_55_locales_admit	55
+186	35590	' (='	9973	0.0010	all_55_locales_admit	55
+187	1092	'\\'	9867	0.0010	all_55_locales_admit	55
+188	2662	' !'	9755	0.0010	all_55_locales_admit	55
+189	121713	'«.'	9438	0.0009	all_55_locales_admit	55
+190	106525	'”.\n'	9232	0.0009	all_55_locales_admit	55
+191	36529	' […]'	9207	0.0009	all_55_locales_admit	55
+192	8011	'","'	9127	0.0009	all_55_locales_admit	55
+193	57277	'].\n'	9018	0.0009	all_55_locales_admit	55
+194	5384	'./'	9014	0.0009	all_55_locales_admit	55
+195	1125	'}'	8921	0.0009	all_55_locales_admit	55
+196	8537	')-'	8845	0.0009	all_55_locales_admit	55
+197	28710	' -\n'	8844	0.0009	all_55_locales_admit	55
+198	12592	'":"'	8826	0.0009	all_55_locales_admit	55
+199	10736	' ..'	8740	0.0009	all_55_locales_admit	55
+200	47905	'!)'	8730	0.0009	all_55_locales_admit	55

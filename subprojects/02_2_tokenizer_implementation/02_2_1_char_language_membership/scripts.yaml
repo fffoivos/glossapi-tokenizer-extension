@@ -1,0 +1,104 @@
+# Script-level bit assignments (level 1 of the v3 hierarchy).
+#
+# Stable wire identifiers: a script's `bit` is never reused, even if
+# the script is retired from active research scope. New scripts append
+# at the next free bit.
+#
+# `iso15924` is the canonical Unicode script code (Latn, Cyrl, …).
+# Two encodings of Greek share `iso15924: Grek` but get distinct bits
+# (Grek-modern and Grek-polyton) so the modern / polytonic split is
+# legible at the script layer too.
+#
+# 22 entries → fits in binary(16) (uniform width across the three
+# bitmask levels for consumer simplicity).
+
+version: 1
+scripts:
+  - bit: 0
+    code: Latn
+    iso15924: Latn
+    name: Latin
+  - bit: 1
+    code: Cyrl
+    iso15924: Cyrl
+    name: Cyrillic
+  - bit: 2
+    code: Grek-modern
+    iso15924: Grek
+    name: Greek (modern encoding)
+  - bit: 3
+    code: Grek-polyton
+    iso15924: Grek
+    name: Greek (polytonic encoding)
+  - bit: 4
+    code: Arab
+    iso15924: Arab
+    name: Arabic
+  - bit: 5
+    code: Hans
+    iso15924: Hans
+    name: Han (Simplified)
+  - bit: 6
+    code: Hant
+    iso15924: Hant
+    name: Han (Traditional)
+  - bit: 7
+    code: Jpan
+    iso15924: Jpan
+    name: Japanese (Han + Kana)
+  - bit: 8
+    code: Hang
+    iso15924: Hang
+    name: Hangul
+  - bit: 9
+    code: Deva
+    iso15924: Deva
+    name: Devanagari
+  - bit: 10
+    code: Hebr
+    iso15924: Hebr
+    name: Hebrew
+  - bit: 11
+    code: Thai
+    iso15924: Thai
+    name: Thai
+  - bit: 12
+    code: Armn
+    iso15924: Armn
+    name: Armenian
+  - bit: 13
+    code: Geor
+    iso15924: Geor
+    name: Georgian
+  - bit: 14
+    code: Beng
+    iso15924: Beng
+    name: Bengali
+  - bit: 15
+    code: Taml
+    iso15924: Taml
+    name: Tamil
+  - bit: 16
+    code: Telu
+    iso15924: Telu
+    name: Telugu
+  - bit: 17
+    code: Knda
+    iso15924: Knda
+    name: Kannada
+  - bit: 18
+    code: Mlym
+    iso15924: Mlym
+    name: Malayalam
+  - bit: 19
+    code: Gujr
+    iso15924: Gujr
+    name: Gujarati
+  - bit: 20
+    code: Guru
+    iso15924: Guru
+    name: Gurmukhi
+  - bit: 21
+    code: Mymr
+    iso15924: Mymr
+    name: Myanmar

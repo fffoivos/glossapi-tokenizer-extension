@@ -1,0 +1,177 @@
+{
+  "lang": "eng_Latn",
+  "total_sample": 1005327142,
+  "fired_total": 111086,
+  "families": [
+    {
+      "family": "family:Latn",
+      "vocab_total": 88240,
+      "fired": 83252,
+      "mass": 758044015,
+      "mass_pct": 75.40272050070642
+    },
+    {
+      "family": "substrate",
+      "vocab_total": 4017,
+      "fired": 2706,
+      "mass": 245756611,
+      "mass_pct": 24.445436786983713
+    },
+    {
+      "family": "unknown_standalone",
+      "vocab_total": 2435,
+      "fired": 1291,
+      "mass": 620773,
+      "mass_pct": 0.06174835773010493
+    },
+    {
+      "family": "family:Han",
+      "vocab_total": 5102,
+      "fired": 3778,
+      "mass": 303442,
+      "mass_pct": 0.03018340869583326
+    },
+    {
+      "family": "family:Cyrl",
+      "vocab_total": 7548,
+      "fired": 6062,
+      "mass": 165802,
+      "mass_pct": 0.016492342947207528
+    },
+    {
+      "family": "no_script_admits",
+      "vocab_total": 232,
+      "fired": 171,
+      "mass": 120630,
+      "mass_pct": 0.011999079201225823
+    },
+    {
+      "family": "family:Grek",
+      "vocab_total": 1500,
+      "fired": 1301,
+      "mass": 118472,
+      "mass_pct": 0.011784422706852572
+    },
+    {
+      "family": "family:Hang",
+      "vocab_total": 4439,
+      "fired": 2324,
+      "mass": 43144,
+      "mass_pct": 0.004291538365727323
+    },
+    {
+      "family": "family:Arab",
+      "vocab_total": 9341,
+      "fired": 4474,
+      "mass": 35729,
+      "mass_pct": 0.0035539675104086666
+    },
+    {
+      "family": "family:Deva",
+      "vocab_total": 1529,
+      "fired": 1225,
+      "mass": 30400,
+      "mass_pct": 0.00302389130164358
+    },
+    {
+      "family": "family:Hebr",
+      "vocab_total": 961,
+      "fired": 851,
+      "mass": 28943,
+      "mass_pct": 0.0028789633534036228
+    },
+    {
+      "family": "family:Thai",
+      "vocab_total": 560,
+      "fired": 504,
+      "mass": 25446,
+      "mass_pct": 0.0025311163836060045
+    },
+    {
+      "family": "family:Beng",
+      "vocab_total": 810,
+      "fired": 552,
+      "mass": 8370,
+      "mass_pct": 0.0008325648090380514
+    },
+    {
+      "family": "family:Armn",
+      "vocab_total": 1089,
+      "fired": 537,
+      "mass": 4535,
+      "mass_pct": 0.0004510969425313696
+    },
+    {
+      "family": "family:Taml",
+      "vocab_total": 525,
+      "fired": 388,
+      "mass": 4233,
+      "mass_pct": 0.0004210569697321471
+    },
+    {
+      "family": "family:Geor",
+      "vocab_total": 480,
+      "fired": 364,
+      "mass": 3868,
+      "mass_pct": 0.00038475038009070284
+    },
+    {
+      "family": "family:Mlym",
+      "vocab_total": 377,
+      "fired": 294,
+      "mass": 3275,
+      "mass_pct": 0.0003257646056869317
+    },
+    {
+      "family": "family:Mymr",
+      "vocab_total": 110,
+      "fired": 108,
+      "mass": 3018,
+      "mass_pct": 0.0003002007877750107
+    },
+    {
+      "family": "family:Telu",
+      "vocab_total": 900,
+      "fired": 340,
+      "mass": 2169,
+      "mass_pct": 0.00021575066556792514
+    },
+    {
+      "family": "family:Guru",
+      "vocab_total": 148,
+      "fired": 137,
+      "mass": 1945,
+      "mass_pct": 0.0001934693612400251
+    },
+    {
+      "family": "family:Knda",
+      "vocab_total": 548,
+      "fired": 308,
+      "mass": 1458,
+      "mass_pct": 0.0001450274183485638
+    },
+    {
+      "family": "family:Gujr",
+      "vocab_total": 180,
+      "fired": 118,
+      "mass": 804,
+      "mass_pct": 7.997396731978416e-05
+    },
+    {
+      "family": "mixed_scripts",
+      "vocab_total": 1,
+      "fired": 1,
+      "mass": 60,
+      "mass_pct": 5.968206516401802e-06
+    }
+  ],
+  "latin_family": {
+    "fired": 83252,
+    "mass": 758044015,
+    "mass_pct": 75.40272050070642,
+    "log_log_knee_rank": 80571,
+    "log_log_knee_count": 1,
+    "log_log_knee_cum_mass_pct_of_latin": 99.99964632660546,
+    "log_log_knee_cum_mass_pct_of_total": 75.40245382134525
+  }
+}

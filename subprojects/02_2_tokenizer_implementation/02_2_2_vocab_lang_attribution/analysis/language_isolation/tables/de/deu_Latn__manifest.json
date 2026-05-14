@@ -1,0 +1,71 @@
+{
+  "canonical_key": "deu_Latn",
+  "lang_code": "de",
+  "lang_bit": 3,
+  "n_lang_bits": 60,
+  "total_sample": 1005786784,
+  "tier_breakdown": {
+    "T0": {
+      "tokens": 103,
+      "mass": 4963019,
+      "mass_pct": 0.493446432081971
+    },
+    "T2": {
+      "tokens": 77645,
+      "mass": 845472197,
+      "mass_pct": 84.06077813406624
+    },
+    "T3": {
+      "tokens": 2843,
+      "mass": 153498172,
+      "mass_pct": 15.261502183349428
+    },
+    "T4": {
+      "tokens": 31824,
+      "mass": 1342567,
+      "mass_pct": 0.13348425544633125
+    },
+    "T5": {
+      "tokens": 1026,
+      "mass": 510829,
+      "mass_pct": 0.05078899505603367
+    }
+  },
+  "modes": [
+    {
+      "mode": "strict",
+      "tiers": [
+        "T0"
+      ],
+      "tokens": 103,
+      "mass": 4963019,
+      "mass_pct": 0.493446432081971,
+      "out_jsonl": "de/deu_Latn__strict.jsonl"
+    },
+    {
+      "mode": "premise",
+      "tiers": [
+        "T0",
+        "T2"
+      ],
+      "tokens": 77748,
+      "mass": 850435216,
+      "mass_pct": 84.5542245661482,
+      "out_jsonl": "de/deu_Latn__premise.jsonl"
+    },
+    {
+      "mode": "premise_sub",
+      "tiers": [
+        "T0",
+        "T2",
+        "T3"
+      ],
+      "tokens": 80591,
+      "mass": 1003933388,
+      "mass_pct": 99.81572674949763,
+      "out_jsonl": "de/deu_Latn__premise_sub.jsonl"
+    }
+  ],
+  "premise_text": "In the deu_Latn dataset, tokens whose chars are all de-admissible (bitmask_and has bit 3) default to de under the 'premise' mode. T0 is char-evidenced (no premise needed). T3 is substrate (universal). The 'premise_sub' mode adds T3 to capture full corpus infrastructure.",
+  "char_membership_schema_version": 4
+}

@@ -1,0 +1,15 @@
+metric	value
+latin_fired_en	83252
+latin_fired_de	85332
+latin_fired_both	81750
+latin_fired_de_only	3582
+latin_fired_en_only	1502
+jaccard	0.941452
+de_mass_both	844050681
+de_mass_de_only	7057884
+de_mass_total_latin	851108565
+de_mass_on_shared_pct	99.1707
+en_mass_both	757981193
+en_mass_en_only	62822
+en_mass_total_latin	758044015
+en_mass_on_shared_pct	99.9917

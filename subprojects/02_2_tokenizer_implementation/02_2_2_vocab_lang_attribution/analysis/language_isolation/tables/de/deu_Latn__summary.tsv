@@ -1,0 +1,4 @@
+mode	tiers	tokens	mass	mass_pct	out_jsonl
+strict	T0	103	4963019	0.493446432081971	de/deu_Latn__strict.jsonl
+premise	T0,T2	77748	850435216	84.5542245661482	de/deu_Latn__premise.jsonl
+premise_sub	T0,T2,T3	80591	1003933388	99.81572674949763	de/deu_Latn__premise_sub.jsonl

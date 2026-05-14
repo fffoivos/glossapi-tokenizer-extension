@@ -1,0 +1,104 @@
+rank	token_id	decoded	count	mass_pct	basis	popcount
+1	2884	'ß'	310319	0.0309	bitmask_and_only_de	1
+2	26207	' daß'	260773	0.0259	bitmask_and_only_de	1
+3	8347	'ßen'	193069	0.0192	bitmask_and_only_de	1
+4	9755	'ße'	186455	0.0185	bitmask_and_only_de	1
+5	26320	' großen'	176276	0.0175	bitmask_and_only_de	1
+6	27471	' große'	174054	0.0173	bitmask_and_only_de	1
+7	30982	' weiß'	140782	0.0140	bitmask_and_only_de	1
+8	35038	' groß'	128954	0.0128	bitmask_and_only_de	1
+9	15623	'iß'	122562	0.0122	bitmask_and_only_de	1
+10	12352	'uß'	121074	0.0120	bitmask_and_only_de	1
+11	21786	'äß'	100727	0.0100	bitmask_and_only_de	1
+12	51676	' heißt'	95210	0.0095	bitmask_and_only_de	1
+13	43893	' äuß'	88148	0.0088	bitmask_and_only_de	1
+14	31615	' schließlich'	84870	0.0084	bitmask_and_only_de	1
+15	54339	'ießen'	82821	0.0082	bitmask_and_only_de	1
+16	21267	' Groß'	80389	0.0080	bitmask_and_only_de	1
+17	27423	' ließ'	72767	0.0072	bitmask_and_only_de	1
+18	35364	' außer'	71653	0.0071	bitmask_and_only_de	1
+19	80782	'maß'	69916	0.0070	bitmask_and_only_de	1
+20	44218	' Außerdem'	68150	0.0068	bitmask_and_only_de	1
+21	22018	' Fuß'	67355	0.0067	bitmask_and_only_de	1
+22	69623	' Größe'	65497	0.0065	bitmask_and_only_de	1
+23	85269	' Maßnahmen'	64065	0.0064	bitmask_and_only_de	1
+24	54401	'ließen'	63345	0.0063	bitmask_and_only_de	1
+25	71479	' muß'	63325	0.0063	bitmask_and_only_de	1
+26	27277	' Straße'	62169	0.0062	bitmask_and_only_de	1
+27	101521	' einschließlich'	61008	0.0061	bitmask_and_only_de	1
+28	77012	' regelmäßig'	56803	0.0056	bitmask_and_only_de	1
+29	60792	' großer'	56339	0.0056	bitmask_and_only_de	1
+30	57087	' größten'	55377	0.0055	bitmask_and_only_de	1
+31	33020	'straße'	55149	0.0055	bitmask_and_only_de	1
+32	61211	' Außen'	50306	0.0050	bitmask_and_only_de	1
+33	42998	' Straßen'	50146	0.0050	bitmask_and_only_de	1
+34	50316	' Maß'	49508	0.0049	bitmask_and_only_de	1
+35	58173	' größte'	48873	0.0049	bitmask_and_only_de	1
+36	51765	' außerdem'	47845	0.0048	bitmask_and_only_de	1
+37	63643	' gemäß'	47102	0.0047	bitmask_and_only_de	1
+38	95171	'ßt'	46415	0.0046	bitmask_and_only_de	1
+39	67352	' außerhalb'	42851	0.0043	bitmask_and_only_de	1
+40	112307	'äßige'	42452	0.0042	bitmask_and_only_de	1
+41	27134	' Fußball'	38536	0.0038	bitmask_and_only_de	1
+42	66098	' ausschließlich'	38047	0.0038	bitmask_and_only_de	1
+43	100147	'mäßig'	36386	0.0036	bitmask_and_only_de	1
+44	86524	' größer'	36264	0.0036	bitmask_and_only_de	1
+45	71325	' größere'	35449	0.0035	bitmask_and_only_de	1
+46	34774	'ieß'	34861	0.0035	bitmask_and_only_de	1
+47	96449	'maßen'	34565	0.0034	bitmask_and_only_de	1
+48	19214	' größ'	32981	0.0033	bitmask_and_only_de	1
+49	60693	'ißen'	32420	0.0032	bitmask_and_only_de	1
+50	13102	'ließ'	32004	0.0032	bitmask_and_only_de	1
+51	69209	' anschließend'	31463	0.0031	bitmask_and_only_de	1
+52	76455	' größeren'	30934	0.0031	bitmask_and_only_de	1
+53	71152	' Großbritannien'	30046	0.0030	bitmask_and_only_de	1
+54	94331	' großes'	29459	0.0029	bitmask_and_only_de	1
+55	120283	'stoß'	28541	0.0028	bitmask_and_only_de	1
+56	108617	' schließen'	28241	0.0028	bitmask_and_only_de	1
+57	123710	'ußer'	27649	0.0027	bitmask_and_only_de	1
+58	120160	'äßigen'	27578	0.0027	bitmask_and_only_de	1
+59	102586	' weißen'	27019	0.0027	bitmask_and_only_de	1
+60	95317	' Weiß'	26556	0.0026	bitmask_and_only_de	1
+61	16601	'öß'	26318	0.0026	bitmask_and_only_de	1
+62	90283	' außen'	26066	0.0026	bitmask_and_only_de	1
+63	115041	'ießt'	24587	0.0024	bitmask_and_only_de	1
+64	23868	'ßer'	24580	0.0024	bitmask_and_only_de	1
+65	99585	' Schließlich'	24216	0.0024	bitmask_and_only_de	1
+66	116483	' maß'	23301	0.0023	bitmask_and_only_de	1
+67	103364	' hieß'	23194	0.0023	bitmask_and_only_de	1
+68	80178	'größ'	20973	0.0021	bitmask_and_only_de	1
+69	128526	' weiße'	20274	0.0020	bitmask_and_only_de	1
+70	44285	'äßig'	19413	0.0019	bitmask_and_only_de	1
+71	91710	' ließen'	18308	0.0018	bitmask_and_only_de	1
+72	119022	' draußen'	18081	0.0018	bitmask_and_only_de	1
+73	106369	' Großteil'	17644	0.0018	bitmask_and_only_de	1
+74	123600	' schließt'	17424	0.0017	bitmask_and_only_de	1
+75	36074	'schließ'	17262	0.0017	bitmask_and_only_de	1
+76	78294	' Großen'	17221	0.0017	bitmask_and_only_de	1
+77	119415	' Anschließend'	17114	0.0017	bitmask_and_only_de	1
+78	93433	' saß'	16863	0.0017	bitmask_and_only_de	1
+79	83583	'iße'	16429	0.0016	bitmask_and_only_de	1
+80	44903	'ißt'	14646	0.0015	bitmask_and_only_de	1
+81	126316	' vergröß'	14629	0.0015	bitmask_and_only_de	1
+82	85291	' verließ'	14428	0.0014	bitmask_and_only_de	1
+83	129954	' bloß'	14317	0.0014	bitmask_and_only_de	1
+84	94998	' Große'	14057	0.0014	bitmask_and_only_de	1
+85	87563	'ließt'	12803	0.0013	bitmask_and_only_de	1
+86	102852	' Straß'	12338	0.0012	bitmask_and_only_de	1
+87	114581	' anschließ'	11917	0.0012	bitmask_and_only_de	1
+88	49406	'schließend'	10636	0.0011	bitmask_and_only_de	1
+89	98192	' stieß'	10020	0.0010	bitmask_and_only_de	1
+90	20509	'ließlich'	9731	0.0010	bitmask_and_only_de	1
+91	44960	'ußen'	9594	0.0010	bitmask_and_only_de	1
+92	91587	' besaß'	8719	0.0009	bitmask_and_only_de	1
+93	46444	'chließlich'	8336	0.0008	bitmask_and_only_de	1
+94	116331	'ißig'	8033	0.0008	bitmask_and_only_de	1
+95	87812	'-Straße'	7425	0.0007	bitmask_and_only_de	1
+96	70537	' Preußen'	7303	0.0007	bitmask_and_only_de	1
+97	117832	' preußischen'	4548	0.0005	bitmask_and_only_de	1
+98	114653	' Straßenbahn'	4456	0.0004	bitmask_and_only_de	1
+99	66641	' Großb'	4103	0.0004	bitmask_and_only_de	1
+100	66733	' preuß'	3652	0.0004	bitmask_and_only_de	1
+101	107645	' Großherzog'	2155	0.0002	bitmask_and_only_de	1
+102	38730	' Fußballspieler'	1720	0.0002	bitmask_and_only_de	1
+103	28803	'ßerdem'	287	0.0000	bitmask_and_only_de	1

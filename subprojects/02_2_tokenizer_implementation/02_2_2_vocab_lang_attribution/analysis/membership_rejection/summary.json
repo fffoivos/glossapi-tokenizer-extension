@@ -1,0 +1,113 @@
+{
+  "n_rows": 1933,
+  "n_direct_clm_rows": 54,
+  "n_script_proxy_rows": 1804,
+  "n_no_clm_script_rows": 75,
+  "outputs": {
+    "summary_tsv": "language_membership_rejections.tsv",
+    "direct_top_tokens_tsv": "direct_rejection_top_tokens.tsv"
+  },
+  "methodology": "For rows with direct CLM bits, rejected_decoded_mass is a hard language-membership rejection: decoded token text fired in the dataset but bitmask_and has none of that language group's bits. partial_utf8/byte_unmapped/special tokens are separated as unknown_standalone, not counted as rejections. Rows without direct CLM bits use script_proxy_bits when the script is modeled; that is a coarse script-family incompatibility signal, not a language-level proof.",
+  "direct_rows_top_rejected_mass_pct": [
+    {
+      "canonical_key": "urd_Arab",
+      "rejected_decoded_mass_pct": "10.215609",
+      "unknown_standalone_mass_pct": "0.390018"
+    },
+    {
+      "canonical_key": "kor_Hang",
+      "rejected_decoded_mass_pct": "3.593007",
+      "unknown_standalone_mass_pct": "4.789157"
+    },
+    {
+      "canonical_key": "tha_Thai",
+      "rejected_decoded_mass_pct": "2.820259",
+      "unknown_standalone_mass_pct": "2.011639"
+    },
+    {
+      "canonical_key": "hin_Deva",
+      "rejected_decoded_mass_pct": "2.467265",
+      "unknown_standalone_mass_pct": "0.753188"
+    },
+    {
+      "canonical_key": "ell_Grek",
+      "rejected_decoded_mass_pct": "2.382879",
+      "unknown_standalone_mass_pct": "0.375030"
+    },
+    {
+      "canonical_key": "cmn_Hani",
+      "rejected_decoded_mass_pct": "2.339043",
+      "unknown_standalone_mass_pct": "18.451660"
+    },
+    {
+      "canonical_key": "rus_Cyrl",
+      "rejected_decoded_mass_pct": "2.223882",
+      "unknown_standalone_mass_pct": "0.110001"
+    },
+    {
+      "canonical_key": "arb_Arab",
+      "rejected_decoded_mass_pct": "2.171522",
+      "unknown_standalone_mass_pct": "0.307545"
+    },
+    {
+      "canonical_key": "jpn_Jpan",
+      "rejected_decoded_mass_pct": "2.164887",
+      "unknown_standalone_mass_pct": "10.232629"
+    },
+    {
+      "canonical_key": "hye_Armn",
+      "rejected_decoded_mass_pct": "2.103205",
+      "unknown_standalone_mass_pct": "3.535503"
+    },
+    {
+      "canonical_key": "bul_Cyrl",
+      "rejected_decoded_mass_pct": "2.046442",
+      "unknown_standalone_mass_pct": "0.089193"
+    },
+    {
+      "canonical_key": "mkd_Cyrl",
+      "rejected_decoded_mass_pct": "1.823893",
+      "unknown_standalone_mass_pct": "0.198602"
+    },
+    {
+      "canonical_key": "ukr_Cyrl",
+      "rejected_decoded_mass_pct": "1.735575",
+      "unknown_standalone_mass_pct": "0.158695"
+    },
+    {
+      "canonical_key": "grc_Grek",
+      "rejected_decoded_mass_pct": "1.476712",
+      "unknown_standalone_mass_pct": "35.882702"
+    },
+    {
+      "canonical_key": "mya_Mymr",
+      "rejected_decoded_mass_pct": "1.461329",
+      "unknown_standalone_mass_pct": "57.735321"
+    },
+    {
+      "canonical_key": "tam_Taml",
+      "rejected_decoded_mass_pct": "1.452511",
+      "unknown_standalone_mass_pct": "3.188130"
+    },
+    {
+      "canonical_key": "tel_Telu",
+      "rejected_decoded_mass_pct": "1.450491",
+      "unknown_standalone_mass_pct": "4.308177"
+    },
+    {
+      "canonical_key": "srp_Cyrl",
+      "rejected_decoded_mass_pct": "1.346488",
+      "unknown_standalone_mass_pct": "0.150078"
+    },
+    {
+      "canonical_key": "kat_Geor",
+      "rejected_decoded_mass_pct": "1.267422",
+      "unknown_standalone_mass_pct": "8.574117"
+    },
+    {
+      "canonical_key": "fas_Arab",
+      "rejected_decoded_mass_pct": "1.250287",
+      "unknown_standalone_mass_pct": "0.123607"
+    }
+  ]
+}

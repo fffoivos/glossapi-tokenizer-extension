@@ -1,0 +1,20 @@
+{
+  "lang": "eng_Latn",
+  "name": "English",
+  "total_sample_tokens": 1005327142,
+  "vocab_size": 131072,
+  "fired_in_eng": 111086,
+  "en_capable_in_vocab": 82243,
+  "en_capable_fired": 77014,
+  "en_capable_fired_mass": 1000427913,
+  "en_capable_fired_mass_pct": 99.51267315928092,
+  "leakage_decoded_tokens": 32781,
+  "leakage_decoded_mass": 4278456,
+  "leakage_decoded_mass_pct": 0.42557848298897316,
+  "unknown_standalone_tokens": 1291,
+  "unknown_standalone_mass": 620773,
+  "unknown_standalone_mass_pct": 0.06174835773010493,
+  "dormant_en_capable": 5229,
+  "substrate_fired_tokens": 2706,
+  "substrate_fired_mass_pct": 24.445436786983713
+}

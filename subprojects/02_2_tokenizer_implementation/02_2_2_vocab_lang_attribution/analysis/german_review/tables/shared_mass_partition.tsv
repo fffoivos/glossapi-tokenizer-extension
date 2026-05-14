@@ -1,0 +1,8 @@
+class	tokens	de_mass	en_mass	de_pct_of_latin	en_pct_of_latin
+near-singleton-english	1502	0	62822	0.0000	0.0083
+near-singleton-german	3582	7057884	0	0.8293	0.0000
+english-dominant >=10×	21649	9436135	475055491	1.1087	62.6686
+english-leaning 3–10×	15799	18183969	98131173	2.1365	12.9453
+comparable (within 3×)	30125	156980332	160292574	18.4442	21.1455
+german-leaning 3–10×	6029	92843200	18223453	10.9085	2.4040
+german-dominant >=10×	8148	566607045	6278502	66.5728	0.8283

@@ -1,0 +1,171 @@
+# Family-level bit assignments (level 2 of the v3 hierarchy).
+#
+# A family is a cluster of in-scope locales that share a script and
+# have meaningful structural overlap in their character sets.
+# Single-locale scripts get their own family bit for symmetry — every
+# codepoint then has an answer at every level even if the family bit
+# is a deterministic echo of the script + language bit.
+#
+# Derivation rule: family_bits[f] = OR of language_bits[L] for every
+# locale L in `locales`. Verified at build time by the validate
+# script.
+#
+# Stable wire identifiers: a family's `bit` is never reused.
+# `script` cross-references scripts.yaml.
+# `locales` is the authoritative member list and must agree with the
+# `bit` assignments in languages.yaml.
+#
+# 31 entries → fits in binary(16) (uniform width with script and
+# language bitmasks for consumer simplicity).
+
+version: 1
+families:
+  # --- Latin script (8 families) ---
+  - bit: 0
+    code: Romance-Latn
+    script: Latn
+    locales: [es, fr, it, pt, ro, ca]
+  - bit: 1
+    code: Germanic-Latn
+    script: Latn
+    locales: [en, de, nl, da, nb, sv, is]
+  - bit: 2
+    code: Slavic-Latn
+    script: Latn
+    locales: [pl, cs, sk, sl, hr, sr-Latn]
+  - bit: 3
+    code: Uralic-Latn
+    script: Latn
+    locales: [hu, fi, et]
+  - bit: 4
+    code: Baltic-Latn
+    script: Latn
+    locales: [lt, lv]
+  - bit: 5
+    code: Turkic-Latn
+    script: Latn
+    locales: [tr, az]
+  - bit: 6
+    code: Austronesian-Latn
+    script: Latn
+    locales: [id]
+  - bit: 7
+    code: Vietic-Latn
+    script: Latn
+    locales: [vi]
+
+  # --- Cyrillic script (2 families) ---
+  - bit: 8
+    code: East-Slavic-Cyrl
+    script: Cyrl
+    locales: [ru, uk, be]
+  - bit: 9
+    code: South-Slavic-Cyrl
+    script: Cyrl
+    locales: [bg, mk, sr-Cyrl]
+
+  # --- Arabic script (2 families) ---
+  - bit: 10
+    code: Semitic-Arab
+    script: Arab
+    locales: [ar]
+  - bit: 11
+    code: Iranian-Arab
+    script: Arab
+    locales: [fa, ur, ps]
+
+  # --- CJK (3 families) ---
+  - bit: 12
+    code: Sinitic-Hans
+    script: Hans
+    locales: [zh-Hans]
+  - bit: 13
+    code: Sinitic-Hant
+    script: Hant
+    locales: [zh-Hant]
+  - bit: 14
+    code: Japonic
+    script: Jpan
+    locales: [ja]
+
+  # --- Greek (2 families, matching the encoding split) ---
+  - bit: 15
+    code: Grek-modern
+    script: Grek-modern
+    locales: [el]
+  - bit: 16
+    code: Grek-polyton
+    script: Grek-polyton
+    locales: [el-polyton]
+
+  # --- Single-locale families (14, for symmetry) ---
+  - bit: 17
+    code: Hangul-family
+    script: Hang
+    locales: [ko]
+  - bit: 18
+    code: Devanagari-family
+    script: Deva
+    locales: [hi]
+  - bit: 19
+    code: Hebrew-family
+    script: Hebr
+    locales: [he]
+  - bit: 20
+    code: Thai-family
+    script: Thai
+    locales: [th]
+  - bit: 21
+    code: Armenian-family
+    script: Armn
+    locales: [hy]
+  - bit: 22
+    code: Georgian-family
+    script: Geor
+    locales: [ka]
+  - bit: 23
+    code: Bengali-family
+    script: Beng
+    locales: [bn]
+  - bit: 24
+    code: Tamil-family
+    script: Taml
+    locales: [ta]
+  - bit: 25
+    code: Telugu-family
+    script: Telu
+    locales: [te]
+  - bit: 26
+    code: Kannada-family
+    script: Knda
+    locales: [kn]
+  - bit: 27
+    code: Malayalam-family
+    script: Mlym
+    locales: [ml]
+  - bit: 28
+    code: Gujarati-family
+    script: Gujr
+    locales: [gu]
+  - bit: 29
+    code: Gurmukhi-family
+    script: Guru
+    locales: [pa]
+  - bit: 30
+    code: Myanmar-family
+    script: Mymr
+    locales: [my]
+
+  # --- v3.1 audit-driven additions ---
+  - bit: 31
+    code: Turkic-Cyrl
+    script: Cyrl
+    locales: [kk]
+  - bit: 32
+    code: Mongolic-Cyrl
+    script: Cyrl
+    locales: [mn]
+  - bit: 33
+    code: Constructed-Latn
+    script: Latn
+    locales: [eo]

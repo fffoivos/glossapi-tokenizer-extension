@@ -63,7 +63,7 @@ See [../subprojects/_archive/README.md](../subprojects/_archive/README.md).
   - plan: [EMBEDDING_DIAGNOSTIC_PLAN_V2.md](EMBEDDING_DIAGNOSTIC_PLAN_V2.md)
   - sub-subproject (scripts + artifacts + reports): [../subprojects/03_apertus_extension_and_embedding_adaptation/03_1_greek_embedding_diagnostic/README.md](../subprojects/03_apertus_extension_and_embedding_adaptation/03_1_greek_embedding_diagnostic/README.md)
 - **Vocab-language attribution** (1,933 canonical langs × 131,072 Apertus vocab entries; sub-subproject under 02_2):
-  - report (with run status + scripts + artifact spec): [../subprojects/02_2_tokenizer_implementation/vocab_lang_attribution/RUN_REPORT.md](../subprojects/02_2_tokenizer_implementation/vocab_lang_attribution/RUN_REPORT.md)
+  - report (with run status + scripts + artifact spec): [../subprojects/02_2_tokenizer_implementation/02_2_2_vocab_lang_attribution/RUN_REPORT.md](../subprojects/02_2_tokenizer_implementation/02_2_2_vocab_lang_attribution/RUN_REPORT.md)
 - functional issues TODO:
   - [FUNCTIONAL_ISSUES_TODO.md](FUNCTIONAL_ISSUES_TODO.md)
 - machine-readable config:

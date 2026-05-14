@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>English ↔ German tiered attribution</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+  html, body { background: #fafaf8; color: #222; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin: 0; padding: 16px; }
+  h1 { font-size: 18px; margin: 4px 0 12px; }
+  h2 { font-size: 14px; margin: 24px 0 4px; }
+  p  { font-size: 12px; margin: 0 0 12px; color: #444; max-width: 90ch; line-height: 1.45; }
+  .plot { width: 100%; height: 680px; background: #fff; border: 1px solid #ddd; }
+  .small { height: 460px; }
+  .stats { display: flex; gap: 16px; font-size: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .stats div { background: #fff; padding: 6px 12px; border: 1px solid #ddd; }
+  .stats b { color: #222; }
+  code { background: #f0f0ec; padding: 1px 4px; }
+  .premise { background: #fffbe6; border: 1px solid #f0d36b; padding: 8px 12px; margin: 12px 0; font-size: 12px; max-width: 90ch; }
+  .controls { display: flex; gap: 24px; margin: 12px 0; font-size: 12px; flex-wrap: wrap; background: #fff; border: 1px solid #ddd; padding: 10px 14px; }
+  .controls fieldset { border: 1px solid #ddd; padding: 6px 10px 4px; }
+  .controls legend { font-size: 11px; color: #888; padding: 0 4px; }
+  .controls label { margin-right: 10px; cursor: pointer; }
+  .controls input[type=radio] { vertical-align: middle; }
+  .scope-banner { background: #f0f6ff; border: 1px solid #b3d4ff; padding: 6px 12px; font-size: 11px; margin: 6px 0; }
+  .scope-empty { background: #ffeaea; border: 1px solid #f0a0a0; padding: 6px 12px; font-size: 11px; margin: 6px 0; }
+</style>
+</head>
+<body>
+<h1>English (eng_Latn × FineWeb-HQ / wiki) ↔ German (deu_Latn × FineWeb2-HQ)</h1>
+<div class="stats" id="stats"></div>
+
+<div class="premise" id="premise"></div>
+
+<div class="controls">
+  <fieldset>
+    <legend>Target language</legend>
+    <label><input type="radio" name="lang" value="de" checked> German</label>
+    <label><input type="radio" name="lang" value="en"> English</label>
+  </fieldset>
+  <fieldset>
+    <legend>Scope</legend>
+    <label><input type="radio" name="scope" value="all" checked> all firing (no scope filter)</label><br>
+    <label><input type="radio" name="scope" value="strict"> strict — T0 only (no assumption)</label><br>
+    <label><input type="radio" name="scope" value="premise"> premise — T0 + T2 (with assumption)</label><br>
+    <label><input type="radio" name="scope" value="premise_sub"> premise + substrate — T0 + T2 + T3</label>
+  </fieldset>
+  <fieldset>
+    <legend>English source</legend>
+    <label><input type="radio" name="ensrc" value="fwhq" checked> FineWeb-HQ</label>
+    <label><input type="radio" name="ensrc" value="wiki"> clean-wikipedia</label>
+  </fieldset>
+</div>
+
+<div id="scope-info" class="scope-banner"></div>
+
+<h2>1. Joint log-log scatter (count_en vs count_de) — coloured by target-language tier</h2>
+<p>
+  Each point = one vocab token that fired in at least one of the three samples.
+  Diagonals: y=x (solid), 10× (dashed), 100× (dotted). Hover for token text +
+  counts + tier. The Scope selector filters the point set; the Target-language
+  selector controls which language's tier colours the points. Switching English
+  source between FineWeb-HQ and wiki shows the same vocabulary under two
+  domains.
+</p>
+<div id="scatter" class="plot"></div>
+
+<h2>2. Mass-weighted log-ratio histogram (German mass above, English mass below)</h2>
+<p>
+  Bars stacked by German tier above (German mass per log-ratio bin), mirrored
+  English mass below. Outer bins <code>≤-4</code> / <code>&gt;4</code> catch
+  the heavy-tail outliers. Scope-filter applies; the English source determines
+  which English mass is shown below.
+</p>
+<div id="hist" class="plot small"></div>
+
+<h2>3. Rank-rank (premise pool — T0 + T2, fired in both)</h2>
+<p>
+  For each token in the premise-pool that fired in both languages, its rank in
+  the German pool vs its rank in the English pool. T0 tokens highlighted. The
+  L-shape means top-K corners of each axis are largely disjoint. The English
+  source affects which pool is shown.
+</p>
+<div id="rankrank" class="plot"></div>
+
+<script>
+async function main() {
+  const data = await (await fetch("data.json")).json();
+
+  const sumDiv = document.getElementById("stats");
+  const td = data.summary.de_tier_totals;
+  const tf = data.summary.en_tier_totals_fwhq;
+  const tw = data.summary.en_tier_totals_wiki;
+  sumDiv.innerHTML = `
+    <div><b>${data.summary.total_de.toLocaleString()}</b> de tokens (FineWeb2-HQ)</div>
+    <div><b>${data.summary.total_en_fwhq.toLocaleString()}</b> en tokens (FineWeb-HQ)</div>
+    <div><b>${data.summary.total_en_wiki.toLocaleString()}</b> en tokens (clean-wikipedia)</div>
+    <div>de T0/T2/T3/T4/T5: <b>${td.T0.tokens.toLocaleString()}</b> · ${td.T2.tokens.toLocaleString()} · ${td.T3.tokens.toLocaleString()} · ${td.T4.tokens.toLocaleString()} · ${td.T5.tokens.toLocaleString()}</div>
+    <div>en-fwhq T0/T2/T3/T4/T5: <b>${tf.T0.tokens}</b> · ${tf.T2.tokens.toLocaleString()} · ${tf.T3.tokens.toLocaleString()} · ${tf.T4.tokens.toLocaleString()} · ${tf.T5.tokens.toLocaleString()}</div>
+    <div>en-wiki T0/T2/T3/T4/T5: <b>${tw.T0.tokens}</b> · ${tw.T2.tokens.toLocaleString()} · ${tw.T3.tokens.toLocaleString()} · ${tw.T4.tokens.toLocaleString()} · ${tw.T5.tokens.toLocaleString()}</div>
+  `;
+
+  document.getElementById("premise").innerHTML = `<b>Premise:</b> ${data.summary.premise_text}`;
+
+  const TIER_COLOR = {
+    "T0": "#0f5132", "T2": "#1f6feb", "T3": "#d97706",
+    "T4": "#b03060", "T5": "#888",
+  };
+  const TIER_LABEL = {
+    "T0": "T0 char-evidenced", "T2": "T2 premise", "T3": "T3 substrate",
+    "T4": "T4 char-excluded", "T5": "T5 unknown",
+  };
+  const TIER_ORDER = ["T0", "T2", "T3", "T4", "T5"];
+  const SCOPE_TIERS = {
+    "all":         new Set(["T0","T2","T3","T4","T5"]),
+    "strict":      new Set(["T0"]),
+    "premise":     new Set(["T0","T2"]),
+    "premise_sub": new Set(["T0","T2","T3"]),
+  };
+
+  function controls() {
+    return {
+      lang:  document.querySelector('input[name="lang"]:checked').value,
+      scope: document.querySelector('input[name="scope"]:checked').value,
+      ensrc: document.querySelector('input[name="ensrc"]:checked').value,
+    };
+  }
+  function filterRecords(c) {
+    const allowed = SCOPE_TIERS[c.scope];
+    const tier_attr = c.lang === "de" ? "td" : "te";
+    return data.tokens.filter(r => allowed.has(r[tier_attr]));
+  }
+  function enCount(r, c) { return c.ensrc === "fwhq" ? r.ef : r.ew; }
+
+  function renderAll() {
+    const c = controls();
+    const filtered = filterRecords(c);
+    const scope_info = document.getElementById("scope-info");
+    const en_label = c.ensrc === "fwhq" ? "FineWeb-HQ" : "clean-wikipedia";
+    const lang_label = c.lang === "de" ? "German" : "English";
+    const mode_desc = data.summary.modes[c.scope];
+
+    if (filtered.length === 0) {
+      scope_info.className = "scope-empty";
+      scope_info.textContent = `${lang_label} ${c.scope} → 0 tokens. (`
+        + (c.lang === "en" && c.scope === "strict"
+            ? "T0 is structurally empty for English — every char in en's CLDR exemplar is also in every other Latin locale's exemplar."
+            : `${mode_desc}`)
+        + `)`;
+    } else {
+      scope_info.className = "scope-banner";
+      scope_info.textContent = `Scope: ${lang_label} ${c.scope} (${mode_desc}) · ${filtered.length.toLocaleString()} tokens · English source: ${en_label}`;
+    }
+    renderScatter(filtered, c);
+    renderHist(c);
+    renderRankRank(c);
+  }
+
+  const maxLog = 8;
+  const ref = [
+    { type:"scatter", mode:"lines", x:[0,maxLog], y:[0,maxLog], line:{color:"#999",width:1}, hoverinfo:"skip", showlegend:false },
+    { type:"scatter", mode:"lines", x:[0,maxLog-1], y:[1,maxLog], line:{color:"#999",width:1,dash:"dash"}, hoverinfo:"skip", showlegend:false },
+    { type:"scatter", mode:"lines", x:[1,maxLog], y:[0,maxLog-1], line:{color:"#999",width:1,dash:"dash"}, hoverinfo:"skip", showlegend:false },
+    { type:"scatter", mode:"lines", x:[0,maxLog-2], y:[2,maxLog], line:{color:"#999",width:1,dash:"dot"}, hoverinfo:"skip", showlegend:false },
+    { type:"scatter", mode:"lines", x:[2,maxLog], y:[0,maxLog-2], line:{color:"#999",width:1,dash:"dot"}, hoverinfo:"skip", showlegend:false },
+  ];
+
+  function renderScatter(filtered, c) {
+    const tier_attr = c.lang === "de" ? "td" : "te";
+    const buckets = {}; for (const t of TIER_ORDER) buckets[t] = [];
+    for (const r of filtered) buckets[r[tier_attr]].push(r);
+    const traces = [];
+    for (const t of TIER_ORDER) {
+      const arr = buckets[t];
+      if (!arr.length) continue;
+      const en_label = c.ensrc === "fwhq" ? "FineWeb-HQ" : "wiki";
+      traces.push({
+        type: "scattergl", mode: "markers",
+        name: `${TIER_LABEL[t]} (${arr.length.toLocaleString()})`,
+        x: arr.map(r => Math.log10(enCount(r,c) + 1)),
+        y: arr.map(r => Math.log10(r.de + 1)),
+        text: arr.map(r =>
+          `${JSON.stringify(r.d)}<br>de=${r.de.toLocaleString()} · en-${en_label}=${enCount(r,c).toLocaleString()}<br>de-tier ${r.td} · en-tier ${r.te} · pc ${r.pc}`),
+        hoverinfo: "text",
+        marker: {
+          color: TIER_COLOR[t],
+          size: t === "T0" ? 6 : 3,
+          opacity: t === "T0" ? 0.9 : 0.55,
+          line: t === "T0" ? { color: "#0f5132", width: 0.5 } : { width: 0 },
+        },
+      });
+    }
+    Plotly.react("scatter", traces.concat(ref), {
+      paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+      margin: { l: 60, r: 20, t: 10, b: 50 },
+      xaxis: { title: `log10(count in English ${c.ensrc==="fwhq"?"FineWeb-HQ":"wiki"} + 1)`, range: [-0.2, maxLog], gridcolor: "#eee", zeroline: false },
+      yaxis: { title: "log10(count in German FineWeb2-HQ + 1)", range: [-0.2, maxLog], gridcolor: "#eee", zeroline: false },
+      showlegend: true, legend: { font: { size: 10 } },
+      annotations: [
+        { x: maxLog - 0.2, y: maxLog - 0.2, text: "y = x",       showarrow: false, font: { size: 10, color: "#666" } },
+        { x: maxLog - 0.2, y: maxLog - 1.2, text: "10× English", showarrow: false, font: { size: 10, color: "#666" } },
+        { x: maxLog - 1.2, y: maxLog - 0.2, text: "10× German",  showarrow: false, font: { size: 10, color: "#666" } },
+      ],
+    }, { displayModeBar: true, responsive: true });
+  }
+
+  function renderHist(c) {
+    const bins = data.log_ratio_bins[c.ensrc];
+    const labels = bins.map(b => b.label);
+    const allowed = SCOPE_TIERS[c.scope];
+    function bin_de(b, t) { return allowed.has(t) ? b[`de_mass_${t}`] : 0; }
+    function bin_en(b, t) { return allowed.has(t) ? b[`en_mass_${t}`] : 0; }
+    const histTraces = [
+      { type: "bar", name: "German T0", legendgroup: "T0", x: labels,
+        y: bins.map(b => bin_de(b, "T0")), marker: { color: TIER_COLOR.T0 } },
+      { type: "bar", name: "German T2", legendgroup: "T2", x: labels,
+        y: bins.map(b => bin_de(b, "T2")), marker: { color: TIER_COLOR.T2 } },
+      { type: "bar", name: "German T3 substrate", legendgroup: "T3", x: labels,
+        y: bins.map(b => bin_de(b, "T3")), marker: { color: TIER_COLOR.T3 } },
+      { type: "bar", name: "English T0 (mirrored)", legendgroup: "T0", x: labels,
+        y: bins.map(b => -bin_en(b, "T0")), marker: { color: TIER_COLOR.T0, pattern: { shape: "/", size: 5 } } },
+      { type: "bar", name: "English T2 (mirrored)", legendgroup: "T2", x: labels,
+        y: bins.map(b => -bin_en(b, "T2")), marker: { color: TIER_COLOR.T2, pattern: { shape: "/", size: 5 } } },
+      { type: "bar", name: "English T3 substrate (mirrored)", legendgroup: "T3", x: labels,
+        y: bins.map(b => -bin_en(b, "T3")), marker: { color: TIER_COLOR.T3, pattern: { shape: "/", size: 5 } } },
+    ];
+    const all_y = histTraces.flatMap(t => t.y);
+    const yMax = Math.max(...all_y.map(Math.abs)) * 1.08 || 1;
+    Plotly.react("hist", histTraces, {
+      paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+      barmode: "relative",
+      margin: { l: 90, r: 20, t: 10, b: 90 },
+      xaxis: { title: "log10(count_de / count_en) — left: English-dominant · right: German-dominant",
+               tickangle: -40, gridcolor: "#eee" },
+      yaxis: { title: "mass (tokens) — German above, English below",
+               gridcolor: "#eee", zeroline: true, zerolinecolor: "#888",
+               range: [-yMax, yMax], tickformat: ",~s" },
+      showlegend: true, legend: { font: { size: 10 } },
+      annotations: [
+        { xref:"paper", yref:"paper", x: 0.01, y: 0.98, text: "↑ German mass", showarrow: false, font: { size: 11, color: "#0f5132" } },
+        { xref:"paper", yref:"paper", x: 0.01, y: 0.02, text: `↓ English ${c.ensrc==="fwhq"?"FW-HQ":"wiki"} mass`, showarrow: false, font: { size: 11, color: "#d97706" } },
+      ],
+    }, { displayModeBar: true, responsive: true });
+  }
+
+  function renderRankRank(c) {
+    const rr_all = data.rank_rank[c.ensrc];
+    const allowed = SCOPE_TIERS[c.scope];
+    const rr = rr_all.filter(r => allowed.has(r.td));
+    const rrT0 = rr.filter(r => r.td === "T0");
+    const rrT2 = rr.filter(r => r.td === "T2");
+    const maxRank = Math.max(rr_all.length, 1);
+    const en_label = c.ensrc === "fwhq" ? "FineWeb-HQ" : "wiki";
+    const traces = [
+      {
+        type: "scattergl", mode: "markers",
+        name: `T2 premise (${rrT2.length.toLocaleString()})`,
+        x: rrT2.map(r => r.ren), y: rrT2.map(r => r.rde),
+        text: rrT2.map(r => `${JSON.stringify(r.d)}<br>rank_en=${r.ren} · rank_de=${r.rde}<br>en=${r.en.toLocaleString()} · de=${r.de.toLocaleString()}`),
+        hoverinfo: "text",
+        marker: { color: TIER_COLOR.T2, size: 2, opacity: 0.5 },
+        visible: rrT2.length ? true : "legendonly",
+      },
+      {
+        type: "scattergl", mode: "markers",
+        name: `T0 char-evidenced (${rrT0.length.toLocaleString()})`,
+        x: rrT0.map(r => r.ren), y: rrT0.map(r => r.rde),
+        text: rrT0.map(r => `${JSON.stringify(r.d)}<br>rank_en=${r.ren} · rank_de=${r.rde}<br>en=${r.en.toLocaleString()} · de=${r.de.toLocaleString()}`),
+        hoverinfo: "text",
+        marker: { color: TIER_COLOR.T0, size: 6, opacity: 0.9, line: { color: "#0f5132", width: 0.5 } },
+        visible: rrT0.length ? true : "legendonly",
+      },
+      {
+        type: "scatter", mode: "lines", x: [1, maxRank], y: [1, maxRank],
+        line: { color: "#999", width: 1 },
+        hoverinfo: "skip", showlegend: false,
+      },
+    ];
+    Plotly.react("rankrank", traces, {
+      paper_bgcolor: "#fff", plot_bgcolor: "#fff",
+      margin: { l: 70, r: 20, t: 10, b: 50 },
+      xaxis: { title: `rank in English ${en_label} (premise pool, fired in both)`,
+               type: "log", range: [0, Math.log10(maxRank)+0.05], gridcolor: "#eee" },
+      yaxis: { title: "rank in German FineWeb2-HQ (premise pool, fired in both)",
+               type: "log", range: [0, Math.log10(maxRank)+0.05], gridcolor: "#eee" },
+      showlegend: true, legend: { font: { size: 10 } },
+    }, { displayModeBar: true, responsive: true });
+  }
+
+  renderAll();
+  for (const r of document.querySelectorAll('input[name="lang"], input[name="scope"], input[name="ensrc"]')) {
+    r.addEventListener("change", renderAll);
+  }
+}
+main();
+</script>
+</body>
+</html>

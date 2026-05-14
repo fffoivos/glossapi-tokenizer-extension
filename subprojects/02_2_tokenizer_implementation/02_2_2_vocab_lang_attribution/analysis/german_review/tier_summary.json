@@ -1,0 +1,52 @@
+{
+  "lang_code": "de",
+  "dataset": "deu_Latn",
+  "total_sample": 1005786784,
+  "fired": 113441,
+  "schema_premise": "In the German dataset, a token whose chars are de-admissible defaults to de under tier T2 (premise). T0/T1 are char-evidenced; T2 is defeasible.",
+  "char_membership_schema_version": 4,
+  "tiers": [
+    {
+      "tier": "T0_definitely_de",
+      "tokens": 103,
+      "mass": 4963019,
+      "mass_pct": 0.493446432081971,
+      "description": "char-evidenced (bitmask_and == {de} only)"
+    },
+    {
+      "tier": "T1_definitely_germanic_latn",
+      "tokens": 0,
+      "mass": 0,
+      "mass_pct": 0.0,
+      "description": "char-evidenced family (family_and == {Germanic-Latn} only) — premise picks de over en/nl/da/nb/sv/is"
+    },
+    {
+      "tier": "T2_premise_de",
+      "tokens": 77645,
+      "mass": 845472197,
+      "mass_pct": 84.06077813406624,
+      "description": "premise (bitmask_and has de-bit; chars also admit other locales)"
+    },
+    {
+      "tier": "T3_substrate",
+      "tokens": 2843,
+      "mass": 153498172,
+      "mass_pct": 15.261502183349428,
+      "description": "substrate (every in-scope locale admits all chars)"
+    },
+    {
+      "tier": "T4_excluded",
+      "tokens": 31824,
+      "mass": 1342567,
+      "mass_pct": 0.13348425544633125,
+      "description": "char evidence rules de out (token has a non-de-admissible char)"
+    },
+    {
+      "tier": "T5_unknown",
+      "tokens": 1026,
+      "mass": 510829,
+      "mass_pct": 0.05078899505603367,
+      "description": "char tool cannot evaluate (partial_utf8 / byte_unmapped / special)"
+    }
+  ]
+}

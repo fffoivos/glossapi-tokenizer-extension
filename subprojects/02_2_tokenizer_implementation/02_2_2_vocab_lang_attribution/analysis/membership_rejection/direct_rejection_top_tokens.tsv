@@ -1,0 +1,2701 @@
+canonical_key	rank	token_id	decoded	count	share_pct	status	bitmask_popcount	bitmask_signature
+fas_Arab	1	1764	'ى'	395102	0.039441	text	1	ar
+fas_Arab	2	2046	' ك'	309438	0.030889	text	1	ar
+fas_Arab	3	4385	'ِ'	270498	0.027002	text	1	ar
+fas_Arab	4	1559	'ك'	108576	0.010839	text	1	ar
+fas_Arab	5	2739	'َ'	105940	0.010575	text	1	ar
+fas_Arab	6	3404	'ُ'	78014	0.007788	text	1	ar
+fas_Arab	7	1278	' the'	72736	0.007261	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	8	1398	' B'	58282	0.005818	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	9	1307	' of'	56394	0.005629	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	10	1359	' C'	55707	0.005561	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	11	1349	' A'	55704	0.005561	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	12	7213	'ْ'	47745	0.004766	text	1	ar
+fas_Arab	13	1321	' and'	45580	0.004550	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	14	1317	' to'	43643	0.004357	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	15	2354	'.com'	43444	0.004337	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	16	1436	' E'	42116	0.004204	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	17	1335	' S'	41776	0.004170	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	18	1407	' D'	38154	0.003809	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	19	1362	' I'	37927	0.003786	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	20	1068	'D'	37906	0.003784	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	21	36291	' كن'	37361	0.003730	text	1	ar
+fas_Arab	22	1073	'I'	36587	0.003652	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	23	1390	' P'	36244	0.003618	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	24	1065	'A'	36161	0.003610	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	25	1378	'ir'	36070	0.003601	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	26	1353	' T'	35761	0.003570	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	27	1067	'C'	35546	0.003548	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	28	1261	' a'	34368	0.003431	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	29	1080	'P'	33801	0.003374	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	30	1070	'F'	33644	0.003358	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	31	1066	'B'	33136	0.003308	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	32	1434	' R'	32907	0.003285	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	33	1077	'M'	31536	0.003148	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	34	1083	'S'	31419	0.003136	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	35	11324	'َّ'	31093	0.003104	text	1	ar
+fas_Arab	36	1294	' in'	30761	0.003071	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	37	1071	'G'	30609	0.003056	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	38	1439	' F'	29793	0.002974	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	39	1443	' H'	28732	0.002868	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	40	1373	' M'	28377	0.002833	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	41	1461	' G'	28051	0.002800	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	42	1464	' N'	26789	0.002674	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	43	1072	'H'	26673	0.002663	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	44	1088	'X'	26462	0.002642	text	27	en,cs,da,de,es,fr,hu,id...+19
+fas_Arab	45	1082	'R'	25518	0.002547	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	46	1086	'V'	25024	0.002498	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	47	1424	' L'	24926	0.002488	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	48	1115	's'	24774	0.002473	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	49	1531	' The'	24532	0.002449	text	28	en,cs,da,de,es,fr,hu,id...+20
+fas_Arab	50	36615	' كار'	24335	0.002429	text	1	ar
+grc_Grek	1	1278	' the'	49173	0.038298	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	2	1307	' of'	34288	0.026705	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	3	1261	' a'	30927	0.024087	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	4	1321	' and'	28553	0.022238	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	5	1317	' to'	21710	0.016909	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	6	1395	' is'	19262	0.015002	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	7	91976	' 보기'	17790	0.013856	text	1	ko
+grc_Grek	8	13567	'호'	17790	0.013856	text	1	ko
+grc_Grek	9	1294	' in'	16441	0.012805	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	10	1374	'us'	15002	0.011684	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	11	120279	' greco'	13890	0.010818	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	12	1394	' for'	13296	0.010355	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	13	1455	' that'	11001	0.008568	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	14	1636	' you'	10810	0.008419	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	15	5473	'부'	10674	0.008313	text	1	ko
+grc_Grek	16	1362	' I'	10365	0.008073	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	17	9010	'작'	10020	0.007804	text	1	ko
+grc_Grek	18	3313	'AT'	9919	0.007725	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	19	1408	' on'	9128	0.007109	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	20	3403	' text'	9113	0.007098	text	27	en,cs,da,de,es,fr,hu,id...+19
+grc_Grek	21	1104	'h'	9071	0.007065	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	22	4380	'This'	8844	0.006888	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	23	1454	' with'	8808	0.006860	text	27	en,cs,da,de,es,fr,hu,id...+19
+grc_Grek	24	1098	'b'	8384	0.006530	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	25	3422	'ò'	8166	0.006360	text	5	it,pt,vi,nb,ca
+grc_Grek	26	15860	' TR'	8065	0.006281	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	27	3541	' word'	7975	0.006211	text	27	en,cs,da,de,es,fr,hu,id...+19
+grc_Grek	28	4991	' version'	7770	0.006052	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	29	2015	' up'	7713	0.006007	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	30	25993	' ts'	7679	0.005981	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	31	90443	' Perse'	7514	0.005852	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	32	2435	'은'	6789	0.005288	text	1	ko
+grc_Grek	33	1593	' this'	6766	0.005270	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	34	23941	'Mat'	6660	0.005187	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	35	20195	'BM'	6621	0.005157	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	36	22857	' entries'	6576	0.005122	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	37	1747	' all'	6491	0.005055	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	38	1856	'이'	6462	0.005033	text	1	ko
+grc_Grek	39	10806	' 저'	6462	0.005033	text	1	ko
+grc_Grek	40	8548	' bring'	6451	0.005024	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	41	1635	' par'	6411	0.004993	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	42	2425	' under'	6320	0.004922	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	43	6641	'Click'	6285	0.004895	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	44	25983	' dictionary'	6285	0.004895	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	45	1076	'L'	6249	0.004867	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	46	8361	' frequency'	6223	0.004847	text	27	en,cs,da,de,es,fr,hu,id...+19
+grc_Grek	47	22617	'ses'	6223	0.004847	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	48	21767	' statistics'	6223	0.004847	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	49	99912	' Contents'	6130	0.004774	text	28	en,cs,da,de,es,fr,hu,id...+20
+grc_Grek	50	4944	'Table'	6120	0.004766	text	28	en,cs,da,de,es,fr,hu,id...+20
+hun_Latn	1	4013	'õ'	199600	0.019727	text	3	pt,vi,et
+hun_Latn	2	6344	'û'	39004	0.003855	text	1	fr
+hun_Latn	3	2797	'ô'	15577	0.001540	text	5	fr,pt,vi,nb,sk
+hun_Latn	4	46083	' õ'	13690	0.001353	text	3	pt,vi,et
+hun_Latn	5	1756	' и'	7139	0.000706	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	6	1668	' в'	6844	0.000676	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	7	88467	' nõ'	5451	0.000539	text	3	pt,vi,et
+hun_Latn	8	1780	'ı'	5429	0.000537	text	2	tr,az
+hun_Latn	9	2843	' не'	5050	0.000499	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	10	1902	' на'	4508	0.000446	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	11	2381	'š'	4330	0.000428	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+hun_Latn	12	2514	'č'	4326	0.000428	text	7	cs,sr-Latn,sl,hr,sk,lt,lv
+hun_Latn	13	113549	' Räikkönen'	3916	0.000387	text	5	de,nl,sv,fi,et
+hun_Latn	14	4547	'ā'	3696	0.000365	text	1	lv
+hun_Latn	15	3723	'ć'	3450	0.000341	text	4	pl,sr-Latn,sl,hr
+hun_Latn	16	2458	'ă'	3412	0.000337	text	2	vi,ro
+hun_Latn	17	1614	' с'	3319	0.000328	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	18	1654	'ä'	3245	0.000321	text	6	de,nl,sv,fi,sk,et
+hun_Latn	19	3103	'ть'	3048	0.000301	text	3	ru,uk,bg
+hun_Latn	20	5858	' что'	2950	0.000292	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	21	20512	'ović'	2801	0.000277	text	4	pl,sr-Latn,sl,hr
+hun_Latn	22	1432	'л'	2560	0.000253	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	23	13192	' Š'	2364	0.000234	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+hun_Latn	24	2463	'ка'	2343	0.000232	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	25	2105	'ла'	2252	0.000223	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	26	2711	' по'	2232	0.000221	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	27	1334	'е'	2195	0.000217	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	28	1755	' à'	2131	0.000211	text	7	fr,it,pt,sv,vi,nb,ca
+hun_Latn	29	2332	' у'	2052	0.000203	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	30	2546	'ž'	2039	0.000202	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+hun_Latn	31	2982	' С'	1996	0.000197	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	32	2600	'ş'	1961	0.000194	text	2	tr,az
+hun_Latn	33	50273	' tõ'	1938	0.000192	text	3	pt,vi,et
+hun_Latn	34	2060	'ли'	1927	0.000190	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	35	110884	' bû'	1920	0.000190	text	1	fr
+hun_Latn	36	1565	'м'	1913	0.000189	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	37	3460	' от'	1847	0.000183	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	38	2555	' за'	1832	0.000181	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	39	9421	' он'	1739	0.000172	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	40	1835	' к'	1705	0.000169	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	41	1570	'я'	1656	0.000164	text	3	ru,uk,bg
+hun_Latn	42	97213	'čić'	1639	0.000162	text	3	sr-Latn,sl,hr
+hun_Latn	43	16096	'ō'	1637	0.000162	no_in_scope_chars	0	(none)
+hun_Latn	44	3751	' из'	1627	0.000161	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	45	5111	'С'	1624	0.000161	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	46	3062	'ý'	1616	0.000160	text	4	cs,vi,sk,is
+hun_Latn	47	1361	'т'	1586	0.000157	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	48	13677	' Č'	1576	0.000156	text	7	cs,sr-Latn,sl,hr,sk,lt,lv
+hun_Latn	49	2334	'но'	1521	0.000150	text	5	ru,uk,bg,mk,sr-Cyrl
+hun_Latn	50	2624	'ñ'	1520	0.000150	text	1	es
+nob_Latn	1	13566	'Г'	167229	0.016701	text	5	ru,uk,bg,mk,sr-Cyrl
+nob_Latn	2	3902	'ё'	56252	0.005618	text	1	ru
+nob_Latn	3	7974	' för'	44247	0.004419	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	4	4923	' Г'	38334	0.003828	text	5	ru,uk,bg,mk,sr-Cyrl
+nob_Latn	5	14868	' är'	33794	0.003375	text	6	de,nl,sv,fi,sk,et
+nob_Latn	6	1792	'ö'	24748	0.002472	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	7	2113	'ã'	24383	0.002435	text	2	pt,vi
+nob_Latn	8	82803	'Ã'	24084	0.002405	text	2	pt,vi
+nob_Latn	9	1654	'ä'	22751	0.002272	text	6	de,nl,sv,fi,sk,et
+nob_Latn	10	3238	'ör'	18032	0.001801	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	11	4397	'är'	16720	0.001670	text	6	de,nl,sv,fi,sk,et
+nob_Latn	12	5154	'ї'	15650	0.001563	text	1	uk
+nob_Latn	13	1789	'п'	12454	0.001244	text	5	ru,uk,bg,mk,sr-Cyrl
+nob_Latn	14	4803	'än'	12086	0.001207	text	6	de,nl,sv,fi,sk,et
+nob_Latn	15	9267	'ð'	11791	0.001178	text	1	is
+nob_Latn	16	29798	' þ'	10521	0.001051	text	1	is
+nob_Latn	17	1502	'á'	10274	0.001026	text	8	cs,es,hu,nl,pt,vi,sk,is
+nob_Latn	18	5233	' ö'	10104	0.001009	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	19	1754	'è'	9249	0.000924	text	4	fr,it,vi,ca
+nob_Latn	20	8963	'äl'	9072	0.000906	text	6	de,nl,sv,fi,sk,et
+nob_Latn	21	16171	'kö'	8975	0.000896	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	22	4861	'ön'	8607	0.000860	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	23	18455	' vä'	8224	0.000821	text	6	de,nl,sv,fi,sk,et
+nob_Latn	24	16532	'äll'	8135	0.000812	text	6	de,nl,sv,fi,sk,et
+nob_Latn	25	3608	' für'	7990	0.000798	text	9	de,es,fr,hu,nl,tr,az,et...+1
+nob_Latn	26	25022	'för'	7838	0.000783	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	27	1671	'ü'	7265	0.000726	text	9	de,es,fr,hu,nl,tr,az,et...+1
+nob_Latn	28	4847	' è'	7190	0.000718	text	4	fr,it,vi,ca
+nob_Latn	29	53663	' gründ'	7071	0.000706	text	9	de,es,fr,hu,nl,tr,az,et...+1
+nob_Latn	30	71192	'jö'	7018	0.000701	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	31	5105	'ät'	6987	0.000698	text	6	de,nl,sv,fi,sk,et
+nob_Latn	32	19043	' lä'	6241	0.000623	text	6	de,nl,sv,fi,sk,et
+nob_Latn	33	10476	' Ö'	6220	0.000621	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	34	10879	'äs'	5852	0.000584	text	6	de,nl,sv,fi,sk,et
+nob_Latn	35	4324	' á'	5659	0.000565	text	8	cs,es,hu,nl,pt,vi,sk,is
+nob_Latn	36	1529	'í'	5644	0.000564	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+nob_Latn	37	25485	'ätt'	5562	0.000555	text	6	de,nl,sv,fi,sk,et
+nob_Latn	38	10030	'ös'	5387	0.000538	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	39	7221	' ä'	5315	0.000531	text	6	de,nl,sv,fi,sk,et
+nob_Latn	40	7511	' kö'	5129	0.000512	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	41	34401	' över'	5052	0.000505	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	42	13641	' gö'	4994	0.000499	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+nob_Latn	43	5951	'änd'	4921	0.000491	text	6	de,nl,sv,fi,sk,et
+nob_Latn	44	30242	'äv'	4904	0.000490	text	6	de,nl,sv,fi,sk,et
+nob_Latn	45	57720	' när'	4886	0.000488	text	6	de,nl,sv,fi,sk,et
+nob_Latn	46	79862	' här'	4876	0.000487	text	6	de,nl,sv,fi,sk,et
+nob_Latn	47	1780	'ı'	4465	0.000446	text	2	tr,az
+nob_Latn	48	24890	'vä'	4338	0.000433	text	6	de,nl,sv,fi,sk,et
+nob_Latn	49	8134	'äng'	4260	0.000425	text	6	de,nl,sv,fi,sk,et
+nob_Latn	50	63617	' använd'	4234	0.000423	text	6	de,nl,sv,fi,sk,et
+por_Latn	1	1671	'ü'	94188	0.009393	text	9	de,es,fr,hu,nl,tr,az,et...+1
+por_Latn	2	1334	'е'	9764	0.000974	text	5	ru,uk,bg,mk,sr-Cyrl
+por_Latn	3	1315	'а'	6312	0.000629	text	5	ru,uk,bg,mk,sr-Cyrl
+por_Latn	4	1323	'о'	5805	0.000579	text	5	ru,uk,bg,mk,sr-Cyrl
+por_Latn	5	4547	'ā'	5406	0.000539	text	1	lv
+por_Latn	6	16096	'ō'	5273	0.000526	no_in_scope_chars	0	(none)
+por_Latn	7	2624	'ñ'	4515	0.000450	text	1	es
+por_Latn	8	2494	' а'	3977	0.000397	text	5	ru,uk,bg,mk,sr-Cyrl
+por_Latn	9	96639	' lingü'	3855	0.000384	text	9	de,es,fr,hu,nl,tr,az,et...+1
+por_Latn	10	3116	' е'	3378	0.000337	text	5	ru,uk,bg,mk,sr-Cyrl
+por_Latn	11	2739	'َ'	3264	0.000326	text	1	ar
+por_Latn	12	5910	'ño'	2835	0.000283	text	1	es
+por_Latn	13	2884	'ß'	2806	0.000280	text	1	de
+por_Latn	14	7467	'ña'	2750	0.000274	text	1	es
+por_Latn	15	1810	' о'	2580	0.000257	text	5	ru,uk,bg,mk,sr-Cyrl
+por_Latn	16	113972	'Ă'	2415	0.000241	text	2	vi,ro
+por_Latn	17	1792	'ö'	2400	0.000239	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+por_Latn	18	1654	'ä'	2365	0.000236	text	6	de,nl,sv,fi,sk,et
+por_Latn	19	4385	'ِ'	2345	0.000234	text	1	ar
+por_Latn	20	10095	'ū'	2263	0.000226	text	2	lt,lv
+por_Latn	21	1754	'è'	2224	0.000222	text	4	fr,it,vi,ca
+por_Latn	22	2631	'ë'	2173	0.000217	text	2	fr,nl
+por_Latn	23	7701	'ī'	1992	0.000199	text	1	lv
+por_Latn	24	1756	' и'	1907	0.000190	text	5	ru,uk,bg,mk,sr-Cyrl
+por_Latn	25	1713	'α'	1889	0.000188	text	2	el,el-polyton
+por_Latn	26	2458	'ă'	1848	0.000184	text	2	vi,ro
+por_Latn	27	7884	'ï'	1846	0.000184	text	3	fr,nl,ca
+por_Latn	28	3242	' α'	1759	0.000175	text	2	el,el-polyton
+por_Latn	29	3269	'ès'	1731	0.000173	text	4	fr,it,vi,ca
+por_Latn	30	7213	'ْ'	1712	0.000171	text	1	ar
+por_Latn	31	1753	'і'	1701	0.000170	text	1	uk
+por_Latn	32	8850	' β'	1696	0.000169	text	2	el,el-polyton
+por_Latn	33	1614	' с'	1691	0.000169	text	5	ru,uk,bg,mk,sr-Cyrl
+por_Latn	34	39446	' Müller'	1659	0.000165	text	9	de,es,fr,hu,nl,tr,az,et...+1
+por_Latn	35	4785	'ì'	1653	0.000165	text	2	it,vi
+por_Latn	36	1901	'х'	1604	0.000160	text	5	ru,uk,bg,mk,sr-Cyrl
+por_Latn	37	2894	'ère'	1596	0.000159	text	4	fr,it,vi,ca
+por_Latn	38	116293	' Niño'	1588	0.000158	text	1	es
+por_Latn	39	3404	'ُ'	1554	0.000155	text	1	ar
+por_Latn	40	11324	'َّ'	1494	0.000149	text	1	ar
+por_Latn	41	8981	' años'	1468	0.000146	text	1	es
+por_Latn	42	3774	'ù'	1450	0.000145	text	3	fr,it,vi
+por_Latn	43	4847	' è'	1320	0.000132	text	4	fr,it,vi,ca
+por_Latn	44	10476	' Ö'	1227	0.000122	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+por_Latn	45	5096	' ו'	1204	0.000120	text	1	he
+por_Latn	46	109664	'üe'	1181	0.000118	text	9	de,es,fr,hu,nl,tr,az,et...+1
+por_Latn	47	10049	'ène'	1180	0.000118	text	4	fr,it,vi,ca
+por_Latn	48	6072	'ière'	1165	0.000116	text	4	fr,it,vi,ca
+por_Latn	49	1570	'я'	1160	0.000116	text	3	ru,uk,bg
+por_Latn	50	4902	' со'	1157	0.000115	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	1	10653	' ş'	2860650	0.283494	text	2	tr,az
+ron_Latn	2	2600	'ş'	1322133	0.131025	text	2	tr,az
+ron_Latn	3	73154	'şi'	374005	0.037064	text	2	tr,az
+ron_Latn	4	2113	'ã'	176958	0.017537	text	2	pt,vi
+ron_Latn	5	11178	'şt'	135097	0.013388	text	2	tr,az
+ron_Latn	6	17992	' Ş'	118800	0.011773	text	2	tr,az
+ron_Latn	7	23764	'iş'	106845	0.010588	text	2	tr,az
+ron_Latn	8	31351	'şa'	98026	0.009715	text	2	tr,az
+ron_Latn	9	74932	' aş'	62589	0.006203	text	2	tr,az
+ron_Latn	10	62431	'şit'	50179	0.004973	text	2	tr,az
+ron_Latn	11	59915	'Ş'	48117	0.004768	text	2	tr,az
+ron_Latn	12	102653	'þ'	28327	0.002807	text	1	is
+ron_Latn	13	77651	'uş'	27754	0.002750	text	2	tr,az
+ron_Latn	14	85227	' eş'	24181	0.002396	text	2	tr,az
+ron_Latn	15	1668	' в'	15423	0.001528	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	16	1756	' и'	15377	0.001524	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	17	128292	' ī'	14912	0.001478	text	1	lv
+ron_Latn	18	86169	'Ä'	11629	0.001152	text	6	de,nl,sv,fi,sk,et
+ron_Latn	19	2843	' не'	11091	0.001099	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	20	2803	'å'	10879	0.001078	text	4	da,sv,fi,nb
+ron_Latn	21	1902	' на'	9686	0.000960	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	22	1337	'é'	8013	0.000794	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+ron_Latn	23	1334	'е'	7782	0.000771	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	24	45598	'È'	7296	0.000723	text	4	fr,it,vi,ca
+ron_Latn	25	1614	' с'	7184	0.000712	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	26	7701	'ī'	6800	0.000674	text	1	lv
+ron_Latn	27	5858	' что'	6602	0.000654	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	28	1432	'л'	5731	0.000568	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	29	3103	'ть'	5720	0.000567	text	3	ru,uk,bg
+ron_Latn	30	1315	'а'	5385	0.000534	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	31	1755	' à'	5197	0.000515	text	7	fr,it,pt,sv,vi,nb,ca
+ron_Latn	32	2105	'ла'	4842	0.000480	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	33	2060	'ли'	4501	0.000446	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	34	62927	'Å'	4390	0.000435	text	4	da,sv,fi,nb
+ron_Latn	35	2555	' за'	4334	0.000430	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	36	2711	' по'	4308	0.000427	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	37	30048	' È'	4185	0.000415	text	4	fr,it,vi,ca
+ron_Latn	38	1753	'і'	4140	0.000410	text	1	uk
+ron_Latn	39	2463	'ка'	4103	0.000407	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	40	1780	'ı'	4095	0.000406	text	2	tr,az
+ron_Latn	41	3460	' от'	4068	0.000403	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	42	1502	'á'	4015	0.000398	text	8	cs,es,hu,nl,pt,vi,sk,is
+ron_Latn	43	121187	'Ÿ'	3949	0.000391	text	1	fr
+ron_Latn	44	2332	' у'	3919	0.000388	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	45	9762	'Д'	3795	0.000376	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	46	9421	' он'	3792	0.000376	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	47	3751	' из'	3714	0.000368	text	5	ru,uk,bg,mk,sr-Cyrl
+ron_Latn	48	1570	'я'	3548	0.000352	text	3	ru,uk,bg
+ron_Latn	49	37708	'leş'	3528	0.000350	text	2	tr,az
+ron_Latn	50	1810	' о'	3517	0.000349	text	5	ru,uk,bg,mk,sr-Cyrl
+vie_Latn	1	1789	'п'	18161	0.001812	text	5	ru,uk,bg,mk,sr-Cyrl
+vie_Latn	2	4093	'ø'	15038	0.001500	text	2	da,nb
+vie_Latn	3	4547	'ā'	12096	0.001207	text	1	lv
+vie_Latn	4	1792	'ö'	11451	0.001142	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+vie_Latn	5	6344	'û'	9452	0.000943	text	1	fr
+vie_Latn	6	7884	'ï'	8201	0.000818	text	3	fr,nl,ca
+vie_Latn	7	1588	' п'	5673	0.000566	text	5	ru,uk,bg,mk,sr-Cyrl
+vie_Latn	8	1654	'ä'	5631	0.000562	text	6	de,nl,sv,fi,sk,et
+vie_Latn	9	105678	'ïc'	3594	0.000359	text	3	fr,nl,ca
+vie_Latn	10	2803	'å'	3040	0.000303	text	4	da,sv,fi,nb
+vie_Latn	11	16096	'ō'	2753	0.000275	no_in_scope_chars	0	(none)
+vie_Latn	12	1756	' и'	2428	0.000242	text	5	ru,uk,bg,mk,sr-Cyrl
+vie_Latn	13	5105	'ät'	2299	0.000229	text	6	de,nl,sv,fi,sk,et
+vie_Latn	14	2624	'ñ'	2278	0.000227	text	1	es
+vie_Latn	15	4803	'än'	1940	0.000194	text	6	de,nl,sv,fi,sk,et
+vie_Latn	16	7701	'ī'	1899	0.000189	text	1	lv
+vie_Latn	17	1472	'у'	1719	0.000172	text	5	ru,uk,bg,mk,sr-Cyrl
+vie_Latn	18	10095	'ū'	1683	0.000168	text	2	lt,lv
+vie_Latn	19	1668	' в'	1660	0.000166	text	5	ru,uk,bg,mk,sr-Cyrl
+vie_Latn	20	1671	'ü'	1506	0.000150	text	9	de,es,fr,hu,nl,tr,az,et...+1
+vie_Latn	21	64756	'øy'	1428	0.000142	text	2	da,nb
+vie_Latn	22	1363	'н'	1353	0.000135	text	5	ru,uk,bg,mk,sr-Cyrl
+vie_Latn	23	20118	' François'	1288	0.000129	text	5	fr,pt,tr,az,ca
+vie_Latn	24	1902	' на'	1230	0.000123	text	5	ru,uk,bg,mk,sr-Cyrl
+vie_Latn	25	2631	'ë'	1166	0.000116	text	2	fr,nl
+vie_Latn	26	69008	'øn'	1129	0.000113	text	2	da,nb
+vie_Latn	27	1614	' с'	1074	0.000107	text	5	ru,uk,bg,mk,sr-Cyrl
+vie_Latn	28	15769	' tö'	1072	0.000107	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+vie_Latn	29	8850	' β'	1030	0.000103	text	2	el,el-polyton
+vie_Latn	30	5892	'æ'	1002	0.000100	text	4	da,fr,nb,is
+vie_Latn	31	43121	' sö'	996	0.000099	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+vie_Latn	32	1780	'ı'	973	0.000097	text	2	tr,az
+vie_Latn	33	3242	' α'	970	0.000097	text	2	el,el-polyton
+vie_Latn	34	2713	'的'	964	0.000096	text	3	zh-Hans,zh-Hant,ja
+vie_Latn	35	3914	'ś'	918	0.000092	text	1	pl
+vie_Latn	36	5513	'ça'	865	0.000086	text	5	fr,pt,tr,az,ca
+vie_Latn	37	1713	'α'	860	0.000086	text	2	el,el-polyton
+vie_Latn	38	2843	' не'	856	0.000085	text	5	ru,uk,bg,mk,sr-Cyrl
+vie_Latn	39	1347	'и'	838	0.000084	text	5	ru,uk,bg,mk,sr-Cyrl
+vie_Latn	40	1940	'ç'	810	0.000081	text	5	fr,pt,tr,az,ca
+vie_Latn	41	3294	'ω'	806	0.000080	text	2	el,el-polyton
+vie_Latn	42	7467	'ña'	706	0.000070	text	1	es
+vie_Latn	43	8134	'äng'	688	0.000069	text	6	de,nl,sv,fi,sk,et
+vie_Latn	44	1334	'е'	684	0.000068	text	5	ru,uk,bg,mk,sr-Cyrl
+vie_Latn	45	57644	'网'	681	0.000068	text	3	zh-Hans,zh-Hant,ja
+vie_Latn	46	1976	'ρ'	667	0.000067	text	2	el,el-polyton
+vie_Latn	47	3723	'ć'	663	0.000066	text	4	pl,sr-Latn,sl,hr
+vie_Latn	48	117973	' ρ'	651	0.000065	text	2	el,el-polyton
+vie_Latn	49	15509	'카'	649	0.000065	text	1	ko
+vie_Latn	50	2212	'υ'	637	0.000064	text	2	el,el-polyton
+cmn_Hani	1	1065	'A'	254719	0.025258	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	2	1067	'C'	247724	0.024564	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	3	1066	'B'	239643	0.023763	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	4	1068	'D'	207415	0.020567	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	5	1083	'S'	183789	0.018224	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	6	1077	'M'	170558	0.016912	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	7	1071	'G'	168712	0.016729	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	8	1080	'P'	161414	0.016006	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	9	1070	'F'	139494	0.013832	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	10	1072	'H'	134699	0.013357	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	11	1076	'L'	134633	0.013350	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	12	1084	'T'	132271	0.013116	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	13	1075	'K'	128837	0.012775	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	14	1086	'V'	124907	0.012386	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	15	1078	'N'	124392	0.012335	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	16	1082	'R'	120269	0.011926	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	17	1088	'X'	115451	0.011448	text	27	en,cs,da,de,es,fr,hu,id...+19
+cmn_Hani	18	2354	'.com'	102008	0.010115	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	19	1073	'I'	99312	0.009848	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	20	1069	'E'	97199	0.009638	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	21	1074	'J'	92860	0.009208	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	22	1087	'W'	89982	0.008923	text	27	en,cs,da,de,es,fr,hu,id...+19
+cmn_Hani	23	1079	'O'	88189	0.008745	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	24	1085	'U'	82250	0.008156	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	25	1307	' of'	81492	0.008081	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	26	1278	' the'	80138	0.007946	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	27	1105	'i'	78784	0.007812	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	28	1109	'm'	74668	0.007404	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	29	1081	'Q'	72278	0.007167	text	27	en,cs,da,de,es,fr,hu,id...+19
+cmn_Hani	30	1097	'a'	66850	0.006629	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	31	1115	's'	65943	0.006539	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	32	1090	'Z'	64639	0.006410	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	33	1089	'Y'	62201	0.006168	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	34	1321	' and'	60040	0.005954	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	35	1098	'b'	59551	0.005905	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	36	1120	'x'	58233	0.005774	text	27	en,cs,da,de,es,fr,hu,id...+19
+cmn_Hani	37	6132	'www'	54971	0.005451	text	27	en,cs,da,de,es,fr,hu,id...+19
+cmn_Hani	38	1099	'c'	54280	0.005382	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	39	1104	'h'	50073	0.004965	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	40	1100	'd'	49936	0.004952	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	41	1112	'p'	46722	0.004633	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	42	8383	'mm'	46287	0.004590	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	43	1103	'g'	45834	0.004545	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	44	1121	'y'	44313	0.004394	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	45	1317	' to'	44057	0.004369	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	46	1398	' B'	42139	0.004178	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	47	1261	' a'	41225	0.004088	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	48	1101	'e'	40362	0.004002	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	49	1349	' A'	39943	0.003961	text	28	en,cs,da,de,es,fr,hu,id...+20
+cmn_Hani	50	1107	'k'	39230	0.003890	text	28	en,cs,da,de,es,fr,hu,id...+20
+dan_Latn	1	61890	' én'	79601	0.007891	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	2	1337	'é'	68714	0.006812	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	3	60864	' idé'	53051	0.005259	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	4	2322	'ér'	51049	0.005061	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	5	3014	' ét'	26454	0.002623	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	6	3291	'ité'	9181	0.000910	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	7	28943	' München'	7229	0.000717	text	9	de,es,fr,hu,nl,tr,az,et...+1
+dan_Latn	8	1792	'ö'	7223	0.000716	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+dan_Latn	9	119190	' dér'	6838	0.000678	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	10	35858	' café'	5990	0.000594	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	11	7974	' för'	5920	0.000587	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+dan_Latn	12	1502	'á'	5873	0.000582	text	8	cs,es,hu,nl,pt,vi,sk,is
+dan_Latn	13	1654	'ä'	5515	0.000547	text	6	de,nl,sv,fi,sk,et
+dan_Latn	14	19299	' dét'	5441	0.000539	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	15	1506	'ó'	5178	0.000513	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+dan_Latn	16	35088	'umé'	5171	0.000513	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	17	1529	'í'	5135	0.000509	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+dan_Latn	18	77860	'oré'	5075	0.000503	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	19	1755	' à'	5033	0.000499	text	7	fr,it,pt,sv,vi,nb,ca
+dan_Latn	20	36382	'idé'	4688	0.000465	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	21	14868	' är'	4355	0.000432	text	6	de,nl,sv,fi,sk,et
+dan_Latn	22	9267	'ð'	4261	0.000422	text	1	is
+dan_Latn	23	1924	'és'	4089	0.000405	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	24	11333	' José'	4043	0.000401	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	25	73825	'éen'	4007	0.000397	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	26	4664	' É'	3978	0.000394	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	27	2855	'án'	3820	0.000379	text	8	cs,es,hu,nl,pt,vi,sk,is
+dan_Latn	28	1671	'ü'	3728	0.000370	text	9	de,es,fr,hu,nl,tr,az,et...+1
+dan_Latn	29	3238	'ör'	3716	0.000368	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+dan_Latn	30	2747	'én'	3657	0.000363	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	31	4397	'är'	3623	0.000359	text	6	de,nl,sv,fi,sk,et
+dan_Latn	32	2739	'َ'	3590	0.000356	text	1	ar
+dan_Latn	33	2720	'â'	3577	0.000355	text	4	fr,pt,vi,ro
+dan_Latn	34	82803	'Ã'	3506	0.000348	text	2	pt,vi
+dan_Latn	35	4547	'ā'	3483	0.000345	text	1	lv
+dan_Latn	36	7904	'É'	3248	0.000322	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	37	3608	' für'	3182	0.000315	text	9	de,es,fr,hu,nl,tr,az,et...+1
+dan_Latn	38	15206	'ké'	3129	0.000310	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	39	2201	'ł'	3118	0.000309	text	1	pl
+dan_Latn	40	10476	' Ö'	3108	0.000308	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+dan_Latn	41	3975	'ón'	3027	0.000300	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+dan_Latn	42	120613	' turné'	2849	0.000282	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	43	3735	' μ'	2729	0.000271	text	2	el,el-polyton
+dan_Latn	44	2267	'ée'	2718	0.000269	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	45	77834	' Pokémon'	2677	0.000265	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	46	8243	'ré'	2654	0.000263	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	47	1756	' и'	2630	0.000261	text	5	ru,uk,bg,mk,sr-Cyrl
+dan_Latn	48	38606	'uré'	2627	0.000260	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+dan_Latn	49	4385	'ِ'	2572	0.000255	text	1	ar
+dan_Latn	50	1921	'à'	2532	0.000251	text	7	fr,it,pt,sv,vi,nb,ca
+ell_Grek	1	1278	' the'	158354	0.015788	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	2	1307	' of'	143922	0.014349	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	3	1321	' and'	93218	0.009294	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	4	1359	' C'	90879	0.009061	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	5	1349	' A'	76421	0.007619	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	6	1353	' T'	72871	0.007265	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	7	1111	'o'	71762	0.007155	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	8	1398	' B'	69580	0.006937	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	9	1335	' S'	68840	0.006863	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	10	1550	' K'	68667	0.006846	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	11	1407	' D'	67998	0.006779	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	12	1439	' F'	67763	0.006756	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	13	1373	' M'	65900	0.006570	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	14	1317	' to'	63880	0.006369	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	15	1424	' L'	63377	0.006319	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	16	1294	' in'	63205	0.006302	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	17	1870	'gr'	60874	0.006069	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	18	1531	' The'	59539	0.005936	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	19	1461	' G'	58960	0.005878	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	20	1390	' P'	58864	0.005869	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	21	1443	' H'	56553	0.005638	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	22	2354	'.com'	56470	0.005630	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	23	1115	's'	55954	0.005579	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	24	1436	' E'	55169	0.005500	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	25	1261	' a'	54377	0.005421	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	26	1065	'A'	53028	0.005287	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	27	1434	' R'	51304	0.005115	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	28	1259	'in'	51285	0.005113	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	29	1072	'H'	50134	0.004998	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	30	1581	' V'	47548	0.004741	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	31	1105	'i'	45999	0.004586	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	32	1362	' I'	45977	0.004584	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	33	1535	' O'	45372	0.004524	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	34	1097	'a'	44024	0.004389	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	35	2884	'ß'	42995	0.004287	text	1	de
+ell_Grek	36	1079	'O'	42305	0.004218	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	37	1067	'C'	41895	0.004177	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	38	1121	'y'	41003	0.004088	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	39	1464	' N'	40886	0.004076	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	40	10986	' Windows'	40610	0.004049	text	27	en,cs,da,de,es,fr,hu,id...+19
+ell_Grek	41	39453	'Ü'	40537	0.004042	text	9	de,es,fr,hu,nl,tr,az,et...+1
+ell_Grek	42	1311	' de'	39260	0.003914	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	43	1068	'D'	39062	0.003895	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	44	1507	' J'	39022	0.003891	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	45	1263	'on'	38767	0.003865	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	46	1070	'F'	38740	0.003862	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	47	1083	'S'	38163	0.003805	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	48	1077	'M'	37458	0.003735	text	28	en,cs,da,de,es,fr,hu,id...+20
+ell_Grek	49	1488	' W'	37196	0.003708	text	27	en,cs,da,de,es,fr,hu,id...+19
+ell_Grek	50	1080	'P'	37050	0.003694	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	1	1111	'o'	388456	0.038773	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	2	1101	'e'	294450	0.029390	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	3	1754	'è'	232671	0.023224	text	4	fr,it,vi,ca
+mkd_Cyrl	4	1278	' the'	202663	0.020228	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	5	1307	' of'	141906	0.014164	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	6	1321	' and'	133185	0.013294	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	7	1107	'k'	105506	0.010531	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	8	1097	'a'	102891	0.010270	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	9	1317	' to'	95645	0.009547	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	10	1261	' a'	90771	0.009060	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	11	2774	'.m'	89681	0.008951	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	12	84363	' ѝ'	87559	0.008740	text_with_unmodeled_letters	0	(none)
+mkd_Cyrl	13	1294	' in'	85839	0.008568	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	14	2354	'.com'	79071	0.007892	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	15	1623	' i'	62619	0.006250	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	16	1324	' e'	57790	0.005768	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	17	1362	' I'	50907	0.005081	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	18	1394	' for'	49164	0.004907	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	19	1105	'i'	48290	0.004820	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	20	1065	'A'	43330	0.004325	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	21	1395	' is'	43322	0.004324	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	22	1077	'M'	42897	0.004282	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	23	1281	' o'	42591	0.004251	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	24	1531	' The'	40796	0.004072	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	25	1408	' on'	40753	0.004068	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	26	1349	' A'	40589	0.004051	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	27	1335	' S'	40284	0.004021	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	28	1068	'D'	39926	0.003985	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	29	1581	' V'	39038	0.003897	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	30	1073	'I'	38981	0.003891	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	31	1067	'C'	38110	0.003804	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	32	1075	'K'	37797	0.003773	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	33	1359	' C'	37454	0.003738	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	34	1083	'S'	36290	0.003622	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	35	1550	' K'	36108	0.003604	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	36	1461	' G'	35919	0.003585	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	37	1373	' M'	35248	0.003518	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	38	1407	' D'	34805	0.003474	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	39	1071	'G'	34339	0.003427	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	40	1115	's'	33939	0.003388	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	41	1098	'b'	33835	0.003377	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	42	1436	' E'	33434	0.003337	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	43	1079	'O'	33060	0.003300	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	44	1070	'F'	32688	0.003263	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	45	1398	' B'	32542	0.003248	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	46	1353	' T'	32490	0.003243	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	47	1086	'V'	32082	0.003202	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	48	1066	'B'	31938	0.003188	text	28	en,cs,da,de,es,fr,hu,id...+20
+mkd_Cyrl	49	1454	' with'	31894	0.003183	text	27	en,cs,da,de,es,fr,hu,id...+19
+mkd_Cyrl	50	1424	' L'	30394	0.003034	text	28	en,cs,da,de,es,fr,hu,id...+20
+nld_Latn	1	33133	' carrière'	46068	0.004595	text	4	fr,it,vi,ca
+nld_Latn	2	72647	'Ž'	23209	0.002315	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+nld_Latn	3	6041	'ème'	22545	0.002249	text	4	fr,it,vi,ca
+nld_Latn	4	1755	' à'	19328	0.001928	text	7	fr,it,pt,sv,vi,nb,ca
+nld_Latn	5	11661	'rière'	14994	0.001496	text	4	fr,it,vi,ca
+nld_Latn	6	1754	'è'	13781	0.001375	text	4	fr,it,vi,ca
+nld_Latn	7	21389	' scène'	12912	0.001288	text	4	fr,it,vi,ca
+nld_Latn	8	1940	'ç'	9764	0.000974	text	5	fr,pt,tr,az,ca
+nld_Latn	9	9845	' première'	8414	0.000839	text	4	fr,it,vi,ca
+nld_Latn	10	72698	' scènes'	8414	0.000839	text	4	fr,it,vi,ca
+nld_Latn	11	39644	' enquête'	7791	0.000777	text	3	fr,pt,vi
+nld_Latn	12	4547	'ā'	7045	0.000703	text	1	lv
+nld_Latn	13	10049	'ène'	6679	0.000666	text	4	fr,it,vi,ca
+nld_Latn	14	2720	'â'	6292	0.000628	text	4	fr,pt,vi,ro
+nld_Latn	15	20257	'èmes'	6141	0.000613	text	4	fr,it,vi,ca
+nld_Latn	16	2894	'ère'	4601	0.000459	text	4	fr,it,vi,ca
+nld_Latn	17	70376	' Genève'	4459	0.000445	text	4	fr,it,vi,ca
+nld_Latn	18	1921	'à'	4451	0.000444	text	7	fr,it,pt,sv,vi,nb,ca
+nld_Latn	19	2114	'ê'	4262	0.000425	text	3	fr,pt,vi
+nld_Latn	20	2739	'َ'	4249	0.000424	text	1	ar
+nld_Latn	21	5513	'ça'	4132	0.000412	text	5	fr,pt,tr,az,ca
+nld_Latn	22	20118	' François'	4132	0.000412	text	5	fr,pt,tr,az,ca
+nld_Latn	23	12572	'ť'	3505	0.000350	text	2	cs,sk
+nld_Latn	24	29272	'êtes'	3497	0.000349	text	3	fr,pt,vi
+nld_Latn	25	2624	'ñ'	3486	0.000348	text	1	es
+nld_Latn	26	24488	'ènes'	3485	0.000348	text	4	fr,it,vi,ca
+nld_Latn	27	16096	'ō'	3437	0.000343	no_in_scope_chars	0	(none)
+nld_Latn	28	7546	'ères'	3217	0.000321	text	4	fr,it,vi,ca
+nld_Latn	29	4385	'ِ'	3189	0.000318	text	1	ar
+nld_Latn	30	90756	'rières'	3178	0.000317	text	4	fr,it,vi,ca
+nld_Latn	31	24700	'èt'	3155	0.000315	text	4	fr,it,vi,ca
+nld_Latn	32	3422	'ò'	3087	0.000308	text	5	it,pt,vi,nb,ca
+nld_Latn	33	3269	'ès'	2959	0.000295	text	4	fr,it,vi,ca
+nld_Latn	34	6072	'ière'	2813	0.000281	text	4	fr,it,vi,ca
+nld_Latn	35	4847	' è'	2746	0.000274	text	4	fr,it,vi,ca
+nld_Latn	36	7701	'ī'	2600	0.000259	text	1	lv
+nld_Latn	37	19288	' São'	2560	0.000255	text	2	pt,vi
+nld_Latn	38	4093	'ø'	2417	0.000241	text	2	da,nb
+nld_Latn	39	7213	'ْ'	2275	0.000227	text	1	ar
+nld_Latn	40	2244	'ão'	2230	0.000222	text	2	pt,vi
+nld_Latn	41	84061	'èl'	2068	0.000206	text	4	fr,it,vi,ca
+nld_Latn	42	4715	'î'	1966	0.000196	text	2	fr,ro
+nld_Latn	43	2381	'š'	1912	0.000191	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+nld_Latn	44	3404	'ُ'	1891	0.000189	text	1	ar
+nld_Latn	45	15357	' â'	1871	0.000187	text	4	fr,pt,vi,ro
+nld_Latn	46	11324	'َّ'	1817	0.000181	text	1	ar
+nld_Latn	47	7467	'ña'	1814	0.000181	text	1	es
+nld_Latn	48	105797	' gên'	1644	0.000164	text	3	fr,pt,vi
+nld_Latn	49	5910	'ño'	1623	0.000162	text	1	es
+nld_Latn	50	18043	'èle'	1591	0.000159	text	4	fr,it,vi,ca
+slv_Latn	1	1754	'è'	26639	0.002648	text	4	fr,it,vi,ca
+slv_Latn	2	1337	'é'	8898	0.000885	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+slv_Latn	3	86169	'Ä'	7668	0.000762	text	6	de,nl,sv,fi,sk,et
+slv_Latn	4	1529	'í'	6548	0.000651	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+slv_Latn	5	4847	' è'	5652	0.000562	text	4	fr,it,vi,ca
+slv_Latn	6	1607	'ы'	5534	0.000550	text	1	ru
+slv_Latn	7	1570	'я'	5109	0.000508	text	3	ru,uk,bg
+slv_Latn	8	1502	'á'	4934	0.000490	text	8	cs,es,hu,nl,pt,vi,sk,is
+slv_Latn	9	1712	'ь'	4426	0.000440	text	3	ru,uk,bg
+slv_Latn	10	1506	'ó'	4349	0.000432	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+slv_Latn	11	2113	'ã'	3976	0.000395	text	2	pt,vi
+slv_Latn	12	62927	'Å'	3597	0.000358	text	4	da,sv,fi,nb
+slv_Latn	13	1756	' и'	3081	0.000306	text	5	ru,uk,bg,mk,sr-Cyrl
+slv_Latn	14	1862	'й'	3076	0.000306	text	3	ru,uk,bg
+slv_Latn	15	3608	' für'	2787	0.000277	text	9	de,es,fr,hu,nl,tr,az,et...+1
+slv_Latn	16	1921	'à'	2741	0.000272	text	7	fr,it,pt,sv,vi,nb,ca
+slv_Latn	17	2747	'én'	2637	0.000262	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+slv_Latn	18	1671	'ü'	2622	0.000261	text	9	de,es,fr,hu,nl,tr,az,et...+1
+slv_Latn	19	1668	' в'	2533	0.000252	text	5	ru,uk,bg,mk,sr-Cyrl
+slv_Latn	20	1792	'ö'	2509	0.000249	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+slv_Latn	21	1924	'és'	2423	0.000241	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+slv_Latn	22	1654	'ä'	2270	0.000226	text	6	de,nl,sv,fi,sk,et
+slv_Latn	23	12572	'ť'	2223	0.000221	text	2	cs,sk
+slv_Latn	24	19350	' Mün'	2169	0.000216	text	9	de,es,fr,hu,nl,tr,az,et...+1
+slv_Latn	25	2855	'án'	1992	0.000198	text	8	cs,es,hu,nl,pt,vi,sk,is
+slv_Latn	26	4874	'ün'	1950	0.000194	text	9	de,es,fr,hu,nl,tr,az,et...+1
+slv_Latn	27	7546	'ères'	1916	0.000190	text	4	fr,it,vi,ca
+slv_Latn	28	1902	' на'	1865	0.000185	text	5	ru,uk,bg,mk,sr-Cyrl
+slv_Latn	29	2260	'ю'	1843	0.000183	text	3	ru,uk,bg
+slv_Latn	30	2411	'ú'	1805	0.000179	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+slv_Latn	31	10049	'ène'	1788	0.000178	text	4	fr,it,vi,ca
+slv_Latn	32	2172	'π'	1775	0.000176	text	2	el,el-polyton
+slv_Latn	33	1755	' à'	1650	0.000164	text	7	fr,it,pt,sv,vi,nb,ca
+slv_Latn	34	10476	' Ö'	1648	0.000164	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+slv_Latn	35	2720	'â'	1607	0.000160	text	4	fr,pt,vi,ro
+slv_Latn	36	51438	' Zürich'	1553	0.000154	text	9	de,es,fr,hu,nl,tr,az,et...+1
+slv_Latn	37	33431	'ône'	1534	0.000152	text	5	fr,pt,vi,nb,sk
+slv_Latn	38	5892	'æ'	1533	0.000152	text	4	da,fr,nb,is
+slv_Latn	39	3238	'ör'	1471	0.000146	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+slv_Latn	40	30773	'Ö'	1464	0.000146	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+slv_Latn	41	19369	' Ä'	1445	0.000144	text	6	de,nl,sv,fi,sk,et
+slv_Latn	42	2267	'ée'	1442	0.000143	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+slv_Latn	43	4759	'él'	1429	0.000142	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+slv_Latn	44	2322	'ér'	1394	0.000139	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+slv_Latn	45	1614	' с'	1390	0.000138	text	5	ru,uk,bg,mk,sr-Cyrl
+slv_Latn	46	3269	'ès'	1388	0.000138	text	4	fr,it,vi,ca
+slv_Latn	47	28086	' Å'	1312	0.000130	text	4	da,sv,fi,nb
+slv_Latn	48	4093	'ø'	1306	0.000130	text	2	da,nb
+slv_Latn	49	3716	'ém'	1299	0.000129	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+slv_Latn	50	39517	' μg'	1280	0.000127	text	0	(none)
+tel_Telu	1	1278	' the'	213117	0.021185	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	2	1307	' of'	154030	0.015311	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	3	1317	' to'	135062	0.013426	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	4	1321	' and'	132882	0.013209	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	5	1294	' in'	108143	0.010750	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	6	1261	' a'	76107	0.007565	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	7	1395	' is'	73848	0.007341	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	8	15584	' News'	60195	0.005984	text	27	en,cs,da,de,es,fr,hu,id...+19
+tel_Telu	9	43371	'ugu'	58178	0.005783	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	10	1394	' for'	55289	0.005496	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	11	1408	' on'	53677	0.005336	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	12	18445	' PM'	53164	0.005285	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	13	119192	' IST'	48838	0.004855	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	14	1325	'am'	47682	0.004740	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	15	11759	' ago'	46439	0.004616	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	16	2354	'.com'	40926	0.004068	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	17	28014	' Tel'	40630	0.004039	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	18	1083	'S'	38852	0.003862	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	19	1636	' you'	38439	0.003821	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	20	1454	' with'	36910	0.003669	text	27	en,cs,da,de,es,fr,hu,id...+19
+tel_Telu	21	2739	'َ'	35744	0.003553	text	1	ar
+tel_Telu	22	1065	'A'	32569	0.003238	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	23	1335	' S'	32252	0.003206	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	24	1536	' by'	31589	0.003140	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	25	1117	'u'	31573	0.003139	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	26	1362	' I'	31395	0.003121	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	27	1390	' P'	31389	0.003120	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	28	1084	'T'	31293	0.003111	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	29	1455	' that'	31151	0.003097	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	30	1584	' are'	31146	0.003096	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	31	1073	'I'	30172	0.002999	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	32	3088	'ana'	30058	0.002988	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	33	1082	'R'	28648	0.002848	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	34	1349	' A'	28445	0.002828	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	35	1105	'i'	28218	0.002805	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	36	1424	' L'	28199	0.002803	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	37	1593	' this'	28108	0.002794	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	38	1097	'a'	27979	0.002781	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	39	1115	's'	27910	0.002774	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	40	4385	'ِ'	27884	0.002772	text	1	ar
+tel_Telu	41	20685	' AM'	27557	0.002739	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	42	1353	' T'	27437	0.002727	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	43	1075	'K'	27211	0.002705	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	44	1398	' B'	27037	0.002688	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	45	1402	' be'	26886	0.002673	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	46	1071	'G'	26850	0.002669	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	47	1464	' N'	26796	0.002664	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	48	1562	' from'	26785	0.002663	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	49	1066	'B'	25868	0.002571	text	28	en,cs,da,de,es,fr,hu,id...+20
+tel_Telu	50	1411	'th'	25698	0.002555	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	1	2354	'.com'	162200	0.016108	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	2	1066	'B'	153291	0.015224	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	3	1307	' of'	119293	0.011847	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	4	1278	' the'	118569	0.011775	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	5	1120	'x'	117008	0.011620	text	27	en,cs,da,de,es,fr,hu,id...+19
+tha_Thai	6	4321	'ET'	108051	0.010731	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	7	6507	'FA'	97954	0.009728	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	8	21240	' slot'	94599	0.009395	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	9	1075	'K'	93608	0.009296	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	10	1390	' P'	92157	0.009152	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	11	1608	' U'	91540	0.009091	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	12	1321	' and'	91361	0.009073	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	13	1335	' S'	88750	0.008814	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	14	1398	' B'	87955	0.008735	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	15	6918	'OT'	83237	0.008266	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	16	1071	'G'	81288	0.008073	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	17	1461	' G'	78372	0.007783	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	18	1317	' to'	77162	0.007663	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	19	1258	'er'	75126	0.007461	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	20	1349	' A'	74598	0.007408	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	21	1531	' The'	72622	0.007212	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	22	1115	's'	72200	0.007170	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	23	44021	' pg'	71283	0.007079	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	24	1102	'f'	70955	0.007047	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	25	1623	' i'	69492	0.006901	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	26	1077	'M'	67425	0.006696	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	27	1065	'A'	65913	0.006546	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	28	1080	'P'	65829	0.006538	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	29	1088	'X'	65525	0.006507	text	27	en,cs,da,de,es,fr,hu,id...+19
+tha_Thai	30	1085	'U'	64645	0.006420	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	31	1076	'L'	63435	0.006300	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	32	52900	'xxx'	62694	0.006226	text	27	en,cs,da,de,es,fr,hu,id...+19
+tha_Thai	33	1098	'b'	62356	0.006193	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	34	6132	'www'	62134	0.006171	text	27	en,cs,da,de,es,fr,hu,id...+19
+tha_Thai	35	11377	'abet'	60852	0.006043	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	36	7155	' https'	60557	0.006014	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	37	1083	'S'	60132	0.005972	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	38	38454	' PG'	59673	0.005926	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	39	1411	'th'	59347	0.005894	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	40	32971	'lot'	59228	0.005882	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	41	1068	'D'	58824	0.005842	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	42	1373	' M'	57999	0.005760	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	43	1353	' T'	57524	0.005713	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	44	1294	' in'	55171	0.005479	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	45	1101	'e'	55132	0.005475	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	46	1333	' u'	55025	0.005465	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	47	1079	'O'	54157	0.005378	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	48	1507	' J'	53305	0.005294	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	49	1550	' K'	53194	0.005283	text	28	en,cs,da,de,es,fr,hu,id...+20
+tha_Thai	50	1097	'a'	52940	0.005258	text	28	en,cs,da,de,es,fr,hu,id...+20
+cat_Latn	1	36810	' Sánchez'	54546	0.005422	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	2	1502	'á'	49415	0.004912	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	3	2855	'án'	49013	0.004872	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	4	4154	' más'	41362	0.004112	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	5	2624	'ñ'	39405	0.003917	text	1	es
+cat_Latn	6	34981	' Fernández'	24714	0.002457	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	7	31896	' González'	22210	0.002208	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	8	5910	'ño'	16345	0.001625	text	1	es
+cat_Latn	9	18463	' España'	15259	0.001517	text	1	es
+cat_Latn	10	7467	'ña'	14500	0.001441	text	1	es
+cat_Latn	11	7445	' está'	13490	0.001341	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	12	8981	' años'	12221	0.001215	text	1	es
+cat_Latn	13	113972	'Ă'	11766	0.001170	text	2	vi,ro
+cat_Latn	14	23960	'Á'	11119	0.001105	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	15	55541	' Hernández'	10679	0.001062	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	16	85637	' Muñoz'	10657	0.001059	text	1	es
+cat_Latn	17	2720	'â'	9108	0.000905	text	4	fr,pt,vi,ro
+cat_Latn	18	48957	' Ángel'	8805	0.000875	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	19	2705	'ás'	8567	0.000852	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	20	22944	'ará'	8441	0.000839	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	21	56674	'ñez'	7892	0.000785	text	1	es
+cat_Latn	22	27297	'ñas'	7873	0.000783	text	1	es
+cat_Latn	23	63976	' Álvarez'	7794	0.000775	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	24	10795	' año'	7591	0.000755	text	1	es
+cat_Latn	25	4324	' á'	6936	0.000689	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	26	9498	' Á'	6650	0.000661	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	27	6840	'ños'	6158	0.000612	text	1	es
+cat_Latn	28	71422	' Suárez'	5854	0.000582	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	29	82803	'Ã'	5789	0.000575	text	2	pt,vi
+cat_Latn	30	4624	'ál'	5775	0.000574	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	31	68842	' Española'	5387	0.000536	text	1	es
+cat_Latn	32	19060	' están'	5300	0.000527	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	33	45510	' lâ'	5190	0.000516	text	4	fr,pt,vi,ro
+cat_Latn	34	96409	' Vázquez'	5110	0.000508	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	35	124438	' Márquez'	4784	0.000476	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	36	92939	' Sá'	4475	0.000445	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	37	125515	' Cañ'	4406	0.000438	text	1	es
+cat_Latn	38	79311	' Álvaro'	4287	0.000426	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	39	28731	' será'	4240	0.000421	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	40	14358	'añ'	4221	0.000420	text	1	es
+cat_Latn	41	91128	' Cataluña'	3994	0.000397	text	1	es
+cat_Latn	42	51219	'ķ'	3869	0.000385	text	1	lv
+cat_Latn	43	70799	' Tomás'	3788	0.000377	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	44	38475	' niños'	3788	0.000377	text	1	es
+cat_Latn	45	20491	'ática'	3663	0.000364	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	46	107429	' Núñez'	3632	0.000361	text	1	es
+cat_Latn	47	128068	'España'	3547	0.000353	text	1	es
+cat_Latn	48	80300	' Peña'	3494	0.000347	text	1	es
+cat_Latn	49	5728	'ár'	3419	0.000340	text	8	cs,es,hu,nl,pt,vi,sk,is
+cat_Latn	50	4547	'ā'	3411	0.000339	text	1	lv
+ces_Latn	1	1334	'е'	27221	0.002720	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	2	1323	'о'	23619	0.002360	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	3	1315	'а'	22052	0.002204	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	4	4785	'ì'	11060	0.001105	text	2	it,vi
+ces_Latn	5	16930	'ľ'	9343	0.000934	text	1	sk
+ces_Latn	6	4093	'ø'	9221	0.000922	text	2	da,nb
+ces_Latn	7	1754	'è'	6390	0.000639	text	4	fr,it,vi,ca
+ces_Latn	8	1671	'ü'	6320	0.000632	text	9	de,es,fr,hu,nl,tr,az,et...+1
+ces_Latn	9	4547	'ā'	6115	0.000611	text	1	lv
+ces_Latn	10	1792	'ö'	5058	0.000505	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+ces_Latn	11	1377	'с'	4772	0.000477	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	12	1654	'ä'	4231	0.000423	text	6	de,nl,sv,fi,sk,et
+ces_Latn	13	3723	'ć'	4028	0.000403	text	4	pl,sr-Latn,sl,hr
+ces_Latn	14	2494	' а'	4019	0.000402	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	15	3774	'ù'	3807	0.000380	text	3	fr,it,vi
+ces_Latn	16	2797	'ô'	3665	0.000366	text	5	fr,pt,vi,nb,sk
+ces_Latn	17	1810	' о'	2997	0.000300	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	18	2631	'ë'	2982	0.000298	text	2	fr,nl
+ces_Latn	19	4872	' р'	2971	0.000297	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	20	1780	'ı'	2768	0.000277	text	2	tr,az
+ces_Latn	21	1756	' и'	2676	0.000267	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	22	10476	' Ö'	2576	0.000257	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+ces_Latn	23	7701	'ī'	2569	0.000257	text	1	lv
+ces_Latn	24	1472	'у'	2556	0.000255	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	25	1668	' в'	2532	0.000253	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	26	20512	'ović'	2510	0.000251	text	4	pl,sr-Latn,sl,hr
+ces_Latn	27	3608	' für'	2364	0.000236	text	9	de,es,fr,hu,nl,tr,az,et...+1
+ces_Latn	28	39446	' Müller'	2352	0.000235	text	9	de,es,fr,hu,nl,tr,az,et...+1
+ces_Latn	29	3238	'ör'	2285	0.000228	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+ces_Latn	30	90944	' ľ'	2194	0.000219	text	1	sk
+ces_Latn	31	66093	'ľa'	2162	0.000216	text	1	sk
+ces_Latn	32	1753	'і'	2116	0.000211	text	1	uk
+ces_Latn	33	2739	'َ'	2078	0.000208	text	1	ar
+ces_Latn	34	2624	'ñ'	2064	0.000206	text	1	es
+ces_Latn	35	2592	'ür'	2011	0.000201	text	9	de,es,fr,hu,nl,tr,az,et...+1
+ces_Latn	36	30773	'Ö'	1946	0.000194	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+ces_Latn	37	1755	' à'	1935	0.000193	text	7	fr,it,pt,sv,vi,nb,ca
+ces_Latn	38	4059	'се'	1911	0.000191	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	39	50901	' mô'	1902	0.000190	text	5	fr,pt,vi,nb,sk
+ces_Latn	40	16096	'ō'	1891	0.000189	no_in_scope_chars	0	(none)
+ces_Latn	41	4847	' è'	1877	0.000188	text	4	fr,it,vi,ca
+ces_Latn	42	3914	'ś'	1807	0.000181	text	1	pl
+ces_Latn	43	4861	'ön'	1780	0.000178	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+ces_Latn	44	2982	' С'	1743	0.000174	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	45	1614	' с'	1699	0.000170	text	5	ru,uk,bg,mk,sr-Cyrl
+ces_Latn	46	77830	' veľ'	1658	0.000166	text	1	sk
+ces_Latn	47	4874	'ün'	1620	0.000162	text	9	de,es,fr,hu,nl,tr,az,et...+1
+ces_Latn	48	4397	'är'	1620	0.000162	text	6	de,nl,sv,fi,sk,et
+ces_Latn	49	20118	' François'	1598	0.000160	text	5	fr,pt,tr,az,ca
+ces_Latn	50	6037	'ück'	1592	0.000159	text	9	de,es,fr,hu,nl,tr,az,et...+1
+deu_Latn	1	1337	'é'	29026	0.002886	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+deu_Latn	2	13566	'Г'	9790	0.000973	text	5	ru,uk,bg,mk,sr-Cyrl
+deu_Latn	3	1755	' à'	9567	0.000951	text	7	fr,it,pt,sv,vi,nb,ca
+deu_Latn	4	113972	'Ă'	9205	0.000915	text	2	vi,ro
+deu_Latn	5	1924	'és'	8887	0.000884	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+deu_Latn	6	1502	'á'	8046	0.000800	text	8	cs,es,hu,nl,pt,vi,sk,is
+deu_Latn	7	1529	'í'	7242	0.000720	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+deu_Latn	8	2720	'â'	7122	0.000708	text	4	fr,pt,vi,ro
+deu_Latn	9	2439	'の'	7046	0.000701	text	1	ja
+deu_Latn	10	4547	'ā'	6762	0.000672	text	1	lv
+deu_Latn	11	82803	'Ã'	6697	0.000666	text	2	pt,vi
+deu_Latn	12	2267	'ée'	6620	0.000658	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+deu_Latn	13	1506	'ó'	6363	0.000633	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+deu_Latn	14	16096	'ō'	6137	0.000610	no_in_scope_chars	0	(none)
+deu_Latn	15	2855	'án'	5760	0.000573	text	8	cs,es,hu,nl,pt,vi,sk,is
+deu_Latn	16	81613	' Café'	5565	0.000553	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+deu_Latn	17	4187	'を'	5369	0.000534	text	1	ja
+deu_Latn	18	96897	'Â'	5210	0.000518	text	4	fr,pt,vi,ro
+deu_Latn	19	11333	' José'	5101	0.000507	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+deu_Latn	20	1921	'à'	4441	0.000442	text	7	fr,it,pt,sv,vi,nb,ca
+deu_Latn	21	2739	'َ'	4228	0.000420	text	1	ar
+deu_Latn	22	3975	'ón'	3789	0.000377	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+deu_Latn	23	24577	' André'	3723	0.000370	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+deu_Latn	24	4093	'ø'	3710	0.000369	text	2	da,nb
+deu_Latn	25	2747	'én'	3695	0.000367	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+deu_Latn	26	2713	'的'	3587	0.000357	text	3	zh-Hans,zh-Hant,ja
+deu_Latn	27	2650	'に'	3584	0.000356	text	1	ja
+deu_Latn	28	4715	'î'	3567	0.000355	text	2	fr,ro
+deu_Latn	29	2381	'š'	3521	0.000350	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+deu_Latn	30	7701	'ī'	3425	0.000341	text	1	lv
+deu_Latn	31	1754	'è'	3384	0.000336	text	4	fr,it,vi,ca
+deu_Latn	32	4385	'ِ'	3368	0.000335	text	1	ar
+deu_Latn	33	77834	' Pokémon'	3257	0.000324	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+deu_Latn	34	2514	'č'	3253	0.000323	text	7	cs,sr-Latn,sl,hr,sk,lt,lv
+deu_Latn	35	5509	'ín'	3224	0.000321	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+deu_Latn	36	15357	' â'	3200	0.000318	text	4	fr,pt,vi,ro
+deu_Latn	37	2631	'ë'	3190	0.000317	text	2	fr,nl
+deu_Latn	38	3291	'ité'	3125	0.000311	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+deu_Latn	39	2411	'ú'	3096	0.000308	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+deu_Latn	40	20118	' François'	3047	0.000303	text	5	fr,pt,tr,az,ca
+deu_Latn	41	1940	'ç'	3000	0.000298	text	5	fr,pt,tr,az,ca
+deu_Latn	42	7884	'ï'	2916	0.000290	text	3	fr,nl,ca
+deu_Latn	43	2624	'ñ'	2853	0.000284	text	1	es
+deu_Latn	44	34772	' René'	2844	0.000283	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+deu_Latn	45	2114	'ê'	2838	0.000282	text	3	fr,pt,vi
+deu_Latn	46	2803	'å'	2790	0.000277	text	4	da,sv,fi,nb
+deu_Latn	47	2600	'ş'	2776	0.000276	text	2	tr,az
+deu_Latn	48	10095	'ū'	2707	0.000269	text	2	lt,lv
+deu_Latn	49	19288	' São'	2669	0.000265	text	2	pt,vi
+deu_Latn	50	9267	'ð'	2653	0.000264	text	1	is
+fin_Latn	1	113972	'Ă'	15599	0.001555	text	2	vi,ro
+fin_Latn	2	2747	'én'	13467	0.001342	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+fin_Latn	3	13566	'Г'	11804	0.001177	text	5	ru,uk,bg,mk,sr-Cyrl
+fin_Latn	4	16778	'À'	9326	0.000930	text	7	fr,it,pt,sv,vi,nb,ca
+fin_Latn	5	1337	'é'	7023	0.000700	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+fin_Latn	6	4093	'ø'	5826	0.000581	text	2	da,nb
+fin_Latn	7	1780	'ı'	4093	0.000408	text	2	tr,az
+fin_Latn	8	5892	'æ'	3700	0.000369	text	4	da,fr,nb,is
+fin_Latn	9	54275	'ŝ'	3532	0.000352	no_in_scope_chars	0	(none)
+fin_Latn	10	1755	' à'	3298	0.000329	text	7	fr,it,pt,sv,vi,nb,ca
+fin_Latn	11	1502	'á'	3248	0.000324	text	8	cs,es,hu,nl,pt,vi,sk,is
+fin_Latn	12	9051	'ør'	2956	0.000295	text	2	da,nb
+fin_Latn	13	1671	'ü'	2837	0.000283	text	9	de,es,fr,hu,nl,tr,az,et...+1
+fin_Latn	14	3608	' für'	2785	0.000278	text	9	de,es,fr,hu,nl,tr,az,et...+1
+fin_Latn	15	1921	'à'	2644	0.000264	text	7	fr,it,pt,sv,vi,nb,ca
+fin_Latn	16	2720	'â'	2443	0.000243	text	4	fr,pt,vi,ro
+fin_Latn	17	28943	' München'	2158	0.000215	text	9	de,es,fr,hu,nl,tr,az,et...+1
+fin_Latn	18	4013	'õ'	2068	0.000206	text	3	pt,vi,et
+fin_Latn	19	1924	'és'	2053	0.000205	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+fin_Latn	20	1529	'í'	2030	0.000202	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+fin_Latn	21	5281	'ů'	2020	0.000201	text	1	cs
+fin_Latn	22	2761	'ación'	2002	0.000200	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+fin_Latn	23	59481	'ære'	1997	0.000199	text	4	da,fr,nb,is
+fin_Latn	24	46030	' være'	1850	0.000184	text	4	da,fr,nb,is
+fin_Latn	25	3723	'ć'	1834	0.000183	text	4	pl,sr-Latn,sl,hr
+fin_Latn	26	1756	' и'	1822	0.000182	text	5	ru,uk,bg,mk,sr-Cyrl
+fin_Latn	27	1506	'ó'	1808	0.000180	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+fin_Latn	28	1940	'ç'	1741	0.000174	text	5	fr,pt,tr,az,ca
+fin_Latn	29	2855	'án'	1729	0.000172	text	8	cs,es,hu,nl,pt,vi,sk,is
+fin_Latn	30	2600	'ş'	1701	0.000170	text	2	tr,az
+fin_Latn	31	1668	' в'	1679	0.000167	text	5	ru,uk,bg,mk,sr-Cyrl
+fin_Latn	32	15357	' â'	1609	0.000160	text	4	fr,pt,vi,ro
+fin_Latn	33	3269	'ès'	1519	0.000151	text	4	fr,it,vi,ca
+fin_Latn	34	31771	' español'	1509	0.000150	text	1	es
+fin_Latn	35	2267	'ée'	1431	0.000143	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+fin_Latn	36	7546	'ères'	1430	0.000143	text	4	fr,it,vi,ca
+fin_Latn	37	1538	'д'	1427	0.000142	text	5	ru,uk,bg,mk,sr-Cyrl
+fin_Latn	38	4874	'ün'	1389	0.000138	text	9	de,es,fr,hu,nl,tr,az,et...+1
+fin_Latn	39	2624	'ñ'	1338	0.000133	text	1	es
+fin_Latn	40	94699	' nær'	1335	0.000133	text	4	da,fr,nb,is
+fin_Latn	41	82803	'Ã'	1319	0.000131	text	2	pt,vi
+fin_Latn	42	2592	'ür'	1296	0.000129	text	9	de,es,fr,hu,nl,tr,az,et...+1
+fin_Latn	43	39453	'Ü'	1292	0.000129	text	9	de,es,fr,hu,nl,tr,az,et...+1
+fin_Latn	44	96897	'Â'	1282	0.000128	text	4	fr,pt,vi,ro
+fin_Latn	45	1902	' на'	1282	0.000128	text	5	ru,uk,bg,mk,sr-Cyrl
+fin_Latn	46	48525	' sø'	1256	0.000125	text	2	da,nb
+fin_Latn	47	77834	' Pokémon'	1250	0.000125	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+fin_Latn	48	3975	'ón'	1230	0.000123	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+fin_Latn	49	81613	' Café'	1213	0.000121	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+fin_Latn	50	1754	'è'	1206	0.000120	text	4	fr,it,vi,ca
+hin_Deva	1	1278	' the'	283749	0.028140	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	2	1307	' of'	226232	0.022436	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	3	1294	' in'	223285	0.022144	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	4	1317	' to'	203884	0.020220	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	5	1321	' and'	187626	0.018607	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	6	1261	' a'	123020	0.012200	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	7	1395	' is'	99082	0.009826	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	8	83301	' Hindi'	96123	0.009533	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	9	1394	' for'	93459	0.009268	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	10	1073	'I'	83307	0.008262	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	11	2354	'.com'	82335	0.008165	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	12	1408	' on'	81126	0.008045	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	13	1104	'h'	80877	0.008021	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	14	1398	' B'	73049	0.007244	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	15	1066	'B'	72327	0.007173	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	16	15584	' News'	71238	0.007065	text	27	en,cs,da,de,es,fr,hu,id...+19
+hin_Deva	17	1071	'G'	69796	0.006922	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	18	1636	' you'	60969	0.006046	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	19	1083	'S'	60951	0.006045	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	20	1362	' I'	59283	0.005879	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	21	1115	's'	57009	0.005654	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	22	1105	'i'	56263	0.005580	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	23	1349	' A'	56104	0.005564	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	24	1075	'K'	55093	0.005464	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	25	1550	' K'	53892	0.005345	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	26	1082	'R'	53415	0.005297	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	27	1065	'A'	52858	0.005242	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	28	75683	' mins'	52251	0.005182	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	29	1067	'C'	52080	0.005165	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	30	1335	' S'	49878	0.004946	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	31	18445	' PM'	49346	0.004894	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	32	1277	'ar'	49148	0.004874	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	33	1390	' P'	49090	0.004868	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	34	1454	' with'	47695	0.004730	text	27	en,cs,da,de,es,fr,hu,id...+19
+hin_Deva	35	1076	'L'	46899	0.004651	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	36	1536	' by'	46150	0.004577	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	37	1077	'M'	45005	0.004463	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	38	9269	' India'	44663	0.004429	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	39	1455	' that'	44538	0.004417	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	40	1593	' this'	43975	0.004361	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	41	1584	' are'	43336	0.004298	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	42	1279	'al'	42922	0.004257	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	43	1068	'D'	41751	0.004141	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	44	1080	'P'	41312	0.004097	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	45	3088	'ana'	40730	0.004039	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	46	1084	'T'	40682	0.004035	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	47	1072	'H'	40616	0.004028	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	48	1464	' N'	40491	0.004016	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	49	1656	' In'	39563	0.003924	text	28	en,cs,da,de,es,fr,hu,id...+20
+hin_Deva	50	1078	'N'	38432	0.003811	text	28	en,cs,da,de,es,fr,hu,id...+20
+hrv_Latn	1	86169	'Ä'	21184	0.002078	text	6	de,nl,sv,fi,sk,et
+hrv_Latn	2	38007	'ĉ'	13771	0.001351	no_in_scope_chars	0	(none)
+hrv_Latn	3	1754	'è'	13292	0.001304	text	4	fr,it,vi,ca
+hrv_Latn	4	5892	'æ'	10400	0.001020	text	4	da,fr,nb,is
+hrv_Latn	5	1529	'í'	8457	0.000830	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+hrv_Latn	6	62927	'Å'	7595	0.000745	text	4	da,sv,fi,nb
+hrv_Latn	7	1337	'é'	6294	0.000617	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+hrv_Latn	8	3562	'ż'	5197	0.000510	text	1	pl
+hrv_Latn	9	4847	' è'	4449	0.000436	text	4	fr,it,vi,ca
+hrv_Latn	10	2720	'â'	4326	0.000424	text	4	fr,pt,vi,ro
+hrv_Latn	11	2624	'ñ'	4316	0.000423	text	1	es
+hrv_Latn	12	1502	'á'	4084	0.000401	text	8	cs,es,hu,nl,pt,vi,sk,is
+hrv_Latn	13	1315	'а'	3538	0.000347	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	14	28943	' München'	3372	0.000331	text	9	de,es,fr,hu,nl,tr,az,et...+1
+hrv_Latn	15	1506	'ó'	3355	0.000329	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+hrv_Latn	16	1756	' и'	3285	0.000322	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	17	19369	' Ä'	3203	0.000314	text	6	de,nl,sv,fi,sk,et
+hrv_Latn	18	1940	'ç'	3181	0.000312	text	5	fr,pt,tr,az,ca
+hrv_Latn	19	2797	'ô'	3033	0.000297	text	5	fr,pt,vi,nb,sk
+hrv_Latn	20	2172	'π'	3012	0.000295	text	2	el,el-polyton
+hrv_Latn	21	3223	'ő'	2901	0.000285	text	1	hu
+hrv_Latn	22	1753	'і'	2811	0.000276	text	1	uk
+hrv_Latn	23	1792	'ö'	2760	0.000271	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+hrv_Latn	24	9267	'ð'	2734	0.000268	text	1	is
+hrv_Latn	25	1668	' в'	2733	0.000268	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	26	28086	' Å'	2692	0.000264	text	4	da,sv,fi,nb
+hrv_Latn	27	20481	' ĉ'	2599	0.000255	text_with_unmodeled_letters	0	(none)
+hrv_Latn	28	4325	' és'	2565	0.000252	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+hrv_Latn	29	1924	'és'	2272	0.000223	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+hrv_Latn	30	2705	'ás'	2210	0.000217	text	8	cs,es,hu,nl,pt,vi,sk,is
+hrv_Latn	31	9277	'О'	2145	0.000210	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	32	1789	'п'	2145	0.000210	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	33	4624	'ál'	2145	0.000210	text	8	cs,es,hu,nl,pt,vi,sk,is
+hrv_Latn	34	1902	' на'	2143	0.000210	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	35	2855	'án'	2009	0.000197	text	8	cs,es,hu,nl,pt,vi,sk,is
+hrv_Latn	36	1671	'ü'	1983	0.000195	text	9	de,es,fr,hu,nl,tr,az,et...+1
+hrv_Latn	37	1334	'е'	1936	0.000190	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	38	8850	' β'	1838	0.000180	text	2	el,el-polyton
+hrv_Latn	39	5728	'ár'	1800	0.000177	text	8	cs,es,hu,nl,pt,vi,sk,is
+hrv_Latn	40	3904	'ít'	1704	0.000167	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+hrv_Latn	41	2332	' у'	1696	0.000166	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	42	1323	'о'	1690	0.000166	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	43	2843	' не'	1630	0.000160	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	44	1901	'х'	1612	0.000158	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	45	1565	'м'	1599	0.000157	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	46	2463	'ка'	1583	0.000155	text	5	ru,uk,bg,mk,sr-Cyrl
+hrv_Latn	47	39517	' μg'	1553	0.000152	text	0	(none)
+hrv_Latn	48	64946	' æ'	1538	0.000151	text	4	da,fr,nb,is
+hrv_Latn	49	1921	'à'	1529	0.000150	text	7	fr,it,pt,sv,vi,nb,ca
+hrv_Latn	50	12572	'ť'	1492	0.000146	text	2	cs,sk
+isl_Latn	1	8998	'đ'	616671	0.060947	text	4	vi,sr-Latn,sl,hr
+isl_Latn	2	2381	'š'	584731	0.057790	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	3	2884	'ß'	199633	0.019730	text	1	de
+isl_Latn	4	30141	'į'	189845	0.018763	text	1	lt
+isl_Latn	5	49291	'Š'	184539	0.018238	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	6	6823	' ž'	183011	0.018087	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	7	22059	' į'	146245	0.014454	text	1	lt
+isl_Latn	8	51219	'ķ'	141380	0.013973	text	1	lv
+isl_Latn	9	2900	'ę'	135366	0.013378	text	2	pl,lt
+isl_Latn	10	3723	'ć'	128429	0.012693	text	4	pl,sr-Latn,sl,hr
+isl_Latn	11	3914	'ś'	64889	0.006413	text	1	pl
+isl_Latn	12	22636	'ši'	56267	0.005561	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	13	3272	'ř'	53998	0.005337	text	1	cs
+isl_Latn	14	24471	'iš'	51174	0.005058	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	15	37962	'ša'	49325	0.004875	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	16	112435	' viš'	47625	0.004707	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	17	3562	'ż'	40374	0.003990	text	1	pl
+isl_Latn	18	85518	'đa'	33367	0.003298	text	4	vi,sr-Latn,sl,hr
+isl_Latn	19	73971	' međ'	32685	0.003230	text	4	vi,sr-Latn,sl,hr
+isl_Latn	20	26884	' Ž'	28844	0.002851	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	21	13342	' ś'	22581	0.002232	text	1	pl
+isl_Latn	22	15607	' že'	22430	0.002217	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	23	2546	'ž'	17497	0.001729	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	24	32254	'đu'	16361	0.001617	text	4	vi,sr-Latn,sl,hr
+isl_Latn	25	57629	'šu'	12834	0.001268	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	26	3595	'ğ'	11432	0.001130	text	2	tr,az
+isl_Latn	27	72647	'Ž'	10671	0.001055	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	28	50193	'šan'	9189	0.000908	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	29	13192	' Š'	9154	0.000905	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	30	30122	' ć'	8126	0.000803	text	4	pl,sr-Latn,sl,hr
+isl_Latn	31	37415	'rę'	8106	0.000801	text	2	pl,lt
+isl_Latn	32	4093	'ø'	7617	0.000753	text	2	da,nb
+isl_Latn	33	113972	'Ă'	6320	0.000625	text	2	vi,ro
+isl_Latn	34	44277	'uš'	5875	0.000581	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	35	5789	' på'	4912	0.000485	text	4	da,sv,fi,nb
+isl_Latn	36	73180	'ęg'	4815	0.000476	text	2	pl,lt
+isl_Latn	37	79544	'liš'	4457	0.000440	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	38	10653	' ş'	4349	0.000430	text	2	tr,az
+isl_Latn	39	2803	'å'	4194	0.000415	text	4	da,sv,fi,nb
+isl_Latn	40	1654	'ä'	4168	0.000412	text	6	de,nl,sv,fi,sk,et
+isl_Latn	41	33079	'rš'	3938	0.000389	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	42	97446	' rę'	3924	0.000388	text	2	pl,lt
+isl_Latn	43	14777	'še'	3911	0.000387	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+isl_Latn	44	7221	' ä'	3893	0.000385	text	6	de,nl,sv,fi,sk,et
+isl_Latn	45	1921	'à'	3640	0.000360	text	7	fr,it,pt,sv,vi,nb,ca
+isl_Latn	46	52643	' ağ'	3604	0.000356	text	2	tr,az
+isl_Latn	47	1755	' à'	3118	0.000308	text	7	fr,it,pt,sv,vi,nb,ca
+isl_Latn	48	7546	'ères'	2943	0.000291	text	4	fr,it,vi,ca
+isl_Latn	49	33431	'ône'	2889	0.000286	text	5	fr,pt,vi,nb,sk
+isl_Latn	50	2797	'ô'	2767	0.000273	text	5	fr,pt,vi,nb,sk
+lvs_Latn	1	2720	'â'	46904	0.004627	text	4	fr,pt,vi,ro
+lvs_Latn	2	4715	'î'	30072	0.002966	text	2	fr,ro
+lvs_Latn	3	1940	'ç'	29836	0.002943	text	5	fr,pt,tr,az,ca
+lvs_Latn	4	9762	'Д'	28266	0.002788	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	5	1756	' и'	25877	0.002553	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	6	1668	' в'	23005	0.002269	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	7	86169	'Ä'	18427	0.001818	text	6	de,nl,sv,fi,sk,et
+lvs_Latn	8	1902	' на'	15160	0.001495	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	9	1614	' с'	13049	0.001287	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	10	9267	'ð'	12245	0.001208	text	1	is
+lvs_Latn	11	1529	'í'	11565	0.001141	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+lvs_Latn	12	2843	' не'	9819	0.000969	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	13	21580	'Е'	8784	0.000866	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	14	2463	'ка'	8382	0.000827	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	15	1337	'é'	7786	0.000768	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+lvs_Latn	16	1361	'т'	7772	0.000767	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	17	3103	'ть'	7599	0.000750	text	3	ru,uk,bg
+lvs_Latn	18	1502	'á'	7442	0.000734	text	8	cs,es,hu,nl,pt,vi,sk,is
+lvs_Latn	19	3422	'ò'	6903	0.000681	text	5	it,pt,vi,nb,ca
+lvs_Latn	20	1511	'в'	6690	0.000660	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	21	2555	' за'	6311	0.000623	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	22	1377	'с'	6012	0.000593	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	23	2711	' по'	5972	0.000589	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	24	3460	' от'	5950	0.000587	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	25	5111	'С'	5912	0.000583	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	26	1901	'х'	5907	0.000583	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	27	1334	'е'	5770	0.000569	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	28	6344	'û'	5570	0.000549	text	1	fr
+lvs_Latn	29	3137	'ки'	5570	0.000549	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	30	8596	'ная'	5408	0.000533	text	3	ru,uk,bg
+lvs_Latn	31	1565	'м'	5371	0.000530	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	32	2060	'ли'	5341	0.000527	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	33	7019	' для'	5329	0.000526	text	3	ru,uk,bg
+lvs_Latn	34	6261	'ный'	5318	0.000525	text	1	ru
+lvs_Latn	35	1347	'и'	5280	0.000521	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	36	2332	' у'	5276	0.000520	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	37	6474	'ė'	5188	0.000512	text	1	lt
+lvs_Latn	38	2803	'å'	5174	0.000510	text	4	da,sv,fi,nb
+lvs_Latn	39	2930	'ě'	5160	0.000509	text	1	cs
+lvs_Latn	40	1929	'та'	5141	0.000507	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	41	7890	'ų'	5101	0.000503	text	1	lt
+lvs_Latn	42	5281	'ů'	4964	0.000490	text	1	cs
+lvs_Latn	43	6802	'ные'	4906	0.000484	text	1	ru
+lvs_Latn	44	1570	'я'	4882	0.000482	text	3	ru,uk,bg
+lvs_Latn	45	4158	'ní'	4838	0.000477	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+lvs_Latn	46	2076	'те'	4787	0.000472	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	47	2105	'ла'	4720	0.000466	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	48	1323	'о'	4671	0.000461	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	49	9277	'О'	4668	0.000460	text	5	ru,uk,bg,mk,sr-Cyrl
+lvs_Latn	50	5858	' что'	4666	0.000460	text	5	ru,uk,bg,mk,sr-Cyrl
+spa_Latn	1	82803	'Ã'	14844	0.001480	text	2	pt,vi
+spa_Latn	2	4547	'ā'	6225	0.000621	text	1	lv
+spa_Latn	3	1921	'à'	5827	0.000581	text	7	fr,it,pt,sv,vi,nb,ca
+spa_Latn	4	16096	'ō'	5116	0.000510	no_in_scope_chars	0	(none)
+spa_Latn	5	2720	'â'	4914	0.000490	text	4	fr,pt,vi,ro
+spa_Latn	6	5513	'ça'	4137	0.000412	text	5	fr,pt,tr,az,ca
+spa_Latn	7	2739	'َ'	3975	0.000396	text	1	ar
+spa_Latn	8	7701	'ī'	3536	0.000352	text	1	lv
+spa_Latn	9	1755	' à'	3488	0.000348	text	7	fr,it,pt,sv,vi,nb,ca
+spa_Latn	10	1940	'ç'	3091	0.000308	text	5	fr,pt,tr,az,ca
+spa_Latn	11	4385	'ِ'	3002	0.000299	text	1	ar
+spa_Latn	12	4785	'ì'	2916	0.000291	text	2	it,vi
+spa_Latn	13	1334	'е'	2686	0.000268	text	5	ru,uk,bg,mk,sr-Cyrl
+spa_Latn	14	15357	' â'	2553	0.000254	text	4	fr,pt,vi,ro
+spa_Latn	15	19288	' São'	2434	0.000243	text	2	pt,vi
+spa_Latn	16	10095	'ū'	2350	0.000234	text	2	lt,lv
+spa_Latn	17	1792	'ö'	2298	0.000229	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+spa_Latn	18	20118	' François'	2272	0.000226	text	5	fr,pt,tr,az,ca
+spa_Latn	19	3422	'ò'	2264	0.000226	text	5	it,pt,vi,nb,ca
+spa_Latn	20	1754	'è'	2235	0.000223	text	4	fr,it,vi,ca
+spa_Latn	21	2244	'ão'	2201	0.000219	text	2	pt,vi
+spa_Latn	22	7884	'ï'	1919	0.000191	text	3	fr,nl,ca
+spa_Latn	23	11324	'َّ'	1861	0.000186	text	1	ar
+spa_Latn	24	3404	'ُ'	1831	0.000183	text	1	ar
+spa_Latn	25	20156	'òn'	1674	0.000167	text	5	it,pt,vi,nb,ca
+spa_Latn	26	3269	'ès'	1666	0.000166	text	4	fr,it,vi,ca
+spa_Latn	27	2797	'ô'	1644	0.000164	text	5	fr,pt,vi,nb,sk
+spa_Latn	28	2713	'的'	1585	0.000158	text	3	zh-Hans,zh-Hant,ja
+spa_Latn	29	2114	'ê'	1582	0.000158	text	3	fr,pt,vi
+spa_Latn	30	3242	' α'	1509	0.000150	text	2	el,el-polyton
+spa_Latn	31	2631	'ë'	1496	0.000149	text	2	fr,nl
+spa_Latn	32	1654	'ä'	1448	0.000144	text	6	de,nl,sv,fi,sk,et
+spa_Latn	33	2439	'の'	1432	0.000143	text	1	ja
+spa_Latn	34	6344	'û'	1408	0.000140	text	1	fr
+spa_Latn	35	1303	'ل'	1373	0.000137	text	3	ar,fa,ur
+spa_Latn	36	7213	'ْ'	1373	0.000137	text	1	ar
+spa_Latn	37	10476	' Ö'	1369	0.000136	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+spa_Latn	38	8850	' β'	1312	0.000131	text	2	el,el-polyton
+spa_Latn	39	4715	'î'	1247	0.000124	text	2	fr,ro
+spa_Latn	40	6950	' γ'	1240	0.000124	text	2	el,el-polyton
+spa_Latn	41	2894	'ère'	1239	0.000124	text	4	fr,it,vi,ca
+spa_Latn	42	97014	'ּ'	1206	0.000120	text	1	he
+spa_Latn	43	2381	'š'	1100	0.000110	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+spa_Latn	44	3335	'ção'	1098	0.000109	text	1	pt
+spa_Latn	45	4093	'ø'	1057	0.000105	text	2	da,nb
+spa_Latn	46	9267	'ð'	1034	0.000103	text	1	is
+spa_Latn	47	104880	'ָ'	999	0.000100	text	1	he
+spa_Latn	48	25064	' وَ'	983	0.000098	text	1	ar
+spa_Latn	49	102830	'Ω'	962	0.000096	text	2	el,el-polyton
+spa_Latn	50	128254	'ְ'	948	0.000095	text	1	he
+swe_Latn	1	82803	'Ã'	12601	0.001249	text	2	pt,vi
+swe_Latn	2	2720	'â'	9794	0.000970	text	4	fr,pt,vi,ro
+swe_Latn	3	28943	' München'	7687	0.000762	text	9	de,es,fr,hu,nl,tr,az,et...+1
+swe_Latn	4	96897	'Â'	7520	0.000745	text	4	fr,pt,vi,ro
+swe_Latn	5	1506	'ó'	6561	0.000650	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+swe_Latn	6	4093	'ø'	5851	0.000580	text	2	da,nb
+swe_Latn	7	1502	'á'	5758	0.000571	text	8	cs,es,hu,nl,pt,vi,sk,is
+swe_Latn	8	13566	'Г'	5299	0.000525	text	5	ru,uk,bg,mk,sr-Cyrl
+swe_Latn	9	1529	'í'	4946	0.000490	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+swe_Latn	10	2855	'án'	4945	0.000490	text	8	cs,es,hu,nl,pt,vi,sk,is
+swe_Latn	11	5892	'æ'	4928	0.000488	text	4	da,fr,nb,is
+swe_Latn	12	3975	'ón'	4059	0.000402	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+swe_Latn	13	1671	'ü'	3967	0.000393	text	9	de,es,fr,hu,nl,tr,az,et...+1
+swe_Latn	14	9267	'ð'	3410	0.000338	text	1	is
+swe_Latn	15	70376	' Genève'	3359	0.000333	text	4	fr,it,vi,ca
+swe_Latn	16	3608	' für'	2901	0.000287	text	9	de,es,fr,hu,nl,tr,az,et...+1
+swe_Latn	17	1940	'ç'	2824	0.000280	text	5	fr,pt,tr,az,ca
+swe_Latn	18	2739	'َ'	2734	0.000271	text	1	ar
+swe_Latn	19	5509	'ín'	2523	0.000250	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+swe_Latn	20	1334	'е'	2415	0.000239	text	5	ru,uk,bg,mk,sr-Cyrl
+swe_Latn	21	4715	'î'	2375	0.000235	text	2	fr,ro
+swe_Latn	22	2624	'ñ'	2205	0.000218	text	1	es
+swe_Latn	23	2411	'ú'	2192	0.000217	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+swe_Latn	24	2631	'ë'	2191	0.000217	text	2	fr,nl
+swe_Latn	25	4385	'ِ'	2174	0.000215	text	1	ar
+swe_Latn	26	5513	'ça'	2001	0.000198	text	5	fr,pt,tr,az,ca
+swe_Latn	27	9051	'ør'	1951	0.000193	text	2	da,nb
+swe_Latn	28	1756	' и'	1803	0.000179	text	5	ru,uk,bg,mk,sr-Cyrl
+swe_Latn	29	1538	'д'	1797	0.000178	text	5	ru,uk,bg,mk,sr-Cyrl
+swe_Latn	30	19288	' São'	1748	0.000173	text	2	pt,vi
+swe_Latn	31	19755	'ær'	1725	0.000171	text	4	da,fr,nb,is
+swe_Latn	32	4547	'ā'	1713	0.000170	text	1	lv
+swe_Latn	33	6041	'ème'	1709	0.000169	text	4	fr,it,vi,ca
+swe_Latn	34	51438	' Zürich'	1701	0.000169	text	9	de,es,fr,hu,nl,tr,az,et...+1
+swe_Latn	35	1668	' в'	1655	0.000164	text	5	ru,uk,bg,mk,sr-Cyrl
+swe_Latn	36	20118	' François'	1591	0.000158	text	5	fr,pt,tr,az,ca
+swe_Latn	37	39446	' Müller'	1565	0.000155	text	9	de,es,fr,hu,nl,tr,az,et...+1
+swe_Latn	38	3723	'ć'	1564	0.000155	text	4	pl,sr-Latn,sl,hr
+swe_Latn	39	15357	' â'	1560	0.000155	text	4	fr,pt,vi,ro
+swe_Latn	40	2244	'ão'	1530	0.000152	text	2	pt,vi
+swe_Latn	41	2353	'ía'	1526	0.000151	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+swe_Latn	42	92743	' Málaga'	1512	0.000150	text	8	cs,es,hu,nl,pt,vi,sk,is
+swe_Latn	43	113972	'Ă'	1508	0.000149	text	2	vi,ro
+swe_Latn	44	7884	'ï'	1498	0.000148	text	3	fr,nl,ca
+swe_Latn	45	2592	'ür'	1465	0.000145	text	9	de,es,fr,hu,nl,tr,az,et...+1
+swe_Latn	46	98763	' Chávez'	1442	0.000143	text	8	cs,es,hu,nl,pt,vi,sk,is
+swe_Latn	47	1754	'è'	1370	0.000136	text	4	fr,it,vi,ca
+swe_Latn	48	36810	' Sánchez'	1365	0.000135	text	8	cs,es,hu,nl,pt,vi,sk,is
+swe_Latn	49	7701	'ī'	1359	0.000135	text	1	lv
+swe_Latn	50	2381	'š'	1350	0.000134	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+tam_Taml	1	1278	' the'	282068	0.027981	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	2	1307	' of'	182241	0.018078	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	3	1317	' to'	157650	0.015639	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	4	1321	' and'	156664	0.015541	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	5	1294	' in'	138530	0.013742	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	6	2739	'َ'	104584	0.010375	text	1	ar
+tam_Taml	7	1261	' a'	96995	0.009622	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	8	1395	' is'	84252	0.008358	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	9	4385	'ِ'	77759	0.007714	text	1	ar
+tam_Taml	10	7213	'ْ'	71344	0.007077	text	1	ar
+tam_Taml	11	3404	'ُ'	65426	0.006490	text	1	ar
+tam_Taml	12	1394	' for'	59300	0.005883	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	13	1408	' on'	52257	0.005184	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	14	11324	'َّ'	50175	0.004977	text	1	ar
+tam_Taml	15	1455	' that'	48185	0.004780	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	16	52592	' Tamil'	44138	0.004378	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	17	1454	' with'	42553	0.004221	text	27	en,cs,da,de,es,fr,hu,id...+19
+tam_Taml	18	2354	'.com'	41808	0.004147	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	19	1325	'am'	40274	0.003995	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	20	1536	' by'	39056	0.003874	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	21	1636	' you'	38459	0.003815	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	22	1362	' I'	35178	0.003490	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	23	1584	' are'	34591	0.003431	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	24	2888	'amil'	33778	0.003351	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	25	1531	' The'	31810	0.003156	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	26	1402	' be'	31235	0.003099	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	27	1411	'th'	31019	0.003077	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	28	1494	' it'	30848	0.003060	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	29	1593	' this'	30403	0.003016	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	30	1435	' as'	30191	0.002995	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	31	2143	' your'	28653	0.002842	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	32	1605	' not'	27446	0.002723	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	33	1083	'S'	27323	0.002710	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	34	1335	' S'	27123	0.002691	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	35	25326	'َا'	27113	0.002690	text	1	ar
+tam_Taml	36	1562	' from'	26853	0.002664	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	37	25064	' وَ'	26623	0.002641	text	1	ar
+tam_Taml	38	1105	'i'	25990	0.002578	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	39	1279	'al'	25927	0.002572	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	40	1486	' was'	25895	0.002569	text	27	en,cs,da,de,es,fr,hu,id...+19
+tam_Taml	41	1349	' A'	25692	0.002549	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	42	1084	'T'	25004	0.002480	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	43	1513	' at'	24710	0.002451	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	44	1736	' have'	24604	0.002441	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	45	1115	's'	24416	0.002422	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	46	2084	' will'	24079	0.002389	text	27	en,cs,da,de,es,fr,hu,id...+19
+tam_Taml	47	1065	'A'	23938	0.002375	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	48	2190	'’s'	23679	0.002349	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	49	1104	'h'	23631	0.002344	text	28	en,cs,da,de,es,fr,hu,id...+20
+tam_Taml	50	62136	'ٰ'	23522	0.002333	text	1	ar
+tur_Latn	1	2720	'â'	372161	0.036998	text	4	fr,pt,vi,ro
+tur_Latn	2	4715	'î'	192139	0.019101	text	2	fr,ro
+tur_Latn	3	3062	'ý'	141043	0.014022	text	4	cs,vi,sk,is
+tur_Latn	4	6344	'û'	77108	0.007666	text	1	fr
+tur_Latn	5	2739	'َ'	72412	0.007199	text	1	ar
+tur_Latn	6	1315	'а'	68853	0.006845	text	5	ru,uk,bg,mk,sr-Cyrl
+tur_Latn	7	5012	'ân'	65889	0.006550	text	4	fr,pt,vi,ro
+tur_Latn	8	4385	'ِ'	58529	0.005819	text	1	ar
+tur_Latn	9	39726	'âr'	49546	0.004926	text	4	fr,pt,vi,ro
+tur_Latn	10	99398	'âl'	46922	0.004665	text	4	fr,pt,vi,ro
+tur_Latn	11	102653	'þ'	46327	0.004606	text	1	is
+tur_Latn	12	7213	'ْ'	45645	0.004538	text	1	ar
+tur_Latn	13	15357	' â'	39939	0.003971	text	4	fr,pt,vi,ro
+tur_Latn	14	3404	'ُ'	36786	0.003657	text	1	ar
+tur_Latn	15	19009	'âm'	34864	0.003466	text	4	fr,pt,vi,ro
+tur_Latn	16	11324	'َّ'	32702	0.003251	text	1	ar
+tur_Latn	17	12990	'ât'	31686	0.003150	text	4	fr,pt,vi,ro
+tur_Latn	18	9267	'ð'	27247	0.002709	text	1	is
+tur_Latn	19	25064	' وَ'	23051	0.002292	text	1	ar
+tur_Latn	20	13941	'ây'	23019	0.002288	text	4	fr,pt,vi,ro
+tur_Latn	21	25326	'َا'	15041	0.001495	text	1	ar
+tur_Latn	22	27576	'هُ'	13880	0.001380	text	1	ar
+tur_Latn	23	15262	'َل'	13044	0.001297	text	1	ar
+tur_Latn	24	59533	' الْ'	12336	0.001226	text	1	ar
+tur_Latn	25	1708	'ح'	11123	0.001106	text	3	ar,fa,ur
+tur_Latn	26	34389	' Â'	11077	0.001101	text	4	fr,pt,vi,ro
+tur_Latn	27	1334	'е'	10462	0.001040	text	5	ru,uk,bg,mk,sr-Cyrl
+tur_Latn	28	19388	'ný'	10445	0.001038	text	4	cs,vi,sk,is
+tur_Latn	29	40040	'َر'	9981	0.000992	text	1	ar
+tur_Latn	30	33091	'َم'	9014	0.000896	text	1	ar
+tur_Latn	31	60552	'كَ'	8881	0.000883	text	1	ar
+tur_Latn	32	1566	'ف'	8681	0.000863	text	3	ar,fa,ur
+tur_Latn	33	2099	'أ'	8669	0.000862	text	2	ar,fa
+tur_Latn	34	1559	'ك'	8612	0.000856	text	1	ar
+tur_Latn	35	49680	'َع'	8609	0.000856	text	1	ar
+tur_Latn	36	1530	'ع'	8489	0.000844	text	3	ar,fa,ur
+tur_Latn	37	27967	'هِ'	8465	0.000842	text	1	ar
+tur_Latn	38	1508	'ب'	8242	0.000819	text	3	ar,fa,ur
+tur_Latn	39	25807	'ِي'	8239	0.000819	text	1	ar
+tur_Latn	40	21392	'َن'	8157	0.000811	text	1	ar
+tur_Latn	41	39109	'în'	8149	0.000810	text	2	fr,ro
+tur_Latn	42	75788	'مْ'	7981	0.000793	text	1	ar
+tur_Latn	43	43117	'َب'	7981	0.000793	text	1	ar
+tur_Latn	44	96897	'Â'	7926	0.000788	text	4	fr,pt,vi,ro
+tur_Latn	45	1526	'ق'	7907	0.000786	text	3	ar,fa,ur
+tur_Latn	46	86944	'ُوا'	7896	0.000785	text	1	ar
+tur_Latn	47	1527	'س'	7872	0.000783	text	3	ar,fa,ur
+tur_Latn	48	1337	'é'	7862	0.000782	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+tur_Latn	49	9064	'ٍ'	7569	0.000752	text	2	ar,fa
+tur_Latn	50	31450	'َيْ'	7566	0.000752	text	1	ar
+bul_Cyrl	1	1097	'a'	282926	0.028195	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	2	1101	'e'	195815	0.019514	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	3	1111	'o'	165223	0.016465	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	4	123704	'.bg'	146973	0.014647	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	5	1278	' the'	106328	0.010596	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	6	2354	'.com'	101145	0.010080	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	7	1307	' of'	83453	0.008317	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	8	1398	' B'	73777	0.007352	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	9	1321	' and'	73709	0.007346	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	10	1120	'x'	69718	0.006948	text	27	en,cs,da,de,es,fr,hu,id...+19
+bul_Cyrl	11	1407	' D'	67544	0.006731	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	12	1349	' A'	66996	0.006677	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	13	1335	' S'	66438	0.006621	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	14	1359	' C'	66427	0.006620	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	15	1065	'A'	64060	0.006384	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	16	1336	'ol'	63482	0.006326	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	17	1317	' to'	62326	0.006211	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	18	1068	'D'	61248	0.006104	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	19	84363	' ѝ'	60124	0.005992	text_with_unmodeled_letters	0	(none)
+bul_Cyrl	20	1261	' a'	59727	0.005952	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	21	1071	'G'	58676	0.005847	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	22	1581	' V'	58245	0.005804	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	23	1424	' L'	57101	0.005690	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	24	1066	'B'	53522	0.005334	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	25	1353	' T'	53221	0.005304	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	26	1623	' i'	53017	0.005283	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	27	6132	'www'	51426	0.005125	text	27	en,cs,da,de,es,fr,hu,id...+19
+bul_Cyrl	28	1362	' I'	51351	0.005117	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	29	1083	'S'	50971	0.005080	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	30	1324	' e'	50698	0.005052	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	31	1436	' E'	50539	0.005037	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	32	1461	' G'	50488	0.005031	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	33	1373	' M'	50419	0.005025	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	34	1070	'F'	50160	0.004999	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	35	1086	'V'	50016	0.004984	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	36	1439	' F'	48639	0.004847	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	37	1294	' in'	48080	0.004791	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	38	1078	'N'	47002	0.004684	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	39	1390	' P'	46961	0.004680	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	40	1531	' The'	45611	0.004545	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	41	1067	'C'	45552	0.004540	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	42	1073	'I'	45517	0.004536	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	43	1077	'M'	45240	0.004508	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	44	1098	'b'	44921	0.004477	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	45	1076	'L'	44066	0.004391	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	46	1099	'c'	43427	0.004328	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	47	1550	' K'	42948	0.004280	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	48	9597	' mg'	42712	0.004257	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	49	1075	'K'	41652	0.004151	text	28	en,cs,da,de,es,fr,hu,id...+20
+bul_Cyrl	50	1443	' H'	41609	0.004147	text	28	en,cs,da,de,es,fr,hu,id...+20
+fra_Latn	1	2739	'َ'	13705	0.001361	text	1	ar
+fra_Latn	2	2713	'的'	13036	0.001294	text	3	zh-Hans,zh-Hant,ja
+fra_Latn	3	4385	'ِ'	10732	0.001065	text	1	ar
+fra_Latn	4	7213	'ْ'	7882	0.000782	text	1	ar
+fra_Latn	5	4547	'ā'	7592	0.000754	text	1	lv
+fra_Latn	6	16096	'ō'	7380	0.000733	no_in_scope_chars	0	(none)
+fra_Latn	7	3404	'ُ'	7306	0.000725	text	1	ar
+fra_Latn	8	1502	'á'	7045	0.000699	text	8	cs,es,hu,nl,pt,vi,sk,is
+fra_Latn	9	11324	'َّ'	6689	0.000664	text	1	ar
+fra_Latn	10	1506	'ó'	6097	0.000605	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+fra_Latn	11	1529	'í'	5820	0.000578	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+fra_Latn	12	2855	'án'	4626	0.000459	text	8	cs,es,hu,nl,pt,vi,sk,is
+fra_Latn	13	3975	'ón'	4001	0.000397	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+fra_Latn	14	25064	' وَ'	3967	0.000394	text	1	ar
+fra_Latn	15	1792	'ö'	3836	0.000381	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+fra_Latn	16	10095	'ū'	3379	0.000335	text	2	lt,lv
+fra_Latn	17	2624	'ñ'	3373	0.000335	text	1	es
+fra_Latn	18	4300	'和'	3364	0.000334	text	3	zh-Hans,zh-Hant,ja
+fra_Latn	19	2998	'在'	3345	0.000332	text	3	zh-Hans,zh-Hant,ja
+fra_Latn	20	3163	'不'	3298	0.000327	text	3	zh-Hans,zh-Hant,ja
+fra_Latn	21	19288	' São'	3298	0.000327	text	2	pt,vi
+fra_Latn	22	1654	'ä'	3273	0.000325	text	6	de,nl,sv,fi,sk,et
+fra_Latn	23	2439	'の'	3248	0.000322	text	1	ja
+fra_Latn	24	3405	'人'	3218	0.000319	text	3	zh-Hans,zh-Hant,ja
+fra_Latn	25	2411	'ú'	3056	0.000303	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+fra_Latn	26	7701	'ī'	2992	0.000297	text	1	lv
+fra_Latn	27	5509	'ín'	2789	0.000277	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+fra_Latn	28	2499	'是'	2720	0.000270	text	3	zh-Hans,zh-Hant,ja
+fra_Latn	29	4673	'有'	2659	0.000264	text	3	zh-Hans,zh-Hant,ja
+fra_Latn	30	1838	'ν'	2578	0.000256	text	2	el,el-polyton
+fra_Latn	31	6014	'之'	2542	0.000252	text	3	zh-Hans,zh-Hant,ja
+fra_Latn	32	27576	'هُ'	2524	0.000251	text	1	ar
+fra_Latn	33	9756	' الله'	2423	0.000241	text	2	ar,fa
+fra_Latn	34	3087	'一'	2398	0.000238	text	3	zh-Hans,zh-Hant,ja
+fra_Latn	35	1303	'ل'	2395	0.000238	text	3	ar,fa,ur
+fra_Latn	36	2244	'ão'	2385	0.000237	text	2	pt,vi
+fra_Latn	37	4836	'了'	2378	0.000236	text	3	zh-Hans,zh-Hant,ja
+fra_Latn	38	2353	'ía'	2258	0.000224	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+fra_Latn	39	25326	'َا'	2257	0.000224	text	1	ar
+fra_Latn	40	1559	'ك'	2256	0.000224	text	1	ar
+fra_Latn	41	15262	'َل'	2238	0.000222	text	1	ar
+fra_Latn	42	1668	' в'	2217	0.000220	text	5	ru,uk,bg,mk,sr-Cyrl
+fra_Latn	43	1708	'ح'	2168	0.000215	text	3	ar,fa,ur
+fra_Latn	44	3242	' α'	2167	0.000215	text	2	el,el-polyton
+fra_Latn	45	1756	' и'	2167	0.000215	text	5	ru,uk,bg,mk,sr-Cyrl
+fra_Latn	46	3422	'ò'	2060	0.000205	text	5	it,pt,vi,nb,ca
+fra_Latn	47	7467	'ña'	1971	0.000196	text	1	es
+fra_Latn	48	7360	'生'	1968	0.000195	text	3	zh-Hans,zh-Hant,ja
+fra_Latn	49	8850	' β'	1956	0.000194	text	2	el,el-polyton
+fra_Latn	50	1371	'م'	1916	0.000190	text	3	ar,fa,ur
+heb_Hebr	1	1278	' the'	137481	0.013641	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	2	1307	' of'	96525	0.009578	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	3	1321	' and'	90587	0.008988	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	4	1317	' to'	71690	0.007113	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	5	1294	' in'	55318	0.005489	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	6	1261	' a'	55307	0.005488	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	7	2354	'.com'	48867	0.004849	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	8	1395	' is'	34127	0.003386	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	9	1362	' I'	34076	0.003381	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	10	1398	' B'	33933	0.003367	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	11	1349	' A'	32773	0.003252	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	12	1318	'il'	32749	0.003249	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	13	6132	'www'	30380	0.003014	text	27	en,cs,da,de,es,fr,hu,id...+19
+heb_Hebr	14	1394	' for'	29372	0.002914	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	15	1531	' The'	29215	0.002899	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	16	1065	'A'	28923	0.002870	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	17	1068	'D'	28840	0.002862	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	18	1083	'S'	28640	0.002842	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	19	1359	' C'	28127	0.002791	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	20	1067	'C'	27619	0.002740	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	21	1335	' S'	26512	0.002631	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	22	1407	' D'	26334	0.002613	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	23	1073	'I'	25948	0.002575	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	24	1088	'X'	25195	0.002500	text	27	en,cs,da,de,es,fr,hu,id...+19
+heb_Hebr	25	1077	'M'	24941	0.002475	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	26	1455	' that'	24217	0.002403	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	27	20524	'.co'	23798	0.002361	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	28	1066	'B'	23638	0.002345	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	29	1080	'P'	23369	0.002319	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	30	1353	' T'	22709	0.002253	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	31	1071	'G'	22671	0.002250	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	32	98739	'@example'	22238	0.002207	text	27	en,cs,da,de,es,fr,hu,id...+19
+heb_Hebr	33	1436	' E'	22087	0.002192	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	34	1461	' G'	21469	0.002130	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	35	1408	' on'	21463	0.002130	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	36	1373	' M'	21059	0.002090	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	37	1390	' P'	20803	0.002064	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	38	1079	'O'	20615	0.002046	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	39	1070	'F'	20134	0.001998	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	40	1115	's'	19848	0.001969	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	41	1454	' with'	19724	0.001957	text	27	en,cs,da,de,es,fr,hu,id...+19
+heb_Hebr	42	1075	'K'	19698	0.001955	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	43	1084	'T'	19604	0.001945	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	44	1636	' you'	19575	0.001942	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	45	1443	' H'	19436	0.001929	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	46	1086	'V'	19151	0.001900	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	47	1424	' L'	18659	0.001851	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	48	1082	'R'	18602	0.001846	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	49	6766	'.org'	18438	0.001829	text	28	en,cs,da,de,es,fr,hu,id...+20
+heb_Hebr	50	1076	'L'	18424	0.001828	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	1	1278	' the'	323733	0.032102	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	2	2354	'.com'	286081	0.028369	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	3	1307	' of'	222850	0.022098	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	4	1321	' and'	220447	0.021860	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	5	98739	'@example'	197341	0.019569	text	27	en,cs,da,de,es,fr,hu,id...+19
+kor_Hang	6	1065	'A'	186817	0.018525	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	7	1317	' to'	184206	0.018266	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	8	1067	'C'	175739	0.017427	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	9	1349	' A'	158618	0.015729	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	10	1359	' C'	156799	0.015549	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	11	1083	'S'	145236	0.014402	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	12	1294	' in'	134943	0.013381	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	13	1088	'X'	128778	0.012770	text	27	en,cs,da,de,es,fr,hu,id...+19
+kor_Hang	14	1398	' B'	128504	0.012743	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	15	1077	'M'	128224	0.012715	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	16	1075	'K'	127407	0.012634	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	17	1335	' S'	125176	0.012413	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	18	1068	'D'	124352	0.012331	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	19	1071	'G'	123855	0.012282	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	20	1550	' K'	122909	0.012188	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	21	1115	's'	122166	0.012114	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	22	1261	' a'	113314	0.011236	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	23	1081	'Q'	112733	0.011179	text	27	en,cs,da,de,es,fr,hu,id...+19
+kor_Hang	24	1066	'B'	108756	0.010785	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	25	6766	'.org'	108480	0.010757	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	26	1080	'P'	105210	0.010433	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	27	2391	'name'	103790	0.010292	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	28	1078	'N'	102188	0.010133	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	29	1086	'V'	100528	0.009969	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	30	1073	'I'	100207	0.009937	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	31	1436	' E'	99902	0.009907	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	32	27887	'.last'	98694	0.009787	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	33	1114	'r'	97901	0.009708	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	34	1394	' for'	96367	0.009556	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	35	1636	' you'	96037	0.009523	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	36	1407	' D'	95143	0.009435	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	37	1072	'H'	94510	0.009372	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	38	1084	'T'	94144	0.009336	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	39	1109	'm'	93707	0.009292	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	40	6132	'www'	89395	0.008865	text	27	en,cs,da,de,es,fr,hu,id...+19
+kor_Hang	41	1070	'F'	88934	0.008819	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	42	23715	'.k'	88620	0.008788	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	43	1076	'L'	83585	0.008288	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	44	1395	' is'	82559	0.008187	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	45	1443	' H'	81317	0.008064	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	46	1362	' I'	80820	0.008014	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	47	8281	' TV'	79915	0.007925	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	48	1074	'J'	79188	0.007852	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	49	8686	' email'	74536	0.007391	text	28	en,cs,da,de,es,fr,hu,id...+20
+kor_Hang	50	1082	'R'	74124	0.007350	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	1	1278	' the'	228668	0.022775	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	2	1307	' of'	165767	0.016510	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	3	1321	' and'	131485	0.013096	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	4	1317	' to'	123882	0.012339	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	5	1261	' a'	116082	0.011562	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	6	1362	' I'	107822	0.010739	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	7	1294	' in'	99526	0.009913	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	8	1097	'a'	93402	0.009303	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	9	1623	' i'	81923	0.008160	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	10	1111	'o'	79047	0.007873	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	11	1101	'e'	76804	0.007650	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	12	10986	' Windows'	75129	0.007483	text	27	en,cs,da,de,es,fr,hu,id...+19
+rus_Cyrl	13	2354	'.com'	72748	0.007246	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	14	1531	' The'	63578	0.006332	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	15	1335	' S'	62577	0.006233	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	16	1359	' C'	62451	0.006220	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	17	1349	' A'	62143	0.006189	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	18	1068	'D'	60499	0.006026	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	19	1395	' is'	57503	0.005727	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	20	1398	' B'	57348	0.005712	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	21	1407	' D'	56561	0.005633	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	22	1112	'p'	56415	0.005619	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	23	50651	'.ru'	55924	0.005570	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	24	1725	'ο'	55821	0.005560	text	2	el,el-polyton
+rus_Cyrl	25	1065	'A'	55003	0.005478	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	26	1067	'C'	53764	0.005355	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	27	1115	's'	53442	0.005323	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	28	1073	'I'	51413	0.005121	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	29	1390	' P'	51247	0.005104	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	30	1581	' V'	49610	0.004941	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	31	1394	' for'	48804	0.004861	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	32	1439	' F'	48472	0.004828	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	33	1636	' you'	48234	0.004804	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	34	1434	' R'	47840	0.004765	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	35	1464	' N'	47455	0.004727	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	36	1083	'S'	47198	0.004701	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	37	1461	' G'	46725	0.004654	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	38	1088	'X'	46316	0.004613	text	27	en,cs,da,de,es,fr,hu,id...+19
+rus_Cyrl	39	1099	'c'	46069	0.004588	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	40	13346	' Google'	45767	0.004558	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	41	4121	' II'	45707	0.004552	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	42	1373	' M'	44561	0.004438	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	43	1424	' L'	44430	0.004425	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	44	1120	'x'	43769	0.004359	text	27	en,cs,da,de,es,fr,hu,id...+19
+rus_Cyrl	45	1070	'F'	41988	0.004182	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	46	2628	' X'	41806	0.004164	text	27	en,cs,da,de,es,fr,hu,id...+19
+rus_Cyrl	47	1066	'B'	41694	0.004153	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	48	1080	'P'	41186	0.004102	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	49	1436	' E'	41017	0.004085	text	28	en,cs,da,de,es,fr,hu,id...+20
+rus_Cyrl	50	1071	'G'	40389	0.004023	text	28	en,cs,da,de,es,fr,hu,id...+20
+slk_Latn	1	2930	'ě'	161896	0.016172	text	1	cs
+slk_Latn	2	5281	'ů'	148909	0.014874	text	1	cs
+slk_Latn	3	9042	'ně'	78387	0.007830	text	1	cs
+slk_Latn	4	3272	'ř'	65581	0.006551	text	1	cs
+slk_Latn	5	6579	' př'	44508	0.004446	text	1	cs
+slk_Latn	6	17535	' mě'	39649	0.003961	text	1	cs
+slk_Latn	7	10014	'ří'	29194	0.002916	text	1	cs
+slk_Latn	8	22195	'ře'	27306	0.002728	text	1	cs
+slk_Latn	9	29687	' pří'	26070	0.002604	text	1	cs
+slk_Latn	10	1315	'а'	24749	0.002472	text	5	ru,uk,bg,mk,sr-Cyrl
+slk_Latn	11	63867	'ěn'	20410	0.002039	text	1	cs
+slk_Latn	12	25464	' před'	18457	0.001844	text	1	cs
+slk_Latn	13	14250	'ět'	17357	0.001734	text	1	cs
+slk_Latn	14	20248	' ně'	16867	0.001685	text	1	cs
+slk_Latn	15	25866	'ěl'	16591	0.001657	text	1	cs
+slk_Latn	16	28108	'ště'	16403	0.001638	text	1	cs
+slk_Latn	17	1754	'è'	15099	0.001508	text	4	fr,it,vi,ca
+slk_Latn	18	1334	'е'	14170	0.001415	text	5	ru,uk,bg,mk,sr-Cyrl
+slk_Latn	19	29845	'ům'	14128	0.001411	text	1	cs
+slk_Latn	20	78981	' přev'	13595	0.001358	text	1	cs
+slk_Latn	21	46545	'vě'	12914	0.001290	text	1	cs
+slk_Latn	22	39075	' při'	12855	0.001284	text	1	cs
+slk_Latn	23	32035	' vě'	12822	0.001281	text	1	cs
+slk_Latn	24	1323	'о'	12372	0.001236	text	5	ru,uk,bg,mk,sr-Cyrl
+slk_Latn	25	69728	' Př'	12212	0.001220	text	1	cs
+slk_Latn	26	44495	'bě'	11944	0.001193	text	1	cs
+slk_Latn	27	43410	'ář'	11674	0.001166	text	1	cs
+slk_Latn	28	49747	' přes'	11477	0.001146	text	1	cs
+slk_Latn	29	47518	'ově'	11188	0.001118	text	1	cs
+slk_Latn	30	113972	'Ă'	10985	0.001097	text	2	vi,ro
+slk_Latn	31	28616	'ři'	10866	0.001085	text	1	cs
+slk_Latn	32	29057	' ř'	10494	0.001048	text	1	cs
+slk_Latn	33	47914	' svět'	10309	0.001030	text	1	cs
+slk_Latn	34	63427	'nější'	10221	0.001021	text	1	cs
+slk_Latn	35	55730	' dě'	9473	0.000946	text	1	cs
+slk_Latn	36	57822	'ěr'	9140	0.000913	text	1	cs
+slk_Latn	37	70985	'ější'	9123	0.000911	text	1	cs
+slk_Latn	38	55964	'ěř'	9028	0.000902	text	1	cs
+slk_Latn	39	40626	' tě'	8941	0.000893	text	1	cs
+slk_Latn	40	65377	' může'	8807	0.000880	text	1	cs
+slk_Latn	41	53147	'řej'	8655	0.000865	text	1	cs
+slk_Latn	42	3723	'ć'	8546	0.000854	text	4	pl,sr-Latn,sl,hr
+slk_Latn	43	86648	'mě'	8540	0.000853	text	1	cs
+slk_Latn	44	40948	'ění'	8469	0.000846	text	1	cs
+slk_Latn	45	63188	'ků'	8432	0.000842	text	1	cs
+slk_Latn	46	67047	' přip'	8114	0.000811	text	1	cs
+slk_Latn	47	48074	' dů'	7947	0.000794	text	1	cs
+slk_Latn	48	80245	' ještě'	7493	0.000748	text	1	cs
+slk_Latn	49	29977	'řed'	7405	0.000740	text	1	cs
+slk_Latn	50	53591	' tř'	7357	0.000735	text	1	cs
+ukr_Cyrl	1	1105	'i'	282714	0.028070	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	2	1111	'o'	186474	0.018514	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	3	1097	'a'	180029	0.017875	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	4	4037	'ua'	132436	0.013149	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	5	1278	' the'	114321	0.011351	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	6	1307	' of'	108046	0.010728	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	7	2354	'.com'	99803	0.009909	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	8	1321	' and'	71519	0.007101	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	9	1623	' i'	69769	0.006927	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	10	1101	'e'	66849	0.006637	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	11	1086	'V'	62104	0.006166	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	12	1065	'A'	56160	0.005576	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	13	1581	' V'	53168	0.005279	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	14	1317	' to'	52419	0.005205	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	15	23080	' Facebook'	51006	0.005064	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	16	1294	' in'	50406	0.005005	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	17	1261	' a'	49868	0.004951	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	18	11651	' COVID'	48976	0.004863	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	19	1112	'p'	47632	0.004729	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	20	1335	' S'	46814	0.004648	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	21	1068	'D'	46559	0.004623	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	22	1362	' I'	45683	0.004536	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	23	1398	' B'	43487	0.004318	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	24	1121	'y'	43432	0.004312	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	25	1073	'I'	42647	0.004234	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	26	1424	' L'	42611	0.004231	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	27	1349	' A'	42356	0.004205	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	28	1120	'x'	42223	0.004192	text	27	en,cs,da,de,es,fr,hu,id...+19
+ukr_Cyrl	29	1083	'S'	42134	0.004183	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	30	1071	'G'	41592	0.004130	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	31	1067	'C'	41381	0.004109	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	32	6802	'ные'	41264	0.004097	text	1	ru
+ukr_Cyrl	33	1088	'X'	40988	0.004070	text	27	en,cs,da,de,es,fr,hu,id...+19
+ukr_Cyrl	34	1407	' D'	40505	0.004022	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	35	1359	' C'	39803	0.003952	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	36	124350	' Telegram'	39249	0.003897	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	37	1461	' G'	38913	0.003864	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	38	1076	'L'	38859	0.003858	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	39	1531	' The'	38635	0.003836	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	40	6261	'ный'	38167	0.003789	text	1	ru
+ukr_Cyrl	41	1099	'c'	37793	0.003752	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	42	7155	' https'	37765	0.003750	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	43	1066	'B'	37308	0.003704	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	44	1550	' K'	37277	0.003701	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	45	1373	' M'	36597	0.003634	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	46	13346	' Google'	36279	0.003602	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	47	1090	'Z'	35717	0.003546	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	48	1390	' P'	35649	0.003539	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	49	1115	's'	35566	0.003531	text	28	en,cs,da,de,es,fr,hu,id...+20
+ukr_Cyrl	50	1439	' F'	35254	0.003500	text	28	en,cs,da,de,es,fr,hu,id...+20
+urd_Arab	1	7952	' میں'	15580119	1.557627	text_with_unmodeled_letters	0	(none)
+urd_Arab	2	10712	'وں'	10197051	1.019453	text_with_unmodeled_letters	0	(none)
+urd_Arab	3	21219	' ہیں'	6409753	0.640817	text_with_unmodeled_letters	0	(none)
+urd_Arab	4	12266	'یں'	4650059	0.464891	text_with_unmodeled_letters	0	(none)
+urd_Arab	5	3063	' آ'	3629345	0.362845	text	2	ar,fa
+urd_Arab	6	39602	' نہیں'	3486322	0.348546	text_with_unmodeled_letters	0	(none)
+urd_Arab	7	4424	'ں'	3347148	0.334632	no_in_scope_chars	0	(none)
+urd_Arab	8	29573	'ئے'	3194257	0.319347	text	0	(none)
+urd_Arab	9	21891	'ائی'	2859618	0.285891	text	1	fa
+urd_Arab	10	50938	' آپ'	2305645	0.230507	text	1	fa
+urd_Arab	11	2724	'ائ'	2288803	0.228824	text	2	ar,fa
+urd_Arab	12	17045	'ئی'	1712570	0.171215	text	1	fa
+urd_Arab	13	4385	'ِ'	1697796	0.169738	text	1	ar
+urd_Arab	14	42810	'اں'	1554707	0.155432	text_with_unmodeled_letters	0	(none)
+urd_Arab	15	55671	' ہوئے'	1351849	0.135151	text	0	(none)
+urd_Arab	16	40176	'ائے'	1252220	0.125191	text	0	(none)
+urd_Arab	17	62136	'ٰ'	1104250	0.110398	text	1	ar
+urd_Arab	18	87948	' کوئی'	1102382	0.110211	text	1	fa
+urd_Arab	19	110441	' جائے'	982132	0.098189	text	0	(none)
+urd_Arab	20	3476	'ئ'	848908	0.084870	text	2	ar,fa
+urd_Arab	21	61617	' گئی'	837826	0.083762	text	1	fa
+urd_Arab	22	129375	' ہوں'	822749	0.082255	text_with_unmodeled_letters	0	(none)
+urd_Arab	23	2739	'َ'	793052	0.079286	text	1	ar
+urd_Arab	24	3404	'ُ'	759576	0.075939	text	1	ar
+urd_Arab	25	7666	'آ'	722230	0.072205	text	2	ar,fa
+urd_Arab	26	58922	' گئے'	715841	0.071566	text	0	(none)
+urd_Arab	27	26147	'اؤ'	681919	0.068175	text	2	ar,fa
+urd_Arab	28	85930	'روں'	626188	0.062603	text_with_unmodeled_letters	0	(none)
+urd_Arab	29	7076	' آن'	581882	0.058174	text	2	ar,fa
+urd_Arab	30	79341	' ہوئی'	539912	0.053978	text	0	(none)
+urd_Arab	31	112012	' لوگوں'	532898	0.053277	text_with_unmodeled_letters	0	(none)
+urd_Arab	32	30420	'ائن'	526593	0.052646	text	2	ar,fa
+urd_Arab	33	27426	' آر'	416728	0.041662	text	2	ar,fa
+urd_Arab	34	7213	'ْ'	405189	0.040509	text	1	ar
+urd_Arab	35	2046	' ك'	403934	0.040383	text	1	ar
+urd_Arab	36	67000	'ئر'	376544	0.037645	text	2	ar,fa
+urd_Arab	37	119653	' آگ'	362664	0.036257	text	1	fa
+urd_Arab	38	19095	'ائد'	356460	0.035637	text	2	ar,fa
+urd_Arab	39	123096	' دونوں'	352188	0.035210	text_with_unmodeled_letters	0	(none)
+urd_Arab	40	125668	' یہاں'	342045	0.034196	text_with_unmodeled_letters	0	(none)
+urd_Arab	41	10364	'ائل'	321138	0.032106	text	2	ar,fa
+urd_Arab	42	83797	' آباد'	316381	0.031630	text	2	ar,fa
+urd_Arab	43	61507	'ُن'	307385	0.030731	text	1	ar
+urd_Arab	44	45977	'ائز'	297994	0.029792	text	2	ar,fa
+urd_Arab	45	112064	'اؤن'	286589	0.028652	text	2	ar,fa
+urd_Arab	46	11324	'َّ'	280134	0.028006	text	1	ar
+urd_Arab	47	116447	'ُس'	273671	0.027360	text	1	ar
+urd_Arab	48	1764	'ى'	270515	0.027045	text	1	ar
+urd_Arab	49	13301	' آخر'	257735	0.025767	text	2	ar,fa
+urd_Arab	50	18127	'ائر'	256699	0.025664	text	2	ar,fa
+azj_Latn	1	1315	'а'	1308019	0.130143	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	2	1334	'е'	418982	0.041687	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	3	1323	'о'	265054	0.026372	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	4	6017	'ә'	223633	0.022251	no_in_scope_chars	0	(none)
+azj_Latn	5	1810	' о'	127708	0.012706	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	6	3116	' е'	115702	0.011512	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	7	1377	'с'	90158	0.008970	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	8	2494	' а'	70442	0.007009	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	9	1668	' в'	34962	0.003479	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	10	1756	' и'	33441	0.003327	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	11	1570	'я'	32782	0.003262	text	3	ru,uk,bg
+azj_Latn	12	1614	' с'	32125	0.003196	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	13	3777	' А'	30659	0.003050	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	14	4872	' р'	30542	0.003039	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	15	2739	'َ'	26363	0.002623	text	1	ar
+azj_Latn	16	4854	'са'	23416	0.002330	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	17	4385	'ِ'	22775	0.002266	text	1	ar
+azj_Latn	18	1902	' на'	21837	0.002173	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	19	1367	'р'	21180	0.002107	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	20	1565	'м'	20887	0.002078	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	21	1901	'х'	16874	0.001679	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	22	1753	'і'	16751	0.001667	text	1	uk
+azj_Latn	23	2463	'ка'	15695	0.001562	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	24	7213	'ْ'	15413	0.001534	text	1	ar
+azj_Latn	25	1607	'ы'	13988	0.001392	text	1	ru
+azj_Latn	26	3404	'ُ'	13338	0.001327	text	1	ar
+azj_Latn	27	7620	'А'	12891	0.001283	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	28	9277	'О'	12735	0.001267	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	29	1361	'т'	12341	0.001228	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	30	4859	' са'	11912	0.001185	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	31	2262	'ер'	11163	0.001111	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	32	11324	'َّ'	11011	0.001096	text	1	ar
+azj_Latn	33	1481	'к'	10996	0.001094	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	34	4605	' О'	10661	0.001061	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	35	2843	' не'	10279	0.001023	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	36	34768	' ә'	10173	0.001012	text_with_unmodeled_letters	0	(none)
+azj_Latn	37	1472	'у'	9899	0.000985	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	38	2334	'но'	9724	0.000968	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	39	3103	'ть'	9593	0.000954	text	3	ru,uk,bg
+azj_Latn	40	8899	'Р'	9077	0.000903	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	41	5111	'С'	8895	0.000885	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	42	21580	'Е'	8585	0.000854	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	43	25064	' وَ'	8571	0.000853	text	1	ar
+azj_Latn	44	3357	'ло'	8558	0.000851	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	45	3137	'ки'	8397	0.000835	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	46	4540	'ку'	8380	0.000834	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	47	1971	'ц'	8112	0.000807	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	48	1835	' к'	8100	0.000806	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	49	2718	'ро'	8005	0.000796	text	5	ru,uk,bg,mk,sr-Cyrl
+azj_Latn	50	4877	'зи'	7970	0.000793	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	1	1756	' и'	15400	0.001525	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	2	1668	' в'	14562	0.001442	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	3	1902	' на'	8697	0.000861	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	4	4547	'ā'	8200	0.000812	text	1	lv
+ekk_Latn	5	2843	' не'	7967	0.000789	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	6	1614	' с'	6714	0.000665	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	7	1337	'é'	6528	0.000646	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+ekk_Latn	8	113972	'Ă'	6434	0.000637	text	2	vi,ro
+ekk_Latn	9	3103	'ть'	5366	0.000531	text	3	ru,uk,bg
+ekk_Latn	10	5111	'С'	4285	0.000424	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	11	5858	' что'	4262	0.000422	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	12	2463	'ка'	4237	0.000420	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	13	2982	' С'	4074	0.000403	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	14	1921	'à'	3969	0.000393	text	7	fr,it,pt,sv,vi,nb,ca
+ekk_Latn	15	1361	'т'	3914	0.000388	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	16	2711	' по'	3855	0.000382	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	17	2105	'ла'	3844	0.000381	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	18	2555	' за'	3821	0.000378	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	19	1901	'х'	3718	0.000368	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	20	2060	'ли'	3712	0.000368	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	21	1432	'л'	3589	0.000355	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	22	3137	'ки'	3478	0.000344	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	23	7701	'ī'	3321	0.000329	text	1	lv
+ekk_Latn	24	2332	' у'	3243	0.000321	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	25	3460	' от'	3213	0.000318	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	26	1377	'с'	3210	0.000318	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	27	6261	'ный'	3127	0.000310	text	1	ru
+ekk_Latn	28	1538	'д'	3115	0.000308	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	29	2076	'те'	3112	0.000308	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	30	1565	'м'	3089	0.000306	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	31	9277	'О'	3071	0.000304	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	32	1570	'я'	3048	0.000302	text	3	ru,uk,bg
+ekk_Latn	33	5800	'В'	2956	0.000293	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	34	1334	'е'	2937	0.000291	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	35	1347	'и'	2930	0.000290	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	36	3017	'ми'	2894	0.000287	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	37	1835	' к'	2847	0.000282	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	38	3751	' из'	2846	0.000282	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	39	1472	'у'	2793	0.000277	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	40	7019	' для'	2774	0.000275	text	3	ru,uk,bg
+ekk_Latn	41	6802	'ные'	2767	0.000274	text	1	ru
+ekk_Latn	42	16096	'ō'	2759	0.000273	no_in_scope_chars	0	(none)
+ekk_Latn	43	2669	'ет'	2692	0.000267	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	44	1929	'та'	2676	0.000265	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	45	1789	'п'	2633	0.000261	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	46	1481	'к'	2567	0.000254	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	47	3576	' при'	2566	0.000254	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	48	2334	'но'	2503	0.000248	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	49	2112	'ом'	2500	0.000248	text	5	ru,uk,bg,mk,sr-Cyrl
+ekk_Latn	50	2318	'ти'	2498	0.000247	text	5	ru,uk,bg,mk,sr-Cyrl
+ita_Latn	1	4547	'ā'	11900	0.001184	text	1	lv
+ita_Latn	2	2411	'ú'	11347	0.001129	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+ita_Latn	3	1502	'á'	11305	0.001125	text	8	cs,es,hu,nl,pt,vi,sk,is
+ita_Latn	4	106127	'Ó'	11115	0.001106	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+ita_Latn	5	1529	'í'	10876	0.001082	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+ita_Latn	6	2720	'â'	9455	0.000941	text	4	fr,pt,vi,ro
+ita_Latn	7	1506	'ó'	7815	0.000778	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+ita_Latn	8	4715	'î'	7802	0.000776	text	2	fr,ro
+ita_Latn	9	16096	'ō'	6505	0.000647	no_in_scope_chars	0	(none)
+ita_Latn	10	7701	'ī'	5046	0.000502	text	1	lv
+ita_Latn	11	2739	'َ'	4997	0.000497	text	1	ar
+ita_Latn	12	2631	'ë'	4724	0.000470	text	2	fr,nl
+ita_Latn	13	2855	'án'	4320	0.000430	text	8	cs,es,hu,nl,pt,vi,sk,is
+ita_Latn	14	4385	'ِ'	3831	0.000381	text	1	ar
+ita_Latn	15	3975	'ón'	3622	0.000360	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+ita_Latn	16	2624	'ñ'	3464	0.000345	text	1	es
+ita_Latn	17	10095	'ū'	3360	0.000334	text	2	lt,lv
+ita_Latn	18	1671	'ü'	3145	0.000313	text	9	de,es,fr,hu,nl,tr,az,et...+1
+ita_Latn	19	20118	' François'	3090	0.000307	text	5	fr,pt,tr,az,ca
+ita_Latn	20	2514	'č'	3030	0.000302	text	7	cs,sr-Latn,sl,hr,sk,lt,lv
+ita_Latn	21	15357	' â'	2960	0.000295	text	4	fr,pt,vi,ro
+ita_Latn	22	7213	'ْ'	2916	0.000290	text	1	ar
+ita_Latn	23	5344	' č'	2812	0.000280	text	7	cs,sr-Latn,sl,hr,sk,lt,lv
+ita_Latn	24	1792	'ö'	2775	0.000276	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+ita_Latn	25	2381	'š'	2662	0.000265	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+ita_Latn	26	5111	'С'	2583	0.000257	text	5	ru,uk,bg,mk,sr-Cyrl
+ita_Latn	27	1940	'ç'	2563	0.000255	text	5	fr,pt,tr,az,ca
+ita_Latn	28	5509	'ín'	2472	0.000246	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+ita_Latn	29	7884	'ï'	2446	0.000243	text	3	fr,nl,ca
+ita_Latn	30	2353	'ía'	2428	0.000242	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+ita_Latn	31	3404	'ُ'	2300	0.000229	text	1	ar
+ita_Latn	32	1654	'ä'	2290	0.000228	text	6	de,nl,sv,fi,sk,et
+ita_Latn	33	11324	'َّ'	2248	0.000224	text	1	ar
+ita_Latn	34	1347	'и'	2231	0.000222	text	5	ru,uk,bg,mk,sr-Cyrl
+ita_Latn	35	2713	'的'	2219	0.000221	text	3	zh-Hans,zh-Hant,ja
+ita_Latn	36	5892	'æ'	2204	0.000219	text	4	da,fr,nb,is
+ita_Latn	37	3242	' α'	2182	0.000217	text	2	el,el-polyton
+ita_Latn	38	2711	' по'	2177	0.000217	text	5	ru,uk,bg,mk,sr-Cyrl
+ita_Latn	39	3608	' für'	2175	0.000216	text	9	de,es,fr,hu,nl,tr,az,et...+1
+ita_Latn	40	2114	'ê'	2067	0.000206	text	3	fr,pt,vi
+ita_Latn	41	2803	'å'	1985	0.000198	text	4	da,sv,fi,nb
+ita_Latn	42	4170	'ме'	1973	0.000196	text	5	ru,uk,bg,mk,sr-Cyrl
+ita_Latn	43	3062	'ý'	1965	0.000196	text	4	cs,vi,sk,is
+ita_Latn	44	2893	'ą'	1939	0.000193	text	2	pl,lt
+ita_Latn	45	3723	'ć'	1927	0.000192	text	4	pl,sr-Latn,sl,hr
+ita_Latn	46	2439	'の'	1917	0.000191	text	1	ja
+ita_Latn	47	4654	' те'	1915	0.000191	text	5	ru,uk,bg,mk,sr-Cyrl
+ita_Latn	48	13192	' Š'	1907	0.000190	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+ita_Latn	49	5513	'ça'	1881	0.000187	text	5	fr,pt,tr,az,ca
+ita_Latn	50	52364	' стать'	1856	0.000185	text	3	ru,uk,bg
+jpn_Jpan	1	1065	'A'	225932	0.022531	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	2	1067	'C'	172678	0.017220	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	3	1066	'B'	172183	0.017171	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	4	1083	'S'	155087	0.015466	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	5	1088	'X'	142799	0.014241	text	27	en,cs,da,de,es,fr,hu,id...+19
+jpn_Jpan	6	1068	'D'	133216	0.013285	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	7	1077	'M'	132173	0.013181	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	8	1278	' the'	130682	0.013032	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	9	1071	'G'	129223	0.012887	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	10	1070	'F'	123538	0.012320	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	11	1307	' of'	119507	0.011918	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	12	1080	'P'	119200	0.011887	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	13	1073	'I'	109176	0.010888	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	14	1084	'T'	106502	0.010621	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	15	1075	'K'	105846	0.010556	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	16	1076	'L'	103900	0.010361	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	17	1074	'J'	101382	0.010110	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	18	1087	'W'	98927	0.009866	text	27	en,cs,da,de,es,fr,hu,id...+19
+jpn_Jpan	19	1078	'N'	97193	0.009693	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	20	1072	'H'	97017	0.009675	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	21	1086	'V'	90581	0.009033	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	22	1069	'E'	88855	0.008861	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	23	1082	'R'	86434	0.008620	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	24	1109	'm'	84872	0.008464	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	25	1317	' to'	78659	0.007844	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	26	1321	' and'	77477	0.007726	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	27	1079	'O'	76034	0.007583	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	28	1081	'Q'	74233	0.007403	text	27	en,cs,da,de,es,fr,hu,id...+19
+jpn_Jpan	29	1261	' a'	70390	0.007020	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	30	1085	'U'	69257	0.006907	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	31	1089	'Y'	68842	0.006865	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	32	2354	'.com'	65051	0.006487	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	33	1105	'i'	62143	0.006197	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	34	1294	' in'	61232	0.006106	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	35	1097	'a'	47927	0.004780	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	36	1115	's'	44524	0.004440	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	37	1103	'g'	43192	0.004307	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	38	1784	'The'	42852	0.004273	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	39	1112	'p'	42790	0.004267	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	40	1090	'Z'	41583	0.004147	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	41	1362	' I'	40816	0.004070	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	42	1395	' is'	39403	0.003929	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	43	1349	' A'	39347	0.003924	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	44	1099	'c'	39197	0.003909	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	45	12790	'cm'	38656	0.003855	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	46	1098	'b'	38387	0.003828	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	47	1394	' for'	37984	0.003788	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	48	6132	'www'	37952	0.003785	text	27	en,cs,da,de,es,fr,hu,id...+19
+jpn_Jpan	49	1101	'e'	36386	0.003629	text	28	en,cs,da,de,es,fr,hu,id...+20
+jpn_Jpan	50	108734	'NUM'	35954	0.003586	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	1	1278	' the'	182752	0.018102	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	2	1307	' of'	122846	0.012168	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	3	1321	' and'	114530	0.011345	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	4	1317	' to'	105905	0.010490	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	5	1294	' in'	91014	0.009015	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	6	2739	'َ'	79420	0.007867	text	1	ar
+mal_Mlym	7	1261	' a'	69875	0.006921	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	8	4385	'ِ'	64142	0.006354	text	1	ar
+mal_Mlym	9	1395	' is'	58493	0.005794	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	10	18445	' PM'	53357	0.005285	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	11	7213	'ْ'	46422	0.004598	text	1	ar
+mal_Mlym	12	11759	' ago'	45427	0.004500	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	13	1394	' for'	42012	0.004161	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	14	1408	' on'	40095	0.003972	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	15	11324	'َّ'	39619	0.003924	text	1	ar
+mal_Mlym	16	119192	' IST'	39573	0.003920	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	17	3404	'ُ'	38712	0.003835	text	1	ar
+mal_Mlym	18	31659	'alam'	35824	0.003549	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	19	1279	'al'	35532	0.003520	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	20	2354	'.com'	35473	0.003514	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	21	15584	' News'	34223	0.003390	text	27	en,cs,da,de,es,fr,hu,id...+19
+mal_Mlym	22	1417	'ay'	30985	0.003069	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	23	20685	' AM'	30092	0.002981	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	24	1325	'am'	29588	0.002931	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	25	1536	' by'	28616	0.002835	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	26	1455	' that'	28587	0.002832	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	27	1636	' you'	28542	0.002827	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	28	1454	' with'	27943	0.002768	text	27	en,cs,da,de,es,fr,hu,id...+19
+mal_Mlym	29	1593	' this'	26823	0.002657	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	30	1411	'th'	26223	0.002597	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	31	25064	' وَ'	25125	0.002489	text	1	ar
+mal_Mlym	32	1584	' are'	24941	0.002471	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	33	4182	'ala'	24106	0.002388	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	34	1402	' be'	23850	0.002362	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	35	1362	' I'	23461	0.002324	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	36	2143	' your'	22573	0.002236	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	37	1562	' from'	22228	0.002202	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	38	74191	' Malay'	22108	0.002190	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	39	1531	' The'	20640	0.002044	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	40	1115	's'	19725	0.001954	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	41	27576	'هُ'	19100	0.001892	text	1	ar
+mal_Mlym	42	1435	' as'	18684	0.001851	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	43	1494	' it'	18304	0.001813	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	44	2084	' will'	18193	0.001802	text	27	en,cs,da,de,es,fr,hu,id...+19
+mal_Mlym	45	1513	' at'	17937	0.001777	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	46	1073	'I'	17758	0.001759	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	47	1505	' or'	17466	0.001730	text	28	en,cs,da,de,es,fr,hu,id...+20
+mal_Mlym	48	25326	'َا'	17366	0.001720	text	1	ar
+mal_Mlym	49	1486	' was'	17324	0.001716	text	27	en,cs,da,de,es,fr,hu,id...+19
+mal_Mlym	50	1065	'A'	17258	0.001709	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	1	1097	'a'	621577	0.061649	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	2	1101	'e'	439070	0.043547	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	3	1111	'o'	376965	0.037388	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	4	1106	'j'	221918	0.022010	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	5	2310	' je'	118015	0.011705	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	6	1278	' the'	105157	0.010430	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	7	1623	' i'	87172	0.008646	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	8	1307	' of'	86112	0.008541	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	9	1475	' j'	84499	0.008381	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	10	5896	'%D'	81607	0.008094	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	11	1281	' o'	76026	0.007540	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	12	1083	'S'	73856	0.007325	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	13	1261	' a'	71362	0.007078	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	14	1333	' u'	69061	0.006850	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	15	1550	' K'	64748	0.006422	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	16	1321	' and'	63914	0.006339	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	17	2548	'je'	52073	0.005165	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	18	1317	' to'	51914	0.005149	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	19	2170	' da'	47250	0.004686	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	20	1294	' in'	46531	0.004615	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	21	7599	'%B'	41331	0.004099	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	22	1117	'u'	40996	0.004066	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	23	1362	' I'	40016	0.003969	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	24	2354	'.com'	37533	0.003723	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	25	1412	' se'	37120	0.003682	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	26	2336	' na'	35081	0.003479	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	27	1075	'K'	33399	0.003313	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	28	1105	'i'	32352	0.003209	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	29	2922	'ja'	31094	0.003084	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	30	1065	'A'	30589	0.003034	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	31	1068	'D'	29895	0.002965	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	32	3659	'oj'	28809	0.002857	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	33	50648	'.rs'	28635	0.002840	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	34	4121	' II'	28040	0.002781	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	35	1313	'om'	26723	0.002650	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	36	1349	' A'	26591	0.002637	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	37	1324	' e'	26063	0.002585	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	38	5052	' za'	25899	0.002569	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	39	6132	'www'	25427	0.002522	text	27	en,cs,da,de,es,fr,hu,id...+19
+srp_Cyrl	40	2146	'aj'	25381	0.002517	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	41	1079	'O'	24879	0.002468	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	42	1395	' is'	23538	0.002335	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	43	1373	' M'	23377	0.002319	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	44	1073	'I'	23321	0.002313	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	45	1470	' su'	21898	0.002172	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	46	6242	'ija'	21838	0.002166	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	47	1504	' ne'	21772	0.002159	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	48	1394	' for'	21611	0.002143	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	49	1335	' S'	20893	0.002072	text	28	en,cs,da,de,es,fr,hu,id...+20
+srp_Cyrl	50	1408	' on'	20444	0.002028	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	1	1278	' the'	96284	0.009549	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	2	2739	'َ'	84535	0.008383	text	1	ar
+ben_Beng	3	1307	' of'	72359	0.007176	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	4	4385	'ِ'	64377	0.006384	text	1	ar
+ben_Beng	5	1321	' and'	61420	0.006091	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	6	1317	' to'	57380	0.005690	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	7	7213	'ْ'	48279	0.004788	text	1	ar
+ben_Beng	8	1294	' in'	46653	0.004627	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	9	3404	'ُ'	45568	0.004519	text	1	ar
+ben_Beng	10	1261	' a'	41622	0.004128	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	11	2354	'.com'	36137	0.003584	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	12	11324	'َّ'	35927	0.003563	text	1	ar
+ben_Beng	13	1395	' is'	32438	0.003217	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	14	1394	' for'	25369	0.002516	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	15	1408	' on'	22306	0.002212	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	16	25064	' وَ'	21415	0.002124	text	1	ar
+ben_Beng	17	1066	'B'	19980	0.001981	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	18	1536	' by'	19784	0.001962	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	19	1398	' B'	18537	0.001838	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	20	1636	' you'	18069	0.001792	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	21	1362	' I'	17898	0.001775	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	22	25326	'َا'	16876	0.001674	text	1	ar
+ben_Beng	23	1083	'S'	15433	0.001531	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	24	1073	'I'	14769	0.001465	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	25	1454	' with'	14742	0.001462	text	27	en,cs,da,de,es,fr,hu,id...+19
+ben_Beng	26	1455	' that'	14486	0.001437	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	27	1115	's'	14280	0.001416	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	28	1068	'D'	14027	0.001391	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	29	27576	'هُ'	13983	0.001387	text	1	ar
+ben_Beng	30	15262	'َل'	13842	0.001373	text	1	ar
+ben_Beng	31	2584	'la'	13799	0.001368	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	32	1349	' A'	13730	0.001362	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	33	1075	'K'	13710	0.001360	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	34	1584	' are'	13702	0.001359	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	35	1402	' be'	13237	0.001313	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	36	1335	' S'	13191	0.001308	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	37	1065	'A'	13026	0.001292	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	38	1708	'ح'	12956	0.001285	text	3	ar,fa,ur
+ben_Beng	39	18445	' PM'	12910	0.001280	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	40	25807	'ِي'	12798	0.001269	text	1	ar
+ben_Beng	41	1593	' this'	12741	0.001264	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	42	1077	'M'	12602	0.001250	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	43	1071	'G'	12226	0.001212	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	44	1505	' or'	11795	0.001170	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	45	59533	' الْ'	11734	0.001164	text	1	ar
+ben_Beng	46	1407	' D'	11559	0.001146	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	47	1531	' The'	11454	0.001136	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	48	1104	'h'	11356	0.001126	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	49	2143	' your'	11270	0.001118	text	28	en,cs,da,de,es,fr,hu,id...+20
+ben_Beng	50	1105	'i'	11220	0.001113	text	28	en,cs,da,de,es,fr,hu,id...+20
+eng_Latn	1	16096	'ō'	90044	0.008957	no_in_scope_chars	0	(none)
+eng_Latn	2	1337	'é'	80443	0.008002	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+eng_Latn	3	4547	'ā'	55334	0.005504	text	1	lv
+eng_Latn	4	1502	'á'	40206	0.003999	text	8	cs,es,hu,nl,pt,vi,sk,is
+eng_Latn	5	1529	'í'	36698	0.003650	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+eng_Latn	6	10095	'ū'	32872	0.003270	text	2	lt,lv
+eng_Latn	7	2855	'án'	32046	0.003188	text	8	cs,es,hu,nl,pt,vi,sk,is
+eng_Latn	8	3723	'ć'	28521	0.002837	text	4	pl,sr-Latn,sl,hr
+eng_Latn	9	1506	'ó'	26500	0.002636	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+eng_Latn	10	20512	'ović'	26062	0.002592	text	4	pl,sr-Latn,sl,hr
+eng_Latn	11	3975	'ón'	25184	0.002505	text	11	cs,es,hu,nl,pl,pt,vi,nb...+3
+eng_Latn	12	11333	' José'	25126	0.002499	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+eng_Latn	13	2381	'š'	23334	0.002321	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+eng_Latn	14	4093	'ø'	22152	0.002203	text	2	da,nb
+eng_Latn	15	1792	'ö'	22054	0.002194	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+eng_Latn	16	7701	'ī'	21845	0.002173	text	1	lv
+eng_Latn	17	5509	'ín'	19785	0.001968	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+eng_Latn	18	2458	'ă'	18901	0.001880	text	2	vi,ro
+eng_Latn	19	1671	'ü'	18370	0.001827	text	9	de,es,fr,hu,nl,tr,az,et...+1
+eng_Latn	20	19288	' São'	18289	0.001819	text	2	pt,vi
+eng_Latn	21	1654	'ä'	18160	0.001806	text	6	de,nl,sv,fi,sk,et
+eng_Latn	22	2747	'én'	16391	0.001630	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+eng_Latn	23	2411	'ú'	16036	0.001595	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+eng_Latn	24	1924	'és'	15789	0.001571	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+eng_Latn	25	2267	'ée'	15607	0.001552	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+eng_Latn	26	2514	'č'	15582	0.001550	text	7	cs,sr-Latn,sl,hr,sk,lt,lv
+eng_Latn	27	4220	'ș'	14420	0.001434	text	1	ro
+eng_Latn	28	28136	'née'	14205	0.001413	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+eng_Latn	29	1940	'ç'	13706	0.001363	text	5	fr,pt,tr,az,ca
+eng_Latn	30	2244	'ão'	13416	0.001334	text	2	pt,vi
+eng_Latn	31	2624	'ñ'	13216	0.001315	text	1	es
+eng_Latn	32	13192	' Š'	13184	0.001311	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+eng_Latn	33	2631	'ë'	12611	0.001254	text	2	fr,nl
+eng_Latn	34	2201	'ł'	12295	0.001223	text	1	pl
+eng_Latn	35	2600	'ş'	11950	0.001189	text	2	tr,az
+eng_Latn	36	2803	'å'	11771	0.001171	text	4	da,sv,fi,nb
+eng_Latn	37	4664	' É'	11689	0.001163	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+eng_Latn	38	2353	'ía'	11511	0.001145	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+eng_Latn	39	2546	'ž'	11505	0.001144	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+eng_Latn	40	5892	'æ'	10938	0.001088	text	4	da,fr,nb,is
+eng_Latn	41	7904	'É'	10672	0.001062	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+eng_Latn	42	99418	' Māori'	10237	0.001018	text	1	lv
+eng_Latn	43	18806	' María'	9982	0.000993	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+eng_Latn	44	3238	'ör'	9959	0.000991	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+eng_Latn	45	97092	' Ō'	9794	0.000974	text_with_unmodeled_letters	0	(none)
+eng_Latn	46	1921	'à'	9793	0.000974	text	7	fr,it,pt,sv,vi,nb,ca
+eng_Latn	47	1755	' à'	9717	0.000967	text	7	fr,it,pt,sv,vi,nb,ca
+eng_Latn	48	20118	' François'	9676	0.000962	text	5	fr,pt,tr,az,ca
+eng_Latn	49	2322	'ér'	9293	0.000924	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+eng_Latn	50	42043	'vić'	9230	0.000918	text	4	pl,sr-Latn,sl,hr
+ind_Latn	1	2739	'َ'	101157	0.010067	text	1	ar
+ind_Latn	2	4385	'ِ'	73902	0.007355	text	1	ar
+ind_Latn	3	7213	'ْ'	61212	0.006092	text	1	ar
+ind_Latn	4	3404	'ُ'	53404	0.005315	text	1	ar
+ind_Latn	5	11324	'َّ'	46431	0.004621	text	1	ar
+ind_Latn	6	25064	' وَ'	27153	0.002702	text	1	ar
+ind_Latn	7	25326	'َا'	22853	0.002274	text	1	ar
+ind_Latn	8	15262	'َل'	21203	0.002110	text	1	ar
+ind_Latn	9	27576	'هُ'	20911	0.002081	text	1	ar
+ind_Latn	10	25807	'ِي'	18045	0.001796	text	1	ar
+ind_Latn	11	1708	'ح'	16057	0.001598	text	3	ar,fa,ur
+ind_Latn	12	59533	' الْ'	14068	0.001400	text	1	ar
+ind_Latn	13	40040	'َر'	13688	0.001362	text	1	ar
+ind_Latn	14	2099	'أ'	13530	0.001347	text	2	ar,fa
+ind_Latn	15	27967	'هِ'	13379	0.001332	text	1	ar
+ind_Latn	16	33091	'َم'	12770	0.001271	text	1	ar
+ind_Latn	17	1508	'ب'	12601	0.001254	text	3	ar,fa,ur
+ind_Latn	18	21392	'َن'	12491	0.001243	text	1	ar
+ind_Latn	19	1530	'ع'	12286	0.001223	text	3	ar,fa,ur
+ind_Latn	20	49680	'َع'	12009	0.001195	text	1	ar
+ind_Latn	21	9064	'ٍ'	11792	0.001174	text	2	ar,fa
+ind_Latn	22	1380	'و'	11289	0.001124	text	3	ar,fa,ur
+ind_Latn	23	1559	'ك'	11234	0.001118	text	1	ar
+ind_Latn	24	43117	'َب'	10799	0.001075	text	1	ar
+ind_Latn	25	1566	'ف'	10708	0.001066	text	3	ar,fa,ur
+ind_Latn	26	1527	'س'	10544	0.001049	text	3	ar,fa,ur
+ind_Latn	27	39315	'مَ'	10203	0.001015	text	1	ar
+ind_Latn	28	31450	'َيْ'	10190	0.001014	text	1	ar
+ind_Latn	29	1422	'ه'	10056	0.001001	text	2	ar,fa
+ind_Latn	30	1648	' ف'	10024	0.000998	text	3	ar,fa,ur
+ind_Latn	31	1744	'ج'	9963	0.000992	text	3	ar,fa,ur
+ind_Latn	32	1526	'ق'	9845	0.000980	text	3	ar,fa,ur
+ind_Latn	33	82825	' اللَّ'	9781	0.000973	text	1	ar
+ind_Latn	34	99689	'َة'	9655	0.000961	text	1	ar
+ind_Latn	35	44695	'َد'	9109	0.000907	text	1	ar
+ind_Latn	36	20747	'ٌ'	9055	0.000901	text	2	ar,fa
+ind_Latn	37	80871	'ْر'	9006	0.000896	text	1	ar
+ind_Latn	38	1731	' ل'	8829	0.000879	text	3	ar,fa,ur
+ind_Latn	39	60552	'كَ'	8718	0.000868	text	1	ar
+ind_Latn	40	72209	'َق'	8692	0.000865	text	1	ar
+ind_Latn	41	72881	'ْل'	8632	0.000859	text	1	ar
+ind_Latn	42	1371	'م'	8495	0.000845	text	3	ar,fa,ur
+ind_Latn	43	57821	'ْن'	8454	0.000841	text	1	ar
+ind_Latn	44	1477	' م'	8358	0.000832	text	3	ar,fa,ur
+ind_Latn	45	1315	'а'	8246	0.000821	text	5	ru,uk,bg,mk,sr-Cyrl
+ind_Latn	46	1711	' ع'	8173	0.000813	text	3	ar,fa,ur
+ind_Latn	47	55089	' بِ'	8168	0.000813	text	1	ar
+ind_Latn	48	30520	'َت'	8119	0.000808	text	1	ar
+ind_Latn	49	2240	' ر'	8075	0.000804	text	3	ar,fa,ur
+ind_Latn	50	1388	'ت'	8025	0.000799	text	3	ar,fa,ur
+kat_Geor	1	1278	' the'	120256	0.011889	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	2	1307	' of'	99546	0.009842	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	3	1321	' and'	84221	0.008326	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	4	128159	'.ge'	66632	0.006588	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	5	1317	' to'	62773	0.006206	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	6	1294	' in'	57530	0.005688	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	7	1362	' I'	52862	0.005226	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	8	1261	' a'	48550	0.004800	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	9	2354	'.com'	40574	0.004011	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	10	1464	' N'	40443	0.003998	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	11	1398	' B'	37006	0.003659	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	12	1073	'I'	36429	0.003602	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	13	1071	'G'	35160	0.003476	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	14	1531	' The'	34532	0.003414	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	15	1067	'C'	34281	0.003389	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	16	1335	' S'	33963	0.003358	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	17	1349	' A'	33471	0.003309	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	18	1065	'A'	32101	0.003174	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	19	1068	'D'	31691	0.003133	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	20	1359	' C'	31459	0.003110	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	21	1098	'b'	30305	0.002996	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	22	4121	' II'	30261	0.002992	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	23	1083	'S'	29956	0.002962	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	24	1080	'P'	29917	0.002958	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	25	1461	' G'	29749	0.002941	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	26	1394	' for'	29508	0.002917	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	27	1105	'i'	29183	0.002885	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	28	1395	' is'	28249	0.002793	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	29	1069	'E'	26323	0.002602	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	30	1066	'B'	25899	0.002560	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	31	1070	'F'	25419	0.002513	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	32	1115	's'	25115	0.002483	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	33	1077	'M'	24984	0.002470	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	34	1623	' i'	24860	0.002458	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	35	1353	' T'	24808	0.002453	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	36	1436	' E'	24199	0.002392	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	37	1078	'N'	24035	0.002376	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	38	1424	' L'	23962	0.002369	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	39	1408	' on'	23942	0.002367	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	40	1407	' D'	23857	0.002359	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	41	1088	'X'	23545	0.002328	text	27	en,cs,da,de,es,fr,hu,id...+19
+kat_Geor	42	1120	'x'	23068	0.002281	text	27	en,cs,da,de,es,fr,hu,id...+19
+kat_Geor	43	1084	'T'	23003	0.002274	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	44	1079	'O'	22681	0.002242	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	45	1581	' V'	22396	0.002214	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	46	1373	' M'	22270	0.002202	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	47	6132	'www'	21770	0.002152	text	27	en,cs,da,de,es,fr,hu,id...+19
+kat_Geor	48	1756	' и'	21553	0.002131	text	5	ru,uk,bg,mk,sr-Cyrl
+kat_Geor	49	7466	' Air'	21532	0.002129	text	28	en,cs,da,de,es,fr,hu,id...+20
+kat_Geor	50	1086	'V'	21273	0.002103	text	28	en,cs,da,de,es,fr,hu,id...+20
+lit_Latn	1	1120	'x'	114158	0.011353	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	2	1948	'ex'	53902	0.005361	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	3	6132	'www'	48553	0.004829	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	4	1087	'W'	47475	0.004722	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	5	98739	'@example'	46558	0.004630	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	6	2460	' x'	45316	0.004507	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	7	1088	'X'	43865	0.004363	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	8	28187	' www'	38681	0.003847	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	9	1488	' W'	35431	0.003524	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	10	2628	' X'	26806	0.002666	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	11	1454	' with'	21759	0.002164	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	12	11496	' XX'	19326	0.001922	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	13	1119	'w'	17883	0.001779	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	14	1113	'q'	17065	0.001697	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	15	1081	'Q'	16140	0.001605	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	16	86169	'Ä'	15989	0.001590	text	6	de,nl,sv,fi,sk,et
+lit_Latn	17	15808	' XIX'	15345	0.001526	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	18	4093	'ø'	14536	0.001446	text	2	da,nb
+lit_Latn	19	1756	' и'	12224	0.001216	text	5	ru,uk,bg,mk,sr-Cyrl
+lit_Latn	20	27020	'Windows'	12082	0.001202	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	21	1668	' в'	11950	0.001188	text	5	ru,uk,bg,mk,sr-Cyrl
+lit_Latn	22	2111	'ix'	10332	0.001028	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	23	2753	'ax'	9082	0.000903	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	24	10986	' Windows'	9048	0.000900	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	25	2466	' Q'	8853	0.000880	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	26	1921	'à'	8484	0.000844	text	7	fr,it,pt,sv,vi,nb,ca
+lit_Latn	27	2084	' will'	8440	0.000839	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	28	1486	' was'	8355	0.000831	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	29	2631	'ë'	8345	0.000830	text	2	fr,nl
+lit_Latn	30	2843	' не'	8194	0.000815	text	5	ru,uk,bg,mk,sr-Cyrl
+lit_Latn	31	3140	' New'	7885	0.000784	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	32	21986	' XVI'	7786	0.000774	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	33	1392	'ow'	7734	0.000769	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	34	9267	'ð'	7665	0.000762	text	1	is
+lit_Latn	35	11309	'Max'	6967	0.000693	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	36	1902	' на'	6774	0.000674	text	5	ru,uk,bg,mk,sr-Cyrl
+lit_Latn	37	1285	' w'	6467	0.000643	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	38	21691	' XVIII'	6460	0.000642	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	39	3237	'Wh'	6241	0.000621	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	40	102653	'þ'	6150	0.000612	text	1	is
+lit_Latn	41	3155	'ox'	6050	0.000602	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	42	10445	'IX'	6049	0.000602	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	43	1729	' we'	5939	0.000591	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	44	2428	'ux'	5856	0.000582	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	45	25965	' XVII'	5806	0.000577	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	46	62927	'Å'	5778	0.000575	text	4	da,sv,fi,nb
+lit_Latn	47	18860	'XX'	5774	0.000574	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	48	25722	' Wi'	5549	0.000552	text	27	en,cs,da,de,es,fr,hu,id...+19
+lit_Latn	49	1614	' с'	5536	0.000551	text	5	ru,uk,bg,mk,sr-Cyrl
+lit_Latn	50	47653	' BMW'	5298	0.000527	text	27	en,cs,da,de,es,fr,hu,id...+19
+srp_Latn	1	1315	'а'	709776	0.095904	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	2	1754	'è'	293362	0.039639	text	4	fr,it,vi,ca
+srp_Latn	3	5892	'æ'	220005	0.029727	text	4	da,fr,nb,is
+srp_Latn	4	2492	'ј'	179822	0.024297	text	2	mk,sr-Cyrl
+srp_Latn	5	4847	' è'	72223	0.009759	text	4	fr,it,vi,ca
+srp_Latn	6	64946	' æ'	63953	0.008641	text	4	da,fr,nb,is
+srp_Latn	7	9267	'ð'	56204	0.007594	text	1	is
+srp_Latn	8	38007	'ĉ'	40988	0.005538	no_in_scope_chars	0	(none)
+srp_Latn	9	4140	' ј'	39296	0.005310	text	2	mk,sr-Cyrl
+srp_Latn	10	1323	'о'	33227	0.004490	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	11	2624	'ñ'	28309	0.003825	text	1	es
+srp_Latn	12	1334	'е'	26430	0.003571	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	13	2494	' а'	18902	0.002554	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	14	8275	'ћ'	17325	0.002341	text	1	sr-Cyrl
+srp_Latn	15	86169	'Ä'	15486	0.002092	text	6	de,nl,sv,fi,sk,et
+srp_Latn	16	20481	' ĉ'	14218	0.001921	text_with_unmodeled_letters	0	(none)
+srp_Latn	17	1756	' и'	11928	0.001612	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	18	12101	'ђ'	11268	0.001523	text	1	sr-Cyrl
+srp_Latn	19	13143	'èn'	11004	0.001487	text	4	fr,it,vi,ca
+srp_Latn	20	4775	' је'	9887	0.001336	text	2	mk,sr-Cyrl
+srp_Latn	21	2332	' у'	9226	0.001247	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	22	1810	' о'	8601	0.001162	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	23	4239	' да'	7993	0.001080	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	24	89961	' með'	7848	0.001060	text	1	is
+srp_Latn	25	30048	' È'	7325	0.000990	text	4	fr,it,vi,ca
+srp_Latn	26	112240	'ðu'	7269	0.000982	text	1	is
+srp_Latn	27	3281	' се'	6672	0.000902	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	28	8138	'љ'	6182	0.000835	text	2	mk,sr-Cyrl
+srp_Latn	29	49642	' ћ'	5667	0.000766	text	1	sr-Cyrl
+srp_Latn	30	13663	'И'	5558	0.000751	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	31	76329	'ñen'	5469	0.000739	text	1	es
+srp_Latn	32	1902	' на'	5420	0.000732	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	33	6516	'је'	5398	0.000729	text	2	mk,sr-Cyrl
+srp_Latn	34	1347	'и'	5146	0.000695	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	35	92438	'ða'	5116	0.000691	text	1	is
+srp_Latn	36	9277	'О'	4952	0.000669	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	37	3400	' К'	4901	0.000662	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	38	10049	'ène'	4810	0.000650	text	4	fr,it,vi,ca
+srp_Latn	39	2076	'те'	4733	0.000640	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	40	19369	' Ä'	4683	0.000633	text	6	de,nl,sv,fi,sk,et
+srp_Latn	41	2843	' не'	4669	0.000631	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	42	5111	'С'	4324	0.000584	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	43	21580	'Е'	4294	0.000580	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	44	7620	'А'	4242	0.000573	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	45	21409	' Ј'	4239	0.000573	text	2	mk,sr-Cyrl
+srp_Latn	46	1472	'у'	4214	0.000569	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	47	62927	'Å'	4203	0.000568	text	4	da,sv,fi,nb
+srp_Latn	48	75325	'Ј'	4121	0.000557	text	2	mk,sr-Cyrl
+srp_Latn	49	2318	'ти'	3759	0.000508	text	5	ru,uk,bg,mk,sr-Cyrl
+srp_Latn	50	10457	'ву'	3676	0.000497	text	5	ru,uk,bg,mk,sr-Cyrl
+arb_Arab	1	1278	' the'	364361	0.036257	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	2	1307	' of'	250044	0.024881	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	3	1321	' and'	198383	0.019741	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	4	1317	' to'	155636	0.015487	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	5	1294	' in'	130198	0.012956	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	6	1261	' a'	129139	0.012850	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	7	1115	's'	88732	0.008830	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	8	1531	' The'	83904	0.008349	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	9	1349	' A'	76272	0.007590	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	10	1394	' for'	74732	0.007436	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	11	2354	'.com'	70664	0.007032	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	12	1398	' B'	68601	0.006826	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	13	1065	'A'	60113	0.005982	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	14	1359	' C'	58352	0.005807	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	15	1335	' S'	56315	0.005604	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	16	1395	' is'	54765	0.005450	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	17	1390	' P'	53829	0.005356	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	18	1353	' T'	52178	0.005192	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	19	1373	' M'	50880	0.005063	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	20	1407	' D'	49342	0.004910	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	21	1455	' that'	47518	0.004728	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	22	1408	' on'	47324	0.004709	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	23	1467	'ی'	47127	0.004690	text	2	fa,ur
+arb_Arab	24	1067	'C'	47119	0.004689	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	25	1439	' F'	44656	0.004444	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	26	1424	' L'	43998	0.004378	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	27	1362	' I'	42394	0.004219	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	28	1443	' H'	41981	0.004177	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	29	1461	' G'	41916	0.004171	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	30	1068	'D'	41310	0.004111	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	31	1083	'S'	41066	0.004086	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	32	1486	' was'	41000	0.004080	text	27	en,cs,da,de,es,fr,hu,id...+19
+arb_Arab	33	1077	'M'	40814	0.004061	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	34	1550	' K'	40593	0.004039	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	35	1097	'a'	40058	0.003986	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	36	1436	' E'	39585	0.003939	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	37	1066	'B'	39177	0.003898	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	38	1454	' with'	38595	0.003841	text	27	en,cs,da,de,es,fr,hu,id...+19
+arb_Arab	39	1070	'F'	37926	0.003774	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	40	29261	' quot'	37869	0.003768	text	27	en,cs,da,de,es,fr,hu,id...+19
+arb_Arab	41	1071	'G'	37581	0.003740	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	42	1584	' are'	37491	0.003731	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	43	1434	' R'	36830	0.003665	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	44	1464	' N'	36399	0.003622	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	45	1080	'P'	36103	0.003593	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	46	1435	' as'	34986	0.003481	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	47	1311	' de'	34442	0.003427	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	48	1507	' J'	34292	0.003412	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	49	1536	' by'	34071	0.003390	text	28	en,cs,da,de,es,fr,hu,id...+20
+arb_Arab	50	6132	'www'	33959	0.003379	text	27	en,cs,da,de,es,fr,hu,id...+19
+hye_Armn	1	2128	'ш'	367593	0.036532	text	5	ru,uk,bg,mk,sr-Cyrl
+hye_Armn	2	1278	' the'	283292	0.028154	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	3	1110	'n'	202321	0.020107	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	4	1307	' of'	201567	0.020032	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	5	1321	' and'	147391	0.014648	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	6	40655	'.am'	140490	0.013962	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	7	1789	'п'	136763	0.013592	text	5	ru,uk,bg,mk,sr-Cyrl
+hye_Armn	8	1317	' to'	127403	0.012661	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	9	1335	' S'	105135	0.010448	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	10	1294	' in'	104180	0.010354	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	11	1261	' a'	91507	0.009094	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	12	10210	'nik'	87405	0.008686	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	13	1946	'put'	87275	0.008674	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	14	1668	' в'	74788	0.007433	text	5	ru,uk,bg,mk,sr-Cyrl
+hye_Armn	15	1756	' и'	71617	0.007117	text	5	ru,uk,bg,mk,sr-Cyrl
+hye_Armn	16	2354	'.com'	61555	0.006117	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	17	1531	' The'	58268	0.005791	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	18	1395	' is'	54125	0.005379	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	19	1065	'A'	47827	0.004753	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	20	1117	'u'	47570	0.004728	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	21	1394	' for'	46539	0.004625	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	22	1362	' I'	46045	0.004576	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	23	1349	' A'	43722	0.004345	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	24	1408	' on'	42825	0.004256	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	25	1902	' на'	41194	0.004094	text	5	ru,uk,bg,mk,sr-Cyrl
+hye_Armn	26	1464	' N'	37459	0.003723	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	27	4984	' ш'	36805	0.003658	text	5	ru,uk,bg,mk,sr-Cyrl
+hye_Armn	28	1455	' that'	35158	0.003494	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	29	1073	'I'	34073	0.003386	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	30	1308	' n'	33695	0.003349	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	31	1784	'The'	33142	0.003294	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	32	1083	'S'	33139	0.003293	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	33	1614	' с'	32252	0.003205	text	5	ru,uk,bg,mk,sr-Cyrl
+hye_Armn	34	1454	' with'	31173	0.003098	text	27	en,cs,da,de,es,fr,hu,id...+19
+hye_Armn	35	1078	'N'	29803	0.002962	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	36	1115	's'	29743	0.002956	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	37	1071	'G'	29450	0.002927	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	38	1311	' de'	29038	0.002886	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	39	10978	'yan'	28885	0.002871	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	40	1068	'D'	28351	0.002818	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	41	1067	'C'	28129	0.002795	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	42	2843	' не'	27634	0.002746	text	5	ru,uk,bg,mk,sr-Cyrl
+hye_Armn	43	1565	'м'	27442	0.002727	text	5	ru,uk,bg,mk,sr-Cyrl
+hye_Armn	44	1536	' by'	27200	0.002703	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	45	1271	'an'	26913	0.002675	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	46	1359	' C'	26848	0.002668	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	47	1398	' B'	26814	0.002665	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	48	7620	'А'	26121	0.002596	text	5	ru,uk,bg,mk,sr-Cyrl
+hye_Armn	49	1636	' you'	25974	0.002581	text	28	en,cs,da,de,es,fr,hu,id...+20
+hye_Armn	50	1105	'i'	25859	0.002570	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	1	1278	' the'	100972	0.009900	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	2	1307	' of'	91043	0.008926	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	3	1321	' and'	81979	0.008038	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	4	1464	' N'	81750	0.008015	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	5	1317	' to'	66952	0.006564	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	6	1550	' K'	65427	0.006415	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	7	2354	'.com'	58491	0.005735	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	8	3026	'aw'	49244	0.004828	text	27	en,cs,da,de,es,fr,hu,id...+19
+mya_Mymr	9	69766	' Myanmar'	48514	0.004757	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	10	1349	' A'	47441	0.004651	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	11	1065	'A'	47388	0.004646	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	12	1294	' in'	45973	0.004507	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	13	1078	'N'	44143	0.004328	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	14	20008	'LD'	44133	0.004327	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	15	1071	'G'	42275	0.004145	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	16	1077	'M'	41547	0.004073	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	17	1373	' M'	40964	0.004016	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	18	1075	'K'	39516	0.003874	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	19	1080	'P'	39334	0.003856	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	20	1067	'C'	36841	0.003612	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	21	1335	' S'	36644	0.003593	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	22	1531	' The'	36339	0.003563	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	23	1261	' a'	35306	0.003462	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	24	107166	'Unicode'	34840	0.003416	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	25	1398	' B'	34289	0.003362	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	26	1090	'Z'	33230	0.003258	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	27	81010	'gyi'	32748	0.003211	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	28	70158	'Credit'	32177	0.003155	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	29	6132	'www'	31954	0.003133	text	27	en,cs,da,de,es,fr,hu,id...+19
+mya_Mymr	30	1443	' H'	31905	0.003128	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	31	1359	' C'	31711	0.003109	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	32	1115	's'	31114	0.003051	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	33	1087	'W'	30249	0.002966	text	27	en,cs,da,de,es,fr,hu,id...+19
+mya_Mymr	34	1623	' i'	30143	0.002955	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	35	1390	' P'	29924	0.002934	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	36	1066	'B'	29761	0.002918	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	37	1302	'ing'	29167	0.002860	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	38	1070	'F'	28977	0.002841	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	39	1083	'S'	28894	0.002833	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	40	1394	' for'	28516	0.002796	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	41	1068	'D'	28048	0.002750	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	42	1461	' G'	27778	0.002723	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	43	23080	' Facebook'	25901	0.002539	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	44	1424	' L'	25689	0.002519	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	45	34219	'Photo'	25063	0.002457	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	46	1408	' on'	24674	0.002419	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	47	1439	' F'	24640	0.002416	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	48	1072	'H'	24611	0.002413	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	49	1407	' D'	24496	0.002402	text	28	en,cs,da,de,es,fr,hu,id...+20
+mya_Mymr	50	64151	'anmar'	24304	0.002383	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	1	1278	' the'	233181	0.023194	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	2	1307	' of'	143900	0.014313	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	3	1317	' to'	122690	0.012204	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	4	1321	' and'	121895	0.012125	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	5	1294	' in'	94737	0.009423	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	6	1261	' a'	85524	0.008507	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	7	1408	' on'	58374	0.005806	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	8	1394	' for'	55891	0.005559	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	9	1395	' is'	53600	0.005331	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	10	15584	' News'	43415	0.004318	text	27	en,cs,da,de,es,fr,hu,id...+19
+pan_Guru	11	1078	'N'	40065	0.003985	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	12	1073	'I'	37783	0.003758	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	13	1584	' are'	33285	0.003311	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	14	2354	'.com'	32783	0.003261	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	15	1455	' that'	32252	0.003208	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	16	1104	'h'	31510	0.003134	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	17	1536	' by'	29727	0.002957	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	18	1593	' this'	29598	0.002944	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	19	1505	' or'	29508	0.002935	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	20	1454	' with'	29496	0.002934	text	27	en,cs,da,de,es,fr,hu,id...+19
+pan_Guru	21	8553	' ST'	28622	0.002847	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	22	26547	'abi'	28253	0.002810	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	23	32146	' Singh'	27901	0.002775	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	24	1080	'P'	27170	0.002703	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	25	33579	'ORY'	26859	0.002672	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	26	18573	'EXT'	26713	0.002657	text	27	en,cs,da,de,es,fr,hu,id...+19
+pan_Guru	27	1531	' The'	25775	0.002564	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	28	1115	's'	25370	0.002523	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	29	1362	' I'	24454	0.002432	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	30	1402	' be'	23950	0.002382	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	31	1486	' was'	23758	0.002363	text	27	en,cs,da,de,es,fr,hu,id...+19
+pan_Guru	32	1636	' you'	23743	0.002362	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	33	1562	' from'	23742	0.002362	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	34	2143	' your'	23413	0.002329	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	35	1065	'A'	23391	0.002327	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	36	11759	' ago'	23381	0.002326	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	37	18445	' PM'	23231	0.002311	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	38	1398	' B'	23010	0.002289	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	39	1435	' as'	22262	0.002214	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	40	1066	'B'	21218	0.002110	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	41	1106	'j'	21168	0.002106	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	42	1105	'i'	21106	0.002099	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	43	4306	' के'	20798	0.002069	text	1	hi
+pan_Guru	44	1494	' it'	20531	0.002042	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	45	1071	'G'	20229	0.002012	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	46	1390	' P'	19731	0.001963	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	47	1349	' A'	19635	0.001953	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	48	1083	'S'	19625	0.001952	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	49	64011	' Punj'	19547	0.001944	text	28	en,cs,da,de,es,fr,hu,id...+20
+pan_Guru	50	7700	' hours'	19375	0.001927	text	28	en,cs,da,de,es,fr,hu,id...+20
+pol_Latn	1	1337	'é'	14719	0.001465	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+pol_Latn	2	2381	'š'	8787	0.000875	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+pol_Latn	3	1502	'á'	6028	0.000600	text	8	cs,es,hu,nl,pt,vi,sk,is
+pol_Latn	4	1529	'í'	6026	0.000600	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+pol_Latn	5	2739	'َ'	5768	0.000574	text	1	ar
+pol_Latn	6	16096	'ō'	5642	0.000562	no_in_scope_chars	0	(none)
+pol_Latn	7	1334	'е'	5231	0.000521	text	5	ru,uk,bg,mk,sr-Cyrl
+pol_Latn	8	1668	' в'	4540	0.000452	text	5	ru,uk,bg,mk,sr-Cyrl
+pol_Latn	9	4385	'ِ'	4505	0.000448	text	1	ar
+pol_Latn	10	1792	'ö'	4048	0.000403	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+pol_Latn	11	1315	'а'	3997	0.000398	text	5	ru,uk,bg,mk,sr-Cyrl
+pol_Latn	12	3608	' für'	3918	0.000390	text	9	de,es,fr,hu,nl,tr,az,et...+1
+pol_Latn	13	7213	'ْ'	3748	0.000373	text	1	ar
+pol_Latn	14	2855	'án'	3642	0.000362	text	8	cs,es,hu,nl,pt,vi,sk,is
+pol_Latn	15	4547	'ā'	3633	0.000362	text	1	lv
+pol_Latn	16	1755	' à'	3532	0.000352	text	7	fr,it,pt,sv,vi,nb,ca
+pol_Latn	17	2514	'č'	3469	0.000345	text	7	cs,sr-Latn,sl,hr,sk,lt,lv
+pol_Latn	18	1756	' и'	3408	0.000339	text	5	ru,uk,bg,mk,sr-Cyrl
+pol_Latn	19	1323	'о'	3271	0.000326	text	5	ru,uk,bg,mk,sr-Cyrl
+pol_Latn	20	2114	'ê'	3175	0.000316	text	3	fr,pt,vi
+pol_Latn	21	11333	' José'	3087	0.000307	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+pol_Latn	22	1472	'у'	3080	0.000307	text	5	ru,uk,bg,mk,sr-Cyrl
+pol_Latn	23	1902	' на'	2954	0.000294	text	5	ru,uk,bg,mk,sr-Cyrl
+pol_Latn	24	1654	'ä'	2926	0.000291	text	6	de,nl,sv,fi,sk,et
+pol_Latn	25	5892	'æ'	2892	0.000288	text	4	da,fr,nb,is
+pol_Latn	26	1753	'і'	2876	0.000286	text	1	uk
+pol_Latn	27	1671	'ü'	2823	0.000281	text	9	de,es,fr,hu,nl,tr,az,et...+1
+pol_Latn	28	3404	'ُ'	2773	0.000276	text	1	ar
+pol_Latn	29	10095	'ū'	2759	0.000275	text	2	lt,lv
+pol_Latn	30	2546	'ž'	2711	0.000270	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+pol_Latn	31	1940	'ç'	2522	0.000251	text	5	fr,pt,tr,az,ca
+pol_Latn	32	2624	'ñ'	2439	0.000243	text	1	es
+pol_Latn	33	2411	'ú'	2411	0.000240	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+pol_Latn	34	3716	'ém'	2322	0.000231	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+pol_Latn	35	2843	' не'	2317	0.000231	text	5	ru,uk,bg,mk,sr-Cyrl
+pol_Latn	36	12786	'ŭ'	2280	0.000227	no_in_scope_chars	0	(none)
+pol_Latn	37	2267	'ée'	2267	0.000226	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+pol_Latn	38	7701	'ī'	2213	0.000220	text	1	lv
+pol_Latn	39	1377	'с'	2190	0.000218	text	5	ru,uk,bg,mk,sr-Cyrl
+pol_Latn	40	1924	'és'	2181	0.000217	text	13	cs,es,fr,hu,it,nl,pt,sv...+5
+pol_Latn	41	13192	' Š'	2124	0.000211	text	9	cs,sr-Latn,fi,sl,hr,sk,et,lt...+1
+pol_Latn	42	3238	'ör'	2114	0.000210	text	9	de,hu,nl,sv,tr,az,fi,et...+1
+pol_Latn	43	1361	'т'	2074	0.000206	text	5	ru,uk,bg,mk,sr-Cyrl
+pol_Latn	44	2631	'ë'	2000	0.000199	text	2	fr,nl
+pol_Latn	45	5509	'ín'	1978	0.000197	text	9	cs,es,hu,nl,pt,vi,sk,ca...+1
+pol_Latn	46	11324	'َّ'	1966	0.000196	text	1	ar
+pol_Latn	47	1511	'в'	1962	0.000195	text	5	ru,uk,bg,mk,sr-Cyrl
+pol_Latn	48	1614	' с'	1919	0.000191	text	5	ru,uk,bg,mk,sr-Cyrl
+pol_Latn	49	4093	'ø'	1899	0.000189	text	2	da,nb
+pol_Latn	50	9267	'ð'	1789	0.000178	text	1	is
+guj_Gujr	1	1278	' the'	148926	0.014753	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	2	1307	' of'	116835	0.011574	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	3	1321	' and'	95827	0.009493	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	4	1317	' to'	95267	0.009437	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	5	1294	' in'	80794	0.008003	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	6	2354	'.com'	58608	0.005806	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	7	1261	' a'	57580	0.005704	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	8	1395	' is'	49851	0.004938	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	9	1408	' on'	49325	0.004886	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	10	1073	'I'	45116	0.004469	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	11	1071	'G'	44096	0.004368	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	12	3888	'ati'	39676	0.003930	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	13	1115	's'	39668	0.003930	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	14	1394	' for'	37627	0.003727	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	15	15584	' News'	37128	0.003678	text	27	en,cs,da,de,es,fr,hu,id...+19
+guj_Gujr	16	1593	' this'	34499	0.003417	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	17	1398	' B'	33595	0.003328	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	18	119192	' IST'	33562	0.003325	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	19	1066	'B'	33367	0.003305	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	20	1362	' I'	32999	0.003269	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	21	1104	'h'	30357	0.003007	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	22	98260	' Gujar'	27967	0.002770	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	23	1636	' you'	27442	0.002718	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	24	1536	' by'	25934	0.002569	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	25	1454	' with'	25741	0.002550	text	27	en,cs,da,de,es,fr,hu,id...+19
+guj_Gujr	26	1076	'L'	25712	0.002547	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	27	1065	'A'	25504	0.002526	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	28	1106	'j'	25431	0.002519	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	29	1277	'ar'	24990	0.002476	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	30	1349	' A'	24887	0.002465	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	31	1083	'S'	23959	0.002373	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	32	18445	' PM'	23818	0.002359	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	33	1402	' be'	22593	0.002238	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	34	1067	'C'	22219	0.002201	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	35	1464	' N'	22213	0.002200	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	36	1455	' that'	22043	0.002184	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	37	4412	' है'	21465	0.002126	text	1	hi
+guj_Gujr	38	1584	' are'	21151	0.002095	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	39	1268	'he'	21002	0.002080	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	40	4306	' के'	20785	0.002059	text	1	hi
+guj_Gujr	41	1082	'R'	20634	0.002044	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	42	1075	'K'	20497	0.002030	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	43	1335	' S'	20019	0.001983	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	44	1550	' K'	20004	0.001982	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	45	1562	' from'	19994	0.001981	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	46	1353	' T'	19634	0.001945	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	47	1077	'M'	19498	0.001931	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	48	1461	' G'	19198	0.001902	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	49	1494	' it'	19116	0.001894	text	28	en,cs,da,de,es,fr,hu,id...+20
+guj_Gujr	50	3525	'म'	18999	0.001882	text	1	hi
+kan_Knda	1	1278	' the'	143754	0.014325	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	2	1321	' and'	130248	0.012979	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	3	1307	' of'	113906	0.011351	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	4	1317	' to'	111606	0.011122	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	5	1294	' in'	102454	0.010210	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	6	119192	' IST'	101064	0.010071	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	7	18445	' PM'	85632	0.008533	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	8	16778	'À'	70183	0.006994	text	7	fr,it,pt,sv,vi,nb,ca
+kan_Knda	9	1261	' a'	54307	0.005412	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	10	1454	' with'	49867	0.004969	text	27	en,cs,da,de,es,fr,hu,id...+19
+kan_Knda	11	1593	' this'	47549	0.004738	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	12	2045	'ada'	46806	0.004664	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	13	1395	' is'	46743	0.004658	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	14	1075	'K'	46084	0.004592	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	15	20685	' AM'	45951	0.004579	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	16	2354	'.com'	44123	0.004397	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	17	15584	' News'	43086	0.004294	text	27	en,cs,da,de,es,fr,hu,id...+19
+kan_Knda	18	1408	' on'	42380	0.004223	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	19	1394	' for'	41193	0.004105	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	20	1455	' that'	40983	0.004084	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	21	2143	' your'	35645	0.003552	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	22	1608	' U'	34395	0.003428	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	23	11832	' news'	34377	0.003426	text	27	en,cs,da,de,es,fr,hu,id...+19
+kan_Knda	24	1430	'av'	33078	0.003296	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	25	111222	'ataka'	32969	0.003285	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	26	1065	'A'	32503	0.003239	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	27	1636	' you'	32314	0.003220	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	28	1073	'I'	31001	0.003089	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	29	11759	' ago'	30473	0.003037	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	30	1066	'B'	29006	0.002890	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	31	6724	'ani'	27863	0.002777	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	32	1424	' L'	27118	0.002702	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	33	1584	' are'	26373	0.002628	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	34	59853	' Updated'	25739	0.002565	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	35	1071	'G'	25580	0.002549	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	36	99607	' Kann'	25251	0.002516	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	37	4643	'day'	25189	0.002510	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	38	1083	'S'	25171	0.002508	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	39	1105	'i'	24536	0.002445	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	40	1536	' by'	24429	0.002434	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	41	2405	"'t"	24111	0.002403	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	42	15944	' Education'	23674	0.002359	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	43	1650	' us'	23632	0.002355	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	44	11874	'Don'	23372	0.002329	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	45	24808	'Team'	23299	0.002322	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	46	1656	' In'	23240	0.002316	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	47	47059	' Finance'	22839	0.002276	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	48	17695	' Sports'	22820	0.002274	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	49	49227	' Travel'	22774	0.002269	text	28	en,cs,da,de,es,fr,hu,id...+20
+kan_Knda	50	1104	'h'	22768	0.002269	text	28	en,cs,da,de,es,fr,hu,id...+20
