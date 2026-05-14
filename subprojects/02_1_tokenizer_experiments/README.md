@@ -1,90 +1,104 @@
 # 02.1 Tokenizer Experiments
 
-## Scope
+## Active Scope
 
-Research the tokenizer discovery experiments before implementation is frozen.
+**Active arm: C3** (`C3_wave2_broad_glossapi_plus_hplt_50_50`). See
+[../../docs/C3_CONVERGENCE.md](../../docs/C3_CONVERGENCE.md).
+
+The four-arm exploration (`F1`, `F2`, `C1`, `C2`) is closed. The
+remaining research scope in this subproject is the cutoff-decision
+sweep on C3's added units. Candidate cutoffs are frozen at
+`{10240, 15360, 20480, 25600}` (added merges atop the Apertus base of
+`131072`).
 
 ## Current Execution Plan
 
 - [CONTINUOUS_BPE_EXTENSION_PLAN.md](./CONTINUOUS_BPE_EXTENSION_PLAN.md)
 - [CONTINUOUS_BPE_EXTENSION_TODO.md](./CONTINUOUS_BPE_EXTENSION_TODO.md)
 
+Both docs were originally written under the four-arm framing. The
+header in each marks the multi-arm sections as archived; the active
+sections (cutoff grid + evaluation bundle + mergeback) still drive the
+C3 cutoff sweep.
+
 ## Already Decided
 
-- discovery tokenizers should use a working vocab fixed at `50k` for the first runs
-- compare four arms, not just two corpus views:
-  - fresh discovery `BPE` on `GlossAPI-only`
-  - fresh discovery `BPE` on `GlossAPI + HPLT`
-  - continuous `BPE` from Apertus on `GlossAPI-only`
-  - continuous `BPE` from Apertus on `GlossAPI + HPLT`
-- the mixed view uses `70/30` GlossAPI/HPLT by training-token mass
-- the continuous-BPE arms should start from the Apertus tokenizer and merge table and be allowed to grow by roughly the same estimated extension budget we are already evaluating, i.e. up to about `25k` new units
-- evaluate candidate extension sizes analytically around:
+- **arm = C3** — continuous BPE from Apertus on `GlossAPI + HPLT` at
+  `50 / 50` by training-token mass, trained on the wave-2 broad cleaner
+  output, total vocab `156672`
+- evaluate candidate extension sizes analytically at the cutoff grid:
   - `10240`
   - `15360`
   - `20480`
   - `25600`
-- use `modern_greek_eval` as the primary decision set
-- prefer the simpler `GlossAPI-only` variant unless `GlossAPI + HPLT` gives a clearly better result
+- `modern_greek_eval` is the primary decision set
+- preserve Apertus front-end behavior during analysis: same
+  normalization, same regex split, same byte-level regime
+- shipping path remains: build Apertus-compatible merged variants of
+  C3, evaluate, pick the cutoff, then hand off to `02_2`
 
 ## Evaluation Phase
 
-Evaluation is staged. We do not jump directly from tokenizer training to a shipping choice.
+Evaluation is now a single sweep across C3's four cutoffs, not a
+four-arm comparison.
 
-### Phase 1: Intrinsic Tokenizer Comparison
+### Phase 1: Apertus-Compatible Mergeback
 
-Run all four arms on the same held-out bundle and compare:
+Build merged Apertus-compatible variants of C3 at each cutoff:
+- `10240`
+- `15360`
+- `20480`
+- `25600`
+
+These are the variants that matter for the shipping decision, not the
+raw 156672-token tokenizer.
+
+### Phase 2: Intrinsic Metric Bundle
+
+Run on every merged variant:
 - `bytes_per_token`
 - `tokens_per_byte`
-- fertility on the held-out texts
+- fertility
 - added-token utilization rate
 - vocabulary utilization rate
 - unreachable added tokens
 - byte-fallback rate
 
-Use the same evaluation slices for every arm:
+Evaluation slices:
 - `GlossAPI` held-out
 - `HPLT` held-out
 - mixed `GlossAPI + HPLT` held-out
-- `modern_greek_eval`
+- `modern_greek_eval` (primary)
 
-### Phase 2: Apertus-Compatible Mergeback
+### Phase 3: Cutoff Selection
 
-After the raw four-arm comparison:
-- diff learned units against Apertus
-- build Apertus-compatible merged variants
-- evaluate the cutoff grid:
-  - `10240`
-  - `15360`
-  - `20480`
-  - `25600`
-
-These are the variants that matter for shipping decisions, not the raw standalone discovery tokenizers.
-
-### Phase 3: Fertility Tests
-
-Fertility tests are part of the core decision bundle, not a side check.
-
-Run fertility tests on the Apertus-compatible merged variants and compare:
-- overall fertility
-- fertility on `modern_greek_eval`
-- fertility on `GlossAPI` held-out
-- fertility on `HPLT` held-out
-
-We want lower token counts for Greek text without creating obvious regressions in the broader mixed view.
+- find the elbow on the intrinsic + fertility curves
+- diff C3 against Apertus `model.vocab` / `model.merges` to confirm
+  extension quality at the chosen cutoff
+- freeze the shipped cutoff (already `128`-aligned for all four
+  candidates)
 
 ### Phase 4: Downstream Confirmation
 
-Only after the intrinsic and fertility screens:
-- promote the best one or two arms
-- run downstream training/evaluation
-- compare throughput, memory profile, and task results under the same training budget
-
-The evaluation phase therefore has three roles:
-- choose between `GlossAPI-only` and `GlossAPI + HPLT`
-- choose between fresh discovery and continuous `BPE`
-- choose the cutoff for the Apertus-compatible merged extension
+After the cutoff is picked, the shipped variant goes through the
+downstream confirmation in `02_2_tokenizer_implementation` (compatibility
+checks) and then `03_apertus_extension_and_embedding_adaptation`
+(embedding adaptation + CPT).
 
 ## Research Rule
 
-This subproject is research-heavy. Any new experimental decision that is not already documented should be made explicitly with the user rather than assumed silently.
+Any new experimental decision that is not already documented should be
+made explicitly with the user rather than assumed silently.
+
+## Archived: Four-Arm Comparison
+
+The original phase-1/phase-2/phase-3/phase-4 framing compared four arms
+(`F1`, `F2`, `C1`, `C2`) and was decided in favor of C3. The
+archived raw artifacts live under:
+- `runs/production_strict_v2/tokenizers/` — F1, F2, C1 (wave-3 strict)
+- `runs/wave4_production_strict_v1_20260429/tokenizers/` — wave-4 strict
+- `../../tokenizer_analysis/hf_snapshots/apertus-tokenizer-extension/` —
+  earlier C1/C2 156672 snapshots used as analyzed baselines
+
+Do not run new evaluations against those arms unless explicitly
+revisiting the convergence decision.

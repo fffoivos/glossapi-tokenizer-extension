@@ -1,0 +1,228 @@
+{
+  "method": "per-language rate-normalized specificity",
+  "definition": "specificity[L,t] = (count[L,t] / sample_size[L]) / Σ_L' (count[L',t] / sample_size[L'])",
+  "validation_target": "tokens with ≥1 Greek codepoint (1507)",
+  "greek_validation": {
+    "best_threshold": 0.06768750009458535,
+    "F1": 0.9781456953642383,
+    "precision": 0.9762062128222075,
+    "recall": 0.980092899800929,
+    "tokens_classified_greek_at_best": 1513
+  },
+  "generalization": [
+    {
+      "language": "ell_Grek",
+      "name": "Greek",
+      "script": "Grek",
+      "ground_truth_tokens": 1507,
+      "best_tau": 0.07017038286703829,
+      "best_F1": 0.9777925091150149,
+      "best_P": 0.9768211920529801,
+      "best_R": 0.9787657597876576
+    },
+    {
+      "language": "rus_Cyrl",
+      "name": "Russian",
+      "script": "Cyrl",
+      "ground_truth_tokens": 7686,
+      "best_tau": 0.014251026703029985,
+      "best_F1": 0.6545361680393283,
+      "best_P": 0.6425974677196942,
+      "best_R": 0.6669268800416341
+    },
+    {
+      "language": "ukr_Cyrl",
+      "name": "Ukrainian",
+      "script": "Cyrl",
+      "ground_truth_tokens": 7686,
+      "best_tau": 0.0028942661247167516,
+      "best_F1": 0.6370741238246428,
+      "best_P": 0.6002070869765301,
+      "best_R": 0.6787665886026542
+    },
+    {
+      "language": "cmn_Hani",
+      "name": "Mandarin",
+      "script": "Hani",
+      "ground_truth_tokens": 3765,
+      "best_tau": 0.1,
+      "best_F1": 0.6573057138885028,
+      "best_P": 0.6896149358226371,
+      "best_R": 0.6278884462151394
+    },
+    {
+      "language": "arb_Arab",
+      "name": "Arabic",
+      "script": "Arab",
+      "ground_truth_tokens": 9447,
+      "best_tau": 0.017012542798525893,
+      "best_F1": 0.8446831860451683,
+      "best_P": 0.9295703025680142,
+      "best_R": 0.7740023287816238
+    },
+    {
+      "language": "fas_Arab",
+      "name": "Persian",
+      "script": "Arab",
+      "ground_truth_tokens": 9447,
+      "best_tau": 0.004124626382901352,
+      "best_F1": 0.534170619279845,
+      "best_P": 0.7240130387540746,
+      "best_R": 0.4232031332698211
+    },
+    {
+      "language": "heb_Hebr",
+      "name": "Hebrew",
+      "script": "Hebr",
+      "ground_truth_tokens": 1002,
+      "best_tau": 0.0837677640068292,
+      "best_F1": 0.9746646795827124,
+      "best_P": 0.9703264094955489,
+      "best_R": 0.9790419161676647
+    },
+    {
+      "language": "hin_Deva",
+      "name": "Hindi",
+      "script": "Deva",
+      "ground_truth_tokens": 1569,
+      "best_tau": 0.020309176209047358,
+      "best_F1": 0.9025247682965805,
+      "best_P": 0.9051282051282051,
+      "best_R": 0.89993626513703
+    },
+    {
+      "language": "mar_Deva",
+      "name": "Marathi",
+      "script": "Deva",
+      "ground_truth_tokens": 1569,
+      "best_tau": 0.01193776641714437,
+      "best_F1": 0.8051300320627004,
+      "best_P": 0.9127625201938611,
+      "best_R": 0.7202039515615042
+    },
+    {
+      "language": "kor_Hang",
+      "name": "Korean",
+      "script": "Hang",
+      "ground_truth_tokens": 4492,
+      "best_tau": 0.41246263829013524,
+      "best_F1": 0.966202353957456,
+      "best_P": 0.9381421681694275,
+      "best_R": 0.9959928762243989
+    },
+    {
+      "language": "tha_Thai",
+      "name": "Thai",
+      "script": "Thai",
+      "ground_truth_tokens": 567,
+      "best_tau": 0.17012542798525893,
+      "best_F1": 0.943840579710145,
+      "best_P": 0.9702048417132216,
+      "best_R": 0.9188712522045855
+    }
+  ],
+  "what_else_fires_in_greek_top20_by_primary_lang": [
+    {
+      "primary_lang_by_rate": "med_Latn",
+      "n_tokens": 13,
+      "greek_mass": 20380037
+    },
+    {
+      "primary_lang_by_rate": "yss_Latn",
+      "n_tokens": 31,
+      "greek_mass": 12126364
+    },
+    {
+      "primary_lang_by_rate": "ban_Latn",
+      "n_tokens": 65,
+      "greek_mass": 7515412
+    },
+    {
+      "primary_lang_by_rate": "und_Beng",
+      "n_tokens": 5,
+      "greek_mass": 7039257
+    },
+    {
+      "primary_lang_by_rate": "nrm_Latn",
+      "n_tokens": 192,
+      "greek_mass": 6818966
+    },
+    {
+      "primary_lang_by_rate": "vol_Latn",
+      "n_tokens": 92,
+      "greek_mass": 4563139
+    },
+    {
+      "primary_lang_by_rate": "nrf_Latn",
+      "n_tokens": 67,
+      "greek_mass": 3942639
+    },
+    {
+      "primary_lang_by_rate": "und_Sgnw",
+      "n_tokens": 23,
+      "greek_mass": 2985153
+    },
+    {
+      "primary_lang_by_rate": "und_Deva",
+      "n_tokens": 22,
+      "greek_mass": 2538995
+    },
+    {
+      "primary_lang_by_rate": "avk_Latn",
+      "n_tokens": 162,
+      "greek_mass": 2080263
+    },
+    {
+      "primary_lang_by_rate": "und_Grek",
+      "n_tokens": 9,
+      "greek_mass": 1775906
+    },
+    {
+      "primary_lang_by_rate": "aym_Latn",
+      "n_tokens": 179,
+      "greek_mass": 1616906
+    },
+    {
+      "primary_lang_by_rate": "eng_Latn",
+      "n_tokens": 1616,
+      "greek_mass": 1480856
+    },
+    {
+      "primary_lang_by_rate": "arb_Latn",
+      "n_tokens": 27,
+      "greek_mass": 1415580
+    },
+    {
+      "primary_lang_by_rate": "khs_Latn",
+      "n_tokens": 42,
+      "greek_mass": 1351634
+    },
+    {
+      "primary_lang_by_rate": "crh_Cyrl",
+      "n_tokens": 8,
+      "greek_mass": 1138069
+    },
+    {
+      "primary_lang_by_rate": "swg_Latn",
+      "n_tokens": 99,
+      "greek_mass": 1063631
+    },
+    {
+      "primary_lang_by_rate": "nav_Latn",
+      "n_tokens": 26,
+      "greek_mass": 976929
+    },
+    {
+      "primary_lang_by_rate": "wal_Latn",
+      "n_tokens": 45,
+      "greek_mass": 917456
+    },
+    {
+      "primary_lang_by_rate": "kiu_Latn",
+      "n_tokens": 236,
+      "greek_mass": 881299
+    }
+  ],
+  "n_langs_with_valid_sample": 707,
+  "n_langs_total": 1933
+}

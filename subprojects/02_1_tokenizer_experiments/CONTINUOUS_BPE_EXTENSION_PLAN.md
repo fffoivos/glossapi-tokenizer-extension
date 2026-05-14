@@ -1,5 +1,20 @@
 # Continuous BPE Extension Plan
 
+> **Archived framing — superseded by C3 convergence.** This document
+> describes the original four-arm comparison plan
+> (`F1`/`F2`/`C1`/`C2`). The arm decision has been made in favor of
+> **C3** (`C3_wave2_broad_glossapi_plus_hplt_50_50`); see
+> [../../docs/C3_CONVERGENCE.md](../../docs/C3_CONVERGENCE.md).
+>
+> The sections below remain accurate for the parts that survived:
+> the cutoff grid (§1.2 / §1.4), the merged-variant + intrinsic +
+> fertility evaluation pattern (§8), and the publication / acceptance
+> shape (§9 / §10). The four-arm-specific sections (§2–§7) describe
+> work that is now done and should not be re-run.
+>
+> If you are reading this for the live cutoff decision, jump to §8
+> and read "C3" wherever the doc says "the four arms".
+
 ## 1. Freeze The Comparison Target
 
 ### 1.1 Apertus Base Size

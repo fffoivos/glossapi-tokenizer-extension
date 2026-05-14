@@ -11,6 +11,21 @@ This means:
 - not using whole-word `add_tokens(...)` as the shipping method
 - extending Apertus through `model.vocab` and `model.merges`
 
+## Tokenizer Arm
+
+- **converged: C3** (`C3_wave2_broad_glossapi_plus_hplt_50_50`) — see
+  [C3_CONVERGENCE.md](C3_CONVERGENCE.md)
+  - continuous BPE from Apertus
+  - base `131072` + added `25600` = total `156672`
+  - corpus mix: `glossapi + hplt` at `50 / 50` by training-token mass
+  - trained on the wave-2 broad cleaner output
+- `F1`, `F2`, `C1`, `C2` are retained as analyzed baselines only and do
+  not drive shipping work
+- the only remaining tokenizer-side decision is the cutoff on C3 from
+  the frozen grid `{10240, 15360, 20480, 25600}` added units; the
+  shipped cutoff must remain `128`-aligned (all four candidates already
+  are)
+
 ## Hard Constraints
 
 - match Apertus tokenization behavior as exactly as possible
@@ -71,26 +86,24 @@ Use the existing dataset-build scripts as the operational path. Do not invent a 
 
 ## Experimental Structure
 
-- compare four tokenizer-training arms, not just two corpus views:
-  - fresh discovery `BPE` on `GlossAPI-only`
-  - fresh discovery `BPE` on `GlossAPI + HPLT`
-  - continuous `BPE` training starting from Apertus on `GlossAPI-only`
-  - continuous `BPE` training starting from Apertus on `GlossAPI + HPLT`
-- use a discovery tokenizer vocab fixed at `50k` for the first fresh-discovery runs
-- the continuous-BPE arm should start from the Apertus tokenizer and merge table and be allowed to add roughly the same estimated extension budget we are already considering, i.e. up to about `25k` new units
-- the `50k` stage is discovery/comparison only, not the final number of new Apertus tokens
-- fresh discovery must use true `BPE` learning, not word-frequency additions or `add_tokens(...)`
-- continuous `BPE` is now an explicit comparison arm, not a replacement for fresh discovery by default
-- preserve the Apertus front-end behavior during discovery: same normalization, same regex split, same byte-level regime
-- after fresh discovery or continuous `BPE`, diff learned units against Apertus and drop units that should not be merged back as new tokenizer entries
-- run analytic cutoffs in the `10k` to `25k` region on Apertus-compatible merged variants
-- the current working cutoff grid is:
+The four-arm comparison phase is over. C3 is the converged arm; see
+[C3_CONVERGENCE.md](C3_CONVERGENCE.md). What remains in this section
+applies to C3 only.
+
+- the active arm is C3 — continuous BPE from Apertus on `GlossAPI + HPLT`
+  at `50 / 50` by training-token mass, trained on the wave-2 broad
+  cleaner output, base `131072` + added `25600` = total `156672`
+- preserve the Apertus front-end behavior on C3: same normalization,
+  same regex split, same byte-level regime
+- diff C3 against Apertus `model.vocab` / `model.merges` and drop units
+  that should not be merged back as new tokenizer entries
+- the cutoff grid on C3's added units is frozen at:
   - `10240`
   - `15360`
   - `20480`
   - `25600`
-- fertility tests must be run on those merged Apertus-compatible variants, not on a raw standalone discovery tokenizer
-- the four experiment arms should be compared on the same evaluation bundle before narrowing to the best one or two candidates
+- fertility tests must be run on Apertus-compatible merged variants of
+  C3 at each cutoff, not on the raw 156672-token tokenizer
 - the shared tokenizer evaluation bundle must include:
   - `bytes_per_token`
   - `tokens_per_byte`
@@ -103,16 +116,16 @@ Use the existing dataset-build scripts as the operational path. Do not invent a 
   - `GlossAPI` held-out
   - `HPLT` held-out
   - mixed `GlossAPI + HPLT` held-out
-  - `modern_greek_eval`
-- the evaluation phase is staged:
-  - intrinsic tokenizer comparison across all four arms
-  - Apertus-compatible mergeback and cutoff comparison
-  - fertility tests on merged variants
-  - downstream confirmation on the best one or two arms
-- only snap the shipped build to a `128`-aligned size after the elbow is identified
-- the divisibility rule applies to the whole final tokenizer, not just the newly added units
-- tokenizer experiments should read from the same CPT-ready dataset used for continued pretraining
-- the mixed `GlossAPI + HPLT` view should use a `70/30` split by training-token mass
+  - `modern_greek_eval` — primary decision set
+- the evaluation phase on C3 is:
+  - Apertus-compatible mergeback at each of the four cutoffs
+  - intrinsic + fertility metrics on each merged variant
+  - cutoff elbow identification → shipped cutoff
+- the divisibility-by-`128` rule applies to the whole final tokenizer,
+  not just the newly added units (all four candidates already satisfy
+  this)
+- tokenizer experiments read from the same CPT-ready dataset used for
+  continued pretraining
 
 ## Execution Structure
 
@@ -124,17 +137,17 @@ Execution boundary:
 - operational tokenizer work should run on GCP workers and be stopped when done
 
 1. Tokenizer critical path
-- salvage and repair the current dedup run without changing dedup semantics
-- freeze downstream manifests from the CPT-ready dataset
 - freeze eval manifests
 - lock the literal Apertus tokenizer-replication checklist
-- export BPE-training text on the chosen worker
-- train the four tokenizer comparison arms on the chosen worker
-- compare the four arms on the same evaluation bundle
-- diff learned units against Apertus
-- assemble Apertus-compatible merged tokenizer variants
-- run fertility tests at multiple cutoffs
+- assemble Apertus-compatible merged variants of C3 at the four cutoffs
+- run intrinsic + fertility tests at each cutoff on the four eval slices
+- pick the cutoff at the elbow
 - implement the final merge-rule extension
+
+Prior steps (HPLT filter, dedup, mix, four-arm training, four-arm
+comparison) are settled; the corpus is frozen, the arms have been
+trained and analyzed, and C3 has been chosen — see
+[C3_CONVERGENCE.md](C3_CONVERGENCE.md).
 
 2. Dataset operational sidetrack
 - finish uploading the filtered HPLT slice into the upstream HF dataset
@@ -144,6 +157,8 @@ Execution boundary:
 
 ## Open Decisions
 
+- **C3 cutoff** from the frozen grid `{10240, 15360, 20480, 25600}` —
+  the only open tokenizer-side decision
 - exact HPLT-to-canonical-schema field mapping inside `source_metadata_json`
 - exact literal tokenizer replication checklist beyond the already confirmed settings
 - new-row initialization method

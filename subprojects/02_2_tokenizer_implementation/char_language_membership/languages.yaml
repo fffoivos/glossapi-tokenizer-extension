@@ -1,0 +1,351 @@
+# Source of truth for (language, script, encoding) → bit assignment.
+#
+# Each row defines one (language, script, encoding) triple. The `code`
+# is conversational shorthand; the wire-format identifier is `bit`.
+# `script` (ISO 15924) and `cldr_locale` together pin the encoding —
+# e.g. `el` vs `el-polyton`, `sr-Latn` vs `sr-Cyrl`, `zh-Hans` vs
+# `zh-Hant` are different encodings of overlapping languages.
+#
+# # Scope assumption
+#
+# The Apertus-8B-2509 tokenizer was *not* retrained on Apertus's
+# pretrain data — Apertus inherited Mistral-Nemo-Base-2407's `tekken`
+# tokenizer wholesale (paper §2.2, verified in
+# `docs/APERTUS_ARCHITECTURE_FOR_EMBEDDING_NORM_ANALYSIS.md`).
+# Mistral-Nemo's tokenizer was trained on "over 100 languages" but
+# Mistral has NOT published the actual list — only 11 principal
+# languages are publicly named (en, fr, de, es, it, pt, zh, ja, ko,
+# ar, hi).
+#
+# Since we cannot enumerate Mistral's actual coverage from primary
+# sources, we use **Apertus's documented pretrain mix as a proxy**:
+# the languages Apertus subsequently saw (and therefore the languages
+# whose tokens got reinforced) are the languages this artifact aims
+# to discriminate. The proxy stands on two assumptions:
+#   1. Mistral-Nemo and Apertus draw from the same family of
+#      CommonCrawl-derived multilingual web corpora (FineWeb-2-style).
+#   2. Languages absent from Apertus's mix are also absent or
+#      negligible in Mistral's — i.e. there's no major language
+#      Mistral covered that Apertus deliberately excluded.
+# Both assumptions are defensible but not provable. The validation
+# audit in `scripts/validate.py` checks the FALSIFIABLE part: every
+# script that appears with non-trivial token presence in the actual
+# Apertus vocab is covered by a bit in this file.
+#
+# # Strict rule (rejection framing)
+#
+# A bit is set on a codepoint ONLY via positive CLDR evidence (plus
+# deterministic closures: case, NFD, in-script-range fallback for
+# letters). Never speculative. A letter in a script that has no bit
+# here gets 0 bits, which under AND-aggregation rejects every
+# in-scope language — that's the desired behaviour.
+#
+# # Rules
+#
+#   - `bit` is a stable wire-format identifier. Never reassign.
+#   - To add a triple, append at the next free bit; never reuse.
+#   - `cldr_locale` is the BCP 47 string passed to cldr-json paths.
+#   - `script` is the ISO 15924 script code. Used by the script-range
+#     fallback in the build to assign bits to in-script codepoints
+#     missing from CLDR's curated exemplar.
+
+version: 2
+cldr_release: "48.2.0"
+languages:
+  # --- v1 bits (0-22) — kept stable from earlier build ---
+  # --- Latin script (FineWeb-2-HQ + English) ---
+  - bit: 0
+    code: en
+    cldr_locale: en
+    name: English
+    script: Latn
+  - bit: 1
+    code: cs
+    cldr_locale: cs
+    name: Czech
+    script: Latn
+  - bit: 2
+    code: da
+    cldr_locale: da
+    name: Danish
+    script: Latn
+  - bit: 3
+    code: de
+    cldr_locale: de
+    name: German
+    script: Latn
+  - bit: 4
+    code: es
+    cldr_locale: es
+    name: Spanish
+    script: Latn
+  - bit: 5
+    code: fr
+    cldr_locale: fr
+    name: French
+    script: Latn
+  - bit: 6
+    code: hu
+    cldr_locale: hu
+    name: Hungarian
+    script: Latn
+  - bit: 7
+    code: id
+    cldr_locale: id
+    name: Indonesian
+    script: Latn
+  - bit: 8
+    code: it
+    cldr_locale: it
+    name: Italian
+    script: Latn
+  - bit: 9
+    code: nl
+    cldr_locale: nl
+    name: Dutch
+    script: Latn
+  - bit: 10
+    code: pl
+    cldr_locale: pl
+    name: Polish
+    script: Latn
+  - bit: 11
+    code: pt
+    cldr_locale: pt
+    name: Portuguese
+    script: Latn
+  - bit: 12
+    code: sv
+    cldr_locale: sv
+    name: Swedish
+    script: Latn
+  - bit: 13
+    code: tr
+    cldr_locale: tr
+    name: Turkish
+    script: Latn
+  - bit: 14
+    code: vi
+    cldr_locale: vi
+    name: Vietnamese
+    script: Latn
+
+  # --- Cyrillic ---
+  - bit: 15
+    code: ru
+    cldr_locale: ru
+    name: Russian
+    script: Cyrl
+
+  # --- Greek (monotonic encoding) ---
+  - bit: 16
+    code: el
+    cldr_locale: el
+    name: Greek (monotonic)
+    script: Grek
+
+  # --- Arabic script ---
+  - bit: 17
+    code: ar
+    cldr_locale: ar
+    name: Arabic
+    script: Arab
+  - bit: 18
+    code: fa
+    cldr_locale: fa
+    name: Persian
+    script: Arab
+
+  # --- CJK ---
+  - bit: 19
+    code: zh-Hans
+    cldr_locale: zh-Hans
+    name: Chinese (Simplified)
+    script: Hans
+  - bit: 20
+    code: zh-Hant
+    cldr_locale: zh-Hant
+    name: Chinese (Traditional)
+    script: Hant
+  - bit: 21
+    code: ja
+    cldr_locale: ja
+    name: Japanese
+    script: Jpan
+
+  # --- Greek (polytonic encoding) ---
+  - bit: 22
+    code: el-polyton
+    cldr_locale: el-polyton
+    name: Greek (polytonic)
+    script: Grek
+
+  # --- v2 additions (23-53) — driven by Apertus-vocab audit ---
+  # Tier 1: scripts with empirical token presence outside v1 scope
+  - bit: 23
+    code: ko
+    cldr_locale: ko
+    name: Korean
+    script: Hang
+  - bit: 24
+    code: hi
+    cldr_locale: hi
+    name: Hindi
+    script: Deva
+  - bit: 25
+    code: he
+    cldr_locale: he
+    name: Hebrew
+    script: Hebr
+  - bit: 26
+    code: th
+    cldr_locale: th
+    name: Thai
+    script: Thai
+  - bit: 27
+    code: hy
+    cldr_locale: hy
+    name: Armenian
+    script: Armn
+  - bit: 28
+    code: ka
+    cldr_locale: ka
+    name: Georgian
+    script: Geor
+  - bit: 29
+    code: bn
+    cldr_locale: bn
+    name: Bengali
+    script: Beng
+  - bit: 30
+    code: ta
+    cldr_locale: ta
+    name: Tamil
+    script: Taml
+  - bit: 31
+    code: te
+    cldr_locale: te
+    name: Telugu
+    script: Telu
+  - bit: 32
+    code: kn
+    cldr_locale: kn
+    name: Kannada
+    script: Knda
+  - bit: 33
+    code: ml
+    cldr_locale: ml
+    name: Malayalam
+    script: Mlym
+  - bit: 34
+    code: gu
+    cldr_locale: gu
+    name: Gujarati
+    script: Gujr
+  - bit: 35
+    code: pa
+    cldr_locale: pa
+    name: Punjabi (Gurmukhi)
+    script: Guru
+  - bit: 36
+    code: my
+    cldr_locale: my
+    name: Burmese
+    script: Mymr
+  - bit: 37
+    code: ur
+    cldr_locale: ur
+    name: Urdu
+    script: Arab
+
+  # Tier 2: same-script sister languages of v1 entries
+  # (closes false-rejection where shared chars currently bias toward
+  # a single locale, e.g. ø only attributed to Danish when Norwegian
+  # uses it too)
+  - bit: 38
+    code: ro
+    cldr_locale: ro
+    name: Romanian
+    script: Latn
+  - bit: 39
+    code: uk
+    cldr_locale: uk
+    name: Ukrainian
+    script: Cyrl
+  - bit: 40
+    code: bg
+    cldr_locale: bg
+    name: Bulgarian
+    script: Cyrl
+  - bit: 41
+    code: mk
+    cldr_locale: mk
+    name: Macedonian
+    script: Cyrl
+  - bit: 42
+    code: sr-Latn
+    cldr_locale: sr-Latn
+    name: Serbian (Latin)
+    script: Latn
+  - bit: 43
+    code: sr-Cyrl
+    cldr_locale: sr-Cyrl
+    name: Serbian (Cyrillic)
+    script: Cyrl
+  - bit: 44
+    code: az
+    cldr_locale: az
+    name: Azerbaijani
+    script: Latn
+  - bit: 45
+    code: fi
+    cldr_locale: fi
+    name: Finnish
+    script: Latn
+  - bit: 46
+    code: nb
+    cldr_locale: nb
+    name: Norwegian Bokmål
+    script: Latn
+  - bit: 47
+    code: sl
+    cldr_locale: sl
+    name: Slovenian
+    script: Latn
+  - bit: 48
+    code: hr
+    cldr_locale: hr
+    name: Croatian
+    script: Latn
+  - bit: 49
+    code: sk
+    cldr_locale: sk
+    name: Slovak
+    script: Latn
+  - bit: 50
+    code: et
+    cldr_locale: et
+    name: Estonian
+    script: Latn
+  - bit: 51
+    code: lt
+    cldr_locale: lt
+    name: Lithuanian
+    script: Latn
+  - bit: 52
+    code: lv
+    cldr_locale: lv
+    name: Latvian
+    script: Latn
+  - bit: 53
+    code: ca
+    cldr_locale: ca
+    name: Catalan
+    script: Latn
+
+  # --- v2 audit follow-up (post-build) ---
+  - bit: 54
+    code: is
+    cldr_locale: is
+    name: Icelandic
+    script: Latn

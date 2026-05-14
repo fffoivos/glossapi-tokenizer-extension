@@ -2,15 +2,32 @@
 
 Clean workspace for extending `swiss-ai/Apertus-8B-2509` for Greek.
 
-The active method is:
-- discover Greek morphology-respecting units through true `BPE` training
-- replicate Apertus tokenization behavior as exactly as possible
-- filter HPLT and normalize it into the existing canonical GlossAPI source-parquet schema
-- consume the same CPT-ready dataset for both continued pretraining and tokenizer experiments
-- extend Apertus through `model.vocab` and `model.merges`, not `add_tokens(...)`
-- preserve dedup functionality while improving dedup efficiency and scalability
+## Active stage
 
-The old whole-word `add_tokens(...)` sweep is retained only as a legacy baseline and has been moved out of the active planning path.
+**Tokenizer arm has converged to C3.** Open decision: the C3 cutoff
+from the frozen grid `{10240, 15360, 20480, 25600}`. New agents should
+start at:
+
+- [docs/C3_CONVERGENCE.md](docs/C3_CONVERGENCE.md) — what's settled,
+  what's open, where the artifacts live
+- [docs/GLOBAL_DECISIONS.md](docs/GLOBAL_DECISIONS.md) — hard constraints
+- [docs/ACTIVE_BACKLOG.md](docs/ACTIVE_BACKLOG.md) — the cutoff-decision
+  work list
+
+The four-arm exploration (`F1`, `F2`, `C1`, `C2`) is closed. Material
+that still describes it is retained for traceability but should not
+drive new execution.
+
+## Method
+
+- continuous BPE extension of Apertus on a `GlossAPI + HPLT` `50 / 50`
+  mix (= the C3 arm), preserving Apertus front-end behavior exactly
+- extend Apertus through `model.vocab` and `model.merges`, not
+  `add_tokens(...)`
+- consume the same CPT-ready dataset for tokenizer experiments and
+  continued pretraining
+- the old whole-word `add_tokens(...)` sweep is retained only as a
+  legacy baseline and has been moved out of the active planning path
 
 ## Canonical Code Root
 
@@ -36,18 +53,29 @@ The active repo-local verification matrix includes:
 
 ## Execution Shape
 
-There are two parallel tracks:
-- tokenizer critical path: repair and resume dedup without changing its decisions, freeze local manifests, freeze the literal Apertus tokenizer spec, export local BPE-training text, run discovery tokenizers, and implement the merge-rule extension
-- dataset operational sidetrack: finish HPLT filtering and integration work, refresh published dedup metadata, and publish the updated upstream dataset from a separate cheap uploader instance using the official large-folder HF upload path
+Two parallel tracks:
+- tokenizer critical path: lock the eval manifests, build C3 merged
+  variants at the four cutoffs, run the intrinsic + fertility bundle,
+  pick the cutoff at the elbow, then implement the merge-rule extension
+  in `subprojects/02_2_tokenizer_implementation` and hand off to
+  `subprojects/03_apertus_extension_and_embedding_adaptation`
+- dataset operational sidetrack: HF upload of the upstream dataset from
+  a separate cheap uploader instance using the official large-folder
+  upload path
 
-The tokenizer critical path does not need to wait for the HF upload once the filtered HPLT slice exists locally on `home`.
+The tokenizer critical path does not need to wait for the HF upload —
+the C3 tokenizer already exists on the gcloud worker.
 
-The active dedup recovery and scale plans are:
+Earlier critical-path stages (dedup repair, HPLT filter rebuild, mix
+build, four-arm training, four-arm comparison) are settled. The dedup
+recovery and scale plans are retained for traceability:
 - [PIPELINE_RECOVERY_AND_SCALE_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_RECOVERY_AND_SCALE_PLAN.md)
-- [DEDUP_SCRIPT_REPAIR_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)
+- [DEDUP_SCRIPT_REPAIR_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/_archive/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)
 
 ## Canonical Files
 
+- **C3 convergence** (read first):
+  - [C3_CONVERGENCE.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/C3_CONVERGENCE.md)
 - project index:
   - [PROJECT_INDEX.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PROJECT_INDEX.md)
 - global decisions:
@@ -61,13 +89,14 @@ The active dedup recovery and scale plans are:
 
 ## Subprojects
 
-- [01_hplt_filtering](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_hplt_filtering/README.md)
-- [01_1_corpus_dedup](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/README.md)
-- [01_2_training_dataset_mix](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_2_training_dataset_mix/README.md)
-- [02_apertus_tokenizer_spec](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_apertus_tokenizer_spec/README.md)
-- [02_1_tokenizer_experiments](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/README.md)
-- [02_2_tokenizer_implementation](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_2_tokenizer_implementation/README.md)
-- [03_apertus_extension_and_embedding_adaptation](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/03_apertus_extension_and_embedding_adaptation/README.md)
+Live:
+- [02_apertus_tokenizer_spec](subprojects/02_apertus_tokenizer_spec/README.md)
+- [02_1_tokenizer_experiments](subprojects/02_1_tokenizer_experiments/README.md) — **active** (C3 cutoff sweep)
+- [02_2_tokenizer_implementation](subprojects/02_2_tokenizer_implementation/README.md) — gated on cutoff
+- [03_apertus_extension_and_embedding_adaptation](subprojects/03_apertus_extension_and_embedding_adaptation/README.md) — gated on tokenizer freeze
+
+Archived (DONE for the C3 shipping path) — see [subprojects/_archive/README.md](subprojects/_archive/README.md):
+- `01_hplt_filtering`, `01_1_corpus_dedup`, `01_2_training_dataset_mix`, `01_0_cleaning_iteration_and_thresholds`
 
 ## Repo Policy
 

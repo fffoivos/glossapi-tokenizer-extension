@@ -2,84 +2,84 @@
 
 ## Tokenizer Critical Path
 
-1. Complete the live downstream continuation from the dedup-complete worker state:
-- keep the current full-size mix build healthy
-- verify tokenizer training actually launches after the two mix outputs exist
-- decide whether the live training launcher should stay inline or return to the canonical dual-service path
-- publish a final downstream run report once the full-size live chain clears tokenizer launch
+Anchor: [C3_CONVERGENCE.md](C3_CONVERGENCE.md). The only open
+tokenizer-side decision is the C3 cutoff; everything below tracks the
+work that produces that decision and then ships the extension.
 
-2. Run the explicit pipeline verification pass before trusting the downstream chain again:
-- execute the real repo-owned worker path end to end from dedup completion through tokenizer launch
-- audit each remaining stage for hidden serial bottlenecks
-- audit each remaining stage for trustworthy progress reporting
-- reference:
-  - [PIPELINE_E2E_VERIFICATION_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_VERIFICATION_PLAN.md)
-  - [PIPELINE_E2E_VERIFICATION_TODO.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_VERIFICATION_TODO.md)
-  - [PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md)
-  - [PIPELINE_STAGE_PARALLELISM_REVIEW_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_STAGE_PARALLELISM_REVIEW_20260415.md)
-  - [PIPELINE_STAGE_PROGRESS_REVIEW_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_STAGE_PROGRESS_REVIEW_20260415.md)
+1. Lock the held-out evaluation manifests:
+- `GlossAPI` held-out
+- `HPLT` held-out
+- mixed `GlossAPI + HPLT` held-out
+- `modern_greek_eval` (primary decision set)
 
-3. Continue the near-dedup redesign as an explicit plan diversion:
-- compare the current implementation against Hugging Face/DataTrove MinHash
-- preserve our semantics, but replace the current near-candidate execution shape with a more streaming, merge-based design
-- reference:
-  - [HF_DEDUP_INVESTIGATION.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/HF_DEDUP_INVESTIGATION.md)
-  - [NEAR_DEDUP_REDESIGN_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/NEAR_DEDUP_REDESIGN_PLAN.md)
+2. Lock the literal Apertus tokenizer-replication checklist, including
+   the exact tokenizer files and a toy extension proof.
 
-4. Rebuild the HPLT slice on a GCP worker with the real final filter path:
-- quality bins `>=8`
-- exclude `Machine translated or generated`
-- run real `Corpus.clean(..., write_cleaned_files=False, drop_bad=False)` scoring
-- drop rows with `greek_badness_score > 60`
+3. Build Apertus-compatible merged variants of C3 at each cutoff in the
+   frozen grid `{10240, 15360, 20480, 25600}`. Source tokenizer lives
+   on the gcloud worker at
+   `~/runs/c3_wave2_broad_latest_cleaner_20260506/50_50/tokenizers/`.
 
-5. Freeze the worker-side downstream builder inputs for:
-- `GlossAPI-only`
-- `GlossAPI + HPLT` at `70/30` by training-token mass
+4. Run the intrinsic metric bundle on every merged variant:
+- `bytes_per_token`
+- `tokens_per_byte`
+- fertility
+- added-token utilization rate
+- vocabulary utilization rate
+- unreachable added tokens
+- byte-fallback rate
 
-6. Verify that `openarchives.gr` rows with `needs_ocr == true` are still excluded from the CPT-ready dataset used for tokenizer work.
+5. Run intrinsic + fertility on all four evaluation slices for each
+   merged variant. Produce a single comparison table across the four
+   cutoffs.
 
-7. Freeze the held-out eval manifests from the same prepared source-parquet tree.
+6. Diff C3's learned Greek-unit set against Apertus `model.vocab` and
+   `model.merges` to characterize extension quality at each cutoff.
 
-8. Lock the literal Apertus tokenizer-replication checklist, including the exact tokenizer files and a toy extension proof.
+7. Identify the cutoff elbow and freeze the shipped size (already
+   `128`-aligned for all four candidates).
 
-9. Keep the contract-verification suite green as the pipeline changes:
-- synthetic tests for schema, markers, and stage-to-stage contracts
-- uploader-handoff contract tests
-- tiny real-document smoke runs so the contracts are also exercised on real HPLT/GlossAPI records
-- downstream contract equivalence tests after repaired dedup outputs
-- near-stage resumability and chunk-progress tests for the redesigned path
+8. Implement and test the merge-rule extension in
+   `subprojects/02_2_tokenizer_implementation`:
+- preserve the first `1000` ids exactly
+- preserve special-token behavior
+- preserve the regex split and byte-level regime
+- non-Greek smoke test after extension
 
-10. Run the builder/tokenizer efficiency plan on worker hardware:
-- builder duplicate-subset replay benchmark
-- tokenizer throughput sweep for `RAYON_NUM_THREADS` and batch size
-- freeze runtime defaults after the sweep
+9. Hand off the shipped tokenizer to
+   `subprojects/03_apertus_extension_and_embedding_adaptation` for
+   embedding + `lm_head` initialization, frozen-base warmup, and full
+   continued pretraining. Pre-extension diagnostic of how Apertus
+   already represents Greek on E + U is complete under the sub-
+   subproject `03_1_greek_embedding_diagnostic/`
+   ([report](../subprojects/03_apertus_extension_and_embedding_adaptation/03_1_greek_embedding_diagnostic/artifacts/results/report_v2.md))
+   and informs the init choice but does not commit to one.
 
-11. Export BPE-training text for the two corpus views from the CPT-ready dataset on the chosen GCP worker:
-- `GlossAPI-only`
-- `GlossAPI + HPLT` at `70/30`
+## Archived (pre-convergence, retained for traceability)
 
-12. Run the full four-arm tokenizer experiment matrix from the frozen worker-side manifests:
-- fresh discovery `BPE` on `GlossAPI-only`
-- fresh discovery `BPE` on `GlossAPI + HPLT`
-- continuous `BPE` from Apertus on `GlossAPI-only`
-- continuous `BPE` from Apertus on `GlossAPI + HPLT`
+These items were the multi-arm exploration that produced C3. They are
+done and should not drive new execution. Kept here because some
+referenced docs still describe them in detail.
 
-13. Compare all four tokenizer arms on the same evaluation bundle:
-- fertility/compression metrics
-- tokenization behavior on the primary Greek eval set
-- practical extension quality relative to Apertus compatibility
-
-14. Diff the best one or two learned Greek-unit sets against Apertus `model.vocab` and `model.merges`.
-
-15. Run the analytic cutoff sweep on merged variants at:
-- `10240`
-- `15360`
-- `20480`
-- `25600`
-
-16. Only after the elbow is known, choose the shipped `128`-aligned extension size.
-
-17. Implement and test the merge-rule extension.
+- complete the live downstream continuation from the dedup-complete
+  worker state; full-size mix build, tokenizer launch verification,
+  E2E worker-run report — see
+  `PIPELINE_E2E_*.md` family
+- explicit pipeline E2E verification pass from dedup completion through
+  tokenizer launch — closed
+- near-dedup redesign vs HF/DataTrove MinHash — operational sidetrack;
+  semantics frozen
+- HPLT slice rebuild with the final filter path (`>=8` bins,
+  exclude `Machine translated or generated`, real `Corpus.clean` gate,
+  drop `greek_badness_score > 60`) — done
+- export BPE-training text and freeze worker-side downstream builder
+  inputs for the corpus views — done
+- run the full four-arm tokenizer experiment matrix (`F1`, `F2`, `C1`,
+  `C2`) — done; arms retained as analyzed baselines only
+- compare arms on the shared evaluation bundle to pick the winning arm
+  — done; C3 selected (see [C3_CONVERGENCE.md](C3_CONVERGENCE.md))
+- builder/tokenizer efficiency sweep on worker hardware
+  (`RAYON_NUM_THREADS`, batch size) — closed
 
 ## Dataset Operational Sidetrack
 

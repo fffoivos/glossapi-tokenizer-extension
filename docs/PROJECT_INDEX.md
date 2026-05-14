@@ -2,65 +2,92 @@
 
 This repo is intentionally split into smaller subprojects.
 
-## Parallel Tracks
+## Current Stage
 
-### Tokenizer Critical Path
+**C3 cutoff decision.** Tokenizer arm is converged
+(`C3_wave2_broad_glossapi_plus_hplt_50_50`). The only open
+tokenizer-side decision is which cutoff to ship from the frozen grid
+`{10240, 15360, 20480, 25600}`. See
+[C3_CONVERGENCE.md](C3_CONVERGENCE.md).
 
-1. [01_1_corpus_dedup](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/README.md)
-2. [01_2_training_dataset_mix](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_2_training_dataset_mix/README.md)
-3. [02_apertus_tokenizer_spec](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_apertus_tokenizer_spec/README.md)
-4. [02_1_tokenizer_experiments](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/README.md)
-5. [02_2_tokenizer_implementation](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_2_tokenizer_implementation/README.md)
-6. [03_apertus_extension_and_embedding_adaptation](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/03_apertus_extension_and_embedding_adaptation/README.md)
+Read order for a fresh agent:
+1. [C3_CONVERGENCE.md](C3_CONVERGENCE.md)
+2. [GLOBAL_DECISIONS.md](GLOBAL_DECISIONS.md)
+3. [CURRENT_STATUS.md](CURRENT_STATUS.md)
+4. [ACTIVE_BACKLOG.md](ACTIVE_BACKLOG.md) — §Tokenizer Critical Path
 
-### Dataset Operational Sidetrack
+The subprojects below are listed in the order they are traversed; most
+of the earlier ones are settled and the live work is in `02_1` (cutoff
+sweep) → `02_2` (merge-rule extension) → `03` (embedding adaptation).
 
-1. [01_hplt_filtering](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_hplt_filtering/README.md)
-2. [01_1_corpus_dedup](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/README.md)
+## Subprojects
+
+### Live
+
+1. [02_apertus_tokenizer_spec](../subprojects/02_apertus_tokenizer_spec/README.md) — pinning checklist still to lock
+2. [02_1_tokenizer_experiments](../subprojects/02_1_tokenizer_experiments/README.md) — **active** (C3 cutoff sweep)
+3. [02_2_tokenizer_implementation](../subprojects/02_2_tokenizer_implementation/README.md) — gated on cutoff
+4. [03_apertus_extension_and_embedding_adaptation](../subprojects/03_apertus_extension_and_embedding_adaptation/README.md) — gated on tokenizer freeze
+   - [03_1_greek_embedding_diagnostic](../subprojects/03_apertus_extension_and_embedding_adaptation/03_1_greek_embedding_diagnostic/README.md) — pre-extension diagnostic of how Apertus represents Greek (E/U geometry, hull occupancy, binary classifier, cross-language clusters)
+
+### Archived (DONE for the C3 shipping path)
+
+See [../subprojects/_archive/README.md](../subprojects/_archive/README.md).
+
+- `01_hplt_filtering` — HPLT clean60 slice
+- `01_1_corpus_dedup` — dedup contract + repair
+- `01_2_training_dataset_mix` — mix.parquet builder + splitter
+- `01_0_cleaning_iteration_and_thresholds` — wave-2 broad cleaner (parallel `cleaner/per-line-badness-20260504` branch decoupled from C3)
 
 ## Canonical Sources Of Truth
 
+### Live
+
+- **C3 convergence** (read first):
+  - [C3_CONVERGENCE.md](C3_CONVERGENCE.md)
+- **C3 cutoff sweep results** (1k–25k, plots + tables):
+  - [C3_CUTOFF_REPORT.md](C3_CUTOFF_REPORT.md)
+- **C3 training datasets** (inventory + source links):
+  - [C3_TRAINING_DATASETS.md](C3_TRAINING_DATASETS.md)
 - global decisions:
-  - [GLOBAL_DECISIONS.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/GLOBAL_DECISIONS.md)
+  - [GLOBAL_DECISIONS.md](GLOBAL_DECISIONS.md)
 - current status:
-  - [CURRENT_STATUS.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/CURRENT_STATUS.md)
+  - [CURRENT_STATUS.md](CURRENT_STATUS.md)
 - active backlog:
-  - [ACTIVE_BACKLOG.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/ACTIVE_BACKLOG.md)
-- stage verification checklist:
-  - [STAGE_VERIFICATION_CHECKLIST.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/STAGE_VERIFICATION_CHECKLIST.md)
-- HF dedup comparison and diversion note:
-  - [HF_DEDUP_INVESTIGATION.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/HF_DEDUP_INVESTIGATION.md)
+  - [ACTIVE_BACKLOG.md](ACTIVE_BACKLOG.md)
+- Apertus pretraining data inventory + plan for estimating Greek share:
+  - [APERTUS_PRETRAINING_DATA_AND_GREEK_SHARE.md](APERTUS_PRETRAINING_DATA_AND_GREEK_SHARE.md)
+- Apertus architecture choices that force cross-language embedding-norm convergence (reconciles Phase-A norm parity with the 0.023 % Greek data share):
+  - [APERTUS_ARCHITECTURE_FOR_EMBEDDING_NORM_ANALYSIS.md](APERTUS_ARCHITECTURE_FOR_EMBEDDING_NORM_ANALYSIS.md)
+- **Embedding diagnostic plan v2** (Greek vs ¬Greek, hull occupancy, infiltrators, clustering, analogies — the live diagnostic):
+  - plan: [EMBEDDING_DIAGNOSTIC_PLAN_V2.md](EMBEDDING_DIAGNOSTIC_PLAN_V2.md)
+  - sub-subproject (scripts + artifacts + reports): [../subprojects/03_apertus_extension_and_embedding_adaptation/03_1_greek_embedding_diagnostic/README.md](../subprojects/03_apertus_extension_and_embedding_adaptation/03_1_greek_embedding_diagnostic/README.md)
+- **Vocab-language attribution** (1,933 canonical langs × 131,072 Apertus vocab entries; sub-subproject under 02_2):
+  - report (with run status + scripts + artifact spec): [../subprojects/02_2_tokenizer_implementation/vocab_lang_attribution/RUN_REPORT.md](../subprojects/02_2_tokenizer_implementation/vocab_lang_attribution/RUN_REPORT.md)
 - functional issues TODO:
-  - [FUNCTIONAL_ISSUES_TODO.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/FUNCTIONAL_ISSUES_TODO.md)
-- near dedup memory-footprint TODO:
-  - [NEAR_DEDUP_MEMORY_FOOTPRINT_TODO.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/NEAR_DEDUP_MEMORY_FOOTPRINT_TODO.md)
-- near dedup redesign plan:
-  - [NEAR_DEDUP_REDESIGN_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/NEAR_DEDUP_REDESIGN_PLAN.md)
-- builder/tokenizer efficiency plan:
-  - [BUILDER_TOKENIZER_EFFICIENCY_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/BUILDER_TOKENIZER_EFFICIENCY_PLAN.md)
-- pipeline e2e verification plan:
-  - [PIPELINE_E2E_VERIFICATION_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_VERIFICATION_PLAN.md)
-- pipeline e2e verification todo:
-  - [PIPELINE_E2E_VERIFICATION_TODO.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_VERIFICATION_TODO.md)
-- pipeline e2e stage chain:
-  - [PIPELINE_E2E_STAGE_CHAIN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_STAGE_CHAIN.md)
-- pipeline e2e worker run report:
-  - [PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md)
-- pipeline stage parallelism review:
-  - [PIPELINE_STAGE_PARALLELISM_REVIEW_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_STAGE_PARALLELISM_REVIEW_20260415.md)
-- pipeline stage progress review:
-  - [PIPELINE_STAGE_PROGRESS_REVIEW_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_STAGE_PROGRESS_REVIEW_20260415.md)
+  - [FUNCTIONAL_ISSUES_TODO.md](FUNCTIONAL_ISSUES_TODO.md)
 - machine-readable config:
-  - [apertus_greek_extension.yaml](/home/foivos/Projects/glossapi-tokenizer-extension/config/apertus_greek_extension.yaml)
-- legacy material that should not drive new execution:
-  - [legacy/README.md](/home/foivos/Projects/glossapi-tokenizer-extension/legacy/README.md)
+  - [apertus_greek_extension.yaml](../config/apertus_greek_extension.yaml)
+
+### Archived (settled pre-C3-convergence work — read only for historical reconstruction)
+
+- [_archive/README.md](_archive/README.md) — index of archived docs
+- pre-convergence pipeline / dedup planning (E2E, near-dedup, HF dedup,
+  builder/tokenizer efficiency, stage-verification checklist) all live
+  under [_archive/](_archive/)
+
+### Other
+
+- legacy material (add-tokens baseline, exploratory HPLT):
+  - [legacy/README.md](../legacy/README.md)
 
 ## Current Status
 
-- the filtered HPLT local slice already exists in the canonical source-parquet tree on `home`
-- the HF upload is an operational sidetrack, not the critical path for tokenizer work
-- dedup is complete and the active blocker is the long serial tokenizer mix stage
-- no true Greek `BPE` tokenizer has been trained yet
-- no merge-rule Apertus extension has been built yet
-- the worker-side downstream chain is now truly verified through tokenizer training on a bounded real-doc smoke run
-- the next hard gate on the tokenizer path is improving mix throughput and stage transparency on the full-size live chain
+- C3 (`C3_wave2_broad_glossapi_plus_hplt_50_50`) is the converged
+  tokenizer arm; see [C3_CONVERGENCE.md](C3_CONVERGENCE.md)
+- the filtered HPLT slice and the four-arm exploration are settled
+- the open tokenizer-side decision is C3's cutoff from the frozen grid
+  `{10240, 15360, 20480, 25600}`
+- no merge-rule Apertus extension has been built yet (gated on cutoff)
+- the HF upload is an operational sidetrack, decoupled from the
+  tokenizer critical path

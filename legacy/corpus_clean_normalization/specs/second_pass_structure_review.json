@@ -1,0 +1,20 @@
+[
+  {
+    "category": "table_border_ascii_art",
+    "pattern_family": "fresh_glossapi_only_table_border_ascii_art",
+    "match_kind": "literal_set",
+    "literals_path": "../../tokenizer_analysis/inspection/non_greek/fresh/glossapi_only/categories/table_border_ascii_art_decoded.json"
+  },
+  {
+    "category": "separator_run_like",
+    "pattern_family": "separator_run_ge4",
+    "match_kind": "regex",
+    "pattern": "(?:[-_=*~/\\\\|][ \\t\\u00A0]*){4,}"
+  },
+  {
+    "category": "markdown_table_separator_like",
+    "pattern_family": "markdown_table_separator_row",
+    "match_kind": "regex",
+    "pattern": "(?:^|\\n)[ \\t\\u00A0]*\\|?(?:[ \\t\\u00A0]*:?-{3,}:?[ \\t\\u00A0]*\\|){1,}[ \\t\\u00A0]*(?:\\n|$)"
+  }
+]

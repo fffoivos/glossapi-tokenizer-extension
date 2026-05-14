@@ -1,0 +1,35 @@
+{
+  "table_border_ascii_art": {
+    "review_mode": "normalization",
+    "goal": "We are reviewing table-border and ASCII-art fragments that may be either broken extraction noise or overly variable structure. The goal is to minimize separator classes while preserving semantics and markdown/table structure when those are real.",
+    "questions": [
+      "Is this valid table or separator structure in context, or extraction noise?",
+      "If it is structure, is it safely interchangeable with a shorter canonical separator form in this context?",
+      "Would that normalization preserve local semantics?",
+      "Would that normalization preserve markdown or table structure?",
+      "If it is not valid structure, should it be removed instead of normalized?"
+    ]
+  },
+  "separator_run_like": {
+    "review_mode": "normalization",
+    "goal": "We are reviewing repeated separator runs for tokenizer-oriented normalization. The goal is to collapse redundant separator variants into a minimal canonical class without losing semantics.",
+    "questions": [
+      "Is this acting as a structural separator rather than ordinary prose punctuation?",
+      "Is it safely interchangeable with the canonical separator form `---` in this context?",
+      "Would that normalization preserve local semantics?",
+      "Would that normalization preserve markdown structure when relevant?",
+      "If not, is the span better treated as noise or left unchanged?"
+    ]
+  },
+  "markdown_table_separator_like": {
+    "review_mode": "normalization",
+    "goal": "We are reviewing markdown table separator rows or cells for tokenizer-oriented normalization. The goal is to reduce redundant width and alignment variation while preserving markdown table structure.",
+    "questions": [
+      "Is this a markdown table separator row or cell in context?",
+      "Is it safely interchangeable with the shortest valid markdown separator form for the same alignment (`---`, `:---`, `:---:`, or `---:`)?",
+      "Would that normalization preserve local semantics?",
+      "Would that normalization preserve markdown structure?",
+      "If this is not valid markdown structure, should it be treated as extraction noise instead?"
+    ]
+  }
+}

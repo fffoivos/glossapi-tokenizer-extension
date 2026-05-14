@@ -1,0 +1,14 @@
+[package]
+name = "glyphscan"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+arrow = "50.0.0"
+chrono = "=0.4.31"
+csv = "1.3.1"
+parquet = { version = "50.0.0", features = ["arrow"] }
+rayon = "1.10.0"
+regex = "1.11.1"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.141"

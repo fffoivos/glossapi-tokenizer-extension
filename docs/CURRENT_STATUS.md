@@ -2,11 +2,28 @@
 
 ## Active Phase
 
-Parallel execution:
-- live post-dedup downstream continuation on the active GCP worker
-- bounded worker-side true E2E verification of the repo-owned downstream chain
-- temporary source-only HF upload fallback from the same worker while the cheap uploader host is unreachable
-- downstream builder/tokenizer contract, efficiency, and observability hardening in the canonical repo
+**C3 cutoff decision.** C3
+(`C3_wave2_broad_glossapi_plus_hplt_50_50`) has been converged to as the
+shipping tokenizer arm — see [C3_CONVERGENCE.md](C3_CONVERGENCE.md).
+
+The remaining tokenizer-side work is:
+- assemble Apertus-compatible merged variants of C3 at each of the four
+  frozen cutoffs `{10240, 15360, 20480, 25600}`
+- run the intrinsic + fertility metric bundle on each merged variant
+  across the four held-out evaluation slices (primary:
+  `modern_greek_eval`)
+- pick the cutoff at the elbow → freeze the shipped vocab size
+- once frozen, hand off to `subprojects/02_2_tokenizer_implementation`
+  for the merge-rule extension and then
+  `subprojects/03_apertus_extension_and_embedding_adaptation` for the
+  embedding + `lm_head` adaptation and CPT
+- a pre-extension diagnostic of how Apertus already represents Greek
+  on its E + U matrices is complete under
+  `subprojects/03_apertus_extension_and_embedding_adaptation/03_1_greek_embedding_diagnostic/`
+  (Greek-vs-¬Greek geometry, hull occupancy, binary classifier,
+  morphological clustering, cross-language semantic baseline); the
+  init-method LOO benchmark that was started under the v4 plan was
+  found methodologically flawed and is archived
 
 ## What Is Settled
 
@@ -16,13 +33,15 @@ Parallel execution:
 - `openarchives.gr` rows with `needs_ocr == true` must stay excluded from the CPT-ready dataset used for tokenizer work
 - HPLT is being prepared for the upstream HF corpus dataset, not as a separate tokenizer-only corpus
 - the downstream CPT/tokenizer builder is expected to stay lightweight after HF download
-- the first discovery tokenizer runs are locked to `50k` vocab
-- the mixed `GlossAPI + HPLT` tokenizer view is locked to `70/30` by training-token mass
-- the tokenizer experiment plan now explicitly includes four comparison arms:
-  - fresh discovery `BPE` on `GlossAPI-only`
-  - fresh discovery `BPE` on `GlossAPI + HPLT`
-  - continuous `BPE` from Apertus on `GlossAPI-only`
-  - continuous `BPE` from Apertus on `GlossAPI + HPLT`
+- the converged tokenizer arm is **C3** — continuous BPE from Apertus
+  on `GlossAPI + HPLT` at `50 / 50` by training-token mass, trained on
+  the wave-2 broad cleaner output, base `131072` + added `25600` =
+  total `156672`
+- the four-arm exploration (`F1`, `F2`, `C1`, `C2`) is closed; those
+  arms are retained as analyzed baselines only
+- the cutoff grid on C3's added units is frozen at
+  `{10240, 15360, 20480, 25600}`; the shipped cutoff is the only open
+  tokenizer-side decision
 - local tokenizer progress does not need to wait for the HF upload to finish once the filtered HPLT parquet slice exists locally
 - final HF publication should happen from a separate cheap uploader instance using the official large-folder HF upload path
 - the workspace has now been split into smaller subprojects
@@ -70,7 +89,7 @@ Parallel execution:
   - the active remaining bottleneck is tokenizer mix build under `/home/foivos/data/glossapi_work/tokenizer_mixes_20260413`
 - the recovery and repair plans are now tracked explicitly in:
   - [PIPELINE_RECOVERY_AND_SCALE_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_RECOVERY_AND_SCALE_PLAN.md)
-  - [DEDUP_SCRIPT_REPAIR_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)
+  - [DEDUP_SCRIPT_REPAIR_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/_archive/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)
 - the repair plans now explicitly treat semantic equivalence as the golden rule:
   - same dedup functionality
   - improved efficiency only

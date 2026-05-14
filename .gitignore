@@ -12,8 +12,15 @@ artifacts/
 outputs/
 tmp/
 **/target/
+**/__pycache__/
 subprojects/**/runs/
+subprojects/**/artifacts/
+subprojects/**/outputs/
+subprojects/**/staging/
+subprojects/**/data/
+subprojects/02_2_tokenizer_implementation/vocab_lang_attribution/analysis/greek_review/app/data.json
 subprojects/01_0_cleaning_iteration_and_thresholds/rust/glyphscan/
+legacy/corpus_clean_normalization/runs/
 corpus_clean_normalization/runs/
 tokenizer_analysis/inspection/
 tokenizer_analysis/hf_snapshots/
@@ -22,6 +29,8 @@ tokenizer_analysis/__pycache__/
 *.log
 *.jsonl
 *.parquet
+*.npy
+*.npz
 *.zst
 *.tar.gz
 

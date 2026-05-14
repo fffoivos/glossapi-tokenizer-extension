@@ -3839,6 +3839,180 @@ def _annotate_builder_families(
     return enriched, shared_family_count
 
 
+def _annotate_builder_families_from_membership_fast(
+    *,
+    enriched: pd.DataFrame,
+    family_membership: pd.DataFrame,
+    dedup_inter_dataset_policy: str,
+    source_weights: Mapping[str, float],
+    dedup_similarity_threshold: float,
+    candidate_score_floor: float,
+) -> tuple[pd.DataFrame, int]:
+    """Annotate builder families without materializing every retained row as a dict.
+
+    The builder metadata v2 family-membership file already contains one row per
+    source document. Most families are singletons, so the old all-row
+    ``to_dict("records")`` path was paying Python-object cost for tens of
+    millions of rows that only need vectorized defaults. We keep the original
+    representative selection semantics for non-singleton families and only
+    materialize those rows.
+    """
+
+    if enriched.empty:
+        return enriched.copy(), 0
+
+    membership_cols = [
+        "doc_key",
+        "family_id",
+        "family_size",
+        "family_source_count",
+        "family_mixed_source",
+        "canonical_kept_doc_key",
+    ]
+    available_membership_cols = [column for column in membership_cols if column in family_membership.columns]
+    membership = family_membership[available_membership_cols].copy()
+    membership["doc_key"] = membership["doc_key"].astype(str)
+    enriched = enriched.merge(membership, on="doc_key", how="left", sort=False)
+
+    enriched["family_id"] = enriched["family_id"].where(
+        enriched["family_id"].notna() & (enriched["family_id"].astype(str) != ""),
+        enriched["doc_key"],
+    )
+    enriched["family_id"] = enriched["family_id"].astype(str)
+    enriched["family_size"] = enriched["family_size"].fillna(1).astype("int64")
+    enriched["family_source_count"] = enriched["family_source_count"].fillna(1).astype("int64")
+    enriched["family_mixed_source"] = enriched["family_mixed_source"].fillna(False).astype(bool)
+
+    enriched["dedup_family_id"] = enriched["family_id"]
+    enriched["dedup_family_size"] = enriched["family_size"]
+    enriched["dedup_pool_source_count"] = enriched["family_source_count"]
+    enriched["dedup_is_shared_pool"] = enriched["family_source_count"] > 1
+    enriched["dedup_pool_key"] = "unique:" + enriched["source_dataset"].astype(str)
+    enriched["dedup_representative_doc_key"] = enriched["canonical_kept_doc_key"].where(
+        enriched["canonical_kept_doc_key"].notna() & (enriched["canonical_kept_doc_key"].astype(str) != ""),
+        enriched["doc_key"],
+    )
+    enriched["dedup_representative_doc_key"] = enriched["dedup_representative_doc_key"].astype(str)
+    enriched["dedup_similarity_threshold"] = float(dedup_similarity_threshold)
+    enriched["dedup_candidate_score_floor"] = float(candidate_score_floor)
+
+    non_singleton_mask = enriched["family_size"] > 1
+    shared_family_count = int(enriched.loc[enriched["family_source_count"] > 1, "family_id"].nunique())
+
+    if non_singleton_mask.any():
+        non_singleton_family_ids = set(enriched.loc[non_singleton_mask, "family_id"].astype(str))
+        non_singleton_docs = set(enriched.loc[non_singleton_mask, "doc_key"].astype(str))
+        membership_non_singleton = family_membership[
+            family_membership["family_id"].astype(str).isin(non_singleton_family_ids)
+            & family_membership["doc_key"].astype(str).isin(non_singleton_docs)
+        ][["family_id", "doc_key"]].copy()
+        membership_non_singleton["family_id"] = membership_non_singleton["family_id"].astype(str)
+        membership_non_singleton["doc_key"] = membership_non_singleton["doc_key"].astype(str)
+
+        needed_columns = [
+            "doc_key",
+            "source_dataset",
+            "source_doc_id",
+            "chars",
+            "dedup_needs_ocr",
+            "dedup_ocr_success",
+            "dedup_greek_badness_score",
+            "dedup_mojibake_badness_score",
+            "dedup_has_title",
+            "dedup_has_author",
+            "dedup_representative_score",
+            "dedup_text_length_for_selection",
+            "needs_ocr",
+            "ocr_success",
+            "greek_badness_score",
+            "mojibake_badness_score",
+            "title",
+            "author",
+        ]
+        compact_columns = [column for column in needed_columns if column in enriched.columns]
+        compact = enriched.loc[non_singleton_mask, compact_columns].copy()
+        rows_by_doc_key = {str(row["doc_key"]): row for row in compact.to_dict("records")}
+
+        representative_by_family: dict[str, str] = {}
+        stable_family_id_by_family: dict[str, str] = {}
+        pool_key_by_family: dict[str, str] = {}
+        families_by_pool: dict[str, list[tuple[str, str, list[str], list[str]]]] = defaultdict(list)
+
+        for family_id, member_frame in membership_non_singleton.groupby("family_id", sort=True):
+            member_doc_keys = sorted({str(doc_key) for doc_key in member_frame["doc_key"] if str(doc_key) in rows_by_doc_key})
+            if not member_doc_keys:
+                continue
+            source_datasets = sorted({str(rows_by_doc_key[doc_key]["source_dataset"]) for doc_key in member_doc_keys})
+            stable_family_id = stable_doc_key("family", "\0".join(member_doc_keys))
+            pool_key = f"unique:{source_datasets[0]}" if len(source_datasets) == 1 else f"shared:{'+'.join(source_datasets)}"
+            stable_family_id_by_family[family_id] = stable_family_id
+            pool_key_by_family[family_id] = pool_key
+            if len(source_datasets) == 1 or dedup_inter_dataset_policy == "quality_first":
+                representative_by_family[family_id] = select_best_doc_key(member_doc_keys, rows_by_doc_key)
+            else:
+                families_by_pool[pool_key].append((stable_family_id, family_id, member_doc_keys, source_datasets))
+
+        if dedup_inter_dataset_policy == "share_aware":
+            for pool_key, pool_families in sorted(families_by_pool.items()):
+                del pool_key
+                pool_datasets = sorted({dataset for _, _, _, source_datasets in pool_families for dataset in source_datasets})
+                if source_weights:
+                    pool_weights = {dataset: float(source_weights.get(dataset, 1.0)) for dataset in pool_datasets}
+                else:
+                    pool_weights = {dataset: 1.0 for dataset in pool_datasets}
+                pool_chars: dict[str, int] = defaultdict(int)
+                for _, family_id, member_doc_keys, _ in sorted(pool_families, key=lambda item: item[0]):
+                    candidates_by_dataset: dict[str, list[str]] = defaultdict(list)
+                    for doc_key in member_doc_keys:
+                        candidates_by_dataset[str(rows_by_doc_key[doc_key]["source_dataset"])].append(doc_key)
+                    best_doc_key_by_dataset = {
+                        dataset: select_best_doc_key(dataset_doc_keys, rows_by_doc_key)
+                        for dataset, dataset_doc_keys in candidates_by_dataset.items()
+                    }
+                    chosen_dataset = min(
+                        sorted(best_doc_key_by_dataset),
+                        key=lambda dataset: (
+                            (pool_chars[dataset] + dedup_mass_chars(rows_by_doc_key[best_doc_key_by_dataset[dataset]]))
+                            / pool_weights[dataset],
+                            pool_chars[dataset] / pool_weights[dataset],
+                            dataset,
+                        ),
+                    )
+                    representative_doc_key = best_doc_key_by_dataset[chosen_dataset]
+                    representative_by_family[family_id] = representative_doc_key
+                    pool_chars[chosen_dataset] += dedup_mass_chars(rows_by_doc_key[representative_doc_key])
+
+        if stable_family_id_by_family:
+            mapped_family_id = enriched.loc[non_singleton_mask, "family_id"].map(stable_family_id_by_family)
+            enriched.loc[non_singleton_mask, "dedup_family_id"] = mapped_family_id.fillna(
+                enriched.loc[non_singleton_mask, "dedup_family_id"]
+            )
+        if pool_key_by_family:
+            mapped_pool_key = enriched.loc[non_singleton_mask, "family_id"].map(pool_key_by_family)
+            enriched.loc[non_singleton_mask, "dedup_pool_key"] = mapped_pool_key.fillna(
+                enriched.loc[non_singleton_mask, "dedup_pool_key"]
+            )
+        if representative_by_family:
+            mapped_representative = enriched.loc[non_singleton_mask, "family_id"].map(representative_by_family)
+            enriched.loc[non_singleton_mask, "dedup_representative_doc_key"] = mapped_representative.fillna(
+                enriched.loc[non_singleton_mask, "dedup_representative_doc_key"]
+            )
+
+    enriched["dedup_family_role"] = "member"
+    enriched.loc[enriched["doc_key"].astype(str) == enriched["dedup_representative_doc_key"].astype(str), "dedup_family_role"] = "representative"
+
+    return enriched.drop(
+        columns=[
+            "family_id",
+            "family_size",
+            "family_source_count",
+            "family_mixed_source",
+            "canonical_kept_doc_key",
+        ],
+        errors="ignore",
+    ), shared_family_count
+
+
 def apply_builder_dedup(
     frame: pd.DataFrame,
     *,
@@ -3863,20 +4037,36 @@ def apply_builder_dedup(
     enriched = frame.copy()
     if "doc_key" in enriched.columns and not enriched["doc_key"].isna().any():
         enriched["doc_key"] = enriched["doc_key"].astype(str)
+        doc_columns = [column for column in doc_metadata.columns if column not in {"doc_key", "source_dataset", "source_doc_id"}]
+        enriched = enriched.merge(
+            doc_metadata.rename(columns={column: f"dedup_{column}" for column in doc_columns}),
+            on=["doc_key", "source_dataset", "source_doc_id"],
+            how="left",
+        )
     else:
-        enriched["doc_key"] = [
-            stable_doc_key(str(source_dataset), str(source_doc_id))
-            for source_dataset, source_doc_id in zip(enriched["source_dataset"], enriched["source_doc_id"], strict=True)
-        ]
-    doc_columns = [column for column in doc_metadata.columns if column not in {"doc_key", "source_dataset", "source_doc_id"}]
-    enriched = enriched.merge(
-        doc_metadata.rename(columns={column: f"dedup_{column}" for column in doc_columns}),
-        on=["doc_key", "source_dataset", "source_doc_id"],
-        how="left",
-    )
-    doc_keys_in_frame = set(enriched["doc_key"].astype(str))
+        # The builder input normally carries source ids but not doc_key. The
+        # dedup bundle already has doc_key for every source id, so join it in
+        # directly instead of hashing tens of millions of ids in Python.
+        doc_columns = [column for column in doc_metadata.columns if column not in {"source_dataset", "source_doc_id"}]
+        enriched = enriched.merge(
+            doc_metadata.rename(columns={column: f"dedup_{column}" for column in doc_columns if column != "doc_key"}),
+            on=["source_dataset", "source_doc_id"],
+            how="left",
+        )
+        if "doc_key" not in enriched.columns:
+            raise KeyError("dedup metadata merge did not provide doc_key")
+        missing_doc_key = enriched["doc_key"].isna()
+        if missing_doc_key.any():
+            enriched.loc[missing_doc_key, "doc_key"] = [
+                stable_doc_key(str(source_dataset), str(source_doc_id))
+                for source_dataset, source_doc_id in zip(
+                    enriched.loc[missing_doc_key, "source_dataset"],
+                    enriched.loc[missing_doc_key, "source_doc_id"],
+                    strict=True,
+                )
+            ]
+        enriched["doc_key"] = enriched["doc_key"].astype(str)
     same_source_only = dedup_action == "drop_intra"
-    rows_by_doc_key = {str(row["doc_key"]): row for row in enriched.to_dict("records")}
     requested_exact_stage = str(manifest.get("builder_exact_stage", dedup_exact_stage))
     requested_threshold = float(manifest.get("builder_default_threshold", candidate_score_floor))
     use_family_membership = (
@@ -3884,6 +4074,34 @@ def apply_builder_dedup(
         and requested_exact_stage == dedup_exact_stage
         and abs(requested_threshold - float(dedup_similarity_threshold)) < 1e-9
     )
+    if use_family_membership and not same_source_only:
+        enriched, shared_family_count = _annotate_builder_families_from_membership_fast(
+            enriched=enriched,
+            family_membership=family_membership,
+            dedup_inter_dataset_policy=dedup_inter_dataset_policy,
+            source_weights=source_weights,
+            dedup_similarity_threshold=float(dedup_similarity_threshold),
+            candidate_score_floor=float(candidate_score_floor),
+        )
+        rows_before = len(enriched)
+        if dedup_action in {"drop_intra", "drop_intra_and_inter"}:
+            enriched = enriched[enriched["doc_key"] == enriched["dedup_representative_doc_key"]].copy()
+        enriched = enriched.reset_index(drop=True)
+        return enriched, {
+            "dedup_action": dedup_action,
+            "dedup_exact_stage": dedup_exact_stage,
+            "dedup_similarity_threshold": float(dedup_similarity_threshold),
+            "dedup_inter_dataset_policy": dedup_inter_dataset_policy,
+            "rows_before": int(rows_before),
+            "rows_after": int(len(enriched)),
+            "family_count": int(family_membership["family_id"].nunique()),
+            "shared_family_count": int(shared_family_count),
+            "bundle_root": str(dedup_metadata_root),
+            "bundle_replay_mode": "family_membership",
+        }
+
+    doc_keys_in_frame = set(enriched["doc_key"].astype(str))
+    rows_by_doc_key = {str(row["doc_key"]): row for row in enriched.to_dict("records")}
     if use_family_membership:
         family_groups = _family_groups_from_membership(
             family_membership=family_membership,

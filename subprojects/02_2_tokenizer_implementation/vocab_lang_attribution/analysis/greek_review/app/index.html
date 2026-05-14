@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greek tokens — interactive frequency explorer</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<link href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator_simple.min.css" rel="stylesheet">
+<script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #666;
+    --line: #d8d8d8;
+    --panel: #f6f6f4;
+    --greek: #a82020;
+    --structural: #456f8a;
+    --digit: #c79a3b;
+    --ws: #8a8a8a;
+    --latin: #3a7a4a;
+    --byte_frag: #8a5430;
+    --special: #a04a72;
+    --other: #888;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    align-items: baseline;
+  }
+  header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+  header .meta { color: var(--muted); font-size: 13px; }
+  .stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding: 14px 24px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .stats .item { }
+  .stats .item .lbl { color: var(--muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.04em; }
+  .stats .item .val { font-weight: 600; font-variant-numeric: tabular-nums; font-size: 15px; }
+  main { padding: 16px 24px 40px; }
+  section { margin-bottom: 28px; }
+  section h2 { font-size: 14px; font-weight: 600; margin: 0 0 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  #chart { height: 520px; border: 1px solid var(--line); }
+  .controls {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .controls label { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; user-select: none; }
+  .controls label .swatch { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 3px; }
+  .controls input[type="search"] {
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    min-width: 220px;
+  }
+  .controls .count-info { color: var(--muted); font-variant-numeric: tabular-nums; }
+  #table { font-size: 13px; }
+  .tabulator { border: 1px solid var(--line); border-radius: 0; }
+  .tabulator .tabulator-header { background: #f0f0ec; }
+  .tabulator .tabulator-row:hover { background: #f5f1e6; }
+  .tabulator-cell.cat-cell {
+    font-family: ui-monospace, monospace; font-size: 11px;
+  }
+  .tabulator-cell.dec-cell {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px;
+    color: #b03020;
+  }
+  .tabulator-cell.num { font-variant-numeric: tabular-nums; }
+  .badge {
+    display: inline-block; padding: 1px 6px; border-radius: 2px;
+    font-size: 10px; letter-spacing: 0.03em;
+  }
+  .b-greek { background: #f8e2e0; color: #861818; }
+  .b-structural { background: #e2eaf3; color: #2a4a64; }
+  .b-digit { background: #f5ead2; color: #6a4e1a; }
+  .b-ws { background: #ececec; color: #555; }
+  .b-latin { background: #e2efe5; color: #225a30; }
+  .b-byte_frag { background: #f0e0d4; color: #5e3618; }
+  .b-special { background: #f0dcea; color: #6c2a48; }
+  .b-other { background: #ececec; color: #555; }
+  .loading {
+    padding: 60px; text-align: center; color: var(--muted);
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Greek tokens — interactive frequency explorer</h1>
+  <span class="meta">
+    sample = <code>ell_Grek</code> · FineWeb2-HQ ·
+    1 B Apertus-tokenized tokens · 131 072-vocab Apertus-8B-2509
+  </span>
+</header>
+
+<div class="stats" id="statbar">
+  <div class="loading">loading data.json …</div>
+</div>
+
+<main>
+  <section>
+    <h2>Frequency · all firing tokens · log–log · hover for the token, drag to zoom</h2>
+    <div id="chart"><div class="loading">building chart …</div></div>
+  </section>
+
+  <section>
+    <h2>Filter</h2>
+    <div class="controls">
+      <span id="cat-toggles"></span>
+      <input id="search" type="search" placeholder="search decoded token (case-insensitive)">
+      <span class="count-info" id="filtered-count"></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>All firing tokens · sortable · scrollable · filtered by controls above</h2>
+    <div id="table"><div class="loading">building table …</div></div>
+  </section>
+</main>
+
+<script>
+"use strict";
+
+const CAT_COLORS = {
+  greek:      "#a82020",
+  structural: "#456f8a",
+  digit:      "#c79a3b",
+  ws:         "#8a8a8a",
+  latin:      "#3a7a4a",
+  byte_frag:  "#8a5430",
+  special:    "#a04a72",
+  other:      "#888888",
+};
+const CAT_ORDER = ["greek", "structural", "digit", "latin", "ws", "byte_frag", "special", "other"];
+
+function fmtInt(x) { return x.toLocaleString("en-US"); }
+function safeDecoded(s) {
+  return s.replaceAll("\n", "↵").replaceAll("\t", "→").replaceAll("\r", "␍");
+}
+
+(async () => {
+  const resp = await fetch("data.json");
+  const j = await resp.json();
+  const tokens = j.tokens;
+  const sum = j.summary;
+
+  // --- Stat bar ---
+  const sb = document.getElementById("statbar");
+  sb.innerHTML = `
+    <div class="item"><div class="lbl">total greek-sample tokens</div><div class="val">${fmtInt(sum.total_greek_tokens)}</div></div>
+    <div class="item"><div class="lbl">vocab entries fired</div><div class="val">${fmtInt(sum.tokens_fired)} / ${fmtInt(sum.vocab_size)}</div></div>
+    <div class="item"><div class="lbl">greek-script fired</div><div class="val">${fmtInt(sum.greek_script_fired)} / ${fmtInt(sum.greek_script_total)}</div></div>
+    <div class="item"><div class="lbl">non-greek-script fired</div><div class="val">${fmtInt(sum.non_greek_script_fired)}</div></div>
+    <div class="item"><div class="lbl">greek-mass in greek-script</div><div class="val">${(100 * sum.greek_mass_in_greek_script / sum.total_greek_tokens).toFixed(2)}%</div></div>
+  `;
+
+  // --- Plotly chart: one trace per category for legend filtering ---
+  const traces = CAT_ORDER.map(cat => {
+    const inCat = tokens.filter(t => t.cat === cat);
+    return {
+      x: inCat.map(t => t.r),
+      y: inCat.map(t => t.c),
+      mode: "markers",
+      type: "scattergl",
+      name: `${cat} · ${fmtInt(inCat.length)}`,
+      text: inCat.map(t => safeDecoded(t.d)),
+      customdata: inCat.map(t => [t.i, t.cat, t.gs]),
+      hovertemplate: "<b>rank %{x}</b><br>" +
+                     "token: <b>%{text}</b><br>" +
+                     "count: %{y:,}<br>" +
+                     "id: %{customdata[0]}<br>" +
+                     "category: %{customdata[1]}" +
+                     "<extra></extra>",
+      marker: {
+        size: cat === "greek" ? 5 : 4,
+        color: CAT_COLORS[cat],
+        opacity: cat === "greek" ? 0.85 : 0.55,
+      },
+    };
+  });
+  Plotly.newPlot("chart", traces, {
+    margin: {l: 60, r: 20, t: 10, b: 50},
+    xaxis: {type: "log", title: "rank by count in Greek sample", gridcolor: "#eee"},
+    yaxis: {type: "log", title: "count in Greek sample", gridcolor: "#eee"},
+    legend: {orientation: "h", y: -0.17, font: {size: 11}},
+    hovermode: "closest",
+    paper_bgcolor: "white",
+    plot_bgcolor: "white",
+    dragmode: "zoom",
+  }, {responsive: true, displaylogo: false, modeBarButtonsToRemove: ["lasso2d", "select2d"]});
+
+  // --- Filter controls ---
+  const togglesEl = document.getElementById("cat-toggles");
+  togglesEl.innerHTML = CAT_ORDER.map(cat => {
+    const n = sum.category_counts[cat] || 0;
+    return `<label><input type="checkbox" data-cat="${cat}" checked>
+              <span class="swatch" style="background: ${CAT_COLORS[cat]}"></span>${cat}
+              <span style="color:#888">(${fmtInt(n)})</span></label>`;
+  }).join("");
+
+  const searchEl = document.getElementById("search");
+  const countEl = document.getElementById("filtered-count");
+
+  // --- Tabulator table ---
+  const table = new Tabulator("#table", {
+    data: tokens,
+    height: "640px",
+    layout: "fitColumns",
+    placeholder: "no rows match",
+    rowHeight: 28,
+    columns: [
+      {title: "rank", field: "r", width: 90, sorter: "number", cssClass: "num",
+       hozAlign: "right", headerSortStartingDir: "asc"},
+      {title: "id",   field: "i", width: 90, sorter: "number", cssClass: "num", hozAlign: "right"},
+      {title: "decoded", field: "d", widthGrow: 2,
+       formatter: cell => `<span class="dec-cell">${safeDecoded(cell.getValue()).replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</span>`,
+      },
+      {title: "count", field: "c", width: 150, sorter: "number", cssClass: "num", hozAlign: "right",
+       formatter: cell => fmtInt(cell.getValue())},
+      {title: "share %", field: "c", width: 100, sorter: "number", cssClass: "num", hozAlign: "right",
+       formatter: cell => (100 * cell.getValue() / sum.total_greek_tokens).toFixed(4),
+       headerSort: false,
+      },
+      {title: "category", field: "cat", width: 140,
+       formatter: cell => {
+         const v = cell.getValue();
+         return `<span class="badge b-${v}">${v}</span>`;
+       },
+       headerFilter: "list",
+       headerFilterParams: {values: ["", ...CAT_ORDER]},
+      },
+      {title: "Greek-script", field: "gs", width: 110, formatter: "tickCross",
+       hozAlign: "center", headerSort: true,
+       headerFilter: "list", headerFilterParams: {values: {"": "any", "true": "yes", "false": "no"}}},
+    ],
+    initialSort: [{column: "r", dir: "asc"}],
+  });
+
+  function applyFilters() {
+    const checked = new Set(Array.from(togglesEl.querySelectorAll("input")).filter(x => x.checked).map(x => x.dataset.cat));
+    const search = (searchEl.value || "").toLowerCase();
+    const filt = tokens.filter(t => {
+      if (!checked.has(t.cat)) return false;
+      if (search && !t.d.toLowerCase().includes(search)) return false;
+      return true;
+    });
+    countEl.textContent = `${fmtInt(filt.length)} of ${fmtInt(tokens.length)} tokens shown`;
+
+    // Update chart: visibility per trace based on checked categories; for search use a separate trace? Simpler: rebuild traces filtered.
+    const newTraces = CAT_ORDER.map(cat => {
+      if (!checked.has(cat)) return null;
+      const inCat = filt.filter(t => t.cat === cat);
+      if (inCat.length === 0) return null;
+      return {
+        x: inCat.map(t => t.r),
+        y: inCat.map(t => t.c),
+        mode: "markers",
+        type: "scattergl",
+        name: `${cat} · ${fmtInt(inCat.length)}`,
+        text: inCat.map(t => safeDecoded(t.d)),
+        customdata: inCat.map(t => [t.i, t.cat, t.gs]),
+        hovertemplate: "<b>rank %{x}</b><br>token: <b>%{text}</b><br>count: %{y:,}<br>id: %{customdata[0]}<br>category: %{customdata[1]}<extra></extra>",
+        marker: {size: cat === "greek" ? 5 : 4, color: CAT_COLORS[cat], opacity: cat === "greek" ? 0.85 : 0.55},
+      };
+    }).filter(Boolean);
+    Plotly.react("chart", newTraces, document.getElementById("chart").layout);
+
+    // Update table
+    table.replaceData(filt);
+  }
+
+  togglesEl.addEventListener("change", applyFilters);
+  searchEl.addEventListener("input", () => {
+    clearTimeout(window.__searchTimer);
+    window.__searchTimer = setTimeout(applyFilters, 200);
+  });
+
+  countEl.textContent = `${fmtInt(tokens.length)} of ${fmtInt(tokens.length)} tokens shown`;
+})();
+</script>
+
+</body>
+</html>

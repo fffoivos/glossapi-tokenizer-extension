@@ -1,5 +1,16 @@
 # Continuous BPE Extension TODO
 
+> **Archived framing — superseded by C3 convergence.** The four-arm
+> exploration (`F1`/`F2`/`C1`/`C2`) is closed and the chosen arm is
+> **C3** (`C3_wave2_broad_glossapi_plus_hplt_50_50`); see
+> [../../docs/C3_CONVERGENCE.md](../../docs/C3_CONVERGENCE.md).
+>
+> Sections §1, §6 (merged variants), §7 (evaluation), §10
+> (acceptance) remain live, applied to **C3 only** instead of to the
+> four-arm matrix. Sections §2–§5 and §8 (per-arm execution,
+> publication of the four arms) are done and should not drive new
+> work.
+
 ## 1. Freeze Target Numbers
 
 - [x] 1.1 Confirm Apertus base tokenizer size

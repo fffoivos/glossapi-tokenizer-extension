@@ -1,0 +1,26 @@
+[
+  {
+    "category": "glyph_font_like",
+    "pattern_family": "fresh_glossapi_only_glyph_font_like",
+    "match_kind": "literal_set",
+    "literals_path": "../../tokenizer_analysis/inspection/non_greek/fresh/glossapi_only/categories/glyph_font_like_decoded.json"
+  },
+  {
+    "category": "control_private_use_replacement",
+    "pattern_family": "fresh_glossapi_only_control_private_use_replacement",
+    "match_kind": "literal_set",
+    "literals_path": "../../tokenizer_analysis/inspection/non_greek/fresh/glossapi_only/categories/control_private_use_replacement_decoded.json"
+  },
+  {
+    "category": "short_nonascii_latin_like",
+    "pattern_family": "fresh_glossapi_only_short_nonascii_latin_like",
+    "match_kind": "literal_set",
+    "literals_path": "../../tokenizer_analysis/inspection/non_greek/fresh/glossapi_only/categories/short_nonascii_latin_like_decoded.json"
+  },
+  {
+    "category": "dot_leader_like",
+    "pattern_family": "dot_run_ge4",
+    "match_kind": "regex",
+    "pattern": "(?:[.…][ \\t\\u00A0]*){4,}"
+  }
+]

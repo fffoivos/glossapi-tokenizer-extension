@@ -1,0 +1,68 @@
+{
+  "ell_Grek_sample_total_tokens": 1002997071,
+  "vocab_total": 131072,
+  "vocab_entries_with_greek_codepoint": 1507,
+  "greek_script_mono_only": 1507,
+  "greek_script_poly_any": 0,
+  "vocab_entries_fired_in_greek_sample": 100014,
+  "vocab_entries_fired_geq_10": 61850,
+  "vocab_entries_fired_geq_100": 26726,
+  "vocab_entries_fired_geq_1000": 5956,
+  "greek_mass_from_greek_script_tokens": 888234798,
+  "greek_mass_from_greek_script_pct": 88.55806499159756,
+  "greek_script_tokens_that_fired": 1504,
+  "greek_script_tokens_zero_count": 3,
+  "non_greek_script_tokens_that_fired": 98510,
+  "script_buckets": {
+    "Greek-script (poly+mono)": {
+      "tokens": 1507,
+      "mass": 888234798,
+      "share_pct": 88.55806499159756
+    },
+    "Cyrillic": {
+      "tokens": 7686,
+      "mass": 119115,
+      "share_pct": 0.011875907063341764
+    },
+    "Han / CJK": {
+      "tokens": 3765,
+      "mass": 19067,
+      "share_pct": 0.001901002560355433
+    },
+    "Latin letters": {
+      "tokens": 89306,
+      "mass": 23725375,
+      "share_pct": 2.3654480841450036
+    },
+    "Digits-only": {
+      "tokens": 92,
+      "mass": 18745600,
+      "share_pct": 1.868958598384581
+    },
+    "Whitespace-only": {
+      "tokens": 128,
+      "mass": 2538241,
+      "share_pct": 0.253065644296383
+    },
+    "Structural (P/S/Z only)": {
+      "tokens": 3634,
+      "mass": 52820260,
+      "share_pct": 5.266242696734655
+    },
+    "Special tokens": {
+      "tokens": 0,
+      "mass": 0,
+      "share_pct": 0.0
+    },
+    "Byte fragments": {
+      "tokens": 408,
+      "mass": 442,
+      "share_pct": 4.4067925299056035e-05
+    },
+    "Other": {
+      "tokens": 24546,
+      "mass": 16794173,
+      "share_pct": 1.6743990072928139
+    }
+  }
+}

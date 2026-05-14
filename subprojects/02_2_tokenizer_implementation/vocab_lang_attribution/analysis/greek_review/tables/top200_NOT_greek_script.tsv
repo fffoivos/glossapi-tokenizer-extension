@@ -1,0 +1,222 @@
+rank	token_id	decoded	greek_count	share_of_greek_mass_pct	is_latin	is_cyrillic	is_han	is_structural	is_digit	is_ws	is_special	is_byte_fragment
+1	1044	,	20366551	2.0305693395190385	false	false	false	true	false	false	false	false
+2	1046	.	12087394	1.2051275471770546	false	false	false	true	false	false	false	false
+3	1032	""	7033169	0.7012153079358294	false	false	false	false	false	false	false	false
+4	1626	".
+"	6945213	0.6924459902036942	false	false	false	false	false	false	false	false
+5	1048	0	3831574	0.38201248147014777	false	false	false	false	true	false	false	false
+6	1049	1	3830602	0.3819155719149652	false	false	false	false	true	false	false	false
+7	1045	-	2944031	0.29352338956132407	false	false	false	true	false	false	false	false
+8	1050	2	2882062	0.28734500661368334	false	false	false	false	true	false	false	false
+9	1010	"
+"	2520858	0.2513325385373932	false	false	false	false	false	true	false	false
+10	1319	(	1775833	0.17705266060542663	false	false	false	true	false	false	false	false
+11	1057	9	1481081	0.14766553590464074	false	false	false	false	true	false	false	false
+12	1051	3	1385232	0.13810927669199544	false	false	false	false	true	false	false	false
+13	1053	5	1370452	0.13663569312656548	false	false	false	false	true	false	false	false
+14	1058	:	1293574	0.1289708651601835	false	false	false	true	false	false	false	false
+15	1052	4	1166873	0.1163386248811887	false	false	false	false	true	false	false	false
+16	1947	«	1097936	0.10946552405236286	false	false	false	true	false	false	false	false
+17	1056	8	986971	0.09840218167496523	false	false	false	false	true	false	false	false
+18	1054	6	931008	0.09282260406521167	false	false	false	false	true	false	false	false
+19	1206	�	927670	0.09248980149813418	false	false	false	true	false	false	false	true
+20	1055	7	875168	0.08725528970163862	false	false	false	false	true	false	false	false
+21	1041	)	873152	0.08705429210570446	false	false	false	true	false	false	false	false
+22	1462	-	788934	0.07865765741603048	false	false	false	true	false	false	false	false
+23	1992	»	554918	0.05532598409751488	false	false	false	true	false	false	false	false
+24	1429	""""	534392	0.05327951750319718	false	false	false	true	false	false	false	false
+25	1877	":
+"	529393	0.05278111126208862	false	false	false	false	false	false	false	false
+26	1059	;	357917	0.03568475026982407	false	false	false	true	false	false	false	false
+27	1365	";
+"	347912	0.03468723987928774	false	false	false	false	false	false	false	false
+28	1034	""""	340623	0.033960517916607154	false	false	false	true	false	false	false	false
+29	1047	/	321831	0.03208693318307806	false	false	false	true	false	false	false	false
+30	6182	»,	317544	0.0316595141881526	false	false	false	true	false	false	false	false
+31	1574	),	315309	0.031436682031945835	false	false	false	true	false	false	false	false
+32	1161	�	292458	0.029158410174460022	false	false	false	true	false	false	false	true
+33	1583	�	281096	0.028025605271184285	false	false	false	true	false	false	false	true
+34	1037	%	264567	0.026377644327138818	false	false	false	true	false	false	false	false
+35	1775	–	249285	0.024854010765102224	false	false	false	true	false	false	false	false
+36	1140	�	243082	0.024235564293088548	false	false	false	true	false	false	false	true
+37	1577	).	239653	0.023893688917861255	false	false	false	true	false	false	false	false
+38	3443	«	233353	0.02326557143056702	false	false	false	true	false	false	false	false
+39	1471	’	229165	0.02284802285329904	false	false	false	true	false	false	false	false
+40	2129	“	227173	0.02264941808588791	false	false	false	true	false	false	false	false
+41	4342	").
+"	227126	0.022644732130030317	false	false	false	false	false	false	false	false
+42	1033	!	198208	0.01976157316216131	false	false	false	true	false	false	false	false
+43	1039	'	190134	0.01895658576654009	false	false	false	true	false	false	false	false
+44	21090	"».
+"	185920	0.018536444958372165	false	false	false	false	false	false	false	false
+45	59377	�	183920	0.018337042581453362	false	false	false	true	false	false	false	true
+46	1152	�	168738	0.016823379138262706	false	false	false	true	false	false	false	true
+47	1278	the	158354	0.01578808199730027	true	false	false	false	false	false	false	false
+48	11330	"!
+"	154997	0.015453385107642053	false	false	false	false	false	false	false	false
+49	6460	».	146977	0.014653781576197645	false	false	false	true	false	false	false	false
+50	1137	�	146700	0.014626164346994389	false	false	false	true	false	false	false	true
+51	1307	of	143922	0.014349194445454167	true	false	false	false	false	false	false	false
+52	39653	"..
+"	139620	0.013920279932701818	false	false	false	false	false	false	false	false
+53	43637	µ	136135	0.013572821290920798	false	false	false	false	false	false	false	false
+54	1576	'	134582	0.013417985345243346	false	false	false	true	false	false	false	false
+55	1158	�	131144	0.013075212659319919	false	false	false	true	false	false	false	true
+56	1456	")
+"	130109	0.012972021929264438	false	false	false	false	false	false	false	false
+57	1414	”	123313	0.012294452652494335	false	false	false	true	false	false	false	false
+58	1987	/	119154	0.01187979540969168	false	false	false	true	false	false	false	false
+59	1897	""","	109093	0.010876701752601628	false	false	false	true	false	false	false	false
+60	3897	,	105895	0.010557857351908458	false	false	false	true	false	false	false	false
+61	114036	�	104921	0.010460748394349	false	false	false	true	false	false	false	true
+62	30540	||	97583	0.009729141073433903	false	false	false	true	false	false	false	false
+63	105726	�	94045	0.009376398268664536	false	false	false	true	false	false	false	true
+64	1321	and	93218	0.009293945385808609	true	false	false	false	false	false	false	false
+65	1359	C	90879	0.009060744306002066	true	false	false	false	false	false	false	false
+66	1207	�	90184	0.008991451980022781	false	false	false	true	false	false	false	true
+67	1139	�	88973	0.008870713840798444	false	false	false	true	false	false	false	true
+68	1520	",
+"	88410	0.0088145820716958	false	false	false	false	false	false	false	false
+69	1510	…	87921	0.008765828190539152	false	false	false	true	false	false	false	false
+70	2880	...	86840	0.008658051205814539	false	false	false	true	false	false	false	false
+71	1124	|	85116	0.008486166356910527	false	false	false	true	false	false	false	false
+72	1134	�	83832	0.008358150030928655	false	false	false	true	false	false	false	true
+73	9551	"?
+"	82758	0.008251070954523257	false	false	false	false	false	false	false	false
+74	2247	.	78371	0.007813681840751856	false	false	false	true	false	false	false	false
+75	1349	A	76421	0.007619264523256021	true	false	false	false	false	false	false	false
+76	1766	[	73439	0.007321955579270081	false	false	false	true	false	false	false	false
+77	1093	]	73341	0.00731218486280106	false	false	false	true	false	false	false	false
+78	1353	T	72871	0.00726532530422514	true	false	false	false	false	false	false	false
+79	1111	o	71762	0.007154756686223663	true	false	false	false	false	false	false	false
+80	1398	B	69580	0.006937208693005246	true	false	false	false	false	false	false	false
+81	1182	�	69073	0.006886660190456329	false	false	false	true	false	false	false	true
+82	1335	S	68840	0.006863429813545288	true	false	false	false	false	false	false	false
+83	1550	K	68667	0.006846181507941812	true	false	false	false	false	false	false	false
+84	1407	D	67998	0.006779481412862471	true	false	false	false	false	false	false	false
+85	1439	F	67763	0.006756051633574511	true	false	false	false	false	false	false	false
+86	23685	"|
+"	67135	0.006693439287222006	false	false	false	false	false	false	false	false
+87	1373	M	65900	0.006570308319474644	true	false	false	false	false	false	false	false
+88	1168	�	64616	0.006442291993492771	false	false	false	true	false	false	false	true
+89	1317	to	63880	0.006368911918786651	true	false	false	false	false	false	false	false
+90	1138	�	63697	0.006350666601298579	false	false	false	true	false	false	false	true
+91	1424	L	63377	0.006318762220991571	true	false	false	false	false	false	false	false
+92	1294	in	63205	0.006301613616576553	true	false	false	false	false	false	false	false
+93	20627	µ	62390	0.00622035714798214	false	false	false	false	false	false	false	false
+94	1040	(	61088	0.006090546200607998	false	false	false	true	false	false	false	false
+95	1870	gr	60874	0.0060692101462776855	true	false	false	false	false	false	false	false
+96	8891	·	59947	0.005976787144575819	false	false	false	true	false	false	false	false
+97	1531	The	59539	0.005936109059684383	true	false	false	false	false	false	false	false
+98	1461	G	58960	0.005878382071566389	true	false	false	false	false	false	false	false
+99	1390	P	58864	0.005868810757474286	true	false	false	false	false	false	false	false
+100	1091	[	58571	0.005839598309255681	false	false	false	true	false	false	false	false
+101	3871	"""."	58431	0.005825640142871364	false	false	false	true	false	false	false	false
+102	24483	""".
+"	57499	0.005732718635227201	false	false	false	false	false	false	false	false
+103	1443	H	56553	0.005638401310944606	true	false	false	false	false	false	false	false
+104	2354	.com	56470	0.0056301261123024755	true	false	false	false	false	false	false	false
+105	1150	�	56412	0.00562434344337183	false	false	false	true	false	false	false	true
+106	10226	”,	56088	0.005592040258310983	false	false	false	true	false	false	false	false
+107	1115	s	55954	0.005578680299057424	true	false	false	false	false	false	false	false
+108	1436	E	55169	0.005500414866116792	true	false	false	false	false	false	false	false
+109	1144	�	54518	0.005435509392429721	false	false	false	true	false	false	false	true
+110	1261	a	54377	0.005421451524856945	true	false	false	false	false	false	false	false
+111	3109	.,	53491	0.005333116271881914	false	false	false	true	false	false	false	false
+112	1065	A	53028	0.005286954621625211	true	false	false	false	false	false	false	false
+113	1748	&	51904	0.0051748904857968426	false	false	false	true	false	false	false	false
+114	1434	R	51304	0.005115069772721201	true	false	false	false	false	false	false	false
+115	1259	in	51285	0.005113175450140472	true	false	false	false	false	false	false	false
+116	1072	H	50134	0.004998419382223699	true	false	false	false	false	false	false	false
+117	2345	://	49050	0.0048903432939337065	false	false	false	true	false	false	false	false
+118	16832	"...
+"	48127	0.004798319096985678	false	false	false	false	false	false	false	false
+119	1581	V	47548	0.004740592108867684	true	false	false	false	false	false	false	false
+120	1195	�	47513	0.004737102567271605	false	false	false	true	false	false	false	true
+121	1482	“	46769	0.004662924883057809	false	false	false	true	false	false	false	false
+122	1105	i	45999	0.004586154967944069	true	false	false	false	false	false	false	false
+123	1362	I	45977	0.004583961541797962	true	false	false	false	false	false	false	false
+124	1535	O	45372	0.004523642322780024	true	false	false	false	false	false	false	false
+125	15611	"-
+"	45047	0.004491239436530717	false	false	false	false	false	false	false	false
+126	118944	"·
+"	44507	0.00443740079476264	false	false	false	false	false	false	false	false
+127	1097	a	44024	0.004389245120736749	true	false	false	false	false	false	false	false
+128	2884	ß	42995	0.004286652597812023	true	false	false	false	false	false	false	false
+129	1225	�	42638	0.004251059273532016	false	false	false	true	false	false	false	true
+130	1079	O	42305	0.004217858777775035	true	false	false	false	false	false	false	false
+131	1067	C	41895	0.00417698129050668	true	false	false	false	false	false	false	false
+132	2820	"]
+"	41298	0.004117459680996417	false	false	false	false	false	false	false	false
+133	1121	y	41003	0.004088047830400892	true	false	false	false	false	false	false	false
+134	1464	N	40886	0.0040763827913511425	true	false	false	false	false	false	false	false
+135	10986	Windows	40610	0.004048865263336347	true	false	false	false	false	false	false	false
+136	39453	Ü	40537	0.004041587076578811	true	false	false	false	false	false	false	false
+137	1882	–	40504	0.00403829693735965	false	false	false	true	false	false	false	false
+138	4162	‘	40321	0.00402005161987158	false	false	false	true	false	false	false	false
+139	18988	".
+"	39730	0.0039611282174920725	false	false	false	false	false	false	false	false
+140	1311	de	39260	0.003914268658916154	true	false	false	false	false	false	false	false
+141	1068	D	39062	0.0038945278236011916	true	false	false	false	false	false	false	false
+142	1507	J	39022	0.0038905397760628157	true	false	false	false	false	false	false	false
+143	1737	:	38860	0.0038743881835323923	false	false	false	true	false	false	false	false
+144	1263	on	38767	0.003865115973005668	true	false	false	false	false	false	false	false
+145	1070	F	38740	0.003862424040917264	true	false	false	false	false	false	false	false
+146	1176	�	38721	0.0038605297183365354	false	false	false	true	false	false	false	true
+147	1083	S	38163	0.0038048964551761887	true	false	false	false	false	false	false	false
+148	1077	M	37458	0.0037346071173123096	true	false	false	false	false	false	false	false
+149	1488	W	37196	0.003708485405935946	true	false	false	false	false	false	false	false
+150	1080	P	37050	0.003693929032420873	true	false	false	false	false	false	false	false
+151	1071	G	37043	0.0036932311241016577	true	false	false	false	false	false	false	false
+152	1275	is	36629	0.0036519548320794646	true	false	false	false	false	false	false	false
+153	15489	ml	35816	0.00357089776586197	true	false	false	false	false	false	false	false
+154	1184	�	35693	0.003558634519681464	false	false	false	true	false	false	false	true
+155	1258	er	35680	0.0035573384042314913	true	false	false	false	false	false	false	false
+156	26885	"»
+"	35411	0.003530518784535912	false	false	false	false	false	false	false	false
+157	1066	B	35266	0.0035160621122092986	true	false	false	false	false	false	false	false
+158	13939	•	35178	0.0035072884076248713	false	false	false	true	false	false	false	false
+159	1671	ü	34870	0.0034765804415793754	true	false	false	false	false	false	false	false
+160	13346	Google	34400	0.0034297208830034558	true	false	false	false	false	false	false	false
+161	1086	V	34315	0.003421246281984407	true	false	false	false	false	false	false	false
+162	1084	T	33528	0.0033427814466668567	true	false	false	false	false	false	false	false
+163	1063	?	33374	0.0033274274636441088	false	false	false	true	false	false	false	false
+164	1659	$	33278	0.003317856149552006	false	false	false	true	false	false	false	false
+165	1271	an	32945	0.003284655653795025	true	false	false	false	false	false	false	false
+166	1336	ol	32835	0.0032736885230644905	true	false	false	false	false	false	false	false
+167	1128	�	32810	0.0032711959933530055	false	false	false	true	false	false	false	true
+168	1075	K	32616	0.0032518539627918812	true	false	false	false	false	false	false	false
+169	1784	The	32273	0.003217656455150306	true	false	false	false	false	false	false	false
+170	1867	+	32260	0.003216360339700334	false	false	false	true	false	false	false	false
+171	14560	Microsoft	32240	0.003214366315931146	true	false	false	false	false	false	false	false
+172	1188	�	32179	0.0032082845434351225	false	false	false	true	false	false	false	true
+173	1394	for	31947	0.0031851538677125407	true	false	false	false	false	false	false	false
+174	1302	ing	31228	0.0031134687132102303	true	false	false	false	false	false	false	false
+175	1120	x	30922	0.003082960149541653	true	false	false	false	false	false	false	false
+176	1073	I	30625	0.0030533488965692104	true	false	false	false	false	false	false	false
+177	1374	us	30524	0.003043279076534811	true	false	false	false	false	false	false	false
+178	1098	b	30471	0.0030379949135464625	true	false	false	false	false	false	false	false
+179	1623	i	30357	0.0030266289780620905	true	false	false	false	false	false	false	false
+180	1166	�	29774	0.0029685031851902585	false	false	false	true	false	false	false	true
+181	1157	�	29060	0.002897316536630245	false	false	false	true	false	false	false	true
+182	1082	R	29027	0.0028940263974110846	true	false	false	false	false	false	false	false
+183	1076	L	28905	0.0028818628524190375	true	false	false	false	false	false	false	false
+184	1299	el	28891	0.002880467035780606	true	false	false	false	false	false	false	false
+185	1279	al	28763	0.0028677052836578024	true	false	false	false	false	false	false	false
+186	6421	...	28730	0.002864415144438642	false	false	false	true	false	false	false	false
+187	1104	h	28621	0.0028535477148965674	true	false	false	false	false	false	false	false
+188	1485	ia	28408	0.0028323113617547144	true	false	false	false	false	false	false	false
+189	56683	"…
+"	28144	0.0028059902480014323	false	false	false	false	false	false	false	false
+190	1312	|	27892	0.0027808655485096626	false	false	false	true	false	false	false	false
+191	6132	www	27632	0.002754943239510218	true	false	false	false	false	false	false	false
+192	1101	e	27534	0.0027451725230411964	true	false	false	false	false	false	false	false
+193	106525	"”.
+"	27317	0.002723537365145506	false	false	false	false	false	false	false	false
+194	1608	U	27306	0.0027224406520724525	true	false	false	false	false	false	false	false
+195	1069	E	27120	0.0027038962310190037	true	false	false	false	false	false	false	false
+196	1262	en	27106	0.002702500414380572	true	false	false	false	false	false	false	false
+197	1078	N	27044	0.0026963189406960892	true	false	false	false	false	false	false	false
+198	1343	g	26707	0.0026627196401852703	true	false	false	false	false	false	false	false
+199	1118	v	26643	0.0026563387641238686	true	false	false	false	false	false	false	false
+200	14010	”.	26489	0.0026409847811011203	false	false	false	true	false	false	false	false
