@@ -27,16 +27,16 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from _common import (
+    BITMASK_BYTES,
+    codepoint_bits as _codepoint_bits,
+    compute_all_bits,
+    decode_mask,
+    encode_mask,
+)
+
 
 GPT2_BYTELEVEL_MAP_OFFSET = 256
-
-# Mirrors EXTRA_SUBSTRATE_CODEPOINTS in build_char_language_bitmask.py.
-# Ll/Lo codepoints that function as language-neutral typography.
-EXTRA_SUBSTRATE_CODEPOINTS: frozenset[int] = frozenset({
-    0x00AA,  # FEMININE ORDINAL INDICATOR
-    0x00B5,  # MICRO SIGN
-    0x00BA,  # MASCULINE ORDINAL INDICATOR
-})
 
 
 def bytes_to_unicode() -> dict[int, str]:
@@ -62,8 +62,9 @@ def unicode_to_bytes() -> dict[str, int]:
 def load_char_bitmask(parquet_path: Path) -> dict[int, int]:
     table = pq.read_table(parquet_path, columns=["codepoint", "bitmask"])
     cps = table.column("codepoint").to_pylist()
-    masks = table.column("bitmask").to_pylist()
-    return dict(zip(cps, masks))
+    masks_raw = table.column("bitmask").to_pylist()
+    # bitmask is a fixed-width binary column (16-byte little-endian).
+    return {cp: decode_mask(b) for cp, b in zip(cps, masks_raw)}
 
 
 def load_apertus_vocab(snapshot_dir: Path) -> list[tuple[int, str]]:
@@ -98,23 +99,7 @@ def token_string_to_bytes(token: str, u2b: dict[str, int]) -> bytes | None:
 
 
 def codepoint_bits(cp: int, table: dict[int, int], all_bits: int) -> tuple[int, bool]:
-    """Returns (bits, in_scope).
-    in_scope = True iff the codepoint contributed exclusion power, i.e.
-    came from either CLDR-derived membership or the substrate override.
-    A letter outside our scope returns (0, False).
-    """
-    m = table.get(cp)
-    if m is not None:
-        return m, True
-    if cp in EXTRA_SUBSTRATE_CODEPOINTS:
-        return all_bits, True
-    try:
-        cat = unicodedata.category(chr(cp))
-    except ValueError:
-        return 0, False
-    if cat == "Lm" or cat[0] in ("N", "P", "S", "Z") or cat in ("Cc", "Cf"):
-        return all_bits, True
-    return 0, False
+    return _codepoint_bits(cp, table, all_bits)
 
 
 def compute_token_row(
@@ -222,7 +207,7 @@ def main() -> None:
 
     spec = yaml.safe_load(args.languages.read_text())
     num_langs = len(spec["languages"])
-    all_bits = (1 << num_langs) - 1
+    all_bits = compute_all_bits(spec["languages"])
 
     print(f"loading char bitmask from {args.char_bitmask}")
     cp_mask = load_char_bitmask(args.char_bitmask)
@@ -253,10 +238,12 @@ def main() -> None:
                 [r["decoded_text"] for r in rows], type=pa.string()
             ),
             "bitmask_and": pa.array(
-                [r["bitmask_and"] for r in rows], type=pa.uint64()
+                [encode_mask(r["bitmask_and"]) for r in rows],
+                type=pa.binary(BITMASK_BYTES),
             ),
             "bitmask_or": pa.array(
-                [r["bitmask_or"] for r in rows], type=pa.uint64()
+                [encode_mask(r["bitmask_or"]) for r in rows],
+                type=pa.binary(BITMASK_BYTES),
             ),
             "num_chars": pa.array([r["num_chars"] for r in rows], type=pa.uint16()),
             "status": pa.array([r["status"] for r in rows], type=pa.string()),
@@ -292,6 +279,9 @@ def main() -> None:
 
     manifest = {
         "apply_timestamp_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "token_table_schema_version": 3,
+        "bitmask_bytes": BITMASK_BYTES,
+        "bitmask_byte_order": "little",
         "apertus_snapshot_path": str(snapshot),
         "apertus_snapshot_revision_sha": snapshot_sha,
         "vocab_size": len(vocab),

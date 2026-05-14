@@ -7,7 +7,7 @@ build-time metadata.
 
 ### Done
 
-- [x] 54 (language, script, encoding) triples in `languages.yaml`.
+- [x] 55 (language, script, encoding) triples in `languages.yaml`.
 - [x] CLDR JSON sourcing (release-keyed cache, fail-fast on missing
       locale).
 - [x] Strict-rule build: positive evidence only, four deterministic
@@ -36,12 +36,10 @@ build-time metadata.
         ð/þ residue. Closeable with `eo`.
       - **Arab 38** — Pashto/Sindhi/Uyghur extensions
         (ښ ڤ ڠ ے ہ ں …). Closeable with `ps` / `sd` / `ug`.
-- [ ] **Polytonic Greek decomposition** — confirm that polytonic
-      precomposed chars (U+1F00…1FFF) correctly carry only
-      `el-polyton` bit AND that their NFD decompositions
-      (base Greek letter + combining mark) carry `el` for the base
-      and substrate for the mark. (Current code does this via the
-      script-range fallback; spot-check expected.)
+- [x] **Polytonic Greek decomposition** — verified post-fallback NFD
+      closure works: ᾳ ᾴ ᾲ ἀ are `el-polyton` only; α/ά are `el` +
+      `el-polyton`; combining ypogegrammeni U+0345 inherits the
+      `el-polyton` bit from its precomposed parents.
 - [ ] **Vocabulary version pinning** — when Apertus ships an updated
       tokenizer snapshot, rerun apply and re-audit. Right now the
       apply hardcodes the snapshot path in the run command.
@@ -51,7 +49,7 @@ build-time metadata.
 - [ ] Append the next tier of FineWeb-2 languages if the audit
       surfaces a script with >50 fall-through tokens:
       Khmer (`km`), Lao (`lo`), Tibetan (`bo`), Mongolian (`mn`),
-      Sinhala (`si`), Cherokee, Ethiopic, etc. Bits 54+, never reused.
+      Sinhala (`si`), Cherokee, Ethiopic, etc. Bits 55+, never reused.
 - [ ] If a downstream consumer ever needs hot-path lookup over the
       codepoint table, port to Rust (the table is small enough that
       a `[u64; 0x110000]` lookup array fits in ~9 MB).

@@ -52,6 +52,14 @@ import yaml
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from _common import (
+    BITMASK_BYTES,
+    BITMASK_MAX_BIT,
+    EXTRA_SUBSTRATE_CODEPOINTS,
+    compute_all_bits,
+    encode_mask,
+)
+
 
 CLDR_URL = (
     "https://raw.githubusercontent.com/unicode-org/cldr-json/{release}/"
@@ -115,6 +123,13 @@ SCRIPT_COMPAT: dict[str, set[str]] = {
 
 
 def char_script(cp: int) -> str:
+    """Map a codepoint to its Unicode script (a coarse string code like
+    "Latn" / "Grek" / "Han"). Uses character-name prefixes; for
+    compatibility forms (fullwidth Latin, halfwidth Katakana, etc.)
+    that have non-script-prefixed names ("FULLWIDTH LATIN ...",
+    "HALFWIDTH KATAKANA ..."), falls back to NFKC normalisation and
+    re-checks on the canonical form. Returns "Common" for substrate
+    and codepoints we can't classify."""
     try:
         name = unicodedata.name(chr(cp))
     except ValueError:
@@ -122,6 +137,15 @@ def char_script(cp: int) -> str:
     for prefix, script in SCRIPT_PREFIXES:
         if name.startswith(prefix):
             return script
+    nfkc = unicodedata.normalize("NFKC", chr(cp))
+    if len(nfkc) == 1 and ord(nfkc[0]) != cp:
+        try:
+            n2 = unicodedata.name(nfkc)
+            for prefix, script in SCRIPT_PREFIXES:
+                if n2.startswith(prefix):
+                    return script
+        except ValueError:
+            pass
     return "Common"
 
 
@@ -146,17 +170,6 @@ def is_letter_or_mark(cp: int) -> bool:
     if cat == "Lm":
         return False
     return cat[0] in ("L", "M")
-
-
-# Codepoints that are Unicode-categorised as Letter (Ll/Lo) but
-# function as language-neutral typography (unit prefixes, ordinal
-# indicators). Treated as substrate even though the category test
-# alone wouldn't catch them.
-EXTRA_SUBSTRATE_CODEPOINTS: frozenset[int] = frozenset({
-    0x00AA,  # FEMININE ORDINAL INDICATOR (1ª)
-    0x00B5,  # MICRO SIGN (µm, µg) — distinct from Greek mu U+03BC
-    0x00BA,  # MASCULINE ORDINAL INDICATOR (1º)
-})
 
 
 def is_substrate(cp: int) -> bool:
@@ -393,6 +406,9 @@ SCRIPT_FALLBACK_RANGES: list[tuple[int, int, str]] = [
     (0x3040, 0x309F, "Kana"),
     (0x30A0, 0x30FF, "Kana"),
     (0x31F0, 0x31FF, "Kana"),
+    (0xFF65, 0xFF9F, "Kana"),    # Halfwidth Katakana
+    (0xF900, 0xFAFF, "Han"),     # CJK Compatibility Ideographs
+    (0x2F800, 0x2FA1F, "Han"),   # CJK Compatibility Ideographs Supplement
 ]
 
 
@@ -571,7 +587,7 @@ def main() -> None:
     nfd_touched = apply_bitmask_nfd_closure(cp_bitmask)
     print(f"bitmask-level NFD closure: touched {nfd_touched} codepoints")
 
-    all_bits = (1 << len(languages)) - 1
+    all_bits = compute_all_bits(languages)
     sub_touched = apply_substrate_override(cp_bitmask, all_bits)
     print(f"substrate override: {sub_touched} codepoints set to ALL_BITS")
 
@@ -588,10 +604,11 @@ def main() -> None:
         except ValueError:
             categories.append("")
 
+    bitmasks_bytes = [encode_mask(m) for m in bitmasks]
     table = pa.table(
         {
             "codepoint": pa.array(codepoints, type=pa.uint32()),
-            "bitmask": pa.array(bitmasks, type=pa.uint64()),
+            "bitmask": pa.array(bitmasks_bytes, type=pa.binary(BITMASK_BYTES)),
             "char": pa.array(chars, type=pa.string()),
             "num_langs": pa.array(num_langs, type=pa.uint8()),
             "category": pa.array(categories, type=pa.string()),
@@ -603,7 +620,9 @@ def main() -> None:
 
     manifest = {
         "build_timestamp_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "schema_version": 2,
+        "schema_version": 3,
+        "bitmask_bytes": BITMASK_BYTES,
+        "bitmask_byte_order": "little",
         "cldr_release": cldr_release,
         "cldr_source": "https://github.com/unicode-org/cldr-json",
         "cldr_subsets_included": CLDR_SUBSETS,

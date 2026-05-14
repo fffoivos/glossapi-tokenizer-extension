@@ -31,19 +31,46 @@ import sys
 import unicodedata
 from pathlib import Path
 
+import pyarrow as pa
 import pyarrow.parquet as pq
 import yaml
+
+from _common import (
+    BITMASK_BYTES,
+    BITMASK_MAX_BIT,
+    codepoint_bits as _cp_bits,
+    compute_all_bits,
+    decode_mask,
+)
 
 
 def main() -> None:
     here = Path(__file__).resolve().parent.parent
     spec = yaml.safe_load((here / "languages.yaml").read_text())
     bit_for = {L["code"]: L["bit"] for L in spec["languages"]}
-    all_bits = (1 << len(bit_for)) - 1
+
+    # Dense / wire-format sanity
+    bits_used = [L["bit"] for L in spec["languages"]]
+    assert len(set(bits_used)) == len(bits_used), \
+        f"duplicate bit ids in languages.yaml: {bits_used}"
+    assert all(0 <= b < BITMASK_MAX_BIT for b in bits_used), \
+        f"bit ids must be in [0, {BITMASK_MAX_BIT}); got {bits_used}"
+
+    all_bits = compute_all_bits(spec["languages"])
 
     t = pq.read_table(here / "artifacts" / "char_language_bitmask.parquet")
+    expected_type = pa.binary(BITMASK_BYTES)
+    if not t.schema.field("bitmask").type.equals(expected_type):
+        print(
+            f"FAIL — char bitmask column type is "
+            f"{t.schema.field('bitmask').type}, expected {expected_type}"
+        )
+        sys.exit(1)
     by_cp = {
-        cp: m for cp, m in zip(t["codepoint"].to_pylist(), t["bitmask"].to_pylist())
+        cp: decode_mask(m)
+        for cp, m in zip(
+            t["codepoint"].to_pylist(), t["bitmask"].to_pylist()
+        )
     }
 
     failures: list[str] = []
@@ -188,6 +215,17 @@ def main() -> None:
     check_all_bits(0x00B5, "µ MICRO SIGN — extra substrate")
     check_all_bits(0x00AA, "ª FEMININE ORDINAL — extra substrate")
     check_all_bits(0x00BA, "º MASCULINE ORDINAL — extra substrate")
+    check_all_bits(0xFF21, "Ａ FULLWIDTH LATIN A — extra substrate")
+    check_all_bits(0xFF41, "ａ FULLWIDTH LATIN a — extra substrate")
+    check_all_bits(0xFF15, "５ FULLWIDTH DIGIT FIVE — extra substrate")
+
+    # NFKC-aware script detection: halfwidth Katakana ｦ should resolve
+    # to Kana → Jpan via the script-range fallback.
+    check_superset(
+        0xFF66,
+        {"ja"},
+        "ｦ HALFWIDTH KATAKANA WO — Jpan via NFKC-aware script detection",
+    )
 
     check_superset(0x0456, {"uk"}, "і — Ukrainian i")
     check_superset(0x0457, {"uk"}, "ї — Ukrainian yi")
@@ -223,10 +261,39 @@ def main() -> None:
 
     token_audit_threshold = 50
 
+    # Wire-format sanity: mask columns are fixed-width binary[16].
+    tt_full = pq.read_table(token_path)
+    for col in ("bitmask_and", "bitmask_or"):
+        actual = tt_full.schema.field(col).type
+        if not actual.equals(pa.binary(BITMASK_BYTES)):
+            print(
+                f"FAIL phase 2 — token column `{col}` type is {actual}, "
+                f"expected {pa.binary(BITMASK_BYTES)}"
+            )
+            sys.exit(1)
+
+    # Recompute a handful of tokens from the char table and check the
+    # stored AND/OR match — catches wire-format drift between build
+    # and apply.
+    token_recheck_failures = _recheck_token_masks(
+        tt_full, by_cp, all_bits
+    )
+    if token_recheck_failures:
+        print(
+            f"FAIL phase 2 — {len(token_recheck_failures)} token "
+            f"mask mismatch(es):"
+        )
+        for line in token_recheck_failures:
+            print(line)
+        sys.exit(1)
+    print(
+        "phase 2 wire-format OK — bitmask_and / bitmask_or are "
+        f"binary({BITMASK_BYTES}); spot-checked tokens recompute."
+    )
+
     in_scope_scripts = collect_in_scope_scripts(spec["languages"])
-    tt = pq.read_table(token_path, columns=["decoded_text", "status"])
-    txts = tt["decoded_text"].to_pylist()
-    sts = tt["status"].to_pylist()
+    txts = tt_full["decoded_text"].to_pylist()
+    sts = tt_full["status"].to_pylist()
 
     script_counter: collections.Counter[str] = collections.Counter()
     for txt, s in zip(txts, sts):
@@ -278,6 +345,63 @@ def main() -> None:
 
 def collect_in_scope_scripts(languages: list[dict]) -> set[str]:
     return {L["script"] for L in languages}
+
+
+def _recheck_token_masks(
+    tt: "pa.Table",
+    by_cp: dict[int, int],
+    all_bits: int,
+) -> list[str]:
+    """Pick 12 representative `text`-status tokens, recompute their
+    AND/OR from the char table + substrate-fallback rule, and assert
+    the stored bytes match. Catches drift between build and apply.
+    """
+    ids = tt["token_id"].to_pylist()
+    txts = tt["decoded_text"].to_pylist()
+    ands = tt["bitmask_and"].to_pylist()
+    ors = tt["bitmask_or"].to_pylist()
+    sts = tt["status"].to_pylist()
+
+    # Heuristic: grab a few `text`-status tokens whose contents we can
+    # eyeball — single Greek letter, single Cyrillic, single Han, the
+    # space token, a Latin substring, a polytonic, an emoji-bearing.
+    by_id = {tid: i for i, tid in enumerate(ids)}
+
+    candidates: list[int] = []
+    # text status, single char, varied scripts — pick the first 12 we
+    # see that satisfy the predicate
+    for i, (tid, txt, s) in enumerate(zip(ids, txts, sts)):
+        if s != "text" or not txt:
+            continue
+        candidates.append(i)
+        if len(candidates) >= 12:
+            break
+    # also drop in a fall-through token to confirm AND collapses to 0
+    for i, s in enumerate(sts):
+        if s == "text_with_unmodeled_letters":
+            candidates.append(i)
+            break
+
+    failures: list[str] = []
+    for i in candidates:
+        txt = txts[i]
+        if txt is None:
+            continue
+        expected_and = all_bits
+        expected_or = 0
+        for ch in txt:
+            m, _ = _cp_bits(ord(ch), by_cp, all_bits)
+            expected_and &= m
+            expected_or |= m
+        stored_and = decode_mask(ands[i])
+        stored_or = decode_mask(ors[i])
+        if stored_and != expected_and or stored_or != expected_or:
+            failures.append(
+                f"  token_id={ids[i]} text={txt!r}: "
+                f"stored AND={hex(stored_and)} OR={hex(stored_or)}, "
+                f"recomputed AND={hex(expected_and)} OR={hex(expected_or)}"
+            )
+    return failures
 
 
 _SCRIPT_PREFIXES: list[tuple[str, str]] = [

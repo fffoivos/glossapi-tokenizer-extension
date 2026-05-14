@@ -27,7 +27,7 @@ A bit corresponds to one CLDR locale that pins all three of:
   `sr-Cyrl` (the two Serbian scripts are encoded as separate locales
   in CLDR); `zh-Hans` vs `zh-Hant`.
 
-The 55 triples currently in `languages.yaml` (bits 0–53) are listed
+The 55 triples currently in `languages.yaml` (bits 0–54) are listed
 under § Scope below.
 
 ## How we approach the missing-tokenizer-training-data problem
@@ -251,7 +251,8 @@ tokens in `text_with_unmodeled_letters` + `no_in_scope_chars`.
 
 ## Scope (current)
 
-55 (language, script, encoding) triples = 55 bits, stored as uint64.
+55 (language, script, encoding) triples = 55 bits, stored as a
+fixed-width 16-byte (128-bit) little-endian binary column in Parquet.
 Icelandic (`is`) was added at bit 54 as a post-build audit follow-up:
 without it, ð/þ pushed the Latin-fall-through count above the 50-token
 audit threshold.
@@ -280,8 +281,11 @@ audit threshold.
 | Mymr | 36 | my |
 
 Bit assignments are stable wire-format identifiers — never reused.
-Adding a triple appends at the next free bit. uint64 leaves 10 bits
-free for future extensions.
+Adding a triple appends at the next free bit. The 128-bit binary
+budget leaves 73 bits free for future extensions; uint64 would have
+been too tight given audit-driven additions already foreshadow >64
+locales (Kazakh / Belarusian / Mongolian Cyrillic, Pashto / Sindhi /
+Uyghur Arabic, Khmer / Lao / Tibetan / Sinhala / Ethiopic).
 
 ## Output schema
 
@@ -293,7 +297,7 @@ CLDR, a closure, or the substrate rule).
 | column | type | meaning |
 |---|---|---|
 | `codepoint` | `uint32` | Unicode scalar value |
-| `bitmask` | `uint64` | triple-membership bits (positions per `languages.yaml`) |
+| `bitmask` | `binary(16)` | triple-membership bits, little-endian. Decode via `int.from_bytes(b, "little")` (see `scripts/query_codepoint.py`). |
 | `char` | `string` | the character itself, for inspection |
 | `num_langs` | `uint8` | popcount of bitmask |
 | `category` | `string` | Unicode general category (Lu, Ll, Nd, …) |
@@ -307,8 +311,8 @@ One row per Apertus vocab token (131,072 rows).
 | `token_id` | `uint32` | Apertus token id |
 | `token_bytes` | `binary` | decoded raw bytes (post ByteLevel inversion) |
 | `decoded_text` | `string` | UTF-8 decode of the bytes, or `null` if invalid |
-| `bitmask_and` | `uint64` | AND across codepoint bits |
-| `bitmask_or` | `uint64` | OR across codepoint bits |
+| `bitmask_and` | `binary(16)` | AND across codepoint bits, little-endian |
+| `bitmask_or` | `binary(16)` | OR across codepoint bits, little-endian |
 | `num_chars` | `uint16` | decoded codepoint count |
 | `status` | `string` | see § Token-level status |
 

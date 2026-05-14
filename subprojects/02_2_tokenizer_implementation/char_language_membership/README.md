@@ -47,12 +47,65 @@ substrate-all-bits, validation requirement.
 
 - `PLAN.md` — full design and rationale.
 - `TODO.md` — open work.
-- `languages.yaml` — 54-triple source of truth (bit assignments).
+- `languages.yaml` — 55-triple source of truth (bit assignments).
 - `scripts/build_char_language_bitmask.py` — codepoint-level build.
 - `scripts/apply_to_apertus_vocab.py` — token-level apply.
-- `scripts/validate.py` — strict-rule sanity checks.
+- `scripts/validate.py` — strict-rule sanity checks (phase 1 char,
+  phase 2 token-level audit gate).
+- `scripts/query_codepoint.py` — **read this first** before consuming
+  the char-level parquet directly. The parquet is a sparse table; a
+  direct lookup that returns 0 for a missing codepoint will
+  false-reject. `query_codepoint.codepoint_bits()` reproduces the
+  build-time and apply-time substrate-aware fallback, so any consumer
+  gets the same semantics the apply script does.
 - `data/cldr/<release>/` — cached CLDR JSON (gitignored).
 - `artifacts/` — built tables.
+
+## How the char parquet is meant to be read
+
+`char_language_bitmask.parquet` is **sparse with fallback required**.
+It stores:
+
+- Every codepoint that received explicit language evidence (CLDR
+  exemplar + case/NFD/script-range-fallback closures), and
+- The substrate codepoints we explicitly seeded (ASCII printable, a
+  small supplementary list, `EXTRA_SUBSTRATE_CODEPOINTS` —
+  fullwidth Latin / digits, ordinal markers, MICRO SIGN, NBSP, …).
+
+It does **not** store the vast majority of Unicode substrate
+(arbitrary emoji, exotic supplementary-plane symbols, less common
+punctuation). For those codepoints, a direct lookup returns nothing
+and the consumer must apply the same fallback rule the build and
+apply scripts use:
+
+```python
+# Pseudocode — see scripts/query_codepoint.py for the real thing
+if cp in table:                                return table[cp]
+if cp in EXTRA_SUBSTRATE_CODEPOINTS:            return ALL_BITS
+cat = unicodedata.category(chr(cp))
+if cat == "Lm" or cat[0] in "NPSZ" or cat in ("Cc", "Cf"):
+                                                return ALL_BITS
+return 0       # Letter/mark in a script we don't model — reject all
+```
+
+`scripts/query_codepoint.py` exposes `load()`, `codepoint_bits()`,
+`token_bits_and()`, `token_bits_or()` so consumers don't have to
+re-implement this. Use it.
+
+The token parquet (`token_language_bitmask.parquet`) has no such
+caveat — `apply_to_apertus_vocab.py` already applied the fallback
+when computing each row's `bitmask_and` and `bitmask_or`.
+
+## Bitmask storage
+
+Both `bitmask` (char table) and `bitmask_and` / `bitmask_or` (token
+table) are Parquet `binary(16)` columns — fixed-width 16-byte
+little-endian buffers (128-bit budget, vs. today's 55 used bits).
+Convert to a Python int with `int.from_bytes(buf, "little")` and back
+with `mask.to_bytes(16, "little")`. We picked binary over uint64
+because audit gaps already foreshadow extensions past 64 bits
+(Kazakh / Belarusian / Mongolian Cyrillic, Pashto / Sindhi / Uyghur
+Arabic, Khmer / Lao / Tibetan / Sinhala / Ethiopic scripts, etc.).
 
 ## Run
 
