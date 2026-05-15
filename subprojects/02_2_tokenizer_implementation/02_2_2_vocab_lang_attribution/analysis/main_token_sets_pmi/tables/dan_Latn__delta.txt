@@ -1,0 +1,14 @@
+# target_key=dan_Latn  lang_code=da
+# Σ_target=1,008,723,187  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 9 tokens, sorted by count desc
+{61890: ' én'}
+{60864: ' idé'}
+{12984: '«,'}
+{83917: '.«\n'}
+{121713: '«.'}
+{119190: ' dér'}
+{78710: ' Dét'}
+{28178: '\\_'}
+{114140: "/'\n"}

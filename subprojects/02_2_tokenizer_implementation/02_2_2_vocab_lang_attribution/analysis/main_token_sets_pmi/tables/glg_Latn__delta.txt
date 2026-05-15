@@ -1,0 +1,13 @@
+# target_key=glg_Latn  lang_code=gl
+# Σ_target=1,000,952,725  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 8 tokens, sorted by count desc
+{8685: 'º'}
+{10640: 'ª'}
+{1064: '@'}
+{27541: '¡'}
+{38012: '-.'}
+{46255: '—,'}
+{125344: '{/'}
+{34727: '.ª'}

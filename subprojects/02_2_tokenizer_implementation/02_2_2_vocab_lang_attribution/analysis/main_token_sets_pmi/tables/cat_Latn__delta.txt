@@ -1,0 +1,37 @@
+# target_key=cat_Latn  lang_code=ca
+# Σ_target=1,005,974,647  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 32 tokens, sorted by count desc
+{1471: '’'}
+{8891: '·'}
+{54784: '´'}
+{36810: ' Sánchez'}
+{34981: ' Fernández'}
+{31896: ' González'}
+{87678: ' [$'}
+{55541: ' Hernández'}
+{85637: ' Muñoz'}
+{48957: ' Ángel'}
+{46255: '—,'}
+{56674: 'ñez'}
+{63976: ' Álvarez'}
+{38416: '\'"'}
+{71422: ' Suárez'}
+{124438: ' Márquez'}
+{16337: '[$'}
+{91128: ' Cataluña'}
+{70799: ' Tomás'}
+{128068: 'España'}
+{66986: '(*)'}
+{35703: 'ánchez'}
+{70491: 'ázquez'}
+{64648: "'«"}
+{120720: '’«'}
+{45872: 'ñana'}
+{121449: ' Julián'}
+{25036: 'ández'}
+{8254: '!--'}
+{29448: '-->\n'}
+{16858: ' ?>\n'}
+{34238: '[@'}

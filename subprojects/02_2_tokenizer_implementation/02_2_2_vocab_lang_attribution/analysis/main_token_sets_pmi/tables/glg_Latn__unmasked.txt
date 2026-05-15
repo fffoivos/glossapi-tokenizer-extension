@@ -1,0 +1,5473 @@
+# target_key=glg_Latn  lang_code=gl
+# Σ_target=1,000,952,725  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B (rate test only — no char mask)
+# 5,468 tokens, sorted by count desc
+{1311: ' de'}
+{1613: ' que'}
+{1324: ' e'}
+{1281: ' o'}
+{1653: ' do'}
+{2170: ' da'}
+{2379: ' para'}
+{1346: 'os'}
+{3122: ' os'}
+{1435: ' as'}
+{1836: ' no'}
+{18263: ' unha'}
+{1782: ' é'}
+{2767: ' non'}
+{1383: ' con'}
+{6060: 'idade'}
+{3707: ' dos'}
+{2860: ' como'}
+{2761: 'ación'}
+{5623: ' ao'}
+{2460: ' x'}
+{2039: 'ado'}
+{2836: ' das'}
+{24679: ' máis'}
+{3194: ' ou'}
+{4324: ' á'}
+{1305: 'ou'}
+{7271: ' nos'}
+{1120: 'x'}
+{1079: 'O'}
+{25743: ' súa'}
+{3139: 'ados'}
+{2353: 'ía'}
+{2160: ' co'}
+{2624: 'ñ'}
+{2574: 'ando'}
+{5792: ' seu'}
+{2628: ' X'}
+{4560: 'adas'}
+{2855: 'án'}
+{2449: 'ais'}
+{8770: 'amos'}
+{3975: 'ón'}
+{1661: 'ase'}
+{46564: 'acións'}
+{85004: ' traball'}
+{5910: 'ño'}
+{3424: 'ito'}
+{26171: ' polo'}
+{5155: ' sobre'}
+{38130: ' tamén'}
+{7467: 'ña'}
+{6215: ' este'}
+{1963: 'ión'}
+{4921: 'iro'}
+{54279: ' coa'}
+{11216: ' gal'}
+{2809: 'ido'}
+{47404: ' perso'}
+{42854: ' pola'}
+{4222: 'ira'}
+{2376: ' son'}
+{45772: ' xa'}
+{61324: ' Galicia'}
+{3527: ' entre'}
+{4862: 'ivo'}
+{2264: 'ente'}
+{5525: 'ello'}
+{7445: ' está'}
+{57348: ' ás'}
+{18668: ' aos'}
+{14763: ' anos'}
+{8348: ' esta'}
+{6572: ' sen'}
+{8837: ' todo'}
+{2111: 'ix'}
+{6630: ' pero'}
+{6203: ' foi'}
+{21953: ' dun'}
+{2615: ' cal'}
+{14878: 'emos'}
+{6341: 'amento'}
+{4116: ' fac'}
+{4429: 'aron'}
+{19897: ' ano'}
+{2747: 'én'}
+{11033: ' moi'}
+{19993: ' mell'}
+{3097: 'ores'}
+{4361: ' ten'}
+{4603: 'encia'}
+{5615: 'osa'}
+{11619: ' seus'}
+{11240: ' poder'}
+{67925: ' dunha'}
+{5600: ' parte'}
+{15022: ' día'}
+{17956: ' hai'}
+{1678: ' cont'}
+{9752: ' todos'}
+{1585: 'ect'}
+{5358: 'idos'}
+{76870: ' prox'}
+{17392: 'ización'}
+{6054: 'entes'}
+{3155: 'ox'}
+{5928: ' ax'}
+{38298: 'axe'}
+{17264: 'xe'}
+{4276: 'ario'}
+{15871: ' mesmo'}
+{12043: ' así'}
+{32447: ' ata'}
+{17137: ' onde'}
+{7707: 'ego'}
+{4520: 'ador'}
+{3515: ' serv'}
+{15190: 'iros'}
+{16432: ' pode'}
+{65330: ' súas'}
+{8476: ' Gal'}
+{72321: ' cando'}
+{24004: 'unta'}
+{25895: ' Conc'}
+{4160: ' conc'}
+{11052: ' nun'}
+{10121: ' cada'}
+{8611: ' desde'}
+{2320: 'co'}
+{11956: ' tempo'}
+{6097: 'aria'}
+{5227: 'antes'}
+{84790: ' coñec'}
+{7872: 'adores'}
+{13671: ' só'}
+{117749: 'xect'}
+{89811: 'emais'}
+{22944: 'ará'}
+{8664: 'arse'}
+{2134: ' rec'}
+{3457: 'amente'}
+{5455: 'itar'}
+{5771: 'ismo'}
+{9697: 'arios'}
+{32803: ' xe'}
+{10776: ' lugar'}
+{3916: 'endo'}
+{12886: ' caso'}
+{6805: ' vez'}
+{18152: ' través'}
+{11466: ' tanto'}
+{9400: 'istas'}
+{19060: ' están'}
+{14046: ' porque'}
+{70284: ' aínda'}
+{10362: ' vida'}
+{9081: 'ías'}
+{50671: ' deste'}
+{8894: 'idas'}
+{10658: 'itos'}
+{6840: 'ños'}
+{67876: ' dous'}
+{7815: ' durante'}
+{20121: 'iras'}
+{6873: ' esp'}
+{24335: ' lle'}
+{8075: ' Os'}
+{86940: 'emento'}
+{30515: 'úa'}
+{13990: 'encias'}
+{13520: ' ó'}
+{8860: ' cos'}
+{7894: 'idades'}
+{13111: 'ivos'}
+{85991: 'ións'}
+{31393: ' información'}
+{7808: ' forma'}
+{6326: 'icas'}
+{18570: 'Os'}
+{46053: ' euros'}
+{3930: ' come'}
+{6656: ' contra'}
+{89727: ' nunha'}
+{43099: ' cun'}
+{6282: 'icos'}
+{3533: 'ense'}
+{26265: ' horas'}
+{15779: ' todas'}
+{20914: ' outros'}
+{13349: ' mundo'}
+{11486: 'iza'}
+{8786: ' fix'}
+{98855: ' mull'}
+{2428: 'ux'}
+{20608: ' días'}
+{10877: ' tres'}
+{20625: ' primeira'}
+{22439: ' novo'}
+{4346: ' social'}
+{63109: 'óns'}
+{15863: 'zas'}
+{6597: 'cción'}
+{7012: 'ían'}
+{42909: ' conta'}
+{15830: ' sempre'}
+{51560: ' desta'}
+{14674: 'indo'}
+{27297: 'ñas'}
+{7272: ' gran'}
+{9006: 'has'}
+{28731: ' será'}
+{78268: 'quera'}
+{19784: ' primeiro'}
+{4232: ' activ'}
+{93292: 'izos'}
+{30053: ' iso'}
+{5151: ' San'}
+{16324: ' dere'}
+{2357: ' rem'}
+{4072: 'As'}
+{34270: ' situación'}
+{62399: ' quen'}
+{14877: 'unto'}
+{42705: ' actividades'}
+{15245: ' segundo'}
+{11405: ' vec'}
+{27494: 'azo'}
+{23754: 'arias'}
+{12852: 'izo'}
+{26215: ' nova'}
+{20533: ' nin'}
+{95710: ' Vigo'}
+{111541: ' cunha'}
+{73193: ' despois'}
+{22614: 'ción'}
+{102751: ' teñen'}
+{44328: ' empre'}
+{26690: 'imos'}
+{16319: 'eres'}
+{7293: ' actual'}
+{87682: ' dúas'}
+{3685: ' local'}
+{12234: ' momento'}
+{1959: ' ent'}
+{66351: ' Ponte'}
+{17109: ' toda'}
+{9130: ' Por'}
+{11752: 'ativa'}
+{21884: ' cidade'}
+{9677: ' DE'}
+{21998: ' desenvol'}
+{19801: 'ificación'}
+{8375: 'aban'}
+{20405: ' diferentes'}
+{7788: ' Cons'}
+{19293: 'ención'}
+{19374: 'oa'}
+{15864: ' maior'}
+{5042: ' esc'}
+{28825: ' outras'}
+{40468: ' poden'}
+{14112: ' menos'}
+{3877: 'Un'}
+{104530: ' Coruña'}
+{3095: 'ved'}
+{2778: ' final'}
+{24234: ' público'}
+{36394: ' agora'}
+{9623: ' Non'}
+{58145: ' atop'}
+{23569: ' Santiago'}
+{17754: 'izar'}
+{11184: ' antes'}
+{88719: ' gober'}
+{116564: ' xog'}
+{19775: ' programa'}
+{8685: 'º'}
+{58501: ' neste'}
+{15233: 'ativo'}
+{20439: ' medio'}
+{25275: ' datos'}
+{83579: ' polos'}
+{67853: ' rex'}
+{3808: 'mente'}
+{53428: 'axes'}
+{34333: ' outra'}
+{13113: ' grupo'}
+{26851: 'ativas'}
+{17429: ' centro'}
+{38513: ' pasado'}
+{70937: ' foron'}
+{2988: ' present'}
+{8884: 'imento'}
+{7200: 'ares'}
+{3164: 'ouse'}
+{13154: ' especial'}
+{16471: ' obra'}
+{15588: 'aría'}
+{16458: ' valor'}
+{18962: ' xu'}
+{13718: ' tipo'}
+{46243: ' solic'}
+{16365: 'enos'}
+{11838: 'ución'}
+{29595: ' ache'}
+{18831: ' uso'}
+{18463: ' España'}
+{36196: ' algún'}
+{17394: ' historia'}
+{3601: 'cer'}
+{17578: ' estar'}
+{25966: ' cous'}
+{24327: ' cara'}
+{11757: 'uras'}
+{4664: ' É'}
+{64381: 'óx'}
+{59368: ' coma'}
+{113861: ' xeral'}
+{54918: 'ñec'}
+{2732: ' Con'}
+{7212: 'vement'}
+{114321: ' fai'}
+{22928: ' dix'}
+{18695: ' profes'}
+{17120: ' algo'}
+{2842: ' sup'}
+{27946: ' outro'}
+{26019: ' empresa'}
+{26257: ' dese'}
+{106127: 'Ó'}
+{3681: 'iron'}
+{129315: ' moitos'}
+{24873: 'amentos'}
+{14957: 'adora'}
+{33875: ' pouco'}
+{71520: ' estes'}
+{22968: ' libro'}
+{21014: 'ír'}
+{54664: 'ixe'}
+{14292: ' importante'}
+{40519: ' empresas'}
+{17169: 'ración'}
+{28674: 'xa'}
+{2281: ' cor'}
+{30280: ' semana'}
+{19988: 'ugo'}
+{36553: ' edición'}
+{76274: ' Gober'}
+{12792: ' estas'}
+{10666: ' casa'}
+{27690: ' relación'}
+{13657: ' número'}
+{15319: ' neces'}
+{20486: 'ivas'}
+{15425: ' dentro'}
+{38663: 'ixo'}
+{3788: ' total'}
+{1618: 'rou'}
+{15433: 'cement'}
+{45248: ' formación'}
+{4246: ' mill'}
+{13564: ' nome'}
+{16993: ' zona'}
+{23424: ' obras'}
+{14670: ' sector'}
+{67392: 'áns'}
+{29772: ' aquí'}
+{15260: ' reco'}
+{3395: ' Car'}
+{28012: ' proceso'}
+{16259: ' equipo'}
+{9938: ' viv'}
+{16667: ' Para'}
+{10181: ' autor'}
+{15268: ' ante'}
+{4753: 'No'}
+{84518: 'eiro'}
+{11010: ' país'}
+{2416: 'ible'}
+{6831: ' proced'}
+{63404: ' novas'}
+{24108: ' meses'}
+{13647: ' algun'}
+{7447: ' uns'}
+{36353: ' deber'}
+{8826: ' partir'}
+{43886: ' convoc'}
+{12992: 'oso'}
+{81322: 'ellos'}
+{19357: 'Por'}
+{24659: 'Para'}
+{8163: ' constru'}
+{8627: ' segu'}
+{32029: ' afect'}
+{85739: ' nesta'}
+{22420: 'anse'}
+{121663: 'oloxía'}
+{7860: 'ición'}
+{13952: 'anza'}
+{19003: ' música'}
+{102555: ' temos'}
+{69672: ' colaboración'}
+{28913: 'ativos'}
+{63644: ' condición'}
+{48825: ' feito'}
+{26270: ' debe'}
+{36309: ' pá'}
+{80686: ' sinal'}
+{58907: ' colect'}
+{9280: ' tras'}
+{11399: ' mant'}
+{51055: ' curso'}
+{64981: ' levar'}
+{102624: ' cidad'}
+{125876: ' catro'}
+{106634: 'úe'}
+{37283: ' mesma'}
+{41162: ' isto'}
+{4138: ' dest'}
+{128006: 'ñan'}
+{35232: ' realizar'}
+{7378: 'igo'}
+{20494: ' política'}
+{119695: ' auga'}
+{22366: ' explic'}
+{20491: 'ática'}
+{18989: ' igual'}
+{102193: 'reiro'}
+{83050: ' sociais'}
+{16395: ' municipal'}
+{23442: ' nivel'}
+{19313: ' Manuel'}
+{80007: ' segur'}
+{55539: ' centros'}
+{117613: ' xer'}
+{17747: ' presidente'}
+{42068: ' acción'}
+{14358: 'añ'}
+{41599: ' longo'}
+{16979: ' punto'}
+{13772: ' fal'}
+{70575: ' alumn'}
+{9966: ' Our'}
+{17283: ' nada'}
+{14057: ' grandes'}
+{18806: ' María'}
+{22182: ' Pero'}
+{14227: ' ese'}
+{29421: ' posible'}
+{33316: 'zar'}
+{35115: 'adoras'}
+{22313: ' veces'}
+{12610: ' quer'}
+{32923: ' exemplo'}
+{2937: ' case'}
+{17788: ' banda'}
+{56133: ' medidas'}
+{49147: 'Este'}
+{109325: ' Compost'}
+{43451: ' organización'}
+{15162: ' nacional'}
+{6376: 'itude'}
+{19005: ' produc'}
+{102349: ' Deput'}
+{9164: ' cant'}
+{31781: ' seguir'}
+{51155: ' nós'}
+{25087: ' eles'}
+{76329: 'ñen'}
+{53820: ' lingua'}
+{19586: ' esa'}
+{17963: 'rado'}
+{52379: ' baixo'}
+{45254: ' atención'}
+{4007: 'ables'}
+{17455: ' Este'}
+{14281: ' prev'}
+{17802: ' actu'}
+{18426: ' estable'}
+{73187: ' alcalde'}
+{68510: ' sociedade'}
+{16705: 'NG'}
+{22818: ' Tam'}
+{72815: 'unha'}
+{59539: 'ullo'}
+{58869: ' novos'}
+{85719: ' presentación'}
+{21830: ' PP'}
+{5290: 'ball'}
+{77204: ' produtos'}
+{13979: 'ancia'}
+{6276: ' educ'}
+{39368: ' Así'}
+{43101: 'xo'}
+{64013: ' apoio'}
+{20909: ' logo'}
+{35992: ' propia'}
+{16750: ' tarde'}
+{27107: 'egas'}
+{46662: ' acceso'}
+{11333: ' José'}
+{21034: ' deix'}
+{27610: ' cultura'}
+{53500: ' chegar'}
+{115159: ' mentres'}
+{16272: ' recib'}
+{26697: ' propio'}
+{48230: ' participación'}
+{39896: ' interes'}
+{62938: 'eron'}
+{6435: ' conv'}
+{1691: ' comp'}
+{30688: ' cabo'}
+{23609: ' tecn'}
+{20236: ' último'}
+{47022: ' Cultura'}
+{39194: ' investigación'}
+{11973: ' estaba'}
+{45052: 'atoria'}
+{32509: ' pois'}
+{19620: ' Estado'}
+{37907: ' pais'}
+{40037: ' maio'}
+{37033: ' fronte'}
+{105644: ' artigo'}
+{103054: ' cumpr'}
+{19205: 'xico'}
+{33797: ' últimos'}
+{20953: ' elabor'}
+{28392: ' hora'}
+{64232: ' Asociación'}
+{13382: 'Non'}
+{33672: ' futuro'}
+{26367: 'ística'}
+{31786: ' paso'}
+{20623: ' Esta'}
+{5945: ' incl'}
+{62534: 'udas'}
+{39611: ' recursos'}
+{42814: ' creación'}
+{80375: ' iniciativa'}
+{11459: ' cultural'}
+{127807: ' terá'}
+{41257: 'olle'}
+{36280: ' función'}
+{66131: ' boa'}
+{14527: ' marzo'}
+{53038: ' marcha'}
+{11479: 'ío'}
+{26338: ' instal'}
+{17224: ' inclu'}
+{87958: ' realidade'}
+{20470: ' varios'}
+{44865: 'itaria'}
+{37668: ' seguinte'}
+{43040: ' medios'}
+{31686: ' século'}
+{42312: ' respecto'}
+{34840: 'zos'}
+{10955: ' ampl'}
+{115121: ' sábado'}
+{17761: ' segunda'}
+{29325: ' meu'}
+{18491: ' estud'}
+{2590: 'Con'}
+{54573: ' experiencia'}
+{27180: ' problemas'}
+{48169: ' participar'}
+{63763: ' acto'}
+{57949: 'dade'}
+{10657: ' cham'}
+{67635: ' usuarios'}
+{22321: ' familia'}
+{6792: ' Fe'}
+{6902: ' desc'}
+{33541: ' asoci'}
+{64635: ' obrig'}
+{48133: 'Esta'}
+{38910: ' acordo'}
+{57063: ' Universidade'}
+{53311: ' maneira'}
+{23960: 'Á'}
+{24428: ' grupos'}
+{38735: ' pública'}
+{81143: ' saúde'}
+{26015: ' enfer'}
+{39601: ' outubro'}
+{26007: ' casos'}
+{26766: ' puntos'}
+{22737: ' sendo'}
+{50103: ' podemos'}
+{7958: ' cast'}
+{25198: ' cambio'}
+{26264: ' mediante'}
+{5768: ' ener'}
+{26262: ' Centro'}
+{2942: 'lex'}
+{16381: ' abril'}
+{32279: 'ónica'}
+{3917: ' indic'}
+{29854: ' sentido'}
+{38806: ' asist'}
+{14572: 'Est'}
+{20292: ' nunca'}
+{34981: ' Fernández'}
+{53676: ' comunicación'}
+{36270: 'usión'}
+{3413: ' enc'}
+{61739: ' canto'}
+{29237: ' cheg'}
+{25203: 'ático'}
+{122099: ' decembro'}
+{29005: ' deport'}
+{39969: ' novembro'}
+{69486: ' estamos'}
+{88859: 'ibilidade'}
+{39270: ' setembro'}
+{98425: ' entidades'}
+{72971: ' exposición'}
+{19155: ' partido'}
+{38077: 'Como'}
+{17548: ' cub'}
+{10148: ' exerc'}
+{18985: 'lle'}
+{59078: 'anía'}
+{35239: ' común'}
+{4012: ' cert'}
+{97746: ' serán'}
+{39657: ' ningún'}
+{20852: ' cinco'}
+{23201: ' inici'}
+{22589: ' papel'}
+{15297: 'áb'}
+{20014: ' libre'}
+{24437: ' varias'}
+{5394: ' rap'}
+{64295: ' ocasión'}
+{88846: ' ámbito'}
+{111926: ' desenvolver'}
+{19859: ' haber'}
+{32419: ' falta'}
+{22213: 'izado'}
+{32655: ' colabor'}
+{14866: ' Fer'}
+{79940: ' dout'}
+{89090: 'arán'}
+{14220: 'eral'}
+{12718: ' celebr'}
+{74620: ' proposta'}
+{60105: ' administración'}
+{13443: 'ibles'}
+{29700: ' provincia'}
+{62259: ' familias'}
+{80101: 'abilidade'}
+{35723: ' rede'}
+{45543: ' libros'}
+{47379: ' profesional'}
+{38727: 'aneiro'}
+{23494: ' funcion'}
+{21083: ' Como'}
+{122932: ' poboación'}
+{19797: ' terra'}
+{43906: ' campaña'}
+{7462: ' principal'}
+{21541: 'edes'}
+{79460: ' pobo'}
+{46562: ' importancia'}
+{96770: ' alumnos'}
+{120135: 'azos'}
+{3236: ' direct'}
+{36388: ' Castro'}
+{38592: ' acompañ'}
+{50685: ' decisión'}
+{129180: ' maioría'}
+{8487: ' Que'}
+{52804: ' Lei'}
+{11123: 'illo'}
+{90048: ' comunidade'}
+{65994: ' falar'}
+{65470: ' maiores'}
+{61586: ' públicos'}
+{51510: ' necesario'}
+{11276: ' serie'}
+{67693: ' percor'}
+{41100: ' leva'}
+{9505: 'osto'}
+{30990: 'nda'}
+{9939: 'ánd'}
+{24677: ' resto'}
+{122618: 'áronse'}
+{13836: ' Plan'}
+{26702: 'izada'}
+{128170: ' laboral'}
+{11773: ' anterior'}
+{14248: ' feb'}
+{35453: ' verdade'}
+{71407: ' actuación'}
+{25454: ' Vil'}
+{4489: ' particip'}
+{11901: 'icio'}
+{18500: 'icamente'}
+{28320: ' modelo'}
+{47878: ' carácter'}
+{14869: 'oves'}
+{10932: ' vac'}
+{72813: ' ferr'}
+{12245: ' director'}
+{71283: ' manter'}
+{49434: ' aprove'}
+{21827: ' destac'}
+{72688: ' cuestión'}
+{43796: ' materia'}
+{94749: ' vén'}
+{4351: 'IG'}
+{14288: ' Madrid'}
+{31840: ' entrada'}
+{14707: ' cad'}
+{45217: ' noite'}
+{12184: 'emente'}
+{39372: ' sitio'}
+{37097: ' mercado'}
+{25630: ' único'}
+{110148: ' encontro'}
+{22644: ' última'}
+{71558: ' capacidade'}
+{113490: ' destes'}
+{19739: 'mos'}
+{29607: ' saber'}
+{61094: ' participantes'}
+{27159: ' presente'}
+{37776: ' responsable'}
+{100288: 'ostas'}
+{80781: 'urais'}
+{3314: ' ref'}
+{66935: ' aplicación'}
+{16535: 'rut'}
+{91589: ' domingo'}
+{26921: ' García'}
+{51294: ' educación'}
+{31133: ' especialmente'}
+{53541: ' presenza'}
+{5512: ' correspond'}
+{16522: 'anos'}
+{65040: ' seguintes'}
+{35585: ' aquel'}
+{85645: 'arnos'}
+{24772: ' países'}
+{15626: ' até'}
+{23964: ' internacional'}
+{100750: 'aremos'}
+{65893: ' Educación'}
+{14888: ' ela'}
+{80649: ' institución'}
+{12140: ' Social'}
+{23915: 'nero'}
+{27498: ' empres'}
+{45586: ' profesor'}
+{75375: ' solución'}
+{6907: 'cos'}
+{51454: ' principais'}
+{46217: ' políticas'}
+{76439: 'oller'}
+{10520: ' incorpor'}
+{45082: ' dú'}
+{101356: 'óra'}
+{128324: 'eiros'}
+{82399: 'índ'}
+{17362: 'pois'}
+{70619: ' Fundación'}
+{93403: ' intervención'}
+{35528: ' crear'}
+{19657: ' aplic'}
+{79654: 'itación'}
+{23951: ' comunic'}
+{25281: ' área'}
+{70080: ' presentar'}
+{23794: 'ografía'}
+{51131: ' membros'}
+{73217: ' reunión'}
+{22547: ' alta'}
+{71146: ' posibil'}
+{39899: ' pasar'}
+{33718: ' permite'}
+{4856: ' contr'}
+{5424: ' Cal'}
+{33198: ' Rodríguez'}
+{23452: ' compañ'}
+{32316: ' evitar'}
+{26266: ' corpo'}
+{23541: 'irse'}
+{14729: 'icia'}
+{6674: ' idea'}
+{40959: ' zonas'}
+{80719: ' opción'}
+{32030: ' medida'}
+{53068: ' primeiros'}
+{58823: ' solicit'}
+{25976: 'ética'}
+{25344: ' luz'}
+{49706: ' oll'}
+{41420: ' crise'}
+{64200: ' protección'}
+{37790: ' oportun'}
+{27957: ' sería'}
+{32560: ' Comun'}
+{18862: ' campo'}
+{13688: ' Carlos'}
+{67904: ' diante'}
+{34798: ' texto'}
+{62124: ' fonte'}
+{13290: ' agosto'}
+{113099: ' Neste'}
+{58393: ' económica'}
+{97151: ' necesidades'}
+{26220: 'iante'}
+{41102: 'acción'}
+{74073: ' locais'}
+{25808: ' baix'}
+{45342: ' aprob'}
+{13000: ' Nacional'}
+{95119: ' lectura'}
+{46168: 'iedade'}
+{35418: ' palabras'}
+{33796: ' dirección'}
+{51336: ' deben'}
+{16257: ' conven'}
+{57514: 'osé'}
+{14772: ' interior'}
+{15796: ' qued'}
+{99171: ' Día'}
+{4539: ' depend'}
+{53532: ' dá'}
+{44482: ' visita'}
+{75819: ' estudo'}
+{25442: ' período'}
+{37026: ' resultados'}
+{9014: ' movement'}
+{44683: 'oras'}
+{27128: ' nest'}
+{22745: ' resultado'}
+{11374: ' Santa'}
+{28526: ' Casa'}
+{11685: ' Ig'}
+{68025: ' naveg'}
+{26670: ' río'}
+{26801: ' desp'}
+{44451: ' premio'}
+{12627: ' consult'}
+{39625: ' lugares'}
+{32454: ' responsabil'}
+{11996: 'ientes'}
+{104100: ' celebración'}
+{23677: 'ándose'}
+{17106: ' orden'}
+{27075: ' territorio'}
+{62163: ' esfor'}
+{11198: ' Seg'}
+{73970: ' preto'}
+{38212: ' lex'}
+{40115: ' claro'}
+{24116: ' importantes'}
+{34298: ' aval'}
+{73849: ' violencia'}
+{22114: ' título'}
+{60398: ' contar'}
+{31771: ' español'}
+{60039: ' idade'}
+{13049: 'Que'}
+{17371: ' rural'}
+{19538: ' cargo'}
+{55826: ' resposta'}
+{107938: ' compromiso'}
+{34320: ' reflex'}
+{25163: 'ído'}
+{37837: ' avanz'}
+{70787: ' publicación'}
+{42297: ' cookies'}
+{58248: ' distintas'}
+{29128: ' única'}
+{31896: ' González'}
+{42406: ' razón'}
+{56721: ' contacto'}
+{38750: ' temas'}
+{30590: ' inm'}
+{24416: ' posto'}
+{30723: ' López'}
+{9056: ' municip'}
+{21292: ' homes'}
+{19238: ' eran'}
+{106175: ' risco'}
+{53531: ' orde'}
+{35986: ' pai'}
+{92662: ' Administración'}
+{56525: ' distintos'}
+{58231: ' próximo'}
+{36994: ' redes'}
+{46877: ' mostra'}
+{42686: ' Ao'}
+{30838: ' parece'}
+{73094: ' facendo'}
+{9024: ' cab'}
+{7755: ' había'}
+{34708: 'azón'}
+{29999: ' elementos'}
+{4841: 'aces'}
+{26136: ' Serv'}
+{32849: 'endas'}
+{53683: ' permitir'}
+{63704: 'uais'}
+{56833: ' segue'}
+{72588: ' marco'}
+{29980: ' tradicional'}
+{106009: ' ofrecer'}
+{21478: ' DO'}
+{99465: ' tratamento'}
+{6258: ' compet'}
+{36492: ' evento'}
+{39859: ' certo'}
+{102009: ' correo'}
+{13976: ' permit'}
+{95194: ' patrimonio'}
+{34709: ' impuls'}
+{21329: 'énd'}
+{9118: ' resid'}
+{92375: ' asociación'}
+{29678: 'ób'}
+{32549: ' coment'}
+{4038: ' cult'}
+{89847: 'Así'}
+{30948: ' éxito'}
+{19837: ' destin'}
+{59307: ' elección'}
+{48326: ' máximo'}
+{48882: 'istro'}
+{24753: ' seis'}
+{2018: ' const'}
+{30185: ' equipos'}
+{16805: ' fundamental'}
+{126714: ' electrónico'}
+{59694: ' recibir'}
+{42081: ' memoria'}
+{25327: ' pesar'}
+{50011: ' referencia'}
+{11004: ' coordin'}
+{59023: ' deixar'}
+{9317: 'tras'}
+{39172: 'ístico'}
+{15742: ' lado'}
+{19828: 'encial'}
+{73852: ' infantil'}
+{15095: 'non'}
+{19687: 'itudes'}
+{13969: ' merc'}
+{26507: ' Municipal'}
+{53926: ' deles'}
+{6442: ' liter'}
+{9192: ' Cast'}
+{10568: ' electr'}
+{71602: ' opinión'}
+{29416: ' minutos'}
+{8151: ' cart'}
+{14629: ' Antonio'}
+{37172: 'lles'}
+{37392: ' motivo'}
+{19680: ' época'}
+{77642: ' produto'}
+{15087: ' Cas'}
+{14909: ' obt'}
+{84640: ' tempos'}
+{23001: ' vista'}
+{116216: ' pux'}
+{25314: ' femin'}
+{47678: ' defensa'}
+{24000: ' amor'}
+{34715: ' categoría'}
+{92703: ' obter'}
+{16975: ' volta'}
+{10640: 'ª'}
+{22419: ' alto'}
+{12328: 'Co'}
+{33911: ' municipio'}
+{8953: ' doc'}
+{12888: ' superior'}
+{43307: ' lon'}
+{91741: ' aqueles'}
+{102889: ' pequenos'}
+{38692: ' volver'}
+{16021: ' innov'}
+{36973: 'itario'}
+{66197: ' festa'}
+{61702: ' auton'}
+{32824: ' implic'}
+{46199: ' ambiente'}
+{52756: 'orna'}
+{81257: ' vila'}
+{63922: ' pase'}
+{15780: 'cido'}
+{99488: ' disposición'}
+{57666: ' vía'}
+{43670: ' acord'}
+{118358: ' estará'}
+{78266: ' concurso'}
+{8291: ' adapt'}
+{77068: ' Medio'}
+{72438: ' ofrece'}
+{31249: ' contrat'}
+{29372: 'atorio'}
+{99179: ' sesión'}
+{5393: ' investig'}
+{20262: ' debido'}
+{51346: ' deput'}
+{43959: ' conseguir'}
+{29495: 'ificado'}
+{92091: ' esque'}
+{64366: ' reclam'}
+{31809: ' Ax'}
+{10167: 'isión'}
+{23636: 'ceu'}
+{20877: ' morte'}
+{94277: ' insc'}
+{37290: 'erse'}
+{86478: ' fondos'}
+{1064: '@'}
+{62429: ' posta'}
+{43339: ' novela'}
+{27542: ' renov'}
+{31016: ' acept'}
+{25236: ' Internacional'}
+{26613: ' comercial'}
+{45773: ' literatura'}
+{61108: ' vivir'}
+{32234: ' figura'}
+{83833: ' agrade'}
+{70874: ' entrega'}
+{95384: ' promoción'}
+{102926: ' acceder'}
+{31448: ' cooper'}
+{11654: ' Juan'}
+{56860: ' práctica'}
+{41547: ' hou'}
+{74601: ' gratu'}
+{71587: 'xia'}
+{28031: ' sede'}
+{74423: ' pequeno'}
+{34977: ' clase'}
+{68167: ' públicas'}
+{36912: ' demost'}
+{4141: 'éc'}
+{44415: ' busca'}
+{38422: 'ulación'}
+{47385: ' alcal'}
+{53638: ' efectos'}
+{55654: ' documento'}
+{47644: ' ofrec'}
+{67666: ' económico'}
+{111643: ' comarca'}
+{53001: ' mans'}
+{66174: ' Parlamento'}
+{39444: 'elas'}
+{76583: ' denunci'}
+{31778: ' Grupo'}
+{26739: ' expres'}
+{21520: ' protagon'}
+{14321: 'quel'}
+{19965: 'icios'}
+{37839: 'áticas'}
+{17110: ' fro'}
+{39543: 'imentos'}
+{112173: 'zou'}
+{63472: ' Comisión'}
+{67561: 'ñar'}
+{26193: ' versión'}
+{123342: ' vex'}
+{47503: ' programas'}
+{14809: ' familiar'}
+{80964: ' estudos'}
+{40055: ' características'}
+{37770: ' trata'}
+{58980: ' consumo'}
+{23100: ' lingu'}
+{110495: 'Tam'}
+{40635: ' titular'}
+{48498: ' traslad'}
+{125388: ' materiais'}
+{61156: ' tradición'}
+{39140: ' irm'}
+{53206: ' apoi'}
+{61968: ' escola'}
+{91037: ' garantir'}
+{4195: ' env'}
+{39402: 'etas'}
+{16007: ' oficial'}
+{27176: 'osos'}
+{51660: ' artes'}
+{13963: 'rate'}
+{73988: ' pequena'}
+{45198: ' queda'}
+{55796: ' forza'}
+{62734: 'estar'}
+{38256: ' usuario'}
+{7376: ' Ent'}
+{22893: 'edor'}
+{115270: ' mesmos'}
+{48458: ' benefici'}
+{62849: ' Hai'}
+{29973: ' infra'}
+{31421: ' político'}
+{80969: 'ixas'}
+{27687: ' criter'}
+{51458: ' moc'}
+{40198: ' teatro'}
+{13729: ' urban'}
+{74052: ' explica'}
+{88764: 'ómica'}
+{52524: ' vídeo'}
+{54687: ' chegou'}
+{58600: ' economía'}
+{81820: ' premios'}
+{97103: ' parroquia'}
+{34498: ' edificio'}
+{74343: ' natureza'}
+{55396: ' homen'}
+{38511: ' diversas'}
+{59686: ' elas'}
+{82304: 'icación'}
+{25490: ' volunt'}
+{72863: ' Europea'}
+{33627: 'edo'}
+{24997: ' sost'}
+{49081: ' inicio'}
+{32676: 'ixa'}
+{41955: 'izados'}
+{9300: ' demand'}
+{41761: ' semanas'}
+{116814: 'íu'}
+{22080: ' fase'}
+{26297: ' sorte'}
+{38928: ' afor'}
+{42918: ' transporte'}
+{18465: ' precis'}
+{30799: ' aconte'}
+{69130: ' tiver'}
+{23293: ' bases'}
+{11716: ' execut'}
+{28029: 'ondo'}
+{54525: ' seguro'}
+{39555: ' tomar'}
+{74740: ' recomend'}
+{32821: ' fora'}
+{9558: ' cual'}
+{37705: ' fondo'}
+{24010: ' marca'}
+{21625: ' Miguel'}
+{42222: ' impres'}
+{100438: ' saída'}
+{76630: ' animais'}
+{75347: ' cita'}
+{104916: ' documentación'}
+{112412: ' comentarios'}
+{105502: ' resolución'}
+{22399: 'adamente'}
+{99300: ' lemb'}
+{113470: 'irá'}
+{31855: ' posición'}
+{22282: ' deleg'}
+{80561: ' representantes'}
+{27210: ' incluso'}
+{81599: 'erais'}
+{13611: 'estion'}
+{100841: ' somos'}
+{18852: 'áct'}
+{62328: ' informe'}
+{13668: ' determin'}
+{12226: ' musical'}
+{9343: 'ardo'}
+{37646: ' deu'}
+{38936: ' amigos'}
+{75549: ' Isto'}
+{113805: ' programación'}
+{28788: ' compart'}
+{53233: 'ídos'}
+{48510: ' Má'}
+{67450: ' plataforma'}
+{33358: ' Pérez'}
+{23787: ' complement'}
+{30290: ' partes'}
+{29254: ' diversos'}
+{37991: ' difícil'}
+{77412: ' oferta'}
+{92120: ' finais'}
+{68043: ' representación'}
+{64816: 'arial'}
+{12648: ' CON'}
+{70141: 'anzas'}
+{47639: ' xen'}
+{34122: ' usar'}
+{55813: ' Ministerio'}
+{22108: ' consegu'}
+{64073: 'omos'}
+{26476: ' Premio'}
+{51276: ' aí'}
+{115045: 'ividade'}
+{109604: ' pleno'}
+{18419: 'icion'}
+{57731: ' tare'}
+{127396: ' chega'}
+{40047: 'cidos'}
+{12717: ' Francisco'}
+{18071: 'igos'}
+{30327: ' contribu'}
+{19508: ' existe'}
+{63392: ' ler'}
+{123942: ' pretende'}
+{111071: ' realización'}
+{32735: ' empr'}
+{19124: 'SO'}
+{8725: ' conserv'}
+{82344: ' Nadal'}
+{114584: ' recuperación'}
+{19942: ' terre'}
+{62270: ' aspectos'}
+{42682: ' compañía'}
+{65080: ' cidades'}
+{62947: ' continuación'}
+{101554: ' produt'}
+{61045: 'olos'}
+{41014: 'ería'}
+{48211: ' cambios'}
+{44114: 'Desde'}
+{5327: ' complex'}
+{23584: ' espect'}
+{67544: ' clientes'}
+{26113: 'ificar'}
+{63771: ' propios'}
+{22106: ' escol'}
+{20010: ' estre'}
+{91008: ' acud'}
+{29735: ' Popular'}
+{34773: ' formas'}
+{96513: ' Escola'}
+{57980: ' momentos'}
+{41029: ' anteriores'}
+{25188: ' exterior'}
+{41176: ' mesa'}
+{58853: ' carreira'}
+{64980: ' prensa'}
+{20155: ' ferm'}
+{24156: 'untos'}
+{11129: ' emp'}
+{96409: ' Vázquez'}
+{25955: ' Partido'}
+{26072: ' cabeza'}
+{34888: ' Museo'}
+{108722: ' Rosal'}
+{92715: ' PSOE'}
+{111927: ' escolar'}
+{62633: ' biblioteca'}
+{22545: ' Soc'}
+{111920: ' conces'}
+{57493: ' entender'}
+{106756: ' reiv'}
+{70488: ' ponte'}
+{15906: ' conform'}
+{117476: ' foment'}
+{63046: ' documentos'}
+{22271: ' debate'}
+{61978: ' adecu'}
+{16908: ' Portugal'}
+{59299: ' refor'}
+{29675: ' canción'}
+{130305: ' aberto'}
+{39282: ' valores'}
+{23083: 'ioso'}
+{114416: ' instalación'}
+{21947: ' dedic'}
+{34429: ' presenta'}
+{103585: 'oló'}
+{55656: 'xes'}
+{28827: 'ída'}
+{27679: ' aire'}
+{49843: ' Ramón'}
+{6159: 'char'}
+{5716: ' exec'}
+{56389: ' abrir'}
+{41436: ' perder'}
+{33189: ' Terra'}
+{26078: ' estaban'}
+{127431: ' compartir'}
+{103101: ' celebrar'}
+{51822: ' directamente'}
+{34469: 'tero'}
+{75612: ' propias'}
+{26026: ' demanda'}
+{127319: ' tempada'}
+{87890: ' acces'}
+{68493: ' demais'}
+{18691: ' Civil'}
+{79168: ' actos'}
+{63662: ' aport'}
+{49723: 'Pero'}
+{70855: 'ídas'}
+{37061: 'inais'}
+{12106: ' ideas'}
+{105359: ' financi'}
+{18009: ' Pedro'}
+{39378: 'áticos'}
+{87456: ' teléfono'}
+{4240: ' exp'}
+{22139: '/a'}
+{43508: ' encarg'}
+{73640: ' quil'}
+{43887: ' buscar'}
+{17144: ' forest'}
+{13296: ' administr'}
+{72531: 'Ao'}
+{39735: ' desenvolv'}
+{109152: ' facilitar'}
+{6053: ' introdu'}
+{116573: 'ómico'}
+{97473: ' ensino'}
+{44700: ' palabra'}
+{34999: ' provincial'}
+{89725: ' intereses'}
+{29784: ' descub'}
+{36428: ' DA'}
+{19236: ' decid'}
+{19705: ' norte'}
+{47769: ' políticos'}
+{26611: ' menor'}
+{54677: ' ciclo'}
+{71155: ' sete'}
+{67810: ' baixa'}
+{7595: ' divers'}
+{15240: ' Local'}
+{58654: ' sección'}
+{53246: ' Ling'}
+{120668: 'Hai'}
+{33085: ' Unión'}
+{32231: ' cust'}
+{34706: ' bastante'}
+{67918: ' alimentos'}
+{12911: ' CE'}
+{60333: ' técnico'}
+{94381: 'urado'}
+{38703: ' áreas'}
+{88435: ' aprender'}
+{21125: 'empre'}
+{8978: ' solid'}
+{99532: ' pandemia'}
+{48951: ' industria'}
+{59143: ' concret'}
+{93831: ' apunt'}
+{33030: ' Cultural'}
+{59992: 'ensión'}
+{87054: ' cursos'}
+{101893: ' Turismo'}
+{48413: ' tendo'}
+{6264: 'acional'}
+{23662: 'ísticas'}
+{68553: ' populares'}
+{51142: ' técnica'}
+{127732: ' horario'}
+{41035: ' negoci'}
+{6221: 'Out'}
+{48345: ' Rib'}
+{66942: ' intención'}
+{34037: ' planta'}
+{55596: ' impacto'}
+{16801: ' Luis'}
+{50576: ' selección'}
+{27562: ' entreg'}
+{34841: ' principio'}
+{120852: ' estrada'}
+{35229: ' Teatro'}
+{23024: ' Pont'}
+{110778: 'Segundo'}
+{54890: 'úde'}
+{22555: ' Entre'}
+{74350: ' procesos'}
+{103496: ' prácticas'}
+{90140: ' delas'}
+{101261: ' venda'}
+{118002: ' lembr'}
+{95008: ' liberdade'}
+{88311: ' turismo'}
+{72655: ' directo'}
+{84143: ' Federación'}
+{46132: ' Xu'}
+{28556: ' pé'}
+{55950: ' cambiar'}
+{45174: ' Foi'}
+{30915: ' revis'}
+{122118: ' ecol'}
+{119317: ' deporte'}
+{59331: ' ruta'}
+{94979: ' espectáculo'}
+{78632: ' primeiras'}
+{37331: ' apost'}
+{63503: ' impart'}
+{14214: 'acer'}
+{32391: ' cob'}
+{49221: ' habitual'}
+{31190: 'osas'}
+{13292: ' apart'}
+{4988: ' Cont'}
+{42370: ' pensar'}
+{39732: ' contrato'}
+{92302: ' poucos'}
+{51657: 'uncia'}
+{46453: ' efecto'}
+{102277: ' análise'}
+{2617: 'oun'}
+{10500: ' confirm'}
+{47545: ' cade'}
+{8215: 'base'}
+{29164: ' partidos'}
+{48269: ' ampli'}
+{8869: 'emble'}
+{52541: ' histórico'}
+{47781: ' favore'}
+{2473: ' requ'}
+{35422: ' Instituto'}
+{56264: ' sufr'}
+{24412: ' Amb'}
+{28008: ' Ana'}
+{13924: ' industrial'}
+{28482: 'allo'}
+{22237: 'ualmente'}
+{41808: ' diferente'}
+{93982: ' igre'}
+{24015: ' provoc'}
+{28675: ' superficie'}
+{84244: ' poesía'}
+{48831: ' española'}
+{71468: 'idencia'}
+{26058: ' ambos'}
+{65214: ' comercio'}
+{57973: ' técnicas'}
+{94166: ' sectores'}
+{68702: ' visión'}
+{38886: ' sistemas'}
+{72525: ' oposición'}
+{115355: 'alos'}
+{21585: 'estre'}
+{39652: ' Paz'}
+{36329: ' converter'}
+{46936: ' monte'}
+{35729: ' especies'}
+{66429: ' terceiro'}
+{43613: 'ancias'}
+{27136: ' tram'}
+{17446: ' ocup'}
+{59820: ' clave'}
+{103916: ' madeira'}
+{8702: ' Out'}
+{54656: ' parque'}
+{63923: ' últimas'}
+{85107: ' fala'}
+{106923: ' ambiental'}
+{40540: ' completo'}
+{77221: ' definitiva'}
+{13619: ' deriv'}
+{37675: ' sabe'}
+{57529: ' menores'}
+{9326: 'acement'}
+{41157: ' cine'}
+{48569: ' fútbol'}
+{8917: ' cru'}
+{44426: ' audi'}
+{46383: ' totalmente'}
+{35042: ' altura'}
+{47887: ' progres'}
+{26879: ' estilo'}
+{64239: 'quela'}
+{41502: ' realmente'}
+{72763: ' mínimo'}
+{123251: ' procura'}
+{64711: ' comunidades'}
+{96639: ' lingü'}
+{14119: ' exclus'}
+{57987: ' asum'}
+{22535: 'ético'}
+{43330: ' aseg'}
+{13846: ' declar'}
+{50179: ' escritor'}
+{64742: ' tratar'}
+{52217: ' abord'}
+{44241: ' artistas'}
+{13581: ' Ped'}
+{78237: ' terceira'}
+{53306: ' propiet'}
+{86724: ' metade'}
+{51015: ' esas'}
+{33898: 'adura'}
+{84606: '.es'}
+{21413: ' increment'}
+{8955: ' equip'}
+{58366: ' académ'}
+{61689: ' presentes'}
+{119015: ' posibilidades'}
+{43900: ' formato'}
+{46503: ' conect'}
+{106441: ' asistencia'}
+{19251: ' Monte'}
+{98688: 'oxía'}
+{44781: ' considera'}
+{64066: ' clases'}
+{85937: ' reducir'}
+{57690: 'izadas'}
+{104780: ' perda'}
+{11100: ' convers'}
+{27548: ' ases'}
+{36810: ' Sánchez'}
+{69685: 'ísticos'}
+{32986: ' preocup'}
+{20474: ' coinc'}
+{82466: ' visitar'}
+{24947: ' exped'}
+{105448: ' conservación'}
+{34616: ' algu'}
+{13496: ' exempl'}
+{70829: ' debería'}
+{70152: 'quí'}
+{60876: ' contexto'}
+{32952: ' EN'}
+{53524: 'reira'}
+{29691: ' contempl'}
+{37322: ' Desde'}
+{83903: ' normas'}
+{72254: ' axe'}
+{47865: ' Díaz'}
+{39159: ' complic'}
+{106280: ' concreto'}
+{35624: ' principios'}
+{10576: ' reli'}
+{96775: ' cóm'}
+{88867: 'uí'}
+{96247: ' negocio'}
+{20875: 'pción'}
+{11387: ' adopt'}
+{87242: ' concerto'}
+{86213: ' promover'}
+{48586: ' escrito'}
+{104185: ' pequenas'}
+{21311: ' película'}
+{82448: ' previsto'}
+{55493: ' seleccion'}
+{69152: 'éron'}
+{68467: ' resulta'}
+{96613: ' emer'}
+{27940: 'ccion'}
+{38151: ' humanos'}
+{85904: ' salient'}
+{50019: 'elos'}
+{90972: ' medo'}
+{55922: ' Segundo'}
+{85333: ' historias'}
+{35665: 'ént'}
+{99549: ' beneficios'}
+{34312: ' pó'}
+{29402: ' anunci'}
+{85988: ' relacionadas'}
+{82967: 'arela'}
+{82707: ' oito'}
+{115643: ' gastos'}
+{74386: ' escenario'}
+{14613: 'rito'}
+{23466: ' Costa'}
+{53615: ' autores'}
+{94632: ' secretario'}
+{13473: 'aña'}
+{111821: ' participaron'}
+{42996: ' comer'}
+{127750: ' interesante'}
+{71782: ' relacionados'}
+{84113: ' posibles'}
+{46553: ' corazón'}
+{65153: ' fontes'}
+{19072: ' lanz'}
+{16321: ' concert'}
+{121928: ' enfront'}
+{32841: ' etapa'}
+{89608: ' duración'}
+{54491: ' existencia'}
+{72500: ' meus'}
+{40025: 'icar'}
+{50560: ' distancia'}
+{59006: ' pere'}
+{30576: ' conced'}
+{59177: 'acionais'}
+{85193: 'enciar'}
+{41711: 'idores'}
+{110301: 'omento'}
+{81268: ' publicar'}
+{109331: ' necesaria'}
+{36261: ' Martínez'}
+{13834: ' apare'}
+{38678: ' tipos'}
+{30024: ' inglés'}
+{64033: ' colección'}
+{30118: 'cida'}
+{31956: ' entend'}
+{8354: ' experi'}
+{79420: ' Ribe'}
+{4255: 'obre'}
+{38497: ' entrar'}
+{105666: ' deixa'}
+{46737: ' destino'}
+{88445: ' tráfico'}
+{129401: ' artigos'}
+{86589: ' competición'}
+{113399: ' técnicos'}
+{44492: ' tamaño'}
+{98318: 'onos'}
+{68854: ' estrutura'}
+{48836: ' efic'}
+{23256: ' repet'}
+{80668: ' vehículos'}
+{20980: ' acab'}
+{65587: ' Luís'}
+{70713: ' Alcal'}
+{62305: 'ómetros'}
+{44490: ' contrib'}
+{14660: ' Secret'}
+{102919: 'ónoma'}
+{49020: 'Gal'}
+{69890: ' destaca'}
+{12373: ' cort'}
+{6076: ' consist'}
+{119393: 'ovisual'}
+{34201: ' pregunt'}
+{117125: ' chegada'}
+{61266: ' textos'}
+{62042: ' compost'}
+{91652: ' concentración'}
+{69897: ' sanit'}
+{65674: ' compra'}
+{46061: ' casas'}
+{96320: ' esquerda'}
+{31292: ' finance'}
+{64131: ' escribir'}
+{96691: ' Agora'}
+{52008: ' parro'}
+{72924: ' idioma'}
+{114538: ' comisión'}
+{79747: ' ám'}
+{121787: ' requisitos'}
+{81591: ' desco'}
+{59372: ' consecuencia'}
+{79320: ' pedra'}
+{50893: ' utilizar'}
+{60062: ' Rede'}
+{119978: ' supo'}
+{77402: 'itado'}
+{78919: ' pasos'}
+{29866: 'Durante'}
+{50107: ' existen'}
+{63979: ' responsables'}
+{45900: ' completa'}
+{33843: ' divert'}
+{43162: ' aumento'}
+{34343: ' desapare'}
+{86984: ' aprendiz'}
+{72155: ' próxima'}
+{67970: ' establecer'}
+{46532: ' eventos'}
+{78501: 'ellas'}
+{20936: ' Cole'}
+{106029: ' socialista'}
+{29076: ' podía'}
+{61929: ' pagar'}
+{8157: ' disco'}
+{50812: ' continuar'}
+{26333: ' finalmente'}
+{64562: ' recuperar'}
+{5192: 'icial'}
+{33924: ' extraordin'}
+{98914: ' unidade'}
+{55854: ' arran'}
+{4972: ' pract'}
+{58357: ' Biblioteca'}
+{93890: ' redor'}
+{37729: ' atrás'}
+{107076: ' importe'}
+{39926: ' humano'}
+{9023: ' relev'}
+{67104: ' precisa'}
+{84664: 'uos'}
+{36584: 'veu'}
+{104380: ' visitantes'}
+{22210: ' implant'}
+{108721: ' abert'}
+{39838: 'ariamente'}
+{108451: ' Policía'}
+{111814: 'itando'}
+{50346: 'ánica'}
+{34324: ' aparece'}
+{14882: ' Camb'}
+{78360: ' actuar'}
+{42221: ' especie'}
+{32861: 'ulg'}
+{48285: ' Congreso'}
+{41450: ' formar'}
+{95726: ' preguntas'}
+{56512: ' expresión'}
+{98657: ' declaración'}
+{30907: ' habitantes'}
+{9126: ' agr'}
+{39365: ' artista'}
+{72119: 'ulario'}
+{112991: ' compro'}
+{62679: ' barrio'}
+{24235: ' coloc'}
+{62118: ' espera'}
+{16462: 'ivamente'}
+{36759: ' habil'}
+{47690: ' comerc'}
+{61935: ' reforma'}
+{53763: ' actualmente'}
+{48939: ' arque'}
+{63647: ' chamada'}
+{65381: ' preciso'}
+{20895: ' modal'}
+{28551: ' contamin'}
+{38719: ' competit'}
+{82743: ' chan'}
+{23720: ' configur'}
+{65800: ' útil'}
+{44079: ' Todo'}
+{57391: ' Rural'}
+{38446: ' bás'}
+{110976: ' consecuencias'}
+{87872: 'úan'}
+{53191: ' membro'}
+{83866: ' vincul'}
+{65453: ' Polo'}
+{60626: 'ográfico'}
+{69318: ' creo'}
+{68425: ' evolución'}
+{57312: ' Rex'}
+{8114: ' convert'}
+{4465: 'rix'}
+{59999: 'íns'}
+{21649: 'allas'}
+{47377: 'como'}
+{15166: ' nive'}
+{92668: ' Dirección'}
+{28116: ' consolid'}
+{121743: 'ítimas'}
+{124320: ' visitas'}
+{29940: ' Pablo'}
+{107510: ' continúa'}
+{42570: ' cores'}
+{122209: ' ado'}
+{81213: ' familiares'}
+{25295: 'iosa'}
+{33745: ' mundial'}
+{65210: 'endeu'}
+{36266: ' repart'}
+{71774: 'ionar'}
+{35712: ' costa'}
+{51261: 'ricas'}
+{46966: ' protagonista'}
+{124450: ' necesarios'}
+{35851: ' amigo'}
+{44789: ' realizado'}
+{15068: 'ría'}
+{102776: ' organiza'}
+{99458: ' escrib'}
+{47682: ' estrut'}
+{23688: ' Mundial'}
+{41912: 'ográfica'}
+{59248: ' máxima'}
+{80765: ' termos'}
+{46194: ' Academia'}
+{116554: ' cento'}
+{9244: ' detect'}
+{85827: ' saud'}
+{67504: ' motivos'}
+{70166: ' estou'}
+{64597: ' terras'}
+{45736: ' poeta'}
+{111653: ' tradicion'}
+{49238: ' PAR'}
+{77537: ' antigo'}
+{17239: ' cabe'}
+{75246: ' apertura'}
+{120878: ' difusión'}
+{67956: ' levou'}
+{85391: ' Política'}
+{111828: ' incremento'}
+{9261: ' satisf'}
+{20511: ' temporal'}
+{12916: 'embro'}
+{42771: ' suces'}
+{92441: ' desa'}
+{60129: ' presión'}
+{16345: ' intel'}
+{54906: ' física'}
+{12879: ' constitu'}
+{37733: ' capaz'}
+{69932: ' deixou'}
+{29753: ' Alberto'}
+{25273: ' acom'}
+{110721: ' petición'}
+{66015: ' Blanco'}
+{57981: ' Provincial'}
+{83345: ' pago'}
+{77031: ' disfr'}
+{34399: ' revista'}
+{43263: ' dando'}
+{88284: ' realizadas'}
+{33686: 'Entre'}
+{32409: ' servir'}
+{35224: ' carg'}
+{50631: ' potencial'}
+{108518: ' categorías'}
+{29116: ' gastr'}
+{105495: ' sustent'}
+{50279: ' Estas'}
+{12102: ' datas'}
+{50709: ' vant'}
+{108089: ' converte'}
+{36393: ' verde'}
+{104402: ' dificultades'}
+{22356: 'eses'}
+{60063: ' comida'}
+{41798: ' vive'}
+{9004: ' constit'}
+{107297: ' estiver'}
+{24304: ' envi'}
+{37333: ' toc'}
+{4716: 'ended'}
+{44923: ' suficiente'}
+{94975: ' hábit'}
+{39956: ' Arte'}
+{63247: ' distribución'}
+{28712: 'segu'}
+{87410: 'izou'}
+{100077: ' Estes'}
+{16920: ' decor'}
+{18924: ' transmit'}
+{80374: ' entorno'}
+{72066: ' histórica'}
+{107373: ' próximos'}
+{52563: ' modelos'}
+{128771: ' sabemos'}
+{61456: ' celebra'}
+{108168: ' oportunidades'}
+{47441: ' anual'}
+{23040: ' Fernando'}
+{49140: ' Gómez'}
+{66408: ' pacientes'}
+{47060: ' defender'}
+{70103: ' aumentar'}
+{43129: ' fácil'}
+{34528: ' Porto'}
+{16967: ' expert'}
+{68842: ' Española'}
+{90424: ' documental'}
+{21901: ' prohib'}
+{85539: ' nomes'}
+{51380: ' estrat'}
+{124803: ' Desenvol'}
+{32108: ' territorial'}
+{28315: 'íos'}
+{54192: ' aspecto'}
+{38120: ' electoral'}
+{115182: ' previa'}
+{51353: ' médico'}
+{29555: ' Infant'}
+{122639: ' diálogo'}
+{115055: ' pertenc'}
+{46076: ' repar'}
+{42366: ' crítica'}
+{128066: ' Letras'}
+{100019: 'ectoria'}
+{74446: ' quedar'}
+{17647: ' Cab'}
+{59582: ' Música'}
+{129553: ' internacionais'}
+{119805: ' lume'}
+{96844: ' domic'}
+{12587: ' Ill'}
+{69200: ' ciencia'}
+{118582: ' Europeo'}
+{69090: 'ursos'}
+{81450: ' longa'}
+{41141: ' corres'}
+{46442: ' plantas'}
+{55867: ' resolver'}
+{129411: ' atender'}
+{75058: ' forman'}
+{27541: '¡'}
+{63976: ' Álvarez'}
+{96550: ' Programa'}
+{112898: ' fotografía'}
+{32669: ' gobern'}
+{77048: ' acaba'}
+{43853: ' enorme'}
+{96586: ' vontade'}
+{106772: ' aprobación'}
+{52258: 'itou'}
+{94382: ' Porque'}
+{91211: ' divulg'}
+{120454: ' explotación'}
+{30485: ' empez'}
+{41551: ' elemento'}
+{75434: ' alá'}
+{58766: 'cendo'}
+{85524: 'itorio'}
+{69297: ' doce'}
+{78488: ' agrup'}
+{107576: ' asas'}
+{50108: ' carga'}
+{112962: ' Patrimonio'}
+{75006: ' urbano'}
+{10282: 'ront'}
+{108004: ' primaria'}
+{84653: ' estatal'}
+{63869: '/ou'}
+{93066: 'indic'}
+{52051: ' chamado'}
+{97348: 'ísimo'}
+{44673: 'aturas'}
+{34385: ' rehabil'}
+{31717: 'chas'}
+{54596: ' obstante'}
+{32274: 'ucion'}
+{27428: ' inicial'}
+{79458: ' estran'}
+{99290: ' vinte'}
+{96912: ' dispost'}
+{45562: ' contrario'}
+{55880: ' departamento'}
+{39329: ' Tras'}
+{21100: ' Francia'}
+{62924: ' concepto'}
+{45671: ' Alonso'}
+{56518: ' realizada'}
+{67121: ' falt'}
+{105719: ' recurso'}
+{22911: ' cot'}
+{72270: ' pedir'}
+{87181: ' velocidade'}
+{103927: 'iciencia'}
+{45566: 'ertas'}
+{73041: ' antiga'}
+{47374: ' publicado'}
+{129371: ' fotografías'}
+{59987: ' coche'}
+{28596: ' singular'}
+{85725: ' precisamente'}
+{26833: ' principalmente'}
+{64741: 'ámica'}
+{108273: 'quias'}
+{47067: ' partida'}
+{24627: ' década'}
+{30254: ' rode'}
+{24422: ' Cant'}
+{94633: 'itoria'}
+{34547: ' profund'}
+{63641: ' ilust'}
+{22453: ' facilit'}
+{13756: ' posterior'}
+{95556: ' Oficial'}
+{7477: ' clim'}
+{62337: ' décadas'}
+{81503: ' porto'}
+{28049: ' inaugur'}
+{107429: ' Núñez'}
+{105807: ' descubrir'}
+{73728: ' directa'}
+{74559: ' pasando'}
+{109795: 'remos'}
+{76419: ' desped'}
+{8671: ' disp'}
+{50766: ' autoridades'}
+{49768: ' cuarto'}
+{74783: ' situado'}
+{65539: ' pantalla'}
+{105417: ' circunstancias'}
+{106244: 'oción'}
+{9810: ' catal'}
+{69412: 'dense'}
+{23430: ' Durante'}
+{91564: 'áron'}
+{39333: ' televisión'}
+{55295: ' Artes'}
+{17556: ' escrit'}
+{69375: ' discurso'}
+{25040: ' emit'}
+{106502: ' escolas'}
+{19187: 'cell'}
+{46245: ' cliente'}
+{52965: ' toma'}
+{64127: ' aparecer'}
+{90842: ' aquela'}
+{3259: ' contin'}
+{77732: ' clara'}
+{62291: ' pregunta'}
+{50582: ' Todos'}
+{48540: ' integ'}
+{52590: ' restos'}
+{118758: 'ecas'}
+{73305: ' democr'}
+{48470: 'gado'}
+{16100: ' proxim'}
+{109251: ' económicos'}
+{91978: ' pesca'}
+{41125: ' voce'}
+{87687: ' ingresos'}
+{95161: ' riqueza'}
+{101399: ' organizado'}
+{66820: ' diferen'}
+{90274: ' roup'}
+{91281: ' confianza'}
+{112841: ' conmemor'}
+{91831: ' conexión'}
+{67513: ' diario'}
+{44446: ' Javier'}
+{65704: ' promov'}
+{40989: ' indica'}
+{48338: ' convenc'}
+{32793: ' dado'}
+{86454: ' existentes'}
+{71841: ' competencia'}
+{124551: ' empe'}
+{78399: ' perspectiva'}
+{68869: ' producir'}
+{26889: ' cic'}
+{74411: ' consulta'}
+{54774: ' Só'}
+{5025: ' espec'}
+{91334: ' establece'}
+{101176: ' acad'}
+{33362: ' humor'}
+{69002: 'inado'}
+{89053: ' gusta'}
+{91081: 'údo'}
+{39748: ' Historia'}
+{38883: ' fundament'}
+{36740: ' acus'}
+{105172: ' foll'}
+{49475: ' conto'}
+{39824: ' adquir'}
+{109486: ' aniversario'}
+{98904: ' permiten'}
+{60521: ' cans'}
+{90359: ' USC'}
+{38466: ' cruz'}
+{98232: 'ixes'}
+{110483: 'argar'}
+{54241: ' Cada'}
+{55595: ' Dere'}
+{55412: ' lament'}
+{15396: ' Indust'}
+{77361: ' anunciou'}
+{19017: ' cord'}
+{48170: ' bloque'}
+{49627: ' aprend'}
+{83838: ' representante'}
+{127933: ' especiais'}
+{44690: ' Carmen'}
+{34819: ' recre'}
+{41348: ' terce'}
+{95632: ' poemas'}
+{24568: ' antig'}
+{72017: ' alternativa'}
+{50438: ' gui'}
+{108189: ' participou'}
+{76743: 'ceso'}
+{128560: ' institucional'}
+{106541: ' bale'}
+{84415: 'áculos'}
+{40401: 'forma'}
+{106810: ' económicas'}
+{26870: ' admit'}
+{43165: ' víde'}
+{72110: 'ástico'}
+{83406: ' sanc'}
+{13449: ' plans'}
+{95636: ' atract'}
+{59380: ' edificios'}
+{66643: 'letas'}
+{106619: ' investigadores'}
+{36383: ' carta'}
+{40242: ' ambas'}
+{20902: ' vulner'}
+{15286: 'quis'}
+{42799: ' inmedi'}
+{45210: ' representa'}
+{51295: ' detrás'}
+{37185: ' señor'}
+{50303: 'Tras'}
+{105812: ' bens'}
+{44212: 'íamos'}
+{63885: 'izando'}
+{81280: ' franqu'}
+{96647: ' relato'}
+{120528: ' infancia'}
+{71142: ' Antón'}
+{80458: ' almacen'}
+{66878: 'presión'}
+{21107: ' integral'}
+{86198: 'ónicos'}
+{62694: ' explot'}
+{57747: ' entrevista'}
+{120492: 'uración'}
+{91794: ' Economía'}
+{100810: ' QUE'}
+{78947: ' nº'}
+{12276: ' alert'}
+{63901: ' numerosas'}
+{122105: ' autént'}
+{126862: ' aldea'}
+{22955: ' inferior'}
+{19531: ' reun'}
+{43107: 'úst'}
+{95966: ' decidiu'}
+{120086: 'ernos'}
+{66636: ' ritmo'}
+{119347: ' transformación'}
+{94235: 'atorias'}
+{19546: ' varied'}
+{30543: ' líder'}
+{88523: ' traduc'}
+{21488: ' Cruz'}
+{94274: ' Cidade'}
+{94248: ' vías'}
+{79697: ' composición'}
+{55929: ' escrita'}
+{16802: 'enso'}
+{38848: ' transpar'}
+{127208: ' contou'}
+{17401: 'reas'}
+{12170: ' repres'}
+{107063: ' órgano'}
+{22998: 'efe'}
+{45774: ' Comité'}
+{27993: 'Public'}
+{49117: ' recl'}
+{44324: ' humana'}
+{112306: ' sacar'}
+{90383: ' superar'}
+{111827: ' entradas'}
+{71577: ' Rei'}
+{41947: ' alum'}
+{36079: 'arel'}
+{73328: ' potencia'}
+{88407: 'curso'}
+{36222: ' suced'}
+{29213: ' Reino'}
+{50646: ' rápido'}
+{28185: ' socio'}
+{18549: ' entra'}
+{41728: ' breve'}
+{77625: ' límite'}
+{93033: ' atend'}
+{45237: ' incend'}
+{41684: ' demasiado'}
+{93546: ' ilustr'}
+{69923: ' múltiples'}
+{115996: ' quedan'}
+{46012: 'ítica'}
+{25017: ' destru'}
+{77804: ' contemporá'}
+{11060: ' impos'}
+{20305: ' Guerra'}
+{64113: 'cidas'}
+{49126: ' promoc'}
+{112228: ' tramo'}
+{78316: ' termo'}
+{57504: ' libres'}
+{101287: ' emisión'}
+{93976: ' residencia'}
+{35159: ' suf'}
+{64602: 'Nos'}
+{102374: ' cadr'}
+{58755: ' letras'}
+{53477: ' Parque'}
+{45919: ' votos'}
+{54355: ' realiza'}
+{62372: ' voto'}
+{85648: ' asegur'}
+{43984: ' conden'}
+{50038: ' campos'}
+{97722: 'álogo'}
+{53051: ' eléct'}
+{44715: 'boa'}
+{52346: ' desaf'}
+{103138: ' aplicar'}
+{121300: ' enlace'}
+{113603: 'venc'}
+{71760: ' Ciencias'}
+{2323: 'cond'}
+{75592: ' aparecen'}
+{65898: ' simplemente'}
+{74319: ' estás'}
+{58582: ' numerosos'}
+{33989: ' fiscal'}
+{93316: ' europeos'}
+{27777: ' Norte'}
+{79623: 'ronte'}
+{12204: 'enses'}
+{52137: ' permanente'}
+{35492: ' consiste'}
+{99180: ' Caballero'}
+{15635: ' Prote'}
+{39431: ' busc'}
+{85440: ' dispositivo'}
+{66042: ' Arqu'}
+{105725: ' quero'}
+{130239: ' inverno'}
+{70828: ' ilumin'}
+{63735: ' asent'}
+{127595: ' Méndez'}
+{79241: ' municipios'}
+{81330: 'cado'}
+{104263: ' autora'}
+{42195: ' código'}
+{34615: ' frecu'}
+{71455: ' cámara'}
+{94463: ' recente'}
+{61192: 'añas'}
+{92861: ' vehículo'}
+{106628: 'itada'}
+{92879: ' sitios'}
+{14079: ' miles'}
+{74812: ' Tecn'}
+{43481: ' editorial'}
+{45369: 'riu'}
+{82627: ' convid'}
+{124938: ' calendario'}
+{21066: 'rico'}
+{50324: 'Eu'}
+{111158: ' viven'}
+{86319: ' afirmou'}
+{71796: ' situada'}
+{15044: ' Vill'}
+{46888: ' mostrar'}
+{77517: ' acredit'}
+{77265: ' vento'}
+{91413: ' activa'}
+{79752: 'ñado'}
+{104163: ' Profes'}
+{55848: ' planeta'}
+{93796: ' Pública'}
+{68989: ' enviar'}
+{43859: ' negro'}
+{88499: ' compromet'}
+{23810: 'ordo'}
+{53288: ' afirma'}
+{28379: ' discrimin'}
+{65472: ' eliminar'}
+{59605: 'Quer'}
+{126051: ' manifesto'}
+{49008: 'metro'}
+{60034: ' certa'}
+{73567: ' destacar'}
+{102550: 'forte'}
+{93163: ' tantos'}
+{13823: ' editor'}
+{90439: ' branco'}
+{98420: ' completar'}
+{66736: ' lograr'}
+{86726: ' perfil'}
+{40413: ' Alfonso'}
+{80658: ' europeo'}
+{45398: ' constante'}
+{89038: ' peor'}
+{88466: ' asunto'}
+{21278: ' Fac'}
+{45696: ' conduc'}
+{89256: ' organismo'}
+{103308: ' establecido'}
+{128353: ' organizada'}
+{77759: ' explicar'}
+{90849: 'ítima'}
+{127536: ' Aro'}
+{52548: ' autob'}
+{71426: ' firme'}
+{55871: ' Está'}
+{86202: ' positivo'}
+{36654: ' golpe'}
+{18882: ' comprom'}
+{104767: ' Decreto'}
+{113807: ' Aquí'}
+{76764: ' iniciar'}
+{100659: ' Iglesias'}
+{23445: ' arqu'}
+{35054: ' Martín'}
+{26886: ' Aud'}
+{11251: ' Direct'}
+{46919: 'ellor'}
+{50220: 'ónico'}
+{23932: ' América'}
+{90591: ' funcional'}
+{41242: ' insist'}
+{92362: ' propo'}
+{43651: 'uros'}
+{78390: 'erto'}
+{45145: ' esqu'}
+{20035: ' colle'}
+{31884: ' substitu'}
+{57117: ' cif'}
+{74588: ' instrumentos'}
+{115155: 'quisición'}
+{86432: 'comun'}
+{44084: ' proporcion'}
+{55448: ' títulos'}
+{77981: ' aband'}
+{34626: ' Rey'}
+{41404: ' Quer'}
+{90823: ' causas'}
+{51529: ' pista'}
+{85995: ' vidas'}
+{49384: ' estación'}
+{123360: ' realizou'}
+{28246: ' fís'}
+{83733: ' adultos'}
+{63775: ' Facult'}
+{73121: ' intelectual'}
+{7371: ' Lou'}
+{112587: ' acompañado'}
+{34746: ' Ou'}
+{85374: ' impost'}
+{66289: ' decreto'}
+{66281: ' silencio'}
+{81165: ' implica'}
+{39757: ' celeb'}
+{35127: 'almente'}
+{14367: ' vivo'}
+{39153: ' cambi'}
+{12417: ' reserv'}
+{37080: ' Jesús'}
+{54707: ' candidato'}
+{41801: ' boca'}
+{31527: ' anunc'}
+{42069: ' Río'}
+{89796: ' itiner'}
+{81513: ' oficina'}
+{99170: ' democracia'}
+{54498: ' bols'}
+{12959: ' substit'}
+{96865: ' noticia'}
+{72126: ' arquitectura'}
+{67015: 'ólico'}
+{84342: ' esencial'}
+{62736: 'ilos'}
+{53278: ' escena'}
+{46419: ' Audi'}
+{60762: ' formado'}
+{5653: 'Act'}
+{18617: ' advert'}
+{27185: ' vou'}
+{52357: ' dificult'}
+{47245: ' Marcos'}
+{108939: ' Vive'}
+{77921: ' costas'}
+{47640: ' Superior'}
+{29413: ' Santo'}
+{77458: ' acred'}
+{36240: ' cinema'}
+{94253: ' activo'}
+{36005: ' tales'}
+{82188: ' factores'}
+{24151: 'DO'}
+{99217: ' adaptación'}
+{54641: ' clasificación'}
+{90776: 'inción'}
+{41514: ' reproduc'}
+{19240: ' Mond'}
+{101340: ' dispositivos'}
+{119864: ' conflito'}
+{92866: 'atorios'}
+{24494: ' República'}
+{104251: ' sabor'}
+{102548: 'gadas'}
+{64029: ' abre'}
+{40118: ' Presidente'}
+{37694: ' embar'}
+{118917: ' séculos'}
+{40558: ' unidades'}
+{79329: ' ouro'}
+{90853: ' esperanza'}
+{30744: ' Silva'}
+{44282: ' Plata'}
+{115700: ' asegurar'}
+{105458: 'areas'}
+{94913: ' andar'}
+{61606: ' Vila'}
+{55509: ' asign'}
+{44520: ' Tribunal'}
+{115665: 'ántica'}
+{44330: ' método'}
+{63717: 'ismos'}
+{81206: 'anova'}
+{64288: 'ólogo'}
+{103386: ' trasl'}
+{111418: ' aceite'}
+{84850: ' absoluta'}
+{78953: ' accidente'}
+{11572: 'unque'}
+{89724: ' pés'}
+{9680: ' somet'}
+{24062: ' encont'}
+{46766: ' azul'}
+{8014: ' candid'}
+{125747: ' Iso'}
+{86915: ' candidatura'}
+{73972: ' recibe'}
+{73878: ' privada'}
+{52082: 'ánico'}
+{104905: 'ítimo'}
+{53485: 'rados'}
+{44386: ' taxa'}
+{72848: ' Deportes'}
+{80793: ' científico'}
+{37232: ' posteriormente'}
+{101604: ' oficiais'}
+{16456: ' Cou'}
+{5063: 'icult'}
+{72427: ' próxim'}
+{104176: ' universidades'}
+{110039: ' pensamento'}
+{81711: ' poema'}
+{56874: ' pintura'}
+{85743: ' atraves'}
+{108912: ' remit'}
+{72141: ' físico'}
+{75025: ' interpretación'}
+{64275: ' resistencia'}
+{51036: 'icias'}
+{84780: ' detalles'}
+{123065: ' sensibil'}
+{46398: ' graves'}
+{34475: 'éndose'}
+{112795: ' reais'}
+{58422: ' dominio'}
+{2822: 'Cont'}
+{71989: ' europea'}
+{105487: 'posición'}
+{69561: 'ecer'}
+{83623: ' Mesa'}
+{98014: 'otec'}
+{5914: 'max'}
+{8890: 'cons'}
+{54481: ' espa'}
+{12026: ' abandon'}
+{18608: ' Cert'}
+{82753: ' abaixo'}
+{67817: ' conclu'}
+{70769: ' mapa'}
+{44254: ' quiz'}
+{78857: 'ónicas'}
+{115120: ' tantas'}
+{76445: ' científica'}
+{35245: ' estr'}
+{65634: ' pact'}
+{35702: ' titul'}
+{94761: ' conciencia'}
+{62778: ' figuras'}
+{41879: ' resum'}
+{64081: ' Estud'}
+{44479: 'émon'}
+{40050: ' descon'}
+{44918: ' quería'}
+{37478: 'arme'}
+{98381: 'roga'}
+{12322: ' canc'}
+{83803: ' anex'}
+{98972: ' presentado'}
+{55076: ' vigor'}
+{89605: ' desf'}
+{124734: ' descanso'}
+{93467: ' inscri'}
+{94255: 'esas'}
+{85783: ' afast'}
+{17667: 'érica'}
+{16115: ' narr'}
+{96538: ' voces'}
+{68405: ' seres'}
+{109232: 'llo'}
+{35733: ' curios'}
+{78443: ' funciona'}
+{130980: ' ensin'}
+{37698: 'idamente'}
+{87814: ' científicos'}
+{111271: 'ísima'}
+{105708: 'Foi'}
+{106744: ' capaces'}
+{85236: ' feita'}
+{25816: ' Sac'}
+{86618: ' emig'}
+{113544: ' difund'}
+{47934: ' Campo'}
+{56602: ' venc'}
+{75672: ' comportamento'}
+{56851: ' arriba'}
+{72223: ' Obr'}
+{30858: ' Normal'}
+{80095: ' decidir'}
+{36720: ' arquitect'}
+{95072: ' existente'}
+{68988: ' barco'}
+{109984: ' organizar'}
+{83769: 'órica'}
+{49496: ' influencia'}
+{67915: ' Nun'}
+{27447: ' Jorge'}
+{23786: ' carte'}
+{129520: ' básicos'}
+{19360: ' infant'}
+{71159: 'xel'}
+{90739: ' ausencia'}
+{38317: ' Isabel'}
+{94002: ' instrumento'}
+{7465: ' capt'}
+{124448: ' pagamento'}
+{60595: 'Todos'}
+{35858: ' café'}
+{25883: 'Desc'}
+{13626: 'rique'}
+{29176: ' alcanz'}
+{69369: ' considerar'}
+{90490: ' plena'}
+{38817: ' mencion'}
+{38270: ' País'}
+{53725: ' inser'}
+{29895: ' Pere'}
+{95934: 'beda'}
+{124564: ' sane'}
+{72272: 'itores'}
+{27797: ' Execut'}
+{92750: ' sensación'}
+{49253: ' torno'}
+{86572: ' imposible'}
+{36089: ' León'}
+{88886: ' privado'}
+{128728: ' Pode'}
+{36710: ' festiv'}
+{113453: ' Voz'}
+{93063: ' artística'}
+{123873: ' usos'}
+{83477: ' fábrica'}
+{104094: ' excelente'}
+{48957: ' Ángel'}
+{118934: ' Morte'}
+{61777: ' aparición'}
+{54649: ' películas'}
+{106459: ' informes'}
+{42533: ' Orden'}
+{112477: ' mercados'}
+{94216: ' negocios'}
+{13452: ' retr'}
+{118372: ' rutas'}
+{43179: 'rando'}
+{109557: ' comprender'}
+{52138: ' Estr'}
+{31874: ' deterior'}
+{66866: ' museo'}
+{40704: ' francés'}
+{114202: ' eficaz'}
+{57670: ' sexo'}
+{102219: ' impulso'}
+{27585: ' levant'}
+{124778: ' deportivo'}
+{95729: ' Libro'}
+{117804: ' mestre'}
+{74519: ' habilidades'}
+{61628: ' Marta'}
+{41340: ' aproximadamente'}
+{70660: ' operación'}
+{119478: ' engan'}
+{110807: ' crédito'}
+{68784: ' sorprend'}
+{99556: ' Semana'}
+{77645: ' Ment'}
+{77176: ' auditor'}
+{64436: ' subir'}
+{100581: ' ópt'}
+{101222: 'rupción'}
+{63671: ' primavera'}
+{80361: 'ástica'}
+{82686: ' abr'}
+{78711: ' extensión'}
+{128705: ' autonomía'}
+{65119: ' responder'}
+{44583: 'acular'}
+{22345: ' defend'}
+{73149: ' Señor'}
+{112437: ' devol'}
+{72860: ' moda'}
+{40916: 'entro'}
+{54110: ' comité'}
+{59298: 'áfico'}
+{29938: 'alles'}
+{52057: 'ritos'}
+{26996: ' presid'}
+{60683: ' Logo'}
+{104393: ' detall'}
+{121510: ' espírito'}
+{85287: 'gada'}
+{70314: 'entina'}
+{32892: 'culos'}
+{81400: ' gráf'}
+{61723: ' acabar'}
+{80826: ' etiqu'}
+{121668: ' caixa'}
+{104747: ' pide'}
+{32356: ' bande'}
+{121196: ' publicou'}
+{51591: ' anot'}
+{48736: ' acu'}
+{73332: ' duro'}
+{109249: ' relacionada'}
+{84871: ' Montes'}
+{107660: ' cifra'}
+{96750: ' cobertura'}
+{64665: ' conseguiu'}
+{23455: ' circular'}
+{60445: ' publicada'}
+{97125: ' previamente'}
+{36208: ' Lorenzo'}
+{115717: ' publicados'}
+{96960: ' dita'}
+{50895: ' sober'}
+{25325: ' déb'}
+{17128: 'ícula'}
+{40687: ' pretend'}
+{88393: 'iado'}
+{65101: 'mites'}
+{64723: ' altas'}
+{89548: ' escen'}
+{66623: ' núcleo'}
+{119497: ' soporte'}
+{122878: ' intercambio'}
+{85479: ' límites'}
+{52280: 'acas'}
+{32502: ' Rosa'}
+{108770: ' deixando'}
+{103806: ' salón'}
+{40119: ' entrev'}
+{111305: ' oficinas'}
+{32733: ' ecos'}
+{27245: ' Franco'}
+{123073: ' desigual'}
+{93893: ' organismos'}
+{91467: ' publica'}
+{110500: ' beneficio'}
+{113046: ' cuestion'}
+{69966: ' independencia'}
+{71292: 'icato'}
+{111210: ' Estat'}
+{68137: 'ubil'}
+{120945: ' restauración'}
+{80202: ' inmediatamente'}
+{82631: ' médicos'}
+{20721: ' prolong'}
+{56674: 'ñez'}
+{72489: ' corresponde'}
+{115272: ' recinto'}
+{29256: ' carre'}
+{107693: ' cartel'}
+{123143: ' órganos'}
+{122155: ' preocupación'}
+{96605: ' marcas'}
+{129671: ' circulación'}
+{86934: ' Poder'}
+{19237: 'culo'}
+{85724: ' presentan'}
+{71626: ' evidente'}
+{27374: ' Cooper'}
+{108446: ' particulares'}
+{41385: ' presencia'}
+{82407: ' cuarta'}
+{45235: ' Vicente'}
+{63975: ' tocar'}
+{105772: ' específica'}
+{96933: ' mínima'}
+{127351: ' Comercio'}
+{60157: 'uesa'}
+{76063: ' vender'}
+{35899: ' corte'}
+{82572: ' ríos'}
+{104867: ' preparar'}
+{91566: ' soport'}
+{99705: ' eléctrica'}
+{116575: 'formas'}
+{66573: ' taller'}
+{40187: 'Todo'}
+{110438: ' Investigación'}
+{59338: 'éticos'}
+{4771: ' require'}
+{111022: 'onomía'}
+{68215: ' aves'}
+{61064: ' misión'}
+{86842: ' frío'}
+{42858: ' facult'}
+{85895: ' transmisión'}
+{58216: ' senso'}
+{99506: ' psicol'}
+{108079: ' pobreza'}
+{48259: ' Innov'}
+{109977: ' sorpr'}
+{95863: ' necesita'}
+{114082: ' embarc'}
+{71897: ' rápida'}
+{113694: ' conferencia'}
+{60176: ' restric'}
+{77486: ' bosque'}
+{43539: 'isco'}
+{89293: 'iramente'}
+{124233: ' preparación'}
+{77188: ' reserva'}
+{62564: 'acos'}
+{88144: ' Técn'}
+{113932: ' prést'}
+{123612: ' Atlántico'}
+{47513: ' números'}
+{19086: ' desen'}
+{57698: ' banco'}
+{54343: 'rax'}
+{126413: 'abora'}
+{75956: ' reiter'}
+{25535: ' Particip'}
+{90016: ' destacan'}
+{85797: ' noticias'}
+{81916: ' patrim'}
+{42224: ' conte'}
+{91803: ' músicos'}
+{32241: ' adop'}
+{76347: ' erro'}
+{71628: ' Cald'}
+{28887: ' Santos'}
+{63874: ' ocult'}
+{104582: ' tendencia'}
+{66867: ' esperar'}
+{61053: 'ónimo'}
+{51211: ' tedes'}
+{120612: 'Cada'}
+{40462: ' pronto'}
+{118549: ' privadas'}
+{124460: 'oría'}
+{103012: 'greso'}
+{82677: ' depende'}
+{50464: ' policía'}
+{63353: ' volv'}
+{15228: 'igue'}
+{62217: ' métodos'}
+{97567: ' realizados'}
+{100953: ' específico'}
+{20541: ' denomin'}
+{7978: ' promot'}
+{58181: ' minuto'}
+{84293: 'iosos'}
+{68466: ' rigor'}
+{46067: ' Torre'}
+{82243: ' claramente'}
+{22010: ' GA'}
+{83534: 'reo'}
+{44964: ' tribut'}
+{76600: ' Conde'}
+{16260: ' abund'}
+{91576: ' baile'}
+{124354: ' específicas'}
+{54077: ' respectivamente'}
+{64463: ' desempe'}
+{60541: ' avance'}
+{40592: ' inscrit'}
+{23039: ' privile'}
+{42667: ' leis'}
+{100521: ' Econ'}
+{47227: 'cir'}
+{118043: ' Ata'}
+{75647: ' territorios'}
+{98675: ' integrantes'}
+{77422: ' clín'}
+{107655: ' pasaron'}
+{107615: ' alberg'}
+{113716: ' bolsa'}
+{63459: ' frecuencia'}
+{62972: ' fortes'}
+{47516: ' habitu'}
+{72996: ' plen'}
+{75411: 'iría'}
+{80899: ' Cámara'}
+{65122: ' Cristina'}
+{58046: ' Banco'}
+{103735: ' independente'}
+{103793: ' morrer'}
+{94418: ' asuntos'}
+{65787: ' flores'}
+{67586: ' sorpresa'}
+{44399: 'pero'}
+{113847: ' transición'}
+{96485: ' inmediato'}
+{106555: ' ficción'}
+{89399: ' SER'}
+{49507: ' Andrés'}
+{37175: ' cole'}
+{96663: ' actores'}
+{103844: ' ocupación'}
+{37863: ' París'}
+{66599: ' máquina'}
+{91665: ' identificar'}
+{71671: ' caer'}
+{71100: ' controlar'}
+{16943: ' Font'}
+{113370: ' sociedades'}
+{111303: ' eliminación'}
+{126618: ' síntomas'}
+{114628: ' aventura'}
+{79311: ' Álvaro'}
+{66773: ' similares'}
+{123329: ' baseado'}
+{33412: ' hect'}
+{16656: ' compens'}
+{84830: 'adou'}
+{85969: ' metá'}
+{49416: ' alemán'}
+{65037: ' parecer'}
+{115016: ' danza'}
+{35258: ' Unido'}
+{38327: 'ionato'}
+{83743: ' tanta'}
+{101236: ' talento'}
+{76763: ' listas'}
+{70566: ' Reis'}
+{30672: 'enario'}
+{71422: ' Suárez'}
+{78529: ' retirada'}
+{74983: ' bandas'}
+{74967: ' propiedades'}
+{8331: ' infe'}
+{72448: ' alcanzar'}
+{58344: ' anteriormente'}
+{93928: ' gala'}
+{105926: ' adquirir'}
+{89594: ' exclusivamente'}
+{125057: ' probar'}
+{90681: ' patrocin'}
+{106111: ' realizan'}
+{82059: 'ítico'}
+{71227: ' inicia'}
+{94298: ' arquivo'}
+{25419: ' protoc'}
+{110979: ' relatos'}
+{39244: ' pione'}
+{81146: ' Banda'}
+{75076: ' composto'}
+{105855: ' bancos'}
+{61795: ' conforme'}
+{107029: ' encargado'}
+{100599: 'eran'}
+{51114: ' Graz'}
+{79734: ' urbana'}
+{126121: ' anunciar'}
+{77520: ' reacción'}
+{80431: ' sair'}
+{83052: ' agrad'}
+{56551: ' mandato'}
+{53229: ' dura'}
+{76987: ' alcance'}
+{86857: ' domést'}
+{52031: 'ósito'}
+{70311: ' traz'}
+{67575: ' feliz'}
+{98536: ' copia'}
+{74444: ' caída'}
+{26029: ' Blo'}
+{80750: ' teatral'}
+{27143: 'eneral'}
+{87496: ' participa'}
+{9475: ' exhib'}
+{130763: ' conceptos'}
+{113945: 'istos'}
+{38040: ' paro'}
+{54474: 'rante'}
+{79443: ' paciente'}
+{67732: ' viu'}
+{42521: 'éct'}
+{69748: ' portugu'}
+{108587: ' consideran'}
+{112332: 'idar'}
+{64385: ' Emilio'}
+{85103: ' excepción'}
+{38406: ' Eduardo'}
+{87999: ' buscando'}
+{82541: ' permanecer'}
+{116776: ' detalle'}
+{101763: ' proporcionar'}
+{72154: 'contro'}
+{70805: 'ificada'}
+{128932: ' cren'}
+{68074: ' determinar'}
+{52998: ' escala'}
+{129074: ' aclar'}
+{113627: ' alegr'}
+{60555: 'cía'}
+{87660: ' Muller'}
+{110029: 'Sobre'}
+{15897: 'cias'}
+{32307: 'ífico'}
+{57982: ' ocorre'}
+{78654: ' cargos'}
+{94817: ' Pilar'}
+{128994: ' Castelo'}
+{21973: ' Ferr'}
+{50826: ' teoría'}
+{125062: ' Salón'}
+{11511: ' Atl'}
+{41016: ' paix'}
+{66552: ' necesit'}
+{73694: ' apreci'}
+{107447: ' tensión'}
+{87844: ' montaña'}
+{113647: ' modificar'}
+{101253: ' Asturias'}
+{62946: ' Premios'}
+{57334: ' normalmente'}
+{19776: ' Conserv'}
+{128095: ' operativo'}
+{123112: ' Sempre'}
+{33577: ' Serg'}
+{81404: 'itoral'}
+{30911: ' medieval'}
+{15083: ' conn'}
+{117690: 'ánea'}
+{25112: ' Aires'}
+{119650: ' abaste'}
+{121777: ' veu'}
+{55531: ' mediados'}
+{59294: 'raron'}
+{105096: ' fenómeno'}
+{78378: ' observar'}
+{74293: 'quete'}
+{70360: ' Lago'}
+{88786: ' positiva'}
+{109788: ' Infra'}
+{121564: ' vicepresidente'}
+{74261: ' Xe'}
+{69534: ' salvo'}
+{25774: ' enl'}
+{55128: 'neos'}
+{104579: ' compañías'}
+{63893: ' cartas'}
+{93646: ' definición'}
+{102155: ' Organización'}
+{118276: ' destinado'}
+{91128: ' Cataluña'}
+{90845: ' cultivo'}
+{30587: ' pref'}
+{26916: ' confl'}
+{64807: ' Sistema'}
+{112751: ' antigos'}
+{39915: ' bail'}
+{79217: ' unión'}
+{17693: ' adm'}
+{102204: ' tentar'}
+{89532: 'iciais'}
+{99692: 'ífica'}
+{32622: 'istencia'}
+{36007: 'neas'}
+{88270: ' agro'}
+{56177: ' emigr'}
+{53959: ' Verde'}
+{17112: ' álbum'}
+{122497: ' activos'}
+{113337: ' exces'}
+{68012: ' propósito'}
+{126482: ' procede'}
+{119232: ' millón'}
+{46234: ' clasific'}
+{16696: ' preserv'}
+{33840: ' Rafael'}
+{90933: ' excepc'}
+{126925: 'ínguez'}
+{61584: ' probablemente'}
+{117526: ' específicos'}
+{61348: ' utilizando'}
+{47584: ' Campus'}
+{117289: ' mecanismos'}
+{122476: ' atras'}
+{103655: 'iosas'}
+{108946: ' coches'}
+{51473: 'redo'}
+{77636: 'éticas'}
+{71920: 'edores'}
+{118136: ' dano'}
+{96220: ' impresion'}
+{33519: ' batalla'}
+{56244: ' resc'}
+{90232: 'ROS'}
+{76400: ' significado'}
+{117248: ' estrelas'}
+{81331: ' correr'}
+{45904: ' Mull'}
+{79543: ' Especial'}
+{102241: ' reperc'}
+{66161: ' Constitución'}
+{17411: 'ECT'}
+{110175: ' autó'}
+{107733: ' artístico'}
+{111456: ' Orde'}
+{51461: 'órm'}
+{68875: ' Ese'}
+{53914: ' segundos'}
+{110481: 'eceu'}
+{76580: ' crítico'}
+{97385: ' clásico'}
+{87925: ' dedicado'}
+{110639: ' mirar'}
+{67790: ' mover'}
+{58845: ' críticas'}
+{33410: ' Dest'}
+{62555: 'ipos'}
+{18425: ' interact'}
+{79923: ' superiores'}
+{95444: ' relacionado'}
+{73957: ' parcel'}
+{76850: 'ixos'}
+{47200: ' triste'}
+{116956: ' impresión'}
+{96602: ' escritores'}
+{10235: ' reflect'}
+{69294: ' universo'}
+{55652: ' Abel'}
+{24582: ' campus'}
+{128210: ' versos'}
+{58028: ' adicional'}
+{14068: ' compare'}
+{89954: ' raíz'}
+{35325: ' interc'}
+{112398: ' Público'}
+{78579: ' ascenso'}
+{91597: ' filosofía'}
+{93118: 'estes'}
+{108525: ' Seo'}
+{49133: ' clás'}
+{46760: ' consc'}
+{82905: ' Cá'}
+{98752: ' Estrada'}
+{82449: ' Lois'}
+{99146: ' ilegal'}
+{21141: 'rices'}
+{81363: ' prisión'}
+{97076: ' salas'}
+{33916: ' incent'}
+{113427: ' pesc'}
+{118770: ' euc'}
+{108873: ' Rubén'}
+{98705: ' provoca'}
+{20964: 'aches'}
+{75228: ' Sobre'}
+{99988: ' Gond'}
+{41210: ' Torres'}
+{79554: ' aceler'}
+{98167: ' redact'}
+{128226: ' vendas'}
+{125864: ' realizando'}
+{109963: ' fabricación'}
+{29001: ' compatible'}
+{87653: ' consciente'}
+{85377: ' fachada'}
+{90899: 'colas'}
+{43310: ' Cic'}
+{100499: ' panorama'}
+{31286: 'raba'}
+{18264: ' consecut'}
+{125643: 'ñor'}
+{62423: ' capa'}
+{12604: ' Cult'}
+{129395: ' privados'}
+{102101: ' querer'}
+{52068: ' mirada'}
+{91453: ' revolución'}
+{40031: ' Esper'}
+{46288: ' clima'}
+{88197: ' encant'}
+{65024: ' Desc'}
+{67145: ' negra'}
+{89985: ' históricos'}
+{102345: ' Esa'}
+{105840: ' finalizar'}
+{6662: '.x'}
+{108256: ' verdes'}
+{99318: ' orquest'}
+{70250: ' formada'}
+{29770: ' Roberto'}
+{71316: ' Deleg'}
+{31697: ' irregular'}
+{107041: ' administrativa'}
+{47001: ' mec'}
+{19268: ' cancel'}
+{50668: ' unanim'}
+{116433: ' permiso'}
+{82605: ' Gonzalo'}
+{120751: ' maquin'}
+{60410: 'mart'}
+{62440: ' podían'}
+{109303: ' quince'}
+{81380: ' ocupa'}
+{82900: ' trast'}
+{45851: ' pronunci'}
+{97837: 'ólogos'}
+{79521: 'cara'}
+{85835: ' igualmente'}
+{98207: ' parada'}
+{116566: ' cantidades'}
+{128831: ' Oficina'}
+{71649: ' capítulo'}
+{24350: ' propor'}
+{98792: ' reparto'}
+{79068: ' provincias'}
+{17726: ' Corpor'}
+{109978: ' pistas'}
+{59671: ' Corre'}
+{98566: 'izas'}
+{55994: ' parcial'}
+{19022: ' españ'}
+{117296: 'Finalmente'}
+{64735: ' viva'}
+{89612: ' sombra'}
+{21910: ' anticip'}
+{60255: ' intento'}
+{31753: 'ianos'}
+{49584: ' indef'}
+{95095: ' quedaron'}
+{88776: ' Lal'}
+{21024: ' Salv'}
+{103809: ' reunir'}
+{35439: ' ferro'}
+{117499: ' empezar'}
+{76290: ' sospe'}
+{96774: ' equilibrio'}
+{59740: 'esía'}
+{19729: 'rase'}
+{98513: ' fases'}
+{113378: 'apé'}
+{109869: 'ográficas'}
+{53144: ' división'}
+{31626: ' tranqu'}
+{111987: ' vistas'}
+{101949: ' provocar'}
+{53168: ' avent'}
+{104711: ' cero'}
+{52577: ' sabía'}
+{88438: ' corrente'}
+{42444: ' insult'}
+{79760: ' barcos'}
+{37904: 'ólica'}
+{81481: 'ponden'}
+{129073: ' sucede'}
+{73032: 'cente'}
+{72721: ' rote'}
+{71045: ' definir'}
+{42713: ' ingres'}
+{106310: ' residentes'}
+{109532: ' batería'}
+{123989: ' toca'}
+{118488: 'ásticos'}
+{43658: 'posta'}
+{34519: 'bras'}
+{127275: ' relevante'}
+{79298: 'icción'}
+{122557: 'gou'}
+{62518: ' Consumer'}
+{104754: ' creando'}
+{13462: 'cipl'}
+{67827: ' escapar'}
+{96115: ' demostrar'}
+{48966: ' Domingo'}
+{71214: ' altos'}
+{49248: ' estados'}
+{49628: 'ogue'}
+{102747: ' mortos'}
+{115434: ' exclu'}
+{101505: ' Todas'}
+{45353: 'nés'}
+{84245: ' etapas'}
+{50529: ' Paula'}
+{61646: ' letra'}
+{52966: ' núcle'}
+{84713: ' puntu'}
+{116701: ' narrativa'}
+{106869: ' cárc'}
+{120232: ' idiomas'}
+{125358: 'ándo'}
+{76200: ' símbolo'}
+{89360: ' simb'}
+{126188: ' feitas'}
+{105461: ' secundaria'}
+{59675: ' responde'}
+{40920: ' Enrique'}
+{78807: ' intentar'}
+{44698: ' pape'}
+{107317: ' Arias'}
+{125595: ' autoridade'}
+{57879: ' frase'}
+{129745: ' enca'}
+{121783: ' Coordin'}
+{33180: ' Segunda'}
+{41104: ' Deportivo'}
+{56453: ' desemb'}
+{68897: ' creado'}
+{60833: ' diá'}
+{99640: ' curta'}
+{94694: 'ribución'}
+{11235: ' conver'}
+{31973: ' supervis'}
+{20304: 'icional'}
+{39819: ' típ'}
+{103963: ' localidades'}
+{84291: ' segura'}
+{21262: ' retir'}
+{74353: 'lico'}
+{91164: ' máquinas'}
+{84296: 'vida'}
+{103256: ' realizaron'}
+{80401: ' toneladas'}
+{88593: ' incluir'}
+{91478: ' creada'}
+{58737: ' salvar'}
+{83296: ' Defensa'}
+{49382: ' África'}
+{36402: 'illos'}
+{66962: 'órico'}
+{128211: ' pú'}
+{111553: ' restaurante'}
+{33650: ' práct'}
+{85829: ' polém'}
+{68165: ' seguido'}
+{46406: ' XXI'}
+{42861: ' cach'}
+{77889: ' renunci'}
+{18690: 'chos'}
+{9271: 'úblic'}
+{34174: 'uiu'}
+{60463: ' poderes'}
+{128763: ' desaparición'}
+{103499: ' intensa'}
+{92974: ' digo'}
+{86660: ' serían'}
+{83291: ' fundación'}
+{16812: ' consid'}
+{119172: ' Ames'}
+{82198: ' acumul'}
+{79286: ' escritos'}
+{73179: ' Novo'}
+{102343: 'ocas'}
+{127564: ' básica'}
+{28024: ' carb'}
+{89264: ' Vidal'}
+{101540: ' representan'}
+{111542: ' fortal'}
+{92801: ' absoluto'}
+{114777: ' branca'}
+{116345: ' constitución'}
+{38441: ' Valencia'}
+{74793: ' pensando'}
+{95552: ' parar'}
+{120377: ' baño'}
+{45764: 'Logo'}
+{128714: ' entregar'}
+{44941: 'ixin'}
+{40760: ' proclam'}
+{31676: ' construcción'}
+{77562: 'ólicos'}
+{45038: ' Teresa'}
+{25282: ' mascul'}
+{121107: ' seren'}
+{116049: ' elo'}
+{73755: ' herd'}
+{86465: ' protesta'}
+{111114: 'ógrafo'}
+{90719: ' Villar'}
+{96289: ' nación'}
+{109607: ' Faro'}
+{109288: 'quen'}
+{87561: ' pedag'}
+{72672: ' quinta'}
+{103156: ' casco'}
+{77677: ' daba'}
+{106174: ' descenso'}
+{91488: ' evidencia'}
+{72453: ' agricultura'}
+{45840: ' Mundo'}
+{120379: ' correctamente'}
+{89852: ' dedicada'}
+{49912: ' quím'}
+{83340: ' determinado'}
+{110389: ' incendio'}
+{73206: ' pensa'}
+{24213: ' regres'}
+{108077: ' enfoque'}
+{128538: ' concre'}
+{13780: ' distingu'}
+{70098: ' circunst'}
+{123714: ' contando'}
+{111048: ' indicar'}
+{43757: ' fame'}
+{14442: ' curr'}
+{36051: ' Valent'}
+{108308: 'íticas'}
+{20197: 'olver'}
+{63708: 'rador'}
+{107967: ' producen'}
+{22063: ' estad'}
+{97883: 'ablemente'}
+{120324: ' háb'}
+{70749: ' Víctor'}
+{130878: ' escas'}
+{39658: ' reconstru'}
+{110545: ' competir'}
+{99328: 'ótica'}
+{92710: ' especific'}
+{118772: ' ocasion'}
+{84325: ' temperaturas'}
+{91845: ' marcar'}
+{102235: ' elevado'}
+{52861: ' novamente'}
+{78590: 'antil'}
+{108576: ' comerci'}
+{41647: ' gracias'}
+{43774: 'istema'}
+{5833: ' avo'}
+{54443: 'ocar'}
+{87972: ' colocar'}
+{47182: ' lago'}
+{82346: ' Unidas'}
+{39682: ' inex'}
+{45766: ' considerado'}
+{54549: 'entemente'}
+{58178: ' evit'}
+{11787: ' repro'}
+{66030: ' Literatura'}
+{75372: ' abus'}
+{98649: 'Está'}
+{125820: 'oncesto'}
+{84435: ' Socialista'}
+{120869: ' pediu'}
+{114114: ' compromis'}
+{38225: ' Ricardo'}
+{107140: ' funcionar'}
+{101592: ' diferenci'}
+{89751: ' consta'}
+{23922: ' Agr'}
+{68721: ' Cine'}
+{70956: ' exército'}
+{71536: 'ogado'}
+{64979: 'atado'}
+{45278: ' torre'}
+{70659: ' recor'}
+{122141: ' regras'}
+{46140: ' Julio'}
+{80010: ' importa'}
+{125295: ' falou'}
+{82928: 'Ax'}
+{109153: ' aceptar'}
+{116022: 'ográficos'}
+{121225: ' barrios'}
+{112606: ' reú'}
+{22899: ' notable'}
+{60701: ' almac'}
+{85885: ' negativa'}
+{95085: 'ortun'}
+{103978: ' combinación'}
+{21451: 'QUE'}
+{107015: 'maras'}
+{22164: 'ráf'}
+{55794: ' cerebro'}
+{107680: ' POR'}
+{47096: ' expuls'}
+{62234: 'cripción'}
+{74535: ' paredes'}
+{38568: ' César'}
+{69263: ' Antes'}
+{96360: ' laboratorio'}
+{114005: ' insuf'}
+{79740: 'quial'}
+{125275: ' Pepe'}
+{57474: ' ataques'}
+{97540: ' Prado'}
+{127198: ' Edición'}
+{50675: ' escult'}
+{42903: ' Sout'}
+{85235: ' candidatos'}
+{127063: ' diagnóstico'}
+{93640: ' carbono'}
+{32021: ' Galax'}
+{101777: ' cantar'}
+{108429: ' aquilo'}
+{89210: ' desg'}
+{121628: 'zada'}
+{13993: 'pañ'}
+{129378: ' Lucía'}
+{95665: ' coste'}
+{98041: ' facilmente'}
+{23762: ' Document'}
+{129465: ' luces'}
+{106838: ' ondas'}
+{127569: ' levando'}
+{128224: ' comis'}
+{118922: ' raíces'}
+{107208: ' estilos'}
+{90888: ' fórmula'}
+{12781: 'velle'}
+{124931: ' dotar'}
+{89610: 'radas'}
+{75125: ' notas'}
+{58759: ' bordo'}
+{116298: ' integrado'}
+{106013: ' vín'}
+{125853: ' votación'}
+{62671: ' posteriores'}
+{104495: ' Fiscal'}
+{46587: ' biod'}
+{104231: ' posesión'}
+{109664: 'üe'}
+{55747: ' sobreviv'}
+{69541: 'cada'}
+{58544: ' Finalmente'}
+{38194: ' Valle'}
+{117027: ' consenso'}
+{46525: 'ultural'}
+{96974: 'Antes'}
+{97631: ' existir'}
+{69963: ' Campos'}
+{82465: ' ancho'}
+{44826: 'Present'}
+{23870: ' contrad'}
+{83393: ' presup'}
+{88000: 'enciado'}
+{62109: ' extremo'}
+{73102: ' conserva'}
+{30480: ' Territ'}
+{30657: 'ouri'}
+{112402: ' culturas'}
+{82336: ' profunda'}
+{129223: 'izador'}
+{57972: ' Lara'}
+{93662: ' perdeu'}
+{18202: ' compat'}
+{117818: ' parecen'}
+{24033: ' escri'}
+{83030: ' bombe'}
+{6375: ' rele'}
+{102148: ' marcado'}
+{69075: ' Dix'}
+{103520: 'ísica'}
+{61676: ' famoso'}
+{84309: 'érico'}
+{89714: ' DOS'}
+{106271: ' estaría'}
+{57305: ' campionato'}
+{106531: ' cem'}
+{83925: ' posicion'}
+{59737: ' inicialmente'}
+{130231: ' fronteira'}
+{123331: 'Manuel'}
+{30565: ' Activ'}
+{70086: ' Alba'}
+{61261: 'ébr'}
+{86694: ' expansión'}
+{113463: ' muros'}
+{57236: ' cál'}
+{109920: ' Tanto'}
+{83933: ' retom'}
+{109495: 'Nun'}
+{98051: 'vias'}
+{127021: ' suficientes'}
+{51024: ' cama'}
+{113130: ' atl'}
+{115814: ' ingreso'}
+{80657: ' representar'}
+{76196: ' corred'}
+{14166: ' protocol'}
+{92854: ' Primeira'}
+{84763: ' emblem'}
+{107079: ' funcionarios'}
+{49929: ' cinemat'}
+{119384: ' alimento'}
+{53307: ' romana'}
+{73614: ' provisional'}
+{130551: ' adolescentes'}
+{73334: 'iblemente'}
+{99516: ' arquitecto'}
+{59401: 'Prime'}
+{121121: ' denominación'}
+{105647: ' postura'}
+{46439: ' Luz'}
+{40578: ' matrimonio'}
+{117494: ' abriu'}
+{105200: ' raza'}
+{32746: ' División'}
+{130289: ' conclusión'}
+{73613: ' acabou'}
+{123699: ' variedades'}
+{130062: ' sentimento'}
+{113278: ' clásica'}
+{36526: ' Confeder'}
+{79930: ' Agustín'}
+{19980: ' equilib'}
+{113964: ' seca'}
+{25978: 'erce'}
+{98522: ' músico'}
+{45400: ' derrota'}
+{26123: ' adher'}
+{66340: ' avión'}
+{97471: ' drogas'}
+{84728: ' relativa'}
+{108876: ' invern'}
+{45537: ' peculiar'}
+{65290: ' entret'}
+{90508: 'SUM'}
+{106583: 'ingos'}
+{118918: ' escribe'}
+{51484: ' encima'}
+{71548: ' entrou'}
+{67909: ' ferrovi'}
+{82960: ' Xin'}
+{117308: ' distinto'}
+{70409: ' definitivamente'}
+{96066: ' superviv'}
+{89074: ' impedir'}
+{129702: ' legado'}
+{119781: ' Mercado'}
+{91034: ' caza'}
+{67809: 'ionalmente'}
+{78665: 'etra'}
+{43058: 'alc'}
+{93813: ' Español'}
+{129408: ' exemplar'}
+{102588: ' pará'}
+{55609: ' templo'}
+{33711: ' coher'}
+{47728: 'ricos'}
+{63890: ' coro'}
+{65598: ' Serra'}
+{96138: ' Catedral'}
+{93252: ' centen'}
+{13103: ' Educ'}
+{127893: ' iniciou'}
+{72447: ' sínt'}
+{115295: ' afili'}
+{105528: ' intenso'}
+{104023: ' cerve'}
+{78452: ' barro'}
+{111044: 'ificados'}
+{104358: ' exactamente'}
+{106343: ' retirar'}
+{53324: ' axi'}
+{94760: ' repert'}
+{87788: ' leste'}
+{104632: ' Chant'}
+{114366: ' chave'}
+{105457: ' Ruta'}
+{98262: ' reformas'}
+{113648: ' consegue'}
+{98036: ' ench'}
+{110820: ' marcador'}
+{93728: ' Iván'}
+{84232: 'uvial'}
+{50670: ' reino'}
+{69174: ' patio'}
+{63127: ' Libre'}
+{126935: ' preparado'}
+{19603: ' adhes'}
+{42640: ' fich'}
+{14802: 'berto'}
+{81684: 'José'}
+{116978: ' tirar'}
+{99717: ' revistas'}
+{119873: ' destacados'}
+{53753: ' parecía'}
+{34686: ' permanec'}
+{78817: ' titulado'}
+{97069: ' bosques'}
+{77901: ' utilizan'}
+{108145: ' cuant'}
+{104969: ' pese'}
+{51876: ' francesa'}
+{112224: ' períodos'}
+{63169: ' Pereira'}
+{121308: ' toque'}
+{14044: 'ician'}
+{61782: ' actriz'}
+{125700: ' produtor'}
+{121493: ' subsc'}
+{91829: ' morreu'}
+{74320: ' composta'}
+{102595: ' estando'}
+{128954: ' indemn'}
+{63701: ' comet'}
+{70742: ' Ferro'}
+{85427: ' Universitario'}
+{47279: ' Quint'}
+{105917: ' futura'}
+{66741: ' inéd'}
+{108298: ' sabes'}
+{83510: ' pobres'}
+{114738: 'ibir'}
+{117711: 'prove'}
+{98594: ' ofre'}
+{61133: ' Romero'}
+{118117: ' médica'}
+{109072: ' patrón'}
+{127761: ' anuncia'}
+{111267: 'ánicos'}
+{88180: ' presidencia'}
+{105660: ' romper'}
+{77866: ' forz'}
+{57088: ' Grove'}
+{114190: ' definitivo'}
+{125182: ' relativo'}
+{69547: ' retorno'}
+{58979: ' multiplic'}
+{56787: 'ociación'}
+{111966: ' novelas'}
+{104956: ' cincuenta'}
+{48811: 'ertos'}
+{89248: ' Semin'}
+{89449: ' equivalente'}
+{39599: ' Felipe'}
+{90828: ' Lect'}
+{124281: ' argumentos'}
+{63889: ' regreso'}
+{122811: ' fracaso'}
+{127301: 'izaron'}
+{60847: ' Irlanda'}
+{77235: ' Pastor'}
+{74859: ' elector'}
+{11635: ' plural'}
+{109017: ' apareceu'}
+{32924: ' inoc'}
+{33557: 'metros'}
+{91818: ' Cabo'}
+{76954: ' practic'}
+{65585: ' cristal'}
+{72811: ' Amor'}
+{69123: ' característica'}
+{58778: ' Fútbol'}
+{128631: ' Maio'}
+{102880: ' abra'}
+{115513: ' únicos'}
+{79129: ' Avenida'}
+{82392: ' unir'}
+{84381: ' Óscar'}
+{100802: 'ósitos'}
+{83605: 'baix'}
+{122939: ' bailar'}
+{105824: 'rex'}
+{87538: 'oporto'}
+{109445: ' vivos'}
+{39491: ' oeste'}
+{35275: ' estadounidense'}
+{88325: ' individuos'}
+{85190: ' ferv'}
+{84745: ' trama'}
+{90452: ' salto'}
+{111877: ' tranquil'}
+{80465: ' sáb'}
+{128104: ' chamou'}
+{67143: ' Carm'}
+{56574: ' perde'}
+{55556: ' Conv'}
+{124227: ' prata'}
+{72940: ' eco'}
+{102660: ' preci'}
+{107038: ' Simón'}
+{70495: 'orado'}
+{51967: ' Alto'}
+{64494: ' brazos'}
+{61736: 'aldo'}
+{67730: ' reacc'}
+{79550: ' pintor'}
+{103856: ' elevada'}
+{47050: ' goles'}
+{128743: ' NOS'}
+{129680: ' COR'}
+{79732: ' brillante'}
+{93844: ' inspi'}
+{46881: 'ucional'}
+{92859: ' comparación'}
+{21261: ' Municip'}
+{108005: ' portuguesa'}
+{80307: ' contaba'}
+{117413: ' mudar'}
+{85470: ' ocupar'}
+{101379: ' proporciona'}
+{67064: ' improvis'}
+{59614: ' carp'}
+{106411: ' negativo'}
+{100120: ' quedando'}
+{62731: ' arco'}
+{45779: ' Mou'}
+{34098: 'ubro'}
+{70427: ' líderes'}
+{119835: ' estancia'}
+{62696: ' fauna'}
+{48492: ' Canc'}
+{77318: ' discos'}
+{48999: ' Viol'}
+{129246: ' amare'}
+{62603: ' Editorial'}
+{121013: ' Román'}
+{88387: ' profundo'}
+{94204: ' rico'}
+{72314: ' multin'}
+{71274: ' abandonar'}
+{48471: 'pcion'}
+{78142: ' estándar'}
+{68234: ' descans'}
+{92083: ' argumento'}
+{64338: ' Monter'}
+{92159: ' placa'}
+{44226: ' Alejandro'}
+{113581: ' limitado'}
+{43454: ' FP'}
+{100928: ' partidas'}
+{129547: ' caras'}
+{21139: ' indirect'}
+{130932: 'rugada'}
+{65433: ' multitude'}
+{47823: ' Miranda'}
+{37465: 'ponder'}
+{44531: ' cantante'}
+{91001: 'arquía'}
+{29003: ' favorable'}
+{100286: ' escritura'}
+{28015: ' catalog'}
+{103732: ' nocturn'}
+{116976: ' irá'}
+{108663: ' matric'}
+{113652: '-PSOE'}
+{128389: 'utica'}
+{67261: 'neros'}
+{2791: 'ponse'}
+{116430: ' efectu'}
+{114518: ' declarou'}
+{128310: ' parede'}
+{59414: ' barre'}
+{115778: ' Ribeiro'}
+{122636: ' Fonte'}
+{49258: ' Tou'}
+{22100: ' Observ'}
+{61595: 'logos'}
+{17254: ' señ'}
+{51409: ' debía'}
+{27536: ' Deport'}
+{76239: ' catedral'}
+{68238: ' Ignacio'}
+{100472: ' Actualmente'}
+{130217: ' entro'}
+{125709: ' incapac'}
+{106327: ' ínt'}
+{16526: ' provinc'}
+{39286: ' espectadores'}
+{118809: ' Quintana'}
+{99659: ' seguidores'}
+{84692: ' horiz'}
+{39937: ' Adri'}
+{84300: ' Femin'}
+{26122: 'bres'}
+{34002: ' naval'}
+{65644: ' involuc'}
+{128438: ' Declar'}
+{63126: ' piloto'}
+{101865: ' Supremo'}
+{73743: ' Tamp'}
+{85390: ' masculino'}
+{78157: ' formando'}
+{119476: 'entos'}
+{103997: ' usan'}
+{115195: 'xase'}
+{18665: ' considerable'}
+{75894: ' columna'}
+{12341: 'oded'}
+{38341: ' torneo'}
+{45785: 'arqu'}
+{117236: ' visitante'}
+{20507: 'uario'}
+{82887: ' denominado'}
+{82091: ' península'}
+{121749: ' desac'}
+{117101: ' fusión'}
+{72137: ' piso'}
+{65712: 'ianas'}
+{125411: ' tratados'}
+{17229: ' enqu'}
+{55588: ' triun'}
+{91879: 'altar'}
+{78869: ' filmes'}
+{124652: ' POL'}
+{97165: 'grin'}
+{111539: 'icl'}
+{58943: ' clube'}
+{95142: ' tomando'}
+{109408: 'menos'}
+{121429: ' darse'}
+{126751: ' beber'}
+{51182: ' Urb'}
+{107469: ' sobres'}
+{110757: ' corredor'}
+{83513: ' CAM'}
+{87525: ' Nunca'}
+{98124: ' Pint'}
+{50635: ' Sevilla'}
+{113833: ' separación'}
+{125228: 'adro'}
+{86830: ' persegu'}
+{72131: ' Zona'}
+{116108: ' destacado'}
+{128772: ' pensado'}
+{119278: ' reservas'}
+{109238: 'roso'}
+{90517: 'verde'}
+{89075: ' cambia'}
+{81212: 'ántico'}
+{109682: ' sexta'}
+{12241: 'éric'}
+{119187: ' Beatriz'}
+{57264: ' Rivera'}
+{48716: ' occidental'}
+{99468: ' determinada'}
+{62331: 'ativamente'}
+{90238: ' suave'}
+{84971: ' monumento'}
+{47132: ' Present'}
+{82681: ' fundador'}
+{17855: ' histó'}
+{95786: ' Outros'}
+{99453: ' retras'}
+{67205: ' guitarra'}
+{41755: ' científ'}
+{113410: ' Frag'}
+{32078: ' Agricult'}
+{61333: ' Env'}
+{52428: 'ubes'}
+{72680: ' costumes'}
+{83874: ' consigo'}
+{41415: ' créd'}
+{130380: ' adulto'}
+{20532: ' Chap'}
+{49811: ' Principal'}
+{47963: 'adic'}
+{80963: ' utilizados'}
+{97632: ' superfic'}
+{44762: ' Contr'}
+{71047: ' Vasco'}
+{16657: 'case'}
+{89122: 'íes'}
+{61737: ' equiv'}
+{90725: ' triunfo'}
+{78041: ' Obras'}
+{124340: ' ricos'}
+{30562: ' perspect'}
+{119084: 'ímica'}
+{86274: ' Mateo'}
+{44124: ' Xavier'}
+{61404: ' oficialmente'}
+{54397: ' Patricia'}
+{47979: ' Algun'}
+{97442: ' cobre'}
+{125185: 'aix'}
+{46368: ' mando'}
+{21841: ' infin'}
+{117394: ' Cliente'}
+{100617: ' bronce'}
+{56731: ' índ'}
+{121981: 'ionado'}
+{63995: ' considerada'}
+{23579: ' CG'}
+{100929: ' Ríos'}
+{55160: ' debates'}
+{78439: ' Sector'}
+{119471: 'quio'}
+{93533: 'ráneo'}
+{96793: ' policial'}
+{126383: ' avenida'}
+{120110: 'aduras'}
+{106515: ' portada'}
+{97843: ' ESC'}
+{111350: ' extrema'}
+{52958: ' costume'}
+{58804: ' Alfredo'}
+{66246: 'versal'}
+{128084: ' ciencias'}
+{109601: ' solitario'}
+{100030: ' estacion'}
+{64806: 'ínsula'}
+{121314: ' excurs'}
+{67531: ' culto'}
+{29410: 'ancial'}
+{86407: 'ótico'}
+{33477: ' Cov'}
+{95723: ' mecanismo'}
+{94280: ' fresco'}
+{127762: ' Guit'}
+{90551: 'abela'}
+{68008: ' COMP'}
+{47666: ' enterr'}
+{84290: ' romanos'}
+{83009: 'feo'}
+{68778: ' amiga'}
+{110722: ' encabez'}
+{116784: ' contigo'}
+{115124: ' inferiores'}
+{64477: ' dedos'}
+{62263: ' quinto'}
+{123281: ' externas'}
+{91186: ' servidor'}
+{36592: 'acé'}
+{27181: 'habil'}
+{128676: ' marcada'}
+{126228: 'inato'}
+{83934: ' Porta'}
+{100948: ' fortaleza'}
+{124886: ' renuncia'}
+{126510: ' censura'}
+{128865: ' Humanos'}
+{75983: ' Quiz'}
+{87971: ' continuo'}
+{107120: ' masc'}
+{125128: ' departamentos'}
+{101434: ' potente'}
+{130660: ' bipart'}
+{52915: 'rx'}
+{66533: ' Tres'}
+{56490: ' compositor'}
+{72578: ' Cerv'}
+{95859: ' Roque'}
+{57801: ' Vega'}
+{114248: 'agrada'}
+{56619: ' Bibliot'}
+{105744: ' défic'}
+{80043: ' continente'}
+{104070: 'ulado'}
+{111662: ' escultura'}
+{111283: ' Escrit'}
+{106682: ' evolucion'}
+{25530: ' irre'}
+{82812: ' restantes'}
+{16060: 'Document'}
+{45563: 'terra'}
+{22055: 'anco'}
+{117075: ' agrícolas'}
+{130225: 'paro'}
+{120787: 'ámico'}
+{61121: ' perdido'}
+{52505: 'ométr'}
+{51012: ' Interior'}
+{92723: ' individuo'}
+{13747: ' Elect'}
+{88163: ' interpretar'}
+{49456: ' Imperio'}
+{31919: ' episodio'}
+{109284: ' posiblemente'}
+{96245: 'ímetros'}
+{96469: ' montañas'}
+{65028: ' Reb'}
+{30884: 'urso'}
+{64869: ' Grecia'}
+{112268: ' líquido'}
+{79223: ' famosa'}
+{100834: ' gallo'}
+{70788: ' lados'}
+{126759: ' Mesmo'}
+{92585: ' denominada'}
+{100448: 'igrantes'}
+{38012: '-.'}
+{90901: ' decret'}
+{48113: 'Sent'}
+{95591: 'iches'}
+{96757: ' recomp'}
+{57735: ' sonora'}
+{126717: ' retrato'}
+{33633: ' Ingl'}
+{82919: ' Org'}
+{85905: ' planos'}
+{47587: 'orias'}
+{89025: ' expedición'}
+{24951: ' cultiv'}
+{31695: ' Ciudad'}
+{120683: ' paralelo'}
+{111913: ' AO'}
+{112396: ' rica'}
+{113432: 'ndrome'}
+{84992: ' tún'}
+{87565: 'otipo'}
+{79170: ' encom'}
+{79072: ' Cous'}
+{117080: ' Andalucía'}
+{53598: ' Moreno'}
+{93488: ' agrícola'}
+{103454: ' Territorial'}
+{103026: ' Afonso'}
+{38169: ' transc'}
+{93586: 'itectura'}
+{69706: ' sorriso'}
+{96210: ' maqu'}
+{59687: ' Lisboa'}
+{101962: ' Andrade'}
+{73560: 'lox'}
+{118111: 'exe'}
+{129177: ' Pai'}
+{53050: 'feito'}
+{98927: ' Medicina'}
+{53794: 'ustos'}
+{123076: ' cálculo'}
+{123171: ' pasaba'}
+{74600: 'unción'}
+{81035: ' historiador'}
+{110412: ' permanece'}
+{79029: ' recibido'}
+{76727: ' empate'}
+{125443: ' acert'}
+{113317: ' cortes'}
+{48677: ' Expos'}
+{71813: ' auxili'}
+{87402: 'erre'}
+{116941: ' inversión'}
+{113255: 'mería'}
+{68961: 'ificio'}
+{62363: 'mero'}
+{84678: ' señora'}
+{98789: ' Pais'}
+{122424: ' ocorrer'}
+{86803: ' PAC'}
+{25687: ' alumin'}
+{110272: 'estor'}
+{95130: ' Natura'}
+{94401: ' química'}
+{108660: ' constantemente'}
+{68002: ' mural'}
+{112086: ' liberación'}
+{92865: ' índice'}
+{111682: ' descart'}
+{71314: ' imprim'}
+{118138: ' éxitos'}
+{66504: 'Prec'}
+{85880: ' desesper'}
+{115432: ' Dentro'}
+{31861: ' Anim'}
+{66634: 'enzo'}
+{77675: ' Gala'}
+{54470: ' romano'}
+{75836: ' SOC'}
+{67012: ' alf'}
+{117137: ' inicios'}
+{124262: ' Barrio'}
+{95441: 'ivir'}
+{55369: 'Dest'}
+{93918: ' audiencia'}
+{61365: ' fáb'}
+{9571: 'ercial'}
+{54513: ' Vida'}
+{45645: ' anál'}
+{46524: ' Equipo'}
+{93690: ' círculo'}
+{123045: ' coalición'}
+{65713: 'Conc'}
+{85670: ' cola'}
+{97648: ' ladr'}
+{99279: ' aconteceu'}
+{84697: ' raí'}
+{32790: ' escap'}
+{94361: ' limitada'}
+{26528: ' intér'}
+{89746: 'Fal'}
+{98831: ' Código'}
+{127169: ' lanzar'}
+{54989: ' Func'}
+{73925: ' motores'}
+{8023: 'itect'}
+{34184: ' brill'}
+{102599: 'áneo'}
+{128861: ' suprim'}
+{27876: ' desap'}
+{120479: ' explíc'}
+{127107: ' aumentando'}
+{114667: ' humanas'}
+{125269: ' frases'}
+{69723: 'ínas'}
+{114526: ' titulada'}
+{58069: 'áculo'}
+{110144: ' capítulos'}
+{16113: ' agricult'}
+{62664: ' capitán'}
+{90914: ' saque'}
+{125465: 'segue'}
+{99711: ' fós'}
+{65978: 'valor'}
+{102436: ' Familia'}
+{115098: ' disf'}
+{106045: ' Conven'}
+{106276: ' rato'}
+{97711: 'encio'}
+{83837: ' esperando'}
+{61557: 'seguir'}
+{126603: ' cae'}
+{37693: ' cód'}
+{93124: ' noroeste'}
+{23848: ' pous'}
+{93657: ' Televisión'}
+{72988: ' Respons'}
+{95959: ' desvi'}
+{96429: ' Nada'}
+{87623: ' santo'}
+{60808: ' rostro'}
+{89681: ' copias'}
+{128068: 'España'}
+{86180: ' Pact'}
+{123104: ' existía'}
+{75227: ' Benito'}
+{120521: 'óricos'}
+{15926: 'ítulo'}
+{42506: ' multimedia'}
+{80356: ' deriva'}
+{85469: 'íso'}
+{115896: ' Sarm'}
+{86602: ' producido'}
+{41060: ' gases'}
+{110102: 'urada'}
+{121706: ' milag'}
+{61230: ' Nicolás'}
+{102430: ' Constru'}
+{98700: ' duplic'}
+{48487: ' Investig'}
+{99757: ' mirando'}
+{56208: ' cuart'}
+{103981: ' escrav'}
+{62056: ' coincide'}
+{100484: ' nomeado'}
+{32651: 'cedes'}
+{73202: ' particularmente'}
+{23117: ' derrot'}
+{99251: ' seco'}
+{71749: ' Mariano'}
+{116395: ' Cervantes'}
+{84335: ' Soto'}
+{45001: ' Camil'}
+{113928: ' Ouro'}
+{87027: ' multidis'}
+{91549: 'tiles'}
+{119288: 'cón'}
+{31306: ' quit'}
+{33476: 'aterra'}
+{115653: ' símbolos'}
+{97116: ' Cabe'}
+{55052: 'uña'}
+{59727: 'ocracia'}
+{88951: '/es'}
+{102424: 'endido'}
+{108549: ' medalla'}
+{107744: 'ecia'}
+{94202: ' atrap'}
+{38820: ' Alexandre'}
+{115581: ' feminin'}
+{123275: ' entusiasmo'}
+{92534: ' basé'}
+{123920: ' Ane'}
+{124748: ' enormes'}
+{111219: ' comedia'}
+{73200: ' críticos'}
+{126843: ' indign'}
+{113622: ' insiste'}
+{114188: ' declarar'}
+{118362: ' medias'}
+{65676: ' Posteriormente'}
+{100939: ' guerras'}
+{101603: ' derivada'}
+{52600: ' periód'}
+{76854: ' utilizada'}
+{114863: ' latín'}
+{125515: ' Cañ'}
+{89825: ' pinturas'}
+{127789: ' Histórico'}
+{70190: ' episodios'}
+{73433: ' Restaur'}
+{87713: ' escenas'}
+{53528: 'todo'}
+{125946: 'ábamos'}
+{70782: ' ADN'}
+{127643: ' Conferencia'}
+{50300: 'etición'}
+{24553: ' ráp'}
+{54766: 'argas'}
+{107448: ' LU'}
+{78987: ' inquiet'}
+{36256: ' precipit'}
+{122201: ' comigo'}
+{121458: ' naquela'}
+{55541: ' Hernández'}
+{92807: ' Bretaña'}
+{90431: 'Entr'}
+{116135: ' acusado'}
+{126742: ' Estación'}
+{76861: ' vestido'}
+{113863: ' vaso'}
+{65089: ' tratado'}
+{95884: ' arro'}
+{38545: ' culmin'}
+{72193: ' brazo'}
+{59408: ' reside'}
+{73834: ' Ángeles'}
+{121417: ' táct'}
+{104529: ' critica'}
+{97122: 'ísmo'}
+{17158: ' anx'}
+{124183: 'ndice'}
+{59723: ' habitación'}
+{65465: ' estánd'}
+{113957: ' quedaba'}
+{37771: ' demasi'}
+{108137: ' dedo'}
+{98028: ' pura'}
+{48594: ' irres'}
+{104708: ' declarado'}
+{74427: 'americano'}
+{101125: ' tratando'}
+{91540: 'feitos'}
+{30174: ' distint'}
+{117506: ' instancia'}
+{96736: 'Nova'}
+{128819: 'ánicas'}
+{99322: ' vial'}
+{73460: ' Señora'}
+{99137: ' Silvia'}
+{105642: ' mortes'}
+{38643: ' silenc'}
+{119925: ' confes'}
+{116192: ' divul'}
+{83774: ' continuou'}
+{29821: ' adolesc'}
+{104139: ' suficientemente'}
+{118923: ' afirmar'}
+{123983: ' fabricante'}
+{60538: ' Bom'}
+{69185: ' inund'}
+{98297: ' delimit'}
+{84024: 'ián'}
+{127200: 'balle'}
+{111504: ' Casas'}
+{121570: 'desde'}
+{108558: ' confirma'}
+{128367: ' arrastr'}
+{127550: ' océano'}
+{68349: 'inete'}
+{109832: ' mito'}
+{93654: ' ocorreu'}
+{51298: ' admi'}
+{20668: 'écn'}
+{118655: ' dedica'}
+{120778: ' canta'}
+{92229: 'envol'}
+{113064: 'IAS'}
+{106348: ' Carta'}
+{108247: 'queta'}
+{30817: 'ixon'}
+{130481: ' vivía'}
+{127331: ' placas'}
+{114764: ' querido'}
+{97351: ' Bande'}
+{73669: ' tenta'}
+{106491: ' lanza'}
+{76404: ' negros'}
+{112622: ' inesper'}
+{73223: 'abria'}
+{56919: ' comed'}
+{118254: ' raro'}
+{80300: ' Peña'}
+{70148: ' combustible'}
+{45295: ' remodel'}
+{130121: '-las'}
+{86147: ' tecl'}
+{83330: ' espacial'}
+{30567: ' ESP'}
+{59926: ' Sebastián'}
+{61039: 'estos'}
+{102450: ' Contempor'}
+{125822: ' atrib'}
+{70898: ' guion'}
+{120729: 'uradora'}
+{62823: ' Moi'}
+{92006: ' abond'}
+{113226: ' Filosof'}
+{94967: 'entino'}
+{102007: ' confund'}
+{97242: ' calma'}
+{70806: ' escudo'}
+{96837: 'efic'}
+{129418: ' ruptura'}
+{34797: ' invis'}
+{125682: ' perdendo'}
+{96281: ' camis'}
+{95233: ' serra'}
+{36384: ' homolog'}
+{74368: ' escond'}
+{61020: ' franceses'}
+{92936: ' voltar'}
+{18507: ' resolve'}
+{107548: ' deter'}
+{97424: ' monst'}
+{75721: ' repas'}
+{108422: ' parcialmente'}
+{121257: ' presos'}
+{48856: ' Negro'}
+{85298: 'incl'}
+{62073: ' británico'}
+{84433: ' pantal'}
+{130524: ' tomaron'}
+{17740: 'quier'}
+{83724: ' regresar'}
+{130319: ' acostum'}
+{61457: 'Particip'}
+{96838: ' músicas'}
+{97395: ' cadáver'}
+{78749: 'Carlos'}
+{107258: 'onesa'}
+{127100: ' arroz'}
+{70799: ' Tomás'}
+{74200: ' vencer'}
+{74137: ' comprende'}
+{113209: ' Gai'}
+{54004: ' conde'}
+{101092: ' partículas'}
+{73624: ' Navarra'}
+{78032: ' fenó'}
+{79233: ' adorn'}
+{18194: 'control'}
+{40953: 'cepción'}
+{83435: 'éfono'}
+{87348: ' Revolución'}
+{127094: 'trica'}
+{65959: 'Fern'}
+{113877: ' concede'}
+{53553: '+i'}
+{75842: 'uerra'}
+{110415: ' constantes'}
+{88345: ' greg'}
+{129638: ' intentando'}
+{124163: ' auxiliar'}
+{79415: 'arras'}
+{83231: ' intenta'}
+{122467: 'licos'}
+{55200: 'americana'}
+{112464: ' separado'}
+{101892: ' ubicación'}
+{93076: 'Algun'}
+{87191: ' ferrocarril'}
+{127772: ' provocando'}
+{98469: ' disol'}
+{76021: ' estadio'}
+{77496: ' Ferreira'}
+{99147: ' considerados'}
+{76127: ' persec'}
+{126952: ' ENT'}
+{89976: ' Usuario'}
+{100365: ' marcou'}
+{91722: ' indisc'}
+{117567: ' levantar'}
+{109067: ' Revista'}
+{88312: ' invasión'}
+{19882: ' predomin'}
+{130628: ' extremos'}
+{95383: ' inglesa'}
+{23028: 'ipedia'}
+{89996: ' agu'}
+{68754: ' rango'}
+{119848: ' cafeter'}
+{111471: ' Categoría'}
+{105656: ' modos'}
+{22111: ' Santi'}
+{130396: 'zón'}
+{55708: 'xion'}
+{52727: ' cuad'}
+{61666: 'FORM'}
+{94894: ' parto'}
+{85996: ' Bier'}
+{82463: ' contraste'}
+{94593: ' cicl'}
+{118908: ' apag'}
+{81163: 'portivo'}
+{100042: ' pico'}
+{79261: ' encl'}
+{111402: ' pensaba'}
+{81562: ' blogs'}
+{118213: ' lesión'}
+{48210: ' acerc'}
+{67967: ' áng'}
+{83614: ' Mell'}
+{103687: ' tentando'}
+{19921: ' inaug'}
+{72276: ' Tempo'}
+{100906: ' profundamente'}
+{115727: ' portugueses'}
+{119406: 'Centro'}
+{97004: ' Carvalho'}
+{97869: ' Ambos'}
+{55408: ' Jaime'}
+{108063: ' adolescente'}
+{78164: ' ocor'}
+{94034: ' refres'}
+{81294: ' Concepción'}
+{88763: ' columnas'}
+{38447: 'ólic'}
+{123748: ' buques'}
+{90997: ' Biol'}
+{69100: ' Berlín'}
+{87367: ' constitucional'}
+{72075: ' Raúl'}
+{94482: ' modernos'}
+{104188: ' tío'}
+{97006: ' captura'}
+{121122: ' Lice'}
+{43270: ' externos'}
+{58692: 'certo'}
+{73421: ' Iber'}
+{95581: ' disputar'}
+{49918: ' inevitable'}
+{95629: ' Colón'}
+{72151: 'américa'}
+{127385: ' escritas'}
+{27944: ' Exp'}
+{93909: ' excepto'}
+{83988: ' árabe'}
+{81506: ' Emilia'}
+{118335: ' editores'}
+{92339: ' cuartos'}
+{99507: 'Casa'}
+{87312: ' Lanz'}
+{88741: ' Santander'}
+{105211: ' satél'}
+{88779: ' Rode'}
+{46065: 'axios'}
+{17737: ' exhaust'}
+{103897: ' alianza'}
+{112407: ' esquina'}
+{46318: ' Continu'}
+{82214: ' Fog'}
+{82620: ' Henrique'}
+{100661: ' parecido'}
+{60121: ' cohes'}
+{115268: 'identes'}
+{87729: ' logra'}
+{93470: ' Estre'}
+{123932: ' fragmentos'}
+{75958: ' cla'}
+{118866: ' utilizadas'}
+{90435: ' respondeu'}
+{81985: ' fundada'}
+{41101: 'Consider'}
+{99536: ' Murcia'}
+{98933: ' reap'}
+{59293: 'Camb'}
+{78783: ' Debido'}
+{96800: ' paquet'}
+{96345: 'etos'}
+{112559: ' falso'}
+{129120: ' Parro'}
+{93798: ' Xen'}
+{79317: ' topon'}
+{52311: 'úsica'}
+{79057: ' ruso'}
+{98322: 'oura'}
+{99972: ' volc'}
+{15918: ' folg'}
+{45813: ' sensible'}
+{113268: ' lograron'}
+{127228: ' típico'}
+{78685: 'ódigo'}
+{69482: ' PART'}
+{35904: ' Compet'}
+{97650: ' Obra'}
+{117551: ' esquema'}
+{88129: ' ida'}
+{127843: ' aperta'}
+{114591: 'ulada'}
+{116217: ' desn'}
+{95377: ' censo'}
+{73770: ' Aragón'}
+{129027: 'Debido'}
+{120813: ' condenado'}
+{76157: ' transcend'}
+{87978: ' Cortes'}
+{76408: 'orrido'}
+{128882: ' camiseta'}
+{120727: ' pisos'}
+{62533: ' Palacio'}
+{92743: ' Málaga'}
+{115279: ' intentos'}
+{94678: ' aparentemente'}
+{105247: 'íferos'}
+{52278: ' Interpret'}
+{85341: ' Selección'}
+{111771: 'MIT'}
+{100579: ' Compañía'}
+{114727: ' Incluso'}
+{100844: ' Sonia'}
+{80593: ' Zaragoza'}
+{55940: ' Granada'}
+{120418: ' negras'}
+{115189: 'Cant'}
+{117448: ' famosos'}
+{85808: ' Pá'}
+{74287: 'PF'}
+{91152: ' trataba'}
+{112676: ' filas'}
+{70491: 'ázquez'}
+{100715: ' repous'}
+{79108: 'inando'}
+{122794: ' permitido'}
+{44081: ' consecu'}
+{81613: ' Café'}
+{109498: ' fracas'}
+{98438: ' Margarita'}
+{128722: ' continuamente'}
+{66764: ' indispensable'}
+{84088: ' seguía'}
+{92927: 'Grupo'}
+{121210: ' helicóp'}
+{121371: ' ramas'}
+{81769: ' Príncipe'}
+{103604: ' naves'}
+{90700: ' caudal'}
+{117997: ' nauf'}
+{75931: 'oeste'}
+{55819: ' Guillermo'}
+{106294: ' olímp'}
+{105925: ' exitos'}
+{81269: ' Azul'}
+{97916: ' visibles'}
+{94936: ' imperio'}
+{110479: 'íaco'}
+{74208: ' biling'}
+{47771: 'lace'}
+{89055: ' Divers'}
+{63253: ' clubes'}
+{74166: ' Joaquín'}
+{105652: 'quista'}
+{126419: ' invitados'}
+{54351: ' Félix'}
+{38580: ' ester'}
+{118983: ' abraz'}
+{73707: ' monumental'}
+{59017: 'QUI'}
+{89489: ' Valladolid'}
+{76517: 'Vé'}
+{110608: ' Valor'}
+{55047: ' camar'}
+{92141: ' Delgado'}
+{86451: ' convento'}
+{93095: ' récord'}
+{114220: ' Lingu'}
+{41222: ' fác'}
+{93786: ' secuest'}
+{122748: ' Turquía'}
+{37818: 'ículas'}
+{58500: 'acios'}
+{103734: ' torres'}
+{123151: 'vido'}
+{110084: 'Ou'}
+{114544: ' caracteriza'}
+{99423: ' Clube'}
+{40269: ' turno'}
+{115688: ' zume'}
+{46923: 'ledo'}
+{125782: ' regresa'}
+{121109: ' Oviedo'}
+{117609: ' pagan'}
+{110786: 'ándome'}
+{98983: 'Antonio'}
+{74607: ' instante'}
+{89763: ' Ull'}
+{106076: ' poderoso'}
+{125886: 'rión'}
+{105897: ' prehist'}
+{114275: ' licenci'}
+{115953: ' prosa'}
+{21393: ' magnitude'}
+{116959: ' radic'}
+{116179: ' Coral'}
+{91114: ' variantes'}
+{116221: ' minas'}
+{49955: ' Bios'}
+{130979: ' caos'}
+{112517: ' unirse'}
+{116916: ' Chao'}
+{109005: ' solos'}
+{101501: ' AX'}
+{110996: ' interloc'}
+{78802: 'Continu'}
+{121790: ' nacido'}
+{129232: ' Atene'}
+{59922: ' inaugural'}
+{17367: 'ABLE'}
+{93790: ' Suecia'}
+{106453: ' nariz'}
+{79897: 'Francis'}
+{118082: ' Escocia'}
+{121288: ' Roca'}
+{120825: ' representado'}
+{127654: 'nasia'}
+{123061: ' tomada'}
+{76283: ' Nome'}
+{11224: ' equival'}
+{125651: ' evoc'}
+{32028: 'íguez'}
+{61667: ' emperador'}
+{84642: 'iense'}
+{111698: 'todos'}
+{112302: 'Madrid'}
+{86344: ' Ortega'}
+{114227: 'igado'}
+{123482: ' Pico'}
+{47804: ' Federico'}
+{51912: ' CUR'}
+{95660: ' Sede'}
+{63959: ' cuadr'}
+{92313: ' debían'}
+{69984: ' protector'}
+{81196: ' Había'}
+{67045: ' coral'}
+{125361: ' poderosa'}
+{91934: ' británica'}
+{123516: ' tripul'}
+{75761: ' enviado'}
+{108108: ' decidido'}
+{83068: ' católica'}
+{56616: ' plasm'}
+{118644: ' sensibles'}
+{126772: ' mostr'}
+{68549: 'gante'}
+{104506: 'iosamente'}
+{60844: 'Nome'}
+{52392: ' Rosario'}
+{43716: ' esf'}
+{116384: ' empezaron'}
+{19878: ' solvent'}
+{89417: ' limp'}
+{91004: ' amante'}
+{98535: ' Salamanca'}
+{116937: ' convencer'}
+{122499: ' tripulación'}
+{71308: ' ecu'}
+{63538: ' secu'}
+{111954: ' copa'}
+{28502: 'ximo'}
+{38939: ' rectangular'}
+{69175: ' Arturo'}
+{129929: ' asust'}
+{122517: ' contratado'}
+{117204: ' arcos'}
+{37437: ' altitude'}
+{106235: ' Cere'}
+{110287: ' Borb'}
+{57383: ' alberga'}
+{118096: ' parado'}
+{84704: ' periódico'}
+{65874: ' Alicia'}
+{110347: ' definido'}
+{68618: '-port'}
+{71337: ' crises'}
+{83782: 'texto'}
+{37952: ' Atlético'}
+{76156: ' Metropolit'}
+{111758: ' incapaz'}
+{40278: ' viable'}
+{68390: ' Bél'}
+{125799: ' licencia'}
+{58914: ' Torneo'}
+{101486: 'BAD'}
+{93138: ' Chá'}
+{46255: '—,'}
+{84294: 'ciencia'}
+{72403: ' CONC'}
+{64411: ' Fase'}
+{113003: 'ásico'}
+{130829: ' santuario'}
+{99143: ' Adolfo'}
+{129946: ' Consist'}
+{48579: 'venes'}
+{104222: ' sentado'}
+{83910: ' alent'}
+{102169: ' secuencia'}
+{75606: ' flota'}
+{25329: 'visible'}
+{93627: ' retrans'}
+{87449: ' fusil'}
+{127356: 'estable'}
+{104395: ' rusa'}
+{78270: ' Jiménez'}
+{103233: 'Cab'}
+{108111: ' ópera'}
+{102158: ' favorables'}
+{70521: ' círc'}
+{118149: 'Gust'}
+{86256: ' coorden'}
+{49240: 'iedades'}
+{83850: ' esperaba'}
+{128748: ' INF'}
+{130978: ' descrit'}
+{112634: ' filosóf'}
+{110233: ' casar'}
+{35894: ' Curt'}
+{125991: ' discíp'}
+{91510: ' Natalia'}
+{7518: 'unicip'}
+{129126: ' Claro'}
+{112670: ' surreal'}
+{64877: ' Gustavo'}
+{88606: ' Héctor'}
+{110531: ' historiadores'}
+{101403: 'igual'}
+{85337: ' traducción'}
+{110384: ' restante'}
+{93185: ' Estaba'}
+{123223: ' Manu'}
+{58741: ' Sociedad'}
+{111342: ' mencionado'}
+{54809: 'medio'}
+{96648: ' Estudios'}
+{110920: ' AUT'}
+{82774: ' corta'}
+{38023: ' OUT'}
+{75863: 'ífer'}
+{102597: 'americanos'}
+{130535: ' Integral'}
+{105635: ' ocupado'}
+{86460: ' Luisa'}
+{102750: ' mostrando'}
+{31474: ' pequ'}
+{119707: ' entrando'}
+{90904: ' caracteres'}
+{12127: 'func'}
+{25036: 'ández'}
+{124766: ' bombas'}
+{10187: 'LECT'}
+{117086: ' desaparecido'}
+{39409: ' redund'}
+{124995: ' permitía'}
+{52093: ' alcoh'}
+{86128: 'presidente'}
+{115989: 'prete'}
+{125621: ' interse'}
+{67154: ' interdis'}
+{123290: ' céle'}
+{104664: ' Zamora'}
+{123959: ' estatua'}
+{88047: ' Burgos'}
+{19893: ' pulse'}
+{119361: ' escoc'}
+{94171: 'óstico'}
+{67672: ',e'}
+{82953: ' Carrera'}
+{82959: ' susceptibles'}
+{113756: ' Transporte'}
+{104743: ' oído'}
+{52628: ' tense'}
+{71936: ' unilateral'}
+{75361: ' Esteban'}
+{74400: 'quire'}
+{122022: ' ombre'}
+{122925: ' rama'}
+{117776: ' Branco'}
+{41804: ' invisible'}
+{70995: ' solem'}
+{60118: ' conserve'}
+{123262: 'ndez'}
+{71201: ' Perman'}
+{74991: ' Armada'}
+{85637: ' Muñoz'}
+{102592: ' decad'}
+{50681: ' crian'}
+{117190: ' Juana'}
+{127201: 'adería'}
+{112466: ' Volta'}
+{119095: ' tumba'}
+{36605: ' curric'}
+{112586: ' sucedido'}
+{104801: ' eclesi'}
+{70446: ' arbitr'}
+{94424: ' Exército'}
+{96248: '-Sa'}
+{93038: ' océ'}
+{93054: ' anunciado'}
+{60561: ' heroes'}
+{66308: ' sombre'}
+{109504: ' quizá'}
+{118828: ' separados'}
+{53769: ' Orte'}
+{10104: ' confir'}
+{20306: ' perí'}
+{128271: ' Villanueva'}
+{83281: 'CIAL'}
+{80454: 'Quiz'}
+{62863: ' Roi'}
+{119203: ' abandonado'}
+{57375: ' subc'}
+{130712: ' gravemente'}
+{42109: 'coma'}
+{120470: 'director'}
+{80996: ' REC'}
+{117587: 'suarios'}
+{75589: ' Gutiérrez'}
+{76088: 'omé'}
+{91326: ' Comunista'}
+{78185: ' incurs'}
+{117829: ' formalmente'}
+{118413: ' metropolitana'}
+{112342: ' permanentes'}
+{127395: ' colonias'}
+{126948: ' enviados'}
+{130517: ' frecuentemente'}
+{130592: ' reest'}
+{77291: ' Indic'}
+{33675: ' repo'}
+{81048: ' metropolit'}
+{81479: 'cible'}
+{117315: ' Inver'}
+{127895: 'ificador'}
+{109955: ' dividido'}
+{18235: 'modal'}
+{57895: ' Depend'}
+{75293: ' vecinos'}
+{27184: ' enumer'}
+{99695: ' transvers'}
+{108554: ' exalt'}
+{104991: ' ingleses'}
+{100524: ' hisp'}
+{71030: ' Países'}
+{102040: ' recorrido'}
+{114993: 'arque'}
+{115169: ' Pascual'}
+{81886: ' Concerto'}
+{91782: ' Fuente'}
+{103689: ' Braga'}
+{28495: ' coord'}
+{126881: ' esfera'}
+{111431: ' tentou'}
+{64401: ' contextual'}
+{103372: ' conseguido'}
+{119691: ' Patria'}
+{65229: 'ocio'}
+{73566: ' Alianza'}
+{121098: 'ócrata'}
+{20295: ' Conse'}
+{91375: 'Portugal'}
+{65461: ' guerr'}
+{117263: ' tractor'}
+{103638: 'vestre'}
+{124917: ' apoder'}
+{72818: 'mbito'}
+{103949: ' potable'}
+{89517: ' floral'}
+{113286: 'icialmente'}
+{130753: ' Torr'}
+{93514: 'érc'}
+{81664: ' Gregorio'}
+{111563: ' débil'}
+{73559: ' Pasc'}
+{77159: ' conm'}
+{125591: ' Camino'}
+{102221: ' primordial'}
+{48785: 'rían'}
+{118410: ' alian'}
+{112631: ' Cádiz'}
+{53369: 'eriormente'}
+{28552: 'rimonio'}
+{108694: ' árabes'}
+{90846: ' Tratado'}
+{11139: 'Case'}
+{45281: ' discrep'}
+{117616: ' definida'}
+{115625: 'CAM'}
+{115027: ' cristianismo'}
+{88176: ' Noruega'}
+{96525: 'UMENT'}
+{111658: ' célula'}
+{50961: ' solt'}
+{113441: 'ílica'}
+{112874: ' Apare'}
+{118632: ' localizado'}
+{91243: ' británicos'}
+{96310: ' prácticamente'}
+{86205: ' Dinamarca'}
+{109309: ' dividida'}
+{118637: ' Lugar'}
+{124129: ' gabinete'}
+{77092: ' sentía'}
+{125846: ' moléculas'}
+{130874: ' Corpo'}
+{105388: ' FEST'}
+{88354: 'parable'}
+{81716: ' incluía'}
+{72945: ' Ernesto'}
+{119340: ' Clim'}
+{101332: ' Galería'}
+{89855: ' Exterior'}
+{91393: 'Datos'}
+{85042: ' Oeste'}
+{50626: ' Córdoba'}
+{110408: ' inco'}
+{108884: ' Rocha'}
+{127840: ' permaneceu'}
+{110680: ' cultivar'}
+{94360: 'Cole'}
+{52623: ' tremend'}
+{46033: ' microorgan'}
+{70952: ' Electoral'}
+{42079: 'amped'}
+{118933: ' ocupada'}
+{126661: ' Exteriores'}
+{106890: ' futbolista'}
+{74338: ' reinado'}
+{29149: ' inequ'}
+{34905: 'iblioteca'}
+{35676: 'ocamp'}
+{65221: 'cill'}
+{111847: ' república'}
+{81939: ' únicamente'}
+{123713: ' Arcade'}
+{121449: ' Julián'}
+{124811: ' despe'}
+{89754: ' colonia'}
+{120193: 'oxia'}
+{110051: ' consideraba'}
+{129626: ' conquistar'}
+{88051: ' Cecilia'}
+{91252: ' Ayuntamiento'}
+{121130: ' Isidro'}
+{126884: ' esperado'}
+{46435: 'emporal'}
+{118826: ' oír'}
+{110683: ' fundado'}
+{54526: 'Tipo'}
+{105466: ' nazis'}
+{32363: 'desc'}
+{128574: ' Arno'}
+{127687: ' comunistas'}
+{44066: 'ámara'}
+{101368: ' nostal'}
+{83154: 'ricular'}
+{116268: ' venezol'}
+{127786: ' Número'}
+{105084: ' Rojo'}
+{124423: 'únior'}
+{125098: ' filósofo'}
+{78045: ' Muñ'}
+{113263: 'Pedro'}
+{44457: 'direct'}
+{117655: ' interpretada'}
+{78256: ' Molina'}
+{126933: ' millas'}
+{89324: ' Armando'}
+{37463: ' Provin'}
+{72779: ' Católica'}
+{100582: '.As'}
+{68876: ' prision'}
+{89101: 'preg'}
+{119375: ' Baixos'}
+{112621: ' Negra'}
+{125976: ' logrando'}
+{107227: ' Verne'}
+{129396: ' malv'}
+{98148: ' folle'}
+{14529: ' inher'}
+{127463: ' demográfica'}
+{60630: ' denom'}
+{102039: ' Curr'}
+{122942: ' castellano'}
+{112794: ' tormenta'}
+{120539: ' Bueno'}
+{60614: ' Carp'}
+{115560: ' Tenerife'}
+{64792: ' manuscrit'}
+{102461: 'ledad'}
+{79160: ' venced'}
+{127005: ' Compl'}
+{74557: 'enceu'}
+{122640: ' machos'}
+{60181: ' Dioc'}
+{23155: 'Func'}
+{119907: ' lineal'}
+{125925: ' Fonseca'}
+{104893: 'Luis'}
+{112647: ' afirmando'}
+{48643: 'rois'}
+{127018: ' Modelo'}
+{114490: ' Celia'}
+{113770: ' denomina'}
+{112351: 'quita'}
+{114841: 'rbita'}
+{37982: 'ítulos'}
+{79801: ' endure'}
+{83898: ' Asamblea'}
+{92275: ' pinch'}
+{79919: 'NON'}
+{113999: ' tiros'}
+{125491: ' inflex'}
+{69051: 'amiliar'}
+{100185: ' Medalla'}
+{118014: 'vex'}
+{72050: ' CNT'}
+{96644: ' academia'}
+{126244: ' cúpula'}
+{129302: ' retroced'}
+{83880: ' Vallad'}
+{42063: ' releg'}
+{130315: ' Bello'}
+{21463: ' amplitude'}
+{83385: 'idalgo'}
+{101344: ' monarca'}
+{111700: ' agarr'}
+{89244: ' Abr'}
+{37324: 'ímp'}
+{53228: '.Un'}
+{122208: ' IPC'}
+{47259: 'ácter'}
+{130130: ' Servicios'}
+{80412: ' Compos'}
+{69570: ' Título'}
+{122056: ' vencedor'}
+{76574: 'Estado'}
+{97300: ' Grandes'}
+{113971: ' Atenas'}
+{51680: ' Asistencia'}
+{72976: ' notables'}
+{123982: 'Terra'}
+{78661: ' palacio'}
+{27429: 'rbitro'}
+{89875: ' Medieval'}
+{75859: ' guit'}
+{94353: 'onado'}
+{109746: ' necesitaba'}
+{91160: ' enfo'}
+{71780: ' matriz'}
+{45000: ' conson'}
+{116926: ' capturar'}
+{27530: 'embros'}
+{91247: ' portugues'}
+{48574: ' ANO'}
+{112972: ' consag'}
+{128598: 'Cabe'}
+{85799: ' Pueblo'}
+{76742: 'Valor'}
+{114974: 'Reco'}
+{21289: 'izable'}
+{93193: ' Plans'}
+{117882: ' Insc'}
+{126180: ' inaugurado'}
+{109762: ' Serrano'}
+{124988: ' Universo'}
+{119534: 'áfrica'}
+{114009: ' invitado'}
+{113178: ' asalto'}
+{103895: 'allón'}
+{112081: ' Fuentes'}
+{106906: ' Eugenio'}
+{116209: ' apret'}
+{67822: 'amblea'}
+{116770: ' contractual'}
+{124438: ' Márquez'}
+{127724: ' periódicos'}
+{97576: ' Cristóbal'}
+{71403: ' lanzado'}
+{99037: 'quía'}
+{72268: ' Porte'}
+{123158: ' Madeira'}
+{126635: ' Reforma'}
+{103024: ' incompet'}
+{94358: ' Alegre'}
+{69886: ' Montevideo'}
+{120837: ' guitarrista'}
+{62053: ' monol'}
+{127390: ' cromos'}
+{80979: ' Cancel'}
+{121808: ' artefact'}
+{119849: 'Francia'}
+{110988: 'Rib'}
+{107976: ' Gales'}
+{109626: ' italianos'}
+{52204: 'UNC'}
+{90373: 'abellón'}
+{97687: 'ércitos'}
+{130078: ' Democrática'}
+{122519: ' descubre'}
+{114608: 'Inicio'}
+{95771: ' Servicio'}
+{128452: 'Xu'}
+{52074: 'IBLE'}
+{83443: ' delim'}
+{113144: ' Caracter'}
+{33764: ' Áng'}
+{107962: ' designado'}
+{51931: ' espí'}
+{126404: '/not'}
+{123496: ' contador'}
+{129664: ' inel'}
+{104807: 'gués'}
+{82911: ' ubicado'}
+{107534: 'íng'}
+{56858: 'creto'}
+{14245: ' explan'}
+{115863: ' marro'}
+{122629: ' CID'}
+{127271: ' Ronda'}
+{112063: ' Álbum'}
+{69298: 'írez'}
+{122377: ' márm'}
+{69421: ' gratitude'}
+{93782: ' Artificial'}
+{108237: ' interpretado'}
+{103487: ' ubicada'}
+{61756: ' Carne'}
+{16531: '/images'}
+{109164: ' Puente'}
+{94914: ' Batalla'}
+{105468: ' Cortés'}
+{73158: ' elemental'}
+{125344: '{/'}
+{96176: ' considé'}
+{66690: ' mediana'}
+{31370: ' conve'}
+{45556: ' tritur'}
+{102688: ' menciona'}
+{48599: 'ORMAT'}
+{115955: ' Hungría'}
+{18583: ' peque'}
+{80422: 'ATEG'}
+{94929: ' Comand'}
+{124597: ' Monumento'}
+{109917: ' demarc'}
+{95069: ' caste'}
+{110975: ' solista'}
+{117421: ' nativos'}
+{117079: ' Capitán'}
+{22035: ' Estadio'}
+{97251: ' Clemente'}
+{123670: 'cionario'}
+{72661: 'Convers'}
+{130915: ' Vieira'}
+{124363: 'Rosa'}
+{115709: ' Aguirre'}
+{64059: ' sorris'}
+{111750: ' Independencia'}
+{101685: 'Partido'}
+{54015: 'idable'}
+{117887: ' consigue'}
+{128180: ' desembarc'}
+{128471: ' Clima'}
+{80004: ' rique'}
+{97080: ' Sousa'}
+{91011: '.Non'}
+{92183: ' semic'}
+{49268: ' reproduce'}
+{106070: ' hipótes'}
+{99332: 'particip'}
+{114705: ' casado'}
+{127973: ' Renov'}
+{69028: ' incompatible'}
+{105044: ' mexicana'}
+{106436: ' diocese'}
+{124476: ' viad'}
+{47989: 'pecies'}
+{27119: 'cipe'}
+{50082: 'conv'}
+{29739: 'ópez'}
+{46150: ' Españ'}
+{47384: 'undos'}
+{110493: ' guerrilla'}
+{71410: ' corrobor'}
+{92910: 'Conv'}
+{121366: ' brevemente'}
+{109910: ' vendido'}
+{83678: 'quiz'}
+{58680: ' caud'}
+{13900: '_com'}
+{111026: ' insignia'}
+{120659: ' estreou'}
+{129551: ' Pader'}
+{61950: ' retrospect'}
+{90332: ' filóso'}
+{115762: ' Nación'}
+{39082: ' Celt'}
+{76584: ' extran'}
+{126718: ' Cuart'}
+{119789: ' actuaciones'}
+{109797: ' enrol'}
+{34727: '.ª'}
+{125054: ' Portuguesa'}
+{38262: ' Alej'}
+{120167: ' latitudes'}
+{96080: ' cowork'}
+{91555: 'DESC'}
+{113174: ' recaud'}
+{114540: ' católicos'}
+{114714: ' dinastía'}
+{120422: ' Capítulo'}
+{118262: ' aventure'}
+{109161: ' Milán'}
+{104938: 'Lon'}
+{23280: ' TODO'}
+{45872: 'ñana'}
+{94762: ' Asunción'}
+{102794: ' distritos'}
+{84958: ' avais'}
+{81052: ' reinterpret'}
+{128473: 'conex'}
+{97023: '-cultural'}
+{86463: ' catar'}
+{37872: '/log'}
+{127905: ' Filipe'}
+{22022: ' Intent'}
+{86765: ' gasoline'}
+{86690: 'antería'}
+{44888: ' Adela'}
+{85998: ' eliminado'}
+{110098: ' indios'}
+{50069: 'GUI'}
+{86278: ' Astur'}
+{81647: 'rabes'}
+{121320: ' ornamental'}
+{92010: ' Circular'}
+{82595: ' Clasificación'}
+{124555: 'Segue'}
+{91108: 'Extract'}
+{103839: ' presume'}
+{67707: 'queda'}
+{10075: '.con'}
+{91273: 'mirante'}
+{124378: ' LOCAL'}
+{82850: ' derrotado'}
+{40053: ' trunc'}
+{83456: ' BASE'}
+{129260: ' Francesa'}
+{107330: ' Duarte'}
+{54763: 'BASE'}
+{113057: ' Brigada'}
+{92678: ' estrel'}
+{130084: ' CCA'}
+{125112: ' Pacheco'}
+{119237: ' Velasco'}
+{58506: ' municipales'}
+{16608: 'iminal'}
+{85789: ' prism'}
+{80235: ' irreversible'}
+{71351: 'quinas'}
+{72903: ' resent'}
+{32798: ' Luxemb'}
+{129785: 'Empresa'}
+{118688: ' descrita'}
+{121233: ' Cx'}
+{98377: 'Datas'}
+{129441: ' Puntos'}
+{106079: ' Ediciones'}
+{80084: 'principal'}
+{118106: ' FINAL'}
+{24134: ' Created'}
+{125852: ' faixas'}
+{93106: ' cuar'}
+{42871: 'ircular'}
+{35703: 'ánchez'}
+{120810: ' Leandro'}
+{85311: ' Colegio'}
+{106266: 'Canc'}
+{33283: ' britán'}
+{97681: ' Ense'}
+{123173: ' húng'}
+{26654: ' ratios'}
+{70514: ' Holoca'}
+{47648: ' DESC'}
+{14680: 'Modal'}
+{123421: ' folio'}
+{79253: 'avorable'}
+{105218: ' Suiza'}
+{117843: ' Bellas'}
+{117858: 'ercio'}
+{106372: 'lx'}
+{27569: ' éx'}
+{121092: ' Leopoldo'}
+{87917: ' chape'}
+{120332: ' Femen'}
+{129064: ' meridional'}
+{68394: ' duque'}
+{66968: 'Fecha'}
+{65741: 'untamiento'}
+{70864: 'tipo'}
+{9245: 'parse'}
+{62255: 'énez'}
+{96158: ' cono'}
+{20070: 'ública'}
+{121531: ' FESTIVAL'}
+{113063: 'plicable'}
+{87621: ' Olímpico'}
+{86571: ' nomencl'}
+{129668: ' Bartol'}
+{92447: ' traten'}
+{26641: '=https'}
+{40642: 'udades'}
+{107794: ' Calderón'}
+{69032: ' marqués'}
+{60109: 'raltar'}
+{67698: ' cañ'}
+{108728: ' intercal'}
+{104698: 'itudinal'}
+{99255: ' hipó'}
+{121868: ' Colo'}
+{86514: 'uenta'}
+{105521: ' cms'}
+{123668: ' rebotes'}
+{24927: 'ficie'}
+{99771: ' Estudiantes'}
+{42017: ' Señ'}
+{88015: ' microp'}
+{90214: ' Apertura'}
+{22543: ' Rober'}
+{29814: 'Depend'}
+{81407: ' DISC'}
+{106249: 'datos'}
+{91821: ' ordinal'}
+{129033: ' admirable'}
+{130011: ' pedestal'}
+{46427: 'ímbol'}
+{48366: 'varez'}
+{84514: ' merchand'}
+{106132: ' cohesion'}
+{130080: ' Véxase'}
+{120325: ' disparate'}
+{18467: 'render'}
+{129008: ' Hernán'}
+{64322: 'ORMAL'}
+{82999: ' Notas'}
+{80624: ' Establ'}
+{116673: ' álbumes'}
+{109413: ' orquesta'}
+{70240: 'pregunt'}
+{122283: ' chuch'}
+{26177: ' enum'}
+{126485: ' palpable'}
+{95965: 'éci'}
+{100449: 'Público'}
+{43564: 'ogonal'}
+{121553: 'globals'}
+{124391: ' chileno'}
+{117124: 'ANOVA'}
+{51973: 'rocarr'}
+{129624: ' Producción'}
+{64061: 'úblico'}
+{119569: ' artillería'}
+{62592: 'rocarril'}
+{115379: ' Votos'}
+{104488: 'ORIZ'}
+{122475: ' grabado'}
+{92860: 'similar'}
+{72456: '.cor'}
+{130395: ' Juventud'}
+{110492: 'increment'}
+{25849: '=es'}
+{103900: 'ócr'}
+{98119: ' FIX'}
+{106650: '—A'}
+{48255: 'élix'}
+{21337: 'Intent'}
+{100093: ' EVENT'}
+{38627: 'Usuario'}
+{12456: 'ariable'}
+{31808: 'útbol'}
+{119311: ' neerland'}
+{72078: 'UPER'}
+{126183: ' Lorient'}
+{50345: 'árez'}
+{76427: 'Movement'}
+{41644: ' Resultado'}
+{122529: ' diputado'}
+{89117: '*s'}
+{72490: ' extrav'}
+{92638: 'pañía'}
+{109502: 'ucía'}
+{73729: 'compat'}
+{112867: ' magnitudes'}
+{34126: 'Confirm'}
+{75847: 'Increment'}
+{35679: 'derr'}
+{81526: ' Colise'}
+{16891: 'undial'}
+{63275: 'lesias'}
+{113601: 'zobispo'}
+{123886: 'rbitros'}
+{81595: ' Categor'}
+{120880: ' CDT'}
+{105774: 'Resultado'}
+{53231: ' ANOVA'}
+{81972: ' Partidos'}
+{68612: 'reverse'}
+{76633: 'RESULT'}
+{70072: ' trituradora'}
+{67255: '«Non'}
+{105281: ' Clausura'}
+{28611: ' antigu'}
+{101102: '/event'}
+{107959: 'maso'}
+{24603: ' Rodr'}
+{118392: ' AAV'}
+{97585: 'Produto'}
+{54005: '/form'}
+{59858: 'órmula'}
+{69632: 'usable'}
+{34575: ' Reporte'}
+{104941: 'ádiz'}
+{43524: 'usuario'}
+{111976: ' Campeón'}
+{32954: ' próp'}
+{58137: 'TODO'}
+{88844: ' contral'}
+{28601: 'babel'}
+{95096: ' cabec'}
+{65769: 'mutable'}
+{27885: ' feas'}
+{87018: 'óso'}
+{121289: '.Series'}
+{62031: ' Trama'}
+{4649: 'ailable'}
+{106887: ' diócesis'}
+{39527: 'íncipe'}
+{119667: 'resultado'}
+{33984: '_con'}
+{122553: 'CREMENT'}
+{54587: 'Cliente'}
+{47828: ' enfermed'}
+{103287: 'carece'}
+{78269: 'cripcion'}
+{48220: ' Enlaces'}
+{85705: '-este'}
+{60562: ' episód'}
+{9282: 'Repos'}
+{55419: 'ISIBLE'}
+{86453: 'udiantes'}
+{104741: ' editable'}
+{39077: 'Árbitro'}
+{43895: 'gunta'}
+{95118: 'UINT'}
+{81879: ' Descart'}
+{80557: '.plugin'}
+{95143: 'Require'}
+{119035: ' Goles'}
+{109838: '_do'}
+{117508: '_language'}
+{114411: 'duced'}
+{120266: '/cart'}
+{105482: 'inspace'}
+{65403: ' Árbitro'}
+{94672: '/action'}
+{73276: 'érrez'}
+{59535: 'ariables'}
+{16918: '_state'}
+{36978: '+de'}
+{66681: ' Visitante'}
+{41548: '{f'}
+{36914: '_CODE'}
+{79678: '″W'}
+{52989: '_auth'}
+{129699: ' amplic'}
+{23948: '_cast'}
+{85703: '_lib'}

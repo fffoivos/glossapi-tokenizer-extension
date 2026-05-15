@@ -1,0 +1,77 @@
+# target_key=hin_Deva  lang_code=hi
+# Σ_target=1,008,351,097  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 72 tokens, sorted by count desc
+{2924: '।'}
+{12156: '।\n'}
+{61754: None}
+{5529: None}
+{12064: None}
+{1306: None}
+{22036: None}
+{64027: None}
+{1433: None}
+{2047: None}
+{83301: ' Hindi'}
+{47456: '।”\n'}
+{75683: ' mins'}
+{68160: ' ‘‘'}
+{85728: ' ₹'}
+{76700: '।”'}
+{29932: None}
+{84378: ')।'}
+{63039: '।’'}
+{72267: 'JP'}
+{37406: ' WWE'}
+{91432: ' spins'}
+{22470: ' Account'}
+{35853: 'Updated'}
+{126895: '।’’\n'}
+{68017: ' Loan'}
+{61329: 'tc'}
+{17759: 'Step'}
+{108953: ' Shay'}
+{67514: ' Pradesh'}
+{89063: ' Exam'}
+{94403: ' Sharma'}
+{65953: ' Scheme'}
+{63882: ' Apply'}
+{129881: 'Ans'}
+{88738: 'Indian'}
+{18746: 'Write'}
+{68790: ' Registration'}
+{92633: ' RBI'}
+{109368: ' Benefits'}
+{118348: '॰'}
+{56613: ' Payment'}
+{78544: 'commended'}
+{51193: ' answering'}
+{123050: 'Conclusion'}
+{38405: ' Users'}
+{99905: 'Bigg'}
+{80485: ' Modified'}
+{130207: 'Edited'}
+{90544: ' Smack'}
+{61599: 'IRST'}
+{92951: 'Publish'}
+{89388: 'ovies'}
+{48519: ' Notification'}
+{29568: '\u200d'}
+{23309: 'Rate'}
+{97494: ' Submit'}
+{99256: ' Subscription'}
+{106458: 'Loan'}
+{115338: ' Prediction'}
+{99928: 'Income'}
+{75998: ' Verify'}
+{76682: '.Game'}
+{115869: '।*\n'}
+{54148: ' Generate'}
+{45154: '(source'}
+{104624: 'Smack'}
+{104491: 'Calculate'}
+{107131: '.Source'}
+{79935: '.uid'}
+{121132: 'INPUT'}
+{10110: '।\n\n'}

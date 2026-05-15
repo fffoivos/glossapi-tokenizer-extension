@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Post-build sanity checks (v2).
+"""Post-build sanity checks (v3 — three-layer schema).
 
 Exits non-zero on first failure. Two phases:
 
@@ -138,16 +138,27 @@ def main() -> None:
         "lt", "lv", "ca", "is",
     }
     LATN_V3_1_EXTRA = {"eo"}
-    LATN_ALL = LATN_V1 | LATN_V2_EXTRA | LATN_V3_1_EXTRA
+    LATN_V3_2_EXTRA = {
+        "sw", "fil", "ceb", "af", "nn", "bs", "gl", "eu",
+        "cy", "ms", "uz-Latn",
+    }
+    LATN_V3_3_2_EXTRA = {"sq", "gsw", "la"}
+    LATN_ALL = (
+        LATN_V1 | LATN_V2_EXTRA | LATN_V3_1_EXTRA | LATN_V3_2_EXTRA
+        | LATN_V3_3_2_EXTRA
+    )
     CYRL_V1 = {"ru", "uk", "bg", "mk", "sr-Cyrl"}
     CYRL_V3_1 = {"be", "kk", "mn"}
-    CYRL_ALL = CYRL_V1 | CYRL_V3_1
-    ARAB_ALL = {"ar", "fa", "ur", "ps"}
+    CYRL_V3_2 = {"tg", "uz-Cyrl", "ky"}
+    CYRL_ALL = CYRL_V1 | CYRL_V3_1 | CYRL_V3_2
+    ARAB_ALL = {"ar", "fa", "ur", "ps", "ar-MA", "ckb"}
 
     # --- v1 spot checks (still must pass) ---
     check_eq(ord("a"), LATN_ALL, "'a' — every Latin locale")
     check_eq(ord("ł"), {"pl"}, "Polish-only ł")
-    check_eq(ord("ñ"), {"es"}, "Spanish-only ñ")
+    # ñ is in es + the v3.2 locales whose CLDR auxiliary/main contains
+    # it (Basque, Filipino, Galician).
+    check_eq(ord("ñ"), {"es", "eu", "fil", "gl"}, "ñ — es + eu + fil + gl")
     check_eq(0x03B1, {"el", "el-polyton"}, "Greek α — modern + polytonic")
     check_eq(0x1F00, {"el-polyton"}, "Polytonic ἀ — ONLY polytonic")
     check_eq(0x0627, ARAB_ALL, "Arabic alef — ar + fa + ur + ps")
@@ -208,7 +219,7 @@ def main() -> None:
 
     # --- v2: new locale spot checks ---
     check_eq(0xB2E4, {"ko"}, "Korean Hangul 다")
-    check_eq(0x0915, {"hi"}, "Hindi Devanagari क")
+    check_eq(0x0915, {"hi", "mr", "ne"}, "Devanagari क — hi + mr + ne (v3.2)")
     check_eq(0x05E9, {"he"}, "Hebrew shin ש")
     check_eq(0x0E1E, {"th"}, "Thai phor phan พ")
     check_eq(0x0561, {"hy"}, "Armenian small ա")
@@ -244,8 +255,16 @@ def main() -> None:
     # Cyrillic/Arabic fallback REMOVED — chars without positive CLDR
     # evidence still must be 0-bit. v3.1 added kk (Kazakh) and ps
     # (Pashto), so chars previously 0-bit now carry their locale.
-    check_eq(0x049A, {"kk"}, "Қ Kazakh — kk added in v3.1")
-    check_eq(0x06A4, set(), "ڤ Sindhi/Pashto-Sindhi — sd still out of scope")
+    # Қ is Kazakh's, but Tajik (Cyrillic Persian) and Uzbek-Cyrl also
+    # include it; all three are in scope as of v3.1/v3.2.
+    check_eq(
+        0x049A,
+        {"kk", "tg", "uz-Cyrl"},
+        "Қ — kk (v3.1) + tg + uz-Cyrl (v3.2)",
+    )
+    # ڤ is used by Sorani Kurdish (ckb, in scope v3.2). Sindhi (sd)
+    # still out of scope so this is not pure-Sindhi anymore.
+    check_eq(0x06A4, {"ckb"}, "ڤ — Sorani Kurdish (ckb added in v3.2)")
 
     # Extra substrate codepoints
     check_all_bits(0x00B5, "µ MICRO SIGN — extra substrate")
@@ -295,7 +314,11 @@ def main() -> None:
                 f"expected={sorted(expected)} actual={sorted(actual)}"
             )
 
-    check_family(ord("ñ"), {"Romance-Latn"}, "ñ Spanish-only")
+    check_family(
+        ord("ñ"),
+        {"Romance-Latn", "Austronesian-Latn", "Isolate-Latn"},
+        "ñ family — Romance + Austronesian (fil) + Isolate (eu) since v3.2",
+    )
     check_family(ord("ß"), {"Germanic-Latn"}, "ß German-only")
     check_family(ord("ł"), {"Slavic-Latn"}, "ł Polish-only")
     check_family(0x03B1, {"Grek-modern", "Grek-polyton"}, "α both Greek")

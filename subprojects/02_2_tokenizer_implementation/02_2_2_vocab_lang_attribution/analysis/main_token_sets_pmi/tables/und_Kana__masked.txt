@@ -1,0 +1,5 @@
+# target_key=und_Kana  lang_code=None
+# Σ_target=1,016,291,752  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=A (char-mask ON: bit set, popcount<88, evaluable)
+# 0 tokens, sorted by count desc

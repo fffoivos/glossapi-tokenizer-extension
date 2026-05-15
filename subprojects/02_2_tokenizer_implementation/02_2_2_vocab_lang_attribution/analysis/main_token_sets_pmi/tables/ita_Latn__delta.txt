@@ -1,0 +1,14 @@
+# target_key=ita_Latn  lang_code=it
+# Σ_target=1,004,935,382  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 9 tokens, sorted by count desc
+{38416: '\'"'}
+{126384: '!».'}
+{120720: '’«'}
+{65374: '[]\n'}
+{29197: ' \'"'}
+{16474: ']}'}
+{53355: ' "")\n'}
+{49023: ' \\({\\'}
+{55692: ']}\n'}

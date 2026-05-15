@@ -1,0 +1,40 @@
+{
+  "params": {
+    "min_count": 100,
+    "delta": 1.0,
+    "alpha": 0.5,
+    "en_key": "eng_Latn_fineweb_hq",
+    "de_key": "deu_Latn"
+  },
+  "totals": {
+    "total_en": 1007476136,
+    "total_de": 1005786784,
+    "fired_en": 116210,
+    "fired_de": 113441,
+    "fired_both": 108421,
+    "fired_only_en": 7789,
+    "fired_only_de": 5020
+  },
+  "activation_fingerprint_distance": {
+    "cosine_similarity_p_en_p_de": 0.5425377781180999,
+    "total_variation_distance": 0.7050179038392024,
+    "top_K_rank_intersection": {
+      "10": 5,
+      "100": 24,
+      "1000": 211,
+      "10000": 2539
+    }
+  },
+  "main_sets": {
+    "en": {
+      "tokens": 21055,
+      "mass_count": 596094441,
+      "mass_pct_of_total_en": 59.167102792795085
+    },
+    "de": {
+      "tokens": 7821,
+      "mass_count": 592360299,
+      "mass_pct_of_total_de": 58.89521600633798
+    }
+  }
+}

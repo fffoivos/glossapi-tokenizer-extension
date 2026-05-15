@@ -1,0 +1,28 @@
+# target_key=tgk_Cyrl  lang_code=tg
+# Σ_target=1,014,265,773  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 23 tokens, sorted by count desc
+{1210: None}
+{1179: None}
+{1211: None}
+{19142: None}
+{1163: None}
+{1175: None}
+{63542: None}
+{5339: 'њ'}
+{21176: ' њ'}
+{77437: '»-'}
+{58406: ' ќ'}
+{57829: '"-'}
+{36133: 'ќи'}
+{71231: 'Upon'}
+{115626: 'ikistan'}
+{124538: 'poons'}
+{24878: '"*'}
+{32532: 'umbnail'}
+{90349: '”*'}
+{43211: '»*'}
+{42800: ' [{'}
+{1483: None}
+{22994: '/json'}

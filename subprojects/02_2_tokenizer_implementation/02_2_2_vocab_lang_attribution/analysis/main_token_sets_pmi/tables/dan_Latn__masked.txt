@@ -1,0 +1,2275 @@
+# target_key=dan_Latn  lang_code=da
+# Σ_target=1,008,723,187  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=A (char-mask ON: bit set, popcount<88, evaluable)
+# 2,270 tokens, sorted by count desc
+{3669: ' og'}
+{1513: ' at'}
+{4203: ' af'}
+{1765: ' er'}
+{1394: ' for'}
+{5797: ' til'}
+{5892: 'æ'}
+{1258: 'er'}
+{1304: 'et'}
+{5789: ' på'}
+{2417: ' med'}
+{2256: ' det'}
+{4093: 'ø'}
+{1728: ' der'}
+{2220: ' den'}
+{2745: ' som'}
+{19995: ' ikke'}
+{9008: ' kan'}
+{1558: 'de'}
+{8738: 'igt'}
+{5999: ' har'}
+{10519: ' ud'}
+{3963: 'ende'}
+{1441: 'ere'}
+{4895: ' om'}
+{1868: 'der'}
+{2588: 'ning'}
+{4436: 'ede'}
+{9051: 'ør'}
+{18382: ' eller'}
+{2803: 'å'}
+{5886: ' fra'}
+{2841: ' var'}
+{1643: 'ge'}
+{5472: 'else'}
+{18169: ' så'}
+{19755: 'ær'}
+{3832: 'ige'}
+{2495: ' ind'}
+{2136: ' over'}
+{3636: 'isk'}
+{16079: 'iske'}
+{6850: 'ker'}
+{5703: ' sig'}
+{12073: ' ved'}
+{16752: ' vil'}
+{2326: ' bl'}
+{51026: ' skal'}
+{46030: ' være'}
+{4888: 'vis'}
+{2440: 'hed'}
+{1397: 'ter'}
+{8825: ' Det'}
+{7765: ' han'}
+{16073: 'år'}
+{21954: ' efter'}
+{23760: ' også'}
+{2221: 'mer'}
+{2723: 'ler'}
+{37453: 'ød'}
+{2462: 'ger'}
+{23533: ' ø'}
+{16233: ' blev'}
+{1465: 'ver'}
+{26845: ' væ'}
+{72295: ' jeg'}
+{2362: ' end'}
+{2969: 'ste'}
+{35337: ' hvor'}
+{4314: 'ret'}
+{66558: 'æng'}
+{7249: 'lig'}
+{24783: 'erne'}
+{39288: ' fø'}
+{54213: ' deres'}
+{2425: ' under'}
+{57371: ' hj'}
+{2005: ' mod'}
+{2975: 'for'}
+{3658: 'ager'}
+{13435: ' mere'}
+{5645: ' dig'}
+{21238: ' må'}
+{19259: ' bru'}
+{76922: 'ænd'}
+{40708: ' denne'}
+{1543: 'ld'}
+{129875: ' læ'}
+{1541: 'age'}
+{96737: ' meget'}
+{36369: ' dette'}
+{2436: 'ser'}
+{52349: 'vad'}
+{39042: ' selv'}
+{5974: ' alle'}
+{64946: ' æ'}
+{30850: 'lige'}
+{119681: ' hvis'}
+{7302: 'dom'}
+{4604: 'ling'}
+{49905: 'ninger'}
+{32782: ' frem'}
+{1556: 'ive'}
+{10231: ' tid'}
+{30389: ' andre'}
+{88703: 'øre'}
+{62026: ' sæ'}
+{36372: 'ighed'}
+{3344: 'ille'}
+{15410: ' mul'}
+{79506: 'æn'}
+{79958: ' når'}
+{50006: ' forsk'}
+{20504: ' år'}
+{30712: 'fø'}
+{64933: ' næ'}
+{10176: ' kun'}
+{39141: ' lø'}
+{13410: 'itet'}
+{10984: 'rer'}
+{6280: 'ogle'}
+{62160: ' hv'}
+{41558: ' havde'}
+{2702: 'iver'}
+{113320: 'æt'}
+{7989: 'rd'}
+{34452: ' få'}
+{128621: 'fæ'}
+{44651: 'elser'}
+{1923: 'ater'}
+{8845: 'jer'}
+{11310: 'ket'}
+{35823: ' arbe'}
+{23192: 'ningen'}
+{77769: 'æk'}
+{7181: 'Det'}
+{59481: 'ære'}
+{7591: 'ring'}
+{6834: 'gt'}
+{29380: 'vik'}
+{38927: ' mange'}
+{1689: 'get'}
+{31943: ' grund'}
+{88350: 'æg'}
+{29954: ' første'}
+{5169: ' alt'}
+{90475: ' brug'}
+{15634: ' hun'}
+{8681: 'hold'}
+{38807: 'elig'}
+{110375: ' bliver'}
+{2174: 'ange'}
+{75537: ' mennes'}
+{55301: 'ordan'}
+{5633: 'este'}
+{18827: ' før'}
+{2053: 'ss'}
+{20565: ' kv'}
+{2898: ' For'}
+{30839: 'elsen'}
+{6142: ' Der'}
+{13767: ' disse'}
+{49303: ' behand'}
+{48525: ' sø'}
+{20260: ' nog'}
+{57796: 'elige'}
+{5501: 'ering'}
+{72174: 'eret'}
+{3083: 'ets'}
+{7830: ' Den'}
+{9367: ' liv'}
+{106362: ' uden'}
+{10209: 'vet'}
+{100505: 'æs'}
+{119092: ' anden'}
+{7311: 'rs'}
+{53011: 'lde'}
+{47049: ' sammen'}
+{41198: ' kunne'}
+{49433: ' flere'}
+{105291: ' gennem'}
+{26949: ' hans'}
+{21538: 'kel'}
+{3978: 'net'}
+{90712: 'vend'}
+{12674: ' Men'}
+{2119: 'fter'}
+{103486: ' vand'}
+{127837: 'ellige'}
+{75809: ' mellem'}
+{7785: 'df'}
+{121326: ' høj'}
+{48228: 'ål'}
+{54720: 'øm'}
+{102261: ' hæ'}
+{86006: 'jde'}
+{43702: ' sid'}
+{8793: 'nder'}
+{4146: 'ges'}
+{10722: 'rig'}
+{60745: ' hoved'}
+{15651: 'dt'}
+{7153: ' bed'}
+{6735: 'gs'}
+{8081: 'inder'}
+{56274: ' hos'}
+{8662: 'vor'}
+{8819: 'iser'}
+{84173: 'ånd'}
+{2956: 'ader'}
+{7141: 'inde'}
+{101836: ' tilbage'}
+{38993: 'ligt'}
+{117650: ' hvilket'}
+{57159: ' sik'}
+{26226: ' mest'}
+{69008: 'øn'}
+{29334: 'endes'}
+{79196: 'ørn'}
+{20393: ' mig'}
+{56918: ' Dette'}
+{4327: 'eder'}
+{3687: ' beh'}
+{3623: 'stand'}
+{10944: ' ville'}
+{3398: ' ret'}
+{37543: ' hø'}
+{20033: ' lid'}
+{123268: ' godt'}
+{7987: 'iner'}
+{47660: ' hele'}
+{14352: 'ppen'}
+{61190: ' samme'}
+{4985: 'ogen'}
+{28184: 'ske'}
+{2965: ' person'}
+{5929: 'sten'}
+{8415: ' Du'}
+{5057: 'rug'}
+{13300: 'det'}
+{15988: 'ds'}
+{8067: ' fort'}
+{56519: ' kommer'}
+{4955: ' far'}
+{36623: ' unders'}
+{5571: ' ans'}
+{7033: 'iller'}
+{2184: 'str'}
+{76479: ' hver'}
+{100369: 'ighe'}
+{22740: 'Den'}
+{28368: 'nings'}
+{2676: 'til'}
+{20432: ' hurt'}
+{122366: 'ække'}
+{4393: 'For'}
+{100490: ' hjem'}
+{122919: 'ærk'}
+{6772: 'rl'}
+{12309: 'del'}
+{69944: ' gå'}
+{29236: ' samt'}
+{22812: 'tte'}
+{13898: ' Han'}
+{16141: 'yg'}
+{6508: ' ord'}
+{57820: ' ofte'}
+{23019: ' eks'}
+{104521: ' blevet'}
+{18109: 'ensk'}
+{44952: ' anv'}
+{104578: ' fordi'}
+{6482: ' patient'}
+{115521: ' inden'}
+{12720: 'gang'}
+{8141: ' store'}
+{13494: ' inde'}
+{70705: ' helt'}
+{52581: ' kro'}
+{130364: 'væ'}
+{21685: 'vid'}
+{11566: 'omer'}
+{115203: ' været'}
+{49943: 'stå'}
+{10754: 'under'}
+{9007: ' god'}
+{81721: ' effekt'}
+{40895: ' Og'}
+{97192: 'lø'}
+{56591: ' nye'}
+{85583: 'bef'}
+{8394: ' ful'}
+{6398: ' led'}
+{47342: 'erer'}
+{50910: 'lp'}
+{48937: 'rede'}
+{2294: ' kn'}
+{58045: 'heden'}
+{100024: 'relse'}
+{4009: 'ffer'}
+{16223: ' fly'}
+{70676: ' får'}
+{3507: 'bed'}
+{89262: ' lige'}
+{68020: ' siden'}
+{14764: ' mens'}
+{32411: 'gem'}
+{68272: 'tter'}
+{8941: 'uden'}
+{3953: 'try'}
+{24761: ' stor'}
+{85051: ' års'}
+{30676: ' ingen'}
+{32764: ' forb'}
+{16593: 'tag'}
+{10880: ' mand'}
+{20811: 'ktion'}
+{119538: ' ønsk'}
+{10917: 'utter'}
+{57861: ' mindre'}
+{5864: ' hold'}
+{112314: 'ører'}
+{97346: ' føl'}
+{60785: ' besk'}
+{106769: 'ræ'}
+{53620: 'gte'}
+{5628: ' give'}
+{7528: 'agen'}
+{17015: ' bare'}
+{37084: ' fakt'}
+{62529: ' går'}
+{73272: ' omkring'}
+{3081: ' find'}
+{19073: 'nde'}
+{11593: ' medic'}
+{47672: ' fors'}
+{81381: ' mån'}
+{49436: 'vir'}
+{9565: 'Der'}
+{88956: ' forhold'}
+{21985: 'tere'}
+{28349: ' skulle'}
+{102471: 'lgende'}
+{114573: 'ølge'}
+{129357: ' stadig'}
+{40789: ' bland'}
+{32404: 'arbe'}
+{44500: ' fik'}
+{10575: ' dog'}
+{95188: 'ringer'}
+{56316: 'kke'}
+{68245: ' igen'}
+{42529: 'lel'}
+{95641: ' begy'}
+{121212: ' bedre'}
+{2902: 'ful'}
+{9732: ' sympt'}
+{8364: ' mid'}
+{41628: 'kter'}
+{7289: 'hand'}
+{80276: 'ært'}
+{113885: ' begynd'}
+{40032: ' kend'}
+{13003: ' hus'}
+{28640: ' ting'}
+{102287: 'styr'}
+{53279: ' fj'}
+{11760: 'reb'}
+{32568: ' bev'}
+{17451: ' bek'}
+{102311: ' sund'}
+{89141: ' forsø'}
+{37743: ' sine'}
+{52391: ' dage'}
+{68345: ' sted'}
+{26831: ' lever'}
+{120972: 'jerne'}
+{27648: 'agt'}
+{8221: ' norm'}
+{43015: 'aber'}
+{5925: ' syn'}
+{128978: ' hå'}
+{38158: 'lingen'}
+{71483: ' tidligere'}
+{52003: ' På'}
+{121463: ' verden'}
+{3245: 'over'}
+{50869: ' både'}
+{4258: ' side'}
+{7069: 'iger'}
+{50261: ' nok'}
+{37054: ' hen'}
+{28282: 'anske'}
+{11372: ' hund'}
+{5759: ' mind'}
+{16324: ' dere'}
+{18478: 'ansk'}
+{104186: ' eksempel'}
+{100071: ' komme'}
+{2472: 'ages'}
+{5053: 'url'}
+{63279: 'åd'}
+{21283: ' sky'}
+{66280: ' alm'}
+{42787: ' kort'}
+{16557: ' aller'}
+{64023: 'jd'}
+{110516: 'erede'}
+{37154: 'ologi'}
+{47332: 'aget'}
+{91206: ' Denne'}
+{53039: ' dø'}
+{1714: 'ign'}
+{19473: 'aler'}
+{10414: 'oder'}
+{93287: 'fatter'}
+{66752: 'giv'}
+{24522: 'lys'}
+{40762: ' barn'}
+{2502: ' spec'}
+{70406: 'ernes'}
+{31935: ' folk'}
+{10594: 'holder'}
+{58029: ' styr'}
+{19880: 'orer'}
+{7720: ' fast'}
+{82504: ' mø'}
+{43591: 'som'}
+{85432: 'rlig'}
+{21252: 'atte'}
+{25505: ' kamp'}
+{3292: ' proble'}
+{46495: 'elsk'}
+{42845: ' hud'}
+{107502: 'igheden'}
+{33246: ' forts'}
+{18098: 'indre'}
+{11273: 'illet'}
+{16926: 'anne'}
+{11919: 'ls'}
+{115677: 'vede'}
+{40191: ' fork'}
+{2309: ' produ'}
+{103125: ' fleste'}
+{43581: ' produkt'}
+{8152: ' USA'}
+{31511: 'stre'}
+{46739: ' besl'}
+{29509: 'uder'}
+{94918: ' små'}
+{86440: ' først'}
+{62425: ' mål'}
+{127513: ' ople'}
+{18167: ' dens'}
+{96375: 'ledes'}
+{76871: 'igste'}
+{93393: ' derfor'}
+{26558: ' lys'}
+{76261: ' enk'}
+{55686: ' kald'}
+{113793: ' tils'}
+{115974: ' viser'}
+{54810: 'ligere'}
+{90299: ' hvil'}
+{21485: 'Du'}
+{107423: 'ektion'}
+{11687: 'ads'}
+{119184: ' stedet'}
+{5992: ' gru'}
+{9807: 'iker'}
+{70330: 'spunkt'}
+{45932: 'aktion'}
+{23197: ' fed'}
+{16870: ' overs'}
+{76177: ' dagen'}
+{55090: 'ekom'}
+{16319: 'eres'}
+{125748: 'relsen'}
+{16200: 'anden'}
+{23719: 'rene'}
+{67218: ' betyd'}
+{69335: ' Efter'}
+{11236: 'urer'}
+{17140: 'omme'}
+{61032: ' senere'}
+{49229: ' fej'}
+{14658: 'ielle'}
+{13623: 'uler'}
+{120570: ' forbind'}
+{84515: ' funktion'}
+{36850: ' karakter'}
+{102178: 'ller'}
+{95289: 'undet'}
+{10694: 'eds'}
+{2865: 'abel'}
+{52315: 'gger'}
+{35079: ' då'}
+{93845: ' offent'}
+{43318: 'sted'}
+{3352: ' try'}
+{10831: 'river'}
+{101197: ' økonom'}
+{25362: 'lg'}
+{80840: ' allerg'}
+{39832: 'Men'}
+{66833: ' opr'}
+{85286: ' større'}
+{67296: 'vn'}
+{94699: ' nær'}
+{8516: ' situation'}
+{46092: ' stør'}
+{11834: ' dann'}
+{82952: ' luft'}
+{40996: 'yre'}
+{50190: 'fund'}
+{44371: 'Vi'}
+{23517: 'mel'}
+{27892: ' lov'}
+{31654: ' nå'}
+{8748: ' enh'}
+{75189: ' stø'}
+{127129: ' sands'}
+{14492: 'ppe'}
+{17009: ' rum'}
+{66762: 'idig'}
+{7482: ' fire'}
+{31108: ' Hun'}
+{92100: ' Disse'}
+{57441: ' byg'}
+{77743: 'iteten'}
+{28480: 'lings'}
+{55341: ' inkl'}
+{72100: ' resultat'}
+{51773: ' Ved'}
+{25351: ' rej'}
+{37339: ' klar'}
+{82941: 'endt'}
+{17542: 'anter'}
+{28327: ' tale'}
+{99876: 'lede'}
+{68087: ' ligger'}
+{34935: ' dele'}
+{53840: ' kron'}
+{3627: 'ysis'}
+{18037: ' sto'}
+{25287: ' lign'}
+{30641: ' langs'}
+{56227: 'ård'}
+{104971: ' vok'}
+{40960: 'jø'}
+{19922: ' fung'}
+{24259: ' timer'}
+{19592: ' lav'}
+{121357: ' spille'}
+{77582: 'før'}
+{18050: 'ionen'}
+{108655: ' amerikanske'}
+{68898: 'emt'}
+{16777: ' niveau'}
+{19799: 'vens'}
+{18985: 'lle'}
+{114223: ' dets'}
+{94581: 'ivet'}
+{99042: 'På'}
+{72118: 'lder'}
+{85058: ' egen'}
+{70159: ' stort'}
+{3632: ' redu'}
+{12009: ' Som'}
+{57760: ' ops'}
+{52375: ' tog'}
+{87167: ' største'}
+{52324: 'eringen'}
+{3296: 'iven'}
+{45611: 'tid'}
+{55321: ' Til'}
+{79395: ' direkte'}
+{34432: ' ford'}
+{2037: 'ystem'}
+{121025: ' langt'}
+{82883: ' delt'}
+{79059: 'ttet'}
+{4083: 'ift'}
+{10332: ' ej'}
+{126407: 'ærende'}
+{13307: 'ancer'}
+{7067: ' million'}
+{128646: 'ytte'}
+{51870: ' gjorde'}
+{2658: ' type'}
+{76262: ' aft'}
+{32710: ' fug'}
+{115075: ' begge'}
+{105118: ' står'}
+{29519: 'nit'}
+{74068: 'ående'}
+{102054: ' videre'}
+{76909: 'områ'}
+{125728: 'cere'}
+{120935: ' område'}
+{76577: ' rundt'}
+{54977: ' gav'}
+{22006: 'Med'}
+{12736: 'uelle'}
+{9184: 'illing'}
+{108994: ' navn'}
+{50762: 'uds'}
+{66819: ' kraft'}
+{89702: 'ikation'}
+{115289: ' bø'}
+{4826: 'mand'}
+{105423: ' opl'}
+{130170: 'virk'}
+{63733: 'sent'}
+{129284: ' hvert'}
+{15447: ' stem'}
+{127951: ' forsv'}
+{129204: ' verdens'}
+{45067: ' kunst'}
+{43119: ' slut'}
+{19112: 'ften'}
+{83254: ' alder'}
+{48532: ' Ø'}
+{30006: 'gende'}
+{110879: 'ldes'}
+{107406: ' historie'}
+{116027: ' morgen'}
+{117181: ' alkohol'}
+{99107: ' valg'}
+{9293: 'enne'}
+{103240: ' gamle'}
+{101220: ' halv'}
+{65297: ' begr'}
+{59778: 'dele'}
+{27811: 'ttes'}
+{100360: 'terne'}
+{19348: 'grund'}
+{78016: ' artikel'}
+{129899: ' rå'}
+{44013: ' områ'}
+{111501: 'Efter'}
+{102953: 'rekt'}
+{24030: 'Et'}
+{79592: 'bred'}
+{83947: ' jord'}
+{18742: 'orden'}
+{89207: ' reducer'}
+{121385: ' hens'}
+{47572: ' blot'}
+{57788: 'mens'}
+{54007: 'oner'}
+{12364: 'ielt'}
+{68341: ' Danmark'}
+{16063: 'angel'}
+{80304: ' unge'}
+{67573: 'fors'}
+{43080: ' Ud'}
+{19472: 'iens'}
+{52708: ' placer'}
+{24833: 'rå'}
+{63767: ' luk'}
+{41739: ' komb'}
+{78017: ' procent'}
+{68140: ' bred'}
+{94374: ' sej'}
+{7500: ' stress'}
+{17815: ' baby'}
+{46137: 'nden'}
+{82988: 'ragt'}
+{27411: ' fand'}
+{109023: ' nyt'}
+{79766: ' tiden'}
+{39676: ' mener'}
+{13476: ' mine'}
+{105757: 'byg'}
+{115122: ' død'}
+{101698: ' gjort'}
+{54188: ' fred'}
+{64825: 'andt'}
+{57780: ' bry'}
+{78676: ' familie'}
+{115647: ' danske'}
+{71962: ' fantast'}
+{72482: 'edev'}
+{124929: ' støtte'}
+{70033: 'dst'}
+{82922: ' personer'}
+{51684: ' periode'}
+{62647: ' vist'}
+{127150: 'indel'}
+{63682: ' rett'}
+{62597: 'øl'}
+{53728: 'dre'}
+{23498: ' passer'}
+{62927: 'Å'}
+{106715: ' gerne'}
+{55108: ' succes'}
+{76951: 'rette'}
+{21490: ' handling'}
+{7951: ' repr'}
+{70598: ' tilb'}
+{45889: ' lå'}
+{74508: 'lagt'}
+{110126: 'Og'}
+{48772: 'rive'}
+{4328: 'Ind'}
+{89077: 'Som'}
+{33349: 'fly'}
+{8126: 'vere'}
+{49315: ' musik'}
+{108395: ' antal'}
+{90870: ' nytt'}
+{89300: 'isering'}
+{56192: ' regelm'}
+{30049: 'allet'}
+{47139: ' oven'}
+{123899: ' konsek'}
+{57729: 'vist'}
+{37172: 'lles'}
+{26092: 'produ'}
+{7685: ' operation'}
+{113921: ' opd'}
+{22617: 'ses'}
+{72063: ' byen'}
+{25050: ' holder'}
+{11953: ' tradition'}
+{66707: ' medlem'}
+{56076: ' krig'}
+{87572: 'vom'}
+{104047: ' ene'}
+{22122: ' producer'}
+{16133: 'rift'}
+{81120: 'fy'}
+{4471: 'ands'}
+{127546: 'kerne'}
+{49532: 'ernen'}
+{31075: ' kommun'}
+{69275: 'Til'}
+{9340: ' immun'}
+{105424: ' fry'}
+{4655: ' invol'}
+{8548: ' bring'}
+{13549: 'vare'}
+{112025: 'odet'}
+{93704: 'linger'}
+{5852: ' protein'}
+{84735: ' kog'}
+{25903: 'erner'}
+{7094: ' milit'}
+{97819: ' skr'}
+{74887: 'ført'}
+{14594: ' rig'}
+{14091: ' salt'}
+{22651: 'esser'}
+{65794: ' landet'}
+{46696: ' masse'}
+{28118: 'bold'}
+{38218: ' identific'}
+{79840: 'Han'}
+{17612: ' gent'}
+{84307: 'stil'}
+{82532: 'inske'}
+{25496: 'minister'}
+{88157: 'andet'}
+{86834: 'ikke'}
+{70068: ' detal'}
+{20270: ' plac'}
+{109287: ' ekst'}
+{69761: ' haft'}
+{129368: ' lej'}
+{108714: ' leder'}
+{30625: ' moderne'}
+{30623: 'lk'}
+{75771: ' lokale'}
+{72027: ' måtte'}
+{36170: 'ationen'}
+{30791: ' sociale'}
+{122984: ' gul'}
+{84263: ' syd'}
+{49559: 'stem'}
+{39700: ' ende'}
+{113450: ' osv'}
+{82218: ' tredje'}
+{21154: ' lad'}
+{67681: 'iveau'}
+{101981: ' sør'}
+{60072: 'alte'}
+{58476: ' slag'}
+{33050: ' slip'}
+{73512: ' vise'}
+{113018: 'gave'}
+{84671: ' Brug'}
+{9034: 'itter'}
+{95110: 'unktion'}
+{30854: 'bru'}
+{114821: ' gamm'}
+{111705: ' metode'}
+{101772: ' konstant'}
+{107804: ' døde'}
+{10544: 'nte'}
+{18136: ' ske'}
+{102627: ' energi'}
+{44180: ' fisk'}
+{124195: ' mods'}
+{17436: 'rett'}
+{63107: ' regering'}
+{68279: 'sat'}
+{125553: ' århund'}
+{28005: ' russ'}
+{31985: 'Sel'}
+{130732: ' fokus'}
+{101384: ' består'}
+{51990: 'jne'}
+{48175: 'fatt'}
+{18901: ' tank'}
+{19177: 'omm'}
+{5857: '-st'}
+{87251: ' Gud'}
+{80098: ' middel'}
+{125906: ' frig'}
+{6722: 'aft'}
+{109374: ' viste'}
+{28086: ' Å'}
+{21799: ' gift'}
+{13225: ' Under'}
+{11940: 'auer'}
+{68373: ' koncent'}
+{87375: ' Rusland'}
+{22128: 'andle'}
+{14348: 'asser'}
+{83473: ' temperatur'}
+{67159: 'still'}
+{2469: ' cell'}
+{10938: ' Over'}
+{101681: ' dansk'}
+{56482: ' nummer'}
+{13271: ' erst'}
+{33892: 'fred'}
+{96229: ' maven'}
+{56695: 'standen'}
+{55133: 'riere'}
+{55156: 'ringen'}
+{3470: 'ination'}
+{54274: 'olie'}
+{105069: 'på'}
+{94364: 'dater'}
+{14293: ' arter'}
+{8648: ' computer'}
+{29143: 'hind'}
+{87515: ' området'}
+{19719: ' handler'}
+{41280: 'insk'}
+{29654: ' Alle'}
+{8226: 'rage'}
+{126386: 'ørs'}
+{13295: ' Hans'}
+{2921: 'ulation'}
+{26877: ' organisation'}
+{63563: 'ifter'}
+{89508: ' befolk'}
+{57201: 'anstalt'}
+{16465: ' europ'}
+{21541: 'edes'}
+{12922: 'annels'}
+{110898: 'ersk'}
+{28274: ' stats'}
+{118883: ' krav'}
+{10224: ' analys'}
+{15093: ' erh'}
+{13199: 'process'}
+{59644: ' komm'}
+{81535: 'kken'}
+{27965: 'letter'}
+{19153: 'Her'}
+{9874: ' tumor'}
+{98382: ' stod'}
+{8000: ' profession'}
+{55269: ' leve'}
+{95717: ' omfatt'}
+{5475: 'If'}
+{8029: 'gent'}
+{121654: ' rapporter'}
+{121666: ' sider'}
+{88103: ' året'}
+{4134: ' adv'}
+{3981: 'roller'}
+{125078: ' heller'}
+{65336: 'bygg'}
+{68672: 'bart'}
+{90420: 'ås'}
+{37754: 'rops'}
+{76464: ' skrev'}
+{54730: ' sagt'}
+{9401: 'illes'}
+{69307: ' positiv'}
+{111867: ' dermed'}
+{8343: ' Frank'}
+{3263: 'user'}
+{8217: 'abs'}
+{68195: ' regel'}
+{53964: 'aktiv'}
+{33828: ' internationale'}
+{14009: ' synd'}
+{9509: 'riter'}
+{112818: ' imidlertid'}
+{33556: 'oler'}
+{101431: 'ertet'}
+{12682: ' inflamm'}
+{45334: 'ellem'}
+{52895: 'Af'}
+{120794: ' lettere'}
+{123888: 'uesp'}
+{72689: 'iget'}
+{88420: ' tyske'}
+{25708: 'system'}
+{13949: ' marked'}
+{34663: 'igg'}
+{39162: ' bå'}
+{63640: ' spill'}
+{52230: ' sten'}
+{20219: 'hav'}
+{93888: 'jede'}
+{77498: 'oldt'}
+{21695: 'sf'}
+{59965: 'rets'}
+{77482: ' diagnose'}
+{12730: ' synt'}
+{119057: ' anerk'}
+{107522: ' Kina'}
+{35779: 'oker'}
+{103438: ' øst'}
+{40331: 'pine'}
+{52702: ' normale'}
+{80271: 'laget'}
+{18337: 'ilde'}
+{37741: 'anding'}
+{11549: ' Fra'}
+{52866: 'vd'}
+{18562: ' diagnostic'}
+{131020: ' komponent'}
+{86614: ' neder'}
+{23747: ' ingred'}
+{66453: 'ammer'}
+{47523: ' analyse'}
+{35034: ' Lad'}
+{105134: ' resten'}
+{15659: 'fte'}
+{50409: 'endet'}
+{93808: 'ulter'}
+{113285: ' skre'}
+{97915: 'abler'}
+{63849: ' foreg'}
+{64008: ' starter'}
+{121576: ' marts'}
+{4481: 'usion'}
+{7561: 'aves'}
+{26856: ' liste'}
+{34282: ' observer'}
+{3522: 'tion'}
+{71846: ' erkl'}
+{111376: ' cirk'}
+{48067: 'ertes'}
+{47527: ' hed'}
+{41753: ' ern'}
+{28278: ' september'}
+{101437: 'lade'}
+{43004: 'olk'}
+{59509: ' januar'}
+{104210: ' fag'}
+{91116: 'vem'}
+{27526: ' juni'}
+{122094: ' aktive'}
+{55595: ' Dere'}
+{87490: 'atet'}
+{116186: ' britiske'}
+{3771: 'empl'}
+{92034: 'tet'}
+{73266: ' Tyskland'}
+{9239: 'then'}
+{96803: 'mentar'}
+{73012: 'aturen'}
+{30167: ' oktober'}
+{52410: ' manifestation'}
+{6888: 'center'}
+{112134: ' fores'}
+{17144: ' forest'}
+{3485: 'ration'}
+{7714: 'uff'}
+{102309: ' biv'}
+{11431: 'ammen'}
+{48515: 'bn'}
+{126962: 'rettet'}
+{25258: 'rose'}
+{60502: 'ografi'}
+{9991: ' Ell'}
+{26297: ' sorte'}
+{63981: 'affe'}
+{95681: ' kines'}
+{29098: ' april'}
+{8393: 'agne'}
+{18824: ' diabetes'}
+{17958: 'send'}
+{65084: "'er"}
+{59019: ' tred'}
+{13852: 'mid'}
+{117009: ' historien'}
+{42627: 'station'}
+{7740: ' hyp'}
+{21113: 'hyd'}
+{4933: 'older'}
+{32262: 'ocyt'}
+{81632: ' vende'}
+{25517: ' november'}
+{129561: ' franske'}
+{9747: 'anner'}
+{23464: 'emper'}
+{42495: ' lod'}
+{29610: ' december'}
+{44913: 'gangen'}
+{98869: '-å'}
+{31316: 'ffe'}
+{25609: 'Under'}
+{105822: ' Sø'}
+{19176: 'encer'}
+{27917: ' juli'}
+{117629: ' Københav'}
+{122270: 'meren'}
+{84786: ' materiale'}
+{24090: ' august'}
+{15620: ' hell'}
+{98554: 'ampe'}
+{28713: ' manif'}
+{62944: 'gede'}
+{35013: ' potent'}
+{8289: ' negative'}
+{111361: ' filmen'}
+{13305: 'unkt'}
+{107462: 'vide'}
+{127608: ' jø'}
+{79235: 'ismen'}
+{123266: ' Hø'}
+{97155: 'ssystem'}
+{13654: 'olds'}
+{70485: ' februar'}
+{130702: 'ynd'}
+{107673: 'give'}
+{24737: ' undert'}
+{78433: 'abt'}
+{127780: 'råd'}
+{109024: 'ettet'}
+{75944: ' Storb'}
+{97459: ' Sør'}
+{56859: ' interesse'}
+{82740: 'mere'}
+{30546: ' forg'}
+{44645: ' sagen'}
+{13669: 'ommen'}
+{55503: 'ifikation'}
+{78246: 'vig'}
+{19340: ' tand'}
+{72121: 'Alle'}
+{32024: 'aser'}
+{15029: ' ress'}
+{92612: 'emm'}
+{15604: 'bind'}
+{16583: 'fang'}
+{76063: ' vender'}
+{65671: 'apeut'}
+{110601: ' engels'}
+{47035: 'igts'}
+{119424: ' starten'}
+{118612: 'immel'}
+{72159: ' stig'}
+{68870: 'deling'}
+{88967: ' pige'}
+{21656: 'person'}
+{100589: ' Bland'}
+{73524: ' programmer'}
+{131053: ' dosis'}
+{14137: ' hyper'}
+{103165: ' førte'}
+{41369: ' symptom'}
+{28727: 'ensen'}
+{15008: ' Mens'}
+{50719: 'ods'}
+{12666: ' eth'}
+{18538: 'så'}
+{85322: ' amerikansk'}
+{28734: ' blade'}
+{53560: 'ritannien'}
+{74677: 'Fra'}
+{21327: ' nationale'}
+{30032: ' bold'}
+{103432: ' fortsatte'}
+{37622: 'folk'}
+{77588: ' fatt'}
+{42625: 'vt'}
+{23304: 'flamm'}
+{81567: ' klasse'}
+{102765: ' milliard'}
+{14039: ' spring'}
+{83044: 'uet'}
+{85629: ' cykl'}
+{102097: 'avn'}
+{115906: 'bog'}
+{22446: ' dollars'}
+{17416: 'ders'}
+{59220: 'lod'}
+{105673: 'ggel'}
+{25187: 'usive'}
+{71847: 'doms'}
+{20026: 'erver'}
+{129703: ' cirka'}
+{61638: ' Fors'}
+{5238: 'Over'}
+{128331: ' afstand'}
+{31946: ' VM'}
+{7782: ' handle'}
+{69878: 'periment'}
+{17281: ' Jord'}
+{51898: ' vente'}
+{15166: ' nive'}
+{65311: ' FN'}
+{124377: 'alder'}
+{119338: 'ufth'}
+{11662: 'ellig'}
+{19667: ' Syd'}
+{100347: 'nsk'}
+{14081: ' interview'}
+{97537: ' borg'}
+{52539: 'ked'}
+{48958: 'andler'}
+{96121: 'bler'}
+{66192: ' itali'}
+{38324: ' annon'}
+{57237: ' diarr'}
+{28667: 'esterol'}
+{80606: 'vise'}
+{130433: ' oms'}
+{96321: 'ismer'}
+{18596: ' depression'}
+{35610: ' rester'}
+{44156: 'lever'}
+{120074: ' krigen'}
+{80109: 'bord'}
+{94445: ' runde'}
+{91036: ' accepter'}
+{110452: 'holds'}
+{4592: 'vention'}
+{44515: 'sn'}
+{105680: ' slutt'}
+{33735: ' Verd'}
+{36192: ' tilt'}
+{78789: 'mul'}
+{43862: ' overt'}
+{31061: ' centrale'}
+{121619: 'førte'}
+{19777: 'geh'}
+{88758: 'poner'}
+{24527: ' institution'}
+{101845: 'gne'}
+{12388: ' generation'}
+{10777: ' procedure'}
+{29369: ' Hold'}
+{54180: ' Ingen'}
+{93731: 'bent'}
+{80762: 'enser'}
+{104180: ' individuelle'}
+{32909: ' Andre'}
+{5061: 'mission'}
+{47950: 'urrence'}
+{22466: ' revolution'}
+{90357: ' slog'}
+{94450: ' ryt'}
+{27722: 'Und'}
+{20515: ' nerve'}
+{117353: 'moder'}
+{101735: ' korte'}
+{89064: 'endom'}
+{108943: 'artet'}
+{108139: 'stin'}
+{28057: ' cyst'}
+{63657: 'ignet'}
+{13279: ' batter'}
+{93061: ' globale'}
+{92891: 'Mens'}
+{36678: ' iv'}
+{67285: 'skill'}
+{69492: ' officielle'}
+{17189: ' sender'}
+{29922: '-sp'}
+{32406: 'ritz'}
+{19778: 'prop'}
+{113553: ' stopper'}
+{123903: 'kommer'}
+{34222: 'organisation'}
+{93345: ' komplet'}
+{60122: 'period'}
+{40763: 'kamp'}
+{92024: 'lv'}
+{77716: 'rund'}
+{14434: 'illed'}
+{105613: 'edt'}
+{64883: ' centrum'}
+{78726: ' volumen'}
+{113667: 'iftet'}
+{49966: ' litter'}
+{23852: ' mild'}
+{67372: 'Sym'}
+{109948: ' gud'}
+{121912: 'initis'}
+{30905: ' hypertension'}
+{48111: ' amerikan'}
+{14867: 'ennes'}
+{21919: 'verter'}
+{67292: ' tors'}
+{52465: ' religi'}
+{116585: ' retten'}
+{128875: 'adet'}
+{48004: ' nerves'}
+{119643: 'landet'}
+{51915: 'spe'}
+{10177: ' gives'}
+{22638: ' calcium'}
+{13864: ' balance'}
+{110243: ' tysk'}
+{66850: ' Folk'}
+{19906: ' listen'}
+{20452: '-for'}
+{101157: ' fx'}
+{18759: ' persons'}
+{39545: ' Italien'}
+{16107: ' Norm'}
+{98422: 'idlertid'}
+{55409: ' Spanien'}
+{127275: ' relevante'}
+{19028: ' marker'}
+{15060: 'asket'}
+{73651: 'indust'}
+{36326: ' forty'}
+{50606: 'gruppe'}
+{79846: ' atmosf'}
+{70698: ' Kv'}
+{43225: ' spare'}
+{123052: 'født'}
+{73940: ' bede'}
+{57503: ' hyg'}
+{80108: ' kilometer'}
+{83918: ' sult'}
+{20558: ' storm'}
+{96139: ' absorber'}
+{23614: ' Arbe'}
+{98108: ' rense'}
+{35305: 'entation'}
+{67770: ' overd'}
+{127619: 'gift'}
+{59160: 'ippe'}
+{68609: 'strukt'}
+{73656: ' sket'}
+{123935: ' personen'}
+{114800: 'grup'}
+{26788: ' Hend'}
+{15794: 'ussion'}
+{31274: 'vm'}
+{46090: ' sne'}
+{114201: ' Kommission'}
+{17349: ' appl'}
+{12968: ' motion'}
+{62061: ' appet'}
+{12694: 'overs'}
+{51769: ' Tyr'}
+{32295: 'emed'}
+{12206: 'iful'}
+{55709: 'konom'}
+{19317: 'inds'}
+{19830: 'ochond'}
+{72346: 'ertid'}
+{128507: 'vente'}
+{27172: ' attra'}
+{114151: ' kontrakt'}
+{63231: ' Indien'}
+{5486: 'position'}
+{33562: '-ser'}
+{89268: ' irritation'}
+{27304: 'handler'}
+{110207: 'bring'}
+{87481: ' isra'}
+{75773: ' Hos'}
+{70227: ' tide'}
+{14015: ' suppl'}
+{114642: ' perioden'}
+{90231: ' producent'}
+{47125: ' accep'}
+{5131: 'pring'}
+{40381: 'oser'}
+{117285: 'Andre'}
+{42688: ' bags'}
+{126796: ' staten'}
+{32867: ' pause'}
+{19185: 'ureau'}
+{54797: ' hull'}
+{120414: 'reste'}
+{129838: 'produktion'}
+{46733: ' arme'}
+{76905: ' separat'}
+{121895: ' streng'}
+{41605: ' presse'}
+{30328: 'imeter'}
+{122174: ' handels'}
+{35821: 'ulent'}
+{9292: 'igger'}
+{21955: ' inflammation'}
+{123121: ' dominer'}
+{55576: ' Frem'}
+{49922: ' damp'}
+{34506: 'norm'}
+{7908: ' Result'}
+{17706: ' embed'}
+{97986: '-sk'}
+{117108: ' overle'}
+{5133: 'result'}
+{26155: ' thy'}
+{10460: 'start'}
+{36551: 'former'}
+{76446: '-program'}
+{3054: 'ople'}
+{21931: ' insulin'}
+{8690: 'vider'}
+{43132: 'jorde'}
+{12131: 'hund'}
+{65557: ' Australien'}
+{93771: 'marked'}
+{68208: 'kraft'}
+{14741: ' diameter'}
+{106966: ' serien'}
+{66837: '-tallet'}
+{107235: 'gaard'}
+{23219: ' installation'}
+{81311: ' vener'}
+{78664: 'amerika'}
+{120090: 'periode'}
+{112241: ' brev'}
+{95108: 'ppet'}
+{129380: ' Genn'}
+{3607: 'string'}
+{106155: ' Kø'}
+{8116: ' dynam'}
+{100796: ' organiser'}
+{3726: 'ference'}
+{43752: ' psy'}
+{66003: ' galt'}
+{117186: 'olitik'}
+{63064: 'ummer'}
+{57865: ' mord'}
+{32897: ' Sid'}
+{120059: 'attes'}
+{33179: ' originale'}
+{50701: ' foster'}
+{91196: 'ilte'}
+{125329: 'bane'}
+{25920: 'rons'}
+{36090: 'marks'}
+{35638: ' slid'}
+{95853: 'gels'}
+{50465: ' juice'}
+{113186: 'atoren'}
+{8208: ' epis'}
+{73319: ' stole'}
+{45259: 'mask'}
+{122454: ' flytt'}
+{59973: 'attet'}
+{106762: 'ertal'}
+{79269: ' etabl'}
+{10639: 'Gener'}
+{60238: 'analyse'}
+{31713: ' toile'}
+{101757: 'bj'}
+{91420: ' Moskva'}
+{94208: ' Aar'}
+{110972: 'Ford'}
+{3532: 'aterial'}
+{85092: ' konge'}
+{36181: ' drift'}
+{83396: ' Californ'}
+{82794: 'iasis'}
+{34835: 'bage'}
+{95255: 'ligne'}
+{74674: ' lancer'}
+{77183: ' Mere'}
+{28910: 'material'}
+{46652: ' infusion'}
+{63415: ' Sovjet'}
+{95912: 'aner'}
+{69569: ' neoplas'}
+{34921: 'ulose'}
+{109109: ' gymnast'}
+{117374: 'aryng'}
+{32990: ' neurolog'}
+{86293: 'kers'}
+{19511: ' fiber'}
+{20776: ' Find'}
+{7575: ' portion'}
+{106498: ' Bare'}
+{44540: '-med'}
+{120526: 'arer'}
+{101258: ' gern'}
+{98594: ' ofre'}
+{28204: 'igner'}
+{75562: ' hert'}
+{88868: 'leger'}
+{100173: ' Vand'}
+{45188: 'Norm'}
+{113185: 'ordn'}
+{43127: 'empel'}
+{23578: ' membran'}
+{21200: ' arrangement'}
+{64388: 'teren'}
+{92080: ' OL'}
+{73690: ' titel'}
+{52387: ' transporter'}
+{57756: 'histor'}
+{62615: 'kring'}
+{111603: 'ssp'}
+{126389: ' pancreatitis'}
+{41454: ' Polen'}
+{57834: 'rovers'}
+{66190: ' monter'}
+{118170: 'appar'}
+{130616: ' bekl'}
+{87059: ' spis'}
+{29674: 'leter'}
+{19485: ' enzym'}
+{76346: 'iets'}
+{80472: ' forment'}
+{86429: 'klasse'}
+{59499: 'ogh'}
+{109654: ' mentale'}
+{127811: ' arkitekt'}
+{57856: ' plej'}
+{11056: 'ested'}
+{58461: 'ullet'}
+{40310: ' influenza'}
+{59856: '-system'}
+{76128: ' Frederik'}
+{127878: 'trent'}
+{27487: 'paration'}
+{23989: 'Find'}
+{18179: ' myst'}
+{103944: 'insen'}
+{65842: 'opper'}
+{14187: ' variation'}
+{105314: ' bege'}
+{124828: ' stam'}
+{104937: ' Kort'}
+{15084: 'region'}
+{17710: ' overl'}
+{57748: 'chef'}
+{59634: ' Herren'}
+{22930: ' engagement'}
+{2695: 'urrent'}
+{54483: ' magnesium'}
+{130287: 'ellekt'}
+{16612: ' dimension'}
+{41229: 'balance'}
+{14800: 'handle'}
+{100361: 'politik'}
+{20098: 'ifts'}
+{76399: 'Hans'}
+{32091: 'oxid'}
+{46612: ' flask'}
+{126522: 'gern'}
+{120515: ' dermatitis'}
+{106732: 'korea'}
+{16584: ' fold'}
+{46142: 'Fore'}
+{81797: 'stander'}
+{22447: 'agner'}
+{107965: 'felt'}
+{90654: 'cyst'}
+{44945: ' hypot'}
+{115866: ' intensiv'}
+{107955: 'mind'}
+{90246: ' bachelor'}
+{73031: ' Andersen'}
+{50621: ' Hansen'}
+{21225: ' progn'}
+{103766: ' sovjet'}
+{105189: ' kvarter'}
+{100380: ' Enh'}
+{47308: ' eval'}
+{87864: ' Brasilien'}
+{37925: ' inspiration'}
+{31550: ' Patient'}
+{75363: '.Kr'}
+{45557: ' ordre'}
+{36237: ' vaccination'}
+{81714: 'gruppen'}
+{100593: 'inders'}
+{77047: 'yroid'}
+{40436: 'ogne'}
+{73886: ' evt'}
+{46799: ' Midd'}
+{69217: 'Hold'}
+{102545: 'ologen'}
+{63626: ' Nielsen'}
+{128905: ' arranger'}
+{63301: ' Jensen'}
+{130278: 'kenland'}
+{105679: 'Sid'}
+{91654: 'listen'}
+{17811: ' observation'}
+{126154: ' Jør'}
+{101822: 'disk'}
+{64056: ' dehyd'}
+{88313: 'vars'}
+{55378: 'Histor'}
+{64581: ' mellitus'}
+{35981: 'ippet'}
+{87266: ' austr'}
+{45354: ' demonstration'}
+{32300: ' orange'}
+{55740: 'iciens'}
+{52967: 'erves'}
+{121492: ' trimester'}
+{10055: ' initi'}
+{97894: 'fib'}
+{42391: 'stitution'}
+{85124: 'liste'}
+{47479: ' makeup'}
+{11607: ' hypoth'}
+{104946: ' Held'}
+{54112: ' folks'}
+{89928: ' systemat'}
+{7699: 'ulations'}
+{18960: ' destination'}
+{21565: ' invasion'}
+{76330: 'fork'}
+{2056: 'tring'}
+{14771: ' smile'}
+{35650: ' roller'}
+{64365: ' respe'}
+{114089: ' afdel'}
+{116382: 'landing'}
+{49992: 'esters'}
+{4090: 'incip'}
+{5493: 'Result'}
+{16360: ' acceler'}
+{39381: ' manipulation'}
+{21619: ' absorption'}
+{84506: ' handicap'}
+{97136: 'ivering'}
+{73384: ' toner'}
+{55212: ' Bem'}
+{24646: ' analyt'}
+{123972: ' kommunist'}
+{126709: ' lyn'}
+{26814: '-fl'}
+{102386: ' reel'}
+{89070: ' noter'}
+{4994: 'type'}
+{54683: 'Patient'}
+{74729: ' Internationale'}
+{98343: '’er'}
+{64808: 'Bed'}
+{79364: 'Ops'}
+{14237: ' arrang'}
+{104775: 'irer'}
+{112950: ' citer'}
+{32492: ' innovation'}
+{17087: 'icans'}
+{37086: '-str'}
+{118215: 'rollen'}
+{106771: ' chanc'}
+{10163: ' webs'}
+{78968: 'ministerium'}
+{49255: 'gets'}
+{63786: 'erns'}
+{85295: ' Formel'}
+{128716: ' Niels'}
+{117804: ' mestre'}
+{97185: 'ruppen'}
+{89568: ' regionale'}
+{2833: 'ource'}
+{71037: ' distra'}
+{7585: 'formation'}
+{41511: ' Schweiz'}
+{17511: 'operation'}
+{35881: ' motivation'}
+{50760: ' fibre'}
+{23360: ' strik'}
+{85040: 'irks'}
+{31431: ' semifinal'}
+{102760: ' atter'}
+{110835: 'struktur'}
+{60272: 'sender'}
+{63712: ' Hert'}
+{26357: ' elastic'}
+{39472: 'mails'}
+{65227: ' rive'}
+{97932: 'plos'}
+{111868: '-film'}
+{25797: '-test'}
+{36694: ' Lars'}
+{86746: ' Belgien'}
+{126194: 'centration'}
+{129625: 'immun'}
+{35970: ' engag'}
+{78144: ' adresse'}
+{82710: 'vertebr'}
+{81927: ' Jens'}
+{105750: 'sud'}
+{53544: ' tackle'}
+{6861: 'angle'}
+{108160: 'dafrika'}
+{51772: ' lover'}
+{34436: 'riger'}
+{28410: 'ioxid'}
+{59616: 'design'}
+{128798: ' intolerance'}
+{64438: 'ravel'}
+{82616: 'meter'}
+{103293: 'actin'}
+{105081: 'arynx'}
+{97318: ' ESR'}
+{31459: ' antioxid'}
+{86901: ' styling'}
+{123766: '-Par'}
+{33830: ' aggressive'}
+{100914: ' Jesu'}
+{71168: ' chauff'}
+{105342: '-Kom'}
+{61615: ' aneur'}
+{23387: ' satell'}
+{100889: 'diagn'}
+{54064: ' konfl'}
+{53731: ' Henrik'}
+{62836: 'platform'}
+{101346: ' frost'}
+{28399: 'standard'}
+{46792: 'oglobin'}
+{122447: ' Blom'}
+{111439: ' endet'}
+{79517: 'Ell'}
+{58565: '-show'}
+{128851: ' citrus'}
+{129864: ' ranger'}
+{85663: 'Bru'}
+{31062: 'ordnet'}
+{56883: '-reg'}
+{23776: 'ordre'}
+{116593: ' Europas'}
+{79880: ' aorta'}
+{107377: 'Fol'}
+{70942: ' tricks'}
+{37581: 'ucer'}
+{58391: ' premiere'}
+{85620: ' ambulance'}
+{66279: 'ruppe'}
+{93885: 'demokrat'}
+{87551: 'Fly'}
+{57571: 'arked'}
+{117461: ' halve'}
+{7519: 'enced'}
+{111856: '.For'}
+{29808: ' loyal'}
+{122627: ' aflever'}
+{105020: 'ordet'}
+{69412: 'dense'}
+{39643: 'gender'}
+{74594: ' ambition'}
+{37854: 'ministration'}
+{60014: ' aggression'}
+{111816: ' Pedersen'}
+{116758: 'fabrik'}
+{27012: 'spring'}
+{40846: 'runde'}
+{83176: ' blink'}
+{86588: ' Poul'}
+{82425: ' antidepress'}
+{22384: ' Freder'}
+{20204: 'abels'}
+{91541: '-famil'}
+{86559: ' industrielle'}
+{69577: 'otland'}
+{33312: ' officiel'}
+{39821: ' thyroid'}
+{45941: ' nasal'}
+{108684: 'benhav'}
+{121514: ' Rasmussen'}
+{54097: ' arthritis'}
+{34314: ' odds'}
+{73310: 'ignes'}
+{89490: '-Arab'}
+{39240: ' innovative'}
+{70627: ' Ungarn'}
+{78575: ' sprang'}
+{99740: 'bogen'}
+{39618: 'Adv'}
+{29466: ' inches'}
+{21388: 'Try'}
+{37376: ' printer'}
+{100683: 'laments'}
+{117425: ' pude'}
+{48124: 'chlor'}
+{79419: 'sym'}
+{67054: ' poser'}
+{61740: 'yskland'}
+{86350: 'ylase'}
+{60481: ' insuff'}
+{63826: ' pistol'}
+{74958: ' Stats'}
+{26505: 'Side'}
+{91846: ' Larsen'}
+{95470: ' Hurt'}
+{32648: 'othy'}
+{124654: 'elbe'}
+{95107: ' Kongress'}
+{72287: 'ugl'}
+{50355: ' myster'}
+{23106: ' hypert'}
+{26389: 'accept'}
+{36556: ' inakt'}
+{76819: ' soldat'}
+{122841: 'cisme'}
+{91909: ' abscess'}
+{40595: 'itere'}
+{97217: ' aspirin'}
+{64523: ' pollen'}
+{39844: '-sc'}
+{52282: ' frustration'}
+{73373: ' Lever'}
+{94249: ' snack'}
+{106540: ' psoriasis'}
+{59433: ' autoimmune'}
+{13899: 'itative'}
+{129973: ' hypotension'}
+{64671: ' meditation'}
+{66926: ' binder'}
+{88613: ' civilisation'}
+{39608: ' grin'}
+{126271: ' bronchial'}
+{104836: 'rigen'}
+{52090: ' befand'}
+{99745: '-turn'}
+{56948: 'yset'}
+{66842: 'stats'}
+{106708: ' bacon'}
+{81870: 'Fred'}
+{77286: ' vort'}
+{109116: ' spars'}
+{95501: ' ventes'}
+{107694: ' Samm'}
+{101721: ' bandet'}
+{41845: 'estens'}
+{56604: 'ognitive'}
+{64414: ' glomer'}
+{14746: 'inations'}
+{20459: '-final'}
+{124299: ' snacks'}
+{121088: ' Christensen'}
+{83809: 'indet'}
+{104056: '-net'}
+{102243: '.En'}
+{94983: ' Dern'}
+{70467: 'olerance'}
+{34633: ' ammon'}
+{81668: ' cortisol'}
+{105555: 'musik'}
+{123470: ' Aal'}
+{129758: 'partiet'}
+{80389: ' dessert'}
+{43612: '-web'}
+{72591: 'software'}
+{94739: 'protein'}
+{129881: 'Ans'}
+{46006: 'steh'}
+{127484: "'et"}
+{34778: 'rations'}
+{59594: 'Mid'}
+{49553: 'mitter'}
+{118114: ' Inde'}
+{54644: 'angement'}
+{49778: ' eryth'}
+{32511: ' spinal'}
+{40434: ' asympt'}
+{80956: ' bomber'}
+{98195: ' suppos'}
+{49689: ' iod'}
+{83035: ' osteopor'}
+{77718: ' branche'}
+{30840: 'mands'}
+{57954: ' fibr'}
+{103924: ' ovar'}
+{40889: 'cedure'}
+{125755: 'omber'}
+{16844: 'filter'}
+{34747: ' drives'}
+{97413: 'inker'}
+{77514: 'plantation'}
+{60251: ' donation'}
+{47353: ' invitation'}
+{19783: 'flag'}
+{77542: 'drive'}
+{115238: 'ceres'}
+{129741: ' Bogen'}
+{89570: 'skuere'}
+{33121: ' postoperative'}
+{68896: '-version'}
+{98785: ' autonome'}
+{118670: ' Stem'}
+{44555: ' illustration'}
+{81245: ' presses'}
+{32336: 'ammed'}
+{123034: 'oxys'}
+{104130: ' Moderne'}
+{43188: ' utils'}
+{73806: ' remission'}
+{91885: ' eje'}
+{129677: ' racist'}
+{80764: ' Olsen'}
+{45797: ' Trin'}
+{82264: ' teenage'}
+{81600: '-gen'}
+{92664: 'pressions'}
+{33076: 'patient'}
+{82281: ' Komm'}
+{39276: ' deformation'}
+{110070: ' epidermis'}
+{112764: ' Sands'}
+{56457: ' elevator'}
+{115620: 'cepter'}
+{61912: ' illusion'}
+{45595: ' ventilation'}
+{19411: 'ktop'}
+{78957: 'ronter'}
+{26102: '-side'}
+{100231: ' harml'}
+{63397: ' handic'}
+{71775: ' transpl'}
+{27710: ' tolerance'}
+{5816: ' toget'}
+{40667: ' transplantation'}
+{119614: ' hypothalamus'}
+{127080: 'imers'}
+{20433: ' symmet'}
+{76986: '-led'}
+{96413: ' colitis'}
+{60335: ' underg'}
+{47767: ' slug'}
+{39535: ' hypox'}
+{66653: ' atyp'}
+{49019: ' Alz'}
+{107532: ' Petersen'}
+{34198: 'ogens'}
+{81807: ' serotonin'}
+{52784: ' ather'}
+{25790: 'fx'}
+{85867: 'nders'}
+{63266: ' plaques'}
+{73123: 'ordination'}
+{111711: ' År'}
+{21378: ' append'}
+{97387: 'offer'}
+{46956: 'acerb'}
+{20323: 'ventions'}
+{27763: 'rimination'}
+{100273: ' hypogly'}
+{47794: 'Ns'}
+{53029: ' underm'}
+{54875: ' erosion'}
+{119615: ' charme'}
+{111336: ' supper'}
+{43028: ' pyram'}
+{113872: 'repr'}
+{27867: ' scanning'}
+{103812: 'cephal'}
+{123190: ' BNP'}
+{113139: ' universelle'}
+{50951: 'ystall'}
+{123616: ' Marokko'}
+{55324: 'icillin'}
+{67324: ' Hors'}
+{130251: '-spec'}
+{32104: 'genes'}
+{57361: ' cyan'}
+{61024: ' acetyl'}
+{125989: 'Mine'}
+{55470: 'fusion'}
+{91705: ' foci'}
+{118587: ' meningitis'}
+{29786: ' ethanol'}
+{26258: ' isolation'}
+{127230: ' landings'}
+{71768: ' fibrin'}
+{112200: 'athyroid'}
+{124012: 'Ern'}
+{112180: ' smug'}
+{43187: ' Carib'}
+{47260: ' vegetation'}
+{104967: '»H'}
+{118836: 'spinal'}
+{115248: ' Hens'}
+{84930: ' halluc'}
+{55985: ' embryo'}
+{103365: 'romycin'}
+{41875: 'patible'}
+{93330: 'Forest'}
+{92360: ' spores'}
+{80817: ' encephal'}
+{111765: ' ascorb'}
+{64917: ' mapper'}
+{62542: ' ammunition'}
+{126073: ' degenerative'}
+{128729: 'Rapport'}
+{88707: 'adiol'}
+{117581: ' Undert'}
+{110305: ' entusias'}
+{94052: ' asymmet'}
+{56149: ' glycer'}
+{85975: ' acetone'}
+{103576: ' Tunes'}
+{71348: '-standard'}
+{15383: ' pointer'}
+{18561: 'ationale'}
+{84002: ' dilemma'}
+{83884: ' artiller'}
+{63750: 'jsp'}
+{75396: ' trache'}
+{42988: '-process'}
+{36781: 'interval'}
+{121616: ' atrium'}
+{127259: '-cert'}
+{106518: ' industriel'}
+{102480: 'onner'}
+{85046: '-ret'}
+{85777: ' miniature'}
+{30079: ' overlap'}
+{17010: ' fn'}
+{46932: ' salts'}
+{66836: ' eosin'}
+{18959: 'Operation'}
+{106219: ' Forrest'}
+{116404: 'istorien'}
+{78037: ' triglycer'}
+{80235: ' irreversible'}
+{27840: ' cortex'}
+{100539: ' disciple'}
+{77052: 'hyper'}
+{104511: ' hypertensive'}
+{113589: 'ervative'}
+{80704: ' amt'}
+{86397: 'efficient'}
+{106183: ' Forst'}
+{112799: ' historiens'}
+{65895: ' myel'}
+{112110: ' ureth'}
+{110589: 'absorption'}
+{37672: 'acchar'}
+{130197: ' cephal'}
+{16392: 'reland'}
+{99877: ' inhalation'}
+{51022: 'ildet'}
+{95905: '-format'}
+{44199: 'atient'}
+{96882: ' mitral'}
+{111788: ' Venedig'}
+{97435: 'ollision'}
+{94165: ' torso'}
+{86388: 'ameth'}
+{8028: 'ptions'}
+{123461: ' scorer'}
+{81633: 'Offic'}
+{36611: ' acceleration'}
+{57482: 'rocy'}
+{84811: 'Listen'}
+{104067: ' postpartum'}
+{129220: 'otransfer'}
+{62177: ' sepsis'}
+{59799: ' anis'}
+{119908: ' tonic'}
+{69139: ' intuition'}
+{45021: ' ethyl'}
+{83341: 'binding'}
+{31536: 'dominal'}
+{85053: 'nyder'}
+{34415: 'relation'}
+{116200: ' Estland'}
+{40502: '-server'}
+{44004: 'rosion'}
+{80539: ' heparin'}
+{72344: 'strings'}
+{97241: 'marker'}
+{111478: '-platform'}
+{116544: 'Musik'}
+{63653: ' degeneration'}
+{37418: ' invasive'}
+{108130: ' erythe'}
+{94442: 'Liste'}
+{120857: ' Heller'}
+{86993: ' facade'}
+{95587: ' recession'}
+{100924: 'lst'}
+{53198: ' carot'}
+{103896: 'Syd'}
+{49091: ' transmitter'}
+{19224: ' methyl'}
+{53397: ' neph'}
+{115525: ' administrations'}
+{128895: ' plexus'}
+{57684: ' depressive'}
+{130229: 'pertensive'}
+{130774: ' messing'}
+{63961: 'aryngeal'}
+{45131: 'illation'}
+{104175: ' hyster'}
+{121254: ' nmol'}
+{29602: ' distributions'}
+{63977: 'phosph'}
+{44069: 'Reducer'}
+{27879: ' oxidation'}
+{64179: ' motions'}
+{71589: 'timer'}
+{27382: 'ndef'}
+{96348: 'itekten'}
+{96967: ' masking'}
+{78864: ' penicillin'}
+{82943: '-agent'}
+{54500: 'ocarcin'}
+{108129: ' nationals'}
+{10734: 'rowser'}
+{34767: ' brows'}
+{121064: ' monstre'}
+{35299: 'driver'}
+{41037: ' fade'}
+{110568: ' Vold'}
+{91863: ' byz'}
+{52049: ' araber'}
+{123284: ' smear'}
+{26188: 'frak'}
+{78258: '-manager'}
+{78942: '-finale'}
+{31507: 'Stats'}
+{39184: ' handles'}
+{58140: 'processor'}
+{111837: 'ipital'}
+{121182: 'strict'}
+{33377: 'ducer'}
+{130344: ' vegetative'}
+{89337: ' rotations'}
+{95060: '-design'}
+{86146: ' Odys'}
+{47055: ' retinal'}
+{87787: 'Dommer'}
+{97222: ' divider'}
+{61881: 'rompt'}
+{125958: ' resorption'}
+{115850: 'generator'}
+{127277: ' Carls'}
+{67385: 'Stub'}
+{63305: 'distance'}
+{100331: ' angiotensin'}
+{59898: ' atheros'}
+{126311: ' fructose'}
+{5837: 'perty'}
+{79631: 'pause'}
+{55517: ' peroxid'}
+{93248: '-logo'}
+{79131: ' agitation'}
+{112808: ' camoufl'}
+{94550: ' Embed'}
+{128536: 'propyl'}
+{118153: ' fascination'}
+{99021: 'undef'}
+{74015: 'adapter'}
+{81482: 'ometh'}
+{11211: 'rapper'}
+{88961: ' transmissions'}
+{42231: ' overse'}
+{118764: 'handles'}
+{126159: 'hospital'}
+{64622: ' aneurys'}
+{88408: ' stressful'}
+{124781: '-session'}
+{129995: ' sweater'}
+{55908: 'omycin'}
+{91251: 'definition'}
+{19905: ' logger'}
+{118915: 'opharyngeal'}
+{107724: ' hypergly'}
+{104005: '-fed'}
+{30928: '-positive'}
+{82498: 'scene'}
+{32976: ' myocard'}
+{128509: 'dbl'}
+{53098: ' implantation'}
+{96204: ' Forty'}
+{83915: ' esophageal'}
+{106275: ' rhiz'}
+{126588: ' Kommando'}
+{77350: ' animations'}
+{91719: ' paraffin'}
+{51221: ' cellulose'}
+{27866: ' throm'}
+{90096: ' anastom'}
+{116231: '-period'}
+{75153: ' emulsion'}
+{126613: ' pasning'}
+{84536: ' transfusion'}
+{81577: ' amyloid'}
+{21339: 'ifinal'}
+{50655: ' infiltration'}
+{79845: ' aspiration'}
+{60516: '-stim'}
+{76224: ' Zepp'}
+{74378: 'eleration'}
+{96286: 'Handling'}
+{64035: '-position'}
+{64055: 'ollapse'}
+{33306: 'letal'}
+{71909: 'acceptable'}
+{25401: 'bolds'}
+{104468: ' glucocortico'}
+{124667: ' interviewer'}
+{95680: 'icarbon'}
+{84599: '-Hol'}
+{88730: '-status'}
+{55721: ' cyto'}
+{38922: ' excitation'}
+{110442: ' knob'}
+{107195: 'starts'}
+{79617: ' hydroly'}
+{12619: '-center'}
+{62490: '-filter'}
+{89139: ' bindings'}
+{40561: '-negative'}
+{63211: '-event'}
+{92691: '-score'}
+{90128: 'ploader'}
+{103080: ' Maven'}
+{103073: '-stri'}
+{34272: ' cytoplas'}
+{71190: ' glycerol'}
+{51775: 'itoneal'}
+{104031: 'skins'}
+{76701: 'destination'}
+{111047: ' polyure'}
+{124632: ' Handling'}
+{130925: ' dilatation'}
+{75564: ' cirrh'}
+{57920: ' phenyl'}
+{26301: 'estination'}
+{59458: ' glycos'}
+{89473: ' excision'}
+{78992: ' phenol'}
+{50473: 'Steps'}
+{67211: ' phospholip'}
+{8576: 'atabase'}
+{126066: ' DSB'}
+{110417: ' spilled'}
+{39710: '-hydro'}
+{117039: ' cholin'}
+{67351: '-protein'}
+{117809: ' garnison'}
+{112364: ' cerebellum'}
+{110634: ' regenerative'}
+{103759: ' shunt'}
+{41215: 'database'}
+{118349: 'cyl'}
+{128596: ' effusion'}
+{124417: 'historiker'}
+{98715: '-browser'}
+{115335: 'umulative'}
+{121096: 'mutation'}
+{88154: 'assay'}
+{109824: '-controller'}
+{81845: 'Negative'}
+{91643: ' immunoglobulin'}
+{92986: ' foref'}
+{84589: 'browser'}
+{124880: 'Blend'}
+{125081: ' PTH'}
+{72580: '.End'}
+{71315: 'Dimension'}
+{45758: 'Marker'}
+{71512: ' phosphatase'}
+{61520: ' comorbid'}
+{30363: '-router'}
+{116315: ' retardation'}
+{88659: 'partum'}
+{94258: 'ophosph'}
+{109304: 'evt'}
+{121793: '-syn'}
+{102900: '-neutral'}
+{83862: 'partition'}
+{61927: ' Handler'}
+{127994: 'mapper'}
+{85419: ' Flask'}
+{78564: 'iotensin'}
+{129174: ' tryptophan'}
+{94498: 'eture'}
+{83760: ' adenos'}
+{106706: '-hospital'}
+{52948: 'hydrogen'}
+{98435: '-tests'}
+{123130: ' catechol'}
+{88239: '»Ja'}
+{100898: ' chlorophyll'}
+{50376: ' polype'}
+{13672: 'layout'}
+{124521: ' naph'}
+{96512: '.Tag'}
+{62897: 'geal'}
+{79821: ' substitutions'}
+{130924: ' thrombin'}
+{84934: 'endarmer'}
+{127433: ' sedation'}
+{18198: 'Holder'}
+{81076: ' peroxidase'}
+{39385: '-plugin'}
+{87941: ' trypsin'}
+{83929: 'ltr'}
+{74346: '-bind'}
+{88378: 'ocortico'}
+{98989: ' cerebellar'}
+{123410: ' myocardium'}
+{124178: ' intubation'}
+{72312: ' carotid'}
+{90563: 'Procedure'}
+{108871: 'ockeys'}
+{63553: ' cerebell'}
+{3258: 'idth'}
+{110248: 'musiker'}
+{103406: '»Du'}
+{127197: ' maxillary'}
+{86159: ' hydrogel'}
+{109070: ' glycoprotein'}
+{105650: ' ellipse'}
+{122145: '-phosph'}
+{108870: ' carboxyl'}
+{49194: 'gradient'}
+{72386: '.Try'}
+{90100: 'tabs'}
+{112247: ' phosphor'}
+{44459: '.Start'}
+{115865: 'asmussen'}
+{84174: 'tegration'}
+{99704: ' immunosuppressive'}
+{48039: ' phosphat'}
+{17577: 'ashboard'}
+{44308: '-bold'}
+{56080: 'navigation'}
+{78067: '-option'}
+{99445: 'enderer'}
+{110850: ' datatype'}
+{123270: 'visitor'}
+{121189: ' Polyte'}
+{53088: ' teamm'}
+{99156: ' proliferative'}
+{63048: '.Result'}
+{129094: ' transgene'}
+{115033: 'maven'}
+{24041: ' cytok'}
+{110357: '.imgur'}
+{125753: ' lando'}
+{66519: ' Utils'}
+{85848: 'Mutation'}
+{48398: '(product'}
+{96033: ' DCs'}
+{97343: 'Tilskuere'}
+{126236: '-badge'}

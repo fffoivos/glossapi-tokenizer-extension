@@ -1,0 +1,21 @@
+# target_key=uzn_Latn  lang_code=uz-Latn
+# Σ_target=1,009,120,372  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 16 tokens, sorted by count desc
+{6702: '‘'}
+{1039: "'"}
+{1471: '’'}
+{1096: '`'}
+{6102: 'ʻ'}
+{20040: "''"}
+{24632: 'ʼ'}
+{1201: None}
+{97091: '′\n'}
+{73199: ' ---------------------------------'}
+{39293: '"\n\n\n'}
+{73839: '`-'}
+{69066: "'`"}
+{43111: '.drawable'}
+{87578: ' ":"'}
+{37131: '`,\n'}

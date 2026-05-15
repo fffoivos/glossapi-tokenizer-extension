@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build artifacts/char_language_bitmask.parquet (v2).
+"""Build artifacts/char_language_bitmask.parquet (schema v5).
 
 For every codepoint that appears in any of the configured (language,
 script, encoding) triples, emit a row with the membership bitmask.
@@ -56,6 +56,7 @@ from _common import (
     BITMASK_BYTES,
     BITMASK_MAX_BIT,
     EXTRA_SUBSTRATE_CODEPOINTS,
+    build_iso_lookup,
     build_script_to_lang_mask,
     compute_all_bits,
     derive_family_bits,
@@ -98,6 +99,13 @@ SCRIPT_PREFIXES: list[tuple[str, str]] = [
     ("KATAKANA", "Kana"),
     ("ARMENIAN", "Armn"),
     ("GEORGIAN", "Geor"),
+    ("ETHIOPIC", "Ethi"),
+    ("KHMER", "Khmr"),
+    ("SINHALA", "Sinh"),
+    ("LAO", "Laoo"),
+    ("TIBETAN", "Tibt"),
+    ("ORIYA", "Orya"),
+    ("THAANA", "Thaa"),
 ]
 
 # Unicode-script → set of locale-scripts that admit it.
@@ -122,6 +130,13 @@ SCRIPT_COMPAT: dict[str, set[str]] = {
     "Geor": {"Geor"},
     "Han": {"Hans", "Hant", "Jpan"},
     "Kana": {"Jpan"},
+    "Ethi": {"Ethi"},
+    "Khmr": {"Khmr"},
+    "Sinh": {"Sinh"},
+    "Laoo": {"Laoo"},
+    "Tibt": {"Tibt"},
+    "Orya": {"Orya"},
+    "Thaa": {"Thaa"},
 }
 
 
@@ -311,7 +326,11 @@ def _parse_escape(s: str, i: int) -> tuple[int, int]:
 # -- Per-language letter set ------------------------------------------
 
 def language_letter_set(
-    cldr_locale: str, locale_script: str, release: str, cache_dir: Path
+    cldr_locale: str,
+    locale_script: str,
+    release: str,
+    cache_dir: Path,
+    extra_codepoints: list[int] | None = None,
 ) -> set[int]:
     data = fetch_characters(cldr_locale, release, cache_dir)
     if cldr_locale not in data["main"]:
@@ -329,6 +348,12 @@ def language_letter_set(
         if isinstance(spec, list):
             spec = " ".join(spec)
         cps_raw |= parse_unicode_set(spec)
+
+    # v3.3.1: audit-driven per-locale supplements (e.g. Urdu ں U+06BA
+    # which CLDR misclassifies as auxiliary). Each entry is fed
+    # through the same filter + closure pipeline as CLDR codepoints.
+    if extra_codepoints:
+        cps_raw |= set(extra_codepoints)
 
     cps: set[int] = set()
     for cp in cps_raw:
@@ -412,6 +437,18 @@ SCRIPT_FALLBACK_RANGES: list[tuple[int, int, str]] = [
     (0xFF65, 0xFF9F, "Kana"),    # Halfwidth Katakana
     (0xF900, 0xFAFF, "Han"),     # CJK Compatibility Ideographs
     (0x2F800, 0x2FA1F, "Han"),   # CJK Compatibility Ideographs Supplement
+    # v3.3 new scripts
+    (0x1200, 0x137F, "Ethi"),    # Ethiopic
+    (0x1380, 0x139F, "Ethi"),    # Ethiopic Supplement
+    (0x2D80, 0x2DDF, "Ethi"),    # Ethiopic Extended
+    (0xAB00, 0xAB2F, "Ethi"),    # Ethiopic Extended-A
+    (0x1780, 0x17FF, "Khmr"),    # Khmer
+    (0x19E0, 0x19FF, "Khmr"),    # Khmer Symbols
+    (0x0D80, 0x0DFF, "Sinh"),    # Sinhala
+    (0x0E80, 0x0EFF, "Laoo"),    # Lao
+    (0x0F00, 0x0FFF, "Tibt"),    # Tibetan
+    (0x0B00, 0x0B7F, "Orya"),    # Oriya / Odia
+    (0x0780, 0x07BF, "Thaa"),    # Thaana
 ]
 
 
@@ -637,8 +674,15 @@ def main() -> None:
         code = L["code"]
         cldr_locale = L["cldr_locale"]
         locale_script = L["script"]
+        extra_cps: list[int] = []
+        for spec in L.get("extra_codepoints", []) or []:
+            if isinstance(spec, str):
+                extra_cps.append(int(spec.removeprefix("U+"), 16))
+            else:
+                extra_cps.append(int(spec))
         cps = language_letter_set(
-            cldr_locale, locale_script, cldr_release, args.cache_dir
+            cldr_locale, locale_script, cldr_release, args.cache_dir,
+            extra_codepoints=extra_cps,
         )
         per_lang[code] = len(cps)
         mask = 1 << bit
@@ -720,9 +764,109 @@ def main() -> None:
     pq.write_table(table, args.out, compression="zstd")
     print(f"\nwrote {args.out}")
 
+    iso_lookup = build_iso_lookup(languages, scripts)
+    iso_lookup_serialised = {
+        f"{iso_lang}_{iso_script}": char_tool_code
+        for (iso_lang, iso_script), char_tool_code in sorted(iso_lookup.items())
+    }
+
+    # v3.3.3 self-test (broadened from v3.3.1 which only checked
+    # primary × primary pairs): every (iso_639_3 primary + alias) ×
+    # (iso15924 primary + alias) combination for each language MUST
+    # resolve through the canonical-key lookup. Catches alias
+    # regressions like the v3.2 `arb_Arab → ar` silent-bug class.
+    #
+    # Plus a fixed fixture of real consumer cap-hit canonical keys —
+    # the 4 silent-bug seeds, the v3.3.2 "diplomatic" additions, and
+    # a handful of edge cases. If a future change drops any of these
+    # mappings the build fails loud.
+    self_test_failures: list[str] = []
+    for L in languages:
+        primary_iso = L["iso_639_3"]
+        all_lang_iso = [primary_iso] + list(L.get("iso_639_3_aliases", []) or [])
+        # Resolve via the script's iso15924, not the language's
+        # `script` field (which may be a script `code` rather than
+        # an iso15924 value).
+        for s in scripts:
+            if s["code"] == L["script"] or s["iso15924"] == L["script"]:
+                all_script_iso = [s["iso15924"]] + list(
+                    s.get("iso15924_aliases", []) or []
+                )
+                for liso in all_lang_iso:
+                    for siso in all_script_iso:
+                        key = (liso, siso)
+                        if key not in iso_lookup:
+                            self_test_failures.append(
+                                f"  {liso}_{siso} (language {L['code']!r}, "
+                                f"missing from canonical_key_to_char_tool_code)"
+                            )
+                break  # found the right script entry
+
+    # Consumer-key fixture — known cap-hit canonical keys that real
+    # corpora produce and that we've already shipped resolution for.
+    # If a future schema change accidentally drops any of these the
+    # build fails loud with a clear consumer-impacting message.
+    CONSUMER_FIXTURE: list[tuple[str, str]] = [
+        # v3.2 silent-bug seeds — these were the original regressions
+        ("srp_Cyrl", "sr-Cyrl"),
+        ("lvs_Latn", "lv"),
+        ("ekk_Latn", "et"),
+        ("cmn_Hani", "zh-Hans"),
+        # v3.2.x hotfix targets
+        ("ell_Grek", "el"),
+        ("arb_Arab", "ar"),
+        # v3.3.2 "diplomatic" additions
+        ("als_Latn", "sq"),       # Tosk Albanian (macro)
+        ("sqi_Latn", "sq"),
+        ("gsw_Latn", "gsw"),
+        ("lat_Latn", "la"),
+        # Macrolanguage-individual pairs that commonly slip
+        ("zho_Hans", "zh-Hans"),
+        ("zho_Hant", "zh-Hant"),
+        ("zho_Hani", "zh-Hans"),  # default Hani→Hans
+        ("khk_Cyrl", "mn"),        # Khalkha-Mongolian individual code
+        ("nob_Latn", "nb"),
+        ("nno_Latn", "nn"),
+        ("ces_Latn", "cs"),
+        ("cze_Latn", "cs"),
+        ("fas_Arab", "fa"),
+        ("per_Arab", "fa"),
+        ("pes_Arab", "fa"),
+        ("ory_Orya", "or"),
+        ("ori_Orya", "or"),
+        ("bod_Tibt", "bo"),
+        ("tib_Tibt", "bo"),
+        # The v3.3 new-script Tier 1 keys
+        ("amh_Ethi", "am"),
+        ("khm_Khmr", "km"),
+        ("sin_Sinh", "si"),
+        ("lao_Laoo", "lo"),
+        ("div_Thaa", "dv"),
+    ]
+    for key, expected in CONSUMER_FIXTURE:
+        actual = iso_lookup_serialised.get(key)
+        if actual != expected:
+            self_test_failures.append(
+                f"  CONSUMER_FIXTURE: {key!r} → {actual!r}, "
+                f"expected {expected!r}"
+            )
+
+    if self_test_failures:
+        for line in self_test_failures:
+            print(line, file=sys.stderr)
+        raise RuntimeError(
+            f"build self-test failed: {len(self_test_failures)} canonical "
+            f"key resolution(s) wrong. See list above."
+        )
+    print(
+        f"build self-test OK — {len(iso_lookup_serialised)} canonical "
+        f"keys resolve; all primary + alias pairs covered; "
+        f"{len(CONSUMER_FIXTURE)} consumer-fixture assertions pass."
+    )
+
     manifest = {
         "build_timestamp_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "schema_version": 4,
+        "schema_version": 5,
         "bitmask_bytes": BITMASK_BYTES,
         "bitmask_byte_order": "little",
         "levels": {
@@ -741,6 +885,14 @@ def main() -> None:
         },
         "scripts": scripts,
         "families": families,
+        "canonical_key_to_char_tool_code": iso_lookup_serialised,
+        "canonical_key_help": (
+            "FineWeb-2 / ISO-style canonical keys map to char-tool BCP47 codes. "
+            "Key format: '<iso_639_3>_<iso_15924>'. Both individual and "
+            "macrolanguage ISO codes resolve here, plus the iso15924 aliases "
+            "(e.g., Hani → Hans default). Consumers should read this map "
+            "directly rather than hand-rolling a dict."
+        ),
         "cldr_release": cldr_release,
         "cldr_source": "https://github.com/unicode-org/cldr-json",
         "cldr_subsets_included": CLDR_SUBSETS,
@@ -761,6 +913,76 @@ def main() -> None:
             "Apertus pretrain data is used as the proxy for "
             "Mistral-Nemo's (private) tokenizer training data."
         ),
+        "locale_compatibility": {
+            "el": {
+                "subset_of": ["el-polyton"],
+                "note": (
+                    "Modern monotonic Greek (el) is a strict subset of "
+                    "polytonic Greek (el-polyton): every char admitted by "
+                    "el is also admitted by el-polyton. Consumers with an "
+                    "`ell_Grek` canonical key whose sample may contain "
+                    "occasional polytonic forms (classical quotes, place "
+                    "names) should prefer `el-polyton` for maximum "
+                    "admissibility."
+                ),
+            },
+            "el-polyton": {"superset_of": ["el"]},
+            "Hani_default": {
+                "iso15924": "Hani",
+                "resolves_to": "zh-Hans",
+                "note": (
+                    "FineWeb-2's generic `Hani` script tag (e.g. `cmn_Hani` "
+                    "or `zho_Hani`) resolves to `zh-Hans` by default. "
+                    "Consumers should override to `zh-Hant` only when the "
+                    "sample is identified as Traditional Chinese."
+                ),
+            },
+        },
+        "consumer_notes": [
+            (
+                "Substrate tokens (every script/family/language bit set) "
+                "may carry non-zero PMI under sample-domain mismatch — "
+                "the symmetry assumption fails when language samples come "
+                "from different corpus sources (e.g. Wikipedia for one, "
+                "FineWeb-2-HQ for another). Consumers using PMI for "
+                "language attribution should rely on the popcount-based "
+                "substrate filter (`popcount(bitmask) < N_LANG_BITS`) "
+                "rather than expecting PMI self-cancellation."
+            ),
+            (
+                "For consumer canonical keys like `<iso_639_3>_<iso_15924>` "
+                "(FineWeb-2 / ISO style), read "
+                "`canonical_key_to_char_tool_code` from this manifest "
+                "instead of hand-rolling a dict. Macrolanguage / "
+                "individual-language aliases (est+ekk, lav+lvs, zho+cmn, "
+                "mon+khk, pus+pbt) are pre-resolved."
+            ),
+            (
+                "Within Latin script most tokens AND-saturate at the "
+                "language layer (no diacritics → admissible in ~all "
+                "Latin locales). Token-level discrimination should look "
+                "at family_bits first; the script layer is the most "
+                "reliable broad signal for bare-ASCII Latin content."
+            ),
+            (
+                "Canonical keys with `und_<script>` (undetermined "
+                "language) won't appear in canonical_key_to_char_tool_code "
+                "by design — there is no language to map to. Consumers "
+                "should resolve those keys to script_bits directly (e.g. "
+                "`und_Cyrl` → script_bits with the Cyrl bit set), using "
+                "the script layer of the artifact rather than the "
+                "language layer."
+            ),
+            (
+                "A handful of historical / liturgical languages remain "
+                "genuinely unmappable: `gmh_Latn` (Middle High German) "
+                "has no CLDR data. Consumers can fall back to a "
+                "near-neighbour at their layer (e.g. `gmh_Latn → de` "
+                "with a documented caveat). Classical Latin `lat_Latn` "
+                "→ `la` IS mapped as of v3.3.2, with a synthesised "
+                "A-Z + macron exemplar (CLDR's `la` exemplar is empty)."
+            ),
+        ],
         "languages": languages,
         "codepoint_coverage": {
             "total_codepoints_in_table": len(cp_bitmask),

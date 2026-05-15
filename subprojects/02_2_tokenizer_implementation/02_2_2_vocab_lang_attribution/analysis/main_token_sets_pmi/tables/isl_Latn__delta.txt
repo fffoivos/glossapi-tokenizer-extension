@@ -1,0 +1,19 @@
+# target_key=isl_Latn  lang_code=is
+# Σ_target=1,011,820,386  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 14 tokens, sorted by count desc
+{1195: None}
+{8998: 'đ'}
+{1203: None}
+{1492: None}
+{12827: '.“'}
+{74035: ' ■'}
+{2884: 'ß'}
+{107371: ',“'}
+{112435: ' viš'}
+{54741: None}
+{1223: None}
+{6923: ' [\n'}
+{50267: ' [],'}
+{95218: '()/'}

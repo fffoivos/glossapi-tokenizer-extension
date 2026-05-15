@@ -15,7 +15,7 @@
 # `locales` is the authoritative member list and must agree with the
 # `bit` assignments in languages.yaml.
 #
-# 31 entries → fits in binary(16) (uniform width with script and
+# 47 entries (as of v3.3.2) → fits in binary(16) (uniform width with script and
 # language bitmasks for consumer simplicity).
 
 version: 1
@@ -24,15 +24,15 @@ families:
   - bit: 0
     code: Romance-Latn
     script: Latn
-    locales: [es, fr, it, pt, ro, ca]
+    locales: [es, fr, it, pt, ro, ca, gl]
   - bit: 1
     code: Germanic-Latn
     script: Latn
-    locales: [en, de, nl, da, nb, sv, is]
+    locales: [en, de, nl, da, nb, sv, is, af, nn, gsw]
   - bit: 2
     code: Slavic-Latn
     script: Latn
-    locales: [pl, cs, sk, sl, hr, sr-Latn]
+    locales: [pl, cs, sk, sl, hr, sr-Latn, bs]
   - bit: 3
     code: Uralic-Latn
     script: Latn
@@ -44,11 +44,11 @@ families:
   - bit: 5
     code: Turkic-Latn
     script: Latn
-    locales: [tr, az]
+    locales: [tr, az, uz-Latn]
   - bit: 6
     code: Austronesian-Latn
     script: Latn
-    locales: [id]
+    locales: [id, fil, ceb, ms]
   - bit: 7
     code: Vietic-Latn
     script: Latn
@@ -68,11 +68,11 @@ families:
   - bit: 10
     code: Semitic-Arab
     script: Arab
-    locales: [ar]
+    locales: [ar, ar-MA]
   - bit: 11
     code: Iranian-Arab
     script: Arab
-    locales: [fa, ur, ps]
+    locales: [fa, ur, ps, ckb]
 
   # --- CJK (3 families) ---
   - bit: 12
@@ -106,7 +106,7 @@ families:
   - bit: 18
     code: Devanagari-family
     script: Deva
-    locales: [hi]
+    locales: [hi, mr, ne]
   - bit: 19
     code: Hebrew-family
     script: Hebr
@@ -160,7 +160,7 @@ families:
   - bit: 31
     code: Turkic-Cyrl
     script: Cyrl
-    locales: [kk]
+    locales: [kk, ky, uz-Cyrl]
   - bit: 32
     code: Mongolic-Cyrl
     script: Cyrl
@@ -169,3 +169,61 @@ families:
     code: Constructed-Latn
     script: Latn
     locales: [eo]
+
+  # --- v3.2 additions (PMI-consumer feedback) ---
+  - bit: 34
+    code: Celtic-Latn
+    script: Latn
+    locales: [cy]
+  - bit: 35
+    code: Isolate-Latn
+    script: Latn
+    locales: [eu]
+  - bit: 36
+    code: Iranian-Cyrl
+    script: Cyrl
+    locales: [tg]
+  - bit: 37
+    code: Bantu-Latn
+    script: Latn
+    locales: [sw]
+
+  # --- v3.3 single-locale families (new scripts) ---
+  - bit: 38
+    code: Ethiopic-family
+    script: Ethi
+    locales: [am]
+  - bit: 39
+    code: Khmer-family
+    script: Khmr
+    locales: [km]
+  - bit: 40
+    code: Sinhala-family
+    script: Sinh
+    locales: [si]
+  - bit: 41
+    code: Lao-family
+    script: Laoo
+    locales: [lo]
+  - bit: 42
+    code: Tibetan-family
+    script: Tibt
+    locales: [bo]
+  - bit: 43
+    code: Odia-family
+    script: Orya
+    locales: [or]
+  - bit: 44
+    code: Thaana-family
+    script: Thaa
+    locales: [dv]
+
+  # --- v3.3.2 single-locale families ---
+  - bit: 45
+    code: Albanian-Latn
+    script: Latn
+    locales: [sq]
+  - bit: 46
+    code: Latin-Classical
+    script: Latn
+    locales: [la]

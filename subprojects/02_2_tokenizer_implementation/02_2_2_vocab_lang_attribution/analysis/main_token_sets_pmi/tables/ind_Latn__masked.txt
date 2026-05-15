@@ -1,0 +1,2040 @@
+# target_key=ind_Latn  lang_code=id
+# Σ_target=1,004,804,807  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=A (char-mask ON: bit set, popcount<88, evaluable)
+# 2,035 tokens, sorted by count desc
+{4929: ' yang'}
+{3920: ' dan'}
+{1772: ' di'}
+{9113: ' untuk'}
+{8757: ' dengan'}
+{1816: 'ah'}
+{126792: ' Anda'}
+{4537: 'kan'}
+{10073: ' dari'}
+{11414: ' ini'}
+{5809: 'asi'}
+{9492: ' meng'}
+{16527: ' tidak'}
+{10735: ' dalam'}
+{5300: ' ber'}
+{9740: 'nya'}
+{2371: ' ke'}
+{2835: ' men'}
+{9819: ' pada'}
+{4120: ' mem'}
+{18761: ' itu'}
+{16669: ' adalah'}
+{24634: ' akan'}
+{20949: ' atau'}
+{2733: ' ter'}
+{27756: ' dapat'}
+{20804: ' mereka'}
+{1851: 'ung'}
+{8821: 'akan'}
+{25047: ' lebih'}
+{7842: 'ikan'}
+{11413: 'angan'}
+{28090: ' bahwa'}
+{6160: ' pen'}
+{1911: 'ian'}
+{22773: 'annya'}
+{8302: 'aya'}
+{10664: 'atan'}
+{18051: ' peng'}
+{3666: ' memb'}
+{6786: 'uh'}
+{11671: 'anya'}
+{25193: ' orang'}
+{14648: ' oleh'}
+{20173: ' juga'}
+{20223: ' telah'}
+{20644: ' menjadi'}
+{7345: 'ami'}
+{21960: ' meny'}
+{34533: ' memiliki'}
+{36140: ' ada'}
+{14805: ' sebagai'}
+{12936: ' dia'}
+{37157: ' karena'}
+{6364: 'isi'}
+{14701: ' tahun'}
+{116100: ' saya'}
+{6446: 'uan'}
+{12845: 'aran'}
+{30457: ' seperti'}
+{16034: 'ahan'}
+{7731: ' mel'}
+{27319: ' satu'}
+{67792: ' harus'}
+{68674: ' bisa'}
+{40820: ' banyak'}
+{21046: ' pem'}
+{10833: 'aman'}
+{31518: ' secara'}
+{13601: 'itas'}
+{25153: ' tersebut'}
+{23972: ' lain'}
+{37160: ' beberapa'}
+{15535: 'ukan'}
+{56668: ' sangat'}
+{5441: ' mer'}
+{34569: ' mengh'}
+{35980: 'angkan'}
+{34331: ' saat'}
+{30114: ' pemb'}
+{5400: 'api'}
+{34965: ' besar'}
+{45327: ' hanya'}
+{60223: ' tentang'}
+{90811: ' kita'}
+{37787: ' tetapi'}
+{25949: 'arkan'}
+{64221: ' baik'}
+{5220: ' pel'}
+{20866: 'asan'}
+{5734: ' sel'}
+{1759: ' dis'}
+{31526: 'uhan'}
+{46352: ' hari'}
+{20940: ' menc'}
+{35050: 'inya'}
+{4802: ' hal'}
+{22721: ' mend'}
+{80842: ' mungkin'}
+{49661: ' membuat'}
+{19206: ' kem'}
+{9228: 'aan'}
+{47920: ' peny'}
+{55319: ' semua'}
+{28408: ' bert'}
+{79832: ' jika'}
+{46692: ' setelah'}
+{18821: ' dib'}
+{38911: ' atas'}
+{9087: 'hat'}
+{2094: 'emb'}
+{62789: ' apa'}
+{19373: 'uran'}
+{64340: ' waktu'}
+{27561: ' kepada'}
+{44001: ' baru'}
+{16335: ' menj'}
+{5668: 'apan'}
+{11827: ' pert'}
+{30192: 'ungan'}
+{2209: 'but'}
+{45594: ' menggunakan'}
+{15018: ' dip'}
+{56934: ' selama'}
+{2372: 'amp'}
+{77294: ' terjadi'}
+{13450: 'alah'}
+{56048: ' ketika'}
+{35844: ' dua'}
+{44379: ' berk'}
+{28222: ' bers'}
+{10251: 'apa'}
+{53626: ' anak'}
+{6118: 'pat'}
+{67183: ' melakukan'}
+{15609: 'kat'}
+{32266: ' sama'}
+{110114: ' mengatakan'}
+{40596: 'ahkan'}
+{41549: ' negara'}
+{19968: ' kes'}
+{12914: ' tah'}
+{42870: ' bagi'}
+{32570: 'alu'}
+{59397: ' bagian'}
+{58289: ' memper'}
+{47179: ' kek'}
+{1830: 'ual'}
+{6285: ' dim'}
+{72389: ' kata'}
+{32926: ' merupakan'}
+{17430: 'ksi'}
+{2589: 'amb'}
+{29944: ' dik'}
+{51432: ' terhadap'}
+{35567: 'ilan'}
+{33768: ' pertama'}
+{38873: ' antara'}
+{24327: ' cara'}
+{42908: ' keb'}
+{57923: ' sendiri'}
+{50871: ' diper'}
+{4625: ' ben'}
+{75967: ' Ini'}
+{45005: ' seorang'}
+{116002: ' melihat'}
+{11772: ' bag'}
+{48704: ' tempat'}
+{43457: ' keh'}
+{20666: ' ia'}
+{64152: ' rumah'}
+{18705: ' kel'}
+{42045: ' digunakan'}
+{65163: ' setiap'}
+{120818: 'aimana'}
+{5023: ' pers'}
+{19160: 'uka'}
+{108329: ' membantu'}
+{91889: 'inkan'}
+{19184: ' ket'}
+{4864: ' air'}
+{63270: ' paling'}
+{6764: ' pun'}
+{35419: ' sebuah'}
+{68112: ' sudah'}
+{58673: ' salah'}
+{21217: ' pend'}
+{121759: ' perlu'}
+{52705: ' kembali'}
+{91544: ' penting'}
+{43650: ' mana'}
+{110914: ' ingin'}
+{60899: ' lainnya'}
+{90656: ' meningkat'}
+{61142: ' tinggi'}
+{45289: 'ensi'}
+{2016: ' set'}
+{4473: ' Per'}
+{112229: ' masalah'}
+{73597: ' dilakukan'}
+{64699: ' diri'}
+{58594: ' dunia'}
+{75970: ' memberikan'}
+{53927: 'ankan'}
+{91729: ' lalu'}
+{55939: ' bawah'}
+{53064: ' terb'}
+{2848: '-t'}
+{30011: 'utan'}
+{11555: ' tub'}
+{83927: ' hidup'}
+{59022: ' lagi'}
+{55026: ' sehingga'}
+{52020: 'askan'}
+{115606: 'akit'}
+{54753: 'urut'}
+{80709: 'apkan'}
+{61316: ' masih'}
+{117950: ' saja'}
+{38765: 'angg'}
+{37890: ' kemudian'}
+{56434: ' kali'}
+{66529: ' kecil'}
+{81014: ' tanpa'}
+{114316: ' kese'}
+{102084: ' mendapatkan'}
+{6832: ' tim'}
+{55952: ' melalui'}
+{16204: ' sistem'}
+{100766: ' perusahaan'}
+{51244: ' hingga'}
+{7855: 'edia'}
+{2141: 'anc'}
+{30782: 'orang'}
+{44563: ' Dia'}
+{2756: '-b'}
+{76620: ' sering'}
+{37154: 'ologi'}
+{82566: ' bukan'}
+{24750: 'kap'}
+{67245: ' sebelum'}
+{21346: ' kep'}
+{70084: ' luar'}
+{28346: 'lah'}
+{48472: ' berb'}
+{84700: 'engar'}
+{52879: ' termasuk'}
+{11456: ' dil'}
+{101160: 'uhkan'}
+{47162: ' serta'}
+{64072: ' sekitar'}
+{119513: ' menem'}
+{74017: ' mulai'}
+{91998: ' pemain'}
+{80525: ' maka'}
+{69184: ' ters'}
+{86939: ' berbagai'}
+{84703: ' menunjukkan'}
+{2697: ' did'}
+{69266: 'ubah'}
+{71591: ' suatu'}
+{21675: ' Indonesia'}
+{35842: 'angi'}
+{92378: ' menyebabkan'}
+{47399: ' kedua'}
+{84132: 'jalan'}
+{37279: 'unya'}
+{80636: 'baik'}
+{71643: ' proses'}
+{55291: ' awal'}
+{85400: ' terk'}
+{2972: ' bel'}
+{14616: ' Pen'}
+{5352: '-h'}
+{8913: 'pert'}
+{77655: ' manusia'}
+{2957: 'ional'}
+{117437: ' cukup'}
+{76896: ' Namun'}
+{78034: ' hasil'}
+{32835: ' masa'}
+{51736: 'angk'}
+{22357: 'unan'}
+{77028: ' jenis'}
+{89998: ' tetap'}
+{113459: ' berbeda'}
+{27488: ' tert'}
+{63271: ' tiga'}
+{59682: ' Dalam'}
+{56880: ' mata'}
+{123349: 'hatan'}
+{122983: ' sedikit'}
+{39588: ' sak'}
+{53664: ' utama'}
+{112557: 'antung'}
+{70536: ' berada'}
+{8171: ' Di'}
+{105205: ' wanita'}
+{72574: ' seluruh'}
+{4939: 'ump'}
+{73248: 'arik'}
+{77469: ' pernah'}
+{94109: 'juan'}
+{5311: ' Ber'}
+{95186: ' Mereka'}
+{3206: 'ender'}
+{127829: ' depan'}
+{127105: ' pekerja'}
+{72896: ' berikut'}
+{12674: ' Men'}
+{128945: ' mudah'}
+{17484: ' Seb'}
+{31025: ' Peng'}
+{103214: 'kungan'}
+{30904: ' Pada'}
+{60748: ' musim'}
+{114367: ' bekerja'}
+{70517: ' sampai'}
+{114511: 'aknya'}
+{71336: ' cep'}
+{70592: ' jumlah'}
+{8735: 'isme'}
+{118357: ' makanan'}
+{68517: ' umum'}
+{95970: 'ahui'}
+{57460: 'upan'}
+{52714: ' bersama'}
+{23728: 'atif'}
+{18021: ' dok'}
+{22426: ' Amerika'}
+{72831: ' mengg'}
+{9215: ' lay'}
+{116971: ' tingkat'}
+{91759: ' muncul'}
+{100169: '-orang'}
+{29318: '-an'}
+{61760: 'ungkin'}
+{56627: 'ajar'}
+{130511: ' tangan'}
+{87957: ' mengambil'}
+{71872: ' disebut'}
+{20346: 'oba'}
+{59496: ' yaitu'}
+{10510: ' AS'}
+{15752: 'arga'}
+{44801: ' berg'}
+{101327: 'kah'}
+{80987: ' perang'}
+{97358: 'entukan'}
+{57446: ' produk'}
+{69768: ' lama'}
+{86950: 'elit'}
+{10583: ' seb'}
+{108666: ' memberi'}
+{73410: ' bentuk'}
+{112514: ' sekarang'}
+{107549: ' Dengan'}
+{102329: ' sedang'}
+{112753: ' permainan'}
+{108788: ' kerja'}
+{91838: ' masuk'}
+{45442: ' tamp'}
+{105462: ' terus'}
+{102381: ' Untuk'}
+{19523: 'imb'}
+{13090: 'aha'}
+{107457: ' biasa'}
+{17256: '-ben'}
+{93246: ' langsung'}
+{92796: 'uatan'}
+{8142: 'engan'}
+{70043: 'ungi'}
+{115496: 'lukan'}
+{117683: ' tertentu'}
+{85069: 'ifikasi'}
+{30795: 'aksi'}
+{87372: 'ulai'}
+{92169: ' khusus'}
+{87929: ' terakhir'}
+{46097: 'jut'}
+{43167: ' kec'}
+{48751: 'ermain'}
+{5173: 'aring'}
+{70482: ' masyarakat'}
+{55862: ' kota'}
+{7097: ' Ke'}
+{10191: 'atas'}
+{9987: ' jam'}
+{120436: ' rasa'}
+{117364: ' belum'}
+{20854: ' kons'}
+{36129: ' bang'}
+{94447: ' sebelumnya'}
+{15746: 'har'}
+{3217: '-l'}
+{61711: ' kond'}
+{71060: ' sosial'}
+{7941: ' Ter'}
+{120796: ' jauh'}
+{23016: 'emen'}
+{19699: ' jel'}
+{35820: 'akin'}
+{84204: ' Inggris'}
+{118150: ' datang'}
+{102232: ' mengalami'}
+{31917: 'berapa'}
+{6192: ' Dan'}
+{14244: 'imp'}
+{89828: 'yak'}
+{37207: 'alkan'}
+{7645: ' perm'}
+{5636: 'emp'}
+{47442: ' penc'}
+{15321: 'inta'}
+{22530: ' ling'}
+{103830: ' berp'}
+{35605: ' agar'}
+{66258: 'araan'}
+{97823: 'embangan'}
+{92460: ' bahan'}
+{40076: ' daripada'}
+{106792: ' sesuai'}
+{100412: ' biasanya'}
+{94862: ' mencapai'}
+{124261: ' perubahan'}
+{33151: 'iah'}
+{78851: ' keg'}
+{89040: 'eksi'}
+{128663: 'alnya'}
+{81575: ' sesu'}
+{19953: ' tang'}
+{18435: ' ram'}
+{12412: ' Sel'}
+{31221: ' memil'}
+{111213: ' dasar'}
+{45393: ' akhir'}
+{24943: ' jaw'}
+{13738: 'apat'}
+{27144: 'leb'}
+{103618: ' hukum'}
+{73585: 'katan'}
+{111947: ' sumber'}
+{119138: ' menang'}
+{92207: ' pemerintah'}
+{81893: 'rasi'}
+{80152: 'empat'}
+{112473: 'uhi'}
+{102915: ' sebagian'}
+{69214: 'impin'}
+{53853: 'arti'}
+{49184: ' bahasa'}
+{77168: ' tanah'}
+{26444: 'eny'}
+{110590: ' kelompok'}
+{100712: ' keluarga'}
+{105593: 'ikian'}
+{104184: 'isasi'}
+{78846: ' sejak'}
+{29903: 'elah'}
+{17252: 'psi'}
+{85222: 'hari'}
+{32489: 'iba'}
+{28582: 'ikat'}
+{124475: 'atkan'}
+{108297: ' panjang'}
+{114398: ' kamu'}
+{120921: ' belakang'}
+{45969: 'iap'}
+{1733: 'ence'}
+{104021: 'ukung'}
+{114603: 'encana'}
+{34164: ' mening'}
+{49018: ' nama'}
+{71473: ' daerah'}
+{24945: ' perc'}
+{113245: 'ikir'}
+{31651: 'usia'}
+{97940: ' jalan'}
+{86974: 'urkan'}
+{126206: 'gera'}
+{100860: ' penj'}
+{48653: ' Ket'}
+{13209: 'asil'}
+{101545: 'jala'}
+{111096: ' rendah'}
+{35552: 'Pada'}
+{92122: 'embang'}
+{20646: 'isan'}
+{128270: ' kepala'}
+{114311: ' hubungan'}
+{76498: ' pengh'}
+{97460: ' tind'}
+{81955: ' juta'}
+{117943: ' sekali'}
+{108120: 'Dalam'}
+{30222: 'unj'}
+{5436: ' tamb'}
+{10424: ' Kar'}
+{101815: ' harga'}
+{64591: ' Tid'}
+{130094: ' malam'}
+{104179: ' nilai'}
+{40379: 'ulis'}
+{89202: ' menerima'}
+{34110: 'upa'}
+{20900: 'umen'}
+{12697: ' Hal'}
+{70207: ' anggota'}
+{8396: 'Per'}
+{105165: 'anjut'}
+{50516: 'inan'}
+{73454: ' perk'}
+{74653: 'ayaan'}
+{104260: ' menghasilkan'}
+{88174: 'angun'}
+{94205: ' sementara'}
+{20609: 'Di'}
+{13435: ' mere'}
+{104075: ' kurang'}
+{89140: ' menyer'}
+{88639: ' pik'}
+{111760: ' pertandingan'}
+{122676: ' berat'}
+{89082: ' namun'}
+{2888: 'amil'}
+{108907: ' terut'}
+{48374: 'awan'}
+{13608: ' pand'}
+{95216: ' ekonomi'}
+{102637: ' membawa'}
+{120819: ' hampir'}
+{39899: ' pasar'}
+{126008: 'ipun'}
+{118537: 'asikan'}
+{129013: ' berh'}
+{36744: ' lem'}
+{95909: ' Setelah'}
+{80831: ' Meng'}
+{91783: 'ataan'}
+{82663: ' berhasil'}
+{4982: 'Set'}
+{60227: 'ihat'}
+{54860: 'awat'}
+{74038: 'ongan'}
+{69741: 'Seb'}
+{40849: ' bola'}
+{104146: 'Unt'}
+{51670: ' ming'}
+{77449: ' berl'}
+{87189: ' akhirnya'}
+{17955: 'enci'}
+{81830: ' diter'}
+{31985: 'Sel'}
+{84693: 'jumlah'}
+{61574: 'ambil'}
+{55415: 'raga'}
+{56206: ' wilayah'}
+{40074: ' gamb'}
+{89712: 'ilah'}
+{34791: 'bah'}
+{102749: 'ikuti'}
+{127399: ' penggunaan'}
+{112690: ' posisi'}
+{92564: ' pihak'}
+{114598: ' alat'}
+{81332: 'ansi'}
+{116369: 'aturan'}
+{100442: ' suara'}
+{87862: 'ahun'}
+{47551: ' empat'}
+{9925: ' tent'}
+{50710: 'abat'}
+{24429: ' hak'}
+{13623: 'uler'}
+{92586: 'oleh'}
+{35212: ' tekn'}
+{127723: ' pilihan'}
+{116252: ' melawan'}
+{39832: 'Men'}
+{63082: 'ebab'}
+{73401: ' efekt'}
+{9176: 'uman'}
+{51496: ' tua'}
+{60368: 'entuk'}
+{9909: 'lang'}
+{112562: ' udara'}
+{32881: ' sep'}
+{64360: ' Pem'}
+{111233: 'putusan'}
+{93689: ' efek'}
+{82276: ' poker'}
+{120081: ' serangan'}
+{10644: ' perd'}
+{119629: 'ajah'}
+{122928: ' mampu'}
+{24326: 'anj'}
+{124474: 'elesa'}
+{39992: ' Rusia'}
+{76882: ' pener'}
+{80804: 'ingan'}
+{14747: ' Sem'}
+{119155: 'ainkan'}
+{103658: 'ulkan'}
+{81940: ' sekolah'}
+{11844: 'bul'}
+{86800: ' mesin'}
+{39227: 'usan'}
+{31201: ' ked'}
+{84202: 'hub'}
+{125676: 'ilangan'}
+{65467: ' Tet'}
+{117528: ' buku'}
+{14407: 'isis'}
+{96384: ' berdasarkan'}
+{46840: ' Allah'}
+{26289: ' Yang'}
+{37741: 'anding'}
+{129225: ' tengah'}
+{88096: ' mengenai'}
+{30217: 'anyak'}
+{111705: ' metode'}
+{96764: 'irim'}
+{63212: ' Ada'}
+{7043: ' Ap'}
+{102209: ' bant'}
+{17687: ' organis'}
+{101310: ' Eropa'}
+{105513: ' dibuat'}
+{63143: ' spes'}
+{21883: 'hir'}
+{119988: 'galkan'}
+{36019: ' Pert'}
+{34545: 'leh'}
+{7136: ' cer'}
+{100626: ' lima'}
+{29084: 'uat'}
+{61238: 'unga'}
+{117165: ' barang'}
+{34587: ' politik'}
+{110081: ' Selain'}
+{130301: ' ditemukan'}
+{68079: ' keras'}
+{84319: 'apun'}
+{35077: 'amping'}
+{5577: 'osis'}
+{39676: ' mener'}
+{86490: ' muda'}
+{81080: 'atih'}
+{125298: 'ukaan'}
+{53865: 'kip'}
+{115579: ' diberikan'}
+{26837: 'perti'}
+{2330: 'ember'}
+{102795: ' dianggap'}
+{97969: ' Serikat'}
+{117282: 'Dia'}
+{126769: ' dirinya'}
+{102473: ' dikenal'}
+{121053: ' perempuan'}
+{31845: 'Ber'}
+{105370: 'hana'}
+{16014: 'yar'}
+{120781: ' tinggal'}
+{12804: ' menu'}
+{98616: ' ahli'}
+{66535: ' gag'}
+{109924: 'atang'}
+{72711: ' perl'}
+{63281: 'umnya'}
+{130996: 'iatan'}
+{67834: ' berm'}
+{31411: ' yak'}
+{97647: ' faktor'}
+{40869: ' Ia'}
+{10449: 'arian'}
+{2865: 'abel'}
+{67006: 'Nam'}
+{123775: ' akibat'}
+{9264: ' ped'}
+{19654: ' fis'}
+{126326: 'yek'}
+{69384: 'ementara'}
+{120848: 'iskan'}
+{118483: ' ibu'}
+{114048: ' pendidikan'}
+{35811: 'ikut'}
+{99969: 'engah'}
+{28000: ' Bag'}
+{115012: ' kelas'}
+{13161: ' Pas'}
+{25240: ' individu'}
+{45006: ' Kem'}
+{57995: 'utus'}
+{99678: 'abung'}
+{116541: 'anyakan'}
+{102627: ' energi'}
+{102844: 'ftar'}
+{14395: ' gol'}
+{118009: ' maupun'}
+{15640: ' gun'}
+{127978: 'ibatkan'}
+{60061: ' mendapat'}
+{121950: ' sepanjang'}
+{12448: 'agai'}
+{108419: ' bidang'}
+{117703: ' memen'}
+{62345: 'akhir'}
+{25061: 'itung'}
+{89173: 'ayar'}
+{107569: ' sejarah'}
+{129029: ' menye'}
+{127646: ' keadaan'}
+{102306: ' ding'}
+{113943: ' luas'}
+{40163: 'iman'}
+{4998: 'And'}
+{83252: ' pengguna'}
+{19922: ' fung'}
+{98122: ' dih'}
+{25930: ' Sek'}
+{61473: 'kira'}
+{123622: ' kesel'}
+{81741: ' menyatakan'}
+{23414: ' industri'}
+{12536: ' Mem'}
+{110882: ' berasal'}
+{105522: 'unuh'}
+{78016: ' artikel'}
+{124488: 'sung'}
+{129303: ' contoh'}
+{127980: ' mati'}
+{117896: 'anakan'}
+{50030: 'olah'}
+{96869: ' ketiga'}
+{79065: 'Peng'}
+{114955: '-masing'}
+{34288: ' laut'}
+{68572: ' terdapat'}
+{4457: ' area'}
+{47522: ' tug'}
+{22617: 'ses'}
+{77600: 'anaan'}
+{74361: 'wat'}
+{36850: ' karakter'}
+{102619: ' Presiden'}
+{85436: 'olak'}
+{121767: 'ambah'}
+{23933: ' leng'}
+{102851: ' pusat'}
+{130027: ' aktif'}
+{115822: ' masing'}
+{63180: ' Pemb'}
+{56122: ' mempunyai'}
+{87915: ' internas'}
+{87891: 'inggi'}
+{77354: 'ucing'}
+{21364: ' hid'}
+{104771: ' alam'}
+{57728: 'uduk'}
+{83322: ' terdiri'}
+{126259: 'angkat'}
+{90677: 'uasa'}
+{56284: ' tanggal'}
+{42160: 'Bag'}
+{38623: ' jat'}
+{24796: ' Kam'}
+{5079: ' game'}
+{56464: 'jah'}
+{13317: 'aat'}
+{45129: 'ifat'}
+{70917: 'ebabkan'}
+{43615: ' kant'}
+{110395: 'okan'}
+{126911: ' kematian'}
+{42420: 'asuk'}
+{8952: 'Ap'}
+{101527: 'jata'}
+{122544: ' terbesar'}
+{82235: ' Jepang'}
+{60513: 'oran'}
+{51684: ' periode'}
+{31933: 'puter'}
+{26661: 'had'}
+{19094: 'kit'}
+{112122: ' acara'}
+{97063: ' positif'}
+{49836: 'istik'}
+{91403: ' Dunia'}
+{117977: ' aman'}
+{32899: 'udian'}
+{107197: ' jang'}
+{3974: 'umber'}
+{69847: ' diber'}
+{17138: ' Kel'}
+{59952: ' angg'}
+{63391: 'sep'}
+{77895: 'intang'}
+{7916: ' Set'}
+{115591: ' cair'}
+{45191: 'agian'}
+{124200: ' menulis'}
+{32320: 'Pen'}
+{62325: ' terj'}
+{8342: ' Sur'}
+{42449: 'amaan'}
+{111565: ' membentuk'}
+{70281: ' menstru'}
+{111382: 'auan'}
+{110320: ' peril'}
+{14356: 'adian'}
+{123451: ' nasional'}
+{6004: ' member'}
+{24826: ' Pel'}
+{86536: 'uah'}
+{62491: ' sifat'}
+{95484: ' negeri'}
+{61922: 'unjuk'}
+{88409: 'ugas'}
+{99963: 'onton'}
+{118630: 'ilih'}
+{47379: ' profesional'}
+{20862: ' pint'}
+{22867: ' pant'}
+{7831: '-r'}
+{65494: ' aks'}
+{38061: ' publik'}
+{122716: ' surat'}
+{6722: 'aft'}
+{125312: ' terkenal'}
+{37806: ' enam'}
+{98768: ' buah'}
+{40316: 'akukan'}
+{56885: 'wak'}
+{60924: 'fung'}
+{19200: ' Bah'}
+{81854: ' kapal'}
+{76148: 'urat'}
+{67980: ' struktur'}
+{67379: 'atat'}
+{101850: ' dew'}
+{47178: 'jaw'}
+{54996: 'lew'}
+{66487: 'akar'}
+{40887: 'yel'}
+{81321: 'ompok'}
+{5635: 'inding'}
+{85999: 'etak'}
+{25021: ' coc'}
+{119194: 'jing'}
+{129661: ' Orang'}
+{79738: 'jung'}
+{91725: ' Negara'}
+{82813: ' Jerman'}
+{94064: ' paj'}
+{92770: ' batu'}
+{11055: 'iring'}
+{93724: ' pesawat'}
+{70025: ' kand'}
+{70823: ' Selatan'}
+{22836: 'edu'}
+{118786: ' lati'}
+{23610: ' semb'}
+{121043: 'akai'}
+{96548: 'amanya'}
+{93289: ' signif'}
+{97578: ' kary'}
+{87145: ' Belanda'}
+{97149: ' pula'}
+{52046: ' studi'}
+{57499: ' rata'}
+{97274: 'perc'}
+{90002: '-und'}
+{94374: ' sej'}
+{89201: ' lant'}
+{128768: 'ampilkan'}
+{99300: ' lemb'}
+{64960: ' pasukan'}
+{111570: ' terletak'}
+{59189: 'iasi'}
+{83208: 'besar'}
+{85328: ' resmi'}
+{19610: ' Liga'}
+{67645: ' jal'}
+{74635: ' penduduk'}
+{71644: ' Barat'}
+{124513: 'erintah'}
+{113989: ' karya'}
+{79422: ' teknik'}
+{91668: 'entar'}
+{130021: ' antar'}
+{23022: 'araf'}
+{44573: ' Ming'}
+{13059: 'yes'}
+{54728: 'arah'}
+{58237: ' samp'}
+{89903: 'egang'}
+{63208: 'diri'}
+{103887: ' pemerintahan'}
+{75151: 'ingkat'}
+{129518: ' menek'}
+{86358: 'usahaan'}
+{49315: ' musik'}
+{63144: 'isional'}
+{10243: ' Australia'}
+{46606: 'jang'}
+{15280: ' api'}
+{78622: ' Kep'}
+{101419: ' Dari'}
+{56914: ' lamb'}
+{106886: ' cah'}
+{100911: ' kej'}
+{73080: ' mengen'}
+{49922: ' damp'}
+{75038: ' fak'}
+{40716: ' Mis'}
+{106420: ' guru'}
+{81051: 'alih'}
+{69845: 'amatan'}
+{65404: 'uali'}
+{118163: '-neg'}
+{7698: ' jud'}
+{130732: ' fokus'}
+{95739: ' teori'}
+{100548: ' asal'}
+{23850: ' Mes'}
+{115929: 'janjian'}
+{99984: ' agama'}
+{103563: 'angunan'}
+{19753: 'eman'}
+{42794: ' sung'}
+{125083: ' dikel'}
+{115937: ' kompet'}
+{61271: ' pengg'}
+{11179: 'endar'}
+{18755: ' Ker'}
+{16957: 'ikel'}
+{63067: ' abad'}
+{41200: ' mau'}
+{29820: ' lun'}
+{101355: ' temb'}
+{66595: 'aktor'}
+{73750: ' bern'}
+{94232: 'juh'}
+{81382: ' Keb'}
+{7572: 'ped'}
+{37775: 'Ter'}
+{56844: 'antu'}
+{44106: ' ced'}
+{3323: ' file'}
+{31618: 'imat'}
+{60832: ' Jakarta'}
+{15188: ' Asia'}
+{13830: ' Yes'}
+{61829: 'ahi'}
+{43364: 'kok'}
+{72949: ' Ked'}
+{25463: 'Dan'}
+{121297: ' Prancis'}
+{87691: ' Menteri'}
+{89622: ' seni'}
+{49153: ' Memb'}
+{102551: 'antikan'}
+{88999: 'bangan'}
+{105171: ' suks'}
+{57971: ' kompon'}
+{72491: 'entu'}
+{89094: 'Kar'}
+{46597: 'uruh'}
+{12202: ' Arab'}
+{61996: ' tern'}
+{98357: 'adakan'}
+{51227: 'iban'}
+{21992: ' Jug'}
+{68659: ' Ukraina'}
+{69339: ' kompleks'}
+{62680: ' terd'}
+{113554: ' menet'}
+{121316: ' psik'}
+{26793: 'uas'}
+{82303: ' Utara'}
+{118359: '-ob'}
+{12749: 'erman'}
+{39405: 'iksi'}
+{86831: ' ditem'}
+{106699: 'anye'}
+{120531: 'entang'}
+{119644: 'adikan'}
+{45566: 'ertas'}
+{14553: ' Pers'}
+{66651: 'hid'}
+{123867: ' unik'}
+{111793: ' Baru'}
+{80491: 'adaan'}
+{25633: ' Rab'}
+{21374: ' Put'}
+{124616: ' peringkat'}
+{34048: ' Gun'}
+{107425: ' seksual'}
+{57120: 'hasil'}
+{22352: ' tomb'}
+{85683: ' Tahun'}
+{114245: 'irikan'}
+{88697: ' Feng'}
+{101856: ' Maret'}
+{76553: ' Januari'}
+{97941: ' Salah'}
+{100569: 'usun'}
+{120664: ' Piala'}
+{58302: ' Yun'}
+{47163: ' Mei'}
+{123295: 'asiswa'}
+{59685: ' Timur'}
+{45406: ' dile'}
+{70624: ' Kota'}
+{25933: 'pers'}
+{106876: ' sebanyak'}
+{24920: ' meter'}
+{26452: ' Sec'}
+{45545: 'Sem'}
+{11537: ' Leb'}
+{13958: 'Ke'}
+{77701: ' versi'}
+{82245: ' Cina'}
+{109382: ' bernama'}
+{40428: 'alian'}
+{63080: ' lagu'}
+{32849: 'endas'}
+{83973: 'anian'}
+{98530: 'upi'}
+{17896: ' Korea'}
+{5694: 'esis'}
+{75075: 'urus'}
+{100648: ' dll'}
+{104054: ' Perang'}
+{121916: ' suku'}
+{35475: 'eben'}
+{113310: 'ahir'}
+{74736: ' deng'}
+{123915: 'empuran'}
+{69694: ' prins'}
+{27841: ' demi'}
+{98044: ' Nasional'}
+{83267: ' dolar'}
+{85827: ' saud'}
+{81174: ' kelu'}
+{55999: ' Kes'}
+{92441: ' desa'}
+{31451: ' lamp'}
+{15624: ' Juni'}
+{79906: ' cinta'}
+{16187: ' Oktober'}
+{76454: 'anggap'}
+{107381: ' Agustus'}
+{51984: 'atakan'}
+{124949: ' Spanyol'}
+{130680: ' kontrak'}
+{91739: ' Desember'}
+{113979: ' konflik'}
+{97931: 'esan'}
+{18200: ' Italia'}
+{127989: ' istil'}
+{75803: 'apai'}
+{91861: ' Hari'}
+{74788: 'jarah'}
+{42913: 'erah'}
+{121572: ' mengumumkan'}
+{53627: ' Pend'}
+{43662: 'gunakan'}
+{91361: ' paru'}
+{50742: ' bic'}
+{16684: ' Juli'}
+{100496: 'erti'}
+{80924: ' mekan'}
+{47890: 'aktu'}
+{40000: ' Sang'}
+{19176: 'encer'}
+{39830: ' Republik'}
+{92363: ' mengal'}
+{77131: ' oks'}
+{117310: ' maju'}
+{84286: 'Hal'}
+{91012: ' lint'}
+{72648: 'ainan'}
+{50178: 'ibat'}
+{22544: ' mim'}
+{27458: ' Rum'}
+{60502: 'ografi'}
+{28235: 'BB'}
+{131053: ' dosis'}
+{87784: ' Palestina'}
+{88194: 'unik'}
+{127078: ' Universitas'}
+{31508: ' pid'}
+{107999: 'endak'}
+{100155: 'ubahan'}
+{59112: ' Cara'}
+{8972: ' Lin'}
+{116155: ' Kek'}
+{88894: ' Jawa'}
+{126697: 'itif'}
+{62732: ' perse'}
+{8977: ' internal'}
+{122911: 'ialis'}
+{100970: ' bakar'}
+{107078: 'endal'}
+{100628: ' unsur'}
+{86191: ' raja'}
+{22887: '-per'}
+{83556: ' Sistem'}
+{7194: ' anc'}
+{124279: ' arti'}
+{77259: ' Negeri'}
+{120746: ' relatif'}
+{3875: ' proper'}
+{64939: 'idikan'}
+{58104: 'emas'}
+{47248: ' Laut'}
+{40342: 'angs'}
+{16556: ' dial'}
+{101927: 'hak'}
+{39166: 'emain'}
+{81081: ' Februari'}
+{82297: ' kawasan'}
+{123934: ' kode'}
+{53151: ' ping'}
+{74481: 'elian'}
+{9782: 'inci'}
+{33455: 'akh'}
+{36253: 'Mem'}
+{124509: 'abrik'}
+{53173: ' Raja'}
+{34341: ' terc'}
+{80535: ' objek'}
+{46127: 'risis'}
+{70123: ' kuning'}
+{122755: ' kapas'}
+{78225: 'asar'}
+{67096: 'eker'}
+{3579: ' target'}
+{70369: 'angsa'}
+{32144: 'upakan'}
+{70288: ' taman'}
+{113708: ' barat'}
+{118221: 'elan'}
+{69800: ' dada'}
+{9023: ' relev'}
+{129367: ' utara'}
+{109419: 'atuan'}
+{32543: 'istem'}
+{120031: ' selatan'}
+{36606: ' Tang'}
+{85865: 'aiman'}
+{37799: ' Saudi'}
+{53246: ' Ling'}
+{81524: 'orsi'}
+{105181: 'Yang'}
+{20895: ' modal'}
+{91562: 'letak'}
+{119238: 'sekut'}
+{12661: ' diagnosis'}
+{67702: ' Hak'}
+{64647: 'antar'}
+{83439: 'jian'}
+{24601: ' Jen'}
+{99581: 'iong'}
+{16408: ' hub'}
+{44139: 'awah'}
+{56926: ' seri'}
+{49777: ' kemb'}
+{31714: 'GP'}
+{126514: ' kategori'}
+{106858: ' kereta'}
+{60609: 'antan'}
+{129861: ' Bias'}
+{18450: ' Muslim'}
+{32681: ' Past'}
+{34962: ' Perm'}
+{130412: 'alap'}
+{68708: ' diken'}
+{50824: '-par'}
+{76014: 'stern'}
+{12705: ' detail'}
+{121940: ' Bers'}
+{18135: ' Bang'}
+{5228: ' Intern'}
+{105340: 'agia'}
+{42945: 'ullah'}
+{46653: ' Uni'}
+{40039: 'Mel'}
+{110482: ' Bahasa'}
+{27768: ' Chen'}
+{30124: 'omena'}
+{107631: ' Dewan'}
+{102705: ' jah'}
+{56569: 'enal'}
+{10599: 'ying'}
+{25058: 'acu'}
+{122621: ' Tengah'}
+{43816: ' Kons'}
+{76551: 'unjukkan'}
+{127680: 'atah'}
+{72437: 'uny'}
+{110823: ' Besar'}
+{127731: ' perg'}
+{17870: 'eting'}
+{26105: ' Sep'}
+{48181: 'Lang'}
+{121242: '-ke'}
+{20160: 'embers'}
+{109282: ' Pus'}
+{52630: 'alui'}
+{123676: 'udukan'}
+{94139: ' pals'}
+{123078: 'gara'}
+{39268: ' Mul'}
+{9270: ' telev'}
+{68276: ' eksp'}
+{80573: ' Kec'}
+{3668: 'roid'}
+{80006: ' Tent'}
+{78035: ' Moto'}
+{39843: 'Sec'}
+{114701: ' Kerajaan'}
+{52285: ' Gamb'}
+{39508: '-bar'}
+{60421: 'atorium'}
+{125492: ' dini'}
+{112291: ' Yahudi'}
+{57340: ' Lay'}
+{34701: ' wis'}
+{33101: ' perten'}
+{14414: 'cap'}
+{116545: ' karbon'}
+{35426: ' Dok'}
+{30371: ' lend'}
+{15527: ' semi'}
+{41927: 'erint'}
+{86037: ' Kristen'}
+{40387: ' Roh'}
+{51706: ' cac'}
+{122402: ' izin'}
+{126076: ' Dua'}
+{109846: 'apur'}
+{77349: ' investor'}
+{56337: ' tabel'}
+{5156: 'obal'}
+{97352: ' hib'}
+{81063: ' taut'}
+{53154: ' Qing'}
+{55795: ' Dew'}
+{71236: 'umpulan'}
+{35951: 'pent'}
+{40979: ' parle'}
+{106520: 'panjang'}
+{34302: ' Depart'}
+{126230: 'Pel'}
+{56043: ' corona'}
+{103320: 'jol'}
+{85967: ' mena'}
+{21744: '-U'}
+{57774: 'again'}
+{48521: ' sensit'}
+{78782: ' Mata'}
+{28318: ' Yan'}
+{22495: ' Bis'}
+{50625: 'hingga'}
+{95688: ' matemat'}
+{43127: 'empel'}
+{114487: 'lok'}
+{90907: 'perg'}
+{20710: 'site'}
+{130283: ' Pendidikan'}
+{59705: ' dite'}
+{125586: 'ihara'}
+{6277: ' independ'}
+{14663: ' Produ'}
+{72512: ' Perd'}
+{64246: 'ibel'}
+{43131: ' Mend'}
+{71294: ' Sos'}
+{73817: 'aporan'}
+{54889: 'arya'}
+{26230: ' chip'}
+{23806: ' Hind'}
+{86212: 'dasarkan'}
+{35031: ' Afghanistan'}
+{102556: 'ampir'}
+{7183: ' indu'}
+{49144: ' posting'}
+{101035: 'dua'}
+{80943: 'bola'}
+{73915: ' perp'}
+{34367: ' Vegas'}
+{34887: ' Yu'}
+{112410: 'kung'}
+{95492: ' hakim'}
+{87356: 'iaan'}
+{96450: 'awai'}
+{2953: 'arget'}
+{28698: ' Temp'}
+{18766: ' fils'}
+{87956: 'lawan'}
+{107281: ' atlet'}
+{41098: ' Bent'}
+{22778: ' Hub'}
+{53881: 'Ya'}
+{88255: ' Hid'}
+{127322: ' hipot'}
+{40854: ' Tah'}
+{25667: ' Champions'}
+{76955: ' UU'}
+{98887: 'anyi'}
+{56852: ' jab'}
+{44655: 'uktur'}
+{50341: ' Chu'}
+{30607: ' Nom'}
+{46884: ' Pes'}
+{57717: ' cinc'}
+{42670: ' Pand'}
+{125770: ' molekul'}
+{121152: ' Sekolah'}
+{74194: 'plin'}
+{111572: 'ampil'}
+{71853: 'rans'}
+{44335: 'ayah'}
+{114543: ' mitra'}
+{112216: 'onesia'}
+{114787: ' arteri'}
+{21215: ' Ye'}
+{72343: 'pung'}
+{124451: ' Singapura'}
+{86927: ' Guru'}
+{69163: 'itra'}
+{36897: ' distrib'}
+{104963: ' Xiao'}
+{101512: 'perl'}
+{120522: 'unia'}
+{116510: 'judul'}
+{78216: ' Jaw'}
+{114803: ' Panc'}
+{105654: ' sapi'}
+{62822: ' Teng'}
+{129988: ' jurnal'}
+{116040: 'alti'}
+{117738: ' Kond'}
+{66995: ' Artikel'}
+{63362: ' Gaza'}
+{10247: ' perman'}
+{65861: 'Mes'}
+{106232: ' persa'}
+{81811: 'ihak'}
+{27985: ' PT'}
+{92235: 'arno'}
+{28558: '-bu'}
+{50637: ' Nil'}
+{41128: 'unakan'}
+{99146: ' ilegal'}
+{91756: ' Olimpi'}
+{46216: 'Pers'}
+{89335: ' sore'}
+{38963: ' Ekonom'}
+{8297: 'acing'}
+{33207: ' Thailand'}
+{50884: ' wart'}
+{111097: ' fisi'}
+{77953: ' Desa'}
+{87561: ' pedag'}
+{5405: '.id'}
+{68677: ' Tian'}
+{28085: 'astian'}
+{75094: 'adis'}
+{114779: ' karier'}
+{112577: ' Jalan'}
+{82423: ' Meks'}
+{82172: ' Pern'}
+{29183: ' Kant'}
+{122304: ' aktor'}
+{23486: 'rosis'}
+{124497: ' operas'}
+{86587: ' alas'}
+{115254: ' Nama'}
+{16766: ' Tamb'}
+{32232: 'quez'}
+{80108: ' kilometer'}
+{19101: ' surve'}
+{59679: ' Xi'}
+{117922: ' Pulau'}
+{98073: ' Sis'}
+{75838: ' undo'}
+{22501: ' tong'}
+{19119: 'Pres'}
+{27740: ' Ged'}
+{101037: 'lawanan'}
+{123827: ' Bola'}
+{52920: 'isol'}
+{44203: ' baja'}
+{87192: 'ENG'}
+{125897: ' Gereja'}
+{33269: ' Natal'}
+{57834: 'rovers'}
+{64146: 'yarakat'}
+{114498: ' Samp'}
+{24166: ' terse'}
+{51929: ' gant'}
+{42479: ' domest'}
+{120560: ' Ketua'}
+{124914: 'opause'}
+{17292: ' dici'}
+{100599: 'eran'}
+{120396: 'akarta'}
+{38276: ' Wu'}
+{14289: 'integr'}
+{33111: 'Tim'}
+{68042: 'romos'}
+{109451: ' Kongres'}
+{28067: ' Taiwan'}
+{44075: ' Tes'}
+{117525: ' Sungai'}
+{40569: ' partis'}
+{43430: 'hens'}
+{129052: ' Studi'}
+{110040: ' kumpulan'}
+{84902: ' Tub'}
+{123127: ' hk'}
+{23578: ' membran'}
+{6765: ' label'}
+{116728: 'asus'}
+{86987: ' Kabupaten'}
+{71808: 'Bis'}
+{127621: ' adat'}
+{27977: 'ubern'}
+{55158: ' Qi'}
+{86462: ' Papua'}
+{35666: ' Zhang'}
+{9173: 'ifest'}
+{9454: ' domain'}
+{62269: ' Kais'}
+{9407: ' instr'}
+{95934: 'beda'}
+{70299: 'ektor'}
+{91701: ' Yer'}
+{20571: 'ultan'}
+{76782: ' Jal'}
+{24360: 'jamin'}
+{65036: ' dealer'}
+{82793: ' hormonal'}
+{104346: 'empuan'}
+{86945: 'umkan'}
+{69766: ' Myanmar'}
+{129733: 'arai'}
+{91346: ' Laporan'}
+{101440: 'Tan'}
+{94117: ' herbal'}
+{17372: ' stroke'}
+{39935: ' Beijing'}
+{55649: ' Yuan'}
+{116561: ' TU'}
+{103090: ' Raya'}
+{41348: ' terce'}
+{21931: ' insulin'}
+{91572: 'umumkan'}
+{43164: ' laptop'}
+{48209: ' boc'}
+{79777: ' Alam'}
+{95128: ' Taliban'}
+{14188: 'ancing'}
+{64604: 'iagn'}
+{38904: ' hemat'}
+{64403: ' toilet'}
+{78612: 'enging'}
+{30672: 'enario'}
+{125290: ' perlawanan'}
+{59730: ' Irland'}
+{82967: 'arela'}
+{80393: 'kong'}
+{104939: ' Direkt'}
+{24531: 'usalem'}
+{83870: ' Bali'}
+{25059: ' Member'}
+{107298: ' seper'}
+{4848: ' output'}
+{123981: ' Masa'}
+{119630: '-lang'}
+{35922: ' Swiss'}
+{36575: 'Cat'}
+{83248: ' Grup'}
+{109952: '-uns'}
+{93584: ' semen'}
+{88769: ' aroma'}
+{73743: ' Tamp'}
+{41255: ' RI'}
+{41126: ' pile'}
+{87845: ' lemon'}
+{115295: ' afili'}
+{53196: ' Dip'}
+{67733: ' Perl'}
+{61587: ' Rossi'}
+{57280: ' lapar'}
+{49500: ' Dong'}
+{111352: ' Kud'}
+{21720: 'Perm'}
+{108570: ' uterus'}
+{95583: '-ten'}
+{109545: 'antik'}
+{126192: ' Katolik'}
+{41819: 'optim'}
+{77413: ' Lamp'}
+{54502: ' keen'}
+{104580: ' Yue'}
+{81481: 'ponden'}
+{51943: ' Peg'}
+{36571: ' dend'}
+{114292: 'ibur'}
+{95121: 'andingan'}
+{126126: ' parasit'}
+{62595: ' Yi'}
+{44310: ' pending'}
+{27629: ' proposal'}
+{96065: ' Perg'}
+{113267: 'Nama'}
+{39641: 'Sep'}
+{22984: 'Editor'}
+{40395: 'opsis'}
+{70021: 'gris'}
+{60310: ' Jiang'}
+{52549: 'Sud'}
+{97633: ' hong'}
+{55889: 'unting'}
+{107122: 'Mari'}
+{69942: 'asian'}
+{65052: 'Ses'}
+{9276: ' parameter'}
+{122264: ' Prins'}
+{107982: ' ranc'}
+{81356: ' Berk'}
+{26074: 'Temp'}
+{74011: ' Inj'}
+{30206: 'Hub'}
+{58974: ' estrogen'}
+{69577: 'otland'}
+{96451: 'Bah'}
+{113917: ' legenda'}
+{102459: ' Industri'}
+{96242: ' denda'}
+{84464: ' Struktur'}
+{67146: ' Zhao'}
+{57161: ' cint'}
+{77857: 'ividu'}
+{129423: 'ekar'}
+{63200: 'iosis'}
+{103292: ' Senat'}
+{113904: ' Tert'}
+{90440: ' Musa'}
+{14673: ' folder'}
+{55507: ' Shi'}
+{4566: ' default'}
+{50983: ' Buddha'}
+{111396: 'epit'}
+{38397: ' Hindu'}
+{122078: ' Bant'}
+{34869: ' Liu'}
+{12708: 'emic'}
+{110447: 'akang'}
+{71570: ' Hew'}
+{64838: ' Unt'}
+{17678: ' bias'}
+{98618: ' diseng'}
+{84584: 'enteri'}
+{28572: ' bios'}
+{34404: '.ID'}
+{76607: ' Fang'}
+{36680: ' motif'}
+{74081: ' pound'}
+{109642: ' Semb'}
+{76341: 'spor'}
+{103021: ' SMA'}
+{37443: ' Api'}
+{39456: ' pneumonia'}
+{35096: ' Denmark'}
+{110189: ' Paus'}
+{65002: 'ensin'}
+{86479: ' Bai'}
+{27767: ' keyboard'}
+{73465: 'upaten'}
+{44380: '-produ'}
+{62069: ' gubern'}
+{41864: ' Perc'}
+{82138: 'usah'}
+{87091: ' Lama'}
+{128764: ' Tata'}
+{69148: 'agus'}
+{126651: ' Luo'}
+{120202: ' rangs'}
+{106137: ' Yamaha'}
+{19577: ' abnormal'}
+{77280: 'cong'}
+{62960: ' edema'}
+{75786: ' Ding'}
+{23229: ' Stadion'}
+{110835: 'struktur'}
+{77073: ' drone'}
+{53110: ' gravit'}
+{70973: 'encil'}
+{67136: ' anemia'}
+{58118: ' Lebanon'}
+{21748: ' router'}
+{59493: ' Sung'}
+{45307: ' deny'}
+{29652: ' restart'}
+{85736: ' atribut'}
+{30052: ' stimulus'}
+{85292: ' Peri'}
+{41984: ' prize'}
+{121964: ' striker'}
+{69413: 'ategori'}
+{108360: 'oplasma'}
+{36069: ' momentum'}
+{127099: ' hernia'}
+{31431: ' semifinal'}
+{130434: 'ugerah'}
+{73609: ' vokal'}
+{121655: ' ASEAN'}
+{78288: ' Persia'}
+{39455: ' Norweg'}
+{53522: ' Publik'}
+{57963: 'odium'}
+{66511: 'pian'}
+{71270: ' Zion'}
+{82834: ' Qin'}
+{64201: ' dilem'}
+{38544: ' Episode'}
+{94245: ' lump'}
+{34691: 'buah'}
+{86992: ' Cah'}
+{81230: ' Damp'}
+{46223: ' resume'}
+{111456: ' Orde'}
+{92752: ' beru'}
+{85121: ' menus'}
+{91101: ' Timor'}
+{55136: 'ajaan'}
+{22203: ' nitrogen'}
+{121492: ' trimester'}
+{59284: ' Zhou'}
+{24942: ' drain'}
+{75280: ' Clan'}
+{17413: 'rior'}
+{73968: ' pedal'}
+{46554: ' preview'}
+{19729: 'rase'}
+{123397: ' Kecamatan'}
+{29808: ' loyal'}
+{103425: 'omod'}
+{43719: ' regulator'}
+{37420: ' Kompon'}
+{37376: ' printer'}
+{28084: ' playoff'}
+{69516: 'kerja'}
+{93372: 'osaurus'}
+{50188: ' fiskal'}
+{110361: ' Evalu'}
+{88636: ' armada'}
+{118418: ' Kuba'}
+{108317: ' Ying'}
+{108536: 'ombia'}
+{100520: ' VOC'}
+{26143: ' Wis'}
+{54469: 'yai'}
+{34525: ' outlet'}
+{63826: ' pistol'}
+{42741: ' Heaven'}
+{128612: ' SMP'}
+{61765: ' Huang'}
+{53925: '-war'}
+{107479: ' rumor'}
+{68819: 'Emp'}
+{125088: ' pilar'}
+{55910: ' warn'}
+{32446: ' donor'}
+{112920: ' testis'}
+{111485: ' Martial'}
+{60282: ' Berm'}
+{111799: ' Perp'}
+{125446: '-mus'}
+{105583: ' Dao'}
+{70026: ' Zhu'}
+{56456: ' pools'}
+{92661: ' disent'}
+{73342: ' Konfl'}
+{127325: ' Fils'}
+{28517: ' Menu'}
+{112137: ' Yao'}
+{67811: ' WS'}
+{62949: ' retina'}
+{113947: ' Qian'}
+{83500: ' alok'}
+{68186: 'opor'}
+{117287: ' Gag'}
+{90553: ' administratif'}
+{68271: ' Divine'}
+{31178: ' basal'}
+{106617: ' tsunami'}
+{100830: ' DAL'}
+{57750: '-main'}
+{38242: ' ultrasound'}
+{25709: ' slide'}
+{103195: ' degr'}
+{18004: 'ogenesis'}
+{64411: ' Fase'}
+{123589: ' parut'}
+{68492: 'eban'}
+{92366: ' Jing'}
+{125097: ' JAK'}
+{3856: 'ustom'}
+{30260: ' Dise'}
+{128742: ' zombie'}
+{79880: ' aorta'}
+{70551: '-sem'}
+{111868: '-film'}
+{49785: ' flush'}
+{67619: ' hemoglobin'}
+{103020: 'asilkan'}
+{91866: ' Diagnosis'}
+{50221: ' Modal'}
+{95513: ' Realm'}
+{95778: ' Yin'}
+{7757: 'update'}
+{103599: ' Spiritual'}
+{121616: ' atrium'}
+{64118: ' Ced'}
+{87500: ' Zheng'}
+{108593: ' Spurs'}
+{67116: ' tendon'}
+{19411: 'ktop'}
+{27015: '-data'}
+{104395: ' rusa'}
+{121573: ' Gug'}
+{110070: ' epidermis'}
+{107725: ' daring'}
+{98924: ' predator'}
+{112115: ' insomnia'}
+{121662: ' Bamb'}
+{86748: ' artef'}
+{28732: 'ragma'}
+{69387: ' Elder'}
+{102236: ' Tomb'}
+{74463: ' longs'}
+{85068: ' Ary'}
+{76058: 'Ring'}
+{47673: ' ultrason'}
+{52618: ' homogen'}
+{111604: 'oneg'}
+{91067: 'Depart'}
+{82310: 'perimental'}
+{68680: ' Novel'}
+{47526: ' vendor'}
+{110514: ' apres'}
+{69392: ' Indo'}
+{124688: ' rebound'}
+{92780: 'TRIB'}
+{12150: ' scre'}
+{96664: ' Sumatra'}
+{26988: 'erial'}
+{48026: ' larva'}
+{9649: 'ursor'}
+{127841: ' Trafford'}
+{37726: ' metastasis'}
+{122068: 'ributor'}
+{62391: ' analges'}
+{122896: ' cend'}
+{102748: ' Kyiv'}
+{60532: 'APAN'}
+{33131: ' prognosis'}
+{127674: ' Tanya'}
+{107426: ' Jae'}
+{98923: ' mamp'}
+{99281: ' Athena'}
+{22167: 'Member'}
+{65527: 'ranial'}
+{96030: ' Baghdad'}
+{60490: 'onitor'}
+{76964: ' Sword'}
+{65253: ' memo'}
+{15542: 'epend'}
+{38749: ' overhead'}
+{73288: ' ultraviolet'}
+{101857: ' Reds'}
+{24001: ' resin'}
+{66145: ' Antar'}
+{75508: ' interpersonal'}
+{57918: ' microwave'}
+{88007: ' Tumor'}
+{95448: ' vertebra'}
+{72040: 'keras'}
+{128015: '.Per'}
+{129731: ' Hyun'}
+{126312: ' adaptor'}
+{69671: ' pupil'}
+{20298: 'temp'}
+{126344: 'libs'}
+{97908: ' Hotspur'}
+{76215: ' alkali'}
+{107541: ' distributor'}
+{63962: 'plasia'}
+{63737: ' Sect'}
+{15408: '.Set'}
+{74482: ' lumbar'}
+{92744: ' Liang'}
+{67990: 'UMN'}
+{85096: 'jquery'}
+{59069: ' Semi'}
+{121452: ' Tae'}
+{84390: 'Chen'}
+{30747: 'lint'}
+{95833: ' osteoporosis'}
+{123432: ' simet'}
+{124353: ' ureter'}
+{99114: ' intrins'}
+{56750: ' leukemia'}
+{86144: 'Wang'}
+{106660: ' Eun'}
+{107441: 'anjing'}
+{109385: ' kiam'}
+{100672: 'iameter'}
+{103694: 'Zhang'}
+{118587: ' meningitis'}
+{73049: '"And'}
+{61467: ' merger'}
+{65175: 'posal'}
+{73529: 'idosis'}
+{114761: ' Seek'}
+{57473: ' Raman'}
+{64457: 'ausal'}
+{104848: ' Flame'}
+{72200: 'aceous'}
+{20360: ' sampling'}
+{71524: '.Next'}
+{28287: ' distal'}
+{78936: 'visual'}
+{110647: ' Mandarin'}
+{121765: ' Mitra'}
+{88561: ' spreadsheet'}
+{90625: '-output'}
+{37508: 'etail'}
+{123409: 'kenal'}
+{23349: ' onset'}
+{102165: 'optimal'}
+{83815: ' rookie'}
+{66152: ' urea'}
+{62896: ' casing'}
+{57352: ' Instr'}
+{79558: ' mediator'}
+{130014: ' septum'}
+{85549: 'estial'}
+{111802: 'leting'}
+{99371: '-unit'}
+{130300: ' superhero'}
+{112981: ' Yoon'}
+{99245: ' linen'}
+{37957: ' bandwidth'}
+{40850: ' fibrosis'}
+{110153: ' Korps'}
+{85144: ' inning'}
+{120465: ' Diagram'}
+{18176: 'Area'}
+{39765: 'upmu'}
+{47826: 'elay'}
+{69054: ' foil'}
+{90206: 'riteria'}
+{67964: ' stenosis'}
+{54973: ' gue'}
+{73377: 'keletal'}
+{39730: '-api'}
+{32371: '.per'}
+{109424: ' asm'}
+{122617: ',J'}
+{124812: 'polar'}
+{94149: 'mph'}
+{125742: ' Duchess'}
+{113645: ' Guo'}
+{114293: ' Stroke'}
+{72873: ' reboot'}
+{97048: '-bond'}
+{60367: ' Void'}
+{129707: ' mitosis'}
+{115723: ' fistula'}
+{130446: 'Seek'}
+{90891: ' jakarta'}
+{106630: 'atosis'}
+{107952: ' enamel'}
+{100388: ' rheumatoid'}
+{119378: ' Suit'}
+{55685: ' resistor'}
+{115331: 'Evalu'}
+{101093: ' broadband'}
+{112292: 'Liu'}
+{119515: 'Wu'}
+{12071: 'Api'}
+{71529: ' solder'}
+{48629: ' tomography'}
+{107284: 'ONSE'}
+{18306: 'Serial'}
+{56915: 'idase'}
+{57150: ' Jep'}
+{41344: ' amplifier'}
+{48038: 'dialog'}
+{62007: ' femoral'}
+{119422: ' herbiv'}
+{39769: 'internal'}
+{39403: ' saline'}
+{64262: ' perimeter'}
+{42740: ' dst'}
+{30690: ' Airl'}
+{59529: ' selenium'}
+{28060: 'origin'}
+{80687: ' sclerosis'}
+{107382: '-bis'}
+{53946: 'keleton'}
+{15097: 'components'}
+{87523: ' subtitle'}
+{41598: 'Operator'}
+{119657: ' disintegr'}
+{97630: ' parietal'}
+{126965: '-jin'}
+{109619: ' flashes'}
+{58113: 'istors'}
+{117158: 'oplankton'}
+{70475: 'obacteria'}
+{68853: 'ebug'}
+{66173: ' unsure'}
+{70102: ' alveolar'}
+{128677: ' stroma'}
+{23969: '.ui'}
+{75207: ' markup'}
+{91927: ' stator'}
+{60526: 'itrogen'}
+{21564: ' computed'}
+{89580: '-boot'}
+{104928: ' umbil'}
+{103415: ' periodontal'}
+{107915: ' Pending'}
+{39200: 'sheet'}
+{122235: ' Buta'}
+{23918: 'omial'}
+{48727: ' nozzle'}
+{55178: ' bitmap'}
+{41233: ' Monark'}
+{91021: 'ilibrium'}
+{14568: 'Parameter'}
+{83392: ' Mered'}
+{46911: ' subunit'}
+{55979: ' mempun'}
+{100331: ' angiotensin'}
+{103759: ' shunt'}
+{81207: ' bowler'}
+{129866: '-slot'}
+{80653: '.Info'}
+{47530: 'Preview'}
+{59417: ' decoding'}
+{70221: ' toolbar'}
+{111079: ' polypropylene'}
+{128477: ' grounding'}
+{76567: 'Stroke'}
+{16149: 'Database'}
+{124884: ' titer'}
+{54022: ' homeostasis'}
+{89792: '-detail'}
+{100577: ' Golgi'}
+{118913: ' polystyrene'}
+{100107: 'Audit'}
+{67703: 'keyword'}
+{56802: ' protease'}
+{128715: ' Sampling'}
+{92465: ' throttle'}
+{111776: ' ganglia'}
+{75335: ' droplet'}
+{87048: ' isomer'}
+{75528: ' interstitial'}
+{12469: 'utils'}
+{125779: 'upgrade'}
+{47743: ' sebel'}
+{109310: ' PKC'}
+{27894: 'Generator'}
+{77918: '/output'}
+{121527: '.SE'}
+{78233: ' flowchart'}
+{43599: ' dropdown'}
+{105665: ' subnet'}
+{108038: ' lignin'}
+{125673: '.pem'}
+{69143: '/google'}
+{55127: 'oresis'}
+{129651: ' formalin'}
+{59597: 'Resume'}
+{99918: 'ogenicity'}
+{45894: 'Tables'}
+{117842: ' plunger'}
+{112848: ' resonator'}
+{59575: 'Pending'}
+{59471: ' pemerint'}
+{57424: ' cached'}
+{50973: 'Outlet'}
+{18434: 'exports'}
+{106055: '-efficacy'}
+{8960: '.push'}
+{128627: '(fs'}
+{28643: '.Model'}
+{62052: ' validator'}
+{39129: '.grid'}
+{119593: '-demo'}
+{57740: '-js'}
+{107000: ' userid'}
+{94483: ' viewport'}
+{57792: '-dialog'}
+{112802: ':url'}
+{116524: ' bilayer'}
+{127926: ' autoantib'}
+{123230: ' ipsilateral'}
+{107355: '-options'}
+{112927: '.cmd'}
+{55578: '=id'}
+{67512: ' angiogenesis'}
+{96168: '.member'}
+{129124: ' intraperitoneal'}
+{62806: 'Presenter'}
+{25999: '.File'}
+{33573: ' lombok'}
+{98774: ' DISCUSSION'}
+{46687: ';j'}
+{23577: '.display'}
+{51074: '_active'}
+{25637: '.location'}
+{113113: 'receiver'}
+{17074: '.widget'}
+{118211: '=function'}

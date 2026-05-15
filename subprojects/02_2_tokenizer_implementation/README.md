@@ -36,28 +36,32 @@ independent inputs; stages 3 and 4 consume both.
 ### `02_2_1_char_language_membership/`
 
 Strict-rule char-level admissibility masks at three resolutions:
-script (22 bits), family (31 bits), language (55 bits). Output is a
-per-codepoint Parquet table plus per-token AND/OR aggregations across
-the Apertus vocab. Derived purely from CLDR exemplars + Unicode-script
-closures; no dataset signal. The reference layer everything downstream
-joins against.
+script, family, and language. Output is a per-codepoint Parquet table
+plus per-token AND/OR aggregations across the Apertus vocab. Derived
+purely from CLDR exemplars + Unicode-script closures; no dataset
+signal. The reference layer everything downstream joins against. The
+current v3.3.x artifact uses schema v5 with 29 script bits, 47 family
+bits, and 88 language bits; consumers should read the live bit counts
+from the artifact manifest rather than hard-coding these snapshot
+numbers.
 
 - Read first: [`02_2_1_char_language_membership/README.md`](02_2_1_char_language_membership/README.md)
-- Current plan: [`02_2_1_char_language_membership/PLAN.md`](02_2_1_char_language_membership/PLAN.md) (canonical), [`PLAN_v3_HIERARCHICAL.md`](02_2_1_char_language_membership/PLAN_v3_HIERARCHICAL.md) (shipped, schema v4)
+- Current plan: [`02_2_1_char_language_membership/PLAN.md`](02_2_1_char_language_membership/PLAN.md) (v2 background), [`PLAN_v3_HIERARCHICAL.md`](02_2_1_char_language_membership/PLAN_v3_HIERARCHICAL.md) (hierarchical design)
 - Artifacts: `02_2_1_char_language_membership/artifacts/{char,token}_language_bitmask.parquet`
 
 ### `02_2_2_vocab_lang_attribution/`
 
-Per-token firing histograms across 1,933 canonical language/dataset
+Per-token firing histograms across 1,934 canonical language/dataset
 keys (FineWeb-2 + Wikipedia + EuroParl + ParaDocs + FineWeb-Edu +
 FineWeb-HQ + DCLM-Edu), ~1 B Apertus-tokens per key. Output is the
-1,933 × 131,072 histogram_matrix plus token metadata. Empirical
+1,934 × 131,072 histogram_matrix plus token metadata. Empirical
 observation layer; no char-tool dependency.
 
 - Read first: [`02_2_2_vocab_lang_attribution/RUN_REPORT.md`](02_2_2_vocab_lang_attribution/RUN_REPORT.md)
 - Scripts: [`02_2_2_vocab_lang_attribution/scripts/`](02_2_2_vocab_lang_attribution/scripts/)
 - Final outputs: `02_2_2_vocab_lang_attribution/outputs/histogram_matrix.npz`, `token_metadata.parquet`
-- Downstream analyses: `02_2_2_vocab_lang_attribution/analysis/{greek_review, english_review, german_review, script_family_composition, membership_rejection}/`
+- Downstream analyses:
+  `02_2_2_vocab_lang_attribution/analysis/{greek_review, english_review, german_review, script_family_composition, membership_rejection, main_token_sets, main_token_sets_pmi}/`
 
 ### `02_2_3_token_classification/` (proposal)
 
@@ -72,16 +76,17 @@ lives here — explicit, falsifiable, defeasible.
   `02_2_2_vocab_lang_attribution/analysis/german_review/tiered_attribution.py`
   pending implementation of the artifact.
 
-### `02_2_4_language_category_promotion/` (proposal)
+### `02_2_4_language_category_promotion/`
 
 Curated per-language token-id sets ("the canonical English tokens",
 "the canonical German tokens", etc.) drop-in for the embedding diagnostic
 ([`03_1_greek_embedding_diagnostic/`](../../03_apertus_extension_and_embedding_adaptation/03_1_greek_embedding_diagnostic/)).
 Replaces the legacy `base_greek_tokens.jsonl` interface with a uniform
-`categories/<L>.jsonl` schema. Per-language regime (strong-T0 / empty-T0
-/ aggregate-only) plus a per-token rate-distinctiveness test against
-sister languages.
+`categories/<L>.jsonl` schema. The current implemented path is the PMI
+promotion analysis in
+`02_2_2_vocab_lang_attribution/analysis/main_token_sets_pmi/`, which
+emits per-language masked/unmasked/delta token sets from empirical
+firing rates plus char-admissibility masks.
 
 - Read first: [`02_2_4_language_category_promotion/PLAN.md`](02_2_4_language_category_promotion/PLAN.md)
-- Status: design proposal; no artifacts yet.
-
+- Current spec: [`02_2_4_language_category_promotion/PMI_PROMOTION_SPEC.md`](02_2_4_language_category_promotion/PMI_PROMOTION_SPEC.md)

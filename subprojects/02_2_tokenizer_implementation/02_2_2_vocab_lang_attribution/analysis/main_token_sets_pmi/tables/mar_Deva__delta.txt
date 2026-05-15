@@ -1,0 +1,57 @@
+# target_key=mar_Deva  lang_code=mr
+# Σ_target=1,009,782,398  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 52 tokens, sorted by count desc
+{6372: None}
+{1956: None}
+{5688: None}
+{2239: None}
+{18118: '१'}
+{21383: '०'}
+{1306: None}
+{22734: '२'}
+{22186: None}
+{37432: '५'}
+{35462: '३'}
+{35259: '९'}
+{38026: '४'}
+{61754: None}
+{47146: '८'}
+{45484: '६'}
+{5529: None}
+{47186: '७'}
+{12064: None}
+{122265: 'athi'}
+{1433: None}
+{22036: None}
+{29932: None}
+{64027: None}
+{2047: None}
+{42026: None}
+{1426: None}
+{86756: ' Published'}
+{10107: 'First'}
+{125838: ' Maharashtra'}
+{55462: ' :-'}
+{120677: ' Latest'}
+{115469: '॥'}
+{98640: ' Goa'}
+{70683: ' Mumbai'}
+{45492: ' Politics'}
+{21774: ' Title'}
+{116925: 'arashtra'}
+{34054: ' Political'}
+{43555: '==='}
+{55916: ' Ethics'}
+{71177: ' Sark'}
+{61751: 'umbai'}
+{58444: '.First'}
+{110638: '█'}
+{8443: 'local'}
+{130207: 'Edited'}
+{90682: ' Farmer'}
+{31986: '.page'}
+{63738: ' PTS'}
+{46642: '/node'}
+{114103: 'Crop'}

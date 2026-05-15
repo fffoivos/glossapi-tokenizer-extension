@@ -4,6 +4,15 @@
 > (the v2.2 design) is preserved as the prior baseline and remains
 > useful for understanding the language-layer mechanics that this
 > plan extends.
+>
+> **Counts in this document describe the v3.0 design moment**
+> (22 script / 31 family / 55 language bits). The live scope has
+> grown via audit-driven additions: **as of v3.3.2 the artifact
+> carries 29 script / 47 family / 88 language bits**. The wire
+> format and bit positions are stable — added bits append at the
+> next free position, never reassigned. Refer to `scripts.yaml`,
+> `families.yaml`, and `languages.yaml` for the current canonical
+> bit assignments.
 
 ## Scope — and what this is *not*
 

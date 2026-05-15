@@ -1,0 +1,32 @@
+# target_key=bod_Tibt  lang_code=bo
+# Σ_target=1,045,437,012  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 27 tokens, sorted by count desc
+{101784: None}
+{1224: None}
+{1188: None}
+{1139: None}
+{1190: None}
+{1166: None}
+{1178: None}
+{1130: None}
+{1145: None}
+{1150: None}
+{1162: None}
+{1132: None}
+{1147: None}
+{1180: None}
+{1177: None}
+{1152: None}
+{1163: None}
+{13825: None}
+{8277: None}
+{105376: None}
+{87700: ' Tibetan'}
+{105537: '—T'}
+{79219: ' unicode'}
+{36745: '"}\n'}
+{30925: '{P'}
+{123206: ':index'}
+{102799: '>>('}

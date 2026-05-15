@@ -1,0 +1,53 @@
+# target_key=guj_Gujr  lang_code=gu
+# Σ_target=1,009,483,679  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 48 tokens, sorted by count desc
+{25255: None}
+{20034: None}
+{1857: None}
+{5574: None}
+{13069: None}
+{6543: None}
+{30231: None}
+{12832: None}
+{34973: None}
+{50611: None}
+{2967: None}
+{47852: None}
+{83546: None}
+{21798: None}
+{3339: None}
+{68889: None}
+{53713: None}
+{52869: None}
+{125441: None}
+{64958: None}
+{121246: None}
+{58165: None}
+{15677: None}
+{128474: None}
+{128884: None}
+{129085: '૧'}
+{75833: None}
+{8154: '.’'}
+{98260: ' Gujar'}
+{6250: '\\n'}
+{39778: 'Rock'}
+{58335: ' DN'}
+{55916: ' Ethics'}
+{117775: ' Gujarat'}
+{18980: '\\r'}
+{130103: 'Ads'}
+{86087: ' ?”\n'}
+{82186: ' GST'}
+{38237: 'READ'}
+{72898: '/download'}
+{109253: 'htra'}
+{55312: 'Recipe'}
+{111567: ' ODI'}
+{80485: ' Modified'}
+{119312: ' GSE'}
+{80784: '.Join'}
+{34386: '.Image'}
+{79935: '.uid'}

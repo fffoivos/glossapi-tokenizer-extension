@@ -1,0 +1,12 @@
+# target_key=als_Latn  lang_code=sq
+# Σ_target=1,004,422,797  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 7 tokens, sorted by count desc
+{6474: 'ė'}
+{1492: None}
+{129599: ' mė'}
+{5384: './'}
+{106719: ' Bahá'}
+{105191: '{#'}
+{96235: '/framework'}

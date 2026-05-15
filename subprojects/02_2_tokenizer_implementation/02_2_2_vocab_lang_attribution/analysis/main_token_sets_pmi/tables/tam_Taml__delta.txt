@@ -1,0 +1,31 @@
+# target_key=tam_Taml  lang_code=ta
+# Σ_target=1,008,066,328  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 26 tokens, sorted by count desc
+{2890: None}
+{1460: None}
+{3280: None}
+{3891: None}
+{2296: None}
+{43152: None}
+{49975: None}
+{21773: None}
+{10398: None}
+{59633: None}
+{2177: None}
+{42433: None}
+{17881: None}
+{47608: None}
+{58420: None}
+{1677: None}
+{6092: None}
+{52592: ' Tamil'}
+{23053: '?’'}
+{30766: ' ``'}
+{1657: '``'}
+{7832: '#####'}
+{37015: 'Typography'}
+{32005: '(image'}
+{19323: '//\n//'}
+{79446: 'Notifications'}

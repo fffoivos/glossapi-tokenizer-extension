@@ -1,0 +1,16 @@
+# target_key=slv_Latn  lang_code=sl
+# Σ_target=1,005,914,693  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 11 tokens, sorted by count desc
+{3046: ' »'}
+{12984: '«,'}
+{83917: '.«\n'}
+{121713: '«.'}
+{25819: '.«'}
+{73769: '!«'}
+{74363: '¹'}
+{50698: '?«'}
+{47335: '?«,'}
+{84972: '!«,'}
+{73600: 'utiérrez'}

@@ -1,0 +1,7823 @@
+# de main tokens — fired >= 100 in deu_Latn, log10(de/en) >= 1.0, de-admissible, non-substrate
+# 7,821 tokens, sorted by count_de desc
+{1728: ' der'}
+{1828: ' die'}
+{1673: ' und'}
+{2829: ' zu'}
+{2421: ' von'}
+{2220: ' den'}
+{3444: ' ist'}
+{1262: 'en'}
+{2635: ' mit'}
+{2836: ' das'}
+{2987: ' auf'}
+{1563: ' des'}
+{3736: ' eine'}
+{2198: ' ein'}
+{3320: ' sich'}
+{3608: ' für'}
+{6441: ' Sie'}
+{4041: ' nicht'}
+{2292: ' dem'}
+{1602: ' im'}
+{1823: ' es'}
+{1851: 'ung'}
+{3303: ' als'}
+{3858: ' sie'}
+{1765: ' er'}
+{5462: ' dass'}
+{3558: ' aus'}
+{5261: ' werden'}
+{6183: ' oder'}
+{4742: ' auch'}
+{2869: ' um'}
+{6287: ' wird'}
+{5989: ' sind'}
+{5259: ' einer'}
+{3734: ' Die'}
+{4710: ' über'}
+{4345: ' nach'}
+{5843: ' wie'}
+{6071: ' einen'}
+{4609: 'ungen'}
+{5520: ' bei'}
+{5846: ' einem'}
+{4153: ' hat'}
+{6299: ' ich'}
+{1400: 'te'}
+{1991: 'ten'}
+{5215: ' vor'}
+{10248: ' kann'}
+{3838: 'igen'}
+{5212: ' durch'}
+{1122: 'z'}
+{3705: 'ischen'}
+{2137: 'ern'}
+{7390: 'ungs'}
+{3958: ' wurde'}
+{11419: ' haben'}
+{13760: ' können'}
+{10412: 'ieren'}
+{6080: 'Die'}
+{4349: 'ische'}
+{7559: ' aber'}
+{5755: 'iert'}
+{5932: ' zum'}
+{6941: ' nur'}
+{1351: 'ig'}
+{4512: ' sein'}
+{3832: 'ige'}
+{5360: ' zur'}
+{3243: ' Er'}
+{2019: ' ver'}
+{6743: 'lichen'}
+{7374: ' noch'}
+{13313: ' wenn'}
+{1997: 'ien'}
+{5995: ' unter'}
+{3005: ' Sch'}
+{6636: 'enden'}
+{7955: 'liche'}
+{2877: 'lich'}
+{12144: ' wir'}
+{6142: ' Der'}
+{3056: 'sch'}
+{4918: ' bis'}
+{8292: ' mehr'}
+{8169: ' Das'}
+{5504: ' Es'}
+{3649: ' sch'}
+{3963: 'ende'}
+{2352: 'be'}
+{12048: ' diese'}
+{1715: ' ab'}
+{1474: 'end'}
+{1654: 'ä'}
+{2682: 'isch'}
+{1552: 'ik'}
+{6471: ' Ein'}
+{5299: 'chen'}
+{10402: ' eines'}
+{3711: ' Ver'}
+{11134: ' dieser'}
+{1441: 'ere'}
+{1814: 'ert'}
+{1465: 'ver'}
+{11606: ' ihre'}
+{11598: 'eln'}
+{11834: ' dann'}
+{9931: ' seine'}
+{7131: ' hatte'}
+{1884: ' du'}
+{8973: ' vom'}
+{16954: ' gibt'}
+{9242: ' Zeit'}
+{1671: 'ü'}
+{2793: 'gen'}
+{9565: 'Der'}
+{3752: 'zen'}
+{7524: ' Aus'}
+{3070: 'fe'}
+{16882: ' sehr'}
+{18828: ' Menschen'}
+{14817: ' immer'}
+{15075: ' keine'}
+{2509: 'ene'}
+{8173: 'ellen'}
+{9638: ' gegen'}
+{7287: ' wurden'}
+{5974: ' alle'}
+{2969: 'ste'}
+{3079: ' Ab'}
+{10432: 'heit'}
+{3569: 'ken'}
+{16881: ' habe'}
+{9362: ' wieder'}
+{3554: 'ben'}
+{8012: ' ihr'}
+{14247: ' anderen'}
+{11367: ' Vor'}
+{5929: 'sten'}
+{15547: 'igkeit'}
+{2170: ' da'}
+{2799: 'icht'}
+{1837: 'che'}
+{11917: 'Das'}
+{1846: 'ft'}
+{15285: 'ität'}
+{10976: ' seiner'}
+{10966: ' zwischen'}
+{9070: ' Auf'}
+{14314: ' Ich'}
+{7447: ' uns'}
+{1518: 'iz'}
+{16952: ' diesem'}
+{10484: ' zwei'}
+{36867: ' Wenn'}
+{2343: 'ze'}
+{7069: 'iger'}
+{6903: ' Jahr'}
+{8527: ' hier'}
+{5364: 'nen'}
+{3656: 'elt'}
+{1979: 'aus'}
+{10151: 'ierte'}
+{16267: ' selbst'}
+{13438: ' jedoch'}
+{9676: ' Nach'}
+{11833: ' ihn'}
+{1554: ' z'}
+{3947: 'bar'}
+{6719: 'enz'}
+{13630: 'fen'}
+{8089: ' waren'}
+{1792: 'ö'}
+{2454: 'den'}
+{14662: ' andere'}
+{5223: 'cht'}
+{14915: ' Jahren'}
+{14557: ' mich'}
+{2042: 'und'}
+{6343: 'ischer'}
+{4045: ' Im'}
+{16636: ' während'}
+{30315: ' müssen'}
+{2444: 'fl'}
+{15966: ' schon'}
+{11581: 'ierung'}
+{11094: ' ihm'}
+{7098: 'auf'}
+{17046: ' viel'}
+{15424: ' ihrer'}
+{12835: ' Jahre'}
+{6098: 'iten'}
+{7689: ' mir'}
+{23449: ' muss'}
+{18075: ' ohne'}
+{2887: 'kt'}
+{16969: ' damit'}
+{12053: 'zeit'}
+{13135: ' zurück'}
+{44613: ' Ihre'}
+{5583: 'hen'}
+{17243: 'igung'}
+{1959: ' ent'}
+{8738: 'igt'}
+{10581: 'eten'}
+{14122: ' Welt'}
+{11080: ' sowie'}
+{20956: ' etwas'}
+{1726: 'fer'}
+{22159: ' sollte'}
+{4397: 'är'}
+{16459: ' Grund'}
+{14489: ' seinen'}
+{26331: ' viele'}
+{13202: ' ersten'}
+{18658: ' Über'}
+{8792: ' ges'}
+{1843: ' ob'}
+{20732: ' sondern'}
+{10165: ' Um'}
+{4360: 'ete'}
+{17150: ' ihren'}
+{11587: 'Es'}
+{10790: ' soll'}
+{24035: ' dieses'}
+{14596: ' sei'}
+{16130: 'licher'}
+{7948: ' gew'}
+{6329: 'aten'}
+{15577: ' gut'}
+{18157: ' beim'}
+{2592: 'ür'}
+{18591: ' Diese'}
+{4569: ' dies'}
+{2884: 'ß'}
+{16048: ' Und'}
+{5940: 'anz'}
+{16915: ' bereits'}
+{10451: '-K'}
+{11694: 'nis'}
+{9897: 'isten'}
+{26946: ' Lebens'}
+{15762: 'ierten'}
+{7171: 'inen'}
+{31870: ' machen'}
+{25018: ' weil'}
+{10706: ' Unter'}
+{15968: 'Ich'}
+{13712: ' drei'}
+{15914: 'ucht'}
+{20109: ' sagte'}
+{4085: ' Ge'}
+{7991: ' Mit'}
+{26435: ' Wasser'}
+{12654: ' Teil'}
+{1684: 'nt'}
+{11892: ' weiter'}
+{13743: ' fest'}
+{23651: ' diesen'}
+{13271: ' erst'}
+{5105: 'ät'}
+{12978: ' seit'}
+{2088: ' bet'}
+{16016: ' seinem'}
+{26443: ' dazu'}
+{21068: ' würde'}
+{34087: ' einfach'}
+{22953: ' Leben'}
+{25211: 'Ein'}
+{2755: 'elle'}
+{16564: ' Schw'}
+{1478: 'ht'}
+{12657: 'weise'}
+{13814: ' hin'}
+{26148: ' einige'}
+{17418: ' ange'}
+{28022: ' Arbeit'}
+{10908: 'assen'}
+{5176: 'zer'}
+{6286: 'iden'}
+{10134: ' Dies'}
+{20830: ' Eine'}
+{58770: 'Wenn'}
+{21768: 'ismus'}
+{26207: ' daß'}
+{8995: ' Hand'}
+{20355: 'chten'}
+{40170: ' Ihr'}
+{7648: ' gel'}
+{19902: ' Wir'}
+{2443: 'wer'}
+{7376: ' Ent'}
+{17539: ' zusammen'}
+{31356: ' finden'}
+{11052: ' nun'}
+{22324: ' denen'}
+{13466: ' gef'}
+{10619: ' Stadt'}
+{6301: 'geb'}
+{14891: ' wo'}
+{14334: ' gesch'}
+{2399: 'uch'}
+{13386: ' konnte'}
+{31229: ' geht'}
+{15731: ' etwa'}
+{9203: ' Kom'}
+{10347: 'enen'}
+{26691: 'cken'}
+{40706: ' sollten'}
+{5981: 'lag'}
+{6291: 'atz'}
+{41668: ' sicher'}
+{8966: 'zu'}
+{21981: ' neue'}
+{13178: 'unden'}
+{15938: ' Ende'}
+{2554: 'uer'}
+{3185: 'rag'}
+{5757: 'cher'}
+{1937: 'ener'}
+{18765: ' heute'}
+{26103: ' kein'}
+{25122: ' ganz'}
+{29907: ' sehen'}
+{29281: 'halt'}
+{27263: ' lassen'}
+{8562: 'acht'}
+{15415: ' Tag'}
+{17064: ' doch'}
+{17903: ' Fall'}
+{23510: ' darauf'}
+{42226: ' Körper'}
+{2728: 'sk'}
+{17006: ' beiden'}
+{9449: 'üt'}
+{25641: ' alles'}
+{26418: ' jetzt'}
+{28416: ' Kinder'}
+{39991: ' könnte'}
+{34419: ' verwendet'}
+{31735: 'stoff'}
+{23813: ' Frau'}
+{26958: 'hren'}
+{3617: 'Im'}
+{11408: ' worden'}
+{27666: ' Frauen'}
+{8165: 'ünd'}
+{21903: ' Aber'}
+{18660: 'innen'}
+{26978: ' denn'}
+{25596: ' ihnen'}
+{6691: ' Fre'}
+{8765: ' gest'}
+{18319: ' Haus'}
+{2319: 'tern'}
+{29676: ' Beispiel'}
+{39069: ' unser'}
+{20542: ' Bei'}
+{30801: 'achen'}
+{22204: ' dabei'}
+{26869: ' oft'}
+{3881: 'zt'}
+{6392: ' Form'}
+{9953: ' Ger'}
+{29904: ' kommt'}
+{3859: 'Er'}
+{29205: ' welche'}
+{63155: ' Ihnen'}
+{17168: ' Spiel'}
+{37666: 'aufen'}
+{4639: ' bes'}
+{58284: ' Blut'}
+{22646: 'erten'}
+{8191: 'ähr'}
+{17344: ' erste'}
+{13436: 'halten'}
+{17821: ' Haupt'}
+{22249: ' Kind'}
+{28025: ' erhalten'}
+{38898: ' Unternehmen'}
+{15791: 'utz'}
+{24692: ' bekannt'}
+{29844: ' meine'}
+{23082: ' neuen'}
+{27560: ' einmal'}
+{10832: ' Kl'}
+{21058: 'ichten'}
+{18653: ' dort'}
+{22585: 'ragen'}
+{46619: ' Daten'}
+{17126: ' tun'}
+{2806: ' vers'}
+{7528: 'agen'}
+{38737: 'uchen'}
+{11542: ' Mann'}
+{21254: 'Sch'}
+{46270: 'Wie'}
+{20510: ' allem'}
+{3623: 'stand'}
+{35793: ' häufig'}
+{46206: ' wichtig'}
+{8347: 'ßen'}
+{26656: ' davon'}
+{13407: ' Gesch'}
+{29172: ' möglich'}
+{28443: ' heraus'}
+{23839: ' ihrem'}
+{4376: ' lang'}
+{34518: ' Wie'}
+{69649: ' Informationen'}
+{15777: ' Als'}
+{17863: ' Deutschland'}
+{22455: ' Durch'}
+{20463: ' Gew'}
+{31248: ' wäre'}
+{25727: ' liegt'}
+{35281: 'stellen'}
+{30274: ' Seite'}
+{11218: 'aden'}
+{4904: 'kl'}
+{19272: ' hatten'}
+{30789: 'mittel'}
+{3238: 'ör'}
+{8415: ' Du'}
+{21349: ' Auch'}
+{14087: ' gab'}
+{22046: 'iges'}
+{2436: 'ser'}
+{9755: 'ße'}
+{24540: ' Geschichte'}
+{11843: ' versch'}
+{51933: ' Ih'}
+{12439: ' bin'}
+{13120: ' Vers'}
+{19898: ' Buch'}
+{47668: ' geben'}
+{9599: 'bt'}
+{3157: 'rem'}
+{9212: ' geb'}
+{8286: ' Kon'}
+{29289: 'lichkeit'}
+{26994: ' nichts'}
+{38639: 'weis'}
+{7014: 'hn'}
+{7636: 'eren'}
+{15193: ' später'}
+{18304: ' Bild'}
+{26134: ' letzten'}
+{29422: ' steht'}
+{33526: ' dafür'}
+{19991: ' weitere'}
+{36170: 'ationen'}
+{45075: ' Frage'}
+{32754: 'heiten'}
+{2053: 'ss'}
+{29629: 'isches'}
+{4378: 'amm'}
+{26320: ' großen'}
+{14490: 'fall'}
+{12884: ' vier'}
+{36904: ' sogar'}
+{8318: 'uten'}
+{14652: 'chte'}
+{33429: ' kommen'}
+{19410: 'lagen'}
+{22505: 'Sie'}
+{27471: ' große'}
+{13076: 'unter'}
+{35049: 'wert'}
+{37987: ' Arbeits'}
+{12486: ' dich'}
+{12171: ' kam'}
+{22977: ' Abs'}
+{6834: 'gt'}
+{26944: ' Weg'}
+{29269: 'Was'}
+{3296: 'iven'}
+{8184: 'chaft'}
+{39469: ' jeder'}
+{49452: ' führen'}
+{38435: ' weniger'}
+{41887: ' gehen'}
+{30830: ' besteht'}
+{10294: ' Bet'}
+{36588: ' meisten'}
+{16332: 'essen'}
+{42324: ' Geld'}
+{2264: 'ente'}
+{22629: ' deren'}
+{16931: 'los'}
+{28996: 'reten'}
+{18754: ' Für'}
+{2337: ' fe'}
+{2482: 'aut'}
+{34729: ' hoch'}
+{7191: 'hl'}
+{3676: 'uf'}
+{119129: ' verwenden'}
+{21175: 'prü'}
+{16101: ' Bau'}
+{5313: 'tes'}
+{26263: ' allen'}
+{41503: ' macht'}
+{40977: ' schnell'}
+{21497: 'nehmen'}
+{23853: 'ensch'}
+{101189: ' Behandlung'}
+{10058: ' Da'}
+{9112: 'ekt'}
+{18662: 'stellung'}
+{4042: ' ja'}
+{11126: 'ologie'}
+{5379: 'eld'}
+{26237: ' wegen'}
+{23037: ' bew'}
+{47328: 'ügen'}
+{25995: ' lange'}
+{12836: 'teil'}
+{12200: 'rank'}
+{32751: ' eigenen'}
+{37584: 'Eine'}
+{14139: 'äd'}
+{4803: 'än'}
+{13658: ' besch'}
+{26111: ' Besch'}
+{15098: 'uren'}
+{24585: ' Zu'}
+{9837: ' Person'}
+{78170: ' Krank'}
+{34604: ' Entwicklung'}
+{16955: ' gleich'}
+{9884: 'gel'}
+{21007: 'icher'}
+{48035: ' wirklich'}
+{22212: ' Rück'}
+{38187: ' verschiedenen'}
+{19116: ' statt'}
+{44645: ' sagen'}
+{17785: 'bau'}
+{2174: 'ange'}
+{19426: ' Wer'}
+{5453: ' Ze'}
+{40834: ' Regel'}
+{33323: ' Bew'}
+{19435: 'äre'}
+{39948: ' indem'}
+{5997: 'esch'}
+{88856: ' helfen'}
+{66995: ' Artikel'}
+{33125: 'auen'}
+{5541: ' dir'}
+{19752: 'ilen'}
+{24954: ' hinter'}
+{7552: 'imm'}
+{33623: ' Ziel'}
+{70059: ' unsere'}
+{24848: 'igten'}
+{3090: ' gen'}
+{17360: 'rä'}
+{19123: 'werk'}
+{21862: 'zug'}
+{15948: 'gew'}
+{4874: 'ün'}
+{37662: ' mö'}
+{9094: ' ger'}
+{17240: ' Platz'}
+{25491: ' Namen'}
+{46965: 'Wir'}
+{51031: ' besser'}
+{35619: 'hrer'}
+{18345: 'igte'}
+{51297: ' wollen'}
+{13669: 'ommen'}
+{26518: 'äg'}
+{33798: 'recht'}
+{26899: 'kommen'}
+{16856: ' Bundes'}
+{10419: 'zte'}
+{51869: ' wissen'}
+{4490: 'ahr'}
+{45340: 'heits'}
+{26196: ' zug'}
+{25914: 'anten'}
+{32857: ' Mutter'}
+{21534: 'legen'}
+{8856: 'mal'}
+{13326: 'inden'}
+{43055: ' verschiedene'}
+{13588: ' weit'}
+{22983: ' bzw'}
+{10194: ' Ges'}
+{35464: 'haft'}
+{33561: ' Millionen'}
+{34199: ' Prozent'}
+{14677: 'gesch'}
+{29955: ' gegenüber'}
+{28786: ' Kopf'}
+{30867: ' recht'}
+{13984: 'unde'}
+{25099: ' Luft'}
+{25233: ' ausge'}
+{1761: 'form'}
+{30982: ' weiß'}
+{7314: 'akt'}
+{32884: ' schwer'}
+{23943: ' Augen'}
+{38380: ' keinen'}
+{30093: 'ichts'}
+{39038: ' vielen'}
+{10649: 'äch'}
+{22850: ' schw'}
+{51265: 'ählen'}
+{49913: ' Weise'}
+{7726: 'reich'}
+{30358: ' mehrere'}
+{22901: ' dessen'}
+{22724: 'ichen'}
+{43001: ' genau'}
+{8477: 'iche'}
+{32132: ' wenig'}
+{36477: ' gerade'}
+{56146: ' besten'}
+{30896: ' Familie'}
+{39806: ' daher'}
+{20572: ' Hier'}
+{44585: ' gemacht'}
+{19112: 'ften'}
+{16557: ' aller'}
+{8134: 'äng'}
+{38756: ' zeigt'}
+{70629: ' bedeutet'}
+{9391: 'äh'}
+{7214: 'sen'}
+{7289: 'hand'}
+{5197: 'len'}
+{46946: ' Selbst'}
+{11063: ' verd'}
+{15238: 'ält'}
+{29634: ' jeden'}
+{27806: ' hätte'}
+{33727: ' aufgrund'}
+{5110: ' ang'}
+{10527: ' Ü'}
+{25195: ' Wahl'}
+{54730: ' sagt'}
+{20943: ' Gef'}
+{35436: ' stehen'}
+{23072: 'Nach'}
+{37095: ' hinaus'}
+{20561: 'iken'}
+{36933: ' besonders'}
+{23561: ' stark'}
+{18616: ' ging'}
+{33118: ' wohl'}
+{20900: 'umen'}
+{27407: ' mein'}
+{6037: 'ück'}
+{41133: 'igkeiten'}
+{38161: ' führt'}
+{35393: ' Tage'}
+{7056: ' nie'}
+{48341: ' daran'}
+{4417: 'test'}
+{24177: ' ebenfalls'}
+{38746: 'rän'}
+{36828: ' Haut'}
+{5300: ' ber'}
+{32828: 'ufen'}
+{6875: 'atur'}
+{24131: ' fünf'}
+{32357: ' Personen'}
+{25290: ' einz'}
+{10030: 'ös'}
+{11940: 'auer'}
+{14141: ' neu'}
+{30615: 'nisse'}
+{35038: ' groß'}
+{33964: ' gilt'}
+{8662: 'vor'}
+{54318: ' nehmen'}
+{40192: ' Dienst'}
+{19369: ' Ä'}
+{43018: ' Recht'}
+{19042: 'issen'}
+{3406: 'chn'}
+{33981: ' Rolle'}
+{42695: ' darüber'}
+{37658: 'Bei'}
+{22318: 'fahr'}
+{35387: ' zwar'}
+{40221: 'fern'}
+{5951: 'änd'}
+{37065: ' bevor'}
+{47716: ' leicht'}
+{32242: ' Ris'}
+{24923: ' Uhr'}
+{44487: 'reiben'}
+{29667: ' Problem'}
+{23345: ' erf'}
+{43254: 'isierung'}
+{72794: ' Fragen'}
+{31835: 'Mit'}
+{9132: 'öl'}
+{42282: ' Wert'}
+{40470: ' werde'}
+{9358: 'ingen'}
+{33998: ' Urs'}
+{20842: ' Herz'}
+{28693: ' Mittel'}
+{84730: ' Patienten'}
+{71092: 'Dies'}
+{43303: ' Wochen'}
+{15623: 'iß'}
+{9823: 'isen'}
+{56609: ' Möglichkeit'}
+{9068: 'erk'}
+{38127: ' anz'}
+{8669: 'schaft'}
+{47329: 'weisen'}
+{25647: ' Bed'}
+{13410: 'itet'}
+{34154: ' Bereich'}
+{44771: ' sollen'}
+{40061: ' Regierung'}
+{19269: ' gek'}
+{44525: ' Minuten'}
+{12352: 'uß'}
+{29334: 'endes'}
+{26795: ' wollte'}
+{23986: 'nahme'}
+{53880: ' halten'}
+{19092: 'ritt'}
+{49532: 'ernen'}
+{56565: 'teile'}
+{7830: ' Den'}
+{14913: ' verm'}
+{32172: ' Raum'}
+{39880: 'isiert'}
+{76969: ' verbess'}
+{53951: 'ächt'}
+{28565: ' allerdings'}
+{11335: ' eing'}
+{9832: 'keit'}
+{48178: 'voll'}
+{44766: ' Rechts'}
+{35612: ' Gesellschaft'}
+{35309: ' Hin'}
+{50131: ' stellen'}
+{23639: 'üss'}
+{7541: 'ahl'}
+{22393: 'bild'}
+{22962: ' erw'}
+{18803: 'zeug'}
+{80128: ' Arzt'}
+{7269: ' Text'}
+{12720: 'gang'}
+{8963: 'äl'}
+{31009: ' seines'}
+{18050: 'ionen'}
+{22822: ' Musik'}
+{34974: 'bew'}
+{39076: ' kleinen'}
+{36188: ' Zahl'}
+{38932: ' lässt'}
+{38100: 'ücken'}
+{26005: 'ielen'}
+{27950: ' gewesen'}
+{23384: ' voll'}
+{14007: 'ichte'}
+{74231: ' Antwort'}
+{13073: 'oren'}
+{18546: 'ffen'}
+{15975: 'geben'}
+{22306: ' Kunst'}
+{6578: 'mt'}
+{39440: ' Boden'}
+{46690: 'baren'}
+{92521: ' verurs'}
+{33919: ' Vater'}
+{36498: ' Wort'}
+{30059: ' Staats'}
+{41560: ' sowohl'}
+{11972: ' Ur'}
+{15506: 'über'}
+{13539: ' Kr'}
+{16069: ' Ober'}
+{36998: ' innerhalb'}
+{50016: ' vielleicht'}
+{38176: ' insbesondere'}
+{28959: ' direkt'}
+{46954: ' Hilfe'}
+{16361: ' Spe'}
+{69973: ' gute'}
+{32047: ' kurz'}
+{17708: ' Ort'}
+{17420: ' Zwe'}
+{9835: 'üh'}
+{56144: ' solche'}
+{6120: ' dar'}
+{35484: 'wand'}
+{41258: 'gef'}
+{8811: 'uen'}
+{27315: ' Akt'}
+{17269: '-St'}
+{28715: ' Verm'}
+{31271: ' kleine'}
+{70047: ' Sympt'}
+{11548: 'ieg'}
+{47276: ' würden'}
+{41649: ' paar'}
+{72799: ' möchte'}
+{30057: 'ären'}
+{21287: ' Gott'}
+{48662: 'liches'}
+{33233: ' Bedeutung'}
+{8780: 'kom'}
+{81650: ' deine'}
+{23598: ' Kont'}
+{58465: ' Verwendung'}
+{90259: ' unserer'}
+{54543: ' bringen'}
+{13148: 'Ver'}
+{14125: 'äm'}
+{48153: ' handelt'}
+{60924: 'fung'}
+{44349: 'achsen'}
+{37339: ' klar'}
+{68527: ' bietet'}
+{15849: 'ieb'}
+{43548: ' Doch'}
+{16605: 'ahren'}
+{2310: ' je'}
+{16643: 'kte'}
+{73995: ' dein'}
+{28863: ' Werk'}
+{25432: ' deutschen'}
+{36092: ' gehört'}
+{29224: ' erz'}
+{14425: 'arten'}
+{6327: 'mitt'}
+{43709: 'sehen'}
+{47842: 'äger'}
+{30752: ' Anfang'}
+{52675: ' Stunden'}
+{34687: ' hil'}
+{22069: ' verw'}
+{48014: 'immung'}
+{17424: ' Kat'}
+{15493: ' Euro'}
+{4985: 'ogen'}
+{12121: ' Tre'}
+{35093: ' abge'}
+{30209: 'Als'}
+{11912: 'leich'}
+{33271: ' Gegen'}
+{8003: 'iko'}
+{12224: ' Geb'}
+{37235: 'Auf'}
+{30108: 'ifiz'}
+{25657: ' neben'}
+{50382: 'alten'}
+{57854: ' bleiben'}
+{72937: ' Probleme'}
+{42520: 'istischen'}
+{12148: 'richt'}
+{80159: 'apie'}
+{11509: 'stell'}
+{35166: ' Rahmen'}
+{31797: ' Lage'}
+{21605: ' rund'}
+{25690: ' zweiten'}
+{56778: ' zeigen'}
+{49439: ' Mensch'}
+{104693: ' kannst'}
+{26041: ' Gruppe'}
+{7268: 'isse'}
+{9778: ' Nord'}
+{33129: ' richt'}
+{56186: ' meiner'}
+{27600: ' Fest'}
+{36788: ' Dieser'}
+{46334: ' stellt'}
+{41485: ' Seiten'}
+{20187: ' verl'}
+{26490: ' bezeichnet'}
+{13974: ' gem'}
+{34461: 'ämp'}
+{13409: 'chter'}
+{68718: ' Kosten'}
+{31844: 'hör'}
+{58764: ' persön'}
+{64876: ' Thema'}
+{23003: ' teil'}
+{52442: 'zuf'}
+{14562: ' Lie'}
+{27398: 'raum'}
+{21599: ' Schl'}
+{34430: 'ifen'}
+{59714: ' Eltern'}
+{9807: 'iker'}
+{45425: ' oben'}
+{8697: 'find'}
+{84515: ' funktion'}
+{42176: 'Für'}
+{11097: 'etzt'}
+{37351: 'stag'}
+{14658: 'ielle'}
+{21786: 'äß'}
+{42008: ' Bef'}
+{28630: 'ühl'}
+{81252: 'zustellen'}
+{11358: ' Tod'}
+{36452: ' folgenden'}
+{48699: 'ssch'}
+{22950: 'pf'}
+{17179: 'falls'}
+{20273: ' Mitt'}
+{39061: ' deutlich'}
+{22945: 'ingt'}
+{18552: ' verk'}
+{27573: 'arbeit'}
+{7717: ' gar'}
+{46239: ' gegeben'}
+{45796: ' einigen'}
+{79161: ' natürlich'}
+{53708: ' sofort'}
+{27025: 'zung'}
+{75245: ' bekommen'}
+{78553: 'Diese'}
+{11129: ' emp'}
+{35804: ' Jahres'}
+{27913: ' zunächst'}
+{77146: ' könnten'}
+{49994: ' Hund'}
+{72798: 'fäh'}
+{115664: 'ährung'}
+{17651: 'üg'}
+{9484: ' bere'}
+{53613: ' sieht'}
+{48725: ' eher'}
+{47848: ' Druck'}
+{13682: 'haus'}
+{8391: 'amen'}
+{59157: 'ativen'}
+{42477: ' nachdem'}
+{7188: ' vert'}
+{13024: 'kon'}
+{36522: ' Kraft'}
+{40226: ' Neben'}
+{39005: ' Männer'}
+{54108: ' darin'}
+{41022: ' Bek'}
+{35877: 'Um'}
+{63029: 'hlen'}
+{70559: 'lungs'}
+{32042: 'bare'}
+{64132: ' enthalten'}
+{45441: ' Markt'}
+{4632: 'pen'}
+{35194: 'ersch'}
+{47220: ' Preis'}
+{17022: ' bef'}
+{22835: 'usch'}
+{41932: ' nied'}
+{20679: 'feld'}
+{42286: ' Alter'}
+{32928: ' Krieg'}
+{57158: ' Energie'}
+{56561: ' jede'}
+{34223: 'lä'}
+{21795: 'die'}
+{28111: ' Landes'}
+{25262: ' Wohn'}
+{22934: ' Von'}
+{51465: ' meinen'}
+{3827: ' wer'}
+{24475: 'platz'}
+{21997: 'laub'}
+{61951: 'schen'}
+{19992: 'alen'}
+{13798: ' Emp'}
+{14094: ' Mai'}
+{22200: 'angen'}
+{25306: ' musste'}
+{51311: 'leben'}
+{47546: ' nächsten'}
+{51676: ' heißt'}
+{12616: 'heim'}
+{39976: ' findet'}
+{18082: 'öglich'}
+{63749: ' bleibt'}
+{27722: 'Und'}
+{5567: 'aren'}
+{31665: ' interess'}
+{30352: ' befindet'}
+{41629: ' Dann'}
+{59698: ' erreichen'}
+{17609: ' Pf'}
+{33706: ' weiteren'}
+{21220: 'lage'}
+{13273: ' bez'}
+{32145: ' Sohn'}
+{33418: 'teilung'}
+{17677: 'dern'}
+{15659: 'fte'}
+{36794: ' Während'}
+{65100: ' Leute'}
+{49621: ' ganze'}
+{13762: ' Sport'}
+{76159: ' warum'}
+{51073: ' Gesetz'}
+{43006: 'gericht'}
+{7245: 'asse'}
+{78822: ' Dinge'}
+{45397: ' Licht'}
+{18300: ' März'}
+{23489: 'zahl'}
+{24164: 'rieben'}
+{20811: 'ktion'}
+{23030: ' Schul'}
+{31810: ' meist'}
+{50160: ' hervor'}
+{71861: ' empf'}
+{33439: ' Natur'}
+{44012: ' Kampf'}
+{47896: ' Schutz'}
+{28999: ' konnten'}
+{13201: 'öt'}
+{13387: ' Inf'}
+{52422: ' irgend'}
+{74779: ' Woche'}
+{18987: 'uld'}
+{8865: 'gest'}
+{57656: ' entwickelt'}
+{7767: 'sche'}
+{53513: ' erhö'}
+{68928: ' jemand'}
+{10837: 'ög'}
+{78076: ' Fäh'}
+{27086: ' begann'}
+{59136: 'zeichen'}
+{33861: ' Dabei'}
+{19728: 'itte'}
+{51165: ' seien'}
+{88208: ' verstehen'}
+{55257: 'etzen'}
+{48926: 'seite'}
+{64505: ' Finanz'}
+{35203: ' Einsatz'}
+{23026: 'ände'}
+{29349: 'änge'}
+{42201: 'usst'}
+{32199: 'führung'}
+{113655: ' Kunden'}
+{12977: ' Jahrhundert'}
+{66731: ' Entscheidung'}
+{60669: 'ziehen'}
+{56534: ' Produkt'}
+{18428: 'licht'}
+{46551: 'ordnung'}
+{48016: ' Reihe'}
+{43893: ' äuß'}
+{47714: 'ckt'}
+{33145: 'cke'}
+{71493: ' bestimmten'}
+{64959: ' bereit'}
+{16187: ' Oktober'}
+{37357: ' Staaten'}
+{3234: 'lt'}
+{18468: 'osten'}
+{22759: 'best'}
+{107423: 'ektion'}
+{65466: ' verme'}
+{44837: ' ihres'}
+{23616: ' Hoch'}
+{66238: 'zungen'}
+{45932: 'aktion'}
+{13863: ' Sche'}
+{8575: ' dre'}
+{19777: 'geh'}
+{40275: ' Nacht'}
+{17494: 'ständ'}
+{66628: ' Beruf'}
+{84374: ' Fällen'}
+{15624: ' Juni'}
+{44950: ' mindestens'}
+{13230: ' Europa'}
+{33677: ' aufge'}
+{15894: 'dr'}
+{16225: 'elte'}
+{41563: 'nehm'}
+{31854: ' beide'}
+{28341: 'buch'}
+{37123: 'ätze'}
+{13096: 'führ'}
+{61519: ' ganzen'}
+{14429: ' sah'}
+{63493: ' wahrscheinlich'}
+{98905: ' möglicherweise'}
+{14332: 'wend'}
+{4389: ' kon'}
+{16951: ' Ern'}
+{12356: 'nten'}
+{45395: ' Verbindung'}
+{30044: 'iesen'}
+{29654: ' Alle'}
+{21185: ' wobei'}
+{7117: ' zwe'}
+{66435: ' darf'}
+{36268: ' Höhe'}
+{45706: ' Jugend'}
+{41027: ' beispielsweise'}
+{74138: 'ahme'}
+{37043: ' Wel'}
+{37382: ' Blick'}
+{62760: ' jedem'}
+{129332: 'halts'}
+{66674: ' leben'}
+{17028: 'erte'}
+{31615: ' schließlich'}
+{60475: ' Nicht'}
+{58512: 'bereich'}
+{8216: 'hol'}
+{25896: ' Erst'}
+{51056: 'stellungen'}
+{68410: ' spielen'}
+{63992: ' Medien'}
+{83132: ' richtig'}
+{17257: 'ruck'}
+{34116: 'nahmen'}
+{77506: 'ühlen'}
+{85716: ' arbeiten'}
+{27144: 'leb'}
+{42818: ' eigene'}
+{46268: 'arf'}
+{21843: 'reib'}
+{53426: ' Familien'}
+{18408: ' Januar'}
+{53416: ' Situation'}
+{24084: 'änder'}
+{48940: 'achten'}
+{40341: 'istische'}
+{25010: ' Süd'}
+{63808: ' durchgeführt'}
+{45024: ' allein'}
+{54711: ' enthält'}
+{36697: ' alten'}
+{21505: ' Fahr'}
+{76878: ' Ergebnisse'}
+{35708: 'ein'}
+{32544: 'auch'}
+{54339: 'ießen'}
+{14225: 'weg'}
+{5985: 'orge'}
+{2865: 'abel'}
+{50450: ' Macht'}
+{80312: ' auft'}
+{33735: ' Verd'}
+{35989: ' Spieler'}
+{47528: 'gesetzt'}
+{39695: 'ierungs'}
+{20311: ' Kirche'}
+{48491: ' Sprache'}
+{51075: ' Arten'}
+{45357: ' Anzahl'}
+{51820: 'ützen'}
+{77451: ' bestimmte'}
+{61669: ' jedes'}
+{10722: 'rig'}
+{40400: 'nach'}
+{21538: 'kel'}
+{33355: ' sechs'}
+{11086: ' Bes'}
+{64276: 'gehen'}
+{130348: ' Erkrank'}
+{65135: ' Menge'}
+{77067: ' scheint'}
+{43236: ' Stelle'}
+{56145: ' Verfügung'}
+{48438: ' gleichen'}
+{31045: ' Folge'}
+{17149: ' leb'}
+{5633: 'este'}
+{51108: 'tritt'}
+{14736: ' Material'}
+{13934: 'ört'}
+{16684: ' Juli'}
+{52907: ' Mädchen'}
+{65992: 'zuge'}
+{8759: 'elen'}
+{21267: ' Groß'}
+{58876: ' Unterstützung'}
+{43418: ' Fach'}
+{51939: 'fre'}
+{43409: ' Tier'}
+{27619: 'ühren'}
+{75440: ' Zukunft'}
+{62691: ' Angst'}
+{61611: ' eigentlich'}
+{20373: 'wie'}
+{28566: 'ahlen'}
+{53080: ' Projekt'}
+{36466: ' Bilder'}
+{89371: ' schwier'}
+{23907: 'äft'}
+{55334: ' Vergleich'}
+{40485: ' damals'}
+{49353: ' gehören'}
+{2054: 'wo'}
+{38869: ' Staat'}
+{39085: 'kten'}
+{70533: ' Sicherheit'}
+{105667: ' bieten'}
+{58703: ' Zusammenhang'}
+{98176: ' kosten'}
+{17618: 'rei'}
+{43990: ' Wissenschaft'}
+{38486: ' kaum'}
+{3027: 'ml'}
+{9040: ' kl'}
+{19741: ' Dezember'}
+{36216: 'sein'}
+{57660: ' gesagt'}
+{58818: ' entfernt'}
+{25045: ' Titel'}
+{9308: 'stra'}
+{51543: 'mehr'}
+{68617: ' Unterschied'}
+{51245: ' gesehen'}
+{60998: 'immen'}
+{41844: ' veröffentlicht'}
+{38105: ' Beginn'}
+{15799: 'erein'}
+{74405: ' Wirkung'}
+{48567: ' liegen'}
+{28088: ' fals'}
+{16706: ' König'}
+{19815: ' Bere'}
+{57035: ' Begriff'}
+{112049: ' versuchen'}
+{72737: 'örung'}
+{80397: ' Kindern'}
+{2037: 'ystem'}
+{64185: ' genug'}
+{65870: ' Hause'}
+{88063: ' Schmer'}
+{52399: ' gefunden'}
+{53996: 'lassen'}
+{86658: ' Prozess'}
+{10655: ' Techn'}
+{25061: 'itung'}
+{11507: 'beit'}
+{73391: ' Netz'}
+{30430: ' anderem'}
+{56110: 'leist'}
+{12736: 'uelle'}
+{19604: ' Vert'}
+{3156: 'ativ'}
+{15067: 'etz'}
+{93237: 'rieren'}
+{104052: ' Studie'}
+{43669: ' Zum'}
+{68260: ' änd'}
+{63003: ' meinem'}
+{56420: ' Erfolg'}
+{67332: ' tatsächlich'}
+{21636: ' ersch'}
+{20885: 'altung'}
+{49323: ' Ergebnis'}
+{68540: 'ünft'}
+{61993: ' Polizei'}
+{26550: 'bere'}
+{11287: 'zent'}
+{52721: ' Russland'}
+{52226: 'stück'}
+{35218: ' genannt'}
+{19348: 'grund'}
+{10414: 'oder'}
+{29350: 'ichtet'}
+{17225: 'üll'}
+{61038: ' Satz'}
+{63844: ' schön'}
+{46907: ' Nähe'}
+{126511: ' Gesundheit'}
+{74829: ' sprechen'}
+{6151: ' sche'}
+{35969: ' wahr'}
+{44856: 'uche'}
+{120802: 'aktoren'}
+{57691: ' obwohl'}
+{30147: 'fert'}
+{46550: ' erreicht'}
+{16063: 'angel'}
+{110649: 'stoffe'}
+{21972: 'aben'}
+{51572: ' Sozial'}
+{20973: 'chs'}
+{61239: ' schle'}
+{45013: 'wür'}
+{17960: 'plan'}
+{98701: ' Prüf'}
+{40430: ' Gesicht'}
+{22326: 'bet'}
+{73947: 'ünsch'}
+{4861: 'ön'}
+{76039: 'barkeit'}
+{38252: ' machte'}
+{24824: 'atten'}
+{11545: 'zten'}
+{69926: ' Studien'}
+{35482: ' Flug'}
+{85720: ' Anwendung'}
+{56782: 'wach'}
+{56283: ' deshalb'}
+{49339: 'ichtlich'}
+{67007: ' erklärt'}
+{51914: ' verbunden'}
+{62149: ' erkennen'}
+{52720: 'itäten'}
+{10476: ' Ö'}
+{44009: ' Wahr'}
+{17193: ' Kol'}
+{59490: ' überhaupt'}
+{21500: ' Februar'}
+{33443: ' eins'}
+{49137: ' natür'}
+{63897: ' versucht'}
+{8195: '.de'}
+{34288: ' laut'}
+{37901: ' bisher'}
+{36191: ' Richtung'}
+{38888: 'Aus'}
+{35150: 'esten'}
+{71865: ' Bezug'}
+{50731: 'iegen'}
+{84337: ' Eink'}
+{32715: ' Wirtschaft'}
+{23227: 'äss'}
+{5169: ' alt'}
+{100274: 'brauch'}
+{53055: ' anders'}
+{76615: 'teilen'}
+{56346: ' hätten'}
+{67791: ' Tagen'}
+{34674: ' zweite'}
+{24497: 'ätz'}
+{28087: 'genommen'}
+{53109: ' Dieses'}
+{41823: 'ierungen'}
+{40024: 'reichen'}
+{38628: 'lungen'}
+{22411: ' Zw'}
+{7088: 'ühr'}
+{25092: 'uber'}
+{112907: ' erforderlich'}
+{11913: 'bst'}
+{56410: 'geber'}
+{32031: ' Autor'}
+{42494: ' verste'}
+{56140: 'zeugen'}
+{30742: 'wir'}
+{15124: 'mut'}
+{36755: ' gering'}
+{15602: ' beste'}
+{24440: 'punkt'}
+{51462: ' weiterhin'}
+{32130: 'pekt'}
+{59315: ' Erde'}
+{19964: ' Ans'}
+{53308: 'arbeiten'}
+{55424: ' erfolgreich'}
+{27423: ' ließ'}
+{59363: 'ätzen'}
+{19100: ' Herr'}
+{45437: 'blick'}
+{32539: 'onen'}
+{100990: ' nutzen'}
+{36085: 'etzung'}
+{67877: ' Tages'}
+{40553: 'altet'}
+{100036: 'isieren'}
+{9514: 'osen'}
+{59920: ' anderer'}
+{121896: ' Produkte'}
+{76028: ' gefähr'}
+{31945: 'pruch'}
+{70242: ' Schritt'}
+{62684: ' ähn'}
+{28721: ' nahm'}
+{27129: 'luss'}
+{46060: ' geworden'}
+{67276: ' beginnt'}
+{27109: ' aktiv'}
+{35364: ' außer'}
+{48931: 'lauf'}
+{62090: ' Verfahren'}
+{52335: ' Einzel'}
+{80309: ' spez'}
+{43345: ' eingesetzt'}
+{14131: 'amt'}
+{106715: ' gerne'}
+{30776: 'ören'}
+{29617: ' Seine'}
+{30110: 'gestellt'}
+{56004: ' Zeitpunkt'}
+{52933: ' sonst'}
+{43215: ' darunter'}
+{28358: 'fel'}
+{48818: 'druck'}
+{27411: ' fand'}
+{30335: ' Mitglied'}
+{57576: ' Vertrag'}
+{11932: 'ibt'}
+{65236: ' Versch'}
+{47082: 'zlich'}
+{52421: ' Liebe'}
+{39499: ' zuvor'}
+{65969: ' Monate'}
+{45468: 'zept'}
+{96740: 'ohlen'}
+{71036: 'wasser'}
+{74243: ' wichtige'}
+{70113: ' euch'}
+{26628: 'häng'}
+{28080: ' führte'}
+{12364: 'ielt'}
+{44988: ' Wieder'}
+{80044: ' Denn'}
+{59601: 'Auch'}
+{32680: ' Mitte'}
+{81728: ' solchen'}
+{50605: ' früh'}
+{44150: ' Mehr'}
+{80782: 'maß'}
+{22422: ' Auto'}
+{17075: 'ifik'}
+{49976: ' gebracht'}
+{76149: ' Zustand'}
+{64719: 'haltung'}
+{31511: 'stre'}
+{65452: ' benöt'}
+{42759: ' Übers'}
+{40917: ' zehn'}
+{61218: ' nimmt'}
+{53772: ' tief'}
+{25601: ' deutsche'}
+{102167: ' Schlaf'}
+{34810: ' Freund'}
+{7141: 'inde'}
+{20825: ' ged'}
+{43816: ' Kons'}
+{58034: 'üsse'}
+{101106: ' suchen'}
+{27571: ' Zusammen'}
+{29359: ' verz'}
+{26217: ' Bürger'}
+{92626: ' Fehler'}
+{47201: '-Pro'}
+{87892: 'itäts'}
+{109620: ' derzeit'}
+{30879: 'bank'}
+{56300: ' gleichzeitig'}
+{71968: ' Vorsch'}
+{43980: ' Gleich'}
+{20802: 'legt'}
+{33035: 'äst'}
+{88217: ' ermöglicht'}
+{3457: 'amente'}
+{27648: 'agt'}
+{50929: ' hohen'}
+{17912: 'oten'}
+{16991: 'kre'}
+{32324: ' Kultur'}
+{55543: ' unten'}
+{26092: 'produ'}
+{44218: ' Außerdem'}
+{60241: ' erhält'}
+{52317: 'urz'}
+{38676: ' Bevölkerung'}
+{41977: ' Politik'}
+{19497: ' Mess'}
+{53167: 'ösen'}
+{83602: 'halte'}
+{49601: 'stelle'}
+{52716: ' vorher'}
+{83191: ' Wach'}
+{75013: 'unehmen'}
+{26819: 'hre'}
+{27420: ' Sach'}
+{65664: ' Bewegung'}
+{99750: 'üllen'}
+{22018: ' Fuß'}
+{38444: ' weg'}
+{68755: ' Geschäfts'}
+{29714: 'erei'}
+{12972: 'äter'}
+{76975: '-jähr'}
+{92233: ' Lösung'}
+{33229: ' Frankreich'}
+{114507: 'örungen'}
+{4721: ' kom'}
+{87120: ' Nahr'}
+{84914: ' beeinfl'}
+{52202: 'stellt'}
+{46901: 'zogen'}
+{23846: 'ünst'}
+{16285: 'enschaft'}
+{54477: ' Gottes'}
+{45073: ' somit'}
+{15757: 'ienen'}
+{18547: ' Option'}
+{32185: ' Deutschen'}
+{41253: ' Präsident'}
+{62169: 'ierenden'}
+{50618: 'Aber'}
+{50534: ' sorg'}
+{43668: ' Schule'}
+{67608: 'leitung'}
+{99424: 'frist'}
+{31734: 'program'}
+{72317: ' Leistung'}
+{18422: 'angers'}
+{76741: ' geboren'}
+{78860: ' Reaktion'}
+{21312: ' Liste'}
+{42484: ' Tochter'}
+{13555: 'wart'}
+{93234: ' erfahren'}
+{62467: ' vollständig'}
+{77838: ' Kontakt'}
+{32411: 'gem'}
+{94944: ' notwendig'}
+{15343: 'reck'}
+{43196: 'bildung'}
+{45305: ' zeit'}
+{28062: 'gebiet'}
+{58407: ' Strom'}
+{2193: 'olog'}
+{52437: ' einzige'}
+{70692: ' kennen'}
+{45253: ' Kauf'}
+{69623: ' Größe'}
+{95603: ' Verlet'}
+{5571: ' ans'}
+{65903: ' Ländern'}
+{17610: 'ritten'}
+{52374: 'uchten'}
+{30065: ' Gründ'}
+{92197: 'zimmer'}
+{25496: 'minister'}
+{89890: 'icherung'}
+{23164: 'wort'}
+{40194: 'ichter'}
+{66661: ' spielt'}
+{55948: ' Funktion'}
+{50491: ' dadurch'}
+{22560: ' Ost'}
+{67256: ' Glück'}
+{73774: ' tragen'}
+{34439: 'oben'}
+{102507: 'bung'}
+{86639: ' Meinung'}
+{32202: ' Seit'}
+{23517: 'mel'}
+{103127: ' Möglichkeiten'}
+{30895: ' verf'}
+{41223: ' Eing'}
+{19415: 'stadt'}
+{78824: ' Gefühl'}
+{56727: ' politischen'}
+{114577: ' lesen'}
+{48274: 'ossen'}
+{86906: ' beginnen'}
+{31977: 'griff'}
+{36586: ' Verb'}
+{36334: ' angeb'}
+{84449: ' bess'}
+{40404: ' Gesamt'}
+{52936: 'cheid'}
+{45530: ' überw'}
+{97218: ' Sicherheits'}
+{85269: ' Maßnahmen'}
+{46487: ' bist'}
+{42263: ' letzte'}
+{76190: 'zub'}
+{92079: ' Pflanzen'}
+{33661: 'erb'}
+{89310: 'iziert'}
+{58438: ' Punkt'}
+{63094: ' unver'}
+{58716: 'ängen'}
+{59877: ' Opfer'}
+{109383: 'jenigen'}
+{54401: 'ließen'}
+{71479: ' muß'}
+{33628: ' jeweils'}
+{52492: ' welches'}
+{41919: 'antwort'}
+{21918: 'ennen'}
+{31047: 'gabe'}
+{21365: 'änger'}
+{38123: ' insgesamt'}
+{83438: ' uner'}
+{72877: ' Steuer'}
+{54722: ' Einfluss'}
+{90273: ' ziehen'}
+{68282: ' Reise'}
+{71544: 'wechsel'}
+{61570: ' gesamten'}
+{38065: ' bald'}
+{99670: ' ziemlich'}
+{63407: ' völlig'}
+{66041: 'riert'}
+{16319: 'eres'}
+{36732: ' Tat'}
+{82226: ' Gericht'}
+{83762: ' Entwick'}
+{47190: ' ebenso'}
+{9661: 'ahn'}
+{62173: ' verfüg'}
+{72173: 'stände'}
+{27277: ' Straße'}
+{24114: ' Nr'}
+{27726: 'inander'}
+{92246: ' Monaten'}
+{123105: 'frage'}
+{99247: ' Unternehmens'}
+{82309: 'äte'}
+{74491: ' länger'}
+{25708: 'system'}
+{124288: ' Auswirkungen'}
+{128099: 'gangenen'}
+{42450: '-Sch'}
+{54155: ' einzelnen'}
+{15556: ' bem'}
+{111090: ' medizin'}
+{37524: 'üb'}
+{38600: 'fahren'}
+{93843: ' Bedingungen'}
+{89241: 'reifen'}
+{91385: ' verhindern'}
+{19927: 'Da'}
+{73124: ' Voll'}
+{75813: 'ierende'}
+{15377: ' Fol'}
+{22507: ' Position'}
+{81477: ' Beziehung'}
+{56988: ' sprach'}
+{32010: 'iben'}
+{18569: ' Kle'}
+{101521: ' einschließlich'}
+{120057: ' entwickeln'}
+{72733: ' Mitarbeiter'}
+{9909: 'lang'}
+{47174: ' Damit'}
+{50304: ' mehreren'}
+{48342: 'fläche'}
+{26423: ' Gem'}
+{83417: ' Brust'}
+{54976: ' Sä'}
+{37899: ' erneut'}
+{67731: ' Programm'}
+{57671: ' hohe'}
+{31112: 'itzen'}
+{39552: ' Partei'}
+{64002: 'handlung'}
+{50129: ' befinden'}
+{23587: ' Verein'}
+{92964: 'chnung'}
+{62535: ' gestellt'}
+{62586: ' welcher'}
+{14723: ' Kre'}
+{58154: ' Schüler'}
+{93312: 'inken'}
+{75787: ' Idee'}
+{21883: 'hir'}
+{7974: ' för'}
+{45639: ' entfer'}
+{74853: ' Heraus'}
+{63604: ' selten'}
+{47400: ' Gruppen'}
+{82685: 'bringen'}
+{31930: ' Meter'}
+{17451: ' bek'}
+{77504: ' Stellen'}
+{90026: ' Untersuchung'}
+{16200: 'anden'}
+{15952: ' Reich'}
+{76429: ' Angaben'}
+{84878: ' guten'}
+{83403: ' Gewalt'}
+{34281: ' acht'}
+{18911: ' Berg'}
+{38636: 'nehmer'}
+{14072: ' ers'}
+{91323: ' treffen'}
+{24203: 'orsch'}
+{81846: 'zeiten'}
+{40588: ' Sommer'}
+{54162: 'pflicht'}
+{27302: ' schn'}
+{60722: ' verlassen'}
+{124098: ' Antrag'}
+{64919: ' Alk'}
+{56555: ' bestimmt'}
+{59872: 'läss'}
+{90692: ' manchmal'}
+{87465: ' Richt'}
+{46711: ' Ehe'}
+{75479: ' Einige'}
+{60807: ' Aktiv'}
+{70541: ' Dollar'}
+{40336: ' Sein'}
+{20886: ' krit'}
+{10486: ' kor'}
+{31842: ' Ther'}
+{85450: ' konzent'}
+{34806: ' Feld'}
+{6995: 'ül'}
+{43638: ' folgende'}
+{50123: 'hnung'}
+{28304: ' Verw'}
+{106779: ' berücksicht'}
+{70193: ' hält'}
+{26214: 'idet'}
+{25750: 'lass'}
+{82033: ' anderes'}
+{11823: ' Stand'}
+{125970: 'fordert'}
+{91847: ' Gewicht'}
+{10552: 'zeich'}
+{54726: ' Militär'}
+{92472: ' entscheid'}
+{42011: 'piel'}
+{19697: ' Gemeinde'}
+{118601: ' Beitrag'}
+{56580: ' genommen'}
+{33065: 'reiche'}
+{56999: 'anze'}
+{65725: 'ährt'}
+{75578: ' hoff'}
+{87378: ' Daher'}
+{115698: 'zess'}
+{48098: 'ühle'}
+{89232: ' Eigenschaften'}
+{12805: ' Stra'}
+{92125: ' setzen'}
+{62862: ' jüng'}
+{32414: ' Kör'}
+{68574: ' Aufgabe'}
+{53418: ' Abend'}
+{81285: ' nämlich'}
+{92898: 'zuführen'}
+{49803: ' frei'}
+{49298: ' danach'}
+{39336: 'lei'}
+{21536: ' Imp'}
+{69459: ' Sicht'}
+{39383: ' Sitz'}
+{21353: ' eben'}
+{43073: 'engen'}
+{99429: ' belieb'}
+{33261: 'bez'}
+{34391: ' Nur'}
+{3348: ' ident'}
+{74325: ' Sache'}
+{52534: 'bruch'}
+{19177: 'omm'}
+{49917: 'ügt'}
+{40320: ' Moment'}
+{59026: ' Haar'}
+{42772: ' Eff'}
+{105112: 'verfahren'}
+{56766: 'ologische'}
+{37624: ' lö'}
+{18978: ' Typ'}
+{3504: 'tre'}
+{86236: ' Verhalten'}
+{41850: ' Mund'}
+{12061: ' geh'}
+{118230: ' unterstützen'}
+{10113: 'sta'}
+{35475: 'eben'}
+{73561: 'ausch'}
+{43810: ' Rä'}
+{109906: ' Methode'}
+{61619: ' Gedanken'}
+{36303: ' Zug'}
+{49983: ' rechts'}
+{27905: ' Jahrhunderts'}
+{73532: ' einf'}
+{102442: 'stum'}
+{81312: ' dürfen'}
+{50606: 'gruppe'}
+{32862: ' alte'}
+{25308: 'öst'}
+{119167: ' usw'}
+{77012: ' regelmäßig'}
+{80548: ' behaupt'}
+{81317: ' Länder'}
+{51637: ' Proz'}
+{53717: ' höher'}
+{48402: ' übers'}
+{36491: ' stellte'}
+{94861: 'orderung'}
+{60895: ' Charakter'}
+{5427: 'ilder'}
+{127882: ' körper'}
+{56428: ' gesamte'}
+{25368: ' Mik'}
+{67410: 'Vor'}
+{17517: 'hof'}
+{22954: 'mals'}
+{60792: ' großer'}
+{52055: ' anges'}
+{99427: 'führen'}
+{42205: ' Universität'}
+{27740: ' Ged'}
+{48590: ' Volk'}
+{27390: ' Volks'}
+{111895: ' Qualität'}
+{11721: ' akt'}
+{14900: 'arte'}
+{85632: ' wichtigsten'}
+{67326: ' Sinne'}
+{28679: 'entlich'}
+{7000: ' zw'}
+{72055: ' Geburt'}
+{6803: 'lie'}
+{49727: ' Stück'}
+{10983: ' lag'}
+{56686: 'asen'}
+{85294: ' abz'}
+{60531: 'Hier'}
+{79904: 'Über'}
+{72416: ' Interesse'}
+{41290: ' Kriegs'}
+{81519: 'gewicht'}
+{119773: 'besch'}
+{65729: 'dienst'}
+{57609: ' Bildung'}
+{4635: ' ess'}
+{34240: ' Zur'}
+{48185: ' gemeinsam'}
+{76604: ' Ange'}
+{81721: ' effekt'}
+{28121: ' Gebiet'}
+{38803: ' früher'}
+{16213: 'akter'}
+{94620: 'gesetz'}
+{41264: ' Betrieb'}
+{39453: 'Ü'}
+{57087: ' größten'}
+{30770: 'gleich'}
+{45387: ' Zust'}
+{57896: ' Sinn'}
+{58710: ' erklärte'}
+{64428: ' bestehen'}
+{30391: 'öh'}
+{66293: 'gesellschaft'}
+{73203: ' kämp'}
+{33020: 'straße'}
+{44810: ' sieben'}
+{71619: ' Zeichen'}
+{95888: ' erhöht'}
+{7503: 'fol'}
+{89765: ' einzig'}
+{39805: 'ollen'}
+{47509: ' Koh'}
+{80698: ' Gesund'}
+{39866: 'hnlich'}
+{75744: 'orderungen'}
+{108190: ' behandelt'}
+{47658: 'ieten'}
+{45462: 'gaben'}
+{36509: ' Ist'}
+{27891: ' erhielt'}
+{73940: ' bede'}
+{55845: ' dau'}
+{94073: ' schaffen'}
+{62606: ' Dazu'}
+{94405: ' wert'}
+{51287: ' Wass'}
+{19721: ' Schwe'}
+{32107: 'schein'}
+{46137: 'nden'}
+{49998: ' offen'}
+{17751: ' Tür'}
+{44475: ' Mitglieder'}
+{49512: ' Wand'}
+{15706: 'halb'}
+{25130: ' Saison'}
+{13867: 'esen'}
+{43042: ' Weiter'}
+{116148: ' Erfahrung'}
+{97258: 'verständ'}
+{37011: '-An'}
+{72395: ' hinzu'}
+{36845: ' Gebäude'}
+{43875: ' verloren'}
+{57308: ' folgt'}
+{91183: ' Voraus'}
+{78994: ' geschrieben'}
+{50783: 'umente'}
+{83995: ' Darüber'}
+{10879: 'äs'}
+{39114: 'reibung'}
+{72933: ' junge'}
+{50037: ' Entscheid'}
+{15598: 'iele'}
+{50209: ' Teile'}
+{12503: 'zw'}
+{87620: ' Viele'}
+{35998: ' gelang'}
+{84517: ' Kontrolle'}
+{47417: ' Mein'}
+{65808: ' politische'}
+{89823: 'hlt'}
+{96519: 'nissen'}
+{98220: ' bringt'}
+{96581: 'ieht'}
+{45296: 'ulen'}
+{27701: ' Gel'}
+{63510: 'chnet'}
+{107785: 'kommt'}
+{6175: 'Ent'}
+{33831: ' kamen'}
+{77597: ' unterstützt'}
+{41615: 'riften'}
+{93369: ' Verkauf'}
+{60175: ' erwart'}
+{44234: 'Von'}
+{30277: ' Österreich'}
+{31467: ' blieb'}
+{68115: ' ähnlich'}
+{50715: ' reduz'}
+{42108: ' Feuer'}
+{62359: ' erfolgt'}
+{91088: 'ierter'}
+{56511: ' verein'}
+{47565: 'prochen'}
+{33801: ' reag'}
+{105164: ' bitte'}
+{85685: ' Einsch'}
+{22686: 'keiten'}
+{30802: ' Heil'}
+{95110: 'unktion'}
+{48829: 'schaften'}
+{81210: ' spricht'}
+{61441: ' gekommen'}
+{97155: 'ssystem'}
+{84382: ' spezi'}
+{41167: 'jahr'}
+{7011: 'esse'}
+{40342: 'angs'}
+{61585: ' Streit'}
+{4269: 'iste'}
+{21485: 'Du'}
+{77609: ' entweder'}
+{41897: 'enk'}
+{57831: ' Partner'}
+{78521: ' Grundlage'}
+{40136: 'fluss'}
+{60843: 'Während'}
+{86537: ' denken'}
+{13305: 'unkt'}
+{61771: ' einge'}
+{55496: ' Basis'}
+{29926: ' Absch'}
+{58496: ' Lauf'}
+{93284: ' Är'}
+{124992: ' schreiben'}
+{65298: 'äus'}
+{99785: ' Monat'}
+{55841: 'äufer'}
+{58963: 'Zu'}
+{58529: ' Waffen'}
+{23025: 'alter'}
+{48152: 'ksam'}
+{98706: ' ausreich'}
+{49635: ' Demokrat'}
+{54758: 'setzung'}
+{23296: ' Eins'}
+{47154: ' üb'}
+{54792: ' neuer'}
+{23185: 'ächst'}
+{10623: ' kur'}
+{47248: ' Laut'}
+{66219: ' öffentlichen'}
+{66960: ' Anf'}
+{74825: 'ohol'}
+{71565: ' Aufgaben'}
+{5868: 'sel'}
+{21398: 'iere'}
+{99748: ' darum'}
+{46180: 'ugen'}
+{62389: 'zne'}
+{7221: ' ä'}
+{72946: ' jungen'}
+{59469: ' bilden'}
+{71205: ' zumindest'}
+{92426: 'enzen'}
+{81105: 'ützt'}
+{40321: ' Kreuz'}
+{70035: ' Dokument'}
+{53554: ' schrieb'}
+{62697: ' Pfl'}
+{76971: ' Hintergrund'}
+{106852: 'lose'}
+{20028: 'chts'}
+{57962: 'ücht'}
+{71218: 'langen'}
+{47602: 'orben'}
+{106001: ' ausz'}
+{78131: 'fangen'}
+{104812: ' Auswahl'}
+{33872: ' zog'}
+{16787: 'jekt'}
+{110035: 'ündung'}
+{19289: ' relativ'}
+{84098: ' Gefahr'}
+{91487: ' Bericht'}
+{95496: 'finden'}
+{68185: ' beträgt'}
+{30382: ' geg'}
+{75875: 'Unter'}
+{97417: ' Farbe'}
+{86959: 'ücklich'}
+{69126: 'fallen'}
+{17594: 'zeichnet'}
+{30980: ' gere'}
+{94378: 'wirkungen'}
+{82988: 'ragt'}
+{50604: ' glaub'}
+{124696: 'bedingungen'}
+{15613: 'lung'}
+{14352: 'ppen'}
+{85033: 'chein'}
+{37417: ' Organisation'}
+{75299: 'ichert'}
+{67040: ' Folgen'}
+{114953: ' Einn'}
+{47212: 'führer'}
+{61211: ' Außen'}
+{26825: 'äche'}
+{55189: 'geschichte'}
+{122789: 'igkeits'}
+{53964: 'aktiv'}
+{21252: 'atte'}
+{55349: ' Produktion'}
+{64812: ' trotz'}
+{82469: ' zuerst'}
+{124084: ' entscheiden'}
+{42998: ' Straßen'}
+{127406: ' Urteil'}
+{29972: ' Wald'}
+{80452: ' Spez'}
+{41367: ' Anspruch'}
+{90783: 'ichtig'}
+{41483: ' nahe'}
+{44985: ' Hälfte'}
+{101058: ' Analyse'}
+{130484: ' geeignet'}
+{24972: 'fach'}
+{72793: ' Forschung'}
+{39255: ' Grad'}
+{81867: ' weltweit'}
+{71446: ' keiner'}
+{62350: ' Vereinigten'}
+{95827: ' Umwelt'}
+{69831: ' setzt'}
+{39538: ' unters'}
+{40084: 'statt'}
+{69287: ' Schlag'}
+{14544: 'nung'}
+{60986: ' Straf'}
+{99710: ' sozialen'}
+{39007: ' Punkte'}
+{61317: ' herum'}
+{84219: ' Rechte'}
+{99002: ' Suche'}
+{50316: ' Maß'}
+{36758: ' Dat'}
+{104638: ' glauben'}
+{46863: ' Ansch'}
+{7556: 'egen'}
+{75745: ' Rücken'}
+{45078: 'spiel'}
+{51770: ' Literatur'}
+{62103: ' Essen'}
+{92199: 'hnt'}
+{88117: ' Gemeinschaft'}
+{42300: 'erst'}
+{74306: ' internationalen'}
+{11633: 'üd'}
+{54096: ' lediglich'}
+{16585: ' Sta'}
+{98160: ' Verantwort'}
+{70808: 'ittel'}
+{119295: ' Tatsache'}
+{35838: 'wehr'}
+{25764: ' Geg'}
+{18932: 'zig'}
+{15940: 'folg'}
+{47431: '-Ver'}
+{62493: ' öff'}
+{75682: 'ologischen'}
+{33191: 'wohl'}
+{58005: ' wenige'}
+{31931: ' Dort'}
+{65389: ' weder'}
+{57894: ' dagegen'}
+{86231: ' Öl'}
+{50240: ' Geschäft'}
+{25012: 'ikal'}
+{58173: ' größte'}
+{70678: ' vorhanden'}
+{97328: ' Prä'}
+{53286: ' aufgenommen'}
+{99747: 'igungen'}
+{84986: 'räge'}
+{20737: 'gründ'}
+{27727: 'bek'}
+{109714: 'frei'}
+{70522: ' langsam'}
+{22472: 'für'}
+{105657: ' passiert'}
+{101883: ' zuk'}
+{70719: ' Erw'}
+{58339: ' Meer'}
+{60153: ' Auff'}
+{21985: 'tere'}
+{51962: ' Holz'}
+{34392: 'redit'}
+{81920: ' Eigent'}
+{63400: ' Modell'}
+{60829: 'ütz'}
+{16253: 'ohl'}
+{56828: 'öp'}
+{68221: ' trägt'}
+{96120: ' berichtet'}
+{53429: ' erster'}
+{111251: 'werte'}
+{83654: ' tritt'}
+{28232: 'öff'}
+{89345: ' verantwortlich'}
+{99910: ' benut'}
+{45350: ' Merk'}
+{86169: 'Ä'}
+{118137: ' unbed'}
+{34265: 'hmen'}
+{48484: ' zudem'}
+{81079: ' Nutzung'}
+{79527: ' Zeiten'}
+{96662: 'zieht'}
+{73325: ' hören'}
+{83198: ' Schle'}
+{73221: ' neues'}
+{58539: ' Auftrag'}
+{51765: ' außerdem'}
+{101192: ' gleiche'}
+{29435: ' gez'}
+{108380: ' Inhalt'}
+{78687: ' gezeigt'}
+{68267: 'linie'}
+{74855: ' Laufe'}
+{114480: 'rechts'}
+{66222: ' Allerdings'}
+{123739: 'höh'}
+{104131: 'rauen'}
+{53883: 'welt'}
+{126580: ' hängt'}
+{68208: 'kraft'}
+{51337: ' Soldaten'}
+{108898: ' ermöglichen'}
+{103157: 'formen'}
+{61820: 'staat'}
+{49849: ' Vorg'}
+{6701: ' auss'}
+{90211: ' kür'}
+{31943: ' grund'}
+{2119: 'fter'}
+{78208: ' Geheim'}
+{109415: 'ertung'}
+{28161: ' Auss'}
+{45801: 'elten'}
+{93896: 'Wer'}
+{104787: ' Veränderungen'}
+{38512: ' Diagn'}
+{10544: 'nte'}
+{63643: ' gemäß'}
+{57977: ' Gegensatz'}
+{108920: ' Milliarden'}
+{85150: ' Themen'}
+{12614: ' stre'}
+{13124: 'zel'}
+{6027: 'utsch'}
+{92053: 'ürlich'}
+{87792: ' Wohnung'}
+{19864: ' Hö'}
+{34509: 'assung'}
+{41511: ' Schweiz'}
+{79922: ' gewinnen'}
+{77945: 'hrt'}
+{24133: 'steller'}
+{52295: ' Geist'}
+{40156: ' Sieg'}
+{124591: ' aktuellen'}
+{76796: 'üren'}
+{24548: ' Stre'}
+{33880: 'wegen'}
+{107054: ' Beweg'}
+{56806: ' Lager'}
+{116346: ' Methoden'}
+{48232: ' ung'}
+{24367: 'ienst'}
+{68369: ' näher'}
+{92827: 'ärm'}
+{11076: ' Deutsch'}
+{45428: 'zeuge'}
+{13191: 'rogen'}
+{95133: 'fälle'}
+{95171: 'ßt'}
+{53748: ' müs'}
+{43019: ' Insel'}
+{73681: ' Todes'}
+{12087: 'obil'}
+{13368: 'orte'}
+{80457: ' Tiere'}
+{91440: ' Dank'}
+{77842: 'ätter'}
+{113901: ' Fleisch'}
+{72894: ' beschrieben'}
+{96856: ' Zugang'}
+{55277: ' kontroll'}
+{45987: 'uchs'}
+{105831: 'leistung'}
+{85369: 'wegs'}
+{39390: 'folge'}
+{107784: 'läge'}
+{34655: 'richtung'}
+{62721: ' Führung'}
+{5921: ' typ'}
+{68975: ' eingesch'}
+{17789: 'kehr'}
+{3478: 'fig'}
+{62857: ' geführt'}
+{86907: 'roh'}
+{3650: 'rm'}
+{69651: ' Umgebung'}
+{52785: ' Zwischen'}
+{113665: ' benötigt'}
+{114602: 'oweit'}
+{97123: ' Kapitel'}
+{42148: 'verkehr'}
+{41967: ' teilweise'}
+{76661: 'ienste'}
+{66569: ' Angriff'}
+{49303: ' behand'}
+{60957: ' Eis'}
+{27851: 'äufig'}
+{55441: ' Baum'}
+{83014: ' jem'}
+{114768: ' Nachrichten'}
+{124889: ' täglich'}
+{44913: 'gangen'}
+{24102: ' Brief'}
+{45859: ' Wirk'}
+{46348: 'ihen'}
+{66206: ' anf'}
+{50759: ' Bett'}
+{67915: ' Nun'}
+{35530: ' Schne'}
+{78997: ' Obwohl'}
+{63260: 'zeigt'}
+{22841: 'annte'}
+{49281: 'stieg'}
+{99768: 'träge'}
+{90813: ' Haft'}
+{11073: 'ikt'}
+{79803: ' ernst'}
+{103752: 'losen'}
+{72221: ' genannten'}
+{35991: ' Dorf'}
+{56055: 'zust'}
+{36295: 'inf'}
+{22740: 'Den'}
+{85785: '-Dollar'}
+{89384: ' russischen'}
+{40251: ' Wür'}
+{46810: ' Stimme'}
+{35675: ' gele'}
+{19371: 'ussen'}
+{81727: ' Schluss'}
+{64930: ' Lehr'}
+{106229: ' Temperatur'}
+{30566: 'akte'}
+{91679: 'orien'}
+{47744: ' zahlreiche'}
+{54309: ' betre'}
+{75972: 'achs'}
+{23103: 'bahn'}
+{98747: ' Wissen'}
+{51214: ' brachte'}
+{35263: 'linge'}
+{16583: 'fang'}
+{108177: ' erklären'}
+{59644: ' komm'}
+{107766: ' Ziele'}
+{86632: ' Beziehungen'}
+{82553: ' gelten'}
+{34745: 'izen'}
+{94423: ' schlecht'}
+{113269: ' Kapital'}
+{50530: 'chw'}
+{34489: ' Bü'}
+{112738: 'vertrag'}
+{116724: 'ühlt'}
+{28968: ' Sü'}
+{77462: ' Gebä'}
+{105237: ' verfol'}
+{90337: ' Vergangenheit'}
+{68198: 'orfen'}
+{25930: ' Sek'}
+{75341: ' niemand'}
+{58310: ' Heimat'}
+{72002: 'ekte'}
+{23336: 'ibe'}
+{31000: 'iffe'}
+{62779: 'ärke'}
+{84188: ' Stunde'}
+{72061: ' entgegen'}
+{120224: ' Verständ'}
+{120505: ' Verbesser'}
+{85806: 'liegen'}
+{68671: 'isierte'}
+{87270: ' Klim'}
+{30964: ' Ung'}
+{19073: 'nde'}
+{67721: 'kont'}
+{36749: ' Immun'}
+{58944: 'zul'}
+{46189: ' Kern'}
+{46149: ' Armee'}
+{61991: ' langen'}
+{38839: ' setzte'}
+{48501: ' sozial'}
+{111672: ' Regeln'}
+{58712: ' sodass'}
+{6490: ' Russ'}
+{21026: 'cen'}
+{31262: 'uchte'}
+{44063: ' läng'}
+{39209: ' hielt'}
+{24318: 'resse'}
+{55976: 'licherweise'}
+{30195: ' staat'}
+{102198: ' Zweck'}
+{7480: 'lege'}
+{19038: 'zip'}
+{79947: ' Aussch'}
+{68628: ' entspricht'}
+{21428: ' Hil'}
+{80944: ' erscheint'}
+{55385: ' zust'}
+{45591: ' heutigen'}
+{42210: ' Linie'}
+{93042: 'usetzen'}
+{68847: ' Zusammenarbeit'}
+{50610: ' Innen'}
+{51338: ' dritten'}
+{22495: ' Bis'}
+{25502: ' Bot'}
+{87630: ' fällt'}
+{66754: 'legung'}
+{36131: ' Meister'}
+{31012: 'von'}
+{92795: ' Karriere'}
+{87187: ' Nerv'}
+{113248: ' Stoff'}
+{31959: 'fried'}
+{41986: 'üge'}
+{30773: 'Ö'}
+{92906: ' starke'}
+{78539: ' Parteien'}
+{73944: ' könne'}
+{72822: ' komplex'}
+{69014: ' Schä'}
+{89411: 'ständen'}
+{122862: 'roffenen'}
+{21766: 'kannt'}
+{41553: ' Vors'}
+{34177: ' klein'}
+{26861: ' Dre'}
+{109724: ' schneller'}
+{83151: 'ällig'}
+{82187: ' Abschluss'}
+{73012: 'aturen'}
+{109998: ' Aktivitäten'}
+{38728: ' Kommun'}
+{85955: ' Wahrheit'}
+{80313: 'öne'}
+{112374: 'itag'}
+{75135: ' Ausdruck'}
+{53091: ' Klasse'}
+{43468: 'hnte'}
+{78570: 'griffen'}
+{34416: ' Deutsche'}
+{63177: 'anzen'}
+{77404: ' Formen'}
+{12423: 'rif'}
+{86978: ' Freunde'}
+{72965: ' schl'}
+{84485: ' Wechsel'}
+{59465: ' kleiner'}
+{55156: 'ringen'}
+{16532: 'äll'}
+{104818: ' Funktionen'}
+{67352: ' außerhalb'}
+{39590: ' gewann'}
+{91816: ' Kleid'}
+{92300: 'ziehung'}
+{112790: 'hafte'}
+{115427: ' wirkt'}
+{51901: ' Fenster'}
+{100151: ' treten'}
+{107501: ' zusätzliche'}
+{35222: 'ochen'}
+{100482: ' Kombination'}
+{19133: 'pie'}
+{22257: ' Serie'}
+{55242: ' Juden'}
+{83336: ' finanz'}
+{99753: 'linien'}
+{69794: ' verschw'}
+{99165: 'ischem'}
+{11331: ' Fern'}
+{112307: 'äßige'}
+{32210: 'weit'}
+{87408: ' hergestellt'}
+{124606: ' leider'}
+{33299: ' lokal'}
+{23484: 'lossen'}
+{81013: ' überras'}
+{22748: ' Ton'}
+{25639: 'otos'}
+{50125: ' genutzt'}
+{121939: 'affee'}
+{66388: ' Widerstand'}
+{56354: ' Verk'}
+{43673: ' Hinter'}
+{117466: 'Warum'}
+{56814: ' Morgen'}
+{52973: ' Nachdem'}
+{64434: 'klärung'}
+{80729: ' Oder'}
+{54626: ' dient'}
+{92890: 'walt'}
+{36323: 'ieben'}
+{20821: 'jek'}
+{60826: ' zeigte'}
+{116489: ' Atem'}
+{48308: ' Rein'}
+{67170: 'üssel'}
+{90916: ' Praxis'}
+{71501: ' ausgew'}
+{89455: ' reich'}
+{123003: ' wichtiger'}
+{29750: ' Glas'}
+{8420: 'eden'}
+{84465: ' Handels'}
+{86910: ' Präs'}
+{80342: ' Fahrzeug'}
+{41257: 'olle'}
+{28836: ' Schrift'}
+{59797: ' Elekt'}
+{122108: ' gewähr'}
+{80349: ' Jahrze'}
+{111967: 'verhält'}
+{67695: ' weiterer'}
+{89650: 'üglich'}
+{75118: ' hauptsächlich'}
+{53580: 'werke'}
+{127116: ' Schmerz'}
+{49511: ' Erd'}
+{97132: ' Ress'}
+{104953: 'uern'}
+{97767: ' aufz'}
+{67493: 'uben'}
+{54298: '-Re'}
+{72657: ' entsprechend'}
+{41426: ' Stern'}
+{64280: 'fahrt'}
+{19479: 'meister'}
+{42623: ' Strateg'}
+{30154: ' verg'}
+{47926: '-In'}
+{31048: ' kost'}
+{94604: ' sinn'}
+{49737: ' Spiele'}
+{62460: 'kennt'}
+{78183: ' Versuch'}
+{40906: 'wirtschaft'}
+{84464: ' Struktur'}
+{69510: ' einst'}
+{81516: ' präsent'}
+{78537: 'istisch'}
+{48117: ' vollständ'}
+{77849: ' erzählt'}
+{89759: 'lern'}
+{92154: 'rechte'}
+{23323: ' erfolg'}
+{104541: ' lebt'}
+{89771: ' unterschiedliche'}
+{115776: ' akzept'}
+{125858: ' Allgemeinen'}
+{93309: ' vors'}
+{118374: 'ilfe'}
+{84222: ' Gründen'}
+{48388: 'rolle'}
+{26763: ' erg'}
+{54331: ' Bruder'}
+{63258: ' gewonnen'}
+{67420: 'hö'}
+{62241: ' gehe'}
+{43389: ' Schiff'}
+{53224: ' gep'}
+{120785: ' Zucker'}
+{123914: ' Erfahrungen'}
+{95544: ' nächste'}
+{123609: 'chnen'}
+{50920: ' umfasst'}
+{16133: 'rift'}
+{75925: ' Sonne'}
+{13482: 'üm'}
+{84009: ' Arbeiter'}
+{78099: 'ellten'}
+{96742: 'markt'}
+{61709: ' Handel'}
+{69095: 'plik'}
+{130236: ' Anwend'}
+{36671: ' Kü'}
+{29364: 'zieh'}
+{92752: ' beru'}
+{64584: ' Hände'}
+{24743: ' entstand'}
+{78422: 'wärt'}
+{103847: ' einsch'}
+{56922: 'zus'}
+{103294: ' übersch'}
+{13603: ' kr'}
+{76333: ' Ausbildung'}
+{130279: ' Anforderungen'}
+{13585: ' frag'}
+{121728: ' Auft'}
+{78998: 'äische'}
+{111468: ' berühm'}
+{71622: ' Ordnung'}
+{112554: ' Erklärung'}
+{85630: ' Spann'}
+{7825: 'sz'}
+{86816: ' Freiheit'}
+{40204: ' wes'}
+{47674: 'rakt'}
+{39545: ' Italien'}
+{71260: ' Lehrer'}
+{84789: 'ränkt'}
+{39488: 'Ja'}
+{55244: 'hler'}
+{60237: ' Kurz'}
+{61070: ' chines'}
+{92870: ' folgen'}
+{56399: 'entlichen'}
+{60811: ' frühen'}
+{20253: ' zer'}
+{102805: ' Jetzt'}
+{89401: ' starken'}
+{2231: ' stud'}
+{3129: ' hab'}
+{9796: ' Europ'}
+{52471: ' Früh'}
+{74498: ' europäischen'}
+{54089: ' Zentrum'}
+{82269: ' übertragen'}
+{109915: ' ständig'}
+{115057: ' arbeitet'}
+{97378: 'arbeitung'}
+{92055: 'äub'}
+{77234: ' dienen'}
+{97111: ' entstehen'}
+{59791: 'prung'}
+{28221: ' erk'}
+{35269: 'nungen'}
+{35557: 'hält'}
+{21306: 'das'}
+{65224: 'gere'}
+{19043: ' lä'}
+{83619: 'iehen'}
+{78968: 'ministerium'}
+{82115: ' amerikanischen'}
+{116159: ' Aufmerksamkeit'}
+{85583: 'bef'}
+{53067: 'änden'}
+{96389: ' Musk'}
+{63783: 'gegeben'}
+{98720: ' bewusst'}
+{75596: ' plötzlich'}
+{4097: ' Univers'}
+{58867: ' Besuch'}
+{93921: ' Sonnen'}
+{24667: 'klär'}
+{49677: ' allgeme'}
+{87322: ' geist'}
+{73236: ' Ebene'}
+{34870: 'zeitig'}
+{99636: ' Telefon'}
+{69380: 'kör'}
+{28943: ' München'}
+{12642: ' trat'}
+{115354: 'prechen'}
+{31799: ' erstmals'}
+{106268: ' Ums'}
+{64935: ' gehalten'}
+{84665: 'volle'}
+{123344: ' Warum'}
+{77863: ' Abl'}
+{77581: 'kräfte'}
+{95904: ' Vielzahl'}
+{79979: ' verfügt'}
+{94802: ' Sprach'}
+{98170: ' Erkennt'}
+{35287: 'fasst'}
+{50955: 'itete'}
+{51304: 'ändern'}
+{54503: 'enten'}
+{57626: ' übr'}
+{111136: ' schreibt'}
+{29994: 'wahl'}
+{108818: ' erscheinen'}
+{86245: ' Quellen'}
+{32855: ' Wien'}
+{113186: 'atoren'}
+{35350: 'wagen'}
+{66186: ' mensch'}
+{79031: ' Worte'}
+{128927: 'nochen'}
+{126103: 'brechen'}
+{94580: ' Zeitraum'}
+{44962: 'wissenschaft'}
+{42898: 'immt'}
+{83800: ' Fisch'}
+{95298: ' wären'}
+{95421: ' getan'}
+{112129: 'richten'}
+{54831: ' Westen'}
+{71799: 'Durch'}
+{6508: ' ord'}
+{54082: 'roffen'}
+{54725: ' Quelle'}
+{63384: ' zusätzlich'}
+{83259: 'ifel'}
+{8941: 'uden'}
+{63235: ' Arbeiten'}
+{79267: 'entliche'}
+{52855: 'sicht'}
+{13600: 'plex'}
+{64306: ' wiederum'}
+{33996: ' Gast'}
+{98680: ' Wör'}
+{109747: 'öse'}
+{116749: ' Gewinn'}
+{40092: ' fragte'}
+{79826: 'ahre'}
+{52503: 'tert'}
+{107010: ' verletzt'}
+{90125: 'raut'}
+{109662: ' Wohl'}
+{61638: ' Fors'}
+{34222: 'organisation'}
+{98892: ' Werte'}
+{65734: ' geplant'}
+{36395: 'ieden'}
+{122013: ' Sonntag'}
+{94851: 'uell'}
+{53556: 'lekt'}
+{84434: ' stärker'}
+{35403: 'unft'}
+{47171: 'ösung'}
+{66595: 'aktor'}
+{87974: ' Zahlen'}
+{86823: 'keits'}
+{81122: ' miteinander'}
+{19616: 'ktor'}
+{108515: ' durchaus'}
+{27134: ' Fußball'}
+{3998: ' polit'}
+{73740: ' Garten'}
+{95372: ' Präsidenten'}
+{39147: 'anken'}
+{98787: ' Uns'}
+{125177: ' Traum'}
+{58796: 'seit'}
+{76830: 'lust'}
+{47342: 'erer'}
+{41072: ' ehemaligen'}
+{88952: ' schweren'}
+{110739: ' steig'}
+{52434: 'auft'}
+{100752: ' Krankenhaus'}
+{59897: 'ängt'}
+{59027: ' Zimmer'}
+{87424: ' dennoch'}
+{70118: ' rechten'}
+{39830: ' Republik'}
+{120865: ' erwartet'}
+{67597: ' hingegen'}
+{108458: ' zufolge'}
+{112495: ' Schlüssel'}
+{3502: ' ü'}
+{97046: ' durchschnitt'}
+{93741: ' Grenzen'}
+{23464: 'emper'}
+{51262: ' Lö'}
+{50839: ' spielte'}
+{30150: 'allen'}
+{33374: 'itsch'}
+{83658: ' Gerichts'}
+{58260: ' Kritik'}
+{54884: ' welt'}
+{66098: ' ausschließlich'}
+{14663: ' Produ'}
+{53573: ' Künstler'}
+{49979: ' mussten'}
+{112408: ' Interessen'}
+{75061: ' fehl'}
+{111824: ' Behörden'}
+{79500: ' endlich'}
+{15918: ' folg'}
+{87281: 'äum'}
+{91079: ' fahren'}
+{59303: ' Zudem'}
+{65375: 'üllt'}
+{85097: 'rachten'}
+{99801: ' Dauer'}
+{43937: 'lecht'}
+{7842: 'ikan'}
+{51710: 'gegen'}
+{82846: ' unterschiedlichen'}
+{79053: 'bü'}
+{92554: ' verlang'}
+{128024: 'nungs'}
+{83572: ' dank'}
+{65307: ' jeweiligen'}
+{82837: ' Sekunden'}
+{129374: 'wendet'}
+{120929: 'ierend'}
+{55670: ' Verg'}
+{13829: 'atik'}
+{105117: ' erlaubt'}
+{66914: 'jekte'}
+{24801: 'rien'}
+{89518: ' Prinzip'}
+{58757: ' Anteil'}
+{96257: 'leit'}
+{75729: 'preis'}
+{104622: ' Herrn'}
+{129918: ' einfache'}
+{31550: ' Patient'}
+{53663: ' gründ'}
+{5092: ' Aust'}
+{79155: 'Zum'}
+{48354: 'asten'}
+{22844: 'zin'}
+{106757: ' Männern'}
+{65750: ' Firma'}
+{72918: ' wenigen'}
+{70191: 'orgung'}
+{21145: ' Kop'}
+{67937: ' deut'}
+{30415: ' Kaiser'}
+{16957: 'ikel'}
+{107755: 'lebt'}
+{130940: ' untersucht'}
+{84852: ' Aufnahme'}
+{40409: ' verst'}
+{110031: ' Deshalb'}
+{57137: 'ällt'}
+{74421: ' umfass'}
+{84054: ' Bücher'}
+{101701: ' voraus'}
+{113312: ' gesetz'}
+{52509: 'hil'}
+{62261: ' notwend'}
+{94688: ' Forschungs'}
+{72584: 'leid'}
+{56192: ' regelm'}
+{64986: ' sogenannten'}
+{36827: ' erschien'}
+{49051: 'Seit'}
+{88908: ' glaube'}
+{54296: ' Kart'}
+{110257: 'utung'}
+{31769: 'ihe'}
+{53249: 'ählte'}
+{70219: ' Bä'}
+{121828: ' Ideen'}
+{73279: ' Himmel'}
+{73804: 'hten'}
+{67681: 'iveau'}
+{97531: ' Misch'}
+{93828: ' unabhängig'}
+{111523: 'haften'}
+{34337: ' prakt'}
+{35893: 'wel'}
+{64779: ' knapp'}
+{77839: ' zuletzt'}
+{8839: ' ak'}
+{41085: ' Ster'}
+{83594: ' entsch'}
+{86381: ' Kurs'}
+{100062: ' Zivil'}
+{130159: ' mögliche'}
+{99847: ' Schuld'}
+{88411: ' Leit'}
+{45423: 'iegel'}
+{90069: ' Verz'}
+{102223: ' entsteht'}
+{82650: ' Erf'}
+{65710: 'etzten'}
+{115631: ' menschlichen'}
+{24209: 'ähl'}
+{28482: 'allo'}
+{80853: ' Salz'}
+{40609: 'haupt'}
+{106691: ' entschieden'}
+{10390: 'isl'}
+{100147: 'mäßig'}
+{57211: ' Beit'}
+{114294: ' Schritte'}
+{6900: 'ieder'}
+{55576: ' Frem'}
+{100386: 'schluss'}
+{86524: ' größer'}
+{94631: 'kampf'}
+{107934: ' bewegen'}
+{101972: 'flächen'}
+{97362: 'etze'}
+{89604: 'arbeitet'}
+{61057: ' bestät'}
+{70293: 'arkt'}
+{74530: '-Te'}
+{105594: ' Ermitt'}
+{94349: ' angesehen'}
+{75538: ' Schn'}
+{32442: 'ystems'}
+{60964: 'gewiesen'}
+{96377: 'staaten'}
+{88573: ' weib'}
+{30084: 'deck'}
+{65237: ' Tisch'}
+{90897: ' Regen'}
+{63776: '-Pr'}
+{21161: ' eig'}
+{24893: 'uste'}
+{55007: ' erwähnt'}
+{31405: 'ücke'}
+{22173: 'hte'}
+{102943: 'üssen'}
+{105676: 'nimmt'}
+{78659: ' unbe'}
+{35869: 'isses'}
+{116362: ' Konzent'}
+{94959: 'leiter'}
+{128796: ' Pflege'}
+{62371: ' Pfe'}
+{62964: 'äne'}
+{74943: ' verkauft'}
+{56374: ' Abschnitt'}
+{61738: ' wissenschaft'}
+{54986: ' Chance'}
+{78212: ' wodurch'}
+{43408: 'gehend'}
+{109749: ' Diskussion'}
+{94048: 'bliche'}
+{71541: ' beein'}
+{60062: ' Rede'}
+{102953: 'rekt'}
+{100880: 'ruf'}
+{91300: '-Er'}
+{90867: ' angegeben'}
+{32837: ' hart'}
+{18999: ' geme'}
+{88464: ' Farben'}
+{14756: 'pez'}
+{73612: ' stets'}
+{50933: ' Dach'}
+{71325: ' größere'}
+{76613: 'flug'}
+{58218: ' neun'}
+{56243: ' Osten'}
+{40518: ' Beste'}
+{46889: ' gewählt'}
+{96484: 'setzen'}
+{94767: ' verbra'}
+{80581: 'Ist'}
+{83115: ' Hals'}
+{66481: 'uhl'}
+{29106: ' Nieder'}
+{69026: 'äten'}
+{9114: ' Au'}
+{109312: 'lichem'}
+{105314: ' bege'}
+{86729: 'ückt'}
+{49212: ' Tip'}
+{38158: 'lingen'}
+{109004: 'gerichts'}
+{56537: ' wusste'}
+{3248: 'ateg'}
+{86322: 'orgt'}
+{40846: 'runde'}
+{79157: ' Verhältnis'}
+{45885: 'riff'}
+{100916: ' niemals'}
+{58112: ' Schön'}
+{91220: ' gesellschaft'}
+{58236: ' dachte'}
+{95918: ' Gespräch'}
+{108094: ' Wetter'}
+{25022: 'för'}
+{48235: ' Regierungs'}
+{115278: ' soziale'}
+{122284: 'versch'}
+{67219: ' Beim'}
+{103358: 'zeichnen'}
+{46043: ' gegründet'}
+{62165: ' stammt'}
+{91887: ' daraus'}
+{88187: ' Falle'}
+{27874: 'urm'}
+{66400: ' Rennen'}
+{90521: ' schaff'}
+{118868: ' Krebs'}
+{67893: ' eingeb'}
+{96876: ' unterscheiden'}
+{12653: 'stru'}
+{34774: 'ieß'}
+{48696: ' entstanden'}
+{91804: 'üstung'}
+{63774: ' männ'}
+{33689: ' Proble'}
+{16293: ' wür'}
+{50409: 'endet'}
+{14076: 'ogene'}
+{47930: ' Besitz'}
+{54088: ' französischen'}
+{88895: ' Ausgang'}
+{129590: ' Zahn'}
+{83118: 'weite'}
+{126294: ' Betracht'}
+{65297: ' begr'}
+{4138: ' dest'}
+{72303: ' Anlage'}
+{67021: ' Nachricht'}
+{80220: ' befre'}
+{113471: ' samm'}
+{115245: 'stehen'}
+{94103: ' auff'}
+{110935: ' möglichen'}
+{86014: ' wollten'}
+{96449: 'maßen'}
+{112523: ' Pflicht'}
+{89882: ' Platt'}
+{22583: ' Kult'}
+{126634: ' vorbere'}
+{30331: 'sprech'}
+{119103: ' schlim'}
+{39492: 'ritte'}
+{91372: ' getroffen'}
+{57014: ' Kilometer'}
+{9509: 'riter'}
+{80538: ' Teilen'}
+{107758: 'lafen'}
+{79363: ' beteiligt'}
+{86938: ' besondere'}
+{100781: ' ungefähr'}
+{32404: 'arbe'}
+{61684: 'änen'}
+{114436: 'unternehmen'}
+{16132: 'oden'}
+{28696: ' Hof'}
+{109639: 'beitet'}
+{66697: ' inzwischen'}
+{69070: ' Grenze'}
+{85237: ' begründ'}
+{93194: ' betrachtet'}
+{120558: ' solcher'}
+{68687: 'satz'}
+{60332: 'wesen'}
+{29038: ' Eisen'}
+{17939: 'itel'}
+{62375: 'teilt'}
+{30198: ' ries'}
+{47104: ' Bö'}
+{107581: ' vergessen'}
+{28823: 'ichtung'}
+{90249: ' Öffentlichkeit'}
+{107759: 'fassung'}
+{49275: 'hä'}
+{66762: 'idig'}
+{100182: ' erhe'}
+{98955: ' Wunsch'}
+{78943: ' Technik'}
+{130243: ' Wärme'}
+{52465: ' religi'}
+{31075: ' kommun'}
+{129421: ' automatisch'}
+{102937: 'ahmen'}
+{81714: 'gruppen'}
+{43406: ' Weltkrieg'}
+{77268: ' weiteres'}
+{90763: ' kurze'}
+{11754: 'tok'}
+{38696: 'ärt'}
+{124364: ' Änderungen'}
+{94121: ' Hauptstadt'}
+{93070: ' Herstellung'}
+{60579: ' Verbre'}
+{105025: ' Frü'}
+{39774: ' Disk'}
+{130590: ' laufen'}
+{37454: ' Kreis'}
+{25240: ' individu'}
+{94209: ' entsprechenden'}
+{108643: ' Medizin'}
+{67644: 'Zur'}
+{120177: ' warten'}
+{90913: ' zul'}
+{72884: ' Teilnehmer'}
+{82477: ' gesetzt'}
+{63248: ' Kranken'}
+{112234: ' allgemeinen'}
+{38136: ' Hä'}
+{93388: 'rü'}
+{47018: 'ügel'}
+{51060: 'ckte'}
+{47214: ' höch'}
+{8150: ' wor'}
+{40046: ' Schweizer'}
+{5233: ' ö'}
+{42714: 'wei'}
+{85302: 'ausend'}
+{45422: 'macht'}
+{77076: ' Privat'}
+{131048: ' Fälle'}
+{121379: ' Kommunikation'}
+{72121: 'Alle'}
+{69058: 'fest'}
+{41005: ' Kirchen'}
+{16107: ' Norm'}
+{72549: ' Gegner'}
+{55318: ' Konz'}
+{128557: ' günst'}
+{113365: ' Verlust'}
+{21695: 'sf'}
+{69538: ' Vertreter'}
+{89109: ' Dadurch'}
+{89341: ' getötet'}
+{120084: ' Schwierigkeiten'}
+{56464: 'jah'}
+{40845: ' ober'}
+{121965: ' Waren'}
+{13552: 'zk'}
+{81338: ' Blü'}
+{24085: 'appen'}
+{89143: ' Elemente'}
+{55210: ' gebaut'}
+{25370: ' Graf'}
+{90199: ' Mö'}
+{61779: ' starb'}
+{66952: ' Zeitung'}
+{59721: 'rikan'}
+{82071: ' namens'}
+{30006: 'gende'}
+{75764: ' Einführung'}
+{106572: 'isierten'}
+{93411: 'laden'}
+{25387: ' Kamp'}
+{67882: ' Ereign'}
+{19214: ' größ'}
+{101180: ' Auge'}
+{117423: ' Kennt'}
+{101112: ' Begr'}
+{105170: ' unterschiedlich'}
+{98352: ' verwand'}
+{34608: ' Amt'}
+{99210: ' bestätigt'}
+{75555: 'zentrum'}
+{55842: ' Stil'}
+{115265: ' Vorbere'}
+{16593: 'tag'}
+{20854: ' kons'}
+{54160: ' versuchte'}
+{48540: ' integ'}
+{110353: ' Horm'}
+{111024: ' erinnern'}
+{96240: 'sprache'}
+{92093: ' verändert'}
+{98568: ' Europäischen'}
+{66983: ' Industrie'}
+{33425: 'länd'}
+{104040: ' Ruhe'}
+{22571: 'film'}
+{4508: 'ponent'}
+{84238: ' unm'}
+{34490: ' Verlag'}
+{100645: 'iern'}
+{54359: ' Tradition'}
+{84726: 'ifiziert'}
+{16618: 'pack'}
+{87935: ' Vielleicht'}
+{71317: ' Verlauf'}
+{25699: ' Verf'}
+{117061: ' freund'}
+{62528: ' Abst'}
+{77855: ' Dass'}
+{94356: 'liegenden'}
+{105202: ' Wege'}
+{24750: 'kap'}
+{25322: 'elm'}
+{105283: ' Oberfläche'}
+{98503: ' Betriebs'}
+{23146: ' fas'}
+{32571: 'seh'}
+{117359: 'sprechen'}
+{60693: 'ißen'}
+{50891: ' Richter'}
+{97295: ' ermitt'}
+{69260: 'hlung'}
+{53781: 'male'}
+{39972: 'phase'}
+{122924: ' Donner'}
+{78013: ' Zentral'}
+{88622: ' Konzept'}
+{31458: 'ütt'}
+{99721: 'chine'}
+{33274: ' produz'}
+{81752: ' ukrain'}
+{97299: ' einiger'}
+{102058: ' Beispiele'}
+{53335: ' legte'}
+{89933: ' benutzt'}
+{87112: ' einzelne'}
+{109953: ' trotzdem'}
+{52274: ' gingen'}
+{103340: ' Beh'}
+{89263: ' abgeschlossen'}
+{53866: ' fanden'}
+{59768: ' entlang'}
+{79265: 'lö'}
+{65328: ' Darstellung'}
+{93841: ' modernen'}
+{124947: 'leun'}
+{32143: ' Protest'}
+{110636: ' Worten'}
+{108751: ' Massen'}
+{13102: 'ließ'}
+{98781: 'igem'}
+{82733: 'kehrt'}
+{48412: ' Werke'}
+{63880: ' fertig'}
+{63083: ' besitzt'}
+{105813: ' Papier'}
+{109101: ' Angebot'}
+{102712: ' zieht'}
+{69611: 'tsch'}
+{60141: ' Länge'}
+{28156: 'kr'}
+{38293: ' Inform'}
+{107912: ' Karte'}
+{76981: 'einander'}
+{44536: ' Leist'}
+{19350: ' Mün'}
+{26521: 'führt'}
+{19359: 'rieb'}
+{67353: ' dauer'}
+{102545: 'ologen'}
+{83505: 'akten'}
+{84729: ' Heute'}
+{77043: ' Stellung'}
+{81889: ' bese'}
+{118759: ' wichtigen'}
+{114537: 'orschung'}
+{74228: 'jährigen'}
+{79670: ' tätig'}
+{127634: ' wirst'}
+{106776: ' schwere'}
+{36127: ' fiel'}
+{65554: 'stud'}
+{39546: 'achte'}
+{41753: ' ern'}
+{96507: ' angenommen'}
+{72514: ' Schwester'}
+{65586: ' bildet'}
+{61564: ' kulture'}
+{127127: ' läuft'}
+{95293: ' offenbar'}
+{64354: 'annen'}
+{94129: 'igens'}
+{69209: ' anschließend'}
+{102662: 'riffe'}
+{70566: ' Reis'}
+{59193: 'krä'}
+{102792: ' Nachbar'}
+{99523: ' möglichst'}
+{97624: ' zeich'}
+{23613: ' Element'}
+{121281: ' überall'}
+{33828: ' internationale'}
+{104029: ' Leistungen'}
+{75348: ' dargestellt'}
+{116031: ' Englisch'}
+{16851: ' Mär'}
+{43015: 'aber'}
+{17687: ' organis'}
+{109809: 'Weitere'}
+{113061: ' nennen'}
+{89460: ' einzigen'}
+{122524: ' erfüllt'}
+{74041: ' unmittelbar'}
+{62729: ' Amerikan'}
+{103343: ' Projek'}
+{48874: ' Norden'}
+{15709: 'tschaft'}
+{113096: 'chnitten'}
+{60976: 'etzte'}
+{80797: ' linken'}
+{21885: 'üs'}
+{65623: ' begonnen'}
+{109720: ' Ereignisse'}
+{60419: '-Reg'}
+{64909: ' letzt'}
+{129838: 'produktion'}
+{103011: 'raten'}
+{105874: ' höheren'}
+{58803: 'weiter'}
+{128550: ' geeign'}
+{102210: ' Foto'}
+{77358: ' früheren'}
+{61056: ' Nutz'}
+{79400: ' Danach'}
+{101085: ' Sauer'}
+{42242: ' Verkehr'}
+{43352: 'sam'}
+{100561: 'assungs'}
+{82519: ' Ausnahme'}
+{114083: ' bevorzug'}
+{47893: ' Zus'}
+{76455: ' größeren'}
+{60438: 'etten'}
+{90187: ' entdeckt'}
+{123891: ' reduziert'}
+{33254: 'estellt'}
+{66553: ' britischen'}
+{66759: ' Verwaltungs'}
+{26829: 'gas'}
+{110842: ' russische'}
+{83683: 'legten'}
+{39801: ' bestimm'}
+{112158: ' prä'}
+{80326: ' Presse'}
+{54775: 'chaffen'}
+{32745: 'üst'}
+{93799: ' diskut'}
+{90197: ' Mehrheit'}
+{16468: 'kol'}
+{55185: ' Spa'}
+{66818: 'wurf'}
+{92902: ' erinnert'}
+{84905: ' zusamm'}
+{102395: 'reise'}
+{83983: ' Kämp'}
+{93026: ' Paar'}
+{12696: 'usammen'}
+{69518: ' sogenannte'}
+{25485: 'ätt'}
+{18985: 'lle'}
+{64492: 'wärts'}
+{96426: 'bewegung'}
+{28962: ' verlor'}
+{77120: ' erforder'}
+{95445: ' Tätigkeit'}
+{62699: 'ammlung'}
+{68704: ' geschlossen'}
+{75309: '-Ad'}
+{93713: ' gesprochen'}
+{105599: 'industrie'}
+{86621: 'noten'}
+{86328: 'ellte'}
+{73994: ' Atom'}
+{100039: ' beschäftigt'}
+{114488: 'chern'}
+{67080: ' Hör'}
+{56571: ' verbre'}
+{120563: ' ausdr'}
+{67885: ' Herbst'}
+{67595: 'entwicklung'}
+{74515: 'illen'}
+{81983: 'Nachdem'}
+{48084: ' ken'}
+{107253: ' voller'}
+{46006: 'steh'}
+{42723: ' Runde'}
+{18786: 'schied'}
+{70573: ' Klass'}
+{74105: ' arbeitete'}
+{96677: ' Produktions'}
+{114018: ' Ansicht'}
+{123717: 'wirkung'}
+{53292: 'gebung'}
+{126592: ' Bereichen'}
+{34436: 'riger'}
+{111365: ' trifft'}
+{55586: ' vern'}
+{85290: ' abges'}
+{5161: 'sequ'}
+{98213: 'ümer'}
+{67601: ' Beam'}
+{76982: 'lager'}
+{24183: ' kre'}
+{77910: ' Nummer'}
+{88538: ' Fü'}
+{71495: ' Mord'}
+{64449: ' Verst'}
+{27090: ' Rang'}
+{23816: 'aute'}
+{107592: ' vorbe'}
+{108070: ' widers'}
+{124112: ' welchem'}
+{51023: 'ärk'}
+{77106: ' mittels'}
+{88077: ' Energ'}
+{113114: ' genauso'}
+{42178: ' sexu'}
+{71152: ' Großbritannien'}
+{99433: ' Ausland'}
+{87393: 'kungen'}
+{78649: 'ktiv'}
+{39782: ' Tas'}
+{118834: ' Meine'}
+{123497: ' Herzen'}
+{109081: 'blatt'}
+{32900: 'bei'}
+{16281: 'racht'}
+{52488: ' Weitere'}
+{102264: ' Fru'}
+{72011: ' Fluss'}
+{64068: ' aktu'}
+{46106: ' vere'}
+{63320: ' Finger'}
+{83125: '-Be'}
+{79235: 'ismen'}
+{107374: ' Aussage'}
+{124654: 'elbe'}
+{93347: ' woh'}
+{47613: 'scheinlich'}
+{115261: ' verpflichtet'}
+{108179: ' verschiedener'}
+{80304: ' unge'}
+{35016: ' DDR'}
+{112410: 'kung'}
+{19240: ' Mond'}
+{121847: ' Zuf'}
+{88596: 'emie'}
+{45193: ' Stimmen'}
+{2488: ' vari'}
+{33741: ' kü'}
+{95406: ' grün'}
+{13300: 'det'}
+{83213: ' gespielt'}
+{21867: 'ographie'}
+{104677: 'hebung'}
+{55965: ' israel'}
+{83688: 'länder'}
+{54599: ' ursprünglich'}
+{95246: ' öffentliche'}
+{61819: 'dessen'}
+{29807: ' Mannschaft'}
+{89522: ' Frieden'}
+{58130: ' wechsel'}
+{76193: 'rochen'}
+{17145: ' kal'}
+{104435: ' vorgesch'}
+{116377: 'achtet'}
+{77739: 'regierung'}
+{70396: ' dritte'}
+{44969: ' Truppen'}
+{28397: ' sü'}
+{97043: ' Jungen'}
+{119983: ' anhand'}
+{103489: 'endem'}
+{101939: ' gezogen'}
+{73103: ' Maschinen'}
+{58625: ' Metall'}
+{94331: ' großes'}
+{72372: ' Leiter'}
+{66406: ' Zwei'}
+{90968: 'bindung'}
+{20135: 'onie'}
+{16465: ' europ'}
+{125504: ' offensichtlich'}
+{45157: ' Teams'}
+{82653: 'Dar'}
+{29258: ' Za'}
+{49567: ' Parlament'}
+{44045: ' Bren'}
+{18887: 'auss'}
+{110991: ' Studium'}
+{116578: ' vermitt'}
+{95381: 'chafft'}
+{85295: ' Formel'}
+{106135: ' Hoffnung'}
+{120371: ' Durchschnitt'}
+{24809: 'spre'}
+{62945: ' finanzi'}
+{28910: 'material'}
+{69073: ' erne'}
+{116228: 'endlich'}
+{31452: ' wirk'}
+{33380: 'itze'}
+{111016: ' höhere'}
+{103883: ' dün'}
+{100361: 'politik'}
+{43644: ' nieder'}
+{98075: ' produziert'}
+{86699: ' wesentlich'}
+{106172: ' beschreibt'}
+{119160: ' reicht'}
+{107471: ' entsprechende'}
+{121204: ' Aktion'}
+{16573: 'äu'}
+{112416: ' lieber'}
+{59520: ' Eig'}
+{121942: 'theit'}
+{91606: ' Autoren'}
+{53651: ' Dro'}
+{32237: ' bedeut'}
+{81445: ' Aufbau'}
+{34104: 'annten'}
+{99464: 'ändigen'}
+{46869: 'reibt'}
+{80659: ' ausgezeichnet'}
+{56181: ' Süden'}
+{121236: ' hins'}
+{48667: ' Polize'}
+{96317: 'änglich'}
+{92032: ' Theorie'}
+{117185: ' beobachtet'}
+{79534: 'lichkeiten'}
+{122267: ' irgende'}
+{79485: ' Eigen'}
+{121433: ' Hersteller'}
+{33733: 'ässt'}
+{84711: ' ergibt'}
+{109495: 'Nun'}
+{52593: 'recken'}
+{118382: ' Umgang'}
+{82888: 'uert'}
+{107599: 'durch'}
+{23307: ' Anh'}
+{127352: ' selber'}
+{59326: ' kombin'}
+{79788: ' stür'}
+{17925: 'quelle'}
+{34649: ' Temper'}
+{29229: ' Verl'}
+{78825: 'handlungen'}
+{96803: 'mentar'}
+{72439: ' zahlreichen'}
+{77154: 'ahrt'}
+{90287: ' kurzen'}
+{62925: ' zerstört'}
+{92707: ' unteren'}
+{113426: 'rückt'}
+{92593: ' Spitze'}
+{79380: ' Einheit'}
+{64271: ' Fernseh'}
+{71031: 'anlage'}
+{103128: ' Regionen'}
+{112968: ' Flücht'}
+{107390: 'weich'}
+{61097: 'ennung'}
+{55409: ' Spanien'}
+{114200: ' übernehmen'}
+{66924: 'rein'}
+{63146: ' Verwaltung'}
+{47270: ' Ank'}
+{99145: ' vielf'}
+{94958: ' komplett'}
+{126322: ' gelangen'}
+{21298: 'zem'}
+{86781: ' vergleich'}
+{93160: ' zit'}
+{120283: 'stoß'}
+{48674: 'usten'}
+{10224: ' analys'}
+{83144: 'ählten'}
+{90196: ' ausges'}
+{112163: ' Soll'}
+{70175: ' vertreten'}
+{81723: ' vorbei'}
+{117993: ' grundsätzlich'}
+{38442: 'ografie'}
+{63060: ' rief'}
+{32048: ' klass'}
+{119263: ' Nase'}
+{70125: ' Hü'}
+{55557: 'kü'}
+{105246: ' allgemein'}
+{48317: ' jung'}
+{59960: ' Objekt'}
+{102892: ' Friedens'}
+{95987: ' verbreitet'}
+{112814: ' verstanden'}
+{107571: ' Doppel'}
+{35426: ' Dok'}
+{121535: ' Autos'}
+{126433: ' erfolgen'}
+{128601: ' Aussagen'}
+{94850: 'wander'}
+{32264: ' unterschied'}
+{108848: 'Nicht'}
+{115952: ' Leid'}
+{77472: ' Fahrer'}
+{12748: ' Geme'}
+{37241: ' Zent'}
+{70658: ' zusätz'}
+{64825: 'andt'}
+{108617: ' schließen'}
+{88296: ' halb'}
+{28338: ' Schauspieler'}
+{85225: ' Persön'}
+{94145: 'hnten'}
+{121240: 'pekte'}
+{121598: ' Gelegenheit'}
+{86221: 'uldig'}
+{122392: 'ischt'}
+{4577: ' Stad'}
+{81848: ' historischen'}
+{83723: ' Spielen'}
+{127679: 'bertragung'}
+{70388: 'kunft'}
+{98534: ' Untersuchungen'}
+{123071: ' Kollegen'}
+{93202: 'weif'}
+{75635: ' bekam'}
+{61275: ' Städte'}
+{16759: ' führ'}
+{80663: ' zurückge'}
+{99618: ' Publikum'}
+{59056: ' schien'}
+{123402: 'rennen'}
+{121815: ' konkre'}
+{95033: ' Schild'}
+{95158: ' Videos'}
+{40346: ' Erz'}
+{120451: 'ätzt'}
+{115076: ' Unterricht'}
+{111797: 'chung'}
+{110864: ' ergeben'}
+{90670: ' Klima'}
+{59916: ' fuhr'}
+{90323: ' Studenten'}
+{115711: ' Alles'}
+{89505: 'kehren'}
+{104836: 'rigen'}
+{97492: ' lieb'}
+{16171: 'kö'}
+{41454: ' Polen'}
+{80543: ' Sonder'}
+{31791: 'sweise'}
+{114173: ' wiederhol'}
+{119922: ' jene'}
+{124858: ' aussch'}
+{27947: ' verwend'}
+{71854: ' Beide'}
+{64416: 'weist'}
+{38766: 'gend'}
+{97598: ' Kön'}
+{37190: ' Dir'}
+{90764: ' Flugzeug'}
+{49819: ' Zuge'}
+{32782: ' frem'}
+{130737: ' dürfte'}
+{97597: ' Vort'}
+{101591: ' eigenes'}
+{69774: ' Gespr'}
+{49464: ' vorhand'}
+{126007: ' bisschen'}
+{69307: ' positiv'}
+{92792: ' bekannten'}
+{43634: 'jähr'}
+{108002: 'fle'}
+{104169: '-System'}
+{123710: 'ußer'}
+{63492: ' vermutlich'}
+{50390: 'geschlossen'}
+{75865: ' zugleich'}
+{90547: ' Flughafen'}
+{120160: 'äßigen'}
+{71572: 'verein'}
+{52080: ' Berliner'}
+{53921: 'ächen'}
+{117460: 'eschichte'}
+{87331: 'ieber'}
+{62037: ' ehemalige'}
+{103258: ' Wesen'}
+{55524: ' ersetzt'}
+{117925: ' Gefängnis'}
+{79479: 'reiber'}
+{64738: ' verhind'}
+{94814: ' Kä'}
+{63957: ' Heim'}
+{118314: 'Doch'}
+{111706: ' Schnitt'}
+{28479: ' Gest'}
+{53510: 'orten'}
+{113373: ' Karten'}
+{85918: ' weist'}
+{116712: ' Schu'}
+{98441: ' freien'}
+{46702: 'präsident'}
+{58684: 'rachen'}
+{127237: ' Organisationen'}
+{108245: ' vork'}
+{120099: ' Beine'}
+{130002: ' Änderung'}
+{75808: 'wes'}
+{41041: ' Vern'}
+{92949: ' gemeinsamen'}
+{108086: 'äusch'}
+{52321: ' Amts'}
+{117533: ' verurteilt'}
+{68338: 'erin'}
+{67336: ' schlug'}
+{61425: 'siehe'}
+{43430: 'hens'}
+{95295: 'rau'}
+{115298: ' Geschwindigkeit'}
+{117519: ' Entfernung'}
+{123570: ' erheblich'}
+{93561: ' besitzen'}
+{11537: ' Leb'}
+{128237: 'ässig'}
+{38493: 'wendung'}
+{23321: ' Bahn'}
+{108633: ' Vorstellung'}
+{118497: ' gefallen'}
+{53850: 'rück'}
+{100493: ' Händen'}
+{102586: ' weißen'}
+{93325: 'undes'}
+{88955: ' Gramm'}
+{52551: ' lief'}
+{95845: ' hinein'}
+{59253: 'geg'}
+{93830: ' herrsch'}
+{119424: ' starten'}
+{70397: ' stär'}
+{114201: ' Kommission'}
+{87389: 'gründung'}
+{114987: 'ässer'}
+{114358: ' schrift'}
+{103889: ' ausgeführt'}
+{79175: ' Mobil'}
+{61513: 'lein'}
+{43429: 'verk'}
+{111908: ' Klassen'}
+{99262: ' Seele'}
+{129588: 'zuhalten'}
+{121072: ' besonderen'}
+{126491: 'schw'}
+{82384: ' Wirtschafts'}
+{101431: 'ertet'}
+{41237: ' Zweiten'}
+{113580: 'passt'}
+{59787: ' entwickelte'}
+{104197: 'underte'}
+{69500: ' Prinz'}
+{109089: 'undenen'}
+{102341: ' Übersetzung'}
+{66090: 'Kom'}
+{2605: 'ument'}
+{94371: ' Reihen'}
+{48432: ' bele'}
+{58473: ' Bauern'}
+{116694: ' verboten'}
+{71161: ' Bereits'}
+{99874: ' derart'}
+{119794: ' Konflikt'}
+{79526: ' zunehmend'}
+{115512: 'haben'}
+{58920: 'wege'}
+{40947: ' Sicher'}
+{44716: ' bestand'}
+{64246: 'ibel'}
+{62911: ' Rez'}
+{63231: ' Indien'}
+{94552: ' letzter'}
+{95317: ' Weiß'}
+{89152: 'hle'}
+{58400: ' militär'}
+{50196: 'nete'}
+{49604: 'legte'}
+{36639: ' Situ'}
+{99607: ' Kann'}
+{126052: ' Gebrauch'}
+{115288: 'agte'}
+{22426: ' Amerika'}
+{54485: 'ilig'}
+{69227: 'üp'}
+{99868: 'uhr'}
+{4966: ' phys'}
+{23128: 'sek'}
+{120604: ' Unfall'}
+{78662: ' heim'}
+{113625: ' hoher'}
+{56976: 'enges'}
+{72031: ' pf'}
+{33212: 'anst'}
+{24265: 'ählt'}
+{71287: ' Glaub'}
+{79984: ' Aufgrund'}
+{78672: 'ücksicht'}
+{85344: 'Dann'}
+{117944: ' nationalen'}
+{110835: 'struktur'}
+{16601: 'öß'}
+{101321: ' nennt'}
+{71874: ' eingeführt'}
+{104352: 'berecht'}
+{66828: ' legt'}
+{39188: 'lü'}
+{60117: 'bene'}
+{86420: ' Veröffentlichung'}
+{56639: ' demokrat'}
+{91262: ' Schon'}
+{54033: 'sprach'}
+{101032: ' Erschein'}
+{76161: ' egal'}
+{63686: ' Silber'}
+{84649: 'Neben'}
+{100037: ' öffentlich'}
+{112684: ' Eindruck'}
+{87762: 'trieb'}
+{39745: ' Funkt'}
+{82273: 'zum'}
+{7751: 'sg'}
+{112565: 'gesehen'}
+{81713: ' oberen'}
+{100662: 'ögel'}
+{90283: ' außen'}
+{77897: ' Virus'}
+{35860: 'herr'}
+{106547: ' umge'}
+{62852: ' selben'}
+{10111: ' Oper'}
+{35458: 'reu'}
+{128886: 'fällen'}
+{85288: ' angeboten'}
+{59634: ' Herren'}
+{84307: 'stil'}
+{118265: ' Öff'}
+{110828: 'Ihr'}
+{43033: ' Hir'}
+{63556: 'seits'}
+{129652: 'jährige'}
+{38382: 'auff'}
+{64228: ' trug'}
+{34432: ' ford'}
+{20839: ' enth'}
+{86269: ' Schulen'}
+{119037: ' Ersatz'}
+{113735: 'chnitt'}
+{79069: 'utet'}
+{80775: ' Verkehrs'}
+{121409: ' Nationen'}
+{44577: 'auten'}
+{104364: 'nicht'}
+{101907: 'äufe'}
+{106199: 'iefert'}
+{99303: ' schwarzen'}
+{60222: ' rä'}
+{90242: ' Filme'}
+{85039: ' Stamm'}
+{100193: ' definiert'}
+{102906: ' Handlung'}
+{71503: ' Kategorie'}
+{94556: ' Abstand'}
+{96649: ' zählen'}
+{85590: ' geschaffen'}
+{73457: 'äfte'}
+{63676: 'renn'}
+{73342: ' Konfl'}
+{126098: ' Glauben'}
+{103236: ' Rett'}
+{52306: ' Herrschaft'}
+{121626: ' sichtbar'}
+{30630: 'rache'}
+{120201: ' gewö'}
+{114427: ' ausländ'}
+{93871: ' mittlerweile'}
+{106149: ' Tief'}
+{68768: ' Brü'}
+{32487: 'kop'}
+{57165: ' standen'}
+{117268: ' sterben'}
+{106094: ' gelegt'}
+{6624: 'urop'}
+{126284: ' praktisch'}
+{122331: ' amerikanische'}
+{101008: 'punkte'}
+{62108: ' Arme'}
+{124184: ' platz'}
+{14868: ' är'}
+{107826: ' aner'}
+{40847: ' erreichte'}
+{79511: ' klin'}
+{53208: 'rang'}
+{55212: ' Bem'}
+{80503: 'ickt'}
+{19387: 'agent'}
+{36799: ' Schloss'}
+{8393: 'agne'}
+{45830: 'Gru'}
+{102364: ' Türkei'}
+{93907: 'elassen'}
+{119603: ' erzeugt'}
+{54157: ' Schlacht'}
+{98908: ' Vaters'}
+{19472: 'iens'}
+{40643: ' Vere'}
+{56783: ' Dek'}
+{30813: 'zeichnung'}
+{80292: ' Ausgabe'}
+{61894: 'holt'}
+{117835: ' geöffnet'}
+{63858: 'beg'}
+{78664: 'amerika'}
+{128658: ' berichtete'}
+{91883: ' Vorder'}
+{104011: ' Fans'}
+{125996: 'üre'}
+{64541: 'hme'}
+{42443: ' geste'}
+{95399: ' gehabt'}
+{81531: ' Andere'}
+{47203: ' folgte'}
+{74529: ' griech'}
+{130702: 'ynd'}
+{18035: ' Kenn'}
+{35041: 'ührt'}
+{111606: ' Minder'}
+{126912: ' geändert'}
+{88991: ' Befehl'}
+{15093: ' erh'}
+{67250: ' Deck'}
+{120679: ' Weihnach'}
+{107218: ' Beschäft'}
+{12013: ' mü'}
+{60575: 'Ze'}
+{112784: ' kleines'}
+{95910: 'plätze'}
+{127261: ' gegenseit'}
+{112583: 'platte'}
+{122067: ' aktual'}
+{106089: ' zweimal'}
+{87878: 'ultur'}
+{111171: ' Besucher'}
+{114054: ' wirtschaftlichen'}
+{100103: ' Halb'}
+{71561: '-Pl'}
+{65322: 'mö'}
+{50369: ' Beschreibung'}
+{64122: ' unabhäng'}
+{13816: '-Un'}
+{68587: 'enschaften'}
+{77032: 'komm'}
+{99413: 'Mein'}
+{65983: 'ünden'}
+{47295: ' Bezeichnung'}
+{83916: ' beweg'}
+{125433: ' abhängig'}
+{86204: 'liegt'}
+{16876: 'rale'}
+{19871: 'ispiel'}
+{68763: ' Erm'}
+{6405: 'iene'}
+{67117: ' Viel'}
+{124036: ' Veranst'}
+{111450: ' bislang'}
+{76942: ' Masse'}
+{64329: 'llen'}
+{22915: 'itä'}
+{83924: ' umfang'}
+{97030: ' Sprachen'}
+{73672: ' Veränder'}
+{54838: 'atsächlich'}
+{126766: 'zeugung'}
+{93900: ' Herkunft'}
+{10047: ' kön'}
+{115668: ' Existenz'}
+{20543: ' Kö'}
+{85464: 'pektive'}
+{97134: 'herrsch'}
+{101494: ' weshalb'}
+{79477: ' Angeb'}
+{25307: 'äsident'}
+{102506: 'liefer'}
+{37402: ' Gmb'}
+{116305: ' Geschichten'}
+{108222: ' Büro'}
+{120020: ' Umfang'}
+{102098: ' gedacht'}
+{56118: ' Provinz'}
+{115041: 'ießt'}
+{117186: 'olitik'}
+{74192: ' Erk'}
+{23868: 'ßer'}
+{102251: ' Schulter'}
+{33253: 'kreis'}
+{14492: 'ppe'}
+{92786: 'chnik'}
+{20924: 'ürger'}
+{85055: ' Figur'}
+{68920: ' übernommen'}
+{116440: ' müsse'}
+{68130: 'ocken'}
+{8706: 'iale'}
+{123478: ' vieler'}
+{113855: ' Freundin'}
+{43868: ' charakter'}
+{25328: 'unächst'}
+{120755: ' Zusammens'}
+{83860: ' Zeich'}
+{75220: 'chner'}
+{105794: ' verteid'}
+{113075: 'stücke'}
+{108923: ' mächt'}
+{11239: ' nord'}
+{38002: 'lasse'}
+{39521: 'üne'}
+{68609: 'strukt'}
+{101371: ' Vorstand'}
+{73814: ' Mineral'}
+{110599: ' einget'}
+{122969: ' vorüber'}
+{99890: ' jener'}
+{126930: ' privaten'}
+{112826: 'annter'}
+{107400: ' Hauses'}
+{74917: ' Weil'}
+{116773: ' begleitet'}
+{30387: ' süd'}
+{105078: ' gemeinsame'}
+{60238: 'analyse'}
+{112959: ' beinh'}
+{126266: ' Beobacht'}
+{114649: ' Küche'}
+{66627: ' gespe'}
+{118432: ' Dich'}
+{51518: ' Sob'}
+{81843: ' Stahl'}
+{38381: 'ührung'}
+{118681: ' nötig'}
+{72981: ' vorgesehen'}
+{99585: ' Schließlich'}
+{50884: ' wart'}
+{25359: ' Politiker'}
+{103944: 'insen'}
+{86252: ' westlichen'}
+{27592: 'bern'}
+{36200: ' herv'}
+{13439: ' posit'}
+{100469: ' Schatten'}
+{10172: ' regul'}
+{107609: 'ändige'}
+{86779: 'irr'}
+{41158: ' tau'}
+{73227: ' Häuser'}
+{90652: ' Texte'}
+{56670: 'zur'}
+{101628: ' Strukt'}
+{8684: 'sv'}
+{78321: ' Spiegel'}
+{88412: ' Verfassung'}
+{126081: ' Tee'}
+{56595: ' Verhält'}
+{110562: ' Kräfte'}
+{1905: 'iew'}
+{75999: 'ilige'}
+{47654: ' verlie'}
+{68812: ' Anschluss'}
+{91855: ' Hins'}
+{84894: ' Zerst'}
+{93596: 'opf'}
+{8258: 'ibil'}
+{63803: 'richtungen'}
+{71065: 'zeugt'}
+{129694: ' reichen'}
+{95530: ' bekannte'}
+{101258: ' gern'}
+{63657: 'ignet'}
+{15604: 'bind'}
+{28906: 'ategor'}
+{86585: ' steh'}
+{92270: ' Flucht'}
+{22247: ' absolut'}
+{56695: 'standen'}
+{107273: ' abgesch'}
+{123838: 'ähne'}
+{105342: '-Kom'}
+{101266: 'ziger'}
+{97402: 'öger'}
+{103223: 'etzungen'}
+{60544: ' Gründung'}
+{44712: ' Dreh'}
+{83475: ' ausger'}
+{100572: ' Händ'}
+{88868: 'leger'}
+{62374: ' Rö'}
+{53497: ' Chef'}
+{62578: ' veröffentlichte'}
+{40375: ' elektron'}
+{74906: ' britische'}
+{97185: 'ruppen'}
+{85124: 'liste'}
+{120620: ' gebe'}
+{55133: 'riere'}
+{57332: ' Königreich'}
+{122369: ' eindeutig'}
+{39495: ' Grab'}
+{105621: 'renz'}
+{64212: ' Leitung'}
+{126360: 'deckung'}
+{26571: 'kur'}
+{57069: 'fass'}
+{115622: 'heil'}
+{81509: ' Elektr'}
+{124408: ' vorge'}
+{76014: 'stern'}
+{98742: 'istet'}
+{125355: ' ungewö'}
+{28206: ' Einwohner'}
+{71735: ' zwölf'}
+{38033: ' Quart'}
+{112045: ' beruh'}
+{120050: ' Rau'}
+{124000: ' darstellt'}
+{86376: ' Sper'}
+{64708: ' reden'}
+{81753: 'chutz'}
+{118019: ' unterscheidet'}
+{56996: 'gelöst'}
+{110945: ' gegangen'}
+{81296: 'krieg'}
+{119696: 'mern'}
+{112908: ' Verbindungen'}
+{64145: 'zut'}
+{89197: ' Gefang'}
+{126643: 'usehen'}
+{46671: ' Lied'}
+{75124: ' stammen'}
+{67637: ' damaligen'}
+{118768: 'Beim'}
+{64589: ' beschäft'}
+{120777: ' inneren'}
+{71085: ' Allgeme'}
+{120820: ' Haltung'}
+{12591: ' Span'}
+{70049: ' dahin'}
+{124347: ' willst'}
+{127510: 'führten'}
+{33246: ' forts'}
+{107472: ' Förderung'}
+{47702: 'weig'}
+{51818: ' Staffel'}
+{116483: ' maß'}
+{83822: ' Noch'}
+{105120: 'schafter'}
+{116386: ' Spend'}
+{85938: 'roff'}
+{116255: 'grenzt'}
+{81623: ' Ei'}
+{81171: ' bemerk'}
+{116671: 'inten'}
+{112113: ' Chanc'}
+{67794: ' Wettbew'}
+{126258: 'ügte'}
+{129506: ' Bade'}
+{31057: ' erm'}
+{79490: 'ykl'}
+{87434: ' gena'}
+{7035: ' defin'}
+{103364: ' hieß'}
+{118925: ' Feind'}
+{60349: ' Verte'}
+{81281: ' Krieges'}
+{107911: ' Erinnerung'}
+{111002: ' Ohr'}
+{7235: 'blic'}
+{80951: ' Trop'}
+{99986: 'erkt'}
+{28522: 'lerin'}
+{66814: ' Führ'}
+{38685: ' erfolgte'}
+{86419: ' heft'}
+{97462: ' diagnost'}
+{39674: ' gehörte'}
+{11890: 'itat'}
+{43667: ' Instrument'}
+{63745: 'ieger'}
+{40880: 'merk'}
+{56203: 'schrift'}
+{92201: ' Christus'}
+{121094: ' Maschine'}
+{43829: 'entz'}
+{58013: ' Bord'}
+{52273: ' beteil'}
+{41894: 'abhäng'}
+{115402: 'stehenden'}
+{47476: 'burger'}
+{47293: ' eröffnet'}
+{127987: ' Erwer'}
+{122774: ' Gesam'}
+{116492: ' Völker'}
+{108705: ' dunk'}
+{109913: ' Verwand'}
+{110811: ' Tabelle'}
+{104605: ' zählt'}
+{84411: 'verband'}
+{67048: 'Nein'}
+{120654: 'reit'}
+{86429: 'klasse'}
+{117746: 'läufig'}
+{120126: ' technischen'}
+{81687: ' gekennzeichnet'}
+{120179: 'staben'}
+{100620: 'fertigt'}
+{51323: ' traf'}
+{52843: ' Rund'}
+{16447: 'unst'}
+{51941: ' tat'}
+{115388: ' festgelegt'}
+{44834: ' WM'}
+{25702: ' mitt'}
+{94469: 'enzi'}
+{125685: 'chend'}
+{94033: ' Bür'}
+{66479: ' französische'}
+{20928: 'geme'}
+{51521: 'istin'}
+{121059: ' Gebur'}
+{84808: ' Vide'}
+{22768: ' Burg'}
+{118784: ' Besitzer'}
+{108027: ' älteren'}
+{89279: 'handel'}
+{91546: 'chaff'}
+{98651: ' Skl'}
+{42761: 'üng'}
+{102758: 'aill'}
+{124545: ' geschehen'}
+{25263: ' Chr'}
+{128354: ' Umsetzung'}
+{111663: 'iftung'}
+{118232: ' Bestandteil'}
+{40354: ' errichtet'}
+{72364: 'schule'}
+{127649: ' Sprecher'}
+{107905: ' beschlossen'}
+{115166: 'kür'}
+{76871: 'igste'}
+{65839: ' späteren'}
+{67760: ' bewe'}
+{90722: ' Auseinanders'}
+{120742: 'Ges'}
+{97732: ' roten'}
+{56034: 'kul'}
+{97854: ' machten'}
+{60021: ' Mio'}
+{78234: ' Sammlung'}
+{68802: ' Bestand'}
+{95498: ' ausgestattet'}
+{95185: 'kopf'}
+{87984: ' Punkten'}
+{45137: ' Strecke'}
+{49836: 'istik'}
+{55709: 'konom'}
+{17511: 'operation'}
+{77046: ' eingestellt'}
+{102485: ' höchsten'}
+{83586: ' Landschaft'}
+{89320: ' Rückkehr'}
+{96371: 'verwaltung'}
+{85996: ' Bier'}
+{109891: 'ikanischen'}
+{127836: 'elligen'}
+{102647: 'anlagen'}
+{114744: ' wohn'}
+{66941: ' erlaub'}
+{75016: ' erschienen'}
+{15769: ' tö'}
+{88888: ' Vereins'}
+{35498: ' eind'}
+{69622: ' weitgehend'}
+{102802: ' Trotz'}
+{106286: ' Dennoch'}
+{69269: 'namen'}
+{78752: ' hörte'}
+{20906: ' elektr'}
+{92635: ' Bewohner'}
+{123667: ' stärk'}
+{70007: 'Wo'}
+{110904: ' Gleichzeitig'}
+{94155: 'stab'}
+{34960: ' Afrika'}
+{118503: ' wiederholt'}
+{65629: ' manche'}
+{115301: ' Mannes'}
+{33073: ' Mechan'}
+{130840: 'rischen'}
+{71304: ' Heiligen'}
+{79269: ' etabl'}
+{74940: ' gebildet'}
+{130076: ' kling'}
+{52701: 'kam'}
+{130790: ' sehe'}
+{50245: ' eingef'}
+{17542: 'anter'}
+{72295: ' jeg'}
+{95057: 'auern'}
+{120839: ' Samen'}
+{60537: ' Vorsitz'}
+{97862: 'elsch'}
+{100156: ' verläng'}
+{127698: ' Erg'}
+{101016: ' beendet'}
+{99829: 'lossenen'}
+{94266: ' englischen'}
+{64133: 'bericht'}
+{81237: ' geprägt'}
+{51603: ' ausgest'}
+{86689: ' Able'}
+{34654: 'ielten'}
+{47922: 'izin'}
+{60167: 'zeichnungen'}
+{74120: ' Renn'}
+{68672: 'bart'}
+{75910: ' Fläche'}
+{106700: ' hundert'}
+{126710: ' lind'}
+{112749: ' Gebieten'}
+{121162: ' bedro'}
+{126892: ' lautet'}
+{9954: ' deutsch'}
+{117044: 'werks'}
+{45100: ' stol'}
+{105154: ' rück'}
+{107737: ' Statt'}
+{35970: ' engag'}
+{17949: 'okal'}
+{85137: ' Standort'}
+{85554: ' Teilnahme'}
+{121115: ' wissenschaftlichen'}
+{110503: ' künd'}
+{53867: ' Wagen'}
+{87847: ' kalt'}
+{118215: 'rollen'}
+{113710: 'orgen'}
+{40756: ' bö'}
+{94409: ' Atmosph'}
+{79762: ' türk'}
+{117816: 'leute'}
+{87830: 'gewö'}
+{14923: 'neh'}
+{89354: ' fühlte'}
+{79703: ' Minute'}
+{103767: ' getrennt'}
+{105672: ' Moskau'}
+{124154: ' derselben'}
+{63354: ' Ruf'}
+{89313: ' Obst'}
+{126354: ' versp'}
+{48964: ' automat'}
+{122480: ' wirtschaftliche'}
+{126835: 'unkte'}
+{41586: ' Vier'}
+{130544: ' Blatt'}
+{39905: 'ägt'}
+{43860: ' unterstüt'}
+{65910: 'trä'}
+{17366: 'fon'}
+{50909: ' Wett'}
+{97086: ' Szene'}
+{52090: ' befand'}
+{119260: ' Pferd'}
+{26706: ' garant'}
+{116574: 'teilte'}
+{116585: ' retten'}
+{101021: ' Einrichtung'}
+{44076: ' Köln'}
+{46252: ' Gemeinden'}
+{42588: 'geführt'}
+{120175: ' schwarze'}
+{120014: ' Poliz'}
+{41701: 'itten'}
+{77471: ' Papst'}
+{63576: 'enthal'}
+{130805: ' Wirklichkeit'}
+{91757: 'geteilt'}
+{24928: 'kw'}
+{99932: ' wies'}
+{85032: ' Hafen'}
+{118387: 'folgung'}
+{86712: ' Offen'}
+{94269: ' Städten'}
+{95679: ' lebte'}
+{86348: ' Frühjahr'}
+{122581: 'nummer'}
+{82584: 'wohn'}
+{57788: 'mens'}
+{13967: ' deutscher'}
+{87274: 'werken'}
+{126946: ' Gäste'}
+{36453: ' islam'}
+{124596: ' leist'}
+{116827: ' begeg'}
+{123625: ' Versorgung'}
+{68942: 'elben'}
+{61517: ' Schwarz'}
+{90658: ' Künst'}
+{96754: ' Junge'}
+{18925: 'fas'}
+{95658: ' erstes'}
+{128931: ' geschickt'}
+{41874: 'uropa'}
+{105596: 'usern'}
+{91723: ' zut'}
+{80178: 'größ'}
+{67020: ' Trainer'}
+{78810: ' spät'}
+{64087: ' stieg'}
+{23373: ' Statist'}
+{44608: 'schnitt'}
+{30625: ' moderne'}
+{22812: 'tte'}
+{92427: ' ausgeb'}
+{65264: ' Tö'}
+{7977: 'ograf'}
+{129139: 'mäh'}
+{70330: 'spunkt'}
+{17619: ' nah'}
+{45948: ' Aufl'}
+{110187: ' Entstehung'}
+{123673: ' geringer'}
+{120538: ' offiziellen'}
+{86936: 'äck'}
+{68281: ' Gere'}
+{79726: 'merksam'}
+{111710: ' offenen'}
+{89716: ' Philosophie'}
+{44599: ' Argument'}
+{116778: ' technische'}
+{53828: 'öder'}
+{72729: ' besonder'}
+{21760: ' fün'}
+{127289: 'weiten'}
+{108943: 'artet'}
+{67390: 'zdem'}
+{61562: ' Quad'}
+{62010: ' Tie'}
+{87746: ' antwortete'}
+{91331: 'üste'}
+{66003: ' galt'}
+{79824: ' historische'}
+{126169: ' tiefer'}
+{92449: 'ugel'}
+{100078: ' geblieben'}
+{59276: ' Ehren'}
+{120163: ' Ganz'}
+{36117: ' vorg'}
+{98608: 'pern'}
+{93902: 'wertung'}
+{86431: ' Figuren'}
+{93723: ' Einrichtungen'}
+{48161: 'ünde'}
+{65440: 'famil'}
+{101750: 'rierte'}
+{72883: ' unbek'}
+{120475: ' Schicksal'}
+{126288: 'acken'}
+{96656: ' Lippen'}
+{29341: 'rages'}
+{128493: ' gezwungen'}
+{127419: ' hinweg'}
+{120675: 'asst'}
+{127004: ' freie'}
+{47841: ' Fot'}
+{89446: ' Fok'}
+{99117: ' Besonder'}
+{96954: ' ursprünglichen'}
+{103112: ' Christen'}
+{111353: ' Kamera'}
+{101690: ' Batter'}
+{56020: ' wirtschaft'}
+{76250: ' Antib'}
+{82684: 'klar'}
+{102017: 'mitglied'}
+{97042: ' Namens'}
+{128526: ' weiße'}
+{130593: ' Willen'}
+{81877: ' Acht'}
+{121831: ' kontinu'}
+{69773: ' antwort'}
+{71685: ' verstär'}
+{102955: '-Ab'}
+{77556: ' nahmen'}
+{126253: 'sprechend'}
+{111006: ' bestehenden'}
+{126199: ' Planung'}
+{86355: ' übrigen'}
+{87817: ' Eingang'}
+{113340: ' Stabil'}
+{75356: ' führten'}
+{19107: 'annt'}
+{127918: ' selts'}
+{122124: ' Verteidigung'}
+{63160: ' jähr'}
+{109490: 'reckt'}
+{126208: 'lassung'}
+{65414: 'unen'}
+{88724: ' Landwirtschaft'}
+{120286: ' Anerkennung'}
+{92628: ' sech'}
+{102781: ' Veranstaltungen'}
+{44549: 'ermann'}
+{128262: ' töten'}
+{112176: ' verstärkt'}
+{92397: ' offiziell'}
+{101003: ' Viertel'}
+{94824: ' Manch'}
+{87791: ' mehrfach'}
+{66279: 'ruppe'}
+{97297: ' Wettbewerb'}
+{52344: ' leid'}
+{99519: ' Grenz'}
+{15862: 'kor'}
+{99996: 'partner'}
+{121543: ' Wunder'}
+{54703: 'Bes'}
+{115466: ' Pläne'}
+{95779: ' jüdischen'}
+{111439: ' endet'}
+{107137: ' Damen'}
+{120070: ' Stich'}
+{18715: 'zial'}
+{40591: ' Kanada'}
+{35305: 'entation'}
+{34017: ' Schwar'}
+{56928: ' Mitar'}
+{70753: ' daraufhin'}
+{21039: 'issenschaft'}
+{96500: ' aufgebaut'}
+{107856: 'zahlen'}
+{8793: 'nder'}
+{120046: ' aufs'}
+{57231: ' entschied'}
+{121118: ' verteilt'}
+{47972: ' übernahm'}
+{62392: 'getragen'}
+{96063: 'versammlung'}
+{99103: '-Mod'}
+{92298: ' Ruh'}
+{26003: ' ignor'}
+{99960: ' Angehör'}
+{129491: ' Modelle'}
+{99867: ' absolv'}
+{99625: ' Kür'}
+{117054: ' schwe'}
+{65294: ' erweit'}
+{121272: 'ächte'}
+{99588: 'häuser'}
+{18597: 'öffent'}
+{17760: 'iese'}
+{114386: 'orbenen'}
+{58189: 'ietet'}
+{65557: ' Australien'}
+{85923: 'klen'}
+{92658: ' Gebiete'}
+{44963: 'älle'}
+{95924: 'gewand'}
+{88712: ' Klin'}
+{54044: 'stu'}
+{122355: ' befür'}
+{52702: ' normale'}
+{77716: 'rund'}
+{98131: ' Toten'}
+{82808: 'betrieb'}
+{34193: ' Finale'}
+{78816: ' Metern'}
+{45048: ' Reichs'}
+{56862: ' ruh'}
+{115352: ' dunkel'}
+{107237: ' aufgeh'}
+{11860: 'aille'}
+{84569: ' Mauer'}
+{101108: ' Gegenwart'}
+{111621: ' Einen'}
+{125974: 'atischen'}
+{60356: 'hrte'}
+{46024: ' Dos'}
+{89693: ' ausgesch'}
+{48635: ' Irak'}
+{120510: 'Nur'}
+{13457: 'ellt'}
+{122874: '-Aus'}
+{79276: ' Eint'}
+{62481: 'stattung'}
+{54782: ' formul'}
+{128911: ' mache'}
+{88630: ' ört'}
+{44285: 'äßig'}
+{101816: ' Daf'}
+{29050: ' genet'}
+{41731: ' Bürgermeister'}
+{48728: 'hek'}
+{121685: ' Wä'}
+{70167: ' Bind'}
+{41002: ' Parte'}
+{86715: ' begannen'}
+{19827: 'öm'}
+{114479: ' stattdessen'}
+{86853: ' Deutschlands'}
+{50284: ' dür'}
+{79339: ' Zuschauer'}
+{28038: ' arab'}
+{60072: 'alte'}
+{76459: 'azin'}
+{111779: ' repräsent'}
+{114926: ' vorgestellt'}
+{84352: 'legenheit'}
+{120241: ' Besonders'}
+{15484: 'önig'}
+{93940: ' Weib'}
+{107694: ' Samm'}
+{11140: 'istes'}
+{107823: ' Oste'}
+{31985: 'Sel'}
+{109197: 'ereien'}
+{127620: ' ausgewählt'}
+{74641: 'gemeinschaft'}
+{129318: 'ichteten'}
+{51305: ' Browser'}
+{96390: ' Französ'}
+{97244: 'vertret'}
+{65695: 'ilien'}
+{58734: 'arien'}
+{60032: 'glied'}
+{119604: ' Bühne'}
+{121358: ' Wahlen'}
+{102574: ' ausgel'}
+{28361: ' Stu'}
+{81742: ' Installation'}
+{95202: ' nahezu'}
+{118441: ' dopp'}
+{13589: ' kol'}
+{102222: ' Jagd'}
+{22048: ' ras'}
+{125210: ' Klar'}
+{74194: 'plin'}
+{38190: 'inst'}
+{58774: ' Grün'}
+{121811: ' verle'}
+{93445: 'zehn'}
+{50459: ' äl'}
+{76328: ' Strand'}
+{131014: ' ruhig'}
+{74000: ' Kapit'}
+{59295: ' Trot'}
+{126874: 'haber'}
+{109704: ' Drittel'}
+{86492: ' Ausstellung'}
+{59619: ' Königs'}
+{96103: ' Konk'}
+{88555: ' Engagement'}
+{28705: 'völker'}
+{27845: 'stüt'}
+{52351: 'Nat'}
+{105793: ' höchste'}
+{81230: ' Damp'}
+{58783: 'eteil'}
+{120131: ' Wellen'}
+{17062: 'method'}
+{120859: ' Zul'}
+{34203: ' dokument'}
+{65029: 'gelegt'}
+{103434: 'ünf'}
+{111775: 'umpf'}
+{63331: 'fahrer'}
+{79841: ' Vogel'}
+{28903: 'verte'}
+{110876: ' Gegend'}
+{48814: 'gebracht'}
+{70004: 'vertre'}
+{116591: ' Wart'}
+{127877: 'ürzt'}
+{47550: ' Tanz'}
+{130152: ' Beteiligung'}
+{121456: ' klassischen'}
+{128189: ' eingel'}
+{98708: ' hinten'}
+{75883: '-Ze'}
+{29545: 'sd'}
+{60660: ' Corona'}
+{123532: ' erkenn'}
+{112789: 'mitglieder'}
+{112421: ' getragen'}
+{7930: 'jen'}
+{75868: ' Neue'}
+{22566: ' dah'}
+{55503: 'ifikation'}
+{88683: ' Göt'}
+{52328: ' Kost'}
+{122395: 'räger'}
+{18032: ' theoret'}
+{118731: ' verabschied'}
+{22441: ' Ide'}
+{12131: 'hund'}
+{53769: ' Orte'}
+{36965: 'ichel'}
+{75771: ' lokale'}
+{50737: 'ändig'}
+{106709: ' Fernsehen'}
+{111603: 'ssp'}
+{119855: ' gleicher'}
+{98056: ' daz'}
+{111509: 'brochen'}
+{105348: 'züge'}
+{98083: 'lehnt'}
+{42004: 'scher'}
+{74414: 'ikte'}
+{121149: 'istern'}
+{116593: ' Europas'}
+{57416: 'folger'}
+{91914: ' Lust'}
+{90379: ' Einheiten'}
+{103584: ' Priester'}
+{52737: ' Grö'}
+{107517: 'ördert'}
+{61465: ' Kamer'}
+{129369: 'öch'}
+{89556: 'mach'}
+{35001: ' Gli'}
+{124769: 'boden'}
+{25970: 'önt'}
+{31062: 'ordnet'}
+{69722: 'izier'}
+{124565: ' aufw'}
+{15038: 'ült'}
+{106781: ' zusammenge'}
+{86253: ' Spur'}
+{71808: 'Bis'}
+{80762: 'enser'}
+{109475: ' befest'}
+{120034: ' Fahrt'}
+{86327: ' Wied'}
+{51840: 'gebäude'}
+{92260: ' vierten'}
+{84169: ' Später'}
+{30641: ' langs'}
+{56882: 'gro'}
+{104429: ' Tempel'}
+{59244: 'iete'}
+{125350: 'inem'}
+{122899: ' gefol'}
+{126478: 'irtschaft'}
+{79152: ' negativ'}
+{83887: ' meinte'}
+{92085: 'stellte'}
+{67496: ' Fas'}
+{97455: 'inkt'}
+{28336: ' kop'}
+{99857: ' bisherigen'}
+{91710: ' ließen'}
+{117972: ' Parlaments'}
+{22176: 'ilm'}
+{21473: ' verschied'}
+{79903: 'stätte'}
+{127258: ' freiwill'}
+{108161: 'atische'}
+{46812: ' Sied'}
+{109044: ' solle'}
+{33736: 'bis'}
+{71481: ' konserv'}
+{15084: 'region'}
+{52533: ' Wiener'}
+{91265: ' abger'}
+{84142: ' kleinere'}
+{112627: ' Konkur'}
+{51022: 'ildet'}
+{28324: 'adt'}
+{27172: ' attra'}
+{102666: 'partei'}
+{89137: ' musikal'}
+{86226: ' jährlich'}
+{123280: ' schwarz'}
+{58040: ' zunehm'}
+{43180: 'ftrag'}
+{70800: 'stä'}
+{120018: ' zweit'}
+{106526: 'reicher'}
+{106203: ' Kandidaten'}
+{80851: 'äglich'}
+{119962: 'ikaner'}
+{117104: ' älter'}
+{77042: ' Fahrzeuge'}
+{76698: ' betrieben'}
+{63984: ' poln'}
+{124804: 'meid'}
+{100555: 'retär'}
+{50596: 'deutsch'}
+{110207: 'bring'}
+{119022: ' draußen'}
+{68594: ' Datum'}
+{15133: ' eigen'}
+{60253: 'stens'}
+{73476: 'steiger'}
+{102028: 'ütze'}
+{82097: ' Spre'}
+{128564: ' längst'}
+{64302: ' verh'}
+{110401: ' gült'}
+{106586: ' Orten'}
+{127355: ' Trennung'}
+{89060: ' rechte'}
+{45544: 'geordnet'}
+{122176: ' weisen'}
+{110072: ' erl'}
+{77743: 'iteten'}
+{36968: ' Sort'}
+{47851: ' erwäh'}
+{37637: ' Schriftsteller'}
+{5870: 'iente'}
+{72721: ' rote'}
+{123811: ' Ägypten'}
+{116427: ' Lehre'}
+{100942: ' forderte'}
+{116873: ' Pferde'}
+{89071: ' abgeb'}
+{65001: ' Ehr'}
+{40956: ' stamm'}
+{41587: 'rophe'}
+{91854: ' Insgesamt'}
+{122753: ' Verhandlungen'}
+{71557: 'prüche'}
+{94177: ' Tonnen'}
+{105691: ' Kohl'}
+{36392: ' einges'}
+{58905: 'reis'}
+{120519: ' letztlich'}
+{109024: 'ettet'}
+{30458: ' Sof'}
+{117861: ' zentrale'}
+{103801: ' sahen'}
+{109859: ' Anwesen'}
+{44776: ' zerst'}
+{71398: ' begle'}
+{126522: 'gern'}
+{106369: ' Großteil'}
+{71976: ' schloss'}
+{97130: ' Schaff'}
+{62944: 'gede'}
+{122136: 'teilungen'}
+{122167: ' Bekannt'}
+{76460: ' Brücke'}
+{112370: ' geheim'}
+{128918: ' Demonstr'}
+{114351: 'ündet'}
+{40670: ' För'}
+{117738: ' Kond'}
+{96440: ' künstler'}
+{58456: ' qualifiz'}
+{46917: 'prob'}
+{112611: 'achter'}
+{130355: 'rische'}
+{79487: ' Bundest'}
+{71766: ' blieben'}
+{82002: ' Eben'}
+{25961: 'etes'}
+{123651: 'geschwindigkeit'}
+{121895: ' streng'}
+{130845: 'okol'}
+{67362: ' Tät'}
+{114707: 'ologisch'}
+{115866: ' intensiv'}
+{62145: 'inz'}
+{57748: 'chef'}
+{122115: ' Waffe'}
+{11651: ' COVID'}
+{123600: ' schließt'}
+{72444: ' Termin'}
+{26566: 'tele'}
+{79395: ' direkte'}
+{37420: ' Kompon'}
+{60163: ' Ersten'}
+{112685: 'geblich'}
+{50197: ' Kloster'}
+{85769: ' ergän'}
+{31093: 'lug'}
+{97739: 'ikum'}
+{35823: ' arbe'}
+{24106: 'okrat'}
+{9986: ' werd'}
+{63981: 'affe'}
+{23508: ' Differ'}
+{16082: 'ktr'}
+{42350: 'heb'}
+{54019: 'gele'}
+{69166: ' Schweden'}
+{89702: 'ikation'}
+{43170: ' Orts'}
+{45329: ' Mü'}
+{36074: 'schließ'}
+{91023: 'üter'}
+{47170: ' Stell'}
+{109088: 'mess'}
+{93098: ' Drei'}
+{30820: ' zahl'}
+{87445: ' erheb'}
+{78168: ' Linien'}
+{99914: ' Führer'}
+{108872: ' Anlagen'}
+{127486: ' offizielle'}
+{101381: ' Brüder'}
+{78294: ' Großen'}
+{34561: ' Ergeb'}
+{74618: ' verantwort'}
+{24783: 'erne'}
+{107248: 'beding'}
+{110849: ' denk'}
+{46220: 'laf'}
+{75781: ' Erinner'}
+{4027: 'span'}
+{119415: ' Anschließend'}
+{115334: ' Ecke'}
+{95107: ' Kongress'}
+{118741: ' einheit'}
+{108455: ' Verbreitung'}
+{74752: ' meld'}
+{55840: ' Engl'}
+{110077: 'rät'}
+{108762: ' gewinnt'}
+{94226: 'gab'}
+{101354: ' krie'}
+{115654: ' Schauspiel'}
+{39835: ' Herzog'}
+{53522: ' Publik'}
+{118253: ' zentralen'}
+{73433: ' Restaur'}
+{115635: ' üblich'}
+{59185: 'management'}
+{76534: ' überwiegend'}
+{121580: 'urcht'}
+{127910: 'pap'}
+{106119: ' Warn'}
+{75685: ' Musiker'}
+{74401: ' Regisseur'}
+{7204: ' histor'}
+{77466: ' warf'}
+{88966: ' belegt'}
+{110123: ' Zwar'}
+{75182: 'kunde'}
+{47251: ' Institut'}
+{110406: 'gebiete'}
+{93433: ' saß'}
+{115888: ' Zusch'}
+{75043: 'bürger'}
+{82902: 'wid'}
+{67786: ' herr'}
+{86387: 'anke'}
+{129065: ' direkten'}
+{115506: 'grenze'}
+{87254: 'anen'}
+{114132: ' breit'}
+{28410: 'ioxid'}
+{130982: ' Positionen'}
+{127770: ' geschlagen'}
+{107802: ' italienischen'}
+{73882: 'entum'}
+{88714: ' Mexiko'}
+{48530: 'trat'}
+{51438: ' Zürich'}
+{96454: ' Flügel'}
+{64187: ' Schwer'}
+{94328: ' verab'}
+{106116: ' existiert'}
+{70299: 'ektor'}
+{102391: ' nannte'}
+{87460: ' Sowjetunion'}
+{111714: 'trieben'}
+{106038: ' erhoben'}
+{57201: 'anstalt'}
+{113272: ' Serien'}
+{17921: ' hö'}
+{102638: ' Kammer'}
+{99166: ' Wegen'}
+{15609: 'kat'}
+{45169: ' arbeit'}
+{89514: ' Abteilung'}
+{89928: ' systemat'}
+{57257: ' gepl'}
+{105183: ' Architektur'}
+{96597: ' Variante'}
+{100292: ' echt'}
+{71689: ' siehe'}
+{116848: ' Objekte'}
+{121802: 'hrten'}
+{103292: ' Senat'}
+{78965: 'frau'}
+{90529: ' Königin'}
+{121253: ' Euch'}
+{99740: 'bogen'}
+{79489: 'erseits'}
+{103786: ' Edel'}
+{103857: ' durfte'}
+{74424: ' innen'}
+{8092: 'format'}
+{93661: ' sexuelle'}
+{105272: ' Pause'}
+{100557: 'ritter'}
+{38954: 'ologe'}
+{124579: 'prin'}
+{114483: 'üllte'}
+{62459: ' entdeck'}
+{31296: 'öll'}
+{49527: 'letzt'}
+{83583: 'iße'}
+{119128: ' Teuf'}
+{26594: 'spieler'}
+{47095: 'äsent'}
+{20026: 'erver'}
+{128343: ' Unabhängigkeit'}
+{83180: ' Überg'}
+{81734: ' erweitert'}
+{91198: ' Direktor'}
+{24072: 'rok'}
+{45630: 'zter'}
+{75824: ' Sturm'}
+{114874: ' hierbei'}
+{21327: ' nationale'}
+{57846: 'Deutsch'}
+{39181: 'öss'}
+{122698: ' nachfolg'}
+{110913: 'verd'}
+{34200: 'ielleicht'}
+{120092: ' untern'}
+{104602: ' stimm'}
+{68047: ' Nachfolger'}
+{85615: ' Bundesrepublik'}
+{87864: ' Brasilien'}
+{53493: 'zwischen'}
+{99050: ' Kanal'}
+{25321: ' stell'}
+{80504: ' kontakt'}
+{117967: 'rafen'}
+{102767: '„Ich'}
+{58695: 'meer'}
+{109799: ' Inseln'}
+{31661: ' Jed'}
+{95149: ' versehen'}
+{36672: ' jen'}
+{90905: ' Gestalt'}
+{109500: 'ienten'}
+{72367: 'gut'}
+{127766: 'bleib'}
+{116841: ' Küste'}
+{121494: ' Jüng'}
+{103966: ' ehe'}
+{88963: 'altete'}
+{122037: ' organisiert'}
+{56519: ' kommer'}
+{27265: 'erdem'}
+{72718: ' zentral'}
+{91428: ' Konfer'}
+{125640: ' Stücke'}
+{93885: 'demokrat'}
+{128979: 'ödie'}
+{92162: 'piele'}
+{53357: ' objekt'}
+{113973: ' gaben'}
+{93999: 'ahm'}
+{17398: ' Krie'}
+{95462: ' Unternehmer'}
+{93345: ' komplet'}
+{90304: ' Dritt'}
+{122381: 'lebte'}
+{104897: ' späten'}
+{107057: ' aufgeführt'}
+{32016: 'irat'}
+{129478: ' Anhänger'}
+{119177: ' andererseits'}
+{86377: ' Infrastruktur'}
+{8328: ' isol'}
+{55087: ' Engel'}
+{33781: 'rechter'}
+{95795: ' entsche'}
+{26364: 'wicklung'}
+{93650: 'meth'}
+{68084: 'uerst'}
+{75240: ' verhe'}
+{55548: ' Wider'}
+{88658: ' angeordnet'}
+{58234: ' Pfer'}
+{47087: ' Wander'}
+{20844: 'pieler'}
+{110810: ' beider'}
+{123865: 'führte'}
+{78738: 'inne'}
+{81460: ' mittel'}
+{92019: ' Erb'}
+{68050: 'figur'}
+{118810: ' Plast'}
+{120098: ' ums'}
+{101463: 'zure'}
+{30064: 'ogr'}
+{68122: ' Alten'}
+{120996: ' eigener'}
+{38481: ' Krit'}
+{77885: ' heutige'}
+{92749: ' Auflösung'}
+{56630: 'cheiden'}
+{83220: ' Gelände'}
+{29612: 'gesamt'}
+{71845: ' Güter'}
+{127387: 'rö'}
+{101704: ' Niederlage'}
+{125945: ' besuchte'}
+{122456: ' militärischen'}
+{60855: 'kund'}
+{26642: 'artikel'}
+{42086: ' Rhein'}
+{53207: ' Schauspielerin'}
+{117096: ' interessante'}
+{123935: ' personen'}
+{88747: ' Halt'}
+{80336: 'derung'}
+{126729: ' Kupfer'}
+{110971: ' verheiratet'}
+{37499: ' erb'}
+{30034: ' gemeins'}
+{123138: ' Spuren'}
+{47868: 'ziel'}
+{59925: 'äuft'}
+{130160: ' geringe'}
+{130303: ' Übergang'}
+{70355: 'onomie'}
+{129195: ' Weis'}
+{52860: ' entw'}
+{126591: ' Rass'}
+{59973: 'attet'}
+{81322: 'ellos'}
+{69079: ' diente'}
+{74870: ' endgült'}
+{106393: ' existieren'}
+{40763: 'kamp'}
+{44439: ' Forsch'}
+{30839: 'elsen'}
+{115131: ' stellten'}
+{109942: ' Gestaltung'}
+{116027: ' morgen'}
+{61096: 'altungs'}
+{96681: ' Mitgliedern'}
+{121500: ' Ebenso'}
+{57753: 'genden'}
+{129214: ' Zusätzlich'}
+{109028: ' Bünd'}
+{91158: ' Szen'}
+{16555: 'ionale'}
+{112438: ' Kaliforn'}
+{113561: ' Konzert'}
+{42421: ' Panzer'}
+{82161: 'onien'}
+{124848: 'uhren'}
+{58015: 'dorf'}
+{123970: ' voneinander'}
+{48067: 'ertes'}
+{126402: ' schen'}
+{114229: 'holz'}
+{58068: ' Leib'}
+{77833: ' erhielten'}
+{126971: ' einerseits'}
+{89443: ' Prost'}
+{108363: ' Lieb'}
+{93755: ' Zeitschrift'}
+{116167: ' Wesentlichen'}
+{119844: 'insam'}
+{18729: ' Philipp'}
+{130086: ' verbindet'}
+{129384: 'undert'}
+{69440: 'Kon'}
+{113830: ' Erfolge'}
+{125379: ' beschädigt'}
+{103206: ' beziehungsweise'}
+{91876: 'änner'}
+{118323: 'reht'}
+{90002: '-und'}
+{120931: ' sieb'}
+{114913: ' Begegn'}
+{119716: ' Verteilung'}
+{87222: ' dicht'}
+{85253: ' Sieger'}
+{39446: ' Müller'}
+{107886: ' vergeben'}
+{5551: 'bf'}
+{34744: 'ielte'}
+{102700: ' zuständig'}
+{122182: ' Träger'}
+{11431: 'ammen'}
+{126873: 'landes'}
+{48913: 'ädchen'}
+{84798: ' gründete'}
+{97613: 'ruh'}
+{109786: ' wenigstens'}
+{55229: 'engl'}
+{120803: ' Winkel'}
+{36737: ' einzel'}
+{130765: ' Insbesondere'}
+{59561: ' Balk'}
+{116083: ' Erweiterung'}
+{52798: 'verg'}
+{113410: ' Frag'}
+{128242: ' breiten'}
+{80717: ' Kommand'}
+{110332: ' Feuerwehr'}
+{109732: ' mitten'}
+{120184: ' Flächen'}
+{120446: ' Ehefrau'}
+{74677: 'Fra'}
+{107082: ' Turnier'}
+{130379: ' Lymph'}
+{74760: ' brach'}
+{78793: ' eingerichtet'}
+{100071: ' komme'}
+{70180: 'ähler'}
+{130830: ' Schwerpunkt'}
+{72660: ' Rats'}
+{107978: ' seitdem'}
+{88351: 'ragung'}
+{56432: 'wirk'}
+{126812: ' spanischen'}
+{84397: ' Erste'}
+{18109: 'ensk'}
+{49817: ' Eind'}
+{41827: ' Frei'}
+{12601: ' kle'}
+{104180: ' individuelle'}
+{60904: ' griff'}
+{91571: ' Mole'}
+{71217: ' Männ'}
+{44903: 'ißt'}
+{126316: ' vergröß'}
+{123813: ' englische'}
+{128216: ' Niedersch'}
+{105990: ' Höhen'}
+{16637: 'onz'}
+{95687: ' langer'}
+{102446: ' indire'}
+{130669: 'ktrum'}
+{68722: 'krit'}
+{48613: ' SPD'}
+{54536: ' Bischof'}
+{83224: ' drehte'}
+{43437: 'isser'}
+{86228: ' Schiffe'}
+{84161: 'wahlen'}
+{101263: 'gehenden'}
+{103758: ' volle'}
+{113062: ' genannte'}
+{22178: 'gorith'}
+{29604: ' Griff'}
+{49331: ' Sank'}
+{37783: ' konstru'}
+{119746: ' befol'}
+{75506: ' Manifest'}
+{34589: ' ank'}
+{74216: 'verw'}
+{54180: ' Ingen'}
+{119483: ' Durchmesser'}
+{107149: 'kriegs'}
+{12437: 'porte'}
+{47318: 'essin'}
+{97202: 'ervers'}
+{107483: ' Spitz'}
+{65876: ' Eisenbahn'}
+{110244: ' holte'}
+{117903: ' Griechenland'}
+{81536: ' iran'}
+{90396: 'erbe'}
+{77278: 'atsch'}
+{63006: 'Gro'}
+{124142: 'zuk'}
+{85291: ' verließ'}
+{130287: 'ellekt'}
+{59011: ' Archiv'}
+{92099: ' Schriften'}
+{52314: ' Ritter'}
+{79861: 'önen'}
+{106732: 'korea'}
+{43763: ' schwar'}
+{120540: ' komment'}
+{77809: ' folgten'}
+{129954: ' bloß'}
+{10023: ' Isra'}
+{21542: ' extern'}
+{127754: ' umstritten'}
+{100777: ' Entfer'}
+{90218: ' Stiftung'}
+{98219: ' Konstru'}
+{100998: 'stätten'}
+{89228: ' eigenständ'}
+{99392: ' Produzent'}
+{37593: 'stitut'}
+{117726: ' vorn'}
+{97232: 'kern'}
+{97227: ' Verband'}
+{55440: ' Dimension'}
+{117179: ' Profil'}
+{120469: ' anget'}
+{54660: 'itzt'}
+{82260: 'mannschaft'}
+{127335: 'probe'}
+{70111: 'ädagog'}
+{120757: 'hörigkeit'}
+{45686: ' Unters'}
+{122094: ' aktive'}
+{44758: ' Bahnhof'}
+{129924: ' Höhepunkt'}
+{2758: 'swer'}
+{128523: ' entwickelten'}
+{12779: 'reh'}
+{85292: ' Peri'}
+{73820: 'archie'}
+{120122: ' mittleren'}
+{125510: ' bestehende'}
+{97141: ' abhäng'}
+{94998: ' Große'}
+{127384: ' übergeben'}
+{121475: ' kleineren'}
+{95990: ' Zig'}
+{26233: 'ukt'}
+{103493: ' Bruch'}
+{121146: ' Trend'}
+{42374: ' Parameter'}
+{98233: ' handelte'}
+{121478: ' Dunkel'}
+{90056: ' Behör'}
+{127705: ' liegenden'}
+{94241: ' Vom'}
+{129891: ' Vork'}
+{63828: ' Turm'}
+{119021: ' gelegentlich'}
+{88616: ' Klavier'}
+{55944: 'kos'}
+{102901: ' Schm'}
+{122236: ' erlang'}
+{94520: ' Brie'}
+{118561: 'hauses'}
+{121119: ' Freundschaft'}
+{106614: ' Maus'}
+{111095: 'Seine'}
+{93848: ' Augenblick'}
+{60670: 'parte'}
+{107617: ' beschloss'}
+{38553: 'affen'}
+{130250: 'nur'}
+{76910: ' benannt'}
+{96182: 'strahlung'}
+{116126: ' angebracht'}
+{6034: 'andid'}
+{52648: ' Verfüg'}
+{124322: ' nachgewiesen'}
+{115488: ' rasch'}
+{20602: 'ynth'}
+{63392: ' ler'}
+{95289: 'undet'}
+{57429: ' Covid'}
+{22817: 'otyp'}
+{84975: ' Grupp'}
+{130047: 'datum'}
+{84614: 'ausen'}
+{55341: ' inkl'}
+{22417: ' sog'}
+{15848: 'abei'}
+{69020: ' Detail'}
+{75450: ' beobacht'}
+{56542: ' Sänger'}
+{20411: 'ieur'}
+{86971: ' kehrte'}
+{37857: ' Niem'}
+{105636: ' Breite'}
+{103546: ' literar'}
+{112516: ' Vorbild'}
+{119104: ' Tode'}
+{55487: 'bund'}
+{104034: ' Wiederauf'}
+{17958: 'send'}
+{89407: ' sach'}
+{122995: ' verwendete'}
+{130631: ' umgeben'}
+{9152: 'obj'}
+{129505: ' dauerte'}
+{45081: ' Null'}
+{63220: ' Kandid'}
+{93061: ' globale'}
+{44883: ' Hochsch'}
+{48984: ' Sow'}
+{117128: ' diesmal'}
+{124524: ' Übernahme'}
+{99334: 'deutschen'}
+{41628: 'kter'}
+{29020: ' eb'}
+{92624: ' verur'}
+{71284: 'fers'}
+{75871: ' Höchst'}
+{108662: ' Diplom'}
+{101982: 'titel'}
+{89342: ' BG'}
+{106717: 'genöss'}
+{124684: ' Inneren'}
+{94194: ' teils'}
+{125473: ' infolge'}
+{117109: ' Bezirks'}
+{91985: ' Auflage'}
+{103591: ' Aufstieg'}
+{57036: 'rainer'}
+{104669: '-Version'}
+{96690: ' Fing'}
+{125003: 'lemente'}
+{90531: ' Mittelalter'}
+{130227: ' Hierbei'}
+{100857: '-Ber'}
+{85792: ' endete'}
+{34872: ' sä'}
+{32006: ' Gü'}
+{55847: 'punk'}
+{30480: ' Territ'}
+{50936: ' leer'}
+{101651: ' Fotograf'}
+{100148: ' Söhne'}
+{104939: ' Direkt'}
+{128381: ' sämtliche'}
+{98476: ' Vize'}
+{52938: ' Unterstüt'}
+{88224: ' gesche'}
+{113841: ' Fassung'}
+{124640: ' ursprüngliche'}
+{87923: ' Manche'}
+{110771: ' bedeutend'}
+{80890: ' Bezirk'}
+{40270: 'nahm'}
+{19874: ' bild'}
+{122695: ' Vorm'}
+{115550: ' brachten'}
+{47432: 'mier'}
+{72290: 'klass'}
+{73434: ' Exempl'}
+{97879: ' Spi'}
+{103338: ' Gitar'}
+{120894: ' beauftrag'}
+{119647: ' Olympischen'}
+{92751: ' angelegt'}
+{27882: 'irma'}
+{127818: ' bemerkte'}
+{104850: 'insel'}
+{122787: ' wuchs'}
+{130298: ' zwanzig'}
+{70627: ' Ungarn'}
+{92029: 'laut'}
+{98177: ' besetzt'}
+{129134: ' ermordet'}
+{115973: ' Rekord'}
+{127150: 'indel'}
+{74995: 'aufte'}
+{50115: ' Sachsen'}
+{119403: ' Mör'}
+{72515: ' spiritu'}
+{109002: 'irken'}
+{121009: ' japanischen'}
+{71890: ' Weltmeister'}
+{100787: ' Kalk'}
+{121307: ' zerstör'}
+{50010: ' Nied'}
+{10654: 'aupt'}
+{44894: 'Vers'}
+{106774: 'riebe'}
+{65383: 'kä'}
+{68253: ' übert'}
+{98201: ' beschäd'}
+{102705: ' jah'}
+{127329: ' Schnell'}
+{66078: 'efehl'}
+{82406: 'alz'}
+{56572: ' maximale'}
+{123649: ' ert'}
+{121124: 'ündete'}
+{107574: 'steig'}
+{117407: ' suchte'}
+{90290: 'spiele'}
+{58534: 'konstru'}
+{126122: ' Verluste'}
+{107161: ' Bibliothek'}
+{25054: 'woh'}
+{111322: ' Schultern'}
+{70257: ' lagen'}
+{100550: 'hofs'}
+{83302: ' Grä'}
+{113395: ' Entwurf'}
+{38874: 'kirche'}
+{114648: 'orsitz'}
+{87563: 'ließt'}
+{98447: 'zelf'}
+{38006: ' Kirch'}
+{104236: ' endgültig'}
+{112515: ' gestaltet'}
+{33352: 'yse'}
+{82521: 'zean'}
+{124751: ' unbekannt'}
+{129230: 'unsten'}
+{36308: ' Regie'}
+{95937: 'bergen'}
+{68097: ' gehörten'}
+{61839: ' biolog'}
+{119732: ' Ufer'}
+{80184: ' lebten'}
+{57423: 'sozial'}
+{23109: 'erdings'}
+{88007: ' Tumor'}
+{2695: 'urrent'}
+{121010: ' erhob'}
+{117323: ' Magnet'}
+{89285: ' aufgestellt'}
+{15820: ' wen'}
+{93963: ' bezeichnete'}
+{100690: ' Wähler'}
+{100914: ' Jesu'}
+{55048: ' Wehr'}
+{99934: ' Kanz'}
+{58155: '-Me'}
+{110677: ' heiligen'}
+{95188: 'ringer'}
+{10503: ' statist'}
+{92476: ' aufweist'}
+{88389: ' Revision'}
+{80367: ' straf'}
+{110135: ' Kino'}
+{118534: 'Herr'}
+{67624: 'eilt'}
+{120808: ' latein'}
+{115980: ' jüdische'}
+{93116: ' zogen'}
+{109046: ' landwirtschaft'}
+{37158: 'dest'}
+{121505: 'ammt'}
+{70976: 'olge'}
+{103184: ' öffnete'}
+{50854: 'ikas'}
+{77619: 'inien'}
+{109122: ' startete'}
+{122786: ' erinner'}
+{27570: ' engl'}
+{74304: ' gede'}
+{29487: 'öd'}
+{71842: 'ählung'}
+{94085: ' Ministerpräsident'}
+{127026: 'skop'}
+{105555: 'musik'}
+{125614: 'izei'}
+{21991: 'ök'}
+{99550: ' römischen'}
+{72689: 'iget'}
+{128604: ' ergänzt'}
+{36585: 'eil'}
+{87513: ' engen'}
+{46182: 'sie'}
+{80704: ' amt'}
+{113663: ' Szenen'}
+{19922: ' fung'}
+{16886: ' therapeut'}
+{40318: ' konk'}
+{53975: ' gelegen'}
+{31257: ' Hoff'}
+{83356: ' Ansprüche'}
+{129538: ' Schach'}
+{62054: 'indest'}
+{71969: ' Beding'}
+{114260: ' elektrische'}
+{102852: ' Straß'}
+{56846: 'ensä'}
+{121658: '-Gruppe'}
+{123131: ' Fabrik'}
+{102367: ' Recher'}
+{115178: ' beinahe'}
+{23051: 'gebra'}
+{70666: 'ächs'}
+{41659: ' Republ'}
+{104375: ' digitale'}
+{99084: ' ernannt'}
+{32738: ' zah'}
+{122364: ' Geste'}
+{115316: ' erkannte'}
+{57641: ' tät'}
+{65596: 'pak'}
+{129116: ' angeschlossen'}
+{78735: 'orium'}
+{125836: ' Chemie'}
+{96350: ' eindeut'}
+{98620: 'ript'}
+{52940: ' besteh'}
+{52662: ' telefon'}
+{123373: ' Lokal'}
+{98146: ' ök'}
+{106318: ' Doktor'}
+{74654: ' niederländ'}
+{108416: ' Lächeln'}
+{116508: ' zweiter'}
+{43911: ' hä'}
+{85691: ' benach'}
+{37764: ' kau'}
+{117459: ' Takt'}
+{110628: ' Hotels'}
+{21314: ' befind'}
+{97692: ' Hochschule'}
+{54153: ' hör'}
+{105131: ' Stirn'}
+{87588: ' südlichen'}
+{119909: 'pul'}
+{126540: ' Vereinigung'}
+{86567: ' nöt'}
+{86320: 'westen'}
+{71560: ' südlich'}
+{75917: ' Akademie'}
+{89863: 'Deutschland'}
+{63135: ' leh'}
+{18342: ' fert'}
+{82857: 'ocht'}
+{26599: ' ehemal'}
+{34515: ' Nä'}
+{127916: ' Leder'}
+{128411: ' bezogen'}
+{61123: 'quart'}
+{63043: ' gee'}
+{127424: ' Aufnahmen'}
+{31496: ' rass'}
+{83147: ' Tats'}
+{99933: ' verläuft'}
+{48937: 'rede'}
+{51867: 'tel'}
+{111099: ' städt'}
+{86746: ' Belgien'}
+{99491: ' katholischen'}
+{115985: ' Franzosen'}
+{45735: ' Himm'}
+{104004: 'ihung'}
+{87879: ' erzielte'}
+{113707: ' ferner'}
+{121699: ' hielten'}
+{48976: ' akadem'}
+{38956: ' inne'}
+{16323: 'aison'}
+{114581: ' anschließ'}
+{18720: ' ander'}
+{118509: 'ührte'}
+{76027: 'weile'}
+{33772: ' Vie'}
+{83985: ' wandte'}
+{68149: ' gewe'}
+{92238: ' Fah'}
+{76393: 'imente'}
+{61745: ' unmittel'}
+{81979: 'ädt'}
+{58076: 'lere'}
+{70202: 'glieder'}
+{26757: 'utlich'}
+{90860: ' spür'}
+{129015: ' Abgeordneten'}
+{71003: 'richter'}
+{75651: ' verbl'}
+{102771: ' leise'}
+{82227: ' hine'}
+{37140: ' Bez'}
+{129990: 'lags'}
+{100426: ' Kie'}
+{111467: 'estand'}
+{108160: 'dafrika'}
+{99136: ' Werken'}
+{70587: 'Siehe'}
+{96899: 'chau'}
+{105371: ' bestanden'}
+{28446: 'ssen'}
+{61668: '-Bahn'}
+{104499: 'onik'}
+{90116: ' blau'}
+{80170: 'leten'}
+{91865: ' Sender'}
+{44468: 'skom'}
+{130594: ' Handy'}
+{100879: ' Neuen'}
+{36463: ' Dynam'}
+{116370: ' kannte'}
+{130399: ' Runden'}
+{74729: ' Internationale'}
+{76603: ' schwed'}
+{96717: ' beher'}
+{43127: 'empel'}
+{117673: 'Bereits'}
+{79867: ' Stol'}
+{99662: ' Weltkriegs'}
+{90173: 'läufer'}
+{49795: 'zog'}
+{38299: ' Itali'}
+{54322: 'serie'}
+{19936: 'uerte'}
+{43469: 'änn'}
+{51626: 'bran'}
+{127912: ' Koll'}
+{35274: ' Verbind'}
+{73667: ' nördlich'}
+{82616: 'meter'}
+{18974: 'edeut'}
+{35927: ' erklär'}
+{13641: ' gö'}
+{121554: ' Motiv'}
+{77226: 'lime'}
+{115505: ' Gras'}
+{58840: ' Lü'}
+{87163: 'etit'}
+{76365: ' chirurg'}
+{113891: ' Koal'}
+{35604: 'Haupt'}
+{93450: 'trast'}
+{65209: 'pielt'}
+{115524: ' Probe'}
+{77669: 'urde'}
+{94614: ' zugeordnet'}
+{48585: 'tene'}
+{30921: 'raul'}
+{126435: ' Erzähl'}
+{60588: ' Stift'}
+{109435: 'landen'}
+{123680: ' drückte'}
+{86693: 'halle'}
+{44705: 'inschaft'}
+{85894: ' Bevölkerungs'}
+{128232: ' hinunter'}
+{35748: ' öffent'}
+{73478: ' betrug'}
+{126367: ' vierte'}
+{130846: ' änder'}
+{112825: 'ätte'}
+{85265: ' zuz'}
+{86417: ' Unabhäng'}
+{67139: '-We'}
+{113375: ' unterhalb'}
+{76512: 'ichtete'}
+{26789: ' wicht'}
+{110899: ' stelle'}
+{23851: 'örd'}
+{129289: ' Hül'}
+{71346: 'ückte'}
+{95375: 'ivid'}
+{65757: ' kanad'}
+{83789: ' Strecken'}
+{80640: ' Dichter'}
+{101858: ' Eröffnung'}
+{120090: 'periode'}
+{120445: ' Zub'}
+{38362: 'ätzlich'}
+{99574: 'sätzlich'}
+{117734: ' damalige'}
+{98099: ' demonst'}
+{98459: ' Weiteren'}
+{120899: 'schiff'}
+{107921: ' Gip'}
+{99902: 'lässlich'}
+{11040: ' kont'}
+{31103: ' spre'}
+{97525: 'rasse'}
+{92343: ' gg'}
+{123379: 'Sein'}
+{125144: ' trä'}
+{127264: ' beschrieb'}
+{130616: ' bekl'}
+{66164: ' Trom'}
+{63681: 'Produ'}
+{89370: 'mig'}
+{81372: ' verpflicht'}
+{53931: 'heten'}
+{26637: ' frü'}
+{127312: ' aufgel'}
+{121753: 'brücke'}
+{52960: 'ällen'}
+{77623: 'usik'}
+{102873: ' älteste'}
+{48921: ' Maler'}
+{51824: ' Hannover'}
+{105620: ' Besetzung'}
+{94606: 'ütte'}
+{40174: 'gebaut'}
+{44251: ' Jakob'}
+{108841: 'kreuz'}
+{67980: ' struktur'}
+{68137: 'ubil'}
+{47747: 'pil'}
+{63726: ' einger'}
+{18223: ' horm'}
+{120597: 'agements'}
+{103124: ' österreichischen'}
+{69960: ' Kathol'}
+{66526: ' ew'}
+{64886: ' fach'}
+{119191: ' Krim'}
+{106503: ' Chir'}
+{43490: ' Tore'}
+{93891: 'estu'}
+{50318: 'stät'}
+{15924: 'utsche'}
+{75574: 'beste'}
+{105687: ' Religions'}
+{51366: 'usste'}
+{90421: ' wirkte'}
+{112312: ' Roten'}
+{9110: ' Mais'}
+{115759: ' ältesten'}
+{119740: ' Gemälde'}
+{34545: 'leh'}
+{122429: 'Hat'}
+{11355: 'ieler'}
+{69607: 'ileg'}
+{67739: ' Hau'}
+{130351: 'kunst'}
+{41627: 'üler'}
+{91596: ' sicht'}
+{119057: ' anerk'}
+{113318: ' Brut'}
+{12774: 'hundert'}
+{31368: ' anh'}
+{63199: 'apel'}
+{127930: 'entrum'}
+{41845: 'estens'}
+{114900: ' Reiches'}
+{74911: ' armen'}
+{109683: ' reichte'}
+{79244: 'würdig'}
+{11553: ' kap'}
+{124813: ' könig'}
+{121574: 'urgie'}
+{49406: 'schließend'}
+{123004: ' Plätze'}
+{104470: ' lehnte'}
+{80439: 'rennt'}
+{57914: ' Düsseldorf'}
+{128754: ' Gallen'}
+{126630: 'mige'}
+{74484: 'arsch'}
+{98607: ' wechselte'}
+{65558: ' erbaut'}
+{128111: ' setzten'}
+{55549: 'fft'}
+{91532: ' nördlichen'}
+{46001: 'äischen'}
+{3808: 'mente'}
+{114314: 'beam'}
+{127194: ' synthet'}
+{36474: 'scheid'}
+{72276: ' Tempo'}
+{3292: ' proble'}
+{98029: 'messer'}
+{67678: ' geleg'}
+{60725: ' Fürst'}
+{54253: 'bole'}
+{120480: ' Besatzung'}
+{44434: 'iligen'}
+{93696: ' Mä'}
+{124651: ' Thron'}
+{125257: ' subjekt'}
+{89368: ' verlegt'}
+{102237: ' Alumin'}
+{112259: ' Verlängerung'}
+{124867: 'etzer'}
+{46381: ' reine'}
+{45576: 'wier'}
+{75579: 'ohner'}
+{66597: 'beiter'}
+{62424: 'riss'}
+{59324: ' beträ'}
+{96590: ' verliehen'}
+{77617: ' Gött'}
+{63983: ' minder'}
+{116801: '-amerikanischen'}
+{66737: 'gehör'}
+{54435: 'ändert'}
+{129532: ' Protagon'}
+{22425: 'krie'}
+{57352: ' Instr'}
+{111909: ' Jäger'}
+{121112: ' schmal'}
+{96411: ' befanden'}
+{7511: ' kö'}
+{110931: 'fels'}
+{10181: ' autor'}
+{10964: ' emot'}
+{123081: ' trafen'}
+{17570: ' mathem'}
+{37265: 'ieck'}
+{79213: ' Lieder'}
+{57844: 'bö'}
+{107918: ' radik'}
+{97423: 'ängnis'}
+{77857: 'ividu'}
+{74316: ' Friedhof'}
+{123826: ' Partie'}
+{52238: 'irche'}
+{82143: ' Akten'}
+{123672: ' anfangs'}
+{92891: 'Mens'}
+{48111: ' amerikan'}
+{108432: ' Architekten'}
+{49887: 'erset'}
+{102793: 'marsch'}
+{95469: 'zeption'}
+{100635: ' spielten'}
+{53728: 'dre'}
+{123766: '-Par'}
+{114554: ' Löwen'}
+{92033: ' Lein'}
+{123772: ' Automobil'}
+{73336: 'reform'}
+{66450: 'itiv'}
+{93154: 'iedlung'}
+{96353: ' Blau'}
+{82060: ' Unternehm'}
+{18301: ' dü'}
+{72735: 'nade'}
+{36393: ' verde'}
+{130219: 'stes'}
+{129741: ' Bogen'}
+{95797: ' erreichten'}
+{76175: 'kannten'}
+{118794: 'üstet'}
+{24419: ' spont'}
+{79275: ' Ander'}
+{124830: ' Gele'}
+{112711: ' fielen'}
+{98192: ' stieß'}
+{94690: ' feste'}
+{104840: ' Meisterschaft'}
+{93511: ' Taf'}
+{103327: ' mittelalter'}
+{89304: 'ispiele'}
+{113569: ' Tschech'}
+{76099: ' Historiker'}
+{115104: ' Grünen'}
+{64549: 'ylinder'}
+{112075: ' verze'}
+{112480: ' spätere'}
+{108081: ' Krone'}
+{92447: ' traten'}
+{35826: 'arz'}
+{85185: ' Leicht'}
+{71098: 'pens'}
+{130414: ' italienische'}
+{72502: 'ruhe'}
+{27062: ' gehör'}
+{19915: ' nä'}
+{26210: 'inale'}
+{83085: ' kapital'}
+{121686: ' Herrscher'}
+{92817: ' Dänemark'}
+{118205: 'bahnen'}
+{64191: 'strecke'}
+{128589: 'Vom'}
+{121345: 'schriften'}
+{127948: 'stellerin'}
+{130686: 'herrschaft'}
+{27672: ' erreich'}
+{99553: ' lächelte'}
+{53620: 'gte'}
+{75462: 'ocke'}
+{78745: ' konkur'}
+{111933: ' gereg'}
+{25655: ' angr'}
+{59730: ' Irland'}
+{67743: 'anzig'}
+{24069: 'tei'}
+{130604: ' Persönlichkeiten'}
+{20509: 'ließlich'}
+{129964: ' Bemerk'}
+{110573: ' womit'}
+{94467: ' Orchester'}
+{126608: ' bedeutete'}
+{92612: 'emm'}
+{102397: ' eingeg'}
+{123615: ' erreg'}
+{81828: ' Journalist'}
+{44199: 'atient'}
+{90390: 'itee'}
+{43744: 'wegung'}
+{36430: 'utzt'}
+{95912: 'aner'}
+{105023: 'iedelt'}
+{127624: 'örer'}
+{72457: ' bla'}
+{91400: ' Pfarrer'}
+{90555: ' Fürsten'}
+{91969: ' Ero'}
+{73429: ' Flugh'}
+{44960: 'ußen'}
+{21585: 'estre'}
+{56108: ' erinn'}
+{38296: 'lep'}
+{76555: 'funk'}
+{79089: ' fühl'}
+{10560: 'status'}
+{34005: ' strukt'}
+{83775: 'iratet'}
+{109505: ' spürte'}
+{115319: ' Errichtung'}
+{25205: ' jewe'}
+{129613: 'ischte'}
+{68433: 'bins'}
+{105496: ' löste'}
+{111228: 'zerte'}
+{62095: 'nommen'}
+{119239: 'iziere'}
+{101772: ' konstant'}
+{109632: ' gleichnam'}
+{95278: ' Röm'}
+{103393: 'ärme'}
+{103995: ' Ausbau'}
+{45573: 'ideos'}
+{129237: ' trugen'}
+{127983: ' aufgegeben'}
+{5599: ' publ'}
+{30704: ' zus'}
+{81283: ' bakter'}
+{125058: ' Berge'}
+{99783: 'erz'}
+{62208: ' CDU'}
+{130839: ' Komposition'}
+{83411: 'Kap'}
+{44898: 'astre'}
+{72220: 'inie'}
+{30854: 'bru'}
+{65064: ' Mannschaften'}
+{108789: ' gelegenen'}
+{73184: ' grosse'}
+{91654: 'listen'}
+{104130: ' Moderne'}
+{31819: ' Bedeut'}
+{95347: 'agd'}
+{111551: ' Reiter'}
+{75126: ' Büh'}
+{101428: ' deutschsprach'}
+{123719: ' Daraufhin'}
+{79862: ' här'}
+{10351: 'izont'}
+{87626: ' Niederlande'}
+{83371: ' Katal'}
+{16844: 'filter'}
+{128844: ' Propaganda'}
+{90540: ' baut'}
+{83882: ' Hamburger'}
+{112834: 'rauch'}
+{128243: ' Tsche'}
+{90364: 'ühm'}
+{115412: ' baute'}
+{110817: ' belegte'}
+{70643: 'reden'}
+{110038: '-Weltmeister'}
+{67819: ' Münster'}
+{119533: ' Alpen'}
+{114211: ' Gesang'}
+{128127: 'abschnitt'}
+{85950: 'ungsweise'}
+{120291: 'irge'}
+{93752: 'rungen'}
+{32091: 'oxid'}
+{83169: ' materi'}
+{101743: ' Vorgänger'}
+{76917: 'museum'}
+{115137: ' beendete'}
+{66967: 'chst'}
+{107875: ' Vorsitzender'}
+{32280: 'besondere'}
+{10821: 'ymbol'}
+{112507: ' untergebracht'}
+{100978: 'bauten'}
+{34506: 'norm'}
+{42780: 'afen'}
+{34807: ' Prag'}
+{113259: ' Rend'}
+{108894: 'Ende'}
+{94489: ' Verteid'}
+{130988: 'prünglich'}
+{123088: ' Bands'}
+{116758: 'fabrik'}
+{41979: ' dement'}
+{87639: 'kri'}
+{73440: ' Drehbuch'}
+{71723: 'dire'}
+{110863: ' schaute'}
+{123556: 'brach'}
+{88842: 'weiht'}
+{86308: ' Schott'}
+{127849: '-Jahren'}
+{86583: ' aufgelöst'}
+{130096: ' errichten'}
+{130384: ' betrieb'}
+{113193: ' heiratete'}
+{45102: 'meck'}
+{84470: ' bildete'}
+{107896: ' Hektar'}
+{83554: ' sekund'}
+{70920: 'ötet'}
+{36838: ' Dop'}
+{118065: 'Gem'}
+{99985: ' Norwegen'}
+{119144: ' Marsch'}
+{61995: 'ötzlich'}
+{104745: ' Kolumb'}
+{126814: ' kirch'}
+{64924: 'onyme'}
+{77514: 'plantation'}
+{119895: ' grob'}
+{37502: 'olg'}
+{108146: ' Denkmal'}
+{87998: 'anstaltungen'}
+{46114: ' röm'}
+{127979: ' vorwiegend'}
+{129037: ' konfigur'}
+{30849: 'agens'}
+{113292: ' Gedenk'}
+{115721: 'äb'}
+{130177: 'gründer'}
+{115390: 'bibliot'}
+{97022: 'ameister'}
+{108744: 'ederung'}
+{108090: ' östlichen'}
+{86031: 'ikten'}
+{94531: ' Bege'}
+{56957: ' Komb'}
+{113082: ' richtete'}
+{126967: ' Fass'}
+{92067: 'unsch'}
+{81975: ' provoz'}
+{33595: ' fotograf'}
+{89318: ' Züge'}
+{79629: ' Alte'}
+{93051: ' allt'}
+{129623: ' geriet'}
+{44655: 'uktur'}
+{126509: '-Universität'}
+{120414: 'reste'}
+{91587: ' besaß'}
+{50201: 'assade'}
+{88028: ' spekt'}
+{59955: 'gek'}
+{44609: ' erfol'}
+{105735: 'lacht'}
+{81702: ' Deutscher'}
+{48242: ' Wappen'}
+{126779: ' zumeist'}
+{116340: ' Einwohnern'}
+{5402: 'ilter'}
+{53271: ' Untersuch'}
+{126226: ' Amtszeit'}
+{79340: 'rump'}
+{88570: 'äste'}
+{66684: 'gült'}
+{106074: 'engt'}
+{107410: ' Sängerin'}
+{95036: ' externe'}
+{129894: 'deutsche'}
+{125168: ' sowjetischen'}
+{65671: 'apeut'}
+{23311: ' Relig'}
+{55377: 'republik'}
+{121015: ' Lä'}
+{121105: 'Zwischen'}
+{116622: 'presse'}
+{99624: ' Schwier'}
+{27323: 'atzen'}
+{87155: ' Qualifikation'}
+{80928: ' landen'}
+{110933: 'ozu'}
+{73880: ' Kapelle'}
+{130810: ' verstand'}
+{26647: 'wohner'}
+{48701: ' Atlant'}
+{18737: ' woll'}
+{128142: ' Bundeswehr'}
+{128755: 'agerung'}
+{85379: 'fangs'}
+{59746: '-amerikanische'}
+{38228: ' entsprech'}
+{123452: ' Tän'}
+{25806: 'itekt'}
+{104885: ' Sich'}
+{91445: ' Gür'}
+{127498: 'auspieler'}
+{85710: ' Stadtteil'}
+{113975: 'aminen'}
+{110095: '-Preis'}
+{107377: 'Fol'}
+{107336: ' Denkm'}
+{69350: ' spieg'}
+{46444: 'chließlich'}
+{118418: ' Kuba'}
+{27698: ' niem'}
+{21738: ' erre'}
+{67573: 'fors'}
+{124750: ' Kleine'}
+{89271: ' Paulus'}
+{66376: 'tem'}
+{110154: ' Heilige'}
+{43581: ' produkt'}
+{24198: ' authent'}
+{71683: ' Luxemburg'}
+{127648: ' schuf'}
+{89613: ' Griechen'}
+{99884: ' inso'}
+{118461: ' Dür'}
+{94575: ' Rathaus'}
+{104557: ' Gouverneur'}
+{126588: ' Kommando'}
+{115223: ' Dien'}
+{84171: ' Auszeichnung'}
+{29236: ' samt'}
+{64388: 'teren'}
+{112160: ' Einzug'}
+{65887: ' Betrie'}
+{20562: 'liga'}
+{103851: ' Schal'}
+{48309: ' Epis'}
+{15396: ' Indust'}
+{92687: ' dekor'}
+{54780: 'kens'}
+{81232: 'mä'}
+{87657: ' visu'}
+{126869: ' rie'}
+{96049: ' blickte'}
+{93223: '-Welt'}
+{62982: ' gepr'}
+{126885: ' Kün'}
+{68973: 'sequent'}
+{116331: 'ißig'}
+{18718: 'nent'}
+{87058: ' ausgetragen'}
+{15069: 'ött'}
+{98339: ' Thür'}
+{37478: 'arme'}
+{59982: ' Neub'}
+{120449: ' verkaufte'}
+{78125: ' Grafen'}
+{106538: ' Frankfurter'}
+{24989: 'abile'}
+{68195: ' regel'}
+{98884: 'ztes'}
+{20175: ' kä'}
+{89977: ' Konf'}
+{85881: ' Stab'}
+{112596: ' Weltkrieges'}
+{49862: ' Kran'}
+{37975: ' tä'}
+{52587: ' hü'}
+{88716: ' Kuh'}
+{108497: ' Krieger'}
+{117450: ' Festung'}
+{91463: 'rhein'}
+{100231: ' harml'}
+{76646: ' nickte'}
+{90627: 'ehr'}
+{15386: 'ublik'}
+{81489: 'falen'}
+{52404: ' Architekt'}
+{124137: ' Autobahn'}
+{103022: 'bauer'}
+{107988: ' wett'}
+{120405: ' Messe'}
+{69761: ' haft'}
+{34927: 'onnen'}
+{23800: 'zös'}
+{123633: ' Rundfunk'}
+{61475: ' belg'}
+{81288: ' Dör'}
+{93255: 'Hrsg'}
+{77452: ' Nürnberg'}
+{68748: ' klim'}
+{127423: ' flü'}
+{130914: ' anlässlich'}
+{39475: ' Pfarr'}
+{66819: ' kraft'}
+{13040: 'register'}
+{42402: 'emand'}
+{85147: ' Siedlung'}
+{88688: ' brasil'}
+{128875: 'adet'}
+{43853: ' enorme'}
+{120152: 'öffentlichungen'}
+{53473: 'pte'}
+{42638: 'älfte'}
+{117119: 'afrika'}
+{97643: ' lass'}
+{63682: ' rett'}
+{25219: 'ondere'}
+{51099: 'ategorie'}
+{11179: 'endar'}
+{114458: ' Flotte'}
+{34296: ' verv'}
+{83904: ' koordin'}
+{37789: 'ünstler'}
+{57661: ' Orgel'}
+{54746: ' souver'}
+{21588: ' Mitgli'}
+{114164: ' Nationalsozialismus'}
+{97399: ' Gattung'}
+{45516: ' zie'}
+{89329: ' dän'}
+{89294: ' Fakult'}
+{75175: ' Halbfinale'}
+{65531: 'chent'}
+{5667: 'ynam'}
+{106567: '-Agent'}
+{59347: ' stör'}
+{87148: ' Beb'}
+{88691: ' Sehenswürdigkeiten'}
+{84371: ' Kaisers'}
+{56619: ' Bibliot'}
+{50837: 'autor'}
+{92541: 'stehung'}
+{85182: 'rikt'}
+{93685: '-Qu'}
+{111883: ' meiste'}
+{106443: ' katholische'}
+{59302: '-bas'}
+{32149: ' mex'}
+{58269: ' völl'}
+{54259: ' interne'}
+{28427: ' elekt'}
+{87812: '-Straße'}
+{107493: ' bildeten'}
+{88169: 'öhne'}
+{129098: ' tschech'}
+{92841: ' westlich'}
+{86521: 'öffnung'}
+{86106: ' Ortschaft'}
+{50377: ' Dü'}
+{130290: ' Sommers'}
+{67234: ' Saar'}
+{63631: 'klam'}
+{105289: 'lieb'}
+{61304: 'antin'}
+{109545: 'antik'}
+{16315: ' kult'}
+{83819: ' Heer'}
+{54333: 'zs'}
+{58872: ' Vorb'}
+{105155: 'akei'}
+{17814: ' Indones'}
+{127275: ' relevante'}
+{75443: ' Jürgen'}
+{26859: 'elde'}
+{64978: ' haus'}
+{70537: ' Preußen'}
+{120908: ' eröffnete'}
+{129625: 'immun'}
+{111186: 'herren'}
+{49153: ' Memb'}
+{85220: 'stw'}
+{118542: 'iterte'}
+{20425: 'obei'}
+{109934: 'mauer'}
+{44022: 'legend'}
+{116919: ' Ordens'}
+{19713: ' recher'}
+{89512: 'nitz'}
+{48546: 'illerie'}
+{75816: 'gemeinde'}
+{116752: ' Rumänien'}
+{93370: ' Abgeordnet'}
+{38559: 'jä'}
+{47450: ' Landkreis'}
+{42331: ' mög'}
+{130346: ' Tug'}
+{106007: ' Abt'}
+{110446: 'brücken'}
+{28539: 'zm'}
+{85334: 'aufhin'}
+{81008: ' Ausstattung'}
+{94512: 'instrument'}
+{29326: 'udem'}
+{94015: 'lieben'}
+{127179: ' Skulpt'}
+{130277: '-mal'}
+{101581: ' Besatzungs'}
+{79288: ' Mön'}
+{30473: 'zett'}
+{129299: ' Telekom'}
+{129597: 'över'}
+{100360: 'terne'}
+{123765: ' famili'}
+{71535: ' sowjet'}
+{81688: 'useinand'}
+{128225: ' Dörfer'}
+{113204: ' verlief'}
+{3939: ' seg'}
+{67660: ' Sowjet'}
+{123403: ' benachbarten'}
+{70802: 'fasste'}
+{128513: ' Wissenschaften'}
+{115364: 'oslaw'}
+{93756: 'omie'}
+{110838: ' ausgebaut'}
+{80895: 'wissenschaftler'}
+{109276: ' erwiderte'}
+{130577: ' Acker'}
+{22053: 'manager'}
+{91657: ' östlich'}
+{45775: 'üf'}
+{110519: ' Trieb'}
+{39823: 'öffentlicht'}
+{113732: ' Erster'}
+{28151: ' tren'}
+{44303: 'etik'}
+{97981: ' ungar'}
+{98980: 'ppel'}
+{72363: '-Ge'}
+{88423: ' Erweiter'}
+{89568: ' regionale'}
+{117544: 'thiop'}
+{106545: 'amik'}
+{122034: 'studio'}
+{118235: ' Saal'}
+{16879: 'atalog'}
+{36601: ' Mosk'}
+{55456: ' jüd'}
+{82100: ' Freiburg'}
+{38637: 'öld'}
+{33952: 'werp'}
+{89903: 'egang'}
+{117181: ' alkohol'}
+{125652: 'chule'}
+{60196: ' mittler'}
+{106752: ' Vereine'}
+{42533: ' Orden'}
+{86254: ' Sei'}
+{102459: ' Industri'}
+{85654: 'kirchen'}
+{125826: 'iziner'}
+{108783: ' Daneben'}
+{71352: 'hend'}
+{119760: ' koll'}
+{62719: 'kül'}
+{88759: ' Geden'}
+{38824: ' echter'}
+{77937: 'asie'}
+{62200: 'waffe'}
+{126232: ' Erwä'}
+{91196: 'ilte'}
+{125606: ' Archä'}
+{23229: ' Stadion'}
+{26310: 'osex'}
+{58863: ' fok'}
+{114737: 'zählung'}
+{101736: 'daf'}
+{95995: ' Katalog'}
+{75536: ' Gymnasium'}
+{45678: 'iglich'}
+{117442: ' erwarb'}
+{71050: ' rosa'}
+{120726: ' russischer'}
+{35548: 'igrations'}
+{119628: 'heater'}
+{85802: ' Bist'}
+{32021: ' Galax'}
+{84924: ' Zusamm'}
+{45152: ' Hessen'}
+{126689: ' nominiert'}
+{36563: 'ächlich'}
+{55361: 'leine'}
+{44462: ' Komponist'}
+{130912: 'imt'}
+{129331: ' Zweig'}
+{130849: 'garten'}
+{114021: ' Kardinal'}
+{129806: 'usen'}
+{89515: 'heute'}
+{115562: ' Allianz'}
+{56926: ' seri'}
+{122991: ' Altstadt'}
+{111788: ' Venedig'}
+{120533: ' lachte'}
+{78515: 'österreich'}
+{69573: ' republ'}
+{86784: ' schütt'}
+{74685: 'transport'}
+{36511: '.at'}
+{112581: ' Nieders'}
+{121914: ' Gedichte'}
+{126926: ' Ebenfalls'}
+{121414: ' Feu'}
+{111749: ' Vat'}
+{119208: ' Finnland'}
+{45720: 'mant'}
+{25728: 'ölker'}
+{97852: ' Neubau'}
+{5530: ' jed'}
+{78287: ' Tokio'}
+{123711: 'osk'}
+{99493: 'portal'}
+{100012: ' pein'}
+{57971: ' kompon'}
+{124426: ' Vok'}
+{88917: ' grau'}
+{130920: ' Neuseeland'}
+{1811: 'ublic'}
+{69676: 'utnant'}
+{106704: ' Hongkong'}
+{42586: '»Ich'}
+{77602: ' Satt'}
+{82281: ' Komm'}
+{27977: 'ubern'}
+{46495: 'elsk'}
+{76985: 'emeinde'}
+{10411: ' elimin'}
+{18561: 'ationale'}
+{110708: ' Ortes'}
+{70131: ' Katar'}
+{103739: ' Kanton'}
+{71911: 'itschrift'}
+{80338: ' mann'}
+{76030: ' Nationalsozial'}
+{16802: 'enso'}
+{99869: ' Kaufmann'}
+{124663: ' reiste'}
+{101295: ' österreichische'}
+{86418: ' Hohen'}
+{106379: ' Flur'}
+{16814: ' natur'}
+{38456: ' sogen'}
+{99498: ' sämt'}
+{38107: 'uale'}
+{41658: ' Galerie'}
+{116888: ' geword'}
+{18375: ' sov'}
+{105097: ' Mönch'}
+{84067: 'ärg'}
+{115937: ' kompet'}
+{106579: 'barten'}
+{64932: ' Sitze'}
+{130690: ' betrachtete'}
+{63203: ' Gatt'}
+{27943: 'Vert'}
+{119090: 'ächsischen'}
+{10070: 'iforn'}
+{121175: ' norweg'}
+{65357: ' geograf'}
+{127503: ' Reichen'}
+{97773: ' Oberst'}
+{117077: 'beteiligung'}
+{68811: ' Öffent'}
+{99079: 'mete'}
+{104320: 'motor'}
+{29695: 'rypto'}
+{76675: 'ieds'}
+{107543: 'Deutsche'}
+{66606: 'tru'}
+{18298: ' prin'}
+{40918: ' Schema'}
+{50616: ' programm'}
+{121070: 'Ober'}
+{96804: ' frust'}
+{127973: ' Renov'}
+{13838: 'Obj'}
+{97897: ' Alli'}
+{116745: ' bayer'}
+{118479: ' Offizier'}
+{28250: 'lant'}
+{97780: ' silber'}
+{129158: ' Weltmeisterschaft'}
+{80778: ' takt'}
+{54682: ' Viert'}
+{77596: 'kord'}
+{67334: ' Sankt'}
+{53852: ' Gegens'}
+{124335: 'ausstellung'}
+{75676: 'Spiel'}
+{108191: ' DIN'}
+{107650: ' ehem'}
+{112413: ' KZ'}
+{81701: ' zeh'}
+{71846: ' erkl'}
+{55617: 'obacht'}
+{102178: 'ller'}
+{102228: ' Ruhr'}
+{14228: 'rastr'}
+{67534: 'Nr'}
+{15226: 'ubre'}
+{28582: 'ikat'}
+{76120: ' irak'}
+{74508: 'lagt'}
+{97431: 'Bere'}
+{57268: ' konst'}
+{119204: ' Mühle'}
+{46094: ' stil'}
+{70271: 'tum'}
+{105895: ' Singapur'}
+{20204: 'abels'}
+{92815: ' Weih'}
+{95040: ' Auszeichnungen'}
+{106183: ' Forst'}
+{84805: 'agina'}
+{56465: ' tue'}
+{28352: ' entwick'}
+{73472: 'omit'}
+{19144: ' sele'}
+{96275: ' Petrus'}
+{117750: ' Umbau'}
+{8447: ' antib'}
+{37172: 'lles'}
+{63282: ' müh'}
+{115617: 'wiegend'}
+{120093: ' zählte'}
+{129002: ' Spielzeit'}
+{100399: ' schüttelte'}
+{17746: ' Dez'}
+{124669: ' gegründete'}
+{12054: ' Portug'}
+{97842: ' Reste'}
+{2447: 'ethod'}
+{84708: ' Karlsruhe'}
+{76346: 'iets'}
+{128409: ' Kölner'}
+{65794: ' landet'}
+{89834: ' solide'}
+{58466: 'ziale'}
+{130598: 'ordneter'}
+{122218: ' kaiser'}
+{92482: 'iedsrichter'}
+{83810: ' reale'}
+{32749: ' heut'}
+{25857: 'öffentlich'}
+{79631: 'pause'}
+{77103: 'urem'}
+{19845: ' Prin'}
+{110056: 'Verb'}
+{80094: ' Genre'}
+{93200: ' Synchron'}
+{80949: ' ders'}
+{82952: ' luft'}
+{32591: 'üller'}
+{12777: ' restaur'}
+{110813: ' umfasste'}
+{104587: 'igers'}
+{52635: ' Grie'}
+{114231: ' Dirigent'}
+{106218: 'atien'}
+{97428: 'oriasis'}
+{129705: ' nü'}
+{130910: ' Alben'}
+{31888: ' rei'}
+{42542: 'ustrie'}
+{14659: 'jem'}
+{99708: ' englischer'}
+{126678: ' portugies'}
+{94909: '-Verlag'}
+{125384: ' qualifiziert'}
+{21225: ' progn'}
+{38855: ' koh'}
+{101017: 'örg'}
+{120584: ' fertiggestellt'}
+{111615: ' Vereinigte'}
+{124576: ' parlamentar'}
+{37084: ' fakt'}
+{104091: ' errichtete'}
+{71559: 'aisen'}
+{61124: 'bezirk'}
+{20840: ' ort'}
+{130523: 'produzent'}
+{102048: 'roman'}
+{96330: '-Württemberg'}
+{121936: ' verfügte'}
+{57733: 'graf'}
+{100143: ' Erzbischof'}
+{86670: ' Konst'}
+{55249: ' ero'}
+{68471: ' erd'}
+{53011: 'lde'}
+{111440: ' Afrik'}
+{47544: ' psychiat'}
+{41248: 'intre'}
+{40729: ' punkt'}
+{31619: 'jets'}
+{120017: 'warn'}
+{120483: ' Gebiets'}
+{61067: ' gesto'}
+{35923: ' vorm'}
+{77576: ' Wohnhaus'}
+{56853: 'skap'}
+{75692: ' Spor'}
+{100564: ' komp'}
+{25498: ' foss'}
+{123545: ' architek'}
+{72719: 'uelles'}
+{130195: ' Erdgeschoss'}
+{120252: ' gegründeten'}
+{68864: 'fiel'}
+{112786: 'wochen'}
+{40182: ' Städ'}
+{129499: ' Rheinland'}
+{24606: 'chema'}
+{127091: ' verblieben'}
+{60956: 'erste'}
+{53720: 'ulat'}
+{46733: ' arme'}
+{7323: ' fuer'}
+{54202: ' Err'}
+{113883: '-Br'}
+{93387: ' satt'}
+{63367: 'ereg'}
+{97554: 'esellschaft'}
+{104877: 'ntag'}
+{76452: ' euren'}
+{95239: ' dienst'}
+{42492: ' graf'}
+{25740: ' kör'}
+{27046: 'esehen'}
+{130784: 'entat'}
+{110830: 'zwungen'}
+{69216: 'män'}
+{8514: 'std'}
+{109151: ' umgebaut'}
+{107219: ' Benedikt'}
+{65005: 'erade'}
+{124011: ' Siegen'}
+{68921: 'andinav'}
+{55371: 'kmal'}
+{25489: ' französ'}
+{38195: ' Akadem'}
+{123616: ' Marokko'}
+{120792: ' starrte'}
+{80620: ' serb'}
+{65542: ' lau'}
+{97349: ' Donau'}
+{116199: ' erot'}
+{79326: ' Schleswig'}
+{44445: 'zg'}
+{71067: 'Beste'}
+{99199: ' Viertelfinale'}
+{73696: ' mikro'}
+{130715: '-Gesellschaft'}
+{85398: ' rekonstru'}
+{12268: 'amment'}
+{56761: ' französischer'}
+{130330: 'pra'}
+{126900: 'idigt'}
+{112192: ' quadrat'}
+{14237: ' arrang'}
+{117170: ' Kongo'}
+{91498: 'endete'}
+{31177: 'chsel'}
+{113667: 'iftet'}
+{88091: ' FDP'}
+{113651: 'zis'}
+{50747: ' binnen'}
+{112584: ' Katharina'}
+{44615: ' Türk'}
+{90862: ' wilde'}
+{118412: 'änk'}
+{125993: 'irke'}
+{115211: ' Böh'}
+{109308: ' kosm'}
+{15977: 'nement'}
+{122406: 'VG'}
+{27955: ' erricht'}
+{65556: ' kontra'}
+{29134: 'onden'}
+{124012: 'Ern'}
+{97435: 'ollision'}
+{66490: 'elden'}
+{97351: ' Bande'}
+{130815: ' formen'}
+{78027: 'derte'}
+{87402: 'erre'}
+{12446: 'ährend'}
+{27084: '-amerikanischer'}
+{120444: 'fonie'}
+{53560: 'ritannien'}
+{92034: 'tet'}
+{13525: 'ffent'}
+{102250: ' Tirol'}
+{100527: 'äler'}
+{45704: 'zyst'}
+{125078: ' heller'}
+{129382: ' Illustration'}
+{90636: ' Kommunal'}
+{17330: 'sterreich'}
+{20951: 'ouver'}
+{101995: ' verband'}
+{49549: 'olut'}
+{122418: ' akust'}
+{68470: 'geschoss'}
+{25495: 'öz'}
+{106882: 'vog'}
+{42191: 'iede'}
+{87572: 'vom'}
+{66755: ' haupt'}
+{77407: ' Braunschweig'}
+{93742: ' Okt'}
+{116544: 'Musik'}
+{61528: ' Klub'}
+{87503: 'auso'}
+{46908: ' Zür'}
+{81481: 'ponden'}
+{60060: 'unkel'}
+{85604: ' Neust'}
+{122359: ' abgerissen'}
+{61214: ' Karls'}
+{9069: 'estival'}
+{65894: ' Milli'}
+{113733: 'pertoire'}
+{75040: 'ponente'}
+{74362: 'plas'}
+{52586: ' ersche'}
+{122611: 'äen'}
+{117832: ' preußischen'}
+{122326: 'abon'}
+{130890: 'äder'}
+{17809: ' promin'}
+{67899: 'erden'}
+{39400: ' Dres'}
+{126348: ' Sock'}
+{6202: 'heck'}
+{88157: 'andet'}
+{85025: 'warz'}
+{14821: ' saison'}
+{108071: ' bera'}
+{117418: ' anst'}
+{112317: 'garde'}
+{91244: 'initiative'}
+{114653: ' Straßenbahn'}
+{53453: ' merk'}
+{40595: 'itere'}
+{108795: 'ikom'}
+{114058: 'ommern'}
+{52268: ' Masch'}
+{102768: ' Nikolaus'}
+{106664: 'izielle'}
+{83152: 'irme'}
+{60330: 'ürgen'}
+{72771: ' ural'}
+{107555: ' Schicks'}
+{75389: 'Disk'}
+{71918: ' Erfahr'}
+{19450: 'Ital'}
+{92993: ' Gemä'}
+{117465: ' Landkre'}
+{99375: ' umbenannt'}
+{26094: 'bg'}
+{86559: ' industrielle'}
+{128530: ' infek'}
+{67652: 'elfinale'}
+{108031: ' homosex'}
+{98588: ' gera'}
+{61240: ' betracht'}
+{89660: 'ufs'}
+{58965: ' offizi'}
+{113185: 'ordn'}
+{65704: ' promov'}
+{128900: 'stige'}
+{90830: ' Kassel'}
+{126839: 'endien'}
+{76109: 'Zw'}
+{96628: ' Wiesbaden'}
+{122730: ' fär'}
+{88153: 'eldes'}
+{100778: 'sor'}
+{21855: ' rez'}
+{113431: 'odynam'}
+{93645: 'Datum'}
+{49701: ' öst'}
+{55904: ' eit'}
+{104937: ' Kort'}
+{98231: 'okon'}
+{37073: ' näch'}
+{34961: ' gesam'}
+{58421: ' kategor'}
+{88981: ' kund'}
+{109222: ' schilder'}
+{29342: 'lande'}
+{115341: ' argentin'}
+{109892: ' Blas'}
+{52581: ' kro'}
+{84158: ' Anmerkungen'}
+{101822: 'disk'}
+{99837: ' Eish'}
+{72888: '-Stra'}
+{110419: 'tsk'}
+{83809: 'indet'}
+{103635: ' Würzburg'}
+{66641: ' Großb'}
+{110198: ' lege'}
+{123844: ' Tüb'}
+{88017: 'schild'}
+{56342: ' sied'}
+{39050: 'ispielsweise'}
+{126415: ' Rezeption'}
+{118852: ' Landtags'}
+{94366: 'atiker'}
+{92759: 'texte'}
+{31915: ' Leip'}
+{78052: ' katal'}
+{29069: 'Span'}
+{96659: ' NSDAP'}
+{116624: ' Klosters'}
+{3311: ' wur'}
+{124737: ' Glocken'}
+{56298: 'unehm'}
+{105110: ' Ura'}
+{63707: ' venez'}
+{126261: ' Amazonas'}
+{51013: ' Bezieh'}
+{122758: 'fone'}
+{90979: 'ccount'}
+{71700: ' konf'}
+{31434: 'prüng'}
+{42353: ' krist'}
+{45334: 'ellem'}
+{10734: 'rowser'}
+{92224: 'ovolta'}
+{64688: 'ölf'}
+{89067: 'edik'}
+{122232: ' Heeres'}
+{84858: ' lächel'}
+{122684: 'ufführung'}
+{20263: ' endl'}
+{34077: 'nergie'}
+{62464: ' britischer'}
+{39672: 'odb'}
+{109328: ' modell'}
+{72626: 'ligen'}
+{86647: ' internationales'}
+{106605: ' Marien'}
+{19789: 'ibliot'}
+{101364: ' erwar'}
+{126819: 'brig'}
+{114105: ' licht'}
+{46440: ' kathol'}
+{95803: '-Holstein'}
+{22174: 'ellschaft'}
+{80494: 'spur'}
+{12477: 'tober'}
+{100862: ' Magdeburg'}
+{70652: ' Freib'}
+{120922: ' tote'}
+{112035: ' Grafschaft'}
+{123803: ' Bischo'}
+{97175: ' Günther'}
+{96243: ' deklar'}
+{94445: ' runde'}
+{69452: ' kurs'}
+{88084: 'ulie'}
+{117996: 'bürgermeister'}
+{113933: 'Apps'}
+{43222: ' nörd'}
+{95386: ' kalk'}
+{65023: ' Heide'}
+{122607: ' Inschrift'}
+{85908: ' Infanterie'}
+{78433: 'abt'}
+{42085: ' hl'}
+{107842: ' Leichtathlet'}
+{76748: ' Änder'}
+{32568: ' bev'}
+{71713: ' versen'}
+{84666: 'bahnhof'}
+{25830: 'merce'}
+{82528: ' Haag'}
+{66733: ' preuß'}
+{34284: ' pä'}
+{124861: 'achstan'}
+{74259: ' Klav'}
+{115535: ' alternativ'}
+{122270: 'meren'}
+{115154: ' Günter'}
+{53474: ' abbre'}
+{53789: 'reter'}
+{94395: ' Bildhauer'}
+{113806: ' Bochum'}
+{50367: 'riche'}
+{59590: 'elh'}
+{128323: 'nä'}
+{72994: ' Lokomot'}
+{108270: ' Rostock'}
+{87005: ' dikt'}
+{36953: 'uiten'}
+{9732: ' sympt'}
+{51321: 'iliz'}
+{104036: ' Delf'}
+{124628: ' Bielefeld'}
+{65997: ' verder'}
+{102055: ' Majest'}
+{105389: ' Ägypt'}
+{41193: ' beb'}
+{101888: 'Jed'}
+{44909: 'umul'}
+{87490: 'atet'}
+{33013: 'ilik'}
+{61352: 'openhagen'}
+{82819: ' minimale'}
+{39840: 'teur'}
+{129937: ' Öd'}
+{68506: 'creenshot'}
+{20365: ' Publ'}
+{63767: ' luk'}
+{37670: 'chof'}
+{127130: ' Russische'}
+{64316: 'ürk'}
+{57988: ' kandid'}
+{109994: ' Schriftstellerin'}
+{40882: 'mlung'}
+{43083: 'enze'}
+{15911: 'stv'}
+{72825: ' Baut'}
+{25725: 'ikus'}
+{80025: ' ungef'}
+{89056: 'rete'}
+{89087: 'stel'}
+{107797: 'Jug'}
+{93544: 'arrte'}
+{51026: ' skal'}
+{63011: ' provis'}
+{121857: 'idimensional'}
+{20955: 'erde'}
+{81175: ' biss'}
+{13277: ' haut'}
+{61702: ' auton'}
+{113641: ' Bagdad'}
+{107495: 'elha'}
+{120799: ' Kompan'}
+{116603: ' bey'}
+{121604: ' DFB'}
+{90222: ' handel'}
+{100288: 'ostas'}
+{61505: 'gras'}
+{47312: ' horizont'}
+{109654: ' mentale'}
+{83426: '-kathol'}
+{112294: ' Lübeck'}
+{116614: '-Dur'}
+{73950: 'ennzeichnet'}
+{26673: 'oires'}
+{23176: 'isant'}
+{60272: 'sender'}
+{75814: ' Gemeinderat'}
+{44400: 'iset'}
+{103019: 'sans'}
+{93271: ' römisch'}
+{99097: 'teams'}
+{116831: 'enseit'}
+{56664: ' dien'}
+{74717: 'merkungen'}
+{25475: 'äude'}
+{62555: 'ipos'}
+{119914: ' Kamil'}
+{71598: 'schweig'}
+{78609: ' Handball'}
+{89156: 'endere'}
+{102130: ' Radius'}
+{58136: ' alli'}
+{69218: ' besa'}
+{45067: ' kunst'}
+{119596: ' Osnabrück'}
+{25505: ' kamp'}
+{125914: ' staats'}
+{128102: ' Mathematiker'}
+{102639: 'iratete'}
+{21174: ' dez'}
+{39233: 'ierz'}
+{116934: ' Std'}
+{30558: 'recke'}
+{20103: ' feu'}
+{86973: 'variant'}
+{103797: 'trainer'}
+{30249: 'Tok'}
+{128487: ' Kär'}
+{117895: ' Dropdown'}
+{107948: ' grupp'}
+{71130: 'windigkeit'}
+{89048: ' energie'}
+{27536: ' Deport'}
+{64343: 'unut'}
+{41202: ' dato'}
+{111315: ' Duisburg'}
+{112889: ' Wilhel'}
+{53727: 'illons'}
+{127546: 'kerne'}
+{42983: ' öl'}
+{123009: 'Sei'}
+{55090: 'ekom'}
+{76627: 'etem'}
+{87640: 'imension'}
+{83879: ' Vf'}
+{107747: 'ängerung'}
+{129052: ' Studi'}
+{94642: 'aisons'}
+{19889: ' Vene'}
+{36556: ' inakt'}
+{86802: ' kast'}
+{61711: ' kond'}
+{65957: ' Nürn'}
+{121022: 'koch'}
+{57118: ' kultur'}
+{85812: ' Pyramide'}
+{80579: ' Pfarrkirche'}
+{89803: ' sugger'}
+{128357: ' Guts'}
+{75642: ' Ortsteil'}
+{68644: ' Halbf'}
+{54668: 'saison'}
+{99678: 'abung'}
+{49085: ' ziem'}
+{64692: ' proj'}
+{90465: ' namen'}
+{65120: ' Heidel'}
+{100209: ' schi'}
+{62269: ' Kais'}
+{38842: ' Stutt'}
+{116713: ' Erfurt'}
+{71282: 'leis'}
+{59286: ' gelen'}
+{127441: ' Spieltag'}
+{85827: ' saud'}
+{69844: '»Das'}
+{77493: ' modernes'}
+{126786: ' Obergeschoss'}
+{119246: 'blas'}
+{114735: ' Kurfürst'}
+{47765: ' fie'}
+{82507: ' molek'}
+{30850: 'lige'}
+{118901: ' Hauptbahnhof'}
+{80393: 'kong'}
+{25984: 'utat'}
+{34212: ' österreich'}
+{128688: ' privileg'}
+{122320: ' manches'}
+{114720: ' hatt'}
+{116448: 'entas'}
+{124120: 'wahn'}
+{71338: 'rsg'}
+{108819: ' Neustadt'}
+{80266: ' Dän'}
+{94442: 'Liste'}
+{38593: 'öffnet'}
+{91073: ' nahr'}
+{100370: ' zent'}
+{57796: 'elige'}
+{122778: ' rau'}
+{105307: 'vorm'}
+{113893: ' roh'}
+{91913: 'iosen'}
+{125459: 'naden'}
+{72850: ' afro'}
+{100134: ' konz'}
+{116200: ' Estland'}
+{82157: ' Venez'}
+{60053: 'ortium'}
+{77062: ' rö'}
+{75978: ' italienischer'}
+{43755: ' plante'}
+{97054: 'ianz'}
+{77214: 'teres'}
+{27122: ' fö'}
+{93201: 'liedert'}
+{108377: 'brei'}
+{60124: ' adress'}
+{98785: ' autonome'}
+{115787: ' Willi'}
+{124509: 'abrik'}
+{22481: ' verte'}
+{91879: 'altar'}
+{33267: ' totale'}
+{122503: 'arrei'}
+{14305: 'tau'}
+{85533: 'inig'}
+{117180: ' Nominierung'}
+{31459: ' antioxid'}
+{111340: ' urkund'}
+{59657: ' profil'}
+{71742: 'sächlich'}
+{101307: ' heid'}
+{89244: ' Abr'}
+{67154: ' interdis'}
+{47799: ' verre'}
+{46802: ' Infrastr'}
+{47890: 'aktu'}
+{88177: 'fürst'}
+{101323: ' kelt'}
+{16978: 'öv'}
+{24626: 'nelle'}
+{120800: '-Kirche'}
+{43092: ' Möglich'}
+{30954: ' italien'}
+{73798: '(en'}
+{39455: ' Norweg'}
+{69404: 'igur'}
+{5347: 'ebru'}
+{120302: ' Konstantinop'}
+{106640: 'Lage'}
+{53353: ' Düsseld'}
+{101009: 'etet'}
+{124583: ' Drehbuchautor'}
+{113956: 'cheen'}
+{80022: ' AUS'}
+{129551: ' Pader'}
+{106865: ' Spielt'}
+{130731: ' hitz'}
+{120656: ' elegante'}
+{124526: 'emburg'}
+{122642: ' Deutsches'}
+{86705: ' blick'}
+{59114: 'äns'}
+{74863: 'CDU'}
+{85219: ' Jurist'}
+{31144: ' kod'}
+{45888: ' strom'}
+{120591: ' Freiherr'}
+{113139: ' universelle'}
+{112199: ' elektro'}
+{15702: ' pharm'}
+{75214: ' ritu'}
+{41997: ' rost'}
+{51938: 'itore'}
+{64149: ' hekt'}
+{90758: ' Kircheng'}
+{65492: ' entspr'}
+{11372: ' hund'}
+{91046: 'kant'}
+{130983: 'fet'}
+{97706: 'teg'}
+{73741: ' fü'}
+{106820: ' Fachwerk'}
+{61915: ' avanc'}
+{82800: 'umato'}
+{77770: 'nö'}
+{70283: ' Laus'}
+{122174: ' handels'}
+{105197: ' prek'}
+{97628: 'innt'}
+{96131: ' solidar'}
+{83060: 'herzog'}
+{28660: ' nen'}
+{65988: ':in'}
+{127837: 'ellige'}
+{88239: '»Ja'}
+{117205: 'minen'}
+{60828: ' artik'}
+{124557: ' Iwan'}
+{106993: 'kup'}
+{84556: 'furter'}
+{25511: 'pth'}
+{44223: ' viet'}
+{120815: 'jub'}
+{98532: ' Bester'}
+{66881: 'finale'}
+{83010: ' Sehens'}
+{98780: 'izk'}
+{32092: 'attern'}
+{25017: ' destru'}
+{116634: ' evangelische'}
+{52122: ' kus'}
+{93333: 'bla'}
+{54861: 'iegend'}
+{110153: ' Korps'}
+{101668: ' Antwerpen'}
+{107645: ' Großherzog'}
+{86618: ' emig'}
+{93761: 'zir'}
+{51534: 'blos'}
+{45220: ' turbul'}
+{128692: ' verspre'}
+{114736: ' Aufmerksam'}
+{68042: 'romos'}
+{7225: 'ername'}
+{50580: ' bör'}
+{52137: ' permanente'}
+{56482: ' nummer'}
+{103598: ' koron'}
+{23872: 'hemal'}
+{105956: 'iderte'}
+{122676: ' berat'}
+{102346: 'neurs'}
+{54733: ' rast'}
+{128529: ' volk'}
+{124417: 'historiker'}
+{46128: ' Habs'}
+{51514: 'orspr'}
+{121594: ' postul'}
+{113736: '-Univers'}
+{119289: ' Einwohnerzahl'}
+{81925: 'ypse'}
+{87269: '»Was'}
+{62125: ' fels'}
+{32129: ' paz'}
+{106251: '»Sie'}
+{40045: ' belang'}
+{86530: 'Auswahl'}
+{114353: 'stritten'}
+{118024: 'erkennung'}
+{98554: 'ampe'}
+{97906: '»Und'}
+{25902: ' haar'}
+{60793: ' baten'}
+{10444: 'ieurs'}
+{53616: 'estä'}
+{65576: ' zir'}
+{15514: ' fot'}
+{62360: ' ält'}
+{111848: ' protok'}
+{82896: ' Bildh'}
+{26437: 'olare'}
+{66653: ' atyp'}
+{110248: 'musiker'}
+{75829: '-Nr'}
+{21333: ' invas'}
+{57453: ' Gemeinder'}
+{42460: ' Byz'}
+{40433: ' komple'}
+{87676: 'Bras'}
+{109071: ' bie'}
+{58121: 'stadion'}
+{70807: ' Olympische'}
+{19468: 'regist'}
+{71324: ' hybr'}
+{93911: ' pü'}
+{104967: '»H'}
+{18160: ' irr'}
+{41876: 'akult'}
+{21601: 'ulpt'}
+{30634: ' Weltkrie'}
+{85529: ' nationales'}
+{51788: ' kolon'}
+{117492: ' Kirchengemeinde'}
+{122999: '»Es'}
+{127074: ' Transports'}
+{117458: ' individuelles'}
+{69837: ' Versen'}
+{128483: 'regisseur'}
+{113872: 'repr'}
+{22138: ' parti'}
+{114062: ' Andrej'}
+{69264: ' manch'}
+{127217: ' balt'}
+{30743: 'ipeline'}
+{50139: ' damal'}
+{46213: ' rapide'}
+{102413: 'zele'}
+{119156: ' antik'}
+{42892: ' prestig'}
+{25210: ' therap'}
+{117484: ' alban'}
+{32248: ' expon'}
+{100826: 'Verfahren'}
+{98633: 'ektar'}
+{73658: ' Erzb'}
+{125934: ' grosses'}
+{109381: ' Lehen'}
+{108810: 'enche'}
+{38730: ' Fußballspieler'}
+{112524: '»W'}
+{117203: 'enziale'}
+{127090: 'Kanada'}
+{38305: ' dek'}
+{61568: 'iterran'}
+{81816: ' läh'}
+{122008: ' kanon'}
+{72094: ' dominante'}
+{30389: ' andre'}
+{81567: ' klasse'}
+{63693: ' Besatz'}
+{95817: 'anderen'}
+{59151: ' vikt'}
+{38971: 'öffentlichung'}
+{97310: 'ornos'}
+{82121: 'ouverneur'}
+{69596: ' Herzeg'}
+{91018: ' territoriale'}
+{115850: 'generator'}
+{56460: ' österreichischer'}
+{33083: ' projekt'}
+{127367: ' Bataillon'}
+{93004: '-Stadion'}
+{49315: ' musik'}
+{111709: 'Serie'}
+{119646: ' sätt'}
+{126439: ' verbe'}
+{29230: 'zerw'}
+{88774: 'voi'}
+{103972: 'istu'}
+{29788: 'heure'}
+{130553: 'Kö'}
+{33179: ' originale'}
+{114322: ' besta'}
+{123065: ' sensibil'}
+{67121: ' falt'}
+{110292: 'wohnern'}
+{88950: 'useinanders'}
+{52971: 'veröffentlichung'}
+{113406: 'Regist'}
+{100099: 'eschoss'}
+{107838: 'inahe'}
+{33300: 'forme'}
+{123965: 'ustre'}
+{106450: '-Nord'}
+{76862: ' nö'}
+{71589: 'timer'}
+{35911: ' ursprüng'}
+{103051: ' Marok'}
+{91922: ' Theologe'}
+{42240: ' mä'}
+{126738: 'kmäler'}
+{96748: 'ivalente'}
+{56953: 'uelas'}
+{71151: 'dü'}
+{88225: ' Jerusal'}
+{107828: '»Nein'}
+{38061: ' publik'}
+{70724: ' obsz'}
+{88754: 'portfolio'}
+{76863: 'ullehrer'}
+{111010: 'dür'}
+{68110: ' kard'}
+{31088: 'isent'}
+{119257: ' tarif'}
+{103406: '»Du'}
+{113756: ' Transporte'}
+{81492: ' Cursor'}
+{57321: ' Ortste'}
+{27622: 'ensemble'}
+{128606: ' kla'}
+{87909: 'würdigkeiten'}
+{65386: ' Celle'}
+{41009: ' werk'}
+{96348: 'itekten'}
+{129026: ' eingegliedert'}
+{106947: ' kontin'}
+{111361: ' filmen'}
+{116175: 'endie'}
+{100422: ' Tener'}
+{52391: ' dage'}
+{51656: 'üsseld'}
+{129836: ' kontinent'}
+{100748: 'sensor'}
+{123444: ' rege'}
+{41270: ' adel'}
+{106448: ' szen'}
+{26882: ' donner'}
+{125770: ' molekul'}
+{110879: 'ldes'}
+{16758: ' laun'}
+{45125: ' Hän'}
+{127454: '-Regiment'}
+{123856: ' biograf'}
+{105251: ' verir'}
+{123701: ' Regionalliga'}
+{78811: 'inaren'}
+{131061: ' mongol'}
+{121848: ' Politikerin'}
+{87643: ' netto'}
+{103678: 'Amt'}
+{122966: ' antr'}
+{93289: ' signif'}
+{100683: 'laments'}
+{77898: ' reis'}
+{123880: 'platzierung'}
+{58610: 'ehir'}
+{70590: 'Infos'}
+{53450: 'zien'}
+{125955: ' brillant'}
+{41750: ' tür'}
+{73209: 'voz'}
+{50876: ' kup'}
+{94069: ' Maked'}
+{79711: ' gela'}
+{101871: ' zweig'}
+{110367: 'ropole'}
+{30131: ' filme'}
+{119047: 'rouille'}
+{37879: 'urale'}
+{113549: ' Räikkönen'}
+{89840: 'baden'}
+{123903: 'kommer'}
+{58346: 'trecht'}
+{129828: ' Gemark'}
+{124691: ' Popup'}
+{128177: '#L'}
+{81818: 'eltas'}
+{24245: ' hän'}
+{32798: ' Luxemb'}
+{97176: ' Bahnstrecke'}
+{57331: ' Javascript'}
+{99114: ' intrins'}
+{94284: 'utom'}
+{93496: ' umben'}
+{106554: 'ignons'}
+{26856: ' liste'}
+{79732: ' brillante'}
+{108045: 'ädagoge'}
+{122393: ' literatur'}
+{61560: ' poch'}
+{59280: 'ITEM'}
+{69327: 'schech'}
+{77064: 'nerg'}
+{106966: ' serien'}
+{74015: 'adapter'}
+{71779: 'esek'}
+{52117: 'earen'}
+{47701: ' Rebe'}
+{2521: 'htt'}
+{82686: ' abr'}
+{94339: 'elä'}
+{50107: ' existen'}
+{29516: ' urte'}
+{120999: ' Moderna'}
+{103658: 'ulkan'}
+{67987: ' metr'}
+{98020: 'dart'}
+{78016: ' artikel'}
+{51141: ' Gün'}
+{91227: ' Autonom'}
+{68688: 'COVID'}
+{62022: ' fotos'}
+{35623: 'ionales'}
+{36760: 'anterie'}
+{32040: '_AR'}
+{119165: ' Ehemal'}
+{102765: ' milliard'}
+{112390: 'ozi'}
+{107490: 'artement'}
+{46940: ' jä'}
+{124748: ' enormes'}
+{78731: ' Hochschullehrer'}
+{87581: ' Beir'}
+{100401: ' kamer'}
+{78676: ' familie'}
+{74222: 'eteiligung'}
+{57188: ' exprim'}
+{128579: ' probleme'}
+{61406: 'öffentlichte'}
+{120335: 'roplast'}
+{21850: ' zb'}
+{25603: ' Schaus'}
+{102480: 'onner'}
+{100918: 'scode'}
+{94411: ' masch'}
+{27734: ' retros'}
+{81673: 'wod'}
+{57253: 'ünt'}
+{46145: ' quitt'}
+{122151: ' zweigeschoss'}
+{110902: '-Arena'}
+{89540: ' Vergangen'}
+{63804: 'ldi'}
+{44588: ' alber'}
+{94971: 'fö'}
+{69346: ' vermeld'}
+{91779: ' Erzbis'}
+{58772: ' stoch'}
+{123972: ' kommunist'}
+{80692: 'loge'}
+{41452: 'uschauer'}
+{11519: 'endif'}
+{108714: ' leder'}
+{120102: 'tik'}
+{50188: ' fiskal'}
+{94365: 'arja'}
+{88448: ' Duis'}
+{93888: 'jede'}
+{39124: ' disso'}
+{82378: ' Parcours'}
+{33610: ' esk'}
+{58915: '-Afrika'}
+{72734: 'ölt'}
+{106870: ' Bauden'}
+{59910: ' entste'}
+{78465: ' obso'}
+{90651: ' tän'}
+{79960: ' Magde'}
+{62777: ' mies'}
+{31343: ' Bevölker'}
+{106404: 'ächeln'}
+{35702: ' titul'}
+{20529: '-amerikan'}
+{58196: 'ionat'}
+{116423: ' sekt'}
+{90620: ' Releg'}
+{105673: 'ggel'}
+{82148: ' idee'}
+{87027: ' multidis'}
+{38655: 'pital'}
+{97655: ' flott'}
+{75758: ' sond'}
+{18674: 'pisode'}
+{110020: ' Geistlicher'}
+{34587: ' politik'}
+{59898: ' atheros'}
+{114986: 'stod'}
+{80911: ' konflikt'}
+{51329: ' revan'}
+{47735: 'issä'}
+{108047: ' Regierungsbezirk'}
+{74348: ' fixe'}
+{120848: 'iskan'}
+{51755: ' katalog'}
+{83559: 'chemas'}
+{68549: 'gante'}
+{126287: ' internes'}
+{41261: 'essä'}
+{65658: ' rekord'}
+{36373: 'atge'}
+{105266: 'uose'}
+{62132: ' Schum'}
+{68357: ' näm'}
+{126962: 'rettet'}
+{116876: ' erig'}
+{81585: ' reales'}
+{42787: ' kort'}
+{112382: ' Köl'}
+{88853: 'ürttemberg'}
+{91836: ' sekret'}
+{29721: ' Män'}
+{109340: 'oclip'}
+{83473: ' temperatur'}
+{105243: 'änien'}
+{81545: ' technologie'}
+{89380: 'alette'}
+{78750: 'iekt'}
+{109756: ' fakult'}
+{56313: ' subsidi'}
+{75119: 'anuar'}
+{73978: ' kritik'}
+{95884: ' arro'}
+{130030: 'isante'}
+{105020: 'ordet'}
+{127200: 'balle'}
+{56859: ' interesse'}
+{114721: 'useeland'}
+{72513: 'larm'}
+{59257: ' neige'}
+{61075: 'partement'}
+{107690: ' Satteldach'}
+{80500: ' kuri'}
+{35808: 'esseur'}
+{119658: 'ära'}
+{71690: '%BC'}
+{32832: ' provin'}
+{93547: ' fasse'}
+{73080: ' mengen'}
+{119238: 'sekut'}
+{68245: ' igen'}
+{58784: ' ermög'}
+{65312: 'ikz'}
+{87266: ' austr'}
+{31884: ' substitu'}
+{55086: ' Erstveröffentlichung'}
+{50848: 'nelles'}
+{79944: ' minuti'}
+{119253: ' skulpt'}
+{86866: 'ilerin'}
+{82288: ' universit'}
+{80885: 'platzierungen'}
+{80852: ' glimp'}
+{61423: 'ojen'}
+{104238: ' kaps'}
+{34024: ' gegründ'}
+{89628: 'enä'}
+{115764: ' untersche'}
+{60271: ' Typologie'}
+{46656: 'illende'}
+{76461: ' antide'}
+{101570: 'rennfahrer'}
+{60067: 'iende'}
+{112164: 'ünk'}
+{112333: '.pass'}
+{36948: 'nje'}
+{39506: ' gev'}
+{41863: ' achter'}
+{100327: ' breton'}
+{74554: 'teurs'}
+{118096: ' parado'}
+{26575: '{A'}
+{57720: ' när'}
+{38133: ' kontrol'}
+{88310: ' trakt'}
+{131053: ' dosis'}
+{110672: ' nivell'}
+{88592: ' Vened'}
+{115950: ' versie'}
+{126698: ' brod'}
+{105231: 'llä'}
+{81170: ' gero'}
+{83162: ' teste'}
+{80585: ' ruch'}
+{123550: ' regionales'}
+{90495: ' liquide'}
+{88086: 'loten'}
+{121041: ' Pkt'}
+{21177: '\\cdot'}
+{93213: 'ikä'}
+{61553: ' partout'}
+{89601: ' naut'}
+{21562: ' Singap'}
+{113979: ' konflik'}
+{41786: '_valid'}
+{18492: 'ataset'}
+{26671: 'bben'}
+{53368: 'displaystyle'}
+{99445: 'enderer'}
+{109787: ' industrie'}
+{100665: '-Amerika'}
+{95070: 'Codec'}
+{117048: ' Partit'}
+{19072: ' lanz'}
+{117942: ' urugu'}
+{81606: 'iaus'}
+{101543: ' Retour'}
+{70488: ' ponte'}
+{49325: ' euk'}
+{61600: ' fabrik'}
+{79043: ' genuin'}
+{112021: ' vecchia'}
+{47292: '.tag'}
+{70825: 'ligi'}
+{112269: 'öö'}
+{117865: ' messe'}
+{94153: ' Leverkus'}
+{114010: ' Hbf'}
+{127041: ' Equipe'}
+{120753: 'ockeyspieler'}
+{108679: 'ettent'}
+{44500: ' fik'}
+{97803: ' okt'}
+{101530: ' sektor'}
+{78144: ' adresse'}
+{48748: '-Uni'}
+{84056: ' Lening'}
+{5784: 'mathrm'}
+{101725: 'niet'}
+{123833: ' inneh'}
+{54070: 'zeum'}
+{54178: ' kies'}
+{51071: ' dö'}
+{42815: ' tör'}
+{59036: ' projek'}
+{41716: ' oma'}
+{116522: 'serw'}
+{117031: 'emarken'}
+{101587: 'ziehungsweise'}
+{112342: ' permanentes'}
+{100228: 'illent'}
+{73886: ' evt'}
+{118644: ' sensibles'}
+{108286: 'alliga'}
+{73609: ' vokal'}
+{102438: ' kanal'}
+{60359: 'Zuschauer'}
+{73963: ' verko'}
+{23387: ' satell'}
+{43132: 'jorde'}
+{121290: ' initiale'}
+{52557: ' einde'}
+{79564: ' personale'}
+{119678: 'nements'}
+{28803: 'ßerdem'}
+{114207: ' indien'}
+{91506: ' manier'}
+{63680: 'isait'}
+{70927: ' konfer'}
+{94142: ' rann'}
+{62907: 'jene'}
+{123243: ' industrielles'}
+{116165: 'deko'}
+{114637: ' filt'}
+{123322: ' adulte'}
+{91184: ' batterie'}
+{78726: ' volumen'}
+{76819: ' soldat'}
+{46019: 'ellä'}
+{34920: 'ltal'}
+{118342: ' Belgische'}
+{39428: 'ggreg'}
+{130190: 'ärsk'}
+{80225: ' remis'}
+{52647: '{G'}
+{74089: ' flotte'}
+{115074: ' klima'}
+{65925: ' geri'}
+{90089: 'Stadion'}
+{70762: ' käs'}
+{115870: 'nabrück'}
+{104971: ' vok'}
+{114151: ' kontrakt'}
+{56785: ' proteg'}
+{110766: '/azure'}
+{59035: 'iertas'}
+{119852: 'ensiva'}
+{100135: ' koal'}
+{109974: 'Schiedsrichter'}
+{61272: ' republik'}
+{92229: 'envol'}
+{121463: ' verden'}
+{101434: ' potente'}
+{102934: '_available'}
+{33188: 'usep'}
+{85838: ' architekt'}
+{46568: 'dfrac'}
+{37141: '{S'}
+{58887: ' gema'}
+{100475: ' automobil'}
+{109784: ' restitu'}
+{79059: 'ttet'}
+{46722: ' amerik'}
+{76284: 'esez'}
+{53378: ' ontwikk'}
+{96415: 'iseer'}
+{25879: 'entiel'}
+{130732: ' fokus'}
+{69413: 'ategori'}
+{69714: 'ztek'}
+{129209: 'lerle'}
+{95072: ' existente'}
+{75291: 'onymie'}
+{78181: ' kapit'}
+{59192: 'okemon'}
+{112120: ' piem'}
+{123150: ' När'}
+{35865: '{T'}
+{113380: 'ztet'}
+{108721: ' abert'}
+{29088: 'upart'}
+{20376: '{d'}
+{131020: ' komponent'}
+{36999: '{B'}
+{123899: ' konsek'}
+{97647: ' faktor'}
+{117348: '.FC'}
+{119478: ' engan'}
+{61601: 'taires'}
+{129703: ' cirka'}
+{121025: ' langt'}
+{70773: ' posa'}
+{67776: 'kowo'}
+{77718: ' branche'}
+{125972: 'szer'}
+{38022: 'Hauptartikel'}
+{89567: 'üld'}
+{17222: '{x'}
+{59509: ' januar'}
+{107464: ' jobb'}
+{103994: ' Satteld'}
+{40999: '{Z'}
+{118798: ' bracht'}
+{24343: ' bilan'}
+{42578: ' ressort'}
+{123862: ' komed'}
+{81280: ' franqu'}
+{80535: ' objek'}
+{129312: ' lampe'}
+{67522: '«S'}
+{71648: ' galerie'}
+{19046: 'overline'}
+{38799: '{m'}
+{32878: '{F'}
+{74374: ' originales'}
+{81059: ' kunde'}
+{85361: 'Lorem'}
+{109078: ' foren'}
+{88805: ' magie'}
+{39881: 'mekt'}
+{91156: 'aatst'}
+{116545: ' karbon'}
+{130680: ' kontrak'}
+{114779: ' karier'}
+{73256: 'ackbar'}
+{26164: ' ön'}
+{55681: '{K'}
+{54064: ' konfl'}
+{19368: '{R'}
+{70485: ' februar'}
+{119069: 'ujen'}
+{110556: '-checkbox'}
+{69229: ' variante'}
+{123705: ' köl'}
+{30188: '\\frac'}
+{33788: ' javascript'}
+{111863: ' territoriales'}
+{35069: '{H'}
+{62354: ' consectetur'}
+{12974: 'avascript'}
+{128665: '.Tests'}
+{110927: ' Blason'}

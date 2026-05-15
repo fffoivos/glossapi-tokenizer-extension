@@ -12,9 +12,9 @@ different resolution:
 
 | layer | bits used | example for bare-ASCII ` the` | example for `ß`-containing token |
 |---|---|---|---|
-| **language** | 55 | all 28 Latin locales | only `de` |
-| **family** | 31 | all 8 Latin families | only `Germanic-Latn` |
-| **script** | 22 | only `Latn` | only `Latn` |
+| **language** | 88 | all Latin locales (~40, see languages.yaml) | only `de` |
+| **family** | 47 | all Latin families (10, see families.yaml) | only `Germanic-Latn` |
+| **script** | 29 | only `Latn` | only `Latn` |
 
 A token's chars that are language-discriminating (`ñ`, `ß`, `ł`, `中`,
 Greek polytonic) narrow at every layer simultaneously; chars that
@@ -59,9 +59,11 @@ Rationale (from `PLAN_v3_HIERARCHICAL.md § Why projection-only`):
 
 ## Inputs
 
-- **Scope** — 55 (language, script, encoding) triples in
-  `languages.yaml`, 31 families in `families.yaml`, 22 scripts in
-  `scripts.yaml`. Derived from Apertus's documented pretrain mix
+- **Scope** — 88 (language, script, encoding) triples in
+  `languages.yaml`, 47 families in `families.yaml`, 29 scripts in
+  `scripts.yaml` (as of v3.3.3). Bit positions are stable wire
+  identifiers — never reassigned. Derived from Apertus's documented
+  pretrain mix
   (`docs/APERTUS_PRETRAINING_DATA_AND_GREEK_SHARE.md`) used as a
   proxy for Mistral-Nemo's unpublished tokenizer-training language
   list. See `PLAN_v3_HIERARCHICAL.md § Resolved decisions`.
@@ -70,16 +72,16 @@ Rationale (from `PLAN_v3_HIERARCHICAL.md § Why projection-only`):
   cldr-json (release pinned in `languages.yaml`). Fetched once,
   cached under `data/cldr/<release>/`.
 
-## Outputs (schema v4)
+## Outputs (schema v5)
 
 `artifacts/char_language_bitmask.parquet` — one row per codepoint:
 
 | column | type | meaning |
 |---|---|---|
 | `codepoint` | `uint32` | Unicode scalar value |
-| `script_bits` | `binary(16)` | 22-bit script mask, little-endian |
-| `family_bits` | `binary(16)` | 31-bit family mask, little-endian |
-| `bitmask` | `binary(16)` | 55-bit language mask, little-endian |
+| `script_bits` | `binary(16)` | script mask, little-endian; current bits used recorded in `manifest.json` |
+| `family_bits` | `binary(16)` | family mask, little-endian; current bits used recorded in `manifest.json` |
+| `bitmask` | `binary(16)` | language mask, little-endian; current bits used recorded in `manifest.json` |
 | `char` | `string` | the character itself, for inspection |
 | `num_langs` | `uint8` | popcount of `bitmask` |
 | `category` | `string` | Unicode general category |
@@ -102,7 +104,7 @@ Manifests:
 
 - `artifacts/manifest.json` — char-build provenance: bit assignments
   at all three layers, CLDR release, closures applied, proxy-
-  assumption note. `schema_version: 4`.
+  assumption note. `schema_version: 5`.
 - `artifacts/token_manifest.json` — apply-step provenance: Apertus
   snapshot path + revision SHA, char-table build timestamp, status
   counts, per-layer AND-popcount distributions.
@@ -165,14 +167,15 @@ authoritative bit assignments at each level.
 
 ## Files
 
-- `PLAN_v3_HIERARCHICAL.md` — **active design** (v4 schema). Read
-  first.
+- `PLAN_v3_HIERARCHICAL.md` — hierarchical schema design. The top
+  banner notes where the live scope has grown since the original v3
+  design moment.
 - `PLAN.md` — preserved v2.2 design (language-layer-only); useful
   background for the closures and substrate rule that v3 extends.
 - `TODO.md` — open work.
-- `scripts.yaml` — 22-script source of truth.
-- `families.yaml` — 31-family source of truth.
-- `languages.yaml` — 55-locale source of truth.
+- `scripts.yaml` — script-level source of truth.
+- `families.yaml` — family-level source of truth.
+- `languages.yaml` — language-level source of truth.
 - `scripts/_common.py` — shared constants and helpers (bitmask
   encoding, substrate rule, derivation functions).
 - `scripts/build_char_language_bitmask.py` — codepoint-level build.

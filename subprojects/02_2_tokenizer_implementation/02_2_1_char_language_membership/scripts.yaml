@@ -9,7 +9,7 @@
 # (Grek-modern and Grek-polyton) so the modern / polytonic split is
 # legible at the script layer too.
 #
-# 22 entries → fits in binary(16) (uniform width across the three
+# 29 entries (as of v3.3) → fits in binary(16) (uniform width across the three
 # bitmask levels for consumer simplicity).
 
 version: 1
@@ -37,7 +37,9 @@ scripts:
   - bit: 5
     code: Hans
     iso15924: Hans
+    iso15924_aliases: [Hani]
     name: Han (Simplified)
+    note: Hani is FineWeb-2's generic Han-script tag; consumers should default Hani → Hans (Simplified is the larger CJK corpus by volume); switch to Hant only if the sample is identified as Traditional.
   - bit: 6
     code: Hant
     iso15924: Hant
@@ -45,7 +47,9 @@ scripts:
   - bit: 7
     code: Jpan
     iso15924: Jpan
+    iso15924_aliases: [Hira, Kana, Hrkt]
     name: Japanese (Han + Kana)
+    note: Hira / Kana / Hrkt are the syllable-set tags that map to Japanese when paired with `jpn`. Generic Hani in a `jpn_*` key also resolves here.
   - bit: 8
     code: Hang
     iso15924: Hang
@@ -102,3 +106,33 @@ scripts:
     code: Mymr
     iso15924: Mymr
     name: Myanmar
+
+  # --- v3.3 additions (new scripts) ---
+  - bit: 22
+    code: Ethi
+    iso15924: Ethi
+    name: Ethiopic
+  - bit: 23
+    code: Khmr
+    iso15924: Khmr
+    name: Khmer
+  - bit: 24
+    code: Sinh
+    iso15924: Sinh
+    name: Sinhala
+  - bit: 25
+    code: Laoo
+    iso15924: Laoo
+    name: Lao
+  - bit: 26
+    code: Tibt
+    iso15924: Tibt
+    name: Tibetan
+  - bit: 27
+    code: Orya
+    iso15924: Orya
+    name: Odia (Oriya)
+  - bit: 28
+    code: Thaa
+    iso15924: Thaa
+    name: Thaana

@@ -1,0 +1,65 @@
+# target_key=tel_Telu  lang_code=te
+# Σ_target=1,005,987,784  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 60 tokens, sorted by count desc
+{18681: None}
+{3738: None}
+{1379: None}
+{1769: None}
+{1791: '..'}
+{2178: None}
+{42480: None}
+{2321: None}
+{17897: None}
+{6528: None}
+{3255: None}
+{11036: None}
+{2825: None}
+{94753: None}
+{36552: None}
+{43459: None}
+{128377: None}
+{51504: None}
+{5580: None}
+{55947: None}
+{1604: None}
+{31268: None}
+{83981: '’’'}
+{119192: ' IST'}
+{68160: ' ‘‘'}
+{57939: None}
+{107378: ' hrs'}
+{9173: 'ifest'}
+{83337: 'obiles'}
+{67514: ' Pradesh'}
+{22461: 'Also'}
+{38237: 'READ'}
+{38076: 'Tags'}
+{71262: ' LIMIT'}
+{83053: ' Movies'}
+{82163: ' Publishers'}
+{105910: None}
+{94884: 'Entertainment'}
+{50000: ' empower'}
+{2255: '\u200c'}
+{97857: ' Rao'}
+{103027: ' Hyderabad'}
+{99613: 'TAIN'}
+{46126: 'ENTER'}
+{62462: ' Publish'}
+{92399: 'derabad'}
+{70368: 'Movies'}
+{67777: None}
+{101606: ' credible'}
+{9816: '`.'}
+{1228: None}
+{99905: 'Bigg'}
+{48519: ' Notification'}
+{7295: ' :\n\n'}
+{117639: '(Image'}
+{39465: '.Key'}
+{16316: '(file'}
+{36242: '_format'}
+{121325: '(collection'}
+{18332: '_model'}

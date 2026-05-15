@@ -17,8 +17,9 @@ import unicodedata
 
 
 # Bitmask storage: fixed-width little-endian binary in Parquet.
-# 16 bytes = 128-bit budget; today's scope uses 55 bits, leaving plenty
-# of headroom for audit-driven additions (Kazakh, Pashto, Khmer, etc.).
+# 16 bytes = 128-bit budget; current scope (as of v3.3.3) uses 88
+# language bits / 47 family bits / 29 script bits, leaving plenty of
+# headroom for future audit-driven additions.
 BITMASK_BYTES: int = 16
 BITMASK_MAX_BIT: int = BITMASK_BYTES * 8
 
@@ -86,6 +87,103 @@ def derive_family_bits(
         if lang_bits & fam_lang_mask:
             out |= 1 << f["bit"]
     return out
+
+
+def build_iso_lookup(
+    languages: list[dict],
+    scripts: list[dict],
+) -> dict[tuple[str, str], str]:
+    """Build a `(iso_639_3, iso_15924) → char_tool_code` lookup table.
+
+    Resolves consumer canonical keys like `eng_Latn`, `srp_Cyrl`,
+    `cmn_Hani`, `est_Latn`, `lvs_Latn`, `ekk_Latn` to the char-tool's
+    BCP 47 code at bit-level. Built from `languages.yaml` + `scripts.yaml`
+    primary fields and the documented aliases:
+
+      - `iso_639_3` primary + `iso_639_3_aliases` (e.g., est+ekk,
+        lav+lvs, zho+chi+cmn, mon+khk).
+      - `iso15924` primary + `iso15924_aliases` (e.g., Hans+Hani as
+        the FineWeb-2 default; Jpan+Hira+Kana+Hrkt for Japanese).
+
+    The lookup is many-to-one: every alias resolves to a single
+    char-tool code. When multiple char-tool codes could resolve (e.g.
+    `zho_Hani` could match both `zh-Hans` and `zh-Hant`), the first
+    matching script in `iso15924` (primary) wins — for `Hani`, that's
+    `zh-Hans` (the documented Simplified-as-default rule).
+    """
+    # script-code → (iso15924 primary, set of aliases)
+    script_iso_to_code: dict[str, str] = {}
+    for s in scripts:
+        primary = s["iso15924"]
+        # primary always points to this script
+        script_iso_to_code.setdefault(primary, s["code"])
+        for alias in s.get("iso15924_aliases", []) or []:
+            script_iso_to_code.setdefault(alias, s["code"])
+
+    out: dict[tuple[str, str], str] = {}
+    for L in languages:
+        char_tool_code = L["code"]
+        primary_iso = L["iso_639_3"]
+        aliases = L.get("iso_639_3_aliases", []) or []
+        # All ISO 639-3 codes that resolve to this language
+        all_lang_iso = [primary_iso] + list(aliases)
+        # The script for this language. Match scripts by EITHER `code`
+        # OR `iso15924` — most language entries use the iso15924
+        # value directly (e.g. ru's `script: Cyrl` matches scripts.yaml's
+        # `code: Cyrl, iso15924: Cyrl`), but Greek is an exception
+        # because there are two scripts (Grek-modern, Grek-polyton) that
+        # both have `iso15924: Grek` while their `code` differs.
+        # Tolerant matching here ensures `el` / `el-polyton` (both with
+        # `script: Grek`) pick up entries for `(ell, Grek)` and
+        # `(gre, Grek)`. Tie-break is iteration order in languages.yaml
+        # (el wins for `ell_Grek` because it's declared first).
+        lang_script = L["script"]
+        compatible_scripts: list[str] = []
+        seen_iso: set[str] = set()
+        for s in scripts:
+            if s["code"] == lang_script or s["iso15924"] == lang_script:
+                primary_iso15924 = s["iso15924"]
+                if primary_iso15924 not in seen_iso:
+                    compatible_scripts.append(primary_iso15924)
+                    seen_iso.add(primary_iso15924)
+                for a in s.get("iso15924_aliases", []) or []:
+                    if a not in seen_iso:
+                        compatible_scripts.append(a)
+                        seen_iso.add(a)
+        for liso in all_lang_iso:
+            for sc in compatible_scripts:
+                key = (liso, sc)
+                # First write wins (handles Hans-default-for-Hani semantics
+                # because zh-Hans is declared before zh-Hant in scripts.yaml,
+                # and `Hani` is in zh-Hans's aliases not zh-Hant's; same
+                # mechanism makes el win over el-polyton for `ell_Grek`).
+                out.setdefault(key, char_tool_code)
+    return out
+
+
+def code_from_canonical_key(
+    canonical_key: str,
+    iso_lookup: dict[tuple[str, str], str],
+) -> str | None:
+    """Resolve a `<iso_639_3>_<iso_15924>` canonical key (FineWeb-2 /
+    ISO style) to the char-tool's BCP 47 code, or None if the key
+    references a language not in scope.
+
+    Examples:
+      `eng_Latn` → `en`
+      `srp_Cyrl` → `sr-Cyrl`
+      `cmn_Hani` → `zh-Hans` (default per Hans/Hani alias rule)
+      `ekk_Latn` → `et` (macrolanguage-individual alias)
+      `lvs_Latn` → `lv`
+      `swa_Latn` → `sw` (Swahili, added v3.2)
+      `gmh_Latn` → None  (Middle High German — no CLDR data; consumer
+                          should fall back to script-only resolution)
+      `khk_Cyrl` → `mn`
+    """
+    if "_" not in canonical_key:
+        return None
+    iso_lang, _, iso_script = canonical_key.partition("_")
+    return iso_lookup.get((iso_lang, iso_script))
 
 
 def build_script_to_lang_mask(

@@ -1,0 +1,23 @@
+# target_key=eus_Latn  lang_code=eu
+# Σ_target=1,009,291,694  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 18 tokens, sorted by count desc
+{2545: ' %'}
+{60115: '.–'}
+{85479: ' límites'}
+{89367: 'Más'}
+{46255: '—,'}
+{66586: '…)'}
+{41758: ' (%'}
+{20202: '—.'}
+{62234: 'cripción'}
+{59926: ' Sebastián'}
+{38016: ' Ál'}
+{38667: ',%'}
+{2255: '\u200c'}
+{31007: ':%'}
+{129624: ' Producción'}
+{95967: ' $-'}
+{16474: ']}'}
+{120236: '////////////////////////////////'}

@@ -1,0 +1,23 @@
+# target_key=div_Thaa  lang_code=dv
+# Σ_target=1,039,412,057  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B (rate test only — no char mask)
+# 18 tokens, sorted by count desc
+{1222: None}
+{1166: None}
+{1176: None}
+{1135: None}
+{1170: None}
+{1168: None}
+{1130: None}
+{1167: None}
+{1137: None}
+{1134: None}
+{1131: None}
+{1142: None}
+{1128: None}
+{1140: None}
+{1169: None}
+{1144: None}
+{1129: None}
+{16858: ' ?>\n'}

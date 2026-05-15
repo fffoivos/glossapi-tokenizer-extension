@@ -1,0 +1,15 @@
+# target_key=ekk_Latn  lang_code=et
+# Σ_target=1,009,947,553  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 10 tokens, sorted by count desc
+{1492: None}
+{114091: ',»'}
+{4964: '"]'}
+{12161: ' ["'}
+{9947: '=>'}
+{35346: ' ->\n'}
+{72436: None}
+{26890: ' *«'}
+{52076: ' /></'}
+{128139: '"]='}

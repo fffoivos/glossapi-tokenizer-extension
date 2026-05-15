@@ -1,0 +1,1176 @@
+# target_key=ceb_Latn  lang_code=ceb
+# Σ_target=1,001,254,088  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=A (char-mask ON: bit set, popcount<88, evaluable)
+# 1,171 tokens, sorted by count desc
+{1887: ' sa'}
+{26372: ' nga'}
+{5110: ' ang'}
+{1533: 'ang'}
+{1401: 'ab'}
+{28720: ' mga'}
+{5179: ' Ang'}
+{43935: ' ug'}
+{1387: 'od'}
+{14628: ' kin'}
+{1393: 'ag'}
+{6512: ' ni'}
+{1417: 'ay'}
+{1263: 'on'}
+{1291: 'ro'}
+{16775: 'Ang'}
+{1612: 'ib'}
+{1360: 'ot'}
+{8614: ' ka'}
+{14852: ' kas'}
+{3026: 'aw'}
+{5796: ' pal'}
+{8135: ' nas'}
+{12746: ' pag'}
+{5229: ' gi'}
+{1706: 'ong'}
+{4661: ' km'}
+{4183: 'ih'}
+{1341: 'ut'}
+{3441: ' mil'}
+{18619: 'imet'}
+{1914: ' ma'}
+{3598: 'ini'}
+{12801: '°C'}
+{3577: 'ga'}
+{94563: 'apit'}
+{13781: ' bah'}
+{2699: 'uk'}
+{13504: 'yo'}
+{39120: 'ihan'}
+{49021: ' bulan'}
+{66060: 'arang'}
+{3575: ' bas'}
+{1906: 'lo'}
+{6318: 'pan'}
+{3129: ' hab'}
+{1936: 'ug'}
+{2553: '-s'}
+{9545: 'han'}
+{20128: ' dag'}
+{1586: 'ip'}
+{1855: ' am'}
+{10664: 'atan'}
+{2039: 'ado'}
+{66180: ' Nah'}
+{9355: 'lan'}
+{13604: ' ib'}
+{115074: ' klima'}
+{30308: ' metros'}
+{17619: ' nah'}
+{1500: 'og'}
+{22900: 'anan'}
+{16034: 'ahan'}
+{1493: 'ain'}
+{1067: 'C'}
+{25580: 'itan'}
+{12407: 'wan'}
+{4692: 'init'}
+{3183: ' mat'}
+{8821: 'akan'}
+{56163: ' kah'}
+{4263: 'ya'}
+{6248: 'imo'}
+{1484: 'op'}
+{41018: ' usa'}
+{14727: 'igan'}
+{11167: '-k'}
+{11995: 'yon'}
+{122017: 'asad'}
+{9443: ' tan'}
+{11413: 'angan'}
+{5452: ' mas'}
+{16013: 'alan'}
+{4487: ' tu'}
+{8528: 'asa'}
+{6156: 'sub'}
+{18721: 'oga'}
+{2054: 'wo'}
+{12702: 'aug'}
+{30933: ' kilomet'}
+{30472: 'ulan'}
+{110231: ' Hul'}
+{11555: ' tub'}
+{14684: ' ub'}
+{17504: ' Ener'}
+{2243: 'ays'}
+{36819: ' nal'}
+{43702: ' sid'}
+{6647: 'ags'}
+{17233: ' nag'}
+{7474: ' Sa'}
+{13759: 'awa'}
+{15722: ' kw'}
+{10845: 'adr'}
+{7734: 'uta'}
+{11075: 'apon'}
+{40272: 'iyon'}
+{25887: 'ansa'}
+{122548: ' kini'}
+{77298: ' dak'}
+{3635: 'Al'}
+{19373: 'uran'}
+{69181: ' Tin'}
+{44739: ' kab'}
+{30329: ' kay'}
+{40707: ' lungs'}
+{56269: ' kada'}
+{22480: 'iran'}
+{4197: 'embre'}
+{15010: ' estado'}
+{2155: ' sub'}
+{66497: 'idl'}
+{50878: 'lak'}
+{10386: ' County'}
+{10129: ' River'}
+{80008: 'ogon'}
+{28465: ' Creek'}
+{7090: ' tal'}
+{21193: 'ulas'}
+{2915: ' pop'}
+{61711: ' kond'}
+{23916: ' Dun'}
+{14988: ' bot'}
+{11238: ' Washington'}
+{7324: 'Sub'}
+{16464: ' Lake'}
+{4358: '.C'}
+{21953: ' dun'}
+{46602: ' metro'}
+{109924: 'atang'}
+{42116: 'ayo'}
+{82684: 'klar'}
+{63504: 'estado'}
+{8505: 'ulo'}
+{25766: ' gam'}
+{20468: 'tor'}
+{106759: ' Agosto'}
+{30750: ' mah'}
+{17319: 'hang'}
+{6828: ' Nor'}
+{4108: ' sent'}
+{17346: 'rero'}
+{20250: 'bay'}
+{111479: ' taas'}
+{31108: ' Hun'}
+{8867: ' Dis'}
+{17014: 'bel'}
+{6481: ' Park'}
+{14001: ' Dam'}
+{2730: ' long'}
+{6913: ' lat'}
+{124678: 'adto'}
+{8684: 'sv'}
+{20338: ' wal'}
+{25452: ' mos'}
+{77392: ' Cerro'}
+{12103: ' lan'}
+{2484: ' Mar'}
+{22640: ' mun'}
+{4114: 'ining'}
+{34687: ' hil'}
+{39104: ' Kin'}
+{15535: 'ukan'}
+{16825: ' Spring'}
+{102507: 'bung'}
+{13441: ' Hill'}
+{12235: ' Point'}
+{21652: 'iya'}
+{55330: 'asyon'}
+{27260: ' Mountain'}
+{41050: ' Lac'}
+{63167: ' iy'}
+{5622: ' law'}
+{32266: ' sama'}
+{11146: ' hem'}
+{111399: 'oreal'}
+{47287: ' Oslo'}
+{106947: ' kontin'}
+{25012: 'ikal'}
+{26037: 'kal'}
+{19861: ' Nob'}
+{6496: ' State'}
+{2966: 'way'}
+{26178: ' Nag'}
+{31368: ' anh'}
+{40591: ' Kanada'}
+{40003: ' Sept'}
+{29318: '-an'}
+{15226: 'ubre'}
+{31989: ' Province'}
+{93742: ' Okt'}
+{9778: ' Nord'}
+{21157: ' tin'}
+{38486: ' kaum'}
+{10815: ' Wal'}
+{7447: ' uns'}
+{15678: '-on'}
+{62923: ' Mayo'}
+{123413: 'lal'}
+{40941: ' Mine'}
+{45555: ' Kun'}
+{19940: ' bug'}
+{56452: ' Ottawa'}
+{21412: 'bot'}
+{7469: ' mol'}
+{11854: ' Island'}
+{115317: ' Rusya'}
+{6841: 'lib'}
+{21797: 'don'}
+{6443: ' South'}
+{34610: 'Sa'}
+{13799: ' Mount'}
+{101327: 'kah'}
+{73379: ' Provincia'}
+{10844: ' ing'}
+{53427: ' tung'}
+{99551: ' Abril'}
+{2941: 'wh'}
+{126744: 'stral'}
+{101198: ' tere'}
+{21836: 'wal'}
+{43836: 'idae'}
+{5401: 'ols'}
+{35080: ' bore'}
+{18748: 'ibo'}
+{44760: ' Branch'}
+{7058: '-e'}
+{13814: ' hin'}
+{8487: ' Que'}
+{33379: 'law'}
+{19034: ' Una'}
+{5002: ' among'}
+{83411: 'Kap'}
+{82639: 'onan'}
+{70621: ' Pag'}
+{17814: ' Indones'}
+{9909: 'lang'}
+{12348: ' Prov'}
+{9176: 'uman'}
+{14786: ' subt'}
+{52277: 'angu'}
+{9629: ' Bay'}
+{7018: ' North'}
+{25568: ' Airport'}
+{77953: ' Desa'}
+{3720: ' init'}
+{55426: ' Oblast'}
+{90762: '-Tr'}
+{7910: 'insi'}
+{67213: ' Alem'}
+{52968: ' Peak'}
+{23235: ' git'}
+{81151: ' gib'}
+{5046: ' West'}
+{58575: ' Norge'}
+{11634: ' California'}
+{23278: ' Columbia'}
+{60832: ' Jakarta'}
+{30330: 'pad'}
+{19620: ' Estado'}
+{89712: 'ilah'}
+{88894: ' Jawa'}
+{19726: ' Hu'}
+{79719: ' gusto'}
+{12779: 'reh'}
+{9591: ' Canada'}
+{38328: ' Mississippi'}
+{15112: ' Kh'}
+{56702: ' Departamento'}
+{18006: ' pip'}
+{52730: 'aho'}
+{13920: ' Number'}
+{74361: 'wat'}
+{112473: 'uhi'}
+{104257: ' gid'}
+{11526: 'uso'}
+{7889: ' Wil'}
+{15555: 'aland'}
+{76718: 'alog'}
+{30643: ' Moscow'}
+{41659: ' Republ'}
+{97721: ' Pond'}
+{60089: 'ibal'}
+{31349: ' Ontario'}
+{33736: 'bis'}
+{82302: 'jord'}
+{62461: ' hig'}
+{113052: 'aghan'}
+{60828: ' artik'}
+{48374: 'awan'}
+{20867: ' Region'}
+{66710: ' Canyon'}
+{28289: ' Nas'}
+{49107: 'agh'}
+{11682: ' Rock'}
+{108212: 'ogra'}
+{9871: 'ederal'}
+{117525: ' Sungai'}
+{29806: ' gig'}
+{46634: 'Hey'}
+{28324: 'adt'}
+{90109: ' gis'}
+{7520: ' British'}
+{51942: ' distrito'}
+{13160: ' District'}
+{36318: ' Peru'}
+{49424: 'luk'}
+{45513: ' Meh'}
+{28892: 'Miss'}
+{34536: 'ippi'}
+{77686: ' tig'}
+{18480: ' Little'}
+{34048: ' Gun'}
+{102438: ' kanal'}
+{17017: ' Brasil'}
+{28787: ' Colorado'}
+{15135: ' Texas'}
+{9025: 'py'}
+{91471: 'uban'}
+{28493: ' Brook'}
+{18567: ' Rio'}
+{127810: 'kid'}
+{4643: 'day'}
+{25531: ' Area'}
+{66164: ' Trom'}
+{96553: ' mediter'}
+{43369: ' Ug'}
+{81189: ' Hollow'}
+{38683: ' Oregon'}
+{9235: ' trop'}
+{37142: ' tib'}
+{87320: ' Canberra'}
+{25921: ' Sul'}
+{39090: 'ulti'}
+{9850: ' Esp'}
+{30931: ' Dios'}
+{10243: ' Australia'}
+{12532: ' Kn'}
+{38990: '-us'}
+{103187: 'aniya'}
+{102366: ' nid'}
+{53287: ' Montana'}
+{77895: 'intang'}
+{43985: ' Congo'}
+{19677: ' Carolina'}
+{83818: ' Jab'}
+{19356: ' Virginia'}
+{24461: ' Ts'}
+{115474: 'Wal'}
+{10874: ' Berlin'}
+{47325: ' Ridge'}
+{95846: ' Fork'}
+{111294: 'ubo'}
+{33247: 'zero'}
+{114783: 'Kal'}
+{49850: ' Buk'}
+{59685: ' Timur'}
+{16822: ' Mexico'}
+{87728: 'ohan'}
+{38619: ' Aw'}
+{12193: ' Bus'}
+{42209: ' Alaska'}
+{99196: ' Punta'}
+{15614: ' Run'}
+{31788: 'Ali'}
+{127924: 'ayt'}
+{35293: ' Lima'}
+{95275: 'otan'}
+{8589: 'oir'}
+{5092: ' Aust'}
+{119661: ' Arroyo'}
+{82564: ' Reserv'}
+{22749: ' Pakistan'}
+{57640: ' Gul'}
+{111355: ' kins'}
+{12803: ' Field'}
+{46336: 'iton'}
+{51921: ' Springs'}
+{9573: ' East'}
+{11168: ' trab'}
+{76992: ' Idaho'}
+{90017: ' tali'}
+{42967: ' Chang'}
+{51621: ' Dj'}
+{100564: ' komp'}
+{11664: ' Western'}
+{20171: 'eland'}
+{26268: ' hing'}
+{70559: 'lungs'}
+{34075: ' Tennessee'}
+{58608: '-at'}
+{69504: ' Dag'}
+{74778: 'jell'}
+{122621: ' Tengah'}
+{55880: ' departamento'}
+{28226: ' Lawrence'}
+{5760: 'asing'}
+{71644: ' Barat'}
+{23027: ' Nova'}
+{25061: 'itung'}
+{49635: ' Demokrat'}
+{4073: 'itch'}
+{26953: ' Finn'}
+{45159: ' Woj'}
+{22560: ' Ost'}
+{31643: ' Site'}
+{110395: 'okan'}
+{78390: 'erto'}
+{68846: ' Hed'}
+{19737: ' Valley'}
+{39830: ' Republik'}
+{120333: ' kana'}
+{23549: ' Michigan'}
+{51580: 'atian'}
+{76203: 'bag'}
+{30942: ' Arizona'}
+{40640: ' Queensland'}
+{62822: ' Teng'}
+{82248: ' Wyoming'}
+{14018: ' Rog'}
+{61959: 'Canada'}
+{76204: ' Herzegovina'}
+{22061: ' Malays'}
+{118524: ' tund'}
+{10003: 'udad'}
+{42234: ' Utah'}
+{123078: 'gara'}
+{19080: ' Northern'}
+{36031: 'Lu'}
+{18518: ' Sea'}
+{25221: ' Gh'}
+{19251: ' Monte'}
+{35168: ' Bras'}
+{34663: 'igg'}
+{41607: 'ilian'}
+{88490: 'dala'}
+{48906: ' Nevada'}
+{39407: ' Kentucky'}
+{28542: ' Pennsylvania'}
+{95001: ' Finlandia'}
+{30646: ' Minnesota'}
+{83019: ' Scotia'}
+{54929: ' Bosnia'}
+{38378: ' Alabama'}
+{35906: ' Missouri'}
+{92439: 'pto'}
+{31633: 'anon'}
+{27620: '-ad'}
+{30698: ' Alg'}
+{44904: ' Maine'}
+{106745: ' Bavaria'}
+{22288: ' Georgia'}
+{17492: ' Zealand'}
+{18432: ' Argentina'}
+{115972: ' bala'}
+{36603: ' Lower'}
+{97439: 'aday'}
+{113454: ' Kabul'}
+{67674: ' Pine'}
+{41637: '-ap'}
+{126484: 'ebel'}
+{19787: ' Grande'}
+{119075: ' Labrador'}
+{103672: ' Newfoundland'}
+{41771: ' Historical'}
+{109680: ' Kali'}
+{66312: ' Flat'}
+{45105: ' Sax'}
+{116419: ' Glac'}
+{120624: ' Bosni'}
+{95336: ' Marker'}
+{35663: ' Oil'}
+{35398: ' Hills'}
+{83499: ' Manitoba'}
+{75808: 'wes'}
+{39447: ' Bear'}
+{46235: 'angl'}
+{70360: ' Lago'}
+{24223: ' Governor'}
+{33611: ' Cape'}
+{74226: ' Kuala'}
+{38003: ' Wisconsin'}
+{17170: ' Head'}
+{11177: 'ustomer'}
+{43540: ' Bj'}
+{37068: ' administrat'}
+{80026: ' Laguna'}
+{104132: ':C'}
+{113586: 'pland'}
+{70625: 'ovsk'}
+{36792: ' Dak'}
+{50831: ' Arkansas'}
+{112837: 'avao'}
+{101398: '-ye'}
+{23875: ' Finland'}
+{72127: ' Saud'}
+{78104: ' Sug'}
+{93573: 'tamb'}
+{82014: ' Wildlife'}
+{102439: ' Cove'}
+{13856: 'Tag'}
+{32802: ' Federation'}
+{117922: ' Pulau'}
+{48701: ' Atlant'}
+{28900: ' Illinois'}
+{101271: ' Dug'}
+{60759: ' Resp'}
+{81403: ' Lumpur'}
+{101113: 'ampo'}
+{68362: ' Bangkok'}
+{23370: ' Pow'}
+{39419: ' Upper'}
+{53851: '-os'}
+{25606: ' Ohio'}
+{107921: ' Gip'}
+{60145: ' Manila'}
+{118237: ' Tung'}
+{128289: ' Kins'}
+{80889: '-ab'}
+{89392: 'opan'}
+{47536: '-West'}
+{83623: ' Mesa'}
+{31372: ' ray'}
+{45612: ' Helsinki'}
+{115397: 'hasa'}
+{41480: ' Louisiana'}
+{114487: 'lok'}
+{112873: 'esy'}
+{81622: ' Mys'}
+{49686: ' Wellington'}
+{27777: ' Norte'}
+{28668: ' Venezuela'}
+{90790: ' Mud'}
+{19662: ' Southern'}
+{48965: '-di'}
+{70698: ' Kv'}
+{55567: ' Mao'}
+{37833: ' Oklahoma'}
+{69945: ' Distrito'}
+{53255: 'isseau'}
+{51967: ' Alto'}
+{116887: 'Columbia'}
+{64775: ' Conservation'}
+{33008: ' Agu'}
+{17526: 'UTC'}
+{107255: ' Ceb'}
+{28888: ' Mayor'}
+{48903: ' Dakota'}
+{48274: 'ossen'}
+{102322: 'raya'}
+{29413: ' Santo'}
+{27242: ' Islands'}
+{62593: ' Jude'}
+{28207: ' Massachusetts'}
+{97400: 'Administ'}
+{81917: ' Meadow'}
+{63322: ' Dry'}
+{39502: ' Bald'}
+{123006: 'yente'}
+{34261: ' Indiana'}
+{31275: ' Turkey'}
+{24680: ' Regional'}
+{28464: ' Stream'}
+{35922: ' Swiss'}
+{27202: ' Memorial'}
+{124434: ' Pah'}
+{61545: ' Zamb'}
+{55315: 'Aw'}
+{130479: ' Krasn'}
+{78096: ' Poh'}
+{70099: 'nga'}
+{79420: ' Ribe'}
+{65598: ' Serra'}
+{84046: ' Sarajevo'}
+{118359: '-ob'}
+{100813: ' entidad'}
+{60295: ' Castilla'}
+{25112: ' Aires'}
+{19364: ' Middle'}
+{119360: ' Cedar'}
+{26239: ' Buenos'}
+{4638: 'Date'}
+{27453: ' Sweden'}
+{49411: ' Sudan'}
+{54622: ' Historic'}
+{34562: ' Oak'}
+{116916: ' Chao'}
+{89674: ' Saskatchewan'}
+{130149: ' Aron'}
+{31414: ' Range'}
+{67181: ' Magdalena'}
+{129499: ' Rheinland'}
+{29998: ' Buck'}
+{68656: ' Lakes'}
+{27695: ' Colombia'}
+{33739: ' Tall'}
+{70314: 'entina'}
+{67915: ' Nun'}
+{112089: 'Rio'}
+{82326: ' Nile'}
+{18545: ' Round'}
+{71941: 'ilidad'}
+{30805: ' Canal'}
+{50693: 'lain'}
+{47822: ' Horse'}
+{29696: ' Draw'}
+{105648: ' Sarawak'}
+{24414: ' Nig'}
+{80890: ' Bezirk'}
+{103738: ' Recreation'}
+{58118: ' Lebanon'}
+{73175: ' Warsaw'}
+{92174: ' Soil'}
+{27714: '-down'}
+{109702: ' Tasmania'}
+{124170: ' Beaver'}
+{49231: ' Census'}
+{31246: ' Zone'}
+{3970: 'load'}
+{44921: ' Baden'}
+{70339: ' Yuk'}
+{86462: ' Papua'}
+{70697: ' Parish'}
+{78369: ' Isla'}
+{75208: ' Twin'}
+{35721: ' Provinc'}
+{4405: 'ground'}
+{96710: ' Ranch'}
+{47880: ' Mountains'}
+{129473: 'ksiyon'}
+{82303: ' Utara'}
+{66520: ' Rocky'}
+{40776: ' Iowa'}
+{102484: 'Amazon'}
+{103739: ' Kanton'}
+{49964: ' Alberta'}
+{59279: ' Nebraska'}
+{4049: 'Time'}
+{49242: ' Panama'}
+{20057: ' Eastern'}
+{41393: ' Vienna'}
+{61699: ' Territory'}
+{93186: ' Willow'}
+{117338: 'oum'}
+{96335: 'haw'}
+{87512: ' Rwanda'}
+{130632: ' Bucharest'}
+{70178: 'Kay'}
+{72769: '-access'}
+{44677: ' Connecticut'}
+{70217: 'Kin'}
+{77652: 'Geo'}
+{18302: 'Names'}
+{69447: ' Arh'}
+{50952: ' Solomon'}
+{35522: ' Maryland'}
+{27820: ' Puerto'}
+{57001: ' Philippine'}
+{67858: ' Basin'}
+{91203: ' Gis'}
+{43585: ' Salt'}
+{61465: ' Kamer'}
+{81947: ' Borough'}
+{66851: ' Northwest'}
+{80393: 'kong'}
+{50968: 'tip'}
+{90558: ' Wash'}
+{48678: ' Eagle'}
+{57981: ' Provincial'}
+{20645: 'iday'}
+{39786: ' Clear'}
+{24348: ' Burn'}
+{48966: ' Domingo'}
+{18410: 'arry'}
+{121125: 'ilus'}
+{76504: ' Caracas'}
+{112216: 'onesia'}
+{51467: ' Hampshire'}
+{48856: ' Negro'}
+{102156: ' Chil'}
+{39566: ' Orient'}
+{109080: 'jois'}
+{77140: ' Cotton'}
+{38585: ' Czech'}
+{123994: ' Deer'}
+{42245: ' Falls'}
+{7614: 'requ'}
+{106450: '-Nord'}
+{124257: '-ag'}
+{34321: ' Sierra'}
+{102242: 'ibid'}
+{30825: ' Franklin'}
+{100272: ' Kand'}
+{31939: ' Git'}
+{84902: ' Tub'}
+{27559: 'Dist'}
+{47088: ' Hawaii'}
+{42650: ' Oc'}
+{95185: 'kopf'}
+{66536: ' peligro'}
+{45152: ' Hessen'}
+{103566: 'soon'}
+{123397: ' Kecamatan'}
+{48367: '-Saint'}
+{98140: ' Nug'}
+{54545: '-Jean'}
+{21151: ' Gib'}
+{98230: ' Beirut'}
+{68568: ' Mile'}
+{32063: ' Yam'}
+{108047: ' Regierungsbezirk'}
+{52164: ' Auckland'}
+{75733: ' Minas'}
+{70402: 'ubat'}
+{128401: ' Territories'}
+{68380: ' Brunswick'}
+{101518: ' Rocks'}
+{130751: ' Prospect'}
+{31487: ' Tig'}
+{95346: 'ayas'}
+{17729: 'edge'}
+{84140: ' pets'}
+{64488: ' Vars'}
+{19762: ' tags'}
+{126261: ' Amazonas'}
+{62498: ' Canton'}
+{27922: 'entral'}
+{124471: ' Barran'}
+{65933: 'uco'}
+{44115: ' Fish'}
+{91463: 'rhein'}
+{91709: ' Lisbon'}
+{110127: '-ant'}
+{87345: ' Lus'}
+{34641: ' Cow'}
+{75403: ' Punjab'}
+{82417: 'igon'}
+{19628: ' Marsh'}
+{74860: ' Belgrade'}
+{41312: ' Jefferson'}
+{48806: ' aktibo'}
+{119938: ' Brush'}
+{81489: 'falen'}
+{25794: 'auv'}
+{90671: ' Areas'}
+{74219: ' Ami'}
+{89209: '-install'}
+{108853: ' Vass'}
+{118094: 'alum'}
+{59061: ' Sandy'}
+{68280: ' Pied'}
+{95297: ' Mecklenburg'}
+{35802: 'istory'}
+{64486: 'amarca'}
+{129813: 'Finland'}
+{50399: ' Cot'}
+{85142: ' Catalogue'}
+{113148: ' Pomer'}
+{107862: ' Dominik'}
+{52843: ' Rund'}
+{22226: 'Bus'}
+{63114: ' Antio'}
+{93596: 'opf'}
+{100972: ' Danube'}
+{61526: ' Peninsula'}
+{89836: ' Hole'}
+{38467: ' Lost'}
+{20681: ' Look'}
+{106992: '-update'}
+{38952: 'addle'}
+{53475: ' Saw'}
+{108405: ' Gerais'}
+{59071: ' Brandenburg'}
+{117700: ' Prairie'}
+{46799: ' Midd'}
+{68743: ' Jump'}
+{50244: ' Petit'}
+{103624: ' Rapids'}
+{57088: ' Grove'}
+{76169: ' Summit'}
+{94507: ':N'}
+{29106: ' Nieder'}
+{72954: ' Pseud'}
+{68218: ' Vermont'}
+{79326: ' Schleswig'}
+{89815: ' Landing'}
+{90257: 'Gib'}
+{111831: ' Damascus'}
+{95803: '-Holstein'}
+{83873: ' Neck'}
+{61578: ' Prague'}
+{91818: ' Cabo'}
+{71516: 'pail'}
+{65202: ' Guerrero'}
+{56986: ' Waters'}
+{94937: ' Gob'}
+{41263: ' Monument'}
+{5047: 'Color'}
+{54380: ' salida'}
+{40851: ' Yellow'}
+{122431: ' Cau'}
+{88714: ' Mexiko'}
+{76574: 'Estado'}
+{40565: ' Admin'}
+{70404: 'Git'}
+{63526: ' Sugar'}
+{16996: 'ateral'}
+{94778: ' Sham'}
+{18417: 'istered'}
+{82536: ' Hog'}
+{81168: ' Copper'}
+{33405: ' Chel'}
+{41414: ' Coal'}
+{71204: 'Jump'}
+{50825: ' Glen'}
+{84628: 'oulder'}
+{28750: ' Anc'}
+{114922: ' Liban'}
+{41952: 'ouss'}
+{49766: 'Human'}
+{52294: '-La'}
+{114884: 'Brasil'}
+{27732: 'asant'}
+{64882: ' Canterbury'}
+{122732: ' Cus'}
+{48571: ' Cliff'}
+{102706: ' Kamen'}
+{29415: '-id'}
+{34546: ' Clay'}
+{121637: ' Ratt'}
+{62704: ' Delaware'}
+{93580: ' Coy'}
+{45769: 'idental'}
+{118418: ' Kuba'}
+{69420: ' Tunnel'}
+{73101: ' Cherry'}
+{110330: ' Kana'}
+{122946: 'Colombia'}
+{59064: ' Duck'}
+{123482: ' Pico'}
+{114904: ' Gull'}
+{43546: '-date'}
+{130488: ' Horses'}
+{79525: ' Blanca'}
+{74867: ' Cave'}
+{100501: ' Municipio'}
+{96508: ' Devils'}
+{117130: 'nake'}
+{121419: ' Refuge'}
+{52631: ' Marion'}
+{75193: '-focus'}
+{114828: ' Municipality'}
+{80988: ' Tunisia'}
+{119078: ' Chih'}
+{45343: 'rosso'}
+{66696: ' Heights'}
+{124898: ' Bury'}
+{93691: ' Puebla'}
+{70186: ' Chrys'}
+{99020: ' Laurel'}
+{66147: ' Bois'}
+{128981: ' titulo'}
+{78926: ' Toro'}
+{52824: 'assy'}
+{102250: ' Tirol'}
+{122239: ' Havana'}
+{94348: ' Bahia'}
+{94375: ' Chiang'}
+{47473: ' Coch'}
+{36008: ' Sver'}
+{5076: 'abase'}
+{88231: ' Lagos'}
+{89737: ' Lana'}
+{99089: ' Foss'}
+{83576: ' Paso'}
+{93685: '-Qu'}
+{69765: ' Grass'}
+{125892: ' Toc'}
+{82078: ' Gap'}
+{122413: ' Antarct'}
+{129129: 'aneo'}
+{88741: ' Santander'}
+{117576: ' maus'}
+{67554: ' Cone'}
+{42119: ' Structure'}
+{88178: 'Northern'}
+{95250: ' Chim'}
+{115702: ' Hick'}
+{75567: ' Quito'}
+{91612: ' Nip'}
+{76182: ' Dome'}
+{65174: ' Dee'}
+{128588: 'ckie'}
+{15553: 'oked'}
+{60462: ' Pyram'}
+{114831: ' Mines'}
+{113171: 'Chile'}
+{78318: ' Timber'}
+{60952: ' Fraser'}
+{5224: 'ategory'}
+{103076: ' Humboldt'}
+{104662: ' Flanders'}
+{103183: 'elope'}
+{106183: ' Forst'}
+{81398: ' Tch'}
+{58241: 'represent'}
+{130471: 'UCN'}
+{106846: ' dios'}
+{108888: ' Riverside'}
+{107478: ' Pike'}
+{59635: ' stainless'}
+{86980: ' Aragon'}
+{99672: ' Hancock'}
+{130272: ' Garfield'}
+{110950: ' Sunset'}
+{83515: ' Maple'}
+{124918: ' Goi'}
+{60307: ' gobernador'}
+{91622: ' Bench'}
+{80593: ' Zaragoza'}
+{97116: ' Cabe'}
+{125979: ' Hanoi'}
+{35101: 'abama'}
+{74617: ' tonel'}
+{124262: ' Barrio'}
+{52910: 'iggins'}
+{78820: ' Snake'}
+{110045: ' Cumberland'}
+{63986: ' Knox'}
+{112361: ' Chico'}
+{129504: ' underwear'}
+{72589: ' Sacramento'}
+{97053: 'etsk'}
+{60490: 'onitor'}
+{67259: ' welding'}
+{109154: 'arct'}
+{92234: ' Hidden'}
+{90416: ' Panther'}
+{90645: ' Mackenzie'}
+{89723: ' Browns'}
+{83210: 'antidad'}
+{129319: 'alisco'}
+{73527: ' Essex'}
+{102590: ' Libertad'}
+{110706: ' sings'}
+{112575: ' Somali'}
+{81316: '-edit'}
+{117174: ' Elm'}
+{76283: ' Nome'}
+{90675: 'illera'}
+{91348: ' Rhine'}
+{110074: ' Catarina'}
+{114500: 'arrows'}
+{94198: ' Strait'}
+{40231: 'Mount'}
+{126730: 'sville'}
+{101825: 'references'}
+{97918: ' Baja'}
+{83313: ' Wheeler'}
+{112621: ' Negra'}
+{92697: ' Chest'}
+{95522: 'erville'}
+{92141: ' Delgado'}
+{2329: 'ween'}
+{61214: ' Karls'}
+{116674: 'alach'}
+{66344: ' Aleman'}
+{43187: ' Carib'}
+{110673: ' Pioneer'}
+{126129: ' Autonomous'}
+{52413: 'rowing'}
+{125654: ' Benton'}
+{69639: ' Salmon'}
+{117222: 'horse'}
+{16347: 'uerto'}
+{116921: ' Cherokee'}
+{64531: ' Hurricane'}
+{49751: 'quito'}
+{57767: 'configure'}
+{24567: ' Pear'}
+{108835: 'ureka'}
+{43845: ' Guadal'}
+{80875: ' Albany'}
+{108117: ' Comunidad'}
+{100997: ' Leningrad'}
+{63525: ' Oval'}
+{50029: ' basin'}
+{70183: 'rabe'}
+{111525: '-upload'}
+{54036: 'seud'}
+{117555: ' Cascade'}
+{14143: 'stack'}
+{103039: ' Passage'}
+{74043: ' Patterson'}
+{130036: ' Boundary'}
+{74146: ' Rabbit'}
+{91470: 'nard'}
+{52707: 'urtle'}
+{115815: ' Highlands'}
+{104167: ' Bajo'}
+{65023: ' Heide'}
+{69838: ' Junction'}
+{98622: ' Clair'}
+{87404: ' Triangle'}
+{99879: ' Caled'}
+{71041: '-rec'}
+{94347: ' Fries'}
+{119512: ' Belize'}
+{98947: ' Worcester'}
+{92258: ' Sheridan'}
+{113540: ' Cano'}
+{76762: ' reef'}
+{36842: ' aluminum'}
+{113816: ' Boone'}
+{114068: ' Bernardino'}
+{110281: '-import'}
+{123597: ' Whites'}
+{93317: ' Hidalgo'}
+{69886: ' Montevideo'}
+{95003: ' Crane'}
+{128823: ' Fulton'}
+{54057: ' Bottom'}
+{87464: ' Veterans'}
+{91239: ' Randolph'}
+{106325: ' Shelby'}
+{64697: ' automation'}
+{112451: ' Togo'}
+{118647: '-print'}
+{102131: ' Hoh'}
+{123618: ' Weir'}
+{44326: ' hydraulic'}
+{18655: 'ycle'}
+{128708: ' Terrace'}
+{41044: ' Mono'}
+{125058: ' Berge'}
+{98813: ' Rough'}
+{126831: ' Sichuan'}
+{104133: ' Veracruz'}
+{121222: ' Livingston'}
+{104664: ' Zamora'}
+{88980: 'iskey'}
+{110568: ' Vold'}
+{117720: ' Josephine'}
+{31119: 'ruguay'}
+{71829: ' Claim'}
+{96428: ' Plateau'}
+{97638: ' Cobb'}
+{86418: ' Hohen'}
+{75019: ' conveyor'}
+{101256: ' Sabine'}
+{91084: '-custom'}
+{125893: ' Salinas'}
+{84462: '-lock'}
+{114383: ' Caldwell'}
+{59563: 'minus'}
+{90817: ' Northeast'}
+{82820: 'royo'}
+{7589: 'adding'}
+{119465: ' Statue'}
+{70510: '-stream'}
+{100220: ' warranty'}
+{35336: ' Pitts'}
+{125437: ' Bartlett'}
+{90830: ' Kassel'}
+{97448: 'gorod'}
+{96985: ' Pipe'}
+{92385: ' Surin'}
+{37513: 'verify'}
+{66964: 'denes'}
+{117456: ' Lyons'}
+{96111: ' Margin'}
+{34834: '-flex'}
+{74843: ' customized'}
+{119763: 'estead'}
+{95919: ' Palmar'}
+{39931: ' Claims'}
+{90067: 'encrypt'}
+{99055: ' Barl'}
+{67519: ' Thirty'}
+{112780: ' machining'}
+{129775: ' seamless'}
+{39516: ' adhesive'}
+{116791: ' Reservation'}
+{47450: ' Landkreis'}
+{100374: '-Ouest'}
+{29067: ' shout'}
+{129468: ' affiliates'}
+{37674: ' alloy'}
+{96579: ' Sevent'}
+{74990: ' Darmstadt'}
+{43246: ' humidity'}
+{118268: 'fecture'}
+{114273: ' moan'}
+{101956: '-login'}
+{93442: ' bearings'}
+{11636: ' gior'}
+{48076: ' sealing'}
+{129576: '-Alpes'}
+{92812: 'erview'}
+{130617: 'stable'}
+{126757: '-email'}
+{80558: 'ibling'}
+{89844: ' acrylic'}
+{44858: 'ograp'}
+{43534: '.div'}
+{70817: ' wastewater'}
+{108819: ' Neustadt'}
+{103169: ' workpiece'}
+{104315: ' Uint'}
+{52853: 'enegro'}
+{121093: ' bushes'}
+{48803: ' Morr'}
+{84799: 'agher'}
+{113225: ' Mitter'}
+{84691: ' seedlings'}
+{97800: '-scroll'}
+{105229: ' Notch'}
+{129710: ' Gm'}
+{96280: ' extrusion'}
+{99648: ' gears'}
+{98755: '-slide'}
+{28975: ' Eag'}
+{116537: ' welded'}
+{64257: '-disable'}
+{3258: 'idth'}
+{120956: ' carbide'}
+{54749: 'mock'}
+{88371: 'remark'}
+{64480: ' flange'}
+{76809: 'branch'}
+{127953: ' Sprague'}
+{56154: ' tensile'}
+{92407: ' helical'}
+{114646: ' fastener'}
+{26962: '-input'}
+{127210: ' insulator'}
+{22961: 'validate'}
+{127897: 'appointment'}
+{32639: 'ahoma'}
+{48449: 'rotate'}
+{60082: ':Set'}
+{65618: 'idopsis'}
+{52111: ' Bool'}
+{101762: ' thermoplastic'}
+{128858: '-delete'}
+{126107: ' Richel'}
+{126653: 'Boletus'}
+{33122: '-toggle'}
+{81703: ' XCT'}
+{127733: 'deploy'}
+{128339: '-preview'}
+{112986: ' quenching'}
+{70140: 'enticate'}
+{70316: '-dismiss'}
+{81136: ' Scaffold'}
+{32789: 'underline'}
+{64336: '>The'}
+{69271: 'uracy'}
+{36969: 'etooth'}
+{114912: ' Daven'}
+{30289: 'rangle'}

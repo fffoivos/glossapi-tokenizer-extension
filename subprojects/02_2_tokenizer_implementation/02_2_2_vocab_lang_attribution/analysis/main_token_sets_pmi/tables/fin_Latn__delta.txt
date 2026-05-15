@@ -1,0 +1,9 @@
+# target_key=fin_Latn  lang_code=fi
+# Σ_target=1,003,286,512  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 4 tokens, sorted by count desc
+{10361: '/?'}
+{63586: '-/'}
+{54275: 'ŝ'}
+{121729: '}})'}

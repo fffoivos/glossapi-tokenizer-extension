@@ -1,0 +1,42 @@
+# target_key=pan_Guru  lang_code=pa
+# Σ_target=1,005,355,882  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 37 tokens, sorted by count desc
+{17716: None}
+{8095: None}
+{3547: None}
+{13189: None}
+{32488: None}
+{2924: '।'}
+{2052: None}
+{31101: None}
+{33636: None}
+{12156: '।\n'}
+{67756: None}
+{17164: ' ’'}
+{3696: None}
+{115469: '॥'}
+{42026: None}
+{47456: '।”\n'}
+{76700: '।”'}
+{32146: ' Singh'}
+{33579: 'ORY'}
+{18573: 'EXT'}
+{63039: '।’'}
+{64011: ' Punj'}
+{75403: ' Punjab'}
+{126895: '।’’\n'}
+{92951: 'Publish'}
+{104288: ' Sikh'}
+{92192: ')—'}
+{42862: ' Broadcast'}
+{47317: ' electromagnetic'}
+{73948: ' reproduced'}
+{59946: 'roadcast'}
+{31107: None}
+{74108: 'Feedback'}
+{117003: ' Responses'}
+{93975: 'Verification'}
+{115869: '।*\n'}
+{57784: '***\n\n'}

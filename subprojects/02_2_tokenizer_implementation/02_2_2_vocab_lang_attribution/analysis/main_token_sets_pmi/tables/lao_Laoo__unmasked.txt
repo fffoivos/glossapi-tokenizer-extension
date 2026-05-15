@@ -1,0 +1,29 @@
+# target_key=lao_Laoo  lang_code=lo
+# Σ_target=1,006,271,672  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B (rate test only — no char mask)
+# 24 tokens, sorted by count desc
+{1224: None}
+{1186: None}
+{1187: None}
+{1178: None}
+{1153: None}
+{1129: None}
+{1136: None}
+{1135: None}
+{1148: None}
+{1177: None}
+{1128: None}
+{1167: None}
+{1181: None}
+{1165: None}
+{1132: None}
+{1151: None}
+{17002: None}
+{36042: None}
+{93468: ' Lao'}
+{92379: '-FM'}
+{17433: '/all'}
+{47098: ' [_'}
+{95864: '_]'}
+{39893: ';">'}

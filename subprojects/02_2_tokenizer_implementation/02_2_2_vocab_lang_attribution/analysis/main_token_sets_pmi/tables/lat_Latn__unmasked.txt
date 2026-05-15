@@ -1,0 +1,2864 @@
+# target_key=lat_Latn  lang_code=la
+# Σ_target=1,006,591,277  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B (rate test only — no char mask)
+# 2,859 tokens, sorted by count desc
+{1275: 'is'}
+{1403: 'um'}
+{1374: 'us'}
+{1568: ' et'}
+{1325: 'am'}
+{1276: 'it'}
+{1872: 'que'}
+{1101: 'e'}
+{1356: 'em'}
+{34115: 'ibus'}
+{1709: ' est'}
+{5149: ' ut'}
+{2767: ' non'}
+{6773: ' vel'}
+{1442: ' qu'}
+{1683: ' ad'}
+{9978: ' sit'}
+{8603: ' sed'}
+{1441: 'ere'}
+{4296: 'iam'}
+{3458: 'unt'}
+{2906: 'ium'}
+{2252: ' id'}
+{2328: ' aut'}
+{37602: ' amet'}
+{1297: 'ent'}
+{9440: ' eu'}
+{64005: ' quis'}
+{1480: ' ex'}
+{29008: ' dolor'}
+{2556: ' qui'}
+{64823: ' aliqu'}
+{1290: 'ic'}
+{2206: ' ac'}
+{24248: 'itur'}
+{1557: 'ore'}
+{1348: 'qu'}
+{1569: 'per'}
+{106595: ' volupt'}
+{1450: 'ant'}
+{46093: ' ipsum'}
+{28722: ' nec'}
+{130212: ' enim'}
+{118743: ' quod'}
+{6875: 'atur'}
+{12628: ' cum'}
+{4030: 'unc'}
+{129155: ' quam'}
+{22389: ' vita'}
+{2025: 'ec'}
+{3919: ' sem'}
+{20674: 'orem'}
+{6364: 'isi'}
+{2253: 'ci'}
+{101029: ' eget'}
+{51019: ' elit'}
+{4427: 'ula'}
+{3653: ' Qu'}
+{6054: 'entes'}
+{25574: ' lac'}
+{36210: 'orum'}
+{9699: ' pra'}
+{10960: ' consequ'}
+{25996: 'ulum'}
+{122742: 'idunt'}
+{1892: 'iss'}
+{2914: 'inc'}
+{62354: ' consectetur'}
+{36070: ' ultr'}
+{5019: ' ill'}
+{6431: 'ius'}
+{54111: ' nulla'}
+{36596: ' Sed'}
+{7109: ' tempor'}
+{27582: ' sunt'}
+{77934: 'atis'}
+{8338: ' Et'}
+{18685: ' dic'}
+{15268: ' ante'}
+{98172: ' molest'}
+{6796: ' ven'}
+{7687: 'iat'}
+{8849: 'rum'}
+{11890: 'itat'}
+{7268: 'isse'}
+{3667: ' mi'}
+{110912: ' magna'}
+{2009: ' comm'}
+{99492: ' odio'}
+{56436: 'amus'}
+{7912: ' temp'}
+{57044: ' quo'}
+{2058: ' sc'}
+{26964: ' sap'}
+{1498: 'ue'}
+{127206: ' quae'}
+{8663: ' facil'}
+{7949: ' tur'}
+{30342: ' esse'}
+{12257: ' dol'}
+{51625: 'imus'}
+{39020: 'endum'}
+{38309: 'iae'}
+{8283: 'bi'}
+{98463: ' libero'}
+{66414: 'llam'}
+{11819: 'pis'}
+{3293: 'iet'}
+{10175: ' diam'}
+{2870: ' vol'}
+{15126: ' dict'}
+{16718: 'ipit'}
+{114765: 'uris'}
+{27814: 'atem'}
+{71738: ' ea'}
+{1715: ' ab'}
+{30347: ' dign'}
+{16898: ' lect'}
+{90152: ' moll'}
+{5584: ' tell'}
+{10539: 'ae'}
+{107085: ' nib'}
+{5351: ' pur'}
+{91363: ' adipiscing'}
+{10390: 'isl'}
+{3604: 'itor'}
+{46214: ' massa'}
+{2022: ' pos'}
+{2844: 'atus'}
+{8207: ' ris'}
+{40789: ' bland'}
+{53124: 'etur'}
+{13050: 'aret'}
+{56032: ' Done'}
+{7296: 'cu'}
+{8740: 'odo'}
+{11021: ' aug'}
+{10758: 'auc'}
+{60779: ' justo'}
+{2102: ' acc'}
+{8572: ' eg'}
+{78093: 'urna'}
+{5434: 'ctor'}
+{19918: ' tort'}
+{4116: ' fac'}
+{10642: ' fel'}
+{82735: ' ips'}
+{2647: 'ior'}
+{38079: 'estas'}
+{2961: 'ices'}
+{6118: 'pat'}
+{11694: 'nis'}
+{94730: ' eros'}
+{91126: ' susc'}
+{7215: ' lig'}
+{2324: 'itt'}
+{18702: ' males'}
+{4302: 'uit'}
+{2070: ' ph'}
+{40379: 'ulis'}
+{13098: ' imper'}
+{2337: ' fe'}
+{13843: 'cor'}
+{7041: 'uct'}
+{14366: ' vul'}
+{1946: 'put'}
+{3158: ' port'}
+{19346: ' Ut'}
+{8051: 'eler'}
+{27017: ' qua'}
+{51729: ' hoc'}
+{6237: ' pul'}
+{3129: ' hab'}
+{24384: 'atum'}
+{32785: 'istique'}
+{81075: ' pell'}
+{2578: 'ism'}
+{3328: ' cond'}
+{110159: 'idem'}
+{16425: ' pret'}
+{8270: 'itud'}
+{14186: ' grav'}
+{3097: 'ores'}
+{2488: ' vari'}
+{119221: ' vestib'}
+{29123: ' curs'}
+{2858: 'iment'}
+{2410: ' sol'}
+{5612: 'illa'}
+{3584: ' element'}
+{14407: 'isis'}
+{11558: 'ums'}
+{3289: 'ales'}
+{6435: ' conv'}
+{90105: ' viver'}
+{12690: ' sag'}
+{5634: ' rep'}
+{34634: ' orn'}
+{42523: ' bib'}
+{2991: ' poss'}
+{60640: 'enean'}
+{68850: ' matt'}
+{14735: ' Ali'}
+{60178: ' interd'}
+{73879: ' rer'}
+{84646: 'allis'}
+{8887: ' labor'}
+{37367: 'gue'}
+{23234: ' porta'}
+{22906: ' lob'}
+{7470: 'vin'}
+{3125: 'iter'}
+{75939: 'inia'}
+{124876: 'endrer'}
+{97608: ' sollic'}
+{33163: ' ferment'}
+{52708: ' placer'}
+{12400: 'enas'}
+{4733: ' ele'}
+{104157: ' nih'}
+{2508: 'ique'}
+{13319: ' Nam'}
+{117194: ' fring'}
+{29129: 'onc'}
+{11494: 'itate'}
+{13558: ' rh'}
+{100719: 'ellus'}
+{46712: ' vero'}
+{13197: ' sod'}
+{1748: ' &'}
+{32458: ' sic'}
+{13853: 'ulla'}
+{27563: ' sint'}
+{103968: ' rut'}
+{4763: ' anim'}
+{89624: ' eius'}
+{22679: ' nost'}
+{8416: ' veh'}
+{18022: ' Pra'}
+{4011: 'ras'}
+{18005: 'endi'}
+{63479: ' Vest'}
+{20399: 'ibi'}
+{85361: 'Lorem'}
+{32710: ' fug'}
+{3198: ' fin'}
+{2451: ' Pro'}
+{15079: ' Sus'}
+{2852: 'pend'}
+{14427: ' nob'}
+{117658: ' Pell'}
+{2964: ' prim'}
+{1687: 'ient'}
+{18275: ' Cur'}
+{2109: ' cons'}
+{3571: ' Ph'}
+{30832: ' accus'}
+{2554: 'uer'}
+{76770: ' dolore'}
+{1864: ' inter'}
+{1370: 'ation'}
+{88448: ' Duis'}
+{45081: ' Null'}
+{5682: ' Ma'}
+{99188: 'endis'}
+{19154: ' Maur'}
+{38297: ' Viv'}
+{6296: ' magn'}
+{8636: ' lab'}
+{18318: 'aque'}
+{6224: 'ris'}
+{6717: ' maxim'}
+{6044: ' Mor'}
+{8391: 'amen'}
+{4610: ' hom'}
+{81419: ' Fus'}
+{12844: ' Integer'}
+{8808: ' effic'}
+{4298: ' mor'}
+{52386: 'arum'}
+{13601: 'itas'}
+{33967: 'atio'}
+{57324: ' ration'}
+{4556: ' sum'}
+{2130: 'ates'}
+{7781: ' offic'}
+{3918: ' imp'}
+{3101: 'ident'}
+{2357: ' rem'}
+{1585: 'ect'}
+{10148: ' exerc'}
+{3878: ' super'}
+{3412: ' occ'}
+{6605: 'Qu'}
+{15287: ' ip'}
+{15859: ' corpor'}
+{33923: 'upt'}
+{5041: ' sequ'}
+{7126: 'itation'}
+{19339: ' cup'}
+{38035: ' hic'}
+{1893: 'lect'}
+{2339: ' fil'}
+{105826: 'itia'}
+{91465: ' quas'}
+{38375: ' secund'}
+{11070: 'edit'}
+{24030: 'Et'}
+{6705: ' max'}
+{3206: 'ender'}
+{16505: 'dam'}
+{47535: ' sanct'}
+{5639: ' necess'}
+{86623: 'avit'}
+{38618: ' minus'}
+{4524: ' cur'}
+{14584: ' modo'}
+{2216: ' num'}
+{25071: 'itus'}
+{4635: ' ess'}
+{3841: ' opt'}
+{32552: ' repre'}
+{106784: ' incid'}
+{25409: 'usto'}
+{22534: ' quasi'}
+{3528: ' mult'}
+{57947: ' simil'}
+{73129: ' culpa'}
+{7992: 'nia'}
+{16031: 'ulus'}
+{69451: ' nostra'}
+{32854: ' duc'}
+{6712: ' soci'}
+{4109: ' prop'}
+{7170: ' hac'}
+{1316: 'ct'}
+{11505: 'itis'}
+{12640: ' cui'}
+{79537: ' eo'}
+{3121: ' fact'}
+{2735: ' cap'}
+{8478: 'cles'}
+{129176: ' adipis'}
+{21945: 'isset'}
+{56272: ' unde'}
+{47127: ' elig'}
+{9623: ' Non'}
+{65720: ' pari'}
+{108724: 'erat'}
+{3127: ' null'}
+{65697: ' delen'}
+{21264: 'ilia'}
+{26690: 'imos'}
+{51700: 'abo'}
+{118971: ' omni'}
+{2846: 'ames'}
+{33074: ' quem'}
+{31317: ' aper'}
+{95244: 'endus'}
+{1666: 'cc'}
+{2644: 'cept'}
+{7625: ' assum'}
+{5614: ' deb'}
+{7267: ' Vol'}
+{9095: ' bon'}
+{7245: 'asse'}
+{2533: ' loc'}
+{8106: ' virt'}
+{7323: ' fuer'}
+{7320: ' habit'}
+{43648: ' inqu'}
+{82579: 'itum'}
+{5161: 'sequ'}
+{3880: ' error'}
+{54171: ' Cum'}
+{68872: ' Dei'}
+{9866: ' alter'}
+{34488: ' Qui'}
+{44037: ' duo'}
+{4591: 'mod'}
+{98076: ' debit'}
+{74576: 'nibus'}
+{3203: ' Ex'}
+{2885: ' dec'}
+{42685: ' offici'}
+{5870: 'iente'}
+{2989: ' cr'}
+{11074: ' distinct'}
+{7054: ' aud'}
+{77208: ' fuga'}
+{59377: None}
+{55971: ' corrupt'}
+{120772: ' iam'}
+{24947: ' exped'}
+{8100: ' except'}
+{10332: ' ej'}
+{32769: 'inis'}
+{9938: ' viv'}
+{10229: ' voc'}
+{54793: 'iqua'}
+{22366: ' explic'}
+{3535: ' place'}
+{4768: ' lib'}
+{34097: ' alias'}
+{6718: ' tor'}
+{5595: ' done'}
+{15147: ' Dom'}
+{37743: ' sine'}
+{100652: ' recus'}
+{30678: 'quent'}
+{21928: ' Dol'}
+{16962: ' ear'}
+{63993: ' Lorem'}
+{7811: ' fu'}
+{59817: ' iste'}
+{15327: ' vest'}
+{127049: ' illa'}
+{26784: ' apt'}
+{4758: ' sec'}
+{3199: ' even'}
+{14093: ' invent'}
+{59190: ' tac'}
+{8466: ' script'}
+{3202: 'cul'}
+{10220: ' liber'}
+{89616: ' minima'}
+{4055: ' Est'}
+{39283: ' Ec'}
+{15670: ' ec'}
+{17548: ' cub'}
+{7729: ' Aut'}
+{8987: ' mont'}
+{3778: ' inc'}
+{1908: 'ific'}
+{6206: ' mort'}
+{98608: 'pern'}
+{42615: ' fec'}
+{36642: ' Deus'}
+{22928: ' dix'}
+{8649: ' sac'}
+{65470: ' maiores'}
+{9643: ' Id'}
+{15874: ' civ'}
+{72174: 'eret'}
+{98819: ' habitant'}
+{13188: 'dem'}
+{19457: 'ea'}
+{2344: ' eff'}
+{51541: ' mei'}
+{30736: ' anno'}
+{79027: ' nato'}
+{125350: 'inem'}
+{30426: ' vos'}
+{19780: 'qui'}
+{4236: ' stat'}
+{2335: 'ict'}
+{8783: ' plate'}
+{18797: 'imum'}
+{11522: ' architect'}
+{6020: 'isc'}
+{19405: ' Vel'}
+{2537: ' inv'}
+{15515: ' rid'}
+{17725: ' causa'}
+{18684: ' suspend'}
+{14844: 'aver'}
+{40457: ' ego'}
+{91770: ' alia'}
+{29586: 'unct'}
+{51496: ' tua'}
+{8039: ' minim'}
+{77518: ' vim'}
+{4040: ' sens'}
+{78145: 'andum'}
+{65883: ' scri'}
+{12839: ' suis'}
+{18404: ' Domin'}
+{10462: ' lic'}
+{80320: 'quid'}
+{19472: 'iens'}
+{8726: ' aqu'}
+{39882: ' usu'}
+{48313: ' dum'}
+{11196: ' sea'}
+{2287: ' sign'}
+{36488: 'ensis'}
+{91623: ' nasc'}
+{59515: ' potenti'}
+{41430: 'arium'}
+{58724: 'rud'}
+{33248: 'ilic'}
+{63207: ' natura'}
+{12461: ' rect'}
+{13615: ' cogn'}
+{24778: 'ilis'}
+{128176: ' eiusmod'}
+{4534: ' prob'}
+{11015: 'uis'}
+{22925: 'icit'}
+{4357: ' caus'}
+{2582: ' conf'}
+{28104: 'icus'}
+{32642: 'Ut'}
+{8136: 'udo'}
+{15748: ' integer'}
+{9149: ' ign'}
+{59731: ' simul'}
+{95897: 'inum'}
+{57436: ' cura'}
+{67832: ' Sit'}
+{3954: 'bum'}
+{8557: 'equ'}
+{8299: ' domin'}
+{16096: 'ō'}
+{67600: ' salut'}
+{25490: ' volunt'}
+{3089: ' equ'}
+{3756: 'iones'}
+{74771: ' opus'}
+{4240: ' exp'}
+{19797: ' terra'}
+{3724: ' disc'}
+{64009: ' Sanct'}
+{18744: ' nomin'}
+{23382: ' luc'}
+{6731: 'adem'}
+{120660: ' Ita'}
+{4012: ' cert'}
+{109750: ' loco'}
+{35487: 'inus'}
+{105726: None}
+{9077: ' cred'}
+{2108: ' act'}
+{4652: ' Christ'}
+{16881: ' habe'}
+{25108: ' pec'}
+{29253: ' ordin'}
+{63817: ' cog'}
+{10106: 'Null'}
+{78251: ' Christi'}
+{101265: ' adh'}
+{20707: 'cep'}
+{19598: ' Ep'}
+{11725: ' reb'}
+{44580: ' sui'}
+{114036: None}
+{41868: ' pau'}
+{1679: 'act'}
+{15864: ' maior'}
+{50710: 'abat'}
+{9839: ' perfect'}
+{23768: 'ieri'}
+{64788: ' Nec'}
+{54383: ' nomen'}
+{51263: 'iect'}
+{20550: 'icul'}
+{4549: 'iles'}
+{6033: ' host'}
+{9675: ' fab'}
+{81488: ' Ips'}
+{76489: ' supra'}
+{110691: ' homo'}
+{6316: ' exc'}
+{7794: ' numer'}
+{7756: 'cis'}
+{72409: 'odem'}
+{108913: ' posse'}
+{27488: ' tert'}
+{26457: ' advers'}
+{3371: ' commun'}
+{9937: 'osc'}
+{17495: ' bene'}
+{27546: ' quantum'}
+{33663: ' fid'}
+{11723: ' iter'}
+{32527: ' quin'}
+{104121: ' appell'}
+{48801: ' corpus'}
+{8567: ' ratio'}
+{21045: ' primo'}
+{5418: ' coll'}
+{10576: ' reli'}
+{61003: ' consect'}
+{57903: ' plur'}
+{54964: 'usque'}
+{46448: ' frat'}
+{21597: ' fus'}
+{15407: ' intellig'}
+{13130: ' vic'}
+{80824: 'cum'}
+{16048: ' Und'}
+{49966: ' litter'}
+{92382: ' satis'}
+{129897: ' episcop'}
+{2448: 'ced'}
+{13382: 'Non'}
+{75880: 'issima'}
+{101957: ' omn'}
+{2763: 'Ex'}
+{88251: 'icum'}
+{12587: ' Ill'}
+{93734: 'icis'}
+{30923: 'cip'}
+{25843: 'ilio'}
+{42617: 'Done'}
+{60413: ' redd'}
+{103873: ' anima'}
+{74008: ' poter'}
+{2390: 'plic'}
+{50756: ' utr'}
+{43449: 'iscop'}
+{37547: 'arius'}
+{35013: ' potent'}
+{62453: 'xit'}
+{32359: ' circa'}
+{1845: ' class'}
+{21499: ' Eu'}
+{1717: 'ition'}
+{129820: 'eris'}
+{8953: ' doc'}
+{124850: 'Pra'}
+{9167: 'empor'}
+{15491: ' propri'}
+{20270: ' plac'}
+{4422: ' princip'}
+{16257: ' conven'}
+{59537: ' pater'}
+{33871: ' perpet'}
+{21278: ' Fac'}
+{31648: ' Sic'}
+{105252: 'endit'}
+{98660: ' bona'}
+{31888: ' rei'}
+{61920: ' consul'}
+{8228: ' Class'}
+{20000: ' tract'}
+{67006: 'Nam'}
+{7083: ' Acc'}
+{127128: ' Cura'}
+{31788: 'Ali'}
+{30290: ' partes'}
+{7721: ' sept'}
+{107547: ' nostri'}
+{1972: 'cri'}
+{22315: 'icing'}
+{32034: ' alien'}
+{6358: 'iqu'}
+{3368: ' mov'}
+{57318: 'oris'}
+{9718: ' Roman'}
+{13496: ' exempl'}
+{26718: ' quad'}
+{73082: ' pars'}
+{24331: ' urb'}
+{6686: ' spect'}
+{12232: ' Gra'}
+{14517: ' philosoph'}
+{4701: ' content'}
+{17105: ' honor'}
+{55683: 'Qui'}
+{7104: 'undo'}
+{63931: 'xta'}
+{15531: ' doct'}
+{13533: ' circum'}
+{18499: ' Mol'}
+{122704: ' diu'}
+{6010: ' quant'}
+{46560: ' nul'}
+{77368: ' vitam'}
+{15286: 'quis'}
+{12816: ' Gall'}
+{12820: ' spirit'}
+{12282: ' disput'}
+{78165: ' nostro'}
+{88612: 'arii'}
+{67379: 'atat'}
+{34001: ' bell'}
+{48203: ' Apost'}
+{39840: 'teur'}
+{17981: ' Latin'}
+{11465: 'estra'}
+{9827: ' scient'}
+{38586: 'cius'}
+{12088: ' medi'}
+{60235: ' tota'}
+{37644: ' genus'}
+{14909: ' obt'}
+{52356: ' noct'}
+{21780: ' intellect'}
+{2117: 'pect'}
+{111950: ' multis'}
+{6418: ' imm'}
+{11386: ' animal'}
+{81311: ' vener'}
+{73903: 'edic'}
+{126173: 'ilius'}
+{3652: 'hib'}
+{10955: ' ampl'}
+{21710: 'ulos'}
+{67853: ' rex'}
+{40758: 'idis'}
+{4087: ' circ'}
+{7595: ' divers'}
+{88134: ' pug'}
+{12879: ' constitu'}
+{15573: 'sect'}
+{33058: ' memor'}
+{49736: ' propria'}
+{79284: ' fruct'}
+{75075: 'urus'}
+{52663: ' corp'}
+{2473: ' requ'}
+{33883: 'Cur'}
+{3578: ' elect'}
+{3334: ' signific'}
+{19524: 'issent'}
+{24254: ' unus'}
+{86175: 'ianus'}
+{8882: 'inct'}
+{63166: ' miser'}
+{16199: ' manus'}
+{11848: ' Rep'}
+{66440: ' antiqu'}
+{21197: ' forte'}
+{33314: ' facile'}
+{70989: 'etus'}
+{78655: 'ulae'}
+{62786: ' peric'}
+{10941: ' substant'}
+{19851: 'Vol'}
+{44182: ' toll'}
+{76223: ' Vita'}
+{2980: 'cript'}
+{16100: ' proxim'}
+{65611: ' tandem'}
+{18860: 'XX'}
+{23024: ' Pont'}
+{8881: 'usqu'}
+{27139: 'eric'}
+{8917: ' cru'}
+{20181: ' beat'}
+{9148: ' respond'}
+{125910: ' exer'}
+{123718: 'inae'}
+{8554: ' oct'}
+{2489: ' ext'}
+{83044: 'uet'}
+{29261: ' quot'}
+{15400: ' intra'}
+{18908: ' Imper'}
+{9004: ' constit'}
+{51574: 'clesi'}
+{61439: 'oque'}
+{12270: ' definition'}
+{94408: ' ae'}
+{9043: 'œ'}
+{115309: ' divina'}
+{2035: 'clud'}
+{19011: ' arbit'}
+{25092: 'uber'}
+{18913: ' vig'}
+{100829: ' patria'}
+{26452: ' Sec'}
+{4038: ' cult'}
+{86174: ' Duo'}
+{92201: ' Christus'}
+{59422: ' volum'}
+{19652: ' Item'}
+{38223: ' aest'}
+{45406: ' dile'}
+{48201: ' sacerd'}
+{24529: ' honest'}
+{72500: ' meus'}
+{4886: ' eas'}
+{29309: 'qua'}
+{63913: ' desider'}
+{8817: ' diss'}
+{2427: 'ract'}
+{68129: '.]'}
+{76293: ' glor'}
+{55542: ' genere'}
+{12204: 'enses'}
+{100677: 'utum'}
+{21325: ' recens'}
+{57930: 'cit'}
+{15790: ' sole'}
+{2144: 'cess'}
+{47429: 'uspend'}
+{28164: ' orb'}
+{38055: ' reper'}
+{14311: ' Liber'}
+{3259: ' contin'}
+{3131: ' exper'}
+{31616: ' Io'}
+{68102: 'atius'}
+{25166: ' opera'}
+{21018: ' societ'}
+{36833: ' vinc'}
+{42858: ' facult'}
+{17347: ' Labor'}
+{52406: ' Sint'}
+{45268: ' magist'}
+{74723: 'ulam'}
+{28506: ' Num'}
+{5610: ' item'}
+{75322: 'onis'}
+{121532: 'idum'}
+{10500: ' confirm'}
+{63446: 'issimo'}
+{60316: 'icat'}
+{99162: ' apostol'}
+{81077: ' Dic'}
+{13445: ' infer'}
+{122097: ' simplic'}
+{128086: ' gloria'}
+{6157: ' compar'}
+{1491: 'ction'}
+{83743: ' tanta'}
+{32690: 'gren'}
+{42730: ' futur'}
+{11154: ' minor'}
+{62061: ' appet'}
+{25125: ' veter'}
+{74195: 'iret'}
+{105798: ' dissent'}
+{50985: 'Mor'}
+{103697: ' adi'}
+{77853: 'idus'}
+{8076: ' affect'}
+{106721: ' Fug'}
+{25243: ' Spirit'}
+{19017: ' cord'}
+{14260: ' spat'}
+{38657: 'igent'}
+{78159: ' Commod'}
+{17292: ' dici'}
+{7465: ' capt'}
+{6798: ' appar'}
+{128110: ' valet'}
+{61773: ' summ'}
+{7816: ' vict'}
+{125728: 'cere'}
+{14340: ' capit'}
+{53820: ' lingua'}
+{2406: 'Id'}
+{3720: ' init'}
+{25816: ' Sac'}
+{29326: 'udem'}
+{3470: 'ination'}
+{10201: 'sec'}
+{60244: ' certe'}
+{32849: 'endas'}
+{37859: ' Nos'}
+{43084: ' bapt'}
+{51825: ' epic'}
+{22228: 'ummy'}
+{30576: ' conced'}
+{44315: ' locus'}
+{86013: 'onium'}
+{7183: ' indu'}
+{72996: ' plen'}
+{74403: ' principes'}
+{124564: ' sane'}
+{80860: 'idere'}
+{28414: ' patri'}
+{14336: ' suff'}
+{38062: 'iore'}
+{10620: 'fic'}
+{47821: ' stip'}
+{50128: 'quit'}
+{7622: 'III'}
+{59160: 'ippe'}
+{123168: ' erud'}
+{10743: 'Integer'}
+{40972: 'Vel'}
+{111215: 'itudine'}
+{29262: ' testim'}
+{60786: ' Sap'}
+{12665: ' convent'}
+{11567: ' succ'}
+{45771: ' longe'}
+{7401: ' concept'}
+{47125: ' accep'}
+{92897: ' Dolores'}
+{37064: ' fier'}
+{53117: 'annes'}
+{100589: ' Bland'}
+{18205: ' recip'}
+{44324: ' humana'}
+{8590: ' templ'}
+{91299: ' ordine'}
+{42081: ' memoria'}
+{44570: 'ulant'}
+{89817: 'iscing'}
+{26738: ' cens'}
+{120220: ' toto'}
+{116049: ' elo'}
+{28698: ' Temp'}
+{98770: 'xor'}
+{29973: ' infra'}
+{7091: ' option'}
+{14929: ' Lat'}
+{9396: 'rupt'}
+{30026: 'itant'}
+{47795: ' aure'}
+{6526: ' commune'}
+{22663: ' instruct'}
+{20502: ' Magn'}
+{39229: 'uine'}
+{19976: ' arc'}
+{90733: ' regione'}
+{55120: ' Caesar'}
+{85832: 'uus'}
+{11572: 'unque'}
+{48951: ' industria'}
+{6642: ' construct'}
+{22278: ' spiritual'}
+{7382: ' compos'}
+{34315: ' punct'}
+{16925: ' prompt'}
+{54827: ' dul'}
+{75678: ' felic'}
+{21901: ' prohib'}
+{5163: ' supp'}
+{78129: ' tribus'}
+{70671: ' serm'}
+{71313: ' splend'}
+{40222: ' dare'}
+{31517: ' Diam'}
+{71497: 'XXX'}
+{105569: 'rament'}
+{43398: ' ultra'}
+{28596: ' singular'}
+{78501: 'ellas'}
+{7917: ' parent'}
+{111511: ' suav'}
+{32892: 'culos'}
+{7194: ' anc'}
+{79353: ' ponder'}
+{45534: ' arma'}
+{101248: ' Fili'}
+{67930: 'inqu'}
+{30146: ' corr'}
+{43202: 'Dig'}
+{102054: ' videre'}
+{58573: ' magnitud'}
+{17234: 'uper'}
+{21665: ' accommod'}
+{9566: ' medium'}
+{39331: ' monaster'}
+{35323: ' conting'}
+{94487: 'andis'}
+{14349: ' exit'}
+{32231: ' cust'}
+{130548: ' cotid'}
+{10640: 'ª'}
+{127981: ' doctrina'}
+{49139: ' appare'}
+{17959: ' credit'}
+{6567: 'fect'}
+{37331: ' apost'}
+{19896: ' ads'}
+{58081: ' dex'}
+{59586: ' Duc'}
+{99992: ' epist'}
+{21331: ' descend'}
+{42326: ' christ'}
+{8687: ' incor'}
+{90029: ' Esse'}
+{20531: ' Offic'}
+{121840: ' custod'}
+{74714: ' fama'}
+{31157: ' Script'}
+{108194: ' hort'}
+{78409: ' mirac'}
+{119506: ' bello'}
+{118522: ' Pater'}
+{79234: 'preh'}
+{40611: ' concess'}
+{91322: 'isit'}
+{36038: ' sola'}
+{54850: ' agit'}
+{32482: 'pic'}
+{109961: 'annis'}
+{3910: 'ograph'}
+{9475: ' exhib'}
+{93463: ' amore'}
+{10517: ' subs'}
+{6222: 'Page'}
+{102641: ' corde'}
+{22220: ' Occ'}
+{59195: ' XXX'}
+{38515: ' cess'}
+{129570: 'Sit'}
+{38066: 'usc'}
+{38841: ' imagin'}
+{118604: ' Moll'}
+{59806: 'eco'}
+{28340: ' Opt'}
+{110745: ' Romani'}
+{7845: ' fore'}
+{91960: ' Petri'}
+{85667: ' tribu'}
+{126155: ' nond'}
+{47889: ' loci'}
+{99727: 'itent'}
+{72715: ' Tum'}
+{23818: ' imped'}
+{79181: ' fortuna'}
+{5746: ' valid'}
+{45865: ' processus'}
+{128023: ' relinqu'}
+{46196: ' commod'}
+{13634: ' ultim'}
+{9136: ' occup'}
+{29666: 'asset'}
+{12699: ' quart'}
+{124866: ',]'}
+{63780: ' delic'}
+{17849: ' religion'}
+{37053: ' Poss'}
+{36213: ' MM'}
+{112241: ' brev'}
+{39048: ' quar'}
+{21536: ' Imp'}
+{91467: ' publica'}
+{122788: 'yam'}
+{102274: ' vivere'}
+{107548: ' deter'}
+{83926: 'mina'}
+{20689: ' VII'}
+{9959: ' Off'}
+{7137: ' predict'}
+{52747: ' ascend'}
+{25287: ' lign'}
+{2349: ' differ'}
+{3999: 'Item'}
+{81129: ' assent'}
+{7951: ' repr'}
+{101111: ' maxima'}
+{97216: ' multitud'}
+{56388: ' insol'}
+{17665: ' Prop'}
+{54343: 'rax'}
+{56679: 'VII'}
+{85751: ' divin'}
+{30650: 'quia'}
+{98700: ' duplic'}
+{41125: ' voce'}
+{86134: 'ariam'}
+{45995: ' rever'}
+{58979: ' multiplic'}
+{46305: ' optimum'}
+{22781: ' hosp'}
+{61421: 'idium'}
+{75144: ' constat'}
+{18582: 'quant'}
+{89625: ' lice'}
+{64350: ' cognition'}
+{37748: ' Evangel'}
+{12186: ' coe'}
+{17565: ' conclusion'}
+{118624: 'udin'}
+{24163: ' VIII'}
+{13879: ' susp'}
+{76180: ' heredit'}
+{117430: 'quo'}
+{5085: 'gress'}
+{47876: ' abst'}
+{113904: ' Tert'}
+{47376: ' facto'}
+{36957: ' parv'}
+{103332: 'estis'}
+{122214: ' Magna'}
+{28280: ' possession'}
+{46463: ' genera'}
+{22345: ' defend'}
+{70721: ' Marty'}
+{15815: ' versus'}
+{8278: ' constant'}
+{100578: ' comprehens'}
+{105841: ' prudent'}
+{17726: ' Corpor'}
+{26067: ' legit'}
+{87694: ' tect'}
+{57616: ' procur'}
+{80345: 'attu'}
+{55740: 'iciens'}
+{7776: 'Acc'}
+{32957: ' duct'}
+{43217: ' insign'}
+{35220: 'Ill'}
+{98536: ' copia'}
+{93731: 'bent'}
+{2402: ' includ'}
+{25696: ' XII'}
+{64102: ' illust'}
+{60958: ' opere'}
+{118698: ' volo'}
+{14442: ' curr'}
+{48450: ' poster'}
+{85310: ' pertinent'}
+{112325: ' singul'}
+{64953: ' indo'}
+{9441: ' copy'}
+{44085: ' ET'}
+{31332: ' obsc'}
+{6068: 'Cap'}
+{65634: ' pact'}
+{72515: ' spiritu'}
+{96275: ' Petrus'}
+{35439: ' ferro'}
+{84452: ' Cul'}
+{51756: ' specie'}
+{108474: 'cula'}
+{123342: ' vex'}
+{49847: ' concord'}
+{39953: ' damn'}
+{119516: 'ciam'}
+{26159: ' divid'}
+{55280: ' dissim'}
+{120522: 'unia'}
+{89156: 'endere'}
+{14197: 'ensus'}
+{91473: ' purg'}
+{29821: ' adolesc'}
+{11994: 'uent'}
+{26963: ' prince'}
+{123444: ' rege'}
+{74447: ' Ante'}
+{109905: ' Maxime'}
+{113734: ' mutat'}
+{96041: ' trist'}
+{26846: 'emit'}
+{20180: ' reviews'}
+{90874: ' scrambled'}
+{58917: ' designers'}
+{17266: ' sect'}
+{109923: ' Laud'}
+{110477: ' Romana'}
+{84808: ' Vide'}
+{49719: ' advent'}
+{33771: ' communic'}
+{83425: 'idon'}
+{31222: 'enum'}
+{79055: ' simile'}
+{50721: ' Civ'}
+{90443: ' Perse'}
+{58463: ' regi'}
+{28607: ' sacrific'}
+{24047: ' spons'}
+{5861: ' decre'}
+{62069: ' gubern'}
+{127522: ' verbo'}
+{109784: ' restitu'}
+{9783: ' liqu'}
+{21270: ' occas'}
+{111396: 'epit'}
+{120111: ' choro'}
+{117172: ' latine'}
+{84657: ' Epic'}
+{15365: ' placeholder'}
+{90490: ' plena'}
+{54651: ' perfection'}
+{69240: ' Pari'}
+{115120: ' tantas'}
+{69975: ' ingress'}
+{12401: ' Error'}
+{36874: 'Fac'}
+{21542: ' extern'}
+{21936: ' trib'}
+{32485: ' Arist'}
+{103846: ' propon'}
+{33921: ' continent'}
+{39108: ' Princip'}
+{16486: ' coron'}
+{104903: ' restit'}
+{80294: 'cium'}
+{58983: ' mimic'}
+{16396: ' defect'}
+{41927: 'erint'}
+{98204: ' libri'}
+{88666: 'CAP'}
+{32248: ' expon'}
+{19237: 'culo'}
+{13611: 'estion'}
+{49273: ' uter'}
+{26638: ' canon'}
+{45610: ' intend'}
+{17693: ' adm'}
+{18119: ' usual'}
+{109608: 'olus'}
+{60034: ' certa'}
+{46800: 'lius'}
+{8660: 'Product'}
+{108670: ' infinit'}
+{84909: 'nec'}
+{121594: ' postul'}
+{121323: 'unus'}
+{39300: 'equal'}
+{7391: 'astic'}
+{5312: 'ication'}
+{110145: ' ape'}
+{27040: ' Write'}
+{17824: ' haven'}
+{73311: ' Dict'}
+{2527: 'ution'}
+{30746: ' interf'}
+{39977: ' Tell'}
+{6383: 'stant'}
+{90802: ' regno'}
+{34529: ' interrog'}
+{26288: 'acon'}
+{22435: ' Place'}
+{17521: ' Alexand'}
+{20857: ' mutation'}
+{24527: ' institution'}
+{29645: ' Hisp'}
+{12117: 'essor'}
+{44154: ' congreg'}
+{5080: 'pha'}
+{46303: ' Matth'}
+{19761: ' artific'}
+{82479: ' matrim'}
+{61741: ' ocurr'}
+{57312: ' Rex'}
+{114177: ' simplex'}
+{90828: ' Lect'}
+{53350: '.cn'}
+{101358: ' Amen'}
+{27080: ' excit'}
+{30126: ' pace'}
+{54937: ' Exped'}
+{26898: 'nant'}
+{65885: ' Except'}
+{43105: ' religios'}
+{57967: ' luce'}
+{87473: ' oblique'}
+{94936: ' imperio'}
+{18749: ' frequent'}
+{100464: ' occult'}
+{81450: ' longa'}
+{90122: ' conscient'}
+{60300: 'ovis'}
+{5860: ' decl'}
+{66827: ' lumen'}
+{5769: 'iction'}
+{4161: 'ector'}
+{10847: 'ruit'}
+{47001: ' mec'}
+{49292: ' Britann'}
+{45582: ' collo'}
+{32451: ' ine'}
+{36782: 'VIII'}
+{85949: ' disciplina'}
+{4823: 'oad'}
+{44259: 'udit'}
+{67999: ' Abbas'}
+{14513: 'acent'}
+{105917: ' futura'}
+{61842: ' Architect'}
+{117427: ' sermon'}
+{4478: ' compon'}
+{45336: ' turb'}
+{54756: 'ienda'}
+{14437: 'udent'}
+{96804: ' frust'}
+{84725: 'byter'}
+{50777: ' linea'}
+{14460: ' occurr'}
+{80545: ' empt'}
+{77846: ' congru'}
+{98259: ' amic'}
+{103647: ' proprie'}
+{47525: ' vigil'}
+{38086: ' torque'}
+{48809: 'pex'}
+{90943: ' Massa'}
+{26009: ' Ian'}
+{69561: 'ecer'}
+{25250: ' estis'}
+{89271: ' Paulus'}
+{76722: ' bella'}
+{4944: 'Table'}
+{115792: ' $\n'}
+{39680: ' fines'}
+{117402: ' venire'}
+{14837: ' chart'}
+{126843: ' indign'}
+{51169: ' subito'}
+{43539: 'isco'}
+{88345: ' greg'}
+{33109: 'irent'}
+{70147: ' hered'}
+{6539: ' inhib'}
+{48526: 'lict'}
+{109802: ' arbor'}
+{31866: 'ponde'}
+{39168: ' affirm'}
+{50957: ' ador'}
+{52558: ' Creative'}
+{29639: 'inent'}
+{10247: ' perman'}
+{10685: ' proport'}
+{10999: ' oppos'}
+{92098: ' brute'}
+{73582: ' Vos'}
+{78683: ' Primo'}
+{42963: '-II'}
+{26830: ' divis'}
+{67019: ' Vul'}
+{61427: 'fact'}
+{27146: ' XI'}
+{99912: ' Contents'}
+{92384: ' tyran'}
+{126960: ' electrosp'}
+{4736: ' impro'}
+{55267: ' predic'}
+{43310: ' Cic'}
+{60480: 'esus'}
+{50058: ' benign'}
+{65376: ' imit'}
+{109876: ' Ip'}
+{100914: ' Jesu'}
+{95896: ' victor'}
+{47227: 'cir'}
+{84328: ' tempest'}
+{91791: 'dic'}
+{63114: ' Antio'}
+{51794: 'cus'}
+{14967: ' Virgin'}
+{103291: 'Mol'}
+{53459: ' triumph'}
+{26975: ' apert'}
+{39751: ' Cardinal'}
+{19872: ' negoti'}
+{44981: ' cathol'}
+{90823: ' causas'}
+{6641: 'Click'}
+{80113: ' revert'}
+{36467: 'dict'}
+{26399: ' spir'}
+{79259: 'centes'}
+{47721: ' pict'}
+{78735: 'orium'}
+{16426: ' assign'}
+{17573: 'Our'}
+{124699: 'anus'}
+{108932: ' Hispan'}
+{87087: ' Congreg'}
+{27288: ' trig'}
+{47784: 'Share'}
+{79342: ' retin'}
+{68446: 'Liber'}
+{34071: ' Maxim'}
+{63074: ' interim'}
+{5604: 'ribution'}
+{78241: ' Tort'}
+{61452: ' affer'}
+{29377: 'About'}
+{6223: 'script'}
+{54230: ' adul'}
+{114935: ' jure'}
+{61864: ' Bene'}
+{122586: ' ultima'}
+{51382: ' neo'}
+{56484: ' License'}
+{40569: ' partis'}
+{53527: ' imposs'}
+{97882: 'tric'}
+{27596: ' silent'}
+{6131: ' fav'}
+{60503: ' Romano'}
+{108976: 'Ec'}
+{71710: ' virgin'}
+{63905: ' Benedict'}
+{128981: ' titulo'}
+{47520: 'inning'}
+{123595: ' trium'}
+{59675: ' responde'}
+{10579: ' transl'}
+{16808: ' extend'}
+{71995: 'andas'}
+{35305: 'entation'}
+{53985: ' commemor'}
+{94293: ' ecclesiast'}
+{66464: ' presenti'}
+{73067: ' defer'}
+{15461: 'Detail'}
+{24427: ' tact'}
+{44263: ' sudo'}
+{106316: ' roto'}
+{23613: ' Element'}
+{90245: 'Dic'}
+{54421: ' merid'}
+{70995: ' solem'}
+{115960: 'icare'}
+{63264: ' obed'}
+{17417: ' quiet'}
+{70620: ' quint'}
+{19085: ' suscept'}
+{53379: ' licensed'}
+{8361: ' frequency'}
+{106366: ' Caus'}
+{29433: ' convenient'}
+{23367: ' Circ'}
+{4926: 'rect'}
+{73882: 'entum'}
+{48588: ' Aristot'}
+{51889: ' mortal'}
+{119390: ' diversa'}
+{82672: ' subtil'}
+{12786: 'ŭ'}
+{15929: ' argu'}
+{93353: ' vocab'}
+{117705: 'uzioni'}
+{109232: 'llo'}
+{41925: 'bris'}
+{80333: ' vect'}
+{130974: ' caro'}
+{85190: ' ferv'}
+{40499: 'icut'}
+{129408: ' exemplar'}
+{25983: ' dictionary'}
+{66422: ' provinci'}
+{97107: ' Spir'}
+{39843: 'Sec'}
+{87971: ' continuo'}
+{73646: 'fac'}
+{34076: ' Constantin'}
+{38042: ' Bapt'}
+{66130: 'sic'}
+{18774: ' longitud'}
+{113326: 'actus'}
+{65025: 'umina'}
+{117483: ' tumult'}
+{22857: ' entries'}
+{89796: ' itiner'}
+{111684: ' monasterio'}
+{31953: ' Capit'}
+{57188: ' exprim'}
+{98862: ' Athen'}
+{57467: ' dispens'}
+{21767: ' statistics'}
+{118114: ' Inde'}
+{58111: ' constitut'}
+{30608: ' incred'}
+{83241: ' quarta'}
+{77207: ' mixt'}
+{130005: ' Ultr'}
+{58837: ' inclin'}
+{82155: ' unic'}
+{68158: 'ipot'}
+{104493: ' Pauli'}
+{65108: ' Latina'}
+{35141: ' servi'}
+{40503: ' victoria'}
+{125119: ' tenere'}
+{118271: ' falsa'}
+{9516: 'Num'}
+{86302: ' imperfect'}
+{83975: ' diffic'}
+{95730: ' libera'}
+{86340: ' Archie'}
+{41988: ' tempt'}
+{68200: ' prud'}
+{101915: ' resurrection'}
+{17104: ' compreh'}
+{4892: 'uration'}
+{9946: ' opportun'}
+{84571: ' prophe'}
+{120797: ' Splash'}
+{96538: ' voces'}
+{26074: 'Temp'}
+{67790: ' mover'}
+{26324: 'atern'}
+{84177: ' amici'}
+{17828: ' revers'}
+{72608: ' XL'}
+{14209: 'Description'}
+{69297: ' doce'}
+{111958: ' Orn'}
+{22903: ' stir'}
+{29748: ' Philosoph'}
+{16779: ' particul'}
+{96165: ' cognit'}
+{23913: ' Edit'}
+{66911: ' confession'}
+{87236: ' Grav'}
+{117435: ' regina'}
+{74314: 'illis'}
+{116189: ' sapiens'}
+{51164: ' Prima'}
+{52428: 'ubes'}
+{21841: ' infin'}
+{18946: ' controvers'}
+{55306: ' Sequ'}
+{65314: 'acob'}
+{43677: ' commiss'}
+{71732: ' Pompe'}
+{22082: ' regia'}
+{14906: ' proportion'}
+{106989: ' subi'}
+{54032: ' Vatic'}
+{41020: ' cardinal'}
+{109919: ' domine'}
+{109900: 'icer'}
+{63028: ' indul'}
+{99833: ' contend'}
+{129962: ' cale'}
+{66448: 'ieres'}
+{76623: ' Contra'}
+{129589: ' persever'}
+{53534: ' exter'}
+{18305: ' schol'}
+{3419: 'action'}
+{51036: 'icias'}
+{40529: 'illus'}
+{47516: ' habitu'}
+{126028: ' sacerdotes'}
+{42213: 'tax'}
+{19515: ' Nicol'}
+{49294: ' Dion'}
+{27103: 'ellation'}
+{92640: 'rici'}
+{91461: ' Apoll'}
+{35267: ' Ier'}
+{24798: ' rational'}
+{90901: ' decret'}
+{38154: '/,'}
+{20389: ' Constant'}
+{86612: ' barbar'}
+{18729: ' Philipp'}
+{69075: ' Dix'}
+{83552: ' existent'}
+{90370: ':]'}
+{114213: ' obliv'}
+{41028: ' negl'}
+{30721: ' cath'}
+{87252: ' Carth'}
+{37875: ' condem'}
+{93904: ' altitud'}
+{29960: ' Lic'}
+{127462: ' parentes'}
+{112038: ' Cicero'}
+{65591: 'anonymous'}
+{89288: ' duplex'}
+{24624: ' oppon'}
+{130409: ' vides'}
+{41395: ' illumin'}
+{43210: ' intro'}
+{93469: ' Francisc'}
+{119882: 'culus'}
+{62078: ' crimin'}
+{21716: 'super'}
+{108938: ' credo'}
+{108547: ' Hui'}
+{40822: ' intelligent'}
+{82878: ' Males'}
+{113406: 'Regist'}
+{45677: 'nox'}
+{71314: ' imprim'}
+{77863: ' Abl'}
+{94000: ' contempt'}
+{103798: ' contrari'}
+{30594: ' distant'}
+{20237: 'ueb'}
+{75907: 'Magn'}
+{89981: ' necessit'}
+{7819: 'lation'}
+{109425: 'Labor'}
+{59629: ' editions'}
+{5242: 'Class'}
+{58795: ' musica'}
+{44612: ' disposition'}
+{60819: ' Virg'}
+{54016: 'Imp'}
+{57603: ' terminus'}
+{36888: ' proposition'}
+{111350: ' extrema'}
+{109572: ' depre'}
+{128224: ' comis'}
+{12871: ' efficient'}
+{115268: 'identes'}
+{52916: 'XVIII'}
+{86052: 'olite'}
+{27633: ' deliber'}
+{90386: 'batis'}
+{24531: 'usalem'}
+{77824: ' appreh'}
+{71813: ' auxili'}
+{106496: 'ificat'}
+{15165: 'ellent'}
+{12669: ' apparatus'}
+{129869: ' cler'}
+{55121: ' subsid'}
+{125475: ' milles'}
+{2049: 'ption'}
+{18895: ' cohort'}
+{40615: 'oseph'}
+{72466: ' ornament'}
+{19606: ' progression'}
+{88158: ' ignorant'}
+{67683: ' confess'}
+{126914: ' principis'}
+{77175: ' amo'}
+{124959: ' crimen'}
+{31329: ' Patri'}
+{113101: 'uero'}
+{3041: 'duct'}
+{93221: ' occasione'}
+{65252: 'eus'}
+{68082: ' remot'}
+{55609: ' templo'}
+{88270: ' agro'}
+{112920: ' testis'}
+{48901: ' recess'}
+{52595: ' petition'}
+{5881: 'Image'}
+{62984: 'ocat'}
+{10340: 'plicit'}
+{59871: 'iquant'}
+{28355: ' Pho'}
+{33386: ' Theod'}
+{107241: ' trah'}
+{60965: ' discord'}
+{37239: ' corn'}
+{34797: ' invis'}
+{109399: 'riam'}
+{53830: 'Inc'}
+{86533: ' QU'}
+{17413: 'rior'}
+{101460: ' Respond'}
+{45983: ' innocent'}
+{36901: 'Opt'}
+{118968: ' regio'}
+{128026: ' sacr'}
+{86368: ' repente'}
+{91827: ' exh'}
+{101034: ' comprehend'}
+{1967: 'unction'}
+{49497: ' tuer'}
+{40410: ' transit'}
+{110407: ' inp'}
+{86617: ' pess'}
+{51298: ' admi'}
+{54947: ' studios'}
+{19178: ' descript'}
+{31813: ' restriction'}
+{122831: 'Imper'}
+{47279: ' Quint'}
+{44544: ' syll'}
+{56919: ' comed'}
+{41941: ' finit'}
+{114751: ' CCC'}
+{27516: 'icator'}
+{103604: ' naves'}
+{56506: ' remov'}
+{75199: ' horr'}
+{121268: ' incert'}
+{55556: ' Conv'}
+{18578: ' fract'}
+{71671: ' caer'}
+{100930: ' Platon'}
+{70186: ' Chrys'}
+{89639: ' pariet'}
+{56538: ' detr'}
+{70946: ' regiones'}
+{83182: ' Eph'}
+{109991: ' consol'}
+{107314: ' christian'}
+{78482: ' testament'}
+{91789: ' conspic'}
+{46504: 'utation'}
+{23521: ' XML'}
+{8823: 'phi'}
+{43421: ' Wille'}
+{62263: ' quinto'}
+{6858: ' recogn'}
+{86415: ' consequent'}
+{25318: 'commun'}
+{11226: ' Commun'}
+{73786: ' aa'}
+{51829: 'ipient'}
+{43075: ' successor'}
+{3713: ' meas'}
+{112817: ' simili'}
+{126800: ' probation'}
+{18866: ' Scot'}
+{118160: ' signification'}
+{121173: ' rector'}
+{25219: 'ondere'}
+{67394: ' magnific'}
+{123133: ' humili'}
+{119530: ' exe'}
+{23996: ' modifications'}
+{62320: ' erect'}
+{67383: ' additions'}
+{50315: 'quisition'}
+{20934: 'Mult'}
+{75316: ' immin'}
+{75958: ' cla'}
+{93401: ' testes'}
+{60372: ' merit'}
+{113371: ' sentire'}
+{15953: 'imation'}
+{84875: ' Ratio'}
+{27508: 'olation'}
+{50355: ' myster'}
+{33325: ' storing'}
+{26609: ' adip'}
+{115946: ' ultimo'}
+{8778: ' accur'}
+{127843: ' aperta'}
+{59613: 'ramento'}
+{61687: ' Cathol'}
+{26538: 'prec'}
+{112192: ' quadrat'}
+{121216: ' Quin'}
+{90872: ' Tiber'}
+{39142: ' fict'}
+{40556: ' Maced'}
+{103087: ' Poznań'}
+{17952: ' Description'}
+{29436: ' absent'}
+{34693: ' Voc'}
+{40160: ' nons'}
+{42053: '_column'}
+{74203: ' suprem'}
+{55662: ' capita'}
+{38976: 'istol'}
+{117787: 'ipotent'}
+{26425: ' distinction'}
+{113479: 'XL'}
+{43280: 'gypt'}
+{100586: ' Anglia'}
+{83215: ' amico'}
+{78297: ' fui'}
+{117743: ' ostens'}
+{86047: ' admiration'}
+{104954: ' cing'}
+{61831: ' sinist'}
+{34370: ' fate'}
+{46895: 'Ip'}
+{83934: ' Porta'}
+{93341: ' inquir'}
+{93645: 'Datum'}
+{107287: ' superst'}
+{29341: 'rages'}
+{73434: ' Exempl'}
+{1234: None}
+{63603: ' tenu'}
+{63394: 'Heading'}
+{51927: 'pell'}
+{69148: 'agus'}
+{72916: ' faction'}
+{103433: ' Ludov'}
+{42926: 'Welcome'}
+{19500: 'Chr'}
+{95876: ' Colleg'}
+{35555: ' perturb'}
+{80783: ' servo'}
+{123706: ' Pyth'}
+{22327: 'fection'}
+{97632: ' superfic'}
+{61188: ' Afric'}
+{128393: ' adept'}
+{39984: ' uid'}
+{77314: ' Firm'}
+{63011: ' provis'}
+{5123: 'ocation'}
+{18084: 'ether'}
+{108554: ' exalt'}
+{31837: 'Prov'}
+{70934: ' Cler'}
+{24620: ' ui'}
+{63969: ' odor'}
+{114880: ' benevol'}
+{54915: 'yses'}
+{5353: 'ocus'}
+{28939: ' Steph'}
+{122777: ' offert'}
+{57974: ' Sole'}
+{22515: ' advoc'}
+{29475: ' superf'}
+{60251: ' donation'}
+{100278: ' vivent'}
+{29125: ' intellectual'}
+{81633: 'Offic'}
+{49772: ' obligation'}
+{89174: ' plum'}
+{92278: ' Ae'}
+{61146: ' Gregor'}
+{67758: ' dissol'}
+{42185: ' disting'}
+{108929: 'elic'}
+{81614: ' Fact'}
+{103170: ' adduct'}
+{85857: ' consonant'}
+{105275: ' Societ'}
+{85601: ' undis'}
+{38529: ' Rect'}
+{112100: ' legion'}
+{126576: ' furt'}
+{33837: ' cave'}
+{121199: ' septentr'}
+{17158: ' anx'}
+{23039: ' privile'}
+{93228: ' persecution'}
+{115912: ' Ambros'}
+{23556: ' vacu'}
+{48579: 'venes'}
+{115982: ' abl'}
+{65406: ' ample'}
+{32402: 'idine'}
+{33511: 'iation'}
+{29130: 'Feature'}
+{74472: 'Poss'}
+{25650: ' occident'}
+{105606: ' patriarch'}
+{75034: ' clav'}
+{99460: ' Salomon'}
+{87330: ' indig'}
+{73807: ' ct'}
+{110847: 'ipso'}
+{101124: ' persuas'}
+{122981: ' demonstra'}
+{118254: ' raro'}
+{55911: ' excell'}
+{127222: 'eram'}
+{118380: ' fau'}
+{45819: ' expedition'}
+{17585: ' possess'}
+{91730: ' Quantum'}
+{113463: ' muros'}
+{25114: 'inand'}
+{12784: ' Academ'}
+{51483: 'Io'}
+{129246: ' amare'}
+{43193: ' Doct'}
+{128854: 'XII'}
+{42573: ' Latino'}
+{38040: ' paro'}
+{80533: ' immortal'}
+{119471: 'quio'}
+{1865: 'ject'}
+{52847: ' discern'}
+{64772: ' fera'}
+{42680: ' scrut'}
+{103732: ' nocturn'}
+{74127: ' negotiation'}
+{38139: 'ucid'}
+{92153: ' commut'}
+{104378: 'ifix'}
+{127600: ' desiderio'}
+{51430: ' creator'}
+{30393: ' innoc'}
+{32296: ' Bened'}
+{32689: 'lium'}
+{29945: 'quot'}
+{97209: ' confus'}
+{91271: ' Presbyter'}
+{47576: ' philos'}
+{57638: ' torment'}
+{112978: ' superb'}
+{42228: ' juven'}
+{100643: ' senti'}
+{22666: ' consideration'}
+{102007: ' confund'}
+{92838: ' Thess'}
+{43865: 'clare'}
+{127207: ' moles'}
+{73117: ' unitate'}
+{59563: 'minus'}
+{98527: ' concurr'}
+{116458: ' communion'}
+{83012: ' decim'}
+{89681: ' copias'}
+{105656: ' modos'}
+{91266: ' Patriarch'}
+{107321: 'XI'}
+{27119: 'cipe'}
+{115393: 'iaque'}
+{36154: ' abundant'}
+{76845: ' discret'}
+{107446: 'ifices'}
+{105804: ' immort'}
+{83905: ' triang'}
+{54598: ' terrib'}
+{46310: ' packaging'}
+{82888: 'uert'}
+{73763: 'nation'}
+{126907: ' Antonius'}
+{115666: 'iculo'}
+{98195: ' suppos'}
+{98817: ' daemon'}
+{56701: ' humid'}
+{94986: 'crum'}
+{41390: ' induct'}
+{31327: 'Sample'}
+{107849: ' Cyp'}
+{60181: ' Dioc'}
+{123955: 'osus'}
+{21631: 'isper'}
+{113654: ' Martini'}
+{21557: 'gunt'}
+{108273: 'quias'}
+{39968: 'iquit'}
+{38576: ' confirmation'}
+{105346: 'cli'}
+{34544: ' specimen'}
+{123674: ' theolog'}
+{79790: ' Sicilia'}
+{93906: ' martyr'}
+{108975: ' libras'}
+{68594: ' Datum'}
+{33819: ' perpend'}
+{56173: ' regimen'}
+{104261: 'biter'}
+{80914: ' permiss'}
+{26693: ' conjug'}
+{23465: ' cumul'}
+{49925: 'esper'}
+{72010: ' inconven'}
+{64537: 'LOSE'}
+{89346: ' Monaster'}
+{73806: ' remission'}
+{87144: ' exil'}
+{116876: ' erig'}
+{128898: ' timet'}
+{30661: ' proportional'}
+{116959: ' radic'}
+{19190: ' interpretation'}
+{82615: 'cid'}
+{74229: ' Stephan'}
+{20997: 'eneration'}
+{117245: 'igio'}
+{40473: ' dioc'}
+{34802: 'ificant'}
+{42133: ' dissip'}
+{27184: ' enumer'}
+{19929: ' instruction'}
+{120700: ' XXIII'}
+{88801: ' scept'}
+{104759: ' Magist'}
+{68973: 'sequent'}
+{123735: ' idol'}
+{78232: ' coerc'}
+{121336: ' consort'}
+{118976: 'secut'}
+{27312: 'ceptor'}
+{32877: 'move'}
+{76437: 'ignation'}
+{76972: ' subit'}
+{11974: 'adius'}
+{96085: ' Venet'}
+{88791: 'pure'}
+{130601: ' Sion'}
+{43692: ' [-'}
+{66199: ' Homer'}
+{115238: 'ceres'}
+{109230: ' manifeste'}
+{4532: 'cription'}
+{104445: ' tendit'}
+{53242: ' crust'}
+{21546: ' answered'}
+{68479: 'iquid'}
+{107744: 'ecia'}
+{37540: ' Plate'}
+{112912: ' incess'}
+{104065: ' flore'}
+{111312: ' Valer'}
+{28309: ' vacuum'}
+{106395: ' nobile'}
+{33428: ' effectu'}
+{95931: ' iii'}
+{60897: ' priori'}
+{8814: ' insert'}
+{102979: ' vocation'}
+{123481: ' immens'}
+{111100: ' stric'}
+{36159: 'inth'}
+{37659: 'criber'}
+{88949: ' indict'}
+{124730: ' Hannibal'}
+{92335: ' alumni'}
+{81417: ',S'}
+{113797: 'Circ'}
+{75380: ' Babylon'}
+{75150: ' commer'}
+{129190: ' Innocent'}
+{55162: 'ennium'}
+{87750: 'communication'}
+{73250: ' scand'}
+{27474: ' cylind'}
+{73787: ' visc'}
+{119870: ' Scri'}
+{39049: ' Goth'}
+{19556: 'emplo'}
+{74539: ' serpent'}
+{36158: ' expend'}
+{118481: 'Lud'}
+{95696: ' alba'}
+{46241: ' civili'}
+{43583: 'phon'}
+{40347: ' Iter'}
+{4507: 'Error'}
+{78185: ' incurs'}
+{103472: ' Toll'}
+{88664: 'ipsis'}
+{51171: 'inian'}
+{104045: ' Comes'}
+{53003: ' glac'}
+{67587: ' Plato'}
+{103920: ' Corpus'}
+{114215: ' conjunct'}
+{104821: ' cancell'}
+{121161: ' foli'}
+{30148: 'chae'}
+{51378: ' celebration'}
+{34257: 'Dict'}
+{113095: ' incarnation'}
+{83820: ' quadru'}
+{12639: 'mult'}
+{95660: ' Sede'}
+{8861: 'igation'}
+{73702: ' promulg'}
+{112146: ' Intra'}
+{56722: 'Occ'}
+{102304: ' Fortuna'}
+{110183: ' constituer'}
+{116994: ' narration'}
+{78867: ' congregation'}
+{74900: ' Corinth'}
+{128195: 'edium'}
+{50795: ' CX'}
+{35499: ' contradict'}
+{98217: ' ausp'}
+{68881: ' Ibid'}
+{83590: ' introduct'}
+{55054: ' neglect'}
+{100043: ' caret'}
+{23311: ' Relig'}
+{15503: '_text'}
+{51568: ' physic'}
+{43818: ' progen'}
+{9305: ' subsequ'}
+{29226: 'uctu'}
+{69020: ' Detail'}
+{9054: 'nect'}
+{83258: ' Hipp'}
+{30009: 'Place'}
+{112085: ' incur'}
+{115023: 'icent'}
+{32997: ' rupt'}
+{109264: 'imonial'}
+{82107: ' Prophet'}
+{74760: ' brach'}
+{10056: 'erior'}
+{74526: 'Arc'}
+{18686: ' amplit'}
+{51044: ' affection'}
+{74806: 'Diam'}
+{34557: ' ambigu'}
+{10891: 'POST'}
+{120390: ' Florent'}
+{49342: ' Clement'}
+{51300: ' cubic'}
+{24105: ' recurr'}
+{125898: 'Sac'}
+{106156: 'Except'}
+{79068: ' provincias'}
+{85596: ' solemn'}
+{118193: ' Opus'}
+{114041: 'aphys'}
+{92953: 'Sea'}
+{117997: ' nauf'}
+{45070: ' rebell'}
+{52819: ' suspicion'}
+{69810: ' Dominic'}
+{35532: 'done'}
+{46049: ' unlock'}
+{92810: ' extinct'}
+{86113: ' devotion'}
+{112794: ' tormenta'}
+{122566: 'Minus'}
+{70446: ' arbitr'}
+{76925: ' Anglic'}
+{93235: ' Augustin'}
+{125953: 'dux'}
+{105376: None}
+{127186: ' Ampl'}
+{107128: ' intrav'}
+{37649: ' Claud'}
+{113918: 'sq'}
+{35801: ' verified'}
+{118760: ' eminent'}
+{27412: 'etric'}
+{115032: 'MX'}
+{80981: 'clesiast'}
+{40053: ' trunc'}
+{117424: ' redemption'}
+{102756: ' sedent'}
+{87644: ' magnificent'}
+{103700: ' instaur'}
+{14549: ' communes'}
+{54983: 'Alias'}
+{62379: ' inscription'}
+{103965: 'UCT'}
+{105511: 'heta'}
+{27805: ' precip'}
+{114741: 'CX'}
+{77941: ' thal'}
+{106445: ' persuad'}
+{37243: ' inspection'}
+{18922: 'cule'}
+{61430: ' Cyr'}
+{38007: 'ĉ'}
+{17228: ' coh'}
+{86666: ' Guil'}
+{33553: ' incons'}
+{3555: 'plication'}
+{85359: 'ilent'}
+{47378: ' Pars'}
+{106090: 'nante'}
+{14245: ' explan'}
+{58375: ' Cornel'}
+{120499: ' sors'}
+{52246: ' multiplex'}
+{105829: ' amplio'}
+{71748: ' revelation'}
+{45000: ' conson'}
+{58680: ' caud'}
+{45362: ' instanti'}
+{48706: ' attribut'}
+{93909: ' excepto'}
+{78689: ' solver'}
+{94036: ' Assy'}
+{76238: ' cathedral'}
+{75092: ' pluvi'}
+{111026: ' insignia'}
+{67592: ' Resolution'}
+{23791: ' mutant'}
+{31443: ' terrest'}
+{109386: ' accusation'}
+{96751: ' rhetor'}
+{62380: ' reduct'}
+{116221: ' minas'}
+{37188: ' convict'}
+{36609: ' Length'}
+{62014: 'ipse'}
+{120370: ' Ovid'}
+{79340: 'rump'}
+{126495: ' resurre'}
+{47391: ' cf'}
+{56179: 'Features'}
+{71822: ' perturbation'}
+{9669: 'ociation'}
+{109116: ' spars'}
+{125651: ' evoc'}
+{66200: '.--'}
+{42063: ' releg'}
+{45130: 'constant'}
+{68781: ' Loth'}
+{89761: ' infring'}
+{73827: ' primord'}
+{20298: 'temp'}
+{130750: ' deque'}
+{18236: 'emps'}
+{66860: ' deer'}
+{114218: ' negation'}
+{88043: ' Creator'}
+{110408: ' inco'}
+{85823: ' Cf'}
+{67714: ' chord'}
+{65359: ' exposition'}
+{119098: ' Occident'}
+{72537: ' mathematic'}
+{52468: '[m'}
+{14016: 'quare'}
+{47193: 'economic'}
+{14928: ' aggreg'}
+{98600: ' retract'}
+{67396: ' accession'}
+{97223: 'phabet'}
+{43983: ' plaus'}
+{76619: ' Frequency'}
+{92576: ' gentil'}
+{80377: ',L'}
+{54310: ' theat'}
+{83561: ' xvi'}
+{34355: ' murm'}
+{112864: 'iscus'}
+{66512: ' incarn'}
+{44889: ' reconc'}
+{114464: ' Socrates'}
+{109882: ' Saxon'}
+{101153: 'orque'}
+{9071: 'ection'}
+{48298: ' annot'}
+{6852: ' assert'}
+{33377: 'ducer'}
+{125987: ' digne'}
+{89641: ' Cornelius'}
+{25436: ' Soph'}
+{106902: ' versant'}
+{23004: ' inhab'}
+{125304: ' Claudius'}
+{87535: 'Voc'}
+{5069: 'osition'}
+{63296: ' circumfer'}
+{105485: ' imitation'}
+{130784: 'entat'}
+{114649: ' Küche'}
+{15470: 'uages'}
+{76788: ' Pius'}
+{88029: ' aes'}
+{122708: ' Heading'}
+{76835: ' attende'}
+{103481: ' sentin'}
+{123632: ' servent'}
+{80542: ' Pto'}
+{31199: '_row'}
+{29888: ' fluctu'}
+{73087: 'notation'}
+{29019: ' deposition'}
+{129051: ' vulgaris'}
+{66864: 'acey'}
+{39898: ' inert'}
+{35237: ' Sample'}
+{72047: ' conject'}
+{89711: ' Lucius'}
+{127638: ' querc'}
+{73976: ' mitig'}
+{129164: ' nascent'}
+{100355: ' Damasc'}
+{93768: 'ignit'}
+{112522: ' angu'}
+{127340: ' turkey'}
+{49707: ' conquer'}
+{44159: ' Patric'}
+{69158: 'olome'}
+{48350: ' Template'}
+{83504: 'umption'}
+{45867: 'secution'}
+{26275: 'ATUS'}
+{39409: ' redund'}
+{106837: 'imab'}
+{25472: ' agric'}
+{104060: ' sacc'}
+{129053: ' horrib'}
+{38858: ' &\n'}
+{76539: 'Pars'}
+{79872: ' inclination'}
+{88442: 'Gap'}
+{50386: ' fave'}
+{91267: ' clade'}
+{66650: ' discretion'}
+{24155: '.Read'}
+{55362: ' Trit'}
+{72150: ' diction'}
+{46975: ' collector'}
+{118519: 'ripp'}
+{106611: 'Latin'}
+{52522: ' Guid'}
+{121931: ' splendid'}
+{27751: ' sched'}
+{61131: ' annivers'}
+{120208: 'domada'}
+{90083: 'memor'}
+{39534: ' dummy'}
+{47020: ' turbine'}
+{103947: ' Quote'}
+{67577: ' contingent'}
+{104568: ' interrogation'}
+{61494: '.Con'}
+{122023: ' Herod'}
+{90406: ' celebrit'}
+{116160: ' capill'}
+{116577: 'Vic'}
+{21011: 'Custom'}
+{99025: ' Burgund'}
+{16672: ' auc'}
+{117954: ' retent'}
+{31583: ' Nomin'}
+{81225: ' contention'}
+{105527: ' acquies'}
+{99559: ' Expect'}
+{92540: ' militia'}
+{14567: ' delet'}
+{85402: ' Rever'}
+{123313: 'iguo'}
+{57908: 'redient'}
+{101376: 'Doct'}
+{104379: ' dilation'}
+{69450: ' chorus'}
+{46455: 'abulary'}
+{60932: ' sulph'}
+{130570: ' murmur'}
+{61756: ' Carne'}
+{71410: ' corrobor'}
+{68501: ' continuum'}
+{71876: ' liberation'}
+{75688: ' metaphys'}
+{54539: ' Maximum'}
+{82549: ' Alpes'}
+{72163: ' deficient'}
+{85435: ' syringe'}
+{56427: ' spinning'}
+{48713: ' amph'}
+{19707: ' cursor'}
+{52977: ',&'}
+{103772: ' CCL'}
+{110028: ' sublime'}
+{77951: ' Isid'}
+{22471: 'agraph'}
+{87869: ' archa'}
+{130515: ' explication'}
+{90289: ' abut'}
+{106880: ' Cret'}
+{45281: ' discrep'}
+{103745: ' Ansel'}
+{99193: ' lamina'}
+{125670: 'escent'}
+{95821: ' exhal'}
+{55505: ' elic'}
+{88957: 'ofib'}
+{122279: 'seat'}
+{119292: ' fluent'}
+{6768: 'teger'}
+{56088: ' ridicul'}
+{6524: '\\['}
+{110433: 'Shipping'}
+{3483: '}{'}
+{30497: 'Company'}
+{86961: 'iendas'}
+{97397: ' adjunct'}
+{104778: ' resusc'}
+{55202: ' subtract'}
+{116289: ' Lune'}
+{100262: ' fc'}
+{25097: 'graph'}
+{83474: ' liquor'}
+{69882: ' prosecut'}
+{57627: ' alteration'}
+{91628: ' clang'}
+{82792: ' supernatural'}
+{32317: 'upiter'}
+{68984: ' Overview'}
+{18453: 'Weight'}
+{16528: 'inition'}
+{116878: ' Byzant'}
+{90344: ' elephant'}
+{50658: 'equation'}
+{126264: ' villas'}
+{130792: 'hemer'}
+{4015: ']('}
+{14938: 'Rect'}
+{10627: 'Header'}
+{25095: ' crystall'}
+{72428: 'iscopal'}
+{25501: '[n'}
+{56691: 'Returns'}
+{6640: ' Febru'}
+{64586: '*A'}
+{76641: ' Confirm'}
+{61596: ' cx'}
+{22390: '.Ex'}
+{38185: ' contex'}
+{123421: ' folio'}
+{67273: ' rationale'}
+{60125: ' contradiction'}
+{115723: ' fistula'}
+{88229: ' renovation'}
+{45528: 'Ratio'}
+{31008: ' [('}
+{128904: ' inhabit'}
+{98561: ' consortium'}
+{72886: ' Suff'}
+{91516: 'Terms'}
+{129514: ' Verc'}
+{126877: ' abrog'}
+{28311: 'Services'}
+{19768: 'escription'}
+{119389: ' radii'}
+{92292: ' imminent'}
+{17108: ' Example'}
+{36354: 'exit'}
+{121096: 'mutation'}
+{79696: ' omit'}
+{110124: ' CONST'}
+{65979: 'Aux'}
+{15342: '.</'}
+{84430: '<-'}
+{59138: ' exagger'}
+{52125: ' illumination'}
+{95654: ' repuls'}
+{101614: ' Reverend'}
+{71389: ' influx'}
+{85525: ' extant'}
+{119269: ' Manus'}
+{5616: '.app'}
+{109404: ' reticulum'}
+{100883: ' Clemens'}
+{99244: ' confuse'}
+{126308: ' affirmation'}
+{65447: ' pollut'}
+{99746: ' Olympi'}
+{93208: 'Dimensions'}
+{57824: 'curr'}
+{47349: ' Fuer'}
+{96195: ' vitre'}
+{127272: ' Crac'}
+{31687: ' css'}
+{104454: ' occupant'}
+{120119: ' illicit'}
+{68701: ' doctr'}
+{93862: ' elegans'}
+{128592: ' commens'}
+{44360: ' regeneration'}
+{111009: ' arbitration'}
+{62314: ' Advers'}
+{39289: ' annotation'}
+{82691: ' customize'}
+{15372: ' alloc'}
+{45951: ' expectation'}
+{30945: 'emplates'}
+{76650: ' persuade'}
+{104928: ' umbil'}
+{128043: ' monastic'}
+{61078: ' adject'}
+{6997: ' auth'}
+{128697: 'junct'}
+{26301: 'estination'}
+{125141: ' abduct'}
+{93052: ' irrational'}
+{48790: ' multiplication'}
+{22132: 'Iter'}
+{106815: ' circumvent'}
+{125180: ' subdu'}
+{106360: 'ophan'}
+{71727: ' pedest'}
+{78429: ' emitter'}
+{128299: ' deterr'}
+{76380: ' epoxy'}
+{31254: ' elong'}
+{117078: ' leth'}
+{94746: ' reconciliation'}
+{116853: ' convol'}
+{40302: ' rc'}
+{87083: ' pyro'}
+{46265: '[p'}
+{51427: ' rhet'}
+{34758: 'ignore'}
+{57484: ' TEXT'}
+{77806: ' permutation'}
+{129667: ' stratum'}
+{79693: 'Awesome'}
+{17805: 'ETHOD'}
+{108470: ' temptation'}
+{80772: ' investigator'}
+{15920: ' Init'}
+{52931: 'phis'}
+{104159: ' eruption'}
+{37911: ' nuclei'}
+{105061: ' deflect'}
+{108435: ' Commune'}
+{129584: ' reposition'}
+{124305: 'accum'}
+{77755: ' resonant'}
+{109751: ' Lists'}
+{85757: 'Definitions'}
+{31662: 'Annot'}
+{125890: 'Spect'}
+{56395: ' intermitt'}
+{30090: ' attenu'}
+{88443: ' Eras'}
+{51934: 'Titre'}
+{30589: ' Header'}
+{45326: ',:'}
+{47989: 'pecies'}
+{2380: '}\\'}
+{86908: ' invocation'}
+{82882: '[e'}
+{90987: None}
+{100437: 'racula'}
+{60053: 'ortium'}
+{64579: 'cesis'}
+{83455: 'cnt'}
+{20768: '_item'}
+{112691: ' Apparatus'}
+{11127: '\\[\\'}
+{98147: ' faec'}
+{39878: 'lysis'}
+{127558: ' Clients'}
+{75260: 'geant'}
+{44869: ' predecess'}
+{20872: '\\]'}
+{36909: 'Collect'}
+{80919: ' murmura'}
+{79430: 'ccc'}
+{93956: ' inaccess'}
+{26397: ')^'}
+{126760: 'Availability'}
+{25587: 'pletion'}
+{27220: '}|'}
+{67701: 'Delivery'}
+{36832: 'equiv'}
+{17288: ' peripher'}
+{89571: 'lices'}
+{106153: ' quadrant'}
+{96654: ' coales'}
+{64560: ' postpon'}
+{126667: ' [<'}
+{129101: 'Philosoph'}
+{97995: ' environmentally'}
+{49039: 'integer'}
+{114622: ' Customers'}
+{32825: 'atinum'}
+{10647: 'sqrt'}
+{85592: ' elicit'}
+{129247: 'stantial'}
+{68907: 'cerpt'}
+{122419: ' Germanic'}
+{61375: ' electrostatic'}
+{113702: ' femur'}
+{74289: ' ⟨'}
+{104898: ' Manufacturer'}
+{85205: ' impatient'}
+{79043: ' genuin'}
+{28802: ' interpol'}
+{54632: 'Expect'}
+{64267: '.Product'}
+{98276: 'OLOR'}
+{89794: ' Mesopotam'}
+{78877: 'RIPT'}
+{79659: 'tract'}
+{23938: 'ifact'}
+{34602: ' Append'}
+{70813: ' apex'}
+{5307: ' \\['}
+{68751: '.Post'}
+{126184: 'plicant'}
+{129996: 'Tickets'}
+{86514: 'uenta'}
+{56095: ' fp'}
+{76060: ' oscillation'}
+{22851: 'Gamma'}
+{109738: ' eject'}
+{44697: '[a'}
+{121442: ' deception'}
+{94610: '[*'}
+{94047: ' affluent'}
+{71987: '=s'}
+{91011: '.Non'}
+{71470: '.Null'}
+{92237: ' inertia'}
+{58557: ' cortic'}
+{97222: ' divider'}
+{62447: ' [*'}
+{31018: 'umbent'}
+{84891: '\\s'}
+{40500: ' reluct'}
+{62877: ' congression'}
+{104244: ' efflux'}
+{41800: ' elucid'}
+{82480: ' Salis'}
+{40385: 'ordered'}
+{73604: ' inexp'}
+{8069: '_list'}
+{29150: '.Item'}
+{64859: ' nause'}
+{112780: ' machining'}
+{26563: '_color'}
+{116455: ' indifferent'}
+{66250: 'heading'}
+{79172: ' pressur'}
+{95002: 'Curr'}
+{54706: ' conduction'}
+{39913: ' amplification'}
+{44526: ' phras'}
+{96280: ' extrusion'}
+{129975: ' Sigismund'}
+{100181: ' formulae'}
+{111349: '[X'}
+{105669: 'Paragraph'}
+{21504: '_title'}
+{43994: 'insula'}
+{5871: ')\\'}
+{5959: '"></'}
+{44817: 'incinn'}
+{118847: ' deduction'}
+{47264: '(/'}
+{100516: ' subtraction'}
+{72823: '_custom'}
+{128596: ' effusion'}
+{69587: 'agation'}
+{102505: ' Sigism'}
+{65146: ' diaph'}
+{111808: ' hyperbol'}
+{26487: '.ext'}
+{1952: '^{'}
+{81696: '[u'}
+{56562: ' Width'}
+{125818: '_inner'}
+{123774: 'Accordion'}
+{113986: ' decrement'}
+{72562: '_tab'}
+{119140: 'ricing'}
+{71729: ' tc'}
+{17880: '_image'}
+{31165: 'Arbit'}
+{22943: '.Id'}
+{58398: 'ordion'}
+{7705: 'Column'}
+{53777: 'Testing'}
+{96948: ' typo'}
+{52665: ' Lithuan'}
+{52754: 'Projects'}
+{62675: '.Integer'}
+{9969: 'Init'}
+{27305: '_min'}
+{74004: '_section'}
+{31278: '_un'}
+{115449: 'icycl'}
+{88796: 'Clients'}
+{8309: '<div'}
+{91145: '.}'}
+{37563: ' hypothes'}
+{54501: 'luent'}
+{4762: '=\\'}
+{101493: 'Specification'}
+{85462: ' superim'}
+{109037: 'ufacturer'}
+{55317: ' Samples'}
+{26070: 'Resources'}
+{9657: '}/'}
+{117988: ' Annotation'}
+{98811: '/",'}
+{38507: 'Optional'}
+{111120: 'dfs'}
+{110365: ' enumeration'}
+{58591: ' conformation'}
+{20412: '}\\]'}
+{119580: ' scalable'}
+{26494: 'Username'}
+{121482: ' reusable'}
+{30363: '-router'}
+{29144: 'Condition'}
+{81857: ' denominator'}
+{8692: ' ^{'}
+{119666: ' Mutation'}
+{44375: ' }{'}
+{65901: '_space'}
+{126557: " &'"}
+{30694: ' \\[\\'}
+{101896: ' refrigerant'}
+{68730: '_acc'}
+{116065: 'Customers'}
+{84969: ' reminis'}
+{111079: ' polypropylene'}
+{62800: '_empty'}
+{102080: ' cathe'}
+{118611: ' Sidebar'}
+{55781: 'Carth'}
+{58050: ' rhyth'}
+{121468: ' markdown'}
+{59008: '.Max'}
+{112906: 'omitem'}
+{91329: 'Prompt'}
+{98767: ' lemma'}
+{53749: 'cursor'}
+{60472: '!</'}
+{89017: ' dissipation'}
+{123966: 'IMAGE'}
+{60817: ' \\{'}
+{78286: 'Purchase'}
+{47997: ' isset'}
+{51575: 'Hours'}
+{93034: ' optimizing'}
+{112632: ',id'}
+{17642: '.test'}
+{88959: '.Dec'}
+{44276: '/users'}
+{51877: '[r'}
+{99828: ' fg'}
+{105332: 'cerr'}
+{51762: '_head'}
+{104791: 'quotes'}
+{55806: '_icon'}
+{108217: 'ISTINCT'}
+{19285: '_class'}
+{92804: 'predict'}
+{81424: '-coding'}
+{7055: '}='}
+{72665: ' tooltip'}
+{105933: ' immutable'}
+{52136: 'iciencies'}
+{126356: ' Ordered'}
+{29316: '_block'}
+{126038: '<V'}
+{102008: '-terminus'}
+{9105: 'summary'}
+{95051: ' &:'}
+{28483: ' nums'}
+{44040: 'ithmetic'}
+{22392: '_width'}
+{87138: ' Congr'}
+{46431: '.with'}
+{90624: 'highlight'}
+{56069: '<n'}
+{67086: ' elongation'}
+{48334: '+x'}
+{97181: ':]\n'}
+{71099: '<i'}
+{125201: ' numerator'}
+{10219: ' },'}
+{46480: 'Decoration'}
+{122553: 'CREMENT'}
+{11312: '^{-'}
+{33465: ' supernat'}
+{70770: ' Validate'}
+{93198: 'accordion'}
+{62624: '_style'}
+{1: None}
+{11802: '}=\\'}
+{17222: '{x'}
+{39741: ' &.'}
+{51104: 'awesome'}
+{111076: 'blockquote'}
+{53808: ' 第十'}
+{71980: 'Tabs'}
+{9865: 'theta'}
+{32878: '{F'}
+{89458: '?</'}
+{24653: '_col'}
+{64183: '″E'}
+{108056: 'INCT'}
+{20079: ']{'}
+{60104: 'Subscription'}
+{94498: 'eture'}
+{115927: ' solute'}
+{92858: 'Compatible'}
+{125060: 'formatter'}
+{62584: '\\sqrt'}
+{112363: '_drop'}
+{31100: 'SSERT'}
+{122824: '^x'}
+{107677: ' *['}
+{40879: '_position'}
+{90527: ' aberrant'}
+{84513: 'Listing'}
+{31115: 'scription'}
+{108619: ' \\&'}
+{115833: 'Ordered'}
+{46485: '_last'}
+{121329: 'Dummy'}
+{100230: '_bottom'}
+{14: None}
+{47964: 'Generated'}
+{29182: 'oltip'}
+{11428: '+\\'}
+{15: None}
+{64099: ' effector'}
+{46568: 'dfrac'}
+{130394: ' granda'}
+{65168: 'vendor'}
+{57689: 'duration'}
+{94083: '_high'}
+{88504: '_single'}
+{66664: ' sqrt'}
+{85848: 'Mutation'}
+{103100: '_align'}
+{105124: 'MPLATE'}
+{40526: '\\limits'}
+{98103: 'Placeholder'}
+{62594: 'stitial'}
+{73088: ' Lemma'}
+{7412: '}+'}
+{90687: 'extend'}
+{53884: '<I'}
+{21916: ' \\]\n'}
+{50545: ')\\]'}
+{21086: '.init'}
+{39515: 'Buttons'}
+{3161: '}^{'}
+{31929: 'Assert'}
+{8068: '}{\\'}
+{25083: ' }\\'}
+{130311: 'titulo'}
+{91651: ',{'}
+{24583: '_height'}
+{96271: ' acceptor'}
+{16445: ' elif'}
+{69507: '.Class'}
+{85177: 'Sidebar'}
+{75250: '[in'}
+{17151: ')=\\'}
+{39450: '{-'}
+{6538: ' _{'}
+{22485: '{('}
+{124239: 'ingredients'}
+{53656: '}t'}
+{37015: 'Typography'}
+{20996: 'rightarrow'}
+{17637: '\\times'}
+{78036: ',}'}
+{17567: ' \\]'}
+{38482: ' <>\n'}
+{80791: ',*\n'}
+{24521: 'Enumer'}
+{26087: 'ecution'}
+{77750: 'tooltip'}
+{6774: '}}\\'}
+{62933: 'aternion'}
+{71949: ' pagination'}
+{90613: '.System'}
+{86430: ' ]\n\n\n'}
+{20376: '{d'}
+{117480: ' Typography'}
+{104403: '.Process'}
+{96682: '<E'}
+{86305: '-heading'}
+{60922: '(search'}
+{15756: ')^{'}
+{53004: '.]\n\n'}
+{78531: '_columns'}
+{64153: ' faud'}
+{60245: ' Canadi'}
+{27338: ' .='}
+{42089: '\\item'}
+{23637: 'parser'}
+{104279: 'implies'}
+{37596: 'Footer'}
+{11739: ' cryst'}
+{110570: ' Arbitri'}
+{27054: ']->'}
+{11881: 'infty'}
+{87244: '-offset'}
+{20406: '\\pi'}
+{124549: '<N'}
+{30188: '\\frac'}
+{79678: '″W'}
+{112212: '.Sequ'}
+{52976: '_container'}
+{33535: 'usepackage'}
+{99632: '.Custom'}
+{45257: '.Client'}
+{80650: ',null'}
+{115633: '<u'}
+{122142: 'Solver'}
+{93710: ' substring'}
+{15902: 'ctx'}
+{111030: 'Lemma'}
+{102078: 'trieve'}
+{77888: '/demo'}
+{27156: '}x'}
+{59323: 'Tooltip'}
+{113750: '_css'}

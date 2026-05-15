@@ -57,76 +57,95 @@ languages:
   - bit: 0
     code: en
     cldr_locale: en
+    iso_639_3: eng
     name: English
     script: Latn
   - bit: 1
     code: cs
     cldr_locale: cs
+    iso_639_3: ces
+    iso_639_3_aliases: [cze]
     name: Czech
     script: Latn
   - bit: 2
     code: da
     cldr_locale: da
+    iso_639_3: dan
     name: Danish
     script: Latn
   - bit: 3
     code: de
     cldr_locale: de
+    iso_639_3: deu
+    iso_639_3_aliases: [ger]
     name: German
     script: Latn
   - bit: 4
     code: es
     cldr_locale: es
+    iso_639_3: spa
     name: Spanish
     script: Latn
   - bit: 5
     code: fr
     cldr_locale: fr
+    iso_639_3: fra
+    iso_639_3_aliases: [fre]
     name: French
     script: Latn
   - bit: 6
     code: hu
     cldr_locale: hu
+    iso_639_3: hun
     name: Hungarian
     script: Latn
   - bit: 7
     code: id
     cldr_locale: id
+    iso_639_3: ind
     name: Indonesian
     script: Latn
   - bit: 8
     code: it
     cldr_locale: it
+    iso_639_3: ita
     name: Italian
     script: Latn
   - bit: 9
     code: nl
     cldr_locale: nl
+    iso_639_3: nld
+    iso_639_3_aliases: [dut]
     name: Dutch
     script: Latn
   - bit: 10
     code: pl
     cldr_locale: pl
+    iso_639_3: pol
     name: Polish
     script: Latn
   - bit: 11
     code: pt
     cldr_locale: pt
+    iso_639_3: por
     name: Portuguese
     script: Latn
   - bit: 12
     code: sv
     cldr_locale: sv
+    iso_639_3: swe
     name: Swedish
     script: Latn
   - bit: 13
     code: tr
     cldr_locale: tr
+    iso_639_3: tur
     name: Turkish
     script: Latn
   - bit: 14
     code: vi
     cldr_locale: vi
+    iso_639_3: vie
     name: Vietnamese
     script: Latn
 
@@ -134,6 +153,7 @@ languages:
   - bit: 15
     code: ru
     cldr_locale: ru
+    iso_639_3: rus
     name: Russian
     script: Cyrl
 
@@ -141,6 +161,8 @@ languages:
   - bit: 16
     code: el
     cldr_locale: el
+    iso_639_3: ell
+    iso_639_3_aliases: [gre]
     name: Greek (monotonic)
     script: Grek
 
@@ -148,11 +170,15 @@ languages:
   - bit: 17
     code: ar
     cldr_locale: ar
+    iso_639_3: ara
+    iso_639_3_aliases: [arb]
     name: Arabic
     script: Arab
   - bit: 18
     code: fa
     cldr_locale: fa
+    iso_639_3: fas
+    iso_639_3_aliases: [per, pes]
     name: Persian
     script: Arab
 
@@ -160,16 +186,21 @@ languages:
   - bit: 19
     code: zh-Hans
     cldr_locale: zh-Hans
+    iso_639_3: zho
+    iso_639_3_aliases: [chi, cmn]
     name: Chinese (Simplified)
     script: Hans
   - bit: 20
     code: zh-Hant
     cldr_locale: zh-Hant
+    iso_639_3: zho
+    iso_639_3_aliases: [chi, cmn, yue]
     name: Chinese (Traditional)
     script: Hant
   - bit: 21
     code: ja
     cldr_locale: ja
+    iso_639_3: jpn
     name: Japanese
     script: Jpan
 
@@ -177,6 +208,8 @@ languages:
   - bit: 22
     code: el-polyton
     cldr_locale: el-polyton
+    iso_639_3: ell
+    iso_639_3_aliases: [gre]
     name: Greek (polytonic)
     script: Grek
 
@@ -185,78 +218,103 @@ languages:
   - bit: 23
     code: ko
     cldr_locale: ko
+    iso_639_3: kor
     name: Korean
     script: Hang
   - bit: 24
     code: hi
     cldr_locale: hi
+    iso_639_3: hin
     name: Hindi
     script: Deva
   - bit: 25
     code: he
     cldr_locale: he
+    iso_639_3: heb
+    iso_639_3_aliases: [iw]
     name: Hebrew
     script: Hebr
   - bit: 26
     code: th
     cldr_locale: th
+    iso_639_3: tha
     name: Thai
     script: Thai
   - bit: 27
     code: hy
     cldr_locale: hy
+    iso_639_3: hye
+    iso_639_3_aliases: [arm]
     name: Armenian
     script: Armn
   - bit: 28
     code: ka
     cldr_locale: ka
+    iso_639_3: kat
+    iso_639_3_aliases: [geo]
     name: Georgian
     script: Geor
   - bit: 29
     code: bn
     cldr_locale: bn
+    iso_639_3: ben
     name: Bengali
     script: Beng
   - bit: 30
     code: ta
     cldr_locale: ta
+    iso_639_3: tam
     name: Tamil
     script: Taml
   - bit: 31
     code: te
     cldr_locale: te
+    iso_639_3: tel
     name: Telugu
     script: Telu
   - bit: 32
     code: kn
     cldr_locale: kn
+    iso_639_3: kan
     name: Kannada
     script: Knda
   - bit: 33
     code: ml
     cldr_locale: ml
+    iso_639_3: mal
     name: Malayalam
     script: Mlym
   - bit: 34
     code: gu
     cldr_locale: gu
+    iso_639_3: guj
     name: Gujarati
     script: Gujr
   - bit: 35
     code: pa
     cldr_locale: pa
+    iso_639_3: pan
     name: Punjabi (Gurmukhi)
     script: Guru
   - bit: 36
     code: my
     cldr_locale: my
+    iso_639_3: mya
+    iso_639_3_aliases: [bur]
     name: Burmese
     script: Mymr
   - bit: 37
     code: ur
     cldr_locale: ur
+    iso_639_3: urd
     name: Urdu
     script: Arab
+    # ں (NOON GHUNNA) is CLDR-`ur` auxiliary, but it's a real Urdu
+    # letter used for nasalised vowels (every Urdu speaker uses it).
+    # Re-admitted explicitly so the strict-rejection drop-auxiliary
+    # rule doesn't false-reject the ~41 Urdu tokens containing it.
+    # Consumer feedback v3.2 INTEGRATION_REPORT 2026-05-15.
+    extra_codepoints: ["U+06BA"]
 
   # Tier 2: same-script sister languages of v1 entries
   # (closes false-rejection where shared chars currently bias toward
@@ -265,81 +323,104 @@ languages:
   - bit: 38
     code: ro
     cldr_locale: ro
+    iso_639_3: ron
+    iso_639_3_aliases: [rum]
     name: Romanian
     script: Latn
   - bit: 39
     code: uk
     cldr_locale: uk
+    iso_639_3: ukr
     name: Ukrainian
     script: Cyrl
   - bit: 40
     code: bg
     cldr_locale: bg
+    iso_639_3: bul
     name: Bulgarian
     script: Cyrl
   - bit: 41
     code: mk
     cldr_locale: mk
+    iso_639_3: mkd
+    iso_639_3_aliases: [mac]
     name: Macedonian
     script: Cyrl
   - bit: 42
     code: sr-Latn
     cldr_locale: sr-Latn
+    iso_639_3: srp
     name: Serbian (Latin)
     script: Latn
   - bit: 43
     code: sr-Cyrl
     cldr_locale: sr-Cyrl
+    iso_639_3: srp
     name: Serbian (Cyrillic)
     script: Cyrl
   - bit: 44
     code: az
     cldr_locale: az
+    iso_639_3: aze
+    iso_639_3_aliases: [azj]
     name: Azerbaijani
     script: Latn
   - bit: 45
     code: fi
     cldr_locale: fi
+    iso_639_3: fin
     name: Finnish
     script: Latn
   - bit: 46
     code: nb
     cldr_locale: nb
+    iso_639_3: nob
+    iso_639_3_aliases: [nor]
     name: Norwegian Bokmål
     script: Latn
   - bit: 47
     code: sl
     cldr_locale: sl
+    iso_639_3: slv
     name: Slovenian
     script: Latn
   - bit: 48
     code: hr
     cldr_locale: hr
+    iso_639_3: hrv
     name: Croatian
     script: Latn
   - bit: 49
     code: sk
     cldr_locale: sk
+    iso_639_3: slk
+    iso_639_3_aliases: [slo]
     name: Slovak
     script: Latn
   - bit: 50
     code: et
     cldr_locale: et
+    iso_639_3: est
+    iso_639_3_aliases: [ekk]
     name: Estonian
     script: Latn
   - bit: 51
     code: lt
     cldr_locale: lt
+    iso_639_3: lit
     name: Lithuanian
     script: Latn
   - bit: 52
     code: lv
     cldr_locale: lv
+    iso_639_3: lav
+    iso_639_3_aliases: [lvs]
     name: Latvian
     script: Latn
   - bit: 53
     code: ca
     cldr_locale: ca
+    iso_639_3: cat
     name: Catalan
     script: Latn
 
@@ -347,6 +428,8 @@ languages:
   - bit: 54
     code: is
     cldr_locale: is
+    iso_639_3: isl
+    iso_639_3_aliases: [ice]
     name: Icelandic
     script: Latn
 
@@ -355,27 +438,240 @@ languages:
   - bit: 55
     code: be
     cldr_locale: be
+    iso_639_3: bel
     name: Belarusian
     script: Cyrl
   - bit: 56
     code: kk
     cldr_locale: kk
+    iso_639_3: kaz
     name: Kazakh
     script: Cyrl
   - bit: 57
     code: mn
     cldr_locale: mn
+    iso_639_3: mon
+    iso_639_3_aliases: [khk]
     name: Mongolian (Cyrillic)
     script: Cyrl
   # Latin gap closure (Esperanto residue):
   - bit: 58
     code: eo
     cldr_locale: eo
+    iso_639_3: epo
     name: Esperanto
     script: Latn
   # Arabic-script gap closure (Pashto):
   - bit: 59
     code: ps
     cldr_locale: ps
+    iso_639_3: pus
+    iso_639_3_aliases: [pbt]
     name: Pashto
     script: Arab
+
+  # --- v3.2 additions (driven by PMI-consumer feedback 2026-05-15) ---
+  # Tier 1 — major languages in existing scripts:
+  - bit: 60
+    code: sw
+    cldr_locale: sw
+    iso_639_3: swa
+    iso_639_3_aliases: [swh, swc]
+    name: Swahili
+    script: Latn
+  - bit: 61
+    code: fil
+    cldr_locale: fil
+    iso_639_3: fil
+    iso_639_3_aliases: [tgl]
+    name: Filipino
+    script: Latn
+  - bit: 62
+    code: mr
+    cldr_locale: mr
+    iso_639_3: mar
+    name: Marathi
+    script: Deva
+  - bit: 63
+    code: ne
+    cldr_locale: ne
+    iso_639_3: nep
+    iso_639_3_aliases: [npi]
+    name: Nepali
+    script: Deva
+  - bit: 64
+    code: ceb
+    cldr_locale: ceb
+    iso_639_3: ceb
+    name: Cebuano
+    script: Latn
+  - bit: 65
+    code: tg
+    cldr_locale: tg
+    iso_639_3: tgk
+    name: Tajik
+    script: Cyrl
+  # Tier 2 — additional in-existing-script locales:
+  - bit: 66
+    code: af
+    cldr_locale: af
+    iso_639_3: afr
+    name: Afrikaans
+    script: Latn
+  - bit: 67
+    code: nn
+    cldr_locale: nn
+    iso_639_3: nno
+    name: Norwegian Nynorsk
+    script: Latn
+  - bit: 68
+    code: bs
+    cldr_locale: bs
+    iso_639_3: bos
+    name: Bosnian
+    script: Latn
+  - bit: 69
+    code: gl
+    cldr_locale: gl
+    iso_639_3: glg
+    name: Galician
+    script: Latn
+  - bit: 70
+    code: eu
+    cldr_locale: eu
+    iso_639_3: eus
+    iso_639_3_aliases: [baq]
+    name: Basque
+    script: Latn
+  - bit: 71
+    code: cy
+    cldr_locale: cy
+    iso_639_3: cym
+    iso_639_3_aliases: [wel]
+    name: Welsh
+    script: Latn
+  - bit: 72
+    code: ms
+    cldr_locale: ms
+    iso_639_3: msa
+    iso_639_3_aliases: [zsm, may]
+    name: Malay (Standard)
+    script: Latn
+  - bit: 73
+    code: uz-Latn
+    cldr_locale: uz-Latn
+    iso_639_3: uzb
+    iso_639_3_aliases: [uzn]
+    name: Uzbek (Latin)
+    script: Latn
+  - bit: 74
+    code: uz-Cyrl
+    cldr_locale: uz-Cyrl
+    iso_639_3: uzb
+    iso_639_3_aliases: [uzn]
+    name: Uzbek (Cyrillic)
+    script: Cyrl
+  - bit: 75
+    code: ky
+    cldr_locale: ky
+    iso_639_3: kir
+    name: Kyrgyz
+    script: Cyrl
+  - bit: 76
+    code: ar-MA
+    cldr_locale: ar-MA
+    iso_639_3: ara
+    iso_639_3_aliases: [ary]
+    name: Arabic (Moroccan)
+    script: Arab
+  - bit: 77
+    code: ckb
+    cldr_locale: ckb
+    iso_639_3: ckb
+    name: Central Kurdish (Sorani)
+    script: Arab
+
+  # --- v3.3 additions (new scripts; PMI-consumer Tier 1 new-script gap) ---
+  - bit: 78
+    code: am
+    cldr_locale: am
+    iso_639_3: amh
+    name: Amharic
+    script: Ethi
+  - bit: 79
+    code: km
+    cldr_locale: km
+    iso_639_3: khm
+    name: Khmer
+    script: Khmr
+  - bit: 80
+    code: si
+    cldr_locale: si
+    iso_639_3: sin
+    name: Sinhala
+    script: Sinh
+  - bit: 81
+    code: lo
+    cldr_locale: lo
+    iso_639_3: lao
+    name: Lao
+    script: Laoo
+  - bit: 82
+    code: bo
+    cldr_locale: bo
+    iso_639_3: bod
+    iso_639_3_aliases: [tib]
+    name: Tibetan
+    script: Tibt
+  - bit: 83
+    code: or
+    cldr_locale: or
+    iso_639_3: ory
+    iso_639_3_aliases: [ori]
+    name: Odia
+    script: Orya
+  - bit: 84
+    code: dv
+    cldr_locale: dv
+    iso_639_3: div
+    name: Dhivehi
+    script: Thaa
+
+  # --- v3.3.2 additions (post-hotfix, "Albanians and Romans") ---
+  # Resolves `als_Latn` from both readings (Tosk Albanian via sq macro,
+  # Wikipedia-Alemannic via gsw) and `lat_Latn` for the canonical-key
+  # map; `gmh_Latn` and `und_*` stay genuinely unmapped (no CLDR data
+  # for the former, script-only-attribution pattern for the latter).
+  - bit: 85
+    code: sq
+    cldr_locale: sq
+    iso_639_3: sqi
+    iso_639_3_aliases: [alb, als]
+    name: Albanian
+    script: Latn
+  - bit: 86
+    code: gsw
+    cldr_locale: gsw
+    iso_639_3: gsw
+    iso_639_3_aliases: [als]
+    name: Swiss / Alemannic German
+    script: Latn
+  - bit: 87
+    code: la
+    cldr_locale: la
+    iso_639_3: lat
+    name: Latin (Classical)
+    script: Latn
+    # CLDR `la`'s exemplar is empty. Seed A-Z + Æ æ (ecclesiastical
+    # ligature) + macron-bearing precomposed forms used in academic
+    # Latin lexicography. Case closure adds a-z.
+    extra_codepoints:
+      [
+        "U+0041", "U+0042", "U+0043", "U+0044", "U+0045", "U+0046", "U+0047",
+        "U+0048", "U+0049", "U+004A", "U+004B", "U+004C", "U+004D", "U+004E",
+        "U+004F", "U+0050", "U+0051", "U+0052", "U+0053", "U+0054", "U+0055",
+        "U+0056", "U+0057", "U+0058", "U+0059", "U+005A",
+        "U+00C6", "U+00E6",
+        "U+0100", "U+0101", "U+0112", "U+0113", "U+012A", "U+012B",
+        "U+014C", "U+014D", "U+016A", "U+016B", "U+0232", "U+0233",
+      ]

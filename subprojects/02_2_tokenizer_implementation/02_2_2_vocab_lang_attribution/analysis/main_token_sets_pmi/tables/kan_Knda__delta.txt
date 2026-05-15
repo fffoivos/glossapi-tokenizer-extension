@@ -1,0 +1,65 @@
+# target_key=kan_Knda  lang_code=kn
+# Σ_target=1,003,498,006  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 60 tokens, sorted by count desc
+{16368: None}
+{3045: None}
+{1451: None}
+{26631: None}
+{3319: None}
+{2120: None}
+{2475: None}
+{73039: None}
+{12726: None}
+{97947: None}
+{37820: '೦'}
+{18101: None}
+{107986: None}
+{69653: None}
+{38085: '೧'}
+{127123: None}
+{53014: '೨'}
+{119192: ' IST'}
+{58691: '೯'}
+{18445: ' PM'}
+{79753: '೫'}
+{92984: '೩'}
+{16778: 'À'}
+{97976: '೪'}
+{89116: '೮'}
+{100746: '೬'}
+{95926: '೭'}
+{111222: 'ataka'}
+{59853: ' Updated'}
+{99607: ' Kann'}
+{24808: 'Team'}
+{47059: ' Finance'}
+{13508: 'Last'}
+{9173: 'ifest'}
+{85728: ' ₹'}
+{83337: 'obiles'}
+{19403: ' thoughts'}
+{88765: ' journalism'}
+{17438: ' promote'}
+{62567: ' Join'}
+{17142: ' objective'}
+{26298: ' publish'}
+{86002: ' constructive'}
+{88324: '-operation'}
+{57665: ' broadcasting'}
+{91962: ' Karn'}
+{107378: ' hrs'}
+{129117: ' Districts'}
+{83053: ' Movies'}
+{76877: ' Articles'}
+{1751: None}
+{15270: '?:'}
+{2255: '\u200c'}
+{103930: ' Pdf'}
+{35853: 'Updated'}
+{44823: 'ATCH'}
+{62638: ' Required'}
+{112617: 'APPL'}
+{42407: 'widget'}
+{14588: "']\n"}

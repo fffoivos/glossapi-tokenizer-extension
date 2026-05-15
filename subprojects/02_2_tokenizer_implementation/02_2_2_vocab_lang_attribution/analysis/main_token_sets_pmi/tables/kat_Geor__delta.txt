@@ -1,0 +1,69 @@
+# target_key=kat_Geor  lang_code=ka
+# Σ_target=1,011,484,984  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 64 tokens, sorted by count desc
+{6632: None}
+{16041: None}
+{12136: None}
+{8764: None}
+{19131: None}
+{16774: None}
+{23386: None}
+{40613: None}
+{3818: None}
+{44145: None}
+{2716: None}
+{48420: None}
+{38526: None}
+{4898: None}
+{15464: None}
+{2680: None}
+{2341: None}
+{44266: None}
+{29686: None}
+{77969: None}
+{28323: None}
+{54291: None}
+{88218: None}
+{47047: None}
+{2257: None}
+{11775: None}
+{13737: None}
+{25809: None}
+{5523: None}
+{109223: None}
+{70434: None}
+{121674: None}
+{120440: None}
+{1406: None}
+{77791: None}
+{97404: None}
+{81990: None}
+{32002: '%-'}
+{1957: ' _'}
+{128159: '.ge'}
+{102119: '“-'}
+{7813: '−'}
+{59371: '%E'}
+{113776: ' %-'}
+{91569: ' Georgian'}
+{123687: ' Tbil'}
+{43138: 'Transfer'}
+{121262: 'Georgia'}
+{23928: '~,'}
+{4443: '._'}
+{109585: '?_'}
+{76644: ' potency'}
+{56699: '~.'}
+{37583: '$-'}
+{73422: 'tbl'}
+{48724: '~-'}
+{20792: '.height'}
+{19928: '.width'}
+{114237: '_download'}
+{58517: 'notification'}
+{88587: '"_'}
+{71154: '_margin'}
+{49834: '_PER'}
+{42950: 'otimes'}

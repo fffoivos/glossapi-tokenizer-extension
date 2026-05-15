@@ -1,0 +1,37 @@
+# target_key=kir_Cyrl  lang_code=ky
+# Σ_target=1,003,995,359  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 32 tokens, sorted by count desc
+{10096: 'kg'}
+{1202: None}
+{1201: None}
+{33904: 'News'}
+{116667: '+.'}
+{60917: '+,'}
+{113445: None}
+{2297: ' =>'}
+{14612: 'Enter'}
+{130596: 'gyz'}
+{105157: 'RK'}
+{105910: None}
+{63828: ' Turm'}
+{63577: '/www'}
+{73641: '.media'}
+{27165: '/data'}
+{33740: '_tag'}
+{41273: 'Warning'}
+{72616: ' %%'}
+{8192: '../../'}
+{24878: '"*'}
+{53818: ' Failed'}
+{9596: '_path'}
+{19230: " '../../"}
+{17680: '():'}
+{92191: '/Form'}
+{89389: '_theme'}
+{41149: '_rec'}
+{54688: '(src'}
+{71826: ' җ'}
+{129485: '_car'}
+{113206: '.include'}

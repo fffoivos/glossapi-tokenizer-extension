@@ -1,0 +1,39 @@
+# target_key=vie_Latn  lang_code=vi
+# Σ_target=1,002,288,154  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 34 tokens, sorted by count desc
+{5812: None}
+{6353: None}
+{5568: None}
+{22175: None}
+{6256: None}
+{20011: None}
+{1589: None}
+{14098: None}
+{12263: None}
+{1821: None}
+{4151: None}
+{68314: None}
+{53684: None}
+{1492: None}
+{86954: None}
+{87439: None}
+{1198: None}
+{41994: None}
+{12313: None}
+{6646: None}
+{68710: None}
+{63249: None}
+{24639: None}
+{66297: None}
+{90743: ',...'}
+{20169: None}
+{11160: None}
+{24169: '%;'}
+{101228: None}
+{35209: '>>>'}
+{9947: '=>'}
+{7768: None}
+{3362: None}
+{19196: None}

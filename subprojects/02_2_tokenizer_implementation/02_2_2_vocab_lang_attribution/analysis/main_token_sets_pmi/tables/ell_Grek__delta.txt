@@ -1,0 +1,21 @@
+# target_key=ell_Grek  lang_code=el
+# Σ_target=1,002,997,071  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 16 tokens, sorted by count desc
+{59377: None}
+{114036: None}
+{105726: None}
+{20627: ' µ'}
+{118944: ' ·\n'}
+{105376: None}
+{123872: ';)'}
+{123038: ' laminate'}
+{116739: ";'"}
+{91369: '\\":\\"'}
+{117302: '\\",\\"'}
+{120913: '%AC'}
+{37297: '\\":'}
+{31794: 'gree'}
+{123085: '{\\"'}
+{19738: 'oreign'}

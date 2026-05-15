@@ -47,8 +47,8 @@ one of:
 
 - **T0** — `bitmask_and == {L}` (popcount 1, only L)
 - **T1** — `family_and == {L's family}` only, AND L-bit set
-- **T2** — L-bit set, popcount in `(1, 55)`, not T1
-- **T3** — substrate (`popcount == 55`)
+- **T2** — L-bit set, popcount in `(1, N_LANG_BITS)`, not T1
+- **T3** — substrate (`popcount == N_LANG_BITS`, where `N_LANG_BITS` is read from the char-tool manifest)
 
 These four tiers are the input to BOTH methods below.
 

@@ -1,0 +1,30 @@
+# target_key=sin_Sinh  lang_code=si
+# Σ_target=1,047,080,659  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 25 tokens, sorted by count desc
+{1224: None}
+{1182: None}
+{1183: None}
+{1138: None}
+{1146: None}
+{1154: None}
+{1177: None}
+{1128: None}
+{1143: None}
+{1184: None}
+{1187: None}
+{1148: None}
+{1131: None}
+{1175: None}
+{1156: None}
+{1180: None}
+{1189: None}
+{1153: None}
+{1167: None}
+{117802: None}
+{15726: None}
+{53156: 'Reply'}
+{37146: ' cb'}
+{67202: ' DATE'}
+{32184: '.values'}

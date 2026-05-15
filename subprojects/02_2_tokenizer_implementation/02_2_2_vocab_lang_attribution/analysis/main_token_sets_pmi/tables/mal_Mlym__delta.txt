@@ -1,0 +1,66 @@
+# target_key=mal_Mlym  lang_code=ml
+# Σ_target=1,009,549,488  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 61 tokens, sorted by count desc
+{2566: None}
+{3900: None}
+{4659: None}
+{1542: None}
+{2690: None}
+{35052: None}
+{4860: None}
+{22101: None}
+{15663: None}
+{21129: None}
+{8050: None}
+{121746: None}
+{63832: None}
+{27578: None}
+{31552: None}
+{35727: None}
+{100072: None}
+{9195: None}
+{124355: None}
+{6901: None}
+{18839: None}
+{28576: None}
+{61080: None}
+{84395: None}
+{113823: None}
+{115624: None}
+{48251: None}
+{82008: None}
+{1858: None}
+{67272: None}
+{9975: None}
+{74191: ' Malay'}
+{107378: ' hrs'}
+{63899: 'lights'}
+{22461: 'Also'}
+{16590: None}
+{40063: ' GMT'}
+{6428: 'Content'}
+{83337: 'obiles'}
+{27249: "';"}
+{81774: ' Kerala'}
+{28678: ' Summary'}
+{57415: 'Story'}
+{74381: ' kindly'}
+{50008: '_fields'}
+{7198: '_to'}
+{36354: 'exit'}
+{33709: '_app'}
+{35920: '_range'}
+{88634: None}
+{38227: ' typing'}
+{29568: '\u200d'}
+{64560: ' postpon'}
+{106596: 'ډ'}
+{85871: '.Click'}
+{35494: ' toggle'}
+{47964: 'Generated'}
+{103266: 'Adjust'}
+{19375: 'returns'}
+{28657: '.Print'}
+{59570: ' څ'}

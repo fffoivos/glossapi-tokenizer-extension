@@ -39,6 +39,28 @@ from _common import (
 GPT2_BYTELEVEL_MAP_OFFSET = 256
 
 
+# Coarse Unicode-category bitmap, OR-aggregated per token.
+# Lets consumers filter natural-text (L+M, optional Z) from
+# code/symbol-mixed tokens without re-implementing category logic.
+CATEGORY_BITS: dict[str, int] = {
+    "L": 1 << 0,  # Letter (Lu, Ll, Lt, Lm, Lo)
+    "M": 1 << 1,  # Mark (Mn, Mc, Me)
+    "N": 1 << 2,  # Number (Nd, Nl, No)
+    "P": 1 << 3,  # Punctuation (Pc, Pd, Pe, Pf, Pi, Po, Ps)
+    "S": 1 << 4,  # Symbol (Sc, Sk, Sm, So)
+    "Z": 1 << 5,  # Separator (Zl, Zp, Zs)
+    "C": 1 << 6,  # Control / Format (Cc, Cf, Cn, Co, Cs)
+}
+
+
+def coarse_category_bit(cp: int) -> int:
+    try:
+        cat = unicodedata.category(chr(cp))
+    except ValueError:
+        return CATEGORY_BITS["C"]
+    return CATEGORY_BITS.get(cat[0], 0)
+
+
 def bytes_to_unicode() -> dict[int, str]:
     bs = (
         list(range(ord("!"), ord("~") + 1))
@@ -145,16 +167,16 @@ def compute_token_row(
     all_lang: int,
 ) -> dict:
     if token in specials:
-        return _row(token_id, None, None, 0, 0, 0, 0, 0, 0, 0, "special")
+        return _row(token_id, None, None, 0, 0, 0, 0, 0, 0, 0, 0, "special")
 
     raw = token_string_to_bytes(token, u2b)
     if raw is None:
-        return _row(token_id, None, None, 0, 0, 0, 0, 0, 0, 0, "byte_unmapped")
+        return _row(token_id, None, None, 0, 0, 0, 0, 0, 0, 0, 0, "byte_unmapped")
 
     try:
         decoded = raw.decode("utf-8")
     except UnicodeDecodeError:
-        return _row(token_id, raw, None, 0, 0, 0, 0, 0, 0, 0, "partial_utf8")
+        return _row(token_id, raw, None, 0, 0, 0, 0, 0, 0, 0, 0, "partial_utf8")
 
     s_and = all_script
     s_or = 0
@@ -162,6 +184,7 @@ def compute_token_row(
     f_or = 0
     l_and = all_lang
     l_or = 0
+    cat_or = 0
     n = 0
     any_known = False
     any_letter_unmodeled = False
@@ -177,6 +200,7 @@ def compute_token_row(
         f_or |= f
         l_and &= l
         l_or |= l
+        cat_or |= coarse_category_bit(ord(ch))
         if in_scope:
             any_known = True
         else:
@@ -192,7 +216,7 @@ def compute_token_row(
     return _row(
         token_id, raw, decoded,
         s_and, s_or, f_and, f_or, l_and, l_or,
-        n, status,
+        cat_or, n, status,
     )
 
 
@@ -206,6 +230,7 @@ def _row(
     family_or: int,
     bitmask_and: int,
     bitmask_or: int,
+    category_or: int,
     num_chars: int,
     status: str,
 ) -> dict:
@@ -219,6 +244,7 @@ def _row(
         "family_or": family_or,
         "bitmask_and": bitmask_and,
         "bitmask_or": bitmask_or,
+        "category_or": category_or,
         "num_chars": num_chars,
         "status": status,
     }
@@ -340,6 +366,9 @@ def main() -> None:
                 [encode_mask(r["bitmask_or"]) for r in rows],
                 type=pa.binary(BITMASK_BYTES),
             ),
+            "category_or": pa.array(
+                [r["category_or"] for r in rows], type=pa.uint8()
+            ),
             "num_chars": pa.array([r["num_chars"] for r in rows], type=pa.uint16()),
             "status": pa.array([r["status"] for r in rows], type=pa.string()),
         }
@@ -384,13 +413,32 @@ def main() -> None:
 
     manifest = {
         "apply_timestamp_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "token_table_schema_version": 4,
+        "token_table_schema_version": 5,
         "bitmask_bytes": BITMASK_BYTES,
         "bitmask_byte_order": "little",
         "levels": {
             "script": {"bits_used": num_scripts, "and_column": "script_and", "or_column": "script_or"},
             "family": {"bits_used": num_families, "and_column": "family_and", "or_column": "family_or"},
             "language": {"bits_used": num_langs, "and_column": "bitmask_and", "or_column": "bitmask_or"},
+        },
+        "category_or_legend": {
+            "column": "category_or",
+            "dtype": "uint8",
+            "description": (
+                "OR of coarse Unicode general-category prefixes across all "
+                "chars in the token. Consumers can filter natural-text-only "
+                "tokens via `(category_or & ~(L|M|Z)) == 0`, or detect "
+                "code-mixed tokens via `category_or & (P|S)`."
+            ),
+            "bits": {
+                "L": 1 << 0,
+                "M": 1 << 1,
+                "N": 1 << 2,
+                "P": 1 << 3,
+                "S": 1 << 4,
+                "Z": 1 << 5,
+                "C": 1 << 6,
+            },
         },
         "apertus_snapshot_path": str(snapshot),
         "apertus_snapshot_revision_sha": snapshot_sha,

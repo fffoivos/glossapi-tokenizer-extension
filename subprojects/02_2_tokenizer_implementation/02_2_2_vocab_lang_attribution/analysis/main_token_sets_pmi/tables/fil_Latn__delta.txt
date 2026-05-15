@@ -1,0 +1,11 @@
+# target_key=fil_Latn  lang_code=fil
+# Σ_target=1,004,000,403  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 6 tokens, sorted by count desc
+{95750: None}
+{72616: ' %%'}
+{47489: '“‘'}
+{29012: ' ###'}
+{42545: '—¡'}
+{44138: None}

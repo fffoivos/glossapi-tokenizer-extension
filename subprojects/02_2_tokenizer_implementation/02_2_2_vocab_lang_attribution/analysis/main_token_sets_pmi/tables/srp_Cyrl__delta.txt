@@ -1,0 +1,37 @@
+# target_key=srp_Cyrl  lang_code=sr-Cyrl
+# Σ_target=1,008,255,961  marg_total=87,843,958,530  marg_keys=87
+# alpha=0.5  delta=1.0  min_count=100
+# variant=B\A (rejected by char mask)
+# 32 tokens, sorted by count desc
+{10829: '“,'}
+{16216: '“.'}
+{5896: '%D'}
+{1125: '}'}
+{92051: '.{'}
+{7599: '%B'}
+{50648: '.rs'}
+{50454: ' Beyond'}
+{35884: '-%'}
+{46775: '%BD'}
+{121383: '%BF'}
+{35765: '%BE'}
+{16220: 'Score'}
+{41262: '/%'}
+{48627: '%BA'}
+{37141: '{S'}
+{46558: '%BB'}
+{56067: 'ricted'}
+{95200: '-matched'}
+{71690: '%BC'}
+{119474: '/item'}
+{112363: '_drop'}
+{89356: '-sum'}
+{9299: '}-'}
+{22774: 'columns'}
+{61343: '_stack'}
+{62873: '_card'}
+{27607: '-ui'}
+{7913: '*),'}
+{57906: 'square'}
+{88941: '/style'}
+{71110: 'carousel'}
