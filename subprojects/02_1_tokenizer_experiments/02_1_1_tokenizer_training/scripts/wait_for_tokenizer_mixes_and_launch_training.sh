@@ -9,10 +9,13 @@ fi
 MIX_ROOT="$1"
 TRAINING_ROOT="$2"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
+# SCRIPT_DIR resolves to .../subprojects/02_1_tokenizer_experiments/02_1_1_tokenizer_training/scripts
+# repo root is four levels up.
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../" && pwd)"
 GLOSSAPI_MIX="${MIX_ROOT}/glossapi_only/mix.parquet"
 MIXED_MIX="${MIX_ROOT}/glossapi_plus_hplt_70_30/mix.parquet"
-TRAIN_SCRIPT="${REPO_ROOT}/subprojects/02_1_tokenizer_experiments/scripts/train_discovery_tokenizer.py"
+# train_discovery_tokenizer.py is co-located in this sub-subproject's scripts/ dir after the 2026-05-12 reorg.
+TRAIN_SCRIPT="${SCRIPT_DIR}/train_discovery_tokenizer.py"
 VENV_ROOT="${TOKENIZER_TRAINING_VENV_ROOT:-${HOME}/venvs/tokenizer-training}"
 PYTHON_BIN="${TOKENIZER_TRAINING_PYTHON_BIN:-${VENV_ROOT}/bin/python}"
 BASE_TOKENIZER="${TOKENIZER_TRAINING_BASE_TOKENIZER:-swiss-ai/Apertus-8B-2509}"

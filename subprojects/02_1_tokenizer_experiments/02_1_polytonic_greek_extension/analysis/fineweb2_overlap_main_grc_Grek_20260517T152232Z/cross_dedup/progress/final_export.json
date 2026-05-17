@@ -1,0 +1,15 @@
+{
+  "run_id": "cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z",
+  "decision_rows": 47265,
+  "kept_rows": 46728,
+  "dropped_rows": 537,
+  "cluster_summary_rows": 46630,
+  "edge_audit_sample_rows": 88,
+  "cluster_audit_sample_rows": 84,
+  "decision_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/final/dedup_decisions.parquet",
+  "kept_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/final/kept_docs.parquet",
+  "dropped_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/final/dropped_docs.parquet",
+  "cluster_summary_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/final/cluster_summary.parquet",
+  "edge_audit_sample_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/final/edge_audit_sample.parquet",
+  "cluster_audit_sample_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/final/cluster_audit_sample.parquet"
+}

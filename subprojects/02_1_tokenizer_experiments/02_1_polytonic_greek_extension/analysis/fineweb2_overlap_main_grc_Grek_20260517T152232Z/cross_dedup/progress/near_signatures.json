@@ -1,0 +1,21 @@
+{
+  "run_id": "cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z",
+  "stage": "near_signatures",
+  "survivor_manifest_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_01_exact/exact_survivor_manifest.parquet",
+  "signatures_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_02_near/signatures.parquet",
+  "signature_matrix_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_02_near/signatures.npy",
+  "signature_doc_keys_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_02_near/signature_doc_keys.txt",
+  "signature_metadata_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_02_near/signature_metadata.npy",
+  "lsh_buckets_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_02_near/lsh_buckets.parquet",
+  "shingle_mode": "token",
+  "shingle_size": 5,
+  "num_perm": 128,
+  "bands": 32,
+  "rows_per_band": 4,
+  "exact_survivor_rows": 47264,
+  "stage2_input_rows": 47165,
+  "short_or_skipped_rows": 99,
+  "reused_signature_chunks": 0,
+  "computed_signature_chunks": 2,
+  "lsh_bucket_rows": 1509280
+}

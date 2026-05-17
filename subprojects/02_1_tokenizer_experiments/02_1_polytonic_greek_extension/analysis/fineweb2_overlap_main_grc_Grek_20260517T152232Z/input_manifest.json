@@ -1,0 +1,40 @@
+{
+  "ours": "/home/foivos/data/glossapi_work/polytonic_extension/strict_w050_c010/training_data/polytonic_greek_training_kept_strict_w050_c010_20260517T131514Z.parquet",
+  "fineweb": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/fineweb2_reference/main_grc_Grek/fineweb2_main_grc_Grek_train_000_00000.parquet",
+  "outputs": {
+    "fineweb2_main_grc_Grek.parquet": [
+      {
+        "source_dataset": "fineweb2_main_grc_Grek",
+        "rows": 28539,
+        "chars": 188512481
+      }
+    ],
+    "ours_polytonic_kept.parquet": [
+      {
+        "source_dataset": "Wikisource_Greek_texts",
+        "rows": 3435,
+        "chars": 101698506
+      },
+      {
+        "source_dataset": "klasikh_arx_ell_grammateia",
+        "rows": 644,
+        "chars": 57962820
+      },
+      {
+        "source_dataset": "scholarios_graeca_patristic",
+        "rows": 12991,
+        "chars": 219752865
+      },
+      {
+        "source_dataset": "1000_prwta_xronia_ellhnikhs",
+        "rows": 983,
+        "chars": 112777643
+      },
+      {
+        "source_dataset": "Ekklisiastika_Keimena",
+        "rows": 673,
+        "chars": 22657299
+      }
+    ]
+  }
+}

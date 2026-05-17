@@ -1,0 +1,1615 @@
+{
+  "dedup": {
+    "by_source_decision": [
+      {
+        "source_dataset": "1000_prwta_xronia_ellhnikhs",
+        "decision": "drop",
+        "rows": 38
+      },
+      {
+        "source_dataset": "1000_prwta_xronia_ellhnikhs",
+        "decision": "keep",
+        "rows": 945
+      },
+      {
+        "source_dataset": "Ekklisiastika_Keimena",
+        "decision": "drop",
+        "rows": 3
+      },
+      {
+        "source_dataset": "Ekklisiastika_Keimena",
+        "decision": "keep",
+        "rows": 670
+      },
+      {
+        "source_dataset": "Wikisource_Greek_texts",
+        "decision": "drop",
+        "rows": 258
+      },
+      {
+        "source_dataset": "Wikisource_Greek_texts",
+        "decision": "keep",
+        "rows": 3177
+      },
+      {
+        "source_dataset": "fineweb2_main_grc_Grek",
+        "decision": "drop",
+        "rows": 96
+      },
+      {
+        "source_dataset": "fineweb2_main_grc_Grek",
+        "decision": "keep",
+        "rows": 28443
+      },
+      {
+        "source_dataset": "klasikh_arx_ell_grammateia",
+        "decision": "drop",
+        "rows": 142
+      },
+      {
+        "source_dataset": "klasikh_arx_ell_grammateia",
+        "decision": "keep",
+        "rows": 502
+      },
+      {
+        "source_dataset": "scholarios_graeca_patristic",
+        "decision": "keep",
+        "rows": 12991
+      }
+    ],
+    "drops_by_source_stage": [
+      {
+        "source_dataset": "1000_prwta_xronia_ellhnikhs",
+        "decision_stage": "near_duplicate",
+        "rows": 37
+      },
+      {
+        "source_dataset": "1000_prwta_xronia_ellhnikhs",
+        "decision_stage": "relaxed_exact",
+        "rows": 1
+      },
+      {
+        "source_dataset": "Ekklisiastika_Keimena",
+        "decision_stage": "near_duplicate",
+        "rows": 3
+      },
+      {
+        "source_dataset": "Wikisource_Greek_texts",
+        "decision_stage": "near_duplicate",
+        "rows": 258
+      },
+      {
+        "source_dataset": "fineweb2_main_grc_Grek",
+        "decision_stage": "near_duplicate",
+        "rows": 96
+      },
+      {
+        "source_dataset": "klasikh_arx_ell_grammateia",
+        "decision_stage": "near_duplicate",
+        "rows": 142
+      }
+    ],
+    "cross_source_family_summary": {
+      "cross_source_families": 424,
+      "cross_source_rows": 1000.0,
+      "fineweb_ours_families": 423,
+      "fineweb_ours_rows": 901.0
+    },
+    "fineweb_mixed_families_by_our_source": [
+      {
+        "source_dataset": "Wikisource_Greek_texts",
+        "rows": 258,
+        "families": 258
+      },
+      {
+        "source_dataset": "klasikh_arx_ell_grammateia",
+        "rows": 142,
+        "families": 142
+      },
+      {
+        "source_dataset": "1000_prwta_xronia_ellhnikhs",
+        "rows": 37,
+        "families": 37
+      },
+      {
+        "source_dataset": "Ekklisiastika_Keimena",
+        "rows": 3,
+        "families": 3
+      }
+    ],
+    "fineweb_mixed_families_top50": [
+      {
+        "cluster_id": "near:6d5d2e17069a6d56bfafeb34cf6b07df26757561268abe15e60dcb8f7bc1c8ba",
+        "family_size": 4,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:066f6d645809f22b5119cf0ecbcbd761943768bc8e670d0a943e1af4ed34e760",
+        "family_size": 4,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:eb9a5cfe844af65452f07524bcf2ea56f4962c054947dd9270a5782ecbca6450",
+        "family_size": 4,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:69279dd4594aec6cfd500f96b4b63f6a4fb037c954437039963f5223b7f246ed",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:94ed15bf0c85f62459dfdfd4617a23f535aaa9cd1ffaa1dcfa2939e80dab689f",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:6960c345d124b4b406faaf1c994d5856562edd9e7bd2dddf64f475cbf06d0817",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:0e0b306e75cf892a33bee654af5e188f4c8cd80ba3e5e1558754a38cf9678007",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:6e6589fe7921f89133aae943a310c161fc5b27cc35912ebe65ff40a833711fce",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:b9077f9b893be3ccc587de2dd41af3c36b08cf70bb1ca838e8c37fad4f764a29",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:bdffb50922c19a06e501331a579ef877142a3b550b7ae68039ab6f1f5577978f",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:880ba303291c024d02152377964042cfb502a7b933ba7b49ded7fa3256acc580",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:6b34c5303f54cd98a05c2b73783e28c4d33bb03225d92e15facda9f622a4c697",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:def289edfd63f0cd3b1f59441e551340c9f4f5b4329d564e2c75693d1bf17f1f",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:e626bf53c25c76fb4a339d0c53469600055c1902b75649eb0eacb3f32e35adc3",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:ae347d6035203dddaa28011791402cc1b4d11b0dd38971dd178b1a6bd49bd47c",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:1646aa72dc4788cf9d69552a8b7437ffea3539208029339a2d7a7b6c278d6a11",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:c5d00b1f973d3f98cf39bc21bec3fdb36ee4a905a51ceb90fc873f8f4c4b088b",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:c928f3c6790d6e92ea8fd90d5ff1781db97544b0f056134866a99932d44902ec",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:8c0d05166d1021c7c887ba68d46b6957378b13cf8b00e59e33cecadd67bc42d6",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:dacb699cad11edc4758521d6a5fdd862e9cbbcf64bf0e2c6657d534a082eba01",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:898ff57308e4227e57c9635b37e2cd02b0e5e78193ced29daa122eb18e209136",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:0e18f573ecfd64a829142f474d5d46a1688cf5dc12d227f550c835d5b8cf4bc0",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:10a63318a39a7b19d2498c4a53f5d9b128ee41b7ab20c704f1bf83041eea0bc2",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:88185b28730e1b7902a7eed0924c06a66a9e2fd09c58636768218e3b2a8e08c1",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:cefdc574c749f75e0e589fbb4c30dfccc5dd5a04a8d55b64d9cff817c6f20faf",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:75d249e77beab91c29fa7c38d2332f7edde5e9b93fbf00b3b01e2cfe2464337b",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:6a4c761479106747545e1af786e0fb6a95a20a8f78d03e9c4466a2122db959d7",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:e14e3df17f373a9c0dbb9cff4405e60c72faf46134b69a5030ab1f64572415aa",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:1755e84ff3f34df01cacf283a651722de1058050ceb4775e796996effa8eec0c",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:7b006b16d1a4380fef07dc0b70801c5ba36a3c18c81e6980b1422548f0e109e8",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:162826dff1a27a1429b00406338420155b8fb3d56ff223697530f9ffb78aeb63",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:dc0982a63234ce4ad7fcb8ddeadea6f0ef8acf50973f14f9bb038942fec7eac9",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:3b52ee0fd72e3c11d674cd1ed27d3f4317fb1140b773af21f8c036742c786ede",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:804088369b9699062b50d5c2206da6c2159c45a606843a443a95ae845b5af4fb",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:e6ed0a00b42d94cc8619f34867ce7ef60a56d1d356b71f8a7da684b08103331c",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:1a628b5cb4fefc68bc851d82fa962c920d3c422aa9ad3f30a614477838ede2ca",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:9070c85c12b442eb52e69c36d3b89636dda319ae2323cde2e7baf4579f41583e",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:e23e890c9c905dd0c656c392dac75e8cd8b18a6f87c52fa514d6a9de9e26be40",
+        "family_size": 3,
+        "sources": "fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 2.0,
+        "our_rows": 1.0
+      },
+      {
+        "cluster_id": "near:e61e49a0742e1028526334643ba580895a4c939fc87617c769a71c9e16228988",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 1.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:1bf4cf5dee2a4d804af41bdd233591a09b27deb6065451c719145e8d9100d98d",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 1.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:437f49bf45db899925ac1b29d8f2a206524c9d646cad28ba8aae59d6d3b99abe",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 1.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:47a4278fea2b4a13f93491f65e130cd0de62cfff4e52c97d3a243794e21ceb51",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 1.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:841995f25a534f6c76374f12e90c9585cd391def8e9b85f67f2c92f211589e7d",
+        "family_size": 3,
+        "sources": "1000_prwta_xronia_ellhnikhs, Wikisource_Greek_texts, fineweb2_main_grc_Grek",
+        "fineweb_rows": 1.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:f068d1e86d305eabf221795e7ddba54968860c6b8b307dc4f1550c2ba62dd378",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 1.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:8b5d6e5329be01bf27a61cfab0a6ec06a5ef1d623b8f56f06288c84bb6031fd6",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 1.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:4ea432105d9a2bef30eea57d2b4677ebfc5442daca8e07509f770f52a0018407",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 1.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:a561195cf739c27f459231d2badb7a2c214e64b7bf9f2a05e5904e329edbd435",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 1.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:a374f26239835e054d5f3b77c43eefbbd1fcd94e9744c289dfd0d4fbd3c1115e",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 1.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:27e938b0ebde9647cba5cfe80f74402a067ac290f223af512ee2e2fc4198e433",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 1.0,
+        "our_rows": 2.0
+      },
+      {
+        "cluster_id": "near:2fd1b88bcdd85c4d85fddc39eb6c8a331c3a5e4a401e413c069fd46bd2fef7dd",
+        "family_size": 3,
+        "sources": "Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia",
+        "fineweb_rows": 1.0,
+        "our_rows": 2.0
+      }
+    ],
+    "drop_direction": [
+      {
+        "dropped_source": "Wikisource_Greek_texts",
+        "kept_source": "fineweb2_main_grc_Grek",
+        "decision_stage": "near_duplicate",
+        "rows": 258
+      },
+      {
+        "dropped_source": "klasikh_arx_ell_grammateia",
+        "kept_source": "fineweb2_main_grc_Grek",
+        "decision_stage": "near_duplicate",
+        "rows": 142
+      },
+      {
+        "dropped_source": "fineweb2_main_grc_Grek",
+        "kept_source": "fineweb2_main_grc_Grek",
+        "decision_stage": "near_duplicate",
+        "rows": 96
+      },
+      {
+        "dropped_source": "1000_prwta_xronia_ellhnikhs",
+        "kept_source": "fineweb2_main_grc_Grek",
+        "decision_stage": "near_duplicate",
+        "rows": 37
+      },
+      {
+        "dropped_source": "Ekklisiastika_Keimena",
+        "kept_source": "fineweb2_main_grc_Grek",
+        "decision_stage": "near_duplicate",
+        "rows": 3
+      },
+      {
+        "dropped_source": "1000_prwta_xronia_ellhnikhs",
+        "kept_source": "fineweb2_main_grc_Grek",
+        "decision_stage": "relaxed_exact",
+        "rows": 1
+      }
+    ]
+  },
+  "metadata": {
+    "fineweb_top_domains": {
+      "perseus.tufts.edu": 6202,
+      "hellas.bab2min.pe.kr": 3521,
+      "cts.perseids.org": 1830,
+      "bibbiaedu.it": 1551,
+      "sacred-texts.com": 1068,
+      "el.wikisource.org": 1054,
+      "digitalathenaeus.org": 983,
+      "skuolasprint.it": 938,
+      "credobiblestudy.com": 613,
+      "catholiclibrary.org": 492,
+      "bibledatabase.net": 436,
+      "studybible.info": 385,
+      "goarch.org": 362,
+      "stepbible.org": 358,
+      "perseus.uchicago.edu": 355,
+      "textusreceptusbibles.com": 324,
+      "academic-bible.com": 244,
+      "biblehub.com": 221,
+      "agia-grafi.gr": 213,
+      "versionidigreco.it": 196,
+      "docplayer.gr": 186,
+      "bibelwissenschaft.de": 182,
+      "el.m.wikisource.org": 170,
+      "tertios.com": 149,
+      "orthodoxfathers.com": 135,
+      "bible.by": 135,
+      "septuagint.org": 134,
+      "attikisti.com": 127,
+      "inscriptions.packhum.org": 123,
+      "epigraphy.packhum.org": 108,
+      "apostoliki-diakonia.gr": 106,
+      "vcar.dev": 103,
+      "bibliacatolica.com.br": 101,
+      "biblia.com": 97,
+      "books.google.com": 94,
+      "anastrophe.uchicago.edu": 94,
+      "greek-language.gr": 91,
+      "biblegateway.com": 90,
+      "hodoi.fltr.ucl.ac.be": 89,
+      "septuagint.bible": 85,
+      "breakeveryyoke.com": 84,
+      "proseuxi.gr": 83,
+      "bgnt.net": 80,
+      "bibledbdata.org": 78,
+      "nocr.net": 76,
+      "misselbrook.org.uk": 67,
+      "ellopos.gr": 66,
+      "sab.atheia.gr": 64,
+      "sourceviewbible.github.io": 62,
+      "ulrikp.dk": 61,
+      "ekklisiaonline.gr": 59,
+      "ec-patr.org": 59,
+      "bible-tools.org": 58,
+      "newchristianbiblestudy.org": 57,
+      "newlife4you.gr": 52,
+      "immorfou.org.cy": 52,
+      "septuaginta.net": 49,
+      "reconstructingq.com": 48,
+      "neelsmith.info": 47,
+      "remacle.org": 46,
+      "bible.pearmobile.com": 46,
+      "aristotelianphilosophy.com": 46,
+      "ginoskos.com": 45,
+      "biblia-online.pl": 42,
+      "cts.dh.uni-leipzig.de": 42,
+      "agiazoni.gr": 41,
+      "awmach.org": 38,
+      "osotir.org": 38,
+      "narses.hpdst.gr": 38,
+      "mftd.org": 38,
+      "users.uoa.gr": 37,
+      "dcc.dickinson.edu": 37,
+      "pinakes.irht.cnrs.fr": 35,
+      "enciclopedia-dacica.ro": 34,
+      "ekp-dipso.gr": 34,
+      "mlat.uzh.ch": 34,
+      "magister.msk.ru": 33,
+      "textkit.com": 32,
+      "myriobiblos.gr": 32,
+      "ellopos.com": 29
+    },
+    "fineweb_domain_buckets": {
+      "perseus": 8393,
+      "biblical_church": 7028,
+      "other": 6034,
+      "classical_other": 5442,
+      "wikisource": 1261,
+      "goarch": 381
+    },
+    "our_docs_with_url_metadata": 3435,
+    "our_top_metadata_domains": {
+      "el.wikisource.org": 3435
+    },
+    "our_source_domains": {
+      "Wikisource_Greek_texts": {
+        "el.wikisource.org": 3435
+      }
+    },
+    "exact_canonical_url_match_count": 210,
+    "exact_canonical_url_match_samples": [
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000073",
+        "our_title": "Επιστολαί αγροικικαί",
+        "our_author": "Κλαύδιος Αἰλιανός",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%B1%CE%AF_%CE%B1%CE%B3%CF%81%CE%BF%CE%B9%CE%BA%CE%B9%CE%BA%CE%B1%CE%AF",
+        "fineweb_id": "<urn:uuid:1b4e96db-fb97-400b-ba6e-0105e5814faf>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%B1%CE%AF_%CE%B1%CE%B3%CF%81%CE%BF%CE%B9%CE%BA%CE%B9%CE%BA%CE%B1%CE%AF",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000082",
+        "our_title": "Περί της Παραπρεσβείας",
+        "our_author": "Αἰσχίνης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%84%CE%B7%CF%82_%CE%A0%CE%B1%CF%81%CE%B1%CF%80%CF%81%CE%B5%CF%83%CE%B2%CE%B5%CE%AF%CE%B1%CF%82",
+        "fineweb_id": "<urn:uuid:d2033271-b1ef-4acc-b1a8-8dd34763a87b>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%84%CE%B7%CF%82_%CE%A0%CE%B1%CF%81%CE%B1%CF%80%CF%81%CE%B5%CF%83%CE%B2%CE%B5%CE%AF%CE%B1%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000083",
+        "our_title": "Κατά Κτησιφώντος",
+        "our_author": "Αἰσχίνης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%9A%CF%84%CE%B7%CF%83%CE%B9%CF%86%CF%8E%CE%BD%CF%84%CE%BF%CF%82",
+        "fineweb_id": "<urn:uuid:d23a6716-7f61-4f2a-a674-d6f0ce36f84b>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%9A%CF%84%CE%B7%CF%83%CE%B9%CF%86%CF%8E%CE%BD%CF%84%CE%BF%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000084",
+        "our_title": "Επιστολαί (Αισχίνης)",
+        "our_author": "Αἰσχίνης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%B1%CE%AF_(%CE%91%CE%B9%CF%83%CF%87%CE%AF%CE%BD%CE%B7%CF%82)",
+        "fineweb_id": "<urn:uuid:8ae1c92e-4e43-4e41-8120-96953f87599a>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%B1%CE%AF_(%CE%91%CE%B9%CF%83%CF%87%CE%AF%CE%BD%CE%B7%CF%82)",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000098",
+        "our_title": "Επιτάφιος τω αοιδίμω βασιλεί κυρώ Ιωάννη τω ∆ούκα",
+        "our_author": "Γεώργιος Ακροπολίτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%84%CE%AC%CF%86%CE%B9%CE%BF%CF%82_%CF%84%CF%89_%CE%B1%CE%BF%CE%B9%CE%B4%CE%AF%CE%BC%CF%89_%CE%B2%CE%B1%CF%83%CE%B9%CE%BB%CE%B5%CE%AF_%CE%BA%CF%85%CF%81%CF%8E_%CE%99%CF%89%CE%AC%CE%BD%CE%BD%CE%B7_%CF%84%CF%89_%E2%88%86%CE%BF%CF%8D%CE%BA%CE%B1",
+        "fineweb_id": "<urn:uuid:09899fc3-bd58-4815-a0f5-9948f4c48c13>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%84%CE%AC%CF%86%CE%B9%CE%BF%CF%82_%CF%84%CF%89_%CE%B1%CE%BF%CE%B9%CE%B4%CE%AF%CE%BC%CF%89_%CE%B2%CE%B1%CF%83%CE%B9%CE%BB%CE%B5%CE%AF_%CE%BA%CF%85%CF%81%CF%8E_%CE%99%CF%89%CE%AC%CE%BD%CE%BD%CE%B7_%CF%84%CF%89_%E2%88%86%CE%BF%CF%8D%CE%BA%CE%B1",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000175",
+        "our_title": "Άννωνος Περίπλους",
+        "our_author": "Άννων ο Καρχηδόνιος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%86%CE%BD%CE%BD%CF%89%CE%BD%CE%BF%CF%82_%CE%A0%CE%B5%CF%81%CE%AF%CF%80%CE%BB%CE%BF%CF%85%CF%82",
+        "fineweb_id": "<urn:uuid:72dac495-13a3-4931-88c2-f5809f32d28b>",
+        "fineweb_url": "http://el.wikisource.org/wiki/%CE%86%CE%BD%CE%BD%CF%89%CE%BD%CE%BF%CF%82_%CE%A0%CE%B5%CF%81%CE%AF%CF%80%CE%BB%CE%BF%CF%85%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000177",
+        "our_title": "Η μικρά κόρη και τα φώσφορα",
+        "our_author": "Hans Christian Andersen",
+        "our_url": "https://el.wikisource.org/wiki/%CE%97_%CE%BC%CE%B9%CE%BA%CF%81%CE%AC_%CE%BA%CF%8C%CF%81%CE%B7_%CE%BA%CE%B1%CE%B9_%CF%84%CE%B1_%CF%86%CF%8E%CF%83%CF%86%CE%BF%CF%81%CE%B1",
+        "fineweb_id": "<urn:uuid:ea95b8e0-fe5f-43aa-ad5a-7ed4b18bf5d6>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%97_%CE%BC%CE%B9%CE%BA%CF%81%CE%AC_%CE%BA%CF%8C%CF%81%CE%B7_%CE%BA%CE%B1%CE%B9_%CF%84%CE%B1_%CF%86%CF%8E%CF%83%CF%86%CE%BF%CF%81%CE%B1",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000178",
+        "our_title": "Αίας ή Αίαντος λόγος",
+        "our_author": "Αντισθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%91%CE%AF%CE%B1%CF%82_%CE%AE_%CE%91%CE%AF%CE%B1%CE%BD%CF%84%CE%BF%CF%82_%CE%BB%CF%8C%CE%B3%CE%BF%CF%82",
+        "fineweb_id": "<urn:uuid:2a3015e4-7153-442a-8941-027d608c5ba5>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%91%CE%AF%CE%B1%CF%82_%CE%AE_%CE%91%CE%AF%CE%B1%CE%BD%CF%84%CE%BF%CF%82_%CE%BB%CF%8C%CE%B3%CE%BF%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000182",
+        "our_title": "Φαρμακείας κατά της μητρυιάς",
+        "our_author": "Ἀντιφῶν ο Ῥαμνούσιος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A6%CE%B1%CF%81%CE%BC%CE%B1%CE%BA%CE%B5%CE%AF%CE%B1%CF%82_%CE%BA%CE%B1%CF%84%CE%AC_%CF%84%CE%B7%CF%82_%CE%BC%CE%B7%CF%84%CF%81%CF%85%CE%B9%CE%AC%CF%82",
+        "fineweb_id": "<urn:uuid:5d42f5a7-e3f4-4bda-b0f2-8854550c84d8>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A6%CE%B1%CF%81%CE%BC%CE%B1%CE%BA%CE%B5%CE%AF%CE%B1%CF%82_%CE%BA%CE%B1%CF%84%CE%AC_%CF%84%CE%B7%CF%82_%CE%BC%CE%B7%CF%84%CF%81%CF%85%CE%B9%CE%AC%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000183",
+        "our_title": "Κατηγορία φόνου απαράσημος",
+        "our_author": "Ἀντιφῶν ο Ῥαμνούσιος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%B7%CE%B3%CE%BF%CF%81%CE%AF%CE%B1_%CF%86%CF%8C%CE%BD%CE%BF%CF%85_%CE%B1%CF%80%CE%B1%CF%81%CE%AC%CF%83%CE%B7%CE%BC%CE%BF%CF%82",
+        "fineweb_id": "<urn:uuid:9008c337-410c-4207-8357-a61ceb77df7e>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%B7%CE%B3%CE%BF%CF%81%CE%AF%CE%B1_%CF%86%CF%8C%CE%BD%CE%BF%CF%85_%CE%B1%CF%80%CE%B1%CF%81%CE%AC%CF%83%CE%B7%CE%BC%CE%BF%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000184",
+        "our_title": "Κατηγορία φόνου ακουσίου",
+        "our_author": "Ἀντιφῶν ο Ῥαμνούσιος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%B7%CE%B3%CE%BF%CF%81%CE%AF%CE%B1_%CF%86%CF%8C%CE%BD%CE%BF%CF%85_%CE%B1%CE%BA%CE%BF%CF%85%CF%83%CE%AF%CE%BF%CF%85",
+        "fineweb_id": "<urn:uuid:01f6ee71-193a-4055-a514-ace3ebe5a7cb>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%B7%CE%B3%CE%BF%CF%81%CE%AF%CE%B1_%CF%86%CF%8C%CE%BD%CE%BF%CF%85_%CE%B1%CE%BA%CE%BF%CF%85%CF%83%CE%AF%CE%BF%CF%85",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000186",
+        "our_title": "Περί του Ηρώδου φόνου",
+        "our_author": "Ἀντιφῶν ο Ῥαμνούσιος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%84%CE%BF%CF%85_%CE%97%CF%81%CF%8E%CE%B4%CE%BF%CF%85_%CF%86%CF%8C%CE%BD%CE%BF%CF%85",
+        "fineweb_id": "<urn:uuid:227a1e5c-c411-446c-9195-1601e7faeeec>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%84%CE%BF%CF%85_%CE%97%CF%81%CF%8E%CE%B4%CE%BF%CF%85_%CF%86%CF%8C%CE%BD%CE%BF%CF%85",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000188",
+        "our_title": "Μεταμορφώσεων συναγωγή",
+        "our_author": "Ἀντωνῖνος Λιβεράλις",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9C%CE%B5%CF%84%CE%B1%CE%BC%CE%BF%CF%81%CF%86%CF%8E%CF%83%CE%B5%CF%89%CE%BD_%CF%83%CF%85%CE%BD%CE%B1%CE%B3%CF%89%CE%B3%CE%AE#1._Κτήσυλλα.",
+        "fineweb_id": "<urn:uuid:ac0209bd-b13b-4d9b-9884-dbd1dd476e65>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9C%CE%B5%CF%84%CE%B1%CE%BC%CE%BF%CF%81%CF%86%CF%8E%CF%83%CE%B5%CF%89%CE%BD_%CF%83%CF%85%CE%BD%CE%B1%CE%B3%CF%89%CE%B3%CE%AE",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000228",
+        "our_title": "Μιχαήλ Αποστόλη επικήδειος εις Γαλατηνόν",
+        "our_author": "Μιχαήλ Αποστόλιος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9C%CE%B9%CF%87%CE%B1%CE%AE%CE%BB_%CE%91%CF%80%CE%BF%CF%83%CF%84%CF%8C%CE%BB%CE%B7_%CE%B5%CF%80%CE%B9%CE%BA%CE%AE%CE%B4%CE%B5%CE%B9%CE%BF%CF%82_%CE%B5%CE%B9%CF%82_%CE%93%CE%B1%CE%BB%CE%B1%CF%84%CE%B7%CE%BD%CF%8C%CE%BD",
+        "fineweb_id": "<urn:uuid:1d17238f-635e-4446-afe2-20863357d4fb>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9C%CE%B9%CF%87%CE%B1%CE%AE%CE%BB_%CE%91%CF%80%CE%BF%CF%83%CF%84%CF%8C%CE%BB%CE%B7_%CE%B5%CF%80%CE%B9%CE%BA%CE%AE%CE%B4%CE%B5%CE%B9%CE%BF%CF%82_%CE%B5%CE%B9%CF%82_%CE%93%CE%B1%CE%BB%CE%B1%CF%84%CE%B7%CE%BD%CF%8C%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000236",
+        "our_title": "Κατηγορίαι",
+        "our_author": "Ἀριστοτέλης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%B7%CE%B3%CE%BF%CF%81%CE%AF%CE%B1%CE%B9",
+        "fineweb_id": "<urn:uuid:84bff99c-2460-4c52-bcab-a5b94e1754cf>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%B7%CE%B3%CE%BF%CF%81%CE%AF%CE%B1%CE%B9",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000237",
+        "our_title": "Περί ερμηνείας",
+        "our_author": "Ἀριστοτέλης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%B5%CF%81%CE%BC%CE%B7%CE%BD%CE%B5%CE%AF%CE%B1%CF%82",
+        "fineweb_id": "<urn:uuid:df69e01d-0d72-482d-84c9-3bf56c9f81bb>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%B5%CF%81%CE%BC%CE%B7%CE%BD%CE%B5%CE%AF%CE%B1%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000252",
+        "our_title": "Περί Μακροβιότητος και Βραχυβιότητος",
+        "our_author": "Ἀριστοτέλης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%9C%CE%B1%CE%BA%CF%81%CE%BF%CE%B2%CE%B9%CF%8C%CF%84%CE%B7%CF%84%CE%BF%CF%82_%CE%BA%CE%B1%CE%B9_%CE%92%CF%81%CE%B1%CF%87%CF%85%CE%B2%CE%B9%CF%8C%CF%84%CE%B7%CF%84%CE%BF%CF%82",
+        "fineweb_id": "<urn:uuid:8e6847bd-0cba-448e-8c71-9eb5c30a211e>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%9C%CE%B1%CE%BA%CF%81%CE%BF%CE%B2%CE%B9%CF%8C%CF%84%CE%B7%CF%84%CE%BF%CF%82_%CE%BA%CE%B1%CE%B9_%CE%92%CF%81%CE%B1%CF%87%CF%85%CE%B2%CE%B9%CF%8C%CF%84%CE%B7%CF%84%CE%BF%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000254",
+        "our_title": "Περί μνήμης καί αναμνήσεως",
+        "our_author": "Ἀριστοτέλης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%BC%CE%BD%CE%AE%CE%BC%CE%B7%CF%82_%CE%BA%CE%B1%CE%AF_%CE%B1%CE%BD%CE%B1%CE%BC%CE%BD%CE%AE%CF%83%CE%B5%CF%89%CF%82",
+        "fineweb_id": "<urn:uuid:f7769951-bde7-404a-890d-798642df3b3c>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%BC%CE%BD%CE%AE%CE%BC%CE%B7%CF%82_%CE%BA%CE%B1%CE%AF_%CE%B1%CE%BD%CE%B1%CE%BC%CE%BD%CE%AE%CF%83%CE%B5%CF%89%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000256",
+        "our_title": "Περί αναπνοής",
+        "our_author": "Ἀριστοτέλης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%B1%CE%BD%CE%B1%CF%80%CE%BD%CE%BF%CE%AE%CF%82",
+        "fineweb_id": "<urn:uuid:6a82a23e-a877-448c-992c-90a85fabd52f>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%B1%CE%BD%CE%B1%CF%80%CE%BD%CE%BF%CE%AE%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000260",
+        "our_title": "Περί πορείας ζώων",
+        "our_author": "Ἀριστοτέλης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%80%CE%BF%CF%81%CE%B5%CE%AF%CE%B1%CF%82_%CE%B6%CF%8E%CF%89%CE%BD",
+        "fineweb_id": "<urn:uuid:e9187087-4132-4f7e-b7ab-37f659539700>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%80%CE%BF%CF%81%CE%B5%CE%AF%CE%B1%CF%82_%CE%B6%CF%8E%CF%89%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000261",
+        "our_title": "Περί ζώων κινήσεως",
+        "our_author": "Ἀριστοτέλης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%B6%CF%8E%CF%89%CE%BD_%CE%BA%CE%B9%CE%BD%CE%AE%CF%83%CE%B5%CF%89%CF%82",
+        "fineweb_id": "<urn:uuid:cf1b2702-da63-47cc-acb8-2235bb300745>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%B6%CF%8E%CF%89%CE%BD_%CE%BA%CE%B9%CE%BD%CE%AE%CF%83%CE%B5%CF%89%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000271",
+        "our_title": "Περί Αρετών και Κακιών",
+        "our_author": "Ἀριστοτέλης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%91%CF%81%CE%B5%CF%84%CF%8E%CE%BD_%CE%BA%CE%B1%CE%B9_%CE%9A%CE%B1%CE%BA%CE%B9%CF%8E%CE%BD",
+        "fineweb_id": "<urn:uuid:090782e9-682a-4de0-8b43-062994a69e63>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%91%CF%81%CE%B5%CF%84%CF%8E%CE%BD_%CE%BA%CE%B1%CE%B9_%CE%9A%CE%B1%CE%BA%CE%B9%CF%8E%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000278",
+        "our_title": "Μηχανικά",
+        "our_author": "Ἀριστοτέλης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9C%CE%B7%CF%87%CE%B1%CE%BD%CE%B9%CE%BA%CE%AC",
+        "fineweb_id": "<urn:uuid:5c34e94a-8d6c-45c7-b9b5-006b4d4796d1>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9C%CE%B7%CF%87%CE%B1%CE%BD%CE%B9%CE%BA%CE%AC",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000279",
+        "our_title": "Φυσιογνωμονικά",
+        "our_author": "Ἀριστοτέλης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A6%CF%85%CF%83%CE%B9%CE%BF%CE%B3%CE%BD%CF%89%CE%BC%CE%BF%CE%BD%CE%B9%CE%BA%CE%AC",
+        "fineweb_id": "<urn:uuid:a5f711ca-9f67-4884-b329-2b7d9932d71e>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A6%CF%85%CF%83%CE%B9%CE%BF%CE%B3%CE%BD%CF%89%CE%BC%CE%BF%CE%BD%CE%B9%CE%BA%CE%AC",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000281",
+        "our_title": "Προτρεπτικός",
+        "our_author": "Ἀριστοτέλης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%84%CF%81%CE%B5%CF%80%CF%84%CE%B9%CE%BA%CF%8C%CF%82",
+        "fineweb_id": "<urn:uuid:f63c61a6-1134-46d8-87a1-d80988c90697>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%84%CF%81%CE%B5%CF%80%CF%84%CE%B9%CE%BA%CF%8C%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000386",
+        "our_title": "Ετήσιον Ημερολόγιον του Έτους 1890/Υψιπύλη",
+        "our_author": "Δημήτριος Βαρδουνιώτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%84%CE%AE%CF%83%CE%B9%CE%BF%CE%BD_%CE%97%CE%BC%CE%B5%CF%81%CE%BF%CE%BB%CF%8C%CE%B3%CE%B9%CE%BF%CE%BD_%CF%84%CE%BF%CF%85_%CE%88%CF%84%CE%BF%CF%85%CF%82_1890/%CE%A5%CF%88%CE%B9%CF%80%CF%8D%CE%BB%CE%B7",
+        "fineweb_id": "<urn:uuid:9592a7d5-4ae9-487a-91e3-edefe6f30d16>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%84%CE%AE%CF%83%CE%B9%CE%BF%CE%BD_%CE%97%CE%BC%CE%B5%CF%81%CE%BF%CE%BB%CF%8C%CE%B3%CE%B9%CE%BF%CE%BD_%CF%84%CE%BF%CF%85_%CE%88%CF%84%CE%BF%CF%85%CF%82_1890/%CE%A5%CF%88%CE%B9%CF%80%CF%8D%CE%BB%CE%B7",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000412",
+        "our_title": "Επιτάφιος εις τον Μέγαν Βασίλειον επίσκοπον Καισαρείας Καππαδοκίας",
+        "our_author": "Βασίλειος Καισαρείας",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%84%CE%AC%CF%86%CE%B9%CE%BF%CF%82_%CE%B5%CE%B9%CF%82_%CF%84%CE%BF%CE%BD_%CE%9C%CE%AD%CE%B3%CE%B1%CE%BD_%CE%92%CE%B1%CF%83%CE%AF%CE%BB%CE%B5%CE%B9%CE%BF%CE%BD_%CE%B5%CF%80%CE%AF%CF%83%CE%BA%CE%BF%CF%80%CE%BF%CE%BD_%CE%9A%CE%B1%CE%B9%CF%83%CE%B1%CF%81%CE%B5%CE%AF%CE%B1%CF%82_%CE%9A%CE%B1%CF%80%CF%80%CE%B1%CE%B4%CE%BF%CE%BA%CE%AF%CE%B1%CF%82",
+        "fineweb_id": "<urn:uuid:184bdb2d-1ac9-4523-8734-c612612c3e32>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%84%CE%AC%CF%86%CE%B9%CE%BF%CF%82_%CE%B5%CE%B9%CF%82_%CF%84%CE%BF%CE%BD_%CE%9C%CE%AD%CE%B3%CE%B1%CE%BD_%CE%92%CE%B1%CF%83%CE%AF%CE%BB%CE%B5%CE%B9%CE%BF%CE%BD_%CE%B5%CF%80%CE%AF%CF%83%CE%BA%CE%BF%CF%80%CE%BF%CE%BD_%CE%9A%CE%B1%CE%B9%CF%83%CE%B1%CF%81%CE%B5%CE%AF%CE%B1%CF%82_%CE%9A%CE%B1%CF%80%CF%80%CE%B1%CE%B4%CE%BF%CE%BA%CE%AF%CE%B1%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000548",
+        "our_title": "Ετήσιον Ημερολόγιον του Έτους 1887/Ρωμαϊκαί σκηναί",
+        "our_author": "Εμμανουήλ Γαλάνης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%84%CE%AE%CF%83%CE%B9%CE%BF%CE%BD_%CE%97%CE%BC%CE%B5%CF%81%CE%BF%CE%BB%CF%8C%CE%B3%CE%B9%CE%BF%CE%BD_%CF%84%CE%BF%CF%85_%CE%88%CF%84%CE%BF%CF%85%CF%82_1887/%CE%A1%CF%89%CE%BC%CE%B1%CF%8A%CE%BA%CE%B1%CE%AF_%CF%83%CE%BA%CE%B7%CE%BD%CE%B1%CE%AF",
+        "fineweb_id": "<urn:uuid:a509f2cb-7379-45d2-8af0-79304919f01d>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%84%CE%AE%CF%83%CE%B9%CE%BF%CE%BD_%CE%97%CE%BC%CE%B5%CF%81%CE%BF%CE%BB%CF%8C%CE%B3%CE%B9%CE%BF%CE%BD_%CF%84%CE%BF%CF%85_%CE%88%CF%84%CE%BF%CF%85%CF%82_1887/%CE%A1%CF%89%CE%BC%CE%B1%CF%8A%CE%BA%CE%B1%CE%AF_%CF%83%CE%BA%CE%B7%CE%BD%CE%B1%CE%AF",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000573",
+        "our_title": "Ελένης Εγκώμιον",
+        "our_author": "Γοργίας",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CE%BB%CE%AD%CE%BD%CE%B7%CF%82_%CE%95%CE%B3%CE%BA%CF%8E%CE%BC%CE%B9%CE%BF%CE%BD",
+        "fineweb_id": "<urn:uuid:a8799f27-90cb-4418-b4bf-49594efe70f3>",
+        "fineweb_url": "http://el.wikisource.org/wiki/%CE%95%CE%BB%CE%AD%CE%BD%CE%B7%CF%82_%CE%95%CE%B3%CE%BA%CF%8E%CE%BC%CE%B9%CE%BF%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000671",
+        "our_title": "Κατά Δημοσθένους",
+        "our_author": "Δείναρχος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%94%CE%B7%CE%BC%CE%BF%CF%83%CE%B8%CE%AD%CE%BD%CE%BF%CF%85%CF%82",
+        "fineweb_id": "<urn:uuid:ee77319a-5b68-4625-9456-62a8ff5dd1b0>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%94%CE%B7%CE%BC%CE%BF%CF%83%CE%B8%CE%AD%CE%BD%CE%BF%CF%85%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000672",
+        "our_title": "Κατά Αριστογείτονος",
+        "our_author": "Δείναρχος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%91%CF%81%CE%B9%CF%83%CF%84%CE%BF%CE%B3%CE%B5%CE%AF%CF%84%CE%BF%CE%BD%CE%BF%CF%82",
+        "fineweb_id": "<urn:uuid:920a4b53-a524-45e0-9861-243dd0891ec0>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%91%CF%81%CE%B9%CF%83%CF%84%CE%BF%CE%B3%CE%B5%CE%AF%CF%84%CE%BF%CE%BD%CE%BF%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000673",
+        "our_title": "Κατά Φιλοκλέους",
+        "our_author": "Δείναρχος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%A6%CE%B9%CE%BB%CE%BF%CE%BA%CE%BB%CE%AD%CE%BF%CF%85%CF%82",
+        "fineweb_id": "<urn:uuid:895507f3-76d9-4896-b56e-6d5adc84a0d1>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%A6%CE%B9%CE%BB%CE%BF%CE%BA%CE%BB%CE%AD%CE%BF%CF%85%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000707",
+        "our_title": "Κατά Αριστογείτονος Α (Δημοσθένης)",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%91%CF%81%CE%B9%CF%83%CF%84%CE%BF%CE%B3%CE%B5%CE%AF%CF%84%CE%BF%CE%BD%CE%BF%CF%82_%CE%91_(%CE%94%CE%B7%CE%BC%CE%BF%CF%83%CE%B8%CE%AD%CE%BD%CE%B7%CF%82)",
+        "fineweb_id": "<urn:uuid:3a372e74-0af5-4b87-8334-b1add9faf1f6>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%91%CF%81%CE%B9%CF%83%CF%84%CE%BF%CE%B3%CE%B5%CE%AF%CF%84%CE%BF%CE%BD%CE%BF%CF%82_%CE%91_(%CE%94%CE%B7%CE%BC%CE%BF%CF%83%CE%B8%CE%AD%CE%BD%CE%B7%CF%82)",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000710",
+        "our_title": "Κατά Αφόβου Επιτροπής Α",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%91%CF%86%CF%8C%CE%B2%CE%BF%CF%85_%CE%95%CF%80%CE%B9%CF%84%CF%81%CE%BF%CF%80%CE%AE%CF%82_%CE%91",
+        "fineweb_id": "<urn:uuid:fadcea01-8aa3-42f4-8670-a00606c9b481>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%91%CF%86%CF%8C%CE%B2%CE%BF%CF%85_%CE%95%CF%80%CE%B9%CF%84%CF%81%CE%BF%CF%80%CE%AE%CF%82_%CE%91",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000711",
+        "our_title": "Κατά Αφόβου Επιτροπής Β",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%91%CF%86%CF%8C%CE%B2%CE%BF%CF%85_%CE%95%CF%80%CE%B9%CF%84%CF%81%CE%BF%CF%80%CE%AE%CF%82_%CE%92",
+        "fineweb_id": "<urn:uuid:8f7801ed-9f50-4cf3-b0b8-7aa115d8d61c>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%91%CF%86%CF%8C%CE%B2%CE%BF%CF%85_%CE%95%CF%80%CE%B9%CF%84%CF%81%CE%BF%CF%80%CE%AE%CF%82_%CE%92",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000712",
+        "our_title": "Κατά Ευέργου και Μνησιβούλου Ψευδομαρτυριών",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%95%CF%85%CE%AD%CF%81%CE%B3%CE%BF%CF%85_%CE%BA%CE%B1%CE%B9_%CE%9C%CE%BD%CE%B7%CF%83%CE%B9%CE%B2%CE%BF%CF%8D%CE%BB%CE%BF%CF%85_%CE%A8%CE%B5%CF%85%CE%B4%CE%BF%CE%BC%CE%B1%CF%81%CF%84%CF%85%CF%81%CE%B9%CF%8E%CE%BD",
+        "fineweb_id": "<urn:uuid:de116540-e3ce-4d82-a674-5453e23336ed>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%95%CF%85%CE%AD%CF%81%CE%B3%CE%BF%CF%85_%CE%BA%CE%B1%CE%B9_%CE%9C%CE%BD%CE%B7%CF%83%CE%B9%CE%B2%CE%BF%CF%8D%CE%BB%CE%BF%CF%85_%CE%A8%CE%B5%CF%85%CE%B4%CE%BF%CE%BC%CE%B1%CF%81%CF%84%CF%85%CF%81%CE%B9%CF%8E%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000713",
+        "our_title": "Κατά Διονυσοδώρου Βλάβης",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%94%CE%B9%CE%BF%CE%BD%CF%85%CF%83%CE%BF%CE%B4%CF%8E%CF%81%CE%BF%CF%85_%CE%92%CE%BB%CE%AC%CE%B2%CE%B7%CF%82",
+        "fineweb_id": "<urn:uuid:2fd9dac8-9f65-4be8-956e-c96d78043a1e>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%94%CE%B9%CE%BF%CE%BD%CF%85%CF%83%CE%BF%CE%B4%CF%8E%CF%81%CE%BF%CF%85_%CE%92%CE%BB%CE%AC%CE%B2%CE%B7%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000715",
+        "our_title": "Κατά Μειδίου περί του Κονδύλου",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%9C%CE%B5%CE%B9%CE%B4%CE%AF%CE%BF%CF%85_%CF%80%CE%B5%CF%81%CE%AF_%CF%84%CE%BF%CF%85_%CE%9A%CE%BF%CE%BD%CE%B4%CF%8D%CE%BB%CE%BF%CF%85",
+        "fineweb_id": "<urn:uuid:3cb3f276-9813-4692-a3ac-226df52db417>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%9C%CE%B5%CE%B9%CE%B4%CE%AF%CE%BF%CF%85_%CF%80%CE%B5%CF%81%CE%AF_%CF%84%CE%BF%CF%85_%CE%9A%CE%BF%CE%BD%CE%B4%CF%8D%CE%BB%CE%BF%CF%85",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000716",
+        "our_title": "Κατά Νεαίρας",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%9D%CE%B5%CE%B1%CE%AF%CF%81%CE%B1%CF%82",
+        "fineweb_id": "<urn:uuid:04819ec7-27a0-4d2d-b565-203a9a6e1e26>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%9D%CE%B5%CE%B1%CE%AF%CF%81%CE%B1%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000718",
+        "our_title": "Κατά Στεφάνου Ψευδομαρτυριών Α",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%A3%CF%84%CE%B5%CF%86%CE%AC%CE%BD%CE%BF%CF%85_%CE%A8%CE%B5%CF%85%CE%B4%CE%BF%CE%BC%CE%B1%CF%81%CF%84%CF%85%CF%81%CE%B9%CF%8E%CE%BD_%CE%91",
+        "fineweb_id": "<urn:uuid:58c15005-c31b-43e1-8029-3fa0ca5e95d8>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%A3%CF%84%CE%B5%CF%86%CE%AC%CE%BD%CE%BF%CF%85_%CE%A8%CE%B5%CF%85%CE%B4%CE%BF%CE%BC%CE%B1%CF%81%CF%84%CF%85%CF%81%CE%B9%CF%8E%CE%BD_%CE%91",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000719",
+        "our_title": "Κατά Στεφάνου Ψευδομαρτυριών Β",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%A3%CF%84%CE%B5%CF%86%CE%AC%CE%BD%CE%BF%CF%85_%CE%A8%CE%B5%CF%85%CE%B4%CE%BF%CE%BC%CE%B1%CF%81%CF%84%CF%85%CF%81%CE%B9%CF%8E%CE%BD_%CE%92",
+        "fineweb_id": "<urn:uuid:cee410a0-9ab7-4296-ade0-b9dd528eb8dd>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%A3%CF%84%CE%B5%CF%86%CE%AC%CE%BD%CE%BF%CF%85_%CE%A8%CE%B5%CF%85%CE%B4%CE%BF%CE%BC%CE%B1%CF%81%CF%84%CF%85%CF%81%CE%B9%CF%8E%CE%BD_%CE%92",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000720",
+        "our_title": "Κατά Τιμοκράτους",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%A4%CE%B9%CE%BC%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%BF%CF%85%CF%82",
+        "fineweb_id": "<urn:uuid:96406d8e-093b-4413-a17b-943b797e899b>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9A%CE%B1%CF%84%CE%AC_%CE%A4%CE%B9%CE%BC%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%BF%CF%85%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000722",
+        "our_title": "Παραγραφή προς Πανταίνετον",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B1%CF%81%CE%B1%CE%B3%CF%81%CE%B1%CF%86%CE%AE_%CF%80%CF%81%CE%BF%CF%82_%CE%A0%CE%B1%CE%BD%CF%84%CE%B1%CE%AF%CE%BD%CE%B5%CF%84%CE%BF%CE%BD",
+        "fineweb_id": "<urn:uuid:5a8a3a39-2c24-418a-a3e7-3396a31d1e3c>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B1%CF%81%CE%B1%CE%B3%CF%81%CE%B1%CF%86%CE%AE_%CF%80%CF%81%CE%BF%CF%82_%CE%A0%CE%B1%CE%BD%CF%84%CE%B1%CE%AF%CE%BD%CE%B5%CF%84%CE%BF%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000723",
+        "our_title": "Παραγραφή υπέρ Φορμίωνος",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B1%CF%81%CE%B1%CE%B3%CF%81%CE%B1%CF%86%CE%AE_%CF%85%CF%80%CE%AD%CF%81_%CE%A6%CE%BF%CF%81%CE%BC%CE%AF%CF%89%CE%BD%CE%BF%CF%82",
+        "fineweb_id": "<urn:uuid:1b0b1358-cbaf-493c-afd8-99ba43dd212e>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B1%CF%81%CE%B1%CE%B3%CF%81%CE%B1%CF%86%CE%AE_%CF%85%CF%80%CE%AD%CF%81_%CE%A6%CE%BF%CF%81%CE%BC%CE%AF%CF%89%CE%BD%CE%BF%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000724",
+        "our_title": "Περί του Στεφάνου της Τριηαρκίας",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%84%CE%BF%CF%85_%CE%A3%CF%84%CE%B5%CF%86%CE%AC%CE%BD%CE%BF%CF%85_%CF%84%CE%B7%CF%82_%CE%A4%CF%81%CE%B9%CE%B7%CE%B1%CF%81%CE%BA%CE%AF%CE%B1%CF%82",
+        "fineweb_id": "<urn:uuid:ca6d38c0-7f72-4b29-8725-666845280180>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%84%CE%BF%CF%85_%CE%A3%CF%84%CE%B5%CF%86%CE%AC%CE%BD%CE%BF%CF%85_%CF%84%CE%B7%CF%82_%CE%A4%CF%81%CE%B9%CE%B7%CE%B1%CF%81%CE%BA%CE%AF%CE%B1%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000726",
+        "our_title": "Προς Άφοβον υπέρ Φάνου Ψευδομαρτυριών",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%86%CF%86%CE%BF%CE%B2%CE%BF%CE%BD_%CF%85%CF%80%CE%AD%CF%81_%CE%A6%CE%AC%CE%BD%CE%BF%CF%85_%CE%A8%CE%B5%CF%85%CE%B4%CE%BF%CE%BC%CE%B1%CF%81%CF%84%CF%85%CF%81%CE%B9%CF%8E%CE%BD",
+        "fineweb_id": "<urn:uuid:25b53ce3-abe3-41d5-80af-f4835ec2cccc>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%86%CF%86%CE%BF%CE%B2%CE%BF%CE%BD_%CF%85%CF%80%CE%AD%CF%81_%CE%A6%CE%AC%CE%BD%CE%BF%CF%85_%CE%A8%CE%B5%CF%85%CE%B4%CE%BF%CE%BC%CE%B1%CF%81%CF%84%CF%85%CF%81%CE%B9%CF%8E%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000727",
+        "our_title": "Προς Βοιωτόν περί του Ονόματος",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%92%CE%BF%CE%B9%CF%89%CF%84%CF%8C%CE%BD_%CF%80%CE%B5%CF%81%CE%AF_%CF%84%CE%BF%CF%85_%CE%9F%CE%BD%CF%8C%CE%BC%CE%B1%CF%84%CE%BF%CF%82",
+        "fineweb_id": "<urn:uuid:d3d1a7d2-084d-4d72-9547-106c2bf29cb6>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%92%CE%BF%CE%B9%CF%89%CF%84%CF%8C%CE%BD_%CF%80%CE%B5%CF%81%CE%AF_%CF%84%CE%BF%CF%85_%CE%9F%CE%BD%CF%8C%CE%BC%CE%B1%CF%84%CE%BF%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000728",
+        "our_title": "Προς Βοιωτόν περί Προικός Μητρώας",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%92%CE%BF%CE%B9%CF%89%CF%84%CF%8C%CE%BD_%CF%80%CE%B5%CF%81%CE%AF_%CE%A0%CF%81%CE%BF%CE%B9%CE%BA%CF%8C%CF%82_%CE%9C%CE%B7%CF%84%CF%81%CF%8E%CE%B1%CF%82",
+        "fineweb_id": "<urn:uuid:c8732e56-2e8d-4afc-ab60-4530359e6fdd>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%92%CE%BF%CE%B9%CF%89%CF%84%CF%8C%CE%BD_%CF%80%CE%B5%CF%81%CE%AF_%CE%A0%CF%81%CE%BF%CE%B9%CE%BA%CF%8C%CF%82_%CE%9C%CE%B7%CF%84%CF%81%CF%8E%CE%B1%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000731",
+        "our_title": "Προς Ζηνομίωνα Παραγραφή",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%96%CE%B7%CE%BD%CE%BF%CE%BC%CE%AF%CF%89%CE%BD%CE%B1_%CE%A0%CE%B1%CF%81%CE%B1%CE%B3%CF%81%CE%B1%CF%86%CE%AE",
+        "fineweb_id": "<urn:uuid:8f8af3f3-cf16-4d08-ba48-41a6a15eec6c>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%96%CE%B7%CE%BD%CE%BF%CE%BC%CE%AF%CF%89%CE%BD%CE%B1_%CE%A0%CE%B1%CF%81%CE%B1%CE%B3%CF%81%CE%B1%CF%86%CE%AE",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000734",
+        "our_title": "Προς Νικόστρατον περί Ανδραπόδων Απογραφής Αρεθουσίου",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%9D%CE%B9%CE%BA%CF%8C%CF%83%CF%84%CF%81%CE%B1%CF%84%CE%BF%CE%BD_%CF%80%CE%B5%CF%81%CE%AF_%CE%91%CE%BD%CE%B4%CF%81%CE%B1%CF%80%CF%8C%CE%B4%CF%89%CE%BD_%CE%91%CF%80%CE%BF%CE%B3%CF%81%CE%B1%CF%86%CE%AE%CF%82_%CE%91%CF%81%CE%B5%CE%B8%CE%BF%CF%85%CF%83%CE%AF%CE%BF%CF%85",
+        "fineweb_id": "<urn:uuid:47aece0d-f6db-4d62-a329-b4cf5f149bbf>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%9D%CE%B9%CE%BA%CF%8C%CF%83%CF%84%CF%81%CE%B1%CF%84%CE%BF%CE%BD_%CF%80%CE%B5%CF%81%CE%AF_%CE%91%CE%BD%CE%B4%CF%81%CE%B1%CF%80%CF%8C%CE%B4%CF%89%CE%BD_%CE%91%CF%80%CE%BF%CE%B3%CF%81%CE%B1%CF%86%CE%AE%CF%82_%CE%91%CF%81%CE%B5%CE%B8%CE%BF%CF%85%CF%83%CE%AF%CE%BF%CF%85",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000741",
+        "our_title": "Προς Φαίνιππον περί Αντιδόσεως",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%A6%CE%B1%CE%AF%CE%BD%CE%B9%CF%80%CF%80%CE%BF%CE%BD_%CF%80%CE%B5%CF%81%CE%AF_%CE%91%CE%BD%CF%84%CE%B9%CE%B4%CF%8C%CF%83%CE%B5%CF%89%CF%82",
+        "fineweb_id": "<urn:uuid:0b7c3743-023f-4167-8012-af5cac7cec46>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%A6%CE%B1%CE%AF%CE%BD%CE%B9%CF%80%CF%80%CE%BF%CE%BD_%CF%80%CE%B5%CF%81%CE%AF_%CE%91%CE%BD%CF%84%CE%B9%CE%B4%CF%8C%CF%83%CE%B5%CF%89%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000742",
+        "our_title": "Προς Φορμίωνα υπέρ Δανείου",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%A6%CE%BF%CF%81%CE%BC%CE%AF%CF%89%CE%BD%CE%B1_%CF%85%CF%80%CE%AD%CF%81_%CE%94%CE%B1%CE%BD%CE%B5%CE%AF%CE%BF%CF%85",
+        "fineweb_id": "<urn:uuid:67da36d6-8e16-402b-9036-bbe16e00e624>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%A6%CE%BF%CF%81%CE%BC%CE%AF%CF%89%CE%BD%CE%B1_%CF%85%CF%80%CE%AD%CF%81_%CE%94%CE%B1%CE%BD%CE%B5%CE%AF%CE%BF%CF%85",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000743",
+        "our_title": "Επιτάφιος (Δημοσθένης)",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%84%CE%AC%CF%86%CE%B9%CE%BF%CF%82_(%CE%94%CE%B7%CE%BC%CE%BF%CF%83%CE%B8%CE%AD%CE%BD%CE%B7%CF%82)",
+        "fineweb_id": "<urn:uuid:7c514cd1-d040-40bf-a568-7beb246b4dea>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%84%CE%AC%CF%86%CE%B9%CE%BF%CF%82_(%CE%94%CE%B7%CE%BC%CE%BF%CF%83%CE%B8%CE%AD%CE%BD%CE%B7%CF%82)",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000746",
+        "our_title": "Ολυνθιακός/Β'",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9F%CE%BB%CF%85%CE%BD%CE%B8%CE%B9%CE%B1%CE%BA%CF%8C%CF%82/%CE%92%27",
+        "fineweb_id": "<urn:uuid:c338a5e1-e752-4bce-a062-ee42d5093ad5>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9F%CE%BB%CF%85%CE%BD%CE%B8%CE%B9%CE%B1%CE%BA%CF%8C%CF%82/%CE%92%27",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000749",
+        "our_title": "Φιλιππικός Β'",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A6%CE%B9%CE%BB%CE%B9%CF%80%CF%80%CE%B9%CE%BA%CF%8C%CF%82_%CE%92%27",
+        "fineweb_id": "<urn:uuid:efd51ecf-d09e-45f8-b506-cb2d6a851453>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A6%CE%B9%CE%BB%CE%B9%CF%80%CF%80%CE%B9%CE%BA%CF%8C%CF%82_%CE%92%27",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000750",
+        "our_title": "Φιλιππικός Γ'",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A6%CE%B9%CE%BB%CE%B9%CF%80%CF%80%CE%B9%CE%BA%CF%8C%CF%82_%CE%93%27",
+        "fineweb_id": "<urn:uuid:303ad063-9795-46bb-be3b-5aa94e285687>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A6%CE%B9%CE%BB%CE%B9%CF%80%CF%80%CE%B9%CE%BA%CF%8C%CF%82_%CE%93%27",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000753",
+        "our_title": "Περί Αλοννήσου",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%91%CE%BB%CE%BF%CE%BD%CE%BD%CE%AE%CF%83%CE%BF%CF%85",
+        "fineweb_id": "<urn:uuid:fb05f59f-8abb-4ae9-829a-b98b447a8975>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%91%CE%BB%CE%BF%CE%BD%CE%BD%CE%AE%CF%83%CE%BF%CF%85",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000758",
+        "our_title": "Περί των προς Αλέξανδρον Συνθηκών",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%84%CF%89%CE%BD_%CF%80%CF%81%CE%BF%CF%82_%CE%91%CE%BB%CE%AD%CE%BE%CE%B1%CE%BD%CE%B4%CF%81%CE%BF%CE%BD_%CE%A3%CF%85%CE%BD%CE%B8%CE%B7%CE%BA%CF%8E%CE%BD",
+        "fineweb_id": "<urn:uuid:eea4e371-dbc8-4098-8ada-aadd0b206a67>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%84%CF%89%CE%BD_%CF%80%CF%81%CE%BF%CF%82_%CE%91%CE%BB%CE%AD%CE%BE%CE%B1%CE%BD%CE%B4%CF%81%CE%BF%CE%BD_%CE%A3%CF%85%CE%BD%CE%B8%CE%B7%CE%BA%CF%8E%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000760",
+        "our_title": "Προς την Επιστολήν την Φιλίππου",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CF%84%CE%B7%CE%BD_%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AE%CE%BD_%CF%84%CE%B7%CE%BD_%CE%A6%CE%B9%CE%BB%CE%AF%CF%80%CF%80%CE%BF%CF%85",
+        "fineweb_id": "<urn:uuid:744c64aa-1146-48a8-babe-45f4ed16fa24>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CF%84%CE%B7%CE%BD_%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AE%CE%BD_%CF%84%CE%B7%CE%BD_%CE%A6%CE%B9%CE%BB%CE%AF%CF%80%CF%80%CE%BF%CF%85",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000761",
+        "our_title": "Περί του Στεφάνου",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%84%CE%BF%CF%85_%CE%A3%CF%84%CE%B5%CF%86%CE%AC%CE%BD%CE%BF%CF%85",
+        "fineweb_id": "<urn:uuid:98d2fec5-539f-421b-837c-25c84c910edc>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%84%CE%BF%CF%85_%CE%A3%CF%84%CE%B5%CF%86%CE%AC%CE%BD%CE%BF%CF%85",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000766",
+        "our_title": "Επιστολή Φιλίππου",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AE_%CE%A6%CE%B9%CE%BB%CE%AF%CF%80%CF%80%CE%BF%CF%85",
+        "fineweb_id": "<urn:uuid:70bee155-042b-4377-aed4-8e4c354cdbc9>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AE_%CE%A6%CE%B9%CE%BB%CE%AF%CF%80%CF%80%CE%BF%CF%85",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000767",
+        "our_title": "Υποθέσεις των λόγων Δημοσθένους",
+        "our_author": "Δημοσθένης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A5%CF%80%CE%BF%CE%B8%CE%AD%CF%83%CE%B5%CE%B9%CF%82_%CF%84%CF%89%CE%BD_%CE%BB%CF%8C%CE%B3%CF%89%CE%BD_%CE%94%CE%B7%CE%BC%CE%BF%CF%83%CE%B8%CE%AD%CE%BD%CE%BF%CF%85%CF%82",
+        "fineweb_id": "<urn:uuid:ff5e2a18-ca12-4332-9a65-18dec38435db>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A5%CF%80%CE%BF%CE%B8%CE%AD%CF%83%CE%B5%CE%B9%CF%82_%CF%84%CF%89%CE%BD_%CE%BB%CF%8C%CE%B3%CF%89%CE%BD_%CE%94%CE%B7%CE%BC%CE%BF%CF%83%CE%B8%CE%AD%CE%BD%CE%BF%CF%85%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000774",
+        "our_title": "Περί Δημοσθένους",
+        "our_author": "Διονύσιος ὁ Ἀλικαρνασσεύς",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%94%CE%B7%CE%BC%CE%BF%CF%83%CE%B8%CE%AD%CE%BD%CE%BF%CF%85%CF%82",
+        "fineweb_id": "<urn:uuid:0a340c4d-9f48-4288-a741-8e00c87cc45d>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%94%CE%B7%CE%BC%CE%BF%CF%83%CE%B8%CE%AD%CE%BD%CE%BF%CF%85%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000782",
+        "our_title": "Ετήσιον Ημερολόγιον του Έτους 1890/Αμαρυλλίς",
+        "our_author": "Ιάκωβος Δραγάτσης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%84%CE%AE%CF%83%CE%B9%CE%BF%CE%BD_%CE%97%CE%BC%CE%B5%CF%81%CE%BF%CE%BB%CF%8C%CE%B3%CE%B9%CE%BF%CE%BD_%CF%84%CE%BF%CF%85_%CE%88%CF%84%CE%BF%CF%85%CF%82_1890/%CE%91%CE%BC%CE%B1%CF%81%CF%85%CE%BB%CE%BB%CE%AF%CF%82",
+        "fineweb_id": "<urn:uuid:f54107ca-d8a3-404d-91b6-391f80dc0dd7>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%84%CE%AE%CF%83%CE%B9%CE%BF%CE%BD_%CE%97%CE%BC%CE%B5%CF%81%CE%BF%CE%BB%CF%8C%CE%B3%CE%B9%CE%BF%CE%BD_%CF%84%CE%BF%CF%85_%CE%88%CF%84%CE%BF%CF%85%CF%82_1890/%CE%91%CE%BC%CE%B1%CF%81%CF%85%CE%BB%CE%BB%CE%AF%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000821",
+        "our_title": "Επιστολή προς Μενοικέα",
+        "our_author": "Επίκουρος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AE_%CF%80%CF%81%CE%BF%CF%82_%CE%9C%CE%B5%CE%BD%CE%BF%CE%B9%CE%BA%CE%AD%CE%B1",
+        "fineweb_id": "<urn:uuid:45a3240a-a09c-4c62-b6ea-d3bf8949695a>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AE_%CF%80%CF%81%CE%BF%CF%82_%CE%9C%CE%B5%CE%BD%CE%BF%CE%B9%CE%BA%CE%AD%CE%B1",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000864",
+        "our_title": "Ευσέβιου Καισαρείας, Περὶ της του πάσχα εορτής",
+        "our_author": "Ευσέβιος Καισαρείας",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%85%CF%83%CE%AD%CE%B2%CE%B9%CE%BF%CF%85_%CE%9A%CE%B1%CE%B9%CF%83%CE%B1%CF%81%CE%B5%CE%AF%CE%B1%CF%82,_%CE%A0%CE%B5%CF%81%E1%BD%B6_%CF%84%CE%B7%CF%82_%CF%84%CE%BF%CF%85_%CF%80%CE%AC%CF%83%CF%87%CE%B1_%CE%B5%CE%BF%CF%81%CF%84%CE%AE%CF%82",
+        "fineweb_id": "<urn:uuid:e4d10378-419d-4656-8d67-69d7eabae45c>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%85%CF%83%CE%AD%CE%B2%CE%B9%CE%BF%CF%85_%CE%9A%CE%B1%CE%B9%CF%83%CE%B1%CF%81%CE%B5%CE%AF%CE%B1%CF%82,_%CE%A0%CE%B5%CF%81%E1%BD%B6_%CF%84%CE%B7%CF%82_%CF%84%CE%BF%CF%85_%CF%80%CE%AC%CF%83%CF%87%CE%B1_%CE%B5%CE%BF%CF%81%CF%84%CE%AE%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000865",
+        "our_title": "Ιστορία της αλώσεως της Θεσσαλονίκης υπό των Νορμανδών",
+        "our_author": "Αρχιεπίσκοπος Θεσσαλονίκης Ευστάθιος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%99%CF%83%CF%84%CE%BF%CF%81%CE%AF%CE%B1_%CF%84%CE%B7%CF%82_%CE%B1%CE%BB%CF%8E%CF%83%CE%B5%CF%89%CF%82_%CF%84%CE%B7%CF%82_%CE%98%CE%B5%CF%83%CF%83%CE%B1%CE%BB%CE%BF%CE%BD%CE%AF%CE%BA%CE%B7%CF%82_%CF%85%CF%80%CF%8C_%CF%84%CF%89%CE%BD_%CE%9D%CE%BF%CF%81%CE%BC%CE%B1%CE%BD%CE%B4%CF%8E%CE%BD",
+        "fineweb_id": "<urn:uuid:5d97d70b-8604-404b-a7c2-2f3afa8d1e3f>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%99%CF%83%CF%84%CE%BF%CF%81%CE%AF%CE%B1_%CF%84%CE%B7%CF%82_%CE%B1%CE%BB%CF%8E%CF%83%CE%B5%CF%89%CF%82_%CF%84%CE%B7%CF%82_%CE%98%CE%B5%CF%83%CF%83%CE%B1%CE%BB%CE%BF%CE%BD%CE%AF%CE%BA%CE%B7%CF%82_%CF%85%CF%80%CF%8C_%CF%84%CF%89%CE%BD_%CE%9D%CE%BF%CF%81%CE%BC%CE%B1%CE%BD%CE%B4%CF%8E%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000955",
+        "our_title": "Επιτομή Ιστοριών",
+        "our_author": "Ἰωάννης Ζωναρᾶς",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%84%CE%BF%CE%BC%CE%AE_%CE%99%CF%83%CF%84%CE%BF%CF%81%CE%B9%CF%8E%CE%BD",
+        "fineweb_id": "<urn:uuid:2fba43f5-058c-4b7e-9f19-ec7d7c5bef0c>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%84%CE%BF%CE%BC%CE%AE_%CE%99%CF%83%CF%84%CE%BF%CF%81%CE%B9%CF%8E%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000967",
+        "our_title": "Ευτέρπη",
+        "our_author": "Ηρόδοτος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%85%CF%84%CE%AD%CF%81%CF%80%CE%B7",
+        "fineweb_id": "<urn:uuid:25146b4f-0760-4153-81b0-6340c826d28e>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%85%CF%84%CE%AD%CF%81%CF%80%CE%B7",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000972",
+        "our_title": "Ιστορίαι (Ηροδότου)/Πολύμνια",
+        "our_author": "Ηρόδοτος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%99%CF%83%CF%84%CE%BF%CF%81%CE%AF%CE%B1%CE%B9_(%CE%97%CF%81%CE%BF%CE%B4%CF%8C%CF%84%CE%BF%CF%85)/%CE%A0%CE%BF%CE%BB%CF%8D%CE%BC%CE%BD%CE%B9%CE%B1",
+        "fineweb_id": "<urn:uuid:33f3c9ac-a584-489e-aad2-a05f9acce397>",
+        "fineweb_url": "http://el.wikisource.org/wiki/%CE%99%CF%83%CF%84%CE%BF%CF%81%CE%AF%CE%B1%CE%B9_(%CE%97%CF%81%CE%BF%CE%B4%CF%8C%CF%84%CE%BF%CF%85)/%CE%A0%CE%BF%CE%BB%CF%8D%CE%BC%CE%BD%CE%B9%CE%B1",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_000977",
+        "our_title": "Πνευματικά",
+        "our_author": "Ἥρων ὁ Ἀλεξανδρεύς",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%BD%CE%B5%CF%85%CE%BC%CE%B1%CF%84%CE%B9%CE%BA%CE%AC",
+        "fineweb_id": "<urn:uuid:8a6ce49b-f849-4f60-bd73-5e7f6e056ce5>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%BD%CE%B5%CF%85%CE%BC%CE%B1%CF%84%CE%B9%CE%BA%CE%AC",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001047",
+        "our_title": "Παραγγελίαι",
+        "our_author": "Ιπποκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B1%CF%81%CE%B1%CE%B3%CE%B3%CE%B5%CE%BB%CE%AF%CE%B1%CE%B9",
+        "fineweb_id": "<urn:uuid:fa4d3725-260f-4aed-8715-ddd53f64e996>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B1%CF%81%CE%B1%CE%B3%CE%B3%CE%B5%CE%BB%CE%AF%CE%B1%CE%B9",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001058",
+        "our_title": "Περί αέρων, υδάτων, τόπων",
+        "our_author": "Ιπποκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%B1%CE%AD%CF%81%CF%89%CE%BD,_%CF%85%CE%B4%CE%AC%CF%84%CF%89%CE%BD,_%CF%84%CF%8C%CF%80%CF%89%CE%BD",
+        "fineweb_id": "<urn:uuid:1d3097f1-1f64-4731-b6ba-ee2cbdba66a1>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%B1%CE%AD%CF%81%CF%89%CE%BD,_%CF%85%CE%B4%CE%AC%CF%84%CF%89%CE%BD,_%CF%84%CF%8C%CF%80%CF%89%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001064",
+        "our_title": "Προγνωστικόν",
+        "our_author": "Ιπποκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CE%B3%CE%BD%CF%89%CF%83%CF%84%CE%B9%CE%BA%CF%8C%CE%BD",
+        "fineweb_id": "<urn:uuid:3e89690e-30f3-4ef4-a970-9b0fb389bd5c>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CE%B3%CE%BD%CF%89%CF%83%CF%84%CE%B9%CE%BA%CF%8C%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001072",
+        "our_title": "Περί διαίτης οξέων",
+        "our_author": "Ιπποκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%B4%CE%B9%CE%B1%CE%AF%CF%84%CE%B7%CF%82_%CE%BF%CE%BE%CE%AD%CF%89%CE%BD",
+        "fineweb_id": "<urn:uuid:0e5af589-1ebf-4904-9d45-3b45896e3854>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%B4%CE%B9%CE%B1%CE%AF%CF%84%CE%B7%CF%82_%CE%BF%CE%BE%CE%AD%CF%89%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001080",
+        "our_title": "Περί άρθρων",
+        "our_author": "Ιπποκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%AC%CF%81%CE%B8%CF%81%CF%89%CE%BD",
+        "fineweb_id": "<urn:uuid:8359b1df-db58-447c-ba21-f327c4f189b7>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%AC%CF%81%CE%B8%CF%81%CF%89%CE%BD",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001100",
+        "our_title": "Περί του Πύρρου κλήρου",
+        "our_author": "Ἰσαῖος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%84%CE%BF%CF%85_%CE%A0%CF%8D%CF%81%CF%81%CE%BF%CF%85_%CE%BA%CE%BB%CE%AE%CF%81%CE%BF%CF%85",
+        "fineweb_id": "<urn:uuid:93d68de8-a086-46e9-8631-8b81d5777ba1>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CF%84%CE%BF%CF%85_%CE%A0%CF%8D%CF%81%CF%81%CE%BF%CF%85_%CE%BA%CE%BB%CE%AE%CF%81%CE%BF%CF%85",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001109",
+        "our_title": "Υπέρ Ευφιλήτου",
+        "our_author": "Ἰσαῖος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A5%CF%80%CE%AD%CF%81_%CE%95%CF%85%CF%86%CE%B9%CE%BB%CE%AE%CF%84%CE%BF%CF%85",
+        "fineweb_id": "<urn:uuid:2dcc704f-758e-455c-922f-e603a5c11cd9>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A5%CF%80%CE%AD%CF%81_%CE%95%CF%85%CF%86%CE%B9%CE%BB%CE%AE%CF%84%CE%BF%CF%85",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001110",
+        "our_title": "Παραγραφή προς Καλλίμαχον (Ισοκράτης)",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B1%CF%81%CE%B1%CE%B3%CF%81%CE%B1%CF%86%CE%AE_%CF%80%CF%81%CE%BF%CF%82_%CE%9A%CE%B1%CE%BB%CE%BB%CE%AF%CE%BC%CE%B1%CF%87%CE%BF%CE%BD_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_id": "<urn:uuid:14f5f016-8578-46cf-92d5-d83c8ba62fad>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B1%CF%81%CE%B1%CE%B3%CF%81%CE%B1%CF%86%CE%AE_%CF%80%CF%81%CE%BF%CF%82_%CE%9A%CE%B1%CE%BB%CE%BB%CE%AF%CE%BC%CE%B1%CF%87%CE%BF%CE%BD_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001112",
+        "our_title": "Προς Ευθύνουν (Ισοκράτης)",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%95%CF%85%CE%B8%CF%8D%CE%BD%CE%BF%CF%85%CE%BD_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_id": "<urn:uuid:a7c0a921-76d1-4d33-b822-fd4350ad5df8>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%95%CF%85%CE%B8%CF%8D%CE%BD%CE%BF%CF%85%CE%BD_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001113",
+        "our_title": "Τραπεζιτικός (Ισοκράτης)",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A4%CF%81%CE%B1%CF%80%CE%B5%CE%B6%CE%B9%CF%84%CE%B9%CE%BA%CF%8C%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_id": "<urn:uuid:92a37fa5-6466-4aeb-8a6b-7b6ca8004ad9>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A4%CF%81%CE%B1%CF%80%CE%B5%CE%B6%CE%B9%CF%84%CE%B9%CE%BA%CF%8C%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001117",
+        "our_title": "Ελένης εγκώμιον (Ισοκράτης)",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CE%BB%CE%AD%CE%BD%CE%B7%CF%82_%CE%B5%CE%B3%CE%BA%CF%8E%CE%BC%CE%B9%CE%BF%CE%BD_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_id": "<urn:uuid:ace58cae-649c-47d3-a1c1-d7cfc2d07171>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CE%BB%CE%AD%CE%BD%CE%B7%CF%82_%CE%B5%CE%B3%CE%BA%CF%8E%CE%BC%CE%B9%CE%BF%CE%BD_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001118",
+        "our_title": "Πανηγυρικός",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B1%CE%BD%CE%B7%CE%B3%CF%85%CF%81%CE%B9%CE%BA%CF%8C%CF%82",
+        "fineweb_id": "<urn:uuid:76d3d585-5be1-427d-8d07-20ef24a49564>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B1%CE%BD%CE%B7%CE%B3%CF%85%CF%81%CE%B9%CE%BA%CF%8C%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001119",
+        "our_title": "Αρεοπαγιτικός (Ισοκράτης)",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%91%CF%81%CE%B5%CE%BF%CF%80%CE%B1%CE%B3%CE%B9%CF%84%CE%B9%CE%BA%CF%8C%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_id": "<urn:uuid:ae49940f-1a5d-4277-b149-2f34c75bbe16>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%91%CF%81%CE%B5%CE%BF%CF%80%CE%B1%CE%B3%CE%B9%CF%84%CE%B9%CE%BA%CF%8C%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001124",
+        "our_title": "Φίλιππος",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A6%CE%AF%CE%BB%CE%B9%CF%80%CF%80%CE%BF%CF%82",
+        "fineweb_id": "<urn:uuid:e2ebb02e-70be-4e67-8c81-c60eb285c155>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A6%CE%AF%CE%BB%CE%B9%CF%80%CF%80%CE%BF%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001126",
+        "our_title": "Προς Δημόνικον (Ισοκράτης)",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%94%CE%B7%CE%BC%CF%8C%CE%BD%CE%B9%CE%BA%CE%BF%CE%BD_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_id": "<urn:uuid:31a9aa56-926c-46c9-9152-dc50f4e32935>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%94%CE%B7%CE%BC%CF%8C%CE%BD%CE%B9%CE%BA%CE%BF%CE%BD_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001127",
+        "our_title": "Προς Νικοκλέα (Ισοκράτης)",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%9D%CE%B9%CE%BA%CE%BF%CE%BA%CE%BB%CE%AD%CE%B1_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_id": "<urn:uuid:d9ecf2b6-4021-4626-ba81-a4bf7d982e5e>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CF%82_%CE%9D%CE%B9%CE%BA%CE%BF%CE%BA%CE%BB%CE%AD%CE%B1_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001129",
+        "our_title": "Ευαγόρας (Ισοκράτης)",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%85%CE%B1%CE%B3%CF%8C%CF%81%CE%B1%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_id": "<urn:uuid:464910a3-4a3f-43c0-b84d-40be8cda257e>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%85%CE%B1%CE%B3%CF%8C%CF%81%CE%B1%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001133",
+        "our_title": "Επιστολές (Ισοκράτης)/2",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AD%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)/2",
+        "fineweb_id": "<urn:uuid:c141f9ac-2454-4358-ac79-78549b25e559>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AD%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)/2",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001136",
+        "our_title": "Επιστολές (Ισοκράτης)/5",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AD%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)/5",
+        "fineweb_id": "<urn:uuid:fbdcf6d2-018c-43f2-b1ad-403f54f49673>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AD%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)/5",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001137",
+        "our_title": "Επιστολές (Ισοκράτης)/6",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AD%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)/6",
+        "fineweb_id": "<urn:uuid:f21d18dd-f8b1-4a80-8c56-446a7be17216>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AD%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)/6",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001138",
+        "our_title": "Επιστολές (Ισοκράτης)/7",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AD%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)/7",
+        "fineweb_id": "<urn:uuid:6eea1e8e-510e-468b-873c-8fa15bac2157>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AD%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)/7",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001140",
+        "our_title": "Επιστολές (Ισοκράτης)/9",
+        "our_author": "Ισοκράτης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AD%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)/9",
+        "fineweb_id": "<urn:uuid:a058eeb0-d94b-4e71-9cfb-e8630e3f171c>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%80%CE%B9%CF%83%CF%84%CE%BF%CE%BB%CE%AD%CF%82_(%CE%99%CF%83%CE%BF%CE%BA%CF%81%CE%AC%CF%84%CE%B7%CF%82)/9",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001143",
+        "our_title": "Ἔκδοσις ἀκριβὴς τῆς ὀρθοδόξου πίστεως",
+        "our_author": "Ἰωάννης ὁ ΔαμασκηνόςYūḥannā ad-Dimashqī",
+        "our_url": "https://el.wikisource.org/wiki/%E1%BC%9C%CE%BA%CE%B4%CE%BF%CF%83%CE%B9%CF%82_%E1%BC%80%CE%BA%CF%81%CE%B9%CE%B2%E1%BD%B4%CF%82_%CF%84%E1%BF%86%CF%82_%E1%BD%80%CF%81%CE%B8%CE%BF%CE%B4%CF%8C%CE%BE%CE%BF%CF%85_%CF%80%CE%AF%CF%83%CF%84%CE%B5%CF%89%CF%82",
+        "fineweb_id": "<urn:uuid:18e62161-b5ba-453f-9f1d-3141a0d08496>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%E1%BC%9C%CE%BA%CE%B4%CE%BF%CF%83%CE%B9%CF%82_%E1%BC%80%CE%BA%CF%81%CE%B9%CE%B2%E1%BD%B4%CF%82_%CF%84%E1%BF%86%CF%82_%E1%BD%80%CF%81%CE%B8%CE%BF%CE%B4%CF%8C%CE%BE%CE%BF%CF%85_%CF%80%CE%AF%CF%83%CF%84%CE%B5%CF%89%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001144",
+        "our_title": "Λόγοι Απολογητικοί Προς τους Διαβάλλοντας τας Αγίας Εικόνας",
+        "our_author": "Ἰωάννης ὁ ΔαμασκηνόςYūḥannā ad-Dimashqī",
+        "our_url": "https://el.wikisource.org/wiki/%CE%9B%CF%8C%CE%B3%CE%BF%CE%B9_%CE%91%CF%80%CE%BF%CE%BB%CE%BF%CE%B3%CE%B7%CF%84%CE%B9%CE%BA%CE%BF%CE%AF_%CE%A0%CF%81%CE%BF%CF%82_%CF%84%CE%BF%CF%85%CF%82_%CE%94%CE%B9%CE%B1%CE%B2%CE%AC%CE%BB%CE%BB%CE%BF%CE%BD%CF%84%CE%B1%CF%82_%CF%84%CE%B1%CF%82_%CE%91%CE%B3%CE%AF%CE%B1%CF%82_%CE%95%CE%B9%CE%BA%CF%8C%CE%BD%CE%B1%CF%82",
+        "fineweb_id": "<urn:uuid:e2694bac-8376-4697-a884-ce7006af4800>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%9B%CF%8C%CE%B3%CE%BF%CE%B9_%CE%91%CF%80%CE%BF%CE%BB%CE%BF%CE%B3%CE%B7%CF%84%CE%B9%CE%BA%CE%BF%CE%AF_%CE%A0%CF%81%CE%BF%CF%82_%CF%84%CE%BF%CF%85%CF%82_%CE%94%CE%B9%CE%B1%CE%B2%CE%AC%CE%BB%CE%BB%CE%BF%CE%BD%CF%84%CE%B1%CF%82_%CF%84%CE%B1%CF%82_%CE%91%CE%B3%CE%AF%CE%B1%CF%82_%CE%95%CE%B9%CE%BA%CF%8C%CE%BD%CE%B1%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001155",
+        "our_title": "Περί μνήμης",
+        "our_author": "Κάσσιος Λογγίνος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%BC%CE%BD%CE%AE%CE%BC%CE%B7%CF%82",
+        "fineweb_id": "<urn:uuid:4e669935-9130-4e80-8555-62e97db94930>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CE%B5%CF%81%CE%AF_%CE%BC%CE%BD%CE%AE%CE%BC%CE%B7%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001416",
+        "our_title": "Ετήσιον Ημερολόγιον του Έτους 1887/Ο Θερσίτης προ της κριτικής και προ της Ιστορίας",
+        "our_author": "Νεοκλής Καζάζης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%84%CE%AE%CF%83%CE%B9%CE%BF%CE%BD_%CE%97%CE%BC%CE%B5%CF%81%CE%BF%CE%BB%CF%8C%CE%B3%CE%B9%CE%BF%CE%BD_%CF%84%CE%BF%CF%85_%CE%88%CF%84%CE%BF%CF%85%CF%82_1887/%CE%9F_%CE%98%CE%B5%CF%81%CF%83%CE%AF%CF%84%CE%B7%CF%82_%CF%80%CF%81%CE%BF_%CF%84%CE%B7%CF%82_%CE%BA%CF%81%CE%B9%CF%84%CE%B9%CE%BA%CE%AE%CF%82_%CE%BA%CE%B1%CE%B9_%CF%80%CF%81%CE%BF_%CF%84%CE%B7%CF%82_%CE%99%CF%83%CF%84%CE%BF%CF%81%CE%AF%CE%B1%CF%82",
+        "fineweb_id": "<urn:uuid:0df777a0-4dcb-46a0-a2fe-fb135619c8c5>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%84%CE%AE%CF%83%CE%B9%CE%BF%CE%BD_%CE%97%CE%BC%CE%B5%CF%81%CE%BF%CE%BB%CF%8C%CE%B3%CE%B9%CE%BF%CE%BD_%CF%84%CE%BF%CF%85_%CE%88%CF%84%CE%BF%CF%85%CF%82_1887/%CE%9F_%CE%98%CE%B5%CF%81%CF%83%CE%AF%CF%84%CE%B7%CF%82_%CF%80%CF%81%CE%BF_%CF%84%CE%B7%CF%82_%CE%BA%CF%81%CE%B9%CF%84%CE%B9%CE%BA%CE%AE%CF%82_%CE%BA%CE%B1%CE%B9_%CF%80%CF%81%CE%BF_%CF%84%CE%B7%CF%82_%CE%99%CF%83%CF%84%CE%BF%CF%81%CE%AF%CE%B1%CF%82",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001453",
+        "our_title": "Ετήσιον Ημερολόγιον του Έτους 1888/Οι Μανιάται",
+        "our_author": "Πέτρος Κανελλίδης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%84%CE%AE%CF%83%CE%B9%CE%BF%CE%BD_%CE%97%CE%BC%CE%B5%CF%81%CE%BF%CE%BB%CF%8C%CE%B3%CE%B9%CE%BF%CE%BD_%CF%84%CE%BF%CF%85_%CE%88%CF%84%CE%BF%CF%85%CF%82_1888/%CE%9F%CE%B9_%CE%9C%CE%B1%CE%BD%CE%B9%CE%AC%CF%84%CE%B1%CE%B9",
+        "fineweb_id": "<urn:uuid:d9569157-c1c0-481b-befe-5d9afa2e3716>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%84%CE%AE%CF%83%CE%B9%CE%BF%CE%BD_%CE%97%CE%BC%CE%B5%CF%81%CE%BF%CE%BB%CF%8C%CE%B3%CE%B9%CE%BF%CE%BD_%CF%84%CE%BF%CF%85_%CE%88%CF%84%CE%BF%CF%85%CF%82_1888/%CE%9F%CE%B9_%CE%9C%CE%B1%CE%BD%CE%B9%CE%AC%CF%84%CE%B1%CE%B9",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001454",
+        "our_title": "Ετήσιον Ημερολόγιον του Έτους 1889/Ήθη και έθιμα εν Μάνη",
+        "our_author": "Πέτρος Κανελλίδης",
+        "our_url": "https://el.wikisource.org/wiki/%CE%95%CF%84%CE%AE%CF%83%CE%B9%CE%BF%CE%BD_%CE%97%CE%BC%CE%B5%CF%81%CE%BF%CE%BB%CF%8C%CE%B3%CE%B9%CE%BF%CE%BD_%CF%84%CE%BF%CF%85_%CE%88%CF%84%CE%BF%CF%85%CF%82_1889/%CE%89%CE%B8%CE%B7_%CE%BA%CE%B1%CE%B9_%CE%AD%CE%B8%CE%B9%CE%BC%CE%B1_%CE%B5%CE%BD_%CE%9C%CE%AC%CE%BD%CE%B7",
+        "fineweb_id": "<urn:uuid:32ae0eab-5db9-4d49-976e-7353ea22acbe>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%95%CF%84%CE%AE%CF%83%CE%B9%CE%BF%CE%BD_%CE%97%CE%BC%CE%B5%CF%81%CE%BF%CE%BB%CF%8C%CE%B3%CE%B9%CE%BF%CE%BD_%CF%84%CE%BF%CF%85_%CE%88%CF%84%CE%BF%CF%85%CF%82_1889/%CE%89%CE%B8%CE%B7_%CE%BA%CE%B1%CE%B9_%CE%AD%CE%B8%CE%B9%CE%BC%CE%B1_%CE%B5%CE%BD_%CE%9C%CE%AC%CE%BD%CE%B7",
+        "fineweb_domain": "el.wikisource.org"
+      },
+      {
+        "our_source": "Wikisource_Greek_texts",
+        "our_doc_id": "wikisource_001784",
+        "our_title": "Προγυμνάσματα",
+        "our_author": "Λιβάνιος",
+        "our_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CE%B3%CF%85%CE%BC%CE%BD%CE%AC%CF%83%CE%BC%CE%B1%CF%84%CE%B1",
+        "fineweb_id": "<urn:uuid:75453c59-ef43-4005-835d-29731bd015e9>",
+        "fineweb_url": "https://el.wikisource.org/wiki/%CE%A0%CF%81%CE%BF%CE%B3%CF%85%CE%BC%CE%BD%CE%AC%CF%83%CE%BC%CE%B1%CF%84%CE%B1",
+        "fineweb_domain": "el.wikisource.org"
+      }
+    ]
+  }
+}

@@ -167,7 +167,12 @@ def any_failed(status: dict) -> bool:
 
 
 def build_publish_command(args: argparse.Namespace) -> str:
-    script_path = f"{args.worker_repo_root}/subprojects/02_1_tokenizer_experiments/scripts/publish_tokenizer_extension_repo.py"
+    # 2026-05-12 reorg: publish_tokenizer_extension_repo.py was moved
+    # alongside the training scripts into 02_1_1_tokenizer_training/scripts/.
+    script_path = (
+        f"{args.worker_repo_root}/subprojects/02_1_tokenizer_experiments/"
+        f"02_1_1_tokenizer_training/scripts/publish_tokenizer_extension_repo.py"
+    )
     python_bin = args.worker_python
     env = [
         f"cd {shlex.quote(args.worker_repo_root)}",

@@ -1,0 +1,172 @@
+{
+  "removable_total_at_25600": 104,
+  "keepable_total_at_25600": 25496,
+  "removable_by_class": {
+    "mixed_script_artifact": 77,
+    "cleaner_extraction_tag": 2,
+    "cleaner_linenewline_bpe_fragment": 3,
+    "cleaner_linenewline_placeholder": 2,
+    "pdf_postscript_glyph": 14,
+    "latin1_utf8_mojibake": 6
+  },
+  "removable_per_cutoff": {
+    "1024": {
+      "added_units": 1024,
+      "removable_in_cutoff": 1,
+      "removable_pct": 0.09765625
+    },
+    "2048": {
+      "added_units": 2048,
+      "removable_in_cutoff": 6,
+      "removable_pct": 0.29296875
+    },
+    "3072": {
+      "added_units": 3072,
+      "removable_in_cutoff": 8,
+      "removable_pct": 0.26041666666666663
+    },
+    "4096": {
+      "added_units": 4096,
+      "removable_in_cutoff": 12,
+      "removable_pct": 0.29296875
+    },
+    "5120": {
+      "added_units": 5120,
+      "removable_in_cutoff": 14,
+      "removable_pct": 0.2734375
+    },
+    "6144": {
+      "added_units": 6144,
+      "removable_in_cutoff": 15,
+      "removable_pct": 0.244140625
+    },
+    "7168": {
+      "added_units": 7168,
+      "removable_in_cutoff": 19,
+      "removable_pct": 0.2650669642857143
+    },
+    "8192": {
+      "added_units": 8192,
+      "removable_in_cutoff": 21,
+      "removable_pct": 0.25634765625
+    },
+    "9216": {
+      "added_units": 9216,
+      "removable_in_cutoff": 30,
+      "removable_pct": 0.32552083333333337
+    },
+    "10240": {
+      "added_units": 10240,
+      "removable_in_cutoff": 34,
+      "removable_pct": 0.33203125
+    },
+    "11264": {
+      "added_units": 11264,
+      "removable_in_cutoff": 39,
+      "removable_pct": 0.34623579545454547
+    },
+    "12288": {
+      "added_units": 12288,
+      "removable_in_cutoff": 44,
+      "removable_pct": 0.35807291666666663
+    },
+    "13312": {
+      "added_units": 13312,
+      "removable_in_cutoff": 47,
+      "removable_pct": 0.35306490384615385
+    },
+    "14336": {
+      "added_units": 14336,
+      "removable_in_cutoff": 49,
+      "removable_pct": 0.341796875
+    },
+    "15360": {
+      "added_units": 15360,
+      "removable_in_cutoff": 57,
+      "removable_pct": 0.37109375
+    },
+    "16384": {
+      "added_units": 16384,
+      "removable_in_cutoff": 63,
+      "removable_pct": 0.384521484375
+    },
+    "17408": {
+      "added_units": 17408,
+      "removable_in_cutoff": 69,
+      "removable_pct": 0.39636948529411764
+    },
+    "18432": {
+      "added_units": 18432,
+      "removable_in_cutoff": 77,
+      "removable_pct": 0.4177517361111111
+    },
+    "19456": {
+      "added_units": 19456,
+      "removable_in_cutoff": 79,
+      "removable_pct": 0.40604440789473684
+    },
+    "20480": {
+      "added_units": 20480,
+      "removable_in_cutoff": 83,
+      "removable_pct": 0.40527343750000006
+    },
+    "21504": {
+      "added_units": 21504,
+      "removable_in_cutoff": 85,
+      "removable_pct": 0.3952752976190476
+    },
+    "22528": {
+      "added_units": 22528,
+      "removable_in_cutoff": 93,
+      "removable_pct": 0.4128196022727273
+    },
+    "23552": {
+      "added_units": 23552,
+      "removable_in_cutoff": 96,
+      "removable_pct": 0.4076086956521739
+    },
+    "24576": {
+      "added_units": 24576,
+      "removable_in_cutoff": 103,
+      "removable_pct": 0.4191080729166667
+    },
+    "25600": {
+      "added_units": 25600,
+      "removable_in_cutoff": 104,
+      "removable_pct": 0.40625
+    }
+  },
+  "policy_version": "2026-05-17b",
+  "rules": [
+    {
+      "class": "latin1_utf8_mojibake",
+      "predicate": "glossary.category == 'mojibake'",
+      "scope": "whole category"
+    },
+    {
+      "class": "mixed_script_artifact",
+      "predicate": "glossary.category == 'mixed_script_token'",
+      "scope": "whole category — includes Greek-Latin lookalike font-sub mojibake AND punctuation+Greek BPE-boundary fragments"
+    },
+    {
+      "class": "pdf_postscript_glyph",
+      "predicate": "glossary.category == 'postscript_glyph'",
+      "scope": "whole category"
+    },
+    {
+      "class": "cleaner_linenewline_placeholder",
+      "predicate": "glossary.category == 'code_identifier'",
+      "scope": "whole category"
+    },
+    {
+      "class": "cleaner_linenewline_bpe_fragment",
+      "predicate": "glossary.category == 'latin_acronym' AND decoded in {'LIN','ENEW','LINENEW'}",
+      "scope": "narrow subset (LINENEW family); keeps EURO, MEG"
+    },
+    {
+      "class": "cleaner_extraction_tag",
+      "predicate": "glossary.category == 'latin_fragment' AND decoded in {'-missing','-decoded'}",
+      "scope": "narrow subset (extraction tags); keeps opoulou, oulou, gean, etc."
+    }
+  ]
+}

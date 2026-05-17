@@ -36,6 +36,36 @@ tokenizer_analysis/__pycache__/
 *.zst
 *.tar.gz
 
+# Tracked exceptions: canonical handoff manifests that downstream
+# subprojects consume must be in git.
+!subprojects/02_1_tokenizer_experiments/02_1_5_added_token_curation/manifests/*.jsonl
+!subprojects/02_1_tokenizer_experiments/02_1_5_added_token_curation/manifests/*.json
+
+# 02_1_7 intrinsic eval sweep — track decision artifacts + plots.
+# Must un-ignore the artifacts dir explicitly (negation can't reach inside
+# an ignored parent), then re-ignore the big regenerable bits inside it.
+!subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/artifacts/
+subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/artifacts/*
+!subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/artifacts/plots/
+!subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/artifacts/plots/extended_4metric_to_25k.png
+!subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/artifacts/plots/fertility_per_in_domain_slice.png
+!subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/artifacts/plots/headline_4metric_in_domain.png
+!subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/artifacts/plots/knee_analysis.png
+!subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/artifacts/plots/morphscore_greek.png
+!subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/manifests/curated_padded_at_17408_manifest.json
+!subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/manifests/removal_mask_at_17408.jsonl
+# Big regenerable stuff (re-ignored after parent un-ignore):
+subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/manifests/per_cutoff_metrics.json
+subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/
+subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/
+subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/tokenizers_local/
+subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/artifacts/tokeval_raw_v2/
+subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/artifacts/results.parquet
+subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/artifacts/results_merged.parquet
+
+# Local source-copy convenience only; cite upstream rather than committing PDFs.
+subprojects/02_1_tokenizer_experiments/02_1_6_representation_policy_analysis/sources/
+
 .env
 .env.*
 *.pem

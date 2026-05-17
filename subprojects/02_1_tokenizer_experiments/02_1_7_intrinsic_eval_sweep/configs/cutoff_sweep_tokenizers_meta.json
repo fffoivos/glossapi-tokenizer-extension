@@ -1,0 +1,169 @@
+{
+  "tokenizers": [
+    {
+      "name": "apertus_base",
+      "added_tokens": 0,
+      "curated": false
+    },
+    {
+      "name": "add_1024",
+      "added_tokens": 1024,
+      "curated": false
+    },
+    {
+      "name": "add_2048",
+      "added_tokens": 2048,
+      "curated": false
+    },
+    {
+      "name": "add_3072",
+      "added_tokens": 3072,
+      "curated": false
+    },
+    {
+      "name": "add_4096",
+      "added_tokens": 4096,
+      "curated": false
+    },
+    {
+      "name": "add_5120",
+      "added_tokens": 5120,
+      "curated": false
+    },
+    {
+      "name": "add_6144",
+      "added_tokens": 6144,
+      "curated": false
+    },
+    {
+      "name": "add_7168",
+      "added_tokens": 7168,
+      "curated": false
+    },
+    {
+      "name": "add_8192",
+      "added_tokens": 8192,
+      "curated": false
+    },
+    {
+      "name": "add_9216",
+      "added_tokens": 9216,
+      "curated": false
+    },
+    {
+      "name": "add_10240",
+      "added_tokens": 10240,
+      "curated": false
+    },
+    {
+      "name": "add_11264",
+      "added_tokens": 11264,
+      "curated": false
+    },
+    {
+      "name": "add_12288",
+      "added_tokens": 12288,
+      "curated": false
+    },
+    {
+      "name": "add_13312",
+      "added_tokens": 13312,
+      "curated": false
+    },
+    {
+      "name": "add_14336",
+      "added_tokens": 14336,
+      "curated": false
+    },
+    {
+      "name": "add_15360",
+      "added_tokens": 15360,
+      "curated": false
+    },
+    {
+      "name": "add_16384",
+      "added_tokens": 16384,
+      "curated": false
+    },
+    {
+      "name": "add_17408",
+      "added_tokens": 17408,
+      "curated": false
+    },
+    {
+      "name": "add_18432",
+      "added_tokens": 18432,
+      "curated": false
+    },
+    {
+      "name": "add_19456",
+      "added_tokens": 19456,
+      "curated": false
+    },
+    {
+      "name": "add_20480",
+      "added_tokens": 20480,
+      "curated": false
+    },
+    {
+      "name": "add_21504",
+      "added_tokens": 21504,
+      "curated": false
+    },
+    {
+      "name": "add_22528",
+      "added_tokens": 22528,
+      "curated": false
+    },
+    {
+      "name": "add_23552",
+      "added_tokens": 23552,
+      "curated": false
+    },
+    {
+      "name": "add_24576",
+      "added_tokens": 24576,
+      "curated": false
+    },
+    {
+      "name": "add_25600",
+      "added_tokens": 25600,
+      "curated": false
+    },
+    {
+      "name": "add_11264_curated",
+      "added_tokens": 11264,
+      "curated": true
+    },
+    {
+      "name": "add_12288_curated",
+      "added_tokens": 12288,
+      "curated": true
+    },
+    {
+      "name": "add_15360_curated",
+      "added_tokens": 15360,
+      "curated": true
+    },
+    {
+      "name": "add_17408_curated",
+      "added_tokens": 17408,
+      "curated": true
+    },
+    {
+      "name": "add_20480_curated",
+      "added_tokens": 20480,
+      "curated": true
+    },
+    {
+      "name": "add_25600_curated",
+      "added_tokens": 25600,
+      "curated": true
+    },
+    {
+      "name": "add_17408_curated_padded",
+      "added_tokens": 17408,
+      "curated": true
+    }
+  ]
+}

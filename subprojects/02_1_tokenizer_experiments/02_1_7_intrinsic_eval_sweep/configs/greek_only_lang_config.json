@@ -1,0 +1,16 @@
+{
+  "languages": {
+    "ell_Grek": {
+      "name": "Greek",
+      "iso_code": "el",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/ell_Grek.txt"
+    }
+  },
+  "analysis_groups": {
+    "all": {
+      "all": [
+        "ell_Grek"
+      ]
+    }
+  }
+}

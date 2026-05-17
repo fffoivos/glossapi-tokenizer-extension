@@ -1,0 +1,8 @@
+{
+  "_note": "Our held-outs are parquet, not txt. TokEval is not run on them; the 02_1_3 harness is used instead. This file documents the slice locations for 03b_run_our_suite.sh.",
+  "slices": {
+    "virgin_hplt": "/home/foivos/data/glossapi_work/runs/c3_holdouts_20260511/virgin_hplt.parquet",
+    "C3_val_clean": "/home/foivos/data/glossapi_work/runs/c3_holdouts_20260511/C3_val_clean.parquet",
+    "C3_test_clean": "/home/foivos/data/glossapi_work/runs/c3_holdouts_20260511/C3_test_clean.parquet"
+  }
+}

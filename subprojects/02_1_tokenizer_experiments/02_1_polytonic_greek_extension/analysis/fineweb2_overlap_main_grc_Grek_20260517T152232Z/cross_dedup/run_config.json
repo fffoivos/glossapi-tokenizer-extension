@@ -1,0 +1,36 @@
+{
+  "run_id": "cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z",
+  "created_at": "2026-05-17T15:22:32Z",
+  "config_hash": "2e054b808a693d33071eccc29817cef1d02d4fd2e526c5122129112b95678ea2",
+  "config": {
+    "input_root": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/cross_dedup_input_main_grc_Grek/data",
+    "state_root": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/state/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z",
+    "run_root": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z",
+    "exact_strict_version": "exact_strict_norm_v1",
+    "exact_relaxed_version": "exact_relaxed_norm_v5_preserve",
+    "near_norm_version": "near_norm_v5_preserve",
+    "greek_diacritic_policy": "preserve",
+    "stages": [
+      "inventory",
+      "strict_exact",
+      "relaxed_exact"
+    ],
+    "exact_only": false,
+    "max_workers": 64,
+    "tokenization_version": "tokenization_v2",
+    "minhash_version": "minhash_v2",
+    "lsh_version": "lsh_v1",
+    "selection_version": "selection_v2",
+    "survivor_export_version": "survivor_export_v2",
+    "near_incremental_version": "near_incremental_v1",
+    "oversized_bucket_strategy_version": "oversized_bucket_v3",
+    "minhash_threshold": 0.85,
+    "num_perm": 128,
+    "bands": 32,
+    "rows_per_band": 4,
+    "shingle_mode": "token",
+    "shingle_size": 5,
+    "large_component_threshold": 50,
+    "max_bucket_size": 5000
+  }
+}

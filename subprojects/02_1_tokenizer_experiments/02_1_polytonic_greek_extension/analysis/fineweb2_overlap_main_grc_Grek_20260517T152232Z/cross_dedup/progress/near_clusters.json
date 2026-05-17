@@ -1,0 +1,18 @@
+{
+  "run_id": "cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z",
+  "stage": "near_clusters",
+  "status": "completed",
+  "total_chunks": 14,
+  "completed_chunks": 14,
+  "near_clusters_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_02_near/near_clusters.parquet",
+  "cluster_summary_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_02_near/cluster_summary.parquet",
+  "near_drop_list_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_02_near/near_drop_list.parquet",
+  "candidate_pair_rows": 585,
+  "cluster_rows": 47165,
+  "near_dropped_rows": 536,
+  "cluster_count": 46629,
+  "touched_doc_count": 15533,
+  "reused_cluster_count": 0,
+  "recomputed_cluster_count": 481,
+  "large_component_threshold": 50
+}

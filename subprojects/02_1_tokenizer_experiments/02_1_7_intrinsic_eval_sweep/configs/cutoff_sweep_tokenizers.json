@@ -1,0 +1,134 @@
+{
+  "apertus_base": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/apertus_base"
+  },
+  "add_1024": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_1024"
+  },
+  "add_2048": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_2048"
+  },
+  "add_3072": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_3072"
+  },
+  "add_4096": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_4096"
+  },
+  "add_5120": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_5120"
+  },
+  "add_6144": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_6144"
+  },
+  "add_7168": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_7168"
+  },
+  "add_8192": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_8192"
+  },
+  "add_9216": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_9216"
+  },
+  "add_10240": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_10240"
+  },
+  "add_11264": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_11264"
+  },
+  "add_12288": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_12288"
+  },
+  "add_13312": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_13312"
+  },
+  "add_14336": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_14336"
+  },
+  "add_15360": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_15360"
+  },
+  "add_16384": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_16384"
+  },
+  "add_17408": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_17408"
+  },
+  "add_18432": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_18432"
+  },
+  "add_19456": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_19456"
+  },
+  "add_20480": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_20480"
+  },
+  "add_21504": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_21504"
+  },
+  "add_22528": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_22528"
+  },
+  "add_23552": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_23552"
+  },
+  "add_24576": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_24576"
+  },
+  "add_25600": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_25600"
+  },
+  "add_11264_curated": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_11264_curated"
+  },
+  "add_12288_curated": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_12288_curated"
+  },
+  "add_15360_curated": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_15360_curated"
+  },
+  "add_17408_curated": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_17408_curated"
+  },
+  "add_20480_curated": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_20480_curated"
+  },
+  "add_25600_curated": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/_archive/c3_added_25600_curated"
+  },
+  "add_17408_curated_padded": {
+    "class": "hf",
+    "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_17408_curated_padded"
+  }
+}

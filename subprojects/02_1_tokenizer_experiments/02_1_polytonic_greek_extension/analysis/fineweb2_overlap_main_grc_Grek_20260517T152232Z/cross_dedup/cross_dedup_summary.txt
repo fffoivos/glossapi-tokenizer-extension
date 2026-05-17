@@ -1,0 +1,45 @@
+## kept_dropped_by_source
+             source_dataset  input_rows  kept_rows  dropped_rows
+     fineweb2_main_grc_Grek       28539    28443.0          96.0
+scholarios_graeca_patristic       12991    12991.0           0.0
+     Wikisource_Greek_texts        3435     3177.0         258.0
+1000_prwta_xronia_ellhnikhs         983      945.0          38.0
+      Ekklisiastika_Keimena         673      670.0           3.0
+ klasikh_arx_ell_grammateia         644      502.0         142.0
+
+## drops_by_stage
+             source_dataset decision_stage  rows
+1000_prwta_xronia_ellhnikhs near_duplicate    37
+1000_prwta_xronia_ellhnikhs  relaxed_exact     1
+      Ekklisiastika_Keimena near_duplicate     3
+     Wikisource_Greek_texts near_duplicate   258
+     fineweb2_main_grc_Grek near_duplicate    96
+ klasikh_arx_ell_grammateia near_duplicate   142
+
+## family_cross_source
+ family_mixed_source  rows  families
+               False 46362     46304
+                True   903       424
+
+## cross_source_families_top20
+                                                       family_id  family_size  family_source_count                                                                     sources
+55f697de71ac165b9769f8586926fc44d61685b97308bf31519dca7b71ec59f6            4                    3  Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+59712d6cfb9f6933dda3aa9f930e5d7d0030bfcb6e92d10565a50d8213a875ac            4                    3  Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+980df544ae4e9c9d5c6be4ad0795a20725018be2877e527fe44264d8797e2f27            4                    3  Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+00e4368e5aa4f3e67c971e8e2f648e1acff3cd0c32717fd47c8ad7a36d83230a            3                    3  Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+10e5294db12cf1dc4b5386abcad74ac8eaf0e3c52ec71d9214d82cdec16ad812            3                    2                          fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+156a7e150be0a866b3d48fd482e6b8d658cacaeff9557502bd3a94860d9fe829            3                    3 1000_prwta_xronia_ellhnikhs, Wikisource_Greek_texts, fineweb2_main_grc_Grek
+252300a8bb242e82a8d60f3627deb139b5196f7b8e00b09377cab97d01bb09fe            3                    3  Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+29be799a2cdebf23198d254306285f7180de515207f79060913a8646c4832540            3                    3  Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+2a199e44c5fcf0ed33eb3f8dae8e2dd98a73861093dbdf8ad4df05b582e6fd8a            3                    2                          fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+2c9673bef11ccd9189f9f7a7de92819abca8b81b7e33f45fc42607493a95597f            3                    2                          fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+2ccd18debc0211098883d0ab54fca0418fe2aececa427c17850a4ebbac42f976            3                    2                          fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+35a000fee727f681a182fc2f380d02b66fb5f7e47ffb6a77fcbc83e3aec1853b            3                    2                          fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+436ed3f164aa02e22be1665993c0a50c1cc837d1800d790096555ce542ae9a67            3                    2                          fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+443429b533729bba0e6e9f1781b7014476d84a489403682d40b55d250361f254            3                    3  Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+4eaa9fbac0b6e6a0205d367a7963c036af03ea11fde5a73a0461c7cddba1df13            3                    2                          fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+4ee4738c4e5f2ad3db40c2ebb1363fddc8461c542aa4c97d3a4c31371dfa4bb0            3                    3  Wikisource_Greek_texts, fineweb2_main_grc_Grek, klasikh_arx_ell_grammateia
+50540f45ce9f9eaff62ae2941da50a03422318cc552f14c8edaa68cfa77f9d41            3                    2                              Wikisource_Greek_texts, fineweb2_main_grc_Grek
+523546bc0d4e001deed90d4065b73fca3618ebe1965573ee4713384582919640            3                    2                              Wikisource_Greek_texts, fineweb2_main_grc_Grek
+5459d0ae3fc0409b42e44d6ad0cfd4f1834ef363a1a96ccf60fad0eb02c48f01            3                    2                              Wikisource_Greek_texts, fineweb2_main_grc_Grek
+5c81c18d40a326cf7cd20618471a708b11edcd37020cbc83cecd69be91e82338            3                    2                              Wikisource_Greek_texts, fineweb2_main_grc_Grek

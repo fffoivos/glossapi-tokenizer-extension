@@ -1,0 +1,20 @@
+{
+  "run_id": "cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z",
+  "stage": "near_candidates",
+  "candidate_pairs_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_02_near/candidate_pairs.parquet",
+  "candidate_pairs_db_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_02_near/candidate_pairs.sqlite",
+  "bucket_summary_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_02_near/shards/bucket_summaries",
+  "bucket_summary_rows": 1464700,
+  "touched_doc_path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/runs/cross_dedup_fineweb2_main_grc_Grek_20260517T152232Z/stage_02_near/touched_doc_keys.parquet",
+  "touched_doc_count": 15533,
+  "candidate_pair_rows": 585,
+  "threshold": 0.85,
+  "max_bucket_size": 5000,
+  "oversized_bucket_count": 0,
+  "oversized_bucket_member_rows": 0,
+  "subdivided_bucket_count": 0,
+  "fallback_chunked_bucket_count": 0,
+  "fallback_chunked_member_rows": 0,
+  "reused_bucket_count": 0,
+  "recomputed_bucket_count": 38042
+}
