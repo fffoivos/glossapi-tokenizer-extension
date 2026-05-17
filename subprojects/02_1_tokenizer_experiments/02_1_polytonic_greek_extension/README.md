@@ -117,6 +117,25 @@ subproject-local data and large worker/data-root state.
   parquets for the existing dedup pipeline.
 - `scripts/summarize_polytonic_dedup_run.py` — summarizes kept/dropped
   decisions from a dedup run.
+- `scripts/build_polytonic_splits.py` — deterministic text-hash
+  train/validation/test split builder for the kept post-dedup corpus.
+- `scripts/build_polytonic_cutoff_variants.py` — appends the full
+  Ancient/Polytonic continuation to C3 and materializes 512-token cutoff
+  variants through 5,120 additions.
+- `scripts/evaluate_polytonic_variants.py` — held-out fertility,
+  compression, utilization, UTF-8, and polytonic-specific metric runner.
+- `scripts/render_polytonic_eval_report.py` — plot/report renderer for the
+  polytonic held-out sweep.
+- `scripts/prepare_polytonic_eval_configs.py` — builds TokEval-compatible
+  tokenizer/config metadata from a polytonic variants manifest.
+- `scripts/run_polytonic_tokeval.sh` — runs the C3 sweep's TokEval layer
+  on the polytonic cutoff grid.
+- `scripts/aggregate_polytonic_tokeval.py` — normalizes TokEval JSON into
+  CSV/parquet/JSON summaries.
+- `scripts/run_polytonic_morphscore.py` — runs the same Greek MorphScore
+  regression guard used by the C3 cutoff sweep.
+- `scripts/run_polytonic_extension_pipeline.sh` — worker orchestration
+  helper for split, training, variant-build, eval, and report stages.
 
 ## Current Worker
 
