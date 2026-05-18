@@ -153,6 +153,35 @@ magnitude but a real, structural win, not noise.
 variant remains on disk under `variants/`. It is an ablation artifact
 only — alignment-broken and append-only-broken.
 
+## Post-decision firing-count attribution
+
+After the cutoff decision, the canonical tokenizer was run over the exact
+C3 BPE training corpus (`train.parquet` plus row-aligned
+`train_manifest.parquet`) to measure how often every token fires in:
+
+1. `glossapi_nanochat_only`;
+2. `hplt_only`;
+3. `glossapi_nanochat_plus_hplt`;
+4. every exact `source_dataset`.
+
+Completed-run summary:
+
+- [`FIRING_COUNT_RUN_20260518.md`](FIRING_COUNT_RUN_20260518.md)
+- [`FIRING_COUNT_README.md`](FIRING_COUNT_README.md)
+- [`manifests/firing_count_20260518_run_summary_augmented.json`](manifests/firing_count_20260518_run_summary_augmented.json)
+
+The compact parquet bundle is published to the Apertus-extension HF repo
+under:
+
+```text
+experiments/02_1_7_intrinsic_eval_sweep_20260518/firing_counts_c3_added_17408_curated_padded/
+```
+
+Headline result: the 50/50 corpus is balanced by token mass
+(`glossapi_nanochat_only` 49.79%, HPLT 50.21%), not by row count. All
+17,408 added tokens fire in GlossAPI-nanochat; 27 are zero in HPLT; none
+are zero in the combined C3 corpus.
+
 ## Build reproduction (deterministic)
 
 ```bash
