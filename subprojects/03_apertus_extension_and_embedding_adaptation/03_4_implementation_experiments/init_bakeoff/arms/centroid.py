@@ -1,22 +1,28 @@
 """Centroid init arm.
 
-Per v0.7 § 5:
+Per v0.7 § 5, refined by the 2026-05-21 audit (see `../../AUDIT_FINDINGS.md`):
 
 For each new token T:
   1. Decode T to its surface form.
   2. Classify by Unicode block: modern (U+0370–U+03FF), polytonic
      (U+1F00–U+1FFF), or both.
-  3. Look up the appropriate centroid (per-script mean of existing
-     Greek tokens in the base Apertus vocab). If T has both tags,
-     average the modern + polytonic centroids.
+  3. Look up the appropriate (centroid, covariance) pair (per-script
+     statistics over existing Greek tokens in the base Apertus vocab).
+     If T has both tags, average the modern + polytonic centroids
+     half-and-half (papers silent — Q9 in audit).
   4. Fallback: if the polytonic set is smaller than 50 base tokens,
-     the polytonic centroid is unreliable and we fall back to the
+     the polytonic statistics are unreliable and we fall back to the
      modern centroid for polytonic new tokens.
-  5. Sample noise ε ~ N(0, diag(σ)) where σ is the per-dim std of the
-     chosen set around its centroid.
+  5. Sample ε ~ N(0, Σ) — **full multivariate normal** per Hewitt 2021,
+     not the diagonal-σ "Univariate" baseline Mundra calls inadequate
+     (audit Q6).
   6. new_row = centroid + ε, then norm-match to Phase A target.
 
 Same procedure independently for E and U.
+
+[Cite: references/papers/hewitt_vocab_expansion.html (multivariate-normal
+        recipe); references/papers/mundra_2407.05841.pdf §5.1 + Table 2 p.6
+        (Univariate is inadequate)]
 
 Unlike ReTok, Centroid doesn't use the new token's specific subpiece
 decomposition — it uses a script-level distributional prior. The
@@ -32,7 +38,7 @@ from _common import (
     NORM_TARGET_U_GREEK,
     POLYTONIC_FALLBACK_MIN_TOKENS,
     classify_greek_block,
-    compute_centroid_and_std,
+    compute_centroid_and_cov,
     identify_greek_base_tokens,
     norm_match,
 )
@@ -76,18 +82,36 @@ def compute_centroid_init(
         if polytonic_fallback:
             print(f"Centroid: polytonic set < {POLYTONIC_FALLBACK_MIN_TOKENS} → polytonic new tokens will use modern centroid (fallback)")
 
-    E_modern_mu, E_modern_sigma = compute_centroid_and_std(base_E, modern_ids)
-    U_modern_mu, U_modern_sigma = compute_centroid_and_std(base_U, modern_ids)
+    # Use FULL covariance per Hewitt 2021 — diagonal-only is Mundra's "Univariate"
+    # baseline which the paper explicitly calls inadequate (Mundra §5.1, p.5).
+    # [Cite: references/papers/hewitt_vocab_expansion.html lines 230-237;
+    #  references/papers/mundra_2407.05841.pdf §5.1 + Table 2 p.6]
+    # Precompute Cholesky L once per script class so per-token sampling is
+    # O(D²) instead of O(D³) (full multivariate_normal redoes the Cholesky on
+    # every call).
+    E_modern_mu, E_modern_cov = compute_centroid_and_cov(base_E, modern_ids)
+    U_modern_mu, U_modern_cov = compute_centroid_and_cov(base_U, modern_ids)
+    E_modern_L = np.linalg.cholesky(E_modern_cov)
+    U_modern_L = np.linalg.cholesky(U_modern_cov)
     if polytonic_fallback:
-        E_poly_mu, E_poly_sigma = E_modern_mu, E_modern_sigma
-        U_poly_mu, U_poly_sigma = U_modern_mu, U_modern_sigma
+        E_poly_mu, E_poly_L = E_modern_mu, E_modern_L
+        U_poly_mu, U_poly_L = U_modern_mu, U_modern_L
+        E_both_mu, E_both_L = E_modern_mu, E_modern_L
+        U_both_mu, U_both_L = U_modern_mu, U_modern_L
     else:
-        E_poly_mu, E_poly_sigma = compute_centroid_and_std(base_E, polytonic_ids)
-        U_poly_mu, U_poly_sigma = compute_centroid_and_std(base_U, polytonic_ids)
+        E_poly_mu, E_poly_cov = compute_centroid_and_cov(base_E, polytonic_ids)
+        U_poly_mu, U_poly_cov = compute_centroid_and_cov(base_U, polytonic_ids)
+        E_poly_L = np.linalg.cholesky(E_poly_cov)
+        U_poly_L = np.linalg.cholesky(U_poly_cov)
+        # Both-block: half-and-half of modern + polytonic (Q9 in audit; papers silent)
+        E_both_mu = 0.5 * (E_modern_mu + E_poly_mu)
+        U_both_mu = 0.5 * (U_modern_mu + U_poly_mu)
+        E_both_L = np.linalg.cholesky(0.5 * (E_modern_cov + E_poly_cov))
+        U_both_L = np.linalg.cholesky(0.5 * (U_modern_cov + U_poly_cov))
 
     if verbose:
         print(f"Centroid: E_modern_mu norm = {np.linalg.norm(E_modern_mu):.3f}")
-        print(f"Centroid: E_modern_sigma mean = {E_modern_sigma.mean():.4f}")
+        print(f"Centroid: E_modern_cov diagonal mean = {np.diag(E_modern_cov).mean():.4f}")
         print(f"Centroid: U_modern_mu norm = {np.linalg.norm(U_modern_mu):.3f}")
 
     # Step 3-5: for each new token, classify + sample
@@ -102,32 +126,30 @@ def compute_centroid_init(
         has_modern, has_polytonic = classify_greek_block(surface)
         if has_modern and has_polytonic:
             hist["both"] += 1
-            E_mu = 0.5 * (E_modern_mu + E_poly_mu)
-            U_mu = 0.5 * (U_modern_mu + U_poly_mu)
-            E_sigma = 0.5 * (E_modern_sigma + E_poly_sigma)
-            U_sigma = 0.5 * (U_modern_sigma + U_poly_sigma)
+            E_mu, E_L = E_both_mu, E_both_L
+            U_mu, U_L = U_both_mu, U_both_L
         elif has_polytonic:
             hist["polytonic_only"] += 1
-            E_mu, E_sigma = E_poly_mu, E_poly_sigma
-            U_mu, U_sigma = U_poly_mu, U_poly_sigma
+            E_mu, E_L = E_poly_mu, E_poly_L
+            U_mu, U_L = U_poly_mu, U_poly_L
         elif has_modern:
             hist["modern_only"] += 1
-            E_mu, E_sigma = E_modern_mu, E_modern_sigma
-            U_mu, U_sigma = U_modern_mu, U_modern_sigma
+            E_mu, E_L = E_modern_mu, E_modern_L
+            U_mu, U_L = U_modern_mu, U_modern_L
         else:
             hist["neither"] += 1
-            # Defensive fallback: a Greek-extension token with no Greek-block
-            # codepoint shouldn't exist, but if it does, use modern centroid.
-            E_mu, E_sigma = E_modern_mu, E_modern_sigma
-            U_mu, U_sigma = U_modern_mu, U_modern_sigma
+            E_mu, E_L = E_modern_mu, E_modern_L
+            U_mu, U_L = U_modern_mu, U_modern_L
             if verbose and hist["neither"] <= 5:
                 print(f"  Centroid: WARN id={new_id} surface={surface!r} has no Greek-block codepoint")
 
-        # Sample noise per-dim from N(0, sigma_d)
-        eps_E = rng.standard_normal(D).astype(np.float32) * E_sigma
-        eps_U = rng.standard_normal(D).astype(np.float32) * U_sigma
-        new_E[offset] = E_mu + eps_E
-        new_U[offset] = U_mu + eps_U
+        # Sample N(μ, Σ) via precomputed Cholesky: x = μ + L @ z, z ~ N(0, I).
+        # Mathematically identical to `rng.multivariate_normal(μ, Σ)` but
+        # O(D²) per sample instead of O(D³) (the Cholesky was paid once above).
+        z_E = rng.standard_normal(D).astype(np.float32)
+        z_U = rng.standard_normal(D).astype(np.float32)
+        new_E[offset] = E_mu + (E_L @ z_E)
+        new_U[offset] = U_mu + (U_L @ z_U)
 
     # Step 6: norm-match
     new_E = norm_match(new_E, target_norm=norm_target_E)

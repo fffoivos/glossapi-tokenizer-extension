@@ -113,8 +113,11 @@ def compute_centroid_and_std(
     """Compute centroid + per-dimension std of `matrix[ids, :]`.
 
     Returns (centroid, sigma), each of shape [D]. `sigma` is the per-dim
-    std, suitable for use as the diagonal of a Gaussian noise covariance
-    (i.e., `noise = sigma * randn(D)`).
+    std, equivalent to Mundra et al. 2024's "Univariate" baseline.
+
+    DEPRECATED for the centroid init. Kept for backward compat with the
+    smoke test. Use `compute_centroid_and_cov` for the production path
+    per the audit at `../audits/INIT_PAPERS_AUDIT.md` Q6.
     """
     ids_arr = np.asarray(list(ids), dtype=np.int64)
     if ids_arr.size == 0:
@@ -124,3 +127,36 @@ def compute_centroid_and_std(
     centroid = sub.mean(axis=0)
     sigma = sub.std(axis=0)  # per-dim std
     return centroid.astype(np.float32), sigma.astype(np.float32)
+
+
+def compute_centroid_and_cov(
+    matrix: np.ndarray,
+    ids: Iterable[int],
+    reg_eps: float = 1e-8,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Compute centroid + full covariance of `matrix[ids, :]`.
+
+    Returns (centroid, cov), shapes [D] and [D, D]. Matches Hewitt 2021's
+    multivariate-normal recipe: `μ = mean`, `Σ = (E-μ).T @ (E-μ) / n`.
+    Adds a small ridge `reg_eps * I` to Σ for numerical stability when
+    sampling.
+
+    [Cite: references/papers/hewitt_vocab_expansion.html lines 230-237;
+     references/papers/mundra_2407.05841.pdf §3.3 Theorems 1-2 p.3,
+     §4.4 "Multivariate" baseline p.5, Table 2 p.6]
+    """
+    ids_arr = np.asarray(list(ids), dtype=np.int64)
+    if ids_arr.size == 0:
+        D = matrix.shape[1]
+        return np.zeros(D, dtype=np.float32), np.eye(D, dtype=np.float32) * reg_eps
+    sub = matrix[ids_arr].astype(np.float32)  # [N, D]
+    centroid = sub.mean(axis=0)
+    centered = sub - centroid[None, :]
+    n = sub.shape[0]
+    # Σ = (E - μ)^T (E - μ) / n  per Hewitt
+    cov = (centered.T @ centered) / max(n, 1)
+    # Ridge for numerical stability — np.random.multivariate_normal otherwise
+    # may complain about a singular covariance matrix.
+    D = cov.shape[0]
+    cov = cov + reg_eps * np.eye(D, dtype=np.float32)
+    return centroid.astype(np.float32), cov.astype(np.float32)

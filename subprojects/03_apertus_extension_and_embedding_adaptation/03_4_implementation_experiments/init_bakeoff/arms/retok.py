@@ -67,7 +67,18 @@ def compute_retok_init(
     new_E = np.zeros((N_new, D), dtype=np.float32)
     new_U = np.zeros((N_new, D), dtype=np.float32)
 
+    # Hard fallback to the global base-vocab mean if decode or encode is empty.
+    # Per audit (Q5 in `../audits/INIT_PAPERS_AUDIT.md`): silent zero-rows would
+    # post-`norm_match` stay zero and yield a softmax logit of ~1 while real
+    # logits are large-negative — Hewitt 2021's diagnosed disaster case
+    # (`references/papers/hewitt_vocab_expansion.html` §"Zero-init can cause
+    # problems"). For Apertus's well-formed extension this should never trigger,
+    # but make it loud not silent.
+    fallback_E = base_E.astype(np.float32).mean(axis=0)
+    fallback_U = base_U.astype(np.float32).mean(axis=0)
+
     n_decoded_empty = 0
+    n_zero_pieces = 0
     n_subpieces_total = 0
     n_max_subpieces = 0
     for offset in range(N_new):
@@ -75,33 +86,42 @@ def compute_retok_init(
         # Use the extended tokenizer to recover the surface form for this new ID
         surface = extended_tokenizer.decode([new_id], skip_special_tokens=False)
         if not surface:
-            # Should not happen for a well-formed extension, but be defensive
             n_decoded_empty += 1
+            new_E[offset] = fallback_E
+            new_U[offset] = fallback_U
             continue
         # Re-tokenize the surface form with the BASE tokenizer (vocab 131,072).
         # We use add_special_tokens=False so we get only the content subpieces.
         subpiece_ids = base_tokenizer.encode(surface, add_special_tokens=False)
         if not subpiece_ids:
-            # Defensive — base tokenizer should always produce at least 1 piece
+            n_zero_pieces += 1
+            new_E[offset] = fallback_E
+            new_U[offset] = fallback_U
             continue
         n_subpieces_total += len(subpiece_ids)
         n_max_subpieces = max(n_max_subpieces, len(subpiece_ids))
         # Average the base-vocab subpiece embeddings
+        # [Cite: references/papers/retok_2410.04335.pdf §3.2 p.3 + references/papers/fvt_emnlp2022_industry_41.pdf §3 Eq.2 p.421]
         sub_E = base_E[subpiece_ids].astype(np.float32).mean(axis=0)  # [D]
         sub_U = base_U[subpiece_ids].astype(np.float32).mean(axis=0)  # [D]
         new_E[offset] = sub_E
         new_U[offset] = sub_U
         if verbose and offset < 5:
             print(f"  ReTok new_id={new_id} surface={surface!r:<30} → {len(subpiece_ids)} subpieces {subpiece_ids[:6]}")
+    # Q4 (audit): warn if any new token decomposed into >8 base pieces — likely
+    # signals a tokenizer-extension pathology worth investigating pre-training.
+    if n_max_subpieces > 8:
+        print(f"  ReTok WARN: max subpieces per new token = {n_max_subpieces} (>8). Inspect tokenizer-extension health.")
 
     # Norm-match each row to Phase A target
     new_E = norm_match(new_E, target_norm=norm_target_E)
     new_U = norm_match(new_U, target_norm=norm_target_U)
 
     if verbose:
-        avg_subpieces = n_subpieces_total / max(N_new - n_decoded_empty, 1)
+        avg_subpieces = n_subpieces_total / max(N_new - n_decoded_empty - n_zero_pieces, 1)
         print(f"ReTok: {N_new:,} new rows, mean subpieces per new token = {avg_subpieces:.2f}, max = {n_max_subpieces}")
-        print(f"ReTok: empty-decode count = {n_decoded_empty}")
+        print(f"ReTok: empty-decode count = {n_decoded_empty} (fallback applied)")
+        print(f"ReTok: zero-piece-encode count = {n_zero_pieces} (fallback applied)")
         print(f"ReTok: E norm sample = {np.linalg.norm(new_E[0]):.3f}, target = {norm_target_E}")
         print(f"ReTok: U norm sample = {np.linalg.norm(new_U[0]):.3f}, target = {norm_target_U}")
     return new_E, new_U

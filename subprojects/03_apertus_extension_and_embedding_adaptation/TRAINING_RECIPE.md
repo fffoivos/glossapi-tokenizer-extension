@@ -2,6 +2,8 @@
 
 *Authoritative recipe for the three-arm init bakeoff (Vanilla / ReTok / Centroid) and the subsequent production CPT. Downstream of [`cpt_plan.md`](cpt_plan.md) v0.7 + [`apertus_fidelity_checklist.md`](apertus_fidelity_checklist.md). Every numeric value cites a source.*
 
+> **Audit pass 2026-05-21** — every claim in this doc has been verified against locally-pinned sources at [`references/`](references/MANIFEST.md) (8 cloned repos at pinned commits + 15 paper PDFs). Findings + applied fixes are in [`AUDIT_FINDINGS.md`](AUDIT_FINDINGS.md). Two pre-submit blockers remain open: HF→Megatron Apertus loader doesn't exist in the swiss-ai fork (custom loader needed); ILSP Greek harness task configs live in Meltemi/Krikri forks, not swiss-ai. Neither blocks colleague review of the recipe itself.
+
 ## Scope
 
 | | bakeoff (this doc § 3-9) | production CPT (after winner is picked) |
@@ -229,7 +231,7 @@ This is the experimental axis. See [`init_bakeoff/BAKEOFF_PLAN.md`](03_4_impleme
 |---|---|---|
 | **Vanilla** | No vocab extension — train on the original 131,072-token Apertus vocabulary | n/a (control) |
 | **ReTok** | New-token row = mean of base-tokenizer subpiece embeddings | (a) **Origin** = FVT, Gee et al. 2022 ([ACL Anthology 2022.emnlp-industry.41](https://aclanthology.org/2022.emnlp-industry.41/)) — first subpiece-mean formulation. (b) **LLM-era + both-E-and-U** = ReTok, Gu et al. 2024 ([arXiv:2410.04335](https://arxiv.org/abs/2410.04335)) — explicit application to both embedding layer and LM head. |
-| **Centroid** | New-token row sampled from `N(μ, Σ)` of base Greek-token embeddings, with optional Gaussian noise | **Hewitt 2021**, *Initializing New Word Embeddings for Pretrained Language Models* ([cs.columbia.edu/~johnhew/vocab-expansion.html](https://www.cs.columbia.edu/~johnhew//vocab-expansion.html); code at [github.com/john-hewitt/embed-init](https://github.com/john-hewitt/embed-init)). **Script-restricted variant** (centroid of Greek-tokens only, not all rows) is our extension. |
+| **Centroid** | New-token row sampled from `N(μ, Σ)` of base Greek-token embeddings (full covariance + 1e-8 ridge), then norm-matched | **Hewitt 2021**, *Initializing New Word Embeddings for Pretrained Language Models* ([cs.columbia.edu/~johnhew/vocab-expansion.html](https://www.cs.columbia.edu/~johnhew//vocab-expansion.html); local: [`references/papers/hewitt_vocab_expansion.html`](references/papers/hewitt_vocab_expansion.html); code at [github.com/john-hewitt/embed-init](https://github.com/john-hewitt/embed-init)). **Script-restricted variant** (centroid of Greek tokens only) is our extension. Full Σ (not diagonal-only) used after audit Q6 — Mundra 2024 §5.1 + Table 2 (p. 6) explicitly calls the diagonal "Univariate" variant inadequate. |
 
 ### 10.1 Norm-matching post-pass
 

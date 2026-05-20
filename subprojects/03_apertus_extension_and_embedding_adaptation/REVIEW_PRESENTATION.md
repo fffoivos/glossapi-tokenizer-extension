@@ -4,6 +4,8 @@
 
 **State as of 2026-05-21:** scripts + recipe + sbatch + eval are ready for review. No CSCS jobs submitted; only local validation has happened.
 
+**Second-pass audit done.** A verification pass against locally-pinned primary sources (8 cloned repos at pinned commits + 15 paper PDFs at [`references/`](references/MANIFEST.md)) surfaced: (a) 3 sbatch flag-name typos that would have failed first submission (`--xielu`, `--ademamix-{beta3,alpha}-warmup`), (b) a missing flag (`--dist-ckpt-strictness assume_ok_unexpected`) critical for loading a resized-embedding checkpoint, (c) a latent zero-row bug in `retok.py` on empty decode, (d) diagonal-σ in `centroid.py` (Mundra "Univariate" baseline — paper calls inadequate). **All four fixed in this commit.** Two pre-submit blockers remain open (HF→Megatron Apertus loader; ILSP harness task YAMLs from Meltemi/Krikri forks). See [`AUDIT_FINDINGS.md`](AUDIT_FINDINGS.md) for the full audit + resolution table.
+
 ---
 
 ## TL;DR
@@ -25,7 +27,7 @@ The user's checklist mapped to artifacts:
 | 3 | 2 B-after-init training infra | [`init_bakeoff/bakeoff_training/`](03_4_implementation_experiments/init_bakeoff/bakeoff_training/) | ready (untested on CSCS) |
 | 4 | Benchmarking (Greek + regression) | [`init_bakeoff/eval/`](03_4_implementation_experiments/init_bakeoff/eval/) | ready (untested on CSCS) |
 | 5 | "Not run yet, except as tests" | – | confirmed: no SLURM submissions; only `bash -n` syntax checks and `arms/test_init_logic.py` smoke (which is green) |
-| 6 | Reasoned presentation + citations | **this document** + [`TRAINING_RECIPE.md`](TRAINING_RECIPE.md) §14 + [`apertus_fidelity_checklist.md`](apertus_fidelity_checklist.md) | ready |
+| 6 | Reasoned presentation + citations | **this document** + [`TRAINING_RECIPE.md`](TRAINING_RECIPE.md) §14 + [`apertus_fidelity_checklist.md`](apertus_fidelity_checklist.md) + [`AUDIT_FINDINGS.md`](AUDIT_FINDINGS.md) + [`references/`](references/MANIFEST.md) | ready |
 | 7 | Hand to review | this document — start at "What we built" then read in the order below | open |
 | 8 | After review: run benchmarks + day-1 execution | [`init_bakeoff/README.md`](03_4_implementation_experiments/init_bakeoff/README.md) "End-to-end sequence" | gated on review |
 

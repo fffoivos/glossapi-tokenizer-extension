@@ -1,0 +1,7 @@
+# Cloned external repos — regenerable via clone_references.sh
+repos/
+
+# Paper PDFs + HTML — regenerable via download_papers.sh; keeping out of git
+# preserves the citation-by-local-path convention without ballooning the repo.
+papers/*.pdf
+papers/*.html
