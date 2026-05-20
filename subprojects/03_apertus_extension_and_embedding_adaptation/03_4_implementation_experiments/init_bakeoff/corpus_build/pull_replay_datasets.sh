@@ -114,6 +114,18 @@ huggingface-cli download bigcode/starcoderdata \
     --include 'data/go/*' \
     --include 'README.md' || echo "WARN: starcoderdata pull failed; revisit (may need access token for some shards)"
 
+# === Math: FineMath (Apertus stage-1 source) ===
+# Per v0.7 §4.4 + submit_apertus_8b.sh:L29 (finemath-3plus-merge).
+# FineMath-3plus is the higher-quality subset (3+ rating).
+MATH_DIR="$STAGE_ROOT/math"
+mkdir -p "$MATH_DIR"
+echo "=== math: HuggingFaceTB/finemath (finemath-3plus) ==="
+huggingface-cli download HuggingFaceTB/finemath \
+    --repo-type dataset \
+    --local-dir "$MATH_DIR/finemath" \
+    --include 'finemath-3plus/*' \
+    --include 'README.md' || echo "  WARN: FineMath pull failed; continuing"
+
 echo
 echo "=== summary ==="
 du -sh "$REPLAY_DIR"/* 2>/dev/null | sort -hr | head -30

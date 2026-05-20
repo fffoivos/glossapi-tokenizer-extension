@@ -16,8 +16,13 @@ Working defaults per v0.7 §2 + §4 + user answers 2026-05-20:
 | Top-level bucket | Share | Sub-allocation |
 |---|---:|---|
 | Greek (post-Apertus-overlap-drop, post-internal-dedup) | **70 %** | see below |
-| Non-Greek replay (24 languages, 3 tiers) | **26 %** | see below |
+| Non-Greek replay (24 languages, 3 tiers) | **24 %** | see below |
 | Code | **4 %** | `bigcode/starcoderdata` (Apertus used StarCoder) |
+| Math | **2 %** | `HuggingFaceTB/finemath` config `finemath-3plus` (Apertus stage-1 source per `submit_apertus_8b.sh:L29`) |
+
+> **2026-05-21 rebalance.** Replay reduced from 26 % → 24 % to free 2 % for FineMath, taken entirely from English (FW-Edu) which went from 3.9 % → 1.9 %. The other 23 replay-language weights stay at their pre-rebalance values. Greek and code shares unchanged.
+
+> **OPUS Greek-English parallel** is listed as optional in v0.7 §4.4 but **not yet in the bakeoff bulk mix** — it needs different schema handling in `mix_builder.py` (its rows are `{translation: {el: ..., en: ...}}` rather than `{text: ...}`). Deferred to a future iteration of corpus_build.
 
 ### Greek sub-allocation (70 % of total)
 
@@ -32,17 +37,17 @@ Working defaults per v0.7 §2 + §4 + user answers 2026-05-20:
 
 The HPLT half dominates by token mass (the underlying HPLT clean60 slice is ~50 B chars at v0.7 chars/token = ~14 B tokens; the GlossAPI sub-pools combined are smaller). The recipe weights are **probabilities for the interleaver**, which is what affects the per-step mix; effective token shares track these weights up to per-source exhaustion.
 
-### Non-Greek replay sub-allocation (26 % of total, across 24 languages)
+### Non-Greek replay sub-allocation (24 % of total, across 24 languages)
 
-Tier weights per v0.7 §4.2 (40–50 % T1 / 35–45 % T2 / 10–15 % T3); working defaults at the midpoint, scaled to the 26 % outer share:
+Tier weights per v0.7 §4.2 (40–50 % T1 / 35–45 % T2 / 10–15 % T3); working defaults at the midpoint, scaled to the **24 % outer share** (post-2026-05-21 rebalance: English's share absorbed the 2 % shift to FineMath):
 
 | Tier | Languages | Share of replay | Total share |
 |---|---|---:|---:|
-| **T1** (8 langs, FW2-HQ where Apertus used HQ) | eng, fra, deu, ita, spa, rus, arb, cmn | 50 % | 13.0 % |
-| **T2** (11 langs, FW2 where Apertus used standard) | tur, bul, srp, ron, heb, por, pol, nld, pes, ukr, jpn | 38 % | 9.88 % |
-| **T3** (5 langs, FW2; small per-lang) | lat, hye, kat, sqi (or als), mkd | 12 % | 3.12 % |
+| **T1** (8 langs, FW2-HQ where Apertus used HQ) | eng, fra, deu, ita, spa, rus, arb, cmn | ~46 % | 11.0 % |
+| **T2** (11 langs, FW2 where Apertus used standard) | tur, bul, srp, ron, heb, por, pol, nld, pes, ukr, jpn | ~41 % | 9.88 % |
+| **T3** (5 langs, FW2; small per-lang) | lat, hye, kat, sqi (or als), mkd | ~13 % | 3.12 % |
 
-Within each tier, weights are roughly equal *except* English gets ~30 % of T1 (≈ 3.9 % of total) since it's both the biggest Apertus pretraining share and the canonical replay-anchor pattern from EEVE / Krikri / `collegues_Apertus_plan.md`. The remaining 7 T1 langs split the rest of T1 evenly (~9.7 % of T1 each ≈ 1.26 % of total).
+Within each tier, weights are roughly equal *except* English gets ~17 % of T1 (≈ 1.9 % of total, post-rebalance) — still the largest single non-Greek language, but trimmed from 3.9 % to 1.9 % to make room for FineMath at 2 %. The remaining 7 T1 langs each stay at 1.3 % of total.
 
 Per-language sources:
 
@@ -59,6 +64,14 @@ Per-language sources:
 | Code | `bigcode/starcoderdata` (Apertus's pretraining source) |
 
 Use the default "all-permissive" subset; no language filter (mixed-language source-code is fine for retention).
+
+### Math (2 %)
+
+| Source | HF id + config |
+|---|---|
+| Math (web-derived high-quality math text) | `HuggingFaceTB/finemath` config `finemath-3plus` (Apertus stage-1 source per `submit_apertus_8b.sh:L29`) |
+
+FineMath-3plus is the higher-quality subset of FineMath, selected for math content (problem statements, solutions, derivations) from CommonCrawl. Apertus uses `finemath-3plus-merge` in pretraining stage 1; the bakeoff includes it at the same 2 % share Apertus's stage-1 allocates within the broader mix (Apertus stage proportions aren't published per-source — 2 % is a reasonable default).
 
 ## Composition (anneal recipe — defined but not run in the bakeoff)
 

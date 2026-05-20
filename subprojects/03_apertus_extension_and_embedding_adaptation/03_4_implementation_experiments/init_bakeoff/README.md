@@ -47,9 +47,11 @@ The bakeoff fires once these are complete (most are Clariden-side):
 
 [Clariden login]   bash corpus_build/pull_greek_corpus.sh    # ~30-60 min
                    bash corpus_build/pull_replay_datasets.sh # ~1-3 h depending on bandwidth
+                                                              # (now includes FineMath stage-1 alongside replay/code)
                    bash eval/pull_benchmarks.sh              # ~30-60 min
 
-[Clariden xfer]    python3 corpus_build/mix_builder.py \
+[Clariden xfer]    bash corpus_build/normalize_nfc.sh        # V9 enforcement (idempotent NFC pass)
+                   python3 corpus_build/mix_builder.py \
                        --recipe corpus_build/recipes/bulk.json \
                        --target-tokens 7000000000 \
                        --tokenizer /iopsstor/.../tokenizers/apertus_greek_modern_only_148480 \

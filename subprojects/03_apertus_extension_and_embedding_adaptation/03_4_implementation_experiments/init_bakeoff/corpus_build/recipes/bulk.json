@@ -125,15 +125,15 @@
     {
       "name": "replay_t1_english_edu",
       "bucket": "replay",
-      "share_within_bucket": 0.30,
-      "weight": 0.039,
+      "share_within_bucket": 0.146,
+      "weight": 0.019,
       "id": "HuggingFaceFW/fineweb-edu",
       "split": "train",
       "streaming": true,
       "text_column": "text",
       "filter_field": "score",
       "filter_min": 3,
-      "comment": "English Score-3 (FineWeb-Edu) matches Apertus stage 5 cooldown filter. ~30% of Tier 1 = largest single replay share (anchor language)."
+      "comment": "English Score-3 (FineWeb-Edu) matches Apertus stage 5 cooldown filter. Trimmed 3.9% -> 1.9% in 2026-05-21 rebalance to make room for FineMath at 2% (see math bucket below)."
     },
     {
       "name": "replay_t1_fra_Latn",
@@ -199,12 +199,26 @@
       "streaming": true,
       "text_column": "content",
       "comment": "Apertus pretraining used StarCoder; matches the recipe for retention preservation."
+    },
+
+    {
+      "name": "math_finemath",
+      "bucket": "math",
+      "share_within_bucket": 1.0,
+      "weight": 0.02,
+      "id": "HuggingFaceTB/finemath",
+      "config": "finemath-3plus",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "comment": "FineMath 3+ — Apertus stage-1 uses finemath-3plus-merge (submit_apertus_8b.sh:L29). 2% bakeoff share carved from English replay; matches v0.7 §4.4 + Apertus pretraining mix."
     }
   ],
   "validation": {
     "expected_weight_sum": 1.0,
     "expected_greek_share": 0.70,
-    "expected_replay_share": 0.26,
-    "expected_code_share": 0.04
+    "expected_replay_share": 0.24,
+    "expected_code_share": 0.04,
+    "expected_math_share": 0.02
   }
 }
