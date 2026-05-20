@@ -43,7 +43,7 @@ Audited against `references/repos/swiss-ai_pretrain-code/pretraining/submit_aper
 
 ### Section B — `arms/retok.py` (init code, ReTok arm)
 
-Audited against `references/papers/retok_2410.04335.pdf` (Gu et al. 2024) + `references/papers/fvt_emnlp2022_industry_41.pdf` (Gee et al. 2022) + `references/papers/mundra_2407.05841.pdf` (Mundra 2024).
+Audited against `references/papers/retok_2410.04335.html` (Gu et al. 2024) + `references/papers/fvt_emnlp2022_industry_41.pdf` (Gee et al. 2022) + `references/papers/mundra_2407.05841.html` (Mundra 2024).
 
 | Q | Question | Verdict | Action |
 |---|---|---|---|
@@ -57,7 +57,7 @@ Audited against `references/papers/retok_2410.04335.pdf` (Gu et al. 2024) + `ref
 
 ### Section C — `arms/centroid.py` (init code, Centroid arm)
 
-Audited against `references/papers/hewitt_vocab_expansion.html` (Hewitt 2021) + `references/papers/mundra_2407.05841.pdf` (Mundra 2024).
+Audited against `references/papers/hewitt_vocab_expansion.html` (Hewitt 2021) + `references/papers/mundra_2407.05841.html` (Mundra 2024).
 
 | Q | Question | Verdict | Action |
 |---|---|---|---|
@@ -78,7 +78,7 @@ So we keep `Σ` unscaled (with a small `1e-8` ridge for `multivariate_normal` nu
 
 ### Section D — AdEMAMix optimizer impl (verified, no action)
 
-Audited `references/repos/swiss-ai_Megatron-LM/megatron/core/optimizer/ademamix.py` against `references/papers/ademamix_2409.03137.pdf`.
+Audited `references/repos/swiss-ai_Megatron-LM/megatron/core/optimizer/ademamix.py` against `references/papers/ademamix_2409.03137.html`.
 
 | Item | Status | Code path |
 |---|---|---|

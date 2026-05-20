@@ -101,7 +101,7 @@ def compute_retok_init(
         n_subpieces_total += len(subpiece_ids)
         n_max_subpieces = max(n_max_subpieces, len(subpiece_ids))
         # Average the base-vocab subpiece embeddings
-        # [Cite: references/papers/retok_2410.04335.pdf §3.2 p.3 + references/papers/fvt_emnlp2022_industry_41.pdf §3 Eq.2 p.421]
+        # [Cite: references/papers/retok_2410.04335.html §3.2 + references/papers/fvt_emnlp2022_industry_41.pdf §3 Eq.2 p.421]
         sub_E = base_E[subpiece_ids].astype(np.float32).mean(axis=0)  # [D]
         sub_U = base_U[subpiece_ids].astype(np.float32).mean(axis=0)  # [D]
         new_E[offset] = sub_E

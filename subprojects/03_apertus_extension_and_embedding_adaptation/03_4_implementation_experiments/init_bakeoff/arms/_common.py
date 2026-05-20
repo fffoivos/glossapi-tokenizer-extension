@@ -142,8 +142,8 @@ def compute_centroid_and_cov(
     sampling.
 
     [Cite: references/papers/hewitt_vocab_expansion.html lines 230-237;
-     references/papers/mundra_2407.05841.pdf §3.3 Theorems 1-2 p.3,
-     §4.4 "Multivariate" baseline p.5, Table 2 p.6]
+     references/papers/mundra_2407.05841.html §3.3 Theorems 1-2,
+     §4.4 "Multivariate" baseline, Table 2]
     """
     ids_arr = np.asarray(list(ids), dtype=np.int64)
     if ids_arr.size == 0:

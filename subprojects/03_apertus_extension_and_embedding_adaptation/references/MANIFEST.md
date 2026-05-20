@@ -25,25 +25,33 @@ script downloads them on demand.
 | `apple_ml-ademamix` | https://github.com/apple/ml-ademamix | HEAD | Author's reference PyTorch implementation of AdEMAMix |
 | `EleutherAI_lm-evaluation-harness` | https://github.com/EleutherAI/lm-evaluation-harness | HEAD | Upstream lm-eval-harness (for task-config diffs vs swiss-ai fork) |
 
-## Papers (PDFs)
+## Papers
+
+Format mix per 2026-05-21 download:
+- **HTML preferred** for arxiv papers that have an HTML version (smaller, easier to grep / cite by section ID).
+- **PDF fallback** for arxiv papers without HTML (older than 2023 typically, or where arxiv's HTML conversion failed).
+- **PDF kept** for the Apertus tech report because we cite it by page number across the recipe doc; HTML doesn't preserve page numbering.
+- **Hewitt** is HTML (technical note, never had a PDF); **FVT** is PDF (ACL Anthology PDF only).
+
+Total payload: ~15 MB (was ~37 MB before the HTML switch).
 
 | File | arXiv ID / DOI | Authors | Year | Use |
 |---|---|---|---|---|
-| `papers/apertus_2509.14233.pdf` | 2509.14233 v2 | Swiss AI consortium | 2025 | Every Apertus hyperparameter |
-| `papers/ademamix_2409.03137.pdf` | 2409.03137 | Pagliardini, Ablin, Grangier | ICLR 2025 | Optimizer update rule, β3 warmup schedule, cold-restart guidance |
-| `papers/goldfish_2406.10209.pdf` | 2406.10209 | Hans, Wen, Jain et al. | 2024 | Goldfish loss (production CPT only) |
-| `papers/retok_2410.04335.pdf` | 2410.04335 | Gu, Zhao et al. | 2024 | ReTok init for new vocab tokens (E + U) |
-| `papers/fvt_emnlp2022_industry_41.pdf` | EMNLP 2022 Industry Track | Gee, Zugarini, Rigutini, Torroni | 2022 | Origin of subpiece-mean init (FVT) |
+| `papers/apertus_2509.14233.pdf` | 2509.14233 v2 | Swiss AI consortium | 2025 | Every Apertus hyperparameter — cited by page (`§C Table C.4 p.82` etc.) |
+| `papers/ademamix_2409.03137.html` | 2409.03137 | Pagliardini, Ablin, Grangier | ICLR 2025 | Optimizer update rule, β3 warmup schedule, cold-restart guidance |
+| `papers/goldfish_2406.10209.html` | 2406.10209 | Hans, Wen, Jain et al. | 2024 | Goldfish loss (production CPT only) |
+| `papers/retok_2410.04335.html` | 2410.04335 | Gu, Zhao et al. | 2024 | ReTok init for new vocab tokens (E + U) |
+| `papers/fvt_emnlp2022_industry_41.pdf` | EMNLP 2022 Industry Track | Gee, Zugarini, Rigutini, Torroni | 2022 | Origin of subpiece-mean init (FVT) — ACL PDF only |
 | `papers/hewitt_vocab_expansion.html` | (technical note) | Hewitt | 2021 | Centroid init recipe |
-| `papers/mundra_2407.05841.pdf` | 2407.05841 | Mundra et al. | 2024 | Empirical comparison of vocab-expansion init |
-| `papers/qknorm_2010.04245.pdf` | 2010.04245 | Henry et al. | 2020 | QK-Norm |
-| `papers/wsd_minicpm_2404.06395.pdf` | 2404.06395 | Hu et al. | 2024 | WSD LR schedule |
-| `papers/fineweb_2406.17557.pdf` | 2406.17557 | Penedo et al. | 2024 | FineWeb-Edu / FineWeb-2 |
-| `papers/finewebhq_2502.10361.pdf` | 2502.10361 | Messmer, Sabolčec, Jaggi | 2025 | FineWeb2-HQ |
-| `papers/starcoder_2305.06161.pdf` | 2305.06161 | Li et al. | 2023 | StarCoderData v1.2 |
-| `papers/megatron_1909.08053.pdf` | 1909.08053 | Shoeybi et al. | 2019 | Megatron-LM base engine |
-| `papers/meltemi_2407.20743.pdf` | 2407.20743 | Voukoutis et al. | 2024 | Origin of ILSP Greek test sets (core 6) |
-| `papers/krikri_2505.13772.pdf` | 2505.13772 | – | 2025 | ILSP Greek suite extension |
+| `papers/mundra_2407.05841.html` | 2407.05841 | Mundra et al. | 2024 | Empirical comparison of vocab-expansion init |
+| `papers/qknorm_2010.04245.pdf` | 2010.04245 | Henry et al. | 2020 | QK-Norm — no arxiv HTML |
+| `papers/wsd_minicpm_2404.06395.html` | 2404.06395 | Hu et al. | 2024 | WSD LR schedule |
+| `papers/fineweb_2406.17557.html` | 2406.17557 | Penedo et al. | 2024 | FineWeb-Edu / FineWeb-2 |
+| `papers/finewebhq_2502.10361.html` | 2502.10361 | Messmer, Sabolčec, Jaggi | 2025 | FineWeb2-HQ |
+| `papers/starcoder_2305.06161.pdf` | 2305.06161 | Li et al. | 2023 | StarCoderData v1.2 — no arxiv HTML |
+| `papers/megatron_1909.08053.pdf` | 1909.08053 | Shoeybi et al. | 2019 | Megatron-LM base engine — no arxiv HTML |
+| `papers/meltemi_2407.20743.html` | 2407.20743 | Voukoutis et al. | 2024 | Origin of ILSP Greek test sets (core 6) |
+| `papers/krikri_2505.13772.pdf` | 2505.13772 | – | 2025 | ILSP Greek suite extension — no arxiv HTML |
 
 ## Citation convention
 

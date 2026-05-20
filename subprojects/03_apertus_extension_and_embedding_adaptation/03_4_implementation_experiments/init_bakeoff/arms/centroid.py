@@ -21,7 +21,7 @@ For each new token T:
 Same procedure independently for E and U.
 
 [Cite: references/papers/hewitt_vocab_expansion.html (multivariate-normal
-        recipe); references/papers/mundra_2407.05841.pdf §5.1 + Table 2 p.6
+        recipe); references/papers/mundra_2407.05841.html §5.1 + Table 2
         (Univariate is inadequate)]
 
 Unlike ReTok, Centroid doesn't use the new token's specific subpiece
@@ -83,9 +83,9 @@ def compute_centroid_init(
             print(f"Centroid: polytonic set < {POLYTONIC_FALLBACK_MIN_TOKENS} → polytonic new tokens will use modern centroid (fallback)")
 
     # Use FULL covariance per Hewitt 2021 — diagonal-only is Mundra's "Univariate"
-    # baseline which the paper explicitly calls inadequate (Mundra §5.1, p.5).
+    # baseline which the paper explicitly calls inadequate (Mundra §5.1).
     # [Cite: references/papers/hewitt_vocab_expansion.html lines 230-237;
-    #  references/papers/mundra_2407.05841.pdf §5.1 + Table 2 p.6]
+    #  references/papers/mundra_2407.05841.html §5.1 + Table 2]
     # Precompute Cholesky L once per script class so per-token sampling is
     # O(D²) instead of O(D³) (full multivariate_normal redoes the Cholesky on
     # every call).
