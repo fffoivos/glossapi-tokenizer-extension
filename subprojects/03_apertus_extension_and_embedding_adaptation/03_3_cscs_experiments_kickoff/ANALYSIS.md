@@ -1,5 +1,16 @@
 # CSCS Experiments Kickoff — State Audit and Path Forward
 
+> **v0.7 supersedes this doc as canonical** (see [`../cpt_plan.md`](../cpt_plan.md) and [`../cpt_plan_v0.7_status.md`](../cpt_plan_v0.7_status.md) for the live status checks). Resolution of the §7 review checkpoints under v0.7 + 2026-05-20 user directive:
+>
+> - **Checkpoint A (cutoff)** — already resolved at v0.6 to **17,408** (+ 5,120 polytonic); under v0.7 the active CPT scope is **vocab 153,600** (both extensions; v0.7 §1's "148,480" is a typo per the param math).
+> - **Checkpoint B (held-out contamination check)** — superseded by v0.7's reframed V1 (decontamination of literal test items in chosen measurement benchmarks, not blanket on-topic removal). Of the three options listed below, option (2) (re-derive val/test partition + run NeMo Curator decontamination on Clariden `xfer`) is what survives.
+> - **Checkpoint C (decision-rule thresholds)** — still open. v0.7 §5.6 lists the gates and selection score components; specific numerical thresholds depend on V4 baseline (still open).
+> - **Checkpoint D (training framework)** — **resolved**: **Megatron-LM-Swiss-AI** (per v0.7 §7.1 + user "closest to Apertus original process" directive). The "pragmatic split (HF for bakeoff, Megatron for production)" suggestion in v0.6 is withdrawn.
+> - **Checkpoint E (CPT mix ratios + replay %)** — superseded by v0.7 §4.1 (70/30 default) and v0.7 §4.2 (24-language tier set; per-tier budget allocation).
+> - **Checkpoint F (polytonic question)** — **resolved**: polytonic +5,120 is in scope of CPT (153,600 composite). Not deferred to a separate stacked specialization.
+>
+> The body below preserves the original v0.6-era reasoning and the path-of-arrival to those resolutions. Where the body still says "still open" for A/D/E/F, treat the callout above as canonical.
+
 *Drafted 2026-05-20. Author: Claude session driven by Foivos. Updated 2026-05-20 with the cutoff-decision artifact, the polytonic arm state, the sub-1B vocab-budget pattern, and the CSCS-clariden onboarding context.*
 
 This is the analysis-before-rewrite. `experiments_plan.md` is **not

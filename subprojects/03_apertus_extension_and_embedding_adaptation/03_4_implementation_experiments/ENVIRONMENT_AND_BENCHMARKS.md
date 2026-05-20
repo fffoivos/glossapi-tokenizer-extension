@@ -1,5 +1,11 @@
 # Experiment Environment, Benchmarks, and CSCS Deployment
 
+> **v0.7 supersedes prior framing.** Three propagations to flag inline:
+>
+> - **Init arms**: v0.7 §5 = Vanilla / ReTok / **Centroid** (Distillation bracketed in v0.7 §13). The §1.3 "Init-method reference code" entry for `konstantinjdobler/token-distillation` is **no longer required for the bakeoff** — keep on radar only if v0.7's revisit conditions trigger (ReTok-vs-Centroid bakeoff inconclusive). Centroid is closed-form (per-script-centroid + Gaussian noise per v0.7 §5); no separate code repo required.
+> - **Training framework**: v0.7 §7.1 + user directive of 2026-05-20 = **Megatron-LM-Swiss-AI is the canonical trunk** (`swiss-ai/Megatron-LM` + `swiss-ai/pretrain-code`). The §1.1 framing that lists `swiss-ai/apertus-finetuning-recipes` as a "most-likely trunk" reflects v0.6-era thinking; it is now demoted to "TRL + Accelerate alternative for smaller experiments" per v0.7 §7.1 wording.
+> - **Tokenizer scope**: extended ship bundle (vocab 153,600, modern + polytonic). The §3.1 `tokenizers/` staging target is the **composite bundle**, not the modern-only one — both bundles are mirrored, but the composite is the active CPT base.
+
 *Drafted 2026-05-20. Covers the code repos and dataset locations we
 pull for: (a) training the three init arms, (b) evaluating them, and
 (c) what Apertus itself reports so we can match its preservation

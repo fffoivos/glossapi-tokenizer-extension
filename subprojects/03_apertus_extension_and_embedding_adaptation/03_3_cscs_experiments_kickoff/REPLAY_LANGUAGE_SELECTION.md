@@ -1,5 +1,17 @@
 # CPT Replay Language Selection
 
+> **v0.7 supersedes this doc as canonical.** v0.7 §4.2 ships a 24-language
+> set (Tier 1: 8, Tier 2: 11, Tier 3: 5). This 34-language set was the
+> v0.5/v0.6-era proposal; it remains useful as the criterion-convergence
+> rationale that underpins v0.7's narrower list (every v0.7 language is
+> in this list; v0.7 trims 10 languages we'd put in Tier A/B/C —
+> Hungarian, Swedish, Danish, Vietnamese, Indonesian, Croatian,
+> Slovenian, Romansh, Korean, Hindi, Bengali — for a tighter focus).
+> Two specific corrections to flag here that update v0.7's framing:
+>
+> - **v0.7 Tier 3 "preservation aspiration" framing is over-pessimistic.** Per the [§3 audit here](#3-the-recommended-34), all five Tier 3 languages (Latin, Armenian, Georgian, Albanian, Macedonian) have ≥ 1 B sampled tokens in FineWeb-2 — they have real corpus, not "near-zero base exposure." See also [`../cpt_plan_v0.7_status.md`](../cpt_plan_v0.7_status.md) (Q D2 / Q C3 audit).
+> - **Replay budget**: v0.7's 70 / 30 split (not the 10–15 % non-Greek share this doc assumed under §8.5 of `old_experiments_plan.md`) materially raises the budget per language. At 10 B-token bakeoff × 30 % replay = 3 B replay tokens; under v0.7's tier weights ~75 % goes to the 8 Tier-1 languages, ~20 % to Tier-2, ~5 % to Tier-3.
+
 *2026-05-20. Companion to
 [`CURRICULUM_AND_INIT_CORPUS.md`](CURRICULUM_AND_INIT_CORPUS.md).
 Picks the language set for the non-Greek replay component (10-15 %

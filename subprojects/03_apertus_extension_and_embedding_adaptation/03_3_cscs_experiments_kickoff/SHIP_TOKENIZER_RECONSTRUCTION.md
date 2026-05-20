@@ -1,5 +1,7 @@
 # Ship Tokenizer Reconstruction — Two Apertus-Compatible Bundles
 
+> **v0.7 + user confirmation 2026-05-20**: CPT scope is the composite **153,600** bundle (vocab = base 131,072 + modern 17,408 + polytonic 5,120). The **modern-only 148,480** bundle remains as an ablation artifact; the active CPT base is `ship/apertus_greek_extended_153600/`. v0.7 §1's "vocabulary 131,072 → 148,480" wording is a typo from carrying forward v0.6 language — the param count (184.5 M = 22,528 × 4,096 × 2) and the §3.1 polytonic-exposure metrics in v0.7 both assume the 153,600 scope.
+
 *2026-05-20 (updated post-review). **Both** the modern-only 148,480
 variant and the composite 153,600 variant on disk had a HF wrapper
 defect. Both have been rebuilt as Apertus-compatible bundles under

@@ -181,32 +181,32 @@ right failure mode for a calibration run.
 | **checkpoint dir** | `/capstor/scratch/cscs/fffoivos/runs/vanilla_calibration_v1/checkpoints/` | large sequential writes belong on capstor |
 | **environment** | `uenv run pytorch/v2.6.0:v1 --view=default -- ...` | the verified-working stack from March 28 smoke |
 
-### 6.3 After calibration → real pilot shape
+### 6.3 After calibration → bakeoff shape, then production CPT
 
-Once calibration reports actual tokens/sec, the three real arms get
-sized to the same wall budget. Reading off the table in §6.1: at
-4 nodes / 16 GPUs the estimated throughput is ~96 k tok/s = ~346 M
-tok/h, so 10 B tokens per arm is ~28.9 h wall — **~1.2 days each**.
-Three arms in series ≈ ~3.6 days; three arms running *in parallel*
-≈ ~1.2 days but uses 12 nodes simultaneously. The §3 wait-time
-observation says larger jobs don't wait longer, so parallel is
-preferred when the partition is open.
+*v0.7 reframing*: what we earlier called "the 10 B-per-arm pilot" is
+actually two distinct phases per v0.7 §5.4 + §9:
 
-Each arm's 28.9 h wall doesn't fit a single 12 h job, so chain via
-`--dependency=afterok`. Three 12 h jobs per arm comfortably covers
-the budget:
+- **Bakeoff** (init-method discrimination only): 1.5–2 B tokens **per arm**, three arms = Vanilla / ReTok / **Centroid** (Distillation bracketed in v0.7 §13). Total 4.5–6 B tokens. Purpose: pick the winning init, not measure final quality.
+- **Production CPT** (on the winning arm only): 10–20 B tokens per v0.7 §9 + Q A2 (with anneal in the final 10–20 %).
 
-```
-For each arm ∈ {Vanilla, ReTok, Distillation}:
-  -N 4 -p normal --time=12:00:00 × 3 jobs chained via afterok dependency
-  → covers a 10 B token budget per arm in ~1.2 days wall (per arm, run in parallel)
-  → three arms in parallel = ~1.2 days; in series = ~3.6 days
-```
+Sizing from p-skarvelis's measured throughput (107 k tok/s on 4 nodes,
+seq=2048; expect ~½ of that at seq=4096 with FA-2 + grad-ckpt for an
+Apertus-recipe-faithful Megatron run):
 
-QoS `normal` doesn't gate concurrent jobs, so submitting all three
-arms (3 chained jobs each = 9 jobs total, holding 12 nodes when all
-active) is admissible. Clariden has the slack (1,340 nodes in
-`normal`) outside reservation windows.
+| phase | budget | nodes | walltime estimate |
+|---|---|---|---|
+| Bakeoff per arm | 2 B tokens | 4 | ~5.2 h at seq=2048, ~10 h at seq=4096 |
+| All three arms in parallel | 6 B | 12 (3×4) | ~5.2 h at seq=2048, ~10 h at seq=4096 |
+| Production CPT (winning arm) | 15 B | 4 (or 8) | ~6 days at 4 nodes / ~3 days at 8 nodes; chained via `afterok` through `normal`'s 12 h cap |
+
+Each arm fits inside a single 12 h `normal` slot at the bakeoff size.
+Production CPT requires chaining 2–4 sequential 12 h jobs via
+`--dependency=afterok` plus dataloader-state preservation (v0.7 §2 +
+V3 verification).
+
+QoS `normal` doesn't gate concurrent jobs, so submitting the three
+bakeoff arms in parallel (3 × 4 nodes = 12 nodes peak) is admissible.
+Clariden has the slack outside reservation windows.
 
 ## 7. How to query this state yourself
 

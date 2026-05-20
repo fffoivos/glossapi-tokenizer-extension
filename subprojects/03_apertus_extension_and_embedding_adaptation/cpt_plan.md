@@ -1,11 +1,11 @@
-# Apertus 8B Greek CPT — Plan v0.6
+# Apertus 8B Greek CPT — Plan v0.7
 
-**Status:** Draft (Distillation bracketed; Centroid init added; architecture mismatches incorporated)
+**Status:** Draft (phrasing refactored to status checks; decontamination scope narrowed)
 **Author:** Fivos (GlossAPI / Swiss AI Initiative)
 **Date:** 2026-05-20
-**Supersedes:** v0.5
+**Supersedes:** v0.6
 
-This version brackets Token Distillation (adaptation cost too high relative to expected benefit at bakeoff scale) and replaces it with **Centroid init**, a third closed-form approach. Also incorporates findings from a systematic pass through Apertus's architecture: corrected CPT peak LR guidance (much lower than initially defaulted), QK-Norm interaction note, and additional verification items for cross-document attention, EoD loss masking, special tokens, xIELU scalars, and tokenizer byte-fallback.
+This version refactors §8 and §12 from prescriptive TODOs into status checks. The doc is a coordination artifact, not a list of work to do from scratch — items may already have been handled during prior work; the relevant question per item is "what's the current status." Decontamination scope (§8 K1, V1) also narrowed: the concern is verbatim test items in training data for benchmarks you want as clean measurement instruments, not blanket removal of on-topic Greek material.
 
 ---
 
@@ -15,31 +15,19 @@ Continue-pretrain Apertus 8B (base) on a curated Greek corpus to deepen the mode
 
 Tokenizer extension is already complete: +17,408 modern Greek tokens and +5,120 ancient/polytonic Greek tokens (vocabulary 131,072 → 148,480). The new embedding rows add roughly **184.5M parameters** (22,528 × 4,096 × 2 for untied input + output) before optimizer state, or ~2.2% of the 8B base.
 
-The model's intended downstream uses determine some of the design choices below; explicit capability targets are pending in §10 (Q A1).
+The model's intended downstream uses determine some of the design choices below; explicit capability targets are pending in §10 (Q A1) but deferred for now.
 
 ## 2. Settled shape
 
-These principles are not open for revision.
-
-The curriculum has the shape of a shuffled-mixture bulk followed by an annealing tail. The bulk is one undifferentiated stream of corpora at their target weights from token 0; the anneal is the final ~10–20% of training, where the mixture shifts to highest-priority subsets and the learning rate decays.
-
-Replay of non-Greek data is present from token 0, not deferred. ~70% Greek / ~30% non-Greek replay is the working outer split (refined in §10).
-
-Old Apertus Greek pretraining data is not replayed.
-
-Initialization is resolved by experiment: three **closed-form** variants are trained for 1.5–2B tokens each under identical conditions; the winning checkpoint becomes the start of production CPT. Token Distillation was bracketed in v0.6 (see §5 and §13).
-
-Dataloader state is preserved at the checkpoint boundary.
-
-The LR schedule is WSD (warmup–stable–decay), with the decay window aligned to the anneal data window.
+The curriculum has the shape of a shuffled-mixture bulk followed by an annealing tail. Replay of non-Greek data is present from token 0 at ~70% Greek / ~30% non-Greek (working default). Old Apertus Greek pretraining data is not replayed. Initialization is resolved by experiment: three closed-form variants for 1.5–2B tokens each. Dataloader state preserved across checkpoint boundary. LR schedule is WSD with decay aligned to anneal.
 
 ## 3. Curriculum: design space
 
 ### 3.1 Greek mixture (within the ~70% Greek portion of training)
 
-Three weighting strategies: *quality-weighted upsampling*, *register-balanced*, *goal-driven*. The choice is value judgment; Sailor2's RegMix methodology can resolve it empirically if compute permits a proxy sweep.
+Three weighting strategies: *quality-weighted upsampling*, *register-balanced*, *goal-driven*. The choice is value judgment; Sailor2's RegMix can resolve it empirically if compute permits proxy runs.
 
-**Polytonic-token effective exposure metrics** (for V5 audit):
+**Polytonic-token effective exposure metrics** (for V5):
 
 | Exposure metric | Why it matters |
 |---|---|
@@ -56,43 +44,33 @@ If polytonic tokens at p25 are getting <5k effective target occurrences at the p
 
 ### 3.2 Anneal mixture (final ~10–20%)
 
-Three published patterns: *high-quality narrow* (Llama 3), *quality-curated broad* (OLMo Dolmino), *goal-targeted*. Replay continues through anneal at reduced share (e.g., 30% → 15%). Length 10–20% of total budget is the standard range.
+Three published patterns: *high-quality narrow* (Llama 3), *quality-curated broad* (OLMo Dolmino), *goal-targeted*. Replay continues through anneal at reduced share (e.g., 30% → 15%). Length 10–20% of total budget.
 
 ### 3.3 LR schedule
 
 WSD with brief re-warmup (1–2% of CPT tokens) from low LR to CPT peak, then plateau, then linear decay aligned with anneal.
 
-**CPT peak LR (corrected in v0.6):** Apertus 8B's pretraining peak LR was **1.1e-4** (verified in tech report Table 2), which is much lower than the Llama-family 8B values typically quoted (~3e-4). The lower nominal LR reflects AdEMAMix's larger effective updates per nominal step compared to AdamW. Translating to the standard 1/5 to 1/10 CPT range:
+**CPT peak LR:** Apertus 8B's pretraining peak LR was 1.1e-4 (tech report Table 2), lower than typical Llama-family 8B values because of AdEMAMix's effective-update characteristics. CPT peak should be 1.1e-5 to 2.2e-5; default 1.5e-5.
 
-**CPT peak: 1.1e-5 to 2.2e-5**, with 1.5e-5 as a reasonable default.
+LR/anneal co-design: either WSD with explicit plateau over anneal window (decay only at the end), or weight averaging across anneal checkpoints à la Llama 3.
 
-This is 2–5× lower than the v0.5 starting suggestion (3e-5 to 5e-5), which was wrongly anchored to Llama-style nominal LRs. Q C1 in §11 is now mostly answered.
+> **★ Apertus adaptation note (Goldfish hash interaction with extended vocab):** If the Goldfish hash is vocab-aware, extension from 131,072 to 148,480 changes per-token masking distribution. See §8 G1 and V8 for status check.
 
-LR/anneal co-design per "How LR Decay Wastes Your Best Data" (2025): either WSD with explicit plateau over the anneal window (decay only at the very end), or weight averaging across anneal checkpoints à la Llama 3.
-
-> **★ Apertus adaptation note (Goldfish hash interaction with extended vocabulary):** Apertus's Goldfish loss masks tokens via a hash function. If the hash is vocab-aware, extending the vocab from 131,072 to 148,480 changes which positions get masked per token. Verify uniform masking distribution across new tokens before training. See §8 item G1 and V8.
-
-> **★ Apertus adaptation note (Megatron blended dataset for new-token-density warmup):** If implementing the optional new-token-density warmup, Megatron's standard blended-dataset config doesn't natively support density-based sampling. Preprocess to bucket sequences by density and weight at bucket level. See §8 item E1.
+> **★ Apertus adaptation note (Megatron blended dataset for new-token-density warmup):** If implementing the optional density warmup, standard Megatron blended-dataset config doesn't natively support density-based sampling. See §8 E1.
 
 ### 3.4 References (curriculum)
 
-- Pythia curriculum study (2026); Llama 3 paper (Grattafiori et al. 2024); OLMo 2/3 (Allen AI); "How LR Decay Wastes Your Best Data" (2025); Ibrahim et al. (2024); Mid-Training survey (Oct 2025).
+Pythia curriculum study (2026); Llama 3 paper (Grattafiori et al. 2024); OLMo 2/3 (Allen AI); "How LR Decay Wastes Your Best Data" (2025); Ibrahim et al. (2024); Mid-Training survey (Oct 2025).
 
 ## 4. Replay: design space
 
-### 4.1 Outer split (target/replay ratio)
+### 4.1 Outer split
 
-Published range 44–80% target / 56–20% replay (Sailor2, AMD Finnish, SEA-LION v3, EstLLM, Racka). For Apertus-Greek deepening regime, middle of range — 65/35 to 75/25 defensible. Working default 70/30; final value Q B1.
+Published range 44–80% target / 56–20% replay. For Apertus-Greek deepening regime, middle of range — 65/35 to 75/25 defensible. Working default 70/30; Q B1.
 
-### 4.2 Within-replay composition: which languages
+### 4.2 Which languages — convergence framework
 
-Three meta-patterns: token-share-weighted, curated-subset uniform, skill/use-based. "Preserve most of 1800 languages" is not achievable.
-
-#### 4.2.1 Convergence-based selection framework
-
-Four lenses: (1) Geographic (Balkan/E. Mediterranean), (2) Western EU / Swiss institutional, (3) Historical connection to Greece (Latin, Slavic-Orthodox, Arabic transmission, Hebrew, Armenian/Georgian Byzantine, Persian Hellenistic), (4) Script-system and major-corpus coverage (logographic preservation; matches Apertus's distribution).
-
-**Convergence table:**
+Four lenses: (1) Geographic, (2) Western EU / Swiss institutional, (3) Historical connection to Greece, (4) Script-system and major-corpus coverage.
 
 | Language | Geo | West EU / Swiss | Historical | Major-corpus | Notes |
 |---|---|---|---|---|---|
@@ -107,11 +85,11 @@ Four lenses: (1) Geographic (Balkan/E. Mediterranean), (2) Western EU / Swiss in
 | German | | ✓ (Swiss official) | partial (19c classical philology) | | |
 | Latin | | ✓ (Western canon) | ✓ (antiquity, Catholic Church) | | Data-poor on modern web |
 | Romanian | ✓ | | ✓ (Orthodox, Phanariot period) | | |
-| Albanian | ✓ | | partial (Arvanites, Ottoman period) | | Geographic priority |
+| Albanian | ✓ | | partial (Arvanites, Ottoman) | | Geographic priority |
 | Macedonian | ✓ | | ✓ (Slavic, Orthodox) | | Small data volume |
 | Spanish | | ✓ (large EU) | | ✓ | Convenient large language |
 | Hebrew | ✓ (E. Med) | | ✓ (Septuagint, Sephardic) | | |
-| Armenian | | | ✓ (Byzantine contact, early Christianity) | | Data-medium |
+| Armenian | | | ✓ (Byzantine contact) | | Data-medium |
 | Georgian | | | ✓ (Orthodox, Byzantine) | | Data-low |
 | Ukrainian | | | ✓ (Orthodox, Byzantine via Kyivan Rus) | | |
 | Chinese | | | | ✓ | Logographic; major corpus |
@@ -121,17 +99,17 @@ Four lenses: (1) Geographic (Balkan/E. Mediterranean), (2) Western EU / Swiss in
 | Dutch | | ✓ | | | EU coverage |
 | Polish | | ✓ | | | EU coverage |
 
-**Proposed tier structure (pending Apertus §3 verification for weights, Q C3):**
+**Tier structure (weights pending Q C3 — Apertus per-language token shares):**
 
 - *Tier 1, ~40–50% of replay slice:* English, French, German, Italian, Spanish, Russian, Arabic, Chinese.
 - *Tier 2, ~35–45% of slice:* Turkish, Bulgarian, Serbian, Romanian, Hebrew, Portuguese, Polish, Dutch, Persian, Ukrainian, Japanese.
-- *Tier 3, ~10–15% of slice (floor weight):* Latin, Armenian, Georgian, Albanian, Macedonian.
+- *Tier 3, ~10–15% of slice:* Latin, Armenian, Georgian, Albanian, Macedonian.
 
 **Honest note about Tier 3:** Replay can only preserve what the base has. For Tier 3 languages where Apertus had near-zero exposure, the small replay share is "doesn't hurt anything" rather than "actively maintains a capability."
 
 ### 4.3 Code share
 
-Published range 0% (Sailor2) to 20% (SEA-LION v3). Position depends on downstream consumer priorities. Q B2 in §10.
+Published range 0% (Sailor2) to 20% (SEA-LION v3). Q B2.
 
 ### 4.4 Replay sources (HuggingFace candidates)
 
@@ -141,66 +119,58 @@ Published range 0% (Sailor2) to 20% (SEA-LION v3). Position depends on downstrea
 | English high-quality | `HuggingFaceFW/fineweb-edu` (Score-3 config) | Match Apertus's later-stage filtering |
 | Code | `bigcode/starcoderdata` or `bigcode/the-stack-v2` | Match Apertus's StarCoder source |
 | Math | `HuggingFaceTB/finemath` (`finemath-3plus`) | Apertus used FineMath CC subset |
-| Cross-lingual parallel (optional) | OPUS Greek-English; OPUS Greek-Latin (`grc-lat`, `ell-lat`) | 1% parallel adds cross-lingual transfer; Greek-Latin small but uniquely valuable for classical philology |
+| Cross-lingual parallel (optional) | OPUS Greek-English; OPUS Greek-Latin | Small but uniquely valuable for classical philology |
 
 ### 4.5 References (replay)
 
-Sailor / Sailor2 (curse of multilinguality); Ibrahim et al. (2024); Conneau et al. (2020); EstLLM (2026), Racka, SEA-LION v3, AMD Finnish playbook; "Reuse, Don't Retrain" (Parmar et al. 2024); RegMix (Liu et al. 2024); FineWeb2-HQ (EPFL ML 2025).
+Sailor / Sailor2; Ibrahim et al. (2024); Conneau et al. (2020); EstLLM, Racka, SEA-LION v3, AMD Finnish playbook; "Reuse, Don't Retrain" (Parmar et al. 2024); RegMix; FineWeb2-HQ.
 
 ## 5. Initialization experiments
 
-Three **closed-form** init methods evaluated under identical conditions for 1.5–2B tokens each. Token Distillation has been bracketed (see §13) due to high Apertus-specific adaptation cost.
+Three **closed-form** init methods for 1.5–2B tokens each. Token Distillation has been bracketed (§13).
 
 | Variant | Description | Reference |
 |---|---|---|
 | Vanilla | Original Apertus tokenizer (vocab 131,072). No vocab extension. | Yuan et al. 2024, *LLaMA Beyond English*. Load-bearing baseline. |
-| ReTok | Extended vocab (148,480). New row `E[T]` = norm-matched mean of base-tokenizer subpieces of `T`'s surface form. Same for `U[T]`. Uses per-token-specific subpiece information. | EEVE-Korean, Chinese LLaMA, FOCUS (Dobler & de Melo 2023), Minixhofer et al. 2022. |
-| Centroid | Extended vocab (148,480). New row `E[T]` = script-conditional centroid + Gaussian noise. Uses script-level distributional prior rather than per-token subpiece info. Same procedure for `U[T]`. | Closely related to mean-of-existing-vocab strategies in extension literature; the per-script variant is mostly novel. |
+| ReTok | Extended vocab (148,480). New row `E[T]` = norm-matched mean of base-tokenizer subpieces of `T`'s surface form. Same for `U[T]`. Uses per-token-specific subpiece information. | EEVE-Korean, Chinese LLaMA, FOCUS, Minixhofer et al. 2022. |
+| Centroid | Extended vocab (148,480). New row `E[T]` = script-conditional centroid + Gaussian noise. Uses script-level distributional prior. Same procedure for `U[T]`. | Closely related to mean-of-existing-vocab strategies; per-script variant mostly novel. |
 
 **Centroid init procedure:**
 
-1. **Identify Greek tokens in the base vocab.** For each base-vocab token t (IDs 0..131,071), decode to surface form; flag as *modern Greek* if it contains characters in U+0370–U+03FF, as *polytonic* if it contains characters in U+1F00–U+1FFF. A token may be in both sets.
-2. **Compute per-script centroids in E and U.** `E_centroid_modern = mean(E[t] for t in modern_set)`, similarly for polytonic; same in U. Also compute the std (dispersion) of each set around its centroid.
-3. **For each new token T**, classify by script (modern, polytonic, both). For each script tag, look up the centroid; if T has both tags, average the centroids. Fallback: if the polytonic centroid is unreliable (computed from fewer than ~50 base tokens), fall back to the modern centroid for polytonic new tokens.
-4. **Initialize:** `E[T] = E_centroid + ε`, where `ε ~ Normal(0, σ_E)` with σ_E = the std observed in the centroid computation (matches existing-token dispersion). Same in U.
-5. **Norm-match:** apply the Phase A per-group norm targets (5.05 / 3.80) to the resulting rows.
+1. Identify Greek tokens in the base vocab. For each base-vocab token t, decode to surface form; flag as *modern Greek* if it contains U+0370–U+03FF characters, *polytonic* if it contains U+1F00–U+1FFF characters.
+2. Compute per-script centroids in E and U: `E_centroid_modern = mean(E[t] for t in modern_set)`, same for polytonic; same in U. Also compute std of each set around its centroid.
+3. For each new token T, classify by script; look up centroid; if both tags, average centroids. Fallback: if polytonic centroid is computed from fewer than ~50 base tokens, fall back to modern centroid for polytonic new tokens.
+4. Initialize: `E[T] = E_centroid + ε`, `ε ~ Normal(0, σ_E)` with σ_E from step 2. Same in U.
+5. Apply Phase A norm targets (5.05 / 3.80).
 
-This is essentially a "warm prior" — new tokens start near the existing Greek-token cloud, with dispersion that lets them differentiate during training. Unlike ReTok, it doesn't use the new token's specific subpiece decomposition; unlike Distillation, no gradient descent is required at init time. Cost: <1 minute of CPU work.
+Cost: <1 minute of CPU work.
 
-> **★ Apertus adaptation note (ReTok + FOCUS auxiliary vectors):** FOCUS uses fastText embeddings as the auxiliary similarity space for subpiece selection. fastText embeddings don't typically exist at the polytonic level. Options: (a) use monotonic-folded versions as proxy (loses information), (b) skip FOCUS and use pure subpiece mean. Default is (b). See §8 item B.
+> **★ Apertus adaptation note (ReTok + FOCUS auxiliary vectors):** FOCUS uses fastText embeddings; fastText doesn't exist for polytonic. Default is plain ReTok subpiece-mean without FOCUS. See §8 B.
 
 ### 5.1 Primary intrinsic metrics: tokenizer-fair signals
 
-Per-token perplexity is **not comparable across Vanilla and extended-tokenizer variants** because tokenizers represent different amounts of Greek text per token.
-
-Primary tokenizer-agnostic metrics:
+Per-token PPL is **not comparable across Vanilla and extended-tokenizer variants**. Primary metrics:
 
 | Metric | Why it matters |
 |---|---|
 | **Bits-per-byte (BPC)** | Cleanest cross-tokenizer comparison |
 | **NLL per Unicode character** | More interpretable for Greek/polytonic |
-| **NLL per word** on fixed raw validation text | Human-facing language metric |
+| **NLL per word** | Human-facing language metric |
 | **Tokens-per-word, chars-per-token, compression ratio** | Quantifies tokenizer efficiency |
-| **STRR (subword-token-retention rate)** | Whole-word preservation |
-| **Throughput: Greek words/sec and non-Greek words/sec** | Net effect of extended softmax vs Greek token savings |
+| **STRR** | Whole-word preservation |
+| **Throughput** for Greek and non-Greek | Net effect of extended softmax vs Greek savings |
 
-> **★ Apertus adaptation note (BPC computation for polytonic Greek):** UTF-8 polytonic Greek uses 2–3 bytes per character due to combining diacriticals. BPC numbers differ by unit choice (UTF-8 bytes, Unicode code points, grapheme clusters). Use NFC code points; document choice. See §8 item H1.
+> **★ Apertus adaptation note (BPC computation unit for polytonic Greek):** Choice of unit (UTF-8 bytes, Unicode code points NFC/NFD, grapheme clusters) affects reported numbers. NFC code points are the recommended unit; document the choice. See §8 H1.
 
-Per-token-group PPL on the 17k modern and 5k polytonic new tokens remains a useful **secondary** signal *within* ReTok vs Centroid comparison (both have extended vocab), but cannot compare Vanilla.
+Per-token-group PPL on new tokens remains a useful **secondary** signal within ReTok vs Centroid comparison.
 
 ### 5.2 Init procedure for E and U
 
-All three arms apply their respective procedures to both `E` and `U` matrices independently:
-
-- Vanilla: nothing to do (no new rows).
-- ReTok: norm-matched subpiece-mean init applied to both `E` and `U` separately.
-- Centroid: script-conditional centroid + noise applied to both `E` and `U` separately.
-
-This is simpler than the v0.5 plan, which had a separate LM-head calibration phase for the (now-bracketed) Distillation arm. With both extension arms being closed-form, no special U-row procedure is needed beyond applying the same closed-form init to U as to E.
+All arms apply their respective procedures to both `E` and `U` matrices independently. No separate LM-head calibration phase needed (Distillation bracketed).
 
 ### 5.3 New-token integration diagnostic suite
 
-Before launching the main CPT, and at every bakeoff checkpoint:
+Read at every bakeoff checkpoint:
 
 | Diagnostic | Failure it catches |
 |---|---|
@@ -208,27 +178,27 @@ Before launching the main CPT, and at every bakeoff checkpoint:
 | Aggregate probability mass on new Greek tokens | Under- or over-emitted |
 | New-token entropy by register | Polytonic rows collapsed or avoided |
 | Top-k substitutions between new token and old subpieces | Model still prefers old segmentation |
-| Greedy generation new-token utilization rate | New rows exist but are behaviorally dead |
+| Greedy generation new-token utilization rate | New rows exist but behaviorally dead |
 | Embedding L2-norm distribution for new vs existing | Degenerate-subspace collapse |
 | Cosine similarity matrix among new tokens, effective rank | Same-direction collapse |
 
 ### 5.4 Token budget per variant
 
-1.5–2B tokens per variant. Below 1.5B, init-method gaps may be within noise (per Park et al. Oct 2025 instability). The 184.5M new parameter overhead means each extended-vocab run costs ~2.2% more wall-clock per step than Vanilla. Total bakeoff: 3 arms × 1.5–2B = 4.5–6B tokens.
+1.5–2B tokens per variant. Below 1.5B, init-method gaps may be within noise. Total bakeoff: 4.5–6B tokens.
 
 ### 5.5 Phase 0 — Optional stress probes
 
-Before the production-faithful bakeoff, optionally run 50–200M-token stress probes under extreme conditions (high new-token density, OCR-noisy polytonic, code-switching, replay-heavy slices) for bug discovery. **Not resumable to production.**
+Before production-faithful bakeoff, optionally run 50–200M-token stress probes (high new-token density, OCR-noisy polytonic, code-switching, replay-heavy slices) for bug discovery. **Not resumable to production.**
 
 ### 5.6 Selection criteria
 
-**Hard gates.** A candidate fails if:
+**Hard gates** — a candidate fails if any of:
 
 - English/core retention drops more than threshold (set per V4)
 - Code retention drops more than threshold, if code is a release requirement
 - New-token rows show collapse (cosine clustering, near-zero usage)
 - Polytonic text gets worse than base on character-normalized loss
-- Throughput/memory hit is disproportionate to Greek compression gain
+- Throughput/memory hit disproportionate to Greek compression gain
 - **Language-ID drift:** model over-emits Greek in non-Greek prompts
 
 **Selection score (weighted, applied to non-failing candidates).** Indicative — final weights tied to Q A1:
@@ -237,55 +207,55 @@ Before the production-faithful bakeoff, optionally run 50–200M-token stress pr
 |---|---|
 | Greek held-out BPC/char-NLL across registers | 30–40% |
 | GreekMMLU + Belebele Greek + Meltemi suite | 25–35% |
-| Polytonic custom eval (§6.2) | 10–15% |
-| Retention suite (§6.3) | 15–25% |
-| Efficiency: Greek words/sec, memory, inference token savings | 5–10% |
+| Polytonic custom eval | 10–15% |
+| Retention suite | 15–25% |
+| Efficiency | 5–10% |
 
-Selection uses **windowed averages** across the last 3–5 checkpoints in the 80–100% range of each variant's budget, with **bootstrap CIs over evaluation samples**.
+Selection uses **windowed averages** (last 3–5 checkpoints in 80–100% range of each budget) with **bootstrap CIs over evaluation samples**.
 
 ### 5.7 What the three-arm bakeoff tests
 
-Now that all three arms are closed-form, the comparison is clean:
-
-- **Vanilla vs (ReTok or Centroid):** does vocab extension justify its parameter overhead and complexity? Tests the *LLaMA Beyond English* finding.
-- **ReTok vs Centroid:** does per-token subpiece-specific information beat a script-level distributional prior? If ReTok wins, subpiece info matters and is worth computing. If Centroid wins or ties, simpler is better and the recipe is genuinely cheaper. Either way the result is informative.
+- **Vanilla vs (ReTok or Centroid):** does vocab extension justify its parameter overhead?
+- **ReTok vs Centroid:** does per-token subpiece info beat a script-level distributional prior?
 
 ### 5.8 Caveat on polytonic signal
 
-At 2B tokens, polytonic embeddings may still be undertrained because polytonic tokens are sparse. Expect smaller gaps between ReTok and Centroid on polytonic than on modern Greek. Honest comparison is on modern Greek tokens.
+At 2B tokens, polytonic embeddings may still be undertrained. Honest comparison is on modern Greek tokens.
 
 ## 6. Evaluation: cadence, benchmarks, metrics
 
 ### 6.1 Evaluation cadence and statistical methodology
 
-Three principles: *evaluate frequently enough to catch regressions early* (every 100M tokens in init experiments, every 500M in production); *account for downstream task instability* via checkpoint-window averaging (Park et al. Oct 2025); *use bootstrap CIs over evaluation samples* (most benchmark runs are deterministic, so "run 3×" doesn't establish variance).
+*Evaluate frequently enough to catch regressions early.* Every 100M tokens in init experiments, every 500M in production.
 
-For init bakeoff selection: average scores across checkpoints at 1.6B, 1.7B, 1.8B, 1.9B, 2.0B; report mean + bootstrap CI; select by composite score with hard retention gates.
+*Account for downstream task instability.* Checkpoint-window averaging (Park et al. Oct 2025).
 
-**Distinguish trajectory metrics from selection metrics.** Loss, per-bucket PPL, BPC, embedding-norm distributions, the §5.3 diagnostic suite — read at every checkpoint. Downstream benchmarks — read less frequently and prefer windowed averages.
+*Use bootstrap CIs over evaluation samples.* Most benchmark runs are deterministic, so "run 3×" doesn't establish variance.
 
-**Checkpoint averaging scope:** Use averaging WITHIN a single init's checkpoints for both selection and final released model. Do NOT average across different init experiments. For training continuation (resuming production from the bakeoff winner), use the **raw** checkpoint, not the averaged one — the averaged model has no corresponding optimizer state.
+*Distinguish trajectory metrics from selection metrics.* Loss, per-bucket PPL, BPC, §5.3 diagnostics — read at every checkpoint. Downstream benchmarks — less frequent, windowed averages.
+
+**Checkpoint averaging scope:** within a single init's checkpoints only, never across init experiments. Averaged for measurement/release; raw for training continuation.
 
 ### 6.2 Greek benchmarks
 
-**Core benchmarks:** GreekMMLU (`dascim/GreekMMLU` — 21,805 native-sourced MCQs, the right centerpiece); Belebele (`facebook/belebele` ell_Grek subset); Meltemi eval suite (backward compat with Greek-LLM literature); held-out per-register PPL on splits from each bucket.
+**Core:** GreekMMLU (`dascim/GreekMMLU` — 21,805 native MCQs, centerpiece), Belebele (`facebook/belebele` ell_Grek), Meltemi eval suite, held-out per-register PPL.
 
 **Custom evals to construct:**
 
-| Eval | What it measures | Construction notes |
-|---|---|---|
-| Polytonic continuation | Can the model stay in polytonic Greek vs collapse to monotonic | ~200 polytonic prompts; measure polytonic-form output |
-| Accent/diacritic accuracy | Character-level correctness of breathing marks, oxia/varia/perispomeni, iota subscript, diaeresis | Polytonic-aware comparator with `unicodedata.normalize` |
-| Modern Greek morphology minimal pairs | Case, number, gender, tense, agreement | ~500 pairs from CLTK/GR-NLP-TOOLKIT outputs |
-| Greeklish → Greek robustness | Real users type Greeklish | GR-NLP-TOOLKIT Greeklish detector for input |
-| Greek-English code-switching | Real assistant usage and technical Greek | ~200 code-switched prompts; measure coherence |
-| Legal/EU style eval | Does Eurlex upweighting help without making the model wooden | Held-out Eurlex prompts; accuracy + register |
-| Register preservation | Demotic, katharevousa, ecclesiastical, classical, academic, journalistic | Per-register prompts with register-classifier eval |
-| **Language-ID drift** | English/French/German prompts shouldn't get Greek responses | Cross-lingual prompts; language-ID classifier on completions |
+| Eval | What it measures |
+|---|---|
+| Polytonic continuation | Stay in polytonic vs collapse to monotonic |
+| Accent/diacritic accuracy | Character-level breathing marks, oxia/varia/perispomeni, iota subscript, diaeresis |
+| Modern Greek morphology minimal pairs | Case, number, gender, tense, agreement |
+| Greeklish → Greek robustness | Real users type Greeklish |
+| Greek-English code-switching | Real assistant usage, technical Greek |
+| Legal/EU style eval | Does Eurlex upweighting help without making the model wooden |
+| Register preservation | Demotic, katharevousa, ecclesiastical, classical, academic, journalistic |
+| **Language-ID drift** | Non-Greek prompts shouldn't get Greek responses |
 
-Construction is ~1–2 weeks. Polytonic continuation and language-ID drift are highest priority.
+Construction ~1–2 weeks. Polytonic continuation and language-ID drift highest priority.
 
-**MultiLoKo** (Schmidt et al. 2025): multilingual local knowledge across 31 languages, useful for cultural eval.
+**MultiLoKo:** multilingual local knowledge for cultural eval.
 
 ### 6.3 Retention benchmarks (non-Greek)
 
@@ -300,90 +270,104 @@ Construction is ~1–2 weeks. Polytonic continuation and language-ID drift are h
 | Belebele (Tier 1/2 non-Greek) | Multilingual reading | `facebook/belebele` |
 | Language-ID drift on Tier 1 languages | Cross-lingual response language | Custom |
 
-Threshold for "regression" set after V4 baseline runs.
+Threshold for "regression" set after V4 baseline.
 
 ### 6.4 Stability diagnostics
 
-Per checkpoint: training/validation loss per bucket; BPC trajectory per register; full §5.3 diagnostic suite; update norms vs weight norms for new `E` and `U` rows.
+Per checkpoint: training/validation loss per bucket; BPC trajectory per register; full §5.3 diagnostic suite; update norms vs weight norms.
 
 ### 6.5 Evaluation tooling
 
-- `EleutherAI/lm-evaluation-harness` — primary for standard benchmarks; sample-level logging enabled
-- `huggingface/lighteval` — alternative; used by Meltemi
-- **Inspect AI** (`inspect.aisi.org.uk`) — custom open-ended evals (polytonic continuation, language-ID drift, accent accuracy, register preservation)
-
-Pick lm-eval-harness or lighteval as primary, use Inspect AI for custom.
+- `EleutherAI/lm-evaluation-harness` — primary for standard benchmarks
+- `huggingface/lighteval` — alternative
+- **Inspect AI** (`inspect.aisi.org.uk`) — custom open-ended evals
 
 ### 6.6 References (evaluation)
 
-Park et al. (Oct 2025) downstream task instability; GreekMMLU paper (Zhang et al. 2026); Meltemi paper (Voukoutis et al. 2024); MultiLoKo (Schmidt et al. 2025); Inspect AI documentation.
+Park et al. (Oct 2025); GreekMMLU paper (Zhang et al. 2026); Meltemi paper (Voukoutis et al. 2024); MultiLoKo (Schmidt et al. 2025); Inspect AI documentation.
 
 ## 7. Tooling and repositories
 
 ### 7.1 Training framework
 
-**Primary: Megatron-LM.** Apertus was trained on a Swiss AI fork supporting xIELU + AdEMAMix; verify branch/commit (Q D1).
+**Megatron-LM.** Apertus was trained on a Swiss AI fork supporting xIELU + AdEMAMix; verify branch/commit (Q D1).
 
-- `NVIDIA/Megatron-LM` upstream; ROCm fork (per AMD Finnish playbook); Swiss AI fork (verify).
-- Alternative: TRL + Accelerate (`swiss-ai/apertus-finetuning-recipes`) for smaller experiments.
+- `NVIDIA/Megatron-LM` upstream; ROCm fork (per AMD Finnish playbook); Swiss AI fork (verify)
+- Alternative: TRL + Accelerate (`swiss-ai/apertus-finetuning-recipes`)
 
 ### 7.2 Reference repositories
 
-- `swiss-ai/apertus-tech-report` — hyperparameters, data pipeline, xIELU, AdEMAMix, Goldfish
-- `swiss-ai/apertus-finetuning-recipes` — eval harness scaffolding
-- AMD ROCm CPT playbook — closest published analog
-- Sailor2 cookbook — most comprehensive multilingual-CPT methodology
-- EstLLM repository — directly comparable, also done on Apertus 8B
+- `swiss-ai/apertus-tech-report`
+- `swiss-ai/apertus-finetuning-recipes`
+- AMD ROCm CPT playbook
+- Sailor2 cookbook
+- EstLLM repository (when released)
 
 ### 7.3 Data tooling
 
-- `huggingface/datasets` — `interleave_datasets` for mixing
-- Megatron `tools/preprocess_data.py` — tokenization to mmap format
-- `datatrove` (HuggingFace) — large-scale text processing
-- **`NVIDIA-NeMo/Curator`** — GPU dedup; **downstream task decontamination** (used for V1)
-- `text-dedup` library — MinHash/LSH with Greek Unicode normalization
-- **`nlpaueb/gr-nlp-toolkit`** (GR-NLP-TOOLKIT) — modern Greek POS, morphology, NER, Greeklish detection
-- **CLTK** (`cltk.org`) — pre-modern Greek lemmatization and analysis
+- `huggingface/datasets`
+- Megatron `tools/preprocess_data.py`
+- `datatrove`
+- **`NVIDIA-NeMo/Curator`** — GPU dedup; downstream task decontamination workflow
+- `text-dedup` library
+- **`nlpaueb/gr-nlp-toolkit`** — modern Greek POS, morphology, NER, Greeklish detection
+- **CLTK** — pre-modern Greek lemmatization
 
-Classical sources as anchors: First1KGreek (`OpenGreekAndLatin/First1KGreek`, CC-BY-SA-4.0), Perseus Digital Library (CC-BY-SA-4.0).
+Classical sources: First1KGreek (`OpenGreekAndLatin/First1KGreek`), Perseus.
 
 ### 7.4 Evaluation tooling
 
-`EleutherAI/lm-evaluation-harness`, `huggingface/lighteval`, **Inspect AI**. GreekMMLU custom task config per `dascim/GreekMMLU` card.
+`EleutherAI/lm-evaluation-harness`, `huggingface/lighteval`, **Inspect AI**.
 
 ### 7.5 Serving stack
 
-vLLM and SGLang officially supported by Apertus. Both must be tested with vocab 148,480 (V10).
+vLLM and SGLang officially supported by Apertus. Compatibility with vocab 148,480 — see V10.
 
 ---
 
 ## 8. Apertus-specific adaptation requirements
 
-Consolidated checklist of places where standard recipes need Apertus-specific adaptation. Grouped by engineering effort. Reduced from v0.5 after bracketing Token Distillation (Items A and C removed).
+This section lists places where standard recipes may need Apertus-specific adaptation. Items are grouped by engineering effort. **This is a coordination artifact, not a TODO list** — many items may already have been handled during prior work, particularly tokenizer extension, OCR/normalization pipelines, and dedup. Each item has a corresponding status check in §12; the section here describes *what the adaptation would entail* if the status check reveals work is still needed.
 
-### Moderate adaptation (days)
+### Moderate adaptation (days, if needed)
 
-**Item B — ReTok with FOCUS-style auxiliary vectors for polytonic.** (§5.) FOCUS uses fastText embeddings; fastText doesn't exist for polytonic. Options: (a) monotonic-folded proxy, (b) skip FOCUS for polytonic (current default). *Effort: ~2–3 days for (a); none for (b).*
+**Item B — ReTok with FOCUS-style auxiliary vectors for polytonic.** (Referenced in §5.) FOCUS uses fastText embeddings as the similarity space for subpiece selection. fastText embeddings don't typically exist at the polytonic level. If FOCUS-style refinement is desired, options are (a) monotonic-folded fastText as proxy (~2–3 days, loses polytonic-specific information) or (b) skip FOCUS for polytonic and use baseline subpiece mean (no work). Default is (b).
 
-**Item E1 — Megatron blended dataset for new-token-density warmup.** (§3.3.) If implementing the optional density warmup, Megatron's standard config doesn't support density-based sampling. Preprocess to bucket sequences by density. *Effort: ~2–4 days.*
+**Item E1 — Megatron blended dataset for new-token-density warmup.** (Referenced in §3.3.) Only relevant if implementing the optional new-token-density warmup. Megatron's standard blended-dataset config doesn't natively support density-based sampling. Easiest workaround: preprocess to bucket sequences by new-token density and weight at bucket level (~2–4 days).
 
-**Item G1 — Goldfish hash verification with extended vocabulary.** (§3.3.) If Goldfish hash is vocab-aware, extension changes masking distribution per token. Verify uniform masking; adjust hash if needed. *Effort: ~1 day for verification; more if fix needed.*
+**Item G1 — Goldfish hash uniformity with extended vocabulary.** (Referenced in §3.3.) If the Goldfish hash is vocab-aware, extension from 131,072 to 148,480 may change which positions get masked per token. Verification: tokenize a sample corpus with the extended tokenizer, count masked positions per new token, confirm distribution is uniform. Only relevant if retaining Goldfish for production (per Q B4). Status: V8.
 
-### Verification-only (hours)
+### Verification-only (hours, if not yet handled)
 
-**Item F1 — Checkpoint averaging scope.** (§6.1.) Average within a single init's checkpoints only; never across different init experiments. Use averaged checkpoints for measurement/release, raw checkpoints for training continuation. *Effort: documentation only.*
+**Item F1 — Checkpoint averaging scope (documentation discipline).** (Referenced in §6.1.) Within a single init's checkpoints only; never across different init experiments. Averaged for measurement/release; raw for training continuation. Discipline, not code.
 
-**Item H1 — BPC computation unit choice for Greek.** (§5.1.) Choose NFC code points; document. *Effort: utility function + documentation.*
+**Item H1 — BPC computation unit choice for Greek.** (Referenced in §5.1.) NFC code points are the recommended unit. Status: V9-related — document the choice if not already documented.
 
-**Item I1 — NFC normalization for training text.** Mixed NFC/NFD forms tokenize differently. Normalize all training text to NFC. *Effort: ~2 hours.*
+**Item I1 — NFC normalization of training text.** Mixed NFC/NFD forms tokenize differently. Likely already handled given prior OCR/normalization work. Status: V9 — confirm.
 
-**Item I2 — HuggingFace `resize_token_embeddings` with untied E and U.** (§5.) Resizes both `embed_tokens` and `lm_head` separately. Test smallest possible extension. Verify HF↔Megatron roundtrip preserves both. *Effort: ~4 hours.*
+**Item I2 — `resize_token_embeddings` with untied E and U.** (Referenced in §5.) Must handle both `embed_tokens` and `lm_head` matrices. Likely already verified as part of tokenizer extension work. Status: V2 — confirm.
 
-**Item J1 — vLLM/SGLang compatibility with vocab 148,480.** (§7.5.) Non-power-of-2 vocab may break kernel assumptions. Smoke test. *Effort: ~2–4 hours per system.*
+**Item J1 — vLLM/SGLang compatibility with vocab 148,480.** (Referenced in §7.5.) Non-power-of-2 vocab may break kernel assumptions in serving systems. Defer if production serving isn't in immediate scope. Status: V10.
 
-### Decontamination as gating
+### Decontamination (scope-dependent)
 
-**Item K1 — Decontamination as V1 (gating).** (§12.) Decontaminate training data against GreekMMLU public split, Meltemi tasks, Belebele Greek, MultiLoKo, HumanEval, GSM8K, MMLU, ARC, HellaSwag. Use multiple Greek normalization views (raw, NFC, accent-normalized, monotonic-folded for detection only). NeMo Curator workflow. *Effort: ~3–5 days for full pipeline.*
+**Item K1 — Decontamination scope for chosen measurement benchmarks.** (Reframed in v0.7.) The relevant question is *not* blanket removal of on-topic Greek material. Training on Greek academic prose, exam-prep style writing, Kallipos theses on subjects GreekMMLU tests — these are exactly on-task and what CPT is for.
+
+The relevant question is whether the *specific test items* of benchmarks intended as clean measurement instruments are verbatim in training data. This matters because:
+
+- If your model has memorized the literal MCQs of GreekMMLU public split, you can't compare it to Meltemi, Apertus base, or other CPT recipes — any score gap reflects memorization, not capability.
+- For Belebele's reading comprehension, if the exact passage appears in training, the model is doing recall rather than reading.
+
+Operational approach (if you want a clean measurement benchmark):
+
+1. Identify which benchmarks you intend to use as clean measurements (relevant to Q A4 — depends on whether the model is for internal use or external comparison).
+2. For those benchmarks, extract the test items (literal MCQ stems + options, or source passages).
+3. Run item-level dedup against training data (MinHash + exact match).
+4. Remove offending training documents (typically a tiny fraction; not the whole on-topic corpus).
+
+Tooling: NeMo Curator's downstream task decontamination workflow targets exactly this. Effort: ~1–3 days for the full pipeline depending on benchmark count. Status: V1 — current state of decontamination work is unconfirmed.
+
+Not required: removing all academic Greek, all exam-prep material, all on-topic prose.
 
 ---
 
@@ -393,8 +377,8 @@ After init experiments select a winner:
 
 1. Continue from winning checkpoint (dataloader resumes at next token).
 2. Bulk phase: same mixture and LR plateau as init experiments, until ~85% of total budget.
-3. Anneal phase: switch to anneal mixture; begin WSD decay window; run to end of budget.
-4. Optional: checkpoint averaging WITHIN the anneal window for the released model.
+3. Anneal phase: switch to anneal mixture, begin WSD decay window, run to end of budget.
+4. Optional: checkpoint averaging within the anneal window for the released model.
 5. Optional: new-token-density warmup in first 100–300M tokens of production (Item E1).
 
 Total budget pending Q A2.
@@ -403,15 +387,11 @@ Total budget pending Q A2.
 
 ## 10. Decisions pending (from Fivos)
 
-### Q A1. Capability targets
+### Q A1. Capability targets (deferred)
 
-Options: (a) balanced register-aware Greek assistant, (b) academic/digital-humanities Greek, (c) polytonic-strong classical generator, (d) modern Greek conversational, (e) other.
-
-> **Response:** _pending_
+> **Response:** _deferred — placeholder defaults used throughout where this would otherwise gate decisions_
 
 ### Q A2. Total token budget for CPT (post-init)
-
-Working range 10–20B.
 
 > **Response:** _pending_
 
@@ -421,6 +401,8 @@ Working range 10–20B.
 
 ### Q A4. Stakeholders / downstream consumers
 
+Determines decontamination scope (which benchmarks need to be clean for external comparison).
+
 > **Response:** _pending_
 
 ### Q A5. Colleague sign-off on shuffled-bulk + annealing
@@ -428,8 +410,6 @@ Working range 10–20B.
 > **Response:** _pending_
 
 ### Q A6. Specific downstream tasks
-
-Translation, OCR post-correction (Anemi?), summarization, dialect detection, polytonic generation as first-class?
 
 > **Response:** _pending_
 
@@ -439,60 +419,60 @@ Translation, OCR post-correction (Anemi?), summarization, dialect detection, pol
 
 ### Q B1. Outer target/replay split
 
-65/35 to 75/25 range. Default 70/30.
+Default 70/30.
 
 > **Response:** _pending_
 
 ### Q B2. Code share
 
-(a) 0%, (b) ~4%, (c) 15–20%. Default (b).
+Default (b) ~4%.
 
 > **Response:** _pending_
 
 ### Q B3. Anneal composition priority
 
-(a) Academic/clean, (b) Literary, (c) Classical/polytonic, (d) Balanced. Default (d), shifted by Q A1.
+Default (d) balanced, shifted by Q A1.
 
 > **Response:** _pending_
 
 ### Q B4. Loss objective for init bakeoff
 
-Default: NTP for bakeoff (cleaner learning signal), Goldfish for production (consistency, memorization suppression).
+Default: NTP for bakeoff, Goldfish for production.
 
 > **Response:** _pending_
 
 ### Q B5. Init experiment budget per variant
 
-1.5B or 2B. Default 2B (cleaner ReTok-vs-Centroid discrimination; 6B total bakeoff compute).
+Default 2B.
 
 > **Response:** _pending_
 
 ### Q B6. Adaptation work prioritization
 
-§8 adaptation items required before kickoff vs deferrable. Simpler now that Distillation is bracketed.
-
-- Must-have: G1 (Goldfish hash), H1 (BPC units), I1 (NFC normalization), I2 (resize_token_embeddings), K1 (decontamination)
-- Optional / deferrable: B (FOCUS for polytonic), E1 (density warmup), J1 (serving compatibility)
+§8 items relevant before kickoff (depending on status checks in §12):
+- Possibly need attention: G1 (Goldfish hash, if Goldfish retained), K1 (decontamination scope)
+- Status-confirmable in hours: H1, I1, I2, J1
+- Conditional / deferrable: B (FOCUS for polytonic), E1 (density warmup)
 
 > **Response:** _pending_
 
 ---
 
-## 11. Lookups pending (from Apertus tech report and other sources)
+## 11. Lookups pending
 
 ### Q C1. Apertus pretraining peak LR
 
-**Answered in v0.6:** Apertus 8B peak LR was 1.1e-4 (Apertus tech report Table 2). CPT peak should be 1.1e-5 to 2.2e-5; default 1.5e-5. *Verify against original tech report Table 2 for confirmation.*
+**Resolved:** 1.1e-4 (tech report Table 2). CPT peak 1.1e-5 to 2.2e-5; default 1.5e-5.
 
 ### Q C2. Apertus optimizer hyperparameters
 
-AdEMAMix β1, β2, α (EMA decay), weight decay. Section 2.3 / B.4.
+AdEMAMix β1, β2, α, weight decay. Section 2.3 / B.4.
 
 > **Response:** _pending_
 
 ### Q C3. Apertus per-language token shares
 
-Section 3. Top ~30 languages by token share. **Gating for §4.2.1 Tier weights.**
+Section 3. Gating for §4.2 Tier weights.
 
 > **Response:** _pending_
 
@@ -504,13 +484,11 @@ Token masking rate, hash function. Relevant for Q B4 and Item G1.
 
 ### Q C5. Apertus tokenizer config
 
-Base tokenizer is byte-level BPE from Mistral-Nemo `tekken` v3 (confirmed in v0.6 search). Verify the extension you've built is compatible with this base — specifically byte-fallback behavior for new Greek tokens (V16).
-
-> **Response:** _pending (mostly resolved by tech report)_
+**Partially resolved:** byte-level BPE from Mistral-Nemo tekken v3. Specific extension compatibility — V16.
 
 ### Q D1. Apertus Megatron-LM fork
 
-Organization, repository, branch/commit. Compatibility with xIELU + AdEMAMix + QK-Norm + Goldfish + AdEMAMix batch-size scaling.
+Organization, repository, branch/commit; xIELU + AdEMAMix + QK-Norm + Goldfish support.
 
 > **Response:** _pending_
 
@@ -522,55 +500,166 @@ Token counts for `lat_Latn`, `hye_Armn`, `kat_Geor`, `sqi_Latn`, `mkd_Cyrl`. Und
 
 ### Q D3. Apertus intermediate checkpoints
 
-Available on different HF branches. Useful for annealing-as-quality-meter on Greek subcorpora à la Llama 3.
+Available on HF branches. Useful for annealing-as-quality-meter.
 
 > **Response:** _pending_
 
 ---
 
-## 12. Verifications pending (action items)
+## 12. Status checks (verifications)
 
-- [ ] **V1. Decontamination (gating).** All training data vs all eval sets. NeMo Curator. Run before any training. Highest priority. Per Item K1.
-- [ ] **V2. Tokenizer extension forward pass test.** Per Item I2.
-- [ ] **V3. Dataloader state preservation probe.** Stop/resume at 100M; confirm next batch is 100M+1.
-- [ ] **V4. Run-to-run variance baseline + bootstrap CI calibration.** Full eval suite on Apertus-8B base. Bootstrap variance (1000 resamples). Sets stability-failure thresholds for §5.6 hard gates.
-- [ ] **V5. Polytonic token concentration audit.** Per §3.1 expanded metrics including Goldfish-masked target occurrences.
-- [ ] **V6. Dedup re-verification with accent-normalized hashing.** Polytonic vs monotonic of same passage.
-- [ ] **V7. Replay dataset acquisition test.** Verify all replay sources accessible/tokenizable with extended Apertus tokenizer.
-- [ ] **V8. Goldfish hash uniformity check.** Per Item G1.
-- [ ] **V9. NFC normalization probe.** Per Item I1.
-- [ ] **V10. vLLM and SGLang compatibility smoke test.** Per Item J1.
-- [ ] **V11.** *(removed in v0.6 — LM-head calibration was specific to Distillation arm)*
-- [ ] **V12. Cross-document attention masking preserved in CPT dataloader.** Apertus trained with strict document separation. Megatron handles this with the right config flag; verify it's set. *Effort: ~1 hour.*
-- [ ] **V13. EoD token loss masking preserved.** Apertus masks loss on EoD positions during training. Verify CPT dataloader does the same. *Effort: ~1 hour.*
-- [ ] **V14. BoD/EoD special tokens preserved through tokenizer extension.** Special tokens have fixed IDs in base; extension shouldn't have moved them. Verify config: BoD/EoD at original IDs, new Greek tokens slotted in after. *Effort: ~30 minutes.*
-- [ ] **V15. xIELU trainable scalars in optimizer parameter list.** xIELU has trainable αp and αn per layer. After resize, confirm these are still in optimizer's parameter list. Parameter-count diff: extended_model.num_parameters() should = base_num_params + 184.5M + 0 (no new xIELU scalars added). *Effort: ~30 minutes.*
-- [ ] **V16. Tokenizer byte-fallback sanity check for new tokens.** Tokenizer is byte-level BPE from Mistral-Nemo tekken v3. Verify a few new polytonic tokens don't collide with byte-fallback sequences for the same characters. *Effort: ~1 hour.*
+This is a status table, not a TODO list. Each item is a question about current state; items already handled during prior work simply need confirmation. The "if not yet handled" notes describe what the work would be if the status check reveals it open.
+
+### V1. Decontamination scope and status
+
+**Question:** For benchmarks intended as clean measurement instruments (e.g., GreekMMLU public split, Belebele Greek source passages), have the *specific test items* been confirmed absent from training data?
+
+**Scope clarification:** This is about the literal test items (MCQ stems and options; reading-comprehension source passages), not about removing all on-topic Greek material. Training on Greek academic prose, exam-prep material, and Kallipos theses is on-task and desirable.
+
+**If not yet handled:** NeMo Curator's downstream task decontamination workflow runs item-level dedup against eval sets. Effort: ~1–3 days. Output: small fraction of training docs flagged and removed.
+
+**Dependency:** Q A4 (which benchmarks are intended for external/comparative measurement determines what needs to be clean).
+
+> **Status:** _unconfirmed_
+
+### V2. Tokenizer extension forward pass
+
+**Question:** Has the extended model been confirmed to produce vocab-148480 logits, with new token IDs routing correctly through both `embed_tokens` and `lm_head`, and a forward pass on Greek input completing without error?
+
+**If not yet handled:** ~4 hours. Smallest viable test: tokenize a sample of Greek text with the extended tokenizer; run forward pass; confirm logit shape and absence of nan/inf.
+
+**Note:** Likely already verified as part of tokenizer extension work.
+
+> **Status:** _unconfirmed_
+
+### V3. Dataloader state preservation
+
+**Question:** Is Megatron-LM configured to preserve dataloader state in checkpoints (so resumption continues at next token, not from token 0)?
+
+**If not yet handled:** Megatron-LM default behavior, but worth confirming via the relevant config flag. Test if uncertain: stop at 100M tokens, resume from checkpoint, confirm next batch index.
+
+> **Status:** _unconfirmed_
+
+### V4. Run-to-run variance baseline (gating for bakeoff selection)
+
+**Question:** Has the full eval suite been run on unmodified Apertus-8B base, with bootstrap CIs over evaluation samples (~1000 resamples) to establish per-benchmark variance?
+
+**If not yet handled:** Gating — this is what sets the "stability failure" thresholds in §5.6 hard gates. Without it, "more than X% regression" doesn't have a defined threshold. Effort: ~1 day of eval runs + analysis.
+
+> **Status:** _unconfirmed_
+
+### V5. Polytonic token concentration
+
+**Question:** Has the §3.1 effective-exposure audit been run under the proposed Greek mixture (input/target occurrences per new token, Goldfish-masked target occurrences, register distribution, frequency quantiles, update norms)?
+
+**If not yet handled:** Run before launching bakeoff. If polytonic tokens at p25 are getting <5k effective target occurrences at 1B tokens, upweight the polytonic-bearing bucket.
+
+> **Status:** _unconfirmed_
+
+### V6. Accent-normalized dedup re-verification
+
+**Question:** Has the existing dedup against `fffoivos/apertus-c3-dedup-audit-dedup-...` been re-verified under accent-normalized hashing (to catch polytonic/monotonic variants of the same passage that may have escaped standard MinHash)?
+
+**Note:** Standard dedup likely already done. The question is whether accent-normalization was part of the hashing pipeline.
+
+> **Status:** _unconfirmed_
+
+### V7. Replay dataset acquisition
+
+**Question:** Are all replay sources (§4.4) accessible, downloaded, and tokenizable with the extended Apertus tokenizer at expected throughput?
+
+**If not yet handled:** Datasets to acquire: FineWeb-2 filtered to Tier 1–3, FineWeb2-HQ, FineWeb-Edu Score-3, StarCoder v2 (or The Stack v2), FineMath-3+, OPUS Greek-English (and optionally Greek-Latin).
+
+> **Status:** _unconfirmed_
+
+### V8. Goldfish hash uniformity across new tokens
+
+**Question:** If Goldfish is retained for production (Q B4), is the hash output uniform across the new 22,528 tokens?
+
+**If not yet handled:** Tokenize a sample corpus with the extended tokenizer; count masked positions per new token; confirm uniform distribution. If non-uniform, the hash may need a vocab-aware adjustment.
+
+**Dependency:** Q B4 and Q C4 (Goldfish configuration details).
+
+> **Status:** _unconfirmed_
+
+### V9. NFC normalization of training corpus
+
+**Question:** Is the training corpus normalized to NFC form (so identical-looking polytonic text doesn't tokenize differently depending on encoding)?
+
+**Note:** Almost certainly handled in the existing OCR/normalization pipeline — confirm explicitly.
+
+> **Status:** _unconfirmed_
+
+### V10. vLLM and SGLang compatibility
+
+**Question:** Does the extended-vocab Apertus checkpoint load in both vLLM and SGLang with correct logit shapes?
+
+**If not yet handled:** ~2–4 hours per system. Defer if production serving isn't in immediate scope.
+
+> **Status:** _unconfirmed_
+
+### V12. Cross-document attention masking
+
+**Question:** Is the Megatron-LM config flag for cross-document attention masking enabled (matching Apertus's pretraining-time convention)?
+
+**Note:** Default in Megatron when reading Apertus-format data; confirm flag.
+
+> **Status:** _unconfirmed_
+
+### V13. EoD token loss masking
+
+**Question:** Does the CPT dataloader mask loss on EoD positions (matching Apertus's pretraining)?
+
+**Note:** Default if reading Apertus-format data through Megatron; confirm.
+
+> **Status:** _unconfirmed_
+
+### V14. BoD/EoD special token preservation
+
+**Question:** Are BoD and EoD special tokens preserved at their original IDs in the extended tokenizer config (new Greek tokens slotted in after, not before)?
+
+**Note:** Likely already verified during extension work.
+
+> **Status:** _unconfirmed_
+
+### V15. xIELU trainable scalars in optimizer
+
+**Question:** After vocab extension, are xIELU's per-layer trainable αp and αn parameters still in the optimizer's parameter list?
+
+**Check:** `extended_model.num_parameters() == base_num_params + 184.5M` (no new xIELU scalars added; existing ones still trainable).
+
+> **Status:** _unconfirmed_
+
+### V16. Tokenizer byte-fallback for new polytonic tokens
+
+**Question:** For a few new polytonic tokens, do they tokenize cleanly via the new vocab entry rather than collapsing to byte-fallback sequences for the same Unicode characters?
+
+**Note:** Apertus's base tokenizer is byte-level BPE (Mistral-Nemo tekken v3); verifying no collision for polytonic specifically.
+
+> **Status:** _unconfirmed_
 
 ---
 
-## 13. Out of scope for v0.6
+## 13. Out of scope for v0.7
 
-- Long-context extension beyond Apertus's native 65,536.
-- Post-training (SFT / DPO / QRPO).
-- Multi-stage CPT with a dedicated polytonic specialization run.
-- Embedding-only warmup as a separate init arm.
-- LoRA / PEFT variants.
-- Synthetic data generation for underrepresented registers.
-- Construction of a polytonic generation eval benchmark for external release (internal version in §6.2 is in scope).
-- **Token Distillation (bracketed in v0.6).** Adaptation cost too high for Apertus-specific constraints: untied E/U requires separate LM-head calibration (~1–2 weeks); QK-Norm interaction requires careful handling of how attention targets are extracted; xIELU's gradient characteristics require validation; layer-choice sweep for the attention target adds compute; context selection across registers adds methodology work. Total: ~3 weeks vs ~1 week naive port, with uncertain benefit at the 1.5–2B bakeoff scale. **Conditions to revisit:** if the ReTok-vs-Centroid bakeoff is inconclusive (no clear winner, both significantly worse than Vanilla on retention, or both showing embedding collapse), Token Distillation may be worth implementing as a second-pass arm. If kept on the radar for later, the engineering effort details are preserved in the v0.5 changelog and §8 Item A.
-- **QK-Norm-aware techniques generally.** Any future technique that involves matching internal model states (not just outputs) needs to account for QK-Norm in Apertus's attention layers. Use model.forward() outputs rather than reimplemented attention math.
+- Long-context extension beyond Apertus's native 65,536
+- Post-training (SFT / DPO / QRPO)
+- Multi-stage CPT with a dedicated polytonic specialization run
+- Embedding-only warmup as a separate init arm
+- LoRA / PEFT variants
+- Synthetic data generation for underrepresented registers
+- Construction of a polytonic generation eval benchmark for external release (internal version in §6.2 is in scope)
+- **Token Distillation (bracketed).** High Apertus-specific adaptation cost (untied E/U requires separate LM-head calibration; QK-Norm interaction; xIELU validation; layer-choice sweep). Conditions to revisit: if ReTok-vs-Centroid bakeoff is inconclusive. Engineering details preserved in v0.5 changelog and §8 Item A history.
+- **QK-Norm-aware techniques generally.** Any future technique involving matching internal model states (not just outputs) needs to account for QK-Norm. Use model.forward() outputs rather than reimplemented attention math.
 
 ## 14. Changelog
 
-- **v0.6 (2026-05-20):** Bracketed Token Distillation (moved to §13 out of scope with conditions to revisit). Replaced with **Centroid init** as third closed-form arm. §5 rewritten: detailed Centroid procedure (per-script centroid identified by Unicode block membership, dispersion-matched Gaussian noise, applied symmetrically to E and U). §5.2 simplified (no separate LM-head calibration phase needed; both extension arms apply same closed-form to E and U). §5.7 added: explicit framing of what the three-arm bakeoff tests. Architecture findings incorporated:
-  - §3.3: Corrected CPT peak LR guidance to 1.1e-5 to 2.2e-5 based on Apertus 8B pretraining peak of 1.1e-4 (from tech report Table 2). Q C1 mostly resolved.
-  - §8: Removed Items A (Token Distillation adaptation) and C (LM-head calibration) per Distillation bracketing.
-  - §11 Q C5: Tokenizer base identified as Mistral-Nemo tekken v3.
-  - §12 verifications: Removed V11 (LM-head calibration prototype). Added V12 (cross-document attention masking), V13 (EoD loss masking), V14 (BoD/EoD token preservation), V15 (xIELU trainable scalars in optimizer), V16 (tokenizer byte-fallback sanity check).
-  - §13: Explicit note about QK-Norm-aware techniques as general future consideration.
+- **v0.7 (2026-05-20):** Refactored §8 and §12 from prescriptive TODOs into status checks. Each verification item is now framed as a question about current state with conditional notes on what the work would be if status reveals it open. Added intro to §8 explicitly noting it's a coordination artifact, not a TODO list. §8 Item K1 (decontamination) substantially narrowed in scope — concern is *specific verbatim test items* in training data for benchmarks intended as clean measurement instruments, not blanket removal of on-topic Greek material. V1 reframed accordingly. Q A1 (capability targets) marked as deferred with placeholder defaults used elsewhere.
 
-- **v0.5 (2026-05-20):** Incorporated external reviewer feedback: BPC/char-NLL replaces per-token PPL; LM-head calibration procedure; new-token integration diagnostic suite; stress-probe phase; language-ID drift as hard gate; bootstrap CIs; custom Greek evals; expanded polytonic exposure metrics; NeMo Curator + FineWeb2-HQ + GR-NLP-TOOLKIT + CLTK + Inspect AI tooling; NTP-for-bakeoff default flip; decontamination as V1 gating. Added §8 consolidated adaptation checklist.
+- **v0.6 (2026-05-20):** Bracketed Token Distillation. Replaced with Centroid init as third closed-form arm. Corrected CPT peak LR guidance to 1.1e-5 to 2.2e-5 based on Apertus 8B pretraining peak. Added V12–V16 for cross-document attention masking, EoD loss masking, special token preservation, xIELU scalars, and tokenizer byte-fallback.
+
+- **v0.5 (2026-05-20):** Incorporated reviewer feedback: BPC/char-NLL primary metric; LM-head calibration; new-token integration diagnostic suite; stress-probe phase; language-ID drift hard gate; bootstrap CIs; custom Greek evals; expanded polytonic exposure metrics; NeMo Curator + GR-NLP-TOOLKIT + CLTK + Inspect AI tooling; NTP-for-bakeoff default flip; decontamination as gating. Added §8 consolidated adaptation checklist.
+
 - **v0.4 (2026-05-20):** Restructured §9 into Decisions / Lookups / Verifications with response fields.
 - **v0.3 (2026-05-20):** Added §4.2.1 convergence-based language selection framework.
 - **v0.2 (2026-05-20):** Restructured as design-space document with published-recipe comparisons.

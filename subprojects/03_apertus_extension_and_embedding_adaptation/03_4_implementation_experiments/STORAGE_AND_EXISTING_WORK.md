@@ -1,5 +1,10 @@
 # CSCS Storage Map + Existing Apertus-Greek Work in `a0140`
 
+> **v0.7 + user directive 2026-05-20 supersede the §3.4 "adopt p-skarvelis's pipeline as the scaffold" framing.** The canonical position is now:
+>
+> - The training framework is **Megatron-LM-Swiss-AI** (`swiss-ai/Megatron-LM` + `swiss-ai/pretrain-code`) per v0.7 §7.1 and the "closest to Apertus original process" directive. p-skarvelis's HF-Trainer pipeline is treated as an **interesting baseline** (validates that the corpus mix produces a non-broken loss curve; measured 107 k tok/s on 4 nodes / 6,702 tok/s/GPU at seq=2048 SDPA bf16 nogc, which calibrates our throughput estimates) — but it is **not** the scaffold we adopt.
+> - The §3.4 §1–§3 implications about adopting HF Trainer, AdamW, cosine LR, seq=2048, etc. should be read as **what p-skarvelis did**, not as what we're doing. v0.7's setup is Megatron-LM with AdEMAMix, WSD, seq=4096 (Apertus pretraining default).
+
 *Drafted 2026-05-20 from live probes. Cert window 2026-05-20T15:03:46
 → 2026-05-21T15:03:46.*
 
@@ -7,7 +12,10 @@ The headline finding is in §3: **p-skarvelis (in our a0140 project)
 has been running Apertus-Greek CPT + SFT since at least 2026-04-17.**
 Their setup is HF Trainer + `ApertusForCausalLM` on
 FineWeb-2-HQ Greek + FineWeb-HQ English at 90/10, with a non-C3
-tokenizer. We should coordinate before submitting our own runs.
+tokenizer. Their work is an **interesting baseline** for throughput +
+loss-curve sanity but is **not** the scaffold we adopt — per v0.7
+§7.1 + the user's "closest to Apertus original process" directive,
+the canonical trunk is Megatron-LM-Swiss-AI.
 
 ## 1. Storage map
 

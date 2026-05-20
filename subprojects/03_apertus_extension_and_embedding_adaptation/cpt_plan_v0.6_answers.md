@@ -1,5 +1,7 @@
 # CPT Plan v0.6 — Answers to the Open Questions
 
+> **HISTORICAL.** v0.7 supersedes v0.6. The live answers doc is [`cpt_plan_v0.7_status.md`](cpt_plan_v0.7_status.md). This doc remains the v0.6-time record of how each open question stood at that point and is retained for traceability. Where it talks about Distillation as the third arm, HF Trainer as the trunk, 85 / 15 replay, or 148,480-only CPT scope — those are v0.6 positions that v0.7 + user directives have moved past.
+
 *2026-05-20. Companion to [`cpt_plan.md`](cpt_plan.md) (v0.6). Works
 through every question in §10 (decisions pending from Fivos), §11
 (lookups), and §12 (verifications), answering what can be answered

@@ -1,5 +1,7 @@
 # CPT Plan v0.6 — Delta vs Prior Planning
 
+> **HISTORICAL.** v0.7 supersedes v0.6, and the user has explicitly chosen "closest to Apertus original process" as the canonical guiding principle (2026-05-20). Of the §5 "Recommended posture" table in this doc, the framework row ("pragmatic split: HF Trainer for bakeoff, Megatron-LM for production") is **withdrawn** — the canonical position is **Megatron-LM-Swiss-AI throughout**. The other recommended-posture rows mostly hold but should be read in v0.7's language (Centroid not Distillation; 70/30 not 80/20; bakeoff at 2 B per arm; vocab scope = 153,600 composite). The live answers doc is [`cpt_plan_v0.7_status.md`](cpt_plan_v0.7_status.md).
+
 *2026-05-20. Companion to [`cpt_plan.md`](cpt_plan.md) (v0.6). Maps
 v0.6 against the body of prior planning under
 `03_apertus_extension_and_embedding_adaptation/`. Flags hard

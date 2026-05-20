@@ -1,8 +1,17 @@
 # Review Packet — 03_3 + 03_4
 
+> **v0.7 ([`../cpt_plan.md`](../cpt_plan.md)) is the canonical plan.** This packet was assembled under v0.5 / v0.6 framing and is retained as the path-of-arrival for the new sub-subprojects. The status-check answers under v0.7 are at [`../cpt_plan_v0.7_status.md`](../cpt_plan_v0.7_status.md). Key propagations:
+>
+> - Init arms = **Vanilla / ReTok / Centroid** (not Vanilla / ReTok / Distillation). Distillation bracketed; see v0.7 §13.
+> - Training framework = **Megatron-LM-Swiss-AI** (`swiss-ai/Megatron-LM` + `swiss-ai/pretrain-code`). Per user directive 2026-05-20 + v0.7 §7.1.
+> - Replay split = **70 / 30** (not 85 / 15 or 90 / 10).
+> - Bakeoff size = **2 B per arm** (init-method discrimination only); production CPT on winner = 10–20 B (v0.7 §9, Q A2).
+> - CPT vocab scope = **153,600** (both extensions, modern + polytonic).
+> - Of the round-2 findings, finding #1 (modern-only 148,480 not HF-loadable) is no longer the gating issue under v0.7: the **composite 153,600 ship bundle** at [`ship/apertus_greek_extended_153600/`](ship/apertus_greek_extended_153600/) is the active CPT base. The modern-only 148,480 bundle stays as an ablation artifact.
+
 *2026-05-20. Single entry point for a reviewer who has read
-[`Apertus_plan.md`](../Apertus_plan.md) and / or
-[`experiments_plan.md`](../experiments_plan.md) and now needs to
+[`collegues_Apertus_plan.md`](../collegues_Apertus_plan.md) and / or
+[`old_experiments_plan.md`](../old_experiments_plan.md) and now needs to
 evaluate the new sub-subprojects.*
 
 > **Updated 2026-05-20 (round 2)** after the first reviewer pass. Five

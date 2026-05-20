@@ -1,7 +1,18 @@
 # CPT Curriculum + Init-Corpus Decision
 
+> **v0.7 supersedes this doc as canonical.** The plan at
+> [`../cpt_plan.md`](../cpt_plan.md) v0.7 §2 + §3 + §4 sets the live
+> curriculum and replay policy. This doc was written under v0.5 / v0.6
+> framing and is retained as design rationale. Specific propagations
+> from v0.7 to flag inline below:
+>
+> - **Replay split**: v0.7 §4.1 default is **70 / 30 Greek / non-Greek**, not the 85 / 15 this doc argued. The 70 / 30 figure is the working default; final value per Q B1.
+> - **Curriculum structure**: v0.7 §2 specifies a **single shuffled-mixture bulk + an annealing tail in the final 10–20 %** — *not* the four-phase HPLT-broad → register → academic+legal → dictionary structure this doc proposed. Replay is present from token 0 (not Phase-0-only), and Phase 3 dictionary handling is incorporated into the anneal mixture rather than a distinct trailing phase.
+> - **Init-pilot corpus**: still **fresh-only** via the Apertus-overlap-drop overlay — v0.7 §2: "Old Apertus Greek pretraining data is not replayed." Consistent with §1 of this doc.
+> - **Tokenizer scope**: extended ship bundle (vocab **153,600** = modern +17,408 + polytonic +5,120). v0.7 §1's "148,480" wording is a typo; the param math (184.5 M = 22,528 × 4,096 × 2) and §3.1 polytonic-exposure metrics imply 153,600.
+
 *2026-05-20. Reconciles three inputs into a concrete CPT plan:*
-- *colleague's PPL/quality/novelty ranking ([`Apertus_plan.md`](../Apertus_plan.md))*
+- *colleague's PPL/quality/novelty ranking ([`collegues_Apertus_plan.md`](../collegues_Apertus_plan.md))*
 - *your "HPLT foundation → OpenSubtitles + openbook + openarchives" suggestion*
 - *the dedup audit's per-source actionable recommendations ([REPORT_dedup_20260519T010924Z.md](../03_2_apertus_c3_dedup_audit/REPORT_dedup_20260519T010924Z.md))*
 
