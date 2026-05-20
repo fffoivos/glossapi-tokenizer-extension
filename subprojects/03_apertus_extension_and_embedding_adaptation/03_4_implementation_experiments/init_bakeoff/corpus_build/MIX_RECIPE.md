@@ -1,0 +1,109 @@
+# Mix recipes — bulk and anneal
+
+The bakeoff (and future production CPT) consumes a stream of documents
+interleaved from several sources with explicit per-source weights. Per
+[`../../cpt_plan.md`](../../cpt_plan.md) v0.7 §2 + §4:
+
+- **Bulk phase**: one shuffled-mixture stream, all corpora at target weights from token 0. This is what the bakeoff actually trains on.
+- **Anneal phase**: final 10–20 % of *production* training (out of scope for the bakeoff). Mixture shifts to highest-priority subsets; replay drops from ~30 % → ~15 %; LR decays. We define the recipe here for completeness; the bakeoff never executes it.
+
+Both recipes are JSON, in `recipes/`. The mix builder (`mix_builder.py`) reads either and emits a JSON-lines stream.
+
+## Composition (bulk recipe — what the bakeoff actually consumes)
+
+Working defaults per v0.7 §2 + §4 + user answers 2026-05-20:
+
+| Top-level bucket | Share | Sub-allocation |
+|---|---:|---|
+| Greek (post-Apertus-overlap-drop, post-internal-dedup) | **70 %** | see below |
+| Non-Greek replay (24 languages, 3 tiers) | **26 %** | see below |
+| Code | **4 %** | `bigcode/starcoderdata` (Apertus used StarCoder) |
+
+### Greek sub-allocation (70 % of total)
+
+| Source | Share of Greek | HF id / filter |
+|---|---:|---|
+| **HPLT clean60 (fresh; Apertus-overlap overlay applied)** | 50 % of Greek = 35 % total | nanochat dataset, `source_dataset starts with HPLT__ell_Grek` + `apertus_overlap_drop_docs.parquet` exclude |
+| Literary nanochat (artos-zois + Project_Gutenberg + Ekklisiastika + 1000_prwta + klasikh + Wikisource + dimodis_logotexnia + archetai) | 26 % of Greek = 18.2 % total | nanochat dataset, filter `source_dataset` ∈ literary list |
+| Dialogue + textbooks (OPUS OpenSubtitles-el + openbook + Sxolika_vivlia + ert-press + istorima) | 9 % of Greek = 6.3 % total | nanochat dataset, filter |
+| Academic (openarchives.gr + greek_phd + Apothetirio_Kallipos + Apothetirio_Pergamos) | 8 % of Greek = 5.6 % total | nanochat dataset, filter |
+| Legal + civic (eurlex-greek-legislation + AI-team-UoA/greek_legal_code + opengov.gr-diaboyleuseis + ellinika_dedomena_europaikou_koinovouliou) | 5 % of Greek = 3.5 % total | nanochat dataset, filter |
+| Dictionary + misc (modern-greek-dictionary capped + finewiki Greek half-weight + 95k_deigma + others) | 2 % of Greek = 1.4 % total | nanochat dataset, filter; modern-greek-dictionary explicitly capped per Claude-review note in `../../collegues_Apertus_plan.md` |
+
+The HPLT half dominates by token mass (the underlying HPLT clean60 slice is ~50 B chars at v0.7 chars/token = ~14 B tokens; the GlossAPI sub-pools combined are smaller). The recipe weights are **probabilities for the interleaver**, which is what affects the per-step mix; effective token shares track these weights up to per-source exhaustion.
+
+### Non-Greek replay sub-allocation (26 % of total, across 24 languages)
+
+Tier weights per v0.7 §4.2 (40–50 % T1 / 35–45 % T2 / 10–15 % T3); working defaults at the midpoint, scaled to the 26 % outer share:
+
+| Tier | Languages | Share of replay | Total share |
+|---|---|---:|---:|
+| **T1** (8 langs, FW2-HQ where Apertus used HQ) | eng, fra, deu, ita, spa, rus, arb, cmn | 50 % | 13.0 % |
+| **T2** (11 langs, FW2 where Apertus used standard) | tur, bul, srp, ron, heb, por, pol, nld, pes, ukr, jpn | 38 % | 9.88 % |
+| **T3** (5 langs, FW2; small per-lang) | lat, hye, kat, sqi (or als), mkd | 12 % | 3.12 % |
+
+Within each tier, weights are roughly equal *except* English gets ~30 % of T1 (≈ 3.9 % of total) since it's both the biggest Apertus pretraining share and the canonical replay-anchor pattern from EEVE / Krikri / `collegues_Apertus_plan.md`. The remaining 7 T1 langs split the rest of T1 evenly (~9.7 % of T1 each ≈ 1.26 % of total).
+
+Per-language sources:
+
+- T1 (Apertus stage-1+3+4+5 used FW2-HQ for these 20 langs): **`epfml/FineWeb-2-HQ`** with `config_name = <iso639-3>_<script>`
+- T2 / T3 (Apertus used FW2 standard for these): **`HuggingFaceFW/fineweb-2`** with `config_name = <iso639-3>_<script>`
+- English specifically: prefer **`HuggingFaceFW/fineweb-edu`** Score-3 (matches Apertus stage 5 cooldown). English in FineWeb-2-HQ is also OK if the edu slice is gated.
+
+### Code (4 %)
+
+| Source | HF id |
+|---|---|
+| Code | `bigcode/starcoderdata` (Apertus's pretraining source) |
+
+Use the default "all-permissive" subset; no language filter (mixed-language source-code is fine for retention).
+
+## Composition (anneal recipe — defined but not run in the bakeoff)
+
+Per v0.7 §3.2: in the final 10–20 % of production training, mixture shifts to highest-priority subsets and replay drops to ~15 %. Working pattern (between Llama 3 "narrow high-quality" and OLMo Dolmino "broad quality-curated"):
+
+| Bucket | Bulk share | Anneal share | Reason |
+|---|---:|---:|---|
+| Greek high-quality literary (artos-zois + Project_Gutenberg + Wikisource + 1000_prwta) | 12 % | **30 %** | clean prose anchor |
+| Greek academic + legal (openarchives + greek_phd + eurlex + greek_legal_code) | 9 % | **22 %** | domain depth |
+| Greek dictionary (modern-greek-dictionary uncapped from anneal start) | 1 % | **15 %** | gap closure (Apertus_plan §"Final mix") |
+| Greek dialogue + textbooks (OpenSubtitles + openbook + Sxolika + ert) | 6 % | **8 %** | maintained but de-emphasized |
+| HPLT broad (kept reduced for register breadth) | 35 % | **10 %** | safety net against narrow-corpus overfit |
+| Non-Greek replay (Tier 1 dominant) | 26 % | **12 %** | reduced per v0.7 §3.2 "30 % → 15 %" pattern; Tier 1 ≥ 70 % within replay during anneal |
+| Code | 4 % | **3 %** | maintained at slightly reduced share |
+
+The anneal recipe is `recipes/anneal.json`. It will be used in the production CPT (15–20 B tokens; final 10–20 % = ~2–4 B tokens of anneal) **after** the bakeoff picks an init winner. Not part of the bakeoff.
+
+## Builder usage
+
+```bash
+# Generate the bulk JSON-lines stream (~6-8 B tokens worth)
+python3 mix_builder.py \
+    --recipe recipes/bulk.json \
+    --target-tokens 7_000_000_000 \
+    --tokenizer /iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480 \
+    --output /iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl \
+    --seed 20260520
+
+# Same shape for the anneal recipe (not run in the bakeoff)
+python3 mix_builder.py \
+    --recipe recipes/anneal.json \
+    --target-tokens 3_000_000_000 \
+    --tokenizer /iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480 \
+    --output /iopsstor/scratch/cscs/fffoivos/cpt_corpus/anneal_mix.jsonl \
+    --seed 20260520
+```
+
+Output is JSON-lines. Each line is `{"text": "...", "source": "...", "doc_id": "...", "lang": "..."}`. Megatron-LM-Swiss-AI's `tools/preprocess_data.py` then converts JSON-lines → binary indexed dataset (`.bin` + `.idx`) for training.
+
+Determinism: the `--seed` controls the interleave randomization. Same seed → same token stream across runs; the three bakeoff arms see *identical* streams (per v0.7 §5: "same corpus, same total CPT token budget, same staged training schedule") and differ only in init.
+
+## Why two stages (build JSONL → preprocess to .bin/.idx)
+
+Megatron's training reads its native binary format; converting on the fly during interleaving is awkward. Splitting the pipeline:
+
+1. `mix_builder.py` does the streaming interleave + budget-cap + writes JSONL (CPU job on `xfer`).
+2. `tools/preprocess_data.py` (Megatron) does the tokenization + binary packing (CPU job on `xfer` or `debug`).
+3. Training reads the binary on `normal`.
+
+This way each stage has a single clear job, and we can re-run any stage independently.

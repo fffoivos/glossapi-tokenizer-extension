@@ -197,6 +197,10 @@ def main() -> int:
                     help="output root; per-arm directories created underneath")
     ap.add_argument("--arms", nargs="+", choices=["vanilla", "retok", "centroid"],
                     default=["vanilla", "retok", "centroid"])
+    ap.add_argument("--vocab-size", type=int, default=148_480,
+                    help=("target vocab size after extension. 148,480 = modern-only "
+                          "(default; bakeoff scope). 153,600 = composite (modern + "
+                          "polytonic; future production scope)."))
     args = ap.parse_args()
 
     args.out_root.mkdir(parents=True, exist_ok=True)
@@ -212,6 +216,7 @@ def main() -> int:
                 apertus_base=args.apertus_base,
                 extended_tokenizer_dir=args.extended_tokenizer,
                 out_dir=out_dir,
+                new_vocab_size=args.vocab_size,
             )
             all_stats[arm] = stats
 

@@ -1,0 +1,210 @@
+{
+  "name": "bulk",
+  "description": "Bakeoff bulk-phase recipe. 70% Greek (post-Apertus-overlap-drop) + 26% non-Greek replay across 24 languages in 3 tiers + 4% code. Shuffled-mixture single-stream per cpt_plan.md v0.7 section 2. Probabilities sum to 1.0 (the mix_builder normalizes anyway). Source order does not matter; the interleaver samples by probability.",
+  "version": "v1.0_20260520",
+  "seed": 20260520,
+  "buckets": {
+    "greek": 0.70,
+    "replay": 0.26,
+    "code":  0.04
+  },
+  "sources": [
+    {
+      "name": "greek_hplt_clean60",
+      "bucket": "greek",
+      "share_within_bucket": 0.50,
+      "weight": 0.350,
+      "id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "source_dataset",
+      "filter_values_regex": "^HPLT__ell_Grek",
+      "drop_doc_keys_parquet": "fffoivos/apertus-c3-dedup-audit-dedup-20260519t010924z::artifacts/dedup_20260519T010924Z/cpt_final_overlay/apertus_overlap_drop_docs.parquet",
+      "doc_key_field": "doc_key",
+      "comment": "HPLT clean60 fresh-only. Largest single Greek source. Apertus-overlap-drop overlay applied to exclude the 2.10M HPLT docs that overlap Apertus pretraining."
+    },
+    {
+      "name": "greek_literary",
+      "bucket": "greek",
+      "share_within_bucket": 0.26,
+      "weight": 0.182,
+      "id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "source_dataset",
+      "filter_values": [
+        "glossAPI/artos-zois",
+        "glossAPI/Ellinika_Keimena_Project_Gutenberg",
+        "glossAPI/Ekklisiastika_Keimena",
+        "glossAPI/1000_prwta_xronia_ellhnikhs",
+        "glossAPI/klasikh_arx_ell_grammateia",
+        "glossAPI/Wikisource_Greek_texts",
+        "glossAPI/dimodis_logotexnia",
+        "glossAPI/archetai"
+      ],
+      "comment": "High-quality literary Greek prose. Top of collegues_Apertus_plan.md ranking by quality + novelty."
+    },
+    {
+      "name": "greek_dialogue_textbooks",
+      "bucket": "greek",
+      "share_within_bucket": 0.09,
+      "weight": 0.063,
+      "id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "source_dataset",
+      "filter_values": [
+        "OPUS/OpenSubtitles-el-v2018",
+        "glossAPI/openbook.gr",
+        "glossAPI/Sxolika_vivlia",
+        "glossAPI/ert-press",
+        "glossAPI/istorima"
+      ],
+      "comment": "Spoken-style + didactic prose for register breadth."
+    },
+    {
+      "name": "greek_academic",
+      "bucket": "greek",
+      "share_within_bucket": 0.08,
+      "weight": 0.056,
+      "id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "source_dataset",
+      "filter_values": [
+        "glossAPI/openarchives.gr",
+        "glossAPI/Greek_PhD_Theses_Corpus",
+        "glossAPI/Apothetirio_Kallipos",
+        "glossAPI/Apothetirio_Pergamos"
+      ],
+      "comment": "Academic-register Greek (theses, scholarly aggregators). High novelty + good quality."
+    },
+    {
+      "name": "greek_legal_civic",
+      "bucket": "greek",
+      "share_within_bucket": 0.05,
+      "weight": 0.035,
+      "id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "source_dataset",
+      "filter_values": [
+        "glossAPI/eurlex-greek-legislation",
+        "AI-team-UoA/greek_legal_code",
+        "glossAPI/opengov.gr-diaboyleuseis",
+        "glossAPI/ellinika_dedomena_europaikou_koinovouliou"
+      ],
+      "comment": "Greek legal + EU + civic-discourse Greek."
+    },
+    {
+      "name": "greek_dictionary_misc",
+      "bucket": "greek",
+      "share_within_bucket": 0.02,
+      "weight": 0.014,
+      "id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "source_dataset",
+      "filter_values": [
+        "glossAPI/modern-greek-dictionary",
+        "HuggingFaceFW/finewiki",
+        "glossAPI/95k_deigma_ellinikis",
+        "glossAPI/eellak-articles",
+        "glossAPI/amna-press",
+        "glossAPI/e-nautilia"
+      ],
+      "comment": "Dictionary + Wikipedia + small misc Greek. Capped at 2% of Greek per Claude-review of Apertus_plan: dictionary content is structurally weird (definition format) and dominates if uncapped."
+    },
+
+    {
+      "name": "replay_t1_english_edu",
+      "bucket": "replay",
+      "share_within_bucket": 0.30,
+      "weight": 0.039,
+      "id": "HuggingFaceFW/fineweb-edu",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "score",
+      "filter_min": 3,
+      "comment": "English Score-3 (FineWeb-Edu) matches Apertus stage 5 cooldown filter. ~30% of Tier 1 = largest single replay share (anchor language)."
+    },
+    {
+      "name": "replay_t1_fra_Latn",
+      "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
+      "id": "epfml/FineWeb-2-HQ", "config": "fra_Latn", "split": "train", "streaming": true, "text_column": "text"
+    },
+    {
+      "name": "replay_t1_deu_Latn",
+      "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
+      "id": "epfml/FineWeb-2-HQ", "config": "deu_Latn", "split": "train", "streaming": true, "text_column": "text"
+    },
+    {
+      "name": "replay_t1_ita_Latn",
+      "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
+      "id": "epfml/FineWeb-2-HQ", "config": "ita_Latn", "split": "train", "streaming": true, "text_column": "text"
+    },
+    {
+      "name": "replay_t1_spa_Latn",
+      "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
+      "id": "epfml/FineWeb-2-HQ", "config": "spa_Latn", "split": "train", "streaming": true, "text_column": "text"
+    },
+    {
+      "name": "replay_t1_rus_Cyrl",
+      "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
+      "id": "epfml/FineWeb-2-HQ", "config": "rus_Cyrl", "split": "train", "streaming": true, "text_column": "text"
+    },
+    {
+      "name": "replay_t1_arb_Arab",
+      "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
+      "id": "epfml/FineWeb-2-HQ", "config": "arb_Arab", "split": "train", "streaming": true, "text_column": "text"
+    },
+    {
+      "name": "replay_t1_cmn_Hani",
+      "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
+      "id": "epfml/FineWeb-2-HQ", "config": "cmn_Hani", "split": "train", "streaming": true, "text_column": "text"
+    },
+
+    {"name": "replay_t2_tur_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb-2-HQ", "config": "tur_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_bul_Cyrl", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "HuggingFaceFW/fineweb-2", "config": "bul_Cyrl", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_srp_Cyrl", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "HuggingFaceFW/fineweb-2", "config": "srp_Cyrl", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_ron_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "HuggingFaceFW/fineweb-2", "config": "ron_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_heb_Hebr", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "HuggingFaceFW/fineweb-2", "config": "heb_Hebr", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_por_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb-2-HQ", "config": "por_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_pol_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb-2-HQ", "config": "pol_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_nld_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb-2-HQ", "config": "nld_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_pes_Arab", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb-2-HQ", "config": "pes_Arab", "split": "train", "streaming": true, "text_column": "text", "fallback_id": "HuggingFaceFW/fineweb-2", "fallback_config": "fas_Arab"},
+    {"name": "replay_t2_ukr_Cyrl", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "HuggingFaceFW/fineweb-2", "config": "ukr_Cyrl", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_jpn_Jpan", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb-2-HQ", "config": "jpn_Jpan", "split": "train", "streaming": true, "text_column": "text"},
+
+    {"name": "replay_t3_lat_Latn", "bucket": "replay", "share_within_bucket": 0.024, "weight": 0.00624, "id": "HuggingFaceFW/fineweb-2", "config": "lat_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t3_hye_Armn", "bucket": "replay", "share_within_bucket": 0.024, "weight": 0.00624, "id": "HuggingFaceFW/fineweb-2", "config": "hye_Armn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t3_kat_Geor", "bucket": "replay", "share_within_bucket": 0.024, "weight": 0.00624, "id": "HuggingFaceFW/fineweb-2", "config": "kat_Geor", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t3_als_Latn", "bucket": "replay", "share_within_bucket": 0.024, "weight": 0.00624, "id": "HuggingFaceFW/fineweb-2", "config": "als_Latn", "split": "train", "streaming": true, "text_column": "text", "comment": "Albanian (note FW2 uses als_Latn, not sqi_Latn)"},
+    {"name": "replay_t3_mkd_Cyrl", "bucket": "replay", "share_within_bucket": 0.024, "weight": 0.00624, "id": "HuggingFaceFW/fineweb-2", "config": "mkd_Cyrl", "split": "train", "streaming": true, "text_column": "text"},
+
+    {
+      "name": "code_starcoder",
+      "bucket": "code",
+      "share_within_bucket": 1.0,
+      "weight": 0.04,
+      "id": "bigcode/starcoderdata",
+      "split": "train",
+      "streaming": true,
+      "text_column": "content",
+      "comment": "Apertus pretraining used StarCoder; matches the recipe for retention preservation."
+    }
+  ],
+  "validation": {
+    "expected_weight_sum": 1.0,
+    "expected_greek_share": 0.70,
+    "expected_replay_share": 0.26,
+    "expected_code_share": 0.04
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "name": "anneal",
+  "description": "Anneal-phase recipe (cpt_plan.md v0.7 section 3.2). Used in the final 10-20% of production CPT, NOT during the bakeoff. Mixture shifts to highest-priority subsets; replay drops 30% -> ~12%; LR begins linear decay aligned with this window. Pattern is between Llama 3 narrow-high-quality and OLMo Dolmino quality-curated-broad.",
+  "version": "v1.0_20260520",
+  "seed": 20260521,
+  "scope_note": "NOT executed by the bakeoff. Defined for completeness and for the future production CPT run after a winning init is picked.",
+  "buckets": {
+    "greek_high_quality": 0.85,
+    "replay": 0.12,
+    "code":  0.03
+  },
+  "sources": [
+    {
+      "name": "anneal_literary",
+      "bucket": "greek_high_quality",
+      "share_within_bucket": 0.353,
+      "weight": 0.30,
+      "id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "source_dataset",
+      "filter_values": [
+        "glossAPI/artos-zois",
+        "glossAPI/Ellinika_Keimena_Project_Gutenberg",
+        "glossAPI/Wikisource_Greek_texts",
+        "glossAPI/1000_prwta_xronia_ellhnikhs"
+      ],
+      "comment": "Clean Greek literary prose — anchor for the anneal phase."
+    },
+    {
+      "name": "anneal_academic_legal",
+      "bucket": "greek_high_quality",
+      "share_within_bucket": 0.259,
+      "weight": 0.22,
+      "id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "source_dataset",
+      "filter_values": [
+        "glossAPI/openarchives.gr",
+        "glossAPI/Greek_PhD_Theses_Corpus",
+        "glossAPI/eurlex-greek-legislation",
+        "AI-team-UoA/greek_legal_code"
+      ]
+    },
+    {
+      "name": "anneal_dictionary",
+      "bucket": "greek_high_quality",
+      "share_within_bucket": 0.176,
+      "weight": 0.15,
+      "id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "source_dataset",
+      "filter_values": ["glossAPI/modern-greek-dictionary"],
+      "comment": "Anneal is when the dictionary gets its proper share (per Apertus_plan.md final mix). 15% is the cap; if checkpoints start sounding glossary-shaped, drop to 10-12%."
+    },
+    {
+      "name": "anneal_dialogue_textbooks",
+      "bucket": "greek_high_quality",
+      "share_within_bucket": 0.094,
+      "weight": 0.08,
+      "id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "source_dataset",
+      "filter_values": [
+        "OPUS/OpenSubtitles-el-v2018",
+        "glossAPI/openbook.gr",
+        "glossAPI/Sxolika_vivlia",
+        "glossAPI/ert-press"
+      ]
+    },
+    {
+      "name": "anneal_hplt_reduced",
+      "bucket": "greek_high_quality",
+      "share_within_bucket": 0.118,
+      "weight": 0.10,
+      "id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "source_dataset",
+      "filter_values_regex": "^HPLT__ell_Grek",
+      "drop_doc_keys_parquet": "fffoivos/apertus-c3-dedup-audit-dedup-20260519t010924z::artifacts/dedup_20260519T010924Z/cpt_final_overlay/apertus_overlap_drop_docs.parquet",
+      "doc_key_field": "doc_key",
+      "comment": "HPLT broad kept at reduced share for register-breadth safety net during anneal."
+    },
+
+    {
+      "name": "anneal_replay_t1_english_edu",
+      "bucket": "replay",
+      "share_within_bucket": 0.42,
+      "weight": 0.05,
+      "id": "HuggingFaceFW/fineweb-edu",
+      "split": "train",
+      "streaming": true,
+      "text_column": "text",
+      "filter_field": "score",
+      "filter_min": 3,
+      "comment": "English anchor stays dominant within reduced replay. T1 dominates anneal-replay (cpt_plan v0.7 section 3.2: replay reduced but T1 share within replay increases)."
+    },
+    {"name": "anneal_replay_t1_fra",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb-2-HQ", "config": "fra_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "anneal_replay_t1_deu",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb-2-HQ", "config": "deu_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "anneal_replay_t1_ita",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb-2-HQ", "config": "ita_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "anneal_replay_t1_rus",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb-2-HQ", "config": "rus_Cyrl", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "anneal_replay_t1_arb",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb-2-HQ", "config": "arb_Arab", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "anneal_replay_t1_cmn",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb-2-HQ", "config": "cmn_Hani", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "anneal_replay_t2_mix",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "HuggingFaceFW/fineweb-2", "config": "tur_Latn", "split": "train", "streaming": true, "text_column": "text", "comment": "T2 reduced to one rotating language during anneal (this slot is Turkish; rotate across runs if multiple anneal phases)."},
+
+    {
+      "name": "anneal_code_starcoder",
+      "bucket": "code",
+      "share_within_bucket": 1.0,
+      "weight": 0.03,
+      "id": "bigcode/starcoderdata",
+      "split": "train",
+      "streaming": true,
+      "text_column": "content"
+    }
+  ],
+  "validation": {
+    "expected_weight_sum": 1.0,
+    "expected_greek_share": 0.85,
+    "expected_replay_share": 0.12,
+    "expected_code_share": 0.03
+  }
+}

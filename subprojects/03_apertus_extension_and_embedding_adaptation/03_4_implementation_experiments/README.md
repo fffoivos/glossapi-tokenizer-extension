@@ -34,12 +34,30 @@ into this one.
   scheduling.
 - [`init_bakeoff/`](init_bakeoff/) — **active**: the three-arm init
   experiment per `../cpt_plan.md` v0.7 §5. Vanilla / ReTok / Centroid,
-  2 B tokens per arm. Contains [`BAKEOFF_PLAN.md`](init_bakeoff/BAKEOFF_PLAN.md)
-  (setup plan + Apertus-fidelity constraints + sbatch sizing) and
-  [`arms/`](init_bakeoff/arms/) (the three init Python modules +
-  production driver + local smoke test). The smoke test
-  (`arms/test_init_logic.py`) ran clean — both extension arms produce
-  norm-matched [22528, 4096] new rows from the on-home E/U matrices.
+  2 B tokens per arm. **Modern-only (vocab 148,480)** per the
+  2026-05-20 scope decision; composite 153,600 path remains in
+  `build_init_checkpoints.py` behind `--vocab-size 153600` for the
+  future polytonic specialization run. Three subdirectories:
+  - [`arms/`](init_bakeoff/arms/) — the three init Python modules
+    (`vanilla.py`, `retok.py`, `centroid.py`) + production driver
+    (`build_init_checkpoints.py`) + local smoke test
+    (`test_init_logic.py`). Smoke ran green: both extension arms
+    produce norm-matched [17408, 4096] new rows.
+  - [`data/`](init_bakeoff/corpus_build/) — corpus assembly:
+    [`MIX_RECIPE.md`](init_bakeoff/corpus_build/MIX_RECIPE.md) (bucket
+    allocations), `recipes/{bulk,anneal}.json` (31 sources for bulk,
+    14 for anneal; weights sum to 1.0 verified),
+    `mix_builder.py` (streaming interleaver → JSONL),
+    `pull_greek_corpus.sh` + `pull_replay_datasets.sh` (login-node HF
+    downloads). Bulk recipe = 70 % Greek / 26 % replay / 4 % code;
+    anneal recipe = 85 / 12 / 3 (not used in bakeoff).
+  - [`eval/`](init_bakeoff/eval/) — V4 baseline + per-arm eval:
+    [`EVAL_RECIPE.md`](init_bakeoff/eval/EVAL_RECIPE.md) (task
+    lists), `pull_benchmarks.sh` (login-node), `run_eval.sbatch`
+    (parameterized: MODEL_PATH + OUTPUT_DIR + TASK_GROUP),
+    `run_apertus_baseline.sh` (V4 wrapper), `run_bakeoff_arm_eval.sh`
+    (per-arm wrapper), `compute_bootstrap_cis.py` (bootstrap CIs
+    over `--log_samples` per v0.7 §6.1 methodology).
 - (planned) `01_vanilla_calibration_v1/` — first concrete job: 1-node
   4×GH200 throughput calibration on Apertus-8B-2509 + the modern-only
   148,480 tokenizer (Vanilla arm; smallest setup-risk).

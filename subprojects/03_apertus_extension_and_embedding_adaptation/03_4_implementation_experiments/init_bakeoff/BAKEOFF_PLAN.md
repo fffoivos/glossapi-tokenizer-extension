@@ -5,12 +5,24 @@
 2 B tokens per arm, identical conditions otherwise. Winner becomes
 the production CPT starting point; not in scope here.*
 
+> **2026-05-20 scope update — modern-only for the bakeoff.** The user
+> elected to drop the polytonic +5,120 layer from the init experiments
+> to keep the comparison cleaner. The bakeoff therefore uses the
+> **148,480 modern-only ship bundle** (vocab 131,072 base + 17,408
+> modern Greek), not the composite 153,600. Per v0.7 §5.8 polytonic
+> embeddings would be undertrained at 2 B tokens anyway; postponing
+> them keeps the bakeoff focused on the *modern Greek* init question.
+> The composite 153,600 path remains available in
+> [`arms/build_init_checkpoints.py`](arms/build_init_checkpoints.py)
+> via the `--vocab-size 153600` flag for the eventual production
+> polytonic-stacked specialization run.
+>
 > Downstream of [`cpt_plan.md`](../../cpt_plan.md) v0.7 + the
 > [`apertus_fidelity_checklist.md`](../../apertus_fidelity_checklist.md).
-> Resolved positions baked in: vocab 153,600 (modern + polytonic
-> active), Megatron-LM-Swiss-AI trunk, AdEMAMix + 0.1 grad clip,
+> Resolved positions baked in: vocab **148,480** (modern only, this
+> bakeoff), Megatron-LM-Swiss-AI trunk, AdEMAMix + 0.1 grad clip,
 > seq=4096, NTP loss during bakeoff (Goldfish deferred to production),
-> 70/30 Greek/non-Greek replay, B=2 B tokens per arm.
+> 70/30 Greek/non-Greek replay, **B=2 B tokens per arm**.
 
 ## 1. The three arms in concrete terms
 
@@ -21,12 +33,12 @@ identical Megatron-LM-Swiss-AI conditions for 2 B tokens.
 
 | | Vanilla | ReTok | Centroid |
 |---|---|---|---|
-| **Vocab** | 131,072 (original Apertus base) | 153,600 (composite) | 153,600 (composite) |
-| **What changes vs base** | Nothing | E and U get 22,528 new rows | E and U get 22,528 new rows |
-| **Init rule for new row T** | n/a | `mean(base_E[p] for p in base_tokenizer.encode(decode(T)))` + Phase A norm match | per-script centroid of base Greek tokens + Gaussian noise + Phase A norm match |
+| **Vocab** | 131,072 (original Apertus base) | **148,480 (modern-only)** | **148,480 (modern-only)** |
+| **What changes vs base** | Nothing | E and U get 17,408 new rows | E and U get 17,408 new rows |
+| **Init rule for new row T** | n/a | `mean(base_E[p] for p in base_tokenizer.encode(decode(T)))` + Phase A norm match | modern-Greek centroid of base Greek tokens + Gaussian noise + Phase A norm match |
 | **Code (this dir)** | [`arms/vanilla.py`](arms/vanilla.py) | [`arms/retok.py`](arms/retok.py) | [`arms/centroid.py`](arms/centroid.py) |
-| **Init compute** | none | ~1 min CPU | <1 min CPU |
-| **Per-arm extra params** | 0 | ~184.5 M (22,528 × 4,096 × 2) | ~184.5 M |
+| **Init compute** | none | ~30 s CPU | <30 s CPU |
+| **Per-arm extra params** | 0 | **~142.6 M (17,408 × 4,096 × 2)** | **~142.6 M** |
 | **Per-arm wall (estim.)** | ~11 h on 1 node @ seq=4096 (≈ 50 k tok/s effective for 2 B tokens) | ~11 h | ~11 h |
 
 The bakeoff is **clean** because all three arms are closed-form. No

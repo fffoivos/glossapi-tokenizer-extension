@@ -41,11 +41,16 @@ os.environ.setdefault("HF_HUB_OFFLINE", "1")
 
 # Paths (everything local on home)
 APERTUS_HF = "/home/foivos/.cache/huggingface/hub/models--swiss-ai--Apertus-8B-2509/snapshots/3162c99675aa588097cecd4a24b9aa1f712af477"
+# Bakeoff scope (2026-05-20): modern-only 148,480. The composite 153,600 path
+# is still available as `apertus_greek_extended_153600/` for the future
+# polytonic specialization run; not used by the bakeoff.
 SHIP_EXT = (
     "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/"
     "03_apertus_extension_and_embedding_adaptation/03_3_cscs_experiments_kickoff/"
-    "ship/apertus_greek_extended_153600"
+    "ship/apertus_greek_modern_only_148480"
 )
+NEW_VOCAB_SIZE = 148_480
+NEW_TOKEN_COUNT = NEW_VOCAB_SIZE - 131_072  # 17,408
 E_PATH = "/home/foivos/runs/apertus_embedding_init_test_20260512/arrays/E_fp32.npy"
 U_PATH = "/home/foivos/runs/apertus_embedding_init_test_20260512/arrays/U_fp32.npy"
 
@@ -142,33 +147,12 @@ def main() -> int:
     print(f"  cos(ReTok_E, Centroid_E) over 50 new tokens: mean={cos_E.mean():.3f}  std={cos_E.std():.3f}")
     print(f"  Two methods produce similar but not identical directions (mean cos > 0.5 expected, std > 0 confirms randomness).")
 
-    # === Sanity 6: a hand-picked polytonic token ===
-    print("\n=== Sanity 6: a hand-picked polytonic new token ===")
-    # `καὶ` is at ID 148480 (first polytonic block ID per earlier probes)
-    test_id = 148_480
-    if test_id < 131_272:
-        print(f"  test_id {test_id} is in our 200-token smoke slice")
-        offset = test_id - 131_072
-        surface = ext_tk.decode([test_id])
-        has_m, has_p = classify_greek_block(surface)
-        print(f"  id={test_id}  surface={surface!r}  has_modern={has_m}  has_polytonic={has_p}")
-    else:
-        # 148480 - 131072 = 17,408 → outside our 200-token slice
-        # rerun centroid + retok on just this one
-        print(f"  test_id {test_id} is past our smoke slice; running single-token check...")
-        for label, fn in [("ReTok", compute_retok_init), ("Centroid", lambda **k: compute_centroid_init(**k)[:2])]:
-            try:
-                e, u = fn(
-                    base_E=E_arr, base_U=U_arr,
-                    base_tokenizer=base_tk, extended_tokenizer=ext_tk,
-                    new_id_range=(test_id, test_id + 1),
-                    verbose=False,
-                )
-                surface = ext_tk.decode([test_id])
-                has_m, has_p = classify_greek_block(surface)
-                print(f"  {label}: id={test_id} surface={surface!r}  ‖E‖={np.linalg.norm(e[0]):.3f}  ‖U‖={np.linalg.norm(u[0]):.3f}  modern={has_m}  poly={has_p}")
-            except Exception as exc:
-                print(f"  {label}: failed: {exc}")
+    # === Sanity 6: confirm modern-only bakeoff range ===
+    print("\n=== Sanity 6: bakeoff scope ===")
+    print(f"  Bakeoff target vocab: {NEW_VOCAB_SIZE:,}")
+    print(f"  Bakeoff new tokens: {NEW_TOKEN_COUNT:,} (all modern Greek; no polytonic in this bakeoff)")
+    print(f"  Extended ship bundle in use: {SHIP_EXT}")
+    print(f"  Composite 153,600 bundle remains available for the future polytonic specialization run.")
 
     print("\n✓ All init-logic smoke checks passed.")
     return 0
