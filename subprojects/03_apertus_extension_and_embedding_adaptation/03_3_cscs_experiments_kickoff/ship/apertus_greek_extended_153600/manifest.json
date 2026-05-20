@@ -1,0 +1,33 @@
+{
+  "name": "apertus_greek_extended_153600",
+  "purpose": "Apertus-compatible composite tokenizer: base 131,072 + C3 modern Greek (+17,408) + polytonic/ancient Greek (+5,120) = 153,600 = 256 × 600. Use this for the downstream polytonic specialization arm.",
+  "vocab_size": 153600,
+  "base_apertus_vocab": 131072,
+  "added_modern_greek_c3": 17408,
+  "added_polytonic_greek": 5120,
+  "alignment": {
+    "128": true,
+    "256": true,
+    "factor_256": 600
+  },
+  "first_1000_preserved": true,
+  "front_end_contract": {
+    "normalizer": null,
+    "pre_tokenizer": "Sequence(Split(GPT-2 regex) → ByteLevel)",
+    "decoder": "ByteLevel",
+    "model_type": "BPE",
+    "special_tokens": {
+      "unk": 0,
+      "bos": 1,
+      "eos": 2,
+      "pad": 3,
+      "reserved_count": 1000
+    }
+  },
+  "loadable_via": "transformers.AutoTokenizer.from_pretrained() → PreTrainedTokenizerFast",
+  "sha256": {
+    "tokenizer.json": "b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad",
+    "tokenizer_config.json": "ea64a17b41e1deaa7469212f413676129f33977ca3a48767f0ca68dc346df502",
+    "special_tokens_map.json": "816ec96e37c6d15e3cbc535dc146c898a7218f209fc154384f31fc1e6ad31ba5"
+  }
+}
