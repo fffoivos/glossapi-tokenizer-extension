@@ -32,6 +32,14 @@ into this one.
   swiss-ai variants), and (e) the concrete CSCS deployment plan with
   paths, `huggingface-cli` commands, and login-node-vs-slurm
   scheduling.
+- [`init_bakeoff/`](init_bakeoff/) — **active**: the three-arm init
+  experiment per `../cpt_plan.md` v0.7 §5. Vanilla / ReTok / Centroid,
+  2 B tokens per arm. Contains [`BAKEOFF_PLAN.md`](init_bakeoff/BAKEOFF_PLAN.md)
+  (setup plan + Apertus-fidelity constraints + sbatch sizing) and
+  [`arms/`](init_bakeoff/arms/) (the three init Python modules +
+  production driver + local smoke test). The smoke test
+  (`arms/test_init_logic.py`) ran clean — both extension arms produce
+  norm-matched [22528, 4096] new rows from the on-home E/U matrices.
 - (planned) `01_vanilla_calibration_v1/` — first concrete job: 1-node
   4×GH200 throughput calibration on Apertus-8B-2509 + the modern-only
   148,480 tokenizer (Vanilla arm; smallest setup-risk).
