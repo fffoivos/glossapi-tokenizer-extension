@@ -111,3 +111,21 @@ Per-arm bakeoff eval at one checkpoint:
 - `run_apertus_baseline.sh` — thin wrapper: V4 baseline on the unmodified Apertus-8B-2509 checkpoint
 - `run_bakeoff_arm_eval.sh` — thin wrapper: per-arm eval, takes an arm's checkpoint dir as arg
 - `compute_bootstrap_cis.py` — post-process: bootstrap CIs over the `--log_samples` outputs
+- **`compute_tokenizer_fair_metrics.py`** — primary v0.7 §5.1 intrinsic metrics (BPC, NLL/char, NLL/word, tokens/word, chars/token, compression ratio, STRR). The cross-tokenizer-fair signal for comparing Vanilla (vocab 131,072) vs ReTok/Centroid (vocab 148,480). Has a `--stats-only` mode for tokenizer-only checks (no model load).
+- **`run_tokenizer_fair_metrics.sbatch`** — sbatch wrapper for the above; 1 node × 1 GPU × 2 h. Runs at each bakeoff checkpoint where downstream eval also runs.
+
+## Primary intrinsic metrics (v0.7 §5.1) — important
+
+Per-token PPL is **not comparable** across the Vanilla arm (vocab 131,072) and the ReTok/Centroid arms (vocab 148,480). v0.7 §5.1 specifies these tokenizer-fair metrics as the **primary** signal for the bakeoff:
+
+| Metric | Why |
+|---|---|
+| **BPC (bits per byte)** | Cleanest cross-tokenizer comparison |
+| **NLL per Unicode character** | More interpretable for Greek/polytonic |
+| **NLL per word** | Human-facing language metric |
+| **tokens/word, chars/token, compression ratio** | Quantifies tokenizer efficiency |
+| **STRR** (Subword-Tokenization Recovery Rate) | Fraction of held-out words that tokenize to a single token — whole-word preservation |
+
+`compute_tokenizer_fair_metrics.py` computes all of these from one HF-format checkpoint + a held-out JSONL. Aggregates globally + per-source + per-register.
+
+**Held-out eval slice**: ~100-500 docs covering modern Greek registers (encyclopedic / literary / academic / dialogue / legal / dictionary). The slice should be **outside** the bakeoff training mix — currently constructed manually (deterministic doc_id-hash holdout from the dedup-audit val/test partition; reconstruction path documented in [`../../03_3_cscs_experiments_kickoff/ANALYSIS.md`](../../03_3_cscs_experiments_kickoff/ANALYSIS.md) §"Review checkpoint B" given the gcloud-access loss).
