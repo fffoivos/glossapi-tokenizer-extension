@@ -154,6 +154,32 @@ Two scopes, **same** task list:
 - `bash -n` syntax check planned before commit on `bakeoff_training/*.sbatch` and `bakeoff_training/submit_all_arms.sh`.
 - `mix_builder.py` is not exercised against real data; a tiny `--target-tokens 100000` dry-run on Clariden `xfer` is the recommended first-step validation **after** review approval.
 
+## (5b) Known scope gaps vs cpt_plan v0.7
+
+Honest inventory: the recipe + sbatch are review-ready, but the bakeoff is **not yet end-to-end-runnable** because several pieces v0.7 specifies have not been implemented. Full table in [`COMPLETENESS_CHECK.md`](COMPLETENESS_CHECK.md). The reviewer should know these gaps exist before reading the rest of this document:
+
+| Gap | Where in v0.7 | What it means |
+|---|---|---|
+| **BPC / NLL-per-Unicode-char / NLL-per-word / STRR / tokens-per-word not tooled** | §5.1 (primary intrinsic metrics) | v0.7 explicitly says per-token PPL is **not comparable** across arms (Vanilla 131,072-vocab vs ReTok/Centroid 148,480-vocab). The bakeoff's apples-to-apples comparison needs these tokenizer-fair metrics. We currently only have standard lm-eval-harness retention scores. |
+| **New-token integration diagnostic suite not tooled** | §5.3 (read at every checkpoint) | 7 diagnostics over the 17,408 new IDs — rank-of-correct-new-token, embedding-norm distribution, cosine-similarity / effective-rank collapse, etc. Without these we lose visibility into failure modes (embedding collapse, dead rows) the bakeoff is specifically supposed to detect. |
+| **Hard-gates + weighted selection score not automated** | §5.6 | Encoded in prose in [`EVAL_RECIPE.md`](03_4_implementation_experiments/init_bakeoff/eval/EVAL_RECIPE.md); not a script that produces a pass/fail + score per arm. |
+| **Custom Greek evals deferred** | §6.2 | Polytonic continuation, accent/diacritic accuracy, morphology minimal pairs, language-ID drift, register preservation. v0.7 itself notes "~1-2 weeks construction"; deferred as a separate workstream. |
+| **FineMath + OPUS Greek-English missing from pull script** | §4.4 | Apertus stage-1 uses `finemath-3plus-merge` (`submit_apertus_8b.sh:L29`); OPUS is v0.7-optional but uniquely valuable for classical philology. |
+| **NFC normalize step not invoked** | §8 I1 + V9 | `verify_and_normalize_nfc.py` exists at `03_3_cscs_experiments_kickoff/scripts/` but no wrapper invokes it between corpus pull and mix-build. Greek nanochat is upstream-NFC, but FineWeb-2/HQ/Edu compliance is assumed not enforced. |
+| **HF→Megatron Apertus loader missing** | §7.1 | No `loader_apertus_hf.py` in `swiss-ai/Megatron-LM/tools/checkpoint/`; only llama/mistral/qwen2.5. Custom loader needed (~1-2 h) before first sbatch submission. |
+| **ILSP harness task YAMLs missing from swiss-ai fork** | §6.2 + V7 | Live in Meltemi/Krikri forks; staging-time merge needed before V4 baseline. |
+| **`build_init_checkpoints.py` resize logic not audited** against `transformers.PreTrainedModel.resize_token_embeddings` for untied-E/U + V15 (xIELU scalars survive resize) | §5.2 + V2 + V15 | Mechanism is sound (audited code path shows xIELU αp/αn are `nn.Parameter` children, auto-registered) but no explicit assertion in the driver. |
+
+**Plan to close these (agreed 2026-05-21):**
+
+1. ✓ This section — surface the gaps so the reviewer sees them.
+2. (in progress) Add FineMath + OPUS to pull script, rebalance bulk.json, add NFC normalize wrapper.
+3. (next) Implement §5.1 BPC + tokenizer-fair metrics as a sidecar script.
+4. (after) Implement §5.3 new-token diagnostic suite as a sidecar script.
+5. (after that) Discuss §5.6 selection-score automation + the HF→Megatron Apertus loader with Fivos.
+
+Items 1-4 close the gaps that block the bakeoff from producing its **primary intended metrics**. Items 5-6 are the next decisions.
+
 ---
 
 ## (6) Reasoning + citations summary
