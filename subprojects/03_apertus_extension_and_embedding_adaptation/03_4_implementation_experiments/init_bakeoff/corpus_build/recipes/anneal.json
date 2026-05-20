@@ -104,12 +104,12 @@
       "filter_min": 3,
       "comment": "English anchor stays dominant within reduced replay. T1 dominates anneal-replay (cpt_plan v0.7 section 3.2: replay reduced but T1 share within replay increases)."
     },
-    {"name": "anneal_replay_t1_fra",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb-2-HQ", "config": "fra_Latn", "split": "train", "streaming": true, "text_column": "text"},
-    {"name": "anneal_replay_t1_deu",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb-2-HQ", "config": "deu_Latn", "split": "train", "streaming": true, "text_column": "text"},
-    {"name": "anneal_replay_t1_ita",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb-2-HQ", "config": "ita_Latn", "split": "train", "streaming": true, "text_column": "text"},
-    {"name": "anneal_replay_t1_rus",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb-2-HQ", "config": "rus_Cyrl", "split": "train", "streaming": true, "text_column": "text"},
-    {"name": "anneal_replay_t1_arb",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb-2-HQ", "config": "arb_Arab", "split": "train", "streaming": true, "text_column": "text"},
-    {"name": "anneal_replay_t1_cmn",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb-2-HQ", "config": "cmn_Hani", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "anneal_replay_t1_fra",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb2-HQ", "config": "fra_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "anneal_replay_t1_deu",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb2-HQ", "config": "deu_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "anneal_replay_t1_ita",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb2-HQ", "config": "ita_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "anneal_replay_t1_rus",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb2-HQ", "config": "rus_Cyrl", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "anneal_replay_t1_arb",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb2-HQ", "config": "arb_Arab", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "anneal_replay_t1_cmn",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "epfml/FineWeb2-HQ", "config": "cmn_Hani", "split": "train", "streaming": true, "text_column": "text"},
     {"name": "anneal_replay_t2_mix",   "bucket": "replay", "share_within_bucket": 0.083, "weight": 0.010, "id": "HuggingFaceFW/fineweb-2", "config": "tur_Latn", "split": "train", "streaming": true, "text_column": "text", "comment": "T2 reduced to one rotating language during anneal (this slot is Turkish; rotate across runs if multiple anneal phases)."},
 
     {

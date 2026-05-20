@@ -53,7 +53,7 @@ huggingface-cli download HuggingFaceFW/fineweb-edu \
 echo "=== T1: fra/deu/ita/spa/rus/arb/cmn (FineWeb-2-HQ) ==="
 for cfg in fra_Latn deu_Latn ita_Latn spa_Latn rus_Cyrl arb_Arab cmn_Hani; do
     echo "--- T1 $cfg ---"
-    huggingface-cli download epfml/FineWeb-2-HQ \
+    huggingface-cli download epfml/FineWeb2-HQ \
         --repo-type dataset \
         --local-dir "$REPLAY_DIR/${cfg}_fw2hq" \
         --include "${cfg}/*" \
@@ -64,7 +64,7 @@ done
 echo "=== T2 HQ: tur/por/pol/nld/pes/jpn (FineWeb-2-HQ) ==="
 for cfg in tur_Latn por_Latn pol_Latn nld_Latn pes_Arab jpn_Jpan; do
     echo "--- T2 $cfg (HQ) ---"
-    huggingface-cli download epfml/FineWeb-2-HQ \
+    huggingface-cli download epfml/FineWeb2-HQ \
         --repo-type dataset \
         --local-dir "$REPLAY_DIR/${cfg}_fw2hq" \
         --include "${cfg}/*" \

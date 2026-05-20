@@ -46,9 +46,11 @@ Within each tier, weights are roughly equal *except* English gets ~30 % of T1 (�
 
 Per-language sources:
 
-- T1 (Apertus stage-1+3+4+5 used FW2-HQ for these 20 langs): **`epfml/FineWeb-2-HQ`** with `config_name = <iso639-3>_<script>`
-- T2 / T3 (Apertus used FW2 standard for these): **`HuggingFaceFW/fineweb-2`** with `config_name = <iso639-3>_<script>`
-- English specifically: prefer **`HuggingFaceFW/fineweb-edu`** Score-3 (matches Apertus stage 5 cooldown). English in FineWeb-2-HQ is also OK if the edu slice is gated.
+- T1 (Apertus quality-filtered the 20 high-resource langs at top-10 % per-language XLM-R): **`epfml/FineWeb2-HQ`** with `config_name = <iso639-3>_<script>` (Messmer, Sabolčec, Jaggi 2025, [arXiv:2502.10361](https://arxiv.org/abs/2502.10361); top-10 %, NOT "Score-3" — that's FineWeb-Edu's filter).
+- T2 / T3 (Apertus used unfiltered FW2 for these): **`HuggingFaceFW/fineweb-2`** with `config_name = <iso639-3>_<script>` (v2.0.1 per Apertus tech report footnote 18).
+- English specifically: prefer **`HuggingFaceFW/fineweb-edu`** Score-3 (Penedo et al. [arXiv:2406.17557](https://arxiv.org/abs/2406.17557); matches Apertus stage-5 cooldown). FineWeb2-HQ English is the fallback.
+
+> **Reviewer flag**: cpt_plan.md v0.7 §4.2's "24 replay languages" framing (T1+T2+T3 = 8+11+5) is **our internal grouping**, not Apertus's. Apertus's tech report (arXiv:2509.14233 Appendix G, p.88-89) enumerates **20 high-resource languages** that receive quality+toxicity filtering; the other ~4 languages we include (T3: lat/hye/kat/sqi/mkd) are added by us for cultural/regional coverage relevant to Greek. Token-share targets per language are also our derivation, not from Apertus (the tech report only publishes document counts and percentages of FineWeb-2 documents, not training-mixture token shares).
 
 ### Code (4 %)
 

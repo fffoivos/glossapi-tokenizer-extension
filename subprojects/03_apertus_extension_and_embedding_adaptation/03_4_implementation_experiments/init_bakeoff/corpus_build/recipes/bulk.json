@@ -138,50 +138,50 @@
     {
       "name": "replay_t1_fra_Latn",
       "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
-      "id": "epfml/FineWeb-2-HQ", "config": "fra_Latn", "split": "train", "streaming": true, "text_column": "text"
+      "id": "epfml/FineWeb2-HQ", "config": "fra_Latn", "split": "train", "streaming": true, "text_column": "text"
     },
     {
       "name": "replay_t1_deu_Latn",
       "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
-      "id": "epfml/FineWeb-2-HQ", "config": "deu_Latn", "split": "train", "streaming": true, "text_column": "text"
+      "id": "epfml/FineWeb2-HQ", "config": "deu_Latn", "split": "train", "streaming": true, "text_column": "text"
     },
     {
       "name": "replay_t1_ita_Latn",
       "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
-      "id": "epfml/FineWeb-2-HQ", "config": "ita_Latn", "split": "train", "streaming": true, "text_column": "text"
+      "id": "epfml/FineWeb2-HQ", "config": "ita_Latn", "split": "train", "streaming": true, "text_column": "text"
     },
     {
       "name": "replay_t1_spa_Latn",
       "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
-      "id": "epfml/FineWeb-2-HQ", "config": "spa_Latn", "split": "train", "streaming": true, "text_column": "text"
+      "id": "epfml/FineWeb2-HQ", "config": "spa_Latn", "split": "train", "streaming": true, "text_column": "text"
     },
     {
       "name": "replay_t1_rus_Cyrl",
       "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
-      "id": "epfml/FineWeb-2-HQ", "config": "rus_Cyrl", "split": "train", "streaming": true, "text_column": "text"
+      "id": "epfml/FineWeb2-HQ", "config": "rus_Cyrl", "split": "train", "streaming": true, "text_column": "text"
     },
     {
       "name": "replay_t1_arb_Arab",
       "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
-      "id": "epfml/FineWeb-2-HQ", "config": "arb_Arab", "split": "train", "streaming": true, "text_column": "text"
+      "id": "epfml/FineWeb2-HQ", "config": "arb_Arab", "split": "train", "streaming": true, "text_column": "text"
     },
     {
       "name": "replay_t1_cmn_Hani",
       "bucket": "replay", "share_within_bucket": 0.10, "weight": 0.013,
-      "id": "epfml/FineWeb-2-HQ", "config": "cmn_Hani", "split": "train", "streaming": true, "text_column": "text"
+      "id": "epfml/FineWeb2-HQ", "config": "cmn_Hani", "split": "train", "streaming": true, "text_column": "text"
     },
 
-    {"name": "replay_t2_tur_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb-2-HQ", "config": "tur_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_tur_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb2-HQ", "config": "tur_Latn", "split": "train", "streaming": true, "text_column": "text"},
     {"name": "replay_t2_bul_Cyrl", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "HuggingFaceFW/fineweb-2", "config": "bul_Cyrl", "split": "train", "streaming": true, "text_column": "text"},
     {"name": "replay_t2_srp_Cyrl", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "HuggingFaceFW/fineweb-2", "config": "srp_Cyrl", "split": "train", "streaming": true, "text_column": "text"},
     {"name": "replay_t2_ron_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "HuggingFaceFW/fineweb-2", "config": "ron_Latn", "split": "train", "streaming": true, "text_column": "text"},
     {"name": "replay_t2_heb_Hebr", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "HuggingFaceFW/fineweb-2", "config": "heb_Hebr", "split": "train", "streaming": true, "text_column": "text"},
-    {"name": "replay_t2_por_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb-2-HQ", "config": "por_Latn", "split": "train", "streaming": true, "text_column": "text"},
-    {"name": "replay_t2_pol_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb-2-HQ", "config": "pol_Latn", "split": "train", "streaming": true, "text_column": "text"},
-    {"name": "replay_t2_nld_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb-2-HQ", "config": "nld_Latn", "split": "train", "streaming": true, "text_column": "text"},
-    {"name": "replay_t2_pes_Arab", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb-2-HQ", "config": "pes_Arab", "split": "train", "streaming": true, "text_column": "text", "fallback_id": "HuggingFaceFW/fineweb-2", "fallback_config": "fas_Arab"},
+    {"name": "replay_t2_por_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb2-HQ", "config": "por_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_pol_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb2-HQ", "config": "pol_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_nld_Latn", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb2-HQ", "config": "nld_Latn", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_pes_Arab", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb2-HQ", "config": "pes_Arab", "split": "train", "streaming": true, "text_column": "text", "fallback_id": "HuggingFaceFW/fineweb-2", "fallback_config": "fas_Arab"},
     {"name": "replay_t2_ukr_Cyrl", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "HuggingFaceFW/fineweb-2", "config": "ukr_Cyrl", "split": "train", "streaming": true, "text_column": "text"},
-    {"name": "replay_t2_jpn_Jpan", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb-2-HQ", "config": "jpn_Jpan", "split": "train", "streaming": true, "text_column": "text"},
+    {"name": "replay_t2_jpn_Jpan", "bucket": "replay", "share_within_bucket": 0.0345, "weight": 0.00898, "id": "epfml/FineWeb2-HQ", "config": "jpn_Jpan", "split": "train", "streaming": true, "text_column": "text"},
 
     {"name": "replay_t3_lat_Latn", "bucket": "replay", "share_within_bucket": 0.024, "weight": 0.00624, "id": "HuggingFaceFW/fineweb-2", "config": "lat_Latn", "split": "train", "streaming": true, "text_column": "text"},
     {"name": "replay_t3_hye_Armn", "bucket": "replay", "share_within_bucket": 0.024, "weight": 0.00624, "id": "HuggingFaceFW/fineweb-2", "config": "hye_Armn", "split": "train", "streaming": true, "text_column": "text"},
