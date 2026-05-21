@@ -105,13 +105,8 @@ The anneal recipe is `recipes/anneal.json`. It will be used in the production CP
 ## Builder usage
 
 ```bash
-# Generate the bulk JSON-lines stream (~6-8 B tokens worth)
-python3 mix_builder.py \
-    --recipe recipes/bulk.json \
-    --target-tokens 7_000_000_000 \
-    --tokenizer /iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480 \
-    --output /iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl \
-    --seed 20260520
+# Generate the bakeoff bulk JSON-lines stream after the smoke passes
+sbatch corpus_build/mix_builder_full.sbatch
 
 # Same shape for the anneal recipe (not run in the bakeoff)
 python3 mix_builder.py \
@@ -124,14 +119,14 @@ python3 mix_builder.py \
 
 Output is JSON-lines. Each line is `{"text": "...", "source": "...", "doc_id": "...", "lang": "..."}`. Megatron-LM-Swiss-AI's `tools/preprocess_data.py` then converts JSON-lines → binary indexed dataset (`.bin` + `.idx`) for training.
 
-Determinism: the `--seed` controls the interleave randomization. Same seed → same token stream across runs; the three bakeoff arms see *identical* streams (per v0.7 §5: "same corpus, same total CPT token budget, same staged training schedule") and differ only in init.
+Determinism: the `--seed` controls the interleave randomization. Same seed means the same JSONL text stream across runs. Vanilla and the extended arms then use different tokenizers/preprocessed Megatron binaries, so token IDs differ across tokenizer families even though the document order is shared.
 
 ## Why two stages (build JSONL → preprocess to .bin/.idx)
 
 Megatron's training reads its native binary format; converting on the fly during interleaving is awkward. Splitting the pipeline:
 
-1. `mix_builder.py` does the streaming interleave + budget-cap + writes JSONL (CPU job on `xfer`).
-2. `tools/preprocess_data.py` (Megatron) does the tokenization + binary packing (CPU job on `xfer` or `debug`).
+1. `mix_builder.py` does the streaming interleave + budget-cap + writes JSONL (CPU job on `normal`; `xfer` is in maintenance during the 2026-05-21 run).
+2. `tools/preprocess_data.py` (Megatron) does the tokenization + binary packing (CPU job on `normal`).
 3. Training reads the binary on `normal`.
 
 This way each stage has a single clear job, and we can re-run any stage independently.

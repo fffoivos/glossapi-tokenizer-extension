@@ -17,6 +17,7 @@ This file records Codex takeover actions after the CSCS overnight run. It is the
 - Corrected `mix_builder.py` determinism wording: all arms share the same JSONL text stream, but base-vs-extended token IDs differ.
 - Corrected `corpus_build/recipes/bulk.json` metadata to match the actual `70/24/4/2` Greek/replay/code/math weights.
 - Fixed `normalize_nfc.sh` to include the `cpt/` directory, so the runbook-produced selected parquet is normalized when normalization runs after `prepare_greek_pool`.
+- Added `mix_builder_full.sbatch` and moved `preprocess_data.sbatch` from the unavailable `xfer` partition to `normal`, so the after-prepare dependency chain can run unattended.
 - Clarified R17 q/k norm evidence and added q/k max-diff printing to future `r1_roundtrip.sbatch` reruns.
 - Updated `CSCS_OVERNIGHT_STATE.md` and `SESSION_LOG_20260521.md` with takeover state and known corrections.
 
@@ -41,7 +42,7 @@ Static shell/Python/JSON checks did pass.
 ## Process decisions
 
 - Did not stop `prepare_greek_pool` job `2334880`: DuckDB temp grew during checks, so it was actively spilling rather than stuck.
-- First `rsync` of `glossapi_corpus_cli/` failed with an SSH connection-close error while other rsyncs were running in parallel; retried it by itself and it succeeded. Local/deployed checksums matched after retry.
+- Parallel `rsync` to Clariden has twice closed one SSH connection while other copies succeeded; each failed copy was retried by itself and succeeded. Local/deployed checksums matched after retry.
 - A later multi-file `rsync` briefly copied `normalize_nfc.sh` to the remote subproject root instead of `corpus_build/`; removed that accidental remote copy and resynced the script to the correct path.
 - Submitted corrected V4 evals after syncing:
   - `2335100` = V4-HF corrected baseline, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_baseline_v4_corrected_20260521_121639`

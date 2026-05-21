@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=preprocess_data
 #SBATCH --account=a0140
-#SBATCH --partition=xfer
+#SBATCH --partition=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=64
+#SBATCH --cpus-per-task=288
+#SBATCH --mem=400G
 #SBATCH --time=06:00:00
 #SBATCH --output=/capstor/scratch/cscs/fffoivos/runs/preprocess/%x-%j.out
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/preprocess/%x-%j.err
@@ -31,7 +32,7 @@
 #   TOKENIZER_DIR  — HF-format tokenizer dir
 #                      For Vanilla bakeoff data: $BASE_TOKENIZER_DIR (131,072 base)
 #                      For ReTok/Centroid data: $EXT_TOKENIZER_DIR  (148,480 ship bundle)
-#   WORKERS        — preprocess workers (default 64; xfer partition has 256 vCPU)
+#   WORKERS        — preprocess workers (default 288; normal partition full CPU node)
 #
 # Per reviewer round-2 Blocker 2: must be invoked TWICE — once per tokenizer —
 # producing two separately-tokenized Megatron binaries. The Vanilla arm's
@@ -48,7 +49,7 @@ INPUT_JSONL="${INPUT_JSONL:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.
 # Default to extended (the "main" arm), but caller should override per family.
 OUTPUT_PREFIX="${OUTPUT_PREFIX:-$EXT_DATA_PREFIX}"
 TOKENIZER_DIR="${TOKENIZER_DIR:-$EXT_TOKENIZER_DIR}"
-WORKERS="${WORKERS:-64}"
+WORKERS="${WORKERS:-288}"
 
 mkdir -p "$(dirname "$OUTPUT_PREFIX")"
 

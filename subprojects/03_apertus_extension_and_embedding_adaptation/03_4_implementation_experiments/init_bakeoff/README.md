@@ -50,16 +50,10 @@ The bakeoff fires once these are complete (most are Clariden-side):
                                                               # (now includes FineMath stage-1 alongside replay/code)
                    bash eval/pull_benchmarks.sh              # ~30-60 min
 
-[Clariden xfer]    bash corpus_build/normalize_nfc.sh        # V9 enforcement (idempotent NFC pass)
-                   bash corpus_build/prepare_greek_pool.sh   # Runbook step: Apertus-drop + drop_intra_and_inter
-                                                              # produces $SELECTED parquet for mix_builder
-                   export SELECTED=/iopsstor/.../cpt/selected_after_apertus_and_internal_dedup.parquet
-                   python3 corpus_build/mix_builder.py \
-                       --recipe corpus_build/recipes/bulk.json \
-                       --target-tokens 7000000000 \
-                       --tokenizer /iopsstor/.../tokenizers/apertus_greek_modern_only_148480 \
-                       --output /iopsstor/.../cpt_corpus/bulk_mix.jsonl \
-                       --seed 20260520                    # ~6-10 h
+[Clariden normal]  sbatch corpus_build/prepare_greek_pool.sbatch
+                   sbatch --dependency=afterok:<prepare_job> corpus_build/normalize_nfc.sbatch
+                   sbatch --dependency=afterok:<normalize_job> corpus_build/mix_builder_smoke.sbatch
+                   sbatch --dependency=afterok:<smoke_job> corpus_build/mix_builder_full.sbatch
                    # Optionally also build anneal_mix.jsonl with recipes/anneal.json (not used in bakeoff)
 
                    # Then tokenize JSONL → Megatron binary indexed dataset
