@@ -2,21 +2,22 @@
 
 *Started 2026-05-21 ~03:30 EEST. Foivos going to sleep around the start of this. Cluster: Clariden, account a0140, user fffoivos.*
 
-## Takeover update (2026-05-21 ~13:45 UTC)
+## Takeover update (2026-05-21 ~15:00 UTC)
 
 Codex takeover is now the live handoff. `SESSION_LOG_20260521.md` remains the audit trail; this file is the current operating state.
 
 | Item | Status |
 |---|---|
-| Active Clariden jobs | Corrected post-conversion eval `2335196` is RUNNING. Corpus normalize `2335826` is RUNNING. Corrected V4-HF eval `2335100` and init build/conversion jobs `2335382`/`2335384` have COMPLETED. |
-| Corpus output status | `prepare_greek_pool` job `2334880` COMPLETED `0:0` in 1h13m42s. Final selected CPT parquet exists at `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet`: `47,061,862` rows, `227,837,744,625` chars, 109 GiB on disk. |
+| Active Clariden jobs | Corrected post-conversion eval `2335196` is RUNNING. Full corpus mix is running as sharded array `2336647` (`0-6%3`, 1B tokens/shard), followed by concat `2336680` and preprocess jobs `2336681`/`2336682`. Corrected V4-HF eval `2335100`, normalize `2335826`, token-fair smoke `2336566`, and init build/conversion jobs `2335382`/`2335384` have COMPLETED. |
+| Corpus output status | `prepare_greek_pool` job `2334880` COMPLETED `0:0` in 1h13m42s. Final selected CPT parquet exists at `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet`: `47,061,862` rows, `227,837,744,625` chars. After NFC normalization by `2335826`, the atomically replaced parquet is `129,318,720,576` bytes on disk. |
 | V4-HF baseline | Job `2334245` produced valid artifacts for its task list, but the script omitted `global_mmlu`. Treat `init_bakeoff/eval/v4_baseline_20260521/` as a partial baseline until corrected V4-HF and V4-post-conversion reruns complete. |
 | R1 roundtrip | PASS: job `2333864`, standard tensors max abs diff `0.0`, R17 xIELU deltas `128`. The sbatch now prints separate R17/qk max-diff values on future reruns. |
 | Corrected V4 evals | `2335100` V4-HF corrected baseline completed `0:0` in `01:10:29`; small local copy is under `03_4_implementation_experiments/init_bakeoff/eval/v4_baseline_corrected_20260521/`. `2335101` V4-post-conversion failed on a datasets/filelock `No locks available` error; patched per-job HF/datasets cache and resubmitted as `2335196`, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_corrected_retry_20260521_122535`. |
-| Queued corpus chain | First normalize job `2335157` failed because the wrapper called unsupported directory-mode CLI flags on `verify_and_normalize_nfc.py`. Patched `normalize_nfc.sh` to enumerate parquets and normalize each file through `--out <tmp>`. New chain: `2335826` normalize_nfc -> `2335827` mix smoke -> `2335828` full mix -> `2335829` base preprocess + `2335830` extended preprocess. |
+| Queued corpus chain | First normalize job `2335157` failed because the wrapper called unsupported directory-mode CLI flags on `verify_and_normalize_nfc.py`. Patched `normalize_nfc.sh`; `2335826` then completed. Mix smoke retries exposed generator/HF interleave, eager setup, stale source labels, gated code-source issues, and finally row-weighted token-share drift. Token-fair smoke `2336566` passed (`50,000,643` tokens, recipe shares close to target). Active chain after fixes: `2336647` shard array -> `2336680` concat -> `2336681` base preprocess + `2336682` extended preprocess. |
+| Active mix recipe deviation | The live recipe is `70%` Greek, `28%` replay, `0%` code, `2%` math. The planned 4% code bucket is folded into English FineWeb-Edu replay because `bigcode/starcoderdata`/fallbacks are gated or unusable in this CSCS path and no local code parquet is staged. |
 | Init checkpoints | Added `arms/build_init_checkpoints.sbatch`, `arms/convert_init_checkpoints.sbatch`, and `arms/submit_init_pipeline.sh`. `2335353` failed from Slurm spool-path handling; fixed with `SLURM_SUBMIT_DIR`. `2335371` failed from old Transformers in `pytorch/v2.6.0:v1`; fixed init jobs to use `pytorch/v2.9.1:v2`. Final chain passed: `2335382` build (2m43s) and `2335384` conversion (1m41s). Megatron releases exist under `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/{vanilla,retok,centroid}/megatron/release`. |
 | GCP cost check | Attempted from `home`; blocked by non-interactive `gcloud` reauthentication failure. No GCP instance state was verified in this takeover turn. |
-| Next actions | Let `2335826` and `2335196` run. When normalize finishes, validate `2335827` smoke, then `2335828` full mix, then preprocess (`2335829`/`2335830`). When preprocess passes, submit the three 2B arms with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 bash submit_all_arms.sh`. |
+| Next actions | Monitor `2336647` shard progress and `2335196` eval. When concat and preprocess pass, submit the three 2B arms with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 bash submit_all_arms.sh`. |
 
 ---
 

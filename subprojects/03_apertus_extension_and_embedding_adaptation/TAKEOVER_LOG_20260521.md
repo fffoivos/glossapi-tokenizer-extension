@@ -88,3 +88,33 @@ Static shell/Python/JSON checks did pass.
   - `2335830` = extended-tokenizer preprocess, dependency `afterok:2335828`
 - Corrected V4-HF baseline `2335100` completed successfully: Slurm `COMPLETED`, exit `0:0`, elapsed `01:10:29`. Local small-artifact copy committed under `03_4_implementation_experiments/init_bakeoff/eval/v4_baseline_corrected_20260521/`; large per-task sample JSONLs remain on Clariden.
 - Continue monitoring corrected post-conversion eval `2335196` and corpus dependency chain `2335826` -> `2335827` -> `2335828` -> `2335829`/`2335830`. When preprocess passes, submit the three 2B arms with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 bash submit_all_arms.sh`.
+
+## Live continuation - 2026-05-21 ~14:45 UTC
+
+- `2335826` normalize_nfc completed successfully in `01:03:16` and atomically replaced the selected CPT parquet. Post-normalization file size is `129,318,720,576` bytes; row/char counts remain the prepare output (`47,061,862` rows, `227,837,744,625` chars). The size delta is from the PyArrow rewrite/compression layout, not an intentional corpus expansion.
+- The first post-normalize smoke (`2335827`) failed because Hugging Face `interleave_datasets` does not accept plain Python generators. `mix_builder.py` now uses a custom deterministic weighted sampler instead of the HF interleaver.
+- Follow-up smoke attempts exposed slow or premature source setup before writing progress. `mix_builder.py` now skips zero-weight sources before loading them and streams local parquet sources directly with PyArrow batches instead of routing local parquets through HF `load_dataset(..., streaming=True)`.
+- The recipe's old source labels were stale relative to the selected nanochat parquet: it used `glossAPI/...` labels and `HPLT/Greek`, while the actual `source_dataset` values are the original dataset names plus `HPLT/ell_Grek`. `recipes/bulk.json` now matches the verified source labels.
+- `bigcode/starcoderdata` and candidate fallbacks were gated or script-based in ways that do not work in this CSCS path, and no local code parquet is staged. For the live CPT build, the planned 4% code bucket is set to weight `0.00` and folded into English FineWeb-Edu replay. The active recipe is therefore `70%` Greek, `28%` replay, `0%` code, `2%` math.
+- Current active corpus chain:
+  - `2336484` = `mix_builder_smoke`, RUNNING, output `/capstor/scratch/cscs/fffoivos/runs/preprocess/mix_smoke_50M.jsonl`
+  - `2336485` = `mix_builder_full`, dependency `afterok:2336484`
+  - `2336486` = base-tokenizer preprocess, dependency `afterok:2336485`
+  - `2336488` = extended-tokenizer preprocess, dependency `afterok:2336485`
+- `2336484` was verified alive and writing: at 14:43 UTC it had reached `20,702,489` / `50,000,000` target tokens and the JSONL had grown to `121M`.
+
+## Live continuation - 2026-05-21 ~15:00 UTC
+
+- `2336484` reached the smoke token target and wrote a manifest, but Slurm marked it `FAILED 6:0` because Python aborted during native reader teardown after output was written. Its manifest also exposed the more important quality bug: row-weighted source sampling produced wildly wrong token shares (for example Greek academic/literary dominated the 50M-token smoke).
+- Cancelled the dependent full/preprocess jobs (`2336485`, `2336486`, `2336488`) so the bad sampler could not cascade.
+- Patched `mix_builder.py` again: source selection is now token-fair (`tokens_so_far / target_weight`), so the next source is whichever is furthest behind its target token budget. On clean success, the script flushes stdout/stderr and exits via `os._exit(0)` to avoid the Clariden native-reader teardown abort while preserving real Python exceptions.
+- Fresh smoke `2336566` completed successfully (`COMPLETED 0:0`, elapsed `00:05:26`):
+  - output `/capstor/scratch/cscs/fffoivos/runs/preprocess/mix_smoke_50M.jsonl`, `50,000,643` tokens, `33,509` rows, `285M`
+  - manifest scheduler `token_fair_min_tokens_over_weight`
+  - token shares now match the recipe closely (Greek HPLT `0.3462` vs target `0.3500`, literary `0.1846` vs `0.1820`, academic `0.0554` vs `0.0560`, math `0.0198` vs `0.0200`)
+- Clariden normal partition has `MaxTime=12:00:00`; the corrected smoke rate makes one monolithic 7B-token full job too close to the wall-time limit. Added `concat_bulk_mix.sbatch` and made `mix_builder_full.sbatch` array-aware.
+- Current sharded full-build chain:
+  - `2336647` = `mix_builder_full` array, `0-6%3`, each shard target `1,000,000,000` tokens
+  - `2336680` = `concat_bulk_mix`, dependency `afterok:2336647`
+  - `2336681` = base-tokenizer preprocess, dependency `afterok:2336680`
+  - `2336682` = extended-tokenizer preprocess, dependency `afterok:2336680`

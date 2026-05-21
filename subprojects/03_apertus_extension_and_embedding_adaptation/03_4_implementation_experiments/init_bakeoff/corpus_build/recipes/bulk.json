@@ -1,12 +1,12 @@
 {
   "name": "bulk",
-  "description": "Bakeoff bulk-phase recipe. 70% Greek (post-Apertus-overlap-drop and post-internal-dedup) + 24% non-Greek replay across 24 languages in 3 tiers + 4% code + 2% math. Shuffled-mixture single-stream per cpt_plan.md v0.7 section 2. Probabilities sum to ~1.0 (the mix_builder normalizes anyway). Source order does not matter; the interleaver samples by probability.",
+  "description": "Bakeoff bulk-phase recipe. 70% Greek (post-Apertus-overlap-drop and post-internal-dedup) + 28% non-Greek replay across 24 languages in 3 tiers + 0% code + 2% math. Code is folded into English replay for the 2026-05-21 CSCS run because bigcode/starcoderdata is gated under the current HF auth and no local code parquet was staged. Shuffled-mixture single-stream per cpt_plan.md v0.7 section 2. Probabilities sum to ~1.0 (the mix_builder normalizes anyway). Source order does not matter; the interleaver samples by probability.",
   "version": "v1.0_20260520",
   "seed": 20260520,
   "buckets": {
     "greek": 0.70,
-    "replay": 0.24,
-    "code":  0.04,
+    "replay": 0.28,
+    "code":  0.00,
     "math":  0.02
   },
   "sources": [
@@ -20,7 +20,7 @@
       "streaming": true,
       "text_column": "text",
       "filter_field": "source_dataset",
-      "filter_values_regex": "^HPLT__ell_Grek",
+      "filter_values_regex": "^HPLT/ell_Grek",
       "doc_key_field": "doc_key",
       "comment": "HPLT clean60 fresh-only. Largest single Greek source. Reads from the runbook-produced ${SELECTED} parquet which has already had Apertus-overlap-drop AND internal-dedup (drop_intra_and_inter) applied per 03_2 CPT_DATASET_BUILD_RUNBOOK.md."
     },
@@ -35,14 +35,12 @@
       "text_column": "text",
       "filter_field": "source_dataset",
       "filter_values": [
-        "glossAPI/artos-zois",
-        "glossAPI/Ellinika_Keimena_Project_Gutenberg",
-        "glossAPI/Ekklisiastika_Keimena",
-        "glossAPI/1000_prwta_xronia_ellhnikhs",
-        "glossAPI/klasikh_arx_ell_grammateia",
-        "glossAPI/Wikisource_Greek_texts",
-        "glossAPI/dimodis_logotexnia",
-        "glossAPI/archetai"
+        "Ellinika_Keimena_Project_Gutenberg",
+        "Ekklisiastika_Keimena",
+        "1000_prwta_xronia_ellhnikhs",
+        "klasikh_arx_ell_grammateia",
+        "Wikisource_Greek_texts",
+        "dimodis_logotexnia"
       ],
       "comment": "High-quality literary Greek prose. Top of collegues_Apertus_plan.md ranking by quality + novelty."
     },
@@ -58,10 +56,8 @@
       "filter_field": "source_dataset",
       "filter_values": [
         "OPUS/OpenSubtitles-el-v2018",
-        "glossAPI/openbook.gr",
-        "glossAPI/Sxolika_vivlia",
-        "glossAPI/ert-press",
-        "glossAPI/istorima"
+        "openbook_gr",
+        "Sxolika_vivlia"
       ],
       "comment": "Spoken-style + didactic prose for register breadth."
     },
@@ -76,10 +72,10 @@
       "text_column": "text",
       "filter_field": "source_dataset",
       "filter_values": [
-        "glossAPI/openarchives.gr",
-        "glossAPI/Greek_PhD_Theses_Corpus",
-        "glossAPI/Apothetirio_Kallipos",
-        "glossAPI/Apothetirio_Pergamos"
+        "openarchives.gr",
+        "greek_phd",
+        "Apothetirio_Kallipos",
+        "Apothetirio_Pergamos"
       ],
       "comment": "Academic-register Greek (theses, scholarly aggregators). High novelty + good quality."
     },
@@ -94,10 +90,10 @@
       "text_column": "text",
       "filter_field": "source_dataset",
       "filter_values": [
-        "glossAPI/eurlex-greek-legislation",
+        "eurlex-greek-legislation",
         "AI-team-UoA/greek_legal_code",
-        "glossAPI/opengov.gr-diaboyleuseis",
-        "glossAPI/ellinika_dedomena_europaikou_koinovouliou"
+        "opengov.gr-diaboyleuseis",
+        "ellinika_dedomena_europaikou_koinovouliou"
       ],
       "comment": "Greek legal + EU + civic-discourse Greek."
     },
@@ -112,12 +108,7 @@
       "text_column": "text",
       "filter_field": "source_dataset",
       "filter_values": [
-        "glossAPI/modern-greek-dictionary",
-        "HuggingFaceFW/finewiki",
-        "glossAPI/95k_deigma_ellinikis",
-        "glossAPI/eellak-articles",
-        "glossAPI/amna-press",
-        "glossAPI/e-nautilia"
+        "HuggingFaceFW/finewiki"
       ],
       "comment": "Dictionary + Wikipedia + small misc Greek. Capped at 2% of Greek per Claude-review of Apertus_plan: dictionary content is structurally weird (definition format) and dominates if uncapped."
     },
@@ -126,14 +117,14 @@
       "name": "replay_t1_english_edu",
       "bucket": "replay",
       "share_within_bucket": 0.146,
-      "weight": 0.019,
+      "weight": 0.059,
       "id": "HuggingFaceFW/fineweb-edu",
       "split": "train",
       "streaming": true,
       "text_column": "text",
       "filter_field": "score",
       "filter_min": 3,
-      "comment": "English Score-3 (FineWeb-Edu) matches Apertus stage 5 cooldown filter. Trimmed 3.9% -> 1.9% in 2026-05-21 rebalance to make room for FineMath at 2% (see math bucket below)."
+      "comment": "English Score-3 (FineWeb-Edu) matches Apertus stage 5 cooldown filter. For the 2026-05-21 CSCS run this carries the temporarily unavailable 4% code bucket, so replay_t1_english_edu is 5.9%."
     },
     {
       "name": "replay_t1_fra_Latn",
@@ -193,12 +184,12 @@
       "name": "code_starcoder",
       "bucket": "code",
       "share_within_bucket": 1.0,
-      "weight": 0.04,
+      "weight": 0.00,
       "id": "bigcode/starcoderdata",
       "split": "train",
       "streaming": true,
       "text_column": "content",
-      "comment": "Apertus pretraining used StarCoder; matches the recipe for retention preservation."
+      "comment": "Apertus pretraining used StarCoder, but bigcode/starcoderdata is gated under the current HF auth and no local code parquet was staged on 2026-05-21. Weight is temporarily folded into replay_t1_english_edu for this CSCS run."
     },
 
     {
@@ -217,8 +208,8 @@
   "validation": {
     "expected_weight_sum": 1.0,
     "expected_greek_share": 0.70,
-    "expected_replay_share": 0.24,
-    "expected_code_share": 0.04,
+    "expected_replay_share": 0.28,
+    "expected_code_share": 0.00,
     "expected_math_share": 0.02
   }
 }

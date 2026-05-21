@@ -1,8 +1,8 @@
 """Streaming mix builder for the CPT bakeoff (and the future anneal phase).
 
 Reads a JSON recipe describing per-source HuggingFace datasets + weights +
-optional filters + optional drop-doc-keys parquets, interleaves them with
-the requested probabilities, and writes a JSON-lines file. The output is
+optional filters + optional drop-doc-keys parquets, interleaves them against
+the requested token-budget shares, and writes a JSON-lines file. The output is
 suitable as input to Megatron-LM's `tools/preprocess_data.py` for binary
 tokenization (which is a separate, downstream step).
 
@@ -31,13 +31,12 @@ Use Clariden `normal` partition (xfer is in maintenance till 2026-06-11);
 allocate ~64 GB RAM and one CPU socket.
 
 Compute justification (per [[feedback_compute_sweet_spot_justify]]):
-  * Parallelism: HuggingFace `datasets.interleave_datasets` streams each
-    source sequentially within its Iterator; multiple sources are
-    interleaved by sampling, not by parallel readers. Per-source IO is
-    the dominant cost for parquet sources (local_parquet) and is read in
-    pyarrow's internal-threadpool batch_size, which uses all cores
-    available. For HF-hosted sources (FineWeb-Edu etc.) IO is throttled
-    by the HF mirror.
+  * Parallelism: sources stream sequentially within their iterators; multiple
+    sources are interleaved by a deterministic token-fair scheduler, not by
+    parallel readers. Per-source IO is the dominant cost for parquet sources
+    (local_parquet) and is read in pyarrow's internal-threadpool batch_size,
+    which uses all cores available. For HF-hosted sources (FineWeb-Edu etc.)
+    IO is throttled by the HF mirror.
   * Tokenizer hot path: `tokenizer.encode(text)` is called once per row
     for budget tracking. The Apertus fast (rust) tokenizer is GIL-free
     but a single encode() call is single-threaded by design (parallelism
@@ -55,6 +54,8 @@ Compute justification (per [[feedback_compute_sweet_spot_justify]]):
 from __future__ import annotations
 import argparse
 import json
+import os
+import random
 import sys
 import time
 from pathlib import Path
@@ -110,12 +111,56 @@ def _build_source_stream(spec: dict[str, Any], drop_keys: set[str] | None) -> It
     drop_doc_keys filtering. Returns an iterator over normalized rows.
     """
     import os
-    from datasets import load_dataset
 
     name = spec["name"]
     split = spec.get("split", "train")
     streaming = bool(spec.get("streaming", True))
     text_col = spec.get("text_column", "text")
+    filter_field = spec.get("filter_field")
+    filter_values = set(spec.get("filter_values") or [])
+    filter_regex_pat = spec.get("filter_values_regex")
+    filter_min = spec.get("filter_min")
+    doc_key_field = spec.get("doc_key_field", "doc_key")
+
+    if filter_regex_pat:
+        import re
+        regex = re.compile(filter_regex_pat)
+
+    n_seen = 0
+    n_yielded = 0
+
+    def emit_or_none(row: dict[str, Any]) -> dict[str, str] | None:
+        nonlocal n_seen, n_yielded
+        n_seen += 1
+        if filter_field:
+            v = row.get(filter_field)
+            if v is None:
+                return None
+            if filter_values and v not in filter_values:
+                return None
+            if filter_regex_pat and not regex.search(str(v)):
+                return None
+            if filter_min is not None:
+                try:
+                    if float(v) < float(filter_min):
+                        return None
+                except (TypeError, ValueError):
+                    return None
+        if drop_keys is not None:
+            dk = row.get(doc_key_field)
+            if dk is not None and dk in drop_keys:
+                return None
+        text = row.get(text_col)
+        if not text or not isinstance(text, str):
+            return None
+        doc_id = (
+            row.get("doc_key")
+            or row.get("doc_id")
+            or row.get("id")
+            or f"{name}_{n_yielded}"
+        )
+        n_yielded += 1
+        return {"text": text, "source": name, "doc_id": str(doc_id)}
 
     local_parquet = spec.get("local_parquet")
     if local_parquet:
@@ -126,8 +171,34 @@ def _build_source_stream(spec: dict[str, Any], drop_keys: set[str] | None) -> It
                 f"{name}: local_parquet path still contains '$' after expansion: {local_path!r}. "
                 f"Set the env var before running mix_builder."
             )
-        ds = load_dataset("parquet", data_files=local_path, split=split, streaming=streaming)
+        import glob
+        import pyarrow.parquet as pq
+
+        paths = sorted(glob.glob(local_path))
+        if not paths:
+            raise SystemExit(f"{name}: local_parquet matched no files: {local_path}")
+        for path in paths:
+            pf = pq.ParquetFile(path)
+            available = set(pf.schema_arrow.names)
+            requested = [text_col, doc_key_field, "doc_key", "doc_id", "id"]
+            if filter_field:
+                requested.append(filter_field)
+            columns = []
+            for col in requested:
+                if col in available and col not in columns:
+                    columns.append(col)
+            if text_col not in columns:
+                raise SystemExit(f"{name}: local parquet {path} has no text column {text_col!r}")
+            for batch in pf.iter_batches(batch_size=5_000, columns=columns):
+                data = batch.to_pydict()
+                for i in range(batch.num_rows):
+                    out = emit_or_none({col: data[col][i] for col in columns})
+                    if out is not None:
+                        yield out
+        return
     else:
+        from datasets import load_dataset
+
         ds_id = spec["id"]
         config = spec.get("config")
         try:
@@ -142,56 +213,10 @@ def _build_source_stream(spec: dict[str, Any], drop_keys: set[str] | None) -> It
             else:
                 raise
 
-    filter_field = spec.get("filter_field")
-    filter_values = set(spec.get("filter_values") or [])
-    filter_regex_pat = spec.get("filter_values_regex")
-    filter_min = spec.get("filter_min")
-    doc_key_field = spec.get("doc_key_field", "doc_key")
-
-    if filter_regex_pat:
-        import re
-        regex = re.compile(filter_regex_pat)
-
-    n_seen = 0
-    n_yielded = 0
     for row in ds:
-        n_seen += 1
-        # Apply filter
-        if filter_field:
-            v = row.get(filter_field)
-            if v is None:
-                continue
-            if filter_values and v not in filter_values:
-                continue
-            if filter_regex_pat and not regex.search(str(v)):
-                continue
-            if filter_min is not None:
-                try:
-                    if float(v) < float(filter_min):
-                        continue
-                except (TypeError, ValueError):
-                    continue
-        # Apply drop list
-        if drop_keys is not None:
-            dk = row.get(doc_key_field)
-            if dk is not None and dk in drop_keys:
-                continue
-        # Normalize output
-        text = row.get(text_col)
-        if not text or not isinstance(text, str):
-            continue
-        doc_id = (
-            row.get("doc_key")
-            or row.get("doc_id")
-            or row.get("id")
-            or f"{name}_{n_yielded}"
-        )
-        yield {
-            "text": text,
-            "source": name,
-            "doc_id": str(doc_id),
-        }
-        n_yielded += 1
+        out = emit_or_none(row)
+        if out is not None:
+            yield out
 
 
 def _build_all_sources(recipe: dict) -> tuple[list[Iterable[dict]], list[float], list[str]]:
@@ -219,6 +244,33 @@ def _build_all_sources(recipe: dict) -> tuple[list[Iterable[dict]], list[float],
     return sources, weights, names
 
 
+def _choose_token_fair_source(
+    active: list[int],
+    weights: list[float],
+    per_source_tokens: dict[str, int],
+    names: list[str],
+    source_token_targets: list[float],
+    rng: random.Random,
+) -> int:
+    """Choose the active source furthest behind its target token budget.
+
+    A probability-only row sampler is not enough here: selected nanochat rows
+    vary from tiny snippets to multi-million-token academic documents. This
+    scheduler uses observed token totals to keep source shares close to the
+    recipe's token-budget weights. Overshoot is bounded by the largest emitted
+    document for that source.
+    """
+    under_quota = [i for i in active if per_source_tokens[names[i]] < source_token_targets[i]]
+    candidates = under_quota or active
+    progress = {
+        i: per_source_tokens[names[i]] / max(weights[i], 1e-12)
+        for i in candidates
+    }
+    min_progress = min(progress.values())
+    tied = [i for i in candidates if progress[i] == min_progress]
+    return rng.choice(tied)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--recipe", type=Path, required=True)
@@ -242,7 +294,6 @@ def main() -> int:
     print(f"output: {args.output}")
     print(f"seed: {seed}")
 
-    from datasets import interleave_datasets
     from transformers import AutoTokenizer  # type: ignore
 
     print(f"loading tokenizer for token counting: {args.tokenizer}")
@@ -255,13 +306,11 @@ def main() -> int:
     for name, w in zip(names, weights):
         print(f"    {w:.4f}  {name}")
 
-    print(f"interleaving with stopping_strategy='all_exhausted' ...")
-    mixed = interleave_datasets(
-        list(sources),
-        probabilities=weights,
-        stopping_strategy="all_exhausted",
-        seed=seed,
-    )
+    print(f"interleaving with deterministic token-fair scheduler ...")
+    iterators = [iter(src) for src in sources]
+    active = [i for i, weight in enumerate(weights) if weight > 0.0]
+    rng = random.Random(seed)
+    source_token_targets = [args.target_tokens * w for w in weights]
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     n_tokens = 0
@@ -272,7 +321,26 @@ def main() -> int:
     per_source_tokens = {n: 0 for n in names}
 
     with args.output.open("w", encoding="utf-8") as fp:
-        for row in mixed:
+        while active and n_tokens < args.target_tokens:
+            idx = _choose_token_fair_source(
+                active=active,
+                weights=weights,
+                per_source_tokens=per_source_tokens,
+                names=names,
+                source_token_targets=source_token_targets,
+                rng=rng,
+            )
+            try:
+                row = next(iterators[idx])
+            except StopIteration:
+                active.remove(idx)
+                print(
+                    f"  [WARN] source exhausted before target budget: {names[idx]} "
+                    f"({per_source_tokens[names[idx]]:,}/{source_token_targets[idx]:,.0f} tokens)",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                continue
             text = row.get("text") or ""
             if not text:
                 continue
@@ -298,9 +366,6 @@ def main() -> int:
                 print(f"  {n_tokens:>12,} tok  ({pct:5.1f}%)  rows={n_rows:>10,}  rate={rate/1000:6.1f}k tok/s  ETA={eta/60:5.1f} min", flush=True)
                 last_progress = n_tokens
 
-            if n_tokens >= args.target_tokens:
-                break
-
     elapsed = time.time() - t0
     print(f"\n=== summary ===")
     print(f"total tokens written: {n_tokens:,} (target {args.target_tokens:,})")
@@ -324,12 +389,15 @@ def main() -> int:
         "actual_rows": n_rows,
         "wall_seconds": elapsed,
         "output": str(args.output),
+        "scheduler": "token_fair_min_tokens_over_weight",
         "per_source": {
             name: {
                 "rows": per_source_rows[name],
                 "tokens": per_source_tokens[name],
                 "effective_weight": per_source_tokens[name] / max(n_tokens, 1),
                 "target_weight": weights[i],
+                "target_tokens": source_token_targets[i],
+                "token_delta_vs_target": per_source_tokens[name] - source_token_targets[i],
             } for i, name in enumerate(names)
         },
     }
@@ -340,4 +408,10 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    code = main()
+    sys.stdout.flush()
+    sys.stderr.flush()
+    # On Clariden, a successful run can abort during teardown of native dataset
+    # readers after all files are written. Preserve real Python exceptions, but
+    # skip native finalizers on the clean path so Slurm sees the successful exit.
+    os._exit(code)

@@ -8,7 +8,7 @@ User: `fffoivos`, account `a0140`, cluster Clariden. Working uenv: `pytorch/v2.9
 
 | Track | State | Evidence |
 |---|---|---|
-| **A — Corpus build chain** | prepare_greek_pool **on attempt 6/6** (job 2334880, RUNNING healthy past previous OOM cliff). Downstream chain (normalize -> mix -> preprocess x2) staged and audited. | `filtered_input.parquet` exists; `external_drop_filtered_input.parquet` was still in-progress/0 bytes at takeover check; DuckDB temp was advancing |
+| **A — Corpus build chain** | prepare_greek_pool and normalize_nfc completed. Active chain is `2336484` smoke -> `2336485` full mix -> `2336486`/`2336488` preprocess. | Selected CPT parquet exists; smoke JSONL is actively growing under `/capstor/scratch/cscs/fffoivos/runs/preprocess/` |
 | **B — V4-HF baseline** | **PARTIAL** (job 2334245, 1h11m54s; valid for listed tasks, but missing `global_mmlu`) | [`init_bakeoff/eval/v4_baseline_20260521/`](03_4_implementation_experiments/init_bakeoff/eval/v4_baseline_20260521/) — `results.json`, `V4_RESULTS.md`, full stdout |
 | **C — R1 HF→Megatron→HF roundtrip** | **PASS** (job 2333864) | std-tensor max abs diff = `0.0`, R17 changed = `128` (= 32 layers × 4 xIELU params); see [`megatron_patches/README.md` § R1 result](03_4_implementation_experiments/init_bakeoff/megatron_patches/README.md#r1-result-2026-05-21-apertus-8b-2509-job-2333864) |
 
@@ -40,6 +40,13 @@ Live checks performed:
 - Patched the same Slurm spool-path bug in `preprocess_data.sbatch` and `bakeoff_train.sbatch`, then canceled old pending preprocess jobs `2335160` / `2335161` and requeued patched replacements `2335581` / `2335583` with dependency `afterok:2335159`.
 - `2334880` completed successfully. Selected CPT parquet: `47,061,862` rows and `227,837,744,625` chars at `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet`.
 - `2335157` normalize_nfc failed because `normalize_nfc.sh` expected unsupported directory-mode flags in `verify_and_normalize_nfc.py`. Patched the wrapper to enumerate parquets and normalize file-by-file via `--out <tmp>`, then requeued the corpus chain as `2335826` -> `2335827` -> `2335828` -> `2335829`/`2335830`.
+- `2335826` normalize_nfc completed successfully. The selected CPT parquet was atomically replaced after NFC normalization; current size is `129,318,720,576` bytes.
+- `2335827` and subsequent smoke retries found mix-builder issues that only showed after the normalized selected parquet existed: HF `interleave_datasets` rejects Python generators, eager setup could spend minutes before writing output, recipe labels did not match the selected parquet's `source_dataset` values, and the planned StarCoder code source is gated/not locally staged. The live fix is a deterministic custom weighted sampler, PyArrow batch streaming for local parquet sources, corrected source labels, and a temporary `0%` code bucket with the planned 4% folded into English replay.
+- Requeued the active corpus chain after these fixes as `2336484` smoke -> `2336485` full mix -> `2336486` base preprocess + `2336488` extended preprocess. At 14:43 UTC `2336484` was RUNNING and had written `20,702,489` target-counted tokens.
+- `2336484` wrote a complete smoke output and manifest but failed Slurm exit (`FAILED 6:0`) because Python aborted during native reader teardown. Its manifest showed the row-weighted sampler was semantically wrong for token-share control: large academic/literary rows dominated the 50M-token smoke.
+- Cancelled dependent jobs `2336485`/`2336486`/`2336488`, replaced row-weighted sampling with a token-fair scheduler, and added a clean-path `os._exit(0)` after stdout/stderr flush.
+- Fresh token-fair smoke `2336566` completed `0:0` in `00:05:26`: `50,000,643` tokens, `33,509` rows, scheduler `token_fair_min_tokens_over_weight`, token shares close to recipe targets.
+- Normal partition max time is `12:00:00`, so the 7B full mix now runs as a safer shard chain: `2336647` array (`0-6%3`, 1B tokens/shard) -> `2336680` concat -> `2336681` base preprocess + `2336682` extended preprocess.
 
 ## Files touched locally (home machine)
 
@@ -175,16 +182,15 @@ Live jobs queued/running as of the takeover continuation:
 - `2334880` prepare_greek_pool completed and produced the selected CPT parquet.
 - `2335100` V4-HF corrected baseline completed successfully (`COMPLETED`, exit `0:0`, elapsed `01:10:29`). Small result copy: `03_4_implementation_experiments/init_bakeoff/eval/v4_baseline_corrected_20260521/`.
 - `2335196` V4-post-conversion retry is running with per-job dataset cache.
-- `2335826` -> `2335827` -> `2335828` -> `2335829`/`2335830` is the active corpus dependency chain.
+- `2336647` -> `2336680` -> `2336681`/`2336682` is the active corpus dependency chain after the token-fair smoke passed.
 - `2335382` -> `2335384` completed and produced Megatron release checkpoints for all three arms.
 
 Next:
 
-1. Watch `2335826` normalize_nfc.
-2. Watch `2335827` mix_builder_smoke and inspect the smoke JSONL.
-3. Watch `2335828` full mix -> `bulk_mix.jsonl`.
-4. Watch `2335829` / `2335830` preprocess outputs: `$BASE_DATA_PREFIX{.bin,.idx}` and `$EXT_DATA_PREFIX{.bin,.idx}`.
-5. Submit `submit_all_arms.sh` with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480` to fire the three 2 B-token training runs.
+1. Watch `2336647` shard array and inspect per-shard manifests.
+2. Watch `2336648` concat -> `bulk_mix.jsonl` + combined manifest.
+3. Watch `2336649` / `2336651` preprocess outputs: `$BASE_DATA_PREFIX{.bin,.idx}` and `$EXT_DATA_PREFIX{.bin,.idx}`.
+4. Submit `submit_all_arms.sh` with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480` to fire the three 2 B-token training runs.
 
 Independent follow-ups (deferred to after the corpus chain is unblocked):
 

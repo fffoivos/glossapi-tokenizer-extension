@@ -12,11 +12,18 @@
 #
 # Full bulk-mix build for the 2B-token init bakeoff.
 #
+# Can be run either as one 7B-token job or as a Slurm array of smaller shards:
+#
+#   sbatch --array=0-6%3 --export=ALL,TARGET_TOKENS=1000000000 mix_builder_full.sbatch
+#
+# Array mode writes bulk_mix_part_XX.jsonl files, each with its own seed.
+# Concatenate them with concat_bulk_mix.sbatch before preprocess_data.sbatch.
+#
 # Inputs:
 #   $SELECTED from prepare_greek_pool.sh:
 #     /iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet
 #   recipes/bulk.json:
-#     70/24/4/2 Greek/replay/code/math
+#     70/28/0/2 Greek/replay/code/math for the 2026-05-21 CSCS run
 #
 # Output:
 #   /iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl
@@ -31,7 +38,9 @@
 #     buffers. 200G is conservative.
 #   * Known gap: batching tokenizer.encode would be faster but would change the
 #     deterministic streaming loop. Keep the production path identical to the
-#     smoke job.
+#     smoke job. After the token-fair fix, 50M-token smoke measured ~160k tok/s;
+#     one 7B job is too close to Clariden normal's 12h MaxTime, so prefer the
+#     documented 7 x 1B array mode.
 
 set -euo pipefail
 
@@ -40,7 +49,15 @@ SELECTED=$STAGE_ROOT/cpt/selected_after_apertus_and_internal_dedup.parquet
 REPO_DIR=/iopsstor/scratch/cscs/fffoivos/repo
 RECIPE=$REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/corpus_build/recipes/bulk.json
 TOKENIZER=/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480
-OUTPUT=$STAGE_ROOT/bulk_mix.jsonl
+TARGET_TOKENS="${TARGET_TOKENS:-7000000000}"
+SEED="${SEED:-20260520}"
+if [ -n "${SLURM_ARRAY_TASK_ID:-}" ]; then
+    SHARD_ID="$(printf "%02d" "$SLURM_ARRAY_TASK_ID")"
+    OUTPUT="${OUTPUT:-$STAGE_ROOT/bulk_mix_part_${SHARD_ID}.jsonl}"
+    SEED="$(( SEED + SLURM_ARRAY_TASK_ID ))"
+else
+    OUTPUT="${OUTPUT:-$STAGE_ROOT/bulk_mix.jsonl}"
+fi
 
 if [ ! -f "$SELECTED" ]; then
     echo "ERROR: $SELECTED missing — run prepare_greek_pool first" >&2
@@ -58,12 +75,12 @@ set -euo pipefail
 export PYTHONPATH=/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval:$REPO_DIR
 export SELECTED=$SELECTED
 
-python3 $REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/corpus_build/mix_builder.py \
+python3 -u $REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/corpus_build/mix_builder.py \
     --recipe $RECIPE \
-    --target-tokens 7000000000 \
+    --target-tokens $TARGET_TOKENS \
     --tokenizer $TOKENIZER \
     --output $OUTPUT \
-    --seed 20260520
+    --seed $SEED
 INNER
 
 echo "=== full mix complete ==="

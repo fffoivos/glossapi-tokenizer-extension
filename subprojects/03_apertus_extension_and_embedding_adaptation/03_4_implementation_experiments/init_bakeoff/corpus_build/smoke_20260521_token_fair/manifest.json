@@ -1,0 +1,270 @@
+{
+  "recipe": "/iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/corpus_build/recipes/bulk.json",
+  "recipe_name": "bulk",
+  "recipe_version": "v1.0_20260520",
+  "seed": 20260521,
+  "target_tokens": 50000000,
+  "actual_tokens": 50000643,
+  "actual_rows": 33509,
+  "wall_seconds": 307.778813123703,
+  "output": "/capstor/scratch/cscs/fffoivos/runs/preprocess/mix_smoke_50M.jsonl",
+  "scheduler": "token_fair_min_tokens_over_weight",
+  "per_source": {
+    "greek_hplt_clean60": {
+      "rows": 19792,
+      "tokens": 17310241,
+      "effective_weight": 0.3462003678632693,
+      "target_weight": 0.3500070001400028,
+      "target_tokens": 17500350.00700014,
+      "token_delta_vs_target": -190109.00700014085
+    },
+    "greek_literary": {
+      "rows": 642,
+      "tokens": 9229323,
+      "effective_weight": 0.18458408624865083,
+      "target_weight": 0.18200364007280145,
+      "target_tokens": 9100182.003640072,
+      "token_delta_vs_target": 129140.99635992758
+    },
+    "greek_dialogue_textbooks": {
+      "rows": 349,
+      "tokens": 3127804,
+      "effective_weight": 0.06255527553915656,
+      "target_weight": 0.06300126002520051,
+      "target_tokens": 3150063.0012600254,
+      "token_delta_vs_target": -22259.001260025427
+    },
+    "greek_academic": {
+      "rows": 56,
+      "tokens": 2769740,
+      "effective_weight": 0.05539408763203305,
+      "target_weight": 0.05600112002240045,
+      "target_tokens": 2800056.0011200225,
+      "token_delta_vs_target": -30316.001120022498
+    },
+    "greek_legal_civic": {
+      "rows": 414,
+      "tokens": 1733465,
+      "effective_weight": 0.034668854158535524,
+      "target_weight": 0.03500070001400028,
+      "target_tokens": 1750035.0007000142,
+      "token_delta_vs_target": -16570.000700014178
+    },
+    "greek_dictionary_misc": {
+      "rows": 638,
+      "tokens": 692607,
+      "effective_weight": 0.013851961863770431,
+      "target_weight": 0.014000280005600113,
+      "target_tokens": 700014.0002800056,
+      "token_delta_vs_target": -7407.0002800056245
+    },
+    "replay_t1_english_edu": {
+      "rows": 2700,
+      "tokens": 2918047,
+      "effective_weight": 0.058360189487963184,
+      "target_weight": 0.05900118002360047,
+      "target_tokens": 2950059.0011800234,
+      "token_delta_vs_target": -32012.00118002342
+    },
+    "replay_t1_fra_Latn": {
+      "rows": 622,
+      "tokens": 643385,
+      "effective_weight": 0.012867534523506028,
+      "target_weight": 0.013000260005200104,
+      "target_tokens": 650013.0002600052,
+      "token_delta_vs_target": -6628.000260005239
+    },
+    "replay_t1_deu_Latn": {
+      "rows": 737,
+      "tokens": 643087,
+      "effective_weight": 0.012861574600150642,
+      "target_weight": 0.013000260005200104,
+      "target_tokens": 650013.0002600052,
+      "token_delta_vs_target": -6926.000260005239
+    },
+    "replay_t1_ita_Latn": {
+      "rows": 570,
+      "tokens": 672395,
+      "effective_weight": 0.01344772706222998,
+      "target_weight": 0.013000260005200104,
+      "target_tokens": 650013.0002600052,
+      "token_delta_vs_target": 22381.99973999476
+    },
+    "replay_t1_spa_Latn": {
+      "rows": 785,
+      "tokens": 646207,
+      "effective_weight": 0.012923973797696962,
+      "target_weight": 0.013000260005200104,
+      "target_tokens": 650013.0002600052,
+      "token_delta_vs_target": -3806.0002600052394
+    },
+    "replay_t1_rus_Cyrl": {
+      "rows": 384,
+      "tokens": 651972,
+      "effective_weight": 0.01303927231495803,
+      "target_weight": 0.013000260005200104,
+      "target_tokens": 650013.0002600052,
+      "token_delta_vs_target": 1958.9997399947606
+    },
+    "replay_t1_arb_Arab": {
+      "rows": 473,
+      "tokens": 643421,
+      "effective_weight": 0.012868254514246946,
+      "target_weight": 0.013000260005200104,
+      "target_tokens": 650013.0002600052,
+      "token_delta_vs_target": -6592.000260005239
+    },
+    "replay_t1_cmn_Hani": {
+      "rows": 455,
+      "tokens": 649616,
+      "effective_weight": 0.012992152920913437,
+      "target_weight": 0.013000260005200104,
+      "target_tokens": 650013.0002600052,
+      "token_delta_vs_target": -397.0002600052394
+    },
+    "replay_t2_tur_Latn": {
+      "rows": 317,
+      "tokens": 447037,
+      "effective_weight": 0.008940625023562196,
+      "target_weight": 0.008980179603592072,
+      "target_tokens": 449008.98017960356,
+      "token_delta_vs_target": -1971.9801796035608
+    },
+    "replay_t2_bul_Cyrl": {
+      "rows": 317,
+      "tokens": 448935,
+      "effective_weight": 0.008978584535402874,
+      "target_weight": 0.008980179603592072,
+      "target_tokens": 449008.98017960356,
+      "token_delta_vs_target": -73.98017960356083
+    },
+    "replay_t2_srp_Cyrl": {
+      "rows": 312,
+      "tokens": 444323,
+      "effective_weight": 0.008886345721594021,
+      "target_weight": 0.008980179603592072,
+      "target_tokens": 449008.98017960356,
+      "token_delta_vs_target": -4685.980179603561
+    },
+    "replay_t2_ron_Latn": {
+      "rows": 298,
+      "tokens": 445492,
+      "effective_weight": 0.008909725420931087,
+      "target_weight": 0.008980179603592072,
+      "target_tokens": 449008.98017960356,
+      "token_delta_vs_target": -3516.980179603561
+    },
+    "replay_t2_heb_Hebr": {
+      "rows": 349,
+      "tokens": 456547,
+      "effective_weight": 0.009130822577621652,
+      "target_weight": 0.008980179603592072,
+      "target_tokens": 449008.98017960356,
+      "token_delta_vs_target": 7538.019820396439
+    },
+    "replay_t2_por_Latn": {
+      "rows": 492,
+      "tokens": 445725,
+      "effective_weight": 0.008914385361004258,
+      "target_weight": 0.008980179603592072,
+      "target_tokens": 449008.98017960356,
+      "token_delta_vs_target": -3283.980179603561
+    },
+    "replay_t2_pol_Latn": {
+      "rows": 386,
+      "tokens": 445863,
+      "effective_weight": 0.008917145325511114,
+      "target_weight": 0.008980179603592072,
+      "target_tokens": 449008.98017960356,
+      "token_delta_vs_target": -3145.980179603561
+    },
+    "replay_t2_nld_Latn": {
+      "rows": 581,
+      "tokens": 445605,
+      "effective_weight": 0.00891198539186786,
+      "target_weight": 0.008980179603592072,
+      "target_tokens": 449008.98017960356,
+      "token_delta_vs_target": -3403.980179603561
+    },
+    "replay_t2_pes_Arab": {
+      "rows": 156,
+      "tokens": 444144,
+      "effective_weight": 0.008882765767632228,
+      "target_weight": 0.008980179603592072,
+      "target_tokens": 449008.98017960356,
+      "token_delta_vs_target": -4864.980179603561
+    },
+    "replay_t2_ukr_Cyrl": {
+      "rows": 92,
+      "tokens": 445879,
+      "effective_weight": 0.008917465321395967,
+      "target_weight": 0.008980179603592072,
+      "target_tokens": 449008.98017960356,
+      "token_delta_vs_target": -3129.980179603561
+    },
+    "replay_t2_jpn_Jpan": {
+      "rows": 450,
+      "tokens": 444624,
+      "effective_weight": 0.008892365644177816,
+      "target_weight": 0.008980179603592072,
+      "target_tokens": 449008.98017960356,
+      "token_delta_vs_target": -4384.980179603561
+    },
+    "replay_t3_lat_Latn": {
+      "rows": 204,
+      "tokens": 310004,
+      "effective_weight": 0.0062000002679965536,
+      "target_weight": 0.00624012480249605,
+      "target_tokens": 312006.2401248025,
+      "token_delta_vs_target": -2002.2401248025126
+    },
+    "replay_t3_hye_Armn": {
+      "rows": 94,
+      "tokens": 444103,
+      "effective_weight": 0.008881945778177292,
+      "target_weight": 0.00624012480249605,
+      "target_tokens": 312006.2401248025,
+      "token_delta_vs_target": 132096.7598751975
+    },
+    "replay_t3_kat_Geor": {
+      "rows": 186,
+      "tokens": 310239,
+      "effective_weight": 0.006204700207555331,
+      "target_weight": 0.00624012480249605,
+      "target_tokens": 312006.2401248025,
+      "token_delta_vs_target": -1767.2401248025126
+    },
+    "replay_t3_als_Latn": {
+      "rows": 171,
+      "tokens": 386472,
+      "effective_weight": 0.007729340600679875,
+      "target_weight": 0.00624012480249605,
+      "target_tokens": 312006.2401248025,
+      "token_delta_vs_target": 74465.75987519749
+    },
+    "replay_t3_mkd_Cyrl": {
+      "rows": 200,
+      "tokens": 312014,
+      "effective_weight": 0.006240199751031202,
+      "target_weight": 0.00624012480249605,
+      "target_tokens": 312006.2401248025,
+      "token_delta_vs_target": 7.759875197487418
+    },
+    "code_starcoder": {
+      "rows": 0,
+      "tokens": 0,
+      "effective_weight": 0.0,
+      "target_weight": 0.0,
+      "target_tokens": 0.0,
+      "token_delta_vs_target": 0.0
+    },
+    "math_finemath": {
+      "rows": 287,
+      "tokens": 992327,
+      "effective_weight": 0.01984628477677777,
+      "target_weight": 0.02000040000800016,
+      "target_tokens": 1000020.000400008,
+      "token_delta_vs_target": -7693.000400008052
+    }
+  }
+}

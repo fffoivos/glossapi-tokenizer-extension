@@ -1,0 +1,98 @@
+=== mix_builder ===
+recipe: /iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/corpus_build/recipes/bulk.json (name=bulk, version=v1.0_20260520)
+target_tokens: 50,000,000
+output: /capstor/scratch/cscs/fffoivos/runs/preprocess/mix_smoke_50M.jsonl
+seed: 20260521
+loading tokenizer for token counting: /iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480
+  vocab_size: 148,480
+building source streams ...
+  32 sources; per-source weights:
+    0.3500  greek_hplt_clean60
+    0.1820  greek_literary
+    0.0630  greek_dialogue_textbooks
+    0.0560  greek_academic
+    0.0350  greek_legal_civic
+    0.0140  greek_dictionary_misc
+    0.0590  replay_t1_english_edu
+    0.0130  replay_t1_fra_Latn
+    0.0130  replay_t1_deu_Latn
+    0.0130  replay_t1_ita_Latn
+    0.0130  replay_t1_spa_Latn
+    0.0130  replay_t1_rus_Cyrl
+    0.0130  replay_t1_arb_Arab
+    0.0130  replay_t1_cmn_Hani
+    0.0090  replay_t2_tur_Latn
+    0.0090  replay_t2_bul_Cyrl
+    0.0090  replay_t2_srp_Cyrl
+    0.0090  replay_t2_ron_Latn
+    0.0090  replay_t2_heb_Hebr
+    0.0090  replay_t2_por_Latn
+    0.0090  replay_t2_pol_Latn
+    0.0090  replay_t2_nld_Latn
+    0.0090  replay_t2_pes_Arab
+    0.0090  replay_t2_ukr_Cyrl
+    0.0090  replay_t2_jpn_Jpan
+    0.0062  replay_t3_lat_Latn
+    0.0062  replay_t3_hye_Armn
+    0.0062  replay_t3_kat_Geor
+    0.0062  replay_t3_als_Latn
+    0.0062  replay_t3_mkd_Cyrl
+    0.0000  code_starcoder
+    0.0200  math_finemath
+interleaving with deterministic token-fair scheduler ...
+     5,259,147 tok  ( 10.5%)  rows=     3,494  rate=  46.2k tok/s  ETA= 16.1 min
+    10,259,680 tok  ( 20.5%)  rows=     7,140  rate=  76.2k tok/s  ETA=  8.7 min
+    15,260,081 tok  ( 30.5%)  rows=    10,530  rate=  98.9k tok/s  ETA=  5.9 min
+    20,265,129 tok  ( 40.5%)  rows=    13,935  rate= 116.0k tok/s  ETA=  4.3 min
+    25,265,383 tok  ( 50.5%)  rows=    17,022  rate= 127.3k tok/s  ETA=  3.2 min
+    30,277,844 tok  ( 60.6%)  rows=    20,323  rate= 138.6k tok/s  ETA=  2.4 min
+    35,278,350 tok  ( 70.6%)  rows=    23,746  rate= 148.2k tok/s  ETA=  1.7 min
+    40,278,453 tok  ( 80.6%)  rows=    27,264  rate= 154.8k tok/s  ETA=  1.0 min
+    45,318,100 tok  ( 90.6%)  rows=    30,692  rate= 160.9k tok/s  ETA=  0.5 min
+
+=== summary ===
+total tokens written: 50,000,643 (target 50,000,000)
+total rows: 33,509
+wall: 5.1 min
+output: /capstor/scratch/cscs/fffoivos/runs/preprocess/mix_smoke_50M.jsonl (0.30 GB)
+
+per-source breakdown:
+  source                                    rows         tokens   effective_weight
+  greek_hplt_clean60                      19,792     17,310,241             0.3462
+  greek_literary                             642      9,229,323             0.1846
+  greek_dialogue_textbooks                   349      3,127,804             0.0626
+  greek_academic                              56      2,769,740             0.0554
+  greek_legal_civic                          414      1,733,465             0.0347
+  greek_dictionary_misc                      638        692,607             0.0139
+  replay_t1_english_edu                    2,700      2,918,047             0.0584
+  replay_t1_fra_Latn                         622        643,385             0.0129
+  replay_t1_deu_Latn                         737        643,087             0.0129
+  replay_t1_ita_Latn                         570        672,395             0.0134
+  replay_t1_spa_Latn                         785        646,207             0.0129
+  replay_t1_rus_Cyrl                         384        651,972             0.0130
+  replay_t1_arb_Arab                         473        643,421             0.0129
+  replay_t1_cmn_Hani                         455        649,616             0.0130
+  replay_t2_tur_Latn                         317        447,037             0.0089
+  replay_t2_bul_Cyrl                         317        448,935             0.0090
+  replay_t2_srp_Cyrl                         312        444,323             0.0089
+  replay_t2_ron_Latn                         298        445,492             0.0089
+  replay_t2_heb_Hebr                         349        456,547             0.0091
+  replay_t2_por_Latn                         492        445,725             0.0089
+  replay_t2_pol_Latn                         386        445,863             0.0089
+  replay_t2_nld_Latn                         581        445,605             0.0089
+  replay_t2_pes_Arab                         156        444,144             0.0089
+  replay_t2_ukr_Cyrl                          92        445,879             0.0089
+  replay_t2_jpn_Jpan                         450        444,624             0.0089
+  replay_t3_lat_Latn                         204        310,004             0.0062
+  replay_t3_hye_Armn                          94        444,103             0.0089
+  replay_t3_kat_Geor                         186        310,239             0.0062
+  replay_t3_als_Latn                         171        386,472             0.0077
+  replay_t3_mkd_Cyrl                         200        312,014             0.0062
+  code_starcoder                               0              0             0.0000
+  math_finemath                              287        992,327             0.0198
+
+manifest: /capstor/scratch/cscs/fffoivos/runs/preprocess/mix_smoke_50M.manifest.json
+=== smoke complete ===
+-rw-r-----+ 1 fffoivos a0140 298084271 May 21 16:54 /capstor/scratch/cscs/fffoivos/runs/preprocess/mix_smoke_50M.jsonl
+33509 /capstor/scratch/cscs/fffoivos/runs/preprocess/mix_smoke_50M.jsonl
+{"text": "Πρόγραμμα Εκθέσεως 6 Μάιου - 6 Νοεμβρίου 1889 ΤΟ ΜΥΣΤΗΡΙΟ ΤΩΝ ΠΑΡΙΣΙΩΝ Τζόνυ!\n- Τζόνυ!\n- Τι είναι τώρα;\n- Φτάσαμε σχεδόν.\n- Που;\nΣτην Μασσαλία φυσικά, δεν θέλεις να ρίξεις μια ματιά;\n- Όχι, σ' ευχαριστώ.\n- Δεν ενδιαφέρεσαι;

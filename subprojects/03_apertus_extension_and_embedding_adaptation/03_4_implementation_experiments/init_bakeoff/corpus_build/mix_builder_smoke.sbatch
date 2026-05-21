@@ -65,12 +65,13 @@ set -euo pipefail
 export PYTHONPATH=/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval:$REPO_DIR
 export SELECTED=$SELECTED
 
-python3 $REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/corpus_build/mix_builder.py \
+python3 -u $REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/corpus_build/mix_builder.py \
     --recipe $RECIPE \
     --target-tokens 50000000 \
     --tokenizer $TOKENIZER \
     --output $OUTPUT \
-    --seed 20260521
+    --seed 20260521 \
+    --progress-every-tokens 5000000
 INNER
 
 echo "=== smoke complete ==="
