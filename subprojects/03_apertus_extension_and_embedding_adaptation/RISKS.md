@@ -126,6 +126,22 @@ If arm A and arm B see even slightly different streams, our "apples-to-apples" c
 
 ---
 
+## Tier 2 (additions — reviewer round-2)
+
+### R17. xIELU + QK-Norm trained values reset to defaults through HF→Megatron conversion
+
+**Mechanism.** `saver_core.py` (the convert.py-protocol saver) at L357-443 only consumes the standard transformer-protocol message keys (input/post norm, qkv, dense, mlp l0/l1, optional biases, optional router). Its `check_message()` rejects extra keys; with `--no-checking` they're silently dropped. Apertus-specific xIELU αp / αn / β / ε and QK-Norm q_norm / k_norm have **no slot in this protocol**. The saved Megatron model gets these parameters at `XIELU.__init__` / `RMSNorm.__init__` defaults (αp = αn = 0.8, β = 0.5; q/k_norm = ones-vector) instead of Apertus's pretraining-trained values.
+
+**Why this isn't a Tier-1 bakeoff problem.** All three arms inherit the same defaults from the same converted Apertus checkpoint, so the cross-arm comparison stays internally consistent. Selection between Vanilla / ReTok / Centroid is still valid.
+
+**Why it matters for production CPT.** Eval scores at any checkpoint will differ from running unmodified Apertus (which has trained xIELU + QK-Norm state). Early production CPT will spend compute relearning these values rather than starting from Apertus's pretraining geometry — fidelity loss + wasted training-time relative to the published Apertus numbers.
+
+**Mitigation candidate.** Post-conversion patcher that opens the Megatron `torch_dist` shards and overwrites xIELU + QK-Norm tensors from the HF source. Scaffold + design at [`init_bakeoff/megatron_patches/patch_apertus_extras.py`](03_4_implementation_experiments/init_bakeoff/megatron_patches/patch_apertus_extras.py). Not implemented (needs Clariden + Megatron checkpoint-format knowledge to validate); deferred to production-CPT prep.
+
+**Status**: open. Acceptable for the bakeoff; required before production CPT submission.
+
+---
+
 ## Tier 3 — would be caught eventually
 
 | # | Risk | Why lower priority |
