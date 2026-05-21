@@ -170,10 +170,10 @@ Pre-CSCS-execution friction (already-debugged before the user went to sleep, lis
 
 ## Pending / live queue (takeover continuation)
 
-Live jobs queued/running as of ~12:46 UTC:
+Live jobs queued/running as of the takeover continuation:
 
 - `2334880` prepare_greek_pool completed and produced the selected CPT parquet.
-- `2335100` V4-HF corrected baseline is running.
+- `2335100` V4-HF corrected baseline completed successfully (`COMPLETED`, exit `0:0`, elapsed `01:10:29`). Small result copy: `03_4_implementation_experiments/init_bakeoff/eval/v4_baseline_corrected_20260521/`.
 - `2335196` V4-post-conversion retry is running with per-job dataset cache.
 - `2335826` -> `2335827` -> `2335828` -> `2335829`/`2335830` is the active corpus dependency chain.
 - `2335382` -> `2335384` completed and produced Megatron release checkpoints for all three arms.

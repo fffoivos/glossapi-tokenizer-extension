@@ -86,4 +86,5 @@ Static shell/Python/JSON checks did pass.
   - `2335828` = mix_builder_full, dependency `afterok:2335827`
   - `2335829` = base-tokenizer preprocess, dependency `afterok:2335828`
   - `2335830` = extended-tokenizer preprocess, dependency `afterok:2335828`
-- Continue monitoring corrected evals `2335100` / `2335196` and corpus dependency chain `2335826` -> `2335827` -> `2335828` -> `2335829`/`2335830`. When preprocess passes, submit the three 2B arms with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 bash submit_all_arms.sh`.
+- Corrected V4-HF baseline `2335100` completed successfully: Slurm `COMPLETED`, exit `0:0`, elapsed `01:10:29`. Local small-artifact copy committed under `03_4_implementation_experiments/init_bakeoff/eval/v4_baseline_corrected_20260521/`; large per-task sample JSONLs remain on Clariden.
+- Continue monitoring corrected post-conversion eval `2335196` and corpus dependency chain `2335826` -> `2335827` -> `2335828` -> `2335829`/`2335830`. When preprocess passes, submit the three 2B arms with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 bash submit_all_arms.sh`.
