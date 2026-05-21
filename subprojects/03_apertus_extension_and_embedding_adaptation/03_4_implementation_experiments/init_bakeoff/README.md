@@ -21,11 +21,11 @@ init_bakeoff/
 ├── corpus_build/                      — corpus assembly
 │   ├── MIX_RECIPE.md          — bucket allocations + per-source weights, both phases
 │   ├── recipes/
-│   │   ├── bulk.json          — 70 / 26 / 4 Greek / replay / code; 31 sources
+│   │   ├── bulk.json          — 70 / 24 / 4 / 2 Greek / replay / code / math; local replay/math + codeparrot fallback for 2026-05-21 CSCS run
 │   │   └── anneal.json        — 85 / 12 / 3; final 10–20 % of production CPT (not bakeoff)
 │   ├── mix_builder.py         — streaming interleaver → JSONL output
 │   ├── pull_greek_corpus.sh   — pull our Greek nanochat + Apertus-overlap-drop overlay
-│   └── pull_replay_datasets.sh — pull FW2 / FW2-HQ / FineWeb-Edu / StarCoder
+│   └── pull_replay_datasets.sh — pull FW2 / FW2-HQ / FineWeb-Edu / code replay / FineMath
 └── eval/                      — V4 baseline + per-arm bakeoff eval
     ├── EVAL_RECIPE.md         — task lists, cadence, statistical methodology
     ├── pull_benchmarks.sh     — pull retention + ILSP Greek + safety benchmarks; clone harness
@@ -47,7 +47,8 @@ The bakeoff fires once these are complete (most are Clariden-side):
 
 [Clariden login]   bash corpus_build/pull_greek_corpus.sh    # ~30-60 min (now pulls wave2 dedup metadata too)
                    bash corpus_build/pull_replay_datasets.sh # ~1-3 h depending on bandwidth
-                                                              # (now includes FineMath stage-1 alongside replay/code)
+                                                              # (now includes FineMath stage-1 alongside replay/code;
+                                                              # 2026-05-21 run uses codeparrot fallback because BigCode was unavailable)
                    bash eval/pull_benchmarks.sh              # ~30-60 min
 
 [Clariden normal]  sbatch corpus_build/prepare_greek_pool.sbatch

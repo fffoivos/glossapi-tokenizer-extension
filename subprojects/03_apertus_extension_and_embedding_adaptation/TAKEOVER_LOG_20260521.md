@@ -118,3 +118,28 @@ Static shell/Python/JSON checks did pass.
   - `2336680` = `concat_bulk_mix`, dependency `afterok:2336647`
   - `2336681` = base-tokenizer preprocess, dependency `afterok:2336680`
   - `2336682` = extended-tokenizer preprocess, dependency `afterok:2336680`
+- After the user challenged the full-build speed, verified with `srun --jobid=2337770 --overlap ... ps ...` that a shard is one hot `python3 -u mix_builder.py` process at ~one CPU core. The bottleneck is the deterministic token-counting/writer loop, not the Slurm core allocation. Raised the live array throttle from `3` to `7` with `scontrol update JobId=2336647 ArrayTaskThrottle=7`, starting the final shard `2336647_6` immediately. This is the fastest safe path for the current run without rewriting the builder mid-flight.
+
+## Live continuation - 2026-05-21 ~16:10 UTC
+
+- Rechecked the live corpus direction against the project docs under `03_apertus_extension_and_embedding_adaptation`: the no-code `70/28/0/2` recipe was an operational workaround, not aligned with the intended preservation of multilingual/code/math replay in the CPT mix.
+- Verified an accessible code fallback by running a direct 500k-token smoke against `codeparrot/codeparrot-clean-train` on Clariden with `text_column=content`. The smoke completed and produced `505,891` tokens from `210` rows under `/iopsstor/scratch/cscs/fffoivos/tmp/codeparrot_mix_smoke_234930/`.
+- Cancelled the no-code chain before canonical concat/preprocess could run:
+  - `2336647_0..2` completed, but were from the superseded no-code recipe.
+  - `2336647_3..6` were cancelled.
+  - downstream no-code jobs `2336680`, `2336681`, and `2336682` were cancelled before output.
+- Restored the live bulk recipe to `70%` Greek, `24%` non-Greek replay, `4%` code, `2%` math. The code source is explicitly documented as the `codeparrot/codeparrot-clean-train` fallback, because BigCode StarCoder/The Stack sources were gated or script-backed under the current auth/runtime.
+- Relaunched the corrected code-included chain with a separate shard prefix so old no-code shard files cannot collide:
+  - `2337839` = `mix_builder_full` array, `0-6%7`, each shard target `1,000,000,000` tokens, `SHARD_PREFIX=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_code_part_`
+  - `2337846` = `concat_bulk_mix`, dependency `afterok:2337839`, output `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl`
+  - `2337847` = base-tokenizer preprocess, dependency `afterok:2337846`
+  - `2337848` = extended-tokenizer preprocess, dependency `afterok:2337846`
+- At launch, six mix shards started immediately and one was pending on resources. Corrected post-conversion eval `2335196` remained running.
+- The first code-included launch failed quickly: seven concurrent shards each resolved many HF replay datasets, hitting Hugging Face's `1000 api requests per 5 minutes` limit. Cancelled the array and dependencies before any canonical concat/preprocess could run.
+- Steering fix for the rate limit: use the replay/math parquets already staged under `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/{replay,math}` instead of remote HF streaming for replay/math. Pulled the one missing Persian fallback shard (`fas_Arab`) into `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/replay/fas_Arab_fw2/data/fas_Arab/train/000_00000.parquet`.
+- A 1M-token local-replay smoke completed successfully at `/iopsstor/scratch/cscs/fffoivos/tmp/local_replay_mix_smoke_161637/smoke.jsonl`. It verified all local replay/math paths and the codeparrot code fallback load.
+- Relaunched again with local replay/math and a new shard prefix:
+  - `2337911` = `mix_builder_full` array, `0-6%7`, `SHARD_PREFIX=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_code_local_part_`
+  - `2337912` = `concat_bulk_mix`, dependency `afterok:2337911`
+  - `2337913` = base-tokenizer preprocess, dependency `afterok:2337912`
+  - `2337914` = extended-tokenizer preprocess, dependency `afterok:2337912`

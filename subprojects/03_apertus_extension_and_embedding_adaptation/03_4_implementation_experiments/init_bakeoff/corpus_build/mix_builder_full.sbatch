@@ -14,7 +14,7 @@
 #
 # Can be run either as one 7B-token job or as a Slurm array of smaller shards:
 #
-#   sbatch --array=0-6%3 --export=ALL,TARGET_TOKENS=1000000000 mix_builder_full.sbatch
+#   sbatch --array=0-6%7 --export=ALL,TARGET_TOKENS=1000000000 mix_builder_full.sbatch
 #
 # Array mode writes bulk_mix_part_XX.jsonl files, each with its own seed.
 # Concatenate them with concat_bulk_mix.sbatch before preprocess_data.sbatch.
@@ -23,7 +23,7 @@
 #   $SELECTED from prepare_greek_pool.sh:
 #     /iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet
 #   recipes/bulk.json:
-#     70/28/0/2 Greek/replay/code/math for the 2026-05-21 CSCS run
+#     70/24/4/2 Greek/replay/code/math for the 2026-05-21 CSCS run
 #
 # Output:
 #   /iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl
@@ -38,9 +38,11 @@
 #     buffers. 200G is conservative.
 #   * Known gap: batching tokenizer.encode would be faster but would change the
 #     deterministic streaming loop. Keep the production path identical to the
-#     smoke job. After the token-fair fix, 50M-token smoke measured ~160k tok/s;
-#     one 7B job is too close to Clariden normal's 12h MaxTime, so prefer the
-#     documented 7 x 1B array mode.
+#     smoke job. After the token-fair fix, 50M-token smoke measured ~160k tok/s.
+#     The production run is therefore sharded, and the fastest safe mode is to
+#     run all seven 1B-token shards concurrently. One shard uses roughly one hot
+#     Python core; additional cores inside a single shard do not help without a
+#     batching/parallel-token-count rewrite.
 
 set -euo pipefail
 
@@ -51,9 +53,10 @@ RECIPE=$REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementati
 TOKENIZER=/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480
 TARGET_TOKENS="${TARGET_TOKENS:-7000000000}"
 SEED="${SEED:-20260520}"
+SHARD_PREFIX="${SHARD_PREFIX:-$STAGE_ROOT/bulk_mix_part_}"
 if [ -n "${SLURM_ARRAY_TASK_ID:-}" ]; then
     SHARD_ID="$(printf "%02d" "$SLURM_ARRAY_TASK_ID")"
-    OUTPUT="${OUTPUT:-$STAGE_ROOT/bulk_mix_part_${SHARD_ID}.jsonl}"
+    OUTPUT="${OUTPUT:-${SHARD_PREFIX}${SHARD_ID}.jsonl}"
     SEED="$(( SEED + SLURM_ARRAY_TASK_ID ))"
 else
     OUTPUT="${OUTPUT:-$STAGE_ROOT/bulk_mix.jsonl}"

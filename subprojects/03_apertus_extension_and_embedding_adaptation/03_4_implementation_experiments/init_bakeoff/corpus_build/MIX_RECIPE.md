@@ -30,10 +30,12 @@ Working defaults per v0.7 §2 + §4 + user answers 2026-05-20:
 |---|---:|---|
 | Greek (post-Apertus-overlap-drop, post-internal-dedup) | **70 %** | see below |
 | Non-Greek replay (24 languages, 3 tiers) | **24 %** | see below |
-| Code | **4 %** | `bigcode/starcoderdata` (Apertus used StarCoder) |
+| Code | **4 %** | Intended: `bigcode/starcoderdata` / The Stack lineage (Apertus used StarCoder); 2026-05-21 CSCS fallback: `codeparrot/codeparrot-clean-train` |
 | Math | **2 %** | `HuggingFaceTB/finemath` config `finemath-3plus` (Apertus stage-1 source per `submit_apertus_8b.sh:L29`) |
 
 > **2026-05-21 rebalance.** Replay reduced from 26 % → 24 % to free 2 % for FineMath, taken entirely from English (FW-Edu) which went from 3.9 % → 1.9 %. The other 23 replay-language weights stay at their pre-rebalance values. Greek and code shares unchanged.
+
+> **2026-05-21 CSCS run detail.** The live full-build recipe reads replay and FineMath from staged local single-shard parquets under `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/{replay,math}`. This avoids repeated HF dataset-metadata resolution from seven concurrent shards, which hit HF's API rate limit. The Persian replay bucket uses the local FineWeb-2 `fas_Arab` fallback shard while preserving the recipe label `replay_t2_pes_Arab`.
 
 > **OPUS Greek-English parallel** is listed as optional in v0.7 §4.4 but **not yet in the bakeoff bulk mix** — it needs different schema handling in `mix_builder.py` (its rows are `{translation: {el: ..., en: ...}}` rather than `{text: ...}`). Deferred to a future iteration of corpus_build.
 
@@ -74,9 +76,10 @@ Per-language sources:
 
 | Source | HF id |
 |---|---|
-| Code | `bigcode/starcoderdata` (Apertus's pretraining source) |
+| Intended code replay | `bigcode/starcoderdata` (Apertus's pretraining source) |
+| 2026-05-21 CSCS fallback | `codeparrot/codeparrot-clean-train` |
 
-Use the default "all-permissive" subset; no language filter (mixed-language source-code is fine for retention).
+Use the default "all-permissive" subset when StarCoder/The Stack is accessible; no language filter (mixed-language source-code is fine for retention). The 2026-05-21 CSCS run uses `codeparrot/codeparrot-clean-train` because BigCode sources were gated or script-backed under the current auth/runtime. This preserves the intended 4 % code-retention pressure, but it is not an exact StarCoder-source match.
 
 ### Math (2 %)
 

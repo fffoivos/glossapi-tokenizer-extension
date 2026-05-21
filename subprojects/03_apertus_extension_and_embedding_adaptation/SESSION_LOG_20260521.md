@@ -47,6 +47,7 @@ Live checks performed:
 - Cancelled dependent jobs `2336485`/`2336486`/`2336488`, replaced row-weighted sampling with a token-fair scheduler, and added a clean-path `os._exit(0)` after stdout/stderr flush.
 - Fresh token-fair smoke `2336566` completed `0:0` in `00:05:26`: `50,000,643` tokens, `33,509` rows, scheduler `token_fair_min_tokens_over_weight`, token shares close to recipe targets.
 - Normal partition max time is `12:00:00`, so the 7B full mix now runs as a safer shard chain: `2336647` array (`0-6%3`, 1B tokens/shard) -> `2336680` concat -> `2336681` base preprocess + `2336682` extended preprocess.
+- Resource follow-up: after the user questioned speed, verified a running shard has one hot `python3 -u mix_builder.py` process at ~one CPU core. More cores inside one shard do not help without a parallel/batched token-count rewrite. Raised live `2336647` `ArrayTaskThrottle` from `3` to `7`, which started the final pending shard `2336647_6`.
 
 ## Files touched locally (home machine)
 
@@ -191,6 +192,45 @@ Next:
 2. Watch `2336648` concat -> `bulk_mix.jsonl` + combined manifest.
 3. Watch `2336649` / `2336651` preprocess outputs: `$BASE_DATA_PREFIX{.bin,.idx}` and `$EXT_DATA_PREFIX{.bin,.idx}`.
 4. Submit `submit_all_arms.sh` with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480` to fire the three 2 B-token training runs.
+
+## Direction check and code-included relaunch (2026-05-21 ~16:10 UTC)
+
+The temporary no-code mix was rechecked against the project direction in this subproject. It was useful as an emergency unblocker, but it drifted from the written CPT objective: preserve Greek uplift while retaining multilingual, code, and math capabilities. Steering correction was required before canonical preprocessing.
+
+Actions:
+
+- Verified `codeparrot/codeparrot-clean-train` is accessible on Clariden with the existing streaming builder (`content` text column). A 500k-token smoke completed at `/iopsstor/scratch/cscs/fffoivos/tmp/codeparrot_mix_smoke_234930/` with `505,891` tokens from `210` rows.
+- Cancelled the superseded no-code chain before concat/preprocess:
+  - `2336647_0..2` completed under the no-code recipe.
+  - `2336647_3..6` were cancelled.
+  - `2336680`, `2336681`, `2336682` were cancelled before producing canonical outputs.
+- Updated `recipes/bulk.json` to `70/24/4/2` Greek/replay/code/math. Code is now `codeparrot/codeparrot-clean-train`, explicitly documented as a run-specific fallback rather than the intended StarCoder source.
+- Added `SHARD_PREFIX` support to `mix_builder_full.sbatch` and relaunched with `bulk_mix_code_part_` shard names, so cancelled no-code shard files cannot be mistaken for canonical inputs.
+
+Current corrected chain:
+
+| Job | What | Dependency / output |
+|---|---|---|
+| `2337839` | `mix_builder_full` array `0-6%7`, 1B tokens per shard | writes `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_code_part_*.jsonl` |
+| `2337846` | concat | `afterok:2337839`, writes `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl` |
+| `2337847` | base-tokenizer preprocess | `afterok:2337846` |
+| `2337848` | extended-tokenizer preprocess | `afterok:2337846` |
+
+At submission, six of seven mix shards started immediately and the seventh was pending on resources. Continue monitoring `2337839` and V4-post-conversion eval `2335196`.
+
+Follow-up correction:
+
+- `2337839` failed quickly because seven concurrent shards each resolved many remote HF replay datasets and hit Hugging Face's `1000 api requests per 5 minutes` limit. Cancelled `2337839`, `2337846`, `2337847`, and `2337848` before concat/preprocess.
+- Patched `recipes/bulk.json` to read all replay/math sources from staged local parquets. The only missing replay shard was Persian fallback; pulled `fas_Arab` locally to `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/replay/fas_Arab_fw2/data/fas_Arab/train/000_00000.parquet`.
+- Verified the local-replay recipe with a 1M-token smoke at `/iopsstor/scratch/cscs/fffoivos/tmp/local_replay_mix_smoke_161637/smoke.jsonl`.
+- Relaunched the corrected chain:
+
+| Job | What | Dependency / output |
+|---|---|---|
+| `2337911` | `mix_builder_full` array `0-6%7`, 1B tokens per shard | writes `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_code_local_part_*.jsonl` |
+| `2337912` | concat | `afterok:2337911`, writes `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl` |
+| `2337913` | base-tokenizer preprocess | `afterok:2337912` |
+| `2337914` | extended-tokenizer preprocess | `afterok:2337912` |
 
 Independent follow-ups (deferred to after the corpus chain is unblocked):
 
