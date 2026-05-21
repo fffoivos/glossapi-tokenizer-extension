@@ -32,7 +32,7 @@ echo "=== pull_benchmarks.sh ==="
 echo "stage root: $STAGE_ROOT"
 echo
 
-export HF_HUB_ENABLE_HF_TRANSFER="${HF_HUB_ENABLE_HF_TRANSFER:-1}"
+# hf_transfer not in pytorch uenv; using plain HTTP
 
 # --- helper: pull-or-warn (don't abort on per-dataset failure) ---
 pull() {
