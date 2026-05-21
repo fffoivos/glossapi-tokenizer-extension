@@ -38,6 +38,7 @@ The install is a `ln -sf` into `$MEGATRON_DIR/tools/checkpoint/loader_apertus_hf
 ```bash
 cd /path/to/swiss-ai/Megatron-LM
 python3 tools/checkpoint/convert.py \
+    --model-type GPT \
     --loader apertus_hf \
     --saver core \
     --load-dir   /path/to/Apertus-8B-2509-hf-or-resized-hf \
@@ -46,7 +47,15 @@ python3 tools/checkpoint/convert.py \
     --bf16
 ```
 
-`--saver core` writes the standard Megatron distributed-checkpoint format that `bakeoff_train.sbatch --load $INIT_CKPT --ckpt-format torch_dist` reads.
+`--model-type GPT` is required (convert.py:114). `--saver core` writes the standard Megatron distributed-checkpoint format that `bakeoff_train.sbatch --load $INIT_CKPT --ckpt-format torch_dist` reads.
+
+## Caveat: xIELU + QK-Norm trained values are NOT preserved through this path
+
+`saver_core.py`'s `check_message()` at L357-443 only consumes the standard transformer protocol keys (input/post norm, qkv, dense, mlp l0/l1, optional biases, optional router). It does NOT accept Apertus-specific keys like `mlp xielu alpha p`, `q norm weight`, `k norm weight` — they'd either be rejected (default checking) or silently dropped (`--no-checking`). Either way, those parameters in the saved Megatron checkpoint land at their `XIELU.__init__` / `RMSNorm.__init__` defaults (αp = αn = 0.8, β = 0.5; q/k_norm = ones-vector), not Apertus's pretraining-trained values.
+
+**For the modern-only bakeoff this is acceptable** — all three arms inherit the same defaults, so the cross-arm comparison stays valid. Absolute scores will be lower than running unmodified Apertus (which has its trained xIELU + QK-Norm state). Tracked as **R17** in [`../../../RISKS.md`](../../../RISKS.md).
+
+**For production CPT** a post-conversion patcher is needed: open the saved Megatron `torch_dist` checkpoint, walk the `*.distcp` shards, and overwrite the per-layer xIELU αp / αn / β / ε and QK-Norm q_norm / k_norm tensors from the HF source. Pseudocode in [`patch_apertus_extras.py`](patch_apertus_extras.py) (scaffold; needs Megatron checkpoint-format knowledge to complete). This is OUT OF SCOPE for the bakeoff and IN SCOPE for the production-CPT pre-submit checklist.
 
 ## Roundtrip validation procedure (must run before first sbatch)
 

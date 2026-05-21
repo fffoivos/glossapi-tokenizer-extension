@@ -1,36 +1,47 @@
 """HF → Megatron checkpoint loader for Apertus.
 
-swiss-ai/Megatron-LM ships `saver_swissai_hf.py` (Megatron → HF, with
-`ApertusConfig` / `ApertusForCausalLM` plumbing) but its existing HF →
-Megatron loader `loader_llama_mistral.py` doesn't cover Apertus
-(xIELU activation, QK-Norm, untied E/U, RoPE θ = 500,000).
+Round-2 reviewer flagged that the previous version of this loader emitted
+Apertus-specific tensor keys (`mlp xielu alpha p/n`, `q norm weight`,
+`k norm weight`) that `saver_core.py`'s `check_message()` rejects (the
+saver protocol only consumes standard transformer keys). With default
+checking, conversion fails; with `--no-checking`, those values get
+silently dropped — silent-loss either way.
 
-This loader implements the inverse of `saver_swissai_hf.py`: reads an
-HF-format Apertus checkpoint, builds the Megatron-format tensor stream
-expected by `tools/checkpoint/convert.py`, and pushes it onto the queue.
+This revised loader sends **only** the saver_core-consumed standard keys
+("word embeddings", "input norm weight", "post norm weight", "qkv weight",
+"dense weight", "mlp l0 weight", "mlp l1 weight", "final norm" / "weight",
+"output layer" / "weight"). It does NOT send xIELU or QK-Norm trained
+tensors — saver_core has no slot for them in its `params_dict` mapping.
 
-Tensor name mapping (HF ↔ Megatron) is taken directly from
-saver_swissai_hf.py L237-345 (commit c92402e3...). Every line is inverted
-here. The Apertus-specific bits:
+**Fidelity caveat (new risk R17 in RISKS.md):** the saved Megatron
+checkpoint will have xIELU αp / αn / β / ε and QK-Norm q_norm/k_norm
+at their **default init values** (αp=αn=0.8, β=0.5; q/k_norm at all-ones)
+rather than Apertus's pretraining-trained values. For the bakeoff this
+is a same-loss-across-all-three-arms compromise — comparison validity
+holds, but absolute scores will differ from running unmodified Apertus.
+For production CPT, a follow-up patcher is needed (see README.md
+"Patching xIELU + QK-Norm post-conversion").
 
-  * MLP is xIELU (single up_proj, no SwiGLU gate). The activation has 4
-    trainable scalars per layer: alpha_p, alpha_n, beta, eps.
-  * QK-Norm: q_norm + k_norm weights per layer (RMSNorm, per-head).
-  * Bias-free everywhere (Apertus removes all bias terms).
-  * GQA (num_heads = 32, num_kv_heads = 8). Megatron's qkv_weight is
+Tensor-name mapping (HF → Megatron message keys) follows the inverse of
+saver_swissai_hf.py L237-345 (commit c92402e3...). Apertus-specific
+architectural bits we still handle:
+
+  * Bias-free everywhere (Apertus removes all bias terms — no bias keys
+    sent; `--disable-bias-linear` declared in Megatron args).
+  * GQA (num_heads = 32, num_kv_heads = 8). Megatron's `qkv_weight` is
     INTERLEAVED across kv groups; `_interleave_qkv` builds it from HF's
     separate q/k/v projections.
-  * Untied E / U (tie_word_embeddings=False).
-  * RoPE θ = 500,000, llama3-style scaling factor 8 (long-context only).
-
-Tested via the roundtrip-validation procedure in README.md:
-    HF → Megatron (this loader) → HF (saver_swissai_hf.py) ≡ original HF.
+  * MLP is xIELU (single up_proj, no SwiGLU gate) — we send `mlp l0 weight`
+    = HF's `up_proj.weight` (the "fc1"), NO l0_W / l0_V split.
+  * Untied E / U (`--untie-embeddings-and-output-weights`).
+  * RoPE θ = 500,000.
 
 Wires into convert.py via the standard `add_arguments` + `load_checkpoint`
-contract — drop this file into `swiss-ai/Megatron-LM/tools/checkpoint/`,
-then:
+contract. Drop this file into `swiss-ai/Megatron-LM/tools/checkpoint/`
+(via `install.sh`), then:
 
     python3 tools/checkpoint/convert.py \\
+        --model-type GPT \\
         --loader apertus_hf \\
         --saver core \\
         --load-dir /path/to/Apertus-8B-2509-hf \\
@@ -38,9 +49,12 @@ then:
         --tokenizer-model /path/to/Apertus-8B-2509-hf \\
         --bf16
 
+Note `--model-type GPT` is REQUIRED by convert.py:114 (reviewer round-2 fix).
+
 [Refs:
  - references/repos/swiss-ai_Megatron-LM/tools/checkpoint/saver_swissai_hf.py
  - references/repos/swiss-ai_Megatron-LM/tools/checkpoint/loader_llama_mistral.py
+ - references/repos/swiss-ai_Megatron-LM/tools/checkpoint/saver_core.py L357-443 (check_message)
  - references/papers/apertus_2509.14233.pdf §2.1 (architecture)]
 """
 import os
@@ -249,23 +263,21 @@ def _load_checkpoint(queue, args):
 
     for i in range(hf_config.num_hidden_layers):
         p = f"model.layers.{i}"
+        # ONLY saver_core-consumable standard keys here. saver_core.py:L357-443
+        # pops exactly these keys per transformer layer; emitting anything else
+        # triggers check_message() failure (with --checking) or silent drop
+        # (with --no-checking). For Apertus-specific tensors (xIELU αp/αn,
+        # QK-Norm q_norm/k_norm) the saved Megatron model uses XIELU.__init__
+        # / RMSNorm.__init__ defaults — see README.md "Patching xIELU +
+        # QK-Norm post-conversion" + RISKS.md R17 for the fidelity caveat.
         message = {
             "input norm weight":  sd[f"{p}.attention_layernorm.weight"].clone(),
             "post norm weight":   sd[f"{p}.feedforward_layernorm.weight"].clone(),
             "dense weight":       sd[f"{p}.self_attn.o_proj.weight"].clone(),
             "mlp l1 weight":      sd[f"{p}.mlp.down_proj.weight"].clone(),
-            # xIELU MLP (single up_proj + xielu act_fn; no SwiGLU gate)
+            # xIELU MLP: single up_proj is Megatron's "mlp l0 weight" (no SwiGLU split).
             "mlp l0 weight":      sd[f"{p}.mlp.up_proj.weight"].clone(),
-            "mlp xielu alpha p":  sd[f"{p}.mlp.act_fn.alpha_p"].clone(),
-            "mlp xielu alpha n":  sd[f"{p}.mlp.act_fn.alpha_n"].clone(),
         }
-        # beta and eps are stored in the HF checkpoint (post-Apertus tech-report
-        # impl) if Apertus's HF release includes them. Default values match the
-        # Megatron XIELU class defaults.
-        if f"{p}.mlp.act_fn.beta" in sd:
-            message["mlp xielu beta"] = sd[f"{p}.mlp.act_fn.beta"].clone()
-        if f"{p}.mlp.act_fn.eps" in sd:
-            message["mlp xielu eps"] = sd[f"{p}.mlp.act_fn.eps"].clone()
 
         # Interleaved QKV
         q = sd[f"{p}.self_attn.q_proj.weight"]
@@ -291,10 +303,10 @@ def _load_checkpoint(queue, args):
                 qkv_b[base + heads_per_group + 1] = vb_heads[g]
             message["qkv bias"] = qkv_b.reshape(-1).contiguous()
 
-        # QK-Norm (Apertus has it)
-        if f"{p}.self_attn.q_norm.weight" in sd:
-            message["q norm weight"] = sd[f"{p}.self_attn.q_norm.weight"].clone()
-            message["k norm weight"] = sd[f"{p}.self_attn.k_norm.weight"].clone()
+        # NOTE: q_norm / k_norm (QK-Norm) and xIELU alpha_p / alpha_n / beta / eps
+        # are intentionally NOT sent here. saver_core's check_message() at
+        # L443 would reject them. See R17 in RISKS.md for the fidelity caveat
+        # + post-conversion patcher plan.
 
         queue_put(f"transformer layer {i}", message)
 
