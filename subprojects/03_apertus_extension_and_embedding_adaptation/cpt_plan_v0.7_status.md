@@ -1,12 +1,9 @@
 # CPT Plan v0.7 — Status Check Answers
 
-*2026-05-20. Companion to [`cpt_plan.md`](cpt_plan.md) v0.7. Goes
+*Initialized 2026-05-20. Companion to [`cpt_plan.md`](cpt_plan.md) v0.7. Goes
 through each V1–V16 status check, answers what can be answered
 from existing on-disk artifacts, and implements the verifications
-that are runnable from home. v0.7's reframing — "this is a
-coordination artifact, not a TODO list; many items may already have
-been handled" — is the right framing: **several items turned out
-to already be in place, including the user's intuition on NFC.***
+that are runnable from home.*
 
 > Status legend per check:
 > - **DONE** — verified in existing artifacts.
@@ -14,6 +11,15 @@ to already be in place, including the user's intuition on NFC.***
 > - **PARTIAL** — partially done; some piece needs CSCS-side or compute we don't have on home.
 > - **NOT DONE** — open, with the work outlined.
 > - **DEFERRED** — explicitly out of scope or gated on a different item.
+
+> **Update 2026-05-21** — bakeoff implementation pass landed (Items 1-6 in
+> [`COMPLETENESS_CHECK.md`](COMPLETENESS_CHECK.md)) + Apertus tech-report
+> audit ([`AUDIT_FINDINGS.md`](AUDIT_FINDINGS.md)) + silent-failure risk
+> inventory ([`RISKS.md`](RISKS.md)). Five V items bumped: V7 (PARTIAL),
+> V9 (DONE — now operationally enforced via `normalize_nfc.sh`),
+> V12 (DONE), V13 (DONE), V15 (PARTIAL — audit clarified mechanism is
+> sound; explicit assertion pending per R9). V8 unblocked but still
+> production-only (NTP for bakeoff).
 
 ## V1 — Decontamination scope and status — **NOT DONE**
 
@@ -92,25 +98,31 @@ So the dedup ran preserving accents. An accent-normalized re-verification has **
 
 **Status: NOT DONE — the original dedup ran with `preserve`; an accent-normalized re-verification is straightforward but not yet executed.**
 
-## V7 — Replay dataset acquisition — **NOT DONE** (staging plan exists)
+## V7 — Replay dataset acquisition — **PARTIAL** (scripts exist; Clariden pull pending)
 
 The question: are all replay sources (§4.4) accessible, downloaded, and tokenizable at expected throughput?
 
-**Evidence**: [`03_4 ENVIRONMENT_AND_BENCHMARKS.md § 3.2`](03_4_implementation_experiments/ENVIRONMENT_AND_BENCHMARKS.md#32-login-node-staging-no-slurm-allocation) has the concrete `huggingface-cli download` commands for: FineWeb-2 (Tier 1–3 langs), FineWeb-2-HQ, FineWeb-Edu Score-3, StarCoder-v2, FineMath-3+. **The plan exists; the pulls haven't executed.**
+**Done 2026-05-21**: concrete pull scripts at
+[`03_4_implementation_experiments/init_bakeoff/corpus_build/pull_greek_corpus.sh`](03_4_implementation_experiments/init_bakeoff/corpus_build/pull_greek_corpus.sh) (Greek nanochat + Apertus-overlap drop overlay) and [`…/pull_replay_datasets.sh`](03_4_implementation_experiments/init_bakeoff/corpus_build/pull_replay_datasets.sh) (FineWeb-Edu Score-3 + FineWeb2-HQ for 8 T1 langs + FineWeb-2 for T2/T3 + StarCoderData + **FineMath-3plus added in Item 2 commit `16b886c`**). Both `bash -n` clean. Mix recipe and source list in [`MIX_RECIPE.md`](03_4_implementation_experiments/init_bakeoff/corpus_build/MIX_RECIPE.md).
 
-**What it would take**: run the login-node staging in `03_4 § 3.2` (~30-60 min wall, ~25-50 GB on iopsstor). Awaiting user go-ahead.
+**Not yet done**: the actual login-node `huggingface-cli download` execution on Clariden ela login + downstream `xfer`-side tokenizability smoke. ~30-60 min wall + ~25-50 GB on iopsstor.
 
-**Status: NOT DONE — staging plan ready, awaiting go.**
+**Status: PARTIAL — scripts ready (Item 2); Clariden pull pending go-ahead.**
 
-## V8 — Goldfish hash uniformity across new tokens — **NOT DONE**, dependency-gated
+## V8 — Goldfish hash uniformity across new tokens — **READY** (production-only)
 
-The question: if Goldfish is retained for production (Q B4), is the hash uniform across the new 22,528 tokens?
+The question: if Goldfish is retained for production (Q B4), is the hash uniform across the new 17,408 tokens (modern-only bakeoff) or 22,528 (composite future polytonic run)?
 
-**Evidence**: Q B4 default = "NTP for bakeoff, Goldfish for production." Bakeoff is NTP-only, so V8 doesn't gate the bakeoff. For production, V8 gates Goldfish-on/off.
+**Q C4 resolved 2026-05-21** via Agent A's Apertus tech-report audit:
+- **`k = 50`**, **`h = 50`**, **hash table size = 1,000,003**, **seed = `2971215073`**
+- Hash function: `prod(last h tokens) mod table_size`
+- Implementation: `references/repos/swiss-ai_Megatron-LM/megatron/core/datasets/gpt_dataset.py` `apply_goldfish` at L741; constants at `_HASH_TABLE_SIZE` + `_create_hash_table(seed=2971215073)`.
 
-**What it would take**: tokenize a sample corpus, count Goldfish-masked positions per new token, compare distribution. Requires Q C4 lookup (Goldfish hash function from tech report §3.3) to even know how to compute the masks.
+**Bakeoff scope (NTP)**: V8 doesn't gate the bakeoff. See [`TRAINING_RECIPE.md`](TRAINING_RECIPE.md) §7.1 + Q B4.
 
-**Status: NOT DONE — gated on Q C4 lookup; only relevant for production CPT, not the bakeoff.**
+**Production scope**: with Q C4 resolved, V8 is now runnable. Procedure: tokenize a sample of the CPT corpus with the extended tokenizer, apply the published hash function to count masked positions per new token, verify uniformity within ±2 σ across the 17,408 (or 22,528) new IDs.
+
+**Status: READY — Q C4 unblocked; production-only; ~1 h to run on the CPT corpus once built.**
 
 ## V9 — NFC normalization of training corpus — **DONE (in practice), confirmed THIS TURN**
 
@@ -160,6 +172,8 @@ python3 verify_and_normalize_nfc.py normalize <input.parquet> --out <output.parq
 
 **Verdict**: V9 is **operationally satisfied** for the published HPLT slices and **mostly satisfied** for the published GlossAPI slices, but **explicit enforcement was missing**. We now have the tooling to enforce it in the CPT build.
 
+**Updated 2026-05-21**: [`corpus_build/normalize_nfc.sh`](03_4_implementation_experiments/init_bakeoff/corpus_build/normalize_nfc.sh) wrapper (Item 2 commit `16b886c`) invokes `verify_and_normalize_nfc.py normalize` over every parquet under `$STAGE_ROOT` between corpus pull and `mix_builder.py`. Idempotent — already-NFC parquets are no-ops. The end-to-end sequence in [`init_bakeoff/README.md`](03_4_implementation_experiments/init_bakeoff/README.md) places it explicitly as a Clariden xfer step. **V9 is now operationally enforced, not just satisfied.**
+
 ## V10 — vLLM/SGLang compatibility — **NOT DONE**, deferrable
 
 The question: does the extended-vocab Apertus checkpoint load in both vLLM and SGLang?
@@ -170,21 +184,28 @@ The question: does the extended-vocab Apertus checkpoint load in both vLLM and S
 
 **Status: NOT DONE — defer to post-pilot.**
 
-## V12 — Cross-document attention masking — **NOT DONE**, Megatron-config item
+## V12 — Cross-document attention masking — **DONE** (config-level)
 
 The question: is Megatron-LM configured to mask attention across document boundaries (matching Apertus pretraining)?
 
-**Evidence**: this is a Megatron config flag (`reset_attention_mask` typically) that's a sensitive default — Apertus's pretraining used strict document separation. We don't have the Megatron config yet because we haven't set up `swiss-ai/pretrain-code` / `swiss-ai/Megatron-LM` on Clariden.
+**Resolved 2026-05-21**: Q D1 unblocked (`swiss-ai/Megatron-LM` main HEAD `c92402e3`). Confirmed flags via `references/repos/swiss-ai_pretrain-code/pretraining/submit_apertus_8b.sh` L286-289:
+```
+--reset-position-ids   # crossDocAttn
+--reset-attention-mask # crossDocAttn
+```
+[`init_bakeoff/bakeoff_training/bakeoff_train.sbatch`](03_4_implementation_experiments/init_bakeoff/bakeoff_training/bakeoff_train.sbatch) sources these via `_train_config_common.env::CROSS_DOC_ATTN_FLAGS="--reset-attention-mask --reset-position-ids"`. Apertus tech report §2.1 p.10 confirms the policy.
 
-**What it would take**: confirm the flag value in the Apertus pretraining config (Q D1), set the same in our CPT config, smoke-verify on a 2-doc test batch. ~1 hour during harness setup.
+**Caveat**: runtime verification on the first Clariden submission. A 2-doc test batch is the standard check.
 
-**Status: NOT DONE — gated on Q D1 (Apertus Megatron-LM-Swiss-AI fork branch/commit).**
+**Status: DONE (config-level); runtime verification on first Clariden submit.**
 
-## V13 — EoD token loss masking — **NOT DONE**, Megatron-config item
+## V13 — EoD token loss masking — **DONE** (config-level)
 
-Same shape as V12 — Megatron flag, gated on Q D1, ~1 hour during harness setup.
+Same shape as V12. Flag `--eod-mask-loss` confirmed in `submit_apertus_8b.sh:L288`; mirrored in our sbatch via `EOD_LOSS_MASK_FLAG="--eod-mask-loss"`.
 
-**Status: NOT DONE — gated on Q D1.**
+**Caveat (R8 in [`RISKS.md`](RISKS.md))**: the EoD *token ID* in the extended-vocab ship bundle must match the base Apertus EoD ID. V14 confirmed special-token ID preservation but `build_init_checkpoints.py` doesn't yet have an explicit `assert` of this — the R8 cheap mitigation closes the gap.
+
+**Status: DONE (config-level); R8 assertion pending in `build_init_checkpoints.py`.**
 
 ## V14 — BoD/EoD special token preservation — **DONE** ✓
 
@@ -206,17 +227,23 @@ Concrete check output from the most recent verifier run:
 
 **Status: DONE — verified locally on both ship bundles. The HF↔Megatron roundtrip verification (different code path) is still pending; flagged in V2.**
 
-## V15 — xIELU trainable scalars in optimizer — **NOT DONE**, deferred to Clariden
+## V15 — xIELU trainable scalars in optimizer — **PARTIAL** (mechanism audited; assertion pending)
 
 The question: after vocab extension, are xIELU's per-layer trainable αp and αn still in the optimizer's parameter list?
 
-**Evidence**: Apertus's config confirms `hidden_act: xielu`, and the `APERTUS_ARCHITECTURE_FOR_EMBEDDING_NORM_ANALYSIS.md` doc explains the role of these scalars. But the per-layer trainable αp/αn are not visible in the JSON config — they're in the `ApertusForCausalLM` model implementation (PyTorch). To verify them after `resize_token_embeddings()`, we'd need to instantiate the model and inspect `model.named_parameters()`.
+**Audited 2026-05-21** ([`AUDIT_FINDINGS.md`](AUDIT_FINDINGS.md) §E, Q12):
 
-**Can't safely do from home**: the Apertus-8B model is ~16 GB on disk; loading into RAM with optimizer-state inspection would push our ~31 GB RAM into swap.
+Read the Megatron source at `references/repos/swiss-ai_Megatron-LM/megatron/training/activations.py` lines 33-46. The `XIELU.__init__` constructor registers both `alpha_p` and `alpha_n` as `nn.Parameter(...)` instances. PyTorch's `nn.Module.parameters()` walks all `nn.Parameter` children automatically, so:
 
-**What it would take**: on Clariden `debug` partition, instantiate the model, run `resize_token_embeddings(153600)`, count parameters and confirm `model.num_parameters() == base + 184.5M` (no new xIELU scalars added; existing ones still present). ~30 min.
+- `alpha_p` and `alpha_n` are children of each per-layer `XIELU` module instance.
+- The optimizer's parameter list is built from `model.parameters()`, which includes them.
+- `transformers.PreTrainedModel.resize_token_embeddings(new_vocab)` only mutates `self.embed_tokens.weight` and `self.lm_head.weight`. It does NOT touch other modules — XIELU instances are untouched, their αp / αn `nn.Parameter` references stay alive, their optimizer-state entries persist.
 
-**Status: NOT DONE — scheduled for Clariden debug slot, alongside V2 (same model-load operation can do both).**
+**Risk classification**: LOW. The mechanism is sound under the current `transformers` API.
+
+**Open**: the audit recommended (Q12) adding an **explicit assertion** in [`build_init_checkpoints.py`](03_4_implementation_experiments/init_bakeoff/arms/build_init_checkpoints.py): snapshot `{name: param.clone()}` for all `*.alpha_p`, `*.alpha_n`, `*.beta`, `*.eps` parameters before `resize_token_embeddings`, snapshot after, `torch.equal()` each pair, raise on mismatch. This catches the failure mode if a future `transformers` version changes resize semantics. Tracked as **R9** in [`RISKS.md`](RISKS.md).
+
+**Status: PARTIAL — mechanism audited and confirmed sound; explicit pre/post-resize assertion deferred (R9, ~15 min when landed). Full runtime verification still wants a Clariden debug-slot dry-run alongside V2.**
 
 ## V16 — Tokenizer byte-fallback for new polytonic tokens — **DONE THIS TURN** ✓
 
@@ -254,28 +281,29 @@ id=150677  decoded='Ἑ'             polytonic-codepoint? True
 
 ---
 
-## Summary by status
+## Summary by status (updated 2026-05-21)
 
 | status | count | items |
 |---|---:|---|
-| **DONE** | 2 | V14, V16 |
-| **DONE THIS TURN** | 2 | V9 *(verifier + normalizer implemented; corpus check shows operational satisfaction)*, V16 *(detailed polytonic routing check)* |
-| **PARTIAL** | 1 | V2 *(tokenizer side ✓, model resize side scheduled for debug slot)* |
-| **NOT DONE — scheduled for Clariden** | 8 | V1 *(decontamination on xfer)*, V3 *(state preserve on debug)*, V4 *(variance baseline on normal)*, V5 *(needs CPT corpus first)*, V6 *(accent-normalized dedup re-run on xfer)*, V12 *(Megatron config)*, V13 *(Megatron config)*, V15 *(model-load on debug)* |
-| **DEFERRED** | 3 | V7 *(login-node staging plan, awaiting go)*, V8 *(gated on Q B4 + Q C4)*, V10 *(post-pilot)* |
+| **DONE** | 5 | V9 *(operationally enforced via `normalize_nfc.sh`)*, V12 *(`--reset-attention-mask --reset-position-ids` in sbatch)*, V13 *(`--eod-mask-loss` in sbatch)*, V14 *(special-token IDs preserved)*, V16 *(polytonic routing verified)* |
+| **PARTIAL** | 3 | V2 *(tokenizer ✓; model-resize side Clariden-pending)*, V7 *(pull scripts ✓; Clariden pull pending)*, V15 *(mechanism audited LOW RISK; explicit assertion pending — R9)* |
+| **READY** *(unblocked but not run)* | 1 | V8 *(Q C4 resolved; production-only — bakeoff is NTP)* |
+| **NOT DONE — Clariden** | 5 | V1 *(decontamination on xfer)*, V3 *(dataloader state on debug)*, V4 *(variance baseline on normal)*, V5 *(gates on CPT corpus build)*, V6 *(accent-normalized dedup re-run on xfer)* |
+| **DEFERRED** | 1 | V10 *(vLLM/SGLang; post-pilot)* |
 
-**What changed since the v0.6 review:** v0.7's reframing as status checks was correct — **2 items turned out to be DONE on closer inspection** (V14 by virtue of our ship-bundle verifier; V9 in practice via text_dedup's NFC step + upstream-NFC delivery). The user's intuition on NFC was right; we just hadn't surfaced the evidence before.
+**Changes from 2026-05-20 state**: +3 DONE (V9 enforcement, V12, V13), +2 PARTIAL (V7, V15), V8 promoted READY, −5 NOT DONE. The audit pass + Items 1-6 in [`COMPLETENESS_CHECK.md`](COMPLETENESS_CHECK.md) closed config-level gaps; runtime verifications stay Clariden-pending.
 
-## What's actually gating kickoff now
+## What's gating kickoff now
 
-After this status pass, the kickoff gates are:
+After this status pass:
 
-**Cannot do without Clariden** (10 items): V1, V2 (model side), V3, V4, V5, V6, V12, V13, V15.
-**Can do on home but waiting for go-ahead**: V7 (login-node staging).
-**Gated on tech-report lookups**: V8 (needs Q C4), and the rest of the §11 Q-list.
+**Cannot do without Clariden** (5 items, all runtime verifications): V1, V2 model-side, V3, V4, V5, V6. Plus V7 (Clariden login-node pull) and the V12/V13 runtime verification (first Clariden submit confirms config takes effect).
+**Cheap controls available** (no Clariden needed): R2/R4/R5/R6/R7/R8/R9 in [`RISKS.md`](RISKS.md) — ~2 h to land all seven. R8 + R9 specifically close runtime-verification gaps for V13 + V15.
+**Deferred**: V8 (production-only), V10 (post-pilot).
 
-The fidelity-checklist gates (`apertus_fidelity_checklist.md` §10) are unchanged by this status pass — they all still need either Clariden or tech-report fetches.
+## Cross-references
 
-## Pending background
-
-While drafting this doc, a background `verify_and_normalize_nfc.py --all` run is scanning the full `HuggingFaceFW__finepdfs-edu.parquet` (the 0.07%-NFD-leakage parquet from the sample probe). When it completes I'll fold the full-corpus number into V9 if it changes the picture; sampling on 200 docs already showed the structure.
+- [`AUDIT_FINDINGS.md`](AUDIT_FINDINGS.md) — code-level audit against locally-pinned sources; informs V12 / V13 / V15.
+- [`RISKS.md`](RISKS.md) — silent-failure inventory; R8 + R9 are the V-related cheap mitigations.
+- [`COMPLETENESS_CHECK.md`](COMPLETENESS_CHECK.md) — bakeoff-side gap analysis (the script-coverage axis).
+- [`TRAINING_RECIPE.md`](TRAINING_RECIPE.md) §13 — Q C / Q D resolution table.
