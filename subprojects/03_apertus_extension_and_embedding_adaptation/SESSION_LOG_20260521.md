@@ -423,3 +423,41 @@ Recommended next gate:
 - Submit one vanilla-only smoke with a 1h walltime and no regular checkpoint cadence.
 - Watch for first forward/backward completion, first iteration logs, and throughput.
 - Only after that smoke proves mb=2 + TP=2 + `expandable_segments` should `submit_all_arms.sh` be used for the real three-arm bakeoff.
+
+## 2026-05-22 R17 Preservation Fix
+
+Implemented Path A for preserving Apertus xIELU/QK-Norm state through HF -> Megatron conversion:
+
+- Replaced the `patch_apertus_extras.py` scaffold with a working patcher.
+- Added `verify_hf_roundtrip.py` for key-by-key HF safetensors diff and optional small-prompt logit diff.
+- Added `r17_patch_roundtrip.sbatch`, which patches one arm, converts patched Megatron -> HF, and verifies the roundtrip.
+- Updated `submit_all_arms.sh` to default to `INIT_CKPT_SUBDIR=megatron_tp2_r17patched`.
+
+Mechanism:
+
+- Copies HF `model.layers.*.mlp.act_fn.alpha_p` / `alpha_n` into Megatron `decoder.layers.*.mlp.activation_func.alpha_p` / `alpha_n`.
+- Copies HF `q_norm.weight` / `k_norm.weight` into Megatron `q_layernorm.weight` / `k_layernorm.weight`.
+- Checks HF xIELU `beta` / `eps` match Megatron defaults, because these checkpoints do not serialize them.
+
+Validation jobs:
+
+- `2341182` vanilla: `COMPLETED 0:0`, elapsed `00:01:36`.
+- `2341239` retok: `COMPLETED 0:0`, elapsed `00:01:32`.
+- `2341241` centroid: `COMPLETED 0:0`, elapsed `00:01:36`.
+
+All three patched TP=2 dirs exist:
+
+- `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/vanilla/megatron_tp2_r17patched`
+- `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/retok/megatron_tp2_r17patched`
+- `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/centroid/megatron_tp2_r17patched`
+
+Verification result for every arm:
+
+- `orig_only = []`, `trip_only = []`
+- `standard_max_abs_diff = 0.0`
+- `r17_max_abs_diff = 0.0`
+- `xielu_max_abs_diff = 0.0`
+- `qk_norm_max_abs_diff = 0.0`
+- `logit_max_abs_diff = 0.0` on the fixed Greek/English prompts
+
+Next compute gate is still a vanilla-only training smoke, but it should now load `megatron_tp2_r17patched`, not raw `megatron_tp2`.

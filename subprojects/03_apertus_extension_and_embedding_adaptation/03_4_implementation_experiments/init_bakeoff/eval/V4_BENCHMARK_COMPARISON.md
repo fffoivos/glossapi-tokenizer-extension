@@ -48,7 +48,9 @@ Top-level group scores per swissai lm-evaluation-harness. Stderrs are the harnes
 
 ## Bakeoff selection implications
 
-The three bakeoff arms all start from approximately the V4-postconv baseline (R17-reset Apertus + the embedding-resize init choice they differ on), not from V4-HF. The §5.6 hard-gate plan in [`EVAL_RECIPE.md`](EVAL_RECIPE.md) was originally framed with V4-HF as the retention reference; that needs to change:
+This section describes the implication **for raw, unpatched HF → Megatron conversion**. After this comparison exposed the failure, `megatron_patches/patch_apertus_extras.py` was implemented and validated on the TP=2 bakeoff init checkpoints (`2341182`, `2341239`, `2341241`): patched Megatron → HF roundtrips have `standard_max_abs_diff = 0.0`, `r17_max_abs_diff = 0.0`, and `logit_max_abs_diff = 0.0`.
+
+Therefore the actual bakeoff should use `megatron_tp2_r17patched`, not the raw `megatron_tp2` dirs. If someone intentionally runs the raw dirs, then the three arms start from approximately the V4-postconv baseline (R17-reset Apertus + the embedding-resize init choice they differ on), not from V4-HF. In that raw-conversion ablation, the §5.6 hard-gate plan in [`EVAL_RECIPE.md`](EVAL_RECIPE.md) would need to change:
 
 - **Old framing (V4-HF reference):** "Arm X regresses > 3 p.p. from V4-HF on mmlu" → trivially fails for every arm at iteration 0 (each is 36 p.p. below V4-HF by construction).
 - **New framing (V4-postconv reference):** "Arm X recovers > Y p.p. from V4-postconv on mmlu after 2B tokens, with bootstrap CI separating it from the other arms" → measurable signal.
@@ -64,9 +66,9 @@ If after 2B tokens no arm has recovered meaningfully past V4-postconv (e.g. all 
 
 ## Production CPT prerequisite
 
-R17 quantification confirms the existing risk note in [`RISKS.md`](../../../RISKS.md): **the post-conversion xIELU patcher is required before production CPT**, not just nice-to-have. Recovering 30-50 percentage points across MMLU/HellaSwag/ARC inside a 15-20B-token production CPT budget is unrealistic; the model must start from intact xIELU values.
+R17 quantification confirmed the existing risk note in [`RISKS.md`](../../../RISKS.md): **the post-conversion xIELU/QK-Norm patcher is required before production CPT**, not just nice-to-have. Recovering 30-50 percentage points across MMLU/HellaSwag/ARC inside a 15-20B-token production CPT budget is unrealistic; the model must start from intact xIELU values.
 
-The bakeoff's three arms differ in *embedding* init (Vanilla baseline / ReTok / Centroid). They do *not* differ on xIELU init, so the bakeoff cannot evaluate the patcher. Patching is independent of arm selection and must be validated separately (write the tensors, re-run the V4-postconv eval, confirm it tracks V4-HF).
+The patcher is now implemented and has passed tensor + logit roundtrip checks for all three TP=2 init arms. The remaining optional confirmation is to run the full V4 eval on a patched roundtrip; the cheaper proof already shows the patched HF roundtrip is bit-exact to its HF source.
 
 ## Artifacts
 

@@ -288,3 +288,25 @@ Follow-up fixes applied locally:
 - `_train_config_common.env` also documents that the 238-step AdEMAMix beta3/alpha warmup is an intentionally heavy bakeoff cold-restart fraction, with production CPT expected to scale back toward ~2.8%.
 
 Local and remote Clariden validation passed with `py_compile` for the TE guard and `bash -n` for the train, submit, and conversion sbatch scripts.
+
+## 2026-05-22 R17 Patched Checkpoints Ready
+
+The raw HF -> Megatron conversion dropped Apertus xIELU/QK-Norm trained values. This has now been fixed without switching trainers:
+
+- `patch_apertus_extras.py` copies xIELU `alpha_p` / `alpha_n` and QK-Norm `q_norm` / `k_norm` from each HF source checkpoint into the converted Megatron TP ranks.
+- `r17_patch_roundtrip.sbatch` patches an arm, converts patched Megatron -> HF, and verifies tensor + logit equality.
+- `submit_all_arms.sh` defaults to `INIT_CKPT_SUBDIR=megatron_tp2_r17patched`.
+
+Validated jobs:
+
+- `2341182` vanilla: `COMPLETED 0:0`, tensor diff `0.0`, logit diff `0.0`.
+- `2341239` retok: `COMPLETED 0:0`, tensor diff `0.0`, logit diff `0.0`.
+- `2341241` centroid: `COMPLETED 0:0`, tensor diff `0.0`, logit diff `0.0`.
+
+Use these checkpoint dirs for the next smoke and bakeoff:
+
+- `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/vanilla/megatron_tp2_r17patched`
+- `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/retok/megatron_tp2_r17patched`
+- `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/centroid/megatron_tp2_r17patched`
+
+Do not go back to raw `megatron_tp2` unless intentionally running an R17 ablation.

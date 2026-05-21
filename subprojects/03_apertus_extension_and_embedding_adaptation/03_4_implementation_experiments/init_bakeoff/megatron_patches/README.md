@@ -57,13 +57,35 @@ python3 tools/checkpoint/convert.py \
 - **`saver_swissai_hf` does NOT accept `--bf16`** — only the loader. Don't pass `--bf16` on the back-leg `convert.py`.
 - **uenv image must contain `ApertusForCausalLM`** — `pytorch/v2.9.1:v2` ships transformers 4.57.0 and works; the older `pytorch/v2.6.0:v1` ships transformers 4.48.3 and fails with `ImportError: cannot import name 'ApertusForCausalLM'`. The loader falls back to `AutoModelForCausalLM` + `trust_remote_code=True`, but that still hits `ValueError: model_type apertus not recognized` on the 4.48 path. Use 2.9.1:v2 for both legs.
 
-## Caveat: xIELU + QK-Norm trained values are NOT preserved through this path
+## Raw-conversion caveat and R17 patcher
 
 `saver_core.py`'s `check_message()` at L357-443 only consumes the standard transformer protocol keys (input/post norm, qkv, dense, mlp l0/l1, optional biases, optional router). It does NOT accept Apertus-specific keys like `mlp xielu alpha p`, `q norm weight`, `k norm weight` — they'd either be rejected (default checking) or silently dropped (`--no-checking`). Either way, those parameters in the saved Megatron checkpoint land at their `XIELU.__init__` / `RMSNorm.__init__` defaults (αp = αn = 0.8, β = 0.5; q/k_norm = ones-vector), not Apertus's pretraining-trained values.
 
-**For the modern-only bakeoff this is acceptable** — all three arms inherit the same defaults, so the cross-arm comparison stays valid. Absolute scores will be lower than running unmodified Apertus (which has its trained xIELU + QK-Norm state). Tracked as **R17** in [`../../../RISKS.md`](../../../RISKS.md).
+That raw conversion is tracked as **R17** in [`../../../RISKS.md`](../../../RISKS.md). It is now fixed by [`patch_apertus_extras.py`](patch_apertus_extras.py), which copies these tensors from the source HF checkpoint into every converted Megatron TP rank:
 
-**For production CPT** a post-conversion patcher is needed: open the saved Megatron `torch_dist` checkpoint, walk the `*.distcp` shards, and overwrite the per-layer xIELU αp / αn / β / ε and QK-Norm q_norm / k_norm tensors from the HF source. Pseudocode in [`patch_apertus_extras.py`](patch_apertus_extras.py) (scaffold; needs Megatron checkpoint-format knowledge to complete). This is OUT OF SCOPE for the bakeoff and IN SCOPE for the production-CPT pre-submit checklist.
+- `model.layers.*.mlp.act_fn.alpha_p` -> `decoder.layers.*.mlp.activation_func.alpha_p`
+- `model.layers.*.mlp.act_fn.alpha_n` -> `decoder.layers.*.mlp.activation_func.alpha_n`
+- `model.layers.*.self_attn.q_norm.weight` -> `decoder.layers.*.self_attention.q_layernorm.weight`
+- `model.layers.*.self_attn.k_norm.weight` -> `decoder.layers.*.self_attention.k_layernorm.weight`
+
+Megatron does not serialize xIELU `beta` / `eps` in these checkpoints; the patcher verifies the HF source values match Megatron defaults before accepting their absence.
+
+Use [`r17_patch_roundtrip.sbatch`](r17_patch_roundtrip.sbatch) to patch and prove a checkpoint:
+
+```bash
+cd /iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/megatron_patches
+sbatch --export=ALL,ARM=vanilla,OVERWRITE=1,LOGITS=1 r17_patch_roundtrip.sbatch
+```
+
+Validated patched TP=2 init checkpoints on 2026-05-21 UTC:
+
+| Arm | Job | Patched Megatron dir | Tensor diff | Logit diff |
+|---|---:|---|---:|---:|
+| `vanilla` | `2341182` | `vanilla/megatron_tp2_r17patched` | `0.0` | `0.0` |
+| `retok` | `2341239` | `retok/megatron_tp2_r17patched` | `0.0` | `0.0` |
+| `centroid` | `2341241` | `centroid/megatron_tp2_r17patched` | `0.0` | `0.0` |
+
+`submit_all_arms.sh` now defaults to `INIT_CKPT_SUBDIR=megatron_tp2_r17patched`; override it only for an intentional raw-conversion ablation.
 
 ## R1 result (2026-05-21, Apertus-8B-2509, job 2333864)
 

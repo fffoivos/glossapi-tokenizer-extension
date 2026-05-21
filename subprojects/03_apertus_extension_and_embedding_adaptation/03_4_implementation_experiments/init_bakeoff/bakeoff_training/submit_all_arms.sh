@@ -13,8 +13,9 @@
 #      same shuffled bulk_mix.jsonl with the same seed — they differ only in
 #      tokenization (reviewer round-2 Blocker 2).
 #   2. arms/build_init_checkpoints.sbatch + arms/convert_init_checkpoints.sbatch
-#      have produced Megatron-format init checkpoints under
-#      $INIT_CKPT_ROOT/{vanilla,retok,centroid}/megatron/
+#      + megatron_patches/r17_patch_roundtrip.sbatch have produced patched
+#      Megatron-format init checkpoints under
+#      $INIT_CKPT_ROOT/{vanilla,retok,centroid}/megatron_tp2_r17patched/
 
 set -euo pipefail
 
@@ -22,7 +23,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_train_config_common.env"
 
 INIT_CKPT_ROOT="${INIT_CKPT_ROOT:-/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480}"
-INIT_CKPT_SUBDIR="${INIT_CKPT_SUBDIR:-megatron_tp2}"
+INIT_CKPT_SUBDIR="${INIT_CKPT_SUBDIR:-megatron_tp2_r17patched}"
 OUT_ROOT="${OUT_ROOT:-/capstor/scratch/cscs/fffoivos/runs/bakeoff}"
 RUN_TAG="${RUN_TAG:-bakeoff_$(date -u +%Y%m%d_%H%M%S)}"
 
