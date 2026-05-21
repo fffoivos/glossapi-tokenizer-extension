@@ -50,4 +50,11 @@ Static shell/Python/JSON checks did pass.
 - Verified both eval jobs entered RUNNING state on normal partition and the logs show `global_mmlu` in `Selected Tasks`.
 - V4-post-conversion eval `2335101` failed after ~2.5 minutes with `OSError: [Errno 37] No locks available` from `datasets`/`filelock` during dataset preparation. Patched `run_eval.sbatch` to set per-job `HF_HOME`, `HF_DATASETS_CACHE`, `XDG_CACHE_HOME`, and `TMPDIR` under `/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_$SLURM_JOB_ID`.
 - Resubmitted post-conversion eval as `2335196`, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_corrected_retry_20260521_122535`.
-- Continue monitoring `2334880`; after success, run normalize -> smoke mix -> full mix -> preprocess x2 -> init checkpoints -> bakeoff arms.
+- Verified `2335196` entered RUNNING state and is using `EVAL_CACHE_ROOT=/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_2335196`.
+- Queued the after-prepare corpus chain:
+  - `2335157` normalize_nfc, dependency `afterok:2334880`
+  - `2335158` mix_builder_smoke, dependency `afterok:2335157`
+  - `2335159` mix_builder_full, dependency `afterok:2335158`
+  - `2335160` base-tokenizer preprocess, dependency `afterok:2335159`
+  - `2335161` extended-tokenizer preprocess, dependency `afterok:2335159`
+- Continue monitoring `2334880`; if the dependency chain reaches preprocess success, the next stage is init checkpoint build + conversion, then `submit_all_arms.sh`.

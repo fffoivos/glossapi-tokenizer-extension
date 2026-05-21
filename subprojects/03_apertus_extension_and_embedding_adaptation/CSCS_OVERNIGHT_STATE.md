@@ -13,6 +13,7 @@ Codex takeover is now the live handoff. `SESSION_LOG_20260521.md` remains the au
 | V4-HF baseline | Job `2334245` produced valid artifacts for its task list, but the script omitted `global_mmlu`. Treat `init_bakeoff/eval/v4_baseline_20260521/` as a partial baseline until corrected V4-HF and V4-post-conversion reruns complete. |
 | R1 roundtrip | PASS: job `2333864`, standard tensors max abs diff `0.0`, R17 xIELU deltas `128`. The sbatch now prints separate R17/qk max-diff values on future reruns. |
 | Corrected V4 evals | Submitted after syncing fixes: `2335100` V4-HF corrected baseline is running. `2335101` V4-post-conversion failed on a datasets/filelock `No locks available` error; patched per-job HF/datasets cache and resubmitted as `2335196`, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_corrected_retry_20260521_122535`. |
+| Queued corpus chain | Dependency chain is attached to `2334880`: `2335157` normalize_nfc -> `2335158` mix smoke -> `2335159` full mix -> `2335160` base preprocess + `2335161` extended preprocess. |
 | GCP cost check | Attempted from `home`; blocked by non-interactive `gcloud` reauthentication failure. No GCP instance state was verified in this takeover turn. |
 | Next actions | Let `2334880` finish; then submit `normalize_nfc.sbatch`, `mix_builder_smoke.sbatch`, full mix, preprocess twice, build three init checkpoints, and submit arms. In parallel, rerun V4-HF and V4-post-conversion with corrected `global_mmlu` retention list. |
 
