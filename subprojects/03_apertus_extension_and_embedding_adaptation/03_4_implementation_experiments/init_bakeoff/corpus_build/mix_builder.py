@@ -45,16 +45,23 @@ def _approx_token_count(text: str, tokenizer) -> int:
 
 def _load_drop_keys(spec: str) -> set[str]:
     """Load a doc-key drop list from a HF spec like `repo::path/inside.parquet`,
-    or from a local parquet path. Returns the set of doc-key strings.
+    or from a local parquet path (env vars like `${APERTUS_DROP}` expanded).
+    Returns the set of doc-key strings.
+
+    NOTE: with the runbook-built `${SELECTED}` pool (Blocker 3 fix), the
+    Apertus-drop is already applied upstream and this drop-keys hook is
+    redundant for nanochat sources. It's still useful for ad-hoc HF sources.
     """
+    import os
     import pyarrow.parquet as pq
     if "::" in spec:
         repo, internal = spec.split("::", 1)
-        # Use huggingface_hub to download the specific file
         from huggingface_hub import hf_hub_download
         local = hf_hub_download(repo_id=repo, repo_type="dataset", filename=internal)
     else:
-        local = spec
+        local = os.path.expandvars(spec)
+        if "$" in local:
+            raise SystemExit(f"drop_doc_keys_parquet still contains unexpanded '$': {local!r}")
     tbl = pq.read_table(local)
     # Try common column names for doc-key
     for col in ("doc_key", "hf_pool_doc_key", "doc_id"):
@@ -66,29 +73,49 @@ def _load_drop_keys(spec: str) -> set[str]:
 def _build_source_stream(spec: dict[str, Any], drop_keys: set[str] | None) -> Iterable[dict]:
     """Yield {text, doc_id, source, ...} from one source per its spec.
 
+    Two source modes:
+    - HF dataset (`id`): streaming `load_dataset(id, config, split, streaming=True)`
+    - Local parquet (`local_parquet`): a path on disk (or a glob). Supports
+      `${VAR}` env-var expansion so recipes can reference `${SELECTED}` for the
+      runbook-built post-Apertus-drop + post-internal-dedup pool. Reviewer
+      round-2 Blocker 3: the runbook (`03_2/CPT_DATASET_BUILD_RUNBOOK.md`) is
+      the canonical CPT-source path; this is the in-process consumer.
+
     Applies filter_field/filter_values, filter_values_regex, filter_min,
     drop_doc_keys filtering. Returns an iterator over normalized rows.
     """
+    import os
     from datasets import load_dataset
 
-    ds_id = spec["id"]
-    config = spec.get("config")
+    name = spec["name"]
     split = spec.get("split", "train")
     streaming = bool(spec.get("streaming", True))
     text_col = spec.get("text_column", "text")
-    name = spec["name"]
 
-    try:
-        ds = load_dataset(ds_id, config, split=split, streaming=streaming)
-    except Exception as exc:
-        # Fallback chain (e.g., FW2-HQ doesn't have Persian → use FW2 standard)
-        fb_id = spec.get("fallback_id")
-        fb_cfg = spec.get("fallback_config")
-        if fb_id:
-            print(f"  [WARN] {name}: primary {ds_id}/{config} failed ({exc}); trying fallback {fb_id}/{fb_cfg}", file=sys.stderr)
-            ds = load_dataset(fb_id, fb_cfg, split=split, streaming=streaming)
-        else:
-            raise
+    local_parquet = spec.get("local_parquet")
+    if local_parquet:
+        # Expand env vars (e.g., ${SELECTED}) before opening
+        local_path = os.path.expandvars(local_parquet)
+        if "$" in local_path:
+            raise SystemExit(
+                f"{name}: local_parquet path still contains '$' after expansion: {local_path!r}. "
+                f"Set the env var before running mix_builder."
+            )
+        ds = load_dataset("parquet", data_files=local_path, split=split, streaming=streaming)
+    else:
+        ds_id = spec["id"]
+        config = spec.get("config")
+        try:
+            ds = load_dataset(ds_id, config, split=split, streaming=streaming)
+        except Exception as exc:
+            # Fallback chain (e.g., FW2-HQ doesn't have Persian → use FW2 standard)
+            fb_id = spec.get("fallback_id")
+            fb_cfg = spec.get("fallback_config")
+            if fb_id:
+                print(f"  [WARN] {name}: primary {ds_id}/{config} failed ({exc}); trying fallback {fb_id}/{fb_cfg}", file=sys.stderr)
+                ds = load_dataset(fb_id, fb_cfg, split=split, streaming=streaming)
+            else:
+                raise
 
     filter_field = spec.get("filter_field")
     filter_values = set(spec.get("filter_values") or [])

@@ -42,7 +42,11 @@ huggingface-cli download \
     --local-dir "$NANOCHAT_DIR" \
     --include 'data/*.parquet' \
     --include 'dedup_metadata/latest.json' \
+    --include 'dedup_metadata/wave2_20260426_builder_metadata_v2_latest_cleaner_20260507/builder_metadata/*' \
     --include 'README.md'
+# wave2 builder_metadata is needed by prepare_greek_pool.sh's internal-dedup replay
+# (runbook step 3). Without it, mix-prepare-selected-input can't reconstruct the
+# drop_intra_and_inter decision from the published dedup audit.
 
 echo
 echo "=== 2. Apertus-overlap drop overlay (~few MB) ==="

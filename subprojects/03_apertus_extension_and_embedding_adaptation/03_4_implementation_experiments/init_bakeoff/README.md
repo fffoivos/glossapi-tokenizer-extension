@@ -45,12 +45,15 @@ The bakeoff fires once these are complete (most are Clariden-side):
            ✓ arms/test_init_logic.py                  (smoke green)
            ✓ verify_and_normalize_nfc.py              (V9 enforcer)
 
-[Clariden login]   bash corpus_build/pull_greek_corpus.sh    # ~30-60 min
+[Clariden login]   bash corpus_build/pull_greek_corpus.sh    # ~30-60 min (now pulls wave2 dedup metadata too)
                    bash corpus_build/pull_replay_datasets.sh # ~1-3 h depending on bandwidth
                                                               # (now includes FineMath stage-1 alongside replay/code)
                    bash eval/pull_benchmarks.sh              # ~30-60 min
 
 [Clariden xfer]    bash corpus_build/normalize_nfc.sh        # V9 enforcement (idempotent NFC pass)
+                   bash corpus_build/prepare_greek_pool.sh   # Runbook step: Apertus-drop + drop_intra_and_inter
+                                                              # produces $SELECTED parquet for mix_builder
+                   export SELECTED=/iopsstor/.../cpt/selected_after_apertus_and_internal_dedup.parquet
                    python3 corpus_build/mix_builder.py \
                        --recipe corpus_build/recipes/bulk.json \
                        --target-tokens 7000000000 \

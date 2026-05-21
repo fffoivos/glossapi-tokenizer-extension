@@ -9,6 +9,19 @@ interleaved from several sources with explicit per-source weights. Per
 
 Both recipes are JSON, in `recipes/`. The mix builder (`mix_builder.py`) reads either and emits a JSON-lines stream.
 
+## Three-step build path (reviewer round-2 Blocker 3 fix)
+
+The CPT dataset build follows the canonical runbook at [`../../../03_2_apertus_c3_dedup_audit/CPT_DATASET_BUILD_RUNBOOK.md`](../../../03_2_apertus_c3_dedup_audit/CPT_DATASET_BUILD_RUNBOOK.md). **Order matters**: if Apertus-overlapping docs are removed first, an internal-duplicate family can still keep a fresh alternate representative.
+
+```
+1. bash pull_greek_corpus.sh        # nanochat parquets + dedup_metadata + Apertus overlay
+2. bash prepare_greek_pool.sh       # → $SELECTED parquet (Apertus-drop + drop_intra_and_inter)
+3. SELECTED=$WORK/cpt/selected_after_apertus_and_internal_dedup.parquet \
+   python3 mix_builder.py --recipe recipes/bulk.json --target-tokens 7_000_000_000 ...
+```
+
+All six Greek `bulk.json` sources point at `local_parquet: ${SELECTED}` — the single post-dedup parquet — and filter by `source_dataset` value to slice into HPLT / literary / dialogue / academic / legal / dictionary buckets. The Apertus-overlap-drop is applied **upstream** in step 2 (not per-source in mix_builder), so it applies uniformly to all six categories rather than only to HPLT (the previous bug). Internal dedup with `drop_intra_and_inter` also happens in step 2 (was missing entirely before).
+
 ## Composition (bulk recipe — what the bakeoff actually consumes)
 
 Working defaults per v0.7 §2 + §4 + user answers 2026-05-20:
