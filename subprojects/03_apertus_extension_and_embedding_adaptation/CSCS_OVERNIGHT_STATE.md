@@ -192,3 +192,9 @@ Actions taken:
   - `2338881` extended-tokenizer preprocess after `2338879`
 
 Do not launch the 2B bakeoff arms until `2338879` manifest confirms top-level bucket shares close to `70/24/4/2` and both `2338880`/`2338881` produce the expected `.bin` and `.idx` files.
+
+Post-conversion eval state:
+
+- Retention retry `2338020`: complete, results in `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_retention_retry_20260521_163240/results_2026-05-21T18-58-29.766809.json`
+- Greek retry `2338021`: complete, results in `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_greek_retry_20260521_163240/results_2026-05-21T22-12-31.611713.json`
+- Compact local copies live in `03_4_implementation_experiments/init_bakeoff/eval/v4_postconv_retry_20260521/`.

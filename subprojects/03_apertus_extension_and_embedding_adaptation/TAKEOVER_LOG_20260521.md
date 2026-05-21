@@ -186,3 +186,5 @@ Static shell/Python/JSON checks did pass.
 | `2338881` | extended-tokenizer preprocess | `afterok:2338879`, writes `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_ext_megatron/bulk_mix_text_document.{bin,idx}` |
 
 - As of launch, all seven `2338878` array tasks were running. Greek eval `2338021` remained running and healthy.
+- Greek post-conversion eval `2338021` completed successfully (`COMPLETED 0:0`, elapsed `03:39:23`). Results are in `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_greek_retry_20260521_163240/results_2026-05-21T22-12-31.611713.json`.
+- Copied compact retention and Greek post-conversion result JSONs plus run metadata locally under `03_4_implementation_experiments/init_bakeoff/eval/v4_postconv_retry_20260521/`. Large per-sample JSONLs remain on Clariden.

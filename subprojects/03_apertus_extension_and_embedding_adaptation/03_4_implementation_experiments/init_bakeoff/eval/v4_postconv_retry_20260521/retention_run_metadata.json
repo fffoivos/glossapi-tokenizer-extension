@@ -1,0 +1,15 @@
+{
+  "model_path": "/capstor/scratch/cscs/fffoivos/runs/r1_roundtrip_2333864/apertus_hf_roundtrip",
+  "task_group": "retention_only",
+  "task_list": "arc_challenge,arc_easy,hellaswag,winogrande,piqa,mmlu,global_mmlu,xnli,xcopa",
+  "batch_size": "auto",
+  "dtype": "bfloat16",
+  "lm_eval_pythonpath": "/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval",
+  "eval_cache_root": "/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_2338020",
+  "lm_eval_source": "swiss-ai/lm-evaluation-harness (target-install)",
+  "uenv_image": "pytorch/v2.9.1:v2",
+  "slurm_job_id": "2338020",
+  "host": "nid007070",
+  "start_time": "2026-05-21T16:32:51Z",
+  "end_time": "2026-05-21T16:58:38Z"
+}

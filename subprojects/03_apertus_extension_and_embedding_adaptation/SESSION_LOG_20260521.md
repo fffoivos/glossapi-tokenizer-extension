@@ -288,6 +288,13 @@ Bucket-preservation steering correction:
 | `2338880` | base-tokenizer preprocess | `afterok:2338879` |
 | `2338881` | extended-tokenizer preprocess | `afterok:2338879` |
 
+Post-conversion Greek eval finished:
+
+- `2338021` completed successfully (`COMPLETED 0:0`, elapsed `03:39:23`).
+- Results file: `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_greek_retry_20260521_163240/results_2026-05-21T22-12-31.611713.json`
+- Compact local copy: `03_4_implementation_experiments/init_bakeoff/eval/v4_postconv_retry_20260521/`
+- Greek headline metrics: ARC-challenge MT EL `acc_norm=0.2636518771`, Belebele `acc=0.2288888889`, Global MMLU Greek `acc=0.2294544937`, PIQA Greek `acc_norm=0.54`, Include Base 44 Greek `acc=0.1974637681`, XNLI EL `acc=0.3333333333`, XQuAD EL `exact_match=0.0`, `f1=0.0`.
+
 Independent follow-ups (deferred to after the corpus chain is unblocked):
 
 - **PF5** — port the ILSP `*_greek` task YAMLs from `LeonVouk/lighteval` into the swissai harness clone so V4 / per-arm evals include `hellaswag_greek`, `winogrande_greek`, `mmlu_pro_greek`, `truthfulqa_greek`, `medical_mcqa_greek`. Today the V4 baseline covers seven Greek tasks; ILSP would add five more.
