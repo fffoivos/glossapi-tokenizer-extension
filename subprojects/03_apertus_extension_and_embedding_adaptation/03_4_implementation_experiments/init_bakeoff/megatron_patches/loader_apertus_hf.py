@@ -119,9 +119,20 @@ def _load_checkpoint(queue, args):
 
     try:
         import transformers
-        from transformers import ApertusForCausalLM
+        from transformers import AutoModelForCausalLM
+        # Prefer the native ApertusForCausalLM if available (transformers >= 4.45-ish);
+        # otherwise AutoModelForCausalLM with trust_remote_code=True loads Apertus's
+        # `modeling_apertus.py` from the HF repo. Functionally equivalent for our
+        # state_dict mapping.
+        try:
+            from transformers import ApertusForCausalLM
+            ApertusLoaderCls = ApertusForCausalLM
+            APERTUS_NATIVE = True
+        except ImportError:
+            ApertusLoaderCls = AutoModelForCausalLM
+            APERTUS_NATIVE = False
     except ImportError as exc:
-        print(f"transformers / ApertusForCausalLM unavailable: {exc}", file=sys.stderr)
+        print(f"transformers unavailable: {exc}", file=sys.stderr)
         queue.put("exit")
         raise
 
@@ -138,13 +149,12 @@ def _load_checkpoint(queue, args):
         raise
 
     # === Load HF Apertus ===
-    print(f"[loader_apertus_hf] loading HF Apertus from {args.load_dir}", file=sys.stderr)
+    print(f"[loader_apertus_hf] loading HF Apertus from {args.load_dir} (native={APERTUS_NATIVE})", file=sys.stderr)
     dtype = torch.bfloat16 if args.bf16 else (torch.float16 if args.fp16 else torch.float32)
-    hf_model = ApertusForCausalLM.from_pretrained(
-        args.load_dir,
-        torch_dtype=dtype,
-        low_cpu_mem_usage=True,
-    )
+    load_kwargs = {"torch_dtype": dtype, "low_cpu_mem_usage": True}
+    if not APERTUS_NATIVE:
+        load_kwargs["trust_remote_code"] = True
+    hf_model = ApertusLoaderCls.from_pretrained(args.load_dir, **load_kwargs)
     hf_config = hf_model.config
     sd = hf_model.state_dict()
     print(f"[loader_apertus_hf] loaded: vocab={hf_config.vocab_size}, layers={hf_config.num_hidden_layers}, "
