@@ -65,7 +65,31 @@ data shard, every seed is identical.
 
 ## Q D1 status
 
-The exact Megatron-LM-Swiss-AI fork branch / commit is the open dependency
-([`../../cpt_plan_v0.7_status.md`](../../cpt_plan_v0.7_status.md)
-Q D1). Placeholders below assume the Apertus pretraining branch; the
-substitution is one-line once confirmed.
+Resolved 2026-05-21: swiss-ai/Megatron-LM main HEAD pinned at
+`c92402e39ef3c8e69ea378a59e79059dc14541f4`. See [`../../TRAINING_RECIPE.md`](../../TRAINING_RECIPE.md) §1.
+
+## HF → Megatron conversion (the bridge between init checkpoint build and training)
+
+`build_init_checkpoints.py` produces HF-format model checkpoints (one per
+arm). To train them in Megatron-LM, they have to be converted to Megatron
+format. The conversion uses our custom Apertus loader:
+
+```bash
+# Once per Clariden setup, after cloning swiss-ai/Megatron-LM:
+bash ../megatron_patches/install.sh $MEGATRON_LM_DIR
+
+# Per init checkpoint:
+cd $MEGATRON_LM_DIR
+python3 tools/checkpoint/convert.py \
+    --loader apertus_hf \
+    --saver core \
+    --load-dir   /iopsstor/.../init_checkpoints/<arm>/hf \
+    --save-dir   /iopsstor/.../init_checkpoints/<arm>/megatron \
+    --tokenizer-model /iopsstor/.../tokenizers/apertus_greek_modern_only_148480 \
+    --bf16
+```
+
+See [`../megatron_patches/README.md`](../megatron_patches/README.md) for the
+full conversion + roundtrip-validation procedure. The roundtrip on
+unmodified Apertus-8B-2509 should run **before** the first bakeoff sbatch
+submission as a one-time correctness gate on our loader.
