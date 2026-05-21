@@ -113,6 +113,24 @@ Per-arm bakeoff eval at one checkpoint:
 - `compute_bootstrap_cis.py` — post-process: bootstrap CIs over the `--log_samples` outputs
 - **`compute_tokenizer_fair_metrics.py`** — primary v0.7 §5.1 intrinsic metrics (BPC, NLL/char, NLL/word, tokens/word, chars/token, compression ratio, STRR). The cross-tokenizer-fair signal for comparing Vanilla (vocab 131,072) vs ReTok/Centroid (vocab 148,480). Has a `--stats-only` mode for tokenizer-only checks (no model load).
 - **`run_tokenizer_fair_metrics.sbatch`** — sbatch wrapper for the above; 1 node × 1 GPU × 2 h. Runs at each bakeoff checkpoint where downstream eval also runs.
+- **`compute_new_token_diagnostics.py`** — v0.7 §5.3 new-token integration diagnostic suite: 7 diagnostics over the 17,408 new IDs (rank of new target in next-token logits, prob-mass on new IDs, per-register entropy, top-1 substitution rate at new-target positions, greedy-gen new-token utilization, embedding L2-norm distribution new-vs-existing, cosine-similarity / effective-rank of new rows). Has `--embedding-only` mode that skips the forward-pass diagnostics (D1-D5) for cheap embedding-only health checks.
+- **`run_new_token_diagnostics.sbatch`** — sbatch wrapper for the diagnostic suite; 1 node × 1 GPU × 2 h.
+
+## §5.3 new-token integration diagnostic suite — important
+
+Per v0.7 §5.3, these 7 diagnostics are **"read at every bakeoff checkpoint"**:
+
+| # | Diagnostic | What it catches |
+|---|---|---|
+| D1 | Rank of correct new token in next-token logits | New token invisible |
+| D2 | Aggregate probability mass on new Greek tokens | Under- or over-emitted |
+| D3 | New-token entropy by register | Polytonic rows collapsed or avoided |
+| D4 | Top-k substitutions between new token and old subpieces | Model still prefers old segmentation |
+| D5 | Greedy-gen new-token utilization rate | New rows exist but behaviorally dead |
+| D6 | Embedding L2-norm distribution: new vs existing | Degenerate-subspace collapse |
+| D7 | Cosine-similarity / effective-rank of new rows | Same-direction collapse |
+
+`compute_new_token_diagnostics.py` implements all 7 in a single run (~10-15 min per checkpoint on one GH200). D6 + D7 are embedding-only (cheap; can run with `--embedding-only` for fast checks). D5 is the heaviest single diagnostic; `--skip-greedy` opts out.
 
 ## Primary intrinsic metrics (v0.7 §5.1) — important
 
