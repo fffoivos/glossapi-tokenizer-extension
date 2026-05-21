@@ -143,3 +143,6 @@ Static shell/Python/JSON checks did pass.
   - `2337912` = `concat_bulk_mix`, dependency `afterok:2337911`
   - `2337913` = base-tokenizer preprocess, dependency `afterok:2337912`
   - `2337914` = extended-tokenizer preprocess, dependency `afterok:2337912`
+- Corrected post-conversion eval `2335196` was healthy but under-requested walltime: it hit the 4h limit at `926/1190` generate requests (`TIMEOUT`, Slurm cancelled at `2026-05-21T18:26:17` local cluster time). Raised `run_eval.sbatch` default walltime to `08:00:00` and resubmitted as split jobs:
+  - `2338020` = post-conversion retention-only eval, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_retention_retry_20260521_163240`
+  - `2338021` = post-conversion Greek-only eval, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_greek_retry_20260521_163240`

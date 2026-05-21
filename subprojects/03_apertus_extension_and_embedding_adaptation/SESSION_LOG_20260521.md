@@ -232,6 +232,14 @@ Follow-up correction:
 | `2337913` | base-tokenizer preprocess | `afterok:2337912` |
 | `2337914` | extended-tokenizer preprocess | `afterok:2337912` |
 
+Post-conversion eval correction:
+
+- `2335196` reached `926/1190` generate requests and then hit the old `04:00:00` walltime (`TIMEOUT`) before results were written.
+- Raised `eval/run_eval.sbatch` default walltime to `08:00:00`.
+- Resubmitted post-conversion V4 as split jobs so the retention and Greek task groups can run independently:
+  - `2338020` = `TASK_GROUP=retention_only`, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_retention_retry_20260521_163240`
+  - `2338021` = `TASK_GROUP=greek_only`, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_greek_retry_20260521_163240`
+
 Independent follow-ups (deferred to after the corpus chain is unblocked):
 
 - **PF5** — port the ILSP `*_greek` task YAMLs from `LeonVouk/lighteval` into the swissai harness clone so V4 / per-arm evals include `hellaswag_greek`, `winogrande_greek`, `mmlu_pro_greek`, `truthfulqa_greek`, `medical_mcqa_greek`. Today the V4 baseline covers seven Greek tasks; ILSP would add five more.

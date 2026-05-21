@@ -7,7 +7,7 @@
 #SBATCH --gpus-per-node=1
 #SBATCH --cpus-per-task=72
 #SBATCH --mem=200G
-#SBATCH --time=04:00:00
+#SBATCH --time=08:00:00
 #SBATCH --output=/capstor/scratch/cscs/fffoivos/runs/eval/%x-%j.out
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/eval/%x-%j.err
 #
@@ -35,10 +35,10 @@
 #    weights (~17 GB bf16) + activations + batched KV cache.
 #
 # 4. Known efficiency gaps.
-#    Per-task sequential. If the wallclock matters for the bakeoff arms
-#    (16 task labels × ~30 min each = ~8 h), we'd split task_list across
-#    multiple sbatches with --array, each picking up a subset. For V4
-#    baseline (one run) the sequential single-GPU path is fine.
+#    Per-task sequential. The corrected post-conversion V4 run hit the old
+#    4 h walltime at 926/1190 generate requests on 2026-05-21, so the default
+#    request is 8 h. If wallclock matters for bakeoff arms, split task_list
+#    across multiple sbatches with --array, each picking up a subset.
 #
 # Parameterized eval job using the swiss-ai/lm-evaluation-harness clone,
 # pre-installed at $LM_EVAL_PYTHONPATH (target-install — uenv site-packages
