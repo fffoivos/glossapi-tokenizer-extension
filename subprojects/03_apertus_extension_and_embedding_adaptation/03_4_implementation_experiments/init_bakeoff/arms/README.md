@@ -7,6 +7,9 @@ Modules:
 - `retok.py` — ReTok init: per-new-token subpiece-mean + Phase A norm-match.
 - `centroid.py` — Centroid init: per-script centroid of base Greek tokens + Gaussian noise + Phase A norm-match.
 - `build_init_checkpoints.py` — production driver (Clariden-side; loads the full Apertus model and writes resized checkpoints for each arm).
+- `build_init_checkpoints.sbatch` — queueable Clariden job for the HF-format build.
+- `convert_init_checkpoints.sbatch` — queueable Clariden job for HF -> Megatron `torch_dist` conversion.
+- `submit_init_pipeline.sh` — submits build, then conversion with `afterok`.
 - `test_init_logic.py` — home-side smoke test that validates `retok` and `centroid` algorithms against the local E/U matrices without needing a full model load.
 
 ## Local smoke test (no Clariden, no GPU)
@@ -24,34 +27,49 @@ Validates:
 
 Expected runtime: ~10–15 s after the E + U matrices are read into RAM (~9 s for 4.3 GB total).
 
-## Clariden production build (3 arms × ~30 min total)
+## Clariden production build
 
 ```bash
 ssh clariden
-salloc -A a0140 -p debug -N 1 -t 00:30:00 --gres=gpu:1
-uenv start pytorch/v2.6.0:v1 --view=default
 
-cd /capstor/scratch/cscs/fffoivos/code/init_bakeoff/arms
-python3 build_init_checkpoints.py \
-    --apertus-base /iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509 \
-    --extended-tokenizer /iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_extended_153600 \
-    --out-root /iopsstor/scratch/cscs/fffoivos/init_checkpoints \
-    --arms vanilla retok centroid
+cd /iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/arms
+INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 \
+VOCAB_SIZE=148480 \
+bash submit_init_pipeline.sh
 ```
 
-Output: three subdirectories under `/iopsstor/.../init_checkpoints/`:
+The init build/conversion jobs default to `INIT_UENV_IMAGE=pytorch/v2.9.1:v2`
+because that uenv has a Transformers release new enough to recognize
+`model_type=apertus`. The 2B training jobs still use the training recipe's
+`pytorch/v2.6.0:v1`.
+
+Output: three subdirectories under `/iopsstor/.../init_checkpoints/modern_only_148480/`:
 - `vanilla/` — symlinked from the base (no new safetensors)
-- `retok/` — ~16 GB, vocab 153,600, ReTok-initialized new rows
-- `centroid/` — ~16 GB, vocab 153,600, Centroid-initialized new rows
+- `retok/` — ~16 GB, vocab 148,480, ReTok-initialized new rows
+- `centroid/` — ~16 GB, vocab 148,480, Centroid-initialized new rows
 
 Plus an `init_build_summary.json` with per-arm stats and the sanity-check forward-pass results (V2: shape correct, no nan/inf).
 
 ## Conversion to Megatron format
 
-The three HF checkpoints are then converted to Megatron-LM-Swiss-AI
-format using [`swiss-ai/hfconverter`](https://github.com/swiss-ai/hfconverter)
-at staging time. The Megatron checkpoints are what the training jobs
-actually load.
+`submit_init_pipeline.sh` queues `convert_init_checkpoints.sbatch` after the
+HF build. It uses Megatron-LM-Swiss-AI's checkpoint tool with our Apertus loader:
+
+```bash
+python3 tools/checkpoint/convert.py --model-type GPT \
+    --loader apertus_hf --saver core \
+    --load-dir <arm-hf-dir> --save-dir <arm-hf-dir>/megatron \
+    --tokenizer-model <arm-hf-dir> --bf16 \
+    --loader-transformer-impl transformer_engine
+```
+
+The job marks each converted checkpoint as a `release` checkpoint because
+Megatron's `loader_core` rejects an iteration-0 `iter_0000000` checkpoint on the
+roundtrip/training load path. The training jobs load:
+
+```text
+$INIT_CKPT_ROOT/{vanilla,retok,centroid}/megatron
+```
 
 ## Phase A targets (used by both extension arms)
 

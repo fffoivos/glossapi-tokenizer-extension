@@ -1,0 +1,90 @@
+=== build_init_checkpoints.sbatch ===
+Thu May 21 12:45:52 UTC 2026
+host: nid006134
+SCRIPT_DIR:      /iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/arms
+APERTUS_BASE_HF: /iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509
+EXT_TOKENIZER:   /iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480
+INIT_CKPT_ROOT:  /iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480
+VOCAB_SIZE:      148480
+ARMS:            vanilla retok centroid
+INIT_UENV_IMAGE: pytorch/v2.9.1:v2
+HF_HOME:         /iopsstor/scratch/cscs/fffoivos/tmp/init_hf_home_2335382
+
+command: python3 /iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/arms/build_init_checkpoints.py --apertus-base /iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509 --extended-tokenizer /iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480 --out-root /iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 --vocab-size 148480 --arms vanilla retok centroid
+
+
+=== Vanilla arm ===
+  Vanilla = unmodified Apertus-8B-2509 + original tokenizer (vocab 131,072).
+  Strategy: symlink the base, don't duplicate 16 GB of safetensors.
+  ✓ wrote /iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/vanilla
+
+=== Retok arm ===
+  base vocab: 131,072
+  extended vocab: 148,480  (target: 148,480)
+  special tokens: preserved (map + IDs)
+  loading Apertus base from /iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509 (bf16 if available)...
+  model loaded: vocab=131,072, hidden=4096, took 1.3s
+  extracting E and U to numpy...
+  base_E: (131072, 4096), dtype: float32
+  base_U: (131072, 4096), dtype: float32
+  ReTok new_id=131072 surface='Ρ'                            → 2 subpieces [1206, 1161]
+  ReTok new_id=131073 surface=' μας'                         → 2 subpieces [33470, 2162]
+  ReTok new_id=131074 surface='ουμε'                         → 2 subpieces [2785, 20087]
+  ReTok new_id=131075 surface='ετε'                          → 2 subpieces [9432, 1903]
+  ReTok new_id=131076 surface=' σας'                         → 2 subpieces [3241, 63527]
+  ReTok WARN: max subpieces per new token = 16 (>8). Inspect tokenizer-extension health.
+ReTok: 17,408 new rows, mean subpieces per new token = 2.82, max = 16
+ReTok: empty-decode count = 0 (fallback applied)
+ReTok: zero-piece-encode count = 0 (fallback applied)
+ReTok: E norm sample = 5.050, target = 5.05
+ReTok: U norm sample = 3.800, target = 3.8
+  resizing model: 131,072 → 148,480
+  post-resize E: torch.Size([148480, 4096])  U: torch.Size([148480, 4096])
+  Apertus extras: preserved across resize (128 tensors)
+  writing new rows 131072..148480
+  sanity: forward pass on a Greek sample...
+  moving model to 'NVIDIA GH200 120GB' for sanity forward...
+  logits shape: (1, 11, 148480)  has_nan=False  has_inf=False
+  saving to /iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/retok
+  ✓ retok arm built in 61.5s
+
+=== Centroid arm ===
+  base vocab: 131,072
+  extended vocab: 148,480  (target: 148,480)
+  special tokens: preserved (map + IDs)
+  loading Apertus base from /iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509 (bf16 if available)...
+  model loaded: vocab=131,072, hidden=4096, took 0.8s
+  extracting E and U to numpy...
+  base_E: (131072, 4096), dtype: float32
+  base_U: (131072, 4096), dtype: float32
+Centroid: walking 131,072 base tokens to find Greek-block members...
+Centroid: modern set = 1,507, polytonic set = 0, both = 0
+Centroid: polytonic set < 50 → polytonic new tokens will use modern centroid (fallback)
+Centroid: E_modern_mu norm = 0.721
+Centroid: E_modern_cov diagonal mean = 0.0064
+Centroid: U_modern_mu norm = 0.885
+  Centroid: WARN id=131082 surface=' �' has no Greek-block codepoint
+  Centroid: WARN id=131106 surface='�' has no Greek-block codepoint
+  Centroid: WARN id=131115 surface=' ..................' has no Greek-block codepoint
+  Centroid: WARN id=131116 surface=' ....................' has no Greek-block codepoint
+  Centroid: WARN id=131247 surface='|-----' has no Greek-block codepoint
+Centroid: new-token classification: {'modern_only': 17133, 'polytonic_only': 72, 'both': 132, 'neither': 71}
+Centroid: E norm sample = 5.050, target = 5.05
+Centroid: U norm sample = 3.800, target = 3.8
+  resizing model: 131,072 → 148,480
+  post-resize E: torch.Size([148480, 4096])  U: torch.Size([148480, 4096])
+  Apertus extras: preserved across resize (128 tensors)
+  writing new rows 131072..148480
+  sanity: forward pass on a Greek sample...
+  moving model to 'NVIDIA GH200 120GB' for sanity forward...
+  logits shape: (1, 11, 148480)  has_nan=False  has_inf=False
+  saving to /iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/centroid
+  ✓ centroid arm built in 86.2s
+
+✓ all arms built. Summary at /iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/init_build_summary.json
+
+=== build init checkpoints done ===
+Thu May 21 12:48:27 UTC 2026
+/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/centroid/config.json
+/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/init_build_summary.json
+/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/retok/config.json

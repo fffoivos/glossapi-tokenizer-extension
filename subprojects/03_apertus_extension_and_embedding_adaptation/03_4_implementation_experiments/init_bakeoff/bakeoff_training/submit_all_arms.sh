@@ -12,8 +12,8 @@
 #      bundle (for ReTok / Centroid) at $EXT_DATA_PREFIX. Both come from the
 #      same shuffled bulk_mix.jsonl with the same seed — they differ only in
 #      tokenization (reviewer round-2 Blocker 2).
-#   2. arms/build_init_checkpoints.py + hfconverter have produced Megatron-
-#      format init checkpoints under
+#   2. arms/build_init_checkpoints.sbatch + arms/convert_init_checkpoints.sbatch
+#      have produced Megatron-format init checkpoints under
 #      $INIT_CKPT_ROOT/{vanilla,retok,centroid}/megatron/
 
 set -euo pipefail
@@ -37,7 +37,7 @@ for arm in vanilla retok centroid; do
     ckpt="$INIT_CKPT_ROOT/$arm/megatron"
     if [ ! -d "$ckpt" ]; then
         echo "ERROR: init checkpoint missing for arm '$arm': $ckpt" >&2
-        echo "  Run ../arms/build_init_checkpoints.py first." >&2
+        echo "  Run ../arms/submit_init_pipeline.sh first." >&2
         exit 2
     fi
 done

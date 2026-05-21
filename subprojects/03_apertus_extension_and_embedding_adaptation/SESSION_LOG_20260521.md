@@ -36,6 +36,7 @@ Live checks performed:
   - `2335101` V4-post-conversion corrected baseline -> `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_corrected_20260521_121639`
 - `2335101` failed with `OSError: [Errno 37] No locks available` from `datasets`/`filelock`. `run_eval.sbatch` now assigns each job its own HF/datasets cache under `/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_$SLURM_JOB_ID`; post-conversion eval was resubmitted as `2335196`.
 - Queued after-prepare corpus dependency chain: `2335157` normalize_nfc -> `2335158` mix_builder_smoke -> `2335159` mix_builder_full -> `2335160` base preprocess + `2335161` extended preprocess.
+- Added queueable init chain: `arms/build_init_checkpoints.sbatch`, `arms/convert_init_checkpoints.sbatch`, and `arms/submit_init_pipeline.sh`. First attempt `2335353` caught a Slurm spool-path bug; second attempt `2335371` caught the old-Transformers Apertus loader mismatch in `pytorch/v2.6.0:v1`. Final init chain `2335382` build -> `2335384` conversion completed successfully using `INIT_UENV_IMAGE=pytorch/v2.9.1:v2`.
 
 ## Files touched locally (home machine)
 
@@ -164,19 +165,26 @@ Pre-CSCS-execution friction (already-debugged before the user went to sleep, lis
 - nanochat HTTP 401 (gated). Fix: scp'd `~/.cache/huggingface/token` from home to Clariden.
 - An earlier rsync arg accidentally created a local `setup.py` directory (mid-arg `\` escape consumed by the following token). Fix: cleaned args.
 
-## Pending (next session)
+## Pending / live queue (takeover continuation)
 
-Once `prepare_greek_pool` 2334880 finishes (ETA ~15-30 min from this writing):
+Live jobs queued/running as of ~12:46 UTC:
 
-1. `normalize_nfc.sbatch` — submit (full node, 288 workers).
-2. `mix_builder_smoke.sbatch` — PF3 smoke at 50 M tokens, validate the local_parquet code path.
-3. If smoke OK: real `mix_builder.py` run at 7 B target → `bulk_mix.jsonl`.
-4. `preprocess_data.sbatch` × 2 — once with `$BASE_TOKENIZER_DIR` (Vanilla family), once with `$EXT_TOKENIZER_DIR` (ReTok / Centroid family). Output: `$BASE_DATA_PREFIX{.bin,.idx}` and `$EXT_DATA_PREFIX{.bin,.idx}`.
-5. `arms/build_init_checkpoints.py` + 3× `convert.py` to produce the three Megatron init checkpoints for the bakeoff arms.
-6. `submit_all_arms.sh` to fire the three 2 B-token training runs.
+- `2334880` prepare_greek_pool is still running and actively doing I/O.
+- `2335100` V4-HF corrected baseline is running.
+- `2335196` V4-post-conversion retry is running with per-job dataset cache.
+- `2335157` -> `2335158` -> `2335159` -> `2335160`/`2335161` is the already-queued corpus dependency chain.
+- `2335382` -> `2335384` completed and produced Megatron release checkpoints for all three arms.
+
+Once `prepare_greek_pool` 2334880 finishes:
+
+1. Watch `2335157` normalize_nfc.
+2. Watch `2335158` mix_builder_smoke and inspect the smoke JSONL.
+3. Watch `2335159` full mix -> `bulk_mix.jsonl`.
+4. Watch `2335160` / `2335161` preprocess outputs: `$BASE_DATA_PREFIX{.bin,.idx}` and `$EXT_DATA_PREFIX{.bin,.idx}`.
+5. Submit `submit_all_arms.sh` with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480` to fire the three 2 B-token training runs.
 
 Independent follow-ups (deferred to after the corpus chain is unblocked):
 
 - **PF5** — port the ILSP `*_greek` task YAMLs from `LeonVouk/lighteval` into the swissai harness clone so V4 / per-arm evals include `hellaswag_greek`, `winogrande_greek`, `mmlu_pro_greek`, `truthfulqa_greek`, `medical_mcqa_greek`. Today the V4 baseline covers seven Greek tasks; ILSP would add five more.
-- **V4-post-conversion baseline** — re-run `run_eval.sbatch` with `MODEL_PATH=/capstor/scratch/cscs/fffoivos/runs/r1_roundtrip_2333864/apertus_hf_roundtrip`. Needed for §5.6 thresholds that compare against R17-reset weights.
+- **V4-post-conversion baseline** — running as retry job `2335196` with `MODEL_PATH=/capstor/scratch/cscs/fffoivos/runs/r1_roundtrip_2333864/apertus_hf_roundtrip`. Needed for §5.6 thresholds that compare against R17-reset weights.
 - **§5.6 hard gates** — compute bootstrap CIs (`compute_bootstrap_cis.py`) over V4's per-sample jsonls; fill the `PENDING(V4)` cells in EVAL_RECIPE.md.

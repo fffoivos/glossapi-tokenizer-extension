@@ -1,0 +1,38 @@
+{
+  "vanilla": {
+    "arm": "vanilla",
+    "strategy": "symlink to base"
+  },
+  "retok": {
+    "arm": "retok",
+    "sanity_logits_shape": [
+      1,
+      11,
+      148480
+    ],
+    "sanity_has_nan": false,
+    "sanity_has_inf": false,
+    "wall_seconds": 61.484291791915894
+  },
+  "centroid": {
+    "arm": "centroid",
+    "modern_set_size": 1507,
+    "polytonic_set_size": 0,
+    "both_set_size": 0,
+    "polytonic_fallback_to_modern": true,
+    "new_token_classification": {
+      "modern_only": 17133,
+      "polytonic_only": 72,
+      "both": 132,
+      "neither": 71
+    },
+    "sanity_logits_shape": [
+      1,
+      11,
+      148480
+    ],
+    "sanity_has_nan": false,
+    "sanity_has_inf": false,
+    "wall_seconds": 86.17140579223633
+  }
+}

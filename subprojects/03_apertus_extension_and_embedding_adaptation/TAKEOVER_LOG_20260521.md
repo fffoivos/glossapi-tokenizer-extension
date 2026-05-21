@@ -57,4 +57,17 @@ Static shell/Python/JSON checks did pass.
   - `2335159` mix_builder_full, dependency `afterok:2335158`
   - `2335160` base-tokenizer preprocess, dependency `afterok:2335159`
   - `2335161` extended-tokenizer preprocess, dependency `afterok:2335159`
-- Continue monitoring `2334880`; if the dependency chain reaches preprocess success, the next stage is init checkpoint build + conversion, then `submit_all_arms.sh`.
+- Added queueable init-checkpoint scripts:
+  - `arms/build_init_checkpoints.sbatch` for HF-format Vanilla/ReTok/Centroid build.
+  - `arms/convert_init_checkpoints.sbatch` for HF -> Megatron `torch_dist` release conversion.
+  - `arms/submit_init_pipeline.sh` to submit build then conversion with `afterok`.
+- Init build first attempt `2335353` failed immediately because Slurm runs a spooled copy of the sbatch file, so `dirname "$BASH_SOURCE"` resolved under `/var/spool/slurmd` instead of the repo. Fixed both init sbatch files to use `SLURM_SUBMIT_DIR` / `SCRIPT_DIR_OVERRIDE`.
+- Init build second attempt `2335371` failed because the training uenv `pytorch/v2.6.0:v1` has a Transformers release too old for `model_type=apertus`. Fixed init build/conversion to default to `INIT_UENV_IMAGE=pytorch/v2.9.1:v2`, while leaving 2B training on the recipe's `pytorch/v2.6.0:v1`.
+- Submitted live init chain after fixes:
+  - `2335382` = `build_init_ckpts`, output `/capstor/scratch/cscs/fffoivos/runs/init/build_init_ckpts-2335382.out`
+  - `2335384` = `convert_init_ckpts`, dependency `afterok:2335382`
+- `2335382` completed successfully in 2m43s; `2335384` completed successfully in 1m41s. All three init checkpoints now have Megatron release directories:
+  - `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/vanilla/megatron/release`
+  - `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/retok/megatron/release`
+  - `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/centroid/megatron/release`
+- Continue monitoring `2334880`, corrected evals `2335100` / `2335196`, and corpus dependency chain `2335157`-`2335161`. When preprocess passes, submit the three 2B arms with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 bash submit_all_arms.sh`.

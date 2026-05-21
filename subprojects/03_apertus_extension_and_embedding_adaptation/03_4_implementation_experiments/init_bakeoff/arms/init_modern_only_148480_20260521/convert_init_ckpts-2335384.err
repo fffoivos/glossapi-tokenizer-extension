@@ -1,0 +1,129 @@
+/user-environment/env/default/lib/python3.12/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+[loader_apertus_hf] loading HF Apertus from /iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/vanilla (native=True)
+`torch_dtype` is deprecated! Use `dtype` instead!
+CUDA-fused xIELU not available (No module named 'xielu') – falling back to a Python version.
+For CUDA xIELU (experimental), `pip install git+https://github.com/nickjbrowning/XIELU`
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:00<00:00, 20.57it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 26.76it/s]
+[loader_apertus_hf] loaded: vocab=131072, layers=32, hidden=4096, heads=32/8
+[loader_apertus_hf] sending embeddings
+[loader_apertus_hf] sending transformer layer 0
+[loader_apertus_hf] sending transformer layer 1
+[loader_apertus_hf] sending transformer layer 2
+[loader_apertus_hf] sending transformer layer 3
+[loader_apertus_hf] sending transformer layer 4
+[loader_apertus_hf] sending transformer layer 5
+[loader_apertus_hf] sending transformer layer 6
+[loader_apertus_hf] sending transformer layer 7
+[loader_apertus_hf] sending transformer layer 8
+[loader_apertus_hf] sending transformer layer 9
+[loader_apertus_hf] sending transformer layer 10
+[loader_apertus_hf] sending transformer layer 11
+[loader_apertus_hf] sending transformer layer 12
+[loader_apertus_hf] sending transformer layer 13
+[loader_apertus_hf] sending transformer layer 14
+[loader_apertus_hf] sending transformer layer 15
+[loader_apertus_hf] sending transformer layer 16
+[loader_apertus_hf] sending transformer layer 17
+[loader_apertus_hf] sending transformer layer 18
+[loader_apertus_hf] sending transformer layer 19
+[loader_apertus_hf] sending transformer layer 20
+[loader_apertus_hf] sending transformer layer 21
+[loader_apertus_hf] sending transformer layer 22
+[loader_apertus_hf] sending transformer layer 23
+[loader_apertus_hf] sending transformer layer 24
+[loader_apertus_hf] sending transformer layer 25
+[loader_apertus_hf] sending transformer layer 26
+[loader_apertus_hf] sending transformer layer 27
+[loader_apertus_hf] sending transformer layer 28
+[loader_apertus_hf] sending transformer layer 29
+[loader_apertus_hf] sending transformer layer 30
+[loader_apertus_hf] sending transformer layer 31
+[loader_apertus_hf] sending final norm
+[loader_apertus_hf] sending output layer
+/user-environment/env/default/lib/python3.12/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+[loader_apertus_hf] loading HF Apertus from /iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/retok (native=True)
+`torch_dtype` is deprecated! Use `dtype` instead!
+CUDA-fused xIELU not available (No module named 'xielu') – falling back to a Python version.
+For CUDA xIELU (experimental), `pip install git+https://github.com/nickjbrowning/XIELU`
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:00<00:00, 20.84it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 27.08it/s]
+[loader_apertus_hf] loaded: vocab=148480, layers=32, hidden=4096, heads=32/8
+[loader_apertus_hf] sending embeddings
+[loader_apertus_hf] sending transformer layer 0
+[loader_apertus_hf] sending transformer layer 1
+[loader_apertus_hf] sending transformer layer 2
+[loader_apertus_hf] sending transformer layer 3
+[loader_apertus_hf] sending transformer layer 4
+[loader_apertus_hf] sending transformer layer 5
+[loader_apertus_hf] sending transformer layer 6
+[loader_apertus_hf] sending transformer layer 7
+[loader_apertus_hf] sending transformer layer 8
+[loader_apertus_hf] sending transformer layer 9
+[loader_apertus_hf] sending transformer layer 10
+[loader_apertus_hf] sending transformer layer 11
+[loader_apertus_hf] sending transformer layer 12
+[loader_apertus_hf] sending transformer layer 13
+[loader_apertus_hf] sending transformer layer 14
+[loader_apertus_hf] sending transformer layer 15
+[loader_apertus_hf] sending transformer layer 16
+[loader_apertus_hf] sending transformer layer 17
+[loader_apertus_hf] sending transformer layer 18
+[loader_apertus_hf] sending transformer layer 19
+[loader_apertus_hf] sending transformer layer 20
+[loader_apertus_hf] sending transformer layer 21
+[loader_apertus_hf] sending transformer layer 22
+[loader_apertus_hf] sending transformer layer 23
+[loader_apertus_hf] sending transformer layer 24
+[loader_apertus_hf] sending transformer layer 25
+[loader_apertus_hf] sending transformer layer 26
+[loader_apertus_hf] sending transformer layer 27
+[loader_apertus_hf] sending transformer layer 28
+[loader_apertus_hf] sending transformer layer 29
+[loader_apertus_hf] sending transformer layer 30
+[loader_apertus_hf] sending transformer layer 31
+[loader_apertus_hf] sending final norm
+[loader_apertus_hf] sending output layer
+/user-environment/env/default/lib/python3.12/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+[loader_apertus_hf] loading HF Apertus from /iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/centroid (native=True)
+`torch_dtype` is deprecated! Use `dtype` instead!
+CUDA-fused xIELU not available (No module named 'xielu') – falling back to a Python version.
+For CUDA xIELU (experimental), `pip install git+https://github.com/nickjbrowning/XIELU`
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:00<00:00, 18.21it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 23.92it/s]
+[loader_apertus_hf] loaded: vocab=148480, layers=32, hidden=4096, heads=32/8
+[loader_apertus_hf] sending embeddings
+[loader_apertus_hf] sending transformer layer 0
+[loader_apertus_hf] sending transformer layer 1
+[loader_apertus_hf] sending transformer layer 2
+[loader_apertus_hf] sending transformer layer 3
+[loader_apertus_hf] sending transformer layer 4
+[loader_apertus_hf] sending transformer layer 5
+[loader_apertus_hf] sending transformer layer 6
+[loader_apertus_hf] sending transformer layer 7
+[loader_apertus_hf] sending transformer layer 8
+[loader_apertus_hf] sending transformer layer 9
+[loader_apertus_hf] sending transformer layer 10
+[loader_apertus_hf] sending transformer layer 11
+[loader_apertus_hf] sending transformer layer 12
+[loader_apertus_hf] sending transformer layer 13
+[loader_apertus_hf] sending transformer layer 14
+[loader_apertus_hf] sending transformer layer 15
+[loader_apertus_hf] sending transformer layer 16
+[loader_apertus_hf] sending transformer layer 17
+[loader_apertus_hf] sending transformer layer 18
+[loader_apertus_hf] sending transformer layer 19
+[loader_apertus_hf] sending transformer layer 20
+[loader_apertus_hf] sending transformer layer 21
+[loader_apertus_hf] sending transformer layer 22
+[loader_apertus_hf] sending transformer layer 23
+[loader_apertus_hf] sending transformer layer 24
+[loader_apertus_hf] sending transformer layer 25
+[loader_apertus_hf] sending transformer layer 26
+[loader_apertus_hf] sending transformer layer 27
+[loader_apertus_hf] sending transformer layer 28
+[loader_apertus_hf] sending transformer layer 29
+[loader_apertus_hf] sending transformer layer 30
+[loader_apertus_hf] sending transformer layer 31
+[loader_apertus_hf] sending final norm
+[loader_apertus_hf] sending output layer
