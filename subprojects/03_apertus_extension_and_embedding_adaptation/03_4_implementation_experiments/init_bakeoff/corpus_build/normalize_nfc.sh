@@ -7,7 +7,9 @@
 # leak remediated). Replay datasets (FineWeb-Edu / FineWeb-2 / FineWeb2-HQ /
 # StarCoder / FineMath) are NFC-assumed but not enforced upstream — this
 # wrapper makes V9 operationally satisfied by running the idempotent
-# normalizer over every parquet shard before mix_builder.py reads them.
+# normalizer over every parquet shard before mix_builder.py reads them. When
+# `prepare_greek_pool.sh` has already materialized the final selected pool,
+# the `cpt/` pass below normalizes that selected parquet too.
 #
 # Uses verify_and_normalize_nfc.py at the 03_3 location (kept there because
 # it's also used outside the bakeoff for general corpus health checks).
@@ -50,7 +52,7 @@ echo
 # The verify_and_normalize_nfc.py script supports both verify-only and
 # in-place normalize modes. Use normalize mode here (idempotent — already-NFC
 # parquets are no-ops).
-for subdir in nanochat replay code math; do
+for subdir in nanochat replay code math cpt; do
     target="$STAGE_ROOT/$subdir"
     if [ ! -d "$target" ]; then
         echo "  skip (missing): $target"

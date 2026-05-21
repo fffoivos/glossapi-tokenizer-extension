@@ -21,6 +21,7 @@ Corrections made during takeover review:
 - `run_eval.sbatch` omitted `global_mmlu` even though the eval docs require Table-14 retention coverage. The V4-HF job `2334245` is therefore a valid partial baseline for its listed tasks, not the final §5.6 baseline. Patched the retention task list to include `global_mmlu`; corrected V4-HF and V4-post-conversion reruns are required.
 - `mix_builder.py` said token streams are identical across all arms. Corrected the wording: all arms share the same JSONL text stream, but Vanilla is base-tokenized and ReTok/Centroid are extended-tokenized, so token IDs differ across tokenizer families.
 - `bulk.json` top-level metadata still said `70/26/4` even though the source weights and validation block are `70/24/4/2`; corrected the metadata to include the math bucket.
+- `normalize_nfc.sh` did not include the `cpt/` directory, so an after-prepare normalization pass would have missed the final selected parquet. Added `cpt/` to the normalized roots.
 - R17 documentation previously implied q/k norm drift was measured by the same `128` count. Clarified that the count only included R17 tensors with diff > 1e-3 and added future q/k max-diff printing to `r1_roundtrip.sbatch`.
 
 Live checks performed:
