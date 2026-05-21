@@ -2,7 +2,7 @@
 
 *Single entry point for a reviewer. Every claim links to the artifact; every artifact links to the source. Trace any choice back to (a) the Apertus tech report (arXiv:2509.14233), (b) a peer-reviewed paper, or (c) explicit reasoning in `cpt_plan.md` v0.7.*
 
-**State 2026-05-21.** Recipe + sbatch + eval + audit pass + risk inventory landed. No CSCS jobs submitted; local smoke tests green. Two pre-submit blockers remain on Clariden (HF→Megatron loader roundtrip on Apertus-8B-2509; held-out eval slice reconstruction). Recipe is review-ready at the level of paper / sbatch / code-line fidelity.
+**State 2026-05-21.** Recipe + sbatch + eval + two audit passes + risk inventory landed. **Reviewer round-2 surfaced 5 issues (3 Blockers + 2 High); all fixed** — see `AUDIT_FINDINGS.md` round-2 section and commits `9c1a800` (H4 + H5 + B2), `16296bb` (B3), `4f6bd38` (B1) + `60a196f` (R17). No CSCS jobs submitted; local smoke tests green. Two pre-submit blockers remain on Clariden (HF→Megatron loader roundtrip on Apertus-8B-2509; held-out eval slice reconstruction). Recipe is review-ready at the level of paper / sbatch / code-line fidelity.
 
 ## TL;DR
 

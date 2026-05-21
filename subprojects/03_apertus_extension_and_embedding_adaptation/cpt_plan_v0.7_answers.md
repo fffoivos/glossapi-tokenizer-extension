@@ -4,7 +4,7 @@
 
 ## State of play
 
-Implementation pass complete. Recipe + sbatch + eval tooling ready for review at the level of paper / sbatch-line / code-line fidelity. Audit pass against locally-pinned primary sources surfaced 4 real bugs that have been patched. Silent-failure risk inventory: 16 risks in 3 tiers. Two pre-submit blockers remain on Clariden (HF→Megatron loader roundtrip; held-out eval slice reconstruction). No CSCS jobs have been submitted; local smoke tests are green.
+Implementation pass complete + two audit passes (locally-pinned-source + colleague reviewer). Recipe + sbatch + eval tooling ready at the level of paper / sbatch-line / code-line fidelity. Audit passes surfaced **9 real issues across two rounds** — 4 in our self-audit (all patched) + 5 in colleague reviewer round-2 (all 5 fixed: B1 HF→Megatron loader emitting unsupported keys, B2 Vanilla arm tokenizer mismatch, B3 corpus dedup path skipping the runbook flow, H4 eval task list contradicting EVAL_RECIPE scope, H5 BPC bias on long docs). Silent-failure risk inventory: now 17 risks in 3 tiers (R17 new — xIELU + QK-Norm trained values reset to defaults through the HF→Megatron path; acceptable for bakeoff, gating for production CPT). Two pre-submit blockers remain on Clariden (HF→Megatron loader roundtrip on Apertus-8B-2509; held-out eval slice reconstruction). No CSCS jobs have been submitted; local smoke tests are green.
 
 Status legend: **RESOLVED** = answer known + cited · **LOCKED** = working default applied in code · **PENDING** = needs Fivos input · **DEFERRED** = explicitly out of scope for v0.7 · **NOT POSSIBLE** = answer doesn't exist in available sources.
 
@@ -244,7 +244,7 @@ Recipe + tooling implemented as 13 commits since 2026-05-20:
 
 ## Audit findings (source-vs-implementation cross-check)
 
-A pass against locally-pinned primary sources (8 repos + 15 papers) surfaced **4 real bugs that have been patched**:
+### Round-1: self-audit against locally-pinned primary sources (8 repos + 15 papers) — 4 real bugs patched
 
 1. **Sbatch flag-name typos**: `--xielu-activation` → `--xielu`; `--ademamix-{beta3,alpha}-warmup-steps` → `--ademamix-{beta3,alpha}-warmup`. Would have failed first submission.
 2. **Missing `--dist-ckpt-strictness assume_ok_unexpected`**: this is what allows Megatron to load a checkpoint whose embedding shape was resized 131,072 → 148,480 by our init builder. Without it Megatron refuses the shape mismatch.
@@ -253,11 +253,23 @@ A pass against locally-pinned primary sources (8 repos + 15 papers) surfaced **4
 
 9 additional Apertus throughput/memory/correctness flags now mirrored: `--cross-entropy-loss-fusion`, `--manual-gc --manual-gc-interval 500`, `--overlap-grad-reduce --overlap-param-gather`, `--no-check-for-nan-in-loss-and-grad`, `--make-vocab-size-divisible-by 128`, `--ckpt-format torch_dist`, `--attention-dropout 0.0 --hidden-dropout 0.0`, `--split 100,0,0`, full network-arch declaration block (32 layers / 4096 hidden / 21504 FFN / 32 heads / 8 KV-groups GQA / etc.).
 
+### Round-2: colleague reviewer audit — 5 real issues, all fixed
+
+1. **B1 — HF→Megatron loader emitted Apertus-specific keys not in saver_core's protocol.** `saver_core.py:L357-443` only consumes standard transformer-protocol message keys; `check_message()` rejects extras (or with `--no-checking` silently drops them). Our previous loader sent `mlp xielu alpha p/n` and `q/k norm weight` → conversion would fail or silently drop those values. The documented command also missed required `--model-type GPT`. **Fixed**: loader now emits only saver_core-consumable keys; README + install.sh updated with `--model-type GPT`. **New risk R17 surfaced** (xIELU + QK-Norm reset to defaults through this path) — acceptable for bakeoff (same defaults across all 3 arms; comparison still valid), gating before production CPT. Post-conversion patcher scaffold at `megatron_patches/patch_apertus_extras.py`.
+
+2. **B2 — Vanilla arm tokenizer mismatch.** Vanilla uses Apertus's base 131,072 vocab (control arm); but `preprocess_data.sbatch` + `bakeoff_train.sbatch` hardcoded the 148,480 extended tokenizer for all three arms. Vanilla trained on 148,480-tokenized data would either crash on out-of-range token IDs or silently corrupt the control arm. **Fixed**: `_train_config_common.env` now defines `BASE_TOKENIZER_DIR` + `EXT_TOKENIZER_DIR` + `BASE_DATA_PREFIX` + `EXT_DATA_PREFIX`. Run `preprocess_data.sbatch` twice (once per tokenizer family) to build two byte-identical-document-stream Megatron binaries that differ only in tokenization. `bakeoff_train.sbatch` switches per-arm; `submit_all_arms.sh` sanity-checks both prefixes exist.
+
+3. **B3 — Corpus dedup path skipped the runbook flow.** `CPT_DATASET_BUILD_RUNBOOK.md` mandates: hydrate nanochat → hard-exclude Apertus-overlap → replay nanochat internal dedup with `drop_intra_and_inter` → build the mix. `mix_builder.py` streamed HF directly with no selected-pool input; the Apertus drop was applied only to the HPLT source in `bulk.json:23` (not the other 5 Greek sources). Internal-dedup replay was missing entirely. Order-wrong AND incomplete. **Fixed**: new `prepare_greek_pool.sh` wrapper invokes `glossapi_corpus_cli mix-prepare-selected-input` to produce the `$SELECTED` parquet with all three runbook steps. `mix_builder.py` now supports `local_parquet` with `${VAR}` env-var expansion; all 6 Greek sources in `bulk.json` read from `${SELECTED}` (Apertus drop is upstream, uniform across all sources). `pull_greek_corpus.sh` extended to pull wave2 builder_metadata needed by the internal-dedup replay.
+
+4. **H4 — Eval task list contradicted EVAL_RECIPE.md scope.** EVAL_RECIPE.md says Table-14 pretraining evals only; `run_eval.sbatch` included GSM8K, HumanEval, ifeval_greek (all Apertus Table 22 post-training tasks) and omitted Global-MMLU (Table 14). **Fixed**: synced task lists to EVAL_RECIPE.md. Removed `gsm8k`, `humaneval`, `mgsm_greek`, `ifeval_greek`; added `global_mmlu`.
+
+5. **H5 — BPC bias on long documents in `compute_tokenizer_fair_metrics.py`.** Script counted chars/bytes/words on the FULL text but truncated token IDs to `max_context` before forward pass → BPC and NLL/char divided prefix-only loss by full-document denominators → artificially low. **Fixed**: when truncated, decode the kept ID list back to text and compute char/byte/word counts on that scored prefix. Added truncation counter in the output JSON.
+
 ---
 
 ## Silent-failure risk inventory
 
-16 risks documented in 3 tiers — places where the bakeoff could be silently wrong despite passing local smoke tests.
+17 risks documented in 3 tiers — places where the bakeoff could be silently wrong despite passing local smoke tests. R17 added 2026-05-21 in response to reviewer round-2: xIELU + QK-Norm trained values reset to defaults through the HF→Megatron conversion path. Acceptable for bakeoff (all 3 arms inherit the same defaults); gating before production CPT.
 
 **Tier 1 (could invalidate the bakeoff entirely):**
 
