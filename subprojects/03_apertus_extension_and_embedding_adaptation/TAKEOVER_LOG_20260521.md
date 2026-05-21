@@ -70,4 +70,8 @@ Static shell/Python/JSON checks did pass.
   - `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/vanilla/megatron/release`
   - `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/retok/megatron/release`
   - `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/centroid/megatron/release`
-- Continue monitoring `2334880`, corrected evals `2335100` / `2335196`, and corpus dependency chain `2335157`-`2335161`. When preprocess passes, submit the three 2B arms with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 bash submit_all_arms.sh`.
+- Found the same Slurm spool-path risk in `preprocess_data.sbatch` and `bakeoff_train.sbatch`: both sourced `_train_config_common.env` via `dirname "$0"`, which would resolve under `/var/spool/slurmd` inside Slurm. Patched both to use `SCRIPT_DIR_OVERRIDE` / `SLURM_SUBMIT_DIR`, and patched `submit_all_arms.sh` to pass `SCRIPT_DIR_OVERRIDE`.
+- Because Slurm stores sbatch scripts at submission time, canceled the old pending preprocess jobs `2335160` / `2335161` and requeued them after the patch:
+  - `2335581` = base-tokenizer preprocess, dependency `afterok:2335159`
+  - `2335583` = extended-tokenizer preprocess, dependency `afterok:2335159`
+- Continue monitoring `2334880`, corrected evals `2335100` / `2335196`, and corpus dependency chain `2335157`-`2335159` -> `2335581`/`2335583`. When preprocess passes, submit the three 2B arms with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 bash submit_all_arms.sh`.

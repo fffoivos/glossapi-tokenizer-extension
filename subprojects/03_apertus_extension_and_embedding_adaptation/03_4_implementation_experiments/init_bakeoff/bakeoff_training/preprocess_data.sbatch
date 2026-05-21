@@ -42,8 +42,11 @@
 
 set -euo pipefail
 
-# Source common config (paths to Megatron-LM-Swiss-AI, BASE_/EXT_ paths, etc.)
-source "$(dirname "$0")/_train_config_common.env"
+# Source common config. Slurm runs a copied script from /var/spool/slurmd, so
+# direct dirname "$0" is not reliable inside sbatch. submit/resubmit commands
+# should pass SCRIPT_DIR_OVERRIDE; SLURM_SUBMIT_DIR is the fallback.
+SCRIPT_DIR="$(cd "${SCRIPT_DIR_OVERRIDE:-${SLURM_SUBMIT_DIR:-$(pwd)}}" && pwd)"
+source "$SCRIPT_DIR/_train_config_common.env"
 
 INPUT_JSONL="${INPUT_JSONL:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl}"
 # Default to extended (the "main" arm), but caller should override per family.

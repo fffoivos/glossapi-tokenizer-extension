@@ -18,7 +18,8 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/_train_config_common.env"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_train_config_common.env"
 
 INIT_CKPT_ROOT="${INIT_CKPT_ROOT:-/iopsstor/scratch/cscs/fffoivos/init_checkpoints}"
 OUT_ROOT="${OUT_ROOT:-/capstor/scratch/cscs/fffoivos/runs/bakeoff}"
@@ -60,9 +61,9 @@ for arm in vanilla retok centroid; do
 
     echo "Submitting $arm  →  $output_dir"
     sbatch \
-        --export=ALL,ARM=$arm,INIT_CKPT=$init_ckpt,OUTPUT_DIR=$output_dir \
         --job-name="bakeoff_${arm}" \
-        "$(dirname "$0")/bakeoff_train.sbatch"
+        --export=ALL,ARM=$arm,INIT_CKPT=$init_ckpt,OUTPUT_DIR=$output_dir,SCRIPT_DIR_OVERRIDE="$SCRIPT_DIR" \
+        "$SCRIPT_DIR/bakeoff_train.sbatch"
 done
 
 echo

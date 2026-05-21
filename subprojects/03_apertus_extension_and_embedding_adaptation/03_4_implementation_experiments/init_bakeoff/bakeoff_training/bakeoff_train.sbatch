@@ -29,7 +29,11 @@
 #   OUTPUT_DIR  — where to save checkpoints + logs
 
 set -euo pipefail
-source "$(dirname "$0")/_train_config_common.env"
+# Slurm runs a copied script from /var/spool/slurmd; use an explicit script
+# directory when submitted via submit_all_arms.sh, with SLURM_SUBMIT_DIR as
+# fallback for manual submissions from this directory.
+SCRIPT_DIR="$(cd "${SCRIPT_DIR_OVERRIDE:-${SLURM_SUBMIT_DIR:-$(pwd)}}" && pwd)"
+source "$SCRIPT_DIR/_train_config_common.env"
 
 ARM="${ARM:?ARM is required (vanilla|retok|centroid)}"
 INIT_CKPT="${INIT_CKPT:?INIT_CKPT path is required}"

@@ -37,6 +37,7 @@ Live checks performed:
 - `2335101` failed with `OSError: [Errno 37] No locks available` from `datasets`/`filelock`. `run_eval.sbatch` now assigns each job its own HF/datasets cache under `/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_$SLURM_JOB_ID`; post-conversion eval was resubmitted as `2335196`.
 - Queued after-prepare corpus dependency chain: `2335157` normalize_nfc -> `2335158` mix_builder_smoke -> `2335159` mix_builder_full -> `2335160` base preprocess + `2335161` extended preprocess.
 - Added queueable init chain: `arms/build_init_checkpoints.sbatch`, `arms/convert_init_checkpoints.sbatch`, and `arms/submit_init_pipeline.sh`. First attempt `2335353` caught a Slurm spool-path bug; second attempt `2335371` caught the old-Transformers Apertus loader mismatch in `pytorch/v2.6.0:v1`. Final init chain `2335382` build -> `2335384` conversion completed successfully using `INIT_UENV_IMAGE=pytorch/v2.9.1:v2`.
+- Patched the same Slurm spool-path bug in `preprocess_data.sbatch` and `bakeoff_train.sbatch`, then canceled old pending preprocess jobs `2335160` / `2335161` and requeued patched replacements `2335581` / `2335583` with dependency `afterok:2335159`.
 
 ## Files touched locally (home machine)
 
@@ -172,7 +173,7 @@ Live jobs queued/running as of ~12:46 UTC:
 - `2334880` prepare_greek_pool is still running and actively doing I/O.
 - `2335100` V4-HF corrected baseline is running.
 - `2335196` V4-post-conversion retry is running with per-job dataset cache.
-- `2335157` -> `2335158` -> `2335159` -> `2335160`/`2335161` is the already-queued corpus dependency chain.
+- `2335157` -> `2335158` -> `2335159` -> `2335581`/`2335583` is the already-queued corpus dependency chain.
 - `2335382` -> `2335384` completed and produced Megatron release checkpoints for all three arms.
 
 Once `prepare_greek_pool` 2334880 finishes:
@@ -180,7 +181,7 @@ Once `prepare_greek_pool` 2334880 finishes:
 1. Watch `2335157` normalize_nfc.
 2. Watch `2335158` mix_builder_smoke and inspect the smoke JSONL.
 3. Watch `2335159` full mix -> `bulk_mix.jsonl`.
-4. Watch `2335160` / `2335161` preprocess outputs: `$BASE_DATA_PREFIX{.bin,.idx}` and `$EXT_DATA_PREFIX{.bin,.idx}`.
+4. Watch `2335581` / `2335583` preprocess outputs: `$BASE_DATA_PREFIX{.bin,.idx}` and `$EXT_DATA_PREFIX{.bin,.idx}`.
 5. Submit `submit_all_arms.sh` with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480` to fire the three 2 B-token training runs.
 
 Independent follow-ups (deferred to after the corpus chain is unblocked):
