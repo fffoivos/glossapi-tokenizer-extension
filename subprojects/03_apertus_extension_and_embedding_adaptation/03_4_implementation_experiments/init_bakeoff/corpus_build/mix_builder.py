@@ -21,6 +21,10 @@ CLI:
         --output bulk_mix.jsonl \\
         --seed 20260520
 
+For Slurm array builds, pass `--source-shard-index i --source-shard-count n`.
+This partitions each source after filtering by eligible row index, so shard
+files are disjoint per source instead of repeating the same prefixes.
+
 Token counting is approximate (fast HF tokenizer encode without padding);
 the budget is a stop condition, not a hard cap. Expect ±2% slack.
 
@@ -96,7 +100,12 @@ def _load_drop_keys(spec: str) -> set[str]:
     raise SystemExit(f"drop-keys parquet at {spec} has no doc_key/hf_pool_doc_key/doc_id column; cols: {tbl.column_names}")
 
 
-def _build_source_stream(spec: dict[str, Any], drop_keys: set[str] | None) -> Iterable[dict]:
+def _build_source_stream(
+    spec: dict[str, Any],
+    drop_keys: set[str] | None,
+    source_shard_index: int = 0,
+    source_shard_count: int = 1,
+) -> Iterable[dict]:
     """Yield {text, doc_id, source, ...} from one source per its spec.
 
     Two source modes:
@@ -153,13 +162,16 @@ def _build_source_stream(spec: dict[str, Any], drop_keys: set[str] | None) -> It
         text = row.get(text_col)
         if not text or not isinstance(text, str):
             return None
+        candidate_index = n_yielded
+        n_yielded += 1
+        if source_shard_count > 1 and candidate_index % source_shard_count != source_shard_index:
+            return None
         doc_id = (
             row.get("doc_key")
             or row.get("doc_id")
             or row.get("id")
-            or f"{name}_{n_yielded}"
+            or f"{name}_{candidate_index}"
         )
-        n_yielded += 1
         return {"text": text, "source": name, "doc_id": str(doc_id)}
 
     local_parquet = spec.get("local_parquet")
@@ -219,7 +231,11 @@ def _build_source_stream(spec: dict[str, Any], drop_keys: set[str] | None) -> It
             yield out
 
 
-def _build_all_sources(recipe: dict) -> tuple[list[Iterable[dict]], list[float], list[str]]:
+def _build_all_sources(
+    recipe: dict,
+    source_shard_index: int = 0,
+    source_shard_count: int = 1,
+) -> tuple[list[Iterable[dict]], list[float], list[str]]:
     """Build streams + normalized probabilities + names for all sources in the recipe."""
     sources: list[Iterable[dict]] = []
     weights: list[float] = []
@@ -235,7 +251,7 @@ def _build_all_sources(recipe: dict) -> tuple[list[Iterable[dict]], list[float],
                 drop_keys_cache[key] = _load_drop_keys(key)
                 print(f"    loaded {len(drop_keys_cache[key]):,} drop keys", flush=True)
             dks = drop_keys_cache[key]
-        sources.append(_build_source_stream(spec, dks))
+        sources.append(_build_source_stream(spec, dks, source_shard_index, source_shard_count))
         weights.append(float(spec["weight"]))
         names.append(spec["name"])
 
@@ -283,7 +299,15 @@ def main() -> int:
                     help="overrides recipe seed if given")
     ap.add_argument("--progress-every-tokens", type=int, default=50_000_000,
                     help="emit progress line every N tokens")
+    ap.add_argument("--source-shard-index", type=int, default=0,
+                    help="emit only eligible source rows where row_index %% source_shard_count equals this index")
+    ap.add_argument("--source-shard-count", type=int, default=1,
+                    help="split each source stream into this many disjoint row shards")
     args = ap.parse_args()
+    if args.source_shard_count < 1:
+        raise SystemExit("--source-shard-count must be >= 1")
+    if args.source_shard_index < 0 or args.source_shard_index >= args.source_shard_count:
+        raise SystemExit("--source-shard-index must be in [0, --source-shard-count)")
 
     recipe = json.loads(args.recipe.read_text())
     seed = args.seed if args.seed is not None else recipe.get("seed", 20_260_520)
@@ -293,6 +317,7 @@ def main() -> int:
     print(f"target_tokens: {args.target_tokens:,}")
     print(f"output: {args.output}")
     print(f"seed: {seed}")
+    print(f"source_shard: {args.source_shard_index}/{args.source_shard_count}")
 
     from transformers import AutoTokenizer  # type: ignore
 
@@ -301,7 +326,11 @@ def main() -> int:
     print(f"  vocab_size: {tokenizer.vocab_size:,}")
 
     print(f"building source streams ...")
-    sources, weights, names = _build_all_sources(recipe)
+    sources, weights, names = _build_all_sources(
+        recipe,
+        source_shard_index=args.source_shard_index,
+        source_shard_count=args.source_shard_count,
+    )
     print(f"  {len(sources)} sources; per-source weights:")
     for name, w in zip(names, weights):
         print(f"    {w:.4f}  {name}")
@@ -385,6 +414,8 @@ def main() -> int:
         "recipe_version": recipe.get("version"),
         "seed": seed,
         "target_tokens": args.target_tokens,
+        "source_shard_index": args.source_shard_index,
+        "source_shard_count": args.source_shard_count,
         "actual_tokens": n_tokens,
         "actual_rows": n_rows,
         "wall_seconds": elapsed,

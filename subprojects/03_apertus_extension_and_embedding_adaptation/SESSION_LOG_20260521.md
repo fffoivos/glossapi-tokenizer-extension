@@ -240,6 +240,25 @@ Post-conversion eval correction:
   - `2338020` = `TASK_GROUP=retention_only`, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_retention_retry_20260521_163240`
   - `2338021` = `TASK_GROUP=greek_only`, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_greek_retry_20260521_163240`
 
+Array-corpus correctness correction:
+
+- While monitoring `2337911`, caught that independent array jobs would repeat the same per-source prefixes across shards. Fast, but wrong for the finalized CPT corpus.
+- Cancelled `2337911`, `2337912`, `2337913`, and `2337914` before concat/preprocess.
+- Added disjoint source-row sharding to `mix_builder.py`:
+  - `--source-shard-index`
+  - `--source-shard-count`
+  - each source emits only eligible rows where `row_index % source_shard_count == source_shard_index`
+- Updated `mix_builder_full.sbatch` to pass the Slurm array index and count.
+- Verified with a two-way smoke at `/iopsstor/scratch/cscs/fffoivos/tmp/source_shard_smoke_164009/`: shard 0 had `137` unique `(source, doc_id)` pairs, shard 1 had `130`, overlap was `0`.
+- Relaunched the corpus chain as:
+
+| Job | What | Dependency / output |
+|---|---|---|
+| `2338121` | `mix_builder_full` array `0-6%7`, 1B tokens per shard, disjoint source rows | writes `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_disjoint_part_*.jsonl` |
+| `2338122` | concat | `afterok:2338121`, writes `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl` |
+| `2338123` | base-tokenizer preprocess | `afterok:2338122` |
+| `2338124` | extended-tokenizer preprocess | `afterok:2338122` |
+
 Independent follow-ups (deferred to after the corpus chain is unblocked):
 
 - **PF5** — port the ILSP `*_greek` task YAMLs from `LeonVouk/lighteval` into the swissai harness clone so V4 / per-arm evals include `hellaswag_greek`, `winogrande_greek`, `mmlu_pro_greek`, `truthfulqa_greek`, `medical_mcqa_greek`. Today the V4 baseline covers seven Greek tasks; ILSP would add five more.

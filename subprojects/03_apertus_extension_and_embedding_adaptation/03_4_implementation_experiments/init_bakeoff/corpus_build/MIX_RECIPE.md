@@ -120,6 +120,11 @@ python3 mix_builder.py \
     --seed 20260520
 ```
 
+For sharded full builds, `mix_builder_full.sbatch` passes `--source-shard-index`
+and `--source-shard-count` into `mix_builder.py`. This partitions each source's
+eligible rows across array tasks before token-fair sampling, so the concatenated
+bulk mix is not just seven repeats of the same source prefixes.
+
 Output is JSON-lines. Each line is `{"text": "...", "source": "...", "doc_id": "...", "lang": "..."}`. Megatron-LM-Swiss-AI's `tools/preprocess_data.py` then converts JSON-lines → binary indexed dataset (`.bin` + `.idx`) for training.
 
 Determinism: the `--seed` controls the interleave randomization. Same seed means the same JSONL text stream across runs. Vanilla and the extended arms then use different tokenizers/preprocessed Megatron binaries, so token IDs differ across tokenizer families even though the document order is shared.

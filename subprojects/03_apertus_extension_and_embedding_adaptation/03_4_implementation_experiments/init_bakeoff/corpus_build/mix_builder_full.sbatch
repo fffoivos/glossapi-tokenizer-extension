@@ -17,7 +17,9 @@
 #   sbatch --array=0-6%7 --export=ALL,TARGET_TOKENS=1000000000 mix_builder_full.sbatch
 #
 # Array mode writes bulk_mix_part_XX.jsonl files, each with its own seed.
-# Concatenate them with concat_bulk_mix.sbatch before preprocess_data.sbatch.
+# In array mode, each task also receives a source-row shard index so the
+# per-source rows are disjoint across shard files. Concatenate them with
+# concat_bulk_mix.sbatch before preprocess_data.sbatch.
 #
 # Inputs:
 #   $SELECTED from prepare_greek_pool.sh:
@@ -58,8 +60,12 @@ if [ -n "${SLURM_ARRAY_TASK_ID:-}" ]; then
     SHARD_ID="$(printf "%02d" "$SLURM_ARRAY_TASK_ID")"
     OUTPUT="${OUTPUT:-${SHARD_PREFIX}${SHARD_ID}.jsonl}"
     SEED="$(( SEED + SLURM_ARRAY_TASK_ID ))"
+    SOURCE_SHARD_INDEX="${SOURCE_SHARD_INDEX:-$SLURM_ARRAY_TASK_ID}"
+    SOURCE_SHARD_COUNT="${SOURCE_SHARD_COUNT:-${SLURM_ARRAY_TASK_COUNT:-7}}"
 else
     OUTPUT="${OUTPUT:-$STAGE_ROOT/bulk_mix.jsonl}"
+    SOURCE_SHARD_INDEX="${SOURCE_SHARD_INDEX:-0}"
+    SOURCE_SHARD_COUNT="${SOURCE_SHARD_COUNT:-1}"
 fi
 
 if [ ! -f "$SELECTED" ]; then
@@ -83,7 +89,9 @@ python3 -u $REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implemen
     --target-tokens $TARGET_TOKENS \
     --tokenizer $TOKENIZER \
     --output $OUTPUT \
-    --seed $SEED
+    --seed $SEED \
+    --source-shard-index $SOURCE_SHARD_INDEX \
+    --source-shard-count $SOURCE_SHARD_COUNT
 INNER
 
 echo "=== full mix complete ==="

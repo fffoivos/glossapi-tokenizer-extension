@@ -146,3 +146,10 @@ Static shell/Python/JSON checks did pass.
 - Corrected post-conversion eval `2335196` was healthy but under-requested walltime: it hit the 4h limit at `926/1190` generate requests (`TIMEOUT`, Slurm cancelled at `2026-05-21T18:26:17` local cluster time). Raised `run_eval.sbatch` default walltime to `08:00:00` and resubmitted as split jobs:
   - `2338020` = post-conversion retention-only eval, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_retention_retry_20260521_163240`
   - `2338021` = post-conversion Greek-only eval, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_greek_retry_20260521_163240`
+- Caught a second corpus correctness issue before concat: independent 1B-token array jobs would repeat the same per-source prefixes across shards. Cancelled `2337911`/`2337912`/`2337913`/`2337914` before canonical output.
+- Patched `mix_builder.py` with `--source-shard-index` / `--source-shard-count`, which partitions each filtered source by eligible row index before token-fair sampling. Patched `mix_builder_full.sbatch` to pass the Slurm array index/count. Two-way smoke at `/iopsstor/scratch/cscs/fffoivos/tmp/source_shard_smoke_164009/` produced zero `(source, doc_id)` overlap.
+- Relaunched disjoint sharded corpus chain:
+  - `2338121` = `mix_builder_full` array, `0-6%7`, `SOURCE_SHARD_COUNT=7`, `SHARD_PREFIX=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_disjoint_part_`
+  - `2338122` = concat, dependency `afterok:2338121`
+  - `2338123` = base-tokenizer preprocess, dependency `afterok:2338122`
+  - `2338124` = extended-tokenizer preprocess, dependency `afterok:2338122`
