@@ -77,7 +77,12 @@ def add_arguments(parser):
                        help="Apertus pretraining used 128 (submit_apertus_8b.sh:L193)")
     group.add_argument('--loader-transformer-impl', default='local',
                        choices=['local', 'transformer_engine'])
-    # --bf16 / --fp16 are added by the top-level convert.py parser; we read them via args.
+    # convert.py's top-level parser does NOT add --bf16/--fp16 — each loader
+    # registers its own dtype flags. (Verified empirically against
+    # tools/checkpoint/convert.py at commit c92402e3 — argparse error
+    # "unrecognized arguments: --bf16" if these are omitted.)
+    group.add_argument('--bf16', action='store_true', help='Load weights as bf16.')
+    group.add_argument('--fp16', action='store_true', help='Load weights as fp16.')
 
 
 def _interleave_qkv(q, k, v, num_heads, num_kv_heads, head_dim, hidden_size):
