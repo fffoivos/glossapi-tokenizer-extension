@@ -24,6 +24,9 @@ source "$SCRIPT_DIR/../bakeoff_training/_train_config_common.env"
 
 INIT_CKPT_ROOT="${INIT_CKPT_ROOT:-/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480}"
 ARMS="${ARMS:-vanilla retok centroid}"
+MEGATRON_SUBDIR="${MEGATRON_SUBDIR:-megatron}"
+TARGET_TENSOR_PARALLEL_SIZE="${TARGET_TENSOR_PARALLEL_SIZE:-1}"
+TARGET_PIPELINE_PARALLEL_SIZE="${TARGET_PIPELINE_PARALLEL_SIZE:-1}"
 OVERWRITE="${OVERWRITE:-0}"
 INIT_UENV_IMAGE="${INIT_UENV_IMAGE:-pytorch/v2.9.1:v2}"
 
@@ -43,6 +46,9 @@ echo "PATCH_DIR:       $PATCH_DIR"
 echo "MEGATRON_DIR:    $MEGATRON_LM_SWISSAI_DIR"
 echo "INIT_CKPT_ROOT:  $INIT_CKPT_ROOT"
 echo "ARMS:            $ARMS"
+echo "MEGATRON_SUBDIR: $MEGATRON_SUBDIR"
+echo "TARGET_TP:       $TARGET_TENSOR_PARALLEL_SIZE"
+echo "TARGET_PP:       $TARGET_PIPELINE_PARALLEL_SIZE"
 echo "OVERWRITE:       $OVERWRITE"
 echo "INIT_UENV_IMAGE: $INIT_UENV_IMAGE"
 echo "HF_HOME:         $HF_HOME"
@@ -50,7 +56,7 @@ echo
 
 bash "$PATCH_DIR/install.sh" "$MEGATRON_LM_SWISSAI_DIR"
 
-export INIT_CKPT_ROOT ARMS OVERWRITE MEGATRON_LM_SWISSAI_DIR
+export INIT_CKPT_ROOT ARMS MEGATRON_SUBDIR TARGET_TENSOR_PARALLEL_SIZE TARGET_PIPELINE_PARALLEL_SIZE OVERWRITE MEGATRON_LM_SWISSAI_DIR
 uenv run "$INIT_UENV_IMAGE" --view=default -- bash <<'INNER'
 set -euo pipefail
 export PYTHONPATH="$MEGATRON_LM_SWISSAI_DIR"
@@ -59,7 +65,7 @@ git rev-parse HEAD
 
 for arm in $ARMS; do
     hf_dir="$INIT_CKPT_ROOT/$arm"
-    meg_dir="$INIT_CKPT_ROOT/$arm/megatron"
+    meg_dir="$INIT_CKPT_ROOT/$arm/$MEGATRON_SUBDIR"
     echo
     echo "=== converting arm: $arm ==="
     echo "HF:       $hf_dir"
@@ -85,7 +91,9 @@ for arm in $ARMS; do
         --loader apertus_hf --saver core \
         --load-dir "$hf_dir" --save-dir "$meg_dir" \
         --tokenizer-model "$hf_dir" --bf16 \
-        --loader-transformer-impl transformer_engine
+        --loader-transformer-impl transformer_engine \
+        --target-tensor-parallel-size "$TARGET_TENSOR_PARALLEL_SIZE" \
+        --target-pipeline-parallel-size "$TARGET_PIPELINE_PARALLEL_SIZE"
 
     if [ -d "$meg_dir/iter_0000000" ]; then
         mv "$meg_dir/iter_0000000" "$meg_dir/release"
@@ -103,6 +111,6 @@ echo
 echo "=== convert init checkpoints done ==="
 date -u
 for arm in $ARMS; do
-    test -d "$INIT_CKPT_ROOT/$arm/megatron/release"
-    echo "$arm: $INIT_CKPT_ROOT/$arm/megatron/release"
+    test -d "$INIT_CKPT_ROOT/$arm/$MEGATRON_SUBDIR/release"
+    echo "$arm: $INIT_CKPT_ROOT/$arm/$MEGATRON_SUBDIR/release"
 done

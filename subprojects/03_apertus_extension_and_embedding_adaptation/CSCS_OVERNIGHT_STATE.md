@@ -198,3 +198,93 @@ Post-conversion eval state:
 - Retention retry `2338020`: complete, results in `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_retention_retry_20260521_163240/results_2026-05-21T18-58-29.766809.json`
 - Greek retry `2338021`: complete, results in `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_greek_retry_20260521_163240/results_2026-05-21T22-12-31.611713.json`
 - Compact local copies live in `03_4_implementation_experiments/init_bakeoff/eval/v4_postconv_retry_20260521/`.
+
+## 2026-05-21 Live State Update - Bakeoff Training Launch
+
+The bucket-preserving corpus and both Megatron preprocessings are complete:
+
+- canonical JSONL: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl`
+- canonical manifest: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.manifest.json`
+- final bucket shares: Greek `69.989649%`, replay `23.995289%`, code `3.999636%`, math `2.015425%`
+- base data prefix: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_megatron/bulk_mix_text_document`
+- extended data prefix: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_ext_megatron/bulk_mix_text_document`
+
+Two launch-only failures happened before real training:
+
+- `2340402`/`2340403`/`2340404` (`bakeoff_bucketfix_20260521_2130`) failed because metadata referenced unset `TRAIN_DATA_PREFIX`.
+- `2340417`/`2340418`/`2340419` (`bakeoff_bucketfix_20260521_2133`) failed because the nested `uenv run ... bash -c ... srun ... bash -c` command quoted the Megatron argv incorrectly.
+
+Both are fixed in `bakeoff_train.sbatch`; the current submitted jobs are:
+
+- `2340449` vanilla
+- `2340450` retok
+- `2340451` centroid
+
+Run tag `bakeoff_bucketfix_20260521_2135` got through Megatron argument parsing/tokenizer build, then failed before training because `MASTER_ADDR` was unset for `torch.distributed` env rendezvous.
+
+Applied follow-up fix: export `MASTER_ADDR`, per-job `MASTER_PORT`, and `WORLD_SIZE` before `srun`, matching the Apertus launcher pattern. The next run should be treated as healthy only after all three arms pass distributed init and reach real iteration logs.
+
+Run tag `bakeoff_bucketfix_20260521_2138` confirmed the distributed-env fix:
+
+- `2340469` vanilla, `2340470` retok, `2340471` centroid all reached `world_size=4`, optimizer setup, and release-checkpoint loading.
+- They then failed in Transformer Engine `set_extra_state` with `EOFError: Ran out of input`.
+- Cause: empty TE `_extra_state` tensors in the converted init checkpoints.
+- Applied follow-up fix: launch Megatron via `megatron_patches/runtime/pretrain_gpt_te_guard.py`, which ignores only truly empty TE extra-state tensors.
+
+The next submitted tag should be watched through checkpoint load and then real iteration logs.
+
+Run tag `bakeoff_bucketfix_20260521_2146` proved the TE guard:
+
+- Vanilla loaded the release checkpoint, built the train dataset, and entered the first training step.
+- All arms then OOMed on the first forward pass.
+- Root cause: TP=1 replicated the full 8B training state on every GH200. This also deviated from the Apertus launcher, which uses TP=2.
+
+Applied follow-up fix:
+
+- `_train_config_common.env`: `TENSOR_MODEL_PARALLEL_SIZE=2`, `PIPELINE_MODEL_PARALLEL_SIZE=1`.
+- `bakeoff_train.sbatch`: distributed args now use those config values.
+- `submit_all_arms.sh`: defaults to `INIT_CKPT_SUBDIR=megatron_tp2`.
+- `convert_init_checkpoints.sbatch`: can write alternate Megatron subdirs and target TP/PP sizes.
+- Active conversion job: `2340539`, producing TP=2 release checkpoints under `$INIT_CKPT_ROOT/{vanilla,retok,centroid}/megatron_tp2`.
+
+Do not resubmit training until `2340539` completes and all three `megatron_tp2/release/mp_rank_00` + `mp_rank_01` checkpoint shards exist.
+
+`2340539` completed successfully (`0:0`, `00:01:41`) and all six TP=2 shards exist. Current training tag:
+
+- `bakeoff_tp2_bucketfix_20260521_2158`
+- `2340671` vanilla
+- `2340672` retok
+- `2340673` centroid
+
+Watch these through checkpoint load, dataset build, and first iteration. The first healthy state is not merely `RUNNING`; it is iteration logs with no OOM.
+
+`bakeoff_tp2_bucketfix_20260521_2158` loaded TP=2 checkpoints and built dataloaders for all arms, then OOMed on first forward with only a small allocation failing (`128 MiB`) and PyTorch showing reserved-but-unallocated memory. Applied follow-up fix:
+
+- `MICROBATCH_SIZE=2` (global batch remains `1024`, so gradients still accumulate to the same 4.19M-token batch).
+- `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`.
+
+Next training tag should be checked for first iteration logs and elapsed-time/throughput.
+
+## 2026-05-22 Paused State After Planning-Agent Feedback
+
+The TP=2/mb=2 jobs were stopped for review before health was proven:
+
+- `2340682` vanilla: `CANCELLED`
+- `2340683` retok: `CANCELLED`
+- `2340684` centroid: `CANCELLED`
+
+No bakeoff training job is intentionally running from this handoff. Do not submit the full three-arm bakeoff next. The next gate should be a vanilla-only 1h smoke that proves:
+
+- checkpoint load with the TE guard;
+- first forward/backward without OOM;
+- first iteration logs and rough tokens/sec;
+- no surprise failure from the modified TP=2/mb=2 launch path.
+
+Follow-up fixes applied locally:
+
+- `pretrain_gpt_te_guard.py` now emits a per-rank stderr counter for skipped empty TE `_extra_state` tensors.
+- `pretrain_gpt_te_guard.py` no longer depends on `from __future__ import annotations`, after Clariden's default `python3` rejected that feature during validation.
+- `_train_config_common.env` documents that mb=2 preserves the 4.19M-token global batch objective while changing accumulation count/order.
+- `_train_config_common.env` also documents that the 238-step AdEMAMix beta3/alpha warmup is an intentionally heavy bakeoff cold-restart fraction, with production CPT expected to scale back toward ~2.8%.
+
+Local and remote Clariden validation passed with `py_compile` for the TE guard and `bash -n` for the train, submit, and conversion sbatch scripts.

@@ -22,11 +22,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_train_config_common.env"
 
 INIT_CKPT_ROOT="${INIT_CKPT_ROOT:-/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480}"
+INIT_CKPT_SUBDIR="${INIT_CKPT_SUBDIR:-megatron_tp2}"
 OUT_ROOT="${OUT_ROOT:-/capstor/scratch/cscs/fffoivos/runs/bakeoff}"
 RUN_TAG="${RUN_TAG:-bakeoff_$(date -u +%Y%m%d_%H%M%S)}"
 
 echo "=== submit_all_arms.sh ==="
 echo "INIT_CKPT_ROOT:   $INIT_CKPT_ROOT"
+echo "INIT_CKPT_SUBDIR: $INIT_CKPT_SUBDIR"
 echo "OUT_ROOT:         $OUT_ROOT"
 echo "RUN_TAG:          $RUN_TAG"
 echo "BASE_DATA_PREFIX: $BASE_DATA_PREFIX  (Vanilla)"
@@ -35,7 +37,7 @@ echo
 
 # Sanity: do all three init checkpoints exist?
 for arm in vanilla retok centroid; do
-    ckpt="$INIT_CKPT_ROOT/$arm/megatron"
+    ckpt="$INIT_CKPT_ROOT/$arm/$INIT_CKPT_SUBDIR"
     if [ ! -d "$ckpt" ]; then
         echo "ERROR: init checkpoint missing for arm '$arm': $ckpt" >&2
         echo "  Run ../arms/submit_init_pipeline.sh first." >&2
@@ -56,7 +58,7 @@ done
 # Submit all three
 for arm in vanilla retok centroid; do
     output_dir="$OUT_ROOT/${RUN_TAG}_${arm}"
-    init_ckpt="$INIT_CKPT_ROOT/$arm/megatron"
+    init_ckpt="$INIT_CKPT_ROOT/$arm/$INIT_CKPT_SUBDIR"
     mkdir -p "$output_dir"
 
     echo "Submitting $arm  →  $output_dir"

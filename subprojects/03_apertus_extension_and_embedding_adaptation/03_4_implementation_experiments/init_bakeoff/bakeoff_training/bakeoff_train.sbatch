@@ -56,42 +56,6 @@ echo "seq_len=$SEQ_LEN  microbatch=$MICROBATCH_SIZE  global_batch_samples=$GLOBA
 echo "train_samples=$TRAIN_SAMPLES (train_tokens=$TRAIN_TOKENS) lr_warmup_samples=$LR_WARMUP_SAMPLES"
 echo
 
-# Audit-trail run_metadata
-cat > "$OUTPUT_DIR/run_metadata.json" <<META
-{
-  "arm": "$ARM",
-  "init_ckpt": "$INIT_CKPT",
-  "output_dir": "$OUTPUT_DIR",
-  "megatron_dir": "$MEGATRON_LM_SWISSAI_DIR",
-  "megatron_commit": "$MEGATRON_LM_SWISSAI_COMMIT",
-  "seq_length": $SEQ_LEN,
-  "global_batch_samples": $GLOBAL_BATCH_SIZE,
-  "global_batch_tokens": $GLOBAL_BATCH_TOKENS,
-  "microbatch_size": $MICROBATCH_SIZE,
-  "train_tokens": $TRAIN_TOKENS,
-  "train_samples": $TRAIN_SAMPLES,
-  "lr_peak": "$LR_PEAK",
-  "lr_final": "$LR_FINAL",
-  "lr_warmup_samples": $LR_WARMUP_SAMPLES,
-  "lr_decay_style": "$LR_DECAY_STYLE",
-  "grad_clip": $GRAD_CLIP,
-  "optimizer": "ademamix",
-  "ademamix_beta1": $ADEMA_BETA1,
-  "ademamix_beta2": $ADEMA_BETA2,
-  "ademamix_beta3": $ADEMA_BETA3,
-  "ademamix_alpha": $ADEMA_ALPHA,
-  "ademamix_weight_decay": $ADEMA_WEIGHT_DECAY,
-  "ademamix_beta3_warmup": $ADEMA_BETA3_WARMUP_STEPS,
-  "ademamix_alpha_warmup": $ADEMA_ALPHA_WARMUP_STEPS,
-  "init_method_std": $INIT_STD,
-  "loss_objective": "$LOSS_OBJECTIVE",
-  "data_seed": $DATA_SEED,
-  "data_prefix": "$TRAIN_DATA_PREFIX",
-  "slurm_job_id": "${SLURM_JOB_ID:-none}",
-  "start_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-}
-META
-
 # ===== Flag groups (mirror Apertus sbatch shape) =====
 
 TRANSFORMER_ENGINE_ARGS=(
@@ -199,11 +163,12 @@ MIXED_PRECISION_ARGS=(
     $MIXED_PRECISION_FLAG
 )
 
-# Tensor-parallel = 1 (single 4-GPU node, model fits without TP). Apertus's
-# 256-node run used TP=2; for our 1-node bakeoff TP=1 is enough.
+# Tensor-parallel = 2 matches Apertus's pretraining launcher and is required on
+# one 4-GPU GH200 node; TP=1 loads the full 8B training state on every GPU and
+# OOMs on the first forward step.
 DISTRIBUTED_ARGS=(
-    --tensor-model-parallel-size 1
-    --pipeline-model-parallel-size 1
+    --tensor-model-parallel-size $TENSOR_MODEL_PARALLEL_SIZE
+    --pipeline-model-parallel-size $PIPELINE_MODEL_PARALLEL_SIZE
     --use-distributed-optimizer
     --overlap-grad-reduce
     --overlap-param-gather
@@ -230,6 +195,44 @@ case "$ARM" in
 esac
 echo "ARM=$ARM  →  tokenizer=$ARM_TOKENIZER  data_prefix=$ARM_DATA_PREFIX"
 
+# Audit-trail run_metadata. This must live after ARM_DATA_PREFIX is selected;
+# Slurm runs with `set -u`, and there is no arm-neutral TRAIN_DATA_PREFIX.
+cat > "$OUTPUT_DIR/run_metadata.json" <<META
+{
+  "arm": "$ARM",
+  "init_ckpt": "$INIT_CKPT",
+  "output_dir": "$OUTPUT_DIR",
+  "megatron_dir": "$MEGATRON_LM_SWISSAI_DIR",
+  "megatron_commit": "$MEGATRON_LM_SWISSAI_COMMIT",
+  "seq_length": $SEQ_LEN,
+  "global_batch_samples": $GLOBAL_BATCH_SIZE,
+  "global_batch_tokens": $GLOBAL_BATCH_TOKENS,
+  "microbatch_size": $MICROBATCH_SIZE,
+  "train_tokens": $TRAIN_TOKENS,
+  "train_samples": $TRAIN_SAMPLES,
+  "lr_peak": "$LR_PEAK",
+  "lr_final": "$LR_FINAL",
+  "lr_warmup_samples": $LR_WARMUP_SAMPLES,
+  "lr_decay_style": "$LR_DECAY_STYLE",
+  "grad_clip": $GRAD_CLIP,
+  "optimizer": "ademamix",
+  "ademamix_beta1": $ADEMA_BETA1,
+  "ademamix_beta2": $ADEMA_BETA2,
+  "ademamix_beta3": $ADEMA_BETA3,
+  "ademamix_alpha": $ADEMA_ALPHA,
+  "ademamix_weight_decay": $ADEMA_WEIGHT_DECAY,
+  "ademamix_beta3_warmup": $ADEMA_BETA3_WARMUP_STEPS,
+  "ademamix_alpha_warmup": $ADEMA_ALPHA_WARMUP_STEPS,
+  "init_method_std": $INIT_STD,
+  "loss_objective": "$LOSS_OBJECTIVE",
+  "data_seed": $DATA_SEED,
+  "tokenizer": "$ARM_TOKENIZER",
+  "data_prefix": "$ARM_DATA_PREFIX",
+  "slurm_job_id": "${SLURM_JOB_ID:-none}",
+  "start_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+META
+
 TOKENIZER_ARGS=(
     --tokenizer-type HuggingFaceTokenizer
     --tokenizer-model "$ARM_TOKENIZER"
@@ -251,35 +254,53 @@ DATA_ARGS=(
 # For production CPT, add the three flags below (matching Apertus pretrain L290-292):
 #   --goldfish-loss --goldfish-k $GOLDFISH_K --goldfish-h $GOLDFISH_H
 
+RUNTIME_PATCH_DIR="$SCRIPT_DIR/../megatron_patches/runtime"
+TRAINING_CMD=(
+    python3 "$RUNTIME_PATCH_DIR/pretrain_gpt_te_guard.py"
+    "$MEGATRON_LM_SWISSAI_DIR/pretrain_gpt.py"
+    "${TRANSFORMER_ENGINE_ARGS[@]}"
+    "${NETWORK_SIZE_ARGS[@]}"
+    "${LOGGING_ARGS[@]}"
+    "${REGULARIZATION_ARGS[@]}"
+    "${TRAINING_ARGS[@]}"
+    "${INITIALIZATION_ARGS[@]}"
+    "${LEARNING_RATE_ARGS[@]}"
+    "${CHECKPOINTING_ARGS[@]}"
+    "${MIXED_PRECISION_ARGS[@]}"
+    "${DISTRIBUTED_ARGS[@]}"
+    "${TOKENIZER_ARGS[@]}"
+    "${DATA_ARGS[@]}"
+)
+printf -v TRAINING_CMD_Q '%q ' "${TRAINING_CMD[@]}"
+printf '%s\n' "$TRAINING_CMD_Q" > "$OUTPUT_DIR/training_command.sh"
+
 # ===== Launch =====
 export PYTHONPATH="$MEGATRON_LM_SWISSAI_DIR"
 export TORCH_NCCL_AVOID_RECORD_STREAMS=1
 export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
 export CUDA_DEVICE_MAX_CONNECTIONS=1
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK:-4}
+export FI_CXI_DEFAULT_TX_SIZE=16384
+export NCCL_NET_FORCE_FLUSH=1
+export FI_CXI_RDZV_GET_MIN=0
+export FI_CXI_SAFE_DEVMEM_COPY_THRESHOLD=16777216
+export NCCL_RAS_ENABLE=0
+export CUDA_CACHE_DISABLE=1
+
+# torch.distributed env:// needs these before srun. RANK/LOCAL_RANK are set per
+# task in the bash -c command below.
+export MASTER_ADDR
+MASTER_ADDR="$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)"
+export MASTER_PORT="${MASTER_PORT:-$((32000 + (${SLURM_JOB_ID:-0} % 1000)))}"
+export WORLD_SIZE="${SLURM_NPROCS:-${SLURM_NTASKS:-4}}"
+echo "distributed: MASTER_ADDR=$MASTER_ADDR MASTER_PORT=$MASTER_PORT WORLD_SIZE=$WORLD_SIZE"
 
 cd "$MEGATRON_LM_SWISSAI_DIR"
 
-uenv run "$UENV_IMAGE" --view=default -- bash -c "
-set -euo pipefail
-srun --cpus-per-task \${SLURM_CPUS_PER_TASK:-4} \
-    -lu bash -c \"
-        RANK=\\\$SLURM_PROCID LOCAL_RANK=\\\$SLURM_LOCALID \
-        python3 $MEGATRON_LM_SWISSAI_DIR/pretrain_gpt.py \
-            ${TRANSFORMER_ENGINE_ARGS[@]} \
-            ${NETWORK_SIZE_ARGS[@]} \
-            ${LOGGING_ARGS[@]} \
-            ${REGULARIZATION_ARGS[@]} \
-            ${TRAINING_ARGS[@]} \
-            ${INITIALIZATION_ARGS[@]} \
-            ${LEARNING_RATE_ARGS[@]} \
-            ${CHECKPOINTING_ARGS[@]} \
-            ${MIXED_PRECISION_ARGS[@]} \
-            ${DISTRIBUTED_ARGS[@]} \
-            ${TOKENIZER_ARGS[@]} \
-            ${DATA_ARGS[@]}
-    \"
-"
+uenv run "$UENV_IMAGE" --view=default -- \
+    srun --cpus-per-task "${SLURM_CPUS_PER_TASK:-4}" \
+        -lu bash -c "export RANK=\$SLURM_PROCID LOCAL_RANK=\$SLURM_LOCALID; exec $TRAINING_CMD_Q"
 
 echo
 echo "=== bakeoff arm $ARM done ==="
