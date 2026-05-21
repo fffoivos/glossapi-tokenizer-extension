@@ -38,6 +38,8 @@ Live checks performed:
 - Queued after-prepare corpus dependency chain: `2335157` normalize_nfc -> `2335158` mix_builder_smoke -> `2335159` mix_builder_full -> `2335160` base preprocess + `2335161` extended preprocess.
 - Added queueable init chain: `arms/build_init_checkpoints.sbatch`, `arms/convert_init_checkpoints.sbatch`, and `arms/submit_init_pipeline.sh`. First attempt `2335353` caught a Slurm spool-path bug; second attempt `2335371` caught the old-Transformers Apertus loader mismatch in `pytorch/v2.6.0:v1`. Final init chain `2335382` build -> `2335384` conversion completed successfully using `INIT_UENV_IMAGE=pytorch/v2.9.1:v2`.
 - Patched the same Slurm spool-path bug in `preprocess_data.sbatch` and `bakeoff_train.sbatch`, then canceled old pending preprocess jobs `2335160` / `2335161` and requeued patched replacements `2335581` / `2335583` with dependency `afterok:2335159`.
+- `2334880` completed successfully. Selected CPT parquet: `47,061,862` rows and `227,837,744,625` chars at `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet`.
+- `2335157` normalize_nfc failed because `normalize_nfc.sh` expected unsupported directory-mode flags in `verify_and_normalize_nfc.py`. Patched the wrapper to enumerate parquets and normalize file-by-file via `--out <tmp>`, then requeued the corpus chain as `2335826` -> `2335827` -> `2335828` -> `2335829`/`2335830`.
 
 ## Files touched locally (home machine)
 
@@ -170,18 +172,18 @@ Pre-CSCS-execution friction (already-debugged before the user went to sleep, lis
 
 Live jobs queued/running as of ~12:46 UTC:
 
-- `2334880` prepare_greek_pool is still running and actively doing I/O.
+- `2334880` prepare_greek_pool completed and produced the selected CPT parquet.
 - `2335100` V4-HF corrected baseline is running.
 - `2335196` V4-post-conversion retry is running with per-job dataset cache.
-- `2335157` -> `2335158` -> `2335159` -> `2335581`/`2335583` is the already-queued corpus dependency chain.
+- `2335826` -> `2335827` -> `2335828` -> `2335829`/`2335830` is the active corpus dependency chain.
 - `2335382` -> `2335384` completed and produced Megatron release checkpoints for all three arms.
 
-Once `prepare_greek_pool` 2334880 finishes:
+Next:
 
-1. Watch `2335157` normalize_nfc.
-2. Watch `2335158` mix_builder_smoke and inspect the smoke JSONL.
-3. Watch `2335159` full mix -> `bulk_mix.jsonl`.
-4. Watch `2335581` / `2335583` preprocess outputs: `$BASE_DATA_PREFIX{.bin,.idx}` and `$EXT_DATA_PREFIX{.bin,.idx}`.
+1. Watch `2335826` normalize_nfc.
+2. Watch `2335827` mix_builder_smoke and inspect the smoke JSONL.
+3. Watch `2335828` full mix -> `bulk_mix.jsonl`.
+4. Watch `2335829` / `2335830` preprocess outputs: `$BASE_DATA_PREFIX{.bin,.idx}` and `$EXT_DATA_PREFIX{.bin,.idx}`.
 5. Submit `submit_all_arms.sh` with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480` to fire the three 2 B-token training runs.
 
 Independent follow-ups (deferred to after the corpus chain is unblocked):

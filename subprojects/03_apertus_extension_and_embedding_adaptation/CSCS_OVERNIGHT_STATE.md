@@ -8,15 +8,15 @@ Codex takeover is now the live handoff. `SESSION_LOG_20260521.md` remains the au
 
 | Item | Status |
 |---|---|
-| Active Clariden jobs | `prepare_greek_pool` job `2334880` is RUNNING on `nid006899` (normal partition). Corrected evals `2335100` and `2335196` are RUNNING. Init build/conversion jobs `2335382`/`2335384` have COMPLETED. |
-| Corpus output status | `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/glossapi_mix_prelude_wvcof1wq/filtered_input.parquet` exists at ~124 GB and `external_drop_filtered_input.parquet` exists at ~120 GB. Duplicate intermediates exist. The final `$SELECTED` parquet is visible but still 0 bytes as of ~12:46 UTC; Slurm `sstat` shows `2334880` has read ~1.57 TB and written ~1.75 TB, so the job is active rather than idle. |
+| Active Clariden jobs | Corrected evals `2335100` and `2335196` are RUNNING. Corpus normalize `2335826` is RUNNING. Init build/conversion jobs `2335382`/`2335384` have COMPLETED. |
+| Corpus output status | `prepare_greek_pool` job `2334880` COMPLETED `0:0` in 1h13m42s. Final selected CPT parquet exists at `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet`: `47,061,862` rows, `227,837,744,625` chars, 109 GiB on disk. |
 | V4-HF baseline | Job `2334245` produced valid artifacts for its task list, but the script omitted `global_mmlu`. Treat `init_bakeoff/eval/v4_baseline_20260521/` as a partial baseline until corrected V4-HF and V4-post-conversion reruns complete. |
 | R1 roundtrip | PASS: job `2333864`, standard tensors max abs diff `0.0`, R17 xIELU deltas `128`. The sbatch now prints separate R17/qk max-diff values on future reruns. |
 | Corrected V4 evals | Submitted after syncing fixes: `2335100` V4-HF corrected baseline is running. `2335101` V4-post-conversion failed on a datasets/filelock `No locks available` error; patched per-job HF/datasets cache and resubmitted as `2335196`, output `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_corrected_retry_20260521_122535`. |
-| Queued corpus chain | Dependency chain is attached to `2334880`: `2335157` normalize_nfc -> `2335158` mix smoke -> `2335159` full mix -> `2335581` base preprocess + `2335583` extended preprocess. Old pending preprocess jobs `2335160` / `2335161` were canceled and replaced after patching the same Slurm spool-path source bug found in the init sbatches. |
+| Queued corpus chain | First normalize job `2335157` failed because the wrapper called unsupported directory-mode CLI flags on `verify_and_normalize_nfc.py`. Patched `normalize_nfc.sh` to enumerate parquets and normalize each file through `--out <tmp>`. New chain: `2335826` normalize_nfc -> `2335827` mix smoke -> `2335828` full mix -> `2335829` base preprocess + `2335830` extended preprocess. |
 | Init checkpoints | Added `arms/build_init_checkpoints.sbatch`, `arms/convert_init_checkpoints.sbatch`, and `arms/submit_init_pipeline.sh`. `2335353` failed from Slurm spool-path handling; fixed with `SLURM_SUBMIT_DIR`. `2335371` failed from old Transformers in `pytorch/v2.6.0:v1`; fixed init jobs to use `pytorch/v2.9.1:v2`. Final chain passed: `2335382` build (2m43s) and `2335384` conversion (1m41s). Megatron releases exist under `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/{vanilla,retok,centroid}/megatron/release`. |
 | GCP cost check | Attempted from `home`; blocked by non-interactive `gcloud` reauthentication failure. No GCP instance state was verified in this takeover turn. |
-| Next actions | Let `2334880`, `2335100`, and `2335196` run. The corpus chain is already queued. When preprocess (`2335581`/`2335583`) passes, submit the three 2B arms with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 bash submit_all_arms.sh`. |
+| Next actions | Let `2335826`, `2335100`, and `2335196` run. When preprocess (`2335829`/`2335830`) passes, submit the three 2B arms with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 bash submit_all_arms.sh`. |
 
 ---
 
@@ -38,7 +38,7 @@ What changed since the original handoff below:
 | sbatch fixes landed | `r1_roundtrip.sbatch` (debug, 1h), `run_eval.sbatch` (normal, 4h, target-installed lm_eval), `prepare_greek_pool.sbatch` (normal, 12h, CPU-only with iopsstor tmp). |
 | `pytorch/v2.9.1:v2` is the working uenv | NOT v2.6.0:v1 — that image's transformers 4.48.3 lacks `ApertusForCausalLM`. All conversion / eval jobs use v2.9.1:v2. |
 
-**Next blockers (in order):** prepare_greek_pool unblocks the already-queued corpus chain: normalize_nfc -> mix_builder -> preprocess x2. The three Megatron init checkpoints already exist. Once both preprocess outputs exist, run `submit_all_arms.sh`. In parallel, corrected V4-HF and V4-post-conversion evals are running and are needed before final §5.6 thresholds.
+**Next blockers (in order):** normalize_nfc -> mix_builder -> preprocess x2. The selected CPT parquet and three Megatron init checkpoints already exist. Once both preprocess outputs exist, run `submit_all_arms.sh`. In parallel, corrected V4-HF and V4-post-conversion evals are running and are needed before final §5.6 thresholds.
 
 ### Sbatch compute-saturation audit (2026-05-21)
 

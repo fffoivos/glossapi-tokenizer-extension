@@ -74,4 +74,16 @@ Static shell/Python/JSON checks did pass.
 - Because Slurm stores sbatch scripts at submission time, canceled the old pending preprocess jobs `2335160` / `2335161` and requeued them after the patch:
   - `2335581` = base-tokenizer preprocess, dependency `afterok:2335159`
   - `2335583` = extended-tokenizer preprocess, dependency `afterok:2335159`
-- Continue monitoring `2334880`, corrected evals `2335100` / `2335196`, and corpus dependency chain `2335157`-`2335159` -> `2335581`/`2335583`. When preprocess passes, submit the three 2B arms with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 bash submit_all_arms.sh`.
+- `2334880` completed successfully in 1h13m42s. Final selected CPT parquet:
+  - path: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet`
+  - rows: `47,061,862`
+  - chars: `227,837,744,625`
+  - external Apertus-overlap drop: `2,224,446` rows removed from `49,474,947`
+- `2335157` normalize_nfc failed immediately because `normalize_nfc.sh` called a non-existent directory-mode CLI (`--root`, `--pattern`, `--workers`) on `verify_and_normalize_nfc.py`. Patched the wrapper to build the parquet file list itself and run `verify_and_normalize_nfc.py normalize <file> --out <tmp>` via `xargs -P`, then atomically replace each file. Since `$SELECTED` exists, it normalizes selected CPT + replay/code/math only, not raw nanochat or cpt intermediates.
+- Requeued corpus chain after the normalize fix:
+  - `2335826` = normalize_nfc
+  - `2335827` = mix_builder_smoke, dependency `afterok:2335826`
+  - `2335828` = mix_builder_full, dependency `afterok:2335827`
+  - `2335829` = base-tokenizer preprocess, dependency `afterok:2335828`
+  - `2335830` = extended-tokenizer preprocess, dependency `afterok:2335828`
+- Continue monitoring corrected evals `2335100` / `2335196` and corpus dependency chain `2335826` -> `2335827` -> `2335828` -> `2335829`/`2335830`. When preprocess passes, submit the three 2B arms with `INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 bash submit_all_arms.sh`.

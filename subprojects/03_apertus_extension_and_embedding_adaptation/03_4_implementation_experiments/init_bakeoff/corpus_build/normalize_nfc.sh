@@ -15,10 +15,9 @@
 # it's also used outside the bakeoff for general corpus health checks).
 #
 # Compute justification (per [[feedback_compute_sweet_spot_justify]]):
-#   - Parallelism: --workers W spawns W Python processes; each owns a subset
-#     of parquet shards, NFC-normalizes row-by-row, writes back in place.
-#     Per-file work is independent, so speedup is linear in W until shard
-#     count < W.
+#   - Parallelism: --workers W drives xargs -P W over independent parquet
+#     files. Each worker invokes verify_and_normalize_nfc.py on one file,
+#     writes a sibling temp parquet, then atomically replaces the original.
 #   - Saturation: nanochat has 279 parquets + replay has 24+ langs ≈ 300 shards
 #     total. Default --workers 64 saturates a normal-partition node (288 cores
 #     ThreadsPerCore=1) reasonably without thrashing — NFC normalization is
@@ -36,7 +35,9 @@
 set -euo pipefail
 
 STAGE_ROOT="${STAGE_ROOT:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus}"
-SCRIPT="$(dirname "$0")/../../../03_3_cscs_experiments_kickoff/scripts/verify_and_normalize_nfc.py"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT="$SCRIPT_DIR/../../../03_3_cscs_experiments_kickoff/scripts/verify_and_normalize_nfc.py"
+WORKERS="${WORKERS:-64}"
 
 if [ ! -f "$SCRIPT" ]; then
     echo "ERROR: normalizer script not found at $SCRIPT" >&2
@@ -49,23 +50,44 @@ echo "stage_root: $STAGE_ROOT"
 echo "normalizer: $SCRIPT"
 echo
 
-# The verify_and_normalize_nfc.py script supports both verify-only and
-# in-place normalize modes. Use normalize mode here (idempotent — already-NFC
-# parquets are no-ops).
-for subdir in nanochat replay code math cpt; do
-    target="$STAGE_ROOT/$subdir"
-    if [ ! -d "$target" ]; then
-        echo "  skip (missing): $target"
-        continue
-    fi
-    echo
-    echo "=== normalize: $target ==="
-    python3 "$SCRIPT" normalize \
-        --root "$target" \
-        --pattern '*.parquet' \
-        --workers "${WORKERS:-64}" \
-        --report-every 100
+file_list="$(mktemp)"
+trap 'rm -f "$file_list"' EXIT
+
+# If prepare_greek_pool has materialized the selected CPT pool, normalize that
+# final Greek pool rather than the raw nanochat shards and temporary cpt
+# intermediates. mix_builder.py reads selected + replay/code/math.
+selected="$STAGE_ROOT/cpt/selected_after_apertus_and_internal_dedup.parquet"
+if [ -f "$selected" ]; then
+    printf '%s\0' "$selected" >> "$file_list"
+else
+    find "$STAGE_ROOT/nanochat" -type f -name '*.parquet' -print0 >> "$file_list" 2>/dev/null || true
+fi
+
+for subdir in replay code math; do
+    find "$STAGE_ROOT/$subdir" -type f -name '*.parquet' -print0 >> "$file_list" 2>/dev/null || true
 done
+
+file_count="$(tr -cd '\0' < "$file_list" | wc -c | tr -d ' ')"
+if [ "$file_count" = "0" ]; then
+    echo "ERROR: found no parquet files to normalize under $STAGE_ROOT" >&2
+    exit 2
+fi
+
+echo "files:   $file_count"
+echo "workers: $WORKERS"
+echo
+
+normalize_one() {
+    local input="$1"
+    local tmp="${input}.nfc_tmp_${SLURM_JOB_ID:-manual}_$$"
+    rm -f "$tmp"
+    python3 "$SCRIPT" normalize "$input" --out "$tmp"
+    mv "$tmp" "$input"
+}
+export SCRIPT
+export -f normalize_one
+
+xargs -0 -n 1 -P "$WORKERS" bash -c 'normalize_one "$1"' _ < "$file_list"
 
 echo
 echo "✓ V9 satisfied operationally — all parquets under $STAGE_ROOT NFC-normalized."
