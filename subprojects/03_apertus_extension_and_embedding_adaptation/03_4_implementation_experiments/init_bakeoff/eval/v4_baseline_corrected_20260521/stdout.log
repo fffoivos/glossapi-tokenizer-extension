@@ -1,0 +1,590 @@
+=== run_eval.sbatch ===
+Thu May 21 12:16:48 UTC 2026
+host: nid006791
+MODEL_PATH: /iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509
+OUTPUT_DIR: /capstor/scratch/cscs/fffoivos/runs/eval/apertus_baseline_v4_corrected_20260521_121639
+TASK_GROUP: full -> arc_challenge,arc_easy,hellaswag,winogrande,piqa,mmlu,global_mmlu,xnli,xcopa,arc_challenge_mt_el,xnli_el,xquad_el,belebele_ell_Grek,global_mmlu_full_el,include_base_44_greek_few_shot_en,global_piqa_completions_ell_grek
+DTYPE: bfloat16  BATCH: auto
+
+Passed argument batch_size = auto:1. Detecting largest batch size
+Determined largest batch size: 32
+Passed argument batch_size = auto. Detecting largest batch size
+Determined Largest batch size: 1
+hf ({'pretrained': '/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509', 'dtype': 'bfloat16'}), gen_kwargs: ({}), limit: None, num_fewshot: None, batch_size: auto (32)
+|                             Tasks                             |Version|Filter|n-shot|   Metric   |   |Value |   |Stderr|
+|---------------------------------------------------------------|------:|------|-----:|------------|---|-----:|---|-----:|
+|arc_challenge                                                  |    1.0|none  |     0|acc         |↑  |0.5495|±  |0.0145|
+|                                                               |       |none  |     0|acc_norm    |↑  |0.5870|±  |0.0144|
+|arc_challenge_mt_el                                            |    1.0|none  |     0|acc         |↑  |0.4471|±  |0.0145|
+|                                                               |       |none  |     0|acc_norm    |↑  |0.4795|±  |0.0146|
+|arc_easy                                                       |    1.0|none  |     0|acc         |↑  |0.8274|±  |0.0078|
+|                                                               |       |none  |     0|acc_norm    |↑  |0.8363|±  |0.0076|
+|belebele_ell_Grek                                              |    0.0|none  |     0|acc         |↑  |0.6367|±  |0.0160|
+|                                                               |       |none  |     0|acc_norm    |↑  |0.6367|±  |0.0160|
+|global_mmlu                                                    |    1.0|none  |      |acc         |↑  |0.5246|±  |0.0063|
+| - global_mmlu_ar                                              |    0.0|none  |      |acc         |↑  |0.5250|±  |0.0249|
+|  - global_mmlu_ar_business                                    |    0.0|none  |     0|acc         |↑  |0.4655|±  |0.0661|
+|  - global_mmlu_ar_humanities                                  |    0.0|none  |     0|acc         |↑  |0.5588|±  |0.0494|
+|  - global_mmlu_ar_medical                                     |    0.0|none  |     0|acc         |↑  |0.5000|±  |0.0845|
+|  - global_mmlu_ar_other                                       |    0.0|none  |     0|acc         |↑  |0.5714|±  |0.0667|
+|  - global_mmlu_ar_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.5784|±  |0.0491|
+|  - global_mmlu_ar_stem                                        |    0.0|none  |     0|acc         |↑  |0.3696|±  |0.0720|
+| - global_mmlu_bn                                              |    0.0|none  |      |acc         |↑  |0.4775|±  |0.0249|
+|  - global_mmlu_bn_business                                    |    0.0|none  |     0|acc         |↑  |0.4655|±  |0.0661|
+|  - global_mmlu_bn_humanities                                  |    0.0|none  |     0|acc         |↑  |0.5098|±  |0.0497|
+|  - global_mmlu_bn_medical                                     |    0.0|none  |     0|acc         |↑  |0.4444|±  |0.0840|
+|  - global_mmlu_bn_other                                       |    0.0|none  |     0|acc         |↑  |0.5893|±  |0.0663|
+|  - global_mmlu_bn_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.4706|±  |0.0497|
+|  - global_mmlu_bn_stem                                        |    0.0|none  |     0|acc         |↑  |0.3261|±  |0.0699|
+| - global_mmlu_de                                              |    0.0|none  |      |acc         |↑  |0.5950|±  |0.0244|
+|  - global_mmlu_de_business                                    |    0.0|none  |     0|acc         |↑  |0.6552|±  |0.0630|
+|  - global_mmlu_de_humanities                                  |    0.0|none  |     0|acc         |↑  |0.6765|±  |0.0466|
+|  - global_mmlu_de_medical                                     |    0.0|none  |     0|acc         |↑  |0.5833|±  |0.0833|
+|  - global_mmlu_de_other                                       |    0.0|none  |     0|acc         |↑  |0.6071|±  |0.0659|
+|  - global_mmlu_de_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.5490|±  |0.0495|
+|  - global_mmlu_de_stem                                        |    0.0|none  |     0|acc         |↑  |0.4348|±  |0.0739|
+| - global_mmlu_en                                              |    0.0|none  |      |acc         |↑  |0.6250|±  |0.0239|
+|  - global_mmlu_en_business                                    |    0.0|none  |     0|acc         |↑  |0.6034|±  |0.0648|
+|  - global_mmlu_en_humanities                                  |    0.0|none  |     0|acc         |↑  |0.6275|±  |0.0481|
+|  - global_mmlu_en_medical                                     |    0.0|none  |     0|acc         |↑  |0.5833|±  |0.0833|
+|  - global_mmlu_en_other                                       |    0.0|none  |     0|acc         |↑  |0.7679|±  |0.0569|
+|  - global_mmlu_en_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.6667|±  |0.0469|
+|  - global_mmlu_en_stem                                        |    0.0|none  |     0|acc         |↑  |0.4130|±  |0.0734|
+| - global_mmlu_es                                              |    0.0|none  |      |acc         |↑  |0.5900|±  |0.0244|
+|  - global_mmlu_es_business                                    |    0.0|none  |     0|acc         |↑  |0.6207|±  |0.0643|
+|  - global_mmlu_es_humanities                                  |    0.0|none  |     0|acc         |↑  |0.6275|±  |0.0481|
+|  - global_mmlu_es_medical                                     |    0.0|none  |     0|acc         |↑  |0.5000|±  |0.0845|
+|  - global_mmlu_es_other                                       |    0.0|none  |     0|acc         |↑  |0.6607|±  |0.0638|
+|  - global_mmlu_es_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.6275|±  |0.0481|
+|  - global_mmlu_es_stem                                        |    0.0|none  |     0|acc         |↑  |0.3696|±  |0.0720|
+| - global_mmlu_fr                                              |    0.0|none  |      |acc         |↑  |0.5950|±  |0.0243|
+|  - global_mmlu_fr_business                                    |    0.0|none  |     0|acc         |↑  |0.6724|±  |0.0622|
+|  - global_mmlu_fr_humanities                                  |    0.0|none  |     0|acc         |↑  |0.6275|±  |0.0481|
+|  - global_mmlu_fr_medical                                     |    0.0|none  |     0|acc         |↑  |0.5000|±  |0.0845|
+|  - global_mmlu_fr_other                                       |    0.0|none  |     0|acc         |↑  |0.6607|±  |0.0638|
+|  - global_mmlu_fr_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.6078|±  |0.0486|
+|  - global_mmlu_fr_stem                                        |    0.0|none  |     0|acc         |↑  |0.3913|±  |0.0728|
+| - global_mmlu_hi                                              |    0.0|none  |      |acc         |↑  |0.5000|±  |0.0250|
+|  - global_mmlu_hi_business                                    |    0.0|none  |     0|acc         |↑  |0.4483|±  |0.0659|
+|  - global_mmlu_hi_humanities                                  |    0.0|none  |     0|acc         |↑  |0.5686|±  |0.0493|
+|  - global_mmlu_hi_medical                                     |    0.0|none  |     0|acc         |↑  |0.5556|±  |0.0840|
+|  - global_mmlu_hi_other                                       |    0.0|none  |     0|acc         |↑  |0.5179|±  |0.0674|
+|  - global_mmlu_hi_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.4804|±  |0.0497|
+|  - global_mmlu_hi_stem                                        |    0.0|none  |     0|acc         |↑  |0.3913|±  |0.0728|
+| - global_mmlu_id                                              |    0.0|none  |      |acc         |↑  |0.5650|±  |0.0248|
+|  - global_mmlu_id_business                                    |    0.0|none  |     0|acc         |↑  |0.5690|±  |0.0656|
+|  - global_mmlu_id_humanities                                  |    0.0|none  |     0|acc         |↑  |0.5882|±  |0.0490|
+|  - global_mmlu_id_medical                                     |    0.0|none  |     0|acc         |↑  |0.4722|±  |0.0844|
+|  - global_mmlu_id_other                                       |    0.0|none  |     0|acc         |↑  |0.6429|±  |0.0646|
+|  - global_mmlu_id_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.5784|±  |0.0491|
+|  - global_mmlu_id_stem                                        |    0.0|none  |     0|acc         |↑  |0.4565|±  |0.0743|
+| - global_mmlu_it                                              |    0.0|none  |      |acc         |↑  |0.5900|±  |0.0242|
+|  - global_mmlu_it_business                                    |    0.0|none  |     0|acc         |↑  |0.6379|±  |0.0637|
+|  - global_mmlu_it_humanities                                  |    0.0|none  |     0|acc         |↑  |0.6275|±  |0.0481|
+|  - global_mmlu_it_medical                                     |    0.0|none  |     0|acc         |↑  |0.5000|±  |0.0845|
+|  - global_mmlu_it_other                                       |    0.0|none  |     0|acc         |↑  |0.6964|±  |0.0620|
+|  - global_mmlu_it_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.6176|±  |0.0484|
+|  - global_mmlu_it_stem                                        |    0.0|none  |     0|acc         |↑  |0.3261|±  |0.0699|
+| - global_mmlu_ja                                              |    0.0|none  |      |acc         |↑  |0.5575|±  |0.0245|
+|  - global_mmlu_ja_business                                    |    0.0|none  |     0|acc         |↑  |0.6207|±  |0.0643|
+|  - global_mmlu_ja_humanities                                  |    0.0|none  |     0|acc         |↑  |0.6078|±  |0.0486|
+|  - global_mmlu_ja_medical                                     |    0.0|none  |     0|acc         |↑  |0.5278|±  |0.0844|
+|  - global_mmlu_ja_other                                       |    0.0|none  |     0|acc         |↑  |0.6250|±  |0.0653|
+|  - global_mmlu_ja_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.5588|±  |0.0494|
+|  - global_mmlu_ja_stem                                        |    0.0|none  |     0|acc         |↑  |0.3043|±  |0.0686|
+| - global_mmlu_ko                                              |    0.0|none  |      |acc         |↑  |0.4975|±  |0.0247|
+|  - global_mmlu_ko_business                                    |    0.0|none  |     0|acc         |↑  |0.5690|±  |0.0656|
+|  - global_mmlu_ko_humanities                                  |    0.0|none  |     0|acc         |↑  |0.5392|±  |0.0496|
+|  - global_mmlu_ko_medical                                     |    0.0|none  |     0|acc         |↑  |0.5278|±  |0.0844|
+|  - global_mmlu_ko_other                                       |    0.0|none  |     0|acc         |↑  |0.6071|±  |0.0659|
+|  - global_mmlu_ko_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.4412|±  |0.0494|
+|  - global_mmlu_ko_stem                                        |    0.0|none  |     0|acc         |↑  |0.2826|±  |0.0671|
+| - global_mmlu_pt                                              |    0.0|none  |      |acc         |↑  |0.5825|±  |0.0244|
+|  - global_mmlu_pt_business                                    |    0.0|none  |     0|acc         |↑  |0.5690|±  |0.0656|
+|  - global_mmlu_pt_humanities                                  |    0.0|none  |     0|acc         |↑  |0.5980|±  |0.0488|
+|  - global_mmlu_pt_medical                                     |    0.0|none  |     0|acc         |↑  |0.5833|±  |0.0833|
+|  - global_mmlu_pt_other                                       |    0.0|none  |     0|acc         |↑  |0.7143|±  |0.0609|
+|  - global_mmlu_pt_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.5980|±  |0.0488|
+|  - global_mmlu_pt_stem                                        |    0.0|none  |     0|acc         |↑  |0.3696|±  |0.0720|
+| - global_mmlu_sw                                              |    0.0|none  |      |acc         |↑  |0.4500|±  |0.0247|
+|  - global_mmlu_sw_business                                    |    0.0|none  |     0|acc         |↑  |0.3966|±  |0.0648|
+|  - global_mmlu_sw_humanities                                  |    0.0|none  |     0|acc         |↑  |0.5490|±  |0.0495|
+|  - global_mmlu_sw_medical                                     |    0.0|none  |     0|acc         |↑  |0.4444|±  |0.0840|
+|  - global_mmlu_sw_other                                       |    0.0|none  |     0|acc         |↑  |0.5357|±  |0.0672|
+|  - global_mmlu_sw_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.3725|±  |0.0481|
+|  - global_mmlu_sw_stem                                        |    0.0|none  |     0|acc         |↑  |0.3696|±  |0.0720|
+| - global_mmlu_yo                                              |    0.0|none  |      |acc         |↑  |0.3500|±  |0.0238|
+|  - global_mmlu_yo_business                                    |    0.0|none  |     0|acc         |↑  |0.2759|±  |0.0592|
+|  - global_mmlu_yo_humanities                                  |    0.0|none  |     0|acc         |↑  |0.3922|±  |0.0486|
+|  - global_mmlu_yo_medical                                     |    0.0|none  |     0|acc         |↑  |0.3333|±  |0.0797|
+|  - global_mmlu_yo_other                                       |    0.0|none  |     0|acc         |↑  |0.4464|±  |0.0670|
+|  - global_mmlu_yo_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.3529|±  |0.0476|
+|  - global_mmlu_yo_stem                                        |    0.0|none  |     0|acc         |↑  |0.2391|±  |0.0636|
+| - global_mmlu_zh                                              |    0.0|none  |      |acc         |↑  |0.5625|±  |0.0246|
+|  - global_mmlu_zh_business                                    |    0.0|none  |     0|acc         |↑  |0.5172|±  |0.0662|
+|  - global_mmlu_zh_humanities                                  |    0.0|none  |     0|acc         |↑  |0.5980|±  |0.0488|
+|  - global_mmlu_zh_medical                                     |    0.0|none  |     0|acc         |↑  |0.5000|±  |0.0845|
+|  - global_mmlu_zh_other                                       |    0.0|none  |     0|acc         |↑  |0.7321|±  |0.0597|
+|  - global_mmlu_zh_social_sciences                             |    0.0|none  |     0|acc         |↑  |0.5490|±  |0.0495|
+|  - global_mmlu_zh_stem                                        |    0.0|none  |     0|acc         |↑  |0.4130|±  |0.0734|
+|global_mmlu_full_el                                            |    0.0|none  |      |acc         |↑  |0.5155|±  |0.0040|
+| - global_mmlu_full_el_humanities                              |    0.0|none  |      |acc         |↑  |0.4748|±  |0.0069|
+|  - global_mmlu_full_el_formal_logic                           |    0.0|none  |     0|acc         |↑  |0.2698|±  |0.0397|
+|  - global_mmlu_full_el_high_school_european_history           |    0.0|none  |     0|acc         |↑  |0.7273|±  |0.0348|
+|  - global_mmlu_full_el_high_school_us_history                 |    0.0|none  |     0|acc         |↑  |0.7304|±  |0.0311|
+|  - global_mmlu_full_el_high_school_world_history              |    0.0|none  |     0|acc         |↑  |0.7384|±  |0.0286|
+|  - global_mmlu_full_el_international_law                      |    0.0|none  |     0|acc         |↑  |0.6446|±  |0.0437|
+|  - global_mmlu_full_el_jurisprudence                          |    0.0|none  |     0|acc         |↑  |0.5833|±  |0.0477|
+|  - global_mmlu_full_el_logical_fallacies                      |    0.0|none  |     0|acc         |↑  |0.5215|±  |0.0392|
+|  - global_mmlu_full_el_moral_disputes                         |    0.0|none  |     0|acc         |↑  |0.5462|±  |0.0268|
+|  - global_mmlu_full_el_moral_scenarios                        |    0.0|none  |     0|acc         |↑  |0.2525|±  |0.0145|
+|  - global_mmlu_full_el_philosophy                             |    0.0|none  |     0|acc         |↑  |0.6077|±  |0.0277|
+|  - global_mmlu_full_el_prehistory                             |    0.0|none  |     0|acc         |↑  |0.6327|±  |0.0268|
+|  - global_mmlu_full_el_professional_law                       |    0.0|none  |     0|acc         |↑  |0.3924|±  |0.0125|
+|  - global_mmlu_full_el_world_religions                        |    0.0|none  |     0|acc         |↑  |0.6959|±  |0.0353|
+| - global_mmlu_full_el_other                                   |    0.0|none  |      |acc         |↑  |0.5797|±  |0.0087|
+|  - global_mmlu_full_el_business_ethics                        |    0.0|none  |     0|acc         |↑  |0.5400|±  |0.0501|
+|  - global_mmlu_full_el_clinical_knowledge                     |    0.0|none  |     0|acc         |↑  |0.5774|±  |0.0304|
+|  - global_mmlu_full_el_college_medicine                       |    0.0|none  |     0|acc         |↑  |0.4798|±  |0.0381|
+|  - global_mmlu_full_el_global_facts                           |    0.0|none  |     0|acc         |↑  |0.3800|±  |0.0488|
+|  - global_mmlu_full_el_human_aging                            |    0.0|none  |     0|acc         |↑  |0.5695|±  |0.0332|
+|  - global_mmlu_full_el_management                             |    0.0|none  |     0|acc         |↑  |0.6117|±  |0.0483|
+|  - global_mmlu_full_el_marketing                              |    0.0|none  |     0|acc         |↑  |0.6923|±  |0.0302|
+|  - global_mmlu_full_el_medical_genetics                       |    0.0|none  |     0|acc         |↑  |0.5900|±  |0.0494|
+|  - global_mmlu_full_el_miscellaneous                          |    0.0|none  |     0|acc         |↑  |0.6884|±  |0.0166|
+|  - global_mmlu_full_el_nutrition                              |    0.0|none  |     0|acc         |↑  |0.5719|±  |0.0283|
+|  - global_mmlu_full_el_professional_accounting                |    0.0|none  |     0|acc         |↑  |0.3936|±  |0.0291|
+|  - global_mmlu_full_el_professional_medicine                  |    0.0|none  |     0|acc         |↑  |0.5699|±  |0.0301|
+|  - global_mmlu_full_el_virology                               |    0.0|none  |     0|acc         |↑  |0.4940|±  |0.0389|
+| - global_mmlu_full_el_social_sciences                         |    0.0|none  |      |acc         |↑  |0.5951|±  |0.0087|
+|  - global_mmlu_full_el_econometrics                           |    0.0|none  |     0|acc         |↑  |0.3860|±  |0.0458|
+|  - global_mmlu_full_el_high_school_geography                  |    0.0|none  |     0|acc         |↑  |0.6616|±  |0.0337|
+|  - global_mmlu_full_el_high_school_government_and_politics    |    0.0|none  |     0|acc         |↑  |0.6477|±  |0.0345|
+|  - global_mmlu_full_el_high_school_macroeconomics             |    0.0|none  |     0|acc         |↑  |0.5154|±  |0.0253|
+|  - global_mmlu_full_el_high_school_microeconomics             |    0.0|none  |     0|acc         |↑  |0.5546|±  |0.0323|
+|  - global_mmlu_full_el_high_school_psychology                 |    0.0|none  |     0|acc         |↑  |0.6550|±  |0.0204|
+|  - global_mmlu_full_el_human_sexuality                        |    0.0|none  |     0|acc         |↑  |0.6641|±  |0.0414|
+|  - global_mmlu_full_el_professional_psychology                |    0.0|none  |     0|acc         |↑  |0.5212|±  |0.0202|
+|  - global_mmlu_full_el_public_relations                       |    0.0|none  |     0|acc         |↑  |0.5455|±  |0.0477|
+|  - global_mmlu_full_el_security_studies                       |    0.0|none  |     0|acc         |↑  |0.6245|±  |0.0310|
+|  - global_mmlu_full_el_sociology                              |    0.0|none  |     0|acc         |↑  |0.7413|±  |0.0310|
+|  - global_mmlu_full_el_us_foreign_policy                      |    0.0|none  |     0|acc         |↑  |0.7300|±  |0.0446|
+| - global_mmlu_full_el_stem                                    |    0.0|none  |      |acc         |↑  |0.4355|±  |0.0086|
+|  - global_mmlu_full_el_abstract_algebra                       |    0.0|none  |     0|acc         |↑  |0.3200|±  |0.0469|
+|  - global_mmlu_full_el_anatomy                                |    0.0|none  |     0|acc         |↑  |0.5481|±  |0.0430|
+|  - global_mmlu_full_el_astronomy                              |    0.0|none  |     0|acc         |↑  |0.6711|±  |0.0382|
+|  - global_mmlu_full_el_college_biology                        |    0.0|none  |     0|acc         |↑  |0.5000|±  |0.0418|
+|  - global_mmlu_full_el_college_chemistry                      |    0.0|none  |     0|acc         |↑  |0.3300|±  |0.0473|
+|  - global_mmlu_full_el_college_computer_science               |    0.0|none  |     0|acc         |↑  |0.3600|±  |0.0482|
+|  - global_mmlu_full_el_college_mathematics                    |    0.0|none  |     0|acc         |↑  |0.3200|±  |0.0469|
+|  - global_mmlu_full_el_college_physics                        |    0.0|none  |     0|acc         |↑  |0.3529|±  |0.0476|
+|  - global_mmlu_full_el_computer_security                      |    0.0|none  |     0|acc         |↑  |0.6700|±  |0.0473|
+|  - global_mmlu_full_el_conceptual_physics                     |    0.0|none  |     0|acc         |↑  |0.4468|±  |0.0325|
+|  - global_mmlu_full_el_electrical_engineering                 |    0.0|none  |     0|acc         |↑  |0.4966|±  |0.0417|
+|  - global_mmlu_full_el_elementary_mathematics                 |    0.0|none  |     0|acc         |↑  |0.2937|±  |0.0235|
+|  - global_mmlu_full_el_high_school_biology                    |    0.0|none  |     0|acc         |↑  |0.6258|±  |0.0275|
+|  - global_mmlu_full_el_high_school_chemistry                  |    0.0|none  |     0|acc         |↑  |0.4778|±  |0.0351|
+|  - global_mmlu_full_el_high_school_computer_science           |    0.0|none  |     0|acc         |↑  |0.5200|±  |0.0502|
+|  - global_mmlu_full_el_high_school_mathematics                |    0.0|none  |     0|acc         |↑  |0.3111|±  |0.0282|
+|  - global_mmlu_full_el_high_school_physics                    |    0.0|none  |     0|acc         |↑  |0.3179|±  |0.0380|
+|  - global_mmlu_full_el_high_school_statistics                 |    0.0|none  |     0|acc         |↑  |0.4074|±  |0.0335|
+|  - global_mmlu_full_el_machine_learning                       |    0.0|none  |     0|acc         |↑  |0.3393|±  |0.0449|
+|global_piqa_completions_ell_grek                               |    1.0|none  |     0|acc         |↑  |0.5800|±  |0.0496|
+|                                                               |       |none  |     0|acc_bytes   |↑  |0.6200|±  |0.0488|
+|                                                               |       |none  |     0|acc_norm    |↑  |0.6200|±  |0.0488|
+|hellaswag                                                      |    1.0|none  |     0|acc         |↑  |0.5963|±  |0.0049|
+|                                                               |       |none  |     0|acc_norm    |↑  |0.7884|±  |0.0041|
+|                                                               |       |none  |     0|degeneration|↓  |0.0000|±  |0.0000|
+|include_base_44_greek_few_shot_en                              |    0.1|none  |      |acc         |↑  |0.5054|±  |0.0208|
+| - include_base_44_greek_few_shot_en_arts_humanities           |    0.0|none  |     0|acc         |↑  |0.6757|±  |0.0780|
+| - include_base_44_greek_few_shot_en_business_commerce         |    0.0|none  |     0|acc         |↑  |0.7302|±  |0.0564|
+| - include_base_44_greek_few_shot_en_health_oriented_education |    0.0|none  |     0|acc         |↑  |0.4400|±  |0.1013|
+| - include_base_44_greek_few_shot_en_medical_license           |    0.0|none  |     0|acc         |↑  |0.5522|±  |0.0431|
+| - include_base_44_greek_few_shot_en_professional_certification|    0.0|none  |     0|acc         |↑  |0.3433|±  |0.0412|
+| - include_base_44_greek_few_shot_en_social_science            |    0.0|none  |     0|acc         |↑  |0.4701|±  |0.0433|
+| - include_base_44_greek_few_shot_en_stem                      |    0.0|none  |     0|acc         |↑  |0.5600|±  |0.1013|
+|mmlu                                                           |    2.0|none  |      |acc         |↑  |0.5923|±  |0.0039|
+| - humanities                                                  |    2.0|none  |      |acc         |↑  |0.5362|±  |0.0067|
+|  - formal_logic                                               |    1.0|none  |     0|acc         |↑  |0.4127|±  |0.0440|
+|  - high_school_european_history                               |    1.0|none  |     0|acc         |↑  |0.8000|±  |0.0312|
+|  - high_school_us_history                                     |    1.0|none  |     0|acc         |↑  |0.7892|±  |0.0286|
+|  - high_school_world_history                                  |    1.0|none  |     0|acc         |↑  |0.8017|±  |0.0260|
+|  - international_law                                          |    1.0|none  |     0|acc         |↑  |0.7190|±  |0.0410|
+|  - jurisprudence                                              |    1.0|none  |     0|acc         |↑  |0.7407|±  |0.0424|
+|  - logical_fallacies                                          |    1.0|none  |     0|acc         |↑  |0.7301|±  |0.0349|
+|  - moral_disputes                                             |    1.0|none  |     0|acc         |↑  |0.6850|±  |0.0250|
+|  - moral_scenarios                                            |    1.0|none  |     0|acc         |↑  |0.2380|±  |0.0142|
+|  - philosophy                                                 |    1.0|none  |     0|acc         |↑  |0.6849|±  |0.0264|
+|  - prehistory                                                 |    1.0|none  |     0|acc         |↑  |0.7006|±  |0.0255|
+|  - professional_law                                           |    1.0|none  |     0|acc         |↑  |0.4374|±  |0.0127|
+|  - world_religions                                            |    1.0|none  |     0|acc         |↑  |0.8246|±  |0.0292|
+| - other                                                       |    2.0|none  |      |acc         |↑  |0.6714|±  |0.0081|
+|  - business_ethics                                            |    1.0|none  |     0|acc         |↑  |0.6100|±  |0.0490|
+|  - clinical_knowledge                                         |    1.0|none  |     0|acc         |↑  |0.6868|±  |0.0285|
+|  - college_medicine                                           |    1.0|none  |     0|acc         |↑  |0.5780|±  |0.0377|
+|  - global_facts                                               |    1.0|none  |     0|acc         |↑  |0.4100|±  |0.0494|
+|  - human_aging                                                |    1.0|none  |     0|acc         |↑  |0.6682|±  |0.0316|
+|  - management                                                 |    1.0|none  |     0|acc         |↑  |0.7282|±  |0.0441|
+|  - marketing                                                  |    1.0|none  |     0|acc         |↑  |0.8547|±  |0.0231|
+|  - medical_genetics                                           |    1.0|none  |     0|acc         |↑  |0.6300|±  |0.0485|
+|  - miscellaneous                                              |    1.0|none  |     0|acc         |↑  |0.8059|±  |0.0141|
+|  - nutrition                                                  |    1.0|none  |     0|acc         |↑  |0.6895|±  |0.0265|
+|  - professional_accounting                                    |    1.0|none  |     0|acc         |↑  |0.4504|±  |0.0297|
+|  - professional_medicine                                      |    1.0|none  |     0|acc         |↑  |0.6324|±  |0.0293|
+|  - virology                                                   |    1.0|none  |     0|acc         |↑  |0.4458|±  |0.0387|
+| - social sciences                                             |    2.0|none  |      |acc         |↑  |0.7026|±  |0.0080|
+|  - econometrics                                               |    1.0|none  |     0|acc         |↑  |0.4123|±  |0.0463|
+|  - high_school_geography                                      |    1.0|none  |     0|acc         |↑  |0.7677|±  |0.0301|
+|  - high_school_government_and_politics                        |    1.0|none  |     0|acc         |↑  |0.8549|±  |0.0254|
+|  - high_school_macroeconomics                                 |    1.0|none  |     0|acc         |↑  |0.5795|±  |0.0250|
+|  - high_school_microeconomics                                 |    1.0|none  |     0|acc         |↑  |0.6597|±  |0.0308|
+|  - high_school_psychology                                     |    1.0|none  |     0|acc         |↑  |0.7982|±  |0.0172|
+|  - human_sexuality                                            |    1.0|none  |     0|acc         |↑  |0.7939|±  |0.0355|
+|  - professional_psychology                                    |    1.0|none  |     0|acc         |↑  |0.6405|±  |0.0194|
+|  - public_relations                                           |    1.0|none  |     0|acc         |↑  |0.6636|±  |0.0453|
+|  - security_studies                                           |    1.0|none  |     0|acc         |↑  |0.6735|±  |0.0300|
+|  - sociology                                                  |    1.0|none  |     0|acc         |↑  |0.8010|±  |0.0282|
+|  - us_foreign_policy                                          |    1.0|none  |     0|acc         |↑  |0.8500|±  |0.0359|
+| - stem                                                        |    2.0|none  |      |acc         |↑  |0.4903|±  |0.0085|
+|  - abstract_algebra                                           |    1.0|none  |     0|acc         |↑  |0.3600|±  |0.0482|
+|  - anatomy                                                    |    1.0|none  |     0|acc         |↑  |0.5704|±  |0.0428|
+|  - astronomy                                                  |    1.0|none  |     0|acc         |↑  |0.6842|±  |0.0378|
+|  - college_biology                                            |    1.0|none  |     0|acc         |↑  |0.6944|±  |0.0385|
+|  - college_chemistry                                          |    1.0|none  |     0|acc         |↑  |0.3400|±  |0.0476|
+|  - college_computer_science                                   |    1.0|none  |     0|acc         |↑  |0.3800|±  |0.0488|
+|  - college_mathematics                                        |    1.0|none  |     0|acc         |↑  |0.3600|±  |0.0482|
+|  - college_physics                                            |    1.0|none  |     0|acc         |↑  |0.3824|±  |0.0484|
+|  - computer_security                                          |    1.0|none  |     0|acc         |↑  |0.7300|±  |0.0446|
+|  - conceptual_physics                                         |    1.0|none  |     0|acc         |↑  |0.5574|±  |0.0325|
+|  - electrical_engineering                                     |    1.0|none  |     0|acc         |↑  |0.6138|±  |0.0406|
+|  - elementary_mathematics                                     |    1.0|none  |     0|acc         |↑  |0.3333|±  |0.0243|
+|  - high_school_biology                                        |    1.0|none  |     0|acc         |↑  |0.7226|±  |0.0255|
+|  - high_school_chemistry                                      |    1.0|none  |     0|acc         |↑  |0.4926|±  |0.0352|
+|  - high_school_computer_science                               |    1.0|none  |     0|acc         |↑  |0.5700|±  |0.0498|
+|  - high_school_mathematics                                    |    1.0|none  |     0|acc         |↑  |0.3148|±  |0.0283|
+|  - high_school_physics                                        |    1.0|none  |     0|acc         |↑  |0.3907|±  |0.0398|
+|  - high_school_statistics                                     |    1.0|none  |     0|acc         |↑  |0.4259|±  |0.0337|
+|  - machine_learning                                           |    1.0|none  |     0|acc         |↑  |0.4107|±  |0.0467|
+|piqa                                                           |    1.0|none  |     0|acc         |↑  |0.7949|±  |0.0094|
+|                                                               |       |none  |     0|acc_norm    |↑  |0.7992|±  |0.0093|
+|winogrande                                                     |    1.0|none  |     0|acc         |↑  |0.6930|±  |0.0130|
+|xcopa                                                          |    1.0|none  |      |acc         |↑  |0.6575|±  |0.0063|
+| - xcopa_et                                                    |    1.0|none  |     0|acc         |↑  |0.6720|±  |0.0210|
+| - xcopa_ht                                                    |    1.0|none  |     0|acc         |↑  |0.5740|±  |0.0221|
+| - xcopa_id                                                    |    1.0|none  |     0|acc         |↑  |0.7540|±  |0.0193|
+| - xcopa_it                                                    |    1.0|none  |     0|acc         |↑  |0.7560|±  |0.0192|
+| - xcopa_qu                                                    |    1.0|none  |     0|acc         |↑  |0.4960|±  |0.0224|
+| - xcopa_sw                                                    |    1.0|none  |     0|acc         |↑  |0.5980|±  |0.0219|
+| - xcopa_ta                                                    |    1.0|none  |     0|acc         |↑  |0.6220|±  |0.0217|
+| - xcopa_th                                                    |    1.0|none  |     0|acc         |↑  |0.6100|±  |0.0218|
+| - xcopa_tr                                                    |    1.0|none  |     0|acc         |↑  |0.6900|±  |0.0207|
+| - xcopa_vi                                                    |    1.0|none  |     0|acc         |↑  |0.7340|±  |0.0198|
+| - xcopa_zh                                                    |    1.0|none  |     0|acc         |↑  |0.7260|±  |0.0200|
+|xnli                                                           |    1.0|none  |      |acc         |↑  |0.4400|±  |0.0026|
+| - xnli_ar                                                     |    1.0|none  |     0|acc         |↑  |0.3462|±  |0.0095|
+| - xnli_bg                                                     |    1.0|none  |     0|acc         |↑  |0.4337|±  |0.0099|
+| - xnli_de                                                     |    1.0|none  |     0|acc         |↑  |0.4835|±  |0.0100|
+|xnli_el                                                        |    1.0|none  |     0|acc         |↑  |0.3984|±  |0.0098|
+| - xnli_en                                                     |    1.0|none  |     0|acc         |↑  |0.5129|±  |0.0100|
+| - xnli_es                                                     |    1.0|none  |     0|acc         |↑  |0.4896|±  |0.0100|
+| - xnli_fr                                                     |    1.0|none  |     0|acc         |↑  |0.4835|±  |0.0100|
+| - xnli_hi                                                     |    1.0|none  |     0|acc         |↑  |0.4618|±  |0.0100|
+| - xnli_ru                                                     |    1.0|none  |     0|acc         |↑  |0.4859|±  |0.0100|
+| - xnli_sw                                                     |    1.0|none  |     0|acc         |↑  |0.3912|±  |0.0098|
+| - xnli_th                                                     |    1.0|none  |     0|acc         |↑  |0.4522|±  |0.0100|
+| - xnli_tr                                                     |    1.0|none  |     0|acc         |↑  |0.4614|±  |0.0100|
+| - xnli_ur                                                     |    1.0|none  |     0|acc         |↑  |0.4120|±  |0.0099|
+| - xnli_vi                                                     |    1.0|none  |     0|acc         |↑  |0.4353|±  |0.0099|
+| - xnli_zh                                                     |    1.0|none  |     0|acc         |↑  |0.3526|±  |0.0096|
+|xquad_el                                                       |    1.0|none  |     0|exact_match |↑  |0.2874|±  |0.0131|
+|                                                               |       |none  |     0|f1          |↑  |0.5172|±  |0.0117|
+
+|                Groups                |Version|Filter|n-shot|Metric|   |Value |   |Stderr|
+|--------------------------------------|------:|------|------|------|---|-----:|---|-----:|
+|global_mmlu                           |    1.0|none  |      |acc   |↑  |0.5246|±  |0.0063|
+| - global_mmlu_ar                     |    0.0|none  |      |acc   |↑  |0.5250|±  |0.0249|
+| - global_mmlu_bn                     |    0.0|none  |      |acc   |↑  |0.4775|±  |0.0249|
+| - global_mmlu_de                     |    0.0|none  |      |acc   |↑  |0.5950|±  |0.0244|
+| - global_mmlu_en                     |    0.0|none  |      |acc   |↑  |0.6250|±  |0.0239|
+| - global_mmlu_es                     |    0.0|none  |      |acc   |↑  |0.5900|±  |0.0244|
+| - global_mmlu_fr                     |    0.0|none  |      |acc   |↑  |0.5950|±  |0.0243|
+| - global_mmlu_hi                     |    0.0|none  |      |acc   |↑  |0.5000|±  |0.0250|
+| - global_mmlu_id                     |    0.0|none  |      |acc   |↑  |0.5650|±  |0.0248|
+| - global_mmlu_it                     |    0.0|none  |      |acc   |↑  |0.5900|±  |0.0242|
+| - global_mmlu_ja                     |    0.0|none  |      |acc   |↑  |0.5575|±  |0.0245|
+| - global_mmlu_ko                     |    0.0|none  |      |acc   |↑  |0.4975|±  |0.0247|
+| - global_mmlu_pt                     |    0.0|none  |      |acc   |↑  |0.5825|±  |0.0244|
+| - global_mmlu_sw                     |    0.0|none  |      |acc   |↑  |0.4500|±  |0.0247|
+| - global_mmlu_yo                     |    0.0|none  |      |acc   |↑  |0.3500|±  |0.0238|
+| - global_mmlu_zh                     |    0.0|none  |      |acc   |↑  |0.5625|±  |0.0246|
+|global_mmlu_full_el                   |    0.0|none  |      |acc   |↑  |0.5155|±  |0.0040|
+| - global_mmlu_full_el_humanities     |    0.0|none  |      |acc   |↑  |0.4748|±  |0.0069|
+| - global_mmlu_full_el_other          |    0.0|none  |      |acc   |↑  |0.5797|±  |0.0087|
+| - global_mmlu_full_el_social_sciences|    0.0|none  |      |acc   |↑  |0.5951|±  |0.0087|
+| - global_mmlu_full_el_stem           |    0.0|none  |      |acc   |↑  |0.4355|±  |0.0086|
+|include_base_44_greek_few_shot_en     |    0.1|none  |      |acc   |↑  |0.5054|±  |0.0208|
+|mmlu                                  |    2.0|none  |      |acc   |↑  |0.5923|±  |0.0039|
+| - humanities                         |    2.0|none  |      |acc   |↑  |0.5362|±  |0.0067|
+| - other                              |    2.0|none  |      |acc   |↑  |0.6714|±  |0.0081|
+| - social sciences                    |    2.0|none  |      |acc   |↑  |0.7026|±  |0.0080|
+| - stem                               |    2.0|none  |      |acc   |↑  |0.4903|±  |0.0085|
+|xcopa                                 |    1.0|none  |      |acc   |↑  |0.6575|±  |0.0063|
+|xnli                                  |    1.0|none  |      |acc   |↑  |0.4400|±  |0.0026|
+
+updated run_metadata.json with end_time
+
+=== eval complete ===
+Thu May 21 13:27:09 UTC 2026
+total 49051
+drwxr-x---+  2 fffoivos a0140    36864 May 21 15:27 .
+drwxr-x---+ 11 fffoivos a0140     4096 May 21 14:26 ..
+-rw-r-----+  1 fffoivos a0140   581093 May 21 15:26 results_2026-05-21T15-26-59.255065.json
+-rw-r-----+  1 fffoivos a0140      701 May 21 15:27 run_metadata.json
+-rw-r-----+  1 fffoivos a0140  2179713 May 21 15:26 samples_arc_challenge_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  3332098 May 21 15:26 samples_arc_challenge_mt_el_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  4086039 May 21 15:26 samples_arc_easy_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  7577072 May 21 15:26 samples_belebele_ell_Grek_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   206819 May 21 15:26 samples_global_mmlu_ar_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   710137 May 21 15:26 samples_global_mmlu_ar_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   117218 May 21 15:26 samples_global_mmlu_ar_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   162777 May 21 15:26 samples_global_mmlu_ar_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   419336 May 21 15:26 samples_global_mmlu_ar_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   163643 May 21 15:26 samples_global_mmlu_ar_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   294040 May 21 15:26 samples_global_mmlu_bn_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1107121 May 21 15:26 samples_global_mmlu_bn_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   164370 May 21 15:26 samples_global_mmlu_bn_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   223973 May 21 15:26 samples_global_mmlu_bn_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   605340 May 21 15:26 samples_global_mmlu_bn_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   220620 May 21 15:26 samples_global_mmlu_bn_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   180173 May 21 15:26 samples_global_mmlu_de_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   590780 May 21 15:26 samples_global_mmlu_de_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   101437 May 21 15:26 samples_global_mmlu_de_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   142044 May 21 15:26 samples_global_mmlu_de_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   361239 May 21 15:26 samples_global_mmlu_de_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   142256 May 21 15:26 samples_global_mmlu_de_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   163442 May 21 15:26 samples_global_mmlu_en_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   525007 May 21 15:26 samples_global_mmlu_en_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140    91461 May 21 15:26 samples_global_mmlu_en_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   133536 May 21 15:26 samples_global_mmlu_en_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   322819 May 21 15:26 samples_global_mmlu_en_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   132897 May 21 15:26 samples_global_mmlu_en_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   176694 May 21 15:26 samples_global_mmlu_es_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   563825 May 21 15:26 samples_global_mmlu_es_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140    99669 May 21 15:26 samples_global_mmlu_es_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   142952 May 21 15:26 samples_global_mmlu_es_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   353327 May 21 15:26 samples_global_mmlu_es_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   141141 May 21 15:26 samples_global_mmlu_es_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   184448 May 21 15:26 samples_global_mmlu_fr_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   591981 May 21 15:26 samples_global_mmlu_fr_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   103794 May 21 15:26 samples_global_mmlu_fr_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   146571 May 21 15:26 samples_global_mmlu_fr_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   365746 May 21 15:26 samples_global_mmlu_fr_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   144440 May 21 15:26 samples_global_mmlu_fr_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   280231 May 21 15:26 samples_global_mmlu_full_el_abstract_algebra_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   452217 May 21 15:26 samples_global_mmlu_full_el_anatomy_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   617652 May 21 15:26 samples_global_mmlu_full_el_astronomy_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   430945 May 21 15:26 samples_global_mmlu_full_el_business_ethics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   888456 May 21 15:26 samples_global_mmlu_full_el_clinical_knowledge_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   634003 May 21 15:26 samples_global_mmlu_full_el_college_biology_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   322157 May 21 15:26 samples_global_mmlu_full_el_college_chemistry_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   535223 May 21 15:26 samples_global_mmlu_full_el_college_computer_science_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   327994 May 21 15:26 samples_global_mmlu_full_el_college_mathematics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   993964 May 21 15:26 samples_global_mmlu_full_el_college_medicine_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   388461 May 21 15:26 samples_global_mmlu_full_el_college_physics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   383063 May 21 15:26 samples_global_mmlu_full_el_computer_security_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   635759 May 21 15:26 samples_global_mmlu_full_el_conceptual_physics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   563955 May 21 15:26 samples_global_mmlu_full_el_econometrics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   390957 May 21 15:26 samples_global_mmlu_full_el_electrical_engineering_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1024361 May 21 15:26 samples_global_mmlu_full_el_elementary_mathematics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   599648 May 21 15:26 samples_global_mmlu_full_el_formal_logic_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   286739 May 21 15:26 samples_global_mmlu_full_el_global_facts_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1404302 May 21 15:26 samples_global_mmlu_full_el_high_school_biology_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   738515 May 21 15:26 samples_global_mmlu_full_el_high_school_chemistry_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   550626 May 21 15:26 samples_global_mmlu_full_el_high_school_computer_science_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  2756649 May 21 15:26 samples_global_mmlu_full_el_high_school_european_history_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   627864 May 21 15:26 samples_global_mmlu_full_el_high_school_geography_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   896007 May 21 15:26 samples_global_mmlu_full_el_high_school_government_and_politics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1586872 May 21 15:26 samples_global_mmlu_full_el_high_school_macroeconomics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   755334 May 21 15:26 samples_global_mmlu_full_el_high_school_mathematics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1019693 May 21 15:26 samples_global_mmlu_full_el_high_school_microeconomics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   716083 May 21 15:26 samples_global_mmlu_full_el_high_school_physics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  2135612 May 21 15:26 samples_global_mmlu_full_el_high_school_psychology_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1293685 May 21 15:26 samples_global_mmlu_full_el_high_school_statistics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  3013386 May 21 15:26 samples_global_mmlu_full_el_high_school_us_history_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  3853328 May 21 15:26 samples_global_mmlu_full_el_high_school_world_history_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   692032 May 21 15:26 samples_global_mmlu_full_el_human_aging_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   449638 May 21 15:26 samples_global_mmlu_full_el_human_sexuality_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   654234 May 21 15:26 samples_global_mmlu_full_el_international_law_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   454269 May 21 15:26 samples_global_mmlu_full_el_jurisprudence_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   667126 May 21 15:26 samples_global_mmlu_full_el_logical_fallacies_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   444128 May 21 15:26 samples_global_mmlu_full_el_machine_learning_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   308276 May 21 15:26 samples_global_mmlu_full_el_management_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   866355 May 21 15:26 samples_global_mmlu_full_el_marketing_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   305171 May 21 15:26 samples_global_mmlu_full_el_medical_genetics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  2223498 May 21 15:26 samples_global_mmlu_full_el_miscellaneous_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1433663 May 21 15:26 samples_global_mmlu_full_el_moral_disputes_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  4296236 May 21 15:27 samples_global_mmlu_full_el_moral_scenarios_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1242343 May 21 15:27 samples_global_mmlu_full_el_nutrition_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1104164 May 21 15:27 samples_global_mmlu_full_el_philosophy_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1198902 May 21 15:27 samples_global_mmlu_full_el_prehistory_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1525287 May 21 15:27 samples_global_mmlu_full_el_professional_accounting_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140 20180968 May 21 15:27 samples_global_mmlu_full_el_professional_law_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  2364225 May 21 15:27 samples_global_mmlu_full_el_professional_medicine_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  2871015 May 21 15:27 samples_global_mmlu_full_el_professional_psychology_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   403374 May 21 15:27 samples_global_mmlu_full_el_public_relations_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  2352925 May 21 15:27 samples_global_mmlu_full_el_security_studies_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   879408 May 21 15:27 samples_global_mmlu_full_el_sociology_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   398686 May 21 15:27 samples_global_mmlu_full_el_us_foreign_policy_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   551471 May 21 15:27 samples_global_mmlu_full_el_virology_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   416983 May 21 15:27 samples_global_mmlu_full_el_world_religions_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   288228 May 21 15:27 samples_global_mmlu_hi_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1093513 May 21 15:27 samples_global_mmlu_hi_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   158884 May 21 15:27 samples_global_mmlu_hi_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   217890 May 21 15:27 samples_global_mmlu_hi_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   597949 May 21 15:27 samples_global_mmlu_hi_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   218345 May 21 15:27 samples_global_mmlu_hi_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   170544 May 21 15:27 samples_global_mmlu_id_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   540518 May 21 15:27 samples_global_mmlu_id_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140    94283 May 21 15:27 samples_global_mmlu_id_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   138362 May 21 15:27 samples_global_mmlu_id_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   334107 May 21 15:27 samples_global_mmlu_id_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   134188 May 21 15:27 samples_global_mmlu_id_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   180428 May 21 15:27 samples_global_mmlu_it_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   566107 May 21 15:27 samples_global_mmlu_it_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   100160 May 21 15:27 samples_global_mmlu_it_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   142124 May 21 15:27 samples_global_mmlu_it_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   355522 May 21 15:27 samples_global_mmlu_it_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   142606 May 21 15:27 samples_global_mmlu_it_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   181603 May 21 15:27 samples_global_mmlu_ja_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   609572 May 21 15:27 samples_global_mmlu_ja_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   100427 May 21 15:27 samples_global_mmlu_ja_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   146921 May 21 15:27 samples_global_mmlu_ja_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   361318 May 21 15:27 samples_global_mmlu_ja_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   142871 May 21 15:27 samples_global_mmlu_ja_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   173095 May 21 15:27 samples_global_mmlu_ko_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   573826 May 21 15:27 samples_global_mmlu_ko_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140    97727 May 21 15:27 samples_global_mmlu_ko_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   143155 May 21 15:27 samples_global_mmlu_ko_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   341253 May 21 15:27 samples_global_mmlu_ko_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   140116 May 21 15:27 samples_global_mmlu_ko_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   173585 May 21 15:27 samples_global_mmlu_pt_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   553273 May 21 15:27 samples_global_mmlu_pt_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140    97013 May 21 15:27 samples_global_mmlu_pt_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   137913 May 21 15:27 samples_global_mmlu_pt_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   343034 May 21 15:27 samples_global_mmlu_pt_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   135595 May 21 15:27 samples_global_mmlu_pt_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   167977 May 21 15:27 samples_global_mmlu_sw_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   523474 May 21 15:27 samples_global_mmlu_sw_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140    95697 May 21 15:27 samples_global_mmlu_sw_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   140562 May 21 15:27 samples_global_mmlu_sw_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   328411 May 21 15:27 samples_global_mmlu_sw_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   135700 May 21 15:27 samples_global_mmlu_sw_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   211625 May 21 15:27 samples_global_mmlu_yo_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   658316 May 21 15:27 samples_global_mmlu_yo_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   110668 May 21 15:27 samples_global_mmlu_yo_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   170918 May 21 15:27 samples_global_mmlu_yo_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   402694 May 21 15:27 samples_global_mmlu_yo_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   155618 May 21 15:27 samples_global_mmlu_yo_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   150150 May 21 15:27 samples_global_mmlu_zh_business_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   487768 May 21 15:27 samples_global_mmlu_zh_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140    83758 May 21 15:27 samples_global_mmlu_zh_medical_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   126950 May 21 15:27 samples_global_mmlu_zh_other_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   292250 May 21 15:27 samples_global_mmlu_zh_social_sciences_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   119677 May 21 15:27 samples_global_mmlu_zh_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   296101 May 21 15:27 samples_global_piqa_completions_ell_grek_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140 43215326 May 21 15:27 samples_hellaswag_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   110356 May 21 15:27 samples_include_base_44_greek_few_shot_en_arts_humanities_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   213877 May 21 15:27 samples_include_base_44_greek_few_shot_en_business_commerce_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140    82405 May 21 15:27 samples_include_base_44_greek_few_shot_en_health_oriented_education_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   457706 May 21 15:27 samples_include_base_44_greek_few_shot_en_medical_license_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1016289 May 21 15:27 samples_include_base_44_greek_few_shot_en_professional_certification_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   572004 May 21 15:27 samples_include_base_44_greek_few_shot_en_social_science_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140    79136 May 21 15:27 samples_include_base_44_greek_few_shot_en_stem_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   210902 May 21 15:27 samples_mmlu_abstract_algebra_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   313819 May 21 15:27 samples_mmlu_anatomy_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   401923 May 21 15:27 samples_mmlu_astronomy_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   279768 May 21 15:27 samples_mmlu_business_ethics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   619085 May 21 15:27 samples_mmlu_clinical_knowledge_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   407754 May 21 15:27 samples_mmlu_college_biology_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   238352 May 21 15:27 samples_mmlu_college_chemistry_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   332069 May 21 15:27 samples_mmlu_college_computer_science_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   239661 May 21 15:27 samples_mmlu_college_mathematics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   610033 May 21 15:27 samples_mmlu_college_medicine_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   266841 May 21 15:27 samples_mmlu_college_physics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   250460 May 21 15:27 samples_mmlu_computer_security_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   474330 May 21 15:27 samples_mmlu_conceptual_physics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   362980 May 21 15:27 samples_mmlu_econometrics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   295401 May 21 15:27 samples_mmlu_electrical_engineering_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   794002 May 21 15:27 samples_mmlu_elementary_mathematics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   391109 May 21 15:27 samples_mmlu_formal_logic_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   204283 May 21 15:27 samples_mmlu_global_facts_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   907742 May 21 15:27 samples_mmlu_high_school_biology_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   529342 May 21 15:27 samples_mmlu_high_school_chemistry_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   343919 May 21 15:27 samples_mmlu_high_school_computer_science_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1555926 May 21 15:27 samples_mmlu_high_school_european_history_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   441254 May 21 15:27 samples_mmlu_high_school_geography_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   569302 May 21 15:27 samples_mmlu_high_school_government_and_politics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1053954 May 21 15:27 samples_mmlu_high_school_macroeconomics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   594404 May 21 15:27 samples_mmlu_high_school_mathematics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   662467 May 21 15:27 samples_mmlu_high_school_microeconomics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   472635 May 21 15:27 samples_mmlu_high_school_physics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1436918 May 21 15:27 samples_mmlu_high_school_psychology_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   807132 May 21 15:27 samples_mmlu_high_school_statistics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1729664 May 21 15:27 samples_mmlu_high_school_us_history_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  2185373 May 21 15:27 samples_mmlu_high_school_world_history_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   479688 May 21 15:27 samples_mmlu_human_aging_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   309506 May 21 15:27 samples_mmlu_human_sexuality_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   406366 May 21 15:27 samples_mmlu_international_law_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   291441 May 21 15:27 samples_mmlu_jurisprudence_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   437891 May 21 15:27 samples_mmlu_logical_fallacies_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   297704 May 21 15:27 samples_mmlu_machine_learning_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   214525 May 21 15:27 samples_mmlu_management_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   573793 May 21 15:27 samples_mmlu_marketing_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   218442 May 21 15:27 samples_mmlu_medical_genetics_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1621855 May 21 15:27 samples_mmlu_miscellaneous_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   930200 May 21 15:27 samples_mmlu_moral_disputes_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  2888032 May 21 15:27 samples_mmlu_moral_scenarios_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   800125 May 21 15:27 samples_mmlu_nutrition_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   746648 May 21 15:27 samples_mmlu_philosophy_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   808339 May 21 15:27 samples_mmlu_prehistory_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   955040 May 21 15:27 samples_mmlu_professional_accounting_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140 11222336 May 21 15:27 samples_mmlu_professional_law_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1405485 May 21 15:27 samples_mmlu_professional_medicine_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1851465 May 21 15:27 samples_mmlu_professional_psychology_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   269488 May 21 15:27 samples_mmlu_public_relations_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1304069 May 21 15:27 samples_mmlu_security_studies_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   553749 May 21 15:27 samples_mmlu_sociology_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   256891 May 21 15:27 samples_mmlu_us_foreign_policy_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   376577 May 21 15:27 samples_mmlu_virology_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   320799 May 21 15:27 samples_mmlu_world_religions_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  2153508 May 21 15:27 samples_piqa_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  1221133 May 21 15:27 samples_winogrande_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   437565 May 21 15:27 samples_xcopa_et_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   442651 May 21 15:27 samples_xcopa_ht_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   452462 May 21 15:27 samples_xcopa_id_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   458834 May 21 15:27 samples_xcopa_it_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   464000 May 21 15:27 samples_xcopa_qu_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   450267 May 21 15:27 samples_xcopa_sw_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   729028 May 21 15:27 samples_xcopa_ta_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   563363 May 21 15:27 samples_xcopa_th_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   443721 May 21 15:27 samples_xcopa_tr_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   473831 May 21 15:27 samples_xcopa_vi_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140   432023 May 21 15:27 samples_xcopa_zh_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  4236374 May 21 15:27 samples_xnli_ar_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  4855470 May 21 15:27 samples_xnli_bg_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  3655192 May 21 15:27 samples_xnli_de_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  5104216 May 21 15:27 samples_xnli_el_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  3392826 May 21 15:27 samples_xnli_en_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  3603036 May 21 15:27 samples_xnli_es_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  3719906 May 21 15:27 samples_xnli_fr_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  5852278 May 21 15:27 samples_xnli_hi_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  4919656 May 21 15:27 samples_xnli_ru_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  3403996 May 21 15:27 samples_xnli_sw_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  6098382 May 21 15:27 samples_xnli_th_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  3526606 May 21 15:27 samples_xnli_tr_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  4534174 May 21 15:27 samples_xnli_ur_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  4057124 May 21 15:27 samples_xnli_vi_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  3236174 May 21 15:27 samples_xnli_zh_2026-05-21T15-26-59.255065.jsonl
+-rw-r-----+  1 fffoivos a0140  5555856 May 21 15:27 samples_xquad_el_2026-05-21T15-26-59.255065.jsonl
+
+Next: compute_bootstrap_cis.py /capstor/scratch/cscs/fffoivos/runs/eval/apertus_baseline_v4_corrected_20260521_121639/samples_*.jsonl
