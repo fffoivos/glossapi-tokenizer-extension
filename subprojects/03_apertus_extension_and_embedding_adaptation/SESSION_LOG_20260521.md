@@ -259,6 +259,17 @@ Array-corpus correctness correction:
 | `2338123` | base-tokenizer preprocess | `afterok:2338122` |
 | `2338124` | extended-tokenizer preprocess | `afterok:2338122` |
 
+Follow-up: source-row sharding made the correct build slower than the duplicate-prefix build, and the running array could not be extended in-place (`scontrol` permission denied). Cancelled `2338121`/`2338122`/`2338123`/`2338124`, raised `mix_builder_full.sbatch` default walltime to `12:00:00`, and relaunched:
+
+| Job | What | Dependency / output |
+|---|---|---|
+| `2338295` | 12h `mix_builder_full` array `0-6%7`, 1B tokens per shard, disjoint source rows | writes `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_disjoint_12h_part_*.jsonl` |
+| `2338301` | concat | `afterok:2338295`, writes `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl` |
+| `2338303` | base-tokenizer preprocess | `afterok:2338301` |
+| `2338304` | extended-tokenizer preprocess | `afterok:2338301` |
+
+Post-conversion retention eval `2338020` completed successfully (`COMPLETED 0:0`, elapsed `00:25:55`); results file is `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_retention_retry_20260521_163240/results_2026-05-21T18-58-29.766809.json`. Greek eval `2338021` remains running.
+
 Independent follow-ups (deferred to after the corpus chain is unblocked):
 
 - **PF5** — port the ILSP `*_greek` task YAMLs from `LeonVouk/lighteval` into the swissai harness clone so V4 / per-arm evals include `hellaswag_greek`, `winogrande_greek`, `mmlu_pro_greek`, `truthfulqa_greek`, `medical_mcqa_greek`. Today the V4 baseline covers seven Greek tasks; ILSP would add five more.

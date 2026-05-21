@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=72
 #SBATCH --mem=200G
-#SBATCH --time=06:00:00
+#SBATCH --time=12:00:00
 #SBATCH --output=/capstor/scratch/cscs/fffoivos/runs/preprocess/mix_builder_full_%j.out
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/preprocess/mix_builder_full_%j.err
 #
@@ -42,9 +42,11 @@
 #     deterministic streaming loop. Keep the production path identical to the
 #     smoke job. After the token-fair fix, 50M-token smoke measured ~160k tok/s.
 #     The production run is therefore sharded, and the fastest safe mode is to
-#     run all seven 1B-token shards concurrently. One shard uses roughly one hot
-#     Python core; additional cores inside a single shard do not help without a
-#     batching/parallel-token-count rewrite.
+#     run all seven 1B-token shards concurrently. Source-row sharding prevents
+#     duplicate per-source prefixes, but it also scans skipped rows; request the
+#     normal-partition 12 h ceiling so a correct run is not lost near the end.
+#     One shard uses roughly one hot Python core; additional cores inside a
+#     single shard do not help without a batching/parallel-token-count rewrite.
 
 set -euo pipefail
 

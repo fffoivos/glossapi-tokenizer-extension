@@ -153,3 +153,10 @@ Static shell/Python/JSON checks did pass.
   - `2338122` = concat, dependency `afterok:2338121`
   - `2338123` = base-tokenizer preprocess, dependency `afterok:2338122`
   - `2338124` = extended-tokenizer preprocess, dependency `afterok:2338122`
+- The disjoint row-sharded array was slower than the duplicate-prefix array and the live Slurm job could not be extended after start (`scontrol update JobId=2338121 TimeLimit=12:00:00` returned permission denied). Cancelled `2338121`/`2338122`/`2338123`/`2338124` before timeout risk.
+- Raised `mix_builder_full.sbatch` default walltime to `12:00:00` and relaunched:
+  - `2338295` = 12h disjoint `mix_builder_full` array, `0-6%7`, `SHARD_PREFIX=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_disjoint_12h_part_`
+  - `2338301` = concat, dependency `afterok:2338295`
+  - `2338303` = base-tokenizer preprocess, dependency `afterok:2338301`
+  - `2338304` = extended-tokenizer preprocess, dependency `afterok:2338301`
+- Post-conversion retention eval `2338020` completed successfully (`COMPLETED 0:0`, elapsed `00:25:55`). Results are in `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_retention_retry_20260521_163240/results_2026-05-21T18-58-29.766809.json`.
