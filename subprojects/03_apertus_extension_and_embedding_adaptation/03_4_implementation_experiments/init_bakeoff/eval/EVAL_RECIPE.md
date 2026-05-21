@@ -81,6 +81,25 @@ Per v0.7 §6.1:
 
 For 2 B-token bakeoff per arm: that's 4 mid-training benchmark runs (at 500 M, 1.0 B, 1.5 B, 2.0 B) and the last 3 (1.0 / 1.5 / 2.0 B) feed the windowed selection score.
 
+## §5.6 hard gates — to be filled from V4 baseline
+
+Per v0.7 §5.6, a candidate arm **fails** if any of these gates trips. Thresholds are deliberately left as placeholders here — they're set **after** the V4 baseline run on unmodified Apertus-8B-2509 establishes the per-benchmark variance. The "fill from V4" step is on the post-V4 review checklist; until then these thresholds remain `PENDING(V4)`.
+
+| # | Hard gate | Signal source | Failure rule | Threshold |
+|---|---|---|---|---|
+| HG1 | English / core retention regression | `results.json` from lm-eval-harness (ARC, HellaSwag, WinoGrande, PIQA, MMLU) | mean drop > X p.p. on any one of those 5, after windowed average over last 3-5 checkpoints in 80-100 % of budget | `X = PENDING(V4)` (suggest 3 p.p. as starting placeholder) |
+| HG2 | Code retention regression (if code is a release requirement per Q A1) | lm-eval-harness code task (typically `humaneval` post-training; not in pretraining-eval table) | mean drop > Y p.p. | `Y = PENDING(V4 + Q A1)`; skip if code isn't a release requirement |
+| HG3 | New-token row collapse (cosine clustering, near-zero usage) | [`compute_new_token_diagnostics.py`](compute_new_token_diagnostics.py) → `embedding.new_E_cos.mean_off_diag` AND `forward.d2_avg_prob_mass_new_per_pos` | `mean_off_diag > C_THRESH` OR `prob_mass_new < M_THRESH` | `C_THRESH = PENDING(V4)` (suggest 0.5 as starting placeholder — base Greek tokens typically sit at ~0.1-0.3 off-diag mean); `M_THRESH = PENDING(V4)` |
+| HG4 | Polytonic text worsens vs base on character-normalized loss | [`compute_tokenizer_fair_metrics.py`](compute_tokenizer_fair_metrics.py) → `per_register.polytonic.nll_per_char` | arm value > base value | direct comparison; no separate threshold |
+| HG5 | Throughput / memory hit disproportionate to Greek compression gain | Megatron training logs (`--log-throughput`) + tokenizer-fair `compression_ratio` | `(throughput_loss / compression_gain) > T_THRESH` | `T_THRESH = PENDING(V4)`; only fires for extended-vocab arms (ReTok/Centroid), not Vanilla |
+| HG6 | Language-ID drift — model over-emits Greek in non-Greek prompts | Custom eval (§6.2; not yet implemented — Item 7 in COMPLETENESS_CHECK.md) | drift rate > D_THRESH | **`D_THRESH = PENDING(V4 + custom-eval-construction)`**; DEFERRED until §6.2 custom evals exist |
+
+**Operational note.** HG1-HG5 can be computed from JSONs already produced by the existing eval flow. HG6 requires the custom Greek eval construction work (1-2 weeks per v0.7); it's expected to not be running in time for the first bakeoff pass and may need a substitute signal (e.g., `per_register.english.nll_per_char` from `compute_tokenizer_fair_metrics.py` on an English held-out slice — non-Greek text getting Greek-token outputs would spike English NLL).
+
+**Why these thresholds aren't hard-coded:** the per-benchmark variance on Apertus-8B-base is unknown until we run V4. A "3 p.p. drop is a failure" rule is meaningless if the run-to-run variance of HellaSwag is itself 2 p.p. The V4 baseline + bootstrap CIs establish the noise floor, then "drop > 3× the noise floor on any benchmark" or similar becomes a defensible rule.
+
+**Selection (not automated).** For non-failing arms, v0.7 §5.6 gives a weighted score (30-40 % Greek BPC, 25-35 % Greek benchmarks, 10-15 % polytonic, 15-25 % retention, 5-10 % efficiency). For a 3-arm bakeoff this is small enough to eyeball — see [`summarize_bakeoff.py`](summarize_bakeoff.py) for the helper that aggregates per-arm JSONs into one markdown table. **The final pick is a manual review against this table + the V4 thresholds**, not a numerical aggregate.
+
 ## Statistical methodology
 
 Per v0.7 §6.1 (Park et al. Oct 2025): downstream benchmark scores are noisy, and "run 3×" doesn't add information because the benchmarks are deterministic. The right way to get confidence intervals is **bootstrap over eval samples**.
