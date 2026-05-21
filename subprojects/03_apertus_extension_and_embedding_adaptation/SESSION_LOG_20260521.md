@@ -34,6 +34,7 @@ Live checks performed:
 - Submitted corrected V4 eval jobs:
   - `2335100` V4-HF corrected baseline -> `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_baseline_v4_corrected_20260521_121639`
   - `2335101` V4-post-conversion corrected baseline -> `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_corrected_20260521_121639`
+- `2335101` failed with `OSError: [Errno 37] No locks available` from `datasets`/`filelock`. `run_eval.sbatch` now assigns each job its own HF/datasets cache under `/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_$SLURM_JOB_ID`; post-conversion eval was resubmitted as `2335196`.
 
 ## Files touched locally (home machine)
 

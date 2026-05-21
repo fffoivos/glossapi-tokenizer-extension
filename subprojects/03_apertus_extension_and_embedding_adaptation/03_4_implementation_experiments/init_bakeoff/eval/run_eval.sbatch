@@ -71,6 +71,7 @@ LIMIT_ARG=""
 [ -n "${LIMIT:-}" ] && LIMIT_ARG="--limit $LIMIT"
 
 LM_EVAL_PYTHONPATH="${LM_EVAL_PYTHONPATH:-/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval}"
+EVAL_CACHE_ROOT="${EVAL_CACHE_ROOT:-/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_${SLURM_JOB_ID:-manual}}"
 
 # Task lists per group. Names verified to exist in swissai harness at 2026-05-21.
 declare -A TASK_LISTS
@@ -100,9 +101,11 @@ echo "MODEL_PATH: $MODEL_PATH"
 echo "OUTPUT_DIR: $OUTPUT_DIR"
 echo "TASK_GROUP: $TASK_GROUP -> $TASK_LIST"
 echo "DTYPE: $DTYPE  BATCH: $BATCH_SIZE"
+echo "EVAL_CACHE_ROOT: $EVAL_CACHE_ROOT"
 echo
 
 UENV_IMAGE="${UENV_IMAGE:-pytorch/v2.9.1:v2}"
+mkdir -p "$EVAL_CACHE_ROOT"/{hf_home,hf_datasets,xdg,tmp}
 
 cat > run_metadata.json <<META
 {
@@ -112,6 +115,7 @@ cat > run_metadata.json <<META
   "batch_size": "$BATCH_SIZE",
   "dtype": "$DTYPE",
   "lm_eval_pythonpath": "$LM_EVAL_PYTHONPATH",
+  "eval_cache_root": "$EVAL_CACHE_ROOT",
   "lm_eval_source": "swiss-ai/lm-evaluation-harness (target-install)",
   "uenv_image": "$UENV_IMAGE",
   "slurm_job_id": "${SLURM_JOB_ID:-none}",
@@ -123,6 +127,10 @@ META
 uenv start "$UENV_IMAGE" --view=default --ignore-tty <<INNER
 set -euo pipefail
 export PYTHONPATH=$LM_EVAL_PYTHONPATH
+export HF_HOME=$EVAL_CACHE_ROOT/hf_home
+export HF_DATASETS_CACHE=$EVAL_CACHE_ROOT/hf_datasets
+export XDG_CACHE_HOME=$EVAL_CACHE_ROOT/xdg
+export TMPDIR=$EVAL_CACHE_ROOT/tmp
 python3 -m lm_eval \
     --model hf \
     --model_args pretrained=$MODEL_PATH,dtype=$DTYPE,trust_remote_code=True \
