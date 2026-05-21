@@ -12,8 +12,24 @@
 # Uses verify_and_normalize_nfc.py at the 03_3 location (kept there because
 # it's also used outside the bakeoff for general corpus health checks).
 #
+# Compute justification (per [[feedback_compute_sweet_spot_justify]]):
+#   - Parallelism: --workers W spawns W Python processes; each owns a subset
+#     of parquet shards, NFC-normalizes row-by-row, writes back in place.
+#     Per-file work is independent, so speedup is linear in W until shard
+#     count < W.
+#   - Saturation: nanochat has 279 parquets + replay has 24+ langs ≈ 300 shards
+#     total. Default --workers 64 saturates a normal-partition node (288 cores
+#     ThreadsPerCore=1) reasonably without thrashing — NFC normalization is
+#     IO + memcpy-bound, not CPU-bound, so going past ~64 has diminishing
+#     return. Override `WORKERS=288` to push further.
+#   - Memory: each worker holds one parquet shard at a time (≤ ~1 GB). 64 ×
+#     1 GB peak ≈ 64 GB, well under 800 G slot.
+#   - Known gaps: NFC is idempotent → re-runs are cheap (cost is just the
+#     verify pass on already-NFC files). No per-doc parallelism within a shard.
+#
 # Usage:
 #   bash normalize_nfc.sh
+#   WORKERS=288 bash normalize_nfc.sh   # full-node CPU saturation
 
 set -euo pipefail
 
@@ -45,7 +61,7 @@ for subdir in nanochat replay code math; do
     python3 "$SCRIPT" normalize \
         --root "$target" \
         --pattern '*.parquet' \
-        --workers 16 \
+        --workers "${WORKERS:-64}" \
         --report-every 100
 done
 

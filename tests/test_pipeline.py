@@ -625,6 +625,48 @@ def test_builder_dedup_drop_intra_and_inter_share_aware_balances_shared_pool(tmp
     assert set(frame["dedup_pool_key"]) == {"shared:alpha+beta"}
 
 
+def test_external_doc_key_drop_applies_before_selected_input_materialization(tmp_path: Path) -> None:
+    output_root = tmp_path / "corpus"
+    rows = [
+        make_canonical_row(source_dataset="alpha", source_doc_id="a-keep", text="άλφα"),
+        make_canonical_row(source_dataset="alpha", source_doc_id="a-drop", text="άλφα seen"),
+        make_canonical_row(source_dataset="beta", source_doc_id="b-keep", text="βήτα"),
+    ]
+    write_canonical_snapshot(output_root, rows)
+    drop_path = tmp_path / "apertus_drop.parquet"
+    pq.write_table(
+        pa.Table.from_pylist(
+            [{"doc_key": pipeline.stable_doc_key("alpha", "a-drop")}],
+            schema=pa.schema([("doc_key", pa.string())]),
+        ),
+        drop_path,
+    )
+
+    payload = pipeline.materialize_streaming_mix_selected_input(
+        output_root=output_root,
+        destination=tmp_path / "selected_input.parquet",
+        include_sources=None,
+        exclude_sources=None,
+        exclude_needs_ocr_sources=None,
+        quality_preset="none",
+        historical_mode="include",
+        math_mode="include",
+        latex_mode="include",
+        dedup_metadata_root=None,
+        dedup_action="ignore",
+        dedup_exact_stage="strict_and_relaxed",
+        dedup_similarity_threshold=None,
+        dedup_inter_dataset_policy="share_aware",
+        dedup_source_weights_path=None,
+        exclude_doc_keys_path=drop_path,
+    )
+
+    frame = pd.read_parquet(tmp_path / "selected_input.parquet")
+    assert sorted(frame["source_doc_id"].tolist()) == ["a-keep", "b-keep"]
+    assert payload["external_drop_summary"]["excluded_rows"] == 1
+    assert payload["selected_input"]["rows"] == 2
+
+
 def test_builder_dedup_share_aware_uses_projected_chars_not_family_counts(tmp_path: Path) -> None:
     bundle_root = tmp_path / "bundle"
     frame = pd.DataFrame(

@@ -1,12 +1,13 @@
 {
   "name": "bulk",
-  "description": "Bakeoff bulk-phase recipe. 70% Greek (post-Apertus-overlap-drop) + 26% non-Greek replay across 24 languages in 3 tiers + 4% code. Shuffled-mixture single-stream per cpt_plan.md v0.7 section 2. Probabilities sum to 1.0 (the mix_builder normalizes anyway). Source order does not matter; the interleaver samples by probability.",
+  "description": "Bakeoff bulk-phase recipe. 70% Greek (post-Apertus-overlap-drop and post-internal-dedup) + 24% non-Greek replay across 24 languages in 3 tiers + 4% code + 2% math. Shuffled-mixture single-stream per cpt_plan.md v0.7 section 2. Probabilities sum to ~1.0 (the mix_builder normalizes anyway). Source order does not matter; the interleaver samples by probability.",
   "version": "v1.0_20260520",
   "seed": 20260520,
   "buckets": {
     "greek": 0.70,
-    "replay": 0.26,
-    "code":  0.04
+    "replay": 0.24,
+    "code":  0.04,
+    "math":  0.02
   },
   "sources": [
     {

@@ -4,29 +4,61 @@
 #SBATCH --partition=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
+#SBATCH --gpus-per-node=1
+#SBATCH --cpus-per-task=72
+#SBATCH --mem=200G
 #SBATCH --time=04:00:00
 #SBATCH --output=/capstor/scratch/cscs/fffoivos/runs/eval/%x-%j.out
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/eval/%x-%j.err
 #
-# Parameterized eval job using swiss-ai/lm-evaluation-harness.
+# Compute justification (per [[feedback_compute_sweet_spot_justify]]):
 #
-# Required environment variables (export via --export or set before sbatch):
-#   MODEL_PATH    — path to HF-format model directory (e.g. .../apertus-8b-2509 or .../init_checkpoints/retok)
+# 1. Parallelism strategy.
+#    lm-eval-harness runs each task sequentially. Inside a task,
+#    loglikelihood batches are passed to HF generate/forward which uses
+#    the single GPU for batched matmul. The python wrapper around
+#    batch_size=auto picks the largest power-of-two that fits in GPU
+#    memory (observed: 32 for Apertus-8B at bf16 on an H100).
+#
+# 2. GPU saturation.
+#    Apertus-8B (8.6 GB bf16 + KV cache for batch≤32 ≈ ~20 GB) fits on
+#    one H100 (80 GB). Multi-GPU sharding via accelerate adds NCCL
+#    overhead with no throughput gain at this model size. --gpus-per-node=1
+#    is the sweet spot. (Switch to --gpus-per-node=2 with
+#    `parallelize=True` only for the 70B-scale models, not relevant here.)
+#
+# 3. CPU + memory ceiling.
+#    --cpus-per-task=72 = one socket; HF dataloader workers + tokenizer
+#    pre-batching consume ~16 cores during the bigger Greek tasks, so 72
+#    is comfortable headroom and leaves the other 3 sockets free for
+#    co-tenants. --mem=200G covers cached HF datasets (~5 GB) + model
+#    weights (~17 GB bf16) + activations + batched KV cache.
+#
+# 4. Known efficiency gaps.
+#    Per-task sequential. If the wallclock matters for the bakeoff arms
+#    (16 task labels × ~30 min each = ~8 h), we'd split task_list across
+#    multiple sbatches with --array, each picking up a subset. For V4
+#    baseline (one run) the sequential single-GPU path is fine.
+#
+# Parameterized eval job using the swiss-ai/lm-evaluation-harness clone,
+# pre-installed at $LM_EVAL_PYTHONPATH (target-install — uenv site-packages
+# are read-only so pip install -e . into the uenv fails).
+#
+# Required environment variables:
+#   MODEL_PATH    — path to HF-format model directory
 #   OUTPUT_DIR    — where to drop the eval JSON + per-sample logs
-#   TASK_GROUP    — one of: full | retention_only | greek_only | safety_only
+#   TASK_GROUP    — full | retention_only | greek_only | safety_only
 #
 # Optional:
-#   BATCH_SIZE    — default "auto" (lm-eval-harness auto-tunes)
-#   LIMIT         — optional sample-count cap per task (for debugging)
+#   BATCH_SIZE    — default "auto"
+#   LIMIT         — optional per-task sample cap
 #   DTYPE         — default "bfloat16"
+#   UENV_IMAGE    — default pytorch/v2.9.1:v2 (transformers 4.57.0, has ApertusForCausalLM)
 #
-# Submit:
-#   sbatch --export=MODEL_PATH=...,OUTPUT_DIR=...,TASK_GROUP=full run_eval.sbatch
-#
-# Output (under $OUTPUT_DIR):
-#   results.json                  — lm-eval-harness aggregated metrics
-#   samples_<task>.jsonl          — per-sample outputs (for bootstrap CI)
-#   run_metadata.json             — model path, harness commit, task list, walltime
+# Greek task names are the ones that exist NATIVELY in swissai harness as of
+# 2026-05-21. Gaps (hellaswag_greek, winogrande_greek, mmlu_pro_greek,
+# truthfulqa_greek) are tracked by PF5 — custom YAMLs from ILSP datasets.
+# The original V4 set assumed those existed; they did not.
 
 set -euo pipefail
 
@@ -38,22 +70,18 @@ DTYPE="${DTYPE:-bfloat16}"
 LIMIT_ARG=""
 [ -n "${LIMIT:-}" ] && LIMIT_ARG="--limit $LIMIT"
 
-LM_EVAL_HARNESS_DIR="${LM_EVAL_HARNESS_DIR:-/iopsstor/scratch/cscs/fffoivos/code/eval/lm-evaluation-harness-swissai}"
+LM_EVAL_PYTHONPATH="${LM_EVAL_PYTHONPATH:-/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval}"
 
-# Task lists per group. Synced to EVAL_RECIPE.md (Apertus Table-14 pretraining
-# evals only; Table-22 post-training tasks excluded — see EVAL_RECIPE.md "Scope
-# of tasks: match Apertus's pretraining-eval table, not post-training").
+# Task lists per group. Names verified to exist in swissai harness at 2026-05-21.
 declare -A TASK_LISTS
-# Group 1: Apertus pretraining-eval set per Table 14.
-# Includes Global-MMLU (multilingual Greek-inclusive); excludes GSM8K, HumanEval
-# (Table-22 post-training only, won't fluctuate meaningfully from a CPT init choice).
+# Group 1: retention. Apertus pretraining-eval set + multilingual NLI/COPA.
+# Table 14 includes both MMLU and Global-MMLU; keep global_mmlu here so the
+# V4 baseline can actually fill the documented §5.6 retention gates.
 TASK_LISTS[retention]="arc_challenge,arc_easy,hellaswag,winogrande,piqa,mmlu,global_mmlu,xnli,xcopa"
-# Group 2: ILSP Greek suite (dedicated Greek signal beyond multilingual coverage).
-# Excludes mgsm_greek + ifeval_greek (post-training-only Greek variants per EVAL_RECIPE.md
-# "Greek post-training-only tasks" note).
-TASK_LISTS[greek]="arc_greek,hellaswag_greek,winogrande_greek,mmlu_greek,mmlu_pro_greek,truthfulqa_greek,medical_mcqa_greek,belebele_ell_Grek"
-# Group 3: safety. Inspect AI suite; lower priority for the bakeoff selection.
-TASK_LISTS[safety]="harmbench,polyglotoxicityprompts,attaq_greek"
+# Group 2: Greek tasks that exist natively in swissai harness.
+TASK_LISTS[greek]="arc_challenge_mt_el,xnli_el,xquad_el,belebele_ell_Grek,global_mmlu_full_el,include_base_44_greek_few_shot_en,global_piqa_completions_ell_grek"
+# Group 3: safety. Lower priority for bakeoff selection.
+TASK_LISTS[safety]="harmbench,polyglotoxicityprompts"
 
 case "$TASK_GROUP" in
     full)            TASK_LIST="${TASK_LISTS[retention]},${TASK_LISTS[greek]}" ;;
@@ -66,27 +94,16 @@ esac
 mkdir -p "$OUTPUT_DIR"
 cd "$OUTPUT_DIR"
 
-echo "=== run_eval.sbatch ==="
-date -u
+echo "=== run_eval.sbatch ==="; date -u
 echo "host: $(hostname)"
 echo "MODEL_PATH: $MODEL_PATH"
 echo "OUTPUT_DIR: $OUTPUT_DIR"
-echo "TASK_GROUP: $TASK_GROUP"
-echo "TASK_LIST: $TASK_LIST"
-echo "BATCH_SIZE: $BATCH_SIZE"
-echo "DTYPE: $DTYPE"
+echo "TASK_GROUP: $TASK_GROUP -> $TASK_LIST"
+echo "DTYPE: $DTYPE  BATCH: $BATCH_SIZE"
 echo
 
-# Load the uenv pytorch image (Apertus team's preferred path on Clariden)
-# This is the pattern from cscs-clariden-project-understanding/README.md
-UENV_IMAGE="${UENV_IMAGE:-pytorch/v2.6.0:v1}"
-echo "uenv image: $UENV_IMAGE"
+UENV_IMAGE="${UENV_IMAGE:-pytorch/v2.9.1:v2}"
 
-# Capture harness commit for the run_metadata
-HARNESS_COMMIT=$(cd "$LM_EVAL_HARNESS_DIR" && git rev-parse HEAD 2>/dev/null || echo "unknown")
-echo "lm-evaluation-harness commit: $HARNESS_COMMIT"
-
-# Record metadata before the run
 cat > run_metadata.json <<META
 {
   "model_path": "$MODEL_PATH",
@@ -94,23 +111,19 @@ cat > run_metadata.json <<META
   "task_list": "$TASK_LIST",
   "batch_size": "$BATCH_SIZE",
   "dtype": "$DTYPE",
-  "lm_eval_harness_dir": "$LM_EVAL_HARNESS_DIR",
-  "lm_eval_harness_commit": "$HARNESS_COMMIT",
+  "lm_eval_pythonpath": "$LM_EVAL_PYTHONPATH",
+  "lm_eval_source": "swiss-ai/lm-evaluation-harness (target-install)",
+  "uenv_image": "$UENV_IMAGE",
   "slurm_job_id": "${SLURM_JOB_ID:-none}",
   "host": "$(hostname)",
   "start_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
 META
 
-# Run lm-evaluation-harness inside the uenv pytorch image with --view=default
-# (which exposes the modern Python + Torch stack per the project brief).
-uenv run "$UENV_IMAGE" --view=default -- bash -c "
+uenv start "$UENV_IMAGE" --view=default --ignore-tty <<INNER
 set -euo pipefail
-cd $LM_EVAL_HARNESS_DIR
-pip install -e . --quiet 2>&1 | tail -5 || true
-which lm_eval || pip install lm-eval --quiet
-
-lm_eval \
+export PYTHONPATH=$LM_EVAL_PYTHONPATH
+python3 -m lm_eval \
     --model hf \
     --model_args pretrained=$MODEL_PATH,dtype=$DTYPE,trust_remote_code=True \
     --tasks $TASK_LIST \
@@ -118,9 +131,8 @@ lm_eval \
     --output_path $OUTPUT_DIR/results.json \
     --log_samples \
     $LIMIT_ARG
-"
+INNER
 
-# Append end time + parse results into a flat metric table
 python3 -c "
 import json
 from pathlib import Path
@@ -131,8 +143,10 @@ print('updated run_metadata.json with end_time')
 "
 
 echo
-echo "=== eval complete ==="
-date -u
-ls -la "$OUTPUT_DIR" | head -20
+echo "=== eval complete ==="; date -u
+# Avoid `ls | head` — pipefail catches SIGPIPE on ls (exit 141 → slurm shows
+# exit 13) and marks the whole job FAILED even though eval succeeded.
+# (Bit V4 job 2334245 on 2026-05-21.)
+ls -la "$OUTPUT_DIR" || true
 echo
 echo "Next: compute_bootstrap_cis.py $OUTPUT_DIR/samples_*.jsonl"

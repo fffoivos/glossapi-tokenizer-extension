@@ -60,6 +60,7 @@ def mix_command(
     dedup_similarity_threshold: float | None = typer.Option(None, help="Builder-time near-dup threshold; must be >= exported pair floor"),
     dedup_inter_dataset_policy: str = typer.Option("share_aware", help="quality_first|share_aware"),
     dedup_source_weights_path: Path | None = typer.Option(None, help="Optional JSON mapping source_dataset to positive weight"),
+    exclude_doc_keys_path: Path | None = typer.Option(None, help="Optional parquet drop list with a doc_key column, applied before dedup"),
     source_mix_config_path: Path | None = typer.Option(
         None,
         help="Optional JSON config describing grouped/per-dataset source mix fractions after filtering and dedup",
@@ -81,6 +82,7 @@ def mix_command(
         dedup_similarity_threshold=dedup_similarity_threshold,
         dedup_inter_dataset_policy=dedup_inter_dataset_policy,
         dedup_source_weights_path=dedup_source_weights_path,
+        exclude_doc_keys_path=exclude_doc_keys_path,
         source_mix_config_path=source_mix_config_path,
     )
     typer.echo(json.dumps(payload, ensure_ascii=False, indent=2))
@@ -106,6 +108,7 @@ def mix_prepare_selected_input_command(
     dedup_similarity_threshold: float | None = typer.Option(None, help="Builder-time near-dup threshold; must be >= exported pair floor"),
     dedup_inter_dataset_policy: str = typer.Option("share_aware", help="quality_first|share_aware"),
     dedup_source_weights_path: Path | None = typer.Option(None, help="Optional JSON mapping source_dataset to positive weight"),
+    exclude_doc_keys_path: Path | None = typer.Option(None, help="Optional parquet drop list with a doc_key column, applied before dedup"),
 ) -> None:
     payload = pipeline.materialize_streaming_mix_selected_input(
         output_root=output_root,
@@ -123,6 +126,7 @@ def mix_prepare_selected_input_command(
         dedup_similarity_threshold=dedup_similarity_threshold,
         dedup_inter_dataset_policy=dedup_inter_dataset_policy,
         dedup_source_weights_path=dedup_source_weights_path,
+        exclude_doc_keys_path=exclude_doc_keys_path,
     )
     typer.echo(json.dumps(payload, ensure_ascii=False, indent=2))
 

@@ -1,0 +1,20 @@
+=== teardown start 2026-05-19T01:07:06Z RUN_ID=dedup_20260518T231526Z ===
+[teardown] deleting:
+dedup-w0-dedup-20260518t231526z	europe-west4-c
+dedup-w1-dedup-20260518t231526z	europe-west4-c
+dedup-w2-dedup-20260518t231526z	europe-west4-c
+dedup-w3-dedup-20260518t231526z	europe-west4-c
+dedup-w4-dedup-20260518t231526z	europe-west4-c
+dedup-w5-dedup-20260518t231526z	europe-west4-c
+dedup-w6-dedup-20260518t231526z	europe-west4-c
+dedup-w7-dedup-20260518t231526z	europe-west4-c
+Deleted [https://www.googleapis.com/compute/v1/projects/eellak-glossapi-20251008/zones/europe-west4-c/instances/dedup-w4-dedup-20260518t231526z].
+Deleted [https://www.googleapis.com/compute/v1/projects/eellak-glossapi-20251008/zones/europe-west4-c/instances/dedup-w1-dedup-20260518t231526z].
+Deleted [https://www.googleapis.com/compute/v1/projects/eellak-glossapi-20251008/zones/europe-west4-c/instances/dedup-w2-dedup-20260518t231526z].
+Deleted [https://www.googleapis.com/compute/v1/projects/eellak-glossapi-20251008/zones/europe-west4-c/instances/dedup-w7-dedup-20260518t231526z].
+Deleted [https://www.googleapis.com/compute/v1/projects/eellak-glossapi-20251008/zones/europe-west4-c/instances/dedup-w5-dedup-20260518t231526z].
+Deleted [https://www.googleapis.com/compute/v1/projects/eellak-glossapi-20251008/zones/europe-west4-c/instances/dedup-w6-dedup-20260518t231526z].
+Deleted [https://www.googleapis.com/compute/v1/projects/eellak-glossapi-20251008/zones/europe-west4-c/instances/dedup-w3-dedup-20260518t231526z].
+Deleted [https://www.googleapis.com/compute/v1/projects/eellak-glossapi-20251008/zones/europe-west4-c/instances/dedup-w0-dedup-20260518t231526z].
+[teardown] remaining instances with this run label: 0
+=== teardown done 2026-05-19T01:08:08Z — zero remaining ===

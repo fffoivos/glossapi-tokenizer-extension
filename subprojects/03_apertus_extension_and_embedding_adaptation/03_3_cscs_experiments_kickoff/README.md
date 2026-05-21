@@ -32,9 +32,10 @@ so we can fold them in together after review.
 - [`POLYTONIC_VOCAB_BUDGET_CHECK.md`](POLYTONIC_VOCAB_BUDGET_CHECK.md) — verifies the +5,120 polytonic
   added-token budget against the sub-1B-language scaling pattern
   derived from `02_2_2_vocab_lang_attribution/outputs/lang_metadata.json`.
-  Confirms: corpus is ~223 M tokens (sub-1B ✓); pattern predicts
-  4,800–7,500 distinctive vocab tokens; +5,120 sits in the middle
-  of that band; total vocab 153,600 = 256 × 600 ✓.
+  Confirms: corpus is ~223 M tokens before the polytonic extension and
+  ~163 M tokens after it; the apples-to-apples post-extension pattern
+  predicts ~4,000–6,300 distinctive vocab tokens; +5,120 sits inside
+  that corrected band; total vocab 153,600 = 256 × 600 ✓.
 - [`CSCS_AUTH_WORKFLOW.md`](CSCS_AUTH_WORKFLOW.md) — exact daily-cert
   flow using the **new `cscs-key` Rust tool v1.1.0+** (the old
   `sshservice-cli` is deprecated). Covers install, one-time keypair

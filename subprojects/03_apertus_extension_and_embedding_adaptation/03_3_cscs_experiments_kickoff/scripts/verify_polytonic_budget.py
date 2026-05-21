@@ -51,12 +51,17 @@ def main():
 
     # Total chars across the hygiene-kept polytonic corpus (train + val + test)
     poly_chars_total = firing["char_counts"]["hygiene_kept_all"]
-    poly_tokens_est = poly_chars_total / 2.29  # base C3 chars/token at +0 polytonic
+    cpt_pre_extension = 2.292540745595887
+    cpt_post_extension = 3.137649432097194
+    poly_tokens_pre = poly_chars_total / cpt_pre_extension
+    poly_tokens_post = poly_chars_total / cpt_post_extension
     bytes_total = sum(split["outputs"][k]["utf8_bytes"] for k in ("poly_train", "poly_val", "poly_test"))
     print(f"Polytonic training corpus: {poly_chars_total:,} chars "
           f"(rows: {split['hygiene']['rows_after']:,}, bytes UTF-8: {bytes_total:,})")
-    print(f"At Apertus+C3 chars/token = 2.29 → {poly_tokens_est / 1e6:.1f}M tokens "
-          f"({'sub-1B' if poly_tokens_est < 1e9 else 'OVER 1B'})")
+    print(f"At pre-extension chars/token = {cpt_pre_extension:.4f} → {poly_tokens_pre / 1e6:.1f}M tokens "
+          f"({'sub-1B' if poly_tokens_pre < 1e9 else 'OVER 1B'})")
+    print(f"At post-+5120 chars/token = {cpt_post_extension:.4f} → {poly_tokens_post / 1e6:.1f}M tokens "
+          f"({'sub-1B' if poly_tokens_post < 1e9 else 'OVER 1B'})")
     print()
 
     cohort = [
@@ -80,17 +85,20 @@ def main():
           f"{grc['sample_tokens_total']/1e6:.0f}M tokens vs fit predicts {fit_at_grc:,.0f}")
 
     print()
-    print(f"Projection at polytonic corpus size ({poly_tokens_est/1e6:.0f}M tokens):")
-    print(f"  pure fit:       {a * poly_tokens_est**b:,.0f}")
-    print(f"  grc_Grek-scaled: {grc['vocab_entries_fired_geq_100'] * (poly_tokens_est/grc['sample_tokens_total'])**b:,.0f}")
+    print(f"Projection at pre-extension corpus size ({poly_tokens_pre/1e6:.1f}M tokens):")
+    print(f"  pure fit:        {a * poly_tokens_pre**b:,.0f}")
+    print(f"  grc_Grek-scaled: {grc['vocab_entries_fired_geq_100'] * (poly_tokens_pre/grc['sample_tokens_total'])**b:,.0f}")
+    print(f"Projection at post-extension corpus size ({poly_tokens_post/1e6:.1f}M tokens):")
+    print(f"  pure fit:        {a * poly_tokens_post**b:,.0f}")
+    print(f"  grc_Grek-scaled: {grc['vocab_entries_fired_geq_100'] * (poly_tokens_post/grc['sample_tokens_total'])**b:,.0f}")
     print()
     print("Candidate 256-aligned totals (base 148,480 = C3 17,408-curated-padded ship):")
     for add in [3584, 4096, 4608, 5120, 6144, 7168, 7680, 10240]:
         total = 148_480 + add
         assert total % 256 == 0
-        in_range = 4800 <= add <= 7500
+        in_range = 4000 <= add <= 6300
         print(f"  +{add:>5}  →  total {total:>7,} = 256 × {total // 256:<3}"
-              f"  {'← inside pattern range (4800-7500)' if in_range else ''}")
+              f"  {'← inside corrected post-extension range (4000-6300)' if in_range else ''}")
 
 
 if __name__ == "__main__":

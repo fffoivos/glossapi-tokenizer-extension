@@ -1,0 +1,94 @@
+{
+  "per_worker": {
+    "worker_0": {
+      "expected_input_shards": 77,
+      "expected_uploaded_shards": 77,
+      "uploaded_shards": 77,
+      "processed_shards": 77,
+      "zero_row_shards": 0,
+      "pull_errors": 0,
+      "hash_errors": 0,
+      "pass": true,
+      "reasons": []
+    },
+    "worker_1": {
+      "expected_input_shards": 77,
+      "expected_uploaded_shards": 77,
+      "uploaded_shards": 77,
+      "processed_shards": 77,
+      "zero_row_shards": 0,
+      "pull_errors": 0,
+      "hash_errors": 0,
+      "pass": true,
+      "reasons": []
+    },
+    "worker_2": {
+      "expected_input_shards": 77,
+      "expected_uploaded_shards": 76,
+      "uploaded_shards": 76,
+      "processed_shards": 77,
+      "zero_row_shards": 1,
+      "pull_errors": 0,
+      "hash_errors": 0,
+      "pass": true,
+      "reasons": []
+    },
+    "worker_3": {
+      "expected_input_shards": 77,
+      "expected_uploaded_shards": 77,
+      "uploaded_shards": 77,
+      "processed_shards": 77,
+      "zero_row_shards": 0,
+      "pull_errors": 0,
+      "hash_errors": 0,
+      "pass": true,
+      "reasons": []
+    },
+    "worker_4": {
+      "expected_input_shards": 77,
+      "expected_uploaded_shards": 76,
+      "uploaded_shards": 76,
+      "processed_shards": 77,
+      "zero_row_shards": 1,
+      "pull_errors": 0,
+      "hash_errors": 0,
+      "pass": true,
+      "reasons": []
+    },
+    "worker_5": {
+      "expected_input_shards": 76,
+      "expected_uploaded_shards": 76,
+      "uploaded_shards": 76,
+      "processed_shards": 76,
+      "zero_row_shards": 0,
+      "pull_errors": 0,
+      "hash_errors": 0,
+      "pass": true,
+      "reasons": []
+    },
+    "worker_6": {
+      "expected_input_shards": 79,
+      "expected_uploaded_shards": 79,
+      "uploaded_shards": 79,
+      "processed_shards": 79,
+      "zero_row_shards": 0,
+      "pull_errors": 0,
+      "hash_errors": 0,
+      "pass": true,
+      "reasons": []
+    },
+    "worker_7": {
+      "expected_input_shards": 78,
+      "expected_uploaded_shards": 78,
+      "uploaded_shards": 78,
+      "processed_shards": 78,
+      "zero_row_shards": 0,
+      "pull_errors": 0,
+      "hash_errors": 0,
+      "pass": true,
+      "reasons": []
+    }
+  },
+  "overall_pass": true,
+  "failure_reasons": []
+}

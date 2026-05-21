@@ -57,17 +57,18 @@ Documented authoritatively in `_train_config_common.env`:
 - Sequence length: 4,096
 - Global batch: ~4 M tokens (target Apertus pretraining shape)
 - Goldfish loss: **disabled for the bakeoff** (NTP — per v0.7 §10 Q B4)
-- xIELU activation + QK-Norm: inherited from base checkpoint
+- xIELU activation + QK-Norm: same converted-Megatron defaults across arms unless the production R17 patcher is implemented
 - Cross-doc attention mask: ON
 - EoD loss mask: ON
 - Mixed precision: bf16
-- Dataloader seed: shared across arms (token streams identical → only init differs)
+- Dataloader seed: shared across arms; text stream is identical, while Vanilla uses base token IDs and ReTok/Centroid use extended token IDs
 
 ## What differs across arms
 
-Only `--load <init-checkpoint>`. The init differential is built upstream
-by `arms/build_init_checkpoints.py`. After that point, every flag, every
-data shard, every seed is identical.
+The per-arm switch chooses the init checkpoint, tokenizer, and matching
+Megatron data prefix. Vanilla uses the base 131,072-token tokenizer/data;
+ReTok and Centroid use the extended 148,480-token tokenizer/data. The
+underlying JSONL document stream and seed are shared.
 
 ## Q D1 status
 

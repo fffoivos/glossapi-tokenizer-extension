@@ -1,0 +1,10 @@
+{
+  "repo_id": "fffoivos/apertus-c3-dedup-audit-dedup-20260519t010924z",
+  "repo_type": "dataset",
+  "url": "https://huggingface.co/datasets/fffoivos/apertus-c3-dedup-audit-dedup-20260519t010924z",
+  "visibility": "public",
+  "gated": "manual",
+  "created_or_verified_at_utc": "2026-05-19T06:38:27Z",
+  "status": "uploaded_complete",
+  "uploaded_artifact_scope": "report, manifests, run scripts, exact overlap parquet outputs, near overlap parquet outputs, summary parquet outputs; intermediate per-source hash tables excluded"
+}

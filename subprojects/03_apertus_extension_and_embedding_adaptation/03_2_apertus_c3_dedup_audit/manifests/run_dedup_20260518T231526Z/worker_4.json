@@ -1,0 +1,145 @@
+{
+  "worker_idx": 4,
+  "run_id": "dedup_20260518T231526Z",
+  "bucket": "gs://eellak-glossapi-20251008-dedup_20260518t231526z",
+  "scope": "hf_source_pool",
+  "shards": [
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "files": [
+        "data/openarchives.gr.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00208.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00214.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00216.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00001.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00002.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00027.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00028.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00233.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00040.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00036.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00041.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00047.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00079.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00095.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00107.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00089.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00104.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00109.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00105.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00116.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00120.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00153.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00143.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00124.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00119.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00159.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00188.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00178.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00180.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00192.parquet",
+        "data/Ekklisiastika_Keimena.parquet"
+      ],
+      "bytes_est": 15641306647
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "files": [
+        "ell_Grek/000_00015.parquet",
+        "ell_Grek/000_00042.parquet",
+        "ell_Grek/000_00025.parquet",
+        "ell_Grek/000_00047.parquet",
+        "ell_Grek/000_00023.parquet",
+        "ell_Grek/000_00034.parquet",
+        "ell_Grek/000_00003.parquet",
+        "ell_Grek/000_00059.parquet",
+        "ell_Grek/000_00048.parquet"
+      ],
+      "bytes_est": 13176375250
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "files": [
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00006.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00022.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00011.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00020.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00018.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00026.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00002.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00007.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00012.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00011.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00028.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00031.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00055.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00049.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00066.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00005.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00061.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00001.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00016.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00012.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00021.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00114.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00119.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00096.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00076.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00063.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00095.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00051.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00059.parquet",
+        "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00120.parquet"
+      ],
+      "bytes_est": 13334426124
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "cleanwiki_el",
+      "hf_repo": "HuggingFaceFW/clean-wikipedia",
+      "hf_repo_type": "dataset",
+      "hf_config": "el",
+      "files": [
+        "el/train-00000-of-00003.parquet"
+      ],
+      "bytes_est": 247794031
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "files": [
+        "el-fr/train-00001-of-00002.parquet",
+        "el-es/train-00001-of-00002.parquet",
+        "el-en/train-00001-of-00002.parquet",
+        "el-et/train-00000-of-00001.parquet"
+      ],
+      "bytes_est": 610180957
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "euroblocks_greek",
+      "hf_repo": "utter-project/EuroBlocks-SFT-Synthetic-1124",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "files": [
+        "data/train-00001-of-00002.parquet"
+      ],
+      "bytes_est": 148635733
+    }
+  ]
+}

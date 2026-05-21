@@ -32,6 +32,28 @@ from huggingface_hub import hf_hub_download, list_repo_files
 import glossapi_rs_noise
 
 
+def _duckdb_connect_streaming() -> "duckdb.DuckDBPyConnection":
+    """Open a duckdb connection that streams ORDER BY results to disk.
+
+    Default duckdb behaviour (`preserve_insertion_order = true`) materializes
+    the full result set in memory before writing — this OOMs on the 129 GB
+    nanochat corpus during the apertus-drop COPY (verified by jobs 2334358 /
+    2334476 on Clariden, both OOMed at the same `materialize_doc_key_excluded_mix_input`
+    join+sort, at 305 GiB and 610 GiB respectively). With
+    `preserve_insertion_order = false` and an explicit `ORDER BY` in the
+    query, duckdb uses external sort (spills to `temp_directory`) and
+    streams in bounded memory.
+
+    Every duckdb connection in this module is opened via this helper so the
+    streaming behaviour is uniform.
+    """
+    # NB: must use duckdb.connect() directly — calling _duckdb_connect_streaming
+    # here would recurse forever (caught by job 2334826 RecursionError).
+    con = duckdb.connect()
+    con.execute("SET preserve_insertion_order = false")
+    return con
+
+
 CODE_ROOT = Path(__file__).resolve().parents[1]
 RAW_ROOT = Path(os.environ.get("GLOSSAPI_RAW_ROOT", "/home/foivos/data/glossapi_raw"))
 WORK_ROOT = Path(os.environ.get("GLOSSAPI_WORK_ROOT", str(CODE_ROOT)))
@@ -2188,7 +2210,10 @@ def build_mix_should_stream(
     dedup_metadata_root: Path | None,
     dedup_action: str,
     source_mix_config_path: Path | None,
+    exclude_doc_keys_path: Path | None = None,
 ) -> bool:
+    if exclude_doc_keys_path is not None:
+        return True
     if mix_output_path is None:
         return False
     if source_mix_config_path is not None:
@@ -2433,7 +2458,7 @@ def materialize_filtered_mix_input(
         elif len(non_empty_shards) == 1:
             shutil.copy2(non_empty_shards[0], destination)
         else:
-            con = duckdb.connect()
+            con = _duckdb_connect_streaming()
             try:
                 con.execute(
                     f"""
@@ -2453,6 +2478,62 @@ def materialize_filtered_mix_input(
     }
 
 
+def materialize_doc_key_excluded_mix_input(
+    input_path: Path,
+    *,
+    exclude_doc_keys_path: Path,
+    destination: Path,
+) -> dict[str, Any]:
+    """Anti-join a selected-input parquet against an external doc_key drop list."""
+    if not exclude_doc_keys_path.exists():
+        raise ValueError(f"exclude_doc_keys_path does not exist: {exclude_doc_keys_path}")
+    ensure_dir(destination.parent)
+    if destination.exists():
+        destination.unlink()
+    con = _duckdb_connect_streaming()
+    try:
+        rows_before = con.execute(
+            f"SELECT count(*) FROM read_parquet({sql_quote(str(input_path))})"
+        ).fetchone()[0]
+        excluded_rows = con.execute(
+            f"""
+            SELECT count(*)
+            FROM read_parquet({sql_quote(str(input_path))}) AS src
+            JOIN (
+                SELECT DISTINCT doc_key
+                FROM read_parquet({sql_quote(str(exclude_doc_keys_path))})
+            ) AS drop_docs USING (doc_key)
+            """
+        ).fetchone()[0]
+        con.execute(
+            f"""
+            COPY (
+                SELECT src.*
+                FROM read_parquet({sql_quote(str(input_path))}) AS src
+                LEFT JOIN (
+                    SELECT DISTINCT doc_key
+                    FROM read_parquet({sql_quote(str(exclude_doc_keys_path))})
+                ) AS drop_docs USING (doc_key)
+                WHERE drop_docs.doc_key IS NULL
+                ORDER BY src.doc_key, src.source_dataset, src.source_doc_id
+            ) TO {sql_quote(str(destination))} (FORMAT parquet, COMPRESSION zstd)
+            """
+        )
+        rows_after = con.execute(
+            f"SELECT count(*) FROM read_parquet({sql_quote(str(destination))})"
+        ).fetchone()[0]
+    finally:
+        con.close()
+    return {
+        "input_path": str(input_path),
+        "exclude_doc_keys_path": str(exclude_doc_keys_path),
+        "output_path": str(destination),
+        "rows_before": int(rows_before or 0),
+        "excluded_rows": int(excluded_rows or 0),
+        "rows_after": int(rows_after or 0),
+    }
+
+
 def prepare_reduced_builder_bundle(
     *,
     dedup_metadata_root: Path,
@@ -2465,7 +2546,7 @@ def prepare_reduced_builder_bundle(
     reduced_bundle_root.mkdir(parents=True, exist_ok=True)
     reduced_doc_metadata_path = reduced_bundle_root / "doc_dedup_metadata.parquet"
     reduced_family_membership_path = reduced_bundle_root / "dedup_family_membership.parquet"
-    con = duckdb.connect()
+    con = _duckdb_connect_streaming()
     try:
         con.execute(
             f"""
@@ -2527,7 +2608,7 @@ def materialize_drop_action_deduped_mix(
     selected_duplicate_doc_keys_path = temp_root / "selected_duplicate_doc_keys.parquet"
     deduped_output_path = deduped_output_path or (temp_root / "deduped_mix_input.parquet")
     reduced_bundle_root = temp_root / "reduced_builder_bundle"
-    con = duckdb.connect()
+    con = _duckdb_connect_streaming()
     try:
         con.execute(
             f"""
@@ -2585,7 +2666,7 @@ def materialize_drop_action_deduped_mix(
         )
     duplicate_doc_keys.drop_duplicates().to_parquet(duplicate_doc_keys_path, index=False)
     deduped_duplicate_frame[["doc_key"]].drop_duplicates().to_parquet(selected_duplicate_doc_keys_path, index=False)
-    con = duckdb.connect()
+    con = _duckdb_connect_streaming()
     try:
         con.execute(
             f"""
@@ -2605,7 +2686,7 @@ def materialize_drop_action_deduped_mix(
 
 
 def summarize_mix_intermediate_path(input_path: Path) -> dict[str, Any]:
-    con = duckdb.connect()
+    con = _duckdb_connect_streaming()
     try:
         rows, chars = con.execute(
             f"""
@@ -2639,6 +2720,7 @@ def materialize_streaming_mix_selected_input(
     dedup_similarity_threshold: float | None,
     dedup_inter_dataset_policy: str,
     dedup_source_weights_path: Path | None,
+    exclude_doc_keys_path: Path | None = None,
 ) -> dict[str, Any]:
     ensure_dir(destination.parent)
     if destination.exists():
@@ -2657,10 +2739,20 @@ def materialize_streaming_mix_selected_input(
             math_mode=math_mode,
             latex_mode=latex_mode,
         )
+        external_drop_summary: dict[str, Any] | None = None
+        selected_for_dedup_path = filtered_input_path
+        if exclude_doc_keys_path is not None:
+            external_filtered_input_path = temp_root / "external_drop_filtered_input.parquet"
+            external_drop_summary = materialize_doc_key_excluded_mix_input(
+                filtered_input_path,
+                exclude_doc_keys_path=exclude_doc_keys_path,
+                destination=external_filtered_input_path,
+            )
+            selected_for_dedup_path = external_filtered_input_path
         dedup_summary: dict[str, Any] | None = None
         if dedup_metadata_root is not None and validate_dedup_action(dedup_action) in {"drop_intra", "drop_intra_and_inter"}:
             _, dedup_summary = materialize_drop_action_deduped_mix(
-                filtered_input_path,
+                selected_for_dedup_path,
                 dedup_metadata_root=dedup_metadata_root,
                 dedup_action=dedup_action,
                 dedup_exact_stage=dedup_exact_stage,
@@ -2671,10 +2763,11 @@ def materialize_streaming_mix_selected_input(
                 deduped_output_path=destination,
             )
         else:
-            filtered_input_path.replace(destination)
+            selected_for_dedup_path.replace(destination)
         selected_input_summary = summarize_mix_intermediate_path(destination)
         return {
             "filtered_input": filtered_summary,
+            "external_drop_summary": external_drop_summary,
             "selected_input": selected_input_summary,
             "dedup_action": dedup_action,
             "dedup_summary": dedup_summary,
@@ -2788,7 +2881,7 @@ def materialize_standard_training_filtered_selected_input(
         greek_ratio_gte=greek_ratio_gte,
         require_non_empty_content=require_non_empty_content,
     )
-    con = duckdb.connect()
+    con = _duckdb_connect_streaming()
     try:
         rows_before, chars_before = con.execute(
             f"""
@@ -2844,7 +2937,7 @@ def summarize_standard_training_filter_for_selected_input(
         greek_ratio_gte=greek_ratio_gte,
         require_non_empty_content=require_non_empty_content,
     )
-    con = duckdb.connect()
+    con = _duckdb_connect_streaming()
     try:
         rows_before, chars_before = con.execute(
             f"""
@@ -2880,7 +2973,7 @@ def select_source_mix_rows_to_parquet(
     input_filter_sql: str | None = None,
 ) -> dict[str, Any]:
     condition = combine_sql_conditions(input_filter_sql, source_mix_entry_condition_sql(entry))
-    con = duckdb.connect()
+    con = _duckdb_connect_streaming()
     try:
         available_rows, available_chars = con.execute(
             f"""
@@ -3014,7 +3107,7 @@ def apply_source_mix_to_parquet(
 ) -> dict[str, Any]:
     entries = load_source_mix_config(source_mix_config_path)
     base_condition = input_filter_sql or "TRUE"
-    con = duckdb.connect()
+    con = _duckdb_connect_streaming()
     try:
         rows_before, chars_before = con.execute(
             f"""
@@ -3053,7 +3146,7 @@ def apply_source_mix_to_parquet(
     if overlap is not None:
         raise ValueError("source mix entries overlap with one another; entries must be disjoint")
     resolved_entries: list[dict[str, Any]] = []
-    con = duckdb.connect()
+    con = _duckdb_connect_streaming()
     try:
         used_rows = 0
         used_chars = 0
@@ -3124,7 +3217,7 @@ def apply_source_mix_to_parquet(
         entry_summaries.append(entry_summary)
     if component_paths:
         component_glob = str((temp_root / "component_*.parquet").resolve())
-        con = duckdb.connect()
+        con = _duckdb_connect_streaming()
         try:
             con.execute(
                 f"""
@@ -3183,7 +3276,7 @@ def summarize_mix_output_duckdb(mix_output_path: Path) -> tuple[int, int, list[d
             r"'[\p{L}\p{N}_]+|[^\p{L}\p{N}_\s]'"
             "))"
         )
-    con = duckdb.connect()
+    con = _duckdb_connect_streaming()
     try:
         threads = max(1, os.cpu_count() or 1)
         con.execute(f"PRAGMA threads={threads}")
@@ -3369,7 +3462,7 @@ def build_mix_output_from_selected_input(
                 input_filter_sql=input_filter_sql,
             )
         else:
-            con = duckdb.connect()
+            con = _duckdb_connect_streaming()
             try:
                 con.execute(
                     f"""
@@ -3421,6 +3514,7 @@ def build_mix_export_streaming(
     dedup_inter_dataset_policy: str,
     dedup_source_weights_path: Path | None,
     source_mix_config_path: Path | None,
+    exclude_doc_keys_path: Path | None = None,
 ) -> dict[str, Any]:
     ensure_dir(mix_output_path.parent)
     with tempfile.TemporaryDirectory(prefix="glossapi_mix_", dir=str(mix_output_path.parent)) as temp_dir:
@@ -3441,6 +3535,7 @@ def build_mix_export_streaming(
             dedup_similarity_threshold=dedup_similarity_threshold,
             dedup_inter_dataset_policy=dedup_inter_dataset_policy,
             dedup_source_weights_path=dedup_source_weights_path,
+            exclude_doc_keys_path=exclude_doc_keys_path,
         )
         output_payload = build_mix_output_from_selected_input(
             selected_input_path,
@@ -3451,6 +3546,7 @@ def build_mix_export_streaming(
             **output_payload,
             "dedup_action": dedup_action,
             "dedup_summary": selected_input_payload["dedup_summary"],
+            "external_drop_summary": selected_input_payload["external_drop_summary"],
             "selected_input": selected_input_payload["selected_input"],
         }
 
@@ -4220,12 +4316,14 @@ def build_mix_export(
     dedup_inter_dataset_policy: str = "share_aware",
     dedup_source_weights_path: Path | None = None,
     source_mix_config_path: Path | None = None,
+    exclude_doc_keys_path: Path | None = None,
 ) -> dict[str, Any]:
     if build_mix_should_stream(
         mix_output_path=mix_output_path,
         dedup_metadata_root=dedup_metadata_root,
         dedup_action=dedup_action,
         source_mix_config_path=source_mix_config_path,
+        exclude_doc_keys_path=exclude_doc_keys_path,
     ):
         return build_mix_export_streaming(
             output_root=output_root,
@@ -4244,6 +4342,7 @@ def build_mix_export(
             dedup_inter_dataset_policy=dedup_inter_dataset_policy,
             dedup_source_weights_path=dedup_source_weights_path,
             source_mix_config_path=source_mix_config_path,
+            exclude_doc_keys_path=exclude_doc_keys_path,
         )
     frame = load_filtered_mix(
         output_root,

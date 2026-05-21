@@ -44,10 +44,18 @@ python3 tools/checkpoint/convert.py \
     --load-dir   /path/to/Apertus-8B-2509-hf-or-resized-hf \
     --save-dir   /path/to/Apertus-8B-2509-megatron \
     --tokenizer-model /path/to/Apertus-8B-2509-hf-or-resized-hf \
-    --bf16
+    --bf16 \
+    --loader-transformer-impl transformer_engine
 ```
 
 `--model-type GPT` is required (convert.py:114). `--saver core` writes the standard Megatron distributed-checkpoint format that `bakeoff_train.sbatch --load $INIT_CKPT --ckpt-format torch_dist` reads.
+
+### Empirically-required CLI knobs (added 2026-05-21 during R1)
+
+- **`--loader-transformer-impl transformer_engine`** — without this, `saver_core.validate_args(margs)` asserts `args.transformer_impl == "transformer_engine"` because the Apertus checkpoint propagates `qknorm_impl=apex` (megatron/training/arguments.py:811). The assertion message — "OP arguments are only checked with the TE transformer implementation" — is misleading; the real fix is to flip `loader_transformer_impl` away from its default `"local"`. The saver still writes whatever `--saver-transformer-impl` says (default `local`).
+- **`--bf16` is on the loader, not convert.py**'s top-level parser — `loader_apertus_hf.add_arguments` registers `--bf16` / `--fp16` itself (convert.py at pinned commit `c92402e3` does not). Verified empirically; "unrecognized argument: --bf16" if you omit `--bf16` from the loader's group.
+- **`saver_swissai_hf` does NOT accept `--bf16`** — only the loader. Don't pass `--bf16` on the back-leg `convert.py`.
+- **uenv image must contain `ApertusForCausalLM`** — `pytorch/v2.9.1:v2` ships transformers 4.57.0 and works; the older `pytorch/v2.6.0:v1` ships transformers 4.48.3 and fails with `ImportError: cannot import name 'ApertusForCausalLM'`. The loader falls back to `AutoModelForCausalLM` + `trust_remote_code=True`, but that still hits `ValueError: model_type apertus not recognized` on the 4.48 path. Use 2.9.1:v2 for both legs.
 
 ## Caveat: xIELU + QK-Norm trained values are NOT preserved through this path
 
@@ -56,6 +64,24 @@ python3 tools/checkpoint/convert.py \
 **For the modern-only bakeoff this is acceptable** — all three arms inherit the same defaults, so the cross-arm comparison stays valid. Absolute scores will be lower than running unmodified Apertus (which has its trained xIELU + QK-Norm state). Tracked as **R17** in [`../../../RISKS.md`](../../../RISKS.md).
 
 **For production CPT** a post-conversion patcher is needed: open the saved Megatron `torch_dist` checkpoint, walk the `*.distcp` shards, and overwrite the per-layer xIELU αp / αn / β / ε and QK-Norm q_norm / k_norm tensors from the HF source. Pseudocode in [`patch_apertus_extras.py`](patch_apertus_extras.py) (scaffold; needs Megatron checkpoint-format knowledge to complete). This is OUT OF SCOPE for the bakeoff and IN SCOPE for the production-CPT pre-submit checklist.
+
+## R1 result (2026-05-21, Apertus-8B-2509, job 2333864)
+
+| Metric | Result |
+|---|---|
+| Standard-tensor max abs diff | **`0.0`** (bit-perfect through bf16 cast) |
+| R17 keys changed | **`128`** — exactly `32 layers × 4 xIELU params` (`alpha_p`, `alpha_n`, `beta`, `eps`) per layer |
+| Shape mismatches | none |
+| Keys present in orig but not roundtrip | none |
+| Keys present in roundtrip but not orig | none |
+| Pass criterion | **PASS** (standard max abs diff < 1e-3, R17 drift expected) |
+
+**Reading:** the loader + saver carry every non-R17 weight bit-exactly. The 128 R17 deltas are exactly the per-layer xIELU parameters. Q-Norm / K-Norm are still expected to reset by mechanism, but the original R1 script only counted R17 keys whose absolute diff exceeded 1e-3, so q/k norms did not contribute to that 128 count. Future reruns of `r1_roundtrip.sbatch` print a separate q/k max-diff. This is the empirical justification for the bakeoff's two-V4-run plan: V4-HF (unmodified Apertus) and V4-post-conversion (Apertus → Megatron → HF) span the R17 risk so the bakeoff arms are compared on the same R17-reset footing.
+
+R1 sbatch lives at [`r1_roundtrip.sbatch`](r1_roundtrip.sbatch). It applies two extra fixes empirically required by saver_core:
+
+1. **Between legs, mark the Megatron checkpoint as `release`** — `saver_core` writes `iter_0000000/` + `latest_checkpointed_iteration.txt='0'`, but `loader_core.read_metadata` asserts `iteration > 0 OR file=='release'` (megatron/training/checkpointing.py:242). Rename `iter_0000000/` → `release/` and overwrite the iteration file with the literal string `release`.
+2. **Pass `--loader-transformer-impl transformer_engine` on BOTH legs** — both `saver_core` (leg 1) and `loader_core` (leg 2) call `validate_args(margs)` which triggers the OP-args assertion when `qknorm_impl=apex` + `transformer_impl != transformer_engine`.
 
 ## Roundtrip validation procedure (must run before first sbatch)
 
@@ -71,14 +97,22 @@ python3 tools/checkpoint/convert.py \
     --model-type GPT \
     --loader apertus_hf --saver core \
     --load-dir $APERTUS_HF --save-dir /tmp/apertus_megatron \
-    --tokenizer-model $APERTUS_HF --bf16
+    --tokenizer-model $APERTUS_HF --bf16 \
+    --loader-transformer-impl transformer_engine
+
+# 1b. saver_core writes iter_0000000 + latest_checkpointed_iteration.txt='0',
+#     but loader_core asserts iteration > 0 OR file=='release'. Convert to release.
+mv /tmp/apertus_megatron/iter_0000000 /tmp/apertus_megatron/release
+echo release > /tmp/apertus_megatron/latest_checkpointed_iteration.txt
 
 # 2. Megatron → HF (back). xIELU + QK-Norm tensors land at __init__ defaults.
+#    NOTE: saver_swissai_hf does NOT accept --bf16; only the loader does.
 python3 tools/checkpoint/convert.py \
     --model-type GPT \
     --loader core --saver swissai_hf \
     --load-dir /tmp/apertus_megatron --save-dir /tmp/apertus_hf_roundtrip \
-    --hf-tokenizer $APERTUS_HF --bf16
+    --hf-tokenizer $APERTUS_HF \
+    --loader-transformer-impl transformer_engine
 
 # 3. Diff with two-tier pass criterion
 python3 - <<'PY'
@@ -135,3 +169,4 @@ If swiss-ai already has an internal HF → Megatron loader (which they must, to 
 - [`README.md`](README.md) — this doc
 - [`loader_apertus_hf.py`](loader_apertus_hf.py) — the loader
 - [`install.sh`](install.sh) — symlink it into a Megatron-LM clone
+- [`r1_roundtrip.sbatch`](r1_roundtrip.sbatch) — Clariden sbatch that runs the full R1 procedure end-to-end; passed 2026-05-21 (job 2333864)

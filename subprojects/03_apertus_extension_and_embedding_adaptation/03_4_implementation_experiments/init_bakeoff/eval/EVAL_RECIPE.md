@@ -9,6 +9,8 @@ Two scopes:
 
 Both scopes use the **same task list and same harness flags** so the V4 baseline is the apples-to-apples comparator.
 
+> **2026-05-21 takeover note.** V4 job `2334245` completed the then-current script, but that script accidentally omitted `global_mmlu` from Group 1. Treat its copied artifacts as a valid partial baseline for the listed tasks, not as the final Table-14 baseline. `run_eval.sbatch` now includes `global_mmlu`; rerun V4-HF and V4-post-conversion before filling final §5.6 thresholds.
+
 ## Scope of tasks: match Apertus's pretraining-eval table, not post-training
 
 The bakeoff compares **pretraining-stage** checkpoints (no SFT, no DPO). Apertus's tech report reports two distinct eval tables:
@@ -38,23 +40,23 @@ Three groups. The wrappers in this directory take `--task-group {full|greek_only
 
 XNLI and Global-MMLU both include Greek (`xnli_el`, `global_mmlu_el`); these double as Greek-retention signals for the bakeoff. Per Apertus §5.1 footnote 45: *"All of our reported pretraining benchmarks follow the default configuration specified in lm-evaluation-harness"* — we adopt the same convention. Tasks **excluded** from the bakeoff because Apertus reports them only post-training: GSM8K, HumanEval, MBPP, IFEval, BBH (Table 22).
 
-### Group 2: Greek (ILSP suite + Belebele Greek + native GreekMMLU)
+### Group 2: Greek (native swissai-harness tasks + Belebele Greek)
 
-The [ILSP Greek Evaluation Suite collection](https://huggingface.co/collections/ilsp/ilsp-greek-evaluation-suite) has **no dedicated paper** — its core 6-test-set was introduced in Voukoutis et al., *Meltemi: The first open Large Language Model for Greek* ([arXiv:2407.20743](https://arxiv.org/abs/2407.20743), 2024), and extended in the Krikri paper ([arXiv:2505.13772](https://arxiv.org/abs/2505.13772), 2025). **Apertus does not separately evaluate on ILSP tasks** — Greek shows up only as one language inside the multilingual variants (Global-MMLU, XNLI, hellaswag_multilingual). For our bakeoff, ILSP gives us **dedicated Greek signal** beyond Apertus's multilingual coverage.
+**2026-05-21 update — empirically confirmed task availability.** The previous version of this table listed `arc_greek` / `hellaswag_greek` / `winogrande_greek` / `mmlu_greek` / `mmlu_pro_greek` / `truthfulqa_greek` / `medical_mcqa_greek` as `lm-eval-harness` task names. **Verified against the `swiss-ai/lm-evaluation-harness` clone on Clariden (2026-05-21, V4 attempt jobs 2333668 / 2333723):** those task names do not exist in the swissai harness — they live in the Meltemi/Krikri team's forks (`LeonVouk/lighteval`, `ilsp/lm-evaluation-harness-greek`) and have not landed upstream. The "reviewer flag" below was correct.
+
+**What we actually ship at V4** (the names below resolve in `swiss-ai/lm-evaluation-harness` and were used for V4 job 2334245):
 
 | Task | Source | `lm-eval-harness` task name | Few-shot |
 |---|---|---|---|
-| Greek ARC | `ilsp/arc_greek` | `arc_greek` | 25 |
-| Greek HellaSwag | `ilsp/hellaswag_greek` | `hellaswag_greek` | 10 |
-| Greek WinoGrande | `ilsp/winogrande_greek` | `winogrande_greek` | 5 |
-| Greek MMLU (ILSP, MT-adapted) | `ilsp/mmlu_greek` | `mmlu_greek` | 5 |
-| Greek MMLU-Pro | `ilsp/MMLU-Pro_greek` | `mmlu_pro_greek` | 5 |
-| Greek TruthfulQA | `ilsp/truthful_qa_greek` | `truthfulqa_greek` | 0 |
-| Greek Medical MCQA | `ilsp/medical_mcqa_greek` | `medical_mcqa_greek` | 0 |
+| Greek ARC (machine-translated) | swissai harness | `arc_challenge_mt_el` | 25 |
+| Greek MMLU (Global-MMLU, full Greek slice) | swissai harness | `global_mmlu_full_el` | 5 |
+| Greek MMLU-44 (INCLUDE-44, native Greek, 7 subjects) | `CohereForAI/include-base-44`, config `Greek` | `include_base_44_greek_few_shot_en` (group of 7 subtasks) | 5 |
+| Greek NLI | swissai harness | `xnli_el` | 0 |
+| Greek QA | swissai harness | `xquad_el` | 0 |
+| Greek PIQA (machine-translated) | swissai harness | `global_piqa_completions_ell_grek` | 0 |
 | Belebele Greek | `facebook/belebele`, config `ell_Grek` | `belebele_ell_Grek` | 5 |
-| GreekMMLU (Zhang 2026, native) | `dascim/GreekMMLU` (if accessible) | custom task config; not yet upstream | 5 |
 
-> **Reviewer flag**: lm-eval-harness task configs for the `*_greek` tasks above live in the **Meltemi / Krikri team's harness forks** (e.g. `LeonVouk/lighteval`, `ilsp/lm-evaluation-harness-greek`) — they have **not** landed in swiss-ai/lm-evaluation-harness or upstream EleutherAI/lm-evaluation-harness. [`pull_benchmarks.sh`](pull_benchmarks.sh) clones the swiss-ai fork as primary; the Meltemi/Krikri task YAMLs will need to be merged in at staging time. Confirm before submitting the V4 baseline.
+> **Reviewer flag (still open) — PF5 ILSP YAMLs.** The ILSP tasks the previous table claimed (`hellaswag_greek`, `winogrande_greek`, `mmlu_pro_greek`, `truthfulqa_greek`, `medical_mcqa_greek`) genuinely add Greek signal we don't currently have. The PF5 follow-up is to **port the YAML configs from `LeonVouk/lighteval` (or `ilsp/lm-evaluation-harness-greek`) into the swissai harness clone** so they resolve. Tracked as Task #55 in our running task list. Until PF5 lands, the bakeoff runs with the seven-task Greek list above + the multilingual coverage from Group 1.
 
 Greek post-training-only tasks (`ilsp/mgsm_greek`, `ilsp/ifeval_greek`, `ilsp/mt-bench-greek`, `ilsp/m-ArenaHard_greek`) are out of scope for the pretraining-stage bakeoff — see "Scope of tasks" above.
 
@@ -113,9 +115,27 @@ Per v0.7 §6.1 (Park et al. Oct 2025): downstream benchmark scores are noisy, an
 V4 baseline (one run) on Clariden:
 
 - partition: `normal`
-- shape: `-N 1 -t 4:00:00 --gres=gpu:4`
-- wall: ~3-4 h end-to-end for the full Group 1 + Group 2 sweep on a 1-node 4-GPU allocation
-- batch size: `auto` (lm-eval-harness picks per task)
+- shape: `-N 1 -t 4:00:00 --gpus-per-node=1` (V4 currently runs 1-GPU; the early 4-GPU plan was scaled back after PF5 / task-name corrections cut total work)
+- wall: ~1-2 h end-to-end for the seven Greek tasks + nine retention tasks at the corrected list (V4 job 2334245 mid-run as of 2026-05-21 12:30 UTC)
+- batch size: `auto` (lm-eval-harness picks per task; observed `auto:1` → `32` for Apertus-8B on bf16)
+
+### lm-eval-harness install path (Clariden, 2026-05-21)
+
+The uenv `pytorch/v2.9.1:v2`'s site-packages is read-only, so `pip install -e .` from the swissai clone fails with `[Errno 30] Read-only file system`. Workaround used by `run_eval.sbatch`:
+
+```bash
+# One-time, as part of CSCS staging:
+uenv start pytorch/v2.9.1:v2 --view=default
+cd /iopsstor/scratch/cscs/fffoivos/code/eval/lm-evaluation-harness-swissai
+pip install --target=/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval --quiet .
+pip install --target=/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval --no-deps --quiet accelerate
+# Delete the target's copy of huggingface-hub so the uenv's 0.36.0 wins over the
+# pip-installed 1.x (transformers 4.57.0 pins hf_hub<1.0):
+rm -rf /iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval/huggingface_hub
+rm -rf /iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval/huggingface_hub-*.dist-info
+```
+
+Then run_eval.sbatch sets `PYTHONPATH=/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval` and invokes `python3 -m lm_eval ...`. No `pip install -e .` at job-start time.
 
 Per-arm bakeoff eval at one checkpoint:
 

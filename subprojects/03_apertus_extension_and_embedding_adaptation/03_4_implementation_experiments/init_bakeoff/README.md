@@ -73,8 +73,10 @@ The bakeoff fires once these are complete (most are Clariden-side):
                        --vocab-size 148480 \
                        --arms vanilla retok centroid       # ~30 min (covers V2 + V14 + V15 + V16)
 
-[Clariden normal] # V4 baseline (gates §5.6 thresholds)
-                   bash eval/run_apertus_baseline.sh      # ~3-4 h
+[Clariden normal] # V4 baselines (gate §5.6 thresholds)
+                   bash eval/run_apertus_baseline.sh      # V4-HF; corrected task list includes global_mmlu
+                   # Also run run_eval.sbatch with MODEL_PATH=/capstor/.../r1_roundtrip_2333864/apertus_hf_roundtrip
+                   # for V4-post-conversion, the apples-to-apples comparator for bakeoff arms.
                    python3 eval/compute_bootstrap_cis.py /capstor/.../runs/eval/apertus_baseline_v4_*/
 
                   # Bakeoff: three arms in parallel

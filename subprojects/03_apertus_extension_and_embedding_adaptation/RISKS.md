@@ -138,7 +138,17 @@ If arm A and arm B see even slightly different streams, our "apples-to-apples" c
 
 **Mitigation candidate.** Post-conversion patcher that opens the Megatron `torch_dist` shards and overwrites xIELU + QK-Norm tensors from the HF source. Scaffold + design at [`init_bakeoff/megatron_patches/patch_apertus_extras.py`](03_4_implementation_experiments/init_bakeoff/megatron_patches/patch_apertus_extras.py). Not implemented (needs Clariden + Megatron checkpoint-format knowledge to validate); deferred to production-CPT prep.
 
-**Status**: open. Acceptable for the bakeoff; required before production CPT submission.
+**Empirical quantification (2026-05-21, R1 roundtrip job 2333864 on Apertus-8B-2509).** HF → Megatron → HF round-trip with our `loader_apertus_hf` + `saver_swissai_hf`:
+
+| | Result |
+|---|---|
+| Standard-tensor max abs diff | `0.0` (bit-perfect through bf16) |
+| R17 keys changed (> 1e-3) | **`128`** — exactly `32 layers × 4` (`act_fn.alpha_p`, `act_fn.alpha_n`, `act_fn.beta`, `act_fn.eps`) |
+| `q_norm` / `k_norm` weights | mechanism says they reset to ones-vector defaults through `saver_core`; the 2026-05-21 R1 script only counted R17 keys with diff > 1e-3, so q/k norms did not contribute to the `128` count. The sbatch now prints a separate q/k max-diff on future reruns. |
+
+This confirms R17 is real and isolated to the named xIELU + QK-Norm tensors. Standard transformer weights survive bit-exactly, which justifies the bakeoff's two-V4-run plan (V4-HF + V4-post-conversion) and the [`megatron_patches/README.md`](03_4_implementation_experiments/init_bakeoff/megatron_patches/README.md#r1-result-2026-05-21-apertus-8b-2509-job-2333864) pass criterion.
+
+**Status**: open. Quantified on Apertus-8B-2509. Acceptable for the bakeoff (all three arms inherit the same reset); required before production CPT submission.
 
 ---
 

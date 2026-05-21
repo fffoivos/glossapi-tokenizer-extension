@@ -7,9 +7,11 @@ suitable as input to Megatron-LM's `tools/preprocess_data.py` for binary
 tokenization (which is a separate, downstream step).
 
 Determinism: with the same `seed` and the same recipe + dataset revisions,
-the output stream is reproducible. The three bakeoff arms read the same
-JSONL so token streams are identical and the only differential is the
-init applied to the model.
+the output text stream is reproducible. All bakeoff arms read the same JSONL
+document order, then preprocessing intentionally produces two tokenized
+Megatron datasets: base-tokenizer IDs for Vanilla, extended-tokenizer IDs for
+ReTok/Centroid. Token IDs are therefore not identical across the base-vs-
+extended families; the controlled invariant is the underlying text stream.
 
 CLI:
     python3 mix_builder.py \\
@@ -25,7 +27,30 @@ the budget is a stop condition, not a hard cap. Expect ±2% slack.
 Hardware: streams from HF; needs internet to the HF mirror plus enough
 disk for the JSONL (estimate ~chars-per-token-target × 4 bytes per char
 for UTF-8 → ~28 GB JSONL for a 7 B-token target at chars/token ≈ 4).
-Use Clariden `xfer` for the actual run.
+Use Clariden `normal` partition (xfer is in maintenance till 2026-06-11);
+allocate ~64 GB RAM and one CPU socket.
+
+Compute justification (per [[feedback_compute_sweet_spot_justify]]):
+  * Parallelism: HuggingFace `datasets.interleave_datasets` streams each
+    source sequentially within its Iterator; multiple sources are
+    interleaved by sampling, not by parallel readers. Per-source IO is
+    the dominant cost for parquet sources (local_parquet) and is read in
+    pyarrow's internal-threadpool batch_size, which uses all cores
+    available. For HF-hosted sources (FineWeb-Edu etc.) IO is throttled
+    by the HF mirror.
+  * Tokenizer hot path: `tokenizer.encode(text)` is called once per row
+    for budget tracking. The Apertus fast (rust) tokenizer is GIL-free
+    but a single encode() call is single-threaded by design (parallelism
+    is at the batch level via `encode_batch`, not within one encode).
+    The row-at-a-time loop is intentionally cache-friendly for the
+    streaming-mix pattern; for a 7 B-token budget at ~10 MB/s
+    single-thread encode rate, walltime ≈ 45-50 min for the encode step,
+    well under our 6 h sbatch ceiling.
+  * Saturation: writes JSON-lines sequentially (single Python writer
+    holds the output file). The bottleneck shifts between tokenizer
+    encode (CPU-bound) and HF parquet load (IO-bound) depending on
+    source. We do not parallelize the writer because the bakeoff requires
+    determinism: identical interleave order across the three arms.
 """
 from __future__ import annotations
 import argparse

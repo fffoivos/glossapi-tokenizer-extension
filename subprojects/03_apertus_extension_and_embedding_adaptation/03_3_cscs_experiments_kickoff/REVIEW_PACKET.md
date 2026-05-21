@@ -47,7 +47,7 @@ landing them is gated on this review.
 |---:|---|---:|---|
 | 1 | [`ANALYSIS.md`](ANALYSIS.md) | 20 min | Δ since `experiments_plan.md` v0.12: resolved / partial / open / new directions. The map. |
 | 2 | [`SHIP_TOKENIZER_RECONSTRUCTION.md`](SHIP_TOKENIZER_RECONSTRUCTION.md) | 5 min | What's in `ship/apertus_greek_extended_153600/`, why a rebuild was necessary (HF-loadability bug in the polytonic builder's wrapper config), and the structural integrity + fertility-on-real-text verification. |
-| 3 | [`POLYTONIC_VOCAB_BUDGET_CHECK.md`](POLYTONIC_VOCAB_BUDGET_CHECK.md) | 10 min | Does the +5,120 polytonic budget make sense? Yes — sits in the middle of the 4,800-7,500 band predicted by the sub-1B-language scaling pattern derived from the May-13 vocab-attribution run. |
+| 3 | [`POLYTONIC_VOCAB_BUDGET_CHECK.md`](POLYTONIC_VOCAB_BUDGET_CHECK.md) | 10 min | Does the +5,120 polytonic budget make sense? Yes — sits inside the corrected ~4,000-6,300 post-extension band predicted by the sub-1B-language scaling pattern derived from the May-13 vocab-attribution run. |
 | 4 | [`CURRICULUM_AND_INIT_CORPUS.md`](CURRICULUM_AND_INIT_CORPUS.md) | 15 min | Reconciles `Apertus_plan.md` (colleague's PPL/quality/novelty ranking) with the dedup audit's per-source recommendations and a HPLT-broad foundation. Answers the two questions: (a) "fresh-only vs mixed for init pilots?" → **fresh-only** with explicit replay; (b) "what's the phase ordering?" → HPLT-broad → register diversity → academic+legal → dictionary gap restoration. |
 | 5 | [`CSCS_AUTH_WORKFLOW.md`](CSCS_AUTH_WORKFLOW.md) | 5 min | Daily cert refresh using `cscs-key sign --headless --duration 1d`. Verified end-to-end 2026-05-20. |
 | 6 | [`../03_4_implementation_experiments/AUTH_AND_NODE_FINDING.md`](../03_4_implementation_experiments/AUTH_AND_NODE_FINDING.md) | 5 min | Live Clariden probe: wait time is reservation-bound (next general window opens tomorrow ~03:33 UTC), QoS allows up to 4 nodes friction-free, recommended calibration shape is 1 node × 4× GH200 × 10 h × 1 B tokens. |
@@ -96,7 +96,7 @@ something concrete downstream:
 Executed (artifacts persist):
 
 - **Generated and verified the composite ship tokenizer** at [`ship/apertus_greek_extended_153600/`](ship/apertus_greek_extended_153600/) — 153,600 vocab, loadable via `AutoTokenizer`, polytonic NT compression 60→20 tokens, English/Russian unchanged.
-- **Derived the sub-1B-language slope** from the May-13 vocab attribution run; projected to the polytonic 223 M-token corpus; confirmed +5,120 is in-band.
+- **Derived the sub-1B-language slope** from the May-13 vocab attribution run; compared both the ~223 M pre-extension demand-side token count and the ~163 M post-extension apples-to-apples token count; confirmed +5,120 is in-band under the corrected post-extension comparison.
 - **Installed `cscs-key 1.1.0`** at `~/.local/bin/cscs-key` + **generated fresh Ed25519 keypair** at `~/.ssh/cscs-key{,.pub}` with explicit comment `cscs-key fffoivos@home 2026-05-20`. (The 19-byte placeholder files that were there got backed up to `.old.20260520`; they were "Permanent Redirect" HTML, not real keys.)
 - **Live-probed Clariden**: cert validity / queue depth / partition state / expected start times / QoS limits. Numbers in [`03_4 AUTH_AND_NODE_FINDING.md`](../03_4_implementation_experiments/AUTH_AND_NODE_FINDING.md).
 - **Updated parent [`03/README.md`](../README.md)** to index the new sub-subprojects, mark resolved decisions, and link to the open ones.
@@ -184,7 +184,7 @@ The reviewer's "what checked out" section reported clean reproductions
 of: (a) 153,600 ship-bundle manifest sha256s, (b) `AutoTokenizer` load
 returning `PreTrainedTokenizerFast` with vocab 153,600, (c) special-token
 ids 0/1/2/3, (d) base/C3/poly id-range checks, (e) the polytonic-budget
-fit `0.1341 × tokens^0.5688 / n=194 / 4,793-7,516 projection`. None of
+fit `0.1341 × tokens^0.5688 / n=194 / 4,007-6,284 corrected post-extension projection`. None of
 those are touched by the round-1 fixes — re-running the two scripts now
 will reproduce the same numbers plus the second (modern-only 148,480)
 bundle's checks. No files were changed for the reviewer's run because

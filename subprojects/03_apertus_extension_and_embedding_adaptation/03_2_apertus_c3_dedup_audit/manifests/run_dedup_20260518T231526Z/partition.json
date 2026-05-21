@@ -1,0 +1,5580 @@
+{
+  "run_id": "dedup_20260518T231526Z",
+  "scope": "hf_source_pool",
+  "total_shards": 618,
+  "total_bytes_est": 345364290753,
+  "per_worker_bytes_est": [
+    43191679929,
+    43166701102,
+    43170324208,
+    43188559667,
+    43158718742,
+    43162716406,
+    43156455253,
+    43169135446
+  ],
+  "shards": [
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/greek_phd.part-00000.parquet",
+      "bytes_est": 3622289422
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/openarchives.gr.part-00002.parquet",
+      "bytes_est": 3399380361
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/openarchives.gr.part-00000.parquet",
+      "bytes_est": 3389388409
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/openarchives.gr.part-00001.parquet",
+      "bytes_est": 3327608330
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/openarchives.gr.parquet",
+      "bytes_est": 3093122250
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/greek_phd.part-00001.parquet",
+      "bytes_est": 3029138518
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00028.parquet",
+      "bytes_est": 2022860806
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00029.parquet",
+      "bytes_est": 2022757388
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00031.parquet",
+      "bytes_est": 2004704467
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00044.parquet",
+      "bytes_est": 2004585578
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00030.parquet",
+      "bytes_est": 1996915181
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00015.parquet",
+      "bytes_est": 1972296039
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00014.parquet",
+      "bytes_est": 1938516247
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00013.parquet",
+      "bytes_est": 1923345214
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00045.parquet",
+      "bytes_est": 1916711362
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00012.parquet",
+      "bytes_est": 1912243532
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00000.parquet",
+      "bytes_est": 1847617738
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00200.parquet",
+      "bytes_est": 1846046897
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00043.parquet",
+      "bytes_est": 1822496608
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00042.parquet",
+      "bytes_est": 1818396287
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00001.parquet",
+      "bytes_est": 1817906302
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00201.parquet",
+      "bytes_est": 1816091633
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00041.parquet",
+      "bytes_est": 1799233367
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00040.parquet",
+      "bytes_est": 1784859348
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00026.parquet",
+      "bytes_est": 1745874787
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00027.parquet",
+      "bytes_est": 1742005130
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00046.parquet",
+      "bytes_est": 1741748328
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00025.parquet",
+      "bytes_est": 1736369850
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00024.parquet",
+      "bytes_est": 1733870705
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00009.parquet",
+      "bytes_est": 1690189062
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00011.parquet",
+      "bytes_est": 1687659165
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00010.parquet",
+      "bytes_est": 1683188797
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00008.parquet",
+      "bytes_est": 1669460782
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00002.parquet",
+      "bytes_est": 1626117651
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00202.parquet",
+      "bytes_est": 1625163586
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00047.parquet",
+      "bytes_est": 1614656041
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00037.parquet",
+      "bytes_est": 1599286403
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00038.parquet",
+      "bytes_est": 1586860463
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00036.parquet",
+      "bytes_est": 1585195652
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00039.parquet",
+      "bytes_est": 1573329873
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00022.parquet",
+      "bytes_est": 1559132250
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00003.parquet",
+      "bytes_est": 1551520247
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00203.parquet",
+      "bytes_est": 1550580622
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00023.parquet",
+      "bytes_est": 1544602323
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00021.parquet",
+      "bytes_est": 1520097738
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00007.parquet",
+      "bytes_est": 1517781764
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00005.parquet",
+      "bytes_est": 1514948559
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00205.parquet",
+      "bytes_est": 1514269100
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00020.parquet",
+      "bytes_est": 1510235845
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00004.parquet",
+      "bytes_est": 1503733087
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00005.parquet",
+      "bytes_est": 1492691608
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00034.parquet",
+      "bytes_est": 1477169108
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00006.parquet",
+      "bytes_est": 1467657665
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00035.parquet",
+      "bytes_est": 1461800606
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00001.parquet",
+      "bytes_est": 1460391615
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.10_1.part-00000.parquet",
+      "bytes_est": 1456757102
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00018.parquet",
+      "bytes_est": 1455550949
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00000.parquet",
+      "bytes_est": 1454475113
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00006.parquet",
+      "bytes_est": 1450341014
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00206.parquet",
+      "bytes_est": 1450006234
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00033.parquet",
+      "bytes_est": 1446661394
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00002.parquet",
+      "bytes_est": 1439390288
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00016.parquet",
+      "bytes_est": 1437866114
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00019.parquet",
+      "bytes_est": 1437243137
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00007.parquet",
+      "bytes_est": 1434903535
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00207.parquet",
+      "bytes_est": 1433203072
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00003.parquet",
+      "bytes_est": 1428896150
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00017.parquet",
+      "bytes_est": 1426414882
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00000.parquet",
+      "bytes_est": 1421573812
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00032.parquet",
+      "bytes_est": 1419039432
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00004.parquet",
+      "bytes_est": 1404831364
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00204.parquet",
+      "bytes_est": 1404035524
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00009.parquet",
+      "bytes_est": 1288681269
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00209.parquet",
+      "bytes_est": 1288377858
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00008.parquet",
+      "bytes_est": 1282009642
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00208.parquet",
+      "bytes_est": 1281775287
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00011.parquet",
+      "bytes_est": 1266891024
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00211.parquet",
+      "bytes_est": 1266358566
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00010.parquet",
+      "bytes_est": 1257705291
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00210.parquet",
+      "bytes_est": 1257115509
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/Apothetirio_Pergamos.parquet",
+      "bytes_est": 1236199547
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/OPUS__OpenSubtitles-el-v2018.parquet",
+      "bytes_est": 1189532401
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00014.parquet",
+      "bytes_est": 1188756764
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00214.parquet",
+      "bytes_est": 1188416546
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00013.parquet",
+      "bytes_est": 1129109352
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00213.parquet",
+      "bytes_est": 1128355189
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00012.parquet",
+      "bytes_est": 1126364502
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00212.parquet",
+      "bytes_est": 1125763416
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00015.parquet",
+      "bytes_est": 1111619777
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00215.parquet",
+      "bytes_est": 1111306983
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00016.parquet",
+      "bytes_est": 1104254170
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00216.parquet",
+      "bytes_est": 1102801304
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00018.parquet",
+      "bytes_est": 998201718
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00218.parquet",
+      "bytes_est": 997771664
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00017.parquet",
+      "bytes_est": 962899398
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00217.parquet",
+      "bytes_est": 962728392
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00057.parquet",
+      "bytes_est": 958708834
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00019.parquet",
+      "bytes_est": 953841027
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00219.parquet",
+      "bytes_est": 953519541
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00020.parquet",
+      "bytes_est": 948618296
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00220.parquet",
+      "bytes_est": 948134662
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00059.parquet",
+      "bytes_est": 948007196
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00058.parquet",
+      "bytes_est": 940922877
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00056.parquet",
+      "bytes_est": 929112515
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00025.parquet",
+      "bytes_est": 883384928
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00225.parquet",
+      "bytes_est": 882270181
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00023.parquet",
+      "bytes_est": 847085269
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00223.parquet",
+      "bytes_est": 846814595
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00024.parquet",
+      "bytes_est": 835403831
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00224.parquet",
+      "bytes_est": 835221824
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00022.parquet",
+      "bytes_est": 818511021
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00222.parquet",
+      "bytes_est": 818121487
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00055.parquet",
+      "bytes_est": 803822334
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00053.parquet",
+      "bytes_est": 800008816
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00021.parquet",
+      "bytes_est": 791618729
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00221.parquet",
+      "bytes_est": 791132184
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00052.parquet",
+      "bytes_est": 790758760
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00054.parquet",
+      "bytes_est": 784785191
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00011.parquet",
+      "bytes_est": 741407649
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00239.parquet",
+      "bytes_est": 740481153
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00016.parquet",
+      "bytes_est": 732898382
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00244.parquet",
+      "bytes_est": 732685481
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00001.parquet",
+      "bytes_est": 717365941
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00229.parquet",
+      "bytes_est": 716880917
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00000.parquet",
+      "bytes_est": 701924870
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00228.parquet",
+      "bytes_est": 701772057
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00020.parquet",
+      "bytes_est": 700451917
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00248.parquet",
+      "bytes_est": 700086413
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00012.parquet",
+      "bytes_est": 694338584
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00240.parquet",
+      "bytes_est": 694269726
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00017.parquet",
+      "bytes_est": 693081031
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00015.parquet",
+      "bytes_est": 692912025
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00243.parquet",
+      "bytes_est": 692806405
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00245.parquet",
+      "bytes_est": 692629119
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00018.parquet",
+      "bytes_est": 688103102
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00246.parquet",
+      "bytes_est": 687911957
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00013.parquet",
+      "bytes_est": 679191287
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00241.parquet",
+      "bytes_est": 679011051
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00014.parquet",
+      "bytes_est": 676592789
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00242.parquet",
+      "bytes_est": 676572873
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00026.parquet",
+      "bytes_est": 673689942
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00226.parquet",
+      "bytes_est": 673520679
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00003.parquet",
+      "bytes_est": 667608668
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00231.parquet",
+      "bytes_est": 667230936
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00019.parquet",
+      "bytes_est": 661367473
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00247.parquet",
+      "bytes_est": 661258855
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00002.parquet",
+      "bytes_est": 659587973
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00230.parquet",
+      "bytes_est": 659335698
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00051.parquet",
+      "bytes_est": 637560362
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00050.parquet",
+      "bytes_est": 637539742
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00048.parquet",
+      "bytes_est": 635982256
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "fw2hq_ell_grek",
+      "hf_repo": "epfml/FineWeb2-HQ",
+      "hf_repo_type": "dataset",
+      "hf_config": "ell_Grek",
+      "file": "ell_Grek/000_00049.parquet",
+      "bytes_est": 633288092
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00007.parquet",
+      "bytes_est": 621652160
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00008.parquet",
+      "bytes_est": 621091234
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00024.parquet",
+      "bytes_est": 618808696
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00025.parquet",
+      "bytes_est": 617933275
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00003.parquet",
+      "bytes_est": 608065085
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00000.parquet",
+      "bytes_est": 608043588
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00004.parquet",
+      "bytes_est": 607760955
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00001.parquet",
+      "bytes_est": 607622135
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00004.parquet",
+      "bytes_est": 602067445
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00005.parquet",
+      "bytes_est": 601892497
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00006.parquet",
+      "bytes_est": 595730097
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00007.parquet",
+      "bytes_est": 595612955
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00004.parquet",
+      "bytes_est": 594529161
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00232.parquet",
+      "bytes_est": 594228364
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00002.parquet",
+      "bytes_est": 593918005
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00003.parquet",
+      "bytes_est": 593661172
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00013.parquet",
+      "bytes_est": 589738006
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00008.parquet",
+      "bytes_est": 589641096
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00014.parquet",
+      "bytes_est": 589239742
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00009.parquet",
+      "bytes_est": 589147933
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00006.parquet",
+      "bytes_est": 581874524
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00234.parquet",
+      "bytes_est": 581535917
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00007.parquet",
+      "bytes_est": 580459148
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00005.parquet",
+      "bytes_est": 580416412
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00006.parquet",
+      "bytes_est": 580392705
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00235.parquet",
+      "bytes_est": 580226022
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00012.parquet",
+      "bytes_est": 572704097
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00013.parquet",
+      "bytes_est": 572659491
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00009.parquet",
+      "bytes_est": 568047140
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00237.parquet",
+      "bytes_est": 567888443
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00021.parquet",
+      "bytes_est": 567567977
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00249.parquet",
+      "bytes_est": 567421295
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00015.parquet",
+      "bytes_est": 565993289
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00016.parquet",
+      "bytes_est": 565658486
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00009.parquet",
+      "bytes_est": 563615528
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00010.parquet",
+      "bytes_est": 563354357
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00030.parquet",
+      "bytes_est": 562650237
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00011.parquet",
+      "bytes_est": 562307771
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00031.parquet",
+      "bytes_est": 562114150
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00012.parquet",
+      "bytes_est": 562082734
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00020.parquet",
+      "bytes_est": 558348456
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00021.parquet",
+      "bytes_est": 558148943
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00010.parquet",
+      "bytes_est": 557984698
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00011.parquet",
+      "bytes_est": 557902267
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00010.parquet",
+      "bytes_est": 556721246
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00001.parquet",
+      "bytes_est": 556703034
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00002.parquet",
+      "bytes_est": 556598962
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00238.parquet",
+      "bytes_est": 556568135
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00022.parquet",
+      "bytes_est": 547953586
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00023.parquet",
+      "bytes_est": 547925598
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00019.parquet",
+      "bytes_est": 547026652
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00020.parquet",
+      "bytes_est": 546675907
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00008.parquet",
+      "bytes_est": 543983357
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00236.parquet",
+      "bytes_est": 543887888
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00026.parquet",
+      "bytes_est": 542208800
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00023.parquet",
+      "bytes_est": 542143693
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00027.parquet",
+      "bytes_est": 542020013
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00024.parquet",
+      "bytes_est": 541859896
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00016.parquet",
+      "bytes_est": 541717164
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00017.parquet",
+      "bytes_est": 541545264
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00029.parquet",
+      "bytes_est": 540056940
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00030.parquet",
+      "bytes_est": 539949075
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00014.parquet",
+      "bytes_est": 534456473
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00015.parquet",
+      "bytes_est": 534407050
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00028.parquet",
+      "bytes_est": 533934814
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00029.parquet",
+      "bytes_est": 533676699
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00027.parquet",
+      "bytes_est": 531579921
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00028.parquet",
+      "bytes_est": 531533575
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00017.parquet",
+      "bytes_est": 527774344
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00018.parquet",
+      "bytes_est": 527511143
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00018.parquet",
+      "bytes_est": 524015655
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00044.parquet",
+      "bytes_est": 523949424
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00019.parquet",
+      "bytes_est": 523829269
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00045.parquet",
+      "bytes_est": 522850055
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00032.parquet",
+      "bytes_est": 521177301
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00033.parquet",
+      "bytes_est": 520846562
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00021.parquet",
+      "bytes_est": 518044869
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00022.parquet",
+      "bytes_est": 517979494
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00037.parquet",
+      "bytes_est": 517826025
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_2.part-00005.parquet",
+      "bytes_est": 517644365
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00233.parquet",
+      "bytes_est": 517567816
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00038.parquet",
+      "bytes_est": 517430789
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00033.parquet",
+      "bytes_est": 511831056
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00034.parquet",
+      "bytes_est": 511652729
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00041.parquet",
+      "bytes_est": 506805990
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00042.parquet",
+      "bytes_est": 506726362
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00025.parquet",
+      "bytes_est": 503909237
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00026.parquet",
+      "bytes_est": 503763339
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00039.parquet",
+      "bytes_est": 501184673
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00040.parquet",
+      "bytes_est": 501024469
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00031.parquet",
+      "bytes_est": 500731174
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00032.parquet",
+      "bytes_est": 500648700
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00042.parquet",
+      "bytes_est": 495906846
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00043.parquet",
+      "bytes_est": 495751625
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00038.parquet",
+      "bytes_est": 492906606
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00039.parquet",
+      "bytes_est": 492695282
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00034.parquet",
+      "bytes_est": 491192661
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00035.parquet",
+      "bytes_est": 491004076
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HuggingFaceFW__finewiki.parquet",
+      "bytes_est": 483548530
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/openarchives.gr.part-00003.parquet",
+      "bytes_est": 479790016
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00043.parquet",
+      "bytes_est": 463958302
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00044.parquet",
+      "bytes_est": 463872587
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00036.parquet",
+      "bytes_est": 462423441
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00037.parquet",
+      "bytes_est": 462373746
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00035.parquet",
+      "bytes_est": 449095144
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00036.parquet",
+      "bytes_est": 449073351
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00040.parquet",
+      "bytes_est": 446302769
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00041.parquet",
+      "bytes_est": 446278413
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00053.parquet",
+      "bytes_est": 435812517
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00054.parquet",
+      "bytes_est": 435422784
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00048.parquet",
+      "bytes_est": 434242628
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00049.parquet",
+      "bytes_est": 434226174
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00050.parquet",
+      "bytes_est": 428900814
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00051.parquet",
+      "bytes_est": 428695226
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00046.parquet",
+      "bytes_est": 428614909
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00047.parquet",
+      "bytes_est": 428524781
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00051.parquet",
+      "bytes_est": 424108577
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00052.parquet",
+      "bytes_est": 424051364
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00056.parquet",
+      "bytes_est": 402675684
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00057.parquet",
+      "bytes_est": 402389812
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00052.parquet",
+      "bytes_est": 399547250
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00053.parquet",
+      "bytes_est": 399502783
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00057.parquet",
+      "bytes_est": 399379443
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00058.parquet",
+      "bytes_est": 399335619
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00054.parquet",
+      "bytes_est": 396768746
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00055.parquet",
+      "bytes_est": 396707810
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00047.parquet",
+      "bytes_est": 395631557
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00048.parquet",
+      "bytes_est": 395526017
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00055.parquet",
+      "bytes_est": 391226963
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00056.parquet",
+      "bytes_est": 391202630
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00046.parquet",
+      "bytes_est": 385326901
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00045.parquet",
+      "bytes_est": 385323284
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00058.parquet",
+      "bytes_est": 378038123
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00059.parquet",
+      "bytes_est": 377988557
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00049.parquet",
+      "bytes_est": 376472637
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00050.parquet",
+      "bytes_est": 376439819
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00003.parquet",
+      "bytes_est": 365060223
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00074.parquet",
+      "bytes_est": 365036967
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00000.parquet",
+      "bytes_est": 363810938
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00071.parquet",
+      "bytes_est": 363653777
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.9_1.part-00027.parquet",
+      "bytes_est": 362849016
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00227.parquet",
+      "bytes_est": 362815144
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00068.parquet",
+      "bytes_est": 361265030
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00069.parquet",
+      "bytes_est": 361175269
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00066.parquet",
+      "bytes_est": 354281161
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00067.parquet",
+      "bytes_est": 353883427
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00006.parquet",
+      "bytes_est": 349686685
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00077.parquet",
+      "bytes_est": 349550493
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00065.parquet",
+      "bytes_est": 347565391
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00066.parquet",
+      "bytes_est": 347519625
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00060.parquet",
+      "bytes_est": 345306643
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00061.parquet",
+      "bytes_est": 345139932
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00008.parquet",
+      "bytes_est": 343308994
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00079.parquet",
+      "bytes_est": 343180590
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/Apothetirio_Kallipos.parquet",
+      "bytes_est": 337248970
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00005.parquet",
+      "bytes_est": 336784112
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00076.parquet",
+      "bytes_est": 336696900
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00004.parquet",
+      "bytes_est": 336301715
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00075.parquet",
+      "bytes_est": 336281040
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00064.parquet",
+      "bytes_est": 328371068
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00065.parquet",
+      "bytes_est": 328354561
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00009.parquet",
+      "bytes_est": 328218035
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00080.parquet",
+      "bytes_est": 327669976
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00062.parquet",
+      "bytes_est": 324916435
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00063.parquet",
+      "bytes_est": 324913222
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00061.parquet",
+      "bytes_est": 323441966
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00062.parquet",
+      "bytes_est": 323416924
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00059.parquet",
+      "bytes_est": 323068730
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00060.parquet",
+      "bytes_est": 322988711
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00067.parquet",
+      "bytes_est": 320460322
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00068.parquet",
+      "bytes_est": 320346204
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00063.parquet",
+      "bytes_est": 319923037
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00064.parquet",
+      "bytes_est": 319917597
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00007.parquet",
+      "bytes_est": 317825607
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00078.parquet",
+      "bytes_est": 317809452
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00001.parquet",
+      "bytes_est": 317277782
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00072.parquet",
+      "bytes_est": 317219257
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00002.parquet",
+      "bytes_est": 316179942
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00073.parquet",
+      "bytes_est": 316163179
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00106.parquet",
+      "bytes_est": 308023178
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00177.parquet",
+      "bytes_est": 307945080
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00024.parquet",
+      "bytes_est": 303234488
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00095.parquet",
+      "bytes_est": 303165248
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/ellinika_dedomena_europaikou_koinovouliou.parquet",
+      "bytes_est": 290981928
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/eurlex-greek-legislation.parquet",
+      "bytes_est": 288227414
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00014.parquet",
+      "bytes_est": 287468681
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00085.parquet",
+      "bytes_est": 287438480
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00029.parquet",
+      "bytes_est": 286451581
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00100.parquet",
+      "bytes_est": 286345086
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00036.parquet",
+      "bytes_est": 283911064
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00107.parquet",
+      "bytes_est": 283668547
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00023.parquet",
+      "bytes_est": 283495164
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00094.parquet",
+      "bytes_est": 283367558
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00027.parquet",
+      "bytes_est": 283246486
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00022.parquet",
+      "bytes_est": 283173904
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00093.parquet",
+      "bytes_est": 283125921
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00098.parquet",
+      "bytes_est": 283085575
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00018.parquet",
+      "bytes_est": 280081968
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00089.parquet",
+      "bytes_est": 280067646
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00017.parquet",
+      "bytes_est": 278657798
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00088.parquet",
+      "bytes_est": 278650928
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/openbook_gr.parquet",
+      "bytes_est": 277978303
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00013.parquet",
+      "bytes_est": 276586624
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00084.parquet",
+      "bytes_est": 276536305
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00010.parquet",
+      "bytes_est": 270696157
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00081.parquet",
+      "bytes_est": 270650465
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00016.parquet",
+      "bytes_est": 268900738
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00087.parquet",
+      "bytes_est": 268842581
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00037.parquet",
+      "bytes_est": 266689702
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00108.parquet",
+      "bytes_est": 266662664
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00030.parquet",
+      "bytes_est": 266296063
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00101.parquet",
+      "bytes_est": 266281274
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00033.parquet",
+      "bytes_est": 266147003
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00104.parquet",
+      "bytes_est": 266116933
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00028.parquet",
+      "bytes_est": 266009490
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00099.parquet",
+      "bytes_est": 265882023
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00097.parquet",
+      "bytes_est": 264281633
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00168.parquet",
+      "bytes_est": 264266430
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00015.parquet",
+      "bytes_est": 262787097
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00086.parquet",
+      "bytes_est": 262734639
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00038.parquet",
+      "bytes_est": 262338242
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00109.parquet",
+      "bytes_est": 262265889
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00110.parquet",
+      "bytes_est": 261604176
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00181.parquet",
+      "bytes_est": 261564492
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00103.parquet",
+      "bytes_est": 260519433
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00174.parquet",
+      "bytes_est": 260472604
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00104.parquet",
+      "bytes_est": 259845792
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00175.parquet",
+      "bytes_est": 259761188
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00031.parquet",
+      "bytes_est": 258977764
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00102.parquet",
+      "bytes_est": 258952839
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00026.parquet",
+      "bytes_est": 257689222
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00097.parquet",
+      "bytes_est": 257682114
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00012.parquet",
+      "bytes_est": 257329205
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00083.parquet",
+      "bytes_est": 257325800
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00034.parquet",
+      "bytes_est": 257002183
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00105.parquet",
+      "bytes_est": 256976823
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00032.parquet",
+      "bytes_est": 256765596
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00103.parquet",
+      "bytes_est": 256751020
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00039.parquet",
+      "bytes_est": 256732358
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00110.parquet",
+      "bytes_est": 256725625
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00090.parquet",
+      "bytes_est": 256483324
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00161.parquet",
+      "bytes_est": 256435079
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00011.parquet",
+      "bytes_est": 255947259
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00082.parquet",
+      "bytes_est": 255927599
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00021.parquet",
+      "bytes_est": 255815397
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00092.parquet",
+      "bytes_est": 255795472
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00020.parquet",
+      "bytes_est": 254201948
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00091.parquet",
+      "bytes_est": 254170553
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00106.parquet",
+      "bytes_est": 253672357
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00035.parquet",
+      "bytes_est": 253670443
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00019.parquet",
+      "bytes_est": 253456998
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00090.parquet",
+      "bytes_est": 253410495
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00025.parquet",
+      "bytes_est": 250653150
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00096.parquet",
+      "bytes_est": 250641704
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "cleanwiki_el",
+      "hf_repo": "HuggingFaceFW/clean-wikipedia",
+      "hf_repo_type": "dataset",
+      "hf_config": "el",
+      "file": "el/train-00000-of-00003.parquet",
+      "bytes_est": 247794031
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00084.parquet",
+      "bytes_est": 246106217
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00061.parquet",
+      "bytes_est": 245724518
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00155.parquet",
+      "bytes_est": 245723615
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00132.parquet",
+      "bytes_est": 245649175
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00123.parquet",
+      "bytes_est": 245098573
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00194.parquet",
+      "bytes_est": 244931643
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00114.parquet",
+      "bytes_est": 243340786
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00185.parquet",
+      "bytes_est": 243205180
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00077.parquet",
+      "bytes_est": 241123563
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "euroblocks_greek",
+      "hf_repo": "utter-project/EuroBlocks-SFT-Synthetic-1124",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/train-00000-of-00002.parquet",
+      "bytes_est": 241104643
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00148.parquet",
+      "bytes_est": 241065731
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00119.parquet",
+      "bytes_est": 238640613
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00190.parquet",
+      "bytes_est": 238577433
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00070.parquet",
+      "bytes_est": 238309862
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00141.parquet",
+      "bytes_est": 238289935
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00089.parquet",
+      "bytes_est": 238019062
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00160.parquet",
+      "bytes_est": 238005828
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00065.parquet",
+      "bytes_est": 237949540
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00136.parquet",
+      "bytes_est": 237764907
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00054.parquet",
+      "bytes_est": 237686303
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00125.parquet",
+      "bytes_est": 237618588
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00167.parquet",
+      "bytes_est": 236846288
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00096.parquet",
+      "bytes_est": 236836352
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00092.parquet",
+      "bytes_est": 235983656
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00163.parquet",
+      "bytes_est": 235926993
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00091.parquet",
+      "bytes_est": 235021987
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00162.parquet",
+      "bytes_est": 234985977
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00085.parquet",
+      "bytes_est": 234781049
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00156.parquet",
+      "bytes_est": 234637741
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00094.parquet",
+      "bytes_est": 233284815
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00165.parquet",
+      "bytes_est": 233199570
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00076.parquet",
+      "bytes_est": 230260933
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00147.parquet",
+      "bytes_est": 230251844
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00062.parquet",
+      "bytes_est": 230090573
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00133.parquet",
+      "bytes_est": 230079285
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00063.parquet",
+      "bytes_est": 229731681
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00112.parquet",
+      "bytes_est": 229651316
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00134.parquet",
+      "bytes_est": 229637290
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00183.parquet",
+      "bytes_est": 229621115
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00045.parquet",
+      "bytes_est": 229232680
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00125.parquet",
+      "bytes_est": 229119198
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00196.parquet",
+      "bytes_est": 229086111
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00057.parquet",
+      "bytes_est": 229066499
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00116.parquet",
+      "bytes_est": 229061055
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00128.parquet",
+      "bytes_est": 229006457
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00113.parquet",
+      "bytes_est": 228329338
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00184.parquet",
+      "bytes_est": 228318971
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00064.parquet",
+      "bytes_est": 227386978
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00135.parquet",
+      "bytes_est": 227344446
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00116.parquet",
+      "bytes_est": 226249340
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00187.parquet",
+      "bytes_est": 226213129
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00058.parquet",
+      "bytes_est": 224886254
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00129.parquet",
+      "bytes_est": 224842070
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00095.parquet",
+      "bytes_est": 224139454
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00166.parquet",
+      "bytes_est": 224121771
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00071.parquet",
+      "bytes_est": 222585569
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00142.parquet",
+      "bytes_est": 222561244
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00078.parquet",
+      "bytes_est": 222325463
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00149.parquet",
+      "bytes_est": 222295670
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00086.parquet",
+      "bytes_est": 222150406
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00157.parquet",
+      "bytes_est": 222096253
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00111.parquet",
+      "bytes_est": 221852486
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00049.parquet",
+      "bytes_est": 221747848
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00120.parquet",
+      "bytes_est": 221710960
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00182.parquet",
+      "bytes_est": 221688652
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00074.parquet",
+      "bytes_est": 221429975
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00082.parquet",
+      "bytes_est": 221425476
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00145.parquet",
+      "bytes_est": 221407993
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00083.parquet",
+      "bytes_est": 221390398
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00118.parquet",
+      "bytes_est": 221377022
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00189.parquet",
+      "bytes_est": 221360648
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00153.parquet",
+      "bytes_est": 221319753
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00154.parquet",
+      "bytes_est": 221058785
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00044.parquet",
+      "bytes_est": 220591141
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00115.parquet",
+      "bytes_est": 220585397
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00127.parquet",
+      "bytes_est": 220403275
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00198.parquet",
+      "bytes_est": 220356959
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00115.parquet",
+      "bytes_est": 220306233
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00186.parquet",
+      "bytes_est": 220282291
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00093.parquet",
+      "bytes_est": 220051451
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00164.parquet",
+      "bytes_est": 220044776
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00072.parquet",
+      "bytes_est": 219959073
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00143.parquet",
+      "bytes_est": 219941992
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00098.parquet",
+      "bytes_est": 219830812
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00169.parquet",
+      "bytes_est": 219826681
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00055.parquet",
+      "bytes_est": 219609552
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00122.parquet",
+      "bytes_est": 219576239
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00126.parquet",
+      "bytes_est": 219574999
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00193.parquet",
+      "bytes_est": 219440113
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00053.parquet",
+      "bytes_est": 219168307
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00124.parquet",
+      "bytes_est": 219161676
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00043.parquet",
+      "bytes_est": 218324942
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00114.parquet",
+      "bytes_est": 218316492
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00042.parquet",
+      "bytes_est": 217733763
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00113.parquet",
+      "bytes_est": 217707688
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00048.parquet",
+      "bytes_est": 217290271
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00119.parquet",
+      "bytes_est": 217271905
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00172.parquet",
+      "bytes_est": 216669369
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00101.parquet",
+      "bytes_est": 216667556
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00124.parquet",
+      "bytes_est": 215883524
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00195.parquet",
+      "bytes_est": 215877447
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00088.parquet",
+      "bytes_est": 215797306
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00159.parquet",
+      "bytes_est": 215782768
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00126.parquet",
+      "bytes_est": 215628701
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00197.parquet",
+      "bytes_est": 215604939
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00087.parquet",
+      "bytes_est": 215508183
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00158.parquet",
+      "bytes_est": 215492749
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00073.parquet",
+      "bytes_est": 215069244
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00144.parquet",
+      "bytes_est": 215047937
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00117.parquet",
+      "bytes_est": 214444142
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00188.parquet",
+      "bytes_est": 214431746
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00052.parquet",
+      "bytes_est": 214326162
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00123.parquet",
+      "bytes_est": 214316744
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00102.parquet",
+      "bytes_est": 214251791
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00173.parquet",
+      "bytes_est": 214243255
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00107.parquet",
+      "bytes_est": 213465859
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00178.parquet",
+      "bytes_est": 213448241
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00152.parquet",
+      "bytes_est": 213128438
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00081.parquet",
+      "bytes_est": 213121499
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00100.parquet",
+      "bytes_est": 213109056
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00075.parquet",
+      "bytes_est": 213034578
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00171.parquet",
+      "bytes_est": 213019684
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00146.parquet",
+      "bytes_est": 212994279
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00105.parquet",
+      "bytes_est": 212966559
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00176.parquet",
+      "bytes_est": 212955386
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00080.parquet",
+      "bytes_est": 212871355
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00151.parquet",
+      "bytes_est": 212861089
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00040.parquet",
+      "bytes_est": 212825347
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00111.parquet",
+      "bytes_est": 212825321
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00051.parquet",
+      "bytes_est": 212755471
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00056.parquet",
+      "bytes_est": 212722108
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00067.parquet",
+      "bytes_est": 212703901
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00138.parquet",
+      "bytes_est": 212700980
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00122.parquet",
+      "bytes_est": 212692315
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00127.parquet",
+      "bytes_est": 212582641
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00059.parquet",
+      "bytes_est": 212078995
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00130.parquet",
+      "bytes_est": 212073435
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00041.parquet",
+      "bytes_est": 212022002
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00112.parquet",
+      "bytes_est": 211984554
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00050.parquet",
+      "bytes_est": 211974891
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00121.parquet",
+      "bytes_est": 211947227
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00109.parquet",
+      "bytes_est": 211730387
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00180.parquet",
+      "bytes_est": 211723631
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00047.parquet",
+      "bytes_est": 211653755
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00118.parquet",
+      "bytes_est": 211643285
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00150.parquet",
+      "bytes_est": 210881201
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00079.parquet",
+      "bytes_est": 210879507
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00066.parquet",
+      "bytes_est": 209704572
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00137.parquet",
+      "bytes_est": 209695044
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00120.parquet",
+      "bytes_est": 208552224
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00191.parquet",
+      "bytes_est": 208540462
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00068.parquet",
+      "bytes_est": 208404516
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00139.parquet",
+      "bytes_est": 208396645
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00069.parquet",
+      "bytes_est": 208210527
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00140.parquet",
+      "bytes_est": 208189564
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00121.parquet",
+      "bytes_est": 207922801
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00192.parquet",
+      "bytes_est": 207894077
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00046.parquet",
+      "bytes_est": 207493283
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00117.parquet",
+      "bytes_est": 207474405
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00108.parquet",
+      "bytes_est": 206986602
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00179.parquet",
+      "bytes_est": 206968577
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00060.parquet",
+      "bytes_est": 206128687
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00131.parquet",
+      "bytes_est": 206124762
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00099.parquet",
+      "bytes_est": 205683688
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00170.parquet",
+      "bytes_est": 205674603
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_1.part-00069.parquet",
+      "bytes_est": 193492305
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00070.parquet",
+      "bytes_est": 193484842
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "cleanwiki_el",
+      "hf_repo": "HuggingFaceFW/clean-wikipedia",
+      "hf_repo_type": "dataset",
+      "hf_config": "el",
+      "file": "el/train-00001-of-00003.parquet",
+      "bytes_est": 179770040
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "cleanwiki_el",
+      "hf_repo": "HuggingFaceFW/clean-wikipedia",
+      "hf_repo_type": "dataset",
+      "hf_config": "el",
+      "file": "el/train-00002-of-00003.parquet",
+      "bytes_est": 178470062
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-fr/train-00001-of-00002.parquet",
+      "bytes_est": 159539727
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-fr/train-00000-of-00002.parquet",
+      "bytes_est": 159356304
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-it/train-00001-of-00002.parquet",
+      "bytes_est": 156884496
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-es/train-00001-of-00002.parquet",
+      "bytes_est": 155895051
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-pt/train-00001-of-00002.parquet",
+      "bytes_est": 155865556
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-pt/train-00000-of-00002.parquet",
+      "bytes_est": 155862583
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-nl/train-00001-of-00002.parquet",
+      "bytes_est": 155588837
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-es/train-00000-of-00002.parquet",
+      "bytes_est": 155387539
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-it/train-00000-of-00002.parquet",
+      "bytes_est": 155311413
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-nl/train-00000-of-00002.parquet",
+      "bytes_est": 155275075
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-en/train-00001-of-00002.parquet",
+      "bytes_est": 152260922
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "de-el/train-00001-of-00002.parquet",
+      "bytes_est": 152255491
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-en/train-00000-of-00002.parquet",
+      "bytes_est": 151810999
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "da-el/train-00001-of-00002.parquet",
+      "bytes_est": 151586312
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "de-el/train-00000-of-00002.parquet",
+      "bytes_est": 151522037
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "da-el/train-00000-of-00002.parquet",
+      "bytes_est": 151317767
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-sv/train-00001-of-00002.parquet",
+      "bytes_est": 150043353
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-sv/train-00000-of-00002.parquet",
+      "bytes_est": 149511494
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "euroblocks_greek",
+      "hf_repo": "utter-project/EuroBlocks-SFT-Synthetic-1124",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/train-00001-of-00002.parquet",
+      "bytes_est": 148635733
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-sk/train-00000-of-00001.parquet",
+      "bytes_est": 147988673
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-pl/train-00000-of-00001.parquet",
+      "bytes_est": 147809202
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "cs-el/train-00000-of-00001.parquet",
+      "bytes_est": 147623304
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-fi/train-00000-of-00002.parquet",
+      "bytes_est": 147533697
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-fi/train-00001-of-00002.parquet",
+      "bytes_est": 147495582
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-hu/train-00000-of-00001.parquet",
+      "bytes_est": 147168591
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-lv/train-00000-of-00001.parquet",
+      "bytes_est": 143743137
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-et/train-00000-of-00001.parquet",
+      "bytes_est": 142485257
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-lt/train-00000-of-00001.parquet",
+      "bytes_est": 141982494
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-sl/train-00000-of-00001.parquet",
+      "bytes_est": 136973237
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "bg-el/train-00000-of-00001.parquet",
+      "bytes_est": 105385882
+    },
+    {
+      "corpus_id": "apertus",
+      "source_id": "europarl_greek",
+      "hf_repo": "Helsinki-NLP/europarl",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "el-ro/train-00000-of-00001.parquet",
+      "bytes_est": 91718660
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/AI-team-UoA__greek_legal_code.parquet",
+      "bytes_est": 89026755
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "hplt_clean60",
+      "hf_repo": "fffoivos/hplt-greek-ge8-no-mt-clean60-wave4",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.8_2.part-00128.parquet",
+      "bytes_est": 83203631
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/HPLT__ell_Grek_ge8_no_mt_clean60.part-00199.parquet",
+      "bytes_est": 83193517
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/Wikisource_Greek_texts.parquet",
+      "bytes_est": 63399403
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/1000_prwta_xronia_ellhnikhs.parquet",
+      "bytes_est": 59327671
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/klasikh_arx_ell_grammateia.parquet",
+      "bytes_est": 39371440
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/opengov.gr-diaboyleuseis.parquet",
+      "bytes_est": 37132256
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/Ellinika_Keimena_Project_Gutenberg.parquet",
+      "bytes_est": 24067086
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/Sxolika_vivlia.parquet",
+      "bytes_est": 16070605
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/Ekklisiastika_Keimena.parquet",
+      "bytes_est": 7758265
+    },
+    {
+      "corpus_id": "hf_source_pool",
+      "source_id": "glossapi_nanochat",
+      "hf_repo": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "hf_repo_type": "dataset",
+      "hf_config": null,
+      "file": "data/dimodis_logotexnia.parquet",
+      "bytes_est": 241303
+    }
+  ]
+}

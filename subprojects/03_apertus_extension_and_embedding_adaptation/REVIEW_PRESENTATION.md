@@ -2,13 +2,13 @@
 
 *Single entry point for a reviewer. Every claim links to the artifact; every artifact links to the source. Trace any choice back to (a) the Apertus tech report (arXiv:2509.14233), (b) a peer-reviewed paper, or (c) explicit reasoning in `cpt_plan.md` v0.7.*
 
-**State 2026-05-21.** Recipe + sbatch + eval + two audit passes + risk inventory landed. **Reviewer round-2 surfaced 5 issues (3 Blockers + 2 High); all fixed** — see `AUDIT_FINDINGS.md` round-2 section and commits `9c1a800` (H4 + H5 + B2), `16296bb` (B3), `4f6bd38` (B1) + `60a196f` (R17). No CSCS jobs submitted; local smoke tests green. Two pre-submit blockers remain on Clariden (HF→Megatron loader roundtrip on Apertus-8B-2509; held-out eval slice reconstruction). Recipe is review-ready at the level of paper / sbatch / code-line fidelity.
+**State 2026-05-21 takeover.** Recipe + sbatch + eval + risk inventory have moved from paper review into live Clariden execution. R1 HF->Megatron->HF roundtrip passed on Apertus-8B-2509 (`2333864`) for standard tensors, with R17 xIELU/QK reset quantified. V4-HF job `2334245` produced valid artifacts for its listed tasks but omitted `global_mmlu`; corrected V4-HF and V4-post-conversion reruns are required before final §5.6 thresholds. Corpus build job `2334880` is running `prepare_greek_pool` with the DuckDB external-sort fix; the final `${SELECTED}` parquet is not complete yet. See [`SESSION_LOG_20260521.md`](SESSION_LOG_20260521.md), [`CSCS_OVERNIGHT_STATE.md`](CSCS_OVERNIGHT_STATE.md), and [`TAKEOVER_LOG_20260521.md`](TAKEOVER_LOG_20260521.md).
 
 ## TL;DR
 
 We're running a closed-form three-arm init bakeoff (**Vanilla / ReTok / Centroid**, 2 B tokens per arm) to decide how to initialize 17,408 new modern-Greek token embeddings before a 15-20 B-token Apertus-8B CPT on the GlossAPI Greek corpus. Training engine: **Apertus's own** `swiss-ai/Megatron-LM` + `swiss-ai/pretrain-code`. Hyperparameters: **Apertus's exact values** from paper Table C.4 + production sbatch, with three CPT-specific deviations called out explicitly.
 
-The recipe is **boringly faithful** to Apertus's pretraining wherever possible — no novel optimizers, no custom kernels. The only experimental variable is the embedding-init algorithm.
+The recipe is **boringly faithful** to Apertus's pretraining wherever possible — no novel optimizers, no custom kernels. The extended-vocab arms isolate the embedding-init algorithm; the Vanilla control intentionally also uses the base tokenizer and base-tokenized data.
 
 ## What we built
 
@@ -120,11 +120,11 @@ Two scopes, same task list:
 
 **Engine + citation:** Gao, Tow, Abbasi et al., Zenodo DOI [10.5281/zenodo.12608602](https://doi.org/10.5281/zenodo.12608602). `swiss-ai/lm-evaluation-harness` fork cited in Apertus tech report §5.1 footnote 45.
 
-**Reviewer flag:** ILSP Greek task YAMLs (`arc_greek`, `hellaswag_greek`, etc.) live in **Meltemi / Krikri** harness forks, **not** swiss-ai's. Staging-time merge needed before V4 baseline can run Greek tasks.
+**Reviewer flag:** ILSP Greek task YAMLs (`arc_greek`, `hellaswag_greek`, etc.) live in **Meltemi / Krikri** harness forks, **not** swiss-ai's. The current V4 path uses swissai-native Greek tasks; PF5 remains open if we want the ILSP-only tasks before final reporting.
 
 ## (5) Current state, scope gaps, and risks
 
-**Nothing has run on Clariden yet.** Local smoke tests are green (`bash -n` on all sbatch + `test_init_logic.py`). `mix_builder.py` `--stats-only` smoke ran cleanly. No SLURM submissions.
+**Clariden execution has started.** R1 is complete, V4-HF partial artifacts exist, and `prepare_greek_pool` is running. Local syntax checks remain green, but this packet should now be read with the live-state docs above.
 
 **Scope coverage vs v0.7.** Full table in [`COMPLETENESS_CHECK.md`](COMPLETENESS_CHECK.md). Headline:
 
@@ -141,7 +141,7 @@ Two scopes, same task list:
 
 | | Risk | What catches it |
 |---|---|---|
-| R1 | HF→Megatron QKV interleaving in our `loader_apertus_hf.py` is untested | Roundtrip on Apertus-8B-2509 (procedure in `megatron_patches/README.md`); must run before first sbatch |
+| R1 | HF→Megatron QKV interleaving in our `loader_apertus_hf.py` | CLOSED for standard tensors by job `2333864`; R17 remains open for xIELU/QK reset and requires V4-post-conversion comparison |
 | R2 | Token-stream determinism across arms unverified (no MD5 of mix_builder output) | 15-min addition to `mix_builder.py`; not done |
 | R3 | Held-out Greek eval slice cleanliness vs Apertus pretraining | reconstruct the dedup-audit val/test partition on Clariden xfer |
 | R4 | ReTok / Centroid surface-form decode leading-space artifact | 30-min unit test on a sample of new tokens; not done |

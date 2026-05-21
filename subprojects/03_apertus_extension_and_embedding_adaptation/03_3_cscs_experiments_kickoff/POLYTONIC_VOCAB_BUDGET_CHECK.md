@@ -10,12 +10,13 @@ canonical languages Apertus's vocab serves.*
 | | value |
 |---|---|
 | Polytonic training corpus | **18,716 rows, 510,571,970 chars, 1,001 MB UTF-8** across train+val+test (the 802 MB figure that may appear elsewhere is the train split alone). |
-| Apertus-base+C3 fertility on that corpus | 2.29 chars/token |
-| **Implied training-token count** | **≈ 223 M tokens** — comfortably sub-1B ✓ |
+| Pre-polytonic Apertus+C3 fertility on that corpus | 2.2925 chars/token |
+| Post-+5,120 fertility on that corpus | 3.1376 chars/token |
+| **Comparable training-token count** | **≈ 163 M post-extension tokens** — comfortably sub-1B ✓ |
 | Sub-1B + Greek-script anchor (grc_Grek) | 128 M tokens → 3,502 vocab fired ≥100 |
 | Script-isolated sub-1B power-law fit | `vocab_fired_geq_100 ≈ 0.1341 × tokens^0.5688`  (R² = 0.783, n=194) |
-| **Pattern prediction at 223 M tokens** | **≈ 4,800 – 7,500 distinctive vocab tokens** |
-| **Decided polytonic added-vocab** | **+5,120** (mid-range of the prediction ✓) |
+| **Pattern prediction at 163 M comparable tokens** | **≈ 4,000 – 6,300 distinctive vocab tokens** |
+| **Decided polytonic added-vocab** | **+5,120** (inside the corrected prediction band ✓) |
 | **Closest 256-divisible total** | **153,600 = 256 × 600** (current ship) |
 
 The +5,120 budget chosen by the polytonic team **lines up with the sub-1B-language pattern**. No change is needed.
@@ -41,11 +42,23 @@ The polytonic run measured chars-per-token directly:
 | variant | chars_per_token (poly_val_balanced) | tokens at 510 M chars |
 |---|---:|---:|
 | `c3p_poly_added_0000` (C3 base, no polytonic added) | 2.2925 | **≈ 222.7 M** |
-| `c3p_poly_added_5120` (+5,120 polytonic) | 3.1389 | ≈ 162.6 M |
+| `c3p_poly_added_5120` (+5,120 polytonic) | 3.1376 | ≈ 162.7 M |
 
 Source: [`FULL_REPORT.md`](../../02_1_tokenizer_experiments/02_1_polytonic_greek_extension/analysis/c3p_polytonic_20260518T_impl/report/FULL_REPORT.md) §"Balanced Held-Out Metrics".
 
-The training-corpus *budget* relevant for scaling is the **pre-extension** token count — what the polytonic corpus looks like to a tokenizer that does not yet know polytonic. That number is **≈ 223 M tokens**, well below 1 B. The post-extension number (~163 M) is the compressed view after polytonic units start absorbing multi-byte fallbacks.
+There are two useful denominators:
+
+- **Pre-extension tokens (~223 M)** measure the size of the compression
+  problem: how the corpus looks before the tokenizer has polytonic units.
+- **Post-extension tokens (~163 M)** are the apples-to-apples comparison
+  against the existing-language vocab-attribution run. That run measured
+  each language after tokenizing it with the already-existing Apertus
+  tokenizer, then related `sample_tokens_total` to how many vocab entries
+  fired.
+
+For the vocab-vs-training-tokens pattern, the corrected denominator is
+therefore the post-extension estimate. The pre-extension number is still
+useful context, but it should not be the only scaling comparison.
 
 ## 3. Where the sub-1B pattern came from
 
@@ -81,31 +94,46 @@ R² = 0.783. Calibration anchors:
 
 The small-corpus Greek anchors over-fire the fit (the model has more Greek substrate than the per-corpus signal alone would predict). The grc_Grek anchor at 128 M tokens is the most-comparable size to our polytonic corpus — fit predicts 5,491, actual was 3,502 (fit over-predicts by ~57 %).
 
-### 3.3 Projection at 223 M tokens
+### 3.3 Projection at the polytonic corpus size
 
-Two reads:
+The original pre-extension read was:
 
-1. **Pure fit**: 0.1341 × 223,000,000^0.5688 ≈ **7,516** vocab entries with ≥100 firings.
-2. **grc_Grek-anchored** (more conservative — uses the actual 128 M-token Ancient-Greek measurement and scales by the fit's exponent): 3,502 × (223/128)^0.5688 ≈ **4,793** vocab entries with ≥100 firings.
+- **Pure fit at ~223 M tokens**: **~7,512** vocab entries with ≥100 firings.
+- **grc_Grek-anchored at ~223 M tokens**: **~4,790** vocab entries with ≥100 firings.
 
-The two reads bracket the answer at **roughly 4,800 – 7,500 distinctive vocab tokens** that a 223 M-token script-isolated language is "worth" in Apertus's vocab budget.
+The apples-to-apples post-extension read is:
+
+- **Pure fit at ~163 M tokens**: **~6,284** vocab entries with ≥100 firings.
+- **grc_Grek-anchored at ~163 M tokens**: **~4,007** vocab entries with ≥100 firings.
+
+So the corrected comparison band is **roughly 4,000 – 6,300 distinctive
+vocab tokens**. The pre-extension band **roughly 4,800 – 7,500** is a
+useful demand-side upper read, but the post-extension band is the one
+that best matches the existing-language measurement.
 
 ## 4. Comparison to the chosen polytonic budget
 
 The polytonic-extension team picked **+5,120** added tokens as the canonical ship of the `c3p_polytonic_20260518T_impl` run, on top of C3's 148,480 → final vocab **153,600 = 256 × 600**.
 
-| budget | total vocab | 256-aligned | inside pattern range (4,800 – 7,500)? | comment |
+| budget | total vocab | 256-aligned | inside corrected range (4,000 – 6,300)? | comment |
 |---:|---:|:---:|:---:|---|
-| +3,584 | 152,064 = 256 × 594 | ✓ | below | substrate-heavy interpretation |
-| +4,608 | 153,088 = 256 × 598 | ✓ | inside (just) | matches grc_Grek anchor exactly |
+| +3,584 | 152,064 = 256 × 594 | ✓ | below | below post-extension grc_Grek-anchored read |
+| +4,608 | 153,088 = 256 × 598 | ✓ | inside | conservative read |
 | **+5,120** | **153,600 = 256 × 600** | **✓** | **inside ✓** | **CURRENT SHIP** |
-| +7,168 | 155,648 = 256 × 608 | ✓ | inside (top) | matches pure-fit prediction |
-| +7,680 | 156,160 = 256 × 610 | ✓ | top edge | upper bound of pure-fit |
+| +7,168 | 155,648 = 256 × 608 | ✓ | above | inside only under the pre-extension demand-side upper read |
+| +7,680 | 156,160 = 256 × 610 | ✓ | above | above corrected post-extension band |
 | +10,240 | 158,720 = 256 × 620 | ✓ | above | overshoots pattern |
 
-**Verdict**: +5,120 sits cleanly in the middle of the pattern's prediction band. The decision is consistent with the sub-1B-language scaling.
+**Verdict**: +5,120 sits inside the corrected post-extension prediction
+band and remains defensible. The earlier 223 M-token / 4,800-7,500
+framing was a useful compression-demand estimate, but it slightly
+overstated the apples-to-apples vocab-vs-token comparison.
 
-There is some headroom to go higher (the [`FULL_REPORT.md`](../../02_1_tokenizer_experiments/02_1_polytonic_greek_extension/analysis/c3p_polytonic_20260518T_impl/report/FULL_REPORT.md) shows fertility curve still declines at Δ-0.02 per +512 step at the right edge, and added-vocab utilization remains 98.5 %), but each additional 1k tokens past +5,120 buys progressively less. **+5,120 is defensible as the current ship**; if a later quality measurement on the polytonic deployment register motivates more budget, the closest 256-aligned step up is **+7,168 → 155,648**.
+There is some headroom to go higher if quality measurements on the
+polytonic deployment register demand it, but the corrected scaling
+comparison no longer argues for +7,168 as the natural next budget.
+That higher point belongs to the pre-extension demand-side upper read.
+On current evidence, **+5,120 is defensible as the current ship**.
 
 ## 5. What this means for `experiments_plan.md`
 
@@ -133,7 +161,10 @@ n=len(xs); mx=sum(xs)/n; my=sum(ys)/n
 b = sum((xs[i]-mx)*(ys[i]-my) for i in range(n)) / sum((xs[i]-mx)**2 for i in range(n))
 a = math.exp(my - b*mx)
 print(f'fit: vocab_fired_geq_100 ≈ {a:.4f} × tokens^{b:.4f}, n={n}')
-print(f'at 223M tokens: {a*(223_000_000**b):.0f}')
+pre_tokens = 510_571_970 / 2.292540745595887
+post_tokens = 510_571_970 / 3.137649432097194
+print(f'at {pre_tokens/1e6:.1f}M pre-extension tokens: {a*(pre_tokens**b):.0f}')
+print(f'at {post_tokens/1e6:.1f}M post-extension tokens: {a*(post_tokens**b):.0f}')
 print(f'at 128M tokens (grc_Grek anchor): {a*(128_000_000**b):.0f} (actual: {m[\"grc_Grek\"][\"vocab_entries_fired_geq_100\"]})')
 "
 ```
@@ -143,6 +174,8 @@ Output (verified 2026-05-20 — see [`scripts/verify_polytonic_budget.py`](scrip
 ```
 fit: vocab_fired_geq_100 ≈ 0.1341 × tokens^0.5688, n=194
 at 128M tokens (grc_Grek anchor): 5491 (actual: 3502 → fit over-predicts ~57%)
-at 223M tokens (polytonic corpus): 7516 (pure fit)
-                                   4793 (grc_Grek-anchored, scaling 3502 by (223/128)^0.5688)
+at 222.7M pre-extension tokens: 7512 (pure fit)
+                                4790 (grc_Grek-anchored)
+at 162.7M post-extension tokens: 6284 (pure fit)
+                                 4007 (grc_Grek-anchored)
 ```

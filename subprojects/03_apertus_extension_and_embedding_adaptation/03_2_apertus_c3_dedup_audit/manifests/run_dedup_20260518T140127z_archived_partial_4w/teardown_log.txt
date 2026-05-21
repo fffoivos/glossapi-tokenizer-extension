@@ -1,0 +1,18 @@
+=== teardown start 2026-05-18T18:52:59Z RUN_ID=dedup_20260518T140127z ===
+[teardown] no instances found with workload=apertus-c3-dedup AND run=dedup_20260518t140127z
+=== teardown start 2026-05-18T19:28:50Z RUN_ID=dedup_20260518T140127z ===
+[teardown] deleting:
+dedup-w0-dedup-20260518t140127z
+dedup-w3-dedup-20260518t140127z
+dedup-w5-dedup-20260518t140127z
+dedup-w6-dedup-20260518t140127z
+Deleted [https://www.googleapis.com/compute/v1/projects/eellak-glossapi-20251008/zones/europe-west4-b/instances/dedup-w0-dedup-20260518t140127z].
+Deleted [https://www.googleapis.com/compute/v1/projects/eellak-glossapi-20251008/zones/europe-west4-b/instances/dedup-w3-dedup-20260518t140127z].
+Deleted [https://www.googleapis.com/compute/v1/projects/eellak-glossapi-20251008/zones/europe-west4-b/instances/dedup-w5-dedup-20260518t140127z].
+Deleted [https://www.googleapis.com/compute/v1/projects/eellak-glossapi-20251008/zones/europe-west4-b/instances/dedup-w6-dedup-20260518t140127z].
+[teardown] remaining instances with this run label: 0
+=== teardown done 2026-05-18T19:30:23Z — zero remaining ===
+=== teardown start 2026-05-18T19:47:05Z RUN_ID=dedup_20260518T140127z ===
+[teardown] no instances found with workload=apertus-c3-dedup AND run=dedup_20260518t140127z
+[teardown] remaining instances with this run label: 0
+=== teardown done 2026-05-18T19:47:11Z — zero remaining ===
