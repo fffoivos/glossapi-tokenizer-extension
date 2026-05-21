@@ -28,17 +28,26 @@
 # Inputs (env vars or defaults):
 #   INPUT_JSONL    — output of corpus_build/mix_builder.py
 #   OUTPUT_PREFIX  — Megatron output prefix (will produce <prefix>.bin + <prefix>.idx)
-#   TOKENIZER_DIR  — HF-format tokenizer dir (the 148,480 modern-only ship bundle)
+#   TOKENIZER_DIR  — HF-format tokenizer dir
+#                      For Vanilla bakeoff data: $BASE_TOKENIZER_DIR (131,072 base)
+#                      For ReTok/Centroid data: $EXT_TOKENIZER_DIR  (148,480 ship bundle)
 #   WORKERS        — preprocess workers (default 64; xfer partition has 256 vCPU)
+#
+# Per reviewer round-2 Blocker 2: must be invoked TWICE — once per tokenizer —
+# producing two separately-tokenized Megatron binaries. The Vanilla arm's
+# 131,072-vocab embedding table can't index IDs from a 148,480-vocab
+# tokenization (out-of-range), so the two arm families need separate inputs.
+# Helper at the bottom of this file: see "Per-tokenizer pair invocation".
 
 set -euo pipefail
 
-# Source common config (paths to Megatron-LM-Swiss-AI, etc.)
+# Source common config (paths to Megatron-LM-Swiss-AI, BASE_/EXT_ paths, etc.)
 source "$(dirname "$0")/_train_config_common.env"
 
 INPUT_JSONL="${INPUT_JSONL:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl}"
-OUTPUT_PREFIX="${OUTPUT_PREFIX:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_megatron/bulk_mix}"
-TOKENIZER_DIR="${TOKENIZER_DIR:-/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480}"
+# Default to extended (the "main" arm), but caller should override per family.
+OUTPUT_PREFIX="${OUTPUT_PREFIX:-$EXT_DATA_PREFIX}"
+TOKENIZER_DIR="${TOKENIZER_DIR:-$EXT_TOKENIZER_DIR}"
 WORKERS="${WORKERS:-64}"
 
 mkdir -p "$(dirname "$OUTPUT_PREFIX")"

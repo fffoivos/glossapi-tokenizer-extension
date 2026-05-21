@@ -40,10 +40,19 @@ LIMIT_ARG=""
 
 LM_EVAL_HARNESS_DIR="${LM_EVAL_HARNESS_DIR:-/iopsstor/scratch/cscs/fffoivos/code/eval/lm-evaluation-harness-swissai}"
 
-# Task lists per group (lm-eval-harness task names)
+# Task lists per group. Synced to EVAL_RECIPE.md (Apertus Table-14 pretraining
+# evals only; Table-22 post-training tasks excluded — see EVAL_RECIPE.md "Scope
+# of tasks: match Apertus's pretraining-eval table, not post-training").
 declare -A TASK_LISTS
-TASK_LISTS[retention]="arc_challenge,arc_easy,hellaswag,winogrande,piqa,mmlu,gsm8k,xnli,xcopa,humaneval"
-TASK_LISTS[greek]="arc_greek,hellaswag_greek,winogrande_greek,mmlu_greek,mmlu_pro_greek,truthfulqa_greek,mgsm_greek,medical_mcqa_greek,ifeval_greek,belebele_ell_Grek"
+# Group 1: Apertus pretraining-eval set per Table 14.
+# Includes Global-MMLU (multilingual Greek-inclusive); excludes GSM8K, HumanEval
+# (Table-22 post-training only, won't fluctuate meaningfully from a CPT init choice).
+TASK_LISTS[retention]="arc_challenge,arc_easy,hellaswag,winogrande,piqa,mmlu,global_mmlu,xnli,xcopa"
+# Group 2: ILSP Greek suite (dedicated Greek signal beyond multilingual coverage).
+# Excludes mgsm_greek + ifeval_greek (post-training-only Greek variants per EVAL_RECIPE.md
+# "Greek post-training-only tasks" note).
+TASK_LISTS[greek]="arc_greek,hellaswag_greek,winogrande_greek,mmlu_greek,mmlu_pro_greek,truthfulqa_greek,medical_mcqa_greek,belebele_ell_Grek"
+# Group 3: safety. Inspect AI suite; lower priority for the bakeoff selection.
 TASK_LISTS[safety]="harmbench,polyglotoxicityprompts,attaq_greek"
 
 case "$TASK_GROUP" in

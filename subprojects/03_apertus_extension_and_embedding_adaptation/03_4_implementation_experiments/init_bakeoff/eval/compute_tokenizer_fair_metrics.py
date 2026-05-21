@@ -179,6 +179,8 @@ def main() -> int:
     per_source = defaultdict(lambda: defaultdict(float))
     per_register = defaultdict(lambda: defaultdict(float))
     strr_words: list[str] = []
+    n_truncated = 0
+    n_tokens_dropped_to_truncation = 0
 
     t0 = time.time()
     n_seen = 0
@@ -190,16 +192,30 @@ def main() -> int:
         source = row.get("source") or "unknown"
         register = row.get("register") or "unknown"
 
-        stats = _compute_text_stats(text)
-        # Gather words for the global STRR (capped to keep tokenizer-only cost bounded)
+        # Tokenize once + truncate to max_context.
+        # CRITICAL: char/byte/word stats must be computed on the same prefix
+        # that was actually tokenized and forwarded — NOT on the full text —
+        # otherwise BPC + NLL/char divide prefix-only loss by full-document
+        # denominators and the primary intrinsic metrics come out artificially
+        # low (reviewer round-2 finding, High 5). For truncated docs we decode
+        # the truncated ID list back to recover the exact scored substring.
+        ids_full = tok.encode(text, add_special_tokens=False)
+        if args.max_context and len(ids_full) > args.max_context:
+            ids = ids_full[: args.max_context]
+            scored_text = tok.decode(ids, skip_special_tokens=False)
+            n_truncated += 1
+            n_tokens_dropped_to_truncation += (len(ids_full) - len(ids))
+        else:
+            ids = ids_full
+            scored_text = text
+        n_tokens = len(ids)
+
+        stats = _compute_text_stats(scored_text)
+
+        # STRR words come from the full text (it's a tokenizer-only metric;
+        # not coupled to the forward pass).
         if len(strr_words) < 200_000:
             strr_words.extend(_WORD_RE.findall(text)[:1000])
-
-        # Tokenize
-        ids = tok.encode(text, add_special_tokens=False)
-        if args.max_context and len(ids) > args.max_context:
-            ids = ids[: args.max_context]
-        n_tokens = len(ids)
 
         # Forward (skip in --stats-only)
         nll_nats = None
@@ -242,6 +258,12 @@ def main() -> int:
             "n_single_token": n_single,
             "rate": strr,
         },
+        "truncation": {
+            "n_docs_truncated": n_truncated,
+            "n_tokens_dropped": n_tokens_dropped_to_truncation,
+            "fraction_truncated": (n_truncated / n_seen) if n_seen else 0.0,
+            "note": "char/byte/word counts are computed on the scored prefix, NOT on full text. Look at this if it's > ~10 % of docs.",
+        },
     }
     args.output_json.parent.mkdir(parents=True, exist_ok=True)
     args.output_json.write_text(json.dumps(report, indent=2, ensure_ascii=False))
@@ -256,6 +278,8 @@ def main() -> int:
     print(f"  tokens/word:       {g.get('tokens_per_word', float('nan')):.4f}")
     print(f"  compression ratio: {g.get('compression_ratio', float('nan')):.4f}")
     print(f"  STRR:              {strr:.4f} ({n_single:,}/{n_total:,} single-token words)")
+    if n_truncated:
+        print(f"  truncated:         {n_truncated}/{n_seen} docs ({100*n_truncated/max(n_seen,1):.1f}%); {n_tokens_dropped_to_truncation:,} tokens dropped")
     if "bpc_bits_per_byte" in g:
         print(f"  BPC (bits/byte):   {g['bpc_bits_per_byte']:.4f}")
         print(f"  NLL/char:          {g['nll_per_char']:.4f}")

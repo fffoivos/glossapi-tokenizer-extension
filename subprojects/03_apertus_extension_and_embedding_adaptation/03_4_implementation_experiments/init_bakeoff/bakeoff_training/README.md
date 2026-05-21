@@ -21,10 +21,14 @@ not HuggingFace Trainer — for Apertus-fidelity reasons documented in
 ## End-to-end sequence
 
 ```
-[once, before any arm]
-  sbatch preprocess_data.sbatch        # ~2-4 h on xfer; CPU-only
-                                       #   in:  /iopsstor/.../bulk_mix.jsonl
-                                       #   out: /iopsstor/.../bulk_mix_megatron/{bin,idx}
+[twice, before any arm] # one Megatron binary per tokenizer family
+  sbatch --export=ALL,TOKENIZER_DIR=$BASE_TOKENIZER_DIR,OUTPUT_PREFIX=$BASE_DATA_PREFIX \
+      preprocess_data.sbatch           # Vanilla data: base 131,072 tokenizer
+  sbatch --export=ALL,TOKENIZER_DIR=$EXT_TOKENIZER_DIR,OUTPUT_PREFIX=$EXT_DATA_PREFIX \
+      preprocess_data.sbatch           # ReTok/Centroid data: extended 148,480 tokenizer
+                                       # ~2-4 h each on xfer; CPU-only
+                                       # Both binaries from the same bulk_mix.jsonl —
+                                       # only the tokenization differs (reviewer round-2 Blocker 2).
 
 [once, before any arm]
   python3 ../arms/build_init_checkpoints.py \
@@ -34,10 +38,12 @@ not HuggingFace Trainer — for Apertus-fidelity reasons documented in
                                        # ~30 min on a 1-GPU debug allocation
                                        # produces vanilla/  retok/  centroid/  HF-format dirs
                                        # then converts each to Megatron-LM-Swiss-AI format
-                                       # via swiss-ai/hfconverter (gated on Q D1)
+                                       # via tools/checkpoint/convert.py --loader apertus_hf
 
 [the bakeoff]
   bash submit_all_arms.sh              # submits 3 × sbatch bakeoff_train.sbatch
+                                       # Vanilla loads $BASE_DATA_PREFIX,
+                                       # ReTok/Centroid load $EXT_DATA_PREFIX.
                                        # each: 1 node, 4 × GH200, ~11 h, 2 B tokens
 ```
 

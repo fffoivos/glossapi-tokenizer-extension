@@ -205,10 +205,30 @@ DISTRIBUTED_ARGS=(
     --overlap-param-gather
 )
 
-# Tokenizer: HF format, our extended 148,480 bundle (or 131,072 base for Vanilla arm).
+# Tokenizer + data prefix: per-arm.
+# Vanilla → 131,072 base tokenizer + base-tokenized data binary.
+# ReTok / Centroid → 148,480 extended tokenizer + extended-tokenized data binary.
+# submit_all_arms.sh selects the right pair based on ARM. The two binaries are
+# byte-identical document streams (same shuffled mix, same seed) — they differ
+# ONLY in how the corpus is tokenized. Apertus-fidelity for Vanilla requires
+# the base tokenization; ReTok/Centroid evaluate the extended vocab.
+case "$ARM" in
+    vanilla)
+        ARM_TOKENIZER="$BASE_TOKENIZER_DIR"
+        ARM_DATA_PREFIX="$BASE_DATA_PREFIX"
+        ;;
+    retok|centroid)
+        ARM_TOKENIZER="$EXT_TOKENIZER_DIR"
+        ARM_DATA_PREFIX="$EXT_DATA_PREFIX"
+        ;;
+    *)
+        echo "ERROR: ARM=$ARM not recognized (expected vanilla|retok|centroid)" >&2; exit 2 ;;
+esac
+echo "ARM=$ARM  →  tokenizer=$ARM_TOKENIZER  data_prefix=$ARM_DATA_PREFIX"
+
 TOKENIZER_ARGS=(
     --tokenizer-type HuggingFaceTokenizer
-    --tokenizer-model "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480"
+    --tokenizer-model "$ARM_TOKENIZER"
 )
 
 # Data: single mix-prefix (Apertus uses comma-separated weighted datasets;
@@ -220,7 +240,7 @@ DATA_ARGS=(
     $EOD_LOSS_MASK_FLAG
     --num-workers $DATALOADER_WORKERS
     --num-dataset-builder-threads 4
-    --data-path $TRAIN_DATA_PREFIX
+    --data-path $ARM_DATA_PREFIX
 )
 
 # Goldfish loss is INTENTIONALLY DISABLED for the bakeoff (NTP only).

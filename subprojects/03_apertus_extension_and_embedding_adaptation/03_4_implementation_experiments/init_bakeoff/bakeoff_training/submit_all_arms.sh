@@ -6,10 +6,14 @@
 #   bash submit_all_arms.sh
 #
 # Pre-conditions:
-#   1. preprocess_data.sbatch has produced the Megatron .bin/.idx at
-#      $TRAIN_DATA_PREFIX (see _train_config_common.env)
-#   2. arms/build_init_checkpoints.py + hfconverter have produced
-#      Megatron-format init checkpoints under
+#   1. preprocess_data.sbatch has produced TWO Megatron .bin/.idx datasets —
+#      one tokenized with the BASE 131,072 Apertus tokenizer (for Vanilla) at
+#      $BASE_DATA_PREFIX, and one tokenized with the EXTENDED 148,480 ship
+#      bundle (for ReTok / Centroid) at $EXT_DATA_PREFIX. Both come from the
+#      same shuffled bulk_mix.jsonl with the same seed — they differ only in
+#      tokenization (reviewer round-2 Blocker 2).
+#   2. arms/build_init_checkpoints.py + hfconverter have produced Megatron-
+#      format init checkpoints under
 #      $INIT_CKPT_ROOT/{vanilla,retok,centroid}/megatron/
 
 set -euo pipefail
@@ -21,9 +25,11 @@ OUT_ROOT="${OUT_ROOT:-/capstor/scratch/cscs/fffoivos/runs/bakeoff}"
 RUN_TAG="${RUN_TAG:-bakeoff_$(date -u +%Y%m%d_%H%M%S)}"
 
 echo "=== submit_all_arms.sh ==="
-echo "INIT_CKPT_ROOT: $INIT_CKPT_ROOT"
-echo "OUT_ROOT:       $OUT_ROOT"
-echo "RUN_TAG:        $RUN_TAG"
+echo "INIT_CKPT_ROOT:   $INIT_CKPT_ROOT"
+echo "OUT_ROOT:         $OUT_ROOT"
+echo "RUN_TAG:          $RUN_TAG"
+echo "BASE_DATA_PREFIX: $BASE_DATA_PREFIX  (Vanilla)"
+echo "EXT_DATA_PREFIX:  $EXT_DATA_PREFIX   (ReTok / Centroid)"
 echo
 
 # Sanity: do all three init checkpoints exist?
@@ -36,12 +42,15 @@ for arm in vanilla retok centroid; do
     fi
 done
 
-# Sanity: does the Megatron data prefix exist?
-if [ ! -f "${TRAIN_DATA_PREFIX}.bin" ] || [ ! -f "${TRAIN_DATA_PREFIX}.idx" ]; then
-    echo "ERROR: Megatron data missing at $TRAIN_DATA_PREFIX{.bin,.idx}" >&2
-    echo "  Run preprocess_data.sbatch first." >&2
-    exit 2
-fi
+# Sanity: do BOTH Megatron data prefixes exist?
+for prefix in "$BASE_DATA_PREFIX" "$EXT_DATA_PREFIX"; do
+    if [ ! -f "${prefix}.bin" ] || [ ! -f "${prefix}.idx" ]; then
+        echo "ERROR: Megatron data missing at ${prefix}{.bin,.idx}" >&2
+        echo "  Run preprocess_data.sbatch twice — once for the base tokenizer," >&2
+        echo "  once for the extended tokenizer." >&2
+        exit 2
+    fi
+done
 
 # Submit all three
 for arm in vanilla retok centroid; do
