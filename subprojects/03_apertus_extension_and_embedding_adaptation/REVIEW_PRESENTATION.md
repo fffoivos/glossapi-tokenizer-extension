@@ -180,6 +180,17 @@ Honest inventory: the recipe + sbatch are review-ready, but the bakeoff is **not
 
 Items 1-4 close the gaps that block the bakeoff from producing its **primary intended metrics**. Items 5-6 are the next decisions.
 
+## (5c) Silent-failure risks the bakeoff could hit
+
+See [`RISKS.md`](RISKS.md) for the full inventory of places where the bakeoff could be silently wrong despite passing local smoke tests. Headline items:
+
+- **R1**: HF→Megatron loader's QKV interleaving is unverified. Roundtrip on Apertus-8B-2509 must run before first sbatch.
+- **R2**: Token-stream determinism across arms is unverified (no MD5 assertion in `mix_builder.py`).
+- **R3**: Held-out Greek eval slice doesn't exist and its cleanliness vs Apertus pretraining is the deciding factor for whether the bakeoff measures capability or memorization.
+- **R4**: ReTok / Centroid surface-form decode may have a leading-space artifact that systematically mis-inits one arm.
+
+The 9 cheap mitigations are listed in `RISKS.md` §"Cheap mitigations available" — ~2 h total; not yet implemented.
+
 ---
 
 ## (6) Reasoning + citations summary
