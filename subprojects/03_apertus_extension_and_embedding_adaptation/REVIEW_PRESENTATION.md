@@ -33,11 +33,15 @@ The recipe is **boringly faithful** to Apertus's pretraining wherever possible �
 
 ## (1) Dataset scripts
 
-The bakeoff trains on the **same shuffled-mixture JSONL** across all three arms. Built once on Clariden `xfer`, tokenized to Megatron binary, read by all three GPU jobs with a shared seed — token streams are byte-identical across arms; only init differs.
+The bakeoff trains on **one shuffled-mixture JSONL document stream**, built once on Clariden `xfer`, that all three arms read at the same shuffle seed. The **document order** is byte-identical across arms; **token IDs differ between Vanilla and ReTok/Centroid** because Vanilla is tokenized with the base 131,072 Apertus vocab (its embedding table only has those 131,072 rows) while ReTok/Centroid are tokenized with the extended 148,480 vocab. Two Megatron binary preprocessings are produced from the same JSONL (one per tokenizer); each arm loads the one that matches its embedding table. So the bakeoff is "same documents, different tokenizer where appropriate, plus different init" — not "byte-identical token IDs".
+
+The Apertus-overlap drop + nanochat internal-dedup (`drop_intra_and_inter`) are applied **upstream** in `prepare_greek_pool.sh` per the runbook at [`03_2_apertus_c3_dedup_audit/CPT_DATASET_BUILD_RUNBOOK.md`](03_2_apertus_c3_dedup_audit/CPT_DATASET_BUILD_RUNBOOK.md). The runbook order matters: Apertus-overlap removal first, then internal dedup, then `mix_builder` reads the resulting `${SELECTED}` parquet. All six Greek source-categories in `bulk.json` filter the same `${SELECTED}` pool by `source_dataset` value, so the upstream drop applies uniformly (was a B3 reviewer issue — only HPLT had it before).
 
 | File | Purpose |
 |---|---|
-| [`mix_builder.py`](03_4_implementation_experiments/init_bakeoff/corpus_build/mix_builder.py) | Streaming HF `interleave_datasets` with per-source weights + Apertus-overlap doc-key drop. Writes JSONL + manifest. |
+| [`mix_builder.py`](03_4_implementation_experiments/init_bakeoff/corpus_build/mix_builder.py) | Streaming `interleave_datasets` over local `${SELECTED}` parquet (Greek sources) + HF datasets (replay/code/math). Writes JSONL + manifest. |
+| [`prepare_greek_pool.sh`](03_4_implementation_experiments/init_bakeoff/corpus_build/prepare_greek_pool.sh) | NEW: invokes `glossapi_corpus_cli mix-prepare-selected-input` per the runbook. Apertus-overlap-drop + `drop_intra_and_inter` → `${SELECTED}` parquet. |
+| [`normalize_nfc.sh`](03_4_implementation_experiments/init_bakeoff/corpus_build/normalize_nfc.sh) | V9 enforcement — idempotent NFC pass between pull and mix-build. |
 | [`recipes/bulk.json`](03_4_implementation_experiments/init_bakeoff/corpus_build/recipes/bulk.json) | 32 sources, **70 / 24 / 4 / 2** Greek / replay / code / math. Weights sum to 1.0. |
 | [`recipes/anneal.json`](03_4_implementation_experiments/init_bakeoff/corpus_build/recipes/anneal.json) | 14 sources, 85 / 12 / 3 (production-anneal only; not used in bakeoff). |
 | [`pull_greek_corpus.sh`](03_4_implementation_experiments/init_bakeoff/corpus_build/pull_greek_corpus.sh) | Login-node HF pull: GlossAPI Greek nanochat + Apertus-overlap drop overlay. |
@@ -72,7 +76,13 @@ Full table in [`TRAINING_RECIPE.md`](TRAINING_RECIPE.md). Headline:
 
 ## (3) 2B-after-init training — `bakeoff_training/`
 
-All three arms train under identical Megatron-LM-Swiss-AI conditions on Clariden (1 node × 4 × GH200 × 12 h, partition `normal`). They differ only in `--load <init-checkpoint>`.
+All three arms train under identical Megatron-LM-Swiss-AI conditions on Clariden (1 node × 4 × GH200 × 12 h, partition `normal`). They differ in three coupled things — picked by the per-arm switch in [`bakeoff_train.sbatch`](03_4_implementation_experiments/init_bakeoff/bakeoff_training/bakeoff_train.sbatch):
+
+- **`--load <init-checkpoint>`** — Vanilla → unmodified Apertus; ReTok / Centroid → respective resized + initialized checkpoints
+- **`--tokenizer-model`** — Vanilla → `${BASE_TOKENIZER_DIR}` (131,072); ReTok / Centroid → `${EXT_TOKENIZER_DIR}` (148,480)
+- **`--data-path`** — Vanilla → `${BASE_DATA_PREFIX}` (JSONL tokenized with base vocab); ReTok / Centroid → `${EXT_DATA_PREFIX}` (same JSONL tokenized with extended vocab)
+
+Documents are byte-identical across the two preprocessings (same `mix_builder` output JSONL, same shuffle seed); only the token IDs differ. This is the corrected bakeoff shape after the round-2 B2 fix — previously all three arms were hardcoded to the 148,480 tokenizer + data path, which would have either crashed Vanilla on out-of-range IDs or silently corrupted the control arm.
 
 | File | Purpose |
 |---|---|
@@ -93,8 +103,10 @@ Local smoke ([`arms/test_init_logic.py`](03_4_implementation_experiments/init_ba
 ## (4) Benchmarking — `eval/`
 
 Two scopes, same task list:
-- **V4 baseline** — full suite × unmodified Apertus-8B-2509, **once**, before bakeoff. Sets §5.6 hard-gate thresholds.
-- **Per-arm** — same suite at each arm's checkpoints in 80-100 % of its 2 B budget.
+- **V4 baseline** — Apertus-8B-2509 evaluated **twice** (post round-3 R17 decision):
+  - **V4-HF**: full suite × unmodified HF Apertus. Absolute reference.
+  - **V4-post-conversion**: full suite × Apertus after HF → Megatron → HF roundtrip via our loader (so xIELU + QK-Norm at `__init__` defaults — same path the bakeoff arms experience). **This is what sets the §5.6 hard-gate thresholds** because it's the apples-to-apples comparator for the arms.
+- **Per-arm** — same suite at each arm's checkpoints in 80-100 % of its 2 B budget. Compared against V4-post-conversion for fidelity-loss-fair hard gates; against V4-HF for "what did vocab extension cost in absolute terms".
 
 | File | Purpose |
 |---|---|

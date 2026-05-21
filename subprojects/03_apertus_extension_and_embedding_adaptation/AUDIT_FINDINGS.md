@@ -132,13 +132,11 @@ The bakeoff intentionally **disables** Goldfish (NTP only — see cpt_plan.md v0
 - `loader_llama_mistral.py` — **HF → Megatron** for llama2/llama3/mistral/qwen2.5. **Apertus is NOT in the supported list.**
 - Other loaders: `loader_core` (default Megatron format), `loader_legacy`, `loader_mixtral_hf`.
 
-**Status: BLOCKER for bakeoff submission.** We need to load HF-format Apertus (the only release format) into Megatron-LM-Swiss-AI for training. Three paths to resolve:
+**Status (updated 2026-05-21 round-2 + 2026-05-22 round-3): APPLIED — minimum-correctness path landed.** Wrote `loader_apertus_hf.py` at [`03_4_implementation_experiments/init_bakeoff/megatron_patches/loader_apertus_hf.py`](03_4_implementation_experiments/init_bakeoff/megatron_patches/loader_apertus_hf.py); installed into Megatron-LM clone via `install.sh`. Loader emits only saver_core-consumable standard message keys (per round-2 B1 reviewer finding: Apertus-specific extras like xIELU αp/αn would be rejected by `saver_core.py:L357-443`'s `check_message()`).
 
-1. **Write a custom `loader_apertus_hf.py`** based on `saver_swissai_hf.py`'s inverse. Apertus is architecturally Mistral-derived (Mistral-Nemo tokenizer; similar block layout) so `loader_llama_mistral.py` is a starting template + xIELU / QK-Norm adjustments.
-2. **Try `loader_llama_mistral.py --model-size mistral`** as a first approximation, then patch failures. Risky — Apertus's xIELU and QK-Norm aren't in the Mistral layer spec.
-3. **Coordinate with `swiss-ai` team** to find their internal HF → Megatron tool (they must have one to validate the Megatron → HF saver).
+**Caveat (R17 in [`RISKS.md`](RISKS.md))**: xIELU + QK-Norm trained values reset to `__init__` defaults through this path. For the modern-only bakeoff this is acceptable (all 3 arms inherit the same reset; cross-arm comparison stays valid). For production CPT or for arm-vs-V4-HF absolute comparisons, the V4 baseline must run through the same conversion path (so the comparator carries the same reset) OR `patch_apertus_extras.py` must restore the extras post-conversion (scaffold; not implemented). The bakeoff plan is to run V4 twice — once on unmodified HF Apertus and once on the post-conversion Apertus — and to set §5.6 hard-gate thresholds from the post-conversion run.
 
-This needs ~1-2 hours of focused work before the first bakeoff sbatch can submit. Documented in [`init_bakeoff/bakeoff_training/README.md`](03_4_implementation_experiments/init_bakeoff/bakeoff_training/README.md) as a pre-submit blocker.
+Roundtrip-validation procedure (with two-tier pass criterion that allows R17 tensors to differ) documented in [`init_bakeoff/megatron_patches/README.md`](03_4_implementation_experiments/init_bakeoff/megatron_patches/README.md) §"Roundtrip validation procedure". Must run on Apertus-8B-2509 before the first sbatch.
 
 ---
 
@@ -173,8 +171,26 @@ Our [`preprocess_data.sbatch`](03_4_implementation_experiments/init_bakeoff/bake
 | Q3/Q7/Q8/Q9 deviations from papers | documented experimental choices | DOCUMENTED in code |
 | Q4 long-subpiece warning | diagnostic | APPLIED (warning) |
 | Q12 xIELU-survives-resize assertion | sanity check | DEFERRED |
-| HF→Megatron Apertus loader missing | **pre-submit blocker** | OPEN — needs ~1-2 h custom loader work |
+| HF→Megatron Apertus loader missing | **pre-submit blocker** | **APPLIED (round-2, commit `4f6bd38`) — minimum-correctness path landed; R17 caveat surfaced** |
 | ILSP harness task YAMLs missing from swiss-ai fork | **pre-submit blocker** | OPEN — staging-time merge from Meltemi/Krikri forks |
 | Apertus preprocess uses DataTrove (we use stock Megatron) | fidelity note | DOCUMENTED |
 
-The recipe + code are **review-ready** at the level of paper / sbatch / code-line fidelity. The **two OPEN items** above gate the first sbatch submission but do not block colleague review of the recipe itself.
+The recipe + code are **review-ready** at the level of paper / sbatch / code-line fidelity. The **one remaining OPEN item** (ILSP harness YAMLs) gates the first sbatch submission but does not block colleague review of the recipe itself.
+
+---
+
+## Reviewer round-2 audit (2026-05-21) — 5 issues, all addressed
+
+Colleague reviewer pass against the post-round-1 implementation surfaced 5 issues. All fixed; commits cited.
+
+| ID | Finding | Resolution | Commit |
+|---|---|---|---|
+| **B1** | Loader emitted Apertus-specific message keys (`mlp xielu alpha p/n`, `q/k norm weight`) that `saver_core.py:L357-443`'s `check_message()` rejects (or silently drops with `--no-checking`). Documented command also missed required `--model-type GPT`. | Loader now emits only saver_core-consumable standard keys. README + install.sh include `--model-type GPT`. **New risk R17 surfaced and recorded in [`RISKS.md`](RISKS.md)**: xIELU + QK-Norm trained values reset to defaults through this path. Acceptable for cross-arm bakeoff (all 3 arms inherit same reset); gating before production CPT. Post-conversion patcher scaffold at `megatron_patches/patch_apertus_extras.py`. | `4f6bd38` + `60a196f` |
+| **B2** | Vanilla arm tokenizer mismatch — `preprocess_data.sbatch` + `bakeoff_train.sbatch` hardcoded the 148,480 tokenizer for all three arms, but Vanilla's checkpoint has only 131,072 embedding rows. Training Vanilla on 148,480-tokenized data would crash on out-of-range IDs or silently corrupt the control. | `_train_config_common.env` split into `BASE_TOKENIZER_DIR` + `EXT_TOKENIZER_DIR` + `BASE_DATA_PREFIX` + `EXT_DATA_PREFIX`. `preprocess_data.sbatch` parameterized — run twice (per tokenizer family). `bakeoff_train.sbatch` per-arm switch. `submit_all_arms.sh` sanity-checks both prefixes. | `9c1a800` |
+| **B3** | Corpus dedup path skipped the runbook flow. `mix_builder.py` streamed HF directly; Apertus drop applied only to HPLT source (not all 6 Greek sources); internal-dedup replay missing entirely. | New `prepare_greek_pool.sh` invokes `glossapi_corpus_cli mix-prepare-selected-input` with all three runbook steps (Apertus hard-drop + `drop_intra_and_inter`). `mix_builder.py` now supports `local_parquet` with `${VAR}` expansion; all 6 Greek sources read from `${SELECTED}`. `pull_greek_corpus.sh` extended to pull wave2 dedup metadata. | `16296bb` |
+| **H4** | Eval task list contradicted EVAL_RECIPE.md scope — `run_eval.sbatch` included GSM8K, HumanEval, ifeval_greek (post-training-only per Apertus Table 22) and omitted Global-MMLU (Table 14). | Synced task lists to EVAL_RECIPE.md Table-14 scope. Removed `gsm8k`, `humaneval`, `mgsm_greek`, `ifeval_greek`. Added `global_mmlu`. | `9c1a800` |
+| **H5** | `compute_tokenizer_fair_metrics.py` counted chars/bytes/words on full text but truncated tokens to `max_context` before NLL — BPC + NLL/char divided prefix-only loss by full-document denominators → artificially low. | When truncated, decode the kept ID list back to text and compute char/byte/word counts on that scored prefix. Added truncation counter in output JSON. | `9c1a800` |
+
+## Reviewer round-3 audit (2026-05-22) — doc consistency
+
+Round-3 audit confirmed B2, B3, H4, H5 fixes landed in code. Surfaced 5 doc-consistency issues (REVIEW_PRESENTATION + megatron_patches/README + AUDIT_FINDINGS section G + roundtrip procedure) — all addressed in commit `<this commit>` and the subsequent V4-baseline-strategy commit. The R17 V4-baseline question is escalated to Fivos for explicit choice (run V4 twice — once HF, once post-conversion — is the working proposal; commit pending sign-off).

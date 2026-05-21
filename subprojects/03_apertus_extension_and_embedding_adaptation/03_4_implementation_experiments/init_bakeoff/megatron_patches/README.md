@@ -59,49 +59,72 @@ python3 tools/checkpoint/convert.py \
 
 ## Roundtrip validation procedure (must run before first sbatch)
 
-Confirm HF → Megatron (this loader) → HF (`saver_swissai_hf.py`) round-trips with zero numerical drift on a small Apertus checkpoint, before trusting it on the 8B production base.
+The HF → Megatron → HF roundtrip is **NOT zero-drift** with the current loader, because xIELU αp/αn/β/ε and QK-Norm q/k_norm aren't carried through the saver_core protocol (R17 in `RISKS.md`). The roundtrip is **zero-drift on the standard tensors** (embeddings, attention QKV/dense, MLP up/down, layer norms, final norm, LM head) — **and resets xIELU + QK-Norm tensors to `__init__` defaults**.
+
+The validation procedure splits the diff into two sets and applies different pass criteria to each:
 
 ```bash
-# 1. Get a small Apertus-shaped test model (or use full 8B)
 APERTUS_HF=/path/to/Apertus-8B-2509-hf
 
-# 2. HF → Megatron
+# 1. HF → Megatron (drops xIELU + QK-Norm extras; standard tensors round-trip)
 python3 tools/checkpoint/convert.py \
+    --model-type GPT \
     --loader apertus_hf --saver core \
     --load-dir $APERTUS_HF --save-dir /tmp/apertus_megatron \
     --tokenizer-model $APERTUS_HF --bf16
 
-# 3. Megatron → HF (back)
+# 2. Megatron → HF (back). xIELU + QK-Norm tensors land at __init__ defaults.
 python3 tools/checkpoint/convert.py \
+    --model-type GPT \
     --loader core --saver swissai_hf \
     --load-dir /tmp/apertus_megatron --save-dir /tmp/apertus_hf_roundtrip \
     --hf-tokenizer $APERTUS_HF --bf16
 
-# 4. Diff the round-trip output against the original
+# 3. Diff with two-tier pass criterion
 python3 - <<'PY'
-import torch
+import torch, re
 from transformers import AutoModelForCausalLM
+
 orig  = AutoModelForCausalLM.from_pretrained("/path/to/Apertus-8B-2509-hf", torch_dtype=torch.bfloat16)
 trip  = AutoModelForCausalLM.from_pretrained("/tmp/apertus_hf_roundtrip",  torch_dtype=torch.bfloat16)
+
+# Keys we expect to reset to defaults per R17 — diff is informational only here.
+R17_PATTERN = re.compile(r"(act_fn\.(alpha_p|alpha_n|beta|eps)|self_attn\.(q_norm|k_norm)\.weight)")
+
 keys_orig = set(orig.state_dict().keys())
 keys_trip = set(trip.state_dict().keys())
-print(f"keys in orig only: {len(keys_orig - keys_trip)}")
-print(f"keys in trip only: {len(keys_trip - keys_orig)}")
-max_abs = max_rel = 0.0
+print(f"keys in orig only: {sorted(keys_orig - keys_trip)}")
+print(f"keys in trip only: {sorted(keys_trip - keys_orig)}")
+
+standard_max_abs = 0.0
+r17_keys_changed = 0
 for k in sorted(keys_orig & keys_trip):
     a, b = orig.state_dict()[k].float(), trip.state_dict()[k].float()
+    if a.shape != b.shape:
+        print(f"  SHAPE MISMATCH: {k}: {a.shape} vs {b.shape}")
+        continue
     abs_diff = (a - b).abs().max().item()
-    rel_diff = (abs_diff / (a.abs().max().item() + 1e-12))
-    max_abs = max(max_abs, abs_diff)
-    max_rel = max(max_rel, rel_diff)
-    if abs_diff > 1e-3:
-        print(f"  DRIFT: {k}: abs={abs_diff:.6f} rel={rel_diff:.6f}")
-print(f"\nmax abs diff: {max_abs:.6f}   max rel diff: {max_rel:.6f}")
-assert max_abs < 1e-3, "round-trip exceeded bf16 tolerance — investigate before training"
+    if R17_PATTERN.search(k):
+        if abs_diff > 1e-3:
+            r17_keys_changed += 1   # expected — reset to defaults
+    else:
+        if abs_diff > standard_max_abs:
+            standard_max_abs = abs_diff
+        if abs_diff > 1e-3:
+            print(f"  DRIFT (standard tensor — NOT expected): {k}: abs={abs_diff:.6f}")
+
+print(f"\nstandard tensors max abs diff: {standard_max_abs:.6f}")
+print(f"R17 tensors changed (expected per R17): {r17_keys_changed}")
+assert standard_max_abs < 1e-3, "standard tensors drifted — loader has a bug"
 PY
 ```
 
-Expected: bf16 round-trip should be byte-equal or within ~1e-3 on bf16-quantised weights. Any larger drift means our loader has a bug.
+**Pass criteria:**
+
+- **Standard tensors** (embeddings, attn, mlp, norms, LM head) — `max abs diff < 1e-3` on bf16-quantised weights. Larger drift = loader bug.
+- **R17 tensors** (xIELU αp/αn/β/ε, q_norm/k_norm) — **expected** to differ from original (reset to `__init__` defaults). The count is informational; we just want to see them mentioned so we don't pretend nothing was dropped.
+
+This is a deliberate weaker pass criterion than a true zero-drift roundtrip. To get true zero-drift, implement `patch_apertus_extras.py` (currently a scaffold) to restore xIELU + QK-Norm tensors post-conversion. That's IN SCOPE for production CPT and OUT OF SCOPE for the modern-only bakeoff (which accepts R17 because all three arms inherit the same reset).
 
 ## Open question
 
