@@ -14,14 +14,14 @@ The headline: **(b) and (c) are mostly complete. (a) has real gaps** — some ad
 |---|---|---|
 | **§2 mix shape** (70/30, 4 % code, anneal tail, Apertus-overlap drop) | ✓ | [`corpus_build/recipes/bulk.json`](03_4_implementation_experiments/init_bakeoff/corpus_build/recipes/bulk.json) + [`anneal.json`](03_4_implementation_experiments/init_bakeoff/corpus_build/recipes/anneal.json) |
 | **§4.4 replay sources** — FW-Edu Score-3, FW2-HQ, FW2, StarCoderData | ✓ | [`pull_replay_datasets.sh`](03_4_implementation_experiments/init_bakeoff/corpus_build/pull_replay_datasets.sh) |
-| **§4.4 — FineMath** (`HuggingFaceTB/finemath`) | ❌ | **Gap** — Apertus stage-1 uses `finemath-3plus-merge` per `submit_apertus_8b.sh:L29` |
-| **§4.4 — OPUS Greek-English / Greek-Latin parallel** | ❌ | **Gap** (v0.7 marks "optional but uniquely valuable") |
-| **§8 I1 / V9 NFC normalization** of training corpus | ⚠️ | Script ([`verify_and_normalize_nfc.py`](03_3_cscs_experiments_kickoff/scripts/verify_and_normalize_nfc.py)) exists but **not invoked** in the bakeoff pipeline |
+| **§4.4 — FineMath** (`HuggingFaceTB/finemath`) | ✓ (Item 2) | Added 2026-05-21 at 2 % share of bulk mix; mix shape now 70/24/4/2 (Greek/replay/code/math) |
+| **§4.4 — OPUS Greek-English / Greek-Latin parallel** | ⚠️ | Marked optional in v0.7; deferred (needs schema-adapter in `mix_builder.py` for `{translation: {el, en}}` rows). Not blocking the bakeoff. |
+| **§8 I1 / V9 NFC normalization** of training corpus | ✓ (Item 2) | `corpus_build/normalize_nfc.sh` added 2026-05-21; idempotent wrapper around `verify_and_normalize_nfc.py`; invoked between corpus pull and `mix_builder.py` per the end-to-end sequence in [`init_bakeoff/README.md`](03_4_implementation_experiments/init_bakeoff/README.md). |
 | **§5 three init arms** (Vanilla / ReTok / Centroid) | ✓ | [`arms/{vanilla,retok,centroid}.py`](03_4_implementation_experiments/init_bakeoff/arms/) — audited + patched 2026-05-21 ([`AUDIT_FINDINGS.md`](AUDIT_FINDINGS.md)) |
 | **§5 `build_init_checkpoints.py` driver** | ✓ implemented | **Not audited** against `transformers.resize_token_embeddings` semantics for untied E/U (V2 + V15 still unconfirmed) |
 | **HF→Megatron Apertus loader** | ❌ | **Open blocker** — no `loader_apertus_hf.py` exists in `swiss-ai/Megatron-LM/tools/checkpoint/`; only llama/mistral/qwen2.5 covered |
-| **§5.1 BPC + NLL/char + NLL/word + STRR + tokens/word + compression ratio (PRIMARY intrinsic metrics)** | ❌ | **Major gap** — v0.7 §5.1 explicitly says per-token PPL is **not comparable** across arms; these are the tokenizer-fair metrics the bakeoff exists to compare arms on. We currently have only standard lm-eval-harness retention scores. |
-| **§5.3 new-token integration diagnostic suite** (7 diagnostics: rank-of-correct-new-token, embedding-norm distribution, cosine-similarity / effective-rank collapse, etc.) | ❌ | **Major gap** — "read at every bakeoff checkpoint" per v0.7. Without it, we miss the failure-mode signals the bakeoff is supposed to detect. |
+| **§5.1 BPC + NLL/char + NLL/word + STRR + tokens/word + compression ratio (PRIMARY intrinsic metrics)** | ✓ (Item 3) | [`eval/compute_tokenizer_fair_metrics.py`](03_4_implementation_experiments/init_bakeoff/eval/compute_tokenizer_fair_metrics.py) + sbatch wrapper. Aggregates globally + per-source + per-register. Stats-only smoke green. Held-out eval slice still needs construction (the dedup-audit val/test partition is the natural source). |
+| **§5.3 new-token integration diagnostic suite** (7 diagnostics: rank-of-correct-new-token, embedding-norm distribution, cosine-similarity / effective-rank collapse, etc.) | ✓ (Item 4) | [`eval/compute_new_token_diagnostics.py`](03_4_implementation_experiments/init_bakeoff/eval/compute_new_token_diagnostics.py) + sbatch wrapper. All 7 diagnostics in one run; `--embedding-only` skips D1-D5 for fast embedding-only health checks; `--skip-greedy` skips just D5. |
 | **§5.6 hard gates + weighted selection score** | ⚠️ | Encoded in [`EVAL_RECIPE.md`](03_4_implementation_experiments/init_bakeoff/eval/EVAL_RECIPE.md) prose; not implemented as a script that produces a pass/fail + score per arm. |
 | **§6.2 retention + Greek benchmarks via lm-eval-harness** | ✓ | [`eval/EVAL_RECIPE.md`](03_4_implementation_experiments/init_bakeoff/eval/EVAL_RECIPE.md) + [`pull_benchmarks.sh`](03_4_implementation_experiments/init_bakeoff/eval/pull_benchmarks.sh); ILSP task YAMLs from Meltemi/Krikri forks still need staging-time merge (open blocker) |
 | **§6.2 custom Greek evals** (polytonic continuation, accent accuracy, morphology minimal pairs, language-ID drift, register preservation) | ❌ | Documented as "1-2 weeks construction" in v0.7 — explicitly deferred but not flagged as a scope gap in our review packet |
@@ -81,3 +81,17 @@ Every artifact-doc cites v0.7 + the primary source for each numeric/algorithmic 
 | 7 | Custom Greek evals (polytonic continuation, accent accuracy, morphology, language-ID drift, register preservation) | 1-2 weeks | v0.7 acknowledges this is its own work block; can be deferred to a separate construction phase |
 
 **Plan agreed with Fivos 2026-05-21:** do (1) + (2) immediately, then (3) + (4); discuss (5) + (6) after.
+
+**Progress 2026-05-21:**
+
+| # | Status | Commit |
+|---|---|---|
+| 1 | ✓ done | `f26c07a` — REVIEW_PRESENTATION.md "(5b) Known scope gaps" section |
+| 2 | ✓ done | `16b886c` — FineMath + NFC normalize wrapper; mix now 70/24/4/2 |
+| 3 | ✓ done | `d5bc6c0` — `compute_tokenizer_fair_metrics.py` + sbatch (BPC, NLL/char, NLL/word, STRR) |
+| 4 | ✓ done | `28b71f2` — `compute_new_token_diagnostics.py` + sbatch (all 7 §5.3 diagnostics) |
+| 5 | open | Selection-score automation (§5.6 hard gates + weighted score) — pending discussion |
+| 6 | open | HF→Megatron Apertus loader — pending discussion |
+| 7 | open | Custom Greek evals (§6.2) — pending decision (1-2 weeks construction) |
+
+**Remaining sub-gap from item 3:** the held-out eval slice itself hasn't been constructed. The natural source is the dedup-audit val/test partition, which is part of the gcloud-access-loss situation. Either rebuild it on Clariden xfer (option B per `03_3 ANALYSIS.md`), or substitute a fresh deterministic holdout-by-doc-id-hash slice from the current corpus. Decision pending.
