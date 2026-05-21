@@ -170,3 +170,25 @@ ssh clariden 'ls -la ~/logs/'
 - **HF→Megatron loader untested at scale**. R1 roundtrip on Apertus-8B-2509 must pass before submitting the bakeoff arms.
 
 Good night. I'll be available when you wake up.
+
+## 2026-05-21 Live State Update - Bucket-Preserving Rerun
+
+The first fully source-disjoint 7B mix completed but was not used for training. Its manifest showed `65.185%` Greek / `27.466%` replay / `4.899%` code / `2.450%` math instead of the intended `70/24/4/2`, because the finite `greek_literary` slice exhausted and the old scheduler redistributed its missing budget globally.
+
+Actions taken:
+
+- Cancelled preprocess jobs `2338303` and `2338304` before the drifted corpus could feed training.
+- Preserved the drifted corpus as:
+  - `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_global_redistribution_2338301.jsonl`
+  - `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_global_redistribution_2338301.manifest.json`
+- Patched and synced:
+  - `mix_builder.py`: bucket-preserving token-fair scheduler
+  - `concat_bulk_mix.sbatch`: concatenated `per_bucket` manifest metrics
+  - `preprocess_data.sbatch`: no double `_text_document` suffix
+- Relaunched corrected chain:
+  - `2338878` bucket-preserving mix array, `0-6%7`, `SHARD_PREFIX=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_bucketfix_part_`
+  - `2338879` concat after `2338878`
+  - `2338880` base-tokenizer preprocess after `2338879`
+  - `2338881` extended-tokenizer preprocess after `2338879`
+
+Do not launch the 2B bakeoff arms until `2338879` manifest confirms top-level bucket shares close to `70/24/4/2` and both `2338880`/`2338881` produce the expected `.bin` and `.idx` files.

@@ -270,6 +270,24 @@ Follow-up: source-row sharding made the correct build slower than the duplicate-
 
 Post-conversion retention eval `2338020` completed successfully (`COMPLETED 0:0`, elapsed `00:25:55`); results file is `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_retention_retry_20260521_163240/results_2026-05-21T18-58-29.766809.json`. Greek eval `2338021` remains running.
 
+Bucket-preservation steering correction:
+
+- `2338295` completed all seven 1B-token disjoint shards and `2338301` concatenated them, but the manifest showed the top-level mix had drifted to `65.185%` Greek / `27.466%` replay / `4.899%` code / `2.450%` math.
+- Root cause: `greek_literary` only had `122,832,101` available unique tokens after the Apertus-overlap drop and internal dedup, versus a `1.274B` target. The previous source-level token-fair scheduler redistributed that missing Greek budget globally.
+- Cancelled preprocess jobs `2338303` and `2338304` before using the drifted corpus.
+- Preserved the drifted corpus for audit as `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_global_redistribution_2338301.jsonl` plus matching manifest.
+- Patched `mix_builder.py` to preserve top-level bucket shares before choosing a source within a bucket. This keeps exhausted Greek-source budget inside Greek while other Greek sources remain active.
+- Patched `concat_bulk_mix.sbatch` to aggregate `per_bucket` metrics into the concatenated manifest.
+- Patched `preprocess_data.sbatch` to avoid Megatron's double `_text_document` suffix.
+- Relaunched corrected chain:
+
+| Job | What | Dependency / output |
+|---|---|---|
+| `2338878` | bucket-preserving `mix_builder_full` array `0-6%7` | `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_bucketfix_part_*.jsonl` |
+| `2338879` | concat | `afterok:2338878`, canonical `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl` |
+| `2338880` | base-tokenizer preprocess | `afterok:2338879` |
+| `2338881` | extended-tokenizer preprocess | `afterok:2338879` |
+
 Independent follow-ups (deferred to after the corpus chain is unblocked):
 
 - **PF5** — port the ILSP `*_greek` task YAMLs from `LeonVouk/lighteval` into the swissai harness clone so V4 / per-arm evals include `hellaswag_greek`, `winogrande_greek`, `mmlu_pro_greek`, `truthfulqa_greek`, `medical_mcqa_greek`. Today the V4 baseline covers seven Greek tasks; ILSP would add five more.

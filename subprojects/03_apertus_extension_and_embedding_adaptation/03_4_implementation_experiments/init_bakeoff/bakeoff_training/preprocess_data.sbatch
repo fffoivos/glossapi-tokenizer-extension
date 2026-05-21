@@ -54,13 +54,26 @@ OUTPUT_PREFIX="${OUTPUT_PREFIX:-$EXT_DATA_PREFIX}"
 TOKENIZER_DIR="${TOKENIZER_DIR:-$EXT_TOKENIZER_DIR}"
 WORKERS="${WORKERS:-288}"
 
-mkdir -p "$(dirname "$OUTPUT_PREFIX")"
+# Megatron's tools/preprocess_data.py appends "_text_document" for the default
+# JSON key (`text`). Treat OUTPUT_PREFIX as the desired final data prefix used
+# by training, and strip that suffix for the Megatron call when present.
+if [[ "$OUTPUT_PREFIX" == *_text_document ]]; then
+    MEGATRON_OUTPUT_PREFIX="${OUTPUT_PREFIX%_text_document}"
+    DATA_PREFIX="$OUTPUT_PREFIX"
+else
+    MEGATRON_OUTPUT_PREFIX="$OUTPUT_PREFIX"
+    DATA_PREFIX="${OUTPUT_PREFIX}_text_document"
+fi
+
+mkdir -p "$(dirname "$MEGATRON_OUTPUT_PREFIX")"
 
 echo "=== preprocess_data.sbatch ==="
 date -u
 echo "host: $(hostname)"
 echo "INPUT_JSONL:    $INPUT_JSONL"
 echo "OUTPUT_PREFIX:  $OUTPUT_PREFIX"
+echo "MEGATRON_PREFIX: $MEGATRON_OUTPUT_PREFIX"
+echo "DATA_PREFIX:    $DATA_PREFIX"
 echo "TOKENIZER_DIR:  $TOKENIZER_DIR"
 echo "MEGATRON_DIR:   $MEGATRON_LM_SWISSAI_DIR"
 echo "WORKERS:        $WORKERS"
@@ -76,7 +89,7 @@ cd $MEGATRON_LM_SWISSAI_DIR
 git rev-parse HEAD
 python3 tools/preprocess_data.py \
     --input '$INPUT_JSONL' \
-    --output-prefix '$OUTPUT_PREFIX' \
+    --output-prefix '$MEGATRON_OUTPUT_PREFIX' \
     --tokenizer-type HuggingFaceTokenizer \
     --tokenizer-model '$TOKENIZER_DIR' \
     --append-eod \
@@ -87,7 +100,9 @@ python3 tools/preprocess_data.py \
 echo
 echo "=== done ==="
 date -u
-ls -la "$(dirname "$OUTPUT_PREFIX")" | head -10
+test -f "${DATA_PREFIX}.bin"
+test -f "${DATA_PREFIX}.idx"
+ls -la "$(dirname "$DATA_PREFIX")" | head -10
 echo
-echo "Megatron prefix ready: $OUTPUT_PREFIX"
+echo "Megatron prefix ready: $DATA_PREFIX"
 echo "Next: sbatch bakeoff_train.sbatch (or bash submit_all_arms.sh)"

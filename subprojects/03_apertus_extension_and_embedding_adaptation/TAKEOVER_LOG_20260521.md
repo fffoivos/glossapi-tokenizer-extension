@@ -160,3 +160,29 @@ Static shell/Python/JSON checks did pass.
   - `2338303` = base-tokenizer preprocess, dependency `afterok:2338301`
   - `2338304` = extended-tokenizer preprocess, dependency `afterok:2338301`
 - Post-conversion retention eval `2338020` completed successfully (`COMPLETED 0:0`, elapsed `00:25:55`). Results are in `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_retention_retry_20260521_163240/results_2026-05-21T18-58-29.766809.json`.
+
+## Live continuation - 2026-05-21 ~19:10 UTC
+
+- The 12h disjoint array `2338295` completed all seven shards successfully and concat `2338301` completed (`00:00:27`). The raw 7B stream was structurally valid: `7,000,094,000` tokens, `5,769,200` rows, and seven source-disjoint manifests.
+- Manifest validation exposed a steering issue before the 2B arms launched: effective top-level mix was `65.185%` Greek, `27.466%` replay, `4.899%` code, `2.450%` math instead of the intended `70/24/4/2`. Cause: `greek_literary` exhausted at `122,832,101` tokens against a `1.274B` target, and the source-level scheduler redistributed that shortfall globally.
+- Cancelled the two downstream preprocess jobs from that leaky mix before using them:
+  - `2338303` base-tokenizer preprocess: `CANCELLED`, elapsed about `00:10`
+  - `2338304` extended-tokenizer preprocess: `CANCELLED`, elapsed about `00:10`
+- Preserved the leaky-but-auditable canonical output by moving:
+  - `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl`
+  - to `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_global_redistribution_2338301.jsonl`
+  - and likewise for its manifest.
+- Patched `mix_builder.py` to use a bucket-preserving token-fair scheduler: choose the most-behind top-level bucket first, then the most-behind source within that bucket. If one Greek source exhausts, the remaining Greek sources absorb the Greek shortfall before replay/code/math can grow.
+- Patched `concat_bulk_mix.sbatch` to aggregate and print `per_bucket` metrics in the concatenated manifest.
+- Patched `preprocess_data.sbatch` so `OUTPUT_PREFIX=/.../bulk_mix_text_document` maps to Megatron's raw `--output-prefix /.../bulk_mix`; otherwise Megatron appends `_text_document` twice and produces `bulk_mix_text_document_text_document.{bin,idx}`.
+- Verified the scheduler invariant locally with a toy case: when the Greek bucket is behind and `greek_literary` is inactive, the next source is remaining Greek rather than replay.
+- Synced the patched scripts to the Clariden execution mirror and relaunched the corrected bucket-preserving chain:
+
+| Job | What | Dependency / output |
+|---|---|---|
+| `2338878` | `mix_builder_full` array `0-6%7`, 1B tokens per shard, source-row disjoint, bucket-preserving scheduler | writes `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_bucketfix_part_*.jsonl` |
+| `2338879` | concat | `afterok:2338878`, writes canonical `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl` |
+| `2338880` | base-tokenizer preprocess | `afterok:2338879`, writes `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_megatron/bulk_mix_text_document.{bin,idx}` |
+| `2338881` | extended-tokenizer preprocess | `afterok:2338879`, writes `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_ext_megatron/bulk_mix_text_document.{bin,idx}` |
+
+- As of launch, all seven `2338878` array tasks were running. Greek eval `2338021` remained running and healthy.

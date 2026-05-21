@@ -235,11 +235,12 @@ def _build_all_sources(
     recipe: dict,
     source_shard_index: int = 0,
     source_shard_count: int = 1,
-) -> tuple[list[Iterable[dict]], list[float], list[str]]:
-    """Build streams + normalized probabilities + names for all sources in the recipe."""
+) -> tuple[list[Iterable[dict]], list[float], list[str], list[str]]:
+    """Build streams + normalized probabilities + names + bucket labels."""
     sources: list[Iterable[dict]] = []
     weights: list[float] = []
     names: list[str] = []
+    buckets: list[str] = []
 
     drop_keys_cache: dict[str, set[str]] = {}
     for spec in recipe["sources"]:
@@ -254,10 +255,11 @@ def _build_all_sources(
         sources.append(_build_source_stream(spec, dks, source_shard_index, source_shard_count))
         weights.append(float(spec["weight"]))
         names.append(spec["name"])
+        buckets.append(str(spec.get("bucket") or "default"))
 
     total_w = sum(weights)
     weights = [w / total_w for w in weights]
-    return sources, weights, names
+    return sources, weights, names, buckets
 
 
 def _choose_token_fair_source(
@@ -285,6 +287,57 @@ def _choose_token_fair_source(
     min_progress = min(progress.values())
     tied = [i for i in candidates if progress[i] == min_progress]
     return rng.choice(tied)
+
+
+def _choose_bucket_token_fair_source(
+    active: list[int],
+    weights: list[float],
+    per_source_tokens: dict[str, int],
+    names: list[str],
+    buckets: list[str],
+    bucket_weights: dict[str, float],
+    bucket_source_weight_sums: dict[str, float],
+    per_bucket_tokens: dict[str, int],
+    bucket_token_targets: dict[str, float],
+    source_token_targets: list[float],
+    rng: random.Random,
+) -> int:
+    """Choose a source while preserving top-level bucket token shares.
+
+    Source exhaustion should normally redistribute within the same bucket first:
+    if `greek_literary` exhausts, the remaining Greek sources should absorb the
+    missing Greek budget before replay/code/math are allowed to grow.
+    """
+    active_buckets = sorted({buckets[i] for i in active if bucket_weights.get(buckets[i], 0.0) > 0.0})
+    if not active_buckets:
+        return _choose_token_fair_source(active, weights, per_source_tokens, names, source_token_targets, rng)
+
+    under_quota_buckets = [
+        b for b in active_buckets
+        if per_bucket_tokens.get(b, 0) < bucket_token_targets.get(b, 0.0)
+    ]
+    bucket_candidates = under_quota_buckets or active_buckets
+    bucket_progress = {
+        b: per_bucket_tokens.get(b, 0) / max(bucket_weights[b], 1e-12)
+        for b in bucket_candidates
+    }
+    min_bucket_progress = min(bucket_progress.values())
+    tied_buckets = [b for b in bucket_candidates if bucket_progress[b] == min_bucket_progress]
+    chosen_bucket = rng.choice(tied_buckets)
+
+    source_candidates = [i for i in active if buckets[i] == chosen_bucket]
+    under_quota_sources = [
+        i for i in source_candidates
+        if per_source_tokens[names[i]] < source_token_targets[i]
+    ]
+    candidates = under_quota_sources or source_candidates
+    source_progress = {
+        i: per_source_tokens[names[i]] / max(weights[i] / bucket_source_weight_sums[chosen_bucket], 1e-12)
+        for i in candidates
+    }
+    min_source_progress = min(source_progress.values())
+    tied_sources = [i for i in candidates if source_progress[i] == min_source_progress]
+    return rng.choice(tied_sources)
 
 
 def main() -> int:
@@ -326,20 +379,52 @@ def main() -> int:
     print(f"  vocab_size: {tokenizer.vocab_size:,}")
 
     print(f"building source streams ...")
-    sources, weights, names = _build_all_sources(
+    sources, weights, names, buckets = _build_all_sources(
         recipe,
         source_shard_index=args.source_shard_index,
         source_shard_count=args.source_shard_count,
     )
     print(f"  {len(sources)} sources; per-source weights:")
-    for name, w in zip(names, weights):
-        print(f"    {w:.4f}  {name}")
+    for name, bucket, w in zip(names, buckets, weights):
+        print(f"    {w:.4f}  {bucket:<8}  {name}")
 
-    print(f"interleaving with deterministic token-fair scheduler ...")
+    source_weight_by_bucket: dict[str, float] = {}
+    for bucket, weight in zip(buckets, weights):
+        source_weight_by_bucket[bucket] = source_weight_by_bucket.get(bucket, 0.0) + weight
+    raw_bucket_weights = {
+        str(bucket): float(weight)
+        for bucket, weight in (recipe.get("buckets") or source_weight_by_bucket).items()
+    }
+    for bucket in source_weight_by_bucket:
+        raw_bucket_weights.setdefault(bucket, source_weight_by_bucket[bucket])
+    bucket_weight_total = sum(w for w in raw_bucket_weights.values() if w > 0.0)
+    if bucket_weight_total <= 0:
+        raise SystemExit("bucket weights must sum to a positive value")
+    bucket_weights = {
+        bucket: weight / bucket_weight_total
+        for bucket, weight in raw_bucket_weights.items()
+        if weight > 0.0
+    }
+    bucket_source_weight_sums = {
+        bucket: sum(weights[i] for i, source_bucket in enumerate(buckets) if source_bucket == bucket)
+        for bucket in bucket_weights
+    }
+    for bucket, source_sum in bucket_source_weight_sums.items():
+        if source_sum <= 0.0:
+            raise SystemExit(f"bucket {bucket!r} has no positive-weight sources")
+    print("  bucket target weights:")
+    for bucket in sorted(bucket_weights):
+        print(f"    {bucket_weights[bucket]:.4f}  {bucket}")
+
+    print(f"interleaving with deterministic bucket-preserving token-fair scheduler ...")
     iterators = [iter(src) for src in sources]
     active = [i for i, weight in enumerate(weights) if weight > 0.0]
     rng = random.Random(seed)
     source_token_targets = [args.target_tokens * w for w in weights]
+    bucket_token_targets = {
+        bucket: args.target_tokens * weight
+        for bucket, weight in bucket_weights.items()
+    }
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     n_tokens = 0
@@ -348,14 +433,21 @@ def main() -> int:
     t0 = time.time()
     per_source_rows = {n: 0 for n in names}
     per_source_tokens = {n: 0 for n in names}
+    per_bucket_rows = {b: 0 for b in bucket_weights}
+    per_bucket_tokens = {b: 0 for b in bucket_weights}
 
     with args.output.open("w", encoding="utf-8") as fp:
         while active and n_tokens < args.target_tokens:
-            idx = _choose_token_fair_source(
+            idx = _choose_bucket_token_fair_source(
                 active=active,
                 weights=weights,
                 per_source_tokens=per_source_tokens,
                 names=names,
+                buckets=buckets,
+                bucket_weights=bucket_weights,
+                bucket_source_weight_sums=bucket_source_weight_sums,
+                per_bucket_tokens=per_bucket_tokens,
+                bucket_token_targets=bucket_token_targets,
                 source_token_targets=source_token_targets,
                 rng=rng,
             )
@@ -386,6 +478,10 @@ def main() -> int:
             if src in per_source_rows:
                 per_source_rows[src] += 1
                 per_source_tokens[src] += n_tokens_row
+            bucket = buckets[idx]
+            if bucket in per_bucket_rows:
+                per_bucket_rows[bucket] += 1
+                per_bucket_tokens[bucket] += n_tokens_row
 
             if n_tokens - last_progress >= args.progress_every_tokens:
                 elapsed = time.time() - t0
@@ -406,6 +502,11 @@ def main() -> int:
     for name in names:
         w = per_source_tokens[name] / max(n_tokens, 1)
         print(f"  {name:<35} {per_source_rows[name]:>10,} {per_source_tokens[name]:>14,} {w:>18.4f}")
+    print(f"\nper-bucket breakdown:")
+    print(f"  {'bucket':<12} {'rows':>10} {'tokens':>14} {'target_weight':>14} {'effective_weight':>18}")
+    for bucket in sorted(bucket_weights):
+        w = per_bucket_tokens[bucket] / max(n_tokens, 1)
+        print(f"  {bucket:<12} {per_bucket_rows[bucket]:>10,} {per_bucket_tokens[bucket]:>14,} {bucket_weights[bucket]:>14.4f} {w:>18.4f}")
 
     # Write a sidecar manifest
     manifest = {
@@ -420,7 +521,17 @@ def main() -> int:
         "actual_rows": n_rows,
         "wall_seconds": elapsed,
         "output": str(args.output),
-        "scheduler": "token_fair_min_tokens_over_weight",
+        "scheduler": "bucket_preserving_token_fair_min_tokens_over_weight",
+        "per_bucket": {
+            bucket: {
+                "rows": per_bucket_rows[bucket],
+                "tokens": per_bucket_tokens[bucket],
+                "effective_weight": per_bucket_tokens[bucket] / max(n_tokens, 1),
+                "target_weight": bucket_weights[bucket],
+                "target_tokens": bucket_token_targets[bucket],
+                "token_delta_vs_target": per_bucket_tokens[bucket] - bucket_token_targets[bucket],
+            } for bucket in sorted(bucket_weights)
+        },
         "per_source": {
             name: {
                 "rows": per_source_rows[name],
