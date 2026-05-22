@@ -504,3 +504,24 @@ Current next gate:
     - data prefix: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_ext_megatron/bulk_mix_text_document`
     - dataset builder config confirms `blend=(['...bulk_mix_ext_megatron/bulk_mix_text_document'], None)` with the same seed/seq/document-boundary flags as vanilla.
   - This closes the live-run part of the tokenizer/data pairing check: Vanilla is using base-tokenized data and base vocab, while ReTok/Centroid use extended-tokenized data and extended vocab.
+
+## Continuation - 2026-05-22 R17 documentation correction and live health
+
+- Rechecked the active R17 evidence because older README/comment text still described the obsolete "R17 reset is acceptable for bakeoff" state.
+  - The live bakeoff logs show all three arms load patched checkpoints:
+    - vanilla: `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/vanilla/megatron_tp2_r17patched`
+    - retok: `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/retok/megatron_tp2_r17patched`
+    - centroid: `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/centroid/megatron_tp2_r17patched`
+  - Verified roundtrip logs for jobs `2341182`, `2341239`, and `2341241` report `standard_max_abs_diff=0.0`, `r17_max_abs_diff=0.0`, `xielu_max_abs_diff=0.0`, `qk_norm_max_abs_diff=0.0`, no changed-over-tolerance keys, no shape mismatches, and zero smoke-logit drift.
+  - Corrected `megatron_patches/README.md`, `loader_apertus_hf.py` comments, and `install.sh` so the documented invariant is now: raw saver_core conversion drops Apertus extras, accepted bakeoff/production checkpoints must be patched with `patch_apertus_extras.py` and verified with `verify_hf_roundtrip.py`.
+  - Synced the documentation/comment correction to the Clariden mirror at `/iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/megatron_patches/`.
+  - Static checks passed locally and on Clariden: `python3 -m py_compile loader_apertus_hf.py`, `bash -n install.sh`, and stale R17-acceptance phrase search.
+- Refreshed the training-curve snapshot from Clariden and copied it locally under `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/`.
+  - Snapshot generated at `2026-05-22T04:28:05Z`:
+    - vanilla: iter `94`, tokens `0.394B`, lm loss `2.1166`, `7903` tok/s/gpu, `0` skipped / `0` NaN.
+    - retok: iter `93`, tokens `0.390B`, lm loss `4.0791`, `7943` tok/s/gpu, `0` skipped / `0` NaN.
+    - centroid: iter `93`, tokens `0.390B`, lm loss `5.0340`, `7979` tok/s/gpu, `0` skipped / `0` NaN.
+- Additional live log probe at `2026-05-22 04:31 UTC`:
+  - vanilla reached iter `95`, retok reached iter `94`, centroid reached iter `94`; all still report `0` skipped / `0` NaN.
+  - checkpoint trackers remain at `65` for all arms; iter-130 has not landed yet.
+  - resume jobs `2341823`, `2341825`, and `2341827` were verified pending on `afterany` dependency and will load each arm's own `checkpoints/` directory with optimizer/RNG restoration.

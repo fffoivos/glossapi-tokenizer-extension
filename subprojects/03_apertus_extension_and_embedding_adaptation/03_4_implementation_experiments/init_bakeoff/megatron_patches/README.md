@@ -1,6 +1,6 @@
 # Megatron-LM-Swiss-AI patches
 
-In-repo patches we maintain against the pinned `swiss-ai/Megatron-LM` clone. Currently one file: a missing HF→Megatron checkpoint loader for Apertus.
+In-repo patches we maintain against the pinned `swiss-ai/Megatron-LM` clone. The core pieces are the missing HF→Megatron checkpoint loader for Apertus, the post-conversion Apertus-extras patcher, and the roundtrip verifier.
 
 ## Why
 
@@ -87,7 +87,7 @@ Validated patched TP=2 init checkpoints on 2026-05-21 UTC:
 
 `submit_all_arms.sh` now defaults to `INIT_CKPT_SUBDIR=megatron_tp2_r17patched`; override it only for an intentional raw-conversion ablation.
 
-## R1 result (2026-05-21, Apertus-8B-2509, job 2333864)
+## Raw R1 result (2026-05-21, Apertus-8B-2509, job 2333864)
 
 | Metric | Result |
 |---|---|
@@ -96,9 +96,9 @@ Validated patched TP=2 init checkpoints on 2026-05-21 UTC:
 | Shape mismatches | none |
 | Keys present in orig but not roundtrip | none |
 | Keys present in roundtrip but not orig | none |
-| Pass criterion | **PASS** (standard max abs diff < 1e-3, R17 drift expected) |
+| Pass criterion | **RAW-CONVERSION ONLY** (standard max abs diff < 1e-3, R17 drift detected) |
 
-**Reading:** the loader + saver carry every non-R17 weight bit-exactly. The 128 R17 deltas are exactly the per-layer xIELU parameters. Q-Norm / K-Norm are still expected to reset by mechanism, but the original R1 script only counted R17 keys whose absolute diff exceeded 1e-3, so q/k norms did not contribute to that 128 count. Future reruns of `r1_roundtrip.sbatch` print a separate q/k max-diff. This is the empirical justification for the bakeoff's two-V4-run plan: V4-HF (unmodified Apertus) and V4-post-conversion (Apertus → Megatron → HF) span the R17 risk so the bakeoff arms are compared on the same R17-reset footing.
+**Reading:** the raw loader + saver carry every non-R17 weight bit-exactly, but raw conversion is not acceptable for the live bakeoff because it drops Apertus extras. The 128 raw R17 deltas are exactly the per-layer xIELU parameters. Later R17-patched roundtrips for all three arms verify `standard_max_abs_diff=0.0`, `r17_max_abs_diff=0.0`, `xielu_max_abs_diff=0.0`, `qk_norm_max_abs_diff=0.0`, and zero logit drift on smoke prompts. The live bakeoff uses the patched `megatron_tp2_r17patched` checkpoints, not the raw R17-reset checkpoints.
 
 R1 sbatch lives at [`r1_roundtrip.sbatch`](r1_roundtrip.sbatch). It applies two extra fixes empirically required by saver_core:
 
@@ -107,80 +107,29 @@ R1 sbatch lives at [`r1_roundtrip.sbatch`](r1_roundtrip.sbatch). It applies two 
 
 ## Roundtrip validation procedure (must run before first sbatch)
 
-The HF → Megatron → HF roundtrip is **NOT zero-drift** with the current loader, because xIELU αp/αn/β/ε and QK-Norm q/k_norm aren't carried through the saver_core protocol (R17 in `RISKS.md`). The roundtrip is **zero-drift on the standard tensors** (embeddings, attention QKV/dense, MLP up/down, layer norms, final norm, LM head) — **and resets xIELU + QK-Norm tensors to `__init__` defaults**.
+The raw HF → Megatron conversion is not zero-drift for Apertus extras because `saver_core` has no protocol slots for xIELU αp/αn and QK-Norm q/k_norm. The accepted procedure is therefore:
 
-The validation procedure splits the diff into two sets and applies different pass criteria to each:
+1. Convert HF → Megatron with `loader_apertus_hf.py`.
+2. Rename `iter_0000000` to `release`.
+3. Run `patch_apertus_extras.py` to copy xIELU/QK tensors from the source HF checkpoint into every Megatron TP rank.
+4. Convert Megatron → HF with `saver_swissai_hf.py`.
+5. Run `verify_hf_roundtrip.py` and require zero standard, R17, xIELU, QK, and smoke-logit drift.
+
+Use `r17_patch_roundtrip.sbatch`; it performs the full sequence:
 
 ```bash
-APERTUS_HF=/path/to/Apertus-8B-2509-hf
-
-# 1. HF → Megatron (drops xIELU + QK-Norm extras; standard tensors round-trip)
-python3 tools/checkpoint/convert.py \
-    --model-type GPT \
-    --loader apertus_hf --saver core \
-    --load-dir $APERTUS_HF --save-dir /tmp/apertus_megatron \
-    --tokenizer-model $APERTUS_HF --bf16 \
-    --loader-transformer-impl transformer_engine
-
-# 1b. saver_core writes iter_0000000 + latest_checkpointed_iteration.txt='0',
-#     but loader_core asserts iteration > 0 OR file=='release'. Convert to release.
-mv /tmp/apertus_megatron/iter_0000000 /tmp/apertus_megatron/release
-echo release > /tmp/apertus_megatron/latest_checkpointed_iteration.txt
-
-# 2. Megatron → HF (back). xIELU + QK-Norm tensors land at __init__ defaults.
-#    NOTE: saver_swissai_hf does NOT accept --bf16; only the loader does.
-python3 tools/checkpoint/convert.py \
-    --model-type GPT \
-    --loader core --saver swissai_hf \
-    --load-dir /tmp/apertus_megatron --save-dir /tmp/apertus_hf_roundtrip \
-    --hf-tokenizer $APERTUS_HF \
-    --loader-transformer-impl transformer_engine
-
-# 3. Diff with two-tier pass criterion
-python3 - <<'PY'
-import torch, re
-from transformers import AutoModelForCausalLM
-
-orig  = AutoModelForCausalLM.from_pretrained("/path/to/Apertus-8B-2509-hf", torch_dtype=torch.bfloat16)
-trip  = AutoModelForCausalLM.from_pretrained("/tmp/apertus_hf_roundtrip",  torch_dtype=torch.bfloat16)
-
-# Keys we expect to reset to defaults per R17 — diff is informational only here.
-R17_PATTERN = re.compile(r"(act_fn\.(alpha_p|alpha_n|beta|eps)|self_attn\.(q_norm|k_norm)\.weight)")
-
-keys_orig = set(orig.state_dict().keys())
-keys_trip = set(trip.state_dict().keys())
-print(f"keys in orig only: {sorted(keys_orig - keys_trip)}")
-print(f"keys in trip only: {sorted(keys_trip - keys_orig)}")
-
-standard_max_abs = 0.0
-r17_keys_changed = 0
-for k in sorted(keys_orig & keys_trip):
-    a, b = orig.state_dict()[k].float(), trip.state_dict()[k].float()
-    if a.shape != b.shape:
-        print(f"  SHAPE MISMATCH: {k}: {a.shape} vs {b.shape}")
-        continue
-    abs_diff = (a - b).abs().max().item()
-    if R17_PATTERN.search(k):
-        if abs_diff > 1e-3:
-            r17_keys_changed += 1   # expected — reset to defaults
-    else:
-        if abs_diff > standard_max_abs:
-            standard_max_abs = abs_diff
-        if abs_diff > 1e-3:
-            print(f"  DRIFT (standard tensor — NOT expected): {k}: abs={abs_diff:.6f}")
-
-print(f"\nstandard tensors max abs diff: {standard_max_abs:.6f}")
-print(f"R17 tensors changed (expected per R17): {r17_keys_changed}")
-assert standard_max_abs < 1e-3, "standard tensors drifted — loader has a bug"
-PY
+sbatch --export=ALL,ARM=vanilla,OVERWRITE=1,LOGITS=1 r17_patch_roundtrip.sbatch
+sbatch --export=ALL,ARM=retok,OVERWRITE=1,LOGITS=1 r17_patch_roundtrip.sbatch
+sbatch --export=ALL,ARM=centroid,OVERWRITE=1,LOGITS=1 r17_patch_roundtrip.sbatch
 ```
 
 **Pass criteria:**
 
-- **Standard tensors** (embeddings, attn, mlp, norms, LM head) — `max abs diff < 1e-3` on bf16-quantised weights. Larger drift = loader bug.
-- **R17 tensors** (xIELU αp/αn/β/ε, q_norm/k_norm) — **expected** to differ from original (reset to `__init__` defaults). The count is informational; we just want to see them mentioned so we don't pretend nothing was dropped.
+- **Standard tensors** (embeddings, attn, mlp, norms, LM head) — `max abs diff == 0.0` on the verified bf16 roundtrip.
+- **R17 tensors** (xIELU αp/αn, q_norm/k_norm) — `max abs diff == 0.0`. Any reset to defaults is a blocker for the accepted bakeoff path.
+- **Logits** on the smoke prompts — `max_abs == 0.0` and top-id matches.
 
-This is a deliberate weaker pass criterion than a true zero-drift roundtrip. To get true zero-drift, implement `patch_apertus_extras.py` (currently a scaffold) to restore xIELU + QK-Norm tensors post-conversion. That's IN SCOPE for production CPT and OUT OF SCOPE for the modern-only bakeoff (which accepts R17 because all three arms inherit the same reset).
+The live `bakeoff_1node_chain_20260522_005620` run satisfies this gate by loading `.../{vanilla,retok,centroid}/megatron_tp2_r17patched`.
 
 ## Open question
 
@@ -192,3 +141,6 @@ If swiss-ai already has an internal HF → Megatron loader (which they must, to 
 - [`loader_apertus_hf.py`](loader_apertus_hf.py) — the loader
 - [`install.sh`](install.sh) — symlink it into a Megatron-LM clone
 - [`r1_roundtrip.sbatch`](r1_roundtrip.sbatch) — Clariden sbatch that runs the full R1 procedure end-to-end; passed 2026-05-21 (job 2333864)
+- [`patch_apertus_extras.py`](patch_apertus_extras.py) — copies xIELU/QK tensors from the source HF checkpoint into converted Megatron TP ranks
+- [`verify_hf_roundtrip.py`](verify_hf_roundtrip.py) — verifies standard tensors, R17 tensors, and optional smoke logits after Megatron→HF conversion
+- [`r17_patch_roundtrip.sbatch`](r17_patch_roundtrip.sbatch) — Clariden sbatch that patches and verifies a checkpoint end-to-end; passed for all three bakeoff arms on 2026-05-22 UTC

@@ -7,20 +7,17 @@ saver protocol only consumes standard transformer keys). With default
 checking, conversion fails; with `--no-checking`, those values get
 silently dropped — silent-loss either way.
 
-This revised loader sends **only** the saver_core-consumed standard keys
+This loader sends **only** the saver_core-consumed standard keys
 ("word embeddings", "input norm weight", "post norm weight", "qkv weight",
 "dense weight", "mlp l0 weight", "mlp l1 weight", "final norm" / "weight",
 "output layer" / "weight"). It does NOT send xIELU or QK-Norm trained
 tensors — saver_core has no slot for them in its `params_dict` mapping.
 
-**Fidelity caveat (new risk R17 in RISKS.md):** the saved Megatron
-checkpoint will have xIELU αp / αn / β / ε and QK-Norm q_norm/k_norm
-at their **default init values** (αp=αn=0.8, β=0.5; q/k_norm at all-ones)
-rather than Apertus's pretraining-trained values. For the bakeoff this
-is a same-loss-across-all-three-arms compromise — comparison validity
-holds, but absolute scores will differ from running unmodified Apertus.
-For production CPT, a follow-up patcher is needed (see README.md
-"Patching xIELU + QK-Norm post-conversion").
+**Fidelity caveat (R17 in RISKS.md):** raw saver_core output therefore resets
+xIELU αp / αn and QK-Norm q_norm/k_norm to Megatron defaults. The accepted
+bakeoff/production path must run `patch_apertus_extras.py` after conversion and
+then verify with `verify_hf_roundtrip.py`. The live bakeoff checkpoints use the
+patched `megatron_tp2_r17patched` directories.
 
 Tensor-name mapping (HF → Megatron message keys) follows the inverse of
 saver_swissai_hf.py L237-345 (commit c92402e3...). Apertus-specific
@@ -281,10 +278,9 @@ def _load_checkpoint(queue, args):
         # ONLY saver_core-consumable standard keys here. saver_core.py:L357-443
         # pops exactly these keys per transformer layer; emitting anything else
         # triggers check_message() failure (with --checking) or silent drop
-        # (with --no-checking). For Apertus-specific tensors (xIELU αp/αn,
-        # QK-Norm q_norm/k_norm) the saved Megatron model uses XIELU.__init__
-        # / RMSNorm.__init__ defaults — see README.md "Patching xIELU +
-        # QK-Norm post-conversion" + RISKS.md R17 for the fidelity caveat.
+        # (with --no-checking). Apertus-specific tensors (xIELU αp/αn and
+        # QK-Norm q_norm/k_norm) must be restored by patch_apertus_extras.py
+        # before a converted checkpoint is accepted.
         message = {
             "input norm weight":  sd[f"{p}.attention_layernorm.weight"].clone(),
             "post norm weight":   sd[f"{p}.feedforward_layernorm.weight"].clone(),
@@ -320,8 +316,9 @@ def _load_checkpoint(queue, args):
 
         # NOTE: q_norm / k_norm (QK-Norm) and xIELU alpha_p / alpha_n / beta / eps
         # are intentionally NOT sent here. saver_core's check_message() at
-        # L443 would reject them. See R17 in RISKS.md for the fidelity caveat
-        # + post-conversion patcher plan.
+        # L443 would reject them. The post-conversion patcher restores the
+        # trained alpha_p/alpha_n and q/k norm tensors; beta/eps are verified
+        # against defaults because Megatron does not serialize them.
 
         queue_put(f"transformer layer {i}", message)
 
