@@ -84,6 +84,18 @@ The bakeoff fires once these are complete (most are Clariden-side):
                   # per v0.7 §5.6 hard gates + selection score
 ```
 
+Before any future dataset build or CPU-only conversion submit, run:
+
+```
+bash check_cpu_only_slurm.sh
+```
+
+This audit requires the CPU-only sbatches to use `xfer`, forbids GPU resource
+directives, and requires the runtime `require_cpu_only_slurm` guard. On
+Clariden, `normal`, `debug`, and `low` are GPU-node partitions; dataset
+building/preprocessing belongs on `xfer` unless `ALLOW_GPU_NODE_FOR_CPU=1` is
+set intentionally for a documented exception.
+
 The `bakeoff_training/` directory (Megatron-LM-Swiss-AI sbatch templates per arm) is the missing piece between init-checkpoint build and bakeoff submission. It's gated on Q D1 (Apertus's Megatron-LM-Swiss-AI fork branch/commit) being resolved.
 
 ## Reference

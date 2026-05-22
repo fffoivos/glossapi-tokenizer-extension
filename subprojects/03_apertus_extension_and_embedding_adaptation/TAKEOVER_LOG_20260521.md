@@ -769,3 +769,9 @@ Current next gate:
   - Added `DUCKDB_MEMORY_LIMIT`, `DUCKDB_TEMP_DIRECTORY`, and `DUCKDB_THREADS` support in `glossapi_corpus_cli.pipeline._duckdb_connect_streaming`, and set the prepare job to spill DuckDB temp files under scratch with a bounded memory cap for xfer.
   - Updated docs/runbooks so CPU-only work is no longer described as running on `normal`/`debug`.
 - Current `squeue -u fffoivos` was empty when this correction was made; no live Slurm jobs were cancelled.
+
+## Continuation - 2026-05-22 future dataset-build guard
+
+- Added `03_4_implementation_experiments/init_bakeoff/check_cpu_only_slurm.sh`.
+- This script is the pre-submit audit for future dataset building and CPU-only checkpoint conversion work. It verifies the known CPU-only sbatches use `#SBATCH --partition=xfer`, contain no GPU directives, and call `require_cpu_only_slurm` before doing work.
+- Updated the init-bakeoff runbook to make this audit the first step before any future dataset build or CPU-only conversion submit.
