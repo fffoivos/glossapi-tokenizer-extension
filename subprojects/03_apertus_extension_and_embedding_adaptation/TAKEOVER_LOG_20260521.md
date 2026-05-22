@@ -301,3 +301,8 @@ Current next gate:
 - Relaunched bridge smoke again as conversion `2341897` plus dependent eval `2341898`.
   - Result: DP-rank override was not sufficient; sharded-state construction also asks for DP world size and hit the same uninitialized DP group path.
   - Fix added: set Megatron's private `_MPU_DATA_PARALLEL_WORLD_SIZE=1` override next to the DP rank override.
+- Relaunched bridge smoke again as conversion `2341960` plus dependent eval `2341961`.
+  - Result: conversion reached actual checkpoint load, but Megatron's sharding-integrity validator rejected the single-process sequential TP access pattern for `embedding.word_embeddings.weight`.
+  - Fix added: in the converter wrapper only, monkeypatch `validate_sharding_integrity` to a no-op. The actual tensor load remains active and should still fail on missing/malformed tensors.
+- Held-out build `2341875` completed its scan but failed quota fill because training consumed all eligible rows in the literary and dictionary/misc source filters.
+  - Fix added: default held-out quotas now use only source buckets with remaining training-disjoint docs: HPLT, dialogue/textbooks, academic, and legal/civic.

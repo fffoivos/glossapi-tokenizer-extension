@@ -19,12 +19,13 @@ import pyarrow.parquet as pq
 
 
 DEFAULT_QUOTAS = {
-    "greek_hplt_clean60": 250,
-    "greek_literary": 130,
-    "greek_dialogue_textbooks": 45,
-    "greek_academic": 40,
-    "greek_legal_civic": 25,
-    "greek_dictionary_misc": 10,
+    # Literary and dictionary/misc were exhausted by the 7B-token training mix
+    # under the current recipe filters, so the training-disjoint heldout uses
+    # the source buckets that still have eligible post-dedup docs.
+    "greek_hplt_clean60": 330,
+    "greek_dialogue_textbooks": 60,
+    "greek_academic": 60,
+    "greek_legal_civic": 50,
 }
 
 

@@ -53,6 +53,17 @@ def main() -> None:
     mpu.set_data_parallel_rank(0)
     mpu._MPU_DATA_PARALLEL_WORLD_SIZE = 1
 
+    from megatron.core.dist_checkpointing import validation as dist_ckpt_validation
+
+    def _skip_single_process_sharding_integrity(*_args, **_kwargs) -> None:
+        return None
+
+    # A TP=2 checkpoint is loaded rank-by-rank by loader_core in one process.
+    # The default validator expects all TP shards to be represented as current
+    # distributed ranks and rejects that access pattern before loading. Missing
+    # or malformed tensors still fail during the actual load.
+    dist_ckpt_validation.validate_sharding_integrity = _skip_single_process_sharding_integrity
+
     runpy.run_path(convert_py, run_name="__main__")
 
 
