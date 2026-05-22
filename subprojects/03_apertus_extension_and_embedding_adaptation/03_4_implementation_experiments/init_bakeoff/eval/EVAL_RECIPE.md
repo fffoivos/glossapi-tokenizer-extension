@@ -83,6 +83,32 @@ Per v0.7 §6.1:
 
 For 2 B-token bakeoff per arm: that's 4 mid-training benchmark runs (at 500 M, 1.0 B, 1.5 B, 2.0 B) and the last 3 (1.0 / 1.5 / 2.0 B) feed the windowed selection score.
 
+### Current 2026-05-22 operational cadence
+
+Training writes Megatron `torch_dist` checkpoints, while lm-eval and the intrinsic metric jobs require HF-format model directories. Each evaluated checkpoint therefore has two stages:
+
+1. Convert the Megatron checkpoint to HF with [`convert_bakeoff_checkpoint_to_hf.sbatch`](convert_bakeoff_checkpoint_to_hf.sbatch).
+2. Run [`run_eval.sbatch`](run_eval.sbatch) and, when a held-out JSONL is available, [`run_tokenizer_fair_metrics.sbatch`](run_tokenizer_fair_metrics.sbatch) + [`run_new_token_diagnostics.sbatch`](run_new_token_diagnostics.sbatch).
+
+Use [`submit_bakeoff_checkpoint_eval.sh`](submit_bakeoff_checkpoint_eval.sh) for the conversion/eval chain:
+
+```bash
+RUN_TAG=bakeoff_1node_chain_20260522_005620 \
+  bash submit_bakeoff_checkpoint_eval.sh vanilla 65 greek_only
+```
+
+The live bakeoff saves every 65 iterations, which is about 273 M tokens (`65 × 1024 × 4096`). The practical cadence is:
+
+| Iteration | Tokens/arm | Eval action |
+|---:|---:|---|
+| 65 | ~273 M | Greek-only downstream smoke on all three arms; proves checkpoint save, conversion, and eval before waiting for late checkpoints. |
+| 130 | ~545 M | Full downstream eval + intrinsic metrics/diagnostics if held-out JSONL is staged. |
+| 260 | ~1.09 B | Full downstream eval + intrinsic metrics/diagnostics. |
+| 390 | ~1.64 B | Full downstream eval + intrinsic metrics/diagnostics; enters the selection window. |
+| 455 or final | ~1.91-2.00 B | Full downstream eval + intrinsic metrics/diagnostics; final selection evidence. |
+
+The final arm choice should use the late-window checkpoints (390 plus the final one, and 260 as the nearest pre-window anchor if only two late checkpoints are available). The iteration-65 Greek-only run is not selection evidence; it is an operational canary to catch broken conversion/eval early.
+
 ## §5.6 hard gates — to be filled from V4 baseline
 
 Per v0.7 §5.6, a candidate arm **fails** if any of these gates trips. Thresholds are deliberately left as placeholders here — they're set **after** the V4 baseline run on unmodified Apertus-8B-2509 establishes the per-benchmark variance. The "fill from V4" step is on the post-V4 review checklist; until then these thresholds remain `PENDING(V4)`.
@@ -149,6 +175,8 @@ Per-arm bakeoff eval at one checkpoint:
 - `run_eval.sbatch` — parameterized eval job: `MODEL_PATH=… OUTPUT_DIR=… TASK_GROUP={full|greek_only|retention_only} sbatch run_eval.sbatch`
 - `run_apertus_baseline.sh` — thin wrapper: V4 baseline on the unmodified Apertus-8B-2509 checkpoint
 - `run_bakeoff_arm_eval.sh` — thin wrapper: per-arm eval, takes an arm's checkpoint dir as arg
+- `convert_bakeoff_checkpoint_to_hf.sbatch` — converts one Megatron `torch_dist` bakeoff checkpoint to HF format for eval
+- `submit_bakeoff_checkpoint_eval.sh` — submits conversion plus lm-eval, with optional intrinsic metrics when `SUBMIT_INTRINSIC=1`
 - `compute_bootstrap_cis.py` — post-process: bootstrap CIs over the `--log_samples` outputs
 - **`compute_tokenizer_fair_metrics.py`** — primary v0.7 §5.1 intrinsic metrics (BPC, NLL/char, NLL/word, tokens/word, chars/token, compression ratio, STRR). The cross-tokenizer-fair signal for comparing Vanilla (vocab 131,072) vs ReTok/Centroid (vocab 148,480). Has a `--stats-only` mode for tokenizer-only checks (no model load).
 - **`run_tokenizer_fair_metrics.sbatch`** — sbatch wrapper for the above; 1 node × 1 GPU × 2 h. Runs at each bakeoff checkpoint where downstream eval also runs.

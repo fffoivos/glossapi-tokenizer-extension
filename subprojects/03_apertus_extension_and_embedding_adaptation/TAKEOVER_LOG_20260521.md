@@ -246,3 +246,28 @@ Current next gate:
   - `2341826` centroid reached iteration `4`, still `0` skipped / `0` NaN, steady around `8.0k` tokens/sec/GPU.
   - No arm has reached the first checkpoint yet; this is expected because `SAVE_INTERVAL=65`.
   - Required GCP active-instance safety check from `home` could not complete because `gcloud` user auth needs reauthentication and cannot prompt in non-interactive execution.
+
+## Continuation - 2026-05-22 eval bridge before first checkpoint
+
+- Required GCP active-instance safety check still cannot complete from `home` because `gcloud` auth needs an interactive re-login:
+  - `Reauthentication failed. cannot prompt during non-interactive execution.`
+- Live Slurm status at `2026-05-22 01:30:34 UTC`:
+  - `2341822` vanilla running on `nid006929`, elapsed `00:33:13`.
+  - `2341824` retok running on `nid006659`, elapsed `00:29:29`.
+  - `2341826` centroid running on `nid006982`, elapsed `00:27:52`.
+  - resume jobs `2341823`, `2341825`, `2341827` pending on dependency.
+- Latest training-log health:
+  - vanilla reached iteration `14` at `2026-05-22 03:29:32` local log time, with `0` skipped / `0` NaN.
+  - retok reached iteration `12` at `2026-05-22 03:28:45` local log time, with `0` skipped / `0` NaN.
+  - centroid reached iteration `12` at `2026-05-22 03:30:12` local log time, with `0` skipped / `0` NaN.
+  - no checkpoint yet; `latest_checkpointed_iteration.txt` is absent for all three arms, expected until `iter_0000065`.
+- Found an operational eval gap: `run_bakeoff_arm_eval.sh` expects an HF-format model path, but the live bakeoff writes Megatron `torch_dist` checkpoints.
+- Added eval bridge tooling:
+  - `eval/convert_bakeoff_checkpoint_to_hf.sbatch` converts one Megatron `iter_XXXXXXX` checkpoint to an HF directory using Megatron `loader core -> saver swissai_hf`.
+  - `eval/submit_bakeoff_checkpoint_eval.sh` submits conversion plus dependent `run_eval.sbatch`, with optional tokenizer-fair metrics and new-token diagnostics when `SUBMIT_INTRINSIC=1` and `EVAL_JSONL` is staged.
+- Hardened intrinsic eval wrappers:
+  - `run_tokenizer_fair_metrics.sbatch` and `run_new_token_diagnostics.sbatch` now default to `pytorch/v2.9.1:v2`.
+  - removed job-start `pip install` attempts inside the read-only uenv.
+- Documented practical eval cadence in `EVAL_RECIPE.md`:
+  - `iter_65`: Greek-only downstream canary on all three arms to prove save -> convert -> eval.
+  - `iter_130`, `260`, `390`, and `455/final`: full downstream eval; intrinsic metrics/diagnostics once a held-out JSONL is staged.

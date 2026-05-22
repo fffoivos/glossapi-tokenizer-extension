@@ -48,7 +48,7 @@ else
     [ "${SKIP_GREEDY:-0}" = "1" ] && SKIP_GREEDY_ARG="--skip-greedy"
 fi
 
-UENV_IMAGE="${UENV_IMAGE:-pytorch/v2.6.0:v1}"
+UENV_IMAGE="${UENV_IMAGE:-pytorch/v2.9.1:v2}"
 mkdir -p "$(dirname "$OUTPUT_JSON")"
 
 echo "=== run_new_token_diagnostics.sbatch ==="
@@ -66,7 +66,6 @@ SCRIPT_DIR="$(dirname "$0")"
 
 uenv run "$UENV_IMAGE" --view=default -- bash -c "
 set -euo pipefail
-pip install --quiet transformers torch 2>&1 | tail -3 || true
 python3 $SCRIPT_DIR/compute_new_token_diagnostics.py \
     --model-path '$MODEL_PATH' \
     $EVAL_ARG \

@@ -35,7 +35,7 @@ MAX_CONTEXT="${MAX_CONTEXT:-4096}"
 MAX_DOCS_ARG=""
 [ -n "${MAX_DOCS:-}" ] && MAX_DOCS_ARG="--max-docs $MAX_DOCS"
 
-UENV_IMAGE="${UENV_IMAGE:-pytorch/v2.6.0:v1}"
+UENV_IMAGE="${UENV_IMAGE:-pytorch/v2.9.1:v2}"
 
 mkdir -p "$(dirname "$OUTPUT_JSON")"
 
@@ -52,7 +52,6 @@ SCRIPT_DIR="$(dirname "$0")"
 
 uenv run "$UENV_IMAGE" --view=default -- bash -c "
 set -euo pipefail
-pip install --quiet transformers torch 2>&1 | tail -3 || true
 python3 $SCRIPT_DIR/compute_tokenizer_fair_metrics.py \
     --model-path '$MODEL_PATH' \
     --eval-jsonl '$EVAL_JSONL' \
