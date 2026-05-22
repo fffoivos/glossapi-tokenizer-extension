@@ -295,3 +295,6 @@ Current next gate:
 - Relaunched bridge smoke again as conversion `2341883` plus dependent eval `2341884`.
   - Result: plugin loading worked, but Megatron checkpoint loading then failed because the data-parallel group was not initialized (`data parallel group with context parallel combined is not initialized`).
   - Fix added: `run_megatron_convert_with_pg.py` now initializes minimal Megatron model-parallel groups (`TP=1`, `PP=1`, `CP=1`) after the single-rank torch process group is created. The loader still reads the checkpoint's TP ranks sequentially.
+- Relaunched bridge smoke again as conversion `2341891` plus dependent eval `2341892`.
+  - Result: initializing Megatron model-parallel with `TP=1` was too broad; it conflicted with checkpoint TP=2 model construction and produced a `4096` vs `2048` TE row-parallel weight shape mismatch.
+  - Fix added: remove model-parallel initialization; instead set only Megatron's data-parallel rank override to `0`, leaving `loader_core` to set TP/PP sizing from the checkpoint args.
