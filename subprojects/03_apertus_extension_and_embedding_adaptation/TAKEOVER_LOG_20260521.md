@@ -298,3 +298,6 @@ Current next gate:
 - Relaunched bridge smoke again as conversion `2341891` plus dependent eval `2341892`.
   - Result: initializing Megatron model-parallel with `TP=1` was too broad; it conflicted with checkpoint TP=2 model construction and produced a `4096` vs `2048` TE row-parallel weight shape mismatch.
   - Fix added: remove model-parallel initialization; instead set only Megatron's data-parallel rank override to `0`, leaving `loader_core` to set TP/PP sizing from the checkpoint args.
+- Relaunched bridge smoke again as conversion `2341897` plus dependent eval `2341898`.
+  - Result: DP-rank override was not sufficient; sharded-state construction also asks for DP world size and hit the same uninitialized DP group path.
+  - Fix added: set Megatron's private `_MPU_DATA_PARALLEL_WORLD_SIZE=1` override next to the DP rank override.

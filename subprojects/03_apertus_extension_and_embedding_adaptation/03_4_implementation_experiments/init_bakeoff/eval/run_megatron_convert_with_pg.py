@@ -47,9 +47,11 @@ def main() -> None:
 
     # Leave TP/PP sizing to loader_core, which reads the checkpoint args and
     # then loads TP ranks sequentially. The torch_dist path still asks for a DP
-    # replica id through Megatron's rerun-state machinery; this override avoids
-    # requiring a full data-parallel group in the single-process converter.
+    # replica id and DP world-size through Megatron sharded-state helpers; these
+    # overrides avoid requiring a full data-parallel group in the single-process
+    # converter.
     mpu.set_data_parallel_rank(0)
+    mpu._MPU_DATA_PARALLEL_WORLD_SIZE = 1
 
     runpy.run_path(convert_py, run_name="__main__")
 
