@@ -27,6 +27,12 @@ NEW_ID_END="${NEW_ID_END:-148480}"
 SNIPPETS_PER_TOKEN="${SNIPPETS_PER_TOKEN:-100}"
 SNIPPET_TOKEN_RADIUS="${SNIPPET_TOKEN_RADIUS:-50}"
 SEED="${SEED:-20260523}"
+UENV_BIN="${UENV_BIN:-/usr/bin/uenv}"
+
+if [ ! -x "$UENV_BIN" ]; then
+    echo "ERROR: UENV_BIN is not executable: $UENV_BIN" >&2
+    exit 127
+fi
 
 mkdir -p "$OUTPUT_DIR" /capstor/scratch/cscs/fffoivos/runs/token_distillation
 
@@ -41,9 +47,10 @@ echo "TARGET_EXTENDED_TOKENS:  $TARGET_EXTENDED_TOKENS"
 echo "NEW_ID_RANGE:            [$NEW_ID_START, $NEW_ID_END)"
 echo "SNIPPETS_PER_TOKEN:      $SNIPPETS_PER_TOKEN"
 echo "SNIPPET_TOKEN_RADIUS:    $SNIPPET_TOKEN_RADIUS"
+echo "UENV_BIN:                $UENV_BIN"
 echo
 
-uenv run pytorch/v2.9.1:v2 --view=default -- bash -c "
+\"$UENV_BIN\" run pytorch/v2.9.1:v2 --view=default -- bash -c "
 set -euo pipefail
 export PYTHONPATH=/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval:$REPO_DIR
 python3 -u '$INIT_BAKEOFF_DIR/token_distillation/td_coverage_prepass.py' \
