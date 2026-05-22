@@ -278,3 +278,10 @@ Current next gate:
   - exclusion: all Greek `doc_id`s already used in `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl`
   - output default: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl`
 - Synced the held-out builder to the Clariden execution mirror and submitted job `2341867` (`build_cpt_heldout`, `3:00:00`, pending on priority at `2026-05-22 01:38:02 UTC`).
+- Submitted bridge smoke on the completed vanilla smoke checkpoint:
+  - conversion job `2341869`, dependent limited Greek eval job `2341870`.
+  - Result: conversion failed before eval, and `2341870` became `DependencyNeverSatisfied`.
+  - Cause: Megatron `loader core` loading a TP=2 `torch_dist` checkpoint calls `torch.distributed.get_world_size()`, but upstream `tools/checkpoint/convert.py` does not initialize a process group.
+  - Fix added: `eval/run_megatron_convert_with_pg.py` initializes a single-rank `gloo` process group before running Megatron `convert.py`; `convert_bakeoff_checkpoint_to_hf.sbatch` now uses it.
+- Held-out build job `2341867` failed after loading `3,890,581` Greek training doc IDs because duplicate candidate scores/doc IDs allowed `heapq` to compare row dictionaries.
+  - Fix added: heap candidates now include a numeric row-position tiebreaker, so ties never compare dict payloads.

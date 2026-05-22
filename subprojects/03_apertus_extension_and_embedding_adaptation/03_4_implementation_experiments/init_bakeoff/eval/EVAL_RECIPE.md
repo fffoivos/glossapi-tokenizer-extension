@@ -176,6 +176,7 @@ Per-arm bakeoff eval at one checkpoint:
 - `run_apertus_baseline.sh` — thin wrapper: V4 baseline on the unmodified Apertus-8B-2509 checkpoint
 - `run_bakeoff_arm_eval.sh` — thin wrapper: per-arm eval, takes an arm's checkpoint dir as arg
 - `convert_bakeoff_checkpoint_to_hf.sbatch` — converts one Megatron `torch_dist` bakeoff checkpoint to HF format for eval
+- `run_megatron_convert_with_pg.py` — initializes the single-rank process group needed by Megatron `loader core` when reading `torch_dist` checkpoints
 - `submit_bakeoff_checkpoint_eval.sh` — submits conversion plus lm-eval, with optional intrinsic metrics when `SUBMIT_INTRINSIC=1`
 - `build_cpt_heldout_jsonl.py` / `build_cpt_heldout_jsonl.sbatch` — builds the 500-doc Greek held-out JSONL from the post-Apertus-dedup selected pool while excluding Greek doc_ids already used in `bulk_mix.jsonl`
 - `compute_bootstrap_cis.py` — post-process: bootstrap CIs over the `--log_samples` outputs

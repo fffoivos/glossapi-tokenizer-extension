@@ -89,7 +89,7 @@ uenv run "$UENV_IMAGE" --view=default -- bash <<'INNER'
 set -euo pipefail
 export PYTHONPATH="$MEGATRON_LM_SWISSAI_DIR"
 cd "$MEGATRON_LM_SWISSAI_DIR"
-python3 tools/checkpoint/convert.py --model-type GPT \
+python3 "$SCRIPT_DIR/run_megatron_convert_with_pg.py" tools/checkpoint/convert.py --model-type GPT \
     --loader core --saver swissai_hf \
     --load-dir "$VIEW_DIR" --save-dir "$HF_OUT_DIR" \
     --hf-tokenizer "$HF_TOKENIZER_DIR" \

@@ -98,17 +98,18 @@ def score_doc(seed: str, doc_key: str) -> int:
 
 
 def push_candidate(
-    heaps: dict[str, list[tuple[int, str, dict[str, Any]]]],
+    heaps: dict[str, list[tuple[int, int, dict[str, Any]]]],
     quotas: dict[str, int],
     source: str,
     score: int,
+    tie_breaker: int,
     row: dict[str, Any],
 ) -> None:
     quota = quotas.get(source, 0)
     if quota <= 0:
         return
     heap = heaps.setdefault(source, [])
-    item = (-score, str(row["doc_id"]), row)
+    item = (-score, tie_breaker, row)
     if len(heap) < quota:
         heapq.heappush(heap, item)
     elif score < -heap[0][0]:
@@ -142,7 +143,7 @@ def main() -> None:
         "len_greek",
     ]
 
-    heaps: dict[str, list[tuple[int, str, dict[str, Any]]]] = {k: [] for k in quotas}
+    heaps: dict[str, list[tuple[int, int, dict[str, Any]]]] = {k: [] for k in quotas}
     counters = {
         "rows_seen": 0,
         "matched_greek_recipe": 0,
@@ -191,7 +192,7 @@ def main() -> None:
             }
             counters["candidate_rows"] += 1
             candidate_by_source[source] += 1
-            push_candidate(heaps, quotas, source, score, row)
+            push_candidate(heaps, quotas, source, score, counters["rows_seen"], row)
         if batch_idx % 250 == 0:
             filled = {k: len(v) for k, v in heaps.items()}
             print(f"batch={batch_idx:,} rows={counters['rows_seen']:,} filled={filled}", flush=True)
