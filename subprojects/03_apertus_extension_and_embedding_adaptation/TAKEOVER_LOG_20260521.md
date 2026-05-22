@@ -714,3 +714,37 @@ Current next gate:
   - centroid: BPC `0.9525`, NLL/char `1.1266`, `el_arc=0.2491`, `el_belebele=0.3233`, `el_xnli=0.3482`, `el_xquad_f1=0.0257`, `el_mmlu=0.2827`, `el_base44=0.3007`, `el_piqa=0.5100`.
   - New-token integration: retok `D1_top1=0.3183`, `D2_mass=0.3455`, `D4_top1_new=0.5612`, `D5_util=0.161`; centroid `D1_top1=0.0757`, `D2_mass=0.3409`, `D4_top1_new=0.2939`, `D5_util=0.068`.
   - Interpretation remains pre-decision: vanilla still leads Greek BPC and most Greek downstream metrics, retok continues narrowing and has the strongest new-token use, centroid remains weak on the Greek objective.
+
+## Continuation - 2026-05-22 final 2B training complete
+
+- CSCS auth was refreshed and verified with a fresh `cscs-key` certificate; `ssh clariden` worked again.
+- GCP safety check could not be completed from `home`: `gcloud compute instances list` failed with non-interactive reauthentication required. No GCP resources were changed.
+- Training completion:
+  - vanilla `2345082`: `COMPLETED 0:0`, reached iteration `476/476`, saved `iter_0000476`, final loss `1.737108`, `0` skipped / `0` NaN.
+  - retok `2345083`: `COMPLETED 0:0`, reached iteration `476/476`, saved `iter_0000476`, final loss `2.703995`, `0` skipped / `0` NaN.
+  - centroid `2345084`: `COMPLETED 0:0`, reached iteration `476/476`, saved `iter_0000476`, final loss `3.787457`, `0` skipped / `0` NaN.
+  - All checkpoint trackers now report `476`.
+  - Local refreshed training artifacts:
+    - `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/bakeoff_1node_chain_20260522_005620_training_curve.csv`
+    - `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/bakeoff_1node_chain_20260522_005620_training_summary.json`
+    - `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/bakeoff_1node_chain_20260522_005620_training_summary.md`
+- Iter-390 full packed eval:
+  - job `2346267` completed `0:0`; compact local copies and digest were added under `eval/live_summaries/`.
+- Iter-455 full packed eval:
+  - job `2346980` completed `0:0`, elapsed `00:52:28`.
+  - compact local copies and digest were added under `eval/live_summaries/`.
+  - headline at iter 455:
+    - vanilla: BPC `0.4916`, NLL/char `0.5816`, `el_arc=0.4113`, `el_belebele=0.5100`, `el_xnli=0.3988`, `el_xquad_f1=0.3059`, `el_mmlu=0.4231`, `hellaswag=0.7592`, `mmlu=0.5315`.
+    - retok: BPC `0.5768`, NLL/char `0.6822`, `el_arc=0.3669`, `el_belebele=0.4844`, `el_xnli=0.3707`, `el_xquad_f1=0.3164`, `el_mmlu=0.3967`, `hellaswag=0.7479`, `mmlu=0.5560`, `D5_util=0.3160`.
+    - centroid: BPC `0.9045`, NLL/char `1.0698`, `el_arc=0.2594`, `el_belebele=0.3344`, `el_xnli=0.3574`, `el_xquad_f1=0.0271`, `el_mmlu=0.2804`, `hellaswag=0.7578`, `mmlu=0.5450`, `D5_util=0.0860`.
+- Final iter-476 eval chain:
+  - Submitted with separate cache root `/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_bakeoff_full_iter0000476_packed` to avoid colliding with the still-running iter-455 eval.
+  - Conversion jobs `2347091`, `2347094`, `2347097` completed `0:0`.
+  - Intrinsic jobs `2347092`-`2347099` completed `0:0`.
+  - Packed final downstream eval `2347100` launched on `nid007218`, using GPU0/GPU1/GPU2 for vanilla/retok/centroid and GPU3 as spare.
+  - Packed final downstream eval `2347100` completed `0:0`, elapsed `00:51:10`.
+  - compact local copies and digest were added under `eval/live_summaries/`.
+  - headline at final iter 476:
+    - vanilla: BPC `0.4906`, NLL/char `0.5804`, `el_arc=0.4206`, `el_belebele=0.5133`, `el_xnli=0.4020`, `el_xquad_f1=0.3101`, `el_mmlu=0.4214`, `hellaswag=0.7594`, `mmlu=0.5340`.
+    - retok: BPC `0.5739`, NLL/char `0.6788`, `el_arc=0.3720`, `el_belebele=0.4967`, `el_xnli=0.3751`, `el_xquad_f1=0.3092`, `el_mmlu=0.3991`, `hellaswag=0.7488`, `mmlu=0.5542`, `D5_util=0.3580`.
+    - centroid: BPC `0.8994`, NLL/char `1.0638`, `el_arc=0.2560`, `el_belebele=0.3411`, `el_xnli=0.3538`, `el_xquad_f1=0.0258`, `el_mmlu=0.2794`, `hellaswag=0.7599`, `mmlu=0.5444`, `D5_util=0.0920`.
