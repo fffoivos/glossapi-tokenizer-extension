@@ -54,6 +54,15 @@ This writes:
 - `smoke_token_ids.txt`
 - `layer_pilot_token_ids.txt`
 
+Also render a reviewer-readable coverage report:
+
+```bash
+python3 summarize_td_coverage.py \
+  --coverage-jsonl "$OUTPUT_DIR/td_coverage_prepass.jsonl" \
+  --summary-json "$OUTPUT_DIR/td_coverage_summary.json" \
+  --output-md "$OUTPUT_DIR/TD_COVERAGE_SUMMARY.md"
+```
+
 ## Second gate: TD smoke, only if coverage passes
 
 Do not submit this until `td_coverage_summary.json` recommends either
