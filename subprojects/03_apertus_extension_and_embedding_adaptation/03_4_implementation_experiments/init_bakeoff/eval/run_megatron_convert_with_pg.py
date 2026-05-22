@@ -43,6 +43,18 @@ def main() -> None:
             world_size=1,
         )
 
+    from megatron.core import parallel_state as mpu
+
+    if not mpu.model_parallel_is_initialized():
+        # The core loader reads TP ranks sequentially in this one process. We
+        # still need a minimal data-parallel group because torch_dist checkpoint
+        # validation asks Megatron for a DP replica id.
+        mpu.initialize_model_parallel(
+            tensor_model_parallel_size=1,
+            pipeline_model_parallel_size=1,
+            context_parallel_size=1,
+        )
+
     runpy.run_path(convert_py, run_name="__main__")
 
 

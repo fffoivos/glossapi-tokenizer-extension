@@ -292,3 +292,6 @@ Current next gate:
 - Relaunched bridge smoke again as conversion `2341881` plus dependent eval `2341882`.
   - Result: the single-rank `gloo` process group initialized, but the wrapper failed to import Megatron checkpoint plugins (`loader_core` / `core`) because it did not add `tools/checkpoint` to `sys.path`.
   - Fix added: `run_megatron_convert_with_pg.py` now prepends the converter script directory to `sys.path` before running `convert.py`.
+- Relaunched bridge smoke again as conversion `2341883` plus dependent eval `2341884`.
+  - Result: plugin loading worked, but Megatron checkpoint loading then failed because the data-parallel group was not initialized (`data parallel group with context parallel combined is not initialized`).
+  - Fix added: `run_megatron_convert_with_pg.py` now initializes minimal Megatron model-parallel groups (`TP=1`, `PP=1`, `CP=1`) after the single-rank torch process group is created. The loader still reads the checkpoint's TP ranks sequentially.
