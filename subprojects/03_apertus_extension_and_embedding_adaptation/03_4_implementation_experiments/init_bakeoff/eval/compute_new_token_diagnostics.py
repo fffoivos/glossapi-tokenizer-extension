@@ -63,29 +63,67 @@ def _embedding_diagnostics(E, U, new_id_range, base_vocab_size, sample_cos=500, 
     import torch
 
     new_start, new_end = new_id_range
-    N_new = new_end - new_start
-    out = {"new_id_range": [new_start, new_end], "n_new": N_new, "base_vocab_size": base_vocab_size}
+    vocab_size = int(E.shape[0])
+    clipped_new_end = min(new_end, vocab_size)
+    N_requested = new_end - new_start
+    N_new = max(0, clipped_new_end - new_start)
+    out = {
+        "new_id_range": [new_start, new_end],
+        "available_new_id_range": [new_start, clipped_new_end],
+        "n_new_requested": N_requested,
+        "n_new": N_new,
+        "base_vocab_size": base_vocab_size,
+        "vocab_size": vocab_size,
+        "applicable": N_new > 0,
+    }
 
     # D6: L2-norm distribution
     for name, M in [("E", E), ("U", U)]:
         M = M.float()
         existing = M[:base_vocab_size]
-        new = M[new_start:new_end]
+        new = M[new_start:clipped_new_end]
         existing_norms = torch.linalg.norm(existing, dim=1)
         new_norms = torch.linalg.norm(new, dim=1)
-        out[f"{name}_norm"] = {
+        norm_report = {
             "existing_mean": float(existing_norms.mean()),
             "existing_std":  float(existing_norms.std()),
             "existing_p50":  float(existing_norms.median()),
             "existing_p95":  float(existing_norms.quantile(0.95)),
-            "new_mean":      float(new_norms.mean()),
-            "new_std":       float(new_norms.std()),
-            "new_p50":       float(new_norms.median()),
-            "new_p5":        float(new_norms.quantile(0.05)),
-            "new_p95":       float(new_norms.quantile(0.95)),
-            # ratio test: if new << existing, new tokens "starve"; if >>, dominate softmax
-            "new_to_existing_mean_ratio": float(new_norms.mean() / existing_norms.mean()),
+            "new_mean":      None,
+            "new_std":       None,
+            "new_p50":       None,
+            "new_p5":        None,
+            "new_p95":       None,
+            "new_to_existing_mean_ratio": None,
         }
+        if new_norms.numel():
+            norm_report.update({
+                "new_mean":      float(new_norms.mean()),
+                "new_std":       float(new_norms.std()),
+                "new_p50":       float(new_norms.median()),
+                "new_p5":        float(new_norms.quantile(0.05)),
+                "new_p95":       float(new_norms.quantile(0.95)),
+                # ratio test: if new << existing, new tokens "starve"; if >>, dominate softmax
+                "new_to_existing_mean_ratio": float(new_norms.mean() / existing_norms.mean()),
+            })
+        out[f"{name}_norm"] = norm_report
+
+    if N_new == 0:
+        out["new_E_cos"] = {
+            "n_sampled": 0,
+            "mean_off_diag": None,
+            "std_off_diag": None,
+            "p95_off_diag": None,
+            "p99_off_diag": None,
+        }
+        out["new_E_effective_rank"] = {
+            "participation_ratio": None,
+            "rank_at_99pct_var": None,
+            "n_singular_values": 0,
+            "sigma_max": None,
+            "sigma_min": None,
+        }
+        return out
 
     # D7: cosine similarity + effective rank of new rows (E only; U is symmetric)
     # Subsample to keep O(sample_cos^2) tractable.
@@ -313,11 +351,9 @@ def main() -> int:
     model = AutoModelForCausalLM.from_pretrained(
         args.model_path,
         torch_dtype=dtype_map[args.dtype],
-        device_map=args.device if args.device == "cuda" else None,
         trust_remote_code=True,
     )
-    if args.device != "cuda":
-        model = model.to(args.device)
+    model = model.to(args.device)
     model.eval()
     print(f"  loaded in {time.time()-t0:.1f}s", file=sys.stderr)
 

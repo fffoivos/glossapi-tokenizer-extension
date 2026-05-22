@@ -48,11 +48,22 @@ echo "OUTPUT_JSON: $OUTPUT_JSON"
 echo "MAX_CONTEXT: $MAX_CONTEXT"
 echo
 
-SCRIPT_DIR="$(dirname "$0")"
+if [ -n "${SCRIPT_DIR_OVERRIDE:-}" ]; then
+    SCRIPT_DIR="$(cd "$SCRIPT_DIR_OVERRIDE" && pwd)"
+elif [ -n "${SLURM_SUBMIT_DIR:-}" ] && [ -f "$SLURM_SUBMIT_DIR/compute_tokenizer_fair_metrics.py" ]; then
+    SCRIPT_DIR="$(cd "$SLURM_SUBMIT_DIR" && pwd)"
+else
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
+METRICS_SCRIPT="$SCRIPT_DIR/compute_tokenizer_fair_metrics.py"
+if [ ! -f "$METRICS_SCRIPT" ]; then
+    echo "ERROR: missing compute_tokenizer_fair_metrics.py under SCRIPT_DIR=$SCRIPT_DIR" >&2
+    exit 2
+fi
 
 uenv run "$UENV_IMAGE" --view=default -- bash -c "
 set -euo pipefail
-python3 $SCRIPT_DIR/compute_tokenizer_fair_metrics.py \
+python3 '$METRICS_SCRIPT' \
     --model-path '$MODEL_PATH' \
     --eval-jsonl '$EVAL_JSONL' \
     --output-json '$OUTPUT_JSON' \

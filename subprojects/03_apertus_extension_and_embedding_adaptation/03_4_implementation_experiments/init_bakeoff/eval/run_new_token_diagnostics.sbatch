@@ -62,11 +62,22 @@ echo "MAX_CONTEXT:  $MAX_CONTEXT"
 [ -n "$SKIP_GREEDY_ARG" ] && echo "MODE:         skipping D5 (greedy-gen)"
 echo
 
-SCRIPT_DIR="$(dirname "$0")"
+if [ -n "${SCRIPT_DIR_OVERRIDE:-}" ]; then
+    SCRIPT_DIR="$(cd "$SCRIPT_DIR_OVERRIDE" && pwd)"
+elif [ -n "${SLURM_SUBMIT_DIR:-}" ] && [ -f "$SLURM_SUBMIT_DIR/compute_new_token_diagnostics.py" ]; then
+    SCRIPT_DIR="$(cd "$SLURM_SUBMIT_DIR" && pwd)"
+else
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
+DIAGNOSTICS_SCRIPT="$SCRIPT_DIR/compute_new_token_diagnostics.py"
+if [ ! -f "$DIAGNOSTICS_SCRIPT" ]; then
+    echo "ERROR: missing compute_new_token_diagnostics.py under SCRIPT_DIR=$SCRIPT_DIR" >&2
+    exit 2
+fi
 
 uenv run "$UENV_IMAGE" --view=default -- bash -c "
 set -euo pipefail
-python3 $SCRIPT_DIR/compute_new_token_diagnostics.py \
+python3 '$DIAGNOSTICS_SCRIPT' \
     --model-path '$MODEL_PATH' \
     $EVAL_ARG \
     --output-json '$OUTPUT_JSON' \

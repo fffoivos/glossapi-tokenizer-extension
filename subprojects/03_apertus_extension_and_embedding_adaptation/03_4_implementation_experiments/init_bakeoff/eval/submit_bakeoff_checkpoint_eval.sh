@@ -80,13 +80,13 @@ if [ "${SUBMIT_INTRINSIC:-0}" = "1" ]; then
 
     metrics_job="$(sbatch --parsable \
         --dependency="afterok:$convert_job" \
-        --export=ALL,MODEL_PATH="$HF_OUT_DIR",EVAL_JSONL="$EVAL_JSONL",OUTPUT_JSON="$METRICS_JSON" \
+        --export=ALL,MODEL_PATH="$HF_OUT_DIR",EVAL_JSONL="$EVAL_JSONL",OUTPUT_JSON="$METRICS_JSON",SCRIPT_DIR_OVERRIDE="$SCRIPT_DIR" \
         --job-name="bpc_${ARM}_${ITER}" \
         "$SCRIPT_DIR/run_tokenizer_fair_metrics.sbatch")"
 
     diag_job="$(sbatch --parsable \
         --dependency="afterok:$convert_job" \
-        --export=ALL,MODEL_PATH="$HF_OUT_DIR",EVAL_JSONL="$EVAL_JSONL",OUTPUT_JSON="$DIAG_JSON" \
+        --export=ALL,MODEL_PATH="$HF_OUT_DIR",EVAL_JSONL="$EVAL_JSONL",OUTPUT_JSON="$DIAG_JSON",SCRIPT_DIR_OVERRIDE="$SCRIPT_DIR" \
         --job-name="diag_${ARM}_${ITER}" \
         "$SCRIPT_DIR/run_new_token_diagnostics.sbatch")"
 

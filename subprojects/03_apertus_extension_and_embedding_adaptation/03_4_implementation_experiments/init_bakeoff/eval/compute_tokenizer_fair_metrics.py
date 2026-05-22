@@ -167,11 +167,9 @@ def main() -> int:
         model = AutoModelForCausalLM.from_pretrained(
             args.model_path,
             torch_dtype=dtype_map[args.dtype],
-            device_map=args.device if args.device == "cuda" else None,
             trust_remote_code=True,
         )
-        if args.device != "cuda":
-            model = model.to(args.device)
+        model = model.to(args.device)
         model.eval()
 
     # Aggregators

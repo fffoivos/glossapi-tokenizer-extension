@@ -368,3 +368,56 @@ Current next gate:
   - Vanilla conversion `2342037` was bad: the watcher fired when the `iter_0000065` directory existed but before `latest_checkpointed_iteration.txt` had advanced. The converter tried to load an incomplete checkpoint and then hung after `could not load the checkpoint`.
   - Cancelled only the bad vanilla chain (`2342037`-`2342040`) and resubmitted vanilla after the tracker showed `65`: conversion/eval/intrinsics `2342054`/`2342055`/`2342056`/`2342057`.
   - Hardening added: `watch_and_submit_checkpoint_evals.sh` now requires both the checkpoint directory and `latest_checkpointed_iteration.txt == ITER` before submitting, so future checkpoint watchers do not fire on an incomplete save directory.
+
+## Continuation - 2026-05-22 iter-65 eval babysitting
+
+- Checked live Slurm state at `2026-05-22 03:35-03:40 UTC`.
+  - Training jobs `2341822` vanilla, `2341824` retok, and `2341826` centroid were still running with resume jobs pending on dependency.
+  - All three checkpoint trackers reported `65`; no later checkpoint had landed yet.
+  - Latest observed training logs were past `iter_0000065` with `0` skipped / `0` NaN and no OOM/NCCL/runtime error lines.
+- The iter-65 main Greek lm-eval jobs were running:
+  - retok `2342045`
+  - centroid `2342049`
+  - replacement vanilla `2342055`
+  - As of this log entry, their output dirs contained only `run_metadata.json`; logs showed real lm-eval progress through context construction and loglikelihood/generate requests, not a startup failure.
+- Found and fixed the first intrinsic-eval bug:
+  - Failed jobs: retok `2342046`/`2342047`, centroid `2342050`/`2342051`, replacement vanilla `2342056`/`2342057`.
+  - Error: `python3: can't open file '/var/spool/slurmd/job.../compute_tokenizer_fair_metrics.py'` or `compute_new_token_diagnostics.py`.
+  - Cause: Slurm executed copied sbatch scripts from its spool dir, so `SCRIPT_DIR="$(dirname "$0")"` pointed at `/var/spool/slurmd/...` instead of the eval source directory.
+  - Fix: `run_tokenizer_fair_metrics.sbatch` and `run_new_token_diagnostics.sbatch` now resolve `SCRIPT_DIR_OVERRIDE` first, then `SLURM_SUBMIT_DIR` only if it contains the expected Python file, and fail early with a clear missing-script error otherwise. `submit_bakeoff_checkpoint_eval.sh` now exports `SCRIPT_DIR_OVERRIDE` for intrinsic jobs too.
+  - Synced the fix to the active Clariden mirror and resubmitted intrinsic-only jobs against the already-converted iter-65 HF outputs as `2342065`-`2342070`.
+- Found and fixed the second intrinsic-eval bug:
+  - First retry `2342065` failed while loading the model: Transformers rejected `device_map="cuda"` because the CSCS uenv does not include `accelerate`.
+  - Fix: `compute_tokenizer_fair_metrics.py` and `compute_new_token_diagnostics.py` no longer pass `device_map`; they load normally and then call `model.to(args.device)`.
+  - Cancelled the stale retry jobs `2342065`-`2342070`, synced the fix, and resubmitted as:
+    - vanilla metrics `2342072`, diagnostics `2342073`
+    - retok metrics `2342074`, diagnostics `2342075`
+    - centroid metrics `2342076`, diagnostics `2342077`
+  - Health evidence: vanilla metrics loaded all four HF checkpoint shards and reached heldout document processing (`doc 350` observed); retok metrics and diagnostics also loaded model shards successfully.
+- Found and fixed a vanilla-control diagnostics edge case:
+  - Vanilla has `tokenizer_vocab_size=131072`, so the requested new-token range `[131072, 148480)` is intentionally empty for that arm.
+  - First vanilla diagnostics retry `2342073` failed because `_embedding_diagnostics` attempted `quantile()` on an empty new-row slice.
+  - Fix: `compute_new_token_diagnostics.py` now clips the requested new-token range to the checkpoint vocab, records `available_new_id_range`, `n_new_requested`, `n_new`, `vocab_size`, and `applicable`, and emits `null` new-row stats when the control arm has no new rows.
+  - Resubmitted vanilla diagnostics as `2342081`.
+- Iter-65 intrinsic artifacts now exist for all three arms:
+  - vanilla:
+    - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_vanilla/iter_0000065_tokenizer_fair_metrics.json`
+    - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_vanilla/iter_0000065_new_token_diagnostics.json`
+  - retok:
+    - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_retok/iter_0000065_tokenizer_fair_metrics.json`
+    - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_retok/iter_0000065_new_token_diagnostics.json`
+  - centroid:
+    - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000065_tokenizer_fair_metrics.json`
+    - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000065_new_token_diagnostics.json`
+- Headline intrinsic values at iter-65:
+  - vanilla: vocab `131072`, chars/token `2.5572`, tokens/word `2.6930`, BPC `0.6094`, NLL/char `0.7209`, `n_new=0`, new-token diagnostics not applicable by design.
+  - retok: vocab `148480`, chars/token `3.9732`, tokens/word `1.7352`, BPC `0.9750`, NLL/char `1.1532`, `n_new=17408`, E-norm new/existing ratio `1.0578`, new-E cosine mean `0.0842`, mean new-target rank `1659.8`, average new-token prob mass `0.3202`.
+  - centroid: vocab `148480`, chars/token `3.9732`, tokens/word `1.7352`, BPC `1.2511`, NLL/char `1.4797`, `n_new=17408`, E-norm new/existing ratio `1.0578`, new-E cosine mean `0.0199`, mean new-target rank `6091.9`, average new-token prob mass `0.3299`.
+- Re-established checkpoint watchers beyond iter-65:
+  - iter `130`, task group `full`, PID `4011`, launcher log `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_watch_iter_0000130_full_launcher.log`
+  - iter `195`, task group `greek_only`, PID `4013`, launcher log `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_watch_iter_0000195_greek_only_launcher.log`
+  - iter `260`, task group `full`, PID `4015`, launcher log `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_watch_iter_0000260_full_launcher.log`
+  - iter `325`, task group `full`, PID `4017`, launcher log `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_watch_iter_0000325_full_launcher.log`
+  - iter `390`, task group `full`, PID `4020`, launcher log `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_watch_iter_0000390_full_launcher.log`
+  - iter `455`, task group `full`, PID `4022`, launcher log `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_watch_iter_0000455_full_launcher.log`
+  - Each watcher is detached with `SUBMIT_INTRINSIC=1`, `POLL_SECONDS=300`, and `TIMEOUT_SECONDS=129600`.
