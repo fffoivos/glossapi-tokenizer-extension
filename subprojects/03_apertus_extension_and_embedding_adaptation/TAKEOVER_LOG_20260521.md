@@ -433,3 +433,14 @@ Current next gate:
   - result: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000065_greek_only/results_2026-05-22T05-49-24.403516.json`
   - headline metrics: `arc_challenge_mt_el acc_norm=0.2526`, `belebele_ell_Grek acc_norm=0.3011`, `xnli_el acc=0.4108`, `xquad_el f1=0.0206`, `global_mmlu_full_el acc=0.2839`, `include_base_44_greek_few_shot_en acc=0.2663`, `global_piqa_completions_ell_grek acc_norm=0.5300`.
   - retok and vanilla Greek eval jobs were still running at this log point.
+- Iter-65 Greek canary eval is now complete for all three arms.
+  - vanilla result: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_vanilla/iter_0000065_greek_only/results_2026-05-22T05-56-07.902628.json`
+  - retok result: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_retok/iter_0000065_greek_only/results_2026-05-22T05-52-51.585170.json`
+  - centroid result: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000065_greek_only/results_2026-05-22T05-49-24.403516.json`
+  - consolidated remote summary: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_iter0000065_summary.md`
+  - local committed copy: `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/bakeoff_1node_chain_20260522_005620_iter0000065_summary.md`
+  - summary headline:
+    - vanilla: BPC `0.6094`, NLL/char `0.7209`, `el_arc=0.427`, `el_belebele=0.549`, `el_xnli=0.410`, `el_xquad_f1=0.357`, `el_mmlu=0.450`, `el_base44=0.449`, `el_piqa=0.630`.
+    - retok: BPC `0.9750`, NLL/char `1.1532`, `el_arc=0.279`, `el_belebele=0.408`, `el_xnli=0.397`, `el_xquad_f1=0.211`, `el_mmlu=0.333`, `el_base44=0.315`, `el_piqa=0.530`.
+    - centroid: BPC `1.2511`, NLL/char `1.4797`, `el_arc=0.253`, `el_belebele=0.301`, `el_xnli=0.411`, `el_xquad_f1=0.021`, `el_mmlu=0.284`, `el_base44=0.266`, `el_piqa=0.530`.
+  - Interpretation: iter-65 is an early canary, not the bakeoff decision point. It does prove the full save -> convert -> HF eval -> intrinsic metrics path, and at this early checkpoint vanilla is still ahead on Greek downstream metrics while retok is ahead of centroid on most new-token integration signals.
