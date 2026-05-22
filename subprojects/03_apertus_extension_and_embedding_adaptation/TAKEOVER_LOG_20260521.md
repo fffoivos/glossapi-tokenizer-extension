@@ -230,3 +230,12 @@ Current next gate:
 - Steering change: use the proven one-node path for the bakeoff. One-node throughput estimates a full 2B-token arm at about `17.2h`, while `normal` has `MaxTime=12:00:00`, so the full bakeoff needs checkpointed continuation.
 - Patched `bakeoff_train.sbatch` with `RESUME_TRAINING=0|1`. Initial jobs keep `--no-load-optim --no-load-rng`; resume jobs load from the arm's own `checkpoints/` directory and restore optimizer/RNG.
 - Patched `submit_all_arms.sh` with `CHAIN_RESUME=1`, which submits a same-arm resume job with `afterany:<initial_job>` dependency.
+- Committed the smoke/resume hardening locally as `e17fcab` (`Harden Apertus bakeoff smoke and resume launch`).
+- Submitted full one-node chained bakeoff tag `bakeoff_1node_chain_20260522_005620`:
+  - initial jobs: `2341822` vanilla, `2341824` retok, `2341826` centroid
+  - chained resume jobs: `2341823` vanilla afterany `2341822`, `2341825` retok afterany `2341824`, `2341827` centroid afterany `2341826`
+  - output roots: `/capstor/scratch/cscs/fffoivos/runs/bakeoff/bakeoff_1node_chain_20260522_005620_{vanilla,retok,centroid}`
+- Initial arms reached real training:
+  - `2341822` vanilla iteration 1 at `2026-05-22 03:00:50`, `0` skipped / `0` NaN, `7564.7` tokens/sec/GPU.
+  - `2341824` retok iteration 1 at `2026-05-22 03:04:34`, `0` skipped / `0` NaN, `7606.1` tokens/sec/GPU.
+  - `2341826` centroid iteration 1 at `2026-05-22 03:06:10`, `0` skipped / `0` NaN, `7637.3` tokens/sec/GPU.
