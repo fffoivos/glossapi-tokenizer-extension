@@ -27,10 +27,13 @@ NEW_ID_END="${NEW_ID_END:-148480}"
 SNIPPETS_PER_TOKEN="${SNIPPETS_PER_TOKEN:-100}"
 SNIPPET_TOKEN_RADIUS="${SNIPPET_TOKEN_RADIUS:-50}"
 SEED="${SEED:-20260523}"
-UENV_BIN="${UENV_BIN:-/usr/bin/uenv}"
+PYTHON_BIN="${PYTHON_BIN:-/iopsstor/scratch/cscs/fffoivos/python_envs/td_coverage_py311/bin/python}"
 
-if [ ! -x "$UENV_BIN" ]; then
-    echo "ERROR: UENV_BIN is not executable: $UENV_BIN" >&2
+if [ ! -x "$PYTHON_BIN" ]; then
+    echo "ERROR: PYTHON_BIN is not executable: $PYTHON_BIN" >&2
+    echo "Create it once on Clariden login/xfer with:" >&2
+    echo "  python3.11 -m venv /iopsstor/scratch/cscs/fffoivos/python_envs/td_coverage_py311" >&2
+    echo "  /iopsstor/scratch/cscs/fffoivos/python_envs/td_coverage_py311/bin/python -m pip install tokenizers==0.22.1" >&2
     exit 127
 fi
 
@@ -47,24 +50,20 @@ echo "TARGET_EXTENDED_TOKENS:  $TARGET_EXTENDED_TOKENS"
 echo "NEW_ID_RANGE:            [$NEW_ID_START, $NEW_ID_END)"
 echo "SNIPPETS_PER_TOKEN:      $SNIPPETS_PER_TOKEN"
 echo "SNIPPET_TOKEN_RADIUS:    $SNIPPET_TOKEN_RADIUS"
-echo "UENV_BIN:                $UENV_BIN"
+echo "PYTHON_BIN:              $PYTHON_BIN"
 echo
 
-\"$UENV_BIN\" run pytorch/v2.9.1:v2 --view=default -- bash -c "
-set -euo pipefail
-export PYTHONPATH=/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval:$REPO_DIR
-python3 -u '$INIT_BAKEOFF_DIR/token_distillation/td_coverage_prepass.py' \
-  --input-jsonl $INPUT_JSONL \
-  --base-tokenizer '$BASE_TOKENIZER' \
-  --student-tokenizer '$STUDENT_TOKENIZER' \
-  --output-dir '$OUTPUT_DIR' \
-  --target-extended-tokens '$TARGET_EXTENDED_TOKENS' \
-  --new-id-start '$NEW_ID_START' \
-  --new-id-end '$NEW_ID_END' \
-  --snippets-per-token '$SNIPPETS_PER_TOKEN' \
-  --snippet-token-radius '$SNIPPET_TOKEN_RADIUS' \
-  --seed '$SEED'
-"
+"$PYTHON_BIN" -u "$INIT_BAKEOFF_DIR/token_distillation/td_coverage_prepass.py" \
+  --input-jsonl "$INPUT_JSONL" \
+  --base-tokenizer "$BASE_TOKENIZER" \
+  --student-tokenizer "$STUDENT_TOKENIZER" \
+  --output-dir "$OUTPUT_DIR" \
+  --target-extended-tokens "$TARGET_EXTENDED_TOKENS" \
+  --new-id-start "$NEW_ID_START" \
+  --new-id-end "$NEW_ID_END" \
+  --snippets-per-token "$SNIPPETS_PER_TOKEN" \
+  --snippet-token-radius "$SNIPPET_TOKEN_RADIUS" \
+  --seed "$SEED"
 
 echo
 echo "=== TD coverage prepass complete ==="
