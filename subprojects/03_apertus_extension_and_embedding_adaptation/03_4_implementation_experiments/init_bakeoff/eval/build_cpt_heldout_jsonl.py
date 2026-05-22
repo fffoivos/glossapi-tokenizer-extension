@@ -41,6 +41,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--min-chars", type=int, default=400)
     p.add_argument("--min-greek-percentage", type=float, default=50.0)
     p.add_argument("--quotas-json", default="")
+    p.add_argument(
+        "--overselect-factor",
+        type=int,
+        default=20,
+        help="Keep this many times each source quota before final global doc_id dedupe.",
+    )
     p.add_argument("--allow-partial", action="store_true")
     return p.parse_args()
 
@@ -101,6 +107,7 @@ def score_doc(seed: str, doc_key: str) -> int:
 def push_candidate(
     heaps: dict[str, list[tuple[int, int, dict[str, Any]]]],
     quotas: dict[str, int],
+    overselect_factor: int,
     source: str,
     score: int,
     tie_breaker: int,
@@ -109,9 +116,10 @@ def push_candidate(
     quota = quotas.get(source, 0)
     if quota <= 0:
         return
+    heap_limit = quota * overselect_factor
     heap = heaps.setdefault(source, [])
     item = (-score, tie_breaker, row)
-    if len(heap) < quota:
+    if len(heap) < heap_limit:
         heapq.heappush(heap, item)
     elif score < -heap[0][0]:
         heapq.heapreplace(heap, item)
@@ -128,6 +136,8 @@ def main() -> None:
     quotas = dict(DEFAULT_QUOTAS)
     if args.quotas_json:
         quotas = {k: int(v) for k, v in json.loads(args.quotas_json).items()}
+    if args.overselect_factor < 1:
+        raise SystemExit("--overselect-factor must be >= 1")
 
     specs = load_greek_specs(recipe)
     print(f"Loading Greek training doc ids from {bulk_mix} ...", flush=True)
@@ -193,19 +203,41 @@ def main() -> None:
             }
             counters["candidate_rows"] += 1
             candidate_by_source[source] += 1
-            push_candidate(heaps, quotas, source, score, counters["rows_seen"], row)
+            push_candidate(
+                heaps,
+                quotas,
+                args.overselect_factor,
+                source,
+                score,
+                counters["rows_seen"],
+                row,
+            )
         if batch_idx % 250 == 0:
             filled = {k: len(v) for k, v in heaps.items()}
             print(f"batch={batch_idx:,} rows={counters['rows_seen']:,} filled={filled}", flush=True)
 
     selected_rows: list[dict[str, Any]] = []
+    selected_doc_ids: set[str] = set()
+    selected_by_source: dict[str, int] = {}
+    duplicate_selected_candidates = 0
     missing: dict[str, dict[str, int]] = {}
     for source, quota in quotas.items():
         rows = [item[2] for item in heaps.get(source, [])]
         rows.sort(key=lambda r: (int(r["selection_score"]), str(r["doc_id"])))
-        selected_rows.extend(rows)
-        if len(rows) < quota:
-            missing[source] = {"wanted": quota, "got": len(rows)}
+        kept = 0
+        for row in rows:
+            doc_id = str(row["doc_id"])
+            if doc_id in selected_doc_ids:
+                duplicate_selected_candidates += 1
+                continue
+            selected_doc_ids.add(doc_id)
+            selected_rows.append(row)
+            kept += 1
+            if kept == quota:
+                break
+        selected_by_source[source] = kept
+        if kept < quota:
+            missing[source] = {"wanted": quota, "got": kept}
 
     if missing and not args.allow_partial:
         raise SystemExit(f"Could not fill all quotas: {missing}")
@@ -226,7 +258,9 @@ def main() -> None:
         "counts": counters,
         "seen_by_source": seen_by_source,
         "candidate_by_source": candidate_by_source,
-        "selected_by_source": {k: len(v) for k, v in heaps.items()},
+        "heap_kept_by_source": {k: len(v) for k, v in heaps.items()},
+        "selected_by_source": selected_by_source,
+        "duplicate_selected_candidates": duplicate_selected_candidates,
         "missing": missing,
         "selection_rule": "lowest sha1(seed + NUL + doc_key) per Greek recipe source after excluding bulk_mix Greek doc_ids",
         "filters": {
