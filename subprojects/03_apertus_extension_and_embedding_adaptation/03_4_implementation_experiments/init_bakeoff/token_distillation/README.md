@@ -63,6 +63,21 @@ python3 summarize_td_coverage.py \
   --output-md "$OUTPUT_DIR/TD_COVERAGE_SUMMARY.md"
 ```
 
+For unattended babysitting, submit the postprocess job with a dependency on the
+coverage prepass. It is CPU-only and does not launch TD training:
+
+```bash
+sbatch --dependency=afterok:<coverage_job_id> --export=ALL,\
+COVERAGE_DIR="$OUTPUT_DIR" \
+td_coverage_postprocess_xfer.sbatch
+```
+
+It writes:
+
+- `TD_COVERAGE_SUMMARY.md`
+- `TD_GATE_DECISION.json`
+- `pilot_selection/` only when the coverage gate recommends TD
+
 ## Second gate: TD smoke, only if coverage passes
 
 Do not submit this until `td_coverage_summary.json` recommends either
