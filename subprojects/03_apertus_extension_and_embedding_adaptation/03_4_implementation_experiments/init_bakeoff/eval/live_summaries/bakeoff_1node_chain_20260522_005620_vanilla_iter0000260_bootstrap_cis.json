@@ -1,0 +1,2309 @@
+{
+  "n_resamples": 1000,
+  "confidence": 0.95,
+  "seed": 20260520,
+  "tasks": {
+    "arc_challenge": {
+      "n_samples": 1172,
+      "metric_kind": "acc_norm",
+      "mean": 0.5358361774744027,
+      "ci_low": 0.507679180887372,
+      "ci_high": 0.564867747440273,
+      "ci_halfwidth": 0.028594283276450527,
+      "boot_std": 0.014916581957061404
+    },
+    "arc_challenge_mt_el": {
+      "n_samples": 1172,
+      "metric_kind": "acc_norm",
+      "mean": 0.4061433447098976,
+      "ci_low": 0.3796928327645051,
+      "ci_high": 0.43261518771331053,
+      "ci_halfwidth": 0.026461177474402714,
+      "boot_std": 0.01395595154436097
+    },
+    "arc_easy": {
+      "n_samples": 2376,
+      "metric_kind": "acc_norm",
+      "mean": 0.7946127946127947,
+      "ci_low": 0.7769255050505051,
+      "ci_high": 0.8106060606060606,
+      "ci_halfwidth": 0.016840277777777746,
+      "boot_std": 0.008732061841941084
+    },
+    "belebele_ell_Grek": {
+      "n_samples": 900,
+      "metric_kind": "acc_norm",
+      "mean": 0.5066666666666667,
+      "ci_low": 0.47444444444444445,
+      "ci_high": 0.54,
+      "ci_halfwidth": 0.032777777777777795,
+      "boot_std": 0.016834630014666008
+    },
+    "global_mmlu_ar_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.43103448275862066,
+      "ci_low": 0.3103448275862069,
+      "ci_high": 0.5689655172413793,
+      "ci_halfwidth": 0.12931034482758622,
+      "boot_std": 0.06533427141433819
+    },
+    "global_mmlu_ar_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.45098039215686275,
+      "ci_low": 0.35294117647058826,
+      "ci_high": 0.5490196078431373,
+      "ci_halfwidth": 0.09803921568627452,
+      "boot_std": 0.049370426135966226
+    },
+    "global_mmlu_ar_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.5,
+      "ci_low": 0.3333333333333333,
+      "ci_high": 0.6666666666666666,
+      "ci_halfwidth": 0.16666666666666666,
+      "boot_std": 0.08524063927416206
+    },
+    "global_mmlu_ar_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.5714285714285714,
+      "ci_low": 0.42857142857142855,
+      "ci_high": 0.6964285714285714,
+      "ci_halfwidth": 0.13392857142857142,
+      "boot_std": 0.0678101435074523
+    },
+    "global_mmlu_ar_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.4215686274509804,
+      "ci_low": 0.3235294117647059,
+      "ci_high": 0.5196078431372549,
+      "ci_halfwidth": 0.09803921568627452,
+      "boot_std": 0.04879239969947937
+    },
+    "global_mmlu_ar_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.30434782608695654,
+      "ci_low": 0.17391304347826086,
+      "ci_high": 0.45652173913043476,
+      "ci_halfwidth": 0.14130434782608695,
+      "boot_std": 0.06990911089852424
+    },
+    "global_mmlu_bn_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.39655172413793105,
+      "ci_low": 0.27586206896551724,
+      "ci_high": 0.5344827586206896,
+      "ci_halfwidth": 0.1293103448275862,
+      "boot_std": 0.06289161925044678
+    },
+    "global_mmlu_bn_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.46078431372549017,
+      "ci_low": 0.3627450980392157,
+      "ci_high": 0.5588235294117647,
+      "ci_halfwidth": 0.09803921568627452,
+      "boot_std": 0.04873358526288405
+    },
+    "global_mmlu_bn_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.3888888888888889,
+      "ci_low": 0.2222222222222222,
+      "ci_high": 0.5555555555555556,
+      "ci_halfwidth": 0.16666666666666669,
+      "boot_std": 0.08340976363802761
+    },
+    "global_mmlu_bn_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.5178571428571429,
+      "ci_low": 0.375,
+      "ci_high": 0.6428571428571429,
+      "ci_halfwidth": 0.13392857142857145,
+      "boot_std": 0.06712889939155323
+    },
+    "global_mmlu_bn_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.39215686274509803,
+      "ci_low": 0.29411764705882354,
+      "ci_high": 0.4803921568627451,
+      "ci_halfwidth": 0.09313725490196079,
+      "boot_std": 0.047703535707283064
+    },
+    "global_mmlu_bn_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.2608695652173913,
+      "ci_low": 0.13043478260869565,
+      "ci_high": 0.391304347826087,
+      "ci_halfwidth": 0.13043478260869568,
+      "boot_std": 0.0623430360181654
+    },
+    "global_mmlu_de_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.5862068965517241,
+      "ci_low": 0.46551724137931033,
+      "ci_high": 0.7068965517241379,
+      "ci_halfwidth": 0.12068965517241378,
+      "boot_std": 0.06470845088884843
+    },
+    "global_mmlu_de_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.49019607843137253,
+      "ci_low": 0.39215686274509803,
+      "ci_high": 0.5882352941176471,
+      "ci_halfwidth": 0.09803921568627452,
+      "boot_std": 0.04976445529506715
+    },
+    "global_mmlu_de_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.6111111111111112,
+      "ci_low": 0.4444444444444444,
+      "ci_high": 0.7777777777777778,
+      "ci_halfwidth": 0.16666666666666669,
+      "boot_std": 0.08270989872500259
+    },
+    "global_mmlu_de_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.6071428571428571,
+      "ci_low": 0.4642857142857143,
+      "ci_high": 0.7321428571428571,
+      "ci_halfwidth": 0.1339285714285714,
+      "boot_std": 0.06807397788012397
+    },
+    "global_mmlu_de_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.4803921568627451,
+      "ci_low": 0.37254901960784315,
+      "ci_high": 0.5686274509803921,
+      "ci_halfwidth": 0.0980392156862745,
+      "boot_std": 0.049523251285171335
+    },
+    "global_mmlu_de_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.30434782608695654,
+      "ci_low": 0.17391304347826086,
+      "ci_high": 0.43478260869565216,
+      "ci_halfwidth": 0.13043478260869565,
+      "boot_std": 0.06556859491788192
+    },
+    "global_mmlu_en_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.6206896551724138,
+      "ci_low": 0.5,
+      "ci_high": 0.7413793103448276,
+      "ci_halfwidth": 0.12068965517241381,
+      "boot_std": 0.06316216304504617
+    },
+    "global_mmlu_en_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.6176470588235294,
+      "ci_low": 0.5196078431372549,
+      "ci_high": 0.7156862745098039,
+      "ci_halfwidth": 0.0980392156862745,
+      "boot_std": 0.0489783482565169
+    },
+    "global_mmlu_en_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.6111111111111112,
+      "ci_low": 0.4722222222222222,
+      "ci_high": 0.7777777777777778,
+      "ci_halfwidth": 0.1527777777777778,
+      "boot_std": 0.0818310393688689
+    },
+    "global_mmlu_en_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.7142857142857143,
+      "ci_low": 0.5714285714285714,
+      "ci_high": 0.8392857142857143,
+      "ci_halfwidth": 0.13392857142857145,
+      "boot_std": 0.06097222894062265
+    },
+    "global_mmlu_en_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.5588235294117647,
+      "ci_low": 0.46078431372549017,
+      "ci_high": 0.6470588235294118,
+      "ci_halfwidth": 0.09313725490196081,
+      "boot_std": 0.048258743045869495
+    },
+    "global_mmlu_en_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.2391304347826087,
+      "ci_low": 0.13043478260869565,
+      "ci_high": 0.3695652173913043,
+      "ci_halfwidth": 0.11956521739130434,
+      "boot_std": 0.061658534179941965
+    },
+    "global_mmlu_es_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.5689655172413793,
+      "ci_low": 0.4482758620689655,
+      "ci_high": 0.6900862068965514,
+      "ci_halfwidth": 0.12090517241379295,
+      "boot_std": 0.0661809689108052
+    },
+    "global_mmlu_es_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.5,
+      "ci_low": 0.4019607843137255,
+      "ci_high": 0.5884803921568625,
+      "ci_halfwidth": 0.09325980392156852,
+      "boot_std": 0.04942079933149414
+    },
+    "global_mmlu_es_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.4722222222222222,
+      "ci_low": 0.3055555555555556,
+      "ci_high": 0.6388888888888888,
+      "ci_halfwidth": 0.16666666666666663,
+      "boot_std": 0.08301737734050656
+    },
+    "global_mmlu_es_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.6428571428571429,
+      "ci_low": 0.5,
+      "ci_high": 0.7678571428571429,
+      "ci_halfwidth": 0.13392857142857145,
+      "boot_std": 0.06704963458428123
+    },
+    "global_mmlu_es_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.5196078431372549,
+      "ci_low": 0.4215686274509804,
+      "ci_high": 0.6078431372549019,
+      "ci_halfwidth": 0.09313725490196076,
+      "boot_std": 0.048689452265912515
+    },
+    "global_mmlu_es_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.21739130434782608,
+      "ci_low": 0.10869565217391304,
+      "ci_high": 0.34782608695652173,
+      "ci_halfwidth": 0.11956521739130435,
+      "boot_std": 0.06061489244385352
+    },
+    "global_mmlu_fr_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.603448275862069,
+      "ci_low": 0.4827586206896552,
+      "ci_high": 0.724568965517241,
+      "ci_halfwidth": 0.12090517241379292,
+      "boot_std": 0.06474189873351313
+    },
+    "global_mmlu_fr_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.5392156862745098,
+      "ci_low": 0.4411764705882353,
+      "ci_high": 0.6372549019607843,
+      "ci_halfwidth": 0.0980392156862745,
+      "boot_std": 0.04886906558542027
+    },
+    "global_mmlu_fr_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.5555555555555556,
+      "ci_low": 0.3888888888888889,
+      "ci_high": 0.7222222222222222,
+      "ci_halfwidth": 0.16666666666666666,
+      "boot_std": 0.08171119358710308
+    },
+    "global_mmlu_fr_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.625,
+      "ci_low": 0.48214285714285715,
+      "ci_high": 0.75,
+      "ci_halfwidth": 0.13392857142857142,
+      "boot_std": 0.06531634871211457
+    },
+    "global_mmlu_fr_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.49019607843137253,
+      "ci_low": 0.39215686274509803,
+      "ci_high": 0.5784313725490197,
+      "ci_halfwidth": 0.09313725490196081,
+      "boot_std": 0.048370946211576074
+    },
+    "global_mmlu_fr_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.2826086956521739,
+      "ci_low": 0.17391304347826086,
+      "ci_high": 0.41358695652173866,
+      "ci_halfwidth": 0.1198369565217389,
+      "boot_std": 0.06510340970256534
+    },
+    "global_mmlu_full_el_abstract_algebra": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.3,
+      "ci_low": 0.21,
+      "ci_high": 0.39024999999999976,
+      "ci_halfwidth": 0.09012499999999989,
+      "boot_std": 0.045341315981507806
+    },
+    "global_mmlu_full_el_anatomy": {
+      "n_samples": 135,
+      "metric_kind": "acc",
+      "mean": 0.5259259259259259,
+      "ci_low": 0.4444444444444444,
+      "ci_high": 0.6074074074074074,
+      "ci_halfwidth": 0.08148148148148149,
+      "boot_std": 0.04137344918273917
+    },
+    "global_mmlu_full_el_astronomy": {
+      "n_samples": 152,
+      "metric_kind": "acc",
+      "mean": 0.5,
+      "ci_low": 0.42105263157894735,
+      "ci_high": 0.5789473684210527,
+      "ci_halfwidth": 0.07894736842105265,
+      "boot_std": 0.04188902345309235
+    },
+    "global_mmlu_full_el_business_ethics": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.51,
+      "ci_low": 0.41,
+      "ci_high": 0.61,
+      "ci_halfwidth": 0.1,
+      "boot_std": 0.050026983709785054
+    },
+    "global_mmlu_full_el_clinical_knowledge": {
+      "n_samples": 265,
+      "metric_kind": "acc",
+      "mean": 0.4679245283018868,
+      "ci_low": 0.4075471698113208,
+      "ci_high": 0.5283018867924528,
+      "ci_halfwidth": 0.060377358490566024,
+      "boot_std": 0.03098821763824024
+    },
+    "global_mmlu_full_el_college_biology": {
+      "n_samples": 144,
+      "metric_kind": "acc",
+      "mean": 0.4375,
+      "ci_low": 0.3541666666666667,
+      "ci_high": 0.5138888888888888,
+      "ci_halfwidth": 0.07986111111111108,
+      "boot_std": 0.041175766023189966
+    },
+    "global_mmlu_full_el_college_chemistry": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.26,
+      "ci_low": 0.17975000000000022,
+      "ci_high": 0.35,
+      "ci_halfwidth": 0.08512499999999988,
+      "boot_std": 0.043734881271587325
+    },
+    "global_mmlu_full_el_college_computer_science": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.37,
+      "ci_low": 0.28,
+      "ci_high": 0.47,
+      "ci_halfwidth": 0.09499999999999997,
+      "boot_std": 0.04959217462245212
+    },
+    "global_mmlu_full_el_college_mathematics": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.4,
+      "ci_low": 0.3,
+      "ci_high": 0.5,
+      "ci_halfwidth": 0.1,
+      "boot_std": 0.04941313142837193
+    },
+    "global_mmlu_full_el_college_medicine": {
+      "n_samples": 173,
+      "metric_kind": "acc",
+      "mean": 0.36416184971098264,
+      "ci_low": 0.2947976878612717,
+      "ci_high": 0.43352601156069365,
+      "ci_halfwidth": 0.06936416184971098,
+      "boot_std": 0.0353856319881019
+    },
+    "global_mmlu_full_el_college_physics": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.23529411764705882,
+      "ci_low": 0.1568627450980392,
+      "ci_high": 0.3235294117647059,
+      "ci_halfwidth": 0.08333333333333334,
+      "boot_std": 0.041746616356407175
+    },
+    "global_mmlu_full_el_computer_security": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.43,
+      "ci_low": 0.33,
+      "ci_high": 0.52,
+      "ci_halfwidth": 0.095,
+      "boot_std": 0.04912339776733902
+    },
+    "global_mmlu_full_el_conceptual_physics": {
+      "n_samples": 235,
+      "metric_kind": "acc",
+      "mean": 0.4425531914893617,
+      "ci_low": 0.38287234042553203,
+      "ci_high": 0.5063829787234042,
+      "ci_halfwidth": 0.06175531914893609,
+      "boot_std": 0.03276348596814875
+    },
+    "global_mmlu_full_el_econometrics": {
+      "n_samples": 114,
+      "metric_kind": "acc",
+      "mean": 0.3333333333333333,
+      "ci_low": 0.2543859649122807,
+      "ci_high": 0.42105263157894735,
+      "ci_halfwidth": 0.08333333333333331,
+      "boot_std": 0.044612093134174524
+    },
+    "global_mmlu_full_el_electrical_engineering": {
+      "n_samples": 145,
+      "metric_kind": "acc",
+      "mean": 0.45517241379310347,
+      "ci_low": 0.3724137931034483,
+      "ci_high": 0.5310344827586206,
+      "ci_halfwidth": 0.07931034482758617,
+      "boot_std": 0.041139525930284616
+    },
+    "global_mmlu_full_el_elementary_mathematics": {
+      "n_samples": 378,
+      "metric_kind": "acc",
+      "mean": 0.29365079365079366,
+      "ci_low": 0.24603174603174602,
+      "ci_high": 0.3412698412698413,
+      "ci_halfwidth": 0.04761904761904763,
+      "boot_std": 0.023582616523057116
+    },
+    "global_mmlu_full_el_formal_logic": {
+      "n_samples": 126,
+      "metric_kind": "acc",
+      "mean": 0.24603174603174602,
+      "ci_low": 0.16666666666666666,
+      "ci_high": 0.31746031746031744,
+      "ci_halfwidth": 0.07539682539682539,
+      "boot_std": 0.03880280626676753
+    },
+    "global_mmlu_full_el_global_facts": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.28,
+      "ci_low": 0.2,
+      "ci_high": 0.37,
+      "ci_halfwidth": 0.08499999999999999,
+      "boot_std": 0.04509680278713361
+    },
+    "global_mmlu_full_el_high_school_biology": {
+      "n_samples": 310,
+      "metric_kind": "acc",
+      "mean": 0.47419354838709676,
+      "ci_low": 0.41935483870967744,
+      "ci_high": 0.5258870967741934,
+      "ci_halfwidth": 0.053266129032258,
+      "boot_std": 0.028500350170940245
+    },
+    "global_mmlu_full_el_high_school_chemistry": {
+      "n_samples": 203,
+      "metric_kind": "acc",
+      "mean": 0.33004926108374383,
+      "ci_low": 0.2660098522167488,
+      "ci_high": 0.39901477832512317,
+      "ci_halfwidth": 0.0665024630541872,
+      "boot_std": 0.032761216426848545
+    },
+    "global_mmlu_full_el_high_school_computer_science": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.44,
+      "ci_low": 0.34,
+      "ci_high": 0.54,
+      "ci_halfwidth": 0.1,
+      "boot_std": 0.049025004345242554
+    },
+    "global_mmlu_full_el_high_school_european_history": {
+      "n_samples": 165,
+      "metric_kind": "acc",
+      "mean": 0.5454545454545454,
+      "ci_low": 0.4727272727272727,
+      "ci_high": 0.6242424242424243,
+      "ci_halfwidth": 0.07575757575757577,
+      "boot_std": 0.039436546395505125
+    },
+    "global_mmlu_full_el_high_school_geography": {
+      "n_samples": 198,
+      "metric_kind": "acc",
+      "mean": 0.5303030303030303,
+      "ci_low": 0.4595959595959596,
+      "ci_high": 0.6060606060606061,
+      "ci_halfwidth": 0.07323232323232323,
+      "boot_std": 0.03568206620933581
+    },
+    "global_mmlu_full_el_high_school_government_and_politics": {
+      "n_samples": 193,
+      "metric_kind": "acc",
+      "mean": 0.44559585492227977,
+      "ci_low": 0.37823834196891193,
+      "ci_high": 0.518264248704663,
+      "ci_halfwidth": 0.07001295336787555,
+      "boot_std": 0.03649080294303622
+    },
+    "global_mmlu_full_el_high_school_macroeconomics": {
+      "n_samples": 390,
+      "metric_kind": "acc",
+      "mean": 0.4025641025641026,
+      "ci_low": 0.35384615384615387,
+      "ci_high": 0.4512820512820513,
+      "ci_halfwidth": 0.04871794871794871,
+      "boot_std": 0.024580886731576445
+    },
+    "global_mmlu_full_el_high_school_mathematics": {
+      "n_samples": 270,
+      "metric_kind": "acc",
+      "mean": 0.25925925925925924,
+      "ci_low": 0.2111111111111111,
+      "ci_high": 0.3111111111111111,
+      "ci_halfwidth": 0.05,
+      "boot_std": 0.026053789330622096
+    },
+    "global_mmlu_full_el_high_school_microeconomics": {
+      "n_samples": 238,
+      "metric_kind": "acc",
+      "mean": 0.40756302521008403,
+      "ci_low": 0.3445378151260504,
+      "ci_high": 0.47478991596638653,
+      "ci_halfwidth": 0.06512605042016806,
+      "boot_std": 0.03315146922532943
+    },
+    "global_mmlu_full_el_high_school_physics": {
+      "n_samples": 151,
+      "metric_kind": "acc",
+      "mean": 0.33112582781456956,
+      "ci_low": 0.25165562913907286,
+      "ci_high": 0.40397350993377484,
+      "ci_halfwidth": 0.076158940397351,
+      "boot_std": 0.04001013593076106
+    },
+    "global_mmlu_full_el_high_school_psychology": {
+      "n_samples": 545,
+      "metric_kind": "acc",
+      "mean": 0.5229357798165137,
+      "ci_low": 0.47889908256880737,
+      "ci_high": 0.5651376146788991,
+      "ci_halfwidth": 0.043119266055045874,
+      "boot_std": 0.021632019192142894
+    },
+    "global_mmlu_full_el_high_school_statistics": {
+      "n_samples": 216,
+      "metric_kind": "acc",
+      "mean": 0.2638888888888889,
+      "ci_low": 0.20833333333333334,
+      "ci_high": 0.32407407407407407,
+      "ci_halfwidth": 0.057870370370370364,
+      "boot_std": 0.029646950920803758
+    },
+    "global_mmlu_full_el_high_school_us_history": {
+      "n_samples": 204,
+      "metric_kind": "acc",
+      "mean": 0.5931372549019608,
+      "ci_low": 0.5294117647058824,
+      "ci_high": 0.6520833333333332,
+      "ci_halfwidth": 0.06133578431372544,
+      "boot_std": 0.03342935196648766
+    },
+    "global_mmlu_full_el_high_school_world_history": {
+      "n_samples": 237,
+      "metric_kind": "acc",
+      "mean": 0.6497890295358649,
+      "ci_low": 0.5906118143459916,
+      "ci_high": 0.7131856540084387,
+      "ci_halfwidth": 0.06128691983122353,
+      "boot_std": 0.031457592963023855
+    },
+    "global_mmlu_full_el_human_aging": {
+      "n_samples": 223,
+      "metric_kind": "acc",
+      "mean": 0.5246636771300448,
+      "ci_low": 0.4617713004484306,
+      "ci_high": 0.5919282511210763,
+      "ci_halfwidth": 0.06507847533632283,
+      "boot_std": 0.0331584839044715
+    },
+    "global_mmlu_full_el_human_sexuality": {
+      "n_samples": 131,
+      "metric_kind": "acc",
+      "mean": 0.5648854961832062,
+      "ci_low": 0.48091603053435117,
+      "ci_high": 0.6412213740458015,
+      "ci_halfwidth": 0.08015267175572516,
+      "boot_std": 0.04277482481657186
+    },
+    "global_mmlu_full_el_international_law": {
+      "n_samples": 121,
+      "metric_kind": "acc",
+      "mean": 0.5619834710743802,
+      "ci_low": 0.47107438016528924,
+      "ci_high": 0.6528925619834711,
+      "ci_halfwidth": 0.09090909090909094,
+      "boot_std": 0.04605154518806481
+    },
+    "global_mmlu_full_el_jurisprudence": {
+      "n_samples": 108,
+      "metric_kind": "acc",
+      "mean": 0.39814814814814814,
+      "ci_low": 0.31458333333333355,
+      "ci_high": 0.49074074074074076,
+      "ci_halfwidth": 0.0880787037037036,
+      "boot_std": 0.04671177432115591
+    },
+    "global_mmlu_full_el_logical_fallacies": {
+      "n_samples": 163,
+      "metric_kind": "acc",
+      "mean": 0.4233128834355828,
+      "ci_low": 0.34355828220858897,
+      "ci_high": 0.5030674846625767,
+      "ci_halfwidth": 0.07975460122699385,
+      "boot_std": 0.03993983846659388
+    },
+    "global_mmlu_full_el_machine_learning": {
+      "n_samples": 112,
+      "metric_kind": "acc",
+      "mean": 0.2857142857142857,
+      "ci_low": 0.20535714285714285,
+      "ci_high": 0.36607142857142855,
+      "ci_halfwidth": 0.08035714285714285,
+      "boot_std": 0.042653835032859085
+    },
+    "global_mmlu_full_el_management": {
+      "n_samples": 103,
+      "metric_kind": "acc",
+      "mean": 0.5048543689320388,
+      "ci_low": 0.4077669902912621,
+      "ci_high": 0.6019417475728155,
+      "ci_halfwidth": 0.09708737864077668,
+      "boot_std": 0.049272114310713565
+    },
+    "global_mmlu_full_el_marketing": {
+      "n_samples": 234,
+      "metric_kind": "acc",
+      "mean": 0.6410256410256411,
+      "ci_low": 0.5811965811965812,
+      "ci_high": 0.7051282051282052,
+      "ci_halfwidth": 0.06196581196581197,
+      "boot_std": 0.030866117339742944
+    },
+    "global_mmlu_full_el_medical_genetics": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.52,
+      "ci_low": 0.42,
+      "ci_high": 0.62,
+      "ci_halfwidth": 0.1,
+      "boot_std": 0.05032923734900154
+    },
+    "global_mmlu_full_el_miscellaneous": {
+      "n_samples": 783,
+      "metric_kind": "acc",
+      "mean": 0.6155810983397191,
+      "ci_low": 0.5849297573435505,
+      "ci_high": 0.6500638569604087,
+      "ci_halfwidth": 0.032567049808429116,
+      "boot_std": 0.01713511024098406
+    },
+    "global_mmlu_full_el_moral_disputes": {
+      "n_samples": 346,
+      "metric_kind": "acc",
+      "mean": 0.4653179190751445,
+      "ci_low": 0.41040462427745666,
+      "ci_high": 0.5173410404624278,
+      "ci_halfwidth": 0.053468208092485564,
+      "boot_std": 0.027400836869677835
+    },
+    "global_mmlu_full_el_moral_scenarios": {
+      "n_samples": 895,
+      "metric_kind": "acc",
+      "mean": 0.24804469273743016,
+      "ci_low": 0.2201117318435754,
+      "ci_high": 0.27488826815642453,
+      "ci_halfwidth": 0.02738826815642456,
+      "boot_std": 0.014635591226363692
+    },
+    "global_mmlu_full_el_nutrition": {
+      "n_samples": 306,
+      "metric_kind": "acc",
+      "mean": 0.477124183006536,
+      "ci_low": 0.41830065359477125,
+      "ci_high": 0.5326797385620915,
+      "ci_halfwidth": 0.05718954248366012,
+      "boot_std": 0.029451937964262324
+    },
+    "global_mmlu_full_el_philosophy": {
+      "n_samples": 311,
+      "metric_kind": "acc",
+      "mean": 0.49517684887459806,
+      "ci_low": 0.43729903536977494,
+      "ci_high": 0.5466237942122186,
+      "ci_halfwidth": 0.054662379421221846,
+      "boot_std": 0.02788939841461834
+    },
+    "global_mmlu_full_el_prehistory": {
+      "n_samples": 324,
+      "metric_kind": "acc",
+      "mean": 0.5401234567901234,
+      "ci_low": 0.4845679012345679,
+      "ci_high": 0.5925925925925926,
+      "ci_halfwidth": 0.054012345679012336,
+      "boot_std": 0.027417069883961767
+    },
+    "global_mmlu_full_el_professional_accounting": {
+      "n_samples": 282,
+      "metric_kind": "acc",
+      "mean": 0.32269503546099293,
+      "ci_low": 0.2695035460992908,
+      "ci_high": 0.37943262411347517,
+      "ci_halfwidth": 0.054964539007092195,
+      "boot_std": 0.02742474586705469
+    },
+    "global_mmlu_full_el_professional_law": {
+      "n_samples": 1534,
+      "metric_kind": "acc",
+      "mean": 0.3194263363754889,
+      "ci_low": 0.29595827900912647,
+      "ci_high": 0.3428943937418514,
+      "ci_halfwidth": 0.023468057366362455,
+      "boot_std": 0.011923594738081876
+    },
+    "global_mmlu_full_el_professional_medicine": {
+      "n_samples": 272,
+      "metric_kind": "acc",
+      "mean": 0.4264705882352941,
+      "ci_low": 0.3639705882352941,
+      "ci_high": 0.4889705882352941,
+      "ci_halfwidth": 0.0625,
+      "boot_std": 0.03137666390580629
+    },
+    "global_mmlu_full_el_professional_psychology": {
+      "n_samples": 612,
+      "metric_kind": "acc",
+      "mean": 0.4362745098039216,
+      "ci_low": 0.3986519607843138,
+      "ci_high": 0.4738562091503268,
+      "ci_halfwidth": 0.037602124183006486,
+      "boot_std": 0.019054676801496126
+    },
+    "global_mmlu_full_el_public_relations": {
+      "n_samples": 110,
+      "metric_kind": "acc",
+      "mean": 0.509090909090909,
+      "ci_low": 0.41818181818181815,
+      "ci_high": 0.6,
+      "ci_halfwidth": 0.09090909090909091,
+      "boot_std": 0.04613909770463826
+    },
+    "global_mmlu_full_el_security_studies": {
+      "n_samples": 245,
+      "metric_kind": "acc",
+      "mean": 0.3673469387755102,
+      "ci_low": 0.31020408163265306,
+      "ci_high": 0.42857142857142855,
+      "ci_halfwidth": 0.05918367346938774,
+      "boot_std": 0.030394038892230822
+    },
+    "global_mmlu_full_el_sociology": {
+      "n_samples": 201,
+      "metric_kind": "acc",
+      "mean": 0.6069651741293532,
+      "ci_low": 0.5422885572139303,
+      "ci_high": 0.6766169154228856,
+      "ci_halfwidth": 0.06716417910447764,
+      "boot_std": 0.03379493737171212
+    },
+    "global_mmlu_full_el_us_foreign_policy": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.63,
+      "ci_low": 0.53,
+      "ci_high": 0.72,
+      "ci_halfwidth": 0.09499999999999997,
+      "boot_std": 0.047236409456883774
+    },
+    "global_mmlu_full_el_virology": {
+      "n_samples": 166,
+      "metric_kind": "acc",
+      "mean": 0.40963855421686746,
+      "ci_low": 0.3373493975903614,
+      "ci_high": 0.4879518072289157,
+      "ci_halfwidth": 0.07530120481927713,
+      "boot_std": 0.03755183809197579
+    },
+    "global_mmlu_full_el_world_religions": {
+      "n_samples": 171,
+      "metric_kind": "acc",
+      "mean": 0.5906432748538012,
+      "ci_low": 0.5146198830409356,
+      "ci_high": 0.6666666666666666,
+      "ci_halfwidth": 0.07602339181286549,
+      "boot_std": 0.0377035752278254
+    },
+    "global_mmlu_hi_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.43103448275862066,
+      "ci_low": 0.29310344827586204,
+      "ci_high": 0.5689655172413793,
+      "ci_halfwidth": 0.13793103448275865,
+      "boot_std": 0.06843261718243777
+    },
+    "global_mmlu_hi_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.5294117647058824,
+      "ci_low": 0.4411764705882353,
+      "ci_high": 0.6176470588235294,
+      "ci_halfwidth": 0.08823529411764708,
+      "boot_std": 0.0479477858366497
+    },
+    "global_mmlu_hi_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.4444444444444444,
+      "ci_low": 0.2777777777777778,
+      "ci_high": 0.6111111111111112,
+      "ci_halfwidth": 0.16666666666666669,
+      "boot_std": 0.08329772994676038
+    },
+    "global_mmlu_hi_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.5357142857142857,
+      "ci_low": 0.4107142857142857,
+      "ci_high": 0.6611607142857139,
+      "ci_halfwidth": 0.1252232142857141,
+      "boot_std": 0.06720484105761984
+    },
+    "global_mmlu_hi_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.4019607843137255,
+      "ci_low": 0.30392156862745096,
+      "ci_high": 0.49019607843137253,
+      "ci_halfwidth": 0.09313725490196079,
+      "boot_std": 0.045914025276534584
+    },
+    "global_mmlu_hi_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.2608695652173913,
+      "ci_low": 0.1516304347826092,
+      "ci_high": 0.391304347826087,
+      "ci_halfwidth": 0.11983695652173888,
+      "boot_std": 0.06540918180407006
+    },
+    "global_mmlu_id_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.5689655172413793,
+      "ci_low": 0.4482758620689655,
+      "ci_high": 0.6896551724137931,
+      "ci_halfwidth": 0.12068965517241381,
+      "boot_std": 0.06345506030138688
+    },
+    "global_mmlu_id_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.4803921568627451,
+      "ci_low": 0.39215686274509803,
+      "ci_high": 0.5688725490196076,
+      "ci_halfwidth": 0.08835784313725478,
+      "boot_std": 0.04924490415650677
+    },
+    "global_mmlu_id_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.5,
+      "ci_low": 0.3333333333333333,
+      "ci_high": 0.6666666666666666,
+      "ci_halfwidth": 0.16666666666666666,
+      "boot_std": 0.0834970354799875
+    },
+    "global_mmlu_id_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.6428571428571429,
+      "ci_low": 0.5,
+      "ci_high": 0.7678571428571429,
+      "ci_halfwidth": 0.13392857142857145,
+      "boot_std": 0.06597456434558374
+    },
+    "global_mmlu_id_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.5392156862745098,
+      "ci_low": 0.4409313725490198,
+      "ci_high": 0.6274509803921569,
+      "ci_halfwidth": 0.09325980392156852,
+      "boot_std": 0.05067190768982702
+    },
+    "global_mmlu_id_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.32608695652173914,
+      "ci_low": 0.1956521739130435,
+      "ci_high": 0.45652173913043476,
+      "ci_halfwidth": 0.13043478260869562,
+      "boot_std": 0.06921025869536933
+    },
+    "global_mmlu_it_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.5689655172413793,
+      "ci_low": 0.43103448275862066,
+      "ci_high": 0.6896551724137931,
+      "ci_halfwidth": 0.12931034482758624,
+      "boot_std": 0.06552085423929926
+    },
+    "global_mmlu_it_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.47058823529411764,
+      "ci_low": 0.37254901960784315,
+      "ci_high": 0.5686274509803921,
+      "ci_halfwidth": 0.0980392156862745,
+      "boot_std": 0.050221946292535936
+    },
+    "global_mmlu_it_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.5277777777777778,
+      "ci_low": 0.3611111111111111,
+      "ci_high": 0.6944444444444444,
+      "ci_halfwidth": 0.16666666666666666,
+      "boot_std": 0.08548307867324097
+    },
+    "global_mmlu_it_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.6785714285714286,
+      "ci_low": 0.5535714285714286,
+      "ci_high": 0.7861607142857139,
+      "ci_halfwidth": 0.11629464285714264,
+      "boot_std": 0.06316535689197746
+    },
+    "global_mmlu_it_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.5196078431372549,
+      "ci_low": 0.4215686274509804,
+      "ci_high": 0.6078431372549019,
+      "ci_halfwidth": 0.09313725490196076,
+      "boot_std": 0.04956966212931356
+    },
+    "global_mmlu_it_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.21739130434782608,
+      "ci_low": 0.10869565217391304,
+      "ci_high": 0.34782608695652173,
+      "ci_halfwidth": 0.11956521739130435,
+      "boot_std": 0.06221061648565816
+    },
+    "global_mmlu_ja_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.4482758620689655,
+      "ci_low": 0.3275862068965517,
+      "ci_high": 0.5689655172413793,
+      "ci_halfwidth": 0.12068965517241381,
+      "boot_std": 0.06551216350957764
+    },
+    "global_mmlu_ja_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.43137254901960786,
+      "ci_low": 0.3333333333333333,
+      "ci_high": 0.5294117647058824,
+      "ci_halfwidth": 0.09803921568627452,
+      "boot_std": 0.05020708451729044
+    },
+    "global_mmlu_ja_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.5,
+      "ci_low": 0.3333333333333333,
+      "ci_high": 0.6666666666666666,
+      "ci_halfwidth": 0.16666666666666666,
+      "boot_std": 0.08306399491179978
+    },
+    "global_mmlu_ja_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.5535714285714286,
+      "ci_low": 0.4107142857142857,
+      "ci_high": 0.6790178571428568,
+      "ci_halfwidth": 0.13415178571428554,
+      "boot_std": 0.06894083185950946
+    },
+    "global_mmlu_ja_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.46078431372549017,
+      "ci_low": 0.3627450980392157,
+      "ci_high": 0.5588235294117647,
+      "ci_halfwidth": 0.09803921568627452,
+      "boot_std": 0.04900180642050544
+    },
+    "global_mmlu_ja_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.21739130434782608,
+      "ci_low": 0.10869565217391304,
+      "ci_high": 0.34782608695652173,
+      "ci_halfwidth": 0.11956521739130435,
+      "boot_std": 0.06313349657967039
+    },
+    "global_mmlu_ko_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.5344827586206896,
+      "ci_low": 0.41379310344827586,
+      "ci_high": 0.6551724137931034,
+      "ci_halfwidth": 0.12068965517241378,
+      "boot_std": 0.0638352216112537
+    },
+    "global_mmlu_ko_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.46078431372549017,
+      "ci_low": 0.3627450980392157,
+      "ci_high": 0.5588235294117647,
+      "ci_halfwidth": 0.09803921568627452,
+      "boot_std": 0.050158544494957914
+    },
+    "global_mmlu_ko_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.5277777777777778,
+      "ci_low": 0.3611111111111111,
+      "ci_high": 0.6944444444444444,
+      "ci_halfwidth": 0.16666666666666666,
+      "boot_std": 0.08582573865362379
+    },
+    "global_mmlu_ko_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.5535714285714286,
+      "ci_low": 0.4107142857142857,
+      "ci_high": 0.6785714285714286,
+      "ci_halfwidth": 0.13392857142857145,
+      "boot_std": 0.06869170388653856
+    },
+    "global_mmlu_ko_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.4019607843137255,
+      "ci_low": 0.30392156862745096,
+      "ci_high": 0.5,
+      "ci_halfwidth": 0.09803921568627452,
+      "boot_std": 0.049162793097330584
+    },
+    "global_mmlu_ko_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.21739130434782608,
+      "ci_low": 0.10869565217391304,
+      "ci_high": 0.34782608695652173,
+      "ci_halfwidth": 0.11956521739130435,
+      "boot_std": 0.06329405967816037
+    },
+    "global_mmlu_pt_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.603448275862069,
+      "ci_low": 0.4827586206896552,
+      "ci_high": 0.7413793103448276,
+      "ci_halfwidth": 0.12931034482758622,
+      "boot_std": 0.06468412937555436
+    },
+    "global_mmlu_pt_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.5392156862745098,
+      "ci_low": 0.45098039215686275,
+      "ci_high": 0.6372549019607843,
+      "ci_halfwidth": 0.09313725490196076,
+      "boot_std": 0.048905187468656415
+    },
+    "global_mmlu_pt_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.5555555555555556,
+      "ci_low": 0.3888888888888889,
+      "ci_high": 0.7222222222222222,
+      "ci_halfwidth": 0.16666666666666666,
+      "boot_std": 0.08341666670833336
+    },
+    "global_mmlu_pt_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.6607142857142857,
+      "ci_low": 0.5178571428571429,
+      "ci_high": 0.7857142857142857,
+      "ci_halfwidth": 0.1339285714285714,
+      "boot_std": 0.06513059362825757
+    },
+    "global_mmlu_pt_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.5588235294117647,
+      "ci_low": 0.46078431372549017,
+      "ci_high": 0.6470588235294118,
+      "ci_halfwidth": 0.09313725490196081,
+      "boot_std": 0.05120694838913987
+    },
+    "global_mmlu_pt_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.2608695652173913,
+      "ci_low": 0.13043478260869565,
+      "ci_high": 0.391304347826087,
+      "ci_halfwidth": 0.13043478260869568,
+      "boot_std": 0.06735131210838421
+    },
+    "global_mmlu_sw_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.3620689655172414,
+      "ci_low": 0.2413793103448276,
+      "ci_high": 0.5,
+      "ci_halfwidth": 0.1293103448275862,
+      "boot_std": 0.062305485562674505
+    },
+    "global_mmlu_sw_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.3627450980392157,
+      "ci_low": 0.2647058823529412,
+      "ci_high": 0.45098039215686275,
+      "ci_halfwidth": 0.09313725490196079,
+      "boot_std": 0.04722837645944982
+    },
+    "global_mmlu_sw_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.3611111111111111,
+      "ci_low": 0.19444444444444445,
+      "ci_high": 0.5277777777777778,
+      "ci_halfwidth": 0.16666666666666669,
+      "boot_std": 0.08010755076036608
+    },
+    "global_mmlu_sw_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.42857142857142855,
+      "ci_low": 0.30312500000000037,
+      "ci_high": 0.5714285714285714,
+      "ci_halfwidth": 0.13415178571428552,
+      "boot_std": 0.06838988156438193
+    },
+    "global_mmlu_sw_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.27450980392156865,
+      "ci_low": 0.19583333333333355,
+      "ci_high": 0.3627450980392157,
+      "ci_halfwidth": 0.08345588235294106,
+      "boot_std": 0.043756095258883035
+    },
+    "global_mmlu_sw_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.21739130434782608,
+      "ci_low": 0.10869565217391304,
+      "ci_high": 0.34782608695652173,
+      "ci_halfwidth": 0.11956521739130435,
+      "boot_std": 0.06100082450420828
+    },
+    "global_mmlu_yo_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.3275862068965517,
+      "ci_low": 0.20689655172413793,
+      "ci_high": 0.4482758620689655,
+      "ci_halfwidth": 0.1206896551724138,
+      "boot_std": 0.06149810933238999
+    },
+    "global_mmlu_yo_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.29411764705882354,
+      "ci_low": 0.21568627450980393,
+      "ci_high": 0.38235294117647056,
+      "ci_halfwidth": 0.08333333333333331,
+      "boot_std": 0.043269159493362824
+    },
+    "global_mmlu_yo_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.19444444444444445,
+      "ci_low": 0.08333333333333333,
+      "ci_high": 0.3055555555555556,
+      "ci_halfwidth": 0.11111111111111113,
+      "boot_std": 0.06389155454246644
+    },
+    "global_mmlu_yo_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.4107142857142857,
+      "ci_low": 0.26785714285714285,
+      "ci_high": 0.5357142857142857,
+      "ci_halfwidth": 0.13392857142857142,
+      "boot_std": 0.0681653022765605
+    },
+    "global_mmlu_yo_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.22549019607843138,
+      "ci_low": 0.14705882352941177,
+      "ci_high": 0.30392156862745096,
+      "ci_halfwidth": 0.07843137254901959,
+      "boot_std": 0.03966808936111189
+    },
+    "global_mmlu_yo_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.2391304347826087,
+      "ci_low": 0.10869565217391304,
+      "ci_high": 0.34782608695652173,
+      "ci_halfwidth": 0.11956521739130435,
+      "boot_std": 0.06347835924064156
+    },
+    "global_mmlu_zh_business": {
+      "n_samples": 58,
+      "metric_kind": "acc",
+      "mean": 0.5,
+      "ci_low": 0.3620689655172414,
+      "ci_high": 0.6379310344827587,
+      "ci_halfwidth": 0.13793103448275865,
+      "boot_std": 0.06789199333606578
+    },
+    "global_mmlu_zh_humanities": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.46078431372549017,
+      "ci_low": 0.3627450980392157,
+      "ci_high": 0.5588235294117647,
+      "ci_halfwidth": 0.09803921568627452,
+      "boot_std": 0.050856640792670466
+    },
+    "global_mmlu_zh_medical": {
+      "n_samples": 36,
+      "metric_kind": "acc",
+      "mean": 0.5555555555555556,
+      "ci_low": 0.3888888888888889,
+      "ci_high": 0.6944444444444444,
+      "ci_halfwidth": 0.15277777777777776,
+      "boot_std": 0.08201526388229523
+    },
+    "global_mmlu_zh_other": {
+      "n_samples": 56,
+      "metric_kind": "acc",
+      "mean": 0.6428571428571429,
+      "ci_low": 0.5178571428571429,
+      "ci_high": 0.7678571428571429,
+      "ci_halfwidth": 0.125,
+      "boot_std": 0.06535810644048409
+    },
+    "global_mmlu_zh_social_sciences": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.5490196078431373,
+      "ci_low": 0.45098039215686275,
+      "ci_high": 0.6372549019607843,
+      "ci_halfwidth": 0.09313725490196076,
+      "boot_std": 0.048237373906508806
+    },
+    "global_mmlu_zh_stem": {
+      "n_samples": 46,
+      "metric_kind": "acc",
+      "mean": 0.32608695652173914,
+      "ci_low": 0.1956521739130435,
+      "ci_high": 0.45652173913043476,
+      "ci_halfwidth": 0.13043478260869562,
+      "boot_std": 0.06990256368687703
+    },
+    "global_piqa_completions_ell_grek": {
+      "n_samples": 100,
+      "metric_kind": "acc_norm",
+      "mean": 0.62,
+      "ci_low": 0.53,
+      "ci_high": 0.72,
+      "ci_halfwidth": 0.09499999999999997,
+      "boot_std": 0.048735485506431024
+    },
+    "hellaswag": {
+      "n_samples": 10042,
+      "metric_kind": "acc_norm",
+      "mean": 0.7613025293766182,
+      "ci_low": 0.7534330810595499,
+      "ci_high": 0.7694707229635531,
+      "ci_halfwidth": 0.008018820952001626,
+      "boot_std": 0.004149009832779896
+    },
+    "include_base_44_greek_few_shot_en_arts_humanities": {
+      "n_samples": 37,
+      "metric_kind": "acc",
+      "mean": 0.4864864864864865,
+      "ci_low": 0.32432432432432434,
+      "ci_high": 0.6486486486486487,
+      "ci_halfwidth": 0.16216216216216217,
+      "boot_std": 0.08397379342511724
+    },
+    "include_base_44_greek_few_shot_en_business_commerce": {
+      "n_samples": 63,
+      "metric_kind": "acc",
+      "mean": 0.6031746031746031,
+      "ci_low": 0.49206349206349204,
+      "ci_high": 0.7142857142857143,
+      "ci_halfwidth": 0.11111111111111113,
+      "boot_std": 0.06161427897037301
+    },
+    "include_base_44_greek_few_shot_en_health_oriented_education": {
+      "n_samples": 25,
+      "metric_kind": "acc",
+      "mean": 0.32,
+      "ci_low": 0.16,
+      "ci_high": 0.48,
+      "ci_halfwidth": 0.15999999999999998,
+      "boot_std": 0.09306489926645532
+    },
+    "include_base_44_greek_few_shot_en_medical_license": {
+      "n_samples": 134,
+      "metric_kind": "acc",
+      "mean": 0.4552238805970149,
+      "ci_low": 0.373134328358209,
+      "ci_high": 0.5300373134328357,
+      "ci_halfwidth": 0.07845149253731334,
+      "boot_std": 0.042990701257914654
+    },
+    "include_base_44_greek_few_shot_en_professional_certification": {
+      "n_samples": 134,
+      "metric_kind": "acc",
+      "mean": 0.35074626865671643,
+      "ci_low": 0.26865671641791045,
+      "ci_high": 0.44029850746268656,
+      "ci_halfwidth": 0.08582089552238806,
+      "boot_std": 0.04189493690411495
+    },
+    "include_base_44_greek_few_shot_en_social_science": {
+      "n_samples": 134,
+      "metric_kind": "acc",
+      "mean": 0.3880597014925373,
+      "ci_low": 0.30597014925373134,
+      "ci_high": 0.4701492537313433,
+      "ci_halfwidth": 0.08208955223880599,
+      "boot_std": 0.042331052479143046
+    },
+    "include_base_44_greek_few_shot_en_stem": {
+      "n_samples": 25,
+      "metric_kind": "acc",
+      "mean": 0.4,
+      "ci_low": 0.2,
+      "ci_high": 0.6,
+      "ci_halfwidth": 0.19999999999999998,
+      "boot_std": 0.09686599724062836
+    },
+    "mmlu_abstract_algebra": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.33,
+      "ci_low": 0.24975000000000022,
+      "ci_high": 0.42,
+      "ci_halfwidth": 0.08512499999999988,
+      "boot_std": 0.0465216268176615
+    },
+    "mmlu_anatomy": {
+      "n_samples": 135,
+      "metric_kind": "acc",
+      "mean": 0.5555555555555556,
+      "ci_low": 0.4666666666666667,
+      "ci_high": 0.6370370370370371,
+      "ci_halfwidth": 0.0851851851851852,
+      "boot_std": 0.042563946593706936
+    },
+    "mmlu_astronomy": {
+      "n_samples": 152,
+      "metric_kind": "acc",
+      "mean": 0.5460526315789473,
+      "ci_low": 0.4669407894736844,
+      "ci_high": 0.6317434210526314,
+      "ci_halfwidth": 0.08240131578947349,
+      "boot_std": 0.04191475258954223
+    },
+    "mmlu_business_ethics": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.62,
+      "ci_low": 0.53,
+      "ci_high": 0.71,
+      "ci_halfwidth": 0.08999999999999997,
+      "boot_std": 0.047656166549673404
+    },
+    "mmlu_clinical_knowledge": {
+      "n_samples": 265,
+      "metric_kind": "acc",
+      "mean": 0.6150943396226415,
+      "ci_low": 0.5621698113207548,
+      "ci_high": 0.6754716981132075,
+      "ci_halfwidth": 0.05665094339622634,
+      "boot_std": 0.02985692048024216
+    },
+    "mmlu_college_biology": {
+      "n_samples": 144,
+      "metric_kind": "acc",
+      "mean": 0.6180555555555556,
+      "ci_low": 0.5347222222222222,
+      "ci_high": 0.7013888888888888,
+      "ci_halfwidth": 0.08333333333333331,
+      "boot_std": 0.042965383935584286
+    },
+    "mmlu_college_chemistry": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.33,
+      "ci_low": 0.24975000000000022,
+      "ci_high": 0.43,
+      "ci_halfwidth": 0.09012499999999989,
+      "boot_std": 0.04684340192923977
+    },
+    "mmlu_college_computer_science": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.45,
+      "ci_low": 0.35,
+      "ci_high": 0.55,
+      "ci_halfwidth": 0.10000000000000003,
+      "boot_std": 0.05145773993287112
+    },
+    "mmlu_college_mathematics": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.29,
+      "ci_low": 0.21,
+      "ci_high": 0.38,
+      "ci_halfwidth": 0.085,
+      "boot_std": 0.04391527013409972
+    },
+    "mmlu_college_medicine": {
+      "n_samples": 173,
+      "metric_kind": "acc",
+      "mean": 0.4682080924855491,
+      "ci_low": 0.3988439306358382,
+      "ci_high": 0.5491329479768786,
+      "ci_halfwidth": 0.07514450867052022,
+      "boot_std": 0.037673488332568485
+    },
+    "mmlu_college_physics": {
+      "n_samples": 102,
+      "metric_kind": "acc",
+      "mean": 0.3333333333333333,
+      "ci_low": 0.24509803921568626,
+      "ci_high": 0.4215686274509804,
+      "ci_halfwidth": 0.08823529411764706,
+      "boot_std": 0.04534506985648123
+    },
+    "mmlu_computer_security": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.71,
+      "ci_low": 0.6297500000000003,
+      "ci_high": 0.7902499999999998,
+      "ci_halfwidth": 0.08024999999999977,
+      "boot_std": 0.04317145903111076
+    },
+    "mmlu_conceptual_physics": {
+      "n_samples": 235,
+      "metric_kind": "acc",
+      "mean": 0.502127659574468,
+      "ci_low": 0.4425531914893617,
+      "ci_high": 0.5617021276595745,
+      "ci_halfwidth": 0.05957446808510641,
+      "boot_std": 0.031477295572671815
+    },
+    "mmlu_econometrics": {
+      "n_samples": 114,
+      "metric_kind": "acc",
+      "mean": 0.39473684210526316,
+      "ci_low": 0.30701754385964913,
+      "ci_high": 0.4824561403508772,
+      "ci_halfwidth": 0.08771929824561403,
+      "boot_std": 0.04545872698107181
+    },
+    "mmlu_electrical_engineering": {
+      "n_samples": 145,
+      "metric_kind": "acc",
+      "mean": 0.5241379310344828,
+      "ci_low": 0.4413793103448276,
+      "ci_high": 0.6068965517241379,
+      "ci_halfwidth": 0.08275862068965517,
+      "boot_std": 0.041445574179773986
+    },
+    "mmlu_elementary_mathematics": {
+      "n_samples": 378,
+      "metric_kind": "acc",
+      "mean": 0.3306878306878307,
+      "ci_low": 0.2830687830687831,
+      "ci_high": 0.37566137566137564,
+      "ci_halfwidth": 0.04629629629629628,
+      "boot_std": 0.023867332790838892
+    },
+    "mmlu_formal_logic": {
+      "n_samples": 126,
+      "metric_kind": "acc",
+      "mean": 0.2857142857142857,
+      "ci_low": 0.21408730158730174,
+      "ci_high": 0.36507936507936506,
+      "ci_halfwidth": 0.07549603174603166,
+      "boot_std": 0.04082047660243922
+    },
+    "mmlu_global_facts": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.37,
+      "ci_low": 0.28,
+      "ci_high": 0.46024999999999977,
+      "ci_halfwidth": 0.09012499999999987,
+      "boot_std": 0.047134947791456216
+    },
+    "mmlu_high_school_biology": {
+      "n_samples": 310,
+      "metric_kind": "acc",
+      "mean": 0.6548387096774193,
+      "ci_low": 0.6,
+      "ci_high": 0.7064516129032258,
+      "ci_halfwidth": 0.0532258064516129,
+      "boot_std": 0.02733934207051395
+    },
+    "mmlu_high_school_chemistry": {
+      "n_samples": 203,
+      "metric_kind": "acc",
+      "mean": 0.4236453201970443,
+      "ci_low": 0.35960591133004927,
+      "ci_high": 0.49261083743842365,
+      "ci_halfwidth": 0.0665024630541872,
+      "boot_std": 0.03392619635863385
+    },
+    "mmlu_high_school_computer_science": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.61,
+      "ci_low": 0.5197500000000003,
+      "ci_high": 0.71,
+      "ci_halfwidth": 0.09512499999999985,
+      "boot_std": 0.04973198941094927
+    },
+    "mmlu_high_school_european_history": {
+      "n_samples": 165,
+      "metric_kind": "acc",
+      "mean": 0.7333333333333333,
+      "ci_low": 0.6606060606060606,
+      "ci_high": 0.8,
+      "ci_halfwidth": 0.0696969696969697,
+      "boot_std": 0.03436643093181148
+    },
+    "mmlu_high_school_geography": {
+      "n_samples": 198,
+      "metric_kind": "acc",
+      "mean": 0.7171717171717171,
+      "ci_low": 0.6565656565656566,
+      "ci_high": 0.7777777777777778,
+      "ci_halfwidth": 0.06060606060606061,
+      "boot_std": 0.03240717045175871
+    },
+    "mmlu_high_school_government_and_politics": {
+      "n_samples": 193,
+      "metric_kind": "acc",
+      "mean": 0.7564766839378239,
+      "ci_low": 0.694300518134715,
+      "ci_high": 0.8134715025906736,
+      "ci_halfwidth": 0.059585492227979264,
+      "boot_std": 0.03139875986318806
+    },
+    "mmlu_high_school_macroeconomics": {
+      "n_samples": 390,
+      "metric_kind": "acc",
+      "mean": 0.5333333333333333,
+      "ci_low": 0.48205128205128206,
+      "ci_high": 0.5820512820512821,
+      "ci_halfwidth": 0.05000000000000002,
+      "boot_std": 0.025669983776148462
+    },
+    "mmlu_high_school_mathematics": {
+      "n_samples": 270,
+      "metric_kind": "acc",
+      "mean": 0.26666666666666666,
+      "ci_low": 0.2111111111111111,
+      "ci_high": 0.31851851851851853,
+      "ci_halfwidth": 0.05370370370370371,
+      "boot_std": 0.027460591973706407
+    },
+    "mmlu_high_school_microeconomics": {
+      "n_samples": 238,
+      "metric_kind": "acc",
+      "mean": 0.5630252100840336,
+      "ci_low": 0.5,
+      "ci_high": 0.6260504201680672,
+      "ci_halfwidth": 0.06302521008403361,
+      "boot_std": 0.03134426792684674
+    },
+    "mmlu_high_school_physics": {
+      "n_samples": 151,
+      "metric_kind": "acc",
+      "mean": 0.31125827814569534,
+      "ci_low": 0.24503311258278146,
+      "ci_high": 0.3841059602649007,
+      "ci_halfwidth": 0.06953642384105961,
+      "boot_std": 0.03731410677003484
+    },
+    "mmlu_high_school_psychology": {
+      "n_samples": 545,
+      "metric_kind": "acc",
+      "mean": 0.7137614678899082,
+      "ci_low": 0.6788990825688074,
+      "ci_high": 0.7522935779816514,
+      "ci_halfwidth": 0.03669724770642202,
+      "boot_std": 0.01925095749878613
+    },
+    "mmlu_high_school_statistics": {
+      "n_samples": 216,
+      "metric_kind": "acc",
+      "mean": 0.35648148148148145,
+      "ci_low": 0.2916666666666667,
+      "ci_high": 0.4212962962962963,
+      "ci_halfwidth": 0.0648148148148148,
+      "boot_std": 0.03297860295237316
+    },
+    "mmlu_high_school_us_history": {
+      "n_samples": 204,
+      "metric_kind": "acc",
+      "mean": 0.75,
+      "ci_low": 0.6911764705882353,
+      "ci_high": 0.8089460784313725,
+      "ci_halfwidth": 0.058884803921568585,
+      "boot_std": 0.029701438147389073
+    },
+    "mmlu_high_school_world_history": {
+      "n_samples": 237,
+      "metric_kind": "acc",
+      "mean": 0.7763713080168776,
+      "ci_low": 0.7215189873417721,
+      "ci_high": 0.8228902953586498,
+      "ci_halfwidth": 0.05068565400843883,
+      "boot_std": 0.02712608627826018
+    },
+    "mmlu_human_aging": {
+      "n_samples": 223,
+      "metric_kind": "acc",
+      "mean": 0.6547085201793722,
+      "ci_low": 0.5874439461883408,
+      "ci_high": 0.7174887892376681,
+      "ci_halfwidth": 0.06502242152466364,
+      "boot_std": 0.03261637362910704
+    },
+    "mmlu_human_sexuality": {
+      "n_samples": 131,
+      "metric_kind": "acc",
+      "mean": 0.6793893129770993,
+      "ci_low": 0.6030534351145038,
+      "ci_high": 0.7557251908396947,
+      "ci_halfwidth": 0.07633587786259544,
+      "boot_std": 0.040618958241902474
+    },
+    "mmlu_international_law": {
+      "n_samples": 121,
+      "metric_kind": "acc",
+      "mean": 0.7107438016528925,
+      "ci_low": 0.6278925619834713,
+      "ci_high": 0.7853305785123965,
+      "ci_halfwidth": 0.0787190082644626,
+      "boot_std": 0.04113119462298675
+    },
+    "mmlu_jurisprudence": {
+      "n_samples": 108,
+      "metric_kind": "acc",
+      "mean": 0.6944444444444444,
+      "ci_low": 0.6111111111111112,
+      "ci_high": 0.778009259259259,
+      "ci_halfwidth": 0.08344907407407393,
+      "boot_std": 0.044120914248702466
+    },
+    "mmlu_logical_fallacies": {
+      "n_samples": 163,
+      "metric_kind": "acc",
+      "mean": 0.6625766871165644,
+      "ci_low": 0.5949386503067486,
+      "ci_high": 0.7361963190184049,
+      "ci_halfwidth": 0.07062883435582812,
+      "boot_std": 0.037155492600296255
+    },
+    "mmlu_machine_learning": {
+      "n_samples": 112,
+      "metric_kind": "acc",
+      "mean": 0.4107142857142857,
+      "ci_low": 0.33035714285714285,
+      "ci_high": 0.5,
+      "ci_halfwidth": 0.08482142857142858,
+      "boot_std": 0.04530990199419798
+    },
+    "mmlu_management": {
+      "n_samples": 103,
+      "metric_kind": "acc",
+      "mean": 0.6310679611650486,
+      "ci_low": 0.5436893203883495,
+      "ci_high": 0.7089805825242717,
+      "ci_halfwidth": 0.08264563106796108,
+      "boot_std": 0.04624026598533014
+    },
+    "mmlu_marketing": {
+      "n_samples": 234,
+      "metric_kind": "acc",
+      "mean": 0.8205128205128205,
+      "ci_low": 0.7692307692307693,
+      "ci_high": 0.8675213675213675,
+      "ci_halfwidth": 0.04914529914529914,
+      "boot_std": 0.02446982215123614
+    },
+    "mmlu_medical_genetics": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.64,
+      "ci_low": 0.54,
+      "ci_high": 0.74,
+      "ci_halfwidth": 0.09999999999999998,
+      "boot_std": 0.04724200362925886
+    },
+    "mmlu_miscellaneous": {
+      "n_samples": 783,
+      "metric_kind": "acc",
+      "mean": 0.7509578544061303,
+      "ci_low": 0.7228288633461047,
+      "ci_high": 0.7816091954022989,
+      "ci_halfwidth": 0.029390166028097076,
+      "boot_std": 0.015447919485094146
+    },
+    "mmlu_moral_disputes": {
+      "n_samples": 346,
+      "metric_kind": "acc",
+      "mean": 0.630057803468208,
+      "ci_low": 0.5751445086705202,
+      "ci_high": 0.6791907514450867,
+      "ci_halfwidth": 0.05202312138728321,
+      "boot_std": 0.02713462890244304
+    },
+    "mmlu_moral_scenarios": {
+      "n_samples": 895,
+      "metric_kind": "acc",
+      "mean": 0.23575418994413408,
+      "ci_low": 0.20782122905027933,
+      "ci_high": 0.26371508379888264,
+      "ci_halfwidth": 0.027946927374301656,
+      "boot_std": 0.014262341991235484
+    },
+    "mmlu_nutrition": {
+      "n_samples": 306,
+      "metric_kind": "acc",
+      "mean": 0.5882352941176471,
+      "ci_low": 0.5326797385620915,
+      "ci_high": 0.6405228758169934,
+      "ci_halfwidth": 0.053921568627450955,
+      "boot_std": 0.028561916824233962
+    },
+    "mmlu_philosophy": {
+      "n_samples": 311,
+      "metric_kind": "acc",
+      "mean": 0.6688102893890675,
+      "ci_low": 0.6141479099678456,
+      "ci_high": 0.7202572347266881,
+      "ci_halfwidth": 0.05305466237942125,
+      "boot_std": 0.02709702148355845
+    },
+    "mmlu_prehistory": {
+      "n_samples": 324,
+      "metric_kind": "acc",
+      "mean": 0.6697530864197531,
+      "ci_low": 0.6203703703703703,
+      "ci_high": 0.7222222222222222,
+      "ci_halfwidth": 0.05092592592592593,
+      "boot_std": 0.02652406669676151
+    },
+    "mmlu_professional_accounting": {
+      "n_samples": 282,
+      "metric_kind": "acc",
+      "mean": 0.37943262411347517,
+      "ci_low": 0.3191489361702128,
+      "ci_high": 0.4432624113475177,
+      "ci_halfwidth": 0.06205673758865246,
+      "boot_std": 0.02952454776777482
+    },
+    "mmlu_professional_law": {
+      "n_samples": 1534,
+      "metric_kind": "acc",
+      "mean": 0.3963494132985658,
+      "ci_low": 0.3741851368970013,
+      "ci_high": 0.42242503259452413,
+      "ci_halfwidth": 0.024119947848761425,
+      "boot_std": 0.012386208874123124
+    },
+    "mmlu_professional_medicine": {
+      "n_samples": 272,
+      "metric_kind": "acc",
+      "mean": 0.47794117647058826,
+      "ci_low": 0.41544117647058826,
+      "ci_high": 0.5367647058823529,
+      "ci_halfwidth": 0.06066176470588233,
+      "boot_std": 0.0308485364039626
+    },
+    "mmlu_professional_psychology": {
+      "n_samples": 612,
+      "metric_kind": "acc",
+      "mean": 0.5784313725490197,
+      "ci_low": 0.5375816993464052,
+      "ci_high": 0.6160130718954249,
+      "ci_halfwidth": 0.03921568627450983,
+      "boot_std": 0.019823836285722898
+    },
+    "mmlu_public_relations": {
+      "n_samples": 110,
+      "metric_kind": "acc",
+      "mean": 0.6181818181818182,
+      "ci_low": 0.5361363636363639,
+      "ci_high": 0.7002272727272725,
+      "ci_halfwidth": 0.08204545454545431,
+      "boot_std": 0.04429412945061779
+    },
+    "mmlu_security_studies": {
+      "n_samples": 245,
+      "metric_kind": "acc",
+      "mean": 0.5265306122448979,
+      "ci_low": 0.47346938775510206,
+      "ci_high": 0.5877551020408164,
+      "ci_halfwidth": 0.05714285714285716,
+      "boot_std": 0.03143366224584577
+    },
+    "mmlu_sociology": {
+      "n_samples": 201,
+      "metric_kind": "acc",
+      "mean": 0.7512437810945274,
+      "ci_low": 0.6865671641791045,
+      "ci_high": 0.8159203980099502,
+      "ci_halfwidth": 0.06467661691542287,
+      "boot_std": 0.031744690593616766
+    },
+    "mmlu_us_foreign_policy": {
+      "n_samples": 100,
+      "metric_kind": "acc",
+      "mean": 0.83,
+      "ci_low": 0.75,
+      "ci_high": 0.9,
+      "ci_halfwidth": 0.07500000000000001,
+      "boot_std": 0.03751728463850557
+    },
+    "mmlu_virology": {
+      "n_samples": 166,
+      "metric_kind": "acc",
+      "mean": 0.43373493975903615,
+      "ci_low": 0.3614457831325301,
+      "ci_high": 0.5060240963855421,
+      "ci_halfwidth": 0.07228915662650601,
+      "boot_std": 0.038657220346761806
+    },
+    "mmlu_world_religions": {
+      "n_samples": 171,
+      "metric_kind": "acc",
+      "mean": 0.7719298245614035,
+      "ci_low": 0.7134502923976608,
+      "ci_high": 0.8304093567251462,
+      "ci_halfwidth": 0.05847953216374269,
+      "boot_std": 0.031216817986179275
+    },
+    "piqa": {
+      "n_samples": 1838,
+      "metric_kind": "acc_norm",
+      "mean": 0.7856365614798694,
+      "ci_low": 0.76550598476605,
+      "ci_high": 0.8035908596300326,
+      "ci_halfwidth": 0.0190424374319913,
+      "boot_std": 0.009573204548167447
+    },
+    "winogrande": {
+      "n_samples": 1267,
+      "metric_kind": "acc",
+      "mean": 0.6890292028413575,
+      "ci_low": 0.6637726913970008,
+      "ci_high": 0.7158642462509865,
+      "ci_halfwidth": 0.026045777426992878,
+      "boot_std": 0.013135286520299373
+    },
+    "xcopa_et": {
+      "n_samples": 500,
+      "metric_kind": "acc",
+      "mean": 0.58,
+      "ci_low": 0.536,
+      "ci_high": 0.624,
+      "ci_halfwidth": 0.043999999999999984,
+      "boot_std": 0.022480101311047385
+    },
+    "xcopa_ht": {
+      "n_samples": 500,
+      "metric_kind": "acc",
+      "mean": 0.524,
+      "ci_low": 0.48,
+      "ci_high": 0.566,
+      "ci_halfwidth": 0.04299999999999998,
+      "boot_std": 0.022006609617723202
+    },
+    "xcopa_id": {
+      "n_samples": 500,
+      "metric_kind": "acc",
+      "mean": 0.68,
+      "ci_low": 0.638,
+      "ci_high": 0.72,
+      "ci_halfwidth": 0.04099999999999998,
+      "boot_std": 0.020997975115685748
+    },
+    "xcopa_it": {
+      "n_samples": 500,
+      "metric_kind": "acc",
+      "mean": 0.716,
+      "ci_low": 0.676,
+      "ci_high": 0.756,
+      "ci_halfwidth": 0.03999999999999998,
+      "boot_std": 0.02005881242636154
+    },
+    "xcopa_qu": {
+      "n_samples": 500,
+      "metric_kind": "acc",
+      "mean": 0.48,
+      "ci_low": 0.43795000000000006,
+      "ci_high": 0.522,
+      "ci_halfwidth": 0.04202499999999998,
+      "boot_std": 0.02216800993920439
+    },
+    "xcopa_sw": {
+      "n_samples": 500,
+      "metric_kind": "acc",
+      "mean": 0.54,
+      "ci_low": 0.498,
+      "ci_high": 0.584,
+      "ci_halfwidth": 0.04299999999999998,
+      "boot_std": 0.022050572140689038
+    },
+    "xcopa_ta": {
+      "n_samples": 500,
+      "metric_kind": "acc",
+      "mean": 0.576,
+      "ci_low": 0.534,
+      "ci_high": 0.61605,
+      "ci_halfwidth": 0.04102499999999998,
+      "boot_std": 0.021934425796793364
+    },
+    "xcopa_th": {
+      "n_samples": 500,
+      "metric_kind": "acc",
+      "mean": 0.568,
+      "ci_low": 0.526,
+      "ci_high": 0.612,
+      "ci_halfwidth": 0.04299999999999998,
+      "boot_std": 0.02221237415418632
+    },
+    "xcopa_tr": {
+      "n_samples": 500,
+      "metric_kind": "acc",
+      "mean": 0.634,
+      "ci_low": 0.588,
+      "ci_high": 0.68,
+      "ci_halfwidth": 0.04600000000000004,
+      "boot_std": 0.02244344242998629
+    },
+    "xcopa_vi": {
+      "n_samples": 500,
+      "metric_kind": "acc",
+      "mean": 0.666,
+      "ci_low": 0.622,
+      "ci_high": 0.708,
+      "ci_halfwidth": 0.04299999999999998,
+      "boot_std": 0.021480991993318575
+    },
+    "xcopa_zh": {
+      "n_samples": 500,
+      "metric_kind": "acc",
+      "mean": 0.668,
+      "ci_low": 0.63,
+      "ci_high": 0.708,
+      "ci_halfwidth": 0.03899999999999998,
+      "boot_std": 0.020785122017859235
+    },
+    "xnli_ar": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.327710843373494,
+      "ci_low": 0.3104417670682731,
+      "ci_high": 0.3449799196787149,
+      "ci_halfwidth": 0.0172690763052209,
+      "boot_std": 0.009084845758543207
+    },
+    "xnli_bg": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.37309236947791163,
+      "ci_low": 0.3546184738955823,
+      "ci_high": 0.3911746987951807,
+      "ci_halfwidth": 0.018278112449799183,
+      "boot_std": 0.009457058229778399
+    },
+    "xnli_de": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.4875502008032129,
+      "ci_low": 0.4686746987951807,
+      "ci_high": 0.5068273092369477,
+      "ci_halfwidth": 0.01907630522088352,
+      "boot_std": 0.009812244115825337
+    },
+    "xnli_el": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.40923694779116465,
+      "ci_low": 0.3911546184738956,
+      "ci_high": 0.42730923694779116,
+      "ci_halfwidth": 0.01807730923694778,
+      "boot_std": 0.009519615520226331
+    },
+    "xnli_en": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.46586345381526106,
+      "ci_low": 0.4457831325301205,
+      "ci_high": 0.4863453815261044,
+      "ci_halfwidth": 0.020281124497991965,
+      "boot_std": 0.010206777587758897
+    },
+    "xnli_es": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.43293172690763054,
+      "ci_low": 0.4144477911646587,
+      "ci_high": 0.4526204819277108,
+      "ci_halfwidth": 0.019086345381526065,
+      "boot_std": 0.009734747514515573
+    },
+    "xnli_fr": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.42329317269076305,
+      "ci_low": 0.4032028112449799,
+      "ci_high": 0.44216867469879517,
+      "ci_halfwidth": 0.019482931726907626,
+      "boot_std": 0.00993984192668952
+    },
+    "xnli_hi": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.44457831325301206,
+      "ci_low": 0.4268975903614458,
+      "ci_high": 0.4630522088353414,
+      "ci_halfwidth": 0.01807730923694778,
+      "boot_std": 0.009725065382710367
+    },
+    "xnli_ru": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.42811244979919677,
+      "ci_low": 0.4092269076305221,
+      "ci_high": 0.4469879518072289,
+      "ci_halfwidth": 0.01888052208835339,
+      "boot_std": 0.00956699560419768
+    },
+    "xnli_sw": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.3582329317269076,
+      "ci_low": 0.3397590361445783,
+      "ci_high": 0.3751004016064257,
+      "ci_halfwidth": 0.017670682730923704,
+      "boot_std": 0.009229077272824645
+    },
+    "xnli_th": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.41686746987951806,
+      "ci_low": 0.3983835341365462,
+      "ci_high": 0.43694779116465865,
+      "ci_halfwidth": 0.019282128514056224,
+      "boot_std": 0.009786827913577887
+    },
+    "xnli_tr": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.4357429718875502,
+      "ci_low": 0.4160542168674699,
+      "ci_high": 0.45422690763052204,
+      "ci_halfwidth": 0.019086345381526065,
+      "boot_std": 0.009749952159233424
+    },
+    "xnli_ur": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.36265060240963853,
+      "ci_low": 0.34336345381526107,
+      "ci_high": 0.3815261044176707,
+      "ci_halfwidth": 0.01908132530120482,
+      "boot_std": 0.009889137985404382
+    },
+    "xnli_vi": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.39879518072289155,
+      "ci_low": 0.37991967871485943,
+      "ci_high": 0.4188855421686747,
+      "ci_halfwidth": 0.019482931726907626,
+      "boot_std": 0.009901736827094273
+    },
+    "xnli_zh": {
+      "n_samples": 2490,
+      "metric_kind": "acc",
+      "mean": 0.3373493975903614,
+      "ci_low": 0.3188755020080321,
+      "ci_high": 0.3550200803212851,
+      "ci_halfwidth": 0.01807228915662651,
+      "boot_std": 0.009245346569596724
+    },
+    "xquad_el": {
+      "n_samples": 1190,
+      "metric_kind": "f1",
+      "mean": 0.3022283510007036,
+      "ci_low": 0.2825491851663668,
+      "ci_high": 0.32252402696158694,
+      "ci_halfwidth": 0.019987420897610075,
+      "boot_std": 0.009980348925125093
+    },
+    "global_mmlu_full_el": {
+      "n_samples": 14042,
+      "metric_kind": "acc",
+      "mean": 0.42850021364477997,
+      "ci_low": 0.41988320752029623,
+      "ci_high": 0.4366934909557043,
+      "ci_halfwidth": 0.00840514171770404,
+      "boot_std": 0.00433463216017347,
+      "aggregate": true,
+      "source_tasks": [
+        "global_mmlu_full_el_abstract_algebra",
+        "global_mmlu_full_el_anatomy",
+        "global_mmlu_full_el_astronomy",
+        "global_mmlu_full_el_business_ethics",
+        "global_mmlu_full_el_clinical_knowledge",
+        "global_mmlu_full_el_college_biology",
+        "global_mmlu_full_el_college_chemistry",
+        "global_mmlu_full_el_college_computer_science",
+        "global_mmlu_full_el_college_mathematics",
+        "global_mmlu_full_el_college_medicine",
+        "global_mmlu_full_el_college_physics",
+        "global_mmlu_full_el_computer_security",
+        "global_mmlu_full_el_conceptual_physics",
+        "global_mmlu_full_el_econometrics",
+        "global_mmlu_full_el_electrical_engineering",
+        "global_mmlu_full_el_elementary_mathematics",
+        "global_mmlu_full_el_formal_logic",
+        "global_mmlu_full_el_global_facts",
+        "global_mmlu_full_el_high_school_biology",
+        "global_mmlu_full_el_high_school_chemistry",
+        "global_mmlu_full_el_high_school_computer_science",
+        "global_mmlu_full_el_high_school_european_history",
+        "global_mmlu_full_el_high_school_geography",
+        "global_mmlu_full_el_high_school_government_and_politics",
+        "global_mmlu_full_el_high_school_macroeconomics",
+        "global_mmlu_full_el_high_school_mathematics",
+        "global_mmlu_full_el_high_school_microeconomics",
+        "global_mmlu_full_el_high_school_physics",
+        "global_mmlu_full_el_high_school_psychology",
+        "global_mmlu_full_el_high_school_statistics",
+        "global_mmlu_full_el_high_school_us_history",
+        "global_mmlu_full_el_high_school_world_history",
+        "global_mmlu_full_el_human_aging",
+        "global_mmlu_full_el_human_sexuality",
+        "global_mmlu_full_el_international_law",
+        "global_mmlu_full_el_jurisprudence",
+        "global_mmlu_full_el_logical_fallacies",
+        "global_mmlu_full_el_machine_learning",
+        "global_mmlu_full_el_management",
+        "global_mmlu_full_el_marketing",
+        "global_mmlu_full_el_medical_genetics",
+        "global_mmlu_full_el_miscellaneous",
+        "global_mmlu_full_el_moral_disputes",
+        "global_mmlu_full_el_moral_scenarios",
+        "global_mmlu_full_el_nutrition",
+        "global_mmlu_full_el_philosophy",
+        "global_mmlu_full_el_prehistory",
+        "global_mmlu_full_el_professional_accounting",
+        "global_mmlu_full_el_professional_law",
+        "global_mmlu_full_el_professional_medicine",
+        "global_mmlu_full_el_professional_psychology",
+        "global_mmlu_full_el_public_relations",
+        "global_mmlu_full_el_security_studies",
+        "global_mmlu_full_el_sociology",
+        "global_mmlu_full_el_us_foreign_policy",
+        "global_mmlu_full_el_virology",
+        "global_mmlu_full_el_world_religions"
+      ]
+    },
+    "include_base_44_greek_few_shot_en": {
+      "n_samples": 552,
+      "metric_kind": "acc",
+      "mean": 0.42391304347826086,
+      "ci_low": 0.3786231884057971,
+      "ci_high": 0.46557971014492755,
+      "ci_halfwidth": 0.043478260869565216,
+      "boot_std": 0.02103401775675842,
+      "aggregate": true,
+      "source_tasks": [
+        "include_base_44_greek_few_shot_en_arts_humanities",
+        "include_base_44_greek_few_shot_en_business_commerce",
+        "include_base_44_greek_few_shot_en_health_oriented_education",
+        "include_base_44_greek_few_shot_en_medical_license",
+        "include_base_44_greek_few_shot_en_professional_certification",
+        "include_base_44_greek_few_shot_en_social_science",
+        "include_base_44_greek_few_shot_en_stem"
+      ]
+    }
+  }
+}

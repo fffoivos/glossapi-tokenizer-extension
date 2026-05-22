@@ -1,0 +1,15 @@
+{
+  "model_path": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000260_hf",
+  "task_group": "full",
+  "task_list": "arc_challenge,arc_easy,hellaswag,winogrande,piqa,mmlu,global_mmlu,xnli,xcopa,arc_challenge_mt_el,xnli_el,xquad_el,belebele_ell_Grek,global_mmlu_full_el,include_base_44_greek_few_shot_en,global_piqa_completions_ell_grek",
+  "batch_size": "auto",
+  "dtype": "bfloat16",
+  "lm_eval_pythonpath": "/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval",
+  "eval_cache_root": "/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_2344160",
+  "lm_eval_source": "swiss-ai/lm-evaluation-harness (target-install)",
+  "uenv_image": "pytorch/v2.9.1:v2",
+  "slurm_job_id": "2344160",
+  "host": "nid006079",
+  "start_time": "2026-05-22T10:48:39Z",
+  "end_time": "2026-05-22T11:36:13Z"
+}

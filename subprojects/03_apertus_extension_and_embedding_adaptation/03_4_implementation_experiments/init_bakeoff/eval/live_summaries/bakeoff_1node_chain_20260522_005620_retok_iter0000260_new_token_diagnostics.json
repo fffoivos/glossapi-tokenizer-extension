@@ -1,0 +1,148 @@
+{
+  "model_path": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_retok/iter_0000260_hf",
+  "new_id_range": [
+    131072,
+    148480
+  ],
+  "tokenizer_vocab": 148480,
+  "embedding": {
+    "new_id_range": [
+      131072,
+      148480
+    ],
+    "available_new_id_range": [
+      131072,
+      148480
+    ],
+    "n_new_requested": 17408,
+    "n_new": 17408,
+    "base_vocab_size": 131072,
+    "vocab_size": 148480,
+    "applicable": true,
+    "E_norm": {
+      "existing_mean": 4.773982048034668,
+      "existing_std": 1.165529489517212,
+      "existing_p50": 4.924875259399414,
+      "existing_p95": 6.116977214813232,
+      "new_mean": 5.049124240875244,
+      "new_std": 0.0029826879035681486,
+      "new_p50": 5.048913478851318,
+      "new_p5": 5.044683933258057,
+      "new_p95": 5.054586887359619,
+      "new_to_existing_mean_ratio": 1.057633638381958
+    },
+    "U_norm": {
+      "existing_mean": 3.7469305992126465,
+      "existing_std": 0.5513517260551453,
+      "existing_p50": 3.798696756362915,
+      "existing_p95": 4.467489719390869,
+      "new_mean": 3.8000569343566895,
+      "new_std": 0.004285513423383236,
+      "new_p50": 3.8001279830932617,
+      "new_p5": 3.7933685779571533,
+      "new_p95": 3.806769609451294,
+      "new_to_existing_mean_ratio": 1.0141786336898804
+    },
+    "new_E_cos": {
+      "n_sampled": 500,
+      "mean_off_diag": 0.08406519144773483,
+      "std_off_diag": 0.062431272119283676,
+      "p95_off_diag": 0.1614900827407837,
+      "p99_off_diag": 0.39323341846466064
+    },
+    "new_E_effective_rank": {
+      "participation_ratio": 320.7039489746094,
+      "rank_at_99pct_var": 391,
+      "n_singular_values": 500,
+      "sigma_max": 34.34385299682617,
+      "sigma_min": 0.029963143169879913
+    }
+  },
+  "forward": {
+    "n_docs_processed": 500,
+    "n_positions_total": 805472,
+    "n_positions_new_target": 276332,
+    "d2_avg_prob_mass_new_per_pos": 0.33879680262433726,
+    "d1_rank_of_new_target": {
+      "mean_rank": 398.9205014258211,
+      "top1_rate": 0.29154061056989417,
+      "top5_rate": 0.450816409246848,
+      "top10_rate": 0.5142401169607573,
+      "top50_rate": 0.6706389415630474
+    },
+    "d4_top1_at_new_target": {
+      "new": 145560,
+      "base": 130772,
+      "new_rate": 0.5267576683120304
+    },
+    "d3_per_register": {
+      "academic": {
+        "n_positions": 231616,
+        "n_new_target": 65968,
+        "avg_entropy_nats": 2.46167584419514,
+        "avg_prob_mass_new": 0.28453134867854457,
+        "avg_rank_new_target": 408.5886338830948
+      },
+      "dialogue_textbooks": {
+        "n_positions": 237263,
+        "n_new_target": 85994,
+        "avg_entropy_nats": 3.5460885881878705,
+        "avg_prob_mass_new": 0.35801210728739047,
+        "avg_rank_new_target": 373.71065423169057
+      },
+      "hplt_clean60": {
+        "n_positions": 237201,
+        "n_new_target": 89821,
+        "avg_entropy_nats": 3.28608288301929,
+        "avg_prob_mass_new": 0.36926525142228916,
+        "avg_rank_new_target": 466.8940448224803
+      },
+      "legal_civic": {
+        "n_positions": 99392,
+        "n_new_target": 34549,
+        "avg_entropy_nats": 2.2902704897190937,
+        "avg_prob_mass_new": 0.3466698711561681,
+        "avg_rank_new_target": 266.4899418217604
+      }
+    }
+  },
+  "greedy": {
+    "n_prompts": 5,
+    "n_total_gen": 500,
+    "n_new_gen": 75,
+    "utilization_rate": 0.15,
+    "per_prompt": [
+      {
+        "prompt": "Η ελληνική γλώσσα έχει μακρά ιστορία. ",
+        "n_generated": 100,
+        "n_new": 45,
+        "utilization": 0.45
+      },
+      {
+        "prompt": "Στην ομιλία του Πλάτωνα, ο Σωκράτης λέει ότι ",
+        "n_generated": 100,
+        "n_new": 0,
+        "utilization": 0.0
+      },
+      {
+        "prompt": "Στην Αθήνα, οι αρχαίοι ναοί έχουν ιδιαίτερη σημασία γιατί ",
+        "n_generated": 100,
+        "n_new": 18,
+        "utilization": 0.18
+      },
+      {
+        "prompt": "Η σύγχρονη ελληνική κουζίνα ",
+        "n_generated": 100,
+        "n_new": 0,
+        "utilization": 0.0
+      },
+      {
+        "prompt": "Στη φιλοσοφία του Αριστοτέλη, η έννοια της αρετής ",
+        "n_generated": 100,
+        "n_new": 12,
+        "utilization": 0.12
+      }
+    ]
+  },
+  "wall_seconds": 106.46819996833801
+}

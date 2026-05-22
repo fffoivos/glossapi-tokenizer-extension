@@ -603,3 +603,28 @@ Current next gate:
   - vanilla: iter `210`, tokens `0.881B`, lm loss `1.8885`, `7910` tok/s/gpu, `0` skipped / `0` NaN.
   - retok: iter `209`, tokens `0.877B`, lm loss `3.2570`, `7936` tok/s/gpu, `0` skipped / `0` NaN.
   - centroid: iter `210`, tokens `0.881B`, lm loss `4.3097`, `7984` tok/s/gpu, `0` skipped / `0` NaN.
+
+## Continuation - 2026-05-22 iter-260 full eval
+
+- Live efficiency check:
+  - Direct `nvidia-smi` sampling inside the three active Slurm allocations showed all 12 training GPUs at `98-100%` utilization.
+  - Per-arm HBM use was roughly `85-88 GiB / 97.9 GiB`; power draw was roughly `480-515 W` per GPU.
+  - Logged steady throughput remained near `7.9k` tok/s/GPU and `0` skipped / `0` NaN. The run is not maximally optimized because it uses `mb=2` for memory safety after `mb=4` OOM, but the allocated GPUs are being used hard.
+- GCP cost check was attempted again from `home` and remains blocked by non-interactive `gcloud` reauthentication (`gcloud auth login` required). No GCP instance state has been verified in this continuation turn.
+- Iter-260 checkpoint gating:
+  - At `2026-05-22T10:43:43Z`, training logs showed all arms at or beyond iter `260`, but checkpoint tracker files lagged async-save completion.
+  - The watcher did not submit early. It submitted vanilla and centroid only after their trackers reached `260`; retok's tracker advanced shortly after that pass and was submitted on the next watcher tick.
+- Iter-260 job ids:
+  - vanilla: conversion `2344155`, full lm-eval `2344156`, tokenizer-fair metrics `2344157`, diagnostics `2344158`.
+  - centroid: conversion `2344159`, full lm-eval `2344160`, tokenizer-fair metrics `2344161`, diagnostics `2344162`.
+  - retok: conversion `2344174`, full lm-eval `2344175`, tokenizer-fair metrics `2344176`, diagnostics `2344177`.
+  - All twelve jobs completed with Slurm exit `0:0`; full eval elapsed times were `00:50:55` vanilla, `00:50:38` retok, and `00:47:44` centroid.
+- Iter-260 compact artifacts:
+  - Remote summary: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_iter0000260_summary.md`.
+  - Local copies under `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/`: per-arm `results.json`, `bootstrap_cis.json`, `run_metadata.json`, tokenizer-fair metrics, new-token diagnostics, plus `bakeoff_1node_chain_20260522_005620_iter0000260_digest.md`.
+- Iter-260 headline digest:
+  - vanilla: BPC `0.5173`, NLL/char `0.6120`, `el_arc=0.4061`, `el_belebele=0.5067`, `el_xnli=0.4092`, `el_xquad_f1=0.3022`, `el_mmlu=0.4285`, `el_base44=0.4239`, `el_piqa=0.6200`, `hellaswag=0.761`, `arc_c=0.536`, `mmlu=0.540`.
+  - retok: BPC `0.6370`, NLL/char `0.7535`, `el_arc=0.3439`, `el_belebele=0.4600`, `el_xnli=0.3735`, `el_xquad_f1=0.3261`, `el_mmlu=0.3829`, `el_base44=0.4112`, `el_piqa=0.5800`, `hellaswag=0.738`, `arc_c=0.509`, `mmlu=0.545`.
+  - centroid: BPC `0.9875`, NLL/char `1.1680`, `el_arc=0.2551`, `el_belebele=0.3378`, `el_xnli=0.3398`, `el_xquad_f1=0.0239`, `el_mmlu=0.2834`, `el_base44=0.3098`, `el_piqa=0.5100`, `hellaswag=0.757`, `arc_c=0.546`, `mmlu=0.549`.
+  - New-token integration: retok `D1_top1=0.2915`, `D2_mass=0.3388`, `D4_top1_new=0.5268`, `D5_util=0.150`; centroid `D1_top1=0.0606`, `D2_mass=0.3406`, `D4_top1_new=0.2625`, `D5_util=0.076`.
+  - Interpretation remains pre-decision: vanilla still leads Greek BPC and most downstream Greek metrics; retok is narrowing and is clearly healthier than centroid on new-token use; centroid remains weak for Greek despite okay retention-style scores.
