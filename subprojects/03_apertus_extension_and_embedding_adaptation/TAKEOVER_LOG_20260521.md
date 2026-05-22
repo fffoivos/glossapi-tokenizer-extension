@@ -285,3 +285,7 @@ Current next gate:
   - Fix added: `eval/run_megatron_convert_with_pg.py` initializes a single-rank `gloo` process group before running Megatron `convert.py`; `convert_bakeoff_checkpoint_to_hf.sbatch` now uses it.
 - Held-out build job `2341867` failed after loading `3,890,581` Greek training doc IDs because duplicate candidate scores/doc IDs allowed `heapq` to compare row dictionaries.
   - Fix added: heap candidates now include a numeric row-position tiebreaker, so ties never compare dict payloads.
+- Relaunched held-out build as `2341875`; it started on `nid007538` at `2026-05-22 01:45:09 UTC`.
+- Relaunched bridge smoke as conversion `2341876` plus dependent eval `2341877`.
+  - Result: `2341876` failed immediately because `SCRIPT_DIR` was not exported into the inner `uenv` shell; `2341877` became `DependencyNeverSatisfied`.
+  - Fix added: `convert_bakeoff_checkpoint_to_hf.sbatch` now exports `SCRIPT_DIR` before entering `uenv`.
