@@ -38,3 +38,17 @@ Decision rule:
 
 This prepass is intentionally CPU-only. Any dataset or snippet-building rerun
 belongs on `xfer`.
+
+## Pinned Token Distillation code
+
+The official implementation is vendored under
+`external/token-distillation/` at upstream commit
+`35702b5809599ecd68b7845eca27a0d7b7cec0da`; see
+`external/token-distillation/PINNED_UPSTREAM.md`.
+
+For Apertus, do not call the package's high-level
+`TokenDistillation.run(...)` path because it appends tokens with
+`add_tokens(...)`. Our ReTok tokenizer is already merge-extended with fixed
+IDs. The Apertus adapter should load the exact student tokenizer/checkpoint and
+call the lower-level training loop with an explicit
+`base_phrase_ids -> new_token_id` mapping.
