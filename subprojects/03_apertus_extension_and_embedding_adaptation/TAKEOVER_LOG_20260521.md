@@ -525,3 +525,29 @@ Current next gate:
   - vanilla reached iter `95`, retok reached iter `94`, centroid reached iter `94`; all still report `0` skipped / `0` NaN.
   - checkpoint trackers remain at `65` for all arms; iter-130 has not landed yet.
   - resume jobs `2341823`, `2341825`, and `2341827` were verified pending on `afterany` dependency and will load each arm's own `checkpoints/` directory with optimizer/RNG restoration.
+
+## Continuation - 2026-05-22 iter-130 checkpoint and eval submission
+
+- Iter-130 checkpoints landed for all three arms:
+  - vanilla: tracker advanced to `130` and `iter_0000130` completed by `2026-05-22T05:48Z`.
+  - retok: tracker advanced to `130` and `iter_0000130` completed by `2026-05-22T05:52Z`.
+  - centroid: tracker advanced to `130` and `iter_0000130` completed by `2026-05-22T05:52Z`.
+- The iter-130 watcher submitted all requested arms without manual duplicate submission:
+  - vanilla submitted at `2026-05-22T05:49:52Z`: conversion `2342286`, full lm-eval `2342287`, tokenizer-fair metrics `2342288`, diagnostics `2342289`.
+  - retok submitted at `2026-05-22T05:54:54Z`: conversion `2342298`, full lm-eval `2342299`, tokenizer-fair metrics `2342300`, diagnostics `2342301`.
+  - centroid submitted at `2026-05-22T05:54:57Z`: conversion `2342302`, full lm-eval `2342303`, tokenizer-fair metrics `2342304`, diagnostics `2342305`.
+  - Watcher state dir: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_watch_iter_0000130_full`.
+- Vanilla conversion `2342286` completed successfully (`COMPLETED 0:0`, elapsed `00:01:13`) and wrote HF output to `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_vanilla/iter_0000130_hf`.
+- Vanilla tokenizer-fair metrics `2342288` completed successfully (`COMPLETED 0:0`, elapsed `00:01:52`):
+  - output: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_vanilla/iter_0000130_tokenizer_fair_metrics.json`
+  - headline: BPC `0.5432`, NLL/char `0.6426`, chars/token `2.5572`, tokens/word `2.6930`.
+- Vanilla diagnostics `2342289` wrote its JSON but failed on a summary-print formatting bug for the base-vocab control arm:
+  - cause: vanilla has no available new rows (`n_new=0`), so `new_mean`/`new_p50`/ratio are `null`; the compact summary tried to format them with `:.3f`.
+  - fix: `compute_new_token_diagnostics.py` now formats optional floats as `n/a` for the control/no-new-token case, including D6/D7 summary lines.
+  - synced the fix to the Clariden mirror and submitted vanilla diagnostics retry `2342322`.
+- Refreshed training curve snapshot after iter-130:
+  - generated at `2026-05-22T06:03:47Z`.
+  - vanilla: iter `137`, tokens `0.575B`, lm loss `1.9931`, `7914` tok/s/gpu, `0` skipped / `0` NaN.
+  - retok: iter `136`, tokens `0.570B`, lm loss `3.5637`, `7939` tok/s/gpu, `0` skipped / `0` NaN.
+  - centroid: iter `136`, tokens `0.570B`, lm loss `4.6826`, `7982` tok/s/gpu, `0` skipped / `0` NaN.
+  - Local copies under `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/` were updated.

@@ -156,6 +156,12 @@ def _embedding_diagnostics(E, U, new_id_range, base_vocab_size, sample_cos=500, 
     return out
 
 
+def _fmt_optional_float(value, digits=3):
+    if value is None:
+        return "n/a"
+    return f"{value:.{digits}f}"
+
+
 def _forward_diagnostics(model, tokenizer, eval_jsonl, new_id_range, max_context, max_docs, device):
     """D1 + D2 + D3 + D4: forward-pass diagnostics over the eval set."""
     import torch
@@ -400,13 +406,22 @@ def main() -> int:
     for ax in ("E", "U"):
         if f"{ax}_norm" in embedding:
             n = embedding[f"{ax}_norm"]
-            print(f"  D6.{ax}: existing μ={n['existing_mean']:.3f} (p50={n['existing_p50']:.3f}); "
-                  f"new μ={n['new_mean']:.3f} (p50={n['new_p50']:.3f}) — ratio {n['new_to_existing_mean_ratio']:.3f}")
+            print(
+                f"  D6.{ax}: existing μ={n['existing_mean']:.3f} (p50={n['existing_p50']:.3f}); "
+                f"new μ={_fmt_optional_float(n['new_mean'])} "
+                f"(p50={_fmt_optional_float(n['new_p50'])}) — "
+                f"ratio {_fmt_optional_float(n['new_to_existing_mean_ratio'])}"
+            )
     cos = embedding["new_E_cos"]
-    print(f"  D7. new_E cos off-diag: μ={cos['mean_off_diag']:.4f}  p95={cos['p95_off_diag']:.4f}")
+    print(
+        f"  D7. new_E cos off-diag: μ={_fmt_optional_float(cos['mean_off_diag'], 4)}  "
+        f"p95={_fmt_optional_float(cos['p95_off_diag'], 4)}"
+    )
     er = embedding["new_E_effective_rank"]
-    print(f"  D7. new_E participation ratio: {er['participation_ratio']:.1f} / {er['n_singular_values']} "
-          f"(rank@99% variance: {er['rank_at_99pct_var']})")
+    print(
+        f"  D7. new_E participation ratio: {_fmt_optional_float(er['participation_ratio'], 1)} / "
+        f"{er['n_singular_values']} (rank@99% variance: {er['rank_at_99pct_var']})"
+    )
 
     if "forward" in report:
         f = report["forward"]
