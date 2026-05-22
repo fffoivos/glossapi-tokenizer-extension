@@ -460,3 +460,13 @@ Current next gate:
   - retok `2341824` reached iteration `80/476`, `0` skipped / `0` NaN.
   - centroid `2341826` reached iteration `80/476`, `0` skipped / `0` NaN.
   - Later checkpoint watchers were verified by log heartbeat rather than `pgrep`: `pgrep` can land on a different Clariden login node, while the watcher logs for iter `130`, `195`, and `455` ticked from `03:54:48Z` to `03:59:48Z`.
+- Added `bakeoff_training/summarize_training_logs.py` to parse Megatron progress lines into JSON/CSV/Markdown training curves.
+  - Remote snapshot outputs:
+    - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_training_summary.md`
+    - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_training_summary.json`
+    - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_training_curve.csv`
+  - Local committed copies live under `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/`.
+  - Snapshot at `2026-05-22T04:05:38Z`:
+    - vanilla: iter `84`, tokens `0.352B`, lm loss `2.1833`, `7905` tok/s/gpu, `0` skipped / `0` NaN.
+    - retok: iter `83`, tokens `0.348B`, lm loss `4.2539`, `7944` tok/s/gpu, `0` skipped / `0` NaN.
+    - centroid: iter `82`, tokens `0.344B`, lm loss `4.9980`, `7991` tok/s/gpu, `0` skipped / `0` NaN.
