@@ -361,3 +361,10 @@ Current next gate:
   - New watcher PID: `246038`
   - Verified environment includes `SUBMIT_INTRINSIC=1` and `EVAL_JSONL=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl`.
   - As of `2026-05-22 03:10:09 UTC`, it is still waiting for all three `iter_0000065` checkpoint directories.
+- Iter-65 checkpoint submission:
+  - vanilla checkpoint dir appeared first; watcher submitted conversion/eval/intrinsics as `2342037`/`2342038`/`2342039`/`2342040`.
+  - retok and centroid appeared later; watcher submitted retok `2342044`/`2342045`/`2342046`/`2342047` and centroid `2342048`/`2342049`/`2342050`/`2342051`.
+  - Retok and centroid conversions completed and their dependent eval/intrinsic jobs started.
+  - Vanilla conversion `2342037` was bad: the watcher fired when the `iter_0000065` directory existed but before `latest_checkpointed_iteration.txt` had advanced. The converter tried to load an incomplete checkpoint and then hung after `could not load the checkpoint`.
+  - Cancelled only the bad vanilla chain (`2342037`-`2342040`) and resubmitted vanilla after the tracker showed `65`: conversion/eval/intrinsics `2342054`/`2342055`/`2342056`/`2342057`.
+  - Hardening added: `watch_and_submit_checkpoint_evals.sh` now requires both the checkpoint directory and `latest_checkpointed_iteration.txt == ITER` before submitting, so future checkpoint watchers do not fire on an incomplete save directory.

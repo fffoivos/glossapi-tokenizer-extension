@@ -47,12 +47,22 @@ while true; do
 
         ckpt_root="$RUN_ROOT/${RUN_TAG}_${arm}/checkpoints"
         ckpt_dir="$ckpt_root/iter_$ITER_PAD"
+        tracker="$ckpt_root/latest_checkpointed_iteration.txt"
         if [ ! -d "$ckpt_dir" ]; then
             log "$arm: waiting for $ckpt_dir"
             continue
         fi
+        if [ ! -f "$tracker" ]; then
+            log "$arm: checkpoint dir exists but tracker is missing: $tracker"
+            continue
+        fi
+        latest="$(tr -dc '0-9' < "$tracker" || true)"
+        if [ "$latest" != "$ITER" ]; then
+            log "$arm: checkpoint dir exists but tracker says '${latest:-empty}', waiting for $ITER"
+            continue
+        fi
 
-        log "$arm: checkpoint exists; submitting $TASK_GROUP eval for iter $ITER"
+        log "$arm: checkpoint exists and tracker=$latest; submitting $TASK_GROUP eval for iter $ITER"
         submit_log="$STATE_DIR/${arm}.submit.log"
         (
             cd "$SCRIPT_DIR"
