@@ -551,3 +551,26 @@ Current next gate:
   - retok: iter `136`, tokens `0.570B`, lm loss `3.5637`, `7939` tok/s/gpu, `0` skipped / `0` NaN.
   - centroid: iter `136`, tokens `0.570B`, lm loss `4.6826`, `7982` tok/s/gpu, `0` skipped / `0` NaN.
   - Local copies under `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/` were updated.
+
+## Continuation - 2026-05-22 iter-130 evaluation completion
+
+- Iter-130 eval stack completed for all arms.
+  - Slurm accounting shows the following jobs completed with `0:0`: conversions `2342286` vanilla, `2342298` retok, `2342302` centroid; full evals `2342287` vanilla, `2342299` retok, `2342303` centroid; tokenizer-fair jobs `2342288` vanilla, `2342300` retok, `2342304` centroid; diagnostics `2342301` retok, `2342305` centroid, and retry `2342322` vanilla.
+  - The original vanilla diagnostics job `2342289` failed with `1:0` only after writing the JSON, because the compact print path did not handle `null` new-token stats for the base-vocab control. The retry after the formatter fix completed successfully.
+  - Consolidated remote summary: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_iter0000130_summary.md`.
+  - Local compact artifacts copied under `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/`: per-arm lm-eval `results.json`, bootstrap CIs, run metadata, tokenizer-fair metrics, new-token diagnostics, plus `bakeoff_1node_chain_20260522_005620_iter0000130_digest.md`.
+- Iter-130 headline digest:
+  - checkpoint: `iter_0000130`, about `0.545B` training tokens at checkpoint time, `130 / 476` planned steps.
+  - vanilla: BPC `0.5432`, NLL/char `0.6426`, `el_arc=0.4275`, `el_belebele=0.5556`, `el_xnli=0.4137`, `el_xquad_f1=0.3524`, `el_mmlu=0.4459`, `el_base44=0.4819`, `el_piqa=0.5900`, `hellaswag=0.7648`, `arc_c=0.5614`, `mmlu=0.5572`.
+  - retok: BPC `0.7561`, NLL/char `0.8943`, `el_arc=0.3157`, `el_belebele=0.4678`, `el_xnli=0.3916`, `el_xquad_f1=0.2737`, `el_mmlu=0.3693`, `el_base44=0.3859`, `el_piqa=0.6200`, `hellaswag=0.7494`, `arc_c=0.5290`, `mmlu=0.5538`.
+  - centroid: BPC `1.1318`, NLL/char `1.3387`, `el_arc=0.2483`, `el_belebele=0.3211`, `el_xnli=0.3679`, `el_xquad_f1=0.0253`, `el_mmlu=0.2807`, `el_base44=0.2862`, `el_piqa=0.5400`, `hellaswag=0.7613`, `arc_c=0.5614`, `mmlu=0.5580`.
+  - Interpretation remains early-checkpoint only: vanilla is still strongest on downstream Greek and retention-style task metrics; retok is clearly ahead of centroid on Greek downstream and new-token integration; centroid is still weak on Greek use despite okay retention-style scores.
+- Refreshed live training snapshot at `2026-05-22T07:22:01Z`:
+  - vanilla: iter `171`, tokens `0.717B`, lm loss `1.9547`, `7901` tok/s/gpu, `0` skipped / `0` NaN.
+  - retok: iter `170`, tokens `0.713B`, lm loss `3.3444`, `7935` tok/s/gpu, `0` skipped / `0` NaN.
+  - centroid: iter `170`, tokens `0.713B`, lm loss `4.4857`, `7989` tok/s/gpu, `0` skipped / `0` NaN.
+- Live watcher state at `2026-05-22T07:21:40Z`:
+  - Training jobs `2341822`, `2341824`, and `2341826` are still running.
+  - Resume jobs `2341823`, `2341825`, and `2341827` remain pending on dependency.
+  - Checkpoint trackers remain at `130`; iter-195 watcher is heartbeating and waiting for all three `iter_0000195` checkpoint directories.
+- GCP cost check was attempted again from `home` and is still blocked by non-interactive `gcloud` reauthentication (`gcloud auth login` required). No GCP instance state has been verified in this continuation turn.
