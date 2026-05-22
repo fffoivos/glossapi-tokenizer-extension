@@ -18,6 +18,11 @@ The prepass scans the mixed JSONL stream in order and stops after the first
 extended tokenizer actually emits a new token ID in `[131072, 148480)`.
 Substring matches and BPE merge ancestry do not count.
 
+Runtime note: `xfer` nodes are x86_64 and do not expose the `uenv` CLI used on
+GH200/normal nodes. The sbatch therefore uses a tiny xfer-built Python 3.11 venv
+at `/iopsstor/scratch/cscs/fffoivos/python_envs/td_coverage_py311_xfer` with
+`tokenizers==0.22.1`.
+
 Expected outputs:
 
 - `td_coverage_prepass.jsonl` - one row per new token

@@ -27,13 +27,13 @@ NEW_ID_END="${NEW_ID_END:-148480}"
 SNIPPETS_PER_TOKEN="${SNIPPETS_PER_TOKEN:-100}"
 SNIPPET_TOKEN_RADIUS="${SNIPPET_TOKEN_RADIUS:-50}"
 SEED="${SEED:-20260523}"
-PYTHON_BIN="${PYTHON_BIN:-/iopsstor/scratch/cscs/fffoivos/python_envs/td_coverage_py311/bin/python}"
+PYTHON_BIN="${PYTHON_BIN:-/iopsstor/scratch/cscs/fffoivos/python_envs/td_coverage_py311_xfer/bin/python}"
 
 if [ ! -x "$PYTHON_BIN" ]; then
     echo "ERROR: PYTHON_BIN is not executable: $PYTHON_BIN" >&2
-    echo "Create it once on Clariden login/xfer with:" >&2
-    echo "  python3.11 -m venv /iopsstor/scratch/cscs/fffoivos/python_envs/td_coverage_py311" >&2
-    echo "  /iopsstor/scratch/cscs/fffoivos/python_envs/td_coverage_py311/bin/python -m pip install tokenizers==0.22.1" >&2
+    echo "Create it once on Clariden xfer with Python 3.11 and:" >&2
+    echo "  python3.11 -m venv /iopsstor/scratch/cscs/fffoivos/python_envs/td_coverage_py311_xfer" >&2
+    echo "  /iopsstor/scratch/cscs/fffoivos/python_envs/td_coverage_py311_xfer/bin/python -m pip install tokenizers==0.22.1" >&2
     exit 127
 fi
 
