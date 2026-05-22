@@ -697,3 +697,20 @@ Current next gate:
     - GPU sample inside the packed allocation: GPU0/GPU1/GPU2 at `100%` utilization with ~`85.8/92.9/92.9 GiB` HBM used; GPU3 is idle spare.
     - Progress sample: vanilla `2287/338117`, retok `10857/338117`, centroid `4303/338117` loglikelihood requests.
     - Training remained healthy at the same time: vanilla iter `344`, retok iter `345`, centroid iter `346`, all `0` skipped / `0` NaN.
+
+## Continuation - 2026-05-22 iter-325 full eval complete
+
+- Packed iter-325 full eval:
+  - job `2345516` completed with Slurm exit `0:0`, elapsed `00:43:39`.
+  - result files:
+    - vanilla `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_vanilla/iter_0000325_full/results_2026-05-22T16-37-21.515595.json`
+    - retok `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_retok/iter_0000325_full/results_2026-05-22T16-34-05.837089.json`
+    - centroid `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000325_full/results_2026-05-22T16-35-57.335820.json`
+  - remote summary: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_iter0000325_summary.md`.
+  - local compact copies and digest were added under `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/`.
+- Iter-325 headline:
+  - vanilla: BPC `0.5045`, NLL/char `0.5968`, `el_arc=0.4121`, `el_belebele=0.5144`, `el_xnli=0.4028`, `el_xquad_f1=0.3193`, `el_mmlu=0.4240`, `el_base44=0.4275`, `el_piqa=0.6300`.
+  - retok: BPC `0.6070`, NLL/char `0.7179`, `el_arc=0.3626`, `el_belebele=0.4767`, `el_xnli=0.3699`, `el_xquad_f1=0.3134`, `el_mmlu=0.3891`, `el_base44=0.3877`, `el_piqa=0.5600`.
+  - centroid: BPC `0.9525`, NLL/char `1.1266`, `el_arc=0.2491`, `el_belebele=0.3233`, `el_xnli=0.3482`, `el_xquad_f1=0.0257`, `el_mmlu=0.2827`, `el_base44=0.3007`, `el_piqa=0.5100`.
+  - New-token integration: retok `D1_top1=0.3183`, `D2_mass=0.3455`, `D4_top1_new=0.5612`, `D5_util=0.161`; centroid `D1_top1=0.0757`, `D2_mass=0.3409`, `D4_top1_new=0.2939`, `D5_util=0.068`.
+  - Interpretation remains pre-decision: vanilla still leads Greek BPC and most Greek downstream metrics, retok continues narrowing and has the strongest new-token use, centroid remains weak on the Greek objective.
