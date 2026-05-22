@@ -692,3 +692,8 @@ Current next gate:
   - Fixed the packed script to share one cache root across arms by default (`SHARE_EVAL_CACHE=1`) and to allow the warm full-eval cache to be injected via `EVAL_CACHE_ROOT`.
   - Current packed iter-325 retry `2345516` is running on one node (`nid007297`) with all three arm processes alive and model memory loaded on GPUs `0`, `1`, and `2`; no rate-limit warning has appeared after switching to the shared warm cache.
   - Added `flock` guards to the packed watcher and packed submitter. This protects the future iter-390/455 checkpoints from duplicate submissions even if earlier detached watcher attempts on different login nodes wake up at the same time.
+  - Packed iter-325 validation at `2026-05-22T14:07:08Z`:
+    - `2345516` is in `Running loglikelihood requests` for all three arms.
+    - GPU sample inside the packed allocation: GPU0/GPU1/GPU2 at `100%` utilization with ~`85.8/92.9/92.9 GiB` HBM used; GPU3 is idle spare.
+    - Progress sample: vanilla `2287/338117`, retok `10857/338117`, centroid `4303/338117` loglikelihood requests.
+    - Training remained healthy at the same time: vanilla iter `344`, retok iter `345`, centroid iter `346`, all `0` skipped / `0` NaN.
