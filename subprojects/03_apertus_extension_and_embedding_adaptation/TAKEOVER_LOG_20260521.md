@@ -475,3 +475,32 @@ Current next gate:
     - vanilla: iter `84`, tokens `0.352B`, lm loss `2.1833`, `7905` tok/s/gpu, `0` skipped / `0` NaN.
     - retok: iter `83`, tokens `0.348B`, lm loss `4.2539`, `7944` tok/s/gpu, `0` skipped / `0` NaN.
     - centroid: iter `82`, tokens `0.344B`, lm loss `4.9980`, `7991` tok/s/gpu, `0` skipped / `0` NaN.
+
+## Continuation - 2026-05-22 pre-iter-130 checks
+
+- Live Slurm/checkpoint state at `2026-05-22 04:15 UTC`:
+  - training jobs `2341822` vanilla, `2341824` retok, and `2341826` centroid are still running.
+  - resume jobs `2341823`, `2341825`, and `2341827` are still pending on dependency.
+  - checkpoint trackers remain at `65` for all three arms; only `iter_0000065` exists, so iter-130 has not landed yet.
+  - iter-130 watcher log is heartbeating and still waiting, with the latest observed tick at `2026-05-22T04:14:49Z`.
+- Latest training health at `2026-05-22 04:15 UTC`:
+  - vanilla `2341822`: iter `88/476`, tokens `0.369B`, lm loss `2.149925`, `7904.8` tok/s/gpu, `0` skipped / `0` NaN.
+  - retok `2341824`: iter `87/476`, tokens `0.365B`, lm loss `4.167927`, `7943.9` tok/s/gpu, `0` skipped / `0` NaN.
+  - centroid `2341826`: iter `87/476`, tokens `0.365B`, lm loss `5.029734`, `7988.6` tok/s/gpu, `0` skipped / `0` NaN.
+- Verified live tokenizer/data pairing from the actual Slurm logs:
+  - vanilla `2341822`:
+    - tokenizer: `/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509`
+    - tokenizer padded vocab: `131072`
+    - data prefix: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_megatron/bulk_mix_text_document`
+    - dataset builder config confirms `blend=(['...bulk_mix_base_megatron/bulk_mix_text_document'], None)`, `random_seed=20260520`, `sequence_length=4096`, `reset_position_ids=True`, `reset_attention_mask=True`, `eod_mask_loss=True`, `goldfish_loss=False`.
+  - retok `2341824`:
+    - tokenizer: `/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480`
+    - tokenizer padded vocab: `148480`
+    - data prefix: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_ext_megatron/bulk_mix_text_document`
+    - dataset builder config confirms `blend=(['...bulk_mix_ext_megatron/bulk_mix_text_document'], None)` with the same seed/seq/document-boundary flags as vanilla.
+  - centroid `2341826`:
+    - tokenizer: `/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480`
+    - tokenizer padded vocab: `148480`
+    - data prefix: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_ext_megatron/bulk_mix_text_document`
+    - dataset builder config confirms `blend=(['...bulk_mix_ext_megatron/bulk_mix_text_document'], None)` with the same seed/seq/document-boundary flags as vanilla.
+  - This closes the live-run part of the tokenizer/data pairing check: Vanilla is using base-tokenized data and base vocab, while ReTok/Centroid use extended-tokenized data and extended vocab.
