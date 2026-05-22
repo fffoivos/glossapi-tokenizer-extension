@@ -306,3 +306,25 @@ Current next gate:
   - Fix added: in the converter wrapper only, monkeypatch `validate_sharding_integrity` to a no-op. The actual tensor load remains active and should still fail on missing/malformed tensors.
 - Held-out build `2341875` completed its scan but failed quota fill because training consumed all eligible rows in the literary and dictionary/misc source filters.
   - Fix added: default held-out quotas now use only source buckets with remaining training-disjoint docs: HPLT, dialogue/textbooks, academic, and legal/civic.
+
+## Continuation - 2026-05-22 converter bridge proof
+
+- Relaunched held-out build as `2341967`; it started on `nid007538` at `2026-05-22 02:10:01 UTC`.
+  - It loaded `3,890,581` Greek training doc IDs from `bulk_mix.jsonl`.
+  - By `batch=3,250` / `32,500,000` rows it had filled the revised quotas: HPLT `330`, dialogue/textbooks `60`, academic `60`, legal/civic `50`.
+  - The builder intentionally scans the full selected parquet, because the selection rule is lowest hash score per source bucket after excluding training doc IDs.
+- Continued bridge smoke attempts on the completed vanilla smoke checkpoint:
+  - `2341968` failed after bypassing sharding-integrity validation with `Number of local shards (1) does not match number of local shards metadata ... (2)`.
+  - Root cause: the one-rank converter process group made Megatron's torch-dist adapter wrap remote TP shard metadata back onto rank 0.
+  - Fix added in `run_megatron_convert_with_pg.py`: for Megatron's ShardedTensor construction only, report `CONVERT_FAKE_SHARDING_WORLD_SIZE=$TENSOR_MODEL_PARALLEL_SIZE` so non-current TP shards stay remote in metadata.
+  - `2341979` and `2341981` exposed the next validation layer: PyTorch rejected metadata-only remote TP rank 1 because the real process group contains only rank 0.
+  - Fix added in `run_megatron_convert_with_pg.py`: bypass PyTorch's remote-device process-group-rank validation only for rank-only placements in the sequential TP converter shim.
+- Successful bridge smoke:
+  - Conversion job `2341983` loaded both TP shards from `/capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_vanilla_r17patched_v291npfix_20260522_001421/checkpoints/iter_0000010`.
+  - It wrote HF safetensors to `/capstor/scratch/cscs/fffoivos/runs/eval/eval_bridge_smoke_20260522l_vanilla/iter_0000010_hf`.
+  - The output contains four safetensor shards plus tokenizer/config files and `bakeoff_conversion_metadata.json`.
+  - Dependent limited Greek eval job `2341984` started on `nid006107`, proving the Slurm dependency and HF output path are usable. Results were still running at the time of this log entry.
+- Live bakeoff status at `2026-05-22 02:27 UTC`:
+  - `2341822` vanilla, `2341824` retok, and `2341826` centroid are still running.
+  - Visible latest training lines remain `0` skipped / `0` NaN.
+  - No first checkpoint has landed yet; hold real iter-65 canary submission until `iter_0000065` exists for each arm and the limited eval smoke has finished or clearly advanced past model execution.

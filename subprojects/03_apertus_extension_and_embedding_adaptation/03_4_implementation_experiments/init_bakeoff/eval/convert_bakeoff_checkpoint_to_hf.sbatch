@@ -84,11 +84,13 @@ if [ "$OVERWRITE" = "1" ]; then
 fi
 
 export SCRIPT_DIR MEGATRON_LM_SWISSAI_DIR HF_TOKENIZER_DIR HF_OUT_DIR VIEW_DIR WORK_DIR UENV_IMAGE
+export CONVERT_FAKE_SHARDING_WORLD_SIZE="${CONVERT_FAKE_SHARDING_WORLD_SIZE:-$TENSOR_MODEL_PARALLEL_SIZE}"
 
 uenv run "$UENV_IMAGE" --view=default -- bash <<'INNER'
 set -euo pipefail
 export PYTHONPATH="$MEGATRON_LM_SWISSAI_DIR"
 cd "$MEGATRON_LM_SWISSAI_DIR"
+echo "CONVERT_FAKE_SHARDING_WORLD_SIZE=$CONVERT_FAKE_SHARDING_WORLD_SIZE"
 python3 "$SCRIPT_DIR/run_megatron_convert_with_pg.py" tools/checkpoint/convert.py --model-type GPT \
     --loader core --saver swissai_hf \
     --load-dir "$VIEW_DIR" --save-dir "$HF_OUT_DIR" \
