@@ -97,6 +97,18 @@ RUN_TAG=bakeoff_1node_chain_20260522_005620 \
   bash submit_bakeoff_checkpoint_eval.sh vanilla 65 greek_only
 ```
 
+For a live run, use [`watch_and_submit_checkpoint_evals.sh`](watch_and_submit_checkpoint_evals.sh)
+to submit once per arm as soon as each checkpoint appears:
+
+```bash
+RUN_TAG=bakeoff_1node_chain_20260522_005620 \
+ITER=65 \
+TASK_GROUP=greek_only \
+POLL_SECONDS=300 \
+nohup bash watch_and_submit_checkpoint_evals.sh \
+  > /capstor/scratch/cscs/fffoivos/runs/eval/watch_iter65.log 2>&1 &
+```
+
 The live bakeoff saves every 65 iterations, which is about 273 M tokens (`65 × 1024 × 4096`). The practical cadence is:
 
 | Iteration | Tokens/arm | Eval action |
@@ -178,6 +190,7 @@ Per-arm bakeoff eval at one checkpoint:
 - `convert_bakeoff_checkpoint_to_hf.sbatch` — converts one Megatron `torch_dist` bakeoff checkpoint to HF format for eval
 - `run_megatron_convert_with_pg.py` — initializes the single-rank process group needed by Megatron `loader core` when reading `torch_dist` checkpoints
 - `submit_bakeoff_checkpoint_eval.sh` — submits conversion plus lm-eval, with optional intrinsic metrics when `SUBMIT_INTRINSIC=1`
+- `watch_and_submit_checkpoint_evals.sh` — lightweight watcher that stamps per-arm submissions and prevents duplicate checkpoint eval launches
 - `build_cpt_heldout_jsonl.py` / `build_cpt_heldout_jsonl.sbatch` — builds the 500-doc Greek held-out JSONL from the post-Apertus-dedup selected pool while excluding Greek doc_ids already used in `bulk_mix.jsonl`
 - `compute_bootstrap_cis.py` — post-process: bootstrap CIs over the `--log_samples` outputs
 - **`compute_tokenizer_fair_metrics.py`** — primary v0.7 §5.1 intrinsic metrics (BPC, NLL/char, NLL/word, tokens/word, chars/token, compression ratio, STRR). The cross-tokenizer-fair signal for comparing Vanilla (vocab 131,072) vs ReTok/Centroid (vocab 148,480). Has a `--stats-only` mode for tokenizer-only checks (no model load).
