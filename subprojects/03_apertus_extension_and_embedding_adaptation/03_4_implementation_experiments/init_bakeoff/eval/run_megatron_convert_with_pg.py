@@ -13,6 +13,7 @@ import os
 import runpy
 import socket
 import sys
+from pathlib import Path
 
 import torch.distributed as dist
 
@@ -27,6 +28,9 @@ def main() -> None:
     if len(sys.argv) < 2:
         raise SystemExit("Usage: run_megatron_convert_with_pg.py <convert.py> [convert args...]")
     convert_py = sys.argv[1]
+    convert_dir = str(Path(convert_py).resolve().parent)
+    if convert_dir not in sys.path:
+        sys.path.insert(0, convert_dir)
     sys.argv = [convert_py] + sys.argv[2:]
 
     if not dist.is_initialized():

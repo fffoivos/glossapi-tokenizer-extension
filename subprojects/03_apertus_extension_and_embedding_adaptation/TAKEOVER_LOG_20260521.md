@@ -289,3 +289,6 @@ Current next gate:
 - Relaunched bridge smoke as conversion `2341876` plus dependent eval `2341877`.
   - Result: `2341876` failed immediately because `SCRIPT_DIR` was not exported into the inner `uenv` shell; `2341877` became `DependencyNeverSatisfied`.
   - Fix added: `convert_bakeoff_checkpoint_to_hf.sbatch` now exports `SCRIPT_DIR` before entering `uenv`.
+- Relaunched bridge smoke again as conversion `2341881` plus dependent eval `2341882`.
+  - Result: the single-rank `gloo` process group initialized, but the wrapper failed to import Megatron checkpoint plugins (`loader_core` / `core`) because it did not add `tools/checkpoint` to `sys.path`.
+  - Fix added: `run_megatron_convert_with_pg.py` now prepends the converter script directory to `sys.path` before running `convert.py`.
