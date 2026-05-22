@@ -328,3 +328,19 @@ Current next gate:
   - `2341822` vanilla, `2341824` retok, and `2341826` centroid are still running.
   - Visible latest training lines remain `0` skipped / `0` NaN.
   - No first checkpoint has landed yet; hold real iter-65 canary submission until `iter_0000065` exists for each arm and the limited eval smoke has finished or clearly advanced past model execution.
+- Limited eval smoke `2341984` completed successfully at `2026-05-22 02:29:38 UTC`.
+  - Results: `/capstor/scratch/cscs/fffoivos/runs/eval/eval_bridge_smoke_20260522l_vanilla/iter_0000010_greek_only/results_2026-05-22T04-29-35.954152.json`
+  - This proves the checkpoint eval bridge end to end: Megatron TP=2 `torch_dist` checkpoint -> HF safetensors -> `run_eval.sbatch` -> results and sample logs.
+- Added and launched the iter-65 watcher:
+  - script: `eval/watch_and_submit_checkpoint_evals.sh`
+  - commit: `b5523cb` (`Add bakeoff checkpoint eval watcher`)
+  - remote PID: `153032`
+  - log: `/capstor/scratch/cscs/fffoivos/runs/eval/watch_iter65_submit_20260522.log`
+  - state dir: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_watch_iter_0000065_greek_only`
+  - It waits for `iter_0000065` per arm and submits exactly once per arm via stamp files.
+- Held-out verifier found the first completed JSONL was not acceptable:
+  - path checked: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl`
+  - failure: duplicate `doc_id` `f2c3acc2ab1892fb0b44e791273780a2a8c0e03c76b954e640d4daad0c41c289`
+  - Fix added in commit `7dd139d` (`Enforce heldout doc id uniqueness`): retain an overselected heap per source, then assemble the final rows with a global doc-id guard.
+  - Relaunched corrected held-out build as `2341996` on `nid006289`.
+  - At `2026-05-22 02:42:43 UTC`, `2341996` was running and had reached `batch=750`; no corrected final JSONL has been accepted yet.
