@@ -344,3 +344,20 @@ Current next gate:
   - Fix added in commit `7dd139d` (`Enforce heldout doc id uniqueness`): retain an overselected heap per source, then assemble the final rows with a global doc-id guard.
   - Relaunched corrected held-out build as `2341996` on `nid006289`.
   - At `2026-05-22 02:42:43 UTC`, `2341996` was running and had reached `batch=750`; no corrected final JSONL has been accepted yet.
+- Corrected held-out build `2341996` completed at `2026-05-22 02:58:39 UTC`.
+  - Manifest reports `heap_kept_by_source`: HPLT `6600`, dialogue/textbooks `1200`, academic `1200`, legal/civic `1000`.
+  - Manifest reports `selected_by_source`: HPLT `330`, dialogue/textbooks `60`, academic `60`, legal/civic `50`.
+  - Manifest reports `duplicate_selected_candidates: 13` and `missing: {}`.
+  - Acceptance verifier passed:
+    - `heldout_rows 500`
+    - `unique_doc_ids 500`
+    - source counts match manifest
+    - `training_overlap 0` against Greek `doc_id`s in `bulk_mix.jsonl`
+  - Accepted heldout paths:
+    - `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl`
+    - `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.manifest.json`
+- Relaunched the iter-65 watcher with intrinsic jobs enabled now that the heldout is accepted.
+  - Old watcher PID `153032`/`153033` stopped before any `.submitted` stamps existed.
+  - New watcher PID: `246038`
+  - Verified environment includes `SUBMIT_INTRINSIC=1` and `EVAL_JSONL=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl`.
+  - As of `2026-05-22 03:10:09 UTC`, it is still waiting for all three `iter_0000065` checkpoint directories.
