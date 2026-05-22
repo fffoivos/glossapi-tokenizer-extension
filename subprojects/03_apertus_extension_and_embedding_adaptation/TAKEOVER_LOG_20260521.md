@@ -239,3 +239,10 @@ Current next gate:
   - `2341822` vanilla iteration 1 at `2026-05-22 03:00:50`, `0` skipped / `0` NaN, `7564.7` tokens/sec/GPU.
   - `2341824` retok iteration 1 at `2026-05-22 03:04:34`, `0` skipped / `0` NaN, `7606.1` tokens/sec/GPU.
   - `2341826` centroid iteration 1 at `2026-05-22 03:06:10`, `0` skipped / `0` NaN, `7637.3` tokens/sec/GPU.
+- Health check at `2026-05-22 01:13 UTC`:
+  - Slurm status: initial jobs still running, resume jobs still pending on dependency.
+  - `2341822` vanilla reached iteration `6`, still `0` skipped / `0` NaN, steady around `7.9k` tokens/sec/GPU.
+  - `2341824` retok reached iteration `5`, still `0` skipped / `0` NaN, steady around `8.0k` tokens/sec/GPU.
+  - `2341826` centroid reached iteration `4`, still `0` skipped / `0` NaN, steady around `8.0k` tokens/sec/GPU.
+  - No arm has reached the first checkpoint yet; this is expected because `SAVE_INTERVAL=65`.
+  - Required GCP active-instance safety check from `home` could not complete because `gcloud` user auth needs reauthentication and cannot prompt in non-interactive execution.
