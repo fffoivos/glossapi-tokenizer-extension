@@ -188,3 +188,45 @@ Static shell/Python/JSON checks did pass.
 - As of launch, all seven `2338878` array tasks were running. Greek eval `2338021` remained running and healthy.
 - Greek post-conversion eval `2338021` completed successfully (`COMPLETED 0:0`, elapsed `03:39:23`). Results are in `/capstor/scratch/cscs/fffoivos/runs/eval/apertus_postconv_v4_greek_retry_20260521_163240/results_2026-05-21T22-12-31.611713.json`.
 - Copied compact retention and Greek post-conversion result JSONs plus run metadata locally under `03_4_implementation_experiments/init_bakeoff/eval/v4_postconv_retry_20260521/`. Large per-sample JSONLs remain on Clariden.
+
+## Live continuation - 2026-05-22 smoke and launch hardening
+
+The vanilla training smoke is now proven on the patched R17-preserving checkpoint:
+
+- Final successful one-node smoke: `2341506`, output root `/capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_vanilla_r17patched_v291npfix_20260522_001421`.
+- Slurm result: `COMPLETED 0:0`, elapsed `00:23:46`, allocation `1` node / `4` GPUs.
+- Training reached iteration `10` and exited via `--exit-interval 10`.
+- Checkpoints were written successfully at `iter_0000005` and `iter_0000010`; `latest_checkpointed_iteration.txt` contains `10`.
+- Iterations `1..10` had `0` skipped iterations and `0` NaN iterations.
+- Steady-state one-node throughput after warmup was about `8.0k` tokens/sec/GPU, with iteration time around `130s`.
+- Consequence: a one-node 2B-token arm is roughly `476 * 130s = 17.2h`, so it does not fit the previous 12h expectation.
+
+Smoke attempts before the successful run exposed and fixed three runtime issues:
+
+- `2341432` and `2341452`: initial xIELU optimizer audit was too naive for Megatron's distributed optimizer. It now accounts for direct refs, model-param maps, main-param shards, and data-parallel coverage.
+- `2341460`: `pytorch/v2.6.0:v1` trained through five iterations but failed on checkpoint save because Megatron imports `torch.distributed.checkpoint.filesystem.SerializationFormat`, absent in that image.
+- `2341496`: after moving to `pytorch/v2.9.1:v2`, the training uenv did not preserve outer `PYTHONPATH`; `bakeoff_train.sbatch` now exports `PYTHONPATH` inside the `srun bash -c` payload.
+- `2341498`: v2.9.1 then failed checkpoint validation because current NumPy lacks `np.product`; `pretrain_gpt_te_guard.py` now installs a compatibility alias `np.product = np.prod` when needed.
+
+Additional hardening:
+
+- Added `check_tokenizer_adapter.py`; base and extended tokenizer adapter checks passed under both `pytorch/v2.6.0:v1` and `pytorch/v2.9.1:v2`.
+- Switched the training default uenv to `pytorch/v2.9.1:v2`, because v2.6 can train but cannot write Megatron `torch_dist` checkpoints.
+- Made `submit_vanilla_smoke.sh` and `submit_all_arms.sh` pass `ACCOUNT`, `PARTITION`, `NODES`, `GPUS_PER_NODE`, and `TIME_LIMIT` as explicit `sbatch` options. This is required because the static `#SBATCH` lines are one-node defaults and do not by themselves honor config/env overrides.
+- Added Slurm shape/uenv fields to `run_metadata.json` so one-node vs two-node throughput can be audited from the run artifact.
+
+Current next gate:
+
+- Submitted two-node vanilla smoke `2341603` with `NODES=2`, output root `/capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_vanilla_r17patched_v291npfix_2node_20260522_003921`.
+- It was allocated `2` nodes / `8` tasks with `WORLD_SIZE=8`; this tests the likely full-bakeoff shape before submitting all three arms.
+- `2341603` failed before iteration 1 with inter-node `NCCL Error 2` after checkpoint load, dataset setup, and successful xIELU optimizer audit on all eight ranks. This was not a checkpoint/data/xIELU failure.
+- Root steering: the known-good Clariden distributed pattern uses one Slurm task per node running `torchrun --nproc_per_node=4`, not eight direct Slurm tasks. Patched the launch path so `NODES>1` defaults to `LAUNCH_MODE=torchrun`, while one-node jobs keep the already-proven direct Slurm process-per-GPU launch.
+- Submitted torchrun two-node retry `2341792`, output root `/capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_vanilla_r17patched_v291torchrun_2node_20260522_004426`; it is pending on Slurm priority as of submission.
+- `2341792` failed immediately (`FAILED 1:0`, elapsed `00:00:17`) because torchrun prepends Python by default and treated the literal `python3` in `training_command.sh` as the script path. Patched torchrun launch to add `--no-python`, so it executes the existing `python3 pretrain_gpt_te_guard.py ...` command exactly.
+- `2341810` used torchrun with `--no-python` and reached the first training step, but still failed with `NCCL Error 2` before iteration 1. The failure was preceded by PyTorch warning that NCCL was guessing the device from global rank.
+- Patched `pretrain_gpt_te_guard.py` to call `torch.cuda.set_device(int(LOCAL_RANK))` before Megatron distributed initialization.
+- Submitted set-device torchrun two-node retry `2341817`, output root `/capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_vanilla_r17patched_v291torchrun_setdev_2node_20260522_005115`; it is pending on Slurm priority as of submission.
+- `2341817` also failed before iteration 1 with `NCCL Error 2` (`FAILED 1:0`, elapsed `00:02:23`). Conclusion for this run: multi-node model execution is not yet viable without deeper NCCL/Clariden debugging.
+- Steering change: use the proven one-node path for the bakeoff. One-node throughput estimates a full 2B-token arm at about `17.2h`, while `normal` has `MaxTime=12:00:00`, so the full bakeoff needs checkpointed continuation.
+- Patched `bakeoff_train.sbatch` with `RESUME_TRAINING=0|1`. Initial jobs keep `--no-load-optim --no-load-rng`; resume jobs load from the arm's own `checkpoints/` directory and restore optimizer/RNG.
+- Patched `submit_all_arms.sh` with `CHAIN_RESUME=1`, which submits a same-arm resume job with `afterany:<initial_job>` dependency.

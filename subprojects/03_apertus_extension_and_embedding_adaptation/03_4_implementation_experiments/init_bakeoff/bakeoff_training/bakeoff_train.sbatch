@@ -52,6 +52,9 @@ echo "host: $(hostname)"
 echo "ARM=$ARM  INIT_CKPT=$INIT_CKPT  OUTPUT_DIR=$OUTPUT_DIR"
 echo "Megatron-LM-Swiss-AI: $MEGATRON_LM_SWISSAI_DIR @ $MEGATRON_LM_SWISSAI_COMMIT"
 echo "uenv: $UENV_IMAGE"
+MODEL_WORLD_SIZE=$(( ${SLURM_NNODES:-$NODES} * GPUS_PER_NODE ))
+echo "slurm: account=${SLURM_JOB_ACCOUNT:-$ACCOUNT} partition=${SLURM_JOB_PARTITION:-$PARTITION} nodes=${SLURM_NNODES:-unknown} ntasks=${SLURM_NTASKS:-unknown} gpus_per_node=$GPUS_PER_NODE time_limit=${TIME_LIMIT} launch_mode=$LAUNCH_MODE model_world_size=$MODEL_WORLD_SIZE"
+echo "checkpoint mode: RESUME_TRAINING=$RESUME_TRAINING"
 echo "seq_len=$SEQ_LEN  microbatch=$MICROBATCH_SIZE  global_batch_samples=$GLOBAL_BATCH_SIZE"
 echo "train_samples=$TRAIN_SAMPLES (train_tokens=$TRAIN_TOKENS) lr_warmup_samples=$LR_WARMUP_SAMPLES"
 echo
@@ -123,6 +126,9 @@ TRAINING_ARGS=(
     --exit-signal-handler
     --trigger-path "$TRIGGER_DIR"
 )
+if [ -n "$EXIT_INTERVAL" ]; then
+    TRAINING_ARGS+=(--exit-interval "$EXIT_INTERVAL")
+fi
 
 INITIALIZATION_ARGS=(
     --seed $DATA_SEED
@@ -143,13 +149,13 @@ LEARNING_RATE_ARGS=(
 # resized from 131,072 to 148,480 by build_init_checkpoints.py + the
 # HF→Megatron conversion (without it Megatron refuses the shape mismatch).
 #
-# --no-load-optim --no-load-rng: we have model weights from Apertus but NOT
-# the pretraining optimizer state, so don't try to restore it.
+# Initial CPT load uses model weights from Apertus but NOT the pretraining
+# optimizer/RNG state, so it sets --no-load-optim --no-load-rng. Continuation
+# loads from the arm's own torch_dist checkpoint directory and must restore
+# optimizer/RNG.
 CHECKPOINTING_ARGS=(
     --load "$INIT_CKPT"
     --save "$OUTPUT_DIR/checkpoints"
-    --no-load-optim
-    --no-load-rng
     --save-interval $SAVE_INTERVAL
     --ckpt-format torch_dist
     --async-save
@@ -158,6 +164,12 @@ CHECKPOINTING_ARGS=(
     --override-opt_param-scheduler
     --distributed-timeout-minutes 60
 )
+if [ "$RESUME_TRAINING" = "0" ]; then
+    CHECKPOINTING_ARGS+=(--no-load-optim --no-load-rng)
+elif [ "$RESUME_TRAINING" != "1" ]; then
+    echo "ERROR: RESUME_TRAINING=$RESUME_TRAINING not recognized (expected 0|1)" >&2
+    exit 2
+fi
 
 MIXED_PRECISION_ARGS=(
     $MIXED_PRECISION_FLAG
@@ -228,6 +240,16 @@ cat > "$OUTPUT_DIR/run_metadata.json" <<META
   "data_seed": $DATA_SEED,
   "tokenizer": "$ARM_TOKENIZER",
   "data_prefix": "$ARM_DATA_PREFIX",
+  "uenv_image": "$UENV_IMAGE",
+  "resume_training": $RESUME_TRAINING,
+  "slurm_account": "${SLURM_JOB_ACCOUNT:-$ACCOUNT}",
+  "slurm_partition": "${SLURM_JOB_PARTITION:-$PARTITION}",
+  "slurm_nodes": ${SLURM_NNODES:-0},
+  "slurm_ntasks": ${SLURM_NTASKS:-0},
+  "slurm_gpus_per_node": $GPUS_PER_NODE,
+  "slurm_time_limit": "$TIME_LIMIT",
+  "launch_mode": "$LAUNCH_MODE",
+  "model_world_size": $MODEL_WORLD_SIZE,
   "slurm_job_id": "${SLURM_JOB_ID:-none}",
   "start_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
@@ -279,7 +301,8 @@ export PYTHONPATH="$MEGATRON_LM_SWISSAI_DIR"
 export TORCH_NCCL_AVOID_RECORD_STREAMS=1
 export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
 export CUDA_DEVICE_MAX_CONNECTIONS=1
-export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
+export PYTORCH_ALLOC_CONF="${PYTORCH_ALLOC_CONF:-${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}}"
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-$PYTORCH_ALLOC_CONF}"
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK:-4}
 export FI_CXI_DEFAULT_TX_SIZE=16384
 export NCCL_NET_FORCE_FLUSH=1
@@ -293,14 +316,31 @@ export CUDA_CACHE_DISABLE=1
 export MASTER_ADDR
 MASTER_ADDR="$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)"
 export MASTER_PORT="${MASTER_PORT:-$((32000 + (${SLURM_JOB_ID:-0} % 1000)))}"
-export WORLD_SIZE="${SLURM_NPROCS:-${SLURM_NTASKS:-4}}"
-echo "distributed: MASTER_ADDR=$MASTER_ADDR MASTER_PORT=$MASTER_PORT WORLD_SIZE=$WORLD_SIZE"
+if [ "$LAUNCH_MODE" = "torchrun" ]; then
+    export WORLD_SIZE="$MODEL_WORLD_SIZE"
+else
+    export WORLD_SIZE="${SLURM_NPROCS:-${SLURM_NTASKS:-4}}"
+fi
+echo "distributed: MASTER_ADDR=$MASTER_ADDR MASTER_PORT=$MASTER_PORT WORLD_SIZE=$WORLD_SIZE LAUNCH_MODE=$LAUNCH_MODE"
 
 cd "$MEGATRON_LM_SWISSAI_DIR"
 
-uenv run "$UENV_IMAGE" --view=default -- \
-    srun --cpus-per-task "${SLURM_CPUS_PER_TASK:-4}" \
-        -lu bash -c "export RANK=\$SLURM_PROCID LOCAL_RANK=\$SLURM_LOCALID; exec $TRAINING_CMD_Q"
+case "$LAUNCH_MODE" in
+    slurm)
+        uenv run "$UENV_IMAGE" --view=default -- \
+            srun --cpus-per-task "${SLURM_CPUS_PER_TASK:-4}" \
+                -lu bash -c "export PYTHONPATH='$MEGATRON_LM_SWISSAI_DIR' RANK=\$SLURM_PROCID LOCAL_RANK=\$SLURM_LOCALID; exec $TRAINING_CMD_Q"
+        ;;
+    torchrun)
+        uenv run "$UENV_IMAGE" --view=default -- \
+            srun --ntasks-per-node=1 --cpus-per-task "${SLURM_CPUS_PER_TASK:-4}" \
+                -lu bash -c "export PYTHONPATH='$MEGATRON_LM_SWISSAI_DIR' MASTER_ADDR='$MASTER_ADDR' MASTER_PORT='$MASTER_PORT'; exec torchrun --no-python --nnodes='${SLURM_NNODES:-$NODES}' --nproc_per_node='$GPUS_PER_NODE' --node_rank=\$SLURM_PROCID --rdzv_backend=c10d --rdzv_endpoint='$MASTER_ADDR:$MASTER_PORT' $TRAINING_CMD_Q"
+        ;;
+    *)
+        echo "ERROR: LAUNCH_MODE=$LAUNCH_MODE not recognized (expected slurm|torchrun)" >&2
+        exit 2
+        ;;
+esac
 
 echo
 echo "=== bakeoff arm $ARM done ==="
