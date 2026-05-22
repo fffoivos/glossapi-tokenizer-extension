@@ -124,6 +124,7 @@ def main() -> int:
     parser.add_argument("--snippet-token-radius", type=int, default=50)
     parser.add_argument("--snippets-per-token", type=int, default=100)
     parser.add_argument("--example-refs-per-token", type=int, default=5)
+    parser.add_argument("--progress-token-interval", type=int, default=50_000_000)
     parser.add_argument("--seed", type=int, default=20260523)
     parser.add_argument("--require-nfc", action=argparse.BooleanOptionalAction, default=True)
     args = parser.parse_args()
@@ -158,6 +159,7 @@ def main() -> int:
     chars_seen = 0
     non_nfc_docs = 0
     stopped_on_budget = False
+    next_progress_tokens = args.progress_token_interval if args.progress_token_interval > 0 else None
 
     for path, line_no, row in iter_jsonl(args.input_jsonl):
         text = row.get(args.text_key)
@@ -227,6 +229,23 @@ def main() -> int:
 
         if stopped_on_budget:
             break
+        if next_progress_tokens is not None and tokens_seen >= next_progress_tokens:
+            print(
+                json.dumps(
+                    {
+                        "event": "td_coverage_progress",
+                        "tokens_scanned": tokens_seen,
+                        "target_extended_tokens": args.target_extended_tokens,
+                        "docs_seen": docs_seen,
+                        "docs_used": docs_used,
+                        "chars_seen": chars_seen,
+                    },
+                    ensure_ascii=False,
+                ),
+                flush=True,
+            )
+            while next_progress_tokens is not None and tokens_seen >= next_progress_tokens:
+                next_progress_tokens += args.progress_token_interval
 
     if args.require_nfc and non_nfc_docs:
         raise SystemExit(

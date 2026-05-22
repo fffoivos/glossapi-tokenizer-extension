@@ -26,6 +26,7 @@ NEW_ID_START="${NEW_ID_START:-131072}"
 NEW_ID_END="${NEW_ID_END:-148480}"
 SNIPPETS_PER_TOKEN="${SNIPPETS_PER_TOKEN:-100}"
 SNIPPET_TOKEN_RADIUS="${SNIPPET_TOKEN_RADIUS:-50}"
+PROGRESS_TOKEN_INTERVAL="${PROGRESS_TOKEN_INTERVAL:-50000000}"
 SEED="${SEED:-20260523}"
 PYTHON_BIN="${PYTHON_BIN:-/iopsstor/scratch/cscs/fffoivos/python_envs/td_coverage_py311_xfer/bin/python}"
 
@@ -50,6 +51,7 @@ echo "TARGET_EXTENDED_TOKENS:  $TARGET_EXTENDED_TOKENS"
 echo "NEW_ID_RANGE:            [$NEW_ID_START, $NEW_ID_END)"
 echo "SNIPPETS_PER_TOKEN:      $SNIPPETS_PER_TOKEN"
 echo "SNIPPET_TOKEN_RADIUS:    $SNIPPET_TOKEN_RADIUS"
+echo "PROGRESS_TOKEN_INTERVAL: $PROGRESS_TOKEN_INTERVAL"
 echo "PYTHON_BIN:              $PYTHON_BIN"
 echo
 
@@ -63,6 +65,7 @@ echo
   --new-id-end "$NEW_ID_END" \
   --snippets-per-token "$SNIPPETS_PER_TOKEN" \
   --snippet-token-radius "$SNIPPET_TOKEN_RADIUS" \
+  --progress-token-interval "$PROGRESS_TOKEN_INTERVAL" \
   --seed "$SEED"
 
 echo
