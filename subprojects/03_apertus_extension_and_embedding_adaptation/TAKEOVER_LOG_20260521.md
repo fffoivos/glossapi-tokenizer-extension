@@ -271,3 +271,9 @@ Current next gate:
 - Documented practical eval cadence in `EVAL_RECIPE.md`:
   - `iter_65`: Greek-only downstream canary on all three arms to prove save -> convert -> eval.
   - `iter_130`, `260`, `390`, and `455/final`: full downstream eval; intrinsic metrics/diagnostics once a held-out JSONL is staged.
+- Added held-out slice builder:
+  - `eval/build_cpt_heldout_jsonl.py`
+  - `eval/build_cpt_heldout_jsonl.sbatch`
+  - source: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet`
+  - exclusion: all Greek `doc_id`s already used in `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl`
+  - output default: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl`

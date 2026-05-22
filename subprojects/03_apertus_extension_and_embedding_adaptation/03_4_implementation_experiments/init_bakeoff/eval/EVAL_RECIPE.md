@@ -177,6 +177,7 @@ Per-arm bakeoff eval at one checkpoint:
 - `run_bakeoff_arm_eval.sh` — thin wrapper: per-arm eval, takes an arm's checkpoint dir as arg
 - `convert_bakeoff_checkpoint_to_hf.sbatch` — converts one Megatron `torch_dist` bakeoff checkpoint to HF format for eval
 - `submit_bakeoff_checkpoint_eval.sh` — submits conversion plus lm-eval, with optional intrinsic metrics when `SUBMIT_INTRINSIC=1`
+- `build_cpt_heldout_jsonl.py` / `build_cpt_heldout_jsonl.sbatch` — builds the 500-doc Greek held-out JSONL from the post-Apertus-dedup selected pool while excluding Greek doc_ids already used in `bulk_mix.jsonl`
 - `compute_bootstrap_cis.py` — post-process: bootstrap CIs over the `--log_samples` outputs
 - **`compute_tokenizer_fair_metrics.py`** — primary v0.7 §5.1 intrinsic metrics (BPC, NLL/char, NLL/word, tokens/word, chars/token, compression ratio, STRR). The cross-tokenizer-fair signal for comparing Vanilla (vocab 131,072) vs ReTok/Centroid (vocab 148,480). Has a `--stats-only` mode for tokenizer-only checks (no model load).
 - **`run_tokenizer_fair_metrics.sbatch`** — sbatch wrapper for the above; 1 node × 1 GPU × 2 h. Runs at each bakeoff checkpoint where downstream eval also runs.
@@ -213,4 +214,10 @@ Per-token PPL is **not comparable** across the Vanilla arm (vocab 131,072) and t
 
 `compute_tokenizer_fair_metrics.py` computes all of these from one HF-format checkpoint + a held-out JSONL. Aggregates globally + per-source + per-register.
 
-**Held-out eval slice**: ~100-500 docs covering modern Greek registers (encyclopedic / literary / academic / dialogue / legal / dictionary). The slice should be **outside** the bakeoff training mix — currently constructed manually (deterministic doc_id-hash holdout from the dedup-audit val/test partition; reconstruction path documented in [`../../03_3_cscs_experiments_kickoff/ANALYSIS.md`](../../03_3_cscs_experiments_kickoff/ANALYSIS.md) §"Review checkpoint B" given the gcloud-access loss).
+**Held-out eval slice**: ~100-500 docs covering modern Greek registers (encyclopedic / literary / academic / dialogue / legal / dictionary). The slice should be **outside** the bakeoff training mix. Current operational builder:
+
+```bash
+sbatch build_cpt_heldout_jsonl.sbatch
+```
+
+This samples from `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet`, excludes every Greek `doc_id` already present in `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl`, and fills quotas matching the Greek source/register buckets in `corpus_build/recipes/bulk.json`. This is more aligned with the current CPT corpus than the older C3 val/test reconstruction, but it is a **training-disjoint intrinsic-metrics slice**, not a proof that all external benchmark test items were absent from the CPT source pool. Benchmark decontamination remains a separate check.
