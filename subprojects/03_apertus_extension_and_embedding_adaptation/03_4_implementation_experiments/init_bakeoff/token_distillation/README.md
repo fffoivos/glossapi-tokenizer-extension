@@ -39,6 +39,21 @@ Decision rule:
 This prepass is intentionally CPU-only. Any dataset or snippet-building rerun
 belongs on `xfer`.
 
+After the prepass finishes, select bounded smoke and layer-pilot token sets:
+
+```bash
+python3 select_td_pilot_tokens.py \
+  --coverage-jsonl "$OUTPUT_DIR/td_coverage_prepass.jsonl" \
+  --summary-json "$OUTPUT_DIR/td_coverage_summary.json" \
+  --output-dir "$OUTPUT_DIR/pilot_selection"
+```
+
+This writes:
+
+- `td_pilot_token_selection.json`
+- `smoke_token_ids.txt`
+- `layer_pilot_token_ids.txt`
+
 ## Pinned Token Distillation code
 
 The official implementation is vendored under
