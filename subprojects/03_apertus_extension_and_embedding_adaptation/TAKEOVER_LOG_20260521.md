@@ -277,3 +277,4 @@ Current next gate:
   - source: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet`
   - exclusion: all Greek `doc_id`s already used in `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl`
   - output default: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl`
+- Synced the held-out builder to the Clariden execution mirror and submitted job `2341867` (`build_cpt_heldout`, `3:00:00`, pending on priority at `2026-05-22 01:38:02 UTC`).
