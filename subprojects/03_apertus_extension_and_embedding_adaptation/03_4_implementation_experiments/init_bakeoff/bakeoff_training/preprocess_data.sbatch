@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=preprocess_data
 #SBATCH --account=a0140
-#SBATCH --partition=normal
+#SBATCH --partition=xfer
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=288
-#SBATCH --mem=400G
-#SBATCH --time=06:00:00
+#SBATCH --cpus-per-task=64
+#SBATCH --mem=240G
+#SBATCH --time=1-00:00:00
 #SBATCH --output=/capstor/scratch/cscs/fffoivos/runs/preprocess/%x-%j.out
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/preprocess/%x-%j.err
 #
@@ -32,7 +32,7 @@
 #   TOKENIZER_DIR  — HF-format tokenizer dir
 #                      For Vanilla bakeoff data: $BASE_TOKENIZER_DIR (131,072 base)
 #                      For ReTok/Centroid data: $EXT_TOKENIZER_DIR  (148,480 ship bundle)
-#   WORKERS        — preprocess workers (default 288; normal partition full CPU node)
+#   WORKERS        — preprocess workers (default: Slurm cpus-per-task)
 #
 # Per reviewer round-2 Blocker 2: must be invoked TWICE — once per tokenizer —
 # producing two separately-tokenized Megatron binaries. The Vanilla arm's
@@ -47,12 +47,18 @@ set -euo pipefail
 # should pass SCRIPT_DIR_OVERRIDE; SLURM_SUBMIT_DIR is the fallback.
 SCRIPT_DIR="$(cd "${SCRIPT_DIR_OVERRIDE:-${SLURM_SUBMIT_DIR:-$(pwd)}}" && pwd)"
 source "$SCRIPT_DIR/_train_config_common.env"
+GUARD="$SCRIPT_DIR/../slurm_cpu_only_guard.sh"
+if [ ! -f "$GUARD" ]; then
+    GUARD=/iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/slurm_cpu_only_guard.sh
+fi
+source "$GUARD"
+require_cpu_only_slurm "preprocess_data"
 
 INPUT_JSONL="${INPUT_JSONL:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl}"
 # Default to extended (the "main" arm), but caller should override per family.
 OUTPUT_PREFIX="${OUTPUT_PREFIX:-$EXT_DATA_PREFIX}"
 TOKENIZER_DIR="${TOKENIZER_DIR:-$EXT_TOKENIZER_DIR}"
-WORKERS="${WORKERS:-288}"
+WORKERS="${WORKERS:-${SLURM_CPUS_PER_TASK:-64}}"
 
 # Megatron's tools/preprocess_data.py appends "_text_document" for the default
 # JSON key (`text`). Treat OUTPUT_PREFIX as the desired final data prefix used

@@ -19,8 +19,8 @@
 #     files. Each worker invokes verify_and_normalize_nfc.py on one file,
 #     writes a sibling temp parquet, then atomically replaces the original.
 #   - Saturation: nanochat has 279 parquets + replay has 24+ langs ≈ 300 shards
-#     total. Default --workers 64 saturates a normal-partition node (288 cores
-#     ThreadsPerCore=1) reasonably without thrashing — NFC normalization is
+#     total. Default --workers 64 fits the xfer CPU-only partition reasonably
+#     without thrashing — NFC normalization is
 #     IO + memcpy-bound, not CPU-bound, so going past ~64 has diminishing
 #     return. Override `WORKERS=288` to push further.
 #   - Memory: each worker holds one parquet shard at a time (≤ ~1 GB). 64 ×
@@ -30,7 +30,7 @@
 #
 # Usage:
 #   bash normalize_nfc.sh
-#   WORKERS=288 bash normalize_nfc.sh   # full-node CPU saturation
+#   WORKERS=64 bash normalize_nfc.sh
 
 set -euo pipefail
 

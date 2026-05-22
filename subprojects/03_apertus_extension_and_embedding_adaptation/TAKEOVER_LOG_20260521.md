@@ -748,3 +748,24 @@ Current next gate:
     - vanilla: BPC `0.4906`, NLL/char `0.5804`, `el_arc=0.4206`, `el_belebele=0.5133`, `el_xnli=0.4020`, `el_xquad_f1=0.3101`, `el_mmlu=0.4214`, `hellaswag=0.7594`, `mmlu=0.5340`.
     - retok: BPC `0.5739`, NLL/char `0.6788`, `el_arc=0.3720`, `el_belebele=0.4967`, `el_xnli=0.3751`, `el_xquad_f1=0.3092`, `el_mmlu=0.3991`, `hellaswag=0.7488`, `mmlu=0.5542`, `D5_util=0.3580`.
     - centroid: BPC `0.8994`, NLL/char `1.0638`, `el_arc=0.2560`, `el_belebele=0.3411`, `el_xnli=0.3538`, `el_xquad_f1=0.0258`, `el_mmlu=0.2794`, `hellaswag=0.7599`, `mmlu=0.5444`, `D5_util=0.0920`.
+
+## Continuation - 2026-05-22 CPU-only Slurm allocation correction
+
+- User correction accepted: the problem was not accounting terminology, it was that CPU-only work had been submitted to GPU-allocating Clariden partitions.
+- `sacct` audit over 2026-05-21..2026-05-23 found `157.45` allocated GPU-hours on CPU/conversion-style jobs:
+  - `mix_builder`: `131.04`
+  - `prepare_greek_pool`: `11.00`
+  - `build_cpt_heldout`: `4.44`
+  - `normalize_nfc`: `4.23`
+  - `preprocess_data`: `3.29`
+  - `checkpoint_conversion`: `3.19`
+  - `build_init_ckpts`: `0.21`
+  - `concat`: `0.06`
+- Root cause: `sinfo` shows Clariden `normal`, `debug`, and `low` all have `gpu:4`; only `xfer` is visible as non-GPU. Therefore even CPU sbatches without explicit `--gpus` burned GPU nodes when `#SBATCH --partition=normal` was used.
+- Corrective patch:
+  - Added `init_bakeoff/slurm_cpu_only_guard.sh`; CPU-only sbatches now exit before doing work if they are on a non-`xfer` partition or Slurm assigns GPU GRES, unless `ALLOW_GPU_NODE_FOR_CPU=1` is set intentionally.
+  - Moved CPU-only sbatches to `#SBATCH --partition=xfer`: corpus prep/build/concat, Megatron preprocessing, heldout build, init-checkpoint build/conversion, and bakeoff checkpoint-to-HF conversion.
+  - Removed explicit GPU requests from CPU-only checkpoint init/conversion scripts.
+  - Added `DUCKDB_MEMORY_LIMIT`, `DUCKDB_TEMP_DIRECTORY`, and `DUCKDB_THREADS` support in `glossapi_corpus_cli.pipeline._duckdb_connect_streaming`, and set the prepare job to spill DuckDB temp files under scratch with a bounded memory cap for xfer.
+  - Updated docs/runbooks so CPU-only work is no longer described as running on `normal`/`debug`.
+- Current `squeue -u fffoivos` was empty when this correction was made; no live Slurm jobs were cancelled.

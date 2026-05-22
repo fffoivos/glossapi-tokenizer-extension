@@ -31,11 +31,7 @@ not HuggingFace Trainer — for Apertus-fidelity reasons documented in
                                        # only the tokenization differs (reviewer round-2 Blocker 2).
 
 [once, before any arm]
-  python3 ../arms/build_init_checkpoints.py \
-      --arms vanilla retok centroid \
-      --vocab-size 148480 \
-      --out-root /iopsstor/.../init_checkpoints
-                                       # ~30 min on a 1-GPU debug allocation
+  bash ../arms/submit_init_pipeline.sh # CPU-only chain on xfer
                                        # produces vanilla/  retok/  centroid/  HF-format dirs
                                        # then converts each to Megatron-LM-Swiss-AI format
                                        # via tools/checkpoint/convert.py --loader apertus_hf

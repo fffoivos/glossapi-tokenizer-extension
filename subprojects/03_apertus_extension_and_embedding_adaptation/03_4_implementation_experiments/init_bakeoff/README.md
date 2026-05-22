@@ -51,22 +51,17 @@ The bakeoff fires once these are complete (most are Clariden-side):
                                                               # 2026-05-21 run uses codeparrot fallback because BigCode was unavailable)
                    bash eval/pull_benchmarks.sh              # ~30-60 min
 
-[Clariden normal]  sbatch corpus_build/prepare_greek_pool.sbatch
+[Clariden xfer]    sbatch corpus_build/prepare_greek_pool.sbatch
                    sbatch --dependency=afterok:<prepare_job> corpus_build/normalize_nfc.sbatch
                    sbatch --dependency=afterok:<normalize_job> corpus_build/mix_builder_smoke.sbatch
-                   sbatch --dependency=afterok:<smoke_job> corpus_build/mix_builder_full.sbatch
+                   sbatch --dependency=afterok:<smoke_job> --array=0-6%2 corpus_build/mix_builder_full.sbatch
                    # Optionally also build anneal_mix.jsonl with recipes/anneal.json (not used in bakeoff)
 
                    # Then tokenize JSONL → Megatron binary indexed dataset
                    # via swiss-ai/pretrain-code (Megatron-LM's tools/preprocess_data.py)
                    # (see ../cpt_plan_v0.7_status.md V12 / V13 for the Megatron config flags)
 
-[Clariden debug]   python3 arms/build_init_checkpoints.py \
-                       --apertus-base /iopsstor/.../models/apertus-8b-2509 \
-                       --extended-tokenizer /iopsstor/.../tokenizers/apertus_greek_modern_only_148480 \
-                       --out-root /iopsstor/.../init_checkpoints \
-                       --vocab-size 148480 \
-                       --arms vanilla retok centroid       # ~30 min (covers V2 + V14 + V15 + V16)
+[Clariden xfer]    bash arms/submit_init_pipeline.sh       # covers V2 + V14 + V15 + V16
 
 [Clariden normal] # V4 baselines (gate §5.6 thresholds)
                    bash eval/run_apertus_baseline.sh      # V4-HF; corrected task list includes global_mmlu

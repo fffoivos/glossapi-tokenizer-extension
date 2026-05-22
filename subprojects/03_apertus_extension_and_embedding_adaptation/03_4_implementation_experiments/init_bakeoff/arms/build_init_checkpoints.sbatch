@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=build_init_ckpts
 #SBATCH --account=a0140
-#SBATCH --partition=normal
+#SBATCH --partition=xfer
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --gpus-per-node=1
-#SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=72
-#SBATCH --mem=400G
-#SBATCH --time=04:00:00
+#SBATCH --mem=240G
+#SBATCH --time=08:00:00
 #SBATCH --output=/capstor/scratch/cscs/fffoivos/runs/init/%x-%j.out
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/init/%x-%j.err
 #
@@ -21,6 +19,12 @@ set -euo pipefail
 # as the stable repo location. submit_init_pipeline.sh submits from arms/.
 SCRIPT_DIR="$(cd "${SCRIPT_DIR_OVERRIDE:-${SLURM_SUBMIT_DIR:-$(pwd)}}" && pwd)"
 source "$SCRIPT_DIR/../bakeoff_training/_train_config_common.env"
+GUARD="$SCRIPT_DIR/../slurm_cpu_only_guard.sh"
+if [ ! -f "$GUARD" ]; then
+    GUARD=/iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/slurm_cpu_only_guard.sh
+fi
+source "$GUARD"
+require_cpu_only_slurm "build_init_ckpts"
 
 INIT_CKPT_ROOT="${INIT_CKPT_ROOT:-/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480}"
 VOCAB_SIZE="${VOCAB_SIZE:-148480}"

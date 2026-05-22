@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=build_cpt_heldout
 #SBATCH --account=a0140
-#SBATCH --partition=normal
+#SBATCH --partition=xfer
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=72
@@ -13,6 +13,12 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "${SCRIPT_DIR_OVERRIDE:-${SLURM_SUBMIT_DIR:-$(pwd)}}" && pwd)"
+GUARD="$SCRIPT_DIR/../slurm_cpu_only_guard.sh"
+if [ ! -f "$GUARD" ]; then
+    GUARD=/iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/slurm_cpu_only_guard.sh
+fi
+source "$GUARD"
+require_cpu_only_slurm "build_cpt_heldout"
 
 SELECTED_PARQUET="${SELECTED_PARQUET:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet}"
 BULK_MIX_JSONL="${BULK_MIX_JSONL:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.jsonl}"

@@ -51,6 +51,16 @@ def _duckdb_connect_streaming() -> "duckdb.DuckDBPyConnection":
     # here would recurse forever (caught by job 2334826 RecursionError).
     con = duckdb.connect()
     con.execute("SET preserve_insertion_order = false")
+    memory_limit = os.environ.get("DUCKDB_MEMORY_LIMIT")
+    if memory_limit:
+        con.execute(f"SET memory_limit = {sql_quote(memory_limit)}")
+    temp_directory = os.environ.get("DUCKDB_TEMP_DIRECTORY")
+    if temp_directory:
+        Path(temp_directory).mkdir(parents=True, exist_ok=True)
+        con.execute(f"SET temp_directory = {sql_quote(temp_directory)}")
+    threads = os.environ.get("DUCKDB_THREADS")
+    if threads:
+        con.execute(f"SET threads = {int(threads)}")
     return con
 
 

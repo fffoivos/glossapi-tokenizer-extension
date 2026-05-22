@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=mix_builder_full
 #SBATCH --account=a0140
-#SBATCH --partition=normal
+#SBATCH --partition=xfer
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=72
-#SBATCH --mem=200G
-#SBATCH --time=12:00:00
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=64G
+#SBATCH --time=1-00:00:00
 #SBATCH --output=/capstor/scratch/cscs/fffoivos/runs/preprocess/mix_builder_full_%j.out
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/preprocess/mix_builder_full_%j.err
 #
@@ -14,7 +14,7 @@
 #
 # Can be run either as one 7B-token job or as a Slurm array of smaller shards:
 #
-#   sbatch --array=0-6%7 --export=ALL,TARGET_TOKENS=1000000000 mix_builder_full.sbatch
+#   sbatch --array=0-6%2 --export=ALL,TARGET_TOKENS=1000000000 mix_builder_full.sbatch
 #
 # Array mode writes bulk_mix_part_XX.jsonl files, each with its own seed.
 # In array mode, each task also receives a source-row shard index so the
@@ -34,25 +34,29 @@
 #   * Parallelism: mix_builder.py is deterministic single-writer streaming.
 #     PyArrow readers use internal threads; tokenizer.encode is called
 #     row-at-a-time for deterministic budget tracking.
-#   * CPU saturation: one socket (72 CPUs) is enough because the writer and
-#     tokenizer loop are the bottleneck. Wider allocation mostly idles.
+#   * CPU saturation: one shard uses roughly one hot Python core. 16 CPUs leave
+#     PyArrow/runtime headroom without pretending this is a full-node CPU job.
 #   * Memory: streaming; peak is row groups + tokenizer + source iterator
-#     buffers. 200G is conservative.
+#     buffers. 64G is conservative for this bounded streaming path.
 #   * Known gap: batching tokenizer.encode would be faster but would change the
 #     deterministic streaming loop. Keep the production path identical to the
 #     smoke job. After the token-fair fix, 50M-token smoke measured ~160k tok/s.
 #     The production run is therefore sharded, and the fastest safe mode is to
-#     run all seven 1B-token shards concurrently. Source-row sharding prevents
+#     run two 1B-token shards concurrently on xfer. Source-row sharding prevents
 #     duplicate per-source prefixes, but it also scans skipped rows; request the
-#     normal-partition 12 h ceiling so a correct run is not lost near the end.
+#     xfer 24 h ceiling so a correct run is not lost near the end.
 #     One shard uses roughly one hot Python core; additional cores inside a
 #     single shard do not help without a batching/parallel-token-count rewrite.
+#     Run on xfer; normal/debug/low are GPU-node partitions on Clariden.
 
 set -euo pipefail
 
 STAGE_ROOT=/iopsstor/scratch/cscs/fffoivos/cpt_corpus
 SELECTED=$STAGE_ROOT/cpt/selected_after_apertus_and_internal_dedup.parquet
 REPO_DIR=/iopsstor/scratch/cscs/fffoivos/repo
+INIT_BAKEOFF_DIR=$REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff
+source "$INIT_BAKEOFF_DIR/slurm_cpu_only_guard.sh"
+require_cpu_only_slurm "mix_builder_full"
 RECIPE=$REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/corpus_build/recipes/bulk.json
 TOKENIZER=/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480
 TARGET_TOKENS="${TARGET_TOKENS:-7000000000}"

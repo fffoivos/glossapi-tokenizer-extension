@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=concat_bulk_mix
 #SBATCH --account=a0140
-#SBATCH --partition=normal
+#SBATCH --partition=xfer
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=8
@@ -16,6 +16,9 @@
 set -euo pipefail
 
 STAGE_ROOT=/iopsstor/scratch/cscs/fffoivos/cpt_corpus
+REPO_DIR=/iopsstor/scratch/cscs/fffoivos/repo
+source "$REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/slurm_cpu_only_guard.sh"
+require_cpu_only_slurm "concat_bulk_mix"
 SHARD_COUNT="${SHARD_COUNT:-7}"
 SHARD_PREFIX="${SHARD_PREFIX:-$STAGE_ROOT/bulk_mix_part_}"
 OUTPUT="${OUTPUT:-$STAGE_ROOT/bulk_mix.jsonl}"

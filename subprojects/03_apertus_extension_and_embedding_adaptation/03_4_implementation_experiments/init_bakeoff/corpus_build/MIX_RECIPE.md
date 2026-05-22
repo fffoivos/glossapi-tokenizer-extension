@@ -133,8 +133,8 @@ Determinism: the `--seed` controls the interleave randomization. Same seed means
 
 Megatron's training reads its native binary format; converting on the fly during interleaving is awkward. Splitting the pipeline:
 
-1. `mix_builder.py` does the streaming interleave + budget-cap + writes JSONL (CPU job on `normal`; `xfer` is in maintenance during the 2026-05-21 run).
-2. `tools/preprocess_data.py` (Megatron) does the tokenization + binary packing (CPU job on `normal`).
+1. `mix_builder.py` does the streaming interleave + budget-cap + writes JSONL (CPU job on `xfer`; do not use `normal` for CPU-only work because it allocates GPU nodes on Clariden).
+2. `tools/preprocess_data.py` (Megatron) does the tokenization + binary packing (CPU job on `xfer`).
 3. Training reads the binary on `normal`.
 
 This way each stage has a single clear job, and we can re-run any stage independently.

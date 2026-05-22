@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=mix_builder_smoke
 #SBATCH --account=a0140
-#SBATCH --partition=normal
+#SBATCH --partition=xfer
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=72
-#SBATCH --mem=200G
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=64G
 #SBATCH --time=02:00:00
 #SBATCH --output=/capstor/scratch/cscs/fffoivos/runs/preprocess/mix_builder_smoke_%j.out
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/preprocess/mix_builder_smoke_%j.err
@@ -47,6 +47,9 @@ set -euo pipefail
 STAGE_ROOT=/iopsstor/scratch/cscs/fffoivos/cpt_corpus
 SELECTED=$STAGE_ROOT/cpt/selected_after_apertus_and_internal_dedup.parquet
 REPO_DIR=/iopsstor/scratch/cscs/fffoivos/repo
+INIT_BAKEOFF_DIR=$REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff
+source "$INIT_BAKEOFF_DIR/slurm_cpu_only_guard.sh"
+require_cpu_only_slurm "mix_builder_smoke"
 RECIPE=$REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/corpus_build/recipes/bulk.json
 TOKENIZER=/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480
 OUTPUT=/capstor/scratch/cscs/fffoivos/runs/preprocess/mix_smoke_50M.jsonl

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=normalize_nfc
 #SBATCH --account=a0140
-#SBATCH --partition=normal
+#SBATCH --partition=xfer
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=288
-#SBATCH --mem=400G
-#SBATCH --time=06:00:00
+#SBATCH --cpus-per-task=64
+#SBATCH --mem=240G
+#SBATCH --time=1-00:00:00
 #SBATCH --output=/capstor/scratch/cscs/fffoivos/runs/preprocess/normalize_nfc_%j.out
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/preprocess/normalize_nfc_%j.err
 #
@@ -19,9 +19,9 @@
 #    Shards are independent; no shared state past the worker pool.
 #
 # 2. CPU saturation.
-#    --cpus-per-task=288 (full node) — passed to normalize_nfc.sh via
-#    WORKERS=288. Corpus has ~300 shards (279 nanochat + 24 replay + 4 code/math),
-#    so 288 workers means almost-one-shard-per-worker until the last 12.
+#    --cpus-per-task=64 is passed to normalize_nfc.sh via WORKERS. Corpus has
+#    ~300 shards, so this still keeps enough parallel file workers busy while
+#    staying on xfer instead of a GPU-node partition.
 #    Normalization is memcpy + Unicode-table-lookup, so it benefits from
 #    high parallelism even though each shard's work is IO-light.
 #
@@ -42,10 +42,12 @@ mkdir -p /capstor/scratch/cscs/fffoivos/runs/preprocess
 
 REPO_DIR=/iopsstor/scratch/cscs/fffoivos/repo
 SCRIPT_DIR=$REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/corpus_build
+source "$REPO_DIR/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/slurm_cpu_only_guard.sh"
+require_cpu_only_slurm "normalize_nfc"
 
 uenv start pytorch/v2.9.1:v2 --view=default --ignore-tty <<INNER
 set -euo pipefail
 export PYTHONPATH=/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval:$REPO_DIR
-export WORKERS=288
+export WORKERS="${WORKERS:-${SLURM_CPUS_PER_TASK:-64}}"
 bash $SCRIPT_DIR/normalize_nfc.sh
 INNER
