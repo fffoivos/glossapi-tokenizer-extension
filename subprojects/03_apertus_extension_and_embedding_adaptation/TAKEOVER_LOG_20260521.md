@@ -628,3 +628,32 @@ Current next gate:
   - centroid: BPC `0.9875`, NLL/char `1.1680`, `el_arc=0.2551`, `el_belebele=0.3378`, `el_xnli=0.3398`, `el_xquad_f1=0.0239`, `el_mmlu=0.2834`, `el_base44=0.3098`, `el_piqa=0.5100`, `hellaswag=0.757`, `arc_c=0.546`, `mmlu=0.549`.
   - New-token integration: retok `D1_top1=0.2915`, `D2_mass=0.3388`, `D4_top1_new=0.5268`, `D5_util=0.150`; centroid `D1_top1=0.0606`, `D2_mass=0.3406`, `D4_top1_new=0.2625`, `D5_util=0.076`.
   - Interpretation remains pre-decision: vanilla still leads Greek BPC and most downstream Greek metrics; retok is narrowing and is clearly healthier than centroid on new-token use; centroid remains weak for Greek despite okay retention-style scores.
+
+## Continuation - 2026-05-22 first 12h handoff and resume2 fix
+
+- The initial 12h jobs completed cleanly before the Slurm walltime:
+  - vanilla `2341822`: `COMPLETED 0:0`, saved latest tracker `316`.
+  - retok `2341824`: `COMPLETED 0:0`, saved latest tracker `317`.
+  - centroid `2341826`: `COMPLETED 0:0`, saved latest tracker `319`.
+- The automatically chained resume jobs failed before training:
+  - vanilla `2341823`: `FAILED 15:0`, elapsed `00:01:13`.
+  - retok `2341825`: `FAILED 15:0`, elapsed `00:01:18`.
+  - centroid `2341827`: `FAILED 15:0`, elapsed `00:01:17`.
+  - Exact cause: during `load_checkpoint()`, Megatron's torch_dist loader called `ckpt_metadata.mcore_data[...]`, but the PyTorch `Metadata` object in the just-written checkpoints has no `mcore_data` attribute. The error was:
+    - `AttributeError: 'Metadata' object has no attribute 'mcore_data'. Did you mean: 'storage_data'?`
+  - No training progress was lost in these failed resume jobs; they died during checkpoint load.
+- Runtime fix:
+  - Updated `megatron_patches/runtime/pretrain_gpt_te_guard.py` with `install_torch_dist_metadata_fallback()`.
+  - The fallback catches only the missing-`mcore_data` `AttributeError`, reads PyTorch tensor storage metadata, and derives same-topology `TensorReformulationMetadata` entries for flattened tensors.
+  - It logs a `RuntimeWarning` with the rank, checkpoint path, and number of derived entries. It still raises if tensor metadata is missing.
+  - Local syntax check passed with `python3 -m py_compile`, and the updated wrapper was synced to the Clariden mirror.
+- Manual resume2 relaunch:
+  - vanilla `2345082`, from tracker `316`.
+  - retok `2345083`, from tracker `317`.
+  - centroid `2345084`, from tracker `319`.
+  - All three successfully loaded checkpoints with the fallback active.
+  - Verified post-resume training:
+    - vanilla logged iterations `317` and `318`, `0` skipped / `0` NaN.
+    - retok logged iterations `318` and `319`, `0` skipped / `0` NaN.
+    - centroid logged iteration `320`, `0` skipped / `0` NaN.
+  - The first resumed iterations are slightly slower due to checkpoint/load warmup; subsequent iterations returned to the expected ~390-410 TFLOP/s/GPU band.

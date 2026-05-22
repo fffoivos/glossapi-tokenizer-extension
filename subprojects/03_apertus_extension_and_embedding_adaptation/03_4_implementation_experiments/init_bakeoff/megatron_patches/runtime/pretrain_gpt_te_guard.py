@@ -12,6 +12,7 @@ import atexit
 import os
 import runpy
 import sys
+import warnings
 
 
 def install_numpy_product_alias() -> None:
@@ -69,6 +70,75 @@ def install_te_empty_extra_state_guard() -> None:
 
     atexit.register(report_skipped_empty_extra_state)
     TransformerEngineBaseModule.set_extra_state = set_extra_state_allow_empty
+
+
+def install_torch_dist_metadata_fallback() -> None:
+    """Allow same-topology resume from torch_dist checkpoints without mcore_data.
+
+    Megatron's torch_dist loader expects optional MCore metadata for flattened
+    N-D tensors. The checkpoints written by this run contain the tensor storage
+    metadata but not the extra `mcore_data` attribute. For same-topology resume
+    the original application shape is the current ShardedTensor shape, and the
+    saved reformulated shape is available from PyTorch's state_dict metadata.
+    """
+
+    from torch.distributed.checkpoint import FileSystemReader
+
+    from megatron.core.dist_checkpointing.dict_utils import nested_values
+    from megatron.core.dist_checkpointing.strategies import torch as torch_strategy
+    from megatron.core.dist_checkpointing.strategies.resharding import (
+        TensorReformulationMetadata,
+        is_nd_flattened_tensor,
+    )
+
+    original = torch_strategy.get_reformulation_metadata
+
+    def get_reformulation_metadata_allow_missing_mcore_data(  # type: ignore[no-untyped-def]
+        sharded_state_dict,
+        checkpoint_dir,
+    ):
+        try:
+            return original(sharded_state_dict, checkpoint_dir)
+        except AttributeError as exc:
+            if "mcore_data" not in str(exc):
+                raise
+
+            ckpt_metadata = FileSystemReader(checkpoint_dir).read_metadata()
+            if hasattr(ckpt_metadata, "mcore_data"):
+                raise
+
+            reformulation_metadata = {}
+            missing_keys = []
+            for sh_ten in nested_values(sharded_state_dict):
+                if not is_nd_flattened_tensor(sh_ten):
+                    continue
+                tensor_metadata = ckpt_metadata.state_dict_metadata.get(sh_ten.key)
+                if tensor_metadata is None:
+                    missing_keys.append(sh_ten.key)
+                    continue
+                reformulation_metadata[sh_ten.key] = TensorReformulationMetadata(
+                    tuple(sh_ten.global_shape),
+                    tuple(tensor_metadata.size),
+                )
+
+            if missing_keys:
+                preview = ", ".join(missing_keys[:8])
+                raise RuntimeError(
+                    "torch_dist checkpoint is missing metadata for flattened tensors: "
+                    f"{preview}"
+                ) from exc
+
+            rank = os.environ.get("RANK", "?")
+            warnings.warn(
+                "[pretrain_gpt_te_guard] "
+                f"rank={rank} checkpoint metadata has no mcore_data; derived "
+                f"{len(reformulation_metadata)} same-topology flattened-tensor entries "
+                f"from PyTorch storage metadata for {checkpoint_dir}",
+                RuntimeWarning,
+            )
+            return reformulation_metadata
+
+    torch_strategy.get_reformulation_metadata = get_reformulation_metadata_allow_missing_mcore_data
 
 
 def _optimizer_param_refs(obj, seen=None):
@@ -215,6 +285,7 @@ def main() -> None:
     set_cuda_device_from_local_rank()
     install_numpy_product_alias()
     install_te_empty_extra_state_guard()
+    install_torch_dist_metadata_fallback()
     install_xielu_optimizer_audit()
     sys.argv = [target, *sys.argv[2:]]
     runpy.run_path(target, run_name="__main__")
