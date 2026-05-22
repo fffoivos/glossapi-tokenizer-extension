@@ -423,7 +423,13 @@ Current next gate:
   - Each watcher is detached with `SUBMIT_INTRINSIC=1`, `POLL_SECONDS=300`, and `TIMEOUT_SECONDS=129600`.
 - Hardened `summarize_bakeoff.py` for the live artifact layout:
   - It now loads `results.json` from the eval output dir while falling back to parent-level `iter_XXXXXXX_tokenizer_fair_metrics.json` and `iter_XXXXXXX_new_token_diagnostics.json`.
+  - It also falls back to timestamped `results_*.json`, which is what `lm-eval` actually wrote for the iter-65 Greek canary.
   - It can also summarize from an arm root by taking the latest `iter_*` intrinsic JSONs.
   - It now runs on Clariden login-node `python3` (`3.6.15`), not only inside the PyTorch uenv.
+  - It now includes the Greek downstream task columns: `el_arc`, `el_belebele`, `el_xnli`, `el_xquad_f1`, `el_mmlu`, `el_base44`, and `el_piqa`.
   - Smoke command passed:
     - `python3 summarize_bakeoff.py /capstor/..._vanilla/iter_0000065_greek_only /capstor/..._retok/iter_0000065_greek_only /capstor/..._centroid/iter_0000065_greek_only`
+- Iter-65 centroid Greek eval completed:
+  - result: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000065_greek_only/results_2026-05-22T05-49-24.403516.json`
+  - headline metrics: `arc_challenge_mt_el acc_norm=0.2526`, `belebele_ell_Grek acc_norm=0.3011`, `xnli_el acc=0.4108`, `xquad_el f1=0.0206`, `global_mmlu_full_el acc=0.2839`, `include_base_44_greek_few_shot_en acc=0.2663`, `global_piqa_completions_ell_grek acc_norm=0.5300`.
+  - retok and vanilla Greek eval jobs were still running at this log point.

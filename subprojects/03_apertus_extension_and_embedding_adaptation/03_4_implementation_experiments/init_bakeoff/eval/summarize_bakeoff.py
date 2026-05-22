@@ -45,6 +45,13 @@ COLUMNS = [
     ("D6.E_new/exist",      "new_token_diagnostics.embedding.E_norm.new_to_existing_mean_ratio", "{:.3f}"),
     ("D7.cos_off",          "new_token_diagnostics.embedding.new_E_cos.mean_off_diag",  "{:.4f}"),
     ("D7.eff_rank",         "new_token_diagnostics.embedding.new_E_effective_rank.participation_ratio", "{:.1f}"),
+    ("el_arc",              "results.results.arc_challenge_mt_el.acc_norm,none",        "{:.3f}"),
+    ("el_belebele",         "results.results.belebele_ell_Grek.acc_norm,none",          "{:.3f}"),
+    ("el_xnli",             "results.results.xnli_el.acc,none",                         "{:.3f}"),
+    ("el_xquad_f1",         "results.results.xquad_el.f1,none",                         "{:.3f}"),
+    ("el_mmlu",             "results.results.global_mmlu_full_el.acc,none",             "{:.3f}"),
+    ("el_base44",           "results.results.include_base_44_greek_few_shot_en.acc,none", "{:.3f}"),
+    ("el_piqa",             "results.results.global_piqa_completions_ell_grek.acc_norm,none", "{:.3f}"),
     ("arc_chal",            "results.results.arc_challenge.acc_norm,none",    "{:.3f}"),
     ("hellaswag",           "results.results.hellaswag.acc_norm,none",        "{:.3f}"),
     ("winogrande",          "results.results.winogrande.acc,none",            "{:.3f}"),
@@ -86,6 +93,13 @@ def _load_with_fallback(result_dir: Path, canonical_name: str, prefixed_name: Op
     return None
 
 
+def _load_json_glob(result_dir: Path, pattern: str) -> Optional[dict]:
+    matches = sorted(result_dir.glob(pattern))
+    if not matches:
+        return None
+    return _load_json(matches[-1])
+
+
 def _get(d: dict, path: str):
     """Dotted-path lookup with comma fallback for keys like 'acc,none'."""
     cur = d
@@ -110,7 +124,7 @@ def _gather(result_dir: Path) -> dict:
         "new_token_diagnostics":  _load_with_fallback(
             result_dir, "new_token_diagnostics.json", "new_token_diagnostics.json"
         ),
-        "results":                _load_json(result_dir / "results.json"),
+        "results":                _load_json(result_dir / "results.json") or _load_json_glob(result_dir, "results*.json"),
         "bootstrap_cis":          _load_json(result_dir / "bootstrap_cis.json"),
         "run_metadata":           _load_json(result_dir / "run_metadata.json"),
     }
