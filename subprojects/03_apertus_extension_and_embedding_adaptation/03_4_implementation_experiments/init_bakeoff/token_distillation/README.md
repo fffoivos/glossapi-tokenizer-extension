@@ -54,6 +54,31 @@ This writes:
 - `smoke_token_ids.txt`
 - `layer_pilot_token_ids.txt`
 
+## Second gate: TD smoke, only if coverage passes
+
+Do not submit this until `td_coverage_summary.json` recommends either
+`run_full_td_100` or `run_td_25_with_flagged_tail`.
+
+Example smoke launch:
+
+```bash
+cd /iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/token_distillation
+OUTPUT_DIR=/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_smoke_last_layer_$(date -u +%Y%m%dT%H%M%SZ)
+COVERAGE_DIR=/iopsstor/scratch/cscs/fffoivos/token_distillation/coverage_2b_modern_20260523T012000Z_r2
+sbatch --export=ALL,\
+COVERAGE_JSONL="$COVERAGE_DIR/td_coverage_prepass.jsonl",\
+SNIPPETS_JSONL="$COVERAGE_DIR/td_snippet_index/snippets.jsonl",\
+TOKEN_IDS_FILE="$COVERAGE_DIR/pilot_selection/smoke_token_ids.txt",\
+OUTPUT_DIR="$OUTPUT_DIR",\
+TARGET_LAYER=-1,\
+SNIPPETS_PER_TOKEN=25 \
+train_retok_td.sbatch
+```
+
+The wrapper trains only selected new input/output rows. Every base row and every
+unselected new row is gradient-zeroed and exact-checked by the vendored training
+loop.
+
 ## Pinned Token Distillation code
 
 The official implementation is vendored under
