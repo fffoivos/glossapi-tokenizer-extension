@@ -43,6 +43,18 @@ RUN_ROOT="${RUN_ROOT:-/capstor/scratch/cscs/fffoivos/runs/bakeoff}"
 OUT_ROOT="${OUT_ROOT:-/capstor/scratch/cscs/fffoivos/runs/eval}"
 STATE_DIR="${STATE_DIR:-$OUT_ROOT/${RUN_TAG}_packed_submit_iter_${ITER_PAD}_${TASK_GROUP}}"
 mkdir -p "$STATE_DIR"
+LOCK_FILE="$STATE_DIR/submit.lock"
+exec 9>"$LOCK_FILE"
+if ! flock -n 9; then
+    echo "Another packed submitter holds $LOCK_FILE; exiting without duplicate submission."
+    exit 0
+fi
+if [ -s "$STATE_DIR/packed_eval_job.id" ]; then
+    existing_job="$(cat "$STATE_DIR/packed_eval_job.id")"
+    echo "Packed eval already submitted for this state: $existing_job"
+    echo "Remove $STATE_DIR/packed_eval_job.id manually before an intentional resubmit."
+    exit 0
+fi
 SPEC_TSV="$STATE_DIR/eval_spec.tsv"
 : > "$SPEC_TSV"
 

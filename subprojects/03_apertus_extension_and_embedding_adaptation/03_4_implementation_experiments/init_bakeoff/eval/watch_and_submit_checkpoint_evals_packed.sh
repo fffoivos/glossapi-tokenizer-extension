@@ -30,6 +30,13 @@ log() {
     printf "[%s] %s\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" | tee -a "$LOG"
 }
 
+WATCH_LOCK="$STATE_DIR/watch.lock"
+exec 8>"$WATCH_LOCK"
+if ! flock -n 8; then
+    log "another packed watcher holds $WATCH_LOCK; exiting"
+    exit 0
+fi
+
 all_ready() {
     local arm ckpt_root ckpt_dir tracker latest
     for arm in $ARMS; do

@@ -691,3 +691,4 @@ Current next gate:
   - Second packed smoke `2345439` launched all three arms but hit Hugging Face API rate-limit backoff because each arm used a separate fresh cache and tried to load the same benchmark datasets concurrently.
   - Fixed the packed script to share one cache root across arms by default (`SHARE_EVAL_CACHE=1`) and to allow the warm full-eval cache to be injected via `EVAL_CACHE_ROOT`.
   - Current packed iter-325 retry `2345516` is running on one node (`nid007297`) with all three arm processes alive and model memory loaded on GPUs `0`, `1`, and `2`; no rate-limit warning has appeared after switching to the shared warm cache.
+  - Added `flock` guards to the packed watcher and packed submitter. This protects the future iter-390/455 checkpoints from duplicate submissions even if earlier detached watcher attempts on different login nodes wake up at the same time.
