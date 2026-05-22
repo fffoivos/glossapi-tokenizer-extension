@@ -1,0 +1,5130 @@
+{
+  "results": {
+    "arc_challenge_mt_el": {
+      "alias": "arc_challenge_mt_el",
+      "acc,none": 0.21245733788395904,
+      "acc_stderr,none": 0.011953482906582826,
+      "acc_norm,none": 0.2593856655290102,
+      "acc_norm_stderr,none": 0.012808273573927224
+    },
+    "belebele_ell_Grek": {
+      "alias": "belebele_ell_Grek",
+      "acc,none": 0.3244444444444444,
+      "acc_stderr,none": 0.015614240345671378,
+      "acc_norm,none": 0.3244444444444444,
+      "acc_norm_stderr,none": 0.015614240345671378
+    },
+    "global_mmlu_full_el": {
+      "acc,none": 0.28414755732801594,
+      "acc_stderr,none": 0.003799263374782575,
+      "alias": "global_mmlu_full_el"
+    },
+    "global_mmlu_full_el_humanities": {
+      "acc,none": 0.2882040382571732,
+      "acc_stderr,none": 0.006585771507272036,
+      "alias": " - global_mmlu_full_el_humanities"
+    },
+    "global_mmlu_full_el_formal_logic": {
+      "alias": "  - global_mmlu_full_el_formal_logic",
+      "acc,none": 0.21428571428571427,
+      "acc_stderr,none": 0.03670066451047179
+    },
+    "global_mmlu_full_el_high_school_european_history": {
+      "alias": "  - global_mmlu_full_el_high_school_european_history",
+      "acc,none": 0.2909090909090909,
+      "acc_stderr,none": 0.03546563019624338
+    },
+    "global_mmlu_full_el_high_school_us_history": {
+      "alias": "  - global_mmlu_full_el_high_school_us_history",
+      "acc,none": 0.3235294117647059,
+      "acc_stderr,none": 0.032834720561085606
+    },
+    "global_mmlu_full_el_high_school_world_history": {
+      "alias": "  - global_mmlu_full_el_high_school_world_history",
+      "acc,none": 0.29957805907172996,
+      "acc_stderr,none": 0.02981802474975306
+    },
+    "global_mmlu_full_el_international_law": {
+      "alias": "  - global_mmlu_full_el_international_law",
+      "acc,none": 0.4628099173553719,
+      "acc_stderr,none": 0.04551711196104216
+    },
+    "global_mmlu_full_el_jurisprudence": {
+      "alias": "  - global_mmlu_full_el_jurisprudence",
+      "acc,none": 0.28703703703703703,
+      "acc_stderr,none": 0.04373313040914761
+    },
+    "global_mmlu_full_el_logical_fallacies": {
+      "alias": "  - global_mmlu_full_el_logical_fallacies",
+      "acc,none": 0.32515337423312884,
+      "acc_stderr,none": 0.036803503712864595
+    },
+    "global_mmlu_full_el_moral_disputes": {
+      "alias": "  - global_mmlu_full_el_moral_disputes",
+      "acc,none": 0.3179190751445087,
+      "acc_stderr,none": 0.025070713719153193
+    },
+    "global_mmlu_full_el_moral_scenarios": {
+      "alias": "  - global_mmlu_full_el_moral_scenarios",
+      "acc,none": 0.24692737430167597,
+      "acc_stderr,none": 0.014422292204808857
+    },
+    "global_mmlu_full_el_philosophy": {
+      "alias": "  - global_mmlu_full_el_philosophy",
+      "acc,none": 0.3183279742765273,
+      "acc_stderr,none": 0.02645722506781099
+    },
+    "global_mmlu_full_el_prehistory": {
+      "alias": "  - global_mmlu_full_el_prehistory",
+      "acc,none": 0.32098765432098764,
+      "acc_stderr,none": 0.025976566010862776
+    },
+    "global_mmlu_full_el_professional_law": {
+      "alias": "  - global_mmlu_full_el_professional_law",
+      "acc,none": 0.273142112125163,
+      "acc_stderr,none": 0.011380150567830337
+    },
+    "global_mmlu_full_el_world_religions": {
+      "alias": "  - global_mmlu_full_el_world_religions",
+      "acc,none": 0.2982456140350877,
+      "acc_stderr,none": 0.03508771929824561
+    },
+    "global_mmlu_full_el_other": {
+      "acc,none": 0.2800128741551336,
+      "acc_stderr,none": 0.008038811058649703,
+      "alias": " - global_mmlu_full_el_other"
+    },
+    "global_mmlu_full_el_business_ethics": {
+      "alias": "  - global_mmlu_full_el_business_ethics",
+      "acc,none": 0.28,
+      "acc_stderr,none": 0.045126085985421296
+    },
+    "global_mmlu_full_el_clinical_knowledge": {
+      "alias": "  - global_mmlu_full_el_clinical_knowledge",
+      "acc,none": 0.2943396226415094,
+      "acc_stderr,none": 0.028049186315695293
+    },
+    "global_mmlu_full_el_college_medicine": {
+      "alias": "  - global_mmlu_full_el_college_medicine",
+      "acc,none": 0.2254335260115607,
+      "acc_stderr,none": 0.03186209851641147
+    },
+    "global_mmlu_full_el_global_facts": {
+      "alias": "  - global_mmlu_full_el_global_facts",
+      "acc,none": 0.3,
+      "acc_stderr,none": 0.04605661864718382
+    },
+    "global_mmlu_full_el_human_aging": {
+      "alias": "  - global_mmlu_full_el_human_aging",
+      "acc,none": 0.2825112107623318,
+      "acc_stderr,none": 0.03021683101150876
+    },
+    "global_mmlu_full_el_management": {
+      "alias": "  - global_mmlu_full_el_management",
+      "acc,none": 0.23300970873786409,
+      "acc_stderr,none": 0.041858325989283136
+    },
+    "global_mmlu_full_el_marketing": {
+      "alias": "  - global_mmlu_full_el_marketing",
+      "acc,none": 0.2863247863247863,
+      "acc_stderr,none": 0.029614323690456627
+    },
+    "global_mmlu_full_el_medical_genetics": {
+      "alias": "  - global_mmlu_full_el_medical_genetics",
+      "acc,none": 0.28,
+      "acc_stderr,none": 0.045126085985421296
+    },
+    "global_mmlu_full_el_miscellaneous": {
+      "alias": "  - global_mmlu_full_el_miscellaneous",
+      "acc,none": 0.31417624521072796,
+      "acc_stderr,none": 0.016599291735884803
+    },
+    "global_mmlu_full_el_nutrition": {
+      "alias": "  - global_mmlu_full_el_nutrition",
+      "acc,none": 0.27450980392156865,
+      "acc_stderr,none": 0.0255531699918265
+    },
+    "global_mmlu_full_el_professional_accounting": {
+      "alias": "  - global_mmlu_full_el_professional_accounting",
+      "acc,none": 0.25886524822695034,
+      "acc_stderr,none": 0.026129572527180806
+    },
+    "global_mmlu_full_el_professional_medicine": {
+      "alias": "  - global_mmlu_full_el_professional_medicine",
+      "acc,none": 0.1875,
+      "acc_stderr,none": 0.023709788253811766
+    },
+    "global_mmlu_full_el_virology": {
+      "alias": "  - global_mmlu_full_el_virology",
+      "acc,none": 0.35542168674698793,
+      "acc_stderr,none": 0.03726214354322416
+    },
+    "global_mmlu_full_el_social_sciences": {
+      "acc,none": 0.27526811829704256,
+      "acc_stderr,none": 0.00804884402696184,
+      "alias": " - global_mmlu_full_el_social_sciences"
+    },
+    "global_mmlu_full_el_econometrics": {
+      "alias": "  - global_mmlu_full_el_econometrics",
+      "acc,none": 0.24561403508771928,
+      "acc_stderr,none": 0.040493392977481425
+    },
+    "global_mmlu_full_el_high_school_geography": {
+      "alias": "  - global_mmlu_full_el_high_school_geography",
+      "acc,none": 0.23737373737373738,
+      "acc_stderr,none": 0.030313710538198924
+    },
+    "global_mmlu_full_el_high_school_government_and_politics": {
+      "alias": "  - global_mmlu_full_el_high_school_government_and_politics",
+      "acc,none": 0.25906735751295334,
+      "acc_stderr,none": 0.03161877917935408
+    },
+    "global_mmlu_full_el_high_school_macroeconomics": {
+      "alias": "  - global_mmlu_full_el_high_school_macroeconomics",
+      "acc,none": 0.28717948717948716,
+      "acc_stderr,none": 0.022939925418530637
+    },
+    "global_mmlu_full_el_high_school_microeconomics": {
+      "alias": "  - global_mmlu_full_el_high_school_microeconomics",
+      "acc,none": 0.27310924369747897,
+      "acc_stderr,none": 0.0289420040409982
+    },
+    "global_mmlu_full_el_high_school_psychology": {
+      "alias": "  - global_mmlu_full_el_high_school_psychology",
+      "acc,none": 0.25871559633027524,
+      "acc_stderr,none": 0.01877605231961955
+    },
+    "global_mmlu_full_el_human_sexuality": {
+      "alias": "  - global_mmlu_full_el_human_sexuality",
+      "acc,none": 0.3053435114503817,
+      "acc_stderr,none": 0.040393149787245654
+    },
+    "global_mmlu_full_el_professional_psychology": {
+      "alias": "  - global_mmlu_full_el_professional_psychology",
+      "acc,none": 0.3022875816993464,
+      "acc_stderr,none": 0.018579232711113967
+    },
+    "global_mmlu_full_el_public_relations": {
+      "alias": "  - global_mmlu_full_el_public_relations",
+      "acc,none": 0.2545454545454545,
+      "acc_stderr,none": 0.04172343038705381
+    },
+    "global_mmlu_full_el_security_studies": {
+      "alias": "  - global_mmlu_full_el_security_studies",
+      "acc,none": 0.2530612244897959,
+      "acc_stderr,none": 0.027833023871399704
+    },
+    "global_mmlu_full_el_sociology": {
+      "alias": "  - global_mmlu_full_el_sociology",
+      "acc,none": 0.34328358208955223,
+      "acc_stderr,none": 0.033573796654334305
+    },
+    "global_mmlu_full_el_us_foreign_policy": {
+      "alias": "  - global_mmlu_full_el_us_foreign_policy",
+      "acc,none": 0.2,
+      "acc_stderr,none": 0.04020151261036849
+    },
+    "global_mmlu_full_el_stem": {
+      "acc,none": 0.29083412622898824,
+      "acc_stderr,none": 0.0080786387511957,
+      "alias": " - global_mmlu_full_el_stem"
+    },
+    "global_mmlu_full_el_abstract_algebra": {
+      "alias": "  - global_mmlu_full_el_abstract_algebra",
+      "acc,none": 0.25,
+      "acc_stderr,none": 0.04351941398892446
+    },
+    "global_mmlu_full_el_anatomy": {
+      "alias": "  - global_mmlu_full_el_anatomy",
+      "acc,none": 0.26666666666666666,
+      "acc_stderr,none": 0.03820169914517904
+    },
+    "global_mmlu_full_el_astronomy": {
+      "alias": "  - global_mmlu_full_el_astronomy",
+      "acc,none": 0.26973684210526316,
+      "acc_stderr,none": 0.036117805602848975
+    },
+    "global_mmlu_full_el_college_biology": {
+      "alias": "  - global_mmlu_full_el_college_biology",
+      "acc,none": 0.2708333333333333,
+      "acc_stderr,none": 0.0371617743756602
+    },
+    "global_mmlu_full_el_college_chemistry": {
+      "alias": "  - global_mmlu_full_el_college_chemistry",
+      "acc,none": 0.24,
+      "acc_stderr,none": 0.04292346959909278
+    },
+    "global_mmlu_full_el_college_computer_science": {
+      "alias": "  - global_mmlu_full_el_college_computer_science",
+      "acc,none": 0.35,
+      "acc_stderr,none": 0.04793724854411023
+    },
+    "global_mmlu_full_el_college_mathematics": {
+      "alias": "  - global_mmlu_full_el_college_mathematics",
+      "acc,none": 0.25,
+      "acc_stderr,none": 0.04351941398892446
+    },
+    "global_mmlu_full_el_college_physics": {
+      "alias": "  - global_mmlu_full_el_college_physics",
+      "acc,none": 0.19607843137254902,
+      "acc_stderr,none": 0.03950581861179961
+    },
+    "global_mmlu_full_el_computer_security": {
+      "alias": "  - global_mmlu_full_el_computer_security",
+      "acc,none": 0.3,
+      "acc_stderr,none": 0.04605661864718382
+    },
+    "global_mmlu_full_el_conceptual_physics": {
+      "alias": "  - global_mmlu_full_el_conceptual_physics",
+      "acc,none": 0.251063829787234,
+      "acc_stderr,none": 0.02834696377716252
+    },
+    "global_mmlu_full_el_electrical_engineering": {
+      "alias": "  - global_mmlu_full_el_electrical_engineering",
+      "acc,none": 0.38620689655172413,
+      "acc_stderr,none": 0.04057324734419032
+    },
+    "global_mmlu_full_el_elementary_mathematics": {
+      "alias": "  - global_mmlu_full_el_elementary_mathematics",
+      "acc,none": 0.2857142857142857,
+      "acc_stderr,none": 0.02326651221373058
+    },
+    "global_mmlu_full_el_high_school_biology": {
+      "alias": "  - global_mmlu_full_el_high_school_biology",
+      "acc,none": 0.3387096774193548,
+      "acc_stderr,none": 0.02692344605930289
+    },
+    "global_mmlu_full_el_high_school_chemistry": {
+      "alias": "  - global_mmlu_full_el_high_school_chemistry",
+      "acc,none": 0.3251231527093596,
+      "acc_stderr,none": 0.03295797566311267
+    },
+    "global_mmlu_full_el_high_school_computer_science": {
+      "alias": "  - global_mmlu_full_el_high_school_computer_science",
+      "acc,none": 0.3,
+      "acc_stderr,none": 0.04605661864718382
+    },
+    "global_mmlu_full_el_high_school_mathematics": {
+      "alias": "  - global_mmlu_full_el_high_school_mathematics",
+      "acc,none": 0.3148148148148148,
+      "acc_stderr,none": 0.02831753349606653
+    },
+    "global_mmlu_full_el_high_school_physics": {
+      "alias": "  - global_mmlu_full_el_high_school_physics",
+      "acc,none": 0.31125827814569534,
+      "acc_stderr,none": 0.03780445850526736
+    },
+    "global_mmlu_full_el_high_school_statistics": {
+      "alias": "  - global_mmlu_full_el_high_school_statistics",
+      "acc,none": 0.24537037037037038,
+      "acc_stderr,none": 0.02934666509437301
+    },
+    "global_mmlu_full_el_machine_learning": {
+      "alias": "  - global_mmlu_full_el_machine_learning",
+      "acc,none": 0.29464285714285715,
+      "acc_stderr,none": 0.043270409325787296
+    },
+    "global_piqa_completions_ell_grek": {
+      "alias": "global_piqa_completions_ell_grek",
+      "acc,none": 0.5,
+      "acc_stderr,none": 0.050251890762960605,
+      "acc_norm,none": 0.53,
+      "acc_norm_stderr,none": 0.05016135580465919,
+      "acc_bytes,none": 0.53,
+      "acc_bytes_stderr,none": 0.05016135580465919
+    },
+    "include_base_44_greek_few_shot_en": {
+      "acc,none": 0.30434782608695654,
+      "acc_stderr,none": 0.019469828899491427,
+      "alias": "include_base_44_greek_few_shot_en"
+    },
+    "include_base_44_greek_few_shot_en_arts_humanities": {
+      "alias": " - include_base_44_greek_few_shot_en_arts_humanities",
+      "acc,none": 0.4594594594594595,
+      "acc_stderr,none": 0.08305895907471071
+    },
+    "include_base_44_greek_few_shot_en_business_commerce": {
+      "alias": " - include_base_44_greek_few_shot_en_business_commerce",
+      "acc,none": 0.2698412698412698,
+      "acc_stderr,none": 0.05637245937794517
+    },
+    "include_base_44_greek_few_shot_en_health_oriented_education": {
+      "alias": " - include_base_44_greek_few_shot_en_health_oriented_education",
+      "acc,none": 0.28,
+      "acc_stderr,none": 0.0916515138991168
+    },
+    "include_base_44_greek_few_shot_en_medical_license": {
+      "alias": " - include_base_44_greek_few_shot_en_medical_license",
+      "acc,none": 0.3208955223880597,
+      "acc_stderr,none": 0.04047849016651382
+    },
+    "include_base_44_greek_few_shot_en_professional_certification": {
+      "alias": " - include_base_44_greek_few_shot_en_professional_certification",
+      "acc,none": 0.208955223880597,
+      "acc_stderr,none": 0.03525342603663296
+    },
+    "include_base_44_greek_few_shot_en_social_science": {
+      "alias": " - include_base_44_greek_few_shot_en_social_science",
+      "acc,none": 0.3358208955223881,
+      "acc_stderr,none": 0.04095157801295756
+    },
+    "include_base_44_greek_few_shot_en_stem": {
+      "alias": " - include_base_44_greek_few_shot_en_stem",
+      "acc,none": 0.44,
+      "acc_stderr,none": 0.10132456102380442
+    },
+    "xnli_el": {
+      "alias": "xnli_el",
+      "acc,none": 0.36265060240963853,
+      "acc_stderr,none": 0.009636527012634425
+    },
+    "xquad_el": {
+      "alias": "xquad_el",
+      "f1,none": 0.026060857055479756,
+      "f1_stderr,none": 0.0037506823571702755,
+      "exact_match,none": 0.015966386554621848,
+      "exact_match_stderr,none": 0.0036351083425269965
+    }
+  },
+  "groups": {
+    "global_mmlu_full_el": {
+      "acc,none": 0.28414755732801594,
+      "acc_stderr,none": 0.003799263374782575,
+      "alias": "global_mmlu_full_el"
+    },
+    "global_mmlu_full_el_humanities": {
+      "acc,none": 0.2882040382571732,
+      "acc_stderr,none": 0.006585771507272036,
+      "alias": " - global_mmlu_full_el_humanities"
+    },
+    "global_mmlu_full_el_other": {
+      "acc,none": 0.2800128741551336,
+      "acc_stderr,none": 0.008038811058649703,
+      "alias": " - global_mmlu_full_el_other"
+    },
+    "global_mmlu_full_el_social_sciences": {
+      "acc,none": 0.27526811829704256,
+      "acc_stderr,none": 0.00804884402696184,
+      "alias": " - global_mmlu_full_el_social_sciences"
+    },
+    "global_mmlu_full_el_stem": {
+      "acc,none": 0.29083412622898824,
+      "acc_stderr,none": 0.0080786387511957,
+      "alias": " - global_mmlu_full_el_stem"
+    },
+    "include_base_44_greek_few_shot_en": {
+      "acc,none": 0.30434782608695654,
+      "acc_stderr,none": 0.019469828899491427,
+      "alias": "include_base_44_greek_few_shot_en"
+    }
+  },
+  "group_subtasks": {
+    "arc_challenge_mt_el": [],
+    "xnli_el": [],
+    "xquad_el": [],
+    "belebele_ell_Grek": [],
+    "global_mmlu_full_el_humanities": [
+      "global_mmlu_full_el_formal_logic",
+      "global_mmlu_full_el_high_school_european_history",
+      "global_mmlu_full_el_high_school_us_history",
+      "global_mmlu_full_el_high_school_world_history",
+      "global_mmlu_full_el_international_law",
+      "global_mmlu_full_el_jurisprudence",
+      "global_mmlu_full_el_logical_fallacies",
+      "global_mmlu_full_el_moral_disputes",
+      "global_mmlu_full_el_moral_scenarios",
+      "global_mmlu_full_el_philosophy",
+      "global_mmlu_full_el_prehistory",
+      "global_mmlu_full_el_professional_law",
+      "global_mmlu_full_el_world_religions"
+    ],
+    "global_mmlu_full_el_social_sciences": [
+      "global_mmlu_full_el_econometrics",
+      "global_mmlu_full_el_high_school_geography",
+      "global_mmlu_full_el_high_school_government_and_politics",
+      "global_mmlu_full_el_high_school_macroeconomics",
+      "global_mmlu_full_el_high_school_microeconomics",
+      "global_mmlu_full_el_high_school_psychology",
+      "global_mmlu_full_el_human_sexuality",
+      "global_mmlu_full_el_professional_psychology",
+      "global_mmlu_full_el_public_relations",
+      "global_mmlu_full_el_security_studies",
+      "global_mmlu_full_el_sociology",
+      "global_mmlu_full_el_us_foreign_policy"
+    ],
+    "global_mmlu_full_el_other": [
+      "global_mmlu_full_el_business_ethics",
+      "global_mmlu_full_el_clinical_knowledge",
+      "global_mmlu_full_el_college_medicine",
+      "global_mmlu_full_el_global_facts",
+      "global_mmlu_full_el_human_aging",
+      "global_mmlu_full_el_management",
+      "global_mmlu_full_el_marketing",
+      "global_mmlu_full_el_medical_genetics",
+      "global_mmlu_full_el_miscellaneous",
+      "global_mmlu_full_el_nutrition",
+      "global_mmlu_full_el_professional_accounting",
+      "global_mmlu_full_el_professional_medicine",
+      "global_mmlu_full_el_virology"
+    ],
+    "global_mmlu_full_el_stem": [
+      "global_mmlu_full_el_abstract_algebra",
+      "global_mmlu_full_el_anatomy",
+      "global_mmlu_full_el_astronomy",
+      "global_mmlu_full_el_college_biology",
+      "global_mmlu_full_el_college_chemistry",
+      "global_mmlu_full_el_college_computer_science",
+      "global_mmlu_full_el_college_mathematics",
+      "global_mmlu_full_el_college_physics",
+      "global_mmlu_full_el_computer_security",
+      "global_mmlu_full_el_conceptual_physics",
+      "global_mmlu_full_el_electrical_engineering",
+      "global_mmlu_full_el_elementary_mathematics",
+      "global_mmlu_full_el_high_school_biology",
+      "global_mmlu_full_el_high_school_chemistry",
+      "global_mmlu_full_el_high_school_computer_science",
+      "global_mmlu_full_el_high_school_mathematics",
+      "global_mmlu_full_el_high_school_physics",
+      "global_mmlu_full_el_high_school_statistics",
+      "global_mmlu_full_el_machine_learning"
+    ],
+    "global_mmlu_full_el": [
+      "global_mmlu_full_el_stem",
+      "global_mmlu_full_el_other",
+      "global_mmlu_full_el_social_sciences",
+      "global_mmlu_full_el_humanities"
+    ],
+    "include_base_44_greek_few_shot_en": [
+      "include_base_44_greek_few_shot_en_stem",
+      "include_base_44_greek_few_shot_en_arts_humanities",
+      "include_base_44_greek_few_shot_en_social_science",
+      "include_base_44_greek_few_shot_en_business_commerce",
+      "include_base_44_greek_few_shot_en_health_oriented_education",
+      "include_base_44_greek_few_shot_en_professional_certification",
+      "include_base_44_greek_few_shot_en_medical_license"
+    ],
+    "global_piqa_completions_ell_grek": []
+  },
+  "configs": {
+    "arc_challenge_mt_el": {
+      "task": "arc_challenge_mt_el",
+      "tag": [
+        "arc_challenge_mt"
+      ],
+      "dataset_path": "LumiOpen/arc_challenge_mt",
+      "dataset_name": "el",
+      "training_split": "train",
+      "validation_split": "validation",
+      "test_split": "test",
+      "doc_to_text": "Question: {{question}}\nAnswer:",
+      "doc_to_target": "{{choices.label.index(answerKey)}}",
+      "unsafe_code": false,
+      "doc_to_choice": "{{choices.text}}",
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "default",
+        "split": null,
+        "process_docs": null,
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "Question: {{question}}\nAnswer:",
+        "doc_to_choice": "{{choices.text}}",
+        "doc_to_target": "{{choices.label.index(answerKey)}}",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        },
+        {
+          "metric": "acc_norm",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": true,
+      "doc_to_decontamination_query": "Question: {{question}}\nAnswer:",
+      "metadata": {
+        "version": 1.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "belebele_ell_Grek": {
+      "task": "belebele_ell_Grek",
+      "dataset_path": "facebook/belebele",
+      "dataset_name": "ell_Grek",
+      "test_split": "test",
+      "fewshot_split": "test",
+      "doc_to_text": "P: {{flores_passage}}\nQ: {{question.strip()}}\nA: {{mc_answer1}}\nB: {{mc_answer2}}\nC: {{mc_answer3}}\nD: {{mc_answer4}}\nAnswer:",
+      "doc_to_target": "{{['1', '2', '3', '4'].index(correct_answer_num)}}",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "test",
+        "process_docs": null,
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "P: {{flores_passage}}\nQ: {{question.strip()}}\nA: {{mc_answer1}}\nB: {{mc_answer2}}\nC: {{mc_answer3}}\nD: {{mc_answer4}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "{{['1', '2', '3', '4'].index(correct_answer_num)}}",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        },
+        {
+          "metric": "acc_norm",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": true,
+      "doc_to_decontamination_query": "{{question}}",
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_abstract_algebra": {
+      "task": "global_mmlu_full_el_abstract_algebra",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d8ca47c0>, subject='abstract_algebra')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d8ca47c0>, subject='abstract_algebra')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_anatomy": {
+      "task": "global_mmlu_full_el_anatomy",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d8ca6ac0>, subject='anatomy')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d8ca6ac0>, subject='anatomy')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_astronomy": {
+      "task": "global_mmlu_full_el_astronomy",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d8ca4f40>, subject='astronomy')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d8ca4f40>, subject='astronomy')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_business_ethics": {
+      "task": "global_mmlu_full_el_business_ethics",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4c180>, subject='business_ethics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4c180>, subject='business_ethics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_clinical_knowledge": {
+      "task": "global_mmlu_full_el_clinical_knowledge",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd59e0>, subject='clinical_knowledge')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd59e0>, subject='clinical_knowledge')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_college_biology": {
+      "task": "global_mmlu_full_el_college_biology",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d8ca5bc0>, subject='college_biology')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d8ca5bc0>, subject='college_biology')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_college_chemistry": {
+      "task": "global_mmlu_full_el_college_chemistry",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d8ca44a0>, subject='college_chemistry')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d8ca44a0>, subject='college_chemistry')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_college_computer_science": {
+      "task": "global_mmlu_full_el_college_computer_science",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4b920>, subject='college_computer_science')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4b920>, subject='college_computer_science')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_college_mathematics": {
+      "task": "global_mmlu_full_el_college_mathematics",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4aa20>, subject='college_mathematics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4aa20>, subject='college_mathematics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_college_medicine": {
+      "task": "global_mmlu_full_el_college_medicine",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4e520>, subject='college_medicine')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4e520>, subject='college_medicine')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_college_physics": {
+      "task": "global_mmlu_full_el_college_physics",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9c49760>, subject='college_physics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9c49760>, subject='college_physics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_computer_security": {
+      "task": "global_mmlu_full_el_computer_security",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4bd80>, subject='computer_security')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4bd80>, subject='computer_security')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_conceptual_physics": {
+      "task": "global_mmlu_full_el_conceptual_physics",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4ba60>, subject='conceptual_physics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4ba60>, subject='conceptual_physics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_econometrics": {
+      "task": "global_mmlu_full_el_econometrics",
+      "tag": "global_mmlu_full_el_social_sciences_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4c900>, subject='econometrics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4c900>, subject='econometrics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_electrical_engineering": {
+      "task": "global_mmlu_full_el_electrical_engineering",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd4860>, subject='electrical_engineering')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd4860>, subject='electrical_engineering')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_elementary_mathematics": {
+      "task": "global_mmlu_full_el_elementary_mathematics",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4b420>, subject='elementary_mathematics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4b420>, subject='elementary_mathematics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_formal_logic": {
+      "task": "global_mmlu_full_el_formal_logic",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dafb3ba0>, subject='formal_logic')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dafb3ba0>, subject='formal_logic')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_global_facts": {
+      "task": "global_mmlu_full_el_global_facts",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd6700>, subject='global_facts')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd6700>, subject='global_facts')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_biology": {
+      "task": "global_mmlu_full_el_high_school_biology",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9c48900>, subject='high_school_biology')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9c48900>, subject='high_school_biology')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_chemistry": {
+      "task": "global_mmlu_full_el_high_school_chemistry",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9c49d00>, subject='high_school_chemistry')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9c49d00>, subject='high_school_chemistry')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_computer_science": {
+      "task": "global_mmlu_full_el_high_school_computer_science",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd5da0>, subject='high_school_computer_science')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd5da0>, subject='high_school_computer_science')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_european_history": {
+      "task": "global_mmlu_full_el_high_school_european_history",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dafb2200>, subject='high_school_european_history')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dafb2200>, subject='high_school_european_history')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_geography": {
+      "task": "global_mmlu_full_el_high_school_geography",
+      "tag": "global_mmlu_full_el_social_sciences_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9daf616c0>, subject='high_school_geography')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9daf616c0>, subject='high_school_geography')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_government_and_politics": {
+      "task": "global_mmlu_full_el_high_school_government_and_politics",
+      "tag": "global_mmlu_full_el_social_sciences_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4c5e0>, subject='high_school_government_and_politics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4c5e0>, subject='high_school_government_and_politics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_macroeconomics": {
+      "task": "global_mmlu_full_el_high_school_macroeconomics",
+      "tag": "global_mmlu_full_el_social_sciences_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4d260>, subject='high_school_macroeconomics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4d260>, subject='high_school_macroeconomics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_mathematics": {
+      "task": "global_mmlu_full_el_high_school_mathematics",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd79c0>, subject='high_school_mathematics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd79c0>, subject='high_school_mathematics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_microeconomics": {
+      "task": "global_mmlu_full_el_high_school_microeconomics",
+      "tag": "global_mmlu_full_el_social_sciences_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4fe20>, subject='high_school_microeconomics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4fe20>, subject='high_school_microeconomics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_physics": {
+      "task": "global_mmlu_full_el_high_school_physics",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd7560>, subject='high_school_physics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd7560>, subject='high_school_physics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_psychology": {
+      "task": "global_mmlu_full_el_high_school_psychology",
+      "tag": "global_mmlu_full_el_social_sciences_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4f2e0>, subject='high_school_psychology')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4f2e0>, subject='high_school_psychology')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_statistics": {
+      "task": "global_mmlu_full_el_high_school_statistics",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd42c0>, subject='high_school_statistics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd42c0>, subject='high_school_statistics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_us_history": {
+      "task": "global_mmlu_full_el_high_school_us_history",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dafb19e0>, subject='high_school_us_history')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dafb19e0>, subject='high_school_us_history')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_high_school_world_history": {
+      "task": "global_mmlu_full_el_high_school_world_history",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dafb2160>, subject='high_school_world_history')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dafb2160>, subject='high_school_world_history')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_human_aging": {
+      "task": "global_mmlu_full_el_human_aging",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd7740>, subject='human_aging')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd7740>, subject='human_aging')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_human_sexuality": {
+      "task": "global_mmlu_full_el_human_sexuality",
+      "tag": "global_mmlu_full_el_social_sciences_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4d580>, subject='human_sexuality')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4d580>, subject='human_sexuality')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_international_law": {
+      "task": "global_mmlu_full_el_international_law",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dafb3d80>, subject='international_law')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dafb3d80>, subject='international_law')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_jurisprudence": {
+      "task": "global_mmlu_full_el_jurisprudence",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dafb0040>, subject='jurisprudence')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dafb0040>, subject='jurisprudence')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_logical_fallacies": {
+      "task": "global_mmlu_full_el_logical_fallacies",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9daf60360>, subject='logical_fallacies')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9daf60360>, subject='logical_fallacies')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_machine_learning": {
+      "task": "global_mmlu_full_el_machine_learning",
+      "tag": "global_mmlu_full_el_stem_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4b4c0>, subject='machine_learning')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4b4c0>, subject='machine_learning')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_management": {
+      "task": "global_mmlu_full_el_management",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd4180>, subject='management')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd4180>, subject='management')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_marketing": {
+      "task": "global_mmlu_full_el_marketing",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd4220>, subject='marketing')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd4220>, subject='marketing')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_medical_genetics": {
+      "task": "global_mmlu_full_el_medical_genetics",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd4c20>, subject='medical_genetics')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9bd4c20>, subject='medical_genetics')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_miscellaneous": {
+      "task": "global_mmlu_full_el_miscellaneous",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4d9e0>, subject='miscellaneous')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4d9e0>, subject='miscellaneous')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_moral_disputes": {
+      "task": "global_mmlu_full_el_moral_disputes",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9daf63880>, subject='moral_disputes')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9daf63880>, subject='moral_disputes')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_moral_scenarios": {
+      "task": "global_mmlu_full_el_moral_scenarios",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9daf623e0>, subject='moral_scenarios')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9daf623e0>, subject='moral_scenarios')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_nutrition": {
+      "task": "global_mmlu_full_el_nutrition",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4c360>, subject='nutrition')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4c360>, subject='nutrition')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_philosophy": {
+      "task": "global_mmlu_full_el_philosophy",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9daf60220>, subject='philosophy')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9daf60220>, subject='philosophy')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_prehistory": {
+      "task": "global_mmlu_full_el_prehistory",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9daf61760>, subject='prehistory')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9daf61760>, subject='prehistory')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_professional_accounting": {
+      "task": "global_mmlu_full_el_professional_accounting",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4d4e0>, subject='professional_accounting')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4d4e0>, subject='professional_accounting')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_professional_law": {
+      "task": "global_mmlu_full_el_professional_law",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9daf63060>, subject='professional_law')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9daf63060>, subject='professional_law')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_professional_medicine": {
+      "task": "global_mmlu_full_el_professional_medicine",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4e7a0>, subject='professional_medicine')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4e7a0>, subject='professional_medicine')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_professional_psychology": {
+      "task": "global_mmlu_full_el_professional_psychology",
+      "tag": "global_mmlu_full_el_social_sciences_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dad4e200>, subject='professional_psychology')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dad4e200>, subject='professional_psychology')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_public_relations": {
+      "task": "global_mmlu_full_el_public_relations",
+      "tag": "global_mmlu_full_el_social_sciences_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9daf60f40>, subject='public_relations')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9daf60f40>, subject='public_relations')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_security_studies": {
+      "task": "global_mmlu_full_el_security_studies",
+      "tag": "global_mmlu_full_el_social_sciences_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dafb2ca0>, subject='security_studies')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dafb2ca0>, subject='security_studies')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_sociology": {
+      "task": "global_mmlu_full_el_sociology",
+      "tag": "global_mmlu_full_el_social_sciences_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9daf62ac0>, subject='sociology')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9daf62ac0>, subject='sociology')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_us_foreign_policy": {
+      "task": "global_mmlu_full_el_us_foreign_policy",
+      "tag": "global_mmlu_full_el_social_sciences_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9dafb36a0>, subject='us_foreign_policy')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9dafb36a0>, subject='us_foreign_policy')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_virology": {
+      "task": "global_mmlu_full_el_virology",
+      "tag": "global_mmlu_full_el_other_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9daf60680>, subject='virology')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9daf60680>, subject='virology')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_mmlu_full_el_world_religions": {
+      "task": "global_mmlu_full_el_world_religions",
+      "tag": "global_mmlu_full_el_humanities_tasks",
+      "dataset_path": "CohereForAI/Global-MMLU",
+      "dataset_name": "el",
+      "test_split": "test",
+      "fewshot_split": "dev",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9daef7e20>, subject='world_religions')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "first_n",
+        "split": "dev",
+        "process_docs": "functools.partial(<function process_docs at 0xffe9daef7e20>, subject='world_religions')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\nD. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "global_piqa_completions_ell_grek": {
+      "task": "global_piqa_completions_ell_grek",
+      "dataset_path": "mrlbenchmarks/global-piqa-nonparallel",
+      "dataset_name": "ell_grek",
+      "test_split": "test",
+      "doc_to_text": "prompt",
+      "doc_to_target": "label",
+      "unsafe_code": false,
+      "doc_to_choice": "{{[solution0, solution1]}}",
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "default",
+        "split": null,
+        "process_docs": null,
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "prompt",
+        "doc_to_choice": "{{[solution0, solution1]}}",
+        "doc_to_target": "label",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        },
+        {
+          "metric": "acc_norm",
+          "aggregation": "mean",
+          "higher_is_better": true
+        },
+        {
+          "metric": "acc_bytes",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 1.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "include_base_44_greek_few_shot_en_arts_humanities": {
+      "task": "include_base_44_greek_few_shot_en_arts_humanities",
+      "dataset_path": "CohereForAI/include-base-44",
+      "dataset_name": "Greek",
+      "test_split": "test",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d86a1620>, category='Arts & Humanities')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "The following are multiple-choice questions (with answers) about Arts & Humanities.",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "default",
+        "split": null,
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d86a1620>, category='Arts & Humanities')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "include_base_44_greek_few_shot_en_business_commerce": {
+      "task": "include_base_44_greek_few_shot_en_business_commerce",
+      "dataset_path": "CohereForAI/include-base-44",
+      "dataset_name": "Greek",
+      "test_split": "test",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9871f80>, category='Business & Commerce')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "The following are multiple-choice questions (with answers) about Business & Commerce.",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "default",
+        "split": null,
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9871f80>, category='Business & Commerce')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "include_base_44_greek_few_shot_en_health_oriented_education": {
+      "task": "include_base_44_greek_few_shot_en_health_oriented_education",
+      "dataset_path": "CohereForAI/include-base-44",
+      "dataset_name": "Greek",
+      "test_split": "test",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9f46a6ca0>, category='Health oriented education')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "The following are multiple-choice questions (with answers) about Health oriented education.",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "default",
+        "split": null,
+        "process_docs": "functools.partial(<function process_docs at 0xffe9f46a6ca0>, category='Health oriented education')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "include_base_44_greek_few_shot_en_medical_license": {
+      "task": "include_base_44_greek_few_shot_en_medical_license",
+      "dataset_path": "CohereForAI/include-base-44",
+      "dataset_name": "Greek",
+      "test_split": "test",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9daef7880>, category='Medical License')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "The following are multiple-choice questions (with answers) about Medical License.",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "default",
+        "split": null,
+        "process_docs": "functools.partial(<function process_docs at 0xffe9daef7880>, category='Medical License')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "include_base_44_greek_few_shot_en_professional_certification": {
+      "task": "include_base_44_greek_few_shot_en_professional_certification",
+      "dataset_path": "CohereForAI/include-base-44",
+      "dataset_name": "Greek",
+      "test_split": "test",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4bba0>, category='Professional certification')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "The following are multiple-choice questions (with answers) about Professional certification.",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "default",
+        "split": null,
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9c4bba0>, category='Professional certification')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "include_base_44_greek_few_shot_en_social_science": {
+      "task": "include_base_44_greek_few_shot_en_social_science",
+      "dataset_path": "CohereForAI/include-base-44",
+      "dataset_name": "Greek",
+      "test_split": "test",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9872660>, category='Social Science')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "The following are multiple-choice questions (with answers) about Social Science.",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "default",
+        "split": null,
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9872660>, category='Social Science')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "include_base_44_greek_few_shot_en_stem": {
+      "task": "include_base_44_greek_few_shot_en_stem",
+      "dataset_path": "CohereForAI/include-base-44",
+      "dataset_name": "Greek",
+      "test_split": "test",
+      "process_docs": "functools.partial(<function process_docs at 0xffe9d9c48d60>, category='STEM')",
+      "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+      "doc_to_target": "answer",
+      "unsafe_code": false,
+      "doc_to_choice": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "The following are multiple-choice questions (with answers) about STEM.",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "default",
+        "split": null,
+        "process_docs": "functools.partial(<function process_docs at 0xffe9d9c48d60>, category='STEM')",
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "{{question.strip()}}\nA. {{option_a}}\nB. {{option_b}}\nC. {{option_c}}\n D. {{option_d}}\nAnswer:",
+        "doc_to_choice": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "doc_to_target": "answer",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 0.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "xnli_el": {
+      "task": "xnli_el",
+      "dataset_path": "xnli",
+      "dataset_name": "el",
+      "training_split": "train",
+      "validation_split": "validation",
+      "doc_to_text": "",
+      "doc_to_target": "label",
+      "unsafe_code": false,
+      "doc_to_choice": "{{[premise+\", σωστός? Ναί, \"+hypothesis,premise+\", σωστός? Έτσι, \"+hypothesis,premise+\", σωστός? όχι, \"+hypothesis]}}",
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "default",
+        "split": null,
+        "process_docs": null,
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "",
+        "doc_to_choice": "{{[premise+\", σωστός? Ναί, \"+hypothesis,premise+\", σωστός? Έτσι, \"+hypothesis,premise+\", σωστός? όχι, \"+hypothesis]}}",
+        "doc_to_target": "label",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "acc",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "multiple_choice",
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 1.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    },
+    "xquad_el": {
+      "task": "xquad_el",
+      "tag": "xquad",
+      "dataset_path": "xquad",
+      "dataset_name": "xquad.el",
+      "validation_split": "validation",
+      "doc_to_text": "Συμφραζόμενα: {{context}}\n\nΕρώτηση: {{question}}\n\nΑπάντηση:",
+      "doc_to_target": "{{answers[\"text\"][0]}}",
+      "unsafe_code": false,
+      "process_results": "def process_results_qa(doc, results):\n    preds = results[0]\n    reference = doc[\"answers\"][\"text\"][0]\n    f1_sum = squad_metrics.compute_f1(reference, preds)\n    exact_match = squad_metrics.compute_exact(reference, preds)\n    return {\"f1\": f1_sum, \"exact_match\": exact_match}\n",
+      "description": "",
+      "target_delimiter": " ",
+      "fewshot_delimiter": "\n\n",
+      "fewshot_config": {
+        "sampler": "default",
+        "split": null,
+        "process_docs": null,
+        "fewshot_indices": null,
+        "samples": null,
+        "doc_to_text": "Συμφραζόμενα: {{context}}\n\nΕρώτηση: {{question}}\n\nΑπάντηση:",
+        "doc_to_choice": null,
+        "doc_to_target": "{{answers[\"text\"][0]}}",
+        "gen_prefix": null,
+        "fewshot_delimiter": "\n\n",
+        "target_delimiter": " "
+      },
+      "num_fewshot": 0,
+      "metric_list": [
+        {
+          "metric": "exact_match",
+          "aggregation": "mean",
+          "higher_is_better": true
+        },
+        {
+          "metric": "f1",
+          "aggregation": "mean",
+          "higher_is_better": true
+        }
+      ],
+      "output_type": "generate_until",
+      "generation_kwargs": {
+        "until": [
+          "\n"
+        ],
+        "do_sample": false,
+        "temperature": 0.0
+      },
+      "repeats": 1,
+      "should_decontaminate": false,
+      "metadata": {
+        "version": 1.0,
+        "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+        "dtype": "bfloat16",
+        "trust_remote_code": true
+      }
+    }
+  },
+  "versions": {
+    "arc_challenge_mt_el": 1.0,
+    "belebele_ell_Grek": 0.0,
+    "global_mmlu_full_el": 0.0,
+    "global_mmlu_full_el_abstract_algebra": 0.0,
+    "global_mmlu_full_el_anatomy": 0.0,
+    "global_mmlu_full_el_astronomy": 0.0,
+    "global_mmlu_full_el_business_ethics": 0.0,
+    "global_mmlu_full_el_clinical_knowledge": 0.0,
+    "global_mmlu_full_el_college_biology": 0.0,
+    "global_mmlu_full_el_college_chemistry": 0.0,
+    "global_mmlu_full_el_college_computer_science": 0.0,
+    "global_mmlu_full_el_college_mathematics": 0.0,
+    "global_mmlu_full_el_college_medicine": 0.0,
+    "global_mmlu_full_el_college_physics": 0.0,
+    "global_mmlu_full_el_computer_security": 0.0,
+    "global_mmlu_full_el_conceptual_physics": 0.0,
+    "global_mmlu_full_el_econometrics": 0.0,
+    "global_mmlu_full_el_electrical_engineering": 0.0,
+    "global_mmlu_full_el_elementary_mathematics": 0.0,
+    "global_mmlu_full_el_formal_logic": 0.0,
+    "global_mmlu_full_el_global_facts": 0.0,
+    "global_mmlu_full_el_high_school_biology": 0.0,
+    "global_mmlu_full_el_high_school_chemistry": 0.0,
+    "global_mmlu_full_el_high_school_computer_science": 0.0,
+    "global_mmlu_full_el_high_school_european_history": 0.0,
+    "global_mmlu_full_el_high_school_geography": 0.0,
+    "global_mmlu_full_el_high_school_government_and_politics": 0.0,
+    "global_mmlu_full_el_high_school_macroeconomics": 0.0,
+    "global_mmlu_full_el_high_school_mathematics": 0.0,
+    "global_mmlu_full_el_high_school_microeconomics": 0.0,
+    "global_mmlu_full_el_high_school_physics": 0.0,
+    "global_mmlu_full_el_high_school_psychology": 0.0,
+    "global_mmlu_full_el_high_school_statistics": 0.0,
+    "global_mmlu_full_el_high_school_us_history": 0.0,
+    "global_mmlu_full_el_high_school_world_history": 0.0,
+    "global_mmlu_full_el_human_aging": 0.0,
+    "global_mmlu_full_el_human_sexuality": 0.0,
+    "global_mmlu_full_el_humanities": 0.0,
+    "global_mmlu_full_el_international_law": 0.0,
+    "global_mmlu_full_el_jurisprudence": 0.0,
+    "global_mmlu_full_el_logical_fallacies": 0.0,
+    "global_mmlu_full_el_machine_learning": 0.0,
+    "global_mmlu_full_el_management": 0.0,
+    "global_mmlu_full_el_marketing": 0.0,
+    "global_mmlu_full_el_medical_genetics": 0.0,
+    "global_mmlu_full_el_miscellaneous": 0.0,
+    "global_mmlu_full_el_moral_disputes": 0.0,
+    "global_mmlu_full_el_moral_scenarios": 0.0,
+    "global_mmlu_full_el_nutrition": 0.0,
+    "global_mmlu_full_el_other": 0.0,
+    "global_mmlu_full_el_philosophy": 0.0,
+    "global_mmlu_full_el_prehistory": 0.0,
+    "global_mmlu_full_el_professional_accounting": 0.0,
+    "global_mmlu_full_el_professional_law": 0.0,
+    "global_mmlu_full_el_professional_medicine": 0.0,
+    "global_mmlu_full_el_professional_psychology": 0.0,
+    "global_mmlu_full_el_public_relations": 0.0,
+    "global_mmlu_full_el_security_studies": 0.0,
+    "global_mmlu_full_el_social_sciences": 0.0,
+    "global_mmlu_full_el_sociology": 0.0,
+    "global_mmlu_full_el_stem": 0.0,
+    "global_mmlu_full_el_us_foreign_policy": 0.0,
+    "global_mmlu_full_el_virology": 0.0,
+    "global_mmlu_full_el_world_religions": 0.0,
+    "global_piqa_completions_ell_grek": 1.0,
+    "include_base_44_greek_few_shot_en": 0.1,
+    "include_base_44_greek_few_shot_en_arts_humanities": 0.0,
+    "include_base_44_greek_few_shot_en_business_commerce": 0.0,
+    "include_base_44_greek_few_shot_en_health_oriented_education": 0.0,
+    "include_base_44_greek_few_shot_en_medical_license": 0.0,
+    "include_base_44_greek_few_shot_en_professional_certification": 0.0,
+    "include_base_44_greek_few_shot_en_social_science": 0.0,
+    "include_base_44_greek_few_shot_en_stem": 0.0,
+    "xnli_el": 1.0,
+    "xquad_el": 1.0
+  },
+  "n-shot": {
+    "arc_challenge_mt_el": 0,
+    "belebele_ell_Grek": 0,
+    "global_mmlu_full_el_abstract_algebra": 0,
+    "global_mmlu_full_el_anatomy": 0,
+    "global_mmlu_full_el_astronomy": 0,
+    "global_mmlu_full_el_business_ethics": 0,
+    "global_mmlu_full_el_clinical_knowledge": 0,
+    "global_mmlu_full_el_college_biology": 0,
+    "global_mmlu_full_el_college_chemistry": 0,
+    "global_mmlu_full_el_college_computer_science": 0,
+    "global_mmlu_full_el_college_mathematics": 0,
+    "global_mmlu_full_el_college_medicine": 0,
+    "global_mmlu_full_el_college_physics": 0,
+    "global_mmlu_full_el_computer_security": 0,
+    "global_mmlu_full_el_conceptual_physics": 0,
+    "global_mmlu_full_el_econometrics": 0,
+    "global_mmlu_full_el_electrical_engineering": 0,
+    "global_mmlu_full_el_elementary_mathematics": 0,
+    "global_mmlu_full_el_formal_logic": 0,
+    "global_mmlu_full_el_global_facts": 0,
+    "global_mmlu_full_el_high_school_biology": 0,
+    "global_mmlu_full_el_high_school_chemistry": 0,
+    "global_mmlu_full_el_high_school_computer_science": 0,
+    "global_mmlu_full_el_high_school_european_history": 0,
+    "global_mmlu_full_el_high_school_geography": 0,
+    "global_mmlu_full_el_high_school_government_and_politics": 0,
+    "global_mmlu_full_el_high_school_macroeconomics": 0,
+    "global_mmlu_full_el_high_school_mathematics": 0,
+    "global_mmlu_full_el_high_school_microeconomics": 0,
+    "global_mmlu_full_el_high_school_physics": 0,
+    "global_mmlu_full_el_high_school_psychology": 0,
+    "global_mmlu_full_el_high_school_statistics": 0,
+    "global_mmlu_full_el_high_school_us_history": 0,
+    "global_mmlu_full_el_high_school_world_history": 0,
+    "global_mmlu_full_el_human_aging": 0,
+    "global_mmlu_full_el_human_sexuality": 0,
+    "global_mmlu_full_el_international_law": 0,
+    "global_mmlu_full_el_jurisprudence": 0,
+    "global_mmlu_full_el_logical_fallacies": 0,
+    "global_mmlu_full_el_machine_learning": 0,
+    "global_mmlu_full_el_management": 0,
+    "global_mmlu_full_el_marketing": 0,
+    "global_mmlu_full_el_medical_genetics": 0,
+    "global_mmlu_full_el_miscellaneous": 0,
+    "global_mmlu_full_el_moral_disputes": 0,
+    "global_mmlu_full_el_moral_scenarios": 0,
+    "global_mmlu_full_el_nutrition": 0,
+    "global_mmlu_full_el_philosophy": 0,
+    "global_mmlu_full_el_prehistory": 0,
+    "global_mmlu_full_el_professional_accounting": 0,
+    "global_mmlu_full_el_professional_law": 0,
+    "global_mmlu_full_el_professional_medicine": 0,
+    "global_mmlu_full_el_professional_psychology": 0,
+    "global_mmlu_full_el_public_relations": 0,
+    "global_mmlu_full_el_security_studies": 0,
+    "global_mmlu_full_el_sociology": 0,
+    "global_mmlu_full_el_us_foreign_policy": 0,
+    "global_mmlu_full_el_virology": 0,
+    "global_mmlu_full_el_world_religions": 0,
+    "global_piqa_completions_ell_grek": 0,
+    "include_base_44_greek_few_shot_en_arts_humanities": 0,
+    "include_base_44_greek_few_shot_en_business_commerce": 0,
+    "include_base_44_greek_few_shot_en_health_oriented_education": 0,
+    "include_base_44_greek_few_shot_en_medical_license": 0,
+    "include_base_44_greek_few_shot_en_professional_certification": 0,
+    "include_base_44_greek_few_shot_en_social_science": 0,
+    "include_base_44_greek_few_shot_en_stem": 0,
+    "xnli_el": 0,
+    "xquad_el": 0
+  },
+  "higher_is_better": {
+    "arc_challenge_mt_el": {
+      "acc": true,
+      "acc_norm": true
+    },
+    "belebele_ell_Grek": {
+      "acc": true,
+      "acc_norm": true
+    },
+    "global_mmlu_full_el": {
+      "acc": true
+    },
+    "global_mmlu_full_el_abstract_algebra": {
+      "acc": true
+    },
+    "global_mmlu_full_el_anatomy": {
+      "acc": true
+    },
+    "global_mmlu_full_el_astronomy": {
+      "acc": true
+    },
+    "global_mmlu_full_el_business_ethics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_clinical_knowledge": {
+      "acc": true
+    },
+    "global_mmlu_full_el_college_biology": {
+      "acc": true
+    },
+    "global_mmlu_full_el_college_chemistry": {
+      "acc": true
+    },
+    "global_mmlu_full_el_college_computer_science": {
+      "acc": true
+    },
+    "global_mmlu_full_el_college_mathematics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_college_medicine": {
+      "acc": true
+    },
+    "global_mmlu_full_el_college_physics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_computer_security": {
+      "acc": true
+    },
+    "global_mmlu_full_el_conceptual_physics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_econometrics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_electrical_engineering": {
+      "acc": true
+    },
+    "global_mmlu_full_el_elementary_mathematics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_formal_logic": {
+      "acc": true
+    },
+    "global_mmlu_full_el_global_facts": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_biology": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_chemistry": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_computer_science": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_european_history": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_geography": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_government_and_politics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_macroeconomics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_mathematics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_microeconomics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_physics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_psychology": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_statistics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_us_history": {
+      "acc": true
+    },
+    "global_mmlu_full_el_high_school_world_history": {
+      "acc": true
+    },
+    "global_mmlu_full_el_human_aging": {
+      "acc": true
+    },
+    "global_mmlu_full_el_human_sexuality": {
+      "acc": true
+    },
+    "global_mmlu_full_el_humanities": {
+      "acc": true
+    },
+    "global_mmlu_full_el_international_law": {
+      "acc": true
+    },
+    "global_mmlu_full_el_jurisprudence": {
+      "acc": true
+    },
+    "global_mmlu_full_el_logical_fallacies": {
+      "acc": true
+    },
+    "global_mmlu_full_el_machine_learning": {
+      "acc": true
+    },
+    "global_mmlu_full_el_management": {
+      "acc": true
+    },
+    "global_mmlu_full_el_marketing": {
+      "acc": true
+    },
+    "global_mmlu_full_el_medical_genetics": {
+      "acc": true
+    },
+    "global_mmlu_full_el_miscellaneous": {
+      "acc": true
+    },
+    "global_mmlu_full_el_moral_disputes": {
+      "acc": true
+    },
+    "global_mmlu_full_el_moral_scenarios": {
+      "acc": true
+    },
+    "global_mmlu_full_el_nutrition": {
+      "acc": true
+    },
+    "global_mmlu_full_el_other": {
+      "acc": true
+    },
+    "global_mmlu_full_el_philosophy": {
+      "acc": true
+    },
+    "global_mmlu_full_el_prehistory": {
+      "acc": true
+    },
+    "global_mmlu_full_el_professional_accounting": {
+      "acc": true
+    },
+    "global_mmlu_full_el_professional_law": {
+      "acc": true
+    },
+    "global_mmlu_full_el_professional_medicine": {
+      "acc": true
+    },
+    "global_mmlu_full_el_professional_psychology": {
+      "acc": true
+    },
+    "global_mmlu_full_el_public_relations": {
+      "acc": true
+    },
+    "global_mmlu_full_el_security_studies": {
+      "acc": true
+    },
+    "global_mmlu_full_el_social_sciences": {
+      "acc": true
+    },
+    "global_mmlu_full_el_sociology": {
+      "acc": true
+    },
+    "global_mmlu_full_el_stem": {
+      "acc": true
+    },
+    "global_mmlu_full_el_us_foreign_policy": {
+      "acc": true
+    },
+    "global_mmlu_full_el_virology": {
+      "acc": true
+    },
+    "global_mmlu_full_el_world_religions": {
+      "acc": true
+    },
+    "global_piqa_completions_ell_grek": {
+      "acc": true,
+      "acc_norm": true,
+      "acc_bytes": true
+    },
+    "include_base_44_greek_few_shot_en": {
+      "acc": true
+    },
+    "include_base_44_greek_few_shot_en_arts_humanities": {
+      "acc": true
+    },
+    "include_base_44_greek_few_shot_en_business_commerce": {
+      "acc": true
+    },
+    "include_base_44_greek_few_shot_en_health_oriented_education": {
+      "acc": true
+    },
+    "include_base_44_greek_few_shot_en_medical_license": {
+      "acc": true
+    },
+    "include_base_44_greek_few_shot_en_professional_certification": {
+      "acc": true
+    },
+    "include_base_44_greek_few_shot_en_social_science": {
+      "acc": true
+    },
+    "include_base_44_greek_few_shot_en_stem": {
+      "acc": true
+    },
+    "xnli_el": {
+      "acc": true
+    },
+    "xquad_el": {
+      "exact_match": true,
+      "f1": true
+    }
+  },
+  "n-samples": {
+    "global_piqa_completions_ell_grek": {
+      "original": 100,
+      "effective": 100
+    },
+    "include_base_44_greek_few_shot_en_stem": {
+      "original": 25,
+      "effective": 25
+    },
+    "include_base_44_greek_few_shot_en_arts_humanities": {
+      "original": 37,
+      "effective": 37
+    },
+    "include_base_44_greek_few_shot_en_social_science": {
+      "original": 134,
+      "effective": 134
+    },
+    "include_base_44_greek_few_shot_en_business_commerce": {
+      "original": 63,
+      "effective": 63
+    },
+    "include_base_44_greek_few_shot_en_health_oriented_education": {
+      "original": 25,
+      "effective": 25
+    },
+    "include_base_44_greek_few_shot_en_professional_certification": {
+      "original": 134,
+      "effective": 134
+    },
+    "include_base_44_greek_few_shot_en_medical_license": {
+      "original": 134,
+      "effective": 134
+    },
+    "global_mmlu_full_el_abstract_algebra": {
+      "original": 100,
+      "effective": 100
+    },
+    "global_mmlu_full_el_anatomy": {
+      "original": 135,
+      "effective": 135
+    },
+    "global_mmlu_full_el_astronomy": {
+      "original": 152,
+      "effective": 152
+    },
+    "global_mmlu_full_el_college_biology": {
+      "original": 144,
+      "effective": 144
+    },
+    "global_mmlu_full_el_college_chemistry": {
+      "original": 100,
+      "effective": 100
+    },
+    "global_mmlu_full_el_college_computer_science": {
+      "original": 100,
+      "effective": 100
+    },
+    "global_mmlu_full_el_college_mathematics": {
+      "original": 100,
+      "effective": 100
+    },
+    "global_mmlu_full_el_college_physics": {
+      "original": 102,
+      "effective": 102
+    },
+    "global_mmlu_full_el_computer_security": {
+      "original": 100,
+      "effective": 100
+    },
+    "global_mmlu_full_el_conceptual_physics": {
+      "original": 235,
+      "effective": 235
+    },
+    "global_mmlu_full_el_electrical_engineering": {
+      "original": 145,
+      "effective": 145
+    },
+    "global_mmlu_full_el_elementary_mathematics": {
+      "original": 378,
+      "effective": 378
+    },
+    "global_mmlu_full_el_high_school_biology": {
+      "original": 310,
+      "effective": 310
+    },
+    "global_mmlu_full_el_high_school_chemistry": {
+      "original": 203,
+      "effective": 203
+    },
+    "global_mmlu_full_el_high_school_computer_science": {
+      "original": 100,
+      "effective": 100
+    },
+    "global_mmlu_full_el_high_school_mathematics": {
+      "original": 270,
+      "effective": 270
+    },
+    "global_mmlu_full_el_high_school_physics": {
+      "original": 151,
+      "effective": 151
+    },
+    "global_mmlu_full_el_high_school_statistics": {
+      "original": 216,
+      "effective": 216
+    },
+    "global_mmlu_full_el_machine_learning": {
+      "original": 112,
+      "effective": 112
+    },
+    "global_mmlu_full_el_business_ethics": {
+      "original": 100,
+      "effective": 100
+    },
+    "global_mmlu_full_el_clinical_knowledge": {
+      "original": 265,
+      "effective": 265
+    },
+    "global_mmlu_full_el_college_medicine": {
+      "original": 173,
+      "effective": 173
+    },
+    "global_mmlu_full_el_global_facts": {
+      "original": 100,
+      "effective": 100
+    },
+    "global_mmlu_full_el_human_aging": {
+      "original": 223,
+      "effective": 223
+    },
+    "global_mmlu_full_el_management": {
+      "original": 103,
+      "effective": 103
+    },
+    "global_mmlu_full_el_marketing": {
+      "original": 234,
+      "effective": 234
+    },
+    "global_mmlu_full_el_medical_genetics": {
+      "original": 100,
+      "effective": 100
+    },
+    "global_mmlu_full_el_miscellaneous": {
+      "original": 783,
+      "effective": 783
+    },
+    "global_mmlu_full_el_nutrition": {
+      "original": 306,
+      "effective": 306
+    },
+    "global_mmlu_full_el_professional_accounting": {
+      "original": 282,
+      "effective": 282
+    },
+    "global_mmlu_full_el_professional_medicine": {
+      "original": 272,
+      "effective": 272
+    },
+    "global_mmlu_full_el_virology": {
+      "original": 166,
+      "effective": 166
+    },
+    "global_mmlu_full_el_econometrics": {
+      "original": 114,
+      "effective": 114
+    },
+    "global_mmlu_full_el_high_school_geography": {
+      "original": 198,
+      "effective": 198
+    },
+    "global_mmlu_full_el_high_school_government_and_politics": {
+      "original": 193,
+      "effective": 193
+    },
+    "global_mmlu_full_el_high_school_macroeconomics": {
+      "original": 390,
+      "effective": 390
+    },
+    "global_mmlu_full_el_high_school_microeconomics": {
+      "original": 238,
+      "effective": 238
+    },
+    "global_mmlu_full_el_high_school_psychology": {
+      "original": 545,
+      "effective": 545
+    },
+    "global_mmlu_full_el_human_sexuality": {
+      "original": 131,
+      "effective": 131
+    },
+    "global_mmlu_full_el_professional_psychology": {
+      "original": 612,
+      "effective": 612
+    },
+    "global_mmlu_full_el_public_relations": {
+      "original": 110,
+      "effective": 110
+    },
+    "global_mmlu_full_el_security_studies": {
+      "original": 245,
+      "effective": 245
+    },
+    "global_mmlu_full_el_sociology": {
+      "original": 201,
+      "effective": 201
+    },
+    "global_mmlu_full_el_us_foreign_policy": {
+      "original": 100,
+      "effective": 100
+    },
+    "global_mmlu_full_el_formal_logic": {
+      "original": 126,
+      "effective": 126
+    },
+    "global_mmlu_full_el_high_school_european_history": {
+      "original": 165,
+      "effective": 165
+    },
+    "global_mmlu_full_el_high_school_us_history": {
+      "original": 204,
+      "effective": 204
+    },
+    "global_mmlu_full_el_high_school_world_history": {
+      "original": 237,
+      "effective": 237
+    },
+    "global_mmlu_full_el_international_law": {
+      "original": 121,
+      "effective": 121
+    },
+    "global_mmlu_full_el_jurisprudence": {
+      "original": 108,
+      "effective": 108
+    },
+    "global_mmlu_full_el_logical_fallacies": {
+      "original": 163,
+      "effective": 163
+    },
+    "global_mmlu_full_el_moral_disputes": {
+      "original": 346,
+      "effective": 346
+    },
+    "global_mmlu_full_el_moral_scenarios": {
+      "original": 895,
+      "effective": 895
+    },
+    "global_mmlu_full_el_philosophy": {
+      "original": 311,
+      "effective": 311
+    },
+    "global_mmlu_full_el_prehistory": {
+      "original": 324,
+      "effective": 324
+    },
+    "global_mmlu_full_el_professional_law": {
+      "original": 1534,
+      "effective": 1534
+    },
+    "global_mmlu_full_el_world_religions": {
+      "original": 171,
+      "effective": 171
+    },
+    "belebele_ell_Grek": {
+      "original": 900,
+      "effective": 900
+    },
+    "xquad_el": {
+      "original": 1190,
+      "effective": 1190
+    },
+    "xnli_el": {
+      "original": 2490,
+      "effective": 2490
+    },
+    "arc_challenge_mt_el": {
+      "original": 1172,
+      "effective": 1172
+    }
+  },
+  "config": {
+    "model": "hf",
+    "model_args": {
+      "pretrained": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+      "dtype": "bfloat16",
+      "trust_remote_code": true
+    },
+    "model_num_parameters": 8195944512,
+    "model_dtype": "torch.bfloat16",
+    "model_revision": "main",
+    "model_sha": "",
+    "batch_size": "auto",
+    "batch_sizes": [
+      64
+    ],
+    "device": "cuda:0",
+    "use_cache": null,
+    "limit": null,
+    "bootstrap_iters": 100000,
+    "gen_kwargs": {},
+    "random_seed": 0,
+    "numpy_seed": 1234,
+    "torch_seed": 1234,
+    "fewshot_seed": 1234
+  },
+  "git_hash": null,
+  "date": 1779438111.1925879,
+  "pretty_env_info": "PyTorch version: 2.9.1\nIs debug build: False\nCUDA used to build PyTorch: 12.9\nROCM used to build PyTorch: N/A\n\nOS: SUSE Linux Enterprise Server 15 SP6 (aarch64)\nGCC version: (Spack GCC) 14.2.0\nClang version: 21.1.4\nCMake version: version 3.31.9\nLibc version: glibc-2.38\n\nPython version: 3.12.12 (main, Jan  1 1980, 12:01:00) [GCC 14.2.0] (64-bit runtime)\nPython platform: Linux-6.4.0-150600.23.47_15.0.10-cray_shasta_c_64k-aarch64-with-glibc2.38\nIs CUDA available: True\nCUDA runtime version: 12.9.86\nCUDA_MODULE_LOADING set to: \nGPU models and configuration: \nGPU 0: NVIDIA GH200 120GB\nGPU 1: NVIDIA GH200 120GB\nGPU 2: NVIDIA GH200 120GB\nGPU 3: NVIDIA GH200 120GB\n\nNvidia driver version: 590.48.01\ncuDNN version: Could not collect\nIs XPU available: False\nHIP runtime version: N/A\nMIOpen runtime version: N/A\nIs XNNPACK available: True\n\nCPU:\nArchitecture:                         aarch64\nCPU op-mode(s):                       64-bit\nByte Order:                           Little Endian\nCPU(s):                               288\nOn-line CPU(s) list:                  0-287\nVendor ID:                            ARM\nModel name:                           Neoverse-V2\nModel:                                0\nThread(s) per core:                   1\nCore(s) per socket:                   72\nSocket(s):                            4\nStepping:                             r0p0\nFrequency boost:                      disabled\nCPU(s) scaling MHz:                   100%\nCPU max MHz:                          3456.0000\nCPU min MHz:                          81.0000\nBogoMIPS:                             2000.00\nFlags:                                fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm jscvt fcma lrcpc dcpop sha3 sm3 sm4 asimddp sha512 sve asimdfhm dit uscat ilrcpc flagm sb paca pacg dcpodp sve2 sveaes svepmull svebitperm svesha3 svesm4 flagm2 frint svei8mm svebf16 i8mm bf16 dgh bti\nL1d cache:                            18 MiB (288 instances)\nL1i cache:                            18 MiB (288 instances)\nL2 cache:                             288 MiB (288 instances)\nL3 cache:                             456 MiB (4 instances)\nNUMA node(s):                         36\nNUMA node0 CPU(s):                    0-71\nNUMA node1 CPU(s):                    72-143\nNUMA node2 CPU(s):                    144-215\nNUMA node3 CPU(s):                    216-287\nNUMA node4 CPU(s):                    \nNUMA node5 CPU(s):                    \nNUMA node6 CPU(s):                    \nNUMA node7 CPU(s):                    \nNUMA node8 CPU(s):                    \nNUMA node9 CPU(s):                    \nNUMA node10 CPU(s):                   \nNUMA node11 CPU(s):                   \nNUMA node12 CPU(s):                   \nNUMA node13 CPU(s):                   \nNUMA node14 CPU(s):                   \nNUMA node15 CPU(s):                   \nNUMA node16 CPU(s):                   \nNUMA node17 CPU(s):                   \nNUMA node18 CPU(s):                   \nNUMA node19 CPU(s):                   \nNUMA node20 CPU(s):                   \nNUMA node21 CPU(s):                   \nNUMA node22 CPU(s):                   \nNUMA node23 CPU(s):                   \nNUMA node24 CPU(s):                   \nNUMA node25 CPU(s):                   \nNUMA node26 CPU(s):                   \nNUMA node27 CPU(s):                   \nNUMA node28 CPU(s):                   \nNUMA node29 CPU(s):                   \nNUMA node30 CPU(s):                   \nNUMA node31 CPU(s):                   \nNUMA node32 CPU(s):                   \nNUMA node33 CPU(s):                   \nNUMA node34 CPU(s):                   \nNUMA node35 CPU(s):                   \nVulnerability Gather data sampling:   Not affected\nVulnerability Itlb multihit:          Not affected\nVulnerability L1tf:                   Not affected\nVulnerability Mds:                    Not affected\nVulnerability Meltdown:               Not affected\nVulnerability Mmio stale data:        Not affected\nVulnerability Reg file data sampling: Not affected\nVulnerability Retbleed:               Not affected\nVulnerability Spec rstack overflow:   Not affected\nVulnerability Spec store bypass:      Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:             Mitigation; __user pointer sanitization\nVulnerability Spectre v2:             Mitigation; CSV2, BHB\nVulnerability Srbds:                  Not affected\nVulnerability Tsx async abort:        Not affected\n\nVersions of relevant libraries:\n[pip3] numpy==2.4.6\n[pip3] nvtx==0.2.12\n[pip3] onnx==1.20.0\n[pip3] onnx-ir==0.1.12\n[pip3] onnxscript==0.5.6.dev20260223\n[pip3] torch==2.9.1\n[pip3] torchaudio==2.9.1+a224ab2\n[pip3] torchmetrics==1.8.2\n[pip3] torchvision==0.24.1\n[pip3] triton==3.5.1\n[conda] Could not collect",
+  "transformers_version": "4.57.0",
+  "lm_eval_version": "0.4.11.dev0",
+  "upper_git_hash": null,
+  "tokenizer_pad_token": [
+    "<pad>",
+    "3"
+  ],
+  "tokenizer_eos_token": [
+    "</s>",
+    "2"
+  ],
+  "tokenizer_bos_token": [
+    "<s>",
+    "1"
+  ],
+  "eot_token_id": 2,
+  "max_length": 4096,
+  "task_hashes": {
+    "global_piqa_completions_ell_grek": "063d1981ad8009d3bf9dbb8c4ca7765443cb3ebda87730496f1cf040a4b466ef",
+    "include_base_44_greek_few_shot_en_stem": "790dfed53f65c15973584beb05880403c5ad3dd19edd9f450a2872b1e9bdebb3",
+    "include_base_44_greek_few_shot_en_arts_humanities": "a9bcf80a270fc02d26c1bc2eafa5011702d572f839c92ff47cea9a28ab1fdf3a",
+    "include_base_44_greek_few_shot_en_social_science": "86aa5fa4b1d6677ef8583e6c22c0754049c7e13cccb6637d528d10ea2ef6e6cc",
+    "include_base_44_greek_few_shot_en_business_commerce": "9f457824e998eb6664ab4c778c1f4f822fa33a2f0b2bd18b13d5f4be70456591",
+    "include_base_44_greek_few_shot_en_health_oriented_education": "fb7e61beabc8d15c1ed4534e0b6eafc6b001545b504a871137171e3322e34e71",
+    "include_base_44_greek_few_shot_en_professional_certification": "7119ffdb964c18cfb2f3efecc0b66ee0c36dae1a72886e20efddda18f4aaa9ec",
+    "include_base_44_greek_few_shot_en_medical_license": "2b2c906ef927744a9dda67491ec6c60f3d4055504d2386faebac12f478f1f025",
+    "global_mmlu_full_el_abstract_algebra": "33ee9bf5256ecfa53bcc1b04d56a1a7e660810e7faa02e62d7957b4db52f6553",
+    "global_mmlu_full_el_anatomy": "c1a6696098904bd7f5e2cd348078e57d69def8214967fd157789f39b12753487",
+    "global_mmlu_full_el_astronomy": "c061f903a024fe0c739490f7d01fdd4d45238d68680a1303f4f748f6c707ac00",
+    "global_mmlu_full_el_college_biology": "fc403828ef9f8739f4c00069c3c75bcf9a580775feb2176b3db275e2b70f9dff",
+    "global_mmlu_full_el_college_chemistry": "9c6c8e387623281568cfbea4ba389fff4733b2a74d27f8e3da83568f1b36604e",
+    "global_mmlu_full_el_college_computer_science": "674132e3579f1199be4f3f8ba1c6ad2fe6101e9b7fb66b48bf5bbc95a00fdf17",
+    "global_mmlu_full_el_college_mathematics": "51dd906b959f8487b642020a8c3bafc9b7fc88cc8ccc7608de6a31c15884737e",
+    "global_mmlu_full_el_college_physics": "a1cc59cb51dd0ca584d8084b055c0cd97afe14502ced7cb5ead3b61793204e78",
+    "global_mmlu_full_el_computer_security": "c096d5b2cd54917e1f15ac453f99f228f07a7a9ae1715976b05d6f095f6c60bd",
+    "global_mmlu_full_el_conceptual_physics": "f69a2931e172d2bff2ca8a51c089ba0a26629f5aac7a71c94b964459405d7bb0",
+    "global_mmlu_full_el_electrical_engineering": "2996ada446c6d7de93c61d0b8bd8523a29de2b2c1c029a314eb6f319ce248d1b",
+    "global_mmlu_full_el_elementary_mathematics": "d7a2d95264f53ac52b2a11a299fda635663b3d2c5889a969d93ecbddb04a0996",
+    "global_mmlu_full_el_high_school_biology": "bdc2a2b91ba8f69ec04636c77ae2be23bb029c776bb1edd09f01506292ad9f10",
+    "global_mmlu_full_el_high_school_chemistry": "7c0b69e285904c82f441538a6dce36b594b704546e2ecf22897cd6f47f16fdcd",
+    "global_mmlu_full_el_high_school_computer_science": "9646c4800a6029c3a25dc22595567a496481e07470eac803131e2366a7c0505e",
+    "global_mmlu_full_el_high_school_mathematics": "4c1c9989132a83d0df1771fa8306ca6c46352ff40de4cb772c6ba45ffb64a052",
+    "global_mmlu_full_el_high_school_physics": "7642c380684e4e3c0259040c6a3a43153e6df670bb5fe366db23e8a20a0e7d71",
+    "global_mmlu_full_el_high_school_statistics": "a049a4b4a150054d14ff06579d65bdaed4ba58d311365617f04812c1b1a15500",
+    "global_mmlu_full_el_machine_learning": "6315328c620dc668fa222e0e87af5a1b0a61cd5e03291ece606aa36b9bf7bb71",
+    "global_mmlu_full_el_business_ethics": "ae8c4f9a05b37c933d5be90706ae7a812aae00cbe783514e9fffcc73c7668a91",
+    "global_mmlu_full_el_clinical_knowledge": "9716c0a651e6078f1b3849447a73f58665441879fe730a886b52a89b911924ca",
+    "global_mmlu_full_el_college_medicine": "60ddcdf1ef32502ce9122eafca98e935093a4d03352b6c01c39d96aecd08ca92",
+    "global_mmlu_full_el_global_facts": "e09784f79b9207758169f3e4195dc56be18626a4834d54576892b7d276cdd6f5",
+    "global_mmlu_full_el_human_aging": "d9f7a463683f8194410292cae0eab85c974c1da2e2ac970079c91c1db9101a6f",
+    "global_mmlu_full_el_management": "9147a8f212ba0b92fa12fb6e7d7557bca63eb70d923b377a45995bc115994a8e",
+    "global_mmlu_full_el_marketing": "39579a7a48d25a5ad5402de0359df5737df0fd110d81994e0168581eb8d0eade",
+    "global_mmlu_full_el_medical_genetics": "f8b28c9fa191c0ce172f8c3caf211f7d159d623bd8b889cd8386a5d45f53e722",
+    "global_mmlu_full_el_miscellaneous": "917bab8e3d7d6af2ae98353d71b12f5f50ee19281544d2abeccbfa5d025da033",
+    "global_mmlu_full_el_nutrition": "eb82bdd938d02f6e3a2e92bb201a47c301239484676709dbdf1bb3b07063a8c0",
+    "global_mmlu_full_el_professional_accounting": "aa073bea5356facc91316f48dc8bdde28d304de304ab26006cefdf3e72db5f60",
+    "global_mmlu_full_el_professional_medicine": "40706010b918ed33c0eb6ed87cdbe0ced466706ba975bdbbe926f7f92f9a8bc1",
+    "global_mmlu_full_el_virology": "22962bb0c89c010341ecc3a782323e789371083ebe3be6dda1456a81ac676466",
+    "global_mmlu_full_el_econometrics": "f16752633e05235de714cb81f65b5e07a22a87f59297d4d30806587fd198be76",
+    "global_mmlu_full_el_high_school_geography": "6b0c358c5264d000756436c1592c84d555c83384fa23e7ad56b6638320265071",
+    "global_mmlu_full_el_high_school_government_and_politics": "cd962bb9a0dea639a63763ac7da977ceb8c406a1c549201e7fe059d8f46c5f2d",
+    "global_mmlu_full_el_high_school_macroeconomics": "701aa34b94b7986e5aa6510d2c10abbe43851ec799c991ac1c78d00cb77bf39f",
+    "global_mmlu_full_el_high_school_microeconomics": "1d43a77e3fce6752b1f2397cbf16a631e5a7ebacebace4c8265b98e7aa35a6cb",
+    "global_mmlu_full_el_high_school_psychology": "c7418358d6b31117741f68687e85423f0022bbaa1a7f5d4a533dd0bcb345c172",
+    "global_mmlu_full_el_human_sexuality": "5a8c8b551c2377b01e6d6103ca585660498611478cf9f69b0d8350e98cbea600",
+    "global_mmlu_full_el_professional_psychology": "8064c10e81325af2311f9ffd7bc72e434c94d7d6d89934e91877fcbde4432268",
+    "global_mmlu_full_el_public_relations": "156f297125f332089f981307b4345b223b2a89f319966fa806431a6edbbb06cf",
+    "global_mmlu_full_el_security_studies": "981e3131349e74227fc6f8f56aa9e9c8dbcecd9dded006b0a377ce597e855193",
+    "global_mmlu_full_el_sociology": "fb3cae5643fd51b374cf5991bc489684657f8782c3c9e421c302fc54e7eafc81",
+    "global_mmlu_full_el_us_foreign_policy": "106f1898690b783e851a9d3f199746b0ccc1eb4dfc69f9ac0de7ebf9ec5c59a7",
+    "global_mmlu_full_el_formal_logic": "599a7a44f69dcd5488d23d31f0ce819994095762a6886225b53341398e3b5bcf",
+    "global_mmlu_full_el_high_school_european_history": "bb0ee2f277b658182b3a11859b4cc371a0af38678f356a15a5ff5999b681e19c",
+    "global_mmlu_full_el_high_school_us_history": "54eeff687265e2cbe75cf27c726f6b291b09619730d330e6e1191d013a221fe7",
+    "global_mmlu_full_el_high_school_world_history": "fcdeae11a9ca30fed54e81196fe4e73ce569b09bd6af5d99029d74c690a4f62d",
+    "global_mmlu_full_el_international_law": "5c9c15a1573342e86437fd3da84d73a4c9808368127a198c07de40a85ffd8bc7",
+    "global_mmlu_full_el_jurisprudence": "de9296e7c7b15e573e9e269b4a69e45dad00d5036fb0e4ed564144bd8d2f0476",
+    "global_mmlu_full_el_logical_fallacies": "06159667d0a897aacaa0129f111983facdc85383216b9c773ddd09b5fd407218",
+    "global_mmlu_full_el_moral_disputes": "fca73fca0a3dcf1b389c1cfeeea41ba61e46c065925c0bae5d00801baada8509",
+    "global_mmlu_full_el_moral_scenarios": "1165a1d888f088a3005e780ce27505932511958d065bd1155ca0bf94b3ac3dc8",
+    "global_mmlu_full_el_philosophy": "71eff3a4e0d7c8d49822bcf33c527d8040f60277bfba78a7a55def10e9aa8ad4",
+    "global_mmlu_full_el_prehistory": "86e15266a92995f7de2e0c4e74456139c7339a21b23bde75785cb8c220455673",
+    "global_mmlu_full_el_professional_law": "0105260cc724190e5c108f0a4216b9193340a19a2dbefe1b9a77a741d84eea13",
+    "global_mmlu_full_el_world_religions": "76a4c4c19f0de65f04308978c3d0051d94af3f9dc9c2f2ee8857c64a107a301a",
+    "belebele_ell_Grek": "fd27776273bd96355e1927ba27aa79b86a88960639f101d3e37009cd2fafaecc",
+    "xquad_el": "6ec3558ea0fc01cc2c8b432af0c233fffa8496d1bb47eb2cf98e999b7a3f141e",
+    "xnli_el": "a4da3d54a6a609814c6a33554331a7b4dc3ba20f26e5565138a0b55d1eb2450b",
+    "arc_challenge_mt_el": "56993b07e2050de44a3122c88bb9955589203102d0a1f58eac8ed4ec5a2f24bc"
+  },
+  "model_source": "hf",
+  "model_name": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000195_hf",
+  "model_name_sanitized": "__capstor__scratch__cscs__fffoivos__runs__eval__bakeoff_1node_chain_20260522_005620_centroid__iter_0000195_hf",
+  "system_instruction": null,
+  "system_instruction_sha": null,
+  "fewshot_as_multiturn": null,
+  "chat_template": null,
+  "chat_template_sha": null,
+  "total_evaluation_time_seconds": "1273.2231136898044"
+}

@@ -574,3 +574,32 @@ Current next gate:
   - Resume jobs `2341823`, `2341825`, and `2341827` remain pending on dependency.
   - Checkpoint trackers remain at `130`; iter-195 watcher is heartbeating and waiting for all three `iter_0000195` checkpoint directories.
 - GCP cost check was attempted again from `home` and is still blocked by non-interactive `gcloud` reauthentication (`gcloud auth login` required). No GCP instance state has been verified in this continuation turn.
+
+## Continuation - 2026-05-22 iter-195 checkpoint and Greek-only eval
+
+- Live state before iter-195:
+  - GCP cost check was attempted again and is still blocked by non-interactive `gcloud` reauthentication (`gcloud auth login` required).
+  - Training snapshot at `2026-05-22T08:01:15Z`: vanilla iter `189`, retok iter `188`, centroid iter `188`; all `0` skipped / `0` NaN.
+- Iter-195 checkpoint gating behaved correctly:
+  - At `2026-05-22T08:16:30Z`, all three `iter_0000195` checkpoint directories were visible, but only vanilla's tracker had advanced to `195`; retok and centroid still said `130`.
+  - The watcher did not submit early. It logged `checkpoint dir exists but tracker says '130'` for vanilla at `08:14:52Z`, then waited.
+  - At `2026-05-22T08:19:52Z`-`08:19:59Z`, all trackers were `195` and the watcher submitted all three arms.
+- Iter-195 job ids:
+  - vanilla: conversion `2343234`, Greek-only lm-eval `2343235`, tokenizer-fair metrics `2343236`, diagnostics `2343237`.
+  - retok: conversion `2343238`, Greek-only lm-eval `2343239`, tokenizer-fair metrics `2343240`, diagnostics `2343241`.
+  - centroid: conversion `2343242`, Greek-only lm-eval `2343243`, tokenizer-fair metrics `2343244`, diagnostics `2343245`.
+  - All twelve jobs completed with Slurm exit `0:0`; the three Greek-only evals took `00:23:31` vanilla, `00:21:27` retok, and `00:21:28` centroid.
+- Iter-195 compact artifacts:
+  - Remote summary: `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_iter0000195_summary.md`.
+  - Local copies under `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/`: per-arm `results.json`, `bootstrap_cis.json`, `run_metadata.json`, tokenizer-fair metrics, new-token diagnostics, plus `bakeoff_1node_chain_20260522_005620_iter0000195_digest.md`.
+- Iter-195 headline digest:
+  - vanilla: BPC `0.5293`, NLL/char `0.6262`, `el_arc=0.4164`, `el_belebele=0.5478`, `el_xnli=0.4028`, `el_xquad_f1=0.3219`, `el_mmlu=0.4381`, `el_base44=0.4493`, `el_piqa=0.6400`.
+  - retok: BPC `0.6827`, NLL/char `0.8075`, `el_arc=0.3259`, `el_belebele=0.4467`, `el_xnli=0.3803`, `el_xquad_f1=0.3077`, `el_mmlu=0.3858`, `el_base44=0.3786`, `el_piqa=0.5800`.
+  - centroid: BPC `1.0396`, NLL/char `1.2296`, `el_arc=0.2594`, `el_belebele=0.3244`, `el_xnli=0.3627`, `el_xquad_f1=0.0261`, `el_mmlu=0.2841`, `el_base44=0.3043`, `el_piqa=0.5300`.
+  - New-token integration: retok `D1_top1=0.2526`, `D2_mass=0.3398`, `D4_top1_new=0.4829`, `D5_util=0.102`; centroid `D1_top1=0.0403`, `D2_mass=0.3361`, `D4_top1_new=0.2066`, `D5_util=0.036`.
+  - Interpretation remains pre-decision: vanilla still leads Greek downstream and BPC; retok has narrowed the gap and is much healthier than centroid on new-token use; centroid remains weak on Greek use.
+- Training snapshot after iter-195 eval completion:
+  - generated at `2026-05-22T08:48:32Z`.
+  - vanilla: iter `210`, tokens `0.881B`, lm loss `1.8885`, `7910` tok/s/gpu, `0` skipped / `0` NaN.
+  - retok: iter `209`, tokens `0.877B`, lm loss `3.2570`, `7936` tok/s/gpu, `0` skipped / `0` NaN.
+  - centroid: iter `210`, tokens `0.881B`, lm loss `4.3097`, `7984` tok/s/gpu, `0` skipped / `0` NaN.
