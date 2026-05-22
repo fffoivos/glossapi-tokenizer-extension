@@ -8,10 +8,12 @@ Plan and later implement model-side adaptation after the tokenizer extension is 
 
 **[`cpt_plan.md`](cpt_plan.md) v0.7** is the canonical plan. Everything below is downstream of it. Live status of v0.7's verification list at [`cpt_plan_v0.7_status.md`](cpt_plan_v0.7_status.md). Critical Apertus architectural characteristics requiring CPT attention at [`apertus_fidelity_checklist.md`](apertus_fidelity_checklist.md).
 
+**Current production decision state:** [`PRODUCTION_DECISION_STATE.md`](PRODUCTION_DECISION_STATE.md). The 2B bakeoff currently selects **Vanilla Apertus-8B with the base 131,072-token tokenizer** as the safe 15-20B CPT default. Centroid is eliminated. ReTok is not selected as-is; it remains only as a bounded Token Distillation challenger after a CPU coverage prepass on `xfer`.
+
 Settled positions per v0.7 + 2026-05-20 user directives:
 
-- **CPT vocab scope**: **153,600** (modern +17,408 + polytonic +5,120 — both extensions active in CPT). v0.7 §1's "148,480" wording is a typo; param math + §3.1 polytonic-exposure metrics imply 153,600.
-- **Init arms**: Vanilla / ReTok / **Centroid** (Distillation bracketed in v0.7 §13).
+- **CPT vocab scope**: production default is now **131,072** unless Token Distillation proves the ReTok extended path. The modern-only 148,480 tokenizer and future 153,600 modern+polytonic tokenizer remain valid artifacts, but they are no longer selected automatically just because the extension exists.
+- **Init arms**: Vanilla / ReTok / Centroid bakeoff completed. Current decision: Vanilla default; Centroid eliminated; ReTok only through the bounded `retok_td` challenger described in [`TOKEN_DISTILLATION_PLAN.md`](TOKEN_DISTILLATION_PLAN.md).
 - **Training framework**: **Megatron-LM-Swiss-AI** (`swiss-ai/Megatron-LM` + `swiss-ai/pretrain-code`). p-skarvelis's HF-Trainer pipeline is an interesting baseline, not the scaffold we adopt.
 - **Replay split**: 70/30 Greek/non-Greek (v0.7 §4.1 default).
 - **Replay languages**: 24-language tier set (8 Tier-1 + 11 Tier-2 + 5 Tier-3) per v0.7 §4.2.
@@ -27,6 +29,8 @@ Settled positions per v0.7 + 2026-05-20 user directives:
 ## Reference docs in this folder
 
 - [`cpt_plan.md`](cpt_plan.md) — **canonical, v0.7** (2026-05-20). Supersedes everything below.
+- [`PRODUCTION_DECISION_STATE.md`](PRODUCTION_DECISION_STATE.md) — current evidence-backed production path after the 2B bakeoff.
+- [`TOKEN_DISTILLATION_PLAN.md`](TOKEN_DISTILLATION_PLAN.md) — parallel-ready follow-up plan for a ReTok + Token Distillation challenger if the live bakeoff leaves ReTok promising but under-initialized.
 - [`cpt_plan_v0.7_status.md`](cpt_plan_v0.7_status.md) — live status answers to v0.7's V1–V16 verification questions. Confirms V14 + V16 + V9 (NFC) done; rest scheduled for Clariden.
 - [`apertus_fidelity_checklist.md`](apertus_fidelity_checklist.md) — critical Apertus architectural characteristics requiring special CPT attention (AdEMAMix + 0.1 clip + xIELU scalars + Goldfish + cross-doc attention + etc). Architectural facts, version-independent.
 - [`cpt_plan_v0.6_answers.md`](cpt_plan_v0.6_answers.md) — **historical** (v0.6-era status). Retained for traceability.
@@ -40,7 +44,7 @@ Settled positions per v0.7 + 2026-05-20 user directives:
 - Embeddings and `lm_head` both matter because `tie_word_embeddings = false`.
 - Only the new rows need explicit initialization.
 - The intended schedule is WSD with brief re-warmup → plateau → linear decay aligned with anneal (v0.7 §3.3).
-- **Tokenizer cutoff: 17,408 modern Greek added** (2026-05-18, [`CHOSEN_CUTOFF.md`](../02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/CHOSEN_CUTOFF.md)); polytonic +5,120 stacked on top; **CPT vocab = 153,600**.
+- **Tokenizer cutoff: 17,408 modern Greek added** (2026-05-18, [`CHOSEN_CUTOFF.md`](../02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/CHOSEN_CUTOFF.md)); polytonic +5,120 stacked on top. These artifacts remain available, but the post-bakeoff production default is base-tokenizer Vanilla unless `retok_td` passes its gates.
 - **Polytonic / Ancient Greek as separate stacked layer: +5,120 → 153,600** (2026-05-18 polytonic-extension run; budget verified against sub-1B-language scaling pattern in [POLYTONIC_VOCAB_BUDGET_CHECK.md](03_3_cscs_experiments_kickoff/POLYTONIC_VOCAB_BUDGET_CHECK.md)).
 - **Two ship tokenizer bundles assembled and verified** loadable via HF `AutoTokenizer`: [`apertus_greek_modern_only_148480/`](03_3_cscs_experiments_kickoff/ship/apertus_greek_modern_only_148480/) (for the three-arm init comparison) and [`apertus_greek_extended_153600/`](03_3_cscs_experiments_kickoff/ship/apertus_greek_extended_153600/) (for the polytonic downstream arm). Both rebuilt from the broken `TokenizersBackend` wrapper configs that the C3 + polytonic builders emit.
 - **CSCS Clariden auth is live** — account `a0140`, cert refresh via `cscs-key sign --headless --duration 1d` (verified end-to-end 2026-05-20).
@@ -49,9 +53,7 @@ Settled positions per v0.7 + 2026-05-20 user directives:
 
 ## Still Open (and where each lives)
 
-- **Exact initialization method.** Three-arm comparison spec is locked (Vanilla / ReTok / Distillation per `experiments_plan.md` §5); arms not yet run. → 03_4.
-- **Pre-commit decision-rule thresholds** (X, M_progress, M_ext, M_van, T) — must be locked before any arm completes CPT. → [03_3 ANALYSIS.md § Review checkpoint C](03_3_cscs_experiments_kickoff/ANALYSIS.md#7-review-checkpoints--what-still-needs-your-explicit-sign-off).
-- **CSCS training-harness choice** (Swiss-AI Megatron-LM vs nanotron vs HF + accelerate). → [03_3 ANALYSIS.md § Review checkpoint D](03_3_cscs_experiments_kickoff/ANALYSIS.md#7-review-checkpoints--what-still-needs-your-explicit-sign-off).
-- **CPT mix ratios + non-Greek replay percentage.** Default proposal in [CURRICULUM_AND_INIT_CORPUS.md](03_3_cscs_experiments_kickoff/CURRICULUM_AND_INIT_CORPUS.md). → [03_3 ANALYSIS.md § Review checkpoint E](03_3_cscs_experiments_kickoff/ANALYSIS.md#7-review-checkpoints--what-still-needs-your-explicit-sign-off).
+- **Token Distillation challenger.** The three-arm bakeoff has run; only bounded `retok_td` remains as a possible challenger. First gate: CPU firing/coverage prepass on `xfer`. → [`TOKEN_DISTILLATION_PLAN.md`](TOKEN_DISTILLATION_PLAN.md) and [`init_bakeoff/token_distillation/`](03_4_implementation_experiments/init_bakeoff/token_distillation/).
+- **Production CPT dataset manifest.** The recipe is fixed at 70/24/4/2 for the current path, but the 15-20B production stream still needs its final build or rehydration manifest. CPU-only build/preprocess work belongs on `xfer`. → [`init_bakeoff/corpus_build/MIX_RECIPE.md`](03_4_implementation_experiments/init_bakeoff/corpus_build/MIX_RECIPE.md).
+- **Production eval gates.** Bakeoff evidence selects the default path; the production run still needs final stop/go gates and checkpoint-window rubric attached to its run directory. → [`PRODUCTION_DECISION_STATE.md`](PRODUCTION_DECISION_STATE.md).
 - **Held-out contamination check on C3 val/test** (the dedup audit's run skipped this — the C3 mix manifest lived on the now-unreachable gcloud tokenizer instance; **GCloud access was lost 2026-05-20**, so the previously-suggested "restart the instance" alternative is gone). Remaining options: re-derive the val/test partition by re-running the splitter from the published nanochat corpus with the original seed, or live with the gap. → [03_3 ANALYSIS.md § Review checkpoint B](03_3_cscs_experiments_kickoff/ANALYSIS.md#7-review-checkpoints--what-still-needs-your-explicit-sign-off).
-- **Eval-suite materialization** — cross-language regression slices (en/fr/de/ru) + first native-Greek benchmark (GreekMMLU) wired into a working harness. → 03_4.
