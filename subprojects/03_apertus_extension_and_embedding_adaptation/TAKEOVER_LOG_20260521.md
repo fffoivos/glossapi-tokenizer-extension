@@ -421,3 +421,9 @@ Current next gate:
   - iter `390`, task group `full`, PID `4020`, launcher log `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_watch_iter_0000390_full_launcher.log`
   - iter `455`, task group `full`, PID `4022`, launcher log `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_watch_iter_0000455_full_launcher.log`
   - Each watcher is detached with `SUBMIT_INTRINSIC=1`, `POLL_SECONDS=300`, and `TIMEOUT_SECONDS=129600`.
+- Hardened `summarize_bakeoff.py` for the live artifact layout:
+  - It now loads `results.json` from the eval output dir while falling back to parent-level `iter_XXXXXXX_tokenizer_fair_metrics.json` and `iter_XXXXXXX_new_token_diagnostics.json`.
+  - It can also summarize from an arm root by taking the latest `iter_*` intrinsic JSONs.
+  - It now runs on Clariden login-node `python3` (`3.6.15`), not only inside the PyTorch uenv.
+  - Smoke command passed:
+    - `python3 summarize_bakeoff.py /capstor/..._vanilla/iter_0000065_greek_only /capstor/..._retok/iter_0000065_greek_only /capstor/..._centroid/iter_0000065_greek_only`
