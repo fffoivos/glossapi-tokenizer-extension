@@ -446,6 +446,7 @@ Current next gate:
   - Interpretation: iter-65 is an early canary, not the bakeoff decision point. It does prove the full save -> convert -> HF eval -> intrinsic metrics path, and at this early checkpoint vanilla is still ahead on Greek downstream metrics while retok is ahead of centroid on most new-token integration signals.
 - Bootstrap CI pass for iter-65 completed for all three arms:
   - Fixed `compute_bootstrap_cis.py` to strip timestamp suffixes from `samples_*.jsonl` task names and to prefer `acc_norm` where available; `xquad_el` uses `f1`.
+  - Follow-up fix: the script now also emits aggregate CIs for `global_mmlu_full_el` and `include_base_44_greek_few_shot_en`, pooling their per-subtask sample files.
   - Remote outputs:
     - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_vanilla/iter_0000065_greek_only/bootstrap_cis.json`
     - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_retok/iter_0000065_greek_only/bootstrap_cis.json`
@@ -455,6 +456,10 @@ Current next gate:
     - vanilla: `arc_challenge_mt_el acc_norm 0.4266 [0.3984, 0.4539]`, `belebele_ell_Grek acc_norm 0.5489 [0.5133, 0.5822]`, `xquad_el f1 0.3571 [0.3348, 0.3779]`.
     - retok: `arc_challenge_mt_el acc_norm 0.2790 [0.2534, 0.3046]`, `belebele_ell_Grek acc_norm 0.4078 [0.3756, 0.4411]`, `xquad_el f1 0.2109 [0.1910, 0.2309]`.
     - centroid: `arc_challenge_mt_el acc_norm 0.2526 [0.2261, 0.2773]`, `belebele_ell_Grek acc_norm 0.3011 [0.2722, 0.3311]`, `xquad_el f1 0.0206 [0.0149, 0.0276]`.
+  - Aggregate 95% CIs:
+    - vanilla: `global_mmlu_full_el acc 0.4497 [0.4412, 0.4578]`, `include_base_44_greek_few_shot_en acc 0.4493 [0.4058, 0.4909]`.
+    - retok: `global_mmlu_full_el acc 0.3332 [0.3257, 0.3409]`, `include_base_44_greek_few_shot_en acc 0.3152 [0.2771, 0.3514]`.
+    - centroid: `global_mmlu_full_el acc 0.2839 [0.2768, 0.2912]`, `include_base_44_greek_few_shot_en acc 0.2663 [0.2301, 0.3043]`.
 - Live training health at `2026-05-22 03:59 UTC`:
   - vanilla `2341822` reached iteration `81/476`, `0` skipped / `0` NaN.
   - retok `2341824` reached iteration `80/476`, `0` skipped / `0` NaN.

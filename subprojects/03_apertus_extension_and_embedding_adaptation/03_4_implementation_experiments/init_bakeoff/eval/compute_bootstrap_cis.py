@@ -27,6 +27,10 @@ import numpy as np
 
 
 _TIMESTAMP_SUFFIX_RE = re.compile(r"_20\d{2}-\d{2}-\d{2}T.*$")
+_AGGREGATE_PREFIXES = {
+    "global_mmlu_full_el": "global_mmlu_full_el_",
+    "include_base_44_greek_few_shot_en": "include_base_44_greek_few_shot_en_",
+}
 
 
 def _task_name_from_path(path: Path) -> str:
@@ -38,6 +42,13 @@ def _metric_priority(task_name: str) -> Tuple[str, ...]:
     if "xquad" in task_name:
         return ("f1", "exact_match", "acc_norm", "acc", "pass@1", "score", "is_correct", "correct")
     return ("acc_norm", "acc", "f1", "exact_match", "pass@1", "score", "is_correct", "correct")
+
+
+def _aggregate_task_name(task_name: str) -> str:
+    for aggregate_name, prefix in _AGGREGATE_PREFIXES.items():
+        if task_name.startswith(prefix) and task_name != aggregate_name:
+            return aggregate_name
+    return ""
 
 
 def _load_samples(path: Path) -> Tuple[str, List[float], Dict[str, object]]:
@@ -140,6 +151,7 @@ def main() -> int:
     }  # type: Dict[str, object]
 
     table_rows = []  # type: List[Tuple[str, int, str, float, float, float, float]]
+    aggregate_values = {}  # type: Dict[str, Dict[str, object]]
     for path in paths:
         task, values, extras = _load_samples(path)
         if not values:
@@ -156,6 +168,40 @@ def main() -> int:
             "boot_std": std,
         }
         table_rows.append((task, extras["n_samples"], extras["metric_kind"], mean, lo, hi, std))
+
+        aggregate_name = _aggregate_task_name(task)
+        if aggregate_name:
+            bucket = aggregate_values.setdefault(
+                aggregate_name,
+                {"values": [], "metric_kind": extras["metric_kind"], "source_tasks": []},
+            )
+            if bucket["metric_kind"] != extras["metric_kind"]:
+                print(
+                    "  [SKIP aggregate] %s: metric kind %s does not match existing %s"
+                    % (task, extras["metric_kind"], bucket["metric_kind"]),
+                    file=sys.stderr,
+                )
+            else:
+                bucket["values"].extend(values)
+                bucket["source_tasks"].append(task)
+
+    for task, bucket in sorted(aggregate_values.items()):
+        values = bucket["values"]
+        if not values:
+            continue
+        mean, lo, hi, std = _bootstrap_ci(values, args.n_resamples, args.confidence, args.seed)
+        report["tasks"][task] = {
+            "n_samples": len(values),
+            "metric_kind": bucket["metric_kind"],
+            "mean": mean,
+            "ci_low": lo,
+            "ci_high": hi,
+            "ci_halfwidth": (hi - lo) / 2.0,
+            "boot_std": std,
+            "aggregate": True,
+            "source_tasks": bucket["source_tasks"],
+        }
+        table_rows.append((task, len(values), bucket["metric_kind"], mean, lo, hi, std))
 
     # Pretty-print
     table_rows.sort()
