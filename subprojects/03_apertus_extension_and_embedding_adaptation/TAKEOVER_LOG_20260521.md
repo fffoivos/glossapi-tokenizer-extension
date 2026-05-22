@@ -657,3 +657,37 @@ Current next gate:
     - retok logged iterations `318` and `319`, `0` skipped / `0` NaN.
     - centroid logged iteration `320`, `0` skipped / `0` NaN.
   - The first resumed iterations are slightly slower due to checkpoint/load warmup; subsequent iterations returned to the expected ~390-410 TFLOP/s/GPU band.
+
+## Continuation - 2026-05-22 eval packing correction
+
+- Efficiency finding:
+  - Training allocations are healthy: direct `nvidia-smi` sampling inside `2345082`/`2345083`/`2345084` showed all 12 training GPUs at `98-100%` utilization, with roughly `86-88 GiB / 97.9 GiB` HBM in use and logs around `409-411` TFLOP/s/GPU.
+  - Full eval allocations were wasteful: each one-GPU `lm-eval` job was granted a whole 4-GPU node on Clariden's normal partition, with only GPU0 holding the model and the other three GPUs idle.
+- Added a packed full-eval path:
+  - `eval/run_eval_packed_arms.sbatch`: runs multiple single-GPU lm-eval arms concurrently inside one 4-GPU node allocation.
+  - `eval/submit_bakeoff_checkpoint_eval_packed.sh`: submits the per-arm Megatron->HF conversions, then one packed dependent lm-eval job.
+  - `eval/watch_and_submit_checkpoint_evals_packed.sh`: waits until all requested arms have complete checkpoints and matching trackers, then submits the packed chain once.
+  - `eval/EVAL_RECIPE.md` now documents the packed path for future full checkpoints.
+- Hardening added:
+  - `submit_bakeoff_checkpoint_eval.sh` and `submit_bakeoff_checkpoint_eval_packed.sh` now fail before submission if `SUBMIT_INTRINSIC=1` but `EVAL_JSONL` is missing or empty.
+  - The correct heldout path is `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl` (`500` docs, `33M`). Earlier example paths under `/capstor/.../data/bakeoff_eval/` were stale.
+- Future watcher swap:
+  - Old iter-390 and iter-455 per-arm watcher dirs were stamped with `vanilla.submitted`, `retok.submitted`, and `centroid.submitted` to prevent duplicate per-arm full eval submissions.
+  - New packed watchers are running with a warm shared full-eval cache:
+    - iter `390`, PID `243550`, state `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_watch_iter_0000390_full_packed`.
+    - iter `455`, PID `243580`, state `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_watch_iter_0000455_full_packed`.
+    - cache: `/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_bakeoff_full_shared` -> `/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_2344156`.
+- Current training after the iter-325 checkpoint overhead returned to normal cadence:
+  - vanilla iter `333`, `7969.8` tok/s/GPU, `0` skipped / `0` NaN.
+  - retok iter `334`, `7912.8` tok/s/GPU, `0` skipped / `0` NaN.
+  - centroid iter `335`, `7871.2` tok/s/GPU, `0` skipped / `0` NaN.
+- Iter-325 full eval intervention:
+  - Cancelled the three inefficient per-arm full-eval jobs after they spent ~15-18 minutes in CPU/dataset setup with only one GPU used per full-node allocation:
+    - retok `2345267`: cancelled.
+    - centroid `2345271`: cancelled.
+    - vanilla `2345301`: cancelled.
+  - First packed smoke `2345427` failed quickly because `uenv run` did not preserve the target-install `PYTHONPATH`; exact error in each arm log: `No module named lm_eval`.
+  - Fixed `run_eval_packed_arms.sbatch` to use the same `uenv start --view=default --ignore-tty` pattern as the known-good single-arm eval script, exporting `PYTHONPATH` inside the uenv.
+  - Second packed smoke `2345439` launched all three arms but hit Hugging Face API rate-limit backoff because each arm used a separate fresh cache and tried to load the same benchmark datasets concurrently.
+  - Fixed the packed script to share one cache root across arms by default (`SHARE_EVAL_CACHE=1`) and to allow the warm full-eval cache to be injected via `EVAL_CACHE_ROOT`.
+  - Current packed iter-325 retry `2345516` is running on one node (`nid007297`) with all three arm processes alive and model memory loaded on GPUs `0`, `1`, and `2`; no rate-limit warning has appeared after switching to the shared warm cache.

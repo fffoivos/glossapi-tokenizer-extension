@@ -97,6 +97,19 @@ RUN_TAG=bakeoff_1node_chain_20260522_005620 \
   bash submit_bakeoff_checkpoint_eval.sh vanilla 65 greek_only
 ```
 
+For full bakeoff checkpoints where all three arms should be evaluated, prefer
+the packed path. Clariden's normal partition can allocate/bill a whole 4-GPU
+node even for a one-GPU `lm-eval` job; the packed submitter converts each arm
+separately, then runs the three single-GPU full evals concurrently inside one
+node allocation:
+
+```bash
+RUN_TAG=bakeoff_1node_chain_20260522_005620 \
+SUBMIT_INTRINSIC=1 \
+EVAL_JSONL=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl \
+  bash submit_bakeoff_checkpoint_eval_packed.sh 390 full vanilla retok centroid
+```
+
 For a live run, use [`watch_and_submit_checkpoint_evals.sh`](watch_and_submit_checkpoint_evals.sh)
 to submit once per arm as soon as each checkpoint appears:
 
@@ -107,6 +120,22 @@ TASK_GROUP=greek_only \
 POLL_SECONDS=300 \
 nohup bash watch_and_submit_checkpoint_evals.sh \
   > /capstor/scratch/cscs/fffoivos/runs/eval/watch_iter65.log 2>&1 &
+```
+
+For full checkpoints in the live bakeoff, use
+[`watch_and_submit_checkpoint_evals_packed.sh`](watch_and_submit_checkpoint_evals_packed.sh)
+instead, so the watcher waits until all requested arms are complete and then
+submits a single packed full-eval job:
+
+```bash
+RUN_TAG=bakeoff_1node_chain_20260522_005620 \
+ITER=390 \
+TASK_GROUP=full \
+SUBMIT_INTRINSIC=1 \
+EVAL_JSONL=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl \
+POLL_SECONDS=300 \
+nohup bash watch_and_submit_checkpoint_evals_packed.sh \
+  > /capstor/scratch/cscs/fffoivos/runs/eval/watch_iter390_packed.log 2>&1 &
 ```
 
 The live bakeoff saves every 65 iterations, which is about 273 M tokens (`65 × 1024 × 4096`). The practical cadence is:

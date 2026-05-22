@@ -75,6 +75,10 @@ echo "Submitted lm-eval job:     $eval_job"
 
 if [ "${SUBMIT_INTRINSIC:-0}" = "1" ]; then
     EVAL_JSONL="${EVAL_JSONL:?EVAL_JSONL is required when SUBMIT_INTRINSIC=1}"
+    if [ ! -s "$EVAL_JSONL" ]; then
+        echo "ERROR: EVAL_JSONL does not exist or is empty: $EVAL_JSONL" >&2
+        exit 4
+    fi
     METRICS_JSON="${METRICS_JSON:-$ARM_EVAL_ROOT/iter_${ITER_PAD}_tokenizer_fair_metrics.json}"
     DIAG_JSON="${DIAG_JSON:-$ARM_EVAL_ROOT/iter_${ITER_PAD}_new_token_diagnostics.json}"
 
