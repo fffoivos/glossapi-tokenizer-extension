@@ -444,3 +444,8 @@ Current next gate:
     - retok: BPC `0.9750`, NLL/char `1.1532`, `el_arc=0.279`, `el_belebele=0.408`, `el_xnli=0.397`, `el_xquad_f1=0.211`, `el_mmlu=0.333`, `el_base44=0.315`, `el_piqa=0.530`.
     - centroid: BPC `1.2511`, NLL/char `1.4797`, `el_arc=0.253`, `el_belebele=0.301`, `el_xnli=0.411`, `el_xquad_f1=0.021`, `el_mmlu=0.284`, `el_base44=0.266`, `el_piqa=0.530`.
   - Interpretation: iter-65 is an early canary, not the bakeoff decision point. It does prove the full save -> convert -> HF eval -> intrinsic metrics path, and at this early checkpoint vanilla is still ahead on Greek downstream metrics while retok is ahead of centroid on most new-token integration signals.
+- Live training health at `2026-05-22 03:59 UTC`:
+  - vanilla `2341822` reached iteration `81/476`, `0` skipped / `0` NaN.
+  - retok `2341824` reached iteration `80/476`, `0` skipped / `0` NaN.
+  - centroid `2341826` reached iteration `80/476`, `0` skipped / `0` NaN.
+  - Later checkpoint watchers were verified by log heartbeat rather than `pgrep`: `pgrep` can land on a different Clariden login node, while the watcher logs for iter `130`, `195`, and `455` ticked from `03:54:48Z` to `03:59:48Z`.
