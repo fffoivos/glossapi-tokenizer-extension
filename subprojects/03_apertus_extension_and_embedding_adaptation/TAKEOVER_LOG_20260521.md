@@ -444,6 +444,17 @@ Current next gate:
     - retok: BPC `0.9750`, NLL/char `1.1532`, `el_arc=0.279`, `el_belebele=0.408`, `el_xnli=0.397`, `el_xquad_f1=0.211`, `el_mmlu=0.333`, `el_base44=0.315`, `el_piqa=0.530`.
     - centroid: BPC `1.2511`, NLL/char `1.4797`, `el_arc=0.253`, `el_belebele=0.301`, `el_xnli=0.411`, `el_xquad_f1=0.021`, `el_mmlu=0.284`, `el_base44=0.266`, `el_piqa=0.530`.
   - Interpretation: iter-65 is an early canary, not the bakeoff decision point. It does prove the full save -> convert -> HF eval -> intrinsic metrics path, and at this early checkpoint vanilla is still ahead on Greek downstream metrics while retok is ahead of centroid on most new-token integration signals.
+- Bootstrap CI pass for iter-65 completed for all three arms:
+  - Fixed `compute_bootstrap_cis.py` to strip timestamp suffixes from `samples_*.jsonl` task names and to prefer `acc_norm` where available; `xquad_el` uses `f1`.
+  - Remote outputs:
+    - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_vanilla/iter_0000065_greek_only/bootstrap_cis.json`
+    - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_retok/iter_0000065_greek_only/bootstrap_cis.json`
+    - `/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000065_greek_only/bootstrap_cis.json`
+  - Local committed copies live under `03_4_implementation_experiments/init_bakeoff/eval/live_summaries/*_iter0000065_bootstrap_cis.json`.
+  - Selected 95% CIs:
+    - vanilla: `arc_challenge_mt_el acc_norm 0.4266 [0.3984, 0.4539]`, `belebele_ell_Grek acc_norm 0.5489 [0.5133, 0.5822]`, `xquad_el f1 0.3571 [0.3348, 0.3779]`.
+    - retok: `arc_challenge_mt_el acc_norm 0.2790 [0.2534, 0.3046]`, `belebele_ell_Grek acc_norm 0.4078 [0.3756, 0.4411]`, `xquad_el f1 0.2109 [0.1910, 0.2309]`.
+    - centroid: `arc_challenge_mt_el acc_norm 0.2526 [0.2261, 0.2773]`, `belebele_ell_Grek acc_norm 0.3011 [0.2722, 0.3311]`, `xquad_el f1 0.0206 [0.0149, 0.0276]`.
 - Live training health at `2026-05-22 03:59 UTC`:
   - vanilla `2341822` reached iteration `81/476`, `0` skipped / `0` NaN.
   - retok `2341824` reached iteration `80/476`, `0` skipped / `0` NaN.

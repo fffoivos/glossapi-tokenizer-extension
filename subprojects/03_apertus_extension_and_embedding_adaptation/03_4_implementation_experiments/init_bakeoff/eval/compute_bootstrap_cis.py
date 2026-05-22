@@ -14,19 +14,33 @@ Usage:
     # or write a JSON report:
     python3 compute_bootstrap_cis.py <dir> --out report.json
 """
-from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import statistics
 import sys
 from pathlib import Path
-from typing import Iterable
+from typing import Dict, Iterable, List, Tuple
 
 import numpy as np
 
 
-def _load_samples(path: Path) -> tuple[str, list[float], dict]:
+_TIMESTAMP_SUFFIX_RE = re.compile(r"_20\d{2}-\d{2}-\d{2}T.*$")
+
+
+def _task_name_from_path(path: Path) -> str:
+    task_name = path.stem.replace("samples_", "", 1)
+    return _TIMESTAMP_SUFFIX_RE.sub("", task_name)
+
+
+def _metric_priority(task_name: str) -> Tuple[str, ...]:
+    if "xquad" in task_name:
+        return ("f1", "exact_match", "acc_norm", "acc", "pass@1", "score", "is_correct", "correct")
+    return ("acc_norm", "acc", "f1", "exact_match", "pass@1", "score", "is_correct", "correct")
+
+
+def _load_samples(path: Path) -> Tuple[str, List[float], Dict[str, object]]:
     """Read one samples_<task>.jsonl. Returns (task_name, per_sample_metric, extras).
 
     Per-sample metric is the binary 0/1 correctness (or per-sample log-prob)
@@ -35,8 +49,8 @@ def _load_samples(path: Path) -> tuple[str, list[float], dict]:
 
     extras carries summary info (n_samples, metric_kind).
     """
-    task_name = path.stem.replace("samples_", "")
-    values: list[float] = []
+    task_name = _task_name_from_path(path)
+    values = []  # type: List[float]
     metric_kind = "unknown"
     with path.open("r", encoding="utf-8") as fp:
         for line in fp:
@@ -49,7 +63,7 @@ def _load_samples(path: Path) -> tuple[str, list[float], dict]:
                 continue
             # Try known metric keys in order of preference
             metric_val = None
-            for key in ("acc", "exact_match", "f1", "pass@1", "score", "is_correct", "correct"):
+            for key in _metric_priority(task_name):
                 if key in row:
                     metric_val = row[key]
                     metric_kind = key
@@ -69,11 +83,11 @@ def _load_samples(path: Path) -> tuple[str, list[float], dict]:
 
 
 def _bootstrap_ci(
-    values: list[float],
+    values: List[float],
     n_resamples: int = 1000,
     confidence: float = 0.95,
     seed: int = 20_260_520,
-) -> tuple[float, float, float, float]:
+) -> Tuple[float, float, float, float]:
     """Return (mean, ci_low, ci_high, std_of_means)."""
     if not values:
         return (float("nan"), float("nan"), float("nan"), float("nan"))
@@ -92,8 +106,8 @@ def _bootstrap_ci(
     return (mean, ci_low, ci_high, std)
 
 
-def _gather_paths(inputs: list[Path]) -> list[Path]:
-    paths: list[Path] = []
+def _gather_paths(inputs: List[Path]) -> List[Path]:
+    paths = []  # type: List[Path]
     for p in inputs:
         if p.is_dir():
             paths.extend(sorted(p.glob("samples_*.jsonl")))
@@ -118,14 +132,14 @@ def main() -> int:
         print(f"ERROR: no samples_*.jsonl files found in inputs", file=sys.stderr)
         return 2
 
-    report: dict = {
+    report = {
         "n_resamples": args.n_resamples,
         "confidence": args.confidence,
         "seed": args.seed,
         "tasks": {},
-    }
+    }  # type: Dict[str, object]
 
-    table_rows: list[tuple[str, int, str, float, float, float, float]] = []
+    table_rows = []  # type: List[Tuple[str, int, str, float, float, float, float]]
     for path in paths:
         task, values, extras = _load_samples(path)
         if not values:
