@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=bakeoff_ckpt_to_hf
 #SBATCH --account=a0140
-#SBATCH --partition=xfer
+#SBATCH --partition=debug
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
+#SBATCH --gpus-per-node=1
+#SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=72
-#SBATCH --mem=240G
-#SBATCH --time=04:00:00
+#SBATCH --mem=400G
+#SBATCH --time=01:00:00
 #SBATCH --output=/capstor/scratch/cscs/fffoivos/runs/eval/%x-%j.out
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/eval/%x-%j.err
 #
@@ -14,17 +16,15 @@
 # lm-eval and intrinsic metric jobs can consume it. Training checkpoints are
 # TP=2, so do not pass Megatron's --test-logits path here: loader_core asserts
 # TP=1 for that mode.
+#
+# Clariden xfer nodes do not expose uenv/torch. This is a bounded model
+# conversion job, not a dataset build or CPU preprocessing job, so it runs on
+# debug with one GPU to access the PyTorch uenv.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "${SCRIPT_DIR_OVERRIDE:-${SLURM_SUBMIT_DIR:-$(pwd)}}" && pwd)"
 source "$SCRIPT_DIR/../bakeoff_training/_train_config_common.env"
-GUARD="$SCRIPT_DIR/../slurm_cpu_only_guard.sh"
-if [ ! -f "$GUARD" ]; then
-    GUARD=/iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/slurm_cpu_only_guard.sh
-fi
-source "$GUARD"
-require_cpu_only_slurm "bakeoff_ckpt_to_hf"
 
 ARM="${ARM:?ARM is required: vanilla|retok|centroid|td_layer11}"
 ITER="${ITER:?ITER is required, e.g. 65}"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify that CPU-only dataset/build/conversion sbatches cannot silently land on GPU partitions.
+# Verify that CPU-only dataset/build sbatches cannot silently land on GPU partitions.
 
 set -euo pipefail
 
@@ -15,7 +15,6 @@ cpu_only_jobs=(
     "corpus_build/concat_bulk_mix.sbatch"
     "bakeoff_training/preprocess_data.sbatch"
     "eval/build_cpt_heldout_jsonl.sbatch"
-    "eval/convert_bakeoff_checkpoint_to_hf.sbatch"
     "arms/build_init_checkpoints.sbatch"
     "arms/convert_init_checkpoints.sbatch"
 )

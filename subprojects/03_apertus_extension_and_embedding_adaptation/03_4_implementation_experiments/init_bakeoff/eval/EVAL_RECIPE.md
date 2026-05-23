@@ -181,10 +181,14 @@ nohup bash watch_and_submit_td_checkpoint_eval.sh \
 ```
 
 The TD wrapper submits `convert_bakeoff_checkpoint_to_hf.sbatch` with
-`ARM=td_layer11`, which keeps the conversion job on `xfer` via
-`slurm_cpu_only_guard.sh` and defaults the tokenizer/config to:
+`ARM=td_layer11` and defaults the tokenizer/config to:
 
 `/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/hf_roundtrip`
+
+Checkpoint conversion is not a dataset-build/preprocessing job: it imports
+Megatron/PyTorch and requires the PyTorch `uenv`, which Clariden `xfer` nodes do
+not expose. It therefore runs as a bounded one-GPU `debug` job. The sleeping
+checkpoint watchers remain CPU-only `xfer` jobs.
 
 For unattended monitoring, prefer the Slurm wrapper instead of keeping
 sleeping watcher processes on a login SSH session:
@@ -264,7 +268,7 @@ Per-arm bakeoff eval at one checkpoint:
 - `run_eval.sbatch` — parameterized eval job: `MODEL_PATH=… OUTPUT_DIR=… TASK_GROUP={full|greek_only|retention_only} sbatch run_eval.sbatch`
 - `run_apertus_baseline.sh` — thin wrapper: V4 baseline on the unmodified Apertus-8B-2509 checkpoint
 - `run_bakeoff_arm_eval.sh` — thin wrapper: per-arm eval, takes an arm's checkpoint dir as arg
-- `convert_bakeoff_checkpoint_to_hf.sbatch` — CPU-only `xfer` job; converts one Megatron `torch_dist` bakeoff checkpoint to HF format for eval
+- `convert_bakeoff_checkpoint_to_hf.sbatch` — bounded one-GPU `debug` job; converts one Megatron `torch_dist` bakeoff checkpoint to HF format for eval
 - `run_megatron_convert_with_pg.py` — initializes the single-rank process group needed by Megatron `loader core` when reading `torch_dist` checkpoints
 - `submit_bakeoff_checkpoint_eval.sh` — submits conversion plus lm-eval, with optional intrinsic metrics when `SUBMIT_INTRINSIC=1`
 - `watch_and_submit_checkpoint_evals.sh` — lightweight watcher that stamps per-arm submissions and prevents duplicate checkpoint eval launches
