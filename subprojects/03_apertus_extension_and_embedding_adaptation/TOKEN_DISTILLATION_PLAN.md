@@ -138,8 +138,10 @@ Initial data budgets:
 - Layer pilot: 1,024 to 2,048 tokens, 50 snippets per token, comparing
   last-layer TD against the package-suggested one-third-depth layer and, if
   available, the Section 6.1 probe-suggested layer.
-- Full modern run: all 17,408 modern new tokens, target 100 snippets per token
-  when available.
+- Full modern challenger: all 17,408 modern new tokens at the paper-fast
+  `25`-snippet setting first. The `100`-snippet setting is supported by the
+  coverage result, but is a follow-up only if the fast full-token checkpoint
+  clears gates while leaving quality ambiguous.
 - Production polytonic extension: only after the modern path passes; then repeat
   for the additional +5,120 polytonic tokens.
 
@@ -197,8 +199,10 @@ Counting rule:
 
 Decision gate:
 
-- If at least 90 percent of new tokens have `usable_snippets_100 >= 100`, run
-  full TD at the 100-snippet setting.
+- If at least 90 percent of new tokens have `usable_snippets_100 >= 100`, mark
+  the corpus as high-coverage, but still run the first full-token challenger at
+  the paper-fast 25-snippet setting unless a prior full-token fast run has
+  already passed.
 - If at least 90 percent have `usable_snippets_25 >= 25`, run TD at the paper's
   fast 25-snippet setting and keep a flagged tail strategy.
 - If more than 10 percent have `usable_snippets_25 < 25`, do not launch full TD.
@@ -362,7 +366,9 @@ Task TD4 - pilot runs:
 
 Task TD5 - full modern TD:
 
-- Run all 17,408 modern new tokens.
+- Run all 17,408 modern new tokens first at `snippets_per_token=25`.
+- Keep `snippets_per_token=50/100` as a follow-up quality-budget test, not the
+  first full-token cost event.
 - Save HF checkpoint, manifest, coverage, and diagnostics.
 - Run verification gates.
 
@@ -415,13 +421,14 @@ Order-of-magnitude expectation:
 
 - smoke: less than 1 node-hour,
 - layer pilot: 1 to 2 node-hours,
-- full modern TD: a few node-hours,
+- full modern TD: roughly 5-7 wall hours for the first full-token 25-snippet
+  challenger on one GH200-class process; more if run at 50/100 snippets,
 - optional CPT challenger: same training cost shape as one current bakeoff arm.
 
 The TD preparation is worth doing now because implementation and verification
 can be made ready without spending the CPT-scale cost event.
 
-> Compute reality check (paper, page 4): *"These restrictions ensure that our method is quick to run, initializing 2,500 new tokens on a single GPU in under 10 minutes."* (1× H100 80GB, AdamW, 25 snippets × 50 ctx tokens.) Our larger modern setting is 17,408 tokens × 100 snippets × 50 ctx, roughly **28×** the paper's fast setting before hardware and batching differences. Conservative expectation: **4–6 hours on one GH200**, or **1.5–2 hours** only if a 4-GPU implementation scales well. Plan walltime as 6h single-GPU or 4h one-node to avoid brittle queue churn.
+> Compute reality check (paper, page 4): *"These restrictions ensure that our method is quick to run, initializing 2,500 new tokens on a single GPU in under 10 minutes."* (1× H100 80GB, AdamW, 25 snippets × 50 ctx tokens.) Our live Apertus layer pilot, however, is the better planning anchor: `1,020` trained tokens × `50` snippets at layer 11 took `1,966.9s`. Scaling that to `17,392` trainable tokens at `25` snippets gives roughly **4.7 wall hours** for the fast full-token run; scaling to `100` snippets gives roughly **18-19 wall hours**. Because Clariden normal nodes expose 4 GPUs and have a 12h limit, the first full-token TD challenger should be `25` snippets. A 50/100-snippet run is a separate follow-up, not the first full-token cost event.
 
 ---
 
@@ -529,9 +536,15 @@ Each row records what the plan was assuming, what the paper / repo actually says
 - **Larger compute budget (paper §5.2):** `snippets_per_token=100, snippet_len=50`.
 - README: *"We observe diminishing returns for scaling `snippet_len` beyond 50 and `snippets_per_token` beyond 100."*
 
-**Recommendation:** start at the larger budget (`100, 50`) per the plan's §5. If wall is too long, the fast setting (`25, 50`) still gives strong results in the paper's Table 1.
+**Recommendation after live Apertus pilot:** start the full-token challenger at
+the paper-fast budget (`25, 50`). The coverage result says the corpus can
+support `100` snippets for 99.82 percent of the new tokens, but the live runtime
+estimate puts `100` snippets at roughly 18-19 wall hours on one GPU process.
+Use `50/100` only after the fast full-token checkpoint is evaluated.
 
-**Action:** set `snippets_per_token=100, snippet_len=50` for the modern run. Add `snippets_per_token=25` as the smoke-pilot config (matches paper's main-results setting).
+**Action:** set `snippets_per_token=25, snippet_len=50` for the first full
+modern run. Keep `snippets_per_token=100` as a documented optional high-budget
+follow-up.
 
 ### P4. Snippet sampling and batch composition
 
@@ -646,20 +659,31 @@ Code (`train_loop.py:106-140`) right-pads the merged sequence to the unmerged le
 
 ### 14.5 Single-GPU vs DDP
 
-Paper experiments are on 1× H100. Our full-modern TD at the larger compute budget is expected to be roughly 4-6 hours single-GPU on GH200. **Recommendation: single-GPU for smoke, layer pilot, and the first full modern run unless walltime proves too long.** This keeps us close to the official implementation and avoids turning TD into an infrastructure project. Add DDP only after a single-GPU profile shows a clear need.
+Paper experiments are on 1× H100. Clariden normal nodes expose four GH200 GPUs
+as a node unit; there is no true single-GPU partition. **Recommendation:
+single-process TD for the first full-token run to stay close to the official
+implementation, but pack any genuinely useful independent comparison into the
+same allocation.** For the immediate full-token challenger, that means layer 11
+as the selected candidate and optionally last-layer as the conservative backup,
+both at 25 snippets. Do not invent DDP or row-sharded merge machinery unless
+single-process runtime becomes the blocker.
 
 DDP correctness check for TD: with batches shuffled across tokens (§P4), each DDP rank sees a random sample of tokens per batch, so gradients average correctly over the embedding matrix. Verify the gradient zeroing-for-base-rows happens *after* gradient reduction (otherwise the AllReduce would distribute the zeroed grads, which is fine but the assertion at end-of-training would need adjustment).
 
 ### 14.6 Compute budget — concrete numbers
 
-Using paper numbers + Apertus scaling:
-- Paper: 2,500 tokens × 25 snippets × 50 ctx = 3.125M snippet position-tokens, ~10 min on 1× H100.
-- Our larger budget: 17,408 tokens × 100 snippets × 50 ctx = ~87M position-tokens.
-- Naive scaling: 87M / 3.125M × 10 min ≈ **~280 minutes (4.7h) on 1× H100** at the paper's fast recipe.
-- GH200 should be faster than H100 for this workload, but the Apertus HF path uses Python xIELU fallback and our adapter adds verification/telemetry. Expect **4-6h single-GH200** as the planning number.
-- 4-way DDP, if implemented and scaling well: **1.5-2h** planning number.
+Using live Apertus pilot scaling:
 
-The plan's §11 "few node-hours" is consistent with this. **Recommend setting walltime to 6h for single-GPU full TD** or **4h for one-node DDP full TD**.
+- Layer-11 pilot: 1,020 trained tokens × 50 snippets, batch 8, elapsed
+  `1,966.9s`.
+- First full-token challenger: 17,392 trained tokens × 25 snippets. Linear
+  scaling estimate: about **4.7 wall hours**.
+- Full-token 50 snippets: about **9.3 wall hours**.
+- Full-token 100 snippets: about **18.6 wall hours**, beyond normal-partition
+  walltime for a single process.
+
+Recommend setting walltime to 8h for the first full-token 25-snippet run, or
+12h if packing a same-allocation last-layer backup.
 
 ---
 

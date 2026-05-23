@@ -71,7 +71,7 @@ echo "OUTPUT_ROOT:       $OUTPUT_ROOT"
 echo "TARGET_LAYERS:     ${LAYERS[*]}"
 echo "SNIPPETS_PER_TOKEN:$SNIPPETS_PER_TOKEN"
 echo "BATCH_SIZE:        $BATCH_SIZE"
-echo "MAX_SELECTED_TOKENS:$MAX_SELECTED_TOKENS"
+echo "MAX_SELECTED_TOKENS:$MAX_SELECTED_TOKENS (use 0 or all for full token list)"
 echo "MIN_ACCEPTED_SNIPPETS_PER_TOKEN:$MIN_ACCEPTED_SNIPPETS_PER_TOKEN"
 echo "MIN_TRAINED_TOKEN_FRACTION:$MIN_TRAINED_TOKEN_FRACTION"
 echo "PYTORCH_ALLOC_CONF:$PYTORCH_ALLOC_CONF"
@@ -113,7 +113,7 @@ export CUDA_VISIBLE_DEVICES="$gpu_id"
 export PYTORCH_ALLOC_CONF="$PYTORCH_ALLOC_CONF"
 export PYTHONPATH="$SCRIPT_DIR/external/token-distillation:\${PYTHONPATH:-}"
 max_selected_args=()
-if [ -n "$MAX_SELECTED_TOKENS" ]; then
+if [ "$MAX_SELECTED_TOKENS" != "0" ] && [ "$MAX_SELECTED_TOKENS" != "all" ]; then
     max_selected_args=(--max-selected-tokens "$MAX_SELECTED_TOKENS")
 fi
 dry_run_args=()

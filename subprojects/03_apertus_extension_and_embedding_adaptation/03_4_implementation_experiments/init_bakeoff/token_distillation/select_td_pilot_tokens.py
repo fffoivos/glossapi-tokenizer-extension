@@ -123,6 +123,7 @@ def main() -> int:
 
     smoke = eligible[: args.smoke_size]
     layer_pilot = eligible[: args.layer_pilot_size]
+    full_td = eligible
 
     summary = None
     if args.summary_json and args.summary_json.exists():
@@ -141,27 +142,33 @@ def main() -> int:
         "smoke_size_selected": len(smoke),
         "layer_pilot_size_requested": args.layer_pilot_size,
         "layer_pilot_size_selected": len(layer_pilot),
+        "full_td_size_selected": len(full_td),
         "status_counts": (summary or {}).get("status_counts"),
         "top_20_eligible": [compact(row) for row in eligible[:20]],
         "smoke_tokens": [compact(row) for row in smoke],
         "layer_pilot_tokens": [compact(row) for row in layer_pilot],
+        "full_td_token_ids": [row.get("new_token_id") for row in full_td],
     }
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     report_path = args.output_dir / "td_pilot_token_selection.json"
     smoke_ids_path = args.output_dir / "smoke_token_ids.txt"
     layer_ids_path = args.output_dir / "layer_pilot_token_ids.txt"
+    full_ids_path = args.output_dir / "full_td_token_ids.txt"
     report_path.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     write_id_list(smoke_ids_path, smoke)
     write_id_list(layer_ids_path, layer_pilot)
+    write_id_list(full_ids_path, full_td)
 
     print(json.dumps({
         "selection_json": str(report_path),
         "smoke_token_ids": str(smoke_ids_path),
         "layer_pilot_token_ids": str(layer_ids_path),
+        "full_td_token_ids": str(full_ids_path),
         "eligible_count": len(eligible),
         "smoke_size_selected": len(smoke),
         "layer_pilot_size_selected": len(layer_pilot),
+        "full_td_size_selected": len(full_td),
         "prepass_recommended_next_step": out["prepass_recommended_next_step"],
     }, ensure_ascii=False, indent=2))
 
