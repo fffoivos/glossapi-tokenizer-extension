@@ -10,9 +10,10 @@
   `td_full25_layer11`. Coverage prepass, smoke, layer pilot, full-token TD,
   preservation, and full-token intrinsic eval are complete. Track evidence in
   [`RUN_LOG_20260523.md`](03_4_implementation_experiments/init_bakeoff/token_distillation/RUN_LOG_20260523.md).
-- Next: run the R17-preserving HF -> Megatron conversion and roundtrip/load smoke
-  for `td_full25_layer11`. Do not promote TD to production until that gate
-  passes.
+- The R17-preserving HF -> Megatron conversion and exact HF roundtrip gate has
+  passed for `td_full25_layer11` as job `2357565`. Next: run a bounded Megatron
+  load/train smoke from the patched TP=2 checkpoint. Do not promote TD to
+  production until that smoke and the downstream retention gate pass.
 - Keep CPU-only dataset/snippet/preservation work on `xfer`; do not use GPU
   nodes for those paths.
 

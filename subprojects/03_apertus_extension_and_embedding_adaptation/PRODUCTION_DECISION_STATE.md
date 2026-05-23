@@ -6,7 +6,8 @@ Status: current working decision, 2026-05-23
 
 Use **Vanilla Apertus-8B-2509 with the base 131,072-token tokenizer** as the
 safe production default for the next 15-20B Greek CPT run until the new
-`td_full25_layer11` candidate clears the conversion/roundtrip gate.
+`td_full25_layer11` candidate clears the remaining Megatron load/train smoke
+and retention gate.
 
 Do not use Centroid. Do not use ReTok as-is for production. The only extended
 tokenizer candidate still alive is now:
@@ -14,9 +15,9 @@ tokenizer candidate still alive is now:
 - `td_full25_layer11`: ReTok plus full-token 25-snippet Token Distillation at
   `target_layer=11`.
 
-If this TD checkpoint does not clear R17-preserving HF -> Megatron conversion,
-roundtrip/load smoke, and the downstream retention gate, production stays
-Vanilla.
+`td_full25_layer11` has now cleared R17-preserving HF -> Megatron conversion
+and exact HF roundtrip verification. If it does not also clear load/train smoke
+and the downstream retention gate, production stays Vanilla.
 
 ## Why Vanilla is the current default
 
@@ -70,6 +71,7 @@ Validated patched TP=2 init checkpoints:
 | Vanilla | 2341182 | 0.0 | 0.0 |
 | ReTok | 2341239 | 0.0 | 0.0 |
 | Centroid | 2341241 | 0.0 | 0.0 |
+| TD full25 layer11 | 2357565 | 0.0 | 0.0 |
 
 The raw HF -> Megatron -> HF route is not acceptable because it resets the 128
 xIELU R17 values. The accepted route patches xIELU/QK-Norm extras and verifies
@@ -104,6 +106,8 @@ run, preservation checks, and full-token intrinsic eval have now run.
 - Preservation checks passed on `xfer`: `2355706` (`last`) and `2355707`
   (`layer11`).
 - Packed intrinsic eval passed: job `2355714`.
+- R17-preserving HF -> Megatron -> HF roundtrip passed for selected
+  `td_full25_layer11`: job `2357565`, exact tensor/logit diff `0.0`.
 
 Run log:
 `03_4_implementation_experiments/init_bakeoff/token_distillation/RUN_LOG_20260523.md`
@@ -119,9 +123,9 @@ Key result:
 | TD last | 1.4249 | 1756.04 | 0.0381 | 0.1596 |
 | TD layer11 | **1.3846** | **1617.48** | **0.0415** | **0.1722** |
 
-Current rule: take only `td_full25_layer11` to the R17 HF -> Megatron gate.
-Do not run a 50/100-snippet TD variant unless the conversion/smoke gate passes
-but quality remains ambiguous.
+Current rule: take only `td_full25_layer11` to a bounded Megatron load/train
+smoke from the R17-patched TP=2 checkpoint. Do not run a 50/100-snippet TD
+variant unless load/train succeeds but quality remains ambiguous.
 
 ## Production CPT monitoring cadence
 
@@ -142,8 +146,9 @@ For the real 15-20B CPT run:
   downstream. **Done for `last` and `layer11`.**
 - Full-token TD intrinsic eval must show whether `retok_td` meaningfully closes
   the ReTok gap. **Done; `layer11` clearly wins intrinsically.**
-- The selected TD checkpoint needs the R17-preserving HF -> Megatron conversion
-  and roundtrip/load smoke before any CPT-scale arm.
+- The selected TD checkpoint passed R17-preserving HF -> Megatron conversion
+  and exact roundtrip verification. It still needs a bounded Megatron
+  load/train smoke before any CPT-scale arm.
 - The final 15-20B production CPT dataset manifest needs to be built or
   rehydrated from the documented corpus path.
 - The selected init checkpoint for production needs a final R17 roundtrip

@@ -1,0 +1,13 @@
+{
+  "hf_dir": "/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_full25_layers_20260523T092602Z/layer11",
+  "raw_megatron_dir": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/megatron_tp2_raw",
+  "patched_megatron_dir": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/megatron_tp2_r17patched",
+  "roundtrip_hf_dir": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/hf_roundtrip",
+  "work": "/capstor/scratch/cscs/fffoivos/runs/td_r17_roundtrip_2357565",
+  "verification_json": "/capstor/scratch/cscs/fffoivos/runs/td_r17_roundtrip_2357565/verification.json",
+  "target_tensor_parallel_size": 2,
+  "target_pipeline_parallel_size": 1,
+  "uenv_image": "pytorch/v2.9.1:v2",
+  "slurm_job_id": "2357565",
+  "completed_at": "2026-05-23T16:20:31Z"
+}

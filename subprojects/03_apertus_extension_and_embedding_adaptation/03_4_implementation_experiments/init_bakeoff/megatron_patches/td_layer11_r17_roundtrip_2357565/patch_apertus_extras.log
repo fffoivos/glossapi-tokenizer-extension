@@ -1,0 +1,14 @@
+[patch_apertus_extras] HF dir:        /iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_full25_layers_20260523T092602Z/layer11
+[patch_apertus_extras] Megatron dir:  /iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/megatron_tp2_raw
+[patch_apertus_extras] Target dir:    /iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/megatron_tp2_r17patched
+[patch_apertus_extras] layers:        32
+[patch_apertus_extras] rank files:    2
+[patch_apertus_extras] specs:         192
+[patch_apertus_extras] dry_run:       False
+[patch_apertus_extras] loading /iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/megatron_tp2_r17patched/release/mp_rank_00/model_optim_rng.pt
+[patch_apertus_extras] wrote /iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/megatron_tp2_r17patched/release/mp_rank_00/model_optim_rng.pt
+[patch_apertus_extras] stats mp_rank_00: {'patched': 128, 'skipped_missing_defaults': 64, 'current_max_diff': 173.7890625, 'patched_max_diff': 0.0}
+[patch_apertus_extras] loading /iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/megatron_tp2_r17patched/release/mp_rank_01/model_optim_rng.pt
+[patch_apertus_extras] wrote /iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/megatron_tp2_r17patched/release/mp_rank_01/model_optim_rng.pt
+[patch_apertus_extras] stats mp_rank_01: {'patched': 128, 'skipped_missing_defaults': 64, 'current_max_diff': 173.7890625, 'patched_max_diff': 0.0}
+[patch_apertus_extras] TOTAL {'patched': 256, 'skipped_missing_defaults': 128, 'current_max_diff': 173.7890625, 'patched_max_diff': 0.0}
