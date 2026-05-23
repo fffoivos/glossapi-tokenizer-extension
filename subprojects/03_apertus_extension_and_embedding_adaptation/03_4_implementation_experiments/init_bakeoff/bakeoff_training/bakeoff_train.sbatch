@@ -55,6 +55,7 @@ echo "uenv: $UENV_IMAGE"
 MODEL_WORLD_SIZE=$(( ${SLURM_NNODES:-$NODES} * GPUS_PER_NODE ))
 echo "slurm: account=${SLURM_JOB_ACCOUNT:-$ACCOUNT} partition=${SLURM_JOB_PARTITION:-$PARTITION} nodes=${SLURM_NNODES:-unknown} ntasks=${SLURM_NTASKS:-unknown} gpus_per_node=$GPUS_PER_NODE time_limit=${TIME_LIMIT} launch_mode=$LAUNCH_MODE model_world_size=$MODEL_WORLD_SIZE"
 echo "checkpoint mode: RESUME_TRAINING=$RESUME_TRAINING"
+echo "save mode: DISABLE_SAVE=$DISABLE_SAVE SAVE_INTERVAL=$SAVE_INTERVAL"
 echo "seq_len=$SEQ_LEN  microbatch=$MICROBATCH_SIZE  global_batch_samples=$GLOBAL_BATCH_SIZE"
 echo "train_samples=$TRAIN_SAMPLES (train_tokens=$TRAIN_TOKENS) lr_warmup_samples=$LR_WARMUP_SAMPLES"
 echo
@@ -155,15 +156,22 @@ LEARNING_RATE_ARGS=(
 # optimizer/RNG.
 CHECKPOINTING_ARGS=(
     --load "$INIT_CKPT"
-    --save "$OUTPUT_DIR/checkpoints"
-    --save-interval $SAVE_INTERVAL
     --ckpt-format torch_dist
-    --async-save
     --ckpt-fully-parallel-load
     --dist-ckpt-strictness assume_ok_unexpected
     --override-opt_param-scheduler
     --distributed-timeout-minutes 60
 )
+if [ "$DISABLE_SAVE" = "0" ]; then
+    CHECKPOINTING_ARGS+=(
+        --save "$OUTPUT_DIR/checkpoints"
+        --save-interval $SAVE_INTERVAL
+        --async-save
+    )
+elif [ "$DISABLE_SAVE" != "1" ]; then
+    echo "ERROR: DISABLE_SAVE=$DISABLE_SAVE not recognized (expected 0|1)" >&2
+    exit 2
+fi
 if [ "$RESUME_TRAINING" = "0" ]; then
     CHECKPOINTING_ARGS+=(--no-load-optim --no-load-rng)
 elif [ "$RESUME_TRAINING" != "1" ]; then
@@ -242,6 +250,7 @@ cat > "$OUTPUT_DIR/run_metadata.json" <<META
   "data_prefix": "$ARM_DATA_PREFIX",
   "uenv_image": "$UENV_IMAGE",
   "resume_training": $RESUME_TRAINING,
+  "disable_save": $DISABLE_SAVE,
   "slurm_account": "${SLURM_JOB_ACCOUNT:-$ACCOUNT}",
   "slurm_partition": "${SLURM_JOB_PARTITION:-$PARTITION}",
   "slurm_nodes": ${SLURM_NNODES:-0},

@@ -11,9 +11,10 @@
   preservation, and full-token intrinsic eval are complete. Track evidence in
   [`RUN_LOG_20260523.md`](03_4_implementation_experiments/init_bakeoff/token_distillation/RUN_LOG_20260523.md).
 - The R17-preserving HF -> Megatron conversion and exact HF roundtrip gate has
-  passed for `td_full25_layer11` as job `2357565`. Next: run a bounded Megatron
-  load/train smoke from the patched TP=2 checkpoint. Do not promote TD to
-  production until that smoke and the downstream retention gate pass.
+  passed for `td_full25_layer11` as job `2357565`. The bounded Megatron
+  load/train smoke also passed as job `2357596`. Next: run a decision-useful 2B
+  TD training/eval arm, then compare it to the completed Vanilla / ReTok /
+  Centroid bakeoff before any 15-20B production CPT promotion.
 - Keep CPU-only dataset/snippet/preservation work on `xfer`; do not use GPU
   nodes for those paths.
 

@@ -1,0 +1,27 @@
+2: [W523 18:27:33.584572951 ProcessGroupNCCL.cpp:924] Warning: TORCH_NCCL_AVOID_RECORD_STREAMS is the default now, this environment variable is thus deprecated. (function operator())
+3: [W523 18:27:33.654810575 ProcessGroupNCCL.cpp:924] Warning: TORCH_NCCL_AVOID_RECORD_STREAMS is the default now, this environment variable is thus deprecated. (function operator())
+1: [W523 18:27:38.587523628 ProcessGroupNCCL.cpp:924] Warning: TORCH_NCCL_AVOID_RECORD_STREAMS is the default now, this environment variable is thus deprecated. (function operator())
+0: [W523 18:27:38.588761127 ProcessGroupNCCL.cpp:924] Warning: TORCH_NCCL_AVOID_RECORD_STREAMS is the default now, this environment variable is thus deprecated. (function operator())
+0: /user-environment/env/default/lib/python3.12/site-packages/torch/distributed/distributed_c10d.py:4876: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+0:   warnings.warn(  # warn only once
+0: [rank0]:[W523 18:27:44.695898275 ProcessGroupNCCL.cpp:5072] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+0: /user-environment/env/default/lib/python3.12/site-packages/torch/distributed/distributed_c10d.py:4876: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+0:   warnings.warn(  # warn only once
+3: [pretrain_gpt_te_guard] rank=3 xIELU optimizer audit: model_alpha_params=64 local_optimizer_alpha_params=0 dp_optimizer_alpha_params=64 missing=0 direct_refs=66 model_refs=66 main_refs=66
+1: [pretrain_gpt_te_guard] rank=1 xIELU optimizer audit: model_alpha_params=64 local_optimizer_alpha_params=64 dp_optimizer_alpha_params=64 missing=0 direct_refs=323 model_refs=323 main_refs=323
+0: [pretrain_gpt_te_guard] rank=0 xIELU optimizer audit: model_alpha_params=64 local_optimizer_alpha_params=64 dp_optimizer_alpha_params=64 missing=0 direct_refs=323 model_refs=323 main_refs=323
+2: [pretrain_gpt_te_guard] rank=2 xIELU optimizer audit: model_alpha_params=64 local_optimizer_alpha_params=0 dp_optimizer_alpha_params=64 missing=0 direct_refs=66 model_refs=66 main_refs=66
+0: /user-environment/env/default/lib/python3.12/site-packages/torch/distributed/distributed_c10d.py:4876: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+0:   warnings.warn(  # warn only once
+1: /iopsstor/scratch/cscs/fffoivos/code/training/Megatron-LM-Swiss-AI/megatron/core/transformer/transformer_layer.py:339: UserWarning: TransformerLayer._get_layer_offset is deprecated.Please use get_transformer_layer_offset instead.
+1:   warnings.warn(
+2: /iopsstor/scratch/cscs/fffoivos/code/training/Megatron-LM-Swiss-AI/megatron/core/transformer/transformer_layer.py:339: UserWarning: TransformerLayer._get_layer_offset is deprecated.Please use get_transformer_layer_offset instead.
+2:   warnings.warn(
+0: /iopsstor/scratch/cscs/fffoivos/code/training/Megatron-LM-Swiss-AI/megatron/core/transformer/transformer_layer.py:339: UserWarning: TransformerLayer._get_layer_offset is deprecated.Please use get_transformer_layer_offset instead.
+0:   warnings.warn(
+3: /iopsstor/scratch/cscs/fffoivos/code/training/Megatron-LM-Swiss-AI/megatron/core/transformer/transformer_layer.py:339: UserWarning: TransformerLayer._get_layer_offset is deprecated.Please use get_transformer_layer_offset instead.
+3:   warnings.warn(
+0: [rank0]:[W523 18:39:49.135230578 ProcessGroupNCCL.cpp:1524] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+1: [rank1]:[W523 18:39:49.167657643 ProcessGroupNCCL.cpp:1524] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+3: [rank3]:[W523 18:39:50.722287821 ProcessGroupNCCL.cpp:1524] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+2: [rank2]:[W523 18:39:50.781816510 ProcessGroupNCCL.cpp:1524] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())

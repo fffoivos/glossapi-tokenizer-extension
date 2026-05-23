@@ -1,0 +1,13 @@
+138G	/capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints
+1 /capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints/latest_checkpointed_iteration.txt
+119 /capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints/iter_0000005/metadata.json
+16615 /capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints/iter_0000005/common.pt
+18435300297 /capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints/iter_0000005/__3_0.distcp
+18435667056 /capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints/iter_0000005/__2_0.distcp
+18437502219 /capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints/iter_0000005/__1_1.distcp
+18441724588 /capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints/iter_0000005/__1_0.distcp
+18442589106 /capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints/iter_0000005/__0_0.distcp
+18442976116 /capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints/iter_0000005/__0_1.distcp
+18447961832 /capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints/iter_0000005/__2_1.distcp
+18447961832 /capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints/iter_0000005/__3_1.distcp
+451186 /capstor/scratch/cscs/fffoivos/runs/bakeoff/smoke_td_full25_layer11_20260523T162614Z/checkpoints/iter_0000005/.metadata
