@@ -9,6 +9,7 @@ cd "$SCRIPT_DIR"
 cpu_only_jobs=(
     "corpus_build/prepare_greek_pool.sbatch"
     "corpus_build/normalize_nfc.sbatch"
+    "corpus_build/normalize_jsonl_nfc.sbatch"
     "corpus_build/mix_builder_smoke.sbatch"
     "corpus_build/mix_builder_full.sbatch"
     "corpus_build/concat_bulk_mix.sbatch"

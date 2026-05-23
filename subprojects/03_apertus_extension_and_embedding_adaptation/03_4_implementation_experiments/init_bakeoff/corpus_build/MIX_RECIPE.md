@@ -111,6 +111,10 @@ The anneal recipe is `recipes/anneal.json`. It will be used in the production CP
 # Generate the bakeoff bulk JSON-lines stream after the smoke passes
 sbatch corpus_build/mix_builder_full.sbatch
 
+# After shard concatenation, enforce NFC on the final JSONL stream too.
+# This is CPU-only and preserves row order; unchanged rows stay byte-identical.
+sbatch corpus_build/normalize_jsonl_nfc.sbatch
+
 # Same shape for the anneal recipe (not run in the bakeoff)
 python3 mix_builder.py \
     --recipe recipes/anneal.json \
@@ -127,6 +131,13 @@ bulk mix is not just seven repeats of the same source prefixes.
 
 Output is JSON-lines. Each line is `{"text": "...", "source": "...", "doc_id": "...", "lang": "..."}`. Megatron-LM-Swiss-AI's `tools/preprocess_data.py` then converts JSON-lines → binary indexed dataset (`.bin` + `.idx`) for training.
 
+NFC is enforced twice: first on source parquets with `normalize_nfc.sbatch`,
+then on the final JSONL stream with `normalize_jsonl_nfc.sbatch`. The second
+pass caught a small code-replay leak in the live bakeoff mix (`37` non-NFC rows
+out of `5,754,172`) and produced
+`/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.nfc.jsonl` with manifest
+`bulk_mix.nfc.manifest.json`.
+
 Determinism: the `--seed` controls the interleave randomization. Same seed means the same JSONL text stream across runs. Vanilla and the extended arms then use different tokenizers/preprocessed Megatron binaries, so token IDs differ across tokenizer families even though the document order is shared.
 
 ## Why two stages (build JSONL → preprocess to .bin/.idx)
@@ -134,7 +145,8 @@ Determinism: the `--seed` controls the interleave randomization. Same seed means
 Megatron's training reads its native binary format; converting on the fly during interleaving is awkward. Splitting the pipeline:
 
 1. `mix_builder.py` does the streaming interleave + budget-cap + writes JSONL (CPU job on `xfer`; do not use `normal` for CPU-only work because it allocates GPU nodes on Clariden).
-2. `tools/preprocess_data.py` (Megatron) does the tokenization + binary packing (CPU job on `xfer`).
-3. Training reads the binary on `normal`.
+2. `normalize_jsonl_nfc.py` enforces NFC on the final JSONL stream (CPU job on `xfer`).
+3. `tools/preprocess_data.py` (Megatron) does the tokenization + binary packing (CPU job on `xfer`).
+4. Training reads the binary on `normal`.
 
 This way each stage has a single clear job, and we can re-run any stage independently.
