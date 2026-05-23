@@ -103,6 +103,40 @@ The wrapper trains only selected new input/output rows. Every base row and every
 unselected new row is gradient-zeroed and exact-checked by the vendored training
 loop.
 
+## Third gate: packed layer pilot
+
+Clariden `normal` allocates a full four-GPU node even for the one-GPU smoke
+request. For layer choice, pack the candidates into one allocation instead of
+launching separate single-process jobs.
+
+The package does not ship a separate layer-suggestion tool. The only upstream
+layer guidance in the vendored README is that target layers around the
+one-third mark can outperform the last layer. For Apertus-8B's 32 transformer
+layers, compare:
+
+- `target_layer=-1` - paper-default last layer
+- `target_layer=11` - one-third-depth README suggestion
+
+Example launch:
+
+```bash
+cd /iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/token_distillation
+COVERAGE_DIR=/iopsstor/scratch/cscs/fffoivos/token_distillation/coverage_2b_modern_20260523T032424Z_nfc
+OUTPUT_ROOT=/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_layer_pilot_$(date -u +%Y%m%dT%H%M%SZ)
+sbatch --export=ALL,\
+COVERAGE_JSONL="$COVERAGE_DIR/td_coverage_prepass.jsonl",\
+SNIPPETS_JSONL="$COVERAGE_DIR/td_snippet_index/snippets.jsonl",\
+TOKEN_IDS_FILE="$COVERAGE_DIR/pilot_selection/layer_pilot_token_ids.txt",\
+OUTPUT_ROOT="$OUTPUT_ROOT",\
+TARGET_LAYERS="-1 11",\
+MAX_SELECTED_TOKENS=1024,\
+SNIPPETS_PER_TOKEN=50 \
+train_retok_td_layer_pilot_packed.sbatch
+```
+
+This writes one HF checkpoint per layer candidate plus
+`layer_pilot_manifest.json` under `OUTPUT_ROOT`.
+
 ## Pinned Token Distillation code
 
 The official implementation is vendored under

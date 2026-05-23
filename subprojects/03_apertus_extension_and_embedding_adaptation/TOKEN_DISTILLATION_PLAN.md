@@ -226,6 +226,7 @@ Implication for Apertus 8B specifically: run a **small** layer pilot, not a swee
 - Candidate A: `target_layer = -1`, the paper-default last layer.
 - Candidate B: `target_layer = ceil(num_hidden_layers / 3)` in HF hidden-state tuple indexing after confirming Section 16 Q11. For Apertus-8B's 32 transformer layers, expected candidate is `target_layer = 11` (roughly after the first third of blocks).
 - Candidate C: if the Section 6.1 logit-lens/tuned-lens probe suggests a materially different detokenization layer `L*`, test that layer too. If `L*` is within +/-1 of Candidate B, do not add a third candidate.
+- Implementation note from the first live smoke: the vendored package does **not** ship a separate layer-suggestion tool. Its actionable upstream guidance is the README note that one-third-depth target layers can work better than the last layer. Therefore the first layer pilot should compare Candidate A and Candidate B only, unless we have a well-defined Apertus-specific probe result.
 
 Selection rule:
 
