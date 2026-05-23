@@ -5,17 +5,18 @@ Status: current working decision, 2026-05-23
 ## Current selected path
 
 Use **Vanilla Apertus-8B-2509 with the base 131,072-token tokenizer** as the
-safe production default for the next 15-20B Greek CPT run.
+safe production default for the next 15-20B Greek CPT run until the new
+`td_full25_layer11` candidate clears the conversion/roundtrip gate.
 
-Do not use Centroid. Do not use ReTok as-is for production. ReTok remains alive
-only as a bounded Token Distillation challenger:
+Do not use Centroid. Do not use ReTok as-is for production. The only extended
+tokenizer candidate still alive is now:
 
-1. CPU firing/coverage prepass on `xfer`.
-2. Small TD smoke and layer pilot only if coverage is sufficient.
-3. Full `retok_td` only if the pilot improves ReTok pre-CPT Greek BPC and
-   diagnostics without base-row/xIELU/QK drift.
+- `td_full25_layer11`: ReTok plus full-token 25-snippet Token Distillation at
+  `target_layer=11`.
 
-If TD does not pass those gates, production stays Vanilla.
+If this TD checkpoint does not clear R17-preserving HF -> Megatron conversion,
+roundtrip/load smoke, and the downstream retention gate, production stays
+Vanilla.
 
 ## Why Vanilla is the current default
 
@@ -91,26 +92,36 @@ Current bulk recipe:
 All CPU-only dataset building, preprocessing, and TD coverage/snippet mining
 must run on `xfer`, not on GPU partitions.
 
-## Token Distillation next gate
+## Token Distillation state
 
-The CPU coverage prepass, smoke run, layer pilot, and pilot intrinsic eval have
-now run. The current live gate is the full-token `25`-snippet TD challenger:
+The CPU coverage prepass, smoke run, layer pilot, full-token `25`-snippet TD
+run, preservation checks, and full-token intrinsic eval have now run.
 
-- Training job: `2353960`
+- Training job: `2353960`, `COMPLETED`, elapsed `05:45:53`.
 - Output root:
   `/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_full25_layers_20260523T092602Z`
 - Candidates: `target_layer=-1` (`last`) and `target_layer=11` (`layer11`).
-- Preservation checks queued on `xfer`: `2355706` (`last`) and `2355707`
-  (`layer11`), both dependent on `afterok:2353960`.
-- Packed intrinsic eval queued only after both preservation checks pass: job
-  `2355714`.
+- Preservation checks passed on `xfer`: `2355706` (`last`) and `2355707`
+  (`layer11`).
+- Packed intrinsic eval passed: job `2355714`.
 
 Run log:
 `03_4_implementation_experiments/init_bakeoff/token_distillation/RUN_LOG_20260523.md`
 
-Current rule: do not promote TD to production until both full-token variants
-have artifact-preservation reports, intrinsic eval results, and then the chosen
-variant clears the R17 HF -> Megatron gate.
+Full-token intrinsic eval:
+`03_4_implementation_experiments/init_bakeoff/eval/td_full25_intrinsics_20260523T124000Z/TD_PILOT_INTRINSICS_SUMMARY.md`
+
+Key result:
+
+| Arm | BPC | D1 mean rank | D1 top1 | D1 top5 |
+|---|---:|---:|---:|---:|
+| ReTok | 2.9503 | 3868.27 | 0.0065 | 0.0231 |
+| TD last | 1.4249 | 1756.04 | 0.0381 | 0.1596 |
+| TD layer11 | **1.3846** | **1617.48** | **0.0415** | **0.1722** |
+
+Current rule: take only `td_full25_layer11` to the R17 HF -> Megatron gate.
+Do not run a 50/100-snippet TD variant unless the conversion/smoke gate passes
+but quality remains ambiguous.
 
 ## Production CPT monitoring cadence
 
@@ -128,11 +139,11 @@ For the real 15-20B CPT run:
 
 - Full-token TD challenger must finish.
 - Full-token TD artifact preservation reports must pass for any candidate used
-  downstream.
+  downstream. **Done for `last` and `layer11`.**
 - Full-token TD intrinsic eval must show whether `retok_td` meaningfully closes
-  the ReTok gap.
-- If TD remains a candidate, the selected TD checkpoint needs the R17-preserving
-  HF -> Megatron conversion and roundtrip/load smoke before any CPT-scale arm.
+  the ReTok gap. **Done; `layer11` clearly wins intrinsically.**
+- The selected TD checkpoint needs the R17-preserving HF -> Megatron conversion
+  and roundtrip/load smoke before any CPT-scale arm.
 - The final 15-20B production CPT dataset manifest needs to be built or
   rehydrated from the documented corpus path.
 - The selected init checkpoint for production needs a final R17 roundtrip

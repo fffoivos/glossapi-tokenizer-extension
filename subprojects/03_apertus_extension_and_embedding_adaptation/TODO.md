@@ -6,16 +6,15 @@
   current production-path state. The 2B Vanilla / ReTok / Centroid bakeoff has
   completed; Vanilla is the safe default for the 15-20B CPT path, Centroid is
   eliminated, and ReTok is not selected as-is.
-- Token Distillation is now an active bounded challenger, not just a
-  parallel-ready plan. Coverage prepass, smoke, layer pilot, and pilot intrinsic
-  eval have run; full-token TD job `2353960` is in progress. Track live state in
+- Token Distillation has produced a viable extended-tokenizer challenger:
+  `td_full25_layer11`. Coverage prepass, smoke, layer pilot, full-token TD,
+  preservation, and full-token intrinsic eval are complete. Track evidence in
   [`RUN_LOG_20260523.md`](03_4_implementation_experiments/init_bakeoff/token_distillation/RUN_LOG_20260523.md).
-- Keep CPU-only dataset/snippet/preservation work on `xfer`. The queued
-  preservation checks are jobs `2355706` and `2355707`, dependent on full TD
-  completion.
-- After preservation passes, run/read packed full-token intrinsic eval job
-  `2355714`; only then decide whether `retok_td` is worth the R17 conversion
-  gate.
+- Next: run the R17-preserving HF -> Megatron conversion and roundtrip/load smoke
+  for `td_full25_layer11`. Do not promote TD to production until that gate
+  passes.
+- Keep CPU-only dataset/snippet/preservation work on `xfer`; do not use GPU
+  nodes for those paths.
 
 ## Historical TODO
 
