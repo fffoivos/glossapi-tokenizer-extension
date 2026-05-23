@@ -23,7 +23,7 @@ import json
 import re
 import struct
 from pathlib import Path
-from typing import Dict, Iterable, List, NamedTuple, Set, Tuple
+from typing import Dict, Iterable, List, NamedTuple, Optional, Set, Tuple
 
 
 EMBED_KEYS = ("model.embed_tokens.weight", "lm_head.weight")
@@ -84,7 +84,7 @@ class SafeTensorStore:
         _, tensors = self._load_header(shard_name)
         return tensors[key]
 
-    def read_bytes(self, key: str, offset: int = 0, length: int | None = None) -> bytes:
+    def read_bytes(self, key: str, offset: int = 0, length: Optional[int] = None) -> bytes:
         shard_name = self.weight_map[key]
         data_start, tensors = self._load_header(shard_name)
         meta = tensors[key]
@@ -97,7 +97,7 @@ class SafeTensorStore:
             fh.seek(data_start + meta.data_offsets[0] + offset)
             return fh.read(length)
 
-    def iter_bytes(self, key: str, offset: int = 0, length: int | None = None, chunk_bytes: int = CHUNK_BYTES):
+    def iter_bytes(self, key: str, offset: int = 0, length: Optional[int] = None, chunk_bytes: int = CHUNK_BYTES):
         shard_name = self.weight_map[key]
         data_start, tensors = self._load_header(shard_name)
         meta = tensors[key]
