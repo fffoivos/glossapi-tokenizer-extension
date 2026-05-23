@@ -26,19 +26,23 @@ fi
 source "$GUARD"
 require_cpu_only_slurm "bakeoff_ckpt_to_hf"
 
-ARM="${ARM:?ARM is required: vanilla|retok|centroid}"
+ARM="${ARM:?ARM is required: vanilla|retok|centroid|td_layer11}"
 ITER="${ITER:?ITER is required, e.g. 65}"
 RUN_TAG="${RUN_TAG:?RUN_TAG is required, e.g. bakeoff_1node_chain_20260522_005620}"
 
 case "$ARM" in
-    vanilla|retok|centroid) ;;
-    *) echo "ERROR: ARM must be vanilla|retok|centroid, got: $ARM" >&2; exit 2 ;;
+    vanilla|retok|centroid|td_layer11) ;;
+    *) echo "ERROR: ARM must be vanilla|retok|centroid|td_layer11, got: $ARM" >&2; exit 2 ;;
 esac
 
 ITER_PAD="$(printf "%07d" "$ITER")"
 RUN_ROOT="${RUN_ROOT:-/capstor/scratch/cscs/fffoivos/runs/bakeoff}"
 MEGATRON_CKPT_ROOT="${MEGATRON_CKPT_ROOT:-$RUN_ROOT/${RUN_TAG}_${ARM}/checkpoints}"
-HF_TOKENIZER_DIR="${HF_TOKENIZER_DIR:-/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/$ARM}"
+if [ "$ARM" = "td_layer11" ]; then
+    HF_TOKENIZER_DIR="${HF_TOKENIZER_DIR:-/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/hf_roundtrip}"
+else
+    HF_TOKENIZER_DIR="${HF_TOKENIZER_DIR:-/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/$ARM}"
+fi
 OUT_ROOT="${OUT_ROOT:-/capstor/scratch/cscs/fffoivos/runs/eval}"
 HF_OUT_DIR="${HF_OUT_DIR:-$OUT_ROOT/${RUN_TAG}_${ARM}/iter_${ITER_PAD}_hf}"
 WORK_DIR="${WORK_DIR:-$OUT_ROOT/${RUN_TAG}_${ARM}/iter_${ITER_PAD}_convert_work}"

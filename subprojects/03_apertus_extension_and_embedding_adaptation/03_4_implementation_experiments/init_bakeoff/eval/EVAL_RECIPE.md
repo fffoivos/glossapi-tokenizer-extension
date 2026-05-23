@@ -150,6 +150,42 @@ The live bakeoff saves every 65 iterations, which is about 273 M tokens (`65 × 
 
 The final arm choice should use the late-window checkpoints (390 plus the final one, and 260 as the nearest pre-window anchor if only two late checkpoints are available). The iteration-65 Greek-only run is not selection evidence; it is an operational canary to catch broken conversion/eval early.
 
+### TD layer11 direct-path eval handoff
+
+The Token Distillation 2B run is a single selected arm, not the original
+`${RUN_TAG}_${arm}` three-arm layout. Use the TD-specific wrappers so conversion
+reads the direct checkpoint root and the HF tokenizer/config produced by the TD
+layer11 R17 roundtrip:
+
+```bash
+RUN_TAG=td_full25_layer11_2b_20260523T165038Z \
+ITER=65 \
+TASK_GROUP=greek_only \
+POLL_SECONDS=300 \
+nohup bash watch_and_submit_td_checkpoint_eval.sh \
+  > /capstor/scratch/cscs/fffoivos/runs/eval/watch_td_l11_iter65_greek_only.log 2>&1 &
+```
+
+For selection checkpoints, enable intrinsic metrics against the staged Greek
+held-out slice:
+
+```bash
+RUN_TAG=td_full25_layer11_2b_20260523T165038Z \
+ITER=390 \
+TASK_GROUP=full \
+SUBMIT_INTRINSIC=1 \
+EVAL_JSONL=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl \
+POLL_SECONDS=300 \
+nohup bash watch_and_submit_td_checkpoint_eval.sh \
+  > /capstor/scratch/cscs/fffoivos/runs/eval/watch_td_l11_iter390_full.log 2>&1 &
+```
+
+The TD wrapper submits `convert_bakeoff_checkpoint_to_hf.sbatch` with
+`ARM=td_layer11`, which keeps the conversion job on `xfer` via
+`slurm_cpu_only_guard.sh` and defaults the tokenizer/config to:
+
+`/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/hf_roundtrip`
+
 ## §5.6 hard gates — to be filled from V4 baseline
 
 Per v0.7 §5.6, a candidate arm **fails** if any of these gates trips. Thresholds are deliberately left as placeholders here — they're set **after** the V4 baseline run on unmodified Apertus-8B-2509 establishes the per-benchmark variance. The "fill from V4" step is on the post-V4 review checklist; until then these thresholds remain `PENDING(V4)`.
@@ -220,6 +256,8 @@ Per-arm bakeoff eval at one checkpoint:
 - `run_megatron_convert_with_pg.py` — initializes the single-rank process group needed by Megatron `loader core` when reading `torch_dist` checkpoints
 - `submit_bakeoff_checkpoint_eval.sh` — submits conversion plus lm-eval, with optional intrinsic metrics when `SUBMIT_INTRINSIC=1`
 - `watch_and_submit_checkpoint_evals.sh` — lightweight watcher that stamps per-arm submissions and prevents duplicate checkpoint eval launches
+- `submit_td_checkpoint_eval.sh` — direct-path TD layer11 conversion plus eval submitter for the selected TD 2B run
+- `watch_and_submit_td_checkpoint_eval.sh` — lightweight direct-path TD watcher; submits once when a checkpoint directory and tracker are both ready
 - `build_cpt_heldout_jsonl.py` / `build_cpt_heldout_jsonl.sbatch` — builds the 500-doc Greek held-out JSONL from the post-Apertus-dedup selected pool while excluding Greek doc_ids already used in `bulk_mix.jsonl`
 - `compute_bootstrap_cis.py` — post-process: bootstrap CIs over the `--log_samples` outputs
 - **`compute_tokenizer_fair_metrics.py`** — primary v0.7 §5.1 intrinsic metrics (BPC, NLL/char, NLL/word, tokens/word, chars/token, compression ratio, STRR). The cross-tokenizer-fair signal for comparing Vanilla (vocab 131,072) vs ReTok/Centroid (vocab 148,480). Has a `--stats-only` mode for tokenizer-only checks (no model load).
