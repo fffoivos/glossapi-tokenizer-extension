@@ -1,0 +1,118 @@
+{
+  "output_root": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_intrinsics_20260523T124000Z",
+  "eval_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl",
+  "best_bpc_arm": "td_full25_layer11",
+  "arms": [
+    {
+      "arm": "retok",
+      "arm_dir": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_intrinsics_20260523T124000Z/retok",
+      "model_path": "/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/retok",
+      "errors": [],
+      "tokenizer": {
+        "bpc_bits_per_byte": 2.950318588637427,
+        "nll_per_char": 3.4895625555028267,
+        "nll_per_word": 24.057415110146938,
+        "nll_per_token": 13.86465655652131,
+        "tokens_per_word": 1.735161272266165,
+        "chars_per_token": 3.9731789689964416,
+        "strr": 0.4458156517566615,
+        "n_docs": 500.0,
+        "n_tokens": 805972.0,
+        "wall_seconds": 64.89312267303467
+      },
+      "new_token": {
+        "n_positions_total": 805472,
+        "n_positions_new_target": 276332,
+        "d1_mean_rank": 3868.274868636278,
+        "d1_top1_rate": 0.006484952882764211,
+        "d1_top5_rate": 0.023117119986103673,
+        "d1_top10_rate": 0.03631863121173082,
+        "d1_top50_rate": 0.08276276363215262,
+        "d2_avg_prob_mass_new_per_pos": 0.9820830923056727,
+        "d4_new_rate": 0.9992038562309107,
+        "d5_greedy_utilization_rate": 1.0,
+        "d5_n_new_gen": 500,
+        "d5_n_total_gen": 500,
+        "E_new_to_existing_norm_ratio": 1.0578148365020752,
+        "U_new_to_existing_norm_ratio": 1.0140060186386108,
+        "new_E_cos_p95": 0.16174907982349396,
+        "new_E_participation_ratio": 320.44879150390625,
+        "wall_seconds": 85.72929072380066
+      }
+    },
+    {
+      "arm": "td_full25_last",
+      "arm_dir": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_intrinsics_20260523T124000Z/td_full25_last",
+      "model_path": "/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_full25_layers_20260523T092602Z/last",
+      "errors": [],
+      "tokenizer": {
+        "bpc_bits_per_byte": 1.4248761942253063,
+        "nll_per_char": 1.6853076927845805,
+        "nll_per_word": 11.618690339769666,
+        "nll_per_token": 6.696029081259611,
+        "tokens_per_word": 1.735161272266165,
+        "chars_per_token": 3.9731789689964416,
+        "strr": 0.4458156517566615,
+        "n_docs": 500.0,
+        "n_tokens": 805972.0,
+        "wall_seconds": 64.38060426712036
+      },
+      "new_token": {
+        "n_positions_total": 805472,
+        "n_positions_new_target": 276332,
+        "d1_mean_rank": 1756.0364199586006,
+        "d1_top1_rate": 0.03813528653938016,
+        "d1_top5_rate": 0.15964491987898616,
+        "d1_top10_rate": 0.22035088227204958,
+        "d1_top50_rate": 0.3566434578695193,
+        "d2_avg_prob_mass_new_per_pos": 0.8193586043524215,
+        "d4_new_rate": 0.9266244951724737,
+        "d5_greedy_utilization_rate": 0.998,
+        "d5_n_new_gen": 499,
+        "d5_n_total_gen": 500,
+        "E_new_to_existing_norm_ratio": 1.0584684610366821,
+        "U_new_to_existing_norm_ratio": 1.0194944143295288,
+        "new_E_cos_p95": 0.15975281596183777,
+        "new_E_participation_ratio": 323.1507263183594,
+        "wall_seconds": 99.901602268219
+      }
+    },
+    {
+      "arm": "td_full25_layer11",
+      "arm_dir": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_intrinsics_20260523T124000Z/td_full25_layer11",
+      "model_path": "/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_full25_layers_20260523T092602Z/layer11",
+      "errors": [],
+      "tokenizer": {
+        "bpc_bits_per_byte": 1.3845765689854503,
+        "nll_per_char": 1.6376423105511497,
+        "nll_per_word": 11.290080129024144,
+        "nll_per_token": 6.506645987020568,
+        "tokens_per_word": 1.735161272266165,
+        "chars_per_token": 3.9731789689964416,
+        "strr": 0.4458156517566615,
+        "n_docs": 500.0,
+        "n_tokens": 805972.0,
+        "wall_seconds": 66.94043111801147
+      },
+      "new_token": {
+        "n_positions_total": 805472,
+        "n_positions_new_target": 276332,
+        "d1_mean_rank": 1617.4771181043093,
+        "d1_top1_rate": 0.041468233863613334,
+        "d1_top5_rate": 0.17215885239494522,
+        "d1_top10_rate": 0.2375331123431235,
+        "d1_top50_rate": 0.3794421203479872,
+        "d2_avg_prob_mass_new_per_pos": 0.8093963795872166,
+        "d4_new_rate": 0.915333728992661,
+        "d5_greedy_utilization_rate": 0.996,
+        "d5_n_new_gen": 498,
+        "d5_n_total_gen": 500,
+        "E_new_to_existing_norm_ratio": 1.058969259262085,
+        "U_new_to_existing_norm_ratio": 1.0194971561431885,
+        "new_E_cos_p95": 0.1584259420633316,
+        "new_E_participation_ratio": 324.3846740722656,
+        "wall_seconds": 82.58718299865723
+      }
+    }
+  ]
+}

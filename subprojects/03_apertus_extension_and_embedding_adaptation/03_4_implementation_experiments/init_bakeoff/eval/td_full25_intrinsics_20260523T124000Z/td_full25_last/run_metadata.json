@@ -1,0 +1,16 @@
+{
+  "arm": "td_full25_last",
+  "model_path": "/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_full25_layers_20260523T092602Z/last",
+  "eval_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl",
+  "max_context": 4096,
+  "max_docs": null,
+  "dtype": "bfloat16",
+  "skip_greedy": "0",
+  "greedy_max_new_tokens": 100,
+  "uenv_image": "pytorch/v2.9.1:v2",
+  "slurm_job_id": "2355714",
+  "host": "nid007615",
+  "packed_gpu_id": "1",
+  "start_time": "2026-05-23T16:03:21Z",
+  "end_time": "2026-05-23T16:06:23Z"
+}
