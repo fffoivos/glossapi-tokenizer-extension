@@ -1,0 +1,140 @@
+0: [W523 18:46:10.218397849 ProcessGroupNCCL.cpp:924] Warning: TORCH_NCCL_AVOID_RECORD_STREAMS is the default now, this environment variable is thus deprecated. (function operator())
+0: [W523 18:46:10.219269917 ProcessGroupNCCL.cpp:924] Warning: TORCH_NCCL_AVOID_RECORD_STREAMS is the default now, this environment variable is thus deprecated. (function operator())
+0: [W523 18:46:10.220243007 ProcessGroupNCCL.cpp:924] Warning: TORCH_NCCL_AVOID_RECORD_STREAMS is the default now, this environment variable is thus deprecated. (function operator())
+1: [W523 18:46:11.147185908 ProcessGroupNCCL.cpp:924] Warning: TORCH_NCCL_AVOID_RECORD_STREAMS is the default now, this environment variable is thus deprecated. (function operator())
+1: [W523 18:46:11.149851341 ProcessGroupNCCL.cpp:924] Warning: TORCH_NCCL_AVOID_RECORD_STREAMS is the default now, this environment variable is thus deprecated. (function operator())
+1: [W523 18:46:11.231025576 ProcessGroupNCCL.cpp:924] Warning: TORCH_NCCL_AVOID_RECORD_STREAMS is the default now, this environment variable is thus deprecated. (function operator())
+0: [W523 18:46:15.219270585 ProcessGroupNCCL.cpp:924] Warning: TORCH_NCCL_AVOID_RECORD_STREAMS is the default now, this environment variable is thus deprecated. (function operator())
+1: [W523 18:46:16.152303221 ProcessGroupNCCL.cpp:924] Warning: TORCH_NCCL_AVOID_RECORD_STREAMS is the default now, this environment variable is thus deprecated. (function operator())
+1: [rank4]:[W523 18:46:16.191275693 ProcessGroupNCCL.cpp:5072] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+0: /user-environment/env/default/lib/python3.12/site-packages/torch/distributed/distributed_c10d.py:4876: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+0:   warnings.warn(  # warn only once
+0: [rank0]:[W523 18:46:16.445432589 ProcessGroupNCCL.cpp:5072] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+0: /user-environment/env/default/lib/python3.12/site-packages/torch/distributed/distributed_c10d.py:4876: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+0:   warnings.warn(  # warn only once
+1: [pretrain_gpt_te_guard] rank=7 xIELU optimizer audit: model_alpha_params=64 local_optimizer_alpha_params=0 dp_optimizer_alpha_params=64 missing=0 direct_refs=66 model_refs=66 main_refs=66
+1: [pretrain_gpt_te_guard] rank=5 xIELU optimizer audit: model_alpha_params=64 local_optimizer_alpha_params=0 dp_optimizer_alpha_params=64 missing=0 direct_refs=66 model_refs=66 main_refs=66
+0: [pretrain_gpt_te_guard] rank=3 xIELU optimizer audit: model_alpha_params=64 local_optimizer_alpha_params=0 dp_optimizer_alpha_params=64 missing=0 direct_refs=97 model_refs=97 main_refs=97
+0: [pretrain_gpt_te_guard] rank=1 xIELU optimizer audit: model_alpha_params=64 local_optimizer_alpha_params=64 dp_optimizer_alpha_params=64 missing=0 direct_refs=292 model_refs=292 main_refs=292
+1: [pretrain_gpt_te_guard] rank=6 xIELU optimizer audit: model_alpha_params=64 local_optimizer_alpha_params=0 dp_optimizer_alpha_params=64 missing=0 direct_refs=66 model_refs=66 main_refs=66
+1: [pretrain_gpt_te_guard] rank=4 xIELU optimizer audit: model_alpha_params=64 local_optimizer_alpha_params=0 dp_optimizer_alpha_params=64 missing=0 direct_refs=66 model_refs=66 main_refs=66
+0: [pretrain_gpt_te_guard] rank=0 xIELU optimizer audit: model_alpha_params=64 local_optimizer_alpha_params=64 dp_optimizer_alpha_params=64 missing=0 direct_refs=292 model_refs=292 main_refs=292
+0: [pretrain_gpt_te_guard] rank=2 xIELU optimizer audit: model_alpha_params=64 local_optimizer_alpha_params=0 dp_optimizer_alpha_params=64 missing=0 direct_refs=97 model_refs=97 main_refs=97
+0: terminate called after throwing an instance of 'std::runtime_error'
+0:   what():  NCCL Error 2: unhandled system error (run with NCCL_DEBUG=INFO for details)
+1: [rank5]:[E523 18:47:43.393523939 ProcessGroupNCCL.cpp:606] [Rank 2] Collective WorkNCCL(SeqNum=2, OpType=COALESCED, NumelIn=304087040, NumelOut=76021760, Timeout(ms)=3600000) raised the following async exception: NCCL error: unhandled system error (run with NCCL_DEBUG=INFO for details), NCCL version 2.29.2
+1: ncclSystemError: System call (e.g. socket, malloc) or external library call failed or device error. 
+1: Last error:
+1: NET/OFI Request 0x40079f203f80 completed with error. RC: 5. Error: 16 (NO_SPACE). Completed length: 0, Request: { dev: 1, size: 4, state: CREATED, direction: RECV }
+1: Exception raised from checkForNCCLErrorsInternal at /tmp/bcumming/spack-stage/spack-stage-py-torch-2.9.1-x2zwemt5cndnb5ymrwtxhxjrt5ykzld2/spack-src/torch/csrc/distributed/c10d/ProcessGroupNCCL.cpp:2707 (most recent call first):
+1: frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0xb0 (0x40029e1e90d0 in /user-environment/env/default/lib/python3.12/site-pack
+0: terminate called after throwing an instance of 'std::runtime_error'
+0:   what():  NCCL Error 2: unhandled system error (run with NCCL_DEBUG=INFO for details)
+1: ages/torch/lib/libc10.so)
+1: frame #1: <unknown function> + 0x11fb4d0 (0x40029131b4d0 in /user-environment/env/default/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)
+1: frame #2: c10d::ProcessGroupNCCL::checkForNCCLErrorsInternal(std::shared_ptr<c10d::NCCLComm>&) + 0x2b4 (0x40029135b834 in /user-environment/env/default/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)
+1: frame #3: c10d::ProcessGroupNCCL::WorkNCCL::checkAndSetException() + 0x74 (0x40029135ba14 in /user-environment/env/default/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)
+1: frame #4: c10d::ProcessGroupNCCL::Watchdog::runLoop() + 0x7ec (0x400291362ecc in /user-environment/env/default/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)
+1: frame #5: c10d::ProcessGroupNCCL::Watchdog::run() + 0xdc (0x400291364a5c in /user-environment/env/default/lib/python3.12/site-packages/torch/lib/libtorch_cuda.so)
+1: frame #6: <unknown function> + 0xeff7c (0x40027f01ff7c in /user-environment/linux-neoverse_v2/gcc-14.2.0-ovez6ffqfi4256sigothvjlis6
+1: onlz4h/lib64/libstdc++.so.6)
+1: frame #7: <unknown function> + 0x86db0 (0x40027d426db0 in /lib64/libc.so.6)
+1: frame #8: <unknown function> + 0xf278c (0x40027d49278c in /lib64/libc.so.6)
+1: 
+1: [rank5]:[E523 18:47:43.394400396 ProcessGroupNCCL.cpp:2241] [PG ID 2 PG GUID 7(DATA_PARALLEL_GROUP_WITH_CP) Rank 2]  failure detected by watchdog at work sequence id: 2 PG status: last enqueued work: 18, last completed work: 1
+1: [rank5]:[E523 18:47:43.394406827 ProcessGroupNCCL.cpp:730] Stack trace of the failed collective not found, potentially because FlightRecorder is disabled. You can enable it by setting TORCH_NCCL_TRACE_BUFFER_SIZE to a non-zero value.
+1: [rank5]:[E523 18:47:43.394441194 ProcessGroupNCCL.cpp:2573] [PG ID 2 PG GUID 7(DATA_PARALLEL_GROUP_WITH_CP) Rank 2] First PG on this rank to signal dumping.
+1: terminate called after throwing an instance of 'std::runtime_error'
+1:   what():  NCCL Error 2: unhandled system error (run with NCCL_DEBUG=INFO for details)
+1: 
+1: terminate called after throwing an instance of 'std::runtime_error'
+1:   what():  NCCL Error 2: unhandled system error (run with NCCL_DEBUG=INFO for details)
+0: [rank2]:[E523 18:47:44.359582537 ProcessGroupNCCL.cpp:1794] [PG ID 0 PG GUID 0(default_pg) Rank 2] Observed flight recorder dump signal from another rank via TCPStore.
+0: [rank2]:[E523 18:47:44.359699366 ProcessGroupNCCL.cpp:1858] [PG ID 0 PG GUID 0(default_pg) Rank 2] Received a dump signal due to a collective timeout from  rank 5 and we will try our best to dump the debug info. Last enqueued NCCL work: 20, last completed NCCL work: 20.This is most likely caused by incorrect usages of collectives, e.g., wrong sizes used across ranks, the order of collectives is not same for all ranks or the scheduled collective, for some reason, didn't run. Additionally, this can be caused by GIL deadlock or other reasons such as network errors or bugs in the communications library (e.g. NCCL), etc. 
+1: [rank6]:[E523 18:47:44.175719854 ProcessGroupNCCL.cpp:1794] [PG ID 0 PG GUID 0(default_pg) Rank 6] Observed flight recorder dump signal from another rank via TCPStore.
+1: [rank6]:[E523 18:47:44.175916009 ProcessGroupNCCL.cpp:1858] [PG ID 0 PG GUID 0(default_pg) Rank 6] Received a dump signal due to a collective timeout from  rank 5 and we will try our best to dump the debug info. Last enqueued NCCL work: 20, last completed NCCL work: 20.This is most likely caused by incorrect usages of collectives, e.g., wrong sizes used across ranks, the order of collectives is not same for all ranks or the scheduled collective, for some reason, didn't run. Additionally, this can be caused by GIL deadlock or other reasons such as network errors or bugs in the communications library (e.g. NCCL), etc. 
+0: [rank2]:[E523 18:47:44.366122178 ProcessGroupNCCL.cpp:1575] [PG ID 0 PG GUID 0(default_pg) Rank 2] ProcessGroupNCCL preparing to dump debug info. Include stack trace: 1
+1: [rank6]:[E523 18:47:44.182279298 ProcessGroupNCCL.cpp:1575] [PG ID 0 PG GUID 0(default_pg) Rank 6] ProcessGroupNCCL preparing to dump debug info. Include stack trace: 1
+0: [rank3]:[E523 18:47:44.451786514 ProcessGroupNCCL.cpp:1794] [PG ID 0 PG GUID 0(default_pg) Rank 3] Observed flight recorder dump signal from another rank via TCPStore.
+0: [rank3]:[E523 18:47:44.451852560 ProcessGroupNCCL.cpp:1858] [PG ID 0 PG GUID 0(default_pg) Rank 3] Received a dump signal due to a collective timeout from  rank 5 and we will try our best to dump the debug info. Last enqueued NCCL work: 20, last completed NCCL work: 20.This is most likely caused by incorrect usages of collectives, e.g., wrong sizes used across ranks, the order of collectives is not same for all ranks or the scheduled collective, for some reason, didn't run. Additionally, this can be caused by GIL deadlock or other reasons such as network errors or bugs in the communications library (e.g. NCCL), etc. 
+0: [rank3]:[E523 18:47:44.451938061 ProcessGroupNCCL.cpp:1575] [PG ID 0 PG GUID 0(default_pg) Rank 3] ProcessGroupNCCL preparing to dump debug info. Include stack trace: 1
+1: [rank7]:[E523 18:47:44.283467193 ProcessGroupNCCL.cpp:1794] [PG ID 0 PG GUID 0(default_pg) Rank 7] Observed flight recorder dump signal from another rank via TCPStore.
+1: [rank7]:[E523 18:47:44.283622005 ProcessGroupNCCL.cpp:1858] [PG ID 0 PG GUID 0(default_pg) Rank 7] Received a dump signal due to a collective timeout from  rank 5 and we will try our best to dump the debug info. Last enqueued NCCL work: 20, last completed NCCL work: 20.This is most likely caused by incorrect usages of collectives, e.g., wrong sizes used across ranks, the order of collectives is not same for all ranks or the scheduled collective, for some reason, didn't run. Additionally, this can be caused by GIL deadlock or other reasons such as network errors or bugs in the communications library (e.g. NCCL), etc. 
+1: [rank7]:[E523 18:47:44.283719954 ProcessGroupNCCL.cpp:1575] [PG ID 0 PG GUID 0(default_pg) Rank 7] ProcessGroupNCCL preparing to dump debug info. Include stack trace: 1
+1: W0523 18:47:46.281000 209894 /user-environment/linux-neoverse_v2/py-torch-2.9.1-x2zwemt5cndnb5ymrwtxhxjrt5ykzld2/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/api.py:908] Sending process 209933 closing signal SIGTERM
+1: W0523 18:47:46.282000 209894 /user-environment/linux-neoverse_v2/py-torch-2.9.1-x2zwemt5cndnb5ymrwtxhxjrt5ykzld2/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/api.py:908] Sending process 209934 closing signal SIGTERM
+1: W0523 18:47:46.284000 209894 /user-environment/linux-neoverse_v2/py-torch-2.9.1-x2zwemt5cndnb5ymrwtxhxjrt5ykzld2/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/api.py:908] Sending process 209935 closing signal SIGTERM
+0: W0523 18:47:46.361000 37651 /user-environment/linux-neoverse_v2/py-torch-2.9.1-x2zwemt5cndnb5ymrwtxhxjrt5ykzld2/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/api.py:908] Sending process 37707 closing signal SIGTERM
+0: W0523 18:47:46.362000 37651 /user-environment/linux-neoverse_v2/py-torch-2.9.1-x2zwemt5cndnb5ymrwtxhxjrt5ykzld2/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/api.py:908] Sending process 37708 closing signal SIGTERM
+0: W0523 18:47:46.366000 37651 /user-environment/linux-neoverse_v2/py-torch-2.9.1-x2zwemt5cndnb5ymrwtxhxjrt5ykzld2/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/api.py:908] Sending process 37709 closing signal SIGTERM
+1: E0523 18:47:46.916000 209894 /user-environment/linux-neoverse_v2/py-torch-2.9.1-x2zwemt5cndnb5ymrwtxhxjrt5ykzld2/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/api.py:882] failed (exitcode: -6) local_rank: 0 (pid: 209932) of binary: python3
+1: Traceback (most recent call last):
+1:   File "/user-environment/env/default/bin/torchrun", line 8, in <module>
+1:     sys.exit(main())
+1:              ^^^^^^
+1:   File "/user-environment/env/._default/qroengvvfbru2wg3mpd7ywcrxsnunhwx/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 357, in wrapper
+1:     return f(*args, **kwargs)
+1:            ^^^^^^^^^^^^^^^^^^
+1:   File "/user-environment/env/._default/qroengvvfbru2wg3mpd7ywcrxsnunhwx/lib/python3.12/site-packages/torch/distributed/run.py", line 936, in main
+1:     run(args)
+1:   File "/user-environment/env/._default/qroengvvfbru2wg3mpd7ywcrxsnunhwx/lib/python3.12/site-packages/torch/distributed/run.py", line 927, in run
+1:     elastic_launch(
+1:   File "/user-environment/env/._default/qroengvvfbru2wg3mpd7ywcrxsnunhwx/lib/python3.12/site-packages/torch/distributed/launcher/api.py", line 156, in __call__
+1:     return launch_agent(self._config, self._entrypoint, list(args))
+1:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1:   File "/user-environment/env/._default/qroengvvfbru2wg3mpd7ywcrxsnunhwx/lib/python3.12/site-packages/torch/distributed/launcher/api.py", line 293, in launch_agent
+1:     raise ChildFailedError(
+1: torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+1: =======================================================
+1: python3 FAILED
+1: -------------------------------------------------------
+1: Failures:
+1:   <NO_OTHER_FAILURES>
+1: -------------------------------------------------------
+1: Root Cause (first observed failure):
+1: [0]:
+1:   time      : 2026-05-23_18:47:46
+1:   host      : nid007615
+1:   rank      : 4 (local_rank: 0)
+1:   exitcode  : -6 (pid: 209932)
+1:   error_file: <N/A>
+1:   traceback : Signal 6 (SIGABRT) received by PID 209932
+1: =======================================================
+1: 
+0: E0523 18:47:46.998000 37651 /user-environment/linux-neoverse_v2/py-torch-2.9.1-x2zwemt5cndnb5ymrwtxhxjrt5ykzld2/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/api.py:882] failed (exitcode: -6) local_rank: 0 (pid: 37706) of binary: python3
+0: Traceback (most recent call last):
+0:   File "/user-environment/env/default/bin/torchrun", line 8, in <module>
+0:     sys.exit(main())
+0:              ^^^^^^
+0:   File "/user-environment/env/._default/qroengvvfbru2wg3mpd7ywcrxsnunhwx/lib/python3.12/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 357, in wrapper
+0:     return f(*args, **kwargs)
+0:            ^^^^^^^^^^^^^^^^^^
+0:   File "/user-environment/env/._default/qroengvvfbru2wg3mpd7ywcrxsnunhwx/lib/python3.12/site-packages/torch/distributed/run.py", line 936, in main
+0:     run(args)
+0:   File "/user-environment/env/._default/qroengvvfbru2wg3mpd7ywcrxsnunhwx/lib/python3.12/site-packages/torch/distributed/run.py", line 927, in run
+0:     elastic_launch(
+0:   File "/user-environment/env/._default/qroengvvfbru2wg3mpd7ywcrxsnunhwx/lib/python3.12/site-packages/torch/distributed/launcher/api.py", line 156, in __call__
+0:     return launch_agent(self._config, self._entrypoint, list(args))
+0:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+0:   File "/user-environment/env/._default/qroengvvfbru2wg3mpd7ywcrxsnunhwx/lib/python3.12/site-packages/torch/distributed/launcher/api.py", line 293, in launch_agent
+0:     raise ChildFailedError(
+0: torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+0: ======================================================
+0: python3 FAILED
+0: ------------------------------------------------------
+0: Failures:
+0:   <NO_OTHER_FAILURES>
+0: ------------------------------------------------------
+0: Root Cause (first observed failure):
+0: [0]:
+0:   time      : 2026-05-23_18:47:46
+0:   host      : nid006031
+0:   rank      : 0 (local_rank: 0)
+0:   exitcode  : -6 (pid: 37706)
+0:   error_file: <N/A>
+0:   traceback : Signal 6 (SIGABRT) received by PID 37706
+0: ======================================================
+0: 
+srun: error: nid007615: task 1: Exited with exit code 1
+srun: Terminating StepId=2357684.0
+srun: error: nid006031: task 0: Exited with exit code 1

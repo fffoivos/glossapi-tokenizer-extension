@@ -127,8 +127,10 @@ Key result:
 | TD layer11 | **1.3846** | **1617.48** | **0.0415** | **0.1722** |
 
 Current rule: take only `td_full25_layer11` to a decision-useful 2B training/eval
-arm. Do not run a 50/100-snippet TD variant unless the 2B result is quality
-ambiguous rather than clearly better or worse than Vanilla.
+arm. Use the reliable one-node path with a chained resume job; the two-node
+efficiency smoke failed with an NCCL/OFI `NO_SPACE` error before iteration 1.
+Do not run a 50/100-snippet TD variant unless the 2B result is quality ambiguous
+rather than clearly better or worse than Vanilla.
 
 ## Production CPT monitoring cadence
 

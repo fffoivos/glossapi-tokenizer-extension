@@ -1,0 +1,5 @@
+JobID|JobName|Partition|State|Elapsed|Timelimit|ExitCode
+2357684|bakeoff_smoke_td_l11|normal|FAILED|00:02:24|01:00:00|1:0
+2357684.batch|batch||FAILED|00:02:24||1:0
+2357684.extern|extern||COMPLETED|00:02:24||0:0
+2357684.0|bash||FAILED|00:02:16||1:0

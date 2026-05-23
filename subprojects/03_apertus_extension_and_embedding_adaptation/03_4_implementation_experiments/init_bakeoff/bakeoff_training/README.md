@@ -18,6 +18,7 @@ not HuggingFace Trainer — for Apertus-fidelity reasons documented in
 | [`bakeoff_train.sbatch`](bakeoff_train.sbatch) | parameterized training job, takes `ARM` + `INIT_CKPT` + `OUTPUT_DIR` |
 | [`submit_all_arms.sh`](submit_all_arms.sh) | thin wrapper: submits all three arms in parallel with a shared seed |
 | [`submit_td_layer11_smoke.sh`](submit_td_layer11_smoke.sh) | bounded load/train smoke for the selected TD layer11 R17-patched checkpoint |
+| [`submit_td_layer11_2b_chain.sh`](submit_td_layer11_2b_chain.sh) | one-arm chained 2B TD layer11 training run; uses a resume job because `normal` is capped at 12h |
 
 ## End-to-end sequence
 

@@ -12,9 +12,11 @@
   [`RUN_LOG_20260523.md`](03_4_implementation_experiments/init_bakeoff/token_distillation/RUN_LOG_20260523.md).
 - The R17-preserving HF -> Megatron conversion and exact HF roundtrip gate has
   passed for `td_full25_layer11` as job `2357565`. The bounded Megatron
-  load/train smoke also passed as job `2357596`. Next: run a decision-useful 2B
-  TD training/eval arm, then compare it to the completed Vanilla / ReTok /
-  Centroid bakeoff before any 15-20B production CPT promotion.
+  load/train smoke also passed as job `2357596`. A two-node efficiency smoke
+  (`2357684`) failed with NCCL/OFI `NO_SPACE`; use the one-node chained path.
+  Next: run a decision-useful 2B TD training/eval arm, then compare it to the
+  completed Vanilla / ReTok / Centroid bakeoff before any 15-20B production CPT
+  promotion.
 - Keep CPU-only dataset/snippet/preservation work on `xfer`; do not use GPU
   nodes for those paths.
 
