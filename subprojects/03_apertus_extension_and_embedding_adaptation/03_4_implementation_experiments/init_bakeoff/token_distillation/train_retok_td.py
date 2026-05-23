@@ -119,8 +119,9 @@ def load_grouped_snippets(
     coverage_rows: dict[int, dict[str, object]],
     base_tokenizer,
     snippets_per_token: int,
+    min_accepted_snippets_per_token: int,
     seed: int,
-) -> tuple[list[list[list[int]]], list[list[int]], dict[int, dict[str, int]]]:
+) -> tuple[list[int], list[list[list[int]]], list[list[int]], dict[int, dict[str, int]], dict[int, dict[str, object]]]:
     by_token: dict[int, list[dict[str, object]]] = {token_id: [] for token_id in selected_ids}
     selected_set = set(selected_ids)
     for row in iter_jsonl(snippets_jsonl):
@@ -129,9 +130,11 @@ def load_grouped_snippets(
             by_token[token_id].append(row)
 
     rng = random.Random(seed)
+    trained_token_ids: list[int] = []
     grouped_texts: list[list[list[int]]] = []
     assigned_phrases: list[list[int]] = []
     snippet_stats: dict[int, dict[str, int]] = {}
+    skipped_tokens: dict[int, dict[str, object]] = {}
 
     for token_id in selected_ids:
         phrase = list(coverage_rows[token_id]["base_subtoken_ids"])  # validated in load_coverage
@@ -153,9 +156,21 @@ def load_grouped_snippets(
             if len(accepted) >= snippets_per_token:
                 break
 
-        if not accepted:
-            raise SystemExit(f"token {token_id}: no snippets contain its base phrase after base tokenization")
+        if len(accepted) < min_accepted_snippets_per_token:
+            skipped_tokens[token_id] = {
+                "reason": "insufficient_snippets_with_base_phrase",
+                "token_string": coverage_rows[token_id].get("token_string"),
+                "raw_token": coverage_rows[token_id].get("raw_token"),
+                "base_subtoken_ids": phrase,
+                "candidate_snippets": len(candidates),
+                "accepted_snippets": len(accepted),
+                "rejected_no_phrase": rejected_no_phrase,
+                "required_accepted_snippets": min_accepted_snippets_per_token,
+                "coverage_status": coverage_rows[token_id].get("status"),
+            }
+            continue
 
+        trained_token_ids.append(token_id)
         grouped_texts.append(accepted)
         assigned_phrases.append(phrase)
         snippet_stats[token_id] = {
@@ -164,7 +179,7 @@ def load_grouped_snippets(
             "rejected_no_phrase": rejected_no_phrase,
         }
 
-    return grouped_texts, assigned_phrases, snippet_stats
+    return trained_token_ids, grouped_texts, assigned_phrases, snippet_stats, skipped_tokens
 
 
 def copy_tokenizer_files(tokenizer_dir: Path, output_dir: Path) -> None:
@@ -193,6 +208,8 @@ def main() -> int:
     parser.add_argument("--new-id-start", type=int, default=131_072)
     parser.add_argument("--new-id-end", type=int, default=148_480)
     parser.add_argument("--snippets-per-token", type=int, default=25)
+    parser.add_argument("--min-accepted-snippets-per-token", type=int, default=None)
+    parser.add_argument("--min-trained-token-fraction", type=float, default=0.90)
     parser.add_argument("--epochs", type=int, default=1)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--learning-rate", type=float, default=1.0e-4)
@@ -206,6 +223,12 @@ def main() -> int:
 
     if args.snippets_per_token <= 0:
         raise SystemExit("--snippets-per-token must be positive")
+    if args.min_accepted_snippets_per_token is None:
+        args.min_accepted_snippets_per_token = args.snippets_per_token
+    if args.min_accepted_snippets_per_token <= 0:
+        raise SystemExit("--min-accepted-snippets-per-token must be positive")
+    if not (0.0 < args.min_trained_token_fraction <= 1.0):
+        raise SystemExit("--min-trained-token-fraction must be in (0, 1]")
     if args.new_id_start != args.base_vocab_size:
         raise SystemExit("this wrapper assumes new-id-start == base-vocab-size")
 
@@ -234,23 +257,25 @@ def main() -> int:
     if len(student_tok) != args.new_id_end:
         raise SystemExit(f"student tokenizer length {len(student_tok)} != expected {args.new_id_end}")
 
-    grouped_texts, assigned_phrases, snippet_stats = load_grouped_snippets(
+    trained_token_ids, grouped_texts, assigned_phrases, snippet_stats, skipped_tokens = load_grouped_snippets(
         snippets_jsonl=args.snippets_jsonl,
         selected_ids=selected_ids,
         coverage_rows=coverage_rows,
         base_tokenizer=base_tok,
         snippets_per_token=args.snippets_per_token,
+        min_accepted_snippets_per_token=args.min_accepted_snippets_per_token,
         seed=args.seed,
     )
 
     phrase_to_new_id: dict[tuple[int, ...], int] = {}
-    for token_id, phrase in zip(selected_ids, assigned_phrases):
+    for token_id, phrase in zip(trained_token_ids, assigned_phrases):
         key = tuple(phrase)
         if key in phrase_to_new_id:
             raise SystemExit(f"duplicate base phrase {key} for tokens {phrase_to_new_id[key]} and {token_id}")
         phrase_to_new_id[key] = token_id
 
-    preserve_ids = [i for i in range(args.new_id_end) if i not in selected_set]
+    trained_set = set(trained_token_ids)
+    preserve_ids = [i for i in range(args.new_id_end) if i not in trained_set]
     args.output_dir.mkdir(parents=True, exist_ok=True)
     manifest = {
         "student_model": str(args.student_model),
@@ -262,9 +287,16 @@ def main() -> int:
         "output_dir": str(args.output_dir),
         "base_vocab_size": args.base_vocab_size,
         "new_id_range": [args.new_id_start, args.new_id_end],
-        "selected_token_count": len(selected_ids),
+        "requested_token_count": len(selected_ids),
+        "trained_token_count": len(trained_token_ids),
+        "skipped_token_count": len(skipped_tokens),
+        "trained_token_fraction": len(trained_token_ids) / max(len(selected_ids), 1),
         "selected_token_ids": selected_ids,
+        "trained_token_ids": trained_token_ids,
+        "skipped_tokens": skipped_tokens,
         "snippets_per_token": args.snippets_per_token,
+        "min_accepted_snippets_per_token": args.min_accepted_snippets_per_token,
+        "min_trained_token_fraction": args.min_trained_token_fraction,
         "snippet_stats": snippet_stats,
         "epochs": args.epochs,
         "batch_size": args.batch_size,
@@ -280,6 +312,16 @@ def main() -> int:
     manifest_path = args.output_dir / "retok_td_manifest.json"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"wrote manifest: {manifest_path}")
+    if skipped_tokens:
+        print(f"skipped {len(skipped_tokens)} tokens without enough stable base-phrase snippets")
+    if manifest["trained_token_fraction"] < args.min_trained_token_fraction:
+        raise SystemExit(
+            "trained token fraction {got:.3f} is below required {want:.3f}; "
+            "inspect retok_td_manifest.json skipped_tokens".format(
+                got=manifest["trained_token_fraction"],
+                want=args.min_trained_token_fraction,
+            )
+        )
 
     if args.dry_run:
         print("dry-run complete; model was not loaded")
