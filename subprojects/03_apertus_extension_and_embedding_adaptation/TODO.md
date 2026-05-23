@@ -6,17 +6,16 @@
   current production-path state. The 2B Vanilla / ReTok / Centroid bakeoff has
   completed; Vanilla is the safe default for the 15-20B CPT path, Centroid is
   eliminated, and ReTok is not selected as-is.
-- Prepare Token Distillation as a parallel-ready follow-up using
-  [`TOKEN_DISTILLATION_PLAN.md`](TOKEN_DISTILLATION_PLAN.md). The intended
-  candidate is `retok_td`: ReTok initialization plus embedding-only TD, with
-  explicit handling for Apertus's untied input/output embeddings.
-- Before any GPU TD compute run, execute the CPU-only firing/coverage prepass
-  on `xfer`:
-  [`03_4_implementation_experiments/init_bakeoff/token_distillation/`](03_4_implementation_experiments/init_bakeoff/token_distillation/).
-  Do not use GPU nodes for dataset/snippet work.
-- Before any TD model update, implement the exact-tokenizer adapter so the
-  production extended BPE tokenizer and token IDs are preserved. Do not use a
-  base-tokenizer `add_tokens(...)` path for production artifacts.
+- Token Distillation is now an active bounded challenger, not just a
+  parallel-ready plan. Coverage prepass, smoke, layer pilot, and pilot intrinsic
+  eval have run; full-token TD job `2353960` is in progress. Track live state in
+  [`RUN_LOG_20260523.md`](03_4_implementation_experiments/init_bakeoff/token_distillation/RUN_LOG_20260523.md).
+- Keep CPU-only dataset/snippet/preservation work on `xfer`. The queued
+  preservation checks are jobs `2355706` and `2355707`, dependent on full TD
+  completion.
+- After preservation passes, run/read packed full-token intrinsic eval job
+  `2355714`; only then decide whether `retok_td` is worth the R17 conversion
+  gate.
 
 ## Historical TODO
 

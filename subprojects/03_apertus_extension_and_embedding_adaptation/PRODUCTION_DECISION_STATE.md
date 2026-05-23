@@ -93,18 +93,24 @@ must run on `xfer`, not on GPU partitions.
 
 ## Token Distillation next gate
 
-The first executable TD step is now:
+The CPU coverage prepass, smoke run, layer pilot, and pilot intrinsic eval have
+now run. The current live gate is the full-token `25`-snippet TD challenger:
 
-```bash
-cd /iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/token_distillation
-sbatch td_coverage_prepass_xfer.sbatch
-```
+- Training job: `2353960`
+- Output root:
+  `/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_full25_layers_20260523T092602Z`
+- Candidates: `target_layer=-1` (`last`) and `target_layer=11` (`layer11`).
+- Preservation checks queued on `xfer`: `2355706` (`last`) and `2355707`
+  (`layer11`), both dependent on `afterok:2353960`.
+- Packed intrinsic eval queued only after both preservation checks pass: job
+  `2355714`.
 
-Local source:
-`03_4_implementation_experiments/init_bakeoff/token_distillation/td_coverage_prepass.py`
+Run log:
+`03_4_implementation_experiments/init_bakeoff/token_distillation/RUN_LOG_20260523.md`
 
-Do not queue a GPU TD pilot until `td_coverage_summary.json` says either
-`run_full_td_100` or `run_td_25_with_flagged_tail`.
+Current rule: do not promote TD to production until both full-token variants
+have artifact-preservation reports, intrinsic eval results, and then the chosen
+variant clears the R17 HF -> Megatron gate.
 
 ## Production CPT monitoring cadence
 
@@ -120,9 +126,13 @@ For the real 15-20B CPT run:
 
 ## Remaining gates before declaring the full objective complete
 
-- TD coverage prepass has not yet been run.
-- If TD coverage passes, TD smoke/layer pilot and possible full TD challenger
-  remain to be run and compared.
+- Full-token TD challenger must finish.
+- Full-token TD artifact preservation reports must pass for any candidate used
+  downstream.
+- Full-token TD intrinsic eval must show whether `retok_td` meaningfully closes
+  the ReTok gap.
+- If TD remains a candidate, the selected TD checkpoint needs the R17-preserving
+  HF -> Megatron conversion and roundtrip/load smoke before any CPT-scale arm.
 - The final 15-20B production CPT dataset manifest needs to be built or
   rehydrated from the documented corpus path.
 - The selected init checkpoint for production needs a final R17 roundtrip
