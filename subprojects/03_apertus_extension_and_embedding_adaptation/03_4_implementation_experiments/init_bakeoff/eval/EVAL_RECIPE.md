@@ -186,6 +186,18 @@ The TD wrapper submits `convert_bakeoff_checkpoint_to_hf.sbatch` with
 
 `/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/hf_roundtrip`
 
+For unattended monitoring, prefer the Slurm wrapper instead of keeping
+sleeping watcher processes on a login SSH session:
+
+```bash
+first="$(sbatch --parsable watch_td_checkpoint_evals.sbatch)"
+second="$(sbatch --parsable --dependency=afterany:$first watch_td_checkpoint_evals.sbatch)"
+echo "$first $second"
+```
+
+The wrapper runs on `xfer` with one CPU and no GPU. It is safe to chain or
+re-run because each per-checkpoint watcher has a `submitted` stamp.
+
 ## §5.6 hard gates — to be filled from V4 baseline
 
 Per v0.7 §5.6, a candidate arm **fails** if any of these gates trips. Thresholds are deliberately left as placeholders here — they're set **after** the V4 baseline run on unmodified Apertus-8B-2509 establishes the per-benchmark variance. The "fill from V4" step is on the post-V4 review checklist; until then these thresholds remain `PENDING(V4)`.
@@ -258,6 +270,7 @@ Per-arm bakeoff eval at one checkpoint:
 - `watch_and_submit_checkpoint_evals.sh` — lightweight watcher that stamps per-arm submissions and prevents duplicate checkpoint eval launches
 - `submit_td_checkpoint_eval.sh` — direct-path TD layer11 conversion plus eval submitter for the selected TD 2B run
 - `watch_and_submit_td_checkpoint_eval.sh` — lightweight direct-path TD watcher; submits once when a checkpoint directory and tracker are both ready
+- `watch_td_checkpoint_evals.sbatch` — CPU-only `xfer` wrapper that runs the TD watcher set durably under Slurm
 - `build_cpt_heldout_jsonl.py` / `build_cpt_heldout_jsonl.sbatch` — builds the 500-doc Greek held-out JSONL from the post-Apertus-dedup selected pool while excluding Greek doc_ids already used in `bulk_mix.jsonl`
 - `compute_bootstrap_cis.py` — post-process: bootstrap CIs over the `--log_samples` outputs
 - **`compute_tokenizer_fair_metrics.py`** — primary v0.7 §5.1 intrinsic metrics (BPC, NLL/char, NLL/word, tokens/word, chars/token, compression ratio, STRR). The cross-tokenizer-fair signal for comparing Vanilla (vocab 131,072) vs ReTok/Centroid (vocab 148,480). Has a `--stats-only` mode for tokenizer-only checks (no model load).
