@@ -5,11 +5,12 @@
 **Date:** 2026-05-20
 **Supersedes:** v0.6
 
-**2026-05-23 decision overlay:** keep this plan as the design-space reference,
+**2026-05-24 decision overlay:** keep this plan as the design-space reference,
 but use [`PRODUCTION_DECISION_STATE.md`](PRODUCTION_DECISION_STATE.md) for the
 current post-bakeoff production path. The 2B bakeoff selected Vanilla/base
-tokenizer as the safe default; ReTok proceeds only through a bounded Token
-Distillation challenger if its CPU coverage and pilot gates pass.
+tokenizer as the safe default, and the bounded `td_full25_layer11` Token
+Distillation challenger did not clear the aggregate downstream gate needed to
+displace it.
 
 This version refactors §8 and §12 from prescriptive TODOs into status checks. The doc is a coordination artifact, not a list of work to do from scratch — items may already have been handled during prior work; the relevant question per item is "what's the current status." Decontamination scope (§8 K1, V1) also narrowed: the concern is verbatim test items in training data for benchmarks you want as clean measurement instruments, not blanket removal of on-topic Greek material.
 
@@ -19,7 +20,7 @@ This version refactors §8 and §12 from prescriptive TODOs into status checks. 
 
 Continue-pretrain Apertus 8B (base) on a curated Greek corpus to deepen the model's modern and polytonic Greek capabilities while preserving its multilingual, code, and reasoning performance.
 
-Tokenizer extension is already complete: +17,408 modern Greek tokens and +5,120 ancient/polytonic Greek tokens. These artifacts are available, but the post-bakeoff production default is the base 131,072-token tokenizer unless the bounded ReTok + Token Distillation challenger proves the extended path. If both extension layers are activated, the new embedding rows add roughly **184.5M parameters** (22,528 × 4,096 × 2 for untied input + output) before optimizer state, or ~2.2% of the 8B base.
+Tokenizer extension is already complete: +17,408 modern Greek tokens and +5,120 ancient/polytonic Greek tokens. These artifacts are available, but the post-bakeoff production default is the base 131,072-token tokenizer; the bounded ReTok + Token Distillation challenger remained useful but did not prove the extended path for the next 15-20B CPT run. If both extension layers are activated, the new embedding rows add roughly **184.5M parameters** (22,528 × 4,096 × 2 for untied input + output) before optimizer state, or ~2.2% of the 8B base.
 
 The model's intended downstream uses determine some of the design choices below; explicit capability targets are pending in §10 (Q A1) but deferred for now.
 
