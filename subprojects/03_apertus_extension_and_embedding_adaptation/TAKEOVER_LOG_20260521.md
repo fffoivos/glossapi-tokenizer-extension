@@ -1200,3 +1200,9 @@ Current next gate:
   - `2374731` `diag_retok_834`: GPU diagnostics eval.
 - Restarted the local retry watcher for the remaining TD 834 and packed 834
   sidecars, which are still gated by the active-job submit cap.
+- The first plain `nohup` restart did not survive after writing a partial
+  `2026-05-24T23:49:33Z` header. Replaced it with a user-systemd transient
+  unit:
+  `apertus-3p5b-eval-watcher.service`.
+- Verified the service was `active (running)` with PID `431332` and an SSH
+  child executing `submit_3p5b_eval_sidecars_incremental.py`.
