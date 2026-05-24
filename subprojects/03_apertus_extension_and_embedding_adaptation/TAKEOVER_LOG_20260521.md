@@ -1011,3 +1011,58 @@ Current next gate:
   - TD layer11 iter `531`: `2.465723`.
 - Eval watcher remains active, but submitted-job count is still `14`, so no
   additional sidecars can be submitted until a queued/running job leaves Slurm.
+
+### 2026-05-24T18:49Z 3.5B segment-1 boundary repair
+
+- Segment-1 result:
+  - Vanilla `2369298`, ReTok `2369301`, and TD layer11 `2369304` all reached
+    iter `585`, wrote `iter_0000585`, and exited `0`;
+  - all three `latest_checkpointed_iteration.txt` markers reached `585`.
+- Issue found during the boundary handoff:
+  - Vanilla segment-2 `2369299` and ReTok segment-2 `2369302` loaded iter
+    `585`, ran exactly one iteration to `586`, then exited `0`;
+  - root cause: the previous segment left a stale
+    `$OUTPUT_DIR/triggers/exit` file in the shared per-arm trigger directory;
+  - because the next segment reused the same trigger directory, Megatron saw
+    the stale exit trigger and performed a clean one-step exit;
+  - no bad checkpoint was written by those one-step segment-2 jobs, so the
+    valid recovery point remained iter `585`.
+- Immediate containment:
+  - stopped the home-side eval watcher;
+  - cancelled premature/future eval jobs that had been submitted against the
+    invalid one-step job IDs;
+  - held/cancelled the original downstream segment-2/segment-3 jobs so they
+    could not advance from the wrong dependency state;
+  - cleared stale `exit` trigger files in all three arm output directories.
+- Code repair:
+  - patched `bakeoff_train.sbatch` to clear stale `exit`/`save` trigger files
+    at job startup before Megatron starts;
+  - patched `submit_3p5b_eval_sidecars_incremental.py` to support a
+    `TRAINING_CHAIN_OVERLAY_TSV` repair manifest and to ignore extra columns in
+    repair manifests.
+- Replacement training chain:
+  - Vanilla: `2372735` -> `2372736`;
+  - ReTok: `2372737` -> `2372738`;
+  - TD layer11: `2372739` -> `2372740`;
+  - repair manifest:
+    `/capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_submit_state/training_chain_repair_20260524T1836Z.tsv`.
+- Verification:
+  - all three replacement 715 jobs reached iter `587/715`, proving they moved
+    past the stale-trigger one-step failure mode;
+  - latest observed replacement losses:
+    - Vanilla iter `587`: `1.691660`;
+    - ReTok iter `587`: `2.680860`;
+    - TD layer11 iter `587`: `2.484627`;
+  - `loss scale = 1.0`, `number of skipped iterations = 0`, and
+    `number of nan iterations = 0` on all three replacement jobs.
+- Eval state repair:
+  - kept the valid 585 sidecar rows;
+  - pruned invalid 715/834 sidecar rows from
+    `eval_sidecar_incremental_state.tsv`;
+  - restarted `apertus-3p5b-eval-watch.service` with the repair-chain overlay;
+  - the repaired watcher submitted valid 715 Vanilla/ReTok sidecars
+    (`2372810`-`2372814`) and will retry the remaining missing sidecars as
+    Slurm submit slots open.
+- Current queue after repair:
+  - running: replacement Vanilla/ReTok/TD 715 jobs and packed 585 eval;
+  - pending: replacement Vanilla/ReTok/TD 834 jobs on repaired dependencies.

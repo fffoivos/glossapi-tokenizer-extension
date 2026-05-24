@@ -59,8 +59,18 @@ def load_training_chain(path):
     rows = {}
     with path.open(newline="") as f:
         for row in csv.DictReader(f, delimiter="\t"):
-            tr = TrainRow(**row)
+            tr = TrainRow(**{key: row[key] for key in TrainRow._fields})
             rows[(tr.target_iter, tr.arm)] = tr
+    return rows
+
+
+def load_training_rows(primary_path, overlay_paths):
+    rows = load_training_chain(primary_path)
+    for raw_path in overlay_paths.split(":"):
+        raw_path = raw_path.strip()
+        if not raw_path:
+            continue
+        rows.update(load_training_chain(Path(raw_path)))
     return rows
 
 
@@ -297,13 +307,14 @@ def main() -> int:
     script_dir = Path(os.environ.get("SCRIPT_DIR_OVERRIDE", Path(__file__).resolve().parent)).resolve()
     run_tag = env("RUN_TAG")
     training_chain_tsv = Path(env("TRAINING_CHAIN_TSV"))
+    training_chain_overlay_tsv = os.environ.get("TRAINING_CHAIN_OVERLAY_TSV", "")
     out_root = env("OUT_ROOT", "/capstor/scratch/cscs/fffoivos/runs/eval")
     state_dir = Path(env("STATE_DIR", f"{out_root}/{run_tag}_sidecar_eval_incremental"))
     state_dir.mkdir(parents=True, exist_ok=True)
 
     tasks = build_tasks(
         run_tag=run_tag,
-        training_rows=load_training_chain(training_chain_tsv),
+        training_rows=load_training_rows(training_chain_tsv, training_chain_overlay_tsv),
         iter_list=env("ITER_LIST", "585 715 834").split(),
         task_group=env("TASK_GROUP", "full"),
         out_root=out_root,

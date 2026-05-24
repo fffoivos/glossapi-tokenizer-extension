@@ -41,6 +41,10 @@ OUTPUT_DIR="${OUTPUT_DIR:?OUTPUT_DIR path is required}"
 
 mkdir -p "$OUTPUT_DIR/checkpoints" "$OUTPUT_DIR/tensorboard" "$OUTPUT_DIR/triggers"
 TRIGGER_DIR="$OUTPUT_DIR/triggers"
+if [ -e "$TRIGGER_DIR/exit" ] || [ -e "$TRIGGER_DIR/save" ]; then
+    echo "clearing stale trigger files in $TRIGGER_DIR"
+    rm -f "$TRIGGER_DIR/exit" "$TRIGGER_DIR/save"
+fi
 SEQ_LEN="$SEQ_LENGTH"   # alias to match Apertus sbatch var naming
 
 TRAIN_SAMPLES=$(( TRAIN_TOKENS / SEQ_LEN ))
