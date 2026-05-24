@@ -117,6 +117,23 @@ Production-safe Vanilla/base-tokenizer bulk data is now available:
 Local evidence:
 `03_4_implementation_experiments/init_bakeoff/corpus_build/production_base_nfc_preprocess_2367579/`
 
+Concrete production launcher:
+`03_4_implementation_experiments/init_bakeoff/production_cpt/submit_vanilla_base_15b_chain.sh`
+
+This launcher keeps the selected path intentionally conservative:
+
+- base tokenizer + the NFC-safe base Megatron prefix above;
+- R17-preserving Vanilla TP=2 init checkpoint;
+- Goldfish loss restored for production;
+- 15B tokens by default, with the existing 9.83B-token bulk stream repeated by
+  Megatron's dataset builder as needed;
+- one proven 4x GH200 node. The two-node path remains disabled because the
+  prior 2-node smoke failed before iteration 1 with NCCL/OFI `NO_SPACE`.
+
+The anneal recipe is still a design artifact, not a launch input. It still needs
+a separate xfer build from the selected post-dedup Greek parquet and local
+staged replay/code/math sources before it can become a second production phase.
+
 ## Token Distillation state
 
 The CPU coverage prepass, smoke run, layer pilot, full-token `25`-snippet TD
@@ -194,9 +211,9 @@ For the real 15-20B CPT run:
   exact roundtrip verification, and a bounded Megatron load/train smoke.
   Its 2B training/eval arm is complete. **Done; not promoted.**
 - The selected Vanilla bulk data prefix is ready from the NFC-safe corpus.
-  **Done for bulk.** Remaining production-data choice: decide whether the
-  15-20B run repeats this bulk stream, builds a longer bulk stream, or adds the
-  documented anneal stream as a separate phase.
+  **Done for the selected bulk-only production run.** The default launcher uses
+  the 9.83B-token stream with repetition for 15B. A later anneal phase requires
+  a separate xfer-built anneal artifact.
 - The selected Vanilla init checkpoint for production has local R17 roundtrip
-  evidence. **Done.** Attach it to the concrete production run directory when
-  that run directory is created.
+  evidence. **Done.** The production launcher points at the verified
+  `megatron_tp2_r17patched` directory.

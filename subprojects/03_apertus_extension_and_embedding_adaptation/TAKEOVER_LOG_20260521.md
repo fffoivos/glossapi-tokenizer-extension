@@ -775,3 +775,37 @@ Current next gate:
 - Added `03_4_implementation_experiments/init_bakeoff/check_cpu_only_slurm.sh`.
 - This script is the pre-submit audit for future dataset building and CPU-only checkpoint conversion work. It verifies the known CPU-only sbatches use `#SBATCH --partition=xfer`, contain no GPU directives, and call `require_cpu_only_slurm` before doing work.
 - Updated the init-bakeoff runbook to make this audit the first step before any future dataset build or CPU-only conversion submit.
+
+## Continuation - 2026-05-24 production CPT launcher
+
+- Selected path is now concrete: Vanilla Apertus-8B-2509 with the base tokenizer
+  remains the production default after the 2B bakeoff and bounded TD challenger.
+- Prepared the production launcher under
+  `03_4_implementation_experiments/init_bakeoff/production_cpt/`.
+  It reuses the proven bakeoff trainer but explicitly exports:
+  - `ARM=vanilla`
+  - `LOSS_OBJECTIVE=goldfish`
+  - `BASE_DATA_PREFIX=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_nfc_megatron/bulk_mix_text_document`
+  - `TRAIN_TOKENS=15000000000`
+  - `SAVE_INTERVAL=120`
+  - `LR_WARMUP_TOKENS=300000000`
+  - `ADEMA_BETA3_WARMUP_STEPS=101`
+  - `ADEMA_ALPHA_WARMUP_STEPS=101`
+- Kept the launcher on the proven one-node, four-GH200 path. The previous
+  two-node smoke failed before iteration 1 with NCCL/OFI `NO_SPACE`, so the
+  production script refuses `NODES != 1`.
+- Made `_train_config_common.env` override-safe for production values while
+  preserving bakeoff defaults, and made `bakeoff_train.sbatch` switch to
+  Goldfish only when `LOSS_OBJECTIVE=goldfish`.
+- Clariden dry-run validation:
+  - `dryrun_default_vanilla_base_15b_nfc_20260524T121007`
+  - generated a default 14-job chain;
+  - dependencies defaulted to `afterok`;
+  - no Slurm jobs were submitted;
+  - `squeue -u fffoivos` was empty after validation.
+- Local audit copies:
+  `03_4_implementation_experiments/init_bakeoff/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/`.
+- Anneal remains explicitly out of this launcher. The current anneal recipe is a
+  design artifact and must be rebuilt on `xfer` from the selected post-dedup
+  Greek parquet plus local staged replay/code/math sources before it can become
+  a second production phase.

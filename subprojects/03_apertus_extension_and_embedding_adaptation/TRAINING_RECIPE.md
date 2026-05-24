@@ -11,10 +11,16 @@
 | Tokens per run | 2 B per arm × 3 arms = 6 B total | 15–20 B (per v0.7 §3) |
 | Optimizer | AdEMAMix | AdEMAMix |
 | Loss objective | NTP | Goldfish |
-| Vocab | 131,072 (Vanilla) or 148,480 (ReTok/Centroid) | 148,480 (winning arm; composite 153,600 only if polytonic specialization is later run) |
+| Vocab | 131,072 (Vanilla) or 148,480 (ReTok/Centroid) | **131,072 Vanilla/base tokenizer selected after 2B + TD challenger** |
 | Engine | Megatron-LM-Swiss-AI | Megatron-LM-Swiss-AI |
 
-The only differential between bakeoff and production is the **loss objective** (NTP→Goldfish) and the **token budget**. Optimizer, LR schedule, architecture, sequence length, batch shape, and gradient clipping all carry over.
+The production default changed after the completed bakeoff: the safest path is
+Vanilla/base-tokenizer, not the extended-tokenizer family. Relative to the
+winning Vanilla bakeoff arm, the production differentials are the **loss
+objective** (NTP→Goldfish), **token budget** (15B default), production-scaled
+LR/AdEMAMix warmup lengths, and the NFC-safe base-tokenized data prefix.
+Optimizer, architecture, sequence length, batch shape, and gradient clipping
+carry over.
 
 ---
 
@@ -172,7 +178,7 @@ All Apertus-specific architectural pieces inherit from the base checkpoint via `
 | Sequence length | 4,096 | 4,096 | paper Table 2 p.10; sbatch L218 `SEQ_LEN=4096` |
 | Global batch (tokens/step) | 4.19 M initial → 8.39 M after 8 T tokens | **4.19 M** (= 1024 × 4096) | paper Table 2; sbatch L221 `--micro-batch-size 4`, ramp at L222 |
 | Global batch (samples) | 1024 → 2048 | 1024 | paper Table 2 |
-| Micro-batch (per GPU) | 4 | 4 (calibrate at V4 baseline) | sbatch L221 |
+| Micro-batch (per GPU) | 4 | 2 (GH200 memory/fragmentation margin; global batch preserved) | sbatch L221; local bakeoff smoke results |
 | Tokens / run | 15 T | 2 B per arm (bakeoff) / 15-20 B (production) | paper §3 p.21; cpt_plan v0.7 §3 + §5 |
 | Iterations / run | 3,662,109,375 samples ÷ 1024 ≈ 3.58 M iters | ≈ 477 iters (bakeoff) | sbatch L219 `--train-samples`; derived for bakeoff |
 

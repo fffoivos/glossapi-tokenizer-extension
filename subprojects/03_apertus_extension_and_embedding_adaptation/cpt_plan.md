@@ -12,6 +12,11 @@ tokenizer as the safe default, and the bounded `td_full25_layer11` Token
 Distillation challenger did not clear the aggregate downstream gate needed to
 displace it.
 
+Concrete launcher for the selected path:
+[`03_4_implementation_experiments/init_bakeoff/production_cpt/`](03_4_implementation_experiments/init_bakeoff/production_cpt/).
+It runs the base tokenizer on the NFC-safe bulk Megatron prefix with Goldfish
+loss restored for production.
+
 This version refactors §8 and §12 from prescriptive TODOs into status checks. The doc is a coordination artifact, not a list of work to do from scratch — items may already have been handled during prior work; the relevant question per item is "what's the current status." Decontamination scope (§8 K1, V1) also narrowed: the concern is verbatim test items in training data for benchmarks you want as clean measurement instruments, not blanket removal of on-topic Greek material.
 
 ---

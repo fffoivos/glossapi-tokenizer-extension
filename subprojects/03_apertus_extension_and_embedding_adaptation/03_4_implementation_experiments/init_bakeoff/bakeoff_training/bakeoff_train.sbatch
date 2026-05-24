@@ -56,6 +56,7 @@ MODEL_WORLD_SIZE=$(( ${SLURM_NNODES:-$NODES} * GPUS_PER_NODE ))
 echo "slurm: account=${SLURM_JOB_ACCOUNT:-$ACCOUNT} partition=${SLURM_JOB_PARTITION:-$PARTITION} nodes=${SLURM_NNODES:-unknown} ntasks=${SLURM_NTASKS:-unknown} gpus_per_node=$GPUS_PER_NODE time_limit=${TIME_LIMIT} launch_mode=$LAUNCH_MODE model_world_size=$MODEL_WORLD_SIZE"
 echo "checkpoint mode: RESUME_TRAINING=$RESUME_TRAINING"
 echo "save mode: DISABLE_SAVE=$DISABLE_SAVE SAVE_INTERVAL=$SAVE_INTERVAL"
+echo "loss objective: $LOSS_OBJECTIVE"
 echo "seq_len=$SEQ_LEN  microbatch=$MICROBATCH_SIZE  global_batch_samples=$GLOBAL_BATCH_SIZE"
 echo "train_samples=$TRAIN_SAMPLES (train_tokens=$TRAIN_TOKENS) lr_warmup_samples=$LR_WARMUP_SAMPLES"
 echo
@@ -281,9 +282,23 @@ DATA_ARGS=(
     --data-path $ARM_DATA_PREFIX
 )
 
-# Goldfish loss is INTENTIONALLY DISABLED for the bakeoff (NTP only).
-# For production CPT, add the three flags below (matching Apertus pretrain L290-292):
-#   --goldfish-loss --goldfish-k $GOLDFISH_K --goldfish-h $GOLDFISH_H
+case "$LOSS_OBJECTIVE" in
+    ntp)
+        # Goldfish loss is intentionally disabled for the bakeoff: NTP keeps
+        # initialization quality as the only experimental variable.
+        ;;
+    goldfish)
+        TRAINING_ARGS+=(
+            --goldfish-loss
+            --goldfish-k $GOLDFISH_K
+            --goldfish-h $GOLDFISH_H
+        )
+        ;;
+    *)
+        echo "ERROR: LOSS_OBJECTIVE=$LOSS_OBJECTIVE not recognized (expected ntp|goldfish)" >&2
+        exit 2
+        ;;
+esac
 
 RUNTIME_PATCH_DIR="$SCRIPT_DIR/../megatron_patches/runtime"
 TRAINING_CMD=(

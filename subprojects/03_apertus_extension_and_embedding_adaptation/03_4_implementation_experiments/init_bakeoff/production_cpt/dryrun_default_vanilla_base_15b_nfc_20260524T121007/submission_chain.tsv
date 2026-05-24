@@ -1,0 +1,15 @@
+chain_index	job_id	resume	dependency	init_ckpt
+0	DRYRUN_0	0		/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/vanilla/megatron_tp2_r17patched
+1	DRYRUN_1	1	afterok:DRYRUN_0	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
+2	DRYRUN_2	1	afterok:DRYRUN_1	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
+3	DRYRUN_3	1	afterok:DRYRUN_2	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
+4	DRYRUN_4	1	afterok:DRYRUN_3	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
+5	DRYRUN_5	1	afterok:DRYRUN_4	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
+6	DRYRUN_6	1	afterok:DRYRUN_5	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
+7	DRYRUN_7	1	afterok:DRYRUN_6	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
+8	DRYRUN_8	1	afterok:DRYRUN_7	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
+9	DRYRUN_9	1	afterok:DRYRUN_8	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
+10	DRYRUN_10	1	afterok:DRYRUN_9	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
+11	DRYRUN_11	1	afterok:DRYRUN_10	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
+12	DRYRUN_12	1	afterok:DRYRUN_11	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
+13	DRYRUN_13	1	afterok:DRYRUN_12	/capstor/scratch/cscs/fffoivos/runs/production_cpt/dryrun_default_vanilla_base_15b_nfc_20260524T121007/checkpoints
