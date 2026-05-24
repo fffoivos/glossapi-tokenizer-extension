@@ -1168,3 +1168,35 @@ Current next gate:
     training jobs;
   - remaining missing sidecars are TD 834 conversion/BPC/diagnostics plus
     packed 834, still being retried by the watcher under the Slurm submit cap.
+
+### 2026-05-24T23:49Z Removed GPU request from conversion sidecars
+
+- Found that pending final-checkpoint conversion sidecars were requesting
+  `gres/gpu=1` even though the Megatron->HF conversion path uses a single-rank
+  CPU `gloo` process group and does not need CUDA compute.
+- Left model-forward eval sidecars unchanged:
+  - tokenizer-fair BPC jobs use `compute_tokenizer_fair_metrics.py` with
+    `--device cuda`;
+  - new-token diagnostics use `compute_new_token_diagnostics.py` with
+    `--device cuda`;
+  - packed downstream eval intentionally uses the 4-GPU packed runner.
+- Patched `convert_bakeoff_checkpoint_to_hf.sbatch`:
+  - removed `--gpus-per-node=1` and `--gres=gpu:1`;
+  - exported empty `CUDA_VISIBLE_DEVICES` / `NVIDIA_VISIBLE_DEVICES`;
+  - kept the job on Clariden `debug` with `72` CPUs and `400G` memory because
+    xfer nodes do not provide the PyTorch uenv needed by the converter.
+- Cancelled only dependency-pending final sidecars that had been submitted with
+  the old GPU-conversion request:
+  `2374694`, `2374695`, `2374697`, `2374698`, `2374699`.
+- Backed up the eval state file before removing those stale rows:
+  `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_sidecar_eval_incremental/eval_sidecar_incremental_state.tsv.pre_cpu_convert_fix_20260524T234912Z`.
+- Resubmitted the final Vanilla/ReTok sidecars:
+  - `2374727` `tohf_vanilla_834`: CPU-only conversion, `ReqTRES` has no
+    `gres/gpu`;
+  - `2374728` `bpc_vanilla_834`: GPU model-scoring eval;
+  - `2374729` `tohf_retok_834`: CPU-only conversion, `ReqTRES` has no
+    `gres/gpu`;
+  - `2374730` `bpc_retok_834`: GPU model-scoring eval;
+  - `2374731` `diag_retok_834`: GPU diagnostics eval.
+- Restarted the local retry watcher for the remaining TD 834 and packed 834
+  sidecars, which are still gated by the active-job submit cap.

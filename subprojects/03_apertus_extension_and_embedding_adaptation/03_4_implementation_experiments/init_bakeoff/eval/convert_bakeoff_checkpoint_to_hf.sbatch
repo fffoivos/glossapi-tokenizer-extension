@@ -4,8 +4,6 @@
 #SBATCH --partition=debug
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --gpus-per-node=1
-#SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=72
 #SBATCH --mem=400G
 #SBATCH --time=01:00:00
@@ -17,9 +15,8 @@
 # TP=2, so do not pass Megatron's --test-logits path here: loader_core asserts
 # TP=1 for that mode.
 #
-# Clariden xfer nodes do not expose uenv/torch. This is a bounded model
-# conversion job, not a dataset build or CPU preprocessing job, so it runs on
-# debug with one GPU to access the PyTorch uenv.
+# Clariden xfer nodes do not expose uenv/torch, so this bounded conversion runs
+# on the debug compute partition. It is CPU-only: no GPU GRES is requested.
 
 set -euo pipefail
 
@@ -93,6 +90,8 @@ fi
 
 export SCRIPT_DIR MEGATRON_LM_SWISSAI_DIR HF_TOKENIZER_DIR HF_OUT_DIR VIEW_DIR WORK_DIR UENV_IMAGE
 export CONVERT_FAKE_SHARDING_WORLD_SIZE="${CONVERT_FAKE_SHARDING_WORLD_SIZE:-$TENSOR_MODEL_PARALLEL_SIZE}"
+export CUDA_VISIBLE_DEVICES=""
+export NVIDIA_VISIBLE_DEVICES=""
 
 uenv run "$UENV_IMAGE" --view=default -- bash <<'INNER'
 set -euo pipefail
