@@ -961,3 +961,26 @@ Current next gate:
   - TD: no comparable early spike; latest observed grad norm `2.450`.
 - No intervention taken. Continue babysitting until the first segment reaches
   iter `585`, writes checkpoints, and the eval sidecars begin to drain.
+
+### 2026-05-24T15:31Z 3.5B one-hour segment-1 check
+
+- Queue:
+  - `2369298` Vanilla, `2369301` ReTok, and `2369304` TD layer11 still
+    running;
+  - chained segment-2/segment-3 jobs still pending on their dependencies;
+  - first five iter-585 eval sidecars still pending on checkpoint dependencies.
+- Progress:
+  - Vanilla reached iteration `502`;
+  - ReTok reached iteration `502`;
+  - TD layer11 reached iteration `501`.
+- Health remains good:
+  - `loss scale = 1.0`;
+  - `number of skipped iterations = 0`;
+  - `number of nan iterations = 0`;
+  - per-GPU throughput remains stable at roughly `7.9k-8.1k` tokens/s.
+- Latest observed losses:
+  - Vanilla iter `502`: `1.705135`;
+  - ReTok iter `502`: `2.684626`;
+  - TD layer11 iter `501`: `2.474802`.
+- Eval watcher still active, but submitted-job count remains at `14`, so it
+  cannot add the remaining sidecars until jobs leave the queue.
