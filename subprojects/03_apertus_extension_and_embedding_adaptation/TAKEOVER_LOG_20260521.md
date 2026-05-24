@@ -1094,3 +1094,23 @@ Current next gate:
 - Retry:
   - submitted packed 585 retry job `2373441`;
   - job is pending on resources and will use the patched isolated-cache path.
+
+### 2026-05-24T20:07Z Packed 585 retry and training health check
+
+- Packed 585 retry job `2373441` started on `nid006067`.
+- Verified that the patched wrapper is active:
+  - `SHARE_EVAL_CACHE=0`;
+  - per-arm caches under
+    `/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_2373441_packed/{vanilla,retok,td_layer11}`.
+- The previous XNLI incomplete-cache failure has not recurred so far.
+- Current eval issue:
+  - Hugging Face dataset API rate limits are causing 300-second waits during
+    task loading for some MMLU/XNLI tasks;
+  - the eval process resumes after waits and is generating/filtering datasets,
+    so this is currently a throttling slowdown rather than a crash.
+- Training status at the same poll:
+  - Vanilla replacement segment reached iter `624/715`;
+  - ReTok replacement segment reached iter `624/715`;
+  - TD layer11 replacement segment reached iter `623/715`;
+  - all three still report `loss scale = 1.0`, skipped iterations `0`, and
+    nan iterations `0`.
