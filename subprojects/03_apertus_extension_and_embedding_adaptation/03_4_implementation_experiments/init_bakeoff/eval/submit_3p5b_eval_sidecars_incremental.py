@@ -129,6 +129,41 @@ def dep_arg(job_ids):
     return "--dependency=afterok:" + ":".join(job_ids)
 
 
+def active_job_ids(job_ids):
+    if not job_ids:
+        return set()
+    proc = run(["squeue", "-h", "-j", ",".join(job_ids), "-o", "%i"], check=False)
+    if proc.returncode != 0:
+        print(proc.stderr, file=sys.stderr)
+        return set(job_ids)
+    return set(line.strip().split()[0] for line in proc.stdout.splitlines() if line.strip())
+
+
+def completed_ok(job_id):
+    proc = run(["sacct", "-X", "-n", "-P", "-j", job_id, "--format=State,ExitCode"], check=False)
+    if proc.returncode != 0:
+        print(proc.stderr, file=sys.stderr)
+        return False
+    for line in proc.stdout.splitlines():
+        if not line.strip():
+            continue
+        state, exit_code = (line.split("|", 1) + [""])[:2]
+        if state == "COMPLETED" and exit_code == "0:0":
+            return True
+    return False
+
+
+def unresolved_dependency_ids(job_ids):
+    active = active_job_ids(job_ids)
+    unresolved = []
+    for job_id in job_ids:
+        if job_id in active:
+            unresolved.append(job_id)
+        elif not completed_ok(job_id):
+            unresolved.append(job_id)
+    return tuple(unresolved)
+
+
 def build_tasks(
     *,
     run_tag,
@@ -170,7 +205,7 @@ def build_tasks(
                 command=(
                     "sbatch",
                     "--parsable",
-                    dep_arg((train.job_id,)),
+                    "__DEPENDENCY_PLACEHOLDER__",
                     *nice_args,
                     (
                         "--export=ALL,"
@@ -262,7 +297,16 @@ def concrete_command(task, state):
             dep_job_ids.append(state[dep])
         else:
             return None
-    return tuple(dep_arg(tuple(dep_job_ids)) if part == "__DEPENDENCY_PLACEHOLDER__" else part for part in task.command)
+    unresolved = unresolved_dependency_ids(tuple(dep_job_ids))
+    dependency = dep_arg(unresolved) if unresolved else None
+    parts = []
+    for part in task.command:
+        if part == "__DEPENDENCY_PLACEHOLDER__":
+            if dependency:
+                parts.append(dependency)
+        else:
+            parts.append(part)
+    return tuple(parts)
 
 
 def submit_once(tasks, state_path, command_log, max_jobs):

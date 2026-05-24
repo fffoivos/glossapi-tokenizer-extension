@@ -37,7 +37,7 @@ LIMIT_VALUE="${LIMIT:-}"
 
 LM_EVAL_PYTHONPATH="${LM_EVAL_PYTHONPATH:-/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval}"
 EVAL_CACHE_ROOT="${EVAL_CACHE_ROOT:-/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_${SLURM_JOB_ID:-manual}_packed}"
-SHARE_EVAL_CACHE="${SHARE_EVAL_CACHE:-1}"
+SHARE_EVAL_CACHE="${SHARE_EVAL_CACHE:-0}"
 UENV_IMAGE="${UENV_IMAGE:-pytorch/v2.9.1:v2}"
 
 declare -A TASK_LISTS

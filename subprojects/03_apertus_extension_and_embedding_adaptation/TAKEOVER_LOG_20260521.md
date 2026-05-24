@@ -1066,3 +1066,31 @@ Current next gate:
 - Current queue after repair:
   - running: replacement Vanilla/ReTok/TD 715 jobs and packed 585 eval;
   - pending: replacement Vanilla/ReTok/TD 834 jobs on repaired dependencies.
+
+### 2026-05-24T19:53Z Packed 585 eval cache-race repair
+
+- Packed 585 downstream eval job `2372635` failed after `50m05s` with
+  exit code `1`.
+- Exact failure:
+  - Vanilla and TD layer11 failed while loading XNLI from a shared
+    `HF_DATASETS_CACHE`;
+  - the error was a missing
+    `.../xnli/zh/...incomplete/dataset_info.json`, meaning concurrent packed
+    arms raced on the same incomplete Hugging Face datasets cache directory;
+  - ReTok produced results before the packed job failed, but the packed
+    all-arm job was correctly treated as failed.
+- Repair:
+  - patched `run_eval_packed_arms.sbatch` so packed arms default to isolated
+    per-arm caches (`SHARE_EVAL_CACHE=0`);
+  - patched `submit_3p5b_eval_sidecars_incremental.py` so retry submissions
+    can omit dependencies that `sacct` confirms are already `COMPLETED 0:0`;
+    this avoids Slurm's dependency-problem rejection when retrying a task whose
+    prerequisites already finished.
+- State repair:
+  - removed only `packed:585:full` from
+    `eval_sidecar_incremental_state.tsv`;
+  - kept the valid 585 conversion/BPC/diagnostic rows and valid 715
+    Vanilla/ReTok sidecar rows.
+- Retry:
+  - submitted packed 585 retry job `2373441`;
+  - job is pending on resources and will use the patched isolated-cache path.
