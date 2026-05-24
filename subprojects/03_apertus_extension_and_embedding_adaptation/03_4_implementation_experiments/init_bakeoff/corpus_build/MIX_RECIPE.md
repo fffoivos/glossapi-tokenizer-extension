@@ -138,6 +138,20 @@ out of `5,754,172`) and produced
 `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.nfc.jsonl` with manifest
 `bulk_mix.nfc.manifest.json`.
 
+Production-safe Vanilla/base-tokenizer binary, built from the NFC stream:
+
+- prefix:
+  `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_nfc_megatron/bulk_mix_text_document`
+- job: `2367579` on `xfer`, `COMPLETED`, `0:0`, elapsed `00:16:07`
+- rows/sequences: `5,754,172`
+- base-tokenized tokens: `9,831,704,774`
+- local evidence:
+  `production_base_nfc_preprocess_2367579/`
+
+The older bakeoff base/ext binaries were built before this NFC cleanup. The
+NFC delta is tiny and does not change the bakeoff decision, but production
+Vanilla CPT should use the `bulk_mix_base_nfc_megatron` prefix above.
+
 Determinism: the `--seed` controls the interleave randomization. Same seed means the same JSONL text stream across runs. Vanilla and the extended arms then use different tokenizers/preprocessed Megatron binaries, so token IDs differ across tokenizer families even though the document order is shared.
 
 ## Why two stages (build JSONL → preprocess to .bin/.idx)
@@ -150,3 +164,10 @@ Megatron's training reads its native binary format; converting on the fly during
 4. Training reads the binary on `normal`.
 
 This way each stage has a single clear job, and we can re-run any stage independently.
+
+On current `xfer` nodes, `uenv`/torch are not visible, so Megatron's stock
+`tools/preprocess_data.py` may not be runnable there. For the production Vanilla
+NFC build, `preprocess_hf_jsonl_to_megatron.py` was used instead. It avoids
+torch, writes the same Megatron indexed-dataset format, and was validated
+byte-for-byte against the stock Megatron output on the first `1000` rows before
+the full job was launched.

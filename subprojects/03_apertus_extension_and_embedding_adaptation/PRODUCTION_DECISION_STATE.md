@@ -102,6 +102,21 @@ Current bulk recipe:
 All CPU-only dataset building, preprocessing, and TD coverage/snippet mining
 must run on `xfer`, not on GPU partitions.
 
+Production-safe Vanilla/base-tokenizer bulk data is now available:
+
+- NFC JSONL:
+  `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.nfc.jsonl`
+- Base Megatron prefix:
+  `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_nfc_megatron/bulk_mix_text_document`
+- Preprocess job: `2367579`, `xfer`, `COMPLETED`, `0:0`, elapsed `00:16:07`
+- Rows/sequences: `5,754,172`
+- Base-tokenized tokens: `9,831,704,774`
+- Validation: custom xfer fallback preprocessor matched the canonical Megatron
+  preprocessor byte-for-byte on the first `1000` rows of the original stream.
+
+Local evidence:
+`03_4_implementation_experiments/init_bakeoff/corpus_build/production_base_nfc_preprocess_2367579/`
+
 ## Token Distillation state
 
 The CPU coverage prepass, smoke run, layer pilot, full-token `25`-snippet TD
@@ -178,7 +193,10 @@ For the real 15-20B CPT run:
 - The selected TD checkpoint passed R17-preserving HF -> Megatron conversion,
   exact roundtrip verification, and a bounded Megatron load/train smoke.
   Its 2B training/eval arm is complete. **Done; not promoted.**
-- The final 15-20B production CPT dataset manifest needs to be built or
-  rehydrated from the documented corpus path.
-- The selected Vanilla init checkpoint for production needs its R17 roundtrip
-  report attached to the production run directory.
+- The selected Vanilla bulk data prefix is ready from the NFC-safe corpus.
+  **Done for bulk.** Remaining production-data choice: decide whether the
+  15-20B run repeats this bulk stream, builds a longer bulk stream, or adds the
+  documented anneal stream as a separate phase.
+- The selected Vanilla init checkpoint for production has local R17 roundtrip
+  evidence. **Done.** Attach it to the concrete production run directory when
+  that run directory is created.

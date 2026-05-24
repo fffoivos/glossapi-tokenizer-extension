@@ -59,6 +59,14 @@ INPUT_JSONL="${INPUT_JSONL:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.
 OUTPUT_PREFIX="${OUTPUT_PREFIX:-$EXT_DATA_PREFIX}"
 TOKENIZER_DIR="${TOKENIZER_DIR:-$EXT_TOKENIZER_DIR}"
 WORKERS="${WORKERS:-${SLURM_CPUS_PER_TASK:-64}}"
+UENV_BIN="${UENV_BIN:-$(command -v uenv || true)}"
+if [ -z "$UENV_BIN" ] && [ -x /usr/bin/uenv ]; then
+    UENV_BIN=/usr/bin/uenv
+fi
+if [ -z "$UENV_BIN" ]; then
+    echo "Could not find uenv; set UENV_BIN explicitly." >&2
+    exit 127
+fi
 
 # Megatron's tools/preprocess_data.py appends "_text_document" for the default
 # JSON key (`text`). Treat OUTPUT_PREFIX as the desired final data prefix used
@@ -83,13 +91,14 @@ echo "DATA_PREFIX:    $DATA_PREFIX"
 echo "TOKENIZER_DIR:  $TOKENIZER_DIR"
 echo "MEGATRON_DIR:   $MEGATRON_LM_SWISSAI_DIR"
 echo "WORKERS:        $WORKERS"
+echo "UENV_BIN:       $UENV_BIN"
 echo
 
 # Apertus tokenizer is HuggingFace-format; Megatron's preprocess_data
 # supports HF tokenizers via --tokenizer-type HuggingFaceTokenizer.
 # Confirm exact flag names from Agent A (Q D1).
 
-uenv run "$UENV_IMAGE" --view=default -- bash -c "
+\"$UENV_BIN\" run "$UENV_IMAGE" --view=default -- bash -c "
 set -euo pipefail
 cd $MEGATRON_LM_SWISSAI_DIR
 git rev-parse HEAD
