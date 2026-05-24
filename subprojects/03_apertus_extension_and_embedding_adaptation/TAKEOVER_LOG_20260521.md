@@ -1138,3 +1138,33 @@ Current next gate:
   `QOSMaxSubmitJobPerUserLimit` with 11 active/pending jobs. Remaining TD 715
   and 834 sidecars are therefore still queued in the watcher's retry plan, not
   lost.
+
+### 2026-05-24T23:39Z 715 repair complete; final 834 segment healthy
+
+- Replacement 585->715 training segments completed successfully:
+  - Vanilla job `2372735`: `COMPLETED`, exit `0:0`, elapsed `04:48:07`;
+  - ReTok job `2372737`: `COMPLETED`, exit `0:0`, elapsed `04:48:38`;
+  - TD layer11 job `2372739`: `COMPLETED`, exit `0:0`, elapsed `04:51:29`.
+- All three checkpoint roots now point at `715` and contain `iter_0000715`.
+- The chained 715->834 jobs started without the stale-trigger one-step exit:
+  - Vanilla job `2372736` loaded checkpoint `iter_0000715` and reached
+    iter `719/834`;
+  - ReTok job `2372738` loaded checkpoint `iter_0000715` and reached
+    iter `719/834`;
+  - TD layer11 job `2372740` loaded checkpoint `iter_0000715` and reached
+    iter `718/834`.
+- Health at the poll:
+  - all three report `loss scale = 1.0`, skipped iterations `0`, and nan
+    iterations `0`;
+  - observed per-GPU throughput is roughly `7.9k-8.1k` tokens/sec after the
+    first resumed iteration;
+  - training ETA from the logs is about `4h15m` remaining for the final
+    segment.
+- Eval sidecars:
+  - TD 715 conversion/BPC/diagnostics completed cleanly:
+    `2374687`, `2374688`, `2374689`;
+  - packed 715 eval `2374690` is running;
+  - 834 Vanilla and ReTok sidecars were submitted and are pending on the final
+    training jobs;
+  - remaining missing sidecars are TD 834 conversion/BPC/diagnostics plus
+    packed 834, still being retried by the watcher under the Slurm submit cap.
