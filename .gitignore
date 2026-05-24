@@ -36,6 +36,22 @@ tokenizer_analysis/__pycache__/
 *.zst
 *.tar.gz
 
+# Large model/checkpoint/dataset payloads stay in remote artifact stores and are
+# referenced by manifests/docs in git. Force-add only a deliberately tiny
+# fixture.
+*.safetensors
+*.bin
+*.idx
+*.distcp
+*.pt
+*.pth
+*.ckpt
+*.gguf
+*.arrow
+*.duckdb
+*.sqlite
+*.db
+
 # Tracked exceptions: canonical handoff manifests that downstream
 # subprojects consume must be in git.
 !subprojects/02_1_tokenizer_experiments/02_1_5_added_token_curation/manifests/*.jsonl

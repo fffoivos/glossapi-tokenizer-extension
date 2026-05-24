@@ -5,7 +5,7 @@ evidence artifacts for the Apertus-8B Greek CPT decision. This is not a
 replacement for the artifacts below; it tells you what each one is, which ones
 are authoritative, and what claims they support.
 
-Current reviewed commit: `c4445bc Prepare vanilla production CPT launcher`.
+Current reviewed commit: `29ce766 Add Apertus production review handoff`.
 
 ## Executive State
 
@@ -36,20 +36,28 @@ Important number disambiguation:
 1. [`PRODUCTION_DECISION_STATE.md`](PRODUCTION_DECISION_STATE.md)
    - Current verdict, final result tables, selected production path, remaining
      boundaries.
-2. [`TAKEOVER_LOG_20260521.md`](TAKEOVER_LOG_20260521.md)
+2. [`ARTIFACTS_AND_HYDRATION.md`](ARTIFACTS_AND_HYDRATION.md)
+   - What belongs in git, what stays on Clariden, and how to verify/hydrate
+     production-critical artifacts.
+3. [`CLARIDEN_INVENTORY_20260524.md`](CLARIDEN_INVENTORY_20260524.md)
+   - Source-of-truth map of the remote checkpoints, datasets, eval outputs,
+     code/envs, and intentionally absent artifacts.
+4. [`TAKEOVER_LOG_20260521.md`](TAKEOVER_LOG_20260521.md)
    - Chronological operations log, including restarts, failures, fixes,
      training/eval completions, CPU/GPU allocation correction, and production
      launcher validation.
-3. [`03_4_implementation_experiments/init_bakeoff/production_cpt/README.md`](03_4_implementation_experiments/init_bakeoff/production_cpt/README.md)
+5. [`03_4_implementation_experiments/init_bakeoff/production_cpt/README.md`](03_4_implementation_experiments/init_bakeoff/production_cpt/README.md)
    - Concrete production launch path and dry-run evidence.
-4. [`03_4_implementation_experiments/init_bakeoff/eval/live_summaries/bakeoff_1node_chain_20260522_005620_iter0000476_digest.md`](03_4_implementation_experiments/init_bakeoff/eval/live_summaries/bakeoff_1node_chain_20260522_005620_iter0000476_digest.md)
+6. [`03_4_implementation_experiments/init_bakeoff/eval/live_summaries/bakeoff_1node_chain_20260522_005620_iter0000476_digest.md`](03_4_implementation_experiments/init_bakeoff/eval/live_summaries/bakeoff_1node_chain_20260522_005620_iter0000476_digest.md)
    - Final Vanilla/ReTok/Centroid checkpoint digest.
-5. [`03_4_implementation_experiments/init_bakeoff/eval/live_summaries/td_full25_layer11_2b_20260523T165038Z_iter0000476_digest.md`](03_4_implementation_experiments/init_bakeoff/eval/live_summaries/td_full25_layer11_2b_20260523T165038Z_iter0000476_digest.md)
+7. [`03_4_implementation_experiments/init_bakeoff/eval/live_summaries/td_full25_layer11_2b_20260523T165038Z_iter0000476_digest.md`](03_4_implementation_experiments/init_bakeoff/eval/live_summaries/td_full25_layer11_2b_20260523T165038Z_iter0000476_digest.md)
    - Final TD challenger digest.
-6. [`03_4_implementation_experiments/init_bakeoff/corpus_build/MIX_RECIPE.md`](03_4_implementation_experiments/init_bakeoff/corpus_build/MIX_RECIPE.md)
+8. [`03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/BAKEOFF_TRAJECTORY_ANALYSIS_20260524.md`](03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/BAKEOFF_TRAJECTORY_ANALYSIS_20260524.md)
+   - Per-checkpoint trajectory analysis and TD-vs-Vanilla crossover projection.
+9. [`03_4_implementation_experiments/init_bakeoff/corpus_build/MIX_RECIPE.md`](03_4_implementation_experiments/init_bakeoff/corpus_build/MIX_RECIPE.md)
    - Corpus composition, source weights, NFC production data note, xfer-only CPU
      build rule.
-7. [`03_4_implementation_experiments/init_bakeoff/megatron_patches/README.md`](03_4_implementation_experiments/init_bakeoff/megatron_patches/README.md)
+10. [`03_4_implementation_experiments/init_bakeoff/megatron_patches/README.md`](03_4_implementation_experiments/init_bakeoff/megatron_patches/README.md)
    - HF <-> Megatron conversion, R17 issue, xIELU/QK-Norm patching, roundtrip
      pass criteria.
 
@@ -58,6 +66,8 @@ Important number disambiguation:
 | Path | What it is | Review for |
 |---|---|---|
 | [`PRODUCTION_DECISION_STATE.md`](PRODUCTION_DECISION_STATE.md) | Current production decision overlay | Selected path, result tables, completed gates, production boundary |
+| [`ARTIFACTS_AND_HYDRATION.md`](ARTIFACTS_AND_HYDRATION.md) | Repo ownership and hydration policy | What is committed, what stays on Clariden, launch/readiness checks |
+| [`CLARIDEN_INVENTORY_20260524.md`](CLARIDEN_INVENTORY_20260524.md) | Remote artifact inventory | Dataset/checkpoint/eval/code paths, sizes, intentionally absent artifacts |
 | [`TAKEOVER_LOG_20260521.md`](TAKEOVER_LOG_20260521.md) | Chronological operations log | What was run, what failed, what was changed, what completed |
 | [`cpt_plan.md`](cpt_plan.md) | Design-space plan, now with decision overlay | Original objective and assumptions; do not treat older exploratory items as current TODOs without the overlay |
 | [`TRAINING_RECIPE.md`](TRAINING_RECIPE.md) | Apertus-faithful training recipe | Optimizer, LR, batch shape, Goldfish, architecture, production-vs-bakeoff differences |
@@ -106,6 +116,10 @@ Remote production data path:
 ```text
 /iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_nfc_megatron/bulk_mix_text_document
 ```
+
+Remote artifact inventory and hydration policy:
+[`CLARIDEN_INVENTORY_20260524.md`](CLARIDEN_INVENTORY_20260524.md) and
+[`ARTIFACTS_AND_HYDRATION.md`](ARTIFACTS_AND_HYDRATION.md).
 
 ## Initialization And Conversion Artifacts
 
@@ -184,6 +198,7 @@ Baseline and bakeoff evidence:
 | [`03_4_implementation_experiments/init_bakeoff/eval/live_summaries/*_iter0000476_results.json`](03_4_implementation_experiments/init_bakeoff/eval/live_summaries/) | Per-arm final lm-eval JSON outputs |
 | [`03_4_implementation_experiments/init_bakeoff/eval/live_summaries/*_iter0000476_tokenizer_fair_metrics.json`](03_4_implementation_experiments/init_bakeoff/eval/live_summaries/) | Final BPC/NLL/tokenizer-fair metrics |
 | [`03_4_implementation_experiments/init_bakeoff/eval/live_summaries/*_iter0000476_new_token_diagnostics.json`](03_4_implementation_experiments/init_bakeoff/eval/live_summaries/) | Final new-token diagnostics for extended arms |
+| [`03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/BAKEOFF_TRAJECTORY_ANALYSIS_20260524.md`](03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/BAKEOFF_TRAJECTORY_ANALYSIS_20260524.md) | Per-checkpoint slope and crossover analysis |
 
 ## Token Distillation Artifacts
 

@@ -90,6 +90,12 @@ standard tensors, R17 tensors, xIELU, QK-Norm, and smoke logits.
 Use the mix documented at:
 `03_4_implementation_experiments/init_bakeoff/corpus_build/MIX_RECIPE.md`
 
+Artifact ownership and hydration are documented at:
+`ARTIFACTS_AND_HYDRATION.md` and `CLARIDEN_INVENTORY_20260524.md`. The
+tokenizer-extension repo owns the recipes, scripts, manifests, verification
+outputs, eval summaries, and launch commands. Clariden owns the multi-terabyte
+dataset/checkpoint payloads referenced by those files.
+
 Current bulk recipe:
 
 - 70% Greek from the nanochat-derived corpus after Apertus-overlap removal and
