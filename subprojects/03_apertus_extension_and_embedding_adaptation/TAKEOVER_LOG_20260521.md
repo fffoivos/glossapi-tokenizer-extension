@@ -929,6 +929,13 @@ Current next gate:
   - state dir:
     `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_sidecar_eval_incremental`;
   - first state: `submitted=5 missing=22 active_jobs=14`.
+- Clariden did not keep the detached login-node Python loop alive. Replaced it
+  with a home-side transient systemd watcher:
+  - unit: `apertus-3p5b-eval-watch.service`;
+  - local log:
+    `03_4_implementation_experiments/init_bakeoff/eval/continuation_3p5b_20260524T143012Z_home_watcher/watcher.log`;
+  - behavior: every two minutes, SSH to Clariden and run one incremental
+    submit pass until all `27` sidecar tasks have job IDs.
 - Startup health:
   - all three first-segment jobs reached `training ...`;
   - Vanilla/ReTok/TD all loaded checkpoint iteration `476`;
