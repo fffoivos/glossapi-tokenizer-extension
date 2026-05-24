@@ -809,3 +809,45 @@ Current next gate:
   design artifact and must be rebuilt on `xfer` from the selected post-dedup
   Greek parquet plus local staged replay/code/math sources before it can become
   a second production phase.
+
+## Continuation - 2026-05-24 3.5B bakeoff continuation plan
+
+- Added dry-run-first continuation submitter:
+  `03_4_implementation_experiments/init_bakeoff/bakeoff_training/submit_3p5b_continuation_chain.sh`.
+- Added eval sidecar submitter:
+  `03_4_implementation_experiments/init_bakeoff/eval/submit_3p5b_eval_sidecars.sh`.
+- Scope:
+  - continue Vanilla, ReTok, and TD layer11 from iter `476` to iter `834`
+    (`3.498B` total tokens);
+  - split each arm into chained segments ending at iter `585`, `715`, and
+    `834`;
+  - keep the three arms parallel;
+  - submit eval sidecars at each boundary without making later training depend
+    on eval.
+- Invariants forced by the submitter:
+  - `LOSS_OBJECTIVE=ntp`;
+  - base data prefix:
+    `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_megatron/bulk_mix_text_document`;
+  - extended data prefix:
+    `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_ext_megatron/bulk_mix_text_document`;
+  - one node, four GH200 GPUs, TP=2, same bakeoff trainer;
+  - eval jobs use `--nice=1000` by default.
+- Clariden dry-run validation:
+  - `continuation_3p5b_dryrun_20260524T020000Z`;
+  - generated `9` training commands and `27` eval-sidecar commands;
+  - source iter-476 checkpoints and both original bakeoff Megatron data prefixes
+    existed;
+  - every training command exported `LOSS_OBJECTIVE=ntp` and the expected
+    bakeoff data prefixes;
+  - eval conversion commands depend on the checkpoint-producing training
+    segment; later training segments do not depend on eval.
+- Representative non-submitting Slurm checks passed:
+  - training `sbatch --test-only`;
+  - checkpoint conversion `sbatch --test-only`;
+  - packed eval `sbatch --test-only`;
+  - follow-up `squeue` check showed those test-only IDs were not queued.
+- Local audit copies:
+  `03_4_implementation_experiments/init_bakeoff/bakeoff_training/dryrun_3p5b_continuation_20260524T020000Z/`.
+- No live GPU training or eval jobs were submitted in this step. Live launch
+  still requires:
+  `DRY_RUN=0 CONFIRM_3P5B_LAUNCH=1 RUN_TAG=<real-run-tag> bash submit_3p5b_continuation_chain.sh`.

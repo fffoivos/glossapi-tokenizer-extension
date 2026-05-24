@@ -6,7 +6,7 @@ only in which init checkpoint they load.
 
 The training engine is **Megatron-LM-Swiss-AI** (Apertus's pretraining fork),
 not HuggingFace Trainer — for Apertus-fidelity reasons documented in
-[`../../TRAINING_RECIPE.md`](../../TRAINING_RECIPE.md).
+[`../../../TRAINING_RECIPE.md`](../../../TRAINING_RECIPE.md).
 
 ## Files
 
@@ -19,6 +19,7 @@ not HuggingFace Trainer — for Apertus-fidelity reasons documented in
 | [`submit_all_arms.sh`](submit_all_arms.sh) | thin wrapper: submits all three arms in parallel with a shared seed |
 | [`submit_td_layer11_smoke.sh`](submit_td_layer11_smoke.sh) | bounded load/train smoke for the selected TD layer11 R17-patched checkpoint |
 | [`submit_td_layer11_2b_chain.sh`](submit_td_layer11_2b_chain.sh) | one-arm chained 2B TD layer11 training run; uses a resume job because `normal` is capped at 12h |
+| [`submit_3p5b_continuation_chain.sh`](submit_3p5b_continuation_chain.sh) | dry-run-first Vanilla/ReTok/TD continuation from iter 476 to iter 834, with sidecar eval dependencies |
 
 ## End-to-end sequence
 
@@ -44,6 +45,37 @@ not HuggingFace Trainer — for Apertus-fidelity reasons documented in
                                        # ReTok/Centroid load $EXT_DATA_PREFIX.
                                        # each: 1 node, 4 × GH200, ~11 h, 2 B tokens
 ```
+
+## 3.5B continuation bakeoff
+
+After the 2B bakeoff, the continuation question is Vanilla vs ReTok vs TD
+layer11 from iter 476 to iter 834 (~3.5B total tokens). The continuation
+submitter is dry-run-first:
+
+```bash
+DRY_RUN=1 RUN_TAG=continuation_3p5b_review bash submit_3p5b_continuation_chain.sh
+```
+
+Live submission requires an explicit cost-event confirmation:
+
+```bash
+DRY_RUN=0 CONFIRM_3P5B_LAUNCH=1 RUN_TAG=continuation_3p5b_<stamp> \
+  bash submit_3p5b_continuation_chain.sh
+```
+
+The script submits three parallel arms and three chained segments per arm:
+
+- iter 476 -> 585 (~2.45B total tokens)
+- iter 585 -> 715 (~3.00B total tokens)
+- iter 715 -> 834 (~3.50B total tokens)
+
+It writes `training_chain.tsv` plus the exact sbatch commands under
+`/capstor/scratch/cscs/fffoivos/runs/bakeoff/${RUN_TAG}_submit_state/`.
+By default it also calls
+[`../eval/submit_3p5b_eval_sidecars.sh`](../eval/submit_3p5b_eval_sidecars.sh),
+which submits conversion, intrinsic, diagnostics, and packed downstream eval
+jobs that depend on the checkpoint-producing training segment. Later training
+segments do not depend on eval jobs.
 
 ## What's same across arms (the constants)
 
@@ -71,7 +103,7 @@ underlying JSONL document stream and seed are shared.
 ## Q D1 status
 
 Resolved 2026-05-21: swiss-ai/Megatron-LM main HEAD pinned at
-`c92402e39ef3c8e69ea378a59e79059dc14541f4`. See [`../../TRAINING_RECIPE.md`](../../TRAINING_RECIPE.md) §1.
+`c92402e39ef3c8e69ea378a59e79059dc14541f4`. See [`../../../TRAINING_RECIPE.md`](../../../TRAINING_RECIPE.md) §1.
 
 ## HF → Megatron conversion (the bridge between init checkpoint build and training)
 
