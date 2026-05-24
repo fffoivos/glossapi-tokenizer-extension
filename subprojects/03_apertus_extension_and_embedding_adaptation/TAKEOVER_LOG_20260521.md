@@ -984,3 +984,30 @@ Current next gate:
   - TD layer11 iter `501`: `2.474802`.
 - Eval watcher still active, but submitted-job count remains at `14`, so it
   cannot add the remaining sidecars until jobs leave the queue.
+
+### 2026-05-24T16:38Z 3.5B two-hour segment-1 check
+
+- Queue:
+  - `2369298` Vanilla, `2369301` ReTok, and `2369304` TD layer11 still
+    running on separate Clariden nodes;
+  - chained segment-2/segment-3 jobs remain dependency-pending;
+  - first five iter-585 eval sidecars remain dependency-pending.
+- Progress:
+  - Vanilla reached iteration `533`;
+  - ReTok reached iteration `532`;
+  - TD layer11 reached iteration `531`.
+- Checkpointing:
+  - all three arms report `latest_checkpointed_iteration.txt = 520`;
+  - this confirms the continuation save path is working before the iter-585
+    checkpoint boundary.
+- Health remains good:
+  - `loss scale = 1.0`;
+  - `number of skipped iterations = 0`;
+  - `number of nan iterations = 0`;
+  - per-GPU throughput remains stable at roughly `7.86k-8.08k` tokens/s.
+- Latest observed losses:
+  - Vanilla iter `533`: `1.717318`;
+  - ReTok iter `532`: `2.682606`;
+  - TD layer11 iter `531`: `2.465723`.
+- Eval watcher remains active, but submitted-job count is still `14`, so no
+  additional sidecars can be submitted until a queued/running job leaves Slurm.
