@@ -884,3 +884,20 @@ Current next gate:
 - GCP cost-safety check could not report current state because local `gcloud`
   requires interactive reauthentication; no GCP resources were touched.
 - No live GPU training or eval jobs were submitted in this audit.
+
+### 2026-05-24T13:44Z 3.5B launch gate held
+
+- Automatic goal continuation resumed after the launch-readiness audit, but no
+  explicit live-run go/no-go was given.
+- Rechecked the Clariden mirror:
+  - local and remote SHA-256 hashes match for both 3.5B submitters and this
+    takeover log;
+  - `squeue -u fffoivos` was empty.
+- Rechecked remote launch inputs:
+  - Vanilla, ReTok, and TD source checkpoint roots still report latest
+    iteration `476` and contain `iter_0000476/`;
+  - original bakeoff base/extended Megatron `.bin` and `.idx` files still
+    exist;
+  - held-out Greek eval JSONL still has `500` rows.
+- Launch remains intentionally gated on an explicit live-submit command:
+  `DRY_RUN=0 CONFIRM_3P5B_LAUNCH=1 RUN_TAG=<real-run-tag> bash submit_3p5b_continuation_chain.sh`.
