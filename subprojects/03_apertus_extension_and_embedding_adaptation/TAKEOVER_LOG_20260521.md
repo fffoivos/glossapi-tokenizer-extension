@@ -1114,3 +1114,27 @@ Current next gate:
   - TD layer11 replacement segment reached iter `623/715`;
   - all three still report `loss scale = 1.0`, skipped iterations `0`, and
     nan iterations `0`.
+
+### 2026-05-24T20:56Z Packed 585 eval retry completed
+
+- Packed 585 retry job `2373441` completed successfully:
+  - state `COMPLETED`;
+  - exit code `0:0`;
+  - elapsed `00:56:49`.
+- Fresh result artifacts exist for all three arms:
+  - Vanilla:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_vanilla/iter_0000585_full/results_2026-05-24T22-48-22.367934.json`;
+  - ReTok:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_retok/iter_0000585_full/results_2026-05-24T22-51-02.541070.json`;
+  - TD layer11:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_td_layer11/iter_0000585_full/results_2026-05-24T22-46-45.387604.json`.
+- The ReTok output directory also contains an older
+  `results_2026-05-24T21-28-59.022249.json` from the failed packed job; use
+  the `22:51:02` result for the repaired all-arm retry.
+- The eval harness printed `fatal: not a git repository` while trying to record
+  repository metadata from `/capstor/scratch`; this was non-fatal and the Slurm
+  job exited cleanly.
+- After the packed job completed, the eval watcher still hit
+  `QOSMaxSubmitJobPerUserLimit` with 11 active/pending jobs. Remaining TD 715
+  and 834 sidecars are therefore still queued in the watcher's retry plan, not
+  lost.
