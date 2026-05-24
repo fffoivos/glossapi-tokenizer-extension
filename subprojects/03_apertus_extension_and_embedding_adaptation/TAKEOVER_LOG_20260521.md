@@ -901,3 +901,37 @@ Current next gate:
   - held-out Greek eval JSONL still has `500` rows.
 - Launch remains intentionally gated on an explicit live-submit command:
   `DRY_RUN=0 CONFIRM_3P5B_LAUNCH=1 RUN_TAG=<real-run-tag> bash submit_3p5b_continuation_chain.sh`.
+
+### 2026-05-24T14:30Z 3.5B continuation live launch
+
+- User gave explicit live-run go-ahead.
+- Pre-launch `squeue -u fffoivos` was empty.
+- GCP cost-safety check still could not report state because `gcloud` requires
+  interactive reauthentication; no GCP resources were touched.
+- Launched from Clariden with:
+  `DRY_RUN=0 CONFIRM_3P5B_LAUNCH=1 RUN_TAG=continuation_3p5b_20260524T143012Z bash submit_3p5b_continuation_chain.sh`.
+- Training chain submitted successfully:
+  - Vanilla: `2369298` -> `2369299` -> `2369300`;
+  - ReTok: `2369301` -> `2369302` -> `2369303`;
+  - TD layer11: `2369304` -> `2369305` -> `2369306`.
+- The eval sidecar submitter hit Clariden's submitted-job limit
+  (`QOSMaxSubmitJobPerUserLimit`) after submitting the first five iter-585
+  sidecars:
+  - `2369307` `tohf_vanilla_585`;
+  - `2369308` `bpc_vanilla_585`;
+  - `2369309` `tohf_retok_585`;
+  - `2369310` `bpc_retok_585`;
+  - `2369311` `diag_retok_585`.
+- Added `submit_3p5b_eval_sidecars_incremental.py` to submit the remaining
+  eval DAG as queue slots open, without making training depend on eval.
+- Started incremental eval submitter on Clariden:
+  - PID: `175635`;
+  - state dir:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_sidecar_eval_incremental`;
+  - first state: `submitted=5 missing=22 active_jobs=14`.
+- Startup health:
+  - all three first-segment jobs reached `training ...`;
+  - Vanilla/ReTok/TD all loaded checkpoint iteration `476`;
+  - all three completed iteration `477` without OOM, skipped iterations, or
+    NaNs;
+  - early per-GPU throughput was roughly `7.5k-7.7k` tokens/s.
