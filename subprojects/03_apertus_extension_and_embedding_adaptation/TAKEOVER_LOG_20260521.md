@@ -851,3 +851,36 @@ Current next gate:
 - No live GPU training or eval jobs were submitted in this step. Live launch
   still requires:
   `DRY_RUN=0 CONFIRM_3P5B_LAUNCH=1 RUN_TAG=<real-run-tag> bash submit_3p5b_continuation_chain.sh`.
+
+### 2026-05-24 3.5B continuation launch-readiness audit
+
+- Re-audited the committed continuation scripts before launch.
+- Fresh Clariden dry-run tag:
+  `continuation_3p5b_audit_20260524T134014Z`.
+- Dry-run produced the expected shape:
+  - `9` training sbatch commands;
+  - `27` eval-sidecar sbatch commands;
+  - `9` rows in `training_chain.tsv` plus header;
+  - `9` rows in `eval_sidecar_jobs.tsv` plus header.
+- Verified remote prerequisites:
+  - Vanilla, ReTok, and TD source checkpoint roots all have
+    `latest_checkpointed_iteration.txt = 476` and `iter_0000476/`;
+  - original bakeoff base/extended Megatron `.bin` and `.idx` files exist;
+  - held-out Greek intrinsic eval JSONL exists with `500` rows;
+  - full HF tokenizer/model dirs exist for conversion; the extended training
+    tokenizer path is tokenizer-only as expected for Megatron training.
+- Verified checkpoint cadence against the live Megatron code:
+  - iter `585` and `715` are regular `SAVE_INTERVAL=65` checkpoints;
+  - iter `834` is saved by Megatron's end-of-training final-save path because
+    it is not divisible by `65`.
+- Representative non-submitting Slurm parse checks passed for:
+  - training;
+  - checkpoint conversion;
+  - packed downstream eval;
+  - tokenizer-fair BPC metrics;
+  - new-token diagnostics.
+- Follow-up `squeue` checks confirmed the `--test-only` IDs were not queued,
+  and `squeue -u fffoivos` was empty.
+- GCP cost-safety check could not report current state because local `gcloud`
+  requires interactive reauthentication; no GCP resources were touched.
+- No live GPU training or eval jobs were submitted in this audit.
