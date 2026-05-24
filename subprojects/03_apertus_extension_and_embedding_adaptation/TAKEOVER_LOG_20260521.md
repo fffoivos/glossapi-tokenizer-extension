@@ -942,3 +942,22 @@ Current next gate:
   - all three completed iteration `477` without OOM, skipped iterations, or
     NaNs;
   - early per-GPU throughput was roughly `7.5k-7.7k` tokens/s.
+
+### 2026-05-24T14:58Z 3.5B early-stability check
+
+- Foreground babysitting reached the intended early resumed-optimizer window:
+  - Vanilla reached iteration `487`;
+  - ReTok reached iteration `487`;
+  - TD layer11 reached iteration `486`.
+- Health:
+  - all three arms still running;
+  - `loss scale = 1.0`;
+  - `number of skipped iterations = 0`;
+  - `number of nan iterations = 0`;
+  - per-GPU throughput stable at roughly `7.9k-8.1k` tokens/s after warmup.
+- Observed isolated grad-norm spikes:
+  - Vanilla: `17.784` at iter `481`, then back near `1`;
+  - ReTok: `7.051` at iter `482`, then back near `1-2`;
+  - TD: no comparable early spike; latest observed grad norm `2.450`.
+- No intervention taken. Continue babysitting until the first segment reaches
+  iter `585`, writes checkpoints, and the eval sidecars begin to drain.
