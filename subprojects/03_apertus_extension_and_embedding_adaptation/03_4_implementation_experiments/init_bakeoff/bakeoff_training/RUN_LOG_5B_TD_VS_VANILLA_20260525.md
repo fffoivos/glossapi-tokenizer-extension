@@ -330,3 +330,84 @@ iter_0001013 appears for both arms
 2382983 / 2382985 start the 1192 training legs
 2382998 / 2383000 start HF conversion for 1013
 ```
+
+## 4.25B Checkpoint Handoff
+
+Checked at 2026-05-25 21:19 UTC.
+
+Both first-leg training jobs reached the target `iter_0001013` checkpoint and
+exited cleanly:
+
+```text
+vanilla    job 2382982  COMPLETED 0:0  iter 1013/1013  4.249B tokens  final lm loss 1.611620  skipped=0 nan=0
+td_layer11 job 2382984  COMPLETED 0:0  iter 1013/1013  4.249B tokens  final lm loss 2.314037  skipped=0 nan=0
+```
+
+Checkpoint state:
+
+```text
+vanilla    latest_checkpointed_iteration.txt = 1013
+td_layer11 latest_checkpointed_iteration.txt = 1013
+
+vanilla    iter_0001013 timestamp 2026-05-25 23:10
+td_layer11 iter_0001013 timestamp 2026-05-25 23:18
+```
+
+The first 1013 conversion jobs also handed off correctly:
+
+```text
+tohf_vanilla_1013     job 2382998  COMPLETED 0:0  elapsed 00:01:12
+tohf_td_layer11_1013  job 2383000  COMPLETED 0:0  elapsed 00:01:09
+```
+
+Current queue state after the handoff:
+
+```text
+2382983  5b_vanilla_1192       PENDING (Priority)
+2382985  5b_td_layer11_1192    PENDING (Priority)
+2382999  bpc_vanilla_1013      PENDING (Priority)
+2383001  bpc_td_layer11_1013   PENDING (Dependency/Priority transition after conversion)
+2383002  diag_td_layer11_1013  PENDING (Dependency/Priority transition after conversion)
+2383003  eval_5b_1013_full     PENDING (Dependency/Priority transition after conversion)
+```
+
+The incremental eval submitter is still alive as `2383705`. It successfully
+added the first two 1192 sidecar rows once active job count dropped:
+
+```text
+convert:1192:vanilla -> 2388813
+bpc:1192:vanilla     -> 2388814
+```
+
+It also logged transient `QOSMaxSubmitJobPerUserLimit` failures while trying to
+add the remaining 1192 sidecars. This is expected under the user job cap as
+long as the submitter keeps retrying; next check should confirm whether it adds
+`convert/bpc/diag/packed` rows for `td_layer11` and `1192` after active jobs
+clear.
+
+Follow-up at 2026-05-25 21:23 UTC: the submitter did keep retrying and the
+sidecar table advanced to 10/12 rows:
+
+```text
+convert:1192:td_layer11 -> 2388835
+bpc:1192:td_layer11     -> 2388836
+```
+
+The only missing future sidecars are now:
+
+```text
+diag:1192:td_layer11
+packed:1192:full
+```
+
+Those remain intentionally unsubmitted while the job cap is full. Current
+training/eval work is dependency-clear and queued on Slurm priority:
+
+```text
+2382983  5b_vanilla_1192       PENDING (Priority)
+2382985  5b_td_layer11_1192    PENDING (Priority)
+2382999  bpc_vanilla_1013      PENDING (Priority)
+2383001  bpc_td_layer11_1013   PENDING (Priority)
+2383002  diag_td_layer11_1013  PENDING (Priority)
+2383003  eval_5b_1013_full     PENDING (Priority)
+```
