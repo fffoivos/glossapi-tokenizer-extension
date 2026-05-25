@@ -77,7 +77,7 @@ These are inspect-style evals, run via `inspect eval` rather than lm-eval-harnes
 
 Per v0.7 §6.1:
 
-- **Trajectory metrics** (training loss, per-bucket PPL, BPC trajectory, §5.3 new-token diagnostic suite): every 100 M tokens in the bakeoff (every ~25 global steps at 4 M tokens/step).
+- **Trajectory metrics** (heldout BPC/BPB, per-bucket PPL where tokenizer-consistent, §5.3 new-token diagnostic suite, and raw `lm loss` as health-only telemetry): every 100 M tokens in the bakeoff (every ~25 global steps at 4 M tokens/step).
 - **Downstream benchmarks** (Group 1 + Group 2): every 500 M tokens during training, plus a full sweep at the last 3–5 checkpoints in the 80–100 % budget range for selection.
 - **V4 baseline**: once, before the bakeoff. Full suite × 1 run. Bootstrap CIs over eval samples (not over runs — most benchmark items are deterministic).
 
@@ -281,6 +281,7 @@ Per-arm bakeoff eval at one checkpoint:
 - **`run_tokenizer_fair_metrics.sbatch`** — sbatch wrapper for the above; 1 node × 1 GPU × 2 h. Runs at each bakeoff checkpoint where downstream eval also runs.
 - **`compute_new_token_diagnostics.py`** — v0.7 §5.3 new-token integration diagnostic suite: 7 diagnostics over the 17,408 new IDs (rank of new target in next-token logits, prob-mass on new IDs, per-register entropy, top-1 substitution rate at new-target positions, greedy-gen new-token utilization, embedding L2-norm distribution new-vs-existing, cosine-similarity / effective-rank of new rows). Has `--embedding-only` mode that skips the forward-pass diagnostics (D1-D5) for cheap embedding-only health checks.
 - **`run_new_token_diagnostics.sbatch`** — sbatch wrapper for the diagnostic suite; 1 node × 1 GPU × 2 h.
+- **`LOSS_MEASUREMENT_POLICY.md`** — canonical interpretation of raw `lm loss`, heldout BPC/BPB, and future dense training-log fields (`bpb`, `bpt`, `base_loss`, `new_loss`, `n_new`).
 
 ## §5.3 new-token integration diagnostic suite — important
 
@@ -300,7 +301,9 @@ Per v0.7 §5.3, these 7 diagnostics are **"read at every bakeoff checkpoint"**:
 
 ## Primary intrinsic metrics (v0.7 §5.1) — important
 
-Per-token PPL is **not comparable** across the Vanilla arm (vocab 131,072) and the ReTok/Centroid arms (vocab 148,480). v0.7 §5.1 specifies these tokenizer-fair metrics as the **primary** signal for the bakeoff:
+Per-token PPL and raw Megatron `lm loss` are **not comparable** across the Vanilla arm (vocab 131,072) and extended-vocab arms (vocab 148,480). Raw `lm loss` remains useful for within-arm stability checks, throughput health, and loss spikes. It is not a selection metric across tokenizers.
+
+v0.7 §5.1 specifies these tokenizer-fair metrics as the **primary** signal for the bakeoff:
 
 | Metric | Why |
 |---|---|
@@ -311,6 +314,14 @@ Per-token PPL is **not comparable** across the Vanilla arm (vocab 131,072) and t
 | **STRR** (Subword-Tokenization Recovery Rate) | Fraction of held-out words that tokenize to a single token — whole-word preservation |
 
 `compute_tokenizer_fair_metrics.py` computes all of these from one HF-format checkpoint + a held-out JSONL. Aggregates globally + per-source + per-register.
+
+For future Megatron runs we also adopt dense stdout logging of tokenizer-fair batch metrics:
+
+```text
+lm loss: ... | bpb: ... | bpt: ... | base_loss: ... | new_loss: ... | n_new: ... |
+```
+
+These fields must be computed on the exact same loss-mask positions as the optimizer loss, including EOD/padding masking and Goldfish masking. They are measurement-only; the optimizer still sees the original `lm loss`. `bpb` is the dense in-flight cross-tokenizer signal, while heldout checkpoint BPC/BPB remains authoritative for selection.
 
 **Held-out eval slice**: ~100-500 docs covering modern Greek registers (encyclopedic / literary / academic / dialogue / legal / dictionary). The slice should be **outside** the bakeoff training mix. Current operational builder:
 

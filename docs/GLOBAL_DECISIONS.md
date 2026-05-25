@@ -127,6 +127,19 @@ applies to C3 only.
 - tokenizer experiments read from the same CPT-ready dataset used for
   continued pretraining
 
+## Model-Adaptation Measurement Constraint
+
+For Apertus adaptation experiments that compare different tokenizer
+vocabularies, raw Megatron `lm loss` is not a cross-arm selection metric. It is
+per-target-token cross entropy, so it changes with both softmax size and
+tokenizer compression. Use it for health checks and within-arm trends only.
+
+Cross-tokenizer loss evidence must use heldout tokenizer-fair BPC/BPB and
+downstream evals. When the training loop emits dense `bpb`, `bpt`,
+`base_loss`, `new_loss`, and `n_new`, those fields are measurement-only and
+must be computed on the same loss-mask positions as optimizer `lm loss`.
+Heldout checkpoint BPC/BPB remains the selection anchor.
+
 ## Execution Structure
 
 There are now two parallel tracks:

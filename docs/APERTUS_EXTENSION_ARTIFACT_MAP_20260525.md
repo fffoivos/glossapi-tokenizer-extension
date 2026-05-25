@@ -271,6 +271,13 @@ checkpoint pointers to understand the comparison.
 Main compact result doc:
 
 - [`../subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/CONTINUATION_3P5B_RESULTS_20260525.md`](../subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/CONTINUATION_3P5B_RESULTS_20260525.md)
+- [`../subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md`](../subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md)
+
+Loss-reading rule: raw Megatron `lm loss` is per-token CE, so it is not a fair
+head-to-head score between the 131,072-vocab Vanilla arm and the 148,480-vocab
+extended arms. The benchmark tables use heldout tokenizer-fair BPC/BPB plus
+downstream evals for cross-arm conclusions. Raw training loss remains useful as
+health telemetry and within-arm trend evidence.
 
 At iter 834:
 

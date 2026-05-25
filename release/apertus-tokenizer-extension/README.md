@@ -76,6 +76,13 @@ The current result anchor is:
 benchmark-evals/3.5B-comparison/
 ```
 
+Loss-reading rule: raw Megatron `lm loss` is per-token cross entropy and is
+not comparable between the original 131,072-token Vanilla tokenizer and the
+148,480-token extended tokenizer arms. Cross-arm loss conclusions use heldout
+BPC/BPB from the tokenizer-fair eval jobs plus downstream benchmark scores.
+Raw training loss is only a health and within-arm trace unless dense `bpb`
+training logs are present.
+
 At 3.5B:
 
 | Arm | Greek aggregate | English retention | Multilingual | Heldout BPC, lower better |

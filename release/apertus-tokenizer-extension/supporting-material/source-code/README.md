@@ -9,6 +9,16 @@ https://github.com/fffoivos/glossapi-tokenizer-extension/tree/main/subprojects/0
 This Hugging Face release keeps artifact payloads, manifests, compact evidence,
 and hydration instructions. It does not mirror the full scripts tree.
 
+Important eval policy:
+
+```text
+../provenance/evals/LOSS_MEASUREMENT_POLICY.md
+```
+
+That file explains why raw Megatron `lm loss` is health-only across different
+tokenizers, and why heldout BPC/BPB plus downstream evals are the cross-arm loss
+evidence.
+
 See:
 
 ```text

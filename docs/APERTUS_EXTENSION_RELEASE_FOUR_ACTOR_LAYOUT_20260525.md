@@ -50,6 +50,17 @@ supporting-material/
 | `benchmark-evals/` | Main evaluation area; current anchor is `3.5B-comparison`. |
 | `supporting-material/` | Optional tokenizer, provenance, source-code pointers, archive notes, and checksums. |
 
+## Benchmark Policy
+
+`benchmark-evals/` must present heldout BPC/BPB and downstream task scores as
+the cross-arm evidence. Raw Megatron `lm loss` is per-token CE and is only
+health telemetry across different tokenizers. The public release now carries
+the canonical policy at:
+
+```text
+supporting-material/provenance/evals/LOSS_MEASUREMENT_POLICY.md
+```
+
 ## Checkpoint Policy
 
 `experiment-checkpoints/` contains one folder per experiment checkpoint:

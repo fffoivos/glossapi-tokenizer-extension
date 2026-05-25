@@ -121,7 +121,9 @@
   "evals": {
     "artifact_id": "results.3.5B-comparison",
     "human_name": "3.5B-comparison",
-    "public_path": "benchmark-evals/3.5B-comparison"
+    "public_path": "benchmark-evals/3.5B-comparison",
+    "loss_measurement_policy": "supporting-material/provenance/evals/LOSS_MEASUREMENT_POLICY.md",
+    "cross_arm_loss_metric": "heldout BPC/BPB, not raw Megatron lm loss"
   },
   "checkpoint_upload_verification": {
     "huggingface_repo": "fffoivos/apertus-tokenizer-extension",

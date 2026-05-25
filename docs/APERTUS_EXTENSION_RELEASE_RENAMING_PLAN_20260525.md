@@ -62,6 +62,11 @@ Examples:
 
 Technical details go in `README.md` and `manifest.json`.
 
+Eval/loss details also stay out of public names. A folder named
+`3.5B-comparison` should explain in its README that heldout BPC/BPB and
+downstream evals are the cross-arm evidence, while raw Megatron `lm loss` is
+only a tokenizer-dependent health trace.
+
 ## Essence Versus Subtext
 
 | Put in the public name | Put in README/manifest |

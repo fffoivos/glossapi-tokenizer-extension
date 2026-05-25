@@ -76,6 +76,14 @@ Centroid checkpoints.
 A tiny Clariden upload-smoke file was used to verify auth from the cluster and
 then removed from Hugging Face.
 
+Post-upload documentation now also includes the loss-measurement policy:
+heldout BPC/BPB and downstream evals are the cross-arm evidence; raw Megatron
+`lm loss` is tokenizer-dependent health telemetry. The policy lives at:
+
+```text
+release/apertus-tokenizer-extension/supporting-material/provenance/evals/LOSS_MEASUREMENT_POLICY.md
+```
+
 ## Verification
 
 Independent Hugging Face API verification passed after upload:

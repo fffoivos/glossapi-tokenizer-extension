@@ -74,11 +74,17 @@ or reproduction.
    hash or shard list, conversion status, eval status, and clear relation to the
    tokenizer. Do not upload entire run directories.
 
-6. Prefer additive reorganization first.
+6. Make loss measurement explicit.
+   Benchmark summaries must say that raw Megatron `lm loss` is health-only
+   across different tokenizer vocabularies. Cross-arm loss evidence is heldout
+   BPC/BPB plus downstream evals, with dense `bpb` logs used only when the
+   training loop actually emits them.
+
+7. Prefer additive reorganization first.
    Build the clean structure and top-level routing without deleting remote files
    immediately. Only delete or move legacy remote paths after a review pass.
 
-7. Keep executable code in GitHub.
+8. Keep executable code in GitHub.
    Scripts and launchers should be promoted to the GitHub subproject path above,
    not duplicated into the HF release tree except as minimal hydration snippets.
 

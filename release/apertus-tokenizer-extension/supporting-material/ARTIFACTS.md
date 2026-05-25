@@ -53,6 +53,11 @@ TokenDistil-3.5B
 folder per public experiment checkpoint; source paths and exact technical
 details live in each checkpoint manifest.
 
+Loss evidence follows the tokenizer-fair policy in
+`provenance/evals/LOSS_MEASUREMENT_POLICY.md`: heldout BPC/BPB and downstream
+evals decide cross-arm comparisons. Raw Megatron `lm loss` is a training health
+trace because the compared arms do not all use the same tokenizer.
+
 Checkpoint weights were uploaded from Clariden through the non-GPU `xfer`
 partition:
 

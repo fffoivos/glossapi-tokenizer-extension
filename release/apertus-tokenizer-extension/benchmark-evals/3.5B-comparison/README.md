@@ -8,6 +8,12 @@ to iter 834 (~3.5B tokens). Local JSON snapshots live under
 `per_iter_results/`; remote full artifacts remain on Clariden under
 `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_*`.
 
+Loss-reading rule: raw Megatron `lm loss` is per-target-token CE and is not
+tokenizer-fair across Vanilla vs the 148,480-vocab arms. This comparison uses
+heldout BPC/BPB and downstream evals for cross-arm conclusions. Raw training
+loss plots are diagnostic only unless they are replaced by measured dense
+`bpb` logs.
+
 ## Bottom line
 
 - TokenDistil is the best final benchmark arm overall: it is first on English
