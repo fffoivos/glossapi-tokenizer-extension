@@ -137,6 +137,7 @@ first training segment and not on eval completion.
 A lightweight home-side status logger was started for breadcrumbs only:
 
 ```text
-pid: 494381
+pid: 494716
 log: /home/foivos/runs/codex_monitors/5b_td_vs_vanilla_20260525/monitor.log
+script: /home/foivos/runs/codex_monitors/5b_td_vs_vanilla_20260525/monitor_status.sh
 ```
