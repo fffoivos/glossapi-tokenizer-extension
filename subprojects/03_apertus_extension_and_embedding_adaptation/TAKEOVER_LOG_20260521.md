@@ -1206,3 +1206,24 @@ Current next gate:
   `apertus-3p5b-eval-watcher.service`.
 - Verified the service was `active (running)` with PID `431332` and an SSH
   child executing `submit_3p5b_eval_sidecars_incremental.py`.
+
+### 2026-05-25T00:33Z Packed 715 eval completed
+
+- Packed 715 downstream eval job `2374690` completed successfully:
+  - state `COMPLETED`;
+  - exit code `0:0`;
+  - elapsed `00:58:22`.
+- Fresh result artifacts exist for all three arms:
+  - Vanilla:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_vanilla/iter_0000715_full/results_2026-05-25T02-30-06.821998.json`;
+  - ReTok:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_retok/iter_0000715_full/results_2026-05-25T02-27-33.084377.json`;
+  - TD layer11:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_td_layer11/iter_0000715_full/results_2026-05-25T02-27-19.276020.json`.
+- The active-job submit cap is stricter than expected: after packed 715
+  completed, `sbatch` still rejected `convert:834:td_layer11` with
+  `QOSMaxSubmitJobPerUserLimit` at `active_jobs=8`.
+- No training action required:
+  - 834 TD/packed eval sidecars cannot run before final checkpoints anyway;
+  - the systemd watcher remains active and will keep retrying as training and
+    pending final sidecars leave the queue.
