@@ -17,8 +17,9 @@ from pathlib import Path
 from typing import Dict, List, NamedTuple, Optional, Tuple
 
 
-ARMS = ("vanilla", "retok", "td_layer11")
-DIAG_ARMS = ("retok", "td_layer11")
+ARMS = tuple(os.environ.get("EVAL_ARMS", "vanilla retok td_layer11").split())
+DIAG_ARMS = tuple(os.environ.get("DIAG_ARMS", "retok td_layer11").split())
+PACKED_JOB_PREFIX = os.environ.get("PACKED_JOB_PREFIX", "eval_3p5")
 
 
 class TrainRow(NamedTuple):
@@ -276,7 +277,7 @@ def build_tasks(
             kind="packed",
             iteration=iteration,
             arm="all",
-            job_name=f"eval_3p5_{iteration}_{task_group}",
+            job_name=f"{PACKED_JOB_PREFIX}_{iteration}_{task_group}",
             deps=convert_ids,
             command=(
                 "sbatch",
@@ -284,7 +285,7 @@ def build_tasks(
                 "__DEPENDENCY_PLACEHOLDER__",
                 *nice_args,
                 f"--export=ALL,EVAL_SPEC_TSV={spec_tsv},TASK_GROUP={task_group}",
-                f"--job-name=eval_3p5_{iteration}_{task_group}",
+                f"--job-name={PACKED_JOB_PREFIX}_{iteration}_{task_group}",
                 str(script_dir / "run_eval_packed_arms.sbatch"),
             ),
         ))
