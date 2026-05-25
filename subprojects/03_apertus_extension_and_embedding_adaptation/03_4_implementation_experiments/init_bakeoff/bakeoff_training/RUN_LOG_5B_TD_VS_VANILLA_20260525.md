@@ -93,3 +93,26 @@ Initial sidecars submitted by the eval watcher:
 
 The 1192 / ~5B sidecars are intentionally left to the running xfer submitter,
 which trickles jobs under the account submit limit while training continues.
+
+## First Health Check
+
+Checked at 2026-05-25 14:46 UTC.
+
+Both first-segment training jobs were running and had completed checkpoint load,
+dataset build, forward/backward, and optimizer step. First observed iteration
+lines:
+
+```text
+vanilla    job 2382982  iter 837/1013  3.511B tokens  loss 1.631706  8020.6 tokens/sec/GPU  eta ~6:23
+td_layer11 job 2382984  iter 837/1013  3.511B tokens  loss 2.411584  7851.2 tokens/sec/GPU  eta ~6:32
+```
+
+Both logs reported:
+
+```text
+number of skipped iterations: 0
+number of nan iterations: 0
+```
+
+The xIELU optimizer audit reported `missing=0` for both arms during checkpoint
+load. The stderr content at this point was warnings only.
