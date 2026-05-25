@@ -540,3 +540,40 @@ XQuAD F1 gain plus Belebele gain offset those losses. Combined with the
 tokenizer-fair BPC gap (TD still worse by `+0.029664` BPC), this remains a
 promising-but-not-settled TD trajectory. The final `iter_0001192` matched eval
 is still required for the decision.
+
+## 1192 Final Leg Still Running
+
+Checked at 2026-05-25 22:23 UTC.
+
+Both final 1192 training jobs are still healthy and running:
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 00:58:07  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 00:58:07  node nid006211
+```
+
+The 1192 sidecars are all correctly submitted and dependency-pending:
+
+```text
+2388813  tohf_vanilla_1192       PENDING (Dependency)
+2388814  bpc_vanilla_1192        PENDING (Dependency)
+2388835  tohf_td_layer11_1192    PENDING (Dependency)
+2388836  bpc_td_layer11_1192     PENDING (Dependency)
+2388866  diag_td_layer11_1192    PENDING (Dependency)
+2388867  eval_5b_1192_full       PENDING (Dependency)
+```
+
+No final 1192 files exist yet under the eval roots. The latest checkpoint
+tracker for both arms still points to `1013`, as expected before the final save.
+
+Latest visible training lines:
+
+```text
+vanilla    iter 1038/1192  4.354B tokens  loss 1.609062  skipped=0 nan=0  eta 5:38:32
+td_layer11 iter 1038/1192  4.354B tokens  loss 2.350937  skipped=0 nan=0  eta 5:42:25
+```
+
+Reading: no restart or intervention was needed in this poll. Both final jobs
+are progressing at roughly 7.9k tokens/sec/GPU with no skipped or NaN
+iterations. The decision remains blocked on the final checkpoint plus its
+dependent conversion, BPC/diagnostics, and packed downstream eval.
