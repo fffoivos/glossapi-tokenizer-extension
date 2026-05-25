@@ -292,10 +292,41 @@ Current checkpoint state:
 vanilla    latest_checkpointed_iteration.txt = 910
 td_layer11 latest_checkpointed_iteration.txt = 910
 
-vanilla    iter_0000910 saved at 2026-05-25 19:27 UTC log time
-td_layer11 iter_0000910 saved at 2026-05-25 19:31 UTC log time
+vanilla    iter_0000910 timestamp 2026-05-25 19:27
+td_layer11 iter_0000910 timestamp 2026-05-25 19:31
 ```
 
 The 1013 eval sidecars remain dependency-staged, the 1192 training jobs remain
 dependency-pending, and `eval_submit_5b_fix2` is still waiting under the active
 job cap with `submitted=6 missing=6 active_jobs=11`.
+
+## Third Intermediate Checkpoint Check
+
+Checked at 2026-05-25 20:00 UTC.
+
+Both arms saved the last regular intermediate checkpoint before the 1013 target
+handoff and continued training:
+
+```text
+vanilla    job 2382982  iter 981/1013  4.115B tokens  loss 1.608867  skipped=0 nan=0
+td_layer11 job 2382984  iter 978/1013  4.102B tokens  loss 2.355478  skipped=0 nan=0
+```
+
+Current checkpoint state:
+
+```text
+vanilla    latest_checkpointed_iteration.txt = 975
+td_layer11 latest_checkpointed_iteration.txt = 975
+
+vanilla    iter_0000975 timestamp 2026-05-25 21:49
+td_layer11 iter_0000975 timestamp 2026-05-25 21:55
+```
+
+The run is now close enough to the 1013 boundary that monitoring should switch
+from hourly to shorter checks. The expected next transition is:
+
+```text
+iter_0001013 appears for both arms
+2382983 / 2382985 start the 1192 training legs
+2382998 / 2383000 start HF conversion for 1013
+```
