@@ -132,11 +132,15 @@ def dep_arg(job_ids):
 def active_job_ids(job_ids):
     if not job_ids:
         return set()
-    proc = run(["squeue", "-h", "-j", ",".join(job_ids), "-o", "%i"], check=False)
+    # Query the user's current queue and intersect locally. `squeue -j <old_id>`
+    # returns an error once a completed job leaves the live queue, but that is
+    # exactly the case where we should fall through to `sacct` below.
+    proc = run(["squeue", "-u", env("USER", "fffoivos"), "-h", "-o", "%i"], check=False)
     if proc.returncode != 0:
         print(proc.stderr, file=sys.stderr)
-        return set(job_ids)
-    return set(line.strip().split()[0] for line in proc.stdout.splitlines() if line.strip())
+        return set()
+    live_ids = set(line.strip().split()[0] for line in proc.stdout.splitlines() if line.strip())
+    return set(job_ids) & live_ids
 
 
 def completed_ok(job_id):

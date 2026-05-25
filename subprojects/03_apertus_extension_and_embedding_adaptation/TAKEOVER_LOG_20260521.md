@@ -1227,3 +1227,40 @@ Current next gate:
   - 834 TD/packed eval sidecars cannot run before final checkpoints anyway;
   - the systemd watcher remains active and will keep retrying as training and
     pending final sidecars leave the queue.
+
+### 2026-05-25T03:58Z Final training complete; conversion repair
+
+- All three final training jobs completed successfully and wrote
+  `iter_0000834`:
+  - Vanilla job `2372736`: `COMPLETED`, exit `0:0`, elapsed `04:19:48`;
+  - ReTok job `2372738`: `COMPLETED`, exit `0:0`, elapsed `04:25:49`;
+  - TD layer11 job `2372740`: `COMPLETED`, exit `0:0`, elapsed `04:23:45`.
+- Latest checkpoint pointers now read `834` for Vanilla/ReTok/TD and
+  `iter_0000834` exists in all three checkpoint roots.
+- The earlier attempt to make Megatron->HF conversion CPU-only was wrong:
+  Megatron's checkpoint metadata reader calls
+  `torch.tensor(..., device='cuda')` while reading tracker metadata, so the
+  converter fails without a visible CUDA GPU.
+- Failed CPU-only conversion jobs:
+  - `2374727` Vanilla, failed `1:0`;
+  - `2374729` ReTok, failed `1:0`;
+  - `2375992` TD layer11, failed `1:0`.
+- Cancelled broken dependency-never downstream sidecars and backed up state:
+  `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_sidecar_eval_incremental/eval_sidecar_incremental_state.tsv.pre_gpu_convert_retry_20260525T035846Z`.
+- Repaired code:
+  - restored one-GPU request in `convert_bakeoff_checkpoint_to_hf.sbatch`;
+  - documented that the GPU is required by Megatron metadata loading, not by
+    throughput-heavy conversion compute;
+  - fixed `submit_3p5b_eval_sidecars_incremental.py` so completed jobs that
+    have left `squeue` fall through to `sacct` instead of being treated as live
+    unresolved dependencies.
+- Resubmitted 834 sidecars:
+  - Vanilla: conversion `2376069`, BPC `2376070`;
+  - ReTok: conversion `2376071`, BPC `2376072`, diagnostics `2376073`;
+  - TD layer11: conversion `2376079`, BPC `2376080`, diagnostics `2376081`;
+  - packed full eval: `2376082`.
+- At `2026-05-25T04:04:57Z`:
+  - Vanilla/ReTok conversion and BPC/diagnostics had completed cleanly;
+  - TD conversion had completed and HF output exists;
+  - TD BPC `2376080`, TD diagnostics `2376081`, and packed eval `2376082`
+    were running.
