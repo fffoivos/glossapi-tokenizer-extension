@@ -143,3 +143,27 @@ log: /home/foivos/runs/codex_monitors/5b_td_vs_vanilla_20260525/monitor.log
 script: /home/foivos/runs/codex_monitors/5b_td_vs_vanilla_20260525/monitor_status.sh
 repo copy: bakeoff_training/monitor_5b_td_vs_vanilla_status.sh
 ```
+
+## Intermediate Checkpoint Check
+
+Checked at 2026-05-25 15:07 UTC.
+
+Both arms completed the first intermediate async save and continued training:
+
+```text
+vanilla    job 2382982  iter 846/1013  3.548B tokens  loss 1.628929
+td_layer11 job 2382984  iter 846/1013  3.548B tokens  loss 2.382900
+```
+
+The `iter_0000845` directories contain the expected `common.pt` plus eight
+`*.distcp` shard files per arm, and both logs contain:
+
+```text
+successfully saved checkpoint from iteration     845
+```
+
+The previous 3.5B continuation logs show that final target iterations are saved
+at job end even when they are not regular `SAVE_INTERVAL` multiples; for
+example, the repaired Vanilla 834 segment saved `iter_0000834` after training
+was done. That keeps the 1013 conversion dependency plausible without changing
+the live jobs.
