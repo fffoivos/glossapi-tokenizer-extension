@@ -1,0 +1,73 @@
+{
+  "repo": "https://github.com/fffoivos/glossapi-tokenizer-extension",
+  "branch": "main",
+  "source_commit": "7c67cf11eb3d31f0ddd006f7d709709037db93a1",
+  "subproject": "subprojects/03_apertus_extension_and_embedding_adaptation",
+  "script_families": [
+    {
+      "family": "tokenizer_shipping",
+      "paths": [
+        "03_3_cscs_experiments_kickoff/ship/apertus_greek_modern_only_148480",
+        "03_3_cscs_experiments_kickoff/ship/apertus_greek_extended_153600"
+      ],
+      "artifacts": [
+        "tokenizer.modern-greek-17408",
+        "tokenizer.polytonic-plus-5120"
+      ]
+    },
+    {
+      "family": "corpus_build",
+      "paths": [
+        "03_2_apertus_c3_dedup_audit/CPT_DATASET_BUILD_RUNBOOK.md",
+        "03_4_implementation_experiments/init_bakeoff/corpus_build"
+      ],
+      "artifacts": [
+        "dataset.cpt-7b-mix"
+      ]
+    },
+    {
+      "family": "init_and_conversion",
+      "paths": [
+        "03_4_implementation_experiments/init_bakeoff/arms",
+        "03_4_implementation_experiments/init_bakeoff/megatron_patches"
+      ],
+      "artifacts": [
+        "checkpoint.td-layer11-init-r17-tp2",
+        "checkpoint.baseline-vanilla-3p5b-iter834",
+        "checkpoint.baseline-retok-3p5b-iter834"
+      ]
+    },
+    {
+      "family": "token_distillation",
+      "paths": [
+        "TOKEN_DISTILLATION_PLAN.md",
+        "03_4_implementation_experiments/init_bakeoff/token_distillation"
+      ],
+      "artifacts": [
+        "checkpoint.td-layer11-init-r17-tp2"
+      ]
+    },
+    {
+      "family": "training",
+      "paths": [
+        "TRAINING_RECIPE.md",
+        "03_4_implementation_experiments/init_bakeoff/bakeoff_training"
+      ],
+      "artifacts": [
+        "checkpoint.td-layer11-cpt-3p5b-iter834",
+        "checkpoint.baseline-vanilla-3p5b-iter834",
+        "checkpoint.baseline-retok-3p5b-iter834"
+      ]
+    },
+    {
+      "family": "evaluation",
+      "paths": [
+        "03_4_implementation_experiments/init_bakeoff/eval"
+      ],
+      "artifacts": [
+        "results.continuation-3p5b"
+      ]
+    }
+  ]
+}
+

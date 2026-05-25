@@ -1,0 +1,19 @@
+{
+  "input": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.nfc.jsonl",
+  "output_prefix": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_nfc_megatron/bulk_mix_text_document",
+  "bin": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_nfc_megatron/bulk_mix_text_document.bin",
+  "idx": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_nfc_megatron/bulk_mix_text_document.idx",
+  "tokenizer_model": "/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509",
+  "json_key": "text",
+  "append_eod": true,
+  "workers": 64,
+  "chunk_size": 64,
+  "limit": 0,
+  "rows": 5754172,
+  "sequences": 5754172,
+  "documents": 5754173,
+  "tokens": 9831704774,
+  "bytes_read": 27125565083,
+  "wall_seconds": 960.677738904953,
+  "format": "Megatron indexed dataset v1, int32 document-level"
+}

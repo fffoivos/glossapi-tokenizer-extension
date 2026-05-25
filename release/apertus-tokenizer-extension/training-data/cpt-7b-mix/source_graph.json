@@ -1,0 +1,50 @@
+{
+  "sources": [
+    {
+      "id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "type": "hf_dataset",
+      "role": "Greek source corpus"
+    },
+    {
+      "id": "nanochat_internal_dedup_metadata",
+      "type": "dedup_metadata",
+      "path": "dedup_metadata/wave2_20260426_builder_metadata_v2_latest_cleaner_20260507/builder_metadata",
+      "role": "Internal exact and near dedup replay"
+    },
+    {
+      "id": "fffoivos/apertus-c3-dedup-audit-dedup-20260519t010924z",
+      "type": "hf_dataset",
+      "path": "artifacts/dedup_20260519T010924Z/cpt_final_overlay/apertus_overlap_drop_docs.parquet",
+      "role": "Apertus-overlap hard-drop overlay"
+    },
+    {
+      "id": "non_greek_replay",
+      "type": "mixed_hf_sources",
+      "role": "24 percent replay"
+    },
+    {
+      "id": "code",
+      "type": "hf_dataset",
+      "role": "4 percent code replay"
+    },
+    {
+      "id": "math",
+      "type": "hf_dataset",
+      "role": "2 percent math replay"
+    }
+  ],
+  "steps": [
+    "download nanochat source rows",
+    "hard-exclude Apertus overlap docs",
+    "replay nanochat internal dedup with drop_intra_and_inter",
+    "build 70/24/4/2 mixed JSONL",
+    "normalize final JSONL to NFC",
+    "preprocess to Megatron indexed dataset"
+  ],
+  "outputs": {
+    "selected_pool": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet",
+    "jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.nfc.jsonl",
+    "megatron_prefix": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_nfc_megatron/bulk_mix_text_document"
+  }
+}
+

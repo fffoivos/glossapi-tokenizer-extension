@@ -1,0 +1,15 @@
+{
+  "variant_id": "add_17408_curated_padded",
+  "added_tokens": 17408,
+  "total_vocab": 148480,
+  "alignment_128": true,
+  "alignment_256": true,
+  "apertus_base_preserved_verbatim": true,
+  "removal_list_source": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_5_added_token_curation/manifests/removal_list.jsonl",
+  "removal_list_size_full": 104,
+  "merges_walked_from_c3_full": 17477,
+  "merges_skipped_for_removal": 69,
+  "merges_skipped_for_cascade": 0,
+  "merges_accepted": 17408,
+  "ship_artifact_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_17408_curated_padded/tokenizer.json"
+}

@@ -1,0 +1,14 @@
+{
+  "artifact_id": "dataset.cpt-7b-mix",
+  "status": "hydration-pointer",
+  "jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.nfc.jsonl",
+  "megatron_prefix": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_nfc_megatron/bulk_mix_text_document",
+  "rows": 5754172,
+  "sequences": 5754172,
+  "documents": 5754173,
+  "base_tokenized_tokens": 9831704774,
+  "mix_builder_target_tokens": 7000141612,
+  "recipe": "70/24/4/2 Greek/replay/code/math",
+  "source_graph": "source_graph.json"
+}
+
