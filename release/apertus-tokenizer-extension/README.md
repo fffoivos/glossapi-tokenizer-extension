@@ -12,22 +12,21 @@ tags:
 
 # Apertus Greek Tokenizer Extension
 
-This repo is organized around the four things a reviewer or user needs first.
+This repo has four front-stage artifacts.
 
-| Top-level actor | What it is |
+| Path | Meaning |
 |---|---|
-| `selected-tokenizer/` | The selected modern Greek Apertus tokenizer extension, `ModernGreek-148k`. |
-| `dataset/` | The `CPT-7B-mix` recipe, source graph, and hydration paths. |
-| `checkpoints/` | Checkpoint metadata, locations, and uploaded model weights. |
-| `evals/` | Benchmark summaries and plots. |
+| `greek-extension-tokenizer/` | The selected modern Greek extension tokenizer, not the original Apertus tokenizer. |
+| `cpt-training-dataset/` | The CPT data recipe, source graph, and hydration paths. |
+| `experiment-checkpoints/` | HF-format checkpoints for the experiment arms. |
+| `benchmark-evals/` | Benchmark summaries and plots. |
 
-Everything else is under `supporting/`: optional tokenizers, source-code links,
-provenance, archive notes, and checksums.
+Everything else is under `supporting-material/`.
 
-## Selected Tokenizer
+## Greek Extension Tokenizer
 
-`selected-tokenizer/` contains `ModernGreek-148k`, the tokenizer selected for
-the Apertus CPT experiments:
+`greek-extension-tokenizer/` contains `ModernGreek-148k`, the selected tokenizer
+for these experiments:
 
 - base Apertus vocab: `131072`;
 - added modern Greek C3 tokens: `17408`;
@@ -35,16 +34,13 @@ the Apertus CPT experiments:
 - `tokenizer.json` SHA-256:
   `358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394`.
 
-The optional polytonic/ancient Greek stacked tokenizer is not part of the main
-CPT checkpoint line. It lives at:
+The original Apertus tokenizer is only used by the `Vanilla-*` checkpoints as a
+control. The optional polytonic tokenizer lives under
+`supporting-material/optional-tokenizers/`.
 
-```text
-supporting/optional-tokenizers/ModernGreek-Polytonic-154k/
-```
+## CPT Training Dataset
 
-## Dataset
-
-`dataset/` describes `CPT-7B-mix`, built from:
+`cpt-training-dataset/` describes `CPT-7B-mix`, built from:
 
 - `fffoivos/glossapi-greek-nanochat-pretraining-dataset`;
 - nanochat internal dedup metadata;
@@ -52,45 +48,32 @@ supporting/optional-tokenizers/ModernGreek-Polytonic-154k/
   `fffoivos/apertus-c3-dedup-audit-dedup-20260519t010924z`;
 - non-Greek replay, code, and math.
 
-Bulk recipe:
+Bulk recipe: `70%` Greek, `24%` non-Greek replay, `4%` code, `2%` math.
 
-- Greek: `70%`;
-- non-Greek replay: `24%`;
-- code: `4%`;
-- math: `2%`.
+## Experiment Checkpoints
 
-The final text stream is about `7.0B` extended-tokenizer-budget tokens. The
-same NFC JSONL stream contains `9,831,704,774` base-tokenized Megatron tokens
-after preprocessing.
+`experiment-checkpoints/` contains one folder per checkpoint we care about:
 
-## Checkpoints
+| Checkpoint | Meaning |
+|---|---|
+| `TokenDistil-Init/` | Token Distillation initialization before CPT. |
+| `TokenDistil-2B/` | Token Distillation after the 2B bakeoff. |
+| `TokenDistil-3.5B/` | Selected Token Distillation checkpoint after continuation. |
+| `Vanilla-2B/` | Original-tokenizer control after the 2B bakeoff. |
+| `Vanilla-3.5B/` | Original-tokenizer control after continuation. |
+| `ReTok-2B/` | ReTok baseline after the 2B bakeoff. |
+| `ReTok-3.5B/` | ReTok baseline after continuation. |
+| `Centroid-2B/` | Centroid baseline after the 2B bakeoff. |
 
-`checkpoints/` is the only top-level place for model checkpoints.
+Large model weights are uploaded to Hugging Face in these folders. They are not
+mirrored in the GitHub source repository.
 
-Primary selected checkpoint:
-
-```text
-checkpoints/TokenDistil-3.5B/
-```
-
-Its source HF-format copy on Clariden is:
-
-```text
-/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_td_layer11/iter_0000834_hf
-```
-
-Comparison and source locations live under:
-
-```text
-checkpoints/locations/
-```
-
-## Evals
+## Benchmark Evals
 
 The current result anchor is:
 
 ```text
-evals/3.5B-comparison/
+benchmark-evals/3.5B-comparison/
 ```
 
 At 3.5B:
@@ -111,5 +94,3 @@ Runnable scripts live in GitHub:
 ```text
 https://github.com/fffoivos/glossapi-tokenizer-extension/tree/main/subprojects/03_apertus_extension_and_embedding_adaptation
 ```
-
-See `supporting/source-code/manifest.json` for script-family pointers.

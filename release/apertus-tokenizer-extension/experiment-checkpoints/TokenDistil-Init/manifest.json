@@ -1,0 +1,9 @@
+{
+  "human_name": "TokenDistil-Init",
+  "method": "TokenDistil",
+  "training_point": "Init",
+  "target_layer": 11,
+  "source_hf_copy_clariden": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/hf_roundtrip",
+  "source_megatron_checkpoint_clariden": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/megatron_tp2_r17patched/release",
+  "tokenizer": "greek-extension-tokenizer"
+}

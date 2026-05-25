@@ -1,0 +1,10 @@
+{
+  "human_name": "TokenDistil-2B",
+  "method": "TokenDistil",
+  "training_point": "2B",
+  "iteration": 476,
+  "target_layer": 11,
+  "source_hf_copy_clariden": "/capstor/scratch/cscs/fffoivos/runs/eval/td_full25_layer11_2b_20260523T165038Z/iter_0000476_hf",
+  "tokenizer": "greek-extension-tokenizer",
+  "dataset": "cpt-training-dataset"
+}

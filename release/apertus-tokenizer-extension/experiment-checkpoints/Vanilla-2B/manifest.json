@@ -1,0 +1,9 @@
+{
+  "human_name": "Vanilla-2B",
+  "method": "Vanilla",
+  "training_point": "2B",
+  "iteration": 476,
+  "source_hf_copy_clariden": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_vanilla/iter_0000476_hf",
+  "tokenizer": "original Apertus tokenizer",
+  "dataset": "cpt-training-dataset"
+}

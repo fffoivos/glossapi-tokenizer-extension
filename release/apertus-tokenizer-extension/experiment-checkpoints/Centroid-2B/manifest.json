@@ -1,0 +1,9 @@
+{
+  "human_name": "Centroid-2B",
+  "method": "Centroid",
+  "training_point": "2B",
+  "iteration": 476,
+  "source_hf_copy_clariden": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000476_hf",
+  "tokenizer": "greek-extension-tokenizer",
+  "dataset": "cpt-training-dataset"
+}

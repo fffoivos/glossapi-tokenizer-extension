@@ -49,6 +49,16 @@ TokenDistil-3.5B
 3.5B-comparison
 ```
 
-`checkpoints/` is the top-level checkpoint area. The selected public checkpoint
-is `checkpoints/TokenDistil-3.5B/`; comparison/source pointers live under
-`checkpoints/locations/`.
+`experiment-checkpoints/` is the top-level checkpoint area. It contains one
+folder per public experiment checkpoint; source paths and exact technical
+details live in each checkpoint manifest.
+
+Checkpoint weights were uploaded from Clariden through the non-GPU `xfer`
+partition:
+
+```text
+Slurm job: 2382635
+state: COMPLETED
+exit code: 0:0
+log: /users/fffoivos/apertus_hf_upload_checkpoints_20260525_2382635.log
+```

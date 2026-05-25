@@ -1,0 +1,9 @@
+{
+  "human_name": "ReTok-3.5B",
+  "method": "ReTok",
+  "training_point": "3.5B",
+  "iteration": 834,
+  "source_hf_copy_clariden": "/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_retok/iter_0000834_hf",
+  "tokenizer": "greek-extension-tokenizer",
+  "dataset": "cpt-training-dataset"
+}
