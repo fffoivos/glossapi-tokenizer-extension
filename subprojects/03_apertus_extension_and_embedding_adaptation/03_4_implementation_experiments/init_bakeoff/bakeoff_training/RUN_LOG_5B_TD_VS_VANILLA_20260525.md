@@ -167,3 +167,37 @@ at job end even when they are not regular `SAVE_INTERVAL` multiples; for
 example, the repaired Vanilla 834 segment saved `iter_0000834` after training
 was done. That keeps the 1013 conversion dependency plausible without changing
 the live jobs.
+
+## Eval Submitter Repair
+
+Checked at 2026-05-25 15:11 UTC.
+
+The original xfer eval submitter (`2382986`) was alive but repeatedly failed to
+stage the first 5B sidecar with:
+
+```text
+sbatch: error: QOSMaxSubmitJobPerUserLimit
+allocation failure: Job violates accounting/QOS policy
+```
+
+Root cause: the launcher used `MAX_SUBMITTED_JOBS=14`, while Clariden refused
+the 12th active job for this user. This only affected future 5B sidecar
+submission; the 4.25B eval DAG and both training chains were already intact.
+
+Action taken:
+
+```text
+scancel 2382986
+2383700  eval_submit_5b_fix   failed immediately due bad wrapped script path
+2383705  eval_submit_5b_fix2  running with MAX_SUBMITTED_JOBS=11 and python -u
+```
+
+The repaired submitter log now reports:
+
+```text
+state: submitted=6 missing=6 active_jobs=11
+next_missing: convert:1192:vanilla, bpc:1192:vanilla, convert:1192:td_layer11, bpc:1192:td_layer11, diag:1192:td_layer11, packed:1192:full
+```
+
+The launcher was updated to use `MAX_SUBMITTED_JOBS=11`, `PYTHONUNBUFFERED=1`,
+and an explicit eval working directory for future launches.

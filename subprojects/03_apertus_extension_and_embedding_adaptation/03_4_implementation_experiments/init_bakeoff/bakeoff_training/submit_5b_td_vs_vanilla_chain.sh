@@ -225,8 +225,8 @@ if [ "$SUBMIT_EVAL_SIDECARS" = "1" ]; then
             --time=24:00:00 \
             --output="$eval_submit_log" \
             --error="$STATE_DIR/eval_sidecar_submitter.err" \
-            --export=ALL,RUN_TAG="$RUN_TAG",TRAINING_CHAIN_TSV="$TRAINING_CHAIN_TSV",OUT_ROOT="$EVAL_OUT_ROOT",STATE_DIR="$EVAL_OUT_ROOT/${RUN_TAG}_sidecar_eval_incremental",ITER_LIST="1013 1192",TASK_GROUP=full,EVAL_ARMS="vanilla td_layer11",DIAG_ARMS="td_layer11",PACKED_JOB_PREFIX="eval_5b",LOOP=1,MAX_SUBMITTED_JOBS=14,SLEEP_SECONDS=120,SCRIPT_DIR_OVERRIDE="$SCRIPT_DIR/../eval" \
-            --wrap="python3 '$eval_script'"
+            --export=ALL,PYTHONUNBUFFERED=1,RUN_TAG="$RUN_TAG",TRAINING_CHAIN_TSV="$TRAINING_CHAIN_TSV",OUT_ROOT="$EVAL_OUT_ROOT",STATE_DIR="$EVAL_OUT_ROOT/${RUN_TAG}_sidecar_eval_incremental",ITER_LIST="1013 1192",TASK_GROUP=full,EVAL_ARMS="vanilla td_layer11",DIAG_ARMS="td_layer11",PACKED_JOB_PREFIX="eval_5b",LOOP=1,MAX_SUBMITTED_JOBS=11,SLEEP_SECONDS=120,SCRIPT_DIR_OVERRIDE="$SCRIPT_DIR/../eval" \
+            --wrap="cd '$SCRIPT_DIR/../eval' && python3 -u '$eval_script'"
     )"
     printf "%s\n" "$eval_submit_job" > "$STATE_DIR/eval_submitter_job.txt"
     echo "Eval sidecar submitter job: $eval_submit_job"
