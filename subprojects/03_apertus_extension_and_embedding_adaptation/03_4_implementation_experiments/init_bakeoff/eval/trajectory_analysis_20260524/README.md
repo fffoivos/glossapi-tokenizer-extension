@@ -4,6 +4,11 @@ Per-arm metric-vs-token trajectory analysis from the bakeoff arms. This
 directory now contains both the original 2B analysis and the 3.5B continuation
 analysis for Vanilla / ReTok / TD.
 
+Loss-reading rule: raw Megatron `lm loss` is dense but tokenizer-dependent.
+Use it for within-arm health only. Cross-tokenizer comparisons should use
+heldout BPC/BPB from intrinsic evals; newer training logs may additionally
+provide dense `bpb`, `bpt`, `base_loss`, `new_loss`, and `n_new` fields.
+
 Main continuation doc:
 [`CONTINUATION_3P5B_RESULTS_20260525.md`](CONTINUATION_3P5B_RESULTS_20260525.md).
 
@@ -19,6 +24,8 @@ Original 2B trajectory doc:
 | `plots/intrinsic_trajectories.png` | Tokenizer-fair BPC/NLL trajectory |
 | `regenerate_plots.py` | Self-contained reproduction script (reads `per_iter_results/`, regenerates PNGs, prints slopes) |
 | `summarize_3p5b_continuation.py` | Rebuilds the continuation markdown + JSON summary from local result snapshots |
+| `plot_training_loss.py` | Parses dense Megatron logs; raw LM plots are diagnostic-only, and dense BPB/base-new plots are emitted when patched fields exist |
+| `plot_loss_comparison.py` | Fair-vs-unfair loss comparison; prefers measured dense BPB when present, otherwise marks the proxy as approximate |
 | `per_iter_results/` | lm-eval `results.json` files, including continuation snapshots at iter 585/715/834 for Vanilla/ReTok/TD |
 
 Reproduction:

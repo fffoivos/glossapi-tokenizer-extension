@@ -10,6 +10,11 @@ Plan and later implement model-side adaptation after the tokenizer extension is 
 
 **Current production decision state:** [`PRODUCTION_DECISION_STATE.md`](PRODUCTION_DECISION_STATE.md). The 2B bakeoff currently selects **Vanilla Apertus-8B with the base 131,072-token tokenizer** as the safe 15-20B CPT default. Centroid is eliminated. ReTok is not selected as-is; it remains only as a bounded Token Distillation challenger after a CPU coverage prepass on `xfer`.
 
+**Loss measurement policy:** raw Megatron `lm loss` is per-token CE and is not
+cross-tokenizer fair. Use heldout BPC/BPB and downstream evals for
+Vanilla-vs-extended decisions. See
+[`LOSS_MEASUREMENT_POLICY.md`](03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md).
+
 Settled positions per v0.7 + 2026-05-20 user directives:
 
 - **CPT vocab scope**: production default is now **131,072** unless Token Distillation proves the ReTok extended path. The modern-only 148,480 tokenizer and future 153,600 modern+polytonic tokenizer remain valid artifacts, but they are no longer selected automatically just because the extension exists.
@@ -30,6 +35,7 @@ Settled positions per v0.7 + 2026-05-20 user directives:
 
 - [`cpt_plan.md`](cpt_plan.md) — **canonical, v0.7** (2026-05-20). Supersedes everything below.
 - [`PRODUCTION_DECISION_STATE.md`](PRODUCTION_DECISION_STATE.md) — current evidence-backed production path after the 2B bakeoff.
+- [`03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md`](03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md) — canonical rule for raw `lm loss`, heldout BPC/BPB, and dense BPB/base-new training-log fields.
 - [`TOKEN_DISTILLATION_PLAN.md`](TOKEN_DISTILLATION_PLAN.md) — parallel-ready follow-up plan for a ReTok + Token Distillation challenger if the live bakeoff leaves ReTok promising but under-initialized.
 - [`cpt_plan_v0.7_status.md`](cpt_plan_v0.7_status.md) — live status answers to v0.7's V1–V16 verification questions. Confirms V14 + V16 + V9 (NFC) done; rest scheduled for Clariden.
 - [`apertus_fidelity_checklist.md`](apertus_fidelity_checklist.md) — critical Apertus architectural characteristics requiring special CPT attention (AdEMAMix + 0.1 clip + xIELU scalars + Goldfish + cross-doc attention + etc). Architectural facts, version-independent.

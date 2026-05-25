@@ -43,8 +43,8 @@ The headline: **(b) and (c) are mostly complete. (a) has real gaps** — some ad
 | Goldfish hash table internals | `references/repos/swiss-ai_Megatron-LM/megatron/core/datasets/gpt_dataset.py` | – |
 | `build_init_checkpoints.py` resize logic | – | **Not audited** against `transformers.PreTrainedModel.resize_token_embeddings` for untied-E/U semantics |
 | Mix recipe weights → realized per-language token shares | mix_builder math (weights sum to 1.0); spot-checked | not verified against Apertus's actual per-language token shares (Q C3 still pending) |
-| §5.1 BPC / NLL methodology | – | **Not implemented** |
-| §5.3 diagnostic suite | – | **Not implemented** |
+| §5.1 BPC / NLL methodology | [`compute_tokenizer_fair_metrics.py`](03_4_implementation_experiments/init_bakeoff/eval/compute_tokenizer_fair_metrics.py) + [`LOSS_MEASUREMENT_POLICY.md`](03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md) | Implemented. Cross-tokenizer selection uses heldout BPC/BPB/NLL-char; raw Megatron `lm loss` is health-only. |
+| §5.3 diagnostic suite | [`compute_new_token_diagnostics.py`](03_4_implementation_experiments/init_bakeoff/eval/compute_new_token_diagnostics.py) | Implemented. |
 
 Local pinned sources at [`references/MANIFEST.md`](references/MANIFEST.md): 8 git-cloned repos (commits pinned) + 15 papers (HTML preferred, PDF fallback; 15 MB total).
 
@@ -64,7 +64,13 @@ Every artifact-doc cites v0.7 + the primary source for each numeric/algorithmic 
 | [`REVIEW_PRESENTATION.md`](REVIEW_PRESENTATION.md) | ✓ | ✓ |
 | [`arms/{retok,centroid,_common}.py`](03_4_implementation_experiments/init_bakeoff/arms/) | – (code) | ✓ `references/papers/X.{html,pdf}` |
 
-**Caveat:** none of the docs flag the (a) gaps. A reviewer reading [`REVIEW_PRESENTATION.md`](REVIEW_PRESENTATION.md) would not realize §5.1 BPC isn't computed, §5.3 diagnostics aren't computed, §5.6 selection score isn't automated, custom Greek evals are deferred, and FineMath / OPUS / NFC-invocation are missing. **Item 1 below closes this honesty gap.**
+**Caveat:** this file records the historical gap-closing pass from 2026-05-21.
+The active measurement rule now lives in
+[`LOSS_MEASUREMENT_POLICY.md`](03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md):
+raw Megatron `lm loss` is dense health telemetry only across different
+tokenizers; heldout BPC/BPB and downstream evals are the selection evidence.
+Remaining gaps are §5.6 score automation, custom Greek eval construction, and
+any production-only dense BPB/base-new logging patch.
 
 ---
 

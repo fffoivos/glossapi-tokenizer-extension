@@ -7,6 +7,10 @@ Update: the 3.5B continuation is now complete. Use
 for the current Vanilla / ReTok / TD result. This document remains the original
 2B trajectory analysis and explains why the continuation was worth running.
 
+Loss-reading rule for adjacent plots: raw Megatron `lm loss` is
+tokenizer-dependent and diagnostic-only. Cross-tokenizer conclusions in this
+trajectory analysis come from downstream evals and tokenizer-fair BPC/BPB.
+
 ## What this doc adds
 
 The iter-476 digest answers "who wins at 2.0 B tokens?" — Vanilla, on aggregate Greek. This doc answers a different question: **what direction is each arm moving, and where would TD overtake Vanilla under linear extrapolation?**

@@ -183,6 +183,7 @@ Evaluation scripts:
 | [`03_4_implementation_experiments/init_bakeoff/eval/run_eval_packed_arms.sbatch`](03_4_implementation_experiments/init_bakeoff/eval/run_eval_packed_arms.sbatch) | Packed multi-arm eval on one 4-GPU node |
 | [`03_4_implementation_experiments/init_bakeoff/eval/submit_bakeoff_checkpoint_eval_packed.sh`](03_4_implementation_experiments/init_bakeoff/eval/submit_bakeoff_checkpoint_eval_packed.sh) | Conversion + packed eval submitter |
 | [`03_4_implementation_experiments/init_bakeoff/eval/compute_tokenizer_fair_metrics.py`](03_4_implementation_experiments/init_bakeoff/eval/compute_tokenizer_fair_metrics.py) | BPC/NLL/tokenizer-fair metrics |
+| [`03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md`](03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md) | Raw `lm loss` caveat plus adopted BPC/BPB and dense BPB/base-new training-log policy |
 | [`03_4_implementation_experiments/init_bakeoff/eval/compute_new_token_diagnostics.py`](03_4_implementation_experiments/init_bakeoff/eval/compute_new_token_diagnostics.py) | New-token diagnostics |
 | [`03_4_implementation_experiments/init_bakeoff/eval/summarize_bakeoff.py`](03_4_implementation_experiments/init_bakeoff/eval/summarize_bakeoff.py) | Builds compact bakeoff summaries |
 

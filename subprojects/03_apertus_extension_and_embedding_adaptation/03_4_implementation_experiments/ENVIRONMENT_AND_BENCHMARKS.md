@@ -151,7 +151,9 @@ The ILSP + swiss-ai variants give us coverage of the "safety axis" without OGTD/
 
 **No published benchmark exists.** Needs construction. Proposed scope:
 - 500-1000 hand-curated triples: `(Greek-script form, Greeklish form, alternating-script form)` for common-vocabulary words and short sentences.
-- Evaluate as: per-token surprisal on each variant; perplexity ratio across variants.
+- Evaluate with tokenizer-fair loss: BPC/BPB and NLL per Unicode character on
+  each variant. Raw per-token surprisal/perplexity is acceptable only as a
+  within-tokenizer diagnostic, not as a Vanilla-vs-extended selection signal.
 - Defer to post-pilot — not blocking the three-arm comparison.
 
 ### 2.6 Cross-language regression slices (for plan §10 Q8a gates)

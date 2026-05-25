@@ -20,6 +20,10 @@ run. It is the strongest extended-tokenizer path, but the final 2B downstream
 comparison remained mixed and did not beat Vanilla on the aggregate
 Greek/preservation criteria.
 
+Loss-reading rule: raw Megatron `lm loss` is per-token CE and is not comparable
+across the base tokenizer and the extended-tokenizer arms. This decision uses
+heldout tokenizer-fair BPC/BPB plus downstream evals, not raw training loss.
+
 ## Why Vanilla is the current default
 
 Final 2B bakeoff checkpoint and TD challenger digest:

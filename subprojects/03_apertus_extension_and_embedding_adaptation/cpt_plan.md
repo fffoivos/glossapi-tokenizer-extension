@@ -164,7 +164,11 @@ Cost: <1 minute of CPU work.
 
 ### 5.1 Primary intrinsic metrics: tokenizer-fair signals
 
-Per-token PPL is **not comparable across Vanilla and extended-tokenizer variants**. Primary metrics:
+Per-token PPL and raw Megatron `lm loss` are **not comparable across Vanilla
+and extended-tokenizer variants**. The tokenizer changes both the output
+softmax size and the number of tokens required to represent the same text. Raw
+`lm loss` is still valuable as a dense health/within-arm trajectory signal, but
+cross-arm selection must use tokenizer-fair loss:
 
 | Metric | Why it matters |
 |---|---|
@@ -177,7 +181,17 @@ Per-token PPL is **not comparable across Vanilla and extended-tokenizer variants
 
 > **★ Apertus adaptation note (BPC computation unit for polytonic Greek):** Choice of unit (UTF-8 bytes, Unicode code points NFC/NFD, grapheme clusters) affects reported numbers. NFC code points are the recommended unit; document the choice. See §8 H1.
 
-Per-token-group PPL on new tokens remains a useful **secondary** signal within ReTok vs Centroid comparison.
+Per-token-group PPL on new tokens remains a useful **secondary** signal within
+extended-tokenizer arms. For live training, adopt dense stdout measurements
+when available:
+
+- `bpt`: mean UTF-8 bytes per target token over the active loss-mask positions.
+- `bpb`: `(lm_loss_nats / ln(2)) / bpt`; dense tokenizer-fair training loss.
+- `base_loss` / `new_loss` / `n_new`: split the same per-position CE by whether
+  target ID is below or above Apertus's base vocab size (`131072`).
+
+These fields are measurement-only and must use the same loss mask as the
+optimizer objective, including Goldfish masking in production CPT.
 
 ### 5.2 Init procedure for E and U
 
@@ -250,7 +264,11 @@ At 2B tokens, polytonic embeddings may still be undertrained. Honest comparison 
 
 *Use bootstrap CIs over evaluation samples.* Most benchmark runs are deterministic, so "run 3×" doesn't establish variance.
 
-*Distinguish trajectory metrics from selection metrics.* Loss, per-bucket PPL, BPC, §5.3 diagnostics — read at every checkpoint. Downstream benchmarks — less frequent, windowed averages.
+*Distinguish trajectory metrics from selection metrics.* Heldout BPC/BPB,
+tokenizer-consistent per-bucket PPL, §5.3 diagnostics, and raw `lm loss` health
+telemetry are read at every checkpoint. Raw `lm loss` is not cross-tokenizer
+selection evidence. Downstream benchmarks are less frequent and use windowed
+averages.
 
 **Checkpoint averaging scope:** within a single init's checkpoints only, never across init experiments. Averaged for measurement/release; raw for training continuation.
 
@@ -292,7 +310,11 @@ Threshold for "regression" set after V4 baseline.
 
 ### 6.4 Stability diagnostics
 
-Per checkpoint: training/validation loss per bucket; BPC trajectory per register; full §5.3 diagnostic suite; update norms vs weight norms.
+Per checkpoint: tokenizer-fair heldout BPC/BPB trajectory per register,
+tokenizer-consistent training/validation loss per bucket, full §5.3 diagnostic
+suite, update norms vs weight norms. Dense training-log BPB and base/new target
+loss split are preferred once the Megatron logging patch is active; otherwise
+raw `lm loss` is health-only.
 
 ### 6.5 Evaluation tooling
 
