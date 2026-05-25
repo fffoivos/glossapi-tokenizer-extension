@@ -1,8 +1,0 @@
-{
-  "artifact_id": "checkpoint.baseline-vanilla-3p5b-iter834",
-  "status": "hydration-pointer",
-  "tokenizer": "swiss-ai/Apertus-8B-2509 base tokenizer",
-  "source_checkpoint": "/capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints/iter_0000834",
-  "iteration": 834
-}
-

@@ -1,4 +1,4 @@
-# Source Code Links
+# Source Code
 
 The runnable implementation lives in GitHub:
 
@@ -12,6 +12,5 @@ and hydration instructions. It does not mirror the full scripts tree.
 See:
 
 ```text
-github_subproject_manifest.json
+manifest.json
 ```
-

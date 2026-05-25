@@ -28,6 +28,25 @@ built a deduplicated CPT mixture, ran initialization and Token Distillation
 experiments, and found TD layer 11 to be the leading extension path after the
 3.5B-token continuation.
 
+## Public Names
+
+The HF release now uses short names for the main actors:
+
+| Human name | Meaning |
+|---|---|
+| `ModernGreek-148k` | selected modern Greek tokenizer extension |
+| `ModernGreek-Polytonic-154k` | optional stacked polytonic/ancient Greek tokenizer |
+| `CPT-7B-mix` | 70/24/4/2 CPT training-data recipe |
+| `TokenDistil-Init` | Token Distillation initialization checkpoint location |
+| `TokenDistil-2B` | Token Distillation checkpoint location after about 2B tokens |
+| `TokenDistil-3.5B` | selected Token Distillation checkpoint location after about 3.5B tokens |
+| `Vanilla-3.5B` | original-tokenizer comparison checkpoint location |
+| `ReTok-3.5B` | retokenization baseline checkpoint location |
+| `3.5B-comparison` | compact benchmark summary |
+
+Technical labels such as `layer11`, `iter_0000834`, R17, TP=2, and run tags are
+kept in manifests and location files instead of public path names.
+
 ## Artifact Graph
 
 ```text
@@ -349,4 +368,3 @@ Move these out of the main path:
 - full Slurm stdout/stderr dumps;
 - old review packets and temporary watcher logs;
 - broad `subprojects/` mirrors that make the repo feel like a scratch dump.
-

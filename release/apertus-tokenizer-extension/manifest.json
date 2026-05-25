@@ -1,15 +1,17 @@
 {
   "release_name": "apertus-tokenizer-extension",
   "generated_date": "2026-05-25",
+  "naming_schema": "human-readable-v2",
   "source_repo": "https://github.com/fffoivos/glossapi-tokenizer-extension",
   "source_subproject": "subprojects/03_apertus_extension_and_embedding_adaptation",
   "source_commit_for_code_refs": "7c67cf11eb3d31f0ddd006f7d709709037db93a1",
   "artifacts": [
     {
-      "artifact_id": "tokenizer.modern-greek-17408",
+      "artifact_id": "tokenizer.ModernGreek-148k",
+      "human_name": "ModernGreek-148k",
       "type": "tokenizer",
       "status": "payload-present",
-      "public_path": "tokenizer/modern-greek-17408",
+      "public_path": "tokenizers/ModernGreek-148k",
       "base_model": "swiss-ai/Apertus-8B-2509",
       "vocab_size": 148480,
       "base_vocab_size": 131072,
@@ -19,14 +21,15 @@
         "provenance/tokenizer-selection/CHOSEN_CUTOFF.md"
       ],
       "github_code_refs": [
-        "code-links/github_subproject_manifest.json"
+        "source-code/manifest.json"
       ]
     },
     {
-      "artifact_id": "tokenizer.polytonic-plus-5120",
+      "artifact_id": "tokenizer.ModernGreek-Polytonic-154k",
+      "human_name": "ModernGreek-Polytonic-154k",
       "type": "tokenizer",
       "status": "payload-present",
-      "public_path": "tokenizer/polytonic-plus-5120",
+      "public_path": "tokenizers/ModernGreek-Polytonic-154k",
       "base_model": "swiss-ai/Apertus-8B-2509",
       "vocab_size": 153600,
       "base_vocab_size": 131072,
@@ -37,114 +40,152 @@
         "provenance/tokenizer-selection/CHOSEN_CUTOFF.md"
       ],
       "github_code_refs": [
-        "code-links/github_subproject_manifest.json"
+        "source-code/manifest.json"
       ]
     },
     {
-      "artifact_id": "dataset.cpt-7b-mix",
+      "artifact_id": "dataset.CPT-7B-mix",
+      "human_name": "CPT-7B-mix",
       "type": "dataset",
       "status": "hydration-pointer",
-      "public_path": "training-data/cpt-7b-mix",
+      "public_path": "datasets/CPT-7B-mix",
       "clariden_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.nfc.jsonl",
       "clariden_megatron_prefix": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_nfc_megatron/bulk_mix_text_document",
       "rows": 5754172,
       "base_tokenized_tokens": 9831704774,
       "mix_builder_target_tokens": 7000141612,
+      "recipe": "70/24/4/2 Greek/replay/code/math",
       "review_docs": [
         "provenance/dataset-build/CPT_DATASET_BUILD_RUNBOOK.md",
         "provenance/dataset-build/MIX_RECIPE.md"
       ],
       "github_code_refs": [
-        "code-links/github_subproject_manifest.json"
+        "source-code/manifest.json"
       ]
     },
     {
-      "artifact_id": "checkpoint.td-layer11-init-r17-tp2",
-      "type": "checkpoint",
-      "status": "hydration-pointer",
-      "public_path": "checkpoints/td-layer11-init-r17-tp2",
+      "artifact_id": "checkpoint.TokenDistil-Init",
+      "human_name": "TokenDistil-Init",
+      "type": "checkpoint-location",
+      "status": "weights-not-uploaded",
+      "public_path": "locations/TokenDistil-Init.md",
       "format": "Megatron torch_dist TP=2, R17 patched",
+      "target_layer": 11,
       "clariden_path": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/megatron_tp2_r17patched/release",
       "depends_on": [
-        "tokenizer.modern-greek-17408"
+        "tokenizer.ModernGreek-148k"
       ],
       "review_docs": [
         "provenance/token-distillation/RUN_LOG_20260523.md",
         "provenance/conversion-roundtrip/td_layer11_r17_roundtrip_verification.json"
       ],
       "github_code_refs": [
-        "code-links/github_subproject_manifest.json"
+        "source-code/manifest.json"
       ]
     },
     {
-      "artifact_id": "checkpoint.td-layer11-cpt-3p5b-iter834",
-      "type": "checkpoint",
-      "status": "hydration-pointer",
-      "public_path": "checkpoints/td-layer11-cpt-3p5b-iter834",
-      "format": "Megatron torch_dist TP=2 checkpoint plus HF eval conversion",
-      "clariden_checkpoint": "/capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_td_layer11/checkpoints/iter_0000834",
-      "clariden_hf_eval_copy": "/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_td_layer11/iter_0000834_hf",
+      "artifact_id": "checkpoint.TokenDistil-2B",
+      "human_name": "TokenDistil-2B",
+      "type": "checkpoint-location",
+      "status": "weights-not-uploaded",
+      "public_path": "locations/TokenDistil-2B.md",
+      "format": "Megatron torch_dist TP=2 checkpoint",
+      "target_layer": 11,
+      "iteration": 476,
+      "run_tag": "td_full25_layer11_2b_20260523T165038Z",
+      "clariden_checkpoint": "/capstor/scratch/cscs/fffoivos/runs/bakeoff/td_full25_layer11_2b_20260523T165038Z/checkpoints/iter_0000476",
       "depends_on": [
-        "tokenizer.modern-greek-17408",
-        "dataset.cpt-7b-mix",
-        "checkpoint.td-layer11-init-r17-tp2"
+        "tokenizer.ModernGreek-148k",
+        "dataset.CPT-7B-mix",
+        "checkpoint.TokenDistil-Init"
       ],
       "review_docs": [
-        "results/SUMMARY.md",
+        "provenance/token-distillation/RUN_LOG_20260523.md"
+      ],
+      "github_code_refs": [
+        "source-code/manifest.json"
+      ]
+    },
+    {
+      "artifact_id": "checkpoint.TokenDistil-3.5B",
+      "human_name": "TokenDistil-3.5B",
+      "type": "checkpoint-location",
+      "status": "weights-not-uploaded",
+      "public_path": "locations/TokenDistil-3.5B.md",
+      "format": "Megatron torch_dist TP=2 checkpoint plus HF eval conversion",
+      "target_layer": 11,
+      "iteration": 834,
+      "run_tag": "continuation_3p5b_20260524T143012Z_td_layer11",
+      "clariden_checkpoint": "/capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_td_layer11/checkpoints/iter_0000834",
+      "clariden_hf_eval_copy": "/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_td_layer11/iter_0000834_hf",
+      "intended_hf_payload_path": "checkpoints/TokenDistil-3.5B",
+      "depends_on": [
+        "tokenizer.ModernGreek-148k",
+        "dataset.CPT-7B-mix",
+        "checkpoint.TokenDistil-Init"
+      ],
+      "review_docs": [
+        "results/3.5B-comparison/README.md",
         "provenance/evals/CONTINUATION_3P5B_RESULTS_20260525.md"
       ],
       "github_code_refs": [
-        "code-links/github_subproject_manifest.json"
+        "source-code/manifest.json"
       ]
     },
     {
-      "artifact_id": "checkpoint.baseline-vanilla-3p5b-iter834",
-      "type": "checkpoint",
-      "status": "hydration-pointer",
-      "public_path": "checkpoints/baselines/vanilla-3p5b-iter834",
+      "artifact_id": "checkpoint.Vanilla-3.5B",
+      "human_name": "Vanilla-3.5B",
+      "type": "checkpoint-location",
+      "status": "weights-not-uploaded",
+      "public_path": "locations/Vanilla-3.5B.md",
       "format": "Megatron torch_dist TP=2 checkpoint plus HF eval conversion",
+      "iteration": 834,
+      "run_tag": "continuation_3p5b_20260524T143012Z_vanilla",
       "clariden_checkpoint": "/capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints/iter_0000834",
       "depends_on": [
-        "dataset.cpt-7b-mix"
+        "dataset.CPT-7B-mix"
       ],
       "review_docs": [
-        "results/SUMMARY.md"
+        "results/3.5B-comparison/README.md"
       ],
       "github_code_refs": [
-        "code-links/github_subproject_manifest.json"
+        "source-code/manifest.json"
       ]
     },
     {
-      "artifact_id": "checkpoint.baseline-retok-3p5b-iter834",
-      "type": "checkpoint",
-      "status": "hydration-pointer",
-      "public_path": "checkpoints/baselines/retok-3p5b-iter834",
+      "artifact_id": "checkpoint.ReTok-3.5B",
+      "human_name": "ReTok-3.5B",
+      "type": "checkpoint-location",
+      "status": "weights-not-uploaded",
+      "public_path": "locations/ReTok-3.5B.md",
       "format": "Megatron torch_dist TP=2 checkpoint plus HF eval conversion",
+      "iteration": 834,
+      "run_tag": "continuation_3p5b_20260524T143012Z_retok",
       "clariden_checkpoint": "/capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_retok/checkpoints/iter_0000834",
       "depends_on": [
-        "tokenizer.modern-greek-17408",
-        "dataset.cpt-7b-mix"
+        "tokenizer.ModernGreek-148k",
+        "dataset.CPT-7B-mix"
       ],
       "review_docs": [
-        "results/SUMMARY.md"
+        "results/3.5B-comparison/README.md"
       ],
       "github_code_refs": [
-        "code-links/github_subproject_manifest.json"
+        "source-code/manifest.json"
       ]
     },
     {
-      "artifact_id": "results.continuation-3p5b",
+      "artifact_id": "results.3.5B-comparison",
+      "human_name": "3.5B-comparison",
       "type": "evaluation-summary",
       "status": "compact-evidence",
-      "public_path": "results",
+      "public_path": "results/3.5B-comparison",
       "review_docs": [
-        "results/SUMMARY.md",
-        "results/benchmark_table.csv"
+        "results/3.5B-comparison/README.md",
+        "results/3.5B-comparison/benchmark-table.csv"
       ],
       "github_code_refs": [
-        "code-links/github_subproject_manifest.json"
+        "source-code/manifest.json"
       ]
     }
   ]
 }
-

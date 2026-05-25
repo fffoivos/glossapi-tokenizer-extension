@@ -2,6 +2,11 @@
 
 Date: 2026-05-25.
 
+Status: superseded by the human-readable naming pass in
+[`APERTUS_EXTENSION_RELEASE_RENAMING_PLAN_20260525.md`](APERTUS_EXTENSION_RELEASE_RENAMING_PLAN_20260525.md).
+This document records the first cleanup plan; the implemented public layout now
+uses names like `TokenDistil-3.5B`, `ModernGreek-148k`, and `CPT-7B-mix`.
+
 Purpose: reorganize the public-facing artifact layout around the real product:
 the tokenizer extension, the selected checkpoint(s), the CPT dataset recipe, and
 the evidence that explains how they were produced.
@@ -77,7 +82,58 @@ or reproduction.
    Scripts and launchers should be promoted to the GitHub subproject path above,
    not duplicated into the HF release tree except as minimal hydration snippets.
 
-## Recommended Public Layout
+## Superseded Initial Public Layout
+
+The initial layout below was intentionally replaced because names like
+`td-layer11-cpt-3p5b-iter834` mixed the human-facing artifact with technical
+metadata. The implemented layout is:
+
+```text
+README.md
+ARTIFACTS.md
+manifest.json
+checksums.sha256
+
+tokenizers/
+  ModernGreek-148k/
+  ModernGreek-Polytonic-154k/
+
+checkpoints/
+  README.md
+
+locations/
+  TokenDistil-3.5B.md
+  TokenDistil-2B.md
+  TokenDistil-Init.md
+  Vanilla-3.5B.md
+  ReTok-3.5B.md
+  CPT-7B-mix.md
+
+datasets/
+  CPT-7B-mix/
+
+results/
+  3.5B-comparison/
+
+source-code/
+  README.md
+  manifest.json
+
+provenance/
+  tokenizer-selection/
+  dataset-build/
+  token-distillation/
+  conversion-roundtrip/
+  evals/
+
+archive/
+  legacy-layout.md
+```
+
+`checkpoints/` now contains only a README until actual model weights are
+uploaded. Pointer-only checkpoint entries live under `locations/`.
+
+## Original Proposed Public Layout
 
 ```text
 README.md

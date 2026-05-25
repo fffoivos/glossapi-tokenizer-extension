@@ -1,23 +1,23 @@
-# 3.5B continuation results - Vanilla vs ReTok vs TD layer11
+# 3.5B Comparison - Vanilla vs ReTok vs TokenDistil
 
 Generated UTC: `2026-05-25T05:23:53+00:00`.
 
 This summarizes the continuation run `continuation_3p5b_20260524T143012Z`,
-which extended Vanilla, ReTok, and TD layer11 from iter 476 (~2.0B tokens)
+which extended Vanilla, ReTok, and TokenDistil from iter 476 (~2.0B tokens)
 to iter 834 (~3.5B tokens). Local JSON snapshots live under
 `per_iter_results/`; remote full artifacts remain on Clariden under
 `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_*`.
 
 ## Bottom line
 
-- TD layer11 is the best final benchmark arm overall: it is first on English
+- TokenDistil is the best final benchmark arm overall: it is first on English
   retention and multilingual aggregates, and narrowly first on the Greek
   aggregate at iter 834.
 - Vanilla still has the best tokenizer-fair heldout Greek BPC, but its
   downstream Greek aggregate declined during the 2.0B -> 3.5B continuation.
 - ReTok improves fastest on BPC and wins Greek MMLU / INCLUDE-44 Greek at
   iter 834, but it remains behind TD and Vanilla on the Greek aggregate.
-- If selecting for the actual downstream bakeoff objective, TD layer11 is now
+- If selecting for the actual downstream bakeoff objective, TokenDistil is now
   the leading candidate. If selecting only for heldout BPC, Vanilla remains
   ahead.
 
@@ -27,32 +27,32 @@ to iter 834 (~3.5B tokens). Local JSON snapshots live under
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | Vanilla | 0.4339 | -0.70 pp | 0.6782 | -0.36 pp | 0.4923 | +0.22 pp | 0.4724 | -0.0182 |
 | ReTok | 0.4246 | +0.96 pp | 0.6786 | +0.36 pp | 0.4864 | -0.09 pp | 0.5390 | -0.0349 |
-| TD layer11 | 0.4344 | +0.90 pp | 0.6865 | +0.38 pp | 0.4967 | +0.68 pp | 0.5054 | -0.0256 |
+| TokenDistil | 0.4344 | +0.90 pp | 0.6865 | +0.38 pp | 0.4967 | +0.68 pp | 0.5054 | -0.0256 |
 
 ## Per-task winners at iter 834
 
-| Group | Task | Vanilla | ReTok | TD layer11 | Winner |
+| Group | Task | Vanilla | ReTok | TokenDistil | Winner |
 |---|---|---:|---:|---:|---|
 | EN retention | `mmlu` | 0.5330 | 0.5565 | 0.5556 | ReTok |
-| EN retention | `hellaswag` | 0.7573 | 0.7556 | 0.7632 | TD layer11 |
+| EN retention | `hellaswag` | 0.7573 | 0.7556 | 0.7632 | TokenDistil |
 | EN retention | `arc_easy` | 0.7866 | 0.7576 | 0.7837 | Vanilla |
-| EN retention | `arc_challenge` | 0.5230 | 0.5247 | 0.5358 | TD layer11 |
+| EN retention | `arc_challenge` | 0.5230 | 0.5247 | 0.5358 | TokenDistil |
 | EN retention | `piqa` | 0.7927 | 0.7851 | 0.7894 | Vanilla |
 | EN retention | `winogrande` | 0.6764 | 0.6922 | 0.6914 | ReTok |
-| Multilingual | `global_mmlu` | 0.4505 | 0.4603 | 0.4628 | TD layer11 |
+| Multilingual | `global_mmlu` | 0.4505 | 0.4603 | 0.4628 | TokenDistil |
 | Multilingual | `xcopa` | 0.6178 | 0.5920 | 0.6156 | Vanilla |
-| Multilingual | `xnli` | 0.4087 | 0.4070 | 0.4117 | TD layer11 |
+| Multilingual | `xnli` | 0.4087 | 0.4070 | 0.4117 | TokenDistil |
 | Greek | `global_mmlu_full_el` | 0.4145 | 0.4153 | 0.4036 | ReTok |
 | Greek | `include_base_44_greek_few_shot_en` | 0.4022 | 0.4058 | 0.4004 | ReTok |
-| Greek | `belebele_ell_Grek` | 0.5078 | 0.4933 | 0.5389 | TD layer11 |
+| Greek | `belebele_ell_Grek` | 0.5078 | 0.4933 | 0.5389 | TokenDistil |
 | Greek | `arc_challenge_mt_el` | 0.4130 | 0.3899 | 0.4061 | Vanilla |
-| Greek | `xnli_el` | 0.3831 | 0.3695 | 0.3851 | TD layer11 |
-| Greek | `xquad_el` | 0.2868 | 0.3084 | 0.3364 | TD layer11 |
+| Greek | `xnli_el` | 0.3831 | 0.3695 | 0.3851 | TokenDistil |
+| Greek | `xquad_el` | 0.2868 | 0.3084 | 0.3364 | TokenDistil |
 | Greek | `global_piqa_completions_ell_grek` | 0.6300 | 0.5900 | 0.5700 | Vanilla |
 
 ## Change from iter 476 to iter 834
 
-| Group | Task | Vanilla delta | ReTok delta | TD layer11 delta |
+| Group | Task | Vanilla delta | ReTok delta | TokenDistil delta |
 |---|---|---:|---:|---:|
 | EN retention | `mmlu` | -0.09 pp | +0.24 pp | +0.56 pp |
 | EN retention | `hellaswag` | -0.21 pp | +0.69 pp | +0.27 pp |
@@ -80,7 +80,7 @@ lower mean rank is better.
 | Arm | Top-1 at new target | Delta from 585 | Top-5 at new target | Delta from 585 | Mean rank | Delta from 585 |
 |---|---:|---:|---:|---:|---:|---:|
 | ReTok | 0.3799 | +2.00 pp | 0.5469 | +2.11 pp | 228.9 | -31.4 |
-| TD layer11 | 0.4105 | +1.43 pp | 0.5811 | +1.54 pp | 174.3 | -18.8 |
+| TokenDistil | 0.4105 | +1.43 pp | 0.5811 | +1.54 pp | 174.3 | -18.8 |
 
 ## Artifact checklist
 

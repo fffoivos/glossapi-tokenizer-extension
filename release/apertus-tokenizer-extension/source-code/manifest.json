@@ -11,8 +11,8 @@
         "03_3_cscs_experiments_kickoff/ship/apertus_greek_extended_153600"
       ],
       "artifacts": [
-        "tokenizer.modern-greek-17408",
-        "tokenizer.polytonic-plus-5120"
+        "tokenizer.ModernGreek-148k",
+        "tokenizer.ModernGreek-Polytonic-154k"
       ]
     },
     {
@@ -22,7 +22,7 @@
         "03_4_implementation_experiments/init_bakeoff/corpus_build"
       ],
       "artifacts": [
-        "dataset.cpt-7b-mix"
+        "dataset.CPT-7B-mix"
       ]
     },
     {
@@ -32,9 +32,9 @@
         "03_4_implementation_experiments/init_bakeoff/megatron_patches"
       ],
       "artifacts": [
-        "checkpoint.td-layer11-init-r17-tp2",
-        "checkpoint.baseline-vanilla-3p5b-iter834",
-        "checkpoint.baseline-retok-3p5b-iter834"
+        "checkpoint.TokenDistil-Init",
+        "checkpoint.Vanilla-3.5B",
+        "checkpoint.ReTok-3.5B"
       ]
     },
     {
@@ -44,7 +44,7 @@
         "03_4_implementation_experiments/init_bakeoff/token_distillation"
       ],
       "artifacts": [
-        "checkpoint.td-layer11-init-r17-tp2"
+        "checkpoint.TokenDistil-Init"
       ]
     },
     {
@@ -54,9 +54,9 @@
         "03_4_implementation_experiments/init_bakeoff/bakeoff_training"
       ],
       "artifacts": [
-        "checkpoint.td-layer11-cpt-3p5b-iter834",
-        "checkpoint.baseline-vanilla-3p5b-iter834",
-        "checkpoint.baseline-retok-3p5b-iter834"
+        "checkpoint.TokenDistil-3.5B",
+        "checkpoint.Vanilla-3.5B",
+        "checkpoint.ReTok-3.5B"
       ]
     },
     {
@@ -65,9 +65,8 @@
         "03_4_implementation_experiments/init_bakeoff/eval"
       ],
       "artifacts": [
-        "results.continuation-3p5b"
+        "results.3.5B-comparison"
       ]
     }
   ]
 }
-

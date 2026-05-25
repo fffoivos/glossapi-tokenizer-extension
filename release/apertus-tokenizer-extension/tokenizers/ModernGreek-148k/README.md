@@ -1,4 +1,4 @@
-# Modern Greek Tokenizer, 148480 Vocab
+# ModernGreek-148k
 
 This is the canonical modern Greek tokenizer extension for Apertus.
 
@@ -19,4 +19,3 @@ Selection evidence is in:
 ```text
 ../../provenance/tokenizer-selection/CHOSEN_CUTOFF.md
 ```
-

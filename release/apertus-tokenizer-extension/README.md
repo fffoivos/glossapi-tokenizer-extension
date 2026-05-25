@@ -12,16 +12,15 @@ tags:
 
 # Apertus Greek Tokenizer Extension
 
-This release packages the Greek tokenizer-extension work around its main
-artifacts:
+This release is organized around the artifacts that matter:
 
-1. a modern Greek merge-rule tokenizer extension for `swiss-ai/Apertus-8B-2509`;
-2. an optional polytonic/ancient Greek stacked tokenizer;
-3. the CPT dataset recipe and hydration pointers used for the bakeoff;
-4. the init and Token Distillation checkpoint pointers;
-5. compact benchmark evidence from the 2B bakeoff and 3.5B continuation.
+1. `ModernGreek-148k`: the selected 17,408-token modern Greek BPE extension;
+2. `ModernGreek-Polytonic-154k`: the optional stacked polytonic/ancient Greek tokenizer;
+3. `CPT-7B-mix`: the dataset recipe used for the bakeoff and continuation;
+4. `TokenDistil-3.5B`, `Vanilla-3.5B`, and `ReTok-3.5B`: the trained comparison line;
+5. `3.5B-comparison`: the compact benchmark evidence.
 
-The runnable scripts live in GitHub, not in this Hugging Face artifact repo:
+The runnable scripts live in GitHub:
 
 ```text
 https://github.com/fffoivos/glossapi-tokenizer-extension/tree/main/subprojects/03_apertus_extension_and_embedding_adaptation
@@ -31,33 +30,55 @@ https://github.com/fffoivos/glossapi-tokenizer-extension/tree/main/subprojects/0
 
 | Artifact | Status | Path |
 |---|---|---|
-| Modern Greek tokenizer, 148,480 vocab | payload included | `tokenizer/modern-greek-17408/` |
-| Polytonic-stacked tokenizer, 153,600 vocab | payload included | `tokenizer/polytonic-plus-5120/` |
-| TD layer 11 CPT checkpoint at 3.5B | hydration pointer | `checkpoints/td-layer11-cpt-3p5b-iter834/` |
-| TD layer 11 R17-patched init | hydration pointer | `checkpoints/td-layer11-init-r17-tp2/` |
-| Vanilla/ReTok 3.5B baselines | hydration pointers | `checkpoints/baselines/` |
-| CPT 7B text mix recipe | manifest and pointer | `training-data/cpt-7b-mix/` |
-| 3.5B benchmark summary | compact evidence | `results/` |
-| Source-code links | GitHub pointers | `code-links/` |
+| `ModernGreek-148k` | tokenizer payload included | `tokenizers/ModernGreek-148k/` |
+| `ModernGreek-Polytonic-154k` | tokenizer payload included | `tokenizers/ModernGreek-Polytonic-154k/` |
+| `TokenDistil-3.5B` | location only; weights not uploaded here yet | `locations/TokenDistil-3.5B.md` |
+| `TokenDistil-2B` | location only | `locations/TokenDistil-2B.md` |
+| `TokenDistil-Init` | location only | `locations/TokenDistil-Init.md` |
+| `Vanilla-3.5B` | location only | `locations/Vanilla-3.5B.md` |
+| `ReTok-3.5B` | location only | `locations/ReTok-3.5B.md` |
+| `CPT-7B-mix` | recipe and hydration pointer | `datasets/CPT-7B-mix/` |
+| `3.5B-comparison` | benchmark summary and plots | `results/3.5B-comparison/` |
+| Source code | GitHub pointers | `source-code/` |
 | Audit trail | compact provenance | `provenance/` |
+
+## Checkpoint Weights
+
+`checkpoints/` is reserved for actual model weights. The current HF release does
+not yet include checkpoint weight shards, so checkpoint locations live under
+`locations/`.
+
+The selected public payload to upload first is:
+
+```text
+checkpoints/TokenDistil-3.5B/
+```
+
+Its current Clariden HF-format source is:
+
+```text
+/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_td_layer11/iter_0000834_hf
+```
+
+See `checkpoints/README.md` for the current weight-upload status.
 
 ## Tokenizers
 
-Modern-only tokenizer:
+`ModernGreek-148k`:
 
 - base Apertus vocab: `131072`;
 - added modern Greek C3 tokens: `17408`;
 - total vocab: `148480`;
-- SHA-256 for `tokenizer.json`:
+- `tokenizer.json` SHA-256:
   `358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394`.
 
-Polytonic-stacked tokenizer:
+`ModernGreek-Polytonic-154k`:
 
 - base Apertus vocab: `131072`;
 - modern Greek extension: `17408`;
 - polytonic/ancient Greek extension: `5120`;
 - total vocab: `153600`;
-- SHA-256 for `tokenizer.json`:
+- `tokenizer.json` SHA-256:
   `b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad`.
 
 Both tokenizers preserve Apertus base ids and the first 1000 special/reserved
@@ -65,7 +86,7 @@ ids.
 
 ## Dataset
 
-The CPT text mix is built from:
+`CPT-7B-mix` is built from:
 
 - `fffoivos/glossapi-greek-nanochat-pretraining-dataset`;
 - nanochat internal dedup metadata;
@@ -86,25 +107,25 @@ after preprocessing.
 
 ## Current Result Anchor
 
-The latest compact result is the 3.5B continuation summary in `results/`.
+The latest compact result is `results/3.5B-comparison/`.
 
-At iter 834:
+At 3.5B:
 
 | Arm | Greek aggregate | English retention | Multilingual | Heldout BPC, lower better |
 |---|---:|---:|---:|---:|
 | Vanilla | 0.4339 | 0.6782 | 0.4923 | 0.4724 |
 | ReTok | 0.4246 | 0.6786 | 0.4864 | 0.5390 |
-| TD layer 11 | 0.4344 | 0.6865 | 0.4967 | 0.5054 |
+| TokenDistil | 0.4344 | 0.6865 | 0.4967 | 0.5054 |
 
-Reading: TD layer 11 is the strongest final benchmark arm overall after the
-3.5B continuation. Vanilla remains the heldout-BPC reference.
+Reading: `TokenDistil-3.5B` is the strongest final benchmark arm overall after
+the 3.5B continuation. `Vanilla-3.5B` remains the heldout-BPC reference.
 
 ## Source And Provenance
 
-- `MANIFEST.json`: machine-readable artifact inventory.
-- `ARTIFACT_GRAPH.md`: dependency graph.
-- `code-links/github_subproject_manifest.json`: source-code pointers.
+- `manifest.json`: machine-readable artifact inventory.
+- `ARTIFACTS.md`: dependency graph and artifact story.
+- `source-code/manifest.json`: source-code pointers.
 - `provenance/`: compact documents and verification outputs for tokenizer
-  selection, dataset build, TD, conversion, and eval.
-- `archive/legacy-hf-layout-index.md`: index of older HF folders retained for
+  selection, dataset build, Token Distillation, conversion, and eval.
+- `archive/legacy-layout.md`: index of older HF folders retained for
   traceability.

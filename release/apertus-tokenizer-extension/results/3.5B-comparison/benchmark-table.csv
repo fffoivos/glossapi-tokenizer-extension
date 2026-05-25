@@ -1,5 +1,4 @@
 arm,greek_aggregate,greek_delta_vs_iter476_pp,english_retention,english_delta_vs_iter476_pp,multilingual,multilingual_delta_vs_iter476_pp,bpc_lower_better,bpc_delta
 Vanilla,0.4339,-0.70,0.6782,-0.36,0.4923,0.22,0.4724,-0.0182
 ReTok,0.4246,0.96,0.6786,0.36,0.4864,-0.09,0.5390,-0.0349
-TD layer11,0.4344,0.90,0.6865,0.38,0.4967,0.68,0.5054,-0.0256
-
+TokenDistil,0.4344,0.90,0.6865,0.38,0.4967,0.68,0.5054,-0.0256

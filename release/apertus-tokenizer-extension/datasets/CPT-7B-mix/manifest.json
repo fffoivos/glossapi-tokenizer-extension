@@ -9,6 +9,5 @@
   "base_tokenized_tokens": 9831704774,
   "mix_builder_target_tokens": 7000141612,
   "recipe": "70/24/4/2 Greek/replay/code/math",
-  "source_graph": "source_graph.json"
+  "source_graph": "source-graph.json"
 }
-

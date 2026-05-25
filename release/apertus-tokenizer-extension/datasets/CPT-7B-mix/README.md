@@ -22,3 +22,8 @@ Key Clariden paths:
 
 The final base-tokenized Megatron artifact has `9,831,704,774` tokens.
 
+Source graph:
+
+```text
+source-graph.json
+```

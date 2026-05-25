@@ -1,8 +1,0 @@
-{
-  "artifact_id": "checkpoint.baseline-retok-3p5b-iter834",
-  "status": "hydration-pointer",
-  "tokenizer": "tokenizer.modern-greek-17408",
-  "source_checkpoint": "/capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_retok/checkpoints/iter_0000834",
-  "iteration": 834
-}
-
