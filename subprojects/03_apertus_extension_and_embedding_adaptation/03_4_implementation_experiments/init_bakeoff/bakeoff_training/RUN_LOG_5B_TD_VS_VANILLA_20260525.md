@@ -482,3 +482,61 @@ stage   top1_new_target  top5_new_target  mean_rank  mass_new  greedy_new_util
 This is encouraging for continued TD learning, but not yet sufficient for the
 decision. The 1013 downstream eval is still running, and the final matched 1192
 checkpoint/eval is still required.
+
+## 1013 Downstream Eval Complete
+
+Checked at 2026-05-25 22:13 UTC.
+
+The packed 1013 downstream eval finished cleanly:
+
+```text
+2383003  eval_5b_1013_full  COMPLETED 0:0  elapsed 00:47:31
+```
+
+Result files:
+
+```text
+vanilla:
+/capstor/scratch/cscs/fffoivos/runs/eval/continuation_5b_td_vs_vanilla_20260525T142522Z_vanilla/iter_0001013_full/results_2026-05-26T00-12-33.815872.json
+
+td_layer11:
+/capstor/scratch/cscs/fffoivos/runs/eval/continuation_5b_td_vs_vanilla_20260525T142522Z_td_layer11/iter_0001013_full/results_2026-05-26T00-11-16.286948.json
+```
+
+Matched-task scoreboard at `iter_0001013`:
+
+```text
+task                    group           vanilla     td_layer11   TD-Vanilla  winner
+MMLU                    EN retention    0.536818    0.561102    +0.024284   TD
+HellaSwag               EN retention    0.757917    0.765286    +0.007369   TD
+ARC Easy                EN retention    0.784933    0.786616    +0.001684   TD
+ARC Challenge           EN retention    0.516212    0.530717    +0.014505   TD
+PIQA                    EN retention    0.797606    0.791621    -0.005985   Vanilla
+Winogrande              EN retention    0.681137    0.700079    +0.018942   TD
+Global MMLU             Multilingual    0.445405    0.461612    +0.016207   TD
+XCOPA                   Multilingual    0.615818    0.618545    +0.002727   TD
+XNLI                    Multilingual    0.410040    0.411914    +0.001874   TD
+Greek MMLU              Greek           0.418245    0.413260    -0.004985   Vanilla
+INCLUDE-44 Greek        Greek           0.418478    0.411232    -0.007246   Vanilla
+Belebele Greek          Greek           0.516667    0.530000    +0.013333   TD
+ARC Challenge MT-el     Greek           0.419795    0.401877    -0.017918   Vanilla
+XNLI Greek              Greek           0.392771    0.387952    -0.004819   Vanilla
+XQuAD Greek F1          Greek           0.281595    0.354168    +0.072573   TD
+PIQA Greek              Greek           0.620000    0.570000    -0.050000   Vanilla
+```
+
+Group aggregates:
+
+```text
+EN retention:  Vanilla 0.679104  TD 0.689237  TD-Vanilla +0.010133
+Multilingual:  Vanilla 0.490421  TD 0.497357  TD-Vanilla +0.006936
+Greek:         Vanilla 0.438222  TD 0.438356  TD-Vanilla +0.000134
+```
+
+Reading at 4.25B: TD is clearly ahead on EN retention and multilingual
+aggregates and essentially tied on Greek downstream mean. The Greek aggregate
+is not a broad Greek win yet: Vanilla wins 5/7 Greek tasks, while TD's large
+XQuAD F1 gain plus Belebele gain offset those losses. Combined with the
+tokenizer-fair BPC gap (TD still worse by `+0.029664` BPC), this remains a
+promising-but-not-settled TD trajectory. The final `iter_0001192` matched eval
+is still required for the decision.
