@@ -411,3 +411,74 @@ training/eval work is dependency-clear and queued on Slurm priority:
 2383002  diag_td_layer11_1013  PENDING (Priority)
 2383003  eval_5b_1013_full     PENDING (Priority)
 ```
+
+## 1192 Leg Started; 1013 Intrinsics Complete
+
+Checked at 2026-05-25 21:40 UTC.
+
+The scheduler started the 5B continuation legs and the 1013 sidecars:
+
+```text
+2382983  5b_vanilla_1192     RUNNING  since 23:25:03 UTC
+2382985  5b_td_layer11_1192  RUNNING  since 23:25:03 UTC
+2383003  eval_5b_1013_full   RUNNING  since 23:25:12 UTC
+```
+
+The 1013 intrinsic sidecars completed cleanly:
+
+```text
+2382999  bpc_vanilla_1013      COMPLETED 0:0  elapsed 00:01:56
+2383001  bpc_td_layer11_1013   COMPLETED 0:0  elapsed 00:01:41
+2383002  diag_td_layer11_1013  COMPLETED 0:0  elapsed 00:02:08
+```
+
+The incremental submitter completed after writing all 12 sidecar rows:
+
+```text
+2383705  eval_submit_5b_fix2  COMPLETED 0:0
+sidecar rows: 12/12
+```
+
+Early 1192 training health:
+
+```text
+vanilla    job 2382983  iter 1019/1192  4.274B tokens  loss 1.611488  skipped=0 nan=0
+td_layer11 job 2382985  iter 1018/1192  4.270B tokens  loss 2.351225  skipped=0 nan=0
+```
+
+The 1013 / ~4.25B tokenizer-fair heldout results are now available. Lower BPC
+is better; raw `lm loss` is not used for cross-tokenizer selection.
+
+```text
+stage   arm         BPC       NLL/char  tok/word  chars/tok  STRR
+2.0B    vanilla     0.490579  0.580385  2.692984  2.557154   0.270269
+2.0B    td_layer11  0.531084  0.628153  1.735161  3.973179   0.445816
+3.5B    vanilla     0.472385  0.558861  2.692984  2.557154   0.270269
+3.5B    td_layer11  0.505436  0.597817  1.735161  3.973179   0.445816
+4.25B   vanilla     0.465681  0.550929  2.692984  2.557154   0.270269
+4.25B   td_layer11  0.495345  0.585882  1.735161  3.973179   0.445816
+```
+
+Reading so far: TD is still improving on tokenizer-fair heldout BPC
+(`0.531084 -> 0.505436 -> 0.495345`), and it preserves the compression win
+(`1.735` vs Vanilla `2.693` tokens/word; STRR `0.446` vs `0.270`). But Vanilla
+also improves, so TD remains behind on BPC at matched token count. The gap is:
+
+```text
+2.0B gap TD - Vanilla:    +0.040505 BPC
+3.5B gap TD - Vanilla:    +0.033051 BPC
+4.25B gap TD - Vanilla:   +0.029664 BPC
+```
+
+TD new-token integration diagnostics remain healthy rather than collapsed:
+
+```text
+stage   top1_new_target  top5_new_target  mean_rank  mass_new  greedy_new_util
+2.0B    0.386419         0.555687         206.412    0.342453  0.208
+3.5B    0.410535         0.581142         174.288    0.342085  0.282
+4.25B   0.419633         0.590297         162.710    0.341012  0.260
+```
+
+This is encouraging for continued TD learning, but not yet sufficient for the
+decision. The 1013 downstream eval is still running, and the final matched 1192
+checkpoint/eval is still required.
