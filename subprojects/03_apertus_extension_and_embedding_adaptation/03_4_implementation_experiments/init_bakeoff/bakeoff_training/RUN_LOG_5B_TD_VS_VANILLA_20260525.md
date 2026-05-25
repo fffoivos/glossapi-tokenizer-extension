@@ -225,3 +225,29 @@ vanilla    job 2382982  iter 850/1013  3.565B tokens  loss 1.647988
 td_layer11 job 2382984  iter 849/1013  3.561B tokens  loss 2.378793
 eval_submit_5b_fix2 job 2383705 running with sidecar_rows=6
 ```
+
+## Post-Resume Health Check
+
+Checked at 2026-05-25 15:22 UTC.
+
+The two 4.25B training jobs are still running normally, the two 5B continuation
+jobs remain dependency-pending, and the repaired eval submitter is still alive.
+
+Latest matched training lines:
+
+```text
+vanilla    job 2382982  iter 853/1013  3.578B tokens  loss 1.647105  skipped=0 nan=0
+td_layer11 job 2382984  iter 853/1013  3.578B tokens  loss 2.377223  skipped=0 nan=0
+```
+
+Current checkpoint state:
+
+```text
+vanilla    latest_checkpointed_iteration.txt = 845
+td_layer11 latest_checkpointed_iteration.txt = 845
+```
+
+The eval sidecar state remains at 6/12 rows, all for the 1013 checkpoint. This
+is expected while the user job cap is full: the missing 1192 sidecars should be
+submitted by `eval_submit_5b_fix2` once the 1013 training jobs finish and the
+active job count drops below the cap.
