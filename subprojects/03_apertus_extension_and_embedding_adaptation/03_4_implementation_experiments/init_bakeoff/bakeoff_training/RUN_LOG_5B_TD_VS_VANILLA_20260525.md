@@ -274,3 +274,28 @@ The 1013 sidecars are still dependency-staged, the 1192 training jobs are still
 dependency-pending, and `eval_submit_5b_fix2` is still running with
 `submitted=6 missing=6 active_jobs=11`. This is the expected state before the
 1013 checkpoint save and handoff.
+
+## Second Intermediate Checkpoint Check
+
+Checked at 2026-05-25 17:49 UTC.
+
+Both arms saved the second intermediate checkpoint and continued training:
+
+```text
+vanilla    job 2382982  iter 921/1013  3.863B tokens  loss 1.616130  skipped=0 nan=0
+td_layer11 job 2382984  iter 919/1013  3.855B tokens  loss 2.365760  skipped=0 nan=0
+```
+
+Current checkpoint state:
+
+```text
+vanilla    latest_checkpointed_iteration.txt = 910
+td_layer11 latest_checkpointed_iteration.txt = 910
+
+vanilla    iter_0000910 saved at 2026-05-25 19:27 UTC log time
+td_layer11 iter_0000910 saved at 2026-05-25 19:31 UTC log time
+```
+
+The 1013 eval sidecars remain dependency-staged, the 1192 training jobs remain
+dependency-pending, and `eval_submit_5b_fix2` is still waiting under the active
+job cap with `submitted=6 missing=6 active_jobs=11`.
