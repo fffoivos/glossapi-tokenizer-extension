@@ -116,3 +116,27 @@ number of nan iterations: 0
 
 The xIELU optimizer audit reported `missing=0` for both arms during checkpoint
 load. The stderr content at this point was warnings only.
+
+## Steady-State Monitor
+
+Checked at 2026-05-25 14:56 UTC.
+
+Both first-segment jobs remained healthy:
+
+```text
+vanilla    job 2382982  iter 842/1013  3.532B tokens  loss 1.640331  8020.7 tokens/sec/GPU
+td_layer11 job 2382984  iter 841/1013  3.527B tokens  loss 2.391435  7851.0 tokens/sec/GPU
+```
+
+The 4.25B sidecar eval jobs are dependency-staged. The xfer submitter is still
+running and retrying the 5B sidecar DAG; at this point only the six `iter_1013`
+sidecars are recorded in the incremental state file. This does not block
+training, because the second training segment already depends directly on the
+first training segment and not on eval completion.
+
+A lightweight home-side status logger was started for breadcrumbs only:
+
+```text
+pid: 494381
+log: /home/foivos/runs/codex_monitors/5b_td_vs_vanilla_20260525/monitor.log
+```
