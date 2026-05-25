@@ -251,3 +251,26 @@ The eval sidecar state remains at 6/12 rows, all for the 1013 checkpoint. This
 is expected while the user job cap is full: the missing 1192 sidecars should be
 submitted by `eval_submit_5b_fix2` once the 1013 training jobs finish and the
 active job count drops below the cap.
+
+## Continued First-Leg Health Check
+
+Checked at 2026-05-25 16:48 UTC.
+
+Both first-leg jobs continued cleanly toward the 4.25B checkpoint boundary:
+
+```text
+vanilla    job 2382982  iter 893/1013  3.746B tokens  loss 1.641109  skipped=0 nan=0
+td_layer11 job 2382984  iter 891/1013  3.737B tokens  loss 2.362208  skipped=0 nan=0
+```
+
+Current checkpoint state remains:
+
+```text
+vanilla    latest_checkpointed_iteration.txt = 845
+td_layer11 latest_checkpointed_iteration.txt = 845
+```
+
+The 1013 sidecars are still dependency-staged, the 1192 training jobs are still
+dependency-pending, and `eval_submit_5b_fix2` is still running with
+`submitted=6 missing=6 active_jobs=11`. This is the expected state before the
+1013 checkpoint save and handoff.
