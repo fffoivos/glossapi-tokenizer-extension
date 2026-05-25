@@ -201,3 +201,27 @@ next_missing: convert:1192:vanilla, bpc:1192:vanilla, convert:1192:td_layer11, b
 
 The launcher was updated to use `MAX_SUBMITTED_JOBS=11`, `PYTHONUNBUFFERED=1`,
 and an explicit eval working directory for future launches.
+
+## Monitor Hardening
+
+Checked at 2026-05-25 15:14 UTC.
+
+The home-side systemd monitor was restarted with a name-pattern stop condition
+instead of only the original job-id list. This matters because the repaired
+eval submitter (`2383705`) and the future 1192 sidecars were not known when
+the monitor was first launched.
+
+The monitor now keeps running until:
+
+```text
+tracked_active_count=0
+tracked_sidecar_rows=12
+```
+
+The fresh monitor sample showed:
+
+```text
+vanilla    job 2382982  iter 850/1013  3.565B tokens  loss 1.647988
+td_layer11 job 2382984  iter 849/1013  3.561B tokens  loss 2.378793
+eval_submit_5b_fix2 job 2383705 running with sidecar_rows=6
+```
