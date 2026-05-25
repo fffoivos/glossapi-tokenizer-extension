@@ -1,0 +1,17 @@
+{
+  "artifact_id": "checkpoint.TokenDistil-3.5B",
+  "human_name": "TokenDistil-3.5B",
+  "status": "upload-pending",
+  "weights_in_git": false,
+  "hf_path": "checkpoints/TokenDistil-3.5B",
+  "source_hf_copy_clariden": "/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_td_layer11/iter_0000834_hf",
+  "source_megatron_checkpoint_clariden": "/capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_td_layer11/checkpoints/iter_0000834",
+  "method": "TokenDistil",
+  "target_layer": 11,
+  "training_point": "3.5B",
+  "iteration": 834,
+  "run_tag": "continuation_3p5b_20260524T143012Z_td_layer11",
+  "tokenizer": "selected-tokenizer",
+  "dataset": "dataset",
+  "evals": "evals/3.5B-comparison"
+}

@@ -2,7 +2,7 @@
 
 Human name: `TokenDistil-Init`.
 
-Weights status: not uploaded in this HF release.
+Weights status: location only in this HF release.
 
 Clariden checkpoint:
 
@@ -19,4 +19,4 @@ Technical notes:
 - format: Megatron `torch_dist`, TP=2;
 - includes the R17/xIELU/QK-Norm preservation patch;
 - roundtrip verification is recorded in
-  `../provenance/conversion-roundtrip/td_layer11_r17_roundtrip_verification.json`.
+  `../../supporting/provenance/conversion-roundtrip/td_layer11_r17_roundtrip_verification.json`.

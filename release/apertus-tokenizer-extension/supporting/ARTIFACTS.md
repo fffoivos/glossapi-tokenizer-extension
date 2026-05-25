@@ -49,6 +49,6 @@ TokenDistil-3.5B
 3.5B-comparison
 ```
 
-`checkpoints/` is reserved for actual model weights. Until weights are uploaded
-to this HF repo, model artifacts are represented by `locations/*.md` files with
-Clariden source paths and technical metadata.
+`checkpoints/` is the top-level checkpoint area. The selected public checkpoint
+is `checkpoints/TokenDistil-3.5B/`; comparison/source pointers live under
+`checkpoints/locations/`.

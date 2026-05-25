@@ -2,7 +2,7 @@
 
 Human name: `TokenDistil-2B`.
 
-Weights status: not uploaded in this HF release.
+Weights status: location only in this HF release.
 
 Clariden Megatron checkpoint:
 
@@ -31,5 +31,5 @@ Technical notes:
 Detailed run evidence is in:
 
 ```text
-../provenance/token-distillation/RUN_LOG_20260523.md
+../../supporting/provenance/token-distillation/RUN_LOG_20260523.md
 ```

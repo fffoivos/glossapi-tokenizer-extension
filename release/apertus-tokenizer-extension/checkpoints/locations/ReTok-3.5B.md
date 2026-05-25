@@ -2,7 +2,7 @@
 
 Human name: `ReTok-3.5B`.
 
-Weights status: not uploaded in this HF release.
+Weights status: location only in this HF release.
 
 Clariden Megatron checkpoint:
 
@@ -30,5 +30,5 @@ Technical notes:
 Result summary:
 
 ```text
-../results/3.5B-comparison/README.md
+../../evals/3.5B-comparison/README.md
 ```

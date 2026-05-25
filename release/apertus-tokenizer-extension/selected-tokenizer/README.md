@@ -17,5 +17,5 @@ Properties:
 Selection evidence is in:
 
 ```text
-../../provenance/tokenizer-selection/CHOSEN_CUTOFF.md
+../supporting/provenance/tokenizer-selection/CHOSEN_CUTOFF.md
 ```

@@ -2,7 +2,7 @@
 
 Human name: `TokenDistil-3.5B`.
 
-Weights status: not uploaded in this HF release yet.
+Weights status: selected payload path is `../TokenDistil-3.5B/`.
 
 Intended HF weights path:
 
@@ -37,5 +37,5 @@ Technical notes:
 Result summary:
 
 ```text
-../results/3.5B-comparison/README.md
+../../evals/3.5B-comparison/README.md
 ```
