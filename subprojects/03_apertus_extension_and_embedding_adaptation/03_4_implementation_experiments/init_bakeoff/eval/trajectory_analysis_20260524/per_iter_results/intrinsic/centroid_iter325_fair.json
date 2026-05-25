@@ -1,0 +1,149 @@
+{
+  "model_path": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_centroid/iter_0000325_hf",
+  "eval_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl",
+  "max_context": 4096,
+  "stats_only": false,
+  "tokenizer_vocab_size": 148480,
+  "wall_seconds": 72.38208413124084,
+  "global": {
+    "n_docs": 500.0,
+    "n_chars": 3202271.0,
+    "n_bytes": 5464302.0,
+    "n_words": 464494.0,
+    "n_tokens": 805972.0,
+    "chars_per_token": 3.9731789689964416,
+    "compression_ratio": 3.9731789689964416,
+    "tokens_per_word": 1.735161272266165,
+    "bpc_bits_per_byte": 0.9525203035490112,
+    "nll_per_char": 1.126617036350611,
+    "nll_per_word": 7.767017579584467,
+    "nll_per_token": 4.4762511149413475
+  },
+  "per_source": {
+    "greek_academic": {
+      "n_docs": 60.0,
+      "n_chars": 982197.0,
+      "n_bytes": 1512192.0,
+      "n_words": 119592.0,
+      "n_tokens": 231676.0,
+      "chars_per_token": 4.239528479428167,
+      "compression_ratio": 4.239528479428167,
+      "tokens_per_word": 1.9372198809284902,
+      "bpc_bits_per_byte": 0.861417455111655,
+      "nll_per_char": 0.9192792591614679,
+      "nll_per_word": 7.549947576013582,
+      "nll_per_token": 3.89731059976267
+    },
+    "greek_dialogue_textbooks": {
+      "n_docs": 60.0,
+      "n_chars": 814590.0,
+      "n_bytes": 1439151.0,
+      "n_words": 133868.0,
+      "n_tokens": 237323.0,
+      "chars_per_token": 3.4324106808021138,
+      "compression_ratio": 3.4324106808021138,
+      "tokens_per_word": 1.7728135177936475,
+      "bpc_bits_per_byte": 1.084430081982784,
+      "nll_per_char": 1.3279884776324031,
+      "nll_per_word": 8.080841829224156,
+      "nll_per_token": 4.558201834607599
+    },
+    "greek_hplt_clean60": {
+      "n_docs": 330.0,
+      "n_chars": 998433.0,
+      "n_bytes": 1795009.0,
+      "n_words": 152407.0,
+      "n_tokens": 237531.0,
+      "chars_per_token": 4.203379769377471,
+      "compression_ratio": 4.203379769377471,
+      "tokens_per_word": 1.5585307761454525,
+      "bpc_bits_per_byte": 0.9929982276828134,
+      "nll_per_char": 1.2374328415738023,
+      "nll_per_word": 8.106542247475877,
+      "nll_per_token": 5.201400172234598
+    },
+    "greek_legal_civic": {
+      "n_docs": 50.0,
+      "n_chars": 407051.0,
+      "n_bytes": 717950.0,
+      "n_words": 58627.0,
+      "n_tokens": 99442.0,
+      "chars_per_token": 4.093350898010901,
+      "compression_ratio": 4.093350898010901,
+      "tokens_per_word": 1.696180940522285,
+      "bpc_bits_per_byte": 0.7787876911386036,
+      "nll_per_char": 0.9521161102546257,
+      "nll_per_word": 6.61060287572715,
+      "nll_per_token": 3.897345334921418
+    }
+  },
+  "per_register": {
+    "academic": {
+      "n_docs": 60.0,
+      "n_chars": 982197.0,
+      "n_bytes": 1512192.0,
+      "n_words": 119592.0,
+      "n_tokens": 231676.0,
+      "chars_per_token": 4.239528479428167,
+      "compression_ratio": 4.239528479428167,
+      "tokens_per_word": 1.9372198809284902,
+      "bpc_bits_per_byte": 0.861417455111655,
+      "nll_per_char": 0.9192792591614679,
+      "nll_per_word": 7.549947576013582,
+      "nll_per_token": 3.89731059976267
+    },
+    "dialogue_textbooks": {
+      "n_docs": 60.0,
+      "n_chars": 814590.0,
+      "n_bytes": 1439151.0,
+      "n_words": 133868.0,
+      "n_tokens": 237323.0,
+      "chars_per_token": 3.4324106808021138,
+      "compression_ratio": 3.4324106808021138,
+      "tokens_per_word": 1.7728135177936475,
+      "bpc_bits_per_byte": 1.084430081982784,
+      "nll_per_char": 1.3279884776324031,
+      "nll_per_word": 8.080841829224156,
+      "nll_per_token": 4.558201834607599
+    },
+    "hplt_clean60": {
+      "n_docs": 330.0,
+      "n_chars": 998433.0,
+      "n_bytes": 1795009.0,
+      "n_words": 152407.0,
+      "n_tokens": 237531.0,
+      "chars_per_token": 4.203379769377471,
+      "compression_ratio": 4.203379769377471,
+      "tokens_per_word": 1.5585307761454525,
+      "bpc_bits_per_byte": 0.9929982276828134,
+      "nll_per_char": 1.2374328415738023,
+      "nll_per_word": 8.106542247475877,
+      "nll_per_token": 5.201400172234598
+    },
+    "legal_civic": {
+      "n_docs": 50.0,
+      "n_chars": 407051.0,
+      "n_bytes": 717950.0,
+      "n_words": 58627.0,
+      "n_tokens": 99442.0,
+      "chars_per_token": 4.093350898010901,
+      "compression_ratio": 4.093350898010901,
+      "tokens_per_word": 1.696180940522285,
+      "bpc_bits_per_byte": 0.7787876911386036,
+      "nll_per_char": 0.9521161102546257,
+      "nll_per_word": 6.61060287572715,
+      "nll_per_token": 3.897345334921418
+    }
+  },
+  "strr": {
+    "n_words_sampled": 200067,
+    "n_single_token": 89193,
+    "rate": 0.4458156517566615
+  },
+  "truncation": {
+    "n_docs_truncated": 124,
+    "n_tokens_dropped": 4599263,
+    "fraction_truncated": 0.248,
+    "note": "char/byte/word counts are computed on the scored prefix, NOT on full text. Look at this if it's > ~10 % of docs."
+  }
+}

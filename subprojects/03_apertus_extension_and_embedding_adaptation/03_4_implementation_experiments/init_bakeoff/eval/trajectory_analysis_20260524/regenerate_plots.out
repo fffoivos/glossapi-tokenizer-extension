@@ -1,0 +1,51 @@
+=== Group-averaged metric vs tokens ===
+
+-- vanilla --
+  EN_ret  : 0.6966@0.55B → 0.6844@1.09B → 0.6867@1.36B → 0.6836@1.64B → 0.6832@1.91B → 0.6818@2.00B → 0.6833@2.45B → 0.6813@3.00B → 0.6782@3.50B
+  Multi   : 0.5034@0.55B → 0.4900@1.09B → 0.4896@1.36B → 0.4897@1.64B → 0.4890@1.91B → 0.4901@2.00B → 0.4904@2.45B → 0.4903@3.00B → 0.4923@3.50B
+  Greek   : 0.4667@0.55B → 0.4424@1.09B → 0.4472@1.36B → 0.4472@1.64B → 0.4447@1.91B → 0.4409@2.00B → 0.4381@2.45B → 0.4348@3.00B → 0.4339@3.50B
+
+-- retok --
+  EN_ret  : 0.6852@0.55B → 0.6713@1.09B → 0.6716@1.36B → 0.6749@1.64B → 0.6750@1.91B → 0.6750@2.00B → 0.6758@2.45B → 0.6774@3.00B → 0.6786@3.50B
+  Multi   : 0.4946@0.55B → 0.4835@1.09B → 0.4805@1.36B → 0.4843@1.64B → 0.4869@1.91B → 0.4873@2.00B → 0.4876@2.45B → 0.4898@3.00B → 0.4864@3.50B
+  Greek   : 0.4034@0.55B → 0.4111@1.09B → 0.4085@1.36B → 0.4150@1.64B → 0.4153@1.91B → 0.4150@2.00B → 0.4205@2.45B → 0.4257@3.00B → 0.4246@3.50B
+
+-- centroid --
+  EN_ret  : 0.6990@0.55B → 0.6890@1.09B → 0.6853@1.36B → 0.6825@1.64B → 0.6843@1.91B → 0.6836@2.00B
+  Multi   : 0.5025@0.55B → 0.4897@1.09B → 0.4916@1.36B → 0.4893@1.64B → 0.4893@1.91B → 0.4888@2.00B
+  Greek   : 0.2957@0.55B → 0.2943@1.09B → 0.2914@1.36B → 0.2956@1.64B → 0.2938@1.91B → 0.2927@2.00B
+
+-- td --
+  EN_ret  : 0.6912@0.55B → 0.6840@1.09B → 0.6838@1.64B → 0.6831@1.91B → 0.6828@2.00B → 0.6852@2.45B → 0.6852@3.00B → 0.6865@3.50B
+  Multi   : 0.5052@0.55B → 0.4950@1.09B → 0.4900@1.64B → 0.4898@1.91B → 0.4899@2.00B → 0.4909@2.45B → 0.4941@3.00B → 0.4967@3.50B
+  Greek   : 0.4147@0.55B → 0.4286@1.09B → 0.4237@1.64B → 0.4216@1.91B → 0.4254@2.00B → 0.4250@2.45B → 0.4279@3.00B → 0.4344@3.50B
+
+=== Slopes by window (10^-3 acc per B-token) ===
+
+group   arm          full(130-476)  mid(130-390)   tail(390-476)
+EN_ret  vanilla              -4.59        -11.34           -2.45
+EN_ret  retok                -0.06        -10.37           +2.15
+EN_ret  centroid            -10.23        -15.35           +3.99
+EN_ret  td                   -0.75         -6.76           +1.80
+
+Multi   vanilla              -2.07        -13.01           +1.33
+Multi   retok                -0.11        -10.88           +1.20
+Multi   centroid             -8.13        -11.75           -1.15
+Multi   td                   -1.91        -13.86           +3.84
+
+Greek   vanilla              -8.95        -17.91           -7.07
+Greek   retok                +7.58         +9.30           +6.52
+Greek   centroid             -1.26         -1.25           -7.61
+Greek   td                   +4.51         +8.25           +5.66
+
+
+=== Linear extrapolation: TD vs Vanilla on Greek aggregate, using MID-WINDOW slope ===
+  At 3.5B: vanilla = 0.4339, td = 0.4344  (gap = -0.0005)
+  Mid-window slopes: vanilla = -17.909 m.p./B, td = +8.246 m.p./B
+  -> TD slope > Vanilla. Linear crossover at ~3.5B tokens (delta = -0.0B beyond current 3.5B)
+
+=== Full-window slopes (more stable) for the same comparison ===
+  vanilla = -8.947, td = +4.511 m.p./B
+  -> Linear crossover at ~3.5B tokens
+
+saved /home/foivos/Projects/glossapi-tokenizer-extension/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/plots/trajectories_per_task.png

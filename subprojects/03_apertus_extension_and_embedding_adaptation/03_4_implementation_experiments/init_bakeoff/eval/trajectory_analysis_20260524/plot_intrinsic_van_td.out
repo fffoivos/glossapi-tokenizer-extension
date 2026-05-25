@@ -1,0 +1,68 @@
+saved plots/intrinsic_trajectories.png
+saved plots/intrinsic_van_td.png
+
+=== BPC trajectory (bits/byte, LOWER IS BETTER) ===
+  iter    tokens   vanilla     retok  centroid        td
+    65     0.273    0.6094    0.9750    1.2511       n/a
+   130     0.545    0.5432    0.7561    1.1318    0.6531
+   195     0.818    0.5293    0.6827    1.0396       n/a
+   260     1.091    0.5173    0.6370    0.9875    0.5670
+   325     1.363    0.5045    0.6070    0.9525       n/a
+   390     1.636    0.4958    0.5891    0.9280    0.5399
+   455     1.908    0.4916    0.5768    0.9045    0.5328
+   476     1.996    0.4906    0.5739    0.8994    0.5311
+   585     2.454    0.4838    0.5606       n/a    0.5208
+   715     2.999    0.4770    0.5474       n/a    0.5115
+   834     3.498    0.4724    0.5390       n/a    0.5054
+
+=== NLL / char (LOWER IS BETTER) ===
+  iter    tokens   vanilla     retok  centroid        td
+    65     0.273    0.7209    1.1532    1.4797       n/a
+   130     0.545    0.6426    0.8943    1.3387    0.7725
+   195     0.818    0.6262    0.8075    1.2296       n/a
+   260     1.091    0.6120    0.7535    1.1680    0.6707
+   325     1.363    0.5968    0.7179    1.1266       n/a
+   390     1.636    0.5866    0.6968    1.0976    0.6386
+   455     1.908    0.5816    0.6822    1.0698    0.6301
+   476     1.996    0.5804    0.6788    1.0638    0.6282
+   585     2.454    0.5723    0.6631       n/a    0.6160
+   715     2.999    0.5644    0.6474       n/a    0.6049
+   834     3.498    0.5589    0.6375       n/a    0.5978
+
+=== Full-window slopes on intrinsic metrics (Δ per B-token) ===
+
+BPC (bits / byte) ↓:
+  vanilla    slope = -0.03303 / B   (↓ better)
+  retok      slope = -0.10025 / B   (↓ better)
+  centroid   slope = -0.18582 / B   (↓ better)
+  td         slope = -0.04258 / B   (↓ better)
+
+NLL / char ↓:
+  vanilla    slope = -0.03907 / B   (↓ better)
+  retok      slope = -0.11858 / B   (↓ better)
+  centroid   slope = -0.21978 / B   (↓ better)
+  td         slope = -0.05036 / B   (↓ better)
+
+NLL / word ↓:
+  vanilla    slope = -0.26906 / B   (↓ better)
+  retok      slope = -0.81749 / B   (↓ better)
+  centroid   slope = -1.51522 / B   (↓ better)
+  td         slope = -0.34720 / B   (↓ better)
+
+NLL / token ↓:
+  vanilla    slope = -0.09991 / B   (↓ better)
+  retok      slope = -0.47113 / B   (↓ better)
+  centroid   slope = -0.87324 / B   (↓ better)
+  td         slope = -0.20009 / B   (↓ better)
+
+chars / token ↑:
+  vanilla    slope = -0.00000 / B   (↓ better)
+  retok      slope = +0.00000 / B   (↑ better)
+  centroid   slope = -0.00000 / B   (↓ better)
+  td         slope = -0.00000 / B   (↓ better)
+
+tokens / word ↓:
+  vanilla    slope = -0.00000 / B   (↓ better)
+  retok      slope = +0.00000 / B   (↑ worse)
+  centroid   slope = -0.00000 / B   (↓ better)
+  td         slope = -0.00000 / B   (↓ better)

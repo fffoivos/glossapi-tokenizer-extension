@@ -1,0 +1,22 @@
+task                                           V4-HF    van130    van834     td130     td834      dvan       dtd   best834
+------------------------------------------------------------------------------------------------------------------------------------
+global_mmlu_full_el                           0.5155    0.4459    0.4145    0.3848    0.4036  -3.15 pp  +1.89 pp   vanilla
+global_mmlu_full_el_humanities                0.4748    0.4104    0.3898    0.3741    0.3936  -2.06 pp  +1.96 pp        td
+global_mmlu_full_el_social_sciences           0.5951    0.4891    0.4514    0.4056    0.4296  -3.77 pp  +2.40 pp   vanilla
+global_mmlu_full_el_stem                      0.4355    0.3920    0.3622    0.3349    0.3457  -2.98 pp  +1.08 pp   vanilla
+global_mmlu_full_el_other                     0.5797    0.5117    0.4683    0.4310    0.4519  -4.35 pp  +2.09 pp   vanilla
+
+saved plots/global_mmlu_full_el_subcategories_van_td.png
+
+task                                                           V4-HF    van130    van834     td130     td834        dvan         dtd   best834
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+include_base_44_greek_few_shot_en                             0.5054    0.4819    0.4022    0.3859    0.4004    -7.97 pp    +1.45 pp   vanilla
+include_base_44_greek_few_shot_en_arts_humanities             0.6757    0.5135    0.4865    0.5405    0.3784    -2.70 pp   -16.22 pp   vanilla
+include_base_44_greek_few_shot_en_business_commerce           0.7302    0.6190    0.6032    0.5556    0.6349    -1.59 pp    +7.94 pp        td
+include_base_44_greek_few_shot_en_health_oriented_education    0.4400    0.5600    0.2000    0.3600    0.3600   -36.00 pp    +0.00 pp        td
+include_base_44_greek_few_shot_en_medical_license             0.5522    0.5672    0.4179    0.3358    0.4179   -14.93 pp    +8.21 pp        td
+include_base_44_greek_few_shot_en_professional_certification    0.3433    0.3657    0.3433    0.3284    0.3284    -2.24 pp    +0.00 pp   vanilla
+include_base_44_greek_few_shot_en_social_science              0.4701    0.4179    0.3507    0.3657    0.3358    -6.72 pp    -2.99 pp   vanilla
+include_base_44_greek_few_shot_en_stem                        0.5600    0.5200    0.4800    0.4400    0.5200    -4.00 pp    +8.00 pp        td
+
+saved plots/include_base_44_greek_subjects_van_td.png

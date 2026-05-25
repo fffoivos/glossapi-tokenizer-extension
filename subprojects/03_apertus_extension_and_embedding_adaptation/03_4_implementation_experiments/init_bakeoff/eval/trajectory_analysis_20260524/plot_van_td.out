@@ -1,0 +1,21 @@
+saved plots/trajectories_van_td.png
+saved plots/trajectories_per_task_van_td.png
+saved plots/trajectories_van_td_gap.png
+
+=== Vanilla vs TD: group-averaged trajectory + slopes ===
+
+  iter    tokens    van_EN     td_EN   van_Multi    td_Multi    van_Gr     td_Gr    Gr_gap
+   130     0.545    0.6966    0.6912    0.5034    0.5052    0.4667    0.4147     +5.21
+   260     1.091    0.6844    0.6840    0.4900    0.4950    0.4424    0.4286     +1.37
+   325     1.363    0.6867       n/a    0.4896       n/a    0.4472       n/a       n/a
+   390     1.636    0.6836    0.6838    0.4897    0.4900    0.4472    0.4237     +2.35
+   455     1.908    0.6832    0.6831    0.4890    0.4898    0.4447    0.4216     +2.31
+   476     1.996    0.6818    0.6828    0.4901    0.4899    0.4409    0.4254     +1.55
+   585     2.454    0.6833    0.6852    0.4904    0.4909    0.4381    0.4250     +1.30
+   715     2.999    0.6813    0.6852    0.4903    0.4941    0.4348    0.4279     +0.69
+   834     3.498    0.6782    0.6865    0.4923    0.4967    0.4339    0.4344     -0.05
+
+=== Slopes on group aggregates (10^-3 acc per B-token) ===
+English retention       vanilla: full=-4.59, mid=-11.34    td: full=-0.75, mid=-6.76
+Multilingual            vanilla: full=-2.07, mid=-13.01    td: full=-1.91, mid=-13.86
+Greek slice             vanilla: full=-8.95, mid=-17.91    td: full=+4.51, mid=+8.25

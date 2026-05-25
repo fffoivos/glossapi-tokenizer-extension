@@ -2,6 +2,11 @@
 
 2026-05-24. Companion to [`bakeoff_1node_chain_20260522_005620_iter0000476_digest.md`](../live_summaries/bakeoff_1node_chain_20260522_005620_iter0000476_digest.md) and [`td_full25_layer11_2b_20260523T165038Z_iter0000476_digest.md`](../live_summaries/td_full25_layer11_2b_20260523T165038Z_iter0000476_digest.md). The iter-476 digests are snapshots; this doc is the *trajectory*.
 
+Update: the 3.5B continuation is now complete. Use
+[`CONTINUATION_3P5B_RESULTS_20260525.md`](CONTINUATION_3P5B_RESULTS_20260525.md)
+for the current Vanilla / ReTok / TD result. This document remains the original
+2B trajectory analysis and explains why the continuation was worth running.
+
 ## What this doc adds
 
 The iter-476 digest answers "who wins at 2.0 B tokens?" — Vanilla, on aggregate Greek. This doc answers a different question: **what direction is each arm moving, and where would TD overtake Vanilla under linear extrapolation?**
@@ -15,8 +20,8 @@ This doesn't change the production decision (Vanilla is still the right safe def
 
 ## Artifacts in this directory
 
-- [`trajectories.png`](trajectories.png) — three-panel group-averaged trajectory (English retention, Multilingual, Greek slice) per arm.
-- [`trajectories_per_task.png`](trajectories_per_task.png) — eight per-task panels (the seven Greek tasks + English MMLU as reference).
+- [`plots/trajectories.png`](plots/trajectories.png) — three-panel group-averaged trajectory (English retention, Multilingual, Greek slice) per arm.
+- [`plots/trajectories_per_task.png`](plots/trajectories_per_task.png) — eight per-task panels (the seven Greek tasks + English MMLU as reference).
 - [`per_iter_results/*.json`](per_iter_results/) — raw lm-eval-harness `results.json` per arm × iter, 23 files (vanilla / retok / centroid at iter 130/260/325/390/455/476, TD at iter 130/260/390/455/476). Each ~590 KB. These are the gating data for every number below.
 - [`regenerate_plots.py`](regenerate_plots.py) — self-contained reproduction script. Reads `per_iter_results/`, regenerates both PNGs, prints slopes + crossover projection.
 

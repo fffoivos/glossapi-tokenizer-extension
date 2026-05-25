@@ -8,7 +8,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent / "per_iter_results"
 ARMS = ["vanilla", "td"]
-ITERS = [130, 260, 325, 390, 455, 476]  # TD missing 325
+ITERS = [130, 260, 325, 390, 455, 476, 585, 715, 834]  # TD missing 325
 TOK_PER_ITER = 1024 * 4096
 
 V4 = json.loads(Path("/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/v4_baseline_corrected_20260521/results.json").read_text())["results"]
@@ -112,8 +112,8 @@ for ax, (group, label) in zip(axes, groups.items()):
     ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig(Path(__file__).resolve().parent / "trajectories_van_td.png", dpi=120)
-print(f"saved trajectories_van_td.png")
+plt.savefig(Path(__file__).resolve().parent / "plots" / "trajectories_van_td.png", dpi=120)
+print("saved plots/trajectories_van_td.png")
 
 # ---------- Plot 2: per-task 8-panel (7 Greek + English MMLU) ----------
 PLOT_TASKS = [
@@ -151,8 +151,8 @@ for ax, (task, pn, label) in zip(axes.flat, PLOT_TASKS):
     ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig(Path(__file__).resolve().parent / "trajectories_per_task_van_td.png", dpi=120)
-print(f"saved trajectories_per_task_van_td.png")
+plt.savefig(Path(__file__).resolve().parent / "plots" / "trajectories_per_task_van_td.png", dpi=120)
+print("saved plots/trajectories_per_task_van_td.png")
 
 
 # ---------- Plot 3: TD-minus-Vanilla gap on Greek aggregate, with linear extrapolation ----------
@@ -198,6 +198,7 @@ if slope_t > slope_v:
         ax.axvline(x_cross, color="black", alpha=0.3, linestyle=":")
 
 ax.axvline(2.0, color="gray", alpha=0.4, linestyle="-", label="2 B bakeoff budget")
+ax.axvline(3.5, color="gray", alpha=0.35, linestyle=":", label="3.5 B continuation")
 ax.set_xlabel("Tokens consumed (B)")
 ax.set_ylabel("Greek aggregate (mean of 7 Greek tasks)")
 ax.set_title("Vanilla vs TD on Greek aggregate, with mid-window linear extrapolation")
@@ -218,6 +219,7 @@ gap_slope, gap_intercept = np.polyfit(gap_xs, gap_arr, 1)
 ext_xs = np.linspace(0.5, 5.0, 50)
 ax2.plot(ext_xs, gap_intercept + gap_slope * ext_xs, "k--", alpha=0.4, label=f"linear gap fit ({gap_slope*10:+.2f} pp/B)")
 ax2.axvline(2.0, color="gray", alpha=0.4, linestyle="-", label="2 B bakeoff budget")
+ax2.axvline(3.5, color="gray", alpha=0.35, linestyle=":", label="3.5 B continuation")
 # Where does the linear gap hit zero?
 if gap_slope < 0:
     x_zero = -gap_intercept / gap_slope
@@ -231,8 +233,8 @@ ax2.grid(True, alpha=0.3)
 ax2.set_xlim(0.3, 5.2)
 
 plt.tight_layout()
-plt.savefig(Path(__file__).resolve().parent / "trajectories_van_td_gap.png", dpi=120)
-print(f"saved trajectories_van_td_gap.png")
+plt.savefig(Path(__file__).resolve().parent / "plots" / "trajectories_van_td_gap.png", dpi=120)
+print("saved plots/trajectories_van_td_gap.png")
 
 # Numerical summary
 print("\n=== Vanilla vs TD: group-averaged trajectory + slopes ===\n")

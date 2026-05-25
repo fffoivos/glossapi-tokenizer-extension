@@ -1264,3 +1264,44 @@ Current next gate:
   - TD conversion had completed and HF output exists;
   - TD BPC `2376080`, TD diagnostics `2376081`, and packed eval `2376082`
     were running.
+
+### 2026-05-25T05:25Z 3.5B continuation complete; final analysis generated
+
+- Final packed 834 downstream eval job `2376082` completed successfully:
+  - state `COMPLETED`;
+  - exit code `0:0`;
+  - elapsed `00:59:51`.
+- No relevant Slurm jobs remained in the queue after completion.
+- Final packed result artifacts exist for all three arms:
+  - Vanilla:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_vanilla/iter_0000834_full/results_2026-05-25T07-03-45.102518.json`;
+  - ReTok:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_retok/iter_0000834_full/results_2026-05-25T07-00-22.115111.json`;
+  - TD layer11:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_td_layer11/iter_0000834_full/results_2026-05-25T07-00-08.078229.json`.
+- Final intrinsic artifacts exist:
+  - Vanilla BPC:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_vanilla/iter_0000834_tokenizer_fair_metrics.json`;
+  - ReTok BPC and diagnostics:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_retok/iter_0000834_tokenizer_fair_metrics.json`,
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_retok/iter_0000834_new_token_diagnostics.json`;
+  - TD BPC and diagnostics:
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_td_layer11/iter_0000834_tokenizer_fair_metrics.json`,
+    `/capstor/scratch/cscs/fffoivos/runs/eval/continuation_3p5b_20260524T143012Z_td_layer11/iter_0000834_new_token_diagnostics.json`.
+- Pulled small local JSON copies for continuation checkpoints `585`, `715`,
+  and `834` into:
+  `03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/per_iter_results/`.
+- Generated final local report:
+  `03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/CONTINUATION_3P5B_RESULTS_20260525.md`.
+- Regenerated continuation plots under:
+  `03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/plots/`.
+- Final analysis:
+  - TD layer11 is the downstream benchmark leader at 3.5B:
+    Greek aggregate `0.4344`, English-retention aggregate `0.6865`,
+    multilingual aggregate `0.4967`;
+  - Vanilla remains the tokenizer-fair heldout Greek BPC leader:
+    BPC `0.4724`;
+  - ReTok improves fastest on BPC and wins Greek MMLU / INCLUDE-44 Greek at
+    iter `834`, but remains behind on the Greek aggregate (`0.4246`).
+- The temporary local `packed834` polling loop was no longer needed and was
+  stopped after it observed the packed eval completion.

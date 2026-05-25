@@ -8,7 +8,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent / "per_iter_results"
 ARMS = ["vanilla", "retok", "centroid", "td"]
-ITERS = [130, 260, 325, 390, 455, 476]
+ITERS = [130, 260, 325, 390, 455, 476, 585, 715, 834]
 TOK_PER_ITER = 1024 * 4096
 
 V4 = json.loads(Path("/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/v4_baseline_corrected_20260521/results.json").read_text())["results"]
@@ -109,16 +109,17 @@ mask = xs_v <= 1.7
 slope_v_mid = np.polyfit(xs_v[mask], ys_v[mask], 1)[0]
 mask_t = xs_t <= 1.7
 slope_t_mid = np.polyfit(xs_t[mask_t], ys_t[mask_t], 1)[0]
+final_x = xs_v[-1]
 final_v = ys_v[-1]
 final_t = ys_t[-1]
-print(f"  At 2.0B: vanilla = {final_v:.4f}, td = {final_t:.4f}  (gap = {final_v-final_t:+.4f})")
+print(f"  At {final_x:.1f}B: vanilla = {final_v:.4f}, td = {final_t:.4f}  (gap = {final_v-final_t:+.4f})")
 print(f"  Mid-window slopes: vanilla = {slope_v_mid*1000:+.3f} m.p./B, td = {slope_t_mid*1000:+.3f} m.p./B")
 if slope_t_mid > slope_v_mid:
     dt = (final_v - final_t) / (slope_t_mid - slope_v_mid)
-    target = 2.0 + dt
-    print(f"  → TD slope > Vanilla. Linear crossover at ~{target:.1f}B tokens (Δ = {dt:.1f}B beyond current 2.0B)")
+    target = final_x + dt
+    print(f"  -> TD slope > Vanilla. Linear crossover at ~{target:.1f}B tokens (delta = {dt:.1f}B beyond current {final_x:.1f}B)")
 else:
-    print(f"  → TD slope < Vanilla. Linear extrapolation does NOT predict TD overtakes Vanilla on Greek aggregate.")
+    print(f"  -> TD slope < Vanilla. Linear extrapolation does NOT predict TD overtakes Vanilla on Greek aggregate.")
 
 print("\n=== Full-window slopes (more stable) for the same comparison ===")
 s_v_full = np.polyfit(xs_v, ys_v, 1)[0]
@@ -126,10 +127,10 @@ s_t_full = np.polyfit(xs_t, ys_t, 1)[0]
 print(f"  vanilla = {s_v_full*1000:+.3f}, td = {s_t_full*1000:+.3f} m.p./B")
 if s_t_full > s_v_full:
     dt = (final_v - final_t) / (s_t_full - s_v_full)
-    target = 2.0 + dt
-    print(f"  → Linear crossover at ~{target:.1f}B tokens")
+    target = final_x + dt
+    print(f"  -> Linear crossover at ~{target:.1f}B tokens")
 else:
-    print(f"  → No crossover predicted")
+    print(f"  -> No crossover predicted")
 
 # Now plot the four key Greek tasks individually
 fig, axes = plt.subplots(2, 4, figsize=(22, 10))
@@ -170,5 +171,5 @@ for ax, (task, pn, label) in zip(axes.flat, PLOT_TASKS):
     ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig(Path(__file__).resolve().parent / "trajectories_per_task.png", dpi=110)
-print(f"\nsaved {ROOT / 'trajectories_per_task.png'}")
+plt.savefig(Path(__file__).resolve().parent / "plots" / "trajectories_per_task.png", dpi=110)
+print(f"\nsaved {Path(__file__).resolve().parent / 'plots' / 'trajectories_per_task.png'}")
