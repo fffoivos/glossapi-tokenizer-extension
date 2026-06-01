@@ -1,0 +1,81 @@
+{
+  "n_resamples": 1000,
+  "ci_level": 0.95,
+  "rng_seed": 20260529,
+  "resampling_scheme": "Per-task item-level paired bootstrap (independent resampling within each task). Headline = macro-mean across tasks per resample. Paired by shared resample indices between iter-477 and iter-834.",
+  "iter_477_point_headline_3task": 0.4791518358185025,
+  "iter_834_point_headline_3task": 0.478965848965849,
+  "paired_headline_3task": {
+    "delta": -0.0001859868526535302,
+    "ci_lo": -0.012297689193522551,
+    "ci_hi": 0.011367243867243877,
+    "outside_zero": false
+  },
+  "paired_headline_4task_with_plutus": {
+    "delta": -0.00013949013949016154,
+    "ci_lo": -0.014226340788840703,
+    "ci_hi": 0.014633440055315139,
+    "outside_zero": false
+  },
+  "paired_per_task": [
+    {
+      "task": "greekmmlu",
+      "delta": 0.0209235209235209,
+      "ci_lo": 0.01641263828763831,
+      "ci_hi": 0.02537277537277538,
+      "outside_zero": true
+    },
+    {
+      "task": "ilsp_medical_mcqa",
+      "delta": -0.0023148148148147696,
+      "ci_lo": -0.03478009259259253,
+      "ci_hi": 0.02777777777777779,
+      "outside_zero": false
+    },
+    {
+      "task": "ilsp_mcqa_asep",
+      "delta": -0.019166666666666665,
+      "ci_lo": -0.036666666666666625,
+      "ci_hi": -0.0033333333333332993,
+      "outside_zero": true
+    },
+    {
+      "task": "plutus_qa",
+      "delta": 0.0,
+      "ci_lo": -0.04444444444444451,
+      "ci_hi": 0.04444444444444445,
+      "outside_zero": false
+    }
+  ],
+  "iter_834_marginal_3task_headline": {
+    "point": 0.478965848965849,
+    "lo_95": 0.4605583213083213,
+    "hi_95": 0.49781965488215485
+  },
+  "iter_834_marginal_per_task": {
+    "greekmmlu": {
+      "point": 0.5283790283790284,
+      "lo_95": 0.5204996392496393,
+      "hi_95": 0.5357157888407889,
+      "n_items": 16632
+    },
+    "ilsp_medical_mcqa": {
+      "point": 0.39351851851851855,
+      "lo_95": 0.3472222222222222,
+      "hi_95": 0.4375,
+      "n_items": 432
+    },
+    "ilsp_mcqa_asep": {
+      "point": 0.515,
+      "lo_95": 0.48583333333333334,
+      "hi_95": 0.5425,
+      "n_items": 1200
+    },
+    "plutus_qa": {
+      "point": 0.4888888888888889,
+      "lo_95": 0.4266666666666667,
+      "hi_95": 0.5555555555555556,
+      "n_items": 225
+    }
+  }
+}

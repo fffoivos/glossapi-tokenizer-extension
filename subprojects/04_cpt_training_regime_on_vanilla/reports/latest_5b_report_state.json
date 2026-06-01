@@ -1,0 +1,2501 @@
+{
+  "canonical_tasks": {
+    "generated_utc": "2026-05-30T16:00:41Z",
+    "greek_native_mcq": {
+      "aggregate_rule": "arithmetic_mean of macro_accuracy",
+      "diagnostic_separate": [
+        "plutus_qa"
+      ],
+      "excluded_mt_derived": [
+        "xnli_el",
+        "xcopa_el",
+        "arc_challenge_mt_el",
+        "global_piqa_completions_ell_grek"
+      ],
+      "headline_tasks": [
+        "greekmmlu",
+        "ilsp_medical_mcqa",
+        "ilsp_mcqa_asep"
+      ]
+    },
+    "heldout_bpb": [
+      "greek_heldout_500",
+      "code_heldout_200",
+      "math_heldout_200"
+    ],
+    "non_canonical_kept_on_disk": true,
+    "non_canonical_visible_to_render": false,
+    "rationale": "Locked task list visible to reports + reviewers. Non-canonical data stays on disk but is invisible to renderer + report. Eliminates the case-by-case interpretation problem; report = filtered against this file.",
+    "retention": {
+      "absent_on_disk_note": "xstorycloze_<lang> is in the cpt-plan.md §2.1 'tasks per language' default proposal but is NOT present in the upstream lm-eval 'retention_only' bundle as executed for this run; we mark these explicitly so coverage gaps are visible rather than silently dropped.",
+      "languages": [
+        "en",
+        "fr",
+        "de",
+        "ru"
+      ],
+      "subdomain_aggregation_rule": "global_mmlu_<lang> = mean(business, humanities, medical, other, social_sciences, stem); the upstream lm-eval bundle already emits the aggregate row, so the renderer reads the aggregate key directly and does not need to re-mean subdomains.",
+      "tasks_per_language": {
+        "de": [
+          {
+            "absent_on_disk": false,
+            "task": "global_mmlu_de"
+          },
+          {
+            "absent_on_disk": false,
+            "task": "xnli_de"
+          }
+        ],
+        "en": [
+          {
+            "absent_on_disk": false,
+            "task": "mmlu"
+          },
+          {
+            "absent_on_disk": false,
+            "task": "arc_challenge"
+          },
+          {
+            "absent_on_disk": false,
+            "task": "arc_easy"
+          },
+          {
+            "absent_on_disk": false,
+            "task": "hellaswag"
+          },
+          {
+            "absent_on_disk": false,
+            "task": "piqa"
+          },
+          {
+            "absent_on_disk": false,
+            "task": "global_mmlu_en"
+          },
+          {
+            "absent_on_disk": false,
+            "task": "xnli_en"
+          },
+          {
+            "absent_on_disk": true,
+            "task": "xstorycloze_en"
+          }
+        ],
+        "fr": [
+          {
+            "absent_on_disk": false,
+            "task": "global_mmlu_fr"
+          },
+          {
+            "absent_on_disk": false,
+            "task": "xnli_fr"
+          }
+        ],
+        "ru": [
+          {
+            "absent_on_disk": false,
+            "task": "xnli_ru"
+          },
+          {
+            "absent_on_disk": true,
+            "task": "xstorycloze_ru"
+          }
+        ]
+      }
+    },
+    "schema": "canonical-eval-tasks-v1",
+    "scope": "Task-1 04 Vanilla CPT diagnostic; expected to be inherited by Task-2 with at most a documented extension.",
+    "sources": [
+      "subprojects/04_cpt_training_regime_on_vanilla/goal/hyperparameters.json eval block",
+      "subprojects/04_cpt_training_regime_on_vanilla/cpt-plan.md §1.4 + §2.1 (Eval table)",
+      "On-disk task identifiers in eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/retention/results_*.json"
+    ]
+  },
+  "canonical_tasks_source": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/goal/canonical_eval_tasks.json",
+  "checkpoints": [
+    {
+      "checkpoint_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0000119",
+      "checkpoint_exists": true,
+      "checksum_manifest": {
+        "exists": true,
+        "mtime": "2026-05-28T21:09:20Z",
+        "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/checksums/Vanilla-0.5B_iter_0000119_checksum_manifest.json",
+        "size": 9022
+      },
+      "eval_iter_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119",
+      "eval_iter_root_exists": true,
+      "hf_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119_hf",
+      "hf_exists": true,
+      "iter_pad": "0000119",
+      "iteration": 119,
+      "label": "Vanilla-0.5B",
+      "local_review": {
+        "critique": {
+          "exists": true,
+          "mtime": "2026-05-28T20:49:09Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-0.5B/adversarial_critique.md",
+          "size": 8365
+        },
+        "dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-0.5B",
+        "events_jsonl": {
+          "exists": true,
+          "mtime": "2026-05-28T20:49:09Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-0.5B/codex_events.jsonl",
+          "size": 3091647
+        },
+        "metadata": {
+          "exists": true,
+          "mtime": "2026-05-28T20:49:09Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-0.5B/review_metadata.env",
+          "size": 1062
+        },
+        "prompt": {
+          "exists": true,
+          "mtime": "2026-05-28T20:38:54Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-0.5B/prompt.md",
+          "size": 2692
+        }
+      },
+      "local_sidecar_handoff": {
+        "done_file": {
+          "exists": true,
+          "mtime": "2026-05-28T21:28:44Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/monitor_logs/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_verify_state/iter_119.handoff_done",
+          "size": 21
+        },
+        "latest_summary": {
+          "active_sidecar_jobs": 0,
+          "archived_sidecar_attempt_count": 1,
+          "checkpoint_metadata_ready": true,
+          "checksum_manifest_ready": true,
+          "expected_outputs_ready": true,
+          "handoff_ready": true,
+          "manifest_has_all_expected_kinds": true,
+          "sidecars_submitted": true,
+          "slurm_jobs_completed": true
+        },
+        "latest_verify_json": {
+          "exists": true,
+          "mtime": "2026-05-28T21:28:38Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/iter_0000119_checkpoint_sidecar_verify_latest.json",
+          "size": 20345
+        },
+        "pass_summary": {
+          "active_sidecar_jobs": 0,
+          "archived_sidecar_attempt_count": 1,
+          "checkpoint_metadata_ready": true,
+          "checksum_manifest_ready": true,
+          "expected_outputs_ready": true,
+          "handoff_ready": true,
+          "manifest_has_all_expected_kinds": true,
+          "sidecars_submitted": true,
+          "slurm_jobs_completed": true
+        },
+        "pass_verify_json": {
+          "exists": true,
+          "mtime": "2026-05-28T21:28:44Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/iter_0000119_checkpoint_sidecar_handoff_pass.json",
+          "size": 20345
+        },
+        "verified": true
+      },
+      "metadata_exists": true,
+      "metrics": {
+        "bpb": {
+          "code": {
+            "bpb": 0.41778503178948523,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-28T19:25:06Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/heldout_code_bpb.json",
+              "size": 2278
+            },
+            "fraction_truncated": 0.115,
+            "n_docs": 200.0,
+            "n_docs_truncated": 23,
+            "strr_rate": 0.6963093083185462
+          },
+          "greek": {
+            "bpb": 0.6049364592071509,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-28T19:25:52Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/heldout_greek_bpb.json",
+              "size": 5372
+            },
+            "fraction_truncated": 0.292,
+            "n_docs": 500.0,
+            "n_docs_truncated": 146,
+            "strr_rate": 0.2702694597309901
+          },
+          "math": {
+            "bpb": 0.7270752512540752,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-28T19:25:01Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/heldout_math_bpb.json",
+              "size": 2262
+            },
+            "fraction_truncated": 0.075,
+            "n_docs": 200.0,
+            "n_docs_truncated": 15,
+            "strr_rate": 0.7285759713973855
+          }
+        },
+        "native_mcq": {
+          "canonical_diagnostic_tasks": [
+            "plutus_qa"
+          ],
+          "canonical_headline_tasks": [
+            "greekmmlu",
+            "ilsp_mcqa_asep",
+            "ilsp_medical_mcqa"
+          ],
+          "diagnostics": [
+            {
+              "accuracy": 0.4,
+              "benchmark": "plutus_qa",
+              "correct": 90,
+              "n": 225,
+              "subject": "__all__"
+            }
+          ],
+          "diagnostics_file": {
+            "exists": true,
+            "mtime": "2026-05-28T20:55:06Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/native_mcq/Vanilla-0.5B_native_mcq_diagnostics.json",
+            "size": 121
+          },
+          "dropped_non_canonical_diagnostics": [],
+          "dropped_non_canonical_headline": [],
+          "headline": [
+            {
+              "accuracy": 0.4984968734968735,
+              "benchmark": "greekmmlu",
+              "correct": 8291,
+              "n": 16632,
+              "subject": "__all__"
+            },
+            {
+              "accuracy": 0.33796296296296297,
+              "benchmark": "ilsp_medical_mcqa",
+              "correct": 146,
+              "n": 432,
+              "subject": "__all__"
+            },
+            {
+              "accuracy": 0.48083333333333333,
+              "benchmark": "ilsp_mcqa_asep",
+              "correct": 577,
+              "n": 1200,
+              "subject": "__all__"
+            }
+          ],
+          "headline_file": {
+            "exists": true,
+            "mtime": "2026-05-28T20:55:06Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/native_mcq/Vanilla-0.5B_native_mcq_headline.json",
+            "size": 424
+          },
+          "headline_macro_accuracy": 0.43909772326438995,
+          "headline_plus_diagnostic_macro_accuracy": 0.4293232924482925
+        },
+        "retention": {
+          "canonical_retention_present_count": 12,
+          "canonical_retention_tasks": [
+            "arc_challenge",
+            "arc_easy",
+            "global_mmlu_de",
+            "global_mmlu_en",
+            "global_mmlu_fr",
+            "hellaswag",
+            "mmlu",
+            "piqa",
+            "xnli_de",
+            "xnli_en",
+            "xnli_fr",
+            "xnli_ru"
+          ],
+          "file": {
+            "exists": true,
+            "mtime": "2026-05-28T19:49:44Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/retention/results_2026-05-28T21-49-44.233218.json",
+            "size": 419113
+          },
+          "non_canonical_dropped_count": 189,
+          "selected_accuracy": {
+            "arc_challenge": 0.5085324232081911,
+            "arc_easy": 0.811026936026936,
+            "global_mmlu_de": 0.525,
+            "global_mmlu_en": 0.605,
+            "global_mmlu_fr": 0.535,
+            "hellaswag": 0.5711013742282414,
+            "mmlu": 0.5674405355362484,
+            "piqa": 0.7856365614798694,
+            "xnli_de": 0.4855421686746988,
+            "xnli_en": 0.5188755020080321,
+            "xnli_fr": 0.45461847389558235,
+            "xnli_ru": 0.4819277108433735
+          },
+          "selected_accuracy_by_language": {
+            "de": {
+              "global_mmlu_de": 0.525,
+              "xnli_de": 0.4855421686746988
+            },
+            "en": {
+              "arc_challenge": 0.5085324232081911,
+              "arc_easy": 0.811026936026936,
+              "global_mmlu_en": 0.605,
+              "hellaswag": 0.5711013742282414,
+              "mmlu": 0.5674405355362484,
+              "piqa": 0.7856365614798694,
+              "xnli_en": 0.5188755020080321
+            },
+            "fr": {
+              "global_mmlu_fr": 0.535,
+              "xnli_fr": 0.45461847389558235
+            },
+            "ru": {
+              "xnli_ru": 0.4819277108433735
+            }
+          },
+          "task_count": 12
+        }
+      },
+      "sidecar_attempt_history": {
+        "archived_attempt_count": 1,
+        "archived_attempt_job_ids": [
+          "2419080",
+          "2419081",
+          "2419082",
+          "2419083",
+          "2419085",
+          "2419086",
+          "2419087"
+        ],
+        "archived_attempts": [
+          {
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-28T19:22:33Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/sidecar_jobs_attempt_failed_convert_2419080_20260528T192233Z.tsv",
+              "size": 1083
+            },
+            "job_ids": [
+              "2419080",
+              "2419081",
+              "2419082",
+              "2419083",
+              "2419085",
+              "2419086",
+              "2419087"
+            ],
+            "rows": [
+              {
+                "dependency": "none",
+                "job_id": "2419080",
+                "kind": "convert",
+                "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119_hf"
+              },
+              {
+                "dependency": "2419080",
+                "job_id": "2419081",
+                "kind": "native_mcq",
+                "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/native_mcq"
+              },
+              {
+                "dependency": "2419080",
+                "job_id": "2419082",
+                "kind": "greek_nlp",
+                "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/greek_nlp_s100"
+              },
+              {
+                "dependency": "2419080",
+                "job_id": "2419083",
+                "kind": "heldout_greek_bpb",
+                "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/heldout_greek_bpb.json"
+              },
+              {
+                "dependency": "2419080",
+                "job_id": "2419085",
+                "kind": "retention",
+                "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/retention"
+              },
+              {
+                "dependency": "2419080",
+                "job_id": "2419086",
+                "kind": "code_bpb",
+                "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/heldout_code_bpb.json"
+              },
+              {
+                "dependency": "2419080",
+                "job_id": "2419087",
+                "kind": "math_bpb",
+                "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/heldout_math_bpb.json"
+              }
+            ]
+          }
+        ]
+      },
+      "sidecar_manifest": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/sidecar_jobs.tsv",
+      "sidecar_manifest_exists": true,
+      "sidecar_manifest_rows": [
+        {
+          "dependency": "none",
+          "job_id": "2419108",
+          "kind": "convert",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119_hf"
+        },
+        {
+          "dependency": "2419108",
+          "job_id": "2419109",
+          "kind": "native_mcq",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/native_mcq"
+        },
+        {
+          "dependency": "2419108",
+          "job_id": "2419110",
+          "kind": "greek_nlp",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/greek_nlp_s100"
+        },
+        {
+          "dependency": "2419108",
+          "job_id": "2419111",
+          "kind": "heldout_greek_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/heldout_greek_bpb.json"
+        },
+        {
+          "dependency": "2419108",
+          "job_id": "2419112",
+          "kind": "retention",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/retention"
+        },
+        {
+          "dependency": "2419108",
+          "job_id": "2419113",
+          "kind": "code_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/heldout_code_bpb.json"
+        },
+        {
+          "dependency": "2419108",
+          "job_id": "2419114",
+          "kind": "math_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/heldout_math_bpb.json"
+        }
+      ],
+      "submit_log_exists": true,
+      "submitted_state_exists": true,
+      "tokens": 499122176
+    },
+    {
+      "checkpoint_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0000238",
+      "checkpoint_exists": true,
+      "checksum_manifest": {
+        "exists": true,
+        "mtime": "2026-05-28T23:45:29Z",
+        "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/checksums/Vanilla-1B_iter_0000238_checksum_manifest.json",
+        "size": 9020
+      },
+      "eval_iter_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238",
+      "eval_iter_root_exists": true,
+      "hf_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238_hf",
+      "hf_exists": true,
+      "iter_pad": "0000238",
+      "iteration": 238,
+      "label": "Vanilla-1B",
+      "local_review": {
+        "critique": {
+          "exists": true,
+          "mtime": "2026-05-29T00:57:26Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-1B/adversarial_critique.md",
+          "size": 19327
+        },
+        "dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-1B",
+        "events_jsonl": {
+          "exists": false,
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-1B/codex_events.jsonl"
+        },
+        "metadata": {
+          "exists": true,
+          "mtime": "2026-05-29T00:46:31Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-1B/review_metadata.env",
+          "size": 546
+        },
+        "prompt": {
+          "exists": true,
+          "mtime": "2026-05-29T00:46:27Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-1B/prompt.md",
+          "size": 3568
+        }
+      },
+      "local_sidecar_handoff": {
+        "done_file": {
+          "exists": true,
+          "mtime": "2026-05-29T00:47:26Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/monitor_logs/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_verify_state/iter_238.handoff_done",
+          "size": 21
+        },
+        "latest_summary": {
+          "active_sidecar_jobs": 0,
+          "archived_sidecar_attempt_count": 0,
+          "checkpoint_metadata_ready": true,
+          "checksum_manifest_ready": true,
+          "expected_outputs_ready": true,
+          "handoff_ready": true,
+          "manifest_has_all_expected_kinds": true,
+          "sidecars_submitted": true,
+          "slurm_jobs_completed": true
+        },
+        "latest_verify_json": {
+          "exists": true,
+          "mtime": "2026-05-29T00:47:26Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/iter_0000238_checkpoint_sidecar_verify_latest.json",
+          "size": 16775
+        },
+        "pass_summary": {
+          "active_sidecar_jobs": 0,
+          "archived_sidecar_attempt_count": 0,
+          "checkpoint_metadata_ready": true,
+          "checksum_manifest_ready": true,
+          "expected_outputs_ready": true,
+          "handoff_ready": true,
+          "manifest_has_all_expected_kinds": true,
+          "sidecars_submitted": true,
+          "slurm_jobs_completed": true
+        },
+        "pass_verify_json": {
+          "exists": true,
+          "mtime": "2026-05-29T00:47:26Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/iter_0000238_checkpoint_sidecar_handoff_pass.json",
+          "size": 16775
+        },
+        "verified": true
+      },
+      "metadata_exists": true,
+      "metrics": {
+        "bpb": {
+          "code": {
+            "bpb": 0.30647563496091224,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-28T23:43:21Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/heldout_code_bpb.json",
+              "size": 2280
+            },
+            "fraction_truncated": 0.115,
+            "n_docs": 200.0,
+            "n_docs_truncated": 23,
+            "strr_rate": 0.6963093083185462
+          },
+          "greek": {
+            "bpb": 0.468372983035312,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-28T23:44:10Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/heldout_greek_bpb.json",
+              "size": 5385
+            },
+            "fraction_truncated": 0.292,
+            "n_docs": 500.0,
+            "n_docs_truncated": 146,
+            "strr_rate": 0.2702694597309901
+          },
+          "math": {
+            "bpb": 0.6022324702083208,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-28T23:43:20Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/heldout_math_bpb.json",
+              "size": 2255
+            },
+            "fraction_truncated": 0.075,
+            "n_docs": 200.0,
+            "n_docs_truncated": 15,
+            "strr_rate": 0.7285759713973855
+          }
+        },
+        "native_mcq": {
+          "canonical_diagnostic_tasks": [
+            "plutus_qa"
+          ],
+          "canonical_headline_tasks": [
+            "greekmmlu",
+            "ilsp_mcqa_asep",
+            "ilsp_medical_mcqa"
+          ],
+          "diagnostics": [
+            {
+              "accuracy": 0.41333333333333333,
+              "benchmark": "plutus_qa",
+              "correct": 93,
+              "n": 225,
+              "subject": "__all__"
+            }
+          ],
+          "diagnostics_file": {
+            "exists": true,
+            "mtime": "2026-05-29T11:37:46Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/native_mcq/Vanilla-1B_native_mcq_diagnostics.json",
+            "size": 137
+          },
+          "dropped_non_canonical_diagnostics": [],
+          "dropped_non_canonical_headline": [],
+          "headline": [
+            {
+              "accuracy": 0.5025853775853776,
+              "benchmark": "greekmmlu",
+              "correct": 8359,
+              "n": 16632,
+              "subject": "__all__"
+            },
+            {
+              "accuracy": 0.36342592592592593,
+              "benchmark": "ilsp_medical_mcqa",
+              "correct": 157,
+              "n": 432,
+              "subject": "__all__"
+            },
+            {
+              "accuracy": 0.48,
+              "benchmark": "ilsp_mcqa_asep",
+              "correct": 576,
+              "n": 1200,
+              "subject": "__all__"
+            }
+          ],
+          "headline_file": {
+            "exists": true,
+            "mtime": "2026-05-29T11:37:46Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/native_mcq/Vanilla-1B_native_mcq_headline.json",
+            "size": 409
+          },
+          "headline_macro_accuracy": 0.4486704345037678,
+          "headline_plus_diagnostic_macro_accuracy": 0.4398361592111592
+        },
+        "retention": {
+          "canonical_retention_present_count": 12,
+          "canonical_retention_tasks": [
+            "arc_challenge",
+            "arc_easy",
+            "global_mmlu_de",
+            "global_mmlu_en",
+            "global_mmlu_fr",
+            "hellaswag",
+            "mmlu",
+            "piqa",
+            "xnli_de",
+            "xnli_en",
+            "xnli_fr",
+            "xnli_ru"
+          ],
+          "file": {
+            "exists": true,
+            "mtime": "2026-05-29T00:09:16Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/retention/results_2026-05-29T02-09-16.852055.json",
+            "size": 419190
+          },
+          "non_canonical_dropped_count": 189,
+          "selected_accuracy": {
+            "arc_challenge": 0.5290102389078498,
+            "arc_easy": 0.8232323232323232,
+            "global_mmlu_de": 0.54,
+            "global_mmlu_en": 0.6,
+            "global_mmlu_fr": 0.525,
+            "hellaswag": 0.5782712607050389,
+            "mmlu": 0.5510611024070645,
+            "piqa": 0.795429815016322,
+            "xnli_de": 0.5088353413654618,
+            "xnli_en": 0.5120481927710844,
+            "xnli_fr": 0.4943775100401606,
+            "xnli_ru": 0.4799196787148594
+          },
+          "selected_accuracy_by_language": {
+            "de": {
+              "global_mmlu_de": 0.54,
+              "xnli_de": 0.5088353413654618
+            },
+            "en": {
+              "arc_challenge": 0.5290102389078498,
+              "arc_easy": 0.8232323232323232,
+              "global_mmlu_en": 0.6,
+              "hellaswag": 0.5782712607050389,
+              "mmlu": 0.5510611024070645,
+              "piqa": 0.795429815016322,
+              "xnli_en": 0.5120481927710844
+            },
+            "fr": {
+              "global_mmlu_fr": 0.525,
+              "xnli_fr": 0.4943775100401606
+            },
+            "ru": {
+              "xnli_ru": 0.4799196787148594
+            }
+          },
+          "task_count": 12
+        }
+      },
+      "sidecar_attempt_history": {
+        "archived_attempt_count": 0,
+        "archived_attempt_job_ids": [],
+        "archived_attempts": []
+      },
+      "sidecar_manifest": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/sidecar_jobs.tsv",
+      "sidecar_manifest_exists": true,
+      "sidecar_manifest_rows": [
+        {
+          "dependency": "none",
+          "job_id": "2420146",
+          "kind": "convert",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238_hf"
+        },
+        {
+          "dependency": "2420146",
+          "job_id": "2420147",
+          "kind": "native_mcq",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/native_mcq"
+        },
+        {
+          "dependency": "2420146",
+          "job_id": "2420148",
+          "kind": "greek_nlp",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/greek_nlp_s100"
+        },
+        {
+          "dependency": "2420146",
+          "job_id": "2420149",
+          "kind": "heldout_greek_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/heldout_greek_bpb.json"
+        },
+        {
+          "dependency": "2420146",
+          "job_id": "2420150",
+          "kind": "retention",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/retention"
+        },
+        {
+          "dependency": "2420146",
+          "job_id": "2420151",
+          "kind": "code_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/heldout_code_bpb.json"
+        },
+        {
+          "dependency": "2420146",
+          "job_id": "2420152",
+          "kind": "math_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/heldout_math_bpb.json"
+        },
+        {
+          "dependency": "2420146",
+          "job_id": "2420153",
+          "kind": "checksum",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000238/checksums/Vanilla-1B_iter_0000238_checksum_manifest.json"
+        }
+      ],
+      "submit_log_exists": true,
+      "submitted_state_exists": true,
+      "tokens": 998244352
+    },
+    {
+      "checkpoint_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0000477",
+      "checkpoint_exists": true,
+      "checksum_manifest": {
+        "exists": true,
+        "mtime": "2026-05-29T09:15:48Z",
+        "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/checksums/Vanilla-2B_iter_0000477_checksum_manifest.json",
+        "size": 9021
+      },
+      "eval_iter_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477",
+      "eval_iter_root_exists": true,
+      "hf_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477_hf",
+      "hf_exists": true,
+      "iter_pad": "0000477",
+      "iteration": 477,
+      "label": "Vanilla-2B",
+      "local_review": {
+        "critique": {
+          "exists": true,
+          "mtime": "2026-05-29T11:52:57Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-2B/adversarial_critique.md",
+          "size": 32284
+        },
+        "dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-2B",
+        "events_jsonl": {
+          "exists": false,
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-2B/codex_events.jsonl"
+        },
+        "metadata": {
+          "exists": true,
+          "mtime": "2026-05-29T11:42:55Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-2B/review_metadata.env",
+          "size": 831
+        },
+        "prompt": {
+          "exists": true,
+          "mtime": "2026-05-29T11:42:49Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-2B/prompt.md",
+          "size": 6693
+        }
+      },
+      "local_sidecar_handoff": {
+        "done_file": {
+          "exists": true,
+          "mtime": "2026-05-29T11:14:32Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/monitor_logs/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_verify_state/iter_477.handoff_done",
+          "size": 21
+        },
+        "latest_summary": {
+          "active_sidecar_jobs": 0,
+          "archived_sidecar_attempt_count": 0,
+          "checkpoint_metadata_ready": true,
+          "checksum_manifest_ready": true,
+          "expected_outputs_ready": true,
+          "handoff_ready": true,
+          "manifest_has_all_expected_kinds": true,
+          "sidecars_submitted": true,
+          "slurm_jobs_completed": true
+        },
+        "latest_verify_json": {
+          "exists": true,
+          "mtime": "2026-05-29T11:14:32Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/iter_0000477_checkpoint_sidecar_verify_latest.json",
+          "size": 16660
+        },
+        "pass_summary": {
+          "active_sidecar_jobs": 0,
+          "archived_sidecar_attempt_count": 0,
+          "checkpoint_metadata_ready": true,
+          "checksum_manifest_ready": true,
+          "expected_outputs_ready": true,
+          "handoff_ready": true,
+          "manifest_has_all_expected_kinds": true,
+          "sidecars_submitted": true,
+          "slurm_jobs_completed": true
+        },
+        "pass_verify_json": {
+          "exists": true,
+          "mtime": "2026-05-29T11:14:32Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/iter_0000477_checkpoint_sidecar_handoff_pass.json",
+          "size": 16660
+        },
+        "verified": true
+      },
+      "metadata_exists": true,
+      "metrics": {
+        "bpb": {
+          "code": {
+            "bpb": 0.2806806192779026,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-29T09:14:23Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/heldout_code_bpb.json",
+              "size": 2268
+            },
+            "fraction_truncated": 0.115,
+            "n_docs": 200.0,
+            "n_docs_truncated": 23,
+            "strr_rate": 0.6963093083185462
+          },
+          "greek": {
+            "bpb": 0.4312744114729581,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-29T09:15:11Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/heldout_greek_bpb.json",
+              "size": 5388
+            },
+            "fraction_truncated": 0.292,
+            "n_docs": 500.0,
+            "n_docs_truncated": 146,
+            "strr_rate": 0.2702694597309901
+          },
+          "math": {
+            "bpb": 0.5589462756792049,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-29T09:14:21Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/heldout_math_bpb.json",
+              "size": 2264
+            },
+            "fraction_truncated": 0.075,
+            "n_docs": 200.0,
+            "n_docs_truncated": 15,
+            "strr_rate": 0.7285759713973855
+          }
+        },
+        "native_mcq": {
+          "canonical_diagnostic_tasks": [
+            "plutus_qa"
+          ],
+          "canonical_headline_tasks": [
+            "greekmmlu",
+            "ilsp_mcqa_asep",
+            "ilsp_medical_mcqa"
+          ],
+          "diagnostics": [
+            {
+              "accuracy": 0.4888888888888889,
+              "benchmark": "plutus_qa",
+              "correct": 110,
+              "n": 225,
+              "subject": "__all__"
+            }
+          ],
+          "diagnostics_file": {
+            "exists": true,
+            "mtime": "2026-05-29T11:37:53Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/native_mcq/Vanilla-2B_native_mcq_diagnostics.json",
+            "size": 137
+          },
+          "dropped_non_canonical_diagnostics": [],
+          "dropped_non_canonical_headline": [],
+          "headline": [
+            {
+              "accuracy": 0.5074555074555075,
+              "benchmark": "greekmmlu",
+              "correct": 8440,
+              "n": 16632,
+              "subject": "__all__"
+            },
+            {
+              "accuracy": 0.3958333333333333,
+              "benchmark": "ilsp_medical_mcqa",
+              "correct": 171,
+              "n": 432,
+              "subject": "__all__"
+            },
+            {
+              "accuracy": 0.5341666666666667,
+              "benchmark": "ilsp_mcqa_asep",
+              "correct": 641,
+              "n": 1200,
+              "subject": "__all__"
+            }
+          ],
+          "headline_file": {
+            "exists": true,
+            "mtime": "2026-05-29T11:37:53Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/native_mcq/Vanilla-2B_native_mcq_headline.json",
+            "size": 422
+          },
+          "headline_macro_accuracy": 0.4791518358185025,
+          "headline_plus_diagnostic_macro_accuracy": 0.4815860990860991
+        },
+        "retention": {
+          "canonical_retention_present_count": 12,
+          "canonical_retention_tasks": [
+            "arc_challenge",
+            "arc_easy",
+            "global_mmlu_de",
+            "global_mmlu_en",
+            "global_mmlu_fr",
+            "hellaswag",
+            "mmlu",
+            "piqa",
+            "xnli_de",
+            "xnli_en",
+            "xnli_fr",
+            "xnli_ru"
+          ],
+          "file": {
+            "exists": true,
+            "mtime": "2026-05-29T09:38:20Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/retention/results_2026-05-29T11-38-20.136808.json",
+            "size": 419185
+          },
+          "non_canonical_dropped_count": 189,
+          "selected_accuracy": {
+            "arc_challenge": 0.5247440273037542,
+            "arc_easy": 0.8034511784511784,
+            "global_mmlu_de": 0.5875,
+            "global_mmlu_en": 0.6375,
+            "global_mmlu_fr": 0.58,
+            "hellaswag": 0.5916152160924119,
+            "mmlu": 0.5962113659022931,
+            "piqa": 0.7905331882480957,
+            "xnli_de": 0.4847389558232932,
+            "xnli_en": 0.4903614457831325,
+            "xnli_fr": 0.4678714859437751,
+            "xnli_ru": 0.4879518072289157
+          },
+          "selected_accuracy_by_language": {
+            "de": {
+              "global_mmlu_de": 0.5875,
+              "xnli_de": 0.4847389558232932
+            },
+            "en": {
+              "arc_challenge": 0.5247440273037542,
+              "arc_easy": 0.8034511784511784,
+              "global_mmlu_en": 0.6375,
+              "hellaswag": 0.5916152160924119,
+              "mmlu": 0.5962113659022931,
+              "piqa": 0.7905331882480957,
+              "xnli_en": 0.4903614457831325
+            },
+            "fr": {
+              "global_mmlu_fr": 0.58,
+              "xnli_fr": 0.4678714859437751
+            },
+            "ru": {
+              "xnli_ru": 0.4879518072289157
+            }
+          },
+          "task_count": 12
+        }
+      },
+      "sidecar_attempt_history": {
+        "archived_attempt_count": 0,
+        "archived_attempt_job_ids": [],
+        "archived_attempts": []
+      },
+      "sidecar_manifest": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/sidecar_jobs.tsv",
+      "sidecar_manifest_exists": true,
+      "sidecar_manifest_rows": [
+        {
+          "dependency": "none",
+          "job_id": "2421571",
+          "kind": "convert",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477_hf"
+        },
+        {
+          "dependency": "2421571",
+          "job_id": "2421572",
+          "kind": "native_mcq",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/native_mcq"
+        },
+        {
+          "dependency": "2421571",
+          "job_id": "2421573",
+          "kind": "greek_nlp",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/greek_nlp_s100"
+        },
+        {
+          "dependency": "2421571",
+          "job_id": "2421574",
+          "kind": "heldout_greek_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/heldout_greek_bpb.json"
+        },
+        {
+          "dependency": "2421571",
+          "job_id": "2421575",
+          "kind": "retention",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/retention"
+        },
+        {
+          "dependency": "2421571",
+          "job_id": "2421576",
+          "kind": "code_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/heldout_code_bpb.json"
+        },
+        {
+          "dependency": "2421571",
+          "job_id": "2421577",
+          "kind": "math_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/heldout_math_bpb.json"
+        },
+        {
+          "dependency": "2421571",
+          "job_id": "2421578",
+          "kind": "checksum",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000477/checksums/Vanilla-2B_iter_0000477_checksum_manifest.json"
+        }
+      ],
+      "submit_log_exists": true,
+      "submitted_state_exists": true,
+      "tokens": 2000683008
+    },
+    {
+      "checkpoint_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0000834",
+      "checkpoint_exists": true,
+      "checksum_manifest": {
+        "exists": true,
+        "mtime": "2026-05-29T22:35:38Z",
+        "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/checksums/Vanilla-3.5B_iter_0000834_checksum_manifest.json",
+        "size": 9023
+      },
+      "eval_iter_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834",
+      "eval_iter_root_exists": true,
+      "hf_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834_hf",
+      "hf_exists": true,
+      "iter_pad": "0000834",
+      "iteration": 834,
+      "label": "Vanilla-3.5B",
+      "local_review": {
+        "critique": {
+          "exists": true,
+          "mtime": "2026-05-29T23:57:28Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-3.5B/adversarial_critique.md",
+          "size": 32428
+        },
+        "dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-3.5B",
+        "events_jsonl": {
+          "exists": false,
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-3.5B/codex_events.jsonl"
+        },
+        "metadata": {
+          "exists": true,
+          "mtime": "2026-05-29T23:46:40Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-3.5B/review_metadata.env",
+          "size": 701
+        },
+        "prompt": {
+          "exists": true,
+          "mtime": "2026-05-29T23:46:35Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-3.5B/prompt.md",
+          "size": 6589
+        }
+      },
+      "local_sidecar_handoff": {
+        "done_file": {
+          "exists": true,
+          "mtime": "2026-05-29T23:42:43Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/monitor_logs/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_verify_state/iter_834.handoff_done",
+          "size": 21
+        },
+        "latest_summary": {
+          "active_sidecar_jobs": 0,
+          "archived_sidecar_attempt_count": 0,
+          "checkpoint_metadata_ready": true,
+          "checksum_manifest_ready": true,
+          "expected_outputs_ready": true,
+          "handoff_ready": true,
+          "manifest_has_all_expected_kinds": true,
+          "sidecars_submitted": true,
+          "slurm_jobs_completed": true
+        },
+        "latest_verify_json": {
+          "exists": true,
+          "mtime": "2026-05-29T23:42:43Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/iter_0000834_checkpoint_sidecar_verify_latest.json",
+          "size": 16681
+        },
+        "pass_summary": {
+          "active_sidecar_jobs": 0,
+          "archived_sidecar_attempt_count": 0,
+          "checkpoint_metadata_ready": true,
+          "checksum_manifest_ready": true,
+          "expected_outputs_ready": true,
+          "handoff_ready": true,
+          "manifest_has_all_expected_kinds": true,
+          "sidecars_submitted": true,
+          "slurm_jobs_completed": true
+        },
+        "pass_verify_json": {
+          "exists": true,
+          "mtime": "2026-05-29T23:42:43Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/iter_0000834_checkpoint_sidecar_handoff_pass.json",
+          "size": 16681
+        },
+        "verified": true
+      },
+      "metadata_exists": true,
+      "metrics": {
+        "bpb": {
+          "code": {
+            "bpb": 0.26974614247724743,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-29T22:33:48Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/heldout_code_bpb.json",
+              "size": 2274
+            },
+            "fraction_truncated": 0.115,
+            "n_docs": 200.0,
+            "n_docs_truncated": 23,
+            "strr_rate": 0.6963093083185462
+          },
+          "greek": {
+            "bpb": 0.41966418393820637,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-29T22:34:15Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/heldout_greek_bpb.json",
+              "size": 5373
+            },
+            "fraction_truncated": 0.292,
+            "n_docs": 500.0,
+            "n_docs_truncated": 146,
+            "strr_rate": 0.2702694597309901
+          },
+          "math": {
+            "bpb": 0.5490822846287953,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-29T22:33:57Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/heldout_math_bpb.json",
+              "size": 2265
+            },
+            "fraction_truncated": 0.075,
+            "n_docs": 200.0,
+            "n_docs_truncated": 15,
+            "strr_rate": 0.7285759713973855
+          }
+        },
+        "native_mcq": {
+          "canonical_diagnostic_tasks": [
+            "plutus_qa"
+          ],
+          "canonical_headline_tasks": [
+            "greekmmlu",
+            "ilsp_mcqa_asep",
+            "ilsp_medical_mcqa"
+          ],
+          "diagnostics": [
+            {
+              "accuracy": 0.4888888888888889,
+              "benchmark": "plutus_qa",
+              "correct": 110,
+              "n": 225,
+              "subject": "__all__"
+            }
+          ],
+          "diagnostics_file": {
+            "exists": true,
+            "mtime": "2026-05-29T22:47:19Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/native_mcq/Vanilla-3.5B_native_mcq_diagnostics.json",
+            "size": 137
+          },
+          "dropped_non_canonical_diagnostics": [],
+          "dropped_non_canonical_headline": [],
+          "headline": [
+            {
+              "accuracy": 0.5283790283790284,
+              "benchmark": "greekmmlu",
+              "correct": 8788,
+              "n": 16632,
+              "subject": "__all__"
+            },
+            {
+              "accuracy": 0.39351851851851855,
+              "benchmark": "ilsp_medical_mcqa",
+              "correct": 170,
+              "n": 432,
+              "subject": "__all__"
+            },
+            {
+              "accuracy": 0.515,
+              "benchmark": "ilsp_mcqa_asep",
+              "correct": 618,
+              "n": 1200,
+              "subject": "__all__"
+            }
+          ],
+          "headline_file": {
+            "exists": true,
+            "mtime": "2026-05-29T22:47:19Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/native_mcq/Vanilla-3.5B_native_mcq_headline.json",
+            "size": 410
+          },
+          "headline_macro_accuracy": 0.478965848965849,
+          "headline_plus_diagnostic_macro_accuracy": 0.48144660894660896
+        },
+        "retention": {
+          "canonical_retention_present_count": 12,
+          "canonical_retention_tasks": [
+            "arc_challenge",
+            "arc_easy",
+            "global_mmlu_de",
+            "global_mmlu_en",
+            "global_mmlu_fr",
+            "hellaswag",
+            "mmlu",
+            "piqa",
+            "xnli_de",
+            "xnli_en",
+            "xnli_fr",
+            "xnli_ru"
+          ],
+          "file": {
+            "exists": true,
+            "mtime": "2026-05-29T22:57:59Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/retention/results_2026-05-30T00-57-59.290968.json",
+            "size": 419172
+          },
+          "non_canonical_dropped_count": 189,
+          "selected_accuracy": {
+            "arc_challenge": 0.5187713310580204,
+            "arc_easy": 0.8114478114478114,
+            "global_mmlu_de": 0.6025,
+            "global_mmlu_en": 0.615,
+            "global_mmlu_fr": 0.56,
+            "hellaswag": 0.5905198167695678,
+            "mmlu": 0.5890898732374306,
+            "piqa": 0.7823721436343852,
+            "xnli_de": 0.5016064257028112,
+            "xnli_en": 0.5461847389558233,
+            "xnli_fr": 0.5044176706827309,
+            "xnli_ru": 0.4911646586345382
+          },
+          "selected_accuracy_by_language": {
+            "de": {
+              "global_mmlu_de": 0.6025,
+              "xnli_de": 0.5016064257028112
+            },
+            "en": {
+              "arc_challenge": 0.5187713310580204,
+              "arc_easy": 0.8114478114478114,
+              "global_mmlu_en": 0.615,
+              "hellaswag": 0.5905198167695678,
+              "mmlu": 0.5890898732374306,
+              "piqa": 0.7823721436343852,
+              "xnli_en": 0.5461847389558233
+            },
+            "fr": {
+              "global_mmlu_fr": 0.56,
+              "xnli_fr": 0.5044176706827309
+            },
+            "ru": {
+              "xnli_ru": 0.4911646586345382
+            }
+          },
+          "task_count": 12
+        }
+      },
+      "sidecar_attempt_history": {
+        "archived_attempt_count": 0,
+        "archived_attempt_job_ids": [],
+        "archived_attempts": []
+      },
+      "sidecar_manifest": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/sidecar_jobs.tsv",
+      "sidecar_manifest_exists": true,
+      "sidecar_manifest_rows": [
+        {
+          "dependency": "none",
+          "job_id": "2428536",
+          "kind": "convert",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834_hf"
+        },
+        {
+          "dependency": "2428536",
+          "job_id": "2428537",
+          "kind": "native_mcq",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/native_mcq"
+        },
+        {
+          "dependency": "2428536",
+          "job_id": "2428538",
+          "kind": "greek_nlp",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/greek_nlp_s100"
+        },
+        {
+          "dependency": "2428536",
+          "job_id": "2428539",
+          "kind": "heldout_greek_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/heldout_greek_bpb.json"
+        },
+        {
+          "dependency": "2428536",
+          "job_id": "2428540",
+          "kind": "retention",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/retention"
+        },
+        {
+          "dependency": "2428536",
+          "job_id": "2428541",
+          "kind": "code_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/heldout_code_bpb.json"
+        },
+        {
+          "dependency": "2428536",
+          "job_id": "2428542",
+          "kind": "math_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/heldout_math_bpb.json"
+        },
+        {
+          "dependency": "2428536",
+          "job_id": "2428543",
+          "kind": "checksum",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000834/checksums/Vanilla-3.5B_iter_0000834_checksum_manifest.json"
+        }
+      ],
+      "submit_log_exists": true,
+      "submitted_state_exists": true,
+      "tokens": 3498049536
+    },
+    {
+      "checkpoint_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0001192",
+      "checkpoint_exists": true,
+      "checksum_manifest": {
+        "exists": true,
+        "mtime": "2026-05-30T11:35:39Z",
+        "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/checksums/Vanilla-5B_iter_0001192_checksum_manifest.json",
+        "size": 9022
+      },
+      "eval_iter_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192",
+      "eval_iter_root_exists": true,
+      "hf_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192_hf",
+      "hf_exists": true,
+      "iter_pad": "0001192",
+      "iteration": 1192,
+      "label": "Vanilla-5B",
+      "local_review": {
+        "critique": {
+          "exists": true,
+          "mtime": "2026-05-30T15:44:18Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B/adversarial_critique.md",
+          "size": 42413
+        },
+        "dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B",
+        "events_jsonl": {
+          "exists": false,
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B/codex_events.jsonl"
+        },
+        "metadata": {
+          "exists": false,
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B/review_metadata.env"
+        },
+        "prompt": {
+          "exists": false,
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B/prompt.md"
+        }
+      },
+      "local_sidecar_handoff": {
+        "done_file": {
+          "exists": true,
+          "mtime": "2026-05-30T15:33:56Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/monitor_logs/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_verify_state/iter_1192.handoff_done",
+          "size": 21
+        },
+        "latest_summary": {
+          "active_sidecar_jobs": 0,
+          "archived_sidecar_attempt_count": 0,
+          "checkpoint_metadata_ready": true,
+          "checksum_manifest_ready": true,
+          "expected_outputs_ready": true,
+          "handoff_ready": true,
+          "manifest_has_all_expected_kinds": true,
+          "sidecars_submitted": true,
+          "slurm_jobs_completed": true
+        },
+        "latest_verify_json": {
+          "exists": true,
+          "mtime": "2026-05-30T15:33:56Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/iter_0001192_checkpoint_sidecar_verify_latest.json",
+          "size": 16671
+        },
+        "pass_summary": {
+          "active_sidecar_jobs": 0,
+          "archived_sidecar_attempt_count": 0,
+          "checkpoint_metadata_ready": true,
+          "checksum_manifest_ready": true,
+          "expected_outputs_ready": true,
+          "handoff_ready": true,
+          "manifest_has_all_expected_kinds": true,
+          "sidecars_submitted": true,
+          "slurm_jobs_completed": true
+        },
+        "pass_verify_json": {
+          "exists": true,
+          "mtime": "2026-05-30T15:33:56Z",
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/iter_0001192_checkpoint_sidecar_handoff_pass.json",
+          "size": 16671
+        },
+        "verified": true
+      },
+      "metadata_exists": true,
+      "metrics": {
+        "bpb": {
+          "code": {
+            "bpb": 0.2646168445504689,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-30T11:33:19Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/heldout_code_bpb.json",
+              "size": 2275
+            },
+            "fraction_truncated": 0.115,
+            "n_docs": 200.0,
+            "n_docs_truncated": 23,
+            "strr_rate": 0.6963093083185462
+          },
+          "greek": {
+            "bpb": 0.4131915894691231,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-30T11:34:06Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/heldout_greek_bpb.json",
+              "size": 5383
+            },
+            "fraction_truncated": 0.292,
+            "n_docs": 500.0,
+            "n_docs_truncated": 146,
+            "strr_rate": 0.2702694597309901
+          },
+          "math": {
+            "bpb": 0.5448370234985007,
+            "file": {
+              "exists": true,
+              "mtime": "2026-05-30T11:33:16Z",
+              "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/heldout_math_bpb.json",
+              "size": 2259
+            },
+            "fraction_truncated": 0.075,
+            "n_docs": 200.0,
+            "n_docs_truncated": 15,
+            "strr_rate": 0.7285759713973855
+          }
+        },
+        "native_mcq": {
+          "canonical_diagnostic_tasks": [
+            "plutus_qa"
+          ],
+          "canonical_headline_tasks": [
+            "greekmmlu",
+            "ilsp_mcqa_asep",
+            "ilsp_medical_mcqa"
+          ],
+          "diagnostics": [
+            {
+              "accuracy": 0.43555555555555553,
+              "benchmark": "plutus_qa",
+              "correct": 98,
+              "n": 225,
+              "subject": "__all__"
+            }
+          ],
+          "diagnostics_file": {
+            "exists": true,
+            "mtime": "2026-05-30T11:47:20Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/native_mcq/Vanilla-5B_native_mcq_diagnostics.json",
+            "size": 137
+          },
+          "dropped_non_canonical_diagnostics": [],
+          "dropped_non_canonical_headline": [],
+          "headline": [
+            {
+              "accuracy": 0.5583814333814334,
+              "benchmark": "greekmmlu",
+              "correct": 9287,
+              "n": 16632,
+              "subject": "__all__"
+            },
+            {
+              "accuracy": 0.4027777777777778,
+              "benchmark": "ilsp_medical_mcqa",
+              "correct": 174,
+              "n": 432,
+              "subject": "__all__"
+            },
+            {
+              "accuracy": 0.5308333333333334,
+              "benchmark": "ilsp_mcqa_asep",
+              "correct": 637,
+              "n": 1200,
+              "subject": "__all__"
+            }
+          ],
+          "headline_file": {
+            "exists": true,
+            "mtime": "2026-05-30T11:47:20Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/native_mcq/Vanilla-5B_native_mcq_headline.json",
+            "size": 422
+          },
+          "headline_macro_accuracy": 0.49733084816418155,
+          "headline_plus_diagnostic_macro_accuracy": 0.481887025012025
+        },
+        "retention": {
+          "canonical_retention_present_count": 12,
+          "canonical_retention_tasks": [
+            "arc_challenge",
+            "arc_easy",
+            "global_mmlu_de",
+            "global_mmlu_en",
+            "global_mmlu_fr",
+            "hellaswag",
+            "mmlu",
+            "piqa",
+            "xnli_de",
+            "xnli_en",
+            "xnli_fr",
+            "xnli_ru"
+          ],
+          "file": {
+            "exists": true,
+            "mtime": "2026-05-30T11:57:34Z",
+            "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/retention/results_2026-05-30T13-57-34.322587.json",
+            "size": 419162
+          },
+          "non_canonical_dropped_count": 189,
+          "selected_accuracy": {
+            "arc_challenge": 0.5366894197952219,
+            "arc_easy": 0.8194444444444444,
+            "global_mmlu_de": 0.595,
+            "global_mmlu_en": 0.65,
+            "global_mmlu_fr": 0.5875,
+            "hellaswag": 0.59061939852619,
+            "mmlu": 0.5797607178464607,
+            "piqa": 0.7889009793253536,
+            "xnli_de": 0.4947791164658635,
+            "xnli_en": 0.5485943775100401,
+            "xnli_fr": 0.5052208835341365,
+            "xnli_ru": 0.47269076305220886
+          },
+          "selected_accuracy_by_language": {
+            "de": {
+              "global_mmlu_de": 0.595,
+              "xnli_de": 0.4947791164658635
+            },
+            "en": {
+              "arc_challenge": 0.5366894197952219,
+              "arc_easy": 0.8194444444444444,
+              "global_mmlu_en": 0.65,
+              "hellaswag": 0.59061939852619,
+              "mmlu": 0.5797607178464607,
+              "piqa": 0.7889009793253536,
+              "xnli_en": 0.5485943775100401
+            },
+            "fr": {
+              "global_mmlu_fr": 0.5875,
+              "xnli_fr": 0.5052208835341365
+            },
+            "ru": {
+              "xnli_ru": 0.47269076305220886
+            }
+          },
+          "task_count": 12
+        }
+      },
+      "sidecar_attempt_history": {
+        "archived_attempt_count": 0,
+        "archived_attempt_job_ids": [],
+        "archived_attempts": []
+      },
+      "sidecar_manifest": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/sidecar_jobs.tsv",
+      "sidecar_manifest_exists": true,
+      "sidecar_manifest_rows": [
+        {
+          "dependency": "none",
+          "job_id": "2432546",
+          "kind": "convert",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192_hf"
+        },
+        {
+          "dependency": "2432546",
+          "job_id": "2432547",
+          "kind": "native_mcq",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/native_mcq"
+        },
+        {
+          "dependency": "2432546",
+          "job_id": "2432548",
+          "kind": "greek_nlp",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/greek_nlp_s100"
+        },
+        {
+          "dependency": "2432546",
+          "job_id": "2432549",
+          "kind": "heldout_greek_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/heldout_greek_bpb.json"
+        },
+        {
+          "dependency": "2432546",
+          "job_id": "2432550",
+          "kind": "retention",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/retention"
+        },
+        {
+          "dependency": "2432546",
+          "job_id": "2432551",
+          "kind": "code_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/heldout_code_bpb.json"
+        },
+        {
+          "dependency": "2432546",
+          "job_id": "2432552",
+          "kind": "math_bpb",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/heldout_math_bpb.json"
+        },
+        {
+          "dependency": "2432546",
+          "job_id": "2432553",
+          "kind": "checksum",
+          "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/checksums/Vanilla-5B_iter_0001192_checksum_manifest.json"
+        }
+      ],
+      "submit_log_exists": true,
+      "submitted_state_exists": true,
+      "tokens": 4999610368
+    }
+  ],
+  "collected_at_utc": "2026-05-30T16:03:12Z",
+  "collector": {
+    "host": "foivos-B550M-DS3H",
+    "script": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/scripts/collect_5b_report_state.py"
+  },
+  "counts": {
+    "checkpoint_iter_dirs": 18,
+    "eval_items": 1207,
+    "sidecar_files": 14
+  },
+  "dataset": {
+    "jsonl_manifest": {
+      "actual_rows": 3739911,
+      "actual_tokens": 5000000250,
+      "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/jsonl/hplt_b1_5b.jsonl",
+      "per_bucket": {
+        "code": {
+          "effective_weight": 0.04000003899999805,
+          "rows": 76040,
+          "target_tokens": 200000000.0,
+          "target_weight": 0.04,
+          "token_delta_vs_target": 205.0,
+          "tokens": 200000205
+        },
+        "greek": {
+          "effective_weight": 0.70000020119999,
+          "rows": 2422129,
+          "target_tokens": 3500000000.0,
+          "target_weight": 0.7,
+          "token_delta_vs_target": 1181.0,
+          "tokens": 3500001181
+        },
+        "math": {
+          "effective_weight": 0.02000018159999092,
+          "rows": 57543,
+          "target_tokens": 100000000.0,
+          "target_weight": 0.02,
+          "token_delta_vs_target": 913.0,
+          "tokens": 100000913
+        },
+        "replay": {
+          "effective_weight": 0.2399995782000211,
+          "rows": 1184199,
+          "target_tokens": 1200000000.0,
+          "target_weight": 0.24,
+          "token_delta_vs_target": -2049.0,
+          "tokens": 1199997951
+        }
+      },
+      "per_source": {
+        "code_codeparrot_clean": {
+          "effective_weight": 0.04000003899999805,
+          "rows": 76040,
+          "target_tokens": 200004000.08000162,
+          "target_weight": 0.04000080001600032,
+          "token_delta_vs_target": -3795.0800016224384,
+          "tokens": 200000205
+        },
+        "greek_hplt_clean60": {
+          "effective_weight": 0.70000020119999,
+          "rows": 2422129,
+          "target_tokens": 3500070001.400028,
+          "target_weight": 0.7000140002800056,
+          "token_delta_vs_target": -68820.40002822876,
+          "tokens": 3500001181
+        },
+        "math_finemath": {
+          "effective_weight": 0.02000018159999092,
+          "rows": 57543,
+          "target_tokens": 100002000.04000081,
+          "target_weight": 0.02000040000800016,
+          "token_delta_vs_target": -1087.0400008112192,
+          "tokens": 100000913
+        },
+        "replay_t1_arb_Arab": {
+          "effective_weight": 0.012998712750064362,
+          "rows": 59748,
+          "target_tokens": 65001300.02600052,
+          "target_weight": 0.013000260005200104,
+          "token_delta_vs_target": -7733.026000522077,
+          "tokens": 64993567
+        },
+        "replay_t1_cmn_Hani": {
+          "effective_weight": 0.012998275750086212,
+          "rows": 53508,
+          "target_tokens": 65001300.02600052,
+          "target_weight": 0.013000260005200104,
+          "token_delta_vs_target": -9918.026000522077,
+          "tokens": 64991382
+        },
+        "replay_t1_deu_Latn": {
+          "effective_weight": 0.012998348950082552,
+          "rows": 72840,
+          "target_tokens": 65001300.02600052,
+          "target_weight": 0.013000260005200104,
+          "token_delta_vs_target": -9552.026000522077,
+          "tokens": 64991748
+        },
+        "replay_t1_english_edu": {
+          "effective_weight": 0.018997176850141156,
+          "rows": 89107,
+          "target_tokens": 95001900.03800075,
+          "target_weight": 0.01900038000760015,
+          "token_delta_vs_target": -16011.038000747561,
+          "tokens": 94985889
+        },
+        "replay_t1_fra_Latn": {
+          "effective_weight": 0.012999141750042912,
+          "rows": 65663,
+          "target_tokens": 65001300.02600052,
+          "target_weight": 0.013000260005200104,
+          "token_delta_vs_target": -5588.026000522077,
+          "tokens": 64995712
+        },
+        "replay_t1_ita_Latn": {
+          "effective_weight": 0.012998229550088522,
+          "rows": 77817,
+          "target_tokens": 65001300.02600052,
+          "target_weight": 0.013000260005200104,
+          "token_delta_vs_target": -10149.026000522077,
+          "tokens": 64991151
+        },
+        "replay_t1_rus_Cyrl": {
+          "effective_weight": 0.012998004350099783,
+          "rows": 48589,
+          "target_tokens": 65001300.02600052,
+          "target_weight": 0.013000260005200104,
+          "token_delta_vs_target": -11275.026000522077,
+          "tokens": 64990025
+        },
+        "replay_t1_spa_Latn": {
+          "effective_weight": 0.012998167950091602,
+          "rows": 75391,
+          "target_tokens": 65001300.02600052,
+          "target_weight": 0.013000260005200104,
+          "token_delta_vs_target": -10457.026000522077,
+          "tokens": 64990843
+        },
+        "replay_t2_bul_Cyrl": {
+          "effective_weight": 0.008981670350916482,
+          "rows": 42627,
+          "target_tokens": 44900898.01796036,
+          "target_weight": 0.008980179603592072,
+          "token_delta_vs_target": 7455.982039637864,
+          "tokens": 44908354
+        },
+        "replay_t2_heb_Hebr": {
+          "effective_weight": 0.008979496151025192,
+          "rows": 32420,
+          "target_tokens": 44900898.01796036,
+          "target_weight": 0.008980179603592072,
+          "token_delta_vs_target": -3415.0179603621364,
+          "tokens": 44897483
+        },
+        "replay_t2_jpn_Jpan": {
+          "effective_weight": 0.008978741551062923,
+          "rows": 56823,
+          "target_tokens": 44900898.01796036,
+          "target_weight": 0.008980179603592072,
+          "token_delta_vs_target": -7188.017960362136,
+          "tokens": 44893710
+        },
+        "replay_t2_nld_Latn": {
+          "effective_weight": 0.008978671951066403,
+          "rows": 58748,
+          "target_tokens": 44900898.01796036,
+          "target_weight": 0.008980179603592072,
+          "token_delta_vs_target": -7536.017960362136,
+          "tokens": 44893362
+        },
+        "replay_t2_pes_Arab": {
+          "effective_weight": 0.008978621351068932,
+          "rows": 34006,
+          "target_tokens": 44900898.01796036,
+          "target_weight": 0.008980179603592072,
+          "token_delta_vs_target": -7789.017960362136,
+          "tokens": 44893109
+        },
+        "replay_t2_pol_Latn": {
+          "effective_weight": 0.008979522751023863,
+          "rows": 48753,
+          "target_tokens": 44900898.01796036,
+          "target_weight": 0.008980179603592072,
+          "token_delta_vs_target": -3282.0179603621364,
+          "tokens": 44897616
+        },
+        "replay_t2_por_Latn": {
+          "effective_weight": 0.008978616151069192,
+          "rows": 58823,
+          "target_tokens": 44900898.01796036,
+          "target_weight": 0.008980179603592072,
+          "token_delta_vs_target": -7815.017960362136,
+          "tokens": 44893083
+        },
+        "replay_t2_ron_Latn": {
+          "effective_weight": 0.008978703751064812,
+          "rows": 40073,
+          "target_tokens": 44900898.01796036,
+          "target_weight": 0.008980179603592072,
+          "token_delta_vs_target": -7377.017960362136,
+          "tokens": 44893521
+        },
+        "replay_t2_srp_Cyrl": {
+          "effective_weight": 0.008979898151005092,
+          "rows": 32662,
+          "target_tokens": 44900898.01796036,
+          "target_weight": 0.008980179603592072,
+          "token_delta_vs_target": -1405.0179603621364,
+          "tokens": 44899493
+        },
+        "replay_t2_tur_Latn": {
+          "effective_weight": 0.009016910349154483,
+          "rows": 52283,
+          "target_tokens": 44900898.01796036,
+          "target_weight": 0.008980179603592072,
+          "token_delta_vs_target": 183655.98203963786,
+          "tokens": 45084554
+        },
+        "replay_t2_ukr_Cyrl": {
+          "effective_weight": 0.008978815951059203,
+          "rows": 29649,
+          "target_tokens": 44900898.01796036,
+          "target_weight": 0.008980179603592072,
+          "token_delta_vs_target": -6816.017960362136,
+          "tokens": 44894082
+        },
+        "replay_t3_als_Latn": {
+          "effective_weight": 0.006247250287637485,
+          "rows": 31602,
+          "target_tokens": 31200624.01248025,
+          "target_weight": 0.00624012480249605,
+          "token_delta_vs_target": 35628.98751974851,
+          "tokens": 31236253
+        },
+        "replay_t3_hye_Armn": {
+          "effective_weight": 0.006239041888047906,
+          "rows": 28400,
+          "target_tokens": 31200624.01248025,
+          "target_weight": 0.00624012480249605,
+          "token_delta_vs_target": -5413.012480251491,
+          "tokens": 31195211
+        },
+        "replay_t3_kat_Geor": {
+          "effective_weight": 0.006239354488032276,
+          "rows": 21407,
+          "target_tokens": 31200624.01248025,
+          "target_weight": 0.00624012480249605,
+          "token_delta_vs_target": -3850.012480251491,
+          "tokens": 31196774
+        },
+        "replay_t3_lat_Latn": {
+          "effective_weight": 0.006239114688044265,
+          "rows": 34758,
+          "target_tokens": 31200624.01248025,
+          "target_weight": 0.00624012480249605,
+          "token_delta_vs_target": -5049.012480251491,
+          "tokens": 31195575
+        },
+        "replay_t3_mkd_Cyrl": {
+          "effective_weight": 0.006239090488045476,
+          "rows": 38502,
+          "target_tokens": 31200624.01248025,
+          "target_weight": 0.00624012480249605,
+          "token_delta_vs_target": -5170.012480251491,
+          "tokens": 31195454
+        }
+      },
+      "recipe": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/recipe/hplt_b1_vanilla_regime.json",
+      "recipe_name": "hplt_b1_vanilla_regime",
+      "recipe_version": "v1.0_20260528",
+      "scheduler": "bucket_preserving_token_fair_min_tokens_over_weight",
+      "seed": 20260528,
+      "source_shard_count": 1,
+      "source_shard_index": 0,
+      "target_tokens": 5000000000,
+      "wall_seconds": 10730.786866903305
+    },
+    "megatron_manifest": {
+      "append_eod": true,
+      "bin": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/megatron/hplt_b1_base_text_document.bin",
+      "bytes_read": 14419897942,
+      "chunk_size": 32,
+      "documents": 3739912,
+      "format": "Megatron indexed dataset v1, int32 document-level",
+      "idx": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/megatron/hplt_b1_base_text_document.idx",
+      "input": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/jsonl/hplt_b1_5b.jsonl",
+      "json_key": "text",
+      "limit": 0,
+      "output_prefix": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/megatron/hplt_b1_base_text_document",
+      "rows": 3739911,
+      "sequences": 3739911,
+      "tokenizer_model": "/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509",
+      "tokens": 5007480072,
+      "wall_seconds": 940.2059278488159,
+      "workers": 16
+    },
+    "paths_env": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/dataset_paths.env",
+    "validation": {
+      "actual_buckets": {
+        "code": {
+          "effective_weight": 0.04000003899999805,
+          "rows": 76040,
+          "target_tokens": 200000000.0,
+          "target_weight": 0.04,
+          "token_delta_vs_target": 205.0,
+          "tokens": 200000205
+        },
+        "greek": {
+          "effective_weight": 0.70000020119999,
+          "rows": 2422129,
+          "target_tokens": 3500000000.0,
+          "target_weight": 0.7,
+          "token_delta_vs_target": 1181.0,
+          "tokens": 3500001181
+        },
+        "math": {
+          "effective_weight": 0.02000018159999092,
+          "rows": 57543,
+          "target_tokens": 100000000.0,
+          "target_weight": 0.02,
+          "token_delta_vs_target": 913.0,
+          "tokens": 100000913
+        },
+        "replay": {
+          "effective_weight": 0.2399995782000211,
+          "rows": 1184199,
+          "target_tokens": 1200000000.0,
+          "target_weight": 0.24,
+          "token_delta_vs_target": -2049.0,
+          "tokens": 1199997951
+        }
+      },
+      "data_prefix": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/megatron/hplt_b1_base_text_document",
+      "document_boundary_flags_for_training": [
+        "--reset-attention-mask",
+        "--reset-position-ids",
+        "--eod-mask-loss"
+      ],
+      "errors": [],
+      "expected_buckets": {
+        "code": 0.04,
+        "greek": 0.7,
+        "math": 0.02,
+        "replay": 0.24
+      },
+      "greek_sources": [
+        "greek_hplt_clean60"
+      ],
+      "mix_manifest": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/jsonl/hplt_b1_5b.manifest.json",
+      "ok": true,
+      "preprocess": {
+        "append_eod": true,
+        "bin": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/megatron/hplt_b1_base_text_document.bin",
+        "bytes_read": 14419897942,
+        "chunk_size": 32,
+        "documents": 3739912,
+        "format": "Megatron indexed dataset v1, int32 document-level",
+        "idx": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/megatron/hplt_b1_base_text_document.idx",
+        "input": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/jsonl/hplt_b1_5b.jsonl",
+        "json_key": "text",
+        "limit": 0,
+        "output_prefix": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/megatron/hplt_b1_base_text_document",
+        "rows": 3739911,
+        "sequences": 3739911,
+        "tokenizer_model": "/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509",
+        "tokens": 5007480072,
+        "wall_seconds": 940.2059278488159,
+        "workers": 16
+      },
+      "preprocess_manifest": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/megatron/hplt_b1_base_text_document.manifest.json",
+      "recipe": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/recipe/hplt_b1_vanilla_regime.json",
+      "token_scan": {
+        "max_id": 131071,
+        "min_id": 0,
+        "tokens": 5007480072
+      }
+    }
+  },
+  "latest_training": {
+    "consumed_tokens_b": 1.258,
+    "current_iter": 300,
+    "etas": {
+      "119": "2026-05-30T16:03:12Z",
+      "1192": "2026-06-01T00:31:42Z",
+      "238": "2026-05-30T16:03:12Z",
+      "300": "2026-05-30T16:03:12Z",
+      "477": "2026-05-30T22:29:51Z",
+      "834": "2026-05-31T11:29:41Z"
+    },
+    "exists": true,
+    "grad_norm": 0.623,
+    "iter_ms": 131064.1,
+    "latest_line": "3:  [2026-05-29 03:52:45] iteration      300/     300 | consumed samples:       307200 | consumed tokens: 1.258B | elapsed time per iteration (ms): 131064.1 | eta: 0:00:00 | tokens/sec/gpu: 8000.5 | throughput per GPU (TFLOP/s/GPU): 412.3 | learning rate: 1.100000E-05 | global batch size:  1024 | lm loss: 1.504590E+00 | loss scale: 1.0 | grad norm: 0.623 | params norm: 7092.506 | number of skipped iterations:   0 | number of nan iterations:   0 |",
+    "learning_rate": "1.100000E-05",
+    "lm_loss": 1.50459,
+    "nan": 0,
+    "nonzero_skipped_or_nan_count": 0,
+    "nonzero_skipped_or_nan_tail": [],
+    "params_norm": 7092.506,
+    "severe_term_count": 0,
+    "severe_term_tail": [],
+    "skipped": 0,
+    "target_iter": 300,
+    "tokens_sec_gpu": 8000.5
+  },
+  "local": {
+    "report_artifacts": {
+      "config_geometry_audit_iter_0000119_json": {
+        "exists": true,
+        "mtime": "2026-05-28T21:01:59Z",
+        "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/config_geometry_audit_iter_0000119.json",
+        "size": 3634
+      },
+      "config_geometry_audit_iter_0000119_md": {
+        "exists": true,
+        "mtime": "2026-05-28T21:01:59Z",
+        "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/config_geometry_audit_iter_0000119.md",
+        "size": 2089
+      },
+      "goal_doc": {
+        "exists": true,
+        "mtime": "2026-05-28T21:11:39Z",
+        "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/goal/goal.md",
+        "size": 4087
+      },
+      "goal_hyperparameters_json": {
+        "exists": true,
+        "mtime": "2026-05-29T12:20:37Z",
+        "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/goal/hyperparameters.json",
+        "size": 16630
+      },
+      "report_draft_5b": {
+        "exists": true,
+        "mtime": "2026-05-28T21:25:25Z",
+        "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/reports/5B_REPORT_DRAFT.md",
+        "size": 15319
+      },
+      "run_log_20260528": {
+        "exists": true,
+        "mtime": "2026-05-30T15:50:57Z",
+        "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/RUN_LOG_20260528.md",
+        "size": 117907
+      },
+      "submit_checkpoint_sidecars": {
+        "exists": true,
+        "mtime": "2026-05-29T11:21:44Z",
+        "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/scripts/submit_checkpoint_sidecars.sh",
+        "size": 11380
+      },
+      "watch_and_run_adversarial_reviews": {
+        "exists": true,
+        "mtime": "2026-05-28T21:24:58Z",
+        "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/scripts/watch_and_run_adversarial_reviews.sh",
+        "size": 3851
+      },
+      "watch_and_submit_checkpoint_sidecars": {
+        "exists": true,
+        "mtime": "2026-05-28T12:02:09Z",
+        "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/scripts/watch_and_submit_checkpoint_sidecars.sbatch",
+        "size": 5715
+      },
+      "watch_checkpoint_sidecar_verification": {
+        "exists": true,
+        "mtime": "2026-05-28T21:24:14Z",
+        "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/scripts/watch_checkpoint_sidecar_verification.sh",
+        "size": 3913
+      }
+    },
+    "review_watch_done_files": [
+      "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/04_vanilla_goldfish_5b_20260528T112539Z_watch_state/iter_119.review_done"
+    ],
+    "review_watch_log": {
+      "exists": true,
+      "mtime": "2026-05-29T00:18:25Z",
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/04_vanilla_goldfish_5b_20260528T112539Z_watch_state/home_review_watcher.log",
+      "size": 40296
+    },
+    "sidecar_verify_done_files": [
+      "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/monitor_logs/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_verify_state/iter_119.handoff_done",
+      "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/monitor_logs/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_verify_state/iter_1192.handoff_done",
+      "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/monitor_logs/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_verify_state/iter_238.handoff_done",
+      "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/monitor_logs/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_verify_state/iter_477.handoff_done",
+      "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/monitor_logs/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_verify_state/iter_834.handoff_done"
+    ],
+    "sidecar_verify_watch_log": {
+      "exists": true,
+      "mtime": "2026-05-30T15:33:56Z",
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/monitor_logs/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_verify_watch.log",
+      "size": 827366
+    },
+    "subproject_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla"
+  },
+  "paths": {
+    "active_log": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04van5b_i300-2417446.out",
+    "eval_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z",
+    "run_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt",
+    "submit_state_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_submit_state",
+    "train_run_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+    "watch_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch"
+  },
+  "preserved_attempts": [
+    "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/canceled_attempt_2417297_segment357_too_long_20260528T145517Z",
+    "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/failed_attempt_2417278_warmup_assert_20260528T144523Z"
+  ],
+  "queue": [],
+  "run_metadata": {
+    "ademamix_alpha": 8.0,
+    "ademamix_alpha_warmup": 287,
+    "ademamix_beta1": 0.9,
+    "ademamix_beta2": 0.999,
+    "ademamix_beta3": 0.99,
+    "ademamix_beta3_warmup": 287,
+    "ademamix_weight_decay": 0.1,
+    "arm": "vanilla",
+    "data_prefix": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/megatron/hplt_b1_base_text_document",
+    "data_seed": 20260528,
+    "disable_save": 0,
+    "global_batch_samples": 1024,
+    "global_batch_tokens": 4194304,
+    "grad_clip": 0.1,
+    "init_ckpt": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints",
+    "init_method_std": 0.008944,
+    "launch_mode": "slurm",
+    "loss_objective": "goldfish",
+    "lr_decay_style": "1-sqrt",
+    "lr_final": "1.1e-5",
+    "lr_peak": "1.1e-5",
+    "lr_schedule_style": "constant",
+    "lr_warmup_init": "1.1e-6",
+    "lr_warmup_samples": 292968,
+    "megatron_commit": "c92402e39ef3c8e69ea378a59e79059dc14541f4",
+    "megatron_dir": "/iopsstor/scratch/cscs/fffoivos/code/training/Megatron-LM-Swiss-AI",
+    "microbatch_size": 2,
+    "model_world_size": 4,
+    "optimizer": "ademamix",
+    "output_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+    "resume_training": 1,
+    "seq_length": 4096,
+    "slurm_account": "a0140",
+    "slurm_gpus_per_node": 4,
+    "slurm_job_id": "2417453",
+    "slurm_nodes": 1,
+    "slurm_ntasks": 4,
+    "slurm_partition": "normal",
+    "slurm_time_limit": "12:00:00",
+    "start_time": "2026-05-30T07:06:37Z",
+    "tokenizer": "/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509",
+    "train_samples": 1220608,
+    "train_tokens": 4999610368,
+    "uenv_image": "pytorch/v2.9.1:v2"
+  },
+  "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+  "training_chain": [
+    {
+      "dependency_job": "none",
+      "init_ckpt": "/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/vanilla/megatron_tp2_r17patched",
+      "job_id": "2417446",
+      "output_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+      "resume_training": "0",
+      "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+      "segment": "1",
+      "target_iter": "300",
+      "target_tokens": "1258291200"
+    },
+    {
+      "dependency_job": "2417446",
+      "init_ckpt": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints",
+      "job_id": "2417447",
+      "output_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+      "resume_training": "1",
+      "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+      "segment": "2",
+      "target_iter": "477",
+      "target_tokens": "2000683008"
+    },
+    {
+      "dependency_job": "2417447",
+      "init_ckpt": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints",
+      "job_id": "2417448",
+      "output_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+      "resume_training": "1",
+      "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+      "segment": "3",
+      "target_iter": "596",
+      "target_tokens": "2499805184"
+    },
+    {
+      "dependency_job": "2417448",
+      "init_ckpt": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints",
+      "job_id": "2417449",
+      "output_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+      "resume_training": "1",
+      "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+      "segment": "4",
+      "target_iter": "715",
+      "target_tokens": "2998927360"
+    },
+    {
+      "dependency_job": "2417449",
+      "init_ckpt": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints",
+      "job_id": "2417450",
+      "output_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+      "resume_training": "1",
+      "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+      "segment": "5",
+      "target_iter": "834",
+      "target_tokens": "3498049536"
+    },
+    {
+      "dependency_job": "2417450",
+      "init_ckpt": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints",
+      "job_id": "2417451",
+      "output_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+      "resume_training": "1",
+      "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+      "segment": "6",
+      "target_iter": "953",
+      "target_tokens": "3997171712"
+    },
+    {
+      "dependency_job": "2417451",
+      "init_ckpt": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints",
+      "job_id": "2417452",
+      "output_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+      "resume_training": "1",
+      "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+      "segment": "7",
+      "target_iter": "1072",
+      "target_tokens": "4496293888"
+    },
+    {
+      "dependency_job": "2417452",
+      "init_ckpt": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints",
+      "job_id": "2417453",
+      "output_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+      "resume_training": "1",
+      "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+      "segment": "8",
+      "target_iter": "1192",
+      "target_tokens": "4999610368"
+    }
+  ],
+  "watcher": {
+    "env_files": [
+      {
+        "code_heldout_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_code_heldout_200_20260528.jsonl",
+        "file": {
+          "exists": true,
+          "mtime": "2026-05-28T14:41:42Z",
+          "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch/watcher_2417289.env",
+          "size": 661
+        },
+        "math_heldout_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_math_heldout_200_20260528.jsonl",
+        "max_watch_seconds": "82800",
+        "raw": {
+          "CODE_HELDOUT_JSONL": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_code_heldout_200_20260528.jsonl",
+          "MATH_HELDOUT_JSONL": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_math_heldout_200_20260528.jsonl",
+          "MAX_WATCH_SECONDS": "82800",
+          "REQUIRE_CODE_MATH_HELDOUTS": "1",
+          "RESUBMIT_IF_INCOMPLETE": "1",
+          "RUN_TAG": "04_vanilla_goldfish_5b_20260528T112539Z",
+          "SLEEP_SECONDS": "300",
+          "SLURM_JOB_ID": "2417289",
+          "START_TIME_UTC": "2026-05-28T14:41:42Z",
+          "TRAIN_RUN_DIR": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+          "WATCH_STATE_DIR": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch"
+        },
+        "require_code_math_heldouts": "1",
+        "resubmit_if_incomplete": "1",
+        "sleep_seconds": "300",
+        "slurm_job_id": "2417289",
+        "start_time_utc": "2026-05-28T14:41:42Z"
+      },
+      {
+        "code_heldout_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_code_heldout_200_20260528.jsonl",
+        "file": {
+          "exists": true,
+          "mtime": "2026-05-28T14:45:34Z",
+          "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch/watcher_2417305.env",
+          "size": 661
+        },
+        "math_heldout_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_math_heldout_200_20260528.jsonl",
+        "max_watch_seconds": "82800",
+        "raw": {
+          "CODE_HELDOUT_JSONL": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_code_heldout_200_20260528.jsonl",
+          "MATH_HELDOUT_JSONL": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_math_heldout_200_20260528.jsonl",
+          "MAX_WATCH_SECONDS": "82800",
+          "REQUIRE_CODE_MATH_HELDOUTS": "1",
+          "RESUBMIT_IF_INCOMPLETE": "1",
+          "RUN_TAG": "04_vanilla_goldfish_5b_20260528T112539Z",
+          "SLEEP_SECONDS": "300",
+          "SLURM_JOB_ID": "2417305",
+          "START_TIME_UTC": "2026-05-28T14:45:34Z",
+          "TRAIN_RUN_DIR": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+          "WATCH_STATE_DIR": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch"
+        },
+        "require_code_math_heldouts": "1",
+        "resubmit_if_incomplete": "1",
+        "sleep_seconds": "300",
+        "slurm_job_id": "2417305",
+        "start_time_utc": "2026-05-28T14:45:34Z"
+      },
+      {
+        "code_heldout_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_code_heldout_200_20260528.jsonl",
+        "file": {
+          "exists": true,
+          "mtime": "2026-05-28T14:55:32Z",
+          "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch/watcher_2417454.env",
+          "size": 661
+        },
+        "math_heldout_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_math_heldout_200_20260528.jsonl",
+        "max_watch_seconds": "82800",
+        "raw": {
+          "CODE_HELDOUT_JSONL": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_code_heldout_200_20260528.jsonl",
+          "MATH_HELDOUT_JSONL": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_math_heldout_200_20260528.jsonl",
+          "MAX_WATCH_SECONDS": "82800",
+          "REQUIRE_CODE_MATH_HELDOUTS": "1",
+          "RESUBMIT_IF_INCOMPLETE": "1",
+          "RUN_TAG": "04_vanilla_goldfish_5b_20260528T112539Z",
+          "SLEEP_SECONDS": "300",
+          "SLURM_JOB_ID": "2417454",
+          "START_TIME_UTC": "2026-05-28T14:55:32Z",
+          "TRAIN_RUN_DIR": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+          "WATCH_STATE_DIR": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch"
+        },
+        "require_code_math_heldouts": "1",
+        "resubmit_if_incomplete": "1",
+        "sleep_seconds": "300",
+        "slurm_job_id": "2417454",
+        "start_time_utc": "2026-05-28T14:55:32Z"
+      },
+      {
+        "code_heldout_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_code_heldout_200_20260528.jsonl",
+        "file": {
+          "exists": true,
+          "mtime": "2026-05-29T13:55:57Z",
+          "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch/watcher_2424477.env",
+          "size": 661
+        },
+        "math_heldout_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_math_heldout_200_20260528.jsonl",
+        "max_watch_seconds": "82800",
+        "raw": {
+          "CODE_HELDOUT_JSONL": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_code_heldout_200_20260528.jsonl",
+          "MATH_HELDOUT_JSONL": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_math_heldout_200_20260528.jsonl",
+          "MAX_WATCH_SECONDS": "82800",
+          "REQUIRE_CODE_MATH_HELDOUTS": "1",
+          "RESUBMIT_IF_INCOMPLETE": "1",
+          "RUN_TAG": "04_vanilla_goldfish_5b_20260528T112539Z",
+          "SLEEP_SECONDS": "300",
+          "SLURM_JOB_ID": "2424477",
+          "START_TIME_UTC": "2026-05-29T13:55:57Z",
+          "TRAIN_RUN_DIR": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+          "WATCH_STATE_DIR": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch"
+        },
+        "require_code_math_heldouts": "1",
+        "resubmit_if_incomplete": "1",
+        "sleep_seconds": "300",
+        "slurm_job_id": "2424477",
+        "start_time_utc": "2026-05-29T13:55:57Z"
+      }
+    ],
+    "stderr": {
+      "exists": true,
+      "mtime": "2026-05-28T14:55:32Z",
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04van5b_watch-2417454.err",
+      "size": 0
+    },
+    "stderr_tail": [],
+    "stdout_tail": [
+      "[2026-05-29T13:05:51Z] waiting for checkpoints; elapsed=79819s",
+      "[2026-05-29T13:10:51Z] waiting for checkpoints; elapsed=80119s",
+      "[2026-05-29T13:15:51Z] waiting for checkpoints; elapsed=80419s",
+      "[2026-05-29T13:20:51Z] waiting for checkpoints; elapsed=80719s",
+      "[2026-05-29T13:25:51Z] waiting for checkpoints; elapsed=81019s",
+      "[2026-05-29T13:30:51Z] waiting for checkpoints; elapsed=81319s",
+      "[2026-05-29T13:35:51Z] waiting for checkpoints; elapsed=81619s",
+      "[2026-05-29T13:40:51Z] waiting for checkpoints; elapsed=81919s",
+      "[2026-05-29T13:45:51Z] waiting for checkpoints; elapsed=82219s",
+      "[2026-05-29T13:50:52Z] waiting for checkpoints; elapsed=82520s",
+      "watch window expired after 82820s",
+      "resubmitted watcher: 2424477"
+    ]
+  }
+}

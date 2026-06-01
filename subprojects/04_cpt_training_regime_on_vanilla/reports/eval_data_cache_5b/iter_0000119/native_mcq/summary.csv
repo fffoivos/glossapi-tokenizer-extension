@@ -1,0 +1,50 @@
+benchmark,subject,n,accuracy,correct
+greekmmlu,__all__,16632,0.4984968734968735,8291
+greekmmlu,Accounting,184,0.3804347826086957,70
+greekmmlu,Agriculture,409,0.5232273838630807,214
+greekmmlu,Art,651,0.511520737327189,333
+greekmmlu,Biology,418,0.4784688995215311,200
+greekmmlu,Chemistry,81,0.37037037037037035,30
+greekmmlu,Civil Engineering,769,0.4798439531859558,369
+greekmmlu,Clinical Knowledge,633,0.5134281200631912,325
+greekmmlu,Computer Networks & Security,63,0.25396825396825395,16
+greekmmlu,Computer Science,358,0.5977653631284916,214
+greekmmlu,Computer_Networks_and_Security,23,0.5652173913043478,13
+greekmmlu,Driving Rules,1658,0.5036188178528347,835
+greekmmlu,Economics,282,0.475177304964539,134
+greekmmlu,Education,294,0.5714285714285714,168
+greekmmlu,Electrical Engineering,552,0.447463768115942,247
+greekmmlu,General Knowledge,351,0.46153846153846156,162
+greekmmlu,Geography,422,0.6658767772511849,281
+greekmmlu,Government and Politics,355,0.6394366197183099,227
+greekmmlu,Greek History,674,0.5771513353115727,389
+greekmmlu,Greek Literature,14,0.5714285714285714,8
+greekmmlu,Greek Mythology,238,0.5252100840336135,125
+greekmmlu,Greek Traditions,376,0.5212765957446809,196
+greekmmlu,Law,936,0.36752136752136755,344
+greekmmlu,Management,666,0.56006006006006,373
+greekmmlu,Maritime Safety and Rescue Operations,148,0.3581081081081081,53
+greekmmlu,Mathematics,1118,0.42486583184257604,475
+greekmmlu,Medicine,534,0.43258426966292135,231
+greekmmlu,Modern Greek Language,2358,0.45122985581000846,1064
+greekmmlu,Physics,1829,0.5697102241662111,1042
+greekmmlu,Prehistory,63,0.7619047619047619,48
+greekmmlu,World History,20,0.8,16
+greekmmlu,World Religions,155,0.5741935483870968,89
+ilsp_mcqa_asep,__all__,1200,0.48083333333333333,577
+ilsp_mcqa_asep,1,242,0.3760330578512397,91
+ilsp_mcqa_asep,2,165,0.4121212121212121,68
+ilsp_mcqa_asep,3,203,0.4482758620689655,91
+ilsp_mcqa_asep,4,123,0.3983739837398374,49
+ilsp_mcqa_asep,5,157,0.89171974522293,140
+ilsp_mcqa_asep,6,123,0.42276422764227645,52
+ilsp_medical_mcqa,__all__,432,0.33796296296296297,146
+ilsp_medical_mcqa,anatomy,67,0.31343283582089554,21
+ilsp_medical_mcqa,gynaecology,59,0.4067796610169492,24
+ilsp_medical_mcqa,pathology,37,0.2972972972972973,11
+ilsp_medical_mcqa,pediatrics,72,0.2916666666666667,21
+ilsp_medical_mcqa,pharmacology,61,0.29508196721311475,18
+ilsp_medical_mcqa,physiology,65,0.4,26
+ilsp_medical_mcqa,surgery,71,0.352112676056338,25
+plutus_qa,__all__,225,0.4,90
+plutus_qa,finance,225,0.4,90

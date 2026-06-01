@@ -1,0 +1,497 @@
+{
+  "checked_at_utc": "2026-05-30T15:33:56Z",
+  "checkpoint": {
+    "dir": {
+      "child_count": 11,
+      "exists": true,
+      "is_dir": true,
+      "is_file": false,
+      "mtime": "2026-05-30T11:28:20Z",
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0001192",
+      "size": 4096
+    },
+    "metadata": {
+      "exists": true,
+      "is_dir": false,
+      "is_file": true,
+      "mtime": "2026-05-30T11:28:20Z",
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0001192/.metadata",
+      "size": 449692
+    }
+  },
+  "checksum_manifest": {
+    "exists": true,
+    "is_dir": false,
+    "is_file": true,
+    "mtime": "2026-05-30T11:35:39Z",
+    "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/checksums/Vanilla-5B_iter_0001192_checksum_manifest.json",
+    "size": 9022
+  },
+  "expected_kinds": [
+    "convert",
+    "native_mcq",
+    "greek_nlp",
+    "heldout_greek_bpb",
+    "retention",
+    "code_bpb",
+    "math_bpb"
+  ],
+  "iter_pad": "0001192",
+  "iteration": 1192,
+  "local_review": {
+    "critique": {
+      "exists": false,
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B/adversarial_critique.md"
+    },
+    "dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B",
+    "events_jsonl": {
+      "exists": false,
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B/codex_events.jsonl"
+    },
+    "label": "Vanilla-5B",
+    "metadata": {
+      "exists": false,
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B/review_metadata.env"
+    },
+    "prompt": {
+      "exists": false,
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B/prompt.md"
+    }
+  },
+  "manifest": {
+    "file": {
+      "exists": true,
+      "is_dir": false,
+      "is_file": true,
+      "mtime": "2026-05-30T11:31:08Z",
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/sidecar_jobs.tsv",
+      "size": 1274
+    },
+    "kinds": [
+      "convert",
+      "native_mcq",
+      "greek_nlp",
+      "heldout_greek_bpb",
+      "retention",
+      "code_bpb",
+      "math_bpb",
+      "checksum"
+    ],
+    "missing_kinds": [],
+    "missing_outputs": [],
+    "output_states": [
+      {
+        "dependency": "none",
+        "job_id": "2432546",
+        "kind": "convert",
+        "output": {
+          "child_count": 11,
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "mtime": "2026-05-30T11:32:13Z",
+          "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192_hf",
+          "size": 4096
+        }
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432547",
+        "kind": "native_mcq",
+        "output": {
+          "child_count": 6,
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "mtime": "2026-05-30T11:47:20Z",
+          "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/native_mcq",
+          "size": 4096
+        }
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432548",
+        "kind": "greek_nlp",
+        "output": {
+          "child_count": 24,
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "mtime": "2026-05-30T12:34:05Z",
+          "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/greek_nlp_s100",
+          "size": 4096
+        }
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432549",
+        "kind": "heldout_greek_bpb",
+        "output": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "mtime": "2026-05-30T11:34:06Z",
+          "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/heldout_greek_bpb.json",
+          "size": 5383
+        }
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432550",
+        "kind": "retention",
+        "output": {
+          "child_count": 180,
+          "exists": true,
+          "is_dir": true,
+          "is_file": false,
+          "mtime": "2026-05-30T11:57:37Z",
+          "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/retention",
+          "size": 24576
+        }
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432551",
+        "kind": "code_bpb",
+        "output": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "mtime": "2026-05-30T11:33:19Z",
+          "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/heldout_code_bpb.json",
+          "size": 2275
+        }
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432552",
+        "kind": "math_bpb",
+        "output": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "mtime": "2026-05-30T11:33:16Z",
+          "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/heldout_math_bpb.json",
+          "size": 2259
+        }
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432553",
+        "kind": "checksum",
+        "output": {
+          "exists": true,
+          "is_dir": false,
+          "is_file": true,
+          "mtime": "2026-05-30T11:35:39Z",
+          "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/checksums/Vanilla-5B_iter_0001192_checksum_manifest.json",
+          "size": 9022
+        }
+      }
+    ],
+    "rows": [
+      {
+        "dependency": "none",
+        "job_id": "2432546",
+        "kind": "convert",
+        "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192_hf"
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432547",
+        "kind": "native_mcq",
+        "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/native_mcq"
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432548",
+        "kind": "greek_nlp",
+        "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/greek_nlp_s100"
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432549",
+        "kind": "heldout_greek_bpb",
+        "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/heldout_greek_bpb.json"
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432550",
+        "kind": "retention",
+        "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/retention"
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432551",
+        "kind": "code_bpb",
+        "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/heldout_code_bpb.json"
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432552",
+        "kind": "math_bpb",
+        "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/heldout_math_bpb.json"
+      },
+      {
+        "dependency": "2432546",
+        "job_id": "2432553",
+        "kind": "checksum",
+        "output": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/checksums/Vanilla-5B_iter_0001192_checksum_manifest.json"
+      }
+    ]
+  },
+  "paths": {
+    "checkpoint_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0001192",
+    "checksum_manifest": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/checksums/Vanilla-5B_iter_0001192_checksum_manifest.json",
+    "eval_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z",
+    "hf_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192_hf",
+    "iter_eval_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192",
+    "manifest": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/sidecar_jobs.tsv",
+    "train_run_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+    "watch_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch"
+  },
+  "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+  "sidecar_attempt_history": {
+    "archived_attempt_count": 0,
+    "archived_attempt_job_ids": [],
+    "archived_attempts": []
+  },
+  "slurm": {
+    "incomplete_sacct_jobs": [],
+    "job_ids": [
+      "2432546",
+      "2432547",
+      "2432548",
+      "2432549",
+      "2432550",
+      "2432551",
+      "2432552",
+      "2432553"
+    ],
+    "missing_sacct_job_ids": [],
+    "sacct": [
+      {
+        "AllocTRES": "billing=288,cpu=288,energy=41660,gres/gpu=4,mem=400G,node=1",
+        "Elapsed": "00:01:08",
+        "ExitCode": "0:0",
+        "JobID": "2432546",
+        "JobName": "04tohf_i1192",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "cpu=288,gres/gpu=4,mem=400G,node=1",
+        "Elapsed": "00:01:08",
+        "ExitCode": "0:0",
+        "JobID": "2432546.batch",
+        "JobName": "batch",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,gres/gpu=4,mem=400G,node=1",
+        "Elapsed": "00:01:09",
+        "ExitCode": "0:0",
+        "JobID": "2432546.extern",
+        "JobName": "extern",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,energy=1245218,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:15:01",
+        "ExitCode": "0:0",
+        "JobID": "2432547",
+        "JobName": "04native_i1192",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "cpu=288,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:15:01",
+        "ExitCode": "0:0",
+        "JobID": "2432547.batch",
+        "JobName": "batch",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:15:01",
+        "ExitCode": "0:0",
+        "JobID": "2432547.extern",
+        "JobName": "extern",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,energy=3477954,gres/gpu=4,mem=240G,node=1",
+        "Elapsed": "01:01:46",
+        "ExitCode": "0:0",
+        "JobID": "2432548",
+        "JobName": "04gnlp_i1192",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "cpu=288,gres/gpu=4,mem=240G,node=1",
+        "Elapsed": "01:01:46",
+        "ExitCode": "0:0",
+        "JobID": "2432548.batch",
+        "JobName": "batch",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,gres/gpu=4,mem=240G,node=1",
+        "Elapsed": "01:01:46",
+        "ExitCode": "0:0",
+        "JobID": "2432548.extern",
+        "JobName": "extern",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,energy=92351,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:01:46",
+        "ExitCode": "0:0",
+        "JobID": "2432549",
+        "JobName": "04bpb_i1192",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "cpu=288,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:01:46",
+        "ExitCode": "0:0",
+        "JobID": "2432549.batch",
+        "JobName": "batch",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:01:46",
+        "ExitCode": "0:0",
+        "JobID": "2432549.extern",
+        "JobName": "extern",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,energy=1402413,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:25:21",
+        "ExitCode": "0:0",
+        "JobID": "2432550",
+        "JobName": "04ret_i1192",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "cpu=288,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:25:21",
+        "ExitCode": "0:0",
+        "JobID": "2432550.batch",
+        "JobName": "batch",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:25:21",
+        "ExitCode": "0:0",
+        "JobID": "2432550.extern",
+        "JobName": "extern",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,energy=44906,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:00:59",
+        "ExitCode": "0:0",
+        "JobID": "2432551",
+        "JobName": "04codebpb_i1192",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "cpu=288,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:00:59",
+        "ExitCode": "0:0",
+        "JobID": "2432551.batch",
+        "JobName": "batch",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:00:59",
+        "ExitCode": "0:0",
+        "JobID": "2432551.extern",
+        "JobName": "extern",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,energy=39481,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:00:56",
+        "ExitCode": "0:0",
+        "JobID": "2432552",
+        "JobName": "04mathbpb_i1192",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "cpu=288,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:00:56",
+        "ExitCode": "0:0",
+        "JobID": "2432552.batch",
+        "JobName": "batch",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "billing=288,cpu=288,gres/gpu=4,mem=220G,node=1",
+        "Elapsed": "00:00:56",
+        "ExitCode": "0:0",
+        "JobID": "2432552.extern",
+        "JobName": "extern",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "cpu=4,energy=44967,mem=8G,node=1",
+        "Elapsed": "00:03:18",
+        "ExitCode": "0:0",
+        "JobID": "2432553",
+        "JobName": "04cksum_i1192",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "cpu=4,mem=8G,node=1",
+        "Elapsed": "00:03:18",
+        "ExitCode": "0:0",
+        "JobID": "2432553.batch",
+        "JobName": "batch",
+        "State": "COMPLETED"
+      },
+      {
+        "AllocTRES": "cpu=4,mem=8G,node=1",
+        "Elapsed": "00:03:18",
+        "ExitCode": "0:0",
+        "JobID": "2432553.extern",
+        "JobName": "extern",
+        "State": "COMPLETED"
+      }
+    ],
+    "squeue": []
+  },
+  "summary": {
+    "active_sidecar_jobs": 0,
+    "archived_sidecar_attempt_count": 0,
+    "checkpoint_metadata_ready": true,
+    "checksum_manifest_ready": true,
+    "expected_outputs_ready": true,
+    "handoff_ready": true,
+    "manifest_has_all_expected_kinds": true,
+    "sidecars_submitted": true,
+    "slurm_jobs_completed": true
+  },
+  "watcher": {
+    "submit_log": {
+      "exists": true,
+      "is_dir": false,
+      "is_file": true,
+      "mtime": "2026-05-30T11:31:08Z",
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch/iter_1192_submit.log",
+      "size": 1504
+    },
+    "submitted_state": {
+      "exists": true,
+      "is_dir": false,
+      "is_file": true,
+      "mtime": "2026-05-30T11:31:08Z",
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch/iter_1192.submitted",
+      "size": 0
+    }
+  }
+}

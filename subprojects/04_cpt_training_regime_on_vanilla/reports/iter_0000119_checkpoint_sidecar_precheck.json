@@ -1,0 +1,93 @@
+{
+  "checked_at_utc": "2026-05-28T17:33:44Z",
+  "checkpoint": {
+    "dir": {
+      "exists": false,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0000119"
+    },
+    "metadata": {
+      "exists": false,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0000119/.metadata"
+    }
+  },
+  "expected_kinds": [
+    "convert",
+    "native_mcq",
+    "greek_nlp",
+    "heldout_greek_bpb",
+    "retention",
+    "code_bpb",
+    "math_bpb"
+  ],
+  "iter_pad": "0000119",
+  "iteration": 119,
+  "local_review": {
+    "critique": {
+      "exists": false,
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-0.5B/adversarial_critique.md"
+    },
+    "dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-0.5B",
+    "events_jsonl": {
+      "exists": false,
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-0.5B/codex_events.jsonl"
+    },
+    "label": "Vanilla-0.5B",
+    "metadata": {
+      "exists": false,
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-0.5B/review_metadata.env"
+    },
+    "prompt": {
+      "exists": false,
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-0.5B/prompt.md"
+    }
+  },
+  "manifest": {
+    "file": {
+      "exists": false,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/sidecar_jobs.tsv"
+    },
+    "kinds": [],
+    "missing_kinds": [
+      "convert",
+      "native_mcq",
+      "greek_nlp",
+      "heldout_greek_bpb",
+      "retention",
+      "code_bpb",
+      "math_bpb"
+    ],
+    "output_states": [],
+    "rows": []
+  },
+  "paths": {
+    "checkpoint_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0000119",
+    "eval_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z",
+    "hf_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119_hf",
+    "iter_eval_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119",
+    "manifest": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119/sidecar_jobs.tsv",
+    "train_run_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+    "watch_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch"
+  },
+  "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+  "slurm": {
+    "job_ids": [],
+    "sacct": [],
+    "squeue": []
+  },
+  "summary": {
+    "active_sidecar_jobs": 0,
+    "checkpoint_metadata_ready": false,
+    "manifest_has_all_expected_kinds": false,
+    "sidecars_submitted": false
+  },
+  "watcher": {
+    "submit_log": {
+      "exists": false,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch/iter_119_submit.log"
+    },
+    "submitted_state": {
+      "exists": false,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch/iter_119.submitted"
+    }
+  }
+}

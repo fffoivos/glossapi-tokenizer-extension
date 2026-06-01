@@ -1,0 +1,184 @@
+{
+  "n_resamples": 1000,
+  "ci_level": 0.95,
+  "rng_seed": 20260529,
+  "methodology": "Per-task item-level paired bootstrap (independent resampling within each task). Headline = macro-mean across 3 headline tasks per resample. Paired by shared resample indices across all models.",
+  "iter_1192_marginal_3task_headline": {
+    "point": 0.49733084816418155,
+    "lo_95": 0.4778920554753888,
+    "hi_95": 0.5156040363957031
+  },
+  "iter_1192_marginal_4task_with_plutus": {
+    "point": 0.481887025012025,
+    "lo_95": 0.4600008041726792,
+    "hi_95": 0.5045624398749399
+  },
+  "iter_1192_marginal_per_task": {
+    "greekmmlu": {
+      "point": 0.5583814333814334,
+      "lo_95": 0.5502044252044253,
+      "hi_95": 0.5659617003367003,
+      "n_items": 16632
+    },
+    "ilsp_medical_mcqa": {
+      "point": 0.4027777777777778,
+      "lo_95": 0.35648148148148145,
+      "hi_95": 0.44907407407407407,
+      "n_items": 432
+    },
+    "ilsp_mcqa_asep": {
+      "point": 0.5308333333333334,
+      "lo_95": 0.5033333333333333,
+      "hi_95": 0.5575,
+      "n_items": 1200
+    },
+    "plutus_qa": {
+      "point": 0.43555555555555553,
+      "lo_95": 0.37322222222222234,
+      "hi_95": 0.5022222222222222,
+      "n_items": 225
+    }
+  },
+  "paired_iter1192_vs_iter477_headline_3task": {
+    "iter_477_point": 0.4791518358185025,
+    "iter_1192_point": 0.49733084816418155,
+    "delta": 0.018179012345679035,
+    "ci_lo": 0.0059536636203303085,
+    "ci_hi": 0.030611181257014564,
+    "outside_zero": true
+  },
+  "paired_iter1192_vs_iter834_headline_3task": {
+    "iter_834_point": 0.478965848965849,
+    "iter_1192_point": 0.49733084816418155,
+    "delta": 0.018364999198332566,
+    "ci_lo": 0.00798419713003047,
+    "ci_hi": 0.029492985409652096,
+    "outside_zero": true
+  },
+  "paired_iter1192_vs_ApertusBase_headline_3task": {
+    "ApertusBase_point": 0.4817267917267917,
+    "iter_1192_point": 0.49733084816418155,
+    "delta": 0.015604056437389824,
+    "ci_lo": 0.0015927328843995602,
+    "ci_hi": 0.028442630671797288,
+    "outside_zero": true
+  },
+  "paired_iter1192_vs_iter834_plutus": {
+    "iter_834_point": 0.4888888888888889,
+    "iter_1192_point": 0.43555555555555553,
+    "delta": -0.053333333333333344,
+    "ci_lo": -0.10666666666666669,
+    "ci_hi": 0.0,
+    "outside_zero": false
+  },
+  "paired_per_task_iter1192_vs_iter834": [
+    {
+      "task": "greekmmlu",
+      "delta": 0.03000240500240503,
+      "ci_lo": 0.025493025493025456,
+      "ci_hi": 0.03445316257816253,
+      "outside_zero": true
+    },
+    {
+      "task": "ilsp_medical_mcqa",
+      "delta": 0.009259259259259245,
+      "ci_lo": -0.020833333333333315,
+      "ci_hi": 0.03935185185185186,
+      "outside_zero": false
+    },
+    {
+      "task": "ilsp_mcqa_asep",
+      "delta": 0.015833333333333366,
+      "ci_lo": 0.0016666666666667052,
+      "ci_hi": 0.030833333333333268,
+      "outside_zero": true
+    },
+    {
+      "task": "plutus_qa",
+      "delta": -0.053333333333333344,
+      "ci_lo": -0.10666666666666669,
+      "ci_hi": 0.0,
+      "outside_zero": false
+    }
+  ],
+  "paired_per_task_iter1192_vs_iter477": [
+    {
+      "task": "greekmmlu",
+      "delta": 0.05092592592592593,
+      "ci_lo": 0.04569354256854256,
+      "ci_hi": 0.056216931216931165,
+      "outside_zero": true
+    },
+    {
+      "task": "ilsp_medical_mcqa",
+      "delta": 0.006944444444444475,
+      "ci_lo": -0.027777777777777735,
+      "ci_hi": 0.041666666666666685,
+      "outside_zero": false
+    },
+    {
+      "task": "ilsp_mcqa_asep",
+      "delta": -0.0033333333333332993,
+      "ci_lo": -0.020833333333333263,
+      "ci_hi": 0.012500000000000067,
+      "outside_zero": false
+    },
+    {
+      "task": "plutus_qa",
+      "delta": -0.053333333333333344,
+      "ci_lo": -0.10666666666666669,
+      "ci_hi": 0.008888888888888835,
+      "outside_zero": false
+    }
+  ],
+  "paired_per_task_iter1192_vs_ApertusBase": [
+    {
+      "task": "greekmmlu",
+      "delta": 0.030423280423280463,
+      "ci_lo": 0.025369769119769132,
+      "ci_hi": 0.03613516113516113,
+      "outside_zero": true
+    },
+    {
+      "task": "ilsp_medical_mcqa",
+      "delta": -0.00694444444444442,
+      "ci_lo": -0.043981481481481455,
+      "ci_hi": 0.027777777777777735,
+      "outside_zero": false
+    },
+    {
+      "task": "ilsp_mcqa_asep",
+      "delta": 0.023333333333333428,
+      "ci_lo": 0.0050000000000000044,
+      "ci_hi": 0.04249999999999998,
+      "outside_zero": true
+    },
+    {
+      "task": "plutus_qa",
+      "delta": -0.08000000000000002,
+      "ci_lo": -0.1422222222222222,
+      "ci_hi": -0.013333333333333364,
+      "outside_zero": true
+    }
+  ],
+  "headline_4task_with_plutus_paired": {
+    "vs_iter834": {
+      "delta": 0.0004404160654160605,
+      "ci_lo": -0.014792688792688738,
+      "ci_hi": 0.01619603775853782,
+      "outside_zero": false
+    },
+    "vs_iter477": {
+      "delta": 0.00030092592592589895,
+      "ci_lo": -0.016569203944203886,
+      "ci_hi": 0.01846219636844636,
+      "outside_zero": false
+    },
+    "vs_AB": {
+      "delta": -0.00829695767195765,
+      "ci_lo": -0.027039396945647005,
+      "ci_hi": 0.010387378246753275,
+      "outside_zero": false
+    }
+  }
+}

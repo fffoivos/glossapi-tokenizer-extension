@@ -1,0 +1,23 @@
+[
+  {
+    "accuracy": 0.5583814333814334,
+    "benchmark": "greekmmlu",
+    "correct": 9287,
+    "n": 16632,
+    "subject": "__all__"
+  },
+  {
+    "accuracy": 0.4027777777777778,
+    "benchmark": "ilsp_medical_mcqa",
+    "correct": 174,
+    "n": 432,
+    "subject": "__all__"
+  },
+  {
+    "accuracy": 0.5308333333333334,
+    "benchmark": "ilsp_mcqa_asep",
+    "correct": 637,
+    "n": 1200,
+    "subject": "__all__"
+  }
+]

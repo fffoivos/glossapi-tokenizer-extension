@@ -1,0 +1,35 @@
+{
+  "diagnostics": {
+    "macro_accuracy": 0.4888888888888889,
+    "micro_accuracy": 0.4888888888888889,
+    "n_tasks": 1,
+    "total_correct": 110,
+    "total_n": 225
+  },
+  "headline": {
+    "macro_accuracy": 0.4791518358185025,
+    "micro_accuracy": 0.5065703022339028,
+    "n_tasks": 3,
+    "total_correct": 9252,
+    "total_n": 18264
+  },
+  "headline_policy": {
+    "diagnostic_benchmarks": [
+      "plutus_qa"
+    ],
+    "headline_benchmarks": [
+      "greekmmlu",
+      "ilsp_medical_mcqa",
+      "ilsp_mcqa_asep"
+    ],
+    "note": "Headline excludes Plutus QA; Plutus is diagnostic/domain-specific."
+  },
+  "headline_with_diagnostics": {
+    "macro_accuracy": 0.48158609908609906,
+    "micro_accuracy": 0.5063551300773433,
+    "n_tasks": 4,
+    "total_correct": 9362,
+    "total_n": 18489
+  },
+  "schema": "native-greek-mcq-aggregate-v1"
+}

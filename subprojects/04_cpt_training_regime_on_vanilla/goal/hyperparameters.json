@@ -1,0 +1,417 @@
+{
+  "experiment_id": "04_cpt_regime_diagnostic_vanilla_v1",
+  "plan_reference": "subprojects/04_cpt_training_regime_on_vanilla/cpt-plan.md \u00a72.1",
+  "goal_reference": "subprojects/04_cpt_training_regime_on_vanilla/goal/goal.md",
+  "arm": "Vanilla",
+  "vocabulary_extension": false,
+  "base_model": {
+    "hf_id": "swiss-ai/Apertus-8B-2509",
+    "release": "2025-09",
+    "architecture": {
+      "layers": 32,
+      "hidden_size": 4096,
+      "mlp_intermediate": 21504,
+      "attention_heads_q": 32,
+      "attention_heads_kv": 8,
+      "head_dim": 128,
+      "activation": "xIELU",
+      "normalization": "RMSNorm",
+      "qk_norm": true,
+      "biases": false,
+      "tie_word_embeddings": false,
+      "rope_theta": 12000000,
+      "rope_scaling": {
+        "rope_type": "llama3",
+        "factor": 8.0,
+        "original_max_position_embeddings": 8192,
+        "low_freq_factor": 1.0,
+        "high_freq_factor": 4.0
+      },
+      "max_position": 65536,
+      "vocab_size": 131072,
+      "tokenizer": "Mistral-Nemo tekken v3",
+      "geometry_note": "Path A. Apertus paper §2.5 long-context extension; the released swiss-ai/Apertus-8B-2509 config.json carries these values. Task 1 runs under a Path-B training-time override; see training_geometry block below."
+    }
+  },
+  "training_geometry": {
+    "active_path": "B",
+    "values": {
+      "rope_theta": 500000,
+      "max_position_embeddings": 4096,
+      "rope_scaling": null,
+      "sequence_length": 4096
+    },
+    "source": "Apertus paper §2.3 initial-pretraining geometry; matches the 4-arm bakeoff training command (--max-position-embeddings 4096 --rotary-base 500000).",
+    "rationale": "Inherited from bakeoff for cross-arm comparability. The Task-1 regime-diagnostic question 'did the bakeoff regime degrade Vanilla?' requires the same positional geometry on both sides of the comparison. Switching mid-run invalidates the bakeoff-vs-this-run comparison that is the cleanest evidence for the regime hypothesis (iter 477 vs bakeoff Vanilla-2B = +4.65 pp outside V4 CI).",
+    "cost_of_path_b": "Initializing from a Path-A checkpoint and training under Path B forces the model to re-adapt positional encoding from rope_theta=12M toward rope_theta=500K. Empirical evidence at iter 477: matched-config Apertus-Base (Path-B override on Path-A weights) yields Greek BPB=1.22 and MCQ headline=0.4272 — a 5.5 pp drop on MCQ and ~3x degradation on BPB. iter 477 (post-warmup, 2 B tokens) recovers BPB to ~0.43 and MCQ to 0.4792, at Apertus-Base Path-A point estimate (0.4817). First ~1 B tokens carry the rope-adaptation cost.",
+    "matched_config_diagnostic": {
+      "model_dir_on_clariden": "/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509-matched-rope500k-seq4096",
+      "manifest_path": "/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509-matched-rope500k-seq4096/MANIFEST.json",
+      "builder_script": "subprojects/04_cpt_training_regime_on_vanilla/scripts/build_apertus_base_matched_config.sh",
+      "submitter_script": "subprojects/04_cpt_training_regime_on_vanilla/scripts/eval_apertus_base_matched_config.sbatch",
+      "eval_root_on_clariden": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_apertus_base_matched_rope500k_seq4096",
+      "status_note": "Used as DIAGNOSTIC of how rope-perturbation degrades Apertus-Base. NOT a clean baseline — the rope_theta override perturbs the model rather than re-anchoring it. Primary comparison for the regime hypothesis is iter-N vs bakeoff Vanilla at matched token marks (both on Path B)."
+    },
+    "task2_geometry_recommendation": {
+      "recommended_path": "A",
+      "values": {
+        "rope_theta": 12000000,
+        "max_position_embeddings": 65536,
+        "rope_scaling": {
+          "rope_type": "llama3",
+          "factor": 8.0,
+          "original_max_position_embeddings": 8192,
+          "low_freq_factor": 1.0,
+          "high_freq_factor": 4.0
+        },
+        "sequence_length": 4096
+      },
+      "rationale": "Task 2 (production extension experiment) does NOT need bakeoff comparability. Switching to Path A removes the ~1 B tokens of rope re-adaptation cost and removes the geometry-confound for any Apertus-Base comparison. Primary Task-2 comparison is extension-vs-Vanilla under the same regime + same geometry, not extension-vs-bakeoff-arms.",
+      "plan_reference": "subprojects/04_cpt_training_regime_on_vanilla/cpt-plan.md §3.4 Q3.4.10",
+      "status": "CONFIRMED, LOCKED for Task 2 v1.x by the 2026-05-31 Path-A 0.5B probe; do not reopen unless running an explicit geometry ablation."
+    }
+  },
+  "optimizer": {
+    "name": "AdEMAMix",
+    "beta1": 0.9,
+    "beta2": 0.999,
+    "beta3": 0.99,
+    "alpha": 8,
+    "weight_decay": 0.1,
+    "gradient_clipping": 0.1,
+    "alpha_beta3_warmup_steps": {
+      "value": 287,
+      "warmup_tokens_equivalent": 1200000000,
+      "warmup_samples_equivalent": 292969,
+      "derivation": "ceil(1.2B tokens / 4,194,304 global-batch tokens)",
+      "plan_question": "Q2.4.3 resolved",
+      "bakeoff_value": 238,
+      "apertus_pretraining_value": 100000,
+      "note": "Use the Apertus long-context continuation warmup window for alpha and beta3 as well as LR; beta3=0.99 is the short-run setting for this diagnostic."
+    }
+  },
+  "lr_schedule": {
+    "base_lr": 1.1e-05,
+    "source": "Apertus paper \u00a72.5 long-context continuation LR",
+    "bakeoff_lr": 1.5e-05,
+    "schedule_shape": {
+      "value": "linear_warmup_then_constant",
+      "plan_question": "Q2.4.4 resolved",
+      "cooldown": "none_for_task1",
+      "note": "Task 1 follows the Apertus long-context continuation pattern: warm up into the continuation LR, then hold it constant."
+    },
+    "warmup": {
+      "tokens": 1200000000,
+      "samples": 292969,
+      "optimizer_steps": 287,
+      "initial_lr": 1.1e-06,
+      "target_lr": 1.1e-05,
+      "source": "Apertus paper \u00a72.5 long-context continuation warmup"
+    }
+  },
+  "loss": {
+    "type": "Goldfish",
+    "k": 50,
+    "h": 50,
+    "hash_seed": 2971215073,
+    "hash_table_size": 1000003,
+    "hash_mode": "prod_mod",
+    "source": "Apertus pretraining default; bakeoff used NTP"
+  },
+  "sequence": {
+    "length": 4096,
+    "cross_document_attention": false,
+    "eod_loss_masking": true,
+    "note": "Apertus pretraining defaults; unchanged from bakeoff."
+  },
+  "batch_and_precision": {
+    "global_batch_tokens": 4194304,
+    "global_batch_samples": 1024,
+    "global_batch_source": "Apertus 8B pretraining initial value (paper \u00a72.3); 8.4M doubling at 8T tokens not relevant for 7-10B CPT",
+    "tensor_model_parallel_size": 2,
+    "pipeline_model_parallel_size": 1,
+    "default_nodes": 1,
+    "gpus_per_node": 4,
+    "default_total_gpus": 4,
+    "default_data_parallel_size": 2,
+    "microbatch_size_samples_per_gpu": 2,
+    "microbatch_size_tokens_per_gpu": 8192,
+    "grad_accumulation_steps_default": 256,
+    "grad_accumulation_formula": "global_batch_samples / (microbatch_size_samples_per_gpu * data_parallel_size)",
+    "node_count_alternatives": [
+      {
+        "nodes": 1,
+        "total_gpus": 4,
+        "data_parallel_size": 2,
+        "grad_accumulation_steps": 256
+      },
+      {
+        "nodes": 2,
+        "total_gpus": 8,
+        "data_parallel_size": 4,
+        "grad_accumulation_steps": 128
+      },
+      {
+        "nodes": 4,
+        "total_gpus": 16,
+        "data_parallel_size": 8,
+        "grad_accumulation_steps": 64
+      }
+    ],
+    "note": "Use the proven bakeoff TP=2, mb=2 shape; preserve global batch at 1024 samples / 4.194M tokens. If node count changes, only data parallelism and grad accumulation change.",
+    "precision": "bf16"
+  },
+  "tokenizer": {
+    "id": "swiss-ai/Apertus-8B-2509 base tokenizer",
+    "vocab_size": 131072,
+    "extended": false,
+    "note": "Vanilla arm \u2014 base Mistral-Nemo tekken v3, no Greek extension."
+  },
+  "training_mix": {
+    "deviation_from_plan": "Top-level B1 shares are preserved: 70/24/4/2 Greek/replay/code/math. The only data narrowing for this diagnostic is inside the Greek slice: HPLT clean60 only, with other GlossAPI Greek sources deferred.",
+    "greek": {
+      "share": 0.7,
+      "source_dataset": "HPLT/ell_Grek_ge8_no_mt_clean60",
+      "wave": "wave4",
+      "shards": 250,
+      "input_docs": 48728774,
+      "input_bytes_utf8": 331109685077,
+      "dedup_overlay": {
+        "audit_id": "20260519T010924Z",
+        "scope": "Apertus pretraining cross-dedup",
+        "dropped_docs": 2099756,
+        "kept_docs_approx": 46629018,
+        "fraction_kept": 0.957
+      },
+      "token_count_with_extended_tokenizer_148k": 44195950025,
+      "token_count_with_base_131k_tokenizer": {
+        "status": "optional_metadata",
+        "required_before": "not_required_for_launch",
+        "expectation": "higher than 44.2B because the base tokenizer compresses Greek less than ModernGreek-148k",
+        "note": "Dataset accounting value, not a training hyperparameter. HPLT already exceeds the max 7B Greek-token need for a 10B total run at 70% Greek."
+      }
+    },
+    "replay": {
+      "share": 0.24,
+      "composition_source": "bakeoff B1 non-Greek replay (see cpt_plan.md v0.7 in 03 subproject)",
+      "languages": [
+        "en",
+        "fr",
+        "de",
+        "ru"
+      ],
+      "bakeoff_share": 0.24
+    },
+    "code": {
+      "share": 0.04,
+      "composition_source": "bakeoff B1 code bucket (see cpt_plan.md v0.7 in 03 subproject)",
+      "note": "Included to preserve the bakeoff B1 top-level mix."
+    },
+    "math": {
+      "share": 0.02,
+      "composition_source": "bakeoff B1 math bucket (see cpt_plan.md v0.7 in 03 subproject)",
+      "note": "Included to preserve the bakeoff B1 top-level mix."
+    },
+    "other_greek_sources": {
+      "included": false,
+      "excluded": [
+        "openarchives.gr",
+        "didaktorika (PhD theses)",
+        "Apothetirio_Pergamos",
+        "HuggingFaceFW/finewiki",
+        "Apothetirio_Kallipos",
+        "openbook_gr",
+        "OPUS/OpenSubtitles-el-v2018",
+        "eurlex-greek-legislation",
+        "ellinika_dedomena_europaikou_koinovouliou",
+        "AI-team-UoA/greek_legal_code",
+        "Wikisource_Greek_texts",
+        "1000_prwta_xronia_ellhnikhs",
+        "opengov.gr-diaboyleuseis",
+        "klasikh_arx_ell_grammateia",
+        "Ellinika_Keimena_Project_Gutenberg",
+        "Ekklisiastika_Keimena",
+        "Sxolika_vivlia",
+        "dimodis_logotexnia"
+      ],
+      "note": "Reserved for follow-up experiments / Task 3 staging design."
+    },
+    "within_greek_mixing": "uniform",
+    "staging": "none (uniform throughout training \u2014 plan \u00a72.1)"
+  },
+  "schedule": {
+    "target_tokens_hard": 5000000000,
+    "target_tokens_stretch": 10000000000,
+    "checkpoint_token_marks_required": [
+      500000000,
+      1000000000,
+      2000000000,
+      3500000000,
+      5000000000
+    ],
+    "checkpoint_token_marks_stretch": [
+      7000000000,
+      10000000000
+    ]
+  },
+  "eval": {
+    "greek_headline_native": {
+      "tasks": [
+        "greekmmlu",
+        "ilsp_medical_mcqa",
+        "ilsp_asep_mcqa"
+      ],
+      "aggregate_rule": "arithmetic_mean",
+      "pending_infra": "PF5 \u2014 merge ILSP Greek YAMLs into lm-eval-harness clone (project task #55)"
+    },
+    "greek_diagnostic_only": {
+      "tasks": [
+        "plutus_qa",
+        "greek_nlp_benchmark_sample_100_supporting_mean"
+      ],
+      "note": "Reported separately, NOT in headline aggregate."
+    },
+    "greek_mt_diagnostic_excluded_from_headline": [
+      "xnli_el",
+      "xcopa_el",
+      "arc_challenge_mt_el",
+      "global_piqa_completions_ell_grek"
+    ],
+    "multilingual_retention": {
+      "languages": [
+        "en",
+        "fr",
+        "de",
+        "ru"
+      ],
+      "additional_domains": [
+        "code",
+        "math"
+      ],
+      "tasks_per_language": [
+        "arc_challenge",
+        "hellaswag",
+        "mmlu",
+        "piqa",
+        "xstorycloze",
+        "xnli_where_applicable"
+      ],
+      "source": "lm-eval bundles used in 03 bakeoff"
+    },
+    "loss_metrics": {
+      "primary_cross_arm": "heldout_bpb",
+      "heldout_bpb_languages": [
+        "el",
+        "en",
+        "fr",
+        "de",
+        "ru"
+      ],
+      "training_health_trace": "raw_megatron_lm_loss",
+      "training_health_compare_against": "bakeoff Vanilla (same base tokenizer \u2014 direct comparison valid)"
+    },
+    "frequency": {
+      "full_eval_at_checkpoints": [
+        500000000,
+        1000000000,
+        2000000000,
+        3500000000,
+        5000000000,
+        7000000000,
+        10000000000
+      ],
+      "optional_smoke_eval_interval_tokens": 200000000,
+      "smoke_eval_scope": "greek_headline_native_only",
+      "smoke_eval_condition": "only if cheap enough not to delay training"
+    },
+    "adversarial_critique": {
+      "enabled": true,
+      "frequency": "every_required_checkpoint_after_eval_artifacts_exist",
+      "runner": "subprojects/04_cpt_training_regime_on_vanilla/scripts/run_checkpoint_adversarial_review.sh",
+      "execution_host": "home",
+      "remote_artifact_access": "read_only_ssh_to_clariden",
+      "codex_command": "codex exec",
+      "model": "gpt-5.5",
+      "model_reasoning_effort": "xhigh",
+      "outputs_per_checkpoint": [
+        "prompt.md",
+        "codex_events.jsonl",
+        "adversarial_critique.md",
+        "review_metadata.env"
+      ],
+      "review_scope": [
+        "goal_and_hyperparameters",
+        "dataset_manifest_and_mix",
+        "training_logs_and_checkpoint_health",
+        "hf_conversion_artifacts",
+        "native_greek_evals",
+        "heldout_bpb_and_retention_evals",
+        "comparison_claims_and_missing_evidence",
+        "compute_hygiene"
+      ],
+      "note": "This is a local coordination sidecar, not a Slurm/GPU job. It must not block training, but the 5B report must account for critical findings before drawing conclusions."
+    }
+  },
+  "compute": {
+    "dataset_build": {
+      "partition_primary": "xfer",
+      "cpus_per_task": 16,
+      "mem_per_task_gb": 96,
+      "gpu": false,
+      "note_on_xfer": "Live Clariden check on 2026-05-28: xfer is the only visible CPU-only partition; normal/debug/low expose gpu:4 and must not be used for tokenization/filtering/indexing."
+    },
+    "training": {
+      "system": "Clariden GH200",
+      "partition": "normal",
+      "node_count_default": 1,
+      "gpus_per_node": 4,
+      "total_gpus_default": 4,
+      "estimated_wallclock_at_5b": "about 46h at observed bakeoff throughput of ~7.5k tokens/sec/GPU on 4 GPUs; update after smoke",
+      "estimated_wallclock_at_10b": "about 92h at observed bakeoff throughput of ~7.5k tokens/sec/GPU on 4 GPUs; update after smoke",
+      "sbatch_justification_block_required": true,
+      "sbatch_justification_axes": [
+        "parallelism strategy",
+        "CPU+GPU saturation",
+        "mem ceiling vs observed peak",
+        "known efficiency gaps"
+      ]
+    }
+  },
+  "extension_specific_settings": {
+    "applicable": false,
+    "embedding_only_stabilization_tokens": null,
+    "differential_lr_multiplier_E": null,
+    "differential_lr_multiplier_U": null,
+    "td_target_layer": null,
+    "note": "All extension-specific settings are inapplicable to Vanilla. Listed here as null to make the contrast with Task 2 explicit."
+  },
+  "production_blockers_status": {
+    "V1_decontamination_against_native_bench_prompts": {
+      "status": "not_required_for_diagnostic",
+      "treatment": "documented writeup caveat",
+      "reason": "20260519 overlay handles Apertus-pretrain overlap; native-bench-prompt overlap is a separate check, out of scope for this run."
+    },
+    "V4_baseline_bootstrap_cis_on_native_mcq": {
+      "status": "interpretive_blocker_for_result_reading",
+      "blocks_training_run": false,
+      "blocks_result_interpretation": true,
+      "deadline": "before reading 0.5B / 1B eval results"
+    },
+    "V8_goldfish_hash_uniformity_extended_vocab": {
+      "status": "not_applicable",
+      "reason": "Vanilla uses base 131,072 vocab; Apertus pretraining already validated this configuration."
+    },
+    "R17_apertus_extras_patch_hf_to_megatron": {
+      "status": "REQUIRED",
+      "script": "patch_apertus_extras.py",
+      "purpose": "xIELU + qk_norm trained values through HF\u2192Megatron roundtrip",
+      "note": "Required even for Vanilla because base model carries these extras."
+    }
+  },
+  "non_commitments_per_plan_section_6": {
+    "decision_thresholds": "not pre-committed; outcome read post-result",
+    "task1_to_task2_trigger": "no rule-bound condition; plan \u00a72.3 diagnostic mapping is observational, not gating",
+    "early_stop_conditions": "none"
+  },
+  "open_launch_blockers_summary": []
+}

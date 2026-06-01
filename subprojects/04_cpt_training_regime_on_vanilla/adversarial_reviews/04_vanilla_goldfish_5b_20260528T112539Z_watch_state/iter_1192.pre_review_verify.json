@@ -1,0 +1,111 @@
+{
+  "checked_at_utc": "2026-05-29T00:18:25Z",
+  "checkpoint": {
+    "dir": {
+      "exists": false,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0001192"
+    },
+    "metadata": {
+      "exists": false,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0001192/.metadata"
+    }
+  },
+  "checksum_manifest": {
+    "exists": false,
+    "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/checksums/UNKNOWN_iter_0001192_checksum_manifest.json"
+  },
+  "expected_kinds": [
+    "convert",
+    "native_mcq",
+    "greek_nlp",
+    "heldout_greek_bpb",
+    "retention",
+    "code_bpb",
+    "math_bpb"
+  ],
+  "iter_pad": "0001192",
+  "iteration": 1192,
+  "local_review": {
+    "critique": {
+      "exists": false,
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B/adversarial_critique.md"
+    },
+    "dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B",
+    "events_jsonl": {
+      "exists": false,
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B/codex_events.jsonl"
+    },
+    "label": "Vanilla-5B",
+    "metadata": {
+      "exists": false,
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B/review_metadata.env"
+    },
+    "prompt": {
+      "exists": false,
+      "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/04_cpt_training_regime_on_vanilla/adversarial_reviews/Vanilla-5B/prompt.md"
+    }
+  },
+  "manifest": {
+    "file": {
+      "exists": false,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/sidecar_jobs.tsv"
+    },
+    "kinds": [],
+    "missing_kinds": [
+      "convert",
+      "native_mcq",
+      "greek_nlp",
+      "heldout_greek_bpb",
+      "retention",
+      "code_bpb",
+      "math_bpb"
+    ],
+    "missing_outputs": [],
+    "output_states": [],
+    "rows": []
+  },
+  "paths": {
+    "checkpoint_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/checkpoints/iter_0001192",
+    "checksum_manifest": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/checksums/UNKNOWN_iter_0001192_checksum_manifest.json",
+    "eval_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z",
+    "hf_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192_hf",
+    "iter_eval_root": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192",
+    "manifest": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/sidecar_jobs.tsv",
+    "train_run_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z",
+    "watch_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch"
+  },
+  "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+  "sidecar_attempt_history": {
+    "archived_attempt_count": 0,
+    "archived_attempt_job_ids": [],
+    "archived_attempts": []
+  },
+  "slurm": {
+    "incomplete_sacct_jobs": [],
+    "job_ids": [],
+    "missing_sacct_job_ids": [],
+    "sacct": [],
+    "squeue": []
+  },
+  "summary": {
+    "active_sidecar_jobs": 0,
+    "archived_sidecar_attempt_count": 0,
+    "checkpoint_metadata_ready": false,
+    "checksum_manifest_ready": false,
+    "expected_outputs_ready": false,
+    "handoff_ready": false,
+    "manifest_has_all_expected_kinds": false,
+    "sidecars_submitted": false,
+    "slurm_jobs_completed": false
+  },
+  "watcher": {
+    "submit_log": {
+      "exists": false,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch/iter_1192_submit.log"
+    },
+    "submitted_state": {
+      "exists": false,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z_sidecar_watch/iter_1192.submitted"
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "schema": "04-vanilla-config-geometry-audit-v1",
+  "generated_utc": "2026-05-28T21:01:32Z",
+  "run_tag": "04_vanilla_goldfish_5b_20260528T112539Z",
+  "checkpoint": {
+    "label": "Vanilla-0.5B",
+    "iteration": 119,
+    "tokens": 499122176,
+    "hf_checkpoint_dir": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119_hf"
+  },
+  "sources": {
+    "base_hf_config": "/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509/config.json",
+    "converted_hf_config": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0000119_hf/config.json",
+    "training_command": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/training_command.sh",
+    "run_metadata": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_vanilla_goldfish_5b_20260528T112539Z/run_metadata.json",
+    "training_sbatch_template": "subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/bakeoff_training/bakeoff_train.sbatch",
+    "goal_hyperparameters": "subprojects/04_cpt_training_regime_on_vanilla/goal/hyperparameters.json",
+    "plan": "subprojects/04_cpt_training_regime_on_vanilla/cpt-plan.md"
+  },
+  "observed_geometry": {
+    "base_hf_config": {
+      "model_type": "apertus",
+      "vocab_size": 131072,
+      "max_position_embeddings": 65536,
+      "rope_theta": 12000000,
+      "rope_scaling": {
+        "factor": 8.0,
+        "high_freq_factor": 4.0,
+        "low_freq_factor": 1.0,
+        "original_max_position_embeddings": 8192,
+        "rope_type": "llama3",
+        "type": "llama3"
+      }
+    },
+    "run_goal_hyperparameters": {
+      "vocab_size": 131072,
+      "sequence_length": 4096,
+      "base_model_architecture_rope_theta": 500000,
+      "base_model_architecture_max_position": 65536
+    },
+    "training_command": {
+      "max_position_embeddings": 4096,
+      "position_embedding_type": "rope",
+      "rotary_base": 500000,
+      "seq_length": 4096,
+      "tokenizer_model": "/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509"
+    },
+    "converted_hf_config": {
+      "model_type": "apertus",
+      "vocab_size": 131072,
+      "max_position_embeddings": 4096,
+      "rope_theta": 500000,
+      "rope_scaling": null
+    },
+    "run_metadata": {
+      "seq_length": 4096,
+      "global_batch_samples": 1024,
+      "global_batch_tokens": 4194304,
+      "tokenizer": "/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509"
+    }
+  },
+  "template_evidence": {
+    "bakeoff_train_sbatch_note": "--max-position-embeddings is the pretrain value 4096 (not the 64K long-context extension; Apertus does the 64K extension as a separate post-pretrain phase).",
+    "bakeoff_train_flags": [
+      "--max-position-embeddings $SEQ_LEN",
+      "--position-embedding-type rope",
+      "--rotary-base 500000",
+      "--seq-length $SEQ_LEN"
+    ]
+  },
+  "audit_conclusion": {
+    "geometry_classification": "bakeoff-local-4096-rope500k",
+    "not_official_hf_long_context_geometry": true,
+    "tokenizer_matches_base_vocab": true,
+    "interpretation_constraint": "Final comparisons must either use a baseline evaluated under the same 4096/RoPE-500K geometry, or explicitly report this as a geometry confound against the official HF Apertus-8B-2509 long-context config.",
+    "training_stop_required_by_this_audit": false,
+    "reason_training_stop_not_required": "The active goal and hyperparameter file lock sequence length 4096 for this experiment; this audit documents the comparison constraint rather than changing the running job."
+  }
+}
