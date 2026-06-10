@@ -4,16 +4,17 @@ Date: 2026-06-10
 
 ## Summary
 
-Dataset preparation and artifact gates are complete. The blocker is multi-node
-Megatron training on Clariden: 2-node and 16-node Megatron runs fail before the
-first iteration with `NET/OFI Request ... Error: 16 (NO_SPACE)`, even though the
-AWS Libfabric NCCL plugin is loaded and pure PyTorch 2-node NCCL diagnostics,
-including Megatron-shaped 40M bfloat16 all-reduce/reduce-scatter/all-gather,
-succeed under the same `pytorch/v2.9.1:v2` uenv and NCCL environment. A
-single-node real-data Megatron smoke with the current CPT recipe also succeeds.
+Dataset preparation and artifact gates are complete. The original blocker was
+multi-node Megatron training on Clariden: Megatron runs failed before the first
+iteration with `NET/OFI Request ... Error: 16 (NO_SPACE)`, even though the AWS
+Libfabric NCCL plugin loaded and pure PyTorch NCCL diagnostics succeeded under
+the same `pytorch/v2.9.1:v2` uenv.
 
-Do not relaunch the 16-node CPT chains until this runtime issue is resolved or
-a fallback training shape is explicitly chosen.
+The resolved root cause is trainer-forced `NCCL_NET_FORCE_FLUSH=1`. With
+`NCCL_NET_FORCE_FLUSH=0`, CXI/AWS Libfabric Megatron smokes now pass at 2 nodes,
+4 nodes, and 16 nodes. Real-data 16-node timing estimates **8.3-8.5h allocated
+runtime per arm** with the 4-segment chain. See
+`CPT_16NODE_CXI_TIMING_20260610.md`.
 
 ## Environment
 
@@ -351,7 +352,7 @@ Current operational recommendation:
 ## 2026-06-10 Resolution Candidate: `NCCL_NET_FORCE_FLUSH=1`
 
 The later deep dive in `CXI_NOSPACE_DEEP_DIVE_20260610.md` found a much better
-explanation and a successful 2-node validation:
+explanation and successful validations:
 
 - Failing jobs had the trainer-forced `NCCL_NET_FORCE_FLUSH=1`.
 - Pure PyTorch probes did not set it, and Socket never enters the OFI flush
@@ -368,6 +369,13 @@ explanation and a successful 2-node validation:
     `NCCL_NET_FORCE_FLUSH=0`;
   - iteration 1 elapsed `40043.2 ms`, `tokens/sec/gpu: 6546.5`;
   - no `NET/OFI ... NO_SPACE` failure.
+- Job `2515665` repeated the no-flush Megatron smoke at 16 nodes / 64 GPUs and
+  completed iteration 1:
+  - output `/capstor/scratch/cscs/fffoivos/runs/cpt_2arm_13b/smoke16_vanilla_mockdata_cxi_noflush_20260610T183943Z`;
+  - state `COMPLETED`, exit `0:0`, elapsed `00:01:48`;
+  - runtime audit printed `WORLD_SIZE=64`, `NCCL_NET=AWS Libfabric`, and
+    `NCCL_NET_FORCE_FLUSH=0`;
+  - iteration 1 elapsed `15623.3 ms`, no `NET/OFI ... NO_SPACE` failure.
 
 Action taken:
 
@@ -378,15 +386,8 @@ Action taken:
 
 Current operational recommendation:
 
-1. Treat `NCCL_NET_FORCE_FLUSH=1` as the leading root cause.
-2. Treat the 2-node and 4-node no-flush successes as strong, but not final,
-   evidence that the review's root-cause diagnosis is correct.
-3. Validate at the original full node count with AWS Libfabric/CXI before full
-   launch:
-   - job `2515665`;
-   - output `/capstor/scratch/cscs/fffoivos/runs/cpt_2arm_13b/smoke16_vanilla_mockdata_cxi_noflush_20260610T183943Z`;
-   - 16 nodes / 64 GPUs, `NCCL_NET_FORCE_FLUSH=0`, one mock-data iteration.
-4. If that 16-node smoke reaches iteration 1 cleanly, drop the Socket fallback
-   for production and launch both arms on CXI with force-flush disabled.
-5. If it fails, escalate the now-minimal evidence to CSCS/SwissAI and revisit
-   alternate runtime/parallelism options.
+1. Treat `NCCL_NET_FORCE_FLUSH=1` as the confirmed root cause of the earlier
+   CXI `NO_SPACE` failure.
+2. Launch production on AWS Libfabric/CXI with `NCCL_NET_FORCE_FLUSH=0`.
+3. Keep Socket/HSN only as a functional but slower fallback.
+4. Use the measured 16-node chain shape: `EXIT_INTERVAL=952`, `N_SEGMENTS=4`.

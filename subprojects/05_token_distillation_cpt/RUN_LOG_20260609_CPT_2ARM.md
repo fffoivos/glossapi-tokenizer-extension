@@ -2539,3 +2539,58 @@ hyperparameter docs, checkpoint geometry from `HANDOFF.md` and
     nodes for the Megatron job shape;
   - this strengthens the case for disabling `NCCL_NET_FORCE_FLUSH`, but the
     pending 16-node job `2515665` remains the full-scale launch gate.
+
+## 2026-06-10T19:40:00Z - 16-Node CXI No-Flush Passes; 16-Node ETA Measured
+
+- Full-scale CXI transport gate:
+  - job id `2515665`;
+  - output:
+    `/capstor/scratch/cscs/fffoivos/runs/cpt_2arm_13b/smoke16_vanilla_mockdata_cxi_noflush_20260610T183943Z`;
+  - state `COMPLETED`, exit `0:0`, elapsed `00:01:48`;
+  - 16 nodes / 64 GPUs, AWS Libfabric/CXI,
+    `NCCL_NET_FORCE_FLUSH=0`, `WORLD_SIZE=64`, `LAUNCH_MODE=torchrun`;
+  - iteration 1 reached cleanly at `15623.3 ms`, no skips/NaNs, no
+    `NET/OFI ... NO_SPACE`.
+- Real-data training timing:
+  - job id `2515841`;
+  - output:
+    `/capstor/scratch/cscs/fffoivos/runs/cpt_2arm_13b/smoke16_vanilla_realdata_cxi_noflush_timing_20260610T191629Z`;
+  - state `COMPLETED`, exit `0:0`, elapsed `00:02:56`;
+  - real base-tokenized CPT data, extra validation off, saves off,
+    `EXIT_INTERVAL=10`;
+  - iteration 1 `15453.2 ms`;
+  - iterations 2-10 median `8559.8 ms`, mean `8629.9 ms`,
+    range `8553.0-8869.4 ms`.
+- Extra-validation overhead:
+  - job id `2515891`;
+  - output:
+    `/capstor/scratch/cscs/fffoivos/runs/cpt_2arm_13b/smoke16_vanilla_realdata_cxi_noflush_eval_20260610T192032Z`;
+  - state `COMPLETED`, exit `0:0`, elapsed `00:02:57`;
+  - real data, extra validation on, `EVAL_INTERVAL=1`, `EVAL_ITERS=1`,
+    saves off, `EXIT_INTERVAL=1`;
+  - per-set validation printed for `hplt`, `openarchives`, `greek_phd`;
+  - iteration 1 line at `21:30:44`, exit line at `21:30:55`;
+  - estimated three-set validation event overhead: about `11 s`.
+- Checkpoint-save overhead:
+  - job id `2515966`;
+  - output:
+    `/capstor/scratch/cscs/fffoivos/runs/cpt_2arm_13b/smoke16_vanilla_realdata_cxi_noflush_save_20260610T193249Z`;
+  - state `COMPLETED`, exit `0:0`, elapsed `00:02:05`;
+  - real data, extra validation off, `SAVE_INTERVAL=1`, saves on,
+    `EXIT_INTERVAL=1`;
+  - checkpoint save timer `22174 ms`;
+  - smoke checkpoint size: `136G`.
+- ETA from measured components:
+  - `TRAIN_ITERS=3218`;
+  - steady-state training mean: `3218 * 8.6299s = 7.71h`;
+  - held-out eval: `128` events at about `11s` each = `0.39h`;
+  - checkpoint saves: `27` interval saves at about `22.17s` each = `0.17h`;
+  - segment startup allowance: `4 * 95s = 0.11h`;
+  - estimated allocated runtime per arm with 4 segments: about `8.3-8.5h`,
+    excluding Slurm queue wait and sidecar benchmark jobs.
+- Submitter update:
+  - for `NODES>=16`, default `EXIT_INTERVAL=952` and `N_SEGMENTS=4`;
+  - this keeps `EXIT_INTERVAL` divisible by `SAVE_INTERVAL=119` while avoiding
+    14 short requeues now that CXI is validated.
+- Detailed report:
+  - `reports/CPT_16NODE_CXI_TIMING_20260610.md`.

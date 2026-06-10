@@ -55,12 +55,24 @@ All values for both arms. Recompute if `TRAIN_TOKENS` or the batch changes;
 
 ## Segmentation (Clariden 12 h cap)
 
-- ≈ 3,218 iters × ~132 s/iter ≈ **~119 single-node wall-hours** ⇒ ~14 segments.
+- Measured 16-node CXI real-data steady state (2026-06-10, job `2515841`):
+  iterations 2-10 median `8.5598 s`, mean `8.6299 s`.
+- Measured overheads:
+  - three-set held-out validation event: about `11 s` (job `2515891`);
+  - checkpoint save: about `22.17 s` (job `2515966`);
+  - segment startup/load allowance: about `95 s`.
+- Estimated allocated runtime per arm:
+  - training: `3218 * 8.63 s = 7.71 h`;
+  - validation: `128` events at about `11 s` = `0.39 h`;
+  - saves: `27` interval saves at about `22.17 s` = `0.17 h`;
+  - four segment startups: about `0.11 h`;
+  - total: about `8.3-8.5 h`, excluding Slurm queue wait and sidecar
+    benchmark jobs.
 - Each segment passes the **same full-run `TRAIN_TOKENS`** (anchors WSD) and is
-  capped by `--exit-interval=238` (= 2×`SAVE_INTERVAL`; ~8.7 h, rank-deterministic
+  capped by `--exit-interval=952` (= 8×`SAVE_INTERVAL`; rank-deterministic
   so all ranks exit at the same absolute iteration — no SIGUSR2 signal race). A
   checkpoint lands at the boundary; the next segment resumes from it.
   `#SBATCH --signal=SIGUSR2@600` + `--exit-signal-handler` stays as a walltime
-  backstop. The submitter launches `N_SEGMENTS=14` (extras no-op once train completes).
+  backstop. The submitter launches `N_SEGMENTS=4` (extras no-op once train completes).
 - `--override-opt_param-scheduler` makes every segment use the command-line WSD
   args (not the checkpoint's), so the schedule is continuous across resumes.

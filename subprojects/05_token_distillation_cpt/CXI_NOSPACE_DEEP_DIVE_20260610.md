@@ -192,8 +192,13 @@ Job **2515069** (2-node, CXI, identical config, **only** `NCCL_NET_FORCE_FLUSH=0
 
 Follow-up job **2515691** (4-node / 16-GPU, CXI, same no-flush mechanism):
 **COMPLETED 0:0, iteration 1, zero NO_SPACE, 40.0 s/iter.** This confirms the
-fix beyond the 2-node boundary, but the 16-node smoke **2515665** remains the
-full-scale launch gate.
+fix beyond the 2-node boundary.
+
+Full-scale job **2515665** (16-node / 64-GPU, CXI, same no-flush mechanism):
+**COMPLETED 0:0, iteration 1, zero NO_SPACE, 15.6 s/iter.** Follow-up
+real-data timing (`2515841`), validation timing (`2515891`), and save timing
+(`2515966`) estimate production allocated runtime at about **8.3-8.5 h per
+arm** with the 4-segment 16-node chain.
 
 Mechanism: the trainer's hardcoded `NCCL_NET_FORCE_FLUSH=1` makes the plugin's
 SENDRECV path issue a tiny tracked flush op after every receive — that is the
@@ -205,7 +210,6 @@ the OFI flush path. Single env var, off by default at CSCS and Isambard.
 Action plan:
 1. Remove the hardcoded `NCCL_NET_FORCE_FLUSH=1` from bakeoff_train.sbatch
    (set to 0 / drop). It is not required on GH200 (PHB + C2C coherence).
-2. Validate 16-node × 1 iter on CXI, then relaunch BOTH arms full-run on
-   CXI (drop the Socket fallback; ~12% throughput gain).
+2. Relaunch BOTH arms full-run on CXI (drop the Socket fallback).
 3. Cosmetic later: lift RX_SIZE only to legal ≤15360 if ever desired; doc that
    FI_CXI_DEFAULT_RX_SIZE>15360 silently reverts to 1024.

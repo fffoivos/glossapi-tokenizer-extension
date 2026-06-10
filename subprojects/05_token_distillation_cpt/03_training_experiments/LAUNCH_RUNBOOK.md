@@ -14,9 +14,9 @@ ordering + the launch/observability layer.
 > multi-node AWS Libfabric/CXI Megatron smokes failed before iteration 1 with
 > `NET/OFI ... NO_SPACE`; Socket/HSN proved functional but too slow at 16 nodes.
 > The updated deep dive identifies trainer-forced `NCCL_NET_FORCE_FLUSH=1` as
-> the root-cause candidate. The trainer now defaults it to `0`; 2-node and
-> 4-node CXI no-flush smokes passed, and 16-node CXI no-flush smoke `2515665`
-> is the launch-scale gate.
+> the root cause. The trainer now defaults it to `0`; 2-node, 4-node, and
+> 16-node CXI no-flush smokes passed. Real-data timing gives an estimated
+> allocated runtime of about `8.3-8.5h` per arm with the 4-segment 16-node chain.
 > Runtime report:
 > [`../reports/CLARIDEN_MEGATRON_NCCL_NO_SPACE_20260610.md`](../reports/CLARIDEN_MEGATRON_NCCL_NO_SPACE_20260610.md).
 
@@ -70,9 +70,10 @@ bash scripts/gate_cpt2arm_artifacts.sh              # checks force-flush disable
 DRY_RUN=0 CONFIRM_LAUNCH=1 bash scripts/launch_all.sh
 ```
 This submits, per arm: the full-run WSD training chain (`submit_two_arm_full_run.sh`,
-walltime-bounded with `--exit-interval`; Socket/16-node launches default to 4
-longer segments to avoid queue churn) **and** an eval-sidecar watcher fed the
-benchmark cadence (every ~1B tokens + final = 14 checkpoints).
+walltime-bounded with `--exit-interval`; 16-node launches default to
+`EXIT_INTERVAL=952`, `N_SEGMENTS=4` to avoid queue churn) **and** an
+eval-sidecar watcher fed the benchmark cadence (every ~1B tokens + final =
+14 checkpoints).
 The two arms are independent Slurm chains → concurrent. `launch_all.sh` also
 runs the artifact gate automatically for live launches by default; set
 `RUN_ARTIFACT_GATE=0` only for a deliberately manual override.
@@ -94,7 +95,8 @@ Pure PyTorch NCCL controls pass, including Megatron-shaped 40M and exact-size
 67M bfloat16 all-reduce/reduce-scatter/all-gather. The latest evidence is that
 the trainer-only `NCCL_NET_FORCE_FLUSH=1` caused the tiny `size:4` receive
 failure in the AWS OFI NCCL SENDRECV path; with force-flush disabled, 2-node
-and 4-node CXI Megatron smokes reach iteration 1.
+4-node, and 16-node CXI Megatron smokes reach iteration 1. Production should
+use CXI/AWS Libfabric; Socket/HSN is now only a slower fallback.
 
 If a run was accidentally launched at diagnostic scale, cancel the obsolete
 continuation jobs and resume the existing run directory from its latest

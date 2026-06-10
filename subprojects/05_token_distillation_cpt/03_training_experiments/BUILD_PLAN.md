@@ -121,8 +121,10 @@ DRY_RUN=0 CONFIRM_LAUNCH=1 bash scripts/launch_all.sh
 
 The latest CXI deep dive identifies trainer-forced `NCCL_NET_FORCE_FLUSH=1` as
 the root-cause candidate for `NET/OFI ... NO_SPACE`. The trainer now defaults it
-to `0`; 2-node and 4-node CXI no-flush smokes passed. Run the full launch only
-after the 16-node CXI no-flush smoke passes.
+to `0`; 2-node, 4-node, and 16-node CXI no-flush smokes passed. Real-data
+16-node timing gives about `8.3-8.5h` allocated runtime per arm with the
+4-segment chain. Use CXI/AWS Libfabric for production; Socket/HSN is fallback
+only.
 
 Schedule numbers: [`docs/SCHEDULER_MATH.md`](docs/SCHEDULER_MATH.md). Checkpoints
 every 119 iters (~0.5B). `run_metadata.json` records the actual `ADEMA_*`/`LR_*`

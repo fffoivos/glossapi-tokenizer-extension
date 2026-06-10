@@ -52,8 +52,9 @@ SAVE_INTERVAL="${SAVE_INTERVAL:-119}"          # ~0.5B tokens
 # Primary segment cap = --exit-interval (rank-deterministic: every rank exits at
 # the same absolute iteration, so no NCCL-collective mismatch). Must be a
 # multiple of SAVE_INTERVAL so a checkpoint exists exactly at the exit boundary.
-# Defaults are conservative for generic launches. For the validated 16-node
-# Socket fallback, use longer chunks to avoid 14 short requeues.
+# Defaults are conservative for generic launches. For validated 16-node
+# production launches, use longer chunks to avoid 14 short requeues while
+# staying far inside the 12h walltime.
 EXIT_INTERVAL_USER_SET="${EXIT_INTERVAL+x}"
 N_SEGMENTS_USER_SET="${N_SEGMENTS+x}"
 EXIT_INTERVAL="${EXIT_INTERVAL:-238}"
@@ -64,10 +65,10 @@ PARTITION="${PARTITION:-normal}"
 NODES="${NODES:-16}"
 GPUS_PER_NODE="${GPUS_PER_NODE:-4}"
 CPUS_PER_TASK="${CPUS_PER_TASK:-36}"
-if [ -z "$EXIT_INTERVAL_USER_SET" ] && [ "${NCCL_NET:-}" = "Socket" ] && [ "$NODES" -ge 16 ]; then
-  EXIT_INTERVAL=952                           # 8*119; ~7.95h raw at 30.0467s/iter
+if [ -z "$EXIT_INTERVAL_USER_SET" ] && [ "$NODES" -ge 16 ]; then
+  EXIT_INTERVAL=952                           # 8*119; ~2.3h train time/segment on CXI
 fi
-if [ -z "$N_SEGMENTS_USER_SET" ] && [ "${NCCL_NET:-}" = "Socket" ] && [ "$NODES" -ge 16 ]; then
+if [ -z "$N_SEGMENTS_USER_SET" ] && [ "$NODES" -ge 16 ]; then
   N_SEGMENTS=4                                # ceil(3218/952)
 fi
 LAUNCH_MODE="${LAUNCH_MODE:-}"

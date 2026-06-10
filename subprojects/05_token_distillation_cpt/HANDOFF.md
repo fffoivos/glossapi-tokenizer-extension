@@ -15,15 +15,17 @@ for the training runs.
 
 **Current 2026-06-10 state:** dataset build, Stage-C ordering, base/ext
 tokenization, init checkpoints, extra-validation patch, and artifact gate are
-complete. The two full chains were attempted but must not be relaunched until
-the latest 16-node smoke returns. Earlier multi-node CXI runs failed before
-iteration 1 with `NET/OFI ... NO_SPACE`; Socket/HSN proved functional but slow
-at 16 nodes (`30046.7 ms/iter`, ~`26.9h` raw training per arm). The updated
-deep dive identifies the trainer's hardcoded `NCCL_NET_FORCE_FLUSH=1` as the
-root-cause candidate; 2-node (`2515069`) and 4-node (`2515691`) CXI no-flush
-smokes passed. The trainer now defaults `NCCL_NET_FORCE_FLUSH=0`, and 16-node
-CXI no-flush smoke `2515665` is the current launch-scale gate. See
+complete. Earlier multi-node CXI runs failed before iteration 1 with
+`NET/OFI ... NO_SPACE`; the updated deep dive identified the trainer's
+hardcoded `NCCL_NET_FORCE_FLUSH=1` as the root cause. The trainer now defaults
+`NCCL_NET_FORCE_FLUSH=0`, and 2-node (`2515069`), 4-node (`2515691`), and
+16-node (`2515665`) CXI no-flush smokes passed. Real-data 16-node timing
+(`2515841`) gives steady-state iteration mean `8.63s`; eval overhead (`2515891`)
+is about `11s` per three-set event; checkpoint-save overhead (`2515966`) is
+about `22s` per save. Estimated allocated runtime is **8.3-8.5h per arm** with
+4 long segments, excluding Slurm queue wait and sidecar benchmarks. See
 [`reports/CLARIDEN_MEGATRON_NCCL_NO_SPACE_20260610.md`](reports/CLARIDEN_MEGATRON_NCCL_NO_SPACE_20260610.md),
+[`reports/CPT_16NODE_CXI_TIMING_20260610.md`](reports/CPT_16NODE_CXI_TIMING_20260610.md),
 `CXI_NOSPACE_DEEP_DIVE_20260610.md`, and `RUN_LOG_20260609_CPT_2ARM.md`.
 
 ## The two experiments
@@ -99,8 +101,8 @@ bash $S/scripts/launch_all.sh                          # dry-run, inspect
 bash $S/scripts/gate_cpt2arm_artifacts.sh              # required: force-flush disabled + artifacts
 DRY_RUN=0 CONFIRM_LAUNCH=1 bash $S/scripts/launch_all.sh
 ```
-Per arm: walltime-bounded training chain (full-run WSD; Socket/16-node launches
-default to 4 longer segments to avoid queue churn) + an eval watcher
+Per arm: walltime-bounded training chain (full-run WSD; 16-node launches
+default to `EXIT_INTERVAL=952`, `N_SEGMENTS=4` to avoid queue churn) + an eval watcher
 (checkpoint every 119 iters, benchmarks every 238 ≈ 1B tokens: greekmmlu dascim
 + ilsp×2 + plutus, Greek-NLP, BPB, retention). Watchers default to `xfer` —
 fine after 2026-06-11. Monitor:
@@ -112,15 +114,12 @@ launch has reproduced an inter-node NCCL/OFI `NO_SPACE` failure before
 iteration 1. The trainer sets the CSCS Alps/uenv NCCL/libfabric runtime
 variables; the artifact gate checks this before launch.
 
-Do not run the live launch command until `2515665` proves the 16-node CXI
-no-flush path at full scale. Pure PyTorch NCCL controls pass, including
-Megatron-shaped 40M and exact-size 67M bfloat16
-all-reduce/reduce-scatter/all-gather; the now-leading explanation is that the
+The 16-node CXI no-flush path is validated. Pure PyTorch NCCL controls pass,
+including Megatron-shaped 40M and exact-size 67M bfloat16
+all-reduce/reduce-scatter/all-gather; the now-confirmed explanation is that the
 trainer-only `NCCL_NET_FORCE_FLUSH=1` triggered the tiny `size:4` receive
-failure in the AWS OFI NCCL SENDRECV path. With force-flush disabled, 2-node
-and 4-node CXI Megatron smokes pass. If 16-node also passes, production should
-use AWS Libfabric/CXI with `NCCL_NET_FORCE_FLUSH=0`, not the slower Socket
-fallback.
+failure in the AWS OFI NCCL SENDRECV path. Production should use AWS
+Libfabric/CXI with `NCCL_NET_FORCE_FLUSH=0`, not the slower Socket fallback.
 
 ## Environment gotchas (cost us hours — DO NOT rediscover)
 

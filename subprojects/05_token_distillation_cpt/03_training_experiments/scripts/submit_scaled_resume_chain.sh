@@ -34,10 +34,10 @@ PARTITION="${PARTITION:-normal}"
 NODES="${NODES:-16}"
 GPUS_PER_NODE="${GPUS_PER_NODE:-4}"
 CPUS_PER_TASK="${CPUS_PER_TASK:-36}"
-if [ -z "$EXIT_INTERVAL_USER_SET" ] && [ "${NCCL_NET:-}" = "Socket" ] && [ "$NODES" -ge 16 ]; then
+if [ -z "$EXIT_INTERVAL_USER_SET" ] && [ "$NODES" -ge 16 ]; then
   EXIT_INTERVAL=952
 fi
-if [ -z "$N_SEGMENTS_USER_SET" ] && [ "${NCCL_NET:-}" = "Socket" ] && [ "$NODES" -ge 16 ]; then
+if [ -z "$N_SEGMENTS_USER_SET" ] && [ "$NODES" -ge 16 ]; then
   N_SEGMENTS=4
 fi
 LAUNCH_MODE="${LAUNCH_MODE:-}"
