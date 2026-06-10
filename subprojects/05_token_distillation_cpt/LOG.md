@@ -50,6 +50,25 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   validation cadence, expected 8.3-8.5h allocated runtime per arm.
 - Cleaned the docs so the runbook is the operational source of truth, with this
   log plus `ARCHIVE.md` for provenance.
+- Reviewed the launch-scale compute audit against live logs. The training math
+  is now validated in production shape: 16 nodes / 64 GPUs per arm, TP2/PP1,
+  `mbs=2`, `NCCL_NET_FORCE_FLUSH=0`, and about 8.6-8.7s/iter with roughly
+  390-395 TFLOP/s/GPU. No further comm/microbatch tuning is planned for this
+  launch; the useful lever was the already-applied 6h/6h/6h/3h segment
+  walltime schedule.
+- Repaired TD checkpoint sidecar plumbing after the live watcher inherited the
+  raw extended tokenizer directory. That directory is correct for
+  training/corpus preprocessing but lacks `config.json`, so it is invalid for
+  Megatron-to-HF conversion. `launch_all.sh` now passes the HF roundtrip
+  skeleton at
+  `/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/hf_roundtrip`,
+  and the TD sidecar submitter now fails early unless the path contains both
+  `config.json` and `tokenizer.json`.
+- Canceled the poisoned TD watcher `2516060` and dead TD sidecar dependency
+  trees for iterations 238 and 476, cleared those two submitted markers, and
+  restarted the TD watcher as `2516378`. It resubmitted clean converter jobs
+  `2516379` and `2516388` with the HF roundtrip skeleton; both reached
+  checkpoint loading instead of the previous path guard failure.
 
 ## 2026-06-09
 

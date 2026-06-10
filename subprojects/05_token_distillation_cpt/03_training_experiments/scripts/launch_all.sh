@@ -37,6 +37,9 @@ BENCH_EVERY_ITERS="${BENCH_EVERY_ITERS:-238}"   # ~1B tokens between benchmarks
 
 BASE_TOK="${BASE_TOKENIZER_DIR:-/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509}"
 EXT_TOK="${EXT_TOKENIZER_DIR:-/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480}"
+# Eval conversion needs an HF skeleton with config.json + tokenizer.json, not
+# the raw tokenizer directory used by the trainer/corpus preprocessing.
+EXT_HF_TOK="${EXT_HF_TOKENIZER_DIR:-/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/hf_roundtrip}"
 VANILLA_WATCHER="$REPO_ROOT/subprojects/04_cpt_training_regime_on_vanilla/scripts/watch_and_submit_checkpoint_sidecars.sbatch"
 TD_WATCHER="$REPO_ROOT/subprojects/05_token_distillation_cpt/scripts/watch_and_submit_td_checkpoint_sidecars.sbatch"
 
@@ -97,7 +100,7 @@ if [ "$DRY_RUN" = "0" ] && [ "$RUN_ARTIFACT_GATE" = "1" ]; then
   echo
 fi
 launch_arm vanilla "$BASE_TOK" "$VANILLA_WATCHER" vanilla Vanilla
-launch_arm td      "$EXT_TOK"  "$TD_WATCHER"      td      ModernGreekTD
+launch_arm td      "$EXT_HF_TOK" "$TD_WATCHER"    td      ModernGreekTD
 
 echo "Monitor loss/throughput across BOTH arms:"
 echo "  python3 $ROOT/scripts/collect_metrics.py \\"
