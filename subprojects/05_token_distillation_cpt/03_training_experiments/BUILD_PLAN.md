@@ -115,14 +115,14 @@ walltime-bounded segments; no stale overrides).
 
 ```bash
 bash scripts/launch_all.sh                            # dry-run, both arms
-NCCL_NET=Socket NCCL_SOCKET_IFNAME=hsn bash scripts/gate_cpt2arm_artifacts.sh
-NCCL_NET=Socket NCCL_SOCKET_IFNAME=hsn DRY_RUN=0 CONFIRM_LAUNCH=1 bash scripts/launch_all.sh
+bash scripts/gate_cpt2arm_artifacts.sh                # checks force-flush disabled + artifacts
+DRY_RUN=0 CONFIRM_LAUNCH=1 bash scripts/launch_all.sh
 ```
 
-Socket/HSN passed the 16-node one-iteration smoke, but only at
-`30046.7 ms/iter` (~`26.9h` raw training per arm before eval/checkpoint
-overhead). Use it only if that walltime is acceptable, or keep working on the
-AWS Libfabric/CXI `NET/OFI ... NO_SPACE` blocker / alternate parallelism path.
+The latest CXI deep dive identifies trainer-forced `NCCL_NET_FORCE_FLUSH=1` as
+the root-cause candidate for `NET/OFI ... NO_SPACE`. The trainer now defaults it
+to `0`; 2-node and 4-node CXI no-flush smokes passed. Run the full launch only
+after the 16-node CXI no-flush smoke passes.
 
 Schedule numbers: [`docs/SCHEDULER_MATH.md`](docs/SCHEDULER_MATH.md). Checkpoints
 every 119 iters (~0.5B). `run_metadata.json` records the actual `ADEMA_*`/`LR_*`

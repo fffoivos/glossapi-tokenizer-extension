@@ -10,16 +10,15 @@ Details for each build step are in [`BUILD_PLAN.md`](BUILD_PLAN.md); this is the
 ordering + the launch/observability layer.
 
 > **Current 2026-06-10 status:** dataset artifacts, init checkpoints, extra
-> validation patch, and `gate_cpt2arm_artifacts.sh` are complete. Do **not**
-> relaunch the 16-node chains on the AWS Libfabric/CXI path: multi-node
-> Megatron smokes fail before iteration 1 with `NET/OFI ... NO_SPACE` in
-> `DATA_PARALLEL_GROUP_WITH_CP`. The narrowed runtime report is
+> validation patch, and `gate_cpt2arm_artifacts.sh` are complete. Earlier
+> multi-node AWS Libfabric/CXI Megatron smokes failed before iteration 1 with
+> `NET/OFI ... NO_SPACE`; Socket/HSN proved functional but too slow at 16 nodes.
+> The updated deep dive identifies trainer-forced `NCCL_NET_FORCE_FLUSH=1` as
+> the root-cause candidate. The trainer now defaults it to `0`; 2-node and
+> 4-node CXI no-flush smokes passed, and 16-node CXI no-flush smoke `2515665`
+> is the launch-scale gate.
+> Runtime report:
 > [`../reports/CLARIDEN_MEGATRON_NCCL_NO_SPACE_20260610.md`](../reports/CLARIDEN_MEGATRON_NCCL_NO_SPACE_20260610.md).
-> A 1-node real-data smoke completes 2 iterations with the current recipe.
-> Socket over HSN has passed 2-node real-data and 4-node mock-data Megatron
-> smokes. A 16-node Socket smoke also passed, but at `30046.7 ms/iter`
-> (~`26.9h` raw training per arm before eval/checkpoint overhead), so it is a
-> functional fallback rather than a 12h solution.
 
 ## 0 · Status of inputs (all decisions made; remaining work is execution)
 
@@ -67,8 +66,8 @@ Point the two `configs/arm*.env` `INIT_CKPT` + `*_DATA_PREFIX` at these.
 
 ```bash
 bash scripts/launch_all.sh                          # dry-run: prints both chains + watcher cmds
-NCCL_NET=Socket NCCL_SOCKET_IFNAME=hsn bash scripts/gate_cpt2arm_artifacts.sh
-NCCL_NET=Socket NCCL_SOCKET_IFNAME=hsn DRY_RUN=0 CONFIRM_LAUNCH=1 bash scripts/launch_all.sh
+bash scripts/gate_cpt2arm_artifacts.sh              # checks force-flush disabled + artifacts
+DRY_RUN=0 CONFIRM_LAUNCH=1 bash scripts/launch_all.sh
 ```
 This submits, per arm: the full-run WSD training chain (`submit_two_arm_full_run.sh`,
 walltime-bounded with `--exit-interval`; Socket/16-node launches default to 4
@@ -86,29 +85,25 @@ acceptable full-run shape.
 At multi-node scale the trainer must use `LAUNCH_MODE=torchrun`: one Slurm task
 per node launches `torchrun --nproc_per_node=4`. Direct multi-task Slurm launch
 has reproduced an inter-node NCCL/OFI `NO_SPACE` failure before iteration 1.
-The trainer keeps the CSCS Alps/uenv AWS Libfabric defaults available, but the
-near-term launch path is the validated Socket fallback:
-`NCCL_NET=Socket NCCL_SOCKET_IFNAME=hsn`. The 16-node Socket smoke reaches
-iteration/loss lines, but its throughput implies ~`26.9h` raw training per arm
-before eval/checkpoint overhead. Do not treat this as the original 12h launch
-plan without accepting that walltime. `scripts/gate_cpt2arm_artifacts.sh`
-checks both the data/config artifacts and the runtime plumbing for this
-fallback.
+The trainer keeps the CSCS Alps/uenv AWS Libfabric defaults and now disables
+`NCCL_NET_FORCE_FLUSH` by default. Do not use the slower Socket fallback unless
+the CXI no-flush validation fails. `scripts/gate_cpt2arm_artifacts.sh` checks
+both the data/config artifacts and the force-flush-disabled runtime plumbing.
 
 Pure PyTorch NCCL controls pass, including Megatron-shaped 40M and exact-size
-67M bfloat16 all-reduce/reduce-scatter/all-gather; direct Slurm rank launch and
-multiple AWS Libfabric/CXI tuning variants still fail. A 1-node real-data smoke
-succeeds, so the remaining blocker is specific to the AWS Libfabric/CXI path for
-the inter-node full Megatron/SuisseAI training step on this uenv.
+67M bfloat16 all-reduce/reduce-scatter/all-gather. The latest evidence is that
+the trainer-only `NCCL_NET_FORCE_FLUSH=1` caused the tiny `size:4` receive
+failure in the AWS OFI NCCL SENDRECV path; with force-flush disabled, 2-node
+and 4-node CXI Megatron smokes reach iteration 1.
 
 If a run was accidentally launched at diagnostic scale, cancel the obsolete
 continuation jobs and resume the existing run directory from its latest
 checkpoint with:
 
 ```bash
-NCCL_NET=Socket NCCL_SOCKET_IFNAME=hsn RUN_TAG=cpt13b_vanilla_<STAMP> DRY_RUN=0 CONFIRM_LAUNCH=1 NODES=16 \
+RUN_TAG=cpt13b_vanilla_<STAMP> DRY_RUN=0 CONFIRM_LAUNCH=1 NODES=16 \
   bash scripts/submit_scaled_resume_chain.sh vanilla
-NCCL_NET=Socket NCCL_SOCKET_IFNAME=hsn RUN_TAG=cpt13b_td_<STAMP> DRY_RUN=0 CONFIRM_LAUNCH=1 NODES=16 \
+RUN_TAG=cpt13b_td_<STAMP> DRY_RUN=0 CONFIRM_LAUNCH=1 NODES=16 \
   bash scripts/submit_scaled_resume_chain.sh td
 ```
 

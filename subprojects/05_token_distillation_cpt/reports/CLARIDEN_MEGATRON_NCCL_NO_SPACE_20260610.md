@@ -348,19 +348,45 @@ Socket over HSN is now validated for this Megatron job shape:
 
 Current operational recommendation:
 
-1. Treat AWS Libfabric/CXI as blocked for this Megatron training shape and send
-   this report to CSCS/SwissAI runtime support.
-2. `NCCL_NET=Socket` plus `NCCL_SOCKET_IFNAME=hsn` is a functional fallback, but
-   the 16-node full-scale smoke implies `3218 * 30.0467s = 26.86h` raw training
-   per arm before validation/checkpoint overhead. This misses the desired
-   ~12h target.
-3. Do not launch both full arms with Socket/HSN unless accepting a ~27h+ raw
-   wall estimate and the difficulty of obtaining 32 nodes / 128 GPUs for true
-   parallel arms.
-4. To recover the target runtime, the remaining options are:
-   - CSCS/SwissAI support intervention on the AWS Libfabric/CXI path;
-   - a controlled Socket tuning smoke;
-   - a checkpoint reshard/conversion experiment to use a different parallelism
-     shape;
-   - an alternate uenv/container where full Megatron trains on the high-speed
-     fabric.
+## 2026-06-10 Resolution Candidate: `NCCL_NET_FORCE_FLUSH=1`
+
+The later deep dive in `CXI_NOSPACE_DEEP_DIVE_20260610.md` found a much better
+explanation and a successful 2-node validation:
+
+- Failing jobs had the trainer-forced `NCCL_NET_FORCE_FLUSH=1`.
+- Pure PyTorch probes did not set it, and Socket never enters the OFI flush
+  path.
+- The failing request shape is exactly a tiny tracked control receive:
+  `size:4`, `direction:RECV`.
+- Job `2515069` repeated the 2-node CXI Megatron smoke with
+  `NCCL_NET_FORCE_FLUSH=0` and completed iteration 1.
+- Job `2515691` repeated the no-flush Megatron smoke at 4 nodes / 16 GPUs and
+  completed iteration 1:
+  - output `/capstor/scratch/cscs/fffoivos/runs/cpt_2arm_13b/smoke4_vanilla_mockdata_cxi_noflush_20260610T185137Z`;
+  - state `COMPLETED`, exit `0:0`, elapsed `00:01:46`;
+  - runtime audit printed `NCCL_NET=AWS Libfabric` and
+    `NCCL_NET_FORCE_FLUSH=0`;
+  - iteration 1 elapsed `40043.2 ms`, `tokens/sec/gpu: 6546.5`;
+  - no `NET/OFI ... NO_SPACE` failure.
+
+Action taken:
+
+- `bakeoff_train.sbatch` now defaults `NCCL_NET_FORCE_FLUSH=0` and prints it in
+  the runtime audit line.
+- `gate_cpt2arm_artifacts.sh` now checks that the trainer has force-flush
+  disabled.
+
+Current operational recommendation:
+
+1. Treat `NCCL_NET_FORCE_FLUSH=1` as the leading root cause.
+2. Treat the 2-node and 4-node no-flush successes as strong, but not final,
+   evidence that the review's root-cause diagnosis is correct.
+3. Validate at the original full node count with AWS Libfabric/CXI before full
+   launch:
+   - job `2515665`;
+   - output `/capstor/scratch/cscs/fffoivos/runs/cpt_2arm_13b/smoke16_vanilla_mockdata_cxi_noflush_20260610T183943Z`;
+   - 16 nodes / 64 GPUs, `NCCL_NET_FORCE_FLUSH=0`, one mock-data iteration.
+4. If that 16-node smoke reaches iteration 1 cleanly, drop the Socket fallback
+   for production and launch both arms on CXI with force-flush disabled.
+5. If it fails, escalate the now-minimal evidence to CSCS/SwissAI and revisit
+   alternate runtime/parallelism options.

@@ -2464,3 +2464,78 @@ hyperparameter docs, checkpoint geometry from `HANDOFF.md` and
   - it does not satisfy the earlier "12h tops" expectation;
   - do not launch the full two-arm run as-is unless accepting a ~27h+ raw
     training wall estimate or after finding a faster transport/scale path.
+
+## 2026-06-10T18:43:00Z - CXI Deep Dive Finds `NCCL_NET_FORCE_FLUSH=1` Root Cause
+
+- Review-agent deep dive updated
+  `CXI_NOSPACE_DEEP_DIVE_20260610.md` after additional tests.
+- Earlier hypotheses were eliminated:
+  - communicator-count/resource fan-out;
+  - PyTorch allocator / cuMemMap / VMM registration warnings.
+- Decisive 2-node test:
+  - job id `2515069`;
+  - output:
+    `/capstor/scratch/cscs/fffoivos/runs/cpt_2arm_13b/smoke2_van_noflush_164007`;
+  - same CXI/AWS Libfabric training shape, but with
+    `NCCL_NET_FORCE_FLUSH=0`;
+  - state `COMPLETED`, exit `0:0`, elapsed `00:02:38`;
+  - reached iteration 1 with `elapsed time per iteration (ms): 72458.7`,
+    `tokens/sec/gpu: 7235.7`, no skips/NaNs.
+- Interpretation:
+  - the trainer's hardcoded `NCCL_NET_FORCE_FLUSH=1` is the likely root cause
+    of the `size:4 RECV` `NO_SPACE` failure on the AWS OFI NCCL SENDRECV path;
+  - Socket/HSN remains a functional fallback, but should not be the preferred
+    launch path if CXI validates at scale.
+- Changes made:
+  - patched `bakeoff_train.sbatch` so `NCCL_NET_FORCE_FLUSH` defaults to `0`;
+  - added `NCCL_NET_FORCE_FLUSH` to the runtime audit echo;
+  - added an artifact-gate check that the trainer has force-flush disabled.
+- Submitted 16-node CXI validation smoke:
+  - job id `2515665`;
+  - output:
+    `/capstor/scratch/cscs/fffoivos/runs/cpt_2arm_13b/smoke16_vanilla_mockdata_cxi_noflush_20260610T183943Z`;
+  - 16 nodes / 64 GPUs, AWS Libfabric/CXI, `NCCL_NET_FORCE_FLUSH=0`,
+    `USE_MOCK_DATA=1`, `ENABLE_EXTRA_VALID=0`, `DISABLE_SAVE=1`,
+    `EXIT_INTERVAL=1`;
+  - pending at time of note. This is now the launch gate.
+
+## 2026-06-10T18:54:00Z - 4-Node CXI No-Flush Smoke Passes; 16-Node Gate Still Pending
+
+- Motivation:
+  - user asked whether the same principle could be tested on a smaller batch
+    while the 16-node launch-scale smoke waited for resources.
+- Scheduler attempts:
+  - 8-node `debug` was rejected because `debug` has `MaxNodes=4`;
+  - 4-node `debug` at `01:30:00` and `00:30:00` was blocked by
+    `QOSMaxNodeMinutesPerJob`;
+  - 4-node `debug` at `00:10:00` without overriding the trainer's
+    `#SBATCH --signal=SIGUSR2@600` failed immediately from the walltime signal,
+    not from NCCL/CXI.
+- Successful 4-node smoke:
+  - job id `2515691`;
+  - output:
+    `/capstor/scratch/cscs/fffoivos/runs/cpt_2arm_13b/smoke4_vanilla_mockdata_cxi_noflush_20260610T185137Z`;
+  - 4 nodes / 16 GPUs, AWS Libfabric/CXI, `NCCL_NET_FORCE_FLUSH=0`,
+    `USE_MOCK_DATA=1`, `ENABLE_EXTRA_VALID=0`, `DISABLE_SAVE=1`,
+    `EXIT_INTERVAL=1`;
+  - command-line Slurm override `--signal=SIGUSR2@60` gave the one-iteration
+    debug job enough time despite the 10-minute wall limit.
+- Result:
+  - state `COMPLETED`, exit `0:0`, elapsed `00:01:46`;
+  - runtime audit printed `NCCL_NET=AWS Libfabric` and
+    `NCCL_NET_FORCE_FLUSH=0`;
+  - `WORLD_SIZE=16`, `LAUNCH_MODE=torchrun`;
+  - reached iteration 1 and exited at `EXIT_INTERVAL=1`;
+  - iteration 1 elapsed `40043.2 ms`, `tokens/sec/gpu: 6546.5`,
+    `throughput per GPU: 337.4 TFLOP/s/GPU`;
+  - no `NET/OFI ... NO_SPACE` failure.
+- Caveat:
+  - stderr still contains known CXI CUDA `sync_memops` warnings and
+    post-exit `destroy_process_group` / TCPStore shutdown warnings, but Slurm
+    state is `COMPLETED` and the training iteration finished. These are not the
+    previous pre-iteration `NO_SPACE` failure.
+- Interpretation:
+  - the review-agent root-cause candidate now generalizes from 2 nodes to 4
+    nodes for the Megatron job shape;
+  - this strengthens the case for disabling `NCCL_NET_FORCE_FLUSH`, but the
+    pending 16-node job `2515665` remains the full-scale launch gate.

@@ -147,6 +147,7 @@ check_file "$TRAIN_DIR/../megatron_patches/runtime/pretrain_gpt_te_guard.py" "te
 check_grep "$TRAIN_DIR/bakeoff_train.sbatch" "NCCL_NET=.*AWS Libfabric" "nccl aws-libfabric env"
 check_grep "$TRAIN_DIR/bakeoff_train.sbatch" "FI_CXI_DEFAULT_CQ_SIZE" "nccl cxi cq env"
 check_grep "$TRAIN_DIR/bakeoff_train.sbatch" "FI_CXI_RDZV_EAGER_SIZE" "nccl eager workaround"
+check_grep "$TRAIN_DIR/bakeoff_train.sbatch" "NCCL_NET_FORCE_FLUSH.*:-0" "nccl force-flush disabled"
 check_grep "$TRAIN_DIR/bakeoff_train.sbatch" "RUNTIME_ENV_PREFIX" "runtime env reapplied inside uenv"
 if [ "${NCCL_NET:-}" = "Socket" ]; then
   check_grep "$TRAIN_DIR/bakeoff_train.sbatch" "NCCL_SOCKET_IFNAME" "socket iface preserved inside uenv"
