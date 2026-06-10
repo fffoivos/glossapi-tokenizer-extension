@@ -31,7 +31,7 @@ RUN_ARTIFACT_GATE="${RUN_ARTIFACT_GATE:-1}"
 # Watchers are lightweight 24h CPU pollers. xfer is the cheap home for them but
 # is in maintenance till 2026-06-11; `normal` works but bills a whole GH200 node
 # for a poller. Prefer xfer once it returns, else run the poll loop on a login
-# node. See LAUNCH_RUNBOOK.md.
+# node. See ../../RUNBOOK.md.
 WATCHER_PARTITION="${WATCHER_PARTITION:-xfer}"
 BENCH_EVERY_ITERS="${BENCH_EVERY_ITERS:-238}"   # ~1B tokens between benchmarks
 

@@ -11,7 +11,7 @@
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/cpt_2arm_13b/%x-%A_%a.err
 # array 0-2 over the 3 val sets; tokenize each with BOTH tokenizers (base + ext).
 # Megatron preprocess loads the tokenizer via AutoTokenizer -> needs the
-# Apertus-aware transformers in the xfer-native venv (see HANDOFF §3).
+# Apertus-aware transformers in the xfer-native venv (see ../../RUNBOOK.md).
 set -euo pipefail
 SC=/iopsstor/scratch/cscs/fffoivos
 MEG=$SC/code/training/Megatron-LM-Swiss-AI
