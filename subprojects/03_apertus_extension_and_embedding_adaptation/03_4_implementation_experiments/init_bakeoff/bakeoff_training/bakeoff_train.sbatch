@@ -24,7 +24,7 @@
 # ============================================================================
 #
 # Required env vars (export via --export=...):
-#   ARM         — vanilla | retok | centroid (label only; for run name)
+#   ARM         — vanilla | retok | centroid | extension | td
 #   INIT_CKPT   — Megatron-format init checkpoint path
 #   OUTPUT_DIR  — where to save checkpoints + logs
 
@@ -33,9 +33,10 @@ set -euo pipefail
 # directory when submitted via submit_all_arms.sh, with SLURM_SUBMIT_DIR as
 # fallback for manual submissions from this directory.
 SCRIPT_DIR="$(cd "${SCRIPT_DIR_OVERRIDE:-${SLURM_SUBMIT_DIR:-$(pwd)}}" && pwd)"
-source "$SCRIPT_DIR/_train_config_common.env"
+TRAIN_CONFIG="${TRAIN_CONFIG_OVERRIDE:-$SCRIPT_DIR/_train_config_common.env}"
+source "$TRAIN_CONFIG"
 
-ARM="${ARM:?ARM is required (vanilla|retok|centroid)}"
+ARM="${ARM:?ARM is required (vanilla|retok|centroid|extension|td)}"
 INIT_CKPT="${INIT_CKPT:?INIT_CKPT path is required}"
 OUTPUT_DIR="${OUTPUT_DIR:?OUTPUT_DIR path is required}"
 
@@ -48,12 +49,14 @@ fi
 SEQ_LEN="$SEQ_LENGTH"   # alias to match Apertus sbatch var naming
 
 TRAIN_SAMPLES=$(( TRAIN_TOKENS / SEQ_LEN ))
+TRAIN_ITERS=$(( TRAIN_SAMPLES / GLOBAL_BATCH_SIZE ))
 LR_WARMUP_SAMPLES=$(( LR_WARMUP_TOKENS / SEQ_LEN ))
 
 echo "=== bakeoff_train.sbatch ==="
 date -u
 echo "host: $(hostname)"
 echo "ARM=$ARM  INIT_CKPT=$INIT_CKPT  OUTPUT_DIR=$OUTPUT_DIR"
+echo "TRAIN_CONFIG=$TRAIN_CONFIG"
 echo "Megatron-LM-Swiss-AI: $MEGATRON_LM_SWISSAI_DIR @ $MEGATRON_LM_SWISSAI_COMMIT"
 echo "uenv: $UENV_IMAGE"
 MODEL_WORLD_SIZE=$(( ${SLURM_NNODES:-$NODES} * GPUS_PER_NODE ))
@@ -61,6 +64,7 @@ echo "slurm: account=${SLURM_JOB_ACCOUNT:-$ACCOUNT} partition=${SLURM_JOB_PARTIT
 echo "checkpoint mode: RESUME_TRAINING=$RESUME_TRAINING"
 echo "save mode: DISABLE_SAVE=$DISABLE_SAVE SAVE_INTERVAL=$SAVE_INTERVAL"
 echo "loss objective: $LOSS_OBJECTIVE"
+echo "data mode: USE_MOCK_DATA=${USE_MOCK_DATA:-0}"
 echo "seq_len=$SEQ_LEN  microbatch=$MICROBATCH_SIZE  global_batch_samples=$GLOBAL_BATCH_SIZE"
 echo "train_samples=$TRAIN_SAMPLES (train_tokens=$TRAIN_TOKENS) lr_warmup_samples=$LR_WARMUP_SAMPLES"
 echo
@@ -72,8 +76,13 @@ TRANSFORMER_ENGINE_ARGS=(
 )
 
 # Network architecture explicitly declared (matches Apertus sbatch L181-199).
-# --max-position-embeddings is the pretrain value 4096 (not the 64K long-context
-# extension; Apertus does the 64K extension as a separate post-pretrain phase).
+# Positional geometry is env-var driven. The wrapper keeps legacy defaults for
+# old bakeoff reproducibility; current 03_training_experiments configs set the
+# Apertus main-pretraining geometry explicitly:
+#   MAX_POSITION_EMBEDDINGS=4096 ROTARY_BASE=500000
+#   USE_ROPE_SCALING=1 ROPE_SCALING_FACTOR=8.0
+# The released HF `main` checkpoint carries post-long-context rope 12M / seq
+# 65536, so CPT init checkpoints must be geometry-reverted before training.
 NETWORK_SIZE_ARGS=(
     --num-layers 32
     --hidden-size 4096
@@ -81,16 +90,25 @@ NETWORK_SIZE_ARGS=(
     --num-attention-heads 32
     --group-query-attention
     --num-query-groups 8
-    --max-position-embeddings $SEQ_LEN
+    --max-position-embeddings ${MAX_POSITION_EMBEDDINGS:-$SEQ_LEN}
     --position-embedding-type rope
-    --rotary-base 500000
-    --make-vocab-size-divisible-by 128
+    --rotary-base ${ROTARY_BASE:-500000}
+    --make-vocab-size-divisible-by ${MAKE_VOCAB_SIZE_DIVISIBLE_BY:-128}
     --normalization $NORMALIZATION
     --xielu
     --qk-layernorm
     --qknorm-impl $QKNORM_IMPL
     --untie-embeddings-and-output-weights
 )
+if [ "${USE_ROPE_SCALING:-0}" = "1" ]; then
+    NETWORK_SIZE_ARGS+=(
+        --use-rope-scaling
+        --rope-scaling-factor ${ROPE_SCALING_FACTOR:-8.0}
+    )
+    echo "geometry override: USE_ROPE_SCALING=1 ROPE_SCALING_FACTOR=${ROPE_SCALING_FACTOR:-8.0}"
+fi
+echo "positional geometry: max_position=${MAX_POSITION_EMBEDDINGS:-$SEQ_LEN} rotary_base=${ROTARY_BASE:-500000} use_rope_scaling=${USE_ROPE_SCALING:-0}"
+echo "vocab alignment: make_vocab_size_divisible_by=${MAKE_VOCAB_SIZE_DIVISIBLE_BY:-128}"
 
 LOGGING_ARGS=(
     --log-throughput
@@ -141,14 +159,27 @@ INITIALIZATION_ARGS=(
     --init-method-std $INIT_STD
 )
 
+LR_SCHEDULE_STYLE="${LR_SCHEDULE_STYLE:-WSD}"
+LR_WARMUP_INIT="${LR_WARMUP_INIT:-0.0}"
 LEARNING_RATE_ARGS=(
     --lr $LR_PEAK
     --min-lr $LR_FINAL
-    --lr-decay-style WSD
+    --lr-decay-style $LR_SCHEDULE_STYLE
     --lr-warmup-samples $LR_WARMUP_SAMPLES
-    --lr-wsd-decay-style $LR_DECAY_STYLE
-    --lr-wsd-decay-samples $TRAIN_SAMPLES
+    --lr-warmup-init $LR_WARMUP_INIT
 )
+if [ "$LR_SCHEDULE_STYLE" = "WSD" ]; then
+    # Cooldown window. Default = whole run (legacy bakeoff behavior, preserved
+    # for reproducibility). A proper WSD trapezoid needs warmup + STABLE +
+    # decay<100%; Apertus sets a SEPARATE cooldown count
+    # (submit_apertus_8b.sh:250 --lr-wsd-decay-samples $COOLDOWN_SAMPLES), not
+    # TRAIN_SAMPLES. Set LR_WSD_DECAY_SAMPLES (e.g. 20% of TRAIN_SAMPLES) to
+    # get a real stable phase. Backward-compatible: unset => old behavior.
+    LEARNING_RATE_ARGS+=(
+        --lr-wsd-decay-style $LR_DECAY_STYLE
+        --lr-wsd-decay-samples ${LR_WSD_DECAY_SAMPLES:-$TRAIN_SAMPLES}
+    )
+fi
 
 # Checkpointing: `--dist-ckpt-strictness assume_ok_unexpected` is critical for
 # our CPT — it allows Megatron to load a checkpoint whose embedding shape was
@@ -194,14 +225,30 @@ MIXED_PRECISION_ARGS=(
 DISTRIBUTED_ARGS=(
     --tensor-model-parallel-size $TENSOR_MODEL_PARALLEL_SIZE
     --pipeline-model-parallel-size $PIPELINE_MODEL_PARALLEL_SIZE
-    --use-distributed-optimizer
-    --overlap-grad-reduce
-    --overlap-param-gather
 )
+if [ "${USE_DISTRIBUTED_OPTIMIZER:-1}" = "1" ]; then
+    DISTRIBUTED_ARGS+=(--use-distributed-optimizer)
+elif [ "${USE_DISTRIBUTED_OPTIMIZER:-1}" != "0" ]; then
+    echo "ERROR: USE_DISTRIBUTED_OPTIMIZER=${USE_DISTRIBUTED_OPTIMIZER:-} not recognized (expected 0|1)" >&2
+    exit 2
+fi
+if [ "${USE_COMM_OVERLAP:-1}" = "1" ]; then
+    DISTRIBUTED_ARGS+=(
+        --overlap-grad-reduce
+        --overlap-param-gather
+    )
+elif [ "${USE_COMM_OVERLAP:-1}" != "0" ]; then
+    echo "ERROR: USE_COMM_OVERLAP=${USE_COMM_OVERLAP:-} not recognized (expected 0|1)" >&2
+    exit 2
+fi
+if [ -n "${DDP_BUCKET_SIZE:-}" ]; then
+    DISTRIBUTED_ARGS+=(--ddp-bucket-size "$DDP_BUCKET_SIZE")
+fi
+echo "distributed flags: use_distributed_optimizer=${USE_DISTRIBUTED_OPTIMIZER:-1} use_comm_overlap=${USE_COMM_OVERLAP:-1} ddp_bucket_size=${DDP_BUCKET_SIZE:-default}"
 
 # Tokenizer + data prefix: per-arm.
 # Vanilla → 131,072 base tokenizer + base-tokenized data binary.
-# ReTok / Centroid → 148,480 extended tokenizer + extended-tokenized data binary.
+# ReTok / Centroid / Extension / TD → 148,480 extended tokenizer + extended-tokenized data binary.
 # submit_all_arms.sh selects the right pair based on ARM. The two binaries are
 # byte-identical document streams (same shuffled mix, same seed) — they differ
 # ONLY in how the corpus is tokenized. Apertus-fidelity for Vanilla requires
@@ -210,15 +257,52 @@ case "$ARM" in
     vanilla)
         ARM_TOKENIZER="$BASE_TOKENIZER_DIR"
         ARM_DATA_PREFIX="$BASE_DATA_PREFIX"
+        ARM_VAL_TOKENIZATION="base"
         ;;
-    retok|centroid)
+    retok|centroid|extension|td)
         ARM_TOKENIZER="$EXT_TOKENIZER_DIR"
         ARM_DATA_PREFIX="$EXT_DATA_PREFIX"
+        ARM_VAL_TOKENIZATION="ext"
         ;;
     *)
-        echo "ERROR: ARM=$ARM not recognized (expected vanilla|retok|centroid)" >&2; exit 2 ;;
+        echo "ERROR: ARM=$ARM not recognized (expected vanilla|retok|centroid|extension|td)" >&2; exit 2 ;;
 esac
 echo "ARM=$ARM  →  tokenizer=$ARM_TOKENIZER  data_prefix=$ARM_DATA_PREFIX"
+
+USE_MOCK_DATA="${USE_MOCK_DATA:-0}"
+if [ "$USE_MOCK_DATA" = "1" ]; then
+    ENABLE_EXTRA_VALID=0
+elif [ "$USE_MOCK_DATA" != "0" ]; then
+    echo "ERROR: USE_MOCK_DATA=$USE_MOCK_DATA not recognized (expected 0|1)" >&2
+    exit 2
+fi
+
+ENABLE_EXTRA_VALID="${ENABLE_EXTRA_VALID:-1}"
+VAL_DATA_DIR="${VAL_DATA_DIR:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt_2arm_13b/megatron}"
+EXTRA_VALID_ARGS=()
+if [ "$ENABLE_EXTRA_VALID" = "1" ]; then
+    EXTRA_VALID_PREFIXES=(
+        "$VAL_DATA_DIR/val_hplt_${ARM_VAL_TOKENIZATION}_text_document"
+        "$VAL_DATA_DIR/val_openarchives_${ARM_VAL_TOKENIZATION}_text_document"
+        "$VAL_DATA_DIR/val_greek_phd_${ARM_VAL_TOKENIZATION}_text_document"
+    )
+    for prefix in "${EXTRA_VALID_PREFIXES[@]}"; do
+        if [ ! -s "${prefix}.idx" ] || [ ! -s "${prefix}.bin" ]; then
+            echo "ERROR: extra validation binary missing or empty for ARM=$ARM: ${prefix}.{bin,idx}" >&2
+            exit 4
+        fi
+    done
+    EXTRA_VALID_ARGS=(
+        --extra-valid-data-path
+        hplt "${EXTRA_VALID_PREFIXES[0]}"
+        openarchives "${EXTRA_VALID_PREFIXES[1]}"
+        greek_phd "${EXTRA_VALID_PREFIXES[2]}"
+    )
+elif [ "$ENABLE_EXTRA_VALID" != "0" ]; then
+    echo "ERROR: ENABLE_EXTRA_VALID=$ENABLE_EXTRA_VALID not recognized (expected 0|1)" >&2
+    exit 2
+fi
+echo "validation: eval_interval=$EVAL_INTERVAL eval_iters=$EVAL_ITERS extra_valid=$ENABLE_EXTRA_VALID tokenization=$ARM_VAL_TOKENIZATION"
 
 # Audit-trail run_metadata. This must live after ARM_DATA_PREFIX is selected;
 # Slurm runs with `set -u`, and there is no arm-neutral TRAIN_DATA_PREFIX.
@@ -230,14 +314,22 @@ cat > "$OUTPUT_DIR/run_metadata.json" <<META
   "megatron_dir": "$MEGATRON_LM_SWISSAI_DIR",
   "megatron_commit": "$MEGATRON_LM_SWISSAI_COMMIT",
   "seq_length": $SEQ_LEN,
+  "max_position_embeddings": ${MAX_POSITION_EMBEDDINGS:-$SEQ_LEN},
+  "rotary_base": ${ROTARY_BASE:-500000},
+  "use_rope_scaling": ${USE_ROPE_SCALING:-0},
+  "rope_scaling_factor": ${ROPE_SCALING_FACTOR:-8.0},
   "global_batch_samples": $GLOBAL_BATCH_SIZE,
   "global_batch_tokens": $GLOBAL_BATCH_TOKENS,
   "microbatch_size": $MICROBATCH_SIZE,
   "train_tokens": $TRAIN_TOKENS,
   "train_samples": $TRAIN_SAMPLES,
+  "train_iters": $TRAIN_ITERS,
   "lr_peak": "$LR_PEAK",
   "lr_final": "$LR_FINAL",
+  "lr_schedule_style": "$LR_SCHEDULE_STYLE",
+  "lr_warmup_init": "$LR_WARMUP_INIT",
   "lr_warmup_samples": $LR_WARMUP_SAMPLES,
+  "lr_wsd_decay_samples": ${LR_WSD_DECAY_SAMPLES:-$TRAIN_SAMPLES},
   "lr_decay_style": "$LR_DECAY_STYLE",
   "grad_clip": $GRAD_CLIP,
   "optimizer": "ademamix",
@@ -251,6 +343,13 @@ cat > "$OUTPUT_DIR/run_metadata.json" <<META
   "init_method_std": $INIT_STD,
   "loss_objective": "$LOSS_OBJECTIVE",
   "data_seed": $DATA_SEED,
+  "eval_interval": $EVAL_INTERVAL,
+  "eval_iters": $EVAL_ITERS,
+  "extra_valid_enabled": $ENABLE_EXTRA_VALID,
+  "extra_valid_tokenization": "$ARM_VAL_TOKENIZATION",
+  "extra_valid_data_dir": "$VAL_DATA_DIR",
+  "mock_data": $USE_MOCK_DATA,
+  "make_vocab_size_divisible_by": ${MAKE_VOCAB_SIZE_DIVISIBLE_BY:-128},
   "tokenizer": "$ARM_TOKENIZER",
   "data_prefix": "$ARM_DATA_PREFIX",
   "uenv_image": "$UENV_IMAGE",
@@ -264,6 +363,7 @@ cat > "$OUTPUT_DIR/run_metadata.json" <<META
   "slurm_time_limit": "$TIME_LIMIT",
   "launch_mode": "$LAUNCH_MODE",
   "model_world_size": $MODEL_WORLD_SIZE,
+  "ddp_bucket_size": "${DDP_BUCKET_SIZE:-default}",
   "slurm_job_id": "${SLURM_JOB_ID:-none}",
   "start_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
@@ -283,7 +383,17 @@ DATA_ARGS=(
     $EOD_LOSS_MASK_FLAG
     --num-workers $DATALOADER_WORKERS
     --num-dataset-builder-threads 4
-    --data-path $ARM_DATA_PREFIX
+)
+if [ "$USE_MOCK_DATA" = "1" ]; then
+    DATA_ARGS+=(--mock-data)
+else
+    DATA_ARGS+=(--data-path $ARM_DATA_PREFIX)
+fi
+
+VALIDATION_ARGS=(
+    --eval-interval "$EVAL_INTERVAL"
+    --eval-iters "$EVAL_ITERS"
+    "${EXTRA_VALID_ARGS[@]}"
 )
 
 case "$LOSS_OBJECTIVE" in
@@ -319,6 +429,7 @@ TRAINING_CMD=(
     "${MIXED_PRECISION_ARGS[@]}"
     "${DISTRIBUTED_ARGS[@]}"
     "${TOKENIZER_ARGS[@]}"
+    "${VALIDATION_ARGS[@]}"
     "${DATA_ARGS[@]}"
 )
 printf -v TRAINING_CMD_Q '%q ' "${TRAINING_CMD[@]}"
@@ -332,12 +443,99 @@ export CUDA_DEVICE_MAX_CONNECTIONS=1
 export PYTORCH_ALLOC_CONF="${PYTORCH_ALLOC_CONF:-${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}}"
 export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-$PYTORCH_ALLOC_CONF}"
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK:-4}
-export FI_CXI_DEFAULT_TX_SIZE=16384
-export NCCL_NET_FORCE_FLUSH=1
-export FI_CXI_RDZV_GET_MIN=0
-export FI_CXI_SAFE_DEVMEM_COPY_THRESHOLD=16777216
+# Alps/uenv NCCL setup per CSCS guidance for Slingshot/libfabric. These are
+# runtime transport knobs only; they do not change the model or optimizer.
+export NCCL_NET="${NCCL_NET:-AWS Libfabric}"
+export NCCL_NET_GDR_LEVEL="${NCCL_NET_GDR_LEVEL:-PHB}"
+export NCCL_CROSS_NIC="${NCCL_CROSS_NIC:-1}"
+export NCCL_PROTO="${NCCL_PROTO:-^LL128}"
+export FI_CXI_DEFAULT_CQ_SIZE="${FI_CXI_DEFAULT_CQ_SIZE:-131072}"
+export FI_CXI_DEFAULT_TX_SIZE="${FI_CXI_DEFAULT_TX_SIZE:-16384}"
+export FI_CXI_DISABLE_HOST_REGISTER="${FI_CXI_DISABLE_HOST_REGISTER:-1}"
+export FI_CXI_RX_MATCH_MODE="${FI_CXI_RX_MATCH_MODE:-software}"
+export FI_MR_CACHE_MONITOR="${FI_MR_CACHE_MONITOR:-userfaultfd}"
+export NCCL_NET_FORCE_FLUSH="${NCCL_NET_FORCE_FLUSH:-1}"
+if [ "${FI_CXI_USE_DEFAULT_RDZV:-0}" = "1" ]; then
+    unset FI_CXI_RDZV_GET_MIN FI_CXI_RDZV_THRESHOLD FI_CXI_RDZV_EAGER_SIZE
+else
+    export FI_CXI_RDZV_GET_MIN="${FI_CXI_RDZV_GET_MIN:-0}"
+    export FI_CXI_RDZV_THRESHOLD="${FI_CXI_RDZV_THRESHOLD:-0}"
+    export FI_CXI_RDZV_EAGER_SIZE="${FI_CXI_RDZV_EAGER_SIZE:-0}"
+fi
+export FI_CXI_SAFE_DEVMEM_COPY_THRESHOLD="${FI_CXI_SAFE_DEVMEM_COPY_THRESHOLD:-16777216}"
+[ -n "${FI_CXI_DEFAULT_RX_SIZE:-}" ] && export FI_CXI_DEFAULT_RX_SIZE
+[ -n "${FI_CXI_REQ_BUF_SIZE:-}" ] && export FI_CXI_REQ_BUF_SIZE
+[ -n "${FI_CXI_REQ_BUF_MIN_POSTED:-}" ] && export FI_CXI_REQ_BUF_MIN_POSTED
+[ -n "${FI_CXI_OFLOW_BUF_SIZE:-}" ] && export FI_CXI_OFLOW_BUF_SIZE
+[ -n "${FI_LOG_LEVEL:-}" ] && export FI_LOG_LEVEL
+[ -n "${FI_LOG_PROV:-}" ] && export FI_LOG_PROV
 export NCCL_RAS_ENABLE=0
 export CUDA_CACHE_DISABLE=1
+unset NCCL_NET_PLUGIN
+echo "nccl/libfabric: NCCL_NET=$NCCL_NET NCCL_NET_GDR_LEVEL=$NCCL_NET_GDR_LEVEL NCCL_CROSS_NIC=$NCCL_CROSS_NIC NCCL_PROTO=$NCCL_PROTO OFI_NCCL_PROTOCOL=${OFI_NCCL_PROTOCOL:-<unset>} FI_CXI_DEFAULT_CQ_SIZE=$FI_CXI_DEFAULT_CQ_SIZE FI_CXI_DEFAULT_TX_SIZE=$FI_CXI_DEFAULT_TX_SIZE FI_CXI_DEFAULT_RX_SIZE=${FI_CXI_DEFAULT_RX_SIZE:-<unset>} FI_CXI_RX_MATCH_MODE=$FI_CXI_RX_MATCH_MODE FI_CXI_REQ_BUF_SIZE=${FI_CXI_REQ_BUF_SIZE:-<unset>} FI_CXI_REQ_BUF_MIN_POSTED=${FI_CXI_REQ_BUF_MIN_POSTED:-<unset>} FI_CXI_OFLOW_BUF_SIZE=${FI_CXI_OFLOW_BUF_SIZE:-<unset>} FI_CXI_RDZV_GET_MIN=${FI_CXI_RDZV_GET_MIN:-<unset>} FI_CXI_RDZV_THRESHOLD=${FI_CXI_RDZV_THRESHOLD:-<unset>} FI_CXI_RDZV_EAGER_SIZE=${FI_CXI_RDZV_EAGER_SIZE:-<unset>} FI_MR_CACHE_MONITOR=$FI_MR_CACHE_MONITOR FI_LOG_LEVEL=${FI_LOG_LEVEL:-<unset>} FI_LOG_PROV=${FI_LOG_PROV:-<unset>}"
+
+# `uenv run` injects its own NCCL/CXI defaults after the parent shell exports.
+# Re-apply our runtime knobs inside the uenv-launched shell so the trainer sees
+# the same values the launcher audited above.
+RUNTIME_ENV_PREFIX="unset NCCL_NET_PLUGIN; "
+if [ "${FI_CXI_USE_DEFAULT_RDZV:-0}" = "1" ]; then
+    RUNTIME_ENV_PREFIX+="unset FI_CXI_RDZV_GET_MIN FI_CXI_RDZV_THRESHOLD FI_CXI_RDZV_EAGER_SIZE; "
+fi
+RUNTIME_ENV_VARS=(
+    TORCH_NCCL_AVOID_RECORD_STREAMS
+    TORCH_NCCL_ASYNC_ERROR_HANDLING
+    CUDA_DEVICE_MAX_CONNECTIONS
+    PYTORCH_ALLOC_CONF
+    PYTORCH_CUDA_ALLOC_CONF
+    OMP_NUM_THREADS
+    NCCL_NET
+    NCCL_NET_GDR_LEVEL
+    NCCL_CROSS_NIC
+    NCCL_PROTO
+    NCCL_NCHANNELS_PER_NET_PEER
+    NCCL_NET_GDR_C2C
+    NCCL_NET_GDR_READ
+    NCCL_P2P_LEVEL
+    NCCL_NET_FORCE_FLUSH
+    NCCL_RAS_ENABLE
+    NCCL_SOCKET_IFNAME
+    NCCL_SOCKET_FAMILY
+    NCCL_SOCKET_NTHREADS
+    NCCL_NSOCKS_PERTHREAD
+    NCCL_DEBUG
+    NCCL_DEBUG_SUBSYS
+    OFI_NCCL_PROTOCOL
+    FI_CXI_DEFAULT_CQ_SIZE
+    FI_CXI_DEFAULT_TX_SIZE
+    FI_CXI_DEFAULT_RX_SIZE
+    FI_CXI_DISABLE_HOST_REGISTER
+    FI_CXI_RX_MATCH_MODE
+    FI_MR_CACHE_MONITOR
+    FI_CXI_RDZV_GET_MIN
+    FI_CXI_RDZV_THRESHOLD
+    FI_CXI_RDZV_EAGER_SIZE
+    FI_CXI_RDZV_PROTO
+    FI_CXI_SAFE_DEVMEM_COPY_THRESHOLD
+    FI_CXI_REQ_BUF_SIZE
+    FI_CXI_REQ_BUF_MIN_POSTED
+    FI_CXI_OFLOW_BUF_SIZE
+    FI_CXI_OFLOW_BUF_COUNT
+    FI_CXI_REQ_BUF_MAX_CACHED
+    FI_CXI_HYBRID_PREEMPTIVE
+    FI_CXI_HYBRID_RECV_PREEMPTIVE
+    FI_CXI_HYBRID_POSTED_RECV_PREEMPTIVE
+    FI_CXI_HYBRID_UNEXPECTED_MSG_PREEMPTIVE
+    FI_UNIVERSE_SIZE
+    FI_LOG_LEVEL
+    FI_LOG_PROV
+    CUDA_CACHE_DISABLE
+)
+for env_name in "${RUNTIME_ENV_VARS[@]}"; do
+    if [ -n "${!env_name+x}" ]; then
+        printf -v env_value_q '%q' "${!env_name}"
+        RUNTIME_ENV_PREFIX+="export $env_name=$env_value_q; "
+    fi
+done
 
 # torch.distributed env:// needs these before srun. RANK/LOCAL_RANK are set per
 # task in the bash -c command below.
@@ -357,12 +555,12 @@ case "$LAUNCH_MODE" in
     slurm)
         uenv run "$UENV_IMAGE" --view=default -- \
             srun --cpus-per-task "${SLURM_CPUS_PER_TASK:-4}" \
-                -lu bash -c "export PYTHONPATH='$MEGATRON_LM_SWISSAI_DIR' RANK=\$SLURM_PROCID LOCAL_RANK=\$SLURM_LOCALID; exec $TRAINING_CMD_Q"
+                -lu bash -c "$RUNTIME_ENV_PREFIX export PYTHONPATH='$MEGATRON_LM_SWISSAI_DIR' RANK=\$SLURM_PROCID LOCAL_RANK=\$SLURM_LOCALID; exec $TRAINING_CMD_Q"
         ;;
     torchrun)
         uenv run "$UENV_IMAGE" --view=default -- \
             srun --ntasks-per-node=1 --cpus-per-task "${SLURM_CPUS_PER_TASK:-4}" \
-                -lu bash -c "export PYTHONPATH='$MEGATRON_LM_SWISSAI_DIR' MASTER_ADDR='$MASTER_ADDR' MASTER_PORT='$MASTER_PORT'; exec torchrun --no-python --nnodes='${SLURM_NNODES:-$NODES}' --nproc_per_node='$GPUS_PER_NODE' --node_rank=\$SLURM_PROCID --rdzv_backend=c10d --rdzv_endpoint='$MASTER_ADDR:$MASTER_PORT' $TRAINING_CMD_Q"
+                -lu bash -c "$RUNTIME_ENV_PREFIX export PYTHONPATH='$MEGATRON_LM_SWISSAI_DIR' MASTER_ADDR='$MASTER_ADDR' MASTER_PORT='$MASTER_PORT'; exec torchrun --no-python --nnodes='${SLURM_NNODES:-$NODES}' --nproc_per_node='$GPUS_PER_NODE' --node_rank=\$SLURM_PROCID --rdzv_backend=c10d --rdzv_endpoint='$MASTER_ADDR:$MASTER_PORT' $TRAINING_CMD_Q"
         ;;
     *)
         echo "ERROR: LAUNCH_MODE=$LAUNCH_MODE not recognized (expected slurm|torchrun)" >&2
