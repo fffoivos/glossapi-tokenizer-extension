@@ -69,6 +69,14 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   restarted the TD watcher as `2516378`. It resubmitted clean converter jobs
   `2516379` and `2516388` with the HF roundtrip skeleton; both reached
   checkpoint loading instead of the previous path guard failure.
+- Found a second eval-sidecar issue in retention jobs: vanilla retention jobs
+  `2516204` and `2516284` completed the long lm-eval pass and wrote timestamped
+  `results_*.json` plus sample logs, but exited nonzero during final
+  pretty-table rendering because `pytablewriter` was present only as
+  sourceless bytecode and the repair script had not exposed it. Patched
+  `repair_lm_eval_cli_install.py` to expose the pytablewriter dependency stack
+  and verified in the Clariden uenv that
+  `from pytablewriter import LatexTableWriter` now succeeds.
 
 ## 2026-06-09
 

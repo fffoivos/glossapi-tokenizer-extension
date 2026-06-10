@@ -29,6 +29,13 @@ ALLOWED_PYC_PACKAGES = (
     "scipy",
     "joblib",
     "tabulate",
+    "pytablewriter",
+    "tabledata",
+    "dataproperty",
+    "typepy",
+    "tcolorpy",
+    "mbstrdecoder",
+    "pathvalidate",
     "xxhash",
 )
 ALLOWED_TOP_LEVEL_MODULES = ("threadpoolctl",)
