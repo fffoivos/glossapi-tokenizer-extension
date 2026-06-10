@@ -133,7 +133,8 @@ Per-arm production defaults:
 - `LAUNCH_MODE=torchrun`
 - `EXIT_INTERVAL=952`
 - `N_SEGMENTS=4`
-- `SEGMENT_TIME_LIMIT=12:00:00`
+- `SEGMENT_TIME_LIMIT=06:00:00` for segments 1-3
+- `FINAL_SEGMENT_TIME_LIMIT=03:00:00` for segment 4
 - `SAVE_INTERVAL=119`
 - `EVAL_INTERVAL=25`
 - `NCCL_NET=AWS Libfabric`

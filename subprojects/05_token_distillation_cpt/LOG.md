@@ -10,6 +10,11 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   `2516055`; TD chain: `2516056-2516059`, watcher `2516060`. The first
   training segments requested 16 nodes each and initially entered `PENDING
   (Priority)` while both xfer watcher jobs started.
+- Applied the schedule review without relaunching: updated the live Slurm jobs
+  in place to 6h for segments 1-3 and 3h for final segments, then patched the
+  submitter defaults. Vanilla segment 1 reached iteration 25, printed separate
+  held-out losses for `hplt`, `openarchives`, and `greek_phd`, and ran at about
+  8.6s/iter with no skipped or NaN iterations.
 - Fixed the prelaunch blocker: the tree used by the launcher now has the
   `pretrain_gpt_te_guard.py` runtime wrapper needed for TE empty-extra-state
   checkpoint loading.

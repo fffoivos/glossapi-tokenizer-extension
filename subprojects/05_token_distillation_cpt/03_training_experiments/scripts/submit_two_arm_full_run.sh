@@ -57,9 +57,12 @@ SAVE_INTERVAL="${SAVE_INTERVAL:-119}"          # ~0.5B tokens
 # staying far inside the 12h walltime.
 EXIT_INTERVAL_USER_SET="${EXIT_INTERVAL+x}"
 N_SEGMENTS_USER_SET="${N_SEGMENTS+x}"
+SEGMENT_TIME_LIMIT_USER_SET="${SEGMENT_TIME_LIMIT+x}"
+FINAL_SEGMENT_TIME_LIMIT_USER_SET="${FINAL_SEGMENT_TIME_LIMIT+x}"
 EXIT_INTERVAL="${EXIT_INTERVAL:-238}"
 N_SEGMENTS="${N_SEGMENTS:-14}"                # ceil(3218/238); extras no-op once train completes
 SEGMENT_TIME_LIMIT="${SEGMENT_TIME_LIMIT:-12:00:00}"
+FINAL_SEGMENT_TIME_LIMIT="${FINAL_SEGMENT_TIME_LIMIT:-$SEGMENT_TIME_LIMIT}"
 ACCOUNT="${ACCOUNT:-a0140}"
 PARTITION="${PARTITION:-normal}"
 NODES="${NODES:-16}"
@@ -70,6 +73,12 @@ if [ -z "$EXIT_INTERVAL_USER_SET" ] && [ "$NODES" -ge 16 ]; then
 fi
 if [ -z "$N_SEGMENTS_USER_SET" ] && [ "$NODES" -ge 16 ]; then
   N_SEGMENTS=4                                # ceil(3218/952)
+fi
+if [ -z "$SEGMENT_TIME_LIMIT_USER_SET" ] && [ "$NODES" -ge 16 ]; then
+  SEGMENT_TIME_LIMIT=06:00:00                 # ~2.5h work; shorter reservation improves backfill
+fi
+if [ -z "$FINAL_SEGMENT_TIME_LIMIT_USER_SET" ] && [ "$NODES" -ge 16 ]; then
+  FINAL_SEGMENT_TIME_LIMIT=03:00:00           # final 362 iters
 fi
 LAUNCH_MODE="${LAUNCH_MODE:-}"
 if [ -z "$LAUNCH_MODE" ]; then
@@ -121,6 +130,10 @@ test -f "$CONFIG"        || { echo "ERROR: config not found: $CONFIG" >&2; exit 
 if [ -e "$OUTPUT_DIR" ] && [ "$ALLOW_EXISTING_OUTPUT" != "1" ]; then
   echo "ERROR: output dir exists: $OUTPUT_DIR (set ALLOW_EXISTING_OUTPUT=1 to resume)" >&2; exit 3
 fi
+if [ $(( EXIT_INTERVAL % SAVE_INTERVAL )) -ne 0 ]; then
+  echo "ERROR: EXIT_INTERVAL=$EXIT_INTERVAL must be a multiple of SAVE_INTERVAL=$SAVE_INTERVAL so segment boundaries have checkpoints" >&2
+  exit 2
+fi
 
 # Export hygiene: --export=ALL would forward stale shell vars over the config.
 # For the production launch, arm configs own checkpoint/data/tokenizer paths and
@@ -157,7 +170,7 @@ echo "TRAIN_SCRIPT:       $TRAIN_SCRIPT"
 echo "INIT_CKPT (seg 1):  $INIT_CKPT_ARM"
 echo "OUTPUT_DIR:         $OUTPUT_DIR"
 echo "TRAIN_TOKENS:       $TRAIN_TOKENS  (full-run WSD anchor)"
-echo "N_SEGMENTS:         $N_SEGMENTS  x  $SEGMENT_TIME_LIMIT"
+echo "N_SEGMENTS:         $N_SEGMENTS  x  $SEGMENT_TIME_LIMIT (final: $FINAL_SEGMENT_TIME_LIMIT)"
 echo "LAUNCH_MODE:        $LAUNCH_MODE  sbatch_ntasks_per_node=$SBATCH_NTASKS_PER_NODE"
 if [ "${#NETWORK_EXPORT_SUMMARY[@]}" -gt 0 ]; then
   echo "NETWORK_OVERRIDES:  ${NETWORK_EXPORT_SUMMARY[*]}"
@@ -181,6 +194,10 @@ fi
 
 dependency_job=""
 for seg in $(seq 1 "$N_SEGMENTS"); do
+  segment_time_limit="$SEGMENT_TIME_LIMIT"
+  if [ "$seg" -eq "$N_SEGMENTS" ]; then
+    segment_time_limit="$FINAL_SEGMENT_TIME_LIMIT"
+  fi
   if [ "$seg" -eq 1 ]; then
     resume=0; init_ckpt="$INIT_CKPT_ARM"; dep_args=(); dep_label="none"
   else
@@ -197,18 +214,18 @@ for seg in $(seq 1 "$N_SEGMENTS"); do
       --account="$ACCOUNT" --partition="$PARTITION"
       --nodes="$NODES" --ntasks-per-node="$SBATCH_NTASKS_PER_NODE"
       --gpus-per-node="$GPUS_PER_NODE" --gres="gpu:$GPUS_PER_NODE"
-      --cpus-per-task="$CPUS_PER_TASK" --time="$SEGMENT_TIME_LIMIT"
+      --cpus-per-task="$CPUS_PER_TASK" --time="$segment_time_limit"
       --output="$OUTPUT_DIR/%x-%j.out" --error="$OUTPUT_DIR/%x-%j.err"
-      --export=ALL,ARM="$ARM",INIT_CKPT="$init_ckpt",OUTPUT_DIR="$OUTPUT_DIR",SCRIPT_DIR_OVERRIDE="$TRAIN_DIR",TRAIN_CONFIG_OVERRIDE="$CONFIG",TRAIN_TOKENS="$TRAIN_TOKENS",RESUME_TRAINING="$resume",DISABLE_SAVE=0,SAVE_INTERVAL="$SAVE_INTERVAL",EXIT_INTERVAL="$EXIT_INTERVAL",ACCOUNT="$ACCOUNT",PARTITION="$PARTITION",NODES="$NODES",GPUS_PER_NODE="$GPUS_PER_NODE",LAUNCH_MODE="$LAUNCH_MODE",TIME_LIMIT="$SEGMENT_TIME_LIMIT${NETWORK_EXPORT_CSV}"
+      --export=ALL,ARM="$ARM",INIT_CKPT="$init_ckpt",OUTPUT_DIR="$OUTPUT_DIR",SCRIPT_DIR_OVERRIDE="$TRAIN_DIR",TRAIN_CONFIG_OVERRIDE="$CONFIG",TRAIN_TOKENS="$TRAIN_TOKENS",RESUME_TRAINING="$resume",DISABLE_SAVE=0,SAVE_INTERVAL="$SAVE_INTERVAL",EXIT_INTERVAL="$EXIT_INTERVAL",ACCOUNT="$ACCOUNT",PARTITION="$PARTITION",NODES="$NODES",GPUS_PER_NODE="$GPUS_PER_NODE",LAUNCH_MODE="$LAUNCH_MODE",TIME_LIMIT="$segment_time_limit${NETWORK_EXPORT_CSV}"
       "$TRAIN_SCRIPT"
   )
 
   if [ "$DRY_RUN" = "1" ]; then
     job_id="DRYRUN_s${seg}"
-    printf '  [dry-run] segment %s resume=%s dep=%s\n' "$seg" "$resume" "$dep_label"
+    printf '  [dry-run] segment %s resume=%s dep=%s time=%s\n' "$seg" "$resume" "$dep_label" "$segment_time_limit"
   else
     job_id="$("${cmd[@]}")"
-    echo "  submitted segment $seg job=$job_id resume=$resume dep=$dep_label"
+    echo "  submitted segment $seg job=$job_id resume=$resume dep=$dep_label time=$segment_time_limit"
   fi
   printf "%s\t%s\t%s\t%s\t%s\t%s\n" "$ARM" "$seg" "$resume" "$init_ckpt" "$dep_label" "$job_id" >> "$CHAIN_TSV"
   dependency_job="$job_id"
