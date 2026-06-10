@@ -37,6 +37,20 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   iteration 476 completed, and TD `2516381` for iteration 238 completed. As of
   the latest poll, vanilla Greek-NLP job `2516430` for iteration 714 is still
   running.
+- Twenty-minute follow-up poll: vanilla segment 2 continued through about
+  iteration 1258 with no skipped or NaN iterations, and crossed benchmark
+  checkpoint `iter_0001190`. The vanilla `1190` sidecar wave is active
+  (`2516603` native, `2516604` Greek-NLP, `2516606` retention observed
+  running). TD segment 2 continued through about iteration 1094, saved
+  `iter_0001071`, and stayed clean; `1071` is a resume checkpoint rather than
+  a benchmark sidecar checkpoint.
+- Additional sidecar drain: vanilla Greek-NLP `2516430` for iteration 714
+  completed; vanilla retention `2516522` for iteration 952 completed; TD
+  iteration-952 native/BPB/code-BPB/math-BPB/checksum sidecars completed
+  (`2516573`, `2516575`, `2516577`, `2516578`, `2516579`). TD Greek-NLP and
+  retention for iteration 952 (`2516574`, `2516576`), TD Greek-NLP for
+  iteration 714 (`2516492`), and vanilla Greek-NLP for iteration 952
+  (`2516520`) were still running at the poll.
 
 ## 2026-06-10
 
