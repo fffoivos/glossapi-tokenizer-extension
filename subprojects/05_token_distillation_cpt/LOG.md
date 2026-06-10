@@ -5,6 +5,11 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
 
 ## 2026-06-10
 
+- Launched the full two-arm CPT run with `STAMP=20260610T200344Z` after the
+  artifact gate passed on Clariden. Vanilla chain: `2516051-2516054`, watcher
+  `2516055`; TD chain: `2516056-2516059`, watcher `2516060`. The first
+  training segments requested 16 nodes each and initially entered `PENDING
+  (Priority)` while both xfer watcher jobs started.
 - Fixed the prelaunch blocker: the tree used by the launcher now has the
   `pretrain_gpt_te_guard.py` runtime wrapper needed for TE empty-extra-state
   checkpoint loading.
