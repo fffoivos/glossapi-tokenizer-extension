@@ -3,6 +3,28 @@
 This is the one living log for the subproject. It records the decisions that
 matter after cleanup; old reports are summarized in `ARCHIVE.md`.
 
+## 2026-06-11
+
+- Vanilla segment 1 completed cleanly as job `2516051` after `02:26:32`,
+  saved `iter_0000952`, and exited at iteration 952. Segment 2 job `2516052`
+  started from the dependency chain, loaded the `iter_0000952` checkpoint, and
+  resumed training through iteration 981 with no skipped or NaN iterations.
+  The resumed held-out validation line at iteration 975 still prints separate
+  losses for `hplt`, `openarchives`, and `greek_phd`.
+- TD segment 1 job `2516056` continued cleanly through iteration 842 and saved
+  `iter_0000833`. It is still running at roughly 8.7s/iter with no skipped or
+  NaN iterations; TD segment 2 remains pending on the dependency chain.
+- The restarted TD watcher `2516378` submitted clean sidecars for iterations
+  238 and 476 after the tokenizer-path fix. The TD converters `2516379` and
+  `2516388` completed, and the TD retention jobs at both checkpoints completed
+  after the `pytablewriter` repair.
+- The `pytablewriter` repair is also validated on the vanilla side by
+  retention job `2516432` for `iter_0000714`, which completed successfully.
+  Earlier vanilla retention jobs for iterations 238 and 476 still have failed
+  Slurm status because they hit the pre-repair table-rendering crash after
+  writing timestamped results; decide later whether to rerun them for clean
+  accounting or treat the result artifacts as usable.
+
 ## 2026-06-10
 
 - Launched the full two-arm CPT run with `STAMP=20260610T200344Z` after the
