@@ -14,6 +14,14 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
 - TD segment 1 job `2516056` continued cleanly through iteration 842 and saved
   `iter_0000833`. It is still running at roughly 8.7s/iter with no skipped or
   NaN iterations; TD segment 2 remains pending on the dependency chain.
+- TD segment 1 then completed cleanly as job `2516056` after `02:28:21`,
+  saved `iter_0000952`, and exited at iteration 952. TD segment 2 job
+  `2516057` started from the dependency chain, loaded the `iter_0000952`
+  checkpoint, and resumed at iteration 953 with no skipped or NaN iterations.
+- Vanilla segment 2 continued cleanly through iteration 1115, saved
+  `iter_0001071`, and kept printing separate held-out validation losses. The
+  live ETA from the trainer is still about 5 hours remaining for the whole
+  vanilla arm, not counting final sidecar/eval cleanup.
 - The restarted TD watcher `2516378` submitted clean sidecars for iterations
   238 and 476 after the tokenizer-path fix. The TD converters `2516379` and
   `2516388` completed, and the TD retention jobs at both checkpoints completed
@@ -24,6 +32,11 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   Slurm status because they hit the pre-repair table-rendering crash after
   writing timestamped results; decide later whether to rerun them for clean
   accounting or treat the result artifacts as usable.
+- Greek-NLP sidecars that had been long-running are also clearing: vanilla
+  `2516305`/`2516346` for iterations 238/476 completed, TD `2516390` for
+  iteration 476 completed, and TD `2516381` for iteration 238 completed. As of
+  the latest poll, vanilla Greek-NLP job `2516430` for iteration 714 is still
+  running.
 
 ## 2026-06-10
 
