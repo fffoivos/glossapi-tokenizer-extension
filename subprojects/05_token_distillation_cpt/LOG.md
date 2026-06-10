@@ -15,6 +15,16 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   submitter defaults. Vanilla segment 1 reached iteration 25, printed separate
   held-out losses for `hplt`, `openarchives`, and `greek_phd`, and ran at about
   8.6s/iter with no skipped or NaN iterations.
+- Committed and pushed the durable walltime defaults as `4924bb0`. A Clariden
+  dry-run confirmed both arms now submit as four segments with 6h, 6h, 6h, and
+  3h walltimes.
+- Vanilla segment 1 saved `iter_0000119`, continued past iteration 188, and
+  kept printing clean held-out validation losses. The sidecar manifests target
+  benchmark checkpoints at iterations 238, 476, ..., 3218, so no sidecar launch
+  is expected from the 119-iteration resume checkpoint.
+- TD segment 1 started on 16 nodes, reached iteration 25 with separate held-out
+  validation losses, and continued past iteration 37 with no skipped or NaN
+  iterations.
 - Fixed the prelaunch blocker: the tree used by the launcher now has the
   `pretrain_gpt_te_guard.py` runtime wrapper needed for TE empty-extra-state
   checkpoint loading.
