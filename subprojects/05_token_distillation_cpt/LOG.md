@@ -25,6 +25,11 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
 - TD segment 1 started on 16 nodes, reached iteration 25 with separate held-out
   validation losses, and continued past iteration 37 with no skipped or NaN
   iterations.
+- Vanilla reached benchmark checkpoint `iter_0000238`; the watcher submitted
+  sidecars `2516200-2516207`. Conversion, checksum, and held-out Greek BPB
+  completed; retention started; the native MCQ and Greek-NLP jobs failed fast
+  on eval-launcher plumbing and were resubmitted as `2516230` and `2516231`
+  after patching the shared eval sbatches.
 - Fixed the prelaunch blocker: the tree used by the launcher now has the
   `pretrain_gpt_te_guard.py` runtime wrapper needed for TE empty-extra-state
   checkpoint loading.
