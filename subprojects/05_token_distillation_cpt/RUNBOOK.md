@@ -139,9 +139,11 @@ Per-arm production defaults:
 - `NCCL_NET=AWS Libfabric`
 - `NCCL_NET_FORCE_FLUSH=0`
 
-Watchers submit benchmark sidecars every 238 iterations plus final. If `xfer`
-is unavailable, use `SUBMIT_WATCHERS=0` for training launch and submit/watch
-benchmarks separately.
+Watchers submit benchmark sidecars every 238 iterations plus final. Watcher
+submission is best-effort so a watcher hiccup does not block the training
+chains. If `xfer` is unavailable, use `SUBMIT_WATCHERS=0` for training launch
+and submit/watch benchmarks separately from the generated
+`benchmark_checkpoints.tsv` manifests.
 
 ## Monitoring
 

@@ -77,8 +77,13 @@ launch_arm() {   # $1=arm $2=tokenizer $3=watcher $4=eval_arm $5=label
       --output="$RUN_ROOT/%x-%j.out" --error="$RUN_ROOT/%x-%j.err"
       --export=ALL,RUN_TAG="$run_tag",RUN_ROOT="$RUN_ROOT",TRAIN_RUN_DIR="$output_dir",CHECKPOINTS_FILE="$ckpts",HF_TOKENIZER_DIR="$tok_dir",EVAL_ARM="$eval_arm"
       "$watcher" )
-    if [ "$DRY_RUN" = "1" ]; then printf '  [dry-run] watcher:\n    %s\n' "${cmd[*]}"
-    else echo "  watcher job: $("${cmd[@]}")"; fi
+    if [ "$DRY_RUN" = "1" ]; then
+      printf '  [dry-run] watcher:\n    %s\n' "${cmd[*]}"
+    elif watcher_job="$("${cmd[@]}")"; then
+      echo "  watcher job: $watcher_job"
+    else
+      echo "  WARN: watcher submission failed for arm=$arm; training chain remains queued. Submit sidecars later from $ckpts" >&2
+    fi
   fi
   echo
 }
