@@ -945,3 +945,45 @@ R0.15 `curr-4.0B` sidecars complete; vanilla `curr-5.0B` sidecars launched `2026
 - TD R=0.15 segment 2 `2520975` remains dependency-satisfied and pending for
   `16` nodes with reason `(Resources)`.
 - LR sweep remains intentionally unlaunched.
+
+All four arms running; Clariden SSH visibility degraded `2026-06-11T22:18Z`:
+
+- TD R=0.15 segment 2 `2520975` started on `16` nodes.
+- Its startup/resume checks passed before the monitoring outage:
+  - loaded `/checkpoints/iter_0000952`;
+  - built all 9 extra validation datasets;
+  - resumed at iteration `953`;
+  - LR stayed `5.500000E-05`;
+  - skipped iterations `0`, NaN iterations `0`.
+- First resumed TD R=0.15 training lines were finite and then settled to the
+  normal per-iteration runtime:
+  - iter `953`, loss `2.059436`;
+  - iter `954`, loss `2.044293`;
+  - iter `963`, loss `2.062634`;
+  - iter `974`, loss `2.047405`.
+- Last confirmed live queue before the Clariden SSH outage had all four
+  segment-2 arms running concurrently on `16` nodes each:
+  - vanilla `2520961`;
+  - TD R=0.35 retry `2521904`;
+  - TD R=0.25 `2520971`;
+  - TD R=0.15 `2520975`.
+- Vanilla `curr-5.0B` sidecars at that point:
+  - convert `2522158`: `COMPLETED`, exit `0:0`, elapsed `00:01:30`;
+  - code BPB `2522160`: `COMPLETED`, exit `0:0`, elapsed `00:01:08`;
+  - math BPB `2522161`: `COMPLETED`, exit `0:0`, elapsed `00:01:03`;
+  - checksum `2522162`: `COMPLETED`, exit `0:0`, elapsed `00:04:04`;
+  - GreekMMLU native `2522159`: still `RUNNING` at last visibility
+    (`~12.5` minutes elapsed), headline not yet written.
+- Monitoring outage evidence:
+  - local CSCS cert remains valid until `2026-06-12T16:48:54`;
+  - `ssh ela` works immediately;
+  - from `ela`, `clariden.alps.cscs.ch` / `clariden.cscs.ch` /
+    `clariden.plb.cscs.ch` / `clariden-ln004c.cscs.ch` / `172.28.39.147`
+    all timed out on TCP port `22`;
+  - `ela` does not provide `squeue`/`sacct`, so Slurm status is temporarily
+    unavailable from there.
+- Started a timeout-safe local monitor that retries Clariden SSH once per
+  minute and will resume queue visibility when the login endpoint recovers.
+- This log entry is local first; remote log sync is pending until Clariden SSH
+  is reachable again.
+- LR sweep remains intentionally unlaunched.
