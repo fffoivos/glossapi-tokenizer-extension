@@ -18,35 +18,68 @@ Usage (wraps the existing TE guard so both apply):
   python reset_data_index_guard.py <pretrain_gpt_te_guard.py> <pretrain_gpt.py> <megatron args...>
 Set RESET_DATA_INDEX=1 ONLY on the first phase-2 segment; default (unset/0) is a transparent passthrough.
 """
-import os, sys, runpy
+import importlib.abc
+import importlib.machinery
+import os
+import sys
+import runpy
 
 
 def install_data_index_reset_guard():
     if os.environ.get("RESET_DATA_INDEX", "0") != "1":
         return
-    from megatron.legacy.data import data_samplers as ds
-    _orig = ds.build_pretraining_data_loader
-    state = {"train_seen": False}
+    target = "megatron.legacy.data.data_samplers"
 
-    def patched(dataset, consumed_samples):
-        # The first build call in build_train_valid_test_data_loaders is the TRAIN loader.
-        if not state["train_seen"]:
-            state["train_seen"] = True
-            rank = os.environ.get("RANK", "?")
-            print(f"[reset_data_index_guard] rank={rank} train dataloader consumed_samples "
-                  f"{consumed_samples} -> 0 (phase-2 binary restart; scheduler num_steps kept)",
-                  file=sys.stderr, flush=True)
-            return _orig(dataset, 0)
-        return _orig(dataset, consumed_samples)
+    def patch_module(module):
+        orig = getattr(module, "build_pretraining_data_loader", None)
+        if orig is None or getattr(orig, "_reset_data_index_guard", False):
+            return
+        state = {"train_seen": False}
 
-    ds.build_pretraining_data_loader = patched
-    # training.py imports the symbol at module load, so patch that bound reference too.
-    try:
-        from megatron.training import training as tr
-        tr.build_pretraining_data_loader = patched
-    except Exception as e:  # pragma: no cover
-        print(f"[reset_data_index_guard] WARN could not patch megatron.training.training ref: {e}",
-              file=sys.stderr, flush=True)
+        def patched(dataset, consumed_samples):
+            # The first build call in build_train_valid_test_data_loaders is the TRAIN loader.
+            if not state["train_seen"]:
+                state["train_seen"] = True
+                rank = os.environ.get("RANK", "?")
+                print(f"[reset_data_index_guard] rank={rank} train dataloader consumed_samples "
+                      f"{consumed_samples} -> 0 (phase-2 binary restart; scheduler num_steps kept)",
+                      file=sys.stderr, flush=True)
+                return orig(dataset, 0)
+            return orig(dataset, consumed_samples)
+
+        patched._reset_data_index_guard = True
+        module.build_pretraining_data_loader = patched
+
+    if target in sys.modules:
+        patch_module(sys.modules[target])
+        return
+
+    class PatchLoader(importlib.abc.Loader):
+        def __init__(self, wrapped):
+            self.wrapped = wrapped
+
+        def create_module(self, spec):
+            if hasattr(self.wrapped, "create_module"):
+                return self.wrapped.create_module(spec)
+            return None
+
+        def exec_module(self, module):
+            self.wrapped.exec_module(module)
+            patch_module(module)
+
+    class PatchFinder(importlib.abc.MetaPathFinder):
+        def find_spec(self, fullname, path, target_module=None):
+            if fullname != target:
+                return None
+            spec = importlib.machinery.PathFinder.find_spec(fullname, path)
+            if spec is None or spec.loader is None:
+                return None
+            spec.loader = PatchLoader(spec.loader)
+            return spec
+
+    sys.meta_path.insert(0, PatchFinder())
+    print("[reset_data_index_guard] lazy import hook installed for data_samplers",
+          file=sys.stderr, flush=True)
 
 
 def main():

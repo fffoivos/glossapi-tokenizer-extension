@@ -461,3 +461,38 @@ Dataset integrity verification `2026-06-11T17:50Z`:
     0 new-holdout overlap, 0 forgetting-holdout overlap.
   - `replay_only_decontam.jsonl`: 5,031,733 rows, 0 missing `doc_id`,
     0 new-holdout overlap, 0 forgetting-holdout overlap.
+
+Boundary smoke `2026-06-11T18:10Z`:
+
+- First boundary-smoke attempt `curr_smoke_boundary_20260611T175038Z`:
+  - segment 1 `2520901`: `COMPLETED`, `00:03:55`;
+  - segment 2 `2520902`: `FAILED`, `00:00:41`.
+- Failure cause: the original `reset_data_index_guard.py` imported
+  `megatron.legacy.data.data_samplers` directly before Megatron's normal import
+  order, producing a circular import:
+  `ImportError: cannot import name 'build_pretraining_data_loader' from
+  partially initialized module 'megatron.legacy.data.data_samplers'`.
+- Patched the reset guard to install a lazy `MetaPathFinder` import hook for
+  `megatron.legacy.data.data_samplers`; the hook wraps the real module only
+  after import completes, avoiding the circular import while preserving the
+  same phase-2 train-dataloader reset behavior.
+- Local and remote Python compile checks passed for the patched reset guard.
+- Second boundary-smoke attempt `curr_smoke_boundary_20260611T180000Z`:
+  - segment 1 `2520929`: `COMPLETED`, `00:04:00`;
+  - segment 2 `2520930`: `COMPLETED`, `00:04:52`.
+- Acceptance evidence:
+  - phase 1 logged finite iteration 1:
+    loss `5.979677`, LR `5.623750e-06`, skipped `0`, NaN `0`, checkpoint
+    `iter_0000001` saved;
+  - phase 2 loaded `iter_0000001`, all ranks logged
+    `train dataloader consumed_samples 1024 -> 0`, and the scheduler continued
+    to LR `5.747500e-06` rather than resetting;
+  - phase 2 logged finite iteration 2:
+    loss `4.697852`, skipped `0`, NaN `0`, checkpoint `iter_0000002` saved;
+  - all 9 extra validation names appeared in the smoke logs:
+    `hplt`, `openarchives`, `greek_phd`, `english`, `de`, `ru`, `zh`, `code`,
+    `old_greek`;
+  - traceback/error grep was clean apart from Megatron's inert config lines
+    `error_injection_rate=0` / `error_injection_type=transient_error`.
+- Verdict: PASS. Proceed to live replay/control launches with the enforced
+  `NODES>=16` production floor.
