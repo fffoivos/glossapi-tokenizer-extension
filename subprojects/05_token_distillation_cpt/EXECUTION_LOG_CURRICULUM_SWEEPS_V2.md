@@ -260,3 +260,58 @@ Code-source intervention `2026-06-11T14:02Z`:
   - phase mix rebuild: `2519900` (`afterok:2519898`, array 0-2)
   - Stage A GreekMMLU-only decontam: `2519901` (`afterok:2519900`, array 0-2)
   - Stage B anonymize/tokenize: `2519902` (`afterok:2519901`, array 0-2)
+- `2519897` started on `nid007589` at about `2026-06-11T14:23:41Z` and
+  completed in `00:05:04` with exit `0:0`.
+- Verified staged StarCoderData pool:
+  - 28 rewritten parquet shards under
+    `$SC/cpt_corpus/replay/starcoderdata_v2`;
+  - 6,802,565 rows;
+  - every checked shard has `content` and stable `doc_id`;
+  - manifest written to
+    `$SC/cpt_corpus/replay/starcoderdata_v2/manifest.json`.
+- `2519898` started automatically after `2519897`; first log shows
+  English/de/ru/zh validation rebuilt with the 25% relative fallback policy.
+- `2519898` completed successfully at `2026-06-11T14:31:20Z`.
+  `$STAGE/forgetting_val_manifest.json` now reports:
+  - `english`: 77,227 / 310,544 docs, 0.38B / 1.52B chars, 25.0002%,
+    relative fallback, Apertus source family.
+  - `de`: 27,193 / 127,590 docs, 0.11B / 0.44B chars, 25.0020%,
+    relative fallback, Apertus source family.
+  - `ru`: 18,194 / 75,915 docs, 0.08B / 0.33B chars, 25.0002%,
+    relative fallback, Apertus source family.
+  - `zh`: 18,862 / 79,306 docs, 0.03B / 0.10B chars, 25.0010%,
+    relative fallback, Apertus source family.
+  - `code`: 257,526 / 6,802,565 docs, 2.00B / 28.29B chars,
+    7.0698%, absolute target, StarCoderData Apertus source family.
+  - `old_greek`: 366,755 / 2,224,446 docs, 2.00B / 11.41B chars,
+    17.5306%, absolute target, Apertus-overlap overlay.
+- New `forget_holdout_ids.parquet`: 765,757 unique ids.
+- `2519899` old-data validation tokenization began automatically after
+  `2519898`; `english` completed first.
+- `2519899_[0-5]` completed successfully:
+  - `english` `00:01:29`
+  - `de` `00:01:20`
+  - `ru` `00:01:08`
+  - `zh` `00:01:08`
+  - `code` `00:02:39`
+  - `old_greek` `00:02:57`
+- Verified all 12 old-data validation binaries exist in `$MEGOUT`:
+  `english`, `de`, `ru`, `zh`, `code`, `old_greek` × `base`/`ext`.
+- `2519900_[0-2]` phase mix rebuild is running as of the latest snapshot;
+  first observed rates:
+  - `hplt_only`: 50.0M / 8.5B tokens, ~409k tok/s.
+  - `glossapi_only`: 50.1M / 3.7B tokens, ~309k tok/s.
+  - `replay_only`: 50.0M / 5.0B tokens, ~523k tok/s.
+
+Old-Greek overlay revalidation `2026-06-11T14:00Z`:
+
+- Checked live Clariden files:
+  - overlay:
+    `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/dedup_audit/artifacts/dedup_20260519T010924Z/cpt_final_overlay/apertus_overlap_drop_docs.parquet`
+  - replay:
+    `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/greek_replay/greek_replay.parquet`
+- Overlay rows/distinct pairs: 2,223,742.
+- Greek replay rows: 2,224,446; distinct `(source_dataset, source_doc_id)`
+  pairs: 2,223,742.
+- Missing replay pairs from overlay: 0. Verdict: PASS for the current
+  `old_greek` strict overlay provenance label.
