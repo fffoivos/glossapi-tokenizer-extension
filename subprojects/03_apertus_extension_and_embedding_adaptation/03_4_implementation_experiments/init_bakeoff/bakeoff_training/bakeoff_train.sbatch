@@ -280,25 +280,24 @@ fi
 
 ENABLE_EXTRA_VALID="${ENABLE_EXTRA_VALID:-1}"
 VAL_DATA_DIR="${VAL_DATA_DIR:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt_2arm_13b/megatron}"
+EXTRA_VALID_SETS="${EXTRA_VALID_SETS:-hplt openarchives greek_phd}"
+NEW_GREEK_SETS=" hplt openarchives greek_phd "
 EXTRA_VALID_ARGS=()
 if [ "$ENABLE_EXTRA_VALID" = "1" ]; then
-    EXTRA_VALID_PREFIXES=(
-        "$VAL_DATA_DIR/val_hplt_${ARM_VAL_TOKENIZATION}_text_document"
-        "$VAL_DATA_DIR/val_openarchives_${ARM_VAL_TOKENIZATION}_text_document"
-        "$VAL_DATA_DIR/val_greek_phd_${ARM_VAL_TOKENIZATION}_text_document"
-    )
-    for prefix in "${EXTRA_VALID_PREFIXES[@]}"; do
+    EXTRA_VALID_ARGS=(--extra-valid-data-path)
+    for name in $EXTRA_VALID_SETS; do
+        case "$NEW_GREEK_SETS" in
+            *" $name "*) base="val_${name}" ;;
+            *) base="val_forget_${name}" ;;
+        esac
+        prefix="$VAL_DATA_DIR/${base}_${ARM_VAL_TOKENIZATION}_text_document"
         if [ ! -s "${prefix}.idx" ] || [ ! -s "${prefix}.bin" ]; then
-            echo "ERROR: extra validation binary missing or empty for ARM=$ARM: ${prefix}.{bin,idx}" >&2
-            exit 4
+            echo "WARN: extra validation binary missing or empty for ARM=$ARM, skipping $name: ${prefix}.{bin,idx}" >&2
+            continue
         fi
+        EXTRA_VALID_ARGS+=("$name" "$prefix")
     done
-    EXTRA_VALID_ARGS=(
-        --extra-valid-data-path
-        hplt "${EXTRA_VALID_PREFIXES[0]}"
-        openarchives "${EXTRA_VALID_PREFIXES[1]}"
-        greek_phd "${EXTRA_VALID_PREFIXES[2]}"
-    )
+    [ "${#EXTRA_VALID_ARGS[@]}" -le 1 ] && EXTRA_VALID_ARGS=()
 elif [ "$ENABLE_EXTRA_VALID" != "0" ]; then
     echo "ERROR: ENABLE_EXTRA_VALID=$ENABLE_EXTRA_VALID not recognized (expected 0|1)" >&2
     exit 2
@@ -349,6 +348,7 @@ cat > "$OUTPUT_DIR/run_metadata.json" <<META
   "eval_interval": $EVAL_INTERVAL,
   "eval_iters": $EVAL_ITERS,
   "extra_valid_enabled": $ENABLE_EXTRA_VALID,
+  "extra_valid_sets": "$EXTRA_VALID_SETS",
   "extra_valid_tokenization": "$ARM_VAL_TOKENIZATION",
   "extra_valid_data_dir": "$VAL_DATA_DIR",
   "mock_data": $USE_MOCK_DATA,
@@ -436,8 +436,10 @@ case "$LOSS_OBJECTIVE" in
 esac
 
 RUNTIME_PATCH_DIR="$SCRIPT_DIR/../megatron_patches/runtime"
+PRE_WRAPPER=()
+[ -n "${TRAINER_WRAPPER:-}" ] && PRE_WRAPPER=("$TRAINER_WRAPPER")
 TRAINING_CMD=(
-    python3 "$RUNTIME_PATCH_DIR/pretrain_gpt_te_guard.py"
+    python3 "${PRE_WRAPPER[@]}" "$RUNTIME_PATCH_DIR/pretrain_gpt_te_guard.py"
     "$MEGATRON_LM_SWISSAI_DIR/pretrain_gpt.py"
     "${TRANSFORMER_ENGINE_ARGS[@]}"
     "${NETWORK_SIZE_ARGS[@]}"
