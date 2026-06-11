@@ -162,6 +162,19 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   (`2516055`, `2516378`) completed with exit code `0:0`. Remaining active jobs
   were TD Greek-NLP for `iter_0003094` and `iter_0003218`; the failed-sidecar
   sweep remained empty.
+- Final drain completed. No active eval/sidecar jobs remained, the 10-hour
+  failed-sidecar sweep was empty, and the remaining TD Greek-NLP jobs
+  `2517663` (`iter_0003094`) and `2517696` (`iter_0003218`) both completed
+  with exit code `0:0`. Final checkpoint dirs `iter_0003218` existed for both
+  arms, and each arm printed the three final held-out validation losses at
+  iteration 3218.
+- Final artifact gate passed from the Clariden mirror. It verified config
+  invariants (13.5B tokens, 3218 iterations, 4,194,304 global batch tokens,
+  AdEMAMix, Goldfish, 4096/500k RoPE geometry, 16-node torchrun, eval cadence),
+  tokenizer invariants (base 131072, extended 148480, both divisible by 256),
+  init checkpoints, TE guard/runtime patches, per-set validation patch,
+  held-out validation binaries, replay-fixed ordered manifest, and both
+  base/ext full training Megatron binaries.
 
 ## 2026-06-10
 
