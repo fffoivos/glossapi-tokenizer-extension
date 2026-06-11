@@ -9,7 +9,9 @@ RUN_ROOT="${RUN_ROOT:-/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_
 HF_TOKENIZER_DIR="${HF_TOKENIZER_DIR:-}"
 HELDOUT_JSONL="${HELDOUT_JSONL:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl}"
 LOCAL_REPO_ROOT="${LOCAL_REPO_ROOT:-/home/foivos/Projects/glossapi-tokenizer-extension}"
-DEFAULT_CODE_HELDOUT_JSONL="${DEFAULT_CODE_HELDOUT_JSONL:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_code_heldout_200_20260528.jsonl}"
+DEFAULT_STARCODER_CODE_HELDOUT_JSONL="${DEFAULT_STARCODER_CODE_HELDOUT_JSONL:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/val_forget_code_starcoder_200_for_bpb.jsonl}"
+DEFAULT_LEGACY_CODE_HELDOUT_JSONL="${DEFAULT_LEGACY_CODE_HELDOUT_JSONL:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_code_heldout_200_20260528.jsonl}"
+DEFAULT_CODE_HELDOUT_JSONL="${DEFAULT_CODE_HELDOUT_JSONL:-}"
 DEFAULT_MATH_HELDOUT_JSONL="${DEFAULT_MATH_HELDOUT_JSONL:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_math_heldout_200_20260528.jsonl}"
 CHECKSUM_SCRIPT="${CHECKSUM_SCRIPT:-$REPO_ROOT/subprojects/05_token_distillation_cpt/scripts/write_checkpoint_checksum_manifest.py}"
 
@@ -32,6 +34,13 @@ RETENTION_TASK_GROUP="${RETENTION_TASK_GROUP:-retention_only}"
 
 CODE_HELDOUT_JSONL="${CODE_HELDOUT_JSONL:-}"
 MATH_HELDOUT_JSONL="${MATH_HELDOUT_JSONL:-}"
+if [ -z "$DEFAULT_CODE_HELDOUT_JSONL" ]; then
+  if [ -s "$DEFAULT_STARCODER_CODE_HELDOUT_JSONL" ]; then
+    DEFAULT_CODE_HELDOUT_JSONL="$DEFAULT_STARCODER_CODE_HELDOUT_JSONL"
+  else
+    DEFAULT_CODE_HELDOUT_JSONL="$DEFAULT_LEGACY_CODE_HELDOUT_JSONL"
+  fi
+fi
 if [ -z "$CODE_HELDOUT_JSONL" ] && [ -f "$DEFAULT_CODE_HELDOUT_JSONL" ]; then
   CODE_HELDOUT_JSONL="$DEFAULT_CODE_HELDOUT_JSONL"
 fi

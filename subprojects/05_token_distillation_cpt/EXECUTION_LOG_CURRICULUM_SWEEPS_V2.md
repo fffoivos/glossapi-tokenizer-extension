@@ -687,3 +687,33 @@ First TD eval sidecars `2026-06-11T19:34Z`:
   - checksum `2521290`.
 - TD R=0.15 was still before first eval at this snapshot, around iter `150`,
   with finite loss and no skipped/NaN iterations.
+
+Sidecar code-BPB correction `2026-06-11T19:42Z`:
+
+- Confirmed the primary curriculum data path was already StarCoderData:
+  replay recipe `code_starcoderdata_subset`, in-training extra validation
+  `val_forget_code_{base,ext}`, and `val_forget_code.jsonl` all come from the
+  staged `bigcode/starcoderdata` subset.
+- Found a remaining auxiliary sidecar default still pointing at the legacy
+  200-doc CodeParrot BPB file
+  `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_code_heldout_200_20260528.jsonl`.
+- Created a small StarCoder BPB sidecar sample from the already-built heldout:
+  `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/val_forget_code_starcoder_200_for_bpb.jsonl`
+  with `200` docs and `2,821,857` bytes.
+- Patched and synced `scripts/watch_and_submit_td_checkpoint_sidecars.sbatch`
+  and `scripts/submit_td_checkpoint_sidecars.sh` to prefer the StarCoder sample
+  when present, with legacy CodeParrot fallback only if the StarCoder sample is
+  absent.
+- Restarted only the tiny watcher jobs, preserving each existing
+  `*_sidecar_watch` state directory so already-submitted iter-238 sidecars are
+  not duplicated:
+  - vanilla watcher `2521309`;
+  - TD R=0.35 watcher `2521310`;
+  - TD R=0.25 watcher `2521311`;
+  - TD R=0.15 watcher `2521312`.
+- New watcher env files confirm
+  `CODE_HELDOUT_JSONL=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/val_forget_code_starcoder_200_for_bpb.jsonl`.
+- Caveat: the already-submitted iter-238 auxiliary code BPB sidecars for
+  vanilla, TD R=0.35, and TD R=0.25 used the legacy CodeParrot 200-doc file.
+  Treat those first code-BPB numbers as legacy auxiliary metrics. Future
+  sidecar code BPB submissions use StarCoder.
