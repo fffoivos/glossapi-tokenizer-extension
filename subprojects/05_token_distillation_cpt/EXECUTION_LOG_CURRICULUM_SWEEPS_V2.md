@@ -987,3 +987,13 @@ All four arms running; Clariden SSH visibility degraded `2026-06-11T22:18Z`:
 - This log entry is local first; remote log sync is pending until Clariden SSH
   is reachable again.
 - LR sweep remains intentionally unlaunched.
+
+Clariden SSH outage still ongoing `2026-06-11T23:12Z`:
+
+- Timeout-safe monitor continued probing Clariden once per minute.
+- Repeated probes through `ela` continued to fail with
+  `Connection timed out during banner exchange`.
+- Fresh `ssh ela` sanity check continued to succeed (`ela5` observed), and
+  `nc -zvw5 clariden.alps.cscs.ch 22` from `ela5` still timed out.
+- No Slurm actions were taken blind during the outage.
+- Remote log sync remains pending until Clariden SSH returns.
