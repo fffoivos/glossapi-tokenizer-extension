@@ -65,6 +65,7 @@ echo "checkpoint mode: RESUME_TRAINING=$RESUME_TRAINING"
 echo "save mode: DISABLE_SAVE=$DISABLE_SAVE SAVE_INTERVAL=$SAVE_INTERVAL"
 echo "loss objective: $LOSS_OBJECTIVE"
 echo "data mode: USE_MOCK_DATA=${USE_MOCK_DATA:-0}"
+echo "curriculum order mode: ${CURRICULUM_ORDER_MODE:-randomized}"
 echo "seq_len=$SEQ_LEN  microbatch=$MICROBATCH_SIZE  global_batch_samples=$GLOBAL_BATCH_SIZE"
 echo "train_samples=$TRAIN_SAMPLES (train_tokens=$TRAIN_TOKENS) lr_warmup_samples=$LR_WARMUP_SAMPLES"
 echo
@@ -342,6 +343,8 @@ cat > "$OUTPUT_DIR/run_metadata.json" <<META
   "ademamix_alpha_warmup": $ADEMA_ALPHA_WARMUP_STEPS,
   "init_method_std": $INIT_STD,
   "loss_objective": "$LOSS_OBJECTIVE",
+  "curriculum_order_mode": "${CURRICULUM_ORDER_MODE:-randomized}",
+  "megatron_gpt_dataset_no_shuffle": "${MEGATRON_GPT_DATASET_NO_SHUFFLE:-0}",
   "data_seed": $DATA_SEED,
   "eval_interval": $EVAL_INTERVAL,
   "eval_iters": $EVAL_ITERS,
@@ -389,6 +392,24 @@ if [ "$USE_MOCK_DATA" = "1" ]; then
 else
     DATA_ARGS+=(--data-path $ARM_DATA_PREFIX)
 fi
+
+case "${CURRICULUM_ORDER_MODE:-randomized}" in
+    randomized)
+        unset MEGATRON_GPT_DATASET_NO_SHUFFLE
+        ;;
+    physical_order)
+        if ! grep -q "MEGATRON_GPT_DATASET_NO_SHUFFLE" "$MEGATRON_LM_SWISSAI_DIR/megatron/core/datasets/gpt_dataset.py"; then
+            echo "ERROR: CURRICULUM_ORDER_MODE=physical_order requires the GPTDataset no-shuffle patch in $MEGATRON_LM_SWISSAI_DIR" >&2
+            echo "       Run: python3 $SCRIPT_DIR/../../../../05_token_distillation_cpt/03_training_experiments/scripts/patch_megatron_gpt_dataset_no_shuffle.py --megatron-dir $MEGATRON_LM_SWISSAI_DIR" >&2
+            exit 6
+        fi
+        export MEGATRON_GPT_DATASET_NO_SHUFFLE=1
+        ;;
+    *)
+        echo "ERROR: CURRICULUM_ORDER_MODE=${CURRICULUM_ORDER_MODE:-} not recognized (expected randomized|physical_order)" >&2
+        exit 2
+        ;;
+esac
 
 VALIDATION_ARGS=(
     --eval-interval "$EVAL_INTERVAL"
@@ -532,6 +553,7 @@ RUNTIME_ENV_VARS=(
     FI_LOG_LEVEL
     FI_LOG_PROV
     CUDA_CACHE_DISABLE
+    MEGATRON_GPT_DATASET_NO_SHUFFLE
 )
 for env_name in "${RUNTIME_ENV_VARS[@]}"; do
     if [ -n "${!env_name+x}" ]; then

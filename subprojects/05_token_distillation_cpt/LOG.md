@@ -12,6 +12,12 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   curriculum. The mixture, holdout exclusions, tokenizer comparison, and
   hyperparameter interpretation remain the main claims; ordered-curriculum
   claims require a future explicit sequential/no-shuffle data path.
+- Implemented the next-run fix path: future launches now default
+  `CURRICULUM_ORDER_MODE=physical_order`; the trainer exports
+  `MEGATRON_GPT_DATASET_NO_SHUFFLE=1`, fails if the Megatron GPTDataset
+  no-shuffle patch is absent, and the artifact gate checks both the launcher
+  plumbing and patch presence. Added scripts to apply/check the Megatron patch
+  and verify generated GPTDataset cache indices.
 - Vanilla segment 1 completed cleanly as job `2516051` after `02:26:32`,
   saved `iter_0000952`, and exited at iteration 952. Segment 2 job `2516052`
   started from the dependency chain, loaded the `iter_0000952` checkpoint, and

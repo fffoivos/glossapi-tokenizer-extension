@@ -142,7 +142,8 @@ for v in INIT_CKPT BASE_DATA_PREFIX EXT_DATA_PREFIX BASE_TOKENIZER_DIR EXT_TOKEN
          LR_PEAK LR_FINAL LR_WARMUP_INIT LR_WARMUP_ITERS LR_WARMUP_TOKENS \
          LR_WSD_DECAY_SAMPLES ADEMA_BETA2 ADEMA_BETA3 ADEMA_ALPHA \
          ADEMA_BETA3_WARMUP_STEPS ADEMA_ALPHA_WARMUP_STEPS \
-         DATA_SEED EVAL_INTERVAL EVAL_ITERS; do
+         DATA_SEED EVAL_INTERVAL EVAL_ITERS CURRICULUM_ORDER_MODE \
+         MEGATRON_GPT_DATASET_NO_SHUFFLE; do
   if [ -n "${!v:-}" ] && [ "${ALLOW_OVERRIDES:-0}" != "1" ]; then
     echo "ERROR: $v is set in this shell and would override the config via --export=ALL. unset it or pass ALLOW_OVERRIDES=1" >&2; exit 5
   fi
@@ -170,6 +171,7 @@ echo "TRAIN_SCRIPT:       $TRAIN_SCRIPT"
 echo "INIT_CKPT (seg 1):  $INIT_CKPT_ARM"
 echo "OUTPUT_DIR:         $OUTPUT_DIR"
 echo "TRAIN_TOKENS:       $TRAIN_TOKENS  (full-run WSD anchor)"
+echo "CURRICULUM_ORDER:   $(resolve_config_var CURRICULUM_ORDER_MODE)"
 echo "N_SEGMENTS:         $N_SEGMENTS  x  $SEGMENT_TIME_LIMIT (final: $FINAL_SEGMENT_TIME_LIMIT)"
 echo "LAUNCH_MODE:        $LAUNCH_MODE  sbatch_ntasks_per_node=$SBATCH_NTASKS_PER_NODE"
 if [ "${#NETWORK_EXPORT_SUMMARY[@]}" -gt 0 ]; then

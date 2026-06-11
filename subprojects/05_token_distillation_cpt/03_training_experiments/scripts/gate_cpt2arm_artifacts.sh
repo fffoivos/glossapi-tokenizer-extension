@@ -89,6 +89,7 @@ declare -A expected=(
   [LOSS_OBJECTIVE]=goldfish
   [GOLDFISH_K]=50
   [GOLDFISH_H]=50
+  [CURRICULUM_ORDER_MODE]=physical_order
   [DATA_SEED]=20260609
   [EVAL_INTERVAL]=25
   [EVAL_ITERS]=1
@@ -149,6 +150,10 @@ check_grep "$TRAIN_DIR/bakeoff_train.sbatch" "FI_CXI_DEFAULT_CQ_SIZE" "nccl cxi 
 check_grep "$TRAIN_DIR/bakeoff_train.sbatch" "FI_CXI_RDZV_EAGER_SIZE" "nccl eager workaround"
 check_grep "$TRAIN_DIR/bakeoff_train.sbatch" "NCCL_NET_FORCE_FLUSH.*:-0" "nccl force-flush disabled"
 check_grep "$TRAIN_DIR/bakeoff_train.sbatch" "RUNTIME_ENV_PREFIX" "runtime env reapplied inside uenv"
+if [ "${CURRICULUM_ORDER_MODE:-randomized}" = "physical_order" ]; then
+  check_grep "$TRAIN_DIR/bakeoff_train.sbatch" "MEGATRON_GPT_DATASET_NO_SHUFFLE" "curriculum env reaches trainer"
+  check_grep "$MEGATRON_DIR/megatron/core/datasets/gpt_dataset.py" "MEGATRON_GPT_DATASET_NO_SHUFFLE" "megatron no-shuffle patch"
+fi
 if [ "${NCCL_NET:-}" = "Socket" ]; then
   check_grep "$TRAIN_DIR/bakeoff_train.sbatch" "NCCL_SOCKET_IFNAME" "socket iface preserved inside uenv"
 fi
@@ -189,6 +194,15 @@ PY
 fi
 check_prefix "$MEGATRON_STAGE/bulk_mix_ordered_replay_fixed_base_text_document" "bulk ordered base"
 check_prefix "$MEGATRON_STAGE/bulk_mix_ordered_replay_fixed_ext_text_document" "bulk ordered ext"
+if [ "${CURRICULUM_ORDER_MODE:-randomized}" = "physical_order" ] && [ "${VERIFY_CURRICULUM_CACHE:-0}" = "1" ]; then
+  for prefix in \
+    "$MEGATRON_STAGE/bulk_mix_ordered_replay_fixed_base_text_document" \
+    "$MEGATRON_STAGE/bulk_mix_ordered_replay_fixed_ext_text_document"; do
+    if ! python3 "$EXP_DIR/scripts/verify_megatron_curriculum_indices.py" --data-prefix "$prefix"; then
+      failures=$((failures + 1))
+    fi
+  done
+fi
 
 printf '\n'
 if [ "$failures" -eq 0 ]; then

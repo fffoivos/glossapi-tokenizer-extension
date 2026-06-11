@@ -94,6 +94,10 @@ Production is the full 13.5B-token run, not the earlier 5B diagnostics.
   completed 13.5B run as an executed HPLT-to-OpenArchives curriculum; describe
   it as the intended mixture with randomized sample consumption. A future
   curriculum run needs an explicit no-shuffle/sequential sampler check.
+- Next-run fix: `configs/common_cpt.env` now defaults
+  `CURRICULUM_ORDER_MODE=physical_order`. The trainer exports
+  `MEGATRON_GPT_DATASET_NO_SHUFFLE=1`, fails closed if the Megatron patch is
+  absent, and records the mode in `run_metadata.json`.
 - Stage-A cleaning/decontamination: HPLT confident-only E001 clean, then
   GreekMMLU `correct_only` decontamination only.
 - Stage-B: anonymize after decontamination, then preprocess.
@@ -115,6 +119,27 @@ The gate checks the regime invariants, tokenizer divisibility, checkpoint files,
 TE guard, CXI runtime settings, per-set validation patch, held-out binaries,
 replay-fixed physical-order manifest, and both full training binaries. It does
 not prove that Megatron will consume samples in that physical order.
+
+For a curriculum run, first apply/check the GPTDataset no-shuffle patch on the
+Clariden Megatron tree:
+
+```bash
+python3 scripts/patch_megatron_gpt_dataset_no_shuffle.py \
+  --megatron-dir /iopsstor/scratch/cscs/fffoivos/code/training/Megatron-LM-Swiss-AI
+python3 scripts/patch_megatron_gpt_dataset_no_shuffle.py --check \
+  --megatron-dir /iopsstor/scratch/cscs/fffoivos/code/training/Megatron-LM-Swiss-AI
+```
+
+Then run the artifact gate normally. For the strongest proof, run a one-iteration
+full-`TRAIN_TOKENS` smoke so Megatron builds the exact production GPTDataset
+cache, then rerun:
+
+```bash
+VERIFY_CURRICULUM_CACHE=1 bash scripts/gate_cpt2arm_artifacts.sh
+```
+
+This verifies that the generated train `document_index` is monotonic and the
+train `shuffle_index` is identity for both base and extended binaries.
 
 ## Launch
 
