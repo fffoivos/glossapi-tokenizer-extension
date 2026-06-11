@@ -635,3 +635,28 @@ All replay/control first segments active `2026-06-11T19:08Z`:
 - R=0.15 first iterations are finite; by iter 18 loss is `4.398194`, skipped
   `0`, NaN `0`, and throughput is about `7.49k` tok/s/GPU.
 - TD R=0.35 has saved durability checkpoint `iter_0000119/.metadata`.
+
+First eval sidecar submission `2026-06-11T19:21Z`:
+
+- Vanilla `2520960` reached checkpoint `iter_0000238` at about `1.0B` tokens;
+  watcher `2520980` detected it at `2026-06-11T19:18:21Z`.
+- Watcher submitted eval sidecars under
+  `/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/eval_curr_vanilla_r0.35_20260611T181233Z/iter_0000238`:
+  - convert `2521245`, output
+    `/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/eval_curr_vanilla_r0.35_20260611T181233Z/iter_0000238_hf`;
+  - GreekMMLU native `2521246`, output
+    `/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/eval_curr_vanilla_r0.35_20260611T181233Z/iter_0000238/native_mcq`;
+  - code BPB `2521247`, output
+    `/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/eval_curr_vanilla_r0.35_20260611T181233Z/iter_0000238/heldout_code_bpb.json`;
+  - math BPB `2521248`, output
+    `/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/eval_curr_vanilla_r0.35_20260611T181233Z/iter_0000238/heldout_math_bpb.json`;
+  - checksum `2521249`, output
+    `/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/eval_curr_vanilla_r0.35_20260611T181233Z/iter_0000238/checksums/curr-1.0B_iter_0000238_checksum_manifest.json`.
+- `sacct` snapshot: convert `2521245`, code BPB `2521247`, and math BPB
+  `2521248` completed successfully; GreekMMLU native `2521246` and checksum
+  `2521249` were still running.
+- Training remains healthy at this snapshot:
+  - vanilla reached iter `286`, loss `1.389664`, skipped `0`, NaN `0`;
+  - TD R=0.35 reached iter `213`, loss `2.279708`, skipped `0`, NaN `0`;
+  - TD R=0.25 reached iter `188`, loss `2.358219`, skipped `0`, NaN `0`;
+  - TD R=0.15 reached iter `96`, loss `2.683198`, skipped `0`, NaN `0`.
