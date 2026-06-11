@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=v2_newgreek_vals
 #SBATCH --account=a0140
-#SBATCH --partition=xfer
+#SBATCH --partition=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=64
@@ -20,8 +20,8 @@ if [ ! -f "$V2_DIR/paths.env" ] && [ -f "$V2_DIR/../paths.env" ]; then
 fi
 source "$V2_DIR/paths.env"
 mkdir -p "$STAGE"
-test -x "$PY"
+check_build_py
 test -f "$THIS/dataset_build/build_holdout_vals.py"
-"$PY" -u "$THIS/dataset_build/build_holdout_vals.py" --selected "$SELECTED" --output-dir "$STAGE" --char-budget 2000000000
+run_build_py -u "$THIS/dataset_build/build_holdout_vals.py" --selected "$SELECTED" --output-dir "$STAGE" --char-budget 2000000000
 echo "new-Greek vals DONE $(date -u)"
 ls -lah "$STAGE"/val_*.jsonl "$STAGE/val_holdout_ids.parquet" 2>&1 | head -20

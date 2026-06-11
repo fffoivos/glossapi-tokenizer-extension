@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=v2_A_clean_decontam
 #SBATCH --account=a0140
-#SBATCH --partition=xfer
+#SBATCH --partition=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=64
@@ -21,17 +21,17 @@ source "$V2_DIR/paths.env"
 
 BINS=(hplt_only glossapi_only replay_only)
 B=${BINS[${SLURM_ARRAY_TASK_ID:-0}]}
-test -s "$STAGE/$B.jsonl"; test -s "$QUERIES"; test -x "$PY"
+test -s "$STAGE/$B.jsonl"; test -s "$QUERIES"; check_build_py
 
 IN="$STAGE/$B.jsonl"
 # HPLT confident-only clean only applies to the Greek streams; replay rides decontam+anon only.
 if [ "$B" = hplt_only ] || [ "$B" = glossapi_only ]; then
-  "$PY" -u "$HPLT_CLEAN" --input "$IN" --output "$STAGE/${B}_clean.jsonl" --workers 64
+  run_build_py -u "$HPLT_CLEAN" --input "$IN" --output "$STAGE/${B}_clean.jsonl" --workers 64
   IN="$STAGE/${B}_clean.jsonl"
 fi
 
 # GreekMMLU-only decontamination (the one Greek benchmark we trust). Drops contaminated docs.
-"$PY" -u "$DECONTAM" \
+run_build_py -u "$DECONTAM" \
   --queries-jsonl "$QUERIES" \
   --corpus-jsonl "$IN" \
   --output-dir "$STAGE/${B}_decontam_output" \

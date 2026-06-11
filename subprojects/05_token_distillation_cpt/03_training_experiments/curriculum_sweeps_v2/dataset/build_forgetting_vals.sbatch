@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=v2_forget_vals
 #SBATCH --account=a0140
-#SBATCH --partition=xfer
+#SBATCH --partition=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=64
@@ -19,7 +19,7 @@ if [ ! -f "$V2_DIR/paths.env" ] && [ -f "$V2_DIR/../paths.env" ]; then
 fi
 source "$V2_DIR/paths.env"
 mkdir -p "$STAGE"
-test -x "$PY"
-"$PY" -u "$V2/dataset/build_forgetting_vals.py" --output-dir "$STAGE" --char-budget 2000000000
+check_build_py
+run_build_py -u "$V2/dataset/build_forgetting_vals.py" --output-dir "$STAGE" --char-budget 2000000000
 echo "forgetting-vals DONE $(date -u)"
 ls -lah "$STAGE"/val_forget_*.jsonl "$STAGE/forget_holdout_ids.parquet" 2>&1 | head -20

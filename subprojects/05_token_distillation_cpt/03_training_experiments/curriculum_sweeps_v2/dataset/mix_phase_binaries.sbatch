@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=v2_mix_binaries
 #SBATCH --account=a0140
-#SBATCH --partition=xfer
+#SBATCH --partition=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=64
@@ -33,10 +33,10 @@ mkdir -p "$STAGE"
 # both holdout-id parquets MUST pre-exist (the recipes' drop wiring reads them)
 test -f "$STAGE/val_holdout_ids.parquet"
 test -f "$STAGE/forget_holdout_ids.parquet"
-test -x "$PY"
+check_build_py
 test -f "$V2/dataset/recipes/$B.json"
 
-"$PY" -u "$MIX_BUILDER" \
+run_build_py -u "$MIX_BUILDER" \
   --recipe "$V2/dataset/recipes/$B.json" \
   --target-tokens "${TGT[$B]}" \
   --tokenizer "$EXT_TOK" \

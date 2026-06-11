@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=v2_codeparrot_snap
 #SBATCH --account=a0140
-#SBATCH --partition=xfer
+#SBATCH --partition=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=32
@@ -17,6 +17,6 @@ if [ ! -f "$V2_DIR/paths.env" ] && [ -f "$V2_DIR/../paths.env" ]; then
   V2_DIR="$(cd "$V2_DIR/.." && pwd)"
 fi
 source "$V2_DIR/paths.env"
-mkdir -p "$STAGE"; test -x "$PY"
-"$PY" -u "$V2/dataset/snapshot_codeparrot_heldout.py" --output-dir "$STAGE" --char-budget 2000000000 --skip-docs 2000000
+mkdir -p "$STAGE"; check_build_py
+run_build_py -u "$V2/dataset/snapshot_codeparrot_heldout.py" --output-dir "$STAGE" --char-budget 2000000000 --skip-docs 2000000
 echo "codeparrot snapshot DONE $(date -u)"

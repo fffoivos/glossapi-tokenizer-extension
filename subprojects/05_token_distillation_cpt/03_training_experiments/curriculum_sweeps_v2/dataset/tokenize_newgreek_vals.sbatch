@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=v2_tok_newgreek
 #SBATCH --account=a0140
-#SBATCH --partition=xfer
+#SBATCH --partition=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=64
@@ -21,7 +21,7 @@ if [ ! -f "$V2_DIR/paths.env" ] && [ -f "$V2_DIR/../paths.env" ]; then
   V2_DIR="$(cd "$V2_DIR/.." && pwd)"
 fi
 source "$V2_DIR/paths.env"
-cd "$MEG"; mkdir -p "$MEGOUT"; test -x "$PY"
+cd "$MEG"; mkdir -p "$MEGOUT"; check_build_py
 
 VALS=(hplt openarchives greek_phd)
 V=${VALS[${SLURM_ARRAY_TASK_ID:-0}]}
@@ -31,7 +31,7 @@ fi
 for pair in "base $BASE_TOK" "ext $EXT_TOK"; do
   set -- $pair; TAG=$1; TOK=$2
   rm -f "$MEGOUT/val_${V}_${TAG}_text_document.bin" "$MEGOUT/val_${V}_${TAG}_text_document.idx"
-  "$PY" tools/preprocess_data.py --input "$STAGE/val_$V.jsonl" \
+  run_build_py tools/preprocess_data.py --input "$STAGE/val_$V.jsonl" \
     --output-prefix "$MEGOUT/val_${V}_${TAG}" \
     --tokenizer-type HuggingFaceTokenizer --tokenizer-model "$TOK" \
     --append-eod --workers 64 --json-keys text

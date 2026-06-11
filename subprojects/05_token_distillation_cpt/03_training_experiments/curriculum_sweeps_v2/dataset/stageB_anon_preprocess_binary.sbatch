@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=v2_B_anon_preprocess
 #SBATCH --account=a0140
-#SBATCH --partition=xfer
+#SBATCH --partition=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=64
@@ -20,7 +20,7 @@ source "$V2_DIR/paths.env"
 
 BINS=(hplt_only glossapi_only replay_only)
 B=${BINS[${SLURM_ARRAY_TASK_ID:-0}]}
-test -s "$STAGE/${B}_decontam.jsonl"; test -x "$PY"
+test -s "$STAGE/${B}_decontam.jsonl"; check_build_py
 mkdir -p "$STAGE/${B}_indir" "$MEGOUT"
 
 # datatrove shards by FILE -> 64 line-shards so all 64 tasks work
@@ -29,7 +29,7 @@ rm -rf "$STAGE/${B}_masked"
 split -n l/64 -d -a 2 --additional-suffix=.jsonl "$STAGE/${B}_decontam.jsonl" "$STAGE/${B}_indir/part_"
 
 echo "=== anonymize (email/IP/IBAN) $B ==="
-"$PY" -u "$ANON" \
+run_build_py -u "$ANON" \
   --input "$STAGE/${B}_indir" --reader jsonl --glob '*.jsonl' \
   --text-key text --id-key doc_id \
   --output "$STAGE/${B}_masked" --writer jsonl --tasks 64
@@ -42,7 +42,7 @@ for pair in "base $BASE_TOK" "ext $EXT_TOK"; do
   set -- $pair; TAG=$1; TOK=$2
   echo "=== tokenize $B $TAG ==="
   rm -f "$MEGOUT/${B}_${TAG}_text_document.bin" "$MEGOUT/${B}_${TAG}_text_document.idx"
-  "$PY" tools/preprocess_data.py --input "$STAGE/${B}_final.jsonl" \
+  run_build_py tools/preprocess_data.py --input "$STAGE/${B}_final.jsonl" \
     --output-prefix "$MEGOUT/${B}_${TAG}" \
     --tokenizer-type HuggingFaceTokenizer --tokenizer-model "$TOK" \
     --append-eod --workers 64 --json-keys text

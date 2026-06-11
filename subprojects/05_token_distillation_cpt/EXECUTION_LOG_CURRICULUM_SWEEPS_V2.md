@@ -88,3 +88,17 @@ Fix applied at `2026-06-11T12:02:21Z`:
   it still submits GPU sidecars through the deployed helper.
 - Local `bash -n`, local CPU/GPU grep, remote `bash -n`, remote CPU/GPU grep,
   and remote `sbatch --test-only` checks passed for the v2 dataset sbatches.
+
+Follow-up at `2026-06-11T12:05:58Z`:
+
+- `xfer` is valid but congested; `sbatch --test-only` estimated starts around
+  the next day.
+- Confirmed `/iopsstor/scratch/cscs/fffoivos/python_envs/cpt_build_py312`
+  resolves inside `uenv run pytorch/v2.9.1:v2 --view=default --` and imports
+  `pyarrow`, `datasets`, `datatrove`, `tokenizers`, `transformers`, `numpy`,
+  and `torch` on `aarch64`.
+- Pivoted dataset sbatches back to `normal` but wrapped all build Python calls
+  in `run_build_py`, which executes the aarch64 env inside the PyTorch uenv.
+  The jobs still request no GPU GRES.
+- Remote `check_build_py`, import smoke, `bash -n`, CPU/GPU grep, and
+  `sbatch --test-only` all passed for this normal/uenv route.
