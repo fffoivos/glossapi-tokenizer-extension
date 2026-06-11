@@ -86,6 +86,16 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   `iter_0001904` and TD `iter_0001666`; completed since the prior poll
   included TD Greek-NLP `iter_0001190`, vanilla Greek-NLP `iter_0001428`, and
   most vanilla `iter_0001666` sidecars.
+- TD segment 2 then completed cleanly as job `2516057` after `02:28:39`,
+  saved `iter_0001904`, and exited at iteration 1904. TD segment 3 job
+  `2516058` was released from the dependency chain but was still `PENDING
+  (Priority)` at the poll, so TD training was temporarily queue-bound.
+- Vanilla segment 3 remained healthy through iteration 2092, saved
+  `iter_0002023`, and continued with no skipped or NaN iterations. The
+  sidecar failure sweep remained empty. Completed since the previous poll:
+  TD Greek-NLP `iter_0001428`, vanilla Greek-NLP `iter_0001666`, TD native and
+  retention `iter_0001666`, and most vanilla `iter_0001904` sidecars; TD
+  `iter_0001904` conversion was pending behind priority.
 
 ## 2026-06-10
 
