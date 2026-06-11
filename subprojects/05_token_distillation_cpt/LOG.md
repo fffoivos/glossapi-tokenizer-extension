@@ -116,6 +116,14 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   `iter_0002380` sidecars and TD `iter_0002142` sidecars were active, while
   older sidecars through vanilla `iter_0002142` and TD `iter_0001904` had
   mostly completed with only long Greek-NLP jobs still draining.
+- Next checkpoint/eval wave: vanilla segment 3 reached iteration 2737, saved
+  through `iter_0002737`, reported held-out validation at iteration 2725, and
+  remained at zero skipped and zero NaN iterations. TD segment 3 reached
+  iteration 2424, saved through `iter_0002380`, reported held-out validation
+  at iteration 2400, and also remained at zero skipped and zero NaN iterations.
+  The failed-sidecar sweep remained empty. Active sidecars were the vanilla
+  `iter_0002618` wave and TD `iter_0002380` wave, with older long Greek-NLP
+  jobs still draining normally.
 
 ## 2026-06-10
 
