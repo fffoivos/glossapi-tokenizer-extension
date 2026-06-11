@@ -910,3 +910,38 @@ R0.35 retry recovered; R0.15 first segment complete `2026-06-11T21:48Z`:
   after the successful save; Slurm marked the job `COMPLETED`, so no
   intervention was needed.
 - LR sweep remains intentionally unlaunched.
+
+R0.15 `curr-4.0B` sidecars complete; vanilla `curr-5.0B` sidecars launched `2026-06-11T22:00Z`:
+
+- TD R=0.15 `iter_0000952` sidecars all completed successfully:
+  - convert `2522050`: `COMPLETED`, exit `0:0`, elapsed `00:01:33`;
+  - GreekMMLU native `2522051`: `COMPLETED`, exit `0:0`, elapsed `00:08:50`;
+  - code BPB `2522052`: `COMPLETED`, exit `0:0`, elapsed `00:01:08`;
+  - math BPB `2522053`: `COMPLETED`, exit `0:0`, elapsed `00:01:03`;
+  - checksum `2522054`: `COMPLETED`, exit `0:0`, elapsed `00:04:13`.
+- Completed `curr-4.0B` GreekMMLU table:
+  - vanilla: `0.5227873978` (`8695/16632`);
+  - TD R=0.35: `0.5370370370` (`8932/16632`);
+  - TD R=0.25: `0.5330086580` (`8865/16632`);
+  - TD R=0.15: `0.5249519000` (`8731/16632`).
+- Completed `curr-4.0B` StarCoder BPB table:
+  - vanilla: `0.2668581197`;
+  - TD R=0.35: `0.2672921695`;
+  - TD R=0.25: `0.2686852364`;
+  - TD R=0.15: `0.2698321304`.
+- TD R=0.15 `curr-4.0B` math BPB on the existing math held-out sample:
+  `0.5448585028`.
+- Vanilla watcher `2521309` detected `iter_0001190` and submitted the
+  `curr-5.0B` sidecar bundle:
+  - convert `2522158`;
+  - GreekMMLU native `2522159`;
+  - code BPB `2522160`;
+  - math BPB `2522161`;
+  - checksum `2522162`.
+- Live training status remains healthy for the three active segment-2 arms:
+  vanilla `2520961`, TD R=0.25 `2520971`, and TD R=0.35 retry `2521904` are
+  all running on `16` nodes with finite losses and skipped/NaN iterations at
+  `0`.
+- TD R=0.15 segment 2 `2520975` remains dependency-satisfied and pending for
+  `16` nodes with reason `(Resources)`.
+- LR sweep remains intentionally unlaunched.
