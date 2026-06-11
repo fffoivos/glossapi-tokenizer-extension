@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=v2_mix_binaries
 #SBATCH --account=a0140
-#SBATCH --partition=normal
+#SBATCH --partition=xfer
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=64
-#SBATCH --mem=400G
+#SBATCH --mem=240G
 #SBATCH --time=12:00:00
 #SBATCH --output=/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/%x-%A_%a.out
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/%x-%A_%a.err

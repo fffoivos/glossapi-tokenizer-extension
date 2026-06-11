@@ -65,3 +65,26 @@ Fix applied at `2026-06-11T11:58:54Z`:
 - All dataset sbatches now source `paths.env` through `V2_DIR` or
   `SLURM_SUBMIT_DIR`, with a `../paths.env` fallback.
 - Local `bash -n` passed and patched sbatches were resynced to Clariden.
+
+Local commit: `25635e5 Fix curriculum dataset sbatch path sourcing`.
+
+Dataset submission attempt 2:
+
+- Submitted CodeParrot `2519217`, new-Greek `2519218`, forgetting `2519219`,
+  mix `2519220`, Stage A `2519221`, Stage B `2519222`, new-Greek tokenization
+  `2519223`, forgetting tokenization `2519224`.
+- `2519217` and `2519218` failed immediately with `Exec format error` for
+  `/iopsstor/scratch/cscs/fffoivos/python_envs/cpt_build_xfer_py312/bin/python`.
+  The jobs were running on `normal` GH/aarch64 nodes while the configured build
+  Python is x86_64. Cancelled dependent jobs `2519219`-`2519224`.
+
+Fix applied at `2026-06-11T12:02:21Z`:
+
+- Switched CPU dataset sbatches back to `xfer`, matching the existing x86
+  corpus build environment.
+- Reduced heavy CPU job memory requests from `400G` to `240G`, because xfer
+  nodes report 250G real memory.
+- Moved the v2 eval watcher wrapper to a small xfer allocation (`1 CPU`, `4G`);
+  it still submits GPU sidecars through the deployed helper.
+- Local `bash -n`, local CPU/GPU grep, remote `bash -n`, remote CPU/GPU grep,
+  and remote `sbatch --test-only` checks passed for the v2 dataset sbatches.

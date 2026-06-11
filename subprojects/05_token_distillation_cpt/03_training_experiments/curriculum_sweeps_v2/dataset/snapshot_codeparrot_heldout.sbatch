@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=v2_codeparrot_snap
 #SBATCH --account=a0140
-#SBATCH --partition=normal
+#SBATCH --partition=xfer
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=32
