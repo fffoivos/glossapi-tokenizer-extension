@@ -74,6 +74,18 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   still running. TD `iter_0001428` sidecars were active, and the vanilla
   `iter_0001666` sidecar wave had just started with `04tohf_i1666` running and
   downstream jobs pending on that conversion dependency.
+- Vanilla segment 2 completed cleanly as job `2516052` after `02:27:15`,
+  saved `iter_0001904`, and exited at iteration 1904. Vanilla segment 3 job
+  `2516053` started from the dependency chain, loaded `iter_0001904`, and
+  resumed through iteration 1921 with no skipped or NaN iterations. Held-out
+  validation at iteration 1900 remained split across `hplt`, `openarchives`,
+  and `greek_phd`.
+- TD segment 2 was still running cleanly through iteration 1782, with no
+  skipped or NaN iterations and checkpoints saved through `iter_0001666`.
+  The failed-sidecar sweep remained empty. New active sidecar waves: vanilla
+  `iter_0001904` and TD `iter_0001666`; completed since the prior poll
+  included TD Greek-NLP `iter_0001190`, vanilla Greek-NLP `iter_0001428`, and
+  most vanilla `iter_0001666` sidecars.
 
 ## 2026-06-10
 
