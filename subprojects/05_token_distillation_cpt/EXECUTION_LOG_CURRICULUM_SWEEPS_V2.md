@@ -615,3 +615,23 @@ Training checkpoint / eval cadence clarification `2026-06-11T18:59Z`:
 - Updated monitoring target: first eval sidecar submission should happen after
   vanilla reaches checkpoint `iter_0000238`; iter `119` is only a durability
   checkpoint.
+
+All replay/control first segments active `2026-06-11T19:08Z`:
+
+- TD replay R=0.25 first segment `2520969` allocated 16 nodes at about
+  `2026-06-11T18:49Z`.
+- TD replay R=0.15 first segment `2520974` allocated 16 nodes at about
+  `2026-06-11T19:04Z`.
+- All four production first segments are now running concurrently:
+  - vanilla `2520960`: 16 nodes / 64 GPUs;
+  - TD R=0.35 `2520964`: 16 nodes / 64 GPUs;
+  - TD R=0.25 `2520969`: 16 nodes / 64 GPUs;
+  - TD R=0.15 `2520974`: 16 nodes / 64 GPUs.
+- This realizes the requested parallelism: 64 training nodes / 256 GPUs active
+  across the replay/control stage, plus four tiny `xfer` watchers.
+- R=0.15 header confirms ext tokenizer, phase-1
+  `hplt_only_ext + replay_only_ext`, `R=0.15`, extra-valid enabled, and
+  tokenization `ext`.
+- R=0.15 first iterations are finite; by iter 18 loss is `4.398194`, skipped
+  `0`, NaN `0`, and throughput is about `7.49k` tok/s/GPU.
+- TD R=0.35 has saved durability checkpoint `iter_0000119/.metadata`.
