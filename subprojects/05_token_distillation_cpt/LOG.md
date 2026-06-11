@@ -131,6 +131,17 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   reported split held-out validation at iteration 2875. TD segment 3 continued
   cleanly through iteration 2559 with `iter_0002499` saved; TD segment 4
   remained dependency-pending as expected.
+- Vanilla training completed cleanly. Segment 4 job `2516054` reached
+  iteration 3218/3218, printed final split held-out validation at iteration
+  3218, saved final checkpoint `iter_0003218`, and ended `COMPLETED` with
+  exit code `0:0`.
+- TD segment 3 completed cleanly as job `2516058` after `02:31:15`, saved
+  `iter_0002856`, and exited at the planned segment boundary. TD segment 4
+  job `2516059` started immediately; checkpoint/optimizer restore from
+  `iter_0002856` was unusually long (~1108s) but completed, after which the
+  run resumed through iteration 2878 with no skipped or NaN iterations and
+  printed split held-out validation at iteration 2875. The failed-sidecar
+  sweep remained empty.
 
 ## 2026-06-10
 
