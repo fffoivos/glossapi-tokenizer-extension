@@ -558,3 +558,24 @@ User-facing status check `2026-06-11T18:30Z`:
 - Watchers `2520980`-`2520983` are still running and logging
   `waiting for checkpoints`; no training logs exist yet because first segments
   have not allocated nodes.
+
+First production runtime signal `2026-06-11T18:35Z`:
+
+- Vanilla first segment `2520960` allocated 16 nodes and started running at
+  `2026-06-11T18:33Z`.
+- Header confirms `WORLD_SIZE=64`, `nodes=16`, `gpus_per_node=4`, base
+  tokenizer/data, phase-1 `hplt_only_base + replay_only_base`, and extra-valid
+  enabled.
+- Megatron init completed; model/dataloader setup completed; no stderr
+  traceback.
+- First iterations are finite:
+  - iter 1: loss `1.488362`, LR `5.623750e-06`, skipped `0`, NaN `0`,
+    `4376.4` tok/s/GPU;
+  - iter 2: loss `1.498125`, LR `5.747500e-06`, skipped `0`, NaN `0`,
+    `7570.0` tok/s/GPU;
+  - iter 3: loss `1.499231`, LR `5.871250e-06`, skipped `0`, NaN `0`,
+    `7630.5` tok/s/GPU;
+  - iter 4: loss `1.509641`, LR `5.995000e-06`, skipped `0`, NaN `0`,
+    `7624.7` tok/s/GPU.
+- The printed full-run ETA after warmup is about `7h40m`; segment 1 should exit
+  at iteration `952` and checkpoint every `119` iterations.
