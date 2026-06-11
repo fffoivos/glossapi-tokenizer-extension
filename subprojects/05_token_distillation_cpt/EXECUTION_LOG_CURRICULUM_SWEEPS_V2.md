@@ -303,6 +303,56 @@ Code-source intervention `2026-06-11T14:02Z`:
   - `glossapi_only`: 50.1M / 3.7B tokens, ~309k tok/s.
   - `replay_only`: 50.0M / 5.0B tokens, ~523k tok/s.
 
+Mix babysitting snapshot `2026-06-11T15:00Z`:
+
+- `2519900_[0-2]` still running; Stage A/B (`2519901`/`2519902`) still
+  dependency-held.
+- `hplt_only`: 600.0M / 8.5B tokens (7.1%), ~466k tok/s, ETA ~282 min.
+- `glossapi_only`: 751.1M / 3.7B tokens (20.3%), ~554k tok/s, ETA ~89 min.
+- `replay_only`: 700.0M / 5.0B tokens (14.0%), ~555k tok/s, ETA ~129 min.
+- No stderr output observed from the mix builders.
+
+Mix babysitting snapshot `2026-06-11T15:15Z`:
+
+- `2519900_[0-2]` still running; Stage A/B still dependency-held.
+- `hplt_only`: 1.05B / 8.5B tokens (12.4%), ~464k tok/s, ETA ~268 min.
+- `glossapi_only`: 1.25B / 3.7B tokens (33.9%), ~565k tok/s, ETA ~72 min.
+- `replay_only`: 1.15B / 5.0B tokens (23.0%), ~530k tok/s, ETA ~121 min.
+- No stderr output observed from the mix builders.
+
+Mix babysitting snapshot `2026-06-11T15:30Z`:
+
+- `2519900_[0-2]` still running; Stage A/B still dependency-held.
+- `hplt_only`: 1.45B / 8.5B tokens (17.1%), ~464k tok/s, ETA ~253 min.
+- `glossapi_only`: 1.80B / 3.7B tokens (48.8%), ~570k tok/s, ETA ~55 min.
+- `replay_only`: 1.60B / 5.0B tokens (32.0%), ~519k tok/s, ETA ~109 min.
+- No stderr output observed from the mix builders.
+
+Mix acceleration intervention `2026-06-11T15:40Z`:
+
+- Confirmed the slow mix array was effectively single-core despite requesting
+  64 CPUs: `sstat` showed about one CPU-hour per one wall-hour for the batch
+  step.
+- Patched `dataset/mix_phase_binaries.sbatch` to use
+  `MIX_SHARDS=16`: each binary now launches 16 concurrent
+  `mix_builder.py --source-shard-index/--source-shard-count` processes on its
+  allocated CPU node, then concatenates shard JSONLs back to
+  `$STAGE/{hplt_only,glossapi_only,replay_only}.jsonl` before Stage A.
+- Canceled the under-parallelized chain:
+  - `2519900_[0-2]` after about one hour of runtime.
+  - dependency-held `2519901`/`2519902` before they ran.
+- Submitted accelerated replacement chain:
+  - sharded mix: `2520411` (`MIX_SHARDS=16`, array 0-2), running immediately
+    on `nid006727`, `nid006731`, `nid006747`;
+  - Stage A: `2520414` (`afterok:2520411_*`);
+  - Stage B: `2520415` (`afterok:2520414_*`).
+- First accelerated progress sample at `2026-06-11T15:47Z`:
+  - HPLT shards: 100M / 531.25M tokens each; per-shard ETA ~19.5-23.5 min.
+  - GlossAPI shards: 50M / 231.25M tokens each; per-shard ETA ~17.5-21 min.
+  - Replay shards: mostly 100M / 312.5M tokens each; per-shard ETA ~9.7-13.5
+    min, with one lagging shard at 50M and ~17.2 min ETA.
+- New expected mix completion if rates hold: about `2026-06-11T16:10Z`.
+
 Old-Greek overlay revalidation `2026-06-11T14:00Z`:
 
 - Checked live Clariden files:
