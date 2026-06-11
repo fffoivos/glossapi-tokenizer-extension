@@ -101,6 +101,13 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   segment 3 continued cleanly through iteration 2163, with `iter_0002142`
   saved and no skipped or NaN iterations. The failed-sidecar sweep remained
   empty.
+- TD segment 3 job `2516058` was placed after the queue gap, started at
+  `03:46:33`, loaded `iter_0001904`, and resumed cleanly through iteration
+  2006 with no skipped or NaN iterations. Vanilla segment 3 continued cleanly
+  through iteration 2311, saved `iter_0002261`, and reported held-out
+  validation at iteration 2300. The failed-sidecar sweep remained empty; the
+  active eval queue was normal, with vanilla `iter_0002142` and TD
+  `iter_0001904` sidecars running.
 
 ## 2026-06-10
 
