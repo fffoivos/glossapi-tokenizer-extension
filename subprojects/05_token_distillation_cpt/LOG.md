@@ -142,6 +142,12 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   run resumed through iteration 2878 with no skipped or NaN iterations and
   printed split held-out validation at iteration 2875. The failed-sidecar
   sweep remained empty.
+- TD final segment remained healthy through iteration 3048/3218, saved
+  `iter_0002975`, and printed split held-out validation through iteration
+  3025 with no skipped or NaN iterations. The vanilla final checkpoint sidecar
+  wave for `iter_0003218` was submitted and mostly drained; the remaining
+  active vanilla final sidecar was Greek-NLP. The failed-sidecar sweep remained
+  empty.
 
 ## 2026-06-10
 
