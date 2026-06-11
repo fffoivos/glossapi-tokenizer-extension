@@ -442,3 +442,22 @@ Stage B completion and boundary pin `2026-06-11T17:30Z`:
   `submit_curriculum_two_phase.sh`, and `cadence_curriculum.tsv` already carry
   the pinned ext boundary `2261`. Updated comments/runbook to mark it pinned,
   not provisional.
+
+Dataset integrity verification `2026-06-11T17:50Z`:
+
+- Added `dataset/verify_curriculum_outputs.py` and ran it as Slurm job
+  `2520880` (`COMPLETED`, `00:03:52`).
+- Verification report:
+  `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/verify_curriculum_outputs.json`.
+- Result: `ok=true`.
+- Checked all expected train and extra-valid `.bin/.idx` files:
+  `hplt_only`, `glossapi_only`, `replay_only` × `base/ext`; new-Greek held-outs
+  `hplt/openarchives/greek_phd` × `base/ext`; forgetting held-outs
+  `english/de/ru/zh/code/old_greek` × `base/ext`.
+- Held-out ID exclusion on ID-preserving decontam JSONLs:
+  - `hplt_only_decontam.jsonl`: 9,535,742 rows, 0 missing `doc_id`,
+    0 new-holdout overlap, 0 forgetting-holdout overlap.
+  - `glossapi_only_decontam.jsonl`: 77,136 rows, 0 missing `doc_id`,
+    0 new-holdout overlap, 0 forgetting-holdout overlap.
+  - `replay_only_decontam.jsonl`: 5,031,733 rows, 0 missing `doc_id`,
+    0 new-holdout overlap, 0 forgetting-holdout overlap.

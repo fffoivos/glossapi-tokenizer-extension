@@ -70,6 +70,8 @@ def main() -> None:
 
     expected: list[dict[str, object]] = []
     for name in TRAIN_BINS:
+        expected.append(require_file(stage / f"{name}_decontam.jsonl"))
+        expected.append(require_file(stage / f"{name}_final.jsonl"))
         for tok in TOKS:
             for ext in ("bin", "idx"):
                 expected.append(require_file(megout / f"{name}_{tok}_text_document.{ext}"))
@@ -92,7 +94,7 @@ def main() -> None:
     forget_ids = read_ids(stage / "forget_holdout_ids.parquet")
 
     scans = [
-        scan_jsonl(stage / f"{name}_final.jsonl", new_ids, forget_ids)
+        scan_jsonl(stage / f"{name}_decontam.jsonl", new_ids, forget_ids)
         for name in TRAIN_BINS
     ]
     overlap_failures = [
