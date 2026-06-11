@@ -155,6 +155,13 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   sidecar/eval drain: vanilla final Greek-NLP for `iter_0003218`, TD
   `iter_0003094` Greek-NLP/retention, and the newly submitted TD final
   `iter_0003218` sidecar wave. The failed-sidecar sweep remained empty.
+- Sidecar drain narrowed to two TD Greek-NLP jobs only. Vanilla final
+  `iter_0003218` sidecars all completed, TD `iter_0003094` retention and all
+  lightweight sidecars completed, TD final `iter_0003218` conversion/native/
+  BPB/retention/code-BPB/math-BPB/checksum completed, and both watchers
+  (`2516055`, `2516378`) completed with exit code `0:0`. Remaining active jobs
+  were TD Greek-NLP for `iter_0003094` and `iter_0003218`; the failed-sidecar
+  sweep remained empty.
 
 ## 2026-06-10
 
