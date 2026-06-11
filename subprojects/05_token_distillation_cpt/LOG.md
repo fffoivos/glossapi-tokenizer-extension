@@ -124,6 +124,13 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   The failed-sidecar sweep remained empty. Active sidecars were the vanilla
   `iter_0002618` wave and TD `iter_0002380` wave, with older long Greek-NLP
   jobs still draining normally.
+- Vanilla segment 3 completed cleanly as job `2516053` after `02:27:07`,
+  saved `iter_0002856`, and exited at the planned segment boundary. Vanilla
+  segment 4 job `2516054` was released immediately, loaded `iter_0002856`,
+  resumed through iteration 2882 with no skipped or NaN iterations, and
+  reported split held-out validation at iteration 2875. TD segment 3 continued
+  cleanly through iteration 2559 with `iter_0002499` saved; TD segment 4
+  remained dependency-pending as expected.
 
 ## 2026-06-10
 
