@@ -873,3 +873,40 @@ R0.25 handoff clean, R0.35 segment-2 retry `2026-06-11T21:35Z`:
   CPU-only on `xfer`; native/BPB eval sidecars use the existing GPU eval
   wrappers.
 - LR sweep remains gated on replay/control results and user choice of `R*`.
+
+R0.35 retry recovered; R0.15 first segment complete `2026-06-11T21:48Z`:
+
+- TD R=0.35 replacement segment `2521904` started on `16` nodes, loaded
+  `/checkpoints/iter_0000952`, built the 9 extra-validation loaders, and
+  resumed training at iteration `953`.
+- Retry health is clean: LR stayed `5.500000E-05`, skipped iterations `0`,
+  NaN iterations `0`, with finite first resumed lines:
+  - iter `953`, loss `1.992068`;
+  - iter `954`, loss `1.974223`;
+  - iter `959`, loss `2.009967`.
+- TD R=0.15 segment 1 `2520974` reached `iter_0000952`, saved checkpoint, and
+  completed successfully: Slurm state `COMPLETED`, exit `0:0`, elapsed
+  `02:42:44`.
+- TD R=0.15 segment 2 `2520975` is dependency-satisfied and pending on
+  priority/resources.
+- TD R=0.15 watcher `2521312` detected `iter_0000952` and submitted
+  `curr-4.0B` sidecars:
+  - convert `2522050`;
+  - GreekMMLU native `2522051`;
+  - code BPB `2522052`;
+  - math BPB `2522053`;
+  - checksum `2522054`.
+- `curr-4.0B` GreekMMLU headlines available so far:
+  - vanilla: `0.5227873978` (`8695/16632`);
+  - TD R=0.35: `0.5370370370` (`8932/16632`);
+  - TD R=0.25: `0.5330086580` (`8865/16632`);
+  - TD R=0.15: pending sidecars.
+- `curr-4.0B` StarCoder sidecar BPB available so far:
+  - vanilla: `0.2668581197`;
+  - TD R=0.35: `0.2672921695`;
+  - TD R=0.25: `0.2686852364`;
+  - TD R=0.15: pending sidecars.
+- R0.15 segment-1 stderr again showed distributed rendezvous shutdown warnings
+  after the successful save; Slurm marked the job `COMPLETED`, so no
+  intervention was needed.
+- LR sweep remains intentionally unlaunched.
