@@ -148,6 +148,13 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   wave for `iter_0003218` was submitted and mostly drained; the remaining
   active vanilla final sidecar was Greek-NLP. The failed-sidecar sweep remained
   empty.
+- TD training completed cleanly. Segment 4 job `2516059` reached iteration
+  3218/3218, printed final split held-out validation at iteration 3218, saved
+  final checkpoint `iter_0003218`, and ended `COMPLETED` with exit code `0:0`.
+  At the same poll, both main training arms were complete. Remaining work is
+  sidecar/eval drain: vanilla final Greek-NLP for `iter_0003218`, TD
+  `iter_0003094` Greek-NLP/retention, and the newly submitted TD final
+  `iter_0003218` sidecar wave. The failed-sidecar sweep remained empty.
 
 ## 2026-06-10
 
