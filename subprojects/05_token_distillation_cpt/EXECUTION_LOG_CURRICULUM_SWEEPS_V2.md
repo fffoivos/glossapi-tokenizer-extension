@@ -738,3 +738,45 @@ First checkpoint eval sanity set complete `2026-06-11T20:00Z`:
 - Vanilla reached `iter_0000476` (`curr-2.0B`) and watcher `2521309`
   submitted sidecars `2521385`-`2521389`. The restarted watcher env uses the
   StarCoder code BPB sample for this and future sidecars.
+
+Parallel replay wave status `2026-06-11T20:30Z`:
+
+- Production training wave is active and parallelized: vanilla control plus TD
+  replay `R in {0.35, 0.25, 0.15}` are all running first segments on `16`
+  Clariden nodes each (`64` GPUs per arm).
+- Current first-segment jobs:
+  - vanilla `2520960` running on `16` nodes;
+  - TD R=0.35 `2520964` running on `16` nodes;
+  - TD R=0.25 `2520969` running on `16` nodes;
+  - TD R=0.15 `2520974` running on `16` nodes.
+- Downstream segment jobs are already submitted and dependency-gated, not
+  missing:
+  - vanilla `2520961`-`2520963`;
+  - TD R=0.35 `2520966`-`2520968`;
+  - TD R=0.25 `2520971`-`2520973`;
+  - TD R=0.15 `2520975`-`2520977`.
+- LR sweep arms are intentionally not launched yet. They remain gated on
+  collecting replay/control trajectories and old-data loss deltas, then the
+  user choosing `R*`.
+- Training health is clean at this snapshot: finite losses, skipped iterations
+  `0`, NaN iterations `0`.
+- Latest observed iterations:
+  - vanilla iter `705`, loss `1.358994`;
+  - TD R=0.35 iter `625`, loss `2.051710`;
+  - TD R=0.25 iter `601`, loss `2.101287`;
+  - TD R=0.15 iter `505`, loss `2.175694`.
+- `curr-2.0B` sidecars completed for vanilla, TD R=0.35, and TD R=0.25:
+  - vanilla GreekMMLU `0.5094396344` (`8473/16632`), StarCoder BPB
+    `0.2638159587`;
+  - TD R=0.35 GreekMMLU `0.5267556518` (`8761/16632`), StarCoder BPB
+    `0.2680510668`;
+  - TD R=0.25 GreekMMLU `0.5165343915` (`8591/16632`), StarCoder BPB
+    `0.2693039778`.
+- TD R=0.15 reached `iter_0000476` and watcher `2521312` submitted the
+  `curr-2.0B` sidecar bundle:
+  - convert `2521491`;
+  - GreekMMLU native `2521493`;
+  - code BPB `2521494`;
+  - math BPB `2521495`;
+  - checksum `2521496`.
+  The bundle is still in progress/pending as of this snapshot.
