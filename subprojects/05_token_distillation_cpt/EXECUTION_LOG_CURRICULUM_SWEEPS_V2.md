@@ -997,3 +997,17 @@ Clariden SSH outage still ongoing `2026-06-11T23:12Z`:
   `nc -zvw5 clariden.alps.cscs.ch 22` from `ela5` still timed out.
 - No Slurm actions were taken blind during the outage.
 - Remote log sync remains pending until Clariden SSH returns.
+
+User-side CSCS console evidence confirms SSH/login degradation `2026-06-11T23:45Z`:
+
+- User inspected the CSCS UI health details for Clariden and reported all
+  relevant checks as `unhealthy`.
+- The inspection message was:
+  `TimeoutLimitExceeded: SSH connection timeout limit exceeded.`
+- This matches the local `home -> ela -> Clariden` failure mode:
+  repeated SSH banner timeouts and TCP port-22 timeouts from `ela`.
+- Interpretation: this is confirmed as a CSCS-side Clariden SSH/login
+  reachability outage. It does not by itself prove that already-running Slurm
+  jobs on compute nodes have failed.
+- Continued policy: do not cancel/requeue blind; keep timeout-bounded SSH
+  retries active and reconcile Slurm/job/log state when Clariden SSH returns.
