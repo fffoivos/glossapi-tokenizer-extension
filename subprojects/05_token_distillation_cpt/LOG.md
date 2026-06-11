@@ -5,6 +5,13 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
 
 ## 2026-06-11
 
+- Post-run methodology caveat: the dataset builder produced the intended
+  replay-fixed physical stream with HPLT before OpenArchives in the new-Greek
+  slots, but Megatron randomized the train sample order at consumption time.
+  The completed run should not be reported as an executed HPLT-to-OpenArchives
+  curriculum. The mixture, holdout exclusions, tokenizer comparison, and
+  hyperparameter interpretation remain the main claims; ordered-curriculum
+  claims require a future explicit sequential/no-shuffle data path.
 - Vanilla segment 1 completed cleanly as job `2516051` after `02:26:32`,
   saved `iter_0000952`, and exited at iteration 952. Segment 2 job `2516052`
   started from the dependency chain, loaded the `iter_0000952` checkpoint, and
@@ -173,8 +180,9 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   AdEMAMix, Goldfish, 4096/500k RoPE geometry, 16-node torchrun, eval cadence),
   tokenizer invariants (base 131072, extended 148480, both divisible by 256),
   init checkpoints, TE guard/runtime patches, per-set validation patch,
-  held-out validation binaries, replay-fixed ordered manifest, and both
-  base/ext full training Megatron binaries.
+  held-out validation binaries, replay-fixed physical-order manifest, and both
+  base/ext full training Megatron binaries. This gate did not verify sequential
+  consumption of that physical order by Megatron.
 
 ## 2026-06-10
 
@@ -209,9 +217,10 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
 - Fixed per-set validation observability: Megatron now prints and logs separate
   held-out validation losses for `hplt`, `openarchives`, and `greek_phd`.
 - Confirmed the dataset and init checkpoint gates: held-out ids are excluded,
-  replay positions are preserved, new-Greek slots are ordered HPLT then
-  OpenArchives, and both tokenizers/checkpoints pass the 256-alignment and R17
-  checks.
+  replay positions are preserved, the physical artifact places HPLT before
+  OpenArchives in new-Greek slots, and both tokenizers/checkpoints pass the
+  256-alignment and R17 checks. Later review found that Megatron randomized
+  sample consumption, so this should not be treated as a curriculum guarantee.
 - Diagnosed the multi-node `NET/OFI ... NO_SPACE` failure. The durable fix was
   to stop forcing `NCCL_NET_FORCE_FLUSH=1`; the trainer now defaults to
   `NCCL_NET_FORCE_FLUSH=0`.
@@ -254,9 +263,11 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
 ## 2026-06-09
 
 - Built and validated the two-arm 13.5B dataset path: 10B new Greek, 70% HPLT
-  then 30% OpenArchives/GlossAPI, plus 35% replay relative to new Greek.
+  and 30% OpenArchives/GlossAPI, plus 35% replay relative to new Greek.
 - Preserved replay/code/math/Greek-replay positions while reordering only the
-  new-Greek slots.
+  new-Greek slots in the physical stream. Later review found that Megatron
+  randomized train sample consumption, so this physical ordering did not
+  execute as a curriculum in the completed 13.5B run.
 - Set Stage-A to HPLT confident-only E001 cleaning plus GreekMMLU
   `correct_only` decontamination.
 - Set Stage-B anonymization after decontamination.

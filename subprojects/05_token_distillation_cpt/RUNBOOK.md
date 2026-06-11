@@ -6,7 +6,7 @@ single source of truth is the env config under `03_training_experiments/configs/
 
 ## Current State
 
-- Dataset, ordered Stage-C stream, base/ext Megatron binaries, held-out
+- Dataset, Stage-C physical stream, base/ext Megatron binaries, held-out
   validation binaries, init checkpoints, TE runtime guard, per-set validation
   patch, and artifact gate are ready on Clariden.
 - Launch-scale CXI is validated at 16 nodes / 64 GPUs per arm with
@@ -89,10 +89,15 @@ Production is the full 13.5B-token run, not the earlier 5B diagnostics.
   their doc ids are excluded from training.
 - Stage-C ordering: replay/code/math/Greek-replay positions stay fixed; only
   the new-Greek subsequence is rewritten so HPLT comes before OpenArchives.
+- Post-run caveat: this Stage-C order was present in the physical/indexed
+  artifact, but Megatron randomized the train sample order. Do not describe the
+  completed 13.5B run as an executed HPLT-to-OpenArchives curriculum; describe
+  it as the intended mixture with randomized sample consumption. A future
+  curriculum run needs an explicit no-shuffle/sequential sampler check.
 - Stage-A cleaning/decontamination: HPLT confident-only E001 clean, then
   GreekMMLU `correct_only` decontamination only.
 - Stage-B: anonymize after decontamination, then preprocess.
-- Stage-C: ordered replay-fixed preprocess, then base/ext tokenization.
+- Stage-C: replay-fixed physical-order preprocess, then base/ext tokenization.
 
 The committed recipe file is
 `03_training_experiments/dataset_build/bulk_13b.json`.
@@ -108,7 +113,8 @@ bash scripts/gate_cpt2arm_artifacts.sh
 
 The gate checks the regime invariants, tokenizer divisibility, checkpoint files,
 TE guard, CXI runtime settings, per-set validation patch, held-out binaries,
-ordered replay-fixed manifest, and both full training binaries.
+replay-fixed physical-order manifest, and both full training binaries. It does
+not prove that Megatron will consume samples in that physical order.
 
 ## Launch
 

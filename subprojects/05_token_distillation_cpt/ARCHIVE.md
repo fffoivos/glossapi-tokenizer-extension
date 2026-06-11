@@ -47,6 +47,9 @@ Positive checks from the review:
 
 - No sampled holdout leakage.
 - 70/30 HPLT/OpenArchives split.
+- Important post-run caveat: the dataset artifact was physically ordered, but
+  Megatron randomized training sample consumption. The completed 13.5B run
+  should not be described as an executed HPLT-to-OpenArchives curriculum.
 - Greek replay covered by decontamination and the full stream covered by
   anonymization.
 - Warmup, WSD cooldown, AdEMAMix, Goldfish, geometry, and vocab divisibility
@@ -96,11 +99,13 @@ These measurements produce the 8.3-8.5h per-arm allocated-runtime estimate in
 The production dataset is a full 13.5B-token run:
 
 - 10B new Greek.
-- New Greek = 70% HPLT, then 30% OpenArchives/GlossAPI.
+- New Greek = 70% HPLT and 30% OpenArchives/GlossAPI.
 - Replay = 24% multilingual, 4% code, 2% math, 5% Greek replay, all measured
   relative to new Greek.
 - Three 0.5B held-out validation sets are excluded from training.
-- Stage-C preserves replay positions and orders only new-Greek slots.
+- Stage-C preserves replay positions and orders only new-Greek slots in the
+  physical artifact. This does not imply sequential curriculum consumption by
+  Megatron.
 - Stage-A applies HPLT E001 cleaning and GreekMMLU `correct_only`
   decontamination.
 - Stage-B anonymizes after decontamination.
