@@ -108,6 +108,14 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   validation at iteration 2300. The failed-sidecar sweep remained empty; the
   active eval queue was normal, with vanilla `iter_0002142` and TD
   `iter_0001904` sidecars running.
+- Next checkpoint-wave poll: vanilla segment 3 reached iteration 2485, saved
+  `iter_0002380`, and reported held-out validation at iteration 2475. TD
+  segment 3 reached iteration 2175, saved `iter_0002142`, and reported
+  held-out validation at iteration 2175. Both arms still had zero skipped and
+  zero NaN iterations. The failed-sidecar sweep remained empty; vanilla
+  `iter_0002380` sidecars and TD `iter_0002142` sidecars were active, while
+  older sidecars through vanilla `iter_0002142` and TD `iter_0001904` had
+  mostly completed with only long Greek-NLP jobs still draining.
 
 ## 2026-06-10
 
