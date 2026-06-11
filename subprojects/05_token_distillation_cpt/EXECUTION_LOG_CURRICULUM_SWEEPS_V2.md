@@ -395,3 +395,50 @@ Training launch guard `2026-06-11T16:24Z`:
   non-smoke live training run (`DRY_RUN=0`, `TOTAL_ITER>2`) now fails fast if
   `NODES < 16`. The planned boundary smoke remains allowed with `TOTAL_ITER=2`
   and `NODES=1`.
+
+Stage A completion `2026-06-11T16:24Z`:
+
+- `2520414_[0-2]` completed and released Stage B immediately.
+- Completion times:
+  - `replay_only`: `2026-06-11T16:12:28Z`, decontam output 23G, dropped 275K.
+  - `glossapi_only`: `2026-06-11T16:15:08Z`, decontam output 21G, dropped 16M.
+  - `hplt_only`: `2026-06-11T16:23:59Z`, decontam output 61G, dropped 12M.
+- HPLT Stage A used `parallel n_workers=64` for GreekMMLU decontamination;
+  the scan completed in 219.7 seconds before the final filtering pass.
+- Stage B `2520415_[0-2]` started immediately for
+  `hplt_only`, `glossapi_only`, and `replay_only`.
+
+Stage B restart `2026-06-11T16:28Z`:
+
+- Initial Stage B array `2520415_[0-2]` failed within 20 seconds because the
+  `cpt_build_py312` build environment lacked `orjson`, which datatrove
+  requires for `JsonlReader`.
+- Installed `orjson==3.11.9` into the existing build venv and verified import
+  through the same `run_build_py` wrapper used by the sbatch scripts.
+- Resubmitted Stage B as `2520650_[0-2]`; all three tasks started.
+- Clariden resource note: the scripts request CPU/memory only (`ReqTRES` has no
+  GPU request), but the visible `normal/debug/low` partitions are GPU-node
+  partitions, so Slurm reports full-node allocations with `gres/gpu=4`. The
+  only no-GRES partition visible is `xfer` (2 nodes, currently busy). For speed,
+  the active Stage B restart is running on `normal`; future CPU-only strictness
+  would require an available CPU/no-GRES partition or a slower `xfer` queue.
+
+Stage B completion and boundary pin `2026-06-11T17:30Z`:
+
+- Stage B restart `2520650_[0-2]` completed successfully:
+  - `glossapi_only`: `00:16:11`, done at `2026-06-11T16:43:57Z`.
+  - `replay_only`: `00:24:06`, done at `2026-06-11T16:51:52Z`.
+  - `hplt_only`: `00:58:28`, done at `2026-06-11T17:25:49Z`.
+- Verified all six train binaries exist:
+  `hplt_only`, `glossapi_only`, `replay_only` × `base`, `ext`.
+- Exact `.bin` token counts (`bytes/4`):
+  - ext: `hplt_only=8,515,361,723`, `glossapi_only=3,694,776,527`,
+    raw boundary `3218 * hplt/(hplt+glossapi) = 2244.24`, rounded to
+    `2261` (`19*119`).
+  - base: `hplt_only=13,802,297,740`, `glossapi_only=5,300,413,963`,
+    would round to `2380`; keep the vanilla control on the same `2261`
+    curriculum schedule as TD for comparability.
+- No config value change needed: `curriculum_common.env`,
+  `submit_curriculum_two_phase.sh`, and `cadence_curriculum.tsv` already carry
+  the pinned ext boundary `2261`. Updated comments/runbook to mark it pinned,
+  not provisional.

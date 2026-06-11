@@ -50,10 +50,11 @@ sbatch --array=0-5 dataset/tokenize_forgetting_vals.sbatch   # val_forget_<name>
 
 The 70/30 split is an ABSOLUTE iteration, a multiple of `SAVE_INTERVAL=119`. Compute it from the
 realized hplt_only vs glossapi_only token counts (`.bin size / 4`): `PHASE1_EXIT_ITER ≈ round_to_119(
-TOTAL_ITER × hplt_tokens/(hplt_tokens+glossapi_tokens))`. The provisional default is `2261`
-(`19×119`) for the resized 8.5B/3.7B targets; overwrite `train/curriculum_common.env`,
-`train/submit_curriculum_two_phase.sh`, and `eval/cadence_curriculum.tsv` if the realized binaries
-round differently.
+TOTAL_ITER × hplt_tokens/(hplt_tokens+glossapi_tokens))`. Stage B verified the ext-tokenizer boundary
+as raw `2244.24`, rounded to `2261` (`19×119`). The base-tokenizer binaries would round to `2380`,
+but the vanilla control intentionally keeps the same `2261` curriculum schedule for comparability.
+Update `train/curriculum_common.env`, `train/submit_curriculum_two_phase.sh`, and
+`eval/cadence_curriculum.tsv` only if a rebuild moves the realized ext-tokenizer boundary.
 
 ## 3 · Smoke the phase boundary (before any sweep)
 
@@ -116,7 +117,7 @@ Validation split policy:
   rule is mandatory: never let a held-out validation set swallow the entire
   train pool.
 
-1. **PHASE1_EXIT_ITER** is provisional — pin from realized token counts (§2).
+1. **PHASE1_EXIT_ITER** is pinned to `2261` from realized ext-tokenizer Stage B sizes (§2).
 2. **Per-tokenizer non-comparability** of forgetting loss (vanilla base vs td ext) — within-arm only.
 
 ## 7 · Required upstream edits (see `train/UPSTREAM_EDITS.md`)
