@@ -27,10 +27,10 @@ cd $V2   # = .../03_training_experiments/curriculum_sweeps_v2
 source paths.env
 # 1. recipes
 $PY dataset/make_phase_recipes.py $THIS/dataset_build/bulk_13b.json $V2/dataset/recipes
-# 2. old-data validation sets. CodeParrot first so the proxy code set is included.
+# 2. old-data validation sets. Stage StarCoderData first so code is an Apertus-family source.
 #    build_forgetting_vals uses the absolute 2B-char target only when it leaves
 #    enough train data; finite pools fall back to MAX_VAL_FRACTION=0.25.
-sbatch dataset/snapshot_codeparrot_heldout.sbatch
+sbatch dataset/stage_starcoderdata_subset.sbatch
 sbatch dataset/build_forgetting_vals.sbatch                # english + old_greek (+code +de/ru/zh if present)
 # 3. new-Greek held-outs (REUSE the deployed builder on a CPU Slurm node, output into v2 STAGE):
 sbatch dataset/build_newgreek_vals.sbatch
@@ -103,8 +103,9 @@ All 6 old-data validation sets are buildable, but their provenance differs:
 - **old_greek** — strictest provenance: same file + `source_doc_id` drop as
   `greek_replay_apertus_original`, built from nanochat rows intersecting the
   Apertus-overlap drop overlay.
-- **code** — proxy only unless replaced by StarCoderData/CommonPile Stack-family
-  data. CodeParrot was a fallback, not an exact Apertus pretraining source.
+- **code** — StarCoderData staged subset (`bigcode/starcoderdata`), matching an
+  Apertus pretraining source family. The staging pass rewrites shards with a
+  stable `doc_id` so `val_forget_code` can be dropped from replay training.
 
 Validation split policy:
 - Try the absolute target (`FORGET_CHAR_BUDGET`, default 2B chars ≈ 0.5B tokens).
@@ -131,7 +132,7 @@ self-resubmit. Apply, dry-run the pilot config to confirm zero behavior change, 
 paths.env                         single source of truth
 dataset/  make_phase_recipes.py   -> recipes/{hplt,glossapi,replay}_only.json
           mix_phase_binaries.sbatch   stageA_clean_decontam_binary.sbatch   stageB_anon_preprocess_binary.sbatch
-          build_forgetting_vals.{py,sbatch}   snapshot_codeparrot_heldout.{py,sbatch}
+          build_forgetting_vals.{py,sbatch}   stage_starcoderdata_subset.{py,sbatch}
           tokenize_newgreek_vals.sbatch   tokenize_forgetting_vals.sbatch
 train/    runtime_patches/reset_data_index_guard.py   curriculum_common.env   phase1_hplt.env   phase2_glossapi.env
           submit_curriculum_two_phase.sh   sweep_replay.sh   sweep_peak_lr.sh   submit_vanilla_control.sh   UPSTREAM_EDITS.md

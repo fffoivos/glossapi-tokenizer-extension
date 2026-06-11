@@ -23,15 +23,14 @@ FORGET_DROP = f"{SC}/cpt_corpus/curriculum_v2/forget_holdout_ids.parquet"  # old
 
 # the replay sources whose forgetting held-outs we must exclude from training, and the
 # doc-key field whose VALUE was stored in forget_holdout_ids.parquet. FineWeb
-# pools use `id`, greek_replay uses `source_doc_id`. CodeParrot has no stable
-# source id; its real no-overlap guard is the disjoint held-out stream offset,
-# and the doc_id drop is harmless provenance wiring if the builder can key it.
+# pools use `id`, StarCoderData uses the staging-added `doc_id`, and greek_replay
+# uses `source_doc_id`.
 FORGET_DROP_SOURCES = {
     "replay_t1_english_edu":            "id",
     "replay_t1_deu_Latn":               "id",
     "replay_t1_rus_Cyrl":               "id",
     "replay_t1_cmn_Hani":               "id",
-    "code_codeparrot_clean":            "doc_id",
+    "code_starcoderdata_subset":        "doc_id",
     "greek_replay_apertus_original":    "source_doc_id",
 }
 
@@ -44,6 +43,18 @@ EXPANDED_REPLAY_GLOBS = {
     "replay_t1_deu_Latn": f"{SC}/cpt_corpus/replay/deu_Latn_fw2hq/deu_Latn/*.parquet",
     "replay_t1_rus_Cyrl": f"{SC}/cpt_corpus/replay/rus_Cyrl_fw2hq/rus_Cyrl/*.parquet",
     "replay_t1_cmn_Hani": f"{SC}/cpt_corpus/replay/cmn_Hani_fw2hq/cmn_Hani/*.parquet",
+}
+
+STARCODER_SOURCE = {
+    "name": "code_starcoderdata_subset",
+    "bucket": "code",
+    "share_within_bucket": 1.0,
+    "id": "bigcode/starcoderdata",
+    "local_parquet": f"{SC}/cpt_corpus/replay/starcoderdata_v2/*/*.parquet",
+    "split": "train",
+    "streaming": True,
+    "text_column": "content",
+    "comment": "Apertus-family code replay source, staged locally from bigcode/starcoderdata with stable doc_id.",
 }
 
 b = json.loads(BULK.read_text())
@@ -63,6 +74,11 @@ single("glossapi_only", "greek_openarchives_30", r"^openarchives\.gr")
 
 # replay_only: every non-Greek-new source, weights renormalized to sum 1.0, forgetting drops wired.
 rep = [dict(s) for s in b["sources"] if s.get("bucket") in ("replay", "code", "math", "greek_replay")]
+for i, s in enumerate(rep):
+    if s.get("bucket") == "code":
+        replacement = dict(STARCODER_SOURCE)
+        replacement["weight"] = s["weight"]
+        rep[i] = replacement
 tot = sum(float(s["weight"]) for s in rep)
 for s in rep:
     s["weight"] = round(float(s["weight"]) / tot, 8)

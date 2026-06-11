@@ -9,14 +9,14 @@ replay_only recipe can exclude them via drop_doc_keys_parquet.
 The stored id VALUE per source must match the doc_key_field wired in make_phase_recipes.py:
   FineWeb pools (english/de/ru/zh) -> `id`
   greek_replay                     -> `source_doc_id`
-  code                             -> handled separately by snapshot_codeparrot_heldout.py (`doc_id`)
+  code                             -> StarCoderData staged subset (`doc_id`)
 
 UNSEEN GUARANTEE FOR THIS CPT RUN: each row-id-backed set is carved from the SAME local replay
 pool the replay_only recipe trains on, and its ids are dropped via drop_doc_keys_parquet. That is
 separate from Apertus provenance: english/de/ru/zh are Apertus pretraining source families, but this
 builder does not have an item-level manifest proving a particular document was consumed by Apertus.
-old_greek is stricter: it comes from the nanochat ∩ Apertus-overlap overlay. codeparrot is a proxy
-only; Apertus used StarCoder/Stack-family sources, not CodeParrot.
+old_greek is stricter: it comes from the nanochat ∩ Apertus-overlap overlay. code is a staged
+StarCoderData subset, matching an Apertus pretraining source family.
 
 ROBUST TO MISSING POOLS: a source whose parquet(s) don't exist is skipped with a warning; the rest
 still build (idempotent: re-running rewrites val_forget_<name>.jsonl + merges ids).
@@ -32,9 +32,9 @@ SOURCES = {
     "de":        (f"{SC}/cpt_corpus/replay/deu_Latn_fw2hq/deu_Latn/*.parquet",       "id",            "text", None),
     "ru":        (f"{SC}/cpt_corpus/replay/rus_Cyrl_fw2hq/rus_Cyrl/*.parquet",       "id",            "text", None),
     "zh":        (f"{SC}/cpt_corpus/replay/cmn_Hani_fw2hq/cmn_Hani/*.parquet",       "id",            "text", None),
+    "code":      (f"{SC}/cpt_corpus/replay/starcoderdata_v2/*/*.parquet",            "doc_id",        "content", None),
     "old_greek": (f"{SC}/cpt_corpus/greek_replay/greek_replay.parquet",              "source_doc_id", "text", None),
 }
-# code is built by snapshot_codeparrot_heldout.py (HF stream, no stable id).
 
 PROVENANCE = {
     "english": {
@@ -63,34 +63,11 @@ PROVENANCE = {
         "strict_item_level_seen_by_apertus": True,
     },
     "code": {
-        "apertus_source_status": "proxy_not_strict",
-        "apertus_source": "CodeParrot fallback; Apertus used StarCoderData/CommonPile Stack-family code.",
+        "apertus_source_status": "apertus_pretraining_source_family",
+        "apertus_source": "StarCoderData subset staged from bigcode/starcoderdata.",
         "strict_item_level_seen_by_apertus": False,
     },
 }
-
-def load_code_ids(out_dir):
-    """Preserve CodeParrot ids while regenerating the row-id based language drops."""
-    path = os.path.join(out_dir, "val_forget_code.jsonl")
-    ids = []
-    if not os.path.exists(path):
-        existing = os.path.join(out_dir, "forget_holdout_ids.parquet")
-        if os.path.exists(existing):
-            ids = [str(x) for x in pq.read_table(existing).column("doc_id").to_pylist()]
-            print(
-                f"  [WARN] {path} missing; preserving {len(ids):,} ids from existing forget_holdout_ids.parquet",
-                flush=True,
-            )
-        return ids
-    with open(path, encoding="utf-8") as fin:
-        for line in fin:
-            if not line.strip():
-                continue
-            row = json.loads(line)
-            if row.get("doc_id"):
-                ids.append(str(row["doc_id"]))
-    print(f"  preserving {len(ids):,} code ids from {path}", flush=True)
-    return ids
 
 def iter_rows(files, id_col, text_col, min_score):
     for fp in files:
@@ -173,23 +150,16 @@ def main():
     a = ap.parse_args()
     os.makedirs(a.output_dir, exist_ok=True)
 
-    # Rebuild the id-drop parquet from fresh language validation selections.
+    # Rebuild the id-drop parquet from fresh validation selections.
     # This deliberately avoids carrying stale en/de/ru/zh ids from an earlier
     # run that used too-small staged pools.
-    all_ids = load_code_ids(a.output_dir)
+    all_ids = []
     manifest = {
         "policy": "absolute char-budget first; if that would hold out more than max_val_fraction of the eligible pool, cap validation at max_val_fraction",
         "char_budget": a.char_budget,
         "max_val_fraction": a.max_val_fraction,
         "sets": [],
     }
-    if all_ids:
-        manifest["sets"].append({
-            "name": "code",
-            "status": "built_elsewhere",
-            "heldout_ids": len(all_ids),
-            **PROVENANCE["code"],
-        })
     for name, (pattern, id_col, text_col, min_score) in SOURCES.items():
         ids, meta = build_one(name, pattern, id_col, text_col, min_score, a.output_dir, a.char_budget, a.max_val_fraction)
         all_ids.extend(ids)

@@ -185,3 +185,78 @@ Intervention `2026-06-11T13:20Z`:
 - No extra-shard staging job was launched. Patched `build_forgetting_vals.py` to
   write `forgetting_val_manifest.json` and to use the absolute-then-relative
   split policy (`FORGET_CHAR_BUDGET=2B chars`, `MAX_VAL_FRACTION=0.25`).
+
+Rebuild submission `2026-06-11T13:55Z`:
+
+- Synced corrected v2 scripts/runbook plus
+  `docs/APERTUS_PRETRAINING_DATA_AND_GREEK_SHARE.md` to Clariden.
+- Regenerated remote phase recipes.
+- Submitted affected rebuild chain:
+  - forgetting validation rebuild: `2519710`
+  - old-data validation tokenization: `2519711` (`afterok:2519710`, array 0-5)
+  - phase mix rebuild: `2519712` (`afterok:2519710`, array 0-2)
+  - Stage A GreekMMLU-only decontam: `2519713` (`afterok:2519712`, array 0-2)
+  - Stage B anonymize/tokenize: `2519714` (`afterok:2519713`, array 0-2)
+
+Forgetting rebuild result:
+
+- `2519710` completed in `00:01:33`.
+- New `forgetting_val_manifest.json` confirms split/provenance:
+  - `english`: 25.0002% held out, `apertus_pretraining_source_family`
+  - `de`: 25.0020% held out, `apertus_pretraining_source_family`
+  - `ru`: 25.0002% held out, `apertus_pretraining_source_family`
+  - `zh`: 25.0010% held out, `apertus_pretraining_source_family`
+  - `old_greek`: 17.5306% held out, `apertus_overlap_overlay`,
+    `strict_item_level_seen_by_apertus=true`
+  - `code`: `proxy_not_strict` because CodeParrot is not Apertus
+    StarCoder/Stack-family pretraining data.
+- New `forget_holdout_ids.parquet` has 709,215 unique ids, down from the
+  previous 1,161,094 full-pool holdout.
+- Old-data validation tokenization `2519711_[0-5]` completed; all 12
+  base/ext binaries exist for `english`, `de`, `ru`, `zh`, `code`, and
+  `old_greek`.
+
+Mix babysitting snapshot `2026-06-11T13:37Z`:
+
+- `2519712_[0-2]` running.
+- `replay_only` loaded the corrected 709,215 drop keys and reached 100M/5.0B
+  tokens at ~569k tok/s.
+- `hplt_only` reached 100M/8.5B tokens at ~474k tok/s.
+- `glossapi_only` reached 50M/3.7B tokens at ~300k tok/s.
+
+Code-source intervention `2026-06-11T14:02Z`:
+
+- User accepted the `bigcode/starcoderdata` Hugging Face terms. Re-tested from
+  Clariden with `hf_hub_download(..., dry_run=True)`:
+  `python/train-00000-of-00059.parquet` and
+  `javascript/train-00000-of-00065.parquet` now return OK.
+- Canceled the CodeParrot-based chain before Stage A/B could consume it:
+  - `2519712_[0-2]`: `CANCELLED by 1883` at about 16 min runtime.
+  - `2519713_[0-2]` and `2519714_[0-2]`: canceled at `00:00:00`.
+- Patched v2 to replace CodeParrot with an Apertus-family StarCoderData
+  source:
+  - added `dataset/stage_starcoderdata_subset.{py,sbatch}` to download a
+    deterministic subset and rewrite shards with stable
+    `doc_id=starcoderdata:<repo_path>:<upstream_id>`;
+  - updated `make_phase_recipes.py` so the replay code bucket becomes
+    `code_starcoderdata_subset`, local parquet
+    `$SC/cpt_corpus/replay/starcoderdata_v2/*/*.parquet`, text column
+    `content`, drop key `doc_id`;
+  - updated `build_forgetting_vals.py` so `val_forget_code.jsonl` is carved
+    from the same staged StarCoderData pool and subject to the same
+    absolute-then-relative validation split policy.
+- Local checks passed:
+  - `python3 -m py_compile` for the new staging script plus the patched recipe
+    and forgetting builders;
+  - `bash -n` for staging/forgetting/mix sbatches;
+  - local recipe generation confirms replay has 27 sources, source-weight sum
+    `0.99999999`, and code source `code_starcoderdata_subset`.
+- Synced patched v2 tree to Clariden, regenerated recipes, and removed stale
+  CodeParrot-derived phase outputs/tokenized code validation artifacts.
+- Submitted replacement chain:
+  - StarCoderData staging: `2519897`
+  - forgetting validation rebuild: `2519898` (`afterok:2519897`)
+  - old-data validation tokenization: `2519899` (`afterok:2519898`, array 0-5)
+  - phase mix rebuild: `2519900` (`afterok:2519898`, array 0-2)
+  - Stage A GreekMMLU-only decontam: `2519901` (`afterok:2519900`, array 0-2)
+  - Stage B anonymize/tokenize: `2519902` (`afterok:2519901`, array 0-2)
