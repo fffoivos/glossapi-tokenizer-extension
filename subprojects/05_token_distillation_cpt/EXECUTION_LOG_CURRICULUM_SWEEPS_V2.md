@@ -835,3 +835,41 @@ First production segment handoff and third eval sanity set `2026-06-11T21:18Z`:
   - TD R=0.15: `0.2688295269`.
 - Replay decision remains gated on later/full trajectories plus in-training
   forgetting-loss deltas; LR sweep remains intentionally unlaunched.
+
+R0.25 handoff clean, R0.35 segment-2 retry `2026-06-11T21:35Z`:
+
+- TD R=0.35 segment 1 `2520964` completed successfully: Slurm state
+  `COMPLETED`, exit `0:0`, elapsed `02:42:52`.
+- Its original segment 2 `2520966` started on `16` nodes but failed during
+  Torch/Inductor JIT warmup before any resumed training iteration:
+  - failure rank: `rank62`;
+  - error: `torch.AcceleratorError: CUDA error: unspecified launch failure`;
+  - Slurm state `FAILED`, exit `1:0`, elapsed `00:01:46`.
+- Because the failed job exited before loading/resuming from
+  `iter_0000952`, the safe retry point remains the existing checkpoint under
+  `curr_td_replay0.35_20260611T181235Z/checkpoints`.
+- Submitted a replacement R0.35 chain into the same run directory:
+  - `2521904` = `s2r1`, phase-1 HPLT config, `EXIT_INTERVAL=1904`;
+  - `2521905` = `s3r1`, phase-1 HPLT config, `EXIT_INTERVAL=2261`;
+  - `2521906` = `s4r1`, phase-2 GlossAPI config, `EXIT_INTERVAL=3218`,
+    `RESET_DATA_INDEX=1`.
+- Canceled the broken original dependency tail `2520967` and `2520968` to
+  avoid a stale `afterok:2520966` chain.
+- TD R=0.25 segment 1 `2520969` completed successfully: Slurm state
+  `COMPLETED`, exit `0:0`, elapsed `02:41:51`.
+- TD R=0.25 segment 2 `2520971` started on `16` nodes, loaded
+  `/checkpoints/iter_0000952`, and resumed at iteration `953`.
+  Optimizer/schedule continuity is clean: observed LR stayed
+  `5.500000E-05`, skipped iterations `0`, NaN iterations `0`.
+- First resumed TD R=0.25 training lines were finite:
+  - iter `953`, loss `2.031282`;
+  - iter `954`, loss `2.031653`;
+  - iter `959`, loss `2.041158`.
+- Resource note from live `scontrol`/`sacct`: production training jobs are
+  using `16` nodes / `64` GPUs per arm as intended. The completed preprocessing
+  jobs were CPU-style workloads, but they were submitted to `normal` and
+  allocated full GPU nodes; this did not affect data integrity, but it is a
+  real efficiency issue to fix before any future rebuild. Checksum sidecars run
+  CPU-only on `xfer`; native/BPB eval sidecars use the existing GPU eval
+  wrappers.
+- LR sweep remains gated on replay/control results and user choice of `R*`.
