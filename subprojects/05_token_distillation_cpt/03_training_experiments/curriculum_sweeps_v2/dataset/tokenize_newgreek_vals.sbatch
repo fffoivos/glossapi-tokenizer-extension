@@ -16,7 +16,11 @@
 # it would tokenize the PILOT's val jsonls, not build_holdout_vals.py's curriculum_v2 output. This is the
 # v2 equivalent, reading $STAGE/val_$V.jsonl (build_holdout_vals.py --output-dir $STAGE) on partition=normal.
 set -euo pipefail
-source "$(dirname "$0")/../paths.env"
+V2_DIR="${V2_DIR:-${SLURM_SUBMIT_DIR:-$(pwd)}}"
+if [ ! -f "$V2_DIR/paths.env" ] && [ -f "$V2_DIR/../paths.env" ]; then
+  V2_DIR="$(cd "$V2_DIR/.." && pwd)"
+fi
+source "$V2_DIR/paths.env"
 cd "$MEG"; mkdir -p "$MEGOUT"; test -x "$PY"
 
 VALS=(hplt openarchives greek_phd)

@@ -12,7 +12,11 @@
 # Mint a guaranteed-disjoint `code` forgetting set with a stable sha id. Run
 # this BEFORE build_forgetting_vals.sbatch, which merges the code ids.
 set -euo pipefail
-source "$(dirname "$0")/../paths.env"
+V2_DIR="${V2_DIR:-${SLURM_SUBMIT_DIR:-$(pwd)}}"
+if [ ! -f "$V2_DIR/paths.env" ] && [ -f "$V2_DIR/../paths.env" ]; then
+  V2_DIR="$(cd "$V2_DIR/.." && pwd)"
+fi
+source "$V2_DIR/paths.env"
 mkdir -p "$STAGE"; test -x "$PY"
 "$PY" -u "$V2/dataset/snapshot_codeparrot_heldout.py" --output-dir "$STAGE" --char-budget 2000000000 --skip-docs 2000000
 echo "codeparrot snapshot DONE $(date -u)"

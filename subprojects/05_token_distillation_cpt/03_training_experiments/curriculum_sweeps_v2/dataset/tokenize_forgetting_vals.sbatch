@@ -13,7 +13,11 @@
 # These become extra-valid binaries val_forget_<name>_<base|ext>_text_document. Mirrors tokenize_vals.sbatch.
 # A set whose jsonl is absent (e.g. de/ru/zh not yet built) is skipped (idempotent).
 set -euo pipefail
-source "$(dirname "$0")/../paths.env"
+V2_DIR="${V2_DIR:-${SLURM_SUBMIT_DIR:-$(pwd)}}"
+if [ ! -f "$V2_DIR/paths.env" ] && [ -f "$V2_DIR/../paths.env" ]; then
+  V2_DIR="$(cd "$V2_DIR/.." && pwd)"
+fi
+source "$V2_DIR/paths.env"
 cd "$MEG"; mkdir -p "$MEGOUT"; test -x "$PY"
 
 VALS=(english de ru zh code old_greek)

@@ -12,7 +12,11 @@
 # array 0-2. Per-binary StageB: PII anonymize (split into 64 line-shards first — datatrove shards
 # by FILE) then Megatron preprocess_data.py x2 (base 131072 + ext 148480). Mirrors stageB_anon_preprocess.sbatch.
 set -euo pipefail
-source "$(dirname "$0")/../paths.env"
+V2_DIR="${V2_DIR:-${SLURM_SUBMIT_DIR:-$(pwd)}}"
+if [ ! -f "$V2_DIR/paths.env" ] && [ -f "$V2_DIR/../paths.env" ]; then
+  V2_DIR="$(cd "$V2_DIR/.." && pwd)"
+fi
+source "$V2_DIR/paths.env"
 
 BINS=(hplt_only glossapi_only replay_only)
 B=${BINS[${SLURM_ARRAY_TASK_ID:-0}]}

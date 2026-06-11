@@ -14,7 +14,11 @@
 # mix_phase_binaries (hplt/glossapi recipes drop val_holdout_ids.parquet) and
 # before tokenize_newgreek_vals.
 set -euo pipefail
-source "$(dirname "$0")/../paths.env"
+V2_DIR="${V2_DIR:-${SLURM_SUBMIT_DIR:-$(pwd)}}"
+if [ ! -f "$V2_DIR/paths.env" ] && [ -f "$V2_DIR/../paths.env" ]; then
+  V2_DIR="$(cd "$V2_DIR/.." && pwd)"
+fi
+source "$V2_DIR/paths.env"
 mkdir -p "$STAGE"
 test -x "$PY"
 test -f "$THIS/dataset_build/build_holdout_vals.py"

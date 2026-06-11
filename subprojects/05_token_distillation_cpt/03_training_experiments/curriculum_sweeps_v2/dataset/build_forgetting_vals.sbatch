@@ -13,7 +13,11 @@
 # these ids) and before tokenize_forgetting_vals. Run
 # snapshot_codeparrot_heldout.sbatch FIRST so the `code` set is included.
 set -euo pipefail
-source "$(dirname "$0")/../paths.env"
+V2_DIR="${V2_DIR:-${SLURM_SUBMIT_DIR:-$(pwd)}}"
+if [ ! -f "$V2_DIR/paths.env" ] && [ -f "$V2_DIR/../paths.env" ]; then
+  V2_DIR="$(cd "$V2_DIR/.." && pwd)"
+fi
+source "$V2_DIR/paths.env"
 mkdir -p "$STAGE"
 test -x "$PY"
 "$PY" -u "$V2/dataset/build_forgetting_vals.py" --output-dir "$STAGE" --char-budget 2000000000
