@@ -496,3 +496,33 @@ Boundary smoke `2026-06-11T18:10Z`:
     `error_injection_rate=0` / `error_injection_type=transient_error`.
 - Verdict: PASS. Proceed to live replay/control launches with the enforced
   `NODES>=16` production floor.
+
+Replay/control production launch `2026-06-11T18:13Z`:
+
+- Ran remote dry-run immediately before launch; confirmed every production
+  segment emits `--nodes=16 --gpus-per-node=4 --gres=gpu:4`, four segments per
+  chain, and `RESET_DATA_INDEX=1` only on each phase-2 segment.
+- Queue was empty for `fffoivos` before launch.
+- Submitted live with `DRY_RUN=0 CONFIRM_LAUNCH=1`.
+- Vanilla control:
+  - run tag: `curr_vanilla_r0.35_20260611T181233Z`
+  - jobs: `2520960` -> `2520961` -> `2520962` -> `2520963`
+  - each training segment requests 16 nodes / 64 GPUs
+  - GreekMMLU watcher: `2520980`, `EVAL_ARM=vanilla`, running on `xfer`
+    with `cpu=1,mem=4G,node=1`
+- TD replay sweep:
+  - R=0.35 run tag: `curr_td_replay0.35_20260611T181235Z`
+    jobs `2520964` -> `2520966` -> `2520967` -> `2520968`
+  - R=0.25 run tag: `curr_td_replay0.25_20260611T181235Z`
+    jobs `2520969` -> `2520971` -> `2520972` -> `2520973`
+  - R=0.15 run tag: `curr_td_replay0.15_20260611T181235Z`
+    jobs `2520974` -> `2520975` -> `2520976` -> `2520977`
+  - every training segment requests 16 nodes / 64 GPUs
+  - GreekMMLU watchers: `2520981`, `2520982`, `2520983`, all running on
+    `xfer` with `cpu=1,mem=4G,node=1`
+- First segments `2520960`, `2520964`, `2520969`, and `2520974` are independent
+  and pending with reason `Priority`; downstream segments are dependency-held.
+  This is the intended parallelism: Clariden can start any or all first
+  segments as capacity opens.
+- Launch log:
+  `/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/launch_replay_control_20260611T181233Z.log`.
