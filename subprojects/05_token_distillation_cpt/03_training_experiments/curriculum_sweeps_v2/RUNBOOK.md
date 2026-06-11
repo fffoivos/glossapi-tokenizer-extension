@@ -27,7 +27,9 @@ cd $V2   # = .../03_training_experiments/curriculum_sweeps_v2
 source paths.env
 # 1. recipes
 $PY dataset/make_phase_recipes.py $THIS/dataset_build/bulk_13b.json $V2/dataset/recipes
-# 2. forgetting held-outs (old-data). CodeParrot first so `code` is included.
+# 2. old-data validation sets. CodeParrot first so the proxy code set is included.
+#    build_forgetting_vals uses the absolute 2B-char target only when it leaves
+#    enough train data; finite pools fall back to MAX_VAL_FRACTION=0.25.
 sbatch dataset/snapshot_codeparrot_heldout.sbatch
 sbatch dataset/build_forgetting_vals.sbatch                # english + old_greek (+code +de/ru/zh if present)
 # 3. new-Greek held-outs (REUSE the deployed builder on a CPU Slurm node, output into v2 STAGE):
@@ -91,17 +93,27 @@ rise. Pick R* (c) and LR (d) at the best balance. **Per-token loss is not compar
 
 ## 6 · DECISIONS (resolve before building) — no hard blockers remain
 
-All 6 forgetting sets are buildable now; each has a working "unseen" guard (see how, per source):
-- **english / de / ru / zh** — carved first-N from the SAME `*_fw2hq[/...]/000_00000.parquet` shard the
-  replay_only recipe trains on (827/633/570 MB shards exist), so the held-out docs ARE in the training
-  pool and their `id`s are excluded via `drop_doc_keys_parquet`. (The earlier "pools exhausted → need
-  `_fw2hq_extra` shards" note was wrong: mix_builder re-reads the full shard each build.) english also
-  applies the training source's `score>=3` filter so the held-out sub-population matches.
-- **old_greek** — same file + `source_doc_id` drop as the greek_replay training source.
-- **code** — held out by a disjoint OFFSET (`snapshot_codeparrot_heldout.sbatch --skip-docs 2_000_000`),
-  NOT by id-drop (codeparrot is HF-streamed with only a `content` column, so the doc_id drop is a no-op).
-  Valid as long as the run's code token budget consumes <2M docs (it does at 13.5B). The v2 run includes
-  this set; run the snapshot before `build_forgetting_vals.sbatch`.
+All 6 old-data validation sets are buildable, but their provenance differs:
+- **english / de / ru / zh** — Apertus pretraining source families per
+  `docs/APERTUS_PRETRAINING_DATA_AND_GREEK_SHARE.md`: FineWeb-Edu for English and
+  FineWeb2-HQ high-resource multilingual for de/ru/zh. They are carved from the
+  same staged replay pools that `replay_only` trains on, then their `id`s are
+  excluded via `drop_doc_keys_parquet`. The builder writes
+  `$STAGE/forgetting_val_manifest.json` with the exact held-out fraction.
+- **old_greek** — strictest provenance: same file + `source_doc_id` drop as
+  `greek_replay_apertus_original`, built from nanochat rows intersecting the
+  Apertus-overlap drop overlay.
+- **code** — proxy only unless replaced by StarCoderData/CommonPile Stack-family
+  data. CodeParrot was a fallback, not an exact Apertus pretraining source.
+
+Validation split policy:
+- Try the absolute target (`FORGET_CHAR_BUDGET`, default 2B chars ≈ 0.5B tokens).
+- If that would consume more than `MAX_VAL_FRACTION` of a finite eligible pool,
+  fall back to a relative validation split (default `MAX_VAL_FRACTION=0.25`, so
+  at least ~75% remains trainable).
+- For future CPT runs that use all available data, this absolute-then-relative
+  rule is mandatory: never let a held-out validation set swallow the entire
+  train pool.
 
 1. **PHASE1_EXIT_ITER** is provisional — pin from realized token counts (§2).
 2. **Per-tokenizer non-comparability** of forgetting loss (vanilla base vs td ext) — within-arm only.

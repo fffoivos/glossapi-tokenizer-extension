@@ -35,6 +35,17 @@ FORGET_DROP_SOURCES = {
     "greek_replay_apertus_original":    "source_doc_id",
 }
 
+# Read the full staged local pool for the finite old-data validation sources.
+# This is a glob so a future, provenance-checked staging pass can add more
+# Apertus-source shards without changing the recipe generator; with today's
+# single-shard staging it still resolves to the existing 000_00000.parquet.
+EXPANDED_REPLAY_GLOBS = {
+    "replay_t1_english_edu": f"{SC}/cpt_corpus/replay/eng_fineweb_edu/sample/10BT/*.parquet",
+    "replay_t1_deu_Latn": f"{SC}/cpt_corpus/replay/deu_Latn_fw2hq/deu_Latn/*.parquet",
+    "replay_t1_rus_Cyrl": f"{SC}/cpt_corpus/replay/rus_Cyrl_fw2hq/rus_Cyrl/*.parquet",
+    "replay_t1_cmn_Hani": f"{SC}/cpt_corpus/replay/cmn_Hani_fw2hq/cmn_Hani/*.parquet",
+}
+
 b = json.loads(BULK.read_text())
 seed = b.get("seed", 20260609)
 byname = {s["name"]: s for s in b["sources"]}
@@ -55,6 +66,8 @@ rep = [dict(s) for s in b["sources"] if s.get("bucket") in ("replay", "code", "m
 tot = sum(float(s["weight"]) for s in rep)
 for s in rep:
     s["weight"] = round(float(s["weight"]) / tot, 8)
+    if s["name"] in EXPANDED_REPLAY_GLOBS:
+        s["local_parquet"] = EXPANDED_REPLAY_GLOBS[s["name"]]
     if s["name"] in FORGET_DROP_SOURCES:
         s["doc_key_field"] = FORGET_DROP_SOURCES[s["name"]]
         s["drop_doc_keys_parquet"] = FORGET_DROP   # safe even if that source has no held-out ids (drops nothing)

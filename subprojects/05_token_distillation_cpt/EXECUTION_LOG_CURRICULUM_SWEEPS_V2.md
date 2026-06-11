@@ -150,3 +150,38 @@ Babysitting snapshot `2026-06-11T12:56:18Z`:
   - `replay_only`: 1.15B/5.00B tokens (23.0%), rate ~542k tok/s, ETA ~118 min
 - Current JSONL sizes: `hplt_only` 8.6G, `glossapi_only` 7.7G,
   `replay_only` 5.6G.
+
+Babysitting snapshot `2026-06-11T13:07:12Z`:
+
+- `2519265_[0-2]` still running; Stage A/B still dependency-held.
+- `hplt_only`: 1.45B/8.50B tokens (17.1%), rate ~506k tok/s, ETA ~232 min.
+- `glossapi_only`: 1.65B/3.70B tokens (44.7%), rate ~584k tok/s, ETA ~58 min.
+- `replay_only`: 1.50B/5.00B tokens (30.0%), rate ~539k tok/s, ETA ~108 min.
+- Current JSONL sizes: `hplt_only` 11.1G, `glossapi_only` 10.1G,
+  `replay_only` 7.2G.
+
+Intervention `2026-06-11T13:20Z`:
+
+- Review feedback identified a material replay-data issue: the currently staged
+  shard-0 pools for `english`, `de`, `ru`, and `zh` were fully consumed by the
+  2B-char forgetting validation target, leaving zero replay training rows for
+  those sources.
+- Canceled active mix array `2519265` and dependency-held Stage A/B jobs
+  `2519266`/`2519267` before Stage A/B consumed the compromised replay output.
+- Verified staged Clariden replay inventory had exactly one local parquet for
+  each affected source, but upstream HF metadata is much larger:
+  `epfml/FineWeb2-HQ` has 570 `deu_Latn`, 1205 `rus_Cyrl`, and 975 `cmn_Hani`
+  parquet files; `HuggingFaceFW/fineweb-edu` has 14 `sample/10BT` parquets.
+- Initial thought was to retrieve a bounded prefix of extra upstream shards, but
+  the user clarified the stricter rule: forgetting validation must come from
+  Apertus-8B pretraining sources, and the absolute 0.5B-token target must fall
+  back to a relative split when the eligible pool is too small.
+- Located the prior authoritative inventory:
+  `docs/APERTUS_PRETRAINING_DATA_AND_GREEK_SHARE.md`. It pins Apertus-8B
+  pretraining sources and the final Greek share estimate (3.111B / 13.545T =
+  0.023%). Relevant here: English FineWeb-Edu and de/ru/zh FineWeb2-HQ are
+  Apertus pretraining source families; CodeParrot is not (Apertus used
+  StarCoder/Stack-family code).
+- No extra-shard staging job was launched. Patched `build_forgetting_vals.py` to
+  write `forgetting_val_manifest.json` and to use the absolute-then-relative
+  split policy (`FORGET_CHAR_BUDGET=2B chars`, `MAX_VAL_FRACTION=0.25`).
