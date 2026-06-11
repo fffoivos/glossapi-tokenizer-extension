@@ -1,4 +1,4 @@
-"""Tokenizer-fair intrinsic trajectories per arm (BPC, NLL/char, NLL/word).
+"""Tokenizer-fair intrinsic trajectories per arm (BPB, NLL/char, NLL/word).
 LOWER IS BETTER for every metric in this script."""
 import json
 from pathlib import Path
@@ -12,7 +12,7 @@ PLOTS = Path(__file__).resolve().parent / "plots"
 TOK_PER_ITER = 1024 * 4096
 
 ARMS = ["vanilla", "retok", "centroid", "td"]
-ITERS = [65, 130, 195, 260, 325, 390, 455, 476, 585, 715, 834]
+ITERS = [65, 130, 195, 260, 325, 390, 455, 476, 585, 715, 834, 1013, 1192]
 COLORS = {"vanilla": "#1f77b4", "retok": "#ff7f0e", "centroid": "#d62728", "td": "#2ca02c"}
 MARKERS = {"vanilla": "o", "retok": "s", "centroid": "^", "td": "D"}
 
@@ -24,7 +24,7 @@ for arm in ARMS:
             data[arm][it] = json.loads(p.read_text())["global"]
 
 METRICS = [
-    ("bpc_bits_per_byte", "BPC (bits / byte) ↓"),
+    ("bpb_bits_per_byte", "BPB (bits / byte) ↓"),
     ("nll_per_char", "NLL / char ↓"),
     ("nll_per_word", "NLL / word ↓"),
     ("nll_per_token", "NLL / token ↓"),
@@ -34,7 +34,10 @@ METRICS = [
 
 
 def fetch(arm, it, key):
-    return data[arm].get(it, {}).get(key)
+    row = data[arm].get(it, {})
+    if key == "bpb_bits_per_byte":
+        return row.get("bpb_bits_per_byte", row.get("bpc_bits_per_byte"))
+    return row.get(key)
 
 
 # ----- Plot 1: 4-arm trajectory across all 6 metrics -----
@@ -60,9 +63,9 @@ plt.tight_layout()
 plt.savefig(PLOTS / "intrinsic_trajectories.png", dpi=120, bbox_inches="tight")
 print("saved plots/intrinsic_trajectories.png")
 
-# ----- Plot 2: Vanilla vs TD only, BPC and NLL/char -----
+# ----- Plot 2: Vanilla vs TD only, BPB and NLL/char -----
 fig, axes = plt.subplots(1, 3, figsize=(20, 6))
-for ax, key in zip(axes, ["bpc_bits_per_byte", "nll_per_char", "nll_per_word"]):
+for ax, key in zip(axes, ["bpb_bits_per_byte", "nll_per_char", "nll_per_word"]):
     for arm in ("vanilla", "td"):
         xs, ys = [], []
         for it in ITERS:
@@ -88,12 +91,12 @@ print("saved plots/intrinsic_van_td.png")
 
 # Numeric table
 print()
-print("=== BPC trajectory (bits/byte, LOWER IS BETTER) ===")
+print("=== BPB trajectory (bits/byte, LOWER IS BETTER) ===")
 print(f"{'iter':>6}{'tokens':>10}{'vanilla':>10}{'retok':>10}{'centroid':>10}{'td':>10}")
 for it in ITERS:
     line = f"{it:>6}{it * TOK_PER_ITER / 1e9:>10.3f}"
     for arm in ARMS:
-        v = fetch(arm, it, "bpc_bits_per_byte")
+        v = fetch(arm, it, "bpb_bits_per_byte")
         line += f"{v:>10.4f}" if v is not None else f"{'n/a':>10}"
     print(line)
 

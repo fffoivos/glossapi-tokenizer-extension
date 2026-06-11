@@ -1,0 +1,112 @@
+{
+  "chars_scanned": 172678703630,
+  "created_at_utc": "20260605T224007Z",
+  "e001_char_counts": {
+    "replacement_char": 166
+  },
+  "elapsed_sec": 2479.44,
+  "input": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet",
+  "match_row_rate": 6.882622423678492e-07,
+  "match_rows": 32,
+  "matched_hosts_top": [
+    [
+      "issuu.com",
+      4
+    ],
+    [
+      "www.frontpages.gr",
+      4
+    ],
+    [
+      "xyzcontagion.wordpress.com",
+      4
+    ],
+    [
+      "fdocument.org",
+      2
+    ],
+    [
+      "olympia.gr",
+      2
+    ],
+    [
+      "asmpa.espivblogs.net",
+      1
+    ],
+    [
+      "www.racavedigger.com",
+      1
+    ],
+    [
+      "pygemos.blogspot.com",
+      1
+    ],
+    [
+      "www.ksipnistere.com",
+      1
+    ],
+    [
+      "vlasisarfarablogspotcom.blogspot.com",
+      1
+    ],
+    [
+      "pontosandaristera.wordpress.com",
+      1
+    ],
+    [
+      "stigalaria.wordpress.com",
+      1
+    ],
+    [
+      "docplayer.gr",
+      1
+    ],
+    [
+      "slideplayer.gr",
+      1
+    ],
+    [
+      "el.wikipedia.org",
+      1
+    ],
+    [
+      "monidadias-news.blogspot.gr",
+      1
+    ],
+    [
+      "mjacksontruth.wordpress.com",
+      1
+    ],
+    [
+      "roides.wordpress.com",
+      1
+    ],
+    [
+      "www.writing-online.gr",
+      1
+    ],
+    [
+      "paperzz.com",
+      1
+    ],
+    [
+      "nakedtruth.gr",
+      1
+    ]
+  ],
+  "matched_quality_bins": {
+    "8": 22,
+    "9": 10
+  },
+  "negative_evidence": false,
+  "policy_note": "Discovery only. Source HPLT rows are immutable and no cleaning is applied.",
+  "review_pack_rows": 32,
+  "review_pack_selection": {
+    "random_sample_size": 80,
+    "seed": 20260606,
+    "top_k": 80
+  },
+  "rows_scanned": 46493906,
+  "schema_version": "hplt-e001-control-char-scan-v1",
+  "source_dataset": "HPLT/ell_Grek_ge8_no_mt_clean60"
+}

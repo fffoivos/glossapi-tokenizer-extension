@@ -4,45 +4,71 @@
 
 Plan and later implement model-side adaptation after the tokenizer extension is frozen.
 
-## Canonical plan
+## Canonical reference
 
-**[`cpt_plan.md`](cpt_plan.md) v0.7** is the canonical plan. Everything below is downstream of it. Live status of v0.7's verification list at [`cpt_plan_v0.7_status.md`](cpt_plan_v0.7_status.md). Critical Apertus architectural characteristics requiring CPT attention at [`apertus_fidelity_checklist.md`](apertus_fidelity_checklist.md).
+**[`CPT_MASTER_20260526.md`](CPT_MASTER_20260526.md)** is the canonical single-doc synthesis. Read it first; it consolidates the experimental-design plan (v0.12), CPT-execution plan (v0.7), Apertus-fidelity checklist, reconciliation + discrepancy log, production decision state, and operational reference into one document. The 10 source docs it synthesizes are archived at [`_archive/synthesis_sources_20260526/`](_archive/synthesis_sources_20260526/).
 
-**Current production decision state:** [`PRODUCTION_DECISION_STATE.md`](PRODUCTION_DECISION_STATE.md). The 2B bakeoff currently selects **Vanilla Apertus-8B with the base 131,072-token tokenizer** as the safe 15-20B CPT default. Centroid is eliminated. ReTok is not selected as-is; it remains only as a bounded Token Distillation challenger after a CPU coverage prepass on `xfer`.
+## Artifacts (Hugging Face)
+
+Model weights, the extended tokenizer, benchmark summaries, and a copy of the decision docs live on Hugging Face:
+
+**[`fffoivos/apertus-tokenizer-extension`](https://huggingface.co/fffoivos/apertus-tokenizer-extension)**
+
+The split is:
+- **GitHub (this repo)** — scripts, recipes, sbatch launchers, verification scripts, plan / decision docs (control plane).
+- **Hugging Face** — `experiment-checkpoints/` (model weights), `greek-extension-tokenizer/` (tokenizer), `benchmark-evals/` (summary tables + plots), `supporting-material/` (manifests, provenance, decisions copied from GitHub).
+
+Decision docs (`CPT_MASTER_20260526.md`, `PLAN_VS_RESULTS_RECONCILIATION_20260526.md`) are mirrored from this repo to `supporting-material/provenance/decisions/` on HF.
+
+**Current state (2026-05-26):**
+
+- 4-arm bakeoff complete (Vanilla + TD to 5 B, ReTok to 3.5 B, Centroid to 2 B). 5 B endpoint in [`03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/BAKEOFF_FINAL_RESULTS_20260526.md`](03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/BAKEOFF_FINAL_RESULTS_20260526.md).
+- The 2 B headline (Vanilla wins) was partially flipped by the 3.5 B + 5 B continuations: at 5 B, **TD layer11 leads all three downstream aggregates** (Greek no-MT / EN retention / Multilingual); **Vanilla still leads tokenizer-fair BPB**.
+- **No `v0.12 §10 Q8` thresholds (X / M_progress / M_ext / M_van / T) were ever pre-committed**, so the bakeoff produced data, not an adjudicated winner. See [`CPT_MASTER_20260526.md`](CPT_MASTER_20260526.md) §5 for the 14-entry discrepancy log.
+- The 2 B-stage "Vanilla as safe default" pick is partially superseded by 5 B continuation. Captured in `CPT_MASTER` §8. A planning-agent pass owns the next production-decision update.
 
 **Loss measurement policy:** raw Megatron `lm loss` is per-token CE and is not
-cross-tokenizer fair. Use heldout BPC/BPB and downstream evals for
-Vanilla-vs-extended decisions. See
-[`LOSS_MEASUREMENT_POLICY.md`](03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md).
+cross-tokenizer fair. Use heldout BPB and downstream evals for
+Vanilla-vs-extended decisions. Older reports may call BPB `BPC`; this is a
+legacy bits-per-byte label, not bits per character. See
+[`LOSS_MEASUREMENT_POLICY.md`](03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md)
+and the repo-wide [`docs/LOSS_MEASUREMENT_POLICY.md`](../../docs/LOSS_MEASUREMENT_POLICY.md).
 
-Settled positions per v0.7 + 2026-05-20 user directives:
+Settled positions (post-5 B):
 
-- **CPT vocab scope**: production default is now **131,072** unless Token Distillation proves the ReTok extended path. The modern-only 148,480 tokenizer and future 153,600 modern+polytonic tokenizer remain valid artifacts, but they are no longer selected automatically just because the extension exists.
-- **Init arms**: Vanilla / ReTok / Centroid bakeoff completed. Current decision: Vanilla default; Centroid eliminated; ReTok only through the bounded `retok_td` challenger described in [`TOKEN_DISTILLATION_PLAN.md`](TOKEN_DISTILLATION_PLAN.md).
-- **Training framework**: **Megatron-LM-Swiss-AI** (`swiss-ai/Megatron-LM` + `swiss-ai/pretrain-code`). p-skarvelis's HF-Trainer pipeline is an interesting baseline, not the scaffold we adopt.
-- **Replay split**: 70/30 Greek/non-Greek (v0.7 §4.1 default).
-- **Replay languages**: 24-language tier set (8 Tier-1 + 11 Tier-2 + 5 Tier-3) per v0.7 §4.2.
-- **Bakeoff size**: 2 B tokens per arm × 3 arms = 6 B (init-method discrimination only). Production CPT on winner: 10–20 B (v0.7 §9, Q A2).
+- **CPT vocab scope**: 17,408 modern-Greek extension (vocab 148,480) used for the bakeoff. The base 131,072-token tokenizer remains live as Vanilla's path. A separate production-side cutoff sweep on `{10,240, 15,360, 20,480, 25,600}` is open per `glossapi_c3_convergence.md` but downstream of the bakeoff.
+- **Init arms**: Vanilla / ReTok / Centroid / TD-layer11 bakeoff complete. Centroid clearly broken (BPC ~0.90 vs ≤0.55 elsewhere). ReTok dominated by TD on every shared iter. **TD vs Vanilla is the only genuinely close call**; rule-bound winner pending Node 4 thresholds.
+- **Training framework**: **Megatron-LM-Swiss-AI** (`swiss-ai/Megatron-LM` + `swiss-ai/pretrain-code`).
+- **Replay split**: 70 % Greek / 24 % replay / 4 % code / 2 % math (cpt_plan v0.7 §B1). Higher Greek share than `old_experiments_plan.md` v0.12 §8.5's 10-15 % replay starting point; documented divergence.
+- **Replay languages**: 24-language tier set (8 Tier-1 + 11 Tier-2 + 5 Tier-3) per cpt_plan v0.7 §4.2.
+- **Bakeoff size**: 2 B per arm planned (cpt_plan v0.7 §B5), extended ad-hoc to 5 B for Vanilla + TD, 3.5 B for ReTok, 2 B for Centroid. Production CPT 15-20 B remains the working assumption (Q A2 still pending).
 
 ## Sub-subprojects (in chronological order, latest first)
 
-- **[03_4_implementation_experiments/](03_4_implementation_experiments/README.md)** — the hands-on runs. Authors and submits sbatch on CSCS Clariden. Currently has the auth + node-finding probe and the first calibration-run sizing.
-- **[03_3_cscs_experiments_kickoff/](03_3_cscs_experiments_kickoff/README.md)** — the planning + verification work that bridges the old planning era and v0.7. Reconciles the colleague's [`collegues_Apertus_plan.md`](collegues_Apertus_plan.md) and the older [`old_experiments_plan.md`](old_experiments_plan.md) with the dedup audit, the diagnostic v2 report, the 2026-05-18 tokenizer cutoff decision, the polytonic +5,120 layer, the new `cscs-key` auth tool, and the working Clariden launch pattern. Each downstream doc now carries a top-of-file callout flagging where v0.7 supersedes its body.
+- **[03_4_implementation_experiments/](03_4_implementation_experiments/README.md)** — the hands-on runs. Where the 4-arm bakeoff actually trained and was evaluated on Clariden. Contains `init_bakeoff/{arms,bakeoff_training,eval,production_cpt,token_distillation}`. Trajectory analysis + 5 B endpoint at `init_bakeoff/eval/trajectory_analysis_20260524/`.
+- **[03_3_cscs_experiments_kickoff/](03_3_cscs_experiments_kickoff/README.md)** — the planning + verification work that bridges the old planning era and v0.7. Reconciles the colleague's plan and the v0.12 experimental design (both now archived at [`_archive/synthesis_sources_20260526/`](_archive/synthesis_sources_20260526/)) with the dedup audit, the diagnostic v2 report, the 2026-05-18 tokenizer cutoff decision, the polytonic +5,120 layer, the `cscs-key` auth tool, and the working Clariden launch pattern.
 - [03_2_apertus_c3_dedup_audit/](03_2_apertus_c3_dedup_audit/README.md) — measures document-level overlap between Apertus's Greek pretraining sources and the C3 tokenizer-training corpus. Output: per-source `include_full / include_half_weight / replay_only` recommendations + a hard-drop overlay parquet for the CPT mix. Run completed 2026-05-19.
 - [03_1_greek_embedding_diagnostic/](03_1_greek_embedding_diagnostic/README.md) — pre-extension diagnostic characterising how Apertus-8B-2509 represents Greek on its E + U matrices (centroid geometry, MP-edge spectrum, binary Greek-vs-¬Greek classifier macro F1 = 1.00, morphological clustering 5–9× tightness, cross-language semantic-cluster baseline showing no Greek↔English etymology bridge). Completed 2026-05-13 v2.3.
 
 ## Reference docs in this folder
 
-- [`cpt_plan.md`](cpt_plan.md) — **canonical, v0.7** (2026-05-20). Supersedes everything below.
-- [`PRODUCTION_DECISION_STATE.md`](PRODUCTION_DECISION_STATE.md) — current evidence-backed production path after the 2B bakeoff.
-- [`03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md`](03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md) — canonical rule for raw `lm loss`, heldout BPC/BPB, and dense BPB/base-new training-log fields.
-- [`TOKEN_DISTILLATION_PLAN.md`](TOKEN_DISTILLATION_PLAN.md) — parallel-ready follow-up plan for a ReTok + Token Distillation challenger if the live bakeoff leaves ReTok promising but under-initialized.
-- [`cpt_plan_v0.7_status.md`](cpt_plan_v0.7_status.md) — live status answers to v0.7's V1–V16 verification questions. Confirms V14 + V16 + V9 (NFC) done; rest scheduled for Clariden.
-- [`apertus_fidelity_checklist.md`](apertus_fidelity_checklist.md) — critical Apertus architectural characteristics requiring special CPT attention (AdEMAMix + 0.1 clip + xIELU scalars + Goldfish + cross-doc attention + etc). Architectural facts, version-independent.
-- [`cpt_plan_v0.6_answers.md`](cpt_plan_v0.6_answers.md) — **historical** (v0.6-era status). Retained for traceability.
-- [`cpt_plan_v0.6_delta_vs_prior_planning.md`](cpt_plan_v0.6_delta_vs_prior_planning.md) — **historical** (v0.6 contradictions with pre-v0.6 planning).
-- [`collegues_Apertus_plan.md`](collegues_Apertus_plan.md) — colleague's parallel curriculum proposal (PPL/quality/novelty ranking). Predates cpt_plan v0.x; informs the 03_3 reconciliation work but is not canonical.
-- [`old_experiments_plan.md`](old_experiments_plan.md) — the v0.12 (2026-05-12) project plan that preceded cpt_plan.md. Retained for traceability.
+**Canonical:**
+- [`CPT_MASTER_20260526.md`](CPT_MASTER_20260526.md) — single-doc synthesis of everything (plans, fidelity, reconciliation, decision state, operational reference). **Read first.**
+
+**Still-active companion docs:**
+- [`TRAINING_RECIPE.md`](TRAINING_RECIPE.md) — production training spec (referenced by `_train_config_common.env`).
+- [`TOKEN_DISTILLATION_PLAN.md`](TOKEN_DISTILLATION_PLAN.md) — TD-specific plan (4th-arm spec).
+- [`RISKS.md`](RISKS.md) — 17-risk silent-failure inventory.
+- [`TODO.md`](TODO.md) — current active items.
+
+**Operational rule (lives downstream, referenced from CPT_MASTER §7):**
+- [`03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md`](03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md) — canonical loss-reading rule (raw `lm loss` vs heldout BPB + the historical BPC alias).
+
+**Archived:** [`_archive/`](_archive/README.md). Contains:
+- `synthesis_sources_20260526/` — the 10 source docs CPT_MASTER was synthesized from (v0.12 + v0.7 plans, fidelity checklist, reconciliation, etc.)
+- `v0.6_planning/` — v0.6 plan iterations
+- `2026-05-21_overnight_session/` — operational logs from one specific CSCS execution night
+- `2026-05-24_2B_bakeoff_review/` — pre-5B reviewer material
 
 ## What's Already Decided
 
@@ -61,5 +87,5 @@ Settled positions per v0.7 + 2026-05-20 user directives:
 
 - **Token Distillation challenger.** The three-arm bakeoff has run; only bounded `retok_td` remains as a possible challenger. First gate: CPU firing/coverage prepass on `xfer`. → [`TOKEN_DISTILLATION_PLAN.md`](TOKEN_DISTILLATION_PLAN.md) and [`init_bakeoff/token_distillation/`](03_4_implementation_experiments/init_bakeoff/token_distillation/).
 - **Production CPT dataset manifest.** The recipe is fixed at 70/24/4/2 for the current path, but the 15-20B production stream still needs its final build or rehydration manifest. CPU-only build/preprocess work belongs on `xfer`. → [`init_bakeoff/corpus_build/MIX_RECIPE.md`](03_4_implementation_experiments/init_bakeoff/corpus_build/MIX_RECIPE.md).
-- **Production eval gates.** Bakeoff evidence selects the default path; the production run still needs final stop/go gates and checkpoint-window rubric attached to its run directory. → [`PRODUCTION_DECISION_STATE.md`](PRODUCTION_DECISION_STATE.md).
+- **Production eval gates.** Bakeoff evidence selects the default path; the production run still needs final stop/go gates and checkpoint-window rubric attached to its run directory. → [`CPT_MASTER_20260526.md`](CPT_MASTER_20260526.md) §8-§9.
 - **Held-out contamination check on C3 val/test** (the dedup audit's run skipped this — the C3 mix manifest lived on the now-unreachable gcloud tokenizer instance; **GCloud access was lost 2026-05-20**, so the previously-suggested "restart the instance" alternative is gone). Remaining options: re-derive the val/test partition by re-running the splitter from the published nanochat corpus with the original seed, or live with the gap. → [03_3 ANALYSIS.md § Review checkpoint B](03_3_cscs_experiments_kickoff/ANALYSIS.md#7-review-checkpoints--what-still-needs-your-explicit-sign-off).

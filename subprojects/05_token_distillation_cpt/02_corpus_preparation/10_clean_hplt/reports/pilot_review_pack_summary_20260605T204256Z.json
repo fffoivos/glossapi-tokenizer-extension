@@ -1,0 +1,95 @@
+{
+  "pilot_pack_md": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_pilot_review_pack_v6_policy_20260605T204254Z/reports/pilot_review/pilot_review_pack_20260605T204256Z.md",
+  "pilot_seed_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_pilot_review_pack_v6_policy_20260605T204254Z/reports/pilot_review/pilot_review_seed_20260605T204256Z.jsonl",
+  "records": 57,
+  "review_queue": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_review_queue_v6_policy_20260605T204232Z/reports/review_queue/review_queue_20260605T204234Z.jsonl",
+  "seed": 20260605,
+  "selected_by_task": {
+    "borderline_false_negative_probe": [
+      "rq_0083_c740f0a62f",
+      "rq_0159_63990c5cde",
+      "rq_0038_ffdaa70425",
+      "rq_0395_8959157c45",
+      "rq_0125_5a82ef0a30",
+      "rq_0149_67ccb97c44"
+    ],
+    "destructive_action_review": [
+      "rq_0126_4db12b36b4",
+      "rq_0123_c919e35fdf",
+      "rq_0097_35a9138cda",
+      "rq_0314_2e733c4cdc",
+      "rq_0296_117d58c7d4",
+      "rq_0202_3bf5842af6",
+      "rq_0258_d8e9018267",
+      "rq_0358_f6d99de515",
+      "rq_0164_dc9fa9eeea",
+      "rq_0234_3d90d5a202",
+      "rq_0352_b28ffe69f1",
+      "rq_0328_7d3f4edd97",
+      "rq_0072_5960b71c01",
+      "rq_0032_5e10a743f1"
+    ],
+    "false_negative_control": [
+      "rq_0355_78a5ffb5f0",
+      "rq_0026_a36011cacb",
+      "rq_0361_89623172de",
+      "rq_0110_1403452f69",
+      "rq_0267_14aac66d61",
+      "rq_0270_16076f00f8"
+    ],
+    "precision_E003": [
+      "rq_0261_e4c1206244",
+      "rq_0036_2c07210c14"
+    ],
+    "precision_E004": [
+      "rq_0044_28d56c1e5f",
+      "rq_0185_709fa8fa0d"
+    ],
+    "precision_E009": [
+      "rq_0122_bc17b31bae",
+      "rq_0368_4ce22af73c",
+      "rq_0072_5960b71c01"
+    ],
+    "precision_E010": [
+      "rq_0330_7ebcf834d7",
+      "rq_0055_67649119d2",
+      "rq_0024_5999e0e861",
+      "rq_0353_d8a889386c"
+    ],
+    "precision_E011": [
+      "rq_0366_b5024f6d8a",
+      "rq_0326_93a0bb8de4",
+      "rq_0317_b695ff7ccc"
+    ],
+    "precision_E014": [
+      "rq_0291_217b3cb611",
+      "rq_0094_66719a6d37",
+      "rq_0195_67d400d365",
+      "rq_0021_f51a9fd057",
+      "rq_0019_74c48e7d58",
+      "rq_0343_00fd9c08be"
+    ],
+    "precision_E016": [
+      "rq_0155_c5cc22bf6b",
+      "rq_0097_35a9138cda",
+      "rq_0266_fd0509da5e",
+      "rq_0373_edd8508a56",
+      "rq_0164_dc9fa9eeea"
+    ],
+    "precision_E017": [
+      "rq_0019_74c48e7d58",
+      "rq_0105_7566b00fd3",
+      "rq_0151_558ce7e014",
+      "rq_0268_ab09f49601"
+    ],
+    "precision_E020": [
+      "rq_0295_8155155ff9",
+      "rq_0200_349ab25fff",
+      "rq_0144_a2631f4402",
+      "rq_0037_085ff3626e",
+      "rq_0071_bb3426c760",
+      "rq_0281_402693022f"
+    ]
+  },
+  "target_profile": "v4_policy"
+}

@@ -1,0 +1,94 @@
+{
+  "schema": "decontamination-runtime-scaling-v1",
+  "generated_date": "2026-06-02",
+  "method": {
+    "name": "exact normalized word n-gram overlap",
+    "gpu_required": false,
+    "scaling_note": "Rows, bytes, and token estimates are all reported. Byte scaling is preferred for HPLT plus GlossAPI source-pool sizing because GlossAPI rows are very large."
+  },
+  "measured_5b_pilot": {
+    "slurm_job": "2453791",
+    "slurm_state": "COMPLETED",
+    "slurm_exit_code": "0:0",
+    "slurm_elapsed": "01:12:38",
+    "partition": "xfer",
+    "alloc_cpus": 8,
+    "requested_memory": "64G",
+    "nodes": 1,
+    "scanner_wall_seconds": 4288.6476356983185,
+    "scanner_wall_hours": 1.1912910099161995,
+    "rows": 3739911,
+    "utf8_bytes": 22935074496,
+    "target_tokens": 5000000250,
+    "hit_records_seen": 62572,
+    "hit_records_written": 62572,
+    "throughput": {
+      "rows_per_second": 872.0490274997918,
+      "decimal_mb_per_second": 5.347857050574754,
+      "tokens_per_second_using_target_tokens": 1165868.748082833
+    },
+    "audit_report": "../../reports/decontamination_audit_5b_20260602T011447Z.json"
+  },
+  "corpus_counts": {
+    "existing_cpt_7b_mix": {
+      "rows": 5754172,
+      "mix_builder_target_tokens": 7000141612,
+      "base_tokenized_megatron_tokens": 9831704774,
+      "source": "../../../../release/apertus-tokenizer-extension/cpt-training-dataset/manifest.json"
+    },
+    "hplt_clean60_wave4_full_staged": {
+      "rows": 48728774,
+      "utf8_bytes": 331109685077,
+      "tokens_no_eod": 44195950025,
+      "source": "../../../../release/apertus-tokenizer-extension/cpt-training-dataset/token-counts.json"
+    },
+    "glossapi_sources_modern148k": {
+      "rows": 746173,
+      "utf8_bytes": 102493185861,
+      "tokens_no_eod": 17414313483,
+      "source": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/token_count_audit_20260526/glossapi_sources_modern148k/summary.json"
+    },
+    "hplt_plus_glossapi_greek_sources": {
+      "rows": 49474947,
+      "utf8_bytes": 433602870938,
+      "tokens_no_eod": 61610263508,
+      "glossapi_share": {
+        "rows": 0.015081835256943277,
+        "utf8_bytes": 0.23637570858163273,
+        "tokens_no_eod": 0.28265279989816594
+      }
+    }
+  },
+  "computed_estimates_hours": {
+    "existing_cpt_7b_mix": {
+      "row_scaled": 1.8329028078773848,
+      "token_scaled_mix_builder_target": 1.667841070711125,
+      "token_scaled_base_tokenized": 2.342484184759067,
+      "recommended_reservation_hours": 3
+    },
+    "hplt_clean60_wave4_full_staged": {
+      "row_scaled": 15.521799954715032,
+      "byte_scaled": 17.198461299840467,
+      "token_scaled": 10.530047061395274,
+      "recommended_reservation_hours": 24
+    },
+    "glossapi_sources_modern148k": {
+      "row_scaled": 0.23768190920644913,
+      "byte_scaled": 5.3236893089304855,
+      "token_scaled": 4.149102811776932,
+      "recommended_reservation_hours": 6
+    },
+    "hplt_plus_glossapi_greek_sources": {
+      "row_scaled": 15.759481863921481,
+      "byte_scaled": 22.522150608770954,
+      "token_scaled": 14.679149873172205,
+      "recommended_reservation_hours": 30
+    },
+    "full_training_stream_if_hplt_plus_glossapi_is_70_percent_greek": {
+      "implied_total_tokens": 88014662154.28572,
+      "token_scaled": 20.970214104531724,
+      "recommended_reservation_hours": 36,
+      "caveat": "This assumes the final stream is already built and scanned as JSONL. It is not a raw full-source-pool estimate for replay, code, or math candidate pools."
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "by_candidate_action": {
+    "drop_doc": 20,
+    "normalize_or_trim_span": 10,
+    "trim_span": 15
+  },
+  "by_prior_review_label": {
+    "None": 17,
+    "false_positive": 4,
+    "partial_true_positive": 20,
+    "true_positive": 4
+  },
+  "filters": {
+    "actions": [
+      "drop_doc",
+      "normalize_or_trim_span",
+      "trim_span"
+    ],
+    "ids": [],
+    "max_records": 0,
+    "strata": [],
+    "tasks": []
+  },
+  "jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_policy_review_pack_20260605T210613Z/reports/policy_review_pack/destructive_span_policy_review_pack_20260605T210613Z.jsonl",
+  "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_policy_review_pack_20260605T210613Z/reports/policy_review_pack/destructive_span_policy_review_pack_20260605T210613Z.md",
+  "max_doc_chars": 120000,
+  "policy_evaluation_sample": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_policy_evaluation_sample_20260605T210154Z/reports/policy_evaluation_sample/policy_evaluation_sample_20260605T210154Z.jsonl",
+  "records": 45,
+  "seed": 20260605
+}

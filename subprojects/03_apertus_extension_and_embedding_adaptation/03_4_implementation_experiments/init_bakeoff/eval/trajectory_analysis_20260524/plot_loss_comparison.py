@@ -3,14 +3,18 @@
 Three panels per figure:
   (A) Raw training LM loss vs tokens — DENSE but UNFAIR across vocab sizes /
       tokenizer rates. The plot we already have; included here for contrast.
-  (B) Heldout BPC vs tokens — SPARSE (eval checkpoints only) but FAIR.
+  (B) Heldout BPB vs tokens — SPARSE (eval checkpoints only) but FAIR.
       Tokenizer-invariant: per-byte log-prob on a fixed Greek heldout slice.
       This is the ground-truth TD-vs-Vanilla curve.
   (C) Dense BPB during training when patched Megatron logs provide `bpb`;
-      otherwise a clearly labeled BPB proxy with eval-checkpoint heldout BPC
+      otherwise a clearly labeled BPB proxy with eval-checkpoint heldout BPB
       markers overlaid as ground truth. The proxy divides per-token CE by a
       mix-weighted bytes/token (70% Greek heldout + 30% multilingual replay
       assumed at 3.5 bytes/token). APPROXIMATE — see caveats in this file.
+
+Older intrinsic JSONs store bits-per-byte under `bpc_bits_per_byte`; newer
+ones may also include `bpb_bits_per_byte`. This script accepts both and labels
+the plotted quantity as BPB.
 """
 import csv
 import json
@@ -78,8 +82,8 @@ with CSV_PATH.open() as fp:
         train[arm]["new_loss"].append(maybe_float(row.get("new_loss")))
         train[arm]["n_new"].append(maybe_int(row.get("n_new")))
 
-# ---------- Load heldout BPC (eval-checkpoint snapshots) ----------
-heldout = {arm: {"iter": [], "tokens": [], "bpc": [], "bytes_per_token": [], "frac_trunc": []}
+# ---------- Load heldout BPB (eval-checkpoint snapshots) ----------
+heldout = {arm: {"iter": [], "tokens": [], "bpb": [], "bytes_per_token": [], "frac_trunc": []}
            for arm in ARMS}
 all_iters = sorted({int(p.stem.split("_iter")[1].split("_fair")[0])
                     for p in INTRINSIC.glob("*_fair.json")})
@@ -92,7 +96,10 @@ for arm in ARMS:
         g = d["global"]
         heldout[arm]["iter"].append(it)
         heldout[arm]["tokens"].append(it * TOK_PER_ITER / 1e9)
-        heldout[arm]["bpc"].append(g["bpc_bits_per_byte"])
+        bpb = g.get("bpb_bits_per_byte", g.get("bpc_bits_per_byte"))
+        if bpb is None:
+            continue
+        heldout[arm]["bpb"].append(bpb)
         heldout[arm]["bytes_per_token"].append(g["n_bytes"] / g["n_tokens"])
         heldout[arm]["frac_trunc"].append(d.get("truncation", {}).get("fraction_truncated"))
 
@@ -135,14 +142,14 @@ ax.text(0.02, 0.04,
         transform=ax.transAxes, fontsize=8.5, va="bottom", color="#333",
         bbox=dict(facecolor="white", edgecolor="#888", alpha=0.9))
 
-# Panel B — heldout BPC at eval checkpoints
+# Panel B — heldout BPB at eval checkpoints
 ax = axes[1]
 for arm in SUB:
-    ax.plot(heldout[arm]["tokens"], heldout[arm]["bpc"],
+    ax.plot(heldout[arm]["tokens"], heldout[arm]["bpb"],
             color=COLORS[arm], marker=MARKERS[arm], linewidth=3.0, markersize=12, label=arm)
 ax.set_xlabel("Tokens consumed (B)")
-ax.set_ylabel("BPC (bits / byte)  ↓")
-ax.set_title("(B) Heldout BPC — FAIR (canonical answer)")
+ax.set_ylabel("BPB (bits / byte)  ↓")
+ax.set_title("(B) Heldout BPB — FAIR (canonical answer)")
 ax.legend(loc="upper right")
 ax.grid(True, alpha=0.3)
 ax.text(0.02, 0.04,
@@ -164,20 +171,20 @@ for arm in SUB:
     alpha = 0.85 if kind == "measured" else 0.5
     ax.plot(tokens[finite], bpb_dense[finite], color=COLORS[arm], linewidth=1.0, alpha=alpha, label=label)
 for arm in SUB:
-    ax.scatter(heldout[arm]["tokens"], heldout[arm]["bpc"],
+    ax.scatter(heldout[arm]["tokens"], heldout[arm]["bpb"],
                color=COLORS[arm], marker=MARKERS[arm], s=130,
                edgecolor="black", linewidth=1.3, zorder=10,
-               label=f"{arm} heldout (truth)")
+               label=f"{arm} heldout BPB (truth)")
 ax.set_xlabel("Tokens consumed (B)")
 ax.set_ylabel("BPB (bits / byte)  ↓")
 ax.set_title("(C) Dense training BPB + heldout markers" if has_measured_bpb else "(C) Dense proxy + heldout markers — APPROXIMATE")
 ax.legend(loc="upper right", fontsize=8.5)
 ax.grid(True, alpha=0.3)
 ax.text(0.02, 0.04,
-        ("Lines: measured batch BPB from\ntraining logs when available.\nMarkers: heldout BPC truth."
+        ("Lines: measured batch BPB from\ntraining logs when available.\nMarkers: heldout BPB truth."
          if has_measured_bpb else
          "Lines: training CE ÷ mix-weighted\nbytes/token (Greek 0.7 · heldout B/tok\n"
-         "+ replay 0.3 · 3.5). Markers: ground\ntruth BPC. See caveats."),
+         "+ replay 0.3 · 3.5). Markers: ground\ntruth BPB. See caveats."),
         transform=ax.transAxes, fontsize=8.5, va="bottom", color="#333",
         bbox=dict(facecolor="white", edgecolor="#888", alpha=0.9))
 
@@ -206,11 +213,11 @@ ax = axes[1]
 for arm in ARMS:
     if not heldout[arm]["tokens"]:
         continue
-    ax.plot(heldout[arm]["tokens"], heldout[arm]["bpc"],
+    ax.plot(heldout[arm]["tokens"], heldout[arm]["bpb"],
             color=COLORS[arm], marker=MARKERS[arm], linewidth=2.5, markersize=10, label=arm)
 ax.set_xlabel("Tokens consumed (B)")
-ax.set_ylabel("BPC (bits / byte)  ↓")
-ax.set_title("(B) Heldout BPC — FAIR")
+ax.set_ylabel("BPB (bits / byte)  ↓")
+ax.set_title("(B) Heldout BPB — FAIR")
 ax.legend(loc="upper right", fontsize=9)
 ax.grid(True, alpha=0.3)
 
@@ -225,7 +232,7 @@ for arm in ARMS:
     ax.plot(tokens[finite], bpb_dense[finite], color=COLORS[arm], linewidth=0.9,
             alpha=0.85 if kind == "measured" else 0.5)
 for arm in ARMS:
-    ax.scatter(heldout[arm]["tokens"], heldout[arm]["bpc"],
+    ax.scatter(heldout[arm]["tokens"], heldout[arm]["bpb"],
                color=COLORS[arm], marker=MARKERS[arm], s=80,
                edgecolor="black", linewidth=1.0, zorder=10)
 ax.set_xlabel("Tokens consumed (B)")
@@ -250,7 +257,7 @@ for arm in ARMS:
     print(f"{arm:<10}{bpt_heldout[arm]:>16.3f}{bpt_training[arm]:>16.3f}")
 
 print()
-print("=== Heldout BPC (lower = better, FAIR) ===")
+print("=== Heldout BPB (lower = better, FAIR) ===")
 header_iters = all_iters
 print(f"{'iter':>6}{'tok(B)':>10}" + "".join(f"{a[:5]:>10}" for a in ARMS))
 for it in header_iters:
@@ -258,20 +265,20 @@ for it in header_iters:
     for arm in ARMS:
         if it in heldout[arm]["iter"]:
             idx = heldout[arm]["iter"].index(it)
-            line += f"{heldout[arm]['bpc'][idx]:>10.4f}"
+            line += f"{heldout[arm]['bpb'][idx]:>10.4f}"
         else:
             line += f"{'n/a':>10}"
     print(line)
 
 print()
-print("=== Final raw LM loss vs final heldout BPC ===")
-print(f"{'arm':<10}{'final LM loss':>16}{'final train BPB':>16}{'final BPC':>14}")
+print("=== Final raw LM loss vs final heldout BPB ===")
+print(f"{'arm':<10}{'final LM loss':>16}{'final train BPB':>16}{'final BPB':>14}")
 for arm in ARMS:
-    if not train[arm]["loss"] or not heldout[arm]["bpc"]:
+    if not train[arm]["loss"] or not heldout[arm]["bpb"]:
         continue
     latest_bpb = next((v for v in reversed(train[arm]["bpb"]) if v is not None), None)
     latest_bpb_str = f"{latest_bpb:.4f}" if latest_bpb is not None else "n/a"
-    print(f"{arm:<10}{train[arm]['loss'][-1]:>16.4f}{latest_bpb_str:>16}{heldout[arm]['bpc'][-1]:>14.4f}")
+    print(f"{arm:<10}{train[arm]['loss'][-1]:>16.4f}{latest_bpb_str:>16}{heldout[arm]['bpb'][-1]:>14.4f}")
 
 if any(any(v is not None for v in train[arm]["n_new"]) for arm in ARMS):
     print()

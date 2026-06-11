@@ -1,0 +1,121 @@
+{
+  "annotation_rows": 43,
+  "by_url_reason_action": {
+    "path_archive": {
+      "trim_prefix": 1
+    },
+    "path_archives": {
+      "keep": 3,
+      "trim_prefix": 1,
+      "trim_suffix": 4
+    },
+    "path_category": {
+      "keep": 1,
+      "split_doc": 1
+    },
+    "path_date_archive": {
+      "keep": 2,
+      "split_doc": 3
+    },
+    "path_itemlist_date": {
+      "split_doc": 1
+    },
+    "path_page_number": {
+      "drop_doc": 1,
+      "keep": 1,
+      "split_doc": 3
+    },
+    "path_tag": {
+      "drop_doc": 3,
+      "split_doc": 7
+    },
+    "path_tags": {
+      "drop_doc": 1,
+      "split_doc": 1
+    },
+    "query_key_catid": {
+      "keep": 2,
+      "split_doc": 1
+    },
+    "query_key_page": {
+      "drop_doc": 1,
+      "keep": 3,
+      "quarantine": 3,
+      "split_doc": 3
+    },
+    "query_key_start": {
+      "drop_doc": 2,
+      "split_doc": 2
+    },
+    "query_key_view": {
+      "keep": 4,
+      "split_doc": 1
+    },
+    "query_listing_value": {
+      "keep": 1,
+      "split_doc": 1
+    }
+  },
+  "created_at_utc": "20260606T060822Z",
+  "inputs": {
+    "annotations": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/serious_fn_url_rescue_annotations_20260606T064500Z.jsonl",
+    "review_pack": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/serious_fn_url_rescue_pack_20260606T060119Z.jsonl"
+  },
+  "policy_interpretation": "URL-shaped archive/category/tag/search/listing pages are a high-yield targeted review signal for candidate-keep false negatives, but reviewed clean URL false positives remain too common for automatic destructive action.",
+  "policy_note": "Annotation summary only. It does not mutate source HPLT rows or approve an automatic cleaning overlay.",
+  "review_action_counts": {
+    "drop_doc": 4,
+    "keep": 13,
+    "quarantine": 3,
+    "split_doc": 18,
+    "trim_prefix": 1,
+    "trim_suffix": 4
+  },
+  "review_good_text_loss_counts": {
+    "low": 9,
+    "medium": 21,
+    "none": 13
+  },
+  "review_label_counts": {
+    "clean": 13,
+    "false_negative_found": 30
+  },
+  "review_pack_rows": 43,
+  "review_severity_counts": {
+    "minor": 3,
+    "moderate": 5,
+    "none": 13,
+    "serious": 22
+  },
+  "review_true_error_type_counts": {
+    "E006": 3,
+    "E007": 4,
+    "E009": 5,
+    "E010": 23,
+    "E011": 18,
+    "E017": 5,
+    "E018": 1,
+    "E020": 5
+  },
+  "schema_version": "hplt-serious-fn-url-rescue-annotation-summary-v1",
+  "url_rescue_actionable_rate_percent": 69.76744186046511,
+  "url_rescue_actionable_rows": 30,
+  "url_rescue_actionable_wilson_95_ci_percent": [
+    54.89463582227039,
+    81.39799986415181
+  ],
+  "url_rescue_clean_rate_percent": 30.23255813953488,
+  "url_rescue_clean_rows": 13,
+  "url_rescue_clean_wilson_95_ci_percent": [
+    18.60200013584818,
+    45.105364177729605
+  ],
+  "url_rescue_serious_rate_percent": 51.162790697674424,
+  "url_rescue_serious_rows": 22,
+  "url_rescue_serious_wilson_95_ci_percent": [
+    36.75230846944931,
+    65.38255245328142
+  ],
+  "validation_issue_count": 0,
+  "validation_issues": []
+}

@@ -1,0 +1,31 @@
+{
+  "action_counts": {
+    "trim_span": 1
+  },
+  "annotation_rows": 1,
+  "annotations": "reports/boundary_manual_freepen_duplicate_note_annotations_20260606T014449Z.jsonl",
+  "chars_removed": 384,
+  "created_at_utc": "20260606T014629Z",
+  "decision_actions": {
+    "trim_span": 1
+  },
+  "decision_manifest_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480164_20260606T014615Z/reports/boundary_annotation_materialization/boundary_freepen_duplicate_note_materialization_20260606T014449Z_decision_manifest.jsonl",
+  "decision_manifest_rows": 1,
+  "issue_count": 0,
+  "issues_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480164_20260606T014615Z/reports/boundary_annotation_materialization/boundary_freepen_duplicate_note_materialization_20260606T014449Z_issues.jsonl",
+  "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480164_20260606T014615Z/reports/boundary_annotation_materialization/boundary_freepen_duplicate_note_materialization_20260606T014449Z.md",
+  "pending_rows": 0,
+  "policy_note": "Boundary annotation materialization only. Source HPLT rows are immutable; changed text exists only in shadow_records.",
+  "review_pack": "reports/pending_boundary_review_pack_20260606T014014Z.jsonl",
+  "review_pack_rows": 65,
+  "schema_version": "hplt-boundary-annotation-materialization-v1",
+  "shadow_records": 1,
+  "shadow_records_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480164_20260606T014615Z/reports/boundary_annotation_materialization/boundary_freepen_duplicate_note_materialization_20260606T014449Z_shadow_records.jsonl",
+  "skipped_rows": 0,
+  "status_counts": {
+    "apply": 1
+  },
+  "token_delta_rows": 1,
+  "tokenizer_json": "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480/tokenizer.json",
+  "tokens_removed": 96
+}

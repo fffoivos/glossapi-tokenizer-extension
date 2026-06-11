@@ -1,0 +1,1797 @@
+Optimal Embedding Learning Rate in LLMs:
+The Effect of Vocabulary Size
+
+arXiv:2506.15025v1 [cs.LG] 17 Jun 2025
+
+Soufiane Hayou∗
+Simons Institute
+UC Berkeley
+
+Liyuan Liu
+Microsoft Research
+
+Abstract
+Pretraining large language models is a costly process.
+To make
+this process more efficient, several methods have been proposed
+to optimize model architecture/parametrization and hardware use.
+On the parametrization side, µP (Maximal Update Parametrization)
+parametrizes model weights and learning rate (LR) in a way that makes
+hyperparameters (HPs) transferable with width (embedding dimension):
+HPs can be tuned for a small model and used for larger models without
+additional tuning. While µP showed impressive results in practice, recent
+empirical studies have reported conflicting observations when applied to
+LLMs. One limitation of the theory behind µP is the fact that input dimension (vocabulary size in LLMs) is considered fixed when taking the
+width to infinity. This is unrealistic since vocabulary size is generally
+much larger than width in practice. In this work, we provide a theoretical analysis of the effect of vocabulary size on training dynamics, and
+subsequently show that as vocabulary size increases, the training dynamics interpolate between the µP regime and another regime that we call Large
+Vocab (LV) Regime, where optimal scaling rules are different from those
+predicted by µP. Our analysis reveals that in the LV regime, the√optimal
+embedding LR to hidden LR ratio should roughly scale as Θ( width),
+surprisingly close to the empirical findings previously reported in the
+literature, and different from the Θ(width) ratio predicted by µP. We conduct several experiments to validate our theory, and pretrain a 1B model
+from scratch to show the benefit of our suggested scaling rule for the
+embedding LR.
+
+1
+
+Introduction
+
+Large Language Models (LLMs) require intensive pretraining on massive amounts of data
+before progressing to the post-training stage where they are finetuned for specific applications. During pretraining, model weights are updated with optimizers such as Adam [12]
+to minimize the next-token prediction loss. This process involves tuning several hyperparameters (HPs) in the model such as initialization, learning rate, batch size – a process that
+becomes significantly expensive as model size increases because optimal HPs are highly
+sensitive to scale.
+To address this challenge, researchers have studied how optimal HPs change with scale.
+One of the earliest works in this direction can be attributed to Neal [16] where the author studied how initialization should be scaled as network width increases. Subsequent
+research has examined the impact of the activation functions, learning rates, batch sizes,
+∗
+
+Corresponding author: hayou@berkeley.edu
+
+and other factors [7, 6, 24, 26]. Additional studies have studied how these HPs should
+scale with depth [18, 8, 25, 2].
+Maximal Update Parametrization [24] and related works. µP provides scaling rules
+with respect to width for initialization and learning rate in general neural network architecture. For instance, with Adam optimizer, µP parametrizes the learning rate for the
+hidden layers as η × d−1 where d is model width (embedding dimension). With this
+parametrization, the constant η can be tuned for small model and used for larger models
+without further tuning (HP transfer).
+However, when used for LLM pretraining, conflicting empirical results regarding the benefits of µP have been reported in the literature [20, 1, 13, 11, 5]. A potential explanation for
+these conflicting observations is that vocabulary size was not incorporated in the theoretical analysis. Indeed, a significant limitation of the theory behind µP (Tensor Programs)
+is that it assumes fixed vocabulary size while studying feature learning in the large width
+limit. This assumption is unrealistic, as in practice, vocabulary size is often much larger
+than width (see e.g. [14, 22, 21]). Consequently, it is unclear whether µP scaling rules
+remain optimal in the case of LLMs. Intuitively, vocabulary size would most significantly
+impact embedding and projection layers, and it should be expected that optimal learning
+rates for these two modules would shift as vocabulary size increases. This is the focus of
+our paper, where we develop a theoretical framework to study the impact of vocabulary
+size on training dynamics.
+Our contributions are three-fold:
+• Using a simple theoretical framework, we provide a rigorous analysis of the impact of vocabulary size on feature learning dynamics, and demonstrate the existence of two regimes: (i) the µP regime, where vocabulary size is fixed and only
+width (embedding dimension) d increases to infinity, and 2) Large Vocabulary
+(LV) regime where vocabulary size also increases, in which case the µP scaling
+rules for embedding layer LR are suboptimal.
+• Our theory suggests that the ratio of embedding layer LR (LRemb
+√) to hidden layers
+LR (LRhidden ) should scale roughly as LRemb /LRhidden = Θd ( d), in contrast to
+µP prediction of Θd (d) ratio. As vocabulary size increases, the training dynamics
+interpolate between the µP regime and the LV regime.
+• We hypothesize that the LV regime is more adapted to modern LLM pretraining
+and conduct extensive experiments to validate our theoretical findings. Notably,
+√
+we pretrain a 1B model from scratch to show that setting LRemb /LRhidden ≈ d
+leads to significant improvement in large scale pretraining.
+
+2
+
+Neural Parametrizations and Hyperparameter Transfer
+
+As we scale neural networks, we must adapt hyperparameters in a scale-dependent manner. When model width d increases, both initialization variance and learning rate should
+be adapted to avoid numerical instabilities and ensure efficient learning. For instance, the
+variance of initialization weights in hidden layers should scale as d−1 to prevent excessively large activations as model width increase (e.g. He init [9]). To derive such scaling
+rules, a principled approach consists of analyzing statistical properties of the training dynamics as d grows, then adjusting initialization, learning rate, and architecture to achieve
+desirable properties in the limit d → ∞ [18, 7, 23].
+µP provides scaling exponents for initialization and learning rate. The goal is to achieve
+“maximal” feature learning and avoid lazy training when width is significantly large.2
+One of the key benefits of µP is HP transfer, where optimal HPs transfer with width:
+we can tune HPs on a small model and apply the same HPs to larger models without
+further tuning. This is particularly valuable when training large models, as it significantly
+2
+
+Lazy training [3] refers to a phenomenon where feature learning becomes suboptimal as width
+increases. This is primarily associated with the Neural Tangent Kernel [10].
+
+2
+
+reduces training costs. While µP was established for general neural architectures,3 our
+focus in this paper is specifically on LLMs, and particularly decoder-only transformer
+architectures.
+A transformer model of depth L and width d is given by
+
+Yemb (X) = X E,
+Y (X) = Yl−1 (x) + F(Yl−1 (X), θl ), l ∈ [1 : L],
+ l
+Yproj (X) = YL (X)W,
+
+(1)
+
+where E ∈ Rm×d is the embedding matrix (vocabulary size m), X ∈ RT ×m is a tokenized
+input sequence of length T (each row consists of a one-hot vector), W ∈ Rd×m is the
+projection matrix, and F(.) is a mapping that consists of Attention and MLP blocks with
+weights θl . For LLMs, the transformer is usually trained to minimize the next token
+prediction loss, which extracts the last row of Yproj (X) and compares it against ground
+truth next token.
+Notation. Hereafter, d will always denote model width. As d grows, given sequences
+cd ∈ R and bd ∈ R+ , we write cd = O(bd ) to refer to cd < κdb for some constant κ > 0. We
+write cd = Θ(bd ) if we have κ1 bd ≤ cd ≤ κ2 bd for some κ1 , κ2 > 0. For vector sequences
+cd = (cid )1≤i≤k ∈ Rk (for some k > 0), we write cd = O(bd ) when cid = O(bid ) for all i ∈ [k],
+and same holds for other asymptotic notation. Finally, when the sequence cd is a vector of
+random variables, asymptotics are defined in the sense of the second moment (L2 norm).
+P
+1/2
+d
+2
+For a vector z ∈ Rd , ∥z∥ =
+refers to the euclidean norm.
+i=1 zi
+Neural parametrization. In the context of model scaling, a parametrization specifies
+how each HP in the model should depend on the scalable dimension (scaling exponents).
+For instance, when scaling width d, initialization variance conventionally scale as d−1 [9].
+µP suggests similar scaling rules for learning rate. While various HPs are sensitive to
+scale, including batch size and activation function, our focus in this work is primarily on
+learning rate adaptation.
+Mechanisms of µP. The idea behind µP originates from the infinite-width theory of
+neural networks. Specifically, the literature on the neural tangent kernel [10] showed that
+certain parameterizations lead to a kernel regime in the infinite-width limit. In other
+words, increasing model width with such parametrizations leads to subopotimal for feature learning. The authors of µP reverse-engineered this problem by asking: how can we
+maximize feature learning in the infinite-width limit? Additional details on infinite-width
+theory of neural networks are provided in Appendix A.
+Hereafter, we use the subscript t to denote the optimizer step. In the context of µP, feature
+learning is measured by the change in features after one step, and we say that we have
+“maximal” feature learning if the following holds
+∆t Y := Yt+1 − Yt = Θd (1),
+for any neuron Y in the model, e.g. Yl (X)ij (j-th neuron in the i-th hidden vector in the
+sequence). µP was derived by enforcing this asymptotic behavior. We summarize µP rules
+for initialization and LR (Adam optimizer) in Table 1.
+Table 1: µP scaling rules for initialization and learning rate.
+Embedding weights Output weights Hidden weights
+Init. Var.
+1
+d−2
+d−1
+−1
+LR (Adam)
+η
+ηd
+ηd−1
+3
+
+Under the assumption that all neural computations can be represented as tensor programs.
+
+3
+
+The constant η > 0 is a tunable HP that does not depend on width d.4 . As we scale d, µP
+suggests that the optimal LR for hidden and output weights should be expected to scale
+as d−1 , while the optimal LR for embedding layer should remain approximately constant.
+In its “raw” form, µP scaling exponents are given by asymptotic results such as LRhidden =
+Θd (d−1 ) and LRemb = Θd (1) which suggests using different constants η’s for each cell in
+Table 1.5 However, since the cost of tuning multiple HPs grows exponentially with their
+number, such tuning process becomes costly even for relatively small models. Therefore
+practitioners usually use the same constant η across layers [13]. This is also true for
+standard parametrization (SP) where no width exponents are included in the learning
+rate.
+Limitations of µP for LLMs. Recent empirical work [1] has
+shown that while the Θd (d−1 ) scaling effectively leads to HP
+transfer for hidden/output LRs, the optimal embedding LR
+seems to shift as width d increases, contradicting muP’s predictions of a constant optimal embedding LR across scales.
+In another work [5], the authors showed that in the case of
+LLMs different parametrizations can match and even outperform µP in terms of the quality of HP transfer, including
+standard parametrization, provided learning rate exponents
+are corrected to account for width growth. This contradicts
+µP’s intuition that maximal feature learning is the only way to
+achieve HP transfer.
+Understanding this discrepancy requires examining the fundamental limitations of µP, especially when applied to LLMs.
+In this work, we show that two critical factors contribute to
+this discrepancy:
+• Vocabulary size: The µP framework assumes fixed input
+and output dimensions while allowing only width to go
+to infinity. Consequently, the constants in Θd (.) implicity
+depend on the input and output dimensions. In LLMs, vocabulary size is typically much larger than width, and larger
+models generally require larger vocabularies as empirically
+shown in [19].
+
+Step 1e2
+27
+28
+*
+E 29
+2 10
+2 11
+28
+
+29
+
+210 211 212
+
+dmodel
+
+Step 1e4
+26
+27
+*
+E 28
+29
+2 10
+
+Best (10%)
+Slope=­1
+Slope=0 ( P)
+
+28
+
+29
+
+210 211 212
+
+dmodel
+
+Figure 1: Optimal Embedding LR vs model width.
+Transformer model with
+vocab size 32768, trained on
+Wikitext2 for 1e4 steps with
+Adam.
+
+• Data-specific characteristics: An important aspect of the
+transformer architecture is embedding layer, which functions as a lookup table rather than a conventional linear
+layer. Although µP predicts Θd (1) scaling for embedding
+LR, the lookup nature of the embedding layer creates differential update patterns: embedding vectors corresponding to frequent tokens receive
+significantly more informative updates than those corresponding to less frequent tokens. µP does not incorporate this aspect in the analysis leading to the stated scaling
+exponents.
+Our work addresses both factors through an intuitive analytical framework. We demonstrate how incorporating vocabulary scaling and data-specific characteristics yield different scaling behavior for optimal embedding LR. Specifically, we establish that Adam-like
+optimizers that use element-wise normalization lead to an interesting phenomenon:
+As vocabulary size increases, the training dynamics interpolate between the µP regime and a
+Large Vocabulary (LV) regime where optimal LRs satisfies roughly LRemb /LRhidden = Θ(d−1/2 ).
+4
+5
+
+Think of η as the constant in Θd (.).
+The notation ad = Θd (bd ) means that roughly ad is of the same order as bd when d is large.
+
+4
+
+Intuitively, the change in the scaling exponents results from the effect of vocabulary size
+on the alignment between weight updates and incoming activations during training (see
+next section for an in-depth discussion).
+We trained a decoder-only transformer trained with Adam for 1e4 steps on Wikitext2
+[15]. We use a large vocab size of 32768 and width d ∈ {256, 512, 1024, 2048, 4096} and
+sweep over LRemb , LRhidden , LRout , Embedding Init, Hidden Init, and Output Init (See Appendix C for more details about the experimental setup). Interestingly, we found that the
+optimal performance is generally achieved by using the same initialization and learning
+rate for hidden layers and output layer which contradicts µP’s predictions, and confirms
+some findings in [5] showing that SP can outperform µP is some cases.
+Figure 1 shows the optimal LRemb as a function of width d. The optimal embedding LR
+seems to decrease with model width at a sublinear rate, contradicting µP predictions of
+Θd (1) behavior and confirming the d−1/2 scaling previously reported in [1].
+
+3
+
+Theoretical Analysis
+
+In this section, we provide an intuitive explanation of the patterns observed in Figure 1.
+We conduct an analysis of the infinite-width training dynamics in a controlled setting. We
+use a linear neural network for simplification, readability, and tractability of the analysis.
+Consider the embedding matrix E ∈ Rm×d , where m is the vocabulary size, and d is the
+width (embedding dim). In LLMs, the embedding layer acts as a simple lookup operation.
+Specifically, given a token with index i in the vocabulary, the forward operation simply
+returns Ei , the ith row in the embedding matrix E. Updates to the rows of E are given by
+Ei ← Ei − ηA(Gi ),
+where A(Gi ) is the processed gradient (e.g. Adam) of the raw gradient given by
+X
+Gi = |B|−1
+∇Ei ℓ(x),
+x∈B
+
+where B is the update batch and ℓ is the loss function. For a token i, ∇Ei ℓ(x) is null if
+the sequence x does not contain the token i, leading to the gradient for many embedding
+vectors to be zero. When we tokenize a dataset, each token i ∈ [m] has some probability αi
+of appearing in an input sequence. As a result, when the batch size is sufficiently large,6
+we can rewrite the gradient Gi as
+Gi ≈
+
+m
+X
+
+αj ∇Ei ℓ(j).
+
+j=1
+
+This is a training setup where the input has a discrete distribution (one-hot vectors). We
+further refine this observation below.
+Simple Model with LLM-like Embedding Layer. The the embedding layer and the projection layer interact directly via the residual stream. This interaction leads to important
+changes in the training dynamics as vocabulary size increases. To model this interaction, we consider a simple linear network consisting only of the embedding layer and a
+projection layer, and is given by
+
+Yemb (x) = x⊤ E ∈ R1×d ,
+(2)
+f (x) = Yemb (x)W = x⊤ EW,
+where xi ∈ Rm denotes the input vector (a one-hot vector), E ∈ Rm×d is the embedding
+matrix, and W ∈ Rd×m is the projection matrix.7
+6
+Here, we just need that the batch size satisfies |B| ≫ T , which is generally the case for LLM
+pretraining when batch size is usually of the order of millions, and vocab size is of the order of 104
+to 105 .
+7
+In this simple model, we do not have an attention mechanism. Therefore each token is processed
+independently, and there is no direct interaction between tokens in a sequence.
+
+5
+
+Large-Batch Training. As is common in practice, we consider large batch size N . We
+assume that the model is trained by minimizing the square loss ℓ(z, z ′ ) = (2m)−1 ∥z − z ′ ∥2
+for z, z ′ ∈ Rm .8 The dataset D consists of input-target pairs (x, z). Averaging over the
+batch, the gradients are given by
+!
+!
+N
+N
+1 X
+1 X
+⊤
+⊤
+dE =
+xi χ(xi ) W , dW = E
+xi χ(xi ) ,
+N i=1
+N i=1
+where χ(xi ) = ∇f (xi ) ℓ(f (xi ), zi ) = m−1 (xi EW − zi ) ∈ R1×m . Let the vectors (ui )1≤i≤m ∈
+Pm
+Rm denote the one-hot vectors in dimension m, and scalars αi ∈ [0, 1] satisfying i=1 αi =
+1 such that the distribution of x follows
+m
+X
+µ(x) =
+αi δ(ui ),
+i=1
+
+where δ(u) refers to the Dirac mass at u. αi is the probability of seeing token i in the
+dataset.9 With such discrete input distribution, we can write the gradients as follows
+!
+!
+m
+m
+X
+X
+α̂i ui χ(ui ) W ⊤ , dW = E ⊤
+α̂i ui χ(ui ) ,
+dE =
+i=1
+
+i=1
+
+where α̂i = #{i∈[NN]:xi =ui } are the empirical frequencies.10
+With large batch size (N → ∞), the training dynamics can be approximated by their
+infinite-batch counterpart
+!
+m
+X
+dE =
+αi ui χ(ui ) W ⊤ = Dα (EW − Z)W ⊤
+i=1
+
+dW = E
+
+⊤
+
+m
+X
+
+!
+αi ui χ(ui )
+
+= E ⊤ Dα (EW − Z),
+
+i=1
+
+where αi are the real frequencies from the data distribution, Dα = Diag((α)1≤i≤m )
+is the diagonal matrix consisting of the frequencies αi in its diagonal, and Z =
+⊤ ⊤
+) ∈ Rm×m are the concatenated targets. This infinite-batch limit captures
+(z1⊤ , z2⊤ , . . . , zm
+the impact of the frequencies αi on the updates of the embedding vectors. Specifically, for
+token i, we have dEi = αi χ(ui )W ⊤ , which is proportional to the frequency αi . This is expected as embedding vectors corresponding to less frequent tokens receive less significant
+updates.
+For the remainder of this section, we use the infinite-batch limit approximation to derive
+scaling limits of feature learning. We analyze training dynamics after taking one step with
+SignSGD – a simplified version of Adam – and show that as vocabulary size increases, the
+dynamics interpolate between the µP regime and the Large Vocab (LV) regime.
+3.1
+
+Analysis with Adam-like Optimizers
+
+In practice, when training a large model, we often use Adam [12] or its variants. Unlike
+gradient descent, Adam-like optimizers process the raw gradient to incorporate momentum and normalization. For scaling dynamics, normalization is particularly significant
+because it fundamentally changes the magnitude of gradients, which becomes Θ(1) across
+virtually all scalable dimensions. In order to have tractable analysis with such optimizers,
+we consider SignSGD, a momentum-less version of Adam that replaces each coordinate
+in the gradient with its sign element-wise, and we have
+Et+1 = Et − ηE S(Dα (Et Wt − Z)Wt⊤ ),
+Wt+1 = Wt − ηW S(Et⊤ Dα (Et Wt − Z))
+8
+
+The square loss can be replaced with any sufficiently regular loss function.
+In LLMs, the inputs xi come from a discrete m-dimensional distribution where the support
+vectors are just the one-hot vectors.
+10
+Here, we use frequency and probability interchangeably to refer to probabilities αi .
+9
+
+6
+
+where S(v) = (sign(vi ))vi ∈v is of the same size and dimension as v.11
+After one step, the output for a given token i ∈ [m] changes as follows
+Ei,1 W1 = Ei,0 W0 − ηW Ei,0 S(E0⊤ Dα (E0 W0 − Z)) − ηE S((Ei,0 W0 − Z)W0⊤ )W0
+{z
+} |
+{z
+}
+|
+i
+δW
+
+i
+δE
+
++ ηE ηW S((Ei,0 W0 − zi )W0⊤ )S(E0⊤ Dα (U ⊤ E0 W0 − Z) .
+|
+
+{z
+
+i
+δW,E
+
+}
+
+i
+i
+The terms δW
+and δE
+represent feature learning components corresponding to updates in
+i
+W and E respectively. Specifically, δW
+corresponds to updating W while keeping E fixed,
+i
+and vice-versa for δE . They capture the respective contributions of W and E to feature
+i
+learning after a single optimization step. The term δW,E
+captures the multiplicative effect
+of both components. µP-style theory defines efficient feature learning as having both
+i
+i
+δW
+= Θd (1) and δE
+= Θd (1), element-wise. The intuition is straightforward: we want to
+avoid instability in training dynamics (implying components should be at most Od (1)),
+while ensuring both parameters contribute effectively to feature learning (avoiding cases
+i
+i
+= Θd (1)). It can be shown that having both
+= od (1) and δW
+where, for instance, δE
+i
+i
+δE = Θd (1) and δW = Θd (1) implies that the multiplicative feature learning component
+i
+= Θd (1).
+also satisfies δW,E
+
+One limitation of µP is that vocabulary size m is considered fixed and only d goes to
+i
+i
+infinity. Therefore, it is unclear how m affects feature learning components δE
+and δW
+for different tokens i. In the next result, we address this question and characterize the
+i
+i
+when both width d and vocabulary size m are large.
+and δE
+asymptotic behavior of δW
+Theorem 1 (Informal). Consider the following setup and notation:
+2
+2
+• Initialization: W ∼ N (0, σW
+) and E ∼ N (0, σE
+) (iid).
+
+1/2
+i
+i 2 1/2
+i
+i
+• For i ∈ [m], the quantities δ̄E
+= m−1 E∥δE
+∥
+and δ̄W
+= m−1 E∥δW
+∥2
+denote
+i
+i
+respectively,12 where the expectation is w.r.t initialization
+and δW
+the average norm of δE
+weights.
+m
+
+• ᾱ2 :=
+
+1 X 2
+αk denotes the average squared-frequencies.
+m
+k=1
+
+Then, for all i ∈ [m], the following holds
+
+
+q
+2d(d−1)
+i
+• Embedding: δ̄E = Θm,d ηE σW d + πm ) .
+
+
+q
+α2
+i
+• Projection: δ̄W
+= Θm,d ηW σE d + ᾱ2i 2d(d−1)
+)
+.
+πm
+Theorem 1 characterizes how feature learning components corresponding δE and δW as
+both with d and vocabulary size m grow. The formal statement and proof are provided in
+Appendix B. Note that token frequencies αi naturally depend on m.
+If we fix m, as in µP, we obtain exactly the µP scaling rules. Specifically, with m fixed,
+i
+i
+the asymptotics in Theorem 1 become δ̄E
+= Θd (ηE σW d) and δ̄W
+= Θd (ηW σE d). With
+−1/2
+−1
+σW = Θd (d
+), σE = Θd (1), ηW = Θd (d ), and ηE = Θd (1) (µP), these asymptotics
+i
+i
+satisfy δ̄W
+= Θd (1) and δ̄E
+= Θd (1).
+11
+Specifically, given a matrix/vector z = (zi )1≤i≤p , S(z) = (S(zi ))1≤i≤p , where S(zi ) = 1 if zi ≥ 0
+and 0 otherwise.
+
+12
+i
+i 2 1/2
+The average norm δ̄E
+= m−1 E∥δE
+∥
+is a good indicator of the magnitude of the coordii
+nates of δE
+since these coordinates have the same distribution.
+
+7
+
+However, in practice m is typically large and often significantly larger than d. Therefore,
+considering a fixed m is an unrealistic assumption. If we let vocabulary size m grow, we
+obtain different scaling behaviors. One complication is the dependence of the frequencies
+αi on vocabulary size m. In order to control how these frequencies change with m, we
+assume that token distribution follows the Zipf-Mandelbrot law.
+Assumption 1 (Zipf-Mandelbrot Law [27]). Without loss of generality assume that tokens are
+ranked by their frequencies. For vocab size m, the frequencies are given by αi ∝ i−am for some
+am > 0.
+
+i=1
+
+log(Frequency)
+
+Zipf-Mandelbrot Fit (m=8192)
+105
+104
+Fit: a=1.01
+Data
+
+103
+100
+
+103
+
+102
+
+103
+
+104
+103
+
+Fit: a=1.03
+Data
+
+Proof.PThe proof follows from noting that i=1 i−2¯a = Θm (1)
+m
+and i=1 i−2ā = Θm (1) (standard series convergence result). Figure
+Lemma 1 shows that under the power law assumption on
+token frequencies (with realistic values for a), the average
+squared frequency vanishes as 1/m with vocabulary size m.
+This is expected because with such power laws, most of the
+distribution weight is concentrated among the frequent tokens.
+
+102
+
+105
+
+100
+
+Pm
+
+101
+
+log(Rank)
+Zipf-Mandelbrot Fit (m=32768)
+log(Frequency)
+
+The Zipf-Mandelbrot Law is a power law frequently observed
+in ranked data. It is well-studied in probability and statistics, and the coefficient am is usually close to 1. Figure 2
+verifies this assumption by showing token frequencies for
+m ∈ {8192, 32768}, where in both cases we trained a BPE tokenizer on Wikitext2 [15] and tokenized the same dataset to
+obtain frequencies. The results demonstrate that this power
+law is an excellent approximation of token distribution. Under
+this assumption, the next result shows that the quantity ᾱ2 has
+Θ(m) asymptotic growth with vocabulary size m which leads
+to scaling rules that are different from µP.
+Lemma 1 (Average Frequency vanishes with Vocabulary Size).
+Under Assumption 1, assume that there exist constants a, ā > 1/2
+¯
+such that for all m ≥ 1, am ∈ [a, ā]. Then, we have
+¯
+m
+X
+ᾱ = m−1
+i−2am = Θm (m−1 ).
+
+101
+
+log(Rank)
+
+2:
+Verification
+of the Zipf-Mandelbrot
+Law
+assumption
+for
+m ∈ {8192, 32768}.
+In
+both cases, we train a BPE
+tokenizer on Wikitext2,
+tokenize the dataset, and
+show the frequencies.
+
+Using the result of Lemma 1, we show in the theorem that the
+i
+i
+asymptotic behavior of δ̄W
+and δ̄E
+differs from the µP asymptotics when both d and m
+are large, leading to different scaling rules.
+Theorem 2 (Large Vocabulary Regime, (Informal)). Let k be a fixed integer, independent of
+m. Suppose that Assumption 1 is satisfied, and assume there exist constants a, ā > 1/2 such that
+¯ i≤k
+for all m ≥ 1, am ∈ [a, ā]. Then, using the same notation of Theorem 1, for any
+¯
+
+
+q
+2d(d−1)
+i
+• Embedding: δ̄E = Θm,d ηE σW d + πm ) .
+q
+
+
+i
+• Projection: δ̄W
+= Θm,d ηW σE d + π2 d(d − 1)) .
+One of the assumptions in Theorem 2 is that k is a fixed integer and the results hold
+for i ≤ k. Intuitively, this should be interpreted as the result holds for high frequency
+i
+tokens. For these tokens, the d term in the asymptotic formula of δ̄W
+is amplified by the
+i
+Θ(m) from Lemma 1, which brings back the asymptotics of δ̄W to the µP regime where
+i
+i
+δ̄W
+= Θ(ηW σE d), while preserving the 1/m term in the asymptotics of δ̄E
+. Consequently,
+we should expect the impact of vocabulary size to be more pronounced on the embedding
+layer learning rate. This aligns with empirical observations, where µP scaling rule for the
+embedding layer does not achieve HP transfer as shown in Figure 1. Details about the
+formal statement of Theorem 2 and its proof are provided in Appendix B.
+8
+
+Interpolation between regimes. As m grows, the asymptotics interpolate between the
+i
+i
+µP regime where
+Vocabulary (LV)
+√ d term dominates in iboth δ̄E and δ̄W , and the Large
+i
+i
+regime where d term dominates
+in
+δ̄
+and
+d
+term
+dominates
+in
+δ̄
+.
+In the latter, δ̄E
+E
+W
+√
+becomes asymptotically Θ(ηE σW d), which differs from µP regime. In the LV regime, µP
+is no longer optimal. Empirically, we found that the best initialization in the LV regime is
+σW = σE = d−1/2 which is the initialization used in standard parametrization
+√ (SP), which
+√
+σE
+−1
+differs from µP’s σW = d and σE = 1. This leads to ηE /ηW = Θ( σW d) = Θ( d)
+unlike the Θ(d) ratio predicted by µP. Note that SP initialization was also found to lead to
+HP transfer in [5], provided that the learning rates exponents are adapted accordingly.
+What about low frequency tokens? The result of Theorem 2 holds for the most frequent
+i
+tokens i. If we consider less frequent tokens i, the asymptotic behavior of δ̄W
+changes
+−β
+2
+significantly. For instance, if we consider a token im such that αim = Θ(m ), then we
+
+
+q
+im
+have δ̄W
+= Θm,d ηW σE d + m−β+1 × 2d(d−1))
+. If β > 1, then in this case the d2 term
+πm
+is actually amplified in contrast to the behavior of the most frequent tokens. However, it
+should be expected that the most frequent tokens are more important during training and
+therefore optimal parametrizations are generally tuned so that feature learning for such
+tokens is optimal.
+An important conclusion from this analysis is that µP is suboptimal for LLM training,
+especially in how embedding learning rate
+√ is parametrized. Large vocabulary size m
+i
+in optimal scaling rules.
+from d to d, leading to changes
+reduces the signal strength in δE
+√
+In the next section, we show that using a ratio of ηE /ηW = d yields better performance
+when the vocabulary size is large (m ≫ d), a condition generally satisfied in practice.
+Extension to Transformer Architectures. The theoretical analysis presented in this work
+uses a simplified model consisting only of embedding and projection layers. Modern
+LLMs have hidden layers between embedding and projection layers. Despite this complexity, we expect our core findings to remain relevant to full transformer architectures
+due to a critical architectural feature: the residual stream, which creates a direct connection between the embedding and projection layers. While a comprehensive theoretical
+analysis of the full transformer architecture is not possible using the mathematical framework introduced in this paper, the fundamental dynamics we have identified likely hold.
+The direct pathway created by the residual connections preserves the essential relationship between the embedding and projection layers that drives the scaling behaviors we
+have observed.
+
+4
+
+Experiments
+
+Form the theoretical analysis in Section 3, we found that in the LV regime, feature learning dynamics are different from those associated with µP, and concluded that when the
+vocabulary size m is large
+√ enough (i.e. m ≫ d),
+√ a good rule of thumb is to set ηE and
+ηW such that ηE /ηW = d. We call this the d-rule. In the more realistic scenario of
+transformers architecture, ηW is the learning rate used for hidden layers and projection
+layer. More generally, we define the Large Vocabulary Parametrization (LVP) which uses the
+same initialization as√SP, the same learning rate of µP for hidden and output projection,
+but incorporates the d-rule in the embedding learning rate. Table 2 summarizes these
+different parametrizations.
+Our goal in this section is to assess the effectiveness of this rule for both hyperparameter
+transfer and effective feature learning. We conducted two experiments:
+1. We pretrained a series of small language models consisting of only two hidden
+layers in addition to embedding and projection
+√layers, where we scale both width
+d and vocabulary size m. We found that the d-rule provides near-optimal performance in this case, leading to better transfer of the embedding learning rate.
+9
+
+Table 2: Different parametrization: SP (Standard Parametrization), µP (Maximal Update Parametrization), and LVP (Large Vocabulary Parametrization). We show how each
+parametrization sets the initialization variance and learning rate (Adam).
+Param
+HP
+Embedding Output Hidden
+SP
+Init. Var.
+1
+d−1
+d−1
+LR (Adam)
+η
+η
+η
+µP
+Init. Var.
+1
+d−2
+d−1
+LR (Adam)
+η
+ηd−1
+ηd−1
+−1
+−1
+LVP (ours)
+Init. Var.
+d
+d
+d−1
+−1/2
+−1
+LR (Adam)
+ηd
+ηd
+ηd−1
+√
+2. To evaluate the benefit of the d-rule in a production-scale scenario, we pretrained a 1B model from scratch and measure perplexity
+for different ratios
+√
+ηE /ηW . Our results show that setting ηE /ηW = d yields improved training
+loss and perplexity.
+4.1
+
+Increasing Vocabulary Size
+
+We trained a small decoder-only transformer with the following configuration: an embedding layer, two hidden layers, and
+a projection layer. We used Wikitext2 as our training dataset,
+with a maximum sequence length of 256 and fixed positional
+encoding added to the embedding layer. Experiments were
+conducted for various configurations (d, m) ∈ {(2k , 2k+3 ), k =
+8, . . . , 12}. For each vocabulary size m, we trained a dedicated
+BPE tokenizer on Wikitext2. In the experiments previously reported in Figure 1, we observed that µP scaling for hidden and
+projection layers LRs remains robust as we scale d. Therefore,
+LVP (Table 2) uses the same scaling rules as µP for hidden and
+output layers. The learning rate for these layers is ηW = ηd−1
+where η ≈ 0.2 is obtained by grid tuning for the model with
+d = 28 . Similarly, we found that setting σW = σE = d−1/2
+generally gives better performance than µP’s init, so we use
+that in LVP. We do a grid search over ηE and run three seeds
+per experiment. Each run consists of 1e4 Adam steps. See
+Appendix C for more details about experimental setup.
+
+Step 1e2
+
+25
+26
+*
+E 27
+
+Best (10%)
+Slope=­1/2
+Slope=­1
+Slope=0 ( P)
+
+28
+29
+28
+
+29
+
+211
+
+212
+
+Step 1e4
+
+26
+*
+E
+
+210
+
+dmodel
+
+28
+2 10
+28
+
+29
+
+210 211 212
+
+dmodel
+
+Our choice of (d, m) configurations ensures that the vocabulary size scales linearly with d. This approach makes the term Figure 3: Optimal ηE vs
+d(d − 1)/m in Theorem 2 comparable to d, the first term in that dmodel . The shaded curves
+is calculated as the geoasymptotic formula.
+metric mean of all learning
+
+Figure 3 summarizes our experimental findings. The results rates that give a train loss
+confirm that optimal embedding LR decreases with d in con- within 20% of the best train
+trast to the Θd (1) predictions of µP. Setting ηE = Θ(d−1/2 ) (or loss. The average is calculated across learning rate
+equivalently, ηE /ηW = Θ(d1/2 )) yields
+√ near-optimal training grid and random seeds.
+loss (t = 1e4). However, while the d-rule is generally better
+than µP or SP, the optimal embedding
+learning rate exhibits
+√
+significant variance around the d line. This might indicate more fundamental limitations in the parametrization. See Section 5 for more details.
+4.2
+
+Production-Scale LLM Pre-training
+
+We conduct experiments on LLM pre-training using a 1B parameter dense Transformer
+model. This is a 24 layers model with width d = 2048.
+10
+
+5.5
+
+8.00
+
+E/ W = 1
+
+5.4
+
+E/ W =
+
+d
+
+5.3
+
+E/ W = 0.5
+E/ W = 1.0
+E/ W = 4.0
+E/ W = 10.0
+E/ W = 20.0
+E/ W = 40.0
+
+7.75
+7.50
+
+Training PPL
+
+7.25
+
+Training PPL
+
+5.2
+
+E/ W = d
+E/ W = 80.0
+
+7.00
+
+5.1
+
+6.75
+
+5.0
+
+6.50
+
+4.9
+
+6.25
+
+4.8
+0.0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1.0
+
+Trillion Tokens
+
+1.2
+
+1.4
+
+6.00
+2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 6.5
+1e10
+Tokens
+
+1.6
+
+(a) slope=0 and slope=-1/2 on 1.75T tokens.
+
+(b) different ηE /ηW on 65B tokens.
+
+Figure 4: LLM Pre-training Perplexity of 1B Transformer. Note
+
+15.0
+
+√
+
+d ≈ 45.3 here.
+
+E/ W = 1
+
+Test Word PPL on Wikitext-103
+
+E/ W =
+
+14.5
+
+d
+
+14.0
+13.5
+13.0
+12.5
+12.0
+0.0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1.0
+
+Trillion Tokens
+
+1.2
+
+1.4
+
+1.6
+
+Figure 5: Perplexity of 1B Transformer on the Wikitext Test Set
+
+Training Corpus. To better approximate production-level LLM pre-training, we trained
+our model on 1.75T tokens as a Causal Language Model. This training dataset is identical
+to the one used to train Phi-3 dense models [22].
+Model Architecture.
+We implemented a modern Transformer architecture with RoPE
+embeddings, sliding window multi-query attention, and SwiGLU activation. The detailed
+model configuration is available in Table C.3.
+Pre-training Performance. We trained two models for 1.75T tokens. The baseline model
+used the conventional LLM training configuration, which applies the same learning rate
+to both the embedding layer and the remaining parameters. The experimental model
+implemented
+our proposed scaling rule, which sets the embedding layer learning rate to
+√
+be d times larger than for the remaining parameters.
+Figure 4a visualizes the training perplexity curves for both models, showing that our proposed method leads to consistently faster convergence throughout training and achieves
+a better final training loss. To further verify the effectiveness of our proposed scaling rule,
+we experimented with
+√ additional learning rate ratios on the 1B model. As shown in Figure 4a, our proposed d scaling rule leads to near-optimal performance, while further increasing
+the learning rate yields only marginal benefits.
+Evaluation on Wikitext.
+We measured the word-level perplexity on the Wikitext test
+corpus [15]. As visualized in Figure 5, our proposed model consistently outperforms the
+conventional baseline.
+11
+
+5
+
+Discussion and Limitations
+
+In this work, we showed that large vocabulary size leads to different scaling rules than
+those predicted by µP. In this
+√ regime, the optimal ratio of embedding LR to hidden LR
+appears to roughly of order d, which is different from the order d ratio suggested by µP,
+and the ratio of 1 used in SP.
+√
+While our suggested d-rule yields better performance even for production-scale LLMs
+(compared to standard practice), it is important to understand that this rule is more
+about efficient feature learning than hyperparameter transfer. Specifically, hyperparameter transfer occurs when the parametrization is optimal, in the sense that it leads to the
+most effective feature learning limit. It is unclear whether the limit with this scaling is
+optimal, and further theoretical and empirical studies are needed to investigate this. In
+our discussion in Section 3, we mentioned that optimal scaling rules for the learning rate
+are sensitive to token frequency, and therefore, it should not be unexpected that optimal
+parametrization should incorporate information about token frequency.
+Our theoretical results were derived in a simplified setting where we consider a simple
+model trained with SignSGD with 1 step . We expect the results to hold even for multiple
+steps with more practical optimizers such as Adam since the main ingredient in our
+analysis is the normalization process from such optimizers. The number of steps t is
+important and we expect the results to hold when t is fixed and d, m go to infinity. The
+more general case where t is free is more challenging.
+Finally, the interaction between embedding and projection layers is present in modern
+LLMs via the residual stream, which indicates that the large vocabulary regime is relevant
+for LLMs as well. Our empirical results further confirm this.
+
+6
+
+Acknowledgment
+
+SH is supported by the NSF and the Simons Foundation for the Collaboration on the
+Theoretical Foundations of Deep Learning through awards DMS-2031883 and 81463.
+
+12
+
+References
+[1] Charlie Blake, Constantin Eichenberg, Josef Dean, Lukas Balles, Luke Y. Prince, Björn
+Deiseroth, Andres Felipe Cruz-Salinas, Carlo Luschi, Samuel Weinbach, and Douglas
+Orr. u-µp: The unit-scaled maximal update parametrization, 2025. URL https:
+//arxiv.org/abs/2407.17465.
+[2] Blake Bordelon, Lorenzo Noci, Mufan Bill Li, Boris Hanin, and Cengiz Pehlevan.
+Depthwise hyperparameter transfer in residual networks: Dynamics and scaling
+limit, 2023. URL https://arxiv.org/abs/2309.16620.
+[3] Lenaic Chizat, Edouard Oyallon, and Francis Bach. On lazy training in differentiable
+programming, 2020. URL https://arxiv.org/abs/1812.07956.
+[4] Lénaı̈c Chizat, Maria Colombo, Xavier Fernández-Real, and Alessio Figalli. Infinitewidth limit of deep linear neural networks. Communications on Pure and Applied
+Mathematics, 77(10):3958–4007, 2024. doi: https://doi.org/10.1002/cpa.22200. URL
+https://onlinelibrary.wiley.com/doi/abs/10.1002/cpa.22200.
+[5] Katie Everett, Lechao Xiao, Mitchell Wortsman, Alexander A. Alemi, Roman Novak,
+Peter J. Liu, Izzeddin Gur, Jascha Sohl-Dickstein, Leslie Pack Kaelbling, Jaehoon Lee,
+and Jeffrey Pennington. Scaling exponents across parameterizations and optimizers,
+2024. URL https://arxiv.org/abs/2407.05872.
+[6] Soufiane Hayou. On the infinite-depth limit of finite-width neural networks. Transactions on Machine Learning Research, 2022.
+[7] Soufiane Hayou, Arnaud Doucet, and Judith Rousseau. On the impact of the activation function on deep neural networks training. In Kamalika Chaudhuri and
+Ruslan Salakhutdinov, editors, Proceedings of the 36th International Conference on Machine Learning, volume 97 of Proceedings of Machine Learning Research, pages 2672–2680.
+PMLR, 09–15 Jun 2019. URL https://proceedings.mlr.press/v97/hayou19a.html.
+[8] Soufiane Hayou, Eugenio Clerico, Bobby He, George Deligiannidis, Arnaud Doucet,
+and Judith Rousseau. Stable resnet. In Arindam Banerjee and Kenji Fukumizu, editors, Proceedings of The 24th International Conference on Artificial Intelligence and Statistics, volume 130 of Proceedings of Machine Learning Research, pages 1324–1332. PMLR,
+13–15 Apr 2021.
+[9] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Delving deep into rectifiers: Surpassing human-level performance on imagenet classification, 2015. URL
+https://arxiv.org/abs/1502.01852.
+[10] Arthur Jacot, Franck Gabriel, and Clément Hongler. Neural tangent kernel: Convergence and generalization in neural networks, 2020. URL https://arxiv.org/abs/
+1806.07572.
+[11] Keller Jordan, Yuchen Jin, Vlado Boza, You Jiacheng, Franz Cesista, Laker Newhouse,
+and Jeremy Bernstein. Muon: An optimizer for hidden layers in neural networks,
+2024. URL https://kellerjordan.github.io/posts/muon/.
+[12] Diederik P. Kingma and Jimmy Ba. Adam: A method for stochastic optimization,
+2017. URL https://arxiv.org/abs/1412.6980.
+[13] Lucas Lingle. An empirical study of µp learning rate transfer, 2025. URL https:
+//arxiv.org/abs/2404.05728.
+[14] Llama-Team. The llama 3 herd of models, 2024. URL https://arxiv.org/abs/2407.
+21783.
+[15] Stephen Merity, Caiming Xiong, James Bradbury, and Richard Socher. Pointer sentinel mixture models, 2016.
+[16] Radford M. Neal. Priors for infinite networks. In Bayesian Learning for Neural Networks, volume 118 of Lecture Notes in Statistics, pages 29–53. Springer New York, 1996.
+ISBN 978-0-387-94724-2. doi: 10.1007/978-1-4612-0745-0 2.
+[17] B. Poole, S. Lahiri, M. Raghu, J. Sohl-Dickstein, and S. Ganguli. Exponential expressivity in deep neural networks through transient chaos. 30th Conference on Neural
+Information Processing Systems, 2016.
+13
+
+[18] S.S. Schoenholz, J. Gilmer, S. Ganguli, and J. Sohl-Dickstein. Deep information propagation. In International Conference on Learning Representations, 2017.
+[19] Chaofan Tao, Qian Liu, Longxu Dou, Niklas Muennighoff, Zhongwei Wan, Ping
+Luo, Min Lin, and Ngai Wong. Scaling laws with vocabulary: Larger models deserve
+larger vocabularies, 2024. URL https://arxiv.org/abs/2407.13623.
+[20] Falcon Team. The falcon series of open language models, 2023. URL https://arxiv.
+org/abs/2311.16867.
+[21] Gemma Team. Gemma 3 technical report, 2025. URL https://arxiv.org/abs/2503.
+19786.
+[22] Phi Team. Phi-3 technical report: A highly capable language model locally on your
+phone. arXiv:2404.14219, 2024.
+[23] G. Yang. Scaling limits of wide neural networks with weight sharing: Gaussian
+process behavior, gradient independence, and neural tangent kernel derivation. arXiv
+preprint arXiv:1902.04760, 2019.
+[24] Greg Yang, Edward J Hu, Igor Babuschkin, Szymon Sidor, Xiaodong Liu, David
+Farhi, Nick Ryder, Jakub Pachocki, Weizhu Chen, and Jianfeng Gao. Tensor programs
+v: Tuning large neural networks via zero-shot hyperparameter transfer. arXiv preprint
+arXiv:2203.03466, 2022.
+[25] Greg Yang, Dingli Yu, Chen Zhu, and Soufiane Hayou. Tensor programs vi: Feature learning in infinite-depth neural networks, 2023. URL https://arxiv.org/
+abs/2310.02244.
+[26] Hanlin Zhang, Depen Morwani, Nikhil Vyas, Jingfeng Wu, Difan Zou, Udaya Ghai,
+Dean Foster, and Sham Kakade. How does critical batch size scale in pre-training?,
+2025. URL https://arxiv.org/abs/2410.21676.
+[27] George Kingsley Zipf. Selected Studies of the Principle of Relative Frequency in Language.
+Harvard University Press, Cambridge, MA, 1932.
+
+14
+
+A
+
+Infinite-width analysis and µP
+
+As the width d grows, model hyperparameters such as initialization variance and learning should be adapted to avoid numerical instabilities and ensure efficient learning. For
+instance, the initialization variance should scale as 1/d to prevent arbitrarily large preactivations as we increase model width d (e.g. He init [9]). To derive such scaling
+rules, a principled approach consist of analyzing statistical properties of key quantities
+in the model (e.g. pre-activations) as d grows and then adjust the initialization, the learning rate, and the architecture itself to achieve desirable properties in the limit d → ∞
+[17, 18, 7, 23, 4].
+In this context, Yang et al. [24] introduced the Maximal Update Parameterization (or µP),
+a set of scaling rules for the initialization scheme, the learning rate, and the network architecture that ensure stability and maximal feature learning in the infinite width limit.
+Stability is defined by Yli = Θ(1) for all l and i where the asymptotic notation ‘Θ(.)’ is
+with respect to width d (see next paragraph for a formal definition), and feature learning
+is defined by ∆Yl = Θ(1), where ∆ refers to the feature update after taking a gradient
+step. µP guarantees that these two conditions are satisfied at any training step t. Roughly
+speaking, µP specifies that hidden weights should be initialized with Θ(d−1/2 ) random
+weights, and weight updates should be of order Θ(d−1 ). Input weights should be initialized Θ(1) and the weights update should be Θ(1) as well. While the output weights
+should be initialized Θ(d−1 ) and updated with Θ(d−1 ). These rules ensure both stability
+and feature learning in the infinite-width limit, in contrast to standard parameterization
+(exploding features if the learning rate is well tuned), and kernel parameterizations (e.g.
+Neural Tangent Kernel parameterization where ∆Yl = Θ(d−1/2 ), i.e. no feature learning
+in the limit).
+
+B
+
+Proofs
+
+In this section, we provide proofs for Theorem 1 and Theorem 2. The proofs rely mainly
+on technical results from Appendix B.3.
+B.1
+
+Proof of Theorem 1
+
+We use the same notation from Section 3. We require the following assumption on the
+target distribution.
+Assumption 2 (Random signal at initialization). Assume that (EW − Z)ij ∼ N (0, 1) are iid.
+Assumption 2 is a realistic approximation of practical setup in which the output at initialization EW is randomly distributed so that the difference EW − Z is random as well.
+Assuming that it is centered just means that the model is initialized in a way that makes
+outputs of the same range as targets.
+Theorem 1. [Asymptotics in d and m]
+Consider the following notation:
+2
+2
+• Initialization: W ∼ N (0, σW
+) and E ∼ N (0, σE
+)
+
+1/2
+1/2
+i
+i
+i
+i 2
+and δ̄W
+= m−1 E∥δW
+∥2
+denote
+• For i ∈ [m], the quantities δ̄E
+= m−1 E∥δE
+∥
+i
+i
+13
+the average norm of δE and δW respectively.
+m
+
+• ᾱ2 :=
+
+1 X 2
+αk denotes the average squared-frequencies.
+m
+k=1
+
+Then, under Assumption 2, for all i ∈ [m], the following holds
+
+i
+i 2 1/2
+Note that the average norm δ̄E
+= m−1 E∥δE
+∥
+is a good indicator of the magnitude of the
+i
+coordinates of δE
+since these coordinates have the same distribution.
+13
+
+15
+
+
+
+q
+i
+• δ̄E
+= Θm,d ηE σW d + 2d(d−1)
+)
+πm
+
+
+q
+α2
+i
+• δ̄W
+= Θm,d ηW σE d + ᾱi2 2d(d−1)
+)
+πm
+i
+i
+Proof. The proof is straightforward by applying Theorem 3 and Theorem 4 to δE
+and δW
+.
+
+B.2
+
+Proof of Theorem 2
+
+The formal statement of Theorem 2 includes Assumption 2 as well. Actually, Theorem 2
+is a corollary of Theorem 1 and Lemma 1 and the proof is straightforward from the two
+results.
+B.3
+B.3.1
+
+Technical results for SignSGD dynamics
+i
+Technical Result for δE
+
+Fix two positive integers d, m, and consider a d × m matrix W
+ 
+W1
+i.i.d.
+2
+W =  ...  ∈ Rd×m ,
+Wj ∼ N (0, σW
+Im ).
+Wd
+Let v ∈ Rm be a random vector with i.i.d. N (0, 1) coordinates, independent of W . Define
+Mj = ⟨v, Wj ⟩,
+
+Sj = sign(Mj ) ∈ {±1},
+
+X =SW =
+
+d
+X
+
+Sj Wj ∈ R1×m .
+
+j=1
+
+We are interested in characterizing the expectation and covariance structure of the matrix
+X. The following standard result will be useful for this purpose.
+Lemma 2 (Stein’s lemma for a sign–Gaussian product). Let (Z, G) be a bivariate centred
+Gaussian vector with Var(Z) = Var(G) = 1 and correlation ρ = E[ZG]. Then
+r
+
+
+2
+E sign(Z) G =
+ρ.
+π
+p
+Proof. Because (Z, G) is joint Gaussian, (Z, G) = (Z, ρZ + 1 − ρ2 G′ ) with G′ ∼ N (0, 1)
+2
+independent of Z. Write φ(z) = √12π e−z /2 for the standard Gaussian density. Using
+Fubini (iterated integrals) and the symmetry of φ,
+r
+Z
+
+
+ 
+2
+.
+E sign(Z) G = ρ E |Z| = ρ |z|φ(z) dz = ρ
+π
+R
+The factor
+
+p
+2/π is simply the mean of |Z| for Z ∼ N (0, 1).
+
+Now, we use this result to obtain analytic formulas for the mean and covariance of X.
+Theorem 3 (Mean and covariance for independent v). With the setup above, we have
+E[X] = 0,
+
+Cov(X) = d Im +
+
+2
+d(d − 1) Im .
+πm
+
+Proof. The proof is divided into three steps. We first obtain conditional results on v, then
+derive the mean and covariance in steps 2 and 3 by averaging over W .
+
+16
+
+Step 1: conditional moments given v.
+1. Conditional mean of one summand. Because Wj ∼ N (0, Im ) and Mj = ⟨v, Wj ⟩, for
+vi
+. Stein’s
+any i ∈ [m] the pair (Mj , Wji ) is jointly Gaussian with correlation ρ := ∥v∥
+lemma above gives
+r
+2 v
+EW [ sign(Mj ) Wj | v] =
+.
+π ∥v∥
+2. Conditional covariance of one summand. Still conditional on v, sign(Mj ) is ±1 with
+equal probability, independent of the magnitude of Wj . A direct computation
+v v⊤
+gives CovW (Sj Wj | v) = Im − π2 ∥v∥
+∥v∥ .
+Because the rows W1 , . . . , Wd are independent,
+E[X | v] = d
+
+q
+
+2
+π
+
+v
+,
+∥v∥
+
+Cov(X | v) = d
+
+
+
+2 v v⊤
+Im −
+.
+π ∥v∥ ∥v∥
+
+(3)
+
+Step 2: unconditional mean. The random vector v/∥v∥ is uniform on the sphere S m−1 ,
+hence symmetric about the origin. Taking expectations in (3) yields
+q
+h v i
+
+
+E[X] = Ev E[X | v] = d π2 E
+= 0.
+∥v∥
+
+Pd
+Step3 : unconditional covariance. Write Yj := Sj Wj , so that X = j=1 Yj . For every
+fixed v we have, from Step 1,
+r
+2 v
+,
+Cov(Yj | v) = Im − µ(v)µ(v)⊤ .
+E[Yj | v] = µ(v) :=
+π ∥v∥
+By applying the law of total variance we can write the covariance of X as follows
+Cov(X) = Ev [Cov(X | v)] + Covv (E[X | v]).
+1. First term. Because the Yj ’s are conditionally independent,
+d
+hX
+i
+
+
+
+
+ 
+2d 
+Ev Cov(X | v) = Ev
+Cov(Yj | v) = d Im − Ev µ(v)µ(v)⊤ = d −
+Im .
+πm
+|
+{z
+}
+j=1
+2
+= πm
+Im
+
+(We used Ev [ v/∥v∥ v⊤/∥v∥] = Im /m by rotational invariance.)
+2. Sign–correlation term. From Step1, E[X | v] = d µ(v), so
+ v  2d2
+
+
+2
+Covv E[X | v] = d2 Covv µ(v) = d2 Covv
+=
+Im .
+π
+∥v∥
+πm
+Adding the two contributions gives
+h
+i
+h
+i
+2
+2d
+2
+Cov(X) = d − πm
++ 2d
+πm Im = d + πm d(d − 1) Im ,
+which is the covariance stated in the theorem.
+17
+
+B.3.2
+
+i
+Technical Result for δW
+
+i
+The previous technical lemma is used to derive the asymptotic behavior of δE
+. Here, we
+i
+prove a variant that will be useful for δW .
+
+Theorem 4 (Second moment of X = Ei S(E ⊤ M )). Fix integers m, d ≥ 1 and independent
+random matrices
+i.i.d.
+
+E = (Ejk )1≤j≤m, 1≤k≤d ∼ N (0, 1),
+
+M = (Mja )1≤j,a≤m ,
+
+Mja
+
+i.i.d. across a
+
+∼
+
+N (0, αj2 ),
+
+2
+where the row variances α12 , . . . , αm
+> 0 are deterministic and M is independent of E. For a
+fixed row–index i ∈ {1, . . . , m} set
+
+S = sign E ⊤ M ∈ {±1}d×m ,
+X := Ei S ∈ Rm .
+m
+
+Write ᾱ2 :=
+
+1 X 2
+αk for the mean row–variance of M . Then every coordinate of X has mean
+m
+k=1
+
+zero and
+
+Var(Xk ) = d +
+
+2 αi2 d(d − 1)
+,
+π ᾱ2
+m
+
+1 ≤ k ≤ m.
+
+
+
+α2
+Im .
+More precisely, Cov(X) = d + π2 ᾱi2 d(d−1)
+m
+Proof. Throughout the proof we use the Stein identity stated in Lemma
+p 2: if (Z, G) is a
+centred bivariate Gaussian with Corr(Z, G) = ρ then E[sign(Z) G] = 2/π ρ.
+1. Zero Mean. Conditioning on E, each entry of E ⊤ M a centered Gaussian variable,
+hence E[S(E ⊤ M ) | E] = 0. Therefore E[X] = 0.
+2. Second Moment.
+
+Fix a column index k. We have
+
+Xk =
+
+d
+X
+
+Eia S(Zak ),
+
+a=1
+
+where,
+Zak := (E ⊤ M )ak = Eia Mik + Wak ,
+
+Wak :=
+
+X
+
+Eja Mjk .
+
+j̸=i
+
+Since Xk has zero mean, we have
+
+E[Xk2 ] = E
+
+" d
+X
+
+#
+2
+Eia
++2
+
+a=1
+
+=d+2
+
+X
+
+X
+
+Eia S(Zak )Eia′ S(Za′ k )
+
+a<a′
+
+E [Eia S(Zak )Eia′ S(Za′ k )] .
+
+a<a′
+
+Fix some a, a′ ∈ {1, 2, . . . , d} such that a ̸= a′ . Let Σ = σ(M ) be the sigma-Algebra
+generated by M , and denote Sak = S(Zak ) and the same for a′ .
+Given Σ, the pair (Zak , Eia ) is Gaussian with correlation
+Mik
+ρk = Corr(Zak , Eia | Σ) = qP
+
+m
+2
+j=1 Mjk
+
+18
+
+Using Stein’s identity,
+r
+
+2
+ρk .
+π
+
+ q
+The same holds for a′ and we have E Eia′ Sa′ k | Σ = π2 ρk .
+
+
+µ := E Eia Sak | Σ =
+
+Conditionally on Σ, the random variables Eia Sak and Eia′ Sa′ k are independent, which
+yields
+
+
+2
+E Eia Sak Eia′ Sa′ k | Σ = ρ2k .
+π
+Therefore,
+
+
+
+2
+E Eia Sak Eia′ Sa′ k = Eρ2k .
+π
+
+Denote Mjℓ = αi gjℓ for all j, ℓ where gjℓ ∼ N (0, 1) iid. Then
+#
+"
+2
+gik
+2
+2
+.
+Eρk = αi × E Pm
+2 2
+j=1 αj gjk
+2
+gik
+2
+2
+is invariant to permutations of the vector (g1k
+, . . . , gkm
+) which
+2 2
+j=1 αj gjk
+2
+2
+implies that Eρk is proportional to αi . By summing over i we conclude that
+
+The term E
+
+i
+
+h
+
+Pm
+
+α2
+Eρ2k = Pm i
+
+2.
+j=1 αj
+
+Therefore,
+
+
+
+2 αi2
+.
+E Eia Sak Eia′ Sa′ k =
+π m ᾱ2
+
+Since there are d(d−1) off-diagonal index pairs (a, b) for a fixed column k, the off-diagonal
+sum contributes
+2 αi2 d(d − 1)
+.
+π ᾱ2
+m
+3. Independence across columns. Different columns of M (different k) are independent,
+so Cov(X) is diagonal and each coordinate variance is the same as above.
+
+19
+
+C
+
+Additional Empirical Details
+
+C.1
+
+Experimental Setup for Figure 1
+• Model arch: embedding layer, 2 hidden layers, projection layer
+• Width: d ∈ {2k , k = 8, . . . , 12}
+• Attention head dimension: 64
+• MLP: Up proj, Down proj, with GeLU activation in between.
+• Vocabulary size: 32768 (BPE Tokenizer)
+• Training dataset: Wikitext2
+• Batch size: 256
+• Sequence length: 256
+• Algorithm: Adam with constant schedule (ηE for embed, ηH for hidden, ηW for
+projection)
+√
+• Initialization: Kaiming init (σE for embed, σH = 1/ d for hidden, σW )
+• Steps: 104
+
+We sweep over ηE , ηH , ηW , σE , and σW with 2 random seeds. The runs took 2 weeks to
+complete on a 4xGH200 node.
+C.2
+
+Experimental Setup for Figure 3
+• Model arch: embedding layer, 2 hidden layers, projection layer
+• Width/Vocab: (d, m) ∈ {(2k , 2k+3 ), k = 8, . . . , 12}
+• Attention head dimension: 64
+• MLP: Up proj, Down proj, with GeLU activation in between.
+• Training dataset: Wikitext2
+• Batch size: 256
+• Sequence length: 256
+• Algorithm: Adam with constant schedule (ηE for embed, ηH = 0.2/d for hidden,
+ηW = 0.2/d for projection)
+√
+• Initialization: Kaiming init σE = σW = σH = 1/ d
+• Steps: 104
+
+We sweep only over ηE with 3 random seeds (with a more finegraind grid compared to
+the setup above). The runs took 4 days to complete on a 4xGH200 node.
+20
+
+C.3
+
+Experimental setup for 1B model pretraining
+Parameter
+
+Value
+General
+
+vocab size
+n position
+n layers
+n embed
+normalization
+
+32064
+4096
+24
+2048
+LayerNorm
+
+Attention specific
+2048
+32
+8
+128
+128
+
+window size
+n head
+n kv head
+head dim
+rotary dim
+FFN specific
+
+SwiGLU
+8192
+
+activation
+inner dim
+
+Table 3: 1B LLM Specifics.
+
+21
+
+

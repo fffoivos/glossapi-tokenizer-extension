@@ -1,0 +1,39 @@
+{
+  "action_counts": {
+    "normalize_or_trim_span": 1,
+    "split_doc": 4,
+    "trim_prefix": 1,
+    "trim_span": 2,
+    "trim_suffix": 1
+  },
+  "annotation_rows": 9,
+  "annotations": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_remaining_20260606T051935Z_annotations.jsonl",
+  "chars_removed": 2206,
+  "created_at_utc": "20260606T052755Z",
+  "decision_actions": {
+    "normalize_or_trim_span": 1,
+    "split_doc": 8,
+    "trim_prefix": 1,
+    "trim_span": 2,
+    "trim_suffix": 1
+  },
+  "decision_manifest_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480523_20260606T052754Z/reports/boundary_annotation_materialization/boundary_remaining_materialization_20260606T053000Z_decision_manifest.jsonl",
+  "decision_manifest_rows": 13,
+  "issue_count": 0,
+  "issues_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480523_20260606T052754Z/reports/boundary_annotation_materialization/boundary_remaining_materialization_20260606T053000Z_issues.jsonl",
+  "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480523_20260606T052754Z/reports/boundary_annotation_materialization/boundary_remaining_materialization_20260606T053000Z.md",
+  "pending_rows": 0,
+  "policy_note": "Boundary annotation materialization only. Source HPLT rows are immutable; changed text exists only in shadow_records.",
+  "review_pack": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T051935Z.jsonl",
+  "review_pack_rows": 9,
+  "schema_version": "hplt-boundary-annotation-materialization-v1",
+  "shadow_records": 13,
+  "shadow_records_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480523_20260606T052754Z/reports/boundary_annotation_materialization/boundary_remaining_materialization_20260606T053000Z_shadow_records.jsonl",
+  "skipped_rows": 0,
+  "status_counts": {
+    "apply": 9
+  },
+  "token_delta_rows": 13,
+  "tokenizer_json": "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480/tokenizer.json",
+  "tokens_removed": 623
+}

@@ -1,0 +1,33 @@
+{
+  "action_counts": {
+    "trim_prefix": 2,
+    "trim_suffix": 13
+  },
+  "annotation_rows": 15,
+  "annotations": "reports/boundary_manual_short_span_annotations_20260606T011343Z.jsonl",
+  "chars_removed": 2971,
+  "created_at_utc": "20260606T011434Z",
+  "decision_actions": {
+    "trim_prefix": 2,
+    "trim_suffix": 13
+  },
+  "decision_manifest_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2479816_20260606T011434Z/reports/boundary_annotation_materialization/boundary_short_span_materialization_20260606T011343Z_decision_manifest.jsonl",
+  "decision_manifest_rows": 15,
+  "issue_count": 0,
+  "issues_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2479816_20260606T011434Z/reports/boundary_annotation_materialization/boundary_short_span_materialization_20260606T011343Z_issues.jsonl",
+  "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2479816_20260606T011434Z/reports/boundary_annotation_materialization/boundary_short_span_materialization_20260606T011343Z.md",
+  "pending_rows": 0,
+  "policy_note": "Boundary annotation materialization only. Source HPLT rows are immutable; changed text exists only in shadow_records.",
+  "review_pack": "reports/pending_boundary_review_pack_20260606T010837Z.jsonl",
+  "review_pack_rows": 115,
+  "schema_version": "hplt-boundary-annotation-materialization-v1",
+  "shadow_records": 15,
+  "shadow_records_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2479816_20260606T011434Z/reports/boundary_annotation_materialization/boundary_short_span_materialization_20260606T011343Z_shadow_records.jsonl",
+  "skipped_rows": 0,
+  "status_counts": {
+    "apply": 15
+  },
+  "token_delta_rows": 15,
+  "tokenizer_json": "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480/tokenizer.json",
+  "tokens_removed": 717
+}

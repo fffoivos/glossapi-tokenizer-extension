@@ -1,0 +1,497 @@
+[
+  {
+    "variant_id": "c3p_poly_added_0000",
+    "polytonic_added_count": 0,
+    "final_vocab_size": 148480,
+    "tokenizer_sha256": "327827af17c54e3796676c0e1f8ccba932e1a1667f340290010955753f37c432",
+    "metrics": {
+      "config": {
+        "data_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/morphscore_data",
+        "unique_only": true,
+        "stem_eq_lemma": true,
+        "exclude_numbers": true,
+        "language_subset": [
+          "ell_Grek"
+        ],
+        "splits": [
+          "train",
+          "dev",
+          "test"
+        ],
+        "freq_scale": true,
+        "exclude_single_tok": false,
+        "exclude_single_morpheme": true,
+        "single_tok_point": 1,
+        "correct_point": 1,
+        "partial_point": 0.5,
+        "by_split": false,
+        "by_pos": false,
+        "subword_prefix": ""
+      },
+      "ell_Grek": {
+        "morphscore_recall": 0.6939685938615674,
+        "morphscore_precision": 0.691202712348363,
+        "morphscore_recall_std": 0.003426417919581547,
+        "morphscore_precision_std": 0.00342647820985541,
+        "mean_token_char_ratio": 0.33572930540332335,
+        "micro_precision": 0.00757193336698637,
+        "micro_recall": 0.01079913606911447,
+        "micro_f1": 0.008902077151335312,
+        "macro_precision": 0.006613756613756613,
+        "macro_recall": 0.010822510822510822,
+        "macro_f1": 0.008210180623973726,
+        "num_samples": 693
+      }
+    }
+  },
+  {
+    "variant_id": "c3p_poly_added_0512",
+    "polytonic_added_count": 512,
+    "final_vocab_size": 148992,
+    "tokenizer_sha256": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b",
+    "metrics": {
+      "config": {
+        "data_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/morphscore_data",
+        "unique_only": true,
+        "stem_eq_lemma": true,
+        "exclude_numbers": true,
+        "language_subset": [
+          "ell_Grek"
+        ],
+        "splits": [
+          "train",
+          "dev",
+          "test"
+        ],
+        "freq_scale": true,
+        "exclude_single_tok": false,
+        "exclude_single_morpheme": true,
+        "single_tok_point": 1,
+        "correct_point": 1,
+        "partial_point": 0.5,
+        "by_split": false,
+        "by_pos": false,
+        "subword_prefix": ""
+      },
+      "ell_Grek": {
+        "morphscore_recall": 0.6939685938615674,
+        "morphscore_precision": 0.691202712348363,
+        "morphscore_recall_std": 0.003426417919581547,
+        "morphscore_precision_std": 0.00342647820985541,
+        "mean_token_char_ratio": 0.33572930540332335,
+        "micro_precision": 0.00757193336698637,
+        "micro_recall": 0.01079913606911447,
+        "micro_f1": 0.008902077151335312,
+        "macro_precision": 0.006613756613756613,
+        "macro_recall": 0.010822510822510822,
+        "macro_f1": 0.008210180623973726,
+        "num_samples": 693
+      }
+    }
+  },
+  {
+    "variant_id": "c3p_poly_added_1024",
+    "polytonic_added_count": 1024,
+    "final_vocab_size": 149504,
+    "tokenizer_sha256": "3465350b74e186ce22e5aefcfb67c33ac9cab7d90bc42596b52c82c7bd93fbff",
+    "metrics": {
+      "config": {
+        "data_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/morphscore_data",
+        "unique_only": true,
+        "stem_eq_lemma": true,
+        "exclude_numbers": true,
+        "language_subset": [
+          "ell_Grek"
+        ],
+        "splits": [
+          "train",
+          "dev",
+          "test"
+        ],
+        "freq_scale": true,
+        "exclude_single_tok": false,
+        "exclude_single_morpheme": true,
+        "single_tok_point": 1,
+        "correct_point": 1,
+        "partial_point": 0.5,
+        "by_split": false,
+        "by_pos": false,
+        "subword_prefix": ""
+      },
+      "ell_Grek": {
+        "morphscore_recall": 0.6939685938615674,
+        "morphscore_precision": 0.691202712348363,
+        "morphscore_recall_std": 0.003426417919581547,
+        "morphscore_precision_std": 0.00342647820985541,
+        "mean_token_char_ratio": 0.33572930540332335,
+        "micro_precision": 0.00757193336698637,
+        "micro_recall": 0.01079913606911447,
+        "micro_f1": 0.008902077151335312,
+        "macro_precision": 0.006613756613756613,
+        "macro_recall": 0.010822510822510822,
+        "macro_f1": 0.008210180623973726,
+        "num_samples": 693
+      }
+    }
+  },
+  {
+    "variant_id": "c3p_poly_added_1536",
+    "polytonic_added_count": 1536,
+    "final_vocab_size": 150016,
+    "tokenizer_sha256": "515683c749f404fec99d3c7540f6290e923e7594c276bbe417ef6bb6031b7904",
+    "metrics": {
+      "config": {
+        "data_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/morphscore_data",
+        "unique_only": true,
+        "stem_eq_lemma": true,
+        "exclude_numbers": true,
+        "language_subset": [
+          "ell_Grek"
+        ],
+        "splits": [
+          "train",
+          "dev",
+          "test"
+        ],
+        "freq_scale": true,
+        "exclude_single_tok": false,
+        "exclude_single_morpheme": true,
+        "single_tok_point": 1,
+        "correct_point": 1,
+        "partial_point": 0.5,
+        "by_split": false,
+        "by_pos": false,
+        "subword_prefix": ""
+      },
+      "ell_Grek": {
+        "morphscore_recall": 0.6939685938615674,
+        "morphscore_precision": 0.691202712348363,
+        "morphscore_recall_std": 0.003426417919581547,
+        "morphscore_precision_std": 0.00342647820985541,
+        "mean_token_char_ratio": 0.33572930540332335,
+        "micro_precision": 0.00757193336698637,
+        "micro_recall": 0.01079913606911447,
+        "micro_f1": 0.008902077151335312,
+        "macro_precision": 0.006613756613756613,
+        "macro_recall": 0.010822510822510822,
+        "macro_f1": 0.008210180623973726,
+        "num_samples": 693
+      }
+    }
+  },
+  {
+    "variant_id": "c3p_poly_added_2048",
+    "polytonic_added_count": 2048,
+    "final_vocab_size": 150528,
+    "tokenizer_sha256": "9432fd2679c7278520b41ebb1c00bc4f814d0fa6d782dfeffd9da5846d9b9e80",
+    "metrics": {
+      "config": {
+        "data_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/morphscore_data",
+        "unique_only": true,
+        "stem_eq_lemma": true,
+        "exclude_numbers": true,
+        "language_subset": [
+          "ell_Grek"
+        ],
+        "splits": [
+          "train",
+          "dev",
+          "test"
+        ],
+        "freq_scale": true,
+        "exclude_single_tok": false,
+        "exclude_single_morpheme": true,
+        "single_tok_point": 1,
+        "correct_point": 1,
+        "partial_point": 0.5,
+        "by_split": false,
+        "by_pos": false,
+        "subword_prefix": ""
+      },
+      "ell_Grek": {
+        "morphscore_recall": 0.6941470378301612,
+        "morphscore_precision": 0.6913811563169567,
+        "morphscore_recall_std": 0.0034264132303533025,
+        "morphscore_precision_std": 0.0034264735412238745,
+        "mean_token_char_ratio": 0.335440705114723,
+        "micro_precision": 0.007575757575757576,
+        "micro_recall": 0.01079913606911447,
+        "micro_f1": 0.008904719501335707,
+        "macro_precision": 0.006613756613756613,
+        "macro_recall": 0.010822510822510822,
+        "macro_f1": 0.008210180623973726,
+        "num_samples": 693
+      }
+    }
+  },
+  {
+    "variant_id": "c3p_poly_added_2560",
+    "polytonic_added_count": 2560,
+    "final_vocab_size": 151040,
+    "tokenizer_sha256": "0f98b0a0335de451c91786ad1b445adefd77466294eabc62c8d77925e9cfc52a",
+    "metrics": {
+      "config": {
+        "data_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/morphscore_data",
+        "unique_only": true,
+        "stem_eq_lemma": true,
+        "exclude_numbers": true,
+        "language_subset": [
+          "ell_Grek"
+        ],
+        "splits": [
+          "train",
+          "dev",
+          "test"
+        ],
+        "freq_scale": true,
+        "exclude_single_tok": false,
+        "exclude_single_morpheme": true,
+        "single_tok_point": 1,
+        "correct_point": 1,
+        "partial_point": 0.5,
+        "by_split": false,
+        "by_pos": false,
+        "subword_prefix": ""
+      },
+      "ell_Grek": {
+        "morphscore_recall": 0.6941470378301612,
+        "morphscore_precision": 0.6913811563169567,
+        "morphscore_recall_std": 0.0034264132303533025,
+        "morphscore_precision_std": 0.0034264735412238745,
+        "mean_token_char_ratio": 0.3350892047632227,
+        "micro_precision": 0.007583417593528817,
+        "micro_recall": 0.01079913606911447,
+        "micro_f1": 0.008910008910008909,
+        "macro_precision": 0.006613756613756613,
+        "macro_recall": 0.010822510822510822,
+        "macro_f1": 0.008210180623973726,
+        "num_samples": 693
+      }
+    }
+  },
+  {
+    "variant_id": "c3p_poly_added_3072",
+    "polytonic_added_count": 3072,
+    "final_vocab_size": 151552,
+    "tokenizer_sha256": "be236b61b4aa0a8ecb7cf3a61e0c0f2a67b227f362208f3a01cda68fec9d84d4",
+    "metrics": {
+      "config": {
+        "data_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/morphscore_data",
+        "unique_only": true,
+        "stem_eq_lemma": true,
+        "exclude_numbers": true,
+        "language_subset": [
+          "ell_Grek"
+        ],
+        "splits": [
+          "train",
+          "dev",
+          "test"
+        ],
+        "freq_scale": true,
+        "exclude_single_tok": false,
+        "exclude_single_morpheme": true,
+        "single_tok_point": 1,
+        "correct_point": 1,
+        "partial_point": 0.5,
+        "by_split": false,
+        "by_pos": false,
+        "subword_prefix": ""
+      },
+      "ell_Grek": {
+        "morphscore_recall": 0.6950392576731304,
+        "morphscore_precision": 0.6922733761599258,
+        "morphscore_recall_std": 0.0034263989363072012,
+        "morphscore_precision_std": 0.003426459350000794,
+        "mean_token_char_ratio": 0.3345944614113365,
+        "micro_precision": 0.0075910931174089065,
+        "micro_recall": 0.01079913606911447,
+        "micro_f1": 0.008915304606240713,
+        "macro_precision": 0.006613756613756613,
+        "macro_recall": 0.010822510822510822,
+        "macro_f1": 0.008210180623973726,
+        "num_samples": 693
+      }
+    }
+  },
+  {
+    "variant_id": "c3p_poly_added_3584",
+    "polytonic_added_count": 3584,
+    "final_vocab_size": 152064,
+    "tokenizer_sha256": "8382d03bc5e3a40bcca2ee208b2036cb34d9b091e8e84bd11fe81e8d6b60a359",
+    "metrics": {
+      "config": {
+        "data_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/morphscore_data",
+        "unique_only": true,
+        "stem_eq_lemma": true,
+        "exclude_numbers": true,
+        "language_subset": [
+          "ell_Grek"
+        ],
+        "splits": [
+          "train",
+          "dev",
+          "test"
+        ],
+        "freq_scale": true,
+        "exclude_single_tok": false,
+        "exclude_single_morpheme": true,
+        "single_tok_point": 1,
+        "correct_point": 1,
+        "partial_point": 0.5,
+        "by_split": false,
+        "by_pos": false,
+        "subword_prefix": ""
+      },
+      "ell_Grek": {
+        "morphscore_recall": 0.6950392576731304,
+        "morphscore_precision": 0.6922733761599258,
+        "morphscore_recall_std": 0.0034263989363072012,
+        "morphscore_precision_std": 0.003426459350000794,
+        "mean_token_char_ratio": 0.3339210607379358,
+        "micro_precision": 0.007606490872210953,
+        "micro_recall": 0.01079913606911447,
+        "micro_f1": 0.008925914906277893,
+        "macro_precision": 0.006613756613756613,
+        "macro_recall": 0.010822510822510822,
+        "macro_f1": 0.008210180623973726,
+        "num_samples": 693
+      }
+    }
+  },
+  {
+    "variant_id": "c3p_poly_added_4096",
+    "polytonic_added_count": 4096,
+    "final_vocab_size": 152576,
+    "tokenizer_sha256": "77bd14dfc0f27112024104c8068a11e9d5e80538b76bf8ce30bdf2189deab8eb",
+    "metrics": {
+      "config": {
+        "data_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/morphscore_data",
+        "unique_only": true,
+        "stem_eq_lemma": true,
+        "exclude_numbers": true,
+        "language_subset": [
+          "ell_Grek"
+        ],
+        "splits": [
+          "train",
+          "dev",
+          "test"
+        ],
+        "freq_scale": true,
+        "exclude_single_tok": false,
+        "exclude_single_morpheme": true,
+        "single_tok_point": 1,
+        "correct_point": 1,
+        "partial_point": 0.5,
+        "by_split": false,
+        "by_pos": false,
+        "subword_prefix": ""
+      },
+      "ell_Grek": {
+        "morphscore_recall": 0.6943254817987551,
+        "morphscore_precision": 0.692094932191332,
+        "morphscore_recall_std": 0.00342641220859569,
+        "morphscore_precision_std": 0.003426464025269168,
+        "mean_token_char_ratio": 0.33362954529490524,
+        "micro_precision": 0.007106598984771574,
+        "micro_recall": 0.010079193664506839,
+        "micro_f1": 0.00833581423042572,
+        "macro_precision": 0.006253006253006252,
+        "macro_recall": 0.010101010101010102,
+        "macro_f1": 0.007724301841948901,
+        "num_samples": 693
+      }
+    }
+  },
+  {
+    "variant_id": "c3p_poly_added_4608",
+    "polytonic_added_count": 4608,
+    "final_vocab_size": 153088,
+    "tokenizer_sha256": "5c51ff5c240e67de6fc21d58465800f3dda90590d8631983dc3565e12941f027",
+    "metrics": {
+      "config": {
+        "data_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/morphscore_data",
+        "unique_only": true,
+        "stem_eq_lemma": true,
+        "exclude_numbers": true,
+        "language_subset": [
+          "ell_Grek"
+        ],
+        "splits": [
+          "train",
+          "dev",
+          "test"
+        ],
+        "freq_scale": true,
+        "exclude_single_tok": false,
+        "exclude_single_morpheme": true,
+        "single_tok_point": 1,
+        "correct_point": 1,
+        "partial_point": 0.5,
+        "by_split": false,
+        "by_pos": false,
+        "subword_prefix": ""
+      },
+      "ell_Grek": {
+        "morphscore_recall": 0.6943254817987551,
+        "morphscore_precision": 0.692094932191332,
+        "morphscore_recall_std": 0.00342641220859569,
+        "morphscore_precision_std": 0.003426464025269168,
+        "mean_token_char_ratio": 0.33362954529490524,
+        "micro_precision": 0.007106598984771574,
+        "micro_recall": 0.010079193664506839,
+        "micro_f1": 0.00833581423042572,
+        "macro_precision": 0.006253006253006252,
+        "macro_recall": 0.010101010101010102,
+        "macro_f1": 0.007724301841948901,
+        "num_samples": 693
+      }
+    }
+  },
+  {
+    "variant_id": "c3p_poly_added_5120",
+    "polytonic_added_count": 5120,
+    "final_vocab_size": 153600,
+    "tokenizer_sha256": "b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad",
+    "metrics": {
+      "config": {
+        "data_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/morphscore_data",
+        "unique_only": true,
+        "stem_eq_lemma": true,
+        "exclude_numbers": true,
+        "language_subset": [
+          "ell_Grek"
+        ],
+        "splits": [
+          "train",
+          "dev",
+          "test"
+        ],
+        "freq_scale": true,
+        "exclude_single_tok": false,
+        "exclude_single_morpheme": true,
+        "single_tok_point": 1,
+        "correct_point": 1,
+        "partial_point": 0.5,
+        "by_split": false,
+        "by_pos": false,
+        "subword_prefix": ""
+      },
+      "ell_Grek": {
+        "morphscore_recall": 0.6943254817987551,
+        "morphscore_precision": 0.692094932191332,
+        "morphscore_recall_std": 0.00342641220859569,
+        "morphscore_precision_std": 0.003426464025269168,
+        "mean_token_char_ratio": 0.33362954529490524,
+        "micro_precision": 0.007106598984771574,
+        "micro_recall": 0.010079193664506839,
+        "micro_f1": 0.00833581423042572,
+        "macro_precision": 0.006253006253006252,
+        "macro_recall": 0.010101010101010102,
+        "macro_f1": 0.007724301841948901,
+        "num_samples": 693
+      }
+    }
+  }
+]

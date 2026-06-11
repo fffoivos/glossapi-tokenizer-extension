@@ -1,0 +1,127 @@
+{
+  "input_parquet": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_polytonic_greek_extension/data/strict_w050_c010/20260517T131514Z/polytonic_greek_training_kept_strict_w050_c010_20260517T131514Z.parquet",
+  "base_tokenizer_json": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_17408_curated_padded/tokenizer.json",
+  "full_tokenizer_json": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_polytonic_greek_extension/analysis/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_5120/tokenizer.json",
+  "base_vocab_size": 148480,
+  "split_policy": {
+    "seed": 20260518,
+    "val_pct": 10,
+    "test_pct": 10,
+    "hygiene_min_chars": 20,
+    "hygiene_max_control_ratio": 0.02
+  },
+  "row_counts": {
+    "rows_seen": 18726,
+    "hygiene_kept_all": 18716,
+    "poly_train": 14929,
+    "poly_val": 1871,
+    "poly_test": 1916
+  },
+  "char_counts": {
+    "rows_seen": 514849133,
+    "hygiene_kept_all": 510571970,
+    "poly_train": 409101812,
+    "poly_val": 50387834,
+    "poly_test": 51082324
+  },
+  "cutoffs": {
+    "1024": {
+      "final_vocab_size": 149504,
+      "counts": {
+        "hygiene_kept_all": {
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_polytonic_greek_extension/analysis/c3p_polytonic_20260518T_impl/token_firing_counts/polytonic_added_1024_hygiene_kept_all_token_firings.tsv",
+          "tokens": 1024,
+          "used_tokens": 1024,
+          "zero_count_tokens": 0,
+          "total_firings": 26456112,
+          "min": 119,
+          "p01": 2757.29,
+          "p05": 11028.300000000003,
+          "p10": 12741.0,
+          "p25": 14800.25,
+          "median": 19474.0,
+          "p75": 29152.75,
+          "p90": 47424.5,
+          "p95": 65027.94999999985,
+          "p99": 95292.23999999998,
+          "max": 361727,
+          "tokens_lt_100": 0,
+          "tokens_lt_500": 1,
+          "tokens_lt_1000": 1,
+          "tokens_ge_1000": 1023
+        },
+        "poly_train": {
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_polytonic_greek_extension/analysis/c3p_polytonic_20260518T_impl/token_firing_counts/polytonic_added_1024_poly_train_token_firings.tsv",
+          "tokens": 1024,
+          "used_tokens": 1024,
+          "zero_count_tokens": 0,
+          "total_firings": 21168459,
+          "min": 106,
+          "p01": 2188.04,
+          "p05": 9074.55,
+          "p10": 10228.400000000001,
+          "p25": 11823.0,
+          "median": 15561.0,
+          "p75": 23183.75,
+          "p90": 38264.90000000001,
+          "p95": 51446.39999999998,
+          "p99": 76286.92999999995,
+          "max": 289209,
+          "tokens_lt_100": 0,
+          "tokens_lt_500": 1,
+          "tokens_lt_1000": 2,
+          "tokens_ge_1000": 1022
+        }
+      }
+    },
+    "5120": {
+      "final_vocab_size": 153600,
+      "counts": {
+        "hygiene_kept_all": {
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_polytonic_greek_extension/analysis/c3p_polytonic_20260518T_impl/token_firing_counts/polytonic_added_5120_hygiene_kept_all_token_firings.tsv",
+          "tokens": 5120,
+          "used_tokens": 5120,
+          "zero_count_tokens": 0,
+          "total_firings": 40573009,
+          "min": 7,
+          "p01": 702.4599999999999,
+          "p05": 2615.0,
+          "p10": 2864.9,
+          "p25": 3340.0,
+          "median": 4694.0,
+          "p75": 8018.0,
+          "p90": 15341.100000000033,
+          "p95": 24102.95,
+          "p99": 52682.36000000002,
+          "max": 361727,
+          "tokens_lt_100": 3,
+          "tokens_lt_500": 33,
+          "tokens_lt_1000": 86,
+          "tokens_ge_1000": 5034
+        },
+        "poly_train": {
+          "path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_polytonic_greek_extension/analysis/c3p_polytonic_20260518T_impl/token_firing_counts/polytonic_added_5120_poly_train_token_firings.tsv",
+          "tokens": 5120,
+          "used_tokens": 5120,
+          "zero_count_tokens": 0,
+          "total_firings": 32505090,
+          "min": 6,
+          "p01": 565.0899999999999,
+          "p05": 2167.5499999999997,
+          "p10": 2297.9,
+          "p25": 2688.75,
+          "median": 3776.0,
+          "p75": 6420.0,
+          "p90": 12292.800000000007,
+          "p95": 19389.150000000005,
+          "p99": 42166.99000000003,
+          "max": 289209,
+          "tokens_lt_100": 4,
+          "tokens_lt_500": 48,
+          "tokens_lt_1000": 109,
+          "tokens_ge_1000": 5011
+        }
+      }
+    }
+  }
+}

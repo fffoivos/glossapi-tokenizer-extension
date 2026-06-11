@@ -2,7 +2,7 @@
 
 Source: compact local copies from `/capstor/scratch/cscs/fffoivos/runs/eval`, iter 476 full packed eval job 2347100.
 
-| arm | BPC | NLL/char | el_arc | el_belebele | el_xnli | el_xquad_f1 | el_mmlu | el_base44 | el_piqa | hellaswag | arc_easy | mmlu | D2.mass | D5.util |
+| arm | BPB | NLL/char | el_arc | el_belebele | el_xnli | el_xquad_f1 | el_mmlu | el_base44 | el_piqa | hellaswag | arc_easy | mmlu | D2.mass | D5.util |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | vanilla | 0.4906 | 0.5804 | 0.4206 | 0.5133 | 0.4020 | 0.3101 | 0.4214 | 0.4185 | 0.6000 | 0.7594 | 0.7854 | 0.5340 | 0.0000 | 0.0000 |
 | retok | 0.5739 | 0.6788 | 0.3720 | 0.4967 | 0.3751 | 0.3092 | 0.3991 | 0.3732 | 0.5800 | 0.7488 | 0.7635 | 0.5542 | 0.3437 | 0.3580 |

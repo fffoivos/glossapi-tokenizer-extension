@@ -1,10 +1,15 @@
 """Tokenizer-fair primary metrics for the init bakeoff (cpt_plan v0.7 §5.1).
 
 Per-token PPL is NOT comparable across Vanilla (vocab 131,072) and
-ReTok/Centroid (vocab 148,480). The cross-tokenizer-fair metrics this
-script computes:
+extended-tokenizer arms (vocab 148,480). The primary cross-tokenizer loss
+metric is BPB: bits per UTF-8 byte on the exact scored text. Older artifacts
+and some tables call this BPC and store it as `bpc_bits_per_byte`; new outputs
+also include the clearer alias `bpb_bits_per_byte`.
 
-  BPC (bits per byte)         — cleanest cross-tokenizer comparison
+This script computes:
+
+  BPB / legacy BPC (bits per byte)
+                              — cleanest cross-tokenizer comparison
   NLL per Unicode character   — more interpretable for Greek/polytonic
   NLL per word                — human-facing language metric
   tokens per word             — tokenizer efficiency
@@ -37,7 +42,7 @@ sanity-checking the eval set + tokenizer without an 8B model on disk.
 Output JSON:
 {
   "model_path": ..., "tokenizer_vocab_size": ...,
-  "global": {bpc, nll_per_char, nll_per_word, tokens_per_word, ...},
+  "global": {bpb_bits_per_byte, bpc_bits_per_byte, nll_per_char, ...},
   "per_source": {source_name: {...}},
   "per_register": {register: {...}},
   "strr_overall": ...,
@@ -127,7 +132,11 @@ def _finalize(agg: dict) -> dict:
     if "nll_nats_total" in agg and agg["nll_nats_total"] > 0:
         nll = agg["nll_nats_total"]
         if agg["n_bytes"]:
-            out["bpc_bits_per_byte"] = (nll / agg["n_bytes"]) / math.log(2)
+            bits_per_byte = (nll / agg["n_bytes"]) / math.log(2)
+            out["bpb_bits_per_byte"] = bits_per_byte
+            # Historical compatibility: earlier reports/scripts used "BPC"
+            # while actually computing bits per byte.
+            out["bpc_bits_per_byte"] = bits_per_byte
         if agg["n_chars"]:
             out["nll_per_char"] = nll / agg["n_chars"]
         if agg["n_words"]:
@@ -193,7 +202,7 @@ def main() -> int:
         # Tokenize once + truncate to max_context.
         # CRITICAL: char/byte/word stats must be computed on the same prefix
         # that was actually tokenized and forwarded — NOT on the full text —
-        # otherwise BPC + NLL/char divide prefix-only loss by full-document
+        # otherwise BPB + NLL/char divide prefix-only loss by full-document
         # denominators and the primary intrinsic metrics come out artificially
         # low (reviewer round-2 finding, High 5). For truncated docs we decode
         # the truncated ID list back to recover the exact scored substring.
@@ -278,8 +287,9 @@ def main() -> int:
     print(f"  STRR:              {strr:.4f} ({n_single:,}/{n_total:,} single-token words)")
     if n_truncated:
         print(f"  truncated:         {n_truncated}/{n_seen} docs ({100*n_truncated/max(n_seen,1):.1f}%); {n_tokens_dropped_to_truncation:,} tokens dropped")
-    if "bpc_bits_per_byte" in g:
-        print(f"  BPC (bits/byte):   {g['bpc_bits_per_byte']:.4f}")
+    if "bpb_bits_per_byte" in g or "bpc_bits_per_byte" in g:
+        bpb = g.get("bpb_bits_per_byte", g.get("bpc_bits_per_byte"))
+        print(f"  BPB (bits/byte):   {bpb:.4f}")
         print(f"  NLL/char:          {g['nll_per_char']:.4f}")
         print(f"  NLL/word:          {g['nll_per_word']:.4f}")
         print(f"  NLL/token:         {g['nll_per_token']:.4f}")

@@ -2,14 +2,18 @@
 
 2026-05-24. Companion to [`bakeoff_1node_chain_20260522_005620_iter0000476_digest.md`](../live_summaries/bakeoff_1node_chain_20260522_005620_iter0000476_digest.md) and [`td_full25_layer11_2b_20260523T165038Z_iter0000476_digest.md`](../live_summaries/td_full25_layer11_2b_20260523T165038Z_iter0000476_digest.md). The iter-476 digests are snapshots; this doc is the *trajectory*.
 
-Update: the 3.5B continuation is now complete. Use
+Update: the 5B continuation is now complete (Vanilla + TD). Use
+[`BAKEOFF_FINAL_RESULTS_20260526.md`](BAKEOFF_FINAL_RESULTS_20260526.md)
+as the canonical 4-arm result, and
 [`CONTINUATION_3P5B_RESULTS_20260525.md`](CONTINUATION_3P5B_RESULTS_20260525.md)
-for the current Vanilla / ReTok / TD result. This document remains the original
-2B trajectory analysis and explains why the continuation was worth running.
+for the iso-token Vanilla / ReTok / TD comparison at iter 834. This document
+remains the original 2B trajectory analysis and explains why the continuations
+were worth running.
 
 Loss-reading rule for adjacent plots: raw Megatron `lm loss` is
 tokenizer-dependent and diagnostic-only. Cross-tokenizer conclusions in this
-trajectory analysis come from downstream evals and tokenizer-fair BPC/BPB.
+trajectory analysis come from downstream evals and tokenizer-fair BPB. Older
+artifacts may call BPB `BPC`; that is a historical bits-per-byte label.
 
 ## What this doc adds
 

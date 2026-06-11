@@ -1,0 +1,67 @@
+{
+  "created_at_utc": "2026-06-05T21:53:48Z",
+  "false_negative_found_count": 43,
+  "false_negative_rate": 0.215,
+  "false_negative_wilson_95_ci": [
+    0.1637187625450758,
+    0.27702307348996613
+  ],
+  "false_negative_wilson_95_ci_percent": [
+    16.37187625450758,
+    27.702307348996612
+  ],
+  "policy_note": "Representative false-negative estimate for global_random controls only. This does not approve automatic cleaning or destructive policy promotion.",
+  "population": "all 200 global_random false-negative controls",
+  "review_action_counts": {
+    "drop_doc": 2,
+    "keep": 157,
+    "normalize_or_trim_span": 1,
+    "split_doc": 10,
+    "trim_prefix": 3,
+    "trim_span": 3,
+    "trim_suffix": 24
+  },
+  "review_label_counts": {
+    "clean": 157,
+    "false_negative_found": 43
+  },
+  "review_severity_counts": {
+    "minor": 24,
+    "moderate": 7,
+    "none": 157,
+    "serious": 12
+  },
+  "rows": 200,
+  "schema_version": "hplt-false-negative-global200-review-v1",
+  "serious_false_negative_count": 12,
+  "serious_false_negative_rate": 0.06,
+  "serious_false_negative_wilson_95_ci": [
+    0.03465219425433187,
+    0.1019316929576627
+  ],
+  "serious_false_negative_wilson_95_ci_percent": [
+    3.465219425433187,
+    10.193169295766271
+  ],
+  "source_kind_counts": {
+    "fulltext_111": 111,
+    "high_risk_reuse": 9,
+    "representative_80": 80
+  },
+  "true_error_type_counts": {
+    "E002": 1,
+    "E003": 1,
+    "E004": 5,
+    "E006": 3,
+    "E007": 8,
+    "E008": 2,
+    "E009": 12,
+    "E010": 10,
+    "E011": 10,
+    "E012": 1,
+    "E016": 2,
+    "E018": 2,
+    "E019": 12,
+    "E020": 2
+  }
+}

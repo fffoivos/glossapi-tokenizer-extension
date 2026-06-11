@@ -134,11 +134,14 @@ vocabularies, raw Megatron `lm loss` is not a cross-arm selection metric. It is
 per-target-token cross entropy, so it changes with both softmax size and
 tokenizer compression. Use it for health checks and within-arm trends only.
 
-Cross-tokenizer loss evidence must use heldout tokenizer-fair BPC/BPB and
-downstream evals. When the training loop emits dense `bpb`, `bpt`,
+Cross-tokenizer loss evidence must use heldout tokenizer-fair BPB and
+downstream evals. Older artifacts may call the same bits-per-byte metric `BPC`
+or store it as `bpc_bits_per_byte`; that is a naming alias, not a character
+metric. When the training loop emits dense `bpb`, `bpt`,
 `base_loss`, `new_loss`, and `n_new`, those fields are measurement-only and
 must be computed on the same loss-mask positions as optimizer `lm loss`.
-Heldout checkpoint BPC/BPB remains the selection anchor.
+Heldout checkpoint BPB remains the selection anchor. Repo-wide policy:
+[LOSS_MEASUREMENT_POLICY.md](LOSS_MEASUREMENT_POLICY.md).
 
 ## Execution Structure
 

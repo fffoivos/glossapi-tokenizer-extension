@@ -1,0 +1,11 @@
+{
+  "human_name": "Vanilla-5B",
+  "method": "Vanilla",
+  "training_point": "5.0B",
+  "iteration": 1192,
+  "source_hf_copy_clariden": "/capstor/scratch/cscs/fffoivos/runs/eval/continuation_5b_td_vs_vanilla_20260525T142522Z_vanilla/iter_0001192_hf",
+  "source_megatron_checkpoint_clariden": "/capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_5b_td_vs_vanilla_20260525T142522Z_vanilla/checkpoints/iter_0001192",
+  "tokenizer": "original Apertus tokenizer",
+  "dataset": "cpt-training-dataset",
+  "evals": "benchmark-evals/bakeoff-final"
+}

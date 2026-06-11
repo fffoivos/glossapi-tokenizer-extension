@@ -1,0 +1,31 @@
+# HPLT cleaning error example
+error_id: E018
+error_name: Duplicated main body separated by boilerplate
+presentation_category: C1 - Detected Residue Pattern Removal
+rank_within_category: 5
+proposed_transformation: Duplicated body/tail removal while preserving one copy.
+false_positive_confidence: medium-high
+false_negative_confidence: medium-low
+strict_policy_tier: strict_action_candidate
+strict_policy_role: Exact duplicated body/tail removal.
+allowed_under_strict_principles: Automatic candidate only when duplicate blocks are explicit and one good copy is preserved.
+source_doc_id: hplt::8_2.jsonl.zst::f042dcdacd00ea082294797f504327b4
+host: www.palo.com.cy
+url: http://www.palo.com.cy/a/esosan-moro-pou-katapie-tin-pipila-tou-1005106
+quality_bin: 8
+reviewed_action: trim_suffix
+review_label: reviewed_accept
+review_source: reports/boundary_manual_short_span_annotations_20260606T011343Z.jsonl:12
+text_source: reports/pending_boundary_review_pack_20260606T010837Z.jsonl:103:embedded_text
+tagging: tagged 1 reviewed character range(s)
+notes: Trim keyword/repeated-snippet suffix after the news bullets.
+
+[[DOCUMENT_TEXT_UTF8]]
+-
+Το αγοράκι υποβλήθηκε σε χειρουργική επέμβαση από την εξειδικευμένη ομάδα των Δρος Menachem Gross, διευθυντή της Παιδιατρικής Ωτορινολαρυγγολογικής Πτέρυγας, Δρος Nir Hirshoren, Ειδικού Χειρουργού για Κεφάλι και Αυχένα, και μία ομάδα αναισθησιολόγων.
+-
+Ουδείς είναι ακόμη σε θέση να εξηγήσει πώς η πιπίλα σφήνωσε στον λαιμό του αγοριού, ηλικίας ενός έτους.
+-
+Μετά από κάποιες ημέρες στη Μονάδα Παιδιατρικής Εντατικής Θεραπείας του Hadassah, το παιδάκι ξύπνησε και στη συνέχεια μεταφέρθηκε στο Τμήμα Παιδιατρικής Χειρουργικής.
+-
+Σύμφωνα με την Itai Gross, παιδίατρο του Hadassah, η οποία εξέτασε το παιδάκι, αρχικά προσπάθησαν να αφαιρέσουν την πιπίλα ωστόσο αυτό δεν ήταν εφικτό, καθώς ήταν κολλημένη βαθιά στο λαιμό του. [[ERROR_E018_START kind=span_ranges]]ΛΕΞΕΙΣ ΚΛΕΙΔΙΑ ΙΑΤΡΙΚΗ ΟΜΑΔΑ ΤΟΥ HADASSAH ΕΔΡΑΣΕ ΣΥΝΤΟΝΙΣΜΕΝΑ Οι συντονισμένες προσπάθειες ομάδας γιατρών του Πανεπιστημιακού Νοσοκομείου Hadassah της Ιερουσαλήμ, έσωσαν παιδάκι που κατάπιε την πιπίλα του, η οποία είχε σφηνωθεί, βαθιά στον λάρυγγά του. Ουδείς είναι ακόμη σε θέση να...[[ERROR_E018_END kind=span_ranges]]

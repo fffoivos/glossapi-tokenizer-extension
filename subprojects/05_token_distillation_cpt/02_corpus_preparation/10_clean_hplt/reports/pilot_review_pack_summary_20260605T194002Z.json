@@ -1,0 +1,73 @@
+{
+  "pilot_pack_md": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_pilot_review_pack_20260605T194002Z/reports/pilot_review/pilot_review_pack_20260605T194002Z.md",
+  "pilot_seed_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_pilot_review_pack_20260605T194002Z/reports/pilot_review/pilot_review_seed_20260605T194002Z.jsonl",
+  "records": 36,
+  "review_queue": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_review_queue_20260605T193634Z/reports/review_queue/review_queue_20260605T193634Z.jsonl",
+  "seed": 20260605,
+  "selected_by_task": {
+    "borderline_false_negative_probe": [
+      "rq_0057_1e40f4a388",
+      "rq_0162_450ff8eb36",
+      "rq_0036_580d53f166",
+      "rq_0368_1cf5c6dc3f"
+    ],
+    "destructive_action_review": [
+      "rq_0109_1f4fc6bdcd",
+      "rq_0347_eb5f335e01",
+      "rq_0325_f6d99de515",
+      "rq_0012_74c48e7d58"
+    ],
+    "false_negative_control": [
+      "rq_0319_d8a889386c",
+      "rq_0015_e912abfccb",
+      "rq_0328_f75cc84ac1",
+      "rq_0083_9ba4bee862"
+    ],
+    "precision_E003": [
+      "rq_0293_378a24e037",
+      "rq_0065_2cd2c68b98"
+    ],
+    "precision_E004": [
+      "rq_0077_d763a888aa",
+      "rq_0236_e4c1206244"
+    ],
+    "precision_E005": [
+      "rq_0084_3af90bfa52",
+      "rq_0224_755c064dcd"
+    ],
+    "precision_E006": [
+      "rq_0226_1b921c9bf7",
+      "rq_0225_e4e6ae7224"
+    ],
+    "precision_E008": [
+      "rq_0105_4b83ebd06c",
+      "rq_0008_9d353edd06"
+    ],
+    "precision_E009": [
+      "rq_0122_87ab6f8aed",
+      "rq_0315_0c8e4ad3f5"
+    ],
+    "precision_E011": [
+      "rq_0334_b5024f6d8a",
+      "rq_0291_93a0bb8de4",
+      "rq_0281_b695ff7ccc"
+    ],
+    "precision_E012": [
+      "rq_0092_7a73d23dc0",
+      "rq_0322_a4e38dc2de"
+    ],
+    "precision_E013": [
+      "rq_0052_e1e1dfb568",
+      "rq_0150_b028cac623"
+    ],
+    "precision_E014": [
+      "rq_0266_217b3cb611",
+      "rq_0076_66719a6d37",
+      "rq_0175_67d400d365"
+    ],
+    "precision_E015": [
+      "rq_0222_f9c9c4780c",
+      "rq_0086_35a9138cda"
+    ]
+  }
+}

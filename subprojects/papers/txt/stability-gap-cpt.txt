@@ -1,0 +1,1734 @@
+Efficient Continual Pre-training by
+Mitigating the Stability Gap
+
+arXiv:2406.14833v2 [cs.CL] 27 Jun 2024
+
+Yiduo Guo1 , Jie Fu2 , Huishuai Zhang1 , Dongyan Zhao1 , Yikang shen3
+1
+Peking University, 2 HKUST, 3 MIT-IBM Watson AI Lab
+yiduo@stu.pku.edu.cn, jiefu@ust.hk, zhanghuishuai@pku.edu.cn,
+zhaodongyan@pku.edu.cn, yikang.shn@gmail.com
+
+Abstract
+Continual pre-training has increasingly become the predominant approach for
+adapting Large Language Models (LLMs) to new domains. This process involves
+updating the pre-trained LLM with a corpus from a new domain, resulting in
+a shift in the training distribution. To study the behavior of LLMs during this
+shift, we measured the model’s performance throughout the continual pre-training
+process. we observed a temporary performance drop at the beginning, followed
+by a recovery phase, a phenomenon known as the "stability gap," previously
+noted in vision models classifying new classes. The substantial performance drop
+and slow recovery associated with this gap lead to inefficient pre-training for
+domain performance improvement and the forgetting of general task knowledge.
+To address this issue and enhance LLM performance within a fixed compute budget,
+we propose three effective strategies: (1) Continually pre-training the LLM on
+a subset with a proper size for multiple epochs, resulting in faster performance
+recovery than pre-training the LLM on a large corpus in a single epoch; (2) Pretraining the LLM only on high-quality sub-corpus, which rapidly boosts domain
+performance; and (3) Using a data mixture similar to the pre-training data to reduce
+distribution gap. We conduct various experiments on Llama-family models to
+validate the effectiveness of our strategies in both medical continual pre-training
+and instruction tuning. For example, our strategies improve the average medical
+task performance of the OpenLlama-3B model from 36.2% to 40.7% with only 40%
+of the original training budget and enhance the average general task performance
+without causing forgetting. Furthermore, we apply our strategies to continually
+pre-train and instruction-tune the Llama-3-8B model. The resulting model, Llama3-Physician, achieves the best medical performance among current open-source
+models, and performs comparably to or even better than GPT-4 on several medical
+benchmarks. We release our models at https://huggingface.co/YiDuo1999/
+Llama-3-Physician-8B-Instruct.
+
+1
+
+Introduction
+
+Continual pre-training is an important approach for LLMs to improve their performance in target
+domains [Huang et al., 2023, Yang et al., 2024a, Chen et al., 2023c], learn new topics and languages [Jiang et al., 2024, Gupta et al., 2023], and even boost their general capabilities [Ibrahim
+et al., 2024]. However, while many studies explore the mechanisms and properties of LLMs during
+pre-training from scratch [Biderman et al., 2023a, Xue et al., 2024], only a few research works
+focus on the behavior of LLMs during continual pre-training. To investigate the learning dynamic
+of LLM continual pre-training, we conduct experiments in the medical domain and closely monitor
+changes in model performance throughout the training process. Surprisingly, we find that the LLM’s
+performance on medical tasks drops at the early stage of training, despite a consistent improvement
+Preprint. Under review.
+
+in perplexity on the medical corpus. However, as training progresses and more data are used, the task
+performance recovers and outperforms the original model. We further find that the initial performance
+drop and the following performance recovery phenomenon generally happen in LLMs across different
+scales and different training corpus.
+To explain the LLM’s abnormal behavior during
+continual pre-training, we revisit the concept of
+the stability gap [De Lange et al., 2022, Caccia
+et al., 2021] from continual learning. The stability gap describes the phenomenon where the
+performance of old tasks initially drops and then
+recovers when learning a new task. A previous
+study [De Lange et al., 2022] explains this initial
+drop as the model having only a small stability
+gradient to maintain the performance of previous tasks compared to a large plasticity gradient
+for learning the new task at the beginning of continual learning. After the initial stage, the stability gradient will rise, leading to performance
+recovery. Following this framework, we hypothesize that the LLM’s performance on medical
+tasks depends on both medical domain knowledge and general instruction-following ability.
+Medical domain knowledge can be improved
+with the plasticity gradient, while the instructionFigure 1: The performance comparison between following ability is more related to the stability
+our model (Llama-3-physician) and other baselines gradient. Therefore, the initial drop in medical
+involves reporting the ratio of each model’s task task performance occurs due to an insufficient
+performance to the best performance of that task stability gradient to maintain the ability to folamong all models.
+low instructions. To verify this hypothesis, we
+further study the model’s general domain task
+performance during continual pre-training on our medical-related corpus. The results show a similar
+v-shape curve as the medical domain tasks, where the task performance initially decreases and then
+starts to recover. Furthermore, from the perspective of weight updates, we find that the top layers’
+weights, which contain high-level task knowledge, have comparatively small weight updates only at
+the initial stage. This also suggests that the LLM has only a small initial stability gradient to protect
+its instruction-following ability.
+The stability gap causes inefficiency in continual pre-training as it delays the improvement in the
+LLM’s performance. To address this, we propose three efficient continual pre-training strategies:
+1. Instead of continually pre-training the LLM on a large corpus for one epoch, which induces
+a large plasticity gradient for a long period, we continually pre-train the LLM on a subset of
+the corpus with a proper size for multiple epochs.
+2. Select the subset with the highest-quality tokens to learn rich domain knowledge, leading to
+faster performance recovery and higher peak performance.
+3. Use a data mixture rate similar to the pre-training data, thus reducing the distribution shift
+and mitigating the knowledge forgetting of general instruction-following ability.
+To verify our strategy, we first conduct experiments on the OpenLlama-3B model. We find that
+our strategies not only accelerate performance improvement by mitigating the stability gap but
+also improve the LLM’s peak performance. We also compare our strategies with other continual
+pre-training techniques and analyze the influence of important learning factors, such as learning
+rate, for our strategies in Sec. 5. Finally, we apply our strategies to both the continual pretraining
+and instruction tuning processes of the Llama-3-8B model [Meta, 2024], efficiently enhancing
+its performance on diverse medical tasks, outperforming other open-source LLM baselines, and
+achieving performance comparable to GPT-4 (See performance comparison in Figure 1).
+2
+
+2
+
+Related work
+
+Large language Models such as GPT-4 [OpenAI, 2023], Gemini [Team], and Llama [Touvron
+et al., 2023a]), have billions of parameters and show strong performance on various basic natural
+language tasks [Qin et al., 2023], human examination [Hendrycks et al., 2020b, Zhong et al., 2023],
+and agent-related tasks [Guo et al., 2023, Liu et al., 2023, Zhou et al., 2023]. Their success attracts
+researchers to analyze LLMs’ learning properties during the pre-training process [Kaplan et al., 2020,
+Biderman et al., 2023a, Zhang et al., 2024a]. Kaplan et al. [2020] finds the pre-training scaling
+rule for model size and dataset size and then Hoffmann et al. [2022] proposes the Chinchilla rule
+that claims the equal importance of the model size and the number of training tokens. Sorscher
+et al. [2022] further claims that pruning low-quality data can improve the above neural scaling
+laws. However, high-quality training tokens are limited and may be run out soon [Villalobos et al.,
+2022]. Thus, some researchers try to maximize the utilization of the existing corpus by training it
+for multiple epochs [Muennighoff et al., 2024, Xue et al., 2024]. But they observe the performance
+degradation [Hernandez et al., 2022, Xue et al., 2023, Hoffmann et al., 2022] after training 4 epochs.
+Continual pre-training gradually becomes necessary for LLMs to expand their basic ability [Wu
+et al., 2022, Fu et al., 2024, Zhuang et al., 2024], avoid outdated information [Jiang et al., 2024],
+and become the domain expert [Huang et al., 2023, Yang et al., 2024a, Chen et al., 2023c, Nguyen
+et al., 2023, Wu et al., 2023, Yıldız et al., 2024, Xie et al., 2024a]. The domain corpus for continual
+pre-training can be collected by n-gram models [Muennighoff et al., 2024], heuristic rules designed by
+human experts [Chen et al., 2023c, Zhang et al., 2024c] or automatically identified by a LLM [Zhang
+et al., 2024c]. For the continual pre-training techniques. Ke et al. [2023, 2022] focused on adding
+masks or adjusting the architecture of small Language models like RoBERT to protect the learned
+general knowledge. However, these techniques result in huge computational consumption for
+LLMs. Recent studies [Gupta et al., 2023] show that learning rate re-warming can improve LLMs’
+downstream task performance. Ibrahim et al. [2024] further claims that learning rate re-warming,
+re-decaying, and replay can make the continual pre-training performance match the performance
+of fully re-training when continually pre-training the English LLM on the German corpus. Other
+continual pre-training method studies focus on selecting useful tokens [Lin et al., 2024], expanding
+MOE architecture [Chen et al., 2023a], and knowledge distillation [Jin et al., 2021b].
+Continual learning and the Stability Gap Continual learning aims to design methods that can
+learn new knowledge without the catastrophic forgetting of previously learned knowledge [Kirkpatrick
+et al., 2017, Van de Ven et al., 2022]. To mitigate the forgetting problem when learning a new task,
+replaying previous tasks’ data [Rolnick et al., 2019, Buzzega et al., 2020, Prabhu et al., 2020, Buzzega
+et al., 2021, Guo et al., 2022] becomes the main approach. De Lange et al. [2022], Caccia et al.
+[2021] further find that, although they conduct the replay approach, the vision model still first loses
+its performance stability in previous classification tasks ( the performance drops abruptly) and then
+gradually recovers. They call it the stability gap phenomenon. Different from them, we focus on the
+continual pre-training of the LLM and observe that both the LLM’s domain task performance and
+general ability suffer from the stability gap.
+
+3
+
+Identifying the stability gap in continual pre-training
+
+In this section, we first study the behavior of large language models (LLMs) during continual pretraining by measuring them at regular intervals. We observe that the performance on the target task
+initially drops and then rises during continual pre-training. To explain our observations, we introduce
+the concept of the stability gap to continual pre-training and verify our explanations with experiments.
+3.1
+
+Investigating the behavior of LLMs during continual pre-training
+
+Experiment setup In this study, we chose OpenLlama3B-v2 [Geng and Liu, 2023] as our default
+LLM and use the medical domain as our primary target domain. Following previous work [Chen
+et al., 2023b], we set the compute budget to 50 billion (50B) training tokens. To collect the continual
+pre-training corpus, we follow the simple and scalable methodology of Muennighoff et al. [2024].
+First, we train a KenLM model [Heafield, 2011] on a high-quality medical reference corpus. Then,
+we use the trained KenLM model to calculate the perplexity (PPL) of samples in the Refined-Web
+3
+
+dataset [Penedo et al., 2023]. Finally, we extract 50B tokens from the Refined-Web dataset with the
+lowest PPL to create the medical corpus. More details are provided in Appendix A.
+
+Figure 2: (a) reports the models’ average medical performance during the medical continual pretraining process. (b) illustrates the models’ average medical perplexity (PPL) during the medical
+continual pre-training process. (c) shows the Pythia model’s average common-sense task performance
+when we continually pre-train it on the new Refined-Web datasets.
+Observation (1): The medical task performance first drops and rises during continual pretraining. Specifically, we follow Chen et al. [2023c] and measure the average accuracy performance over the MMLU-Medical-Genetics [Hendrycks et al., 2020a], MedQA [Jin et al., 2021a],
+PubMedQA [Jin et al., 2019], and MedMCQA [Pal et al., 2022] tasks (see task details in Appendix B).
+We report the average performance on medical tasks every 5 billion training tokens. From Figure 2(a),
+we observe that the domain task performance initially drops during the first 5 billion tokens and
+then gradually recovers and improves. Additionally, we consider the TinyLlama model [Zhang et al.,
+2024b], a 1.1B Llama model trained on 3 trillion tokens, and continually pre-train it on the medical
+corpus. From Figure 2(a), we observe that its performance on medical tasks also shows the same
+trend, despite being trained on so many tokens.
+Observation (2): The perplexity of medical Wikipedia steadily declines during continual pretraining. We further measure the average perplexity (PPL) of the models on the Wikipedia corpus
+about medical terms1 . From Figure 2(b), we observe that the PPL steadily drops. This indicates that
+the LLM has acquired medical domain knowledge at the initial continual pre-training and continues
+improving its medical domain knowledge throughout the entire continual pre-training process.
+Observation (3): The general task performance also first drops and then rises during general
+continual pre-training. Continual pretraining on another large corpus is an important approach to
+boost the pretrained LLM’s general task performance [Jiang et al., 2024, Gupta et al., 2023]. We call
+it the general continual pretraining setting. We further find that it also exists a similar performance
+phenomenon. Specifically, we continually pre-train the Pythia-410m model [Biderman et al., 2023b]
+(initially pre-trained on the Pile [Gao et al., 2020] dataset) on the RefinedWeb dataset [Penedo et al.,
+2023] to boost its general ability. We measure its general ability using the average performance across
+10 common-sense tasks and report the average performance of every 10 billion tokens. Training
+details are in Appendix A and task details are in Appendix B. From Figure 2(c), we observe that the
+LLM’s general task performance first drops significantly and then gradually rises.
+Based on our observations, the initial drop followed by a rise in target task performance is a general
+phenomenon in the continual pre-training of LLMs of various sizes. This abnormal behavior can be
+explained with the concept of the stability gap [Lange et al., 2022] in the following section.
+3.2
+
+Stability Gap: A conceptual explanation for the initial performance drop and then
+following recovery.
+
+The stability gap phenomenon has been observed as the model’s performance in previous tasks first
+drops and then rises when learning the new task and Lange et al. [2022] explains it by disentangling
+1
+
+https://huggingface.co/datasets/gamino/wiki_medical_terms
+
+4
+
+Figure 3: (a) shows the OpenLLaMa’s average common-sense task performance during medical
+continual pre-training. (b) illustrates the OpenLlama model’s relative parameter update during the
+medical continual pre-training process. We report the average weight relative update of weights in
+the top 5 layers and the bottom 5 layers. We also report the rate between the two average numbers.
+the gradient L in α-weighed plasticity and stability gradients: L = αLplasticity + (1 − α)Lstability
+where Lplasticity aims to learn to the new task and Lstability maintains the previous tasks’ performance.
+The performance of previous tasks initially drops because the plasticity gradient exceeds the stability
+gradient, causing neglect in maintaining prior task performance. Subsequently, the performance
+loss in previous tasks enhances the stability gradient, while adaptation to the new task reduces the
+plasticity gradient, leading to gradient balance and performance recovery.
+Explanation of our observations We assume that the performance on the new domain task relies
+on both the target domain knowledge and the instruction-following ability during continual pretraining. Inspired by the stability gap explanation framework, we decouple the continual pre-training
+gradient into the plasticity gradient for learning new domain knowledge and the stability gradient
+for maintaining instruction-following ability. Initially, the stability gradient is small compared to
+the plasticity gradient, causing a performance drop on the target domain because of the destructed
+instruction-following ability. Subsequently, the stability gradient increases to recover the instructionfollowing ability, while the plasticity gradient already helps the LLM learn domain knowledge,
+observing performance improvement on the target domain.
+Empirical verification for our explanation We verify our explanation by (1) measuring general
+task performance during continual pre-training on the medical-related corpus. As shown in Figure 3(a),
+the general task performance follows a similar V-shape curve, indicating the recovery of general
+instruction-following ability after the initial drop. We also verify our explanation at the weight level
+−w0
+by (2) measuring the relative weight update of each weight w as wtw
+, where wt is the weight value
+0
+during continual pre-training and w0 is the original weight value. A high relative weight update
+indicates a large gradient for updating the weight. Figure 3(b) shows that the bottom layers’ weights
+initially have a higher relative weight update than the top layers (rate > 1.35). Previous studies
+indicate that bottom layers learn the syntax and low-level semantics [Devlin et al., 2019, Hewitt and
+Manning, 2019, Ling et al., 2023], while top layers contain high-level semantics and task-specific
+knowledge [Yang et al., 2024b, Chen et al., 2024]. This suggests that the top layers’ weights indeed
+lack sufficient stability gradient to maintain instruction-following ability initially. The performance
+then recovers as the relative weight updates (stability gradient) increase in the top layers and domain
+knowledge is learned, as indicated by the continuous drop in medical perplexity.
+
+4
+
+Efficient continual pretraining strategies for mitigating the stability gap
+
+In this section, we propose three efficient continual pre-training strategies for overcoming the above
+stability gap problem. The training process and details follow those in the above section.
+Strategy I: Continually pre-train the LLM on a corpus subset across multiple epochs rather
+than the entire large corpus for a single epoch. The domain task performance depends on the
+general instruction-following ability, which is related to the rise of the stability gradient. The usual
+5
+
+Figure 4: (a) reports the average medical performance during the medical continual pre-training
+process. The baseline is pre-training the OpenLlama-3B model with 50b medical tokens with one
+epoch. ’5b Random’ is pre-training the LLM with 5b tokens randomly selected from the 50b medical
+tokens for 5 epochs. ’5b HQ’ is pre-training the LLM with the highest quality (HQ) 5b tokens of the
+50b medical tokens for 5 epochs. (b) shows the average medical performance across 5 epochs. (c)
+illustrates the average commonsense task performance across 5 epochs.
+continual pre-training approach collects as many samples as possible and trains them one time.
+However, this approach means the LLM maintains a high plasticity gradient for learning new samples
+in every batch, causing a stability gap and a slow rise in the stability gradient. To mitigate this,
+we propose randomly selecting a subset with a proper size from the entire corpus and pre-training
+the LLM on this subset across multiple epochs. This method reduces the need for a high plasticity
+gradient after the first epoch and accelerates the rise of the stability gradient (performance recovery).
+In Figure 4(a), we observe that this strategy leads to faster performance recovery. The LLM achieves
+peak performance at the fourth epoch, consistent with previous studies [Xue et al., 2024].
+Strategy II: Continually pre-train the LLM on the corpus subset with the highest quality. The
+performance of domain tasks also depends on the learned domain knowledge. Therefore, collecting
+a subset with the highest quality should further enhance performance. To verify this, we used the
+trained KenLM from Sec. 3.1 to calculate the perplexity (ppl) of each sample in the entire medical
+corpus. A lower perplexity indicates that the sample is closer to the distribution of the medical
+reference corpus. We then continually pre-trained the OpenLlama-3B model on the subset with the
+lowest perplexity (i.e., the highest quality) for multiple epochs. From Figure 4 (a), we observe that
+the high-quality subset indeed enables the LLM to recover performance faster and stronger in the
+medical domain. Further analysis of the pre-training subset size is presented in Sec. 5.2.
+Strategy III: Use a data mixture rate similar to the pre-training data. The pre-training data
+mixture rate is a vital factor for the pre-training performance of large language models (LLMs) [Xie
+et al., 2024c, Shen et al., 2023]. Therefore, we propose a third strategy that follows the pre-training
+data’s mixture rate to construct the continual pretraining training subset, aiming to reduce the
+distribution gap and stabilize the instruction-following ability of the LLM during continual pretraining. Specifically, for the OpenLlama model, we follow the Llama mixture rate [Touvron et al.,
+2023a] to collect 5 billion tokens initially. We then replace the CC and C4 data (82% of the 5 billion
+tokens) with medical tokens sampled from the highest quality 5 billion medical tokens (HQ-5b).
+There are two ways to sample these medical tokens. The first method randomly samples the medical
+tokens once to construct a fixed training corpus. We call this “rate-fixed-data-fixed”. The second
+method randomly samples the medical tokens from the HQ-5b tokens for each epoch. We call this
+“rate-fixed-data-dynamic”.
+From Figure 4(b), we observe that both methods improve the performance of the first epoch by
+overcoming the stability gap. The second method achieves a higher peak performance as it offers a
+better trade-off between recovering the instruction-following ability through data replay and learning
+domain knowledge from a large number of medical tokens. Additionally, our strategies further
+improve the average performance on general commonsense tasks, as shown in Figure 4(c), and reduce
+the medical perplexity and the rate of relative weight update, as detailed in Appendix C. We also
+investigate the effectiveness of our three strategies in the general continual pre-training setting in
+Appendix D.
+6
+
+5
+
+Evaluation
+
+In this section, we first compare the effectiveness of our strategies with other continual pre-training
+techniques. Next, we investigate the impact of important learning factors, such as the learning rate,
+on our strategies. Finally, we deploy our strategies into the newest Llama-3-8b model, which achieves
+the strongest fine-tuned performance among open-source baselines.
+5.1
+
+Comparison with other continual pre-training techniques
+
+Baselines and evaluation tasks We consider the following baselines for comparison: (1) Continually pre-training the OpenLLaMa-3B LLM with 50 billion collected medical tokens for one epoch
+("the full token baseline"). (2) Re-warming and re-decaying the learning rate of (1) based on the paper
+by [Ibrahim et al., 2024]. (3) Replay baselines: Following [Chen et al., 2023b], we replace 10% of
+the tokens in (1) with tokens randomly sampled from the OpenLLaMa-3B’s pre-training dataset (the
+RefinedWeb dataset). We also consider a replay baseline that replaces 10% of medical tokens in the
+experiment using strategies I and II with randomly selected tokens from the RefinedWeb dataset. This
+baseline does not consider the data mixture rate. (4) Parameter protection baselines: Following [Harun
+and Kanan, 2023], we freeze the top 5 layers’ weights during the continual pre-training process of
+(1) to protect the high-level instruction-following ability and mitigate the stability gap. We also
+consider another baseline that freezes the bottom 5 layers’ weights for comparison. We follow [Chen
+et al., 2023b] and consider the tasks of PubMedQA, MedMCQA, and MedQA-4-Option. For the
+MMLU benchmark [Hendrycks et al., 2020a], we consider the average performance of its medical
+topics, including medical genetics, anatomy, clinical knowledge, professional medicine, and college
+medicine. We use the lm-evaluation-harness framework [Gao et al., 2023] to measure the baselines’
+zero-shot performance.
+Method
+Training tokens number MMLU-Med-Avg PubMedQA MedMCQA MedQA-4-Option Avg
+OpenLLaMa-3B
+25.6
+68.4
+25.4
+25.4
+36.2
+Full token baseline
+50B
+26.1
+70.4
+26.1
+27.1
+37.4
+Re-warming and re-decaying
+50B
+26.5
+70.3
+27.1
+27.1
+37.7
+Replay 10% data
+50B
+26.3
+69.2
+27.6
+26.9
+37.5
+Replay 10% data with our strategies
+20B
+29.3
+71.0
+30.4
+27.6
+38.5
+Freezing top 5 layers
+50B
+26.2
+69.9
+27.1
+27.3
+37.6
+Freezing bottom 5 layers
+50B
+26.0
+69.1
+25.4
+25.7
+36.5
+Our strategies
+20B
+30.0
+71.2
+34.0
+27.8
+40.7
+
+Table 1: Zero-shot accuracy across various medical benchmarks.
+
+Results From Table 1, we find that (1) our strategies improve the base model’s average medical
+task performance significantly (4.5%) with only 20 billion training tokens. This demonstrates the
+effectiveness and efficiency of our strategies for continual pre-training. (2) Other techniques can also
+improve continual pre-training performance, except for the baseline ’Freezing bottom 5 layers,’ which
+hinders the learning of medical domain knowledge. (3) Following the pre-training data mixture rate
+to replay pre-training data is more effective than randomly sampling pre-training data for replay. This
+is because it further reduces the distribution shift between the pre-training corpus and the continual
+pre-training corpus, thereby helping to recover the LLM’s general instruction-following ability.
+5.2
+
+Analysis
+
+Impact of learning rate The pre-training learning rate is a crucial factor for updating LLMs during
+continual pre-training. To investigate its impact on our strategies, we conduct continual pre-training
+experiments with different learning rates. From Figure 5(a) and (b), we find that the optimal learning
+rate varies with the LLM scale: a small LLM (e.g., TinyLlama-1.1B) requires a higher learning rate
+(e.g., 3e-4), whereas larger LLMs (e.g., OpenLlama-3B) benefit from a lower learning rate (e.g.,
+3e-5). If the learning rate is too low (e.g., 3e-5 for TinyLlama-1.1B), the LLM cannot learn domain
+knowledge effectively to boost performance. Conversely, if the learning rate is too high (e.g., 3e-4
+for OpenLlama-3B), performance declines as the large learning rate leads to a significant plasticity
+gradient, causing the LLM to lose its general instruction-following ability for completing tasks. Based
+on our analysis experiments, we set the pre-training learning rate at 3e-4 for TinyLlama and 3e-5 for
+OpenLlama-3B’s experiments.
+7
+
+Figure 5: (a) reports the performance of TinyLlama-1.1B across multiple epochs. All these experiments use our strategies with different pre-training learning rates. (b) reports the performance of
+OpenLlama-3B across multiple epochs. All of the experiments in (a) and (b) use our strategies with
+different pre-training learning rates. (c) reports the performance of OpenLlama-3B across multiple
+epochs with different training subset sizes S. To collect the pre-training corpus with different sizes,
+we first rank all samples of the 50 billion medical tokens based on the perplexity calculated by the
+trained KenLM (see Sec. 3.1). Then, we select the first S billion tokens with the lowest perplexity. For all experiments here, we report the average task performance of PubMedQA, MedMCQA,
+MMLU-medical-genetics, and MedQA-4-Option tasks.
+Impact of the training subset size The size of the training subset is another important factor in
+our strategies. To determine the optimal training subset size, we conduct pre-training experiments on
+Llama-3b using various training subset sizes. From Figure 5(c), we observe that a smaller high-quality
+subset yields better initial performance and mitigates the stability gap (e.g., 1 billion tokens), but it
+also causes the performance to drop quickly in later epochs due to overfitting. A larger subset (e.g.,
+10 billion tokens) results in a stability gap and slower performance recovery, as the LLM needs to
+maintain a high plasticity gradient to learn a large number of new samples. Based on our experiments,
+we select a subset with 5 billion high-quality tokens, as it mitigates the stability gap, achieves the
+best peak performance, and is computationally effective.
+5.3
+
+Deploying our strategies into the Llama-3 Model
+
+Continual pre-training We continually pre-train the Llama3-8B-base model using our three
+strategies with the high-quality 5 billion medical tokens constructed in Sec. 4 for 4 epochs. The
+training details are in Appendix E. After the continual pre-training process, we find that the average
+medical performance drops slightly, likely due to the unknown data mixture rate of Llama-3 and the
+lack of access to its high-quality pre-training corpus for performance recovery. However, the medical
+perplexity is significantly lower than that of the Llama3-8B-base model.
+Task-specific fine-tuning To evaluate LLMs’ performance in the supervised learning setting, we
+follow [Chen et al., 2023b] and individually conduct task-specific finetuning on both the base models
+and the continually pre-trained models using each benchmark’s training set. Since MMLU [Hendrycks
+et al., 2020a] does not have a training set, we follow [Chen et al., 2023b] and primarily consider the
+MMLU-Medical-Genetics benchmark, evaluating the model finetuned on MedMCQA. We put task
+details in Appendix B and training details in Appendix E.
+Baselines For task-specific fine-tuning, we consider three kinds of baselines here: (1) Task-specific
+finetuning of the base model of open-source LLMs. This includes models such as Llama-2-70B,
+Llama-3-8B, and Llama3-Aloe-8B-Alpha [Gururajan et al., 2024]. We copy their results from their
+respective papers [Gururajan et al., 2024] or the Meditron paper [Chen et al., 2023b] except for
+the Llama-3-8B, which we finetuned using the same process as our strategies. (2) Task-specific
+finetuning of continually pre-trained LLMs like meditron [Chen et al., 2023b], BioMistral SLERP
+7B [Labrak et al., 2024], Llama-3-8B-full. These LLMs have been continually pre-trained with a
+medical corpus. We copy their results from their papers, except for Llama-3-8B-full, for which we
+continually pre-train the Llama-3-8B with 50B medical tokens collected in Section 3.1, and then
+finetune it using the same process as our strategies. (3) Closed-source LLMs. This includes models
+like ChatGPT and GPT-4 [OpenAI, 2023]. The results are measured using the Microsoft Azure
+OpenAI API service [Shi et al., 2024].
+8
+
+Model
+
+MMLU-Medical
+
+PubMedQA
+
+MedMCQA
+
+MedQA-4-Option
+
+Avg
+
+Llama-2-7B [Touvron et al., 2023b]
+BioMistral SLERP 7B [Labrak et al., 2024]
+MEDIT RON-7B [Chen et al., 2023b]
+Llama3-Aloe-8B-Alpha [Gururajan et al., 2024]
+
+56.3
+60.5
+55.6
+72.7
+
+61.8
+75.2
+74.4
+77.2
+
+54.4
+44.2
+59.2
+59.0
+
+49.6
+47.3
+52.0
+62.3
+
+53.2
+56.8
+57.5
+67.8
+
+Llama-2-70B
+MEDIT RON-70B
+
+74.7
+73.6
+
+78.0
+80.0
+
+62.7
+65.1
+
+61.3
+65.4
+
+67.2
+69.0
+
+GPT-3.5-turbo-finetuned [Shi et al., 2024]
+
+70.5
+
+71.4
+
+61.8
+
+63.3
+
+66.7
+
+Llama-3-8B Fine-tuned (ours)
+Llama-3-8B Full (ours)
+Llama-3-Physician-8B (ours)
+
+82.3
+82.0
+85.0
+
+75.8
+78.6
+79.1
+
+60.0
+61.8
+81.4
+
+61.1
+60.8
+61.5
+
+69.8
+70.8
+76.7
+
+Table 2: Accuracy comparison across various medical benchmarks in the task-specific fine-tuning
+setting. Llama-3-8B Fine-tuned is directly fine-tuned on these tasks. For ’Llama-3-8B Full’, we first
+continually pre-trained the Llama with 50B medical tokens and then finetuned the pretrained model
+on these tasks. For Llama-3-Physician-8B, we first continually pre-trained the Llama with with our
+strategies and then finetuned the pretrained model on these tasks.
+
+Results We use the lm-eval-harness [Gao et al., 2023] to evaluate our model (Llama-3-Physician)
+and related baselines’ performance. No demonstration examples are used. From Table 2, we find that
+our model outperforms other baselines with similar model scales on the four evaluation benchmarks by
+a clear margin. This is due to the following reasons: (1) we use the newest and strongest open-source
+Llama-3 model rather than older Llama-2 or Mistral-7B, (2) we continually pre-train the base model
+with high-quality medical tokens (compared to ’Llama-3-8B fine-tuned and Llama-3-8B instruct’),
+and (3) our strategies further boost the gains from continual pre-training markedly (compared to
+’Llama-3-8B Full’). Our model also outperforms many larger LLMs (70B) on average, meaning
+that users can obtain higher-quality medical services with a faster inference rate and less memory
+consumption.
+5.4
+
+Deploying our strategies into the instruction tuning process
+
+Instruction-tuning is an important approach to boost the LLM’s performance among multiple tasks.
+We follow Xie et al. [2024b] and consider the instruction-tuning setting that tunes the continual
+pretrained Llama-3-8B model (see the above section) with a combination of question-answering tasks
+like PubMedQA [Jin et al., 2019], classification tasks like HOC [Baker et al., 2016], relation extract
+tasks like DDI2013 [Segura-Bedmar et al., 2013], inference tasks like BioNLI [Bastan et al., 2022],
+and summarization tasks like MIMIC-CXR [Johnson et al., 2019]. The specific dataset details are
+in Appendix B. Unlike the above task-specific fine-tuning, we only tune one LLM here and use the
+instruction-tuned LLM to test all benchmarks. We tune the Llama model for 3 epochs with a learning
+rate of 3e-5. More training details are in Appendix E.
+Deployment In the instruction tuning process, our first strategy is common as the medical instruction tuning process usually involves multi-epochs training [Zhang et al., 2023a, Xie et al., 2024b,
+Han et al., 2023]. For the second strategy, we consider Deita [Liu et al., 2024], a simple automatic
+instruction data selector, to select high-quality medical instruction data. This selector uses the LLM
+to give quality scores for instructions and considers the diversity of instruction data by sampling data
+from different clustering. For the last strategy, we consider high-quality general instruction datasets
+like Airoboros-3.2 Durbin [2024] to mitigate the forgetting in general instruction following ability.
+Observations From Figure 6, we first observe that the average performance of medical questionanswering tasks initially drops slightly (in the first epoch) and then gradually rises, which is similar
+to the phenomenon observed in the continual pre-training process. Additionally, we observe that
+our strategies can mitigate the initial performance drop and achieve higher peak performance during
+the instruction tuning process, thereby extending the application of our strategies. Figure 6 also
+shows that we only need computation equivalent to 25% of the original instruction data (consisting of
+high-quality medical instruction data and general instruction data) to achieve the best performance
+among diverse tasks. This reduces computational consumption and improves the efficiency of the
+instruction tuning process. We call the tuned model in the experiment ’25% instruction data’ as
+’Llama-3-physician-8B instruct’. In the following paragraphs, we will compare it with other baselines.
+9
+
+Figure 6: We consider the ’full instruction data’ experiment as fine-tuning the model with all
+instruction data for 3 epochs. For the ’n% data’ experiments, we first uniformly sampled the highest
+quality instructions from each instruction dataset based on scores provided by the Deita data selector.
+We then mixed the sampled data with the general instructions from the Airoboros-3.2 dataset. The
+total training tokens are equal to n% of the full instruction data. We set n to 25, 50, and 75 here. (a)
+shows the experiments’ average medical question-answering task performance during instruction
+tuning. (b) illustrates the experiments’ performance for other medical tasks. For BioNLI, DDI 2023,
+and HOC tasks, we report macro-F1 as the score. For MIMIC-CXR summarization tasks, we report
+Rouge-L as the score.
+
+Baselines For instruction-tuning, we consider instruction-tuned models like Mistral-7Binstruct [Jiang et al., 2023], Zephyr-7B-β-instruct [Tunstall et al., 2023], PMC-Llama-7B [Wu
+et al., 2023], BioMedGPT-LM 7B [Zhang et al., 2023a], Medalpaca-13B [Han et al., 2023], AlpaCare13B [Zhang et al., 2023b], Me-LLaMA-13B chat[Xie et al., 2024b], Llama-3-8B instruct [Meta,
+2024], and JSL-Med-Sft-Llama-3-8B [johnsnowlabs, 2024]. These LLMs are tuned with general
+instructions or medical task instructions.
+Model
+
+MMLU-Medical
+
+PubMedQA
+
+MedMCQA
+
+MedQA-4-Option
+
+Avg
+
+Mistral-7B-instruct [Jiang et al., 2023]
+Zephyr-7B-instruct-β [Tunstall et al., 2023]
+PMC-Llama-7B [Wu et al., 2023]
+Medalpaca-13B [Han et al., 2023]
+AlpaCare-13B [Zhang et al., 2023b]
+BioMedGPT-LM 7B [Zhang et al., 2023a]
+Me-Llama-13B [Xie et al., 2024b]
+Llama-3-8B instruct
+JSL-Med-Sft-Llama-3-8B [johnsnowlabs, 2024]
+
+55.8
+63.3
+59.7
+55.2
+60.2
+52.0
+82.0
+83.0
+
+17.8
+46.0
+59.2
+50.4
+53.8
+58.6
+70.0
+74.6
+75.4
+
+40.2
+43.0
+57.6
+21.2
+38.5
+34.9
+44.9
+57.1
+57.5
+
+41.1
+48.5
+49.2
+20.2
+30.4
+39.3
+42.7
+60.3
+59.7
+
+37.5
+48.7
+53.6
+36.7
+45.7
+46.2
+68.5
+68.9
+
+GPT-3.5-turbo-1106
+GPT-4 [OpenAI, 2023]
+
+74.0
+85.5
+
+72.6
+69.2
+
+34.9
+69.5
+
+39.3
+83.9
+
+60.6
+77.0
+
+Llama-3-physician-8B instruct (ours)
+
+80.0
+
+76.0
+
+80.2
+
+60.3
+
+74.1
+
+Table 3: Accuracy comparison for question-answering tasks in the instruction-tuning setting.
+
+Results We download the baselines’ official models/deploy their APIs and then test their task
+performance using lm-eval-harnesses and Me-Llama’s evaluation frameworks. If the paper does not
+release its model, we copy the results from the original paper (e.g., Me-Llama). From Table 3, we
+find that our model outperforms other open-source baselines in question-answering tasks by a clear
+margin. Additionally, our model’s average performance is close to that of GPT-4. Furthermore, in
+Table 4, we observe that our model significantly outperforms GPT-4 in medical classification, relation
+extraction, natural language inference, and summarization tasks. This demonstrates the significant
+advantage of our model in processing diverse medical tasks. Finally, compared to these closed-source
+LLMs and larger open-source LLMs, our 8B model has the potential advantage of being deployed on
+users’ local devices, reducing the risk of leaking personal healthcare information.
+10
+
+Task type
+
+Classification
+
+Relation extraction
+
+Natural Language Inference
+
+Summarization
+
+Datasets
+
+HOC
+
+DDI-2013
+
+BioNLI
+
+MIMIC-CXR
+
+Mistral-7B-instruct [Jiang et al., 2023]
+Zephyr-7B-instruct-β [Tunstall et al., 2023]
+PMC-Llama-7B [Wu et al., 2023]
+Medalpaca-13B [Han et al., 2023]
+AlpaCare-13B [Zhang et al., 2023b]
+BioMedGPT-LM 7B [Zhang et al., 2023a]
+Me-Llama-13B [Xie et al., 2024b]
+JSL-Med-Sft-Llama-3-8B [johnsnowlabs, 2024]
+Llama-3-8B instruct
+
+35.8
+26.1
+18.4
+24.6
+26.7
+23.4
+33.5
+25.6
+31.0
+
+14.1
+19.4
+14.7
+5.8
+11.0
+15.5
+21.4
+19.7
+15.1
+
+16.7
+19.9
+15.9
+16.4
+17.0
+17.9
+19.5
+16.6
+18.8
+
+12.5
+10.5
+13.9
+1.0
+13.4
+6.2
+40.0
+13.8
+10.3
+
+GPT-3.5-turbo-1106
+GPT-4 [OpenAI, 2023]
+
+54.5
+60.2
+
+21.6
+29.2
+
+31.7
+57.8
+
+13.5
+15.2
+
+Llama-3-physician-8B instruct (ours)
+
+78.9
+
+33.6
+
+76.2
+
+37.7
+
+Table 4: Performance comparison for general medical tasks in the instruction-tuning setting. For
+BioNLI, DDI 2023, and HOC tasks, we report macro-F1. For MIMIC-CXR summarization tasks, we
+report Rouge-L as the result.
+
+6
+
+Conclusion
+
+Our paper explores the behavior of LLMs when continually pre-training them on a new domain’s
+corpus and observes the stability gap, a phenomenon marked by a significant initial performance drop
+followed by a slow recovery. We explain it from the view of plasticity and stability gradients and
+then propose three strategies that effectively improve the LLM’s domain performance and reduce
+computational costs by overcoming the stability gap. Furthermore, we deploy our strategies on the
+newest Llama-3-8B model, which achieves the strongest performance among open-source baselines
+of similar model scales and outperforms the closed-source GPT-3.5 model.
+Limitations and Potential impacts Ideally, knowing the pre-training data mixture could maximize
+the outcome of our method, but most strong open-source LLMs didn’t provide their training data
+mixture. Our Llama-3-8B experiment shows we can still improve significantly in this scenario. Due
+to limitations in computing resources, we plan to verify our conclusions and strategies on larger
+LLMs in the future. Our strategies are designed to address the machine learning problem of the
+stability gap, and we do not see any potential risks. The datasets and base models used in this paper
+will be open-sourced. Although we do not consider our model to be ready for real-world medical use
+in its current form, we are releasing it to the research community to promote work on large language
+models for the medical domain and the safety of language models in medical applications.
+
+References
+Simon Baker, Ilona Silins, Yufan Guo, Imran Ali, Johan Högberg, Ulla Stenius, and Anna Korhonen.
+Automatic semantic classification of scientific literature according to the hallmarks of cancer.
+Bioinformatics, 32(3):432–440, 2016.
+Mohaddeseh Bastan, Mihai Surdeanu, and Niranjan Balasubramanian. Bionli: Generating a
+biomedical nli dataset using lexico-semantic constraints for adversarial examples. arXiv preprint
+arXiv:2210.14814, 2022.
+Stella Biderman, Hailey Schoelkopf, Quentin G. Anthony, Herbie Bradley, Kyle O’Brien, Eric
+Hallahan, Mohammad Aflah Khan, Shivanshu Purohit, USVSN Sai Prashanth, Edward Raff,
+Aviya Skowron, Lintang Sutawika, and Oskar van der Wal. Pythia: A suite for analyzing large
+language models across training and scaling. ArXiv, abs/2304.01373, 2023a. URL https:
+//api.semanticscholar.org/CorpusID:257921893.
+Stella Biderman, Hailey Schoelkopf, Quentin Gregory Anthony, Herbie Bradley, Kyle O’Brien, Eric
+Hallahan, Mohammad Aflah Khan, Shivanshu Purohit, USVSN Sai Prashanth, Edward Raff, et al.
+Pythia: A suite for analyzing large language models across training and scaling. In International
+Conference on Machine Learning, pages 2397–2430. PMLR, 2023b.
+Yonatan Bisk, Rowan Zellers, Jianfeng Gao, Yejin Choi, et al. Piqa: Reasoning about physical
+commonsense in natural language. In Proceedings of the AAAI conference on artificial intelligence,
+volume 34, pages 7432–7439, 2020.
+11
+
+Pietro Buzzega, Matteo Boschini, Angelo Porrello, Davide Abati, and Simone Calderara. Dark
+experience for general continual learning: a strong, simple baseline. Advances in neural information
+processing systems, 33:15920–15930, 2020.
+Pietro Buzzega, Matteo Boschini, Angelo Porrello, and Simone Calderara. Rethinking experience
+replay: a bag of tricks for continual learning. In 2020 25th International Conference on Pattern
+Recognition (ICPR), pages 2180–2187. IEEE, 2021.
+Lucas Caccia, Rahaf Aljundi, Nader Asadi, Tinne Tuytelaars, Joelle Pineau, and Eugene Belilovsky.
+New insights on reducing abrupt representation change in online continual learning. arXiv preprint
+arXiv:2104.05025, 2021.
+Wuyang Chen, Yanqi Zhou, Nan Du, Yanping Huang, James Laudon, Zhifeng Chen, and Claire Cui.
+Lifelong language pretraining with distribution-specialized experts. In International Conference
+on Machine Learning, pages 5383–5395. PMLR, 2023a.
+Xiaodong Chen, Yuxuan Hu, and Jing Zhang. Compressing large language models by streamlining
+the unimportant layer. ArXiv, abs/2403.19135, 2024. URL https://api.semanticscholar.
+org/CorpusID:268733054.
+Zeming Chen, Alejandro Hernández Cano, Angelika Romanou, Antoine Bonnet, Kyle Matoba,
+Francesco Salvi, Matteo Pagliardini, Simin Fan, Andreas Köpf, Amirkeivan Mohtashami,
+et al. Meditron-70b: Scaling medical pretraining for large language models. arXiv preprint
+arXiv:2311.16079, 2023b.
+Zeming Chen, Alejandro Hernández-Cano, Angelika Romanou, Antoine Bonnet, Kyle Matoba,
+Francesco Salvi, Matteo Pagliardini, Simin Fan, Andreas Köpf, Amirkeivan Mohtashami, Alexandre Sallinen, Alireza Sakhaeirad, Vinitra Swamy, Igor Krawczuk, Deniz Bayazit, Axel Marmet,
+Syrielle Montariol, Mary-Anne Hartley, Martin Jaggi, and Antoine Bosselut. Meditron-70b:
+Scaling medical pretraining for large language models, 2023c.
+Christopher Clark, Kenton Lee, Ming-Wei Chang, Tom Kwiatkowski, Michael Collins, and Kristina
+Toutanova. Boolq: Exploring the surprising difficulty of natural yes/no questions. In NAACL,
+2019.
+Peter Clark, Isaac Cowhey, Oren Etzioni, Tushar Khot, Ashish Sabharwal, Carissa Schoenick, and
+Oyvind Tafjord. Think you have solved question answering? try arc, the ai2 reasoning challenge.
+arXiv preprint arXiv:1803.05457, 2018.
+Tri Dao. Flashattention-2: Faster attention with better parallelism and work partitioning. arXiv
+preprint arXiv:2307.08691, 2023.
+Matthias De Lange, Gido van de Ven, and Tinne Tuytelaars. Continual evaluation for lifelong
+learning: Identifying the stability gap. arXiv preprint arXiv:2205.13452, 2022.
+Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. Bert: Pre-training of deep bidirectional transformers for language understanding. In North American Chapter of the Association
+for Computational Linguistics, 2019. URL https://api.semanticscholar.org/CorpusID:
+52967399.
+Jon Durbin. airoboros: Customizable implementation of the self-instruct paper., 2024. URL
+https://huggingface.co/datasets/jondurbin/airoboros-3.2.
+Yao Fu, Rameswar Panda, Xinyao Niu, Xiang Yue, Hannaneh Hajishirzi, Yoon Kim, and Hao Peng.
+Data engineering for scaling language models to 128k context. arXiv preprint arXiv:2402.10171,
+2024.
+Leo Gao, Stella Biderman, Sid Black, Laurence Golding, Travis Hoppe, Charles Foster, Jason
+Phang, Horace He, Anish Thite, Noa Nabeshima, Shawn Presser, and Connor Leahy. The pile:
+An 800gb dataset of diverse text for language modeling. ArXiv, abs/2101.00027, 2020. URL
+https://api.semanticscholar.org/CorpusID:230435736.
+12
+
+Leo Gao, Jonathan Tow, Baber Abbasi, Stella Biderman, Sid Black, Anthony DiPofi, Charles Foster,
+Laurence Golding, Jeffrey Hsu, Alain Le Noac’h, Haonan Li, Kyle McDonell, Niklas Muennighoff,
+Chris Ociepa, Jason Phang, Laria Reynolds, Hailey Schoelkopf, Aviya Skowron, Lintang Sutawika,
+Eric Tang, Anish Thite, Ben Wang, Kevin Wang, and Andy Zou. A framework for few-shot
+language model evaluation, 12 2023. URL https://zenodo.org/records/10256836.
+Xinyang Geng and Hao Liu. Openllama: An open reproduction of llama, May 2023. URL https:
+//github.com/openlm-research/open_llama.
+Yiduo Guo, Bing Liu, and Dongyan Zhao. Online continual learning through mutual information
+maximization. In International Conference on Machine Learning, pages 8109–8126. PMLR, 2022.
+Yiduo Guo, Zekai Zhang, Yaobo Liang, Dongyan Zhao, and Duan Nan. Pptc benchmark: Evaluating
+large language models for powerpoint task completion. arXiv preprint arXiv:2311.01767, 2023.
+Kshitij Gupta, Benjamin Th’erien, Adam Ibrahim, Mats L. Richter, Quentin G. Anthony, Eugene
+Belilovsky, Irina Rish, and Timothée Lesort. Continual pre-training of large language models: How
+to (re)warm your model? ArXiv, abs/2308.04014, 2023. URL https://api.semanticscholar.
+org/CorpusID:260704601.
+Ashwin Kumar Gururajan, Enrique Lopez-Cuena, Jordi Bayarri-Planas, Adrian Tormos, Daniel
+Hinjos, Pablo Bernabeu-Perez, Anna Arias-Duart, Pablo Agustin Martin-Torres, Lucia UrcelayGanzabal, Marta Gonzalez-Mallo, et al. Aloe: A family of fine-tuned open healthcare llms. arXiv
+preprint arXiv:2405.01886, 2024.
+Tianyu Han, Lisa C Adams, Jens-Michalis Papaioannou, Paul Grundmann, Tom Oberhauser, Alexander Löser, Daniel Truhn, and Keno K Bressem. Medalpaca–an open-source collection of medical
+conversational ai models and training data. arXiv preprint arXiv:2304.08247, 2023.
+Md Yousuf Harun and Christopher Kanan. Overcoming the stability gap in continual learning. arXiv
+preprint arXiv:2306.01904, 2023.
+Kenneth Heafield. Kenlm: Faster and smaller language model queries. In WMT@EMNLP, 2011.
+URL https://api.semanticscholar.org/CorpusID:8313873.
+Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and
+Jacob Steinhardt. Measuring massive multitask language understanding. arXiv preprint
+arXiv:2009.03300, 2020a.
+Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Xiaodong Song, and
+Jacob Steinhardt. Measuring massive multitask language understanding. ArXiv, abs/2009.03300,
+2020b. URL https://api.semanticscholar.org/CorpusID:221516475.
+Danny Hernandez, Tom Brown, Tom Conerly, Nova DasSarma, Dawn Drain, Sheer El-Showk, Nelson
+Elhage, Zac Hatfield-Dodds, Tom Henighan, Tristan Hume, et al. Scaling laws and interpretability
+of learning from repeated data. arXiv preprint arXiv:2205.10487, 2022.
+John Hewitt and Christopher D. Manning. A structural probe for finding syntax in word representations. In North American Chapter of the Association for Computational Linguistics, 2019. URL
+https://api.semanticscholar.org/CorpusID:106402715.
+Jordan Hoffmann, Sebastian Borgeaud, Arthur Mensch, Elena Buchatskaya, Trevor Cai, Eliza
+Rutherford, Diego de Las Casas, Lisa Anne Hendricks, Johannes Welbl, Aidan Clark, Tom
+Hennigan, Eric Noland, Katie Millican, George van den Driessche, Bogdan Damoc, Aurelia
+Guy, Simon Osindero, Karen Simonyan, Erich Elsen, Jack W. Rae, Oriol Vinyals, and L. Sifre.
+Training compute-optimal large language models. ArXiv, abs/2203.15556, 2022. URL https:
+//api.semanticscholar.org/CorpusID:247778764.
+Quzhe Huang, Mingxu Tao, Zhenwei An, Chen Zhang, Cong Jiang, Zhibin Chen, Zirui Wu, and
+Yansong Feng. Lawyer llama technical report. arXiv preprint arXiv:2305.15062, 2023.
+Adam Ibrahim, Benjamin Thérien, Kshitij Gupta, Mats L Richter, Quentin Anthony, Timothée Lesort,
+Eugene Belilovsky, and Irina Rish. Simple and scalable strategies to continually pre-train large
+language models. arXiv preprint arXiv:2403.08763, 2024.
+13
+
+Albert Qiaochu Jiang, Alexandre Sablayrolles, Arthur Mensch, Chris Bamford, Devendra Singh
+Chaplot, Diego de Las Casas, Florian Bressand, Gianna Lengyel, Guillaume Lample, Lucile
+Saulnier, L’elio Renard Lavaud, Marie-Anne Lachaux, Pierre Stock, Teven Le Scao, Thibaut Lavril,
+Thomas Wang, Timothée Lacroix, and William El Sayed. Mistral 7b. ArXiv, abs/2310.06825,
+2023. URL https://api.semanticscholar.org/CorpusID:263830494.
+Zhengbao Jiang, Zhiqing Sun, Weijia Shi, Pedro Rodriguez, Chunting Zhou, Graham Neubig,
+Xi Victoria Lin, Wen-tau Yih, and Srinivasan Iyer. Instruction-tuned language models are better
+knowledge learners. arXiv preprint arXiv:2402.12847, 2024.
+Di Jin, Eileen Pan, Nassim Oufattole, Wei-Hung Weng, Hanyi Fang, and Peter Szolovits. What
+disease does this patient have? a large-scale open domain question answering dataset from medical
+exams. Applied Sciences, 11(14):6421, 2021a.
+Qiao Jin, Bhuwan Dhingra, Zhengping Liu, William W Cohen, and Xinghua Lu. Pubmedqa: A
+dataset for biomedical research question answering. arXiv preprint arXiv:1909.06146, 2019.
+Xisen Jin, Dejiao Zhang, Henghui Zhu, Wei Xiao, Shang-Wen Li, Xiaokai Wei, Andrew Arnold,
+and Xiang Ren. Lifelong pretraining: Continually adapting language models to emerging corpora.
+arXiv preprint arXiv:2110.08534, 2021b.
+johnsnowlabs. Jsl-med-sft-llama-3, a finetuned medical llm developed by john snow labs, 2024. URL
+https://huggingface.co/johnsnowlabs/JSL-Med-Sft-Llama-3-8B.
+Alistair EW Johnson, Tom J Pollard, Seth J Berkowitz, Nathaniel R Greenbaum, Matthew P Lungren,
+Chih-ying Deng, Roger G Mark, and Steven Horng. Mimic-cxr, a de-identified publicly available
+database of chest radiographs with free-text reports. Scientific data, 6(1):317, 2019.
+Jared Kaplan, Sam McCandlish, T. J. Henighan, Tom B. Brown, Benjamin Chess, Rewon Child, Scott
+Gray, Alec Radford, Jeff Wu, and Dario Amodei. Scaling laws for neural language models. ArXiv,
+abs/2001.08361, 2020. URL https://api.semanticscholar.org/CorpusID:210861095.
+Zixuan Ke, Haowei Lin, Yijia Shao, Hu Xu, Lei Shu, and Bing Liu. Continual training of language
+models for few-shot learning. In Empirical Methods in Natural Language Processing (EMNLP),
+2022.
+Zixuan Ke, Yijia Shao, Haowei Lin, Hu Xu, Lei Shu, and Bing Liu. Adapting a language model
+while preserving its general knowledge. arXiv preprint arXiv:2301.08986, 2023.
+James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, Joel Veness, Guillaume Desjardins, Andrei A
+Rusu, Kieran Milan, John Quan, Tiago Ramalho, Agnieszka Grabska-Barwinska, et al. Overcoming
+catastrophic forgetting in neural networks. Proceedings of the national academy of sciences, 114
+(13):3521–3526, 2017.
+Yanis Labrak, Adrien Bazoge, Emmanuel Morin, Pierre-Antoine Gourraud, Mickael Rouvier, and
+Richard Dufour. Biomistral: A collection of open-source pretrained large language models for
+medical domains. arXiv preprint arXiv:2402.10373, 2024.
+Guokun Lai, Qizhe Xie, Hanxiao Liu, Yiming Yang, and Eduard Hovy. Race: Large-scale reading
+comprehension dataset from examinations. arXiv preprint arXiv:1704.04683, 2017.
+Matthias De Lange, Gido M. van de Ven, and Tinne Tuytelaars. Continual evaluation for lifelong
+learning: Identifying the stability gap. ArXiv, abs/2205.13452, 2022. URL https://api.
+semanticscholar.org/CorpusID:249097739.
+Zhenghao Lin, Zhibin Gou, Yeyun Gong, Xiao Liu, Yelong Shen, Ruochen Xu, Chen Lin, Yujiu
+Yang, Jian Jiao, Nan Duan, et al. Rho-1: Not all tokens are what you need. arXiv preprint
+arXiv:2404.07965, 2024.
+Chen Ling, Xujiang Zhao, Jiaying Lu, Chengyuan Deng, Can Zheng, Junxiang Wang, Tanmoy
+Chowdhury, Yun-Qing Li, Hejie Cui, Xuchao Zhang, Tian yu Zhao, Amit Panalkar, Wei Cheng,
+Haoyu Wang, Yanchi Liu, Zhengzhang Chen, Haifeng Chen, Chris White, Quanquan Gu, Jian
+Pei, Carl Yang, and Liang Zhao. Domain specialization as the key to make large language
+models disruptive: A comprehensive survey. 2023. URL https://api.semanticscholar.
+org/CorpusID:259502302.
+14
+
+Wei Liu, Weihao Zeng, Keqing He, Yong Jiang, and Junxian He. What makes good data for
+alignment? a comprehensive study of automatic data selection in instruction tuning. In The Twelfth
+International Conference on Learning Representations, 2024. URL https://openreview.net/
+forum?id=BTKAeLqLMw.
+Xiao Liu, Hao Yu, Hanchen Zhang, Yifan Xu, Xuanyu Lei, Hanyu Lai, Yu Gu, Hangliang Ding,
+Kaiwen Men, Kejuan Yang, Shudan Zhang, Xiang Deng, Aohan Zeng, Zhengxiao Du, Chenhui
+Zhang, Sheng Shen, Tianjun Zhang, Yu Su, Huan Sun, Minlie Huang, Yuxiao Dong, and Jie Tang.
+Agentbench: Evaluating llms as agents. arXiv preprint arXiv: 2308.03688, 2023.
+Meta. Introducing meta llama 3: The most capable openly available llm to date, 2024. URL
+https://ai.meta.com/blog/meta-llama-3/.
+Todor Mihaylov, Peter Clark, Tushar Khot, and Ashish Sabharwal. Can a suit of armor conduct
+electricity? a new dataset for open book question answering. In Conference on Empirical
+Methods in Natural Language Processing, 2018. URL https://api.semanticscholar.org/
+CorpusID:52183757.
+Niklas Muennighoff, Alexander Rush, Boaz Barak, Teven Le Scao, Nouamane Tazi, Aleksandra
+Piktus, Sampo Pyysalo, Thomas Wolf, and Colin A Raffel. Scaling data-constrained language
+models. Advances in Neural Information Processing Systems, 36, 2024.
+Tuan Dung Nguyen, Yuan-Sen Ting, Ioana Ciucă, Charlie O’Neill, Ze-Chang Sun, Maja Jablonska,
+Sandor J. Kruk, Ernest Perkowski, Jack W. Miller, Jason Li, Josh Peek, Kartheik G. Iyer, Tomasz
+R’o.za’nski, Pranav Khetarpal, Sharaf Zaman, David Brodrick, Sergio J. Rodr’iguez M’endez,
+Thang Bui, Alyssa Goodman, Alberto Accomazzi, Jill P. Naiman, Jesse Cranney, Kevin Schawinski,
+and UniverseTBD. Astrollama: Towards specialized foundation models in astronomy. ArXiv,
+abs/2309.06126, 2023. URL https://api.semanticscholar.org/CorpusID:261696577.
+OpenAI. Gpt-4 technical report. arXiv preprint arXiv:2303.08774, 2023.
+Ankit Pal, Logesh Kumar Umapathi, and Malaikannan Sankarasubbu. Medmcqa: A large-scale
+multi-subject multi-choice dataset for medical domain question answering. In Gerardo Flores,
+George H Chen, Tom Pollard, Joyce C Ho, and Tristan Naumann, editors, Proceedings of the
+Conference on Health, Inference, and Learning, volume 174 of Proceedings of Machine Learning
+Research, pages 248–260. PMLR, 07–08 Apr 2022. URL https://proceedings.mlr.press/
+v174/pal22a.html.
+Guilherme Penedo, Quentin Malartic, Daniel Hesslow, Ruxandra Cojocaru, Alessandro Cappelli,
+Hamza Alobeidli, Baptiste Pannier, Ebtesam Almazrouei, and Julien Launay. The refinedweb
+dataset for falcon llm: outperforming curated corpora with web data, and web data only. arXiv
+preprint arXiv:2306.01116, 2023.
+Ameya Prabhu, Philip HS Torr, and Puneet K Dokania. Gdumb: A simple approach that questions
+our progress in continual learning. In Computer Vision–ECCV 2020: 16th European Conference,
+Glasgow, UK, August 23–28, 2020, Proceedings, Part II 16, pages 524–540. Springer, 2020.
+Chengwei Qin, Aston Zhang, Zhuosheng Zhang, Jiaao Chen, Michihiro Yasunaga, and Diyi
+Yang. Is chatgpt a general-purpose natural language processing task solver? arXiv preprint
+arXiv:2302.06476, 2023.
+Melissa Roemmele, Cosmin Adrian Bejan, and Andrew S Gordon. Choice of plausible alternatives:
+An evaluation of commonsense causal reasoning. In 2011 AAAI Spring Symposium Series, 2011.
+David Rolnick, Arun Ahuja, Jonathan Schwarz, Timothy Lillicrap, and Gregory Wayne. Experience
+replay for continual learning. Advances in neural information processing systems, 32, 2019.
+Keisuke Sakaguchi, Ronan Le Bras, Chandra Bhagavatula, and Yejin Choi. Winogrande: An
+adversarial winograd schema challenge at scale. Communications of the ACM, 64(9):99–106,
+2021.
+Isabel Segura-Bedmar, Paloma Martínez Fernández, and María Herrero Zazo. Semeval-2013 task 9:
+Extraction of drug-drug interactions from biomedical texts (ddiextraction 2013). Association for
+Computational Linguistics, 2013.
+15
+
+Zhiqiang Shen, Tianhua Tao, Liqun Ma, Willie Neiswanger, Joel Hestness, Natalia Vassilieva, Daria
+Soboleva, and Eric Xing. Slimpajama-dc: Understanding data combinations for llm training. arXiv
+preprint arXiv:2309.10818, 2023.
+Wenqi Shi, Ran Xu, Yuchen Zhuang, Yue Yu, Hang Wu, Carl Yang, and May Dongmei Wang.
+Medadapter: Efficient test-time adaptation of large language models towards medical reasoning.
+2024. URL https://api.semanticscholar.org/CorpusID:269605605.
+Ben Sorscher, Robert Geirhos, Shashank Shekhar, Surya Ganguli, and Ari S. Morcos. Beyond neural
+scaling laws: beating power law scaling via data pruning. ArXiv, abs/2206.14486, 2022. URL
+https://api.semanticscholar.org/CorpusID:250113273.
+Gemini Team. Gemini: A family of highly capable multimodal models. Technical report, Technical
+report, Google, 12 2023. URL https://storage. googleapis. com . . . .
+Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timothée
+Lacroix, Baptiste Rozière, Naman Goyal, Eric Hambro, Faisal Azhar, et al. Llama: Open and
+efficient foundation language models. arXiv preprint arXiv:2302.13971, 2023a.
+Hugo Touvron, Louis Martin, Kevin R. Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei,
+Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, Daniel M. Bikel, Lukas
+Blecher, Cristian Cantón Ferrer, Moya Chen, Guillem Cucurull, David Esiobu, Jude Fernandes,
+Jeremy Fu, Wenyin Fu, Brian Fuller, Cynthia Gao, Vedanuj Goswami, Naman Goyal, Anthony S.
+Hartshorn, Saghar Hosseini, Rui Hou, Hakan Inan, Marcin Kardas, Viktor Kerkez, Madian Khabsa,
+Isabel M. Kloumann, A. V. Korenev, Punit Singh Koura, Marie-Anne Lachaux, Thibaut Lavril,
+Jenya Lee, Diana Liskovich, Yinghai Lu, Yuning Mao, Xavier Martinet, Todor Mihaylov, Pushkar
+Mishra, Igor Molybog, Yixin Nie, Andrew Poulton, Jeremy Reizenstein, Rashi Rungta, Kalyan
+Saladi, Alan Schelten, Ruan Silva, Eric Michael Smith, R. Subramanian, Xia Tan, Binh Tang, Ross
+Taylor, Adina Williams, Jian Xiang Kuan, Puxin Xu, Zhengxu Yan, Iliyan Zarov, Yuchen Zhang,
+Angela Fan, Melanie Kambadur, Sharan Narang, Aurelien Rodriguez, Robert Stojnic, Sergey
+Edunov, and Thomas Scialom. Llama 2: Open foundation and fine-tuned chat models. ArXiv,
+abs/2307.09288, 2023b. URL https://api.semanticscholar.org/CorpusID:259950998.
+Lewis Tunstall, Edward Beeching, Nathan Lambert, Nazneen Rajani, Kashif Rasul, Younes Belkada,
+Shengyi Huang, Leandro von Werra, Clémentine Fourrier, Nathan Habib, Nathan Sarrazin, Omar
+Sanseviero, Alexander M. Rush, and Thomas Wolf. Zephyr: Direct distillation of lm alignment,
+2023.
+Gido M Van de Ven, Tinne Tuytelaars, and Andreas S Tolias. Three types of incremental learning.
+Nature Machine Intelligence, 4(12):1185–1197, 2022.
+Pablo Villalobos, Jaime Sevilla, Lennart Heim, Tamay Besiroglu, Marius Hobbhahn, and An Chang
+Ho. Will we run out of data? an analysis of the limits of scaling datasets in machine learning. ArXiv,
+abs/2211.04325, 2022. URL https://api.semanticscholar.org/CorpusID:253397775.
+Johannes Welbl, Nelson F. Liu, and Matt Gardner. Crowdsourcing multiple choice science questions. ArXiv, abs/1707.06209, 2017. URL https://api.semanticscholar.org/CorpusID:
+1553193.
+Chaoyi Wu, Xiaoman Zhang, Ya Zhang, Yanfeng Wang, and Weidi Xie. Pmc-llama: Towards building
+open-source language models for medicine. 2023. URL https://api.semanticscholar.org/
+CorpusID:258417843.
+Zhaofeng Wu, Robert L Logan IV, Pete Walsh, Akshita Bhagia, Dirk Groeneveld, Sameer Singh,
+and Iz Beltagy. Continued pretraining for better zero-and few-shot promptability. arXiv preprint
+arXiv:2210.10258, 2022.
+Qianqian Xie, Qingyu Chen, Aokun Chen, C.A.I. Peng, Yan Hu, Fongci Lin, Xueqing Peng, Jimin
+Huang, Jeffrey Zhang, Vipina Kuttichi Keloth, Xingyu Zhou, Huan He, Lucila Ohno-Machido,
+Yonghui Wu, Hua Xu, and Jiang Bian. Me llama: Foundation large language models for medical
+applications. ArXiv, abs/2402.12749, 2024a. URL https://api.semanticscholar.org/
+CorpusID:267759846.
+16
+
+Qianqian Xie, Qingyu Chen, Aokun Chen, Cheng Peng, Yan Hu, Fongci Lin, Xueqing Peng, Jimin
+Huang, Jeffrey Zhang, Vipina Keloth, et al. Me llama: Foundation large language models for
+medical applications. arXiv preprint arXiv:2402.12749, 2024b.
+Sang Michael Xie, Hieu Pham, Xuanyi Dong, Nan Du, Hanxiao Liu, Yifeng Lu, Percy S Liang,
+Quoc V Le, Tengyu Ma, and Adams Wei Yu. Doremi: Optimizing data mixtures speeds up
+language model pretraining. Advances in Neural Information Processing Systems, 36, 2024c.
+Fuzhao Xue, Yao Fu, Wangchunshu Zhou, Zangwei Zheng, and Yang You. To repeat or not
+to repeat: Insights from scaling llm under token-crisis. ArXiv, abs/2305.13230, 2023. URL
+https://api.semanticscholar.org/CorpusID:258833284.
+Fuzhao Xue, Yao Fu, Wangchunshu Zhou, Zangwei Zheng, and Yang You. To repeat or not to repeat:
+Insights from scaling llm under token-crisis. Advances in Neural Information Processing Systems,
+36, 2024.
+Xianjun Yang, Junfeng Gao, Wenxin Xue, and Erik Alexandersson. Pllama: An open-source large
+language model for plant science. arXiv preprint arXiv:2401.01600, 2024a.
+Yifei Yang, Zouying Cao, and Hai Zhao. Laco: Large language model pruning via layer collapse. ArXiv, abs/2402.11187, 2024b. URL https://api.semanticscholar.org/CorpusID:
+267751181.
+Çağatay Yıldız, Nishaanth Kanna Ravichandran, Prishruit Punia, Matthias Bethge, and Beyza Ermis.
+Investigating continual pretraining in large language models: Insights and implications. arXiv
+preprint arXiv:2402.17400, 2024.
+Rowan Zellers, Ari Holtzman, Yonatan Bisk, Ali Farhadi, and Yejin Choi. Hellaswag: Can a machine
+really finish your sentence? arXiv preprint arXiv:1905.07830, 2019.
+Kai Zhang, Jun Yu, Zhiling Yan, Yixin Liu, Eashan Adhikarla, Sunyang Fu, Xun Chen, Chen Chen,
+Yuyin Zhou, Xiang Li, et al. Biomedgpt: A unified and generalist biomedical generative pre-trained
+transformer for vision, language, and multimodal tasks. arXiv preprint arXiv:2305.17100, 2023a.
+Peiyuan Zhang, Guangtao Zeng, Tianduo Wang, and Wei Lu. Tinyllama: An open-source small
+language model. ArXiv, abs/2401.02385, 2024a. URL https://api.semanticscholar.org/
+CorpusID:266755802.
+Peiyuan Zhang, Guangtao Zeng, Tianduo Wang, and Wei Lu. Tinyllama: An open-source small
+language model, 2024b.
+Xinlu Zhang, Chenxin Tian, Xianjun Yang, Lichang Chen, Zekun Li, and Linda Ruth Petzold.
+Alpacare:instruction-tuned large language models for medical application, 2023b.
+Yifan Zhang, Yifan Luo, Yang Yuan, and Andrew Chi-Chih Yao. Automathtext: Autonomous data
+selection with language models for mathematical texts. ArXiv, abs/2402.07625, 2024c. URL
+https://api.semanticscholar.org/CorpusID:267627801.
+Wanjun Zhong, Ruixiang Cui, Yiduo Guo, Yaobo Liang, Shuai Lu, Yanlin Wang, Amin Saied, Weizhu
+Chen, and Nan Duan. Agieval: A human-centric benchmark for evaluating foundation models.
+arXiv preprint arXiv:2304.06364, 2023.
+Shuyan Zhou, Frank F Xu, Hao Zhu, Xuhui Zhou, Robert Lo, Abishek Sridhar, Xianyi Cheng,
+Yonatan Bisk, Daniel Fried, Uri Alon, et al. Webarena: A realistic web environment for building
+autonomous agents. arXiv preprint arXiv:2307.13854, 2023. URL https://webarena.dev.
+Alex Zhuang, Ge Zhang, Tianyu Zheng, Xinrun Du, Junjie Wang, Weiming Ren, Stephen W Huang,
+Jie Fu, Xiang Yue, and Wenhu Chen. Structlm: Towards building generalist models for structured
+knowledge grounding. arXiv preprint arXiv:2402.16671, 2024.
+
+17
+
+A
+
+The Details of Pre-training
+
+For OpenLLaMa-3B, TinyLLaMa-1B, and Pythia-410m, we download them from their official
+website. For OpenLLaMa-3B and TinyLLaMa-1B LLMs, we continually pre-train them with the
+50 billion medical tokens we constructed in Sec. 4 for one epoch. For the Pythia-410m LLM, we
+continually pre-train it with the 100 billion tokens randomly sampled from the 2021-2022 subset of
+the RefinedWeb dataset. We consider this subset as the Pile dataset only contains data before the
+year 2021 and then the tokens sampled from the 2021-2022 subset are unseen for the Pythia-410m
+model. The pre-training code is based on the transformers. The task is to predict the next token with
+a context size of 2048. The training is executed using 192 V100 GPUs. We employ the AdamW
+optimizer with β1 = 0.9, β2 = 0.95, a weight decay of 0.01, and a learning rate of 3e-4. We use a
+cosine learning rate scheduler with a 0.1 warmup ratio for gradual adaptation to training complexity
+and bf16 precision for computational efficiency. Gradient accumulation is set to 4 steps, and each
+training batch contains about 340 million tokens. We also add support for FlashAttention-2 [Dao,
+2023] for more efficient inference and long-context decoding.
+
+B
+
+Task Information
+
+For the medical evaluation, we follow Chen et al. [2023b] and mainly consider the following four
+tasks:
+MedMCQA [Pal et al., 2022] is a large-scale and comprehensive dataset for multichoice (four-option)
+medical question answering. It is derived from real-world medical entrance exam questions (Indian
+AIIMS and NEET-PG) and consists of over 194,000 high-quality medical questions. These questions
+cover 2,400 healthcare topics and 21 medical subjects, exhibiting a wide range of topical diversity.
+The average token length is 12.77.
+MedQA [Jin et al., 2021a]is a multichoice question-answering dataset collected from the professional
+medical board exam, the United States Medical License Exams (USMLE). It comprises 12,723
+questions sourced from a comprehensive collection of 18 English medical textbooks that have been
+extensively utilized by medical students and USMLE candidates. Questions in MedQA cover a wide
+range of topics in clinical medicine, necessitating responses with professional expertise and complex
+multi-hop reasoning across multiple pieces of evidence. The average question and option length is
+116.6 and 3.5, respectively.
+MMLU [Hendrycks et al., 2020b] is a comprehensive multi-task language understanding test dataset
+that encompasses 57 tasks across various domains such as mathematics, history, computer science,
+law, etc. In our experiments, we specifically focus on a subset of medical reasoning-related tasks
+including clinical knowledge, college medicine, medical genetics, and professional medicine.
+PubMedQA [Jin et al., 2019] is a biomedical question and answering dataset derived from PubMed
+abstracts. It contains 1k expert annotated multi-choice question-and-answer samples based on
+211.3k PubMed articles. The task of PubMedQA is to provide answers to research questions with
+yes/no/maybe responses based on the corresponding abstracts. The average question and context
+length is 14.4 and 238.9, respectively.
+HOC [Baker et al., 2016] is a classification task to decide the Hallmarks of Cancer (HOC) taxonomy
+of the article based on its abstract. The input is an abstract text. There are 10 topics you will
+need to decide whether the article is related to. Topics: sustaining proliferative signaling, evading
+growth suppressors, resisting cell death, enabling replicative immortality, inducing angiogenesis,
+activating invasion and metastasis, genomic instability and mutation, tumor promoting inflammation,
+and cellular energetics, and avoiding immune destruction.
+DDI 2023 [Segura-Bedmar et al., 2013] is a task to predict the relationship between the given head
+entity labeled as @DRUG1andtailentitylabeledas@DRU G2 within a given sentence, this relation
+which must be in (‘mechanism’, ‘effect’, ‘advice’, ‘int’, ’none’). mechanism: this type is used to
+annotate drug-drug interactions that are described by their pharmacokinetic mechanism. effect: this
+type is used to annotate drug-drug interactions describing an effect or a pharmacodynamic mechanism.
+advice: this type is used when a recommendation or advice regarding a drug interaction is given. int:
+this type is used when a drug-drug interaction appears in the text without providing any additional
+information. none: there are no drug-drug interactions.
+18
+
+BioNLI [Bastan et al., 2022] is a task to classify the relationship between the given medical premise
+and hypothesis into one of the following labels: entailment, contradiction, or neutral. This dataset
+contains abstracts from biomedical literature and mechanistic premises generated with nine different
+strategies.
+MIMIC-CXR [Johnson et al., 2019] is a generation task that derives the impression from findings in
+the radiology report.
+The dataset statistics are in Table 5
+
+Dataset
+
+Table 5: Dataset statistics
+# Train
+
+MedMCQA [Pal et al., 2022]
+MedQA [Jin et al., 2021a]
+MMLU [Hendrycks et al., 2020b]
+PubMedQA [Jin et al., 2019]
+HOC [Baker et al., 2016]
+DDI 2023 [Segura-Bedmar et al., 2013]
+BioNLI [Bastan et al., 2022]
+MIMIC-CXR [Bastan et al., 2022]
+
+182,822
+10178
+211,269
+1108
+1108
+5544
+122,014
+
+# Test
+
+Source
+
+4183
+1273
+163
+500
+315
+315
+6308
+1606
+
+Exam
+Exam
+Exam
+Literature
+Literature
+Literature
+Literature
+Literature
+
+For the evaluation of general task ability, we consider the following 10 commonsense tasks:
+ARC-Challenge and ARC-Easy ARC [Clark et al., 2018] is a multiple-choice question-answering
+dataset, containing questions from science exams from grade 3 to grade 9. The dataset is split into
+two partitions: Easy and Challenge, where the latter partition contains the more difficult questions
+that require reasoning. Most of the questions have 4 answer choices.
+BoolQ [Clark et al., 2019] is a question-answering dataset for yes/no questions containing 15942
+examples. These questions are naturally occurring —they are generated in unprompted and unconstrained settings. Each example is a triplet of (question, passage, answer), with the title of the page as
+optional additional context. The text-pair classification setup is similar to existing natural language
+inference tasks.
+COPA [Roemmele et al., 2011] consists of 1000 questions, split equally into development and test
+sets of 500 questions each. Each question is composed of a premise and two alternatives, where the
+task is to select the alternative that more plausibly has a causal relation with the premise.
+HellaSWAG [Zellers et al., 2019] is a dataset for studying grounded commonsense inference. It
+consists of 70k multiple choice questions about grounded situations: each question comes from one
+of two domains – activitynet or wikihow – with four answer choices about what might happen next in
+the scene. The correct answer is the (real) sentence for the next event; the three incorrect answers are
+adversarially generated and human-verified, so as to fool machines but not humans.
+OpenBookQA [Mihaylov et al., 2018] is a new kind of question-answering dataset modeled after
+open-book exams for assessing human understanding of a subject. It consists of 5,957 multiple-choice
+elementary-level science questions (4,957 train, 500 dev, 500 test), which probe the understanding of
+a small “book” of 1,326 core science facts and the application of these facts to novel situations.
+PIQA [Bisk et al., 2020] dataset introduces the task of physical commonsense reasoning and a
+corresponding benchmark dataset Physical Interaction: Question Answering or PIQA. Physical
+commonsense knowledge is a major challenge on the road to true AI-completeness, including robots
+that interact with the world and understand natural language. PIQA focuses on everyday situations
+with a preference for atypical solutions.
+Race [Lai et al., 2017] is a large-scale reading comprehension dataset with more than 28,000 passages
+and nearly 100,000 questions. The dataset is collected from English examinations in China, which
+are designed for middle school and high school students. The dataset can serve as the training and
+test sets for machine comprehension.
+SciQ [Welbl et al., 2017] dataset contains 13,679 crowdsourced science exam questions about Physics,
+Chemistry and Biology, among others. The questions are in multiple-choice format with 4 answer
+19
+
+options each. For the majority of the questions, an additional paragraph with supporting evidence for
+the correct answer is provided.
+WinoGrande [Sakaguchi et al., 2021] is a new collection of 44k problems, inspired by the Winograd
+Schema Challenge (Levesque, Davis, and Morgenstern 2011), but adjusted to improve the scale and
+robustness against the dataset-specific bias. Formulated as a fill-in-a-blank task with binary options,
+the goal is to choose the right option for a given sentence which requires commonsense reasoning.
+We use the lm-eval-harness [Gao et al., 2023] to evaluate the LLM on these tasks’ test set and report
+the zero-shot performance.
+
+C
+
+The Perplexity and relative parameter update rate of the LLM using our
+strategies
+
+Figure 7: (a) reports the average medical perplexity of the OpenLLaMa-3B using our strategies. ’5b
+HQ’ means the LLM using our strategies I and II. ’5b rate-fixed-data-dynamic’ means the LLM
+using our three strategies. ’Baseline’ is the average medical perplexity of the OpenLLaMa-3B model
+that has been continually pre-trained with 50 billion medical tokens. (b) shows the rate between the
+bottom 5 layers’ average relative parameter and the top 5 layers’ average relative parameter update of
+the OpenLLaMa-3B using our strategies. ’Baseline’ is the rate of the OpenLLaMa-3B model during
+the continual pre-training with 50 billion medical tokens.
+From Figure 7(a), we observe that the LLM using our strategies gradually decreases its average
+medical perplexity, indicating that the LLM is acquiring rich medical knowledge. Its average medical
+perplexity at the fourth epoch is even lower than that of the OpenLLaMa-3B model, which has been
+continually pre-trained with 50 billion medical tokens. From Figure 7(b), we also find that the ratio
+between the average relative parameter updates of the bottom 5 layers and the top 5 layers of the
+OpenLLaMa-3B model using our strategies is closer to 1. This suggests that the plasticity gradient
+and the stability gradient are more balanced when employing our strategies.
+
+D
+
+Deploying our strategies into the general continual pre-training setting
+
+Continually pre-training one LLM on another large corpus is an approach to boost its general ability
+[Gupta et al., 2023]. We consider the scenario of continually pre-training the Pythia-410m model on
+the RefinedWeb dataset. The Pythia-410m model has been pre-trained on the Pile dataset. In this
+context, we use the average performance of 10 commonsense and reading comprehension tasks, as
+detailed in Appendix B, to measure the LLM’s general task performance. To test the effectiveness
+of strategy I in the general continual pre-training setting, we conduct multi-epoch experiments with
+different training subset sizes. The tokens in each training subset are randomly sampled from the
+RefinedWeb dataset and the computational consumption of each experiment can not be beyond
+the compute budget (100 billion tokens). From Figure 8, we find that strategy I indeed helps the
+Pythia-410m model to mitigate the stability gap and achieve better peak performance. We also find
+the best performance among our experiments is achieved when pre-training the LLM with 11 billion
+tokens for 7 epochs. However, we can not find a good quality filter for the second strategy. We
+have tried to train a KenLM on WikiText as the quality filter for measuring the sample’s quality in
+20
+
+Figure 8: We report the average performance of the 10 commonsense and reading compression task
+here. The Model is Pythia-410m.
+improving LLMs’ general ability. But it does not work. From Figure 8, we find that strategies I and
+III can help the LLM to overcome the stability gap and achieve higher performance.
+
+E
+
+The Training Details of Deploying our Strategies into the Llama-3 Model
+
+Pre-training details: The pre-training task is to predict the next token with a context size of 8192.
+The training is executed using 16 H100 80GB GPUs. We employ the AdamW optimizer with
+β1 = 0.9, β2 = 0.95, a weight decay of 0.01, and a learning rate of 3e-5. We use a cosine learning
+rate scheduler with a 0.1 warmup ratio for gradual adaptation to training complexity and bf16
+precision for computational efficiency. Gradient accumulation is set to 12 steps, and each training
+batch contains about 340 million tokens. We also add support for FlashAttention-2 [Dao, 2023] for
+more efficient inference and long-context decoding.
+Task-specific finetuning details: We employ the AdamW optimizer with a weight decay of 0.01 and
+a learning rate of 3e-5. We use a cosine learning rate schedule with a 10% warmup ratio, decaying
+the final learning rate to 10% of the peak learning rate. We fine-tune the LLMs for 3 epochs.
+Instructions-tuning details: We consider the combination of the training set of MedMCQA [Pal
+et al., 2022], MedQA [Jin et al., 2021a], PubMedQA [Jin et al., 2019], HOC [Baker et al., 2016],
+DDI2013 [Segura-Bedmar et al., 2013], BioNLI [Bastan et al., 2022], and MIMIC-CXR [Johnson
+et al., 2019] tasks . To avoid potential data contamination, for each test sample of MedQA [Jin
+et al., 2021a], PubMedQA [Jin et al., 2019], and MedMCQA [Pal et al., 2022] tasks, we delete
+the training samples that contain its option. For the training samples of theMedQA [Jin et al.,
+2021a],PubMedQA [Jin et al., 2019], and MedMCQA [Pal et al., 2022] tasks, we use the instruction
+template from the Meditron paper [Chen et al., 2023b]. For the other datasets’ training samples, we
+use their original instructions. We employ the AdamW optimizer with a weight decay of 0.01 and a
+learning rate of 3e-5. We use a cosine learning rate schedule with a 10% warmup ratio, decaying the
+final learning rate to 10% of the peak learning rate. We fine-tune the LLMs for 3 epochs. The global
+batch size is 96 and max sequence length is 1024.
+
+21
+
+NeurIPS Paper Checklist
+The checklist is designed to encourage best practices for responsible machine learning research,
+addressing issues of reproducibility, transparency, research ethics, and societal impact. Do not remove
+the checklist: The papers not including the checklist will be desk rejected. The checklist should
+follow the references and precede the (optional) supplemental material. The checklist does NOT
+count towards the page limit.
+Please read the checklist guidelines carefully for information on how to answer these questions. For
+each question in the checklist:
+• You should answer [Yes] , [No] , or [NA] .
+• [NA] means either that the question is Not Applicable for that particular paper or the
+relevant information is Not Available.
+• Please provide a short (1–2 sentence) justification right after your answer (even for NA).
+The checklist answers are an integral part of your paper submission. They are visible to the
+reviewers, area chairs, senior area chairs, and ethics reviewers. You will be asked to also include it
+(after eventual revisions) with the final version of your paper, and its final version will be published
+with the paper.
+The reviewers of your paper will be asked to use the checklist as one of the factors in their evaluation.
+While "[Yes] " is generally preferable to "[No] ", it is perfectly acceptable to answer "[No] " provided a
+proper justification is given (e.g., "error bars are not reported because it would be too computationally
+expensive" or "we were unable to find the license for the dataset we used"). In general, answering
+"[No] " or "[NA] " is not grounds for rejection. While the questions are phrased in a binary way, we
+acknowledge that the true answer is often more nuanced, so please just use your best judgment and
+write a justification to elaborate. All supporting evidence can appear either in the main paper or the
+supplemental material, provided in appendix. If you answer [Yes] to a question, in the justification
+please point to the section(s) where related material for the question can be found.
+IMPORTANT, please:
+• Delete this instruction block, but keep the section heading “NeurIPS paper checklist",
+• Keep the checklist subsection headings, questions/answers and guidelines below.
+• Do not modify the questions and only use the provided macros for your answers.
+1. Claims
+Question: Do the main claims made in the abstract and introduction accurately reflect the
+paper’s contributions and scope?
+Answer: [Yes]
+Justification: Our abstract and introduction clearly state the claims made, including the
+contributions made in the paper.
+Guidelines:
+• The answer NA means that the abstract and introduction do not include the claims
+made in the paper.
+• The abstract and/or introduction should clearly state the claims made, including the
+contributions made in the paper and important assumptions and limitations. A No or
+NA answer to this question will not be perceived well by the reviewers.
+• The claims made should match theoretical and experimental results, and reflect how
+much the results can be expected to generalize to other settings.
+• It is fine to include aspirational goals as motivation as long as it is clear that these goals
+are not attained by the paper.
+2. Limitations
+Question: Does the paper discuss the limitations of the work performed by the authors?
+Answer: [Yes]
+22
+
+Justification: Yes, we discuss our limitations after the conclusion section.
+Guidelines:
+• The answer NA means that the paper has no limitation while the answer No means that
+the paper has limitations, but those are not discussed in the paper.
+• The authors are encouraged to create a separate "Limitations" section in their paper.
+• The paper should point out any strong assumptions and how robust the results are to
+violations of these assumptions (e.g., independence assumptions, noiseless settings,
+model well-specification, asymptotic approximations only holding locally). The authors
+should reflect on how these assumptions might be violated in practice and what the
+implications would be.
+• The authors should reflect on the scope of the claims made, e.g., if the approach was
+only tested on a few datasets or with a few runs. In general, empirical results often
+depend on implicit assumptions, which should be articulated.
+• The authors should reflect on the factors that influence the performance of the approach.
+For example, a facial recognition algorithm may perform poorly when image resolution
+is low or images are taken in low lighting. Or a speech-to-text system might not be
+used reliably to provide closed captions for online lectures because it fails to handle
+technical jargon.
+• The authors should discuss the computational efficiency of the proposed algorithms
+and how they scale with dataset size.
+• If applicable, the authors should discuss possible limitations of their approach to
+address problems of privacy and fairness.
+• While the authors might fear that complete honesty about limitations might be used by
+reviewers as grounds for rejection, a worse outcome might be that reviewers discover
+limitations that aren’t acknowledged in the paper. The authors should use their best
+judgment and recognize that individual actions in favor of transparency play an important role in developing norms that preserve the integrity of the community. Reviewers
+will be specifically instructed to not penalize honesty concerning limitations.
+3. Theory Assumptions and Proofs
+Question: For each theoretical result, does the paper provide the full set of assumptions and
+a complete (and correct) proof?
+Answer: [NA]
+Justification: We focus on the behavior of LLMs during continual pre-training. [TODO]
+Guidelines:
+• The answer NA means that the paper does not include theoretical results.
+• All the theorems, formulas, and proofs in the paper should be numbered and crossreferenced.
+• All assumptions should be clearly stated or referenced in the statement of any theorems.
+• The proofs can either appear in the main paper or the supplemental material, but if
+they appear in the supplemental material, the authors are encouraged to provide a short
+proof sketch to provide intuition.
+• Inversely, any informal proof provided in the core of the paper should be complemented
+by formal proofs provided in appendix or supplemental material.
+• Theorems and Lemmas that the proof relies upon should be properly referenced.
+4. Experimental Result Reproducibility
+Question: Does the paper fully disclose all the information needed to reproduce the main experimental results of the paper to the extent that it affects the main claims and/or conclusions
+of the paper (regardless of whether the code and data are provided or not)?
+Answer: [Yes]
+Justification: We list all experimental details in the evaluation section and appendixes. We
+will release our models in public (e.g., HuggingFace).
+Guidelines:
+23
+
+• The answer NA means that the paper does not include experiments.
+• If the paper includes experiments, a No answer to this question will not be perceived
+well by the reviewers: Making the paper reproducible is important, regardless of
+whether the code and data are provided or not.
+• If the contribution is a dataset and/or model, the authors should describe the steps taken
+to make their results reproducible or verifiable.
+• Depending on the contribution, reproducibility can be accomplished in various ways.
+For example, if the contribution is a novel architecture, describing the architecture fully
+might suffice, or if the contribution is a specific model and empirical evaluation, it may
+be necessary to either make it possible for others to replicate the model with the same
+dataset, or provide access to the model. In general. releasing code and data is often
+one good way to accomplish this, but reproducibility can also be provided via detailed
+instructions for how to replicate the results, access to a hosted model (e.g., in the case
+of a large language model), releasing of a model checkpoint, or other means that are
+appropriate to the research performed.
+• While NeurIPS does not require releasing code, the conference does require all submissions to provide some reasonable avenue for reproducibility, which may depend on the
+nature of the contribution. For example
+(a) If the contribution is primarily a new algorithm, the paper should make it clear how
+to reproduce that algorithm.
+(b) If the contribution is primarily a new model architecture, the paper should describe
+the architecture clearly and fully.
+(c) If the contribution is a new model (e.g., a large language model), then there should
+either be a way to access this model for reproducing the results or a way to reproduce
+the model (e.g., with an open-source dataset or instructions for how to construct
+the dataset).
+(d) We recognize that reproducibility may be tricky in some cases, in which case
+authors are welcome to describe the particular way they provide for reproducibility.
+In the case of closed-source models, it may be that access to the model is limited in
+some way (e.g., to registered users), but it should be possible for other researchers
+to have some path to reproducing or verifying the results.
+5. Open access to data and code
+Question: Does the paper provide open access to the data and code, with sufficient instructions to faithfully reproduce the main experimental results, as described in supplemental
+material?
+Answer: [Yes]
+Justification: The pre-training data is too large to put it into the material. The fine-tuning
+data is open-source. We will release the code and relevant data to reproduce our results
+soon.
+Guidelines:
+• The answer NA means that paper does not include experiments requiring code.
+• Please see the NeurIPS code and data submission guidelines (https://nips.cc/
+public/guides/CodeSubmissionPolicy) for more details.
+• While we encourage the release of code and data, we understand that this might not be
+possible, so “No” is an acceptable answer. Papers cannot be rejected simply for not
+including code, unless this is central to the contribution (e.g., for a new open-source
+benchmark).
+• The instructions should contain the exact command and environment needed to run to
+reproduce the results. See the NeurIPS code and data submission guidelines (https:
+//nips.cc/public/guides/CodeSubmissionPolicy) for more details.
+• The authors should provide instructions on data access and preparation, including how
+to access the raw data, preprocessed data, intermediate data, and generated data, etc.
+• The authors should provide scripts to reproduce all experimental results for the new
+proposed method and baselines. If only a subset of experiments are reproducible, they
+should state which ones are omitted from the script and why.
+24
+
+• At submission time, to preserve anonymity, the authors should release anonymized
+versions (if applicable).
+• Providing as much information as possible in supplemental material (appended to the
+paper) is recommended, but including URLs to data and code is permitted.
+6. Experimental Setting/Details
+Question: Does the paper specify all the training and test details (e.g., data splits, hyperweights, how they were chosen, type of optimizer, etc.) necessary to understand the
+results?
+Answer: [Yes]
+Justification: We write all the training and test details in the evaluation section and appendixes.
+Guidelines:
+• The answer NA means that the paper does not include experiments.
+• The experimental setting should be presented in the core of the paper to a level of detail
+that is necessary to appreciate the results and make sense of them.
+• The full details can be provided either with the code, in appendix, or as supplemental
+material.
+7. Experiment Statistical Significance
+Question: Does the paper report error bars suitably and correctly defined or other appropriate
+information about the statistical significance of the experiments?
+Answer: [No]
+Justification: [TODO]
+Guidelines:
+• The answer NA means that the paper does not include experiments.
+• The authors should answer "Yes" if the results are accompanied by error bars, confidence intervals, or statistical significance tests, at least for the experiments that support
+the main claims of the paper.
+• The factors of variability that the error bars are capturing should be clearly stated (for
+example, train/test split, initialization, random drawing of some parameter, or overall
+run with given experimental conditions).
+• The method for calculating the error bars should be explained (closed form formula,
+call to a library function, bootstrap, etc.)
+• The assumptions made should be given (e.g., Normally distributed errors).
+• It should be clear whether the error bar is the standard deviation or the standard error
+of the mean.
+• It is OK to report 1-sigma error bars, but one should state it. The authors should
+preferably report a 2-sigma error bar than state that they have a 96% CI, if the hypothesis
+of Normality of errors is not verified.
+• For asymmetric distributions, the authors should be careful not to show in tables or
+figures symmetric error bars that would yield results that are out of range (e.g. negative
+error rates).
+• If error bars are reported in tables or plots, The authors should explain in the text how
+they were calculated and reference the corresponding figures or tables in the text.
+8. Experiments Compute Resources
+Question: For each experiment, does the paper provide sufficient information on the computer resources (type of compute workers, memory, time of execution) needed to reproduce
+the experiments?
+Answer: [Yes]
+Justification: See the evaluation section and appendixes.
+Guidelines:
+• The answer NA means that the paper does not include experiments.
+25
+
+• The paper should indicate the type of compute workers CPU or GPU, internal cluster,
+or cloud provider, including relevant memory and storage.
+• The paper should provide the amount of compute required for each of the individual
+experimental runs as well as estimate the total compute.
+• The paper should disclose whether the full research project required more compute
+than the experiments reported in the paper (e.g., preliminary or failed experiments that
+didn’t make it into the paper).
+9. Code Of Ethics
+Question: Does the research conducted in the paper conform, in every respect, with the
+NeurIPS Code of Ethics https://neurips.cc/public/EthicsGuidelines?
+Answer: [Yes]
+Justification: We conform with the NeurIPS Code of Ethics.
+Guidelines:
+• The answer NA means that the authors have not reviewed the NeurIPS Code of Ethics.
+• If the authors answer No, they should explain the special circumstances that require a
+deviation from the Code of Ethics.
+• The authors should make sure to preserve anonymity (e.g., if there is a special consideration due to laws or regulations in their jurisdiction).
+10. Broader Impacts
+Question: Does the paper discuss both potential positive societal impacts and negative
+societal impacts of the work performed?
+Answer: [Yes]
+Justification: Yes, please read the paragraph after the conclusion section.
+Guidelines:
+• The answer NA means that there is no societal impact of the work performed.
+• If the authors answer NA or No, they should explain why their work has no societal
+impact or why the paper does not address societal impact.
+• Examples of negative societal impacts include potential malicious or unintended uses
+(e.g., disinformation, generating fake profiles, surveillance), fairness considerations
+(e.g., deployment of technologies that could make decisions that unfairly impact specific
+groups), privacy considerations, and security considerations.
+• The conference expects that many papers will be foundational research and not tied
+to particular applications, let alone deployments. However, if there is a direct path to
+any negative applications, the authors should point it out. For example, it is legitimate
+to point out that an improvement in the quality of generative models could be used to
+generate deepfakes for disinformation. On the other hand, it is not needed to point out
+that a generic algorithm for optimizing neural networks could enable people to train
+models that generate Deepfakes faster.
+• The authors should consider possible harms that could arise when the technology is
+being used as intended and functioning correctly, harms that could arise when the
+technology is being used as intended but gives incorrect results, and harms following
+from (intentional or unintentional) misuse of the technology.
+• If there are negative societal impacts, the authors could also discuss possible mitigation
+strategies (e.g., gated release of models, providing defenses in addition to attacks,
+mechanisms for monitoring misuse, mechanisms to monitor how a system learns from
+feedback over time, improving the efficiency and accessibility of ML).
+11. Safeguards
+Question: Does the paper describe safeguards that have been put in place for responsible
+release of data or models that have a high risk for misuse (e.g., pre-trained language models,
+image generators, or scraped datasets)?
+Answer: [Yes]
+Justification: Yes, we describe it in the paragraph after the conclusion section.
+26
+
+Guidelines:
+• The answer NA means that the paper poses no such risks.
+• Released models that have a high risk for misuse or dual-use should be released with
+necessary safeguards to allow for controlled use of the model, for example by requiring
+that users adhere to usage guidelines or restrictions to access the model or implementing
+safety filters.
+• Datasets that have been scraped from the Internet could pose safety risks. The authors
+should describe how they avoided releasing unsafe images.
+• We recognize that providing effective safeguards is challenging, and many papers do
+not require this, but we encourage authors to take this into account and make a best
+faith effort.
+12. Licenses for existing assets
+Question: Are the creators or original owners of assets (e.g., code, data, models), used in
+the paper, properly credited and are the license and terms of use explicitly mentioned and
+properly respected?
+Answer: [Yes]
+Justification: Yes, we properly credit them.
+Guidelines:
+• The answer NA means that the paper does not use existing assets.
+• The authors should cite the original paper that produced the code package or dataset.
+• The authors should state which version of the asset is used and, if possible, include a
+URL.
+• The name of the license (e.g., CC-BY 4.0) should be included for each asset.
+• For scraped data from a particular source (e.g., website), the copyright and terms of
+service of that source should be provided.
+• If assets are released, the license, copyright information, and terms of use in the
+package should be provided. For popular datasets, paperswithcode.com/datasets
+has curated licenses for some datasets. Their licensing guide can help determine the
+license of a dataset.
+• For existing datasets that are re-packaged, both the original license and the license of
+the derived asset (if it has changed) should be provided.
+• If this information is not available online, the authors are encouraged to reach out to
+the asset’s creators.
+13. New Assets
+Question: Are new assets introduced in the paper well documented and is the documentation
+provided alongside the assets?
+Answer: [Yes]
+Justification: Yes, we introduce the details of our new models in the main paper.
+Guidelines:
+• The answer NA means that the paper does not release new assets.
+• Researchers should communicate the details of the dataset/code/model as part of their
+submissions via structured templates. This includes details about training, license,
+limitations, etc.
+• The paper should discuss whether and how consent was obtained from people whose
+asset is used.
+• At submission time, remember to anonymize your assets (if applicable). You can either
+create an anonymized URL or include an anonymized zip file.
+14. Crowdsourcing and Research with Human Subjects
+Question: For crowdsourcing experiments and research with human subjects, does the paper
+include the full text of instructions given to participants and screenshots, if applicable, as
+well as details about compensation (if any)?
+27
+
+Answer: [NA]
+Justification: The paper does not involve crowdsourcing nor research with human subjects.
+Guidelines:
+• The answer NA means that the paper does not involve crowdsourcing nor research with
+human subjects.
+• Including this information in the supplemental material is fine, but if the main contribution of the paper involves human subjects, then as much detail as possible should be
+included in the main paper.
+• According to the NeurIPS Code of Ethics, workers involved in data collection, curation,
+or other labor should be paid at least the minimum wage in the country of the data
+collector.
+15. Institutional Review Board (IRB) Approvals or Equivalent for Research with Human
+Subjects
+Question: Does the paper describe potential risks incurred by study participants, whether
+such risks were disclosed to the subjects, and whether Institutional Review Board (IRB)
+approvals (or an equivalent approval/review based on the requirements of your country or
+institution) were obtained?
+Answer: [NA]
+Justification: The paper does not involve crowdsourcing nor research with human subjects.
+Guidelines:
+• The answer NA means that the paper does not involve crowdsourcing nor research with
+human subjects.
+• Depending on the country in which research is conducted, IRB approval (or equivalent)
+may be required for any human subjects research. If you obtained IRB approval, you
+should clearly state this in the paper.
+• We recognize that the procedures for this may vary significantly between institutions
+and locations, and we expect authors to adhere to the NeurIPS Code of Ethics and the
+guidelines for their institution.
+• For initial submissions, do not include any information that would break anonymity (if
+applicable), such as the institution conducting the review.
+
+28
+
+

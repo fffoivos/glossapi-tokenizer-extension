@@ -84,6 +84,25 @@ arms — that's what makes the comparison apples-to-apples.
 
 **Total bakeoff tokens consumed**: 3 × 2 B = 6 B. At our ~14.4 M-doc / ~26–38 B-token post-dedup pool, this is well inside one epoch. Each arm sees 2 B tokens; the three arms share a deterministic dataloader-seed so token streams across arms are *identical up to the init point*.
 
+## 4.1 Loss measurement policy
+
+Raw Megatron `lm loss` is per-target-token cross entropy in nats. It is useful
+for health, instability, and within-arm trajectories, but it is not a fair
+Vanilla-vs-extended score because the arms have different vocab sizes and
+different tokenizer compression rates.
+
+Cross-arm loss comparisons use heldout **BPB**: bits per UTF-8 byte on the same
+heldout text, produced by
+[`eval/compute_tokenizer_fair_metrics.py`](eval/compute_tokenizer_fair_metrics.py).
+Older reports and JSONs may call this `BPC` / `bpc_bits_per_byte`; that is a
+legacy bits-per-byte alias, not bits per character. Character-normalized NLL is
+reported separately as `nll_per_char`.
+
+When patched Megatron logs include dense `bpb`, `bpt`, `base_loss`,
+`new_loss`, and `n_new`, read them as measurement-only telemetry computed over
+the same loss-mask positions as optimizer `lm loss`. Heldout checkpoint BPB and
+downstream evals remain the selection anchor.
+
 ## 5. Slurm shape
 
 Per [`../AUTH_AND_NODE_FINDING.md`](../AUTH_AND_NODE_FINDING.md) § 6:

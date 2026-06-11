@@ -1,0 +1,27 @@
+{
+  "annotation_template_jsonl": "reports/heldout_validation_slice_20260606T120000Z_annotation_template.jsonl",
+  "created_at_utc": "20260606T120000Z",
+  "input_rows": 2278,
+  "markdown": "reports/heldout_validation_slice_20260606T120000Z.md",
+  "quota": {
+    "action::drop_doc": 40,
+    "action::quarantine": 40,
+    "action::trim_prefix": 17,
+    "global_random_unseen": 40,
+    "nohit_keep_control": 40,
+    "source_policy_signal": 30,
+    "url_router_signal": 30
+  },
+  "review_pack_jsonl": "reports/heldout_validation_slice_20260606T120000Z.jsonl",
+  "selected_by_set": {
+    "action::drop_doc": 40,
+    "action::quarantine": 40,
+    "action::trim_prefix": 17,
+    "global_random_unseen": 40,
+    "nohit_keep_control": 40,
+    "source_policy_signal": 30,
+    "url_router_signal": 30
+  },
+  "selected_rows": 237,
+  "selected_unique_source_docs": 237
+}

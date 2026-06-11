@@ -7,14 +7,13 @@ confound.
 
 Hyperparam docs: `goal/hyperparameters.json` is the authoritative
 machine-readable source for sbatch generation. The human-readable table is in
-`../cpt-plan.md` section 2.1, with decision rationale in sections 2.4-2.5.
+`../_archive/superseded_drafts/task1_20260601/cpt-plan.md` section 2.1, with decision rationale in sections 2.4-2.5.
 Smoke evidence lives in `../RUN_LOG_20260528.md`.
 
 Future-experiment note: the main result to carry forward is this corrected
-hyperparameter regime. Task-2 and later runs should use
-`goal/hyperparameters.json` as the fixed starting point, varying only the
-explicit experiment dimensions unless a run is labeled as a hyperparameter
-ablation.
+hyperparameter regime. Task-2 and later runs should use this Vanilla
+`goal/hyperparameters.json` as the fixed regime baseline, while their active
+goals and launch scripts live in their own subproject.
 
 ## Fixed Scope
 

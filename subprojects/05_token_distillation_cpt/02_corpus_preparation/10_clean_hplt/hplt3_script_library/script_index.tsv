@@ -1,0 +1,41 @@
+stage	repo	ref	path	role_for_hplt	role_for_us
+dataset_readme	HPLT/HPLT3.0	live-2026-06-05	README.md	Documents the HPLT 3 stack and released metadata.	Source-backed overview of what upstream already applied.
+warc_extraction	warc2text-runner	0b88ccc8f439d4375d880ff2ca2b385b903c00ff	three/README.MD	Reproduction notes for HPLT v3 extraction.	Explains extraction assumptions and likely residual extraction gaps.
+warc_extraction	warc2text-runner	0b88ccc8f439d4375d880ff2ca2b385b903c00ff	one/run_warc2text.sh	Older runner pattern for parallel WARC text extraction.	Reference for raw-to-text extraction stage shape.
+warc_extraction	warc2text-runner	0b88ccc8f439d4375d880ff2ca2b385b903c00ff	three/ia_transfer_content_enc/warcio-warc2text.py	HPLT v3 WARC-to-text support script.	Reference for extraction residue risk.
+html_language_metadata	warc2text-runner	0b88ccc8f439d4375d880ff2ca2b385b903c00ff	three/langdiff/add_htmllang_tld.sh	Add HTML-language/TLD comparison support data.	Helps distinguish LID correctness from main-text cleanliness.
+language_thresholding	warc2text-runner	0b88ccc8f439d4375d880ff2ca2b385b903c00ff	three/lid_thresholding/stage2outputs_lid_thresh.ipynb	HPLT v3 LID thresholding analysis artifact.	Reference for why Greek LID confidence is not enough.
+robots	warc2text-runner	0b88ccc8f439d4375d880ff2ca2b385b903c00ff	robotstxt/filter_robotstxt.sh	Robots filtering analysis support.	Clarifies that compliance filtering is separate from content repair.
+robots	warc2text-runner	0b88ccc8f439d4375d880ff2ca2b385b903c00ff	robotstxt/warc2requesturls.sh	Extract request URLs for robots analysis.	Provenance support only.
+merge_and_language_batching	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	00.merge-batching.sh	Merge WARC metadata/text/language files and batch by language.	Shows where rows become line-aligned language batches.
+merge_and_language_batching	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	01.merge-text-meta	Merge worker for metadata and extracted text.	Provenance for fields we should preserve.
+merge_and_language_batching	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	02.split-lang	Split merged rows by detected language.	Explains why Greek rows can still contain mixed side material.
+merge_and_language_batching	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	scripts/split-lang.py	Language split implementation.	Reference for language-batch semantics.
+robots	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	09.robotstxt	Robots processing stage.	Compliance provenance, not text cleanliness.
+robots	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	scripts/robots2tsv.py	Convert robots outputs to disallowed URL TSV.	Explains robotstxt field source.
+dedup	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	10.dedup.sh	Orchestrate index and dedup jobs.	Confirms dedup is document-level, not row repair.
+dedup	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	10.index	Build MinHash/LSH index.	Reference for near-dedup stage.
+dedup	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	10.dedup	Remove near-duplicate documents from clusters.	Does not prevent attached multi-text rows.
+dedup	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	utils/src/minhash_processor.rs	MinHash processing utility.	Reference for dedup feature generation.
+dedup	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	utils/src/indexer.rs	Indexing utility.	Reference for dedup index semantics.
+dedup	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	utils/src/dedup.rs	Dedup utility.	Reference for document-level removal behavior.
+dedup	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	scripts/exactdups.py	Exact duplicate inspection helper.	Useful comparison point for local duplicate diagnostics.
+dedup	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	scripts/check-duplicates.sh	Duplicate check helper.	Useful comparison point for local duplicate diagnostics.
+dedup	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	scripts/show-dups.sh	Duplicate display helper.	Useful comparison point for local duplicate diagnostics.
+annotation_and_filter_signals	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	20.processing.sh	Annotation stage wrapper.	Shows where filter signals and WDS annotations enter.
+annotation_and_filter_signals	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	20.processing	Annotation worker.	Runtime shape for annotation/filter processing.
+annotation_and_filter_signals	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	scripts/annotate.py	Add IDs, LID, monofixer/bifixer fixes, PII, adult/filter flags, WDS scores.	Key upstream text/filter script whose residual gaps our pass audits.
+final_clean	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	30.clean.sh	Orchestrate final clean stage.	Confirms final HPLT clean is mostly filtering, not fine-grained repair.
+final_clean	monotextor-slurm	v2.0 63c6d8f422f505c3b8b793793c26868d8e06e1cf	30.clean	Keep rows with filter keep, robotstxt allowed, WDS score >= 5.	Baseline for why high-WDS rows can still contain local artifacts.
+quality_scoring	web-docs-scorer	743d13184d704b264556c805512fb252e4f4a2b9	src/docscorer/docscorer.py	Compute document quality score/subscores.	Use WDS as stratification, not proof of clean text.
+quality_scoring	web-docs-scorer	743d13184d704b264556c805512fb252e4f4a2b9	src/docscorer/configuration.py	Configure scorer features/thresholds.	Reference for interpreting WDS components.
+quality_scoring	web-docs-scorer	743d13184d704b264556c805512fb252e4f4a2b9	src/docscorer/cli.py	CLI entrypoint for document scoring.	Reference for reproducible scorer invocation.
+quality_scoring	web-docs-scorer	743d13184d704b264556c805512fb252e4f4a2b9	src/docscorer/scorers/lang_scorer.py	Score language-share quality.	Stratify possible language-drift artifacts.
+quality_scoring	web-docs-scorer	743d13184d704b264556c805512fb252e4f4a2b9	src/docscorer/scorers/repeated_scorer.py	Score repeated-content signals.	Baseline for local repeated-boilerplate checks.
+quality_scoring	web-docs-scorer	743d13184d704b264556c805512fb252e4f4a2b9	src/docscorer/scorers/url_scorer.py	Score URL density.	Baseline for URL/path dump residuals.
+quality_scoring	web-docs-scorer	743d13184d704b264556c805512fb252e4f4a2b9	src/docscorer/scorers/short_segments_score.py	Score short-segment behavior.	Baseline for menu/list-like residuals.
+quality_scoring	web-docs-scorer	743d13184d704b264556c805512fb252e4f4a2b9	src/docscorer/scorers/long_texts_scorer.py	Score useful long segments.	Baseline for main-body presence.
+quality_scoring	web-docs-scorer	743d13184d704b264556c805512fb252e4f4a2b9	src/docscorer/scorers/punct_scorer.py	Score punctuation behavior.	Baseline for malformed segments.
+quality_scoring	web-docs-scorer	743d13184d704b264556c805512fb252e4f4a2b9	src/docscorer/scorers/numbers_scorer.py	Score numeric density.	Baseline for tables/lists and numeric spam.
+quality_scoring	web-docs-scorer	743d13184d704b264556c805512fb252e4f4a2b9	src/docscorer/scorers/singular_chars_scorer.py	Score singular-character density.	Baseline for symbol/encoding residue.
+quality_scoring	web-docs-scorer	743d13184d704b264556c805512fb252e4f4a2b9	src/docscorer/scorers/informativeness_scorer.py	Score informativeness.	Baseline for SEO/list/non-body residuals.

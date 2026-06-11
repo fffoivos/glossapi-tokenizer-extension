@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Symlink loader_apertus_hf.py into swiss-ai/Megatron-LM/tools/checkpoint/
-# so `convert.py --loader apertus_hf …` can find it.
+# Symlink the Apertus loader plus the Swiss-AI saver plugins into
+# swiss-ai/Megatron-LM/tools/checkpoint/ so checkpoint conversion can find them.
 #
 # Run this once after cloning swiss-ai/Megatron-LM on Clariden (or any host).
 # Idempotent — uses ln -sf.
@@ -25,25 +25,40 @@ if [ ! -d "$TARGET_DIR" ]; then
     exit 2
 fi
 
-SRC="$(cd "$(dirname "$0")" && pwd)/loader_apertus_hf.py"
-DEST="$TARGET_DIR/loader_apertus_hf.py"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-ln -sf "$SRC" "$DEST"
-echo "✓ symlinked $DEST → $SRC"
+for plugin in loader_apertus_hf.py saver_core.py saver_swissai_hf.py schema_core.py schema_base.py utils.py; do
+    src="$SCRIPT_DIR/$plugin"
+    dest="$TARGET_DIR/$plugin"
+    if [ ! -f "$src" ]; then
+        echo "ERROR: missing plugin source: $src" >&2
+        exit 3
+    fi
+    ln -sf "$src" "$dest"
+    echo "✓ symlinked $dest → $src"
+done
 
-# Sanity: ast-parse the loader (doesn't require torch/Megatron — runs anywhere).
-# A real import-check happens implicitly when convert.py loads the loader,
-# inside the Megatron pytorch env at Clariden setup time.
+# Sanity: ast-parse the plugins (doesn't require torch/Megatron — runs anywhere).
+# A real import-check happens implicitly when convert.py loads them, inside the
+# Megatron pytorch env at Clariden setup time.
 python3 -c "
 import ast
-with open('$DEST') as f:
-    code = f.read()
-tree = ast.parse(code)
-funcs = sorted(n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef))
-assert 'add_arguments' in funcs and 'load_checkpoint' in funcs, \
-    f'loader contract missing required functions: {funcs}'
-print('✓ loader_apertus_hf parses + has add_arguments + load_checkpoint')
-print('  functions:', funcs)
+from pathlib import Path
+checks = {
+    'loader_apertus_hf.py': {'add_arguments', 'load_checkpoint'},
+    'saver_core.py': {'add_arguments', 'save_checkpoint'},
+    'saver_swissai_hf.py': {'add_arguments', 'save_checkpoint'},
+    'schema_core.py': set(),
+    'schema_base.py': set(),
+    'utils.py': set(),
+}
+for name, required in checks.items():
+    path = Path('$TARGET_DIR') / name
+    tree = ast.parse(path.read_text())
+    funcs = {n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)}
+    missing = required - funcs
+    assert not missing, f'{name} missing required functions: {sorted(missing)}'
+    print(f'✓ {name} parses + has {sorted(required)}')
 "
 
 echo

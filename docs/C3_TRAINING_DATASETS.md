@@ -128,6 +128,15 @@ terminated) under
 `/home/foivos/data/glossapi_work/hf_release_publish_hplt_clean60/data/*.parquet`
 (250 parquets, ≈ 103 GB, 48.7 M rows total).
 
+The full staged Wave4 slice was counted on Clariden with the selected
+`ModernGreek-148k` tokenizer (`add_special_tokens=false`):
+
+- rows: `48,728,774`;
+- tokens without EOD: `44,195,950,025`;
+- tokens with one EOD per row: `44,244,678,799`;
+- tokenizer SHA-256:
+  `358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394`.
+
 ### Upstream
 
 - [HPLT 2.0 release](https://hplt-project.org/) — High Performance

@@ -40,7 +40,7 @@ Three groups. The wrappers in this directory take `--task-group {full|greek_only
 
 XNLI and Global-MMLU both include Greek (`xnli_el`, `global_mmlu_el`); these double as Greek-retention signals for the bakeoff. Per Apertus §5.1 footnote 45: *"All of our reported pretraining benchmarks follow the default configuration specified in lm-evaluation-harness"* — we adopt the same convention. Tasks **excluded** from the bakeoff because Apertus reports them only post-training: GSM8K, HumanEval, MBPP, IFEval, BBH (Table 22).
 
-### Group 2: Greek (native swissai-harness tasks + Belebele Greek)
+### Group 2: Greek (fallback swissai-harness tasks + Belebele Greek)
 
 **2026-05-21 update — empirically confirmed task availability.** The previous version of this table listed `arc_greek` / `hellaswag_greek` / `winogrande_greek` / `mmlu_greek` / `mmlu_pro_greek` / `truthfulqa_greek` / `medical_mcqa_greek` as `lm-eval-harness` task names. **Verified against the `swiss-ai/lm-evaluation-harness` clone on Clariden (2026-05-21, V4 attempt jobs 2333668 / 2333723):** those task names do not exist in the swissai harness — they live in the Meltemi/Krikri team's forks (`LeonVouk/lighteval`, `ilsp/lm-evaluation-harness-greek`) and have not landed upstream. The "reviewer flag" below was correct.
 
@@ -57,6 +57,32 @@ XNLI and Global-MMLU both include Greek (`xnli_el`, `global_mmlu_el`); these dou
 | Belebele Greek | `facebook/belebele`, config `ell_Grek` | `belebele_ell_Grek` | 5 |
 
 > **Reviewer flag (still open) — PF5 ILSP YAMLs.** The ILSP tasks the previous table claimed (`hellaswag_greek`, `winogrande_greek`, `mmlu_pro_greek`, `truthfulqa_greek`, `medical_mcqa_greek`) genuinely add Greek signal we don't currently have. The PF5 follow-up is to **port the YAML configs from `LeonVouk/lighteval` (or `ilsp/lm-evaluation-harness-greek`) into the swissai harness clone** so they resolve. Tracked as Task #55 in our running task list. Until PF5 lands, the bakeoff runs with the seven-task Greek list above + the multilingual coverage from Group 1.
+
+For headline Greek reporting, exclude the explicitly machine-translated tasks
+`arc_challenge_mt_el` and `global_piqa_completions_ell_grek`. They can remain
+as diagnostics for continuity with the SwissAI/Apertus harness, but they do not
+stand in for the planned native-Greek suite. In particular,
+`greek-nlp/benchmark`, Medical MCQA Greek, and OYXOY were not run in this
+bakeoff.
+
+**2026-05-26 native-Greek gap update.** `greek-nlp/benchmark` is now being run
+against the final 5B Vanilla and TD checkpoints with the local HF backend
+adapter in this directory. Other native or Greek-authored benchmarks still not
+covered by the original bakeoff suite:
+
+| Benchmark | Status for this bakeoff | Notes |
+|---|---|---|
+| GreekMMLU (`dascim/GreekMMLU`) | not yet run | Native-sourced Greek MCQ; higher priority than MT-derived MMLU-style tasks. |
+| OYXOY | not yet run | Native Modern Greek linguistic suite; useful for NLI / WSD / metaphor-style competence. |
+| ILSP Medical MCQA Greek | not yet run | Greek medical exam MCQA; domain-specific but native enough to matter. |
+| ILSP native/local exam tasks (`mcqa_greek_asep`, `greek_civics_qa`, `greek_lyceum_mathematics`, `greek-protipa-exams`, history QA) | not yet run | Prefer these over machine-translated ILSP tasks when deciding Greek capability. |
+| GreekBarBench | not yet run | Native Greek legal free-text reasoning/citation benchmark; better for instruction/legal models than base CPT checkpoints. |
+| Plutus-ben | not yet run | Native/expert Greek financial NLP benchmark; domain-specific and probably production-optional. |
+
+Machine-translated ILSP tasks (`hellaswag_greek`, `winogrande_greek`,
+`arc_greek`, `mmlu_greek`, `MMLU-Pro_greek`, `truthful_qa_greek`) can remain
+Krikri/Meltemi comparability diagnostics, but should not be mixed into the
+headline native-Greek aggregate.
 
 Greek post-training-only tasks (`ilsp/mgsm_greek`, `ilsp/ifeval_greek`, `ilsp/mt-bench-greek`, `ilsp/m-ArenaHard_greek`) are out of scope for the pretraining-stage bakeoff — see "Scope of tasks" above.
 
@@ -77,9 +103,21 @@ These are inspect-style evals, run via `inspect eval` rather than lm-eval-harnes
 
 Per v0.7 §6.1:
 
-- **Trajectory metrics** (heldout BPC/BPB, per-bucket PPL where tokenizer-consistent, §5.3 new-token diagnostic suite, and raw `lm loss` as health-only telemetry): every 100 M tokens in the bakeoff (every ~25 global steps at 4 M tokens/step).
+- **Trajectory metrics** (heldout BPB, per-bucket PPL where tokenizer-consistent, §5.3 new-token diagnostic suite, dense training-log `bpb`/`bpt`/base-new split when present, and raw `lm loss` as health-only telemetry): every 100 M tokens in the bakeoff (every ~25 global steps at 4 M tokens/step). Historical reports may call BPB `BPC`.
 - **Downstream benchmarks** (Group 1 + Group 2): every 500 M tokens during training, plus a full sweep at the last 3–5 checkpoints in the 80–100 % budget range for selection.
 - **V4 baseline**: once, before the bakeoff. Full suite × 1 run. Bootstrap CIs over eval samples (not over runs — most benchmark items are deterministic).
+
+Metric priority is:
+
+1. heldout BPB and downstream evals for arm selection;
+2. dense `bpb`/`bpt` plus `base_loss`/`new_loss`/`n_new` for in-flight
+   measurement when patched logs provide them;
+3. raw `lm loss` only for health checks and within-arm trends.
+
+All dense training-log metrics must be computed over the same positions that
+contribute to optimizer `lm loss`; positions masked out by EOD, padding, or
+Goldfish are excluded from `bpt`, `bpb`, and the base/new split. See
+[`LOSS_MEASUREMENT_POLICY.md`](LOSS_MEASUREMENT_POLICY.md).
 
 For 2 B-token bakeoff per arm: that's 4 mid-training benchmark runs (at 500 M, 1.0 B, 1.5 B, 2.0 B) and the last 3 (1.0 / 1.5 / 2.0 B) feed the windowed selection score.
 
@@ -219,7 +257,7 @@ Per v0.7 §5.6, a candidate arm **fails** if any of these gates trips. Threshold
 
 **Why these thresholds aren't hard-coded:** the per-benchmark variance on Apertus-8B-base is unknown until we run V4. A "3 p.p. drop is a failure" rule is meaningless if the run-to-run variance of HellaSwag is itself 2 p.p. The V4 baseline + bootstrap CIs establish the noise floor, then "drop > 3× the noise floor on any benchmark" or similar becomes a defensible rule.
 
-**Selection (not automated).** For non-failing arms, v0.7 §5.6 gives a weighted score (30-40 % Greek BPC, 25-35 % Greek benchmarks, 10-15 % polytonic, 15-25 % retention, 5-10 % efficiency). For a 3-arm bakeoff this is small enough to eyeball — see [`summarize_bakeoff.py`](summarize_bakeoff.py) for the helper that aggregates per-arm JSONs into one markdown table. **The final pick is a manual review against this table + the V4 thresholds**, not a numerical aggregate.
+**Selection (not automated).** For non-failing arms, v0.7 §5.6 gives a weighted score (30-40 % Greek BPB, 25-35 % Greek benchmarks, 10-15 % polytonic, 15-25 % retention, 5-10 % efficiency). For a 3-arm bakeoff this is small enough to eyeball — see [`summarize_bakeoff.py`](summarize_bakeoff.py) for the helper that aggregates per-arm JSONs into one markdown table. **The final pick is a manual review against this table + the V4 thresholds**, not a numerical aggregate.
 
 ## Statistical methodology
 
@@ -277,11 +315,11 @@ Per-arm bakeoff eval at one checkpoint:
 - `watch_td_checkpoint_evals.sbatch` — CPU-only `xfer` wrapper that runs the TD watcher set durably under Slurm
 - `build_cpt_heldout_jsonl.py` / `build_cpt_heldout_jsonl.sbatch` — builds the 500-doc Greek held-out JSONL from the post-Apertus-dedup selected pool while excluding Greek doc_ids already used in `bulk_mix.jsonl`
 - `compute_bootstrap_cis.py` — post-process: bootstrap CIs over the `--log_samples` outputs
-- **`compute_tokenizer_fair_metrics.py`** — primary v0.7 §5.1 intrinsic metrics (BPC, NLL/char, NLL/word, tokens/word, chars/token, compression ratio, STRR). The cross-tokenizer-fair signal for comparing Vanilla (vocab 131,072) vs ReTok/Centroid (vocab 148,480). Has a `--stats-only` mode for tokenizer-only checks (no model load).
+- **`compute_tokenizer_fair_metrics.py`** — primary v0.7 §5.1 intrinsic metrics (BPB, NLL/char, NLL/word, tokens/word, chars/token, compression ratio, STRR). The cross-tokenizer-fair signal for comparing Vanilla (vocab 131,072) vs extended-tokenizer arms (vocab 148,480). Has a `--stats-only` mode for tokenizer-only checks (no model load). Older outputs may label BPB as `BPC` / `bpc_bits_per_byte`.
 - **`run_tokenizer_fair_metrics.sbatch`** — sbatch wrapper for the above; 1 node × 1 GPU × 2 h. Runs at each bakeoff checkpoint where downstream eval also runs.
 - **`compute_new_token_diagnostics.py`** — v0.7 §5.3 new-token integration diagnostic suite: 7 diagnostics over the 17,408 new IDs (rank of new target in next-token logits, prob-mass on new IDs, per-register entropy, top-1 substitution rate at new-target positions, greedy-gen new-token utilization, embedding L2-norm distribution new-vs-existing, cosine-similarity / effective-rank of new rows). Has `--embedding-only` mode that skips the forward-pass diagnostics (D1-D5) for cheap embedding-only health checks.
 - **`run_new_token_diagnostics.sbatch`** — sbatch wrapper for the diagnostic suite; 1 node × 1 GPU × 2 h.
-- **`LOSS_MEASUREMENT_POLICY.md`** — canonical interpretation of raw `lm loss`, heldout BPC/BPB, and future dense training-log fields (`bpb`, `bpt`, `base_loss`, `new_loss`, `n_new`).
+- **`LOSS_MEASUREMENT_POLICY.md`** — canonical interpretation of raw `lm loss`, heldout BPB, the historical `BPC` naming alias, and dense training-log fields (`bpb`, `bpt`, `base_loss`, `new_loss`, `n_new`).
 
 ## §5.3 new-token integration diagnostic suite — important
 
@@ -307,7 +345,7 @@ v0.7 §5.1 specifies these tokenizer-fair metrics as the **primary** signal for 
 
 | Metric | Why |
 |---|---|
-| **BPC (bits per byte)** | Cleanest cross-tokenizer comparison |
+| **BPB (bits per byte)** | Cleanest cross-tokenizer comparison. Historical reports/JSONs may call the same metric BPC via `bpc_bits_per_byte`. |
 | **NLL per Unicode character** | More interpretable for Greek/polytonic |
 | **NLL per word** | Human-facing language metric |
 | **tokens/word, chars/token, compression ratio** | Quantifies tokenizer efficiency |
@@ -315,13 +353,18 @@ v0.7 §5.1 specifies these tokenizer-fair metrics as the **primary** signal for 
 
 `compute_tokenizer_fair_metrics.py` computes all of these from one HF-format checkpoint + a held-out JSONL. Aggregates globally + per-source + per-register.
 
-For future Megatron runs we also adopt dense stdout logging of tokenizer-fair batch metrics:
+For Megatron runs with the logging patch we also adopt dense stdout logging of tokenizer-fair batch metrics:
 
 ```text
 lm loss: ... | bpb: ... | bpt: ... | base_loss: ... | new_loss: ... | n_new: ... |
 ```
 
-These fields must be computed on the exact same loss-mask positions as the optimizer loss, including EOD/padding masking and Goldfish masking. They are measurement-only; the optimizer still sees the original `lm loss`. `bpb` is the dense in-flight cross-tokenizer signal, while heldout checkpoint BPC/BPB remains authoritative for selection.
+These fields must be computed on the exact same positions as the optimizer loss;
+EOD, padding, and Goldfish masks exclude positions from the metric
+denominators and from the base/new split. They are measurement-only; the
+optimizer still sees the original `lm loss`. `bpb` is the dense in-flight
+cross-tokenizer signal, while heldout checkpoint BPB remains authoritative for
+selection.
 
 **Held-out eval slice**: ~100-500 docs covering modern Greek registers (encyclopedic / literary / academic / dialogue / legal / dictionary). The slice should be **outside** the bakeoff training mix. Current operational builder:
 

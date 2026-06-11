@@ -1,0 +1,35 @@
+{
+  "action_counts": {
+    "quarantine": 8,
+    "split_doc": 1,
+    "trim_suffix": 1
+  },
+  "annotation_rows": 10,
+  "annotations": "reports/boundary_manual_final_pending_annotations_20260606T032000Z.jsonl",
+  "chars_removed": 146276,
+  "created_at_utc": "20260606T025609Z",
+  "decision_actions": {
+    "quarantine": 8,
+    "split_doc": 4,
+    "trim_suffix": 1
+  },
+  "decision_manifest_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480317_20260606T025609Z/reports/boundary_annotation_materialization/boundary_final_pending_materialization_20260606T032000Z_decision_manifest.jsonl",
+  "decision_manifest_rows": 13,
+  "issue_count": 0,
+  "issues_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480317_20260606T025609Z/reports/boundary_annotation_materialization/boundary_final_pending_materialization_20260606T032000Z_issues.jsonl",
+  "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480317_20260606T025609Z/reports/boundary_annotation_materialization/boundary_final_pending_materialization_20260606T032000Z.md",
+  "pending_rows": 0,
+  "policy_note": "Boundary annotation materialization only. Source HPLT rows are immutable; changed text exists only in shadow_records.",
+  "review_pack": "reports/pending_boundary_review_pack_20260606T024050Z.jsonl",
+  "review_pack_rows": 10,
+  "schema_version": "hplt-boundary-annotation-materialization-v1",
+  "shadow_records": 5,
+  "shadow_records_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480317_20260606T025609Z/reports/boundary_annotation_materialization/boundary_final_pending_materialization_20260606T032000Z_shadow_records.jsonl",
+  "skipped_rows": 0,
+  "status_counts": {
+    "apply": 10
+  },
+  "token_delta_rows": 5,
+  "tokenizer_json": "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480/tokenizer.json",
+  "tokens_removed": 35280
+}

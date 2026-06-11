@@ -27,20 +27,24 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "${SCRIPT_DIR_OVERRIDE:-${SLURM_SUBMIT_DIR:-$(pwd)}}" && pwd)"
 source "$SCRIPT_DIR/../bakeoff_training/_train_config_common.env"
 
-ARM="${ARM:?ARM is required: vanilla|retok|centroid|td_layer11}"
+ARM="${ARM:?ARM is required: vanilla|retok|centroid|extension|td|td_layer11}"
 ITER="${ITER:?ITER is required, e.g. 65}"
 RUN_TAG="${RUN_TAG:?RUN_TAG is required, e.g. bakeoff_1node_chain_20260522_005620}"
 
 case "$ARM" in
-    vanilla|retok|centroid|td_layer11) ;;
-    *) echo "ERROR: ARM must be vanilla|retok|centroid|td_layer11, got: $ARM" >&2; exit 2 ;;
+    vanilla|retok|centroid|extension|td|td_layer11) ;;
+    *) echo "ERROR: ARM must be vanilla|retok|centroid|extension|td|td_layer11, got: $ARM" >&2; exit 2 ;;
 esac
 
 ITER_PAD="$(printf "%07d" "$ITER")"
 RUN_ROOT="${RUN_ROOT:-/capstor/scratch/cscs/fffoivos/runs/bakeoff}"
 MEGATRON_CKPT_ROOT="${MEGATRON_CKPT_ROOT:-$RUN_ROOT/${RUN_TAG}_${ARM}/checkpoints}"
-if [ "$ARM" = "td_layer11" ]; then
+if [ "$ARM" = "td" ]; then
+    HF_TOKENIZER_DIR="${HF_TOKENIZER_DIR:-/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/td_layer11/hf_roundtrip_path_a}"
+elif [ "$ARM" = "td_layer11" ]; then
     HF_TOKENIZER_DIR="${HF_TOKENIZER_DIR:-/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_2357565/hf_roundtrip}"
+elif [ "$ARM" = "extension" ]; then
+    HF_TOKENIZER_DIR="${HF_TOKENIZER_DIR:-/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/retok}"
 else
     HF_TOKENIZER_DIR="${HF_TOKENIZER_DIR:-/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/$ARM}"
 fi

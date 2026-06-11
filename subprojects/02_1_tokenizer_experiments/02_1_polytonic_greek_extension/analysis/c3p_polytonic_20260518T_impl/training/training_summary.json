@@ -1,0 +1,76 @@
+{
+  "name": "c3p_polytonic_20260518T_impl",
+  "base_tokenizer_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_17408_curated_padded",
+  "reference_tokenizer": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_17408_curated_padded",
+  "output_dir": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training",
+  "tokenizer_output_dir": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/tokenizer",
+  "target_vocab_size": 153600,
+  "base_vocab_size": 148480,
+  "added_token_count": 5120,
+  "added_merge_count": 5120,
+  "input": {
+    "patterns": [
+      "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_train.parquet"
+    ],
+    "files": [
+      "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_train.parquet"
+    ],
+    "total_rows": 14929,
+    "text_column": "text"
+  },
+  "runtime_seconds": 167.93788599967957,
+  "phase_times_seconds": {
+    "identity_check_seconds": 0.00583195686340332,
+    "count_segments_seconds": 44.75543165206909,
+    "build_sequence_shards_seconds": 6.77857232093811,
+    "aggregate_sequences_seconds": 8.04600477218628,
+    "merge_loop_seconds": 103.2369236946106,
+    "write_tokenizer_seconds": 1.607069730758667
+  },
+  "work_artifacts": {
+    "segment_shard_dir": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/work/segment_shards",
+    "sequence_shard_dir": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/work/sequence_shards",
+    "sequence_counter_path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/work/sequence_counter.pkl",
+    "checkpoint_path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/work/merge_state_latest.pkl",
+    "progress_path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/progress.json",
+    "replication_check_path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/replication_check.json",
+    "front_end_contract_path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/front_end_contract_check.json"
+  },
+  "tokenizer": {
+    "output_dir": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/tokenizer",
+    "tokenizer_json_sha256": "b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad",
+    "vocab_size": 153600,
+    "added_count": 5120,
+    "merge_count": 291971
+  },
+  "special_tokens_map": {
+    "bos_token": {
+      "content": "<s>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false
+    },
+    "eos_token": {
+      "content": "</s>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false
+    },
+    "pad_token": {
+      "content": "<pad>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false
+    },
+    "unk_token": {
+      "content": "<unk>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false
+    }
+  }
+}

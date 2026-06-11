@@ -1,0 +1,149 @@
+{
+  "actionable_rate_in_pack_percent": 58.333333333333336,
+  "actionable_wilson_95_ci_percent": [
+    31.951131254954973,
+    80.67396863412435
+  ],
+  "annotation_rows": 12,
+  "by_candidate_action": {
+    "keep": {
+      "actionable": 5,
+      "reviewed": 10,
+      "serious": 1
+    },
+    "quarantine": {
+      "actionable": 2,
+      "reviewed": 2,
+      "serious": 1
+    }
+  },
+  "by_length_bucket": {
+    "1k_3k": {
+      "actionable": 4,
+      "reviewed": 4,
+      "serious": 0
+    },
+    "3k_10k": {
+      "actionable": 2,
+      "reviewed": 6,
+      "serious": 2
+    },
+    "ge_10k": {
+      "actionable": 1,
+      "reviewed": 1,
+      "serious": 0
+    },
+    "lt_1k": {
+      "actionable": 0,
+      "reviewed": 1,
+      "serious": 0
+    }
+  },
+  "by_quality_bin": {
+    "8": {
+      "actionable": 6,
+      "reviewed": 9,
+      "serious": 2
+    },
+    "9": {
+      "actionable": 1,
+      "reviewed": 3,
+      "serious": 0
+    }
+  },
+  "by_risk_band": {
+    "risk_q1": {
+      "actionable": 1,
+      "reviewed": 1,
+      "serious": 0
+    },
+    "risk_q2": {
+      "actionable": 2,
+      "reviewed": 4,
+      "serious": 1
+    },
+    "risk_q3": {
+      "actionable": 1,
+      "reviewed": 3,
+      "serious": 0
+    },
+    "risk_q4": {
+      "actionable": 3,
+      "reviewed": 4,
+      "serious": 1
+    }
+  },
+  "combined_with_base": {
+    "base_actionable_rows": 63,
+    "base_reviewed_unique_rows": 232,
+    "base_serious_rows": 12,
+    "combined_actionable_rate_percent": 28.688524590163933,
+    "combined_actionable_rows": 70,
+    "combined_actionable_wilson_95_ci_percent": [
+      23.37804337577071,
+      34.659647132159655
+    ],
+    "combined_reviewed_unique_rows": 244,
+    "combined_serious_rate_percent": 5.737704918032787,
+    "combined_serious_rows": 14,
+    "combined_serious_wilson_95_ci_percent": [
+      3.4482478876052722,
+      9.399263167327016
+    ]
+  },
+  "created_at_utc": "20260606T041500Z",
+  "duplicate_annotation_count": 0,
+  "duplicate_annotations": [],
+  "inputs": {
+    "annotation_files": [
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T041500Z.jsonl",
+        "rows": 12
+      }
+    ],
+    "base_summary": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T040025Z_summary.json",
+    "review_pack": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T040025Z.jsonl"
+  },
+  "pack_rows": 200,
+  "policy_note": "Annotation summary only. It does not mutate source HPLT rows or approve an automatic cleaning overlay.",
+  "review_action_counts": {
+    "keep": 5,
+    "quarantine": 1,
+    "split_doc": 1,
+    "trim_span": 1,
+    "trim_suffix": 4
+  },
+  "review_label_counts": {
+    "clean": 5,
+    "false_negative_found": 5,
+    "partial_true_positive": 1,
+    "true_positive": 1
+  },
+  "review_severity_counts": {
+    "minor": 3,
+    "moderate": 2,
+    "none": 5,
+    "serious": 2
+  },
+  "review_true_error_type_counts": {
+    "E009": 1,
+    "E010": 1,
+    "E011": 2,
+    "E015": 1,
+    "E017": 1,
+    "E019": 3
+  },
+  "reviewed_actionable_rows_in_pack": 7,
+  "reviewed_serious_rows_in_pack": 2,
+  "reviewed_unclear_rows_in_pack": 0,
+  "reviewed_unique_rows_in_pack": 12,
+  "schema_version": "hplt-global-prevalence-annotation-summary-v1",
+  "serious_rate_in_pack_percent": 16.666666666666664,
+  "serious_wilson_95_ci_percent": [
+    4.696514218385378,
+    44.80308622529734
+  ],
+  "unreviewed_rows_in_pack": 188,
+  "validation_issue_count": 0,
+  "validation_issues": []
+}

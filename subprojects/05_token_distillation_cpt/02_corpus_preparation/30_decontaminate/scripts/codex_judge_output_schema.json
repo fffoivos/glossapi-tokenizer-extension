@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "rating",
+    "label",
+    "question_appears_verbatim",
+    "question_appears_paraphrased",
+    "correct_answer_appears_in_doc",
+    "wrong_answers_appear_in_doc",
+    "exam_format_present",
+    "doc_is_authoritative_source",
+    "reasoning"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "rating": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Integer rating 1-5 per the rubric."
+    },
+    "label": {
+      "type": "string",
+      "enum": [
+        "DEFINITE_CHEATING",
+        "STRONG_CHEATING",
+        "SOURCE_OVERLAP",
+        "TOPIC_OVERLAP",
+        "NO_OVERLAP"
+      ],
+      "description": "Categorical label matching the rating."
+    },
+    "question_appears_verbatim": {
+      "type": "boolean",
+      "description": "True if the document contains the exact question stem (with at most punctuation/whitespace differences)."
+    },
+    "question_appears_paraphrased": {
+      "type": "boolean",
+      "description": "True if the document contains a clear paraphrase of the question but not verbatim."
+    },
+    "correct_answer_appears_in_doc": {
+      "type": "boolean",
+      "description": "True if the correct answer text appears in the document (verbatim or as a clear paraphrase) near or adjacent to the question."
+    },
+    "wrong_answers_appear_in_doc": {
+      "type": "boolean",
+      "description": "True if any of the wrong answer options appear in the document near or adjacent to the question."
+    },
+    "exam_format_present": {
+      "type": "boolean",
+      "description": "True if the document presents the content in exam-test format (numbered/lettered options, answer key labels, Q&A sequence, etc.)."
+    },
+    "doc_is_authoritative_source": {
+      "type": "boolean",
+      "description": "True if the document is an authoritative primary source of the fact, regulation, or text the question is about (government regulation, constitutional text, primary historical/religious document, official site)."
+    },
+    "reasoning": {
+      "type": "string",
+      "minLength": 30,
+      "description": "Concise 2-4 sentence explanation in English citing the specific evidence in the document and how it maps to the rating."
+    }
+  }
+}

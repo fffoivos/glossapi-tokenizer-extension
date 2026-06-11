@@ -1,0 +1,36 @@
+{
+  "annotation_template_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_pack_2478534_20260606T002713Z/reports/boundary_spec_review_pack/boundary_spec_review_pack_20260606T002713Z_annotation_template.jsonl",
+  "by_action": {
+    "drop_doc": 32,
+    "normalize_or_trim_span": 5,
+    "quarantine": 49,
+    "split_doc": 23,
+    "trim_prefix": 5,
+    "trim_span": 7,
+    "trim_suffix": 63
+  },
+  "by_text_source": {
+    "doc_text_path": 141,
+    "input_parquet": 43
+  },
+  "created_at_utc": "20260606T002714Z",
+  "hash_mismatch_count": 0,
+  "hash_status_counts": {
+    "match": 141,
+    "no_expected_hash": 43
+  },
+  "output_rows": 184,
+  "policy_note": "Boundary-spec review pack only. This does not approve automatic cleaning and does not mutate source HPLT rows.",
+  "read_error_count": 0,
+  "read_errors": [],
+  "resolved_by_existing_shadow_rows": 32,
+  "review_pack_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_pack_2478534_20260606T002713Z/reports/boundary_spec_review_pack/boundary_spec_review_pack_20260606T002713Z.jsonl",
+  "review_pack_md": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_pack_2478534_20260606T002713Z/reports/boundary_spec_review_pack/boundary_spec_review_pack_20260606T002713Z.md",
+  "schema_version": "hplt-boundary-spec-review-pack-v1",
+  "source_review_rows_missing_deltas": 300,
+  "tokenized_rows": 184,
+  "tokenizer_json": "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480/tokenizer.json",
+  "total_chars_before": 6840674,
+  "total_tokens_before": 1800285,
+  "unique_source_docs": 184
+}

@@ -10,8 +10,10 @@ Input layout is produced by run_td_pilot_intrinsics_packed.sbatch:
     td_layer11/...
 
 The summary intentionally focuses on the gates we need for the TD layer choice:
-heldout Greek BPC/NLL, tokenizer compression/STRR, and D1/D2/D4/D5 new-token
-behavior. It does not try to replace the full downstream benchmark suite.
+heldout Greek BPB/NLL, tokenizer compression/STRR, and D1/D2/D4/D5 new-token
+behavior. Older metric JSONs call bits-per-byte `bpc_bits_per_byte`; newer ones
+may also expose the clearer `bpb_bits_per_byte` alias. It does not try to
+replace the full downstream benchmark suite.
 """
 import argparse
 import json
@@ -44,6 +46,10 @@ def _fmt(value: Any, digits: int = 4) -> str:
     return str(value)
 
 
+def _bpb(global_metrics: Dict[str, Any]) -> Any:
+    return global_metrics.get("bpb_bits_per_byte", global_metrics.get("bpc_bits_per_byte"))
+
+
 def _read_arm(arm_dir: Path) -> Dict[str, Any]:
     metrics = _load_json(arm_dir / "tokenizer_fair_metrics.json")
     diagnostics = _load_json(arm_dir / "new_token_diagnostics.json")
@@ -66,6 +72,7 @@ def _read_arm(arm_dir: Path) -> Dict[str, Any]:
         "model_path": run_metadata.get("model_path") or (metrics or {}).get("model_path") or (diagnostics or {}).get("model_path"),
         "errors": errors,
         "tokenizer": {
+            "bpb_bits_per_byte": _bpb(g),
             "bpc_bits_per_byte": g.get("bpc_bits_per_byte"),
             "nll_per_char": g.get("nll_per_char"),
             "nll_per_word": g.get("nll_per_word"),
@@ -114,20 +121,20 @@ def _write_markdown(path: Path, summary: Dict[str, Any]) -> None:
     lines.append("")
     lines.append(f"- Output root: `{summary['output_root']}`")
     lines.append(f"- Eval JSONL: `{summary.get('eval_jsonl') or 'unknown'}`")
-    lines.append(f"- Best BPC arm: `{summary.get('best_bpc_arm') or 'n/a'}`")
+    lines.append(f"- Best BPB arm: `{summary.get('best_bpb_arm') or 'n/a'}`")
     lines.append("")
     lines.append("## Heldout Greek Metrics")
     lines.append("")
-    lines.append("| arm | BPC | delta vs ReTok | NLL/char | tokens/word | STRR | docs |")
+    lines.append("| arm | BPB | delta vs ReTok | NLL/char | tokens/word | STRR | docs |")
     lines.append("|---|---:|---:|---:|---:|---:|---:|")
     for arm in arms:
         tok = arm["tokenizer"]
-        delta_bpc = _delta(tok.get("bpc_bits_per_byte"), _get(base, "tokenizer", "bpc_bits_per_byte") if base else None)
+        delta_bpb = _delta(tok.get("bpb_bits_per_byte"), _get(base, "tokenizer", "bpb_bits_per_byte") if base else None)
         lines.append(
-            "| {arm} | {bpc} | {dbpc} | {nllc} | {tpw} | {strr} | {docs} |".format(
+            "| {arm} | {bpb} | {dbpb} | {nllc} | {tpw} | {strr} | {docs} |".format(
                 arm=arm["arm"],
-                bpc=_fmt(tok.get("bpc_bits_per_byte")),
-                dbpc=_fmt(delta_bpc),
+                bpb=_fmt(tok.get("bpb_bits_per_byte")),
+                dbpb=_fmt(delta_bpb),
                 nllc=_fmt(tok.get("nll_per_char")),
                 tpw=_fmt(tok.get("tokens_per_word")),
                 strr=_fmt(tok.get("strr")),
@@ -158,10 +165,10 @@ def _write_markdown(path: Path, summary: Dict[str, Any]) -> None:
     lines.append("")
     lines.append("## Interpretation Notes")
     lines.append("")
-    lines.append("- Lower BPC/NLL is better.")
+    lines.append("- Lower BPB/NLL is better.")
     lines.append("- For D1, lower mean rank and higher top-k rates are better.")
     lines.append("- D2/D4/D5 should move toward healthy use of new IDs without exploding relative to ReTok.")
-    lines.append("- If layer-11 improves BPC but shows unstable D-rank or output-norm behavior, prefer last-layer TD for the full run.")
+    lines.append("- If layer-11 improves BPB but shows unstable D-rank or output-norm behavior, prefer last-layer TD for the full run.")
     lines.append("")
     for arm in arms:
         if arm["errors"]:
@@ -182,18 +189,18 @@ def main() -> int:
         if child.is_dir() and (child / "run_metadata.json").exists():
             arms.append(_read_arm(child))
 
-    best_bpc = None
+    best_bpb = None
     for arm in arms:
-        bpc = arm["tokenizer"].get("bpc_bits_per_byte")
-        if bpc is None:
+        bpb = arm["tokenizer"].get("bpb_bits_per_byte")
+        if bpb is None:
             continue
-        if best_bpc is None or bpc < best_bpc[1]:
-            best_bpc = (arm["arm"], bpc)
+        if best_bpb is None or bpb < best_bpb[1]:
+            best_bpb = (arm["arm"], bpb)
 
     summary = {
         "output_root": str(args.output_root),
         "eval_jsonl": args.eval_jsonl,
-        "best_bpc_arm": best_bpc[0] if best_bpc else None,
+        "best_bpb_arm": best_bpb[0] if best_bpb else None,
         "arms": arms,
     }
     out_json = args.output_json or (args.output_root / "td_pilot_intrinsics_summary.json")

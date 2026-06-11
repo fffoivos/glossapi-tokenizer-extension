@@ -81,7 +81,7 @@ if [ "${SUBMIT_INTRINSIC:-0}" = "1" ]; then
     metrics_job="$(sbatch --parsable \
         --dependency="afterok:$convert_job" \
         --export=ALL,MODEL_PATH="$HF_OUT_DIR",EVAL_JSONL="$EVAL_JSONL",OUTPUT_JSON="$METRICS_JSON",SCRIPT_DIR_OVERRIDE="$SCRIPT_DIR" \
-        --job-name="bpc_td_l11_${ITER}" \
+        --job-name="bpb_td_l11_${ITER}" \
         "$SCRIPT_DIR/run_tokenizer_fair_metrics.sbatch")"
 
     diag_job="$(sbatch --parsable \

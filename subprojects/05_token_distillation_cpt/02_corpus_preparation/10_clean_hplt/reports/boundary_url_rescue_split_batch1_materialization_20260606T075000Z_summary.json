@@ -1,0 +1,31 @@
+{
+  "action_counts": {
+    "split_doc": 6
+  },
+  "annotation_rows": 6,
+  "annotations": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_url_rescue_split_batch1_20260606T075000Z_annotations.jsonl",
+  "chars_removed": 3197,
+  "created_at_utc": "20260606T065203Z",
+  "decision_actions": {
+    "split_doc": 30
+  },
+  "decision_manifest_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480659_20260606T065203Z/reports/boundary_annotation_materialization/boundary_url_rescue_split_batch1_materialization_20260606T075000Z_decision_manifest.jsonl",
+  "decision_manifest_rows": 30,
+  "issue_count": 0,
+  "issues_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480659_20260606T065203Z/reports/boundary_annotation_materialization/boundary_url_rescue_split_batch1_materialization_20260606T075000Z_issues.jsonl",
+  "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480659_20260606T065203Z/reports/boundary_annotation_materialization/boundary_url_rescue_split_batch1_materialization_20260606T075000Z.md",
+  "pending_rows": 0,
+  "policy_note": "Boundary annotation materialization only. Source HPLT rows are immutable; changed text exists only in shadow_records.",
+  "review_pack": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T071000Z.jsonl",
+  "review_pack_rows": 18,
+  "schema_version": "hplt-boundary-annotation-materialization-v1",
+  "shadow_records": 30,
+  "shadow_records_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480659_20260606T065203Z/reports/boundary_annotation_materialization/boundary_url_rescue_split_batch1_materialization_20260606T075000Z_shadow_records.jsonl",
+  "skipped_rows": 0,
+  "status_counts": {
+    "apply": 6
+  },
+  "token_delta_rows": 30,
+  "tokenizer_json": "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480/tokenizer.json",
+  "tokens_removed": 758
+}

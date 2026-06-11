@@ -1,0 +1,97 @@
+{
+  "schema_version": "hplt3-script-library-v1",
+  "created_utc": "2026-06-05",
+  "purpose": "Reference upstream HPLT 3 cleaning/filtering scripts and tools relevant to the Greek HPLT second-pass cleaner.",
+  "rule": "Do not vendor upstream code here by default; record source, commit, path, checksum, and role. Local cleaning must materialize changed text only as duplicate/shadow records.",
+  "library_files": {
+    "human_stage_map": "STAGE_SCRIPT_MAP.md",
+    "tabular_index": "script_index.tsv",
+    "checksums": "script_checksums.sha256"
+  },
+  "sources": [
+    {
+      "name": "HPLT/HPLT3.0 README",
+      "url": "https://huggingface.co/datasets/HPLT/HPLT3.0",
+      "inspected": "2026-06-05",
+      "role": "Names the HPLT 3 stack: Trafilatura, OpenLID 2.0, Monotextor, Web Docs Scorer, web-register labels, PII, provenance, global deduplication."
+    },
+    {
+      "name": "warc2text-runner",
+      "url": "https://github.com/hplt-project/warc2text-runner",
+      "commit": "0b88ccc8f439d4375d880ff2ca2b385b903c00ff",
+      "role": "WARC extraction runner for HPLT versions 1-3."
+    },
+    {
+      "name": "monotextor-slurm",
+      "url": "https://github.com/hplt-project/monotextor-slurm",
+      "tag": "v2.0",
+      "commit": "63c6d8f422f505c3b8b793793c26868d8e06e1cf",
+      "role": "Monolingual merge, language split, robots, dedup, annotation, filtering, and final clean pipeline."
+    },
+    {
+      "name": "web-docs-scorer",
+      "url": "https://github.com/pablop16n/web-docs-scorer",
+      "commit": "743d13184d704b264556c805512fb252e4f4a2b9",
+      "role": "Document quality score and subscores used for HPLT WDS sorting/filtering."
+    }
+  ],
+  "stages": [
+    {
+      "stage": "warc_extraction",
+      "repo": "warc2text-runner",
+      "paths": ["three/README.MD", "one/run_warc2text.sh"],
+      "upstream_role": "Extract textual documents from WARC archives.",
+      "residual_gap_for_us": "Main-text extraction can still leave site chrome, structured residue, or attached texts."
+    },
+    {
+      "stage": "merge_and_language_batching",
+      "repo": "monotextor-slurm",
+      "paths": ["00.merge-batching.sh", "01.merge-text-meta", "02.split-lang", "scripts/split-lang.py"],
+      "upstream_role": "Merge metadata/text/lang streams and batch documents by detected language.",
+      "observed_filter": "First language prediction probability below 0.5 is discarded according to README.",
+      "residual_gap_for_us": "A row can be Greek and still contain non-main-text spans or multiple attached texts."
+    },
+    {
+      "stage": "robots",
+      "repo": "monotextor-slurm",
+      "paths": ["09.robotstxt", "scripts/robots2tsv.py", "scripts/annotate.py"],
+      "upstream_role": "Annotate robots allow/disallow status.",
+      "residual_gap_for_us": "Compliance filtering does not clean text content."
+    },
+    {
+      "stage": "dedup",
+      "repo": "monotextor-slurm",
+      "paths": ["10.dedup.sh", "10.index", "10.dedup", "utils/src/minhash_processor.rs", "utils/src/indexer.rs", "utils/src/dedup.rs"],
+      "upstream_role": "Document-level MinHash/LSH near-deduplication.",
+      "residual_gap_for_us": "Document-level dedup does not split one row containing multiple logical documents."
+    },
+    {
+      "stage": "annotation_and_filter_signals",
+      "repo": "monotextor-slurm",
+      "paths": ["20.processing.sh", "20.processing", "scripts/annotate.py"],
+      "upstream_role": "Add IDs, segment LID, monofixer/bifixer text fixes, PII, filter reason, robots status, and WDS scores.",
+      "observed_constants": {
+        "MIN_LENGTH": 500,
+        "MIN_LANG_RATIO": 0.2,
+        "MIN_AVG_WORDS": 5,
+        "MIN_AVG_CHARS": 10
+      },
+      "residual_gap_for_us": "Document-level filters can miss bounded removable spans inside otherwise useful Greek text."
+    },
+    {
+      "stage": "final_clean",
+      "repo": "monotextor-slurm",
+      "paths": ["30.clean.sh", "30.clean"],
+      "upstream_role": "Keep rows where filter is keep, robots status is allowed, and WDS score is at least 5.",
+      "observed_filter": ".filter == \"keep\" and .robotstxt == \"allowed\" and .doc_scores[0] >= 5",
+      "residual_gap_for_us": "Final clean is a keep/drop filter, not a repair pass for menus/footers or attached documents."
+    },
+    {
+      "stage": "quality_scoring",
+      "repo": "web-docs-scorer",
+      "paths": ["src/docscorer/docscorer.py", "src/docscorer/configuration.py", "src/docscorer/cli.py"],
+      "upstream_role": "Compute WDS score and subscores from structural/surface features.",
+      "residual_gap_for_us": "High WDS does not prove the document is pure main-body Greek text."
+    }
+  ]
+}

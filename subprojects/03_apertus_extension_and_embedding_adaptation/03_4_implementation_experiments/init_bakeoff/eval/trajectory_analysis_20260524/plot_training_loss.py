@@ -3,9 +3,12 @@
 Raw `lm loss` is per-target-token CE in nats. It is dense and useful for
 within-arm health, but it is not tokenizer-fair across Vanilla vs extended
 vocab arms. Newer patched logs may also contain dense tokenizer-fair fields:
-`bpb`, `bpt`, `base_loss`, `new_loss`, and `n_new`. When those exist, this
-script emits BPB and base/new diagnostic plots; otherwise it keeps the raw-LM
-plots explicitly labeled as diagnostic only.
+`bpb`/`bpb_batch`, `bpt`/`bytes_per_token_batch`,
+`base_loss`/`base_target_loss`, `new_loss`/`new_target_loss`, and `n_new`.
+When those exist, this script emits BPB and base/new diagnostic plots;
+otherwise it keeps the raw-LM plots explicitly labeled as diagnostic only. If
+`bpt` exists but `bpb` is absent, dense BPB is derived as
+`lm_loss / ln(2) / bpt` and written with an audit residual when possible.
 
 Each .out file under per_iter_results/training_logs/ contains lines like:
   iteration   123/   476 | consumed samples: ... | consumed tokens: 1.234B | ... | lm loss: 1.234567E+00 | bpb: 0.5701 | bpt: 4.103 | base_loss: ... | new_loss: ... | n_new: 482 |
@@ -69,6 +72,13 @@ def _int_field(line, name):
     match = re.search(r"\b%s:\s*(\d+)" % re.escape(name), line)
     return int(match.group(1)) if match else None
 
+
+def _bpb_from_lm_loss_bpt(lm_loss, bpt):
+    if lm_loss is None or bpt is None or bpt <= 0:
+        return None
+    return (lm_loss / math.log(2)) / bpt
+
+
 # Parse all logs into a deduped per-arm dict keyed by iteration
 per_arm = {"vanilla": {}, "retok": {}, "centroid": {}, "td": {}}
 for f in sorted(LOGS.glob("*.out")):
@@ -89,14 +99,27 @@ for f in sorted(LOGS.glob("*.out")):
         it = int(m.group(1))
         tokens = float(m.group(2))
         # last value wins (resume overwrites earlier partial)
+        n_new = _int_field(line, "n_new")
+        if n_new is None:
+            n_new = _int_field(line, "new_target_count")
+        bpb = _field(line, "bpb", "bpb_batch", "bits_per_byte_batch", "bits_per_byte")
+        bpt = _field(line, "bpt", "bytes_per_token_batch", "bytes_per_token")
+        bpb_from_formula = _bpb_from_lm_loss_bpt(lm_loss, bpt)
+        bpb_formula_error = (
+            abs(bpb - bpb_from_formula)
+            if bpb is not None and bpb_from_formula is not None
+            else None
+        )
         per_arm[arm][it] = {
             "tokens_b": tokens,
             "lm_loss": lm_loss,
-            "bpb": _field(line, "bpb"),
-            "bpt": _field(line, "bpt", "bytes_per_token_batch"),
-            "base_loss": _field(line, "base_loss"),
-            "new_loss": _field(line, "new_loss"),
-            "n_new": _int_field(line, "n_new"),
+            "bpb": bpb if bpb is not None else bpb_from_formula,
+            "bpt": bpt,
+            "bpb_from_lm_loss_bpt": bpb_from_formula,
+            "bpb_formula_error": bpb_formula_error,
+            "base_loss": _field(line, "base_loss", "base_target_loss"),
+            "new_loss": _field(line, "new_loss", "new_target_loss"),
+            "n_new": n_new,
             "source": f.name,
         }
 
@@ -110,7 +133,11 @@ for arm in per_arm:
 CSV_PATH = LOGS / "training_loss_combined.csv"
 with CSV_PATH.open("w", newline="") as fp:
     w = csv.writer(fp)
-    w.writerow(["arm", "iteration", "tokens_b", "lm_loss", "bpb", "bpt", "base_loss", "new_loss", "n_new", "source"])
+    w.writerow([
+        "arm", "iteration", "tokens_b", "lm_loss", "bpb", "bpt",
+        "bpb_from_lm_loss_bpt", "bpb_formula_error",
+        "base_loss", "new_loss", "n_new", "source",
+    ])
     for arm, pts in per_arm.items():
         for it in sorted(pts):
             row = pts[it]
@@ -121,6 +148,8 @@ with CSV_PATH.open("w", newline="") as fp:
                 row["lm_loss"],
                 row["bpb"] if row["bpb"] is not None else "",
                 row["bpt"] if row["bpt"] is not None else "",
+                row["bpb_from_lm_loss_bpt"] if row["bpb_from_lm_loss_bpt"] is not None else "",
+                row["bpb_formula_error"] if row["bpb_formula_error"] is not None else "",
                 row["base_loss"] if row["base_loss"] is not None else "",
                 row["new_loss"] if row["new_loss"] is not None else "",
                 row["n_new"] if row["n_new"] is not None else "",
@@ -144,7 +173,7 @@ for arm in ("vanilla", "retok", "centroid", "td"):
     ax.plot(xs, ys, color=COLORS[arm], linewidth=1.3, alpha=0.9, label=f"{arm} (max iter {max(pts)})")
 
 # Mark major checkpoint boundaries
-for x, label in [(2.0, "2.0B (bakeoff end)"), (3.5, "3.5B (continuation end)"), (4.25, "~4.25B (5B-run last seen)")]:
+for x, label in [(2.0, "2.0B (bakeoff end)"), (3.5, "3.5B (continuation end)"), (4.25, "~4.25B checkpoint"), (5.0, "5.0B checkpoint")]:
     ax.axvline(x, color="gray", linestyle=":", alpha=0.5)
     ax.text(x, ax.get_ylim()[1] * 0.97 if ax.get_ylim()[1] else 5.5, label, rotation=90, fontsize=8, va="top", ha="right", color="gray")
 
@@ -172,7 +201,7 @@ for arm in ("vanilla", "retok", "centroid", "td"):
     if xs:
         ax.plot(xs, ys, color=COLORS[arm], linewidth=1.3, alpha=0.9, label=f"{arm}")
 
-for x, label in [(2.0, "2.0B"), (3.5, "3.5B")]:
+for x, label in [(2.0, "2.0B"), (3.5, "3.5B"), (4.25, "~4.25B"), (5.0, "5.0B")]:
     ax.axvline(x, color="gray", linestyle=":", alpha=0.5)
     ax.text(x, 0.99, label, rotation=90, fontsize=8, va="top", ha="right", color="gray", transform=ax.get_xaxis_transform())
 
@@ -198,7 +227,7 @@ for arm in ("vanilla", "td"):
         ys.append(pts[it]["lm_loss"])
     ax.plot(xs, ys, color=COLORS[arm], linewidth=1.5, alpha=0.9, label=f"{arm}")
 
-for x, label in [(2.0, "2.0B (bakeoff end)"), (3.5, "3.5B (continuation end)")]:
+for x, label in [(2.0, "2.0B (bakeoff end)"), (3.5, "3.5B (continuation end)"), (4.25, "~4.25B checkpoint"), (5.0, "5.0B checkpoint")]:
     ax.axvline(x, color="gray", linestyle=":", alpha=0.5)
     ax.text(x, 0.99, label, rotation=90, fontsize=8, va="top", ha="right", color="gray", transform=ax.get_xaxis_transform())
 
@@ -264,9 +293,20 @@ if has_split:
     plt.savefig(PLOTS / "training_base_new_loss.png", dpi=120, bbox_inches="tight")
     print("saved plots/training_base_new_loss.png")
 
+errors = [
+    row["bpb_formula_error"]
+    for pts in per_arm.values()
+    for row in pts.values()
+    if row.get("bpb_formula_error") is not None
+]
+if errors:
+    print()
+    print("=== Dense BPB formula check ===")
+    print(f"max abs(bpb - lm_loss / ln(2) / bpt): {max(errors):.6g}")
+
 # ---------- Summary table ----------
 print("\n=== Final raw LM loss per arm + key checkpoints (diagnostic only) ===")
-print(f"{'arm':<10}{'max iter':>10}{'tokens(B)':>12}{'final loss':>12}{'final bpb':>12}{'n_new':>10}{'loss@0.5B':>12}{'loss@1.0B':>12}{'loss@2.0B':>12}{'loss@3.5B':>12}")
+print(f"{'arm':<10}{'max iter':>10}{'tokens(B)':>12}{'final lm':>12}{'train bpb':>12}{'n_new':>10}{'lm@0.5B':>12}{'lm@1.0B':>12}{'lm@2.0B':>12}{'lm@3.5B':>12}")
 for arm in ("vanilla", "retok", "centroid", "td"):
     pts = per_arm[arm]
     if not pts:

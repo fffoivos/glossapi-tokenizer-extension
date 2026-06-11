@@ -1,0 +1,17 @@
+{
+  "by_action": {
+    "drop_doc": 28,
+    "normalize_or_trim_span": 36,
+    "quarantine": 101,
+    "split_doc": 55,
+    "trim_prefix": 6,
+    "trim_span": 7,
+    "trim_suffix": 63
+  },
+  "materialized_records": 195,
+  "records": 296,
+  "shadow_link_issue_count": 0,
+  "shadow_link_issues": [],
+  "violation_count": 0,
+  "violations": []
+}

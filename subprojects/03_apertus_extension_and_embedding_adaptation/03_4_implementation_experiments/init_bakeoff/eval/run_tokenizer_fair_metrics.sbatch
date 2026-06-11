@@ -9,10 +9,12 @@
 #SBATCH --output=/capstor/scratch/cscs/fffoivos/runs/eval/%x-%j.out
 #SBATCH --error=/capstor/scratch/cscs/fffoivos/runs/eval/%x-%j.err
 #
-# Compute the v0.7 §5.1 primary intrinsic metrics (BPC, NLL/char, NLL/word,
+# Compute the v0.7 §5.1 primary intrinsic metrics (BPB, NLL/char, NLL/word,
 # tokens/word, chars/token, STRR) for one checkpoint on a held-out Greek
 # eval slice. These are the tokenizer-fair metrics for comparing Vanilla
-# (vocab 131,072) vs ReTok/Centroid (vocab 148,480).
+# (vocab 131,072) vs extended-tokenizer arms (vocab 148,480). Older job names
+# and JSON keys may say BPC; in this project that is the historical
+# bits-per-byte label, not bits per character.
 #
 # Required env vars (export via --export=...):
 #   MODEL_PATH    — HF-format checkpoint dir (e.g. Apertus base, or an arm's checkpoint)

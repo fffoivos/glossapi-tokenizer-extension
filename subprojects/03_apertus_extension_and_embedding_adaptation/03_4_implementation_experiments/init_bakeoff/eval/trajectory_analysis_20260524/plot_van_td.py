@@ -8,7 +8,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent / "per_iter_results"
 ARMS = ["vanilla", "td"]
-ITERS = [130, 260, 325, 390, 455, 476, 585, 715, 834]  # TD missing 325
+ITERS = [130, 260, 325, 390, 455, 476, 585, 715, 834, 1013, 1192]  # TD missing 325
 TOK_PER_ITER = 1024 * 4096
 
 V4 = json.loads(Path("/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/v4_baseline_corrected_20260521/results.json").read_text())["results"]
@@ -38,10 +38,10 @@ TASKS = [
     ("global_mmlu_full_el", False, "Greek"),
     ("include_base_44_greek_few_shot_en", False, "Greek"),
     ("belebele_ell_Grek", False, "Greek"),
-    ("arc_challenge_mt_el", True, "Greek"),
+    ("arc_challenge_mt_el", True, "Greek_MT_diag"),
     ("xnli_el", False, "Greek"),
     ("xquad_el", False, "Greek"),
-    ("global_piqa_completions_ell_grek", True, "Greek"),
+    ("global_piqa_completions_ell_grek", True, "Greek_MT_diag"),
 ]
 
 data = {arm: {} for arm in ARMS}
@@ -61,7 +61,7 @@ def arm_group_avg(arm, it, group):
 
 
 # ---------- Plot 1: three-panel group-averaged with TD-vs-Vanilla overlays ----------
-groups = {"EN_ret": "English retention", "Multi": "Multilingual", "Greek": "Greek slice"}
+groups = {"EN_ret": "English retention", "Multi": "Multilingual", "Greek": "Greek no-explicit-MT slice"}
 group_tasks = {g: [t for t, _, gg in TASKS if gg == g] for g in groups}
 COLORS = {"vanilla": "#1f77b4", "td": "#2ca02c"}
 MARKERS = {"vanilla": "o", "td": "D"}
@@ -120,10 +120,10 @@ PLOT_TASKS = [
     ("global_mmlu_full_el", False, "Greek MMLU"),
     ("include_base_44_greek_few_shot_en", False, "INCLUDE-44 Greek"),
     ("belebele_ell_Grek", False, "Belebele Greek"),
-    ("arc_challenge_mt_el", True, "ARC-Challenge MT-el"),
+    ("arc_challenge_mt_el", True, "ARC-Challenge MT-el (diagnostic)"),
     ("xnli_el", False, "XNLI Greek"),
     ("xquad_el", False, "XQuAD Greek (f1)"),
-    ("global_piqa_completions_ell_grek", True, "PIQA Greek"),
+    ("global_piqa_completions_ell_grek", True, "PIQA Greek MT (diagnostic)"),
     ("mmlu", False, "English MMLU"),
 ]
 
@@ -200,15 +200,15 @@ if slope_t > slope_v:
 ax.axvline(2.0, color="gray", alpha=0.4, linestyle="-", label="2 B bakeoff budget")
 ax.axvline(3.5, color="gray", alpha=0.35, linestyle=":", label="3.5 B continuation")
 ax.set_xlabel("Tokens consumed (B)")
-ax.set_ylabel("Greek aggregate (mean of 7 Greek tasks)")
-ax.set_title("Vanilla vs TD on Greek aggregate, with mid-window linear extrapolation")
+ax.set_ylabel("Greek no-MT aggregate")
+ax.set_title("Vanilla vs TD on Greek no-explicit-MT aggregate, with mid-window linear extrapolation")
 ax.legend(loc="best", fontsize=9)
 ax.grid(True, alpha=0.3)
 ax.set_xlim(0.3, 5.2)
 
 # Right panel: the gap (vanilla - td) over time
 ax2 = axes[1]
-ax2.plot(xs_g, np.array(ys_g) * 100, "ko-", linewidth=2, markersize=10, label="vanilla − td gap (Greek agg)")
+ax2.plot(xs_g, np.array(ys_g) * 100, "ko-", linewidth=2, markersize=10, label="vanilla - td gap (Greek no-MT agg)")
 ax2.axhline(0, color="black", linestyle="-", alpha=0.5)
 ax2.fill_between(xs_g, 0, np.array(ys_g) * 100, where=(np.array(ys_g) > 0), color="#1f77b4", alpha=0.15, label="vanilla ahead")
 ax2.fill_between(xs_g, 0, np.array(ys_g) * 100, where=(np.array(ys_g) < 0), color="#2ca02c", alpha=0.15, label="td ahead")
@@ -226,8 +226,8 @@ if gap_slope < 0:
     if 2.0 < x_zero < 5.0:
         ax2.axvline(x_zero, color="black", alpha=0.3, linestyle=":", label=f"gap → 0 at ~{x_zero:.1f} B")
 ax2.set_xlabel("Tokens consumed (B)")
-ax2.set_ylabel("Greek-aggregate gap (p.p., vanilla − td)")
-ax2.set_title("Vanilla-TD gap on Greek aggregate")
+ax2.set_ylabel("Greek no-MT aggregate gap (p.p., vanilla - td)")
+ax2.set_title("Vanilla-TD gap on Greek no-explicit-MT aggregate")
 ax2.legend(loc="best", fontsize=9)
 ax2.grid(True, alpha=0.3)
 ax2.set_xlim(0.3, 5.2)

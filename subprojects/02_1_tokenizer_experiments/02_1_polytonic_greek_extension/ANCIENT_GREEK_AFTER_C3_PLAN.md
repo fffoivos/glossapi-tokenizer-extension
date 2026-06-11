@@ -1,6 +1,8 @@
 # Ancient/Polytonic Greek Extension After C3
 
-Status: planning document.
+Status: implemented by run `c3p_polytonic_20260518T_impl`; see
+`analysis/c3p_polytonic_20260518T_impl/report/FULL_REPORT.md` for the
+measured outcome.
 Date: 2026-05-18.
 Execution target: the tokenizer-extension GCP worker, not local `home`.
 

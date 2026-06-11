@@ -1,0 +1,162 @@
+{
+  "actionable_rate_in_pack_percent": 45.5,
+  "actionable_wilson_95_ci_percent": [
+    38.7482193098835,
+    52.4213886275119
+  ],
+  "annotation_rows": 200,
+  "by_candidate_action": {
+    "keep": {
+      "actionable": 50,
+      "reviewed": 147,
+      "serious": 14
+    },
+    "quarantine": {
+      "actionable": 41,
+      "reviewed": 53,
+      "serious": 23
+    }
+  },
+  "by_length_bucket": {
+    "1k_3k": {
+      "actionable": 46,
+      "reviewed": 91,
+      "serious": 15
+    },
+    "3k_10k": {
+      "actionable": 24,
+      "reviewed": 53,
+      "serious": 14
+    },
+    "ge_10k": {
+      "actionable": 10,
+      "reviewed": 15,
+      "serious": 5
+    },
+    "lt_1k": {
+      "actionable": 11,
+      "reviewed": 41,
+      "serious": 3
+    }
+  },
+  "by_quality_bin": {
+    "8": {
+      "actionable": 72,
+      "reviewed": 158,
+      "serious": 29
+    },
+    "9": {
+      "actionable": 19,
+      "reviewed": 42,
+      "serious": 8
+    }
+  },
+  "by_risk_band": {
+    "risk_q1": {
+      "actionable": 24,
+      "reviewed": 50,
+      "serious": 9
+    },
+    "risk_q2": {
+      "actionable": 23,
+      "reviewed": 52,
+      "serious": 7
+    },
+    "risk_q3": {
+      "actionable": 19,
+      "reviewed": 49,
+      "serious": 6
+    },
+    "risk_q4": {
+      "actionable": 25,
+      "reviewed": 49,
+      "serious": 15
+    }
+  },
+  "combined_with_base": {
+    "base_actionable_rows": 63,
+    "base_reviewed_unique_rows": 232,
+    "base_serious_rows": 12,
+    "combined_actionable_rate_percent": 35.648148148148145,
+    "combined_actionable_rows": 154,
+    "combined_actionable_wilson_95_ci_percent": [
+      31.276279629592164,
+      40.27300796330435
+    ],
+    "combined_reviewed_unique_rows": 432,
+    "combined_serious_rate_percent": 11.342592592592593,
+    "combined_serious_rows": 49,
+    "combined_serious_wilson_95_ci_percent": [
+      8.686752966961452,
+      14.679876517130802
+    ]
+  },
+  "created_at_utc": "20260606T044750Z",
+  "duplicate_annotation_count": 0,
+  "duplicate_annotations": [],
+  "inputs": {
+    "annotation_files": [
+      {
+        "path": "reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+        "rows": 200
+      }
+    ],
+    "base_summary": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T040025Z_summary.json",
+    "review_pack": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T040025Z.jsonl"
+  },
+  "pack_rows": 200,
+  "policy_note": "Annotation summary only. It does not mutate source HPLT rows or approve an automatic cleaning overlay.",
+  "review_action_counts": {
+    "drop_doc": 1,
+    "keep": 109,
+    "normalize_or_trim_span": 1,
+    "quarantine": 31,
+    "split_doc": 4,
+    "trim_prefix": 1,
+    "trim_span": 2,
+    "trim_suffix": 51
+  },
+  "review_label_counts": {
+    "clean": 97,
+    "false_negative_found": 50,
+    "false_positive": 12,
+    "partial_true_positive": 19,
+    "true_positive": 22
+  },
+  "review_severity_counts": {
+    "minor": 33,
+    "moderate": 21,
+    "none": 109,
+    "serious": 37
+  },
+  "review_true_error_type_counts": {
+    "E003": 1,
+    "E004": 2,
+    "E005": 1,
+    "E006": 1,
+    "E007": 45,
+    "E009": 19,
+    "E010": 30,
+    "E011": 28,
+    "E012": 3,
+    "E013": 1,
+    "E015": 1,
+    "E016": 4,
+    "E017": 31,
+    "E019": 33,
+    "E020": 3
+  },
+  "reviewed_actionable_rows_in_pack": 91,
+  "reviewed_serious_rows_in_pack": 37,
+  "reviewed_unclear_rows_in_pack": 0,
+  "reviewed_unique_rows_in_pack": 200,
+  "schema_version": "hplt-global-prevalence-annotation-summary-v1",
+  "serious_rate_in_pack_percent": 18.5,
+  "serious_wilson_95_ci_percent": [
+    13.730192800616042,
+    24.45706276115175
+  ],
+  "unreviewed_rows_in_pack": 0,
+  "validation_issue_count": 0,
+  "validation_issues": []
+}

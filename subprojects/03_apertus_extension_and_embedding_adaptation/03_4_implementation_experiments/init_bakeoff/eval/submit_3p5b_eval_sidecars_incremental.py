@@ -83,6 +83,11 @@ def load_state(path):
         for row in csv.DictReader(f, delimiter="\t"):
             if row.get("task_id") and row.get("job_id"):
                 state[row["task_id"]] = row["job_id"]
+                if row["task_id"].startswith("bpc:"):
+                    # Existing state files used the old BPC job label for the
+                    # bits-per-byte sidecar. New tasks use BPB, but should
+                    # still see already-submitted legacy rows.
+                    state["bpb:" + row["task_id"][4:]] = row["job_id"]
     return state
 
 
@@ -225,11 +230,11 @@ def build_tasks(
             ))
 
             tasks.append(Task(
-                task_id=f"bpc:{iteration}:{arm}",
-                kind="bpc",
+                task_id=f"bpb:{iteration}:{arm}",
+                kind="bpb",
                 iteration=iteration,
                 arm=arm,
-                job_name=f"bpc_{arm}_{iteration}",
+                job_name=f"bpb_{arm}_{iteration}",
                 deps=(convert_id,),
                 command=(
                     "sbatch",
@@ -242,7 +247,7 @@ def build_tasks(
                         f"OUTPUT_JSON={out_root}/{run_tag}_{arm}/iter_{iter_pad}_tokenizer_fair_metrics.json,"
                         f"SCRIPT_DIR_OVERRIDE={script_dir},OVERWRITE={overwrite}"
                     ),
-                    f"--job-name=bpc_{arm}_{iteration}",
+                    f"--job-name=bpb_{arm}_{iteration}",
                     str(script_dir / "run_tokenizer_fair_metrics.sbatch"),
                 ),
             ))

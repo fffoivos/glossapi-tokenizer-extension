@@ -13,6 +13,7 @@ start at:
 - [docs/GLOBAL_DECISIONS.md](docs/GLOBAL_DECISIONS.md) — hard constraints
 - [docs/ACTIVE_BACKLOG.md](docs/ACTIVE_BACKLOG.md) — the cutoff-decision
   work list
+- [docs/LOSS_MEASUREMENT_POLICY.md](docs/LOSS_MEASUREMENT_POLICY.md) — repo-wide loss policy: heldout BPB/downstream evals for cross-tokenizer comparisons; raw Megatron `lm loss` is health telemetry only
 
 The four-arm exploration (`F1`, `F2`, `C1`, `C2`) is closed. Material
 that still describes it is retained for traceability but should not
@@ -26,6 +27,8 @@ drive new execution.
   `add_tokens(...)`
 - consume the same CPT-ready dataset for tokenizer experiments and
   continued pretraining
+- compare model-adaptation arms with tokenizer-fair BPB and downstream
+  benchmarks, not raw per-token Megatron `lm loss`
 - the old whole-word `add_tokens(...)` sweep is retained only as a
   legacy baseline and has been moved out of the active planning path
 
@@ -84,6 +87,8 @@ recovery and scale plans are retained for traceability:
   - [CURRENT_STATUS.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/CURRENT_STATUS.md)
 - active backlog:
   - [ACTIVE_BACKLOG.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/ACTIVE_BACKLOG.md)
+- model-adaptation loss policy:
+  - [LOSS_MEASUREMENT_POLICY.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/LOSS_MEASUREMENT_POLICY.md)
 - machine-readable config:
   - [apertus_greek_extension.yaml](/home/foivos/Projects/glossapi-tokenizer-extension/config/apertus_greek_extension.yaml)
 

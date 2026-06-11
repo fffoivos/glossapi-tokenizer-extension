@@ -1,6 +1,7 @@
 {
   "release_name": "apertus-tokenizer-extension",
   "generated_date": "2026-05-25",
+  "last_updated": "2026-05-27",
   "layout_schema": "explicit-top-level-artifacts-v2",
   "source_repo": "https://github.com/fffoivos/glossapi-tokenizer-extension",
   "source_subproject": "subprojects/03_apertus_extension_and_embedding_adaptation",
@@ -22,7 +23,7 @@
     },
     {
       "path": "benchmark-evals",
-      "artifact": "3.5B-comparison",
+      "artifact": "bakeoff-final (5.0B headline) + 3.5B-comparison (iso-token snapshot)",
       "meaning": "benchmark summaries and plots"
     }
   ],
@@ -46,6 +47,16 @@
     "rows": 5754172,
     "base_tokenized_tokens": 9831704774,
     "mix_builder_target_tokens": 7000141612,
+    "token_count_metadata": "cpt-training-dataset/token-counts.json",
+    "hplt_clean60_wave4": {
+      "tokenizer": "ModernGreek-148k",
+      "files": 250,
+      "rows": 48728774,
+      "tokens_no_eod": 44195950025,
+      "tokens_with_one_eod_per_row": 44244678799,
+      "chars": 184291932665,
+      "utf8_bytes": 331109685077
+    },
     "recipe": "70/24/4/2 Greek/replay/code/math"
   },
   "checkpoints": [
@@ -76,6 +87,15 @@
       "target_layer": 11
     },
     {
+      "human_name": "TokenDistil-5B",
+      "public_path": "experiment-checkpoints/TokenDistil-5B",
+      "source_hf_copy_clariden": "/capstor/scratch/cscs/fffoivos/runs/eval/continuation_5b_td_vs_vanilla_20260525T142522Z_td_layer11/iter_0001192_hf",
+      "method": "TokenDistil",
+      "training_point": "5.0B",
+      "iteration": 1192,
+      "target_layer": 11
+    },
+    {
       "human_name": "Vanilla-2B",
       "public_path": "experiment-checkpoints/Vanilla-2B",
       "source_hf_copy_clariden": "/capstor/scratch/cscs/fffoivos/runs/eval/bakeoff_1node_chain_20260522_005620_vanilla/iter_0000476_hf",
@@ -91,6 +111,15 @@
       "method": "Vanilla",
       "training_point": "3.5B",
       "iteration": 834,
+      "tokenizer": "original Apertus tokenizer"
+    },
+    {
+      "human_name": "Vanilla-5B",
+      "public_path": "experiment-checkpoints/Vanilla-5B",
+      "source_hf_copy_clariden": "/capstor/scratch/cscs/fffoivos/runs/eval/continuation_5b_td_vs_vanilla_20260525T142522Z_vanilla/iter_0001192_hf",
+      "method": "Vanilla",
+      "training_point": "5.0B",
+      "iteration": 1192,
       "tokenizer": "original Apertus tokenizer"
     },
     {
@@ -119,11 +148,34 @@
     }
   ],
   "evals": {
-    "artifact_id": "results.3.5B-comparison",
-    "human_name": "3.5B-comparison",
-    "public_path": "benchmark-evals/3.5B-comparison",
+    "headline": {
+      "artifact_id": "results.bakeoff-final",
+      "human_name": "bakeoff-final (5.0B)",
+      "public_path": "benchmark-evals/bakeoff-final",
+      "endpoint_iter": 1192,
+      "endpoint_tokens_b": 5.0
+    },
+    "iso_token_3p5b": {
+      "artifact_id": "results.3.5B-comparison",
+      "human_name": "3.5B-comparison",
+      "public_path": "benchmark-evals/3.5B-comparison",
+      "note": "iso-token Vanilla / ReTok / TD comparison at iter 834"
+    },
+    "native_greek_suite": {
+      "artifact_id": "results.native-greek-suite",
+      "human_name": "native-greek-suite (2026-05-26)",
+      "public_path": "benchmark-evals/native-greek-suite",
+      "interpretation": "Greek-specific headline now uses vetted native MCQ tasks; Vanilla leads TD on this headline, while Apertus-Base remains above all continued checkpoints."
+    },
     "loss_measurement_policy": "supporting-material/provenance/evals/LOSS_MEASUREMENT_POLICY.md",
-    "cross_arm_loss_metric": "heldout BPC/BPB, not raw Megatron lm loss"
+    "cross_arm_loss_metric": "heldout BPB, not raw Megatron lm loss; historical BPC labels are bits-per-byte aliases",
+    "greek_aggregate_rule": "native-Greek headline uses vetted native MCQ tasks from benchmark-evals/native-greek-suite; explicit MT diagnostics remain diagnostic only"
+  },
+  "decision_state": {
+    "synthesis": "supporting-material/provenance/decisions/CPT_MASTER_20260526.md",
+    "reconciliation": "supporting-material/provenance/decisions/PLAN_VS_RESULTS_RECONCILIATION_20260526.md",
+    "thresholds_locked_before_results": false,
+    "thresholds_note": "v0.12 §10 Q8 pre-commit thresholds (X / M_progress / M_ext / M_van / T) were never locked. The 5B headline is informational, not rule-bound."
   },
   "checkpoint_upload_verification": {
     "huggingface_repo": "fffoivos/apertus-tokenizer-extension",

@@ -2,6 +2,31 @@
 
 Date: 2026-05-25.
 
+## 1192 Poll: Iter 1071/1072, Still Running
+
+Checked at 2026-05-25 23:38 UTC.
+
+Both final 1192 training jobs remain running. The local monitor and finalizer
+services are active; no restart or manual intervention was needed. The final
+conversion/BPB/diagnostic/downstream sidecars are still dependency-pending
+behind the 1192 training jobs, and no final `iter_0001192` eval files exist yet.
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 02:12:48  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 02:12:48  node nid006211
+```
+
+Latest visible training lines:
+
+```text
+vanilla    iter 1072/1192  4.496B tokens  loss 1.614770  skipped=0 nan=0  eta 4:23:50
+td_layer11 iter 1071/1192  4.492B tokens  loss 2.309794  skipped=0 nan=0  eta 4:29:13
+```
+
+Checkpoint status remains `latest=1040` for both arms. The finalizer summary
+JSON is still interim: latest summarized iteration `1013`, missing iteration
+`1192`.
+
 Goal: continue only `TokenDistil`/`td_layer11` and `Vanilla` from the 3.5B
 checkpoints to ~5B tokens, while evaluating saved checkpoints in parallel with
 training.
@@ -446,11 +471,13 @@ vanilla    job 2382983  iter 1019/1192  4.274B tokens  loss 1.611488  skipped=0 
 td_layer11 job 2382985  iter 1018/1192  4.270B tokens  loss 2.351225  skipped=0 nan=0
 ```
 
-The 1013 / ~4.25B tokenizer-fair heldout results are now available. Lower BPC
-is better; raw `lm loss` is not used for cross-tokenizer selection.
+The 1013 / ~4.25B tokenizer-fair heldout results are now available. Lower BPB
+is better; raw `lm loss` is not used for cross-tokenizer selection. The table
+renames the historical artifact field `BPC` to `BPB` below, because the
+quantity is bits per byte.
 
 ```text
-stage   arm         BPC       NLL/char  tok/word  chars/tok  STRR
+stage   arm         BPB       NLL/char  tok/word  chars/tok  STRR
 2.0B    vanilla     0.490579  0.580385  2.692984  2.557154   0.270269
 2.0B    td_layer11  0.531084  0.628153  1.735161  3.973179   0.445816
 3.5B    vanilla     0.472385  0.558861  2.692984  2.557154   0.270269
@@ -459,15 +486,15 @@ stage   arm         BPC       NLL/char  tok/word  chars/tok  STRR
 4.25B   td_layer11  0.495345  0.585882  1.735161  3.973179   0.445816
 ```
 
-Reading so far: TD is still improving on tokenizer-fair heldout BPC
+Reading so far: TD is still improving on tokenizer-fair heldout BPB
 (`0.531084 -> 0.505436 -> 0.495345`), and it preserves the compression win
 (`1.735` vs Vanilla `2.693` tokens/word; STRR `0.446` vs `0.270`). But Vanilla
-also improves, so TD remains behind on BPC at matched token count. The gap is:
+also improves, so TD remains behind on BPB at matched token count. The gap is:
 
 ```text
-2.0B gap TD - Vanilla:    +0.040505 BPC
-3.5B gap TD - Vanilla:    +0.033051 BPC
-4.25B gap TD - Vanilla:   +0.029664 BPC
+2.0B gap TD - Vanilla:    +0.040505 BPB
+3.5B gap TD - Vanilla:    +0.033051 BPB
+4.25B gap TD - Vanilla:   +0.029664 BPB
 ```
 
 TD new-token integration diagnostics remain healthy rather than collapsed:
@@ -537,7 +564,7 @@ Reading at 4.25B: TD is clearly ahead on EN retention and multilingual
 aggregates and essentially tied on Greek downstream mean. The Greek aggregate
 is not a broad Greek win yet: Vanilla wins 5/7 Greek tasks, while TD's large
 XQuAD F1 gain plus Belebele gain offset those losses. Combined with the
-tokenizer-fair BPC gap (TD still worse by `+0.029664` BPC), this remains a
+tokenizer-fair BPB gap (TD still worse by `+0.029664` BPB), this remains a
 promising-but-not-settled TD trajectory. The final `iter_0001192` matched eval
 is still required for the decision.
 
@@ -576,4 +603,469 @@ td_layer11 iter 1038/1192  4.354B tokens  loss 2.350937  skipped=0 nan=0  eta 5:
 Reading: no restart or intervention was needed in this poll. Both final jobs
 are progressing at roughly 7.9k tokens/sec/GPU with no skipped or NaN
 iterations. The decision remains blocked on the final checkpoint plus its
-dependent conversion, BPC/diagnostics, and packed downstream eval.
+dependent conversion, BPB/diagnostics, and packed downstream eval.
+
+## 1192 Poll: Intermediate 1040 Checkpoint Saved
+
+Checked at 2026-05-25 22:38 UTC.
+
+Both final 1192 jobs are still running cleanly. No restart or intervention was
+needed.
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 01:13:03  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 01:13:03  node nid006211
+```
+
+Both arms saved the periodic intermediate checkpoint `iter_0001040`:
+
+```text
+vanilla latest_checkpointed_iteration.txt = 1040
+td_layer11 latest_checkpointed_iteration.txt = 1040
+```
+
+Latest visible training lines:
+
+```text
+vanilla    iter 1045/1192  4.383B tokens  loss 1.592180  skipped=0 nan=0  eta 5:22:42
+td_layer11 iter 1044/1192  4.379B tokens  loss 2.315261  skipped=0 nan=0  eta 5:29:08
+```
+
+The final `iter_0001192` files still do not exist under the eval roots. The
+1192 sidecars remain correctly dependency-pending:
+
+```text
+2388813  tohf_vanilla_1192       PENDING (Dependency)
+2388814  bpc_vanilla_1192        PENDING (Dependency)
+2388835  tohf_td_layer11_1192    PENDING (Dependency)
+2388836  bpc_td_layer11_1192     PENDING (Dependency)
+2388866  diag_td_layer11_1192    PENDING (Dependency)
+2388867  eval_5b_1192_full       PENDING (Dependency)
+```
+
+The local monitor remains active as
+`codex-5b-td-monitor-20260525.service`, polling every 10 minutes and writing
+`/home/foivos/runs/codex_monitors/5b_td_vs_vanilla_20260525/monitor.log`.
+
+## 1192 Poll: Still Healthy After Loss-Policy Doc Cleanup
+
+Checked at 2026-05-25 22:44 UTC.
+
+Both final 1192 jobs are still running cleanly. No restart or intervention was
+needed.
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 01:19:15  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 01:19:15  node nid006211
+```
+
+Checkpoint status is unchanged from the prior poll: both arms have the
+intermediate `iter_0001040` checkpoint and no final `iter_0001192` eval files
+exist yet.
+
+Latest visible training lines:
+
+```text
+vanilla    iter 1047/1192  4.391B tokens  loss 1.598202  skipped=0 nan=0  eta 5:18:20
+td_layer11 iter 1047/1192  4.391B tokens  loss 2.351325  skipped=0 nan=0  eta 5:22:35
+```
+
+The final sidecars remain dependency-pending behind the 1192 training jobs:
+
+```text
+2388813  tohf_vanilla_1192       PENDING (Dependency)
+2388814  bpc_vanilla_1192        PENDING (Dependency)
+2388835  tohf_td_layer11_1192    PENDING (Dependency)
+2388836  bpc_td_layer11_1192     PENDING (Dependency)
+2388866  diag_td_layer11_1192    PENDING (Dependency)
+2388867  eval_5b_1192_full       PENDING (Dependency)
+```
+
+Note: these already-submitted Slurm jobs still use the historical `bpc_*`
+names. New repo submitters now use `bpb_*`, while readers keep accepting legacy
+`bpc` state rows and `bpc_bits_per_byte` artifact fields.
+
+## Local 5B Report Tooling Prepared
+
+Checked at 2026-05-25 22:49 UTC.
+
+Final `iter_0001192` artifacts are still not present, but the already-complete
+`iter_0001013` / ~4.25B eval artifacts have now been copied into the local
+trajectory bundle:
+
+```text
+eval/trajectory_analysis_20260524/per_iter_results/vanilla_iter1013.json
+eval/trajectory_analysis_20260524/per_iter_results/td_iter1013.json
+eval/trajectory_analysis_20260524/per_iter_results/intrinsic/vanilla_iter1013_fair.json
+eval/trajectory_analysis_20260524/per_iter_results/intrinsic/td_iter1013_fair.json
+eval/trajectory_analysis_20260524/per_iter_results/diagnostics/td_iter1013_new_token_diagnostics.json
+```
+
+Added reusable local helpers:
+
+```text
+eval/trajectory_analysis_20260524/collect_5b_continuation_artifacts.sh
+eval/trajectory_analysis_20260524/summarize_5b_continuation.py
+```
+
+The collector copies only lightweight JSON/log artifacts from Clariden, not
+checkpoint weights. It already copied 1013 artifacts and current 1192 training
+logs; it will copy 1192 eval JSONs once the dependency-pending sidecars finish.
+
+The summarizer now writes an interim report:
+
+```text
+eval/trajectory_analysis_20260524/CONTINUATION_5B_RESULTS_20260526.md
+eval/trajectory_analysis_20260524/continuation_5b_summary.json
+```
+
+Current interim reading at 1013 / ~4.25B: Vanilla still wins heldout BPB
+(`0.4657` vs TD `0.4953`), TD leads EN retention and multilingual aggregates,
+and the Greek aggregate is effectively tied (`+0.0001` TD minus Vanilla). This
+is not the final decision; 1192 downstream eval plus BPB/diagnostics remain
+required.
+
+## 1192 Poll: Iter 1050, Still Running
+
+Checked at 2026-05-25 22:50 UTC.
+
+Both final 1192 jobs remain healthy. No restart or intervention was needed.
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 01:25:34  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 01:25:34  node nid006211
+```
+
+Latest visible training lines:
+
+```text
+vanilla    iter 1050/1192  4.404B tokens  loss 1.610176  skipped=0 nan=0  eta 5:11:44
+td_layer11 iter 1050/1192  4.404B tokens  loss 2.326564  skipped=0 nan=0  eta 5:15:41
+```
+
+Checkpoint status remains `latest=1040` for both arms. No final `iter_0001192`
+eval files exist yet. The conversion, BPB, diagnostics, and packed full-eval
+sidecars are still dependency-pending behind the training jobs.
+
+## Loss-Measurement Docs Synced Globally
+
+Checked at 2026-05-25 23:05 UTC.
+
+Updated the repo and release docs so the loss policy is consistent everywhere
+new readers are likely to start:
+
+```text
+README.md
+docs/PROJECT_INDEX.md
+docs/CURRENT_STATUS.md
+release/apertus-tokenizer-extension/README.md
+release/apertus-tokenizer-extension/benchmark-evals/3.5B-comparison/README.md
+release/apertus-tokenizer-extension/supporting-material/provenance/evals/*
+release/apertus-tokenizer-extension/supporting-material/provenance/token-distillation/TOKEN_DISTILLATION_PLAN.md
+```
+
+The public wording now says: heldout BPB plus downstream evals are the
+cross-tokenizer evidence; raw Megatron `lm loss` is health/within-arm telemetry;
+older `BPC` labels are legacy bits-per-byte aliases. The copied provenance docs
+in the HF release tree were synced from the canonical source docs. The 5B
+monitor pattern now accepts both already-submitted `bpc_*` jobs and future
+`bpb_*` jobs.
+
+## 1192 Poll: Iter 1053, Still Running
+
+Checked at 2026-05-25 22:55 UTC.
+
+Both final 1192 training jobs remain healthy; no restart or intervention was
+needed. Final conversion/BPB/diagnostic/eval sidecars remain dependency-pending.
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 01:30:34  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 01:30:34  node nid006211
+```
+
+Latest visible training lines:
+
+```text
+vanilla    iter 1053/1192  4.417B tokens  loss 1.607587  skipped=0 nan=0  eta 5:05:12
+td_layer11 iter 1052/1192  4.412B tokens  loss 2.288327  skipped=0 nan=0  eta 5:11:13
+```
+
+Checkpoint status remains `latest=1040` for both arms. No final
+`iter_0001192` eval files exist yet.
+
+## 1192 Dependency Audit: Final Sidecars Ready
+
+Checked at 2026-05-26 00:19 UTC.
+
+The final sidecar DAG is queued correctly:
+
+- `tohf_vanilla_1192` depends on training job `2382983`.
+- `tohf_td_layer11_1192` depends on training job `2382985`.
+- Vanilla/TD tokenizer-fair BPB jobs depend on their corresponding HF
+  conversion jobs.
+- TD new-token diagnostics depends on the TD HF conversion job.
+- `eval_5b_1192_full` depends on both HF conversion jobs, so full downstream
+  eval starts only after both arms are ready.
+
+The `tohf_*` conversion jobs request one GPU on `debug`. This is intentional:
+`convert_bakeoff_checkpoint_to_hf.sbatch` documents that Clariden `xfer` nodes
+do not expose the needed `uenv`/Torch stack and that Megatron's checkpoint
+metadata reader creates a CUDA tensor while loading tracker metadata. The jobs
+are bounded to one hour and are not dataset-build CPU work.
+
+## Loss-Measurement Cleanup Follow-Up: Historical Log Labels
+
+Checked the maintained Markdown/script surface again after the BPB policy pass.
+The remaining uppercase `BPC` references are now either explicit compatibility
+notes, legacy JSON keys such as `bpc_bits_per_byte`, or historical Slurm job
+names. I also relabeled the metric-value lines in
+`TAKEOVER_LOG_20260521.md` from `BPC` to `BPB`, while preserving immutable
+legacy key/job names.
+
+## Loss Measurement Docs/Scripts Cleanup
+
+Checked at 2026-05-25 23:15 UTC.
+
+Repo docs and local release docs now point to the same rule: cross-tokenizer
+loss decisions use heldout BPB and downstream evals, while raw Megatron
+`lm loss` is per-target-token CE and health/within-arm telemetry only.
+
+The canonical policy lives at:
+
+```text
+init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md
+```
+
+Updated scripts accept both new BPB names and legacy `BPC` /
+`bpc_bits_per_byte` artifacts, and the training-log parsers understand dense
+`bpb`, `bpt`, `base_loss`, `new_loss`, and `n_new` fields when present. The
+syntax checks passed for the touched Python and shell wrappers, and
+`git diff --check` was clean.
+
+## 1192 Poll: No Material Change
+
+Checked at 2026-05-25 23:05 UTC.
+
+No material change from the 23:04 UTC poll: both final training jobs are still
+`RUNNING`, all final sidecars are still dependency-pending, checkpoint status
+remains `latest=1040` for both arms, and no final `iter_0001192` eval artifacts
+exist yet.
+
+## 1192 Poll: Both Arms at Iter 1057
+
+Checked at 2026-05-25 23:05 UTC.
+
+Both final 1192 training jobs remain running. TD has caught up to the same
+latest visible iteration as Vanilla. Sidecars remain dependency-pending, and no
+final checkpoint or final eval artifacts exist yet.
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 01:40:51  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 01:40:51  node nid006211
+```
+
+Latest visible training lines:
+
+```text
+vanilla    iter 1057/1192  4.433B tokens  loss 1.605402  skipped=0 nan=0  eta 4:56:31
+td_layer11 iter 1057/1192  4.433B tokens  loss 2.315202  skipped=0 nan=0  eta 5:00:22
+```
+
+Checkpoint status remains `latest=1040` for both arms. No final
+`iter_0001192` eval files exist yet.
+
+## Durable Finalizer Added
+
+Checked at 2026-05-25 23:11 UTC.
+
+The existing local monitor only logs queue/training status; it does not collect
+artifacts or regenerate the decision report after the final sidecars finish. I
+added and started a separate home-side finalizer:
+
+```text
+service: codex-5b-td-finalizer-20260525.service
+script:  /home/foivos/runs/codex_monitors/5b_td_vs_vanilla_20260525/finalize_when_ready.sh
+log:     /home/foivos/runs/codex_monitors/5b_td_vs_vanilla_20260525/finalizer.log
+```
+
+It waits for the required iter `1192` JSON artifacts:
+
+- Vanilla tokenizer-fair metrics
+- TD tokenizer-fair metrics
+- TD new-token diagnostics
+- Vanilla packed downstream `results_*.json`
+- TD packed downstream `results_*.json`
+
+When all are present, it runs the local 5B collector and summary generator, then
+attempts the trajectory plots. First poll confirmed the current state is still
+pre-final: training jobs running, all final sidecars dependency-pending.
+
+## 1192 Poll: Still Pre-Final at Iter 1056/1057
+
+Checked at 2026-05-25 23:04 UTC.
+
+Both final 1192 training jobs remain running. Sidecars are still dependency
+pending. No restart, resubmission, or manual intervention was needed.
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 01:39:15  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 01:39:15  node nid006211
+```
+
+Latest visible training lines:
+
+```text
+vanilla    iter 1057/1192  4.433B tokens  loss 1.605402  skipped=0 nan=0  eta 4:56:31
+td_layer11 iter 1056/1192  4.429B tokens  loss 2.337900  skipped=0 nan=0  eta 5:02:25
+```
+
+Checkpoint status remains `latest=1040` for both arms. No final
+`iter_0001192` eval files exist yet.
+
+## 1192 Poll: Both Arms at Iter 1056
+
+Checked at 2026-05-25 23:03 UTC.
+
+Both final 1192 training jobs remain running. `sacct` agrees with `squeue`:
+training jobs are `RUNNING`, and conversion / BPB / diagnostics / full-eval
+sidecars are still `PENDING` on dependencies.
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 01:38:22  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 01:38:22  node nid006211
+```
+
+Latest visible training lines:
+
+```text
+vanilla    iter 1056/1192  4.429B tokens  loss 1.604356  skipped=0 nan=0  eta 4:58:39
+td_layer11 iter 1056/1192  4.429B tokens  loss 2.337900  skipped=0 nan=0  eta 5:02:25
+```
+
+Checkpoint status remains `latest=1040` for both arms. No final
+`iter_0001192` eval files exist yet.
+
+## Loss-Measurement Cleanup Follow-Up
+
+Checked at 2026-05-26 local.
+
+After the global doc/script cleanup, two remaining active-text issues were
+patched:
+
+- `TAKEOVER_LOG_20260521.md` now has a top-of-file note that historical `BPC`
+  entries mean the byte-normalized `BPB` metric, and that raw `lm loss` entries
+  are health telemetry only across different tokenizers.
+- `cpt_plan.md` v0.5 changelog now says `BPB (then called BPC in some
+  artifacts) / char-NLL`, so the historical note no longer sounds like a
+  current metric-name decision.
+- Historical Markdown tables under `eval/live_summaries/` now display `BPB`
+  instead of `BPC`; their README preserves the compatibility note for legacy
+  JSON keys such as `bpc_bits_per_byte`.
+
+Validation rerun:
+
+```text
+python3 -m py_compile ... compute_tokenizer_fair_metrics.py summarize_training_logs.py summarize_bakeoff.py summarize_td_pilot_intrinsics.py summarize_3p5b_continuation.py summarize_5b_continuation.py plot_loss_comparison.py plot_intrinsic_van_td.py plot_training_loss.py
+bash -n ... run_tokenizer_fair_metrics.sbatch submit_3p5b_eval_sidecars.sh submit_bakeoff_checkpoint_eval*.sh submit_td_checkpoint_eval.sh monitor_5b_td_vs_vanilla_status.sh
+git diff --check
+```
+
+All three checks passed.
+
+## 1192 Poll: Iter 1055/1056, Still Running
+
+Checked at 2026-05-25 23:02 UTC.
+
+Both final 1192 training jobs remain healthy. Sidecars are still
+dependency-pending behind training, and no final 1192 eval artifacts exist yet.
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 01:37:20  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 01:37:20  node nid006211
+```
+
+Latest visible training lines:
+
+```text
+vanilla    iter 1056/1192  4.429B tokens  loss 1.604356  skipped=0 nan=0  eta 4:58:39
+td_layer11 iter 1055/1192  4.425B tokens  loss 2.324546  skipped=0 nan=0  eta 5:04:39
+```
+
+Checkpoint status remains `latest=1040` for both arms. No final
+`iter_0001192` eval files exist yet.
+
+## 1192 Poll: Both Arms at Iter 1054
+
+Checked at 2026-05-25 22:59 UTC.
+
+Both final 1192 training jobs remain running. Sidecars are still
+dependency-pending and no final 1192 artifacts exist yet.
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 01:34:29  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 01:34:29  node nid006211
+```
+
+Latest visible training lines:
+
+```text
+vanilla    iter 1054/1192  4.421B tokens  loss 1.626766  skipped=0 nan=0  eta 5:03:03
+td_layer11 iter 1054/1192  4.421B tokens  loss 2.327818  skipped=0 nan=0  eta 5:06:47
+```
+
+Checkpoint status remains `latest=1040` for both arms.
+
+## 1192 Poll: Still Pre-Final Checkpoint
+
+Checked at 2026-05-25 22:58 UTC.
+
+Direct Clariden poll confirms both final training jobs remain running and all
+1192 sidecars remain dependency-pending.
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 01:33:39  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 01:33:39  node nid006211
+```
+
+Latest visible training lines are still:
+
+```text
+vanilla    iter 1054/1192  4.421B tokens  loss 1.626766  skipped=0 nan=0  eta 5:03:03
+td_layer11 iter 1053/1192  4.417B tokens  loss 2.340051  skipped=0 nan=0  eta 5:09:05
+```
+
+Checkpoint status remains `latest=1040` for both arms. No final
+`iter_0001192` eval files exist yet.
+
+Monitor health checked on `home`: `codex-5b-td-monitor-20260525.service` is
+active and sleeping between 600-second polls. The live monitor script was also
+aligned with the repo copy so, if restarted, its job-name pattern accepts both
+historical `bpc_*` and future `bpb_*` sidecar names.
+
+## 1192 Poll: Iter 1053/1054, Still Running
+
+Checked at 2026-05-25 22:57 UTC.
+
+Both final 1192 training jobs remain healthy. No restart or intervention was
+needed. Sidecars remain dependency-pending behind the training jobs.
+
+```text
+2382983  5b_vanilla_1192     RUNNING  elapsed 01:32:54  node nid006171
+2382985  5b_td_layer11_1192  RUNNING  elapsed 01:32:54  node nid006211
+```
+
+Latest visible training lines:
+
+```text
+vanilla    iter 1054/1192  4.421B tokens  loss 1.626766  skipped=0 nan=0  eta 5:03:03
+td_layer11 iter 1053/1192  4.417B tokens  loss 2.340051  skipped=0 nan=0  eta 5:09:05
+```
+
+Checkpoint status remains `latest=1040` for both arms. No final
+`iter_0001192` eval files exist yet.
+
+## 1192 Finalizer
+
+Checked at 2026-05-26 05:05 UTC.
+
+Finalizer detected the required iter `1192` JSON artifacts, copied them locally, regenerated the 5B summary JSON/Markdown, and attempted the trajectory plots. See `/home/foivos/runs/codex_monitors/5b_td_vs_vanilla_20260525/finalizer.log`.

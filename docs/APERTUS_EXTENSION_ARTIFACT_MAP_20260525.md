@@ -181,6 +181,9 @@ Measured sizes:
 - JSONL input bytes read during base preprocessing: `27,125,565,083`;
 - final JSONL on Clariden inventory: about `41 GB`;
 - production Megatron `.bin`: about `37 GB`.
+- full staged HPLT clean60 Wave4 source count with `ModernGreek-148k`:
+  `48,728,774` rows -> `44,195,950,025` tokens without EOD, or
+  `44,244,678,799` tokens with one EOD per row.
 
 Recipe:
 
@@ -271,17 +274,20 @@ checkpoint pointers to understand the comparison.
 Main compact result doc:
 
 - [`../subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/CONTINUATION_3P5B_RESULTS_20260525.md`](../subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/CONTINUATION_3P5B_RESULTS_20260525.md)
-- [`../subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md`](../subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md)
+- [`LOSS_MEASUREMENT_POLICY.md`](LOSS_MEASUREMENT_POLICY.md) for the repo-wide
+  metric-reading rule; implementation copy at
+  [`../subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md`](../subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md)
 
 Loss-reading rule: raw Megatron `lm loss` is per-token CE, so it is not a fair
 head-to-head score between the 131,072-vocab Vanilla arm and the 148,480-vocab
-extended arms. The benchmark tables use heldout tokenizer-fair BPC/BPB plus
-downstream evals for cross-arm conclusions. Raw training loss remains useful as
-health telemetry and within-arm trend evidence.
+extended arms. The benchmark tables use heldout tokenizer-fair BPB plus
+downstream evals for cross-arm conclusions. Older artifacts may call BPB `BPC`;
+that is a legacy bits-per-byte alias, not bits per character. Raw training loss
+remains useful as health telemetry and within-arm trend evidence.
 
 At iter 834:
 
-| Arm | Greek aggregate | English retention | Multilingual | Heldout BPC, lower better |
+| Arm | Greek aggregate | English retention | Multilingual | Heldout BPB, lower better |
 |---|---:|---:|---:|---:|
 | Vanilla | 0.4339 | 0.6782 | 0.4923 | 0.4724 |
 | ReTok | 0.4246 | 0.6786 | 0.4864 | 0.5390 |
@@ -290,7 +296,7 @@ At iter 834:
 Reading:
 
 - TD layer 11 is the best final benchmark arm overall.
-- Vanilla still has the best heldout Greek BPC.
+- Vanilla still has the best heldout Greek BPB.
 - ReTok wins some Greek knowledge tasks but trails overall.
 
 Role in the public story: this justifies why TD layer 11 should be promoted as

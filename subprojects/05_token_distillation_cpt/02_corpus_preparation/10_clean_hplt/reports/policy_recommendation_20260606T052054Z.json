@@ -1,0 +1,2537 @@
+{
+  "action_recommendations": [
+    {
+      "action": "keep",
+      "evidence": "The 200-row candidate-keep control review found 43 actionable FNs and 12 serious FNs.",
+      "recommendation": "Keep reviewed-clean rows, but do not treat candidate keep as proof of cleanliness."
+    },
+    {
+      "action": "normalize_or_trim_span",
+      "evidence": "Candidate precision is below the 95% gate; the narrow reviewed E001 pilot is materialized.",
+      "recommendation": "Use reviewed exact-boundary duplicate/shadow rows only; do not promote the broad detector."
+    },
+    {
+      "action": "trim_prefix",
+      "evidence": "Prefix trims were materialized from reviewed boundary annotations, not from an automatic rule.",
+      "recommendation": "Use reviewed exact-boundary duplicate/shadow rows only."
+    },
+    {
+      "action": "trim_suffix",
+      "evidence": "Suffix/footer/comment trims have the largest reviewed materialized repair volume, but broad suffix rules still need precision gating.",
+      "recommendation": "Use reviewed exact-boundary duplicate/shadow rows only."
+    },
+    {
+      "action": "trim_span",
+      "evidence": "Candidate precision is 3/36 exact matches, far below the destructive-action gate.",
+      "recommendation": "Do not use the broad detector automatically; use reviewed exact spans only."
+    },
+    {
+      "action": "split_doc",
+      "evidence": "Reviewed split child records exist, but serious FNs are dominated by missed split/list-page cases.",
+      "recommendation": "Use reviewed exact split boundaries only; continue treating archive/topic/list pages as the main residual FN risk."
+    },
+    {
+      "action": "drop_doc",
+      "evidence": "Candidate drop precision is 42/74 exact matches, with many coherent or salvageable false positives.",
+      "recommendation": "Exclude only reviewed whole-doc drops from a derived stream; do not drop from detector hits alone."
+    },
+    {
+      "action": "quarantine",
+      "evidence": "Candidate quarantine precision is 45/132 exact matches and has high/medium good-text-loss risk.",
+      "recommendation": "Use as a manual holdout/review state, not as automatic exclusion."
+    }
+  ],
+  "boundary_spec_latest": {
+    "annotation_template_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_pack_2480509_20260606T051935Z/reports/boundary_spec_review_pack/boundary_spec_review_pack_20260606T051935Z_annotation_template.jsonl",
+    "by_action": {
+      "normalize_or_trim_span": 1,
+      "split_doc": 4,
+      "trim_prefix": 1,
+      "trim_span": 2,
+      "trim_suffix": 1
+    },
+    "by_text_source": {
+      "doc_text_path": 9
+    },
+    "created_at_utc": "20260606T051946Z",
+    "hash_mismatch_count": 0,
+    "hash_status_counts": {
+      "match": 9
+    },
+    "output_rows": 9,
+    "policy_note": "Boundary-spec review pack only. This does not approve automatic cleaning and does not mutate source HPLT rows.",
+    "read_error_count": 0,
+    "read_errors": [],
+    "resolved_by_existing_shadow_rows": 414,
+    "review_pack_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_pack_2480509_20260606T051935Z/reports/boundary_spec_review_pack/boundary_spec_review_pack_20260606T051935Z.jsonl",
+    "review_pack_md": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_pack_2480509_20260606T051935Z/reports/boundary_spec_review_pack/boundary_spec_review_pack_20260606T051935Z.md",
+    "schema_version": "hplt-boundary-spec-review-pack-v1",
+    "source_review_rows_missing_deltas": 9,
+    "tokenized_rows": 9,
+    "tokenizer_json": "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480/tokenizer.json",
+    "total_chars_before": 47316,
+    "total_tokens_before": 11461,
+    "unique_source_docs": 9
+  },
+  "candidate_action_precision": {
+    "drop_doc": {
+      "exact_matches": 42,
+      "gate_reason": "Requires at least 95% reviewed precision, FP examples, char/token deltas, and representative good-text-loss evidence.",
+      "gate_status": "not_met",
+      "precision": 0.5675675675675675,
+      "reviewed_rows": 74,
+      "wilson_95_ci": [
+        0.4541274325981889,
+        0.6743388134293266
+      ],
+      "wilson_95_ci_percent": [
+        45.41274325981889,
+        67.43388134293265
+      ]
+    },
+    "normalize_or_trim_span": {
+      "exact_matches": 34,
+      "gate_reason": "Requires at least 95% reviewed precision, FP examples, char/token deltas, and representative good-text-loss evidence.",
+      "gate_status": "not_met",
+      "precision": 0.7727272727272727,
+      "reviewed_rows": 44,
+      "wilson_95_ci": [
+        0.6300764193536367,
+        0.8715805240508284
+      ],
+      "wilson_95_ci_percent": [
+        63.007641935363665,
+        87.15805240508284
+      ]
+    },
+    "quarantine": {
+      "exact_matches": 67,
+      "gate_reason": "Requires at least 95% reviewed precision, FP examples, char/token deltas, and representative good-text-loss evidence.",
+      "gate_status": "not_met",
+      "precision": 0.3621621621621622,
+      "reviewed_rows": 185,
+      "wilson_95_ci": [
+        0.2963589869515854,
+        0.43357319892278484
+      ],
+      "wilson_95_ci_percent": [
+        29.63589869515854,
+        43.35731989227848
+      ]
+    },
+    "trim_span": {
+      "exact_matches": 3,
+      "gate_reason": "Requires at least 95% reviewed precision, FP examples, char/token deltas, and representative good-text-loss evidence.",
+      "gate_status": "not_met",
+      "precision": 0.08333333333333333,
+      "reviewed_rows": 36,
+      "wilson_95_ci": [
+        0.02874861133599338,
+        0.2182669124927263
+      ],
+      "wilson_95_ci_percent": [
+        2.874861133599338,
+        21.82669124927263
+      ]
+    }
+  },
+  "created_at_utc": "20260606T052054Z",
+  "decision_aggregate": {
+    "by_action": {
+      "drop_doc": {
+        "chars_removed": 470228,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "shadow_records": 0,
+        "source_docs": 28,
+        "tokens_removed": 202162
+      },
+      "normalize_or_trim_span": {
+        "chars_removed": 751,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "shadow_records": 36,
+        "source_docs": 36,
+        "tokens_removed": 4471
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 5344995,
+        "held_out_tokens": 1327029,
+        "shadow_records": 0,
+        "source_docs": 101,
+        "tokens_removed": 0
+      },
+      "split_doc": {
+        "chars_removed": 534,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "shadow_records": 7,
+        "source_docs": 7,
+        "tokens_removed": 81
+      },
+      "trim_prefix": {
+        "chars_removed": 15177,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "shadow_records": 6,
+        "source_docs": 6,
+        "tokens_removed": 3784
+      },
+      "trim_span": {
+        "chars_removed": 6615,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "shadow_records": 7,
+        "source_docs": 7,
+        "tokens_removed": 1807
+      },
+      "trim_suffix": {
+        "chars_removed": 235283,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "shadow_records": 113,
+        "source_docs": 113,
+        "tokens_removed": 59748
+      }
+    },
+    "by_error_action": {
+      "E001": {
+        "normalize_or_trim_span": {
+          "chars_removed": 166,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 32,
+          "tokens_removed": 144
+        }
+      },
+      "E002": {
+        "normalize_or_trim_span": {
+          "chars_removed": 552,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 209
+        }
+      },
+      "E003": {
+        "drop_doc": {
+          "chars_removed": 340,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 84
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 16033,
+          "held_out_tokens": 4862,
+          "source_docs": 1,
+          "tokens_removed": 0
+        },
+        "trim_prefix": {
+          "chars_removed": 155,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 50
+        },
+        "trim_span": {
+          "chars_removed": 1892,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 488
+        }
+      },
+      "E004": {
+        "drop_doc": {
+          "chars_removed": 286285,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 9,
+          "tokens_removed": 111168
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 3246477,
+          "held_out_tokens": 808618,
+          "source_docs": 29,
+          "tokens_removed": 0
+        },
+        "split_doc": {
+          "chars_removed": 250,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 2,
+          "tokens_removed": 34
+        },
+        "trim_suffix": {
+          "chars_removed": 176422,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 13,
+          "tokens_removed": 43890
+        }
+      },
+      "E005": {
+        "drop_doc": {
+          "chars_removed": 4391,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 2,
+          "tokens_removed": 1627
+        },
+        "normalize_or_trim_span": {
+          "chars_removed": 33,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 2,
+          "tokens_removed": 2091
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 60891,
+          "held_out_tokens": 18629,
+          "source_docs": 2,
+          "tokens_removed": 0
+        },
+        "trim_span": {
+          "chars_removed": 1892,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 488
+        },
+        "trim_suffix": {
+          "chars_removed": 3812,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 3,
+          "tokens_removed": 1193
+        }
+      },
+      "E006": {
+        "drop_doc": {
+          "chars_removed": 84844,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 5,
+          "tokens_removed": 23176
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 292646,
+          "held_out_tokens": 77710,
+          "source_docs": 11,
+          "tokens_removed": 0
+        },
+        "trim_prefix": {
+          "chars_removed": 2628,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 4,
+          "tokens_removed": 823
+        },
+        "trim_span": {
+          "chars_removed": 2626,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 2,
+          "tokens_removed": 762
+        },
+        "trim_suffix": {
+          "chars_removed": 23134,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 11,
+          "tokens_removed": 7372
+        }
+      },
+      "E007": {
+        "drop_doc": {
+          "chars_removed": 89286,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 6,
+          "tokens_removed": 24156
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 2408819,
+          "held_out_tokens": 595812,
+          "source_docs": 25,
+          "tokens_removed": 0
+        },
+        "split_doc": {
+          "chars_removed": 186,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 58
+        },
+        "trim_span": {
+          "chars_removed": 3977,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 3,
+          "tokens_removed": 1143
+        },
+        "trim_suffix": {
+          "chars_removed": 62172,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 75,
+          "tokens_removed": 17332
+        }
+      },
+      "E008": {
+        "drop_doc": {
+          "chars_removed": 87815,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 4,
+          "tokens_removed": 23771
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 82141,
+          "held_out_tokens": 20213,
+          "source_docs": 3,
+          "tokens_removed": 0
+        },
+        "trim_span": {
+          "chars_removed": 1932,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 403
+        },
+        "trim_suffix": {
+          "chars_removed": 16995,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 4,
+          "tokens_removed": 4789
+        }
+      },
+      "E009": {
+        "drop_doc": {
+          "chars_removed": 55122,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 8,
+          "tokens_removed": 15399
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 4309948,
+          "held_out_tokens": 1021609,
+          "source_docs": 29,
+          "tokens_removed": 0
+        },
+        "split_doc": {
+          "chars_removed": 186,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 58
+        },
+        "trim_prefix": {
+          "chars_removed": 1212,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 2,
+          "tokens_removed": 328
+        },
+        "trim_span": {
+          "chars_removed": 6231,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 6,
+          "tokens_removed": 1711
+        },
+        "trim_suffix": {
+          "chars_removed": 206772,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 42,
+          "tokens_removed": 52209
+        }
+      },
+      "E010": {
+        "drop_doc": {
+          "chars_removed": 279063,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 18,
+          "tokens_removed": 108398
+        },
+        "normalize_or_trim_span": {
+          "chars_removed": 33,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 2,
+          "tokens_removed": 2091
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 4932745,
+          "held_out_tokens": 1188397,
+          "source_docs": 80,
+          "tokens_removed": 0
+        },
+        "split_doc": {
+          "chars_removed": 486,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 5,
+          "tokens_removed": 96
+        },
+        "trim_suffix": {
+          "chars_removed": 204724,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 19,
+          "tokens_removed": 50946
+        }
+      },
+      "E011": {
+        "drop_doc": {
+          "chars_removed": 10593,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 2874
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 2101151,
+          "held_out_tokens": 516514,
+          "source_docs": 58,
+          "tokens_removed": 0
+        },
+        "split_doc": {
+          "chars_removed": 534,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 7,
+          "tokens_removed": 81
+        }
+      },
+      "E012": {
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 990622,
+          "held_out_tokens": 226494,
+          "source_docs": 13,
+          "tokens_removed": 0
+        },
+        "split_doc": {
+          "chars_removed": 484,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 5,
+          "tokens_removed": 77
+        }
+      },
+      "E013": {
+        "trim_span": {
+          "chars_removed": 2316,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 2,
+          "tokens_removed": 499
+        },
+        "trim_suffix": {
+          "chars_removed": 2301,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 872
+        }
+      },
+      "E014": {
+        "drop_doc": {
+          "chars_removed": 326128,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 11,
+          "tokens_removed": 164437
+        },
+        "normalize_or_trim_span": {
+          "chars_removed": 33,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 3,
+          "tokens_removed": 4118
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 362725,
+          "held_out_tokens": 136921,
+          "source_docs": 13,
+          "tokens_removed": 0
+        },
+        "trim_suffix": {
+          "chars_removed": 3535,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 2,
+          "tokens_removed": 1205
+        }
+      },
+      "E015": {
+        "drop_doc": {
+          "chars_removed": 91724,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 6,
+          "tokens_removed": 27317
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 80076,
+          "held_out_tokens": 22778,
+          "source_docs": 6,
+          "tokens_removed": 0
+        },
+        "trim_prefix": {
+          "chars_removed": 12394,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 2911
+        },
+        "trim_suffix": {
+          "chars_removed": 16881,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 3,
+          "tokens_removed": 4729
+        }
+      },
+      "E016": {
+        "drop_doc": {
+          "chars_removed": 57588,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 7,
+          "tokens_removed": 14202
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 295762,
+          "held_out_tokens": 70069,
+          "source_docs": 7,
+          "tokens_removed": 0
+        },
+        "trim_suffix": {
+          "chars_removed": 28814,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 4,
+          "tokens_removed": 7661
+        }
+      },
+      "E017": {
+        "drop_doc": {
+          "chars_removed": 307599,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 13,
+          "tokens_removed": 120140
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 4951246,
+          "held_out_tokens": 1186924,
+          "source_docs": 62,
+          "tokens_removed": 0
+        },
+        "split_doc": {
+          "chars_removed": 436,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 3,
+          "tokens_removed": 92
+        },
+        "trim_prefix": {
+          "chars_removed": 13784,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 2,
+          "tokens_removed": 3399
+        },
+        "trim_suffix": {
+          "chars_removed": 197725,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 14,
+          "tokens_removed": 49177
+        }
+      },
+      "E018": {
+        "drop_doc": {
+          "chars_removed": 511,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 110
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 17195,
+          "held_out_tokens": 3942,
+          "source_docs": 1,
+          "tokens_removed": 0
+        },
+        "trim_span": {
+          "chars_removed": 384,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 96
+        },
+        "trim_suffix": {
+          "chars_removed": 438,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 3,
+          "tokens_removed": 120
+        }
+      },
+      "E019": {
+        "drop_doc": {
+          "chars_removed": 11099,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 3,
+          "tokens_removed": 3024
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 3363692,
+          "held_out_tokens": 822363,
+          "source_docs": 27,
+          "tokens_removed": 0
+        },
+        "split_doc": {
+          "chars_removed": 186,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 58
+        },
+        "trim_suffix": {
+          "chars_removed": 195635,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 61,
+          "tokens_removed": 48662
+        }
+      },
+      "E020": {
+        "drop_doc": {
+          "chars_removed": 47390,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 14,
+          "tokens_removed": 11489
+        },
+        "quarantine": {
+          "chars_removed": 0,
+          "held_out_chars": 21960,
+          "held_out_tokens": 6305,
+          "source_docs": 4,
+          "tokens_removed": 0
+        },
+        "trim_suffix": {
+          "chars_removed": 329,
+          "held_out_chars": 0,
+          "held_out_tokens": 0,
+          "source_docs": 1,
+          "tokens_removed": 69
+        }
+      }
+    },
+    "good_text_loss_by_action": {
+      "drop_doc": {
+        "0.0": 3,
+        "low": 24,
+        "medium": 1
+      },
+      "normalize_or_trim_span": {
+        "0.0": 4,
+        "low": 32
+      },
+      "quarantine": {
+        "high": 27,
+        "medium": 70,
+        "unknown": 4
+      },
+      "split_doc": {
+        "0.0": 7
+      },
+      "trim_prefix": {
+        "0.0": 6
+      },
+      "trim_span": {
+        "0.0": 7
+      },
+      "trim_suffix": {
+        "0.0": 113
+      }
+    },
+    "source_level_decision_rows": 298
+  },
+  "false_negative_estimate": {
+    "actionable_false_negative_wilson_95_ci_percent": [
+      16.37187625450758,
+      27.702307348996612
+    ],
+    "actionable_false_negatives": 43,
+    "note": "Representative FN evidence is now present, but serious residual FNs remain and must be reduced or explicitly accepted.",
+    "serious_false_negative_wilson_95_ci_percent": [
+      3.465219425433187,
+      10.193169295766271
+    ],
+    "serious_false_negatives": 12,
+    "status": "not_met"
+  },
+  "false_negative_global200_summary": {
+    "created_at_utc": "2026-06-05T21:53:48Z",
+    "false_negative_found_count": 43,
+    "false_negative_rate": 0.215,
+    "false_negative_wilson_95_ci": [
+      0.1637187625450758,
+      0.27702307348996613
+    ],
+    "false_negative_wilson_95_ci_percent": [
+      16.37187625450758,
+      27.702307348996612
+    ],
+    "policy_note": "Representative false-negative estimate for global_random controls only. This does not approve automatic cleaning or destructive policy promotion.",
+    "population": "all 200 global_random false-negative controls",
+    "review_action_counts": {
+      "drop_doc": 2,
+      "keep": 157,
+      "normalize_or_trim_span": 1,
+      "split_doc": 10,
+      "trim_prefix": 3,
+      "trim_span": 3,
+      "trim_suffix": 24
+    },
+    "review_label_counts": {
+      "clean": 157,
+      "false_negative_found": 43
+    },
+    "review_severity_counts": {
+      "minor": 24,
+      "moderate": 7,
+      "none": 157,
+      "serious": 12
+    },
+    "rows": 200,
+    "schema_version": "hplt-false-negative-global200-review-v1",
+    "serious_false_negative_count": 12,
+    "serious_false_negative_rate": 0.06,
+    "serious_false_negative_wilson_95_ci": [
+      0.03465219425433187,
+      0.1019316929576627
+    ],
+    "serious_false_negative_wilson_95_ci_percent": [
+      3.465219425433187,
+      10.193169295766271
+    ],
+    "source_kind_counts": {
+      "fulltext_111": 111,
+      "high_risk_reuse": 9,
+      "representative_80": 80
+    },
+    "true_error_type_counts": {
+      "E002": 1,
+      "E003": 1,
+      "E004": 5,
+      "E006": 3,
+      "E007": 8,
+      "E008": 2,
+      "E009": 12,
+      "E010": 10,
+      "E011": 10,
+      "E012": 1,
+      "E016": 2,
+      "E018": 2,
+      "E019": 12,
+      "E020": 2
+    }
+  },
+  "false_positive_examples": [
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/destructive_span_policy_review_annotations_20260605T210613Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E005",
+        "E010",
+        "E014"
+      ],
+      "host": "alopsis.gr",
+      "review_correct_action": "normalize_or_trim_span",
+      "review_false_positive_reason": "Candidate drop_doc would discard a coherent article whose main issue is systematic mojibake/encoding corruption.",
+      "review_label": "partial_true_positive",
+      "review_notes": "Coherent article about teachers/Pikionis with mojibake accent/letter corruption throughout. Useful Greek main text can likely be saved.",
+      "review_true_error_type_ids": [
+        "E005",
+        "E014"
+      ],
+      "source_doc_id": "hplt::8_1.jsonl.zst::d05983c775d380fbecc245f4a72cb66c"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T202344Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E014"
+      ],
+      "host": "alopsis.gr",
+      "review_correct_action": "quarantine",
+      "review_false_positive_reason": "Candidate E014 is real but full drop is too destructive.",
+      "review_label": "partial_true_positive",
+      "review_notes": "Coherent religious article has systematic mojibake-like substitutions; dropping would lose useful text, so hold for normalization/repair review.",
+      "review_true_error_type_ids": [
+        "E014"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::e4cbb62221ca7921d0a9672af7bac693"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T200254Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E020"
+      ],
+      "host": "boro.gr",
+      "review_correct_action": "keep",
+      "review_false_positive_reason": "Short celebrity/news article is coherent; drop_doc would remove useful text.",
+      "review_label": "false_positive",
+      "review_notes": "At most a source/related-articles suffix exists; not enough for no-main-body drop.",
+      "review_true_error_type_ids": [],
+      "source_doc_id": "hplt::8_2.jsonl.zst::0344e0dbe364da9ec3a2f5215f637b45"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T202344Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E010",
+        "E014"
+      ],
+      "host": "docplayer.gr",
+      "review_correct_action": "quarantine",
+      "review_false_positive_reason": "Candidate drop is too aggressive for a possibly salvageable specialized text.",
+      "review_label": "partial_true_positive",
+      "review_notes": "Liturgical/music PDF extraction has page headers and OCR-like missing letters, but substantial recoverable text may exist; quarantine before any drop.",
+      "review_true_error_type_ids": [
+        "E014"
+      ],
+      "source_doc_id": "hplt::9_1.jsonl.zst::d4d020e67d5e7de6c8ebf412c0e00698"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/destructive_span_policy_review_annotations_20260605T210613Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E016",
+        "E017"
+      ],
+      "host": "el.tipsandtrics.com",
+      "review_correct_action": "quarantine",
+      "review_false_positive_reason": "Candidate drop_doc is too aggressive for a coherent, if low-quality/translated-looking, article plus giveaway/list material.",
+      "review_label": "partial_true_positive",
+      "review_notes": "Tech review/giveaway page is coherent Greek-ish prose with list/giveaway tail. It is suspicious but not a no-salvage extraction failure.",
+      "review_true_error_type_ids": [
+        "E016",
+        "E017"
+      ],
+      "source_doc_id": "hplt::10_1.jsonl.zst::682bf46d0fffbd2d657cdf1d46715ac6"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T200254Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E015",
+        "E020"
+      ],
+      "host": "gamefreniacs.com",
+      "review_correct_action": "keep",
+      "review_false_positive_reason": "Short game-news article is coherent and complete enough; E020/drop is not justified.",
+      "review_label": "false_positive",
+      "review_notes": "Minor typo/mixed Latin token does not make it no-main-body.",
+      "review_true_error_type_ids": [],
+      "source_doc_id": "hplt::8_2.jsonl.zst::313d03f08492b5a2f2c8aefef2c6f8e7"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T194002Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E014"
+      ],
+      "host": "iatrikionline.gr",
+      "review_correct_action": "quarantine",
+      "review_false_positive_reason": "",
+      "review_label": "partial_true_positive",
+      "review_notes": "OCR/encoding-like character substitutions plus apparent attached unrelated book/catalog material; drop may be right but needs full-doc review.",
+      "review_true_error_type_ids": [
+        "E011",
+        "E014"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::db9305dd747db6c91798c8759eb113a9"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T200254Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E014"
+      ],
+      "host": "iatrikionline.gr",
+      "review_correct_action": "quarantine",
+      "review_false_positive_reason": "Some OCR-like Latin/Greek character substitution exists, but the article remains readable; drop is too aggressive.",
+      "review_label": "partial_true_positive",
+      "review_notes": "Consider normalization/audit, not automatic derived-stream exclusion.",
+      "review_true_error_type_ids": [
+        "E014"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::db9305dd747db6c91798c8759eb113a9"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T202344Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E014"
+      ],
+      "host": "iatrikionline.gr",
+      "review_correct_action": "quarantine",
+      "review_false_positive_reason": "Candidate E014 real but drop remains too aggressive.",
+      "review_label": "partial_true_positive",
+      "review_notes": "Same doc as prior pilot: OCR-like row may contain salvageable medical text; drop risks good text loss.",
+      "review_true_error_type_ids": [
+        "E014"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::db9305dd747db6c91798c8759eb113a9"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T200254Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E014"
+      ],
+      "host": "ksipnistere.blogspot.com",
+      "review_correct_action": "trim_suffix",
+      "review_false_positive_reason": "Full drop is too destructive; the visible failure is a repeated laughter/comment tail after a coherent article.",
+      "review_label": "partial_true_positive",
+      "review_notes": "Needs suffix/span boundary around repeated \"ΑΧΑ...\" and abusive comments.",
+      "review_true_error_type_ids": [
+        "E013",
+        "E014",
+        "E019"
+      ],
+      "source_doc_id": "hplt::9_1.jsonl.zst::3835c6f39e7a7380054eaea89c75ffc1"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T200254Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E015",
+        "E020"
+      ],
+      "host": "melesoft.com",
+      "review_correct_action": "keep",
+      "review_false_positive_reason": "Short but coherent complete game-news item; no visible extraction artifact.",
+      "review_label": "false_positive",
+      "review_notes": "Length threshold should require teaser/orphan evidence, not just chars < 800.",
+      "review_true_error_type_ids": [],
+      "source_doc_id": "hplt::8_1.jsonl.zst::24236636304fab349c26ff6fdff1661d"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T200254Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E020"
+      ],
+      "host": "myroniailias.blogspot.com",
+      "review_correct_action": "keep",
+      "review_false_positive_reason": "Short local-news article has usable main text; drop_doc for E020 would be good-text loss.",
+      "review_label": "false_positive",
+      "review_notes": "Tiny Blogspot comment footer is not enough to justify destructive action.",
+      "review_true_error_type_ids": [],
+      "source_doc_id": "hplt::8_2.jsonl.zst::6fe4fe471a3db8b8fd84f4fc505164ad"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T200254Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E007",
+        "E010",
+        "E016",
+        "E017",
+        "E019"
+      ],
+      "host": "mythofrock.gr",
+      "review_correct_action": "quarantine",
+      "review_false_positive_reason": "E016/drop is not supported from snippet; long coherent rock interview/content may be salvageable.",
+      "review_label": "partial_true_positive",
+      "review_notes": "128k row likely attaches multiple articles/interviews; split/quarantine, not automatic drop.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::9_2.jsonl.zst::1a4b559afbd9304eca3620bbe41c1d17"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T202344Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E007",
+        "E010",
+        "E016",
+        "E017",
+        "E019"
+      ],
+      "host": "mythofrock.gr",
+      "review_correct_action": "quarantine",
+      "review_false_positive_reason": "Candidate drop remains too destructive.",
+      "review_label": "partial_true_positive",
+      "review_notes": "Same doc as prior pilot: multi-snippet/music archive needs quarantine/split review; drop risks useful text.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::9_2.jsonl.zst::1a4b559afbd9304eca3620bbe41c1d17"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T200254Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E004",
+        "E007",
+        "E010",
+        "E016",
+        "E017",
+        "E019"
+      ],
+      "host": "olagiatisgunaikes.blogspot.com",
+      "review_correct_action": "quarantine",
+      "review_false_positive_reason": "",
+      "review_label": "true_positive",
+      "review_notes": "Giveaway/product-promotional blog material plus English affiliate/offer content; likely spam/multi-document, but review before full drop.",
+      "review_true_error_type_ids": [
+        "E004",
+        "E011",
+        "E015",
+        "E016",
+        "E017"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::1bd476fd51b7cf7e2de2e4327b90be98"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T202344Z.jsonl",
+      "candidate_action": "drop_doc",
+      "candidate_error_type_ids": [
+        "E014"
+      ],
+      "host": "paperzz.com",
+      "review_correct_action": "quarantine",
+      "review_false_positive_reason": "Candidate E014 real but full drop may lose recoverable Greek text.",
+      "review_label": "partial_true_positive",
+      "review_notes": "Paperzz PDF text has systematic OCR/encoding substitutions but still recognizable institutional content; quarantine for repair/drop decision.",
+      "review_true_error_type_ids": [
+        "E014"
+      ],
+      "source_doc_id": "hplt::8_1.jsonl.zst::00bdd0b9f3d7410f3db9551939ddf7e6"
+    }
+  ],
+  "gates": {
+    "char_token_deltas": "not_met",
+    "destructive_precision": "not_met",
+    "issue_discovery": "met",
+    "remaining_false_negatives": "not_met",
+    "shadow_overlay": "met"
+  },
+  "global_prevalence_annotation_summary": {
+    "actionable_rate_in_pack_percent": 45.5,
+    "actionable_wilson_95_ci_percent": [
+      38.7482193098835,
+      52.4213886275119
+    ],
+    "annotation_rows": 200,
+    "by_candidate_action": {
+      "keep": {
+        "actionable": 50,
+        "reviewed": 147,
+        "serious": 14
+      },
+      "quarantine": {
+        "actionable": 41,
+        "reviewed": 53,
+        "serious": 23
+      }
+    },
+    "by_length_bucket": {
+      "1k_3k": {
+        "actionable": 46,
+        "reviewed": 91,
+        "serious": 15
+      },
+      "3k_10k": {
+        "actionable": 24,
+        "reviewed": 53,
+        "serious": 14
+      },
+      "ge_10k": {
+        "actionable": 10,
+        "reviewed": 15,
+        "serious": 5
+      },
+      "lt_1k": {
+        "actionable": 11,
+        "reviewed": 41,
+        "serious": 3
+      }
+    },
+    "by_quality_bin": {
+      "8": {
+        "actionable": 72,
+        "reviewed": 158,
+        "serious": 29
+      },
+      "9": {
+        "actionable": 19,
+        "reviewed": 42,
+        "serious": 8
+      }
+    },
+    "by_risk_band": {
+      "risk_q1": {
+        "actionable": 24,
+        "reviewed": 50,
+        "serious": 9
+      },
+      "risk_q2": {
+        "actionable": 23,
+        "reviewed": 52,
+        "serious": 7
+      },
+      "risk_q3": {
+        "actionable": 19,
+        "reviewed": 49,
+        "serious": 6
+      },
+      "risk_q4": {
+        "actionable": 25,
+        "reviewed": 49,
+        "serious": 15
+      }
+    },
+    "combined_with_base": {
+      "base_actionable_rows": 63,
+      "base_reviewed_unique_rows": 232,
+      "base_serious_rows": 12,
+      "combined_actionable_rate_percent": 35.648148148148145,
+      "combined_actionable_rows": 154,
+      "combined_actionable_wilson_95_ci_percent": [
+        31.276279629592164,
+        40.27300796330435
+      ],
+      "combined_reviewed_unique_rows": 432,
+      "combined_serious_rate_percent": 11.342592592592593,
+      "combined_serious_rows": 49,
+      "combined_serious_wilson_95_ci_percent": [
+        8.686752966961452,
+        14.679876517130802
+      ]
+    },
+    "created_at_utc": "20260606T044750Z",
+    "duplicate_annotation_count": 0,
+    "duplicate_annotations": [],
+    "inputs": {
+      "annotation_files": [
+        {
+          "path": "reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+          "rows": 200
+        }
+      ],
+      "base_summary": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T040025Z_summary.json",
+      "review_pack": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T040025Z.jsonl"
+    },
+    "pack_rows": 200,
+    "policy_note": "Annotation summary only. It does not mutate source HPLT rows or approve an automatic cleaning overlay.",
+    "review_action_counts": {
+      "drop_doc": 1,
+      "keep": 109,
+      "normalize_or_trim_span": 1,
+      "quarantine": 31,
+      "split_doc": 4,
+      "trim_prefix": 1,
+      "trim_span": 2,
+      "trim_suffix": 51
+    },
+    "review_label_counts": {
+      "clean": 97,
+      "false_negative_found": 50,
+      "false_positive": 12,
+      "partial_true_positive": 19,
+      "true_positive": 22
+    },
+    "review_severity_counts": {
+      "minor": 33,
+      "moderate": 21,
+      "none": 109,
+      "serious": 37
+    },
+    "review_true_error_type_counts": {
+      "E003": 1,
+      "E004": 2,
+      "E005": 1,
+      "E006": 1,
+      "E007": 45,
+      "E009": 19,
+      "E010": 30,
+      "E011": 28,
+      "E012": 3,
+      "E013": 1,
+      "E015": 1,
+      "E016": 4,
+      "E017": 31,
+      "E019": 33,
+      "E020": 3
+    },
+    "reviewed_actionable_rows_in_pack": 91,
+    "reviewed_serious_rows_in_pack": 37,
+    "reviewed_unclear_rows_in_pack": 0,
+    "reviewed_unique_rows_in_pack": 200,
+    "schema_version": "hplt-global-prevalence-annotation-summary-v1",
+    "serious_rate_in_pack_percent": 18.5,
+    "serious_wilson_95_ci_percent": [
+      13.730192800616042,
+      24.45706276115175
+    ],
+    "unreviewed_rows_in_pack": 0,
+    "validation_issue_count": 0,
+    "validation_issues": []
+  },
+  "global_prevalence_review_coverage": {
+    "coverage_by": {
+      "candidate_action": {
+        "drop_doc": {
+          "reviewed": 3,
+          "total": 3,
+          "unreviewed": 0
+        },
+        "keep": {
+          "reviewed": 210,
+          "total": 800,
+          "unreviewed": 590
+        },
+        "normalize_or_trim_span": {
+          "reviewed": 1,
+          "total": 1,
+          "unreviewed": 0
+        },
+        "quarantine": {
+          "reviewed": 17,
+          "total": 262,
+          "unreviewed": 245
+        },
+        "trim_span": {
+          "reviewed": 1,
+          "total": 1,
+          "unreviewed": 0
+        }
+      },
+      "length_bucket": {
+        "1k_3k": {
+          "reviewed": 121,
+          "total": 496,
+          "unreviewed": 375
+        },
+        "3k_10k": {
+          "reviewed": 50,
+          "total": 295,
+          "unreviewed": 245
+        },
+        "ge_10k": {
+          "reviewed": 4,
+          "total": 60,
+          "unreviewed": 56
+        },
+        "lt_1k": {
+          "reviewed": 57,
+          "total": 216,
+          "unreviewed": 159
+        }
+      },
+      "quality_bin": {
+        "8": {
+          "reviewed": 195,
+          "total": 857,
+          "unreviewed": 662
+        },
+        "9": {
+          "reviewed": 37,
+          "total": 210,
+          "unreviewed": 173
+        }
+      },
+      "risk_band": {
+        "risk_q1": {
+          "reviewed": 58,
+          "total": 267,
+          "unreviewed": 209
+        },
+        "risk_q2": {
+          "reviewed": 54,
+          "total": 269,
+          "unreviewed": 215
+        },
+        "risk_q3": {
+          "reviewed": 59,
+          "total": 265,
+          "unreviewed": 206
+        },
+        "risk_q4": {
+          "reviewed": 61,
+          "total": 266,
+          "unreviewed": 205
+        }
+      },
+      "source_shard": {
+        "8_1.jsonl.zst": {
+          "reviewed": 65,
+          "total": 302,
+          "unreviewed": 237
+        },
+        "8_2.jsonl.zst": {
+          "reviewed": 130,
+          "total": 555,
+          "unreviewed": 425
+        },
+        "9_1.jsonl.zst": {
+          "reviewed": 23,
+          "total": 125,
+          "unreviewed": 102
+        },
+        "9_2.jsonl.zst": {
+          "reviewed": 14,
+          "total": 85,
+          "unreviewed": 71
+        }
+      }
+    },
+    "created_at_utc": "20260606T040025Z",
+    "global_prevalence_rows": 1067,
+    "inputs": {
+      "annotation_files": [
+        "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/destructive_span_policy_review_annotations_20260605T210613Z.jsonl",
+        "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_control_char_review_annotations_20260605T232858Z.jsonl",
+        "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global200_review_20260606T023000Z.jsonl",
+        "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_representative_review_annotations_20260606T011500Z.jsonl",
+        "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_triage_review_annotations_20260606T004500Z.jsonl",
+        "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T194002Z.jsonl",
+        "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T200254Z.jsonl",
+        "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T202344Z.jsonl",
+        "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T204701Z.jsonl",
+        "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/quarantine_precision_review_annotations_20260605T211220Z.jsonl"
+      ],
+      "policy_sample": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/policy_evaluation_sample_20260605T210154Z.jsonl",
+      "reports_dir": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports"
+    },
+    "next_pack_by_candidate_action": {
+      "keep": 147,
+      "quarantine": 53
+    },
+    "next_pack_by_length_bucket": {
+      "1k_3k": 91,
+      "3k_10k": 53,
+      "ge_10k": 15,
+      "lt_1k": 41
+    },
+    "next_pack_by_quality_bin": {
+      "8": 158,
+      "9": 42
+    },
+    "next_pack_by_risk_band": {
+      "risk_q1": 50,
+      "risk_q2": 52,
+      "risk_q3": 49,
+      "risk_q4": 49
+    },
+    "next_pack_by_source_shard": {
+      "8_1.jsonl.zst": 59,
+      "8_2.jsonl.zst": 99,
+      "9_1.jsonl.zst": 25,
+      "9_2.jsonl.zst": 17
+    },
+    "next_pack_rows": 200,
+    "next_pack_selection": "deterministic proportional stratified sample over unreviewed global_prevalence rows by quality_bin x risk_band",
+    "outputs": {
+      "annotation_template_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_global_prev_2480397_20260606T040025Z/reports/global_prevalence_review_pack/global_prevalence_review_pack_20260606T040025Z_annotation_template.jsonl",
+      "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_global_prev_2480397_20260606T040025Z/reports/global_prevalence_review_pack/global_prevalence_review_pack_20260606T040025Z.md",
+      "review_pack_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_global_prev_2480397_20260606T040025Z/reports/global_prevalence_review_pack/global_prevalence_review_pack_20260606T040025Z.jsonl",
+      "summary_json": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_global_prev_2480397_20260606T040025Z/reports/global_prevalence_review_pack/global_prevalence_review_pack_20260606T040025Z_summary.json"
+    },
+    "policy_note": "Coverage and review-pack artifact only. It does not label rows automatically, mutate source rows, or approve a cleaning overlay.",
+    "prevalence_caveat": "Reviewed coverage is a mixed overlap of prior pilot, action-precision, quarantine, and false-negative reviews; it is useful coverage evidence but not yet the final unbiased prevalence estimate for all 1,067 global-prevalence rows.",
+    "reviewed_actionable_rate_percent": 27.155172413793103,
+    "reviewed_actionable_rows": 63,
+    "reviewed_actionable_wilson_95_ci_percent": [
+      21.838814658769607,
+      33.21573744159295
+    ],
+    "reviewed_serious_rows": 12,
+    "reviewed_unique_rows": 232,
+    "risk_quantile_thresholds": [
+      0.9054621848739496,
+      0.9343065693430657,
+      0.9586973788721207
+    ],
+    "schema_version": "hplt-global-prevalence-review-coverage-v1",
+    "unreviewed_rows": 835
+  },
+  "inputs": {
+    "boundary_spec_summary": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T051935Z_summary.json",
+    "decision_manifest_paths": [
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_annotation_materialization_20260606T004012Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_annotation_materialization_dryrun_20260606T004500Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_comment_suffix_materialization_20260606T021944Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_suffix_materialization_20260606T015713Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_trim_materialization_20260606T012611Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_pending_materialization_20260606T032000Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_suffix_materialization_20260606T022950Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_freepen_duplicate_note_materialization_20260606T014449Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_holdout_drop_materialization_20260606T020432Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_normalization_materialization_20260606T021637Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_safe_split_materialization_20260606T024050Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_short_span_materialization_20260606T011343Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_small_split_materialization_20260606T020747Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_footer_materialization_20260606T013226Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_markers_materialization_20260606T052000Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_trim_materialization_20260606T010712Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_trim_span_materialization_20260606T014014Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T005926Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T011700Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T051000Z_decision_manifest.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_shadow_overlay_20260605T233528Z_manifest.jsonl"
+    ],
+    "error_catalog": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/ERROR_CATALOG.md",
+    "false_negative_global200_summary": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global200_review_20260606T023000Z_summary.json",
+    "global_prevalence_annotation_summary": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_annotation_summary_20260606T044750Z_summary.json",
+    "global_prevalence_review_coverage_summary": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T040025Z_summary.json",
+    "latest_candidate_summary": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/candidate_issue_summary_20260605T204455Z.json",
+    "policy_evaluation_sample_summary": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/policy_evaluation_sample_summary_20260605T210154Z.json",
+    "policy_gate_audit": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/policy_gate_audit_20260606T052025Z.json"
+  },
+  "issue_type_rows": [
+    {
+      "candidate_type": "replacement/control/private-use characters",
+      "catalog_notes": "Only destructive when dense or body-dominating.",
+      "catalog_status": "confirmed",
+      "confirmed_examples": "`hplt::8_1.jsonl.zst::2875495ae31f87a51541a6545b1f0044`, `hplt::8_1.jsonl.zst::37390486240cefe6edaae18793baa139`, `hplt::8_2.jsonl.zst::c40c1cac9d7f5f3bee30cfaff1e683f9`",
+      "error_id": "E001",
+      "fp_fn_warning": "E001 alone is localized; do not drop docs from rare replacement characters.",
+      "main_action_to_test": "`trim_span` / `drop_doc`",
+      "main_reviewed_action": "`normalize_or_trim_span`",
+      "materialized_actions": "normalize_or_trim_span:32",
+      "materialized_source_docs": 32,
+      "retrieval": "`jq -c 'select(.review_true_error_type_ids[]? == \"E001\")' reports/e001_control_char_review_annotations_20260605T232858Z.jsonl`",
+      "reviewed_records": 32,
+      "reviewed_unique_docs": 32,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "escaped Unicode, HTML entities, percent-encoding residue",
+      "catalog_notes": "Normalize only when deterministic; otherwise review.",
+      "error_id": "E002",
+      "main_action_to_test": "`normalize_or_trim_span`",
+      "materialized_actions": "normalize_or_trim_span:1",
+      "materialized_source_docs": 1,
+      "reviewed_records": 1,
+      "reviewed_unique_docs": 1,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "CSS/JS/HTML/XML remnants",
+      "catalog_notes": "Drop only pure extraction failures.",
+      "error_id": "E003",
+      "main_action_to_test": "`trim_span` / `drop_doc`",
+      "materialized_actions": "drop_doc:1, quarantine:1, trim_prefix:1, trim_span:1",
+      "materialized_source_docs": 4,
+      "reviewed_records": 9,
+      "reviewed_unique_docs": 6,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "URL/path/metadata-key dumps",
+      "catalog_notes": "Distinguish bibliographies and citations from dumps.",
+      "error_id": "E004",
+      "main_action_to_test": "`trim_span` / `drop_doc`",
+      "materialized_actions": "drop_doc:9, quarantine:29, split_doc:2, trim_suffix:13",
+      "materialized_source_docs": 53,
+      "reviewed_records": 25,
+      "reviewed_unique_docs": 21,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "mojibake-like symbol and punctuation clutter",
+      "catalog_notes": "Guard against legitimate punctuation-heavy text.",
+      "error_id": "E005",
+      "main_action_to_test": "`trim_span` / `quarantine`",
+      "materialized_actions": "drop_doc:2, normalize_or_trim_span:2, quarantine:2, trim_span:1, trim_suffix:3",
+      "materialized_source_docs": 10,
+      "reviewed_records": 4,
+      "reviewed_unique_docs": 3,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "top navigation/menu chrome",
+      "catalog_notes": "Preserve title and lead paragraph.",
+      "error_id": "E006",
+      "main_action_to_test": "`trim_prefix`",
+      "materialized_actions": "drop_doc:5, quarantine:11, trim_prefix:4, trim_span:2, trim_suffix:11",
+      "materialized_source_docs": 33,
+      "reviewed_records": 18,
+      "reviewed_unique_docs": 13,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "footer/contact/social/copyright chrome",
+      "catalog_notes": "Avoid removing related but real article text.",
+      "catalog_status": "confirmed",
+      "confirmed_examples": "`rq_0387_d8a889386c`, `rq_0072_5960b71c01`, `rq_0432_8959157c45`",
+      "error_id": "E007",
+      "fp_fn_warning": "Do not trim valid related body/data lists.",
+      "main_action_to_test": "`trim_suffix`",
+      "main_reviewed_action": "`trim_suffix`",
+      "materialized_actions": "drop_doc:6, quarantine:25, split_doc:1, trim_span:3, trim_suffix:75",
+      "materialized_source_docs": 110,
+      "retrieval": "`jq -c 'select(.review_true_error_type_ids[]? == \"E007\")' reports/pilot_review_annotations_20260605T200254Z.jsonl`",
+      "reviewed_records": 114,
+      "reviewed_unique_docs": 85,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "cookie/login/newsletter overlays",
+      "catalog_notes": "Often formulaic, but can be interleaved.",
+      "error_id": "E008",
+      "main_action_to_test": "`trim_prefix` / `trim_span`",
+      "materialized_actions": "drop_doc:4, quarantine:3, trim_span:1, trim_suffix:4",
+      "materialized_source_docs": 12,
+      "reviewed_records": 4,
+      "reviewed_unique_docs": 4,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "related-post/comment/share scaffolding",
+      "catalog_notes": "Middle trims require exact repeated-block evidence.",
+      "catalog_status": "confirmed",
+      "confirmed_examples": "`rq_0072_5960b71c01`, `rq_0359_93a0bb8de4`, `rq_0038_ffdaa70425`",
+      "error_id": "E009",
+      "fp_fn_warning": "Date/case-count lists can be valid article content.",
+      "main_action_to_test": "`trim_span`",
+      "main_reviewed_action": "`trim_suffix` / `split_doc` / `quarantine`",
+      "materialized_actions": "drop_doc:8, quarantine:29, split_doc:1, trim_prefix:2, trim_span:6, trim_suffix:42",
+      "materialized_source_docs": 88,
+      "retrieval": "`jq -c 'select(.review_true_error_type_ids[]? == \"E009\")' reports/pilot_review_annotations_20260605T200254Z.jsonl`",
+      "reviewed_records": 98,
+      "reviewed_unique_docs": 69,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "heading/list-only snippets or truncated extraction",
+      "catalog_notes": "Legitimate structured text is a major FP risk.",
+      "catalog_status": "confirmed",
+      "confirmed_examples": "`rq_0115_aa16f781c6`, `rq_0146_a2631f4402`, `rq_0027_a36011cacb`",
+      "error_id": "E010",
+      "fp_fn_warning": "Must distinguish archive/snippet pages from coherent article plus suffix.",
+      "main_action_to_test": "`drop_doc` / `quarantine`",
+      "main_reviewed_action": "`drop_doc` / `quarantine`",
+      "materialized_actions": "drop_doc:18, normalize_or_trim_span:2, quarantine:80, split_doc:5, trim_suffix:19",
+      "materialized_source_docs": 124,
+      "retrieval": "`jq -c 'select(.review_true_error_type_ids[]? == \"E010\")' reports/pilot_review_annotations_20260605T200254Z.jsonl`",
+      "reviewed_records": 141,
+      "reviewed_unique_docs": 100,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "multiple independent documents in one row",
+      "catalog_notes": "Require strong boundary and enough text on both sides.",
+      "catalog_status": "confirmed",
+      "confirmed_examples": "`rq_0359_93a0bb8de4`, `rq_0349_b695ff7ccc`, `rq_0080_92e798fc66`",
+      "error_id": "E011",
+      "fp_fn_warning": "Split only with strong boundaries and enough body text in each child.",
+      "main_action_to_test": "`split_doc`",
+      "main_reviewed_action": "`split_doc` / `quarantine`",
+      "materialized_actions": "drop_doc:1, quarantine:58, split_doc:7",
+      "materialized_source_docs": 66,
+      "retrieval": "`jq -c 'select(.review_true_error_type_ids[]? == \"E011\")' reports/pilot_review_annotations_20260605T200254Z.jsonl`",
+      "reviewed_records": 100,
+      "reviewed_unique_docs": 70,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "repeated title/date/author metadata resets",
+      "catalog_notes": "Often evidence for E011, but can be article series.",
+      "catalog_status": "confirmed",
+      "confirmed_examples": "`rq_0359_93a0bb8de4`, `rq_0349_b695ff7ccc`, `rq_0038_ffdaa70425`",
+      "error_id": "E012",
+      "fp_fn_warning": "Repeated metadata can also be legitimate section structure.",
+      "main_action_to_test": "`split_doc` / `trim_span`",
+      "main_reviewed_action": "`split_doc` / `quarantine`",
+      "materialized_actions": "quarantine:13, split_doc:5",
+      "materialized_source_docs": 18,
+      "retrieval": "`jq -c 'select(.review_true_error_type_ids[]? == \"E012\")' reports/pilot_review_annotations_20260605T200254Z.jsonl`",
+      "reviewed_records": 30,
+      "reviewed_unique_docs": 17,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "internal paragraph or sentence repetition loops",
+      "catalog_notes": "Preserve first occurrence and order.",
+      "error_id": "E013",
+      "main_action_to_test": "`trim_span`",
+      "materialized_actions": "trim_span:2, trim_suffix:1",
+      "materialized_source_docs": 3,
+      "reviewed_records": 6,
+      "reviewed_unique_docs": 4,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "localized gibberish or OCR-like noise islands",
+      "catalog_notes": "Require span-level evidence, not one score alone.",
+      "catalog_status": "confirmed",
+      "confirmed_examples": "`rq_0399_1f587f00ab`, `rq_0017_8051ec2e42`, `rq_0020_74c48e7d58`",
+      "error_id": "E014",
+      "fp_fn_warning": "Some OCR-like substitutions leave readable text; do not drop without dominance evidence.",
+      "main_action_to_test": "`trim_span` / `drop_doc`",
+      "main_reviewed_action": "`drop_doc` / `quarantine`",
+      "materialized_actions": "drop_doc:11, normalize_or_trim_span:3, quarantine:13, trim_suffix:2",
+      "materialized_source_docs": 29,
+      "retrieval": "`jq -c 'select(.review_true_error_type_ids[]? == \"E014\")' reports/pilot_review_annotations_20260605T200254Z.jsonl`",
+      "reviewed_records": 44,
+      "reviewed_unique_docs": 24,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "low Greek body share or language drift",
+      "catalog_notes": "Keep substantive multilingual Greek pages.",
+      "error_id": "E015",
+      "main_action_to_test": "`trim_span` / `drop_doc`",
+      "materialized_actions": "drop_doc:6, quarantine:6, trim_prefix:1, trim_suffix:3",
+      "materialized_source_docs": 16,
+      "reviewed_records": 11,
+      "reviewed_unique_docs": 10,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "SEO keyword lists or machine-generated register spam",
+      "catalog_notes": "Needs review because lists can be valid content.",
+      "catalog_status": "confirmed",
+      "confirmed_examples": "`rq_0098_35a9138cda`, `rq_0164_6780f87821`, `rq_0106_7566b00fd3`",
+      "error_id": "E016",
+      "fp_fn_warning": "Event/product lists can be valid content; reserve for obvious spam/affiliate/keyword rows.",
+      "main_action_to_test": "`drop_doc` / `quarantine`",
+      "main_reviewed_action": "`drop_doc` / `quarantine`",
+      "materialized_actions": "drop_doc:7, quarantine:7, trim_suffix:4",
+      "materialized_source_docs": 18,
+      "retrieval": "`jq -c 'select(.review_true_error_type_ids[]? == \"E016\")' reports/pilot_review_annotations_20260605T200254Z.jsonl`",
+      "reviewed_records": 22,
+      "reviewed_unique_docs": 14,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "table/list extraction fragments without prose",
+      "catalog_notes": "Keep meaningful tables, recipes, legal lists.",
+      "catalog_status": "confirmed",
+      "confirmed_examples": "`rq_0293_ab09f49601`, `rq_0155_558ce7e014`, `rq_0356_0ff2cbdfc7`",
+      "error_id": "E017",
+      "fp_fn_warning": "Meaningful tables, legal lists, and reference pages are FP controls.",
+      "main_action_to_test": "`trim_span` / `quarantine`",
+      "main_reviewed_action": "`quarantine` / `drop_doc`",
+      "materialized_actions": "drop_doc:13, quarantine:62, split_doc:3, trim_prefix:2, trim_suffix:14",
+      "materialized_source_docs": 94,
+      "retrieval": "`jq -c 'select(.review_true_error_type_ids[]? == \"E017\")' reports/pilot_review_annotations_20260605T200254Z.jsonl`",
+      "reviewed_records": 102,
+      "reviewed_unique_docs": 79,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "duplicated main body separated by boilerplate",
+      "catalog_notes": "Preserve one body copy.",
+      "error_id": "E018",
+      "main_action_to_test": "`trim_span`",
+      "materialized_actions": "drop_doc:1, quarantine:1, trim_span:1, trim_suffix:3",
+      "materialized_source_docs": 6,
+      "reviewed_records": 6,
+      "reviewed_unique_docs": 6,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "forum/comment/form scaffolding dominating content",
+      "catalog_notes": "Keep actual discussion text when substantive.",
+      "catalog_status": "confirmed",
+      "confirmed_examples": "`rq_0033_e43a3307ce`, `rq_0186_66ae15fb79`, `rq_0083_c740f0a62f`",
+      "error_id": "E019",
+      "fp_fn_warning": "Keep substantive forum discussion if a clean thread body exists.",
+      "main_action_to_test": "`trim_span` / `drop_doc`",
+      "main_reviewed_action": "`trim_suffix` / `quarantine` / `drop_doc`",
+      "materialized_actions": "drop_doc:3, quarantine:27, split_doc:1, trim_suffix:61",
+      "materialized_source_docs": 92,
+      "retrieval": "`jq -c 'select(.review_true_error_type_ids[]? == \"E019\")' reports/pilot_review_annotations_20260605T200254Z.jsonl`",
+      "reviewed_records": 94,
+      "reviewed_unique_docs": 69,
+      "safe_status": "reviewed_materialized_only"
+    },
+    {
+      "candidate_type": "no main body: tiny fragments, index pages, orphan headings",
+      "catalog_notes": "Needs minimum-content threshold by Greek body text.",
+      "catalog_status": "confirmed",
+      "confirmed_examples": "`rq_0208_349ab25fff`, `rq_0146_a2631f4402`, `rq_0071_bb3426c760`",
+      "error_id": "E020",
+      "fp_fn_warning": "Short coherent news/game articles are major false-positive controls.",
+      "main_action_to_test": "`drop_doc`",
+      "main_reviewed_action": "`drop_doc`",
+      "materialized_actions": "drop_doc:14, quarantine:4, trim_suffix:1",
+      "materialized_source_docs": 19,
+      "retrieval": "`jq -c 'select(.review_true_error_type_ids[]? == \"E020\")' reports/pilot_review_annotations_20260605T200254Z.jsonl`",
+      "reviewed_records": 35,
+      "reviewed_unique_docs": 18,
+      "safe_status": "reviewed_materialized_only"
+    }
+  ],
+  "latest_candidate_summary": {
+    "action_manifest": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_action_manifest_v7_policy_20260605T204452Z/reports/action_manifest/action_manifest_20260605T204455Z.jsonl",
+    "by_action": {
+      "drop_doc": 20,
+      "keep": 1355,
+      "normalize_or_trim_span": 10,
+      "quarantine": 1142,
+      "trim_span": 15
+    },
+    "by_action_status": {
+      "candidate": 2542
+    },
+    "by_error_type": {
+      "E003": 9,
+      "E004": 314,
+      "E005": 47,
+      "E006": 168,
+      "E007": 309,
+      "E008": 47,
+      "E009": 222,
+      "E010": 719,
+      "E011": 26,
+      "E012": 22,
+      "E013": 2,
+      "E014": 123,
+      "E015": 128,
+      "E016": 7,
+      "E017": 611,
+      "E018": 2,
+      "E019": 206,
+      "E020": 112
+    },
+    "by_host": {
+      "alopsis.gr": 4,
+      "atexnos.gr": 4,
+      "athleticlarissa.gr": 3,
+      "blogs.pathfinder.gr": 7,
+      "blogs.sch.gr": 5,
+      "cretanpatriot.wordpress.com": 3,
+      "dealforyou.gr": 3,
+      "dias.library.tuc.gr": 3,
+      "docplayer.gr": 118,
+      "dou.gr": 7,
+      "ebasket.gr": 4,
+      "ellas2.wordpress.com": 4,
+      "enypografa.gr": 3,
+      "exagorefsis.blogspot.gr": 4,
+      "flix.gr": 4,
+      "game20.gr": 4,
+      "goal.philenews.com": 6,
+      "grtechpc.org": 3,
+      "hellenicrevenge.blogspot.com": 3,
+      "indicator.gr": 3,
+      "infood.gr": 4,
+      "issuu.com": 6,
+      "kafeneio-gr.blogspot.gr": 3,
+      "kosmodromio.gr": 4,
+      "mad.tv": 4,
+      "magnesianews.gr": 3,
+      "marketingweek.gr": 3,
+      "newpost.gr": 5,
+      "nomoi.info": 7,
+      "politis.com.cy": 3,
+      "popaganda.gr": 3,
+      "sarantakos.wordpress.com": 4,
+      "slideplayer.gr": 3,
+      "syfeed.com": 6,
+      "techmaniacs.gr": 3,
+      "whenpoetryspeaks.blog": 3,
+      "www.adslgr.com": 3,
+      "www.anatropinews.gr": 3,
+      "www.ant1.com.cy": 4,
+      "www.astratv.gr": 4,
+      "www.athensvoice.gr": 4,
+      "www.athinorama.gr": 5,
+      "www.autoblog.gr": 3,
+      "www.avopolis.gr": 3,
+      "www.capital.gr": 5,
+      "www.dikastiko.gr": 4,
+      "www.dimokratianews.gr": 3,
+      "www.dimokratiki.gr": 3,
+      "www.documentonews.gr": 5,
+      "www.efsyn.gr": 3,
+      "www.ekriti.gr": 6,
+      "www.enternity.gr": 4,
+      "www.enwsi.gr": 3,
+      "www.ereportaz.gr": 4,
+      "www.esos.gr": 6,
+      "www.ethnos.gr": 3,
+      "www.euro2day.gr": 3,
+      "www.frontpages.gr": 12,
+      "www.gadgetfreak.gr": 4,
+      "www.gossip-tv.gr": 4,
+      "www.huffingtonpost.gr": 5,
+      "www.iapopsi.gr": 3,
+      "www.in.gr": 5,
+      "www.infokids.gr": 4,
+      "www.kapa-news.gr": 5,
+      "www.kathimerini.gr": 6,
+      "www.koutipandoras.gr": 4,
+      "www.liberal.gr": 7,
+      "www.mikistheodorakis.gr": 4,
+      "www.naftemporiki.gr": 4,
+      "www.neakriti.gr": 4,
+      "www.newsbeast.gr": 3,
+      "www.newsbomb.gr": 4,
+      "www.newsit.com.cy": 3,
+      "www.newsit.gr": 8,
+      "www.olympia.gr": 3,
+      "www.onalert.gr": 5,
+      "www.onsports.gr": 5,
+      "www.ot.gr": 3,
+      "www.pestaola.gr": 4,
+      "www.press-gr.com": 3,
+      "www.pronews.gr": 5,
+      "www.protothema.gr": 5,
+      "www.queen.gr": 3,
+      "www.reader.gr": 3,
+      "www.rotise.gr": 3,
+      "www.sdna.gr": 7,
+      "www.skroutz.gr": 3,
+      "www.star.gr": 4,
+      "www.taxheaven.gr": 3,
+      "www.thelab.gr": 3,
+      "www.thepaper.gr": 3,
+      "www.thetoc.gr": 5,
+      "www.tlife.gr": 6,
+      "www.tothemaonline.com": 4,
+      "www.tovima.gr": 11,
+      "www.tripadvisor.com.gr": 4,
+      "www.unpolitical.gr": 3,
+      "www.zoosos.gr": 3,
+      "www.zougla.gr": 3
+    },
+    "by_quality_bin": {
+      "10": 208,
+      "8": 1725,
+      "9": 609
+    },
+    "by_sample_set": {
+      "borderline_middle_risk": 300,
+      "global_random": 1067,
+      "top_badness_score": 100,
+      "top_boilerplate_score": 100,
+      "top_encoding_score": 4,
+      "top_internal_repetition_score": 3,
+      "top_lang_drift_score": 100,
+      "top_markup_score": 100,
+      "top_split_candidate_score": 100,
+      "top_symbol_score": 100,
+      "wds_bin_10": 200,
+      "wds_bin_8": 200,
+      "wds_bin_9": 200
+    },
+    "input_manifest": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_cleaning_inventory_resume_20260605T165145Z/experiments/review_bundle_20260605T165151Z/manifest.jsonl",
+    "issue_type_index_dir": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_action_manifest_v7_policy_20260605T204452Z/reports/action_manifest/issue_type_index",
+    "no_candidate_error_type": 1221,
+    "threshold": 0.35,
+    "top_examples_per_type": 20,
+    "total_records": 2542
+  },
+  "policy_evaluation_sample_summary": {
+    "by_candidate_action": {
+      "drop_doc": 20,
+      "keep": 1282,
+      "normalize_or_trim_span": 10,
+      "quarantine": 834,
+      "trim_span": 15
+    },
+    "by_candidate_error_type": {
+      "E003": 9,
+      "E004": 222,
+      "E005": 47,
+      "E006": 130,
+      "E007": 253,
+      "E008": 47,
+      "E009": 175,
+      "E010": 528,
+      "E011": 26,
+      "E012": 22,
+      "E013": 2,
+      "E014": 91,
+      "E015": 87,
+      "E016": 7,
+      "E017": 466,
+      "E018": 2,
+      "E019": 178,
+      "E020": 98
+    },
+    "by_evaluation_task": {
+      "action_precision_drop_doc": 20,
+      "action_precision_normalize_or_trim_span": 10,
+      "action_precision_quarantine": 60,
+      "action_precision_trim_span": 15,
+      "error_precision_E003": 9,
+      "error_precision_E004": 60,
+      "error_precision_E005": 47,
+      "error_precision_E006": 60,
+      "error_precision_E007": 60,
+      "error_precision_E008": 47,
+      "error_precision_E009": 60,
+      "error_precision_E010": 60,
+      "error_precision_E011": 26,
+      "error_precision_E012": 22,
+      "error_precision_E013": 2,
+      "error_precision_E014": 60,
+      "error_precision_E015": 60,
+      "error_precision_E016": 7,
+      "error_precision_E017": 60,
+      "error_precision_E018": 2,
+      "error_precision_E019": 60,
+      "error_precision_E020": 60,
+      "false_negative_control": 300,
+      "global_prevalence_review": 1067,
+      "host_hotspot_review": 135,
+      "wds_bin_10_review": 200,
+      "wds_bin_8_review": 200,
+      "wds_bin_9_review": 200
+    },
+    "by_sampling_stratum": {
+      "action_precision_drop_doc": 20,
+      "action_precision_normalize_or_trim_span": 10,
+      "action_precision_quarantine": 60,
+      "action_precision_trim_span": 15,
+      "error_precision_E003": 9,
+      "error_precision_E004": 60,
+      "error_precision_E005": 47,
+      "error_precision_E006": 60,
+      "error_precision_E007": 60,
+      "error_precision_E008": 47,
+      "error_precision_E009": 60,
+      "error_precision_E010": 60,
+      "error_precision_E011": 26,
+      "error_precision_E012": 22,
+      "error_precision_E013": 2,
+      "error_precision_E014": 60,
+      "error_precision_E015": 60,
+      "error_precision_E016": 7,
+      "error_precision_E017": 60,
+      "error_precision_E018": 2,
+      "error_precision_E019": 60,
+      "error_precision_E020": 60,
+      "false_negative_controls": 300,
+      "global_prevalence": 1067,
+      "host_hotspot_blogs.pathfinder.gr": 7,
+      "host_hotspot_blogs.sch.gr": 5,
+      "host_hotspot_docplayer.gr": 10,
+      "host_hotspot_dou.gr": 7,
+      "host_hotspot_goal.philenews.com": 6,
+      "host_hotspot_issuu.com": 6,
+      "host_hotspot_nomoi.info": 7,
+      "host_hotspot_syfeed.com": 6,
+      "host_hotspot_www.ekriti.gr": 6,
+      "host_hotspot_www.esos.gr": 6,
+      "host_hotspot_www.frontpages.gr": 10,
+      "host_hotspot_www.kapa-news.gr": 5,
+      "host_hotspot_www.kathimerini.gr": 6,
+      "host_hotspot_www.liberal.gr": 7,
+      "host_hotspot_www.newsit.gr": 8,
+      "host_hotspot_www.onalert.gr": 5,
+      "host_hotspot_www.pronews.gr": 5,
+      "host_hotspot_www.sdna.gr": 7,
+      "host_hotspot_www.tlife.gr": 6,
+      "host_hotspot_www.tovima.gr": 10,
+      "wds_bin_10": 200,
+      "wds_bin_8": 200,
+      "wds_bin_9": 200
+    },
+    "input_action_manifest": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_action_manifest_v7_policy_20260605T204452Z/reports/action_manifest/action_manifest_20260605T204455Z.jsonl",
+    "policy_evaluation_sample_csv": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_policy_evaluation_sample_20260605T210154Z/reports/policy_evaluation_sample/policy_evaluation_sample_20260605T210154Z.csv",
+    "policy_evaluation_sample_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_policy_evaluation_sample_20260605T210154Z/reports/policy_evaluation_sample/policy_evaluation_sample_20260605T210154Z.jsonl",
+    "policy_evaluation_sample_md": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_policy_evaluation_sample_20260605T210154Z/reports/policy_evaluation_sample/policy_evaluation_sample_20260605T210154Z.md",
+    "prior_reviewed_records": 94,
+    "records": 2161,
+    "sample_rationale": {
+      "action_precision": "Up to 60 rows per action, or all rows when fewer exist. With zero false positives, rule-of-three gives an upper FP bound near 5%, matching the default 95% destructive-rule precision gate.",
+      "error_precision": "Up to 60 rows per error ID, prioritizing high-confidence examples plus random remainder. With zero false positives this is just enough to make 95% precision plausible; any observed FP implies more review or a stricter rule.",
+      "false_negative_controls": "Up to 300 keep/no-candidate or borderline controls. If zero serious false negatives are found, rule-of-three gives an upper serious-FN rate around 1% in that control frame.",
+      "global_prevalence": "Up to 1,067 global-random rows: about +/-3 percentage-point 95% CI half-width at worst-case binary prevalence before finite-population correction.",
+      "host_hotspots": "Top hosts are sampled separately so a high-volume domain cannot hide a domain-specific extraction failure behind global averages.",
+      "wds_bin": "Up to 200 rows per WDS bin: about +/-7 percentage-point within-bin 95% CI half-width at worst-case prevalence."
+    },
+    "selection": {
+      "action_precision_n": 60,
+      "error_precision_n": 60,
+      "false_negative_borderline_n": 100,
+      "false_negative_global_n": 200,
+      "global_random_n": 1067,
+      "host_hotspot_count": 20,
+      "host_hotspot_n": 10,
+      "seed": 20260605,
+      "wds_bin_n": 200,
+      "wds_bins": [
+        "8",
+        "9",
+        "10"
+      ]
+    },
+    "source_counts": {
+      "by_action": {
+        "drop_doc": 20,
+        "keep": 1355,
+        "normalize_or_trim_span": 10,
+        "quarantine": 1142,
+        "trim_span": 15
+      },
+      "by_error_type": {
+        "E003": 9,
+        "E004": 314,
+        "E005": 47,
+        "E006": 168,
+        "E007": 309,
+        "E008": 47,
+        "E009": 222,
+        "E010": 719,
+        "E011": 26,
+        "E012": 22,
+        "E013": 2,
+        "E014": 123,
+        "E015": 128,
+        "E016": 7,
+        "E017": 611,
+        "E018": 2,
+        "E019": 206,
+        "E020": 112
+      },
+      "by_host_top": {
+        "alopsis.gr": 4,
+        "atexnos.gr": 4,
+        "blogs.pathfinder.gr": 7,
+        "blogs.sch.gr": 5,
+        "docplayer.gr": 118,
+        "dou.gr": 7,
+        "ellas2.wordpress.com": 4,
+        "flix.gr": 4,
+        "goal.philenews.com": 6,
+        "infood.gr": 4,
+        "issuu.com": 6,
+        "kosmodromio.gr": 4,
+        "mad.tv": 4,
+        "newpost.gr": 5,
+        "nomoi.info": 7,
+        "sarantakos.wordpress.com": 4,
+        "syfeed.com": 6,
+        "www.ant1.com.cy": 4,
+        "www.athinorama.gr": 5,
+        "www.capital.gr": 5,
+        "www.dikastiko.gr": 4,
+        "www.documentonews.gr": 5,
+        "www.ekriti.gr": 6,
+        "www.enternity.gr": 4,
+        "www.ereportaz.gr": 4,
+        "www.esos.gr": 6,
+        "www.frontpages.gr": 12,
+        "www.gossip-tv.gr": 4,
+        "www.huffingtonpost.gr": 5,
+        "www.in.gr": 5,
+        "www.infokids.gr": 4,
+        "www.kapa-news.gr": 5,
+        "www.kathimerini.gr": 6,
+        "www.koutipandoras.gr": 4,
+        "www.liberal.gr": 7,
+        "www.naftemporiki.gr": 4,
+        "www.neakriti.gr": 4,
+        "www.newsbomb.gr": 4,
+        "www.newsit.gr": 8,
+        "www.onalert.gr": 5,
+        "www.onsports.gr": 5,
+        "www.pestaola.gr": 4,
+        "www.pronews.gr": 5,
+        "www.protothema.gr": 5,
+        "www.sdna.gr": 7,
+        "www.thetoc.gr": 5,
+        "www.tlife.gr": 6,
+        "www.tothemaonline.com": 4,
+        "www.tovima.gr": 11,
+        "www.tripadvisor.com.gr": 4
+      },
+      "by_quality_bin": {
+        "10": 208,
+        "8": 1725,
+        "9": 609
+      },
+      "by_sample_set": {
+        "borderline_middle_risk": 300,
+        "global_random": 1067,
+        "top_badness_score": 100,
+        "top_boilerplate_score": 100,
+        "top_encoding_score": 4,
+        "top_internal_repetition_score": 3,
+        "top_lang_drift_score": 100,
+        "top_markup_score": 100,
+        "top_split_candidate_score": 100,
+        "top_symbol_score": 100,
+        "wds_bin_10": 200,
+        "wds_bin_8": 200,
+        "wds_bin_9": 200
+      }
+    }
+  },
+  "policy_note": "Synthesis only. This does not mutate source HPLT rows or approve an automatic full overlay.",
+  "recommendation": {
+    "apply_full_hplt_cleaning_overlay": false,
+    "rationale": "Do not apply a full HPLT cleaning overlay because these gates are still not met: char_token_deltas, destructive_precision, remaining_false_negatives.",
+    "recommendation": "do_not_apply_full_overlay",
+    "safe_current_use": "Use the reviewed materialized duplicate/shadow decisions as auditable evidence or a manually scoped derived-stream pilot only; do not promote broad detector actions to the full HPLT slice."
+  },
+  "review_action_counts": {
+    "drop_doc": 68,
+    "keep": 431,
+    "normalize_or_trim_span": 40,
+    "quarantine": 108,
+    "split_doc": 43,
+    "trim_prefix": 7,
+    "trim_span": 10,
+    "trim_suffix": 147
+  },
+  "review_good_text_loss_by_action": {
+    "drop_doc": {
+      "low": 56,
+      "medium": 4,
+      "none": 2,
+      "unknown": 6
+    },
+    "normalize_or_trim_span": {
+      "high": 3,
+      "low": 37
+    },
+    "quarantine": {
+      "high": 30,
+      "medium": 60,
+      "unknown": 18
+    },
+    "split_doc": {
+      "high": 2,
+      "low": 4,
+      "medium": 31,
+      "unknown": 6
+    },
+    "trim_prefix": {
+      "low": 6,
+      "medium": 1
+    },
+    "trim_span": {
+      "low": 8,
+      "low_to_medium": 2
+    },
+    "trim_suffix": {
+      "high": 7,
+      "low": 116,
+      "low_to_medium": 1,
+      "medium": 9,
+      "unknown": 14
+    }
+  },
+  "review_label_counts": {
+    "clean": 364,
+    "false_negative_found": 135,
+    "false_positive": 66,
+    "partial_true_positive": 165,
+    "true_positive": 120,
+    "unclear": 4
+  },
+  "reviewed_issue_ids": [
+    "E001",
+    "E002",
+    "E003",
+    "E004",
+    "E005",
+    "E006",
+    "E007",
+    "E008",
+    "E009",
+    "E010",
+    "E011",
+    "E012",
+    "E013",
+    "E014",
+    "E015",
+    "E016",
+    "E017",
+    "E018",
+    "E019",
+    "E020"
+  ],
+  "reviewed_rows": 854,
+  "reviewed_true_error_type_counts": {
+    "E001": 32,
+    "E002": 1,
+    "E003": 9,
+    "E004": 25,
+    "E005": 4,
+    "E006": 18,
+    "E007": 114,
+    "E008": 4,
+    "E009": 98,
+    "E010": 141,
+    "E011": 100,
+    "E012": 30,
+    "E013": 6,
+    "E014": 44,
+    "E015": 11,
+    "E016": 22,
+    "E017": 102,
+    "E018": 6,
+    "E019": 94,
+    "E020": 35
+  },
+  "reviewed_unique_doc_counts_by_error_type": {
+    "E001": 32,
+    "E002": 1,
+    "E003": 6,
+    "E004": 21,
+    "E005": 3,
+    "E006": 13,
+    "E007": 85,
+    "E008": 4,
+    "E009": 69,
+    "E010": 100,
+    "E011": 70,
+    "E012": 17,
+    "E013": 4,
+    "E014": 24,
+    "E015": 10,
+    "E016": 14,
+    "E017": 79,
+    "E018": 6,
+    "E019": 69,
+    "E020": 18
+  },
+  "reviewed_unique_source_docs": 626,
+  "schema_version": "hplt-policy-recommendation-v1",
+  "serious_false_negative_examples": [
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global200_review_20260606T023000Z.jsonl",
+      "host": "cityface.gr",
+      "review_correct_action": "split_doc",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "Date/listing page concatenates several distinct crime/local-news snippets.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::ea80a380a819cb9ef56d34ced6abf673"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+      "host": "cityportal.gr",
+      "review_correct_action": "quarantine",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "WordPress embed page: short truncated excerpt plus embed-copy instructions; not enough reliable main article text for automatic keep.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E017",
+        "E020"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::66922ded4288f817103884435c8fa7ad"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global200_review_20260606T023000Z.jsonl",
+      "host": "dimoskaipoliteia.gr",
+      "review_correct_action": "split_doc",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "News menu/listing row contains multiple short political/news snippets rather than one main body.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::b28b00a92a38b9be25baf57b691f1b4d"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+      "host": "espana-en-paris.com",
+      "review_correct_action": "quarantine",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "Generic Olympiacos SEO-style article on a Spanish-in-Paris URL; strong domain/register mismatch suggests content spam, so quarantine for review.",
+      "review_true_error_type_ids": [
+        "E016"
+      ],
+      "source_doc_id": "hplt::8_1.jsonl.zst::9bb0bb18539040e058fb72b19aecd283"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global200_review_20260606T023000Z.jsonl",
+      "host": "ipografi.com",
+      "review_correct_action": "split_doc",
+      "review_good_text_loss_risk": "low",
+      "review_notes": "Date/archive page contains multiple independent snippets separated by 'Συνέχεια ανάγνωσης'.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::bdf123980c0690054054107bf994b033"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+      "host": "kliktv.gr",
+      "review_correct_action": "quarantine",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "Short truncated excerpt with \"The post appeared first\", duplicate title/source boilerplate, and share marker; insufficient reliable main body.",
+      "review_true_error_type_ids": [
+        "E007",
+        "E009",
+        "E020"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::eee9d20461ca4e1725d7af1bf2fa53ed"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+      "host": "matiastanea.gr",
+      "review_correct_action": "quarantine",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "Search-results page for Patras with many unrelated snippets and abrupt topic shifts; no single clean main document.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E017"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::21854ffa4d34a50e749dd34f654bcb55"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+      "host": "messiniapress.gr",
+      "review_correct_action": "quarantine",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "Tag page for Peloponnisos Expo with multiple unrelated local-news snippets and \"Δείτε περισσότερα\" separators; no single clean main article.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E017"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::319fc8bc72d1e6a6ea8f1d18651c4792"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+      "host": "mysatelite.wordpress.com",
+      "review_correct_action": "quarantine",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "WordPress tag archive with multiple `Συνέχεια →` excerpts and abrupt topic shifts; candidate keep missed attached/truncated documents.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E012"
+      ],
+      "source_doc_id": "hplt::9_2.jsonl.zst::72abf85b1fc1c9786f6ce1c93a7f1d3c"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+      "host": "ngnm.vrahokipos.net",
+      "review_correct_action": "split_doc",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "Two independent essays are attached: ancient Greek/anarchist themes abruptly shift to a separate anarchist-feminism argument; split at the topic reset.",
+      "review_true_error_type_ids": [
+        "E011"
+      ],
+      "source_doc_id": "hplt::9_1.jsonl.zst::e63a08bddef7a8ad459a85eda2b722f7"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+      "host": "paoki.gr",
+      "review_correct_action": "quarantine",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "PAOK category/feed page with site description plus multiple unrelated article snippets from different sources; no single clean main document.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E017"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::9d67d3ce6f01d67f70fc90fa5b51d2d7"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global200_review_20260606T023000Z.jsonl",
+      "host": "sop.edu.pl",
+      "review_correct_action": "drop_doc",
+      "review_good_text_loss_risk": "none",
+      "review_notes": "Adult/product SEO advert dominates the row with machine-like promotional claims and keyword cross-links.",
+      "review_true_error_type_ids": [
+        "E016",
+        "E020"
+      ],
+      "source_doc_id": "hplt::9_1.jsonl.zst::fe43523430675a3689fa1e881c872b8b"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global200_review_20260606T023000Z.jsonl",
+      "host": "superbasket.gr",
+      "review_correct_action": "split_doc",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "Basketball tag page concatenates many unrelated team/player news snippets.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::3fd9ea6393f63981d200875d63958025"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+      "host": "tinealarissa.gr",
+      "review_correct_action": "quarantine",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "Tag archive for `προφητεία` composed of many unrelated truncated snippets; candidate keep missed a serious archive/list page.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E017"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::6121171f325d01abf2c28e1fadcb619a"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global200_review_20260606T023000Z.jsonl",
+      "host": "veteranos.gr",
+      "review_correct_action": "split_doc",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "Category page concatenates several unrelated military/geopolitical snippets.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::4966a3b500873d528647cba1da1ba5f3"
+    },
+    {
+      "annotation_file": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global200_review_20260606T023000Z.jsonl",
+      "host": "www.argolikeseidhseis.gr",
+      "review_correct_action": "drop_doc",
+      "review_good_text_loss_risk": "medium",
+      "review_notes": "Search/label URL yields a short orphan news snippet without a stable full article body.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E020"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::b8ba1d837212dbb0682ae1371362d1be"
+    }
+  ]
+}

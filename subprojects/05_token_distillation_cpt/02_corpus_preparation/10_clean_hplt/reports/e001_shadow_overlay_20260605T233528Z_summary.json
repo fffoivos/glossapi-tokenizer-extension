@@ -1,0 +1,109 @@
+{
+  "annotations": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_control_char_review_annotations_20260605T232858Z.jsonl",
+  "by_action": {
+    "normalize_or_trim_span": 32
+  },
+  "by_host": [
+    [
+      "www.frontpages.gr",
+      4
+    ],
+    [
+      "issuu.com",
+      4
+    ],
+    [
+      "xyzcontagion.wordpress.com",
+      4
+    ],
+    [
+      "olympia.gr",
+      2
+    ],
+    [
+      "fdocument.org",
+      2
+    ],
+    [
+      "www.writing-online.gr",
+      1
+    ],
+    [
+      "el.wikipedia.org",
+      1
+    ],
+    [
+      "www.ksipnistere.com",
+      1
+    ],
+    [
+      "asmpa.espivblogs.net",
+      1
+    ],
+    [
+      "pontosandaristera.wordpress.com",
+      1
+    ],
+    [
+      "slideplayer.gr",
+      1
+    ],
+    [
+      "monidadias-news.blogspot.gr",
+      1
+    ],
+    [
+      "vlasisarfarablogspotcom.blogspot.com",
+      1
+    ],
+    [
+      "paperzz.com",
+      1
+    ],
+    [
+      "pygemos.blogspot.com",
+      1
+    ],
+    [
+      "mjacksontruth.wordpress.com",
+      1
+    ],
+    [
+      "stigalaria.wordpress.com",
+      1
+    ],
+    [
+      "docplayer.gr",
+      1
+    ],
+    [
+      "nakedtruth.gr",
+      1
+    ],
+    [
+      "roides.wordpress.com",
+      1
+    ],
+    [
+      "www.racavedigger.com",
+      1
+    ]
+  ],
+  "chars_removed": 166,
+  "created_at_utc": "2026-06-05T23:35:28Z",
+  "expected_reviewed_rows": 32,
+  "hash_mismatches": [],
+  "input": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet",
+  "manifest_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_e001_shadow_overlay_20260605T233515Z/reports/e001_shadow_overlay/e001_shadow_overlay_20260605T233528Z_manifest.jsonl",
+  "materialized_rows": 32,
+  "missing_expected_source_doc_ids": [],
+  "policy_note": "E001-only shadow overlay pilot. Original HPLT rows are immutable; changed text exists only in shadow_records.",
+  "schema_version": "hplt-e001-shadow-overlay-summary-v1",
+  "shadow_records": 32,
+  "shadow_records_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_e001_shadow_overlay_20260605T233515Z/reports/e001_shadow_overlay/e001_shadow_overlay_20260605T233528Z_shadow_records.jsonl",
+  "source_dataset": "HPLT/ell_Grek_ge8_no_mt_clean60",
+  "token_delta_rows": 32,
+  "tokenizer_json": "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480/tokenizer.json",
+  "tokens_removed": 144,
+  "unchanged_after_source_doc_ids": []
+}

@@ -1,0 +1,540 @@
+{
+  "candidate_keep_rows": 1282,
+  "created_at_utc": "20260606T060119Z",
+  "full_text_chars": 0,
+  "inputs": {
+    "annotation_files": [
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/destructive_span_policy_review_annotations_20260605T210613Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_control_char_review_annotations_20260605T232858Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global200_review_20260606T023000Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_representative_review_annotations_20260606T011500Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_triage_review_annotations_20260606T004500Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T041500Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T042000Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T042006Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T042702Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T043113Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T043422Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T043726Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044027Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T054500Z_part050.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T194002Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T200254Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T202344Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T204701Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/quarantine_precision_review_annotations_20260605T211220Z.jsonl"
+    ],
+    "policy_sample": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/policy_evaluation_sample_20260605T210154Z.jsonl",
+    "reports_dir": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports"
+  },
+  "known_serious_fn_caught_examples": [
+    {
+      "host": "www.patrisnews.com",
+      "review_correct_action": "split_doc",
+      "review_notes": "Culture category page concatenates many unrelated article snippets.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_1.jsonl.zst::46ec187a9913d33fbf15ca4672598718",
+      "url": "http://www.patrisnews.com/nea-enimerosi/politismos?page=6",
+      "url_rescue_reasons": [
+        "query_key_page"
+      ],
+      "url_rescue_score": 1.0
+    },
+    {
+      "host": "www.ftiaxno.gr",
+      "review_correct_action": "split_doc",
+      "review_notes": "Search/label page concatenates multiple cultivation posts separated by date/title resets.",
+      "review_true_error_type_ids": [
+        "E011",
+        "E012"
+      ],
+      "source_doc_id": "hplt::8_1.jsonl.zst::77109da0b91372d552ce8dc62e37e6f4",
+      "url": "http://www.ftiaxno.gr/search/label/%CE%9A%CE%91%CE%9B%CE%9B%CE%99%CE%95%CE%A1%CE%93%CE%95%CE%99%CE%91%20%CE%9F%CE%A3%CE%A0%CE%A1%CE%99%CE%A9%CE%9D",
+      "url_rescue_reasons": [
+        "path_label",
+        "path_search_label"
+      ],
+      "url_rescue_score": 1.75
+    },
+    {
+      "host": "www.newsit.gr",
+      "review_correct_action": "split_doc",
+      "review_notes": "Newsit ArticleList page concatenates many timestamped snippets and 'full article' links; not a single main body.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::0bc5e62aad023adce1917df78cd27e33",
+      "url": "http://www.newsit.gr/default.php?pname=ArticleList&catid=3",
+      "url_rescue_reasons": [
+        "query_articlelist",
+        "query_key_catid",
+        "query_key_pname",
+        "query_pname_catid"
+      ],
+      "url_rescue_score": 1.75
+    },
+    {
+      "host": "superbasket.gr",
+      "review_correct_action": "split_doc",
+      "review_notes": "Basketball tag page concatenates many unrelated team/player news snippets.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::3fd9ea6393f63981d200875d63958025",
+      "url": "https://superbasket.gr/component/tags/tag/eleftheria-mosxatou.html",
+      "url_rescue_reasons": [
+        "path_component_tags_tag",
+        "path_tag",
+        "path_tags"
+      ],
+      "url_rescue_score": 1.75
+    },
+    {
+      "host": "veteranos.gr",
+      "review_correct_action": "split_doc",
+      "review_notes": "Category page concatenates several unrelated military/geopolitical snippets.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::4966a3b500873d528647cba1da1ba5f3",
+      "url": "https://veteranos.gr/category/slide/page/15/",
+      "url_rescue_reasons": [
+        "path_category",
+        "path_page_number"
+      ],
+      "url_rescue_score": 1.0
+    },
+    {
+      "host": "dimoskaipoliteia.gr",
+      "review_correct_action": "split_doc",
+      "review_notes": "News menu/listing row contains multiple short political/news snippets rather than one main body.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::b28b00a92a38b9be25baf57b691f1b4d",
+      "url": "http://dimoskaipoliteia.gr/eidiseis-menu/ellada-menu?limit=5&start=30",
+      "url_rescue_reasons": [
+        "query_key_limit",
+        "query_key_start",
+        "query_limit_start"
+      ],
+      "url_rescue_score": 1.75
+    },
+    {
+      "host": "www.argolikeseidhseis.gr",
+      "review_correct_action": "drop_doc",
+      "review_notes": "Search/label URL yields a short orphan news snippet without a stable full article body.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E020"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::b8ba1d837212dbb0682ae1371362d1be",
+      "url": "https://www.argolikeseidhseis.gr/search/label/%CE%91%CE%A0%CE%9F%CE%A1%CE%A1%CE%99%CE%9C%CE%9C%CE%91%CE%A4%CE%91",
+      "url_rescue_reasons": [
+        "path_label",
+        "path_search_label"
+      ],
+      "url_rescue_score": 1.75
+    },
+    {
+      "host": "ipografi.com",
+      "review_correct_action": "split_doc",
+      "review_notes": "Date/archive page contains multiple independent snippets separated by 'Συνέχεια ανάγνωσης'.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::bdf123980c0690054054107bf994b033",
+      "url": "http://ipografi.com/2013/12/14/",
+      "url_rescue_reasons": [
+        "path_date_archive"
+      ],
+      "url_rescue_score": 1.0
+    },
+    {
+      "host": "cityface.gr",
+      "review_correct_action": "split_doc",
+      "review_notes": "Date/listing page concatenates several distinct crime/local-news snippets.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::ea80a380a819cb9ef56d34ced6abf673",
+      "url": "https://cityface.gr/index.php/news/crime/itemlist/date/2018/9?limit=4&start=24",
+      "url_rescue_reasons": [
+        "path_itemlist_date",
+        "query_key_limit",
+        "query_key_start",
+        "query_limit_start"
+      ],
+      "url_rescue_score": 3.5
+    },
+    {
+      "host": "www.tothemaonline.com",
+      "review_correct_action": "quarantine",
+      "review_notes": "Tag search page for `μέλλον` composed of unrelated news/astrology/real-estate snippets; candidate keep missed a serious archive/list page.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E017"
+      ],
+      "source_doc_id": "hplt::8_1.jsonl.zst::9ab84e72162692e9418ecd5d8978d72d",
+      "url": "https://www.tothemaonline.com/Tag/?s=%CE%BC%CE%AD%CE%BB%CE%BB%CE%BF%CE%BD",
+      "url_rescue_reasons": [
+        "path_tag"
+      ],
+      "url_rescue_score": 1.0
+    },
+    {
+      "host": "mysatelite.wordpress.com",
+      "review_correct_action": "quarantine",
+      "review_notes": "WordPress tag archive with multiple `Συνέχεια →` excerpts and abrupt topic shifts; candidate keep missed attached/truncated documents.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E012"
+      ],
+      "source_doc_id": "hplt::9_2.jsonl.zst::72abf85b1fc1c9786f6ce1c93a7f1d3c",
+      "url": "https://mysatelite.wordpress.com/tag/%CF%83%CE%B7%CE%BC%CE%B1%CE%AF%CE%BD%CE%B5%CE%B9/",
+      "url_rescue_reasons": [
+        "path_tag"
+      ],
+      "url_rescue_score": 1.0
+    },
+    {
+      "host": "tinealarissa.gr",
+      "review_correct_action": "quarantine",
+      "review_notes": "Tag archive for `προφητεία` composed of many unrelated truncated snippets; candidate keep missed a serious archive/list page.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E017"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::6121171f325d01abf2c28e1fadcb619a",
+      "url": "https://tinealarissa.gr/index.php/tag/profitia/",
+      "url_rescue_reasons": [
+        "path_tag"
+      ],
+      "url_rescue_score": 1.0
+    },
+    {
+      "host": "ngnm.vrahokipos.net",
+      "review_correct_action": "split_doc",
+      "review_notes": "Two independent essays are attached: ancient Greek/anarchist themes abruptly shift to a separate anarchist-feminism argument; split at the topic reset.",
+      "review_true_error_type_ids": [
+        "E011"
+      ],
+      "source_doc_id": "hplt::9_1.jsonl.zst::e63a08bddef7a8ad459a85eda2b722f7",
+      "url": "https://ngnm.vrahokipos.net/index.php?option=com_content&view=article&id=1879:ta-kaka-kori-tsia-tis-arxaio-titas-i-poies-den-masou-san-tarama&catid=24&Itemid=172",
+      "url_rescue_reasons": [
+        "query_key_catid",
+        "query_key_view"
+      ],
+      "url_rescue_score": 1.0
+    },
+    {
+      "host": "paoki.gr",
+      "review_correct_action": "quarantine",
+      "review_notes": "PAOK category/feed page with site description plus multiple unrelated article snippets from different sources; no single clean main document.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E017"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::9d67d3ce6f01d67f70fc90fa5b51d2d7",
+      "url": "https://paoki.gr/category/podosfairo.gr.html?page=9",
+      "url_rescue_reasons": [
+        "path_category",
+        "query_key_page"
+      ],
+      "url_rescue_score": 2.0
+    },
+    {
+      "host": "messiniapress.gr",
+      "review_correct_action": "quarantine",
+      "review_notes": "Tag page for Peloponnisos Expo with multiple unrelated local-news snippets and \"Δείτε περισσότερα\" separators; no single clean main article.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E017"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::319fc8bc72d1e6a6ea8f1d18651c4792",
+      "url": "https://messiniapress.gr/tag/peloponnisos-expo/",
+      "url_rescue_reasons": [
+        "path_tag"
+      ],
+      "url_rescue_score": 1.0
+    },
+    {
+      "host": "www.rdeco.gr",
+      "review_correct_action": "quarantine",
+      "review_notes": "Archive/page-5 URL concatenates several independent interior-design posts/snippets; candidate keep missed a serious list/attached-document row.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E017"
+      ],
+      "source_doc_id": "hplt::9_1.jsonl.zst::151dd18ff52b4fe7f203ad2c765e2320",
+      "url": "http://www.rdeco.gr/page/5/",
+      "url_rescue_reasons": [
+        "path_page_number"
+      ],
+      "url_rescue_score": 1.0
+    }
+  ],
+  "known_serious_fn_missed_examples": [
+    {
+      "host": "www.economistas.gr",
+      "review_correct_action": "split_doc",
+      "review_notes": "Economistas person/topic page contains several unrelated Novartis/Touloupaki snippets.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::6dac156177d8a699e8d498e47acf1385",
+      "url": "https://www.economistas.gr/eleni-toyloypaki",
+      "url_rescue_reasons": [],
+      "url_rescue_score": 0.0
+    },
+    {
+      "host": "www.economistas.gr",
+      "review_correct_action": "split_doc",
+      "review_notes": "Economistas hotel topic page is a multi-snippet index, not one article.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::b6cbfc1b11d606c076aa7535202a2fa5",
+      "url": "https://www.economistas.gr/xenodoheia",
+      "url_rescue_reasons": [],
+      "url_rescue_score": 0.0
+    },
+    {
+      "host": "sop.edu.pl",
+      "review_correct_action": "drop_doc",
+      "review_notes": "Adult/product SEO advert dominates the row with machine-like promotional claims and keyword cross-links.",
+      "review_true_error_type_ids": [
+        "E016",
+        "E020"
+      ],
+      "source_doc_id": "hplt::9_1.jsonl.zst::fe43523430675a3689fa1e881c872b8b",
+      "url": "https://sop.edu.pl/el/%CF%84%CE%BF-bigboy-%CE%B8%CE%B1-%CE%B5%CE%BD%CE%B9%CF%83%CF%87%CF%8D%CF%83%CE%B5%CE%B9-%CF%84%CE%B7-%CF%83%CF%84%CF%8D%CF%83%CE%B7-%CF%83%CE%B1%CF%82-%CE%BA%CE%B1%CE%B9-%CE%B8%CE%B1-%CE%B1%CF%85/",
+      "url_rescue_reasons": [],
+      "url_rescue_score": 0.0
+    },
+    {
+      "host": "www.ekriti.gr",
+      "review_correct_action": "split_doc",
+      "review_notes": "One row contains at least two independent science/health articles: Milky Way mass and sunlight/Covid mortality. Split at the topic boundary.",
+      "review_true_error_type_ids": [
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_1.jsonl.zst::0ae7d8f6da5b3cbe4fe8838c5012a255",
+      "url": "https://www.ekriti.gr/epistimi/o-galaxias-mas-ehei-maza-oso-890-disekatommyria-ilioi",
+      "url_rescue_reasons": [],
+      "url_rescue_score": 0.0
+    },
+    {
+      "host": "www.greekmoney.gr",
+      "review_correct_action": "drop_doc",
+      "review_notes": "GreekMoney advertising/contact page plus unrelated link list; no useful Greek main text to preserve.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E016",
+        "E017",
+        "E020"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::dc2c53812a15680a3c606c0d5117ecb2",
+      "url": "http://www.greekmoney.gr/index.php/diafimisi.html",
+      "url_rescue_reasons": [],
+      "url_rescue_score": 0.0
+    },
+    {
+      "host": "cityportal.gr",
+      "review_correct_action": "quarantine",
+      "review_notes": "WordPress embed page: short truncated excerpt plus embed-copy instructions; not enough reliable main article text for automatic keep.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E017",
+        "E020"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::66922ded4288f817103884435c8fa7ad",
+      "url": "https://cityportal.gr/thlipsi-gia-ton-thanato-se-trochaio-toy-vrazilianoy-influencer-zese-koz-kai-toy-soyrastei-gyrizan-ton-kosmo-me-enan-skaravaio/embed/",
+      "url_rescue_reasons": [],
+      "url_rescue_score": 0.0
+    },
+    {
+      "host": "matiastanea.gr",
+      "review_correct_action": "quarantine",
+      "review_notes": "Search-results page for Patras with many unrelated snippets and abrupt topic shifts; no single clean main document.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E017"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::21854ffa4d34a50e749dd34f654bcb55",
+      "url": "http://matiastanea.gr/gr/search/%CF%80%CE%AC%CF%84%CF%81%CE%B1",
+      "url_rescue_reasons": [],
+      "url_rescue_score": 0.0
+    },
+    {
+      "host": "kliktv.gr",
+      "review_correct_action": "quarantine",
+      "review_notes": "Short truncated excerpt with \"The post appeared first\", duplicate title/source boilerplate, and share marker; insufficient reliable main body.",
+      "review_true_error_type_ids": [
+        "E007",
+        "E009",
+        "E020"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::eee9d20461ca4e1725d7af1bf2fa53ed",
+      "url": "https://kliktv.gr/%CF%83%CE%B5%CE%BE-%CE%AC%CE%BD%CE%B4%CF%81%CE%B5%CF%82-%CE%AE-%CE%B3%CF%85%CE%BD%CE%B1%CE%AF%CE%BA%CE%B5%CF%82-%CE%AD%CF%87%CE%BF%CF%85%CE%BD-%CE%B9%CF%83%CF%87%CF%85%CF%81%CF%8C%CF%84%CE%B5%CF%81/",
+      "url_rescue_reasons": [],
+      "url_rescue_score": 0.0
+    },
+    {
+      "host": "www.ekriti.gr",
+      "review_correct_action": "split_doc",
+      "review_notes": "Panelladikes article is followed by an unrelated attached report about a child recovering after a kart accident; split at the abrupt topic boundary.",
+      "review_true_error_type_ids": [
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::d57351d3fd730c12768bb29dd8aaaf87",
+      "url": "https://www.ekriti.gr/ellada/panelladikes-2021-anakoinothikan-oi-vathmologies-pos-tha-tis-doyn-oi-ypopsifioi",
+      "url_rescue_reasons": [],
+      "url_rescue_score": 0.0
+    },
+    {
+      "host": "espana-en-paris.com",
+      "review_correct_action": "quarantine",
+      "review_notes": "Generic Olympiacos SEO-style article on a Spanish-in-Paris URL; strong domain/register mismatch suggests content spam, so quarantine for review.",
+      "review_true_error_type_ids": [
+        "E016"
+      ],
+      "source_doc_id": "hplt::8_1.jsonl.zst::9bb0bb18539040e058fb72b19aecd283",
+      "url": "https://espana-en-paris.com/descubriendo-el-encanto-espanol-en-paris-un-viaje-por-la-cultura-y-la-experiencia-hispana/",
+      "url_rescue_reasons": [],
+      "url_rescue_score": 0.0
+    },
+    {
+      "host": "www.ekriti.gr",
+      "review_correct_action": "split_doc",
+      "review_notes": "Article about a large shark abruptly shifts to a separate political/pensions report; split at the topic boundary instead of keeping one attached row.",
+      "review_true_error_type_ids": [
+        "E011"
+      ],
+      "source_doc_id": "hplt::8_2.jsonl.zst::602020562af1a07a76f56d16bb091ca3",
+      "url": "https://www.ekriti.gr/kriti/karharias-sta-dihtya-psara-sti-notia-kriti-foto",
+      "url_rescue_reasons": [],
+      "url_rescue_score": 0.0
+    },
+    {
+      "host": "noikokyra.gr",
+      "review_correct_action": "quarantine",
+      "review_notes": "Garden category page concatenates many independent article snippets; candidate keep missed a serious archive/list row.",
+      "review_true_error_type_ids": [
+        "E010",
+        "E011",
+        "E017"
+      ],
+      "source_doc_id": "hplt::8_1.jsonl.zst::38fe9c6d0068af35fb828ab911667c9a",
+      "url": "http://noikokyra.gr/kipos/diafora-kipos/",
+      "url_rescue_reasons": [],
+      "url_rescue_score": 0.0
+    }
+  ],
+  "known_serious_fn_rows": 28,
+  "known_serious_fn_url_signal_caught": 16,
+  "known_serious_fn_url_signal_missed": 12,
+  "known_serious_fn_url_signal_recall": "16/28",
+  "markdown_chars": 5000,
+  "max_records": 80,
+  "outputs": {
+    "annotation_template_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_url_rescue_2480575_20260606T060119Z/reports/url_rescue_pack/serious_fn_url_rescue_pack_20260606T060119Z_annotation_template.jsonl",
+    "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_url_rescue_2480575_20260606T060119Z/reports/url_rescue_pack/serious_fn_url_rescue_pack_20260606T060119Z.md",
+    "review_pack_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_url_rescue_2480575_20260606T060119Z/reports/url_rescue_pack/serious_fn_url_rescue_pack_20260606T060119Z.jsonl",
+    "summary_json": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_url_rescue_2480575_20260606T060119Z/reports/url_rescue_pack/serious_fn_url_rescue_pack_20260606T060119Z_summary.json"
+  },
+  "policy_note": "Review pack only. URL rescue signals may be used for targeted review and detector design, not automatic destructive cleaning.",
+  "policy_sample_rows": 2161,
+  "reviewed_excluded_rows": 416,
+  "reviewed_url_signal_docs": 42,
+  "reviewed_url_signal_outcomes": {
+    "drop_doc|unknown|false_negative_found": 1,
+    "drop_doc|unknown|partial_true_positive": 3,
+    "keep|none|clean": 5,
+    "keep|unknown|clean": 7,
+    "quarantine|moderate|false_negative_found": 1,
+    "quarantine|serious|false_negative_found": 6,
+    "quarantine|unknown|false_negative_found": 3,
+    "split_doc|serious|false_negative_found": 3,
+    "split_doc|unknown|false_negative_found": 7,
+    "trim_span|moderate|false_negative_found": 1,
+    "trim_suffix|minor|false_negative_found": 2,
+    "trim_suffix|moderate|false_negative_found": 1,
+    "trim_suffix|unknown|false_negative_found": 2
+  },
+  "schema_version": "hplt-serious-fn-url-rescue-review-pack-v1",
+  "seed": 20260606,
+  "selected_by_host_top": {
+    "apertus.squat.gr": 1,
+    "biomassenergy.gr": 1,
+    "blogs.sch.gr": 2,
+    "crimesonair.blogspot.gr": 1,
+    "defencereview.gr": 1,
+    "easitis.gr": 1,
+    "eirhinika.wordpress.com": 1,
+    "ellas2.wordpress.com": 2,
+    "enimerosi-aggelies.gr": 1,
+    "eshopkos.gr": 1,
+    "evros24.gr": 1,
+    "flynews.gr": 1,
+    "gnomiartas.gr": 1,
+    "imerisia-ver.gr": 1,
+    "kozan.gr": 1,
+    "myreview.gr": 1,
+    "newsnea.com": 1,
+    "olympictruce.org": 1,
+    "paideia-news.com": 1,
+    "re-union.gr": 1,
+    "sportdog.gr": 1,
+    "vathikokkino.gr": 1,
+    "www.24h.com.cy": 1,
+    "www.aggouria.net": 1,
+    "www.alphafm.gr": 1,
+    "www.dikastiko.gr": 1,
+    "www.kiss929.gr": 1,
+    "www.neakriti.gr": 1,
+    "www.oichalianews.gr": 1,
+    "www.pelop.gr": 1
+  },
+  "selected_by_quality_bin": {
+    "10": 2,
+    "8": 31,
+    "9": 10
+  },
+  "selected_by_url_reason": {
+    "path_archive": 1,
+    "path_archives": 8,
+    "path_category": 2,
+    "path_date_archive": 5,
+    "path_itemlist_date": 1,
+    "path_page_number": 5,
+    "path_tag": 10,
+    "path_tags": 2,
+    "query_key_catid": 3,
+    "query_key_page": 10,
+    "query_key_start": 4,
+    "query_key_view": 5,
+    "query_listing_value": 2
+  },
+  "selected_rows": 43,
+  "selection_threshold": 1.0
+}

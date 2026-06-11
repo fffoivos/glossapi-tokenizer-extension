@@ -1,0 +1,69 @@
+{
+  "schema": "canonical-eval-tasks-v1",
+  "generated_utc": "2026-05-30T16:00:41Z",
+  "rationale": "Locked task list visible to reports + reviewers. Non-canonical data stays on disk but is invisible to renderer + report. Eliminates the case-by-case interpretation problem; report = filtered against this file.",
+  "scope": "Task-1 04 Vanilla CPT diagnostic; expected to be inherited by Task-2 with at most a documented extension.",
+  "sources": [
+    "subprojects/04_cpt_training_regime_on_vanilla/goal/hyperparameters.json eval block",
+    "subprojects/04_cpt_training_regime_on_vanilla/cpt-plan.md §1.4 + §2.1 (Eval table)",
+    "On-disk task identifiers in eval_04_vanilla_goldfish_5b_20260528T112539Z/iter_0001192/retention/results_*.json"
+  ],
+  "greek_native_mcq": {
+    "headline_tasks": [
+      "greekmmlu",
+      "ilsp_medical_mcqa",
+      "ilsp_mcqa_asep"
+    ],
+    "aggregate_rule": "arithmetic_mean of macro_accuracy",
+    "diagnostic_separate": [
+      "plutus_qa"
+    ],
+    "excluded_mt_derived": [
+      "xnli_el",
+      "xcopa_el",
+      "arc_challenge_mt_el",
+      "global_piqa_completions_ell_grek"
+    ]
+  },
+  "retention": {
+    "languages": [
+      "en",
+      "fr",
+      "de",
+      "ru"
+    ],
+    "tasks_per_language": {
+      "en": [
+        {"task": "mmlu", "absent_on_disk": false},
+        {"task": "arc_challenge", "absent_on_disk": false},
+        {"task": "arc_easy", "absent_on_disk": false},
+        {"task": "hellaswag", "absent_on_disk": false},
+        {"task": "piqa", "absent_on_disk": false},
+        {"task": "global_mmlu_en", "absent_on_disk": false},
+        {"task": "xnli_en", "absent_on_disk": false},
+        {"task": "xstorycloze_en", "absent_on_disk": true}
+      ],
+      "fr": [
+        {"task": "global_mmlu_fr", "absent_on_disk": false},
+        {"task": "xnli_fr", "absent_on_disk": false}
+      ],
+      "de": [
+        {"task": "global_mmlu_de", "absent_on_disk": false},
+        {"task": "xnli_de", "absent_on_disk": false}
+      ],
+      "ru": [
+        {"task": "xnli_ru", "absent_on_disk": false},
+        {"task": "xstorycloze_ru", "absent_on_disk": true}
+      ]
+    },
+    "subdomain_aggregation_rule": "global_mmlu_<lang> = mean(business, humanities, medical, other, social_sciences, stem); the upstream lm-eval bundle already emits the aggregate row, so the renderer reads the aggregate key directly and does not need to re-mean subdomains.",
+    "absent_on_disk_note": "xstorycloze_<lang> is in the cpt-plan.md §2.1 'tasks per language' default proposal but is NOT present in the upstream lm-eval 'retention_only' bundle as executed for this run; we mark these explicitly so coverage gaps are visible rather than silently dropped."
+  },
+  "heldout_bpb": [
+    "greek_heldout_500",
+    "code_heldout_200",
+    "math_heldout_200"
+  ],
+  "non_canonical_visible_to_render": false,
+  "non_canonical_kept_on_disk": true
+}

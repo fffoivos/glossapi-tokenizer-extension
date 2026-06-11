@@ -1,0 +1,159 @@
+{
+  "actionable_rate_in_pack_percent": 46.15384615384615,
+  "actionable_wilson_95_ci_percent": [
+    38.51741539054117,
+    53.97514562051586
+  ],
+  "annotation_rows": 156,
+  "by_candidate_action": {
+    "keep": {
+      "actionable": 40,
+      "reviewed": 114,
+      "serious": 13
+    },
+    "quarantine": {
+      "actionable": 32,
+      "reviewed": 42,
+      "serious": 18
+    }
+  },
+  "by_length_bucket": {
+    "1k_3k": {
+      "actionable": 37,
+      "reviewed": 69,
+      "serious": 13
+    },
+    "3k_10k": {
+      "actionable": 20,
+      "reviewed": 46,
+      "serious": 11
+    },
+    "ge_10k": {
+      "actionable": 7,
+      "reviewed": 12,
+      "serious": 4
+    },
+    "lt_1k": {
+      "actionable": 8,
+      "reviewed": 29,
+      "serious": 3
+    }
+  },
+  "by_quality_bin": {
+    "8": {
+      "actionable": 58,
+      "reviewed": 122,
+      "serious": 25
+    },
+    "9": {
+      "actionable": 14,
+      "reviewed": 34,
+      "serious": 6
+    }
+  },
+  "by_risk_band": {
+    "risk_q1": {
+      "actionable": 19,
+      "reviewed": 39,
+      "serious": 8
+    },
+    "risk_q2": {
+      "actionable": 19,
+      "reviewed": 42,
+      "serious": 7
+    },
+    "risk_q3": {
+      "actionable": 15,
+      "reviewed": 41,
+      "serious": 5
+    },
+    "risk_q4": {
+      "actionable": 19,
+      "reviewed": 34,
+      "serious": 11
+    }
+  },
+  "combined_with_base": {
+    "base_actionable_rows": 63,
+    "base_reviewed_unique_rows": 232,
+    "base_serious_rows": 12,
+    "combined_actionable_rate_percent": 34.79381443298969,
+    "combined_actionable_rows": 135,
+    "combined_actionable_wilson_95_ci_percent": [
+      30.22437666327591,
+      39.6614030714314
+    ],
+    "combined_reviewed_unique_rows": 388,
+    "combined_serious_rate_percent": 11.082474226804123,
+    "combined_serious_rows": 43,
+    "combined_serious_wilson_95_ci_percent": [
+      8.332505729438006,
+      14.59550681193154
+    ]
+  },
+  "created_at_utc": "20260606T043726Z",
+  "duplicate_annotation_count": 0,
+  "duplicate_annotations": [],
+  "inputs": {
+    "annotation_files": [
+      {
+        "path": "reports/global_prevalence_review_annotations_20260606T043726Z.jsonl",
+        "rows": 156
+      }
+    ],
+    "base_summary": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T040025Z_summary.json",
+    "review_pack": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T040025Z.jsonl"
+  },
+  "pack_rows": 200,
+  "policy_note": "Annotation summary only. It does not mutate source HPLT rows or approve an automatic cleaning overlay.",
+  "review_action_counts": {
+    "drop_doc": 1,
+    "keep": 84,
+    "normalize_or_trim_span": 1,
+    "quarantine": 26,
+    "split_doc": 3,
+    "trim_span": 2,
+    "trim_suffix": 39
+  },
+  "review_label_counts": {
+    "clean": 74,
+    "false_negative_found": 40,
+    "false_positive": 10,
+    "partial_true_positive": 15,
+    "true_positive": 17
+  },
+  "review_severity_counts": {
+    "minor": 25,
+    "moderate": 16,
+    "none": 84,
+    "serious": 31
+  },
+  "review_true_error_type_counts": {
+    "E003": 1,
+    "E004": 1,
+    "E007": 35,
+    "E009": 12,
+    "E010": 25,
+    "E011": 23,
+    "E012": 3,
+    "E013": 1,
+    "E015": 1,
+    "E016": 4,
+    "E017": 24,
+    "E019": 25,
+    "E020": 3
+  },
+  "reviewed_actionable_rows_in_pack": 72,
+  "reviewed_serious_rows_in_pack": 31,
+  "reviewed_unclear_rows_in_pack": 0,
+  "reviewed_unique_rows_in_pack": 156,
+  "schema_version": "hplt-global-prevalence-annotation-summary-v1",
+  "serious_rate_in_pack_percent": 19.871794871794872,
+  "serious_wilson_95_ci_percent": [
+    14.367565426476636,
+    26.824162493470155
+  ],
+  "unreviewed_rows_in_pack": 44,
+  "validation_issue_count": 0,
+  "validation_issues": []
+}

@@ -2,11 +2,11 @@
 
 - Output root: `/iopsstor/scratch/cscs/fffoivos/token_distillation/td_pilot_intrinsics_20260523T091637Z`
 - Eval JSONL: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl`
-- Best BPC arm: `td_layer11`
+- Best BPB arm: `td_layer11`
 
 ## Heldout Greek Metrics
 
-| arm | BPC | delta vs ReTok | NLL/char | tokens/word | STRR | docs |
+| arm | BPB | delta vs ReTok | NLL/char | tokens/word | STRR | docs |
 |---|---:|---:|---:|---:|---:|---:|
 | retok | 2.9503 | 0.0000 | 3.4896 | 1.7352 | 0.4458 | 500 |
 | td_last | 2.7830 | -0.1673 | 3.2917 | 1.7352 | 0.4458 | 500 |
@@ -22,8 +22,7 @@
 
 ## Interpretation Notes
 
-- Lower BPC/NLL is better.
+- Lower BPB/NLL is better.
 - For D1, lower mean rank and higher top-k rates are better.
 - D2/D4/D5 should move toward healthy use of new IDs without exploding relative to ReTok.
-- If layer-11 improves BPC but shows unstable D-rank or output-norm behavior, prefer last-layer TD for the full run.
-
+- If layer-11 improves BPB but shows unstable D-rank or output-norm behavior, prefer last-layer TD for the full run.

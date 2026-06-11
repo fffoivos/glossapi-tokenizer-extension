@@ -63,9 +63,10 @@ Examples:
 Technical details go in `README.md` and `manifest.json`.
 
 Eval/loss details also stay out of public names. A folder named
-`3.5B-comparison` should explain in its README that heldout BPC/BPB and
-downstream evals are the cross-arm evidence, while raw Megatron `lm loss` is
-only a tokenizer-dependent health trace.
+`3.5B-comparison` should explain in its README that heldout BPB and downstream
+evals are the cross-arm evidence, while raw Megatron `lm loss` is only a
+tokenizer-dependent health trace. Older artifacts may call BPB `BPC`; that is a
+legacy bits-per-byte label.
 
 ## Essence Versus Subtext
 

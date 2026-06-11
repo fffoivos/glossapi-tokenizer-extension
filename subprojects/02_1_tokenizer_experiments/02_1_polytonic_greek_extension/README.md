@@ -8,10 +8,21 @@ from a different source-selection premise: Apertus should get a distinct
 orthographic lane for polytonic Greek rather than asking the modern-Greek
 extension to cover it incidentally.
 
-Current next-step plan: [`ANCIENT_GREEK_AFTER_C3_PLAN.md`](ANCIENT_GREEK_AFTER_C3_PLAN.md).
-It pins the approved C3 tokenizer as the base, defines the 5,120-token
-Ancient/Polytonic continuation ceiling, lays out the 512-step aligned
-cutoff/eval grid, and specifies the report plots expected from the sweep.
+Initial execution plan: [`ANCIENT_GREEK_AFTER_C3_PLAN.md`](ANCIENT_GREEK_AFTER_C3_PLAN.md).
+It pinned the approved C3 tokenizer as the base, defined the 5,120-token
+Ancient/Polytonic continuation ceiling, laid out the 512-step aligned
+cutoff/eval grid, and specified the report plots expected from the sweep.
+
+Current implementation report:
+[`analysis/c3p_polytonic_20260518T_impl/report/FULL_REPORT.md`](analysis/c3p_polytonic_20260518T_impl/report/FULL_REPORT.md).
+
+Current candidate tokenizer:
+
+```text
+analysis/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_5120/tokenizer.json
+sha256: b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad
+vocab: 153,600 = 256 x 600
+```
 
 ## Current Pipeline
 
@@ -48,9 +59,10 @@ cutoff/eval grid, and specifies the report plots expected from the sweep.
      apply hygiene, and produce train/eval splits.
 
 5. **Tokenizer extension**
-   - After source cutoff and dedup are frozen, train an Apertus-continuous
-     BPE extension arm, build cutoff variants, run fertility/eval, and then
-     choose the added-token cutoff.
+   - Train an Apertus-continuous BPE extension arm on top of C3, build
+     512-token cutoff variants through +5,120, run the polytonic held-out
+     suite plus the C3 TokEval/MorphScore guards, and choose the added-token
+     cutoff.
 
 ## Completed Candidate Run
 
@@ -108,6 +120,44 @@ That parquet is the post-dedup kept-text corpus: `18,726` rows, about
 
 See [`ARTIFACTS.md`](ARTIFACTS.md) for the storage boundary between
 subproject-local data and large worker/data-root state.
+
+## Current Implementation Run
+
+Run id:
+`c3p_polytonic_20260518T_impl`
+
+Worker run root:
+
+```text
+/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl
+```
+
+Local compact bundle:
+
+```text
+analysis/c3p_polytonic_20260518T_impl/
+```
+
+Headline result:
+
+- C3 base: `148,480` vocab, SHA-256
+  `358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394`.
+- Full Ancient/Polytonic continuation: `+5,120` tokens.
+- Final vocab: `153,600`, divisible by `256`.
+- Final tokenizer SHA-256:
+  `b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad`.
+- Balanced polytonic validation Greek word fertility improves from
+  `3.0021` to `1.9610`.
+- Balanced polytonic validation distinctive-polytonic word fertility
+  improves from `2.9961` to `1.7851`.
+- +5,120 added-vocab utilization on balanced validation remains high:
+  `0.9854`.
+- Modern C3 validation polytonic-id firing at +5,120 remains low:
+  `0.0031` of tokens.
+
+Current recommendation: keep the +5,120 candidate for downstream fertility
+and continuation testing. The measured grid is still improving at the
+budget edge, and the final size is cleanly aligned at `256 x 600`.
 
 ## Scripts
 

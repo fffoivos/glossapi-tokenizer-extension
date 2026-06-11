@@ -1,0 +1,19 @@
+{
+  "annotation_jsonl": "reports/boundary_manual_whole_doc_20260606T050329Z_annotations.jsonl",
+  "created_at_utc": "20260606T051000Z",
+  "markdown": "reports/boundary_manual_whole_doc_20260606T050329Z.md",
+  "policy_note": "Whole-document annotation bootstrap only. Source HPLT rows stay immutable; materialization must run separately on Clariden CPU-only xfer.",
+  "review_pack": "reports/boundary_spec_review_pack_20260606T050329Z.jsonl",
+  "schema_version": "hplt-whole-doc-boundary-bootstrap-v1",
+  "selected_by_action": {
+    "drop_doc": 1,
+    "quarantine": 31
+  },
+  "selected_by_good_text_loss": {
+    "0.0": 1,
+    "medium": 31
+  },
+  "selected_rows": 32,
+  "skipped_rows": 59,
+  "summary_json": "reports/boundary_manual_whole_doc_20260606T050329Z_summary.json"
+}

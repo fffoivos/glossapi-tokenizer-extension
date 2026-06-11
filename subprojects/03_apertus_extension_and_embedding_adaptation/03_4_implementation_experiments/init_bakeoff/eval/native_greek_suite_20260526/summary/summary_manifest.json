@@ -1,0 +1,12 @@
+{
+  "greek_nlp_root": "/capstor/scratch/cscs/fffoivos/runs/eval/native_greek_suite_20260526/greek_nlp_all_checkpoints_s100",
+  "mcq_root": "/capstor/scratch/cscs/fffoivos/runs/eval/native_greek_suite_20260526/mcq_all_checkpoints",
+  "outputs": [
+    "NATIVE_GREEK_SUITE_SUMMARY.md",
+    "greek_nlp_per_task.csv",
+    "greek_nlp_supporting_aggregate.csv",
+    "native_mcq_aggregate.csv",
+    "native_mcq_per_task.csv",
+    "summary_manifest.json"
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "tokenizer": "c3p_poly_added_1024 reconstructed in-memory from c3 base + full c3p 5120",
+  "base_tokenizer_json": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_17408_curated_padded/tokenizer.json",
+  "full_tokenizer_json": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_polytonic_greek_extension/analysis/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_5120/tokenizer.json",
+  "input_parquet": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_polytonic_greek_extension/data/strict_w050_c010/20260517T131514Z/polytonic_greek_training_kept_strict_w050_c010_20260517T131514Z.parquet",
+  "base_vocab_size": 148480,
+  "polytonic_added_count": 1024,
+  "final_vocab_size": 149504,
+  "totals": {
+    "rows": 18726,
+    "chars": 514849133,
+    "utf8_bytes": 1005567086,
+    "tokens": 177644191
+  },
+  "by_source": [
+    {
+      "source_dataset": "scholarios_graeca_patristic",
+      "rows": 12991,
+      "chars": 219752865,
+      "utf8_bytes": 431272879,
+      "tokens": 71740034,
+      "token_pct": 40.38411478369141,
+      "row_pct": 69.37413222257824,
+      "char_pct": 42.68296301083603,
+      "bytes_pct": 42.88852379959461,
+      "chars_per_token": 3.0631831732892683,
+      "bytes_per_token": 6.011606838658594
+    },
+    {
+      "source_dataset": "1000_prwta_xronia_ellhnikhs",
+      "rows": 983,
+      "chars": 112777643,
+      "utf8_bytes": 224461354,
+      "tokens": 40999590,
+      "token_pct": 23.079611986861984,
+      "row_pct": 5.2493858805938265,
+      "char_pct": 21.904988426968956,
+      "bytes_pct": 22.321867643149968,
+      "chars_per_token": 2.7507017265294604,
+      "bytes_per_token": 5.474721917950887
+    },
+    {
+      "source_dataset": "Wikisource_Greek_texts",
+      "rows": 3435,
+      "chars": 101698506,
+      "utf8_bytes": 196399161,
+      "tokens": 34681902,
+      "token_pct": 19.523240137922663,
+      "row_pct": 18.343479653957065,
+      "char_pct": 19.7530692937964,
+      "bytes_pct": 19.531184317224163,
+      "chars_per_token": 2.9323220508494603,
+      "bytes_per_token": 5.66287169025505
+    },
+    {
+      "source_dataset": "klasikh_arx_ell_grammateia",
+      "rows": 644,
+      "chars": 57962820,
+      "utf8_bytes": 112756384,
+      "tokens": 19339749,
+      "token_pct": 10.88678942504796,
+      "row_pct": 3.4390686745701164,
+      "char_pct": 11.258214549620305,
+      "bytes_pct": 11.213213476241405,
+      "chars_per_token": 2.99708233028257,
+      "bytes_per_token": 5.830292006375057
+    },
+    {
+      "source_dataset": "Ekklisiastika_Keimena",
+      "rows": 673,
+      "chars": 22657299,
+      "utf8_bytes": 40677308,
+      "tokens": 10882916,
+      "token_pct": 6.126243666475984,
+      "row_pct": 3.5939335683007583,
+      "char_pct": 4.400764718778307,
+      "bytes_pct": 4.045210763789856,
+      "chars_per_token": 2.0819143508963958,
+      "bytes_per_token": 3.7377213974636945
+    }
+  ]
+}

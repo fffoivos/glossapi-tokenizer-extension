@@ -1,0 +1,10913 @@
+Tokenizer-Aware Cross-Lingual Adaptation of Decoder-Only LLMs
+through Embedding Relearning and Swapping
+Honglin Yuβ Grace Chungβ Trevor Cohnα,β
+α
+The University of Melbourne β Google
+fan.jiang1@student.unimelb.edu.au
+{honglinyu, gracec, tcohn}@google.com
+
+Fan Jiangα *
+
+Abstract
+Extending Large Language Models (LLMs)
+to new languages is challenging, with most
+methods proposed suffering from high computational cost and catastrophic forgetting of
+original model capabilities. Embedding relearning (Artetxe et al., 2020), a technique that creates new tokenizers and tunes embeddings on
+fixed model weights for target language adaptation, is both light-weight and performant. However, it has only been shown to work for older
+generation encoder-only models and for high
+resource languages. In this paper, we extend
+this framework to decoder-only LLMs focusing on joint adaptation to many languages, including low-resource ones. We experiment
+in three language groups over 100 languages
+each. We adapt a pre-trained LLM via switching to a customized tokenizer, and relearning
+the embedding layer. Across 96 diverse languages spanning both classification and generation tasks, we show embedding relearning
+improves Gemma2 models by up to 20%, being
+highly competitive with full-weight updating
+baselines while vastly more computationally efficient and mitigating catastrophic forgetting.
+This translates into better results in transferring
+the improved multilingual performance to tasks
+that build on core English abilities (e.g., multilingual math reasoning), compared to various
+baselines. Further analysis reveals the critical role of customizing tokenizers in achieving
+effective language transfer, particularly for nonLatin script languages.
+
+1
+
+Introduction
+
+Large Language Models (LLMs) have transformed
+the field of natural language processing through pretraining on extensive web-scale corpora (Brown
+et al., 2020; Anil et al., 2024). Despite these advancements, their success has been primarily centered on English, leaving the multilingual ability
+* Work done during an internship at Google.
+
+less explored. While the multilingual potential of
+LLMs has been demonstrated across multiple languages (Shi et al., 2023), their practical applications remain largely confined to a limited set of
+high-resource languages. This limitation reduces
+their utility for users speaking under-represented
+languages (Ahia et al., 2023).
+Recently, many works focus on increasing the
+language support of LLMs. For instance, continued pre-training approaches further train LLMs on
+additional multilingual data by using either the original vocabulary (Zheng et al., 2024; Üstün et al.,
+2024) or introducing language-specific tokens (Fujii et al., 2024; Lu et al., 2024) (Figure 1 (b)).
+Despite the effectiveness in enhancing multilingual support, this paradigm typically requires fullparameter tuning on vast data, making adapting
+an LLM to accommodate new languages expensive. Moreover, such adaptation poses a significant risk of catastrophic forgetting, whereby the
+LLM loses previously acquired knowledge from
+the initial pre-training phase (Luo et al., 2024; Shi
+et al., 2024). Additionally, these methods usually
+focus on a smaller number of high-resource languages (Aryabumi et al., 2024; Alves et al., 2024;
+Xu et al., 2024), neglecting mid- and low-resource
+languages. Given these challenges, it is crucial to
+explore efficient and scalable methods for developing multilingual LLMs that can support diverse
+languages across varying resource levels.
+Alternatively, embedding relearning – a technique that adapts models to new languages by learning new tokenizers and embeddings while keeping the transformer layers fixed – has shown to be
+effective in improving performance in target languages (Artetxe et al., 2020). However, existing
+embedding relearning approaches face several limitations: 1) the major focus on ‘outdated‘ encoderonly PLMs limits the applicability; 2) the monolingual transfer strategy (i.e., one embedding per
+language) reduces efficiency; 3) limited linguistic
+
+7606
+Proceedings of the 19th Conference of the European Chapter of the Association for Computational Linguistics
+Volume 1: Long Papers, pages 7606–7636
+March 24-29, 2026 ©2026 Association for Computational Linguistics
+
+Transformer
+Body
+Emb
+
+Instruction
+Data (En)
+
+Transformer
+Body
+
+Transformer
+Body
+
+Emb
+
+Emb
+
+(a) FLAN: English Fine-tuning
+
+Multilingual
+Data
+
+Instruction
+Data (En)
+
+Transformer
+Body
+Custom Emb
+
+Transformer
+Body
+Custom Emb
+
+(b) Continued Pre-training: Language Adaptation -> English Fine-tuning
+
+1-a. Instruction Tuning
+
+Transformer
+Body
+Transformer
+Body
+Emb
+
+EmbSwap
+
+Emb
+
+Transformer
+Body
+
+LoRA Adaptation
+
+Transformer
+Body
+
+Instruction
+Data (En)
+
+Custom Emb
+
+Multilingual
+Data
+
+Transformer
+Body
+LoRA
+
+Custom Emb
+
+2. Combine + LoRA Tuning
+
+Custom Emb
+1-b. Language Adaptation
+
+(c) EmbSwap: Language Adaptation w/ Embedding Relearning and Module Composition
+
+Figure 1: Methods for cross-lingual transfer of LLMs. (a): Use English instruction data for fine-tuning for vanilla
+cross-lingual transfer. (b): Continued pre-training: create customized tokenizers and do full-parameter tuning on
+multilingual data followed by English instruction-tuning. (c): E MB S WAP: 1-a: freeze the original embeddings
+of LLMs and instruction-tune the transformer body using English alignment data; 1-b: learn new multilingual
+embeddings by freezing the transformer body for target language adaptation of LLMs; 2) combine new embeddings
+with instruction-tuned transformer body as the E MB S WAP and further perform LoRA tuning to connect the combined
+components for enhanced cross-lingual transfer.
+
+coverage and exclusive evaluation on classification
+tasks leave the diverse linguistic and task settings
+underexplored (Liang et al., 2023). These limitations prompt important questions: 1) Can this approach be extended to modern decoder-only LLMs
+and how well it performs on generation tasks as
+compared to well-studied classification ones? 2)
+Can we achieve efficient cross-lingual transfer to
+diverse languages with different resource levels
+altogether? 3) What are the effective ways of building tokenizers for a large group of target languages
+that also help preserve LLM’s existing abilities?
+We revisit embedding relearning and extend
+it to decoder-only LLMs for cross-lingual transfer across many languages. Figure 1 (c) shows
+that the pipeline starts with two parallel training
+from English-centric LLMs: 1) We adapt it to a
+target language group1 by learning multilingual
+embeddings on new tokenizers while fixing the
+transformer body; 2) We employ English alignment data to instruction-tune the transformer body,
+keeping the original embeddings fixed. After this,
+the relearned multilingual embeddings are combined with the instruction-tuned transformer body
+for efficient zero-shot cross-lingual transfer, which
+1
+
+We focus on three language groups: South East Asia
+(S EA), Indic (I ND), and African (A FR).
+
+we denote as E MB S WAP. We can further enhance
+the compatibility of the composed modules via a
+cost-effective LoRA-based adaptation.
+To our best knowledge, this is the first comprehensive empirical study to systematically validate
+and extend established embedding relearning
+techniques in the new context of decoder-only
+models. Overall, our summarized findings are:
+1. We develop a practical recipe that emerges
+from our investigation into the best practices
+for tokenizer design, embedding initialization,
+and module composition.
+2. We conduct experiments on diverse multilingual classification and generation tasks. Extensive results show that E MB S WAP offers
+a superior overall package when considering
+performance given its massive efficiency gains
+and catastrophic forgetting mitigation.
+3. Our analysis reveals that carefully-curated tokenizers and embedding initialization methods
+are crucial, and non-Latin script languages
+benefit the most from customized tokenizers.
+
+2
+
+Methodology
+
+Prior embedding relearning methods create dedicated tokenizer and embedding layer for each target language, which is practical as the involved
+
+7607
+
+Tok. Length
+
+Original Vocab
+
+Customized Vocab
+
+80
+
+80
+
+80
+
+60
+
+60
+
+60
+
+40
+
+40
+
+40
+
+20
+
+20
+
+20
+
+0
+
+En HRL MRL LRL
+SEA
+
+0
+
+En HRL MRL LRL
+AFR
+
+0
+
+En HRL MRL LRL
+IND
+
+Figure 2: The tokenization comparison between using
+the vanilla and customized multilingual tokenizers on
+Gemma2. Tok. Length refers to the average number of
+tokens required to represent the same amount of texts.
+
+language model is monolingual. By contrast, most
+recent LLMs exhibit a degree of multilingualism in
+both their representations and tokenizers (Blevins
+and Zettlemoyer, 2022). A naive solution to applying embedding relearning to LLMs is to continue
+training the embedding layer on additional multilingual data. However, the tokenizers employed in
+these LLMs are biased towards English and several
+high-resource languages. This bias results in the
+over-fragmentation of text from long-tail languages
+(Figure 2), thereby degrading the performance and
+efficiency of processing such languages (Ahuja
+et al., 2023). In this paper, we demonstrate that
+having tokenizers that provide fairer representation
+across languages is critical to achieving effective
+cross-lingual transfer.
+2.1 Customized Vocabulary Construction
+Our strategy involves constructing distinct tokenizers for each language group (§3.2). Tailoring tokenizers to specific language groups enhances crosslingual transfer among geographically related longtail languages compared to using monolingual tokenizers. Moreover, this approach avoids the shortcomings of a universal tokenizer that treats all lowresource languages uniformly poorly. Based on
+this, we propose a Prune-with-Extension approach
+for developing tokenizers optimized for language
+adaptation while maintaining English ability. First,
+we prune the tokenizer of target LLMs by removing non-English tokens. Then the pruned tokenizer
+is extended through adding new tokens, which are
+obtained by training tokenizers for target languages
+using BPE (Gage, 1994; Sennrich et al., 2016).
+Pruning the Tokenizer To preserve the pretrained knowledge embedded in the language
+model, current approaches often expand the vocabulary by adding new tokens (Fujii et al., 2024;
+Cui et al., 2024). This, however, can substantially
+increase pre-training time due to the extra compu-
+
+tational cost of the output embedding layer (Liang
+et al., 2023). To avoid this, we first prune the existing tokenizers by retaining only English tokens
+before adding those from low-resource languages.
+Given the predominant English training data for
+LLMs, we hypothesize that a significant portion of
+their knowledge is associated with English tokens,
+and reusing English tokens can effectively retain
+this knowledge (Garcia et al., 2021). In our implementation, for a given LLM, we identify English
+tokens by tokenizing a set of 20 million English
+sentences using its tokenizer, with further filtering
+through removing non-Latin script tokens.2
+Training Multilingual Tokenizers To get the
+data for building a multilingual vocabulary for longtail languages, we sample from the Next Thousand
+Languages (NTL) corpus (Caswell et al., 2020;
+Bapna et al., 2022). Our empirical analysis reveals
+that sampling data for each language up to a maximum of 500K lines from NTL effectively addresses
+the imbalance between high- and low-resource languages, outperforming temperature-sampling techniques. Subsequently, we train a BPE tokenizer
+using the sampled data to generate a vocabulary
+whose size aligns with that of the target LLMs.
+Extending the Pruned Tokenizer We sequentially add the identified English tokens followed
+by tokens from the newly built multilingual tokenizer. Both types of tokens are added in the same
+preference order as in their respective tokenizers.
+The final vocabulary maintains the same size as the
+original tokenizer, with over 60% token overlap, resulting in negligible variations in English tokenizations (see Table 6 in Appendix). Figure 2 shows
+our final vocabulary achieves significant compression rate improvements by consistently producing
+shorter sequences across languages of a spectrum
+of resource levels while barely affecting English.
+2.2
+
+Training Recipe
+
+Embedding Initialization To maximally inherit
+the pre-trained knowledge embedded in the target LLM’s embedding layer, we adopt a strategy
+inspired by Gee et al. (2022). For tokens that overlap between the target LLM’s vocabulary and our
+multilingual vocabulary, we directly copy the corresponding embeddings. For new tokens, we employ
+the LLM’s original tokenizer to decompose them
+2
+
+40% of tokens are discarded: non-Latin scripts tokens
+from high-resource languages and very rare English tokens.
+
+7608
+
+into subtokens and initialize their embeddings using the average of their subtoken embeddings.3
+Language Adaptation We fine-tune the customized embeddings on 200B curated multilingual tokens Dla while keeping the transformer
+body frozen (Figure 1 (c) step 1-b), with the same
+training objective used for pre-training the base
+LLM. This is based on the assumption that the
+pre-trained transformer body encapsulates universal cross-lingual knowledge (Zhao et al., 2024b;
+Wendler et al., 2024; Tang et al., 2024), while the
+embedding layer encodes language-specific information, which suggests embedding tuning should
+be effective for language adaptation.
+E MB S WAP We instruction-tune the transformer
+body of base LLMs on a diverse range of English
+tasks Dit (Wei et al., 2022) with 20B tokens (Figure 1 (c) step 1-a). Notably, we employ the LLM’s
+original embeddings and keep them frozen in this
+step.4 We then integrate the customized embeddings obtained from the language adaptation stage
+into the instruction-tuned transformer body.
+LoRA-Adaptation Since the transformer body
+and customized embeddings are independently
+trained, E MB S WAP may suffer from incompatible parameters. Our empirical findings indicate
+that E MB S WAP is effective for discriminative tasks
+but sometimes underperforms an instruction-tuned
+baseline on generative tasks. To mitigate this and
+ensure the assembled model’s effectiveness across
+various tasks, we insert LoRA weights into the selfattention layer of the tuned transformer body (Figure 1 (c) step 2). These weights are then fine-tuned
+on a sub-sampled joint corpus Dmix = Dla ∪ Dit
+with 4B tokens, while keeping both the body and
+embeddings frozen.
+
+3
+
+Experiment setup
+
+3.1 Pre-training Data
+The data Dla for embedding training is a mixed corpus with 65% sentence-level and 35% documentlevel texts. The sentence-level data is exclusively
+from the Next Thousand Languages (NTL) corpora (Caswell et al., 2020; Bapna et al., 2022),
+3
+
+We find initialization from original embeddings are crucial, while the exact method (averaging or max-pooling)
+makes minimal difference (See Appendix Figure 16).
+4
+Freezing embeddings makes the instruction tuning and
+language adaptation processes symmetry. This enhances modularity and improves the parameter compatibility.
+
+which provides web-crawled monolingual sentences and translation pairs for over 1000 languages. For document-level texts, we sample data
+from multilingual Wikipedia and mC4 (Xue et al.,
+2021). We use UniMax sampling (Chung et al.,
+2023) with N = 5 to up-sample low-resource languages. Please refer to Appendix Figure 14 for
+pre-training data ablations.
+We take FLAN (Wei et al., 2022) as the instruction tuning data Dit . The data Dmix used in LoRAAdaptation consists of a 10% sample of Dit , combined with an equal number of instances from Dla .5
+3.2
+
+Languages
+
+We select languages from three families based on
+geographic relations6 : South East Asian (S EA),
+African (A FR), and Indic (I ND). This results in
+212 languages from S EA, 392 from A FR, and 170
+from I ND. Each regional dataset is processed separately, with a tailored tokenizer, language-adapted
+embeddings and LoRA update parameters.
+3.3
+
+Models
+
+Our evaluation is focused on Gemma2 (2B, 9B,
+27B) (Riviere et al., 2024). We also test the
+generalization ability of embedding relearning in
+two LLMs with varying degrees of multilinguality: Aya23 (8B, 35B) (Aryabumi et al., 2024) and
+PaLM2 (XXS, S) (Anil et al., 2023).
+As shown in Figure 1, we end up having four
+types of models: (i) FLAN (step 1-a): models that
+undergo instruction tuning. (ii) Lang-Adapt (step
+1-b): the LLMs after language adaptation with embedding tuning. (iii) E MB S WAP (step-2 Combine):
+model denoted as E MB S WAP is constructed by
+combining the transformer body of FLAN with the
+embeddings from Lang-Adapt. (iv): LoRA-Adapt
+(step-2 LoRA Tuning): E MB S WAP models with the
+LoRA-Adaptation process. Detailed training procedures for each model type are in Appendix A.1.
+We compare E MB S WAP with three variants: 1)
+Continued Pre-training (CPT): the most costly
+method which first fully tunes the base model on
+multilingual data Dla to obtain language-adapted
+model θla , then instruction tunes θla on English data
+Dit . 2) ChatVector (Huang et al., 2024): which
+5
+This ensures the instruction-following ability isn’t forgotten. Please refer to Appendix Figure 15 for detailed analysis.
+6
+Languages within a geographic region often share writing
+systems and have a higher degree of lexical overlap due to
+historical and cultural contact. Creating a single customized
+tokenizer for a group can maximize token sharing and improve
+compression for low-resource languages.
+
+7609
+
+40
+
+Acc
+
+30
+
+Model
+
+40
+
+20
+SEA AFR IND
+
+Emb Relearn
+#P = 3.8%
+
+SEA AFR IND
+60
+
+SEA AFR IND 40 SEA AFR IND
+Gemma2-2B
+Gemma2-9B
+
+20
+70
+60
+50
+
+S EA
+
+A FR
+
+I ND
+
+Avg.
+
+CALM (PaLM2-XXS-NTL+S)
+PaLM2-S-NTL
+PaLM2-S
++ Lang-Adapt
+
+25.3
+25.2
+22.0
+25.6
+
+17.8
+17.4
+15.3
+18.8
+
+17.9
+15.1
+14.2
+22.3
+
+19.8
+18.2
+16.4
+22.3
+
+Gemma2-9B
++ Lang-Adapt
+Gemma2-27B
++ Lang-Adapt
+
+19.9
+36.4
+30.6
+41.9
+
+18.3
+25.8
+22.2
+31.8
+
+13.6
+29.6
+18.4
+27.5
+
+16.4
+30.4
+22.4
+32.2
+
+†
+
+SEA AFR IND
+
+SEA AFR IND
+Gemma2-27B
+
+Figure 3: F LORES -200 E N -X X and B ELE B ELE Language Adaptation results across all sizes of Gemma2 models with 5-shot prompting. #P : fraction of tuned parameters in embedding relearning.
+
+avoids repeated instruction tuning, through obtaining a task vector (Ilharco et al., 2023) from a base
+model and I T model: θtask = θit − θbase , which
+is then added to θla . 3) I T+Lang-Adapt: an embedding relearning variant that performs one-step
+embedding tuning on Gemma2-I T model with the
+combination of Dla and Dit . For all three variants,
+we adopt the same customized tokenizer, initialized embeddings, and training data conditions (i.e.,
+200B Dla and 20B Dit ) for fair comparison.
+3.4 Evaluation Tasks
+We use five-shot prompting for evaluating languageadapted LLMs. In contrast, E MB S WAP is evaluated
+in a zero-shot setting, given it has been instruction
+tuned. We also evaluate E MB S WAP using a compiled English benchmark (Appendix B) to examine
+potential regressions in general English ability.
+We perform evaluation with various multilingual
+tasks including machine translation (MT), multiple
+choice question answering (MCQA), topic classification, mathematical reasoning, cross-lingual question answering (QA) and summarization. For MT,
+we focus on E N -X X and select 23 S EA, 42 A FR,
+and 21 I ND languages from F LORES -200 (Goyal
+et al., 2022). For MCQA, we use B ELE B ELE (Bandarkar et al., 2024) and evaluate on 15 S EA, 25
+A FR, and 19 I ND languages. For multilingual
+mathematical reasoning, we use GSM8K-NTL (Shi
+et al., 2023; Bansal et al., 2024) translated from
+GSM8K and select 5 S EA, 5 A FR, and 10 I ND languages. For cross-lingual QA and summarization,
+the X OR QA-I N and XS UM -I N datasets from I N DIC G EN B ENCH (Singh et al., 2024) are used and
+29 I ND languages are included for evaluation.
+3.5 Main Results
+We first present the results of Language Adaptation through embedding tuning on its own (§2.2 –
+
+Table 1: Language adaptation results on GSM8K-NTL,
+with the best in bold. †: from Bansal et al. (2024).
+Accuracy
+
+20
+40
+
+CPT
+#P = 9.9%
+
+FLAN
+FLAN-EmbSwap
+
+45
+
+CPT
+
+30
+20
+
+Math
+
+MATH-EmbSwap
+
+40
+9B
+
+IT
+
+Accuracy
+
+Vanilla
+
+Chrf++
+
+40
+
+#P = 22.5%
+
+27B
+
+35
+
+IT+Lang-Adapt
+
+9B
+
+ChatVector
+
+27B
+
+IT-EmbSwap
+
+40
+30
+9B
+
+#Parameters (B)
+
+27B
+
+Figure 4: Multilingual mathematical reasoning results
+on GSM8K-NTL. ∗-E MB S WAP: integrate customized
+embeddings into different instruction-tuned models. I T:
+LLMs are instruction-tuned without fixing embedding.
+
+Language Adaptation) in §3.5.1. Then we evaluate E MB S WAP alongside LoRA adaptation (§2.2 –
+E MB S WAP & LoRA-Adaptation) in §3.5.2.
+3.5.1
+
+Language Adaptation Results
+
+Embedding relearning improves cross-lingual
+transfer. Figure 3 shows embedding relearning
+consistently outperforms vanilla Gemma2 across
+three language groups and achieves better crosslingual transfer than CPT, as evident by B ELE B ELE
+results, a task that relies on skills learnt from English. While CPT excels on F LORES (likely due to
+its full model adaptation for MT with training on
+parallel data), it does not generalize well to other
+task types. See Appendix C.1 for more language
+adaptation results on Aya23 and PaLM2.
+Embedding relearning helps preserve LLMs’
+reasoning knowledge. We evaluate how language adaptation affects English reasoning transfer to other languages. Table 1 shows embedding
+relearning consistently improves the mathematical reasoning ability across various low-resource
+languages. Compared to CALM (Bansal et al.,
+2024), a form of adapter enabling model composition, embedding relearning achieves more substantial improvements over PaLM2-S with only embed-
+
+7610
+
+% Updated
+Parameters
+
+Eval. Metric
+Model
+
+LA
+
+IT
+
+Gemma2-2B
+FLAN
+I T+Lang-Adapt
+E MB S WAP
++ LoRA-Adapt
+
+100%
+3×22.5%
+3×22.5% 77.5%
+
+ChatVector
+CPT
+
+3×100% 100%
+3×100% 3×100%
+
+Gemma2-9B
+FLAN
+I T+Lang-Adapt
+E MB S WAP
++ LoRA-Adapt
+ChatVector
+CPT
+Gemma2-27B
+FLAN
+I T+Lang-Adapt
+E MB S WAP
++ LoRA-Adapt
+ChatVector
+CPT
+
+-
+
+-
+
+-
+
+100%
+
+3×9.9%
+3×9.9%
+
+90.1%
+
+-
+
+-
+
+-
+
+3×100% 100%
+3×100% 3×100%
+
+-
+
+100%
+
+3×3.8%
+3×3.8%
+
+96.2%
+
+-
+
+-
+
+-
+
+3×100% 100%
+3×100% 3×100%
+
+LoRA
+
+E NGLISH
+
+Task Type
+
+C LASSIFICATION
+B ELE B ELE
+Accuracy
+
+G ENERATION
+
+S IB -200
+Accuracy
+
+F LORES -200
+ChrF++†
+
+X OR QA-I N
+Token-F1
+
+XS UM -I N
+ChrF
+
+Avg.
+
+S EA
+
+A FR
+
+I ND
+
+S EA
+
+A FR
+
+I ND
+
+S EA
+
+A FR
+
+I ND
+
+I ND
+
+EN
+
+I ND
+
+EN
+
+3×0.26%
+
+73.0
+54.1
+69.8
+69.7
+
+52.0
+51.2
+62.0
+63.3
+
+36.0
+36.7
+40.2
+43.7
+
+50.2
+42.9
+54.4
+55.8
+
+65.9
+67.0
+72.9
+73.5
+
+47.3
+48.7
+57.9
+47.8
+
+67.8
+67.1
+70.5
+70.7
+
+27.8
+35.4
+27.0
+37.1
+
+9.6
+14.2
+11.0
+18.3
+
+20.7
+29.2
+17.2
+32.5
+
+7.6
+12.3
+8.6
+9.8
+
+47.8
+40.2
+54.1
+60.5
+
+3.7
+7.1
+6.6
+9.9
+
+36.6
+27.5
+34.1
+31.9
+
+31.7
+33.0
+35.3
+38.7
+
+-
+
+39.1
+64.3
+
+28.8
+55.4
+
+32.5
+49.0
+
+30.6
+58.9
+
+24.5
+66.9
+
+29.3
+65.9
+
+52.2
+78.4
+
+42.1
+44.2
+
+32.7
+24.4
+
+36.1
+36.0
+
+19.4
+11.2
+
+16.1
+68.2
+
+19.3
+14.8
+
+21.9
+34.0
+
+28.0
+43.0
+
+3×0.12%
+
+83.5
+73.9
+82.3
+82.5
+
+70.6
+75.4
+78.1
+78.4
+
+49.9
+57.9
+57.5
+60.2
+
+68.9
+72.7
+71.2
+73.1
+
+74.4
+77.2
+78.6
+78.5
+
+61.0
+69.2
+68.8
+69.2
+
+79.1
+79.7
+79.8
+80.1
+
+32.0
+39.3
+35.9
+40.0
+
+12.6
+22.2
+16.5
+25.6
+
+27.8
+38.7
+31.4
+40.5
+
+9.8
+23.1
+12.5
+12.1
+
+60.3
+69.6
+65.2
+64.1
+
+15.1
+17.0
+15.2
+17.4
+
+37.5
+33.9
+37.1
+37.0
+
+42.0
+48.3
+45.5
+47.3
+
+-
+
+58.4
+74.6
+
+69.0
+76.3
+
+52.5
+65.4
+
+59.3
+74.1
+
+82.1
+83.0
+
+66.1
+64.8
+
+77.2
+80.0
+
+44.5
+45.2
+
+26.6
+34.1
+
+40.5
+44.6
+
+17.3
+19.5
+
+29.8
+72.7
+
+22.1
+22.6
+
+26.9
+37.0
+
+43.7
+51.7
+
+3×0.09%
+
+84.3
+81.9
+83.6
+83.4
+
+71.9
+81.7
+78.8
+79.5
+
+52.6
+62.7
+56.3
+60.4
+
+72.9
+76.0
+73.1
+74.3
+
+72.6
+82.1
+78.1
+79.5
+
+60.2
+70.0
+66.1
+68.3
+
+76.4
+81.9
+78.5
+80.0
+
+33.2
+42.5
+33.7
+42.5
+
+15.2
+24.8
+13.2
+25.7
+
+29.6
+39.3
+23.9
+40.6
+
+20.4
+26.4
+15.2
+16.4
+
+61.7
+73.0
+59.3
+70.1
+
+15.0
+18.3
+12.4
+18.0
+
+37.6
+35.8
+36.8
+36.9
+
+43.7
+51.1
+43.5
+49.1
+
+-
+
+62.9
+79.5
+
+78.5
+81.2
+
+55.7
+68.6
+
+71.7
+77.6
+
+81.5
+72.6
+
+55.9
+72.3
+
+77.1
+78.2
+
+43.4
+45.4
+
+31.4
+34.4
+
+37.8
+45.0
+
+16.2
+21.1
+
+18.2
+72.4
+
+20.0
+23.7
+
+22.8
+38.7
+
+43.0
+52.5
+
+-
+
+Table 2: Zero-shot cross-lingual transfer results. Bold and underlined: best and second-best results for embedding
+relearning methods. Red values indicate instances where E MB S WAP hurts FLAN. English results are excluded from
+the average. % Updated Parameters: proportions of trainable parameters in each of the Language Adaptation (LA),
+Instruction Tuning (IT), and LoRA Adaptation stage; 3× indicates a training stage is repeated for each language
+group: S EA, A FR, and I ND. †: we report the corresponding BLEU scores in Appendix Table 17.
+
+ding tuning and incurring no extra inference costs.7
+Moreover, it shows superior performance (+4%)
+compared to PaLM2-S-NTL that was full-parameter
+tuned on NTL.8 Overall, our results suggest that
+embedding relearning offers an effective alternative to CALM and full-parameter tuning. We observe performance improvements with more modern models, with particularly pronounced gains in
+Gemma2.
+3.5.2
+
+E MB S WAP Results
+
+E MB S WAP transfers mathematical reasoning
+abilities across languages. Figure 4 shows that
+E MB S WAP outperforms the instruction-tuned baseline for zero-shot evaluation on mathematical reasoning tasks, with up to 8% gains across 20 lowresource languages. Moreover, E MB S WAP further
+advances performance by incorporating LLMs with
+enhanced mathematical reasoning ability. These
+include the I T models aligned via reinforcement
+learning and math models instruction-tuned on reasoning intensive data (Yue et al., 2024).
+7
+Embedding relearning requires more training as it must
+be repeated for different linguistic regions.
+8
+Both methods use the same training dataset. However,
+NTL training did not create region-specific models by splitting
+training data, potentially diminishing its effectiveness due to
+the curse of multilinguality (Conneau et al., 2020), which
+arises when a single model is trained on too many languages.
+
+E MB S WAP is more effective for classification
+tasks. Table 2 shows that E MB S WAP improves
+the performance on classification tasks across all
+model sizes with up to 10% gains. By contrast, for
+generation tasks, the method’s behavior is inconsistent, often leading to performance degradation.
+We attribute this phenomenon to intrinsic difficulty:
+classification tasks are generally easier as the solution space is typically small compared to generation tasks, making them more robust to embedding
+changes. However, the embedding layer is used for
+both text encoding and decoding in generation, and
+the auto-regressive generation paradigm makes the
+model sensitive to embedding changes due to error
+propagation accumulating over time steps.
+LoRA-Adaptation connects both worlds. In Table 2, we demonstrate that the two components
+within E MB S WAP can cooperate better after LoRAAdaptation, leading to significant gains on generation tasks. This results in an average improvement
+of 5.4% on the largest 27B variant. The results
+demonstrate the practical use of E MB S WAP for efficient zero-shot cross-lingual transfer of instructiontuned LLMs. See Appendix C.2 and Table 4 for
+additional results on Aya23 and PaLM2.
+Embedding relearning on I T LLMs represents a
+viable alternative to E MB S WAP. Table 2 reveals
+
+7611
+
+Averaged Score
+
+High Resource
+TF = 13.6%
+
+LA w/ Original Vocab
+
+70
+60
+50
+
+2
+
+9
+27
+#Parameters (B)
+
+60
+50
+40
+30
+
+Medium Resource
+TF = 54.2%
+
+LA w/ Custom Vocab
+
+0.8
+
+Low Resource
+TF = 33.5%
+
+50
+
+0.6
+
+Score
+
+Pre-trained
+
+40
+
+0.4
+
+30
+2
+
+9
+27
+#Parameters (B)
+
+2
+
+0.2
+
+9
+27
+#Parameters (B)
+
+3.5
+
+Averaged Score
+
+Figure 5: Tokenizer ablations for language adaptation.
+S EA averaged scores on F LORES -200 and B ELE B ELE
+are reported. ∆T F : % tokenizer fertility reduction.
+65
+60
+55
+50
+45
+
+FLAN
+
+2B
+
+EmbSwap+Orig Vocab
+
+9B
+#Parameters (B)
+
+EmbSwap+Cutom Vocab
+
+27B
+
+Figure 6: Tokenizer ablations under E MB S WAP. The
+macro-averaged scores on S EA subset of B ELE B ELE,
+S IB -200 and F LORES -200 are reported.
+
+that for smaller model sizes, E MB S WAP outperforms I T+Lang-Adapt in downstream tasks. However, as model size increases, I T+Lang-Adapt becomes the more effective solution. This suggests
+that I T+Lang-Adapt provides a highly effective alternative to E MB S WAP for zero-shot cross-lingual
+transfer involving a single model. However, when
+handling multiple I T models derived from a common base model, E MB S WAP offers greater modularity by eliminating the need for costly embedding
+relearning across individual models.
+E MB S WAP mitigates catastrophic forgetting.
+CPT with full-weight updating boosts cross-lingual
+transfer but suffers from forgetting of English capabilities. ChatVector shows large drops both in
+English and multilingual tasks, demonstrating the
+technique in not well suited to our problem. In contrast, E MB S WAP shows only minor regressions in
+English, indicating the benefits of its modular composition which reuses existing knowledge. This
+advantage is clear in multilingual mathematical
+reasoning (Figure 4), where E MB S WAP, by preserving English knowledge, significantly outperforms
+full-weight updating methods. Similar findings are
+observed for Aya23 etc. (See Table 4).
+3.6 Ablation Analysis
+Customized vocabulary amplifies the benefits of
+training on multilingual data. We decouple the
+effects of multilingual data in language adaptation
+from the change in vocabularies. Figure 5 shows
+
+4.0
+4.5
+Tokenization Fertility
+
+5.0
+
+th
+vi
+my
+lo
+su
+war
+shn
+ace
+
+Figure 7: Correlation between the results of language
+adaptation on Gemma2-2B with tokenizer fertility. Normalized ChrF++ on F LORES-S EA is reported. ♦ and ★
+indicate the original and our customized tokenizers used
+in the other settings, respectively.
+
+that simply tuning embeddings on multilingual
+data can significantly improve the performance in
+medium and low-resource languages, indicating
+LLMs are under-fitting to these languages. Based
+on this, employing a new vocabulary customized
+for these languages can amplify the benefits of embedding tuning on multilingual data. This enhanced
+learning process facilitates better knowledge acquisition (Zhang et al., 2022; Hofmann et al., 2022).
+Moreover, the improvements are more pronounced
+in smaller models, highlighting the importance of
+effective tokenization for these models to adapt
+well to low-resource languages. Figure 6 indicates
+that the importance of customized vocabulary is
+also apparent in the E MB S WAP setting.
+Tokenization fertility is inversely correlated to
+downstream performance. We study how tokenization fertility (the average number of tokens
+produced per word) affects the LLM’s performance
+across languages. To ablate this effect, we generate several re-sampled replicates of our tokenizer
+training datasets with different levels of priority
+given to high v.s. lower resource languages. Specifically, we use temperature sampling to manipulate
+the training sentences of each language for building different tokenizer training data, and train tokenizers with varying fertilities. We then relearn
+embeddings for each of these tokenizers and analyze the downstream performance. As shown in
+Figure 7, we find that the performance is inversely
+correlated to tokenization fertility, but the correlation is not uniform across languages. Notably,
+slight reductions in fertility lead to significant performance improvements in low-resource languages
+(e.g., ACE) while high-resource languages are less
+sensitive to fertility changes. Furthermore, Latinscript languages generally benefit more from fertility reductions compared to those in non-Latin
+
+7612
+
+Original
+
+Extension
+
+Accuracy
+
+50
+40
+30
+HRL
+
+MRL LRL Avg
+Resource Level
+
+FLAN
+Joint Tokenizer
+EmbSwap
+50
+
+Prune+Extension
+
+BELEBELE
+Averaged Score
+
+60
+ChrF++
+
+Scratch
+
+FLORES
+50
+40
+30
+
+En
+
+scripts. Please refer to Appendix Figure 13 which
+reports similar findings for PaLM2-XXS.
+Pruning with extension outperforms other tokenizer construction methods. We study how
+different ways of creating tokenizers affect how
+well LLMs adapt to new languages. We compared
+Prune+Extension to two variants: 1) Scratch trains
+tokenizers completely new for both English and
+target languages; and 2) Extension appends target
+language tokens to an existing tokenizer without removing any old ones, which adds 34% extra embedding parameters. Figure 8 shows Prune+Extension
+works the best overall. On a simpler task (F LORES),
+all methods perform similarly. We believe this is
+because F LORES is not as complex as B ELE B ELE,
+which needs reasoning skills likely learned from
+English. Supporting this, Prune+Extension greatly
+improves English performance on B ELE B ELE by
+keeping the original English tokens, and transfers
+this advantage to medium and low resource languages. By contrast, Scratch has far fewer original
+English tokens, suggesting that keeping these English tokens is important for retaining knowledge
+from pre-training.9 Prune+Extension also outperforms Extension, showing that removing tokens
+irrelevant to target languages is beneficial.10
+A joint tokenizer for all languages is inferior to
+language-group specific tokenizers. We test if
+using one joint tokenizer for S EA, A FR, and I ND
+languages is better than using distinct tokenizers
+for each group. The joint tokenizer is trained on
+the combined tokenizer training corpora and has
+the same vocabulary size as the distinct ones. We
+relearn a single embedding layer with the joint
+tokenizer, followed by applying E MB S WAP with
+It’s an open question of whether other facets of the tokenizer need to be retained to preserve other behaviours, e.g.,
+markup tokens to facilitate code understanding.
+10
+We suspect large vocabulary could increase ambiguity in
+output embeddings. Evidence also reveals that large vocabularies are not optimal for smaller LLMs (Tao et al., 2024).
+
+45
+
+40
+
+40
+
+35
+
+35
+
+30
+
+HRL MRL LRL Avg
+Resource Level
+
+Figure 8: Ablations on tokenizer building methods. We
+report S EA language adaptation on Gemma2-2B.
+
+9
+
+45
+
+Distinct Tokenizer
+EmbSwap+LoRA Adapt
+
+2B
+
+9B
+27B
+#Parameters (B)
+
+30
+
+2B
+
+9B
+27B
+#Parameters (B)
+
+Figure 9: Distinct tokenizers per language group v.s.
+Joint tokenizer for all languages. Averaged results of
+five tasks included in Table 2 are reported.
+
+LoRA-Adaptation. As shown in Figure 9, although
+the joint tokenizer improves FLAN across all model
+scales, it is outperformed by distinct tokenizers.
+Smaller models show the biggest performance drop
+with the joint tokenizer. This happens because
+the shared vocabulary limits how much capacity is
+dedicated to each language, resulting in about 10%
+more tokens and making learning less effective.
+
+4
+
+Related Work
+
+Language Adaptation of LLMs. Traditional
+ways of adapting LLMs to new languages involve
+continued pre-training on monolingual data (Cui
+et al., 2024; Zhao et al., 2024a) or multilingual
+instruction-tuning on synthetic data (Chen et al.,
+2024; Üstün et al., 2024; Aryabumi et al., 2024).
+These methods usually focus on monolingual transfer and a few high-resource languages. Moreover,
+their full-parameter tuning strategy is expensive, being prone to catastrophic forgetting. We achieve efficient adaptation to hundreds of languages through
+embedding relearning and prevent knowledge forgetting with reusing parts of existing models.
+Tokenizer Adaptation and Embedding Relearning. Previous tokenizer adaptation methods introduce languages into models through embedding relearning on new vocabularies (Artetxe et al.,
+2020; de Vries and Nissim, 2021; Marchisio et al.,
+2023; Chen et al., 2023). This increases flexibility
+in handling linguistic diversity and avoids oversegmentation that impairs task performance (Ahuja
+et al., 2023). However, they only consider encoderonly PLMs and monolingual transfer. We reevaluate this method for large-scale decoder-only LLMs
+with extension to hundreds of languages.
+Many works focus on how to initialize the new
+embeddings of new vocabularies (Yamaguchi et al.,
+2024, 2025). They involve complex combinations (Dobler and de Melo, 2023; Liu et al., 2024)
+of overlapping tokens using auxiliary embeddings
+
+7613
+
+and external resources (Minixhofer et al., 2022;
+Remy et al., 2024), which limits their use across
+many languages. We avoid external resources by
+initializing the new embeddings with averaging
+the corresponding original embeddings (Gee et al.,
+2022; Mosin et al., 2023), making it scalable for
+hundreds of languages.
+Model Merging. Model merging combines different specialized LLMs to create new ones with
+all their abilities (Wortsman et al., 2022). This can
+be done with simple arithmetic on existing parameters (Ilharco et al., 2023). We compared with one
+such method for instruction following across languages, ChatVector (Huang et al., 2024). Layer
+Swapping (Bandarkar et al., 2025) retains specific
+layers from language-adapted models while merging others from task fine-tuned models. Similar to
+Layer Swapping, E MB S WAP merges embeddings
+relearned on new vocabulary into instruction-tuned
+transformer body for cross-lingual transfer.
+
+5
+
+Conclusion
+
+We tackled the challenge of adapting LLMs to
+diverse languages through embedding relearning.
+Our empirical findings reveal that embedding tuning with customized tokenizers contributes to effective language adaptation of LLMs, especially for
+low-resource languages with severe fragmentation.
+We also demonstrate that these embeddings can
+be integrated into any instruction-tuned LLMs to
+enable cross-lingual transfer with minimal training costs, outperforming or matching other strong
+baselines with high computational cost.
+
+Limitations
+Although embedding relearning involves only embedding tuning while keeping the transformer body
+frozen, it still incurs a computational cost of performing a full forward pass and back-propagation
+through all transformer layers. To address this,
+more efficient approaches, such as embedding tuning on a subset of transformer layers (Marchisio
+et al., 2023), could be employed to accelerate the
+training process.
+We achieve substantial language adaptation by
+learning shared embeddings targeted at groups of
+geographically related languages, thereby avoiding
+the monolingual adaptation requiring the creation
+of language-specific embeddings. In addition, we
+demonstrate that constructing distinct embeddings
+for each language group outperforms the approach
+
+of treating all languages uniformly. However, this
+group-specific strategy may block certain forms of
+cross-lingual transfer and raises the critical question of how to best define ‘regions‘ to facilitate the
+best transfer.
+Although embedding relearning effectively addresses catastrophic forgetting, we still observe
+a slight regression in English and several other
+high-resource languages (HRLs). This decline
+is primarily attributable to the fact that the original LLMs were already extensively pre-trained
+on these languages. Furthermore, the English and
+HRL data included in our multilingual dataset Dla
+is likely of lower quality compared to the original pre-training data. This limitation becomes particularly pronounced in Gemma2, where the more
+advanced Gemini models (Anil et al., 2024) are employed for knowledge distillation. We believe that
+such regressions in English and HRL performance
+could be alleviated with access to higher-quality
+data.
+While we provide empirical results to demonstrate the effectiveness of embedding relearning
+and the importance of customized vocabularies tailored to target languages for cross-lingual transfer,
+future research should explore the conditions under
+which performing embedding relearning on LLMs
+is advantageous for cross-lingual transfer and the
+scenarios where it might be less effective.
+There might also be safety concerns arising from
+the disruption of alignment abilities due to the
+changes to the embeddings, and how to align the
+model effectively and efficiently to reject unsafe
+queries after the E MB S WAP pipeline which would
+need to be carefully addressed.
+
+Acknowledgment
+We thank the anonymous reviewers for their helpful feedback and suggestions. The first author is
+supported by the Graduate Research Scholarships
+funded by the University of Melbourne. We would
+thank Isaac Caswell for the valuable comments and
+feedback, as well as Daniel Formoso for helping
+support the research.
+
+References
+Orevaoghene Ahia, Sachin Kumar, Hila Gonen, Jungo
+Kasai, David Mortensen, Noah Smith, and Yulia
+Tsvetkov. 2023. Do all languages cost the same?
+tokenization in the era of commercial language models. In Proceedings of the 2023 Conference on Em-
+
+7614
+
+pirical Methods in Natural Language Processing,
+pages 9904–9923, Singapore. Association for Computational Linguistics.
+Kabir Ahuja, Harshita Diddee, Rishav Hada, Millicent Ochieng, Krithika Ramesh, Prachi Jain, Akshay Nambi, Tanuja Ganu, Sameer Segal, Mohamed
+Ahmed, Kalika Bali, and Sunayana Sitaram. 2023.
+MEGA: Multilingual evaluation of generative AI.
+In Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing, pages
+4232–4267, Singapore. Association for Computational Linguistics.
+Duarte Miguel Alves, José Pombal, Nuno M Guerreiro,
+Pedro Henrique Martins, João Alves, Amin Farajian,
+Ben Peters, Ricardo Rei, Patrick Fernandes, Sweta
+Agrawal, Pierre Colombo, José G. C. de Souza, and
+Andre Martins. 2024. Tower: An open multilingual
+large language model for translation-related tasks. In
+First Conference on Language Modeling.
+Rohan Anil et al. 2023. Palm 2 technical report.
+Preprint, arXiv:2305.10403.
+Rohan Anil et al. 2024. Gemini: A family of
+highly capable multimodal models.
+Preprint,
+arXiv:2312.11805.
+Mikel Artetxe, Sebastian Ruder, and Dani Yogatama.
+2020. On the cross-lingual transferability of monolingual representations. In Proceedings of the 58th
+Annual Meeting of the Association for Computational
+Linguistics, pages 4623–4637, Online. Association
+for Computational Linguistics.
+Viraat Aryabumi, John Dang, Dwarak Talupuru,
+Saurabh Dash, David Cairuz, Hangyu Lin, Bharat
+Venkitesh, Madeline Smith, Jon Ander Campos,
+Yi Chern Tan, Kelly Marchisio, Max Bartolo, Sebastian Ruder, Acyr Locatelli, Julia Kreutzer, Nick
+Frosst, Aidan Gomez, Phil Blunsom, Marzieh Fadaee,
+Ahmet Üstün, and Sara Hooker. 2024. Aya 23:
+Open weight releases to further multilingual progress.
+Preprint, arXiv:2405.15032.
+Lucas Bandarkar, Davis Liang, Benjamin Muller, Mikel
+Artetxe, Satya Narayan Shukla, Donald Husa, Naman
+Goyal, Abhinandan Krishnan, Luke Zettlemoyer, and
+Madian Khabsa. 2024. The belebele benchmark: a
+parallel reading comprehension dataset in 122 language variants. In Proceedings of the 62nd Annual
+Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 749–775,
+Bangkok, Thailand. Association for Computational
+Linguistics.
+Lucas Bandarkar, Benjamin Muller, Pritish Yuvraj, Rui
+Hou, Nayan Singhal, Hongjiang Lv, and Bing Liu.
+2025. Layer swapping for zero-shot cross-lingual
+transfer in large language models. In The Thirteenth
+International Conference on Learning Representations.
+
+Rachit Bansal, Bidisha Samanta, Siddharth Dalmia, Nitish Gupta, Sriram Ganapathy, Abhishek Bapna, Prateek Jain, and Partha Talukdar. 2024. LLM augmented LLMs: Expanding capabilities through composition. In The Twelfth International Conference on
+Learning Representations.
+Ankur Bapna, Isaac Caswell, Julia Kreutzer, Orhan Firat, Daan van Esch, Aditya Siddhant, Mengmeng Niu,
+Pallavi Baljekar, Xavier Garcia, Wolfgang Macherey,
+Theresa Breiner, Vera Axelrod, Jason Riesa, Yuan
+Cao, Mia Xu Chen, Klaus Macherey, Maxim Krikun,
+Pidong Wang, Alexander Gutkin, Apurva Shah, Yanping Huang, Zhifeng Chen, Yonghui Wu, and Macduff Hughes. 2022. Building machine translation
+systems for the next thousand languages. Preprint,
+arXiv:2205.03983.
+Yonatan Bisk, Rowan Zellers, Ronan Le Bras, Jianfeng
+Gao, and Yejin Choi. 2019. Piqa: Reasoning about
+physical commonsense in natural language. Preprint,
+arXiv:1911.11641.
+Terra Blevins and Luke Zettlemoyer. 2022. Language
+contamination helps explains the cross-lingual capabilities of English pretrained models. In Proceedings
+of the 2022 Conference on Empirical Methods in Natural Language Processing, pages 3563–3574, Abu
+Dhabi, United Arab Emirates. Association for Computational Linguistics.
+Tom Brown, Benjamin Mann, Nick Ryder, Melanie
+Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind
+Neelakantan, Pranav Shyam, Girish Sastry, Amanda
+Askell, Sandhini Agarwal, Ariel Herbert-Voss,
+Gretchen Krueger, Tom Henighan, Rewon Child,
+Aditya Ramesh, Daniel Ziegler, Jeffrey Wu, Clemens
+Winter, Chris Hesse, Mark Chen, Eric Sigler, Mateusz Litwin, Scott Gray, Benjamin Chess, Jack
+Clark, Christopher Berner, Sam McCandlish, Alec
+Radford, Ilya Sutskever, and Dario Amodei. 2020.
+Language models are few-shot learners. In Advances in Neural Information Processing Systems,
+volume 33, pages 1877–1901. Curran Associates,
+Inc.
+Isaac Caswell, Theresa Breiner, Daan van Esch, and
+Ankur Bapna. 2020. Language ID in the wild: Unexpected challenges on the path to a thousand-language
+web text corpus. In Proceedings of the 28th International Conference on Computational Linguistics,
+pages 6588–6608, Barcelona, Spain (Online). International Committee on Computational Linguistics.
+Pinzhen Chen, Shaoxiong Ji, Nikolay Bogoychev, Andrey Kutuzov, Barry Haddow, and Kenneth Heafield.
+2024. Monolingual or multilingual instruction tuning: Which makes a better alpaca. In Findings of the
+Association for Computational Linguistics: EACL
+2024, pages 1347–1356, St. Julian’s, Malta. Association for Computational Linguistics.
+Yihong Chen, Kelly Marchisio, Roberta Raileanu,
+David Ifeoluwa Adelani, Pontus Stenetorp, Sebastian Riedel, and Mikel Artetxe. 2023. Improving language plasticity via pretraining with active forgetting.
+
+7615
+
+In Thirty-seventh Conference on Neural Information
+Processing Systems.
+Hyung Won Chung, Xavier Garcia, Adam Roberts,
+Yi Tay, Orhan Firat, Sharan Narang, and Noah Constant. 2023. Unimax: Fairer and more effective language sampling for large-scale multilingual pretraining. In The Eleventh International Conference on
+Learning Representations.
+Christopher Clark, Kenton Lee, Ming-Wei Chang,
+Tom Kwiatkowski, Michael Collins, and Kristina
+Toutanova. 2019. BoolQ: Exploring the surprising
+difficulty of natural yes/no questions. In Proceedings
+of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics:
+Human Language Technologies, Volume 1 (Long and
+Short Papers), pages 2924–2936, Minneapolis, Minnesota. Association for Computational Linguistics.
+Peter Clark, Isaac Cowhey, Oren Etzioni, Tushar Khot,
+Ashish Sabharwal, Carissa Schoenick, and Oyvind
+Tafjord. 2018. Think you have solved question
+answering? try arc, the ai2 reasoning challenge.
+Preprint, arXiv:1803.05457.
+Karl Cobbe, Vineet Kosaraju, Mohammad Bavarian,
+Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias
+Plappert, Jerry Tworek, Jacob Hilton, Reiichiro
+Nakano, Christopher Hesse, and John Schulman.
+2021. Training verifiers to solve math word problems. Preprint, arXiv:2110.14168.
+Alexis Conneau, Kartikay Khandelwal, Naman Goyal,
+Vishrav Chaudhary, Guillaume Wenzek, Francisco
+Guzmán, Edouard Grave, Myle Ott, Luke Zettlemoyer, and Veselin Stoyanov. 2020. Unsupervised
+cross-lingual representation learning at scale. In Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics, pages 8440–
+8451, Online. Association for Computational Linguistics.
+Yiming Cui, Ziqing Yang, and Xin Yao. 2024. Efficient
+and effective text encoding for chinese llama and
+alpaca. Preprint, arXiv:2304.08177.
+Wietse de Vries and Malvina Nissim. 2021. As good
+as new. how to successfully recycle English GPT-2
+to make models for other languages. In Findings of
+the Association for Computational Linguistics: ACLIJCNLP 2021, pages 836–846, Online. Association
+for Computational Linguistics.
+Konstantin Dobler and Gerard de Melo. 2023. FOCUS:
+Effective embedding initialization for monolingual
+specialization of multilingual models. In Proceedings of the 2023 Conference on Empirical Methods in
+Natural Language Processing, pages 13440–13454,
+Singapore. Association for Computational Linguistics.
+Dheeru Dua, Yizhong Wang, Pradeep Dasigi, Gabriel
+Stanovsky, Sameer Singh, and Matt Gardner. 2019.
+
+DROP: A reading comprehension benchmark requiring discrete reasoning over paragraphs. In Proceedings of the 2019 Conference of the North American
+Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1
+(Long and Short Papers), pages 2368–2378, Minneapolis, Minnesota. Association for Computational
+Linguistics.
+Kazuki Fujii, Taishi Nakamura, Mengsay Loem, Hiroki Iida, Masanari Ohi, Kakeru Hattori, Hirai Shota,
+Sakae Mizuki, Rio Yokota, and Naoaki Okazaki.
+2024. Continual pre-training for cross-lingual LLM
+adaptation: Enhancing japanese language capabilities. In First Conference on Language Modeling.
+Philip Gage. 1994. A new algorithm for data compression. C Users J., 12(2):23–38.
+Xavier Garcia, Noah Constant, Ankur Parikh, and Orhan
+Firat. 2021. Towards continual learning for multilingual machine translation via vocabulary substitution.
+In Proceedings of the 2021 Conference of the North
+American Chapter of the Association for Computational Linguistics: Human Language Technologies,
+pages 1184–1192, Online. Association for Computational Linguistics.
+Leonidas Gee, Andrea Zugarini, Leonardo Rigutini, and
+Paolo Torroni. 2022. Fast vocabulary transfer for
+language model compression. In Proceedings of the
+2022 Conference on Empirical Methods in Natural
+Language Processing: Industry Track, pages 409–
+416, Abu Dhabi, UAE. Association for Computational Linguistics.
+Naman Goyal, Cynthia Gao, Vishrav Chaudhary, PengJen Chen, Guillaume Wenzek, Da Ju, Sanjana Krishnan, Marc’Aurelio Ranzato, Francisco Guzmán,
+and Angela Fan. 2022. The Flores-101 evaluation
+benchmark for low-resource and multilingual machine translation. Transactions of the Association for
+Computational Linguistics, 10:522–538.
+Dan Hendrycks, Collin Burns, Steven Basart, Andy Zou,
+Mantas Mazeika, Dawn Song, and Jacob Steinhardt.
+2021. Measuring massive multitask language understanding. In International Conference on Learning
+Representations.
+Valentin Hofmann, Hinrich Schuetze, and Janet Pierrehumbert. 2022. An embarrassingly simple method
+to mitigate undesirable properties of pretrained language model tokenizers. In Proceedings of the 60th
+Annual Meeting of the Association for Computational
+Linguistics (Volume 2: Short Papers), pages 385–393,
+Dublin, Ireland. Association for Computational Linguistics.
+Shih-Cheng Huang, Pin-Zu Li, Yu-chi Hsu, KuangMing Chen, Yu Tung Lin, Shih-Kai Hsiao, Richard
+Tsai, and Hung-yi Lee. 2024. Chat vector: A simple
+approach to equip LLMs with instruction following
+and model alignment in new languages. In Proceedings of the 62nd Annual Meeting of the Association
+
+7616
+
+for Computational Linguistics (Volume 1: Long Papers), pages 10943–10959, Bangkok, Thailand. Association for Computational Linguistics.
+Gabriel Ilharco, Marco Tulio Ribeiro, Mitchell Wortsman, Ludwig Schmidt, Hannaneh Hajishirzi, and Ali
+Farhadi. 2023. Editing models with task arithmetic.
+In The Eleventh International Conference on Learning Representations.
+Diederik P. Kingma and Jimmy Ba. 2014. Adam:
+A method for stochastic optimization. Preprint,
+arXiv:1412.6980.
+Davis Liang, Hila Gonen, Yuning Mao, Rui Hou, Naman Goyal, Marjan Ghazvininejad, Luke Zettlemoyer, and Madian Khabsa. 2023. XLM-V: Overcoming the vocabulary bottleneck in multilingual
+masked language models. In Proceedings of the 2023
+Conference on Empirical Methods in Natural Language Processing, pages 13142–13152, Singapore.
+Association for Computational Linguistics.
+Yihong Liu, Peiqin Lin, Mingyang Wang, and Hinrich
+Schuetze. 2024. OFA: A framework of initializing
+unseen subword embeddings for efficient large-scale
+multilingual continued pretraining. In Findings of the
+Association for Computational Linguistics: NAACL
+2024, pages 1067–1097, Mexico City, Mexico. Association for Computational Linguistics.
+Yinquan Lu, Wenhao Zhu, Lei Li, Yu Qiao, and Fei
+Yuan. 2024. LLaMAX: Scaling linguistic horizons
+of LLM by enhancing translation capabilities beyond
+100 languages. In Findings of the Association for
+Computational Linguistics: EMNLP 2024, pages
+10748–10772, Miami, Florida, USA. Association for
+Computational Linguistics.
+Yun Luo, Zhen Yang, Fandong Meng, Yafu Li, Jie Zhou,
+and Yue Zhang. 2024. An empirical study of catastrophic forgetting in large language models during
+continual fine-tuning. Preprint, arXiv:2308.08747.
+Kelly Marchisio, Patrick Lewis, Yihong Chen, and
+Mikel Artetxe. 2023. Mini-model adaptation: Efficiently extending pretrained models to new languages
+via aligned shallow training. In Findings of the Association for Computational Linguistics: ACL 2023,
+pages 5474–5490, Toronto, Canada. Association for
+Computational Linguistics.
+Benjamin Minixhofer, Fabian Paischer, and Navid Rekabsaz. 2022. WECHSEL: Effective initialization of
+subword embeddings for cross-lingual transfer of
+monolingual language models. In Proceedings of
+the 2022 Conference of the North American Chapter of the Association for Computational Linguistics:
+Human Language Technologies, pages 3992–4006,
+Seattle, United States. Association for Computational
+Linguistics.
+Vladislav Mosin, Igor Samenko, Borislav Kozlovskii,
+Alexey Tikhonov, and Ivan P. Yamshchikov. 2023.
+Fine-tuning transformers: Vocabulary transfer. Artificial Intelligence, 317:103860.
+
+François Remy, Pieter Delobelle, Hayastan Avetisyan,
+Alfiya Khabibullina, Miryam de Lhoneux, and
+Thomas Demeester. 2024. Trans-tokenization and
+cross-lingual vocabulary transfers: Language adaptation of LLMs for low-resource NLP. In First Conference on Language Modeling.
+Morgane Riviere et al. 2024. Gemma 2: Improving
+open language models at a practical size. Preprint,
+arXiv:2408.00118.
+Keisuke Sakaguchi, Ronan Le Bras, Chandra Bhagavatula, and Yejin Choi. 2021. Winogrande: an adversarial winograd schema challenge at scale. Commun.
+ACM, 64(9):99–106.
+Rico Sennrich, Barry Haddow, and Alexandra Birch.
+2016. Neural machine translation of rare words with
+subword units. In Proceedings of the 54th Annual
+Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 1715–1725,
+Berlin, Germany. Association for Computational Linguistics.
+Freda Shi, Mirac Suzgun, Markus Freitag, Xuezhi Wang,
+Suraj Srivats, Soroush Vosoughi, Hyung Won Chung,
+Yi Tay, Sebastian Ruder, Denny Zhou, Dipanjan Das,
+and Jason Wei. 2023. Language models are multilingual chain-of-thought reasoners. In The Eleventh
+International Conference on Learning Representations.
+Haizhou Shi, Zihao Xu, Hengyi Wang, Weiyi Qin,
+Wenyuan Wang, Yibin Wang, Zifeng Wang, Sayna
+Ebrahimi, and Hao Wang. 2024. Continual learning
+of large language models: A comprehensive survey.
+Preprint, arXiv:2404.16789.
+Harman Singh, Nitish Gupta, Shikhar Bharadwaj, Dinesh Tewari, and Partha Talukdar. 2024. IndicGenBench: A multilingual benchmark to evaluate generation capabilities of LLMs on Indic languages. In
+Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1:
+Long Papers), pages 11047–11073, Bangkok, Thailand. Association for Computational Linguistics.
+Tianyi Tang, Wenyang Luo, Haoyang Huang, Dongdong Zhang, Xiaolei Wang, Xin Zhao, Furu Wei,
+and Ji-Rong Wen. 2024. Language-specific neurons:
+The key to multilingual capabilities in large language
+models. In Proceedings of the 62nd Annual Meeting
+of the Association for Computational Linguistics (Volume 1: Long Papers), pages 5701–5715, Bangkok,
+Thailand. Association for Computational Linguistics.
+Chaofan Tao, Qian Liu, Longxu Dou, Niklas Muennighoff, Zhongwei Wan, Ping Luo, Min Lin, and
+Ngai Wong. 2024. Scaling laws with vocabulary:
+Larger models deserve larger vocabularies. In The
+Thirty-eighth Annual Conference on Neural Information Processing Systems.
+Yi Tay, Mostafa Dehghani, Vinh Q. Tran, Xavier Garcia,
+Jason Wei, Xuezhi Wang, Hyung Won Chung, Dara
+Bahri, Tal Schuster, Steven Zheng, Denny Zhou, Neil
+
+7617
+
+Houlsby, and Donald Metzler. 2023. UL2: Unifying
+language learning paradigms. In The Eleventh International Conference on Learning Representations.
+Ahmet Üstün, Viraat Aryabumi, Zheng Yong, Wei-Yin
+Ko, Daniel D’souza, Gbemileke Onilude, Neel Bhandari, Shivalika Singh, Hui-Lee Ooi, Amr Kayid, Freddie Vargus, Phil Blunsom, Shayne Longpre, Niklas
+Muennighoff, Marzieh Fadaee, Julia Kreutzer, and
+Sara Hooker. 2024. Aya model: An instruction finetuned open-access multilingual language model. In
+Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1:
+Long Papers), pages 15894–15939, Bangkok, Thailand. Association for Computational Linguistics.
+Jason Wei, Maarten Bosma, Vincent Zhao, Kelvin Guu,
+Adams Wei Yu, Brian Lester, Nan Du, Andrew M.
+Dai, and Quoc V Le. 2022. Finetuned language models are zero-shot learners. In International Conference on Learning Representations.
+Chris Wendler, Veniamin Veselovsky, Giovanni Monea,
+and Robert West. 2024. Do llamas work in English?
+on the latent language of multilingual transformers.
+In Proceedings of the 62nd Annual Meeting of the
+Association for Computational Linguistics (Volume 1:
+Long Papers), pages 15366–15394, Bangkok, Thailand. Association for Computational Linguistics.
+Mitchell Wortsman, Gabriel Ilharco, Samir Ya Gadre,
+Rebecca Roelofs, Raphael Gontijo-Lopes, Ari S Morcos, Hongseok Namkoong, Ali Farhadi, Yair Carmon, Simon Kornblith, and Ludwig Schmidt. 2022.
+Model soups: averaging weights of multiple finetuned models improves accuracy without increasing
+inference time. In Proceedings of the 39th International Conference on Machine Learning, volume 162
+of Proceedings of Machine Learning Research, pages
+23965–23998. PMLR.
+Haoran Xu, Young Jin Kim, Amr Sharaf, and Hany Hassan Awadalla. 2024. A paradigm shift in machine
+translation: Boosting translation performance of
+large language models. In The Twelfth International
+Conference on Learning Representations.
+
+vocabulary of llms with 0.01gb of target language
+text? Computational Linguistics, pages 1–40.
+Xiang Yue, Tianyu Zheng, Ge Zhang, and Wenhu Chen.
+2024. MAmmoTH2: Scaling instructions from the
+web. In The Thirty-eighth Annual Conference on
+Neural Information Processing Systems.
+Rowan Zellers, Ari Holtzman, Yonatan Bisk, Ali
+Farhadi, and Yejin Choi. 2019. HellaSwag: Can a machine really finish your sentence? In Proceedings of
+the 57th Annual Meeting of the Association for Computational Linguistics, pages 4791–4800, Florence,
+Italy. Association for Computational Linguistics.
+Shiyue Zhang, Vishrav Chaudhary, Naman Goyal,
+James Cross, Guillaume Wenzek, Mohit Bansal, and
+Francisco Guzman. 2022. How robust is neural machine translation to language imbalance in multilingual tokenizer training? In Proceedings of the 15th
+biennial conference of the Association for Machine
+Translation in the Americas (Volume 1: Research
+Track), pages 97–116, Orlando, USA. Association
+for Machine Translation in the Americas.
+Jun Zhao, Zhihao Zhang, Luhui Gao, Qi Zhang, Tao
+Gui, and Xuanjing Huang. 2024a. Llama beyond
+english: An empirical study on language capability
+transfer. Preprint, arXiv:2401.01055.
+Yiran Zhao, Wenxuan Zhang, Guizhen Chen, Kenji
+Kawaguchi, and Lidong Bing. 2024b. How do large
+language models handle multilingualism? In The
+Thirty-eighth Annual Conference on Neural Information Processing Systems.
+Wenzhen Zheng, Wenbo Pan, Xu Xu, Libo Qin, Li Yue,
+and Ming Zhou. 2024. Breaking language barriers:
+Cross-lingual continual pre-training at scale. In Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing, pages 7725–
+7738, Miami, Florida, USA. Association for Computational Linguistics.
+
+Linting Xue, Noah Constant, Adam Roberts, Mihir Kale,
+Rami Al-Rfou, Aditya Siddhant, Aditya Barua, and
+Colin Raffel. 2021. mT5: A massively multilingual
+pre-trained text-to-text transformer. In Proceedings
+of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics:
+Human Language Technologies, pages 483–498, Online. Association for Computational Linguistics.
+Atsuki Yamaguchi, Aline Villavicencio, and Nikolaos
+Aletras. 2024. An empirical study on cross-lingual
+vocabulary adaptation for efficient language model inference. In Findings of the Association for Computational Linguistics: EMNLP 2024, pages 6760–6785,
+Miami, Florida, USA. Association for Computational
+Linguistics.
+Atsuki Yamaguchi, Aline Villavicencio, and Nikolaos
+Aletras. 2025. How can we effectively expand the
+
+7618
+
+Overview of Appendix
+
+Dataset
+
+Prompt
+
+Our supplementary includes the following sections:
+• Section A: Experimental Settings, including
+implementation details for training and evaluation.
+• Section B: Detailed result comparison between instruction-tuned models and E MB S WAP in English tasks.
+• Section C: Additional Language Adaptation
+and E MB S WAP results on PaLM2, Aya23 and
+Gemma2-IT models.
+• Section D: Supplementary analysis including
+additional data ablations.
+• Section E: Results by language for both language adaptation and E MB S WAP.
+
+B ELE B ELE
+
+The following are multiple choice questions
+(with answers).
+
+A
+
+Passage: [Target Language Passage]
+Question: [Target Language Question]
+(A) [Choice A] (B) [Choice B] (C) [Choice
+C] (D) [Choice D]
+Answer:
+S IB -200
+
+[News Article in Target Language]
+Question: What label best describes this
+news article?
+(A) science/technology (B) travel (C) politics (D) sports (E) health (F) entertainment
+(G) geography
+Answer:
+
+F LORES -200
+
+Translate this from English to [Target Language Name]:
+English: [Sentence in English]
+[Target Language Name]:
+
+Experimental Settings
+
+XS UM -I N
+
+A.1 Training Details
+For language adaptation, we use a constant learning
+rate of 1×10−4 for PaLM2 and 1×10−5 for Gemma2
+and Aya23 with the Adam optimizer (Kingma and
+Ba, 2014). The embeddings are trained on a total of
+200B tokens,11 with each batch consisting of examples packed to a maximum sequence length of 2K
+for PaLM2 and 8K for Gemma2 and Aya23. We pretrain the model using the UL2 objectives (Tay et al.,
+2023) for PaLM2 and causal language modeling objectives for Gemma2 and Aya23. Language adaptation consumes up to 256 TPU-v5 chips for the
+largest Gemma2-27B and Aya23-35B models. The
+batch size is selected based on the model size and
+computing resources we have, with batch sizes of
+256, 128, and 64 assigned to the Gemma2-2B, 9B,
+and 27B models, respectively. A similar strategy
+is applied to the Aya23 models. For PaLM2 models, we use the same batch size of 2048 for all
+variants. We choose the best checkpoint based on
+the performance of F LORES -200 development sets
+corresponding to each target language group. The
+training time varies with model size, where smaller
+models complete training within 24 hours while
+larger models require up to 1 week to finish.
+We instruction-tune the transformer body of
+LLMs on Dit using the same hyper-parameter
+setting to obtain XX-FLAN, where we sample up
+to 200M instances from the FLAN mixture to
+construct Dit . We use early stopping to select
+the best model based on the performance on
+MMLU (Hendrycks et al., 2021) and assemble it
+11
+
+I will first show a news article in English and
+then provide a one sentence summary of it
+in [Target Language Name].
+Summarize the following article: [Article in
+English]
+Summary in [Target Language Name]:
+
+X OR QA-I N
+
+Generate an answer in [Target Language
+Name/English] for the question based on
+the given passage:
+[Passage in English]
+Q: [Question in Target Language]
+A:
+
+GSM8K-NTL
+
+Q: [Question in Target Language]
+A: [Let’s think step by step.]
+
+Table 3: Prompt templates used in each of the evaluation
+dataset. For few-shot evaluation, n-shot examples have
+the same format as the last test instance, which comes
+after the preamble but before the test instances.
+
+with customized embedding to obtain E MB S WAP
+models. We observe all LLMs converge fast, as indicated by the average performance on MMLU. In
+most cases, training is completed within 24 hours.
+For LoRA-Adaptation, we add LoRA weights
+to the self-attention module of all transformer layers with a LoRA rank of 64 and exclusively optimize these weights.12 We use a learning rate of
+5×10−6 for all models with 10% steps of warm-up.
+Analogous to embedding tuning, the F LORES -200
+development set is used for model selection. The
+training process is computationally efficient, completing within 12 hours even for the largest model.
+12
+
+English accounts for 30.8% of the tokens.
+
+7619
+
+This adds less than 1% parameters.
+
+ARC-Challenge
+
+Accuracy
+
+90
+
+DROP
+60
+
+85
+
+80
+
+95
+
+9
+HellaSwag
+
+27
+
+82
+
+60
+2
+
+9
+
+27
+
+MMLU
+
+60
+
+85
+
+50
+
+2
+
+9
+27
+#Parameters (B)
+FLAN
+EmbSwap
+
+2
+
+2
+
+9
+
+90
+
+70
+
+90
+
+GSM8K
+
+70
+
+88
+
+85
+
+2
+Accuracy
+
+Boolq
+
+90
+
+27
+
+PIQA
+
+40
+
+85
+
+80
+
+80
+2
+
+9
+Winogrande
+
+90
+
+85
+
+9
+27
+#Parameters (B)
+EmbSwap+LoRA
+
+2
+
+9
+27
+#Parameters (B)
+
+2
+
+27
+
+9
+27
+#Parameters (B)
+
+Figure 10: Performance on English tasks. For E MB S WAP methods, we present the averaged performance with
+variances across three embeddings (i.e., S EA, A FR, I ND). Shading indicates the standard deviations measured over
+three embeddings.
+
+SEA
+
+AFR
+
+IND
+
+10
+
+We use the prompt formats listed in Table 3 for
+evaluation. For generation tasks, greedy decoding
+is employed with a maximum sequence length of
+256 tokens. For classification tasks, we calculate
+the logits of each available option (e.g., (A), (B))
+and select the option with the highest score as the
+predicted answer.
+
+Chrf++
+
+A.2 Evaluation Details
+
+B
+
+strongest multilingual abilities while Aya23 models
+demonstrate limited multilingual performance. Figure 11 shows that the performance gains from language adaptation decrease as the original multilingual scope of the LLMs expand (Aya23 → PaLM2XXS → PaLM2-S). Moreover, larger performance
+improvements are observed on Aya23 models when
+scaling up their size, suggesting that language adaptation may be particularly effective for models with
+stronger English proficiency.
+
+Details on English Benchmarking
+
+For benchmarking performance in English, we
+choose ARC-Challenge (Clark et al., 2018),
+Boolq (Clark et al., 2019), DROP (Dua et al., 2019),
+GSM8K (Cobbe et al., 2021), HellaSwag (Zellers
+et al., 2019), MMLU (Hendrycks et al., 2021),
+PIQA (Bisk et al., 2019), and Winogrande (Sakaguchi et al., 2021). We use different number of
+shots for evaluation following Riviere et al. (2024).
+Figure 10 shows the comparison between the
+instruction-tuned FLAN model and E MB S WAP
+across various sizes of Gemma2. Both E MB S WAP
+variants exhibit performance regressions across all
+tasks compared to the FLAN model, although the
+performance gap closes as model capacity scales
+up. We believe that these minor regressions are
+justifiable in light of the substantial gains achieved
+in zero-shot cross-lingual transfer.
+
+C
+
+Additional Main Results
+
+C.1 Language Adaptation on PaLM2 and
+Aya23
+We evaluate the generalization ability of language
+adaptation on two LLMs with varying levels of multilingualism. Among them, PaLM2-S exhibits the
+
+Acc
+
+10
+0 XXS
+
+0
+
+S
+8B 35B
+XXS S
+8B 35B
+FLORES-200
+BELEBELE
+Figure 11: Language Adaptation on PaLM2 (XXS, S)
+and Aya23 (8B, 35B). Absolute gains over the pretrained models are reported.
+
+C.2
+
+E MB S WAP Results on PaLM2, Aya23 and
+Gemma2-IT
+
+Employing the same E MB S WAP pipeline, we observe similar patterns of performance improvement
+across all sizes of the PaLM2 and Aya23 models, as
+shown in Table 4. This demonstrates the broad applicability of E MB S WAP to various types of LLMs.
+In addition, we also show the detailed results of
+Gemma2-IT models. E MB S WAP also performs effectively with off-the-shelf I T models that have
+undergone complex supervised fine-tuning and reinforcement learning. This further underscores the
+versatility of E MB S WAP in integrating pre-trained
+multilingual embeddings into LLMs that have been
+instruction-tuned using diverse methodologies for
+
+7620
+
+E NGLISH
+
+Task Type
+Eval. Metric
+Model
+
+C LASSIFICATION
+B ELE B ELE
+Accuracy
+
+G ENERATION
+
+S IB -200
+Accuracy
+
+F LORES -200
+ChrF++
+
+X OR QA-I N
+Token-F1
+
+XS UM -I N
+ChrF
+
+S EA
+
+A FR
+
+I ND
+
+S EA
+
+A FR
+
+I ND
+
+S EA
+
+A FR
+
+I ND
+
+I ND
+
+EN
+
+I ND
+
+EN
+
+Avg.
+
+PaLM2-XXS-FLAN
+PaLM2-XXS-EmbSwap
++ LoRA-Adapt
+
+59.7
+62.6
+58.9
+
+54.5
+58.0
+59.7
+
+40.0
+40.2
+43.4
+
+49.4
+50.9
+53.8
+
+67.2
+76.8
+73.7
+
+51.3
+62.2
+63.5
+
+70.9
+77.2
+76.9
+
+28.5
+27.7
+32.3
+
+13.9
+12.2
+16.0
+
+21.0
+17.9
+26.7
+
+9.7
+10.4
+11.7
+
+42.1
+59.4
+64.2
+
+4.8
+2.1
+1.0
+
+33.7
+34.2
+30.7
+
+32.8
+35.9
+37.7
+
+PaLM2-S-FLAN
+PaLM2-S-EmbSwap
++ LoRA-Adapt
+
+86.3
+85.1
+85.7
+
+80.2
+83.2
+83.6
+
+67.4
+67.1
+68.4
+
+82.1
+79.9
+81.8
+
+70.6
+77.0
+77.7
+
+60.9
+66.9
+68.7
+
+74.5
+74.6
+77.8
+
+37.6
+36.1
+39.3
+
+19.3
+23.1
+24.1
+
+36.7
+34.6
+38.7
+
+21.3
+21.1
+18.9
+
+46.9
+51.8
+57.3
+
+15.8
+17.3
+15.2
+
+41.1
+40.1
+41.2
+
+45.4
+47.1
+48.2
+
+Aya23-8B-FLAN
+Aya23-8B-EmbSwap
++ LoRA-Adapt
+
+74.3
+71.1
+71.3
+
+47.8
+56.6
+59.1
+
+34.1
+38.4
+39.0
+
+42.7
+48.0
+50.8
+
+64.3
+72.4
+65.6
+
+48.5
+58.7
+55.3
+
+60.6
+71.3
+65.2
+
+22.9
+28.8
+37.1
+
+6.0
+9.1
+16.9
+
+16.1
+11.5
+33.4
+
+10.5
+7.8
+9.6
+
+58.5
+61.6
+56.5
+
+11.7
+3.9
+9.4
+
+34.5
+25.7
+30.7
+
+32.3
+34.2
+36.8
+
+Aya23-35B-FLAN
+Aya23-35B-EmbSwap
++ LoRA-Adapt
+
+83.6
+79.2
+82.0
+
+56.9
+57.6
+72.6
+
+40.3
+40.2
+50.1
+
+54.6
+53.0
+65.2
+
+67.0
+70.8
+75.2
+
+52.9
+53.8
+64.7
+
+67.2
+68.5
+74.0
+
+27.1
+27.7
+41.6
+
+9.1
+9.5
+23.4
+
+23.6
+13.9
+40.1
+
+11.4
+6.8
+12.6
+
+64.7
+62.3
+67.8
+
+10.4
+7.3
+15.7
+
+37.9
+22.1
+37.1
+
+36.5
+35.2
+45.1
+
+Gemma2-2B-IT
++ Lang-Adapt
+Gemma2-2B-IT-EmbSwap
++ LoRA Adapt
+
+55.5
+54.1
+55.1
+58.4
+
+47.5
+51.2
+53.7
+56.4
+
+35.4
+36.7
+37.4
+39.9
+
+45.8
+42.9
+46.0
+50.7
+
+57.4
+67.0
+66.7
+67.5
+
+42.8
+48.7
+49.5
+53.0
+
+61.2
+67.1
+64.0
+69.9
+
+24.2
+35.4
+27.4
+37.6
+
+7.3
+14.2
+11.7
+18.6
+
+17.7
+29.2
+27.0
+32.4
+
+14.9
+12.3
+16.7
+11.7
+
+53.0
+40.2
+58.7
+60.5
+
+10.1
+7.1
+13.4
+9.3
+
+31.9
+27.5
+32.0
+27.7
+
+31.6
+33.0
+35.9
+37.6
+
+Gemma2-9B-IT
++ Lang-Adapt
+Gemma2-9B-IT-EmbSwap
++ LoRA-Adapt
+
+79.9
+73.9
+78.5
+79.5
+
+71.5
+75.4
+77.4
+76.5
+
+51.4
+57.9
+54.5
+58.1
+
+72.5
+72.7
+72.6
+70.8
+
+72.5
+77.2
+78.2
+81.3
+
+57.8
+69.2
+66.1
+71.2
+
+79.3
+79.7
+78.5
+82.8
+
+32.2
+39.3
+33.8
+41.5
+
+14.0
+22.2
+16.6
+25.1
+
+31.1
+38.7
+18.8
+39.8
+
+24.0
+23.1
+21.4
+18.2
+
+64.4
+69.6
+65.2
+68.2
+
+16.6
+17.0
+9.6
+15.7
+
+34.3
+33.9
+34.2
+33.0
+
+44.5
+48.3
+43.8
+48.4
+
+Gemma2-27B-IT
++ Lang-Adapt
+Gemma2-27B-IT-EmbSwap
++ LoRA-Adapt
+
+82.1
+81.9
+79.9
+82.2
+
+74.9
+81.7
+80.8
+78.8
+
+54.6
+62.7
+59.5
+60.1
+
+75.9
+76.0
+75.9
+74.3
+
+76.2
+82.1
+81.4
+81.7
+
+63.1
+70.0
+68.9
+71.7
+
+83.0
+81.9
+83.0
+82.6
+
+35.2
+42.5
+35.1
+42.3
+
+20.1
+24.8
+6.2
+25.6
+
+34.5
+39.3
+29.9
+40.6
+
+27.7
+26.4
+20.0
+24.2
+
+68.2
+73.0
+68.8
+67.9
+
+19.0
+18.3
+15.0
+15.6
+
+34.7
+35.8
+34.6
+34.0
+
+48.0
+51.1
+46.7
+49.6
+
+Table 4: Additional E MB S WAP results on PaLM2, Aya23 and Gemma2-IT models. The best and second-best results
+are marked in bold and underlined. Red values indicate E MB S WAP hurts the performance.
+
+Tok. Length
+
+60
+40
+20
+0
+
+En HRL MRL LRL
+PaLM2-SEA
+
+100
+50
+0
+
+En HRL MRL LRL
+Aya23-SEA
+
+60
+40
+20
+0
+60
+40
+20
+0
+
+Customized Vocab
+75
+
+0.8
+0.6
+
+50
+
+Score
+
+Tok. Length
+
+Original Vocab
+
+25
+En HRL MRL LRL
+PaLM2-AFR
+
+0
+
+0.4
+
+En HRL MRL LRL
+PaLM2-IND
+
+0.2
+
+150
+
+3.5
+
+100
+50
+En HRL MRL LRL
+Aya23-AFR
+
+0
+
+En HRL MRL LRL
+Aya23-IND
+
+Figure 12: The tokenization comparison between using
+the vanilla and customized multilingual tokenizers on
+Gemma2. Tok. Length refers to the average number of
+tokens required to represent the same amount of texts.
+
+efficient zero-shot cross-lingual transfer.
+
+D
+
+Supplementary Analysis
+
+Additional tokenization results on the customized vocabularies. We present additional results on tokenization fertility using customized vocabularies developed for PaLM2 and Aya23. Figure 12 shows similar patterns as those reported
+for Gemma2, where the fertility tokenization for
+both MRLs and LRLs shows a substantial decrease,
+while the English tokenization remains roughly unchanged. This effect is particularly pronounced
+in Aya23, where we observe over ×3 reduction in
+
+4.0
+4.5
+5.0
+Tokenization Fertility
+
+5.5
+
+th
+vi
+my
+lo
+su
+war
+shn
+ace
+
+Figure 13: Correlation between the performance of language adaptation on PaLM2-XXS with tokenizer fertility.
+Normalized ChrF++ on F LORES-S EA are reported. ♦
+and ★ indicate the original and customized tokenizers
+in PaLM2.
+
+fertility for S EA and I ND languages. In Table 6,
+we also show a few tokenized examples for lowresource languages. We find that the customized
+tokenizer produces more meaningful tokens and
+avoids overtokenization.
+Tokenizer fertility is also inversely correlated to
+downstream performance in PaLM2. We replicate the analysis shown in Figure 7 using PaLM2XXS, with results shown in Figure 13. We observe
+patterns analogous to those reported for Gemma2-2B,
+wherein reduced tokenizer fertility is generally associated with improved downstream performance
+and this relationship is particularly pronounced in
+LRLs and languages written in non-Latin script.
+
+7621
+
+doc
+
+50
+40
+
+Accuracy
+
+30
+
+Random Init
+
+la
+
+BELEBELE
+
+50
+40
+30
+
+20
+HRL
+
+MRL LRL Avg
+Resource Level
+
+Figure 14: Pre-training data ablation for language adaptation. Dntl : multilingual data sampled from the NTL
+corpus; Ddoc : multilingual data sampled Wikipedia and
+mC4; Dla : our final data mixture for language adaptation, i.e., Dla = Dntl ∪ Ddoc ; Dmono : monolingual
+data by excluding parallel sentences from Dla . S EA
+languages results on Gemma2-2B are reported.
+it
+
+HRL
+
+Avg
+
+Original Vocab
+
+mix
+
+Customized Vocab
+
+45
+
+1.4
+
+40
+
+1.2
+1.0
+
+35
+30
+25
+
+0.8
+0.6
+
+MRL
+LRL
+Resource Level
+
+20
+
+Figure 16: Ablations on embedding initialization methods. F LORES-S EA language performance of language
+adaptation on Gemma2-2B is reported. Max Pooling: for
+each new token in the customized vocabulary, we use
+the original tokenizer to tokenize it and apply max pooling over the embeddings of the corresponding subtokens
+as the initialization.
+
+ChrF++
+
+Normalized Performance
+
+la
+
+Avg Pooling
+
+40
+
+0
+En HRL MRL LRL Avg
+Resource Level
+
+Max Pooling
+
+ChrF++
+
+ChrF++
+
+mono
+
+60
+
+ChrF++
+
+ntl
+
+FLORES
+
+20
+
+FLORES
+
+Dataset
+
+BELEBELE
+
+Figure 15: Training data ablation for Lora-Adaptation.
+Dla : multilingual data for embedding tuning; Dit : the
+FLAN mixture for instruction-tuning; Dmix : a combination of equally sub-sampled Dla and Dit . Averaged
+S EA language results (normalized score v.s. E MB S WAP)
+on Gemma2-2B are reported.
+
+Long-tail NTL and document-level data are
+both important for language adaptation. We
+perform language adaptation on Gemma2-2B in
+S EA languages with different data mixture. Figure 14 reveals that improved performance in longtail languages primarily stems from the inclusion
+of NTL data, while document-level data plays
+a crucial role in preserving knowledge for highresource languages. The significance of incorporating document-level data is further underscored
+by the results on B ELE B ELE, where the removal
+of Ddoc leads to a substantial performance decline
+across all resource levels. This finding highlights
+the importance of Ddoc in maintaining the ability
+of LLMs in processing various types of texts. In
+addition, excluding parallel data from the training
+mixture (i.e., Dmono ) leads to a significant decline
+in performance on translation tasks. Moreover, the
+performance of LRLs on B ELE B ELE also declines
+substantially, indicating the critical role of parallel
+data in enhancing tasks beyond translation through
+facilitated cross-lingual transfer (Anil et al., 2023).
+Both multilingual and instruction data are important for LoRA-Adaptation We investigate
+
+Emb Emb+LoRA
+PaLM2-XXS
+
+Full
+
+50
+45
+40
+35
+30
+25
+20
+
+Emb Emb+LoRA Full
+Gemma2-2B
+
+Figure 17: The effects of using customized vocabularies
+with different proportions of tuned parameters. The
+averaged score on S EA languages of F LORES -200 is
+reported.
+
+the impact of employing multilingual Dla and
+instruction-tuning data Dit in LoRA-Adaptation.
+As shown in Figure 15, the removal of either Dla or
+Dit harms the performance compared to the vanilla
+E MB S WAP model on F LORES -200 or B ELE B ELE,
+while combining both datasets enables the adapted
+LLM to achieve the best overall results.
+Employing the original embeddings for initialization is essential to language adaptation. In
+Figure 16, we show that without initializing the
+customized embeddings using the original embeddings from the LLM, the language adaptation does
+not perform well at all, yielding ChrF++ scores below 10 even for HRLs. In contrast, initializing with
+the original embeddings significantly improves the
+effectiveness of language adaptation, where the average pooling method slightly outperforms the max
+pooling variant.
+The benefits of employing customized vocabulary decrease with more tuned parameters. We
+study the effects of employing customized embeddings with varying ratios of tuned parameters.
+As shown in Figure 17, the benefits of using customized embeddings diminish as the number of
+tuned parameters increases (Emb → Emb+LoRA
+→ Full). Specifically, on Gemma2-2B model, cus-
+
+7622
+
+Size
+
+Vocab
+
+H RL
+
+M RL
+
+L RL
+
+2B
+
+Original
+Custom
+
+59.1
+61.1 ↑3.38%
+
+55.6
+61.2 ↑10.07%
+
+57.1
+60.3 ↑5.60%
+
+9B
+
+Original
+Custom
+
+30.2
+33.8 ↑11.92%
+
+27.2
+33.3 ↑22.43%
+
+28.6
+32.1 ↑12.24%
+
+27B
+
+Original
+Custom
+
+17.1
+19.6 ↑14.62%
+
+15.0
+19.2 ↑28.0%
+
+16.0
+18.4 ↑15.0%
+
+Table 5: Comparing latency for using original and customized vocabularies in E MB S WAP. The number of instances processed per second (i.e., prefilling) by Gemma2
+are reported. We use the passages in B ELE B ELE for all
+S EA, A FR, and I ND languages.
+w/o multilingual warmup
+
+w/ multilingual warmup
+
+Chrf++
+
+35
+30
+25
+20
+15
+
+Multilingual warmup is necessary for embedding relearning on LLMs with limited multilingual abilities. We investigate whether embedding tuning with customized embeddings is a universal technique for the language adaptation of any
+types of LLMs. As shown in Figure 18, simply performing embedding tuning on Gemma-2B, a model
+with very limited multilingual capabilities, does not
+successfully adapt it to various languages. In contrast, when a multilingual continued pre-training
+process is conducted prior to embedding tunning,
+where the document-level data Ddoc is used to
+warm up the LLM, we observe consistent improvements throughout the training process. This suggests that, for LLMs, a good initial multilingual
+ability is essential for the success of embedding
+relearning.
+
+E Results by Language
+0
+
+20000
+
+40000
+60000
+Gemma-2B
+
+80000
+
+100000
+
+Figure 18: Learning curves of language adaptation on
+LLMs with limited multilingual abilities. Averaged
+results on S EA languages of F LORES -200 are reported.
+
+Table 7 presents an overview of languages available across our evaluation benchmarks. We show
+the per-language results on each task for both language adaptation (Tables 8 – 10) and E MB S WAP
+(Tables 11 – 16).
+
+tomized embeddings show no advantage when fullparameter tuning is employed. This phenomenon
+arises because increasing the number of tuned parameters allocates greater model capacity for language adaptation, which simplifies the adaptation
+process compared to relying solely on embedding
+tuning. Nonetheless, full-parameter tuning could
+exacerbate the problem of catastrophic forgetting,
+while embedding tuning provides a safer alternative. Furthermore, the use of customized embeddings amplifies the advantages of embedding tuning, making it a promising technique.
+Customized vocabulary improves latency. We
+evaluate latency by measuring the number of texts
+processed per second by LLMs. We use the passages from all S EA, A FR, and I ND languages in
+B ELE B ELE as test texts. For comparison, we test
+E MB S WAP models integrated with embeddings
+trained using either the original Gemma2 tokenizer
+or our customized one. Table 5 shows that employing customized tokenizer consistently improves latency, particularly in MRLs and LRLs. This trend
+becomes increasingly pronounced as model size
+scales, highlighting the importance of customized
+tokenizers in achieving low-latency processing for
+long-tail languages in larger LLMs.
+7623
+
+English:
+Sentence
+
+It
+
+is
+
+the
+
+biggest
+
+acquisition
+
+in
+
+Gemma
+
+It
+
+is
+
+the
+
+biggest
+
+acquisition
+
+in
+
+eBay
+
+’
+
+s
+
+history
+
+Custom
+
+It
+
+is
+
+the
+
+biggest
+
+acquisition
+
+in
+
+eBay
+
+’
+
+s
+
+history
+
+eBay’s
+
+history
+
+Achinese:
+Sentence
+
+dipeugot
+
+tv
+
+Biasajih
+
+deungön
+
+Gemma
+
+Bias
+
+aj
+
+ih
+
+tv di pe
+
+ug
+
+Custom
+
+Bias
+
+aj
+
+ih
+
+tv
+
+ugot
+
+dipe
+
+ot
+
+de
+
+keu
+
+cara
+
+ung
+
+ön
+
+cara
+
+deung
+
+ön
+
+cara
+
+peusenang
+
+masyarakat
+
+umum
+
+u
+
+pe
+
+usen
+
+ang
+
+masyarakat
+
+umum
+
+keu
+
+pe
+
+usen
+
+ang
+
+masyarakat
+
+umum
+
+ke
+
+Shan:
+ဢမ် ႇ
+
+Sentence
+Gemma
+
+ဢ
+
+Custom
+
+မ
+
+လႆႈ
+
+်
+
+ႇ
+
+လ
+
+ႆ
+
+တၢင်း
+ႈ
+
+တ
+
+ၢ
+
+ၸဵပ်း
+င်း
+
+တၢင်း
+
+ဢမ် ႇလႆႈ
+
+ၸ ဵ
+
+ၼႂ ် း
+
+ပ ◌်း
+
+ၼ ႂ
+
+ၸဵပ်း
+
+ၽႃႇၵၼ်
+
+လွင်ႈ
+◌်း လ ွ
+
+ၼႂ ် း
+
+င် ႈ
+လွင်ႈ
+
+ၽ ႃ
+ၽႃႇ
+
+ႇ
+
+ၵ
+
+ၼၼ်ႉ။
+ၼ
+်
+
+ၵၼ်
+
+ၼ
+
+ၼ
+
+်
+
+ႉ
+
+။
+
+ၼၼ်ႉ။
+
+Table 6: Qualitative examples for comparing tokenization using the customized vocabulary against Gemma’s
+original one. We find that the customized tokenizer reduces overtokenization without affecting English tokenization.
+Sentences have been word-segmented to simplify presentation.
+Language name
+
+ISO code
+
+English
+
+eng_Latn
+
+B ELE B ELE S IB -200 F LORES -200 X OR QA-I N XS UM -I N GSM8K-NTL
+✓
+
+✓
+
+✓
+
+✓
+
+S EA
+Achinese (Arabic)
+Achinese
+Balinese
+Betawi
+Banjar (Arabic)
+Banjar
+Buginese
+Cebuano
+Ilocano
+Indonesian
+Javanese
+Kachin
+Khmer
+Lao
+Kedah Malay
+Pattani Malay
+Minangkabau (Arabic)
+Minangkabau
+Myanmar (Burmese)
+Pangasinan
+Shan
+Sundanese
+Tagalog
+Thai
+Vietnamese
+Waray (Philippines)
+Standard Malay
+
+L
+
+ace_Arab
+ace_LatnL
+ban_LatnL
+bew_LatnM
+bjn_ArabL
+bjn_LatnL
+bug_LatnL
+ceb_LatnM
+ilo_LatnM
+ind_LatnH
+jav_LatnM
+kac_LatnL
+khm_KhmrM
+lao_LaooM
+meo_LatnM
+mfa_ArabL
+min_ArabL
+min_LatnL
+mya_MymrM
+pag_LatnL
+shn_MymrL
+sun_LatnM
+tgl_LatnH
+tha_ThaiH
+vie_LatnH
+war_LatnL
+zsm_LatnH
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+A FR
+Afrikaans
+Twi
+Amharic
+Bambara
+Bemba (Zambia)
+Chokwe
+
+H
+
+afr_Latn
+aka_LatnL
+amh_EthiH
+bam_LatnL
+bem_LatnL
+cjk_LatnL
+
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+
+7624
+
+✓
+✓
+
+✓
+
+Language name
+Dinka
+Dyula
+Efik
+Ewe
+Fon
+Fulfulde
+Nigerian Fulfulde
+Hausa
+Igbo
+Kamba (Kenya)
+Kabiyè
+Kabuverdianu
+Kikuyu
+Kinyarwanda
+Kimbundu
+Central Kanuri (Arabic)
+Central Kanuri
+Kongo
+Krio
+Lingala
+Tshiluba (Luba-Lulua)
+Luganda
+Luo
+Mossi
+Sepedi
+Nuer
+Chichewa (Zambia)
+Oromo
+Nigerian Pidgin
+Rundi
+Sango
+Shona
+Somali
+Sesotho
+Swati
+Swahili
+Tamasheq (Latin)
+Tamasheq (Tifinagh)
+Tigrinya
+Tswana
+Tsonga
+Tumbuka
+Umbundu
+Wolof
+Xhosa
+Yoruba
+Zulu
+
+ISO code
+
+B ELE B ELE S IB -200 F LORES -200 X OR QA-I N XS UM -I N GSM8K-NTL
+
+L
+
+din_Latn
+dyu_LatnL
+efi_LatnL
+ewe_LatnL
+fon_LatnL
+ful_LatnL
+fuv_LatnL
+hau_LatnH
+ibo_LatnH
+kam_LatnL
+kbp_LatnL
+kea_LatnL
+kik_LatnL
+kin_LatnM
+kmb_LatnL
+knc_ArabL
+knc_LatnL
+kon_LatnL
+kri_LatnL
+lin_LatnL
+lua_LatnL
+lug_LatnM
+luo_LatnL
+mos_LatnL
+nso_LatnL
+nus_LatnL
+nya_LatnL
+orm_LatnM
+pcm_LatnL
+run_LatnL
+sag_LatnL
+sna_LatnM
+som_LatnH
+sot_LatnH
+ssw_LatnL
+swa_LatnH
+taq_LatnL
+taq_TfngL
+tir_EthiM
+tsn_LatnM
+tso_LatnL
+tum_LatnL
+umb_LatnL
+wol_LatnL
+xho_LatnM
+yor_LatnH
+zul_LatnH
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+
+✓
+
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+
+I ND
+Assamese
+Awadhi
+Bengali
+Bengali (Latin)
+Haryanvi
+Bhojpuri
+Tibetan
+Bodo (India)
+Dhivehi
+Dogri
+Dzongkha
+Garhwali
+Goan Konkani
+Gujarati
+Hindi
+
+M
+
+asm_Beng
+awa_DevaL
+ben_BengH
+ben_LatnM
+bgc_DevaL
+bho_DevaL
+bod_TibtM
+brx_DevaL
+div_ThaaM
+doi_DevaL
+dzo_TibtM
+gbm_DevaL
+gom_DevaL
+guj_GujrH
+hin_DevaH
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+
+✓
+
+✓
+✓
+
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+
+✓
+
+✓
+
+7625
+
+✓
+
+✓
+✓
+✓
+
+✓
+
+✓
+✓
+
+✓
+
+✓
+✓
+
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+
+✓
+
+Language name
+
+ISO code
+
+B ELE B ELE S IB -200 F LORES -200 X OR QA-I N XS UM -I N GSM8K-NTL
+
+M
+
+Hindi (Latin)
+Chhattisgarhi
+Hadothi
+Kannada
+Kashmiri
+Kashmiri (Devanagari)
+Mizo
+Magahi
+Maithili
+Malayalam
+Marathi
+Meitei (Bengali)
+Malvi
+Marwari
+Mazanderani
+Nepali
+Odia
+Punjabi
+Southern Pashto
+Pashto
+Sanskrit
+Santali (Ol Chiki)
+Sinhala
+Sinhala
+Sindhi (Perso-Arabic)
+Tamil
+Telugu
+Urdu
+Urdu
+
+hin_Latn
+hne_DevaL
+hoj_DevaL
+kan_KndaH
+kas_ArabL
+kas_DevaL
+lus_LatnM
+mag_DevaL
+mai_DevaL
+mal_MlymH
+mar_DevaH
+mni_BengL
+mup_DevaL
+mwr_DevaL
+mzn_ArabM
+npi_DevaM
+ory_OryaM
+pan_GuruM
+pbt_ArabM
+pbu_ArabM
+san_DevaM
+sat_OlckL
+sin_LatnL
+sin_SinhH
+snd_ArabM
+tam_TamlH
+tel_TeluH
+urd_ArabH
+urd_LatnL
+
+✓
+
+✓
+
+✓
+✓
+
+✓
+
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+
+✓
+✓
+
+✓
+✓
+✓
+
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+
+✓
+
+✓
+
+✓
+✓
+✓
+
+✓
+
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+✓
+
+✓
+✓
+✓
+✓
+✓
+
+✓
+
+Table 7: Overview of languages included in each of our evaluation benchmark. H, M, L indicate high, medium,
+and low-resource languages, respectively.
+Language Adaptation Results on F LORES -200 E N -X X
+Model
+Size
+Variant
+
+PaLM2
+XXS
+PT
+
+LA
+
+Gemma2
+S
+
+PT
+
+2B
+LA
+
+PT
+
+Aya23
+
+9B
+LA
+
+27B
+
+8B
+
+35B
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+68.9
+44.7
+58.7
+64.6
+57.8
+25.4
+26.7
+24.3
+50.6
+43.5
+39.4
+32.0
+49.0
+18.1
+28.2
+14.9
+38.4
+16.1
+30.1
+36.3
+3.9
+6.5
+6.6
+34.1
+
+68.3
+43.8
+58.3
+65.6
+58.3
+33.5
+42.9
+28.0
+58.2
+51.6
+44.5
+49.0
+58.2
+28.9
+43.3
+32.4
+51.3
+37.0
+46.8
+38.0
+15.7
+11.9
+17.9
+42.8
+
+69.9
+47.4
+60.0
+65.6
+60.4
+30.1
+33.7
+27.4
+54.9
+47.0
+41.7
+42.6
+52.4
+21.7
+34.2
+16.2
+45.9
+26.8
+37.1
+42.7
+9.3
+12.0
+10.3
+38.7
+
+68.5
+45.6
+59.8
+65.9
+59.7
+33.3
+42.1
+32.0
+59.1
+52.6
+47.8
+52.2
+59.3
+28.5
+43.8
+32.7
+52.8
+40.3
+47.5
+40.6
+18.0
+20.6
+20.9
+44.5
+
+73.2
+20.3
+65.7
+54.2
+36.7
+6.5
+4.0
+2.2
+25.8
+25.8
+29.2
+18.0
+25.6
+15.4
+17.9
+4.6
+35.1
+16.0
+21.8
+36.8
+3.9
+3.9
+5.3
+23.8
+
+69.5
+33.9
+63.5
+64.6
+55.3
+23.4
+27.0
+20.6
+55.6
+51.4
+43.7
+45.5
+52.5
+21.9
+39.2
+9.2
+47.6
+32.6
+45.1
+32.6
+1.6
+7.3
+1.1
+36.7
+
+71.9
+28.4
+64.9
+57.4
+47.4
+7.3
+10.2
+8.7
+35.1
+30.1
+29.2
+20.0
+35.2
+18.8
+20.5
+5.0
+36.0
+15.2
+24.7
+36.7
+2.2
+4.1
+2.7
+26.6
+
+68.6
+37.0
+62.3
+64.9
+57.9
+29.5
+41.1
+26.3
+57.2
+52.6
+48.7
+49.9
+55.5
+27.2
+43.0
+28.4
+50.8
+38.3
+47.2
+35.5
+14.8
+19.2
+18.8
+42.4
+
+S EA
+ind_Latn
+tha_Thai
+vie_Latn
+zsm_Latn
+tgl_Latn
+mya_Mymr
+lao_Laoo
+khm_Khmr
+ceb_Latn
+jav_Latn
+sun_Latn
+ilo_Latn
+war_Latn
+bug_Latn
+pag_Latn
+shn_Mymr
+min_Latn
+ace_Latn
+ban_Latn
+bjn_Latn
+ace_Arab
+bjn_Arab
+min_Arab
+Avg.
+
+65.9
+42.9
+56.4
+63.0
+54.2
+22.4
+30.6
+24.7
+41.7
+43.9
+38.9
+19.3
+29.9
+7.9
+14.5
+4.4
+25.0
+8.2
+13.7
+21.6
+2.7
+2.7
+3.4
+27.7
+
+65.0
+40.9
+56.4
+64.6
+55.1
+26.9
+37.8
+29.0
+56.3
+50.1
+48.1
+42.9
+51.6
+15.9
+32.8
+17.7
+46.9
+29.0
+41.3
+26.1
+3.5
+4.5
+5.2
+36.9
+
+70.7
+50.3
+61.7
+68.0
+62.1
+40.9
+48.8
+36.7
+58.5
+53.9
+51.1
+45.1
+54.6
+16.5
+28.2
+3.0
+49.8
+25.7
+39.4
+47.2
+7.9
+9.8
+10.9
+40.9
+
+69.1
+49.8
+61.6
+67.4
+61.4
+37.4
+47.9
+36.4
+60.6
+53.3
+52.0
+51.8
+59.2
+25.0
+43.6
+21.0
+53.6
+40.0
+42.4
+44.5
+10.1
+11.3
+16.2
+44.1
+
+64.4
+35.6
+52.1
+58.4
+48.4
+12.9
+9.5
+12.7
+31.8
+26.4
+21.8
+19.0
+33.7
+14.1
+25.1
+11.6
+23.8
+9.4
+21.7
+24.9
+3.0
+4.7
+5.1
+24.8
+
+64.6
+35.3
+54.2
+63.1
+55.2
+27.5
+39.0
+25.9
+54.0
+48.7
+45.1
+43.3
+54.1
+22.2
+38.6
+29.6
+47.7
+32.5
+44.4
+29.9
+15.7
+11.0
+20.0
+39.2
+
+7626
+
+Language Adaptation Results on F LORES -200 E N -X X
+Model
+Size
+Variant
+
+PaLM2
+XXS
+PT
+
+LA
+
+Gemma2
+S
+
+PT
+
+2B
+LA
+
+PT
+
+Aya23
+
+9B
+LA
+
+27B
+
+8B
+
+35B
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+57.0
+14.7
+11.6
+5.3
+20.5
+9.0
+26.4
+16.0
+17.9
+24.4
+16.0
+11.6
+18.0
+23.5
+17.6
+4.4
+9.5
+13.8
+8.8
+7.3
+21.0
+5.9
+16.7
+5.9
+4.4
+10.1
+11.3
+9.1
+7.3
+8.8
+10.9
+7.0
+15.9
+11.9
+4.5
+6.1
+8.6
+6.8
+6.0
+7.4
+4.7
+7.9
+12.7
+
+58.7
+42.2
+21.6
+11.0
+34.4
+25.1
+38.4
+37.0
+40.1
+39.5
+29.7
+26.3
+33.6
+36.5
+39.7
+20.5
+9.0
+38.9
+27.5
+8.1
+42.5
+4.6
+42.3
+12.5
+3.9
+18.1
+17.5
+22.1
+15.0
+14.9
+10.5
+27.7
+28.5
+27.8
+18.1
+13.4
+18.7
+9.2
+17.1
+9.2
+3.9
+23.0
+24.2
+
+61.5
+21.0
+18.4
+6.0
+29.6
+11.2
+32.3
+26.3
+27.5
+32.4
+22.5
+18.0
+26.5
+32.2
+30.6
+5.4
+12.0
+16.0
+11.8
+8.6
+34.3
+6.9
+31.3
+7.6
+7.8
+13.0
+17.3
+16.0
+9.2
+10.8
+10.2
+9.6
+23.6
+16.9
+4.5
+7.6
+9.7
+7.4
+6.6
+7.4
+5.8
+11.3
+17.3
+
+59.5
+42.1
+22.8
+16.0
+35.9
+25.7
+40.0
+40.7
+40.2
+40.6
+33.9
+27.8
+35.5
+38.4
+42.1
+18.9
+11.2
+38.2
+30.5
+8.5
+42.9
+8.3
+45.0
+12.8
+8.9
+22.2
+22.2
+27.1
+17.0
+21.3
+11.3
+27.8
+32.5
+31.5
+15.1
+18.8
+19.3
+14.9
+16.4
+10.5
+6.2
+27.8
+26.4
+
+9.8
+9.9
+4.0
+6.4
+5.0
+9.2
+17.6
+7.6
+7.7
+8.3
+8.3
+6.3
+6.9
+9.1
+8.4
+2.2
+7.1
+7.8
+7.1
+6.4
+8.1
+4.7
+8.4
+6.9
+8.2
+5.9
+7.7
+6.4
+6.9
+6.9
+6.2
+4.6
+7.4
+6.6
+4.5
+6.7
+6.5
+5.5
+5.1
+7.4
+3.6
+8.0
+7.1
+
+39.9
+30.8
+13.6
+11.2
+22.6
+12.7
+28.5
+17.3
+26.5
+22.1
+10.8
+11.8
+18.2
+22.4
+19.5
+6.6
+7.8
+31.7
+11.8
+7.0
+29.3
+4.3
+15.8
+8.6
+3.5
+7.9
+12.1
+11.4
+6.1
+9.4
+10.2
+8.0
+17.4
+17.4
+6.1
+8.4
+6.7
+7.8
+7.8
+7.0
+1.2
+11.5
+14.1
+
+15.1
+12.1
+5.9
+7.8
+7.0
+9.3
+25.4
+9.2
+10.9
+7.8
+8.3
+7.1
+9.4
+8.0
+10.5
+2.1
+7.0
+9.9
+9.4
+6.9
+10.9
+4.3
+10.8
+5.8
+9.0
+7.7
+9.8
+8.0
+8.0
+8.2
+6.9
+6.2
+6.5
+8.9
+4.8
+6.6
+6.7
+6.7
+6.8
+8.2
+6.0
+10.4
+8.5
+
+49.6
+35.1
+16.9
+11.0
+27.3
+15.8
+37.3
+18.4
+30.2
+26.1
+20.3
+15.2
+22.3
+28.1
+24.7
+9.4
+8.2
+35.6
+18.7
+7.1
+31.7
+4.7
+25.9
+9.6
+5.4
+10.8
+10.0
+12.5
+8.9
+11.3
+10.3
+19.3
+18.1
+18.5
+11.6
+9.7
+11.5
+8.4
+11.4
+7.5
+1.8
+20.8
+17.6
+
+54.1
+44.0
+45.5
+49.1
+48.9
+42.0
+44.6
+40.8
+24.9
+46.4
+47.2
+43.5
+39.6
+45.5
+45.7
+47.9
+46.9
+
+55.8
+45.3
+44.8
+48.6
+49.8
+42.9
+41.8
+37.6
+15.9
+46.1
+45.6
+41.2
+27.7
+47.1
+46.1
+44.0
+47.5
+
+54.4
+43.8
+45.5
+50.2
+48.9
+42.5
+46.2
+40.1
+27.4
+47.0
+46.2
+44.4
+35.7
+45.4
+45.7
+46.9
+46.8
+
+60.2
+13.9
+11.3
+9.0
+19.0
+20.0
+32.3
+32.5
+2.9
+11.9
+9.1
+39.0
+4.6
+3.3
+7.2
+39.8
+25.4
+
+48.7
+36.8
+38.7
+29.4
+31.7
+33.3
+35.5
+37.0
+24.5
+37.4
+32.7
+39.3
+5.8
+23.8
+33.7
+39.5
+38.5
+
+59.9
+27.5
+19.5
+13.9
+32.6
+24.5
+37.7
+36.2
+4.6
+23.0
+18.9
+42.4
+9.1
+5.1
+11.9
+42.4
+30.0
+
+53.1
+41.4
+42.4
+42.3
+41.6
+35.9
+41.8
+34.8
+25.9
+41.6
+39.9
+41.1
+14.3
+34.4
+38.7
+43.7
+40.2
+
+A FR
+swa_Latn
+lin_Latn
+yor_Latn
+ful_Latn
+ibo_Latn
+orm_Latn
+som_Latn
+tso_Latn
+nya_Latn
+zul_Latn
+kin_Latn
+run_Latn
+sna_Latn
+xho_Latn
+tsn_Latn
+tir_Ethi
+kik_Latn
+kon_Latn
+lua_Latn
+umb_Latn
+sot_Latn
+mos_Latn
+nso_Latn
+knc_Latn
+knc_Arab
+luo_Latn
+bem_Latn
+lug_Latn
+wol_Latn
+kmb_Latn
+kam_Latn
+ewe_Latn
+ssw_Latn
+tum_Latn
+fon_Latn
+din_Latn
+kbp_Latn
+cjk_Latn
+nus_Latn
+taq_Latn
+taq_Tfng
+sag_Latn
+Avg.
+
+52.2
+9.0
+9.5
+4.0
+23.2
+4.6
+24.6
+9.8
+25.5
+27.2
+5.9
+5.0
+25.3
+26.3
+10.4
+3.0
+5.9
+8.1
+10.2
+5.6
+21.1
+3.8
+10.0
+5.3
+7.9
+6.7
+6.2
+5.4
+3.3
+7.7
+13.4
+10.0
+14.2
+9.0
+4.8
+4.6
+4.7
+4.7
+3.4
+4.1
+2.6
+8.0
+10.9
+
+54.4
+25.7
+14.9
+6.2
+30.1
+8.8
+32.5
+20.3
+37.5
+39.0
+22.8
+18.6
+33.5
+35.6
+26.5
+5.1
+9.0
+28.6
+19.1
+3.6
+35.6
+7.7
+29.9
+7.9
+4.5
+9.5
+8.6
+13.9
+7.4
+7.4
+8.3
+11.9
+28.7
+24.1
+6.1
+2.7
+8.6
+6.3
+5.2
+4.1
+3.5
+11.3
+17.3
+
+63.8
+20.6
+24.8
+5.5
+39.0
+12.1
+42.5
+16.4
+44.8
+49.0
+25.1
+17.0
+40.3
+44.4
+34.1
+13.2
+9.6
+16.3
+7.3
+6.2
+50.0
+3.5
+33.5
+6.5
+6.1
+8.5
+19.3
+15.6
+11.9
+7.5
+8.5
+7.4
+31.6
+23.4
+2.7
+5.5
+9.9
+5.2
+4.3
+5.4
+8.7
+10.4
+19.5
+
+62.1
+40.8
+23.0
+13.4
+38.9
+24.6
+42.4
+38.4
+44.6
+47.9
+37.0
+30.4
+39.9
+44.5
+42.2
+13.1
+12.6
+38.7
+20.9
+7.1
+50.5
+5.6
+46.2
+8.4
+5.5
+15.2
+23.4
+30.6
+18.9
+11.6
+12.0
+26.0
+37.6
+33.2
+11.3
+8.5
+15.4
+7.2
+8.7
+7.4
+6.1
+15.1
+25.4
+
+40.3
+7.9
+6.3
+8.0
+8.7
+8.3
+11.2
+9.3
+9.0
+10.3
+7.8
+5.5
+8.3
+12.2
+7.8
+3.0
+9.1
+8.8
+8.4
+7.9
+7.9
+5.7
+7.5
+8.3
+6.2
+12.2
+7.0
+6.4
+5.5
+8.0
+10.1
+6.2
+8.9
+7.7
+4.6
+8.2
+8.0
+6.5
+8.6
+5.9
+9.4
+10.2
+8.7
+
+51.1
+30.2
+14.7
+10.0
+23.8
+14.1
+29.0
+20.7
+28.1
+25.2
+15.9
+14.2
+22.8
+26.9
+21.0
+14.0
+11.0
+33.4
+19.7
+5.8
+30.2
+5.4
+20.5
+9.4
+5.9
+11.0
+13.0
+13.4
+9.9
+10.8
+9.2
+16.1
+17.9
+18.8
+11.8
+9.0
+12.6
+9.9
+13.1
+6.6
+3.5
+15.5
+16.8
+
+I ND
+hin_Deva
+ben_Beng
+urd_Arab
+tel_Telu
+tam_Taml
+mar_Deva
+mai_Deva
+bho_Deva
+pbt_Arab
+guj_Gujr
+kan_Knda
+awa_Deva
+ory_Orya
+mal_Mlym
+pan_Guru
+hne_Deva
+npi_Deva
+
+50.2
+34.5
+31.8
+33.0
+33.7
+31.2
+24.8
+26.7
+15.6
+27.6
+30.6
+33.4
+14.8
+27.3
+26.1
+30.2
+34.6
+
+50.3
+39.8
+37.9
+36.7
+37.0
+35.1
+38.1
+33.7
+24.2
+36.8
+34.0
+35.9
+19.8
+29.9
+36.3
+40.5
+43.1
+
+60.2
+48.7
+47.8
+54.6
+54.4
+47.7
+47.2
+39.9
+32.6
+49.6
+50.8
+45.6
+46.3
+52.4
+48.2
+48.2
+52.3
+
+58.3
+47.8
+48.3
+51.8
+52.4
+46.3
+49.4
+41.7
+33.2
+49.2
+49.2
+46.5
+44.5
+49.1
+48.6
+50.4
+51.3
+
+47.0
+26.8
+26.8
+22.8
+27.0
+22.9
+23.4
+25.5
+6.0
+22.5
+21.7
+32.2
+10.1
+24.1
+21.0
+29.8
+27.1
+
+50.2
+37.2
+37.0
+42.0
+38.3
+34.7
+38.5
+34.9
+18.2
+40.2
+40.4
+36.4
+24.9
+35.2
+37.5
+40.5
+41.3
+
+54.8
+41.9
+40.8
+43.3
+45.7
+38.3
+35.7
+34.3
+14.6
+41.8
+40.9
+39.6
+21.3
+42.1
+41.4
+40.8
+44.0
+
+7627
+
+Language Adaptation Results on F LORES -200 E N -X X
+Model
+
+PaLM2
+
+Size
+
+Gemma2
+
+XXS
+
+S
+
+2B
+
+Aya23
+
+9B
+
+27B
+
+8B
+
+35B
+
+Variant
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+asm_Beng
+mni_Beng
+bod_Tibt
+san_Deva
+Avg.
+
+13.5
+3.9
+12.7
+11.2
+26.1
+
+26.3
+6.8
+12.1
+20.1
+32.1
+
+36.9
+8.1
+26.8
+27.6
+44.1
+
+36.4
+20.0
+24.6
+28.8
+44.2
+
+13.3
+7.3
+9.0
+11.3
+21.8
+
+25.0
+19.4
+13.8
+20.8
+33.6
+
+27.8
+8.8
+14.4
+21.5
+34.9
+
+31.7
+31.7
+18.8
+26.5
+41.2
+
+33.3
+10.7
+16.3
+26.2
+38.8
+
+33.4
+27.3
+17.0
+27.3
+41.0
+
+8.4
+7.0
+9.0
+14.0
+18.1
+
+18.2
+14.4
+6.9
+20.0
+29.8
+
+15.4
+8.6
+8.3
+19.4
+23.4
+
+26.9
+18.2
+9.6
+23.2
+34.8
+
+Table 8: Language Adaptation results on F LORES -200 E N -X X with 5-shot in-context learning. P T: Pre-training;
+L A: Language Adaptation.
+Language Adaptation Results on GSM8K-NTL
+Model
+
+PaLM2
+
+Size
+
+S
+
+Gemma2
+9B
+
+Aya23
+27B
+
+8B
+
+35B
+
+Variant
+
+PT
+
+N TL
+
+CALM
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+asm_Beng
+bew_Latn
+bho_Deva
+doi_Deva
+div_Thaa
+dzo_Tibt
+efi_Latn
+gom_Deva
+ilo_Latn
+kri_Latn
+mai_Deva
+meo_Latn
+mfa_Arab
+min_Latn
+mni_Beng
+mzn_Arab
+nso_Latn
+ory_Orya
+pcm_Latn
+tso_Latn
+Avg.
+
+5.2
+33.6
+23.6
+17.2
+11.2
+0.8
+14.8
+22.4
+14.8
+12.4
+22.8
+28.8
+14.0
+25.2
+2.8
+31.6
+8.4
+9.6
+34.4
+7.2
+17.0
+
+4.0
+33.6
+22.8
+21.6
+13.2
+0.0
+14.0
+22.8
+14.0
+20.0
+21.2
+33.2
+20.4
+24.8
+6.0
+27.6
+9.6
+12.0
+31.6
+11.6
+18.2
+
+9.2
+34.8
+29.2
+22.4
+14.8
+0.4
+18.0
+25.2
+16.8
+18.8
+24.8
+34.0
+17.6
+23.6
+4.4
+36.4
+8.4
+12.4
+33.6
+10.0
+19.7
+
+17.2
+33.6
+26.0
+26.8
+19.2
+7.6
+22.0
+30.0
+18.8
+18.8
+25.6
+28.4
+22.4
+24.8
+9.6
+36.8
+13.2
+24.0
+30.0
+10.0
+22.2
+
+14.8
+33.6
+19.6
+12.0
+6.8
+1.2
+10.8
+18.8
+18.0
+20.4
+19.6
+28.4
+6.0
+13.6
+3.2
+33.2
+6.4
+6.4
+43.2
+10.8
+16.3
+
+29.2
+42.8
+35.6
+33.2
+26.8
+15.2
+26.0
+36.4
+27.6
+25.2
+29.2
+42.0
+34.8
+34.8
+19.6
+40.8
+18.4
+30.4
+44.0
+15.2
+30.4
+
+15.6
+48.4
+29.2
+17.2
+8.0
+2.8
+16.4
+26.8
+23.6
+21.6
+25.2
+45.6
+5.2
+30.0
+2.8
+44.0
+14.0
+12.0
+47.6
+11.2
+22.4
+
+29.6
+50.4
+40.0
+30.0
+21.2
+8.8
+31.2
+33.6
+34.8
+34.4
+30.4
+46.4
+38.8
+39.2
+15.6
+38.4
+22.0
+27.6
+51.2
+20.0
+32.2
+
+0.8
+33.6
+14.8
+9.6
+1.6
+0.4
+4.0
+8.4
+5.6
+8.0
+15.6
+28.8
+4.0
+9.2
+1.6
+30.4
+2.8
+1.2
+28.8
+3.2
+10.6
+
+3.6
+31.6
+12.0
+9.6
+3.2
+0.0
+5.2
+8.0
+9.6
+8.8
+12.8
+29.2
+16.8
+19.2
+2.8
+18.8
+6.0
+1.6
+26.0
+5.2
+11.5
+
+2.0
+45.6
+21.6
+18.8
+1.2
+0.0
+4.0
+9.2
+9.2
+13.2
+29.2
+41.2
+4.4
+17.2
+1.2
+41.2
+5.2
+2.8
+41.2
+4.8
+15.7
+
+10.4
+42.4
+24.0
+24.0
+14.0
+1.2
+18.4
+20.4
+16.0
+11.6
+26.4
+39.6
+27.2
+32.0
+7.6
+34.0
+8.4
+10.0
+38.8
+8.8
+20.8
+
+Table 9: Language Adaptation results on GSM8K-NTL with 5-shot in-context learning. P T: Pre-training; L A:
+Language Adaptation.
+Language Adaptation Results on B ELE B ELE
+Model
+Size
+
+PaLM2
+XXS
+
+Gemma2
+S
+
+2B
+
+Aya23
+
+9B
+
+Variant
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+eng_Latn
+ind_Latn
+tha_Thai
+vie_Latn
+mya_Mymr
+lao_Laoo
+khm_Khmr
+ceb_Latn
+jav_Latn
+sun_Latn
+ilo_Latn
+war_Latn
+shn_Mymr
+
+23.8
+25.9
+27.2
+25.9
+25.8
+29.1
+27.1
+25.2
+27.4
+26.3
+27.9
+26.4
+27.4
+
+28.0
+26.4
+26.6
+25.8
+25.9
+27.0
+26.9
+25.8
+27.2
+26.2
+28.0
+27.2
+26.2
+
+85.9
+80.7
+77.9
+82.1
+75.7
+70.3
+77.4
+74.7
+74.9
+71.0
+64.6
+77.0
+28.9
+
+86.8
+80.0
+78.2
+80.6
+71.2
+67.7
+70.1
+75.1
+73.7
+70.1
+67.3
+77.3
+40.6
+
+61.2
+49.3
+44.1
+46.3
+32.6
+28.7
+30.6
+38.2
+37.9
+35.9
+34.7
+36.9
+25.2
+
+54.9
+45.6
+40.0
+43.9
+38.1
+36.7
+38.6
+41.2
+42.0
+38.8
+39.0
+41.4
+31.2
+
+27B
+
+8B
+
+35B
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+90.6
+84.2
+78.4
+84.3
+68.0
+60.6
+64.7
+76.0
+73.0
+68.6
+60.9
+70.7
+32.0
+
+91.3
+84.1
+76.7
+84.7
+72.6
+69.6
+72.1
+79.4
+76.1
+73.2
+69.9
+79.3
+47.9
+
+92.3
+87.8
+82.8
+88.1
+65.7
+59.1
+65.2
+78.7
+75.6
+70.1
+63.8
+73.3
+33.0
+
+91.6
+87.0
+81.8
+86.6
+75.2
+73.4
+75.6
+81.6
+77.0
+76.0
+74.6
+81.4
+49.8
+
+82.4
+73.7
+44.6
+73.3
+27.9
+27.4
+25.9
+44.1
+44.8
+37.0
+36.9
+43.9
+23.6
+
+80.0
+71.7
+56.9
+71.3
+48.8
+47.1
+47.0
+55.8
+57.6
+59.2
+45.2
+56.3
+32.4
+
+91.4
+84.2
+65.0
+84.2
+36.2
+29.4
+33.8
+55.0
+56.3
+47.6
+39.9
+50.1
+26.4
+
+89.6
+80.8
+68.2
+81.1
+61.7
+61.6
+64.4
+71.2
+71.7
+68.1
+56.1
+69.3
+39.2
+
+S EA
+
+7628
+
+Language Adaptation Results on B ELE B ELE
+Model
+Size
+
+PaLM2
+XXS
+
+Gemma2
+S
+
+2B
+
+Aya23
+
+9B
+
+27B
+
+8B
+
+35B
+
+Variant
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+PT
+
+LA
+
+kac_Latn
+Avg.
+
+24.9
+26.5
+
+27.1
+26.7
+
+33.4
+69.6
+
+43.2
+70.1
+
+27.6
+37.8
+
+35.3
+40.5
+
+33.1
+67.5
+
+48.1
+73.2
+
+29.3
+68.9
+
+48.7
+75.7
+
+31.0
+44.0
+
+33.9
+54.5
+
+28.6
+52.0
+
+43.4
+66.2
+
+90.7
+86.4
+65.0
+51.8
+48.7
+51.2
+70.6
+56.3
+40.4
+56.1
+54.1
+61.8
+30.8
+60.0
+62.1
+63.3
+58.3
+55.8
+62.2
+55.9
+36.8
+44.1
+35.7
+51.0
+47.3
+55.9
+
+92.3
+88.6
+65.8
+39.8
+40.6
+49.4
+57.3
+51.8
+33.0
+44.9
+50.1
+55.4
+29.6
+55.2
+59.8
+54.3
+46.8
+35.3
+50.2
+45.4
+33.8
+38.3
+33.6
+43.0
+58.6
+50.1
+
+92.1
+88.0
+70.2
+51.6
+46.7
+54.2
+67.4
+58.0
+39.2
+57.9
+54.9
+61.2
+30.8
+59.9
+66.8
+61.9
+54.4
+51.9
+58.9
+51.3
+35.9
+42.9
+33.8
+51.3
+52.4
+55.7
+
+82.4
+61.3
+29.3
+30.9
+26.7
+30.0
+29.2
+30.8
+32.4
+32.0
+28.6
+30.4
+28.7
+30.7
+32.0
+29.8
+28.2
+28.4
+29.9
+29.0
+29.4
+27.4
+27.3
+28.4
+43.6
+33.5
+
+82.1
+71.9
+41.2
+37.6
+32.8
+36.8
+40.4
+36.1
+33.7
+39.2
+33.2
+37.4
+27.9
+37.7
+38.6
+37.3
+35.6
+33.3
+39.7
+36.2
+33.8
+33.0
+30.7
+34.6
+40.0
+39.2
+
+91.4
+78.4
+29.8
+30.4
+26.8
+30.1
+27.3
+32.9
+30.3
+33.2
+31.4
+31.3
+27.4
+33.9
+35.6
+32.8
+33.3
+27.0
+31.7
+32.6
+32.2
+31.3
+27.8
+32.4
+50.2
+36.1
+
+88.4
+81.3
+49.0
+40.7
+36.6
+41.8
+48.4
+42.4
+36.2
+41.9
+40.2
+44.3
+28.1
+38.3
+46.7
+41.1
+42.3
+36.2
+43.4
+42.1
+33.2
+32.7
+30.2
+35.6
+41.9
+43.3
+
+90.8
+72.3
+73.6
+75.2
+69.4
+73.6
+73.1
+73.9
+70.4
+75.2
+74.3
+66.4
+36.8
+74.3
+70.8
+69.9
+43.0
+54.1
+56.8
+68.1
+
+92.3
+80.1
+78.6
+79.8
+75.2
+77.9
+79.2
+77.1
+63.1
+80.1
+77.4
+64.9
+38.9
+71.4
+73.3
+74.2
+35.0
+55.6
+60.0
+70.2
+
+92.0
+76.3
+77.6
+78.9
+73.0
+76.3
+75.7
+78.2
+74.0
+77.1
+74.1
+69.4
+38.3
+73.2
+71.1
+74.3
+44.8
+57.8
+61.7
+70.7
+
+82.4
+60.6
+36.1
+39.2
+31.6
+40.3
+39.1
+28.9
+30.6
+35.3
+29.6
+32.3
+30.9
+30.2
+34.0
+45.3
+25.7
+32.2
+36.6
+37.9
+
+84.2
+64.8
+54.1
+53.8
+43.1
+51.2
+51.8
+52.2
+30.0
+44.2
+49.2
+44.1
+28.9
+50.3
+41.3
+48.9
+26.3
+34.7
+37.8
+46.9
+
+91.4
+73.8
+48.7
+49.2
+34.6
+61.0
+52.3
+41.1
+40.8
+51.6
+33.0
+39.6
+34.3
+38.0
+40.9
+57.6
+30.1
+38.9
+43.6
+47.4
+
+89.9
+70.9
+67.7
+68.3
+58.8
+64.7
+65.4
+68.7
+49.6
+60.9
+65.2
+59.7
+32.8
+61.4
+58.8
+60.8
+31.8
+40.7
+46.6
+59.1
+
+A FR
+eng_Latn
+afr_Latn
+hau_Latn
+lin_Latn
+yor_Latn
+ibo_Latn
+amh_Ethi
+som_Latn
+bam_Latn
+tso_Latn
+nya_Latn
+zul_Latn
+fuv_Latn
+kin_Latn
+sna_Latn
+xho_Latn
+tsn_Latn
+tir_Ethi
+sot_Latn
+nso_Latn
+luo_Latn
+lug_Latn
+wol_Latn
+ssw_Latn
+kea_Latn
+Avg.
+
+23.8
+26.8
+29.6
+26.6
+28.3
+25.2
+28.2
+27.3
+27.9
+24.7
+28.2
+27.2
+23.8
+25.9
+25.8
+28.7
+28.2
+27.6
+29.1
+27.1
+25.1
+27.1
+27.3
+26.1
+27.3
+26.9
+
+26.8
+27.6
+26.8
+25.8
+27.3
+27.9
+25.8
+28.7
+27.4
+26.8
+26.8
+27.1
+28.8
+24.3
+28.7
+26.9
+27.4
+26.3
+27.9
+25.4
+27.4
+25.7
+25.7
+26.4
+27.1
+26.9
+
+85.9
+82.8
+65.6
+44.7
+50.8
+54.4
+75.3
+60.8
+35.7
+44.4
+54.7
+54.6
+28.9
+54.3
+62.4
+59.8
+54.6
+56.8
+57.4
+47.6
+34.6
+42.9
+36.0
+48.2
+65.1
+54.3
+
+86.7
+81.0
+61.0
+47.4
+48.4
+49.0
+68.1
+56.3
+38.6
+51.4
+53.4
+56.9
+30.4
+54.0
+60.9
+56.3
+56.8
+52.6
+57.3
+53.3
+33.2
+41.7
+34.8
+48.2
+63.4
+53.7
+
+61.2
+46.4
+35.0
+30.0
+28.9
+29.8
+32.8
+30.8
+27.4
+29.7
+29.9
+29.9
+25.3
+32.6
+34.0
+32.4
+31.0
+26.9
+31.6
+28.8
+29.4
+27.0
+26.3
+29.0
+36.4
+32.1
+
+50.9
+40.9
+33.3
+33.8
+31.0
+30.4
+35.9
+30.3
+28.6
+32.1
+30.2
+32.2
+27.3
+33.8
+35.7
+31.0
+32.7
+31.1
+32.7
+33.2
+27.8
+27.6
+28.1
+29.9
+31.3
+32.5
+
+90.6
+87.4
+63.9
+36.6
+41.6
+48.1
+57.8
+49.6
+34.9
+43.7
+47.0
+55.3
+30.0
+51.0
+57.7
+56.0
+46.9
+37.6
+51.6
+45.8
+34.9
+38.8
+34.0
+46.2
+54.8
+49.7
+
+I ND
+eng_Latn
+hin_Deva
+ben_Beng
+urd_Arab
+tel_Telu
+tam_Taml
+mar_Deva
+kan_Knda
+ory_Orya
+mal_Mlym
+pan_Guru
+snd_Arab
+sin_Latn
+sin_Sinh
+asm_Beng
+hin_Latn
+bod_Tibt
+ben_Latn
+urd_Latn
+Avg.
+
+23.8
+26.3
+27.1
+27.3
+27.2
+28.4
+25.6
+28.6
+26.9
+26.8
+28.6
+26.6
+26.6
+26.2
+28.7
+26.7
+27.3
+28.6
+26.8
+27.0
+
+27.6
+25.0
+28.1
+27.8
+27.7
+26.1
+24.8
+23.6
+27.0
+29.2
+27.9
+26.2
+24.1
+28.1
+24.4
+29.1
+27.8
+26.4
+27.7
+26.8
+
+85.9
+75.7
+76.0
+77.0
+71.7
+75.2
+77.1
+78.1
+77.6
+79.7
+76.8
+68.4
+35.1
+76.9
+75.9
+68.3
+50.2
+52.4
+56.3
+70.2
+
+86.0
+73.2
+73.6
+73.8
+69.6
+72.6
+73.3
+73.0
+72.3
+75.9
+72.1
+68.4
+34.9
+75.7
+72.3
+63.9
+38.7
+51.9
+54.8
+67.2
+
+61.2
+40.8
+41.1
+41.4
+38.1
+42.3
+38.1
+40.3
+30.9
+42.6
+36.8
+32.4
+28.2
+35.0
+36.0
+37.9
+27.3
+29.8
+34.2
+37.6
+
+49.8
+40.0
+39.2
+39.3
+36.1
+40.6
+36.0
+41.1
+36.6
+39.6
+35.2
+34.9
+26.8
+39.9
+32.8
+38.0
+28.4
+30.6
+31.8
+36.7
+
+90.3
+77.0
+76.7
+76.6
+71.3
+75.7
+76.7
+74.7
+60.9
+76.1
+77.0
+59.0
+38.3
+70.9
+67.9
+69.4
+39.1
+49.8
+56.8
+67.6
+
+Table 10: Language Adaptation results on B ELE B ELE with 5-shot in-context learning. P T: Pre-training; L A:
+Language Adaptation.
+
+7629
+
+E MB S WAP Results on B ELE B ELE
+Model
+
+PaLM2
+
+Size
+Variant
+
+XXS
+FL
+
+E S +L R
+
+Gemma2
+S
+
+FL
+
+E S +L R
+
+2B
+FL
+
+E S +L R
+
+Aya23
+
+9B
+FL
+
+E S +L R
+
+27B
+FL
+
+E S +L R
+
+8B
+FL
+
+E S +L R
+
+35B
+FL
+
+E S +L R
+
+S EA
+eng_Latn 80.9 76.0 78.9
+ind_Latn 74.0 72.3 73.4
+tha_Thai 66.8 65.2 65.8
+vie_Latn 74.1 72.0 72.0
+mya_Mymr 52.0 56.1 56.7
+lao_Laoo 44.9 55.9 57.3
+khm_Khmr 51.9 52.6 55.8
+ceb_Latn 52.2 61.8 62.6
+jav_Latn 61.0 61.8 62.2
+sun_Latn 55.2 56.4 58.3
+ilo_Latn 41.9 50.7 53.4
+war_Latn 50.6 60.8 63.4
+shn_Mymr 26.1 33.9 36.8
+kac_Latn 31.7 36.8 39.4
+Avg.
+54.5 58.0 59.7
+
+95.7 95.9 95.8
+91.8 91.9 92.0
+88.3 88.3 88.1
+92.6 92.7 92.6
+86.8 85.1 85.7
+81.2 82.3 83.1
+86.3 84.6 86.7
+88.8 90.6 90.0
+86.7 86.7 87.3
+86.3 84.3 85.4
+79.2 84.0 84.3
+89.3 90.6 90.8
+28.8 52.1 50.8
+40.8 55.4 58.3
+80.2 83.2 83.6
+
+87.7 85.9 87.4
+78.7 76.1 75.8
+70.0 67.7 68.3
+75.6 74.0 74.9
+36.3 62.1 60.8
+43.3 60.9 61.4
+45.1 65.0 62.6
+52.9 64.2 65.8
+48.1 59.8 64.7
+41.1 56.8 61.7
+43.1 53.0 56.8
+49.3 65.3 64.8
+28.0 39.8 40.0
+28.3 36.0 38.9
+52.0 61.9 63.1
+
+93.9 93.9 93.6
+88.8 87.6 88.2
+83.6 83.3 82.7
+89.7 89.2 88.4
+69.7 76.1 77.9
+61.4 77.3 75.9
+69.2 78.6 78.4
+79.0 82.4 84.4
+78.7 80.8 80.9
+70.9 79.6 78.8
+63.8 75.9 76.9
+75.1 84.7 83.7
+33.4 53.3 53.8
+31.6 50.1 54.1
+70.6 78.1 78.4
+
+95.4 95.0 94.0
+90.4 89.7 88.3
+85.7 85.1 85.3
+90.0 89.7 88.8
+65.2 78.2 78.2
+59.7 77.1 77.3
+68.6 81.1 79.4
+82.2 84.1 85.9
+79.0 81.7 81.4
+71.2 79.6 79.9
+68.6 74.6 78.2
+79.1 84.1 87.9
+35.7 54.4 54.1
+35.3 48.6 53.1
+71.9 78.8 79.4
+
+88.9 83.4 86.4
+82.0 74.3 74.3
+57.2 59.3 63.7
+81.9 75.9 74.6
+34.0 51.1 56.2
+31.8 50.6 51.9
+26.8 46.9 51.4
+45.1 59.8 60.9
+48.1 62.9 65.3
+41.0 57.7 61.1
+34.4 45.7 45.3
+42.4 58.8 64.2
+26.8 33.7 34.6
+28.1 32.0 37.8
+47.8 56.6 59.1
+
+94.2 87.0 93.2
+89.6 72.7 86.3
+73.9 60.7 79.4
+90.2 75.6 87.6
+38.1 49.2 69.0
+38.8 49.2 66.4
+43.6 51.7 71.2
+57.9 59.1 77.8
+62.0 58.7 77.8
+51.2 53.7 75.4
+42.1 47.6 65.0
+53.9 59.0 77.2
+26.4 30.1 46.2
+34.1 33.0 43.9
+56.9 56.2 72.6
+
+95.4 94.9 93.1
+92.1 91.1 89.4
+68.1 68.1 74.1
+42.0 47.6 58.8
+41.6 45.3 51.9
+48.8 51.7 57.2
+60.3 72.3 73.7
+52.4 58.2 63.0
+36.8 40.7 43.7
+48.7 58.3 62.3
+50.6 53.4 59.6
+58.2 62.7 68.9
+29.7 31.2 29.9
+58.6 59.6 68.4
+62.3 65.0 68.9
+60.2 65.3 70.2
+53.3 55.8 61.4
+37.6 51.9 57.7
+53.4 60.6 66.8
+51.4 58.1 63.3
+36.2 37.0 36.7
+40.0 43.9 47.4
+31.9 34.9 34.2
+46.8 51.9 56.1
+59.4 47.0 52.8
+52.6 56.3 60.4
+
+88.9 84.2 86.1
+69.6 74.9 74.4
+28.0 40.7 40.2
+28.1 34.0 37.2
+27.3 30.4 33.4
+29.7 35.6 37.1
+25.2 41.9 40.8
+29.8 34.8 34.3
+32.6 32.6 30.8
+31.2 36.4 37.0
+27.1 34.7 34.3
+33.0 36.9 37.6
+27.4 25.7 26.7
+32.0 35.3 34.9
+30.3 39.0 42.2
+30.3 36.9 38.2
+32.3 35.4 36.6
+27.4 33.3 32.9
+30.1 37.4 37.1
+30.0 34.2 35.7
+27.9 32.1 32.0
+29.8 32.2 32.1
+28.2 28.9 29.6
+28.7 33.1 32.7
+46.6 40.1 40.2
+34.1 38.4 39.0
+
+94.2 92.2 91.8
+84.0 81.9 87.3
+33.8 43.1 58.3
+35.7 35.7 47.0
+34.4 31.2 44.6
+35.0 37.0 49.1
+32.8 43.6 57.8
+36.1 37.6 49.6
+36.2 32.6 38.3
+40.1 37.0 52.6
+32.1 35.6 46.3
+38.8 40.8 52.3
+31.0 28.1 29.3
+37.3 36.0 46.8
+38.2 42.7 56.0
+38.2 39.9 52.0
+36.6 35.7 49.2
+31.6 29.7 45.1
+34.4 39.1 53.3
+35.8 35.8 47.2
+34.0 33.0 36.9
+35.2 28.9 39.3
+32.4 30.3 32.0
+32.9 31.6 41.7
+57.4 44.9 48.4
+40.3 40.1 50.1
+
+95.4 94.9 94.2
+81.4 80.1 81.1
+81.4 81.4 82.3
+82.1 80.0 79.9
+77.0 76.0 76.8
+79.8 78.3 79.8
+81.1 79.6 80.6
+82.0 79.9 80.8
+68.7 77.7 80.4
+81.4 78.4 81.1
+81.6 78.8 78.8
+67.7 73.1 73.3
+41.2 39.8 38.2
+75.7 75.9 79.3
+73.9 73.8 74.9
+75.8 75.6 76.4
+37.6 41.9 47.7
+56.9 60.7 63.1
+64.2 64.0 63.4
+72.9 73.1 74.3
+
+88.9 85.7 88.1
+69.1 65.9 66.9
+42.8 58.0 59.0
+47.2 61.3 65.0
+36.6 45.9 49.3
+49.4 53.0 56.4
+46.8 56.3 59.0
+36.9 50.3 55.9
+36.1 34.6 34.1
+44.9 44.9 51.0
+35.4 49.1 53.7
+35.0 48.7 52.2
+29.6 26.0 27.1
+34.2 47.6 52.2
+35.4 41.9 46.1
+48.7 49.8 49.8
+27.4 25.8 27.3
+30.6 31.7 34.9
+35.9 36.0 37.9
+42.7 48.0 50.8
+
+94.2 92.6 93.1
+79.1 66.3 76.2
+58.8 60.3 74.8
+65.3 65.6 76.7
+47.8 54.3 66.3
+68.1 55.0 71.9
+64.2 60.8 71.9
+45.7 60.7 74.3
+51.3 37.4 60.7
+59.4 52.7 70.7
+46.1 56.3 71.1
+44.4 53.3 67.1
+37.7 32.1 35.0
+47.3 53.2 69.7
+41.8 46.2 66.3
+67.1 57.6 65.8
+30.1 24.6 31.4
+38.9 37.2 44.9
+49.1 41.4 50.9
+54.6 53.0 65.2
+
+A FR
+eng_Latn
+afr_Latn
+hau_Latn
+lin_Latn
+yor_Latn
+ibo_Latn
+amh_Ethi
+som_Latn
+bam_Latn
+tso_Latn
+nya_Latn
+zul_Latn
+fuv_Latn
+kin_Latn
+sna_Latn
+xho_Latn
+tsn_Latn
+tir_Ethi
+sot_Latn
+nso_Latn
+luo_Latn
+lug_Latn
+wol_Latn
+ssw_Latn
+kea_Latn
+Avg.
+
+80.9 79.1 80.7
+70.4 69.8 71.6
+40.4 38.4 43.8
+34.2 36.7 40.7
+32.7 29.7 32.7
+34.7 35.6 37.2
+48.7 43.4 50.4
+39.9 37.2 39.9
+34.7 34.3 37.4
+36.3 39.6 44.3
+38.4 38.8 40.7
+41.2 41.8 46.7
+30.7 28.0 27.9
+37.1 41.3 44.3
+42.9 44.1 50.3
+42.9 42.4 47.0
+35.4 38.8 44.6
+32.2 38.1 40.9
+38.1 40.4 42.2
+35.4 38.3 41.7
+33.6 31.1 34.4
+31.6 32.0 34.8
+31.4 32.3 31.8
+33.3 36.3 41.0
+41.9 37.7 38.8
+40.0 40.2 43.4
+
+95.7 95.4 95.7
+93.3 93.8 93.1
+80.2 75.7 77.9
+57.1 62.9 65.7
+62.7 58.9 59.9
+68.6 64.7 65.8
+86.9 82.2 83.0
+73.3 70.9 72.7
+43.7 45.7 46.2
+57.9 69.7 70.8
+70.8 67.1 70.1
+76.2 72.0 75.0
+31.0 31.9 32.1
+68.9 71.8 73.8
+77.6 75.7 77.9
+76.6 74.1 76.2
+68.3 69.9 70.8
+70.2 71.9 71.6
+76.9 76.0 77.9
+65.3 69.8 70.7
+40.8 42.2 42.7
+51.8 54.9 57.9
+44.0 38.7 39.2
+63.2 61.3 66.2
+84.9 79.3 80.6
+67.4 67.1 68.5
+
+87.7 85.2 87.7
+72.4 74.9 75.3
+35.0 42.9 45.4
+30.2 34.4 42.3
+29.7 31.9 34.4
+31.4 35.1 44.2
+35.7 56.6 55.9
+33.9 38.3 41.8
+30.2 30.6 35.6
+34.7 41.1 45.8
+30.1 34.3 39.2
+33.7 41.3 42.9
+29.0 27.3 28.0
+35.3 37.2 41.0
+32.4 42.6 46.4
+35.4 40.3 44.1
+31.8 37.1 43.1
+29.3 41.6 44.3
+29.4 38.7 42.9
+31.3 35.7 42.4
+30.0 29.7 32.7
+29.9 29.7 33.0
+29.2 26.4 29.4
+29.2 33.9 38.0
+42.4 37.1 37.4
+36.0 40.2 43.7
+
+93.9 94.3 93.6
+90.1 90.6 89.4
+67.4 68.1 71.2
+36.6 55.0 57.3
+40.9 46.4 51.8
+47.6 54.8 55.7
+60.3 74.2 75.6
+50.0 59.3 60.9
+34.2 40.8 41.1
+43.7 54.7 62.6
+46.7 55.3 58.1
+57.4 66.0 69.6
+28.2 29.8 31.0
+51.6 64.2 67.2
+58.7 67.0 69.4
+58.4 64.7 68.3
+48.8 57.4 63.4
+33.2 59.1 60.4
+52.7 64.6 66.9
+44.0 57.6 63.1
+34.1 34.6 36.0
+38.8 45.0 47.0
+30.2 30.4 35.3
+42.7 51.7 57.1
+56.3 51.3 52.3
+49.9 57.5 60.2
+I ND
+
+eng_Latn
+hin_Deva
+ben_Beng
+urd_Arab
+tel_Telu
+tam_Taml
+mar_Deva
+kan_Knda
+ory_Orya
+mal_Mlym
+pan_Guru
+snd_Arab
+sin_Latn
+sin_Sinh
+asm_Beng
+hin_Latn
+bod_Tibt
+ben_Latn
+urd_Latn
+Avg.
+
+80.9 81.8 82.7
+62.3 59.9 61.3
+59.1 59.6 61.8
+57.8 54.9 59.4
+48.2 48.4 51.0
+57.0 59.0 59.1
+60.8 61.7 61.7
+52.7 55.1 59.2
+40.9 44.1 52.1
+55.8 56.6 58.1
+46.6 50.6 56.8
+46.1 47.2 52.1
+32.0 32.2 33.7
+53.9 55.7 60.3
+47.2 49.2 53.9
+41.6 47.2 50.3
+27.9 29.4 31.9
+35.3 38.3 38.6
+33.2 35.6 39.0
+49.4 50.9 53.8
+
+95.7 94.9 95.3
+86.7 86.4 86.9
+89.1 86.9 87.8
+89.4 87.4 88.7
+83.3 81.1 82.9
+85.3 84.2 85.8
+88.8 86.4 88.0
+89.6 88.0 88.6
+86.3 85.6 88.9
+87.6 87.3 89.3
+87.4 85.3 86.7
+84.1 83.6 86.1
+45.9 42.0 43.2
+89.8 87.3 89.4
+88.2 86.1 87.8
+81.3 80.2 81.4
+61.0 48.1 54.2
+68.7 66.9 70.7
+72.0 69.9 73.3
+82.1 79.9 81.8
+
+87.7 86.1 86.9
+64.0 64.1 63.8
+59.7 65.0 62.4
+60.7 62.7 62.7
+54.4 57.2 54.8
+58.7 59.7 60.6
+58.0 59.2 60.8
+53.1 61.3 61.9
+38.9 51.9 56.8
+57.8 60.3 60.6
+55.1 57.3 58.8
+38.6 52.7 55.8
+31.4 30.1 32.7
+45.7 57.8 59.7
+45.6 54.4 56.4
+47.7 50.3 52.2
+27.1 32.4 35.6
+33.6 34.9 38.7
+35.6 38.8 39.3
+50.2 54.5 55.8
+
+93.9 93.3 93.0
+80.6 78.1 79.0
+79.0 77.3 78.6
+81.1 78.2 79.0
+75.3 75.0 76.1
+76.6 77.4 79.8
+77.9 78.8 80.7
+77.1 79.2 80.1
+64.1 76.4 76.8
+80.0 81.9 81.9
+75.0 76.6 79.7
+61.0 68.9 72.9
+37.0 36.2 36.0
+71.0 77.1 79.9
+67.1 72.3 75.2
+69.9 70.9 72.9
+40.6 45.4 47.4
+44.6 53.1 58.6
+56.9 56.1 60.7
+68.9 71.2 73.1
+
+Table 11: E MB S WAP results on B ELE B ELE with zero-shot prompting. F L: LLMs instruction-tuned on F LAN
+mixture; E S: E MB S WAP; +L R: E MB S WAP with LoRA Adaptation.
+
+7630
+
+E MB S WAP Results on S IB -200
+Model
+
+PaLM2
+
+Size
+Variant
+
+XXS
+FL
+
+E S +L R
+
+Gemma2
+S
+
+FL
+
+E S +L R
+
+2B
+FL
+
+E S +L R
+
+Aya23
+
+9B
+FL
+
+E S +L R
+
+27B
+FL
+
+E S +L R
+
+8B
+FL
+
+E S +L R
+
+35B
+FL
+
+E S +L R
+
+S EA
+eng_Latn 85.3 83.8 82.4
+ace_Arab 27.9 51.5 47.1
+ace_Latn 63.2 78.4 71.6
+ban_Latn 75.0 80.9 76.5
+bjn_Arab 17.2 43.6 47.1
+bjn_Latn 73.0 78.9 75.0
+bug_Latn 57.8 67.2 71.1
+ceb_Latn 79.4 84.3 79.4
+ilo_Latn 68.6 81.9 80.4
+ind_Latn 85.8 83.8 80.4
+jav_Latn 75.5 81.4 77.9
+kac_Latn 41.2 64.7 66.7
+khm_Khmr 82.4 85.3 79.9
+lao_Laoo 79.9 86.8 80.4
+min_Arab 17.6 40.7 45.1
+min_Latn 76.0 81.9 77.0
+mya_Mymr 78.9 83.3 78.4
+pag_Latn 67.6 83.3 78.9
+shn_Mymr 39.7 76.5 79.4
+sun_Latn 77.0 82.8 79.4
+tgl_Latn 83.3 81.9 77.9
+tha_Thai 84.8 85.8 79.4
+vie_Latn 82.4 85.8 78.9
+war_Latn 75.0 80.9 75.0
+zsm_Latn 85.3 83.3 77.0
+67.2 76.7 73.7
+Avg.
+
+76.0 76.5 77.9
+53.4 70.1 67.6
+71.1 80.9 77.0
+73.0 77.0 77.9
+55.4 63.7 62.3
+76.5 79.4 81.4
+63.7 74.0 72.5
+79.9 77.9 77.0
+72.5 80.9 81.9
+77.5 80.4 80.9
+75.5 76.5 76.5
+42.2 70.6 70.1
+80.9 77.9 77.9
+78.4 82.8 83.8
+57.8 68.1 68.6
+76.5 78.9 81.9
+77.9 79.9 81.9
+76.0 80.4 82.4
+42.2 78.9 80.4
+76.5 78.9 81.4
+78.4 77.0 80.4
+76.5 78.4 79.9
+77.0 77.9 79.9
+72.5 77.9 77.9
+77.0 79.4 81.9
+70.6 77.0 77.6
+
+82.4 82.4 79.9
+37.7 45.6 50.5
+62.3 68.6 74.0
+68.6 74.0 76.0
+31.4 42.2 48.0
+67.6 71.6 71.1
+57.4 62.3 64.2
+75.5 79.4 77.9
+73.5 79.4 81.4
+84.8 83.3 80.9
+73.0 76.0 75.5
+35.8 63.7 67.6
+71.6 79.9 76.0
+69.6 81.4 78.4
+32.4 44.1 51.0
+70.1 75.5 77.0
+65.2 79.9 77.5
+67.6 76.0 77.5
+42.6 76.0 80.9
+74.0 78.4 79.4
+77.9 77.0 76.5
+82.8 81.4 77.0
+81.9 81.4 80.9
+77.5 81.4 78.4
+83.8 80.9 80.9
+65.9 72.9 73.5
+
+eng_Latn
+afr_Latn
+aka_Latn
+amh_Ethi
+bam_Latn
+bem_Latn
+cjk_Latn
+dyu_Latn
+ewe_Latn
+fon_Latn
+fuv_Latn
+hau_Latn
+ibo_Latn
+kam_Latn
+kbp_Latn
+kea_Latn
+kik_Latn
+kin_Latn
+kmb_Latn
+kon_Latn
+lin_Latn
+lua_Latn
+lug_Latn
+luo_Latn
+mos_Latn
+nso_Latn
+nus_Latn
+nya_Latn
+run_Latn
+sag_Latn
+sna_Latn
+som_Latn
+sot_Latn
+ssw_Latn
+taq_Latn
+taq_Tfng
+tir_Ethi
+tsn_Latn
+tso_Latn
+tum_Latn
+umb_Latn
+
+76.0 77.5 80.9
+76.0 79.4 80.4
+64.7 72.1 72.5
+80.4 79.4 82.8
+51.0 58.3 58.3
+69.1 68.1 69.1
+41.2 44.6 49.5
+48.5 48.0 54.4
+43.6 64.7 66.2
+38.2 53.9 50.0
+50.5 57.4 58.8
+78.4 80.9 80.9
+78.4 77.5 80.9
+50.0 54.4 58.8
+53.4 65.7 67.2
+74.5 77.9 83.3
+59.8 61.3 63.7
+76.0 80.9 81.9
+42.6 52.0 54.4
+57.8 75.0 76.5
+64.2 74.5 76.0
+52.0 67.6 68.1
+61.3 69.1 72.1
+52.0 61.3 64.7
+41.7 42.2 45.1
+71.6 74.0 79.9
+34.8 54.9 56.9
+76.0 79.4 78.9
+71.6 74.5 75.0
+46.6 62.3 62.7
+72.5 78.4 76.0
+75.5 77.5 78.4
+73.0 74.0 76.5
+70.1 76.0 77.0
+49.5 51.5 58.3
+21.6 23.0 25.0
+73.5 75.0 76.5
+66.7 74.5 74.5
+64.2 76.0 77.0
+68.1 74.5 75.0
+40.2 45.6 46.1
+
+82.4 83.3 66.7
+80.4 81.4 65.2
+43.6 56.9 46.6
+55.9 76.5 57.8
+35.3 49.0 40.7
+44.6 49.0 41.7
+39.2 39.7 38.2
+44.1 47.1 41.7
+34.3 47.5 42.2
+36.8 43.1 39.2
+45.1 50.0 40.7
+47.5 68.6 57.4
+63.2 65.7 51.5
+41.7 42.6 40.7
+36.8 58.3 49.5
+66.7 63.7 51.5
+48.0 53.9 41.7
+45.6 66.7 57.4
+43.6 44.6 39.2
+53.4 67.2 56.4
+52.5 67.2 52.9
+44.1 49.5 46.1
+41.7 49.5 46.6
+47.1 52.0 40.7
+45.1 46.1 36.8
+46.6 65.2 47.5
+34.3 41.7 36.8
+49.0 67.2 51.5
+45.1 59.8 54.4
+41.7 53.4 40.7
+46.1 67.6 56.4
+54.4 66.2 56.4
+49.5 69.1 52.9
+48.0 67.2 52.0
+44.1 48.5 43.6
+26.5 27.0 25.0
+44.6 69.1 51.5
+45.6 64.2 51.5
+46.1 59.8 47.5
+44.1 62.7 53.9
+37.3 38.7 37.3
+
+83.3 81.4 80.4
+53.4 64.2 65.2
+73.5 76.5 79.9
+81.4 78.4 78.9
+47.1 59.8 62.3
+80.4 78.9 79.9
+62.7 69.6 69.1
+85.3 84.3 79.9
+78.9 83.8 82.4
+83.8 83.3 83.3
+82.4 81.4 79.9
+50.0 71.6 76.5
+83.8 81.4 83.3
+76.5 81.4 81.4
+44.6 60.3 59.3
+81.9 85.3 83.8
+80.4 84.3 83.3
+77.0 80.4 81.9
+56.9 79.9 81.4
+80.4 81.4 80.9
+85.3 83.3 81.9
+80.4 83.3 82.4
+81.9 82.8 82.4
+82.8 81.9 79.9
+85.3 85.8 82.4
+74.4 78.6 78.5
+
+83.3 81.9 82.4
+46.6 62.7 67.6
+71.1 73.0 81.9
+81.9 77.5 81.4
+44.1 59.3 64.7
+77.9 78.9 79.9
+63.2 68.6 70.1
+83.8 84.3 85.3
+79.9 85.3 82.4
+82.8 80.9 83.3
+79.9 81.4 81.4
+49.0 70.6 74.5
+77.0 82.8 83.8
+73.0 82.8 82.8
+40.2 59.8 62.3
+77.5 83.3 82.4
+78.9 81.9 80.9
+72.5 85.3 83.8
+56.4 78.4 78.9
+80.4 80.9 82.4
+83.3 80.4 82.8
+81.9 82.4 81.9
+82.4 82.4 81.9
+81.9 83.3 83.3
+86.8 84.3 85.3
+72.6 78.1 79.5
+
+82.8 80.8 79.8
+37.4 46.5 38.4
+63.6 74.7 61.6
+70.7 75.8 66.7
+36.4 42.4 39.4
+72.7 73.7 60.6
+55.6 66.7 54.5
+73.7 77.8 75.8
+68.7 78.8 73.7
+84.8 78.8 74.7
+76.8 76.8 67.7
+48.5 62.6 60.6
+55.6 73.7 70.7
+55.6 75.8 66.7
+27.3 43.4 30.3
+66.7 78.8 71.7
+40.4 72.7 66.7
+65.7 73.7 69.7
+53.5 70.7 66.7
+72.7 77.8 72.7
+79.8 82.8 77.8
+72.7 73.7 66.7
+85.9 83.8 72.7
+79.8 83.8 82.8
+80.8 82.8 70.7
+64.3 72.4 65.6
+
+82.8 80.8 79.8
+39.4 51.5 65.7
+68.7 73.7 76.8
+71.7 70.7 75.8
+40.4 48.5 58.6
+73.7 70.7 71.7
+65.7 69.7 75.8
+77.8 76.8 79.8
+66.7 76.8 81.8
+80.8 77.8 78.8
+79.8 73.7 77.8
+45.5 60.6 72.7
+62.6 74.7 74.7
+58.6 74.7 77.8
+40.4 41.4 54.5
+73.7 77.8 79.8
+56.6 63.6 74.7
+68.7 71.7 75.8
+51.5 71.7 74.7
+71.7 73.7 82.8
+81.8 79.8 77.8
+75.8 75.8 75.8
+80.8 76.8 79.8
+78.8 77.8 78.8
+79.8 79.8 78.8
+66.9 70.8 75.2
+
+83.3 82.8 83.8
+82.4 82.4 84.3
+62.3 65.7 74.0
+78.4 80.9 80.9
+50.5 57.8 61.3
+59.3 61.8 67.6
+47.5 48.0 47.1
+51.5 52.5 50.5
+45.6 60.8 68.1
+46.1 55.9 55.9
+47.5 52.9 52.5
+77.9 79.9 83.3
+70.6 78.4 79.9
+53.4 51.0 51.5
+52.0 61.3 65.2
+75.5 71.1 76.0
+53.9 52.0 54.4
+74.5 78.4 83.3
+46.1 49.0 49.5
+59.8 77.0 77.9
+61.3 74.0 74.0
+51.0 62.7 68.6
+58.3 62.3 68.6
+52.5 57.4 63.2
+51.0 51.0 52.0
+64.7 73.5 79.4
+43.6 50.5 54.4
+71.1 78.9 78.9
+66.7 75.0 76.5
+50.0 61.8 66.7
+69.6 81.9 82.8
+72.1 79.4 77.5
+67.2 78.9 79.9
+63.7 72.1 75.5
+52.0 52.0 52.5
+32.4 27.0 25.5
+59.3 76.5 75.5
+63.2 74.0 79.4
+58.3 72.5 77.9
+63.2 74.0 77.5
+50.0 47.1 45.1
+
+82.8 83.8 73.7
+75.8 80.8 71.7
+55.6 65.7 59.6
+29.3 69.7 63.6
+43.4 48.5 48.5
+54.5 57.6 52.5
+45.5 43.4 39.4
+38.4 43.4 42.4
+48.5 49.5 50.5
+48.5 53.5 53.5
+53.5 57.6 57.6
+48.5 77.8 70.7
+49.5 66.7 61.6
+46.5 49.5 45.5
+43.4 49.5 48.5
+75.8 69.7 62.6
+46.5 44.4 45.5
+45.5 61.6 58.6
+48.5 49.5 41.4
+44.4 66.7 60.6
+53.5 68.7 59.6
+44.4 56.6 52.5
+47.5 57.6 51.5
+47.5 48.5 45.5
+40.4 49.5 42.4
+45.5 69.7 55.6
+44.4 42.4 42.4
+43.4 65.7 61.6
+48.5 57.6 58.6
+50.5 56.6 58.6
+45.5 58.6 60.6
+48.5 71.7 68.7
+51.5 60.6 61.6
+42.4 64.6 59.6
+48.5 56.6 50.5
+30.3 26.3 27.3
+30.3 62.6 54.5
+51.5 65.7 61.6
+45.5 60.6 60.6
+52.5 58.6 62.6
+44.4 45.5 45.5
+
+82.8 76.8 79.8
+78.8 73.7 76.8
+56.6 54.5 67.7
+29.3 63.6 78.8
+51.5 40.4 51.5
+52.5 51.5 58.6
+46.5 40.4 50.5
+45.5 36.4 52.5
+48.5 41.4 67.7
+50.5 39.4 58.6
+54.5 52.5 67.7
+47.5 67.7 83.8
+53.5 59.6 68.7
+52.5 50.5 49.5
+46.5 41.4 57.6
+78.8 64.6 71.7
+48.5 41.4 48.5
+50.5 59.6 71.7
+46.5 47.5 54.5
+54.5 63.6 75.8
+54.5 59.6 71.7
+53.5 57.6 72.7
+48.5 48.5 63.6
+46.5 45.5 59.6
+44.4 40.4 41.4
+43.4 60.6 75.8
+52.5 36.4 55.6
+62.6 73.7 73.7
+56.6 58.6 68.7
+53.5 48.5 60.6
+53.5 67.7 78.8
+62.6 56.6 68.7
+44.4 63.6 69.7
+48.5 56.6 69.7
+58.6 50.5 56.6
+30.3 15.2 27.3
+31.3 47.5 66.7
+57.6 64.6 74.7
+53.5 60.6 72.7
+57.6 61.6 66.7
+51.5 40.4 48.5
+
+A FR
+85.3 83.3 79.9
+81.9 82.4 79.9
+50.0 60.3 65.2
+75.5 77.0 76.0
+38.7 51.5 52.9
+49.5 56.9 58.3
+45.6 49.5 50.0
+41.7 43.6 51.5
+37.7 55.9 60.3
+35.3 45.1 51.5
+47.1 52.9 56.9
+73.5 71.1 72.5
+73.0 73.5 72.1
+43.1 50.5 50.0
+41.2 58.8 58.3
+71.6 69.6 66.7
+51.5 52.5 52.5
+44.1 72.1 77.5
+41.7 51.5 52.9
+52.0 76.0 74.5
+53.4 71.6 71.1
+43.6 61.8 65.7
+45.1 60.3 60.8
+45.6 55.9 62.3
+41.2 41.7 46.1
+41.7 71.1 75.0
+24.0 41.2 44.6
+70.6 76.0 71.1
+41.2 73.5 72.5
+44.6 54.4 60.3
+62.7 74.0 71.6
+61.3 73.0 72.5
+57.4 72.5 74.5
+52.5 74.0 73.5
+46.6 49.0 47.5
+11.3 27.0 27.5
+53.9 63.2 68.1
+44.6 66.2 69.6
+39.7 61.8 70.1
+60.3 77.9 74.0
+38.7 48.0 47.1
+
+83.3 82.8 80.9
+82.8 82.4 79.4
+63.2 74.5 74.5
+75.5 84.3 80.9
+53.9 61.3 63.7
+57.8 66.2 69.1
+50.5 51.5 50.5
+54.9 51.0 53.9
+48.5 62.3 72.5
+51.0 60.3 61.3
+52.5 60.3 59.3
+77.0 78.4 76.5
+76.5 78.9 75.5
+51.0 52.9 54.9
+56.9 69.6 73.0
+80.9 76.0 76.0
+55.9 59.8 55.4
+75.5 81.9 82.4
+45.1 54.9 52.0
+57.4 79.4 81.9
+64.7 77.0 79.9
+55.4 72.1 70.6
+60.8 67.6 70.1
+49.5 57.8 63.7
+44.6 47.5 49.5
+62.3 76.5 76.0
+42.2 60.3 62.7
+71.1 77.9 75.5
+66.2 74.5 78.4
+54.4 66.2 68.6
+69.6 76.0 76.5
+73.5 79.9 75.5
+68.6 77.5 77.0
+68.6 77.5 76.5
+51.5 55.9 51.5
+22.1 27.5 26.5
+62.7 80.9 82.4
+63.2 77.9 79.4
+56.9 74.0 75.5
+68.6 78.4 79.9
+50.5 49.0 50.0
+
+7631
+
+E MB S WAP Results on S IB -200
+Model
+
+PaLM2
+
+Size
+
+XXS
+
+Gemma2
+S
+
+Variant
+
+FL
+
+wol_Latn
+xho_Latn
+yor_Latn
+zul_Latn
+Avg.
+
+52.9 52.0 54.4
+69.6 78.4 77.9
+64.2 63.7 67.2
+63.2 78.9 73.0
+51.3 62.2 63.5
+
+E S +L R
+
+FL
+
+E S +L R
+
+61.3 66.2 66.7
+76.0 77.0 80.4
+70.6 72.5 75.5
+75.5 78.9 79.9
+60.9 66.9 68.7
+
+2B
+FL
+
+E S +L R
+
+49.0 57.4 51.0
+54.9 71.1 54.4
+52.0 56.4 44.6
+52.5 73.0 53.9
+47.3 57.9 47.8
+
+Aya23
+
+9B
+FL
+
+E S +L R
+
+59.3 59.3 63.2
+73.5 81.9 79.4
+66.7 73.5 72.1
+70.6 81.9 78.4
+61.0 68.8 69.2
+
+27B
+FL
+
+E S +L R
+
+8B
+FL
+
+35B
+
+E S +L R
+
+FL
+
+E S +L R
+
+59.3 63.7 59.8
+77.0 79.4 83.3
+62.7 68.1 69.1
+70.6 82.4 81.4
+60.2 66.1 68.3
+
+51.5 57.6 60.6
+47.5 67.7 58.6
+47.5 56.6 57.6
+53.5 66.7 61.6
+48.5 58.7 55.3
+
+55.6 53.5 62.6
+57.6 62.6 74.7
+60.6 54.5 66.7
+63.6 68.7 72.7
+52.9 53.8 64.7
+
+83.3 82.4 84.3
+79.4 82.4 79.4
+78.9 79.9 82.4
+84.3 82.4 84.3
+77.0 80.9 83.8
+49.0 60.8 67.2
+81.9 81.4 85.3
+82.4 84.3 82.8
+78.4 81.4 80.4
+83.3 84.8 86.3
+70.6 75.0 77.5
+63.2 69.1 66.7
+78.4 82.4 81.9
+79.9 84.8 81.9
+78.9 82.4 81.4
+80.4 83.3 84.8
+78.4 85.3 87.3
+50.5 69.1 77.9
+83.3 81.9 83.8
+69.6 73.5 77.5
+67.6 36.3 41.2
+77.5 81.4 81.4
+80.4 80.9 84.8
+82.4 83.3 83.3
+83.3 86.8 87.3
+83.8 85.3 84.8
+76.4 78.5 80.0
+
+82.8 85.9 77.8
+56.6 65.7 62.6
+81.8 78.8 72.7
+61.6 80.8 72.7
+74.7 82.8 72.7
+26.3 33.3 32.3
+55.6 80.8 69.7
+81.8 82.8 75.8
+77.8 83.8 72.7
+52.5 70.7 69.7
+52.5 68.7 64.6
+62.6 59.6 56.6
+54.5 65.7 67.7
+77.8 81.8 68.7
+76.8 81.8 71.7
+66.7 70.7 66.7
+73.7 78.8 70.7
+27.3 59.6 51.5
+44.4 67.7 61.6
+68.7 68.7 60.6
+26.3 26.3 27.3
+46.5 74.7 70.7
+54.5 74.7 72.7
+69.7 70.7 66.7
+60.6 77.8 67.7
+61.6 80.8 71.7
+60.6 71.3 65.2
+
+82.8 79.8 76.8
+61.6 68.7 72.7
+83.8 79.8 80.8
+70.7 76.8 77.8
+76.8 77.8 77.8
+28.3 38.4 59.6
+67.7 74.7 77.8
+81.8 75.8 77.8
+78.8 79.8 79.8
+68.7 73.7 73.7
+63.6 67.7 70.7
+63.6 56.6 62.6
+54.5 66.7 76.8
+81.8 73.7 75.8
+79.8 78.8 79.8
+73.7 71.7 76.8
+75.8 74.7 79.8
+40.4 52.5 72.7
+63.6 70.7 76.8
+75.8 67.7 71.7
+26.3 14.1 35.4
+65.7 67.7 78.8
+63.6 74.7 80.8
+76.8 72.7 73.7
+63.6 71.7 77.8
+76.8 73.7 79.8
+67.2 68.5 74.0
+
+I ND
+eng_Latn
+asm_Beng
+awa_Deva
+ben_Beng
+bho_Deva
+dzo_Tibt
+guj_Gujr
+hin_Deva
+hne_Deva
+kan_Knda
+kas_Arab
+kas_Deva
+lus_Latn
+mag_Deva
+mai_Deva
+mal_Mlym
+mar_Deva
+mni_Beng
+pan_Guru
+san_Deva
+sat_Olck
+sin_Sinh
+snd_Arab
+tam_Taml
+tel_Telu
+urd_Arab
+Avg.
+
+85.3 84.8 84.3
+73.0 80.9 79.4
+80.9 84.8 82.4
+81.9 84.8 79.9
+76.5 81.4 80.4
+40.2 71.6 68.1
+77.5 82.4 82.4
+81.9 83.3 83.8
+78.9 84.3 83.8
+77.5 83.8 81.9
+64.7 69.6 70.1
+56.9 61.3 64.2
+58.3 78.4 75.5
+81.9 81.4 79.4
+83.8 83.8 82.8
+77.0 79.4 83.8
+82.4 80.4 81.9
+34.8 55.9 64.2
+75.5 80.4 78.9
+71.6 76.0 75.5
+13.7 23.0 24.5
+78.9 81.9 82.4
+72.1 81.4 80.9
+79.4 82.8 79.4
+77.9 85.3 84.3
+79.9 83.3 84.8
+70.9 77.2 76.9
+
+76.0 75.0 78.4
+77.0 78.4 79.9
+79.4 78.9 79.9
+80.9 78.9 81.4
+75.5 78.9 77.9
+63.7 75.5 77.0
+78.4 79.9 81.9
+82.8 74.5 80.9
+77.9 75.0 80.4
+79.9 77.5 78.9
+77.0 79.4 82.4
+74.5 71.6 79.4
+59.8 72.1 77.9
+78.9 74.5 78.4
+77.0 77.5 81.9
+80.9 77.9 80.9
+78.4 79.4 79.9
+57.4 72.5 77.0
+76.5 75.5 80.9
+76.0 75.5 77.9
+37.7 26.5 28.4
+77.0 74.0 75.5
+77.9 76.5 79.9
+80.4 78.9 80.9
+79.4 78.4 82.8
+77.0 77.5 80.9
+74.5 74.6 77.8
+
+82.4 81.4 81.4
+69.6 73.0 68.6
+77.5 74.5 73.5
+77.9 80.4 76.0
+74.0 73.5 74.0
+23.5 60.8 56.9
+74.5 79.4 77.5
+83.3 80.9 77.9
+74.5 73.0 77.5
+74.0 77.5 73.5
+63.7 63.7 66.2
+51.0 53.9 57.8
+61.8 71.1 70.6
+77.5 74.5 76.0
+76.0 74.5 76.0
+73.5 72.1 76.5
+75.5 75.5 77.0
+44.6 52.5 54.9
+72.1 78.4 74.5
+66.2 65.2 67.2
+34.8 24.5 29.9
+61.3 73.5 76.0
+63.7 70.6 70.1
+77.9 76.5 77.0
+78.9 77.0 77.0
+73.5 74.0 74.5
+67.8 70.5 70.7
+
+83.3 81.4 81.4
+82.8 83.8 82.4
+80.9 80.9 80.4
+83.8 84.3 82.4
+79.9 83.8 82.4
+60.8 74.5 77.5
+81.4 85.8 84.8
+86.8 84.8 83.3
+82.4 81.4 79.9
+84.3 81.4 83.3
+74.5 75.5 74.0
+64.7 69.1 73.0
+77.9 80.9 80.9
+82.8 79.9 80.9
+80.4 83.8 82.8
+83.8 81.4 80.9
+83.3 82.4 83.8
+56.4 76.0 75.5
+85.3 84.3 84.3
+78.4 77.9 79.4
+69.6 43.6 48.0
+83.8 82.4 83.8
+77.0 82.8 83.3
+82.4 83.8 83.8
+85.8 84.3 85.8
+84.3 85.3 84.3
+79.1 79.8 80.1
+
+Table 12: E MB S WAP results on S IB -200 with zero-shot prompting. F L: LLMs instruction-tuned on F LAN
+mixture; E S: E MB S WAP; +L R: E MB S WAP with LoRA Adaptation.
+E MB S WAP Results on F LORES -200
+Model
+
+PaLM2
+
+Size
+Variant
+
+XXS
+FL
+
+E S +L R
+
+Gemma2
+S
+
+FL
+
+E S +L R
+
+2B
+FL
+
+E S +L R
+
+Aya23
+
+9B
+FL
+
+E S +L R
+
+27B
+FL
+
+E S +L R
+
+8B
+FL
+
+E S +L R
+
+35B
+FL
+
+E S +L R
+
+S EA
+ind_Latn 65.1 63.9 65.7
+tha_Thai 44.0 38.4 42.3
+vie_Latn 57.0 56.4 57.2
+zsm_Latn 62.6 63.8 64.8
+tgl_Latn 55.2 55.4 56.4
+mya_Mymr 9.3 2.6 21.8
+lao_Laoo 29.9 30.8 39.9
+khm_Khmr 24.9 25.0 31.0
+ceb_Latn 35.4 37.4 56.5
+jav_Latn 30.3 19.3 46.7
+sun_Latn 32.7 42.4 42.2
+ilo_Latn 19.6 18.7 22.1
+war_Latn 15.4 31.3 31.9
+bug_Latn 21.7 21.8 24.7
+pag_Latn 25.7 23.0 23.9
+shn_Mymr 4.5 5.8 1.6
+min_Latn 28.1 19.6 17.9
+ace_Latn 16.8 22.9 28.7
+ban_Latn 26.3 29.6 31.8
+bjn_Latn 20.4 9.4 16.0
+ace_Arab 10.2 6.2 4.6
+bjn_Arab 10.5 7.5 8.0
+min_Arab 9.9 5.5 7.5
+
+68.4 66.9 67.0
+48.2 40.6 44.6
+60.5 59.7 59.6
+67.9 66.8 67.0
+59.5 59.1 59.4
+37.1 29.6 32.8
+40.5 27.6 38.0
+33.8 32.5 33.1
+57.0 52.8 58.8
+49.8 48.3 49.7
+45.2 43.9 46.1
+43.5 50.5 51.6
+38.3 43.2 54.3
+23.4 25.3 27.5
+26.3 28.1 28.6
+3.7 5.0 6.4
+46.1 48.9 52.5
+28.8 28.5 36.7
+33.2 34.4 38.3
+36.5 30.9 35.1
+8.8 1.8 5.5
+5.0 4.6 10.3
+3.5 1.1 1.1
+
+61.5 54.5 61.6
+37.4 37.6 35.1
+49.4 49.9 50.3
+56.6 59.6 60.7
+51.4 52.1 54.2
+12.9 13.3 23.8
+27.3 26.7 34.3
+22.6 19.5 28.5
+34.1 34.1 53.7
+30.4 30.8 46.7
+30.4 31.5 41.5
+24.3 26.8 45.6
+28.8 30.5 52.9
+13.5 17.3 23.9
+25.8 26.7 40.7
+4.0 2.2 29.5
+35.1 34.4 47.1
+11.1 7.8 33.1
+29.8 29.0 42.0
+35.2 30.9 23.5
+8.3 1.7 11.7
+6.6 1.7 10.2
+2.7 2.6 1.9
+
+65.9 64.9 65.4
+42.4 42.4 41.9
+57.1 57.3 56.5
+63.1 65.1 64.5
+54.9 56.6 57.0
+14.7 33.2 27.8
+24.3 40.9 40.1
+21.5 32.7 31.3
+37.0 48.0 57.7
+36.2 33.1 50.6
+33.8 42.1 43.9
+26.8 39.4 51.3
+32.8 37.8 57.0
+25.7 25.7 26.6
+27.9 28.5 42.5
+4.8 6.3 30.0
+37.3 43.0 50.7
+28.6 32.9 37.5
+32.6 38.4 44.2
+37.0 35.8 26.6
+10.6 1.6 6.8
+10.9 9.8 8.3
+10.4 9.2 1.2
+
+7632
+
+65.6 64.5 65.6
+43.6 41.8 42.4
+57.2 56.8 58.0
+64.6 63.6 65.1
+55.2 54.1 57.7
+16.0 16.9 31.1
+25.0 1.2 41.7
+20.7 26.5 31.3
+46.9 52.4 58.0
+37.7 38.9 51.0
+36.3 40.9 43.4
+34.7 45.2 52.3
+40.2 51.5 58.5
+25.5 25.2 27.1
+26.5 36.4 43.6
+5.5 0.7 31.4
+37.6 45.2 52.5
+28.1 32.9 37.9
+32.0 40.9 45.5
+36.6 34.0 32.9
+10.2 1.6 13.4
+10.3 1.6 17.9
+6.9 0.9 18.2
+
+68.7 67.1 66.6
+23.4 29.0 35.1
+61.8 62.4 60.0
+50.5 62.6 63.9
+37.1 52.0 55.7
+3.6 9.3 24.3
+9.6 26.0 31.1
+8.6 15.2 26.0
+27.0 46.0 55.9
+19.4 45.2 48.5
+26.8 24.1 43.8
+19.2 31.0 47.1
+23.8 34.1 55.3
+9.1 16.0 23.0
+21.0 26.6 42.4
+1.9 2.7 26.0
+34.2 43.1 50.0
+2.3 19.2 35.5
+21.9 38.1 42.5
+28.8 9.1 7.7
+9.9 0.9 2.3
+10.1 1.3 8.4
+8.3 1.0 2.6
+
+67.0 54.2 67.3
+29.3 18.9 39.2
+61.8 57.3 60.9
+54.2 46.0 64.9
+47.2 50.2 56.7
+7.0 20.4 28.1
+17.0 25.4 37.5
+15.1 17.4 30.1
+32.3 34.2 56.7
+29.0 37.4 50.4
+31.0 34.9 43.6
+22.7 26.1 51.4
+27.6 27.5 58.0
+23.8 17.4 26.7
+24.7 21.9 43.8
+3.3 16.5 28.7
+35.6 35.5 52.2
+1.0 24.7 39.0
+30.7 34.2 44.9
+34.3 30.3 32.0
+9.4 1.4 13.5
+10.0 3.6 20.6
+9.4 1.4 11.2
+
+E MB S WAP Results on F LORES -200
+Model
+
+PaLM2
+
+Size
+
+XXS
+
+Gemma2
+S
+
+2B
+
+Aya23
+
+9B
+
+27B
+
+8B
+
+35B
+
+Variant
+
+FL
+
+Avg.
+
+28.5 27.7 32.3 37.6 36.1 39.3 27.8 27.0 37.1 32.0 35.9 40.0 33.2 33.6 42.5 22.9 28.8 37.1 27.1 27.7 41.6
+
+E S +L R
+
+FL
+
+E S +L R
+
+FL
+
+E S +L R
+
+FL
+
+E S +L R
+
+FL
+
+E S +L R
+
+FL
+
+E S +L R
+
+FL
+
+E S +L R
+
+A FR
+swa_Latn
+lin_Latn
+yor_Latn
+ful_Latn
+ibo_Latn
+orm_Latn
+som_Latn
+tso_Latn
+nya_Latn
+zul_Latn
+kin_Latn
+run_Latn
+sna_Latn
+xho_Latn
+tsn_Latn
+tir_Ethi
+kik_Latn
+kon_Latn
+lua_Latn
+umb_Latn
+sot_Latn
+mos_Latn
+nso_Latn
+knc_Latn
+knc_Arab
+luo_Latn
+bem_Latn
+lug_Latn
+wol_Latn
+kmb_Latn
+kam_Latn
+ewe_Latn
+ssw_Latn
+tum_Latn
+fon_Latn
+din_Latn
+kbp_Latn
+cjk_Latn
+nus_Latn
+taq_Latn
+taq_Tfng
+sag_Latn
+Avg.
+
+51.1 47.0 52.7
+16.4 10.2 10.9
+16.6 8.6 12.1
+13.1 16.5 11.2
+27.9 20.8 29.2
+1.7 5.7 7.5
+27.0 30.6 34.4
+15.3 12.7 11.5
+14.6 14.4 34.8
+14.2 15.3 36.4
+12.4 11.7 17.2
+14.3 14.0 15.6
+11.4 15.4 29.6
+25.3 14.8 30.5
+10.1 5.6 17.4
+0.9 0.6 1.0
+13.3 11.1 16.0
+14.0 9.6 9.9
+15.2 8.6 19.9
+10.4 12.2 14.3
+11.4 13.6 30.9
+14.6 12.4 15.3
+12.3 15.4 14.5
+16.4 8.2 8.5
+7.2 0.8 0.6
+16.0 12.9 16.8
+11.3 7.6 9.9
+8.3 14.1 11.0
+9.1 16.3 11.2
+12.7 2.3 12.0
+6.9 10.3 15.1
+15.1 14.9 10.0
+16.1 16.5 21.0
+9.0 12.3 25.3
+10.9 10.2 5.1
+15.2 5.1 7.7
+9.3 4.7 7.5
+14.1 6.1 12.1
+9.6 9.9 7.8
+16.7 16.8 4.4
+2.1 2.5 1.0
+15.8 15.7 13.0
+13.9 12.2 16.0
+
+61.0 58.4 59.0
+17.0 32.3 31.2
+25.9 22.8 23.1
+6.1 13.4 12.3
+34.4 35.5 36.9
+11.7 16.0 22.1
+40.7 40.3 40.6
+17.1 29.1 36.7
+43.5 43.3 43.1
+48.6 47.5 48.3
+18.4 33.3 34.9
+16.5 28.0 30.1
+39.4 39.6 39.9
+43.3 43.2 44.4
+30.2 40.9 43.2
+7.1 7.8 10.8
+15.8 17.5 13.7
+14.6 20.5 28.7
+10.4 25.1 25.3
+12.8 16.1 16.0
+43.9 43.2 45.8
+14.4 14.1 14.7
+28.4 34.4 39.1
+10.5 7.0 6.7
+6.9 6.3 5.8
+13.1 12.8 9.8
+15.3 19.7 16.7
+13.5 29.2 30.2
+16.3 15.9 14.8
+14.7 15.6 15.6
+19.9 19.4 14.3
+3.8 10.6 11.0
+14.9 32.5 34.1
+24.2 32.0 33.0
+10.0 9.2 12.7
+1.6 8.6 10.4
+10.7 11.1 15.6
+16.1 13.2 14.3
+1.7 2.1 2.8
+4.6 8.0 7.6
+1.1 1.1 0.8
+9.5 13.7 15.0
+19.3 23.1 24.1
+
+30.8 38.1 45.0
+8.4 10.6 34.0
+18.9 10.8 16.9
+8.3 9.5 13.4
+21.8 20.4 27.9
+9.1 13.1 15.6
+19.3 24.2 29.7
+10.2 12.1 25.6
+9.4 13.0 28.5
+13.9 17.0 27.4
+8.8 11.3 15.7
+9.9 11.9 15.9
+7.9 14.9 26.7
+16.3 17.0 29.9
+8.6 12.6 29.5
+0.4 0.4 13.5
+13.6 11.7 7.8
+8.1 10.0 33.5
+6.8 10.3 22.7
+9.4 11.5 7.3
+9.2 11.6 34.9
+12.9 10.2 8.8
+8.7 11.2 26.8
+8.0 7.6 9.5
+3.9 0.9 1.0
+11.2 9.4 12.3
+8.5 9.1 6.1
+8.0 11.2 15.6
+9.0 10.3 7.4
+7.8 7.1 14.4
+11.5 9.9 12.3
+6.2 9.0 16.9
+1.7 12.9 21.5
+8.4 10.8 23.1
+8.4 5.3 12.1
+5.8 7.4 9.3
+6.7 6.1 13.7
+8.0 9.2 12.2
+4.8 5.0 13.4
+7.9 7.5 8.8
+0.3 0.3 0.2
+7.4 7.5 22.0
+9.6 10.9 18.3
+
+hin_Deva
+ben_Beng
+urd_Arab
+tel_Telu
+tam_Taml
+mar_Deva
+mai_Deva
+bho_Deva
+pbt_Arab
+guj_Gujr
+kan_Knda
+awa_Deva
+ory_Orya
+mal_Mlym
+pan_Guru
+hne_Deva
+npi_Deva
+asm_Beng
+mni_Beng
+bod_Tibt
+san_Deva
+Avg.
+
+53.4 50.8 54.0
+32.7 29.5 39.8
+34.0 38.5 42.8
+35.1 33.5 41.5
+35.1 40.0 42.9
+33.4 35.2 38.5
+12.5 2.3 0.7
+18.2 8.0 25.2
+8.1 2.6 18.3
+35.4 4.1 9.7
+28.1 25.2 36.1
+2.9 11.0 38.6
+11.7 3.2 8.5
+25.6 21.1 28.4
+20.0 14.3 28.0
+2.5 21.0 36.9
+33.4 27.4 37.1
+2.3 6.3 21.7
+0.4 1.2 6.6
+2.2 1.0 0.7
+13.8 0.6 4.2
+21.0 17.9 26.7
+
+58.7 56.2 58.1
+43.5 41.9 44.8
+48.2 47.2 48.4
+43.1 43.7 43.8
+50.4 47.7 48.0
+44.1 41.0 43.1
+30.0 4.5 38.2
+34.2 34.8 38.0
+29.1 28.3 31.0
+48.5 39.4 45.6
+47.1 44.6 46.5
+35.7 40.5 39.1
+34.4 21.7 25.8
+40.8 38.0 40.1
+46.0 43.8 45.8
+33.4 40.1 43.4
+49.3 46.1 48.4
+32.9 31.7 35.0
+0.8 7.2 17.9
+0.5 5.2 7.8
+20.0 23.4 24.1
+36.7 34.6 38.7
+
+45.2 37.6 49.2
+25.0 24.6 36.7
+27.2 30.5 40.1
+29.9 25.8 40.8
+29.2 24.5 35.5
+24.7 25.9 36.2
+17.4 11.7 36.1
+24.1 16.7 34.5
+9.5 10.0 22.5
+29.9 25.8 41.9
+10.5 9.5 37.1
+30.2 13.8 34.9
+14.2 7.7 17.9
+23.8 15.9 30.7
+22.3 19.4 37.7
+16.2 15.9 37.8
+26.7 27.1 40.1
+11.0 8.5 23.6
+0.5 1.5 21.7
+0.8 3.6 10.2
+16.5 5.3 16.7
+20.7 17.2 32.5
+
+53.8 55.2 56.6
+13.5 19.9 39.5
+10.5 12.1 18.7
+8.1 9.9 14.4
+23.2 29.5 33.7
+9.8 9.1 24.8
+21.0 31.3 36.3
+11.1 14.8 37.7
+12.3 30.7 37.2
+14.6 25.9 36.0
+12.2 22.1 26.8
+10.0 19.2 24.6
+12.6 26.9 34.3
+14.9 27.0 35.8
+10.5 21.1 40.0
+4.2 7.6 19.4
+18.7 18.2 14.5
+10.9 19.4 41.8
+8.9 14.9 26.7
+12.7 8.6 8.2
+10.8 25.2 40.7
+13.3 7.3 7.9
+9.5 18.0 39.4
+13.8 13.0 15.9
+7.5 3.2 1.1
+17.2 17.5 13.1
+9.7 13.4 10.5
+9.1 17.3 25.5
+14.8 8.8 9.2
+14.0 11.3 21.2
+22.2 22.4 18.1
+5.5 9.9 28.3
+9.2 19.9 28.1
+13.9 18.6 29.4
+7.7 7.0 18.3
+6.7 7.5 15.9
+5.8 7.1 19.4
+15.1 8.8 14.2
+4.5 6.9 17.8
+8.5 8.3 13.3
+0.8 0.8 0.9
+16.4 16.5 31.6
+12.6 16.5 24.4
+
+55.7 52.2 57.9
+13.6 17.7 41.7
+10.1 8.3 18.6
+11.3 8.8 15.7
+23.1 13.0 34.0
+10.7 11.1 24.6
+20.1 23.6 36.2
+13.0 14.4 40.7
+18.7 25.5 37.9
+18.9 25.2 38.1
+15.5 19.6 29.7
+12.8 17.6 26.5
+19.8 26.2 35.7
+20.7 25.4 37.4
+17.3 24.0 41.9
+1.9 2.9 19.1
+15.7 12.0 15.2
+15.5 11.5 41.3
+16.0 7.3 30.8
+15.7 3.4 11.2
+20.1 26.1 41.5
+14.7 13.2 9.6
+17.9 24.6 42.1
+11.6 5.2 14.4
+7.4 2.3 2.1
+11.7 4.6 13.4
+14.4 10.2 13.6
+13.5 16.3 27.2
+16.1 7.6 11.8
+14.7 3.8 23.6
+21.0 9.7 19.3
+7.3 5.4 29.7
+16.5 20.4 31.3
+14.1 15.8 30.2
+11.1 3.7 19.2
+15.2 8.0 15.3
+10.4 3.7 21.3
+15.6 8.8 14.9
+8.9 4.6 17.2
+14.1 5.1 13.9
+1.2 0.2 1.3
+15.0 6.4 33.2
+15.2 13.2 25.7
+
+9.0 30.7 41.7
+7.4 16.0 37.5
+7.0 5.9 16.4
+4.8 8.3 13.0
+8.5 17.0 27.0
+9.2 4.1 13.4
+16.6 26.0 27.4
+6.2 8.4 24.1
+5.4 13.5 26.9
+7.3 10.1 26.8
+7.3 10.4 13.5
+6.8 11.0 15.9
+4.8 14.9 24.7
+7.5 12.0 27.1
+5.5 8.8 29.5
+1.3 3.7 10.2
+4.9 7.5 4.2
+7.2 11.0 37.0
+5.8 11.3 21.0
+6.4 7.6 5.6
+6.1 10.9 32.7
+3.0 11.2 2.9
+6.2 8.2 29.3
+5.3 7.4 9.2
+7.0 0.5 0.2
+5.4 11.2 6.1
+5.5 1.9 0.7
+5.7 8.8 12.3
+5.4 5.0 5.5
+7.3 9.7 15.6
+5.7 2.5 0.3
+4.3 6.3 18.2
+2.9 9.1 17.6
+5.6 11.4 20.8
+6.6 5.2 14.4
+5.5 6.0 11.3
+3.6 5.1 12.2
+6.6 6.9 11.1
+2.7 3.7 12.4
+7.3 6.5 7.3
+0.7 0.4 0.1
+3.7 7.8 28.2
+6.0 9.1 16.9
+
+11.0 29.4 52.0
+10.4 11.7 41.8
+10.7 4.9 18.5
+10.3 6.2 15.4
+15.2 15.3 33.9
+10.8 10.0 23.3
+20.4 26.4 35.3
+8.7 8.9 34.0
+9.2 14.7 34.5
+9.7 11.6 37.5
+8.2 10.2 24.6
+8.8 10.2 21.7
+7.9 11.5 32.4
+9.7 11.8 35.8
+7.9 9.4 38.0
+1.2 2.7 15.8
+7.1 9.7 15.4
+8.5 10.5 42.0
+7.3 7.5 24.8
+12.7 8.0 10.5
+8.1 10.4 39.8
+11.1 7.8 6.5
+8.5 10.9 36.3
+8.7 8.7 14.1
+6.8 0.5 0.7
+7.3 8.5 12.1
+7.6 8.8 15.2
+7.5 9.1 22.0
+13.7 8.2 9.2
+11.6 7.7 20.2
+8.5 12.3 14.0
+5.3 6.4 27.4
+8.5 9.4 27.2
+8.6 10.7 26.2
+6.9 3.6 18.1
+9.4 5.7 14.9
+6.8 6.6 19.2
+7.7 7.7 13.3
+8.1 5.0 17.0
+8.7 8.8 10.1
+3.5 0.9 0.9
+14.4 10.4 32.1
+9.1 9.5 23.4
+
+50.1 48.2 53.8
+35.5 26.7 44.2
+39.8 39.4 44.7
+39.1 27.3 49.0
+39.1 19.6 47.1
+30.2 31.6 41.1
+31.1 35.6 44.8
+29.0 31.5 39.1
+10.9 16.4 27.3
+39.2 33.6 45.9
+37.6 22.7 46.0
+37.6 37.1 42.5
+15.3 6.6 35.7
+31.0 7.5 44.3
+37.9 10.4 44.6
+37.2 33.3 46.5
+37.6 38.5 46.5
+21.7 17.0 33.7
+0.9 0.1 30.6
+2.5 1.0 18.5
+18.0 17.0 25.7
+29.6 23.9 40.6
+
+55.4 24.6 49.6
+17.7 7.7 39.1
+18.4 13.3 38.3
+18.3 19.1 39.9
+21.1 16.0 37.3
+20.0 17.3 36.9
+17.9 0.3 40.6
+25.1 3.2 37.7
+6.5 13.1 17.7
+16.7 14.6 42.1
+9.2 24.1 39.3
+8.4 11.4 39.5
+12.1 3.8 11.0
+18.0 3.6 34.3
+13.5 23.5 38.0
+18.4 20.4 41.4
+19.7 3.6 40.3
+2.5 6.1 26.7
+0.4 10.1 22.6
+3.6 4.7 9.6
+15.8 0.4 20.3
+16.1 11.5 33.4
+
+54.6 38.5 54.1
+23.1 18.6 43.1
+26.1 14.1 45.3
+26.5 18.9 47.5
+31.9 22.3 47.2
+26.5 17.5 41.4
+30.0 4.3 44.8
+27.8 9.9 39.7
+9.2 3.2 29.8
+29.2 12.8 46.0
+15.4 20.4 46.4
+36.1 9.5 42.3
+11.0 4.4 31.0
+25.0 16.8 44.0
+27.2 22.7 44.3
+33.7 13.2 46.3
+28.2 21.6 45.8
+11.2 10.0 33.4
+0.2 2.4 29.1
+4.6 4.5 15.2
+17.7 5.4 25.6
+23.6 13.9 40.1
+
+I ND
+51.1 52.0 54.1
+32.1 35.9 42.4
+37.2 42.7 44.5
+37.8 35.5 48.2
+37.5 39.5 46.9
+30.3 35.2 41.7
+29.0 26.3 43.7
+29.8 31.6 39.4
+12.4 21.4 29.3
+35.9 40.9 47.0
+27.8 36.4 45.6
+38.5 40.1 42.3
+13.0 26.4 37.2
+29.4 30.8 41.6
+32.9 38.2 44.7
+34.6 29.7 47.2
+36.1 42.7 46.0
+15.1 24.5 32.6
+4.6 3.8 31.0
+1.1 7.2 19.0
+18.1 19.0 26.0
+27.8 31.4 40.5
+
+7633
+
+E MB S WAP Results on F LORES -200
+Model
+
+PaLM2
+
+Size
+Variant
+
+Gemma2
+
+XXS
+FL
+
+S
+
+E S +L R
+
+FL
+
+2B
+
+E S +L R
+
+FL
+
+Aya23
+
+9B
+
+E S +L R
+
+FL
+
+27B
+
+E S +L R
+
+FL
+
+8B
+
+E S +L R
+
+FL
+
+35B
+
+E S +L R
+
+FL
+
+E S +L R
+
+Table 13: E MB S WAP results on F LORES -200 with zero-shot prompting. F L: LLMs instruction-tuned on F LAN
+mixture; E S: E MB S WAP; +L R: E MB S WAP with LoRA Adaptation.
+E MB S WAP Results on GSM8K-NTL
+Model
+
+Gemma2
+
+Size
+
+2B
+
+Gemma2
+
+9B
+
+27B
+
+2B
+
+Gemma2
+
+9B
+
+27B
+
+2B
+
+9B
+
+27B
+
+Variant
+
+FL
+
+ES
+
+FL
+
+ES
+
+FL
+
+ES
+
+IT
+
+ES
+
+IT
+
+ES
+
+IT
+
+ES
+
+MH
+
+ES
+
+MH
+
+ES
+
+MH
+
+asm_Beng
+bew_Latn
+bho_Deva
+doi_Deva
+div_Thaa
+dzo_Tibt
+efi_Latn
+gom_Deva
+ilo_Latn
+kri_Latn
+mai_Deva
+meo_Latn
+mfa_Arab
+min_Latn
+mni_Beng
+mzn_Arab
+nso_Latn
+ory_Orya
+pcm_Latn
+tso_Latn
+Avg
+
+11.2
+28.4
+16.4
+11.2
+6.8
+2.0
+8.0
+15.2
+8.4
+10.8
+13.6
+24.4
+6.4
+12.0
+4.8
+21.6
+4.4
+10.0
+28.0
+8.8
+12.6
+
+14.4
+24.8
+17.2
+14.0
+10.4
+2.8
+10.4
+15.6
+15.6
+8.0
+14.4
+24.4
+10.8
+18.8
+5.2
+20.0
+10.8
+12.8
+23.6
+9.6
+14.2
+
+30.8
+48.4
+29.2
+19.6
+9.6
+6.8
+13.2
+25.2
+24.8
+23.2
+29.2
+46.0
+6.8
+32.4
+4.8
+40.0
+14.8
+19.2
+46.8
+12.4
+24.2
+
+26.4
+46.4
+35.6
+34.0
+23.2
+12.8
+27.6
+35.6
+35.2
+26.0
+35.2
+45.2
+37.2
+38.0
+16.8
+42.8
+26.0
+26.4
+43.2
+16.4
+31.5
+
+34.8
+48.8
+38.0
+26.4
+18.8
+10.4
+16.0
+28.4
+28.8
+28.8
+37.2
+45.2
+9.2
+35.6
+8.8
+46.8
+21.2
+24.8
+48.4
+17.2
+28.7
+
+35.2
+50.4
+35.6
+33.6
+26.8
+8.4
+30.8
+37.2
+39.2
+29.6
+38.8
+47.2
+42.8
+44.8
+17.6
+48.4
+24.0
+27.2
+50.0
+20.4
+34.4
+
+15.6
+41.6
+23.2
+13.6
+2.8
+0.4
+5.2
+13.6
+10.4
+12.0
+23.6
+37.6
+3.6
+15.6
+1.6
+29.2
+4.4
+2.8
+43.6
+4.0
+15.2
+
+12.4
+30.0
+19.2
+19.6
+12.4
+3.6
+5.6
+14.4
+11.2
+8.4
+17.6
+30.0
+18.0
+22.0
+6.0
+19.2
+7.2
+11.6
+36.0
+5.2
+15.5
+
+48.0
+58.0
+48.4
+32.4
+15.6
+10.0
+17.2
+37.2
+30.8
+32.0
+47.2
+58.4
+12.0
+42.8
+5.2
+56.4
+19.2
+29.6
+60.0
+14.4
+33.7
+
+42.4
+57.6
+48.0
+44.0
+36.8
+14.0
+31.6
+48.4
+46.4
+34.8
+48.4
+56.4
+52.0
+52.8
+20.8
+56.4
+26.8
+34.8
+60.0
+24.8
+41.9
+
+53.2
+62.4
+50.8
+37.6
+22.0
+14.0
+24.8
+44.0
+41.2
+36.0
+48.8
+60.0
+8.8
+49.6
+8.4
+60.0
+25.6
+37.2
+61.6
+22.4
+38.4
+
+48.0
+53.2
+51.6
+46.0
+32.8
+20.4
+20.8
+49.2
+44.8
+36.4
+52.0
+56.4
+49.2
+44.4
+25.2
+59.6
+13.6
+42.4
+51.6
+10.0
+40.4
+
+20.4
+51.6
+29.2
+17.6
+2.8
+0.8
+6.8
+11.6
+12.8
+19.2
+25.2
+58.4
+3.2
+22.0
+5.6
+33.6
+7.2
+6.4
+61.2
+7.6
+20.2
+
+29.2
+42.0
+36.4
+25.2
+15.6
+3.6
+20.0
+30.4
+22.4
+22.8
+32.4
+40.8
+25.2
+29.2
+10.0
+32.8
+10.8
+21.6
+62.8
+8.8
+26.1
+
+46.0
+70.0
+51.2
+36.4
+17.2
+11.6
+21.6
+38.4
+42.8
+43.2
+46.8
+74.8
+7.2
+45.2
+4.8
+65.6
+24.4
+33.6
+77.6
+19.6
+38.9
+
+28.0
+68.8
+48.8
+36.4
+26.4
+6.4
+48.0
+47.6
+57.2
+43.6
+50.8
+71.6
+54.8
+58.0
+17.6
+59.2
+36.4
+26.4
+72.4
+24.8
+44.2
+
+43.2 36.0
+71.6 68.8
+49.6 49.6
+29.2 37.6
+13.2 12.0
+8.8
+4.0
+19.6 38.0
+36.4 41.6
+43.6 56.4
+40.0 42.8
+46.0 47.2
+72.0 68.0
+7.2 48.0
+54.8 53.6
+8.0
+4.8
+61.2 52.4
+22.4 23.2
+27.2 23.6
+77.6 74.4
+17.6 20.0
+37.5 40.1
+
+ES
+
+Table 14: E MB S WAP results on GSM8K-NTL with zero-shot prompting. F L: LLMs instruction-tuned on F LAN
+mixture; I T: LLMs aligned with supervised fine-tuning and reinforcement learning with human feedback; M H:
+LLMs instruction-tuned on the WebInstruct math dataset; E S: E MB S WAP;
+E MB S WAP Results on XS UM -I N
+Model
+
+PaLM2
+
+Size
+Variant
+
+XXS
+FL
+
+E S +L R
+
+eng_Latn 33.7 34.2 30.7
+asm_Beng 0.3 0.3 0.3
+awa_Deva 0.1 0.1 0.1
+bgc_Deva 0.2 0.2 0.2
+bho_Deva 0.1 0.1 0.1
+ben_Beng 16.7 2.2 0.1
+bod_Tibt 0.2 0.2 0.1
+brx_Deva 0.2 0.2 0.2
+gbm_Deva 4.5 3.8 3.7
+gom_Deva 0.2 0.2 0.2
+guj_Gujr 11.8 0.4 0.4
+hin_Deva 22.1 1.3 2.4
+hne_Deva 0.2 0.2 0.3
+hoj_Deva 0.2 0.2 0.1
+kan_Knda 4.4 2.7 0.7
+mai_Deva 0.1 0.1 0.1
+mal_Mlym 13.5 2.1 2.0
+mni_Beng 0.2 0.2 0.2
+mar_Deva 16.6 10.9 1.0
+mup_Deva 0.3 0.3 0.3
+mwr_Deva 0.2 0.2 0.2
+npi_Deva 2.3 0.0 0.0
+ory_Orya 0.6 0.6 0.6
+pan_Guru 7.9 1.3 0.2
+pbu_Arab 0.2 0.2 0.2
+
+Gemma2
+S
+
+FL
+
+E S +L R
+
+41.1 40.7 41.2
+25.5 16.1 6.3
+6.6 20.5 11.1
+5.6 3.2 4.3
+19.3 21.6 18.5
+29.8 28.3 25.9
+10.8 9.2 9.8
+0.3 1.0 3.5
+7.7 19.5 18.0
+0.2 7.3 3.7
+25.1 24.4 20.4
+31.2 30.5 27.6
+3.5 20.1 20.5
+0.6 0.5 0.5
+28.6 28.3 28.9
+13.7 19.1 17.3
+27.2 27.1 27.7
+0.2 8.3 4.9
+30.5 28.9 27.4
+0.4 0.4 0.5
+0.3 1.4 1.9
+29.1 23.9 5.3
+23.8 18.8 22.2
+21.5 23.3 22.6
+6.2 13.5 4.3
+
+2B
+FL
+
+E S +L R
+
+36.6 34.1 31.9
+2.7 1.3 7.6
+5.2 5.9 14.2
+0.2 0.7 11.8
+2.0 6.9 9.9
+6.7 14.4 16.9
+0.2 0.9 5.7
+0.2 0.7 1.5
+4.6 4.0 6.8
+0.4 5.0 10.3
+6.7 11.8 16.0
+4.7 14.3 19.2
+2.2 2.8 5.8
+1.1 1.0 0.5
+7.9 4.9 14.9
+2.4 1.6 4.0
+5.0 8.6 15.4
+0.1 1.7 3.1
+13.7 14.1 16.7
+0.5 0.4 2.8
+0.8 1.5 2.7
+9.3 15.4 17.3
+3.4 8.5 12.9
+3.7 11.8 12.4
+1.8 7.2 10.1
+
+Aya23
+
+9B
+FL
+
+E S +L R
+
+37.5 37.1 37.0
+13.7 16.5 20.1
+19.0 17.3 17.2
+16.5 0.9 16.1
+19.1 18.0 16.7
+22.4 23.9 21.6
+0.5 3.4 8.8
+0.2 1.3 5.2
+14.1 8.2 12.8
+14.2 14.9 17.5
+18.8 21.1 19.4
+24.2 24.4 24.9
+20.2 18.3 17.9
+1.9 14.9 15.7
+17.9 21.1 23.4
+19.0 18.2 17.6
+21.2 21.5 22.4
+4.9 1.4 8.7
+19.7 19.1 20.7
+2.5 9.6 14.9
+19.2 8.3 18.8
+21.5 24.1 22.8
+13.6 14.8 17.7
+17.4 18.8 18.3
+11.4 15.3 18.0
+
+7634
+
+27B
+FL
+
+E S +L R
+
+37.6 36.8 36.9
+17.8 11.3 21.3
+13.7 17.3 17.6
+12.1 15.6 16.2
+14.2 15.8 18.1
+25.5 20.0 22.0
+0.8 0.8 7.4
+0.3 11.4 14.8
+16.6 14.3 14.8
+12.1 17.4 18.5
+22.1 16.3 19.7
+23.6 18.6 23.7
+13.3 16.5 18.4
+3.1 4.6 12.8
+24.0 8.5 24.3
+19.1 15.2 17.1
+23.4 4.0 22.4
+0.1 0.0 10.6
+21.2 21.8 19.9
+9.3 14.5 16.0
+9.3 17.4 18.6
+11.1 23.5 20.2
+24.6 5.7 16.8
+16.2 1.6 21.0
+16.4 11.0 18.3
+
+8B
+FL
+
+E S +L R
+
+34.5 25.7 30.7
+5.0 1.3 4.6
+0.2 0.0 4.5
+16.1 0.2 0.4
+16.3 0.0 7.5
+16.9 11.3 17.2
+4.6 2.5 6.0
+4.5 0.0 0.7
+14.8 0.2 6.5
+13.2 0.3 10.5
+13.5 11.2 16.3
+26.4 11.2 18.2
+18.7 0.0 2.0
+0.8 0.1 9.8
+8.2 7.2 15.8
+14.5 0.1 11.8
+16.9 3.2 14.1
+0.8 1.8 3.0
+17.6 5.1 16.1
+8.5 0.0 0.3
+9.2 0.1 0.2
+18.5 3.5 16.5
+12.8 2.6 3.7
+8.2 9.7 15.8
+7.6 11.7 15.2
+
+35B
+FL
+
+E S +L R
+
+37.9 22.1 37.1
+6.7 6.7 19.4
+9.4 8.8 17.1
+3.1 8.4 16.4
+3.7 12.8 18.1
+17.0 14.5 22.2
+3.7 4.0 8.6
+0.2 0.4 8.4
+8.2 7.9 12.3
+0.4 6.4 15.2
+16.8 0.2 19.1
+27.3 17.7 26.3
+8.6 10.3 17.2
+0.3 0.1 0.7
+13.4 12.4 22.1
+3.4 5.3 15.7
+19.2 10.9 21.2
+1.3 0.3 8.6
+21.5 11.2 21.0
+2.3 3.0 0.9
+3.4 1.0 12.7
+20.7 12.7 19.5
+14.2 5.0 13.8
+14.5 9.4 20.4
+5.7 3.1 18.2
+
+E MB S WAP Results on XS UM -I N
+Model
+
+PaLM2
+
+Size
+Variant
+
+XXS
+FL
+
+Gemma2
+S
+
+E S +L R
+
+san_Deva 0.1 0.1 0.1
+sat_Olck 0.1 0.1 0.1
+tam_Taml 7.0 12.7 1.0
+tel_Telu 16.2 12.5 12.2
+urd_Arab 12.8 6.3 2.3
+Avg.
+5.8 3.1 2.0
+
+FL
+
+E S +L R
+
+19.8 17.7 19.3
+0.0 0.1 0.1
+35.5 34.5 35.3
+26.3 26.1 26.7
+29.1 28.8 26.5
+16.6 18.1 16.1
+
+2B
+FL
+
+Aya23
+
+9B
+
+E S +L R
+
+2.4 5.4 11.7
+0.1 0.1 0.1
+4.3 10.0 9.0
+13.4 13.9 13.5
+1.9 17.1 14.9
+4.8 7.5 10.6
+
+FL
+
+E S +L R
+
+16.3 15.3 16.1
+0.0 0.0 0.0
+27.2 28.0 26.7
+20.5 18.6 21.6
+20.5 24.1 24.0
+15.8 15.9 18.1
+
+27B
+FL
+
+E S +L R
+
+8.8 15.1 15.8
+15.3 0.0 0.1
+0.0 12.4 27.2
+28.9 7.6 22.5
+22.6 21.6 24.8
+17.6 13.2 18.6
+
+8B
+FL
+
+35B
+
+E S +L R
+
+16.4 0.0 4.2
+0.0 0.0 0.0
+21.7 11.5 18.9
+14.5 8.9 13.5
+13.6 8.8 19.7
+12.5 4.6 10.1
+
+FL
+
+E S +L R
+
+15.9 3.6 8.1
+0.1 0.0 0.0
+25.2 16.8 26.6
+17.2 11.4 21.3
+16.9 7.4 25.0
+11.3 7.8 16.4
+
+Table 15: E MB S WAP results on XS UM -I N with zero-shot prompting. F L: LLMs instruction-tuned on F LAN
+mixture; E S: E MB S WAP; +L R: E MB S WAP with LoRA Adaptation.
+E MB S WAP Results on X OR QA-I N
+Model
+
+PaLM2
+
+Size
+Variant
+
+XXS
+FL
+
+E S +L R
+
+Gemma2
+S
+
+FL
+
+E S +L R
+
+2B
+FL
+
+Aya23
+
+9B
+
+E S +L R
+
+FL
+
+E S +L R
+
+27B
+FL
+
+E S +L R
+
+8B
+FL
+
+E S +L R
+
+35B
+FL
+
+E S +L R
+
+A NSWER IN E N
+eng_Latn 70.9 75.5 74.8
+asm_Beng 47.9 63.0 68.4
+awa_Deva 48.4 64.0 64.6
+bgc_Deva 43.4 61.1 67.0
+bho_Deva 50.8 64.8 69.7
+ben_Beng 57.3 62.5 71.0
+bod_Tibt 3.2 2.6 17.5
+brx_Deva 5.3 45.6 58.1
+gbm_Deva 40.9 59.1 66.1
+gom_Deva 38.7 64.8 69.5
+guj_Gujr 45.1 70.3 72.7
+hin_Deva 61.8 72.5 73.2
+hne_Deva 49.0 61.8 66.9
+hoj_Deva 40.1 56.7 60.4
+kan_Knda 45.0 66.7 69.6
+mai_Deva 49.0 71.9 72.8
+mal_Mlym 51.8 69.9 71.0
+mni_Beng 9.8 28.6 40.2
+mar_Deva 55.8 68.1 71.5
+mup_Deva 47.4 66.4 68.8
+mwr_Deva 46.5 64.8 65.6
+ory_Orya 25.1 57.5 68.3
+pan_Guru 41.4 69.4 71.4
+pbu_Arab 46.9 60.4 68.1
+san_Deva 43.9 61.3 67.3
+sat_Olck 0.8 5.3 13.3
+tam_Taml 51.4 69.1 73.3
+tel_Telu 45.9 71.0 72.4
+urd_Arab 56.1 67.2 68.3
+Avg.
+42.1 59.4 64.2
+
+75.1 82.1 82.6
+52.0 51.1 58.3
+49.7 52.9 57.7
+52.9 59.5 58.1
+47.4 58.5 58.5
+52.0 58.5 63.1
+23.5 12.4 38.5
+25.6 57.6 61.7
+53.0 53.6 60.1
+50.4 67.3 66.9
+44.0 43.5 54.8
+55.0 47.5 52.1
+47.3 58.5 58.3
+48.6 50.8 56.2
+44.9 53.9 57.9
+49.3 50.9 55.2
+56.8 57.1 63.7
+37.0 46.6 56.5
+43.6 50.0 55.4
+50.9 50.4 57.5
+51.6 52.8 57.0
+45.0 43.8 55.4
+42.7 39.8 51.8
+71.3 67.3 64.6
+56.4 58.5 64.5
+8.9 24.9 29.7
+41.4 56.0 57.5
+36.7 45.0 53.2
+48.2 53.1 56.1
+46.9 51.8 57.3
+
+71.2 66.6 73.3
+54.3 61.3 67.7
+49.6 54.2 57.9
+45.1 53.0 60.4
+50.4 57.5 59.4
+59.8 64.1 67.7
+11.4 36.0 40.9
+12.4 40.9 49.5
+46.3 51.1 57.6
+33.8 54.6 63.0
+60.4 61.6 67.4
+68.8 66.7 68.7
+45.2 51.6 59.8
+41.3 48.5 54.3
+65.0 63.3 68.2
+50.2 59.4 63.9
+68.1 69.2 72.5
+20.6 27.3 31.6
+57.9 61.6 65.2
+56.5 52.7 59.2
+42.0 51.3 58.1
+34.3 48.2 58.2
+61.7 62.8 70.1
+31.1 49.0 61.1
+41.0 50.8 61.1
+18.3 20.7 35.6
+64.2 63.1 66.3
+65.4 65.4 71.1
+61.2 55.4 63.6
+47.8 54.1 60.5
+
+asm_Beng 2.6 1.9 3.1
+awa_Deva 5.7 15.3 16.5
+bgc_Deva 11.8 9.4 9.8
+bho_Deva 5.8 3.4 5.3
+ben_Beng 7.4 2.5 0.6
+bod_Tibt 0.2 0.9 0.7
+brx_Deva 0.8 13.8 17.7
+gbm_Deva 10.4 0.9 2.5
+gom_Deva 1.4 1.6 3.1
+guj_Gujr 15.6 12.3 20.4
+hin_Deva 40.7 28.1 35.2
+hne_Deva 15.9 20.6 20.7
+hoj_Deva 14.3 16.4 17.6
+kan_Knda 10.8 11.6 10.4
+mai_Deva 9.4 1.6 4.3
+mal_Mlym 21.8 25.5 27.4
+mni_Beng 0.8 0.3 0.2
+mar_Deva 31.1 30.6 32.9
+mup_Deva 4.6 16.9 16.4
+
+15.0 6.8 5.6
+25.2 30.7 33.1
+21.2 14.3 13.3
+20.4 22.1 17.7
+7.5 16.6 9.6
+7.2 4.6 7.3
+15.0 22.5 22.7
+20.2 8.3 8.5
+9.2 7.8 2.5
+33.8 25.6 26.2
+59.5 51.4 51.0
+29.3 30.2 28.2
+28.3 28.6 25.4
+29.4 23.1 18.2
+30.0 26.9 24.1
+35.8 41.1 37.7
+1.1 10.3 4.2
+38.5 43.2 36.0
+12.4 21.5 23.8
+
+0.6 0.2 1.7
+6.8 6.6 8.0
+10.8 11.2 12.4
+1.6 3.7 2.8
+0.8 1.1 1.8
+1.1 5.3 6.3
+3.1 15.4 17.9
+11.5 12.9 13.3
+1.1 2.9 2.2
+9.8 11.6 13.1
+23.0 25.3 25.6
+13.5 13.5 13.9
+14.8 17.9 18.4
+11.3 8.8 12.3
+10.8 10.8 11.6
+20.6 18.6 21.8
+0.6 0.1 0.3
+22.3 22.4 25.6
+5.3 5.8 5.4
+
+75.7 74.6 74.4
+71.6 72.4 71.2
+63.2 66.3 68.1
+57.9 68.6 70.9
+63.8 67.2 67.0
+74.5 74.2 72.6
+27.5 41.7 33.8
+19.6 56.5 61.2
+56.0 66.0 68.4
+58.8 69.2 69.8
+67.9 70.3 59.8
+72.6 71.8 64.9
+58.3 65.8 67.8
+54.7 60.7 64.7
+69.8 71.2 63.4
+63.6 69.2 69.6
+74.7 71.2 67.7
+29.4 43.2 48.9
+70.7 71.3 67.0
+65.0 67.7 65.2
+57.0 63.6 66.8
+51.0 64.8 66.4
+67.3 69.2 60.3
+59.3 67.8 62.3
+62.5 66.8 66.1
+48.6 37.1 46.0
+69.9 65.0 61.6
+72.1 70.1 67.4
+65.7 68.3 66.4
+60.3 65.2 64.1
+
+75.5 78.5 75.9
+65.7 64.3 74.1
+63.3 58.8 70.7
+60.8 57.1 73.7
+62.0 60.8 72.8
+65.9 64.9 73.7
+43.5 44.7 60.8
+25.2 48.1 60.5
+56.0 56.6 71.6
+60.7 55.6 71.3
+72.4 66.8 75.2
+65.5 57.7 75.4
+65.8 59.3 71.4
+56.8 61.0 70.7
+70.1 63.3 70.1
+64.9 58.1 72.7
+70.3 63.3 74.4
+33.6 47.8 50.2
+62.1 55.7 71.8
+63.7 59.1 69.6
+61.3 59.1 70.1
+62.6 58.4 69.0
+70.1 67.3 73.7
+63.6 68.2 74.0
+59.4 51.1 71.6
+59.1 48.6 47.6
+69.2 56.1 73.3
+72.8 63.8 74.5
+68.4 66.6 71.6
+61.7 59.3 70.1
+
+75.6 72.6 71.0
+56.7 67.2 57.9
+68.3 64.9 63.2
+70.1 69.0 66.4
+68.8 67.2 65.8
+68.4 69.0 63.1
+32.0 30.1 23.5
+28.2 47.4 52.4
+61.3 64.6 64.5
+44.1 65.8 61.6
+57.1 68.2 64.4
+74.7 70.4 67.0
+65.6 67.6 61.2
+59.5 62.0 56.9
+60.6 68.3 61.6
+67.0 68.4 64.7
+71.8 66.9 61.2
+30.8 39.3 34.7
+63.8 65.0 58.4
+66.3 63.3 60.3
+63.4 62.3 58.1
+56.4 45.5 37.6
+59.9 70.6 63.0
+39.9 65.5 60.0
+52.2 63.7 52.0
+31.8 19.3 9.0
+72.9 69.2 61.5
+62.7 66.6 59.0
+66.0 66.6 58.6
+58.5 61.6 56.5
+
+78.4 65.2 74.9
+64.8 69.2 73.9
+77.1 67.6 72.9
+74.6 67.9 71.1
+73.2 65.1 69.4
+76.6 68.6 70.2
+30.3 36.4 30.6
+28.0 46.3 63.4
+66.3 62.8 68.8
+51.0 62.9 72.1
+73.4 70.2 75.6
+76.8 71.5 76.8
+73.8 64.2 70.4
+69.0 61.0 68.6
+66.6 71.4 75.1
+69.8 66.7 72.1
+78.0 74.0 76.9
+32.1 36.8 44.7
+73.6 65.6 71.6
+68.4 63.7 69.7
+72.6 59.0 67.2
+71.0 60.8 64.7
+71.1 69.4 75.1
+43.2 61.8 70.8
+61.3 63.3 66.3
+31.0 30.8 32.1
+78.1 71.6 75.4
+73.3 68.9 76.5
+72.2 63.5 68.7
+64.7 62.3 67.8
+
+15.3 7.9 13.4
+23.7 20.0 16.9
+20.7 18.1 19.4
+16.8 13.4 9.0
+13.5 9.3 5.0
+5.2 4.9 5.3
+9.3 15.8 20.0
+18.1 15.1 17.4
+14.9 11.2 8.8
+26.6 16.8 19.5
+45.0 37.6 37.9
+31.9 25.8 25.3
+33.4 30.4 29.3
+32.2 15.6 25.0
+27.1 23.0 18.8
+35.1 19.7 32.7
+1.5 0.4 2.0
+40.1 31.0 30.3
+14.8 11.6 10.0
+
+1.8 2.6 5.8
+14.8 2.3 8.8
+17.0 7.9 13.1
+5.5 2.6 2.6
+0.7 6.2 4.3
+1.2 0.6 1.1
+6.4 11.0 16.9
+16.3 6.7 13.1
+5.7 2.6 3.7
+10.2 12.9 10.6
+21.4 22.1 21.8
+21.0 9.0 14.1
+20.0 17.7 18.4
+8.4 10.3 10.9
+18.0 7.1 13.8
+21.6 19.2 19.3
+1.6 1.1 2.3
+24.8 17.7 20.8
+6.9 3.9 5.0
+
+0.8 0.7 8.0
+15.8 7.1 10.9
+18.2 9.0 16.3
+7.3 2.1 8.8
+0.7 1.8 3.2
+2.7 1.1 4.3
+6.6 7.0 18.5
+16.2 7.6 16.2
+2.3 1.8 5.4
+15.5 7.1 13.4
+22.7 18.1 25.4
+23.5 10.3 19.6
+21.8 13.8 20.6
+10.6 11.9 20.6
+14.1 8.0 16.3
+26.1 15.1 25.7
+0.4 0.2 3.6
+34.5 19.6 25.9
+5.8 3.6 6.2
+
+A NSWER IN I ND
+1.0 4.3 3.6
+6.8 6.3 9.9
+11.6 13.2 12.2
+1.5 2.0 2.3
+1.8 1.8 1.4
+3.8 5.7 4.0
+6.5 18.0 19.9
+12.3 13.4 13.3
+1.6 6.0 5.9
+17.0 18.7 17.2
+25.3 27.3 28.5
+16.0 18.3 17.6
+15.5 20.8 20.6
+11.8 14.2 18.1
+12.2 18.9 13.7
+30.3 26.3 29.9
+0.7 0.6 0.6
+24.6 27.2 23.5
+5.9 6.4 7.3
+
+7635
+
+Default Tokenizer
+S EA A FR I ND
+
+Gemma2 Tokenizer
+S EA A FR I ND
+
+Gemma2-2B
+FLAN
+I T+Lang-Adapt
+E MB S WAP
+★ LoRA-Adapt
+
+8.3
+13.1
+6.9
+13.8
+
+0.9
+1.7
+1.2
+2.7
+
+2.9
+6.5
+2.1
+7.6
+
+13.7
+22.6
+11.9
+23.3
+
+1.4
+3.1
+1.7
+5.2
+
+9.9
+19.6
+6.1
+22.7
+
+Gemma2-9B
+FLAN
+I T+Lang-Adapt
+E MB S WAP
+★ LoRA-Adapt
+
+10.6
+16.1
+12.6
+16.1
+
+1.8
+4.4
+2.6
+5.8
+
+5.7
+10.3
+6.3
+11.8
+
+16.2
+26.8
+21.6
+27.0
+
+2.7
+8.2
+4.2
+10.8
+
+17.2
+29.2
+19.3
+31.8
+
+Gemma2-27B
+FLAN
+I T+Lang-Adapt
+E MB S WAP
+★ LoRA-Adapt
+
+12.3
+17.2
+13.2
+16.8
+
+2.4
+5.7
+1.9
+5.8
+
+7.4
+10.6
+5.9
+12.0
+
+17.9
+29.5
+19.7
+28.8
+
+3.5
+10.8
+3.1
+10.8
+
+21.4
+29.9
+16.2
+32.0
+
+Table 17: BLEU scores for the F LORES -200 task. We show results analogous to ChrF++ scores reported in Table 2.
+E MB S WAP Results on X OR QA-I N
+Model
+
+PaLM2
+
+Size
+
+XXS
+
+Variant
+
+FL
+
+mwr_Deva
+ory_Orya
+pan_Guru
+pbu_Arab
+san_Deva
+sat_Olck
+tam_Taml
+tel_Telu
+urd_Arab
+Avg.
+
+2.4 1.6 3.3
+5.7 5.6 6.1
+8.6 7.1 10.8
+3.8 6.9 6.8
+3.1 4.9 5.1
+1.3 0.2 0.1
+16.8 20.5 19.0
+10.7 23.6 23.1
+8.4 6.7 9.3
+9.7 10.4 11.7
+
+E S +L R
+
+Gemma2
+S
+
+FL
+
+E S +L R
+
+10.5 12.1 9.7
+15.4 14.1 11.6
+20.7 11.5 11.5
+8.2 8.1 7.5
+29.7 15.9 17.4
+7.2 0.2 0.4
+23.8 32.7 27.1
+23.6 38.6 31.7
+17.6 22.7 17.4
+21.3 21.1 18.9
+
+2B
+FL
+
+E S +L R
+
+1.6 1.7 2.4
+6.6 6.5 9.9
+4.7 5.8 7.0
+1.2 2.9 3.6
+1.3 2.7 3.5
+0.0 0.0 0.1
+13.9 12.8 15.0
+12.4 12.3 14.5
+1.7 2.5 3.5
+7.6 8.6 9.8
+
+Aya23
+
+9B
+FL
+
+E S +L R
+
+4.2 8.7 5.8
+11.1 12.0 17.0
+7.4 10.6 12.8
+3.2 5.1 3.5
+7.6 12.0 11.4
+0.0 0.0 2.2
+17.2 24.6 17.7
+13.9 15.5 15.3
+4.1 11.3 4.1
+9.8 12.5 12.1
+
+27B
+FL
+
+E S +L R
+
+14.8 11.7 10.8
+17.7 12.4 17.4
+21.9 7.2 16.4
+7.4 8.8 6.0
+19.4 11.1 11.8
+0.0 0.0 0.6
+29.8 16.8 22.6
+21.2 12.9 18.1
+13.4 16.5 9.3
+20.4 15.2 16.4
+
+8B
+FL
+
+E S +L R
+
+6.7 2.2 5.8
+10.9 6.4 8.1
+5.3 12.3 11.0
+3.2 4.5 4.9
+10.3 1.7 4.4
+0.8 0.6 1.0
+14.5 14.1 12.3
+14.0 11.0 12.6
+4.3 2.9 3.3
+10.5 7.8 9.6
+
+35B
+FL
+
+E S +L R
+
+6.0 2.0 4.0
+16.0 8.9 12.4
+7.0 5.6 12.7
+3.9 3.5 8.1
+7.8 3.0 10.3
+0.3 0.0 0.8
+17.5 11.8 17.3
+14.0 8.8 15.2
+1.7 1.9 4.0
+11.4 6.8 12.6
+
+Table 16: E MB S WAP results on X OR QA-I N with zero-shot prompting. F L: LLMs instruction-tuned on F LAN
+mixture; E S: E MB S WAP; +L R: E MB S WAP with LoRA Adaptation.
+
+7636
+
+

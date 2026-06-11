@@ -1,0 +1,221 @@
+{
+  "schema": "native-greek-eval-registry-v1",
+  "last_updated": "2026-05-26",
+  "policy": {
+    "headline": "Native/authentic Greek evaluation datasets only. Explicit machine-translated Greek diagnostics are excluded from the headline aggregate.",
+    "diagnostic_only": "Machine-translated, instruction-following, open-ended judge, safety, or domain-narrow tasks may be reported separately.",
+    "checkpoint_scope": "Apertus-Base plus every HF-format experiment checkpoint listed in release/apertus-tokenizer-extension/manifest.json."
+  },
+  "benchmarks": [
+    {
+      "id": "greek_nlp_benchmark",
+      "name": "greek-nlp/benchmark",
+      "source_type": "git",
+      "source": "https://github.com/greek-nlp/benchmark.git",
+      "revision": "e2d4bfc5472abacb32c8a8e1cda97d5eeb7e7460",
+      "license": "see upstream repository",
+      "headline_bucket": "native_generation_and_tagging",
+      "runner": "run_greek_nlp_benchmark_hf.py",
+      "status": "wired_smoke_passed",
+      "notes": "Upstream Ollama backend replaced by local HF backend; tasks are GEC, intent classification, legal classification, Greek-source machine translation, NER, POS, summarization. Treat machine_translation separately from understanding/tagging aggregates."
+    },
+    {
+      "id": "greekmmlu",
+      "name": "GreekMMLU",
+      "source_type": "hf_dataset",
+      "source": "dascim/GreekMMLU",
+      "config": "All",
+      "split": "test",
+      "license": "mit",
+      "headline_bucket": "native_mcq",
+      "runner": "run_native_greek_mcq_eval.py",
+      "status": "public_ready",
+      "notes": "Native-sourced Greek multitask MCQ benchmark; use public test split."
+    },
+    {
+      "id": "ilsp_medical_mcqa",
+      "name": "ILSP Medical MCQA Greek",
+      "source_type": "hf_dataset",
+      "source": "ilsp/medical_mcqa_greek",
+      "config": null,
+      "split": "test_or_train",
+      "license": "cc-by-nc-sa-4.0",
+      "headline_bucket": "native_mcq_domain_medical",
+      "runner": "run_native_greek_mcq_eval.py",
+      "status": "public_ready",
+      "notes": "Greek medical-exam MCQA from DOATAP material. Domain-specific; report both standalone and in a domain-aware native aggregate."
+    },
+    {
+      "id": "ilsp_mcqa_asep",
+      "name": "ILSP MCQA Greek ASEP",
+      "source_type": "hf_dataset",
+      "source": "ilsp/mcqa_greek_asep",
+      "config": null,
+      "split": "default",
+      "license": "cc-by-4.0",
+      "headline_bucket": "native_mcq_local_exam",
+      "runner": "run_native_greek_mcq_eval.py",
+      "status": "public_ready",
+      "notes": "Native Greek civil-service exam MCQ dataset."
+    },
+    {
+      "id": "plutus_qa",
+      "name": "Plutus QA",
+      "source_type": "hf_dataset",
+      "source": "TheFinAI/plutus-QA",
+      "config": null,
+      "split": "test",
+      "license": "apache-2.0",
+      "headline_bucket": "native_mcq_domain_finance",
+      "runner": "run_native_greek_mcq_eval.py",
+      "status": "public_ready",
+      "notes": "Greek financial QA with multiple-choice labels. Domain-specific; do not let it dominate the general Greek headline."
+    },
+    {
+      "id": "oyxoy",
+      "name": "OYXOY v1.0",
+      "source_type": "zenodo_zip",
+      "source": "https://zenodo.org/api/records/12704732/files/StergiosChatzikyriakidis/OYXOY-v.zip/content",
+      "source_record": "https://doi.org/10.5281/zenodo.12704732",
+      "checksum": "md5:93150e9c891360dcca518916c92ed27b",
+      "license": "cc-by-nc-nd",
+      "headline_bucket": "native_linguistic_classification",
+      "runner": "pending_oyxoy_adapter",
+      "status": "download_ready_adapter_pending",
+      "notes": "Modern Greek NLI/WSD/metaphor suite. Needs a small classification adapter before checkpoint scoring."
+    },
+    {
+      "id": "greek_bar_bench",
+      "name": "GreekBarBench",
+      "source_type": "hf_dataset",
+      "source": "AUEB-NLP/greek-bar-bench",
+      "config": "greekbarbench",
+      "split": "test",
+      "license": "cc-by-4.0",
+      "headline_bucket": "native_free_text_legal",
+      "runner": "pending_free_text_or_judge_eval",
+      "status": "public_ready_judge_pending",
+      "notes": "Native Greek legal free-text reasoning/citation benchmark. Public, but not a simple MCQ base-model score; keep out of headline until scoring rubric/judge is explicit."
+    },
+    {
+      "id": "ilsp_greek_protipa_exams",
+      "name": "ILSP Greek Protipa Exams",
+      "source_type": "hf_dataset",
+      "source": "ilsp/greek-protipa-exams",
+      "config": null,
+      "split": "test",
+      "license": "cc-by-4.0",
+      "headline_bucket": "native_local_exam_mixed_format",
+      "runner": "candidate_native_mcq_after_access",
+      "status": "gated_manual_access",
+      "notes": "HF repository is public but gated by manual contact-sharing agreement. If access is accepted, closed-ended rows can enter MCQ scoring; multimodal/open-ended rows need separate handling."
+    },
+    {
+      "id": "ilsp_greek_civics_qa",
+      "name": "ILSP Greek Civics QA",
+      "source_type": "hf_dataset",
+      "source": "ilsp/greek_civics_qa",
+      "config": null,
+      "split": "default",
+      "license": "cc-by-nc-sa-4.0",
+      "headline_bucket": "native_open_qa_local_exam",
+      "runner": "pending_open_qa_eval",
+      "status": "public_ready_adapter_pending",
+      "notes": "Native Greek civics QA, open-ended. Cache it now, but do not aggregate without a scoring method."
+    },
+    {
+      "id": "ilsp_greek_lyceum_mathematics",
+      "name": "ILSP Greek Lyceum Mathematics",
+      "source_type": "hf_dataset",
+      "source": "ilsp/greek_lyceum_mathematics",
+      "config": null,
+      "split": "test_or_default",
+      "license": "cc-by-nc-sa-4.0",
+      "headline_bucket": "native_open_math_local_exam",
+      "runner": "pending_exact_or_symbolic_eval",
+      "status": "public_ready_adapter_pending",
+      "notes": "Native Greek math problems; likely needs exact-answer extraction, not free generation-only scoring."
+    },
+    {
+      "id": "ilsp_greek_modern_history_qa",
+      "name": "ILSP Greek Modern History QA",
+      "source_type": "hf_dataset",
+      "source": "ilsp/greek-modern-history-qa",
+      "config": null,
+      "split": "test_or_default",
+      "license": "cc0-1.0",
+      "headline_bucket": "native_open_qa_local_exam",
+      "runner": "pending_open_qa_eval",
+      "status": "public_ready_adapter_pending",
+      "notes": "Native Greek history QA; include after an open-QA scoring protocol is set."
+    },
+    {
+      "id": "ilsp_greek_history_trapeza_thematon_co_qa",
+      "name": "ILSP Greek History Trapeza Thematon CO-QA",
+      "source_type": "hf_dataset",
+      "source": "ilsp/greek-history-trapeza-thematon-co-qa",
+      "config": null,
+      "split": "test_or_default",
+      "license": "cc-by-nc-sa-4.0",
+      "headline_bucket": "native_open_qa_local_exam",
+      "runner": "pending_open_qa_eval",
+      "status": "public_ready_adapter_pending",
+      "notes": "Native Greek history chronological-order QA; needs task-specific scoring."
+    },
+    {
+      "id": "ilsp_greek_pcr",
+      "name": "ILSP Greek PCR",
+      "source_type": "hf_dataset",
+      "source": "ilsp/greek_pcr",
+      "config": null,
+      "split": "test_or_default",
+      "license": "cc-by-4.0",
+      "headline_bucket": "native_qa",
+      "runner": "pending_format_inspection",
+      "status": "public_ready_adapter_pending",
+      "notes": "Small native Greek QA dataset; inspect fields before deciding scoring."
+    }
+  ],
+  "excluded_from_headline_mt_diagnostics": [
+    {
+      "id": "ilsp_arc_greek",
+      "source": "ilsp/arc_greek",
+      "reason": "Greek version of an English benchmark; use only as diagnostic/comparability signal."
+    },
+    {
+      "id": "ilsp_hellaswag_greek",
+      "source": "ilsp/hellaswag_greek",
+      "reason": "Greek version of an English benchmark; use only as diagnostic/comparability signal."
+    },
+    {
+      "id": "ilsp_winogrande_greek",
+      "source": "ilsp/winogrande_greek",
+      "reason": "Greek version of an English benchmark; use only as diagnostic/comparability signal."
+    },
+    {
+      "id": "ilsp_mmlu_greek",
+      "source": "ilsp/mmlu_greek",
+      "reason": "Translated MMLU-style diagnostic; superseded for headline by native-sourced GreekMMLU."
+    },
+    {
+      "id": "ilsp_mmlu_pro_greek",
+      "source": "ilsp/MMLU-Pro_greek",
+      "reason": "Translated MMLU-Pro-style diagnostic; not native headline evidence."
+    },
+    {
+      "id": "ilsp_truthful_qa_greek",
+      "source": "ilsp/truthful_qa_greek",
+      "reason": "Greek version of an existing English benchmark; diagnostic only."
+    },
+    {
+      "id": "original_bakeoff_arc_mt_el",
+      "source": "lm-eval task arc_challenge_mt_el",
+      "reason": "Explicit machine-translated Greek task already excluded from no-MT aggregate."
+    },
+    {
+      "id": "original_bakeoff_piqa_mt_el",
+      "source": "lm-eval task global_piqa_completions_ell_grek",
+      "reason": "Explicit machine-translated Greek task already excluded from no-MT aggregate."
+    }
+  ]
+}

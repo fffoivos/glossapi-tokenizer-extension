@@ -14,7 +14,7 @@ PLOTS = Path(__file__).resolve().parent / "plots"
 PLOTS.mkdir(exist_ok=True)
 
 ARMS = ["vanilla", "td"]
-ITERS = [130, 260, 325, 390, 455, 476, 585, 715, 834]  # TD skips 325
+ITERS = [130, 260, 325, 390, 455, 476, 585, 715, 834, 1013, 1192]  # TD skips 325
 TOK_PER_ITER = 1024 * 4096
 
 V4 = json.loads(Path("/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/v4_baseline_corrected_20260521/results.json").read_text())["results"]

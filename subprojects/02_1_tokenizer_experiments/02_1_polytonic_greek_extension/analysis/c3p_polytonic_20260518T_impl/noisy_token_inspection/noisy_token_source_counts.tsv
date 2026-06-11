@@ -1,0 +1,37 @@
+id	readable_or_escaped	raw_bytes_hex	byte_class	source_dataset	count
+148924	\xb7ς	b7 cf 82	starts_with_utf8_continuation_byte	scholarios_graeca_patristic	48
+148924	\xb7ς	b7 cf 82	starts_with_utf8_continuation_byte	1000_prwta_xronia_ellhnikhs	1
+148924	\xb7ς	b7 cf 82	starts_with_utf8_continuation_byte	Wikisource_Greek_texts	1
+148979	\x93ς	93 cf 82	starts_with_utf8_continuation_byte	scholarios_graeca_patristic	1632
+148979	\x93ς	93 cf 82	starts_with_utf8_continuation_byte	1000_prwta_xronia_ellhnikhs	510
+148979	\x93ς	93 cf 82	starts_with_utf8_continuation_byte	Wikisource_Greek_texts	219
+148979	\x93ς	93 cf 82	starts_with_utf8_continuation_byte	klasikh_arx_ell_grammateia	209
+148979	\x93ς	93 cf 82	starts_with_utf8_continuation_byte	Ekklisiastika_Keimena	36
+148987	\xaeχος	ae cf 87 ce bf cf 82	starts_with_utf8_continuation_byte	Ekklisiastika_Keimena	2886
+148987	\xaeχος	ae cf 87 ce bf cf 82	starts_with_utf8_continuation_byte	Wikisource_Greek_texts	25
+148987	\xaeχος	ae cf 87 ce bf cf 82	starts_with_utf8_continuation_byte	klasikh_arx_ell_grammateia	18
+148987	\xaeχος	ae cf 87 ce bf cf 82	starts_with_utf8_continuation_byte	scholarios_graeca_patristic	18
+148987	\xaeχος	ae cf 87 ce bf cf 82	starts_with_utf8_continuation_byte	1000_prwta_xronia_ellhnikhs	2
+149436	\xa9ς	a9 cf 82	starts_with_utf8_continuation_byte	1000_prwta_xronia_ellhnikhs	7
+150033	\xa8δὴ	a8 ce b4 e1 bd b4	starts_with_utf8_continuation_byte	Ekklisiastika_Keimena	1832
+150033	\xa8δὴ	a8 ce b4 e1 bd b4	starts_with_utf8_continuation_byte	scholarios_graeca_patristic	151
+150033	\xa8δὴ	a8 ce b4 e1 bd b4	starts_with_utf8_continuation_byte	1000_prwta_xronia_ellhnikhs	20
+150033	\xa8δὴ	a8 ce b4 e1 bd b4	starts_with_utf8_continuation_byte	Wikisource_Greek_texts	6
+151168	\xe2\x9f	e2 9f	invalid_utf8_standalone	1000_prwta_xronia_ellhnikhs	961
+151168	\xe2\x9f	e2 9f	invalid_utf8_standalone	klasikh_arx_ell_grammateia	22
+151168	\xe2\x9f	e2 9f	invalid_utf8_standalone	Wikisource_Greek_texts	12
+151353	\xa3ς	a3 cf 82	starts_with_utf8_continuation_byte	Wikisource_Greek_texts	681
+151353	\xa3ς	a3 cf 82	starts_with_utf8_continuation_byte	klasikh_arx_ell_grammateia	644
+151353	\xa3ς	a3 cf 82	starts_with_utf8_continuation_byte	1000_prwta_xronia_ellhnikhs	181
+151353	\xa3ς	a3 cf 82	starts_with_utf8_continuation_byte	scholarios_graeca_patristic	25
+151353	\xa3ς	a3 cf 82	starts_with_utf8_continuation_byte	Ekklisiastika_Keimena	13
+151653	 κ\xe1\xbe	20 ce ba e1 be	invalid_utf8_standalone	1000_prwta_xronia_ellhnikhs	1194
+151653	 κ\xe1\xbe	20 ce ba e1 be	invalid_utf8_standalone	Wikisource_Greek_texts	167
+151653	 κ\xe1\xbe	20 ce ba e1 be	invalid_utf8_standalone	klasikh_arx_ell_grammateia	146
+151653	 κ\xe1\xbe	20 ce ba e1 be	invalid_utf8_standalone	Ekklisiastika_Keimena	3
+151653	 κ\xe1\xbe	20 ce ba e1 be	invalid_utf8_standalone	scholarios_graeca_patristic	3
+151909	\xbdνα	bd ce bd ce b1	starts_with_utf8_continuation_byte	scholarios_graeca_patristic	789
+151909	\xbdνα	bd ce bd ce b1	starts_with_utf8_continuation_byte	1000_prwta_xronia_ellhnikhs	212
+151909	\xbdνα	bd ce bd ce b1	starts_with_utf8_continuation_byte	Ekklisiastika_Keimena	206
+151909	\xbdνα	bd ce bd ce b1	starts_with_utf8_continuation_byte	Wikisource_Greek_texts	101
+151909	\xbdνα	bd ce bd ce b1	starts_with_utf8_continuation_byte	klasikh_arx_ell_grammateia	6

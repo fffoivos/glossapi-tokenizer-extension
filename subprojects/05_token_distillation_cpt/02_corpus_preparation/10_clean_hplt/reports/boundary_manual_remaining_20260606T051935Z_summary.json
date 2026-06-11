@@ -1,0 +1,16 @@
+{
+  "annotation_rows": 9,
+  "annotations": "reports/boundary_manual_remaining_20260606T051935Z_annotations.jsonl",
+  "by_action": {
+    "normalize_or_trim_span": 1,
+    "split_doc": 4,
+    "trim_prefix": 1,
+    "trim_span": 2,
+    "trim_suffix": 1
+  },
+  "created_at_utc": "20260606T053000Z",
+  "markdown": "reports/boundary_manual_remaining_20260606T051935Z.md",
+  "policy_note": "Manual exact-boundary annotations only; source rows remain immutable.",
+  "review_pack": "reports/boundary_spec_review_pack_20260606T051935Z.jsonl",
+  "schema_version": "hplt-remaining-boundary-bootstrap-v1"
+}

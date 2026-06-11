@@ -71,6 +71,7 @@ LIMIT_ARG=""
 [ -n "${LIMIT:-}" ] && LIMIT_ARG="--limit $LIMIT"
 
 LM_EVAL_PYTHONPATH="${LM_EVAL_PYTHONPATH:-/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval}"
+LM_EVAL_REPAIR_SCRIPT="${LM_EVAL_REPAIR_SCRIPT:-/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/03_training_experiments/scripts/repair_lm_eval_cli_install.py}"
 EVAL_CACHE_ROOT="${EVAL_CACHE_ROOT:-/iopsstor/scratch/cscs/fffoivos/tmp/eval_cache_${SLURM_JOB_ID:-manual}}"
 
 # Task lists per group. Names verified to exist in swissai harness at 2026-05-21.
@@ -127,10 +128,14 @@ META
 uenv start "$UENV_IMAGE" --view=default --ignore-tty <<INNER
 set -euo pipefail
 export PYTHONPATH=$LM_EVAL_PYTHONPATH
+export LD_LIBRARY_PATH=$LM_EVAL_PYTHONPATH/scipy.libs:$LM_EVAL_PYTHONPATH/numpy.libs:$LM_EVAL_PYTHONPATH/scikit_learn.libs:${LD_LIBRARY_PATH:-}
 export HF_HOME=$EVAL_CACHE_ROOT/hf_home
 export HF_DATASETS_CACHE=$EVAL_CACHE_ROOT/hf_datasets
 export XDG_CACHE_HOME=$EVAL_CACHE_ROOT/xdg
 export TMPDIR=$EVAL_CACHE_ROOT/tmp
+if [ -f "$LM_EVAL_REPAIR_SCRIPT" ]; then
+    python3 "$LM_EVAL_REPAIR_SCRIPT" --target "$LM_EVAL_PYTHONPATH"
+fi
 python3 -m lm_eval \
     --model hf \
     --model_args pretrained=$MODEL_PATH,dtype=$DTYPE,trust_remote_code=True \

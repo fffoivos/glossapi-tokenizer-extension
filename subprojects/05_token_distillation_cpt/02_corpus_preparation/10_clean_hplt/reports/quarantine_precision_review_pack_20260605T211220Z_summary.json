@@ -1,0 +1,26 @@
+{
+  "by_candidate_action": {
+    "quarantine": 60
+  },
+  "by_prior_review_label": {
+    "None": 56,
+    "partial_true_positive": 4
+  },
+  "filters": {
+    "actions": [
+      "quarantine"
+    ],
+    "ids": [],
+    "max_records": 0,
+    "strata": [],
+    "tasks": [
+      "action_precision_quarantine"
+    ]
+  },
+  "jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_policy_review_pack_2477518_20260605T211220Z/reports/policy_review_pack/quarantine_precision_review_pack_20260605T211220Z.jsonl",
+  "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_policy_review_pack_2477518_20260605T211220Z/reports/policy_review_pack/quarantine_precision_review_pack_20260605T211220Z.md",
+  "max_doc_chars": 120000,
+  "policy_evaluation_sample": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_policy_evaluation_sample_20260605T210154Z/reports/policy_evaluation_sample/policy_evaluation_sample_20260605T210154Z.jsonl",
+  "records": 60,
+  "seed": 20260605
+}

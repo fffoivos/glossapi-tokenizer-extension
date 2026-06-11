@@ -728,7 +728,7 @@ fails, re-dispatch only that one rather than the whole sweep.
    sentence-segment the GlossAPI eurlex / EU-parliament subsets
    before comparing (per §3.4 pair-specific tweaks).
 3. **HPLT version drift**: We use `hplt-greek-ge8-no-mt-clean60-wave4`
-   which is HPLT 2.0 + our quality filters. FW2-HQ uses FineWeb-2
+   which is HPLT 3.0 + our quality filters. FW2-HQ uses FineWeb-2
    v2.0.1, which is its own CC-derived pipeline. Both touch CC, but
    the specific CC snapshots differ. Overlap will be document-level,
    not URL-level. **Mitigation**: use MinHash for fuzzy doc match;

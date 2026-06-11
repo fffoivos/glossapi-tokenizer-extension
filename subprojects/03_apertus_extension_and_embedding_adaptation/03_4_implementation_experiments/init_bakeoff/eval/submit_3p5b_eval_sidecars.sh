@@ -179,10 +179,10 @@ for iter in $ITER_LIST; do
                 --dependency="afterok:$convert_job"
                 "${nice_args[@]}"
                 --export=ALL,MODEL_PATH="$hf_out_dir",EVAL_JSONL="$EVAL_JSONL",OUTPUT_JSON="$metrics_json",SCRIPT_DIR_OVERRIDE="$SCRIPT_DIR",OVERWRITE="$OVERWRITE_EVAL"
-                --job-name="bpc_${arm}_${iter}"
+                --job-name="bpb_${arm}_${iter}"
                 "$SCRIPT_DIR/run_tokenizer_fair_metrics.sbatch"
             )
-            metrics_job="$(submit_or_dryrun "DRYRUN_BPC_${arm}_${iter}" "${metrics_cmd[@]}")"
+            metrics_job="$(submit_or_dryrun "DRYRUN_BPB_${arm}_${iter}" "${metrics_cmd[@]}")"
             metrics_job_by_arm["$arm"]="$metrics_job"
 
             if [ "$arm" = "retok" ] || [ "$arm" = "td_layer11" ]; then

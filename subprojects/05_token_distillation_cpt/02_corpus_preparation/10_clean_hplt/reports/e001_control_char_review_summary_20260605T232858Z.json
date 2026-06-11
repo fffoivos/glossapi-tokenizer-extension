@@ -1,0 +1,107 @@
+{
+  "annotations": "reports/e001_control_char_review_annotations_20260605T232858Z.jsonl",
+  "created_at_utc": "2026-06-05T23:28:58Z",
+  "e001_char_count_max": 29,
+  "e001_char_count_min": 1,
+  "e001_char_total": 166,
+  "false_positive_rows": 0,
+  "findings": "reports/e001_control_char_review_findings_20260605T232858Z.md",
+  "matched_hosts_top": [
+    [
+      "www.frontpages.gr",
+      4
+    ],
+    [
+      "issuu.com",
+      4
+    ],
+    [
+      "xyzcontagion.wordpress.com",
+      4
+    ],
+    [
+      "olympia.gr",
+      2
+    ],
+    [
+      "fdocument.org",
+      2
+    ],
+    [
+      "www.writing-online.gr",
+      1
+    ],
+    [
+      "el.wikipedia.org",
+      1
+    ],
+    [
+      "www.ksipnistere.com",
+      1
+    ],
+    [
+      "asmpa.espivblogs.net",
+      1
+    ],
+    [
+      "pontosandaristera.wordpress.com",
+      1
+    ],
+    [
+      "slideplayer.gr",
+      1
+    ],
+    [
+      "monidadias-news.blogspot.gr",
+      1
+    ],
+    [
+      "vlasisarfarablogspotcom.blogspot.com",
+      1
+    ],
+    [
+      "paperzz.com",
+      1
+    ],
+    [
+      "pygemos.blogspot.com",
+      1
+    ],
+    [
+      "mjacksontruth.wordpress.com",
+      1
+    ],
+    [
+      "stigalaria.wordpress.com",
+      1
+    ],
+    [
+      "docplayer.gr",
+      1
+    ],
+    [
+      "nakedtruth.gr",
+      1
+    ],
+    [
+      "roides.wordpress.com",
+      1
+    ]
+  ],
+  "matched_quality_bins": {
+    "8": 22,
+    "9": 10
+  },
+  "policy_note": "Review confirms E001 exists as rare localized replacement-character residue. It does not approve automatic normalization, trimming, dropping, or a cleaning overlay.",
+  "review_pack": "reports/e001_control_char_scan_20260605T224007Z_review_pack.jsonl",
+  "review_scope": "E001_only_context_review",
+  "reviewed_correct_action_counts": {
+    "normalize_or_trim_span": 32
+  },
+  "reviewed_true_error_type_counts": {
+    "E001": 32
+  },
+  "rows_reviewed": 32,
+  "schema_version": "hplt-e001-control-char-review-summary-v1",
+  "true_positive_rows": 32
+}

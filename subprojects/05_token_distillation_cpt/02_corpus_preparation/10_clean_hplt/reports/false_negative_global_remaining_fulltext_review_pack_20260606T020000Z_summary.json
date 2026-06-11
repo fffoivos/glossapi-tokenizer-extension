@@ -1,0 +1,25 @@
+{
+  "created_at_utc": "2026-06-05T21:48:34Z",
+  "hash_match_counts": {
+    "match": 111
+  },
+  "policy_note": "Full-text review pack only. It does not approve an automatic cleaning policy or mutate source rows.",
+  "read_error_count": 0,
+  "review_status_counts": {
+    "needs_review": 111
+  },
+  "rows": 111,
+  "schema_version": "hplt-false-negative-fulltext-review-pack-v1",
+  "selected_statuses": [
+    "needs_review"
+  ],
+  "source_pack": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global_remaining_review_pack_20260606T014500Z.jsonl",
+  "source_rows": 120,
+  "total_full_text_chars": 242633,
+  "triage_bucket_counts": {
+    "0": 85,
+    ">0": 14,
+    ">=0.18": 12
+  },
+  "truncated_count": 0
+}

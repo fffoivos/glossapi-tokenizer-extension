@@ -3,9 +3,9 @@
 - run tag: `bakeoff_1node_chain_20260522_005620`
 - checkpoint: `iter_0000260` (~1.091B tokens at checkpoint, 260 / 476 planned steps)
 - job status: conversion, full lm-eval, tokenizer-fair metrics, and new-token diagnostics all completed with Slurm exit `0:0` for all three arms.
-- reading: still pre-decision. Vanilla remains strongest on Greek BPC and most Greek downstream metrics. ReTok is still behind vanilla but keeps narrowing and has the only healthy extended-token integration profile. Centroid remains a poor Greek-init candidate.
+- reading: still pre-decision. Vanilla remains strongest on Greek BPB and most Greek downstream metrics. ReTok is still behind vanilla but keeps narrowing and has the only healthy extended-token integration profile. Centroid remains a poor Greek-init candidate.
 
-| arm | BPC | NLL/char | el ARC | el Belebele | el XNLI | el XQuAD F1 | el MMLU | el Base44 | el PIQA |
+| arm | BPB | NLL/char | el ARC | el Belebele | el XNLI | el XQuAD F1 | el MMLU | el Base44 | el PIQA |
 |---|---|---|---|---|---|---|---|---|---|
 | vanilla | 0.5173 | 0.6120 | 0.4061 [0.3797, 0.4326] | 0.5067 [0.4744, 0.5400] | 0.4092 [0.3912, 0.4273] | 0.3022 [0.2825, 0.3225] | 0.4285 [0.4199, 0.4367] | 0.4239 [0.3786, 0.4656] | 0.6200 [0.5300, 0.7200] |
 | retok | 0.6370 | 0.7535 | 0.3439 [0.3183, 0.3678] | 0.4600 [0.4311, 0.4922] | 0.3735 [0.3566, 0.3908] | 0.3261 [0.3056, 0.3463] | 0.3829 [0.3739, 0.3913] | 0.4112 [0.3659, 0.4511] | 0.5800 [0.4800, 0.6800] |
@@ -27,4 +27,4 @@ Retention/general-task snapshot from the aligned full eval:
 | retok | 0.509 | 0.738 | 0.680 | 0.784 | 0.545 |
 | centroid | 0.546 | 0.757 | 0.691 | 0.801 | 0.549 |
 
-CI brackets are 95% bootstrap intervals from per-sample lm-eval outputs. `BPC` and `NLL/char` come from the 500-document tokenizer-fair heldout.
+CI brackets are 95% bootstrap intervals from per-sample lm-eval outputs. `BPB` and `NLL/char` come from the 500-document tokenizer-fair heldout.

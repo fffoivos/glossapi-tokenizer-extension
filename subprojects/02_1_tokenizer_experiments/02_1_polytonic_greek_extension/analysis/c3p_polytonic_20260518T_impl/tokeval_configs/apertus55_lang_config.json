@@ -1,0 +1,334 @@
+{
+  "languages": {
+    "eng_Latn": {
+      "name": "English",
+      "iso_code": "en",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/eng_Latn.txt"
+    },
+    "cmn_Hani": {
+      "name": "Chinese (Mandarin Simplified)",
+      "iso_code": "zh",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/cmn_Hani.txt"
+    },
+    "spa_Latn": {
+      "name": "Spanish",
+      "iso_code": "es",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/spa_Latn.txt"
+    },
+    "rus_Cyrl": {
+      "name": "Russian",
+      "iso_code": "ru",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/rus_Cyrl.txt"
+    },
+    "jpn_Jpan": {
+      "name": "Japanese",
+      "iso_code": "ja",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/jpn_Jpan.txt"
+    },
+    "kor_Hang": {
+      "name": "Korean",
+      "iso_code": "ko",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/kor_Hang.txt"
+    },
+    "deu_Latn": {
+      "name": "German",
+      "iso_code": "de",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/deu_Latn.txt"
+    },
+    "fra_Latn": {
+      "name": "French",
+      "iso_code": "fr",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/fra_Latn.txt"
+    },
+    "por_Latn": {
+      "name": "Portuguese",
+      "iso_code": "pt",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/por_Latn.txt"
+    },
+    "hin_Deva": {
+      "name": "Hindi",
+      "iso_code": "hi",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/hin_Deva.txt"
+    },
+    "tur_Latn": {
+      "name": "Turkish",
+      "iso_code": "tr",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/tur_Latn.txt"
+    },
+    "ind_Latn": {
+      "name": "Indonesian",
+      "iso_code": "id",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/ind_Latn.txt"
+    },
+    "ell_Grek": {
+      "name": "Greek",
+      "iso_code": "el",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/ell_Grek.txt"
+    },
+    "fas_Arab": {
+      "name": "Persian",
+      "iso_code": "fa",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/fas_Arab.txt"
+    },
+    "hun_Latn": {
+      "name": "Hungarian",
+      "iso_code": "hu",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/hun_Latn.txt"
+    },
+    "mar_Deva": {
+      "name": "Marathi",
+      "iso_code": "mr",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/mar_Deva.txt"
+    },
+    "nob_Latn": {
+      "name": "Norwegian Bokmål",
+      "iso_code": "nb",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/nob_Latn.txt"
+    },
+    "npi_Deva": {
+      "name": "Nepali",
+      "iso_code": "ne",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/npi_Deva.txt"
+    },
+    "ron_Latn": {
+      "name": "Romanian",
+      "iso_code": "ro",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/ron_Latn.txt"
+    },
+    "swh_Latn": {
+      "name": "Swahili",
+      "iso_code": "sw",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/swh_Latn.txt"
+    },
+    "vie_Latn": {
+      "name": "Vietnamese",
+      "iso_code": "vi",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/vie_Latn.txt"
+    },
+    "dan_Latn": {
+      "name": "Danish",
+      "iso_code": "da",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/dan_Latn.txt"
+    },
+    "glg_Latn": {
+      "name": "Galician",
+      "iso_code": "gl",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/glg_Latn.txt"
+    },
+    "mkd_Cyrl": {
+      "name": "Macedonian",
+      "iso_code": "mk",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/mkd_Cyrl.txt"
+    },
+    "nld_Latn": {
+      "name": "Dutch",
+      "iso_code": "nl",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/nld_Latn.txt"
+    },
+    "slv_Latn": {
+      "name": "Slovenian",
+      "iso_code": "sl",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/slv_Latn.txt"
+    },
+    "tel_Telu": {
+      "name": "Telugu",
+      "iso_code": "te",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/tel_Telu.txt"
+    },
+    "tgk_Cyrl": {
+      "name": "Tajik",
+      "iso_code": "tg",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/tgk_Cyrl.txt"
+    },
+    "tha_Thai": {
+      "name": "Thai",
+      "iso_code": "th",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/tha_Thai.txt"
+    },
+    "cat_Latn": {
+      "name": "Catalan",
+      "iso_code": "ca",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/cat_Latn.txt"
+    },
+    "ces_Latn": {
+      "name": "Czech",
+      "iso_code": "cs",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/ces_Latn.txt"
+    },
+    "fil_Latn": {
+      "name": "Filipino",
+      "iso_code": "fil",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/fil_Latn.txt"
+    },
+    "fin_Latn": {
+      "name": "Finnish",
+      "iso_code": "fi",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/fin_Latn.txt"
+    },
+    "hrv_Latn": {
+      "name": "Croatian",
+      "iso_code": "hr",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/hrv_Latn.txt"
+    },
+    "isl_Latn": {
+      "name": "Icelandic",
+      "iso_code": "is",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/isl_Latn.txt"
+    },
+    "lvs_Latn": {
+      "name": "Latvian",
+      "iso_code": "lv",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/lvs_Latn.txt"
+    },
+    "swe_Latn": {
+      "name": "Swedish",
+      "iso_code": "sv",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/swe_Latn.txt"
+    },
+    "tam_Taml": {
+      "name": "Tamil",
+      "iso_code": "ta",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/tam_Taml.txt"
+    },
+    "bul_Cyrl": {
+      "name": "Bulgarian",
+      "iso_code": "bg",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/bul_Cyrl.txt"
+    },
+    "ceb_Latn": {
+      "name": "Cebuano",
+      "iso_code": "ceb",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/ceb_Latn.txt"
+    },
+    "heb_Hebr": {
+      "name": "Hebrew",
+      "iso_code": "he",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/heb_Hebr.txt"
+    },
+    "slk_Latn": {
+      "name": "Slovak",
+      "iso_code": "sk",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/slk_Latn.txt"
+    },
+    "ukr_Cyrl": {
+      "name": "Ukrainian",
+      "iso_code": "uk",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/ukr_Cyrl.txt"
+    },
+    "urd_Arab": {
+      "name": "Urdu",
+      "iso_code": "ur",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/urd_Arab.txt"
+    },
+    "azj_Latn": {
+      "name": "North Azerbaijani",
+      "iso_code": "az",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/azj_Latn.txt"
+    },
+    "ekk_Latn": {
+      "name": "Estonian",
+      "iso_code": "et",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/ekk_Latn.txt"
+    },
+    "ita_Latn": {
+      "name": "Italian",
+      "iso_code": "it",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/ita_Latn.txt"
+    },
+    "kir_Cyrl": {
+      "name": "Kyrgyz",
+      "iso_code": "ky",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/kir_Cyrl.txt"
+    },
+    "mal_Mlym": {
+      "name": "Malayalam",
+      "iso_code": "ml",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/mal_Mlym.txt"
+    },
+    "srp_Cyrl": {
+      "name": "Serbian (Cyrillic)",
+      "iso_code": "sr",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/srp_Cyrl.txt"
+    },
+    "ben_Beng": {
+      "name": "Bengali",
+      "iso_code": "bn",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/ben_Beng.txt"
+    },
+    "bos_Latn": {
+      "name": "Bosnian",
+      "iso_code": "bs",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/bos_Latn.txt"
+    },
+    "cym_Latn": {
+      "name": "Welsh",
+      "iso_code": "cy",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/cym_Latn.txt"
+    },
+    "kat_Geor": {
+      "name": "Georgian",
+      "iso_code": "ka",
+      "data_path": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/vendor/tokenizer-intrinsic-evals/parallel/kat_Geor.txt"
+    }
+  },
+  "analysis_groups": {
+    "all": {
+      "all": [
+        "eng_Latn",
+        "cmn_Hani",
+        "spa_Latn",
+        "rus_Cyrl",
+        "jpn_Jpan",
+        "kor_Hang",
+        "deu_Latn",
+        "fra_Latn",
+        "por_Latn",
+        "hin_Deva",
+        "tur_Latn",
+        "ind_Latn",
+        "ell_Grek",
+        "fas_Arab",
+        "hun_Latn",
+        "mar_Deva",
+        "nob_Latn",
+        "npi_Deva",
+        "ron_Latn",
+        "swh_Latn",
+        "vie_Latn",
+        "dan_Latn",
+        "glg_Latn",
+        "mkd_Cyrl",
+        "nld_Latn",
+        "slv_Latn",
+        "tel_Telu",
+        "tgk_Cyrl",
+        "tha_Thai",
+        "cat_Latn",
+        "ces_Latn",
+        "fil_Latn",
+        "fin_Latn",
+        "hrv_Latn",
+        "isl_Latn",
+        "lvs_Latn",
+        "swe_Latn",
+        "tam_Taml",
+        "bul_Cyrl",
+        "ceb_Latn",
+        "heb_Hebr",
+        "slk_Latn",
+        "ukr_Cyrl",
+        "urd_Arab",
+        "azj_Latn",
+        "ekk_Latn",
+        "ita_Latn",
+        "kir_Cyrl",
+        "mal_Mlym",
+        "srp_Cyrl",
+        "ben_Beng",
+        "bos_Latn",
+        "cym_Latn",
+        "kat_Geor"
+      ]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "annotation_jsonl": "reports/boundary_manual_suffix_markers_20260606T051032Z_annotations.jsonl",
+  "chars_removed_total": 23230,
+  "created_at_utc": "20260606T052000Z",
+  "evidence_jsonl": "reports/boundary_manual_suffix_markers_20260606T051032Z_evidence.jsonl",
+  "markdown": "reports/boundary_manual_suffix_markers_20260606T051032Z.md",
+  "policy_note": "Exact suffix-marker annotation bootstrap only. Source HPLT rows stay immutable; materialization must run separately on Clariden CPU-only xfer.",
+  "review_pack": "reports/boundary_spec_review_pack_20260606T051032Z.jsonl",
+  "schema_version": "hplt-suffix-marker-boundary-bootstrap-v1",
+  "selected_by_action": {
+    "trim_suffix": 50
+  },
+  "selected_rows": 50,
+  "skipped_rows": 1,
+  "summary_json": "reports/boundary_manual_suffix_markers_20260606T051032Z_summary.json"
+}

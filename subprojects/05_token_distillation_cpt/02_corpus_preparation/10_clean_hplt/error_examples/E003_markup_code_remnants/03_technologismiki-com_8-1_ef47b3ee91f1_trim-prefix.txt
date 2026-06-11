@@ -1,0 +1,24 @@
+# HPLT cleaning error example
+error_id: E003
+error_name: CSS/JS/HTML/XML remnants
+presentation_category: C1 - Detected Residue Pattern Removal
+rank_within_category: 3
+proposed_transformation: Exact markup/script/style/CMS residue trim.
+false_positive_confidence: high
+false_negative_confidence: medium
+strict_policy_tier: strict_action_candidate
+strict_policy_role: Literal markup/script/CMS residue removal.
+allowed_under_strict_principles: Automatic candidate only for exact markup/script/shortcode spans, not for content about code.
+source_doc_id: hplt::8_1.jsonl.zst::ef47b3ee91f147792676f6d6bd7b3e87
+host: www.technologismiki.com
+url: https://www.technologismiki.com/nomos/n_4549_18_59.php
+quality_bin: 8
+reviewed_action: trim_prefix
+review_label: reviewed_accept
+review_source: reports/boundary_manual_exact_trim_annotations_20260606T012611Z.jsonl:3
+text_source: reports/pending_boundary_review_pack_20260606T011640Z.jsonl:50:embedded_text
+tagging: tagged 1 reviewed character range(s)
+notes: Trim leading JavaScript residue before the numbered legal provisions.
+
+[[DOCUMENT_TEXT_UTF8]]
+[[ERROR_E003_START kind=span_ranges]]-1) { var s = source.indexOf("", e); scripts.push(source.substring(s_e+1, e)); source = source.substring(0, s) + source.substring(e_e+1); } for(var i=0; i [[ERROR_E003_END kind=span_ranges]]1. Το τρίτο εδάφιο της παραγράφου 2 του άρθρου 5 του νόμου 3869/2010 καταργείται. 2. Το δεύτερο εδάφιο της παραγράφου 3 του άρθρου 5 του νόμου 3869/2010 αντικαθίσταται ως εξής: {Οι μηνιαίες καταβολές από την κατάθεση της αίτησης μέχρι την έκδοση οριστικής απόφασης, συνυπολογίζονται στις καταβολές της παραγράφου 2 του άρθρου 8.} 3. Η παράγραφος 4 του άρθρου 5 του νόμου 3869/2010 αντικαθίσταται ως εξής: {4. Αν ο οφειλέτης καθυστερεί την καταβολή των δόσεων που ορίζονται από τον Ειρηνοδίκη, σύμφωνα με την παράγραφο 2, με συνέπεια το συνολικό ύψος του ποσού σε καθυστέρηση να υπερβαίνει αθροιστικώς την αξία 3 μηνιαίων δόσεων, διαδοχικών ή μη, ο θιγόμενος πιστωτής μπορεί να επιδώσει στον οφειλέτη εξώδικη όχληση με την οποία τον καλεί να εκπληρώσει τις υποχρεώσεις του εντός 30 ημερολογιακών ημερών. Αν ο οφειλέτης δεν συμμορφωθεί προσηκόντως, παύει να ισχύει αυτοδικαίως έναντι όλων των πιστωτών η διαταχθείσα αναστολή των καταδιωκτικών μέτρων και κάθε άλλου ανασταλτικού μέτρου, από την ημέρα που ο θιγόμενος πιστωτής επιδώσει σχετική δήλωση στους υπόλοιπους πιστωτές, υπό την προϋπόθεση ότι θα καταθέσει σχετικό σημείωμα με ενσωματωμένη την ανωτέρω αναφερόμενη εξώδικη όχληση στο φάκελο που τηρείται στο αρμόδιο δικαστήριο. Στην περίπτωση αυτή, ο οφειλέτης μπορεί να ζητήσει από τον αρμόδιο δικαστή την εκ νέου χορήγηση προσωρινής διαταγής αν αποδεικνύει ότι η μη καταβολή των δόσεων, οφείλεται σε γεγονός ανωτέρας βίας, μη δυνάμενο να αντιμετωπιστεί με αίτηση μεταρρύθμισης της αρχικής προσωρινής διαταγής ή ότι ο θιγόμενος πιστωτής άσκησε καταχρηστικά το δικαίωμα των προηγούμενων εδαφίων.} 4. Στο τέλος του άρθρου 5 του νόμου 3869/2010 προστίθεται παράγραφος 5 ως εξής: {5. Ο Ειρηνοδίκης ή το κατά περίπτωση αρμόδιο δικαστήριο μπορεί να διατάξει την ανάκληση της προσωρινής διαταγής της παραγράφου 2 και αν ο οφειλέτης καθυστερεί συστηματικά την καταβολή των δόσεων που ορίζονται με αυτήν, χωρίς το συνολικό ύψος του ποσού σε καθυστέρηση να υπερβαίνει αθροιστικώς την αξία 3 μηνιαίων δόσεων, οπότε επέρχεται η έννομη συνέπεια της παραγράφου 4. Οι διάδικοι καλούνται προ 10 ημερών.}

@@ -1,0 +1,371 @@
+{
+  "aggregate_rows": [
+    {
+      "arms": {
+        "td": {
+          "EN retention": 0.6827725274715655,
+          "Greek": 0.40484045299411003,
+          "Multilingual": 0.48993351359709303,
+          "bpb": 0.531084014463596
+        },
+        "vanilla": {
+          "EN retention": 0.6817902499718899,
+          "Greek": 0.41306690630400844,
+          "Multilingual": 0.4900917349227056,
+          "bpb": 0.4905790115645303
+        }
+      },
+      "iteration": 476,
+      "tokens_b": 1.996488704
+    },
+    {
+      "arms": {
+        "td": {
+          "EN retention": 0.6865269502274978,
+          "Greek": 0.41288751928171397,
+          "Multilingual": 0.4967182318237458,
+          "bpb": 0.5054362288594038
+        },
+        "vanilla": {
+          "EN retention": 0.6781878505476503,
+          "Greek": 0.3988701870505091,
+          "Multilingual": 0.492322658566291,
+          "bpb": 0.47238533881548145
+        }
+      },
+      "iteration": 834,
+      "tokens_b": 3.498049536
+    },
+    {
+      "arms": {
+        "td": {
+          "EN retention": 0.6892368909999772,
+          "Greek": 0.4193224185694116,
+          "Multilingual": 0.4973572823745078,
+          "bpb": 0.49534539364347885
+        },
+        "vanilla": {
+          "EN retention": 0.6791036278920001,
+          "Greek": 0.40555133976445357,
+          "Multilingual": 0.49042111655071513,
+          "bpb": 0.4656809392234454
+        }
+      },
+      "iteration": 1013,
+      "tokens_b": 4.248829952
+    },
+    {
+      "arms": {
+        "td": {
+          "EN retention": 0.6903239945870371,
+          "Greek": 0.42039976000605794,
+          "Multilingual": 0.4976212582763681,
+          "bpb": 0.4871896745901764
+        },
+        "vanilla": {
+          "EN retention": 0.6799255300957895,
+          "Greek": 0.4075667957116809,
+          "Multilingual": 0.4936400869057655,
+          "bpb": 0.4601770539091435
+        }
+      },
+      "iteration": 1192,
+      "tokens_b": 4.999610368
+    }
+  ],
+  "available_iterations": [
+    476,
+    834,
+    1013,
+    1192
+  ],
+  "baselines": {
+    "V4-HF": {
+      "EN retention": 0.7160333333333333,
+      "Greek": 0.51464,
+      "Multilingual": 0.5407
+    },
+    "V4-postconv": {
+      "EN retention": 0.34203333333333336,
+      "Greek": 0.19784,
+      "Multilingual": 0.3629
+    }
+  },
+  "decision": {
+    "bpb_delta_td_minus_vanilla": 0.02701262068103294,
+    "greek_no_explicit_mt": {
+      "delta_td_minus_vanilla": 0.012832964294377025,
+      "td": 0.42039976000605794,
+      "td_vs_v4_hf": -0.09424023999394204,
+      "vanilla": 0.4075667957116809
+    },
+    "group_deltas": {
+      "EN retention": 0.010398464491247594,
+      "Greek": 0.012832964294377025,
+      "Multilingual": 0.00398117137060261
+    },
+    "linear_recovery_projection": {
+      "EN retention": {
+        "change_3p5_to_5b": 0.0037970443595393144,
+        "extra_b_tokens_at_linear_rate": 10.166890987479041,
+        "gap_to_v4_hf": 0.025709338746296218,
+        "slope_per_b": 0.0025287316228686193,
+        "total_b_tokens_at_linear_rate": 15.166890987479041
+      },
+      "Greek": {
+        "change_3p5_to_5b": 0.007512240724343977,
+        "extra_b_tokens_at_linear_rate": 18.836916755691522,
+        "gap_to_v4_hf": 0.09424023999394204,
+        "slope_per_b": 0.005002954635103306,
+        "total_b_tokens_at_linear_rate": 23.836916755691522
+      },
+      "Multilingual": {
+        "change_3p5_to_5b": 0.000903026452622302,
+        "extra_b_tokens_at_linear_rate": 71.63173468087199,
+        "gap_to_v4_hf": 0.04307874172363185,
+        "slope_per_b": 0.000601391853981379,
+        "total_b_tokens_at_linear_rate": 76.63173468087199
+      }
+    },
+    "objective_answer": "No: TD does not overtake initial Vanilla/V4-HF by 5B. It overtakes matched continued Vanilla on downstream aggregates, including the available no-explicit-MT Greek slice, but remains below V4-HF on the no-explicit-MT Greek, English-retention, and multilingual aggregates. The planned native-Greek suite was not run.",
+    "recommendation": "Primary decision: TD has not overtaken the initial Vanilla/V4-HF scores by 5B. Secondary result: TD is the matched-5B downstream winner over continued Vanilla on the available fallback eval slices, including the no-explicit-MT Greek slice, while Vanilla remains better on heldout byte-normalized loss.",
+    "task_wins": {
+      "TD": 8,
+      "Vanilla": 7,
+      "n/a": 0,
+      "tie": 1
+    },
+    "td_change_from_3p5b": {
+      "EN retention": 0.0037970443595393144,
+      "Greek": 0.007512240724343977,
+      "Multilingual": 0.000903026452622302
+    },
+    "td_vs_v4_hf": {
+      "EN retention": -0.025709338746296218,
+      "Greek": -0.09424023999394204,
+      "Multilingual": -0.04307874172363185
+    }
+  },
+  "diagnostics": [
+    {
+      "greedy_new_utilization": 0.208,
+      "iteration": 476,
+      "mass_new": 0.3424527081056164,
+      "mean_rank": 206.41218896110476,
+      "top1": 0.3864192348334612,
+      "top5": 0.5556866378124864
+    },
+    {
+      "greedy_new_utilization": 0.282,
+      "iteration": 834,
+      "mass_new": 0.34208486588434783,
+      "mean_rank": 174.2876756944545,
+      "top1": 0.41053515336624063,
+      "top5": 0.5811415254114616
+    },
+    {
+      "greedy_new_utilization": 0.26,
+      "iteration": 1013,
+      "mass_new": 0.341011836613931,
+      "mean_rank": 162.71012405367458,
+      "top1": 0.41963290534574355,
+      "top5": 0.5902971787559892
+    },
+    {
+      "greedy_new_utilization": 0.218,
+      "iteration": 1192,
+      "mass_new": 0.34312126624286304,
+      "mean_rank": 153.19320599858142,
+      "top1": 0.4277969978142235,
+      "top5": 0.5993080786879551
+    }
+  ],
+  "generated_utc": "2026-05-26T12:19:57+00:00",
+  "latest_iteration": 1192,
+  "missing_iterations": [],
+  "status": "final",
+  "task_rows": [
+    {
+      "delta_td_minus_vanilla": 0.02535251388691062,
+      "delta_td_vs_v4_hf": -0.030699088448938983,
+      "delta_vanilla_vs_v4_hf": -0.056051602335849604,
+      "group": "EN retention",
+      "label": "MMLU",
+      "task": "mmlu",
+      "td": 0.5616009115510611,
+      "vanilla": 0.5362483976641504,
+      "winner": "TD"
+    },
+    {
+      "delta_td_minus_vanilla": 0.007568213503286292,
+      "delta_td_vs_v4_hf": -0.023412945628360826,
+      "delta_vanilla_vs_v4_hf": -0.030981159131647118,
+      "group": "EN retention",
+      "label": "HellaSwag",
+      "task": "hellaswag",
+      "td": 0.7649870543716392,
+      "vanilla": 0.7574188408683529,
+      "winner": "TD"
+    },
+    {
+      "delta_td_minus_vanilla": 0.002104377104377053,
+      "delta_td_vs_v4_hf": -0.048000336700336765,
+      "delta_vanilla_vs_v4_hf": -0.05010471380471382,
+      "group": "EN retention",
+      "label": "ARC Easy",
+      "task": "arc_easy",
+      "td": 0.7882996632996633,
+      "vanilla": 0.7861952861952862,
+      "winner": "TD"
+    },
+    {
+      "delta_td_minus_vanilla": 0.015358361774744034,
+      "delta_td_vs_v4_hf": -0.05031058020477808,
+      "delta_vanilla_vs_v4_hf": -0.06566894197952211,
+      "group": "EN retention",
+      "label": "ARC Challenge",
+      "task": "arc_challenge",
+      "td": 0.5366894197952219,
+      "vanilla": 0.5213310580204779,
+      "winner": "TD"
+    },
+    {
+      "delta_td_minus_vanilla": -0.01088139281828071,
+      "delta_td_vs_v4_hf": -0.008122742110990178,
+      "delta_vanilla_vs_v4_hf": 0.002758650707290533,
+      "group": "EN retention",
+      "label": "PIQA",
+      "task": "piqa",
+      "td": 0.7910772578890098,
+      "vanilla": 0.8019586507072906,
+      "winner": "Vanilla"
+    },
+    {
+      "delta_td_minus_vanilla": 0.022888713496448276,
+      "delta_td_vs_v4_hf": 0.006289660615627524,
+      "delta_vanilla_vs_v4_hf": -0.016599052880820753,
+      "group": "EN retention",
+      "label": "Winogrande",
+      "task": "winogrande",
+      "td": 0.6992896606156275,
+      "vanilla": 0.6764009471191792,
+      "winner": "TD"
+    },
+    {
+      "delta_td_minus_vanilla": 0.014935360284376975,
+      "delta_td_vs_v4_hf": -0.06420719997921981,
+      "delta_vanilla_vs_v4_hf": -0.07914256026359678,
+      "group": "Multilingual",
+      "label": "Global MMLU",
+      "task": "global_mmlu",
+      "td": 0.46039280002078015,
+      "vanilla": 0.44545743973640317,
+      "winner": "TD"
+    },
+    {
+      "delta_td_minus_vanilla": -0.0010909090909091423,
+      "delta_td_vs_v4_hf": -0.037318181818181806,
+      "delta_vanilla_vs_v4_hf": -0.036227272727272664,
+      "group": "Multilingual",
+      "label": "XCOPA",
+      "task": "xcopa",
+      "td": 0.6201818181818182,
+      "vanilla": 0.6212727272727273,
+      "winner": "Vanilla"
+    },
+    {
+      "delta_td_minus_vanilla": -0.0019009370816600035,
+      "delta_td_vs_v4_hf": -0.027710843373494,
+      "delta_vanilla_vs_v4_hf": -0.025809906291833995,
+      "group": "Multilingual",
+      "label": "XNLI",
+      "task": "xnli",
+      "td": 0.412289156626506,
+      "vanilla": 0.414190093708166,
+      "winner": "Vanilla"
+    },
+    {
+      "delta_td_minus_vanilla": -0.0025637373593505597,
+      "delta_td_vs_v4_hf": -0.09668501637943311,
+      "delta_vanilla_vs_v4_hf": -0.09412127902008255,
+      "group": "Greek",
+      "label": "Greek MMLU",
+      "task": "global_mmlu_full_el",
+      "td": 0.41881498362056685,
+      "vanilla": 0.4213787209799174,
+      "winner": "Vanilla"
+    },
+    {
+      "delta_td_minus_vanilla": -0.021739130434782594,
+      "delta_td_vs_v4_hf": -0.08873333333333328,
+      "delta_vanilla_vs_v4_hf": -0.06699420289855068,
+      "group": "Greek",
+      "label": "INCLUDE-44 Greek",
+      "task": "include_base_44_greek_few_shot_en",
+      "td": 0.4166666666666667,
+      "vanilla": 0.4384057971014493,
+      "winner": "Vanilla"
+    },
+    {
+      "delta_td_minus_vanilla": 0.025555555555555554,
+      "delta_td_vs_v4_hf": -0.09892222222222224,
+      "delta_vanilla_vs_v4_hf": -0.1244777777777778,
+      "group": "Greek",
+      "label": "Belebele Greek",
+      "task": "belebele_ell_Grek",
+      "td": 0.5377777777777778,
+      "vanilla": 0.5122222222222222,
+      "winner": "TD"
+    },
+    {
+      "delta_td_minus_vanilla": -0.016211604095563104,
+      "delta_td_vs_v4_hf": -0.06823720136518768,
+      "delta_vanilla_vs_v4_hf": -0.05202559726962458,
+      "group": "Greek",
+      "label": "ARC Challenge MT-el",
+      "task": "arc_challenge_mt_el",
+      "td": 0.4112627986348123,
+      "vanilla": 0.4274744027303754,
+      "winner": "Vanilla"
+    },
+    {
+      "delta_td_minus_vanilla": -0.012851405622489931,
+      "delta_td_vs_v4_hf": -0.022897991967871456,
+      "delta_vanilla_vs_v4_hf": -0.010046586345381525,
+      "group": "Greek",
+      "label": "XNLI Greek",
+      "task": "xnli_el",
+      "td": 0.3755020080321285,
+      "vanilla": 0.38835341365461845,
+      "winner": "Vanilla"
+    },
+    {
+      "delta_td_minus_vanilla": 0.0757635393329526,
+      "delta_td_vs_v4_hf": -0.1639626360668502,
+      "delta_vanilla_vs_v4_hf": -0.2397261753998028,
+      "group": "Greek",
+      "label": "XQuAD Greek F1",
+      "task": "xquad_el",
+      "td": 0.3532373639331498,
+      "vanilla": 0.2774738246001972,
+      "winner": "TD"
+    },
+    {
+      "delta_td_minus_vanilla": 0.0,
+      "delta_td_vs_v4_hf": -0.030000000000000027,
+      "delta_vanilla_vs_v4_hf": -0.030000000000000027,
+      "group": "Greek",
+      "label": "PIQA Greek MT",
+      "task": "global_piqa_completions_ell_grek",
+      "td": 0.59,
+      "vanilla": 0.59,
+      "winner": "tie"
+    }
+  ],
+  "tokens_b": {
+    "1013": 4.248829952,
+    "1192": 4.999610368,
+    "476": 1.996488704,
+    "834": 3.498049536
+  }
+}

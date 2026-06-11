@@ -77,8 +77,9 @@ or reproduction.
 6. Make loss measurement explicit.
    Benchmark summaries must say that raw Megatron `lm loss` is health-only
    across different tokenizer vocabularies. Cross-arm loss evidence is heldout
-   BPC/BPB plus downstream evals, with dense `bpb` logs used only when the
-   training loop actually emits them.
+   BPB plus downstream evals, with dense `bpb` logs used only when the training
+   loop actually emits them. Older artifacts may call BPB `BPC`; that is a
+   legacy bits-per-byte alias.
 
 7. Prefer additive reorganization first.
    Build the clean structure and top-level routing without deleting remote files
@@ -329,7 +330,7 @@ Script families that belong there:
 - R17/xIELU/QK-Norm patch and verification scripts;
 - Token Distillation coverage, layer-pilot, and conversion scripts;
 - bakeoff and continuation launchers;
-- eval conversion, packed eval, BPC, and new-token diagnostic scripts;
+- eval conversion, packed eval, BPB/NLL, and new-token diagnostic scripts;
 - production CPT launchers and hydration checks.
 
 The HF repo should contain:
@@ -385,7 +386,7 @@ labels in the release.
 | `TOKEN_DISTILLATION_PLAN.md` | Sensitive TD plan: fixed-ID tokenizer handling, layer choice, firing prepass, untied output embeddings, preservation checks. |
 | `03_4_implementation_experiments/init_bakeoff/BAKEOFF_PLAN.md` | Original 2B bakeoff design: arms, pre-Clariden checklist, V-gates, Slurm shape, eval cadence. |
 | `03_4_implementation_experiments/init_bakeoff/corpus_build/MIX_RECIPE.md` | CPT data recipe: dedup order, 70/24/4/2 mix, NFC build, CPU-only xfer rule. |
-| `03_4_implementation_experiments/init_bakeoff/eval/EVAL_RECIPE.md` | Eval tasks, V4 comparator logic, checkpoint cadence, BPC/diagnostics, and hard-gate rubric. |
+| `03_4_implementation_experiments/init_bakeoff/eval/EVAL_RECIPE.md` | Eval tasks, V4 comparator logic, checkpoint cadence, BPB/diagnostics, and hard-gate rubric. |
 | `ARTIFACTS_AND_HYDRATION.md` | Repo ownership and hydration policy: what belongs in git/HF vs Clariden, production path checks. |
 | `CLARIDEN_INVENTORY_20260524.md` | Remote path inventory for models, tokenizers, datasets, checkpoints, eval outputs, code, and envs. |
 | `03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/CONTINUATION_3P5B_RESULTS_20260525.md` | Latest 3.5B continuation result; this is the current result anchor for the release story. |
@@ -502,7 +503,7 @@ files and current status.
 - Greek task availability is verified against the actual harness clone.
 - Harness commit is recorded for every eval run.
 - Heldout JSONL path is staged and documented.
-- BPC/NLL and new-token diagnostics run alongside downstream benchmarks where
+- BPB/NLL and new-token diagnostics run alongside downstream benchmarks where
   relevant.
 - Full evals are packed when possible so training does not stop and GPU nodes
   are not wasted by serial single-GPU evals.

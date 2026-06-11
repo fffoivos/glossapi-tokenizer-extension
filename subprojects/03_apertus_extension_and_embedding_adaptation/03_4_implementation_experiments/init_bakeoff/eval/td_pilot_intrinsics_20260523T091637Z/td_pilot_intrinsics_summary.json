@@ -1,7 +1,7 @@
 {
   "output_root": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_pilot_intrinsics_20260523T091637Z",
   "eval_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl",
-  "best_bpc_arm": "td_layer11",
+  "best_bpb_arm": "td_layer11",
   "arms": [
     {
       "arm": "retok",
@@ -9,6 +9,7 @@
       "model_path": "/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/retok",
       "errors": [],
       "tokenizer": {
+        "bpb_bits_per_byte": 2.950318588637427,
         "bpc_bits_per_byte": 2.950318588637427,
         "nll_per_char": 3.4895625555028267,
         "nll_per_word": 24.057415110146938,
@@ -46,6 +47,7 @@
       "model_path": "/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_layer_pilot_20260523T082252Z/last",
       "errors": [],
       "tokenizer": {
+        "bpb_bits_per_byte": 2.782990933260359,
         "bpc_bits_per_byte": 2.782990933260359,
         "nll_per_char": 3.291651617018869,
         "nll_per_word": 22.692996067296093,
@@ -83,6 +85,7 @@
       "model_path": "/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_layer_pilot_20260523T082252Z/layer11",
       "errors": [],
       "tokenizer": {
+        "bpb_bits_per_byte": 2.7752713376680633,
         "bpc_bits_per_byte": 2.7752713376680633,
         "nll_per_char": 3.2825210736849235,
         "nll_per_word": 22.63004913120534,

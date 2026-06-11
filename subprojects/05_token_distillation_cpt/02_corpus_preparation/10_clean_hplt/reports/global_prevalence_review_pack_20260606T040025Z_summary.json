@@ -1,0 +1,178 @@
+{
+  "coverage_by": {
+    "candidate_action": {
+      "drop_doc": {
+        "reviewed": 3,
+        "total": 3,
+        "unreviewed": 0
+      },
+      "keep": {
+        "reviewed": 210,
+        "total": 800,
+        "unreviewed": 590
+      },
+      "normalize_or_trim_span": {
+        "reviewed": 1,
+        "total": 1,
+        "unreviewed": 0
+      },
+      "quarantine": {
+        "reviewed": 17,
+        "total": 262,
+        "unreviewed": 245
+      },
+      "trim_span": {
+        "reviewed": 1,
+        "total": 1,
+        "unreviewed": 0
+      }
+    },
+    "length_bucket": {
+      "1k_3k": {
+        "reviewed": 121,
+        "total": 496,
+        "unreviewed": 375
+      },
+      "3k_10k": {
+        "reviewed": 50,
+        "total": 295,
+        "unreviewed": 245
+      },
+      "ge_10k": {
+        "reviewed": 4,
+        "total": 60,
+        "unreviewed": 56
+      },
+      "lt_1k": {
+        "reviewed": 57,
+        "total": 216,
+        "unreviewed": 159
+      }
+    },
+    "quality_bin": {
+      "8": {
+        "reviewed": 195,
+        "total": 857,
+        "unreviewed": 662
+      },
+      "9": {
+        "reviewed": 37,
+        "total": 210,
+        "unreviewed": 173
+      }
+    },
+    "risk_band": {
+      "risk_q1": {
+        "reviewed": 58,
+        "total": 267,
+        "unreviewed": 209
+      },
+      "risk_q2": {
+        "reviewed": 54,
+        "total": 269,
+        "unreviewed": 215
+      },
+      "risk_q3": {
+        "reviewed": 59,
+        "total": 265,
+        "unreviewed": 206
+      },
+      "risk_q4": {
+        "reviewed": 61,
+        "total": 266,
+        "unreviewed": 205
+      }
+    },
+    "source_shard": {
+      "8_1.jsonl.zst": {
+        "reviewed": 65,
+        "total": 302,
+        "unreviewed": 237
+      },
+      "8_2.jsonl.zst": {
+        "reviewed": 130,
+        "total": 555,
+        "unreviewed": 425
+      },
+      "9_1.jsonl.zst": {
+        "reviewed": 23,
+        "total": 125,
+        "unreviewed": 102
+      },
+      "9_2.jsonl.zst": {
+        "reviewed": 14,
+        "total": 85,
+        "unreviewed": 71
+      }
+    }
+  },
+  "created_at_utc": "20260606T040025Z",
+  "global_prevalence_rows": 1067,
+  "inputs": {
+    "annotation_files": [
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/destructive_span_policy_review_annotations_20260605T210613Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_control_char_review_annotations_20260605T232858Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global200_review_20260606T023000Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_representative_review_annotations_20260606T011500Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_triage_review_annotations_20260606T004500Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T194002Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T200254Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T202344Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T204701Z.jsonl",
+      "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/quarantine_precision_review_annotations_20260605T211220Z.jsonl"
+    ],
+    "policy_sample": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/policy_evaluation_sample_20260605T210154Z.jsonl",
+    "reports_dir": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports"
+  },
+  "next_pack_by_candidate_action": {
+    "keep": 147,
+    "quarantine": 53
+  },
+  "next_pack_by_length_bucket": {
+    "1k_3k": 91,
+    "3k_10k": 53,
+    "ge_10k": 15,
+    "lt_1k": 41
+  },
+  "next_pack_by_quality_bin": {
+    "8": 158,
+    "9": 42
+  },
+  "next_pack_by_risk_band": {
+    "risk_q1": 50,
+    "risk_q2": 52,
+    "risk_q3": 49,
+    "risk_q4": 49
+  },
+  "next_pack_by_source_shard": {
+    "8_1.jsonl.zst": 59,
+    "8_2.jsonl.zst": 99,
+    "9_1.jsonl.zst": 25,
+    "9_2.jsonl.zst": 17
+  },
+  "next_pack_rows": 200,
+  "next_pack_selection": "deterministic proportional stratified sample over unreviewed global_prevalence rows by quality_bin x risk_band",
+  "outputs": {
+    "annotation_template_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_global_prev_2480397_20260606T040025Z/reports/global_prevalence_review_pack/global_prevalence_review_pack_20260606T040025Z_annotation_template.jsonl",
+    "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_global_prev_2480397_20260606T040025Z/reports/global_prevalence_review_pack/global_prevalence_review_pack_20260606T040025Z.md",
+    "review_pack_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_global_prev_2480397_20260606T040025Z/reports/global_prevalence_review_pack/global_prevalence_review_pack_20260606T040025Z.jsonl",
+    "summary_json": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_global_prev_2480397_20260606T040025Z/reports/global_prevalence_review_pack/global_prevalence_review_pack_20260606T040025Z_summary.json"
+  },
+  "policy_note": "Coverage and review-pack artifact only. It does not label rows automatically, mutate source rows, or approve a cleaning overlay.",
+  "prevalence_caveat": "Reviewed coverage is a mixed overlap of prior pilot, action-precision, quarantine, and false-negative reviews; it is useful coverage evidence but not yet the final unbiased prevalence estimate for all 1,067 global-prevalence rows.",
+  "reviewed_actionable_rate_percent": 27.155172413793103,
+  "reviewed_actionable_rows": 63,
+  "reviewed_actionable_wilson_95_ci_percent": [
+    21.838814658769607,
+    33.21573744159295
+  ],
+  "reviewed_serious_rows": 12,
+  "reviewed_unique_rows": 232,
+  "risk_quantile_thresholds": [
+    0.9054621848739496,
+    0.9343065693430657,
+    0.9586973788721207
+  ],
+  "schema_version": "hplt-global-prevalence-review-coverage-v1",
+  "unreviewed_rows": 835
+}

@@ -1,14 +1,15 @@
 {
-  "output_root": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_intrinsics_20260523T124000Z",
-  "eval_jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/heldout/cpt_greek_heldout_500_20260522.jsonl",
-  "best_bpc_arm": "td_full25_layer11",
+  "output_root": "subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/td_full25_intrinsics_20260523T124000Z",
+  "eval_jsonl": null,
+  "best_bpb_arm": "td_full25_layer11",
   "arms": [
     {
       "arm": "retok",
-      "arm_dir": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_intrinsics_20260523T124000Z/retok",
+      "arm_dir": "subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/td_full25_intrinsics_20260523T124000Z/retok",
       "model_path": "/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/retok",
       "errors": [],
       "tokenizer": {
+        "bpb_bits_per_byte": 2.950318588637427,
         "bpc_bits_per_byte": 2.950318588637427,
         "nll_per_char": 3.4895625555028267,
         "nll_per_word": 24.057415110146938,
@@ -42,10 +43,11 @@
     },
     {
       "arm": "td_full25_last",
-      "arm_dir": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_intrinsics_20260523T124000Z/td_full25_last",
+      "arm_dir": "subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/td_full25_intrinsics_20260523T124000Z/td_full25_last",
       "model_path": "/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_full25_layers_20260523T092602Z/last",
       "errors": [],
       "tokenizer": {
+        "bpb_bits_per_byte": 1.4248761942253063,
         "bpc_bits_per_byte": 1.4248761942253063,
         "nll_per_char": 1.6853076927845805,
         "nll_per_word": 11.618690339769666,
@@ -79,10 +81,11 @@
     },
     {
       "arm": "td_full25_layer11",
-      "arm_dir": "/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_intrinsics_20260523T124000Z/td_full25_layer11",
+      "arm_dir": "subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/td_full25_intrinsics_20260523T124000Z/td_full25_layer11",
       "model_path": "/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_full25_layers_20260523T092602Z/layer11",
       "errors": [],
       "tokenizer": {
+        "bpb_bits_per_byte": 1.3845765689854503,
         "bpc_bits_per_byte": 1.3845765689854503,
         "nll_per_char": 1.6376423105511497,
         "nll_per_word": 11.290080129024144,

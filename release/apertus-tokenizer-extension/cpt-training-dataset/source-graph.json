@@ -44,7 +44,7 @@
   "outputs": {
     "selected_pool": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet",
     "jsonl": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix.nfc.jsonl",
-    "megatron_prefix": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_nfc_megatron/bulk_mix_text_document"
+    "megatron_prefix": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_nfc_megatron/bulk_mix_text_document",
+    "token_count_metadata": "token-counts.json"
   }
 }
-

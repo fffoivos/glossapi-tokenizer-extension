@@ -1,0 +1,37 @@
+{
+  "action_counts": {
+    "drop_doc": 4,
+    "quarantine": 3,
+    "trim_prefix": 1,
+    "trim_suffix": 4
+  },
+  "annotation_rows": 12,
+  "annotations": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_url_rescue_whole_trim_20260606T062543Z_annotations.jsonl",
+  "chars_removed": 3209,
+  "created_at_utc": "20260606T062755Z",
+  "decision_actions": {
+    "drop_doc": 4,
+    "quarantine": 3,
+    "trim_prefix": 1,
+    "trim_suffix": 4
+  },
+  "decision_manifest_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480622_20260606T062755Z/reports/boundary_annotation_materialization/boundary_url_rescue_whole_trim_materialization_20260606T062543Z_decision_manifest.jsonl",
+  "decision_manifest_rows": 12,
+  "issue_count": 0,
+  "issues_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480622_20260606T062755Z/reports/boundary_annotation_materialization/boundary_url_rescue_whole_trim_materialization_20260606T062543Z_issues.jsonl",
+  "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480622_20260606T062755Z/reports/boundary_annotation_materialization/boundary_url_rescue_whole_trim_materialization_20260606T062543Z.md",
+  "pending_rows": 0,
+  "policy_note": "Boundary annotation materialization only. Source HPLT rows are immutable; changed text exists only in shadow_records.",
+  "review_pack": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T064800Z.jsonl",
+  "review_pack_rows": 30,
+  "schema_version": "hplt-boundary-annotation-materialization-v1",
+  "shadow_records": 5,
+  "shadow_records_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480622_20260606T062755Z/reports/boundary_annotation_materialization/boundary_url_rescue_whole_trim_materialization_20260606T062543Z_shadow_records.jsonl",
+  "skipped_rows": 0,
+  "status_counts": {
+    "apply": 12
+  },
+  "token_delta_rows": 9,
+  "tokenizer_json": "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480/tokenizer.json",
+  "tokens_removed": 778
+}

@@ -1,0 +1,21 @@
+{
+  "annotations": "reports/quarantine_precision_review_annotations_20260605T211220Z.jsonl",
+  "candidate_action": "quarantine",
+  "exact_quarantine_matches": 17,
+  "findings": "reports/quarantine_precision_review_findings_20260605T211220Z.md",
+  "non_destructive": true,
+  "review_correct_action_counts": {
+    "drop_doc": 6,
+    "keep": 17,
+    "quarantine": 17,
+    "split_doc": 6,
+    "trim_suffix": 14
+  },
+  "review_label_counts": {
+    "false_positive": 17,
+    "partial_true_positive": 26,
+    "true_positive": 17
+  },
+  "reviewed_rows": 60,
+  "source_pack": "reports/quarantine_precision_review_pack_20260605T211220Z.jsonl"
+}

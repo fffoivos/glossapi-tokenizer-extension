@@ -1,0 +1,24 @@
+{
+  "name": "c3p_polytonic_20260518T_impl",
+  "phase": "completed",
+  "updated_at_epoch": 1779056208.4295385,
+  "input_files": [
+    "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_train.parquet"
+  ],
+  "target_vocab_size": 153600,
+  "count_total_tasks": 30,
+  "count_completed_tasks": 30,
+  "count_inflight_tasks": 0,
+  "sequence_total_tasks": 30,
+  "sequence_completed_tasks": 30,
+  "sequence_inflight_tasks": 0,
+  "unique_sequences": 2483324,
+  "base_vocab_size": 148480,
+  "merge_target_added": 5120,
+  "merge_completed_added": 5120,
+  "current_vocab_size": 153600,
+  "latest_pair_frequency": 2199,
+  "elapsed_merge_seconds": 87.72280240058899,
+  "summary_path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/training_summary.json",
+  "tokenizer_output_dir": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/tokenizer"
+}

@@ -10,7 +10,7 @@ INTERVAL_SECONDS="${INTERVAL_SECONDS:-600}"
 MAX_POLLS="${MAX_POLLS:-288}"
 TRACKED_JOBS="${TRACKED_JOBS:-2382982,2382983,2382984,2382985,2382986,2382998,2382999,2383000,2383001,2383002,2383003}"
 STATE_FILE="${STATE_FILE:-/capstor/scratch/cscs/fffoivos/runs/eval/continuation_5b_td_vs_vanilla_20260525T142522Z_sidecar_eval_incremental/eval_sidecar_incremental_state.tsv}"
-JOB_NAME_PATTERN="${JOB_NAME_PATTERN:-^(5b_(vanilla|td_layer11)_(1013|1192)|tohf_(vanilla|td_layer11)_(1013|1192)|bpc_(vanilla|td_layer11)_(1013|1192)|diag_td_layer11_(1013|1192)|eval_5b_(1013|1192)_full|eval_submit_5b.*)$}"
+JOB_NAME_PATTERN="${JOB_NAME_PATTERN:-^(5b_(vanilla|td_layer11)_(1013|1192)|tohf_(vanilla|td_layer11)_(1013|1192)|(bpb|bpc)_(vanilla|td_layer11)_(1013|1192)|diag_td_layer11_(1013|1192)|eval_5b_(1013|1192)_full|eval_submit_5b.*)$}"
 
 mkdir -p "$LOG_DIR"
 

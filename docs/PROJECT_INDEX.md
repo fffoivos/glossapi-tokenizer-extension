@@ -15,6 +15,8 @@ Read order for a fresh agent:
 2. [GLOBAL_DECISIONS.md](GLOBAL_DECISIONS.md)
 3. [CURRENT_STATUS.md](CURRENT_STATUS.md)
 4. [ACTIVE_BACKLOG.md](ACTIVE_BACKLOG.md) — §Tokenizer Critical Path
+5. [LOSS_MEASUREMENT_POLICY.md](LOSS_MEASUREMENT_POLICY.md) — how to read
+   BPB/BPC, dense training BPB, and raw Megatron `lm loss`
 
 The subprojects below are listed in the order they are traversed; most
 of the earlier ones are settled and the live work is in `02_1` (cutoff
@@ -29,6 +31,7 @@ sweep) → `02_2` (merge-rule extension) → `03` (embedding adaptation).
 3. [02_2_tokenizer_implementation](../subprojects/02_2_tokenizer_implementation/README.md) — gated on cutoff
 4. [03_apertus_extension_and_embedding_adaptation](../subprojects/03_apertus_extension_and_embedding_adaptation/README.md) — gated on tokenizer freeze
    - [03_1_greek_embedding_diagnostic](../subprojects/03_apertus_extension_and_embedding_adaptation/03_1_greek_embedding_diagnostic/README.md) — pre-extension diagnostic of how Apertus represents Greek (E/U geometry, hull occupancy, binary classifier, cross-language clusters)
+   - [LOSS_MEASUREMENT_POLICY.md](LOSS_MEASUREMENT_POLICY.md) — repo-wide loss-reading rule for model-adaptation runs: heldout BPB/downstream evals are cross-tokenizer evidence; raw Megatron `lm loss` is health telemetry only
 
 ### Archived (DONE for the C3 shipping path)
 
@@ -66,6 +69,8 @@ See [../subprojects/_archive/README.md](../subprojects/_archive/README.md).
   - report (with run status + scripts + artifact spec): [../subprojects/02_2_tokenizer_implementation/02_2_2_vocab_lang_attribution/RUN_REPORT.md](../subprojects/02_2_tokenizer_implementation/02_2_2_vocab_lang_attribution/RUN_REPORT.md)
 - functional issues TODO:
   - [FUNCTIONAL_ISSUES_TODO.md](FUNCTIONAL_ISSUES_TODO.md)
+- model-adaptation loss policy:
+  - [LOSS_MEASUREMENT_POLICY.md](LOSS_MEASUREMENT_POLICY.md)
 - machine-readable config:
   - [apertus_greek_extension.yaml](../config/apertus_greek_extension.yaml)
 

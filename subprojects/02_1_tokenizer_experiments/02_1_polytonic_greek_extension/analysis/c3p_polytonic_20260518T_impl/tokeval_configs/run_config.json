@@ -1,0 +1,11 @@
+{
+  "variants_manifest": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/variants_manifest.json",
+  "c3_sweep_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep",
+  "tokenizer_count": 11,
+  "tokenizers_config": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/tokeval_configs/polytonic_tokenizers.json",
+  "tokenizers_meta": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/tokeval_configs/polytonic_tokenizers_meta.json",
+  "copied_language_configs": {
+    "apertus55_lang_config.json": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/tokeval_configs/apertus55_lang_config.json",
+    "greek_only_lang_config.json": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/tokeval_configs/greek_only_lang_config.json"
+  }
+}

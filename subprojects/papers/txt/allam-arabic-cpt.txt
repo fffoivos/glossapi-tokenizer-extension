@@ -1,0 +1,4838 @@
+arXiv:2407.15390v1 [cs.CL] 22 Jul 2024
+
+ALLaM: Large Language Models for Arabic and
+English
+
+M Saiful Bari ∗ † Yazeed Alnumay†
+Norah A. Alzahrani Nouf M. Alotaibi Hisham A. Alyahya
+Sultan AlRashed Faisal A. Mirza Shaykhah Z. Alsubaie
+Hassan A. Alahmed Ghadah Alabduljabbar Raghad Alkhathran
+Yousef Almushayqih Raneem Alnajim
+Salman Alsubaihi Maryam Al Mansour
+Majed Alrubaian Ali Alammari Zaki Alawami
+Abdulmohsen Al-Thubaity Ahmed Abdelali Jeril Kuriakose
+Abdalghani Abujabal† Nora Al-Twairesh† Areeb Alowisheq† Haidar Khan†
+National Center for AI (NCAI), Saudi Data and AI Authority (SDAIA)
+Riyadh, Saudi Arabia
+
+Abstract
+We present ALLaM: Arabic Large Language Model, a series of large language
+models to support the ecosystem of Arabic Language Technologies (ALT). ALLaM
+is carefully trained considering the values of language alignment and knowledge
+transfer at scale. Our autoregressive decoder-only architecture models demonstrate how second-language acquisition via vocabulary expansion and pretraining
+on a mixture of Arabic and English text can steer a model towards a new language
+(Arabic) without any catastrophic forgetting in the original language (English).
+Furthermore, we highlight the effectiveness of using parallel/translated data to aid
+the process of knowledge alignment between languages. Finally, we show that
+extensive alignment with human preferences can significantly enhance the performance of a language model compared to models of a larger scale with lower
+quality alignment. ALLaM achieves state-of-the-art performance in various Arabic
+benchmarks, including MMLU Arabic, ACVA, and Arabic Exams. Our aligned
+models improve both in Arabic and English from their base aligned models.
+
+∗ Corresponding author: skarim@sdaia.gov.sa
+† Core contributors
+
+Contents
+1
+
+Introduction
+
+3
+
+2
+
+Pretraining
+
+4
+
+2.1
+
+Pretraining Data . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+5
+
+2.2
+
+Continued Pretraining . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+6
+
+2.3
+
+Pretraining From Scratch . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+7
+
+2.4
+
+Compute and Training Infrastructure . . . . . . . . . . . . . . . . . . . . . . . . .
+
+8
+
+3
+
+4
+
+5
+
+Alignment
+
+8
+
+3.1
+
+Supervised Fine-Tuning . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+8
+
+3.2
+
+Preference Training . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+9
+
+Evaluation
+
+12
+
+4.1
+
+Automatic Evaluations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+12
+
+4.2
+
+LLM-Based Evaluations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+13
+
+4.3
+
+Human Evaluation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+13
+
+Related Work
+
+14
+
+5.1
+
+Language Modeling and Cross-lingual Representations . . . . . . . . . . . . . . .
+
+14
+
+5.2
+
+Multitask Learning And Alignment . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+15
+
+5.3
+
+Language Models for Arabic . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+16
+
+6
+
+Conclusion
+
+16
+
+7
+
+Limitations
+
+16
+
+8
+
+Ethical Statement
+
+16
+
+9
+
+Risk Statement
+
+17
+
+A Appendix
+
+28
+
+A.1 Detailed Arabic Evaluation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+28
+
+A.2 Detailed English Evaluation . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+28
+
+B Author Contributions
+
+30
+
+2
+
+1
+
+Introduction
+
+Language modeling has significantly progressed from its humble origins, transitioning from fundamental probabilistic methods to complex neural priors. The foundational work by Shannon (1951) on
+the information theory of language laid the groundwork for predicting the next word in a sequence,
+which was subsequently tackled by Bengio et al. (2003) in neural networks. The field experienced
+a substantial leap with the introduction of LSTMs (Hochreiter & Schmidhuber, 1997) in language
+models (LM) (Peters et al., 2018b), which could capture longer dependencies in LMs but proved difficult to scale. The emergence of scalable and distributed architectures like Transformers (Vaswani
+et al., 2017) and the potential for precisely (Kaplan et al., 2020; Hoffmann et al., 2022) compressing web-scale data has resonated in recent years with the advancements of Generative Pretraining
+(Radford et al., 2018; Brown et al., 2020a; Anil et al., 2023).
+With the release of ChatGPT (OpenAI, 2022), followed by the introduction of more frontier
+class models Gemini (Google, 2024), Claude (Anthropic, 2022), Reka (Ormazabal et al., 2024),
+Mistral (Mistral, 2024), Llama-3 (Meta, 2024) and recently released Qwen-2 (Yang et al., 2024),
+large language models have demonstrated significant leaps over each generation of models (Laskar
+et al., 2023). This exponential growth in performance has raised hope in the possibility of achieving
+Artificial General Intelligence (Hendrycks & Mazeika, 2022; Marcus, 2022). This rapid advancement has spurred discussions across various fields, including ethics, economics, and technology
+(Weidinger et al., 2021). Judging from the initial capabilities (Bubeck et al., 2023), the potential
+of these frontier models are reinventing the way humans interact with machines, impacting social
+norms, productivity, trends, and culture on a broader scale (Zhou et al., 2024). However, most of
+these frontier-class models are primarily trained on English and often lack a connection to localized
+regional cultures and norms (Naous et al., 2024). This gap has the potential to result in slow and
+irreversible manipulation of regional identities and lead to cultural homogenization.
+The natural course to reverse this trend is to invest resources in curating data and building models
+to support the diversity of languages and cultures represented in the modern world. While this is
+possible, the significant training costs of LLMs and their environmental impact have become major concerns in recent years (Strubell et al., 2019). The vast computational resources required to
+train LLMs contribute to substantial carbon emissions (Luccioni & Hernandez-Garcia, 2023). Governments 3 and non/for-profit organizations (Dodge et al., 2022; Google, 2021; Amazon, 2021),
+are increasingly aware of these issues. This awareness has led to discussions about the ethical implications of AI development and the need for sustainable practices concerning “When and how to
+scale the training of these models”. In addition, curating data for each language/region at pretraining
+scale is also an extremely difficult task, since most available data comes from a few high-resource
+languages.
+8
+Fertility rate
+
+To address these concerns, we consider the
+problem of adapting strong, but potentially
+under-trained, open pretrained models, rather
+than starting from a randomly initialized model.
+Technically, this involves continuing training of
+a model in a new language to facilitate Second
+Language Acquisition (SLA) (Swain & Lapkin,
+1995), popularized by Bari et al. (2020) in NLP
+and recently adapted to LLMs by Nguyen et al.
+(2023). This process involves the challenging
+task of incorporating an additional language
+distribution without compromising the source
+language(s). For instance, if a pretrained model
+was initially trained in English, expanding to an
+additional language presents challenges related
+to tokenization. Figure 3 gives an overview of
+ALLaM’s tokenizers compared to a tokenizer primarily trained on English.
+
+6
+
+English
+Arabic
+Code
+
+4
+2
+0
+
+Llama2
+
+ALLaM
+Arabic only
+
+ALLaM
+merged
+
+ALLaM
+from scratch
+
+Figure 3: Comparison of tokenizer fertility rates.
+The chart illustrates the fertility rates across four
+tokenizers: Llama-2, ALLaM Arabic only, ALLaM
+merged with Llama-2, and ALLaM Arabic/English
+(from scratch model). We calculate the fertility
+over a random subsample of the entire English,
+Arabic, and code training corpus.
+
+3 https://www.cnrs.fr/en/update/jean-zay-supercomputer-recycling-its-heat
+
+3
+
+Arabic MMLU
+
+80
+
+Accuracy (%)
+
+Command-R+
+75
+Jais-30b
+AceGPT-13B
+Command-R
+Mixtral-8x22B 70
+60
+Aya-23-35B
+Llama-3-8B
+DBRX
+Aya-23-8B Jais-13B
+65
+Mixtral-8x7B
+Qwen2-7B
+50
+60
+Yi-9B
+Yi-34B
+AceGPT-7B
+55
+Mistral-7B
+Gemma-7B
+40
+50
+Llama-3-70B
+
+30
+
+OLMo-7B
+
+10
+
+45
+100
+
+Allam Instruct
+Allam Instruct (from scratch)
+Llama 2 chat
+Yi-34B
+
+80
+
+Qwen2-72B
+
+70
+
+English MMLU
+
+85
+
+Qwen2-7B
+Yi-9B
+
+Qwen2-72B
+Llama-3-70B
+Mixtral-8x22B
+DBRX
+Mixtral-8x7B Command-R+
+
+Llama-3-8B
+Command-R
+Aya-23-35B
+Mistral-7B
+AceGPT-13B Jais-30b
+Gemma-7B
+Aya-23-8B
+Jais-13B
+OLMo-7B
+AceGPT-7B
+
+Parameters (B) (log)
+
+10
+
+100
+
+Figure 2: Performance on Arabic (Koto et al., 2024) and English (Hendrycks et al., 2020) MMLU
+Benchmarks. ALLaM (red line) shows impressive improvement from its base model Llama-2 (yellow
+line). All evaluations were done on the latest version of the fine-tuned (chat or instruct) models. The
+ALLaM 7B from scratch model also shows significant improvement over the ALLaM 7B continued
+pretraining model.
+
+Our approach to building ALLaM, large language models developed specifically for fluency and understanding in Arabic and English, can be
+outlined as follows. We first demonstrate the feasibility of adapting an existing pretrained English
+model (Llama-2 (Touvron et al., 2023a)) to fluency in both Arabic and English through tokenizer
+and vocabulary expansion. Then, we apply our learnings to train a stronger model from scratch (random initialization) in a similar fashion, i.e., pretraining on English followed by training in mixed
+Arabic and English. The resulting model exhibits impressive performance and has favorable tokenization properties compared to other models. This approach aligns with both our technical goals
+and our commitment to sustainable practices.
+Our overall contributions are summarized below:
+• The ALLaM model series, with the goal of supporting the cultural values of the Arabicspeaking world. We train four models at three different scales: 7B, 13B, and 70B models
+initialized by Llama-2 weights and a 7B model from scratch/random initialization.
+• Our model achieves state-of-the-art results in Arabic, as well as improving overall English
+performance of the original Llama-2 model. Refer to Figure 2 for an overview.
+• We demonstrate that it is possible to train highly-performant models in low-resource languages from publicly available model weights using our continued pretraining recipe with
+tokenizer expansion, presenting a path for better representation of low-resource languages.
+• The training methodology and decision-making involved in training the LLM. We provide
+necessary ablation studies for most crucial decisions.
+
+2
+
+Pretraining
+
+Pretraining language models on trillions of natural language tokens represents the bulk of the cost
+required to build an effective language model. This large investment of time and compute precludes
+experimentation or ablation for every decision. Thus, before starting to train ALLaM from random
+initialization, or “scratch”, we experiment in the continue-pretraining regime. As the name implies,
+continue pretraining is the practice of warm-starting a pretraining experiment from an already pretrained LM.
+We begin by discussing our entire pretraining corpus, describe experiments conducted with continuepretraining, and finally describe pretraining from scratch.
+4
+
+1.8
+1.6
+1.4
+1.2
+
+HellaSwag accuracy (%)
+
+2.0
+
+Benchmark Evaluations
+
+1.00
+Gradient norm
+
+Training loss
+
+Gradient Norms
+
+No translation
+Translation
+
+0.75
+0.50
+0.25
+0.00
+
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+0
+
+100
+
+200
+
+300
+
+400
+
+Training tokens (B)
+
+500
+
+45
+
+76
+
+MMLU accuracy (%)
+
+Loss Curves
+
+2.2
+
+40
+
+74
+
+35
+
+72
+HellaSwag
+Arabic MMLU
+English MMLU
+
+70
+0
+
+100
+
+200
+
+300
+
+400
+
+500
+
+30
+25
+
+Figure 4: Measuring the effect of adding machine translated Arabic data to pretraining. Although the
+two loss curves look normal (left), adding the translated Arabic reduced the frequency of gradient
+spikes during training (center). Adding translated Arabic data also clearly helps align the Arabic and
+English capabilities of the model and reduce catastrophic forgetting (right).
+2.1
+
+Pretraining Data
+
+For English, many high quality and large scale datasets are available for pretraining (Computer,
+2023; Soldaini et al., 2024; Gao et al., 2021; Penedo et al., 2023). We harnessed subsets from Dolmav1 (Soldaini et al., 2024) and Pile (Gao et al., 2021) datasets e.g., Dolma-CC, The Stack (Kocetkov
+et al., 2022), PeS2o, PubMed, DM-Math (Saxton et al., 2019) and StackExchange (Soboleva et al.,
+2023). In total, we had access to 4T high to medium quality English tokens for pretraining.
+Pretraining data in the Arabic language is much more limited, thus we undertook large scale collection and curation of Arabic language data. This includes in-house crawled sources covering Web
+documents, news articles, books (literature, religion, law and culture, among others), Wikipedia
+(over 1M articles), and audio transcripts (books and news)4 . To ensure high quality Web data, we
+applied the following processing steps: (i) drop documents with language identification score below 95%, (ii) drop short documents that are less than 30 words, (iii) drop documents with duplicate
+URLs or high ratio of spam and stop words, and (iv) drop duplicate documents using exact matching. We experimented with fuzzy matching but opted against using it as it was too restrictive given
+the scarcity of Arabic data.
+
+Language Ratio Evaluations
+
+100
+
+40
+
+80
+60
+
+Arabic MMLU
+English MMLU
+Selected ratio (55% en)
+
+35
+
+40
+
+30
+25
+
+English (%)
+
+Accuracy (%)
+
+Additionally, we extended our Arabic data with
+translated English content using an in-house
+machine translation system. We translated
+the following English datasets from Dolma:
+Wikipedia, books, C4 and peS2o, which also
+are part of our English data. The hypothesis is
+that this will improve Arabic-English language
+alignment, leading to a better Arabic model.
+Figure 4 demonstrates the impact of Arabic
+translated datasets in the pretraining data mixture. While models trained without translated
+data exhibit lower training loss, those trained
+with translated data show more stable training,
+as evidenced by fewer spikes in gradient norms.
+Incorporating Arabic translated data in the pretraining dataset mitigates catastrophic forgetting in English. In total, we curate 540B Arabic tokens5 of which 270B are natural Arabic
+tokens and 270B are translated Arabic tokens.
+
+20
+0
+
+5
+
+10
+15
+Training tokens (B)
+
+20
+
+0
+
+Figure 5: We determine the optimal Arabic/English language mixture that balances between acquiring Arabic understanding while retaining English proficiency by conducting ablations over 6 Arabic/English ratios (trained up
+to 20B tokens). We found that a 45/55 Arabic/English ratio achieves the best performance,
+as measured by English and translated Arabic
+MMLU.
+
+Data Mixture To build a performant model
+in both Arabic and English, we conducted experiments to determine the optimal language mix. Figure 5 gives an overview of data-mixture exper4 We are currently working on systematic auditing of our pretraining data. We do not have any timeline or
+
+visibility on when or if we can share our data for research.
+5 Tokens counted by our merged tokenizer.
+
+5
+
+Mixed Arabic & English
+Domain
+
+Arabic
+
+English
+
+Natural
+
+Translated
+
+English Only
+Mixed
+
+Web
+Books
+Wiki
+News
+Science
+Code
+Math
+Other
+
+31%
+9%
+—
+—
+16%
+39%
+5%
+—
+
+71%
+13%
+0.70%
+14%
+—
+—
+—
+1.3%
+
+65%
+12%
+0.61%
+—
+22%
+—
+—
+0.39%
+
+48%
+11%
+0.3%
+3%
+14%
+21%
+2.5%
+0.2%
+
+71%
+3%
+0.1%
+—
+6%
+17%
+0.9%
+2%
+
+Lang Mix
+
+55%
+
+22.5%
+
+22.5%
+
+100%
+
+100%
+
+Tokens
+
+660B
+
+270B
+
+270B
+
+1.2T
+
+4T
+
+Table 1: ALLaM’s pretraining data mixtures. The first four columns summarize the distribution of the
+continued pretraining mixed Arabic/English data. The English only pretraining from scratch mixture
+is shown in the last column. We upsample data to match the mixture rates when needed.
+
+iments on our curated Arabic-English corpus. We conducted the experiments with the same sampling
+ratio (Table 1) and data order. We observe best trend in performance with 45/45 Arabic/English data
+mix.
+Table 1 shows the language and category mixing distributions for English, Arabic natural, Arabic
+translated and final mix. Following mainstream work (Touvron et al., 2023b; Chowdhery et al.,
+2022; Rae et al., 2021), web data constitutes the highest ratio with 71%, 65% and 48% of the Arabic
+natural, Arabic translated and overall mix, respectively. We limited the contribution of English web
+data to 31%, as the Llama-2 base model was trained on a significant amount of English web data
+already, and we expected that increasing its ratio might degrade performance. We ensured that high
+quality sources, such as books, news articles, and code, are well represented in our mixture.
+2.2
+
+Continued Pretraining
+
+Open source and open weight models present an attractive option to conduct pretraining experiments
+cheaply. However, they also present challenges, since most such models do not natively support Arabic or other languages. We develop a simple approach to enhance any language model with capabilities in new languages (i.e., language expansion). The approach relies on two steps: (i) tokenizer
+augmentation, and (ii) expanded vocabulary learning. We demonstrate that this approach leads to
+minimal degradation of capabilities in the original language.
+Tokenizer Augmentation Existing open weight language models (e.g., Llama-2) tokenize Arabic (and other languages) poorly, often splitting words down to the character level or even relying
+on byte-fallback mechanisms for tokenization. This results in: (i) inefficient training, as the pretraining corpus size is inflated, (ii) unoptimized inference, since the model must generate more tokens
+per word, and (iii) the effective context length is reduced, because it is based on a fixed number of
+tokens. To address these issues, we use a corpus of text in the target language to train a tokenizer
+specialized in that language. We then merge the original tokenizer with the language-specific tokenizer. Merging is accomplished by adding all tokens from the language-specific tokenizer that do
+not exist in the original tokenizer. As shown in Figure 3, this effectively reduces the fertility rate in
+the target language of the merged tokenizer to the level of the language-specific tokenizer.
+Expanded Vocabulary Learning Newly added tokens in the merged tokenizer have no associated embedding representations in the pretrained language model’s weights. To learn these representations, we experiment with two approaches: (i) random initialization and (ii) initialization from
+combined representations of tokens in the original tokenizer. Approach (ii) is accomplished by tokenizing each token in the vocabulary of the new tokenizer using the original tokenizer. The associated
+embedding representations of this tokenization are then averaged and assigned as the vector representation of the new token. Since we work with tokenizers with byte-fallback, such a tokenization is
+guaranteed to exist. Figure 6 provides an overview of our initialization method. Initializing the new
+6
+
+embeddings from the combination of previously learned embeddings gives a significant boost to the
+learning of a new language.
+Experiment Details Starting from Llama-2 pretrained model weights, we continue pretraining
+the ALLaM-7B and ALLaM-13B models on 1.2T tokens, covering both English and Arabic languages.
+For the ALLaM-70B model, we only train up to 600B tokens (using the same data mixture). In all
+of our continued pretraining experiments, we used the final learning rate of the pretrained language
+model (usually 3 × 10−5 ). We experimented with approaches to gradually increase and decay the
+learning rate with limited success, as such models typically exhibited catastrophic forgetting, indicated by significant drops in performance in the original language. We also considered optimizer
+state warm up, as open-weight models typically do not include the optimizer states, but found this
+had little effect on performance. Figure 7 provides an overview of adding dropout during continued
+pretraining. We observe that adding dropout helps the Arabic language, as it acts as a regularizer
+for the new distribution. However, Llama-2 was pretrained on 2T tokens without any dropout, and
+adding dropout negatively impacts the source language performance. Considering this trade-off, we
+decided not to add dropout in the continued pretraining stage. Unlike recent trends (AI2, 2024), we
+did not add any alignment data in this stage of training.
+Effect of Embedding Initialization
+
+70
+
+Effect of Dropout
+40
+Accuracy (%)
+
+Accuracy (%)
+
+60
+50
+Arabic MMLU (solid)
+English MMLU (dashed)
+Random embedding
+Initialized embedding
+
+40
+30
+0
+
+10
+
+20
+
+30 40 50 60
+Training tokens (B)
+
+70
+
+Figure 6: Effect of random initialization vs. embedding initialization during the start of continued pretraining. We find that initializing the
+embeddings for new tokens from combinations
+of existing embeddings speeds up learning dramatically.
+2.3
+
+30
+25
+
+80
+
+Arabic MMLU (solid)
+English MMLU (dashed)
+10% dropout
+No dropout
+
+35
+
+0
+
+1
+
+2
+3
+Training tokens (B)
+
+4
+
+Figure 7: Effect of dropout during the start of
+continued pretraining experiments. While introducing dropout can marginally improve the
+second language acquisition, it negatively impacts the model’s capabilities in the original
+language.
+
+Pretraining From Scratch
+
+Following (Hoffmann et al., 2022; Touvron et al., 2023a), training a high-quality model from scratch
+requires a substantial amount of tokens. Even when pretraining from random initialization, we find
+it beneficial to train with a high-resource language for trillions of tokens (English) and then continue training with a mixture of Arabic and English tokens. On small scale experiments (with 1B
+parameter models) we find that beginning training with two languages can sometimes degrade the
+performance in English or result in slow learning of both language distributions. From this, we hypothesize that low-resource languages are diluted in the large volume of high-resource language data
+when pretraining from scratch, even with upsampling and careful tuning.
+Training Recipe Our pretraining from scratch recipe consists of two steps: training on 4T English
+tokens followed by training on 1.2T mixed Arabic/English tokens. This retains the English capabilities of the model without catastrophic forgetting, effectively transferring knowledge from one
+language distribution to another. The only difference between pretraining from scratch and continued pretraining from an existing model is that vocabulary expansion is not required.
+We match hyperparameters and architecture for pretraining from scratch with Touvron et al. (2023a),
+including 4M tokens per batch and max LR 3 × 10−4 decayed to 3 × 10−5 with a cosine schedule.
+English Data Mixture The last column of Table 1 shows the domain mix for the English only
+pretraining dataset. As expected, web data represent the bulk of the mixture, followed by code and
+scientific articles.
+7
+
+2.4
+
+Compute and Training Infrastructure
+
+Over the course of our development of ALLaM, we had access to 128-1024 A100 GPUs. Our GPU
+cluster was equipped with InfiniBand connections to enable high-speed communication between
+nodes. The all-reduce test on the cluster ranges around 1200-1400 Gbps (node-node interconnect
+(RoCE)). The entire training period of the models is estimated to be 5M GPU hours.
+At the start of the project, we forked Megatron-LM6 and applied our own customizations (including
+improving data iterators, adding metadata in the checkpoints, and custom data pipelines). We utilized data, tensor, and pipeline parallelism supported by Megatron-LM to efficiently train at a large
+scale as well as FlashAttention (Dao et al., 2022; Dao, 2024). By leveraging these techniques, we
+achieved significant improvements in training speed. The throughput per GPU varied from 135 to
+167 TFlop/s/GPU depending on the number of GPUs, number of nodes, batch size, and parallelism
+strategy. We trained ALLaM with bf16 mixed-precision.
+
+3
+
+Alignment
+
+Building useful LLMs requires ensuring they are able to follow instructions while adhering to ethical
+standards and user expectations. This alignment process is especially crucial for models used in
+diverse linguistic and cultural contexts. In our setting, this means aligning models to the Arabic
+language and cultural context while also supporting English.
+Supervised Fine-Tuning (SFT) (Section 3.1) refines a pretrained model using a carefully selected
+dataset relevant to specific tasks and domains. Preference training (Section 3.2), on the other hand,
+aligns the model’s outputs with human values and preferences by prioritizing responses that meet
+user expectations and ethical guidelines. These methods work together to create reliable and ethically
+sound LLMs for real-world use.
+3.1
+
+Supervised Fine-Tuning
+
+Data Our SFT data is curated from a diverse array of sources. Given a piece of context from a
+source, we utilize humans and/or generative models (Ding et al., 2023) to identify if the text can be
+considered suitable for supervised fine-tuning or if we can generate instructions to create an SFT
+example from the context. For English, we primarily use public web content as our main source,
+offering a broad range of high-quality and especially diverse prompts. In contrast, our Arabic data
+comes from a combination of public and proprietary sources to ensure comprehensive coverage and
+relevance. To gather data from the source, we collect seed websites or data sources, which involves
+utilizing domain experts, prompt librarians, local institutes specializing in areas such as Arabic language, history, and politics, the use of commercially permissible licensed LLMs to generate data,
+and machine translation models to convert rich English SFT data into Arabic. Our datasets cover
+various domains and capabilities, ensuring the model’s proficiency in handling tasks across education, history, Arabic linguistics, politics, religion, computer science, and other fields. The entire
+Arabic/English collection is called Ultra-Instinct, which is not human generated, but rather,
+human driven.
+Quality Filtering Unlike Zhou et al. (2023); AI et al. (2024), we hypothesized that scaling SFT
+data can unlock diverse capability, as well as improve responsiveness to the prompts. Initially, we
+crawled the public web for SFT samples. The first version (v1) of Ultra-Instinct includes 12M
+samples evenly split between English and Arabic, while the second version (v2), is a reduced version
+with half the samples. Compared to v1, v2 underwent strict quality checks and human assessments
+of random subsamples. Our quality checks for v2 included (i) assessments based on instruction/response word length, (ii) lexical 7 and semantic diversity, exact and near-exact lexical deduplication,
+(iii) removal of low quality machine-translated Arabic data from English sources, and (iv) ensuring
+diversity in questions and commands. For detailed metrics on instruction and response lengths and
+lexical diversity, see Table 2.
+6 https://github.com/NVIDIA/Megatron-LM
+7 Lexical diversity is calculated by taking the ratio of the total number of unique words to the total number
+
+of words across all samples, excluding stop words.
+
+8
+
+Frequency
+
+Frequency
+
+400k
+300k
+200k
+100k
+0
+
+6
+
+54
+402
+Words (log)
+
+2980
+
+Arabic
+English
+
+350k
+300k
+250k
+200k
+150k
+100k
+50k
+0
+
+(a) Prompt word count.
+
+Arabic
+English
+
+106
+Frequency (log)
+
+Arabic
+English
+
+500k
+
+105
+104
+103
+102
+101
+
+6
+
+54
+402
+Words (log)
+
+2980
+
+(b) Response word count.
+
+1
+
+2
+
+3
+
+4
+
+5 6
+Turns
+
+7
+
+8
+
+9 10+
+
+(c) Number of conversation turns.
+
+Figure 8: Word count and turn distributions of SFT data. There are two main differences in our
+Arabic and English SFT datasets: shorter responses are more frequent in our Arabic SFT dataset,
+while our English SFT dataset contains more dialogues with >8 turns.
+Quality Metric
+Avg # of Word
+Lexical diversity
+
+Ultra-Instinct v1
+
+Ultra-Instinct v2
+
+Prompt
+
+Response
+
+Prompt
+
+Response
+
+146.94
+76.34
+
+97.19
+75.25
+
+60.81
+85.29
+
+136.47
+69.53
+
+Table 2: Comparison of average word length and lexical diversity of prompts and responses.
+
+Figures 8a and 8b show the distribution of the prompts and responses in v2, respectively. We focused on maximizing the number of multi-turn conversations in our dataset. Figure 8c shows the
+distribution of conversation turns from Ultra-Instinct.
+MMLU
+
+Version
+Ultra-Instinct v1
+Ultra-Instinct v2
+
+Huang et al. (2023)
+
+Koto et al. (2024)
+
+en
+
+51.0
+51.4
+
+68.0
+68.5
+
+63.8
+63.3
+
+Exams (ar)
+
+ACVA
+
+ETEC
+
+56.8
+56.8
+
+79.8
+76.7
+
+66.8
+65.9
+
+Table 3: Comparative results of Ultra Instinct v1 and v2, across various evaluation datasets.
+
+To extrinsically evaluate the impact of higher quality SFT data, we trained two 13B models using our
+v1 and v2 SFT datasets. Even though v2 has half as many samples and v1, both versions performed
+equally well on English and Arabic evaluation benchmarks, as shown in Table 3. This reduction in
+data volume led to faster training times and reduced costs without compromising performance. It
+also clearly demonstrates the value of quality filtering for alignment.
+Training Details We fine-tune our base model, which was trained on 3.2 trillion (2T Llama-2 +
+1.2T ALLaM) tokens, for 3 epochs using Ultra-Instinct-v2 with a learning rate of 5 × 10−6 and
+a batch size of 1024. The model is not trained to generate the prompt, as we mask out our prompt
+tokens when calculating the loss. Ultra-Instinct-v2 contains a substantial number of multiturn conversations. To train on these multi-turn conversations, we performed turn-augmentation.
+Figure 9 visually explains the process of turn augmentation.
+While training the SFT model, we encountered tokenization issues. Specifically, Llama-2’s tokenizer was trained using sentencepiece8 , which breaks the beginning and end of sequence tokens
+into multiple tokens and adversely affects long multi-turn conversations. To address this issue, we
+patched sentencepiece using the HuggingFace LlamaTokenizer wrapper (Wolf et al., 2020).
+Over many iterations of training, we saw that even having 1% noisy samples (e.g., empty responses
+or formatting issues) in alignment data can noticeably affect model quality.
+3.2
+
+Preference Training
+
+After SFT, models are able to converse in multi-turn conversations. However, they are not fully
+aligned with human preferences. For example, our SFT models were terse and had limited guardrails.
+8 https://github.com/google/sentencepiece
+
+9
+
+To circumvent these issues, we performed preference tuning with human verified samples via Direct
+Preference Optimization (DPO) (Rafailov et al., 2024).
+
+Data The inputs were sourced from early
+model testers and a manually curated selection
+of prompts from various domains or attack vectors. These include ethical dilemmas, middle
+eastern culture, religions, illegal activities, human rights, locale awareness, and personality.
+Preference training necessitates both negative
+and positive outputs for each input. We relied
+on the testers’ feedback to identify the positive
+outputs. In the absence of positive outputs, we
+used a model to generate an output and manually verified that the output was aligned. While
+(Tunstall et al., 2023) utilized preference data
+from AI Feedback (AIF) at scale, we adopt a
+more cautious approach in creating preference
+data. We generate a smaller volume of data, ensuring it is fully reviewed, edited, and verified
+by humans.
+
+Conversation
+
+Augmented Turn 1
+
+Augmented Turn 2
+
+User prompt 1
+
+User prompt 1
+
+User prompt 1
+
+Augmented Turn 3
+User prompt 1
+
+Assistant reply 1
+
+Assistant reply 1
+
+Assistant reply 1
+
+Assistant reply 1
+
+User prompt 2
+
+User prompt 2
+
+User prompt 2
+
+Assistant reply 2
+
+Assistant reply 2
+
+Assistant reply 2
+
+User prompt 3
+
+User prompt 3
+
+Assistant reply 3
+
+Assistant reply 3
+Applied loss
+
+Masked loss
+
+Figure 9: Augmentation process for conversations. The original conversation (left) is expanded
+into one sample per turn (right), with user prompts
+and assistant replies marked for training (red) and
+masking (orange) to enhance ALLaM’s language
+understanding and multi-turn response generation
+capabilities.
+
+There are two approaches for generating negative outputs: (i) on-policy: use the generations of the
+model we are tuning as negative outputs, and (ii) off-policy: use another similar model to generate the
+negative outputs. We did not verify that the negative outputs were worse than the positive. However,
+we ensured that the positive outputs were of the highest quality, such that they were almost always
+better than the negative outputs.
+Khan et al. (2023) demonstrated that model outputs can vary significantly depending on the sampling mechanism used. Building on this insight, we generate additional samples for each instance
+by varying temperature and nucleus sampling techniques. These additional samples are utilized to
+produce rejected samples, ensuring that ALLaM provides more grounded responses and generalizes
+well across various sampling mechanisms.
+In total, we collected 25,854 samples (triplets of {prompt, accepted, rejected}) in English and Arabic
+language. Using the technique mentioned above, we sample 10 different response from the model
+to generate additional rejected responses for each sample. This results in a dataset of 245K samples
+(after filtering) for preference training.
+Training For DPO, we used a batch size of 512 with KL penalty = 0.1 and a learning rate of 9 × 10−7
+decayed to 5 × 10−7 using a cosine annealing learning rate schedule. We train ALLaM for a single
+epoch using all the preference data.
+From our initial experiments with small datasets, we observed issues with model quality even when
+a small fraction (0.1%) of the data was noisy. In this context, noise can be improper labeling of
+positive/negative pairs or low quality positive outputs. It is not clear, however, if after scaling up the
+DPO data whether the model can ignore this type of noise. In early DPO models, trained on data
+where we did not verify all the samples, we found that even a few moderately noisy samples resulted
+in broken models that repeatedly generate the same text or output incoherent text.
+
+DPO vs. PPO One of the fundamental differences between DPO and PPO is that PPO is always
+on-policy with an external reward model. In our experience with DPO, we did not encounter any
+significant issues with off-policy experiments. Additionally, DPO allows for faster iteration and
+easier understanding of the training dynamics. The decision to use DPO over PPO was based on
+logistical constraints rather than a performance comparison of the algorithms. Given our compute
+setup and time constraints, we chose to proceed with DPO. We plan to explore PPO in the future for
+alignment.
+10
+
+Accuracy (%)
+
+HellaSwag
+
+0
+
+250
+
+500
+
+750
+
+Arabic MMLU
+
+50
+45
+40
+35
+30
+25
+
+84
+82
+80
+78
+76
+1000
+
+ALLaM 70B
+
+English MMLU
+60
+50
+40
+
+0
+
+250
+
+500
+
+750
+
+1000
+
+Training tokens (B)
+
+ALLaM 13B
+
+ALLaM 7B
+
+0
+
+250
+
+500
+
+750
+
+1000
+
+ALLaM 7B from scratch
+
+Figure 10: Selected benchmark evaluated through ALLaM’s training. Using HellaSwag as a proxy
+for language understanding, the performance of smaller models degrades when introducing Arabic,
+while larger models (70B) have enough capacity to improve simultaneously in English and Arabic.
+Arabic language acquisition is rapid in all models, as indicated by Arabic MMLU.
+
+araSwag
+
+ALLaM-Instruct
+AceGPT-Chat
+Llama 2-Chat
+Mistral-Instruct-v0.3
+Llama 3-Instruct
+ALLaM-Instruct
+Llama 2-Chat
+Jais-Chat
+ALLaM-Instruct
+Jais-Chat-v3
+Llama 2-Chat
+Llama 3-Instruct
+
+7B
+7B
+7B
+7B
+8B
+13B
+13B
+13B
+70B
+30B
+70B
+70B
+
+10-shot
+49.28
+43.4
+24.44
+30.59
+33.99
+54.77
+25.75
+77.12
+57.91
+88.37
+30.72
+45.75
+
+MMLU (ar)
+
+ACVA
+5-shot
+80.33
+59.35
+52.46
+60.7
+75.21
+78.59
+60.14
+70.68
+79.01
+70.05
+59.49
+80.26
+
+Koto et al. (2024)
+
+Huang et al. (2023)
+
+0-shot
+66.9
+45.8
+33.33
+44.3
+53.98
+68.11
+35.84
+54.8
+75.92
+62.37
+40.77
+36.27
+
+0-shot
+49.6
+33.58
+26.45
+34.06
+41.49
+51.03
+28.73
+41.43
+62.23
+30.15
+32.86
+60.11
+
+Exams (ar)
+
+ETEC
+
+araTruthfulQA
+
+araMath
+
+5-shot
+52.7
+35.57
+25.33
+31.1
+44.32
+54.93
+22.91
+46.93
+58.47
+51.21
+28.68
+58.47
+
+0-shot
+62.95
+36.05
+26.69
+34.41
+49.42
+65.59
+30.44
+48.68
+78.38
+38.53
+30.6
+71.41
+
+0-shot
+36.4
+37.9
+29.9
+30.3
+34.0
+37.5
+31.4
+31.6
+38.4
+37.3
+32.3
+37.7
+
+5-shot
+36.5
+22.5
+21.5
+26.0
+38.3
+46.8
+22.3
+25.3
+56.8
+32.5
+25.5
+59.70
+
+Table 4: Arabic benchmark results for instruction tuned models.
+
+AGIEval
+
+MMLU
+
+MMLU-Pro
+
+Ethics
+
+TruthfulQA
+
+Average
+ALLaM-Instruct
+AceGPT-Chat
+Llama 2-Chat
+Mistral-Instruct-v0.3
+Llama 3-Instruct
+ALLaM-Instruct
+Llama 2-Chat
+Jais-Chat
+ALLaM-Instruct
+Jais-Chat-v3
+Llama 2-Chat
+Llama 3-Instruct
+
+7B
+7B
+7B
+7B
+8B
+13B
+13B
+13B
+70B
+30B
+70B
+70B
+
+0-shot
+47.09
+26.33
+35.55
+42.22
+44.35
+48.42
+37.73
+31.45
+65.67
+36.78
+46.0
+63.78
+
+0-shot
+58.31
+44.53
+46.4
+59.75
+63.82
+61.8
+53.3
+49.46
+75.43
+57.57
+61.15
+78.38
+
+ARC
+
+CoT 5-shot
+27.78
+—
+22.87
+36.33
+41.32
+34.05
+27.19
+—
+48.61
+26.45
+35.16
+59.52
+
+0-shot
+69.8
+53.38
+58.88
+73.59
+68.07
+76.47
+70.52
+64.92
+76.16
+68.03
+68.5
+77.09
+
+0-shot
+42.11
+49.34
+45.32
+59.65
+51.72
+57.69
+43.95
+39.66
+58.78
+42.34
+52.77
+61.79
+
+0-shot
+51.45
+42.32
+44.28
+58.7
+56.83
+55.89
+50.17
+46.84
+59.56
+51.02
+54.27
+64.33
+
+MixEval
+
+HellaSwag
+
+Challenge
+0-shot
+75.2
+70.92
+75.52
+82.88
+75.81
+81.14
+79.66
+77.6
+84.97
+78.91
+82.14
+82.49
+
+Hard
+
+Standard
+
+5/0-shot (base/ft)
+28.9
+—
+30.8
+36.2
+45.6
+37.2
+—
+—
+51.60
+—
+38.0
+55.90
+
+5/0-shot (base/ft)
+67.6
+—
+61.7
+70.0
+75.0
+72.8
+—
+—
+83.5
+—
+74.6
+84.00
+
+Table 5: English benchmark results for instruction tuned models.
+
+11
+
+4
+
+Evaluation
+
+In this section, we describe the evaluation of our model and report the results of ALLaM 7B, 13B,
+and 70B models, as well as other relevant models, such as GPT-4, Command-R+ (Gomez, 2024),
+and Jais-30B (Sengupta et al., 2023). Our evaluations encompass three main types: (i) automatic
+evaluations, (ii) LLM-based evaluations, and (iii) human evaluations.
+Limitations Recently, (Alzahrani et al., 2024) showed that multiple choice or cloze test based
+evaluation may not be robust. In addition, MT-Bench uses an LLM as a judge, and has likely leaked
+into training datasets. Unfortunately, human evaluation is time-consuming and requires well-trained
+human evaluators. In this work, we try to ensure robust evaluation and attain a balanced assessment of the quantitative metrics and qualitative effectiveness of models in various applications and
+domains.
+4.1
+
+Automatic Evaluations
+
+The automatic evaluations cover Arabic and English benchmarks grouped into the categories listed
+below:
+1. Multi-domain: MixEval (Ni et al., 2024), MMLU-Pro (Wang et al., 2024), and BBH (Suzgun et al., 2022).
+2. Reasoning and Commonsense: HellaSwag (Zellers et al., 2019), PIQA (Bisk et al., 2020),
+WinoGrande (Sakaguchi et al., 2019), and AraSwag (Nagoudi et al., 2022).
+3. World Knowledge and Language Understanding: MMLU (Hendrycks et al., 2020),ARC
+Easy and Challenge (Clark et al., 2018), TriviaQA (Joshi et al., 2017), BoolQ (Clark et al.,
+2019), NQ Open (Kwiatkowski et al., 2019), AGIEval (Zhong et al., 2023), Exams-Ar
+(Hardalov et al., 2020), MMLU Arabic (tr) (Huang et al., 2023), MMLU Arabic (MBZU)
+(Koto et al., 2024) , and ETEC (in-house curated).
+4. Safety and Alignment: Hendrycks Ethics (Hendrycks et al., 2021a), ACVA (Huang et al.,
+2023), TruthfulQA (Lin et al., 2022), and AraTruthfulQA (in-house curated).
+5. Conversation: MT-Bench (Zheng et al., 2024), and Arabic domain capability dataset (inhouse curated).
+6. Math: Minerva MATH (Lewkowycz et al., 2022; Hendrycks et al., 2021b), GSM8K (Cobbe
+et al., 2021) and AraMath (in-house curated).
+7. Coding: HumanEval (THUDM, 2022)
+The following benchmarks were curated and developed in-house:
+• ETEC: a collection of 1891 multiple choice questions covering different exams performed
+by the Education and Training Evaluation Commission in Saudi Arabia9 .
+• AraMath: a set of 600 test samples that were post-processed and prepared from the AraMath (Alghamdi et al., 2022) dataset. These samples focus on testing the models’ performance on Arabic math problems.
+• AraTruthfulQA: a dataset created using similar methodology to the TruthfulQA (Lin et al.,
+2021) dataset. It comprises a total of 541 samples, 285 samples were translated directly
+from TruthfulQA using GPT-4 and carefully validated and localized by human verifiers.
+Additionally, 256 questions were curated by humans to ensure their contextual relevance
+and cultural appropriateness.
+While serving as a good test bench, observing the dynamics of automatic evaluations during training is also interesting. Figure 10 shows the behavior of selected benchmarks during mixed Arabic/English pretraining while scaling up model size. In particular, we observe that smaller models
+tradeoff between capability in the new and original languages. However, larger models can simultaneously improve in both languages.
+9 https://etec.gov.sa/home
+
+12
+
+English
+
+Model
+AceGPT 13B-chat
+ALLaM 13B Instruct
+ALLaM 70B Instruct
+Jais 13B Chat
+Jais 30B Chat v1
+Jais 30B Chat v3
+Cohere Command R+
+Cohere Command R
+DBRX Instruct
+GPT 3.5 Turbo
+
+Arabic
+
+Avg.
+
+Turn 1
+
+Turn 2
+
+Avg.
+
+Turn 1
+
+Turn 2
+
+5.44
+7.34
+7.44
+4.18
+3.89
+5.86
+7.41
+6.99
+7.16
+7.55
+
+6.76
+7.67
+7.91
+4.39
+4.13
+6.25
+7.63
+7.19
+7.33
+7.79
+
+4.12
+7.01
+6.96
+3.96
+3.64
+5.47
+7.18
+6.79
+6.98
+7.31
+
+6.33
+7.57
+8.19
+4.72
+3.54
+6.28
+7.97
+7.47
+7.83
+8.12
+
+7.01
+7.9
+8.4
+5.07
+4.13
+6.78
+8.28
+7.82
+8.19
+8.39
+
+5.64
+7.23
+7.97
+4.36
+2.95
+5.78
+7.65
+7.12
+7.46
+7.84
+
+Table 6: MT-Bench scores for Arabic and English. Each score is an average over 80 samples of the
+score ranging from 0 to 10 returned by the judge (GPT-4).
+
+Another observation from automatic evaluations is that some evaluations provide more signal for
+training decisions than others, e.g., Hellaswag smoothly improves during training while improvements in GSM8k occur in discontinuous jumps. Other benchmarks show no improvement until 1.5T
+tokens have been seen (i.e., grokking) making them unreliable for early training decisions.
+Tables 4 and 5 give an overview of the performance of ALLaM instruct models compared to other
+relevant models.
+In Arabic benchmarks, we can see that ALLaM-70B scores are the best in five (MMLU Arabic (natural
+and translated), Exams, ETEC, araTruthfulQA) out of the eight benchmark sets. On English, ALLaM
+is the second-best model in the majority of cases, following Llama 3-Instruct. We highlight the
+excellent performance of ALLaM on benchmarks released after training was completed (MMLU-Pro,
+MixEval) and benchmarks the training team did not have access to (ETEC), since they provide a
+clean evaluation signal.
+Table 7 and Table 8 in the appendix contain more detailed evaluation results for Arabic and English,
+respectively.
+Evaluation Framework All evaluations were completed using the Language Model Evaluation
+Harness (Gao et al., 2023) with the following exceptions: HumanEval was evaluated using BigCode
+Evaluation Harness (Ben Allal et al., 2022). MMLU-Pro, MixEval, and Arabic MMLU (Koto et al.,
+2024) were evaluated using the repositories of the dataset creators.
+4.2
+
+LLM-Based Evaluations
+
+MT-Bench (Zheng et al., 2024) consists of 80 multi-turn questions to evaluate models’ capabilities
+on complex instruction-following. In addition to the English version, MT-Bench Arabic was created
+using GPT-4 to translate the original dataset and human annotators to review and align the prompts
+to Arabic culture. GPT-4 serves as the LLM judge, scoring responses as recommended in (Zheng
+et al., 2024). Model performance is compared turn by turn, with results shown in Table 6, where
+ALLaM-70B achieves the best Arabic performance.
+4.3
+
+Human Evaluation
+
+We developed an Arabic multi-turn dataset that covers seven domains: Arabic linguistics, history,
+health, politics, coding, entertainment, and ethics, each domain contains ten questions with two
+turns.
+Human evaluators compared the responses from two models and were asked to choose the winning
+response with the following instructions:
+• Choose a response as the winner if it is the best, tie if both responses are equally good, and
+both-bad if both responses are not good.
+13
+
+• A response is considered good if it is coherent, grammatically correct, and is a reasonable
+response to the question or previous turn in the conversation.
+• Good responses should be in the correct language (the response should be in the same
+language as the previous turn, unless another language was requested).
+• Good responses should not contain toxicity, hate speech, or bias.
+Each pair of responses was inspected by three evaluators, and the winner was determined by majority
+voting. In case of a tie, a fourth evaluator was used to break the tie. Figure 11 presents the human
+evaluation results of the pair-wise comparisons of these models: ALLaM-13b, Jais-30b-chat-v3,
+Command-R-plus, and Command-R-v01. ALLaM-13b’s win rate was always higher than its loss rate
+compared with other models.
+Finally, we gather votes from the human evaluators and calculated ELO scores for each model. ELO
+scoring had two configurations, the default scoring rewards the model for good responses with 1
+point, tied responses (good and both-bad) with 0.5 points, and penalizes for bad responses with
+0 point. The custom configuration penalizes the model with the bad response and both models if
+both provided bad responses with 0 point. Figure 12 shows the ELO scores based on the human
+evaluations. From the figure, GPT-4 achieved the highest score, followed by ALLaM-13b with the
+second-highest score, outperforming (or matching) larger models such as CommandR+.
+ALLaM-13B Human Evalaution
+
+13
+b
+
+3
+t-v
+ha
+
+MLa
+
+jai
+
+AL
+
+both-bad
+
+0b
+-c
+
+tie
+
+GP
+win
+
++
+
+loss
+
+900
+
+23.6%
+
+s-3
+
+17.9%
+
+950
+
+dR
+
+25.0%
+
+7.9%
+
+T4
+
+33.6%
+
+40.7%
+
+1000
+
+an
+
+39.3%
+
+8.6%
+
+mm
+
+18.6%
+
+Co
+
+34.3%
+
+Elo Score
+
+1050
+
+ALLaM-13B vs GPT-4 12.1%
+ALLaM-13B vs
+jais-30b-chat-v3
+
+Elo Rating (Default)
+Elo Rating (Custom)
+
+11.4%
+
+dR
+
+38.6%
+
+27.1%
+
+an
+
+ALLaM-13B vs
+CommandR+
+
+17.9%
+
+Elo Scores for Human Evaluation
+
+mm
+
+43.6%
+
+1100
+
+Co
+
+ALLaM-13B vs
+CommandR
+
+Figure 11: Pairwise win rates as judged by
+human evaluators. ALLaM-13B wins against
+many much larger models.
+
+5
+
+Figure 12: ELO scores from human evaluator
+preferences. ALLaM is tied with Command-R+
+and lags only behind GPT-4.
+
+Related Work
+
+Our work sits at the cross-section of research building language models that support multiple languages and scaling such techniques in terms of size and data. To successfully train a large language
+model in a language other than English requires a complete understanding of cross-lingual transferability between languages and a good understanding of scaling laws as well as the fundamentals
+of training large language models. In this section, we discuss work on language modeling from the
+perspectives of cross-lingual alignment, multitask learning, and Arabic specialization.
+5.1
+
+Language Modeling and Cross-lingual Representations
+
+In early work, word representations were derived using basic forms of the skip-gram model (Mikolov
+et al., 2013), wherein each word is assigned a representation that does not account for varying
+contexts (Grave et al., 2018; Pennington et al., 2014). Further work in this area developed word
+representations that are adaptive to the context surrounding the words (McCann et al., 2017; Peters
+et al., 2018a; Howard & Ruder, 2018; Devlin et al., 2019; Yang et al., 2019; Radford et al., 2019).
+Peters et al. (2018a) introduced ELMo, a model built with a bidirectional LSTM-based language
+model (LM) for pretraining to obtain contextualized word representations. This technique combines
+the outputs from all layers linearly when targeting specific tasks. Nonetheless, the sequential nature
+of LSTM-based LM pretraining presents challenges in scaling training efficiently. Concurrently,
+Vaswani et al. (2017) developed the Transformer architecture, which leverages multi-headed selfattention and positional encoding to handle long-range dependencies and enable parallel processing.
+14
+
+Following that Radford et al. (2019) introduced GPT, a model that pretrains a Transformer decoder
+using a conditional language model objective, with subsequent fine-tuning requiring only minimal
+modifications. Similarly, Devlin et al. (2019) unveiled BERT, which uses a Transformer encoder
+pretrained via a masked language modeling (MLM) objective. This approach excelled at task adaptation and benefited from the MLM’s ability to encode context bidirectionally, unlike the traditional
+unidirectional (conditional) LM that processes either the left or right context. Later Raffel et al.
+(2020) proposed a detailed hybrid encoder-decoder architecture based LLM with an implementation
+of many objective function via autoregressive structure.
+During the release of BERT, mBERT, a multilingual version of BERT is trained on 102 languages
+using a shared vocabulary of 110K subword tokens.10 . Despite the lack of explicit cross-lingual
+supervision, mBERT has demonstrated the ability to learn cross-lingual representations that generalize
+well across languages. Wu & Dredze (2019); Pires et al. (2019) evaluated the zero-shot cross-lingual
+transferability of mBERT on several NLP tasks and attributed its generalization capability to shared
+subword units. Pires et al. (2019) additionally identified structural similarity (e.g., word order) as
+another crucial factor for successful cross-lingual transfer. K et al. (2020), however, argued that
+shared subwords contribute minimally, and instead, structural similarity between languages is more
+critical for effective transfer. Artetxe et al. (2019) further showed that joint training might not be
+necessary and proposed an alternative method to transfer a monolingual model to a bilingual model
+by learning only the word embeddings in the target language. They also highlighted the vocabulary
+size per language as an important factor. Finally, Xue et al. (2021) showed that joint training on
+a large multilingual vocabulary can robustly map multilingual language models to the same latent
+space.
+In the early days, Cross-lingual alignment from mono-lingual embeddings was tricky and often required complex adversarial training (Conneau et al., 2017), careful orthogonal mapping (Artetxe
+et al., 2018) or semi-supervised learning (Mohiuddin et al., 2020; Bari et al., 2020). With the introduction of mBERT, it became evident that learning joint distribution makes it easier for LLM to
+achieve cross-lingual alignment at scale. Lample & Conneau (2019) enhanced mBERT by incorporating a conditional LM and a translation LM (leveraging parallel data) objective along with a language
+embedding layer and trained a larger model utilizing more monolingual data. Huang et al. (2019)
+suggested employing auxiliary tasks like cross-lingual word recovery and paraphrase detection for
+pretraining. Subsequent work by Conneau et al. (2019) and Soltan et al. (2022) scaled up the training of multilingual language models. As well, Xue et al. (2021) scale the size and languages in the
+T5 architecture. In an effort to reproduce GPT-3, Scao et al. (2023) trained the first auto-regressive
+multilingual LLM.
+
+5.2
+
+Multitask Learning And Alignment
+
+Early work has demonstrated that multitask learning can enhance the performance of NLP models
+(Collobert & Weston, 2008). In explicit multitask learning, augmenting all samples during training may introduce noise due to differing output distributions in a traditional full-model fine-tuning
+setup (Weller et al., 2022; Bari et al., 2021). For implicit multitask learning, Radford et al. (2019)
+showed that a language model can begin to learn downstream tasks without explicit supervision
+by pretraining alone. Large language models (Brown et al., 2020b; Smith et al., 2022; Chowdhery et al., 2022) at scale can perform few-shot in-context learning, making them effective multitask
+models. Additionally, Sanh et al. (2021); Wei et al. (2021); Muennighoff et al. (2022); Chung et al.
+(2022) found that these implicitly learned language models could be further improved by explicitly
+fine-tuning them with human instructions and prompts (Bach et al., 2022; Wang et al., 2022) in a
+multitask fashion. Unlike previous template-based prompting approaches, Ouyang et al. (2022) applied preference tuning with reinforcement learning (Stiennon et al., 2020) using naturally written
+prompts. Subsequently, Bai et al. (2022) introduced Constitutional AI to automate alignment using
+AI feedback. Recently, following the work of Rafailov et al. (2023), various efforts (Azar et al.,
+2023; Ethayarajh et al., 2024; Hong et al., 2024; Park et al., 2024; Meng et al., 2024) have been
+directed towards preference tuning without explicit reward models.
+
+10 https://github.com/google-research/bert/blob/master/multilingual.md
+
+15
+
+5.3
+
+Language Models for Arabic
+
+As of the time of writing, the most prominent Arabic-focused LLMs are:
+1. Jais (Sengupta et al., 2023): 13B and 30B base and chat models trained from scratch using
+a combination of natural and translated Arabic data along with English and code data.
+2. AceGPT (Huang et al., 2023): 7B and 13B base and chat models trained from Llama-2
+without vocabulary expansion.
+While Jais and AceGPT are currently the most prominent models, early open models such as
+AraGPT (Antoun et al., 2020), AraT5 (Elmadany et al., 2022), AraBART (Eddine et al., 2022), and
+Noon (Lakim et al., 2022) 11 pioneered the area with models developed with limited resources to
+serve Arabic.
+Other models such as Jasmine (Abdul-Mageed et al., 2023) and Aramus (Alghamdi et al., 2023)
+also showed the need for building a language model for over 400 million speakers worldwide.
+In addition to the language adaptation of models and multilingual models reviewed above, recent
+work has focused on building multilingual/bilingual language models from open weight language
+models. For example, Ruciński (2024) adapted Mistral 7B for the Polish without vocabulary expansion. Mala-500 is another effort to expand to 534 languages by expanding the vocabulary to 260K
+tokens and further pretrained Llama-2 using LoRA adaptors (Lin et al., 2024). Due to the number
+of languages they aimed to support, a small amount of data was included for each language and the
+evaluation of the approach was limited to measuring perplexity and automatic classification benchmarks. (Cui et al., 2023) introduced a Chinese Language adaptation of Llama and Alpaca models,
+where the vocabulary was increased to 50K tokens, then continued to pretrain the models and finally
+fine-tune them.
+
+6
+
+Conclusion
+
+The ALLaM model series marks a significant advancement in Arabic Language Technologies, achieving state-of-the-art performance across various Arabic benchmarks while maintaining or enhancing
+English performance. Through careful training that emphasizes language alignment and transferability, our models demonstrate effective second-language acquisition without catastrophic forgetting.
+The strategic use of translated data, knowledge encoding, and alignment with human preferences
+have been crucial in this success.
+
+7
+
+Limitations
+
+ALLaM was trained on data that may potentially include toxic language, unsafe content, and societal
+biases originally sourced from the internet, leading to the possible amplification of these biases and
+toxic responses. Although ALLaM underwent comprehensive safety training during the alignment
+phase, more community feedback is needed to iteratively improve ALLaM. Additionally, inherent uncertainties in generative models mean that trials cannot encompass every possible use case, making
+it impossible to predict the model’s responses in all contexts. This can occasionally result in inaccurate, biased, or socially unacceptable outputs, even if the prompt itself is not explicitly offensive.
+Developers must conduct thorough safety evaluations and make specific adjustments to ensure that
+ALLaM is suitable for their intended purposes. Furthermore, the output generated by ALLaM should
+not be considered a statement from ALLaM’s creators or any affiliated organization.
+
+8
+
+Ethical Statement
+
+While conducting and presenting this research, we are committed to upholding the highest ethical
+standards. We recognize the potential impact of large language models on society and the importance of ensuring their responsible development and deployment. Our work adheres to principles of
+fairness, transparency, and inclusivity, striving to mitigate biases and ensure diverse representation
+11 https://huggingface.co/Naseej/noon-7b
+
+16
+
+in our training data. We are mindful of privacy concerns and have taken steps to anonymize and
+secure data used in our research. Additionally, we acknowledge the potential for misuse of language
+technologies and advocate for their ethical application, promoting beneficial use cases while being
+vigilant about unintended consequences. ALLaM models are made openly available to foster collaboration and further research, with the aim of contributing positively to the advancement of language
+technologies and supporting the cultural and technological growth of the Arabic-speaking world.
+
+9
+
+Risk Statement
+
+The deployment and use of LLMs in various applications poses significant risks, including data
+privacy and security concerns due to the inadvertent inclusion of sensitive information in training
+datasets. LLMs can perpetuate or amplify biases, resulting in unfair treatment and discrimination
+in critical decision-making processes. They can also generate convincing but inaccurate content,
+spreading misinformation and potentially influencing public opinion negatively. Over-reliance on
+LLMs may diminish human judgment, and the models’ susceptibility to adversarial attacks can compromise system integrity. To mitigate these risks, we follow robust governance, continuous monitoring, and iterative improvements. We also adhere to best practices in data handling and model
+training, fostering transparency and accountability in LLM development.
+
+References
+Abdul-Mageed, M., Elmadany, A., Inciarte, A., Khondaker, M. T. I., et al. Jasmine: Arabic gpt
+models for few-shot learning. In Proceedings of the 2023 Conference on Empirical Methods in
+Natural Language Processing, pp. 16721–16744, 2023.
+AI, ., :, Young, A., Chen, B., Li, C., Huang, C., Zhang, G., Zhang, G., Li, H., Zhu, J., Chen, J.,
+Chang, J., Yu, K., Liu, P., Liu, Q., Yue, S., Yang, S., Yang, S., Yu, T., Xie, W., Huang, W., Hu, X.,
+Ren, X., Niu, X., Nie, P., Xu, Y., Liu, Y., Wang, Y., Cai, Y., Gu, Z., Liu, Z., and Dai, Z. Yi: Open
+foundation models by 01.ai, 2024.
+AI2. Olmo 1.7–7b: A 24 point improvement on mmlu, 2024. URL https://blog.allenai.org/
+olmo-1-7-7b-a-24-point-improvement-on-mmlu-92b43f7d269d.
+Alghamdi, A., Duan, X., Jiang, W., Wang, Z., Wu, Y., Xia, Q., Wang, Z., Zheng, Y., Rezagholizadeh,
+M., Huai, B., et al. Aramus: Pushing the limits of data and model scale for arabic natural language
+processing. arXiv preprint arXiv:2306.06800, 2023.
+Alghamdi, R., Liang, Z., and Zhang, X. ArMATH: a dataset for solving Arabic math word problems.
+In Calzolari, N., Béchet, F., Blache, P., Choukri, K., Cieri, C., Declerck, T., Goggi, S., Isahara,
+H., Maegaard, B., Mariani, J., Mazo, H., Odijk, J., and Piperidis, S. (eds.), Proceedings of the
+Thirteenth Language Resources and Evaluation Conference, pp. 351–362, Marseille, France, June
+2022. European Language Resources Association. URL https://aclanthology.org/2022.
+lrec-1.37.
+Alzahrani, N., Alyahya, H. A., Alnumay, Y., Alrashed, S., Alsubaie, S., Almushaykeh, Y., Mirza,
+F., Alotaibi, N., Altwairesh, N., Alowisheq, A., Bari, M. S., and Khan, H. When benchmarks are
+targets: Revealing the sensitivity of large language model leaderboards, 2024.
+Amazon. Sustainability in the cloud., 2021. URL https://sustainability.aboutamazon.
+com/environment/the-cloud.
+Anil, R., Dai, A. M., Firat, O., Johnson, M., Lepikhin, D., Passos, A., Shakeri, S., Taropa, E., Bailey,
+P., Chen, Z., Chu, E., Clark, J. H., Shafey, L. E., Huang, Y., Meier-Hellstern, K., Mishra, G.,
+Moreira, E., Omernick, M., Robinson, K., Ruder, S., Tay, Y., Xiao, K., Xu, Y., Zhang, Y., Abrego,
+G. H., Ahn, J., Austin, J., Barham, P., Botha, J., Bradbury, J., Brahma, S., Brooks, K., Catasta, M.,
+Cheng, Y., Cherry, C., Choquette-Choo, C. A., Chowdhery, A., Crepy, C., Dave, S., Dehghani,
+M., Dev, S., Devlin, J., Díaz, M., Du, N., Dyer, E., Feinberg, V., Feng, F., Fienber, V., Freitag, M.,
+Garcia, X., Gehrmann, S., Gonzalez, L., Gur-Ari, G., Hand, S., Hashemi, H., Hou, L., Howland,
+J., Hu, A., Hui, J., Hurwitz, J., Isard, M., Ittycheriah, A., Jagielski, M., Jia, W., Kenealy, K.,
+Krikun, M., Kudugunta, S., Lan, C., Lee, K., Lee, B., Li, E., Li, M., Li, W., Li, Y., Li, J., Lim,
+17
+
+H., Lin, H., Liu, Z., Liu, F., Maggioni, M., Mahendru, A., Maynez, J., Misra, V., Moussalem, M.,
+Nado, Z., Nham, J., Ni, E., Nystrom, A., Parrish, A., Pellat, M., Polacek, M., Polozov, A., Pope,
+R., Qiao, S., Reif, E., Richter, B., Riley, P., Ros, A. C., Roy, A., Saeta, B., Samuel, R., Shelby, R.,
+Slone, A., Smilkov, D., So, D. R., Sohn, D., Tokumine, S., Valter, D., Vasudevan, V., Vodrahalli,
+K., Wang, X., Wang, P., Wang, Z., Wang, T., Wieting, J., Wu, Y., Xu, K., Xu, Y., Xue, L., Yin,
+P., Yu, J., Zhang, Q., Zheng, S., Zheng, C., Zhou, W., Zhou, D., Petrov, S., and Wu, Y. Palm 2
+technical report, 2023.
+Anthropic.
+The claude 3 model family: Opus, sonnet, haiku, 2022.
+URL https:
+//www-cdn.anthropic.com/de8ba9b01c9ab7cbabf5c33b80b7bbc618857627/Model_
+Card_Claude_3.pdf.
+Antoun, W., Baly, F., and Hajj, H. Aragpt2: Pre-trained transformer for arabic language generation.
+arXiv preprint arXiv:2012.15520, 2020.
+Artetxe, M., Labaka, G., and Agirre, E. Generalizing and improving bilingual word embedding
+mappings with a multi-step framework of linear transformations. In Proceedings of the ThirtySecond AAAI Conference on Artificial Intelligence, pp. 5012–5019, 2018.
+Artetxe, M., Ruder, S., and Yogatama, D. On the cross-lingual transferability of monolingual representations, 2019.
+Azar, M. G., Rowland, M., Piot, B., Guo, D., Calandriello, D., Valko, M., and Munos, R. A general
+theoretical paradigm to understand learning from human preferences, 2023. URL https://
+arxiv.org/abs/2310.12036.
+Bach, S. H., Sanh, V., Yong, Z.-X., Webson, A., Raffel, C., Nayak, N. V., Sharma, A., Kim, T., Bari,
+M. S., Fevry, T., Alyafeai, Z., Dey, M., Santilli, A., Sun, Z., Ben-David, S., Xu, C., Chhablani,
+G., Wang, H., Fries, J. A., Al-shaibani, M. S., Sharma, S., Thakker, U., Almubarak, K., Tang, X.,
+Tang, X., Jiang, M. T.-J., and Rush, A. M. Promptsource: An integrated development environment
+and repository for natural language prompts, 2022.
+Bai, Y., Kadavath, S., Kundu, S., Askell, A., Kernion, J., Jones, A., Chen, A., Goldie, A., Mirhoseini,
+A., McKinnon, C., Chen, C., Olsson, C., Olah, C., Hernandez, D., Drain, D., Ganguli, D., Li, D.,
+Tran-Johnson, E., Perez, E., Kerr, J., Mueller, J., Ladish, J., Landau, J., Ndousse, K., Lukosuite,
+K., Lovitt, L., Sellitto, M., Elhage, N., Schiefer, N., Mercado, N., DasSarma, N., Lasenby, R., Larson, R., Ringer, S., Johnston, S., Kravec, S., Showk, S. E., Fort, S., Lanham, T., Telleen-Lawton,
+T., Conerly, T., Henighan, T., Hume, T., Bowman, S. R., Hatfield-Dodds, Z., Mann, B., Amodei,
+D., Joseph, N., McCandlish, S., Brown, T., and Kaplan, J. Constitutional ai: Harmlessness from
+ai feedback, 2022. URL https://arxiv.org/abs/2212.08073.
+Bari, M. S., Joty, S., and Jwalapuram, P. Zero-resource cross-lingual named entity recognition. In
+Proceedings of the aaai conference on artificial intelligence, volume 34, pp. 7415–7423, 2020.
+Bari, M. S., Mohiuddin, T., and Joty, S. Uxla: A robust unsupervised data augmentation framework
+for cross-lingual nlp. In Proceedings of The Joint Conference of the 59th Annual Meeting of
+the Association for Computational Linguistics and the 11th International Joint Conference on
+Natural Language Processing (ACL-IJCNLP 2021), Online, 2021. Association for Computational
+Linguistics.
+Ben Allal, L., Muennighoff, N., Kumar Umapathi, L., Lipkin, B., and von Werra, L. A framework for the evaluation of code generation models. https://github.com/bigcode-project/
+bigcode-evaluation-harness, 2022.
+Bengio, Y., Ducharme, R., Vincent, P., and Janvin, C. A neural probabilistic language model.
+J. Mach. Learn. Res., 3:1137–1155, 2003. URL https://api.semanticscholar.org/
+CorpusID:221275765.
+Bisk, Y., Zellers, R., Bras, R. L., Gao, J., and Choi, Y. Piqa: Reasoning about physical commonsense
+in natural language. In Thirty-Fourth AAAI Conference on Artificial Intelligence, 2020.
+18
+
+Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., Neelakantan, A., Shyam,
+P., Sastry, G., Askell, A., Agarwal, S., Herbert-Voss, A., Krueger, G., Henighan, T., Child, R.,
+Ramesh, A., Ziegler, D. M., Wu, J., Winter, C., Hesse, C., Chen, M., Sigler, E., Litwin, M., Gray,
+S., Chess, B., Clark, J., Berner, C., McCandlish, S., Radford, A., Sutskever, I., and Amodei, D.
+Language models are few-shot learners, 2020a.
+Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., Neelakantan, A., Shyam,
+P., Sastry, G., Askell, A., Agarwal, S., Herbert-Voss, A., Krueger, G., Henighan, T., Child, R.,
+Ramesh, A., Ziegler, D. M., Wu, J., Winter, C., Hesse, C., Chen, M., Sigler, E., Litwin, M., Gray,
+S., Chess, B., Clark, J., Berner, C., McCandlish, S., Radford, A., Sutskever, I., and Amodei, D.
+Language models are few-shot learners, 2020b. URL https://arxiv.org/abs/2005.14165.
+Bubeck, S., Chandrasekaran, V., Eldan, R., Gehrke, J., Horvitz, E., Kamar, E., Lee, P., Lee, Y. T., Li,
+Y., Lundberg, S., Nori, H., Palangi, H., Ribeiro, M. T., and Zhang, Y. Sparks of artificial general
+intelligence: Early experiments with gpt-4, 2023.
+Chowdhery, A., Narang, S., Devlin, J., Bosma, M., Mishra, G., Roberts, A., Barham, P., Chung,
+H. W., Sutton, C., Gehrmann, S., Schuh, P., Shi, K., Tsvyashchenko, S., Maynez, J., Rao, A.,
+Barnes, P., Tay, Y., Shazeer, N., Prabhakaran, V., Reif, E., Du, N., Hutchinson, B., Pope, R.,
+Bradbury, J., Austin, J., Isard, M., Gur-Ari, G., Yin, P., Duke, T., Levskaya, A., Ghemawat, S.,
+Dev, S., Michalewski, H., Garcia, X., Misra, V., Robinson, K., Fedus, L., Zhou, D., Ippolito, D.,
+Luan, D., Lim, H., Zoph, B., Spiridonov, A., Sepassi, R., Dohan, D., Agrawal, S., Omernick, M.,
+Dai, A. M., Pillai, T. S., Pellat, M., Lewkowycz, A., Moreira, E., Child, R., Polozov, O., Lee, K.,
+Zhou, Z., Wang, X., Saeta, B., Diaz, M., Firat, O., Catasta, M., Wei, J., Meier-Hellstern, K., Eck,
+D., Dean, J., Petrov, S., and Fiedel, N. Palm: Scaling language modeling with pathways. CoRR,
+abs/2204.02311, 2022. doi: 10.48550/arXiv.2204.02311. URL https://doi.org/10.48550/
+arXiv.2204.02311.
+Chung, H. W., Hou, L., Longpre, S., Zoph, B., Tay, Y., Fedus, W., Li, Y., Wang, X., Dehghani, M.,
+Brahma, S., Webson, A., Gu, S. S., Dai, Z., Suzgun, M., Chen, X., Chowdhery, A., Castro-Ros,
+A., Pellat, M., Robinson, K., Valter, D., Narang, S., Mishra, G., Yu, A., Zhao, V., Huang, Y., Dai,
+A., Yu, H., Petrov, S., Chi, E. H., Dean, J., Devlin, J., Roberts, A., Zhou, D., Le, Q. V., and Wei, J.
+Scaling instruction-finetuned language models, 2022. URL https://arxiv.org/abs/2210.
+11416.
+Clark, C., Lee, K., Chang, M.-W., Kwiatkowski, T., Collins, M., and Toutanova, K. BoolQ: Exploring the surprising difficulty of natural yes/no questions. In Proceedings of NAACL-HLT 2019,
+2019.
+Clark, P., Cowhey, I., Etzioni, O., Khot, T., Sabharwal, A., Schoenick, C., and Tafjord, O. Think
+you have solved question answering? try arc, the ai2 reasoning challenge. ArXiv, abs/1803.05457,
+2018.
+Cobbe, K., Kosaraju, V., Bavarian, M., Hilton, J., Nakano, R., Hesse, C., and Schulman, J. Training
+verifiers to solve math word problems, 2021.
+Collobert, R. and Weston, J. A unified architecture for natural language processing: Deep neural networks with multitask learning. In Proceedings of the 25th International Conference
+on Machine Learning, ICML ’08, pp. 160–167, New York, NY, USA, 2008. Association for
+Computing Machinery. ISBN 9781605582054. doi: 10.1145/1390156.1390177. URL https:
+//doi.org/10.1145/1390156.1390177.
+Computer, T. Redpajama: an open dataset for training large language models, October 2023. URL
+https://github.com/togethercomputer/RedPajama-Data.
+Conneau, A., Lample, G., Ranzato, M., Denoyer, L., and Jégou, H. Word translation without parallel
+data. CoRR, abs/1710.04087, 2017. URL http://arxiv.org/abs/1710.04087.
+Conneau, A., Khandelwal, K., Goyal, N., Chaudhary, V., Wenzek, G., Guzmán, F., Grave, E., Ott,
+M., Zettlemoyer, L., and Stoyanov, V. Unsupervised cross-lingual representation learning at scale.
+arXiv preprint arXiv:1911.02116, 2019.
+19
+
+Cui, Y., Yang, Z., and Yao, X. Efficient and effective text encoding for chinese llama and alpaca.
+arXiv preprint arXiv:2304.08177, 2023.
+Dao, T. FlashAttention-2: Faster attention with better parallelism and work partitioning. In International Conference on Learning Representations (ICLR), 2024.
+Dao, T., Fu, D. Y., Ermon, S., Rudra, A., and Ré, C. FlashAttention: Fast and memory-efficient exact
+attention with IO-awareness. In Advances in Neural Information Processing Systems (NeurIPS),
+2022.
+Devlin, J., Chang, M., Lee, K., and Toutanova, K. BERT: pre-training of deep bidirectional transformers for language understanding. In Burstein, J., Doran, C., and Solorio, T. (eds.), Proceedings
+of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, NAACL-HLT 2019, Minneapolis, MN, USA, June 2-7,
+2019, Volume 1 (Long and Short Papers), pp. 4171–4186. Association for Computational Linguistics, 2019. doi: 10.18653/v1/n19-1423. URL https://doi.org/10.18653/v1/n19-1423.
+Ding, N., Chen, Y., Xu, B., Qin, Y., Zheng, Z., Hu, S., Liu, Z., Sun, M., and Zhou, B. Enhancing chat language models by scaling high-quality instructional conversations. arXiv preprint
+arXiv:2305.14233, 2023.
+Dodge, J., Prewitt, T., Combes, R. T. D., Odmark, E., Schwartz, R., Strubell, E., Luccioni, A. S.,
+Smith, N. A., DeCario, N., and Buchanan, W. Measuring the carbon intensity of ai in cloud
+instances, 2022.
+Eddine, M. K., Tomeh, N., Habash, N., Roux, J. L., and Vazirgiannis, M. Arabart: a pretrained arabic
+sequence-to-sequence model for abstractive summarization. arXiv preprint arXiv:2203.10945,
+2022.
+Elmadany, A., Abdul-Mageed, M., et al. Arat5: Text-to-text transformers for arabic language generation. In Proceedings of the 60th annual meeting of the association for computational linguistics
+(Volume 1: Long papers), pp. 628–647, 2022.
+Ethayarajh, K., Xu, W., Muennighoff, N., Jurafsky, D., and Kiela, D. Kto: Model alignment as
+prospect theoretic optimization, 2024. URL https://arxiv.org/abs/2402.01306.
+Gao, L., Biderman, S., Black, S., Golding, L., Hoppe, T., Foster, C., Phang, J., He, H., Thite, A.,
+Nabeshima, N., Presser, S., and Leahy, C. The pile: An 800gb dataset of diverse text for language
+modeling. CoRR, abs/2101.00027, 2021. URL https://arxiv.org/abs/2101.00027.
+Gao, L., Tow, J., Abbasi, B., Biderman, S., Black, S., DiPofi, A., Foster, C., Golding, L., Hsu,
+J., Le Noac’h, A., Li, H., McDonell, K., Muennighoff, N., Ociepa, C., Phang, J., Reynolds, L.,
+Schoelkopf, H., Skowron, A., Sutawika, L., Tang, E., Thite, A., Wang, B., Wang, K., and Zou, A.
+A framework for few-shot language model evaluation, 12 2023. URL https://zenodo.org/
+records/10256836.
+Gomez, A. Introducing Command R+: A Scalable LLM Built for Business, April 2024. URL
+https://cohere.com/blog/command-r-plus-microsoft-azure.
+Google. Carbon free energy for google cloud regions, 2021. URL https://cloud.google.com/
+sustainability/region-carbon.
+Google. Gemini: A family of highly capable multimodal models, 2024.
+Grave, E., Bojanowski, P., Gupta, P., Joulin, A., and Mikolov, T. Learning word vectors for 157 languages. In Proceedings of the International Conference on Language Resources and Evaluation
+(LREC 2018), 2018.
+Hardalov, M., Mihaylov, T., Zlatkova, D., Dinkov, Y., Koychev, I., and Nakov, P. Exams: A multisubject high school examinations dataset for cross-lingual and multilingual question answering.
+arXiv preprint arXiv:2011.03080, 2020.
+Hendrycks, D. and Mazeika, M. X-risk analysis for ai research, 2022.
+20
+
+Hendrycks, D., Burns, C., Basart, S., Zou, A., Mazeika, M., Song, D., and Steinhardt, J. Measuring
+massive multitask language understanding. arXiv preprint arXiv:2009.03300, 2020.
+Hendrycks, D., Burns, C., Basart, S., Critch, A., Li, J., Song, D., and Steinhardt, J. Aligning ai with
+shared human values. Proceedings of the International Conference on Learning Representations
+(ICLR), 2021a.
+Hendrycks, D., Burns, C., Kadavath, S., Arora, A., Basart, S., Tang, E., Song, D., and Steinhardt, J.
+Measuring mathematical problem solving with the math dataset. NeurIPS, 2021b.
+Hochreiter, S. and Schmidhuber, J. Long short-term memory. Neural computation, 9:1735–80, 12
+1997. doi: 10.1162/neco.1997.9.8.1735.
+Hoffmann, J., Borgeaud, S., Mensch, A., Buchatskaya, E., Cai, T., Rutherford, E., Casas, D. d. L.,
+Hendricks, L. A., Welbl, J., Clark, A., et al. Training compute-optimal large language models.
+arXiv preprint arXiv:2203.15556, 2022. URL https://arxiv.org/abs/2203.15556.
+Hong, J., Lee, N., and Thorne, J. Orpo: Monolithic preference optimization without reference model,
+2024. URL https://arxiv.org/abs/2403.07691.
+Howard, J. and Ruder, S. Universal language model fine-tuning for text classification. In
+Gurevych, I. and Miyao, Y. (eds.), Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pp. 328–339, Melbourne, Australia, July 2018. Association for Computational Linguistics. doi: 10.18653/v1/P18-1031. URL
+https://aclanthology.org/P18-1031.
+Huang, H., Liang, Y., Duan, N., Gong, M., Shou, L., Jiang, D., and Zhou, M. Unicoder: A universal language encoder by pre-training with multiple cross-lingual tasks. In Inui, K., Jiang,
+J., Ng, V., and Wan, X. (eds.), Proceedings of the 2019 Conference on Empirical Methods in
+Natural Language Processing and the 9th International Joint Conference on Natural Language
+Processing (EMNLP-IJCNLP), pp. 2485–2494, Hong Kong, China, November 2019. Association
+for Computational Linguistics. doi: 10.18653/v1/D19-1252. URL https://aclanthology.
+org/D19-1252.
+Huang, H., Yu, F., Zhu, J., Sun, X., Cheng, H., Song, D., Chen, Z., Alharthi, A., An, B., Liu, Z., et al.
+Acegpt, localizing large language models in arabic. arXiv preprint arXiv:2309.12053, 2023.
+Joshi, M., Choi, E., Weld, D. S., and Zettlemoyer, L. Triviaqa: A large scale distantly supervised
+challenge dataset for reading comprehension. In Proceedings of the 55th Annual Meeting of
+the Association for Computational Linguistics, Vancouver, Canada, July 2017. Association for
+Computational Linguistics.
+K, K., Wang, Z., Mayhew, S., and Roth, D. Cross-lingual ability of multilingual {bert}: An empirical study. In International Conference on Learning Representations, 2020. URL https:
+//openreview.net/forum?id=HJeT3yrtDr.
+Kaplan, J., McCandlish, S., Henighan, T., Brown, T. B., Chess, B., Child, R., Gray, S., Radford, A.,
+Wu, J., and Amodei, D. Scaling laws for neural language models, 2020.
+Khan, M. A. M., Bari, M. S., Do, X. L., Wang, W., Parvez, M. R., and Joty, S. xcodeeval: A
+large scale multilingual multitask benchmark for code understanding, generation, translation and
+retrieval, 2023.
+Kocetkov, D., Li, R., Allal, L. B., Li, J., Mou, C., Ferrandis, C. M., Jernite, Y., Mitchell, M., Hughes,
+S., Wolf, T., Bahdanau, D., von Werra, L., and de Vries, H. The stack: 3 tb of permissively licensed
+source code, 2022.
+Koto, F., Li, H., Shatnawi, S., Doughman, J., Sadallah, A. B., Alraeesi, A., Almubarak, K., Alyafeai,
+Z., Sengupta, N., Shehata, S., et al. Arabicmmlu: Assessing massive multitask language understanding in arabic. arXiv preprint arXiv:2402.12840, 2024.
+Kwiatkowski, T., Palomaki, J., Redfield, O., Collins, M., Parikh, A., Alberti, C., Epstein, D., Polosukhin, I., Kelcey, M., Devlin, J., Lee, K., Toutanova, K. N., Jones, L., Chang, M.-W., Dai, A.,
+Uszkoreit, J., Le, Q., and Petrov, S. Natural questions: a benchmark for question answering research. Transactions of the Association of Computational Linguistics, 2019.
+21
+
+Lakim, I., Almazrouei, E., Abualhaol, I., Debbah, M., and Launay, J. A holistic assessment of
+the carbon footprint of noor, a very large arabic language model. In Proceedings of BigScience
+Episode# 5–Workshop on Challenges & Perspectives in Creating Large Language Models, pp.
+84–94, 2022.
+Lample, G. and Conneau, A. Cross-lingual language model pretraining. Advances in Neural Information Processing Systems (NeurIPS), 2019.
+Laskar, M. T. R., Bari, M. S., Rahman, M., Bhuiyan, M. A. H., Joty, S., and Huang, J. X. A
+systematic study and comprehensive evaluation of chatgpt on benchmark datasets, 2023.
+Lewkowycz, A., Andreassen, A., Dohan, D., Dyer, E., Michalewski, H., Ramasesh, V., Slone, A.,
+Anil, C., Schlag, I., Gutman-Solo, T., Wu, Y., Neyshabur, B., Gur-Ari, G., and Misra, V. Solving
+quantitative reasoning problems with language models, 2022.
+Lin, P., Ji, S., Tiedemann, J., Martins, A. F., and Schütze, H. Mala-500: Massive language adaptation
+of large language models. arXiv preprint arXiv:2401.13303, 2024.
+Lin, S., Hilton, J., and Evans, O. Truthfulqa: Measuring how models mimic human falsehoods.
+arXiv preprint arXiv:2109.07958, 2021.
+Lin, S., Hilton, J., and Evans, O. TruthfulQA: Measuring how models mimic human falsehoods. In
+Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pp. 3214–3252, Dublin, Ireland, May 2022. Association for Computational
+Linguistics. doi: 10.18653/v1/2022.acl-long.229. URL https://aclanthology.org/2022.
+acl-long.229.
+Luccioni, A. S. and Hernandez-Garcia, A. Counting carbon: A survey of factors influencing the
+emissions of machine learning, 2023.
+Marcus, G. Is chatgpt really a “code red” for google search?, 2022. URL https://garymarcus.
+substack.com/p/is-chatgpt-really-a-code-red-for.
+McCann, B., Bradbury, J., Xiong, C., and Socher, R. Learned in translation: Contextualized word
+vectors. In Advances in Neural Information Processing Systems, pp. 6297–6308, 2017.
+Meng, Y., Xia, M., and Chen, D. Simpo: Simple preference optimization with a reference-free
+reward, 2024. URL https://arxiv.org/abs/2405.14734.
+Meta. Introducing meta llama 3: The most capable openly available llm to date, 2024. URL https:
+//ai.meta.com/blog/meta-llama-3/.
+Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., and Dean, J. Distributed representations of
+words and phrases and their compositionality. In Burges, C. J. C., Bottou, L., Welling, M., Ghahramani, Z., and Weinberger, K. Q. (eds.), Advances in Neural Information Processing Systems 26,
+pp. 3111–3119. Curran Associates, Inc., 2013.
+Mistral. Au large, 2024. URL https://mistral.ai/news/mistral-large/.
+Mohiuddin, T., Bari, M. S., and Joty, S. Lnmap: Departures from isomorphic assumption in bilingual
+lexicon induction through non-linear mapping in latent space, 2020. URL https://arxiv.org/
+abs/2004.13889.
+Muennighoff, N., Wang, T., Sutawika, L., Roberts, A., Biderman, S., Scao, T. L., Bari, M. S., Shen,
+S., Yong, Z.-X., Schoelkopf, H., Tang, X., Radev, D., Aji, A. F., Almubarak, K., Albanie, S.,
+Alyafeai, Z., Webson, A., Raff, E., and Raffel, C. Crosslingual generalization through multitask
+finetuning, 2022.
+Nagoudi, E. M. B., Abdul-Mageed, M., Elmadany, A., Inciarte, A. A., and Khondaker, M. T. I.
+Jasmine: Arabic gpt models for few-shot learning. arXiv preprint arXiv:2212.10755, 2022.
+Naous, T., Ryan, M. J., Ritter, A., and Xu, W. Having beer after prayer? measuring cultural bias in
+large language models, 2024.
+22
+
+Nguyen, X.-P., Zhang, W., Li, X., Aljunied, M., Tan, Q., Cheng, L., Chen, G., Deng, Y., Yang, S.,
+Liu, C., Zhang, H., and Bing, L. Seallms – large language models for southeast asia, 2023.
+Ni, J., Xue, F., Yue, X., Deng, Y., Shah, M., Jain, K., Neubig, G., and You, Y. Mixeval: Deriving
+wisdom of the crowd from llm benchmark mixtures, 2024.
+OpenAI. Chatgpt: Optimizing language models for dialogue, 2022. URL https://openai.com/
+blog/chatgpt/.
+Ormazabal, A., Zheng, C., de Masson d’Autume, C., Yogatama, D., Fu, D., Ong, D., Chen, E.,
+Lamprecht, E., Pham, H., Ong, I., Aleksiev, K., Li, L., Henderson, M., Bain, M., Artetxe, M.,
+Relan, N., Padlewski, P., Liu, Q., Chen, R., Phua, S., Yang, Y., Tay, Y., Wang, Y., Zhu, Z., and
+Xie, Z. Reka core, flash, and edge: A series of powerful multimodal language models, 2024.
+Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C. L., Mishkin, P., Zhang, C., Agarwal, S.,
+Slama, K., Ray, A., Schulman, J., Hilton, J., Kelton, F., Miller, L., Simens, M., Askell, A., Welinder, P., Christiano, P., Leike, J., and Lowe, R. Training language models to follow instructions
+with human feedback, 2022. URL https://arxiv.org/abs/2203.02155.
+Park, R., Rafailov, R., Ermon, S., and Finn, C. Disentangling length from quality in direct preference
+optimization, 2024. URL https://arxiv.org/abs/2403.19159.
+Penedo, G., Malartic, Q., Hesslow, D., Cojocaru, R., Cappelli, A., Alobeidli, H., Pannier, B., Almazrouei, E., and Launay, J. The RefinedWeb dataset for Falcon LLM: outperforming curated
+corpora with web data, and web data only. arXiv preprint arXiv:2306.01116, 2023. URL
+https://arxiv.org/abs/2306.01116.
+Pennington, J., Socher, R., and Manning, C. Glove: Global vectors for word representation. In
+EMNLP’14, pp. 1532–1543, Doha, Qatar, October 2014. URL http://www.aclweb.org/
+anthology/D14-1162.
+Peters, M. E., Neumann, M., Iyyer, M., Gardner, M., Clark, C., Lee, K., and Zettlemoyer, L. Deep
+contextualized word representations. In NAACL, 2018a.
+Peters, M. E., Neumann, M., Iyyer, M., Gardner, M., Clark, C., Lee, K., and Zettlemoyer, L. Deep
+contextualized word representations, 2018b.
+Pires, T., Schlinger, E., and Garrette, D. How multilingual is multilingual BERT? In Korhonen, A.,
+Traum, D., and Màrquez, L. (eds.), Proceedings of the 57th Annual Meeting of the Association for
+Computational Linguistics, pp. 4996–5001, Florence, Italy, July 2019. Association for Computational Linguistics. doi: 10.18653/v1/P19-1493. URL https://aclanthology.org/P19-1493.
+Radford, A., Narasimhan, K., Salimans, T., Sutskever, I., et al. Improving language understanding
+by generative pre-training. OpenAI blog, 2018.
+Radford, A., Wu, J., Child, R., Luan, D., Amodei, D., Sutskever, I., et al. Language models are
+unsupervised multitask learners. OpenAI blog, 1(8):9, 2019.
+Rae, J. W., Borgeaud, S., Cai, T., Millican, K., Hoffmann, J., Song, H. F., Aslanides, J., Henderson,
+S., Ring, R., Young, S., Rutherford, E., Hennigan, T., Menick, J., Cassirer, A., Powell, R., van den
+Driessche, G., Hendricks, L. A., Rauh, M., Huang, P., Glaese, A., Welbl, J., Dathathri, S., Huang,
+S., Uesato, J., Mellor, J., Higgins, I., Creswell, A., McAleese, N., Wu, A., Elsen, E., Jayakumar, S. M., Buchatskaya, E., Budden, D., Sutherland, E., Simonyan, K., Paganini, M., Sifre, L.,
+Martens, L., Li, X. L., Kuncoro, A., Nematzadeh, A., Gribovskaya, E., Donato, D., Lazaridou,
+A., Mensch, A., Lespiau, J., Tsimpoukelli, M., Grigorev, N., Fritz, D., Sottiaux, T., Pajarskas,
+M., Pohlen, T., Gong, Z., Toyama, D., de Masson d’Autume, C., Li, Y., Terzi, T., Mikulik, V.,
+Babuschkin, I., Clark, A., de Las Casas, D., Guy, A., Jones, C., Bradbury, J., Johnson, M. J.,
+Hechtman, B. A., Weidinger, L., Gabriel, I., Isaac, W., Lockhart, E., Osindero, S., Rimell, L.,
+Dyer, C., Vinyals, O., Ayoub, K., Stanway, J., Bennett, L., Hassabis, D., Kavukcuoglu, K., and
+Irving, G. Scaling language models: Methods, analysis & insights from training gopher. CoRR,
+abs/2112.11446, 2021. URL https://arxiv.org/abs/2112.11446.
+23
+
+Rafailov, R., Sharma, A., Mitchell, E., Ermon, S., Manning, C. D., and Finn, C. Direct preference
+optimization: Your language model is secretly a reward model, 2023. URL https://arxiv.
+org/abs/2305.18290.
+Rafailov, R., Sharma, A., Mitchell, E., Manning, C. D., Ermon, S., and Finn, C. Direct preference
+optimization: Your language model is secretly a reward model. Advances in Neural Information
+Processing Systems, 36, 2024.
+Raffel, C., Shazeer, N., Roberts, A., Lee, K., Narang, S., Matena, M., Zhou, Y., Li, W., and Liu, P. J.
+Exploring the limits of transfer learning with a unified text-to-text transformer. J. Mach. Learn.
+Res., 21:140:1–140:67, 2020. URL http://jmlr.org/papers/v21/20-074.html.
+Ruciński, S. Efficient language adaptive pre-training: Extending state-of-the-art large language models for polish. arXiv preprint arXiv:2402.09759, 2024.
+Sakaguchi, K., Bras, R. L., Bhagavatula, C., and Choi, Y. Winogrande: An adversarial winograd
+schema challenge at scale. arXiv preprint arXiv:1907.10641, 2019.
+Sanh, V., Webson, A., Raffel, C., Bach, S. H., Sutawika, L., Alyafeai, Z., Chaffin, A., Stiegler, A.,
+Scao, T. L., Raja, A., Dey, M., Bari, M. S., Xu, C., Thakker, U., Sharma, S. S., Szczechla, E.,
+Kim, T., Chhablani, G., Nayak, N., Datta, D., Chang, J., Jiang, M. T.-J., Wang, H., Manica, M.,
+Shen, S., Yong, Z. X., Pandey, H., Bawden, R., Wang, T., Neeraj, T., Rozen, J., Sharma, A.,
+Santilli, A., Fevry, T., Fries, J. A., Teehan, R., Bers, T., Biderman, S., Gao, L., Wolf, T., and
+Rush, A. M. Multitask prompted training enables zero-shot task generalization, 2021. URL
+https://arxiv.org/abs/2110.08207.
+Saxton, D., Grefenstette, E., Hill, F., and Kohli, P. Analysing mathematical reasoning abilities of
+neural models, 2019.
+Scao, T. L., Fan, A., Akiki, C., Pavlick, E., Ilić, S., Hesslow, D., Castagné, R., Luccioni, A. S., Yvon,
+F., Gallé, M., Tow, J., Rush, A. M., Biderman, S., Webson, A., Ammanamanchi, P. S., Wang, T.,
+Sagot, B., Muennighoff, N., del Moral, A. V., Ruwase, O., Bawden, R., Bekman, S., McMillanMajor, A., Beltagy, I., Nguyen, H., Saulnier, L., Tan, S., Suarez, P. O., Sanh, V., Laurençon, H.,
+Jernite, Y., Launay, J., Mitchell, M., Raffel, C., Gokaslan, A., Simhi, A., Soroa, A., Aji, A. F.,
+Alfassy, A., Rogers, A., Nitzav, A. K., Xu, C., Mou, C., Emezue, C., Klamm, C., Leong, C., van
+Strien, D., Adelani, D. I., Radev, D., Ponferrada, E. G., Levkovizh, E., Kim, E., Natan, E. B., Toni,
+F. D., Dupont, G., Kruszewski, G., Pistilli, G., Elsahar, H., Benyamina, H., Tran, H., Yu, I., Abdulmumin, I., Johnson, I., Gonzalez-Dios, I., de la Rosa, J., Chim, J., Dodge, J., Zhu, J., Chang, J.,
+Frohberg, J., Tobing, J., Bhattacharjee, J., Almubarak, K., Chen, K., Lo, K., Werra, L. V., Weber,
+L., Phan, L., allal, L. B., Tanguy, L., Dey, M., Muñoz, M. R., Masoud, M., Grandury, M., Šaško,
+M., Huang, M., Coavoux, M., Singh, M., Jiang, M. T.-J., Vu, M. C., Jauhar, M. A., Ghaleb, M.,
+Subramani, N., Kassner, N., Khamis, N., Nguyen, O., Espejel, O., de Gibert, O., Villegas, P.,
+Henderson, P., Colombo, P., Amuok, P., Lhoest, Q., Harliman, R., Bommasani, R., López, R. L.,
+Ribeiro, R., Osei, S., Pyysalo, S., Nagel, S., Bose, S., Muhammad, S. H., Sharma, S., Longpre,
+S., Nikpoor, S., Silberberg, S., Pai, S., Zink, S., Torrent, T. T., Schick, T., Thrush, T., Danchev, V.,
+Nikoulina, V., Laippala, V., Lepercq, V., Prabhu, V., Alyafeai, Z., Talat, Z., Raja, A., Heinzerling,
+B., Si, C., Taşar, D. E., Salesky, E., Mielke, S. J., Lee, W. Y., Sharma, A., Santilli, A., Chaffin, A., Stiegler, A., Datta, D., Szczechla, E., Chhablani, G., Wang, H., Pandey, H., Strobelt, H.,
+Fries, J. A., Rozen, J., Gao, L., Sutawika, L., Bari, M. S., Al-shaibani, M. S., Manica, M., Nayak,
+N., Teehan, R., Albanie, S., Shen, S., Ben-David, S., Bach, S. H., Kim, T., Bers, T., Fevry, T.,
+Neeraj, T., Thakker, U., Raunak, V., Tang, X., Yong, Z.-X., Sun, Z., Brody, S., Uri, Y., Tojarieh,
+H., Roberts, A., Chung, H. W., Tae, J., Phang, J., Press, O., Li, C., Narayanan, D., Bourfoune, H.,
+Casper, J., Rasley, J., Ryabinin, M., Mishra, M., Zhang, M., Shoeybi, M., Peyrounette, M., Patry,
+N., Tazi, N., Sanseviero, O., von Platen, P., Cornette, P., Lavallée, P. F., Lacroix, R., Rajbhandari,
+S., Gandhi, S., Smith, S., Requena, S., Patil, S., Dettmers, T., Baruwa, A., Singh, A., Cheveleva,
+A., Ligozat, A.-L., Subramonian, A., Névéol, A., Lovering, C., Garrette, D., Tunuguntla, D., Reiter, E., Taktasheva, E., Voloshina, E., Bogdanov, E., Winata, G. I., Schoelkopf, H., Kalo, J.-C.,
+Novikova, J., Forde, J. Z., Clive, J., Kasai, J., Kawamura, K., Hazan, L., Carpuat, M., Clinciu, M.,
+Kim, N., Cheng, N., Serikov, O., Antverg, O., van der Wal, O., Zhang, R., Zhang, R., Gehrmann,
+S., Mirkin, S., Pais, S., Shavrina, T., Scialom, T., Yun, T., Limisiewicz, T., Rieser, V., Protasov,
+24
+
+V., Mikhailov, V., Pruksachatkun, Y., Belinkov, Y., Bamberger, Z., Kasner, Z., Rueda, A., Pestana, A., Feizpour, A., Khan, A., Faranak, A., Santos, A., Hevia, A., Unldreaj, A., Aghagol, A.,
+Abdollahi, A., Tammour, A., HajiHosseini, A., Behroozi, B., Ajibade, B., Saxena, B., Ferrandis,
+C. M., McDuff, D., Contractor, D., Lansky, D., David, D., Kiela, D., Nguyen, D. A., Tan, E.,
+Baylor, E., Ozoani, E., Mirza, F., Ononiwu, F., Rezanejad, H., Jones, H., Bhattacharya, I., Solaiman, I., Sedenko, I., Nejadgholi, I., Passmore, J., Seltzer, J., Sanz, J. B., Dutra, L., Samagaio,
+M., Elbadri, M., Mieskes, M., Gerchick, M., Akinlolu, M., McKenna, M., Qiu, M., Ghauri, M.,
+Burynok, M., Abrar, N., Rajani, N., Elkott, N., Fahmy, N., Samuel, O., An, R., Kromann, R., Hao,
+R., Alizadeh, S., Shubber, S., Wang, S., Roy, S., Viguier, S., Le, T., Oyebade, T., Le, T., Yang,
+Y., Nguyen, Z., Kashyap, A. R., Palasciano, A., Callahan, A., Shukla, A., Miranda-Escalada, A.,
+Singh, A., Beilharz, B., Wang, B., Brito, C., Zhou, C., Jain, C., Xu, C., Fourrier, C., Periñán, D. L.,
+Molano, D., Yu, D., Manjavacas, E., Barth, F., Fuhrimann, F., Altay, G., Bayrak, G., Burns, G.,
+Vrabec, H. U., Bello, I., Dash, I., Kang, J., Giorgi, J., Golde, J., Posada, J. D., Sivaraman, K. R.,
+Bulchandani, L., Liu, L., Shinzato, L., de Bykhovetz, M. H., Takeuchi, M., Pàmies, M., Castillo,
+M. A., Nezhurina, M., Sänger, M., Samwald, M., Cullan, M., Weinberg, M., Wolf, M. D., Mihaljcic, M., Liu, M., Freidank, M., Kang, M., Seelam, N., Dahlberg, N., Broad, N. M., Muellner,
+N., Fung, P., Haller, P., Chandrasekhar, R., Eisenberg, R., Martin, R., Canalli, R., Su, R., Su, R.,
+Cahyawijaya, S., Garda, S., Deshmukh, S. S., Mishra, S., Kiblawi, S., Ott, S., Sang-aroonsiri, S.,
+Kumar, S., Schweter, S., Bharati, S., Laud, T., Gigant, T., Kainuma, T., Kusa, W., Labrak, Y.,
+Bajaj, Y. S., Venkatraman, Y., Xu, Y., Xu, Y., Xu, Y., Tan, Z., Xie, Z., Ye, Z., Bras, M., Belkada,
+Y., and Wolf, T. Bloom: A 176b-parameter open-access multilingual language model, 2023. URL
+https://arxiv.org/abs/2211.05100.
+Sengupta, N., Sahu, S. K., Jia, B., Katipomu, S., Li, H., Koto, F., Afzal, O. M., Kamboj, S., Pandit, O., Pal, R., et al. Jais and jais-chat: Arabic-centric foundation and instruction-tuned open
+generative large language models. arXiv preprint arXiv:2308.16149, 2023.
+Shannon, C. E. Prediction and entropy of printed english. Bell system technical journal, 30(1):
+50–64, 1951.
+Smith, S., Patwary, M., Norick, B., LeGresley, P., Rajbhandari, S., Casper, J., Liu, Z., Prabhumoye,
+S., Zerveas, G., Korthikanti, V., Zhang, E., Child, R., Aminabadi, R. Y., Bernauer, J., Song, X.,
+Shoeybi, M., He, Y., Houston, M., Tiwary, S., and Catanzaro, B. Using deepspeed and megatron
+to train megatron-turing nlg 530b, a large-scale generative language model, 2022. URL https:
+//arxiv.org/abs/2201.11990.
+Soboleva, D., Al-Khateeb, F., Myers, R., Steeves, J. R., Hestness, J., and Dey, N. SlimPajama:
+A 627B token cleaned and deduplicated version of RedPajama, June 2023. URL https://
+huggingface.co/datasets/cerebras/SlimPajama-627B.
+Soldaini, L., Kinney, R., Bhagia, A., Schwenk, D., Atkinson, D., Authur, R., Bogin, B., Chandu,
+K., Dumas, J., Elazar, Y., Hofmann, V., Jha, A. H., Kumar, S., Lucy, L., Lyu, X., Lambert, N.,
+Magnusson, I., Morrison, J., Muennighoff, N., Naik, A., Nam, C., Peters, M. E., Ravichander,
+A., Richardson, K., Shen, Z., Strubell, E., Subramani, N., Tafjord, O., Walsh, P., Zettlemoyer, L.,
+Smith, N. A., Hajishirzi, H., Beltagy, I., Groeneveld, D., Dodge, J., and Lo, K. Dolma: an open
+corpus of three trillion tokens for language model pretraining research. CoRR, abs/2402.00159,
+2024. doi: 10.48550/ARXIV.2402.00159. URL https://doi.org/10.48550/arXiv.2402.
+00159.
+Soltan, S., Ananthakrishnan, S., FitzGerald, J., Gupta, R., Hamza, W., Khan, H., Peris, C., Rawls,
+S., Rosenbaum, A., Rumshisky, A., Prakash, C. S., Sridhar, M., Triefenbach, F., Verma, A., Tur,
+G., and Natarajan, P. Alexatm 20b: Few-shot learning using a large-scale multilingual seq2seq
+model, 2022. URL https://arxiv.org/abs/2208.01448.
+Stiennon, N., Ouyang, L., Wu, J., Ziegler, D. M., Lowe, R., Voss, C., Radford, A., Amodei, D., and
+Christiano, P. F. Learning to summarize from human feedback. CoRR, abs/2009.01325, 2020.
+URL https://arxiv.org/abs/2009.01325.
+Strubell, E., Ganesh, A., and McCallum, A. Energy and policy considerations for deep learning in
+nlp, 2019.
+25
+
+Suzgun, M., Scales, N., Schärli, N., Gehrmann, S., Tay, Y., Chung, H. W., Chowdhery, A., Le, Q. V.,
+Chi, E. H., Zhou, D., , and Wei, J. Challenging big-bench tasks and whether chain-of-thought can
+solve them. arXiv preprint arXiv:2210.09261, 2022.
+Swain, M. and Lapkin, S. Problems in Output and the Cognitive Processes They Generate: A Step
+Towards Second Language Learning. Applied Linguistics, 16(3):371–391, 09 1995. ISSN 01426001. doi: 10.1093/applin/16.3.371. URL https://doi.org/10.1093/applin/16.3.371.
+THUDM. Codegeex: A multilingual code generation model. https://github.com/THUDM/
+CodeGeeX, 2022.
+Touvron, H., Martin, L., Stone, K., Albert, P., Almahairi, A., Babaei, Y., Bashlykov, N., Batra, S.,
+Bhargava, P., Bhosale, S., Bikel, D., Blecher, L., Ferrer, C. C., Chen, M., Cucurull, G., Esiobu, D.,
+Fernandes, J., Fu, J., Fu, W., Fuller, B., Gao, C., Goswami, V., Goyal, N., Hartshorn, A., Hosseini,
+S., Hou, R., Inan, H., Kardas, M., Kerkez, V., Khabsa, M., Kloumann, I., Korenev, A., Koura,
+P. S., Lachaux, M.-A., Lavril, T., Lee, J., Liskovich, D., Lu, Y., Mao, Y., Martinet, X., Mihaylov,
+T., Mishra, P., Molybog, I., Nie, Y., Poulton, A., Reizenstein, J., Rungta, R., Saladi, K., Schelten,
+A., Silva, R., Smith, E. M., Subramanian, R., Tan, X. E., Tang, B., Taylor, R., Williams, A., Kuan,
+J. X., Xu, P., Yan, Z., Zarov, I., Zhang, Y., Fan, A., Kambadur, M., Narang, S., Rodriguez, A.,
+Stojnic, R., Edunov, S., and Scialom, T. Llama 2: Open foundation and fine-tuned chat models,
+2023a.
+Touvron, H., Martin, L., Stone, K., Albert, P., Almahairi, A., Babaei, Y., Bashlykov, N., Batra, S.,
+Bhargava, P., Bhosale, S., Bikel, D., Blecher, L., Ferrer, C. C., Chen, M., Cucurull, G., Esiobu, D.,
+Fernandes, J., Fu, J., Fu, W., Fuller, B., Gao, C., Goswami, V., Goyal, N., Hartshorn, A., Hosseini,
+S., Hou, R., Inan, H., Kardas, M., Kerkez, V., Khabsa, M., Kloumann, I., Korenev, A., Koura,
+P. S., Lachaux, M.-A., Lavril, T., Lee, J., Liskovich, D., Lu, Y., Mao, Y., Martinet, X., Mihaylov,
+T., Mishra, P., Molybog, I., Nie, Y., Poulton, A., Reizenstein, J., Rungta, R., Saladi, K., Schelten,
+A., Silva, R., Smith, E. M., Subramanian, R., Tan, X. E., Tang, B., Taylor, R., Williams, A., Kuan,
+J. X., Xu, P., Yan, Z., Zarov, I., Zhang, Y., Fan, A., Kambadur, M., Narang, S., Rodriguez, A.,
+Stojnic, R., Edunov, S., and Scialom, T. Llama 2: Open foundation and fine-tuned chat models,
+2023b.
+Tunstall, L., Beeching, E., Lambert, N., Rajani, N., Rasul, K., Belkada, Y., Huang, S., von Werra,
+L., Fourrier, C., Habib, N., et al. Zephyr: Direct distillation of lm alignment. arXiv preprint
+arXiv:2310.16944, 2023.
+Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, L., and Polosukhin, I. Attention is all you need, 2017.
+Wang, Y., Mishra, S., Alipoormolabashi, P., Kordi, Y., Mirzaei, A., Arunkumar, A., Ashok, A.,
+Dhanasekaran, A. S., Naik, A., Stap, D., Pathak, E., Karamanolakis, G., Lai, H. G., Purohit, I.,
+Mondal, I., Anderson, J., Kuznia, K., Doshi, K., Patel, M., Pal, K. K., Moradshahi, M., Parmar, M.,
+Purohit, M., Varshney, N., Kaza, P. R., Verma, P., Puri, R. S., Karia, R., Sampat, S. K., Doshi, S.,
+Mishra, S., Reddy, S., Patro, S., Dixit, T., Shen, X., Baral, C., Choi, Y., Smith, N. A., Hajishirzi,
+H., and Khashabi, D. Super-naturalinstructions: Generalization via declarative instructions on
+1600+ nlp tasks, 2022. URL https://arxiv.org/abs/2204.07705.
+Wang, Y., Ma, X., Zhang, G., Ni, Y., Chandra, A., Guo, S., Ren, W., Arulraj, A., He, X., Jiang, Z.,
+et al. Mmlu-pro: A more robust and challenging multi-task language understanding benchmark.
+arXiv preprint arXiv:2406.01574, 2024.
+Wei, J., Bosma, M., Zhao, V. Y., Guu, K., Yu, A. W., Lester, B., Du, N., Dai, A. M., and Le,
+Q. V. Finetuned language models are zero-shot learners, 2021. URL https://arxiv.org/
+abs/2109.01652.
+Weidinger, L., Mellor, J., Rauh, M., Griffin, C., Uesato, J., Huang, P.-S., Cheng, M., Glaese, M.,
+Balle, B., Kasirzadeh, A., Kenton, Z., Brown, S., Hawkins, W., Stepleton, T., Biles, C., Birhane,
+A., Haas, J., Rimell, L., Hendricks, L. A., Isaac, W., Legassick, S., Irving, G., and Gabriel, I.
+Ethical and social risks of harm from language models, 2021.
+26
+
+Weller, O., Seppi, K., and Gardner, M. When to use multi-task learning vs intermediate fine-tuning
+for pre-trained encoder transfer learning. In Muresan, S., Nakov, P., and Villavicencio, A. (eds.),
+Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers), pp. 272–282, Dublin, Ireland, May 2022. Association for Computational
+Linguistics. doi: 10.18653/v1/2022.acl-short.30. URL https://aclanthology.org/2022.
+acl-short.30.
+Wolf, T., Debut, L., Sanh, V., Chaumond, J., Delangue, C., Moi, A., Cistac, P., Rault, T., Louf,
+R., Funtowicz, M., Davison, J., Shleifer, S., von Platen, P., Ma, C., Jernite, Y., Plu, J., Xu, C.,
+Scao, T. L., Gugger, S., Drame, M., Lhoest, Q., and Rush, A. M. Transformers: State-of-the-art
+natural language processing. In Proceedings of the 2020 Conference on Empirical Methods in
+Natural Language Processing: System Demonstrations, pp. 38–45, Online, October 2020. Association for Computational Linguistics. URL https://www.aclweb.org/anthology/2020.
+emnlp-demos.6.
+Wu, S. and Dredze, M. Beto, bentz, becas: The surprising cross-lingual effectiveness of BERT. In
+Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and
+the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP), pp.
+833–844, Hong Kong, China, November 2019. Association for Computational Linguistics. doi:
+10.18653/v1/D19-1077. URL https://www.aclweb.org/anthology/D19-1077.
+Xue, L., Constant, N., Roberts, A., Kale, M., Al-Rfou, R., Siddhant, A., Barua, A., and Raffel, C.
+mT5: A massively multilingual pre-trained text-to-text transformer. In Proceedings of the 2021
+Conference of the North American Chapter of the Association for Computational Linguistics:
+Human Language Technologies, pp. 483–498, Online, June 2021. Association for Computational
+Linguistics. doi: 10.18653/v1/2021.naacl-main.41. URL https://aclanthology.org/2021.
+naacl-main.41.
+Yang, A., Yang, B., Hui, B., Zheng, B., Yu, B., Zhou, C., Li, C., Li, C., Liu, D., Huang, F., Dong,
+G., Wei, H., Lin, H., Tang, J., Wang, J., Yang, J., Tu, J., Zhang, J., Ma, J., Xu, J., Zhou, J.,
+Bai, J., He, J., Lin, J., Dang, K., Lu, K., Chen, K., Yang, K., Li, M., Xue, M., Ni, N., Zhang,
+P., Wang, P., Peng, R., Men, R., Gao, R., Lin, R., Wang, S., Bai, S., Tan, S., Zhu, T., Li, T.,
+Liu, T., Ge, W., Deng, X., Zhou, X., Ren, X., Zhang, X., Wei, X., Ren, X., Fan, Y., Yao, Y.,
+Zhang, Y., Wan, Y., Chu, Y., Cui, Z., Zhang, Z., and Fan, Z. Qwen2 technical report, 2024. URL
+https://arxiv.org/abs/2407.10671.
+Yang, Z., Dai, Z., Yang, Y., Carbonell, J., Salakhutdinov, R. R., and Le, Q. V. Xlnet: Generalized autoregressive pretraining for language understanding. In Advances in Neural Information
+Processing Systems 32, pp. 5753–5763. Curran Associates, Inc., 2019.
+Zellers, R., Holtzman, A., Bisk, Y., Farhadi, A., and Choi, Y. Hellaswag: Can a machine really finish
+your sentence? In Proceedings of the 57th Annual Meeting of the Association for Computational
+Linguistics, 2019.
+Zheng, L., Chiang, W.-L., Sheng, Y., Zhuang, S., Wu, Z., Zhuang, Y., Lin, Z., Li, Z., Li, D., Xing, E.,
+et al. Judging llm-as-a-judge with mt-bench and chatbot arena. Advances in Neural Information
+Processing Systems, 36, 2024.
+Zhong, W., Cui, R., Guo, Y., Liang, Y., Lu, S., Wang, Y., Saied, A., Chen, W., and Duan, N. Agieval:
+A human-centric benchmark for evaluating foundation models, 2023.
+Zhou, C., Liu, P., Xu, P., Iyer, S., Sun, J., Mao, Y., Ma, X., Efrat, A., Yu, P., Yu, L., Zhang, S., Ghosh,
+G., Lewis, M., Zettlemoyer, L., and Levy, O. Lima: Less is more for alignment, 2023.
+Zhou, X., Su, Z., Eisape, T., Kim, H., and Sap, M. Is this the real life? is this just fantasy? the
+misleading success of simulating social interactions with llms, 2024.
+
+27
+
+A
+
+Appendix
+
+A.1
+
+Detailed Arabic Evaluation
+
+araSwag
+
+Pretrained
+ALLaM-Base (from scratch)
+ALLaM-Base
+AceGPT
+Llama 2
+Mistral-v0.3
+OLMo-1.7
+OLMo
+Qwen2
+Gemma
+Llama 3
+ALLaM-Base
+Yi-1.5
+AceGPT-v1.5
+Llama 2
+Jais
+ALLaM-Base
+Jais-v1
+Jais-v3
+Qwen1.5
+Yi-1.5
+Mixtral-8x7B-v0.1
+Llama 2
+Llama 3
+Qwen1.5
+Qwen2
+DBRX
+Mixtral-8x22B-v0.1
+Fine-tuned
+ALLaM-Instruct (from scratch)
+ALLaM-Instruct
+AceGPT-Chat
+Llama 2-Chat
+Mistral-Instruct-v0.3
+OLMo-Instruct
+Qwen2-Instruct
+Gemma-it
+Llama 3-Instruct
+Aya-23
+ALLaM-Instruct
+Yi-1.5-Chat
+AceGPT-Chat-v1.5
+Llama 2-Chat
+Jais-Chat
+ALLaM-Instruct
+Jais-Chat-v1
+Jais-Chat-v3
+Qwen1.5-Chat
+Yi-1.5-Chat
+CommandR
+Aya-23
+Mixtral-8x7B-Instruct-v0.1
+Llama 2-Chat
+Llama 3-Instruct
+Qwen1.5-Chat
+Qwen2-Instruct
+CommandR+
+DBRX-instruct
+Mixtral-8x22B-Instruct-v0.1
+
+MMLU (ar)
+
+ACVA
+
+Koto et al. (2024)
+
+Huang et al. (2023)
+
+Exams (ar)
+
+ETEC
+
+araTruthfulQA
+
+araMath
+
+10-shot
+
+5-shot
+
+0-shot
+
+0-shot
+
+5-shot
+
+0-shot
+
+0-shot
+
+5-shot
+
+7B
+7B
+7B
+7B
+7B
+7B
+7B
+7B
+7B
+8B
+13B
+9B
+13B
+13B
+13B
+70B
+30B
+30B
+32B
+34B
+47B
+70B
+70B
+72B
+72B
+132B
+141B
+
+52.68
+51.63
+46.8
+25.62
+30.33
+24.44
+22.09
+40.26
+25.36
+38.95
+54.90
+28.76
+48.89
+28.63
+49.28
+59.35
+54.51
+53.86
+37.78
+32.16
+38.43
+34.38
+54.51
+44.84
+51.76
+47.58
+45.1
+
+68.46
+66.18
+59.54
+62.93
+53.81
+57.8
+56.07
+78.74
+54.82
+71.54
+77.81
+61.19
+73.47
+64.52
+60.76
+79.67
+68.25
+70.49
+73.63
+65.25
+75.64
+51.16
+74.17
+76.0
+68.7
+72.38
+77.21
+
+44.45
+41.52
+36.33
+33.61
+40.81
+30.97
+31.41
+52.91
+46.33
+47.62
+51.48
+46.36
+42.24
+35.83
+32.2
+59.21
+37.6
+45.19
+55.94
+42.93
+51.25
+44.79
+36.67
+61.38
+69.94
+53.24
+53.6
+
+36.28
+34.42
+27.18
+26.64
+32.1
+25.7
+24.98
+47.16
+26.04
+38.88
+40.29
+34.11
+33.18
+30.0
+29.23
+49.34
+32.94
+38.31
+48.67
+36.26
+39.74
+37.1
+59.39
+54.44
+65
+47.2
+45.92
+
+42.09
+38.55
+32.22
+23.09
+31.47
+25.7
+28.31
+46.0
+22.91
+44.69
+47.3
+34.82
+40.6
+28.86
+33.33
+53.82
+43.39
+50.28
+49.53
+33.71
+44.32
+37.99
+55.31
+54.0
+56.98
+47.11
+48.42
+
+41.7
+36.58
+25.42
+27.85
+32.45
+27.17
+23.1
+55.23
+25.48
+42.86
+44.4
+40.01
+33.56
+31.13
+27.96
+55.97
+34.04
+45.61
+57.4
+36.21
+44.61
+39.38
+64.27
+62.84
+75.16
+51.96
+53.96
+
+29.4
+29.9
+30.1
+25.7
+27.0
+23.5
+26.2
+29.9
+24.0
+29.9
+28.5
+24.0
+30.3
+26.2
+28.7
+33.5
+29.6
+30.5
+34.0
+23.7
+25.5
+26.6
+31.4
+34.90
+36
+26.8
+29.8
+
+25.5
+11.5
+19.3
+24.8
+16.3
+16.8
+31.7
+51.2
+39.3
+43.8
+17.3
+44.8
+18.8
+13.8
+28.5
+38.7
+19.3
+25.2
+45.3
+52.0
+39.8
+32.3
+53.70
+51.8
+62.3
+49.3
+51.0
+
+7B
+7B
+7B
+7B
+7B
+7B
+7B
+7B
+8B
+8B
+13B
+9B
+13B
+13B
+13B
+70B
+30B
+30B
+32B
+34B
+35B
+35B
+47B
+70B
+70B
+72B
+72B
+104B
+132B
+141B
+
+50.98
+49.28
+43.4
+24.44
+30.59
+25.36
+37.78
+25.62
+33.99
+51.11
+54.77
+29.8
+49.41
+25.75
+77.12
+57.91
+80.52
+88.37
+37.39
+30.85
+55.42
+55.56
+37.91
+30.72
+45.75
+46.8
+51.9
+59.35
+45.75
+43.79
+
+79.59
+80.33
+59.35
+52.46
+60.7
+58.74
+79.3
+58.03
+75.21
+73.65
+78.59
+67.57
+64.93
+60.14
+70.68
+79.01
+71.14
+70.05
+78.86
+65.96
+78.34
+79.69
+77.27
+59.49
+80.26
+80.49
+79.98
+80.37
+76.46
+76.45
+
+69.16
+66.9
+45.8
+33.33
+44.3
+32.74
+49.82
+41.48
+53.98
+54.37
+68.11
+45.5
+60.7
+35.84
+54.8
+75.92
+60.4
+62.37
+57.25
+45.6
+60.19
+57.71
+52.66
+40.77
+36.27
+64.99
+71.51
+66.33
+56.6
+58.92
+
+51.38
+49.6
+33.58
+26.45
+34.06
+26.5
+48.07
+23.15
+41.49
+36.39
+51.03
+36.02
+37.92
+28.73
+41.43
+62.23
+43.99
+30.15
+50.62
+35.47
+48.38
+47.78
+41.09
+32.86
+60.11
+54.32
+66.18
+52.98
+46.73
+46.74
+
+52.89
+52.7
+35.57
+25.33
+31.1
+24.77
+47.3
+22.91
+44.32
+43.76
+54.93
+31.47
+40.04
+22.91
+46.93
+58.47
+48.6
+51.21
+48.23
+35.2
+50.65
+51.77
+42.64
+28.68
+58.47
+53.26
+58.66
+52.89
+48.79
+49.72
+
+67.34
+62.95
+36.05
+26.69
+34.41
+27.33
+56.18
+23.73
+49.42
+42.28
+65.59
+43.6
+42.81
+30.44
+48.68
+78.38
+48.52
+38.53
+59.73
+40.22
+55.44
+56.18
+49.37
+30.6
+71.41
+62.32
+75.16
+62.1
+53.17
+55.55
+
+30.7
+36.4
+37.9
+29.9
+30.3
+29.6
+35.1
+34.8
+34.0
+31.6
+37.5
+28.7
+36.4
+31.4
+31.6
+38.4
+32.9
+37.3
+39.0
+25.3
+33.8
+33.8
+32.5
+32.3
+37.7
+42.30
+47.70
+37.0
+30.5
+35.1
+
+42.2
+36.5
+22.5
+21.5
+26.0
+36.5
+51.3
+37.0
+38.3
+32.0
+46.8
+47.8
+22.5
+22.3
+25.3
+56.8
+26.0
+32.5
+43.0
+49.8
+47.2
+43.8
+39.7
+25.5
+59.70
+45.7
+61.70
+50.2
+48.8
+46.0
+
+Table 7: Comprehensive Arabic benchmark results.
+
+A.2
+
+Detailed English Evaluation
+
+28
+
+Table 8: Comprehensive English benchmark results.
+
+29
+
+Pretrained
+ALLaM-Base (from scratch)
+ALLaM-Base
+AceGPT
+Llama 2
+Mistral-v0.3
+OLMo-1.7
+OLMo
+Qwen2
+Gemma
+Llama 3
+ALLaM-Base
+Yi-1.5
+AceGPT-v1.5
+Llama 2
+Jais
+ALLaM-Base
+Jais-v1
+Jais-v3
+Qwen1.5
+Yi-1.5
+Mixtral-8x7B-v0.1
+Llama 2
+Llama 3
+Qwen1.5
+Qwen2
+DBRX
+Mixtral-8x22B-v0.1
+Fine-tuned
+ALLaM-Instruct (from scratch)
+ALLaM-Instruct
+AceGPT-Chat
+Llama 2-Chat
+Mistral-Instruct-v0.3
+OLMo-Instruct
+Qwen2-Instruct
+Gemma-it
+Llama 3-Instruct
+Aya-23
+ALLaM-Instruct
+Yi-1.5-Chat
+AceGPT-Chat-v1.5
+Llama 2-Chat
+Jais-Chat
+ALLaM-Instruct
+Jais-Chat-v1
+Jais-Chat-v3
+Qwen1.5-Chat
+Yi-1.5-Chat
+CommandR
+Aya-23
+Mixtral-8x7B-Instruct-v0.1
+Llama 2-Chat
+Llama 3-Instruct
+Qwen1.5-Chat
+Qwen2-Instruct
+CommandR+
+DBRX-instruct
+Mixtral-8x22B-Instruct-v0.1
+25.46
+24.19
+26.44
+25.32
+32.85
+30.58
+22.79
+45.09
+38.6
+33.87
+29.14
+37.8
+32.4
+32.47
+24.12
+42.99
+25.81
+28.79
+47.02
+49.30
+39.62
+44.0
+48.04
+46.67
+57.05
+44.39
+46.84
+46.35
+47.09
+26.33
+35.55
+42.22
+35.2
+53.72
+39.27
+44.35
+35.1
+48.42
+55.93
+38.92
+37.73
+31.45
+65.67
+33.1
+36.78
+48.77
+61.99
+46.77
+38.99
+48.49
+46.0
+63.78
+52.17
+66.09
+45.97
+49.09
+55.5
+
+7B
+7B
+7B
+7B
+7B
+7B
+7B
+7B
+7B
+8B
+13B
+9B
+13B
+13B
+13B
+70B
+30B
+30B
+32B
+34B
+47B
+70B
+70B
+72B
+72B
+132B
+141B
+7B
+7B
+7B
+7B
+7B
+7B
+7B
+7B
+8B
+8B
+13B
+9B
+13B
+13B
+13B
+70B
+30B
+30B
+32B
+34B
+35B
+35B
+47B
+70B
+70B
+72B
+72B
+104B
+132B
+141B
+
+0-shot
+
+AGIEval
+
+54.27
+49.95
+34.89
+36.41
+50.68
+38.34
+63.91
+42.69
+54.71
+39.8
+53.03
+66.51
+46.18
+43.07
+39.42
+68.38
+43.32
+47.99
+66.67
+69.58
+52.78
+51.19
+59.85
+50.68
+72.53
+70.47
+79.42
+60.23
+62.99
+68.25
+
+38.44
+34.73
+30.07
+34.32
+49.54
+39.11
+28.29
+64.57
+53.89
+52.93
+41.42
+63.88
+42.06
+40.95
+29.27
+57.09
+36.22
+42.78
+66.67
+69.71
+58.99
+54.65
+69.71
+69.11
+79.58
+63.02
+66.67
+
+0-shot
+
+STEM
+
+55.77
+52.88
+42.47
+43.19
+54.56
+42.7
+62.93
+44.78
+57.96
+47.91
+55.01
+62.66
+53.77
+49.78
+47.48
+71.2
+50.58
+53.37
+69.56
+70.1
+58.68
+57.6
+61.17
+56.28
+72.82
+72.99
+77.94
+65.33
+67.93
+70.75
+
+40.04
+37.43
+35.52
+38.83
+52.84
+43.23
+27.04
+60.55
+54.67
+54.62
+45.78
+60.91
+48.33
+47.08
+33.39
+60.36
+39.94
+49.82
+64.06
+68.25
+60.62
+60.13
+67.95
+66.61
+77.62
+63.06
+68.71
+
+0-shot
+
+Humanities
+
+MMLU
+
+71.95
+67.21
+49.89
+53.01
+69.52
+55.96
+80.37
+58.34
+74.13
+57.75
+74.1
+79.4
+68.54
+61.94
+55.28
+84.82
+60.16
+66.4
+81.9
+83.49
+73.74
+71.6
+79.72
+72.51
+87.68
+84.66
+88.89
+80.31
+82.26
+84.4
+
+46.73
+45.53
+37.73
+46.12
+68.57
+54.18
+28.73
+80.79
+71.14
+72.9
+57.07
+79.1
+59.64
+58.56
+34.32
+77.97
+46.34
+57.1
+81.87
+83.59
+78.26
+76.89
+86.68
+84.53
+89.7
+80.99
+83.98
+
+0-shot
+
+Social Sciences
+
+Other
+
+69.36
+66.21
+52.14
+54.84
+67.14
+54.33
+75.64
+57.74
+71.71
+57.23
+68.81
+72.9
+66.5
+60.44
+56.87
+79.69
+60.22
+64.92
+77.92
+79.95
+70.68
+69.75
+75.7
+67.88
+83.52
+81.46
+85.26
+75.41
+78.89
+79.88
+
+48.02
+46.96
+38.24
+47.06
+66.85
+52.66
+28.23
+75.73
+68.49
+71.13
+56.49
+73.61
+58.48
+57.39
+35.79
+72.74
+44.29
+58.45
+77.95
+79.56
+74.22
+72.1
+81.56
+81.56
+86.13
+78.08
+79.21
+
+0-shot
+
+61.99
+58.31
+44.53
+46.4
+59.75
+47.2
+69.78
+50.15
+63.82
+50.31
+61.8
+69.46
+58.12
+53.3
+49.46
+75.43
+53.18
+57.57
+73.47
+75.1
+63.31
+61.91
+68.15
+61.15
+78.38
+76.86
+82.29
+69.7
+72.38
+75.2
+
+42.91
+40.71
+35.38
+41.23
+58.65
+46.79
+27.95
+69.25
+61.16
+61.9
+49.64
+68.37
+51.65
+50.5
+33.2
+66.22
+41.47
+51.74
+71.62
+74.44
+67.13
+65.22
+75.46
+74.41
+82.59
+70.3
+73.92
+
+0-shot
+
+Average
+
+30.34
+27.78
+—
+22.87
+36.33
+—
+46.79
+25.78
+41.32
+24.79
+34.05
+47.29
+31.3
+27.19
+—
+48.61
+—
+26.45
+47.5
+53.35
+38.96
+34.87
+44.98
+35.16
+59.52
+52.61
+62.48
+45.22
+47.75
+55.92
+
+20.31
+20.43
+—
+20.56
+31.67
+18.57
+—
+40.84
+34.24
+35.54
+25.78
+40.58
+26.01
+25.86
+—
+39.84
+—
+25.93
+44.7
+49.57
+41.76
+38.48
+53.88
+46.59
+57.55
+44.65
+51.11
+
+CoT 5-shot
+
+MMLU-Pro
+
+69.35
+69.8
+53.38
+58.88
+73.59
+63.54
+71.62
+68.7
+68.07
+50.99
+76.47
+71.46
+71.23
+70.52
+64.92
+76.16
+69.07
+68.03
+67.82
+77.19
+69.3
+61.74
+78.54
+68.5
+77.03
+74.56
+78.54
+71.58
+70.9
+80.70
+
+59.9
+44.15
+48.09
+44.25
+64.49
+60.47
+48.25
+65.24
+66.09
+56.58
+62.63
+63.35
+59.25
+60.93
+61.77
+57.79
+64.45
+61.52
+67.37
+71.63
+63.21
+65.99
+72.61
+72.47
+76.97
+65.69
+66.71
+
+0-shot
+
+Ethics
+
+69.93
+70.56
+66.38
+66.38
+73.8
+66.77
+69.69
+69.22
+71.67
+63.06
+74.11
+74.43
+71.98
+70.96
+68.51
+79.16
+69.69
+70.09
+73.16
+79.32
+70.24
+67.96
+77.43
+74.9
+75.53
+77.11
+78.14
+65.82
+78.37
+80.66
+
+68.43
+68.9
+69.3
+69.06
+73.56
+69.14
+66.38
+72.38
+73.01
+73.48
+73.32
+73.01
+72.38
+72.14
+68.51
+77.43
+68.35
+70.64
+74.27
+79.08
+75.61
+77.98
+80.51
+77.51
+79.16
+76.64
+79.87
+
+0-shot
+
+WinoGrande
+
+41.31
+42.11
+49.34
+45.32
+59.65
+45.55
+57.31
+47.49
+51.72
+45.38
+57.69
+52.49
+48.66
+43.95
+39.66
+58.78
+42.8
+42.34
+66.96
+62.16
+56.35
+51.81
+64.8
+52.77
+61.79
+63.86
+67.02
+59.64
+67.23
+68.10
+
+35.26
+35.22
+38.39
+38.96
+42.57
+35.91
+35.85
+54.25
+45.49
+44.03
+36.36
+46.67
+38.07
+36.89
+35.39
+43.99
+36.49
+40.33
+57.46
+53.88
+48.5
+44.82
+45.66
+59.63
+54.73
+55.63
+52.2
+
+0-shot
+
+TruthfulQA
+
+PIQA
+
+80.3
+79.82
+75.24
+77.26
+82.59
+76.77
+80.63
+77.97
+78.67
+78.94
+81.34
+80.58
+80.52
+79.11
+78.24
+84.11
+80.09
+73.18
+77.09
+80.63
+81.23
+82.21
+84.82
+80.96
+82.05
+78.84
+84.0
+71.27
+85.69
+85.26
+
+80.58
+79.0
+77.75
+79.11
+82.15
+80.14
+79.43
+81.18
+81.23
+80.9
+80.79
+80.79
+80.2
+80.52
+77.91
+83.19
+79.54
+80.52
+82.75
+82.54
+83.57
+82.75
+84.6
+82.64
+83.24
+85.42
+84.93
+
+0-shot
+
+Easy
+
+75.04
+76.22
+68.01
+69.74
+82.62
+64.1
+76.64
+72.64
+79.76
+68.73
+77.36
+77.06
+75.29
+73.7
+69.4
+79.84
+79.34
+76.3
+66.71
+80.64
+77.99
+77.53
+85.23
+76.26
+84.81
+68.43
+82.2
+61.78
+87.92
+85.86
+
+67.42
+73.36
+72.64
+74.58
+78.24
+75.04
+68.77
+74.41
+80.81
+77.78
+75.67
+79.12
+76.26
+77.44
+70.08
+78.83
+73.44
+75.59
+71.38
+79.38
+83.38
+81.02
+85.82
+74.79
+80.64
+86.32
+84.18
+
+0-shot
+
+52.05
+51.45
+42.32
+44.28
+58.7
+43.43
+54.1
+48.89
+56.83
+45.22
+55.89
+55.46
+52.13
+50.17
+46.84
+59.56
+52.65
+51.02
+50.68
+61.77
+57.25
+55.97
+66.04
+54.27
+64.33
+49.57
+61.52
+46.33
+67.75
+68.17
+
+43.52
+45.65
+44.11
+46.25
+52.13
+45.14
+40.36
+49.74
+53.24
+52.99
+50.77
+54.69
+50.77
+48.98
+41.81
+55.46
+45.9
+48.55
+51.02
+56.74
+59.81
+57.25
+64.25
+53.67
+60.15
+67.06
+63.14
+
+0-shot
+
+Challenge
+
+ARC
+
+82.94
+78.93
+75.84
+79.76
+85.81
+78.62
+85.41
+81.35
+83.09
+83.79
+84.77
+86.61
+82.87
+81.65
+75.81
+87.28
+87.8
+90.0
+88.72
+90.18
+86.45
+87.03
+88.44
+86.73
+87.49
+88.41
+89.2
+85.81
+90.24
+89.88
+
+75.87
+74.77
+75.66
+77.74
+82.14
+80.89
+72.48
+84.89
+82.84
+81.13
+80.09
+85.81
+80.7
+80.58
+67.74
+83.3
+74.31
+80.89
+87.31
+83.79
+85.26
+83.67
+85.26
+88.69
+89.45
+90.15
+87.89
+
+0-shot
+
+BoolQ
+
+75.4
+75.2
+70.92
+75.52
+82.88
+78.54
+80.6
+73.04
+75.81
+73.98
+81.14
+79.22
+80.51
+79.66
+77.6
+84.97
+79.89
+78.91
+84.71
+84.04
+82.34
+82.31
+85.95
+82.14
+82.49
+86.19
+86.65
+79.73
+87.88
+87.70
+
+76.26
+76.17
+75.43
+75.97
+80.38
+77.28
+75.65
+78.82
+80.72
+79.14
+80.13
+77.78
+80.1
+79.39
+71.76
+85.22
+75.11
+79.09
+83.7
+82.98
+83.88
+83.81
+84.95
+84.93
+85.57
+88.30
+86.25
+
+0-shot
+
+HellaSwag
+
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+
+27.63
+42.1
+49.64
+52.51
+60.68
+15.35
+29.69
+—
+—
+63.35
+35.73
+54.32
+57.43
+60.89
+33.45
+51.91
+42.57
+50.67
+—
+66.18
+71.39
+72.21
+77.84
+—
+—
+80.85
+77.32
+
+0-shot
+
+TriviaQA
+
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+
+15.68
+13.96
+18.39
+14.99
+20.42
+11.41
+11.61
+—
+—
+16.4
+19.36
+17.87
+15.6
+14.93
+9.61
+26.15
+12.08
+16.29
+—
+24.35
+29.75
+25.43
+23.66
+—
+—
+40.19
+29.7
+
+0-shot
+
+NQ Open
+
+13.02
+12.84
+3.0
+4.86
+13.28
+1.5
+—
+—
+27.02
+7.38
+23.22
+38.28
+7.2
+5.48
+6.46
+30.32
+9.12
+13.68
+27.64
+41.08
+11.36
+13.32
+26.74
+10.9
+44.12
+21.88
+41.2
+25.34
+29.88
+41.80
+
+5.88
+5.52
+2.84
+3.4
+12.38
+5.98
+1.9
+—
+—
+15.86
+8.02
+29.96
+6.5
+5.54
+4.18
+21.04
+5.88
+7.86
+37.56
+35.32
+27.18
+13.96
+37.94
+36.9
+49.08
+30.46
+38.88
+
+4-shot
+
+Minerva MATH
+
+53.6
+49.28
+13.04
+23.35
+48.67
+11.52
+77.86
+2.27
+75.44
+42.15
+71.34
+78.85
+31.08
+35.56
+24.64
+81.58
+32.68
+51.25
+72.86
+81.5
+59.29
+64.9
+64.06
+53.15
+91.05
+81.12
+89.54
+76.04
+74.15
+85.6
+
+16.15
+16.98
+11.14
+13.87
+37.53
+27.67
+5.23
+77.94
+0.15
+50.72
+29.49
+64.82
+23.96
+23.43
+11.45
+63.31
+16.91
+25.47
+74.91
+77.03
+58.53
+53.75
+81.12
+79.3
+88.78
+71.42
+75.97
+
+5-shot
+
+GSM8K
+
+BBH
+
+—
+—
+35.99
+40.15
+56.78
+33.31
+59.39
+—
+67.67
+48.07
+—
+68.61
+49.09
+47.44
+38.1
+70.42
+44.71
+50.79
+54.69
+75.07
+62.54
+63.23
+68.12
+63.05
+83.15
+52.19
+46.51
+72.91
+72.66
+82.86
+
+39.39
+41.28
+36.81
+39.63
+58.27
+34.07
+29.66
+58.41
+—
+62.91
+47.89
+70.97
+46.32
+47.35
+36.86
+70.76
+42.5
+52.05
+53.6
+76.16
+69.36
+67.04
+82.12
+47.24
+79.67
+67.52
+80.79
+
+CoT 3-shot
+
+Hard
+
+33.8
+28.9
+—
+30.8
+36.2
+26.7
+—
+39.1
+45.6
+—
+37.2
+40.9
+—
+—
+—
+51.60
+—
+—
+43.3
+51.2
+45.2
+—
+42.5
+38.0
+55.90
+48.3
+—
+51.4
+—
+—
+
+26.90
+20.4
+—
+—
+—
+—
+—
+—
+—
+—
+26.2
+—
+—
+—
+—
+46.20
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+
+Standard
+
+70.7
+67.6
+—
+61.7
+70.0
+55.0
+—
+69.6
+75.0
+—
+72.8
+74.2
+—
+—
+—
+83.5
+—
+—
+81.0
+81.7
+77.0
+—
+76.4
+74.6
+84.00
+84.10
+—
+81.5
+—
+—
+
+48.5
+50.2
+—
+—
+—
+—
+—
+—
+—
+—
+57.80
+—
+—
+—
+—
+77.90
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+—
+
+5/0-shot (base/ft)
+
+MixEval
+
+5/0-shot (base/ft)
+
+—
+22.24
+17.65
+—
+36.59
+16.6
+—
+—
+55.20
+11.12
+31.71
+55.1
+21.77
+15.54
+—
+40.29
+—
+—
+—
+65.39
+—
+15.04
+50.06
+29.59
+—
+—
+—
+—
+—
+—
+
+—
+—
+12.28
+—
+27.82
+17.66
+13.05
+—
+32.48
+27.5
+—
+39.06
+17.44
+17.67
+—
+22.23
+—
+—
+0.8
+38.09
+37.79
+30.28
+4.63
+—
+—
+—
+—
+
+—
+29.85
+27.08
+—
+52.55
+23.54
+—
+—
+71.92
+18.21
+49.16
+67.62
+35.22
+20.02
+—
+58.18
+—
+—
+—
+79.64
+—
+33.66
+65.19
+38.93
+—
+—
+—
+—
+—
+—
+
+—
+—
+20.23
+—
+42.12
+27.21
+19.26
+—
+52.2
+44.61
+—
+56.53
+27.46
+28.97
+—
+39.72
+—
+—
+3.0
+53.72
+55.15
+46.67
+11.74
+—
+—
+—
+—
+
+pass@10
+
+HumanEval
+pass@1
+
+B
+
+Author Contributions
+
+In no particular order,
+• M Saiful Bari: Research lead for alignment at scale (second language acquisition). Wrote
+the basic orchestration and optimization of the LLM training framework, data, and training
+deployment. Trained all the models explained in the paper. Helped build the evaluation
+infrastructure and orchestrate the entire LLM engine. Implemented the alignment training
+pipeline and sandboxing environments. Served as a prompt librarian. Supported any project
+requirements regardless of training, data, or evaluation. Wrote a major part of the paper.
+• Yazeed Alnumay: Implemented pretraining data translation at scale. Worked on vocabulary embeddings augmentation and initialization, as well as the model framework conversion logic. Built the automatic evaluation infrastructure. Acted as a prompt librarian and
+built the SFT data infrastructure, including SFT and preference data acquisition, curation,
+processing, cleaning, and lifecycle management. Supported any project requirements regardless of training, data, or evaluation. Contributed to the figures and manuscript writing.
+• Haidar Khan: Guided and reviewed all aspects of the work, with a focus on pretraining
+and alignment decisions. Contributed directly to optimizing the training infrastructure and
+trained the 7B model from scratch. Edited and wrote majority of the paper.
+• Areeb Alowisheq: Managed the ALLaM training team and wrote the configurations for
+v0 models. Contributed to all research and logistics decisions for ALLaM. Edited and reviewed the paper, wrote the Arabic LLM related works section.
+• Nora Al-Twairesh: Managed the data and evaluation effort of ALLaM. Assisted in building the complete data and evaluation ecosystem for the ALLaM project. Edited and reviewed the paper.
+• Abdalghani Abujabal: Worked on SFT and alignment data creation, quality metrics for
+data, and model red teaming. Standardized human evaluation for alignment data and led a
+major part of the data effort. Wrote the data sections of the paper.
+• Jeril Kuriakose: Worked on MT bench evaluation and maintained all deployment and
+pretraining data preparation. Supported any project requirements regardless of training,
+data, or evaluation. Wrote the MT bench evaluation section of the paper.
+• Ahmed Abdelali: Worked on the Arabic pretraining data. Led the Arabic OCR effort and
+book corpus acquisition and creation. Worked on Arabic SFT data.
+• Abdulmohsen Al-Thubaity: Worked on Arabic SFT data creation. Prepared a major part
+of Arabic SFT data.
+• Zaki Alawami: Lead the HPC (LLM infrastructure) development and model deployment.
+• Ali Alammari: Worked on the acquisition of pretraining Arabic data and the creation of
+the data processing pipeline.
+• Majed Alrubaian: Supported the entire data, training, and evaluation teams. Worked on
+Arabic Education SFT data.
+• Norah A. Alzahrani: Implemented all private Arabic evaluations. Lead the human evaluation and prompt acquisition. Maintained the human evaluation pipeline. Wrote the Arabic
+human evaluation section and prepared the figures.
+• Nouf M. Alotaibi: Trained the v0 version of ALLaM on NeMo. Trained all the tokenizers
+and prepared training data for the v0 and v3 versions. Prepared the initial SFT figures of
+the paper. Worked on the red-teaming, SFT quality metrics, and generating visualizations
+for SFT data.
+• Hisham A. Alyahya: Trained the v0 version of ALLaM on NeMo, identified bugs in
+NeMo checkpointing and resuming from checkpoints. Worked on model deployment, measured latency and throughput, and evaluated trade-offs between frameworks like TRT-LLM,
+vLLM, and HF-TGI. Deployed the preference data collection frontend and wrote the data
+sampling code for v0 models.
+• Sultan AlRashed: Worked on Megatron-LM checkpointing and maintained the v0 version
+of the SFT and RLHF code. Implemented the preference data pipeline in Megatron-LM.
+Worked on the alignment specialization. Profiled Megatron-Deepspeed.
+30
+
+• Faisal A. Mirza: Trained the Arabic-only tokenizer and worked on model creation with an
+expanded vocabulary.
+• Shaykhah Z. Alsubaie: Maintained evaluation results for the paper, worked on synthetic
+SFT data creation, specialized model finetuning, few-shot evaluation, and model capability
+evaluation. Trained router models and worked on the tokenizer. Worked on red-teaming
+ALLaM models.
+• Hassan A. Alahmed: Worked on pretraining data pipeline for Arabic.
+• Ghadah Alabduljabbar: Worked on data pipeline for Arabic, SFT quality metrics. Worked
+on red-teaming ALLaM models.
+• Raghad Alkhathran: Worked on data pipeline for Arabic. Worked on red-teaming ALLaM
+models.
+• Yousef Almushayqih: Worked on lm-harness evaluation framework. Worked on redteaming ALLaM models.
+• Raneem Alnajim: Worked on training team. Worked on red-teaming ALLaM models.
+• Salman Alsubaihi: Worked on deployment team. Worked on red-teaming ALLaM models.
+• Maryam Al Mansour: Worked on the Arabic Data pipeline.
+Note: In this work we used the v2 version of our data and all the model mentioned in the paper
+are the v1 version trained on Megatron-LM. Our v0 model series were trained on NeMo.
+
+31
+
+

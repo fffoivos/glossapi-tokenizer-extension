@@ -1,0 +1,108 @@
+{
+  "already_reviewed_high_risk_rows": 9,
+  "created_at_utc": "2026-06-06T01:45:00Z",
+  "existing_review_correct_action_counts": {
+    "drop_doc": 1,
+    "keep": 5,
+    "split_doc": 3
+  },
+  "global_random_population_size": 200,
+  "global_random_reviewed_unique_rows": 89,
+  "policy_note": "Review pack only. It does not approve an automatic cleaning policy or mutate source rows.",
+  "remaining_outside_representative_sample": 120,
+  "representative_reviewed_rows": 80,
+  "review_status_counts": {
+    "already_reviewed_high_risk": 9,
+    "needs_review": 111
+  },
+  "schema_version": "hplt-false-negative-global-remaining-pack-v1",
+  "top_hosts": [
+    {
+      "host": "www.newsit.com.cy",
+      "rows": 2
+    },
+    {
+      "host": "www.economistas.gr",
+      "rows": 2
+    },
+    {
+      "host": "diodotos-k-t.blogspot.com",
+      "rows": 1
+    },
+    {
+      "host": "www.4troxoi.gr",
+      "rows": 1
+    },
+    {
+      "host": "www.imommy.gr",
+      "rows": 1
+    },
+    {
+      "host": "www.lakoniapress.gr",
+      "rows": 1
+    },
+    {
+      "host": "www.logiscoop-pansyfa.gr",
+      "rows": 1
+    },
+    {
+      "host": "www.pireasnews.gr",
+      "rows": 1
+    },
+    {
+      "host": "justinian.apostoliki-diakonia.gr",
+      "rows": 1
+    },
+    {
+      "host": "www.grammariosbikes.com",
+      "rows": 1
+    },
+    {
+      "host": "www.kettler.gr",
+      "rows": 1
+    },
+    {
+      "host": "www.mediamarkt.gr",
+      "rows": 1
+    },
+    {
+      "host": "www.richgirlboudoir.gr",
+      "rows": 1
+    },
+    {
+      "host": "radiogamma.blogspot.gr",
+      "rows": 1
+    },
+    {
+      "host": "tsiotras.blogspot.ro",
+      "rows": 1
+    },
+    {
+      "host": "www.kirkinews.gr",
+      "rows": 1
+    },
+    {
+      "host": "www.androidsis.com",
+      "rows": 1
+    },
+    {
+      "host": "www.nant.gr",
+      "rows": 1
+    },
+    {
+      "host": "www.palo.com.cy",
+      "rows": 1
+    },
+    {
+      "host": "www.thermi-group.com",
+      "rows": 1
+    }
+  ],
+  "triage_bucket_counts": {
+    "0": 85,
+    ">0": 14,
+    ">=0.18": 12,
+    ">=0.24": 9
+  },
+  "unreviewed_global_random_rows": 111
+}

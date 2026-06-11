@@ -1,0 +1,1140 @@
+clearing stale trigger files in /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/triggers
+=== bakeoff_train.sbatch ===
+Sun May 24 23:27:24 UTC 2026
+host: nid005399
+ARM=vanilla  INIT_CKPT=/capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints  OUTPUT_DIR=/capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla
+Megatron-LM-Swiss-AI: /iopsstor/scratch/cscs/fffoivos/code/training/Megatron-LM-Swiss-AI @ c92402e39ef3c8e69ea378a59e79059dc14541f4
+uenv: pytorch/v2.9.1:v2
+slurm: account=a0140 partition=normal nodes=1 ntasks=4 gpus_per_node=4 time_limit=12:00:00 launch_mode=slurm model_world_size=4
+checkpoint mode: RESUME_TRAINING=1
+save mode: DISABLE_SAVE=0 SAVE_INTERVAL=65
+loss objective: ntp
+seq_len=4096  microbatch=2  global_batch_samples=1024
+train_samples=854016 (train_tokens=3498049536) lr_warmup_samples=9765
+
+ARM=vanilla  →  tokenizer=/iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509  data_prefix=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_megatron/bulk_mix_text_document
+distributed: MASTER_ADDR=nid005399 MASTER_PORT=32736 WORLD_SIZE=4 LAUNCH_MODE=slurm
+0: using world size: 4, data-parallel size: 2, context-parallel size: 1, hierarchical context-parallel sizes: Nonetensor-model-parallel size: 2, encoder-tensor-model-parallel size: 0, pipeline-model-parallel size: 1, encoder-pipeline-model-parallel size: 0
+0: WARNING: overriding default arguments for tokenizer_type:GPT2BPETokenizer                        with tokenizer_type:HuggingFaceTokenizer
+0: accumulate and all-reduce gradients in fp32 for bfloat16 data type.
+0: using torch.bfloat16 for parameters ...
+0: Exit trigger setup! run `touch /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/triggers/exit` to stop training
+0: Save trigger setup! run `touch /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/triggers/save` to save a checkpoint
+0: ------------------------ arguments ------------------------
+0:   account_for_embedding_in_pipeline_split ......... False
+0:   account_for_loss_in_pipeline_split .............. False
+0:   accumulate_allreduce_grads_in_fp32 .............. True
+0:   adam_beta1 ...................................... 0.9
+0:   adam_beta2 ...................................... 0.999
+0:   adam_eps ........................................ 1e-08
+0:   add_bias_linear ................................. False
+0:   add_position_embedding .......................... True
+0:   add_qkv_bias .................................... False
+0:   ademamix_alpha .................................. 8.0
+0:   ademamix_alpha_warmup ........................... 238
+0:   ademamix_beta3 .................................. 0.9999
+0:   ademamix_beta3_warmup ........................... 238
+0:   adlr_autoresume ................................. False
+0:   adlr_autoresume_interval ........................ 1000
+0:   align_grad_reduce ............................... True
+0:   align_param_gather .............................. False
+0:   app_tag_run_name ................................ None
+0:   app_tag_run_version ............................. 0.0.0
+0:   apply_layernorm_1p .............................. False
+0:   apply_query_key_layer_scaling ................... False
+0:   apply_residual_connection_post_layernorm ........ False
+0:   apply_rope_fusion ............................... True
+0:   async_save ...................................... True
+0:   async_tensor_model_parallel_allreduce ........... True
+0:   attention_backend ............................... AttnBackend.auto
+0:   attention_dropout ............................... 0.0
+0:   attention_softmax_in_fp32 ....................... False
+0:   attn_layernorm .................................. True
+0:   auto_detect_ckpt_format ......................... False
+0:   barrier_with_L1_time ............................ True
+0:   bert_binary_head ................................ True
+0:   bert_embedder_type .............................. megatron
+0:   bert_load ....................................... None
+0:   bf16 ............................................ True
+0:   bias_dropout_fusion ............................. True
+0:   bias_gelu_fusion ................................ False
+0:   bias_swiglu_fusion .............................. True
+0:   biencoder_projection_dim ........................ 0
+0:   biencoder_shared_query_context_model ............ False
+0:   block_data_path ................................. None
+0:   calc_ft_timeouts ................................ False
+0:   calculate_per_token_loss ........................ False
+0:   check_for_nan_in_loss_and_grad .................. False
+0:   check_for_spiky_loss ............................ False
+0:   check_weight_hash_across_dp_replicas_interval ... None
+0:   ckpt_assume_constant_structure .................. False
+0:   ckpt_convert_format ............................. None
+0:   ckpt_convert_save ............................... None
+0:   ckpt_convert_update_legacy_dist_opt_format ...... False
+0:   ckpt_format ..................................... torch_dist
+0:   ckpt_fully_parallel_load ........................ True
+0:   ckpt_fully_parallel_save ........................ True
+0:   ckpt_fully_parallel_save_deprecated ............. False
+0:   ckpt_step ....................................... None
+0:   classes_fraction ................................ 1.0
+0:   clip_grad ....................................... 0.1
+0:   clone_scatter_output_in_embedding ............... True
+0:   config_logger_dir ............................... 
+0:   consumed_train_samples .......................... 0
+0:   consumed_valid_samples .......................... 0
+0:   context_parallel_size ........................... 1
+0:   cp_comm_type .................................... ['p2p']
+0:   create_attention_mask_in_dataloader ............. True
+0:   cross_entropy_loss_fusion ....................... True
+0:   cuda_graph_warmup_steps ......................... 2
+0:   data_args_path .................................. None
+0:   data_cache_path ................................. None
+0:   data_parallel_random_init ....................... False
+0:   data_parallel_size .............................. 2
+0:   data_path ....................................... ['/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_megatron/bulk_mix_text_document']
+0:   data_per_class_fraction ......................... 1.0
+0:   data_sharding ................................... True
+0:   dataloader_type ................................. single
+0:   ddp_average_in_collective ....................... False
+0:   ddp_bucket_size ................................. None
+0:   decoder_first_pipeline_num_layers ............... None
+0:   decoder_last_pipeline_num_layers ................ None
+0:   decoder_num_layers .............................. None
+0:   decoder_seq_length .............................. None
+0:   decoupled_lr .................................... None
+0:   decoupled_min_lr ................................ None
+0:   decrease_batch_size_if_needed ................... False
+0:   defer_embedding_wgrad_compute ................... False
+0:   deprecated_use_mcore_models ..................... False
+0:   deterministic_mode .............................. False
+0:   dino_bottleneck_size ............................ 256
+0:   dino_freeze_last_layer .......................... 1
+0:   dino_head_hidden_size ........................... 2048
+0:   dino_local_crops_number ......................... 10
+0:   dino_local_img_size ............................. 96
+0:   dino_norm_last_layer ............................ False
+0:   dino_teacher_temp ............................... 0.07
+0:   dino_warmup_teacher_temp ........................ 0.04
+0:   dino_warmup_teacher_temp_epochs ................. 30
+0:   disable_straggler_on_startup .................... False
+0:   dist_ckpt_format_deprecated ..................... None
+0:   dist_ckpt_strictness ............................ assume_ok_unexpected
+0:   distribute_saved_activations .................... False
+0:   distributed_backend ............................. nccl
+0:   distributed_timeout_minutes ..................... 60
+0:   embedding_path .................................. None
+0:   empty_unused_memory_level ....................... 0
+0:   enable_cuda_graph ............................... False
+0:   enable_ft_package ............................... False
+0:   enable_one_logger ............................... True
+0:   encoder_num_layers .............................. 32
+0:   encoder_pipeline_model_parallel_size ............ 0
+0:   encoder_seq_length .............................. 4096
+0:   encoder_tensor_model_parallel_size .............. 0
+0:   end_weight_decay ................................ 0.1
+0:   eod_mask_loss ................................... True
+0:   error_injection_rate ............................ 0
+0:   error_injection_type ............................ transient_error
+0:   eval_interval ................................... 1000
+0:   eval_iters ...................................... 100
+0:   evidence_data_path .............................. None
+0:   exit_duration_in_mins ........................... None
+0:   exit_interval ................................... None
+0:   exit_on_missing_checkpoint ...................... False
+0:   exit_signal_handler ............................. True
+0:   exit_trigger .................................... /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/triggers/exit
+0:   exp_avg_dtype ................................... torch.float32
+0:   exp_avg_sq_dtype ................................ torch.float32
+0:   expert_model_parallel_size ...................... 1
+0:   expert_tensor_parallel_size ..................... 2
+0:   ffn_hidden_size ................................. 21504
+0:   final_layernorm ................................. True
+0:   finetune ........................................ False
+0:   fix_old_xielu ................................... False
+0:   flash_decode .................................... False
+0:   fp16 ............................................ False
+0:   fp16_lm_cross_entropy ........................... False
+0:   fp32_residual_connection ........................ False
+0:   fp8 ............................................. None
+0:   fp8_amax_compute_algo ........................... most_recent
+0:   fp8_amax_history_len ............................ 1
+0:   fp8_interval .................................... 1
+0:   fp8_margin ...................................... 0
+0:   fp8_param_gather ................................ False
+0:   fp8_wgrad ....................................... True
+0:   global_batch_size ............................... 1024
+0:   goldfish_h ...................................... 50
+0:   goldfish_k ...................................... 50
+0:   goldfish_loss ................................... False
+0:   gradient_accumulation_fusion .................... True
+0:   group_query_attention ........................... True
+0:   head_lr_mult .................................... 1.0
+0:   hidden_dropout .................................. 0.0
+0:   hidden_size ..................................... 4096
+0:   hierarchical_context_parallel_sizes ............. None
+0:   hybrid_attention_ratio .......................... 0.0
+0:   hybrid_mlp_ratio ................................ 0.0
+0:   hybrid_override_pattern ......................... None
+0:   hysteresis ...................................... 2
+0:   ict_head_size ................................... None
+0:   ict_load ........................................ None
+0:   img_h ........................................... 224
+0:   img_w ........................................... 224
+0:   indexer_batch_size .............................. 128
+0:   indexer_log_interval ............................ 1000
+0:   inference_batch_times_seqlen_threshold .......... -1
+0:   inference_max_seq_length ........................ 2560
+0:   inference_rng_tracker ........................... False
+0:   init_method_std ................................. 0.008944
+0:   init_method_xavier_uniform ...................... False
+0:   initial_loss_scale .............................. 4294967296
+0:   input_embeddings_multiplier ..................... 1.0
+0:   iter_per_epoch .................................. 1250
+0:   kv_channels ..................................... 128
+0:   kv_lora_rank .................................... 32
+0:   layernorm_init .................................. None
+0:   lazy_mpu_init ................................... None
+0:   load ............................................ /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints
+0:   local_rank ...................................... 0
+0:   log_interval .................................... 1
+0:   log_loss_scale_to_tensorboard ................... False
+0:   log_memory_to_tensorboard ....................... True
+0:   log_num_zeros_in_grad ........................... False
+0:   log_params_norm ................................. True
+0:   log_params_norm_per_param ....................... False
+0:   log_progress .................................... False
+0:   log_straggler ................................... False
+0:   log_throughput .................................. True
+0:   log_timers_to_tensorboard ....................... False
+0:   log_validation_ppl_to_tensorboard ............... False
+0:   log_world_size_to_tensorboard ................... False
+0:   logging_level ................................... None
+0:   loss_scale ...................................... None
+0:   loss_scale_window ............................... 1000
+0:   lr .............................................. 1.5e-05
+0:   lr_decay_iters .................................. None
+0:   lr_decay_samples ................................ None
+0:   lr_decay_style .................................. WSD
+0:   lr_warmup_fraction .............................. None
+0:   lr_warmup_init .................................. 0.0
+0:   lr_warmup_iters ................................. 0
+0:   lr_warmup_samples ............................... 9765
+0:   lr_wsd_decay_iters .............................. None
+0:   lr_wsd_decay_samples ............................ 854016
+0:   lr_wsd_decay_style .............................. 1-sqrt
+0:   main_grads_dtype ................................ torch.float32
+0:   main_params_dtype ............................... torch.float32
+0:   make_vocab_size_divisible_by .................... 128
+0:   manual_gc ....................................... True
+0:   manual_gc_eval .................................. True
+0:   manual_gc_interval .............................. 500
+0:   mask_factor .......................
+0: .............. 1.0
+0:   mask_prob ....................................... 0.15
+0:   mask_type ....................................... random
+0:   masked_softmax_fusion ........................... True
+0:   max_position_embeddings ......................... 4096
+0:   max_tokens_to_oom ............................... 12000
+0:   memory_snapshot_path ............................ snapshot.pickle
+0:   merge_file ...................................... None
+0:   micro_batch_size ................................ 2
+0:   microbatch_group_size_per_vp_stage .............. None
+0:   min_loss_scale .................................. 1.0
+0:   min_lr .......................................... 1.5e-06
+0:   mlp_layernorm ................................... True
+0:   mmap_bin_files .................................. True
+0:   mock_data ....................................... False
+0:   moe_aux_loss_coeff .............................. 0.0
+0:   moe_expert_capacity_factor ...................... None
+0:   moe_extended_tp ................................. False
+0:   moe_ffn_hidden_size ............................. 21504
+0:   moe_grouped_gemm ................................ False
+0:   moe_input_jitter_eps ............................ None
+0:   moe_layer_freq .................................. 1
+0:   moe_layer_recompute ............................. False
+0:   moe_pad_expert_input_to_capacity ................ False
+0:   moe_per_layer_logging ........................... False
+0:   moe_router_bias_update_rate ..................... 0.001
+0:   moe_router_enable_expert_bias ................... False
+0:   moe_router_load_balancing_type .................. aux_loss
+0:   moe_router_pre_softmax .......................... False
+0:   moe_router_score_function ....................... softmax
+0:   moe_router_topk ................................. 2
+0:   moe_router_topk_limited_devices ................. None
+0:   moe_router_topk_scaling_factor .................. None
+0:   moe_shared_expert_intermediate_size ............. None
+0:   moe_shared_expert_overlap ....................... False
+0:   moe_token_dispatcher_type ....................... allgather
+0:   moe_token_drop_policy ........................... probs
+0:   moe_use_legacy_grouped_gemm ..................... False
+0:   moe_use_upcycling ............................... False
+0:   moe_z_loss_coeff ................................ None
+0:   multi_latent_attention .......................... False
+0:   nccl_communicator_config_path ................... None
+0:   no_load_optim ................................... None
+0:   no_load_rng ..................................... None
+0:   no_persist_layer_norm ........................... False
+0:   no_save_optim ................................... None
+0:   no_save_rng ..................................... None
+0:   non_persistent_ckpt_type ........................ None
+0:   non_persistent_global_ckpt_dir .................. None
+0:   non_persistent_local_ckpt_algo .................. fully_parallel
+0:   non_persistent_local_ckpt_dir ................... None
+0:   non_persistent_save_interval .................... None
+0:   norm_epsilon .................................... 1e-05
+0:   normalization ................................... RMSNorm
+0:   num_attention_heads ............................. 32
+0:   num_channels .................................... 3
+0:   num_classes ..................................... 1000
+0:   num_dataset_builder_threads ..................... 4
+0:   num_distributed_optimizer_instances ............. 1
+0:   num_experts ..................................... None
+0:   num_layers ...................................... 32
+0:   num_layers_per_virtual_pipeline_stage ........... None
+0:   num_query_groups ................................ 8
+0:   num_virtual_stages_per_pipeline_rank ............ None
+0:   num_workers ..................................... 4
+0:   one_logger_async ................................ False
+0:   one_logger_project .............................. megatron-lm
+0:   one_logger_run_name ............................. None
+0:   onnx_safe ....................................... None
+0:   openai_gelu ..................................... False
+0:   optimizer ....................................... ademamix
+0:   output_bert_embeddings .......................... False
+0:   overlap_grad_reduce ............................. True
+0:   overlap_p2p_comm ................................ False
+0:   overlap_p2p_comm_warmup_flush ................... False
+0:   overlap_param_gather ............................ True
+0:   overlap_param_gather_with_optimizer_step ........ False
+0:   override_opt_param_scheduler .................... True
+0:   params_dtype .................................... torch.bfloat16
+0:   patch_dim ....................................... 16
+0:   per_split_data_args_path ........................ None
+0:   perform_initialization .......................... True
+0:   pipeline_model_parallel_size .................... 1
+0:   pipeline_model_parallel_split_rank .............. None
+0:   position_embedding_type ......................... rope
+0:   post_layer_norm ................................. False
+0:   pretrained_checkpoint ........................... None
+0:   profile ......................................... False
+0:   profile_ranks ................................... [0]
+0:   profile_step_end ................................ 12
+0:   profile_step_start .............................. 10
+0:   q_lora_rank ..................................... None
+0:   qk_head_dim ..................................... 128
+0:   qk_layernorm .................................... True
+0:   qk_pos_emb_head_dim ............................. 64
+0:   qknorm_impl ..................................... apex
+0:   query_in_block_prob ............................. 0.1
+0:   rampup_batch_size ............................... None
+0:   rank ............................................ 0
+0:   recompute_granularity ........................... None
+0:   recompute_method ................................ None
+0:   recompute_num_layers ............................ None
+0:   record_memory_history ........................... False
+0:   relative_attention_max_distance ................. 128
+0:   relative_attention_num_buckets .................. 32
+0:   replication ..................................... False
+0:   replication_factor .............................. 2
+0:   replication_jump ................................ None
+0:   rerun_mode ...................................... disabled
+0:   reset_attention_mask ............................ True
+0:   reset_position_ids .............................. True
+0:   retriever_report_topk_accuracies ................ []
+0:   retriever_score_scaling ......................... False
+0:   retriever_seq_length ............................ 256
+0:   retro_add_retriever ............................. False
+0:   retro_attention_gate ............................ 1
+0:   retro_cyclic_train_iters ........................ None
+0:   retro_encoder_attention_dropout ................. 0.1
+0:   retro_encoder_hidden_dropout .................... 0.1
+0:   retro_encoder_layers ............................ 2
+0:   retro_num_neighbors ............................. 2
+0:   retro_num_retrieved_chunks ...................... 2
+0:   retro_project_dir ............................... None
+0:   retro_verify_neighbor_count ..................... True
+0:   rope_scaling_factor ............................. 8.0
+0:   rotary_base ..................................... 500000
+0:   rotary_interleaved .............................. False
+0:   rotary_percent .................................. 1.0
+0:   rotary_scaling_factor ........................... 1.0
+0:   rotary_seq_len_interpolation_factor ............. None
+0:   s3_cache_path ................................... None
+0:   sample_rate ..................................... 1.0
+0:   save ............................................ /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints
+0:   save_interval ................................... 65
+0:   save_trigger .................................... /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/triggers/save
+0:   scatter_gather_tensors_in_pipeline .............. True
+0:   seed ............................................ 20260520
+0:   seq_length ...................................... 4096
+0:   sequence_parallel ............................... False
+0:   sgd_momentum .................................... 0.9
+0:   short_seq_prob .................................. 0.1
+0:   skip_train ...................................... False
+0:   skipped_train_samples ........................... 0
+0:   spec ............................................ None
+0:   split ........................................... 100,0,0
+0:   squared_relu .................................... False
+0:   start_weight_decay .............................. 0.1
+0:   straggler_ctrlr_port ............................ 65535
+0:   straggler_minmax_count .......................... 1
+0:   swiglu .......................................... False
+0:   swin_backbone_type .............................. tiny
+0:   te_rng_tracker .................................. False
+0:   tensor_model_parallel_size ...................... 2
+0:   tensorboard_dir ................................. /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/tensorboard
+0:   tensorboard_log_interval ........................ 1
+0:   tensorboard_queue_size .......................... 1000
+0:   test_data_path .................................. None
+0:   test_mode ....................................... False
+0:   tiktoken_num_special_tokens ..................... 1000
+0:   tiktoken_pattern ................................ None
+0:   tiktoken_special_tokens ......................... None
+0:   timing_log_level ................................ 0
+0:   timing_log_option ............................... minmax
+0:   titles_data_path ................................ None
+0:   tokenizer_model ................................. /iopsstor/scratch/cscs/fffoivos/models/apertus-8b-2509
+0:   tokenizer_type .................................. HuggingFaceTokenizer
+0:   tp_comm_bootstrap_backend ....................... nccl
+0:   tp_comm_bulk_dgrad .............................. True
+0:   tp_comm_bulk_wgrad .............................. True
+0:   tp_comm_overlap ................................. False
+0:   tp_comm_overlap_ag .............................. True
+0:   tp_comm_overlap_cfg ............................. None
+0:   tp_comm_overlap_rs .............................. True
+0:   tp_comm_overlap_rs_dgrad ........................ False
+0:   tp_comm_split_ag ................................ True
+0:   tp_comm_split_rs ................................ True
+0:   train_data_path ................................. None
+0:   train_iters ..................................... None
+0:   train_samples ................................... 854016
+0:   train_sync_interval ............................. None
+0:   transformer_impl ................................ transformer_engine
+0:   transformer_pipeline_model_parallel_size ........ 1
+0:   trigger_path .................................... /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/triggers
+0:   untie_embeddings_and_output_weights ............. True
+0:   use_checkpoint_args ............................. False
+0:   use_checkpoint_opt_param_scheduler .............. False
+0:   use_cpu_initialization .......................... None
+0:   use_dist_ckpt ................................... True
+0:   use_dist_ckpt_deprecated ........................ False
+0:   use_distributed_optimizer ....................... True
+0:   use_flash_attn .................................. False
+0:   use_legacy_models ............................... False
+0:   use_mp_args_from_checkpoint_args ................ False
+0:   use_one_sent_docs ............................... False
+0:   use_precision_aware_optimizer ................... False
+0:   use_pytorch_profiler ............................ False
+0:   use_ring_exchange_p2p ........................... False
+0:   use_rope_scaling ................................ False
+0:   use_rotary_position_embeddings .................. False
+0:   use_tokenizer_model_from_checkpoint_args ........ True
+0:   use_torch_fsdp2 ................................. False
+0:   use_tp_pp_dp_mapping ............................ False
+0:   v_head_dim ...................................... 128
+0:   valid_data_path ................................. None
+0:   variable_seq_lengths ............................ False
+0:   virtual_pipeline_model_parallel_size ....
+0: ........ None
+0:   vision_backbone_type ............................ vit
+0:   vision_pretraining .............................. False
+0:   vision_pretraining_type ......................... classify
+0:   vocab_extra_ids ................................. 0
+0:   vocab_file ...................................... None
+0:   vocab_size ...................................... None
+0:   wandb_exp_name .................................. 
+0:   wandb_project ................................... 
+0:   wandb_save_dir .................................. 
+0:   weight_decay .................................... 0.1
+0:   weight_decay_incr_style ......................... constant
+0:   wgrad_deferral_limit ............................ 0
+0:   world_size ...................................... 4
+0:   xielu ........................................... True
+0:   xiprelu ......................................... False
+0:   xiprelup ........................................ False
+0:   yaml_cfg ........................................ None
+0: -------------------- end of arguments ---------------------
+0: INFO:megatron.core.num_microbatches_calculator:setting number of microbatches to constant 256
+0: > building HuggingFaceTokenizer tokenizer ...
+0:  > padded vocab (size: 131072) with 0 dummy tokens (new size: 131072)
+0: WARNING:megatron.core.rerun_state_machine:RerunStateMachine initialized in mode RerunMode.DISABLED
+0: > initializing torch distributed ...
+3: > setting tensorboard ...
+3: WARNING: one_logger package is required to enable e2e metrics tracking. please go to https://confluence.nvidia.com/display/MLWFO/Package+Repositories for details to install it
+3: [Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+1: [Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+0: [Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+2: [Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+1: [Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+3: [Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+0: [Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+2: [Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+1: [Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+3: [Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+0: [Gloo] Rank 0 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+2: [Gloo] Rank 1 is connected to 1 peer ranks. Expected number of connected peer ranks is : 1
+0: > initialized tensor model parallel with size 2
+0: > initialized pipeline model parallel with size 1
+0: > setting random seeds to 20260520 ...
+0: > compiling dataset index builder ...
+0: make: Entering directory '/iopsstor/scratch/cscs/fffoivos/code/training/Megatron-LM-Swiss-AI/megatron/core/datasets'
+0: make: Nothing to be done for 'default'.
+0: make: Leaving directory '/iopsstor/scratch/cscs/fffoivos/code/training/Megatron-LM-Swiss-AI/megatron/core/datasets'
+0: >>> done with dataset index builder. Compilation time: 0.051 seconds
+0: > compiling and loading fused kernels ...
+0: >>> done with compiling and loading fused kernels. Compilation time: 3.106 seconds
+0: time to initialize megatron (seconds): 14.588
+0: [after megatron is initialized] datetime: 2026-05-25 01:28:28 
+0: building GPT model ...
+0: Built model:
+1:  > number of parameters on (tensor, pipeline) model parallel rank (1, 0): 4026806336
+0: GPTModel(
+0:   (embedding): LanguageModelEmbedding(
+0:     (word_embeddings): VocabParallelEmbedding()
+0:     (embedding_dropout): Dropout(p=0.0, inplace=False)
+0:   )
+0:   (rotary_pos_emb): RotaryEmbedding()
+0:   (decoder): TransformerBlock(
+0:     (layers): ModuleList(
+0:       (0-31): 32 x TransformerLayer(
+0:         (input_layernorm): IdentityOp()
+0:         (self_attention): SelfAttention(
+0:           (core_attention): TEDotProductAttention(
+0:             (flash_attention): FlashAttention()
+0:             (fused_attention): FusedAttention()
+0:             (unfused_attention): UnfusedDotProductAttention(
+0:               (scale_mask_softmax): FusedScaleMaskSoftmax()
+0:               (attention_dropout): Dropout(p=0.0, inplace=False)
+0:             )
+0:           )
+0:           (linear_proj): TERowParallelLinear(in_features=2048, out_features=4096, bias=False, TP=2)
+0:           (linear_qkv): TELayerNormColumnParallelLinear(in_features=4096, out_features=3072, bias=False, TP=2)
+0:           (q_layernorm): FusedRMSNorm()
+0:           (k_layernorm): FusedRMSNorm()
+0:      
+0:    )
+0:         (pre_cross_attn_layernorm): IdentityOp()
+0:         (cross_attention): IdentityOp()
+0:         (cross_attn_bda): IdentityFuncOp()
+0:         (pre_mlp_layernorm): IdentityOp()
+0:         (mlp): MLP(
+0:           (linear_fc1): TELayerNormColumnParallelLinear(in_features=4096, out_features=10752, bias=False, TP=2)
+0:           (activation_func): XIELU()
+0:           (linear_fc2): TERowParallelLinear(in_features=10752, out_features=4096, bias=False, TP=2)
+0:         )
+0:       )
+0:     )
+0:     (final_layernorm): TERMSNorm()
+0:   )
+0:   (output_layer): ColumnParallelLinear(in_features=4096, out_features=131072, bias=False, TP=2)
+0: )
+0: Config:
+0: TransformerConfig(tensor_model_parallel_size=2, pipeline_model_parallel_size=1, virtual_pipeline_model_parallel_size=None, sequence_parallel=False, context_parallel_size=1, hierarchical_context_parallel_sizes=None, expert_model_parallel_size=1, expert_tensor_parallel_size=2, moe_extended_tp=False, perform_initialization=True, use_cpu_initialization=None, fp16=False, bf16=True, params_dtype=torch.bfloat16, timers=None, finalize_model_grads_func=None, grad_scale_func=None, no_sync_func=None, grad_sync_func=None, param_sync_func=None, deterministic_mode=False, enable_autocast=False, autocast_dtype=torch.bfloat16, num_microbatches_with_partial_activation_checkpoints=None, gradient_accumulation_fusion=True, async_tensor_model_parallel_allreduce=True, use_te_rng_tracker=False, tp_comm_overlap=False, tp_comm_bulk_wgrad=True, tp_comm_bulk_dgrad=True, tp_comm_overlap_ag=True, tp_comm_overlap_rs=True, tp_comm_overlap_rs_dgrad=False, tp_comm_split_ag=True, tp_comm_atomic_ag=False, tp_comm_split_rs=True, tp_comm_atomic_r
+0: s=False, cross_entropy_loss_fusion=True, tp_comm_overlap_disable_qkv=False, tp_comm_overlap_disable_fc1=False, tp_comm_bootstrap_backend='nccl', pipeline_dtype=torch.bfloat16, variable_seq_lengths=False, overlap_p2p_comm=False, batch_p2p_comm=True, batch_p2p_sync=True, use_ring_exchange_p2p=False, deallocate_pipeline_outputs=True, defer_embedding_wgrad_compute=False, wgrad_deferral_limit=0, pipeline_model_parallel_split_rank=None, overlap_p2p_comm_warmup_flush=False, microbatch_group_size_per_vp_stage=1, cpu_offloading=False, cpu_offloading_num_layers=0, _cpu_offloading_context=None, cpu_offloading_activations=True, cpu_offloading_weights=True, barrier_with_L1_time=True, num_layers=32, num_layers_in_first_pipeline_stage=None, num_layers_in_last_pipeline_stage=None, account_for_embedding_in_pipeline_split=False, account_for_loss_in_pipeline_split=False, hidden_size=4096, num_attention_heads=32, attention_backend=<AttnBackend.auto: 5>, softmax_scale=None, num_query_groups=8, ffn_hidden_size=21504, kv_channels=1
+0: 28, hidden_dropout=0.0, attention_dropout=0.0, fp32_residual_connection=False, apply_residual_connection_post_layernorm=False, layernorm_epsilon=1e-05, layernorm_zero_centered_gamma=False, add_bias_linear=False, add_qkv_bias=False, gated_linear_unit=False, activation_func=<class 'megatron.training.activations.XIELU'>, activation_func_fp8_input_store=False, num_moe_experts=None, rotary_interleaved=False, window_size=None, normalization='RMSNorm', qk_layernorm=True, test_mode=False, calculate_per_token_loss=False, multi_latent_attention=False, post_layer_norm=False, layernorm_init=None, init_method=<function init_method_normal.<locals>.init_ at 0x4006d6a6ba60>, output_layer_init_method=<function scaled_init_method_normal.<locals>.init_ at 0x400732330720>, init_method_std=0.008944, apply_query_key_layer_scaling=False, attention_softmax_in_fp32=False, bias_activation_fusion=False, masked_softmax_fusion=True, persist_layer_norm=True, memory_efficient_layer_norm=False, bias_dropout_fusion=True, apply_rope_fusion=Tr
+0: ue, recompute_granularity=None, recompute_method=None, recompute_num_layers=None, distribute_saved_activations=False, fp8=None, fp8_margin=0, fp8_interval=1, fp8_amax_history_len=1, fp8_amax_compute_algo='most_recent', fp8_wgrad=True, fp8_dot_product_attention=False, fp8_multi_head_attention=False, tp_only_amax_red=False, moe_shared_expert_intermediate_size=None, moe_shared_expert_overlap=False, moe_layer_freq=1, moe_ffn_hidden_size=21504, moe_router_load_balancing_type='aux_loss', moe_router_topk=2, moe_router_topk_limited_devices=None, moe_router_pre_softmax=False, moe_router_topk_scaling_factor=None, moe_router_score_function='softmax', moe_router_enable_expert_bias=False, moe_router_bias_update_rate=0.001, moe_grouped_gemm=False, moe_use_legacy_grouped_gemm=False, moe_aux_loss_coeff=0.0, moe_z_loss_coeff=None, moe_input_jitter_eps=None, moe_token_dropping=False, moe_token_dispatcher_type='allgather', moe_per_layer_logging=False, moe_expert_capacity_factor=None, moe_pad_expert_input_to_capacity=False, moe
+0: _token_drop_policy='probs', moe_layer_recompute=False, cp_comm_type='p2p', enable_cuda_graph=False, cuda_graph_use_single_mempool=False, cuda_graph_retain_backward_graph=False, cuda_graph_warmup_steps=2, external_cuda_graph=False, clone_scatter_output_in_embedding=True, disable_parameter_transpose_cache=False, config_logger_dir='', flash_decode=False, inference_rng_tracker=False)
+0:  > number of parameters on (tensor, pipeline) model parallel rank (0, 0): 4026806336
+0: INFO:megatron.core.distributed.distributed_data_parallel:Setting up DistributedDataParallel with config DistributedDataParallelConfig(grad_reduce_in_fp32=True, overlap_grad_reduce=True, overlap_param_gather=True, align_param_gather=False, use_distributed_optimizer=True, num_distributed_optimizer_instances=1, check_for_nan_in_grad=False, bucket_size=40000000, average_in_collective=False, fp8_param_gather=False)
+0: INFO:megatron.core.distributed.param_and_grad_buffer:Number of buckets for gradient all-reduce / reduce-scatter: 66
+0: Params for bucket 1 (268435456 elements):
+0: 	module.output_layer.weight
+0: Params for bucket 2 (44044288 elements):
+0: 	module.decoder.final_layernorm.weight
+0: 	module.decoder.layers.31.mlp.linear_fc2.weight
+0: Params for bucket 3 (44040194 elements):
+0: 	module.decoder.layers.31.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.31.mlp.linear_fc1.weight
+0: 	module.decoder.layers.31.mlp.activation_func.alpha_p
+0: Params for bucket 4 (65020160 elements):
+0: 	module.decoder.layers.31.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.31.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.31.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.30.mlp.linear_fc2.weight
+0: 	module.decoder.layers.31.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.31.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.31.self_attention.linear_proj.weight
+0: Params for bucket 5 (44040194 elements):
+0: 	module.decoder
+0: .layers.30.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.30.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.30.mlp.linear_fc1.weight
+0: Params for bucket 6 (65020160 elements):
+0: 	module.decoder.layers.30.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.30.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.30.self_attention.linear_proj.weight
+0: 	module.decoder.layers.30.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.30.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.30.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.29.mlp.linear_fc2.weight
+0: Params for bucket 7 (44040194 elements):
+0: 	module.decoder.layers.29.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.29.mlp.linear_fc1.weight
+0: 	module.decoder.layers.29.mlp.activation_func.alpha_p
+0: Params for bucket 8 (65020160 elements):
+0: 	module.decoder.layers.29.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.29.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.29.self_attention.k_layernorm.weight
+0: 	module.d
+0: ecoder.layers.28.mlp.linear_fc2.weight
+0: 	module.decoder.layers.29.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.29.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.29.self_attention.linear_proj.weight
+0: Params for bucket 9 (44040194 elements):
+0: 	module.decoder.layers.28.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.28.mlp.linear_fc1.weight
+0: 	module.decoder.layers.28.mlp.activation_func.alpha_p
+0: Params for bucket 10 (65020160 elements):
+0: 	module.decoder.layers.28.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.28.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.28.self_attention.linear_proj.weight
+0: 	module.decoder.layers.28.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.28.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.28.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.27.mlp.linear_fc2.weight
+0: Params for bucket 11 (44040194 elements):
+0: 	module.decoder.layers.27.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.27.mlp.activation_func
+0: .alpha_p
+0: 	module.decoder.layers.27.mlp.linear_fc1.weight
+0: Params for bucket 12 (65020160 elements):
+0: 	module.decoder.layers.27.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.27.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.27.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.26.mlp.linear_fc2.weight
+0: 	module.decoder.layers.27.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.27.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.27.self_attention.linear_proj.weight
+0: Params for bucket 13 (44040194 elements):
+0: 	module.decoder.layers.26.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.26.mlp.linear_fc1.weight
+0: 	module.decoder.layers.26.mlp.activation_func.alpha_p
+0: Params for bucket 14 (65020160 elements):
+0: 	module.decoder.layers.26.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.26.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.26.self_attention.linear_proj.weight
+0: 	module.decoder.layers.25.mlp.linear_fc2.weight
+0: 	module.decoder.layers.26.mlp.l
+0: inear_fc1.layer_norm_weight
+0: 	module.decoder.layers.26.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.26.self_attention.k_layernorm.weight
+0: Params for bucket 15 (44040194 elements):
+0: 	module.decoder.layers.25.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.25.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.25.mlp.linear_fc1.weight
+0: Params for bucket 16 (65020160 elements):
+0: 	module.decoder.layers.25.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.25.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.25.self_attention.linear_proj.weight
+0: 	module.decoder.layers.25.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.25.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.25.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.24.mlp.linear_fc2.weight
+0: Params for bucket 17 (44040194 elements):
+0: 	module.decoder.layers.24.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.24.mlp.linear_fc1.weight
+0: 	module.decoder.layers.24.mlp.activation_func.alpha_p
+0: Params for bucket 18 (
+0: 65020160 elements):
+0: 	module.decoder.layers.24.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.24.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.24.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.23.mlp.linear_fc2.weight
+0: 	module.decoder.layers.24.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.24.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.24.self_attention.linear_proj.weight
+0: Params for bucket 19 (44040194 elements):
+0: 	module.decoder.layers.23.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.23.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.23.mlp.linear_fc1.weight
+0: Params for bucket 20 (65020160 elements):
+0: 	module.decoder.layers.23.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.23.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.23.self_attention.linear_proj.weight
+0: 	module.decoder.layers.23.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.23.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.23.self_attention
+0: .k_layernorm.weight
+0: 	module.decoder.layers.22.mlp.linear_fc2.weight
+0: Params for bucket 21 (44040194 elements):
+0: 	module.decoder.layers.22.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.22.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.22.mlp.linear_fc1.weight
+0: Params for bucket 22 (65020160 elements):
+0: 	module.decoder.layers.22.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.22.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.22.self_attention.linear_proj.weight
+0: 	module.decoder.layers.21.mlp.linear_fc2.weight
+0: 	module.decoder.layers.22.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.22.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.22.self_attention.q_layernorm.weight
+0: Params for bucket 23 (44040194 elements):
+0: 	module.decoder.layers.21.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.21.mlp.linear_fc1.weight
+0: 	module.decoder.layers.21.mlp.activation_func.alpha_p
+0: Params for bucket 24 (65020160 elements):
+0: 	module.decoder.layers.21.self_attention.linear_qkv.layer_no
+0: rm_weight
+0: 	module.decoder.layers.21.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.21.self_attention.linear_proj.weight
+0: 	module.decoder.layers.21.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.21.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.21.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.20.mlp.linear_fc2.weight
+0: Params for bucket 25 (44040194 elements):
+0: 	module.decoder.layers.20.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.20.mlp.linear_fc1.weight
+0: 	module.decoder.layers.20.mlp.activation_func.alpha_p
+0: Params for bucket 26 (65020160 elements):
+0: 	module.decoder.layers.20.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.20.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.20.self_attention.linear_proj.weight
+0: 	module.decoder.layers.20.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.20.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.20.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.19.mlp.linear_fc2.weight
+0: Params for b
+0: ucket 27 (44040194 elements):
+0: 	module.decoder.layers.19.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.19.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.19.mlp.linear_fc1.weight
+0: Params for bucket 28 (65020160 elements):
+0: 	module.decoder.layers.19.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.19.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.19.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.18.mlp.linear_fc2.weight
+0: 	module.decoder.layers.19.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.19.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.19.self_attention.linear_proj.weight
+0: Params for bucket 29 (44040194 elements):
+0: 	module.decoder.layers.18.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.18.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.18.mlp.linear_fc1.weight
+0: Params for bucket 30 (65020160 elements):
+0: 	module.decoder.layers.18.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.18.self_attention.linear_qkv.weight
+0: 	module.dec
+0: oder.layers.18.self_attention.linear_proj.weight
+0: 	module.decoder.layers.18.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.18.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.18.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.17.mlp.linear_fc2.weight
+0: Params for bucket 31 (44040194 elements):
+0: 	module.decoder.layers.17.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.17.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.17.mlp.linear_fc1.weight
+0: Params for bucket 32 (65020160 elements):
+0: 	module.decoder.layers.17.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.17.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.17.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.16.mlp.linear_fc2.weight
+0: 	module.decoder.layers.17.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.17.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.17.self_attention.linear_proj.weight
+0: Params for bucket 33 (44040194 elements):
+0: 	module.decoder.layers.16.mlp.activation_func.alph
+0: a_n
+0: 	module.decoder.layers.16.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.16.mlp.linear_fc1.weight
+0: Params for bucket 34 (65020160 elements):
+0: 	module.decoder.layers.16.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.16.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.16.self_attention.linear_proj.weight
+0: 	module.decoder.layers.16.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.16.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.16.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.15.mlp.linear_fc2.weight
+0: Params for bucket 35 (44040194 elements):
+0: 	module.decoder.layers.15.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.15.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.15.mlp.linear_fc1.weight
+0: Params for bucket 36 (65020160 elements):
+0: 	module.decoder.layers.15.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.15.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.15.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.14.mlp.linear_fc2.
+0: weight
+0: 	module.decoder.layers.15.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.15.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.15.self_attention.linear_proj.weight
+0: Params for bucket 37 (44040194 elements):
+0: 	module.decoder.layers.14.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.14.mlp.linear_fc1.weight
+0: 	module.decoder.layers.14.mlp.activation_func.alpha_p
+0: Params for bucket 38 (65020160 elements):
+0: 	module.decoder.layers.14.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.14.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.14.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.13.mlp.linear_fc2.weight
+0: 	module.decoder.layers.14.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.14.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.14.self_attention.linear_proj.weight
+0: Params for bucket 39 (44040194 elements):
+0: 	module.decoder.layers.13.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.13.mlp.linear_fc1.weight
+0: 	module.decoder.layers.13.m
+0: lp.activation_func.alpha_p
+0: Params for bucket 40 (65020160 elements):
+0: 	module.decoder.layers.13.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.13.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.13.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.13.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.13.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.13.self_attention.linear_proj.weight
+0: 	module.decoder.layers.12.mlp.linear_fc2.weight
+0: Params for bucket 41 (44040194 elements):
+0: 	module.decoder.layers.12.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.12.mlp.linear_fc1.weight
+0: 	module.decoder.layers.12.mlp.activation_func.alpha_p
+0: Params for bucket 42 (65020160 elements):
+0: 	module.decoder.layers.12.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.12.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.12.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.12.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.12.self_attention.linear_qkv.layer_nor
+0: m_weight
+0: 	module.decoder.layers.12.self_attention.linear_proj.weight
+0: 	module.decoder.layers.11.mlp.linear_fc2.weight
+0: Params for bucket 43 (44040194 elements):
+0: 	module.decoder.layers.11.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.11.mlp.linear_fc1.weight
+0: 	module.decoder.layers.11.mlp.activation_func.alpha_p
+0: Params for bucket 44 (65020160 elements):
+0: 	module.decoder.layers.11.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.11.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.11.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.10.mlp.linear_fc2.weight
+0: 	module.decoder.layers.11.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.11.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.11.self_attention.linear_proj.weight
+0: Params for bucket 45 (44040194 elements):
+0: 	module.decoder.layers.10.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.10.mlp.linear_fc1.weight
+0: 	module.decoder.layers.10.mlp.activation_func.alpha_p
+0: Params for bucket 46 (65020160 elements):
+0: 	module.dec
+0: oder.layers.10.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.10.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.10.self_attention.linear_proj.weight
+0: 	module.decoder.layers.9.mlp.linear_fc2.weight
+0: 	module.decoder.layers.10.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.10.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.10.self_attention.k_layernorm.weight
+0: Params for bucket 47 (44040194 elements):
+0: 	module.decoder.layers.9.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.9.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.9.mlp.linear_fc1.weight
+0: Params for bucket 48 (65020160 elements):
+0: 	module.decoder.layers.9.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.9.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.9.self_attention.linear_proj.weight
+0: 	module.decoder.layers.8.mlp.linear_fc2.weight
+0: 	module.decoder.layers.9.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.9.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.9.self_att
+0: ention.k_layernorm.weight
+0: Params for bucket 49 (44040194 elements):
+0: 	module.decoder.layers.8.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.8.mlp.linear_fc1.weight
+0: 	module.decoder.layers.8.mlp.activation_func.alpha_p
+0: Params for bucket 50 (65020160 elements):
+0: 	module.decoder.layers.8.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.8.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.8.self_attention.linear_proj.weight
+0: 	module.decoder.layers.8.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.8.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.8.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.7.mlp.linear_fc2.weight
+0: Params for bucket 51 (44040194 elements):
+0: 	module.decoder.layers.7.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.7.mlp.linear_fc1.weight
+0: 	module.decoder.layers.7.mlp.activation_func.alpha_p
+0: Params for bucket 52 (65020160 elements):
+0: 	module.decoder.layers.7.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.7.self_attention.linear_qkv.layer
+0: _norm_weight
+0: 	module.decoder.layers.7.self_attention.linear_proj.weight
+0: 	module.decoder.layers.7.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.7.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.7.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.6.mlp.linear_fc2.weight
+0: Params for bucket 53 (44040194 elements):
+0: 	module.decoder.layers.6.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.6.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.6.mlp.linear_fc1.weight
+0: Params for bucket 54 (65020160 elements):
+0: 	module.decoder.layers.6.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.6.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.6.self_attention.linear_proj.weight
+0: 	module.decoder.layers.6.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.6.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.6.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.5.mlp.linear_fc2.weight
+0: Params for bucket 55 (44040194 elements):
+0: 	module.decoder.layers.5.mlp.activation_f
+0: unc.alpha_n
+0: 	module.decoder.layers.5.mlp.linear_fc1.weight
+0: 	module.decoder.layers.5.mlp.activation_func.alpha_p
+0: Params for bucket 56 (65020160 elements):
+0: 	module.decoder.layers.5.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.5.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.5.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.5.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.5.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.5.self_attention.linear_proj.weight
+0: 	module.decoder.layers.4.mlp.linear_fc2.weight
+0: Params for bucket 57 (44040194 elements):
+0: 	module.decoder.layers.4.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.4.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.4.mlp.linear_fc1.weight
+0: Params for bucket 58 (65020160 elements):
+0: 	module.decoder.layers.4.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.4.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.4.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.4.self_attentio
+0: n.linear_qkv.weight
+0: 	module.decoder.layers.4.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.4.self_attention.linear_proj.weight
+0: 	module.decoder.layers.3.mlp.linear_fc2.weight
+0: Params for bucket 59 (44040194 elements):
+0: 	module.decoder.layers.3.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.3.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.3.mlp.linear_fc1.weight
+0: Params for bucket 60 (65020160 elements):
+0: 	module.decoder.layers.3.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.3.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.3.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.3.self_attention.linear_proj.weight
+0: 	module.decoder.layers.3.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.3.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.2.mlp.linear_fc2.weight
+0: Params for bucket 61 (44040194 elements):
+0: 	module.decoder.layers.2.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.2.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.2.mlp.linear_fc1.weigh
+0: t
+0: Params for bucket 62 (65020160 elements):
+0: 	module.decoder.layers.2.self_attention.linear_proj.weight
+0: 	module.decoder.layers.2.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.2.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.2.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.2.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.2.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.1.mlp.linear_fc2.weight
+0: Params for bucket 63 (44040194 elements):
+0: 	module.decoder.layers.1.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.1.mlp.linear_fc1.weight
+0: 	module.decoder.layers.1.mlp.activation_func.alpha_p
+0: Params for bucket 64 (65020160 elements):
+0: 	module.decoder.layers.1.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.1.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.0.mlp.linear_fc2.weight
+0: 	module.decoder.layers.1.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.1.self_attention.q_layernorm.weight
+0: 	module.decoder.layers.1.self_attention.k_
+0: layernorm.weight
+0: 	module.decoder.layers.1.self_attention.linear_proj.weight
+0: Params for bucket 65 (44040194 elements):
+0: 	module.decoder.layers.0.mlp.activation_func.alpha_n
+0: 	module.decoder.layers.0.mlp.activation_func.alpha_p
+0: 	module.decoder.layers.0.mlp.linear_fc1.weight
+0: Params for bucket 66 (289415424 elements):
+0: 	module.decoder.layers.0.mlp.linear_fc1.layer_norm_weight
+0: 	module.decoder.layers.0.self_attention.k_layernorm.weight
+0: 	module.decoder.layers.0.self_attention.linear_proj.weight
+0: 	module.decoder.layers.0.self_attention.linear_qkv.layer_norm_weight
+0: 	module.decoder.layers.0.self_attention.linear_qkv.weight
+0: 	module.decoder.layers.0.self_attention.q_layernorm.weight
+0: 	module.embedding.word_embeddings.weight
+0: INFO:megatron.core.optimizer:Setting up optimizer with config OptimizerConfig(optimizer='ademamix', lr=1.5e-05, min_lr=1.5e-06, decoupled_lr=None, decoupled_min_lr=None, weight_decay=0.1, fp16=False, bf16=True, params_dtype=torch.bfloat16, use_precision_aware_optimizer=False, main_grads_dtype=torch.float32, main_params_dtype=torch.float32, exp_avg_dtype=torch.float32, exp_avg_sq_dtype=torch.float32, loss_scale=None, initial_loss_scale=4294967296, min_loss_scale=1.0, loss_scale_window=1000, hysteresis=2, adam_beta1=0.9, adam_beta2=0.999, adam_eps=1e-08, sgd_momentum=0.9, ademamix_alpha=8.0, ademamix_beta3=0.9999, ademamix_beta3_warmup=238, ademamix_alpha_warmup=238, use_distributed_optimizer=True, overlap_param_gather_with_optimizer_step=False, clip_grad=0.1, log_num_zeros_in_grad=False, barrier_with_L1_time=True, timers=<megatron.core.timers.Timers object at 0x4006d53ba4b0>, config_logger_dir='')
+0: setting training iterations to 834
+0: INFO:megatron.core.optimizer_param_scheduler:> learning rate decay style: WSD
+0:  loading distributed checkpoint from /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints at iteration 715
+2: INFO:megatron.core.optimizer.distrib_optimizer:Loading distributed optimizer sharded state of type fully_sharded_model_space
+3: INFO:megatron.core.optimizer.distrib_optimizer:Loading distributed optimizer sharded state of type fully_sharded_model_space
+0:  checkpoint version 3.0
+1: INFO:megatron.core.optimizer.distrib_optimizer:Loading distributed optimizer sharded state of type fully_sharded_model_space
+0: INFO:megatron.core.optimizer.distrib_optimizer:Loading distributed optimizer sharded state of type fully_sharded_model_space
+0: INFO:megatron.core.optimizer_param_scheduler: > overriding learning rate value to 1.5e-05
+0: INFO:megatron.core.optimizer_param_scheduler: > overriding minimum learning rate value to 1.5e-06
+0: INFO:megatron.core.optimizer_param_scheduler: > overriding warmup iterations value to 9765
+0: INFO:megatron.core.optimizer_param_scheduler: > overriding total number of iterations value to 854016
+0: INFO:megatron.core.optimizer_param_scheduler: > overriding learning rate decay style value to WSD
+0: INFO:megatron.core.optimizer_param_scheduler: > overriding start weight decay value to 0.1
+0: INFO:megatron.core.optimizer_param_scheduler: > overriding end weight decay value to 0.1
+0: INFO:megatron.core.optimizer_param_scheduler: > overriding total number of weight decay iterations value to 854016
+0: INFO:megatron.core.optimizer_param_scheduler: > overriding weight decay incr style value to constant
+0:   successfully loaded checkpoint from /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints [ t 1/2, p 1/1 ] at iteration 715
+3: (min, max) time across ranks (ms):
+3:     load-checkpoint ................................: (53059.10, 53059.20)
+0: [after model, optimizer, and learning rate scheduler are built] datetime: 2026-05-25 01:29:22 
+0: > building train, validation, and test datasets ...
+0:  > datasets target sizes (minimum size):
+0:     train:      854016
+0:     validation: 102400
+0:     test:       102400
+0: INFO:megatron.core.datasets.blended_megatron_dataset_config:Let split_matrix = [(0, 1.0), None, None]
+0: > building train, validation, and test datasets for GPT ...
+0: INFO:megatron.core.datasets.blended_megatron_dataset_builder:Building GPTDataset splits with sizes=(854016, 102400, 102400) and config=GPTDatasetConfig(random_seed=20260520, sequence_length=4096, blend=(['/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_megatron/bulk_mix_text_document'], None), blend_per_split=None, split='100,0,0', split_matrix=[(0, 1.0), None, None], num_dataset_builder_threads=4, path_to_cache=None, mmap_bin_files=True, mock=False, tokenizer=<megatron.training.tokenizer.tokenizer._HuggingFaceTokenizer object at 0x4006d483e450>, reset_position_ids=True, reset_attention_mask=True, eod_mask_loss=True, goldfish_loss=False, goldfish_k=50, goldfish_h=50, create_attention_mask=True, drop_last_partial_validation_sequence=True, add_extra_token_to_sequence=True, s3_cache_path=None)
+0: INFO:megatron.core.datasets.indexed_dataset:Load the _IndexReader from /iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_base_megatron/bulk_mix_text_document.idx
+0: INFO:megatron.core.datasets.indexed_dataset:	Extract the sequence lengths
+0: INFO:megatron.core.datasets.indexed_dataset:	Extract the sequence pointers
+0: INFO:megatron.core.datasets.indexed_dataset:	Extract the document indices
+0: INFO:megatron.core.datasets.indexed_dataset:> total number of sequences: 5754172
+0: INFO:megatron.core.datasets.indexed_dataset:> total number of documents: 5754172
+0: INFO:megatron.core.datasets.gpt_dataset:Build and save the GPTDataset train indices
+0: INFO:megatron.core.datasets.gpt_dataset:> total number of samples: 2400318
+0: INFO:megatron.core.datasets.gpt_dataset:> total number of epochs: 1
+0: > finished creating GPT datasets ...
+0: [after dataloaders are built] datetime: 2026-05-25 01:29:22 
+0: done with setup ...
+3: (min, max) time across ranks (ms):
+3:     model-and-optimizer-setup ......................: (54396.00, 54405.90)
+3:     train/valid/test-data-iterators-setup ..........: (328.35, 396.89)
+0: training ...
+0: [before the start of training step] datetime: 2026-05-25 01:29:22 
+0: Number of parameters in transformer layers in billions:  6.98
+0: Number of parameters in embedding layers in billions: 1.07
+0: Total number of parameters in billions: 8.05
+0: Number of parameters in most loaded shard in billions: 4.0268
+0: Theoretical memory footprints: weight and optimizer=46083.05 MB
+3:  [2026-05-25 01:31:38] iteration      716/     834 | consumed samples:       733184 | consumed tokens: 3.003B | elapsed time per iteration (ms): 135213.8 | eta: 4:25:55 | tokens/sec/gpu: 7754.9 | throughput per GPU (TFLOP/s/GPU): 399.7 | learning rate: 2.491442E-06 | global batch size:  1024 | lm loss: 1.669347E+00 | loss scale: 1.0 | grad norm: 0.775 | params norm: 7091.414 | number of skipped iterations:   0 | number of nan iterations:   0 |
+0: [Rank 0] (after 716 iterations) memory (MB) | allocated: 54069.83251953125 | max allocated: 83196.61376953125 | reserved: 83444.0 | max reserved: 83444.0
+1: [Rank 1] (after 716 iterations) memory (MB) | allocated: 54069.83251953125 | max allocated: 83196.61376953125 | reserved: 83444.0 | max reserved: 83444.0
+3:  [2026-05-25 01:33:47] iteration      717/     834 | consumed samples:       734208 | consumed tokens: 3.007B | elapsed time per iteration (ms): 129317.9 | eta: 4:12:10 | tokens/sec/gpu: 8108.5 | throughput per GPU (TFLOP/s/GPU): 417.9 | learning rate: 2.482710E-06 | global batch size:  1024 | lm loss: 1.648456E+00 | loss scale: 1.0 | grad norm: 3.505 | params norm: 7091.413 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 01:35:56] iteration      718/     834 | consumed samples:       735232 | consumed tokens: 3.012B | elapsed time per iteration (ms): 129337.2 | eta: 4:10:03 | tokens/sec/gpu: 8107.3 | throughput per GPU (TFLOP/s/GPU): 417.8 | learning rate: 2.473984E-06 | global batch size:  1024 | lm loss: 1.641132E+00 | loss scale: 1.0 | grad norm: 1.619 | params norm: 7091.412 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 01:38:06] iteration      719/     834 | consumed samples:       736256 | consumed tokens: 3.016B | elapsed time per iteration (ms): 129374.6 | eta: 4:07:58 | tokens/sec/gpu: 8105.0 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 2.465264E-06 | global batch size:  1024 | lm loss: 1.659442E+00 | loss scale: 1.0 | grad norm: 0.716 | params norm: 7091.412 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 01:40:15] iteration      720/     834 | consumed samples:       737280 | consumed tokens: 3.020B | elapsed time per iteration (ms): 129381.4 | eta: 4:05:49 | tokens/sec/gpu: 8104.5 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 2.456550E-06 | global batch size:  1024 | lm loss: 1.659957E+00 | loss scale: 1.0 | grad norm: 1.463 | params norm: 7091.411 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 01:42:24] iteration      721/     834 | consumed samples:       738304 | consumed tokens: 3.024B | elapsed time per iteration (ms): 129404.6 | eta: 4:03:42 | tokens/sec/gpu: 8103.1 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.447843E-06 | global batch size:  1024 | lm loss: 1.660328E+00 | loss scale: 1.0 | grad norm: 0.529 | params norm: 7091.410 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 01:44:34] iteration      722/     834 | consumed samples:       739328 | consumed tokens: 3.028B | elapsed time per iteration (ms): 129380.7 | eta: 4:01:30 | tokens/sec/gpu: 8104.6 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 2.439141E-06 | global batch size:  1024 | lm loss: 1.645262E+00 | loss scale: 1.0 | grad norm: 0.691 | params norm: 7091.409 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 01:46:43] iteration      723/     834 | consumed samples:       740352 | consumed tokens: 3.032B | elapsed time per iteration (ms): 129453.3 | eta: 3:59:29 | tokens/sec/gpu: 8100.0 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.430445E-06 | global batch size:  1024 | lm loss: 1.651216E+00 | loss scale: 1.0 | grad norm: 0.843 | params norm: 7091.409 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 01:48:53] iteration      724/     834 | consumed samples:       741376 | consumed tokens: 3.037B | elapsed time per iteration (ms): 129417.9 | eta: 3:57:15 | tokens/sec/gpu: 8102.2 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.421756E-06 | global batch size:  1024 | lm loss: 1.644058E+00 | loss scale: 1.0 | grad norm: 1.744 | params norm: 7091.408 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 01:51:02] iteration      725/     834 | consumed samples:       742400 | consumed tokens: 3.041B | elapsed time per iteration (ms): 129454.6 | eta: 3:55:10 | tokens/sec/gpu: 8100.0 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.413072E-06 | global batch size:  1024 | lm loss: 1.677416E+00 | loss scale: 1.0 | grad norm: 0.709 | params norm: 7091.407 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 01:53:12] iteration      726/     834 | consumed samples:       743424 | consumed tokens: 3.045B | elapsed time per iteration (ms): 129453.3 | eta: 3:53:00 | tokens/sec/gpu: 8100.0 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.404394E-06 | global batch size:  1024 | lm loss: 1.667026E+00 | loss scale: 1.0 | grad norm: 0.841 | params norm: 7091.407 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 01:55:21] iteration      727/     834 | consumed samples:       744448 | consumed tokens: 3.049B | elapsed time per iteration (ms): 129444.5 | eta: 3:50:50 | tokens/sec/gpu: 8100.6 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.395723E-06 | global batch size:  1024 | lm loss: 1.650586E+00 | loss scale: 1.0 | grad norm: 1.371 | params norm: 7091.406 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 01:57:30] iteration      728/     834 | consumed samples:       745472 | consumed tokens: 3.053B | elapsed time per iteration (ms): 129358.9 | eta: 3:48:32 | tokens/sec/gpu: 8105.9 | throughput per GPU (TFLOP/s/GPU): 417.8 | learning rate: 2.387057E-06 | global batch size:  1024 | lm loss: 1.633999E+00 | loss scale: 1.0 | grad norm: 1.443 | params norm: 7091.406 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 01:59:40] iteration      729/     834 | consumed samples:       746496 | consumed tokens: 3.058B | elapsed time per iteration (ms): 129394.0 | eta: 3:46:26 | tokens/sec/gpu: 8103.7 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 2.378397E-06 | global batch size:  1024 | lm loss: 1.657210E+00 | loss scale: 1.0 | grad norm: 1.028 | params norm: 7091.405 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:01:49] iteration      730/     834 | consumed samples:       747520 | consumed tokens: 3.062B | elapsed time per iteration (ms): 129378.7 | eta: 3:44:15 | tokens/sec/gpu: 8104.7 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 2.369743E-06 | global batch size:  1024 | lm loss: 1.641156E+00 | loss scale: 1.0 | grad norm: 3.202 | params norm: 7091.404 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:03:59] iteration      731/     834 | consumed samples:       748544 | consumed tokens: 3.066B | elapsed time per iteration (ms): 129425.9 | eta: 3:42:10 | tokens/sec/gpu: 8101.8 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.361096E-06 | global batch size:  1024 | lm loss: 1.644868E+00 | loss scale: 1.0 | grad norm: 4.808 | params norm: 7091.404 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:06:08] iteration      732/     834 | consumed samples:       749568 | consumed tokens: 3.070B | elapsed time per iteration (ms): 129458.5 | eta: 3:40:04 | tokens/sec/gpu: 8099.7 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.352454E-06 | global batch size:  1024 | lm loss: 1.663000E+00 | loss scale: 1.0 | grad norm: 2.976 | params norm: 7091.403 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:08:17] iteration      733/     834 | consumed samples:       750592 | consumed tokens: 3.074B | elapsed time per iteration (ms): 129425.5 | eta: 3:37:51 | tokens/sec/gpu: 8101.8 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.343817E-06 | global batch size:  1024 | lm loss: 1.653639E+00 | loss scale: 1.0 | grad norm: 3.865 | params norm: 7091.402 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:10:27] iteration      734/     834 | consumed samples:       751616 | consumed tokens: 3.079B | elapsed time per iteration (ms): 129410.9 | eta: 3:35:41 | tokens/sec/gpu: 8102.7 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.335187E-06 | global batch size:  1024 | lm loss: 1.666749E+00 | loss scale: 1.0 | grad norm: 0.685 | params norm: 7091.402 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:12:37] iteration      735/     834 | consumed samples:       752640 | consumed tokens: 3.083B | elapsed time per iteration (ms): 129850.1 | eta: 3:34:15 | tokens/sec/gpu: 8075.3 | throughput per GPU (TFLOP/s/GPU): 416.2 | learning rate: 2.326563E-06 | global batch size:  1024 | lm loss: 1.647480E+00 | loss scale: 1.0 | grad norm: 1.334 | params norm: 7091.401 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:14:46] iteration      736/     834 | consumed samples:       753664 | consumed tokens: 3.087B | elapsed time per iteration (ms): 129445.5 | eta: 3:31:25 | tokens/sec/gpu: 8100.5 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.317945E-06 | global batch size:  1024 | lm loss: 1.656386E+00 | loss scale: 1.0 | grad norm: 1.058 | params norm: 7091.400 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:16:56] iteration      737/     834 | consumed samples:       754688 | consumed tokens: 3.091B | elapsed time per iteration (ms): 129448.3 | eta: 3:29:16 | tokens/sec/gpu: 8100.3 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.309332E-06 | global batch size:  1024 | lm loss: 1.640731E+00 | loss scale: 1.0 | grad norm: 1.207 | params norm: 7091.399 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:19:05] iteration      738/     834 | consumed samples:       755712 | consumed tokens: 3.095B | elapsed time per iteration (ms): 129420.4 | eta: 3:27:04 | tokens/sec/gpu: 8102.1 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.300725E-06 | global batch size:  1024 | lm loss: 1.652464E+00 | loss scale: 1.0 | grad norm: 6.565 | params norm: 7091.399 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:21:14] iteration      739/     834 | consumed samples:       756736 | consumed tokens: 3.100B | elapsed time per iteration (ms): 129418.1 | eta: 3:24:54 | tokens/sec/gpu: 8102.2 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.292124E-06 | global batch size:  1024 | lm loss: 1.631862E+00 | loss scale: 1.0 | grad norm: 1.202 | params norm: 7091.398 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:23:24] iteration      740/     834 | consumed samples:       757760 | consumed tokens: 3.104B | elapsed time per iteration (ms): 129410.7 | eta: 3:22:44 | tokens/sec/gpu: 8102.7 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.283529E-06 | global batch size:  1024 | lm loss: 1.637939E+00 | loss scale: 1.0 | grad norm: 1.811 | params norm: 7091.398 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:25:33] iteration      741/     834 | consumed samples:       758784 | consumed tokens: 3.108B | elapsed time per iteration (ms): 129419.0 | eta: 3:20:35 | tokens/sec/gpu: 8102.2 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.274940E-06 | global batch size:  1024 | lm loss: 1.646930E+00 | loss scale: 1.0 | grad norm: 3.865 | params norm: 7091.397 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:27:43] iteration      742/     834 | consumed samples:       759808 | consumed tokens: 3.112B | elapsed time per iteration (ms): 129338.0 | eta: 3:18:19 | tokens/sec/gpu: 8107.3 | throughput per GPU (TFLOP/s/GPU): 417.8 | learning rate: 2.266356E-06 | global batch size:  1024 | lm loss: 1.672313E+00 | loss scale: 1.0 | grad norm: 0.905 | params norm: 7091.396 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:29:52] iteration      743/     834 | consumed samples:       760832 | consumed tokens: 3.116B | elapsed time per iteration (ms): 129412.9 | eta: 3:16:16 | tokens/sec/gpu: 8102.6 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.257779E-06 | global batch size:  1024 | lm loss: 1.652595E+00 | loss scale: 1.0 | grad norm: 1.258 | params norm: 7091.395 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:32:01] iteration      744/     834 | consumed samples:       761856 | consumed tokens: 3.121B | elapsed time per iteration (ms): 129459.3 | eta: 3:14:11 | tokens/sec/gpu: 8099.7 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.249207E-06 | global batch size:  1024 | lm loss: 1.670675E+00 | loss scale: 1.0 | grad norm: 0.938 | params norm: 7091.395 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:34:11] iteration      745/     834 | consumed samples:       762880 | consumed tokens: 3.125B | elapsed time per iteration (ms): 129366.6 | eta: 3:11:53 | tokens/sec/gpu: 8105.5 | throughput per GPU (TFLOP/s/GPU): 417.8 | learning rate: 2.240640E-06 | global batch size:  1024 | lm loss: 1.653282E+00 | loss scale: 1.0 | grad norm: 1.171 | params norm: 7091.394 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:36:20] iteration      746/     834 | consumed samples:       763904 | consumed tokens: 3.129B | elapsed time per iteration (ms): 129409.9 | eta: 3:09:48 | tokens/sec/gpu: 8102.7 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.232080E-06 | global batch size:  1024 | lm loss: 1.638941E+00 | loss scale: 1.0 | grad norm: 1.213 | params norm: 7091.394 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:38:30] iteration      747/     834 | consumed samples:       764928 | consumed tokens: 3.133B | elapsed time per iteration (ms): 129429.0 | eta: 3:07:40 | tokens/sec/gpu: 8101.6 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.223525E-06 | global batch size:  1024 | lm loss: 1.663800E+00 | loss scale: 1.0 | grad norm: 1.053 | params norm: 7091.393 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:40:39] iteration      748/     834 | consumed samples:       765952 | consumed tokens: 3.137B | elapsed time per iteration (ms): 129448.4 | eta: 3:05:32 | tokens/sec/gpu: 8100.3 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.214976E-06 | global batch size:  1024 | lm loss: 1.667452E+00 | loss scale: 1.0 | grad norm: 2.216 | params norm: 7091.393 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:42:48] iteration      749/     834 | consumed samples:       766976 | consumed tokens: 3.142B | elapsed time per iteration (ms): 129376.7 | eta: 3:03:17 | tokens/sec/gpu: 8104.8 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 2.206433E-06 | global batch size:  1024 | lm loss: 1.653008E+00 | loss scale: 1.0 | grad norm: 4.004 | params norm: 7091.392 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:44:58] iteration      750/     834 | consumed samples:       768000 | consumed tokens: 3.146B | elapsed time per iteration (ms): 129354.8 | eta: 3:01:05 | tokens/sec/gpu: 8106.2 | throughput per GPU (TFLOP/s/GPU): 417.8 | learning rate: 2.197895E-06 | global batch size:  1024 | lm loss: 1.643066E+00 | loss scale: 1.0 | grad norm: 1.411 | params norm: 7091.391 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:47:07] iteration      751/     834 | consumed samples:       769024 | consumed tokens: 3.150B | elapsed time per iteration (ms): 129385.0 | eta: 2:58:58 | tokens/sec/gpu: 8104.3 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 2.189363E-06 | global batch size:  1024 | lm loss: 1.641640E+00 | loss scale: 1.0 | grad norm: 1.994 | params norm: 7091.391 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:49:17] iteration      752/     834 | consumed samples:       770048 | consumed tokens: 3.154B | elapsed time per iteration (ms): 129426.4 | eta: 2:56:52 | tokens/sec/gpu: 8101.7 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.180837E-06 | global batch size:  1024 | lm loss: 1.656966E+00 | loss scale: 1.0 | grad norm: 0.926 | params norm: 7091.390 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:51:26] iteration      753/     834 | consumed samples:       771072 | consumed tokens: 3.158B | elapsed time per iteration (ms): 129462.3 | eta: 2:54:46 | tokens/sec/gpu: 8099.5 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 2.172317E-06 | global batch size:  1024 | lm loss: 1.663318E+00 | loss scale: 1.0 | grad norm: 0.835 | params norm: 7091.389 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:53:36] iteration      754/     834 | consumed samples:       772096 | consumed tokens: 3.163B | elapsed time per iteration (ms): 129427.3 | eta: 2:52:34 | tokens/sec/gpu: 8101.7 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.163802E-06 | global batch size:  1024 | lm loss: 1.664289E+00 | loss scale: 1.0 | grad norm: 1.646 | params norm: 7091.389 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:55:45] iteration      755/     834 | consumed samples:       773120 | consumed tokens: 3.167B | elapsed time per iteration (ms): 129457.2 | eta: 2:50:27 | tokens/sec/gpu: 8099.8 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.155293E-06 | global batch size:  1024 | lm loss: 1.645707E+00 | loss scale: 1.0 | grad norm: 1.806 | params norm: 7091.388 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 02:57:54] iteration      756/     834 | consumed samples:       774144 | consumed tokens: 3.171B | elapsed time per iteration (ms): 129441.5 | eta: 2:48:16 | tokens/sec/gpu: 8100.8 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.146789E-06 | global batch size:  1024 | lm loss: 1.651554E+00 | loss scale: 1.0 | grad norm: 0.879 | params norm: 7091.387 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:00:04] iteration      757/     834 | consumed samples:       775168 | consumed tokens: 3.175B | elapsed time per iteration (ms): 129476.6 | eta: 2:46:09 | tokens/sec/gpu: 8098.6 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 2.138291E-06 | global batch size:  1024 | lm loss: 1.660993E+00 | loss scale: 1.0 | grad norm: 0.852 | params norm: 7091.387 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:02:13] iteration      758/     834 | consumed samples:       776192 | consumed tokens: 3.179B | elapsed time per iteration (ms): 129468.6 | eta: 2:43:59 | tokens/sec/gpu: 8099.1 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 2.129799E-06 | global batch size:  1024 | lm loss: 1.646927E+00 | loss scale: 1.0 | grad norm: 1.063 | params norm: 7091.386 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:04:25] iteration      759/     834 | consumed samples:       777216 | consumed tokens: 3.183B | elapsed time per iteration (ms): 131647.3 | eta: 2:44:33 | tokens/sec/gpu: 7965.0 | throughput per GPU (TFLOP/s/GPU): 410.5 | learning rate: 2.121312E-06 | global batch size:  1024 | lm loss: 1.668817E+00 | loss scale: 1.0 | grad norm: 9.457 | params norm: 7091.386 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:06:35] iteration      760/     834 | consumed samples:       778240 | consumed tokens: 3.188B | elapsed time per iteration (ms): 129491.9 | eta: 2:39:42 | tokens/sec/gpu: 8097.6 | throughput per GPU (TFLOP/s/GPU): 417.3 | learning rate: 2.112831E-06 | global batch size:  1024 | lm loss: 1.650317E+00 | loss scale: 1.0 | grad norm: 1.946 | params norm: 7091.385 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:08:44] iteration      761/     834 | consumed samples:       779264 | consumed tokens: 3.192B | elapsed time per iteration (ms): 129449.7 | eta: 2:37:29 | tokens/sec/gpu: 8100.3 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.104355E-06 | global batch size:  1024 | lm loss: 1.660601E+00 | loss scale: 1.0 | grad norm: 5.877 | params norm: 7091.384 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:10:53] iteration      762/     834 | consumed samples:       780288 | consumed tokens: 3.196B | elapsed time per iteration (ms): 129474.3 | eta: 2:35:22 | tokens/sec/gpu: 8098.7 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 2.095885E-06 | global batch size:  1024 | lm loss: 1.662267E+00 | loss scale: 1.0 | grad norm: 1.551 | params norm: 7091.384 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:13:03] iteration      763/     834 | consumed samples:       781312 | consumed tokens: 3.200B | elapsed time per iteration (ms): 129512.8 | eta: 2:33:15 | tokens/sec/gpu: 8096.3 | throughput per GPU (TFLOP/s/GPU): 417.3 | learning rate: 2.087420E-06 | global batch size:  1024 | lm loss: 1.654910E+00 | loss scale: 1.0 | grad norm: 1.339 | params norm: 7091.383 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:15:12] iteration      764/     834 | consumed samples:       782336 | consumed tokens: 3.204B | elapsed time per iteration (ms): 129474.0 | eta: 2:31:03 | tokens/sec/gpu: 8098.7 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 2.078961E-06 | global batch size:  1024 | lm loss: 1.672383E+00 | loss scale: 1.0 | grad norm: 2.119 | params norm: 7091.383 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:17:22] iteration      765/     834 | consumed samples:       783360 | consumed tokens: 3.209B | elapsed time per iteration (ms): 129398.8 | eta: 2:28:48 | tokens/sec/gpu: 8103.4 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.070508E-06 | global batch size:  1024 | lm loss: 1.672752E+00 | loss scale: 1.0 | grad norm: 2.769 | params norm: 7091.382 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:19:31] iteration      766/     834 | consumed samples:       784384 | consumed tokens: 3.213B | elapsed time per iteration (ms): 129416.4 | eta: 2:26:40 | tokens/sec/gpu: 8102.3 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.062060E-06 | global batch size:  1024 | lm loss: 1.651355E+00 | loss scale: 1.0 | grad norm: 0.946 | params norm: 7091.382 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:21:41] iteration      767/     834 | consumed samples:       785408 | consumed tokens: 3.217B | elapsed time per iteration (ms): 129450.9 | eta: 2:24:33 | tokens/sec/gpu: 8100.2 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.053618E-06 | global batch size:  1024 | lm loss: 1.623003E+00 | loss scale: 1.0 | grad norm: 2.515 | params norm: 7091.381 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:23:50] iteration      768/     834 | consumed samples:       786432 | consumed tokens: 3.221B | elapsed time per iteration (ms): 129462.7 | eta: 2:22:24 | tokens/sec/gpu: 8099.4 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 2.045181E-06 | global batch size:  1024 | lm loss: 1.663309E+00 | loss scale: 1.0 | grad norm: 1.578 | params norm: 7091.381 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:26:00] iteration      769/     834 | consumed samples:       787456 | consumed tokens: 3.225B | elapsed time per iteration (ms): 129393.5 | eta: 2:20:10 | tokens/sec/gpu: 8103.8 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 2.036749E-06 | global batch size:  1024 | lm loss: 1.643928E+00 | loss scale: 1.0 | grad norm: 0.769 | params norm: 7091.380 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:28:09] iteration      770/     834 | consumed samples:       788480 | consumed tokens: 3.230B | elapsed time per iteration (ms): 129374.6 | eta: 2:17:59 | tokens/sec/gpu: 8105.0 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 2.028324E-06 | global batch size:  1024 | lm loss: 1.658588E+00 | loss scale: 1.0 | grad norm: 3.745 | params norm: 7091.380 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:30:18] iteration      771/     834 | consumed samples:       789504 | consumed tokens: 3.234B | elapsed time per iteration (ms): 129425.6 | eta: 2:15:53 | tokens/sec/gpu: 8101.8 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 2.019903E-06 | global batch size:  1024 | lm loss: 1.654305E+00 | loss scale: 1.0 | grad norm: 1.073 | params norm: 7091.379 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:32:28] iteration      772/     834 | consumed samples:       790528 | consumed tokens: 3.238B | elapsed time per iteration (ms): 129437.4 | eta: 2:13:45 | tokens/sec/gpu: 8101.0 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 2.011488E-06 | global batch size:  1024 | lm loss: 1.634358E+00 | loss scale: 1.0 | grad norm: 1.046 | params norm: 7091.378 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:34:37] iteration      773/     834 | consumed samples:       791552 | consumed tokens: 3.242B | elapsed time per iteration (ms): 129486.9 | eta: 2:11:38 | tokens/sec/gpu: 8097.9 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 2.003079E-06 | global batch size:  1024 | lm loss: 1.626174E+00 | loss scale: 1.0 | grad norm: 5.649 | params norm: 7091.378 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:36:47] iteration      774/     834 | consumed samples:       792576 | consumed tokens: 3.246B | elapsed time per iteration (ms): 129421.2 | eta: 2:09:25 | tokens/sec/gpu: 8102.0 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.994675E-06 | global batch size:  1024 | lm loss: 1.649155E+00 | loss scale: 1.0 | grad norm: 0.765 | params norm: 7091.377 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:38:56] iteration      775/     834 | consumed samples:       793600 | consumed tokens: 3.251B | elapsed time per iteration (ms): 129374.9 | eta: 2:07:13 | tokens/sec/gpu: 8104.9 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 1.986276E-06 | global batch size:  1024 | lm loss: 1.645031E+00 | loss scale: 1.0 | grad norm: 1.886 | params norm: 7091.377 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:41:06] iteration      776/     834 | consumed samples:       794624 | consumed tokens: 3.255B | elapsed time per iteration (ms): 129436.9 | eta: 2:05:07 | tokens/sec/gpu: 8101.1 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.977883E-06 | global batch size:  1024 | lm loss: 1.648941E+00 | loss scale: 1.0 | grad norm: 1.399 | params norm: 7091.376 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:43:15] iteration      777/     834 | consumed samples:       795648 | consumed tokens: 3.259B | elapsed time per iteration (ms): 129464.2 | eta: 2:02:59 | tokens/sec/gpu: 8099.4 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 1.969495E-06 | global batch size:  1024 | lm loss: 1.641929E+00 | loss scale: 1.0 | grad norm: 1.758 | params norm: 7091.376 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:45:24] iteration      778/     834 | consumed samples:       796672 | consumed tokens: 3.263B | elapsed time per iteration (ms): 129481.6 | eta: 2:00:50 | tokens/sec/gpu: 8098.3 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 1.961113E-06 | global batch size:  1024 | lm loss: 1.629381E+00 | loss scale: 1.0 | grad norm: 2.577 | params norm: 7091.375 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:47:34] iteration      779/     834 | consumed samples:       797696 | consumed tokens: 3.267B | elapsed time per iteration (ms): 129468.2 | eta: 1:58:40 | tokens/sec/gpu: 8099.1 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 1.952735E-06 | global batch size:  1024 | lm loss: 1.656131E+00 | loss scale: 1.0 | grad norm: 1.118 | params norm: 7091.374 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:49:43] iteration      780/     834 | consumed samples:       798720 | consumed tokens: 3.272B | elapsed time per iteration (ms): 129461.6 | eta: 1:56:30 | tokens/sec/gpu: 8099.5 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 1.944364E-06 | global batch size:  1024 | lm loss: 1.659362E+00 | loss scale: 1.0 | grad norm: 1.222 | params norm: 7091.374 | number of skipped iterations:   0 | number of nan iterations:   0 |
+0: saving checkpoint at iteration     780 to /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints in torch_dist format
+0: Storing distributed optimizer sharded state of type fully_sharded_model_space
+0:   scheduled an async checkpoint save at iteration     780 to /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints
+3: (min, max) time across ranks (ms):
+3:     save-checkpoint ................................: (23318.89, 23318.99)
+3:  [2026-05-25 03:52:16] iteration      781/     834 | consumed samples:       799744 | consumed tokens: 3.276B | elapsed time per iteration (ms): 129518.7 | eta: 1:54:24 | tokens/sec/gpu: 8095.9 | throughput per GPU (TFLOP/s/GPU): 417.3 | learning rate: 1.935997E-06 | global batch size:  1024 | lm loss: 1.626147E+00 | loss scale: 1.0 | grad norm: 0.845 | params norm: 7091.373 | number of skipped iterations:   0 | number of nan iterations:   0 |
+0:   successfully saved checkpoint from iteration     780 to /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints [ t 1/2, p 1/1 ]
+3:  [2026-05-25 03:54:26] iteration      782/     834 | consumed samples:       800768 | consumed tokens: 3.280B | elapsed time per iteration (ms): 129509.7 | eta: 1:52:14 | tokens/sec/gpu: 8096.5 | throughput per GPU (TFLOP/s/GPU): 417.3 | learning rate: 1.927636E-06 | global batch size:  1024 | lm loss: 1.644256E+00 | loss scale: 1.0 | grad norm: 50.747 | params norm: 7091.373 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:56:35] iteration      783/     834 | consumed samples:       801792 | consumed tokens: 3.284B | elapsed time per iteration (ms): 129403.8 | eta: 1:49:59 | tokens/sec/gpu: 8103.1 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.919281E-06 | global batch size:  1024 | lm loss: 1.637191E+00 | loss scale: 1.0 | grad norm: 0.845 | params norm: 7091.372 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 03:58:47] iteration      784/     834 | consumed samples:       802816 | consumed tokens: 3.288B | elapsed time per iteration (ms): 132125.8 | eta: 1:50:06 | tokens/sec/gpu: 7936.2 | throughput per GPU (TFLOP/s/GPU): 409.0 | learning rate: 1.910930E-06 | global batch size:  1024 | lm loss: 1.655669E+00 | loss scale: 1.0 | grad norm: 0.911 | params norm: 7091.372 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:00:57] iteration      785/     834 | consumed samples:       803840 | consumed tokens: 3.293B | elapsed time per iteration (ms): 129400.9 | eta: 1:45:40 | tokens/sec/gpu: 8103.3 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.902585E-06 | global batch size:  1024 | lm loss: 1.665089E+00 | loss scale: 1.0 | grad norm: 4.936 | params norm: 7091.372 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:03:06] iteration      786/     834 | consumed samples:       804864 | consumed tokens: 3.297B | elapsed time per iteration (ms): 129435.7 | eta: 1:43:32 | tokens/sec/gpu: 8101.1 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.894246E-06 | global batch size:  1024 | lm loss: 1.657716E+00 | loss scale: 1.0 | grad norm: 0.648 | params norm: 7091.371 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:05:16] iteration      787/     834 | consumed samples:       805888 | consumed tokens: 3.301B | elapsed time per iteration (ms): 129429.0 | eta: 1:41:23 | tokens/sec/gpu: 8101.6 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.885912E-06 | global batch size:  1024 | lm loss: 1.630642E+00 | loss scale: 1.0 | grad norm: 4.680 | params norm: 7091.371 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:07:25] iteration      788/     834 | consumed samples:       806912 | consumed tokens: 3.305B | elapsed time per iteration (ms): 129429.9 | eta: 1:39:13 | tokens/sec/gpu: 8101.5 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.877582E-06 | global batch size:  1024 | lm loss: 1.645890E+00 | loss scale: 1.0 | grad norm: 1.871 | params norm: 7091.370 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:09:34] iteration      789/     834 | consumed samples:       807936 | consumed tokens: 3.309B | elapsed time per iteration (ms): 129440.1 | eta: 1:37:04 | tokens/sec/gpu: 8100.9 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.869259E-06 | global batch size:  1024 | lm loss: 1.643867E+00 | loss scale: 1.0 | grad norm: 0.930 | params norm: 7091.369 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:11:44] iteration      790/     834 | consumed samples:       808960 | consumed tokens: 3.314B | elapsed time per iteration (ms): 129431.9 | eta: 1:34:55 | tokens/sec/gpu: 8101.4 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.860940E-06 | global batch size:  1024 | lm loss: 1.658061E+00 | loss scale: 1.0 | grad norm: 1.900 | params norm: 7091.369 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:13:53] iteration      791/     834 | consumed samples:       809984 | consumed tokens: 3.318B | elapsed time per iteration (ms): 129325.6 | eta: 1:32:41 | tokens/sec/gpu: 8108.0 | throughput per GPU (TFLOP/s/GPU): 417.9 | learning rate: 1.852627E-06 | global batch size:  1024 | lm loss: 1.624182E+00 | loss scale: 1.0 | grad norm: 0.650 | params norm: 7091.369 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:16:03] iteration      792/     834 | consumed samples:       811008 | consumed tokens: 3.322B | elapsed time per iteration (ms): 129357.7 | eta: 1:30:33 | tokens/sec/gpu: 8106.0 | throughput per GPU (TFLOP/s/GPU): 417.8 | learning rate: 1.844319E-06 | global batch size:  1024 | lm loss: 1.662968E+00 | loss scale: 1.0 | grad norm: 0.896 | params norm: 7091.368 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:18:12] iteration      793/     834 | consumed samples:       812032 | consumed tokens: 3.326B | elapsed time per iteration (ms): 129411.0 | eta: 1:28:25 | tokens/sec/gpu: 8102.7 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.836016E-06 | global batch size:  1024 | lm loss: 1.627637E+00 | loss scale: 1.0 | grad norm: 4.226 | params norm: 7091.367 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:20:21] iteration      794/     834 | consumed samples:       813056 | consumed tokens: 3.330B | elapsed time per iteration (ms): 129418.8 | eta: 1:26:16 | tokens/sec/gpu: 8102.2 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.827719E-06 | global batch size:  1024 | lm loss: 1.656732E+00 | loss scale: 1.0 | grad norm: 1.339 | params norm: 7091.367 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:22:31] iteration      795/     834 | consumed samples:       814080 | consumed tokens: 3.334B | elapsed time per iteration (ms): 129435.1 | eta: 1:24:07 | tokens/sec/gpu: 8101.2 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.819427E-06 | global batch size:  1024 | lm loss: 1.637374E+00 | loss scale: 1.0 | grad norm: 1.266 | params norm: 7091.367 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:24:40] iteration      796/     834 | consumed samples:       815104 | consumed tokens: 3.339B | elapsed time per iteration (ms): 129411.6 | eta: 1:21:57 | tokens/sec/gpu: 8102.6 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.811139E-06 | global batch size:  1024 | lm loss: 1.675457E+00 | loss scale: 1.0 | grad norm: 0.632 | params norm: 7091.366 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:26:50] iteration      797/     834 | consumed samples:       816128 | consumed tokens: 3.343B | elapsed time per iteration (ms): 129434.6 | eta: 1:19:49 | tokens/sec/gpu: 8101.2 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.802858E-06 | global batch size:  1024 | lm loss: 1.630744E+00 | loss scale: 1.0 | grad norm: 0.763 | params norm: 7091.365 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:28:59] iteration      798/     834 | consumed samples:       817152 | consumed tokens: 3.347B | elapsed time per iteration (ms): 129505.7 | eta: 1:17:42 | tokens/sec/gpu: 8096.8 | throughput per GPU (TFLOP/s/GPU): 417.3 | learning rate: 1.794581E-06 | global batch size:  1024 | lm loss: 1.655171E+00 | loss scale: 1.0 | grad norm: 1.240 | params norm: 7091.365 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:31:09] iteration      799/     834 | consumed samples:       818176 | consumed tokens: 3.351B | elapsed time per iteration (ms): 129428.1 | eta: 1:15:29 | tokens/sec/gpu: 8101.6 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.786309E-06 | global batch size:  1024 | lm loss: 1.650186E+00 | loss scale: 1.0 | grad norm: 0.879 | params norm: 7091.364 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:33:18] iteration      800/     834 | consumed samples:       819200 | consumed tokens: 3.355B | elapsed time per iteration (ms): 129374.3 | eta: 1:13:18 | tokens/sec/gpu: 8105.0 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 1.778043E-06 | global batch size:  1024 | lm loss: 1.667454E+00 | loss scale: 1.0 | grad norm: 5.625 | params norm: 7091.364 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:35:27] iteration      801/     834 | consumed samples:       820224 | consumed tokens: 3.360B | elapsed time per iteration (ms): 129398.8 | eta: 1:11:10 | tokens/sec/gpu: 8103.4 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.769782E-06 | global batch size:  1024 | lm loss: 1.638497E+00 | loss scale: 1.0 | grad norm: 2.594 | params norm: 7091.364 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:37:37] iteration      802/     834 | consumed samples:       821248 | consumed tokens: 3.364B | elapsed time per iteration (ms): 129443.0 | eta: 1:09:02 | tokens/sec/gpu: 8100.7 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.761526E-06 | global batch size:  1024 | lm loss: 1.623863E+00 | loss scale: 1.0 | grad norm: 18.471 | params norm: 7091.363 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:39:46] iteration      803/     834 | consumed samples:       822272 | consumed tokens: 3.368B | elapsed time per iteration (ms): 129418.5 | eta: 1:06:51 | tokens/sec/gpu: 8102.2 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.753275E-06 | global batch size:  1024 | lm loss: 1.646211E+00 | loss scale: 1.0 | grad norm: 0.769 | params norm: 7091.363 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:41:56] iteration      804/     834 | consumed samples:       823296 | consumed tokens: 3.372B | elapsed time per iteration (ms): 129434.7 | eta: 1:04:43 | tokens/sec/gpu: 8101.2 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.745029E-06 | global batch size:  1024 | lm loss: 1.640354E+00 | loss scale: 1.0 | grad norm: 0.620 | params norm: 7091.362 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:44:05] iteration      805/     834 | consumed samples:       824320 | consumed tokens: 3.376B | elapsed time per iteration (ms): 129405.3 | eta: 1:02:32 | tokens/sec/gpu: 8103.0 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.736789E-06 | global batch size:  1024 | lm loss: 1.640126E+00 | loss scale: 1.0 | grad norm: 0.887 | params norm: 7091.362 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:46:15] iteration      806/     834 | consumed samples:       825344 | consumed tokens: 3.381B | elapsed time per iteration (ms): 129447.4 | eta: 1:00:24 | tokens/sec/gpu: 8100.4 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.728553E-06 | global batch size:  1024 | lm loss: 1.665068E+00 | loss scale: 1.0 | grad norm: 0.847 | params norm: 7091.362 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:48:24] iteration      807/     834 | consumed samples:       826368 | consumed tokens: 3.385B | elapsed time per iteration (ms): 129394.6 | eta: 0:58:13 | tokens/sec/gpu: 8103.7 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 1.720323E-06 | global batch size:  1024 | lm loss: 1.651187E+00 | loss scale: 1.0 | grad norm: 0.753 | params norm: 7091.361 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:50:33] iteration      808/     834 | consumed samples:       827392 | consumed tokens: 3.389B | elapsed time per iteration (ms): 129454.6 | eta: 0:56:05 | tokens/sec/gpu: 8100.0 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.712098E-06 | global batch size:  1024 | lm loss: 1.638651E+00 | loss scale: 1.0 | grad norm: 1.791 | params norm: 7091.360 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:52:45] iteration      809/     834 | consumed samples:       828416 | consumed tokens: 3.393B | elapsed time per iteration (ms): 131273.8 | eta: 0:54:41 | tokens/sec/gpu: 7987.7 | throughput per GPU (TFLOP/s/GPU): 411.7 | learning rate: 1.703878E-06 | global batch size:  1024 | lm loss: 1.632681E+00 | loss scale: 1.0 | grad norm: 9.038 | params norm: 7091.360 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:54:54] iteration      810/     834 | consumed samples:       829440 | consumed tokens: 3.397B | elapsed time per iteration (ms): 129403.6 | eta: 0:51:45 | tokens/sec/gpu: 8103.1 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.695662E-06 | global batch size:  1024 | lm loss: 1.661192E+00 | loss scale: 1.0 | grad norm: 0.901 | params norm: 7091.360 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:57:03] iteration      811/     834 | consumed samples:       830464 | consumed tokens: 3.402B | elapsed time per iteration (ms): 129372.6 | eta: 0:49:35 | tokens/sec/gpu: 8105.1 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 1.687452E-06 | global batch size:  1024 | lm loss: 1.621116E+00 | loss scale: 1.0 | grad norm: 1.040 | params norm: 7091.359 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 04:59:13] iteration      812/     834 | consumed samples:       831488 | consumed tokens: 3.406B | elapsed time per iteration (ms): 129374.4 | eta: 0:47:26 | tokens/sec/gpu: 8105.0 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 1.679248E-06 | global batch size:  1024 | lm loss: 1.641816E+00 | loss scale: 1.0 | grad norm: 0.906 | params norm: 7091.359 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:01:22] iteration      813/     834 | consumed samples:       832512 | consumed tokens: 3.410B | elapsed time per iteration (ms): 129395.2 | eta: 0:45:17 | tokens/sec/gpu: 8103.7 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 1.671048E-06 | global batch size:  1024 | lm loss: 1.637169E+00 | loss scale: 1.0 | grad norm: 1.405 | params norm: 7091.358 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:03:32] iteration      814/     834 | consumed samples:       833536 | consumed tokens: 3.414B | elapsed time per iteration (ms): 129393.4 | eta: 0:43:07 | tokens/sec/gpu: 8103.8 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 1.662853E-06 | global batch size:  1024 | lm loss: 1.645737E+00 | loss scale: 1.0 | grad norm: 2.520 | params norm: 7091.358 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:05:41] iteration      815/     834 | consumed samples:       834560 | consumed tokens: 3.418B | elapsed time per iteration (ms): 129466.1 | eta: 0:40:59 | tokens/sec/gpu: 8099.2 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 1.654663E-06 | global batch size:  1024 | lm loss: 1.645527E+00 | loss scale: 1.0 | grad norm: 3.513 | params norm: 7091.358 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:07:51] iteration      816/     834 | consumed samples:       835584 | consumed tokens: 3.423B | elapsed time per iteration (ms): 129455.3 | eta: 0:38:50 | tokens/sec/gpu: 8099.9 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.646478E-06 | global batch size:  1024 | lm loss: 1.654419E+00 | loss scale: 1.0 | grad norm: 0.903 | params norm: 7091.357 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:10:00] iteration      817/     834 | consumed samples:       836608 | consumed tokens: 3.427B | elapsed time per iteration (ms): 129473.0 | eta: 0:36:41 | tokens/sec/gpu: 8098.8 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 1.638298E-06 | global batch size:  1024 | lm loss: 1.632565E+00 | loss scale: 1.0 | grad norm: 2.077 | params norm: 7091.356 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:12:09] iteration      818/     834 | consumed samples:       837632 | consumed tokens: 3.431B | elapsed time per iteration (ms): 129442.7 | eta: 0:34:31 | tokens/sec/gpu: 8100.7 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.630124E-06 | global batch size:  1024 | lm loss: 1.653969E+00 | loss scale: 1.0 | grad norm: 1.324 | params norm: 7091.356 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:14:19] iteration      819/     834 | consumed samples:       838656 | consumed tokens: 3.435B | elapsed time per iteration (ms): 129391.6 | eta: 0:32:20 | tokens/sec/gpu: 8103.9 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 1.621954E-06 | global batch size:  1024 | lm loss: 1.659730E+00 | loss scale: 1.0 | grad norm: 2.623 | params norm: 7091.356 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:16:28] iteration      820/     834 | consumed samples:       839680 | consumed tokens: 3.439B | elapsed time per iteration (ms): 129379.3 | eta: 0:30:11 | tokens/sec/gpu: 8104.7 | throughput per GPU (TFLOP/s/GPU): 417.7 | learning rate: 1.613789E-06 | global batch size:  1024 | lm loss: 1.646974E+00 | loss scale: 1.0 | grad norm: 1.487 | params norm: 7091.355 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:18:38] iteration      821/     834 | consumed samples:       840704 | consumed tokens: 3.444B | elapsed time per iteration (ms): 129455.9 | eta: 0:28:02 | tokens/sec/gpu: 8099.9 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.605629E-06 | global batch size:  1024 | lm loss: 1.651783E+00 | loss scale: 1.0 | grad norm: 1.142 | params norm: 7091.355 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:20:47] iteration      822/     834 | consumed samples:       841728 | consumed tokens: 3.448B | elapsed time per iteration (ms): 129411.7 | eta: 0:25:52 | tokens/sec/gpu: 8102.6 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.597474E-06 | global batch size:  1024 | lm loss: 1.620499E+00 | loss scale: 1.0 | grad norm: 0.965 | params norm: 7091.354 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:22:56] iteration      823/     834 | consumed samples:       842752 | consumed tokens: 3.452B | elapsed time per iteration (ms): 129426.1 | eta: 0:23:43 | tokens/sec/gpu: 8101.7 | throughput per GPU (TFLOP/s/GPU): 417.6 | learning rate: 1.589324E-06 | global batch size:  1024 | lm loss: 1.650258E+00 | loss scale: 1.0 | grad norm: 8.901 | params norm: 7091.354 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:25:06] iteration      824/     834 | consumed samples:       843776 | consumed tokens: 3.456B | elapsed time per iteration (ms): 129471.4 | eta: 0:21:34 | tokens/sec/gpu: 8098.9 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 1.581179E-06 | global batch size:  1024 | lm loss: 1.632862E+00 | loss scale: 1.0 | grad norm: 0.703 | params norm: 7091.354 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:27:15] iteration      825/     834 | consumed samples:       844800 | consumed tokens: 3.460B | elapsed time per iteration (ms): 129493.6 | eta: 0:19:25 | tokens/sec/gpu: 8097.5 | throughput per GPU (TFLOP/s/GPU): 417.3 | learning rate: 1.573039E-06 | global batch size:  1024 | lm loss: 1.650564E+00 | loss scale: 1.0 | grad norm: 0.971 | params norm: 7091.353 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:29:25] iteration      826/     834 | consumed samples:       845824 | consumed tokens: 3.464B | elapsed time per iteration (ms): 129518.2 | eta: 0:17:16 | tokens/sec/gpu: 8096.0 | throughput per GPU (TFLOP/s/GPU): 417.3 | learning rate: 1.564904E-06 | global batch size:  1024 | lm loss: 1.616059E+00 | loss scale: 1.0 | grad norm: 0.690 | params norm: 7091.353 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:31:34] iteration      827/     834 | consumed samples:       846848 | consumed tokens: 3.469B | elapsed time per iteration (ms): 129522.5 | eta: 0:15:06 | tokens/sec/gpu: 8095.7 | throughput per GPU (TFLOP/s/GPU): 417.2 | learning rate: 1.556774E-06 | global batch size:  1024 | lm loss: 1.668876E+00 | loss scale: 1.0 | grad norm: 0.611 | params norm: 7091.352 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:33:44] iteration      828/     834 | consumed samples:       847872 | consumed tokens: 3.473B | elapsed time per iteration (ms): 129542.0 | eta: 0:12:57 | tokens/sec/gpu: 8094.5 | throughput per GPU (TFLOP/s/GPU): 417.2 | learning rate: 1.548649E-06 | global batch size:  1024 | lm loss: 1.647871E+00 | loss scale: 1.0 | grad norm: 0.766 | params norm: 7091.352 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:35:54] iteration      829/     834 | consumed samples:       848896 | consumed tokens: 3.477B | elapsed time per iteration (ms): 129494.7 | eta: 0:10:47 | tokens/sec/gpu: 8097.4 | throughput per GPU (TFLOP/s/GPU): 417.3 | learning rate: 1.540529E-06 | global batch size:  1024 | lm loss: 1.650440E+00 | loss scale: 1.0 | grad norm: 0.668 | params norm: 7091.351 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:38:03] iteration      830/     834 | consumed samples:       849920 | consumed tokens: 3.481B | elapsed time per iteration (ms): 129522.1 | eta: 0:08:38 | tokens/sec/gpu: 8095.7 | throughput per GPU (TFLOP/s/GPU): 417.3 | learning rate: 1.532413E-06 | global batch size:  1024 | lm loss: 1.644060E+00 | loss scale: 1.0 | grad norm: 0.704 | params norm: 7091.351 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:40:13] iteration      831/     834 | consumed samples:       850944 | consumed tokens: 3.485B | elapsed time per iteration (ms): 129473.9 | eta: 0:06:28 | tokens/sec/gpu: 8098.7 | throughput per GPU (TFLOP/s/GPU): 417.4 | learning rate: 1.524302E-06 | global batch size:  1024 | lm loss: 1.635234E+00 | loss scale: 1.0 | grad norm: 0.929 | params norm: 7091.351 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:42:22] iteration      832/     834 | consumed samples:       851968 | consumed tokens: 3.490B | elapsed time per iteration (ms): 129457.4 | eta: 0:04:18 | tokens/sec/gpu: 8099.8 | throughput per GPU (TFLOP/s/GPU): 417.5 | learning rate: 1.516197E-06 | global batch size:  1024 | lm loss: 1.653855E+00 | loss scale: 1.0 | grad norm: 0.930 | params norm: 7091.351 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:44:34] iteration      833/     834 | consumed samples:       852992 | consumed tokens: 3.494B | elapsed time per iteration (ms): 131568.9 | eta: 0:02:11 | tokens/sec/gpu: 7969.8 | throughput per GPU (TFLOP/s/GPU): 410.8 | learning rate: 1.508096E-06 | global batch size:  1024 | lm loss: 1.675122E+00 | loss scale: 1.0 | grad norm: 0.747 | params norm: 7091.350 | number of skipped iterations:   0 | number of nan iterations:   0 |
+3:  [2026-05-25 05:46:43] iteration      834/     834 | consumed samples:       854016 | consumed tokens: 3.498B | elapsed time per iteration (ms): 129514.7 | eta: 0:00:00 | tokens/sec/gpu: 8096.2 | throughput per GPU (TFLOP/s/GPU): 417.3 | learning rate: 1.500000E-06 | global batch size:  1024 | lm loss: 1.665054E+00 | loss scale: 1.0 | grad norm: 0.842 | params norm: 7091.349 | number of skipped iterations:   0 | number of nan iterations:   0 |
+0: Training finished after 834 iterations; Canceling pending scheduled jobs.
+0: [after training is done] datetime: 2026-05-25 05:46:43 
+0: saving checkpoint at iteration     834 to /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints in torch_dist format
+0: Storing distributed optimizer sharded state of type fully_sharded_model_space
+0:   scheduled an async checkpoint save at iteration     834 to /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints
+0: Unfinalized async checkpoint saves. Finalizing them synchronously now.
+0:   successfully saved checkpoint from iteration     834 to /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints [ t 1/2, p 1/1 ]
+
+=== bakeoff arm vanilla done ===
+Mon May 25 03:47:03 UTC 2026
+checkpoints: /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints
+tensorboard: /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/tensorboard
+Next: bash ../eval/run_bakeoff_arm_eval.sh /capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_3p5b_20260524T143012Z_vanilla/checkpoints/<latest>

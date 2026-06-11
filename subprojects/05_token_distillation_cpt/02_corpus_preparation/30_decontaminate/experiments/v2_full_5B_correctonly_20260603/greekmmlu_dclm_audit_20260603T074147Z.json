@@ -1,0 +1,107 @@
+{
+  "schema": "greekmmlu-dclm-decontam-v3-categorized",
+  "generated_utc": "20260603T074147Z",
+  "benchmark": "greekmmlu",
+  "k": 8,
+  "max_gap_tokens": 50,
+  "max_gap_tokens_short": 5,
+  "direction": "after",
+  "headline": {
+    "rule": "correct_only",
+    "source": "results_by_rule",
+    "rationale": "PRODUCTION RULE. Union of q_plus_correct_only ∪ q_plus_correct_and_wrong. 92.4% codex-judge precision on a 118-doc sample (gpt-5.5, 250-pair audit, 2026-06-02). Residual false positives are source-overlap on Greek regulation portals (opengov.gr, eur-lex, elinyae) — these docs contain the regulation text that becomes the eval question, which is appropriate to remove from the training corpus anyway. Chosen for the corpus filter step.",
+    "contaminated_items": 270,
+    "contaminated_items_fraction": 0.016234,
+    "item_doc_pairs": 379
+  },
+  "inputs": {
+    "queries_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/decontamination/05_decontam_5b_20260602T011447Z/queries/native_greek_mcq_decontam_queries.jsonl",
+    "corpus_jsonl": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/jsonl/hplt_b1_5b.jsonl"
+  },
+  "method": {
+    "name": "DCLM-adapted MMLU contamination check (Greek-language adaptation, proximity-gated)",
+    "rule": "Q-side: any K-gram of the item's normalized question appears in the normalized doc tokens. If so, record the doc positions where it matched.\nOption-side: for each option and each Q-match position, check the option in a per-option window. The 'gap' is the number of doc tokens between the END of the Q-match and the START of the option. With --direction=after, option_start ∈ [Q_end, Q_end + effective_gap]. With --direction=any, option_start can also be effective_gap tokens before the Q (the before/after ranges merge with the within-Q overlap case included). For options shorter than K tokens, use substring (contiguous-token-subsequence) presence inside that range with the tight `--max-gap-tokens-short` window; otherwise use k-gram intersection inside the window, with `--max-gap-tokens`. K-gram check has a bounded fuzz of `opt_len - k` tokens past the gap boundary (the matched k-gram can be any of the option's chunks, so the implied option_start may sit slightly outside the strict range); this fuzz is negligible relative to the long-option window default of 50.\nCategorization: for each (item, doc) pair where Q-side fired, assign exactly one of {q_only, q_plus_correct_only, q_plus_wrong_only, q_plus_correct_and_wrong} based on which option indices fired.",
+    "categories_emitted": [
+      "q_only: Q stem matched in doc, no option fired in window (often general-knowledge stem overlap; for A-loaded items, eval-format scaffold without a specific item)",
+      "q_plus_correct_only: Q + the correct option fired in window (no wrongs); strongest direct cheating signal",
+      "q_plus_wrong_only: Q + at least one wrong option fired (not the correct); eval scaffolding without the answer key, or wrong-answer discussion",
+      "q_plus_correct_and_wrong: Q + correct + at least one wrong; near-verbatim eval-item scrape with options visible"
+    ],
+    "rules_emitted_for_backcompat": [
+      "correct_only: q_plus_correct_only ∪ q_plus_correct_and_wrong (DCLM-adapted; the cheating signal proper)",
+      "any: any of the three non-q_only categories (DCLM paper rule)",
+      "all: every option fired (strictest)"
+    ],
+    "normalization": "NFKC + strip combining marks + casefold + Unicode word tokens excluding underscore",
+    "tokenization_note": "punctuation is stripped during tokenization; digits remain as tokens; --max-gap-tokens is measured in normalized word tokens",
+    "reference": "mlfoundations/dclm (Li et al. 2024, arXiv 2406.11794), MMLU/HellaSwag contamination check; proximity gate added per user direction 2026-06-02"
+  },
+  "totals": {
+    "items": 16632,
+    "items_q_too_short_for_kgram": 3415,
+    "items_q_too_short_note": "Items whose normalized question has fewer than K tokens cannot form a Q-side k-gram and are therefore invisible to this rule. They are counted here so the audit reader knows the unmeasurable subset.",
+    "options_too_short_for_kgram_total": 46218,
+    "options_total": 56746
+  },
+  "input_issues": {
+    "empty_question": 0,
+    "empty_choices": 0,
+    "missing_answer_index": 0,
+    "answer_index_out_of_range": 0,
+    "empty_option_tokens": 90,
+    "q_kgrams_all_digit_filtered": 14
+  },
+  "results_by_category": {
+    "q_plus_correct_and_wrong": {
+      "items_with_at_least_one_doc_in_category": 211,
+      "items_fraction": 0.012686,
+      "item_doc_pairs_in_category": 271
+    },
+    "q_plus_correct_only": {
+      "items_with_at_least_one_doc_in_category": 64,
+      "items_fraction": 0.003848,
+      "item_doc_pairs_in_category": 108
+    },
+    "q_plus_wrong_only": {
+      "items_with_at_least_one_doc_in_category": 101,
+      "items_fraction": 0.006073,
+      "item_doc_pairs_in_category": 124
+    },
+    "q_only": {
+      "items_with_at_least_one_doc_in_category": 883,
+      "items_fraction": 0.05309,
+      "item_doc_pairs_in_category": 7230
+    }
+  },
+  "results_by_rule": {
+    "correct_only": {
+      "contaminated_items": 270,
+      "contaminated_items_fraction": 0.016234,
+      "contaminated_item_doc_pairs": 379
+    },
+    "any": {
+      "contaminated_items": 355,
+      "contaminated_items_fraction": 0.021344,
+      "contaminated_item_doc_pairs": 503
+    },
+    "all": {
+      "contaminated_items": 122,
+      "contaminated_items_fraction": 0.007335,
+      "contaminated_item_doc_pairs": 156
+    }
+  },
+  "scan": {
+    "wall_seconds": 80.96,
+    "total_seconds": 82.64,
+    "progress_every_rows": 50000
+  },
+  "filter": {
+    "rule": "correct_only",
+    "input_rows": 3739911,
+    "clean_rows": 3739815,
+    "dropped_rows": 96,
+    "clean_path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/decontamination/05_decontam_5b_correctonly_20260603T074024Z/decontaminated/hplt_b1_5b_clean.jsonl",
+    "dropped_path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/decontamination/05_decontam_5b_correctonly_20260603T074024Z/decontaminated/hplt_b1_5b_dropped.jsonl",
+    "wall_seconds": 89.01
+  }
+}

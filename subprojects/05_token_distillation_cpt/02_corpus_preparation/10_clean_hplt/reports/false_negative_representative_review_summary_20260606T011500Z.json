@@ -1,0 +1,45 @@
+{
+  "created_at_utc": "2026-06-06T01:15:00Z",
+  "false_negative_found_count": 9,
+  "false_negative_rate": 0.1125,
+  "label_counts": {
+    "clean": 71,
+    "false_negative_found": 9
+  },
+  "policy_note": "Preliminary representative false-negative estimate only. It does not satisfy final policy gates and does not approve automatic destructive cleaning.",
+  "population": "200 global_random false-negative-control rows inside the 300-row pack",
+  "population_size": 200,
+  "review_correct_action_counts": {
+    "keep": 71,
+    "split_doc": 3,
+    "trim_prefix": 1,
+    "trim_suffix": 5
+  },
+  "reviewed_rows": 80,
+  "sample_design": "deterministic SHA1 sample from global_random false-negative controls",
+  "sample_seed": "20260606_global80",
+  "schema_version": "hplt-false-negative-representative-review-v1",
+  "triage_bucket_counts": {
+    "0": 57,
+    ">0": 14,
+    ">=0.24": 9
+  },
+  "true_error_type_counts": {
+    "E004": 1,
+    "E006": 1,
+    "E007": 1,
+    "E009": 1,
+    "E010": 2,
+    "E011": 3,
+    "E012": 1,
+    "E019": 4
+  },
+  "wilson_95_ci": [
+    0.060326869466304764,
+    0.20018218092372875
+  ],
+  "wilson_95_ci_percent": [
+    6.032686946630476,
+    20.018218092372877
+  ]
+}

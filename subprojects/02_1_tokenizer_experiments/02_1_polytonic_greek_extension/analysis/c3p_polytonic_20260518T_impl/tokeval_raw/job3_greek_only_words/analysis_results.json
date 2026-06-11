@@ -1,0 +1,4423 @@
+{
+  "encoding_speed": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "mean_ms": 0.24447031893482277,
+        "total_s": 0.24373690797801828,
+        "num_samples": 997
+      },
+      "c3p_poly_added_0512": {
+        "mean_ms": 0.23156011835999196,
+        "total_s": 0.230865438004912,
+        "num_samples": 997
+      },
+      "c3p_poly_added_1024": {
+        "mean_ms": 0.2240254062008765,
+        "total_s": 0.22335332998227386,
+        "num_samples": 997
+      },
+      "c3p_poly_added_1536": {
+        "mean_ms": 0.2235239959991888,
+        "total_s": 0.22285342401119124,
+        "num_samples": 997
+      },
+      "c3p_poly_added_2048": {
+        "mean_ms": 0.2236836248607072,
+        "total_s": 0.22301257398612506,
+        "num_samples": 997
+      },
+      "c3p_poly_added_2560": {
+        "mean_ms": 0.2248604543771252,
+        "total_s": 0.22418587301399384,
+        "num_samples": 997
+      },
+      "c3p_poly_added_3072": {
+        "mean_ms": 0.22424230393503197,
+        "total_s": 0.22356957702322688,
+        "num_samples": 997
+      },
+      "c3p_poly_added_3584": {
+        "mean_ms": 0.2854390782327899,
+        "total_s": 0.28458276099809154,
+        "num_samples": 997
+      },
+      "c3p_poly_added_4096": {
+        "mean_ms": 0.23265113443684254,
+        "total_s": 0.23195318103353202,
+        "num_samples": 997
+      },
+      "c3p_poly_added_4608": {
+        "mean_ms": 0.2337717542451304,
+        "total_s": 0.233070438982395,
+        "num_samples": 997
+      },
+      "c3p_poly_added_5120": {
+        "mean_ms": 0.2319901293925697,
+        "total_s": 0.23129415900439199,
+        "num_samples": 997
+      }
+    }
+  },
+  "fertility": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {
+          "mean": 1.3691792825482603,
+          "median": 1.3333333333333333,
+          "std": 0.20880084423852988,
+          "count": 997
+        },
+        "per_language": {
+          "ell_Grek": {
+            "mean": 1.3691792825482603,
+            "median": 1.3333333333333333,
+            "std": 0.20880084423852988,
+            "count": 997
+          }
+        }
+      },
+      "c3p_poly_added_0512": {
+        "global": {
+          "mean": 1.3690475520741867,
+          "median": 1.3333333333333333,
+          "std": 0.20868086233183425,
+          "count": 997
+        },
+        "per_language": {
+          "ell_Grek": {
+            "mean": 1.3690475520741867,
+            "median": 1.3333333333333333,
+            "std": 0.20868086233183425,
+            "count": 997
+          }
+        }
+      },
+      "c3p_poly_added_1024": {
+        "global": {
+          "mean": 1.368805434986467,
+          "median": 1.3333333333333333,
+          "std": 0.2085726290857574,
+          "count": 997
+        },
+        "per_language": {
+          "ell_Grek": {
+            "mean": 1.368805434986467,
+            "median": 1.3333333333333333,
+            "std": 0.2085726290857574,
+            "count": 997
+          }
+        }
+      },
+      "c3p_poly_added_1536": {
+        "global": {
+          "mean": 1.3685356391046892,
+          "median": 1.3333333333333333,
+          "std": 0.20843139317856216,
+          "count": 997
+        },
+        "per_language": {
+          "ell_Grek": {
+            "mean": 1.3685356391046892,
+            "median": 1.3333333333333333,
+            "std": 0.20843139317856216,
+            "count": 997
+          }
+        }
+      },
+      "c3p_poly_added_2048": {
+        "global": {
+          "mean": 1.3683539433023855,
+          "median": 1.3333333333333333,
+          "std": 0.20843506968545134,
+          "count": 997
+        },
+        "per_language": {
+          "ell_Grek": {
+            "mean": 1.3683539433023855,
+            "median": 1.3333333333333333,
+            "std": 0.20843506968545134,
+            "count": 997
+          }
+        }
+      },
+      "c3p_poly_added_2560": {
+        "global": {
+          "mean": 1.3677570847375946,
+          "median": 1.3333333333333333,
+          "std": 0.20818640267369812,
+          "count": 997
+        },
+        "per_language": {
+          "ell_Grek": {
+            "mean": 1.3677570847375946,
+            "median": 1.3333333333333333,
+            "std": 0.20818640267369812,
+            "count": 997
+          }
+        }
+      },
+      "c3p_poly_added_3072": {
+        "global": {
+          "mean": 1.3674127949327732,
+          "median": 1.3333333333333333,
+          "std": 0.20795073038916587,
+          "count": 997
+        },
+        "per_language": {
+          "ell_Grek": {
+            "mean": 1.3674127949327732,
+            "median": 1.3333333333333333,
+            "std": 0.20795073038916587,
+            "count": 997
+          }
+        }
+      },
+      "c3p_poly_added_3584": {
+        "global": {
+          "mean": 1.3668839118478942,
+          "median": 1.3333333333333333,
+          "std": 0.20758096413715643,
+          "count": 997
+        },
+        "per_language": {
+          "ell_Grek": {
+            "mean": 1.3668839118478942,
+            "median": 1.3333333333333333,
+            "std": 0.20758096413715643,
+            "count": 997
+          }
+        }
+      },
+      "c3p_poly_added_4096": {
+        "global": {
+          "mean": 1.366358673759132,
+          "median": 1.3333333333333333,
+          "std": 0.20703525678914053,
+          "count": 997
+        },
+        "per_language": {
+          "ell_Grek": {
+            "mean": 1.366358673759132,
+            "median": 1.3333333333333333,
+            "std": 0.20703525678914053,
+            "count": 997
+          }
+        }
+      },
+      "c3p_poly_added_4608": {
+        "global": {
+          "mean": 1.366024092696914,
+          "median": 1.3333333333333333,
+          "std": 0.2068806001864685,
+          "count": 997
+        },
+        "per_language": {
+          "ell_Grek": {
+            "mean": 1.366024092696914,
+            "median": 1.3333333333333333,
+            "std": 0.2068806001864685,
+            "count": 997
+          }
+        }
+      },
+      "c3p_poly_added_5120": {
+        "global": {
+          "mean": 1.3657086296123886,
+          "median": 1.3333333333333333,
+          "std": 0.20674626057450554,
+          "count": 997
+        },
+        "per_language": {
+          "ell_Grek": {
+            "mean": 1.3657086296123886,
+            "median": 1.3333333333333333,
+            "std": 0.20674626057450554,
+            "count": 997
+          }
+        }
+      }
+    },
+    "metadata": {
+      "normalization_method": "words",
+      "description": "Average number of tokens per word",
+      "short_description": "tokens/word"
+    }
+  },
+  "token_length": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "character_length": {
+          "mean": 4.416328055090912,
+          "median": 4.395348837209302,
+          "std": 0.745319547717851,
+          "count": 997
+        },
+        "byte_length": {
+          "mean": 8.051259291606918,
+          "median": 8.038461538461538,
+          "std": 1.463514344059487,
+          "count": 997
+        },
+        "primary_length": {
+          "mean": 4.416328055090912,
+          "median": 4.395348837209302,
+          "std": 0.745319547717851,
+          "count": 997
+        }
+      },
+      "c3p_poly_added_0512": {
+        "character_length": {
+          "mean": 4.416679884348972,
+          "median": 4.4,
+          "std": 0.7452037395600032,
+          "count": 997
+        },
+        "byte_length": {
+          "mean": 8.051893043562535,
+          "median": 8.038461538461538,
+          "std": 1.4632823498834737,
+          "count": 997
+        },
+        "primary_length": {
+          "mean": 4.416679884348972,
+          "median": 4.4,
+          "std": 0.7452037395600032,
+          "count": 997
+        }
+      },
+      "c3p_poly_added_1024": {
+        "character_length": {
+          "mean": 4.417371670584277,
+          "median": 4.4,
+          "std": 0.745082008180694,
+          "count": 997
+        },
+        "byte_length": {
+          "mean": 8.053166373820579,
+          "median": 8.038461538461538,
+          "std": 1.4631590790507327,
+          "count": 997
+        },
+        "primary_length": {
+          "mean": 4.417371670584277,
+          "median": 4.4,
+          "std": 0.745082008180694,
+          "count": 997
+        }
+      },
+      "c3p_poly_added_1536": {
+        "character_length": {
+          "mean": 4.418138133332662,
+          "median": 4.4,
+          "std": 0.7450012725734245,
+          "count": 997
+        },
+        "byte_length": {
+          "mean": 8.054550522978348,
+          "median": 8.038461538461538,
+          "std": 1.463076084814262,
+          "count": 997
+        },
+        "primary_length": {
+          "mean": 4.418138133332662,
+          "median": 4.4,
+          "std": 0.7450012725734245,
+          "count": 997
+        }
+      },
+      "c3p_poly_added_2048": {
+        "character_length": {
+          "mean": 4.418719198902329,
+          "median": 4.4,
+          "std": 0.7449564222331375,
+          "count": 997
+        },
+        "byte_length": {
+          "mean": 8.055617523319945,
+          "median": 8.038461538461538,
+          "std": 1.4630444375834932,
+          "count": 997
+        },
+        "primary_length": {
+          "mean": 4.418719198902329,
+          "median": 4.4,
+          "std": 0.7449564222331375,
+          "count": 997
+        }
+      },
+      "c3p_poly_added_2560": {
+        "character_length": {
+          "mean": 4.420497300931014,
+          "median": 4.4,
+          "std": 0.7448065497186382,
+          "count": 997
+        },
+        "byte_length": {
+          "mean": 8.058891381977533,
+          "median": 8.041666666666666,
+          "std": 1.4630003446972202,
+          "count": 997
+        },
+        "primary_length": {
+          "mean": 4.420497300931014,
+          "median": 4.4,
+          "std": 0.7448065497186382,
+          "count": 997
+        }
+      },
+      "c3p_poly_added_3072": {
+        "character_length": {
+          "mean": 4.421496907248992,
+          "median": 4.4,
+          "std": 0.744776275593728,
+          "count": 997
+        },
+        "byte_length": {
+          "mean": 8.060725607788891,
+          "median": 8.041666666666666,
+          "std": 1.4630323252487687,
+          "count": 997
+        },
+        "primary_length": {
+          "mean": 4.421496907248992,
+          "median": 4.4,
+          "std": 0.744776275593728,
+          "count": 997
+        }
+      },
+      "c3p_poly_added_3584": {
+        "character_length": {
+          "mean": 4.422960042460691,
+          "median": 4.409090909090909,
+          "std": 0.7441384090595913,
+          "count": 997
+        },
+        "byte_length": {
+          "mean": 8.063389927874889,
+          "median": 8.048780487804878,
+          "std": 1.4619387727024438,
+          "count": 997
+        },
+        "primary_length": {
+          "mean": 4.422960042460691,
+          "median": 4.409090909090909,
+          "std": 0.7441384090595913,
+          "count": 997
+        }
+      },
+      "c3p_poly_added_4096": {
+        "character_length": {
+          "mean": 4.424356579004388,
+          "median": 4.411764705882353,
+          "std": 0.743597022008107,
+          "count": 997
+        },
+        "byte_length": {
+          "mean": 8.065934083785832,
+          "median": 8.052631578947368,
+          "std": 1.4610140522375281,
+          "count": 997
+        },
+        "primary_length": {
+          "mean": 4.424356579004388,
+          "median": 4.411764705882353,
+          "std": 0.743597022008107,
+          "count": 997
+        }
+      },
+      "c3p_poly_added_4608": {
+        "character_length": {
+          "mean": 4.42530832195547,
+          "median": 4.413793103448276,
+          "std": 0.7432355328398436,
+          "count": 997
+        },
+        "byte_length": {
+          "mean": 8.06765109089639,
+          "median": 8.054545454545455,
+          "std": 1.4603333545776647,
+          "count": 997
+        },
+        "primary_length": {
+          "mean": 4.42530832195547,
+          "median": 4.413793103448276,
+          "std": 0.7432355328398436,
+          "count": 997
+        }
+      },
+      "c3p_poly_added_5120": {
+        "character_length": {
+          "mean": 4.4262456886142925,
+          "median": 4.413793103448276,
+          "std": 0.7431408379493004,
+          "count": 997
+        },
+        "byte_length": {
+          "mean": 8.06938133883016,
+          "median": 8.054545454545455,
+          "std": 1.4603087408986737,
+          "count": 997
+        },
+        "primary_length": {
+          "mean": 4.4262456886142925,
+          "median": 4.413793103448276,
+          "std": 0.7431408379493004,
+          "count": 997
+        }
+      }
+    },
+    "metadata": {
+      "units": [
+        "characters",
+        "bytes"
+      ],
+      "description": "Average character and byte length per token"
+    }
+  },
+  "vocabulary_utilization": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {
+          "utilization": 0.05255926724137931,
+          "used_tokens": 7804,
+          "vocab_size": 148480
+        },
+        "per_language": {
+          "ell_Grek": {
+            "utilization": 0.05255926724137931,
+            "used_tokens": 7804,
+            "vocab_size": 148480,
+            "unused_tokens": 140676
+          }
+        }
+      },
+      "c3p_poly_added_0512": {
+        "global": {
+          "utilization": 0.05239878651202749,
+          "used_tokens": 7807,
+          "vocab_size": 148992
+        },
+        "per_language": {
+          "ell_Grek": {
+            "utilization": 0.05239878651202749,
+            "used_tokens": 7807,
+            "vocab_size": 148992,
+            "unused_tokens": 141185
+          }
+        }
+      },
+      "c3p_poly_added_1024": {
+        "global": {
+          "utilization": 0.05224609375,
+          "used_tokens": 7811,
+          "vocab_size": 149504
+        },
+        "per_language": {
+          "ell_Grek": {
+            "utilization": 0.05224609375,
+            "used_tokens": 7811,
+            "vocab_size": 149504,
+            "unused_tokens": 141693
+          }
+        }
+      },
+      "c3p_poly_added_1536": {
+        "global": {
+          "utilization": 0.05208777730375427,
+          "used_tokens": 7814,
+          "vocab_size": 150016
+        },
+        "per_language": {
+          "ell_Grek": {
+            "utilization": 0.05208777730375427,
+            "used_tokens": 7814,
+            "vocab_size": 150016,
+            "unused_tokens": 142202
+          }
+        }
+      },
+      "c3p_poly_added_2048": {
+        "global": {
+          "utilization": 0.05193053784013606,
+          "used_tokens": 7817,
+          "vocab_size": 150528
+        },
+        "per_language": {
+          "ell_Grek": {
+            "utilization": 0.05193053784013606,
+            "used_tokens": 7817,
+            "vocab_size": 150528,
+            "unused_tokens": 142711
+          }
+        }
+      },
+      "c3p_poly_added_2560": {
+        "global": {
+          "utilization": 0.05180084745762712,
+          "used_tokens": 7824,
+          "vocab_size": 151040
+        },
+        "per_language": {
+          "ell_Grek": {
+            "utilization": 0.05180084745762712,
+            "used_tokens": 7824,
+            "vocab_size": 151040,
+            "unused_tokens": 143216
+          }
+        }
+      },
+      "c3p_poly_added_3072": {
+        "global": {
+          "utilization": 0.05165223817567568,
+          "used_tokens": 7828,
+          "vocab_size": 151552
+        },
+        "per_language": {
+          "ell_Grek": {
+            "utilization": 0.05165223817567568,
+            "used_tokens": 7828,
+            "vocab_size": 151552,
+            "unused_tokens": 143724
+          }
+        }
+      },
+      "c3p_poly_added_3584": {
+        "global": {
+          "utilization": 0.05150462962962963,
+          "used_tokens": 7832,
+          "vocab_size": 152064
+        },
+        "per_language": {
+          "ell_Grek": {
+            "utilization": 0.05150462962962963,
+            "used_tokens": 7832,
+            "vocab_size": 152064,
+            "unused_tokens": 144232
+          }
+        }
+      },
+      "c3p_poly_added_4096": {
+        "global": {
+          "utilization": 0.05140389052013423,
+          "used_tokens": 7843,
+          "vocab_size": 152576
+        },
+        "per_language": {
+          "ell_Grek": {
+            "utilization": 0.05140389052013423,
+            "used_tokens": 7843,
+            "vocab_size": 152576,
+            "unused_tokens": 144733
+          }
+        }
+      },
+      "c3p_poly_added_4608": {
+        "global": {
+          "utilization": 0.05127769648829431,
+          "used_tokens": 7850,
+          "vocab_size": 153088
+        },
+        "per_language": {
+          "ell_Grek": {
+            "utilization": 0.05127769648829431,
+            "used_tokens": 7850,
+            "vocab_size": 153088,
+            "unused_tokens": 145238
+          }
+        }
+      },
+      "c3p_poly_added_5120": {
+        "global": {
+          "utilization": 0.05113932291666667,
+          "used_tokens": 7855,
+          "vocab_size": 153600
+        },
+        "per_language": {
+          "ell_Grek": {
+            "utilization": 0.05113932291666667,
+            "used_tokens": 7855,
+            "vocab_size": 153600,
+            "unused_tokens": 145745
+          }
+        }
+      }
+    },
+    "metadata": {
+      "description": "Proportion of vocabulary actually used",
+      "metric_range": "[0.0, 1.0]"
+    }
+  },
+  "type_token_ratio": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {
+          "ttr": 0.22515218833847842,
+          "types": 7804,
+          "tokens": 34661
+        }
+      },
+      "c3p_poly_added_0512": {
+        "global": {
+          "ttr": 0.22525823763633215,
+          "types": 7807,
+          "tokens": 34658
+        }
+      },
+      "c3p_poly_added_1024": {
+        "global": {
+          "ttr": 0.22540616973999364,
+          "types": 7811,
+          "tokens": 34653
+        }
+      },
+      "c3p_poly_added_1536": {
+        "global": {
+          "ttr": 0.22554481166113435,
+          "types": 7814,
+          "tokens": 34645
+        }
+      },
+      "c3p_poly_added_2048": {
+        "global": {
+          "ttr": 0.22566397228637414,
+          "types": 7817,
+          "tokens": 34640
+        }
+      },
+      "c3p_poly_added_2560": {
+        "global": {
+          "ttr": 0.2259638989169675,
+          "types": 7824,
+          "tokens": 34625
+        }
+      },
+      "c3p_poly_added_3072": {
+        "global": {
+          "ttr": 0.22613820198752022,
+          "types": 7828,
+          "tokens": 34616
+        }
+      },
+      "c3p_poly_added_3584": {
+        "global": {
+          "ttr": 0.22634529795965552,
+          "types": 7832,
+          "tokens": 34602
+        }
+      },
+      "c3p_poly_added_4096": {
+        "global": {
+          "ttr": 0.22675494391118306,
+          "types": 7843,
+          "tokens": 34588
+        }
+      },
+      "c3p_poly_added_4608": {
+        "global": {
+          "ttr": 0.22701639723531622,
+          "types": 7850,
+          "tokens": 34579
+        }
+      },
+      "c3p_poly_added_5120": {
+        "global": {
+          "ttr": 0.22721356049868388,
+          "types": 7855,
+          "tokens": 34571
+        }
+      }
+    },
+    "per_language": {
+      "ell_Grek": {
+        "c3p_poly_added_0000": 0.22515218833847842,
+        "c3p_poly_added_0512": 0.22525823763633215,
+        "c3p_poly_added_1024": 0.22540616973999364,
+        "c3p_poly_added_1536": 0.22554481166113435,
+        "c3p_poly_added_2048": 0.22566397228637414,
+        "c3p_poly_added_2560": 0.2259638989169675,
+        "c3p_poly_added_3072": 0.22613820198752022,
+        "c3p_poly_added_3584": 0.22634529795965552,
+        "c3p_poly_added_4096": 0.22675494391118306,
+        "c3p_poly_added_4608": 0.22701639723531622,
+        "c3p_poly_added_5120": 0.22721356049868388
+      }
+    },
+    "metadata": {
+      "description": "Ratio of unique tokens to total tokens (lexical diversity)",
+      "metric_range": "[0.0, 1.0]"
+    }
+  },
+  "avg_tokens_per_line": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {
+          "mean": 34.76529588766299,
+          "median": 33.0,
+          "std": 12.714166481751377,
+          "count": 997,
+          "total_lines": 997
+        }
+      },
+      "c3p_poly_added_0512": {
+        "global": {
+          "mean": 34.762286860581746,
+          "median": 33.0,
+          "std": 12.713834462749485,
+          "count": 997,
+          "total_lines": 997
+        }
+      },
+      "c3p_poly_added_1024": {
+        "global": {
+          "mean": 34.75727181544634,
+          "median": 33.0,
+          "std": 12.714410268067184,
+          "count": 997,
+          "total_lines": 997
+        }
+      },
+      "c3p_poly_added_1536": {
+        "global": {
+          "mean": 34.74924774322969,
+          "median": 33.0,
+          "std": 12.707626183732502,
+          "count": 997,
+          "total_lines": 997
+        }
+      },
+      "c3p_poly_added_2048": {
+        "global": {
+          "mean": 34.74423269809428,
+          "median": 33.0,
+          "std": 12.705355465729625,
+          "count": 997,
+          "total_lines": 997
+        }
+      },
+      "c3p_poly_added_2560": {
+        "global": {
+          "mean": 34.72918756268806,
+          "median": 33.0,
+          "std": 12.700582468021173,
+          "count": 997,
+          "total_lines": 997
+        }
+      },
+      "c3p_poly_added_3072": {
+        "global": {
+          "mean": 34.72016048144433,
+          "median": 33.0,
+          "std": 12.692526362024031,
+          "count": 997,
+          "total_lines": 997
+        }
+      },
+      "c3p_poly_added_3584": {
+        "global": {
+          "mean": 34.70611835506519,
+          "median": 33.0,
+          "std": 12.683671362651326,
+          "count": 997,
+          "total_lines": 997
+        }
+      },
+      "c3p_poly_added_4096": {
+        "global": {
+          "mean": 34.692076228686055,
+          "median": 33.0,
+          "std": 12.669333187364044,
+          "count": 997,
+          "total_lines": 997
+        }
+      },
+      "c3p_poly_added_4608": {
+        "global": {
+          "mean": 34.683049147442325,
+          "median": 33.0,
+          "std": 12.663923895692816,
+          "count": 997,
+          "total_lines": 997
+        }
+      },
+      "c3p_poly_added_5120": {
+        "global": {
+          "mean": 34.675025075225676,
+          "median": 33.0,
+          "std": 12.65666946594893,
+          "count": 997,
+          "total_lines": 997
+        }
+      }
+    },
+    "metadata": {
+      "description": "Average number of tokens per line of text",
+      "unit": "tokens/line"
+    }
+  },
+  "reconstruction_fidelity": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "per_domain": {
+          "ell_Grek": {
+            "exact_match_rate": 1.0,
+            "mean_cer": 0.0,
+            "unk_token_rate": 0.0,
+            "whitespace_fidelity": 1.0,
+            "count": 997,
+            "total_tokens": 34661
+          }
+        },
+        "global": {
+          "exact_match_rate": 1.0,
+          "mean_cer": 0.0,
+          "unk_token_rate": 0.0,
+          "whitespace_fidelity": 1.0,
+          "count": 997,
+          "total_tokens": 34661
+        }
+      },
+      "c3p_poly_added_0512": {
+        "per_domain": {
+          "ell_Grek": {
+            "exact_match_rate": 1.0,
+            "mean_cer": 0.0,
+            "unk_token_rate": 0.0,
+            "whitespace_fidelity": 1.0,
+            "count": 997,
+            "total_tokens": 34658
+          }
+        },
+        "global": {
+          "exact_match_rate": 1.0,
+          "mean_cer": 0.0,
+          "unk_token_rate": 0.0,
+          "whitespace_fidelity": 1.0,
+          "count": 997,
+          "total_tokens": 34658
+        }
+      },
+      "c3p_poly_added_1024": {
+        "per_domain": {
+          "ell_Grek": {
+            "exact_match_rate": 1.0,
+            "mean_cer": 0.0,
+            "unk_token_rate": 0.0,
+            "whitespace_fidelity": 1.0,
+            "count": 997,
+            "total_tokens": 34653
+          }
+        },
+        "global": {
+          "exact_match_rate": 1.0,
+          "mean_cer": 0.0,
+          "unk_token_rate": 0.0,
+          "whitespace_fidelity": 1.0,
+          "count": 997,
+          "total_tokens": 34653
+        }
+      },
+      "c3p_poly_added_1536": {
+        "per_domain": {
+          "ell_Grek": {
+            "exact_match_rate": 1.0,
+            "mean_cer": 0.0,
+            "unk_token_rate": 0.0,
+            "whitespace_fidelity": 1.0,
+            "count": 997,
+            "total_tokens": 34645
+          }
+        },
+        "global": {
+          "exact_match_rate": 1.0,
+          "mean_cer": 0.0,
+          "unk_token_rate": 0.0,
+          "whitespace_fidelity": 1.0,
+          "count": 997,
+          "total_tokens": 34645
+        }
+      },
+      "c3p_poly_added_2048": {
+        "per_domain": {
+          "ell_Grek": {
+            "exact_match_rate": 1.0,
+            "mean_cer": 0.0,
+            "unk_token_rate": 0.0,
+            "whitespace_fidelity": 1.0,
+            "count": 997,
+            "total_tokens": 34640
+          }
+        },
+        "global": {
+          "exact_match_rate": 1.0,
+          "mean_cer": 0.0,
+          "unk_token_rate": 0.0,
+          "whitespace_fidelity": 1.0,
+          "count": 997,
+          "total_tokens": 34640
+        }
+      },
+      "c3p_poly_added_2560": {
+        "per_domain": {
+          "ell_Grek": {
+            "exact_match_rate": 1.0,
+            "mean_cer": 0.0,
+            "unk_token_rate": 0.0,
+            "whitespace_fidelity": 1.0,
+            "count": 997,
+            "total_tokens": 34625
+          }
+        },
+        "global": {
+          "exact_match_rate": 1.0,
+          "mean_cer": 0.0,
+          "unk_token_rate": 0.0,
+          "whitespace_fidelity": 1.0,
+          "count": 997,
+          "total_tokens": 34625
+        }
+      },
+      "c3p_poly_added_3072": {
+        "per_domain": {
+          "ell_Grek": {
+            "exact_match_rate": 1.0,
+            "mean_cer": 0.0,
+            "unk_token_rate": 0.0,
+            "whitespace_fidelity": 1.0,
+            "count": 997,
+            "total_tokens": 34616
+          }
+        },
+        "global": {
+          "exact_match_rate": 1.0,
+          "mean_cer": 0.0,
+          "unk_token_rate": 0.0,
+          "whitespace_fidelity": 1.0,
+          "count": 997,
+          "total_tokens": 34616
+        }
+      },
+      "c3p_poly_added_3584": {
+        "per_domain": {
+          "ell_Grek": {
+            "exact_match_rate": 1.0,
+            "mean_cer": 0.0,
+            "unk_token_rate": 0.0,
+            "whitespace_fidelity": 1.0,
+            "count": 997,
+            "total_tokens": 34602
+          }
+        },
+        "global": {
+          "exact_match_rate": 1.0,
+          "mean_cer": 0.0,
+          "unk_token_rate": 0.0,
+          "whitespace_fidelity": 1.0,
+          "count": 997,
+          "total_tokens": 34602
+        }
+      },
+      "c3p_poly_added_4096": {
+        "per_domain": {
+          "ell_Grek": {
+            "exact_match_rate": 1.0,
+            "mean_cer": 0.0,
+            "unk_token_rate": 0.0,
+            "whitespace_fidelity": 1.0,
+            "count": 997,
+            "total_tokens": 34588
+          }
+        },
+        "global": {
+          "exact_match_rate": 1.0,
+          "mean_cer": 0.0,
+          "unk_token_rate": 0.0,
+          "whitespace_fidelity": 1.0,
+          "count": 997,
+          "total_tokens": 34588
+        }
+      },
+      "c3p_poly_added_4608": {
+        "per_domain": {
+          "ell_Grek": {
+            "exact_match_rate": 1.0,
+            "mean_cer": 0.0,
+            "unk_token_rate": 0.0,
+            "whitespace_fidelity": 1.0,
+            "count": 997,
+            "total_tokens": 34579
+          }
+        },
+        "global": {
+          "exact_match_rate": 1.0,
+          "mean_cer": 0.0,
+          "unk_token_rate": 0.0,
+          "whitespace_fidelity": 1.0,
+          "count": 997,
+          "total_tokens": 34579
+        }
+      },
+      "c3p_poly_added_5120": {
+        "per_domain": {
+          "ell_Grek": {
+            "exact_match_rate": 1.0,
+            "mean_cer": 0.0,
+            "unk_token_rate": 0.0,
+            "whitespace_fidelity": 1.0,
+            "count": 997,
+            "total_tokens": 34571
+          }
+        },
+        "global": {
+          "exact_match_rate": 1.0,
+          "mean_cer": 0.0,
+          "unk_token_rate": 0.0,
+          "whitespace_fidelity": 1.0,
+          "count": 997,
+          "total_tokens": 34571
+        }
+      }
+    }
+  },
+  "compression_rate": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {
+          "compression_rate": 0.7344277429964513,
+          "total_units": 25456,
+          "total_tokens": 34661
+        },
+        "per_language": {
+          "ell_Grek": 0.7344277429964513
+        }
+      },
+      "c3p_poly_added_0512": {
+        "global": {
+          "compression_rate": 0.7344913151364765,
+          "total_units": 25456,
+          "total_tokens": 34658
+        },
+        "per_language": {
+          "ell_Grek": 0.7344913151364765
+        }
+      },
+      "c3p_poly_added_1024": {
+        "global": {
+          "compression_rate": 0.7345972931636511,
+          "total_units": 25456,
+          "total_tokens": 34653
+        },
+        "per_language": {
+          "ell_Grek": 0.7345972931636511
+        }
+      },
+      "c3p_poly_added_1536": {
+        "global": {
+          "compression_rate": 0.7347669216337134,
+          "total_units": 25456,
+          "total_tokens": 34645
+        },
+        "per_language": {
+          "ell_Grek": 0.7347669216337134
+        }
+      },
+      "c3p_poly_added_2048": {
+        "global": {
+          "compression_rate": 0.7348729792147806,
+          "total_units": 25456,
+          "total_tokens": 34640
+        },
+        "per_language": {
+          "ell_Grek": 0.7348729792147806
+        }
+      },
+      "c3p_poly_added_2560": {
+        "global": {
+          "compression_rate": 0.7351913357400722,
+          "total_units": 25456,
+          "total_tokens": 34625
+        },
+        "per_language": {
+          "ell_Grek": 0.7351913357400722
+        }
+      },
+      "c3p_poly_added_3072": {
+        "global": {
+          "compression_rate": 0.7353824820892073,
+          "total_units": 25456,
+          "total_tokens": 34616
+        },
+        "per_language": {
+          "ell_Grek": 0.7353824820892073
+        }
+      },
+      "c3p_poly_added_3584": {
+        "global": {
+          "compression_rate": 0.7356800184960407,
+          "total_units": 25456,
+          "total_tokens": 34602
+        },
+        "per_language": {
+          "ell_Grek": 0.7356800184960407
+        }
+      },
+      "c3p_poly_added_4096": {
+        "global": {
+          "compression_rate": 0.7359777957673181,
+          "total_units": 25456,
+          "total_tokens": 34588
+        },
+        "per_language": {
+          "ell_Grek": 0.7359777957673181
+        }
+      },
+      "c3p_poly_added_4608": {
+        "global": {
+          "compression_rate": 0.736169351340409,
+          "total_units": 25456,
+          "total_tokens": 34579
+        },
+        "per_language": {
+          "ell_Grek": 0.736169351340409
+        }
+      },
+      "c3p_poly_added_5120": {
+        "global": {
+          "compression_rate": 0.7363397066905788,
+          "total_units": 25456,
+          "total_tokens": 34571
+        },
+        "per_language": {
+          "ell_Grek": 0.7363397066905788
+        }
+      }
+    },
+    "metadata": {
+      "normalization_method": "words"
+    }
+  },
+  "renyi_efficiency": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {
+          "renyi_1.0": 10.74807763487695,
+          "renyi_2.0": 7.896934499310936,
+          "renyi_2.5": 7.229254064087841,
+          "renyi_3.0": 6.809113781415894
+        },
+        "per_language": {
+          "ell_Grek": {
+            "renyi_1.0": 10.74807763487695,
+            "renyi_2.0": 7.896934499310936,
+            "renyi_2.5": 7.229254064087841,
+            "renyi_3.0": 6.809113781415894
+          }
+        }
+      },
+      "c3p_poly_added_0512": {
+        "global": {
+          "renyi_1.0": 10.748476642629253,
+          "renyi_2.0": 7.896750869793797,
+          "renyi_2.5": 7.229057714641144,
+          "renyi_3.0": 6.808928560289122
+        },
+        "per_language": {
+          "ell_Grek": {
+            "renyi_1.0": 10.748476642629253,
+            "renyi_2.0": 7.896750869793797,
+            "renyi_2.5": 7.229057714641144,
+            "renyi_3.0": 6.808928560289122
+          }
+        }
+      },
+      "c3p_poly_added_1024": {
+        "global": {
+          "renyi_1.0": 10.749044987620422,
+          "renyi_2.0": 7.896441916695178,
+          "renyi_2.5": 7.228730756762848,
+          "renyi_3.0": 6.808620068105139
+        },
+        "per_language": {
+          "ell_Grek": {
+            "renyi_1.0": 10.749044987620422,
+            "renyi_2.0": 7.896441916695178,
+            "renyi_2.5": 7.228730756762848,
+            "renyi_3.0": 6.808620068105139
+          }
+        }
+      },
+      "c3p_poly_added_1536": {
+        "global": {
+          "renyi_1.0": 10.749298595792585,
+          "renyi_2.0": 7.895877057086583,
+          "renyi_2.5": 7.228192833374877,
+          "renyi_3.0": 6.808123467370634
+        },
+        "per_language": {
+          "ell_Grek": {
+            "renyi_1.0": 10.749298595792585,
+            "renyi_2.0": 7.895877057086583,
+            "renyi_2.5": 7.228192833374877,
+            "renyi_3.0": 6.808123467370634
+          }
+        }
+      },
+      "c3p_poly_added_2048": {
+        "global": {
+          "renyi_1.0": 10.749540931752929,
+          "renyi_2.0": 7.895522156002789,
+          "renyi_2.5": 7.227855559349984,
+          "renyi_3.0": 6.807812717196495
+        },
+        "per_language": {
+          "ell_Grek": {
+            "renyi_1.0": 10.749540931752929,
+            "renyi_2.0": 7.895522156002789,
+            "renyi_2.5": 7.227855559349984,
+            "renyi_3.0": 6.807812717196495
+          }
+        }
+      },
+      "c3p_poly_added_2560": {
+        "global": {
+          "renyi_1.0": 10.750871269071665,
+          "renyi_2.0": 7.894950821166486,
+          "renyi_2.5": 7.227113358637228,
+          "renyi_3.0": 6.80702310625264
+        },
+        "per_language": {
+          "ell_Grek": {
+            "renyi_1.0": 10.750871269071665,
+            "renyi_2.0": 7.894950821166486,
+            "renyi_2.5": 7.227113358637228,
+            "renyi_3.0": 6.80702310625264
+          }
+        }
+      },
+      "c3p_poly_added_3072": {
+        "global": {
+          "renyi_1.0": 10.751432160371364,
+          "renyi_2.0": 7.894349393186084,
+          "renyi_2.5": 7.226515904171421,
+          "renyi_3.0": 6.8064658987673345
+        },
+        "per_language": {
+          "ell_Grek": {
+            "renyi_1.0": 10.751432160371364,
+            "renyi_2.0": 7.894349393186084,
+            "renyi_2.5": 7.226515904171421,
+            "renyi_3.0": 6.8064658987673345
+          }
+        }
+      },
+      "c3p_poly_added_3584": {
+        "global": {
+          "renyi_1.0": 10.751751180936642,
+          "renyi_2.0": 7.893346059588682,
+          "renyi_2.5": 7.22556910910381,
+          "renyi_3.0": 6.8055946154269655
+        },
+        "per_language": {
+          "ell_Grek": {
+            "renyi_1.0": 10.751751180936642,
+            "renyi_2.0": 7.893346059588682,
+            "renyi_2.5": 7.22556910910381,
+            "renyi_3.0": 6.8055946154269655
+          }
+        }
+      },
+      "c3p_poly_added_4096": {
+        "global": {
+          "renyi_1.0": 10.752898530204845,
+          "renyi_2.0": 7.892385824005028,
+          "renyi_2.5": 7.224629136791862,
+          "renyi_3.0": 6.804724191015195
+        },
+        "per_language": {
+          "ell_Grek": {
+            "renyi_1.0": 10.752898530204845,
+            "renyi_2.0": 7.892385824005028,
+            "renyi_2.5": 7.224629136791862,
+            "renyi_3.0": 6.804724191015195
+          }
+        }
+      },
+      "c3p_poly_added_4608": {
+        "global": {
+          "renyi_1.0": 10.75412034947899,
+          "renyi_2.0": 7.891846118215966,
+          "renyi_2.5": 7.224041526531129,
+          "renyi_3.0": 6.804167826329843
+        },
+        "per_language": {
+          "ell_Grek": {
+            "renyi_1.0": 10.75412034947899,
+            "renyi_2.0": 7.891846118215966,
+            "renyi_2.5": 7.224041526531129,
+            "renyi_3.0": 6.804167826329843
+          }
+        }
+      },
+      "c3p_poly_added_5120": {
+        "global": {
+          "renyi_1.0": 10.754733973173664,
+          "renyi_2.0": 7.891314907806028,
+          "renyi_2.5": 7.223509102396975,
+          "renyi_3.0": 6.803671299531181
+        },
+        "per_language": {
+          "ell_Grek": {
+            "renyi_1.0": 10.754733973173664,
+            "renyi_2.0": 7.891314907806028,
+            "renyi_2.5": 7.223509102396975,
+            "renyi_3.0": 6.803671299531181
+          }
+        }
+      }
+    },
+    "per_language": {
+      "renyi_1.0": {
+        "ell_Grek": {
+          "c3p_poly_added_0000": 10.74807763487695,
+          "c3p_poly_added_0512": 10.748476642629253,
+          "c3p_poly_added_1024": 10.749044987620422,
+          "c3p_poly_added_1536": 10.749298595792585,
+          "c3p_poly_added_2048": 10.749540931752929,
+          "c3p_poly_added_2560": 10.750871269071665,
+          "c3p_poly_added_3072": 10.751432160371364,
+          "c3p_poly_added_3584": 10.751751180936642,
+          "c3p_poly_added_4096": 10.752898530204845,
+          "c3p_poly_added_4608": 10.75412034947899,
+          "c3p_poly_added_5120": 10.754733973173664
+        }
+      },
+      "renyi_2.0": {
+        "ell_Grek": {
+          "c3p_poly_added_0000": 7.896934499310936,
+          "c3p_poly_added_0512": 7.896750869793797,
+          "c3p_poly_added_1024": 7.896441916695178,
+          "c3p_poly_added_1536": 7.895877057086583,
+          "c3p_poly_added_2048": 7.895522156002789,
+          "c3p_poly_added_2560": 7.894950821166486,
+          "c3p_poly_added_3072": 7.894349393186084,
+          "c3p_poly_added_3584": 7.893346059588682,
+          "c3p_poly_added_4096": 7.892385824005028,
+          "c3p_poly_added_4608": 7.891846118215966,
+          "c3p_poly_added_5120": 7.891314907806028
+        }
+      },
+      "renyi_2.5": {
+        "ell_Grek": {
+          "c3p_poly_added_0000": 7.229254064087841,
+          "c3p_poly_added_0512": 7.229057714641144,
+          "c3p_poly_added_1024": 7.228730756762848,
+          "c3p_poly_added_1536": 7.228192833374877,
+          "c3p_poly_added_2048": 7.227855559349984,
+          "c3p_poly_added_2560": 7.227113358637228,
+          "c3p_poly_added_3072": 7.226515904171421,
+          "c3p_poly_added_3584": 7.22556910910381,
+          "c3p_poly_added_4096": 7.224629136791862,
+          "c3p_poly_added_4608": 7.224041526531129,
+          "c3p_poly_added_5120": 7.223509102396975
+        }
+      },
+      "renyi_3.0": {
+        "ell_Grek": {
+          "c3p_poly_added_0000": 6.809113781415894,
+          "c3p_poly_added_0512": 6.808928560289122,
+          "c3p_poly_added_1024": 6.808620068105139,
+          "c3p_poly_added_1536": 6.808123467370634,
+          "c3p_poly_added_2048": 6.807812717196495,
+          "c3p_poly_added_2560": 6.80702310625264,
+          "c3p_poly_added_3072": 6.8064658987673345,
+          "c3p_poly_added_3584": 6.8055946154269655,
+          "c3p_poly_added_4096": 6.804724191015195,
+          "c3p_poly_added_4608": 6.804167826329843,
+          "c3p_poly_added_5120": 6.803671299531181
+        }
+      }
+    }
+  },
+  "unigram_distribution_metrics": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {
+          "unigram_entropy": 10.74807763487695,
+          "avg_token_rank": 1299.2756989123222
+        },
+        "per_language": {
+          "ell_Grek": {
+            "unigram_entropy": 10.74807763487695,
+            "avg_token_rank": 1299.2756989123222,
+            "total_tokens": 34661,
+            "unique_tokens": 7804
+          }
+        }
+      },
+      "c3p_poly_added_0512": {
+        "global": {
+          "unigram_entropy": 10.748476642629253,
+          "avg_token_rank": 1299.9194413988112
+        },
+        "per_language": {
+          "ell_Grek": {
+            "unigram_entropy": 10.748476642629253,
+            "avg_token_rank": 1299.9194413988112,
+            "total_tokens": 34658,
+            "unique_tokens": 7807
+          }
+        }
+      },
+      "c3p_poly_added_1024": {
+        "global": {
+          "unigram_entropy": 10.749044987620422,
+          "avg_token_rank": 1300.8781923642975
+        },
+        "per_language": {
+          "ell_Grek": {
+            "unigram_entropy": 10.749044987620422,
+            "avg_token_rank": 1300.8781923642975,
+            "total_tokens": 34653,
+            "unique_tokens": 7811
+          }
+        }
+      },
+      "c3p_poly_added_1536": {
+        "global": {
+          "unigram_entropy": 10.749298595792585,
+          "avg_token_rank": 1301.6811083850484
+        },
+        "per_language": {
+          "ell_Grek": {
+            "unigram_entropy": 10.749298595792585,
+            "avg_token_rank": 1301.6811083850484,
+            "total_tokens": 34645,
+            "unique_tokens": 7814
+          }
+        }
+      },
+      "c3p_poly_added_2048": {
+        "global": {
+          "unigram_entropy": 10.749540931752929,
+          "avg_token_rank": 1302.3505773672055
+        },
+        "per_language": {
+          "ell_Grek": {
+            "unigram_entropy": 10.749540931752929,
+            "avg_token_rank": 1302.3505773672055,
+            "total_tokens": 34640,
+            "unique_tokens": 7817
+          }
+        }
+      },
+      "c3p_poly_added_2560": {
+        "global": {
+          "unigram_entropy": 10.750871269071665,
+          "avg_token_rank": 1304.390036101083
+        },
+        "per_language": {
+          "ell_Grek": {
+            "unigram_entropy": 10.750871269071665,
+            "avg_token_rank": 1304.390036101083,
+            "total_tokens": 34625,
+            "unique_tokens": 7824
+          }
+        }
+      },
+      "c3p_poly_added_3072": {
+        "global": {
+          "unigram_entropy": 10.751432160371364,
+          "avg_token_rank": 1305.5797030275016
+        },
+        "per_language": {
+          "ell_Grek": {
+            "unigram_entropy": 10.751432160371364,
+            "avg_token_rank": 1305.5797030275016,
+            "total_tokens": 34616,
+            "unique_tokens": 7828
+          }
+        }
+      },
+      "c3p_poly_added_3584": {
+        "global": {
+          "unigram_entropy": 10.751751180936642,
+          "avg_token_rank": 1306.7422114328651
+        },
+        "per_language": {
+          "ell_Grek": {
+            "unigram_entropy": 10.751751180936642,
+            "avg_token_rank": 1306.7422114328651,
+            "total_tokens": 34602,
+            "unique_tokens": 7832
+          }
+        }
+      },
+      "c3p_poly_added_4096": {
+        "global": {
+          "unigram_entropy": 10.752898530204845,
+          "avg_token_rank": 1309.1924945067653
+        },
+        "per_language": {
+          "ell_Grek": {
+            "unigram_entropy": 10.752898530204845,
+            "avg_token_rank": 1309.1924945067653,
+            "total_tokens": 34588,
+            "unique_tokens": 7843
+          }
+        }
+      },
+      "c3p_poly_added_4608": {
+        "global": {
+          "unigram_entropy": 10.75412034947899,
+          "avg_token_rank": 1311.1316405911102
+        },
+        "per_language": {
+          "ell_Grek": {
+            "unigram_entropy": 10.75412034947899,
+            "avg_token_rank": 1311.1316405911102,
+            "total_tokens": 34579,
+            "unique_tokens": 7850
+          }
+        }
+      },
+      "c3p_poly_added_5120": {
+        "global": {
+          "unigram_entropy": 10.754733973173664,
+          "avg_token_rank": 1312.3602152092794
+        },
+        "per_language": {
+          "ell_Grek": {
+            "unigram_entropy": 10.754733973173664,
+            "avg_token_rank": 1312.3602152092794,
+            "total_tokens": 34571,
+            "unique_tokens": 7855
+          }
+        }
+      }
+    },
+    "per_language": {
+      "unigram_entropy": {
+        "ell_Grek": {
+          "c3p_poly_added_0000": 10.74807763487695,
+          "c3p_poly_added_0512": 10.748476642629253,
+          "c3p_poly_added_1024": 10.749044987620422,
+          "c3p_poly_added_1536": 10.749298595792585,
+          "c3p_poly_added_2048": 10.749540931752929,
+          "c3p_poly_added_2560": 10.750871269071665,
+          "c3p_poly_added_3072": 10.751432160371364,
+          "c3p_poly_added_3584": 10.751751180936642,
+          "c3p_poly_added_4096": 10.752898530204845,
+          "c3p_poly_added_4608": 10.75412034947899,
+          "c3p_poly_added_5120": 10.754733973173664
+        }
+      },
+      "avg_token_rank": {
+        "ell_Grek": {
+          "c3p_poly_added_0000": 1299.2756989123222,
+          "c3p_poly_added_0512": 1299.9194413988112,
+          "c3p_poly_added_1024": 1300.8781923642975,
+          "c3p_poly_added_1536": 1301.6811083850484,
+          "c3p_poly_added_2048": 1302.3505773672055,
+          "c3p_poly_added_2560": 1304.390036101083,
+          "c3p_poly_added_3072": 1305.5797030275016,
+          "c3p_poly_added_3584": 1306.7422114328651,
+          "c3p_poly_added_4096": 1309.1924945067653,
+          "c3p_poly_added_4608": 1311.1316405911102,
+          "c3p_poly_added_5120": 1312.3602152092794
+        }
+      }
+    }
+  },
+  "bigram_entropy": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {
+          "bigram_entropy": 0.9219567524251284,
+          "total_bigrams": 33664,
+          "types_evaluated": 2370,
+          "types_excluded": 5431
+        },
+        "per_language": {
+          "ell_Grek": {
+            "bigram_entropy": 0.9219567524251284,
+            "total_bigrams": 33664,
+            "types_evaluated": 2370,
+            "types_excluded": 5431
+          }
+        }
+      },
+      "c3p_poly_added_0512": {
+        "global": {
+          "bigram_entropy": 0.9219406879528493,
+          "total_bigrams": 33661,
+          "types_evaluated": 2370,
+          "types_excluded": 5434
+        },
+        "per_language": {
+          "ell_Grek": {
+            "bigram_entropy": 0.9219406879528493,
+            "total_bigrams": 33661,
+            "types_evaluated": 2370,
+            "types_excluded": 5434
+          }
+        }
+      },
+      "c3p_poly_added_1024": {
+        "global": {
+          "bigram_entropy": 0.9219117406769706,
+          "total_bigrams": 33656,
+          "types_evaluated": 2369,
+          "types_excluded": 5439
+        },
+        "per_language": {
+          "ell_Grek": {
+            "bigram_entropy": 0.9219117406769706,
+            "total_bigrams": 33656,
+            "types_evaluated": 2369,
+            "types_excluded": 5439
+          }
+        }
+      },
+      "c3p_poly_added_1536": {
+        "global": {
+          "bigram_entropy": 0.9219020116112313,
+          "total_bigrams": 33648,
+          "types_evaluated": 2367,
+          "types_excluded": 5444
+        },
+        "per_language": {
+          "ell_Grek": {
+            "bigram_entropy": 0.9219020116112313,
+            "total_bigrams": 33648,
+            "types_evaluated": 2367,
+            "types_excluded": 5444
+          }
+        }
+      },
+      "c3p_poly_added_2048": {
+        "global": {
+          "bigram_entropy": 0.9218669622701403,
+          "total_bigrams": 33643,
+          "types_evaluated": 2366,
+          "types_excluded": 5448
+        },
+        "per_language": {
+          "ell_Grek": {
+            "bigram_entropy": 0.9218669622701403,
+            "total_bigrams": 33643,
+            "types_evaluated": 2366,
+            "types_excluded": 5448
+          }
+        }
+      },
+      "c3p_poly_added_2560": {
+        "global": {
+          "bigram_entropy": 0.9219303050075103,
+          "total_bigrams": 33628,
+          "types_evaluated": 2365,
+          "types_excluded": 5456
+        },
+        "per_language": {
+          "ell_Grek": {
+            "bigram_entropy": 0.9219303050075103,
+            "total_bigrams": 33628,
+            "types_evaluated": 2365,
+            "types_excluded": 5456
+          }
+        }
+      },
+      "c3p_poly_added_3072": {
+        "global": {
+          "bigram_entropy": 0.9219519551416041,
+          "total_bigrams": 33619,
+          "types_evaluated": 2365,
+          "types_excluded": 5460
+        },
+        "per_language": {
+          "ell_Grek": {
+            "bigram_entropy": 0.9219519551416041,
+            "total_bigrams": 33619,
+            "types_evaluated": 2365,
+            "types_excluded": 5460
+          }
+        }
+      },
+      "c3p_poly_added_3584": {
+        "global": {
+          "bigram_entropy": 0.9219251471074414,
+          "total_bigrams": 33605,
+          "types_evaluated": 2364,
+          "types_excluded": 5465
+        },
+        "per_language": {
+          "ell_Grek": {
+            "bigram_entropy": 0.9219251471074414,
+            "total_bigrams": 33605,
+            "types_evaluated": 2364,
+            "types_excluded": 5465
+          }
+        }
+      },
+      "c3p_poly_added_4096": {
+        "global": {
+          "bigram_entropy": 0.9218485841099678,
+          "total_bigrams": 33591,
+          "types_evaluated": 2361,
+          "types_excluded": 5479
+        },
+        "per_language": {
+          "ell_Grek": {
+            "bigram_entropy": 0.9218485841099678,
+            "total_bigrams": 33591,
+            "types_evaluated": 2361,
+            "types_excluded": 5479
+          }
+        }
+      },
+      "c3p_poly_added_4608": {
+        "global": {
+          "bigram_entropy": 0.921795057894069,
+          "total_bigrams": 33582,
+          "types_evaluated": 2360,
+          "types_excluded": 5487
+        },
+        "per_language": {
+          "ell_Grek": {
+            "bigram_entropy": 0.921795057894069,
+            "total_bigrams": 33582,
+            "types_evaluated": 2360,
+            "types_excluded": 5487
+          }
+        }
+      },
+      "c3p_poly_added_5120": {
+        "global": {
+          "bigram_entropy": 0.9217485318407519,
+          "total_bigrams": 33574,
+          "types_evaluated": 2359,
+          "types_excluded": 5493
+        },
+        "per_language": {
+          "ell_Grek": {
+            "bigram_entropy": 0.9217485318407519,
+            "total_bigrams": 33574,
+            "types_evaluated": 2359,
+            "types_excluded": 5493
+          }
+        }
+      }
+    },
+    "per_language": {
+      "ell_Grek": {
+        "c3p_poly_added_0000": 0.9219567524251284,
+        "c3p_poly_added_0512": 0.9219406879528493,
+        "c3p_poly_added_1024": 0.9219117406769706,
+        "c3p_poly_added_1536": 0.9219020116112313,
+        "c3p_poly_added_2048": 0.9218669622701403,
+        "c3p_poly_added_2560": 0.9219303050075103,
+        "c3p_poly_added_3072": 0.9219519551416041,
+        "c3p_poly_added_3584": 0.9219251471074414,
+        "c3p_poly_added_4096": 0.9218485841099678,
+        "c3p_poly_added_4608": 0.921795057894069,
+        "c3p_poly_added_5120": 0.9217485318407519
+      }
+    },
+    "metadata": {
+      "description": "Bigram Entropy \u2014 frequency-weighted normalized Shannon entropy of right-accessor distributions",
+      "reference": "Poelman et al. 2025, EMNLP (Shannon efficiency \u03b7)",
+      "metric_range": "[0.0, 1.0]",
+      "interpretation": "Higher = more uniform successor distributions",
+      "min_bigram_occurrences": 3
+    }
+  },
+  "tokenizer_fairness_gini": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {
+          "gini_coefficient": 0.0,
+          "mean_cost": 0.0,
+          "std_cost": null,
+          "cost_ratio": null,
+          "num_languages": null,
+          "warning": "Insufficient language data for meaningful TFG calculation"
+        },
+        "per_language": {
+          "ell_Grek": 1.3616043368950346
+        }
+      },
+      "c3p_poly_added_0512": {
+        "global": {
+          "gini_coefficient": 0.0,
+          "mean_cost": 0.0,
+          "std_cost": null,
+          "cost_ratio": null,
+          "num_languages": null,
+          "warning": "Insufficient language data for meaningful TFG calculation"
+        },
+        "per_language": {
+          "ell_Grek": 1.3614864864864864
+        }
+      },
+      "c3p_poly_added_1024": {
+        "global": {
+          "gini_coefficient": 0.0,
+          "mean_cost": 0.0,
+          "std_cost": null,
+          "cost_ratio": null,
+          "num_languages": null,
+          "warning": "Insufficient language data for meaningful TFG calculation"
+        },
+        "per_language": {
+          "ell_Grek": 1.3612900691389063
+        }
+      },
+      "c3p_poly_added_1536": {
+        "global": {
+          "gini_coefficient": 0.0,
+          "mean_cost": 0.0,
+          "std_cost": null,
+          "cost_ratio": null,
+          "num_languages": null,
+          "warning": "Insufficient language data for meaningful TFG calculation"
+        },
+        "per_language": {
+          "ell_Grek": 1.3609758013827782
+        }
+      },
+      "c3p_poly_added_2048": {
+        "global": {
+          "gini_coefficient": 0.0,
+          "mean_cost": 0.0,
+          "std_cost": null,
+          "cost_ratio": null,
+          "num_languages": null,
+          "warning": "Insufficient language data for meaningful TFG calculation"
+        },
+        "per_language": {
+          "ell_Grek": 1.360779384035198
+        }
+      },
+      "c3p_poly_added_2560": {
+        "global": {
+          "gini_coefficient": 0.0,
+          "mean_cost": 0.0,
+          "std_cost": null,
+          "cost_ratio": null,
+          "num_languages": null,
+          "warning": "Insufficient language data for meaningful TFG calculation"
+        },
+        "per_language": {
+          "ell_Grek": 1.3601901319924576
+        }
+      },
+      "c3p_poly_added_3072": {
+        "global": {
+          "gini_coefficient": 0.0,
+          "mean_cost": 0.0,
+          "std_cost": null,
+          "cost_ratio": null,
+          "num_languages": null,
+          "warning": "Insufficient language data for meaningful TFG calculation"
+        },
+        "per_language": {
+          "ell_Grek": 1.3598365807668134
+        }
+      },
+      "c3p_poly_added_3584": {
+        "global": {
+          "gini_coefficient": 0.0,
+          "mean_cost": 0.0,
+          "std_cost": null,
+          "cost_ratio": null,
+          "num_languages": null,
+          "warning": "Insufficient language data for meaningful TFG calculation"
+        },
+        "per_language": {
+          "ell_Grek": 1.359286612193589
+        }
+      },
+      "c3p_poly_added_4096": {
+        "global": {
+          "gini_coefficient": 0.0,
+          "mean_cost": 0.0,
+          "std_cost": null,
+          "cost_ratio": null,
+          "num_languages": null,
+          "warning": "Insufficient language data for meaningful TFG calculation"
+        },
+        "per_language": {
+          "ell_Grek": 1.3587366436203645
+        }
+      },
+      "c3p_poly_added_4608": {
+        "global": {
+          "gini_coefficient": 0.0,
+          "mean_cost": 0.0,
+          "std_cost": null,
+          "cost_ratio": null,
+          "num_languages": null,
+          "warning": "Insufficient language data for meaningful TFG calculation"
+        },
+        "per_language": {
+          "ell_Grek": 1.3583830923947202
+        }
+      },
+      "c3p_poly_added_5120": {
+        "global": {
+          "gini_coefficient": 0.0,
+          "mean_cost": 0.0,
+          "std_cost": null,
+          "cost_ratio": null,
+          "num_languages": null,
+          "warning": "Insufficient language data for meaningful TFG calculation"
+        },
+        "per_language": {
+          "ell_Grek": 1.3580688246385921
+        }
+      }
+    },
+    "metadata": {
+      "description": "Tokenizer Fairness Gini coefficient measures equitable treatment across languages",
+      "formula": "TFG = \u03a3\u1d62 \u03a3\u2c7c |c_i - c_j| / (2 * n\u00b2 * \u03bc)",
+      "interpretation": "Lower values indicate more equitable treatment (0 = perfect equality)",
+      "normalization_method": "words"
+    }
+  },
+  "lorenz_curve_data": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "warning": "Insufficient data for Lorenz curve"
+      },
+      "c3p_poly_added_0512": {
+        "warning": "Insufficient data for Lorenz curve"
+      },
+      "c3p_poly_added_1024": {
+        "warning": "Insufficient data for Lorenz curve"
+      },
+      "c3p_poly_added_1536": {
+        "warning": "Insufficient data for Lorenz curve"
+      },
+      "c3p_poly_added_2048": {
+        "warning": "Insufficient data for Lorenz curve"
+      },
+      "c3p_poly_added_2560": {
+        "warning": "Insufficient data for Lorenz curve"
+      },
+      "c3p_poly_added_3072": {
+        "warning": "Insufficient data for Lorenz curve"
+      },
+      "c3p_poly_added_3584": {
+        "warning": "Insufficient data for Lorenz curve"
+      },
+      "c3p_poly_added_4096": {
+        "warning": "Insufficient data for Lorenz curve"
+      },
+      "c3p_poly_added_4608": {
+        "warning": "Insufficient data for Lorenz curve"
+      },
+      "c3p_poly_added_5120": {
+        "warning": "Insufficient data for Lorenz curve"
+      }
+    },
+    "metadata": {
+      "description": "Lorenz curve data for visualizing tokenizer fairness",
+      "x_axis": "Cumulative proportion of languages (sorted by efficiency)",
+      "y_axis": "Cumulative proportion of total token cost"
+    }
+  },
+  "three_digit_boundary_alignment": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_f1": 0.0,
+            "mean_precision": 0.0,
+            "mean_recall": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "mean_precision": 0.0,
+              "mean_recall": 1.0,
+              "mean_uniform_chunk": 1.0,
+              "single_token_frac": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_0512": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_f1": 0.0,
+            "mean_precision": 0.0,
+            "mean_recall": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "mean_precision": 0.0,
+              "mean_recall": 1.0,
+              "mean_uniform_chunk": 1.0,
+              "single_token_frac": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_1024": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_f1": 0.0,
+            "mean_precision": 0.0,
+            "mean_recall": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "mean_precision": 0.0,
+              "mean_recall": 1.0,
+              "mean_uniform_chunk": 1.0,
+              "single_token_frac": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_1536": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_f1": 0.0,
+            "mean_precision": 0.0,
+            "mean_recall": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "mean_precision": 0.0,
+              "mean_recall": 1.0,
+              "mean_uniform_chunk": 1.0,
+              "single_token_frac": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_2048": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_f1": 0.0,
+            "mean_precision": 0.0,
+            "mean_recall": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "mean_precision": 0.0,
+              "mean_recall": 1.0,
+              "mean_uniform_chunk": 1.0,
+              "single_token_frac": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_2560": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_f1": 0.0,
+            "mean_precision": 0.0,
+            "mean_recall": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "mean_precision": 0.0,
+              "mean_recall": 1.0,
+              "mean_uniform_chunk": 1.0,
+              "single_token_frac": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_3072": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_f1": 0.0,
+            "mean_precision": 0.0,
+            "mean_recall": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "mean_precision": 0.0,
+              "mean_recall": 1.0,
+              "mean_uniform_chunk": 1.0,
+              "single_token_frac": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_3584": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_f1": 0.0,
+            "mean_precision": 0.0,
+            "mean_recall": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "mean_precision": 0.0,
+              "mean_recall": 1.0,
+              "mean_uniform_chunk": 1.0,
+              "single_token_frac": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_4096": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_f1": 0.0,
+            "mean_precision": 0.0,
+            "mean_recall": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "mean_precision": 0.0,
+              "mean_recall": 1.0,
+              "mean_uniform_chunk": 1.0,
+              "single_token_frac": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_4608": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_f1": 0.0,
+            "mean_precision": 0.0,
+            "mean_recall": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "mean_precision": 0.0,
+              "mean_recall": 1.0,
+              "mean_uniform_chunk": 1.0,
+              "single_token_frac": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_5120": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_f1": 0.0,
+            "mean_precision": 0.0,
+            "mean_recall": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "mean_precision": 0.0,
+              "mean_recall": 1.0,
+              "mean_uniform_chunk": 1.0,
+              "single_token_frac": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "mean_f1": 0.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      }
+    }
+  },
+  "digit_split_variability": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "per_language": {
+          "ell_Grek": {
+            "entropy": 0.0,
+            "num_patterns": 1,
+            "dominant_pattern": [
+              1,
+              2
+            ],
+            "dominant_pattern_freq": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_0512": {
+        "per_language": {
+          "ell_Grek": {
+            "entropy": 0.0,
+            "num_patterns": 1,
+            "dominant_pattern": [
+              1,
+              2
+            ],
+            "dominant_pattern_freq": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_1024": {
+        "per_language": {
+          "ell_Grek": {
+            "entropy": 0.0,
+            "num_patterns": 1,
+            "dominant_pattern": [
+              1,
+              2
+            ],
+            "dominant_pattern_freq": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_1536": {
+        "per_language": {
+          "ell_Grek": {
+            "entropy": 0.0,
+            "num_patterns": 1,
+            "dominant_pattern": [
+              1,
+              2
+            ],
+            "dominant_pattern_freq": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_2048": {
+        "per_language": {
+          "ell_Grek": {
+            "entropy": 0.0,
+            "num_patterns": 1,
+            "dominant_pattern": [
+              1,
+              2
+            ],
+            "dominant_pattern_freq": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_2560": {
+        "per_language": {
+          "ell_Grek": {
+            "entropy": 0.0,
+            "num_patterns": 1,
+            "dominant_pattern": [
+              1,
+              2
+            ],
+            "dominant_pattern_freq": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_3072": {
+        "per_language": {
+          "ell_Grek": {
+            "entropy": 0.0,
+            "num_patterns": 1,
+            "dominant_pattern": [
+              1,
+              2
+            ],
+            "dominant_pattern_freq": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_3584": {
+        "per_language": {
+          "ell_Grek": {
+            "entropy": 0.0,
+            "num_patterns": 1,
+            "dominant_pattern": [
+              1,
+              2
+            ],
+            "dominant_pattern_freq": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_4096": {
+        "per_language": {
+          "ell_Grek": {
+            "entropy": 0.0,
+            "num_patterns": 1,
+            "dominant_pattern": [
+              1,
+              2
+            ],
+            "dominant_pattern_freq": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_4608": {
+        "per_language": {
+          "ell_Grek": {
+            "entropy": 0.0,
+            "num_patterns": 1,
+            "dominant_pattern": [
+              1,
+              2
+            ],
+            "dominant_pattern_freq": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      },
+      "c3p_poly_added_5120": {
+        "per_language": {
+          "ell_Grek": {
+            "entropy": 0.0,
+            "num_patterns": 1,
+            "dominant_pattern": [
+              1,
+              2
+            ],
+            "dominant_pattern_freq": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          }
+        },
+        "by_bucket": {
+          "short": {
+            "ell_Grek": {
+              "entropy": 0.0,
+              "num_patterns": 1,
+              "dominant_pattern": [
+                1,
+                2
+              ],
+              "dominant_pattern_freq": 1.0,
+              "count": 1
+            }
+          },
+          "long": {}
+        }
+      }
+    }
+  },
+  "numeric_magnitude_consistency": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_fertility": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "scaling": {
+          "per_bucket": {
+            "3": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          },
+          "spearman_rho": null,
+          "spearman_p": null,
+          "cv_of_mean_fertility": 0.0,
+          "linear_fit": null
+        }
+      },
+      "c3p_poly_added_0512": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_fertility": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "scaling": {
+          "per_bucket": {
+            "3": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          },
+          "spearman_rho": null,
+          "spearman_p": null,
+          "cv_of_mean_fertility": 0.0,
+          "linear_fit": null
+        }
+      },
+      "c3p_poly_added_1024": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_fertility": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "scaling": {
+          "per_bucket": {
+            "3": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          },
+          "spearman_rho": null,
+          "spearman_p": null,
+          "cv_of_mean_fertility": 0.0,
+          "linear_fit": null
+        }
+      },
+      "c3p_poly_added_1536": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_fertility": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "scaling": {
+          "per_bucket": {
+            "3": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          },
+          "spearman_rho": null,
+          "spearman_p": null,
+          "cv_of_mean_fertility": 0.0,
+          "linear_fit": null
+        }
+      },
+      "c3p_poly_added_2048": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_fertility": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "scaling": {
+          "per_bucket": {
+            "3": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          },
+          "spearman_rho": null,
+          "spearman_p": null,
+          "cv_of_mean_fertility": 0.0,
+          "linear_fit": null
+        }
+      },
+      "c3p_poly_added_2560": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_fertility": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "scaling": {
+          "per_bucket": {
+            "3": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          },
+          "spearman_rho": null,
+          "spearman_p": null,
+          "cv_of_mean_fertility": 0.0,
+          "linear_fit": null
+        }
+      },
+      "c3p_poly_added_3072": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_fertility": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "scaling": {
+          "per_bucket": {
+            "3": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          },
+          "spearman_rho": null,
+          "spearman_p": null,
+          "cv_of_mean_fertility": 0.0,
+          "linear_fit": null
+        }
+      },
+      "c3p_poly_added_3584": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_fertility": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "scaling": {
+          "per_bucket": {
+            "3": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          },
+          "spearman_rho": null,
+          "spearman_p": null,
+          "cv_of_mean_fertility": 0.0,
+          "linear_fit": null
+        }
+      },
+      "c3p_poly_added_4096": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_fertility": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "scaling": {
+          "per_bucket": {
+            "3": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          },
+          "spearman_rho": null,
+          "spearman_p": null,
+          "cv_of_mean_fertility": 0.0,
+          "linear_fit": null
+        }
+      },
+      "c3p_poly_added_4608": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_fertility": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "scaling": {
+          "per_bucket": {
+            "3": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          },
+          "spearman_rho": null,
+          "spearman_p": null,
+          "cv_of_mean_fertility": 0.0,
+          "linear_fit": null
+        }
+      },
+      "c3p_poly_added_5120": {
+        "per_language": {
+          "ell_Grek": {
+            "mean_fertility": 1.0,
+            "count": 1
+          }
+        },
+        "by_digit_length": {
+          "3": {
+            "ell_Grek": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          }
+        },
+        "scaling": {
+          "per_bucket": {
+            "3": {
+              "mean_fertility": 1.0,
+              "std_fertility": 0.0,
+              "count": 1
+            }
+          },
+          "spearman_rho": null,
+          "spearman_p": null,
+          "cv_of_mean_fertility": 0.0,
+          "linear_fit": null
+        }
+      }
+    }
+  },
+  "operator_isolation_rate": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "per_language": {
+          "ell_Grek": {
+            "isolation_rate": 0.847457627118644,
+            "compound_preservation_rate": 0.0,
+            "total": 59
+          }
+        }
+      },
+      "c3p_poly_added_0512": {
+        "per_language": {
+          "ell_Grek": {
+            "isolation_rate": 0.847457627118644,
+            "compound_preservation_rate": 0.0,
+            "total": 59
+          }
+        }
+      },
+      "c3p_poly_added_1024": {
+        "per_language": {
+          "ell_Grek": {
+            "isolation_rate": 0.847457627118644,
+            "compound_preservation_rate": 0.0,
+            "total": 59
+          }
+        }
+      },
+      "c3p_poly_added_1536": {
+        "per_language": {
+          "ell_Grek": {
+            "isolation_rate": 0.847457627118644,
+            "compound_preservation_rate": 0.0,
+            "total": 59
+          }
+        }
+      },
+      "c3p_poly_added_2048": {
+        "per_language": {
+          "ell_Grek": {
+            "isolation_rate": 0.847457627118644,
+            "compound_preservation_rate": 0.0,
+            "total": 59
+          }
+        }
+      },
+      "c3p_poly_added_2560": {
+        "per_language": {
+          "ell_Grek": {
+            "isolation_rate": 0.847457627118644,
+            "compound_preservation_rate": 0.0,
+            "total": 59
+          }
+        }
+      },
+      "c3p_poly_added_3072": {
+        "per_language": {
+          "ell_Grek": {
+            "isolation_rate": 0.847457627118644,
+            "compound_preservation_rate": 0.0,
+            "total": 59
+          }
+        }
+      },
+      "c3p_poly_added_3584": {
+        "per_language": {
+          "ell_Grek": {
+            "isolation_rate": 0.847457627118644,
+            "compound_preservation_rate": 0.0,
+            "total": 59
+          }
+        }
+      },
+      "c3p_poly_added_4096": {
+        "per_language": {
+          "ell_Grek": {
+            "isolation_rate": 0.847457627118644,
+            "compound_preservation_rate": 0.0,
+            "total": 59
+          }
+        }
+      },
+      "c3p_poly_added_4608": {
+        "per_language": {
+          "ell_Grek": {
+            "isolation_rate": 0.847457627118644,
+            "compound_preservation_rate": 0.0,
+            "total": 59
+          }
+        }
+      },
+      "c3p_poly_added_5120": {
+        "per_language": {
+          "ell_Grek": {
+            "isolation_rate": 0.847457627118644,
+            "compound_preservation_rate": 0.0,
+            "total": 59
+          }
+        }
+      }
+    }
+  },
+  "ast_boundary_alignment": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {},
+        "per_language": {}
+      },
+      "c3p_poly_added_0512": {
+        "global": {},
+        "per_language": {}
+      },
+      "c3p_poly_added_1024": {
+        "global": {},
+        "per_language": {}
+      },
+      "c3p_poly_added_1536": {
+        "global": {},
+        "per_language": {}
+      },
+      "c3p_poly_added_2048": {
+        "global": {},
+        "per_language": {}
+      },
+      "c3p_poly_added_2560": {
+        "global": {},
+        "per_language": {}
+      },
+      "c3p_poly_added_3072": {
+        "global": {},
+        "per_language": {}
+      },
+      "c3p_poly_added_3584": {
+        "global": {},
+        "per_language": {}
+      },
+      "c3p_poly_added_4096": {
+        "global": {},
+        "per_language": {}
+      },
+      "c3p_poly_added_4608": {
+        "global": {},
+        "per_language": {}
+      },
+      "c3p_poly_added_5120": {
+        "global": {},
+        "per_language": {}
+      }
+    }
+  },
+  "identifier_fragmentation": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {}
+      },
+      "c3p_poly_added_0512": {
+        "global": {}
+      },
+      "c3p_poly_added_1024": {
+        "global": {}
+      },
+      "c3p_poly_added_1536": {
+        "global": {}
+      },
+      "c3p_poly_added_2048": {
+        "global": {}
+      },
+      "c3p_poly_added_2560": {
+        "global": {}
+      },
+      "c3p_poly_added_3072": {
+        "global": {}
+      },
+      "c3p_poly_added_3584": {
+        "global": {}
+      },
+      "c3p_poly_added_4096": {
+        "global": {}
+      },
+      "c3p_poly_added_4608": {
+        "global": {}
+      },
+      "c3p_poly_added_5120": {
+        "global": {}
+      }
+    }
+  },
+  "indentation_consistency": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "per_language": {
+          "haskell": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.3611111111111111,
+            "num_depth_levels": 6,
+            "total_indented_lines": 36
+          },
+          "python": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.28888888888888886,
+            "num_depth_levels": 3,
+            "total_indented_lines": 45
+          }
+        }
+      },
+      "c3p_poly_added_0512": {
+        "per_language": {
+          "haskell": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.3611111111111111,
+            "num_depth_levels": 6,
+            "total_indented_lines": 36
+          },
+          "python": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.28888888888888886,
+            "num_depth_levels": 3,
+            "total_indented_lines": 45
+          }
+        }
+      },
+      "c3p_poly_added_1024": {
+        "per_language": {
+          "haskell": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.3611111111111111,
+            "num_depth_levels": 6,
+            "total_indented_lines": 36
+          },
+          "python": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.28888888888888886,
+            "num_depth_levels": 3,
+            "total_indented_lines": 45
+          }
+        }
+      },
+      "c3p_poly_added_1536": {
+        "per_language": {
+          "haskell": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.3611111111111111,
+            "num_depth_levels": 6,
+            "total_indented_lines": 36
+          },
+          "python": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.28888888888888886,
+            "num_depth_levels": 3,
+            "total_indented_lines": 45
+          }
+        }
+      },
+      "c3p_poly_added_2048": {
+        "per_language": {
+          "haskell": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.3611111111111111,
+            "num_depth_levels": 6,
+            "total_indented_lines": 36
+          },
+          "python": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.28888888888888886,
+            "num_depth_levels": 3,
+            "total_indented_lines": 45
+          }
+        }
+      },
+      "c3p_poly_added_2560": {
+        "per_language": {
+          "haskell": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.3611111111111111,
+            "num_depth_levels": 6,
+            "total_indented_lines": 36
+          },
+          "python": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.28888888888888886,
+            "num_depth_levels": 3,
+            "total_indented_lines": 45
+          }
+        }
+      },
+      "c3p_poly_added_3072": {
+        "per_language": {
+          "haskell": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.3611111111111111,
+            "num_depth_levels": 6,
+            "total_indented_lines": 36
+          },
+          "python": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.28888888888888886,
+            "num_depth_levels": 3,
+            "total_indented_lines": 45
+          }
+        }
+      },
+      "c3p_poly_added_3584": {
+        "per_language": {
+          "haskell": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.3611111111111111,
+            "num_depth_levels": 6,
+            "total_indented_lines": 36
+          },
+          "python": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.28888888888888886,
+            "num_depth_levels": 3,
+            "total_indented_lines": 45
+          }
+        }
+      },
+      "c3p_poly_added_4096": {
+        "per_language": {
+          "haskell": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.3611111111111111,
+            "num_depth_levels": 6,
+            "total_indented_lines": 36
+          },
+          "python": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.28888888888888886,
+            "num_depth_levels": 3,
+            "total_indented_lines": 45
+          }
+        }
+      },
+      "c3p_poly_added_4608": {
+        "per_language": {
+          "haskell": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.3611111111111111,
+            "num_depth_levels": 6,
+            "total_indented_lines": 36
+          },
+          "python": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.28888888888888886,
+            "num_depth_levels": 3,
+            "total_indented_lines": 45
+          }
+        }
+      },
+      "c3p_poly_added_5120": {
+        "per_language": {
+          "haskell": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.3611111111111111,
+            "num_depth_levels": 6,
+            "total_indented_lines": 36
+          },
+          "python": {
+            "depth_proportionality_correlation": 0.0,
+            "pattern_stability_rate": 0.28888888888888886,
+            "num_depth_levels": 3,
+            "total_indented_lines": 45
+          }
+        }
+      }
+    }
+  },
+  "utf8_token_integrity": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {
+          "completeness_rate": 0.9999422982602926,
+          "total_incomplete_tokens": 2,
+          "total_content_tokens": 34661,
+          "trailing_incomplete": 1,
+          "orphan_continuation": 1,
+          "boundary_crossings": 0,
+          "boundary_crossing_rate": 0.0
+        },
+        "per_language": {
+          "ell_Grek": {
+            "completeness_rate": 0.9999422982602926,
+            "total_incomplete_tokens": 2,
+            "total_content_tokens": 34661,
+            "trailing_incomplete": 1,
+            "orphan_continuation": 1,
+            "boundary_crossings": 0,
+            "boundary_crossing_rate": 0.0
+          }
+        }
+      },
+      "c3p_poly_added_0512": {
+        "global": {
+          "completeness_rate": 0.9999422932656241,
+          "total_incomplete_tokens": 2,
+          "total_content_tokens": 34658,
+          "trailing_incomplete": 1,
+          "orphan_continuation": 1,
+          "boundary_crossings": 0,
+          "boundary_crossing_rate": 0.0
+        },
+        "per_language": {
+          "ell_Grek": {
+            "completeness_rate": 0.9999422932656241,
+            "total_incomplete_tokens": 2,
+            "total_content_tokens": 34658,
+            "trailing_incomplete": 1,
+            "orphan_continuation": 1,
+            "boundary_crossings": 0,
+            "boundary_crossing_rate": 0.0
+          }
+        }
+      },
+      "c3p_poly_added_1024": {
+        "global": {
+          "completeness_rate": 0.9999422849392549,
+          "total_incomplete_tokens": 2,
+          "total_content_tokens": 34653,
+          "trailing_incomplete": 1,
+          "orphan_continuation": 1,
+          "boundary_crossings": 0,
+          "boundary_crossing_rate": 0.0
+        },
+        "per_language": {
+          "ell_Grek": {
+            "completeness_rate": 0.9999422849392549,
+            "total_incomplete_tokens": 2,
+            "total_content_tokens": 34653,
+            "trailing_incomplete": 1,
+            "orphan_continuation": 1,
+            "boundary_crossings": 0,
+            "boundary_crossing_rate": 0.0
+          }
+        }
+      },
+      "c3p_poly_added_1536": {
+        "global": {
+          "completeness_rate": 0.9999422716120653,
+          "total_incomplete_tokens": 2,
+          "total_content_tokens": 34645,
+          "trailing_incomplete": 1,
+          "orphan_continuation": 1,
+          "boundary_crossings": 0,
+          "boundary_crossing_rate": 0.0
+        },
+        "per_language": {
+          "ell_Grek": {
+            "completeness_rate": 0.9999422716120653,
+            "total_incomplete_tokens": 2,
+            "total_content_tokens": 34645,
+            "trailing_incomplete": 1,
+            "orphan_continuation": 1,
+            "boundary_crossings": 0,
+            "boundary_crossing_rate": 0.0
+          }
+        }
+      },
+      "c3p_poly_added_2048": {
+        "global": {
+          "completeness_rate": 0.9999422632794457,
+          "total_incomplete_tokens": 2,
+          "total_content_tokens": 34640,
+          "trailing_incomplete": 1,
+          "orphan_continuation": 1,
+          "boundary_crossings": 0,
+          "boundary_crossing_rate": 0.0
+        },
+        "per_language": {
+          "ell_Grek": {
+            "completeness_rate": 0.9999422632794457,
+            "total_incomplete_tokens": 2,
+            "total_content_tokens": 34640,
+            "trailing_incomplete": 1,
+            "orphan_continuation": 1,
+            "boundary_crossings": 0,
+            "boundary_crossing_rate": 0.0
+          }
+        }
+      },
+      "c3p_poly_added_2560": {
+        "global": {
+          "completeness_rate": 0.999942238267148,
+          "total_incomplete_tokens": 2,
+          "total_content_tokens": 34625,
+          "trailing_incomplete": 1,
+          "orphan_continuation": 1,
+          "boundary_crossings": 0,
+          "boundary_crossing_rate": 0.0
+        },
+        "per_language": {
+          "ell_Grek": {
+            "completeness_rate": 0.999942238267148,
+            "total_incomplete_tokens": 2,
+            "total_content_tokens": 34625,
+            "trailing_incomplete": 1,
+            "orphan_continuation": 1,
+            "boundary_crossings": 0,
+            "boundary_crossing_rate": 0.0
+          }
+        }
+      },
+      "c3p_poly_added_3072": {
+        "global": {
+          "completeness_rate": 0.9999422232493644,
+          "total_incomplete_tokens": 2,
+          "total_content_tokens": 34616,
+          "trailing_incomplete": 1,
+          "orphan_continuation": 1,
+          "boundary_crossings": 0,
+          "boundary_crossing_rate": 0.0
+        },
+        "per_language": {
+          "ell_Grek": {
+            "completeness_rate": 0.9999422232493644,
+            "total_incomplete_tokens": 2,
+            "total_content_tokens": 34616,
+            "trailing_incomplete": 1,
+            "orphan_continuation": 1,
+            "boundary_crossings": 0,
+            "boundary_crossing_rate": 0.0
+          }
+        }
+      },
+      "c3p_poly_added_3584": {
+        "global": {
+          "completeness_rate": 0.9999421998728397,
+          "total_incomplete_tokens": 2,
+          "total_content_tokens": 34602,
+          "trailing_incomplete": 1,
+          "orphan_continuation": 1,
+          "boundary_crossings": 0,
+          "boundary_crossing_rate": 0.0
+        },
+        "per_language": {
+          "ell_Grek": {
+            "completeness_rate": 0.9999421998728397,
+            "total_incomplete_tokens": 2,
+            "total_content_tokens": 34602,
+            "trailing_incomplete": 1,
+            "orphan_continuation": 1,
+            "boundary_crossings": 0,
+            "boundary_crossing_rate": 0.0
+          }
+        }
+      },
+      "c3p_poly_added_4096": {
+        "global": {
+          "completeness_rate": 0.999942176477391,
+          "total_incomplete_tokens": 2,
+          "total_content_tokens": 34588,
+          "trailing_incomplete": 1,
+          "orphan_continuation": 1,
+          "boundary_crossings": 0,
+          "boundary_crossing_rate": 0.0
+        },
+        "per_language": {
+          "ell_Grek": {
+            "completeness_rate": 0.999942176477391,
+            "total_incomplete_tokens": 2,
+            "total_content_tokens": 34588,
+            "trailing_incomplete": 1,
+            "orphan_continuation": 1,
+            "boundary_crossings": 0,
+            "boundary_crossing_rate": 0.0
+          }
+        }
+      },
+      "c3p_poly_added_4608": {
+        "global": {
+          "completeness_rate": 0.999942161427456,
+          "total_incomplete_tokens": 2,
+          "total_content_tokens": 34579,
+          "trailing_incomplete": 1,
+          "orphan_continuation": 1,
+          "boundary_crossings": 0,
+          "boundary_crossing_rate": 0.0
+        },
+        "per_language": {
+          "ell_Grek": {
+            "completeness_rate": 0.999942161427456,
+            "total_incomplete_tokens": 2,
+            "total_content_tokens": 34579,
+            "trailing_incomplete": 1,
+            "orphan_continuation": 1,
+            "boundary_crossings": 0,
+            "boundary_crossing_rate": 0.0
+          }
+        }
+      },
+      "c3p_poly_added_5120": {
+        "global": {
+          "completeness_rate": 0.9999421480431575,
+          "total_incomplete_tokens": 2,
+          "total_content_tokens": 34571,
+          "trailing_incomplete": 1,
+          "orphan_continuation": 1,
+          "boundary_crossings": 0,
+          "boundary_crossing_rate": 0.0
+        },
+        "per_language": {
+          "ell_Grek": {
+            "completeness_rate": 0.9999421480431575,
+            "total_incomplete_tokens": 2,
+            "total_content_tokens": 34571,
+            "trailing_incomplete": 1,
+            "orphan_continuation": 1,
+            "boundary_crossings": 0,
+            "boundary_crossing_rate": 0.0
+          }
+        }
+      }
+    },
+    "metadata": {
+      "description": "Fraction of content tokens whose bytes form complete UTF-8 characters, plus boundary-crossing token counts."
+    }
+  },
+  "utf8_char_split": {
+    "per_tokenizer": {
+      "c3p_poly_added_0000": {
+        "global": {
+          "split_rate": 8.121629523747645e-06,
+          "splits_per_1k_tokens": 0.02885086985372609,
+          "splits_per_1k_multibyte": 0.008121629523747646,
+          "total_splits": 1,
+          "total_multibyte_chars": 123128,
+          "total_content_tokens": 34661,
+          "alignment_mismatches": 0,
+          "per_byte_width": {
+            "2_byte": {
+              "splits": 1,
+              "total": 123111,
+              "split_rate": 8.122751013313188e-06
+            },
+            "3_byte": {
+              "splits": 0,
+              "total": 17,
+              "split_rate": 0.0
+            },
+            "4_byte": {
+              "splits": 0,
+              "total": 0,
+              "split_rate": 0.0
+            }
+          }
+        },
+        "per_language": {
+          "ell_Grek": {
+            "split_rate": 8.121629523747645e-06,
+            "splits_per_1k_tokens": 0.02885086985372609,
+            "splits_per_1k_multibyte": 0.008121629523747646,
+            "total_splits": 1,
+            "total_multibyte_chars": 123128,
+            "total_content_tokens": 34661,
+            "alignment_mismatches": 0,
+            "per_byte_width": {
+              "2_byte": {
+                "splits": 1,
+                "total": 123111,
+                "split_rate": 8.122751013313188e-06
+              },
+              "3_byte": {
+                "splits": 0,
+                "total": 17,
+                "split_rate": 0.0
+              },
+              "4_byte": {
+                "splits": 0,
+                "total": 0,
+                "split_rate": 0.0
+              }
+            }
+          }
+        }
+      },
+      "c3p_poly_added_0512": {
+        "global": {
+          "split_rate": 8.121629523747645e-06,
+          "splits_per_1k_tokens": 0.028853367187950833,
+          "splits_per_1k_multibyte": 0.008121629523747646,
+          "total_splits": 1,
+          "total_multibyte_chars": 123128,
+          "total_content_tokens": 34658,
+          "alignment_mismatches": 0,
+          "per_byte_width": {
+            "2_byte": {
+              "splits": 1,
+              "total": 123111,
+              "split_rate": 8.122751013313188e-06
+            },
+            "3_byte": {
+              "splits": 0,
+              "total": 17,
+              "split_rate": 0.0
+            },
+            "4_byte": {
+              "splits": 0,
+              "total": 0,
+              "split_rate": 0.0
+            }
+          }
+        },
+        "per_language": {
+          "ell_Grek": {
+            "split_rate": 8.121629523747645e-06,
+            "splits_per_1k_tokens": 0.028853367187950833,
+            "splits_per_1k_multibyte": 0.008121629523747646,
+            "total_splits": 1,
+            "total_multibyte_chars": 123128,
+            "total_content_tokens": 34658,
+            "alignment_mismatches": 0,
+            "per_byte_width": {
+              "2_byte": {
+                "splits": 1,
+                "total": 123111,
+                "split_rate": 8.122751013313188e-06
+              },
+              "3_byte": {
+                "splits": 0,
+                "total": 17,
+                "split_rate": 0.0
+              },
+              "4_byte": {
+                "splits": 0,
+                "total": 0,
+                "split_rate": 0.0
+              }
+            }
+          }
+        }
+      },
+      "c3p_poly_added_1024": {
+        "global": {
+          "split_rate": 8.121629523747645e-06,
+          "splits_per_1k_tokens": 0.028857530372550715,
+          "splits_per_1k_multibyte": 0.008121629523747646,
+          "total_splits": 1,
+          "total_multibyte_chars": 123128,
+          "total_content_tokens": 34653,
+          "alignment_mismatches": 0,
+          "per_byte_width": {
+            "2_byte": {
+              "splits": 1,
+              "total": 123111,
+              "split_rate": 8.122751013313188e-06
+            },
+            "3_byte": {
+              "splits": 0,
+              "total": 17,
+              "split_rate": 0.0
+            },
+            "4_byte": {
+              "splits": 0,
+              "total": 0,
+              "split_rate": 0.0
+            }
+          }
+        },
+        "per_language": {
+          "ell_Grek": {
+            "split_rate": 8.121629523747645e-06,
+            "splits_per_1k_tokens": 0.028857530372550715,
+            "splits_per_1k_multibyte": 0.008121629523747646,
+            "total_splits": 1,
+            "total_multibyte_chars": 123128,
+            "total_content_tokens": 34653,
+            "alignment_mismatches": 0,
+            "per_byte_width": {
+              "2_byte": {
+                "splits": 1,
+                "total": 123111,
+                "split_rate": 8.122751013313188e-06
+              },
+              "3_byte": {
+                "splits": 0,
+                "total": 17,
+                "split_rate": 0.0
+              },
+              "4_byte": {
+                "splits": 0,
+                "total": 0,
+                "split_rate": 0.0
+              }
+            }
+          }
+        }
+      },
+      "c3p_poly_added_1536": {
+        "global": {
+          "split_rate": 8.121629523747645e-06,
+          "splits_per_1k_tokens": 0.02886419396738346,
+          "splits_per_1k_multibyte": 0.008121629523747646,
+          "total_splits": 1,
+          "total_multibyte_chars": 123128,
+          "total_content_tokens": 34645,
+          "alignment_mismatches": 0,
+          "per_byte_width": {
+            "2_byte": {
+              "splits": 1,
+              "total": 123111,
+              "split_rate": 8.122751013313188e-06
+            },
+            "3_byte": {
+              "splits": 0,
+              "total": 17,
+              "split_rate": 0.0
+            },
+            "4_byte": {
+              "splits": 0,
+              "total": 0,
+              "split_rate": 0.0
+            }
+          }
+        },
+        "per_language": {
+          "ell_Grek": {
+            "split_rate": 8.121629523747645e-06,
+            "splits_per_1k_tokens": 0.02886419396738346,
+            "splits_per_1k_multibyte": 0.008121629523747646,
+            "total_splits": 1,
+            "total_multibyte_chars": 123128,
+            "total_content_tokens": 34645,
+            "alignment_mismatches": 0,
+            "per_byte_width": {
+              "2_byte": {
+                "splits": 1,
+                "total": 123111,
+                "split_rate": 8.122751013313188e-06
+              },
+              "3_byte": {
+                "splits": 0,
+                "total": 17,
+                "split_rate": 0.0
+              },
+              "4_byte": {
+                "splits": 0,
+                "total": 0,
+                "split_rate": 0.0
+              }
+            }
+          }
+        }
+      },
+      "c3p_poly_added_2048": {
+        "global": {
+          "split_rate": 8.121629523747645e-06,
+          "splits_per_1k_tokens": 0.028868360277136258,
+          "splits_per_1k_multibyte": 0.008121629523747646,
+          "total_splits": 1,
+          "total_multibyte_chars": 123128,
+          "total_content_tokens": 34640,
+          "alignment_mismatches": 0,
+          "per_byte_width": {
+            "2_byte": {
+              "splits": 1,
+              "total": 123111,
+              "split_rate": 8.122751013313188e-06
+            },
+            "3_byte": {
+              "splits": 0,
+              "total": 17,
+              "split_rate": 0.0
+            },
+            "4_byte": {
+              "splits": 0,
+              "total": 0,
+              "split_rate": 0.0
+            }
+          }
+        },
+        "per_language": {
+          "ell_Grek": {
+            "split_rate": 8.121629523747645e-06,
+            "splits_per_1k_tokens": 0.028868360277136258,
+            "splits_per_1k_multibyte": 0.008121629523747646,
+            "total_splits": 1,
+            "total_multibyte_chars": 123128,
+            "total_content_tokens": 34640,
+            "alignment_mismatches": 0,
+            "per_byte_width": {
+              "2_byte": {
+                "splits": 1,
+                "total": 123111,
+                "split_rate": 8.122751013313188e-06
+              },
+              "3_byte": {
+                "splits": 0,
+                "total": 17,
+                "split_rate": 0.0
+              },
+              "4_byte": {
+                "splits": 0,
+                "total": 0,
+                "split_rate": 0.0
+              }
+            }
+          }
+        }
+      },
+      "c3p_poly_added_2560": {
+        "global": {
+          "split_rate": 8.121629523747645e-06,
+          "splits_per_1k_tokens": 0.02888086642599278,
+          "splits_per_1k_multibyte": 0.008121629523747646,
+          "total_splits": 1,
+          "total_multibyte_chars": 123128,
+          "total_content_tokens": 34625,
+          "alignment_mismatches": 0,
+          "per_byte_width": {
+            "2_byte": {
+              "splits": 1,
+              "total": 123111,
+              "split_rate": 8.122751013313188e-06
+            },
+            "3_byte": {
+              "splits": 0,
+              "total": 17,
+              "split_rate": 0.0
+            },
+            "4_byte": {
+              "splits": 0,
+              "total": 0,
+              "split_rate": 0.0
+            }
+          }
+        },
+        "per_language": {
+          "ell_Grek": {
+            "split_rate": 8.121629523747645e-06,
+            "splits_per_1k_tokens": 0.02888086642599278,
+            "splits_per_1k_multibyte": 0.008121629523747646,
+            "total_splits": 1,
+            "total_multibyte_chars": 123128,
+            "total_content_tokens": 34625,
+            "alignment_mismatches": 0,
+            "per_byte_width": {
+              "2_byte": {
+                "splits": 1,
+                "total": 123111,
+                "split_rate": 8.122751013313188e-06
+              },
+              "3_byte": {
+                "splits": 0,
+                "total": 17,
+                "split_rate": 0.0
+              },
+              "4_byte": {
+                "splits": 0,
+                "total": 0,
+                "split_rate": 0.0
+              }
+            }
+          }
+        }
+      },
+      "c3p_poly_added_3072": {
+        "global": {
+          "split_rate": 8.121629523747645e-06,
+          "splits_per_1k_tokens": 0.02888837531777213,
+          "splits_per_1k_multibyte": 0.008121629523747646,
+          "total_splits": 1,
+          "total_multibyte_chars": 123128,
+          "total_content_tokens": 34616,
+          "alignment_mismatches": 0,
+          "per_byte_width": {
+            "2_byte": {
+              "splits": 1,
+              "total": 123111,
+              "split_rate": 8.122751013313188e-06
+            },
+            "3_byte": {
+              "splits": 0,
+              "total": 17,
+              "split_rate": 0.0
+            },
+            "4_byte": {
+              "splits": 0,
+              "total": 0,
+              "split_rate": 0.0
+            }
+          }
+        },
+        "per_language": {
+          "ell_Grek": {
+            "split_rate": 8.121629523747645e-06,
+            "splits_per_1k_tokens": 0.02888837531777213,
+            "splits_per_1k_multibyte": 0.008121629523747646,
+            "total_splits": 1,
+            "total_multibyte_chars": 123128,
+            "total_content_tokens": 34616,
+            "alignment_mismatches": 0,
+            "per_byte_width": {
+              "2_byte": {
+                "splits": 1,
+                "total": 123111,
+                "split_rate": 8.122751013313188e-06
+              },
+              "3_byte": {
+                "splits": 0,
+                "total": 17,
+                "split_rate": 0.0
+              },
+              "4_byte": {
+                "splits": 0,
+                "total": 0,
+                "split_rate": 0.0
+              }
+            }
+          }
+        }
+      },
+      "c3p_poly_added_3584": {
+        "global": {
+          "split_rate": 8.121629523747645e-06,
+          "splits_per_1k_tokens": 0.028900063580139877,
+          "splits_per_1k_multibyte": 0.008121629523747646,
+          "total_splits": 1,
+          "total_multibyte_chars": 123128,
+          "total_content_tokens": 34602,
+          "alignment_mismatches": 0,
+          "per_byte_width": {
+            "2_byte": {
+              "splits": 1,
+              "total": 123111,
+              "split_rate": 8.122751013313188e-06
+            },
+            "3_byte": {
+              "splits": 0,
+              "total": 17,
+              "split_rate": 0.0
+            },
+            "4_byte": {
+              "splits": 0,
+              "total": 0,
+              "split_rate": 0.0
+            }
+          }
+        },
+        "per_language": {
+          "ell_Grek": {
+            "split_rate": 8.121629523747645e-06,
+            "splits_per_1k_tokens": 0.028900063580139877,
+            "splits_per_1k_multibyte": 0.008121629523747646,
+            "total_splits": 1,
+            "total_multibyte_chars": 123128,
+            "total_content_tokens": 34602,
+            "alignment_mismatches": 0,
+            "per_byte_width": {
+              "2_byte": {
+                "splits": 1,
+                "total": 123111,
+                "split_rate": 8.122751013313188e-06
+              },
+              "3_byte": {
+                "splits": 0,
+                "total": 17,
+                "split_rate": 0.0
+              },
+              "4_byte": {
+                "splits": 0,
+                "total": 0,
+                "split_rate": 0.0
+              }
+            }
+          }
+        }
+      },
+      "c3p_poly_added_4096": {
+        "global": {
+          "split_rate": 8.121629523747645e-06,
+          "splits_per_1k_tokens": 0.02891176130449867,
+          "splits_per_1k_multibyte": 0.008121629523747646,
+          "total_splits": 1,
+          "total_multibyte_chars": 123128,
+          "total_content_tokens": 34588,
+          "alignment_mismatches": 0,
+          "per_byte_width": {
+            "2_byte": {
+              "splits": 1,
+              "total": 123111,
+              "split_rate": 8.122751013313188e-06
+            },
+            "3_byte": {
+              "splits": 0,
+              "total": 17,
+              "split_rate": 0.0
+            },
+            "4_byte": {
+              "splits": 0,
+              "total": 0,
+              "split_rate": 0.0
+            }
+          }
+        },
+        "per_language": {
+          "ell_Grek": {
+            "split_rate": 8.121629523747645e-06,
+            "splits_per_1k_tokens": 0.02891176130449867,
+            "splits_per_1k_multibyte": 0.008121629523747646,
+            "total_splits": 1,
+            "total_multibyte_chars": 123128,
+            "total_content_tokens": 34588,
+            "alignment_mismatches": 0,
+            "per_byte_width": {
+              "2_byte": {
+                "splits": 1,
+                "total": 123111,
+                "split_rate": 8.122751013313188e-06
+              },
+              "3_byte": {
+                "splits": 0,
+                "total": 17,
+                "split_rate": 0.0
+              },
+              "4_byte": {
+                "splits": 0,
+                "total": 0,
+                "split_rate": 0.0
+              }
+            }
+          }
+        }
+      },
+      "c3p_poly_added_4608": {
+        "global": {
+          "split_rate": 8.121629523747645e-06,
+          "splits_per_1k_tokens": 0.028919286272014805,
+          "splits_per_1k_multibyte": 0.008121629523747646,
+          "total_splits": 1,
+          "total_multibyte_chars": 123128,
+          "total_content_tokens": 34579,
+          "alignment_mismatches": 0,
+          "per_byte_width": {
+            "2_byte": {
+              "splits": 1,
+              "total": 123111,
+              "split_rate": 8.122751013313188e-06
+            },
+            "3_byte": {
+              "splits": 0,
+              "total": 17,
+              "split_rate": 0.0
+            },
+            "4_byte": {
+              "splits": 0,
+              "total": 0,
+              "split_rate": 0.0
+            }
+          }
+        },
+        "per_language": {
+          "ell_Grek": {
+            "split_rate": 8.121629523747645e-06,
+            "splits_per_1k_tokens": 0.028919286272014805,
+            "splits_per_1k_multibyte": 0.008121629523747646,
+            "total_splits": 1,
+            "total_multibyte_chars": 123128,
+            "total_content_tokens": 34579,
+            "alignment_mismatches": 0,
+            "per_byte_width": {
+              "2_byte": {
+                "splits": 1,
+                "total": 123111,
+                "split_rate": 8.122751013313188e-06
+              },
+              "3_byte": {
+                "splits": 0,
+                "total": 17,
+                "split_rate": 0.0
+              },
+              "4_byte": {
+                "splits": 0,
+                "total": 0,
+                "split_rate": 0.0
+              }
+            }
+          }
+        }
+      },
+      "c3p_poly_added_5120": {
+        "global": {
+          "split_rate": 8.121629523747645e-06,
+          "splits_per_1k_tokens": 0.028925978421220095,
+          "splits_per_1k_multibyte": 0.008121629523747646,
+          "total_splits": 1,
+          "total_multibyte_chars": 123128,
+          "total_content_tokens": 34571,
+          "alignment_mismatches": 0,
+          "per_byte_width": {
+            "2_byte": {
+              "splits": 1,
+              "total": 123111,
+              "split_rate": 8.122751013313188e-06
+            },
+            "3_byte": {
+              "splits": 0,
+              "total": 17,
+              "split_rate": 0.0
+            },
+            "4_byte": {
+              "splits": 0,
+              "total": 0,
+              "split_rate": 0.0
+            }
+          }
+        },
+        "per_language": {
+          "ell_Grek": {
+            "split_rate": 8.121629523747645e-06,
+            "splits_per_1k_tokens": 0.028925978421220095,
+            "splits_per_1k_multibyte": 0.008121629523747646,
+            "total_splits": 1,
+            "total_multibyte_chars": 123128,
+            "total_content_tokens": 34571,
+            "alignment_mismatches": 0,
+            "per_byte_width": {
+              "2_byte": {
+                "splits": 1,
+                "total": 123111,
+                "split_rate": 8.122751013313188e-06
+              },
+              "3_byte": {
+                "splits": 0,
+                "total": 17,
+                "split_rate": 0.0
+              },
+              "4_byte": {
+                "splits": 0,
+                "total": 0,
+                "split_rate": 0.0
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "description": "How many multi-byte UTF-8 characters have their bytes spread across multiple tokens."
+    }
+  }
+}

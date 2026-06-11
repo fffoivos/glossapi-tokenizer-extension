@@ -1,0 +1,24 @@
+# HPLT cleaning error example
+error_id: E003
+error_name: CSS/JS/HTML/XML remnants
+presentation_category: C1 - Detected Residue Pattern Removal
+rank_within_category: 3
+proposed_transformation: Exact markup/script/style/CMS residue trim.
+false_positive_confidence: high
+false_negative_confidence: medium
+strict_policy_tier: strict_action_candidate
+strict_policy_role: Literal markup/script/CMS residue removal.
+allowed_under_strict_principles: Automatic candidate only for exact markup/script/shortcode spans, not for content about code.
+source_doc_id: hplt::8_2.jsonl.zst::9be7c5d51863bde76c3743b975c9f3bd
+host: alarm.rodos-island.gr
+url: http://alarm.rodos-island.gr/%CE%BD%CE%B1-%CF%80%CF%81%CE%BF%CF%83%CE%B5%CF%87%CE%B5%CF%84%CE%B5-%CF%81%CE%B5-%CF%84%CF%81%CE%BF%CE%BC%CE%B1%CE%BA%CF%84%CE%B9%CE%BA%CF%8C-%CE%B2%CE%AF%CE%BD%CF%84%CE%B5%CE%BF-%CE%BC%CE%BF%CF%84/
+quality_bin: 8
+reviewed_action: trim_span
+review_label: reviewed_accept
+review_source: reports/boundary_manual_trim_span_annotations_20260606T014014Z.jsonl:1
+text_source: reports/pending_boundary_review_pack_20260606T011640Z.jsonl:51:embedded_text
+tagging: tagged 3 reviewed character range(s)
+notes: Remove two exact adsbygoogle JS snippets from the article body and trim the unrelated Latest/Read More suffix; preserve the motorcycle-accident article.
+
+[[DOCUMENT_TEXT_UTF8]]
+Alarm Rodos: Ο 29χρονος αναβάτης υπέστη κάταγμα στα πλευρά και την κλείδα από την πτώση[[ERROR_E003_START kind=span_ranges]](adsbygoogle = window.adsbygoogle | []).push({});[[ERROR_E003_END kind=span_ranges]] Τρομακτικό είναι το βίντεο που δείχνει τη στιγμή που ένας μοτοσικλετιστής εκτοξεύεται στον αέρα όταν χάνει τον έλεγχο της μηχανής του ενώ «μπαίνει» σε στροφή με 190χλμ./ωρα.Ο 29χρονος Νίκολας Πάμελ ταξίδευε στο Ντέβον της Βρετανίας όταν συνέβη το ατύχημα. Σύμφωνα με τη Daily Mail στο σημείο στο οποίο συνέβη το περιστατικό ο Πάμελ έτρεχε με ταχύτητα τρεις φορές πάνω από το όριο.[[ERROR_E003_START kind=span_ranges]](adsbygoogle = window.adsbygoogle | []).push({});[[ERROR_E003_END kind=span_ranges]] Στο βίντεο από την κάμερα στο κράνος του φαίνεται να «μπαίνει» στη στροφή, να κάνει έναν λάθος ελιγμό και να καταλήγει σε ένα χωράφι αφού πρώτα «εκτοξεύεται» από τη μοτοσικλέτα.Λόγω της πτώσης ο 29χρονος υπέστη κατάγματα στα πλευρά και την κλείδα του.Ωστόσο αν και η υπόθεση έφτασε στο δικαστήριο, τόσο ο Πάμελ όσο και ο άλλος αναβάτης με τον οποίο ταξίδευαν απέφυγαν τη φυλακή παρά το γεγονός ότι ένας αστυνομικός που κατέθεσε έκανε λόγο για «ένα από τα πιο επικίνδυνα περιστατικά που έχω χειριστεί».Η ποινή που τελικά επιβλήθηκε στους δύο μοτοσικλετιστές ήταν 8 μήνες φυλάκιση με αναστολή, απαγόρευση οδήγησης για ένα έτος, 180 ώρες κοινωνική εργασία και πρόστιμο 160 ευρώ.[[ERROR_E003_START kind=span_ranges]] Latest. Alarm Rodos: Ο ειδικός διαμεσολαβητής του ΟΗΕ συναντάται την Τετάρτη (17.01.2018) με τους διαπραγματευτές της Ελλάδας και των Σκοπίων, στη Νέα Υόρκη - Στο μεταξύ, ο γ.γ. του ΝΑΤΟ, Γενς Στόλτενμπεργκ, ... [Read More...] Alarm Rodos: «Με ζηλεύεις που με βγάζουν οι New York Times και εσένα ούτε η Φωνή του Λαγκαδά» είπε απευθυνόμενος στον επικεφαλής της μείζονος αντιπολίτευσης στον Δήμο (adsbygoogle = window.adsbygoogle ... [Read More...] Alarm Rodos: Νομίζω ότι στις σημερινές συνθήκες θα αναζητήσουμε μια διαφορετική λύση, με άλλο τρόπο και θα καταθέσω νέα πρόταση, δήλωσε στο ΑΝΤ1 ο ειδικός μεσολαβητής του ΟΗΕ Μάθιου Νίμιτς ... [Read More...] Alarm Rodos: Με αφορμή τη συμμετοχή του στην ταινία του Τάσου Μπουλμέτη, «1968», που αφορά την κατάκτηση από την ΑΕΚ του πρώτου ευρωπαϊκού τίτλου για την Ελλάδα σε ομαδικά αθλήματα, ο Γιώργος ... [Read More...] Alarm Rodos: Σοβαρό τροχαίο ατύχημα σημειώθηκε νωρίτερα στην παραλιακή λεωφόρο του Ηρακλείου, όταν ο οδηγός ΙΧ αυτοκινήτου, κάτω από αδιευκρίνιστες ακόμη συνθήκες έχασε τον έλεγχο του οχήματος και ... [Read More...] Alarm Rodos: "Φωτιά" στο Κόσοβο βάζει η μαφιόζικη δολοφονία του Σέρβου πολιτικού Όλιβερ Ιβάνοβιτς - Τον εκτέλεσαν εν ψυχρώ έξω από την έδρα του κόμματός του (adsbygoogle = window.adsbygoogle | ... [Read More...] Alarm Rodos: Η αστυνομία της Αριζόνα συνέλαβε έναν ηλικιωμένο άνδρα για ένοπλη ληστεία σε τράπεζα της πόλης Tucson.(adsbygoogle = window.adsbygoogle | []).push({}); Ο Robert Francis Krebs, 80 ετών, ... [Read More...] Alarm Rodos: Το πρώτο πλοίο – γεωτρύπανο της Τουρκίας θα σταλεί το συντομότερο δυνατό στη Μεσόγειο για υποθαλάσσιες έρευνες πετρελαίου και φυσικού αερίου, δήλωσε ο Υπουργός Ενέργειας και Φυσικών Πόρων ... [Read More...] Alarm Rodos: Διαβάστε επίσηςΝομίζω ότι στις ... [Read More...][[ERROR_E003_END kind=span_ranges]]

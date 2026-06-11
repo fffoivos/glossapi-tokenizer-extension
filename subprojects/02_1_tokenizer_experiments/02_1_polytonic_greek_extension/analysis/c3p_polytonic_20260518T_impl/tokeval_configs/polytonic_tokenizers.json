@@ -1,0 +1,46 @@
+{
+  "c3p_poly_added_0000": {
+    "class": "hf",
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_0000"
+  },
+  "c3p_poly_added_0512": {
+    "class": "hf",
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_0512"
+  },
+  "c3p_poly_added_1024": {
+    "class": "hf",
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_1024"
+  },
+  "c3p_poly_added_1536": {
+    "class": "hf",
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_1536"
+  },
+  "c3p_poly_added_2048": {
+    "class": "hf",
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_2048"
+  },
+  "c3p_poly_added_2560": {
+    "class": "hf",
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_2560"
+  },
+  "c3p_poly_added_3072": {
+    "class": "hf",
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_3072"
+  },
+  "c3p_poly_added_3584": {
+    "class": "hf",
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_3584"
+  },
+  "c3p_poly_added_4096": {
+    "class": "hf",
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_4096"
+  },
+  "c3p_poly_added_4608": {
+    "class": "hf",
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_4608"
+  },
+  "c3p_poly_added_5120": {
+    "class": "hf",
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_5120"
+  }
+}

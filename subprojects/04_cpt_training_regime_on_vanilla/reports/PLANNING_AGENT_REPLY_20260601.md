@@ -29,12 +29,19 @@ Seven concrete updates since the original handoff:
    launch (ARM env var, --ntasks-per-node=1, warmup-decay assertion
    re-hit). Each was a quick patch; together they argue for a Task-2
    submitter template hardened against these latent traps.
-5. **TD layer-11 evidence audit done.** Layer 11 was a heuristic
-   (one-third-depth from the TD package README), not the paper's
-   recommendation. Paper default is `target_layer = -1` (last layer).
-   Plan §3.2 called for a two-candidate pilot; only layer 11 ran. This
-   is in `cpt-plan.md` §3.2 already but the *audit summary* is new and
-   has now been written into §3.2 inline.
+5. **TD layer-11 evidence audit done — CORRECTED 2026-06-01 PM.** Initial
+   audit (this section, written morning of 2026-06-01) said "only Candidate B
+   (layer 11) ran." **That was wrong.** A retrospective dig into the 03
+   scripts found both Candidate A (`target_layer=-1`) AND Candidate B
+   (`target_layer=11`) were trained at two scales — pilot (1,024 × 50) and
+   full (17,377 × 25) — packed into the same Slurm job, with the same
+   selected-token set. Layer 11 won on intrinsic heldout BPB at both scales
+   (margin 0.008 BPB pilot → 0.040 BPB full) plus better new-token recall
+   (d1_top1 +0.34 pp, d1_top5 +1.26 pp at full scale). **The selection was
+   empirical, not heuristic.** Candidate C (logit-lens probe) is the only
+   leg that's genuinely missing. Full provenance in
+   `reports/TD_LAYER_11_SELECTION_PROVENANCE_20260601.md`. Section 4 below
+   carries the corrected statement.
 6. **Retention-baseline correction in `reports/5B_REPORT.md`.** The
    §7 retention table previously compared iter 1192 to iter 119 (i.e.
    to a mid-warmup, post-rope-readaptation state — not the true
@@ -192,25 +199,44 @@ Add to `TASK2_HANDOFF §3` as a new item:
 
 The audit summary (just done in this session):
 
-**Layer 11 was a heuristic, not validated.** Specifically:
+**CORRECTED 2026-06-01 PM.** Earlier version of this paragraph said
+"only layer 11 ran; Candidate A and the logit-lens probe were never
+executed." **Only the logit-lens-probe claim is correct.** Both
+Candidate A (`target_layer=-1`, paper default) and Candidate B
+(`target_layer=11`, package-README hint) were trained at two scales and
+intrinsically evaluated; layer 11 was selected on empirical BPB
+evidence. Full provenance in
+`reports/TD_LAYER_11_SELECTION_PROVENANCE_20260601.md`. Corrected
+summary:
 
-- **Origin**: `ceil(num_hidden_layers / 3) = 11` is the "one-third depth"
-  suggestion from the TD package's README, not the paper.
-- **Paper recommendation**: `target_layer = -1` (last layer). Paper §5.3
-  explicitly says last-layer is "a principled choice, as it guarantees
-  that no subtoken interactions that are only modeled in later layers
-  are excluded from the objective."
-- **Original Task-1 plan** (`TOKEN_DISTILLATION_PLAN.md §16, §6.1`): two-
-  candidate pilot — Candidate A = layer -1 (paper default), Candidate B =
-  layer 11 (package README). Plus optional Candidate C from a logit-lens /
-  tuned-lens probe identifying Apertus-specific `L*`.
-- **What actually ran**: only layer 11 (Candidate B). Candidate A and the
-  logit-lens probe were never executed.
-- **Outcome**: TD layer-11 was the bakeoff's only TD arm. Per Task-1's
-  5 B headline, TD layer-11 trailed Vanilla on the native MCQ aggregate
-  (TD-5B headline 0.4109 vs Vanilla-5B 0.4305). Under Path A, this
-  comparison would need to be re-run to be meaningful (Path-B contaminated
-  by rope re-adaptation).
+- **Origin of the two candidates**: TD paper §5.3 default is
+  `target_layer=-1` (last layer = 32). The TD package README hints that
+  one-third-depth layers can outperform last-layer; `ceil(32/3) = 11`.
+- **Plan**: `TOKEN_DISTILLATION_PLAN.md §16` specified two candidates A
+  and B + an optional Candidate C from a logit-lens / tuned-lens probe
+  for an Apertus-specific `L*`.
+- **What actually ran**: Candidates A and B BOTH trained at pilot
+  (1,024 tokens × 50 snippets) and full (17,377 tokens × 25 snippets)
+  scales; intrinsic eval (heldout BPB + new-token recall on
+  `cpt_greek_heldout_500_20260522`) selected the winner. Candidate C
+  was NOT run.
+- **Intrinsic-eval results (full scale, after the production TD run)**:
+
+  | Arm | `target_layer` | Heldout BPB | new-token d1_top1 | new-token d1_top5 |
+  |---|:---:|---:|---:|---:|
+  | `retok` (no TD) | — | 2.9503 | 0.65 % | 2.31 % |
+  | `td_full25_last` | −1 | 1.4249 | 3.81 % | 15.96 % |
+  | **`td_full25_layer11`** | **11** | **1.3846** | **4.15 %** | **17.22 %** |
+
+  Layer 11 wins on all three intrinsic measures.
+
+- **Outcome at 5 B**: TD layer-11 was the bakeoff's TD arm. Per
+  Task-1's 5 B headline (with corrected MCQ), TD layer-11 trailed
+  Vanilla on the native MCQ aggregate (TD-5B = 0.4109 vs Vanilla-5B
+  = 0.4305). Under Path A, this comparison would need to be re-run
+  to be meaningful (Path-B contaminated by rope re-adaptation). The
+  intrinsic-vs-downstream correspondence at iter-0-after-TD remains
+  unvalidated post-CPT.
 
 ### Implications for Task 2 v1.x
 

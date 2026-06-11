@@ -52,10 +52,11 @@ supporting-material/
 
 ## Benchmark Policy
 
-`benchmark-evals/` must present heldout BPC/BPB and downstream task scores as
-the cross-arm evidence. Raw Megatron `lm loss` is per-token CE and is only
-health telemetry across different tokenizers. The public release now carries
-the canonical policy at:
+`benchmark-evals/` must present heldout BPB and downstream task scores as the
+cross-arm evidence. Raw Megatron `lm loss` is per-token CE and is only health
+telemetry across different tokenizers. Older artifacts may call BPB `BPC`; that
+is a legacy bits-per-byte alias. The public release now carries the canonical
+policy at:
 
 ```text
 supporting-material/provenance/evals/LOSS_MEASUREMENT_POLICY.md

@@ -14,6 +14,10 @@ OUT_JSON = ROOT / "continuation_3p5b_summary.json"
 TOK_PER_ITER = 1024 * 4096
 ITERS = [476, 585, 715, 834]
 ARMS = ["vanilla", "retok", "td"]
+HEADLINE_EXCLUDED_TASKS = {
+    "arc_challenge_mt_el",
+    "global_piqa_completions_ell_grek",
+}
 ARM_LABEL = {
     "vanilla": "Vanilla",
     "retok": "ReTok",
@@ -37,7 +41,7 @@ TASKS = [
     ("arc_challenge_mt_el", True, "Greek", "ARC Challenge MT-el"),
     ("xnli_el", False, "Greek", "XNLI Greek"),
     ("xquad_el", False, "Greek", "XQuAD Greek F1"),
-    ("global_piqa_completions_ell_grek", True, "Greek", "PIQA Greek"),
+    ("global_piqa_completions_ell_grek", True, "Greek", "PIQA Greek MT"),
 ]
 
 
@@ -67,6 +71,13 @@ def fair_blob(arm: str, iteration: int) -> dict | None:
     return read_json(path)
 
 
+def heldout_bpb(blob: dict | None) -> float | None:
+    if blob is None:
+        return None
+    g = blob["global"]
+    return g.get("bpb_bits_per_byte", g.get("bpc_bits_per_byte"))
+
+
 def diag_blob(arm: str, iteration: int) -> dict | None:
     path = RESULTS / "diagnostics" / f"{arm}_iter{iteration:03d}_new_token_diagnostics.json"
     if not path.exists():
@@ -80,6 +91,7 @@ def group_average(arm: str, iteration: int, group: str) -> float:
         metric(blob, task, prefer_norm)
         for task, prefer_norm, task_group, _ in TASKS
         if task_group == group
+        and not (group == "Greek" and task in HEADLINE_EXCLUDED_TASKS)
     ]
     vals = [v for v in vals if v is not None]
     return sum(vals) / len(vals)
@@ -122,13 +134,14 @@ def make_summary() -> dict:
             }
         fair = fair_blob(arm, 834)
         fair_start = fair_blob(arm, 476)
-        row["bpc"] = {
-            "iter476": fair_start["global"]["bpc_bits_per_byte"] if fair_start else None,
-            "iter834": fair["global"]["bpc_bits_per_byte"] if fair else None,
+        start_bpb = heldout_bpb(fair_start)
+        final_bpb = heldout_bpb(fair)
+        row["bpb"] = {
+            "iter476": start_bpb,
+            "iter834": final_bpb,
             "delta": (
-                fair["global"]["bpc_bits_per_byte"]
-                - fair_start["global"]["bpc_bits_per_byte"]
-                if fair and fair_start
+                final_bpb - start_bpb
+                if final_bpb is not None and start_bpb is not None
                 else None
             ),
         }
@@ -208,30 +221,35 @@ def render_markdown(summary: dict) -> str:
         "",
         "Loss-reading rule: raw Megatron `lm loss` is per-token CE and is not",
         "tokenizer-fair across Vanilla vs the 148,480-vocab arms. This report therefore",
-        "uses heldout BPC/BPB and downstream evals for cross-arm conclusions; raw",
+        "uses heldout BPB (legacy reports may call it BPC) and downstream evals",
+        "for cross-arm conclusions; raw",
         "training loss plots are diagnostic-only.",
+        "",
+        "Greek aggregate rule: explicit MT diagnostics (`arc_challenge_mt_el`,",
+        "`global_piqa_completions_ell_grek`) are excluded from aggregate",
+        "calculations. They remain visible in the per-task tables only.",
         "",
         "## Bottom line",
         "",
         "- TD layer11 is the best final benchmark arm overall: it is first on English",
-        "  retention and multilingual aggregates, and narrowly first on the Greek",
-        "  aggregate at iter 834.",
-        "- Vanilla still has the best tokenizer-fair heldout Greek BPC, but its",
-        "  downstream Greek aggregate declined during the 2.0B -> 3.5B continuation.",
-        "- ReTok improves fastest on BPC and wins Greek MMLU / INCLUDE-44 Greek at",
-        "  iter 834, but it remains behind TD and Vanilla on the Greek aggregate.",
+        "  retention and multilingual aggregates, and first on the no-explicit-MT",
+        "  Greek aggregate at iter 834.",
+        "- Vanilla still has the best tokenizer-fair heldout Greek BPB, but its",
+        "  downstream no-explicit-MT Greek aggregate declined during the 2.0B -> 3.5B continuation.",
+        "- ReTok improves fastest on BPB and wins Greek MMLU / INCLUDE-44 Greek at",
+        "  iter 834, but it remains behind TD and Vanilla on the no-explicit-MT Greek aggregate.",
         "- If selecting for the actual downstream bakeoff objective, TD layer11 is now",
-        "  the leading candidate. If selecting only for heldout BPC, Vanilla remains",
+        "  the leading candidate. If selecting only for heldout BPB, Vanilla remains",
         "  ahead.",
         "",
         "## Aggregate scoreboard at iter 834",
         "",
-        "| Arm | Greek agg | Delta vs 476 | EN retention | Delta vs 476 | Multilingual | Delta vs 476 | BPC lower better | BPC delta |",
+        "| Arm | Greek no-MT agg | Delta vs 476 | EN retention | Delta vs 476 | Multilingual | Delta vs 476 | BPB lower better | BPB delta |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in summary["group_rows"]:
         lines.append(
-            "| {arm} | {gr} | {gr_d} | {en} | {en_d} | {multi} | {multi_d} | {bpc} | {bpc_d} |".format(
+            "| {arm} | {gr} | {gr_d} | {en} | {en_d} | {multi} | {multi_d} | {bpb} | {bpb_d} |".format(
                 arm=ARM_LABEL[row["arm"]],
                 gr=fmt(row["Greek"]["iter834"]),
                 gr_d=fmt_pp(row["Greek"]["delta"]),
@@ -239,8 +257,8 @@ def render_markdown(summary: dict) -> str:
                 en_d=fmt_pp(row["EN retention"]["delta"]),
                 multi=fmt(row["Multilingual"]["iter834"]),
                 multi_d=fmt_pp(row["Multilingual"]["delta"]),
-                bpc=fmt(row["bpc"]["iter834"]),
-                bpc_d=fmt_signed(row["bpc"]["delta"]),
+                bpb=fmt(row["bpb"]["iter834"]),
+                bpb_d=fmt_signed(row["bpb"]["delta"]),
             )
         )
 
@@ -312,7 +330,7 @@ def render_markdown(summary: dict) -> str:
         "## Artifact checklist",
         "",
         "- Local packed-eval snapshots: `per_iter_results/{vanilla,retok,td}_iter{585,715,834}.json`.",
-        "- Local BPC snapshots: `per_iter_results/intrinsic/*_iter{585,715,834}_fair.json`.",
+        "- Local BPB snapshots: `per_iter_results/intrinsic/*_iter{585,715,834}_fair.json`.",
         "- Local new-token diagnostics: `per_iter_results/diagnostics/{retok,td}_iter{585,715,834}_new_token_diagnostics.json`.",
         "- Regenerated plots are written to `plots/`.",
         "- Final remote packed eval job: `2376082`, state `COMPLETED`, exit `0:0`, elapsed `00:59:51`.",

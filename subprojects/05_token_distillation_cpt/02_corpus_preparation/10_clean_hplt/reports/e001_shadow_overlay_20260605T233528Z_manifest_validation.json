@@ -1,0 +1,9 @@
+{
+  "by_action": {
+    "normalize_or_trim_span": 32
+  },
+  "materialized_records": 32,
+  "records": 32,
+  "violation_count": 0,
+  "violations": []
+}

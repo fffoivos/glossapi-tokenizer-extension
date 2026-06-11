@@ -1,0 +1,97 @@
+{
+  "schema": "greekmmlu-dclm-decontam-v3-categorized",
+  "generated_utc": "20260602T204533Z",
+  "benchmark": "greekmmlu",
+  "k": 8,
+  "max_gap_tokens": 50,
+  "max_gap_tokens_short": 5,
+  "direction": "after",
+  "headline": {
+    "rule": "q_plus_correct_and_wrong",
+    "source": "results_by_category",
+    "rationale": "Strictest mutually-exclusive category: Q + correct option + at least one wrong option all fire in proximity windows. Verified ≈100% precision on a 25-doc codex-judge sample (2026-06-02, gpt-5.5). Verbatim eval-scrape signal.",
+    "contaminated_items": 171,
+    "contaminated_items_fraction": 0.464674,
+    "item_doc_pairs": 220
+  },
+  "inputs": {
+    "queries_jsonl": "decontamination/_archive_k13_overlap_method/reports/v2_local_validation/queries.jsonl",
+    "corpus_jsonl": "decontamination/_archive_k13_overlap_method/reports/v2_local_validation/corpus.jsonl"
+  },
+  "method": {
+    "name": "DCLM-adapted MMLU contamination check (Greek-language adaptation, proximity-gated)",
+    "rule": "Q-side: any K-gram of the item's normalized question appears in the normalized doc tokens. If so, record the doc positions where it matched.\nOption-side: for each option and each Q-match position, check the option in a per-option window. The 'gap' is the number of doc tokens between the END of the Q-match and the START of the option. With --direction=after, option_start ∈ [Q_end, Q_end + effective_gap]. With --direction=any, option_start can also be effective_gap tokens before the Q (the before/after ranges merge with the within-Q overlap case included). For options shorter than K tokens, use substring (contiguous-token-subsequence) presence inside that range with the tight `--max-gap-tokens-short` window; otherwise use k-gram intersection inside the window, with `--max-gap-tokens`. K-gram check has a bounded fuzz of `opt_len - k` tokens past the gap boundary (the matched k-gram can be any of the option's chunks, so the implied option_start may sit slightly outside the strict range); this fuzz is negligible relative to the long-option window default of 50.\nCategorization: for each (item, doc) pair where Q-side fired, assign exactly one of {q_only, q_plus_correct_only, q_plus_wrong_only, q_plus_correct_and_wrong} based on which option indices fired.",
+    "categories_emitted": [
+      "q_only: Q stem matched in doc, no option fired in window (often general-knowledge stem overlap; for A-loaded items, eval-format scaffold without a specific item)",
+      "q_plus_correct_only: Q + the correct option fired in window (no wrongs); strongest direct cheating signal",
+      "q_plus_wrong_only: Q + at least one wrong option fired (not the correct); eval scaffolding without the answer key, or wrong-answer discussion",
+      "q_plus_correct_and_wrong: Q + correct + at least one wrong; near-verbatim eval-item scrape with options visible"
+    ],
+    "rules_emitted_for_backcompat": [
+      "correct_only: q_plus_correct_only ∪ q_plus_correct_and_wrong (DCLM-adapted; the cheating signal proper)",
+      "any: any of the three non-q_only categories (DCLM paper rule)",
+      "all: every option fired (strictest)"
+    ],
+    "normalization": "NFKC + strip combining marks + casefold + Unicode word tokens excluding underscore",
+    "tokenization_note": "punctuation is stripped during tokenization; digits remain as tokens; --max-gap-tokens is measured in normalized word tokens",
+    "reference": "mlfoundations/dclm (Li et al. 2024, arXiv 2406.11794), MMLU/HellaSwag contamination check; proximity gate added per user direction 2026-06-02"
+  },
+  "totals": {
+    "items": 368,
+    "items_q_too_short_for_kgram": 71,
+    "items_q_too_short_note": "Items whose normalized question has fewer than K tokens cannot form a Q-side k-gram and are therefore invisible to this rule. They are counted here so the audit reader knows the unmeasurable subset.",
+    "options_too_short_for_kgram_total": 634,
+    "options_total": 1107
+  },
+  "input_issues": {
+    "empty_question": 0,
+    "empty_choices": 0,
+    "missing_answer_index": 0,
+    "answer_index_out_of_range": 0,
+    "empty_option_tokens": 0
+  },
+  "results_by_category": {
+    "q_plus_correct_and_wrong": {
+      "items_with_at_least_one_doc_in_category": 171,
+      "items_fraction": 0.464674,
+      "item_doc_pairs_in_category": 220
+    },
+    "q_plus_correct_only": {
+      "items_with_at_least_one_doc_in_category": 42,
+      "items_fraction": 0.11413,
+      "item_doc_pairs_in_category": 51
+    },
+    "q_plus_wrong_only": {
+      "items_with_at_least_one_doc_in_category": 59,
+      "items_fraction": 0.160326,
+      "item_doc_pairs_in_category": 75
+    },
+    "q_only": {
+      "items_with_at_least_one_doc_in_category": 39,
+      "items_fraction": 0.105978,
+      "item_doc_pairs_in_category": 106
+    }
+  },
+  "results_by_rule": {
+    "correct_only": {
+      "contaminated_items": 210,
+      "contaminated_items_fraction": 0.570652,
+      "contaminated_item_doc_pairs": 271
+    },
+    "any": {
+      "contaminated_items": 253,
+      "contaminated_items_fraction": 0.6875,
+      "contaminated_item_doc_pairs": 346
+    },
+    "all": {
+      "contaminated_items": 106,
+      "contaminated_items_fraction": 0.288043,
+      "contaminated_item_doc_pairs": 139
+    }
+  },
+  "scan": {
+    "wall_seconds": 0.99,
+    "total_seconds": 1.02,
+    "progress_every_rows": 50000
+  }
+}

@@ -8,6 +8,9 @@
   "documents": 5754173,
   "base_tokenized_tokens": 9831704774,
   "mix_builder_target_tokens": 7000141612,
+  "token_count_metadata": "token-counts.json",
+  "hplt_clean60_wave4_modern_greek_148k_tokens_no_eod": 44195950025,
+  "hplt_clean60_wave4_modern_greek_148k_tokens_with_one_eod_per_row": 44244678799,
   "recipe": "70/24/4/2 Greek/replay/code/math",
   "source_graph": "source-graph.json"
 }

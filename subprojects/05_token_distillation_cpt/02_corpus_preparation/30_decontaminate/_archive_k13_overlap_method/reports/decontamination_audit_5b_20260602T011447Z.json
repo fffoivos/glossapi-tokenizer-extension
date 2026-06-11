@@ -1,0 +1,354 @@
+{
+  "benchmark_matching_docs": {
+    "greekmmlu": 5459,
+    "ilsp_mcqa_asep": 2594,
+    "ilsp_medical_mcqa": 36,
+    "plutus_qa": 37
+  },
+  "clean_subset_note": "This scan emits contaminated benchmark item ids. Clean-subset score recomputation is a separate deterministic join against per-checkpoint prediction JSONL.",
+  "generated_utc": "2026-06-02T01:15:46Z",
+  "inputs": {
+    "corpus_jsonl": "/capstor/scratch/cscs/fffoivos/runs/04_vanilla_cpt/04_hplt_b1_dataset_5b_20260528T112539Z/jsonl/hplt_b1_5b.jsonl",
+    "queries_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/decontamination/05_decontam_5b_20260602T011447Z/queries/native_greek_mcq_decontam_queries.jsonl"
+  },
+  "method": {
+    "gpu_required": false,
+    "k": [
+      8,
+      13
+    ],
+    "name": "exact normalized word n-gram overlap",
+    "normalization": "NFKC, strip combining marks, casefold, Unicode word tokens excluding underscore",
+    "overlap_fraction": "unique matched query shingles divided by unique query shingles for the same benchmark item/surface/k",
+    "thresholds": [
+      0.0,
+      0.1,
+      0.2,
+      0.4,
+      0.6,
+      0.8
+    ]
+  },
+  "outputs": {
+    "audit_json": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/decontamination/05_decontam_5b_20260602T011447Z/scan/decontamination_audit_5b.json",
+    "hits_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/decontamination/05_decontam_5b_20260602T011447Z/scan/hits.jsonl",
+    "top_item_hits_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/decontamination/05_decontam_5b_20260602T011447Z/scan/top_item_hits.jsonl"
+  },
+  "query_summary": {
+    "benchmarks": {
+      "greekmmlu": {
+        "items": 16632,
+        "surfaces": 66528
+      },
+      "ilsp_mcqa_asep": {
+        "items": 1200,
+        "surfaces": 4800
+      },
+      "ilsp_medical_mcqa": {
+        "items": 432,
+        "surfaces": 1728
+      },
+      "plutus_qa": {
+        "items": 225,
+        "surfaces": 900
+      }
+    },
+    "indexed_unique_grams": 1709528,
+    "k": [
+      8,
+      13
+    ],
+    "query_file": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/decontamination/05_decontam_5b_20260602T011447Z/queries/native_greek_mcq_decontam_queries.jsonl",
+    "surface_keys": 147912,
+    "zero_shingle_surface_keys": 20964
+  },
+  "scan_summary": {
+    "bytes_read": 22935074496,
+    "hit_records_seen": 62572,
+    "hit_records_written": 62572,
+    "hits_truncated": false,
+    "max_hit_records": 500000,
+    "rows": 3739911,
+    "source_row_counts": {
+      "code_codeparrot_clean": 76040,
+      "greek_hplt_clean60": 2422129,
+      "math_finemath": 57543,
+      "replay_t1_arb_Arab": 59748,
+      "replay_t1_cmn_Hani": 53508,
+      "replay_t1_deu_Latn": 72840,
+      "replay_t1_english_edu": 89107,
+      "replay_t1_fra_Latn": 65663,
+      "replay_t1_ita_Latn": 77817,
+      "replay_t1_rus_Cyrl": 48589,
+      "replay_t1_spa_Latn": 75391,
+      "replay_t2_bul_Cyrl": 42627,
+      "replay_t2_heb_Hebr": 32420,
+      "replay_t2_jpn_Jpan": 56823,
+      "replay_t2_nld_Latn": 58748,
+      "replay_t2_pes_Arab": 34006,
+      "replay_t2_pol_Latn": 48753,
+      "replay_t2_por_Latn": 58823,
+      "replay_t2_ron_Latn": 40073,
+      "replay_t2_srp_Cyrl": 32662,
+      "replay_t2_tur_Latn": 52283,
+      "replay_t2_ukr_Cyrl": 29649,
+      "replay_t3_als_Latn": 31602,
+      "replay_t3_hye_Armn": 28400,
+      "replay_t3_kat_Geor": 21407,
+      "replay_t3_lat_Latn": 34758,
+      "replay_t3_mkd_Cyrl": 38502
+    },
+    "wall_seconds": 4288.6476356983185
+  },
+  "schema": "greek-mcq-5b-decontamination-audit-v1",
+  "threshold_summary": {
+    "greekmmlu": {
+      "k13_threshold_0": {
+        "contaminated_fraction": 0.04112554112554113,
+        "contaminated_items": 684,
+        "total_items": 16632
+      },
+      "k13_threshold_0.1": {
+        "contaminated_fraction": 0.031144781144781145,
+        "contaminated_items": 518,
+        "total_items": 16632
+      },
+      "k13_threshold_0.2": {
+        "contaminated_fraction": 0.027236652236652236,
+        "contaminated_items": 453,
+        "total_items": 16632
+      },
+      "k13_threshold_0.4": {
+        "contaminated_fraction": 0.0205026455026455,
+        "contaminated_items": 341,
+        "total_items": 16632
+      },
+      "k13_threshold_0.6": {
+        "contaminated_fraction": 0.016594516594516596,
+        "contaminated_items": 276,
+        "total_items": 16632
+      },
+      "k13_threshold_0.8": {
+        "contaminated_fraction": 0.01461038961038961,
+        "contaminated_items": 243,
+        "total_items": 16632
+      },
+      "k8_threshold_0": {
+        "contaminated_fraction": 0.10888648388648389,
+        "contaminated_items": 1811,
+        "total_items": 16632
+      },
+      "k8_threshold_0.1": {
+        "contaminated_fraction": 0.06457431457431458,
+        "contaminated_items": 1074,
+        "total_items": 16632
+      },
+      "k8_threshold_0.2": {
+        "contaminated_fraction": 0.049422799422799424,
+        "contaminated_items": 822,
+        "total_items": 16632
+      },
+      "k8_threshold_0.4": {
+        "contaminated_fraction": 0.03541366041366041,
+        "contaminated_items": 589,
+        "total_items": 16632
+      },
+      "k8_threshold_0.6": {
+        "contaminated_fraction": 0.028078403078403077,
+        "contaminated_items": 467,
+        "total_items": 16632
+      },
+      "k8_threshold_0.8": {
+        "contaminated_fraction": 0.02368927368927369,
+        "contaminated_items": 394,
+        "total_items": 16632
+      }
+    },
+    "ilsp_mcqa_asep": {
+      "k13_threshold_0": {
+        "contaminated_fraction": 0.019166666666666665,
+        "contaminated_items": 23,
+        "total_items": 1200
+      },
+      "k13_threshold_0.1": {
+        "contaminated_fraction": 0.01,
+        "contaminated_items": 12,
+        "total_items": 1200
+      },
+      "k13_threshold_0.2": {
+        "contaminated_fraction": 0.006666666666666667,
+        "contaminated_items": 8,
+        "total_items": 1200
+      },
+      "k13_threshold_0.4": {
+        "contaminated_fraction": 0.0025,
+        "contaminated_items": 3,
+        "total_items": 1200
+      },
+      "k13_threshold_0.6": {
+        "contaminated_fraction": 0.0008333333333333334,
+        "contaminated_items": 1,
+        "total_items": 1200
+      },
+      "k13_threshold_0.8": {
+        "contaminated_fraction": 0.0008333333333333334,
+        "contaminated_items": 1,
+        "total_items": 1200
+      },
+      "k8_threshold_0": {
+        "contaminated_fraction": 0.18166666666666667,
+        "contaminated_items": 218,
+        "total_items": 1200
+      },
+      "k8_threshold_0.1": {
+        "contaminated_fraction": 0.085,
+        "contaminated_items": 102,
+        "total_items": 1200
+      },
+      "k8_threshold_0.2": {
+        "contaminated_fraction": 0.04666666666666667,
+        "contaminated_items": 56,
+        "total_items": 1200
+      },
+      "k8_threshold_0.4": {
+        "contaminated_fraction": 0.019166666666666665,
+        "contaminated_items": 23,
+        "total_items": 1200
+      },
+      "k8_threshold_0.6": {
+        "contaminated_fraction": 0.006666666666666667,
+        "contaminated_items": 8,
+        "total_items": 1200
+      },
+      "k8_threshold_0.8": {
+        "contaminated_fraction": 0.005833333333333334,
+        "contaminated_items": 7,
+        "total_items": 1200
+      }
+    },
+    "ilsp_medical_mcqa": {
+      "k13_threshold_0": {
+        "contaminated_fraction": 0.006944444444444444,
+        "contaminated_items": 3,
+        "total_items": 432
+      },
+      "k13_threshold_0.1": {
+        "contaminated_fraction": 0.006944444444444444,
+        "contaminated_items": 3,
+        "total_items": 432
+      },
+      "k13_threshold_0.2": {
+        "contaminated_fraction": 0.006944444444444444,
+        "contaminated_items": 3,
+        "total_items": 432
+      },
+      "k13_threshold_0.4": {
+        "contaminated_fraction": 0.006944444444444444,
+        "contaminated_items": 3,
+        "total_items": 432
+      },
+      "k13_threshold_0.6": {
+        "contaminated_fraction": 0.004629629629629629,
+        "contaminated_items": 2,
+        "total_items": 432
+      },
+      "k13_threshold_0.8": {
+        "contaminated_fraction": 0.0023148148148148147,
+        "contaminated_items": 1,
+        "total_items": 432
+      },
+      "k8_threshold_0": {
+        "contaminated_fraction": 0.07175925925925926,
+        "contaminated_items": 31,
+        "total_items": 432
+      },
+      "k8_threshold_0.1": {
+        "contaminated_fraction": 0.046296296296296294,
+        "contaminated_items": 20,
+        "total_items": 432
+      },
+      "k8_threshold_0.2": {
+        "contaminated_fraction": 0.037037037037037035,
+        "contaminated_items": 16,
+        "total_items": 432
+      },
+      "k8_threshold_0.4": {
+        "contaminated_fraction": 0.018518518518518517,
+        "contaminated_items": 8,
+        "total_items": 432
+      },
+      "k8_threshold_0.6": {
+        "contaminated_fraction": 0.013888888888888888,
+        "contaminated_items": 6,
+        "total_items": 432
+      },
+      "k8_threshold_0.8": {
+        "contaminated_fraction": 0.011574074074074073,
+        "contaminated_items": 5,
+        "total_items": 432
+      }
+    },
+    "plutus_qa": {
+      "k13_threshold_0": {
+        "contaminated_fraction": 0.04888888888888889,
+        "contaminated_items": 11,
+        "total_items": 225
+      },
+      "k13_threshold_0.1": {
+        "contaminated_fraction": 0.017777777777777778,
+        "contaminated_items": 4,
+        "total_items": 225
+      },
+      "k13_threshold_0.2": {
+        "contaminated_fraction": 0.013333333333333334,
+        "contaminated_items": 3,
+        "total_items": 225
+      },
+      "k13_threshold_0.4": {
+        "contaminated_fraction": 0.0044444444444444444,
+        "contaminated_items": 1,
+        "total_items": 225
+      },
+      "k13_threshold_0.6": {
+        "contaminated_fraction": 0.0,
+        "contaminated_items": 0,
+        "total_items": 225
+      },
+      "k13_threshold_0.8": {
+        "contaminated_fraction": 0.0,
+        "contaminated_items": 0,
+        "total_items": 225
+      },
+      "k8_threshold_0": {
+        "contaminated_fraction": 0.8933333333333333,
+        "contaminated_items": 201,
+        "total_items": 225
+      },
+      "k8_threshold_0.1": {
+        "contaminated_fraction": 0.035555555555555556,
+        "contaminated_items": 8,
+        "total_items": 225
+      },
+      "k8_threshold_0.2": {
+        "contaminated_fraction": 0.017777777777777778,
+        "contaminated_items": 4,
+        "total_items": 225
+      },
+      "k8_threshold_0.4": {
+        "contaminated_fraction": 0.008888888888888889,
+        "contaminated_items": 2,
+        "total_items": 225
+      },
+      "k8_threshold_0.6": {
+        "contaminated_fraction": 0.0,
+        "contaminated_items": 0,
+        "total_items": 225
+      },
+      "k8_threshold_0.8": {
+        "contaminated_fraction": 0.0,
+        "contaminated_items": 0,
+        "total_items": 225
+      }
+    }
+  }
+}

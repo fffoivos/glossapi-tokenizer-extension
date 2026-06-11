@@ -1,7 +1,7 @@
 saved plots/intrinsic_trajectories.png
 saved plots/intrinsic_van_td.png
 
-=== BPC trajectory (bits/byte, LOWER IS BETTER) ===
+=== BPB trajectory (bits/byte, LOWER IS BETTER) ===
   iter    tokens   vanilla     retok  centroid        td
     65     0.273    0.6094    0.9750    1.2511       n/a
    130     0.545    0.5432    0.7561    1.1318    0.6531
@@ -31,7 +31,7 @@ saved plots/intrinsic_van_td.png
 
 === Full-window slopes on intrinsic metrics (Δ per B-token) ===
 
-BPC (bits / byte) ↓:
+BPB (bits / byte) ↓:
   vanilla    slope = -0.03303 / B   (↓ better)
   retok      slope = -0.10025 / B   (↓ better)
   centroid   slope = -0.18582 / B   (↓ better)

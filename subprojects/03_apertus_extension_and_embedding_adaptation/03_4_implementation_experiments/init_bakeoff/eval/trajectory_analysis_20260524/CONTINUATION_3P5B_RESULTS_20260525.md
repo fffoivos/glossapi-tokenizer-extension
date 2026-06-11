@@ -1,6 +1,6 @@
 # 3.5B continuation results - Vanilla vs ReTok vs TD layer11
 
-Generated UTC: `2026-05-25T05:23:53+00:00`.
+Generated UTC: `2026-05-26T12:19:58+00:00`.
 
 This summarizes the continuation run `continuation_3p5b_20260524T143012Z`,
 which extended Vanilla, ReTok, and TD layer11 from iter 476 (~2.0B tokens)
@@ -10,29 +10,34 @@ to iter 834 (~3.5B tokens). Local JSON snapshots live under
 
 Loss-reading rule: raw Megatron `lm loss` is per-token CE and is not
 tokenizer-fair across Vanilla vs the 148,480-vocab arms. This report therefore
-uses heldout BPC/BPB and downstream evals for cross-arm conclusions; raw
+uses heldout BPB (legacy reports may call it BPC) and downstream evals
+for cross-arm conclusions; raw
 training loss plots are diagnostic-only.
+
+Greek aggregate rule: explicit MT diagnostics (`arc_challenge_mt_el`,
+`global_piqa_completions_ell_grek`) are excluded from aggregate
+calculations. They remain visible in the per-task tables only.
 
 ## Bottom line
 
 - TD layer11 is the best final benchmark arm overall: it is first on English
-  retention and multilingual aggregates, and narrowly first on the Greek
-  aggregate at iter 834.
-- Vanilla still has the best tokenizer-fair heldout Greek BPC, but its
-  downstream Greek aggregate declined during the 2.0B -> 3.5B continuation.
-- ReTok improves fastest on BPC and wins Greek MMLU / INCLUDE-44 Greek at
-  iter 834, but it remains behind TD and Vanilla on the Greek aggregate.
+  retention and multilingual aggregates, and first on the no-explicit-MT
+  Greek aggregate at iter 834.
+- Vanilla still has the best tokenizer-fair heldout Greek BPB, but its
+  downstream no-explicit-MT Greek aggregate declined during the 2.0B -> 3.5B continuation.
+- ReTok improves fastest on BPB and wins Greek MMLU / INCLUDE-44 Greek at
+  iter 834, but it remains behind TD and Vanilla on the no-explicit-MT Greek aggregate.
 - If selecting for the actual downstream bakeoff objective, TD layer11 is now
-  the leading candidate. If selecting only for heldout BPC, Vanilla remains
+  the leading candidate. If selecting only for heldout BPB, Vanilla remains
   ahead.
 
 ## Aggregate scoreboard at iter 834
 
-| Arm | Greek agg | Delta vs 476 | EN retention | Delta vs 476 | Multilingual | Delta vs 476 | BPC lower better | BPC delta |
+| Arm | Greek no-MT agg | Delta vs 476 | EN retention | Delta vs 476 | Multilingual | Delta vs 476 | BPB lower better | BPB delta |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Vanilla | 0.4339 | -0.70 pp | 0.6782 | -0.36 pp | 0.4923 | +0.22 pp | 0.4724 | -0.0182 |
-| ReTok | 0.4246 | +0.96 pp | 0.6786 | +0.36 pp | 0.4864 | -0.09 pp | 0.5390 | -0.0349 |
-| TD layer11 | 0.4344 | +0.90 pp | 0.6865 | +0.38 pp | 0.4967 | +0.68 pp | 0.5054 | -0.0256 |
+| Vanilla | 0.3989 | -1.42 pp | 0.6782 | -0.36 pp | 0.4923 | +0.22 pp | 0.4724 | -0.0182 |
+| ReTok | 0.3984 | +0.78 pp | 0.6786 | +0.36 pp | 0.4864 | -0.09 pp | 0.5390 | -0.0349 |
+| TD layer11 | 0.4129 | +0.80 pp | 0.6865 | +0.38 pp | 0.4967 | +0.68 pp | 0.5054 | -0.0256 |
 
 ## Per-task winners at iter 834
 
@@ -90,7 +95,7 @@ lower mean rank is better.
 ## Artifact checklist
 
 - Local packed-eval snapshots: `per_iter_results/{vanilla,retok,td}_iter{585,715,834}.json`.
-- Local BPC snapshots: `per_iter_results/intrinsic/*_iter{585,715,834}_fair.json`.
+- Local BPB snapshots: `per_iter_results/intrinsic/*_iter{585,715,834}_fair.json`.
 - Local new-token diagnostics: `per_iter_results/diagnostics/{retok,td}_iter{585,715,834}_new_token_diagnostics.json`.
 - Regenerated plots are written to `plots/`.
 - Final remote packed eval job: `2376082`, state `COMPLETED`, exit `0:0`, elapsed `00:59:51`.

@@ -1,0 +1,12 @@
+{
+  "human_name": "TokenDistil-5B",
+  "method": "TokenDistil",
+  "training_point": "5.0B",
+  "iteration": 1192,
+  "target_layer": 11,
+  "source_hf_copy_clariden": "/capstor/scratch/cscs/fffoivos/runs/eval/continuation_5b_td_vs_vanilla_20260525T142522Z_td_layer11/iter_0001192_hf",
+  "source_megatron_checkpoint_clariden": "/capstor/scratch/cscs/fffoivos/runs/bakeoff/continuation_5b_td_vs_vanilla_20260525T142522Z_td_layer11/checkpoints/iter_0001192",
+  "tokenizer": "greek-extension-tokenizer",
+  "dataset": "cpt-training-dataset",
+  "evals": "benchmark-evals/bakeoff-final"
+}

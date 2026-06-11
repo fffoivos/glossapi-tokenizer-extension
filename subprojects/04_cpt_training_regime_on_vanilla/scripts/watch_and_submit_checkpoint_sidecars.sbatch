@@ -64,13 +64,20 @@ echo
 
 test -x "$SUBMIT_SCRIPT"
 
-checkpoints=(
-  "119 499122176 Vanilla-0.5B"
-  "238 998244352 Vanilla-1B"
-  "477 2000683008 Vanilla-2B"
-  "834 3498049536 Vanilla-3.5B"
-  "1192 4999610368 Vanilla-5B"
-)
+# Required-checkpoint list: "iter consumed_tokens label" per line. Overridable
+# via CHECKPOINTS_FILE (one entry per line) so other runs (e.g. the 13.5B 2-arm
+# experiment) feed their own cadence; defaults to the Vanilla-5B targets.
+if [ -n "${CHECKPOINTS_FILE:-}" ] && [ -f "$CHECKPOINTS_FILE" ]; then
+  mapfile -t checkpoints < "$CHECKPOINTS_FILE"
+else
+  checkpoints=(
+    "119 499122176 Vanilla-0.5B"
+    "238 998244352 Vanilla-1B"
+    "477 2000683008 Vanilla-2B"
+    "834 3498049536 Vanilla-3.5B"
+    "1192 4999610368 Vanilla-5B"
+  )
+fi
 
 start_epoch="$(date +%s)"
 

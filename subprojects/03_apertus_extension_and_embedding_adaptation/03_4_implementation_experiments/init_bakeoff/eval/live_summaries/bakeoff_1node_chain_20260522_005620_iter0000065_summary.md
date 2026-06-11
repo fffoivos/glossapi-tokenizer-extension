@@ -1,6 +1,6 @@
 # Bakeoff summary
 
-| dir | vocab | BPC (b/byte) | NLL/char | NLL/word | tok/word | chars/tok | STRR | D1.top1 | D2.mass_new | D4.top1_new | D5.util | D6.E_new/exist | D7.cos_off | D7.eff_rank | el_arc | el_belebele | el_xnli | el_xquad_f1 | el_mmlu | el_base44 | el_piqa | arc_chal | hellaswag | winogrande | piqa | mmlu |
+| dir | vocab | BPB (b/byte) | NLL/char | NLL/word | tok/word | chars/tok | STRR | D1.top1 | D2.mass_new | D4.top1_new | D5.util | D6.E_new/exist | D7.cos_off | D7.eff_rank | el_arc | el_belebele | el_xnli | el_xquad_f1 | el_mmlu | el_base44 | el_piqa | arc_chal | hellaswag | winogrande | piqa | mmlu |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | bakeoff_1node_chain_20260522_005620_vanilla/iter_0000065_greek_only | 131,072 | 0.6094 | 0.7209 | 4.9646 | 2.693 | 2.557 | 0.270 | — | 0.0000 | — | 0.000 | — | — | — | 0.427 | 0.549 | 0.410 | 0.357 | 0.450 | 0.449 | 0.630 | — | — | — | — | — |
 | bakeoff_1node_chain_20260522_005620_retok/iter_0000065_greek_only | 148,480 | 0.9750 | 1.1532 | 7.9502 | 1.735 | 3.973 | 0.446 | 0.068 | 0.3202 | 0.234 | 0.158 | 1.058 | 0.0842 | 320.5 | 0.279 | 0.408 | 0.397 | 0.211 | 0.333 | 0.315 | 0.530 | — | — | — | — | — |

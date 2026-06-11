@@ -1,0 +1,9 @@
+{
+  "base_ref": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_17408_curated_padded",
+  "candidate_dir": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/tokenizer",
+  "base_vocab_size": 148480,
+  "candidate_vocab_size": 153600,
+  "bos_token_id": 1,
+  "eos_token_id": 2,
+  "pad_token_id": 3
+}

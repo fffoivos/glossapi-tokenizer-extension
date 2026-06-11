@@ -1,0 +1,737 @@
+{
+  "by_action": {
+    "drop_doc": {
+      "chars_removed": 469442,
+      "decision_rows": 27,
+      "held_out_chars": 0,
+      "held_out_tokens": 0,
+      "shadow_records": 0,
+      "source_docs": 27,
+      "tokens_removed": 201970
+    },
+    "normalize_or_trim_span": {
+      "chars_removed": 751,
+      "decision_rows": 36,
+      "held_out_chars": 0,
+      "held_out_tokens": 0,
+      "shadow_records": 36,
+      "source_docs": 36,
+      "tokens_removed": 4471
+    },
+    "quarantine": {
+      "chars_removed": 0,
+      "decision_rows": 70,
+      "held_out_chars": 5161459,
+      "held_out_tokens": 1281155,
+      "shadow_records": 0,
+      "source_docs": 70,
+      "tokens_removed": 0
+    },
+    "split_doc": {
+      "chars_removed": 534,
+      "decision_rows": 7,
+      "held_out_chars": 0,
+      "held_out_tokens": 0,
+      "shadow_records": 7,
+      "source_docs": 7,
+      "tokens_removed": 81
+    },
+    "trim_prefix": {
+      "chars_removed": 15177,
+      "decision_rows": 6,
+      "held_out_chars": 0,
+      "held_out_tokens": 0,
+      "shadow_records": 6,
+      "source_docs": 6,
+      "tokens_removed": 3784
+    },
+    "trim_span": {
+      "chars_removed": 6615,
+      "decision_rows": 7,
+      "held_out_chars": 0,
+      "held_out_tokens": 0,
+      "shadow_records": 7,
+      "source_docs": 7,
+      "tokens_removed": 1807
+    },
+    "trim_suffix": {
+      "chars_removed": 212053,
+      "decision_rows": 63,
+      "held_out_chars": 0,
+      "held_out_tokens": 0,
+      "shadow_records": 63,
+      "source_docs": 63,
+      "tokens_removed": 54150
+    }
+  },
+  "by_error_action": {
+    "E001": {
+      "normalize_or_trim_span": {
+        "chars_removed": 166,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 32,
+        "tokens_removed": 144
+      }
+    },
+    "E002": {
+      "normalize_or_trim_span": {
+        "chars_removed": 552,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 209
+      }
+    },
+    "E003": {
+      "drop_doc": {
+        "chars_removed": 340,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 84
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 16033,
+        "held_out_tokens": 4862,
+        "source_docs": 1,
+        "tokens_removed": 0
+      },
+      "trim_prefix": {
+        "chars_removed": 155,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 50
+      },
+      "trim_span": {
+        "chars_removed": 1892,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 488
+      }
+    },
+    "E004": {
+      "drop_doc": {
+        "chars_removed": 286285,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 9,
+        "tokens_removed": 111168
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 3191418,
+        "held_out_tokens": 793470,
+        "source_docs": 27,
+        "tokens_removed": 0
+      },
+      "split_doc": {
+        "chars_removed": 250,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 2,
+        "tokens_removed": 34
+      },
+      "trim_suffix": {
+        "chars_removed": 176422,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 13,
+        "tokens_removed": 43890
+      }
+    },
+    "E005": {
+      "drop_doc": {
+        "chars_removed": 4391,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 2,
+        "tokens_removed": 1627
+      },
+      "normalize_or_trim_span": {
+        "chars_removed": 33,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 2,
+        "tokens_removed": 2091
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 28445,
+        "held_out_tokens": 9284,
+        "source_docs": 1,
+        "tokens_removed": 0
+      },
+      "trim_span": {
+        "chars_removed": 1892,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 488
+      },
+      "trim_suffix": {
+        "chars_removed": 3812,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 3,
+        "tokens_removed": 1193
+      }
+    },
+    "E006": {
+      "drop_doc": {
+        "chars_removed": 84844,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 5,
+        "tokens_removed": 23176
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 292646,
+        "held_out_tokens": 77710,
+        "source_docs": 11,
+        "tokens_removed": 0
+      },
+      "trim_prefix": {
+        "chars_removed": 2628,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 4,
+        "tokens_removed": 823
+      },
+      "trim_span": {
+        "chars_removed": 2626,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 2,
+        "tokens_removed": 762
+      },
+      "trim_suffix": {
+        "chars_removed": 23134,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 11,
+        "tokens_removed": 7372
+      }
+    },
+    "E007": {
+      "drop_doc": {
+        "chars_removed": 89286,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 6,
+        "tokens_removed": 24156
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 2375801,
+        "held_out_tokens": 586349,
+        "source_docs": 23,
+        "tokens_removed": 0
+      },
+      "split_doc": {
+        "chars_removed": 186,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 58
+      },
+      "trim_span": {
+        "chars_removed": 3977,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 3,
+        "tokens_removed": 1143
+      },
+      "trim_suffix": {
+        "chars_removed": 43001,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 33,
+        "tokens_removed": 12854
+      }
+    },
+    "E008": {
+      "drop_doc": {
+        "chars_removed": 87815,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 4,
+        "tokens_removed": 23771
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 82141,
+        "held_out_tokens": 20213,
+        "source_docs": 3,
+        "tokens_removed": 0
+      },
+      "trim_span": {
+        "chars_removed": 1932,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 403
+      },
+      "trim_suffix": {
+        "chars_removed": 16995,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 4,
+        "tokens_removed": 4789
+      }
+    },
+    "E009": {
+      "drop_doc": {
+        "chars_removed": 55122,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 8,
+        "tokens_removed": 15399
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 4293458,
+        "held_out_tokens": 1017541,
+        "source_docs": 26,
+        "tokens_removed": 0
+      },
+      "split_doc": {
+        "chars_removed": 186,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 58
+      },
+      "trim_prefix": {
+        "chars_removed": 1212,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 2,
+        "tokens_removed": 328
+      },
+      "trim_span": {
+        "chars_removed": 6231,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 6,
+        "tokens_removed": 1711
+      },
+      "trim_suffix": {
+        "chars_removed": 194704,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 27,
+        "tokens_removed": 49153
+      }
+    },
+    "E010": {
+      "drop_doc": {
+        "chars_removed": 278277,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 17,
+        "tokens_removed": 108206
+      },
+      "normalize_or_trim_span": {
+        "chars_removed": 33,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 2,
+        "tokens_removed": 2091
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 4760725,
+        "held_out_tokens": 1145466,
+        "source_docs": 52,
+        "tokens_removed": 0
+      },
+      "split_doc": {
+        "chars_removed": 486,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 5,
+        "tokens_removed": 96
+      },
+      "trim_suffix": {
+        "chars_removed": 196805,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 18,
+        "tokens_removed": 49124
+      }
+    },
+    "E011": {
+      "drop_doc": {
+        "chars_removed": 10593,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 2874
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 1952064,
+        "held_out_tokens": 478866,
+        "source_docs": 34,
+        "tokens_removed": 0
+      },
+      "split_doc": {
+        "chars_removed": 534,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 7,
+        "tokens_removed": 81
+      }
+    },
+    "E012": {
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 963248,
+        "held_out_tokens": 220058,
+        "source_docs": 10,
+        "tokens_removed": 0
+      },
+      "split_doc": {
+        "chars_removed": 484,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 5,
+        "tokens_removed": 77
+      }
+    },
+    "E013": {
+      "trim_span": {
+        "chars_removed": 2316,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 2,
+        "tokens_removed": 499
+      },
+      "trim_suffix": {
+        "chars_removed": 2301,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 872
+      }
+    },
+    "E014": {
+      "drop_doc": {
+        "chars_removed": 326128,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 11,
+        "tokens_removed": 164437
+      },
+      "normalize_or_trim_span": {
+        "chars_removed": 33,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 3,
+        "tokens_removed": 4118
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 362725,
+        "held_out_tokens": 136921,
+        "source_docs": 13,
+        "tokens_removed": 0
+      },
+      "trim_suffix": {
+        "chars_removed": 3535,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 2,
+        "tokens_removed": 1205
+      }
+    },
+    "E015": {
+      "drop_doc": {
+        "chars_removed": 91724,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 6,
+        "tokens_removed": 27317
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 80076,
+        "held_out_tokens": 22778,
+        "source_docs": 6,
+        "tokens_removed": 0
+      },
+      "trim_prefix": {
+        "chars_removed": 12394,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 2911
+      },
+      "trim_suffix": {
+        "chars_removed": 16680,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 2,
+        "tokens_removed": 4688
+      }
+    },
+    "E016": {
+      "drop_doc": {
+        "chars_removed": 56802,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 6,
+        "tokens_removed": 14010
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 283604,
+        "held_out_tokens": 66952,
+        "source_docs": 4,
+        "tokens_removed": 0
+      },
+      "trim_suffix": {
+        "chars_removed": 28814,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 4,
+        "tokens_removed": 7661
+      }
+    },
+    "E017": {
+      "drop_doc": {
+        "chars_removed": 306813,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 12,
+        "tokens_removed": 119948
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 4797092,
+        "held_out_tokens": 1147898,
+        "source_docs": 36,
+        "tokens_removed": 0
+      },
+      "split_doc": {
+        "chars_removed": 436,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 3,
+        "tokens_removed": 92
+      },
+      "trim_prefix": {
+        "chars_removed": 13784,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 2,
+        "tokens_removed": 3399
+      },
+      "trim_suffix": {
+        "chars_removed": 188941,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 10,
+        "tokens_removed": 47121
+      }
+    },
+    "E018": {
+      "drop_doc": {
+        "chars_removed": 511,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 110
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 17195,
+        "held_out_tokens": 3942,
+        "source_docs": 1,
+        "tokens_removed": 0
+      },
+      "trim_span": {
+        "chars_removed": 384,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 96
+      },
+      "trim_suffix": {
+        "chars_removed": 438,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 3,
+        "tokens_removed": 120
+      }
+    },
+    "E019": {
+      "drop_doc": {
+        "chars_removed": 11099,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 3,
+        "tokens_removed": 3024
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 3310642,
+        "held_out_tokens": 807913,
+        "source_docs": 24,
+        "tokens_removed": 0
+      },
+      "split_doc": {
+        "chars_removed": 186,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 58
+      },
+      "trim_suffix": {
+        "chars_removed": 184390,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 32,
+        "tokens_removed": 45973
+      }
+    },
+    "E020": {
+      "drop_doc": {
+        "chars_removed": 46604,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 13,
+        "tokens_removed": 11297
+      },
+      "quarantine": {
+        "chars_removed": 0,
+        "held_out_chars": 20752,
+        "held_out_tokens": 6010,
+        "source_docs": 2,
+        "tokens_removed": 0
+      },
+      "trim_suffix": {
+        "chars_removed": 329,
+        "held_out_chars": 0,
+        "held_out_tokens": 0,
+        "source_docs": 1,
+        "tokens_removed": 69
+      }
+    }
+  },
+  "created_at_utc": "20260606T045726Z",
+  "decision_manifest_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_reviewed_overlay_2480474_20260606T045726Z/reports/reviewed_shadow_overlay/reviewed_shadow_overlay_20260606T045726Z_decision_manifest.jsonl",
+  "decision_rows": 264,
+  "duplicate_decision_rows_removed": 0,
+  "duplicate_shadow_rows_removed": 0,
+  "input_decision_manifest_rows": {
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_annotation_materialization_20260606T004012Z_decision_manifest.jsonl": 0,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_comment_suffix_materialization_20260606T021944Z_decision_manifest.jsonl": 3,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_suffix_materialization_20260606T015713Z_decision_manifest.jsonl": 8,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_trim_materialization_20260606T012611Z_decision_manifest.jsonl": 19,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_pending_materialization_20260606T032000Z_decision_manifest.jsonl": 13,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_suffix_materialization_20260606T022950Z_decision_manifest.jsonl": 5,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_freepen_duplicate_note_materialization_20260606T014449Z_decision_manifest.jsonl": 1,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_holdout_drop_materialization_20260606T020432Z_decision_manifest.jsonl": 19,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_normalization_materialization_20260606T021637Z_decision_manifest.jsonl": 5,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_safe_split_materialization_20260606T024050Z_decision_manifest.jsonl": 38,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_short_span_materialization_20260606T011343Z_decision_manifest.jsonl": 15,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_small_split_materialization_20260606T020747Z_decision_manifest.jsonl": 21,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_footer_materialization_20260606T013226Z_decision_manifest.jsonl": 10,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_trim_materialization_20260606T010712Z_decision_manifest.jsonl": 7,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_trim_span_materialization_20260606T014014Z_decision_manifest.jsonl": 6,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T005926Z_decision_manifest.jsonl": 5,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T011700Z_decision_manifest.jsonl": 57,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_shadow_overlay_20260605T233528Z_manifest.jsonl": 32
+  },
+  "input_decision_manifests": [
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_annotation_materialization_20260606T004012Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_comment_suffix_materialization_20260606T021944Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_suffix_materialization_20260606T015713Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_trim_materialization_20260606T012611Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_pending_materialization_20260606T032000Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_suffix_materialization_20260606T022950Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_freepen_duplicate_note_materialization_20260606T014449Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_holdout_drop_materialization_20260606T020432Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_normalization_materialization_20260606T021637Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_safe_split_materialization_20260606T024050Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_short_span_materialization_20260606T011343Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_small_split_materialization_20260606T020747Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_footer_materialization_20260606T013226Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_trim_materialization_20260606T010712Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_trim_span_materialization_20260606T014014Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T005926Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T011700Z_decision_manifest.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_shadow_overlay_20260605T233528Z_manifest.jsonl"
+  ],
+  "input_shadow_record_rows": {
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_annotation_materialization_20260606T004012Z_shadow_records.jsonl": 0,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_comment_suffix_materialization_20260606T021944Z_shadow_records.jsonl": 3,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_suffix_materialization_20260606T015713Z_shadow_records.jsonl": 8,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_trim_materialization_20260606T012611Z_shadow_records.jsonl": 19,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_pending_materialization_20260606T032000Z_shadow_records.jsonl": 5,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_suffix_materialization_20260606T022950Z_shadow_records.jsonl": 5,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_freepen_duplicate_note_materialization_20260606T014449Z_shadow_records.jsonl": 1,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_holdout_drop_materialization_20260606T020432Z_shadow_records.jsonl": 1,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_normalization_materialization_20260606T021637Z_shadow_records.jsonl": 4,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_safe_split_materialization_20260606T024050Z_shadow_records.jsonl": 38,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_short_span_materialization_20260606T011343Z_shadow_records.jsonl": 15,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_small_split_materialization_20260606T020747Z_shadow_records.jsonl": 13,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_footer_materialization_20260606T013226Z_shadow_records.jsonl": 10,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_trim_materialization_20260606T010712Z_shadow_records.jsonl": 7,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_trim_span_materialization_20260606T014014Z_shadow_records.jsonl": 6,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T005926Z_shadow_records.jsonl": 0,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T011700Z_shadow_records.jsonl": 0,
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_shadow_overlay_20260605T233528Z_shadow_records.jsonl": 32
+  },
+  "input_shadow_records": [
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_annotation_materialization_20260606T004012Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_comment_suffix_materialization_20260606T021944Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_suffix_materialization_20260606T015713Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_trim_materialization_20260606T012611Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_pending_materialization_20260606T032000Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_suffix_materialization_20260606T022950Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_freepen_duplicate_note_materialization_20260606T014449Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_holdout_drop_materialization_20260606T020432Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_normalization_materialization_20260606T021637Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_safe_split_materialization_20260606T024050Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_short_span_materialization_20260606T011343Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_small_split_materialization_20260606T020747Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_footer_materialization_20260606T013226Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_trim_materialization_20260606T010712Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_trim_span_materialization_20260606T014014Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T005926Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T011700Z_shadow_records.jsonl",
+    "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_shadow_overlay_20260605T233528Z_shadow_records.jsonl"
+  ],
+  "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_reviewed_overlay_2480474_20260606T045726Z/reports/reviewed_shadow_overlay/reviewed_shadow_overlay_20260606T045726Z.md",
+  "policy_note": "Reviewed overlay only. Source HPLT rows are immutable; changed text exists only in shadow_records. This does not approve broad detector actions.",
+  "reports_dir": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports",
+  "schema_version": "hplt-reviewed-shadow-overlay-v1",
+  "shadow_link_issue_count": 0,
+  "shadow_link_issues": [],
+  "shadow_records": 167,
+  "shadow_records_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_reviewed_overlay_2480474_20260606T045726Z/reports/reviewed_shadow_overlay/reviewed_shadow_overlay_20260606T045726Z_shadow_records.jsonl",
+  "source_rows_mutated": false,
+  "unique_source_docs": 216,
+  "validation": {
+    "by_action": {
+      "drop_doc": 27,
+      "normalize_or_trim_span": 36,
+      "quarantine": 70,
+      "split_doc": 55,
+      "trim_prefix": 6,
+      "trim_span": 7,
+      "trim_suffix": 63
+    },
+    "materialized_records": 194,
+    "records": 264,
+    "violation_count": 0
+  },
+  "validation_json": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_reviewed_overlay_2480474_20260606T045726Z/reports/reviewed_shadow_overlay/reviewed_shadow_overlay_20260606T045726Z_validation.json"
+}

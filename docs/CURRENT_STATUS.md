@@ -46,6 +46,10 @@ The remaining tokenizer-side work is:
 - final HF publication should happen from a separate cheap uploader instance using the official large-folder HF upload path
 - the workspace has now been split into smaller subprojects
 - the repo itself is now the canonical source for the active pipeline code, tests, and orchestration scripts
+- for Apertus model-adaptation runs, cross-tokenizer loss comparisons use
+  heldout BPB plus downstream evals; raw Megatron `lm loss` is per-token CE and
+  remains health/within-arm telemetry only. Canonical policy:
+  [LOSS_MEASUREMENT_POLICY.md](LOSS_MEASUREMENT_POLICY.md)
 
 ## What Exists Now
 

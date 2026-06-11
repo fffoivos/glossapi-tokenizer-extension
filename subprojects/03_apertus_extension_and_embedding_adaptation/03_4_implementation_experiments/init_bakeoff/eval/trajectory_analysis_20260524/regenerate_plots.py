@@ -8,7 +8,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent / "per_iter_results"
 ARMS = ["vanilla", "retok", "centroid", "td"]
-ITERS = [130, 260, 325, 390, 455, 476, 585, 715, 834]
+ITERS = [130, 260, 325, 390, 455, 476, 585, 715, 834, 1013, 1192]
 TOK_PER_ITER = 1024 * 4096
 
 V4 = json.loads(Path("/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/v4_baseline_corrected_20260521/results.json").read_text())["results"]
@@ -35,10 +35,10 @@ TASKS = [
     ("global_mmlu_full_el", False, "Greek"),
     ("include_base_44_greek_few_shot_en", False, "Greek"),
     ("belebele_ell_Grek", False, "Greek"),
-    ("arc_challenge_mt_el", True, "Greek"),
+    ("arc_challenge_mt_el", True, "Greek_MT_diag"),
     ("xnli_el", False, "Greek"),
     ("xquad_el", False, "Greek"),
-    ("global_piqa_completions_ell_grek", True, "Greek"),
+    ("global_piqa_completions_ell_grek", True, "Greek_MT_diag"),
 ]
 
 data = {arm: {} for arm in ARMS}
@@ -55,7 +55,7 @@ def arm_group_avg(arm, it, group):
     return np.mean(vals) if vals else None
 
 # Group-averaged trajectories
-groups = {"EN_ret": "English retention", "Multi": "Multilingual", "Greek": "Greek slice"}
+groups = {"EN_ret": "English retention", "Multi": "Multilingual", "Greek": "Greek no-explicit-MT slice"}
 group_traj = {}
 for arm in ARMS:
     group_traj[arm] = {}
@@ -100,7 +100,7 @@ for group in groups:
 
 # Tail-only slopes are contaminated by WSD 1-sqrt cooldown — LR drops from peak 1.5e-5 to 1.5e-6 across the run
 # Mid-window slope is the most informative for "is the arm still learning"
-print("\n=== Linear extrapolation: TD vs Vanilla on Greek aggregate, using MID-WINDOW slope ===")
+print("\n=== Linear extrapolation: TD vs Vanilla on Greek no-explicit-MT aggregate, using MID-WINDOW slope ===")
 xs_v, ys_v = group_traj["vanilla"]["Greek"]
 xs_t, ys_t = group_traj["td"]["Greek"]
 xs_v, ys_v = np.array(xs_v), np.array(ys_v)
@@ -119,7 +119,7 @@ if slope_t_mid > slope_v_mid:
     target = final_x + dt
     print(f"  -> TD slope > Vanilla. Linear crossover at ~{target:.1f}B tokens (delta = {dt:.1f}B beyond current {final_x:.1f}B)")
 else:
-    print(f"  -> TD slope < Vanilla. Linear extrapolation does NOT predict TD overtakes Vanilla on Greek aggregate.")
+    print(f"  -> TD slope < Vanilla. Linear extrapolation does NOT predict TD overtakes Vanilla on Greek no-explicit-MT aggregate.")
 
 print("\n=== Full-window slopes (more stable) for the same comparison ===")
 s_v_full = np.polyfit(xs_v, ys_v, 1)[0]
@@ -138,10 +138,10 @@ GREEK_TASKS = [
     ("global_mmlu_full_el", False, "Greek MMLU"),
     ("include_base_44_greek_few_shot_en", False, "INCLUDE-44 Greek"),
     ("belebele_ell_Grek", False, "Belebele Greek"),
-    ("arc_challenge_mt_el", True, "ARC-Challenge mt el"),
+    ("arc_challenge_mt_el", True, "ARC-Challenge MT-el (diagnostic)"),
     ("xnli_el", False, "XNLI el"),
     ("xquad_el", False, "XQuAD el (f1)"),
-    ("global_piqa_completions_ell_grek", True, "PIQA-Greek"),
+    ("global_piqa_completions_ell_grek", True, "PIQA Greek MT (diagnostic)"),
 ]
 EN_TASKS = [
     ("mmlu", False, "MMLU (English)"),
@@ -173,3 +173,58 @@ for ax, (task, pn, label) in zip(axes.flat, PLOT_TASKS):
 plt.tight_layout()
 plt.savefig(Path(__file__).resolve().parent / "plots" / "trajectories_per_task.png", dpi=110)
 print(f"\nsaved {Path(__file__).resolve().parent / 'plots' / 'trajectories_per_task.png'}")
+
+# ---------- 4-arm group-averaged 3-panel (regenerate trajectories.png with 3.5B coverage) ----------
+groups = {"EN_ret": "English retention", "Multi": "Multilingual", "Greek": "Greek no-explicit-MT slice"}
+group_tasks = {g: [t for t, _, gg in TASKS if gg == g] for g in groups}
+
+fig, axes = plt.subplots(3, 1, figsize=(11, 18))
+for ax, (group, label) in zip(axes, groups.items()):
+    # Faded per-task lines behind the bold aggregate
+    for task in group_tasks[group]:
+        pn = next(p for t, p, g in TASKS if t == task)
+        for arm in ARMS:
+            xs, ys = [], []
+            for it in ITERS:
+                if it in data[arm]:
+                    v = get_metric(data[arm][it], task, pn)
+                    if v is not None:
+                        xs.append(it * TOK_PER_ITER / 1e9)
+                        ys.append(v)
+            if xs:
+                ax.plot(xs, ys, marker=MARKERS[arm], color=COLORS[arm], alpha=0.30, linewidth=0.9, markersize=3.5)
+
+    # Bold group-average per arm
+    for arm in ARMS:
+        agg_per_x = {}
+        for t in group_tasks[group]:
+            pn = next(p for tt, p, g in TASKS if tt == t)
+            xs, ys = [], []
+            for it in ITERS:
+                if it in data[arm]:
+                    v = get_metric(data[arm][it], t, pn)
+                    if v is not None:
+                        xs.append(it * TOK_PER_ITER / 1e9)
+                        ys.append(v)
+            for x, y in zip(xs, ys):
+                agg_per_x.setdefault(x, []).append(y)
+        xs_a = sorted(agg_per_x.keys())
+        ys_a = [np.mean(agg_per_x[x]) for x in xs_a]
+        if xs_a:
+            ax.plot(xs_a, ys_a, marker=MARKERS[arm], color=COLORS[arm], linewidth=3.0, markersize=10, label=f"{arm} (avg)")
+
+    # V4-HF reference
+    v4_vals = [get_metric(V4, t, pn) for t, pn, g in TASKS if g == group]
+    v4_vals = [v for v in v4_vals if v is not None]
+    if v4_vals:
+        ax.axhline(np.mean(v4_vals), color="black", linestyle="--", alpha=0.4, label=f"V4-HF avg = {np.mean(v4_vals):.3f}")
+
+    ax.set_xlabel("Tokens consumed (B)")
+    ax.set_ylabel(f"{label} - group avg accuracy / f1")
+    ax.set_title(f"{label}: per-arm trajectory (iter 130 -> 1192, ~0.55B -> 5.0B; ReTok stops at 3.5B, Centroid at 2.0B)")
+    ax.legend(loc="best")
+    ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig(Path(__file__).resolve().parent / "plots" / "trajectories.png", dpi=110)
+print(f"saved {Path(__file__).resolve().parent / 'plots' / 'trajectories.png'}")

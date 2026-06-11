@@ -43,3 +43,42 @@ The worker-side source for the local training parquet is:
 /home/foivos/data/glossapi_work/polytonic_extension/strict_w050_c010/
   training_data/polytonic_greek_training_kept_strict_w050_c010_20260517T131514Z.parquet
 ```
+
+## Implementation Run Bundle
+
+The compact local implementation bundle is:
+
+```text
+analysis/c3p_polytonic_20260518T_impl/
+```
+
+It keeps:
+
+- `report/FULL_REPORT.md` and report plots
+- polytonic held-out eval metrics
+- TokEval aggregated metrics and raw `analysis_results.json` files
+- MorphScore Greek results
+- split/training/variant manifests
+- worker logs
+- the selected `c3p_poly_added_5120` tokenizer directory
+
+It intentionally does **not** keep:
+
+- the large train/val/test split parquets
+- all intermediate cutoff tokenizer directories
+- full TokEval expanded JSON duplication when a compact parquet/CSV exists
+
+The full worker run remains at:
+
+```text
+/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/
+  c3p_polytonic_20260518T_impl/
+```
+
+Current selected tokenizer:
+
+```text
+analysis/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_5120/tokenizer.json
+sha256: b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad
+vocab: 153,600
+```

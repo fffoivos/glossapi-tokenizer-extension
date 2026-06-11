@@ -42,7 +42,7 @@ once all of these are true:
 
 1. The current bakeoff has reached the final scheduled checkpoint, or the
    final checkpoint is safely saved and the remaining work is only evaluation.
-2. ReTok is not already decisively beaten by Vanilla on both Greek BPC and the
+2. ReTok is not already decisively beaten by Vanilla on both Greek BPB and the
    new-token diagnostics.
 3. One spare GH200 node can be used without delaying final bakeoff evals.
 4. The implementation runs first on a small token subset and passes all
@@ -51,7 +51,7 @@ once all of these are true:
 Recommended trigger:
 
 - Run the Token Distillation pilot if ReTok has healthy new-token behavior
-  but still trails Vanilla on Greek BPC or downstream Greek tasks.
+  but still trails Vanilla on Greek BPB or downstream Greek tasks.
 - Do not run it if Vanilla is clearly best and ReTok has weak new-token use;
   in that case the tokenizer extension itself is probably not helping enough.
 
@@ -234,7 +234,7 @@ Implication for Apertus 8B specifically: run a **small** layer pilot, not a swee
 
 Selection rule:
 
-- Choose the candidate with better heldout Greek BPC/NLL and D1/D2/D4/D5 on the layer-pilot subset.
+- Choose the candidate with better heldout Greek BPB/NLL and D1/D2/D4/D5 on the layer-pilot subset.
 - If differences are within noise, choose last layer for portability and to avoid model-specific overfitting.
 - Do not test more than three candidates unless the first TD run fails in a way that is clearly layer-specific.
 
@@ -312,7 +312,7 @@ Roundtrip gates:
 
 Quality gates:
 
-- Pre-CPT BPC should improve over ReTok on the heldout Greek slice.
+- Pre-CPT BPB should improve over ReTok on the heldout Greek slice.
 - D1/D2/D4/D5 should improve or remain healthy versus ReTok.
 - No obvious English retention regression on the small prompt/eval sanity set.
 - If pre-CPT gates are neutral, do not spend a full 2B-token arm on TD.
@@ -720,7 +720,7 @@ Carried forward; will be resolved before TD1 lands.
 | Q6 | For polytonic TD (Phase 2), what snippet sources have enough polytonic content? | survey of available polytonic corpora | external work; descope from modern-only TD plan |
 | Q7 | Does the TD-trained checkpoint round-trip through `tools/checkpoint/convert.py` with **zero R17 drift** (since we never touched xIELU/QK-Norm during TD)? | run R17 verifier post-TD | mechanical; reuse `verify_hf_roundtrip.py` |
 | Q8 | When we combine TD (input MSE) with NTP (output CE) on Apertus's untied head, does the NTP loss act as a regularizer (paper p.7 says yes for tied) or as a confound (paper p.7 says yes for untied combination on same param)? | the paper warns about TD+NTP on the SAME param being worse; our case is TD on E + NTP on U, which is the paper's recommended pattern | implementation Q only — code already does this split correctly per `learn_output_with_ce=True` |
-| Q9 | Should the TD eval gate (§8 "Pre-CPT BPC should improve over ReTok") use a numerical threshold (e.g. >2× bootstrap stderr of ReTok)? | calibrate from V4-HF bootstrap CIs | depends on `compute_bootstrap_cis.py` results on V4 |
+| Q9 | Should the TD eval gate (§8 "Pre-CPT BPB should improve over ReTok") use a numerical threshold (e.g. >2× bootstrap stderr of ReTok)? | calibrate from V4-HF bootstrap CIs | depends on `compute_bootstrap_cis.py` results on V4 |
 | Q10 | Verify the "Kaplan et al. 2025 *Tokens to Words*" citation referenced in §6.1 before relying on the "L* ≈ first-third of layers" empirical claim | arXiv / Google Scholar search | one-off literature check; if the citation doesn't pan out, the §6.1 probe still works as a self-contained logit-lens diagnostic — we just lose the prior expectation about where L* should land |
 | Q11 | Confirm the HF hidden-state indexing convention for `target_layer = -1` on Apertus. HF returns `outputs.hidden_states[0] = embedding output` and `outputs.hidden_states[N] = output of transformer block N`. For Apertus (32 layers), `hidden_states[-1]` should be the final transformer block's output BEFORE final RMSNorm and `lm_head`. Confirm this matches what the paper means by "last layer." | quick `model.forward(..., output_hidden_states=True)` shape check on Apertus + cross-check vs `tokdist.py` reading `hidden_states[target_layer]` | mechanical; trivial offline check. If the paper means "post-final-norm representation" we'd need `target_layer = -1` to be the post-norm layer or apply the final norm manually before comparing. |
 

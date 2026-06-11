@@ -9,9 +9,12 @@ like:
 This helper keeps the loss/throughput evidence reproducible. Raw Megatron
 `lm loss` is per-target-token CE in nats, so it is a health/within-arm metric
 only when comparing different tokenizers. When patched logs contain tokenizer-
-fair fields (`bpb`, `bpt`, `base_loss`, `new_loss`, `n_new`), this script
-captures them and surfaces BPB as the dense cross-tokenizer training signal.
-Checkpoint heldout BPC/BPB remains the selection metric.
+fair fields (`bpb`/`bpb_batch`, `bpt`/`bytes_per_token_batch`,
+`base_loss`/`base_target_loss`, `new_loss`/`new_target_loss`, `n_new`), this
+script captures them and surfaces BPB as the dense cross-tokenizer training
+signal. Checkpoint heldout BPB remains the selection metric; older artifacts may
+label that same byte-normalized metric as BPC. When `bpt` is present, the
+script also checks or derives dense BPB as `lm_loss / ln(2) / bpt`.
 
 Example:
   python3 summarize_training_logs.py \
@@ -69,6 +72,12 @@ def _extract_int(line, name):
     return int(match.group(1)) if match else None
 
 
+def _bpb_from_lm_loss_bpt(lm_loss, bpt):
+    if lm_loss is None or bpt is None or bpt <= 0:
+        return None
+    return (lm_loss / math.log(2)) / bpt
+
+
 def _parse_log(path, arm):
     rows = []
     try:
@@ -81,6 +90,18 @@ def _parse_log(path, arm):
             if not match:
                 continue
             g = match.groupdict()
+            n_new = _extract_int(line, "n_new")
+            if n_new is None:
+                n_new = _extract_int(line, "new_target_count")
+            lm_loss = _float(g["lm_loss"])
+            bpb = _extract_float(line, "bpb", "bpb_batch", "bits_per_byte_batch", "bits_per_byte")
+            bpt = _extract_float(line, "bpt", "bytes_per_token_batch", "bytes_per_token")
+            bpb_from_formula = _bpb_from_lm_loss_bpt(lm_loss, bpt)
+            bpb_formula_error = (
+                abs(bpb - bpb_from_formula)
+                if bpb is not None and bpb_from_formula is not None
+                else None
+            )
             rows.append({
                 "arm": arm,
                 "timestamp": g["timestamp"],
@@ -91,12 +112,14 @@ def _parse_log(path, arm):
                 "elapsed_ms": _float(g["elapsed_ms"]),
                 "tokens_sec_gpu": _float(g["tokens_sec_gpu"]),
                 "learning_rate": _float(g["learning_rate"]),
-                "lm_loss": _float(g["lm_loss"]),
-                "bpb": _extract_float(line, "bpb"),
-                "bpt": _extract_float(line, "bpt", "bytes_per_token_batch"),
-                "base_loss": _extract_float(line, "base_loss"),
-                "new_loss": _extract_float(line, "new_loss"),
-                "n_new": _extract_int(line, "n_new"),
+                "lm_loss": lm_loss,
+                "bpb": bpb if bpb is not None else bpb_from_formula,
+                "bpt": bpt,
+                "bpb_from_lm_loss_bpt": bpb_from_formula,
+                "bpb_formula_error": bpb_formula_error,
+                "base_loss": _extract_float(line, "base_loss", "base_target_loss"),
+                "new_loss": _extract_float(line, "new_loss", "new_target_loss"),
+                "n_new": n_new,
                 "grad_norm": _float(g["grad_norm"]),
                 "params_norm": _float(g["params_norm"]),
                 "skipped_iterations": int(g["skipped"]),
@@ -124,6 +147,7 @@ def _summarize_rows(rows):
         }
     losses = [r["lm_loss"] for r in rows if r["lm_loss"] is not None]
     bpb = [r["bpb"] for r in rows if r.get("bpb") is not None]
+    bpb_errors = [r["bpb_formula_error"] for r in rows if r.get("bpb_formula_error") is not None]
     skipped = [r["skipped_iterations"] for r in rows]
     nans = [r["nan_iterations"] for r in rows]
     return {
@@ -132,6 +156,7 @@ def _summarize_rows(rows):
         "min_lm_loss": min(losses) if losses else None,
         "min_bpb": min(bpb) if bpb else None,
         "has_tokenizer_fair_training_metrics": bool(bpb),
+        "max_bpb_formula_error": max(bpb_errors) if bpb_errors else None,
         "max_skipped_iterations": max(skipped) if skipped else None,
         "max_nan_iterations": max(nans) if nans else None,
     }
@@ -146,7 +171,8 @@ def _write_csv(path, rows):
     path.parent.mkdir(parents=True, exist_ok=True)
     fields = [
         "arm", "timestamp", "iteration", "total_iterations", "consumed_tokens_b",
-        "lm_loss", "bpb", "bpt", "base_loss", "new_loss", "n_new",
+        "lm_loss", "bpb", "bpt", "bpb_from_lm_loss_bpt", "bpb_formula_error",
+        "base_loss", "new_loss", "n_new",
         "tokens_sec_gpu", "learning_rate", "grad_norm", "params_norm",
         "skipped_iterations", "nan_iterations", "log_path",
     ]
@@ -173,10 +199,11 @@ def _write_md(path, payload):
         "",
         "- run tag: `%s`" % payload["run_tag"],
         "- generated at: `%s`" % payload["generated_at_utc"],
-        "- selection note: raw `lm_loss` is tokenizer-dependent; use heldout BPC/BPB, or dense `bpb` when present, for cross-tokenizer comparisons.",
+        "- selection note: raw `lm_loss` is tokenizer-dependent; use heldout BPB (historical `BPC`/`bpc_bits_per_byte`), or dense `bpb` when present, for cross-tokenizer comparisons.",
+        "- `bpb err` is `abs(bpb - lm_loss / ln(2) / bpt)` when all fields are present.",
         "",
-        "| arm | points | latest iter | tokens B | lm loss | bpb | bpt | new targets | tok/s/gpu | skipped | nan |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| arm | points | latest iter | tokens B | lm loss | bpb | bpt | bpb err | new targets | tok/s/gpu | skipped | nan |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for arm in payload["arm_order"]:
         summary = payload["arms"][arm]
@@ -189,6 +216,7 @@ def _write_md(path, payload):
             _fmt(latest.get("lm_loss") if latest else None, "%.4f"),
             _fmt(latest.get("bpb") if latest else None, "%.4f"),
             _fmt(latest.get("bpt") if latest else None, "%.3f"),
+            _fmt(latest.get("bpb_formula_error") if latest else None, "%.2e"),
             latest.get("n_new") if latest and latest.get("n_new") is not None else "-",
             _fmt(latest.get("tokens_sec_gpu") if latest else None, "%.0f"),
             summary["max_skipped_iterations"] if latest else "-",

@@ -1,0 +1,5 @@
+arm,iteration,tokens_b,greek_no_mt_aggregate,english_retention,multilingual,bpb_lower_better,bpb_delta_vs_iter834,note
+Vanilla,1192,5.000,0.4076,0.6799,0.4936,0.4602,-0.0122,best_bpb
+TokenDistil,1192,5.000,0.4204,0.6903,0.4976,0.4872,-0.0182,best_downstream
+ReTok,834,3.498,0.3984,0.6786,0.4864,0.5390,n/a,stopped_at_3p5b
+Centroid,476,1.996,0.2566,0.6836,0.4888,0.8994,n/a,stopped_at_2b_broken

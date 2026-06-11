@@ -16,7 +16,7 @@ continuation plan from iter 476 to iter 834 (~3.5B tokens total).
   - extended: `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/bulk_mix_ext_megatron/bulk_mix_text_document`
 - `LOSS_OBJECTIVE=ntp` is forced in all 9 training commands.
 - Training plan contains 9 jobs: 3 arms x 3 segments.
-- Eval plan contains 27 jobs: for each of 3 checkpoints, 3 conversions + 3 BPC jobs + 2 new-token diagnostics jobs + 1 packed downstream eval.
+- Eval plan contains 27 jobs: for each of 3 checkpoints, 3 conversions + 3 BPB/NLL jobs (historical job names may say BPC) + 2 new-token diagnostics jobs + 1 packed downstream eval.
 - Eval conversion jobs depend on the checkpoint-producing training segment.
 - Later training segments do not depend on eval jobs.
 - Eval jobs use `--nice=1000` by default.

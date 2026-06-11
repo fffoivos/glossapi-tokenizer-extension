@@ -1,0 +1,42 @@
+{
+  "generated_date": "2026-05-27",
+  "tokenizer": {
+    "name": "ModernGreek-148k",
+    "path": "greek-extension-tokenizer",
+    "vocab_size": 148480,
+    "base_vocab_size": 131072,
+    "added_modern_greek_tokens": 17408,
+    "sha256_tokenizer_json": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394"
+  },
+  "counts": {
+    "hplt_clean60_wave4_full_staged": {
+      "source_dataset": "HPLT/ell_Grek_ge8_no_mt_clean60",
+      "input_glob": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/nanochat/data/HPLT__ell_Grek_ge8_no_mt_clean60*.parquet",
+      "files": 250,
+      "rows": 48728774,
+      "nonempty_rows": 48728774,
+      "chars": 184291932665,
+      "utf8_bytes": 331109685077,
+      "tokens_no_eod": 44195950025,
+      "tokens_with_one_eod_per_row": 44244678799,
+      "chars_per_token_no_eod": 4.169882818691598,
+      "tokens_per_row_no_eod": 906.9784933435839,
+      "notes": "Token count uses ModernGreek-148k with add_special_tokens=false; tokens_with_one_eod_per_row adds one EOD/document for planning."
+    },
+    "cpt_7b_mix": {
+      "rows": 5754172,
+      "mix_builder_target_tokens": 7000141612,
+      "base_tokenized_megatron_tokens": 9831704774,
+      "notes": "The CPT mix target is in the mix builder's tokenizer accounting; the Megatron artifact count is with the original Apertus tokenizer used by the Vanilla control path."
+    }
+  },
+  "provenance": {
+    "clariden_slurm_job": "2399397",
+    "partition": "xfer",
+    "state": "COMPLETED",
+    "elapsed": "03:29:01",
+    "exit_code": "0:0",
+    "summary_json": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/token_count_audit_20260526/hplt_clean60_full_staged/summary.json",
+    "per_file_csv": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/token_count_audit_20260526/hplt_clean60_full_staged/per_file.csv"
+  }
+}

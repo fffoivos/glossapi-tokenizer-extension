@@ -4,6 +4,12 @@ Three closed-form init experiments per [`../../cpt_plan.md`](../../cpt_plan.md) 
 
 See [`BAKEOFF_PLAN.md`](BAKEOFF_PLAN.md) for the setup plan.
 
+Loss-reading rule: raw Megatron `lm loss` is per-token CE and is not
+cross-tokenizer fair. Use heldout BPB from
+[`eval/compute_tokenizer_fair_metrics.py`](eval/compute_tokenizer_fair_metrics.py)
+plus downstream evals for Vanilla-vs-extended decisions. Older artifacts may
+call BPB `BPC`; that is a historical bits-per-byte label.
+
 ## Layout
 
 ```
@@ -28,6 +34,7 @@ init_bakeoff/
 │   └── pull_replay_datasets.sh — pull FW2 / FW2-HQ / FineWeb-Edu / code replay / FineMath
 └── eval/                      — V4 baseline + per-arm bakeoff eval
     ├── EVAL_RECIPE.md         — task lists, cadence, statistical methodology
+    ├── LOSS_MEASUREMENT_POLICY.md — raw lm-loss caveat, heldout BPB, dense BPB/base-new logging
     ├── pull_benchmarks.sh     — pull retention + ILSP Greek + safety benchmarks; clone harness
     ├── run_eval.sbatch        — parameterized sbatch (MODEL_PATH + OUTPUT_DIR + TASK_GROUP)
     ├── run_apertus_baseline.sh — thin wrapper: V4 baseline on unmodified Apertus-8B-2509

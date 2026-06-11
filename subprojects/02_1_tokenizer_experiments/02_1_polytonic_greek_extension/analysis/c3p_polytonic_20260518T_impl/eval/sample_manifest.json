@@ -1,0 +1,62 @@
+{
+  "poly_val_balanced": {
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_val_balanced.parquet",
+    "sampled_docs": 96,
+    "sampled_chars": 5008688
+  },
+  "poly_test_balanced": {
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_test_balanced.parquet",
+    "sampled_docs": 85,
+    "sampled_chars": 5119819
+  },
+  "poly_high_diacritic_test": {
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_high_diacritic_test.parquet",
+    "sampled_docs": 77,
+    "sampled_chars": 5002188
+  },
+  "poly_underaccented_test": {
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_underaccented_test.parquet",
+    "sampled_docs": 0,
+    "sampled_chars": 0
+  },
+  "poly_1000_prwta_xronia_ellhnikhs_test": {
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/by_source/1000_prwta_xronia_ellhnikhs_test.parquet",
+    "sampled_docs": 90,
+    "sampled_chars": 5042459
+  },
+  "poly_Ekklisiastika_Keimena_test": {
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/by_source/Ekklisiastika_Keimena_test.parquet",
+    "sampled_docs": 65,
+    "sampled_chars": 1872526
+  },
+  "poly_Wikisource_Greek_texts_test": {
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/by_source/Wikisource_Greek_texts_test.parquet",
+    "sampled_docs": 319,
+    "sampled_chars": 5016167
+  },
+  "poly_klasikh_arx_ell_grammateia_test": {
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/by_source/klasikh_arx_ell_grammateia_test.parquet",
+    "sampled_docs": 43,
+    "sampled_chars": 2138844
+  },
+  "poly_scholarios_graeca_patristic_test": {
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/by_source/scholarios_graeca_patristic_test.parquet",
+    "sampled_docs": 322,
+    "sampled_chars": 5028557
+  },
+  "modern_c3_val_clean": {
+    "path": "/home/foivos/runs/c3_wave2_broad_latest_cleaner_20260506/50_50/splits/glossapi_plus_hplt_50_50/exports/val_clean.parquet",
+    "sampled_docs": 907,
+    "sampled_chars": 5019615
+  },
+  "modern_c3_test_clean": {
+    "path": "/home/foivos/runs/c3_wave2_broad_latest_cleaner_20260506/50_50/splits/glossapi_plus_hplt_50_50/exports/test_clean.parquet",
+    "sampled_docs": 991,
+    "sampled_chars": 5000860
+  },
+  "fineweb2_grc_reference": {
+    "path": "/home/foivos/data/glossapi_work/polytonic_extension/fineweb2_overlap/fineweb2_reference/main_grc_Grek/fineweb2_main_grc_Grek_train_000_00000.parquet",
+    "sampled_docs": 1000,
+    "sampled_chars": 4279092
+  }
+}

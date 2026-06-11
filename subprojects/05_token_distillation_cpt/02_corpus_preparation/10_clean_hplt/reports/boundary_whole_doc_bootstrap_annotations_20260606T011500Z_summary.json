@@ -1,0 +1,25 @@
+{
+  "annotations_jsonl": "reports/boundary_whole_doc_bootstrap_annotations_20260606T011500Z.jsonl",
+  "created_at_utc": "20260606T011500Z",
+  "markdown": "reports/boundary_whole_doc_bootstrap_annotations_20260606T011500Z.md",
+  "pending_rows": 127,
+  "policy_note": "Bootstrap only. This copies prior reviewed whole-document decisions into a boundary-annotation file and does not apply a cleaning policy.",
+  "review_pack": "reports/boundary_spec_review_pack_20260606T002713Z.jsonl",
+  "schema_version": "hplt-whole-doc-boundary-bootstrap-v1",
+  "selected_by_action": {
+    "drop_doc": 25,
+    "quarantine": 32
+  },
+  "selected_by_good_text_loss": {
+    "high": 18,
+    "low": 24,
+    "medium": 15
+  },
+  "selected_rows": 57,
+  "skipped_reasons": {
+    "missing_prior_good_text_loss_risk": 24,
+    "not_whole_doc_action": 103
+  },
+  "template": "reports/boundary_spec_review_pack_20260606T002713Z_annotation_template.jsonl",
+  "template_rows": 184
+}

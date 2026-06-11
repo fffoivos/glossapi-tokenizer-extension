@@ -1,0 +1,15 @@
+{
+  "variant_id": "c3p_poly_added_5120",
+  "base_tokenizer_dir": "/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_17408_curated_padded",
+  "full_tokenizer_dir": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/training/tokenizer",
+  "base_vocab_size": 148480,
+  "polytonic_added_count": 5120,
+  "final_vocab_size": 153600,
+  "alignment_128": true,
+  "alignment_256": true,
+  "base_tokenizer_sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394",
+  "full_tokenizer_sha256": "b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad",
+  "tokenizer_sha256": "b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad",
+  "added_merge_count": 5120,
+  "variant_dir": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_5120"
+}

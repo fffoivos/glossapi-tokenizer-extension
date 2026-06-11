@@ -97,7 +97,7 @@ TRAIN_TOKENS=20000000000 CHAIN_JOBS=18 DRY_RUN=1 bash submit_vanilla_base_15b_ch
 
 ## Evaluation cadence
 
-Saved checkpoints arrive every ~500M tokens. Use lightweight BPC/NLL and
+Saved checkpoints arrive every ~500M tokens. Use lightweight BPB/NLL and
 retention checks on each saved checkpoint, and the fuller downstream suite at
 least every ~2B tokens and for the final checkpoint window.
 

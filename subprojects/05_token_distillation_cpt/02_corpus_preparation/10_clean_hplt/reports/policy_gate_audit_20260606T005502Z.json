@@ -1,0 +1,406 @@
+{
+  "boundary_materialization_delta_keys": 214,
+  "candidate_action_precision": {
+    "drop_doc": {
+      "exact_matches": 42,
+      "gate_reason": "Requires at least 95% reviewed precision, FP examples, char/token deltas, and representative good-text-loss evidence.",
+      "gate_status": "not_met",
+      "precision": 0.5675675675675675,
+      "reviewed_rows": 74,
+      "wilson_95_ci": [
+        0.4541274325981889,
+        0.6743388134293266
+      ],
+      "wilson_95_ci_percent": [
+        45.41274325981889,
+        67.43388134293265
+      ]
+    },
+    "normalize_or_trim_span": {
+      "exact_matches": 34,
+      "gate_reason": "Requires at least 95% reviewed precision, FP examples, char/token deltas, and representative good-text-loss evidence.",
+      "gate_status": "not_met",
+      "precision": 0.7727272727272727,
+      "reviewed_rows": 44,
+      "wilson_95_ci": [
+        0.6300764193536367,
+        0.8715805240508284
+      ],
+      "wilson_95_ci_percent": [
+        63.007641935363665,
+        87.15805240508284
+      ]
+    },
+    "quarantine": {
+      "exact_matches": 45,
+      "gate_reason": "Requires at least 95% reviewed precision, FP examples, char/token deltas, and representative good-text-loss evidence.",
+      "gate_status": "not_met",
+      "precision": 0.3409090909090909,
+      "reviewed_rows": 132,
+      "wilson_95_ci": [
+        0.2655691312967705,
+        0.4252469099573323
+      ],
+      "wilson_95_ci_percent": [
+        26.55691312967705,
+        42.52469099573323
+      ]
+    },
+    "trim_span": {
+      "exact_matches": 3,
+      "gate_reason": "Requires at least 95% reviewed precision, FP examples, char/token deltas, and representative good-text-loss evidence.",
+      "gate_status": "not_met",
+      "precision": 0.08333333333333333,
+      "reviewed_rows": 36,
+      "wilson_95_ci": [
+        0.02874861133599338,
+        0.2182669124927263
+      ],
+      "wilson_95_ci_percent": [
+        2.874861133599338,
+        21.82669124927263
+      ]
+    }
+  },
+  "candidate_ids_with_no_current_candidate_hits": [
+    "E001",
+    "E002"
+  ],
+  "catalog": {
+    "all_ids": [
+      "E000",
+      "E001",
+      "E002",
+      "E003",
+      "E004",
+      "E005",
+      "E006",
+      "E007",
+      "E008",
+      "E009",
+      "E010",
+      "E011",
+      "E012",
+      "E013",
+      "E014",
+      "E015",
+      "E016",
+      "E017",
+      "E018",
+      "E019",
+      "E020"
+    ],
+    "candidate_ids": [
+      "E001",
+      "E002",
+      "E003",
+      "E004",
+      "E005",
+      "E006",
+      "E007",
+      "E008",
+      "E009",
+      "E010",
+      "E011",
+      "E012",
+      "E013",
+      "E014",
+      "E015",
+      "E016",
+      "E017",
+      "E018",
+      "E019",
+      "E020"
+    ],
+    "confirmed_ids": [
+      "E000",
+      "E001",
+      "E007",
+      "E009",
+      "E010",
+      "E011",
+      "E012",
+      "E014",
+      "E016",
+      "E017",
+      "E019",
+      "E020"
+    ]
+  },
+  "changing_review_rows_missing_char_or_token_delta": 189,
+  "changing_review_rows_missing_char_or_token_delta_before_shadow_evidence": 332,
+  "changing_review_rows_missing_char_or_token_delta_by_action": {
+    "drop_doc": 7,
+    "normalize_or_trim_span": 7,
+    "quarantine": 26,
+    "split_doc": 39,
+    "trim_prefix": 6,
+    "trim_span": 8,
+    "trim_suffix": 96
+  },
+  "created_at_utc": "20260606T005502Z",
+  "e001_shadow_delta_rows_covered": 32,
+  "gates": {
+    "char_token_deltas": {
+      "boundary_materialization_chars_removed": 458390,
+      "boundary_materialization_decision_manifest": "reports/boundary_whole_doc_materialization_20260606T011700Z_decision_manifest.jsonl",
+      "boundary_materialization_decision_rows": 57,
+      "boundary_materialization_delta_keys": 214,
+      "boundary_materialization_issue_count": 0,
+      "boundary_materialization_pending_rows": 127,
+      "boundary_materialization_shadow_records": 0,
+      "boundary_materialization_summary": "reports/boundary_whole_doc_materialization_20260606T011700Z_summary.json",
+      "boundary_materialization_tokens_removed": 199564,
+      "boundary_spec_hash_mismatches": 0,
+      "boundary_spec_output_rows": 184,
+      "boundary_spec_read_errors": 0,
+      "boundary_spec_source_review_rows_missing_deltas": 300,
+      "boundary_spec_summary": "reports/boundary_spec_review_pack_20260606T002713Z_summary.json",
+      "boundary_spec_tokenized_rows": 184,
+      "boundary_spec_unique_source_docs": 184,
+      "changing_review_rows_missing_char_or_token_delta": 189,
+      "changing_review_rows_missing_char_or_token_delta_before_shadow_evidence": 332,
+      "e001_shadow_chars_removed": 166,
+      "e001_shadow_delta_rows_covered": 32,
+      "e001_shadow_tokens_removed": 144,
+      "note": "The goal requires char/token deltas by error type and action before applying a policy.",
+      "pending_boundary_pack_by_action": {
+        "drop_doc": 7,
+        "normalize_or_trim_span": 5,
+        "quarantine": 17,
+        "split_doc": 23,
+        "trim_prefix": 5,
+        "trim_span": 7,
+        "trim_suffix": 63
+      },
+      "pending_boundary_pack_rows": 127,
+      "pending_boundary_pack_summary": "reports/pending_boundary_review_pack_20260606T012500Z_summary.json",
+      "pending_boundary_pack_total_chars": 5595373,
+      "pending_boundary_pack_total_tokens": 1355532,
+      "shadow_delta_rows_covered": 143,
+      "status": "not_met"
+    },
+    "destructive_precision": {
+      "note": "No changing action currently satisfies the full destructive-rule gate.",
+      "status": "not_met"
+    },
+    "issue_discovery": {
+      "catalog_candidate_ids": 20,
+      "e001_scan_match_rows": 32,
+      "e001_scan_review_pack_rows": 32,
+      "e001_scan_rows_scanned": 46493906,
+      "e001_scan_summary": "reports/e001_control_char_scan_20260605T224007Z_summary.json",
+      "missing_review_ids": [],
+      "note": "Goal requires at least 20 distinct issue types, or reviewed proof that fewer actionable types exist.",
+      "reviewed_issue_ids": 20,
+      "status": "met"
+    },
+    "remaining_false_negatives": {
+      "actionable_false_negative_wilson_95_ci_percent": [
+        16.37187625450758,
+        27.702307348996612
+      ],
+      "actionable_false_negatives": 43,
+      "note": "Representative FN evidence is now present, but serious residual FNs remain and must be reduced or explicitly accepted.",
+      "serious_false_negative_wilson_95_ci_percent": [
+        3.465219425433187,
+        10.193169295766271
+      ],
+      "serious_false_negatives": 12,
+      "status": "not_met"
+    },
+    "shadow_overlay": {
+      "e001_shadow_chars_removed": 166,
+      "e001_shadow_manifest": "reports/e001_shadow_overlay_20260605T233528Z_manifest.jsonl",
+      "e001_shadow_materialized_rows": 32,
+      "e001_shadow_records": 32,
+      "e001_shadow_summary": "reports/e001_shadow_overlay_20260605T233528Z_summary.json",
+      "e001_shadow_tokens_removed": 144,
+      "e001_shadow_valid": true,
+      "e001_shadow_validation": "reports/e001_shadow_overlay_20260605T233528Z_manifest_validation.json",
+      "e001_shadow_validation_violations": 0,
+      "note": "An E001-only duplicate/shadow pilot may exist, but no accepted full keep/trim/split/drop/quarantine overlay has been materialized and validated.",
+      "status": "not_met"
+    }
+  },
+  "inputs": {
+    "annotation_files": [
+      {
+        "path": "reports/destructive_span_policy_review_annotations_20260605T210613Z.jsonl",
+        "rows": 45
+      },
+      {
+        "path": "reports/e001_control_char_review_annotations_20260605T232858Z.jsonl",
+        "rows": 32
+      },
+      {
+        "path": "reports/false_negative_global200_review_20260606T023000Z.jsonl",
+        "rows": 200
+      },
+      {
+        "path": "reports/false_negative_representative_review_annotations_20260606T011500Z.jsonl",
+        "rows": 80
+      },
+      {
+        "path": "reports/false_negative_triage_review_annotations_20260606T004500Z.jsonl",
+        "rows": 32
+      },
+      {
+        "path": "reports/pilot_review_annotations_20260605T194002Z.jsonl",
+        "rows": 36
+      },
+      {
+        "path": "reports/pilot_review_annotations_20260605T200254Z.jsonl",
+        "rows": 55
+      },
+      {
+        "path": "reports/pilot_review_annotations_20260605T202344Z.jsonl",
+        "rows": 57
+      },
+      {
+        "path": "reports/pilot_review_annotations_20260605T204701Z.jsonl",
+        "rows": 57
+      },
+      {
+        "path": "reports/quarantine_precision_review_annotations_20260605T211220Z.jsonl",
+        "rows": 60
+      }
+    ],
+    "error_catalog": "ERROR_CATALOG.md",
+    "global200_summary": "reports/false_negative_global200_review_20260606T023000Z_summary.json",
+    "latest_boundary_materialization_decision_manifest": "reports/boundary_whole_doc_materialization_20260606T011700Z_decision_manifest.jsonl",
+    "latest_boundary_materialization_summary": "reports/boundary_whole_doc_materialization_20260606T011700Z_summary.json",
+    "latest_boundary_spec_summary": "reports/boundary_spec_review_pack_20260606T002713Z_summary.json",
+    "latest_candidate_summary": "reports/candidate_issue_summary_20260605T204455Z.json",
+    "latest_e001_shadow_overlay_manifest": "reports/e001_shadow_overlay_20260605T233528Z_manifest.jsonl",
+    "latest_e001_shadow_overlay_summary": "reports/e001_shadow_overlay_20260605T233528Z_summary.json",
+    "latest_e001_shadow_overlay_validation": "reports/e001_shadow_overlay_20260605T233528Z_manifest_validation.json",
+    "latest_e001_summary": "reports/e001_control_char_scan_20260605T224007Z_summary.json",
+    "latest_pending_boundary_pack_summary": "reports/pending_boundary_review_pack_20260606T012500Z_summary.json",
+    "reports_dir": "reports"
+  },
+  "latest_candidate_error_counts": {
+    "E003": 9,
+    "E004": 314,
+    "E005": 47,
+    "E006": 168,
+    "E007": 309,
+    "E008": 47,
+    "E009": 222,
+    "E010": 719,
+    "E011": 26,
+    "E012": 22,
+    "E013": 2,
+    "E014": 123,
+    "E015": 128,
+    "E016": 7,
+    "E017": 611,
+    "E018": 2,
+    "E019": 206,
+    "E020": 112
+  },
+  "missing_review_ids": [],
+  "next_required_evidence": [
+    "Fill exact boundary annotations for the pending-boundary review pack: 127 source docs, 1355532 Apertus tokens, actions {'drop_doc': 7, 'normalize_or_trim_span': 5, 'quarantine': 17, 'split_doc': 23, 'trim_prefix': 5, 'trim_span': 7, 'trim_suffix': 63}.",
+    "Continue materializing reviewed candidate transformations only as duplicate/shadow rows with before/after checksums; the E001 pilot is narrow and does not approve a full overlay.",
+    "Compute chars/tokens removed by error type and action, plus good-text-loss estimates on representative samples.",
+    "Re-review action-specific precision after tightening split/drop/quarantine rules; require at least 95% reviewed precision before promotion.",
+    "Reduce or explicitly bound remaining serious false negatives, especially E010/E011 archive/topic/category rows."
+  ],
+  "policy_note": "Audit only. This does not approve automatic cleaning or mutate source rows.",
+  "review_action_counts": {
+    "drop_doc": 67,
+    "keep": 322,
+    "normalize_or_trim_span": 39,
+    "quarantine": 77,
+    "split_doc": 39,
+    "trim_prefix": 6,
+    "trim_span": 8,
+    "trim_suffix": 96
+  },
+  "review_label_counts": {
+    "clean": 267,
+    "false_negative_found": 85,
+    "false_positive": 54,
+    "partial_true_positive": 146,
+    "true_positive": 98,
+    "unclear": 4
+  },
+  "review_severity_counts": {
+    "minor": 24,
+    "moderate": 7,
+    "none": 157,
+    "serious": 12,
+    "unknown": 454
+  },
+  "reviewed_issue_ids": [
+    "E001",
+    "E002",
+    "E003",
+    "E004",
+    "E005",
+    "E006",
+    "E007",
+    "E008",
+    "E009",
+    "E010",
+    "E011",
+    "E012",
+    "E013",
+    "E014",
+    "E015",
+    "E016",
+    "E017",
+    "E018",
+    "E019",
+    "E020"
+  ],
+  "reviewed_rows": 654,
+  "reviewed_true_error_type_counts": {
+    "E001": 32,
+    "E002": 1,
+    "E003": 8,
+    "E004": 23,
+    "E005": 3,
+    "E006": 17,
+    "E007": 69,
+    "E008": 4,
+    "E009": 79,
+    "E010": 111,
+    "E011": 72,
+    "E012": 27,
+    "E013": 5,
+    "E014": 44,
+    "E015": 10,
+    "E016": 18,
+    "E017": 71,
+    "E018": 6,
+    "E019": 61,
+    "E020": 32
+  },
+  "reviewed_unique_doc_counts_by_error_type": {
+    "E001": 32,
+    "E002": 1,
+    "E003": 5,
+    "E004": 19,
+    "E005": 2,
+    "E006": 12,
+    "E007": 40,
+    "E008": 4,
+    "E009": 50,
+    "E010": 70,
+    "E011": 42,
+    "E012": 14,
+    "E013": 3,
+    "E014": 24,
+    "E015": 9,
+    "E016": 10,
+    "E017": 48,
+    "E018": 6,
+    "E019": 36,
+    "E020": 15
+  },
+  "reviewed_unique_source_docs": 426,
+  "schema_version": "hplt-policy-gate-audit-v1",
+  "shadow_delta_rows_covered": 143
+}

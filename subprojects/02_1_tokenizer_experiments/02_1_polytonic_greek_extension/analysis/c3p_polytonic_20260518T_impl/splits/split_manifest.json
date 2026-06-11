@@ -1,0 +1,260 @@
+{
+  "input_parquet": "/home/foivos/data/glossapi_work/polytonic_extension/strict_w050_c010/training_data/polytonic_greek_training_kept_strict_w050_c010_20260517T131514Z.parquet",
+  "output_dir": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits",
+  "seed": 20260518,
+  "split_policy": {
+    "hash_normalization": "NFC + whitespace collapse",
+    "val_pct": 10,
+    "test_pct": 10,
+    "train_pct": 80,
+    "balanced_per_source": 250,
+    "row_group_size": 64
+  },
+  "hygiene": {
+    "rows_before": 18726,
+    "rows_after": 18716,
+    "rows_dropped": 10,
+    "min_chars": 20,
+    "max_control_ratio": 0.02,
+    "drop_rtf_like": true
+  },
+  "outputs": {
+    "poly_train": {
+      "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_train.parquet",
+      "rows": 14929,
+      "text_chars": 409101812,
+      "utf8_bytes": 802061905,
+      "source_counts": [
+        {
+          "source_dataset": "1000_prwta_xronia_ellhnikhs",
+          "len": 771
+        },
+        {
+          "source_dataset": "Ekklisiastika_Keimena",
+          "len": 543
+        },
+        {
+          "source_dataset": "Wikisource_Greek_texts",
+          "len": 2738
+        },
+        {
+          "source_dataset": "klasikh_arx_ell_grammateia",
+          "len": 540
+        },
+        {
+          "source_dataset": "scholarios_graeca_patristic",
+          "len": 10337
+        }
+      ]
+    },
+    "poly_val": {
+      "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_val.parquet",
+      "rows": 1871,
+      "text_chars": 50387834,
+      "utf8_bytes": 98813770,
+      "source_counts": [
+        {
+          "source_dataset": "1000_prwta_xronia_ellhnikhs",
+          "len": 97
+        },
+        {
+          "source_dataset": "Ekklisiastika_Keimena",
+          "len": 64
+        },
+        {
+          "source_dataset": "Wikisource_Greek_texts",
+          "len": 367
+        },
+        {
+          "source_dataset": "klasikh_arx_ell_grammateia",
+          "len": 61
+        },
+        {
+          "source_dataset": "scholarios_graeca_patristic",
+          "len": 1282
+        }
+      ]
+    },
+    "poly_test": {
+      "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_test.parquet",
+      "rows": 1916,
+      "text_chars": 51082324,
+      "utf8_bytes": 100414151,
+      "source_counts": [
+        {
+          "source_dataset": "1000_prwta_xronia_ellhnikhs",
+          "len": 113
+        },
+        {
+          "source_dataset": "Ekklisiastika_Keimena",
+          "len": 65
+        },
+        {
+          "source_dataset": "Wikisource_Greek_texts",
+          "len": 329
+        },
+        {
+          "source_dataset": "klasikh_arx_ell_grammateia",
+          "len": 43
+        },
+        {
+          "source_dataset": "scholarios_graeca_patristic",
+          "len": 1366
+        }
+      ]
+    },
+    "poly_val_balanced": {
+      "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_val_balanced.parquet",
+      "rows": 722,
+      "text_chars": 28904503,
+      "utf8_bytes": 56788603,
+      "source_counts": [
+        {
+          "source_dataset": "1000_prwta_xronia_ellhnikhs",
+          "len": 97
+        },
+        {
+          "source_dataset": "Ekklisiastika_Keimena",
+          "len": 64
+        },
+        {
+          "source_dataset": "Wikisource_Greek_texts",
+          "len": 250
+        },
+        {
+          "source_dataset": "klasikh_arx_ell_grammateia",
+          "len": 61
+        },
+        {
+          "source_dataset": "scholarios_graeca_patristic",
+          "len": 250
+        }
+      ]
+    },
+    "poly_test_balanced": {
+      "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_test_balanced.parquet",
+      "rows": 721,
+      "text_chars": 31163220,
+      "utf8_bytes": 61367330,
+      "source_counts": [
+        {
+          "source_dataset": "1000_prwta_xronia_ellhnikhs",
+          "len": 113
+        },
+        {
+          "source_dataset": "Ekklisiastika_Keimena",
+          "len": 65
+        },
+        {
+          "source_dataset": "Wikisource_Greek_texts",
+          "len": 250
+        },
+        {
+          "source_dataset": "klasikh_arx_ell_grammateia",
+          "len": 43
+        },
+        {
+          "source_dataset": "scholarios_graeca_patristic",
+          "len": 250
+        }
+      ]
+    },
+    "poly_high_diacritic_test": {
+      "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_high_diacritic_test.parquet",
+      "rows": 255,
+      "text_chars": 18220421,
+      "utf8_bytes": 36163489,
+      "source_counts": [
+        {
+          "source_dataset": "1000_prwta_xronia_ellhnikhs",
+          "len": 83
+        },
+        {
+          "source_dataset": "Ekklisiastika_Keimena",
+          "len": 60
+        },
+        {
+          "source_dataset": "Wikisource_Greek_texts",
+          "len": 77
+        },
+        {
+          "source_dataset": "klasikh_arx_ell_grammateia",
+          "len": 16
+        },
+        {
+          "source_dataset": "scholarios_graeca_patristic",
+          "len": 19
+        }
+      ]
+    },
+    "poly_underaccented_test": {
+      "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/poly_underaccented_test.parquet",
+      "rows": 0,
+      "text_chars": 0,
+      "utf8_bytes": 0,
+      "source_counts": []
+    },
+    "by_source": {
+      "poly_1000_prwta_xronia_ellhnikhs_test": {
+        "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/by_source/1000_prwta_xronia_ellhnikhs_test.parquet",
+        "rows": 113,
+        "text_chars": 13166366,
+        "utf8_bytes": 26179232,
+        "source_counts": [
+          {
+            "source_dataset": "1000_prwta_xronia_ellhnikhs",
+            "len": 113
+          }
+        ]
+      },
+      "poly_Ekklisiastika_Keimena_test": {
+        "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/by_source/Ekklisiastika_Keimena_test.parquet",
+        "rows": 65,
+        "text_chars": 2094488,
+        "utf8_bytes": 4147591,
+        "source_counts": [
+          {
+            "source_dataset": "Ekklisiastika_Keimena",
+            "len": 65
+          }
+        ]
+      },
+      "poly_Wikisource_Greek_texts_test": {
+        "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/by_source/Wikisource_Greek_texts_test.parquet",
+        "rows": 329,
+        "text_chars": 6967664,
+        "utf8_bytes": 13478743,
+        "source_counts": [
+          {
+            "source_dataset": "Wikisource_Greek_texts",
+            "len": 329
+          }
+        ]
+      },
+      "poly_klasikh_arx_ell_grammateia_test": {
+        "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/by_source/klasikh_arx_ell_grammateia_test.parquet",
+        "rows": 43,
+        "text_chars": 5497314,
+        "utf8_bytes": 10754682,
+        "source_counts": [
+          {
+            "source_dataset": "klasikh_arx_ell_grammateia",
+            "len": 43
+          }
+        ]
+      },
+      "poly_scholarios_graeca_patristic_test": {
+        "path": "/home/foivos/data/glossapi_work/polytonic_extension/c3p_runs/c3p_polytonic_20260518T_impl/splits/by_source/scholarios_graeca_patristic_test.parquet",
+        "rows": 1366,
+        "text_chars": 23356492,
+        "utf8_bytes": 45853903,
+        "source_counts": [
+          {
+            "source_dataset": "scholarios_graeca_patristic",
+            "len": 1366
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,2450 @@
+{
+  "by_action": {
+    "drop_doc": 138,
+    "keep": 79618,
+    "normalize_or_trim_span": 7,
+    "quarantine": 18707,
+    "trim_prefix": 47,
+    "trim_suffix": 1483
+  },
+  "by_action_length_bucket": {
+    "drop_doc": {
+      "10k_100k": 14,
+      "1k_3k": 11,
+      "3k_10k": 16,
+      "lt_1k": 97
+    },
+    "keep": {
+      "10k_100k": 1126,
+      "1k_3k": 39974,
+      "3k_10k": 18011,
+      "lt_1k": 20507
+    },
+    "normalize_or_trim_span": {
+      "10k_100k": 3,
+      "3k_10k": 4
+    },
+    "quarantine": {
+      "10k_100k": 4231,
+      "1k_3k": 4507,
+      "3k_10k": 9525,
+      "ge_100k": 68,
+      "lt_1k": 376
+    },
+    "trim_prefix": {
+      "10k_100k": 24,
+      "1k_3k": 5,
+      "3k_10k": 18
+    },
+    "trim_suffix": {
+      "1k_3k": 950,
+      "3k_10k": 176,
+      "lt_1k": 357
+    }
+  },
+  "by_action_quality_bin": {
+    "drop_doc": {
+      "10": 1,
+      "8": 131,
+      "9": 6
+    },
+    "keep": {
+      "10": 70,
+      "8": 66734,
+      "9": 12814
+    },
+    "normalize_or_trim_span": {
+      "10": 1,
+      "8": 2,
+      "9": 4
+    },
+    "quarantine": {
+      "10": 114,
+      "8": 12008,
+      "9": 6585
+    },
+    "trim_prefix": {
+      "10": 1,
+      "8": 33,
+      "9": 13
+    },
+    "trim_suffix": {
+      "8": 1376,
+      "9": 107
+    }
+  },
+  "by_action_source_shard": {
+    "drop_doc": {
+      "10_1.jsonl.zst": 1,
+      "8_1.jsonl.zst": 16,
+      "8_2.jsonl.zst": 115,
+      "9_1.jsonl.zst": 1,
+      "9_2.jsonl.zst": 5
+    },
+    "keep": {
+      "10_1.jsonl.zst": 70,
+      "8_1.jsonl.zst": 21219,
+      "8_2.jsonl.zst": 45515,
+      "9_1.jsonl.zst": 6453,
+      "9_2.jsonl.zst": 6361
+    },
+    "normalize_or_trim_span": {
+      "10_1.jsonl.zst": 1,
+      "8_1.jsonl.zst": 1,
+      "8_2.jsonl.zst": 1,
+      "9_1.jsonl.zst": 4
+    },
+    "quarantine": {
+      "10_1.jsonl.zst": 114,
+      "8_1.jsonl.zst": 6568,
+      "8_2.jsonl.zst": 5440,
+      "9_1.jsonl.zst": 4285,
+      "9_2.jsonl.zst": 2300
+    },
+    "trim_prefix": {
+      "10_1.jsonl.zst": 1,
+      "8_1.jsonl.zst": 19,
+      "8_2.jsonl.zst": 14,
+      "9_1.jsonl.zst": 6,
+      "9_2.jsonl.zst": 7
+    },
+    "trim_suffix": {
+      "8_1.jsonl.zst": 391,
+      "8_2.jsonl.zst": 985,
+      "9_1.jsonl.zst": 41,
+      "9_2.jsonl.zst": 66
+    }
+  },
+  "by_error_action": {
+    "E003": {
+      "keep": 3,
+      "quarantine": 6
+    },
+    "E004": {
+      "drop_doc": 7,
+      "keep": 150,
+      "quarantine": 2771,
+      "trim_prefix": 14,
+      "trim_suffix": 3
+    },
+    "E005": {
+      "drop_doc": 10,
+      "keep": 143,
+      "quarantine": 471,
+      "trim_prefix": 4
+    },
+    "E006": {
+      "drop_doc": 5,
+      "keep": 1218,
+      "quarantine": 844,
+      "trim_prefix": 47,
+      "trim_suffix": 19
+    },
+    "E007": {
+      "drop_doc": 12,
+      "keep": 2509,
+      "quarantine": 2577,
+      "trim_prefix": 47,
+      "trim_suffix": 1482
+    },
+    "E008": {
+      "drop_doc": 4,
+      "keep": 197,
+      "quarantine": 408,
+      "trim_prefix": 41,
+      "trim_suffix": 9
+    },
+    "E009": {
+      "drop_doc": 76,
+      "keep": 455,
+      "quarantine": 2579,
+      "trim_prefix": 40,
+      "trim_suffix": 23
+    },
+    "E010": {
+      "drop_doc": 90,
+      "keep": 2191,
+      "quarantine": 13180,
+      "trim_prefix": 18,
+      "trim_suffix": 149
+    },
+    "E011": {
+      "quarantine": 26
+    },
+    "E012": {
+      "quarantine": 25
+    },
+    "E013": {
+      "quarantine": 2
+    },
+    "E014": {
+      "drop_doc": 9,
+      "keep": 218,
+      "normalize_or_trim_span": 7,
+      "quarantine": 96,
+      "trim_suffix": 5
+    },
+    "E015": {
+      "drop_doc": 8,
+      "keep": 205,
+      "quarantine": 257,
+      "trim_prefix": 6
+    },
+    "E016": {
+      "drop_doc": 31,
+      "quarantine": 8
+    },
+    "E017": {
+      "drop_doc": 27,
+      "keep": 1028,
+      "quarantine": 8211,
+      "trim_prefix": 34,
+      "trim_suffix": 8
+    },
+    "E018": {
+      "quarantine": 2
+    },
+    "E019": {
+      "drop_doc": 6,
+      "keep": 1316,
+      "quarantine": 2015,
+      "trim_prefix": 2,
+      "trim_suffix": 1482
+    },
+    "E020": {
+      "drop_doc": 100,
+      "keep": 4442,
+      "quarantine": 143,
+      "trim_prefix": 1,
+      "trim_suffix": 185
+    },
+    "none": {
+      "keep": 69609
+    }
+  },
+  "by_error_type": {
+    "E003": 9,
+    "E004": 2945,
+    "E005": 628,
+    "E006": 2133,
+    "E007": 6627,
+    "E008": 659,
+    "E009": 3173,
+    "E010": 15628,
+    "E011": 26,
+    "E012": 25,
+    "E013": 2,
+    "E014": 335,
+    "E015": 476,
+    "E016": 39,
+    "E017": 9308,
+    "E018": 2,
+    "E019": 4821,
+    "E020": 4871,
+    "none": 69609
+  },
+  "by_length_bucket": {
+    "10k_100k": 5398,
+    "1k_3k": 45447,
+    "3k_10k": 27750,
+    "ge_100k": 68,
+    "lt_1k": 21337
+  },
+  "by_quality_bin": {
+    "10": 187,
+    "8": 80284,
+    "9": 19529
+  },
+  "by_source_policy_flag": {
+    "doc_host": 697,
+    "none": 98432,
+    "product_or_deal_like": 871
+  },
+  "by_source_policy_flag_action": {
+    "doc_host": {
+      "drop_doc": 7,
+      "keep": 142,
+      "normalize_or_trim_span": 4,
+      "quarantine": 544
+    },
+    "none": {
+      "drop_doc": 129,
+      "keep": 78753,
+      "normalize_or_trim_span": 3,
+      "quarantine": 18030,
+      "trim_prefix": 38,
+      "trim_suffix": 1479
+    },
+    "product_or_deal_like": {
+      "drop_doc": 2,
+      "keep": 723,
+      "quarantine": 133,
+      "trim_prefix": 9,
+      "trim_suffix": 4
+    }
+  },
+  "by_source_shard": {
+    "10_1.jsonl.zst": 187,
+    "8_1.jsonl.zst": 28214,
+    "8_2.jsonl.zst": 52070,
+    "9_1.jsonl.zst": 10790,
+    "9_2.jsonl.zst": 8739
+  },
+  "by_url_router_reason": {
+    "none": 91118,
+    "path_archive": 713,
+    "path_category": 1612,
+    "path_itemlist_date": 26,
+    "path_page_number": 1632,
+    "path_search_or_label": 600,
+    "path_tag": 3850,
+    "query_key_catid": 275,
+    "query_key_page": 563,
+    "query_key_paged": 92,
+    "query_key_q": 63,
+    "query_key_start": 631,
+    "query_key_tag": 185
+  },
+  "by_url_router_reason_action": {
+    "none": {
+      "drop_doc": 80,
+      "keep": 74766,
+      "normalize_or_trim_span": 7,
+      "quarantine": 14756,
+      "trim_prefix": 40,
+      "trim_suffix": 1469
+    },
+    "path_archive": {
+      "keep": 550,
+      "quarantine": 154,
+      "trim_suffix": 9
+    },
+    "path_category": {
+      "drop_doc": 10,
+      "keep": 574,
+      "quarantine": 1025,
+      "trim_suffix": 3
+    },
+    "path_itemlist_date": {
+      "keep": 20,
+      "quarantine": 6
+    },
+    "path_page_number": {
+      "drop_doc": 12,
+      "keep": 553,
+      "quarantine": 1066,
+      "trim_prefix": 1
+    },
+    "path_search_or_label": {
+      "keep": 338,
+      "quarantine": 262
+    },
+    "path_tag": {
+      "drop_doc": 38,
+      "keep": 2043,
+      "quarantine": 1767,
+      "trim_prefix": 2
+    },
+    "query_key_catid": {
+      "keep": 228,
+      "quarantine": 46,
+      "trim_suffix": 1
+    },
+    "query_key_page": {
+      "keep": 455,
+      "quarantine": 105,
+      "trim_prefix": 2,
+      "trim_suffix": 1
+    },
+    "query_key_paged": {
+      "drop_doc": 1,
+      "keep": 31,
+      "quarantine": 59,
+      "trim_prefix": 1
+    },
+    "query_key_q": {
+      "keep": 50,
+      "quarantine": 13
+    },
+    "query_key_start": {
+      "keep": 472,
+      "quarantine": 158,
+      "trim_prefix": 1
+    },
+    "query_key_tag": {
+      "drop_doc": 3,
+      "keep": 67,
+      "quarantine": 115
+    }
+  },
+  "chars_by_action": {
+    "drop_doc": 539615,
+    "keep": 188970006,
+    "normalize_or_trim_span": 97071,
+    "quarantine": 177148632,
+    "trim_prefix": 614815,
+    "trim_suffix": 2595909
+  },
+  "created_at_utc": "20260606T122551Z",
+  "elapsed_sec": 1640.358,
+  "excluded_previous_evidence": {
+    "files": [
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_annotation_materialization_20260606T004012Z_decision_manifest.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_annotation_materialization_20260606T004012Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_annotation_materialization_20260606T004012Z_shadow_records.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_annotation_materialization_dryrun_20260606T004500Z_decision_manifest.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_annotation_materialization_dryrun_20260606T004500Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_annotation_materialization_dryrun_20260606T004500Z_shadow_records.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_comment_suffix_materialization_20260606T021944Z_decision_manifest.jsonl",
+        "rows": 3
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_comment_suffix_materialization_20260606T021944Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_comment_suffix_materialization_20260606T021944Z_shadow_records.jsonl",
+        "rows": 3
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_suffix_materialization_20260606T015713Z_decision_manifest.jsonl",
+        "rows": 8
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_suffix_materialization_20260606T015713Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_suffix_materialization_20260606T015713Z_shadow_records.jsonl",
+        "rows": 8
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_trim_materialization_20260606T012611Z_decision_manifest.jsonl",
+        "rows": 19
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_trim_materialization_20260606T012611Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_exact_trim_materialization_20260606T012611Z_shadow_records.jsonl",
+        "rows": 19
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_pending_materialization_20260606T032000Z_decision_manifest.jsonl",
+        "rows": 13
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_pending_materialization_20260606T032000Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_pending_materialization_20260606T032000Z_shadow_records.jsonl",
+        "rows": 5
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_suffix_materialization_20260606T022950Z_decision_manifest.jsonl",
+        "rows": 5
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_suffix_materialization_20260606T022950Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_final_suffix_materialization_20260606T022950Z_shadow_records.jsonl",
+        "rows": 5
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_freepen_duplicate_note_materialization_20260606T014449Z_decision_manifest.jsonl",
+        "rows": 1
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_freepen_duplicate_note_materialization_20260606T014449Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_freepen_duplicate_note_materialization_20260606T014449Z_shadow_records.jsonl",
+        "rows": 1
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_global_prevalence_part050_materialization_20260606T060500Z_decision_manifest.jsonl",
+        "rows": 23
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_global_prevalence_part050_materialization_20260606T060500Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_global_prevalence_part050_materialization_20260606T060500Z_shadow_records.jsonl",
+        "rows": 11
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_holdout_drop_materialization_20260606T020432Z_decision_manifest.jsonl",
+        "rows": 19
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_holdout_drop_materialization_20260606T020432Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_holdout_drop_materialization_20260606T020432Z_shadow_records.jsonl",
+        "rows": 1
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_comment_suffix_annotations_20260606T021944Z.jsonl",
+        "rows": 3
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_exact_suffix_annotations_20260606T015713Z.jsonl",
+        "rows": 8
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_exact_trim_annotations_20260606T012611Z.jsonl",
+        "rows": 19
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_final_pending_annotations_20260606T032000Z.jsonl",
+        "rows": 10
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_final_suffix_annotations_20260606T022950Z.jsonl",
+        "rows": 5
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_freepen_duplicate_note_annotations_20260606T014449Z.jsonl",
+        "rows": 1
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_global_prevalence_part050_20260606T060000Z_annotations.jsonl",
+        "rows": 23
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_holdout_drop_annotations_20260606T020432Z.jsonl",
+        "rows": 19
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_normalization_annotations_20260606T021637Z.jsonl",
+        "rows": 5
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_remaining_20260606T051935Z_annotations.jsonl",
+        "rows": 9
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_safe_split_annotations_20260606T024050Z.jsonl",
+        "rows": 4
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_short_span_annotations_20260606T011343Z.jsonl",
+        "rows": 15
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_small_split_annotations_20260606T020747Z.jsonl",
+        "rows": 10
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_suffix_footer_annotations_20260606T013226Z.jsonl",
+        "rows": 10
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_suffix_markers_20260606T051032Z_annotations.jsonl",
+        "rows": 50
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_suffix_markers_20260606T051032Z_evidence.jsonl",
+        "rows": 50
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_suffix_trim_annotations_20260606T010712Z.jsonl",
+        "rows": 7
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_trim_span_annotations_20260606T014014Z.jsonl",
+        "rows": 6
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_url_rescue_split_batch1_20260606T075000Z_annotations.jsonl",
+        "rows": 6
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_url_rescue_split_batch2_20260606T083000Z_annotations.jsonl",
+        "rows": 12
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_url_rescue_whole_trim_20260606T062543Z_annotations.jsonl",
+        "rows": 12
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_whole_doc_20260606T050329Z_annotations.jsonl",
+        "rows": 32
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_manual_whole_doc_review_annotations_20260606T005926Z.jsonl",
+        "rows": 5
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_normalization_materialization_20260606T021637Z_decision_manifest.jsonl",
+        "rows": 5
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_normalization_materialization_20260606T021637Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_normalization_materialization_20260606T021637Z_shadow_records.jsonl",
+        "rows": 4
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_remaining_materialization_20260606T053000Z_decision_manifest.jsonl",
+        "rows": 13
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_remaining_materialization_20260606T053000Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_remaining_materialization_20260606T053000Z_shadow_records.jsonl",
+        "rows": 13
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_safe_split_materialization_20260606T024050Z_decision_manifest.jsonl",
+        "rows": 38
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_safe_split_materialization_20260606T024050Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_safe_split_materialization_20260606T024050Z_shadow_records.jsonl",
+        "rows": 38
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_short_span_materialization_20260606T011343Z_decision_manifest.jsonl",
+        "rows": 15
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_short_span_materialization_20260606T011343Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_short_span_materialization_20260606T011343Z_shadow_records.jsonl",
+        "rows": 15
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_small_split_materialization_20260606T020747Z_decision_manifest.jsonl",
+        "rows": 21
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_small_split_materialization_20260606T020747Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_small_split_materialization_20260606T020747Z_shadow_records.jsonl",
+        "rows": 13
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T002713Z.jsonl",
+        "rows": 184
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T002713Z_annotation_template.jsonl",
+        "rows": 184
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T032348Z.jsonl",
+        "rows": 23
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T032348Z_annotation_template.jsonl",
+        "rows": 23
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T034033Z.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T034033Z_annotation_template.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T045949Z.jsonl",
+        "rows": 91
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T045949Z_annotation_template.jsonl",
+        "rows": 91
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T050329Z.jsonl",
+        "rows": 91
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T050329Z_annotation_template.jsonl",
+        "rows": 91
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T051032Z.jsonl",
+        "rows": 59
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T051032Z_annotation_template.jsonl",
+        "rows": 59
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T051935Z.jsonl",
+        "rows": 9
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T051935Z_annotation_template.jsonl",
+        "rows": 9
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T052826Z.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T052826Z_annotation_template.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T060000Z.jsonl",
+        "rows": 23
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T060000Z_annotation_template.jsonl",
+        "rows": 23
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T061000Z.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T061000Z_annotation_template.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T064800Z.jsonl",
+        "rows": 30
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T064800Z_annotation_template.jsonl",
+        "rows": 30
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T071000Z.jsonl",
+        "rows": 18
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T071000Z_annotation_template.jsonl",
+        "rows": 18
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_footer_materialization_20260606T013226Z_decision_manifest.jsonl",
+        "rows": 10
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_footer_materialization_20260606T013226Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_footer_materialization_20260606T013226Z_shadow_records.jsonl",
+        "rows": 10
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_markers_materialization_20260606T052000Z_decision_manifest.jsonl",
+        "rows": 50
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_markers_materialization_20260606T052000Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_markers_materialization_20260606T052000Z_shadow_records.jsonl",
+        "rows": 50
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_trim_materialization_20260606T010712Z_decision_manifest.jsonl",
+        "rows": 7
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_trim_materialization_20260606T010712Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_suffix_trim_materialization_20260606T010712Z_shadow_records.jsonl",
+        "rows": 7
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_trim_span_materialization_20260606T014014Z_decision_manifest.jsonl",
+        "rows": 6
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_trim_span_materialization_20260606T014014Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_trim_span_materialization_20260606T014014Z_shadow_records.jsonl",
+        "rows": 6
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_url_rescue_split_batch1_materialization_20260606T075000Z_decision_manifest.jsonl",
+        "rows": 30
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_url_rescue_split_batch1_materialization_20260606T075000Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_url_rescue_split_batch1_materialization_20260606T075000Z_shadow_records.jsonl",
+        "rows": 30
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_url_rescue_split_batch2_materialization_20260606T083000Z_decision_manifest.jsonl",
+        "rows": 85
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_url_rescue_split_batch2_materialization_20260606T083000Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_url_rescue_split_batch2_materialization_20260606T083000Z_shadow_records.jsonl",
+        "rows": 83
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_url_rescue_whole_trim_materialization_20260606T062543Z_decision_manifest.jsonl",
+        "rows": 12
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_url_rescue_whole_trim_materialization_20260606T062543Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_url_rescue_whole_trim_materialization_20260606T062543Z_shadow_records.jsonl",
+        "rows": 5
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_bootstrap_annotations_20260606T011500Z.jsonl",
+        "rows": 184
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T005926Z_decision_manifest.jsonl",
+        "rows": 5
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T005926Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T005926Z_shadow_records.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T011700Z_decision_manifest.jsonl",
+        "rows": 57
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T011700Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T011700Z_shadow_records.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T051000Z_decision_manifest.jsonl",
+        "rows": 32
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T051000Z_issues.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_whole_doc_materialization_20260606T051000Z_shadow_records.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/destructive_span_policy_review_annotations_20260605T210613Z.jsonl",
+        "rows": 45
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/destructive_span_policy_review_pack_20260605T210613Z.jsonl",
+        "rows": 45
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_control_char_review_annotations_20260605T232858Z.jsonl",
+        "rows": 32
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_control_char_scan_20260605T224007Z_review_pack.jsonl",
+        "rows": 32
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_shadow_overlay_20260605T233528Z_manifest.jsonl",
+        "rows": 32
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/e001_shadow_overlay_20260605T233528Z_shadow_records.jsonl",
+        "rows": 32
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_control_review_pack_20260605T211220Z.jsonl",
+        "rows": 300
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_control_triage_20260606T000000Z.jsonl",
+        "rows": 300
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global200_review_20260606T023000Z.jsonl",
+        "rows": 200
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global_remaining_fulltext_review_pack_20260606T020000Z.jsonl",
+        "rows": 111
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_global_remaining_review_pack_20260606T014500Z.jsonl",
+        "rows": 120
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_representative_review_annotations_20260606T011500Z.jsonl",
+        "rows": 80
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/false_negative_triage_review_annotations_20260606T004500Z.jsonl",
+        "rows": 32
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/full_rule_count_20260606T103853Z_heldout_annotation_template.jsonl",
+        "rows": 800
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/full_rule_count_20260606T103853Z_heldout_review_pack.jsonl",
+        "rows": 800
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/full_rule_count_20260606T103953Z_heldout_annotation_template.jsonl",
+        "rows": 2361
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/full_rule_count_20260606T103953Z_heldout_review_pack.jsonl",
+        "rows": 2361
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/full_rule_count_20260606T105018Z_heldout_annotation_template.jsonl",
+        "rows": 2278
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/full_rule_count_20260606T105018Z_heldout_review_pack.jsonl",
+        "rows": 2278
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/full_rule_count_20260606T115213Z_heldout_annotation_template.jsonl",
+        "rows": 2267
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/full_rule_count_20260606T115213Z_heldout_review_pack.jsonl",
+        "rows": 2267
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T041500Z.jsonl",
+        "rows": 12
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T042000Z.jsonl",
+        "rows": 36
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T042006Z.jsonl",
+        "rows": 60
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T042702Z.jsonl",
+        "rows": 84
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T043113Z.jsonl",
+        "rows": 108
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T043422Z.jsonl",
+        "rows": 132
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T043726Z.jsonl",
+        "rows": 156
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044027Z.jsonl",
+        "rows": 180
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T044750Z.jsonl",
+        "rows": 200
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_annotations_20260606T054500Z_part050.jsonl",
+        "rows": 50
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T040025Z.jsonl",
+        "rows": 200
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T040025Z_annotation_template.jsonl",
+        "rows": 200
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T054500Z.jsonl",
+        "rows": 200
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/global_prevalence_review_pack_20260606T054500Z_annotation_template.jsonl",
+        "rows": 200
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T010205Z.jsonl",
+        "rows": 122
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T010205Z_annotation_template.jsonl",
+        "rows": 122
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T010837Z.jsonl",
+        "rows": 115
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T010837Z_annotation_template.jsonl",
+        "rows": 115
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T011640Z.jsonl",
+        "rows": 100
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T011640Z_annotation_template.jsonl",
+        "rows": 100
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T012500Z.jsonl",
+        "rows": 127
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T012500Z_annotation_template.jsonl",
+        "rows": 127
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T012611Z.jsonl",
+        "rows": 81
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T012611Z_annotation_template.jsonl",
+        "rows": 81
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T013226Z.jsonl",
+        "rows": 71
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T013226Z_annotation_template.jsonl",
+        "rows": 71
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T014014Z.jsonl",
+        "rows": 65
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T014014Z_annotation_template.jsonl",
+        "rows": 65
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T014449Z.jsonl",
+        "rows": 64
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T014449Z_annotation_template.jsonl",
+        "rows": 64
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T015713Z.jsonl",
+        "rows": 56
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T015713Z_annotation_template.jsonl",
+        "rows": 56
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T020432Z.jsonl",
+        "rows": 37
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T020432Z_annotation_template.jsonl",
+        "rows": 37
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T020747Z.jsonl",
+        "rows": 27
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T020747Z_annotation_template.jsonl",
+        "rows": 27
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T021637Z.jsonl",
+        "rows": 22
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T021637Z_annotation_template.jsonl",
+        "rows": 22
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T021944Z.jsonl",
+        "rows": 19
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T021944Z_annotation_template.jsonl",
+        "rows": 19
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T022950Z.jsonl",
+        "rows": 14
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T022950Z_annotation_template.jsonl",
+        "rows": 14
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T024050Z.jsonl",
+        "rows": 10
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T024050Z_annotation_template.jsonl",
+        "rows": 10
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T032000Z.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pending_boundary_review_pack_20260606T032000Z_annotation_template.jsonl",
+        "rows": 0
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T194002Z.jsonl",
+        "rows": 36
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T200254Z.jsonl",
+        "rows": 55
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T202344Z.jsonl",
+        "rows": 57
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_annotations_20260605T204701Z.jsonl",
+        "rows": 57
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_seed_20260605T194002Z.jsonl",
+        "rows": 36
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_seed_20260605T200254Z.jsonl",
+        "rows": 55
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_seed_20260605T202344Z.jsonl",
+        "rows": 57
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_seed_20260605T203915Z.jsonl",
+        "rows": 57
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_seed_20260605T204256Z.jsonl",
+        "rows": 57
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/pilot_review_seed_20260605T204701Z.jsonl",
+        "rows": 57
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/policy_evaluation_sample_20260605T210154Z.jsonl",
+        "rows": 2161
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/quarantine_precision_review_annotations_20260605T211220Z.jsonl",
+        "rows": 60
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/quarantine_precision_review_pack_20260605T211220Z.jsonl",
+        "rows": 60
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/reviewed_shadow_overlay_20260606T045726Z_decision_manifest.jsonl",
+        "rows": 264
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/reviewed_shadow_overlay_20260606T045726Z_shadow_records.jsonl",
+        "rows": 167
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/reviewed_shadow_overlay_20260606T051050Z_decision_manifest.jsonl",
+        "rows": 296
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/reviewed_shadow_overlay_20260606T051050Z_shadow_records.jsonl",
+        "rows": 167
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/reviewed_shadow_overlay_20260606T052003Z_decision_manifest.jsonl",
+        "rows": 346
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/reviewed_shadow_overlay_20260606T052003Z_shadow_records.jsonl",
+        "rows": 217
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/reviewed_shadow_overlay_20260606T052850Z_decision_manifest.jsonl",
+        "rows": 359
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/reviewed_shadow_overlay_20260606T052850Z_shadow_records.jsonl",
+        "rows": 230
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/reviewed_shadow_overlay_20260606T061000Z_decision_manifest.jsonl",
+        "rows": 382
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/reviewed_shadow_overlay_20260606T061000Z_shadow_records.jsonl",
+        "rows": 241
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/serious_fn_url_rescue_annotations_20260606T064500Z.jsonl",
+        "rows": 43
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/serious_fn_url_rescue_pack_20260606T060119Z.jsonl",
+        "rows": 43
+      },
+      {
+        "path": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/serious_fn_url_rescue_pack_20260606T060119Z_annotation_template.jsonl",
+        "rows": 43
+      }
+    ],
+    "unique_source_doc_ids": 9915
+  },
+  "feature_text_max_chars": 100000,
+  "heldout_annotation_template_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_full_rule_count_feature_screen100k_v8b_20260606T130000Z/reports/full_rule_count/full_rule_count_20260606T122551Z_heldout_annotation_template.jsonl",
+  "heldout_docs_dir": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_full_rule_count_feature_screen100k_v8b_20260606T130000Z/reports/full_rule_count/full_rule_count_20260606T122551Z_heldout_docs",
+  "heldout_review_pack_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_full_rule_count_feature_screen100k_v8b_20260606T130000Z/reports/full_rule_count/full_rule_count_20260606T122551Z_heldout_review_pack.jsonl",
+  "heldout_review_pack_rows": 2295,
+  "heldout_sampling": {
+    "action::drop_doc": {
+      "limit": 100,
+      "sampled": 40,
+      "seen": 40
+    },
+    "action::normalize_or_trim_span": {
+      "limit": 100,
+      "sampled": 0,
+      "seen": 0
+    },
+    "action::quarantine": {
+      "limit": 100,
+      "sampled": 100,
+      "seen": 16813
+    },
+    "action::split_doc": {
+      "limit": 100,
+      "sampled": 0,
+      "seen": 0
+    },
+    "action::trim_prefix": {
+      "limit": 100,
+      "sampled": 0,
+      "seen": 0
+    },
+    "action::trim_span": {
+      "limit": 100,
+      "sampled": 0,
+      "seen": 0
+    },
+    "action::trim_suffix": {
+      "limit": 100,
+      "sampled": 100,
+      "seen": 1277
+    },
+    "error::E001": {
+      "limit": 75,
+      "sampled": 0,
+      "seen": 0
+    },
+    "error::E002": {
+      "limit": 75,
+      "sampled": 0,
+      "seen": 0
+    },
+    "error::E003": {
+      "limit": 75,
+      "sampled": 0,
+      "seen": 0
+    },
+    "error::E004": {
+      "limit": 75,
+      "sampled": 75,
+      "seen": 2372
+    },
+    "error::E005": {
+      "limit": 75,
+      "sampled": 75,
+      "seen": 364
+    },
+    "error::E006": {
+      "limit": 75,
+      "sampled": 75,
+      "seen": 1559
+    },
+    "error::E007": {
+      "limit": 75,
+      "sampled": 75,
+      "seen": 5482
+    },
+    "error::E008": {
+      "limit": 75,
+      "sampled": 75,
+      "seen": 340
+    },
+    "error::E009": {
+      "limit": 75,
+      "sampled": 75,
+      "seen": 2443
+    },
+    "error::E010": {
+      "limit": 75,
+      "sampled": 75,
+      "seen": 14117
+    },
+    "error::E011": {
+      "limit": 75,
+      "sampled": 0,
+      "seen": 0
+    },
+    "error::E012": {
+      "limit": 75,
+      "sampled": 0,
+      "seen": 0
+    },
+    "error::E013": {
+      "limit": 75,
+      "sampled": 0,
+      "seen": 0
+    },
+    "error::E014": {
+      "limit": 75,
+      "sampled": 75,
+      "seen": 98
+    },
+    "error::E015": {
+      "limit": 75,
+      "sampled": 75,
+      "seen": 215
+    },
+    "error::E016": {
+      "limit": 75,
+      "sampled": 0,
+      "seen": 0
+    },
+    "error::E017": {
+      "limit": 75,
+      "sampled": 75,
+      "seen": 8223
+    },
+    "error::E018": {
+      "limit": 75,
+      "sampled": 0,
+      "seen": 0
+    },
+    "error::E019": {
+      "limit": 75,
+      "sampled": 75,
+      "seen": 4146
+    },
+    "error::E020": {
+      "limit": 75,
+      "sampled": 75,
+      "seen": 4339
+    },
+    "global_random_unseen": {
+      "limit": 400,
+      "sampled": 400,
+      "seen": 94932
+    },
+    "nohit_keep_control": {
+      "limit": 400,
+      "sampled": 400,
+      "seen": 67770
+    },
+    "source_policy_signal": {
+      "limit": 150,
+      "sampled": 150,
+      "seen": 1138
+    },
+    "url_router_signal": {
+      "limit": 250,
+      "sampled": 250,
+      "seen": 7903
+    }
+  },
+  "include_ids_found": 100000,
+  "included_source_doc_ids": {
+    "mode": "include_source_doc_ids",
+    "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_cleaning_inventory_resume_20260605T165145Z/reports/hplt_cleaning_metadata_samples_20260605T165151Z.jsonl",
+    "rows_read": 101662,
+    "rows_selected": 100000,
+    "sample_sets": [
+      "feature_screen"
+    ],
+    "selected_sample_set_counts": {
+      "feature_screen": 100000,
+      "global_random": 4,
+      "wds_bin_8": 1
+    },
+    "unique_source_doc_ids": 100000
+  },
+  "input": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet",
+  "max_rows": 0,
+  "policy_note": "Count-only generalization pass. Source HPLT rows are immutable; no cleaning was applied.",
+  "review_text_max_chars": 120000,
+  "rows_excluded_from_heldout_sampling": 5068,
+  "rows_per_sec": 60.962,
+  "rows_scanned": 100000,
+  "schema_version": "hplt-full-rule-count-generalization-v1",
+  "source_dataset": "HPLT/ell_Grek_ge8_no_mt_clean60",
+  "source_rows_seen": 46493582,
+  "threshold": 0.35,
+  "top_hosts_by_action": {
+    "drop_doc": [
+      [
+        "surfnwin.blogspot.be",
+        9
+      ],
+      [
+        "docplayer.gr",
+        6
+      ],
+      [
+        "surfnwin.blogspot.de",
+        5
+      ],
+      [
+        "insuranceworld.gr",
+        4
+      ],
+      [
+        "www.newsvolos.com",
+        3
+      ],
+      [
+        "www.dimotikoradiofono.gr",
+        3
+      ],
+      [
+        "myreview.gr",
+        2
+      ],
+      [
+        "www.movie-news.gr",
+        2
+      ],
+      [
+        "www.iatrikanews.gr",
+        2
+      ],
+      [
+        "www.ladylike.gr",
+        2
+      ],
+      [
+        "beat-town.com",
+        2
+      ],
+      [
+        "iaitoloakarnania.gr",
+        1
+      ],
+      [
+        "www.athensvoice.gr",
+        1
+      ],
+      [
+        "www.documentonews.gr",
+        1
+      ],
+      [
+        "nezacesar.com",
+        1
+      ],
+      [
+        "thegodfilmers.com",
+        1
+      ],
+      [
+        "bluerebels.gr",
+        1
+      ],
+      [
+        "www.individualartleather.com",
+        1
+      ],
+      [
+        "techblog.gr",
+        1
+      ],
+      [
+        "trifasiko.gr",
+        1
+      ],
+      [
+        "starsunity.com",
+        1
+      ],
+      [
+        "pateress.blogspot.com",
+        1
+      ],
+      [
+        "manualzz.com",
+        1
+      ],
+      [
+        "gr.pcmag.com",
+        1
+      ],
+      [
+        "www.missbloom.gr",
+        1
+      ],
+      [
+        "openfreesyndicate.wordpress.com",
+        1
+      ],
+      [
+        "thesseconomy.gr",
+        1
+      ],
+      [
+        "blogs.pathfinder.gr",
+        1
+      ],
+      [
+        "kafeneio-megalopolis.gr",
+        1
+      ],
+      [
+        "www.e-inon.gr",
+        1
+      ],
+      [
+        "fashion-style.gr",
+        1
+      ],
+      [
+        "foracamp.gr",
+        1
+      ],
+      [
+        "elaiki.gr",
+        1
+      ],
+      [
+        "www.agriniopress.gr",
+        1
+      ],
+      [
+        "www.allwater.gr",
+        1
+      ],
+      [
+        "www.agriniotimes.gr",
+        1
+      ],
+      [
+        "avarisarchery.gr",
+        1
+      ],
+      [
+        "greekap.gr",
+        1
+      ],
+      [
+        "eydi.20plus1.de",
+        1
+      ],
+      [
+        "openwifi.ellak.gr",
+        1
+      ],
+      [
+        "www.frontpages.gr",
+        1
+      ],
+      [
+        "asteroessa.blogspot.com",
+        1
+      ],
+      [
+        "www.childit.gr",
+        1
+      ],
+      [
+        "www.europages.gr",
+        1
+      ],
+      [
+        "alopsis.gr",
+        1
+      ],
+      [
+        "secnews.gr",
+        1
+      ],
+      [
+        "www.pestaola.gr",
+        1
+      ],
+      [
+        "www.apopseis.com",
+        1
+      ],
+      [
+        "www.oramata.gr",
+        1
+      ],
+      [
+        "dearlife.gr",
+        1
+      ]
+    ],
+    "keep": [
+      [
+        "www.onsports.gr",
+        606
+      ],
+      [
+        "www.kathimerini.gr",
+        378
+      ],
+      [
+        "www.gazzetta.gr",
+        320
+      ],
+      [
+        "www.protothema.gr",
+        311
+      ],
+      [
+        "www.newsit.gr",
+        306
+      ],
+      [
+        "newpost.gr",
+        297
+      ],
+      [
+        "www.star.gr",
+        276
+      ],
+      [
+        "www.neakriti.gr",
+        265
+      ],
+      [
+        "www.tovima.gr",
+        263
+      ],
+      [
+        "www.gossip-tv.gr",
+        254
+      ],
+      [
+        "www.efsyn.gr",
+        244
+      ],
+      [
+        "www.newsbomb.gr",
+        236
+      ],
+      [
+        "www.tanea.gr",
+        202
+      ],
+      [
+        "www.sdna.gr",
+        199
+      ],
+      [
+        "www.news247.gr",
+        188
+      ],
+      [
+        "www.frontpages.gr",
+        184
+      ],
+      [
+        "www.in.gr",
+        184
+      ],
+      [
+        "www.lifo.gr",
+        182
+      ],
+      [
+        "www.ethnos.gr",
+        174
+      ],
+      [
+        "gr.euronews.com",
+        172
+      ],
+      [
+        "www.tlife.gr",
+        171
+      ],
+      [
+        "www.pronews.gr",
+        169
+      ],
+      [
+        "www.thetoc.gr",
+        163
+      ],
+      [
+        "www.athensvoice.gr",
+        160
+      ],
+      [
+        "www.sport24.gr",
+        158
+      ],
+      [
+        "flashnews.gr",
+        144
+      ],
+      [
+        "www.youweekly.gr",
+        138
+      ],
+      [
+        "www.tripadvisor.com.gr",
+        136
+      ],
+      [
+        "goal.philenews.com",
+        136
+      ],
+      [
+        "www.documentonews.gr",
+        124
+      ],
+      [
+        "indicator.gr",
+        123
+      ],
+      [
+        "www.agoda.com",
+        121
+      ],
+      [
+        "www.cnn.gr",
+        119
+      ],
+      [
+        "www.queen.gr",
+        119
+      ],
+      [
+        "www.enikos.gr",
+        116
+      ],
+      [
+        "www.ekriti.gr",
+        115
+      ],
+      [
+        "www.mothersblog.gr",
+        115
+      ],
+      [
+        "www.huffingtonpost.gr",
+        113
+      ],
+      [
+        "www.boro.gr",
+        112
+      ],
+      [
+        "www.rizospastis.gr",
+        112
+      ],
+      [
+        "sportdog.gr",
+        110
+      ],
+      [
+        "www.kathimerini.com.cy",
+        110
+      ],
+      [
+        "www.iefimerida.gr",
+        108
+      ],
+      [
+        "www.reader.gr",
+        107
+      ],
+      [
+        "www.iapopsi.gr",
+        107
+      ],
+      [
+        "www.newsbeast.gr",
+        106
+      ],
+      [
+        "sputniknews.gr",
+        104
+      ],
+      [
+        "www.skroutz.gr",
+        103
+      ],
+      [
+        "www.astratv.gr",
+        101
+      ],
+      [
+        "www.taxydromos.gr",
+        101
+      ]
+    ],
+    "normalize_or_trim_span": [
+      [
+        "docplayer.gr",
+        2
+      ],
+      [
+        "alopsis.gr",
+        1
+      ],
+      [
+        "issuu.com",
+        1
+      ],
+      [
+        "www.inclusivedemocracy.org",
+        1
+      ],
+      [
+        "paperzz.com",
+        1
+      ],
+      [
+        "karditsapress.gr",
+        1
+      ]
+    ],
+    "quarantine": [
+      [
+        "docplayer.gr",
+        488
+      ],
+      [
+        "www.efsyn.gr",
+        149
+      ],
+      [
+        "enypografa.gr",
+        77
+      ],
+      [
+        "www.newsit.gr",
+        75
+      ],
+      [
+        "www.antinews.gr",
+        74
+      ],
+      [
+        "marymary.gr",
+        68
+      ],
+      [
+        "dou.gr",
+        65
+      ],
+      [
+        "www.mikistheodorakis.gr",
+        61
+      ],
+      [
+        "www.frontpages.gr",
+        56
+      ],
+      [
+        "blogs.pathfinder.gr",
+        48
+      ],
+      [
+        "www.esos.gr",
+        46
+      ],
+      [
+        "simplylife.gr",
+        45
+      ],
+      [
+        "www.protothema.gr",
+        44
+      ],
+      [
+        "www.gazzetta.gr",
+        44
+      ],
+      [
+        "www.kathimerini.gr",
+        42
+      ],
+      [
+        "www.tovima.gr",
+        42
+      ],
+      [
+        "blogs.sch.gr",
+        41
+      ],
+      [
+        "politisonline.com",
+        40
+      ],
+      [
+        "www.tripadvisor.com.gr",
+        38
+      ],
+      [
+        "www.athensvoice.gr",
+        37
+      ],
+      [
+        "national-pride.org",
+        36
+      ],
+      [
+        "slideplayer.gr",
+        34
+      ],
+      [
+        "www.youweekly.gr",
+        33
+      ],
+      [
+        "www.candiadoc.gr",
+        33
+      ],
+      [
+        "farmakeia-gr.life",
+        33
+      ],
+      [
+        "kafeneio-gr.blogspot.gr",
+        33
+      ],
+      [
+        "www.ethnos.gr",
+        32
+      ],
+      [
+        "www.ot.gr",
+        32
+      ],
+      [
+        "www.lifo.gr",
+        32
+      ],
+      [
+        "www.in.gr",
+        31
+      ],
+      [
+        "www.mixtape.gr",
+        30
+      ],
+      [
+        "www.infokids.gr",
+        30
+      ],
+      [
+        "www.tribune.gr",
+        29
+      ],
+      [
+        "www.libre.gr",
+        28
+      ],
+      [
+        "www.capital.gr",
+        28
+      ],
+      [
+        "www.maxmag.gr",
+        28
+      ],
+      [
+        "www.athensmagazine.gr",
+        27
+      ],
+      [
+        "www.secnews.gr",
+        27
+      ],
+      [
+        "www.documentonews.gr",
+        27
+      ],
+      [
+        "money-tourism.gr",
+        27
+      ],
+      [
+        "www.insider.gr",
+        26
+      ],
+      [
+        "www.viadiplomacy.gr",
+        25
+      ],
+      [
+        "www.patrisnews.com",
+        25
+      ],
+      [
+        "exomatiakaivlepo.blogspot.com",
+        25
+      ],
+      [
+        "www.mononews.gr",
+        25
+      ],
+      [
+        "www.rotise.gr",
+        24
+      ],
+      [
+        "www.haniotika-nea.gr",
+        24
+      ],
+      [
+        "el.wikipedia.org",
+        24
+      ],
+      [
+        "www.press-gr.com",
+        24
+      ],
+      [
+        "www.fytokomia.gr",
+        24
+      ]
+    ],
+    "trim_prefix": [
+      [
+        "has.gr",
+        2
+      ],
+      [
+        "o-o.gr",
+        2
+      ],
+      [
+        "deals247.gr",
+        2
+      ],
+      [
+        "www.foulscode.com",
+        2
+      ],
+      [
+        "www.thelab.gr",
+        2
+      ],
+      [
+        "cruo.gr",
+        2
+      ],
+      [
+        "www.nextdeal.gr",
+        1
+      ],
+      [
+        "www.zoosos.gr",
+        1
+      ],
+      [
+        "my-bookmarks.gr",
+        1
+      ],
+      [
+        "el.androware.org",
+        1
+      ],
+      [
+        "www.vivapharmacy.gr",
+        1
+      ],
+      [
+        "dialexte.gr",
+        1
+      ],
+      [
+        "www.asvestohori.gr",
+        1
+      ],
+      [
+        "dialogoi.enet.gr",
+        1
+      ],
+      [
+        "www.unpolitical.gr",
+        1
+      ],
+      [
+        "dealhunter.gr",
+        1
+      ],
+      [
+        "tilemarathonios.blogspot.com",
+        1
+      ],
+      [
+        "greekdeals.gr",
+        1
+      ],
+      [
+        "offers.kilkistoday.gr",
+        1
+      ],
+      [
+        "onlydeals.gr",
+        1
+      ],
+      [
+        "www.hwbox.gr",
+        1
+      ],
+      [
+        "couple.gr",
+        1
+      ],
+      [
+        "hold.gr",
+        1
+      ],
+      [
+        "offers.kilkis24.gr",
+        1
+      ],
+      [
+        "mompso.com",
+        1
+      ],
+      [
+        "onestopdeals.gr",
+        1
+      ],
+      [
+        "www.12sports.gr",
+        1
+      ],
+      [
+        "ecoserifos.gr",
+        1
+      ],
+      [
+        "dealsmonster.gr",
+        1
+      ],
+      [
+        "el.androware.net",
+        1
+      ],
+      [
+        "www.sidirokastro.org",
+        1
+      ],
+      [
+        "www.admin.uoc.gr",
+        1
+      ],
+      [
+        "mad.tv",
+        1
+      ],
+      [
+        "psycatgames.com",
+        1
+      ],
+      [
+        "psterpnis.blogspot.com",
+        1
+      ],
+      [
+        "dealforyou.gr",
+        1
+      ],
+      [
+        "www.gkachrimanis.gr",
+        1
+      ],
+      [
+        "www.safer-internet.gr",
+        1
+      ],
+      [
+        "www.hotelopia.gr",
+        1
+      ],
+      [
+        "newageastrologymagazine.com",
+        1
+      ],
+      [
+        "brakoulias.gr",
+        1
+      ]
+    ],
+    "trim_suffix": [
+      [
+        "gipedo.politis.com.cy",
+        67
+      ],
+      [
+        "www.rodiaki.gr",
+        61
+      ],
+      [
+        "www.blog.gr",
+        41
+      ],
+      [
+        "politis.com.cy",
+        39
+      ],
+      [
+        "www.neatv.gr",
+        29
+      ],
+      [
+        "www.esos.gr",
+        29
+      ],
+      [
+        "www.press-gr.com",
+        28
+      ],
+      [
+        "www.salonicanews.com",
+        21
+      ],
+      [
+        "www.logiastarata.gr",
+        21
+      ],
+      [
+        "kostasxan.blogspot.gr",
+        19
+      ],
+      [
+        "www.karatzova.com",
+        17
+      ],
+      [
+        "kapistri.blogspot.gr",
+        16
+      ],
+      [
+        "filiatrablog.blogspot.com",
+        15
+      ],
+      [
+        "kostasxan.blogspot.com",
+        15
+      ],
+      [
+        "www.gkordis.com",
+        14
+      ],
+      [
+        "www.taxheaven.gr",
+        14
+      ],
+      [
+        "blogs.sch.gr",
+        13
+      ],
+      [
+        "www.alli-apopsi.gr",
+        13
+      ],
+      [
+        "www.ialmopia.gr",
+        13
+      ],
+      [
+        "www.vimaonline.gr",
+        12
+      ],
+      [
+        "parapona-rodou.blogspot.com",
+        11
+      ],
+      [
+        "zouzouniblog.blogspot.com",
+        11
+      ],
+      [
+        "www.kaliterilamia.gr",
+        10
+      ],
+      [
+        "www.insomnia.gr",
+        10
+      ],
+      [
+        "www.oxafies.com",
+        10
+      ],
+      [
+        "tinosvoice.blogspot.gr",
+        10
+      ],
+      [
+        "parapona-rodou.blogspot.gr",
+        10
+      ],
+      [
+        "www.astakos-news.gr",
+        9
+      ],
+      [
+        "thessbomb.blogspot.com",
+        9
+      ],
+      [
+        "www.agriniolike.gr",
+        8
+      ],
+      [
+        "parapona-rodou.blogspot.be",
+        8
+      ],
+      [
+        "www.pamepreveza.gr",
+        8
+      ],
+      [
+        "www.greekmoney.gr",
+        8
+      ],
+      [
+        "infognomonpolitics.blogspot.com",
+        7
+      ],
+      [
+        "www.newscity1.net",
+        7
+      ],
+      [
+        "lougantina.blogspot.gr",
+        7
+      ],
+      [
+        "eleftheroiellines.blogspot.gr",
+        7
+      ],
+      [
+        "vatolakkiotis.blogspot.gr",
+        7
+      ],
+      [
+        "offsite.com.cy",
+        6
+      ],
+      [
+        "topikokritis.gr",
+        6
+      ],
+      [
+        "ai-vres.blogspot.com",
+        6
+      ],
+      [
+        "parathyro.politis.com.cy",
+        6
+      ],
+      [
+        "planet-greece.blogspot.com",
+        6
+      ],
+      [
+        "greekvoices.blogspot.gr",
+        6
+      ],
+      [
+        "parapona-rodou.blogspot.ch",
+        5
+      ],
+      [
+        "promahi-nea.blogspot.com.cy",
+        5
+      ],
+      [
+        "pyramisnews.gr",
+        5
+      ],
+      [
+        "vironas.gr",
+        5
+      ],
+      [
+        "liveflorinanews.blogspot.com",
+        5
+      ],
+      [
+        "dou.gr",
+        5
+      ]
+    ]
+  }
+}

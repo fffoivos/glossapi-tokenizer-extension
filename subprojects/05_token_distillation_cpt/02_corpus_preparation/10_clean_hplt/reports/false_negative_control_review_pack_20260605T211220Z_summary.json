@@ -1,0 +1,27 @@
+{
+  "by_candidate_action": {
+    "keep": 300
+  },
+  "by_prior_review_label": {
+    "None": 294,
+    "clean": 4,
+    "false_negative_found": 2
+  },
+  "filters": {
+    "actions": [
+      "keep"
+    ],
+    "ids": [],
+    "max_records": 0,
+    "strata": [],
+    "tasks": [
+      "false_negative_control"
+    ]
+  },
+  "jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_policy_review_pack_2477519_20260605T211220Z/reports/policy_review_pack/false_negative_control_review_pack_20260605T211220Z.jsonl",
+  "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_policy_review_pack_2477519_20260605T211220Z/reports/policy_review_pack/false_negative_control_review_pack_20260605T211220Z.md",
+  "max_doc_chars": 50000,
+  "policy_evaluation_sample": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_policy_evaluation_sample_20260605T210154Z/reports/policy_evaluation_sample/policy_evaluation_sample_20260605T210154Z.jsonl",
+  "records": 300,
+  "seed": 20260605
+}

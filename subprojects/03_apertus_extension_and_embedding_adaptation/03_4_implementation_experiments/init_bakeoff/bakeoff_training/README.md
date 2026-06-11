@@ -8,6 +8,20 @@ The training engine is **Megatron-LM-Swiss-AI** (Apertus's pretraining fork),
 not HuggingFace Trainer — for Apertus-fidelity reasons documented in
 [`../../../TRAINING_RECIPE.md`](../../../TRAINING_RECIPE.md).
 
+## How to read loss
+
+Megatron's raw `lm loss` is per-target-token cross entropy in nats. It is dense
+and valuable for health checks, but it is not a cross-tokenizer score across
+Vanilla and the 148,480-vocab arms. Selection uses heldout BPB from
+[`../eval/compute_tokenizer_fair_metrics.py`](../eval/compute_tokenizer_fair_metrics.py)
+and downstream evals. Older reports may call that BPB column `BPC` or
+`bpc_bits_per_byte`; this is a legacy bits-per-byte alias.
+
+When the Megatron logging patch is active, stdout may also include `bpb`,
+`bpt`, `base_loss`, `new_loss`, and `n_new`. These fields are measurement-only
+and must be computed over the same loss-mask positions as optimizer `lm loss`;
+they do not change the objective.
+
 ## Files
 
 | File | Purpose |

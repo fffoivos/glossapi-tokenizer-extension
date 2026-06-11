@@ -1,0 +1,31 @@
+{
+  "action_counts": {
+    "split_doc": 4
+  },
+  "annotation_rows": 4,
+  "annotations": "reports/boundary_manual_safe_split_annotations_20260606T024050Z.jsonl",
+  "chars_removed": 298,
+  "created_at_utc": "20260606T024146Z",
+  "decision_actions": {
+    "split_doc": 38
+  },
+  "decision_manifest_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480304_20260606T024146Z/reports/boundary_annotation_materialization/boundary_safe_split_materialization_20260606T024050Z_decision_manifest.jsonl",
+  "decision_manifest_rows": 38,
+  "issue_count": 0,
+  "issues_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480304_20260606T024146Z/reports/boundary_annotation_materialization/boundary_safe_split_materialization_20260606T024050Z_issues.jsonl",
+  "markdown": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480304_20260606T024146Z/reports/boundary_annotation_materialization/boundary_safe_split_materialization_20260606T024050Z.md",
+  "pending_rows": 0,
+  "policy_note": "Boundary annotation materialization only. Source HPLT rows are immutable; changed text exists only in shadow_records.",
+  "review_pack": "/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/subprojects/02_hplt_cleaning/reports/boundary_spec_review_pack_20260606T002713Z.jsonl",
+  "review_pack_rows": 184,
+  "schema_version": "hplt-boundary-annotation-materialization-v1",
+  "shadow_records": 38,
+  "shadow_records_jsonl": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/hplt_cleaning/05_hplt_boundary_apply_2480304_20260606T024146Z/reports/boundary_annotation_materialization/boundary_safe_split_materialization_20260606T024050Z_shadow_records.jsonl",
+  "skipped_rows": 0,
+  "status_counts": {
+    "apply": 4
+  },
+  "token_delta_rows": 38,
+  "tokenizer_json": "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480/tokenizer.json",
+  "tokens_removed": 19
+}
