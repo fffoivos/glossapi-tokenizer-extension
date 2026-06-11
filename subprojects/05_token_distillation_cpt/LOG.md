@@ -96,6 +96,11 @@ matter after cleanup; old reports are summarized in `ARCHIVE.md`.
   TD Greek-NLP `iter_0001428`, vanilla Greek-NLP `iter_0001666`, TD native and
   retention `iter_0001666`, and most vanilla `iter_0001904` sidecars; TD
   `iter_0001904` conversion was pending behind priority.
+- Ten-minute placement follow-up: TD segment 3 `2516058` was still `PENDING
+  (Priority)`, and the TD `iter_0001904` converter was also pending. Vanilla
+  segment 3 continued cleanly through iteration 2163, with `iter_0002142`
+  saved and no skipped or NaN iterations. The failed-sidecar sweep remained
+  empty.
 
 ## 2026-06-10
 
