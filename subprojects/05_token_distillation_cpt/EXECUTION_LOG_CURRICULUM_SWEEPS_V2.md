@@ -660,3 +660,30 @@ First eval sidecar submission `2026-06-11T19:21Z`:
   - TD R=0.35 reached iter `213`, loss `2.279708`, skipped `0`, NaN `0`;
   - TD R=0.25 reached iter `188`, loss `2.358219`, skipped `0`, NaN `0`;
   - TD R=0.15 reached iter `96`, loss `2.683198`, skipped `0`, NaN `0`.
+
+First TD eval sidecars `2026-06-11T19:34Z`:
+
+- Vanilla first eval bundle completed successfully:
+  - convert `2521245` completed in `00:01:34`;
+  - GreekMMLU native `2521246` completed in `00:12:52`;
+  - code BPB `2521247` completed in `00:01:07`;
+  - math BPB `2521248` completed in `00:01:03`;
+  - checksum `2521249` completed in `00:04:21`.
+- TD R=0.35 watcher `2520981` detected `iter_0000238` at
+  `2026-06-11T19:28:21Z` and submitted sidecars:
+  - convert `2521270`;
+  - GreekMMLU native `2521271`;
+  - code BPB `2521272`;
+  - math BPB `2521273`;
+  - checksum `2521274`.
+- TD R=0.35 sidecar status at this snapshot: convert, code BPB, and math BPB
+  completed successfully; GreekMMLU native and checksum were still running.
+- TD R=0.25 reached and saved `iter_0000238`; watcher `2520982` detected it at
+  `2026-06-11T19:33:21Z` and submitted sidecars:
+  - convert `2521286`;
+  - GreekMMLU native `2521287`;
+  - code BPB `2521288`;
+  - math BPB `2521289`;
+  - checksum `2521290`.
+- TD R=0.15 was still before first eval at this snapshot, around iter `150`,
+  with finite loss and no skipped/NaN iterations.
