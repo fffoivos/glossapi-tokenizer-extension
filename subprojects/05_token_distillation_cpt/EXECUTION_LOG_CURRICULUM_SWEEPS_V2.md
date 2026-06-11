@@ -579,3 +579,39 @@ First production runtime signal `2026-06-11T18:35Z`:
     `7624.7` tok/s/GPU.
 - The printed full-run ETA after warmup is about `7h40m`; segment 1 should exit
   at iteration `952` and checkpoint every `119` iterations.
+
+Second production allocation `2026-06-11T18:46Z`:
+
+- TD replay R=0.35 first segment `2520964` allocated 16 nodes and started
+  running at `2026-06-11T18:44Z`, so the cluster is now running 32 training
+  nodes for this sweep (`2520960` vanilla + `2520964` TD R=0.35).
+- Header confirms `ARM=td`, ext tokenizer
+  `apertus_greek_modern_only_148480`, phase-1
+  `hplt_only_ext + replay_only_ext`, `R=0.35`, extra-valid enabled, and
+  tokenization `ext`.
+- First TD R=0.35 iterations are finite:
+  - iter 1: loss `5.979675`, LR `5.623750e-06`, skipped `0`, NaN `0`,
+    `4197.7` tok/s/GPU;
+  - iter 2: loss `5.888990`, LR `5.747500e-06`, skipped `0`, NaN `0`,
+    `7462.7` tok/s/GPU;
+  - iter 3: loss `5.765898`, LR `5.871250e-06`, skipped `0`, NaN `0`,
+    `7509.0` tok/s/GPU;
+  - iter 4: loss `5.558364`, LR `5.995000e-06`, skipped `0`, NaN `0`,
+    `7510.2` tok/s/GPU;
+  - iter 5: loss `5.409743`, LR `6.118750e-06`, skipped `0`, NaN `0`,
+    `7508.1` tok/s/GPU.
+- At the same snapshot, vanilla reached iteration `75` with loss `1.408932`,
+  skipped `0`, NaN `0`, and about `7.62k` tok/s/GPU.
+- TD R=0.25 first segment `2520969` is pending on `Resources`; TD R=0.15 first
+  segment `2520974` remains pending on `Priority`.
+
+Training checkpoint / eval cadence clarification `2026-06-11T18:59Z`:
+
+- Vanilla `2520960` saved training checkpoint `iter_0000119` successfully:
+  `.metadata` exists and training continued to iteration `120`.
+- The GreekMMLU watcher did not submit sidecars at iter `119` by design:
+  `eval/cadence_curriculum.tsv` starts at iter `238` (`curr-1.0B`), not at
+  every `SAVE_INTERVAL=119` checkpoint.
+- Updated monitoring target: first eval sidecar submission should happen after
+  vanilla reaches checkpoint `iter_0000238`; iter `119` is only a durability
+  checkpoint.
