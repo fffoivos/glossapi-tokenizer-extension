@@ -717,3 +717,24 @@ Sidecar code-BPB correction `2026-06-11T19:42Z`:
   vanilla, TD R=0.35, and TD R=0.25 used the legacy CodeParrot 200-doc file.
   Treat those first code-BPB numbers as legacy auxiliary metrics. Future
   sidecar code BPB submissions use StarCoder.
+
+First checkpoint eval sanity set complete `2026-06-11T20:00Z`:
+
+- TD R=0.15 `iter_0000238` sidecars completed:
+  - convert `2521334` completed in `00:01:35`;
+  - GreekMMLU native `2521335` completed in `00:09:20`;
+  - code BPB `2521336` completed in `00:01:11`;
+  - math BPB `2521337` completed in `00:01:04`;
+  - checksum `2521338` completed in `00:04:20`.
+- TD R=0.15 code BPB output confirms the corrected StarCoder sample path:
+  `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/val_forget_code_starcoder_200_for_bpb.jsonl`.
+- GreekMMLU `curr-1.0B` headlines:
+  - vanilla: `0.5296416546` (`8809/16632`);
+  - TD R=0.35: `0.4805194805` (`7992/16632`);
+  - TD R=0.25: `0.4909211159` (`8165/16632`);
+  - TD R=0.15: `0.4960918711` (`8251/16632`).
+- These are sanity-check trajectories only; replay decision remains gated on
+  later/full replay results plus forgetting-loss deltas.
+- Vanilla reached `iter_0000476` (`curr-2.0B`) and watcher `2521309`
+  submitted sidecars `2521385`-`2521389`. The restarted watcher env uses the
+  StarCoder code BPB sample for this and future sidecars.
