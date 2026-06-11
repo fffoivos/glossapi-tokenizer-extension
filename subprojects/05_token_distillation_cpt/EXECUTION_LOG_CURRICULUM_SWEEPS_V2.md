@@ -780,3 +780,27 @@ Parallel replay wave status `2026-06-11T20:30Z`:
   - math BPB `2521495`;
   - checksum `2521496`.
   The bundle is still in progress/pending as of this snapshot.
+
+Second checkpoint eval sanity set complete `2026-06-11T21:00Z`:
+
+- TD R=0.15 `iter_0000476` sidecars completed:
+  - convert `2521491` completed in `00:01:32`;
+  - GreekMMLU native `2521493` completed in `00:08:59`;
+  - code BPB `2521494` completed in `00:01:03`;
+  - math BPB `2521495` completed in `00:01:01`;
+  - checksum `2521496` completed in `00:04:25`.
+- TD R=0.15 code BPB output confirms the corrected StarCoder sample path:
+  `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/val_forget_code_starcoder_200_for_bpb.jsonl`.
+- GreekMMLU `curr-2.0B` headlines:
+  - vanilla: `0.5094396344` (`8473/16632`);
+  - TD R=0.35: `0.5267556518` (`8761/16632`);
+  - TD R=0.25: `0.5165343915` (`8591/16632`);
+  - TD R=0.15: `0.5144901395` (`8557/16632`).
+- StarCoder sidecar BPB `curr-2.0B`:
+  - vanilla: `0.2638159587`;
+  - TD R=0.35: `0.2680510668`;
+  - TD R=0.25: `0.2693039778`;
+  - TD R=0.15: `0.2702046887`.
+- These `curr-2.0B` points are still sanity trajectories, not the replay
+  decision table. Replay choice remains gated on later/full trajectories plus
+  in-training extra-validation forgetting losses.
