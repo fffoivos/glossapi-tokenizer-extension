@@ -137,3 +137,16 @@ Dataset submission attempt 3:
   - `hplt_only`: 150M/8.5B tokens, ETA about 4.7h from observed rate
   - `glossapi_only`: 150M/3.7B tokens, ETA about 2.2h
   - `replay_only`: 150M/5.0B tokens, ETA about 2.3h
+
+Babysitting snapshot `2026-06-11T12:56:18Z`:
+
+- `2519265_[0-2]` still running; `2519266_[0-2]` and `2519267_[0-2]` pending
+  on the mix dependency.
+- `2519269_[0-5]` completed; all old-data forgetting validation sets have been
+  tokenized for both base/ext tokenizers.
+- Mix progress:
+  - `hplt_only`: 1.10B/8.50B tokens (12.9%), rate ~508k tok/s, ETA ~243 min
+  - `glossapi_only`: 1.25B/3.70B tokens (33.9%), rate ~578k tok/s, ETA ~70 min
+  - `replay_only`: 1.15B/5.00B tokens (23.0%), rate ~542k tok/s, ETA ~118 min
+- Current JSONL sizes: `hplt_only` 8.6G, `glossapi_only` 7.7G,
+  `replay_only` 5.6G.
