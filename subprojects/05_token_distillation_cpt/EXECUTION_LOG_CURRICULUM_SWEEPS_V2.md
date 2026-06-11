@@ -365,3 +365,33 @@ Old-Greek overlay revalidation `2026-06-11T14:00Z`:
   pairs: 2,223,742.
 - Missing replay pairs from overlay: 0. Verdict: PASS for the current
   `old_greek` strict overlay provenance label.
+
+Accelerated mix completion `2026-06-11T16:10Z`:
+
+- Sharded replacement chain worked as intended: the slow single-process mix was
+  canceled and the replacement array `2520411` finished all three phase JSONLs
+  in under 30 minutes after start.
+- Completion times:
+  - `replay_only`: `2026-06-11T15:59:48Z`, output
+    `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/replay_only.jsonl`
+    size 23G.
+  - `glossapi_only`: `2026-06-11T16:03:05Z`, output
+    `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/glossapi_only.jsonl`
+    size 21G.
+  - `hplt_only`: `2026-06-11T16:09:26Z`, output
+    `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/hplt_only.jsonl`
+    size 61G.
+- Stage A decontamination `2520414_[0-2]` released immediately after the mix
+  dependency cleared and is running on three CPU nodes. Stage B `2520415_[0-2]`
+  remains dependency-held on Stage A.
+
+Training launch guard `2026-06-11T16:24Z`:
+
+- Verified the real two-phase training driver defaults to `NODES=16`,
+  `GPUS_PER_NODE=4`, and `TIME_LIMIT=06:00:00`; sweep launchers submit
+  independent arms without cross-arm dependencies, so replay/LR arms can run in
+  parallel if Slurm capacity is available.
+- Added a live-launch guard to `train/submit_curriculum_two_phase.sh`: any
+  non-smoke live training run (`DRY_RUN=0`, `TOTAL_ITER>2`) now fails fast if
+  `NODES < 16`. The planned boundary smoke remains allowed with `TOTAL_ITER=2`
+  and `NODES=1`.

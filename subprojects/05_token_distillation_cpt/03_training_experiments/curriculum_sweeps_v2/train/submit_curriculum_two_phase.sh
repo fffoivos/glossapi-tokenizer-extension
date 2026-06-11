@@ -31,6 +31,7 @@ NODES="${NODES:-16}"
 GPUS_PER_NODE="${GPUS_PER_NODE:-4}"
 SEG="${SEG:-952}"                      # 8*119, iters per walltime segment
 TIME_LIMIT="${TIME_LIMIT:-06:00:00}"
+MIN_TRAIN_NODES="${MIN_TRAIN_NODES:-16}"
 
 case "$DRY_RUN" in
   0|1) ;;
@@ -38,6 +39,10 @@ case "$DRY_RUN" in
 esac
 if [ "$DRY_RUN" = "0" ] && [ "$CONFIRM_LAUNCH" != "1" ]; then
   echo "ERROR: live submission requires CONFIRM_LAUNCH=1 (or set DRY_RUN=1)" >&2
+  exit 2
+fi
+if [ "$DRY_RUN" = "0" ] && (( TOTAL_ITER > 2 && NODES < MIN_TRAIN_NODES )); then
+  echo "ERROR: live non-smoke training requires NODES >= $MIN_TRAIN_NODES (got NODES=$NODES)" >&2
   exit 2
 fi
 (( PHASE1_EXIT_ITER % SAVE_INTERVAL == 0 )) || { echo "ERROR: PHASE1_EXIT_ITER=$PHASE1_EXIT_ITER must be a multiple of $SAVE_INTERVAL" >&2; exit 2; }
