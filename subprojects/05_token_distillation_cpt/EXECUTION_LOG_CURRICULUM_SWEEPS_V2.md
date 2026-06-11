@@ -526,3 +526,35 @@ Replay/control production launch `2026-06-11T18:13Z`:
   segments as capacity opens.
 - Launch log:
   `/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/launch_replay_control_20260611T181233Z.log`.
+
+Launch babysitting snapshot `2026-06-11T18:19Z`:
+
+- Clariden local display timezone is `+0200`.
+- Watchers `2520980`-`2520983` are running on `xfer`.
+- First-segment training jobs remain pending, independent, and eligible to run
+  in parallel. Current soft `squeue --start` estimates:
+  - vanilla `2520960`: `2026-06-11T21:28:42+0200`
+  - TD R=0.35 `2520964`: `2026-06-11T22:44:22+0200`
+  - TD R=0.25 `2520969`: `2026-06-11T22:44:22+0200`
+  - TD R=0.15 `2520974`: `2026-06-11T22:53:11+0200`
+
+User-facing status check `2026-06-11T18:30Z`:
+
+- Confirmed again that the launched production set is:
+  vanilla control plus TD replay `R in {0.35, 0.25, 0.15}`.
+- No LR sweep arms have been launched; those remain gated on replay results and
+  the user's `R*` choice.
+- `sacct` confirms every training segment requests `NNodes=16` and
+  `gres/gpu=64`.
+- Current first-segment states:
+  - vanilla `2520960`: pending on `Resources`, soft start
+    `2026-06-11T21:17:29+0200`;
+  - TD R=0.35 `2520964`: pending on `Priority`, soft start
+    `2026-06-11T22:44:22+0200`;
+  - TD R=0.25 `2520969`: pending on `Priority`, soft start
+    `2026-06-11T22:44:22+0200`;
+  - TD R=0.15 `2520974`: pending on `Priority`, soft start
+    `2026-06-11T22:53:11+0200`.
+- Watchers `2520980`-`2520983` are still running and logging
+  `waiting for checkpoints`; no training logs exist yet because first segments
+  have not allocated nodes.
