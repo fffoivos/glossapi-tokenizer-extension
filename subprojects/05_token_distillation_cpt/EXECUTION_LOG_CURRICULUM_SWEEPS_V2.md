@@ -804,3 +804,34 @@ Second checkpoint eval sanity set complete `2026-06-11T21:00Z`:
 - These `curr-2.0B` points are still sanity trajectories, not the replay
   decision table. Replay choice remains gated on later/full trajectories plus
   in-training extra-validation forgetting losses.
+
+First production segment handoff and third eval sanity set `2026-06-11T21:18Z`:
+
+- Vanilla segment 1 `2520960` reached `iter_0000952`, saved checkpoint, and
+  exited with Slurm state `COMPLETED`, exit `0:0`, elapsed `02:40:08`.
+- Vanilla segment 2 `2520961` started automatically from the dependency chain
+  on `16` nodes.
+- Segment 2 loaded `/checkpoints/iter_0000952` and resumed at iteration `953`.
+  The optimizer/schedule did not reset: observed LR stayed `5.500000E-05`,
+  skipped iterations `0`, NaN iterations `0`.
+- First resumed training lines were finite:
+  - iter `953`, loss `1.351256`;
+  - iter `954`, loss `1.343664`;
+  - iter `970`, loss `1.346770`.
+- Segment-1 stderr included distributed shutdown/rendezvous warnings after the
+  clean save. Slurm and the run footer both marked the job done successfully;
+  no action taken.
+- TD R=0.35, TD R=0.25, and TD R=0.15 segment-1 jobs remain running; their
+  segment-2 jobs remain dependency-gated.
+- GreekMMLU `curr-3.0B` headlines:
+  - vanilla: `0.5221260221` (`8684/16632`);
+  - TD R=0.35: `0.5344516595` (`8889/16632`);
+  - TD R=0.25: `0.5056517557` (`8410/16632`);
+  - TD R=0.15: `0.5214646465` (`8673/16632`).
+- StarCoder sidecar BPB `curr-3.0B`:
+  - vanilla: `0.2650278562`;
+  - TD R=0.35: `0.2673165931`;
+  - TD R=0.25: `0.2682826044`;
+  - TD R=0.15: `0.2688295269`.
+- Replay decision remains gated on later/full trajectories plus in-training
+  forgetting-loss deltas; LR sweep remains intentionally unlaunched.
