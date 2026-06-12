@@ -1279,3 +1279,25 @@ Additional manual sidecar catch-up while xfer remains down `2026-06-12T10:49Z`:
   - checksum `2522604`.
 - At submission time the new conversion jobs had begun running where resources
   were available; checksum jobs remain xfer-dependent while `xfer` is down.
+
+Manual sidecar results/catch-up `2026-06-12T11:13Z`:
+
+- Completed native GreekMMLU one-shot results:
+  - vanilla `iter_1190` / `curr-5.0B`: `0.5353535354`
+    (`8904/16632`);
+  - vanilla `iter_1428` / `curr-6.0B`: `0.5337902838`
+    (`8878/16632`);
+  - TD `R=0.35` `iter_1190` / `curr-5.0B`: `0.5491822992`
+    (`9134/16632`);
+  - TD `R=0.25` `iter_1190` / `curr-5.0B`: `0.5511664262`
+    (`9167/16632`);
+  - TD `R=0.15` `iter_1190` / `curr-5.0B`: `0.5270562771`
+    (`8766/16632`).
+- Code/math BPB sidecars for these manual submissions completed successfully;
+  checksum jobs remain queued on `xfer`.
+- `xfer` still reports both nodes `down*`, so watcher relaunch remains pending.
+- Submitted next ready cadence checkpoints manually:
+  - vanilla `iter_1666` / `curr-7.0B`: convert `2522698`, native
+    `2522699`, code BPB `2522700`, math BPB `2522701`, checksum `2522702`;
+  - TD `R=0.35` `iter_1428` / `curr-6.0B`: convert `2522703`, native
+    `2522704`, code BPB `2522705`, math BPB `2522706`, checksum `2522707`.
