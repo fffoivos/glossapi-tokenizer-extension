@@ -1022,3 +1022,16 @@ Second-hour outage heartbeat `2026-06-12T00:13Z`:
   unreachable and `ela` has no `squeue`/`sacct`.
 - No blind Slurm actions were taken.
 - Remote log sync remains pending until Clariden SSH returns.
+
+Third-hour outage heartbeat `2026-06-12T01:00Z`:
+
+- Timeout-safe monitor continued probing Clariden via `ela` roughly once per
+  minute.
+- Probes through `2026-06-12T00:59Z` continued to fail with
+  `Connection timed out during banner exchange`.
+- Fresh `ela` sanity checks during the outage continued to work, including
+  landing on `ela6.cscs.ch`; TCP to `clariden.alps.cscs.ch:22` from `ela`
+  continued to time out.
+- No new Slurm/job state could be observed and no blind Slurm actions were
+  taken.
+- Remote log sync remains pending until Clariden SSH returns.
