@@ -1451,3 +1451,26 @@ Replay-sweep training completion + eval catch-up `2026-06-12T17:29Z`:
 - Queue health after submission: 35 eval jobs running, 30 native eval jobs
   pending on conversion dependencies, 25 GreekMMLU summary files already present
   from earlier cadence, and xfer/checksum work still noncritical for R-choice.
+
+Peak-LR sweep implementation start `2026-06-12T18:45Z`:
+
+- User selected the next replay split for the LR sweep: 20% foreign replay plus
+  1% old-Greek replay, i.e. 79/20/1 after Megatron normalizes the blend.
+- Confirmed no Slurm jobs were running or pending before starting the next
+  wave.
+- The old peak-LR wrapper would have reused the combined `replay_only` binary
+  through a single `R=0.25` weight, which would not realize the selected
+  old-Greek slot. Patched the v2 train envs to support split replay weights:
+  - `FOREIGN_REPLAY_R=20/79=0.253164557`;
+  - `OLD_GREEK_REPLAY_R=1/79=0.012658228`.
+- Added a CPU-only split/tokenize job that reuses the already decontaminated
+  and anonymized `replay_only_final.jsonl`, splitting by preserved
+  `metadata.source`:
+  - `foreign_replay_only_final.jsonl`;
+  - `old_greek_replay_only_final.jsonl`.
+- Added hard preflight checks to `sweep_peak_lr.sh` so the LR arms will not
+  launch until the split replay Megatron binaries exist for both base/ext
+  tokenizations.
+- Synced the patched v2 scripts/log to Clariden and submitted the CPU-only
+  split/tokenize job `2524425` on `normal`. The job requests one node, 64 CPUs,
+  240G memory, and no GPUs.

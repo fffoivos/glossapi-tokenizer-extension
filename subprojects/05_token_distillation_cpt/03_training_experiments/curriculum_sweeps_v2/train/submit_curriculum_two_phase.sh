@@ -8,7 +8,8 @@
 # --exit-interval is the ABSOLUTE exit iteration of each segment (Megatron checks iteration % == 0 and
 # the while iteration<train_iters bound, so the final segment stops at TOTAL_ITER).
 #
-# Env knobs (set by the sweep launchers): ARM (td|vanilla), R (replay blend weight), LR_PEAK,
+# Env knobs (set by the sweep launchers): ARM (td|vanilla), R (legacy combined replay blend weight),
+#   FOREIGN_REPLAY_R and OLD_GREEK_REPLAY_R (split replay blend weights), LR_PEAK,
 #   PHASE1_EXIT_ITER, RUN_TAG. Smoke-friendly overrides: TOTAL_ITER, SEG, SAVE_INTERVAL,
 #   NODES, GPUS_PER_NODE, TIME_LIMIT. Live submission requires DRY_RUN=0 CONFIRM_LAUNCH=1.
 # Requires the two bakeoff_train.sbatch edits in UPSTREAM_EDITS.md.
@@ -17,6 +18,8 @@ source "$(dirname "$0")/../paths.env"
 
 ARM="${ARM:-td}"
 R="${R:-0.35}"
+FOREIGN_REPLAY_R="${FOREIGN_REPLAY_R:-}"
+OLD_GREEK_REPLAY_R="${OLD_GREEK_REPLAY_R:-}"
 LR_PEAK="${LR_PEAK:-5.5e-5}"
 RUN_TAG="${RUN_TAG:-curr_${ARM}_r${R}_lr${LR_PEAK}}"
 OUTPUT_DIR="$RUN_ROOT/$RUN_TAG"
@@ -66,7 +69,7 @@ submit_block(){ # $1=config  $2=from_iter  $3=to_iter  $4=reset_first(0|1)
       --nodes=$NODES --ntasks-per-node=1 --gpus-per-node=$GPUS_PER_NODE --gres=gpu:$GPUS_PER_NODE
       --cpus-per-task=288 --mem=460G --time="$TIME_LIMIT"
       --output="$OUTPUT_DIR/%x-%j.out" --error="$OUTPUT_DIR/%x-%j.err"
-      --export="ALL,ARM=$ARM,INIT_CKPT=$init,OUTPUT_DIR=$OUTPUT_DIR,SCRIPT_DIR_OVERRIDE=$TRAIN_DIR,TRAIN_CONFIG_OVERRIDE=$cfg,TRAIN_TOKENS=$TRAIN_TOKENS,RESUME_TRAINING=$resume,DISABLE_SAVE=0,SAVE_INTERVAL=$SAVE_INTERVAL,EXIT_INTERVAL=$nxt,ACCOUNT=a0140,PARTITION=normal,NODES=$NODES,GPUS_PER_NODE=$GPUS_PER_NODE,LAUNCH_MODE=torchrun,TIME_LIMIT=$TIME_LIMIT,R=$R,LR_PEAK=$LR_PEAK${extra}"
+      --export="ALL,ARM=$ARM,INIT_CKPT=$init,OUTPUT_DIR=$OUTPUT_DIR,SCRIPT_DIR_OVERRIDE=$TRAIN_DIR,TRAIN_CONFIG_OVERRIDE=$cfg,TRAIN_TOKENS=$TRAIN_TOKENS,RESUME_TRAINING=$resume,DISABLE_SAVE=0,SAVE_INTERVAL=$SAVE_INTERVAL,EXIT_INTERVAL=$nxt,ACCOUNT=a0140,PARTITION=normal,NODES=$NODES,GPUS_PER_NODE=$GPUS_PER_NODE,LAUNCH_MODE=torchrun,TIME_LIMIT=$TIME_LIMIT,R=$R,FOREIGN_REPLAY_R=$FOREIGN_REPLAY_R,OLD_GREEK_REPLAY_R=$OLD_GREEK_REPLAY_R,LR_PEAK=$LR_PEAK${extra}"
       "$TRAIN_SCRIPT")
     echo "+ seg $segn  cfg=$(basename "$cfg")  iters $cur..$nxt  resume=$resume  reset=${extra:-0}"
     if [ "$DRY_RUN" = 1 ]; then
@@ -81,7 +84,7 @@ submit_block(){ # $1=config  $2=from_iter  $3=to_iter  $4=reset_first(0|1)
   done
 }
 
-echo "=== curriculum chain: RUN_TAG=$RUN_TAG ARM=$ARM R=$R LR_PEAK=$LR_PEAK TOTAL_ITER=$TOTAL_ITER PHASE1_EXIT_ITER=$PHASE1_EXIT_ITER ==="
+echo "=== curriculum chain: RUN_TAG=$RUN_TAG ARM=$ARM R=$R FOREIGN_REPLAY_R=${FOREIGN_REPLAY_R:-<combined>} OLD_GREEK_REPLAY_R=${OLD_GREEK_REPLAY_R:-<combined>} LR_PEAK=$LR_PEAK TOTAL_ITER=$TOTAL_ITER PHASE1_EXIT_ITER=$PHASE1_EXIT_ITER ==="
 submit_block "$V2/train/phase1_hplt.env"      0                  "$PHASE1_EXIT_ITER" 0
 submit_block "$V2/train/phase2_glossapi.env"  "$PHASE1_EXIT_ITER" "$TOTAL_ITER"       1
 echo "final segment job: $dep   (output: $OUTPUT_DIR)"
