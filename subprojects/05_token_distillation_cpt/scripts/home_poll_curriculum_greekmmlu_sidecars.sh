@@ -44,6 +44,7 @@ run_once() {
     "RUN_TAGS='$tags_joined' V2='$V2_REMOTE' CADENCE='$CADENCE_REMOTE' bash -s" <<'REMOTE'
 set -euo pipefail
 source "$V2/paths.env"
+export RUN_ROOT
 SUBMIT="$SUB/scripts/submit_td_checkpoint_sidecars.sh"
 test -x "$SUBMIT"
 test -f "$CADENCE"

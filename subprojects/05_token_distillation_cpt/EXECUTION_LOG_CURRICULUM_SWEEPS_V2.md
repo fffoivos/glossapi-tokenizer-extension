@@ -1556,3 +1556,25 @@ Peak-LR watcher recovery `2026-06-12T22:30+03:00`:
   sweep (`SUBMIT_GREEK_NLP=0`, `SUBMIT_RETENTION=0`, `SUBMIT_BPB=0`,
   `SUBMIT_CHECKSUM=0`, and code/math BPB defaults pointed at nonexistent
   paths).
+
+Peak-LR first checkpoint handoff `2026-06-12T23:04+03:00`:
+
+- All four first segments reached and saved checkpoint `iter_0000238`
+  (`curr-1.0B`) while training continued; latest observed training iterations
+  were around `245`-`250`, with skipped/NaN counters still `0`.
+- Home watcher submitted exactly the intended GreekMMLU sidecars for `iter=238`:
+  - `2.75e-5`: convert `2524829`, native GreekMMLU `2524830`;
+  - `5.5e-5`: convert `2524831`, native GreekMMLU `2524832`;
+  - `8.25e-5`: convert `2524833`, native GreekMMLU `2524834`;
+  - `1.1e-4`: convert `2524835`, native GreekMMLU `2524836`.
+- Convert jobs were running and native jobs were pending on conversion
+  dependencies. Submit logs confirmed `NATIVE_BENCHMARKS=greekmmlu`,
+  `SUBMIT_CHECKSUM=0`, and no BPB/checksum extra jobs were submitted.
+- Found and fixed a watcher environment issue: the home watcher had not exported
+  `RUN_ROOT` before invoking `submit_td_checkpoint_sidecars.sh`, so the
+  `iter=238` eval outputs landed under the legacy
+  `/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/eval_<tag>`
+  root. The outputs are valid and usable there. Patched the watcher to export
+  `RUN_ROOT`, then restarted tmux session `cpt_lr_watch_20260612` with log
+  `logs/home_greekmmlu_lr_watch_tmux_20260612T200415Z.log`; first patched poll
+  saw `already_seen_this_pass=4`, `waiting_this_pass=56`, `total_done=4`.
