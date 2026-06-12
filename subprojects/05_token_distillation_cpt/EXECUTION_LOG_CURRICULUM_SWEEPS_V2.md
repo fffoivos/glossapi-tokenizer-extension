@@ -1053,3 +1053,14 @@ Fifth-hour outage heartbeat `2026-06-12T03:01Z`:
 - No new Slurm/job state could be observed and no blind Slurm actions were
   taken.
 - Remote log sync remains pending until Clariden SSH returns.
+
+Sixth-hour outage heartbeat `2026-06-12T04:02Z`:
+
+- Timeout-safe monitor continued probing Clariden via `ela`.
+- Probes through `2026-06-12T04:02Z` continued to fail with
+  `Connection timed out during banner exchange`.
+- Fresh `ela` sanity check still worked (`ela6.cscs.ch` observed), while TCP
+  to `clariden.alps.cscs.ch:22` from `ela` still timed out.
+- No new Slurm/job state could be observed and no blind Slurm actions were
+  taken.
+- Remote log sync remains pending until Clariden SSH returns.
