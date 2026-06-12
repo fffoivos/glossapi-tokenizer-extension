@@ -1172,3 +1172,46 @@ CSCS certificate refresh precheck `2026-06-12T09:25Z`:
 - Proxy was stopped cleanly. Monitoring continues with the still-valid current
   certificate; refresh should be retried with a fresh device code before
   `2026-06-12T16:48:54` if the maintenance window continues.
+
+Recovery jobs began after maintenance release `2026-06-12T09:58Z`:
+
+- Opened a persistent SSH master to `clariden-ln001` while the current CSCS
+  certificate is still valid, to reduce risk from later cert expiry during a
+  long recovery watch.
+- The first recovery jobs entered `RUNNING` after the maintenance block:
+  - vanilla `2522335`;
+  - TD replay `R=0.35` `2522338`;
+  - TD replay `R=0.15` `2522344`.
+- Vanilla `2522335` health check:
+  - loaded checkpoint `1190`;
+  - resumed at iteration `1191`;
+  - built all 9 extra-valid datasets;
+  - LR remained `5.5e-5`;
+  - losses finite, skipped iterations `0`, NaN iterations `0`.
+- TD `R=0.35` `2522338` health check:
+  - loaded checkpoint `1071`;
+  - resumed at iteration `1072`;
+  - built all 9 extra-valid datasets;
+  - LR remained `5.5e-5`;
+  - losses finite, skipped iterations `0`, NaN iterations `0`.
+- TD `R=0.15` `2522344` health check:
+  - loaded checkpoint `952`;
+  - resumed at iteration `953`;
+  - built all 9 extra-valid datasets;
+  - LR remained `5.5e-5`;
+  - losses finite, skipped iterations `0`, NaN iterations `0`.
+- TD `R=0.25` recovery segment `2522341` failed after `00:01:42` with CUDA
+  `unspecified launch failure` on rank 22, after which Slurm cancelled the
+  step. This appears consistent with an unstable post-maintenance allocation,
+  not a data/checkpoint failure.
+- Confirmed TD `R=0.25` latest checkpoint is still `1071`.
+- Cancelled broken stale downstream deps `2522342` and `2522343`.
+- Submitted replacement TD `R=0.25` chain with the failed allocation's nodes
+  excluded:
+  - segment 2 retry `2522485`, exit iteration `1904`, phase-1 HPLT config;
+  - segment 3 retry `2522486`, exit iteration `2261`, phase-1 HPLT config;
+  - segment 4 retry `2522487`, exit iteration `3218`, phase-2 GlossAPI config
+    with `RESET_DATA_INDEX=1`.
+- Replacement segment `2522485` is pending for `Resources`.
+- `xfer` remains unavailable (`down*`), so GreekMMLU watcher relaunch is still
+  pending.
