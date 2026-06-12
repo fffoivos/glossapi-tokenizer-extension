@@ -1336,3 +1336,35 @@ Segment/checkpoint catch-up `2026-06-12T11:59Z`:
     `2522879`, code BPB `2522880`, math BPB `2522881`, checksum `2522882`.
 - TD `R=0.35` latest checkpoint at this time was `1785`; its already-submitted
   `iter_1666` sidecars were still pending.
+
+Sidecar scheduling guard `2026-06-12T12:07Z`:
+
+- Vanilla segment 3 (`2522336`) was pending for priority after segment 2
+  completed, while many one-node normal-partition sidecars were also pending.
+- To avoid sidecar jobs competing with 16-node training continuation, held
+  pending normal sidecars:
+  `2522823`, `2522824`, `2522825`, `2522826`, `2522868`, `2522869`,
+  `2522870`, `2522871`, `2522873`, `2522874`, `2522875`, `2522876`,
+  `2522878`, `2522879`, `2522880`, `2522881`, `2522901`, `2522902`,
+  `2522903`, `2522904`.
+- These are intentionally paused with `JobHeldUser`; release them once training
+  continuation has enough room or at the next natural evaluation catch-up point.
+- Checksum sidecars remain xfer-bound and were not the resource concern.
+
+Portal degradation check `2026-06-12T12:07Z`:
+
+- User reported `portal.cscs.ch` Clariden cards as `unhealthy`, with inspection
+  message `TimeoutLimitExceeded: SSH connection timeout limit exceeded`.
+- Direct login-node SSH through the pinned `clariden-ln001` master still worked;
+  `squeue`, checkpoint reads, and `sinfo` all returned normally.
+- Live Slurm state at check time:
+  - Running 16-node training jobs: TD `R=0.25` recovery segment 2 (`2522485`,
+    latest checkpoint still `1666`) and TD `R=0.15` recovery segment 2
+    (`2522344`, latest checkpoint `1785`).
+  - Vanilla and TD `R=0.35` had completed segment 2 at checkpoint `1904`; their
+    segment-3 jobs (`2522336`, `2522339`) were pending for priority.
+  - xfer remained down, so checksum sidecars and watcher relaunch still needed
+    to wait.
+- Decision: treat the portal cards as console/cluster health symptoms, not as a
+  reason to cancel or requeue healthy Slurm jobs. Keep normal sidecars held and
+  prioritize 16-node training continuation.
