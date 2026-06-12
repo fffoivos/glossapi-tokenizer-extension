@@ -1322,3 +1322,17 @@ Manual sidecar results/catch-up `2026-06-12T11:45Z`:
     (`8608/16632`).
 - Code/math BPB sidecars for completed items succeeded; checksums remain queued
   on `xfer`.
+
+Segment/checkpoint catch-up `2026-06-12T11:59Z`:
+
+- Vanilla recovery segment `2522335` completed successfully at `iter_1904`;
+  downstream segment `2522336` is pending for priority.
+- Submitted new ready cadence sidecars while `xfer` remained down:
+  - vanilla `iter_1904` / `curr-8.0B`: convert `2522868`, native `2522869`,
+    code BPB `2522870`, math BPB `2522871`, checksum `2522872`;
+  - TD `R=0.25` `iter_1666` / `curr-7.0B`: convert `2522873`, native
+    `2522874`, code BPB `2522875`, math BPB `2522876`, checksum `2522877`;
+  - TD `R=0.15` `iter_1666` / `curr-7.0B`: convert `2522878`, native
+    `2522879`, code BPB `2522880`, math BPB `2522881`, checksum `2522882`.
+- TD `R=0.35` latest checkpoint at this time was `1785`; its already-submitted
+  `iter_1666` sidecars were still pending.
