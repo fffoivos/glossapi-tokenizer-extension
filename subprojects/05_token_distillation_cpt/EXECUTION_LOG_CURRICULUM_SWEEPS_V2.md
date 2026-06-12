@@ -1301,3 +1301,24 @@ Manual sidecar results/catch-up `2026-06-12T11:13Z`:
     `2522699`, code BPB `2522700`, math BPB `2522701`, checksum `2522702`;
   - TD `R=0.35` `iter_1428` / `curr-6.0B`: convert `2522703`, native
     `2522704`, code BPB `2522705`, math BPB `2522706`, checksum `2522707`.
+
+Manual sidecar results/catch-up `2026-06-12T11:45Z`:
+
+- Submitted additional ready cadence checkpoints while `xfer` remained down:
+  - TD `R=0.15` `iter_1428` / `curr-6.0B`: convert `2522709`, native
+    `2522710`, code BPB `2522711`, math BPB `2522712`, checksum `2522713`;
+  - TD `R=0.25` `iter_1428` / `curr-6.0B`: convert `2522743`, native
+    `2522744`, code BPB `2522745`, math BPB `2522746`, checksum `2522747`;
+  - TD `R=0.35` `iter_1666` / `curr-7.0B`: convert `2522823`, native
+    `2522824`, code BPB `2522825`, math BPB `2522826`, checksum `2522827`.
+- Completed native GreekMMLU results:
+  - vanilla `iter_1666` / `curr-7.0B`: `0.5274170274`
+    (`8772/16632`);
+  - TD `R=0.35` `iter_1428` / `curr-6.0B`: `0.5233886484`
+    (`8705/16632`);
+  - TD `R=0.25` `iter_1428` / `curr-6.0B`: `0.5367364117`
+    (`8927/16632`);
+  - TD `R=0.15` `iter_1428` / `curr-6.0B`: `0.5175565176`
+    (`8608/16632`).
+- Code/math BPB sidecars for completed items succeeded; checksums remain queued
+  on `xfer`.
