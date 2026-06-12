@@ -1603,3 +1603,27 @@ Peak-LR second checkpoint handoff `2026-06-12T23:00+03:00`:
   - `1.1e-4`: `8580/16632 = 0.5159`.
 - Training remained healthy past the checkpoint, with observed iterations in
   the mid-500s and skipped/NaN counters still `0`.
+
+Peak-LR third checkpoint handoff `2026-06-12T23:42+03:00`:
+
+- The first-segment LR arms are still running on 16 nodes each and have reached
+  the `iter_0000714` (`curr-3.0B`) checkpoint window, with skipped/NaN counters
+  still `0`.
+- Home watcher session `cpt_lr_watch_20260612` is alive and submitting
+  GreekMMLU-only sidecars from
+  `logs/home_greekmmlu_lr_watch_tmux_20260612T200415Z.log`.
+- Submitted GreekMMLU sidecars for `iter=714`:
+  - `2.75e-5`: convert `2525016`, native GreekMMLU `2525017`;
+  - `5.5e-5`: convert `2525018`, native GreekMMLU `2525019`;
+  - `8.25e-5`: convert `2525153`, native GreekMMLU `2525154`;
+  - `1.1e-4`: convert `2525155`, native GreekMMLU `2525156`.
+- All eight `iter=714` sidecar jobs completed successfully.
+- GreekMMLU overall at `curr-3.0B`:
+  - `2.75e-5`: `8232/16632 = 0.4949`;
+  - `5.5e-5`: `8224/16632 = 0.4945`;
+  - `8.25e-5`: `8220/16632 = 0.4942`;
+  - `1.1e-4`: `8282/16632 = 0.4980`.
+- Eval outputs for this checkpoint exist under
+  `/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/eval_<tag>/iter_0000714`.
+- Training remained healthy after the checkpoint, with observed iterations
+  around `850`-`859` and skipped/NaN counters still `0`.
