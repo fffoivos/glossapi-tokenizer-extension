@@ -1671,3 +1671,20 @@ Peak-LR fifth checkpoint `2026-06-13T01:00+03:00`:
   - `1.1e-4`: `8700/16632 = 0.5231`.
 - Segment-2 training remained healthy, with observed iterations around
   `1271`-`1292` and skipped/NaN counters still `0`.
+
+Peak-LR sixth checkpoint `2026-06-13T01:39+03:00`:
+
+- Home watcher submitted `iter=1428` (`curr-6.0B`) GreekMMLU sidecars for all
+  four arms:
+  - `2.75e-5`: convert `2525556`, native GreekMMLU `2525557`;
+  - `5.5e-5`: convert `2525558`, native GreekMMLU `2525559`;
+  - `8.25e-5`: convert `2525565`, native GreekMMLU `2525566`;
+  - `1.1e-4`: convert `2525567`, native GreekMMLU `2525568`.
+- All eight `iter=1428` sidecar jobs completed successfully.
+- GreekMMLU overall at `curr-6.0B`:
+  - `2.75e-5`: `8667/16632 = 0.5211`;
+  - `5.5e-5`: `8936/16632 = 0.5373`;
+  - `8.25e-5`: `8847/16632 = 0.5319`;
+  - `1.1e-4`: `8872/16632 = 0.5334`.
+- Segment-2 training remained healthy, with observed iterations around
+  `1511`-`1532` and skipped/NaN counters still `0`.
