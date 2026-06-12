@@ -1152,3 +1152,23 @@ Watcher relaunch precheck `2026-06-12T08:29Z`:
   during the outage but the watcher state already marks `iter_1190` submitted,
   so recover that native sidecar explicitly rather than relying on watcher
   resubmission.
+
+CSCS certificate refresh precheck `2026-06-12T09:25Z`:
+
+- Current local CSCS SSH certificate is valid from `2026-06-11T16:48:54` to
+  `2026-06-12T16:48:54`.
+- Direct `home -> auth.cscs.ch:443` is timing out, so direct `cscs-key
+  --headless sign` cannot reliably poll the CSCS token endpoint from `home`.
+- `macbook` relay path is unavailable from `home` right now
+  (`No route to host`).
+- Added a local SSH alias `clariden-ln001` in `~/.ssh/config` pointing at the
+  fixed login node through `ela` with the CSCS key/certificate, avoiding the
+  load-balanced `clariden` alias.
+- Verified `clariden-ln001` can reach `auth.cscs.ch`.
+- Started the allowlisted CSCS auth CONNECT proxy through `clariden-ln001` and
+  retried `cscs-key --headless sign` with proxy env vars.
+- The proxied device flow produced code `NLPH-GPLR`, but the device
+  authorization expired before browser approval completed.
+- Proxy was stopped cleanly. Monitoring continues with the still-valid current
+  certificate; refresh should be retried with a fresh device code before
+  `2026-06-12T16:48:54` if the maintenance window continues.
