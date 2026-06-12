@@ -1546,9 +1546,12 @@ Peak-LR watcher recovery `2026-06-12T22:30+03:00`:
   SSH from `home`, writes the same remote `.submitted` markers under
   `$RUN_ROOT/${RUN_TAG}_sidecar_watch`, and submits only the actual
   conversion/native GreekMMLU sidecars when checkpoints appear.
-- Detached watcher process on `home`: PID `350396`, log
-  `logs/home_greekmmlu_lr_watch_20260612T192940Z.log`. First poll succeeded:
-  `submitted_now=0`, `waiting_this_pass=60`, `total_required=60`.
+- Initial `nohup` watcher PID `350396` completed one poll but did not survive
+  the command wrapper detachment, so it was superseded rather than trusted.
+- Active home watcher is now tmux session `cpt_lr_watch_20260612`, log
+  `logs/home_greekmmlu_lr_watch_tmux_20260612T193148Z.log`. First poll
+  succeeded: `submitted_now=0`, `waiting_this_pass=60`,
+  `total_required=60`.
 - The home watcher explicitly disables non-GreekMMLU side work for this LR
   sweep (`SUBMIT_GREEK_NLP=0`, `SUBMIT_RETENTION=0`, `SUBMIT_BPB=0`,
   `SUBMIT_CHECKSUM=0`, and code/math BPB defaults pointed at nonexistent
