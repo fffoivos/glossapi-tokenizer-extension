@@ -1254,3 +1254,28 @@ One-shot sidecar recovery while xfer watchers are down `2026-06-12T10:34Z`:
   - native retry `2522580`.
 - Existing vanilla `iter_1190` convert/code/math/checksum jobs remain reused
   from the pre-outage sidecar run.
+
+Additional manual sidecar catch-up while xfer remains down `2026-06-12T10:49Z`:
+
+- Submitted ready cadence checkpoints directly and marked their watcher state
+  files to avoid duplicate watcher submissions later.
+- Vanilla `iter_1428` / `curr-6.0B`:
+  - convert `2522586`;
+  - native GreekMMLU `2522587`;
+  - code BPB `2522588`;
+  - math BPB `2522590`;
+  - checksum `2522591`.
+- TD `R=0.15` `iter_1190` / `curr-5.0B`:
+  - convert `2522592`;
+  - native GreekMMLU `2522594`;
+  - code BPB `2522595`;
+  - math BPB `2522596`;
+  - checksum `2522597`.
+- TD `R=0.25` `iter_1190` / `curr-5.0B`:
+  - convert `2522599`;
+  - native GreekMMLU `2522600`;
+  - code BPB `2522601`;
+  - math BPB `2522603`;
+  - checksum `2522604`.
+- At submission time the new conversion jobs had begun running where resources
+  were available; checksum jobs remain xfer-dependent while `xfer` is down.
