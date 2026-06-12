@@ -1215,3 +1215,20 @@ Recovery jobs began after maintenance release `2026-06-12T09:58Z`:
 - Replacement segment `2522485` is pending for `Resources`.
 - `xfer` remains unavailable (`down*`), so GreekMMLU watcher relaunch is still
   pending.
+
+TD `R=0.25` replacement retry verified healthy `2026-06-12T10:18Z`:
+
+- Replacement segment `2522485` started on a fresh allocation after excluding
+  the failed node set from `2522341`.
+- Health check:
+  - loaded checkpoint `1071`;
+  - resumed at iteration `1072`;
+  - built all 9 extra-valid datasets;
+  - LR remained `5.5e-5`;
+  - losses finite, skipped iterations `0`, NaN iterations `0`.
+- All four replay-sweep arms are now in a clean Slurm state:
+  - vanilla `2522335` running;
+  - TD `R=0.35` `2522338` running;
+  - TD `R=0.25` `2522485` running;
+  - TD `R=0.15` `2522344` running.
+- Watcher relaunch still waits on `xfer`, which remains `down*`.
