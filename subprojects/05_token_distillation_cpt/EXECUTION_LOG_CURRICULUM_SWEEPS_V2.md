@@ -1091,3 +1091,31 @@ Ninth-hour outage heartbeat `2026-06-12T07:00Z`:
 - No new Slurm/job state could be observed and no blind Slurm actions were
   taken.
 - Remote log sync remains pending until Clariden SSH returns.
+
+Clariden login-node access recovered, but compute remains maintenance-blocked
+`2026-06-12T08:05Z`:
+
+- The load-balanced `clariden` SSH alias exposed rotated host keys after the
+  outage, so monitoring was moved to explicit login node
+  `clariden-ln001.cscs.ch` through `ela`.
+- Verified direct login-node access with the CSCS certificate from `home`:
+  `clariden-ln001` returned `date`, `hostname`, and Slurm commands.
+- Reconciled the recovery queue. The fresh 16-node segment-2 recovery jobs are
+  still queued, not lost:
+  - vanilla `2522335`;
+  - TD replay `R=0.35` `2522338`;
+  - TD replay `R=0.25` `2522341`;
+  - TD replay `R=0.15` `2522344`.
+- Their downstream segment-3/segment-4 jobs remain pending on dependencies:
+  `2522336-2522337`, `2522339-2522340`, `2522342-2522343`,
+  `2522345-2522346`.
+- All four segment-2 recovery jobs are pending with
+  `(ReqNodeNotAvail, Reserved for maintenance)`.
+- `sinfo -p normal` shows the normal partition broadly unavailable:
+  `26` nodes `drain$`, `1145` nodes `down$`, and `188` nodes `maint`.
+- User-side portal evidence reported the same health class earlier:
+  `TimeoutLimitExceeded: SSH connection timeout limit exceeded.`
+- Decision: do not cancel/requeue. Keep the recovery chains queued, monitor via
+  explicit login nodes, and verify resume logs as soon as nodes return.
+- Remote log sync is now possible through explicit login nodes and should be
+  retried after this local entry is committed.
