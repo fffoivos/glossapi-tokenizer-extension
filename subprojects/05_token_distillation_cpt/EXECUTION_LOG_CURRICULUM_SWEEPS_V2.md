@@ -1474,3 +1474,82 @@ Peak-LR sweep implementation start `2026-06-12T18:45Z`:
 - Synced the patched v2 scripts/log to Clariden and submitted the CPU-only
   split/tokenize job `2524425` on `normal`. The job requests one node, 64 CPUs,
   240G memory, and no GPUs.
+- Submitted dependent tiny launcher `2524430` (`afterok:2524425`) to run
+  `DRY_RUN=0 CONFIRM_LAUNCH=1 bash train/sweep_peak_lr.sh` once the split
+  replay binaries exist. This should submit the four TD peak-LR chains at
+  `LR_PEAK in {2.75e-5, 5.5e-5, 8.25e-5, 1.1e-4}` with 16 nodes per segment.
+- `2524425` started on `nid007117` at about `2026-06-12T20:55Z` Clariden
+  time. Early log was healthy: split progress reached 2.0M rows with no stderr.
+- Split completed cleanly inside `2524425`:
+  - foreign replay: 3,808,235 rows, 13.21B chars (~3.30B token estimate);
+  - old-Greek replay: 1,223,498 rows, 3.04B chars (~0.76B token estimate);
+  - missing source labels: 0.
+- The split outputs are enough for the fixed-total 13.5B LR sweep consumption
+  under the selected 79/20/1 mix (foreign needs ~2.70B tokens; old Greek needs
+  ~0.135B tokens). The job then started tokenizing `foreign_replay_only` with
+  the base tokenizer.
+
+Peak-LR prerequisite progress `2026-06-12T22:10+03:00`:
+
+- Split/tokenize job `2524425` is still healthy and CPU-only on `nid007117`
+  (`RUNNING`, elapsed `00:15:16`, 1 node, no GPUs). Dependent launcher
+  `2524430` remains pending on `afterok:2524425`.
+- Completed split/tokenized output so far:
+  - `foreign_replay_only_base_text_document.bin`: 16G;
+  - `foreign_replay_only_base_text_document.idx`: 73M.
+- `foreign_replay_only_ext` tokenization is in progress. Last observed stderr
+  progress was about 1.516M / 3.808M documents at ~8.2k docs/s, with a 6.4G
+  partial `.bin`.
+- Remaining prerequisite work before the LR launcher fires: finish
+  `foreign_replay_only_ext`, then tokenize `old_greek_replay_only` with base
+  and ext tokenizers.
+
+Peak-LR sweep launched `2026-06-12T22:20+03:00`:
+
+- Split/tokenize job `2524425` completed successfully (`0:0`) in `00:24:58`.
+  Dependent launcher `2524430` completed successfully (`0:0`) in `00:00:17`.
+- Final split replay Megatron binaries exist for both tokenizers:
+  - `foreign_replay_only_base_text_document.{bin,idx}`: 16G / 73M;
+  - `foreign_replay_only_ext_text_document.{bin,idx}`: 16G / 73M;
+  - `old_greek_replay_only_base_text_document.{bin,idx}`: 4.3G / 24M;
+  - `old_greek_replay_only_ext_text_document.{bin,idx}`: 2.7G / 24M.
+- Submitted four TD peak-LR chains at the selected replay split
+  (`FOREIGN_REPLAY_R=0.253164557`, `OLD_GREEK_REPLAY_R=0.012658228`,
+  metadata `R=0.25`):
+  - `curr_td_f20_g1_lr2.75e-5_20260612T191957Z`, segment jobs
+    `2524479` -> `2524480` -> `2524481` -> `2524482`;
+  - `curr_td_f20_g1_lr5.5e-5_20260612T191957Z`, segment jobs
+    `2524483` -> `2524484` -> `2524485` -> `2524486`;
+  - `curr_td_f20_g1_lr8.25e-5_20260612T191957Z`, segment jobs
+    `2524488` -> `2524489` -> `2524490` -> `2524491`;
+  - `curr_td_f20_g1_lr1.1e-4_20260612T191957Z`, segment jobs
+    `2524492` -> `2524493` -> `2524494` -> `2524495`.
+- First health check of the run logs confirmed the intended split replay data
+  prefix in segment 1:
+  `1.0 hplt_only_ext ... 0.253164557 foreign_replay_only_ext ...
+  0.012658228 old_greek_replay_only_ext ...`, with `WORLD_SIZE=64` and 16
+  nodes per segment.
+- Submitted GreekMMLU-only eval watchers for the four LR arms:
+  `2524499`, `2524500`, `2524501`, `2524502`.
+
+Peak-LR watcher recovery `2026-06-12T22:30+03:00`:
+
+- The four Slurm watcher jobs `2524499`-`2524502` were stuck on `xfer`
+  because the partition only had down/reserved nodes
+  (`ReqNodeNotAvail, Reserved for maintenance`); cancelled them.
+- Tried a consolidated one-node `debug` watcher batch (`2524567`) to avoid
+  four separate watcher allocations, but the CPU-only guard rejected it because
+  `debug`/`normal`/`low` are GPU-node partitions. This was the correct guard
+  behavior, so no override was used.
+- Added and launched a home-side watcher:
+  `scripts/home_poll_curriculum_greekmmlu_sidecars.sh`. It polls Clariden over
+  SSH from `home`, writes the same remote `.submitted` markers under
+  `$RUN_ROOT/${RUN_TAG}_sidecar_watch`, and submits only the actual
+  conversion/native GreekMMLU sidecars when checkpoints appear.
+- Detached watcher process on `home`: PID `350396`, log
+  `logs/home_greekmmlu_lr_watch_20260612T192940Z.log`. First poll succeeded:
+  `submitted_now=0`, `waiting_this_pass=60`, `total_required=60`.
+- The home watcher explicitly disables non-GreekMMLU side work for this LR
+  sweep (`SUBMIT_GREEK_NLP=0`, `SUBMIT_RETENTION=0`, `SUBMIT_BPB=0`,
+  `SUBMIT_CHECKSUM=0`, and code/math BPB defaults pointed at nonexistent
+  paths).
