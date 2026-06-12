@@ -1393,3 +1393,61 @@ Segment-3 resume verification `2026-06-12T12:46Z`:
   - live losses were finite with skipped/NaN iterations still `0`.
 - TD `R=0.25` segment 3 (`2522486`) was released from dependency and is pending
   for 16-node resources.
+
+R0.25 segment-3 start `2026-06-12T13:08Z`:
+
+- TD `R=0.25` segment 3 (`2522486`) started on 16 nodes.
+- Startup check matched the other segment-3 jobs: loaded checkpoint `1904`,
+  resumed at iteration `1905`, built the extra validation datasets, LR remained
+  `5.5e-5`, no phase-2 reset guard fired, and live losses were finite with
+  skipped/NaN iterations still `0`.
+- By this point all four arms were again in 16-node training: vanilla, TD
+  `R=0.35`, TD `R=0.25`, and TD `R=0.15`.
+
+Phase-boundary arrival begins `2026-06-12T13:36Z`:
+
+- Vanilla, TD `R=0.35`, and TD `R=0.15` wrote checkpoint `2261`.
+- Vanilla segment 3 (`2522336`) completed cleanly at the boundary: `COMPLETED`,
+  exit `0:0`, elapsed `01:03:55` on 16 nodes.
+- Vanilla segment 4 (`2522337`) was released from dependency and is pending for
+  priority on 16 nodes.
+- TD `R=0.35` and TD `R=0.15` were still in their segment-3 completion path at
+  this check; TD `R=0.25` was still running toward checkpoint `2261`.
+- Next critical check: segment 4 must load checkpoint `2261`, switch to the
+  OpenArchives phase, and fire the reset guard exactly once.
+
+Replay-sweep training completion + eval catch-up `2026-06-12T17:29Z`:
+
+- All four fixed-total 13.5B replay-sweep training runs completed:
+  - vanilla segment 4 (`2522337`): `COMPLETED`, exit `0:0`, elapsed
+    `02:41:59`, 16 nodes.
+  - TD `R=0.35` segment 4 (`2522340`): `COMPLETED`, exit `0:0`, elapsed
+    `02:43:33`, 16 nodes.
+  - TD `R=0.25` segment 4 (`2522487`): `COMPLETED`, exit `0:0`, elapsed
+    `02:44:10`, 16 nodes.
+  - TD `R=0.15` segment 4 (`2522346`): `COMPLETED`, exit `0:0`, elapsed
+    `02:44:09`, 16 nodes.
+- Latest checkpoint files for all four runs read `3218`. Final logs showed
+  checkpoint `3218` saved successfully, program exit at iteration `3218`, and
+  skipped/NaN iterations remained `0`.
+- The held conversion/native sidecars needed for GreekMMLU catch-up were
+  released: `2522823`, `2522824`, `2522868`, `2522869`, `2522873`, `2522874`,
+  `2522878`, `2522879`, `2522901`, `2522902`.
+- Optional code/math BPB held jobs were left held intentionally while preparing
+  the fast replay-sweep decision table; old-data forgetting will be read from
+  in-training extra-validation losses.
+- Submitted GreekMMLU-only catch-up sidecars for missing cadence checkpoints:
+  - vanilla: `2142`, `2261`, `2380`, `2618`, `2856`, `3094`, `3218`;
+  - TD `R=0.35`: `2142`, `2261`, `2380`, `2618`, `2856`, `3094`, `3218`;
+  - TD `R=0.25`: `1904`, `2142`, `2261`, `2380`, `2618`, `2856`, `3094`,
+    `3218`;
+  - TD `R=0.15`: `1904`, `2142`, `2261`, `2380`, `2618`, `2856`, `3094`,
+    `3218`.
+- Catch-up job range: `2524209` through `2524268` for conversion/native pairs.
+  These were submitted with `NATIVE_BENCHMARKS=greekmmlu`,
+  `SUBMIT_GREEK_NLP=0`, `SUBMIT_BPB=0`, `SUBMIT_RETENTION=0`, and
+  `SUBMIT_CHECKSUM=0`. Watcher `.submitted` markers were written for the
+  manually submitted checkpoints to avoid duplicate watcher submissions later.
+- Queue health after submission: 35 eval jobs running, 30 native eval jobs
+  pending on conversion dependencies, 25 GreekMMLU summary files already present
+  from earlier cadence, and xfer/checksum work still noncritical for R-choice.
