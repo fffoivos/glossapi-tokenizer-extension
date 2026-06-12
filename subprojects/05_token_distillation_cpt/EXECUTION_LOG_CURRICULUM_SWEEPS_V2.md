@@ -1368,3 +1368,28 @@ Portal degradation check `2026-06-12T12:07Z`:
 - Decision: treat the portal cards as console/cluster health symptoms, not as a
   reason to cancel or requeue healthy Slurm jobs. Keep normal sidecars held and
   prioritize 16-node training continuation.
+
+R0.15 recovery segment-2 completion `2026-06-12T12:28Z`:
+
+- TD `R=0.15` recovery segment 2 (`2522344`) reached checkpoint `1904` and
+  completed cleanly: `COMPLETED`, exit `0:0`, elapsed `02:42:59` on 16 nodes.
+- Dependent TD `R=0.15` segment 3 (`2522345`, 1905 -> 2261) was released from
+  dependency and is now pending for priority.
+- Held sidecars were left untouched; `iter_1904` sidecars for TD `R=0.15` are
+  intentionally deferred until they will not compete with training continuation.
+
+Segment-3 resume verification `2026-06-12T12:46Z`:
+
+- TD `R=0.25` recovery segment 2 (`2522485`) reached checkpoint `1904` and
+  completed cleanly: `COMPLETED`, exit `0:0`, elapsed `02:23:57` on 16 nodes.
+- Vanilla (`2522336`), TD `R=0.35` (`2522339`), and TD `R=0.15` (`2522345`)
+  segment-3 jobs all started on 16 nodes.
+- Startup log check:
+  - each loaded checkpoint `1904`;
+  - each resumed at iteration `1905`;
+  - all nine extra validation datasets were built;
+  - LR stayed at `5.5e-5`;
+  - no phase-2 reset guard fired in segment 3, as expected;
+  - live losses were finite with skipped/NaN iterations still `0`.
+- TD `R=0.25` segment 3 (`2522486`) was released from dependency and is pending
+  for 16-node resources.
