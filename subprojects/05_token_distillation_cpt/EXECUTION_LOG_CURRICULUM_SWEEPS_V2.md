@@ -1578,3 +1578,11 @@ Peak-LR first checkpoint handoff `2026-06-12T23:04+03:00`:
   `RUN_ROOT`, then restarted tmux session `cpt_lr_watch_20260612` with log
   `logs/home_greekmmlu_lr_watch_tmux_20260612T200415Z.log`; first patched poll
   saw `already_seen_this_pass=4`, `waiting_this_pass=56`, `total_done=4`.
+- All four `iter=238` native GreekMMLU jobs completed successfully:
+  - `2.75e-5`: `8053/16632 = 0.4842`;
+  - `5.5e-5`: `8226/16632 = 0.4946`;
+  - `8.25e-5`: `8222/16632 = 0.4943`;
+  - `1.1e-4`: `8262/16632 = 0.4968`.
+- Result artifacts exist under the legacy eval root for this first checkpoint,
+  including `*_native_mcq_aggregate.json`, `*_native_mcq_headline.json`,
+  `*_native_mcq_summary.csv`, and predictions JSONL for each arm.
