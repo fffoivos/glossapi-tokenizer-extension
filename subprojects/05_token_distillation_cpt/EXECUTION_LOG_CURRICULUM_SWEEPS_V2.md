@@ -1586,3 +1586,20 @@ Peak-LR first checkpoint handoff `2026-06-12T23:04+03:00`:
 - Result artifacts exist under the legacy eval root for this first checkpoint,
   including `*_native_mcq_aggregate.json`, `*_native_mcq_headline.json`,
   `*_native_mcq_summary.csv`, and predictions JSONL for each arm.
+
+Peak-LR second checkpoint handoff `2026-06-12T23:00+03:00`:
+
+- All four arms reached checkpoint `iter_0000476` (`curr-2.0B`) and the home
+  watcher submitted the second GreekMMLU sidecar pair for each arm. The
+  watcher fix worked: `iter=476` eval outputs landed under
+  `/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/eval_<tag>`.
+- Sidecar jobs all completed successfully:
+  - converts: `2524931`, `2524933`, `2524942`, `2524944`;
+  - native GreekMMLU: `2524932`, `2524934`, `2524943`, `2524946`.
+- GreekMMLU overall at `curr-2.0B`:
+  - `2.75e-5`: `8503/16632 = 0.5113`;
+  - `5.5e-5`: `8532/16632 = 0.5130`;
+  - `8.25e-5`: `8620/16632 = 0.5183`;
+  - `1.1e-4`: `8580/16632 = 0.5159`.
+- Training remained healthy past the checkpoint, with observed iterations in
+  the mid-500s and skipped/NaN counters still `0`.
