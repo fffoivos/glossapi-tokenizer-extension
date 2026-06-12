@@ -1134,3 +1134,21 @@ Clariden reservation check `2026-06-12T08:14Z`:
 - Continued action: leave recovery chains queued, keep polling through explicit
   login nodes, and inspect training logs immediately once the first recovery
   segment enters `RUNNING`.
+
+Watcher relaunch precheck `2026-06-12T08:29Z`:
+
+- Checked whether the GreekMMLU-only sidecar watchers could be relaunched while
+  GPU training waits.
+- `sinfo -p xfer` shows both xfer nodes `down$`, so the CPU-only watcher jobs
+  cannot run yet either.
+- Watcher state directories are intact:
+  - vanilla has submitted markers through `iter_1190`;
+  - TD replay `R=0.35`, `R=0.25`, and `R=0.15` have submitted markers through
+    `iter_952`.
+- Implication: when xfer returns, relaunch the four watchers using the existing
+  state directories so they continue from the next missing cadence checkpoints
+  without duplicating prior 1B-4B sidecars.
+- Separate follow-up needed: vanilla `iter_1190` GreekMMLU native sidecar failed
+  during the outage but the watcher state already marks `iter_1190` submitted,
+  so recover that native sidecar explicitly rather than relying on watcher
+  resubmission.
