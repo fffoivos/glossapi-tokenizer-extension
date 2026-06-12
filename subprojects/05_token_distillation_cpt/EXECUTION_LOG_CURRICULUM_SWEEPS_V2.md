@@ -1011,3 +1011,14 @@ User-side CSCS console evidence confirms SSH/login degradation `2026-06-11T23:45
   jobs on compute nodes have failed.
 - Continued policy: do not cancel/requeue blind; keep timeout-bounded SSH
   retries active and reconcile Slurm/job/log state when Clariden SSH returns.
+
+Second-hour outage heartbeat `2026-06-12T00:13Z`:
+
+- Timeout-safe monitor continued probing Clariden via `ela` roughly once per
+  minute.
+- Probes from `2026-06-11T23:47Z` through `2026-06-12T00:13Z` all failed with
+  `Connection timed out during banner exchange`.
+- No new Slurm/job state could be observed because Clariden SSH remained
+  unreachable and `ela` has no `squeue`/`sacct`.
+- No blind Slurm actions were taken.
+- Remote log sync remains pending until Clariden SSH returns.
