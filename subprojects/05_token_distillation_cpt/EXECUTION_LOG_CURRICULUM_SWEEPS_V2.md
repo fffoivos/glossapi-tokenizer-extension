@@ -1232,3 +1232,25 @@ TD `R=0.25` replacement retry verified healthy `2026-06-12T10:18Z`:
   - TD `R=0.25` `2522485` running;
   - TD `R=0.15` `2522344` running.
 - Watcher relaunch still waits on `xfer`, which remains `down*`.
+
+One-shot sidecar recovery while xfer watchers are down `2026-06-12T10:34Z`:
+
+- Since `xfer` is still down and cannot host the long-lived watchers, submitted
+  ready cadence sidecars directly from the login node with `sbatch` rather than
+  waiting for watcher loops.
+- Fixed an initial one-shot submission mistake: the standalone legacy
+  `EVAL_DIR` lacks `run_native_greek_mcq_eval.sbatch`; the correct deployed eval
+  path is under
+  `/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval`.
+- Submitted TD `R=0.35` `iter_1190` / `curr-5.0B` sidecars and marked watcher
+  state `iter_1190.submitted` to prevent later duplication:
+  - convert `2522574`;
+  - native GreekMMLU `2522575`;
+  - code BPB `2522576`;
+  - math BPB `2522578`;
+  - checksum `2522579` (`xfer`, pending until xfer nodes return).
+- Submitted vanilla `iter_1190` native GreekMMLU retry only, against the
+  already-converted HF checkpoint:
+  - native retry `2522580`.
+- Existing vanilla `iter_1190` convert/code/math/checksum jobs remain reused
+  from the pre-outage sidecar run.
