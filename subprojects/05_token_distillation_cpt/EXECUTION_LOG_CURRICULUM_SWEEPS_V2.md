@@ -1119,3 +1119,18 @@ Clariden login-node access recovered, but compute remains maintenance-blocked
   explicit login nodes, and verify resume logs as soon as nodes return.
 - Remote log sync is now possible through explicit login nodes and should be
   retried after this local entry is committed.
+
+Clariden reservation check `2026-06-12T08:14Z`:
+
+- `scontrol show reservation` confirms an active site/platform reservation:
+  `ReservationName=poweron`, `StartTime=09:16:21`, `EndTime=Sun 09:16`,
+  `Duration=2-00:00:00`.
+- The reservation covers `1386` nodes / `398848` CPUs with
+  `Flags=MAINT,IGNORE_JOBS,SPEC_NODES,ALL_NODES`.
+- Reservation accounts are `root,csstaff`, so user jobs cannot consume those
+  nodes while the reservation is active.
+- Interpretation: the current bottleneck is CSCS maintenance/power-on state,
+  not insufficient parallelism or a local queue-script error.
+- Continued action: leave recovery chains queued, keep polling through explicit
+  login nodes, and inspect training logs immediately once the first recovery
+  segment enters `RUNNING`.
