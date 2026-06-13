@@ -1931,3 +1931,25 @@ Alpha-sweep preparation `2026-06-13`:
 - Synced the alpha-sweep edits to Clariden and ran a remote dry-run with
   `TOTAL_ITER=2 PHASE1_EXIT_ITER=1 SAVE_INTERVAL=1 SEG=1 NODES=1`; the three
   arms expanded cleanly as `a0`, `a4`, and `a8` with split replay weights.
+
+Alpha sweep launched `2026-06-13T09:06Z`:
+
+- Submitted the three-arm alpha sweep at settled values:
+  - replay split: `FOREIGN_REPLAY_R=0.253164557`,
+    `OLD_GREEK_REPLAY_R=0.012658228` (79% new Greek, 20% foreign replay,
+    1% old-Greek replay);
+  - `LR_PEAK=5.5e-5`, `TOTAL_ITER=3218`, `PHASE1_EXIT_ITER=2261`;
+  - `ADEMA_ALPHA in {0,4,8}`.
+- Run tags / Slurm segment chains:
+  - `curr_td_f20_g1_lr5.5e-5_a0_20260613T090652Z`: jobs `2527428`-`2527431`;
+  - `curr_td_f20_g1_lr5.5e-5_a4_20260613T090652Z`: jobs `2527432`-`2527435`;
+  - `curr_td_f20_g1_lr5.5e-5_a8_20260613T090652Z`: jobs `2527436`-`2527439`.
+- Queue snapshot after launch: first segment of each arm running on 16 nodes;
+  downstream segments pending on dependencies.
+- Started home-side GreekMMLU watcher tmux session `cpt_alpha_watch_20260613`;
+  log: `logs/home_greekmmlu_alpha_watch_20260613T090738Z.log`.
+- First watcher poll reported `total_done=0/45`, waiting for cadence
+  checkpoints as expected.
+- First training commands and optimizer setup logs confirm
+  `ademamix_alpha=0.0`, `4.0`, and `8.0`, respectively, with `lr=5.5e-05` and
+  split replay data paths.
