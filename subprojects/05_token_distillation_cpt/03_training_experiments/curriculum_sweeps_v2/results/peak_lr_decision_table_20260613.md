@@ -18,6 +18,9 @@ Replay mix fixed at 20% foreign multilingual replay + 1% old-Greek replay, with 
 | `8.25e-5` | -0.0175 | -0.0196 | -0.0187 | -0.0557 |
 | `1.1e-4` | +0.0174 | +0.0057 | +0.0043 | -0.0232 |
 
-## Provisional recommendation
+## Decision
 
-If GreekMMLU adaptation is primary and small old-data LM-loss increases are acceptable, pick `1.1e-4`. If the decision rule requires no positive foreign forgetting deltas, pick `8.25e-5` as the higher-adaptation no-regression arm.
+User decision on 2026-06-13: pick **`5.5e-5`** as the best overall loss-first
+balance. GreekMMLU alone points to `1.1e-4`, and `8.25e-5` is the higher-MMLU
+no-positive-foreign-delta arm, but `5.5e-5` is the preferred compromise between
+new-Greek held-out loss, old-data retention, and still-strong GreekMMLU.

@@ -19,6 +19,10 @@ infra; every path is in `paths.env`. **Read §6 (decisions) and §7 (upstream ed
   `"w1 p1 w2 p2"`). bakeoff_train.sbatch:390 emits `--data-path $ARM_DATA_PREFIX` **unquoted**, so the
   weighted string word-splits. → build the 3 binaries ONCE; the sweep only changes `R`.
 - **Eval = GreekMMLU only** (decontam = GreekMMLU only); forgetting = the old-data held-out **loss**.
+- **Peak LR decision = `5.5e-5`** for downstream probe / production-design runs
+  (`PRODUCTION_LR_DECISION_20260613.md`). GreekMMLU alone preferred `1.1e-4`,
+  but the user chose the loss-first overall balance: `5.5e-5` kept all foreign
+  held-out loss deltas negative while retaining near-top GreekMMLU.
 
 ## 1 · Dataset build (order matters — both holdout parquets must precede the mix)
 
@@ -77,7 +81,7 @@ DRY_RUN=0 CONFIRM_LAUNCH=1 TOTAL_ITER=2 PHASE1_EXIT_ITER=1 SAVE_INTERVAL=1 SEG=1
 DRY_RUN=0 CONFIRM_LAUNCH=1 bash train/submit_vanilla_control.sh  # (b) 1 vanilla chain, R=0.35
 DRY_RUN=0 CONFIRM_LAUNCH=1 bash train/sweep_replay.sh            # (c) TD, R in {0.35,0.25,0.15}
 #   ... choose R* from the forgetting↔adaptation tradeoff ...
-DRY_RUN=0 CONFIRM_LAUNCH=1 R_STAR=0.25 bash train/sweep_peak_lr.sh # (d) TD, LR in {2.75e-5,5.5e-5,8.25e-5,1.1e-4}
+DRY_RUN=0 CONFIRM_LAUNCH=1 R_STAR=0.25 bash train/sweep_peak_lr.sh # (d) DONE; selected LR_PEAK=5.5e-5
 # per run, fire the GreekMMLU-only watcher:
 RUN_TAG=<tag> EVAL_ARM=td bash eval/curriculum_eval_watcher.sh
 ```

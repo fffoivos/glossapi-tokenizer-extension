@@ -1909,3 +1909,13 @@ Peak-LR result collection `2026-06-13T07:50+03:00`:
 - Final Slurm check: no matching sweep/eval jobs remained in `squeue`; all
   four final training jobs and all eight `iter=3218` final sidecar jobs were
   `COMPLETED`.
+
+Peak-LR decision adopted `2026-06-13`:
+
+- User selected **`LR_PEAK=5.5e-5`** as the best overall loss-first choice.
+- Rationale recorded in `PRODUCTION_LR_DECISION_20260613.md`: `1.1e-4` wins
+  GreekMMLU, and `2.75e-5` is the pure retention winner, but `5.5e-5` gives the
+  best overall balance across new-Greek held-out loss, old-data retention, and
+  still-strong GreekMMLU.
+- The v2 training env already defaults to `LR_PEAK=5.5e-5`; no launch-script
+  change is needed beyond leaving the override unset or setting it explicitly.
