@@ -2019,3 +2019,17 @@ Alpha watcher network recovery `2026-06-13T10:24Z`:
   `total_done=3/45`.
 - Training was still healthy at iter `462`-`466`, zero skipped/NaN, with
   `iter_0000476` expected within minutes.
+
+Alpha sweep `curr-2.0B` GreekMMLU complete `2026-06-13T10:45Z`:
+
+- Bridged watcher submitted iter `476` sidecar pairs:
+  - alpha `0`: convert `2527585`, native GreekMMLU `2527586`;
+  - alpha `4`: convert `2527587`, native GreekMMLU `2527588`;
+  - alpha `8`: convert `2527589`, native GreekMMLU `2527590`.
+- All six jobs completed successfully with exit `0:0`; watcher state advanced
+  to `total_done=6/45`.
+- GreekMMLU headline accuracy:
+  - alpha `0`: `0.5063732564` (`8422/16632`);
+  - alpha `4`: `0.5233285233` (`8704/16632`);
+  - alpha `8`: `0.5403439153` (`8987/16632`).
+- Training remained healthy around iter `576`-`582`, zero skipped/NaN.
