@@ -2265,3 +2265,18 @@ Alpha sweep `curr-11.0B` GreekMMLU complete `2026-06-13T16:55Z`:
   - alpha `8`: `0.5640331890` (`9381/16632`).
 - Alpha `8` native GreekMMLU completed normally in `8m43s`; no sidecar retry
   was needed for this checkpoint.
+
+Alpha sweep `curr-12.0B` GreekMMLU complete `2026-06-13T17:34Z`:
+
+- Iter `2856` checkpoints were produced by all three alpha arms and picked up
+  by the bridged watcher.
+- Sidecar jobs completed successfully with exit `0:0`:
+  - alpha `0`: convert `2528458`, native GreekMMLU `2528459`;
+  - alpha `4`: convert `2528469`, native GreekMMLU `2528470`;
+  - alpha `8`: convert `2528481`, native GreekMMLU `2528482`.
+- GreekMMLU headline accuracy:
+  - alpha `0`: `0.5661976912` (`9417/16632`);
+  - alpha `4`: `0.5841750842` (`9716/16632`);
+  - alpha `8`: `0.5667388167` (`9426/16632`).
+- Alpha `8` native GreekMMLU completed normally in `8m49s`; no sidecar retry
+  was needed for this checkpoint.
