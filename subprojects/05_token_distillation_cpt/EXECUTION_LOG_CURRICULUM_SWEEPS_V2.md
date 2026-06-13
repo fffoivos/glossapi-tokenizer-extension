@@ -1801,3 +1801,22 @@ Peak-LR tenth checkpoint `2026-06-13T05:27+03:00`:
 - Current read: `5.5e-5` now has the best GreekMMLU score of the LR sweep
   (`0.5711`), ahead of the prior `8.25e-5` pre-boundary peak (`0.5690` at
   `curr-8.0B`).
+
+Peak-LR eleventh checkpoint `2026-06-13T06:06+03:00`:
+
+- Home watcher submitted `iter=2618` (`curr-11.0B`) GreekMMLU sidecars for all
+  four arms:
+  - `2.75e-5`: convert `2526218`, native GreekMMLU `2526219`;
+  - `5.5e-5`: convert `2526221`, native GreekMMLU `2526222`;
+  - `8.25e-5`: convert `2526224`, native GreekMMLU `2526225`;
+  - `1.1e-4`: convert `2526227`, native GreekMMLU `2526228`.
+- All eight `iter=2618` sidecar jobs completed successfully.
+- GreekMMLU overall at `curr-11.0B`:
+  - `2.75e-5`: `9543/16632 = 0.5738`;
+  - `5.5e-5`: `9695/16632 = 0.5829`;
+  - `8.25e-5`: `9542/16632 = 0.5737`;
+  - `1.1e-4`: `9480/16632 = 0.5700`.
+- Training remained healthy after the checkpoint, with observed iterations
+  around `2699`-`2729`, LR decay underway, and skipped/NaN counters `0`.
+- Current read: `5.5e-5` remains the clear leader and has raised the sweep
+  best to `0.5829`.
