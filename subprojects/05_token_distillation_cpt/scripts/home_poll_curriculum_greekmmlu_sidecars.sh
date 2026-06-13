@@ -9,6 +9,7 @@ set -euo pipefail
 
 SSH_TARGET="${SSH_TARGET:-clariden-ln001}"
 SSH_CONTROL_PATH="${SSH_CONTROL_PATH:-/tmp/clariden-ln001-curriculum-%r@%h:%p}"
+SSH_PROXY_COMMAND="${SSH_PROXY_COMMAND:-}"
 V2_REMOTE="${V2_REMOTE:-/iopsstor/scratch/cscs/fffoivos/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/03_training_experiments/curriculum_sweeps_v2}"
 CADENCE_REMOTE="${CADENCE_REMOTE:-$V2_REMOTE/eval/cadence_curriculum.tsv}"
 SLEEP_SECONDS="${SLEEP_SECONDS:-120}"
@@ -28,8 +29,11 @@ LOG_DIR="${LOG_DIR:-$PWD/logs}"
 mkdir -p "$LOG_DIR"
 RUN_LOG="${RUN_LOG:-$LOG_DIR/home_greekmmlu_sidecar_watch_$(date -u +%Y%m%dT%H%M%SZ).log}"
 
-ssh_cmd=(
-  ssh
+ssh_cmd=(ssh)
+if [ -n "$SSH_PROXY_COMMAND" ]; then
+  ssh_cmd+=(-o "ProxyCommand=$SSH_PROXY_COMMAND")
+fi
+ssh_cmd+=(
   -S "$SSH_CONTROL_PATH"
   -o ControlMaster=auto
   -o BatchMode=yes
@@ -119,6 +123,9 @@ echo "=== home_poll_curriculum_greekmmlu_sidecars ===" | tee -a "$RUN_LOG"
 date -u | tee -a "$RUN_LOG"
 printf "ssh_target=%s\nv2_remote=%s\ncadence=%s\nsleep=%s\nmax_seconds=%s\n" \
   "$SSH_TARGET" "$V2_REMOTE" "$CADENCE_REMOTE" "$SLEEP_SECONDS" "$MAX_SECONDS" | tee -a "$RUN_LOG"
+if [ -n "$SSH_PROXY_COMMAND" ]; then
+  printf "ssh_proxy_command=%s\n" "$SSH_PROXY_COMMAND" | tee -a "$RUN_LOG"
+fi
 printf "run_tags=%s\n" "${RUN_TAGS[*]}" | tee -a "$RUN_LOG"
 
 while true; do

@@ -1999,3 +1999,23 @@ Alpha sweep `curr-1.0B` GreekMMLU complete `2026-06-13T09:58Z`:
   - alpha `4`: `0.4930254930` (`8200/16632`);
   - alpha `8`: `0.4926647427` (`8194/16632`).
 - Training jobs remained running on 16 nodes each, around `57m` elapsed.
+
+Alpha watcher network recovery `2026-06-13T10:24Z`:
+
+- The original home-side watcher began failing SSH polls at `2026-06-13T10:12Z`
+  with `Connection timed out during banner exchange`; manual direct SSH from
+  `home` to `ela`/`clariden-ln001` also failed, while internet connectivity
+  from `home` was otherwise healthy.
+- Confirmed the Tailscale MacBook was reachable and could be used as a TCP
+  bridge while preserving `home`'s CSCS key/cert for authentication.
+- Added optional `SSH_PROXY_COMMAND` support to
+  `scripts/home_poll_curriculum_greekmmlu_sidecars.sh`.
+- Stopped failing tmux session `cpt_alpha_watch_20260613` and started bridged
+  watcher session `cpt_alpha_watch_bridge_20260613`, log
+  `logs/home_greekmmlu_alpha_watch_bridge_20260613T102448Z.log`, using:
+  `macbook-air-ts -> ela -> clariden-ln001`.
+- First bridged poll succeeded and preserved remote state:
+  `submitted_now=0`, `already_seen_this_pass=3`, `waiting_this_pass=42`,
+  `total_done=3/45`.
+- Training was still healthy at iter `462`-`466`, zero skipped/NaN, with
+  `iter_0000476` expected within minutes.
