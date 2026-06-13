@@ -1990,3 +1990,12 @@ Alpha sweep first GreekMMLU handoff `2026-06-13T09:48Z`:
 - Sidecar status immediately after submission: alpha `4`/`8` converters
   completed and native jobs were running; alpha `0` converter was still running,
   leaving native job `2527511` dependency-pending as expected.
+
+Alpha sweep `curr-1.0B` GreekMMLU complete `2026-06-13T09:58Z`:
+
+- All six iter `238` sidecar jobs completed successfully with exit `0:0`.
+- GreekMMLU headline accuracy:
+  - alpha `0`: `0.4821428571` (`8019/16632`);
+  - alpha `4`: `0.4930254930` (`8200/16632`);
+  - alpha `8`: `0.4926647427` (`8194/16632`).
+- Training jobs remained running on 16 nodes each, around `57m` elapsed.
