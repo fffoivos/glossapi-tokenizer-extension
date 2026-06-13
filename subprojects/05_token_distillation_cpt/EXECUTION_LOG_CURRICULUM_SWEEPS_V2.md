@@ -2076,3 +2076,30 @@ Alpha sweep segment-1 boundary checkpoint `2026-06-13T11:51Z`:
   - alpha `0`: convert `2527699`, native GreekMMLU `2527700`;
   - alpha `4`: convert `2527702`, native GreekMMLU `2527703`;
   - alpha `8`: convert `2527704`, native GreekMMLU `2527705`.
+
+Alpha sweep alpha-8 segment-2 retry `2026-06-13T11:57Z`:
+
+- Original alpha `8` segment-2 job `2527437` failed before Megatron startup:
+  Slurm stderr reported `Task launch ... failed on node nid006225:
+  Communication connection failure`; sacct recorded `FAILED`, exit `105:0`,
+  elapsed `00:00:51`.
+- This was a launch/node communication failure, not a model/data failure; the
+  run had not emitted a post-resume iteration.
+- Submitted replacement alpha `8` segment-2 job `2527724`
+  (`curr_td_f20_g1_lr5.5e-5_a8_20260613T090652Z_s2_retry1`) from the existing
+  `iter_0000952` checkpoint, with the same phase-1 config and
+  `EXIT_INTERVAL=1904`.
+- Rewired original alpha `8` segment-3 job `2527438` from
+  `afterok:2527437` to `afterok:2527724`; segment-4 job `2527439` remains
+  chained after segment 3.
+
+Alpha sweep `curr-4.0B` GreekMMLU complete `2026-06-13T12:00Z`:
+
+- All six iter `952` sidecar jobs completed successfully with exit `0:0`.
+- GreekMMLU headline accuracy:
+  - alpha `0`: `0.5194203944` (`8639/16632`);
+  - alpha `4`: `0.5241101491` (`8717/16632`);
+  - alpha `8`: `0.5458754209` (`9079/16632`).
+- Replacement alpha `8` segment-2 job `2527724` restored checkpoint
+  `iter 952` and resumed training through iter `963`, with LR
+  `5.500000E-05`, zero skipped iterations, and zero NaN iterations.
