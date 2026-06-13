@@ -2033,3 +2033,17 @@ Alpha sweep `curr-2.0B` GreekMMLU complete `2026-06-13T10:45Z`:
   - alpha `4`: `0.5233285233` (`8704/16632`);
   - alpha `8`: `0.5403439153` (`8987/16632`).
 - Training remained healthy around iter `576`-`582`, zero skipped/NaN.
+
+Alpha sweep `curr-3.0B` GreekMMLU complete `2026-06-13T11:21Z`:
+
+- Bridged watcher submitted iter `714` sidecar pairs:
+  - alpha `0`: convert `2527648`, native GreekMMLU `2527649`;
+  - alpha `4`: convert `2527651`, native GreekMMLU `2527652`;
+  - alpha `8`: convert `2527653`, native GreekMMLU `2527654`.
+- All six jobs completed successfully with exit `0:0`; watcher state advanced
+  to `total_done=9/45`.
+- GreekMMLU headline accuracy:
+  - alpha `0`: `0.4959114959` (`8248/16632`);
+  - alpha `4`: `0.5049302549` (`8398/16632`);
+  - alpha `8`: `0.5138888889` (`8547/16632`).
+- Training remained healthy during the handoff, zero skipped/NaN.
