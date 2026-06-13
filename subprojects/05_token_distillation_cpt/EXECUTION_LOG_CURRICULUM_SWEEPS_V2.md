@@ -1732,3 +1732,52 @@ Peak-LR eighth checkpoint and segment-3 handoff `2026-06-13T02:57+03:00`:
   - `1.1e-4`: `9022/16632 = 0.5424`.
 - Segment-3 training remained healthy after the handoff, with observed
   iterations around `1921`-`1950` and skipped/NaN counters still `0`.
+
+Peak-LR ninth checkpoint `2026-06-13T03:57+03:00`:
+
+- Home watcher submitted `iter=2142` (`curr-9.0B`) GreekMMLU sidecars for all
+  four arms:
+  - `2.75e-5`: convert `2525811`, native GreekMMLU `2525812`;
+  - `5.5e-5`: convert `2525813`, native GreekMMLU `2525814`;
+  - `8.25e-5`: convert `2526009`, native GreekMMLU `2526010`;
+  - `1.1e-4`: convert `2526011`, native GreekMMLU `2526012`.
+- All eight `iter=2142` sidecar jobs completed successfully.
+- GreekMMLU overall at `curr-9.0B`:
+  - `2.75e-5`: `8973/16632 = 0.5395`;
+  - `5.5e-5`: `9175/16632 = 0.5516`;
+  - `8.25e-5`: `8915/16632 = 0.5360`;
+  - `1.1e-4`: `8768/16632 = 0.5272`.
+- Segment-3 training remained healthy to the phase boundary, with skipped/NaN
+  counters still `0`.
+
+Peak-LR phase-boundary checkpoint and segment-4 handoff `2026-06-13T04:03+03:00`:
+
+- All four segment-3 jobs completed successfully and their first phase-2
+  segment jobs started on 16 nodes each:
+  - `2.75e-5`: `2524481` completed, `2524482` running;
+  - `5.5e-5`: `2524485` completed, `2524486` running;
+  - `8.25e-5`: `2524490` completed, `2524491` running;
+  - `1.1e-4`: `2524494` completed, `2524495` running.
+- The first phase-2 segment (`s4`) loaded `iter=2261`, switched to the split
+  phase-2 blend `glossapi_only_ext + 0.253164557 foreign_replay_only_ext +
+  0.012658228 old_greek_replay_only_ext`, and kept the configured LR peak.
+- Reset guard fired for all four arms: each s4 stderr has 64 lines of
+  `train dataloader consumed_samples 2315264 -> 0 (phase-2 binary restart;
+  scheduler num_steps kept)`, one per rank.
+- Training after the phase switch remained finite, with observed iterations
+  around `2262`-`2323`, learning rates unchanged, and skipped/NaN counters `0`.
+- Home watcher submitted `iter=2261` (`curr-phase-boundary`) GreekMMLU sidecars
+  for all four arms:
+  - `2.75e-5`: convert `2526122`, native GreekMMLU `2526123`;
+  - `5.5e-5`: convert `2526124`, native GreekMMLU `2526125`;
+  - `8.25e-5`: convert `2526129`, native GreekMMLU `2526130`;
+  - `1.1e-4`: convert `2526131`, native GreekMMLU `2526132`.
+- All eight `iter=2261` sidecar jobs completed successfully.
+- GreekMMLU overall at the phase boundary:
+  - `2.75e-5`: `8962/16632 = 0.5388`;
+  - `5.5e-5`: `9170/16632 = 0.5513`;
+  - `8.25e-5`: `8723/16632 = 0.5245`;
+  - `1.1e-4`: `9002/16632 = 0.5412`.
+- Current read: after the phase switch, `5.5e-5` is leading on GreekMMLU;
+  `8.25e-5` still owns the best pre-boundary score (`0.5690` at `curr-8.0B`)
+  but dipped sharply at `iter=2261`.
