@@ -2136,3 +2136,19 @@ Alpha sweep `curr-6.0B` GreekMMLU complete `2026-06-13T13:29Z`:
 - Training remained healthy after the handoff: all three segment-2 jobs were
   still running on 16 nodes each, with alpha `8` segment-3/4 dependencies
   chained through retry job `2527724`.
+
+Alpha sweep sidecar retry `2026-06-13T14:42Z`:
+
+- The alpha `4` `curr-7.0B` native GreekMMLU sidecar job `2527986` remained
+  active for `40m17s` without writing final native-MCQ outputs, while the
+  alpha `4` `curr-8.0B` native job completed normally in `9m01s` on the same
+  benchmark. Slurm overlap checks showed `2527986` was consuming CPU/GPU but
+  making no observable output progress after startup.
+- Cancelled only sidecar job `2527986`; main training and all other sidecars
+  were left untouched.
+- Resubmitted the same `curr-7.0B` alpha `4` native GreekMMLU eval against the
+  existing HF conversion/output path as retry job `2528045`, and appended the
+  retry to `iter_0001666/sidecar_jobs.tsv`.
+- Segment-2 training had already completed successfully for alpha `0` and
+  alpha `4`; their segment-3 jobs were running on 16 nodes each, and alpha `8`
+  retry segment-2 was still running toward the segment boundary.
