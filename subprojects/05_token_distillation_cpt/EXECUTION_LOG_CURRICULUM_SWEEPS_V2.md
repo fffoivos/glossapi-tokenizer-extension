@@ -2197,3 +2197,22 @@ Alpha sweep `curr-9.0B` GreekMMLU complete `2026-06-13T15:33Z`:
 - Alpha `0` and alpha `4` reached the phase boundary at iter `2261` with
   finite loss, zero skipped iterations, and zero NaN iterations. Alpha `8`
   was still trailing toward the same boundary.
+
+Alpha sweep phase boundary `curr-phase-boundary` complete `2026-06-13T15:53Z`:
+
+- Iter `2261` marked the phase-1/phase-2 boundary. Watcher submitted all three
+  boundary sidecar pairs:
+  - alpha `0`: convert `2528210`, native GreekMMLU `2528211`;
+  - alpha `4`: convert `2528215`, native GreekMMLU `2528216`;
+  - alpha `8`: convert `2528286`, native GreekMMLU `2528287`.
+- All six boundary sidecar jobs completed successfully with exit `0:0`.
+- GreekMMLU headline accuracy:
+  - alpha `0`: `0.5355940356` (`8908/16632`);
+  - alpha `4`: `0.5650553151` (`9398/16632`);
+  - alpha `8`: `0.5577200577` (`9276/16632`).
+- Phase-2 reset guard fired for all three arms on the first segment-4 job:
+  `consumed_samples 2315264 -> 0 (phase-2 binary restart; scheduler num_steps
+  kept)`.
+- All three arms resumed from checkpoint iter `2261`, continued at iter
+  `2262+` with LR `5.500000E-05`, finite loss, and zero skipped/NaN
+  iterations.
