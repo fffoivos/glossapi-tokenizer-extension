@@ -2103,3 +2103,20 @@ Alpha sweep `curr-4.0B` GreekMMLU complete `2026-06-13T12:00Z`:
 - Replacement alpha `8` segment-2 job `2527724` restored checkpoint
   `iter 952` and resumed training through iter `963`, with LR
   `5.500000E-05`, zero skipped iterations, and zero NaN iterations.
+
+Alpha sweep `curr-5.0B` GreekMMLU complete `2026-06-13T12:51Z`:
+
+- Iter `1190` checkpoints were produced by all three alpha arms; alpha `8`
+  landed several minutes later because of the segment-2 retry, but continued
+  normally after the save.
+- Sidecar jobs all completed successfully with exit `0:0`:
+  - alpha `0`: convert `2527789`, native GreekMMLU `2527791`;
+  - alpha `4`: convert `2527792`, native GreekMMLU `2527793`;
+  - alpha `8`: convert `2527806`, native GreekMMLU `2527807`.
+- GreekMMLU headline accuracy:
+  - alpha `0`: `0.5133477633` (`8538/16632`);
+  - alpha `4`: `0.5395021645` (`8973/16632`);
+  - alpha `8`: `0.5274170274` (`8772/16632`).
+- All three segment-2 training jobs remained running after the eval handoff;
+  alpha `8` segment-3/4 dependencies remained chained through retry job
+  `2527724`.
