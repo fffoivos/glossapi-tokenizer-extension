@@ -2181,3 +2181,19 @@ Alpha sweep `curr-8.0B` GreekMMLU complete `2026-06-13T14:54Z`:
   - alpha `0`: `0.5330687831` (`8866/16632`);
   - alpha `4`: `0.5491221741` (`9133/16632`);
   - alpha `8`: `0.5613275613` (`9336/16632`).
+
+Alpha sweep `curr-9.0B` GreekMMLU complete `2026-06-13T15:33Z`:
+
+- Iter `2142` checkpoints were produced by all three alpha arms and picked up
+  by the bridged watcher.
+- Sidecar jobs completed successfully with exit `0:0`:
+  - alpha `0`: convert `2528138`, native GreekMMLU `2528139`;
+  - alpha `4`: convert `2528145`, native GreekMMLU `2528146`;
+  - alpha `8`: convert `2528178`, native GreekMMLU `2528179`.
+- GreekMMLU headline accuracy:
+  - alpha `0`: `0.5424482924` (`9022/16632`);
+  - alpha `4`: `0.5594035594` (`9304/16632`);
+  - alpha `8`: `0.5673400673` (`9436/16632`).
+- Alpha `0` and alpha `4` reached the phase boundary at iter `2261` with
+  finite loss, zero skipped iterations, and zero NaN iterations. Alpha `8`
+  was still trailing toward the same boundary.
