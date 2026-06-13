@@ -2047,3 +2047,15 @@ Alpha sweep `curr-3.0B` GreekMMLU complete `2026-06-13T11:21Z`:
   - alpha `4`: `0.5049302549` (`8398/16632`);
   - alpha `8`: `0.5138888889` (`8547/16632`).
 - Training remained healthy during the handoff, zero skipped/NaN.
+
+Alpha sweep resumed monitoring checkpoint `2026-06-13T11:28Z`:
+
+- Direct `home -> CSCS` SSH remained unreliable, so monitoring continued over
+  the `macbook-air-ts -> ela -> clariden-ln001` bridge.
+- First-segment training jobs were still running on 16 nodes each:
+  `2527428` (alpha `0`), `2527432` (alpha `4`), and `2527436` (alpha `8`).
+- Latest training log tails showed alpha `0` at iter `850`, alpha `4` at iter
+  `846`, and alpha `8` at iter `841`, all with zero skipped and zero NaN
+  iterations.
+- The first segment boundary / `curr-4.0B` checkpoint at iter `952` was
+  estimated about `15`-`17` minutes away.
