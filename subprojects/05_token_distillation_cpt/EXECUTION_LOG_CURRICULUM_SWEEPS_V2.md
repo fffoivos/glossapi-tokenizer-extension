@@ -2059,3 +2059,20 @@ Alpha sweep resumed monitoring checkpoint `2026-06-13T11:28Z`:
   iterations.
 - The first segment boundary / `curr-4.0B` checkpoint at iter `952` was
   estimated about `15`-`17` minutes away.
+
+Alpha sweep segment-1 boundary checkpoint `2026-06-13T11:51Z`:
+
+- All three alpha arms produced `iter_0000952/.metadata`.
+- Segment-1 jobs completed successfully on 16 nodes each:
+  - alpha `0`: job `2527428`, `COMPLETED`, exit `0:0`, elapsed `02:40:51`;
+  - alpha `4`: job `2527432`, `COMPLETED`, exit `0:0`, elapsed `02:41:22`;
+  - alpha `8`: job `2527436`, `COMPLETED`, exit `0:0`, elapsed `02:42:10`.
+- Segment-2 jobs started on 16 nodes each:
+  - alpha `0`: job `2527429`;
+  - alpha `4`: job `2527433`;
+  - alpha `8`: job `2527437`.
+- Bridged watcher submitted all expected `curr-4.0B` GreekMMLU sidecars and
+  advanced to `total_done=12/45`:
+  - alpha `0`: convert `2527699`, native GreekMMLU `2527700`;
+  - alpha `4`: convert `2527702`, native GreekMMLU `2527703`;
+  - alpha `8`: convert `2527704`, native GreekMMLU `2527705`.
