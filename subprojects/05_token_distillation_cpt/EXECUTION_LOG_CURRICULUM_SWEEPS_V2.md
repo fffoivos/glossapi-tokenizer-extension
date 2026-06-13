@@ -1964,3 +1964,16 @@ Alpha sweep initial runtime health `2026-06-13T09:09Z`:
 - Observed post-warmup throughput is about `7.5k`-`7.65k` tokens/sec/GPU,
   projecting roughly `7.5`-`8h` training wall time for the full 3218-iteration
   chains before eval/result-collection overhead.
+
+Alpha sweep first save/validation health `2026-06-13T09:32Z`:
+
+- `iter_0000119/.metadata` exists for all three alpha arms, confirming the
+  first save checkpoint completed.
+- Training continued past the save into iter `125+` with zero skipped and zero
+  NaN iterations.
+- Extra-valid LM losses printed at iter `125` for all nine expected sets:
+  `hplt`, `openarchives`, `greek_phd`, `english`, `de`, `ru`, `zh`, `code`,
+  and `old_greek`.
+- Clarified watcher cadence: `cadence_curriculum.tsv` starts GreekMMLU sidecars
+  at iter `238` (`curr-1.0B`), so the watcher remaining at `0/45` through
+  iter `119` is expected.
