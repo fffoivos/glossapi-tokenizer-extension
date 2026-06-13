@@ -1884,3 +1884,28 @@ Peak-LR final checkpoint `2026-06-13T07:45+03:00`:
 - Final read before forgetting-loss collection: `1.1e-4` wins the GreekMMLU
   trajectory at the final checkpoint and also owns the best single observed
   GreekMMLU score in the peak-LR sweep.
+
+Peak-LR result collection `2026-06-13T07:50+03:00`:
+
+- Ran the v2 collectors on Clariden and copied the result artifacts back
+  locally under `03_training_experiments/curriculum_sweeps_v2/results/`.
+- Wrote:
+  - `peak_lr_greekmmlu_trajectory.csv` from the standard collector
+    (`115` rows, includes all current curriculum-v2 eval roots);
+  - `peak_lr_forgetting_loss.csv` from the standard collector (`4608` data
+    rows across the four peak-LR arms);
+  - `peak_lr_greekmmlu_trajectory_merged.csv` with the legacy-root `iter=238`
+    LR points merged in (`60` data rows = 4 arms x 15 cadence points);
+  - `peak_lr_decision_table.csv`;
+  - `peak_lr_decision_table_20260613.md`.
+- Decision-table read:
+  - `1.1e-4`: best GreekMMLU adaptation (`0.5921` final/best), but small
+    positive foreign LM-loss deltas on English/de/ru (`foreign max +0.0174`);
+  - `8.25e-5`: best no-positive-foreign-delta compromise among the high
+    adaptation arms (`0.5874` final, `0.5885` best, `foreign max -0.0175`);
+  - `5.5e-5`: solid retention (`foreign max -0.0435`) but below `8.25e-5`
+    and `1.1e-4` on final GreekMMLU;
+  - `2.75e-5`: strongest retention but weakest GreekMMLU.
+- Final Slurm check: no matching sweep/eval jobs remained in `squeue`; all
+  four final training jobs and all eight `iter=3218` final sidecar jobs were
+  `COMPLETED`.
