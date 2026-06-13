@@ -2235,3 +2235,18 @@ Alpha sweep live ETA check `2026-06-13T16:08Z`:
 - `curr-10.0B` sidecars were already in flight: alpha `0` convert/native
   completed successfully, while alpha `4` and alpha `8` native GreekMMLU
   sidecars were still running.
+
+Alpha sweep `curr-10.0B` GreekMMLU complete `2026-06-13T16:18Z`:
+
+- Iter `2380` checkpoints were produced by all three alpha arms and picked up
+  by the bridged watcher.
+- Sidecar jobs completed successfully with exit `0:0`:
+  - alpha `0`: convert `2528332`, native GreekMMLU `2528333`;
+  - alpha `4`: convert `2528336`, native GreekMMLU `2528337`;
+  - alpha `8`: convert `2528344`, native GreekMMLU `2528345`.
+- GreekMMLU headline accuracy:
+  - alpha `0`: `0.5594636845` (`9305/16632`);
+  - alpha `4`: `0.5732924483` (`9535/16632`);
+  - alpha `8`: `0.5696849447` (`9475/16632`).
+- Alpha `8` native GreekMMLU completed normally in `9m07s`; no sidecar retry
+  was needed for this checkpoint.
