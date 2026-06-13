@@ -1781,3 +1781,23 @@ Peak-LR phase-boundary checkpoint and segment-4 handoff `2026-06-13T04:03+03:00`
 - Current read: after the phase switch, `5.5e-5` is leading on GreekMMLU;
   `8.25e-5` still owns the best pre-boundary score (`0.5690` at `curr-8.0B`)
   but dipped sharply at `iter=2261`.
+
+Peak-LR tenth checkpoint `2026-06-13T05:27+03:00`:
+
+- Home watcher submitted `iter=2380` (`curr-10.0B`) GreekMMLU sidecars for all
+  four arms:
+  - `2.75e-5`: convert `2526171`, native GreekMMLU `2526173`;
+  - `5.5e-5`: convert `2526177`, native GreekMMLU `2526178`;
+  - `8.25e-5`: convert `2526183`, native GreekMMLU `2526184`;
+  - `1.1e-4`: convert `2526185`, native GreekMMLU `2526186`.
+- All eight `iter=2380` sidecar jobs completed successfully.
+- GreekMMLU overall at `curr-10.0B`:
+  - `2.75e-5`: `9153/16632 = 0.5503`;
+  - `5.5e-5`: `9499/16632 = 0.5711`;
+  - `8.25e-5`: `8993/16632 = 0.5407`;
+  - `1.1e-4`: `9331/16632 = 0.5610`.
+- Training remained healthy after the checkpoint, with observed iterations
+  around `2459`-`2489`, learning rates unchanged, and skipped/NaN counters `0`.
+- Current read: `5.5e-5` now has the best GreekMMLU score of the LR sweep
+  (`0.5711`), ahead of the prior `8.25e-5` pre-boundary peak (`0.5690` at
+  `curr-8.0B`).
