@@ -1953,3 +1953,14 @@ Alpha sweep launched `2026-06-13T09:06Z`:
 - First training commands and optimizer setup logs confirm
   `ademamix_alpha=0.0`, `4.0`, and `8.0`, respectively, with `lr=5.5e-05` and
   split replay data paths.
+
+Alpha sweep initial runtime health `2026-06-13T09:09Z`:
+
+- All three first segments are running on 16 nodes each.
+- First training iterations are finite with no skipped or NaN iterations:
+  - alpha `0`: loss moved `6.100362` -> `5.648207` by iter 4;
+  - alpha `4`: loss moved `6.100362` -> `5.869648` by iter 3;
+  - alpha `8`: loss moved `6.100362` -> `5.873038` by iter 3.
+- Observed post-warmup throughput is about `7.5k`-`7.65k` tokens/sec/GPU,
+  projecting roughly `7.5`-`8h` training wall time for the full 3218-iteration
+  chains before eval/result-collection overhead.
