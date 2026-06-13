@@ -1977,3 +1977,16 @@ Alpha sweep first save/validation health `2026-06-13T09:32Z`:
 - Clarified watcher cadence: `cadence_curriculum.tsv` starts GreekMMLU sidecars
   at iter `238` (`curr-1.0B`), so the watcher remaining at `0/45` through
   iter `119` is expected.
+
+Alpha sweep first GreekMMLU handoff `2026-06-13T09:48Z`:
+
+- `iter_0000238/.metadata` exists for all three alpha arms; training had
+  progressed through iter `250+` with zero skipped and zero NaN iterations.
+- Home watcher `cpt_alpha_watch_20260613` submitted the expected GreekMMLU-only
+  sidecar pairs and advanced to `total_done=3/45`:
+  - alpha `0`: convert `2527510`, native GreekMMLU `2527511`;
+  - alpha `4`: convert `2527512`, native GreekMMLU `2527513`;
+  - alpha `8`: convert `2527514`, native GreekMMLU `2527515`.
+- Sidecar status immediately after submission: alpha `4`/`8` converters
+  completed and native jobs were running; alpha `0` converter was still running,
+  leaving native job `2527511` dependency-pending as expected.
