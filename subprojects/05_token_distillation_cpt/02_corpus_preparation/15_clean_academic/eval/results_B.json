@@ -1,0 +1,192 @@
+{
+ "n": 64,
+ "TP": 25,
+ "FP": 7,
+ "FN": 4,
+ "TN": 28,
+ "precision": 0.78125,
+ "recall": 0.8620689655172413,
+ "f1": 0.8196721311475409,
+ "accuracy": 0.828125,
+ "kappa": 1.0,
+ "hallucinations": 2,
+ "by_stratum": {
+  "bib_weak": {
+   "ok": 14,
+   "FP": 2
+  },
+  "kept_hasyear": {
+   "ok": 12,
+   "FN": 4
+  },
+  "bib_strong": {
+   "ok": 11,
+   "FP": 5
+  },
+  "kept_noyear": {
+   "ok": 16
+  }
+ },
+ "FP_detail": [
+  {
+   "uid": "B0004",
+   "gate": "bib:header_stem",
+   "kind": "not_reference",
+   "style": "na",
+   "feat": {
+    "yc": 0,
+    "yd": 0.0,
+    "latin": 0.0,
+    "dash": 0.4,
+    "pos": 0.06
+   },
+   "quote": "Ο συχνά χρησιμοποιούμενος όρος « Πηγές Ενέργειας » δεν ευσταθεί από επιστημονικής σκοπιάς"
+  },
+  {
+   "uid": "B0051",
+   "gate": "bib:header_stem",
+   "kind": "not_reference",
+   "style": "na",
+   "feat": {
+    "yc": 0,
+    "yd": 0.0,
+    "latin": 0.78,
+    "dash": 0.0,
+    "pos": 0.2
+   },
+   "quote": "| AcP                | Archiv für die civilistische Praxis (περιοδικό)            |"
+  },
+  {
+   "uid": "B0005",
+   "gate": "bib:citation_shape",
+   "kind": "not_reference",
+   "style": "none",
+   "feat": {
+    "yc": 1,
+    "yd": 0.25,
+    "latin": 0.46,
+    "dash": 1.0,
+    "pos": 0.78
+   },
+   "quote": "Δραστηριότητες"
+  },
+  {
+   "uid": "B0025",
+   "gate": "bib:citation_shape",
+   "kind": "not_reference",
+   "style": "na",
+   "feat": {
+    "yc": 2,
+    "yd": 0.5,
+    "latin": 1.0,
+    "dash": 0.0,
+    "pos": 0.36
+   },
+   "quote": "Petrus  Grimani Dei  Gratia  Dux  Venetiarum  e.t.c  Nobilibus  et  Sapientibus  Viris"
+  },
+  {
+   "uid": "B0033",
+   "gate": "bib:citation_shape",
+   "kind": "not_reference",
+   "style": "footnote_humanities",
+   "feat": {
+    "yc": 1,
+    "yd": 1.0,
+    "latin": 0.44,
+    "dash": 0.0,
+    "pos": 0.52
+   },
+   "quote": "Ήρθε στο φως δίπλα στην δεξαμενή/impluvium (Soles & Davaras 1996, 189)."
+  },
+  {
+   "uid": "B0046",
+   "gate": "bib:citation_shape",
+   "kind": "cv_publication_list",
+   "style": "vancouver_numbered",
+   "feat": {
+    "yc": 2,
+    "yd": 0.67,
+    "latin": 0.99,
+    "dash": 0.0,
+    "pos": 0.98
+   },
+   "quote": "ΔΗΜΟΣΙΕΥΣΗ 2"
+  },
+  {
+   "uid": "B0054",
+   "gate": "bib:header_stem",
+   "kind": "cv_publication_list",
+   "style": "none",
+   "feat": {
+    "yc": 5,
+    "yd": 1.0,
+    "latin": 1.0,
+    "dash": 1.0,
+    "pos": 0.2
+   },
+   "quote": "ΚΑΤΑΛΟΓΟΣ ΞΕΝΟΓΛΩΣΣΩΝ ΑΝΑΚΟΙΝΩΣΕΩΝ ΣΕ ΔΙΕΘΝΗ ΣΥΝΕΔΡΙΑ"
+  }
+ ],
+ "FN_detail": [
+  {
+   "uid": "B0019",
+   "gate": "kept-non-bib:unconfirmed",
+   "kind": "chapter_bibliography",
+   "style": "chicago_turabian",
+   "lang": "greek",
+   "feat": {
+    "yc": 1,
+    "yd": 1.0,
+    "latin": 0.0,
+    "dash": 0.0,
+    "pos": 0.77
+   },
+   "quote": "Τάκης Καλογερόπουλος, Το λεξικό της ελληνικής μουσικής , τόμος 3, Γιαλλελής, Αθήνα 1998."
+  },
+  {
+   "uid": "B0022",
+   "gate": "kept-non-bib:unconfirmed",
+   "kind": "end_bibliography",
+   "style": "chicago_turabian",
+   "lang": "mixed_greek_foreign",
+   "feat": {
+    "yc": 6,
+    "yd": 1.5,
+    "latin": 0.08,
+    "dash": 0.0,
+    "pos": 0.85
+   },
+   "quote": "Γ.Κ.  Σπυριδάκης, Ελληνικά  δημοτικά  τραγούδια (Εκλογή),  τ.  Α',  εν  Αθήναις  1962, σελ. λβ' + 518"
+  },
+  {
+   "uid": "B0048",
+   "gate": "kept-non-bib:unconfirmed",
+   "kind": "subdivided_sublist",
+   "style": "chicago_turabian",
+   "lang": "greek",
+   "feat": {
+    "yc": 28,
+    "yd": 1.75,
+    "latin": 0.0,
+    "dash": 0.0,
+    "pos": 0.85
+   },
+   "quote": "Βερέμης  Θάνος  Μ.-  Κολιόπουλος  Ιωάννης  Σ., Νεότερη  Ελλάδα ,  Αθήνα,  Εκδόσεις"
+  },
+  {
+   "uid": "B0063",
+   "gate": "kept-non-bib:unconfirmed",
+   "kind": "subdivided_sublist",
+   "style": "chicago_turabian",
+   "lang": "greek",
+   "feat": {
+    "yc": 26,
+    "yd": 1.37,
+    "latin": 0.03,
+    "dash": 0.0,
+    "pos": 0.95
+   },
+   "quote": "1. Ελληνική"
+  }
+ ]
+}

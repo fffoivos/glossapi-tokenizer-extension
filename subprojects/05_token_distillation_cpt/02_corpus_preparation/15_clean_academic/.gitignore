@@ -1,0 +1,16 @@
+# build + scratch — only source is tracked
+reference_detector/target/
+out/
+**/__pycache__/
+*.pyc
+# large investigation scratch (the report + samples are tracked; raw JSON dump is not)
+investigation/_raw_synthesis.json
+# annotation UNIT text (corpus content, ~85MB, regenerable from the parquets via eval/build_*_units.py).
+# The gold LABELS (eval/annotations*/), manifests + batchpaths (eval/units/*.jsonl, *_batchpaths.json,
+# *_batches.json), and the model artifact are tracked — that makes the eval reproducible without
+# committing corpus text.
+eval/units/B_scale/
+eval/units/B_betagate/
+eval/units/A_boundary/
+# full-thesis inline-match render (2.4MB corpus content, regenerable via review/sample_refspans.py)
+investigation/samples/example_inline_match/

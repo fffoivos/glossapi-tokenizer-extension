@@ -1,0 +1,30 @@
+[package]
+name = "reference_detector"
+version = "0.1.0"
+edition = "2021"
+description = "Greek academic reference/citation detector — SEGMENT + COUNT + EMIT-SPANS, never hard-delete (CPT corpus cleaning)."
+
+# Hot-path corpus operation (per project rule: Rust-by-default, one detector / many consumers).
+# Standalone crate now; the detector core (reference_signals + reference_module) is written so it
+# can be lifted into glossapi_rs_cleaner as a `reference_module.rs` consumer later (same CleanStats
+# counter convention). The CLI binary is the thin runner; Python is only an I/O driver around it.
+
+[lib]
+name = "reference_detector"
+path = "src/lib.rs"
+
+[[bin]]
+name = "reference_detect"
+path = "src/main.rs"
+
+[dependencies]
+regex = "1"
+once_cell = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+zstd = "0.13"
+rayon = "1"
+
+[profile.release]
+opt-level = 3
+lto = true

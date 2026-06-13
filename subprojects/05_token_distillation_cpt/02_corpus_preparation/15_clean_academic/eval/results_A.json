@@ -1,0 +1,16 @@
+{
+ "n": 497,
+ "usable": 457,
+ "TP": 205,
+ "FP": 3,
+ "FN": 126,
+ "TN": 123,
+ "precision": 0.9855769230769231,
+ "recall": 0.6193353474320241,
+ "f1": 0.7606679035250463,
+ "boundary_n": 227,
+ "boundary_median_abs": 0,
+ "boundary_within_5": 0.7533039647577092,
+ "boundary_within_20": 0.762114537444934,
+ "boundary_signed_median": 0
+}
