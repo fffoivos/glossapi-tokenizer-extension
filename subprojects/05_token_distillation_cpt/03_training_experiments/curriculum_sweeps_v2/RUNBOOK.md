@@ -82,6 +82,7 @@ DRY_RUN=0 CONFIRM_LAUNCH=1 bash train/submit_vanilla_control.sh  # (b) 1 vanilla
 DRY_RUN=0 CONFIRM_LAUNCH=1 bash train/sweep_replay.sh            # (c) TD, R in {0.35,0.25,0.15}
 #   ... choose R* from the forgetting↔adaptation tradeoff ...
 DRY_RUN=0 CONFIRM_LAUNCH=1 R_STAR=0.25 bash train/sweep_peak_lr.sh # (d) DONE; selected LR_PEAK=5.5e-5
+DRY_RUN=0 CONFIRM_LAUNCH=1 bash train/sweep_alpha.sh      # next: ADEMA_ALPHA in {0,4,8}, settled replay+LR
 # per run, fire the GreekMMLU-only watcher:
 RUN_TAG=<tag> EVAL_ARM=td bash eval/curriculum_eval_watcher.sh
 ```

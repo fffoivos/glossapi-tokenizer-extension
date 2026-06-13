@@ -1919,3 +1919,15 @@ Peak-LR decision adopted `2026-06-13`:
   still-strong GreekMMLU.
 - The v2 training env already defaults to `LR_PEAK=5.5e-5`; no launch-script
   change is needed beyond leaving the override unset or setting it explicitly.
+
+Alpha-sweep preparation `2026-06-13`:
+
+- User asked to start the next round using the settled replay/LR values.
+- Interpreted the next round as the remaining AdEMAMix-alpha axis from the
+  roadmap: `ADEMA_ALPHA in {0,4,8}` at 79/20/1 replay and `LR_PEAK=5.5e-5`.
+- Added `train/sweep_alpha.sh` and threaded `ADEMA_ALPHA` explicitly through
+  `submit_curriculum_two_phase.sh`'s Slurm export so each segment records and
+  receives the intended alpha value.
+- Synced the alpha-sweep edits to Clariden and ran a remote dry-run with
+  `TOTAL_ITER=2 PHASE1_EXIT_ITER=1 SAVE_INTERVAL=1 SEG=1 NODES=1`; the three
+  arms expanded cleanly as `a0`, `a4`, and `a8` with split replay weights.
