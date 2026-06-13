@@ -2216,3 +2216,22 @@ Alpha sweep phase boundary `curr-phase-boundary` complete `2026-06-13T15:53Z`:
 - All three arms resumed from checkpoint iter `2261`, continued at iter
   `2262+` with LR `5.500000E-05`, finite loss, and zero skipped/NaN
   iterations.
+
+Alpha sweep live ETA check `2026-06-13T16:08Z`:
+
+- All three segment-4 training jobs were still running on 16 nodes:
+  - alpha `0`: job `2527431`, elapsed `35:09`;
+  - alpha `4`: job `2527435`, elapsed `33:06`;
+  - alpha `8`: job `2527439`, elapsed `25:49`.
+- Latest parsed training iterations:
+  - alpha `0`: iter `2456/3218`, `762` iterations remaining;
+  - alpha `4`: iter `2445/3218`, `773` iterations remaining;
+  - alpha `8`: iter `2404/3218`, `814` iterations remaining.
+- The latest lines for all three arms showed finite loss, LR
+  `5.500000E-05`, and zero skipped/NaN iterations.
+- ETA driver was alpha `8`; at the observed segment-4 pace this implied
+  roughly `2h25m` of training remaining, plus about `10-20m` for final
+  conversion and native GreekMMLU sidecars if Slurm scheduling remains smooth.
+- `curr-10.0B` sidecars were already in flight: alpha `0` convert/native
+  completed successfully, while alpha `4` and alpha `8` native GreekMMLU
+  sidecars were still running.
