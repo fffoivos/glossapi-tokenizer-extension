@@ -1859,3 +1859,28 @@ Peak-LR thirteenth checkpoint `2026-06-13T07:25+03:00`:
   around `3173`-`3209`, LR decay near the floor, and skipped/NaN counters `0`.
 - Current read: `1.1e-4` again has the best single GreekMMLU point so far
   (`0.5918`), with `8.25e-5` and `5.5e-5` close but lower at this checkpoint.
+
+Peak-LR final checkpoint `2026-06-13T07:45+03:00`:
+
+- All four peak-LR training arms completed successfully on 16 nodes:
+  - `2.75e-5`: final segment job `2524482`, elapsed `02:41:21`;
+  - `5.5e-5`: final segment job `2524486`, elapsed `02:43:21`;
+  - `8.25e-5`: final segment job `2524491`, elapsed `02:42:53`;
+  - `1.1e-4`: final segment job `2524495`, elapsed `02:43:25`.
+- Megatron saved the nominal final checkpoint `iter_0003218` for all four arms
+  after also saving the regular `iter_0003213` interval checkpoint.
+- Home watcher reached `total_done=60/60` and submitted all `iter=3218`
+  (`curr-final`) GreekMMLU sidecars:
+  - `2.75e-5`: convert `2526452`, native GreekMMLU `2526453`;
+  - `5.5e-5`: convert `2526456`, native GreekMMLU `2526457`;
+  - `8.25e-5`: convert `2526458`, native GreekMMLU `2526459`;
+  - `1.1e-4`: convert `2526463`, native GreekMMLU `2526464`.
+- All eight `iter=3218` sidecar jobs completed successfully.
+- GreekMMLU overall at `curr-final`:
+  - `2.75e-5`: `9515/16632 = 0.5721`;
+  - `5.5e-5`: `9729/16632 = 0.5850`;
+  - `8.25e-5`: `9769/16632 = 0.5874`;
+  - `1.1e-4`: `9847/16632 = 0.5921`.
+- Final read before forgetting-loss collection: `1.1e-4` wins the GreekMMLU
+  trajectory at the final checkpoint and also owns the best single observed
+  GreekMMLU score in the peak-LR sweep.
