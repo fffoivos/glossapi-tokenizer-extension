@@ -1705,3 +1705,30 @@ Peak-LR seventh checkpoint `2026-06-13T02:19+03:00`:
   - `1.1e-4`: `9137/16632 = 0.5494`.
 - Segment-2 training remained healthy, with observed iterations around
   `1747`-`1773` and skipped/NaN counters still `0`.
+
+Peak-LR eighth checkpoint and segment-3 handoff `2026-06-13T02:57+03:00`:
+
+- All four segment-2 jobs completed successfully and their segment-3 dependency
+  jobs started on 16 nodes each:
+  - `2.75e-5`: `2524480` completed, `2524481` running;
+  - `5.5e-5`: `2524484` completed, `2524485` running;
+  - `8.25e-5`: `2524489` completed, `2524490` running;
+  - `1.1e-4`: `2524493` completed, `2524494` running.
+- Segment-3 logs show checkpoints loaded at iteration `1904`, the split replay
+  blend still set to `hplt_only_ext + 0.253164557 foreign_replay_only_ext +
+  0.012658228 old_greek_replay_only_ext`, and learning rates continuing at the
+  configured peak values.
+- Home watcher submitted `iter=1904` (`curr-8.0B`) GreekMMLU sidecars for all
+  four arms:
+  - `2.75e-5`: convert `2525753`, native GreekMMLU `2525754`;
+  - `5.5e-5`: convert `2525755`, native GreekMMLU `2525756`;
+  - `8.25e-5`: convert `2525759`, native GreekMMLU `2525760`;
+  - `1.1e-4`: convert `2525761`, native GreekMMLU `2525762`.
+- All eight `iter=1904` sidecar jobs completed successfully.
+- GreekMMLU overall at `curr-8.0B`:
+  - `2.75e-5`: `8886/16632 = 0.5343`;
+  - `5.5e-5`: `9195/16632 = 0.5529`;
+  - `8.25e-5`: `9463/16632 = 0.5690`;
+  - `1.1e-4`: `9022/16632 = 0.5424`.
+- Segment-3 training remained healthy after the handoff, with observed
+  iterations around `1921`-`1950` and skipped/NaN counters still `0`.
