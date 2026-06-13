@@ -2312,3 +2312,24 @@ Alpha sweep `curr-final` GreekMMLU complete `2026-06-13T18:33Z`:
   was needed for this checkpoint.
 - The bridged watcher reached `total_done=45/45`; all requested GreekMMLU
   sidecars for the alpha sweep were submitted.
+
+Alpha sweep collectors complete `2026-06-13T18:37Z`:
+
+- Ran the standard GreekMMLU and held-out-loss collectors on Clariden for the
+  three alpha arms:
+  - `alpha_greekmmlu_trajectory.csv`: `45` checkpoint rows;
+  - `alpha_forgetting_loss.csv`: `3456` validation-loss rows;
+  - `alpha_decision_table.csv` and `alpha_decision_table_20260613.md`: compact
+    comparison table.
+- Decision-table readout:
+  - alpha `4` had the best final GreekMMLU (`0.5947570948`) and best last-3
+    GreekMMLU average (`0.5906`);
+  - alpha `0` had the best foreign held-out retention by final average loss
+    (`1.5594`) and average delta from first validation (`-0.1101`);
+  - alpha `4` had the best old-Greek absolute final loss (`1.9063`), while
+    alpha `8` had the largest old-Greek/new-Greek loss improvement but weaker
+    GreekMMLU and worse foreign retention.
+- Current recommendation from the alpha sweep: alpha `4` is the best
+  adaptation/retention compromise; alpha `8` is not justified by this run, and
+  alpha `0` is only attractive if foreign-retention loss is weighted above the
+  GreekMMLU/adaptation gains.
