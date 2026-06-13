@@ -2152,3 +2152,32 @@ Alpha sweep sidecar retry `2026-06-13T14:42Z`:
 - Segment-2 training had already completed successfully for alpha `0` and
   alpha `4`; their segment-3 jobs were running on 16 nodes each, and alpha `8`
   retry segment-2 was still running toward the segment boundary.
+
+Alpha sweep `curr-7.0B` GreekMMLU complete `2026-06-13T14:54Z`:
+
+- Iter `1666` checkpoints were produced by all three alpha arms and picked up
+  by the bridged watcher.
+- Sidecar jobs completed with exit `0:0`, using the alpha `4` retry noted
+  above:
+  - alpha `0`: convert `2527978`, native GreekMMLU `2527979`;
+  - alpha `4`: convert `2527985`, original native `2527986` cancelled after
+    slow/no-output progress, retry native GreekMMLU `2528045`;
+  - alpha `8`: convert `2527990`, native GreekMMLU `2527991`.
+- GreekMMLU headline accuracy:
+  - alpha `0`: `0.5312049062` (`8835/16632`);
+  - alpha `4`: `0.5477994228` (`9111/16632`);
+  - alpha `8`: `0.5356541607` (`8909/16632`).
+
+Alpha sweep `curr-8.0B` GreekMMLU complete `2026-06-13T14:54Z`:
+
+- Iter `1904` marked the segment-2 boundary. Segment-2 jobs completed
+  successfully for all three alpha arms, and segment-3 jobs were running on 16
+  nodes each afterward.
+- Sidecar jobs completed successfully with exit `0:0`:
+  - alpha `0`: convert `2528029`, native GreekMMLU `2528030`;
+  - alpha `4`: convert `2528031`, native GreekMMLU `2528032`;
+  - alpha `8`: convert `2528039`, native GreekMMLU `2528040`.
+- GreekMMLU headline accuracy:
+  - alpha `0`: `0.5330687831` (`8866/16632`);
+  - alpha `4`: `0.5491221741` (`9133/16632`);
+  - alpha `8`: `0.5613275613` (`9336/16632`).
