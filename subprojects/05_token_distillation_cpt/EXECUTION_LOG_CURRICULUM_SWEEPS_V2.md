@@ -2391,3 +2391,18 @@ Beta3 pivot to existing 13B curriculum dataset `2026-06-15T13:05Z`:
   - `2537257` for beta3 `0.999`.
 - Started GPU/job poller `99545`, logging to
   `/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/beta3_13b_gpu_poll.log`.
+
+Beta3 duplicate-control cancellation `2026-06-15T13:53Z`:
+
+- Confirmed the launched beta3 `0.999` arm
+  `curr_td_b30p999_13b_20260615T130321Z` was redundant with the completed
+  alpha `4` control `curr_td_f20_g1_lr5.5e-5_a4_20260613T090652Z`.
+- Matching fields checked: same 3218-step geometry, same HPLT phase through
+  iter `2261` then GlossAPI phase through iter `3218`, same split replay,
+  `LR_PEAK=5.5e-5`, `ADEMA_ALPHA=4`, `ADEMA_BETA3=0.999`, beta3/alpha
+  warmups `3218`, `data_seed=20260609`, and same `curriculum_v2` binaries.
+- Canceled the duplicate 0.999 chain and watcher:
+  `2537251`, `2537252`, `2537253`, `2537254`, `2537257`.
+- Verified only the informative beta3 arms remain in Slurm:
+  `2537242` (`0.99`) and `2537247` (`0.995`) are running in parallel, with
+  watchers `2537255` and `2537256` pending.
