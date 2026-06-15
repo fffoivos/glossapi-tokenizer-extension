@@ -2361,3 +2361,33 @@ Beta3 27B sweep prep checkpoint `2026-06-15T12:25Z`:
 - Current blocker: all prep jobs are pending because `xfer` is reserved for
   maintenance (`ReqNodeNotAvail`). Per the beta3 plan, do not move these CPU
   jobs to `normal` GPU nodes without explicit user confirmation.
+
+Beta3 pivot to existing 13B curriculum dataset `2026-06-15T13:05Z`:
+
+- User decided to abandon the new 27B beta3 dataset build and run the beta3
+  sweep on the existing smaller `curriculum_v2` dataset instead.
+- Canceled/stopped the debug dataset-driver path and removed the abandoned
+  generated stage `/iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_beta3`
+  after it had reached ~70G of copied/generated scratch artifacts.
+- Verified the existing `curriculum_v2` stage has all required split-replay
+  train binaries and 36 validation bin/idx files.
+- Added `eval/cadence_curriculum_3218.tsv` and made
+  `eval/curriculum_eval_watcher.sh` accept `CADENCE_FILE`, so the 13B beta3
+  run uses the original 3218-step cadence even though the default beta3 cadence
+  file is now the 6436-step one.
+- Launched the 13B beta3 sweep on Clariden with `TRAIN_TOKENS=13500000000`,
+  `TOTAL_ITER=3218`, `PHASE1_EXIT_ITER=2261`, `LR_PEAK=5.5e-5`,
+  `ADEMA_ALPHA=4`, split replay `79/20/1`, and beta3 grid
+  `{0.99,0.995,0.999}`:
+  - beta3 `0.99`: run tag `curr_td_b30p99_13b_20260615T130321Z`, segment jobs
+    `2537242` -> `2537245`; first segment started immediately on 16 nodes.
+  - beta3 `0.995`: run tag `curr_td_b30p995_13b_20260615T130321Z`, segment jobs
+    `2537247` -> `2537250`; first segment pending on resources at launch.
+  - beta3 `0.999`: run tag `curr_td_b30p999_13b_20260615T130321Z`, segment jobs
+    `2537251` -> `2537254`; first segment pending on priority/resources at launch.
+- Submitted GreekMMLU-only watchers with the 3218 cadence:
+  - `2537255` for beta3 `0.99`;
+  - `2537256` for beta3 `0.995`;
+  - `2537257` for beta3 `0.999`.
+- Started GPU/job poller `99545`, logging to
+  `/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/beta3_13b_gpu_poll.log`.
