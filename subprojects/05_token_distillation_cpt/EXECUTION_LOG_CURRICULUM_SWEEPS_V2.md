@@ -2333,3 +2333,31 @@ Alpha sweep collectors complete `2026-06-13T18:37Z`:
   adaptation/retention compromise; alpha `8` is not justified by this run, and
   alpha `0` is only attractive if foreign-retention loss is weighted above the
   GreekMMLU/adaptation gains.
+
+Beta3 27B sweep prep checkpoint `2026-06-15T12:25Z`:
+
+- Implemented the beta3 sweep launcher and parameter plumbing for
+  `ADEMA_BETA3 in {0.99,0.995,0.999}` at fixed `LR_PEAK=5.5e-5`,
+  `ADEMA_ALPHA=4`, split replay `79/20/1`, `TRAIN_TOKENS=26994540544`,
+  `TOTAL_ITER=6436`, and `PHASE1_EXIT_ITER=4522`.
+- Added isolated beta3 data staging:
+  `STAGE=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_beta3`,
+  with 2 copied holdout parquet files and 36 copied validation bin/idx files
+  from `curriculum_v2`.
+- Generated beta3-specific recipes in
+  `$V2/dataset/recipes_beta3`; their `drop_doc_keys_parquet` entries point at
+  `curriculum_beta3`, leaving the default `dataset/recipes` directory reusable.
+- Regenerated `eval/cadence_curriculum.tsv` for the 6436-step run; it includes
+  boundary iter `4522` and final iter `6436`, so the GreekMMLU watcher can pass
+  the old 3218-step endpoint.
+- Clariden dry-run validation passed with 3 arms and 7 segments per arm; the
+  first phase-2 segment exports `RESET_DATA_INDEX=1`, and all segments export
+  the intended `ADEMA_BETA3` value.
+- Submitted CPU-only beta3 prep chain on `xfer`:
+  - mix array `2536894` with `MIX_SHARDS=32`, targets 16.0B/6.9B/6.5B;
+  - Stage A array `2536895`;
+  - Stage B array `2536896`;
+  - replay split/tokenize `2536897`.
+- Current blocker: all prep jobs are pending because `xfer` is reserved for
+  maintenance (`ReqNodeNotAvail`). Per the beta3 plan, do not move these CPU
+  jobs to `normal` GPU nodes without explicit user confirmation.

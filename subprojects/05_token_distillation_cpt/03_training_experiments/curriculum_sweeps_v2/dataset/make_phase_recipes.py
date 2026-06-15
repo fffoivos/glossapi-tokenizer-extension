@@ -10,16 +10,20 @@ mix_builder.py has NO --source flag (argparse: --recipe/--target-tokens/--tokeni
 recipes are the only mechanism. The three binaries are then BLENDED at train time via the
 Megatron weighted --data-path (replay% = the blend weight), so this runs ONCE.
 
-Usage: python make_phase_recipes.py <bulk_13b.json> <out_recipes_dir>
+Usage: python make_phase_recipes.py <bulk_13b.json> <out_recipes_dir> [stage_dir]
 """
-import json, sys
+import json, os, sys
 from pathlib import Path
+
+if len(sys.argv) not in (3, 4):
+    raise SystemExit("Usage: make_phase_recipes.py <bulk_13b.json> <out_recipes_dir> [stage_dir]")
 
 BULK = Path(sys.argv[1])   # .../dataset_build/bulk_13b.json (deployed pilot recipe)
 OUT  = Path(sys.argv[2]); OUT.mkdir(parents=True, exist_ok=True)
 SC = "/iopsstor/scratch/cscs/fffoivos"
-VAL_DROP    = f"{SC}/cpt_corpus/curriculum_v2/val_holdout_ids.parquet"     # new-Greek held-outs
-FORGET_DROP = f"{SC}/cpt_corpus/curriculum_v2/forget_holdout_ids.parquet"  # old-data forgetting held-outs
+STAGE = Path(sys.argv[3] if len(sys.argv) == 4 else os.environ.get("STAGE", f"{SC}/cpt_corpus/curriculum_v2"))
+VAL_DROP    = str(STAGE / "val_holdout_ids.parquet")     # new-Greek held-outs
+FORGET_DROP = str(STAGE / "forget_holdout_ids.parquet")  # old-data forgetting held-outs
 
 # the replay sources whose forgetting held-outs we must exclude from training, and the
 # doc-key field whose VALUE was stored in forget_holdout_ids.parquet. FineWeb
@@ -95,5 +99,6 @@ json.dump({"name": "replay_only", "version": "v2_curriculum", "seed": seed,
           open(OUT / "replay_only.json", "w"), indent=1, ensure_ascii=False)
 
 print(f"wrote 3 recipes to {OUT}")
+print(f"  stage={STAGE}")
 print(f"  hplt_only / glossapi_only: drop_doc_keys_parquet={VAL_DROP}")
 print(f"  replay_only: {len(rep)} sources; forgetting-drop on {sorted(set(s['name'] for s in rep) & set(FORGET_DROP_SOURCES))}")

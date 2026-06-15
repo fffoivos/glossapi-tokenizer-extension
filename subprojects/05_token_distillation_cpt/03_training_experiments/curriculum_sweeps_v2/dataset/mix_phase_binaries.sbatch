@@ -24,6 +24,7 @@ if [ ! -f "$V2_DIR/paths.env" ] && [ -f "$V2_DIR/../paths.env" ]; then
   V2_DIR="$(cd "$V2_DIR/.." && pwd)"
 fi
 source "$V2_DIR/paths.env"
+RECIPES_DIR="${RECIPES_DIR:-$V2/dataset/recipes}"
 
 BINS=(hplt_only glossapi_only replay_only)
 B=${BINS[${SLURM_ARRAY_TASK_ID:-0}]}
@@ -31,7 +32,8 @@ B=${BINS[${SLURM_ARRAY_TASK_ID:-0}]}
 # replay sweep down to R=0.15 while preserving the 70/30 phase split. replay is
 # sized to cover the largest blend draw (R=0.35 of a 13.5B run = ~4.7B) plus
 # headroom.
-declare -A TGT=( [hplt_only]=8500000000 [glossapi_only]=3700000000 [replay_only]=5000000000 )
+# Overridable per-binary token targets (the β3 / 27B build doubles HPLT and grows OA/replay to consumption).
+declare -A TGT=( [hplt_only]="${HPLT_TGT:-8500000000}" [glossapi_only]="${GLOSSAPI_TGT:-3700000000}" [replay_only]="${REPLAY_TGT:-5000000000}" )
 MIX_SHARDS="${MIX_SHARDS:-16}"
 (( MIX_SHARDS >= 1 )) || { echo "ERROR: MIX_SHARDS must be >= 1" >&2; exit 2; }
 
@@ -42,7 +44,7 @@ mkdir -p "$STAGE"
 test -f "$STAGE/val_holdout_ids.parquet"
 test -f "$STAGE/forget_holdout_ids.parquet"
 check_build_py
-test -f "$V2/dataset/recipes/$B.json"
+test -f "$RECIPES_DIR/$B.json"
 
 SHARD_DIR="$STAGE/${B}_mix_shards"
 rm -rf "$SHARD_DIR"
@@ -57,7 +59,7 @@ fail=0
 for shard in $(seq 0 $((MIX_SHARDS - 1))); do
   (
     run_build_py -u "$MIX_BUILDER" \
-      --recipe "$V2/dataset/recipes/$B.json" \
+      --recipe "$RECIPES_DIR/$B.json" \
       --target-tokens "$target_per_shard" \
       --tokenizer "$EXT_TOK" \
       --output "$SHARD_DIR/shard_$(printf '%02d' "$shard").jsonl" \

@@ -23,6 +23,7 @@ FOREIGN_REPLAY_R="${FOREIGN_REPLAY_R:-}"
 OLD_GREEK_REPLAY_R="${OLD_GREEK_REPLAY_R:-}"
 LR_PEAK="${LR_PEAK:-5.5e-5}"
 ADEMA_ALPHA="${ADEMA_ALPHA:-4.0}"
+ADEMA_BETA3="${ADEMA_BETA3:-0.999}"   # swept by sweep_beta3.sh; default = config value (no-op for prior sweeps)
 RUN_TAG="${RUN_TAG:-curr_${ARM}_r${R}_lr${LR_PEAK}}"
 OUTPUT_DIR="$RUN_ROOT/$RUN_TAG"
 DRY_RUN="${DRY_RUN:-0}"
@@ -71,7 +72,7 @@ submit_block(){ # $1=config  $2=from_iter  $3=to_iter  $4=reset_first(0|1)
       --nodes=$NODES --ntasks-per-node=1 --gpus-per-node=$GPUS_PER_NODE --gres=gpu:$GPUS_PER_NODE
       --cpus-per-task=288 --mem=460G --time="$TIME_LIMIT"
       --output="$OUTPUT_DIR/%x-%j.out" --error="$OUTPUT_DIR/%x-%j.err"
-      --export="ALL,ARM=$ARM,INIT_CKPT=$init,OUTPUT_DIR=$OUTPUT_DIR,SCRIPT_DIR_OVERRIDE=$TRAIN_DIR,TRAIN_CONFIG_OVERRIDE=$cfg,TRAIN_TOKENS=$TRAIN_TOKENS,RESUME_TRAINING=$resume,DISABLE_SAVE=0,SAVE_INTERVAL=$SAVE_INTERVAL,EXIT_INTERVAL=$nxt,ACCOUNT=a0140,PARTITION=normal,NODES=$NODES,GPUS_PER_NODE=$GPUS_PER_NODE,LAUNCH_MODE=torchrun,TIME_LIMIT=$TIME_LIMIT,R=$R,FOREIGN_REPLAY_R=$FOREIGN_REPLAY_R,OLD_GREEK_REPLAY_R=$OLD_GREEK_REPLAY_R,LR_PEAK=$LR_PEAK,ADEMA_ALPHA=$ADEMA_ALPHA${extra}"
+      --export="ALL,ARM=$ARM,INIT_CKPT=$init,OUTPUT_DIR=$OUTPUT_DIR,SCRIPT_DIR_OVERRIDE=$TRAIN_DIR,TRAIN_CONFIG_OVERRIDE=$cfg,TRAIN_TOKENS=$TRAIN_TOKENS,RESUME_TRAINING=$resume,DISABLE_SAVE=0,SAVE_INTERVAL=$SAVE_INTERVAL,EXIT_INTERVAL=$nxt,ACCOUNT=a0140,PARTITION=normal,NODES=$NODES,GPUS_PER_NODE=$GPUS_PER_NODE,LAUNCH_MODE=torchrun,TIME_LIMIT=$TIME_LIMIT,R=$R,FOREIGN_REPLAY_R=$FOREIGN_REPLAY_R,OLD_GREEK_REPLAY_R=$OLD_GREEK_REPLAY_R,LR_PEAK=$LR_PEAK,ADEMA_ALPHA=$ADEMA_ALPHA,ADEMA_BETA3=$ADEMA_BETA3${extra}"
       "$TRAIN_SCRIPT")
     echo "+ seg $segn  cfg=$(basename "$cfg")  iters $cur..$nxt  resume=$resume  reset=${extra:-0}"
     if [ "$DRY_RUN" = 1 ]; then
@@ -86,7 +87,7 @@ submit_block(){ # $1=config  $2=from_iter  $3=to_iter  $4=reset_first(0|1)
   done
 }
 
-echo "=== curriculum chain: RUN_TAG=$RUN_TAG ARM=$ARM R=$R FOREIGN_REPLAY_R=${FOREIGN_REPLAY_R:-<combined>} OLD_GREEK_REPLAY_R=${OLD_GREEK_REPLAY_R:-<combined>} LR_PEAK=$LR_PEAK ADEMA_ALPHA=$ADEMA_ALPHA TOTAL_ITER=$TOTAL_ITER PHASE1_EXIT_ITER=$PHASE1_EXIT_ITER ==="
+echo "=== curriculum chain: RUN_TAG=$RUN_TAG ARM=$ARM R=$R FOREIGN_REPLAY_R=${FOREIGN_REPLAY_R:-<combined>} OLD_GREEK_REPLAY_R=${OLD_GREEK_REPLAY_R:-<combined>} LR_PEAK=$LR_PEAK ADEMA_ALPHA=$ADEMA_ALPHA ADEMA_BETA3=$ADEMA_BETA3 TRAIN_TOKENS=$TRAIN_TOKENS TOTAL_ITER=$TOTAL_ITER PHASE1_EXIT_ITER=$PHASE1_EXIT_ITER ==="
 submit_block "$V2/train/phase1_hplt.env"      0                  "$PHASE1_EXIT_ITER" 0
 submit_block "$V2/train/phase2_glossapi.env"  "$PHASE1_EXIT_ITER" "$TOTAL_ITER"       1
 echo "final segment job: $dep   (output: $OUTPUT_DIR)"
