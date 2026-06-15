@@ -30,6 +30,7 @@ LR_PEAK="${LR_PEAK:-5.5e-5}"
 ADEMA_ALPHA="${ADEMA_ALPHA:-4.0}"
 # --- swept axis ---
 BETA3_GRID="${BETA3_GRID:-0.99 0.995 0.999}"
+RUN_LABEL="${RUN_LABEL:-27b}"
 # --- 27 B / 2× HPLT geometry (production tied-to-run ramp: warmup auto-scales from TRAIN_TOKENS) ---
 TRAIN_TOKENS="${TRAIN_TOKENS:-26994540544}"   # 6436 × 4,194,304 ; sets TRAIN_ITERS=6436 → ramp endpoints
 TOTAL_ITER="${TOTAL_ITER:-6436}"
@@ -60,7 +61,7 @@ fi
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 for B3 in $BETA3_GRID; do
   SAFE="${B3//./p}"
-  RUN_TAG="curr_td_b3${SAFE}_27b_${STAMP}" \
+  RUN_TAG="curr_td_b3${SAFE}_${RUN_LABEL}_${STAMP}" \
     ARM=td R=0.25 \
     FOREIGN_REPLAY_R="$FOREIGN_REPLAY_R" OLD_GREEK_REPLAY_R="$OLD_GREEK_REPLAY_R" \
     LR_PEAK="$LR_PEAK" ADEMA_ALPHA="$ADEMA_ALPHA" ADEMA_BETA3="$B3" \
@@ -68,5 +69,5 @@ for B3 in $BETA3_GRID; do
     bash "$V2/train/submit_curriculum_two_phase.sh"
 done
 
-echo "β3 sweep submitted (2× HPLT / ~27 B): BETA3_GRID=$BETA3_GRID  STAGE=$STAGE"
+echo "β3 sweep submitted ($RUN_LABEL): BETA3_GRID=$BETA3_GRID  STAGE=$STAGE"
 echo "  TRAIN_TOKENS=$TRAIN_TOKENS TOTAL_ITER=$TOTAL_ITER PHASE1_EXIT_ITER=$PHASE1_EXIT_ITER  (α=$ADEMA_ALPHA LR=$LR_PEAK, replay 79/20/1)"
