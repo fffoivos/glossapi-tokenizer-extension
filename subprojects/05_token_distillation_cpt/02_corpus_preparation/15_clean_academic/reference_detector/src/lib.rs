@@ -8,7 +8,9 @@
 pub mod reference_signals;
 pub mod reference_module;
 pub mod beta_gate_model;
+pub mod span_line_model;
 
 pub use reference_module::{
     detect_doc, detect_sections, Counters, DetectConfig, DocResult, SectionRow, Span,
 };
+pub use span_line_model::span_detect;

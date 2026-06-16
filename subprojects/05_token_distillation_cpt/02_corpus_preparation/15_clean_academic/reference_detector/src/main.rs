@@ -17,7 +17,7 @@ use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use rayon::prelude::*;
 use serde_json::Value;
 
-use reference_detector::{detect_doc, detect_sections, DetectConfig, DocResult, SectionRow};
+use reference_detector::{detect_doc, detect_sections, span_line_model, DetectConfig, DocResult, SectionRow};
 
 struct Args {
     mode: String,
@@ -86,6 +86,86 @@ fn pick_str<'a>(v: &'a Value, keys: &[String]) -> Option<&'a str> {
     None
 }
 
+/// Span-model driver (rayon-batched). `--mode spans`: whole-doc detection → bib_span records +
+/// `{doc_id,bib_spans,bib_lines}` counters. `--mode score-lines`: parity harness emitting `{p:[..]}`
+/// per input. Malformed rows emit `{doc_idx,error}` records (fail-loud, not silent), as in the main path.
+fn run_span_mode(a: &Args, reader: &mut dyn BufRead, spans_w: &mut dyn Write, counters_w: &mut dyn Write) {
+    const BATCH: usize = 2000;
+    let mut batch: Vec<(usize, String)> = Vec::with_capacity(BATCH);
+    let mut buf = String::new();
+    let mut idx = 0usize;
+    let mut n_ok = 0usize;
+    let mut n_err = 0usize;
+
+    let mut flush = |batch: &mut Vec<(usize, String)>, spans_w: &mut dyn Write, counters_w: &mut dyn Write| -> (usize, usize) {
+        let out: Vec<(bool, String, Vec<String>)> = batch
+            .par_iter()
+            .map(|(i, l)| match serde_json::from_str::<Value>(l) {
+                Err(e) => (true, serde_json::json!({"doc_idx": i, "error": format!("json parse error: {e}")}).to_string(), Vec::new()),
+                Ok(v) => {
+                    if a.mode == "score-lines" {
+                        let present: Vec<String> = v.get("present").and_then(|x| x.as_array())
+                            .map(|arr| arr.iter().filter_map(|s| s.as_str().map(str::to_string)).collect())
+                            .unwrap_or_default();
+                        let prefs: Vec<&str> = present.iter().map(String::as_str).collect();
+                        let abs: Vec<usize> = v.get("abs_idx").and_then(|x| x.as_array())
+                            .map(|arr| arr.iter().filter_map(|x| x.as_u64().map(|u| u as usize)).collect())
+                            .unwrap_or_else(|| (0..prefs.len()).collect());
+                        let nt = v.get("n_total").and_then(|x| x.as_u64()).map(|u| u as usize).unwrap_or(prefs.len());
+                        let p = span_line_model::span_scores(&prefs, &abs, nt);
+                        (false, serde_json::json!({"p": p}).to_string(), Vec::new())
+                    } else {
+                        let id = pick_str(&v, &a.id_fields).map(|s| s.to_string()).unwrap_or_else(|| format!("doc{i}"));
+                        match pick_str(&v, &a.text_fields) {
+                            None => (true, serde_json::json!({"doc_idx": i, "error": format!("missing text field (tried {:?})", a.text_fields)}).to_string(), Vec::new()),
+                            Some(text) => {
+                                let spans = span_line_model::span_detect(&id, &a.source, text);
+                                let bib_lines: usize = spans.iter().map(|s| s.line_end - s.line_start + 1).sum();
+                                let sjs = spans.iter().map(|s| serde_json::to_string(s).unwrap()).collect();
+                                (false, serde_json::json!({"doc_id": id, "bib_spans": spans.len(), "bib_lines": bib_lines}).to_string(), sjs)
+                            }
+                        }
+                    }
+                }
+            })
+            .collect();
+        let (mut ok, mut err) = (0usize, 0usize);
+        for (is_err, cj, sjs) in &out {
+            if *is_err { err += 1; } else { ok += 1; }
+            counters_w.write_all(cj.as_bytes()).unwrap();
+            counters_w.write_all(b"\n").unwrap();
+            for sj in sjs {
+                spans_w.write_all(sj.as_bytes()).unwrap();
+                spans_w.write_all(b"\n").unwrap();
+            }
+        }
+        batch.clear();
+        (ok, err)
+    };
+
+    loop {
+        buf.clear();
+        if reader.read_line(&mut buf).expect("read") == 0 { break; }
+        let line = buf.trim_end().to_string();
+        if line.is_empty() { continue; }
+        batch.push((idx, line));
+        idx += 1;
+        if batch.len() >= BATCH {
+            let (o, e) = flush(&mut batch, spans_w, counters_w);
+            n_ok += o; n_err += e;
+        }
+    }
+    let (o, e) = flush(&mut batch, spans_w, counters_w);
+    n_ok += o; n_err += e;
+    spans_w.flush().unwrap();
+    counters_w.flush().unwrap();
+    eprintln!("reference_detect: mode={} source={} ok={} errors={} → {} / {}", a.mode, a.source, n_ok, n_err, a.out_spans, a.out_counters);
+    if n_err > 0 && n_ok == 0 {
+        eprintln!("reference_detect: FATAL every row failed — likely wrong --text-field/--id-field or schema. Exiting non-zero.");
+        std::process::exit(2);
+    }
+}
+
 fn process_line(a: &Args, idx: usize, line: &str) -> Result<DocResult, String> {
     let v: Value = serde_json::from_str(line).map_err(|e| format!("json parse error: {e}"))?;
     if a.mode == "sections" {
@@ -124,6 +204,14 @@ fn main() {
     let mut reader = open_reader(&a.input);
     let mut spans_w = BufWriter::new(File::create(&a.out_spans).expect("out-spans"));
     let mut counters_w = BufWriter::new(File::create(&a.out_counters).expect("out-counters"));
+
+    // --- new line-LR span model paths (kept separate from the legacy header→EOF machinery) ---
+    //   --mode spans        whole-doc multi-span bibliography detection (the shipped model)
+    //   --mode score-lines  parity harness: input {present:[..],abs_idx:[..],n_total:N} -> {p:[..]}
+    if a.mode == "spans" || a.mode == "score-lines" {
+        run_span_mode(&a, &mut *reader, &mut spans_w, &mut counters_w);
+        return;
+    }
 
     const BATCH: usize = 2000;
     let mut batch: Vec<(usize, String)> = Vec::with_capacity(BATCH);

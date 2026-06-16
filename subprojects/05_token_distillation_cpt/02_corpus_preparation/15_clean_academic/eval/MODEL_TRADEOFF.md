@@ -93,13 +93,15 @@ boundaries median-exact, bootstrap ΔFβ0.5 +0.39 vs Rust). It is a single tunab
 cost is acceptable. This honors "don't remove main text" while recovering recall the strict-precision
 tuning was needlessly sacrificing.
 
-## ⚠ Deployment status (NOT yet deployed)
-The line-LR span model is **decided but NOT yet ported to Rust**. The production path
-(`reference_detector` crate + `clariden/run_academic_refs.sbatch --mode wholedoc`) **still runs the old
-header→EOF detector** (`detect_doc` → `endmatter_bib`), which is the known-worse arm (prose-amputation
-52%). **Do not feed `out/*/refspans` into a drop policy expecting the new model's behaviour** until the
-port below lands and Python↔Rust parity is verified on a fresh holdout. The new model currently lives
-only in `eval/` (Python) and is validated there.
+## ✅ Deployment status (ported + parity-verified)
+The line-LR span model is **ported to Rust** (`reference_detector/src/span_line_model.rs`, behind
+`--mode spans` → multi-span `bib_span` records) and **parity-verified** against the Python reference:
+max per-line |Δp| **2.4e-5** and **60/60 docs produce identical decoded spans** (`eval/rust_parity.py`;
+12 cargo tests green). `clariden/run_academic_refs.sbatch` now runs `--mode spans`. The legacy header→EOF
+detector remains available via `--mode wholedoc` for the baseline comparison. Constants in
+`span_line_model.rs` are synced from `span_line_lr_model.json` + `span_smooth_params.json` — re-sync if
+the model is refit. (Caveat unchanged: the held-out numbers carry mild optimism from feature design on
+the test split; a fresh untouched holdout would remove it.)
 
 ## Decision
 1. **Ship the interpretable line-LR** — the decisive precision-first win (prose amputation 52% → 5.6%,
