@@ -122,9 +122,15 @@ def paired_boot(A, B, n_boot=2000):
 def build_arms(data):
     params = json.load(open(f"{HERE}/span_smooth_params.json"))
     arms = {}
-    # Rust baseline
-    rb = json.load(open(f"{HERE}/units/SPAN_rust_baseline.json"))
-    arms["rust_header_eof"] = {doc: [tuple(x) for x in v] for doc, v in rb.items()}
+    # Rust baseline (tracked at units/SPAN_rust_baseline.json so a clean checkout reproduces the
+    # comparison; regenerate with run_rust_baseline_spans.py if the out/*/refspans scratch is present).
+    rbp = f"{HERE}/units/SPAN_rust_baseline.json"
+    if os.path.exists(rbp):
+        rb = json.load(open(rbp))
+        arms["rust_header_eof"] = {doc: [tuple(x) for x in v] for doc, v in rb.items()}
+    else:
+        print("WARN: units/SPAN_rust_baseline.json missing — skipping the Rust baseline arm. "
+              "Regenerate via `python run_rust_baseline_spans.py` (needs out/*_full/refspans/).")
     # interpretable line-LR + synergy (decode cached pline with tuned hysteresis)
     for tag, syn in (("line_lr", False), ("synergy", True)):
         pline = DS.get_pline(data, synergy=syn)
@@ -157,19 +163,22 @@ def main():
         print(row(name, m))
     print("\n=== greek_phd + openarchives TEST (head-to-head vs Rust baseline) ===")
     scored = {}
-    for name in ("rust_header_eof", "line_lr", "synergy") + (("dl_crf",) if "dl_crf" in arms else ()):
+    arm_order = (("rust_header_eof",) if "rust_header_eof" in arms else ()) + ("line_lr", "synergy") \
+        + (("dl_crf",) if "dl_crf" in arms else ())
+    for name in arm_order:
         m = score(data, arms[name], gp_oa); scored[name] = m
         res[name + "_gpoa"] = {k: v for k, v in m.items() if k != "perdoc"}
         print(row(name, m))
 
-    print("\n=== paired bootstrap: precision-weighted Fβ0.5 vs rust_header_eof (gp+oa test docs) ===")
-    base = scored["rust_header_eof"]["perdoc"]
-    res["bootstrap_vs_rust"] = {}
-    for name in ("line_lr", "synergy") + (("dl_crf",) if "dl_crf" in arms else ()):
-        lo, hi, mn = paired_boot(base, scored[name]["perdoc"])
-        sig = "REAL (CI excludes 0)" if (lo > 0 or hi < 0) else "noise (spans 0)"
-        res["bootstrap_vs_rust"][name] = [lo, mn, hi]
-        print(f"  {name:<16} ΔFβ0.5 {mn:+.3f}  [95% {lo:+.3f}, {hi:+.3f}]  → {sig}")
+    if "rust_header_eof" in scored:
+        print("\n=== paired bootstrap: precision-weighted Fβ0.5 vs rust_header_eof (gp+oa test docs) ===")
+        base = scored["rust_header_eof"]["perdoc"]
+        res["bootstrap_vs_rust"] = {}
+        for name in ("line_lr", "synergy") + (("dl_crf",) if "dl_crf" in arms else ()):
+            lo, hi, mn = paired_boot(base, scored[name]["perdoc"])
+            sig = "REAL (CI excludes 0)" if (lo > 0 or hi < 0) else "noise (spans 0)"
+            res["bootstrap_vs_rust"][name] = [lo, mn, hi]
+            print(f"  {name:<16} ΔFβ0.5 {mn:+.3f}  [95% {lo:+.3f}, {hi:+.3f}]  → {sig}")
 
     # slices by metadata (line P/R) on all-test for the best interpretable arm
     print("\n=== line_lr sliced by metadata (all test sources) ===")

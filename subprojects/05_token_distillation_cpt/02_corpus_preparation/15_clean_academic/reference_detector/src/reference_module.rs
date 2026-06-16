@@ -272,9 +272,14 @@ pub fn detect_doc(doc_id: &str, source: &str, text: &str, cfg: &DetectConfig) ->
         let has_year = sig::YEAR.is_match(&span_text);
         let latin_run = sig::LATIN_AUTHOR_RUN.is_match(&span_text);
         // FAIL-CLOSED: only call citation_only when clearly so; else keep as prose.
-        let citation_only = greek < cfg.footnote_cite_max_greek
-            || (latin_run && has_year && !cue && greek < 0.75)
-            || (chars < 120 && has_year && !cue);
+        // A long, Greek-dominant footnote is prose/hybrid (KEPT) per cfg.footnote_prose_min_chars —
+        // this guard makes the knob live and overrides the citation heuristics below.
+        let long_greek_prose =
+            chars >= cfg.footnote_prose_min_chars && greek >= cfg.footnote_cite_max_greek;
+        let citation_only = !long_greek_prose
+            && (greek < cfg.footnote_cite_max_greek
+                || (latin_run && has_year && !cue && greek < 0.75)
+                || (chars < 120 && has_year && !cue));
         c.footnote_stream_lines += 1;
         let (kind, gated) = if citation_only {
             c.footnote_citation_only += 1;

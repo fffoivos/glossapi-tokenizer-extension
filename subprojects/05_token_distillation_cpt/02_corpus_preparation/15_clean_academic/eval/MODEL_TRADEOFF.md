@@ -93,11 +93,21 @@ boundaries median-exact, bootstrap ΔFβ0.5 +0.39 vs Rust). It is a single tunab
 cost is acceptable. This honors "don't remove main text" while recovering recall the strict-precision
 tuning was needlessly sacrificing.
 
+## ⚠ Deployment status (NOT yet deployed)
+The line-LR span model is **decided but NOT yet ported to Rust**. The production path
+(`reference_detector` crate + `clariden/run_academic_refs.sbatch --mode wholedoc`) **still runs the old
+header→EOF detector** (`detect_doc` → `endmatter_bib`), which is the known-worse arm (prose-amputation
+52%). **Do not feed `out/*/refspans` into a drop policy expecting the new model's behaviour** until the
+port below lands and Python↔Rust parity is verified on a fresh holdout. The new model currently lives
+only in `eval/` (Python) and is validated there.
+
 ## Decision
-1. **Ship the interpretable line-LR now.** It is the decisive precision-first win (prose amputation
-   52% → 5.6%, bootstrap-significant) and deploys as a Rust dot-product + hysteresis smoother — no new
-   runtime dependency. Sync `span_line_lr_model.json` + `span_smooth_params.json` into the crate
-   (`span_line_model.rs` + `span_smooth.rs`, mirroring `beta_gate_model.rs`).
+1. **Ship the interpretable line-LR** — the decisive precision-first win (prose amputation 52% → 5.6%,
+   bootstrap-significant), deployable as a Rust dot-product + hysteresis smoother (no new runtime
+   dependency). **Port (pending):** sync `span_line_lr_model.json` + `span_smooth_params.json` into the
+   crate (`span_line_model.rs` + `span_smooth.rs`, mirroring `beta_gate_model.rs`), add the per-line
+   context-feature computation + the hysteresis pass behind a `--mode spans` flag (keep `wholedoc` for
+   comparison), and confirm Python↔Rust parity before switching the sbatch over.
 2. **DL is NOT a shipped dependency** — embedding at corpus scale on CPU is infeasible and the
    production contract is interpretable + Rust hot-path. Use it two ways:
    - **Feature-discovery oracle (default):** embeddings recover Greek-script bibs that regex misses →

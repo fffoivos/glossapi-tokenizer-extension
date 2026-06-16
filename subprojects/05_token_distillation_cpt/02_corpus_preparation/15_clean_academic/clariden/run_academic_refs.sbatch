@@ -54,6 +54,9 @@ for s in $SOURCES; do
   in="$OUT/split/$s.jsonl"
   [ -s "$in" ] || { echo "  (skip $s: empty $in)"; continue; }
   mkdir -p "$OUT/$s/refspans"
+  # NOTE: --mode wholedoc is the OLD header→EOF detector (endmatter_bib). The eval decided to ship the
+  # new line-LR span model (eval/MODEL_TRADEOFF.md) but it is NOT yet ported to Rust; this still emits
+  # the known-worse arm. Do not treat this output as the new model until a `--mode spans` path lands.
   ( RAYON_NUM_THREADS=16 "$BIN" --mode wholedoc --source "$s" \
         --input "$in" --text-field text --id-field id \
         --out-spans "$OUT/$s/refspans/$s.spans.jsonl" \

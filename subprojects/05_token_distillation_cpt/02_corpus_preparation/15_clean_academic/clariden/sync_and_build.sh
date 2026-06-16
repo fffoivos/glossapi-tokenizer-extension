@@ -19,13 +19,17 @@ rsync -az --delete -e "$SSHX" \
   "$LOCAL_DIR"/ "$REMOTE:$REMOTE_DIR"/
 
 echo "=== build aarch64 binary on the LOGIN node (needs crates.io) ==="
-$SSHX "$REMOTE" bash -lc "'
+# Feed the remote build script over stdin (heredoc) to a login shell; avoids the broken
+# nested-quote form `bash -lc "'...'"` which the remote shell parsed as a single quoted token
+# (started with a literal ' -> 'command not found', exit 127). $REMOTE_DIR expands locally;
+# \$HOME stays literal for remote expansion.
+$SSHX "$REMOTE" bash -ls <<EOF
   set -e
   command -v cargo >/dev/null || { echo bootstrapping rustup; curl --proto =https --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; source \$HOME/.cargo/env; }
   source \$HOME/.cargo/env 2>/dev/null || true
   cd $REMOTE_DIR/reference_detector
   cargo build --release
-  cargo test --release 2>&1 | grep \"test result\" | head -2
+  cargo test --release 2>&1 | grep "test result" | head -2
   ls -la target/release/reference_detect
-'"
+EOF
 echo "=== submit with: ssh $REMOTE 'cd $REMOTE_DIR/clariden && sbatch run_academic_refs.sbatch' ==="

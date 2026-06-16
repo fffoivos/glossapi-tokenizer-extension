@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Per-window (capture, overrun) in CHARACTERS, scattered to reveal failure-mode clusters.
+r"""Per-window (capture, overrun) in CHARACTERS, scattered to reveal failure-mode clusters.
   capture = chars(detector ∩ true_bib) / chars(true_bib)   in [0,1]   (under-capture axis)
   overrun = chars(detector \ true_bib) / chars(true_bib)   >= 0       (over-reach axis)
 Only windows where the detector flagged AND Opus marked bibliography become points.

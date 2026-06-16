@@ -86,11 +86,14 @@ fn pick_str<'a>(v: &'a Value, keys: &[String]) -> Option<&'a str> {
     None
 }
 
-fn process_line(a: &Args, idx: usize, line: &str) -> Option<DocResult> {
-    let v: Value = serde_json::from_str(line).ok()?;
+fn process_line(a: &Args, idx: usize, line: &str) -> Result<DocResult, String> {
+    let v: Value = serde_json::from_str(line).map_err(|e| format!("json parse error: {e}"))?;
     if a.mode == "sections" {
         let filename = pick_str(&v, &a.id_fields).map(|s| s.to_string()).unwrap_or_else(|| format!("doc{idx}"));
-        let rows_v = v.get("rows")?.as_array()?;
+        let rows_v = v
+            .get("rows")
+            .and_then(|x| x.as_array())
+            .ok_or_else(|| "missing or non-array 'rows' field".to_string())?;
         let n = rows_v.len().max(1);
         let rows: Vec<SectionRow> = rows_v
             .iter()
@@ -107,11 +110,12 @@ fn process_line(a: &Args, idx: usize, line: &str) -> Option<DocResult> {
                     .unwrap_or((i as f32) / ((n - 1).max(1) as f32)),
             })
             .collect();
-        Some(detect_sections(&filename, &a.source, &rows, &a.cfg))
+        Ok(detect_sections(&filename, &a.source, &rows, &a.cfg))
     } else {
         let id = pick_str(&v, &a.id_fields).map(|s| s.to_string()).unwrap_or_else(|| format!("doc{idx}"));
-        let text = pick_str(&v, &a.text_fields)?;
-        Some(detect_doc(&id, &a.source, text, &a.cfg))
+        let text = pick_str(&v, &a.text_fields)
+            .ok_or_else(|| format!("missing text field (tried {:?})", a.text_fields))?;
+        Ok(detect_doc(&id, &a.source, text, &a.cfg))
     }
 }
 
@@ -125,25 +129,42 @@ fn main() {
     let mut batch: Vec<(usize, String)> = Vec::with_capacity(BATCH);
     let mut idx = 0usize;
     let mut n_docs = 0usize;
+    let mut n_err = 0usize;
     let mut buf = String::new();
 
+    // Returns (n_ok, n_err). Malformed/schema-mismatched rows are NOT silently dropped: each emits an
+    // auditable error record to the counters stream (`{"doc_idx","error"}`) and is counted, so a bad
+    // row fails loudly (final summary + non-zero exit) instead of vanishing from the counters.
     let mut flush = |batch: &mut Vec<(usize, String)>, spans_w: &mut dyn Write, counters_w: &mut dyn Write| {
-        let results: Vec<DocResult> = batch
+        let results: Vec<(usize, Result<DocResult, String>)> = batch
             .par_iter()
-            .filter_map(|(i, l)| process_line(&a, *i, l))
+            .map(|(i, l)| (*i, process_line(&a, *i, l)))
             .collect();
-        for r in &results {
-            let cj = serde_json::to_string(&r.counters).unwrap();
-            counters_w.write_all(cj.as_bytes()).unwrap();
-            counters_w.write_all(b"\n").unwrap();
-            for s in &r.spans {
-                let sj = serde_json::to_string(s).unwrap();
-                spans_w.write_all(sj.as_bytes()).unwrap();
-                spans_w.write_all(b"\n").unwrap();
+        let mut ok = 0usize;
+        let mut err = 0usize;
+        for (i, r) in &results {
+            match r {
+                Ok(r) => {
+                    ok += 1;
+                    let cj = serde_json::to_string(&r.counters).unwrap();
+                    counters_w.write_all(cj.as_bytes()).unwrap();
+                    counters_w.write_all(b"\n").unwrap();
+                    for s in &r.spans {
+                        let sj = serde_json::to_string(s).unwrap();
+                        spans_w.write_all(sj.as_bytes()).unwrap();
+                        spans_w.write_all(b"\n").unwrap();
+                    }
+                }
+                Err(e) => {
+                    err += 1;
+                    let er = serde_json::json!({"doc_idx": i, "error": e});
+                    counters_w.write_all(er.to_string().as_bytes()).unwrap();
+                    counters_w.write_all(b"\n").unwrap();
+                }
             }
         }
         batch.clear();
-        results.len()
+        (ok, err)
     };
 
     loop {
@@ -159,11 +180,28 @@ fn main() {
         batch.push((idx, line));
         idx += 1;
         if batch.len() >= BATCH {
-            n_docs += flush(&mut batch, &mut spans_w, &mut counters_w);
+            let (o, e) = flush(&mut batch, &mut spans_w, &mut counters_w);
+            n_docs += o;
+            n_err += e;
         }
     }
-    n_docs += flush(&mut batch, &mut spans_w, &mut counters_w);
+    let (o, e) = flush(&mut batch, &mut spans_w, &mut counters_w);
+    n_docs += o;
+    n_err += e;
     spans_w.flush().unwrap();
     counters_w.flush().unwrap();
-    eprintln!("reference_detect: mode={} source={} docs={} → {} / {}", a.mode, a.source, n_docs, a.out_spans, a.out_counters);
+    eprintln!(
+        "reference_detect: mode={} source={} docs={} errors={} → {} / {}",
+        a.mode, a.source, n_docs, n_err, a.out_spans, a.out_counters
+    );
+    if n_err > 0 {
+        eprintln!("reference_detect: WARN {n_err} malformed/schema-mismatched rows emitted as error records to {} (filter on the \"error\" field to audit).", a.out_counters);
+        // Fail hard only on TOTAL failure (e.g. wrong field names / format) so a clean schema mismatch
+        // can't masquerade as success; sporadic bad rows stay auditable (records) without aborting the
+        // downstream pipeline for an entire source.
+        if n_docs == 0 {
+            eprintln!("reference_detect: FATAL every row failed — likely wrong --text-field/--id-field or schema. Exiting non-zero.");
+            std::process::exit(2);
+        }
+    }
 }
