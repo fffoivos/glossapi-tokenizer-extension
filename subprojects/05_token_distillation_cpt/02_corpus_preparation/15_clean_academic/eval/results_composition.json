@@ -1,19 +1,21 @@
 {
- "n_removed": 36389,
- "strict_bib_precision": 0.942,
- "reference_mass_precision": 0.998,
- "prose_protection_precision": 0.9991,
+ "n_removed": 50413,
+ "strict_bib_precision": 0.926,
+ "reference_mass_precision": 0.994,
+ "prose_protection_precision": 0.998,
  "composition": {
-  "bibliography_entry (correct)": 34268,
-  "header": 47,
-  "web/url": 285,
-  "entry_like(non-target)": 844,
-  "footnote_citation": 461,
-  "short/numeric": 17,
-  "prose": 10,
-  "table": 445,
-  "footnote_prose": 7,
-  "caption": 4,
-  "toc": 1
+  "entry_like(non-target)": 1473,
+  "bibliography_entry (correct)": 46694,
+  "header": 119,
+  "prose": 34,
+  "short/numeric": 58,
+  "footnote_citation": 773,
+  "web/url": 401,
+  "caption": 53,
+  "table": 756,
+  "footnote_prose": 11,
+  "entry_frontmatter": 37,
+  "inline_cite_prose": 1,
+  "toc": 3
  }
 }

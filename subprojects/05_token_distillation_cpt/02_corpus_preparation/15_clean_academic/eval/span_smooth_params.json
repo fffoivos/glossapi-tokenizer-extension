@@ -1,6 +1,6 @@
 {
- "theta_hi": 0.95,
- "theta_lo": 0.85,
+ "theta_hi": 0.8,
+ "theta_lo": 0.6,
  "gap": 2,
- "lmin": 5
+ "lmin": 2
 }

@@ -68,6 +68,23 @@ whether to also strip footnote/inline citations is a **policy choice the line ty
 model failure. This is the strongest evidence for the precision-first goal: the classifier essentially
 never amputates prose.
 
+## The recall/safety knob (operating point, `operating_point.py`)
+The smoother was first tuned for strict bib-precision ≥0.97, which over-conservatively treats footnote/
+inline citations as errors and **cost ~30 points of recall**. Re-tuning against the metric that actually
+matters — **prose-protection** — maps a clean frontier on held-out test (one hysteresis-threshold choice):
+
+| prose-protection floor | test recall | prose lines removed |
+|---|---|---|
+| **≥0.999 (DEFAULT, conservative)** | **0.865** | 0.09% (45 / 50.4k) |
+| ≥0.997 | 0.941 | 0.28% |
+| ≥0.995 | 0.944 | 0.36% |
+
+The shipped default is the conservative floor (prose-protection ≥0.999, recall 0.865, line-IoU 0.98,
+boundaries median-exact, bootstrap ΔFβ0.5 +0.39 vs Rust). It is a single tunable knob
+(`span_smooth_params.json`); dial the floor down for up to ~0.94 recall if the (reversible) ~0.3% prose
+cost is acceptable. This honors "don't remove main text" while recovering recall the strict-precision
+tuning was needlessly sacrificing.
+
 ## Decision
 1. **Ship the interpretable line-LR now.** It is the decisive precision-first win (prose amputation
    52% → 5.6%, bootstrap-significant) and deploys as a Rust dot-product + hysteresis smoother — no new

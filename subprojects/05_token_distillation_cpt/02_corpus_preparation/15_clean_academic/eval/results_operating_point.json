@@ -1,0 +1,50 @@
+{
+ "0.999": {
+  "params": {
+   "theta_hi": 0.8,
+   "theta_lo": 0.6,
+   "gap": 2,
+   "lmin": 2
+  },
+  "test_recall": 0.865,
+  "test_prose_protection": 0.9991,
+  "test_prose_lines": 45,
+  "test_removed": 50413
+ },
+ "0.997": {
+  "params": {
+   "theta_hi": 0.5,
+   "theta_lo": 0.3,
+   "gap": 2,
+   "lmin": 2
+  },
+  "test_recall": 0.941,
+  "test_prose_protection": 0.9972,
+  "test_prose_lines": 161,
+  "test_removed": 57278
+ },
+ "0.995": {
+  "params": {
+   "theta_hi": 0.5,
+   "theta_lo": 0.3,
+   "gap": 4,
+   "lmin": 2
+  },
+  "test_recall": 0.944,
+  "test_prose_protection": 0.9964,
+  "test_prose_lines": 206,
+  "test_removed": 57656
+ },
+ "0.99": {
+  "params": {
+   "theta_hi": 0.5,
+   "theta_lo": 0.3,
+   "gap": 4,
+   "lmin": 2
+  },
+  "test_recall": 0.944,
+  "test_prose_protection": 0.9964,
+  "test_prose_lines": 206,
+  "test_removed": 57656
+ }
+}
