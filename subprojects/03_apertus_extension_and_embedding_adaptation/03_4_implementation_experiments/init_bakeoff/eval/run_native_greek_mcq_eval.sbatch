@@ -26,6 +26,7 @@ EXAMPLE_BATCH_SIZE="${EXAMPLE_BATCH_SIZE:-16}"
 UENV_IMAGE="${UENV_IMAGE:-pytorch/v2.9.1:v2}"
 PY_ENV="${PY_ENV:-/iopsstor/scratch/cscs/fffoivos/python_envs/native_greek_eval_py312_cpt20260610}"
 CACHE_ROOT="${CACHE_ROOT:-/iopsstor/scratch/cscs/fffoivos/native_greek_eval/cache}"
+TRANSFORMERS_EXTRA_SPEC="${TRANSFORMERS_EXTRA_SPEC:-}"
 
 mkdir -p "$OUTPUT_DIR" "$CACHE_ROOT"/{hf_home,hf_datasets,xdg,tmp}
 
@@ -39,10 +40,11 @@ echo "BENCHMARKS: $BENCHMARKS"
 echo "SAMPLE_SIZE: $SAMPLE_SIZE"
 echo "CANDIDATE_BATCH_SIZE: $CANDIDATE_BATCH_SIZE"
 echo "EXAMPLE_BATCH_SIZE: $EXAMPLE_BATCH_SIZE"
+echo "TRANSFORMERS_EXTRA_SPEC: ${TRANSFORMERS_EXTRA_SPEC:-<none>}"
 echo
 
 export MODEL_SPEC OUTPUT_DIR BENCHMARKS SAMPLE_SIZE RANDOM_STATE DTYPE MAX_INPUT_TOKENS
-export CANDIDATE_BATCH_SIZE EXAMPLE_BATCH_SIZE PY_ENV CACHE_ROOT SCRIPT_DIR
+export CANDIDATE_BATCH_SIZE EXAMPLE_BATCH_SIZE PY_ENV CACHE_ROOT SCRIPT_DIR TRANSFORMERS_EXTRA_SPEC
 
 uenv start "$UENV_IMAGE" --view=default --ignore-tty <<'INNER'
 set -euo pipefail
@@ -64,6 +66,9 @@ mkdir -p "$(dirname "$PY_ENV")"
   python -m pip install --upgrade pip
   python -m pip install datasets pandas pyarrow accelerate huggingface_hub transformers \
     'dill==0.3.8' 'multiprocess<0.70.17'
+  if [ -n "$TRANSFORMERS_EXTRA_SPEC" ]; then
+    python -m pip install --upgrade "$TRANSFORMERS_EXTRA_SPEC"
+  fi
 ) 9>"$PY_ENV.lock"
 . "$PY_ENV/bin/activate"
 
