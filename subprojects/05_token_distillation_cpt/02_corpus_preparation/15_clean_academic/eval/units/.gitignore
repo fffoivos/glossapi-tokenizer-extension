@@ -14,3 +14,9 @@ W_windows/
 # transient loop/run cursors
 SPAN_loop_state.json
 SPAN_recover_paths.json
+
+# frozen line-embedding cache (large, regenerable)
+SPAN_emb/
+SPAN_linemat.npz
+SPAN_pline*.npz
+SPAN_pred_dl.json

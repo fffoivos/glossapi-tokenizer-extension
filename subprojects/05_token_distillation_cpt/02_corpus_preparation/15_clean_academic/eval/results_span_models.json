@@ -1,0 +1,117 @@
+{
+ "params": {
+  "theta_hi": 0.95,
+  "theta_lo": 0.85,
+  "gap": 2,
+  "lmin": 5
+ },
+ "n_test": 445,
+ "n_gp_oa": 347,
+ "line_lr_all": {
+  "line_prec": 0.9417131550743356,
+  "line_rec": 0.6348277139681363,
+  "fp_rate": 0.05828684492566438,
+  "n_removed": 36389,
+  "det_prec": 0.9771986970684039,
+  "det_rec": 0.7481296758104738,
+  "det_f1": 0.8474576271186441,
+  "kappa": 0.30192022775469896,
+  "med_iou": 0.7633053221288515,
+  "iou_ge80": 0.4581005586592179,
+  "med_dstart": 4.0,
+  "med_dend": -4.0,
+  "prose_eat_rate": 0.0335195530726257,
+  "n_matched": 358
+ },
+ "synergy_all": {
+  "line_prec": 0.940806287614389,
+  "line_rec": 0.6342163764357169,
+  "fp_rate": 0.059193712385611,
+  "n_removed": 36389,
+  "det_prec": 0.9770491803278688,
+  "det_rec": 0.743142144638404,
+  "det_f1": 0.8441926345609064,
+  "kappa": 0.29629097182288655,
+  "med_iou": 0.7681961852861036,
+  "iou_ge80": 0.4717514124293785,
+  "med_dstart": 4.0,
+  "med_dend": -4.0,
+  "prose_eat_rate": 0.031073446327683617,
+  "n_matched": 354
+ },
+ "rust_header_eof_gpoa": {
+  "line_prec": 0.4814066392150882,
+  "line_rec": 0.7965470833158094,
+  "fp_rate": 0.5185933607849118,
+  "n_removed": 78684,
+  "det_prec": 0.9530685920577617,
+  "det_rec": 0.8407643312101911,
+  "det_f1": 0.8934010152284264,
+  "kappa": 0.29754827929693783,
+  "med_iou": 0.5494636157790752,
+  "iou_ge80": 0.44482758620689655,
+  "med_dstart": -4.0,
+  "med_dend": 5.0,
+  "prose_eat_rate": 0.7,
+  "n_matched": 290
+ },
+ "line_lr_gpoa": {
+  "line_prec": 0.9471624266144814,
+  "line_rec": 0.6513857929932287,
+  "fp_rate": 0.052837573385518644,
+  "n_removed": 32704,
+  "det_prec": 0.9809885931558935,
+  "det_rec": 0.821656050955414,
+  "det_f1": 0.8942807625649913,
+  "kappa": 0.3961774354585652,
+  "med_iou": 0.7777777777777778,
+  "iou_ge80": 0.4875444839857651,
+  "med_dstart": 3,
+  "med_dend": -4,
+  "prose_eat_rate": 0.042704626334519574,
+  "n_matched": 281
+ },
+ "synergy_gpoa": {
+  "line_prec": 0.9462050436587898,
+  "line_rec": 0.6517222525970475,
+  "fp_rate": 0.05379495634121023,
+  "n_removed": 32754,
+  "det_prec": 0.9810606060606061,
+  "det_rec": 0.8248407643312102,
+  "det_f1": 0.8961937716262975,
+  "kappa": 0.40127681601196286,
+  "med_iou": 0.7777777777777778,
+  "iou_ge80": 0.49110320284697506,
+  "med_dstart": 3,
+  "med_dend": -4,
+  "prose_eat_rate": 0.03914590747330961,
+  "n_matched": 281
+ },
+ "bootstrap_vs_rust": {
+  "line_lr": [
+   0.297733042975028,
+   0.3444583281814618,
+   0.38969909943742675
+  ],
+  "synergy": [
+   0.29756974197406805,
+   0.3439428481356305,
+   0.3895492128531122
+  ]
+ },
+ "line_lr_slice_recall": {
+  "kind:archival_primary_sources": 0.06,
+  "kind:end_of_chapter": 0.491,
+  "kind:end_of_document": 0.685,
+  "kind:further_reading": 0.028,
+  "kind:subdivided_sublist": 0.683,
+  "kind:web_sources": 0.102,
+  "noise_level:clean": 0.733,
+  "noise_level:heavy": 0.383,
+  "noise_level:light": 0.676,
+  "script:latin": 0.75,
+  "script:mixed": 0.583,
+  "script:monotonic_greek": 0.468,
+  "script:polytonic_greek": 0.208
+ }
+}

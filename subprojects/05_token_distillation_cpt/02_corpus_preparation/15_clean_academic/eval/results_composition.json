@@ -1,0 +1,19 @@
+{
+ "n_removed": 36389,
+ "strict_bib_precision": 0.942,
+ "reference_mass_precision": 0.998,
+ "prose_protection_precision": 0.9991,
+ "composition": {
+  "bibliography_entry (correct)": 34268,
+  "header": 47,
+  "web/url": 285,
+  "entry_like(non-target)": 844,
+  "footnote_citation": 461,
+  "short/numeric": 17,
+  "prose": 10,
+  "table": 445,
+  "footnote_prose": 7,
+  "caption": 4,
+  "toc": 1
+ }
+}

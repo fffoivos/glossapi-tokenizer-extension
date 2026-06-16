@@ -1,0 +1,6 @@
+{
+ "theta_hi": 0.95,
+ "theta_lo": 0.85,
+ "gap": 2,
+ "lmin": 5
+}

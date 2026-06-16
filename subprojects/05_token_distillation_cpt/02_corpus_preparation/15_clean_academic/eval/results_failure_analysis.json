@@ -1,0 +1,28 @@
+{
+ "n_fp": 2194,
+ "n_fn": 19881,
+ "fp_by_type": {
+  "entry_like(non-target)": 876,
+  "prose": 10,
+  "header": 36,
+  "web/url": 285,
+  "footnote_citation": 497,
+  "short/numeric": 18,
+  "caption": 7,
+  "footnote_prose": 7,
+  "table": 457,
+  "toc": 1
+ },
+ "fp_by_zone": {
+  "interior(deep in prose)": 2110,
+  "boundary-adjacent": 84
+ },
+ "fn_by_type": {
+  "entry(other)": 11483,
+  "greek_entry": 4318,
+  "short/fragment": 1465,
+  "continuation(no entry signal)": 1204,
+  "header_line": 254,
+  "web/archival_entry": 1157
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "sample_lift_recall_p94": 0.042,
+ "greek_bib_lift": 0.048,
+ "feat_only": {
+  "recall_at_p94": 0.93,
+  "thr": 0.407,
+  "greek_bib_recall": 0.922
+ },
+ "feat+emb": {
+  "recall_at_p94": 0.972,
+  "thr": 0.258,
+  "greek_bib_recall": 0.97
+ }
+}
