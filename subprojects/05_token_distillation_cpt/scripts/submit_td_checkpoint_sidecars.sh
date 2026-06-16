@@ -269,32 +269,34 @@ if [ "$SUBMIT_RETENTION" = "1" ]; then
   job_ids+=("$retention_job")
 fi
 
-for optional in code math; do
-  var_name="$(printf "%s_HELDOUT_JSONL" "$optional" | tr '[:lower:]' '[:upper:]')"
-  heldout_path="${!var_name:-}"
-  if [ -n "$heldout_path" ]; then
-    test -f "$heldout_path"
-    out_json="$ITER_ROOT/heldout_${optional}_bpb.json"
-    opt_job="$(sbatch --parsable \
-      --dependency="afterok:$convert_job" \
-      --account=a0140 \
-      --partition=normal \
-      --nodes=1 \
-      --ntasks-per-node=1 \
-      --gpus-per-node=1 \
-      --gres=gpu:1 \
-      --cpus-per-task=18 \
-      --mem=220G \
-      --time=02:00:00 \
-      --job-name="05${optional}bpb_i${ITER}" \
-      --output="$RUN_ROOT/%x-%j.out" \
-      --error="$RUN_ROOT/%x-%j.err" \
-      --export=ALL,MODEL_PATH="$HF_OUT_DIR",EVAL_JSONL="$heldout_path",OUTPUT_JSON="$out_json",SCRIPT_DIR_OVERRIDE="$EVAL_DIR" \
-      "$EVAL_DIR/run_tokenizer_fair_metrics.sbatch")"
-    printf "%s_bpb\t%s\t%s\t%s\n" "$optional" "$opt_job" "$convert_job" "$out_json" >> "$JOBS_TSV"
-    job_ids+=("$opt_job")
-  fi
-done
+if [ "$SUBMIT_BPB" = "1" ]; then
+  for optional in code math; do
+    var_name="$(printf "%s_HELDOUT_JSONL" "$optional" | tr '[:lower:]' '[:upper:]')"
+    heldout_path="${!var_name:-}"
+    if [ -n "$heldout_path" ]; then
+      test -f "$heldout_path"
+      out_json="$ITER_ROOT/heldout_${optional}_bpb.json"
+      opt_job="$(sbatch --parsable \
+        --dependency="afterok:$convert_job" \
+        --account=a0140 \
+        --partition=normal \
+        --nodes=1 \
+        --ntasks-per-node=1 \
+        --gpus-per-node=1 \
+        --gres=gpu:1 \
+        --cpus-per-task=18 \
+        --mem=220G \
+        --time=02:00:00 \
+        --job-name="05${optional}bpb_i${ITER}" \
+        --output="$RUN_ROOT/%x-%j.out" \
+        --error="$RUN_ROOT/%x-%j.err" \
+        --export=ALL,MODEL_PATH="$HF_OUT_DIR",EVAL_JSONL="$heldout_path",OUTPUT_JSON="$out_json",SCRIPT_DIR_OVERRIDE="$EVAL_DIR" \
+        "$EVAL_DIR/run_tokenizer_fair_metrics.sbatch")"
+      printf "%s_bpb\t%s\t%s\t%s\n" "$optional" "$opt_job" "$convert_job" "$out_json" >> "$JOBS_TSV"
+      job_ids+=("$opt_job")
+    fi
+  done
+fi
 
 if [ "$SUBMIT_CHECKSUM" = "1" ]; then
   checksum_job="$(sbatch --parsable \
