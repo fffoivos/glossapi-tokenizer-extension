@@ -29,6 +29,14 @@ SUBMIT_RETENTION="${SUBMIT_RETENTION:-1}"
 SUBMIT_CHECKSUM="${SUBMIT_CHECKSUM:-1}"
 NATIVE_BENCHMARKS="${NATIVE_BENCHMARKS:-greekmmlu,ilsp_medical_mcqa,ilsp_mcqa_asep,plutus_qa}"
 NATIVE_SAMPLE_SIZE="${NATIVE_SAMPLE_SIZE:-0}"
+NATIVE_TIME="${NATIVE_TIME:-}"
+if [ -z "$NATIVE_TIME" ]; then
+  if [ "$NATIVE_BENCHMARKS" = "greekmmlu" ]; then
+    NATIVE_TIME="01:00:00"
+  else
+    NATIVE_TIME="10:00:00"
+  fi
+fi
 GREEK_NLP_SAMPLE_SIZE="${GREEK_NLP_SAMPLE_SIZE:-100}"
 RETENTION_TASK_GROUP="${RETENTION_TASK_GROUP:-retention_only}"
 
@@ -158,6 +166,7 @@ echo "EVAL_ROOT:           $EVAL_ROOT"
 echo "HF_OUT_DIR:          $HF_OUT_DIR"
 echo "HF_TOKENIZER_DIR:    $HF_TOKENIZER_DIR"
 echo "NATIVE_BENCHMARKS:   $NATIVE_BENCHMARKS"
+echo "NATIVE_TIME:         $NATIVE_TIME"
 echo "SUBMIT_CHECKSUM:     $SUBMIT_CHECKSUM"
 echo "CHECKSUM_OUT:        $CHECKSUM_OUT"
 echo "JOBS_TSV:            $JOBS_TSV"
@@ -196,7 +205,7 @@ if [ "$SUBMIT_NATIVE" = "1" ]; then
     --gres=gpu:1 \
     --cpus-per-task=18 \
     --mem=220G \
-    --time=10:00:00 \
+    --time="$NATIVE_TIME" \
     --job-name="05native_i${ITER}" \
     --output="$RUN_ROOT/%x-%j.out" \
     --error="$RUN_ROOT/%x-%j.err" \
