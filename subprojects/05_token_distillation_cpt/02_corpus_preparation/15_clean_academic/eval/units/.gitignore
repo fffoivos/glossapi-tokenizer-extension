@@ -20,3 +20,7 @@ SPAN_emb/
 SPAN_linemat.npz
 SPAN_pline*.npz
 SPAN_pred_dl.json
+
+# FP-validation audit samples (regenerable)
+FPVAL/
+FPVAL_batchpaths.json

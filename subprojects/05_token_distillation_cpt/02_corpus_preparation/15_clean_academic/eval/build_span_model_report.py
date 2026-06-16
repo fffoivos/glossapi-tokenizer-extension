@@ -115,6 +115,22 @@ if comp:
                      "the line types expose, not a model failure.",
                 table_html=table(["removed line type", "count", "share"],
                                  [[k, f"{v:,}", f"{100*v/nr:.1f}%"] for k, v in order]))
+try:
+    fv = json.load(open(f"{HERE}/results_fpval.json"))
+except Exception:
+    fv = None
+if fv:
+    rep.section("Independent validation (Opus audit of removed lines)",
+                body="To check that the prose-protection figure is not an artifact of the deterministic categorizer, "
+                     "Opus independently adjudicated 353 removed lines in context (type · should-a-cleaner-remove-it · "
+                     "is-it-mislabeled-bibliography), reweighted to the removed-line population. It confirms the claim: "
+                     f"genuine running prose removed ≈ {fv['pop_prose_pct']:.2f}% (prose-protection {fv['opus_prose_protection']:.4f}, "
+                     "matching the deterministic 0.998); "
+                     f"{fv['effective_precision_should_remove']*100:.1f}% of removed lines are things a bibliography "
+                     "cleaner should remove (bib entries, footnote/inline/table/web citations, CV publication lists). "
+                     f"Moreover {fv['fp_that_are_missed_bibliography_pct']:.0f}% of the so-called false positives are "
+                     "bibliography the windowed annotation MISSED — so the measured strict precision understates the truth: "
+                     f"true-bibliography precision ≈ {fv['true_bib_precision_est']:.3f}.")
 if probe:
     rep.section("Do frozen embeddings help? (the ML/DL probe)",
                 body="Home CPU is too slow to embed the full corpus (~80 lines/s; ~3 h for the 840k labelled "

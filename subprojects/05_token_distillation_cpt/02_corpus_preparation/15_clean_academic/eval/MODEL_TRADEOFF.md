@@ -68,6 +68,14 @@ whether to also strip footnote/inline citations is a **policy choice the line ty
 model failure. This is the strongest evidence for the precision-first goal: the classifier essentially
 never amputates prose.
 
+## Independent validation (`fp_validation_sample.py` + Opus audit + `fpval_aggregate.py`)
+An Opus audit of 353 removed lines in context (sequential workflow), reweighted to the population,
+independently confirms the story: genuine running-prose removed **≈0.14%** (prose-protection **0.9986**,
+matching the deterministic 0.998); **99.3%** of removed lines are things a bibliography cleaner should
+remove; and **67% of the apparent false positives are bibliography the windowed annotation MISSED**, so
+the measured strict precision under-states reality — **true-bibliography precision ≈ 0.975**. The model
+is more correct than the silver-gold says.
+
 ## The recall/safety knob (operating point, `operating_point.py`)
 The smoother was first tuned for strict bib-precision ≥0.97, which over-conservatively treats footnote/
 inline citations as errors and **cost ~30 points of recall**. Re-tuning against the metric that actually

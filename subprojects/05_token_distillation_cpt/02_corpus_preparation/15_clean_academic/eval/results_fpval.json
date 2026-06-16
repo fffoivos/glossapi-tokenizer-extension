@@ -1,0 +1,7 @@
+{
+ "pop_prose_pct": 0.142,
+ "opus_prose_protection": 0.9986,
+ "effective_precision_should_remove": 0.993,
+ "fp_that_are_missed_bibliography_pct": 66.6,
+ "true_bib_precision_est": 0.975
+}
