@@ -1,0 +1,16 @@
+# Regenerable line-numbered INPUT windows (~450 MB total). git-lfs is unavailable on this host,
+# so these bulky per-batch window files are not tracked. They rebuild deterministically from the
+# tracked manifests (*_manifest.jsonl map unit_id -> doc_id + line offsets) plus the samplers
+# (build_span_units.py / build_span_units_ext.py). The annotations + span_dataset.jsonl + manifests
+# below ARE tracked, so the dataset is fully usable and reproducible without these.
+SPAN/
+SPAN_recover/
+A_boundary/
+B_betagate/
+B_scale/
+G_sections/
+W_windows/
+
+# transient loop/run cursors
+SPAN_loop_state.json
+SPAN_recover_paths.json

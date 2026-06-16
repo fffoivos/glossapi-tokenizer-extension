@@ -1,0 +1,26 @@
+{
+ "greek_phd/tail": {
+  "recall": 0.8377568493150684,
+  "precision": 0.5531894845943655
+ },
+ "greek_phd/ALL": {
+  "recall": 0.8015314313943436,
+  "precision": 0.5411038852759713
+ },
+ "greek_phd/body": {
+  "recall": 0.5684113865932048,
+  "precision": 0.44822592324402605
+ },
+ "openarchives/tail": {
+  "recall": 0.6712328767123288,
+  "precision": 0.3127243717590746
+ },
+ "openarchives/ALL": {
+  "recall": 0.5782788186725945,
+  "precision": 0.2626947489901904
+ },
+ "openarchives/body": {
+  "recall": 0.3111931119311193,
+  "precision": 0.1319082377476538
+ }
+}
