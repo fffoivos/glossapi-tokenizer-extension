@@ -1,0 +1,10 @@
+# Public peer base models to benchmark on GreekMMLU (native MCQ, dascim/GreekMMLU), alongside our
+# Apertus-8B Vanilla/TD CPT (already evaluated). Comparable size (~7-9B), BASE (not instruct) for an
+# apples-to-apples comparison with our base CPT. Columns: label  hf_id  gated  [note]
+#
+# label           hf_id                       gated   note
+Krikri-8B-Base    ilsp/Llama-Krikri-8B-Base   no      Greek anchor: Llama-3.1-8B + 56.7B Greek tok, vocab-extended
+Gemma-2-9B        google/gemma-2-9b           yes     frontier multilingual base, 9B (no Gemma 8B exists); needs HF license
+Gemma-3-12B       google/gemma-3-12b-pt       yes     newer-gen frontier base, 12B (LARGER than peers; multimodal — smoke-test text load); needs HF license
+Qwen3.5-9B-Base   Qwen/Qwen3.5-9B-Base        no      latest Qwen, 9B dense base, Apache-2.0 (vision encoder — smoke-test text load)
+# Llama-3.1-8B    meta-llama/Llama-3.1-8B     yes     OPTIONAL reference = Krikri's own base (shows the Greek-CPT lift); gated
