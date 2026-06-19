@@ -1,0 +1,14 @@
+{
+ "bib": {
+  "theta_hi": 0.6,
+  "theta_lo": 0.5,
+  "gap": 2,
+  "lmin": 5
+ },
+ "toc": {
+  "theta_hi": 0.8,
+  "theta_lo": 0.3,
+  "gap": 8,
+  "lmin": 2
+ }
+}

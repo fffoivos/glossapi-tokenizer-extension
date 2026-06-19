@@ -44,7 +44,7 @@ def is_entry(l):
 
 
 _LAT = re.compile(r"[A-Za-z]")
-_GRK = re.compile(r"[Α-Ωα-ωΆ-ώϊϋΐΰ]")
+_GRK = re.compile(r"[Α-Ωα-ωΆ-ώϊϋΐΰἀ-῿]")  # incl. polytonic Greek Extended (U+1F00–U+1FFF); mirror NAME/GREEK_AUTHOR + Rust greek_letter_fraction
 
 
 def latin_fraction(s):
@@ -100,3 +100,29 @@ def line_signals(l):
 OWN_KEYS = ["is_entry", "author", "year_paren", "year_bare", "page", "place", "locator",
             "editor", "url", "num_prefix", "latin_frac", "is_bib_header", "is_header",
             "short_line", "very_short"]
+
+
+# ─────────────────────── table-of-contents own-line signals ───────────────────────
+# Cheap, deterministic, Rust-portable. Consumed ONLY by the ToC head (struct_lines appends them as extra
+# columns); the bib head keeps its 22-feature set. Position/front-gate handled separately by struct_lines.
+TOC_LEADER = re.compile(r"\.{4,}|_{4,}|·{4,}|(?:\.\s){4,}")              # dotted/underscore leaders
+TOC_SECNUM = re.compile(r"^\s*\|?\s*\d+(?:\.\d+){1,4}\.?\s")            # 1.2.3 multi-level section number (also pipe-table)
+TOC_PAGETAIL = re.compile(r"[.\s…·]\s*\d{1,4}\s*\|?\s*$")               # trailing page number (after leader/ellipsis, opt. table pipe)
+MD_ROW = re.compile(r"^\s*\|.*\|")                                      # markdown table row (ToCs are often rendered as tables)
+TOC_HDR_STEMS = ["περιεχόμενα", "περιεχομενα", "πίνακας περιεχ", "πινακας περιεχ",
+                 "contents", "table of contents"]                       # PLURAL only — avoid 'περιεχόμενο' prose collision
+
+TOC_KEYS = ["toc_leader", "toc_secnum", "toc_pagetail", "toc_mdrow", "toc_contents_hdr"]
+
+
+def toc_signals(l):
+    """Own-line ToC signals. `toc_contents_hdr` is GATED to a short/ATX line so it never fires on inline prose."""
+    low = l.lower(); txt = l.strip()
+    is_hdrish = bool(ATX_HEADER.search(l)) or len(txt) < 40
+    return {
+        "toc_leader": 1.0 if TOC_LEADER.search(l) else 0.0,
+        "toc_secnum": 1.0 if TOC_SECNUM.search(l) else 0.0,
+        "toc_pagetail": 1.0 if TOC_PAGETAIL.search(l) else 0.0,
+        "toc_mdrow": 1.0 if MD_ROW.search(l) else 0.0,
+        "toc_contents_hdr": 1.0 if (is_hdrish and any(s in low for s in TOC_HDR_STEMS)) else 0.0,
+    }

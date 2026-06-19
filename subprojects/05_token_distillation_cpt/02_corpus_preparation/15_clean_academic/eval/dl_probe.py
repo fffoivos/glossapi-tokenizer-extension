@@ -63,7 +63,7 @@ def main():
         Pte = L._prob(Xte, mu, sd, W, b)
         return Pte
 
-    def recall_at_prec(P, yy, target=0.94):
+    def recall_at_prec(P, yy, target=0.97):   # contract operating point (was 0.94); pass target= to override
         o = np.argsort(-P); ct = cf = 0; tot = int(yy.sum()); best = 0.0; thr = 1.0
         for j in o:
             if yy[j] == 1: ct += 1
