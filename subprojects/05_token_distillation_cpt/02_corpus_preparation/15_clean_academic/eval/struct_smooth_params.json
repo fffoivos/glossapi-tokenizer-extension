@@ -1,14 +1,5 @@
 {
- "bib": {
-  "theta_hi": 0.6,
-  "theta_lo": 0.5,
-  "gap": 2,
-  "lmin": 5
- },
- "toc": {
-  "theta_hi": 0.8,
-  "theta_lo": 0.3,
-  "gap": 8,
-  "lmin": 2
- }
+ "_note": "Per-class hysteresis operating points for the two-head line tagger, tuned on TRAIN to MAX recall s.t. prose-protection >= floor, reported on the doc-grouped TEST. Default = conservative floor 0.999 (matches the deployed bib contract). See results_struct_operating_point.json for the full frontier; bib floor 0.997 lifts recall 0.824 -> 0.912 at prose-protection 0.9972.",
+ "bib": {"theta_hi": 0.9, "theta_lo": 0.6, "gap": 4, "lmin": 2, "_floor": 0.999, "_test_recall": 0.824, "_test_prose_protection": 0.999},
+ "toc": {"theta_hi": 0.5, "theta_lo": 0.3, "gap": 8, "lmin": 2, "_floor": 0.999, "_test_recall": 0.756, "_test_prose_protection": 0.9997, "_front_gate": "min(300, 0.30*N)"}
 }

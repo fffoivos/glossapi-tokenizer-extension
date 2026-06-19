@@ -1,0 +1,102 @@
+{
+ "bib": {
+  "0.999": {
+   "params": {
+    "theta_hi": 0.9,
+    "theta_lo": 0.6,
+    "gap": 4,
+    "lmin": 2
+   },
+   "test_recall": 0.824,
+   "test_prose_protection": 0.999,
+   "test_prose_lines": 61,
+   "test_removed": 60814
+  },
+  "0.997": {
+   "params": {
+    "theta_hi": 0.6,
+    "theta_lo": 0.4,
+    "gap": 2,
+    "lmin": 3
+   },
+   "test_recall": 0.912,
+   "test_prose_protection": 0.9972,
+   "test_prose_lines": 197,
+   "test_removed": 70336
+  },
+  "0.995": {
+   "params": {
+    "theta_hi": 0.5,
+    "theta_lo": 0.3,
+    "gap": 2,
+    "lmin": 3
+   },
+   "test_recall": 0.931,
+   "test_prose_protection": 0.9956,
+   "test_prose_lines": 321,
+   "test_removed": 73503
+  },
+  "0.99": {
+   "params": {
+    "theta_hi": 0.5,
+    "theta_lo": 0.3,
+    "gap": 8,
+    "lmin": 2
+   },
+   "test_recall": 0.937,
+   "test_prose_protection": 0.9916,
+   "test_prose_lines": 635,
+   "test_removed": 75265
+  }
+ },
+ "toc": {
+  "0.999": {
+   "params": {
+    "theta_hi": 0.5,
+    "theta_lo": 0.3,
+    "gap": 8,
+    "lmin": 2
+   },
+   "test_recall": 0.756,
+   "test_prose_protection": 0.9997,
+   "test_prose_lines": 9,
+   "test_removed": 28609
+  },
+  "0.997": {
+   "params": {
+    "theta_hi": 0.5,
+    "theta_lo": 0.3,
+    "gap": 8,
+    "lmin": 2
+   },
+   "test_recall": 0.756,
+   "test_prose_protection": 0.9997,
+   "test_prose_lines": 9,
+   "test_removed": 28609
+  },
+  "0.995": {
+   "params": {
+    "theta_hi": 0.5,
+    "theta_lo": 0.3,
+    "gap": 8,
+    "lmin": 2
+   },
+   "test_recall": 0.756,
+   "test_prose_protection": 0.9997,
+   "test_prose_lines": 9,
+   "test_removed": 28609
+  },
+  "0.99": {
+   "params": {
+    "theta_hi": 0.5,
+    "theta_lo": 0.3,
+    "gap": 8,
+    "lmin": 2
+   },
+   "test_recall": 0.756,
+   "test_prose_protection": 0.9997,
+   "test_prose_lines": 9,
+   "test_removed": 28609
+  }
+ }
+}
