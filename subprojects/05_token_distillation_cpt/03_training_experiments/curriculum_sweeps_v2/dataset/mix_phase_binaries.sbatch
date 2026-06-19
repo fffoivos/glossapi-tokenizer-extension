@@ -45,6 +45,7 @@ test -f "$STAGE/val_holdout_ids.parquet"
 test -f "$STAGE/forget_holdout_ids.parquet"
 check_build_py
 test -f "$RECIPES_DIR/$B.json"
+run_build_py -u "$THIS/dataset_build/validate_selected_badness.py" --selected "$SELECTED" --require-current-report "$STAGE/selected_badness_validation.json"
 
 SHARD_DIR="$STAGE/${B}_mix_shards"
 rm -rf "$SHARD_DIR"

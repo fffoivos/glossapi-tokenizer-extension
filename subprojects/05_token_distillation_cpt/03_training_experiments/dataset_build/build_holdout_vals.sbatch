@@ -15,9 +15,11 @@ SC=/iopsstor/scratch/cscs/fffoivos
 DB=$SC/repo/glossapi-tokenizer-extension/subprojects/05_token_distillation_cpt/03_training_experiments/dataset_build
 STAGE=$SC/cpt_corpus/cpt_2arm_13b
 SELECTED=$SC/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet
+BADNESS_REPORT=$STAGE/selected_badness_validation.json
 PY=$SC/python_envs/cpt_build_xfer_py312/bin/python
 mkdir -p "$STAGE"
 test -x "$PY"
+"$PY" -u "$DB/validate_selected_badness.py" --selected "$SELECTED" --output-json "$BADNESS_REPORT"
 "$PY" -u "$DB/build_holdout_vals.py" --selected "$SELECTED" --output-dir "$STAGE"
 echo "DONE $(date -u)"
-ls -lah "$STAGE"/val_*.jsonl "$STAGE/val_holdout_ids.parquet"
+ls -lah "$BADNESS_REPORT" "$STAGE"/val_*.jsonl "$STAGE/val_holdout_ids.parquet"

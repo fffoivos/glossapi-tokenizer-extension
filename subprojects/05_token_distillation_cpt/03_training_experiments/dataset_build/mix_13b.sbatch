@@ -21,6 +21,7 @@ RECIPE=$DB/bulk_13b.json
 TOKENIZER=$SC/tokenizers/apertus_greek_modern_only_148480
 export SELECTED=$SC/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet
 STAGE=$SC/cpt_corpus/cpt_2arm_13b
+BADNESS_REPORT=$STAGE/selected_badness_validation.json
 PY=$SC/python_envs/cpt_build_xfer_py312/bin/python
 mkdir -p "$STAGE"
 TOTAL_TOKENS=13500000000
@@ -32,6 +33,7 @@ OUT="$STAGE/bulk_mix_part_$(printf '%02d' "$IDX").jsonl"
 test -f "$SELECTED"; test -f "$RECIPE"; test -f "$SC/cpt_corpus/greek_replay/greek_replay.parquet"
 test -f "$STAGE/val_holdout_ids.parquet"   # built by build_holdout_vals (dep V); recipe drop-keys
 test -x "$PY"
+"$PY" -u "$DB/validate_selected_badness.py" --selected "$SELECTED" --require-current-report "$BADNESS_REPORT"
 echo "mix shard $IDX/$NSHARD per-shard-tokens=$PER seed=$SEED -> $OUT"
 export SELECTED=$SELECTED
 export PYTHONPATH=$CB:$SC/repo:${PYTHONPATH:-}

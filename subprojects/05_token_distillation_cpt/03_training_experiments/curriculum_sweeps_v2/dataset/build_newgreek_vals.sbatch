@@ -22,6 +22,7 @@ source "$V2_DIR/paths.env"
 mkdir -p "$STAGE"
 check_build_py
 test -f "$THIS/dataset_build/build_holdout_vals.py"
+run_build_py -u "$THIS/dataset_build/validate_selected_badness.py" --selected "$SELECTED" --output-json "$STAGE/selected_badness_validation.json"
 run_build_py -u "$THIS/dataset_build/build_holdout_vals.py" --selected "$SELECTED" --output-dir "$STAGE" --char-budget 2000000000
 echo "new-Greek vals DONE $(date -u)"
-ls -lah "$STAGE"/val_*.jsonl "$STAGE/val_holdout_ids.parquet" 2>&1 | head -20
+ls -lah "$STAGE/selected_badness_validation.json" "$STAGE"/val_*.jsonl "$STAGE/val_holdout_ids.parquet" 2>&1 | head -20
