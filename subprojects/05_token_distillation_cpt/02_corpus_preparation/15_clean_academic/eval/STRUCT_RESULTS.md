@@ -55,7 +55,22 @@ negligible prose cost — an operating-point choice for the user.
 - Span-level IoU + doc-bootstrap CIs (the other two of the three views) are not yet run — line-level
   prose-protection is the headline; those are refinement.
 
-## Next
-Step 6 — Rust deployment: `toc_line_model.rs` + `toc_span` kind + `rust_parity_toc.py`; re-sync the
-improved bib constants into `span_line_model.rs`; `fold_char` polytonic-capital fix in
-`reference_signals.rs`. Gated on this eval (cleared).
+## Next — Step 6, Rust deployment (gated on this eval; cleared). Precise scope:
+1. **Promote bib + re-sync `span_line_model.rs`** from the new `span_line_lr_struct_model.json`:
+   `MU/SD/W/BIAS` (22 feats) + `THETA_*` from `struct_smooth_params.json["bib"]`. **Coupled fix:**
+   `py_latin_fraction` (`:67`) must add `'\u{1F00}'..='\u{1FFF}'` to match the now-polytonic Python `_GRK`
+   (the head was retrained with it) — and flip the `latin_fraction_excludes_polytonic_like_python` test to
+   assert inclusion (e.g. `py_latin_fraction("aἱ") == 0.5`). Re-run `rust_parity.py` (needs a struct-data
+   variant since the harness currently loads the old `span_seq_data`).
+2. **New `toc_line_model.rs`** mirroring `span_line_model.rs`: 27-feature vector (the 22 bib signals — reuse
+   by exposing a feature-vector fn from `span_line_model`, don't duplicate — + the 5 ToC signals byte-mirrored
+   from `span_signals.toc_signals`), `MU/SD/W/BIAS` from `toc_line_lr_model.json`, the front-gate
+   `p *= (abs_idx < min(300, 0.30*N))`, `hysteresis` with `struct_smooth_params.json["toc"]`, emit
+   `Span{kind:"toc_span"}`. Export in `lib.rs`; add `--mode toc-spans`/`toc-score-lines` in `main.rs`.
+3. **`fold_char` polytonic-capital fix** (`reference_signals.rs:29`) + a polytonic-capital-header parity
+   fixture — re-check the β-gate parity (fold_char feeds header detection).
+4. **`rust_parity_toc.py`** mirroring `rust_parity.py`: per-line `max|Δp|<1e-3` + identical decoded spans on
+   the struct test split; `cargo test` green.
+
+NOTE: the eval `_GRK` fix already landed in Python; the Rust `py_latin_fraction`/`fold_char` are the
+matching deployment-side edits, deferred to this step so the crate's parity invariants aren't half-broken.
