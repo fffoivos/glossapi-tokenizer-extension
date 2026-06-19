@@ -24,3 +24,16 @@ SPAN_pred_dl.json
 # FP-validation audit samples (regenerable)
 FPVAL/
 FPVAL_batchpaths.json
+
+# STRUCT structural-annotation runs (gpt-5.5 ToC+bib). Large/regenerable: the gold (538MB) + per-batch
+# window files + feature cache. The annotation OUTPUTS (ann_*.json) are the expensive artifact — back them
+# up out-of-band (no git-lfs here). Code + small model JSONs ARE tracked, so the pipeline is reproducible.
+STRUCT_2K/
+STRUCT_2K_gold.jsonl
+STRUCT_linemat.npz
+STRUCT_batchpaths.json
+STRUCT/
+STRUCT2/
+STRUCT2_FT/
+BAKEOFF_gpt55/
+SMOKE_gpt55/
