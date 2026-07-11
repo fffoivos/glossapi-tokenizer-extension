@@ -1,8 +1,13 @@
 //! reference_detect — thin CLI runner around the detector core.
 //!
 //! Modes:
-//!   --mode wholedoc   input JSONL[.zst], one doc/line {id, text}  (greek_phd, openarchives)
-//!   --mode sections   input JSONL[.zst], one doc/line {filename, rows:[{header,section,predicted_section,positional_fraction,row_id}]}
+//!   --mode wholedoc          legacy rule-based whole-document detector
+//!   --mode sections          section-labelled Kallipos/Pergamos detector
+//!   --mode bib-spans|spans   promoted bibliography line head (`spans` is the compatibility alias)
+//!   --mode toc-spans         table-of-contents line head
+//!   --mode structure-spans   both frozen line heads
+//!   --mode score-lines       bibliography parity harness
+//!   --mode toc-score-lines   ToC parity harness
 //!
 //! Output:
 //!   --out-spans     PATH   newline-delimited Span JSON (the auditable reference sidecar)
@@ -16,8 +21,12 @@ use std::io::{self, BufRead, BufReader, BufWriter, Write};
 
 use rayon::prelude::*;
 use serde_json::Value;
+use sha2::{Digest, Sha256};
 
-use reference_detector::{detect_doc, detect_sections, span_line_model, DetectConfig, DocResult, SectionRow};
+use reference_detector::{
+    detect_doc, detect_sections, span_line_model, toc_line_model, DetectConfig, DocResult, SectionRow,
+    Span,
+};
 
 struct Args {
     mode: String,
@@ -86,9 +95,62 @@ fn pick_str<'a>(v: &'a Value, keys: &[String]) -> Option<&'a str> {
     None
 }
 
-/// Span-model driver (rayon-batched). `--mode spans`: whole-doc detection → bib_span records +
-/// `{doc_id,bib_spans,bib_lines}` counters. `--mode score-lines`: parity harness emitting `{p:[..]}`
-/// per input. Malformed rows emit `{doc_idx,error}` records (fail-loud, not silent), as in the main path.
+fn sha256_hex(value: &[u8]) -> String {
+    format!("{:x}", Sha256::digest(value))
+}
+
+fn row_uid(source: &str, doc_id: &str) -> String {
+    sha256_hex(format!("{source}\0{doc_id}").as_bytes())
+}
+
+fn merged_range_len(mut ranges: Vec<(usize, usize)>) -> usize {
+    if ranges.is_empty() {
+        return 0;
+    }
+    ranges.sort_unstable();
+    let mut total = 0usize;
+    let (mut start, mut end) = ranges[0];
+    for (next_start, next_end) in ranges.into_iter().skip(1) {
+        if next_start <= end {
+            end = end.max(next_end);
+        } else {
+            total += end - start;
+            (start, end) = (next_start, next_end);
+        }
+    }
+    total + end - start
+}
+
+fn overlap_stats(spans: &[Span]) -> (usize, usize, usize) {
+    let bib: Vec<_> = spans.iter().filter(|span| span.kind == "bib_span").collect();
+    let toc: Vec<_> = spans.iter().filter(|span| span.kind == "toc_span").collect();
+    let mut char_ranges = Vec::new();
+    let mut line_ranges = Vec::new();
+    let mut pairs = 0usize;
+    for left in &bib {
+        for right in &toc {
+            let char_start = left.char_start.max(right.char_start);
+            let char_end = left.char_end.min(right.char_end);
+            if char_start < char_end {
+                pairs += 1;
+                char_ranges.push((char_start, char_end));
+            }
+            let line_start = left.line_start.max(right.line_start);
+            let line_end = left.line_end.min(right.line_end);
+            if line_start <= line_end {
+                line_ranges.push((line_start, line_end + 1));
+            }
+        }
+    }
+    (
+        pairs,
+        merged_range_len(char_ranges),
+        merged_range_len(line_ranges),
+    )
+}
+
+/// Frozen line-head driver (rayon-batched). Malformed rows emit `{doc_idx,error}` records rather than
+/// disappearing. Combined mode emits both span kinds and split counters.
 fn run_span_mode(a: &Args, reader: &mut dyn BufRead, spans_w: &mut dyn Write, counters_w: &mut dyn Write) {
     const BATCH: usize = 2000;
     let mut batch: Vec<(usize, String)> = Vec::with_capacity(BATCH);
@@ -97,13 +159,13 @@ fn run_span_mode(a: &Args, reader: &mut dyn BufRead, spans_w: &mut dyn Write, co
     let mut n_ok = 0usize;
     let mut n_err = 0usize;
 
-    let mut flush = |batch: &mut Vec<(usize, String)>, spans_w: &mut dyn Write, counters_w: &mut dyn Write| -> (usize, usize) {
+    let flush = |batch: &mut Vec<(usize, String)>, spans_w: &mut dyn Write, counters_w: &mut dyn Write| -> (usize, usize) {
         let out: Vec<(bool, String, Vec<String>)> = batch
             .par_iter()
             .map(|(i, l)| match serde_json::from_str::<Value>(l) {
                 Err(e) => (true, serde_json::json!({"doc_idx": i, "error": format!("json parse error: {e}")}).to_string(), Vec::new()),
                 Ok(v) => {
-                    if a.mode == "score-lines" {
+                    if a.mode == "score-lines" || a.mode == "bib-score-lines" || a.mode == "toc-score-lines" {
                         let present: Vec<String> = v.get("present").and_then(|x| x.as_array())
                             .map(|arr| arr.iter().filter_map(|s| s.as_str().map(str::to_string)).collect())
                             .unwrap_or_default();
@@ -112,17 +174,72 @@ fn run_span_mode(a: &Args, reader: &mut dyn BufRead, spans_w: &mut dyn Write, co
                             .map(|arr| arr.iter().filter_map(|x| x.as_u64().map(|u| u as usize)).collect())
                             .unwrap_or_else(|| (0..prefs.len()).collect());
                         let nt = v.get("n_total").and_then(|x| x.as_u64()).map(|u| u as usize).unwrap_or(prefs.len());
-                        let p = span_line_model::span_scores(&prefs, &abs, nt);
+                        let p = if a.mode == "toc-score-lines" {
+                            toc_line_model::toc_scores(&prefs, &abs, nt)
+                        } else {
+                            span_line_model::span_scores(&prefs, &abs, nt)
+                        };
                         (false, serde_json::json!({"p": p}).to_string(), Vec::new())
                     } else {
-                        let id = pick_str(&v, &a.id_fields).map(|s| s.to_string()).unwrap_or_else(|| format!("doc{i}"));
+                        let Some(id) = pick_str(&v, &a.id_fields).map(str::to_string) else {
+                            return (true, serde_json::json!({"doc_idx": i, "error": format!("missing id field (tried {:?})", a.id_fields)}).to_string(), Vec::new());
+                        };
                         match pick_str(&v, &a.text_fields) {
                             None => (true, serde_json::json!({"doc_idx": i, "error": format!("missing text field (tried {:?})", a.text_fields)}).to_string(), Vec::new()),
                             Some(text) => {
-                                let spans = span_line_model::span_detect(&id, &a.source, text);
-                                let bib_lines: usize = spans.iter().map(|s| s.line_end - s.line_start + 1).sum();
-                                let sjs = spans.iter().map(|s| serde_json::to_string(s).unwrap()).collect();
-                                (false, serde_json::json!({"doc_id": id, "bib_spans": spans.len(), "bib_lines": bib_lines}).to_string(), sjs)
+                                let mut spans = Vec::new();
+                                if a.mode == "spans" || a.mode == "bib-spans" || a.mode == "structure-spans" {
+                                    spans.extend(span_line_model::span_detect(&id, &a.source, text));
+                                }
+                                if a.mode == "toc-spans" || a.mode == "structure-spans" {
+                                    spans.extend(toc_line_model::toc_detect(&id, &a.source, text));
+                                }
+                                spans.sort_by_key(|s| (s.char_start, s.char_end, s.kind.clone()));
+                                let bib_spans = spans.iter().filter(|s| s.kind == "bib_span").count();
+                                let toc_spans = spans.iter().filter(|s| s.kind == "toc_span").count();
+                                let bib_lines: usize = spans.iter().filter(|s| s.kind == "bib_span")
+                                    .map(|s| s.line_end - s.line_start + 1).sum();
+                                let toc_lines: usize = spans.iter().filter(|s| s.kind == "toc_span")
+                                    .map(|s| s.line_end - s.line_start + 1).sum();
+                                let original_sha256 = sha256_hex(text.as_bytes());
+                                let uid = row_uid(&a.source, &id);
+                                let (overlap_pairs, overlap_chars, overlap_lines) = overlap_stats(&spans);
+                                let sjs = spans.iter().map(|s| {
+                                    let mut value = serde_json::to_value(s).unwrap();
+                                    let object = value.as_object_mut().unwrap();
+                                    object.insert("source".into(), Value::String(a.source.clone()));
+                                    object.insert("row_uid".into(), Value::String(uid.clone()));
+                                    object.insert("original_sha256".into(), Value::String(original_sha256.clone()));
+                                    object.insert("original_chars".into(), Value::from(text.chars().count()));
+                                    object.insert(
+                                        "model_id".into(),
+                                        Value::String(if s.kind == "toc_span" {
+                                            format!("{}:{}", toc_line_model::MODEL_ID, toc_line_model::DECODER_ID)
+                                        } else {
+                                            format!("{}:{}", span_line_model::MODEL_ID, span_line_model::DECODER_ID)
+                                        }),
+                                    );
+                                    value.to_string()
+                                }).collect();
+                                (false, serde_json::json!({
+                                    "doc_id": id,
+                                    "source": a.source,
+                                    "row_uid": uid,
+                                    "original_sha256": original_sha256,
+                                    "original_chars": text.chars().count(),
+                                    "bib_model_id": span_line_model::MODEL_ID,
+                                    "bib_decoder_id": span_line_model::DECODER_ID,
+                                    "toc_model_id": toc_line_model::MODEL_ID,
+                                    "toc_decoder_id": toc_line_model::DECODER_ID,
+                                    "bib_spans": bib_spans,
+                                    "bib_lines": bib_lines,
+                                    "toc_spans": toc_spans,
+                                    "toc_lines": toc_lines,
+                                    "overlap_pairs": overlap_pairs,
+                                    "overlap_chars": overlap_chars,
+                                    "overlap_lines": overlap_lines,
+                                    "conflict_status": if overlap_pairs > 0 { "review_required" } else { "none" }
+                                }).to_string(), sjs)
                             }
                         }
                     }
@@ -160,16 +277,18 @@ fn run_span_mode(a: &Args, reader: &mut dyn BufRead, spans_w: &mut dyn Write, co
     spans_w.flush().unwrap();
     counters_w.flush().unwrap();
     eprintln!("reference_detect: mode={} source={} ok={} errors={} → {} / {}", a.mode, a.source, n_ok, n_err, a.out_spans, a.out_counters);
-    if n_err > 0 && n_ok == 0 {
-        eprintln!("reference_detect: FATAL every row failed — likely wrong --text-field/--id-field or schema. Exiting non-zero.");
+    if n_err > 0 {
+        eprintln!("reference_detect: FATAL {n_err} malformed/schema-mismatched rows; production detection requires zero errors.");
         std::process::exit(2);
     }
 }
 
-fn process_line(a: &Args, idx: usize, line: &str) -> Result<DocResult, String> {
+fn process_line(a: &Args, _idx: usize, line: &str) -> Result<DocResult, String> {
     let v: Value = serde_json::from_str(line).map_err(|e| format!("json parse error: {e}"))?;
     if a.mode == "sections" {
-        let filename = pick_str(&v, &a.id_fields).map(|s| s.to_string()).unwrap_or_else(|| format!("doc{idx}"));
+        let filename = pick_str(&v, &a.id_fields)
+            .map(str::to_string)
+            .ok_or_else(|| format!("missing id field (tried {:?})", a.id_fields))?;
         let rows_v = v
             .get("rows")
             .and_then(|x| x.as_array())
@@ -192,7 +311,9 @@ fn process_line(a: &Args, idx: usize, line: &str) -> Result<DocResult, String> {
             .collect();
         Ok(detect_sections(&filename, &a.source, &rows, &a.cfg))
     } else {
-        let id = pick_str(&v, &a.id_fields).map(|s| s.to_string()).unwrap_or_else(|| format!("doc{idx}"));
+        let id = pick_str(&v, &a.id_fields)
+            .map(str::to_string)
+            .ok_or_else(|| format!("missing id field (tried {:?})", a.id_fields))?;
         let text = pick_str(&v, &a.text_fields)
             .ok_or_else(|| format!("missing text field (tried {:?})", a.text_fields))?;
         Ok(detect_doc(&id, &a.source, text, &a.cfg))
@@ -205,10 +326,17 @@ fn main() {
     let mut spans_w = BufWriter::new(File::create(&a.out_spans).expect("out-spans"));
     let mut counters_w = BufWriter::new(File::create(&a.out_counters).expect("out-counters"));
 
-    // --- new line-LR span model paths (kept separate from the legacy header→EOF machinery) ---
-    //   --mode spans        whole-doc multi-span bibliography detection (the shipped model)
-    //   --mode score-lines  parity harness: input {present:[..],abs_idx:[..],n_total:N} -> {p:[..]}
-    if a.mode == "spans" || a.mode == "score-lines" {
+    // Frozen line-head paths stay separate from the legacy header→EOF machinery.
+    if matches!(
+        a.mode.as_str(),
+        "spans"
+            | "bib-spans"
+            | "toc-spans"
+            | "structure-spans"
+            | "score-lines"
+            | "bib-score-lines"
+            | "toc-score-lines"
+    ) {
         run_span_mode(&a, &mut *reader, &mut spans_w, &mut counters_w);
         return;
     }
@@ -223,7 +351,7 @@ fn main() {
     // Returns (n_ok, n_err). Malformed/schema-mismatched rows are NOT silently dropped: each emits an
     // auditable error record to the counters stream (`{"doc_idx","error"}`) and is counted, so a bad
     // row fails loudly (final summary + non-zero exit) instead of vanishing from the counters.
-    let mut flush = |batch: &mut Vec<(usize, String)>, spans_w: &mut dyn Write, counters_w: &mut dyn Write| {
+    let flush = |batch: &mut Vec<(usize, String)>, spans_w: &mut dyn Write, counters_w: &mut dyn Write| {
         let results: Vec<(usize, Result<DocResult, String>)> = batch
             .par_iter()
             .map(|(i, l)| (*i, process_line(&a, *i, l)))
@@ -283,13 +411,39 @@ fn main() {
         a.mode, a.source, n_docs, n_err, a.out_spans, a.out_counters
     );
     if n_err > 0 {
-        eprintln!("reference_detect: WARN {n_err} malformed/schema-mismatched rows emitted as error records to {} (filter on the \"error\" field to audit).", a.out_counters);
-        // Fail hard only on TOTAL failure (e.g. wrong field names / format) so a clean schema mismatch
-        // can't masquerade as success; sporadic bad rows stay auditable (records) without aborting the
-        // downstream pipeline for an entire source.
-        if n_docs == 0 {
-            eprintln!("reference_detect: FATAL every row failed — likely wrong --text-field/--id-field or schema. Exiting non-zero.");
-            std::process::exit(2);
+        eprintln!("reference_detect: FATAL {n_err} malformed/schema-mismatched rows; production detection requires zero errors.");
+        std::process::exit(2);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn span(kind: &str, char_start: usize, char_end: usize, line_start: usize, line_end: usize) -> Span {
+        Span {
+            doc_id: "d".into(),
+            kind: kind.into(),
+            char_start,
+            char_end,
+            line_start,
+            line_end,
+            trigger: "fixture".into(),
+            gated_by: "fixture".into(),
+            row_id: None,
         }
+    }
+
+    #[test]
+    fn combined_head_overlap_is_reported_as_unique_mass() {
+        let spans = vec![
+            span("bib_span", 10, 30, 1, 3),
+            span("bib_span", 25, 40, 3, 4),
+            span("toc_span", 20, 35, 2, 3),
+        ];
+        let (pairs, chars, lines) = overlap_stats(&spans);
+        assert_eq!(pairs, 2);
+        assert_eq!(chars, 15, "overlapping conflict ranges must be unioned");
+        assert_eq!(lines, 2);
     }
 }

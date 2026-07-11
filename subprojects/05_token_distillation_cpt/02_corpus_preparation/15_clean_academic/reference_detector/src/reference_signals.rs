@@ -16,6 +16,7 @@
 
 use once_cell::sync::Lazy;
 use regex::Regex;
+use unicode_normalization::{char::is_combining_mark, UnicodeNormalization};
 
 // ---------------------------------------------------------------------------
 // Codepoint constants
@@ -28,24 +29,26 @@ pub const MIDDLE_DOT: char = '\u{00B7}'; // MIDDLE DOT (Latin-1) — equivalent 
 // ---------------------------------------------------------------------------
 fn fold_char(c: char) -> char {
     match c {
-        'ά' | 'ὰ' | 'ᾶ' | 'ἀ' | 'ἁ' | 'ἄ' | 'ἂ' | 'ά' => 'α',
-        'έ' | 'ὲ' | 'ἐ' | 'ἑ' | 'ἔ' | 'ἒ' | 'έ' => 'ε',
-        'ή' | 'ὴ' | 'ῆ' | 'ἠ' | 'ἡ' | 'ἤ' | 'ἢ' | 'ή' => 'η',
-        'ί' | 'ὶ' | 'ῖ' | 'ἰ' | 'ἱ' | 'ἴ' | 'ἲ' | 'ϊ' | 'ΐ' | 'ί' => 'ι',
-        'ό' | 'ὸ' | 'ὀ' | 'ὁ' | 'ὄ' | 'ὂ' | 'ό' => 'ο',
-        'ύ' | 'ὺ' | 'ῦ' | 'ὐ' | 'ὑ' | 'ὔ' | 'ὒ' | 'ϋ' | 'ΰ' | 'ύ' => 'υ',
-        'ώ' | 'ὼ' | 'ῶ' | 'ὠ' | 'ὡ' | 'ὤ' | 'ὢ' | 'ώ' => 'ω',
+        'ά' | 'ὰ' | 'ᾶ' | 'ἀ' | 'ἁ' | 'ἄ' | 'ἂ' => 'α',
+        'έ' | 'ὲ' | 'ἐ' | 'ἑ' | 'ἔ' | 'ἒ' => 'ε',
+        'ή' | 'ὴ' | 'ῆ' | 'ἠ' | 'ἡ' | 'ἤ' | 'ἢ' => 'η',
+        'ί' | 'ὶ' | 'ῖ' | 'ἰ' | 'ἱ' | 'ἴ' | 'ἲ' | 'ϊ' | 'ΐ' => 'ι',
+        'ό' | 'ὸ' | 'ὀ' | 'ὁ' | 'ὄ' | 'ὂ' => 'ο',
+        'ύ' | 'ὺ' | 'ῦ' | 'ὐ' | 'ὑ' | 'ὔ' | 'ὒ' | 'ϋ' | 'ΰ' => 'υ',
+        'ώ' | 'ὼ' | 'ῶ' | 'ὠ' | 'ὡ' | 'ὤ' | 'ὢ' => 'ω',
         'ς' => 'σ',
         _ => c,
     }
 }
 
-/// Fold accents + final-sigma, then lowercase. Used for content cue matching.
+/// Canonically decompose, strip Greek/Unicode combining marks, lowercase and
+/// fold final sigma. This covers capital and adscript polytonic forms as well
+/// as the explicitly listed common monotonic/precomposed forms.
 pub fn fold(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
-    for c in s.chars() {
-        for lc in fold_char(c).to_lowercase() {
-            out.push(lc);
+    for decomposed in s.nfd().filter(|c| !is_combining_mark(*c)) {
+        for lc in decomposed.to_lowercase() {
+            out.push(fold_char(lc));
         }
     }
     out
@@ -170,10 +173,10 @@ pub const ENTRY_LOC: &[&str] = &["σσ.", "σ.", "τ.", "εκδ.", "επιμ.", 
 // Script-ratio helpers
 // ---------------------------------------------------------------------------
 fn is_greek(c: char) -> bool {
-    matches!(c, '\u{0370}'..='\u{03FF}' | '\u{1F00}'..='\u{1FFF}')
+    matches!(c, '\u{0386}'..='\u{03CE}' | '\u{1F00}'..='\u{1FFF}')
 }
 fn is_latin(c: char) -> bool {
-    matches!(c, 'A'..='Z' | 'a'..='z')
+    c.is_ascii_alphabetic()
 }
 
 /// Fraction of letters that are Greek (0.0 if no letters).

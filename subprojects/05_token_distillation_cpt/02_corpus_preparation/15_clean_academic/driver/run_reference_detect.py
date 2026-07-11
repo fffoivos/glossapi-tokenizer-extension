@@ -5,7 +5,8 @@ The driver does NO per-doc text work (no regex, no cleaning) — it only shapes 
   - section sources (kallipos/pergamos): a SECTION-level parquet → group rows per
     document → newline-delimited {filename, rows:[...]} → pipe to `--mode sections`.
   - whole-doc sources (greek_phd/openarchives): the source `.jsonl.zst` is fed
-    straight to `--mode wholedoc` (the Rust binary reads zstd + picks the text field).
+    straight to `--mode structure-spans` for the frozen ToC + bibliography heads
+    (or `wholedoc` for the legacy rule-based audit).
 
 All detection/segmentation/counting happens in Rust. Output: an auditable
 `<source>/refspans/…` spans file + a per-doc `counters` file, plus an optional
@@ -17,7 +18,7 @@ Usage:
   run_reference_detect.py --source kallipos --mode sections \
       --input /…/Dataset_Kallipos.parquet --doc-col filename --out-dir out/kallipos [--limit N]
   # whole-doc source (jsonl.zst, possibly a glob)
-  run_reference_detect.py --source greek_phd --mode wholedoc \
+  run_reference_detect.py --source greek_phd --mode structure-spans \
       --input '/…/greek_phd/.../contents/*.jsonl.zst' --out-dir out/greek_phd
 """
 import argparse
@@ -106,7 +107,7 @@ def counters_to_parquet(counters_jsonl, out_parquet):
     import pyarrow as pa
     import pyarrow.parquet as pq
 
-    recs = [json.loads(l) for l in open(counters_jsonl, encoding="utf-8") if l.strip()]
+    recs = [json.loads(line) for line in open(counters_jsonl, encoding="utf-8") if line.strip()]
     if not recs:
         return 0
     tbl = pa.Table.from_pylist(recs)
@@ -117,7 +118,11 @@ def counters_to_parquet(counters_jsonl, out_parquet):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", required=True)
-    ap.add_argument("--mode", choices=["sections", "wholedoc"], required=True)
+    ap.add_argument(
+        "--mode",
+        choices=["sections", "wholedoc", "bib-spans", "toc-spans", "structure-spans"],
+        required=True,
+    )
     ap.add_argument("--input", required=True, help="parquet path (sections) or jsonl.zst glob (wholedoc)")
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--doc-col", default="filename")
