@@ -1,0 +1,31 @@
+{
+  "schema_version": "full_cpt_training_eligibility_policy_v1",
+  "purpose": "noncommercial_research_continued_pretraining",
+  "notes": [
+    "Content-quality admission and legal eligibility are separate gates.",
+    "Gating a Hugging Face repository does not create redistribution rights.",
+    "noncommercial_review, policy_review and per_item_review remain excluded until their licenses are explicitly adjudicated."
+  ],
+  "categories": {
+    "inherited_base": {
+      "training_eligible": true,
+      "redistribution_eligible": true
+    },
+    "eligible_open": {
+      "training_eligible": true,
+      "redistribution_eligible": true
+    },
+    "noncommercial_review": {
+      "training_eligible": false,
+      "redistribution_eligible": false
+    },
+    "policy_review": {
+      "training_eligible": false,
+      "redistribution_eligible": false
+    },
+    "per_item_review": {
+      "training_eligible": false,
+      "redistribution_eligible": false
+    }
+  }
+}
