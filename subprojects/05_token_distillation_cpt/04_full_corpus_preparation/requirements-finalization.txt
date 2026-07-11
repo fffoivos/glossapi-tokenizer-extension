@@ -1,0 +1,7 @@
+pyarrow==21.0.0
+duckdb==1.5.4
+numpy==2.5.1
+blake3==1.0.9
+regex==2026.7.10
+typer==0.26.8
+huggingface-hub==0.36.0
