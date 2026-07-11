@@ -9,7 +9,7 @@ import random
 from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
 
-from .contract import GoldDocument, read_gold, sha256_file, validate_gold
+from .contract import GoldDocument, read_gold, sha256_file, validate_gold, validate_silver
 
 PREDICTIONS_SCHEMA = "academic-structure-predictions-v1"
 CLASSES = ("O", "BIB", "TOC")
@@ -374,6 +374,20 @@ def promotion_report(
     }
 
 
+def _mark_silver_safety_unavailable(metrics: dict[str, Any]) -> None:
+    """Remove misleading safety values that require independent prose gold."""
+    for row in [metrics, *metrics.get("by_source", {}).values()]:
+        row["token"]["prose_contamination"] = None
+        row["token"]["true_main_text_retention"] = None
+        row["document"]["catastrophic_prose_deletions"] = None
+        row["document"]["maximum_contiguous_false_deletion_tokens"] = None
+    metrics["metric_availability"] = {
+        "silver_action_and_recall_metrics": True,
+        "independent_running_prose_safety_metrics": False,
+        "reason": "LLM silver has no independent is_running_prose judgments",
+    }
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--gold", required=True)
@@ -386,16 +400,24 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--runtime-parity-receipt")
     parser.add_argument("--candidate-benchmark")
     parser.add_argument("--baseline-benchmark")
+    parser.add_argument(
+        "--evidence-tier", choices=("promotion_gold", "LLM_silver"), default="promotion_gold"
+    )
     args = parser.parse_args(argv)
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
     documents = read_gold(args.gold)
     split_manifest = json.loads(Path(args.split_manifest).read_text(encoding="utf-8"))
-    contract_receipt = validate_gold(
-        documents,
-        config["gold_contract"],
-        split_manifest=split_manifest,
-        for_promotion=True,
-    )
+    if args.evidence_tier == "LLM_silver":
+        contract_receipt = validate_silver(
+            documents, config["silver_contract"], split_manifest=split_manifest
+        )
+    else:
+        contract_receipt = validate_gold(
+            documents,
+            config["gold_contract"],
+            split_manifest=split_manifest,
+            for_promotion=True,
+        )
     candidate_predictions = read_predictions(args.candidate, documents)
     baseline_predictions = read_predictions(args.baseline, documents)
     gates = config["promotion_gates"]
@@ -409,6 +431,30 @@ def main(argv: Sequence[str] | None = None) -> int:
         documents, candidate_docs, baseline_docs,
         replicates=int(gates["bootstrap_replicates"]), seed=int(gates["bootstrap_seed"]),
     )
+    if args.evidence_tier == "LLM_silver":
+        _mark_silver_safety_unavailable(candidate)
+        _mark_silver_safety_unavailable(baseline)
+        confidence["prose_contamination"] = None
+        promotion = {
+            "status": "no_op",
+            "production_eligible": False,
+            "reason": (
+                "LLM_silver is comparison-only and lacks independent running-prose safety gold; "
+                "targeted manual high-risk false-deletion review is also required"
+            ),
+            "production_fallback": "no_op",
+        }
+    else:
+        promotion = promotion_report(
+            candidate, baseline, confidence, gates,
+            artifact_bytes=Path(args.artifact).stat().st_size if args.artifact else None,
+            runtime_parity=json.loads(Path(args.runtime_parity_receipt).read_text(encoding="utf-8"))
+            if args.runtime_parity_receipt else None,
+            candidate_benchmark=json.loads(Path(args.candidate_benchmark).read_text(encoding="utf-8"))
+            if args.candidate_benchmark else None,
+            baseline_benchmark=json.loads(Path(args.baseline_benchmark).read_text(encoding="utf-8"))
+            if args.baseline_benchmark else None,
+        )
     report = {
         "schema_version": "academic-structure-evaluation-v1",
         "receipts": {
@@ -422,16 +468,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         "candidate": candidate,
         "baseline": baseline,
         "work_clustered_bootstrap_ci95": confidence,
-        "promotion": promotion_report(
-            candidate, baseline, confidence, gates,
-            artifact_bytes=Path(args.artifact).stat().st_size if args.artifact else None,
-            runtime_parity=json.loads(Path(args.runtime_parity_receipt).read_text(encoding="utf-8"))
-            if args.runtime_parity_receipt else None,
-            candidate_benchmark=json.loads(Path(args.candidate_benchmark).read_text(encoding="utf-8"))
-            if args.candidate_benchmark else None,
-            baseline_benchmark=json.loads(Path(args.baseline_benchmark).read_text(encoding="utf-8"))
-            if args.baseline_benchmark else None,
-        ),
+        "evidence_tier": args.evidence_tier,
+        "promotion": promotion,
     }
     Path(args.output).write_text(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report["promotion"], ensure_ascii=False, sort_keys=True, indent=2))

@@ -25,11 +25,19 @@ Corrected or added here:
 - scoring covers lines, pinned-token counts, spans, documents, true main-text retention, unknown-label
   coverage, per-source safety, and work-clustered bootstrap confidence intervals.
 
-The tracked annotations under `eval/annotations*` are model-produced and windowed. They are not silently
-promoted or relabelled as human gold. The missing `units/STRUCT_2K_gold.jsonl` therefore blocks fitting and
-any new metrics in this worktree.
+The tracked annotations under `eval/annotations*` are model-produced and windowed. They are never
+promoted or relabelled as human gold. The exact reconstruction audit and recovery commands are in
+`SILVER_RECONSTRUCTION.md`; the machine-readable receipt is `silver_inventory.json`.
 
-## Gold contract
+## Evidence contracts
+
+`LLM_silver` is fit/comparison evidence only. It uses the same immutable identities, exact-text leak
+checks, work-grouped/source-balanced split, pinned token counts, and `UNKNOWN` semantics as gold, but
+does not satisfy promotion. Because it has no independent running-prose judgment, reports set prose
+contamination, true main-text retention, and catastrophic prose deletion metrics to `null` and retain
+the production no-op fallback.
+
+Promotion gold remains a separate, currently nonexistent contract:
 
 Input is JSONL with `schema_version=academic-structure-gold-v1`. Each row supplies immutable
 `document_id`, `work_id`, `representation_id`, `source`, locked `split`, annotation and tokenizer
@@ -61,6 +69,9 @@ Run from `eval/` (examples only; do not run fitting locally):
 
 ```bash
 python3 -m sequence_models.contract validate --gold GOLD.jsonl --config sequence_models/config.json
+python3 -m sequence_models.silver_reconstruct audit
+python3 -m sequence_models.contract validate-silver --silver SILVER.jsonl \
+  --config sequence_models/config.json --split-manifest silver.split.json
 python3 -m sequence_models.contract make-split --gold GOLD.jsonl \
   --config sequence_models/config.json --output split.json
 python3 -m sequence_models.baseline --gold GOLD.jsonl --output c0.jsonl
@@ -70,6 +81,10 @@ python3 -m sequence_models.evaluate --gold GOLD.jsonl --baseline c0.jsonl \
 python3 -m sequence_models.runtime parity --left python.jsonl --right cpu_runtime.jsonl
 python3 -m sequence_models.runtime benchmark-c0 --gold GOLD.jsonl
 ```
+
+For reconstructed silver, add `--evidence-tier LLM_silver` to evaluation. For C1/C2 fitting on the
+current SPAN evidence add `--evidence-tier LLM_silver --target bib`; this hard-disables every ToC tag
+instead of learning false ToC negatives from a BIB-only annotation task.
 
 On an approved Clariden CPU allocation, the feature CRF entry point is:
 

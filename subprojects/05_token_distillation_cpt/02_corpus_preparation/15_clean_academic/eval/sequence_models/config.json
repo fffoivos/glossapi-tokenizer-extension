@@ -21,6 +21,17 @@
     "threshold_selection": false,
     "feature_selection": false
   },
+  "silver_contract": {
+    "annotation_status": "LLM_silver",
+    "allowed_task_scopes": [
+      "bibliography_binary_windows",
+      "bibliography_toc_windows"
+    ],
+    "comparison_only": true,
+    "production_eligible": false,
+    "production_fallback": "no_op",
+    "required_manual_audit": "targeted_high_risk_false_deletions"
+  },
   "gold_contract": {
     "schema_version": "academic-structure-gold-v1",
     "required_sources": [
@@ -56,6 +67,7 @@
     {
       "id": "c1-feature-bioes-crf",
       "kind": "feature_crf",
+      "silver_targets": ["bib", "joint_when_task_scope_includes_toc"],
       "char_hash_dim": 0,
       "epochs": 18,
       "learning_rate": 0.08,
@@ -65,6 +77,7 @@
     {
       "id": "c2-char-ngram-feature-bioes-crf",
       "kind": "feature_crf",
+      "silver_targets": ["bib", "joint_when_task_scope_includes_toc"],
       "char_hash_dim": 8192,
       "char_ngram_min": 2,
       "char_ngram_max": 5,
@@ -77,6 +90,7 @@
       "id": "n1-bytecnn-tcn-masked-crf",
       "kind": "char_tcn_crf",
       "status": "scaffold_ready_cpu_shadow_only",
+      "silver_targets": ["bib", "joint_when_task_scope_includes_toc"],
       "max_utf8_bytes_per_line": 256,
       "byte_embedding_dim": 32,
       "char_channels_per_kernel": 48,

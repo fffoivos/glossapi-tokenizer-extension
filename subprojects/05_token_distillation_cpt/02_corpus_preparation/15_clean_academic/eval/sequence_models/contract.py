@@ -15,13 +15,13 @@ import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Iterable, Mapping, Sequence
 
 SCHEMA_VERSION = "academic-structure-gold-v1"
 LABELS = ("O", "BIB", "TOC", "UNKNOWN")
 SPLITS = ("train", "validation", "test")
 ANNOTATION_STATUSES = (
-    "silver_llm",
+    "LLM_silver",
     "human_single",
     "human_double",
     "human_adjudicated",
@@ -76,6 +76,8 @@ class GoldDocument:
     tokenizer_id: str
     tokenizer_revision: str
     lines: tuple[GoldLine, ...]
+    annotation_engine: str | None = None
+    task_scope: str | None = None
 
     @property
     def text_sha256(self) -> str:
@@ -182,6 +184,8 @@ def _parse_document(raw: Mapping[str, Any], row_number: int) -> GoldDocument:
         tokenizer_id=tokenizer_id,
         tokenizer_revision=tokenizer_revision,
         lines=tuple(lines),
+        annotation_engine=annotation.get("engine"),
+        task_scope=annotation.get("task_scope"),
     )
 
 
@@ -193,6 +197,13 @@ def read_gold(path: str | Path) -> list[GoldDocument]:
                 raw = json.loads(line)
                 _require(isinstance(raw, Mapping), f"row {row_number}: expected a JSON object")
                 documents.append(_parse_document(raw, row_number))
+    _require(bool(documents), "gold JSONL is empty")
+    return documents
+
+
+def parse_gold_rows(rows: Sequence[Mapping[str, Any]]) -> list[GoldDocument]:
+    """Parse already-loaded rows using the same strict JSONL contract."""
+    documents = [_parse_document(raw, row_number) for row_number, raw in enumerate(rows, 1)]
     _require(bool(documents), "gold JSONL is empty")
     return documents
 
@@ -325,6 +336,81 @@ def validate_gold(
     }
 
 
+def validate_silver(
+    documents: Iterable[GoldDocument],
+    policy: Mapping[str, Any],
+    *,
+    split_manifest: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Validate leak-free LLM silver without making a promotion claim."""
+    _require(split_manifest.get("schema_version") == "academic-structure-split-v1",
+             "unsupported silver split manifest")
+    assignments = split_manifest.get("assignments")
+    _require(isinstance(assignments, Mapping), "silver split manifest lacks assignments")
+    ids: set[str] = set()
+    representations: set[str] = set()
+    work_splits: dict[str, str] = {}
+    exact_hash_splits: dict[str, str] = {}
+    tokenizer_pairs: set[tuple[str, str]] = set()
+    sources: collections.Counter[str] = collections.Counter()
+    scopes: collections.Counter[str] = collections.Counter()
+    splits: collections.Counter[str] = collections.Counter()
+    known_lines = unknown_lines = 0
+    document_count = 0
+    inventory: list[tuple[str, str, str]] = []
+    for doc in documents:
+        document_count += 1
+        inventory.append((doc.document_id, doc.work_id, doc.source))
+        _require(doc.annotation_status == policy["annotation_status"],
+                 f"{doc.document_id}: expected explicit {policy['annotation_status']} provenance")
+        _require(isinstance(doc.annotation_engine, str) and bool(doc.annotation_engine),
+                 f"{doc.document_id}: silver annotation engine is required")
+        _require(doc.task_scope in set(policy["allowed_task_scopes"]),
+                 f"{doc.document_id}: unsupported silver task scope {doc.task_scope!r}")
+        _require(doc.document_id not in ids, f"duplicate silver document_id {doc.document_id!r}")
+        ids.add(doc.document_id)
+        _require(doc.representation_id not in representations,
+                 f"duplicate silver representation_id {doc.representation_id!r}")
+        representations.add(doc.representation_id)
+        previous = work_splits.setdefault(doc.work_id, doc.split)
+        _require(previous == doc.split,
+                 f"silver work leakage: {doc.work_id!r} crosses {previous!r}/{doc.split!r}")
+        exact_previous = exact_hash_splits.setdefault(doc.text_sha256, doc.split)
+        _require(exact_previous == doc.split,
+                 f"silver exact-text leakage: {doc.document_id!r} crosses splits")
+        _require(assignments.get(doc.document_id) == doc.split,
+                 f"{doc.document_id}: silver split disagrees with locked manifest")
+        _require(len(doc.lines) == doc.n_present_lines,
+                 f"{doc.document_id}: incomplete silver present-line coverage")
+        tokenizer_pairs.add((doc.tokenizer_id, doc.tokenizer_revision))
+        sources[doc.source] += 1
+        scopes[str(doc.task_scope)] += 1
+        splits[doc.split] += 1
+        known_lines += sum(line.label != "UNKNOWN" for line in doc.lines)
+        unknown_lines += sum(line.label == "UNKNOWN" for line in doc.lines)
+    _require(document_count > 0, "no silver documents")
+    _require(set(assignments) == ids, "silver manifest/document inventory mismatch")
+    inventory.sort()
+    _require(split_manifest.get("inventory_sha256") == canonical_json_sha256(inventory),
+             "silver split inventory hash mismatch")
+    _require(len(tokenizer_pairs) == 1, "silver token metrics require one pinned tokenizer")
+    return {
+        "schema_version": "academic-structure-silver-contract-receipt-v1",
+        "status": "pass",
+        "evidence_tier": "LLM_silver",
+        "production_eligible": False,
+        "document_count": document_count,
+        "work_count": len(work_splits),
+        "source_counts": dict(sorted(sources.items())),
+        "split_counts": dict(sorted(splits.items())),
+        "task_scope_counts": dict(sorted(scopes.items())),
+        "known_lines": known_lines,
+        "unknown_lines": unknown_lines,
+        "tokenizer": {"id": next(iter(tokenizer_pairs))[0], "revision": next(iter(tokenizer_pairs))[1]},
+        "inventory_sha256": canonical_json_sha256(inventory),
+    }
+
+
 def stable_split(work_id: str, seed: str, train: float, validation: float) -> str:
     """Assign a work group once, without looking at labels or model output."""
     digest = hashlib.sha256(f"{seed}\0{work_id}".encode("utf-8")).digest()
@@ -405,6 +491,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     validate.add_argument("--split-manifest")
     validate.add_argument("--promotion", action="store_true")
     validate.add_argument("--output")
+    silver = sub.add_parser("validate-silver", help="validate comparison-only LLM silver")
+    silver.add_argument("--silver", required=True)
+    silver.add_argument("--config", required=True)
+    silver.add_argument("--split-manifest", required=True)
+    silver.add_argument("--output")
     split = sub.add_parser("make-split", help="make a deterministic work-group split manifest")
     split.add_argument("--gold", required=True, help="inventory/gold JSONL; labels are ignored")
     split.add_argument("--config", required=True)
@@ -412,7 +503,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     config = _load_config(args.config)
-    documents = read_gold(args.gold)
+    documents = read_gold(args.silver if args.command == "validate-silver" else args.gold)
+    if args.command == "validate-silver":
+        manifest = _load_manifest(args.split_manifest)
+        receipt = validate_silver(documents, config["silver_contract"], split_manifest=manifest)
+        receipt["silver_sha256"] = sha256_file(args.silver)
+        receipt["config_sha256"] = sha256_file(args.config)
+        receipt["split_manifest_sha256"] = sha256_file(args.split_manifest)
+        payload = json.dumps(receipt, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+        if args.output:
+            Path(args.output).write_text(payload, encoding="utf-8")
+        else:
+            print(payload, end="")
+        return 0
     if args.command == "validate":
         manifest = _load_manifest(args.split_manifest) if args.split_manifest else None
         receipt = validate_gold(

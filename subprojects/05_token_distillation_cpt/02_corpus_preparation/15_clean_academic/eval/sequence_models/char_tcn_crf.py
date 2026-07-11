@@ -88,21 +88,34 @@ if torch is not None:
     class MaskedBIOESCRF(nn.Module):
         """Batched log-likelihood and Viterbi with forbidden BIOES transitions masked."""
 
-        def __init__(self, n_tags: int):
+        def __init__(
+            self, n_tags: int, active_classes: Sequence[str] = ("BIB", "TOC")
+        ):
             super().__init__()
             transition_mask, start_mask, end_mask = allowed_transition_mask()
+            unknown = set(active_classes) - {"BIB", "TOC"}
+            if unknown:
+                raise ValueError(f"unknown active classes: {sorted(unknown)!r}")
+            active = torch.as_tensor([
+                tag == "O" or any(tag.endswith(f"-{target}") for target in active_classes)
+                for tag in TAGS
+            ])
             self.transitions = nn.Parameter(torch.zeros(n_tags, n_tags))
             self.start = nn.Parameter(torch.zeros(n_tags))
             self.end = nn.Parameter(torch.zeros(n_tags))
-            self.register_buffer("transition_mask", torch.as_tensor(transition_mask))
-            self.register_buffer("start_mask", torch.as_tensor(start_mask))
-            self.register_buffer("end_mask", torch.as_tensor(end_mask))
+            self.register_buffer(
+                "transition_mask", torch.as_tensor(transition_mask) & active[:, None] & active[None, :]
+            )
+            self.register_buffer("start_mask", torch.as_tensor(start_mask) & active)
+            self.register_buffer("end_mask", torch.as_tensor(end_mask) & active)
+            self.register_buffer("active_tag_mask", active)
 
         @staticmethod
         def _masked(values: "torch.Tensor", mask: "torch.Tensor") -> "torch.Tensor":
             return values.masked_fill(~mask, -1.0e4)
 
         def log_partition(self, emissions: "torch.Tensor", mask: "torch.Tensor") -> "torch.Tensor":
+            emissions = emissions.masked_fill(~self.active_tag_mask, -1.0e4)
             transitions = self._masked(self.transitions, self.transition_mask)
             score = self._masked(self.start, self.start_mask) + emissions[:, 0]
             for t in range(1, emissions.shape[1]):
@@ -114,6 +127,9 @@ if torch is not None:
         def gold_score(
             self, emissions: "torch.Tensor", tags: "torch.Tensor", mask: "torch.Tensor"
         ) -> "torch.Tensor":
+            if not bool(self.active_tag_mask[tags[mask]].all()):
+                raise ValueError("gold contains a class disabled for this evidence tier")
+            emissions = emissions.masked_fill(~self.active_tag_mask, -1.0e4)
             transitions = self._masked(self.transitions, self.transition_mask)
             batch = torch.arange(emissions.shape[0], device=emissions.device)
             score = self._masked(self.start, self.start_mask)[tags[:, 0]]
@@ -133,6 +149,7 @@ if torch is not None:
             return (self.log_partition(emissions, mask) - self.gold_score(emissions, tags, mask)).mean()
 
         def decode(self, emissions: "torch.Tensor", mask: "torch.Tensor") -> list[list[int]]:
+            emissions = emissions.masked_fill(~self.active_tag_mask, -1.0e4)
             transitions = self._masked(self.transitions, self.transition_mask)
             score = self._masked(self.start, self.start_mask) + emissions[:, 0]
             histories: list[torch.Tensor] = []
@@ -165,6 +182,7 @@ if torch is not None:
             hidden_dim: int = 128,
             tcn_dilations: Sequence[int] = (1, 2, 4, 8),
             dropout: float = 0.15,
+            target_classes: Sequence[str] = ("BIB", "TOC"),
         ):
             super().__init__()
             self.byte_cnn = ByteCNN(byte_embedding_dim, char_channels_per_kernel, char_kernels)
@@ -174,7 +192,7 @@ if torch is not None:
             )
             self.output_norm = nn.LayerNorm(hidden_dim)
             self.emissions = nn.Linear(hidden_dim, len(TAGS))
-            self.crf = MaskedBIOESCRF(len(TAGS))
+            self.crf = MaskedBIOESCRF(len(TAGS), target_classes)
 
         def forward(
             self,

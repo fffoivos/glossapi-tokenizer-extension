@@ -21,7 +21,9 @@ import numpy as np
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from sequence_models.contract import GoldDocument, read_gold, sha256_file, validate_gold
+    from sequence_models.contract import (
+        GoldDocument, read_gold, sha256_file, validate_gold, validate_silver,
+    )
     from sequence_models.features import (
         TAGS,
         FeatureEncoder,
@@ -30,7 +32,7 @@ if __package__ in (None, ""):
         document_tag_ids,
     )
 else:
-    from .contract import GoldDocument, read_gold, sha256_file, validate_gold
+    from .contract import GoldDocument, read_gold, sha256_file, validate_gold, validate_silver
     from .features import (
         TAGS,
         FeatureEncoder,
@@ -61,7 +63,13 @@ class SequenceExample:
 class LinearChainCRF:
     """Sparse-emission, masked BIOES linear-chain CRF."""
 
-    def __init__(self, n_features: int, *, seed: int = 0):
+    def __init__(
+        self,
+        n_features: int,
+        *,
+        seed: int = 0,
+        active_classes: Sequence[str] = ("BIB", "TOC"),
+    ):
         self.n_features = int(n_features)
         self.n_tags = len(TAGS)
         rng = np.random.default_rng(seed)
@@ -70,13 +78,26 @@ class LinearChainCRF:
         self.transition = np.zeros((self.n_tags, self.n_tags), dtype=np.float64)
         self.start = np.zeros(self.n_tags, dtype=np.float64)
         self.end = np.zeros(self.n_tags, dtype=np.float64)
-        self.transition_mask, self.start_mask, self.end_mask = allowed_transition_mask()
+        unknown = set(active_classes) - {"BIB", "TOC"}
+        if unknown:
+            raise ValueError(f"unknown active classes: {sorted(unknown)!r}")
+        self.active_classes = tuple(sorted(set(active_classes)))
+        active = np.asarray([
+            tag == "O" or any(tag.endswith(f"-{target}") for target in self.active_classes)
+            for tag in TAGS
+        ])
+        transition, start, end = allowed_transition_mask()
+        self.active_tag_mask = active
+        self.transition_mask = transition & active[:, None] & active[None, :]
+        self.start_mask = start & active
+        self.end_mask = end & active
 
     def emission_scores(self, rows: Sequence[Mapping[int, float]]) -> np.ndarray:
         scores = np.repeat(self.emission_bias[None, :], len(rows), axis=0)
         for t, row in enumerate(rows):
             for index, value in row.items():
                 scores[t] += self.emission[int(index)] * float(value)
+        scores[:, ~self.active_tag_mask] = NEG_INF
         return scores
 
     def _masked_parameters(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -183,19 +204,23 @@ class LinearChainCRF:
             transition=self.transition,
             start=self.start,
             end=self.end,
+            active_tag_mask=self.active_tag_mask,
             metadata=np.asarray(json.dumps(metadata, ensure_ascii=False, sort_keys=True)),
         )
 
     @classmethod
     def load(cls, path: str | Path) -> tuple["LinearChainCRF", dict[str, Any]]:
         values = np.load(path, allow_pickle=False)
-        model = cls(values["emission"].shape[0])
+        metadata = json.loads(str(values["metadata"]))
+        model = cls(
+            values["emission"].shape[0],
+            active_classes=metadata.get("active_classes", ("BIB", "TOC")),
+        )
         model.emission = values["emission"].astype(np.float64)
         model.emission_bias = values["emission_bias"].astype(np.float64)
         model.transition = values["transition"].astype(np.float64)
         model.start = values["start"].astype(np.float64)
         model.end = values["end"].astype(np.float64)
-        metadata = json.loads(str(values["metadata"]))
         return model, metadata
 
 
@@ -379,7 +404,7 @@ def _architecture(config: Mapping[str, Any], architecture_id: str) -> Mapping[st
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--gold", required=True)
+    parser.add_argument("--gold", required=True, help="promotion gold or reconstructed silver JSONL")
     parser.add_argument("--config", required=True)
     parser.add_argument("--split-manifest", required=True)
     parser.add_argument("--architecture", required=True,
@@ -388,6 +413,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--validation-predictions", required=True)
     parser.add_argument("--test-predictions", help="write only after architecture/calibration are frozen")
     parser.add_argument("--seed", type=int)
+    parser.add_argument(
+        "--evidence-tier", choices=("promotion_gold", "LLM_silver"), default="promotion_gold"
+    )
+    parser.add_argument("--target", choices=("joint", "bib"), default="joint")
     args = parser.parse_args(argv)
 
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
@@ -395,17 +424,34 @@ def main(argv: Sequence[str] | None = None) -> int:
     seed = int(config["execution"]["seed"] if args.seed is None else args.seed)
     documents = read_gold(args.gold)
     split_manifest = json.loads(Path(args.split_manifest).read_text(encoding="utf-8"))
-    contract_receipt = validate_gold(
-        documents,
-        config["gold_contract"],
-        split_manifest=split_manifest,
-        for_promotion=True,
-    )
+    if args.evidence_tier == "LLM_silver":
+        contract_receipt = validate_silver(
+            documents, config["silver_contract"], split_manifest=split_manifest
+        )
+        scopes = {document.task_scope for document in documents}
+        if args.target == "joint":
+            if scopes != {"bibliography_toc_windows"}:
+                raise RuntimeError("joint silver fitting requires explicit BIB/TOC task supervision")
+            active_classes = ("BIB", "TOC")
+        else:
+            if any(line.label == "TOC" for doc in documents for line in doc.lines):
+                raise RuntimeError("BIB-only fitting cannot mask observed TOC targets")
+            active_classes = ("BIB",)
+    else:
+        if args.target != "joint":
+            raise RuntimeError("promotion-gold fitting uses the locked joint BIB/TOC target")
+        contract_receipt = validate_gold(
+            documents,
+            config["gold_contract"],
+            split_manifest=split_manifest,
+            for_promotion=True,
+        )
+        active_classes = ("BIB", "TOC")
     train_docs = [doc for doc in documents if doc.split == "train"]
     validation_docs = [doc for doc in documents if doc.split == "validation"]
     if not train_docs or not validation_docs:
         raise RuntimeError("feature CRF requires non-empty train and validation splits")
-    if any(
+    if args.evidence_tier == "promotion_gold" and any(
         line.label != "UNKNOWN" and line.is_running_prose is None
         for document in validation_docs for line in document.lines
     ):
@@ -417,7 +463,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     train_examples = make_examples(train_docs, encoder)
     validation_examples = make_examples(validation_docs, encoder)
-    model = LinearChainCRF(encoder.n_features, seed=seed)
+    model = LinearChainCRF(encoder.n_features, seed=seed, active_classes=active_classes)
     history = train_model(
         model,
         train_examples,
@@ -428,13 +474,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         seed=seed,
     )
     calibration = config["calibration"]
+    # Silver has no independent running-prose judgment, so its calibration is
+    # explicitly comparison-only. It must not be presented as a safety result.
+    minimum_precision = (
+        0.0 if args.evidence_tier == "LLM_silver"
+        else float(calibration["minimum_deletion_token_precision"])
+    )
+    maximum_contamination = (
+        1.0 if args.evidence_tier == "LLM_silver"
+        else float(calibration["maximum_prose_token_contamination"])
+    )
     deletion_bias, validation_metrics = calibrate_deletion_bias(
         validation_examples,
         model,
         calibration["deletion_bias_grid"],
-        minimum_precision=float(calibration["minimum_deletion_token_precision"]),
-        maximum_contamination=float(calibration["maximum_prose_token_contamination"]),
+        minimum_precision=minimum_precision,
+        maximum_contamination=maximum_contamination,
     )
+    if args.evidence_tier == "LLM_silver":
+        validation_metrics["prose_contamination"] = None
     metadata = {
         "schema_version": "academic-structure-feature-crf-v1",
         "architecture_id": args.architecture,
@@ -444,6 +502,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         "contract_inventory_sha256": contract_receipt["inventory_sha256"],
         "feature_encoder": encoder.metadata(),
         "tags": list(TAGS),
+        "active_classes": list(active_classes),
+        "evidence_tier": args.evidence_tier,
+        "production_eligible": False if args.evidence_tier == "LLM_silver" else None,
+        "safety_metrics_available": args.evidence_tier == "promotion_gold",
+        "metric_semantics": (
+            "agreement_with_LLM_silver; not production safety"
+            if args.evidence_tier == "LLM_silver" else "promotion_gold"
+        ),
         "deletion_bias": deletion_bias,
         "validation_metrics": validation_metrics,
         "training_loss": history,

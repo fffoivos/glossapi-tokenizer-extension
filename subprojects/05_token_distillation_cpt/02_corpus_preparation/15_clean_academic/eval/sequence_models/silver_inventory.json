@@ -1,0 +1,382 @@
+{
+  "all_annotation_file_receipts": {
+    "annotations/B_batch0.json": {
+      "records": 8,
+      "sha256": "0513f492d0120e4208c4876f99aed0479acad920c2390590885c8e770edde282"
+    },
+    "annotations/B_batch1.json": {
+      "records": 8,
+      "sha256": "9f6f3a9b9828783c40bfacfd8cecd1146cbc0a56af18f71e66c72bc996a5572c"
+    },
+    "annotations/B_batch2.json": {
+      "records": 8,
+      "sha256": "f6822265baefa527748620d69aa6ef3849e7595e4742ff3b67cedb81f1164d47"
+    },
+    "annotations/B_batch3.json": {
+      "records": 8,
+      "sha256": "51138d39f589d484129faf07889b00505211cfe5298801725f786b6a7e12d80f"
+    },
+    "annotations/B_batch4.json": {
+      "records": 8,
+      "sha256": "df5b0f400df960b3c8c453f870cf565b9223a57fb4f964c6d64408a4902f9a7f"
+    },
+    "annotations/B_batch5.json": {
+      "records": 8,
+      "sha256": "17d1044220dc6dbf5bf5ce34c9e20697c029a37e29edc73250d87b5716469d0f"
+    },
+    "annotations/B_batch6.json": {
+      "records": 8,
+      "sha256": "f0a02204078c6f30f986c69ec4fe963cec0fba779851cbd1401a198a368a76aa"
+    },
+    "annotations/B_batch7.json": {
+      "records": 8,
+      "sha256": "82a8100f7b31accfe7bf7fad7460fb3db6a61083562899fa6919f40a835a5e7b"
+    },
+    "annotations/B_double.json": {
+      "records": 9,
+      "sha256": "6d3218e5cb04a4a671c5df7084e2239acbe3500d8c289dfa2669ce618e65ef49"
+    },
+    "annotations_goal_sections/all.json": {
+      "records": 300,
+      "sha256": "c439075eafea0d9e0899e542d1ad8f0209618795d0e728069a8ac3a19f5b32e6"
+    },
+    "annotations_goal_windows/all.json": {
+      "records": 118,
+      "sha256": "dce4406a3c00b10baf9b90c39af3712d454e84c4215704161e0ceeec04823e72"
+    },
+    "annotations_goal_windows/partial.json": {
+      "records": 94,
+      "sha256": "bdab299d18519eaf8e65a96c749d2a411b5b220310481337954deaa15a55077f"
+    },
+    "annotations_goal_windows_haiku/all.json": {
+      "records": 346,
+      "sha256": "f1e241c6fc07131ad2f65767bec60fce379d33180bc7ca75df685d05269872e3"
+    },
+    "annotations_scale/all.json": {
+      "records": 1985,
+      "sha256": "1f51e6088ceaba93b4005770653b211ace645ec01e1146cad5c8123aa9deeadd"
+    },
+    "annotations_scale_A/all.json": {
+      "records": 497,
+      "sha256": "f94d01e558375465e389a14f84bd8263765f88f6f307fa73e0cf625175c0a0da"
+    },
+    "annotations_span/all.json": {
+      "records": 3339,
+      "sha256": "70de1e3dbd2cb0a17d2dba6673ba3599fe81e85190dfa8ea725d27b1aa72d39f"
+    },
+    "annotations_span/partial1.json": {
+      "records": 196,
+      "sha256": "972443d08612db5d88e53e190b0d849e3144829c921bca2fe016d6aad182d574"
+    }
+  },
+  "all_unit_file_receipts": {
+    "units/A_boundary_batchpaths.json": {
+      "records": 20,
+      "sha256": "2808075bab4ebc2f727739e8b92d1caaa2af6a5459c5a78100093f83b80b8b79"
+    },
+    "units/A_boundary_manifest.jsonl": {
+      "records": 498,
+      "sha256": "baeeda7559fe1fd681ebb310e3f23c451eff837e30ccbce88a1fe1507a9ca814"
+    },
+    "units/B_betagate_batches.json": {
+      "records": 8,
+      "sha256": "b1ca976d408ab10f7915d7076843257894144adf75161b999f0a51a834c2650c"
+    },
+    "units/B_betagate_manifest.jsonl": {
+      "records": 64,
+      "sha256": "fd4af3fe732492c48e9335c923a0c530d90d1c065d8b2a65d0a33642f4168599"
+    },
+    "units/B_scale_batchpaths.json": {
+      "records": 63,
+      "sha256": "d8d584541e5fb3d21a03f7de2d7153e21e4552e3204676bf6fabd8f034852637"
+    },
+    "units/B_scale_manifest.jsonl": {
+      "records": 2000,
+      "sha256": "32840e0090679ebe7759944d42206678336ef4d8c1181fda57e677527dc6b51e"
+    },
+    "units/G_sections_batchpaths.json": {
+      "records": 10,
+      "sha256": "b7fe75bb4fc8c88b77bfae171e042bc65d68a31b99a95c65efbc2cea8f0281f5"
+    },
+    "units/G_sections_manifest.jsonl": {
+      "records": 300,
+      "sha256": "520d5462631addd183adc95346ab3b5517b7ba5ad021ad56f1b8d7cf8fa9d166"
+    },
+    "units/SPAN_aup_dropped.log": {
+      "records": null,
+      "sha256": "2aa0eeec3163249cfa9d08017527eab904d9517774168e680cbbe065f33242e2"
+    },
+    "units/SPAN_batchpaths.json": {
+      "records": 240,
+      "sha256": "0701154848afca5516b105cc6e754468af61d0242f8fc9e4ec9fdd49966a7bdf"
+    },
+    "units/SPAN_manifest.jsonl": {
+      "records": 3340,
+      "sha256": "819c7fa1c7a8924af6c6305ae59704928c4624800cc8354aa6c65eb8ad0933fc"
+    },
+    "units/SPAN_rust_baseline.json": {
+      "records": null,
+      "sha256": "df20f2460829e4af0353ffce2d6deacfabbe56e01253c8ac19ed3e9ac760ef83"
+    },
+    "units/SPAN_skip.json": {
+      "records": 1,
+      "sha256": "1daf7de43a9462c1f8f917c5816696758d1f488067c497d0f9660a1b4c4d936f"
+    },
+    "units/SPAN_split.json": {
+      "records": null,
+      "sha256": "0427159b447a0c1324d2f085a0338d785c3b3c86508a0db710ee8d68b5f5cd27"
+    },
+    "units/W_windows_batchpaths.json": {
+      "records": 29,
+      "sha256": "27d6a0af0997bd62204eac154ee5099d8de9922be3f2fd351bb1f92c9bd3b0b0"
+    },
+    "units/W_windows_manifest.jsonl": {
+      "records": 346,
+      "sha256": "28a045671465eccbd98841d49fc98741826a3b6045ab7ed3089be8c3a9db5550"
+    }
+  },
+  "evidence_status": "LLM_silver",
+  "families": {
+    "boundary": {
+      "annotation_rows": 497,
+      "annotations_sha256": "f94d01e558375465e389a14f84bd8263765f88f6f307fa73e0cf625175c0a0da",
+      "document_count": 497,
+      "extra_annotation_count": 0,
+      "extra_annotation_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "joined_rows": 497,
+      "manifest_rows": 498,
+      "manifest_sha256": "baeeda7559fe1fd681ebb310e3f23c451eff837e30ccbce88a1fe1507a9ca814",
+      "missing_annotation_count": 1,
+      "missing_annotation_first_last": [
+        "A0195",
+        "A0195"
+      ],
+      "missing_annotation_ids_sha256": "416e87b1cb3fd9dcfab115edb76ec5473f3733f0f917847139936f47d910b493",
+      "source_documents": {
+        "greek_phd": 249,
+        "openarchives": 248
+      },
+      "source_rows": {
+        "greek_phd": 249,
+        "openarchives": 248
+      }
+    },
+    "goal_sections": {
+      "annotation_rows": 300,
+      "annotations_sha256": "c439075eafea0d9e0899e542d1ad8f0209618795d0e728069a8ac3a19f5b32e6",
+      "document_count": 0,
+      "extra_annotation_count": 0,
+      "extra_annotation_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "joined_rows": 300,
+      "manifest_rows": 300,
+      "manifest_sha256": "520d5462631addd183adc95346ab3b5517b7ba5ad021ad56f1b8d7cf8fa9d166",
+      "missing_annotation_count": 0,
+      "missing_annotation_first_last": [],
+      "missing_annotation_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "source_documents": {},
+      "source_rows": {
+        "kallipos": 101,
+        "pergamos": 199
+      }
+    },
+    "goal_windows_haiku": {
+      "annotation_rows": 346,
+      "annotations_sha256": "f1e241c6fc07131ad2f65767bec60fce379d33180bc7ca75df685d05269872e3",
+      "document_count": 173,
+      "extra_annotation_count": 0,
+      "extra_annotation_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "joined_rows": 346,
+      "manifest_rows": 346,
+      "manifest_sha256": "28a045671465eccbd98841d49fc98741826a3b6045ab7ed3089be8c3a9db5550",
+      "missing_annotation_count": 0,
+      "missing_annotation_first_last": [],
+      "missing_annotation_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "source_documents": {
+        "greek_phd": 90,
+        "openarchives": 83
+      },
+      "source_rows": {
+        "greek_phd": 180,
+        "openarchives": 166
+      }
+    },
+    "goal_windows_opus": {
+      "annotation_rows": 118,
+      "annotations_sha256": "dce4406a3c00b10baf9b90c39af3712d454e84c4215704161e0ceeec04823e72",
+      "document_count": 59,
+      "extra_annotation_count": 0,
+      "extra_annotation_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "joined_rows": 118,
+      "manifest_rows": 346,
+      "manifest_sha256": "28a045671465eccbd98841d49fc98741826a3b6045ab7ed3089be8c3a9db5550",
+      "missing_annotation_count": 228,
+      "missing_annotation_first_last": [
+        "W0000",
+        "W0311"
+      ],
+      "missing_annotation_ids_sha256": "1e8836a626e343041542aef2888be3d6709377010f7afae404ac04f799f473d8",
+      "source_documents": {
+        "greek_phd": 30,
+        "openarchives": 29
+      },
+      "source_rows": {
+        "greek_phd": 60,
+        "openarchives": 58
+      }
+    },
+    "section_scale": {
+      "annotation_rows": 1985,
+      "annotations_sha256": "1f51e6088ceaba93b4005770653b211ace645ec01e1146cad5c8123aa9deeadd",
+      "document_count": 0,
+      "extra_annotation_count": 0,
+      "extra_annotation_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "joined_rows": 1985,
+      "manifest_rows": 2000,
+      "manifest_sha256": "32840e0090679ebe7759944d42206678336ef4d8c1181fda57e677527dc6b51e",
+      "missing_annotation_count": 15,
+      "missing_annotation_first_last": [
+        "S00981",
+        "S01880"
+      ],
+      "missing_annotation_ids_sha256": "99b3ef802736bf08dbe03d60bf6f02a23b0ac603b9b1736032e3b8934d110398",
+      "source_documents": {},
+      "source_rows": {
+        "kallipos": 524,
+        "pergamos": 1461
+      }
+    },
+    "span_windows": {
+      "annotation_rows": 3339,
+      "annotations_sha256": "70de1e3dbd2cb0a17d2dba6673ba3599fe81e85190dfa8ea725d27b1aa72d39f",
+      "document_count": 1738,
+      "extra_annotation_count": 0,
+      "extra_annotation_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "joined_rows": 3339,
+      "manifest_rows": 3340,
+      "manifest_sha256": "819c7fa1c7a8924af6c6305ae59704928c4624800cc8354aa6c65eb8ad0933fc",
+      "missing_annotation_count": 1,
+      "missing_annotation_first_last": [
+        "S00772",
+        "S00772"
+      ],
+      "missing_annotation_ids_sha256": "1c3c709b63f6f1de23d65fdd4190ee74a046f3d4f58a06975a7c67b632838fa9",
+      "source_documents": {
+        "greek_phd": 639,
+        "kallipos": 541,
+        "openarchives": 558
+      },
+      "source_rows": {
+        "greek_phd": 1596,
+        "kallipos": 772,
+        "openarchives": 971
+      }
+    }
+  },
+  "inventory_sha256": "e453b13d4d2ff4c1f1912d15ec61bcf3ce4932f6ccc74fc0aa54b610b81c05b7",
+  "legacy_struct_2k": {
+    "gold_path": "units/STRUCT_2K_gold.jsonl",
+    "gold_present": false,
+    "required_for_bib_toc_reconstruction": [
+      "STRUCT_2K_gold.jsonl",
+      "or all STRUCT_2K/batch_*.json plus ann_*.json files"
+    ],
+    "run_directory": "units/STRUCT_2K",
+    "run_directory_present": false
+  },
+  "production_eligible": false,
+  "schema_version": "academic-structure-silver-inventory-v1",
+  "section_snippet_evidence": {
+    "reason": "evidence_quote snippets have no work/document identity or full section text",
+    "rows": 1985,
+    "sequence_fit_eligible": false,
+    "source_rows": {
+      "kallipos": 524,
+      "pergamos": 1461
+    }
+  },
+  "sequence_evidence": {
+    "annotated_windows": 3339,
+    "bibliography_span_annotations": 3186,
+    "documents": 1738,
+    "expected_text_batch_files": 240,
+    "fit_ready_line_rows": 0,
+    "missing_text_batch_file_count": 240,
+    "missing_text_batch_first_last": [
+      "batch_0000.json",
+      "batch_0239.json"
+    ],
+    "missing_text_batch_names_sha256": "913416375b3743ab86eeb4f23ad49487edb783bbde8545788627398b4ad6d481",
+    "present_text_batch_files": 0,
+    "source_windows": {
+      "greek_phd": 1596,
+      "kallipos": 772,
+      "openarchives": 971
+    },
+    "task_scope_if_hydrated": "bibliography_binary_windows",
+    "toc_supervision_available": false
+  },
+  "tracked_feature_model_artifacts": {
+    "beta_gate_model.json": {
+      "raw_supervision_embedded": false,
+      "reconstruction_role": "research_or_diagnostic_only",
+      "sha256": "e540410715b91e2a24571aabb14659df8d7a8e7958305ac1602ca306f99736f0"
+    },
+    "feature_separability.json": {
+      "raw_supervision_embedded": false,
+      "reconstruction_role": "research_or_diagnostic_only",
+      "sha256": "2c689a8175c6a1cbd2aa61e679dcaa0c70314f0b568ff252727a74023de8a52c"
+    },
+    "span_line_lr_model.json": {
+      "raw_supervision_embedded": false,
+      "reconstruction_role": "frozen_comparison_baseline",
+      "sha256": "c7a43f4010eab121b174e8185fc639156d28d6649d30c6ec9de4e3602a2f9cb1"
+    },
+    "span_line_lr_struct_model.json": {
+      "raw_supervision_embedded": false,
+      "reconstruction_role": "research_or_diagnostic_only",
+      "sha256": "be81b8d2d00a0a76774354300113e066f27bfc71d80f5da19e6ce9c19972ec45"
+    },
+    "span_line_lr_syn_model.json": {
+      "raw_supervision_embedded": false,
+      "reconstruction_role": "research_or_diagnostic_only",
+      "sha256": "93c2b4fc115eff6412424416357fdcab9dca1d9399307f1876a9465af38d66cd"
+    },
+    "span_smooth_params.json": {
+      "raw_supervision_embedded": false,
+      "reconstruction_role": "research_or_diagnostic_only",
+      "sha256": "5e97113959e8d632ada2ff43c64e2b2d21ad23c859b4001a8da32842e50946a7"
+    },
+    "struct_smooth_params.json": {
+      "raw_supervision_embedded": false,
+      "reconstruction_role": "frozen_comparison_baseline",
+      "sha256": "b236aef41c2339792e8c08e035b39a1b18640b7510e1f0db3d954d3c29b2b2c1"
+    },
+    "toc_line_lr_model.json": {
+      "raw_supervision_embedded": false,
+      "reconstruction_role": "frozen_comparison_baseline",
+      "sha256": "d4d46b5059fbd078d58260739eeccd493603e78baeaf1c92fa6138c8d77345c7"
+    },
+    "window_lr_model.json": {
+      "raw_supervision_embedded": false,
+      "reconstruction_role": "research_or_diagnostic_only",
+      "sha256": "30b1b6926ece9f76e459a797514cb6c58bd8cf1a46c762ac5d941339ce434a49"
+    }
+  },
+  "tracked_positive_span_ledger": {
+    "path": "span_dataset.jsonl",
+    "rows": 3186,
+    "sha256": "6ae2d83bfcded2d69a6bed1524141e654ba2e449e0e681eec1a13dc9622495e7"
+  },
+  "tracked_reconstruction_script_receipts": {
+    "build_span_dataset.py": "6586fc41eca0d62c1b341f4e5c24f3253563c0ca618a07a2a85a8bdcda38ffa7",
+    "build_span_units.py": "1ac663df0bda3078fe2c4e5ae03444a4474ff1ebdd6cd76fa38b014b3204237f",
+    "decode_spans.py": "9bb4dba6ef8dd1fb64d17df48a464a867a6e507bf25d4bef4ea46967eeacb892",
+    "decode_struct.py": "0209c0fa00b3fc096a90455834dbc1588f16cdc68fb05dc9293b714221fefb4f",
+    "line_lr.py": "3ad9abbc778297de28fdb381612ecc7fae6f14e990da4ff83c5187034024a1d1",
+    "span_loop_step.py": "8ef4051200682d2c2156ef20b017203f558d16e00c8df8eb75bd1ac556e621ad",
+    "span_seq_data.py": "2e23f82daa0a7b71b3743c70317ceb58afed86117381a604705f079d7f80638b",
+    "span_signals.py": "10b5693c360013f495e886568979e68bc5985092702e4af979b1483b0c584be2",
+    "struct_lines.py": "a0a81d3753dcc381716a470212213c88f957ef9349fe3afec853a0647cc7cf6b",
+    "train_struct.py": "feb8687a049dac0eb099e37c76bebfa62003cf591e02536fd0a4548a25ee0d72"
+  }
+}

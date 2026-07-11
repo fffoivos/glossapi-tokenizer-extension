@@ -5,6 +5,7 @@ import math
 import sys
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -19,11 +20,13 @@ from sequence_models.contract import (
     GoldLine,
     build_split_manifest,
     validate_gold,
+    validate_silver,
 )
 from sequence_models.evaluate import evaluate, promotion_report, read_predictions, work_bootstrap
 from sequence_models.feature_crf import LinearChainCRF, make_examples
 from sequence_models.features import FeatureEncoder, TAGS, classes_to_bioes, validate_bioes
 from sequence_models.runtime import compare_prediction_files
+from sequence_models.silver_reconstruct import audit_tracked
 
 
 def document(
@@ -106,6 +109,35 @@ class ContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "inventory"):
             validate_gold([doc], policy, split_manifest=manifest)
 
+    def test_silver_contract_is_leak_free_but_never_production_eligible(self) -> None:
+        base = document("silver-1", split="train")
+        silver = replace(
+            base,
+            annotation_status="LLM_silver",
+            annotator_ids=("LLM:Claude-Opus",),
+            adjudicator_id=None,
+            annotation_engine="Claude Opus span-annotation workflow",
+            task_scope="bibliography_binary_windows",
+            coverage="annotated_windows",
+            lines=tuple(replace(line, is_running_prose=None) for line in base.lines),
+        )
+        split_policy = {
+            "seed": "fixed", "train_fraction": 1.0,
+            "validation_fraction": 0.0, "test_fraction": 0.0,
+        }
+        manifest = build_split_manifest([silver], split_policy)
+        receipt = validate_silver(
+            iter([silver]),
+            {
+                "annotation_status": "LLM_silver",
+                "allowed_task_scopes": ["bibliography_binary_windows"],
+            },
+            split_manifest=manifest,
+        )
+        self.assertEqual(receipt["evidence_tier"], "LLM_silver")
+        self.assertFalse(receipt["production_eligible"])
+        self.assertEqual(receipt["source_counts"], {"greek_phd": 1})
+
 
 class ModelTests(unittest.TestCase):
     def test_unknown_splits_crf_training_sequences(self) -> None:
@@ -129,6 +161,27 @@ class ModelTests(unittest.TestCase):
         encoded = encode_utf8_lines(["α", "a|pha"], max_bytes=4)
         self.assertEqual(encoded[0], [byte + 1 for byte in "α".encode("utf-8")])
         self.assertEqual(len(encoded[1]), 4)
+
+    def test_bib_only_crf_cannot_decode_toc(self) -> None:
+        model = LinearChainCRF(2, seed=7, active_classes=("BIB",))
+        rows = [{0: 1.0}, {1: 1.0}, {0: 1.0}]
+        decoded = [TAGS[index] for index in model.viterbi(rows)]
+        self.assertFalse(any(tag.endswith("-TOC") for tag in decoded))
+        self.assertTrue(all(not allowed for tag, allowed in zip(TAGS, model.active_tag_mask)
+                            if tag.endswith("-TOC")))
+
+
+class ReconstructionAuditTests(unittest.TestCase):
+    def test_tracked_inventory_proves_current_text_dependency(self) -> None:
+        report = audit_tracked()
+        evidence = report["sequence_evidence"]
+        self.assertEqual(evidence["annotated_windows"], 3339)
+        self.assertEqual(evidence["documents"], 1738)
+        self.assertEqual(evidence["bibliography_span_annotations"], 3186)
+        self.assertEqual(evidence["missing_text_batch_file_count"], 240)
+        self.assertEqual(evidence["fit_ready_line_rows"], 0)
+        self.assertFalse(evidence["toc_supervision_available"])
+        self.assertFalse(report["production_eligible"])
 
 
 class EvaluationTests(unittest.TestCase):
