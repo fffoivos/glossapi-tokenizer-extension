@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Derive a SPAN rehydration source receipt from a passed Phase-04 acquisition."""
+
 from __future__ import annotations
 
 import argparse
@@ -61,7 +62,11 @@ def _unique_rows(rows: Any, name: str) -> dict[str, dict[str, Any]]:
 
 
 def _config_sources(config: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
-    result: dict[str, Mapping[str, Any]] = {"nanochat_base": config.get("base", {})}
+    result: dict[str, Mapping[str, Any]] = {
+        "nanochat_base": config.get("base", {}),
+        "apertus_overlap_overlay": config.get("apertus_overlap_overlay", {}),
+        "modern_greek_148k_tokenizer": config.get("tokenizer", {}),
+    }
     for row in config.get("sources", []):
         if isinstance(row, dict) and row.get("source_id"):
             result[str(row["source_id"])] = row
@@ -94,9 +99,13 @@ def _validate_phase04_bindings(
     lock_sha = sha256_file(lock_path)
     sources_sha = sha256_file(sources_path)
     if acquisition.get("source_lock_sha256") != lock_sha:
-        raise RehydrationError("acquisition receipt is not bound to the supplied source lock")
+        raise RehydrationError(
+            "acquisition receipt is not bound to the supplied source lock"
+        )
     if acquisition.get("sources_config_sha256") != sources_sha:
-        raise RehydrationError("acquisition receipt is not bound to the supplied sources.json")
+        raise RehydrationError(
+            "acquisition receipt is not bound to the supplied sources.json"
+        )
     if lock.get("sources_config_sha256") != sources_sha:
         raise RehydrationError("source lock is not bound to the supplied sources.json")
     recorded_lock = Path(str(acquisition.get("source_lock", ""))).resolve()
@@ -119,7 +128,10 @@ def _validate_phase04_bindings(
             ("repo_type", config_row.get("repo_type", "dataset")),
             ("revision", config_row.get("revision")),
         ):
-            if lock_row.get(field) != configured_value or receipt_row.get(field) != configured_value:
+            if (
+                lock_row.get(field) != configured_value
+                or receipt_row.get(field) != configured_value
+            ):
                 raise RehydrationError(
                     f"{source_id}: {field} differs between config, lock, and acquisition receipt"
                 )
@@ -134,11 +146,17 @@ def _validate_phase04_bindings(
             if isinstance(row, dict) and row.get("path")
         }
         if len(locked_files) != len(lock_row.get("selected_files", [])):
-            raise RehydrationError(f"{source_id}: lock contains duplicate/invalid files")
+            raise RehydrationError(
+                f"{source_id}: lock contains duplicate/invalid files"
+            )
         if len(receipt_files) != len(receipt_row.get("files", [])):
-            raise RehydrationError(f"{source_id}: acquisition contains duplicate/invalid files")
+            raise RehydrationError(
+                f"{source_id}: acquisition contains duplicate/invalid files"
+            )
         if set(locked_files) != set(receipt_files):
-            raise RehydrationError(f"{source_id}: acquisition file inventory differs from lock")
+            raise RehydrationError(
+                f"{source_id}: acquisition file inventory differs from lock"
+            )
         local_root = Path(str(receipt_row.get("local_root", ""))).resolve()
         for relative, locked_file in locked_files.items():
             receipt_file = receipt_files[relative]
@@ -146,7 +164,9 @@ def _validate_phase04_bindings(
             expected_hash = lfs_sha or locked_file.get("blob_id")
             expected_kind = "lfs_sha256" if lfs_sha else "git_blob_id"
             if not isinstance(expected_hash, str) or not expected_hash:
-                raise RehydrationError(f"{source_id}:{relative}: lock has no content identity")
+                raise RehydrationError(
+                    f"{source_id}:{relative}: lock has no content identity"
+                )
             if (
                 receipt_file.get("hash_kind") != expected_kind
                 or receipt_file.get("expected_hash") != expected_hash
@@ -157,9 +177,13 @@ def _validate_phase04_bindings(
             local_path = Path(str(receipt_file.get("local_path", ""))).resolve()
             expected_local = (local_root / relative).resolve()
             if local_path != expected_local or not _under(local_root, local_path):
-                raise RehydrationError(f"{source_id}:{relative}: unsafe/inconsistent local path")
+                raise RehydrationError(
+                    f"{source_id}:{relative}: unsafe/inconsistent local path"
+                )
             if not local_path.is_file():
-                raise RehydrationError(f"{source_id}:{relative}: acquired file is missing")
+                raise RehydrationError(
+                    f"{source_id}:{relative}: acquired file is missing"
+                )
             stat = local_path.stat()
             if stat.st_size != int(locked_file.get("size", -1)):
                 raise RehydrationError(f"{source_id}:{relative}: acquired size drift")
@@ -170,7 +194,9 @@ def _validate_phase04_bindings(
                 ("ctime_ns", stat.st_ctime_ns),
             ):
                 if int(receipt_file.get(field, -1)) != int(actual):
-                    raise RehydrationError(f"{source_id}:{relative}: acquired {field} drift")
+                    raise RehydrationError(
+                        f"{source_id}:{relative}: acquired {field} drift"
+                    )
     return acquisition, locked, acquired, configured
 
 
@@ -182,7 +208,9 @@ def _manifest_source_ids(path: Path, source: str) -> set[str]:
                 continue
             row = json.loads(raw)
             if not isinstance(row, dict):
-                raise RehydrationError(f"{path}:{line_number}: manifest row is not an object")
+                raise RehydrationError(
+                    f"{path}:{line_number}: manifest row is not an object"
+                )
             if row.get("source") == source:
                 result.add(str(row.get("doc_id", "")))
     if not result or "" in result:
@@ -325,7 +353,9 @@ def _inspect_parquet_route(route: Route, paths: Sequence[Path]) -> dict[str, Any
     try:
         import pyarrow.parquet as pq  # type: ignore[import-not-found]
     except ImportError as exc:
-        raise RehydrationError("source-receipt building requires the pinned pyarrow runtime") from exc
+        raise RehydrationError(
+            "source-receipt building requires the pinned pyarrow runtime"
+        ) from exc
     reports: list[dict[str, Any]] = []
     sample_ids: list[str] = []
     if route.format == "parquet_sections":
@@ -340,14 +370,18 @@ def _inspect_parquet_route(route: Route, paths: Sequence[Path]) -> dict[str, Any
         columns = set(parquet.schema_arrow.names)
         missing = sorted(required - columns)
         if missing:
-            raise RehydrationError(f"{path}: route-required Parquet columns are absent: {missing}")
+            raise RehydrationError(
+                f"{path}: route-required Parquet columns are absent: {missing}"
+            )
         if route.format == "parquet_documents":
             id_column = str(route.fields["document_id"])
             for batch in parquet.iter_batches(
                 batch_size=32, columns=[id_column], use_threads=False
             ):
                 sample_ids.extend(
-                    str(value) for value in batch.column(0).to_pylist() if value is not None
+                    str(value)
+                    for value in batch.column(0).to_pylist()
+                    if value is not None
                 )
                 break
         reports.append(
@@ -378,9 +412,13 @@ def _inspect_jsonl_route(route: Route, paths: Sequence[Path]) -> dict[str, Any]:
                 try:
                     value = json.loads(raw)
                 except json.JSONDecodeError as exc:
-                    raise RehydrationError(f"{path}:{line_number}: invalid JSON") from exc
+                    raise RehydrationError(
+                        f"{path}:{line_number}: invalid JSON"
+                    ) from exc
                 if not isinstance(value, dict):
-                    raise RehydrationError(f"{path}:{line_number}: row must be an object")
+                    raise RehydrationError(
+                        f"{path}:{line_number}: row must be an object"
+                    )
                 first = value
                 break
         if first is None:
@@ -417,17 +455,26 @@ def build_span_source_receipt(args: argparse.Namespace) -> dict[str, Any]:
     config = _load_object(sources_path, "full_cpt_sources_v1")
     routes = _routes(args, config)
     if {route.logical_source for route in routes} != REQUIRED_LOGICAL_SOURCES:
-        raise RehydrationError("builder did not resolve exactly the three SPAN logical sources")
+        raise RehydrationError(
+            "builder did not resolve exactly the three SPAN logical sources"
+        )
     logical_sources: dict[str, Any] = {}
     schema_reports: dict[str, Any] = {}
     for route in routes:
         source_id = route.acquisition_source_id
-        if source_id not in locked or source_id not in acquired or source_id not in config_rows:
+        if (
+            source_id not in locked
+            or source_id not in acquired
+            or source_id not in config_rows
+        ):
             raise RehydrationError(
                 f"{route.logical_source}: acquisition lacks required source {source_id!r}"
             )
         selected = _select_files(route, locked[source_id], acquired[source_id])
-        paths = [Path(str(receipt_file["local_path"])).resolve() for _, receipt_file in selected]
+        paths = [
+            Path(str(receipt_file["local_path"])).resolve()
+            for _, receipt_file in selected
+        ]
         report = (
             _inspect_jsonl_route(route, paths)
             if route.format == "jsonl_documents"
@@ -436,9 +483,13 @@ def build_span_source_receipt(args: argparse.Namespace) -> dict[str, Any]:
         if route.logical_source == "greek_phd" and route.format == "parquet_documents":
             manifest_ids = _manifest_source_ids(manifest_path, "greek_phd")
             if not all(HEX64_RE.fullmatch(item) for item in manifest_ids):
-                raise RehydrationError("tracked Greek PhD manifest IDs are not the expected hash domain")
+                raise RehydrationError(
+                    "tracked Greek PhD manifest IDs are not the expected hash domain"
+                )
             samples = report.get("sample_document_ids", [])
-            sample_hash_compatible = bool(samples) and all(HEX64_RE.fullmatch(item) for item in samples)
+            sample_hash_compatible = bool(samples) and all(
+                HEX64_RE.fullmatch(item) for item in samples
+            )
             if (
                 route.acquisition_source_id == "nanochat_base"
                 and not sample_hash_compatible

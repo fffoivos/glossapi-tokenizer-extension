@@ -14,6 +14,7 @@ EVAL_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(EVAL_DIR))
 
 from sequence_models.build_span_source_receipt import (  # noqa: E402
+    _config_sources,
     build_span_source_receipt,
 )
 from sequence_models.span_rehydration import (  # noqa: E402
@@ -27,6 +28,22 @@ RUNTIME_AVAILABLE = (
     importlib.util.find_spec("pyarrow") is not None
     and importlib.util.find_spec("zstandard") is not None
 )
+
+
+def test_phase04_config_expands_all_acquisition_registry_sections() -> None:
+    config = {
+        "base": {"repo_id": "owner/base"},
+        "apertus_overlap_overlay": {"repo_id": "owner/overlap"},
+        "tokenizer": {"repo_id": "owner/tokenizer"},
+        "sources": [{"source_id": "candidate", "repo_id": "owner/candidate"}],
+    }
+    rows = _config_sources(config)
+    assert set(rows) == {
+        "nanochat_base",
+        "apertus_overlap_overlay",
+        "modern_greek_148k_tokenizer",
+        "candidate",
+    }
 
 
 @unittest.skipUnless(RUNTIME_AVAILABLE, "pyarrow/zstandard not installed")
@@ -117,7 +134,9 @@ class SpanSourceReceiptBuilderTests(unittest.TestCase):
             )
             files["nanochat_base"].append(path)
         unrelated = nano_root / "data" / "unrelated.parquet"
-        pq.write_table(pa.table({"source_doc_id": ["x"], "text": ["ignore"]}), unrelated)
+        pq.write_table(
+            pa.table({"source_doc_id": ["x"], "text": ["ignore"]}), unrelated
+        )
         files["nanochat_base"].append(unrelated)
         nanochat_kallipos = nano_root / "data" / "Apothetirio_Kallipos.parquet"
         pq.write_table(
@@ -132,14 +151,22 @@ class SpanSourceReceiptBuilderTests(unittest.TestCase):
         )
         files["nanochat_base"].append(nanochat_kallipos)
 
-        open_root = self.destination / "openarchives_current" / revisions["openarchives_current"]
+        open_root = (
+            self.destination
+            / "openarchives_current"
+            / revisions["openarchives_current"]
+        )
         open_path = open_root / "data" / "openarchives" / "shard_001" / "part.jsonl.zst"
         open_path.parent.mkdir(parents=True, exist_ok=True)
-        payload = (json.dumps({"doc_id": "open-1", "text": "Open text"}) + "\n").encode()
+        payload = (
+            json.dumps({"doc_id": "open-1", "text": "Open text"}) + "\n"
+        ).encode()
         open_path.write_bytes(zstandard.ZstdCompressor().compress(payload))
         files["openarchives_current"].append(open_path)
 
-        kallipos_root = self.destination / "kallipos_sections" / revisions["kallipos_sections"]
+        kallipos_root = (
+            self.destination / "kallipos_sections" / revisions["kallipos_sections"]
+        )
         kallipos_path = kallipos_root / "Dataset_Kallipos.parquet"
         kallipos_path.parent.mkdir(parents=True, exist_ok=True)
         pq.write_table(
@@ -298,29 +325,40 @@ class SpanSourceReceiptBuilderTests(unittest.TestCase):
 
     def test_builds_path_filtered_receipt_from_acquisition_and_lock(self) -> None:
         receipt = build_span_source_receipt(self._args())
-        self.assertEqual(set(receipt["sources"]), {"greek_phd", "openarchives", "kallipos"})
+        self.assertEqual(
+            set(receipt["sources"]), {"greek_phd", "openarchives", "kallipos"}
+        )
         greek = receipt["sources"]["greek_phd"]
         self.assertEqual(greek["format"], "parquet_documents")
         self.assertEqual(greek["fields"]["document_id"], "source_doc_id")
         self.assertEqual(len(greek["artifacts"]), 2)
         self.assertTrue(
-            all("greek_phd.part-" in row["repository_path"] for row in greek["artifacts"])
+            all(
+                "greek_phd.part-" in row["repository_path"]
+                for row in greek["artifacts"]
+            )
         )
-        self.assertEqual(receipt["sources"]["openarchives"]["format"], "jsonl_documents")
+        self.assertEqual(
+            receipt["sources"]["openarchives"]["format"], "jsonl_documents"
+        )
         self.assertEqual(receipt["sources"]["kallipos"]["format"], "parquet_sections")
-        self.assertEqual(receipt["snapshot_equivalence_status"], "rehydrated_unverified_snapshot")
+        self.assertEqual(
+            receipt["snapshot_equivalence_status"], "rehydrated_unverified_snapshot"
+        )
         specs, artifacts = load_source_specs(
             self.output_path, {"greek_phd", "openarchives", "kallipos"}
         )
-        self.assertEqual(specs["greek_phd"].provenance["acquisition_source_id"], "nanochat_base")
+        self.assertEqual(
+            specs["greek_phd"].provenance["acquisition_source_id"], "nanochat_base"
+        )
         self.assertEqual(len(artifacts), 4)
 
     def test_v2_route_requires_explicit_unverified_identifier_override(self) -> None:
         with self.assertRaisesRegex(RehydrationError, "historical hash doc_id"):
-            build_span_source_receipt(
-                self._args(greek_phd_route="greek_phd_v2")
-            )
-        with self.assertRaisesRegex(RehydrationError, "identifier alignment is unverified"):
+            build_span_source_receipt(self._args(greek_phd_route="greek_phd_v2"))
+        with self.assertRaisesRegex(
+            RehydrationError, "identifier alignment is unverified"
+        ):
             build_span_source_receipt(
                 self._args(
                     greek_phd_route="greek_phd_v2",
@@ -328,7 +366,9 @@ class SpanSourceReceiptBuilderTests(unittest.TestCase):
                 )
             )
 
-    def test_kallipos_nanochat_document_route_is_explicit_and_path_filtered(self) -> None:
+    def test_kallipos_nanochat_document_route_is_explicit_and_path_filtered(
+        self,
+    ) -> None:
         output = self.root / "span-source-artifacts-nanochat-kallipos.json"
         receipt = build_span_source_receipt(
             self._args(kallipos_route="nanochat_base", output=str(output))
@@ -340,11 +380,14 @@ class SpanSourceReceiptBuilderTests(unittest.TestCase):
             [row["repository_path"] for row in kallipos["artifacts"]],
             ["data/Apothetirio_Kallipos.parquet"],
         )
+
     def test_rejects_acquisition_lock_hash_drift(self) -> None:
         acquisition = json.loads(self.acquisition_path.read_text(encoding="utf-8"))
         acquisition["source_lock_sha256"] = hashlib.sha256(b"wrong").hexdigest()
         self._write_json(self.acquisition_path, acquisition)
-        with self.assertRaisesRegex(RehydrationError, "not bound to the supplied source lock"):
+        with self.assertRaisesRegex(
+            RehydrationError, "not bound to the supplied source lock"
+        ):
             build_span_source_receipt(self._args())
 
 
