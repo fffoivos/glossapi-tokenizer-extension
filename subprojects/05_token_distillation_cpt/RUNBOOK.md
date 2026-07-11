@@ -1,14 +1,19 @@
 # Greek Apertus CPT Runbook
 
-This is the canonical operator runbook for the two-arm 13.5B Greek CPT launch.
+This is the historical operator runbook for the completed two-arm 13.5B Greek CPT launch.
 For policy rationale, use `ARCHIVE.md` and `LOG.md`; for exact live values, the
 single source of truth is the env config under `03_training_experiments/configs/`.
 
+> **Do not relaunch this experiment.** Its old Megatron data binaries have been
+> removed. The current env defaults are the frozen full-corpus-probe recipe in
+> `PRODUCTION_HYPERPARAMETERS_DECISION_20260711.md`, not the original 13.5B
+> as-run beta2 value.
+
 ## Current State
 
-- Dataset, Stage-C physical stream, base/ext Megatron binaries, held-out
-  validation binaries, init checkpoints, TE runtime guard, per-set validation
-  patch, and artifact gate are ready on Clariden.
+- Run logs, checkpoints and evaluation sidecars remain on Clariden. The old
+  training/validation `.bin/.idx` payloads are no longer present, so the old
+  artifact gate cannot pass without rebuilding them.
 - Launch-scale CXI is validated at 16 nodes / 64 GPUs per arm with
   `NCCL_NET_FORCE_FLUSH=0`; do not use the earlier Socket fallback unless CXI
   regresses.
@@ -59,10 +64,11 @@ The exact live settings are in `configs/common_cpt.env`:
   `rope_scaling`; only revert the long-context `rope_theta`/context length.
 - Batch: microbatch 2, global batch 1024, global batch tokens 4,194,304.
 - Precision: bf16 with fp32 main grads.
-- Optimizer: AdEMAMix, beta1 0.9, beta2 0.995, beta3 0.999, alpha 4.0,
+- Optimizer: AdEMAMix, beta1 0.9, **beta2 0.999**, beta3 0.999, alpha 4.0,
   weight decay 0.1, grad clip 0.1, init std 0.008944.
 - LR: WSD, peak 5.5e-5, final 5.5e-6, warmup init 5.5e-6.
-- Warmup: `2/(1-beta2)` = 400 iterations = about 1.678B tokens.
+- Warmup: **fixed 400 iterations** = about 1.678B tokens at this batch; it is
+  intentionally decoupled from beta2.
 - Cooldown: final 20% of the full 13.5B run, `1-sqrt` decay.
 - AdEMAMix beta3/alpha warmup: full run, `TRAIN_ITERS`.
 - Loss: Goldfish, k=50 and h=50.

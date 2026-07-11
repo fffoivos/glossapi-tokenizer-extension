@@ -5,9 +5,9 @@ full-corpus probe / production-design runs.
 
 **Scope:** this settles the peak-LR choice after the `curriculum_sweeps_v2` LR
 sweep at the selected replay split: 79% new Greek, 20% foreign replay, 1%
-old-Greek replay. It does not settle AdEMAMix alpha, cooldown length, corpus-tail
-composition, or whether a production-scale run should keep the two-phase
-curriculum.
+old-Greek replay. Alpha, beta3 and beta2 were settled later in
+`PRODUCTION_HYPERPARAMETERS_DECISION_20260711.md`; corpus and curriculum policy
+remain separate.
 
 ## Decision
 

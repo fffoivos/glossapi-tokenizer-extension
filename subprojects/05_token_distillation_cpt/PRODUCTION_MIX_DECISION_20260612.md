@@ -1,9 +1,9 @@
 # Production (60 B) mix decision — replay fraction + old-Greek replay
 
 **Date:** 2026-06-12 · **Status:** decided, ready to implement · **Scope:** the data
-*mixture* for the ~60 B-new-token TD production run. Peak LR is now settled
-separately in `PRODUCTION_LR_DECISION_20260613.md`; AdEMAMix and the
-keep-vs-drop curriculum question remain separate.
+*mixture* for the ~60 B-new-token TD production run. Peak LR and AdEMAMix were
+settled later in `PRODUCTION_HYPERPARAMETERS_DECISION_20260711.md`; the
+keep-vs-drop curriculum question remains separate.
 **Evidence:** `reports/cpt_curriculum_forgetting_learning.html` (the `curriculum_sweeps_v2`
 replay sweep) + `papers/notes/{ibrahim-cpt,stability-gap-cpt,gupta-rewarm-cpt}.md`.
 

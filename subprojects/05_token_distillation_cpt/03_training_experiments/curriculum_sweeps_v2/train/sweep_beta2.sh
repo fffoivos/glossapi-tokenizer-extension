@@ -4,13 +4,13 @@
 # Settled (held fixed):  LR_PEAK=5.5e-5 · ADEMA_BETA3=0.999 · ADEMA_ALPHA=4 · split replay 79/20/1
 #                        (FOREIGN_REPLAY_R=20/79, OLD_GREEK_REPLAY_R=1/79).
 # Swept:                 ADEMA_BETA2 ∈ {0.99, 0.999} — the 2 REMAINING points. β2=0.995 is the completed
-#                        α=4 run (curr_td_f20_g1_lr5.5e-5_a4): production β2=0.995 (common_cpt.env:22), so
-#                        a4 IS the middle point — integrate it; don't re-run.
+#                        α=4 control (curr_td_f20_g1_lr5.5e-5_a4). The completed sweep selected 0.999;
+#                        this launcher is retained only for provenance/reproduction.
 # WARMUP (load-bearing): PINNED LR_WARMUP_ITERS=400 across all arms (NOT the config's coupled 2/(1-β2)).
 #                        On 3218 it, coupled would give β2=0.999 a 2000-iter warmup (62% of run) —
 #                        pathological + confounds the β2 contrast. 400 = 2/(1-0.995) = the a4 anchor's
 #                        warmup, so the 3 β2 points {0.99, 0.995=a4, 0.999} share one warmup → clean.
-#                        Set COUPLE_WARMUP=1 to instead let common_cpt.env compute 2/(1-β2).
+#                        Set COUPLE_WARMUP=1 to explicitly compute 2/(1-β2) for a historical what-if.
 # Scheduler:             β3/α warmup tied to TRAIN_ITERS=3218 (production), unchanged.
 # Geometry:              13.5 B, identical to the α/LR/β3 sweeps → TOTAL_ITER=3218, PHASE1_EXIT_ITER=2261.
 # Data:                  REUSES curriculum_v2's existing decontam'd/anon'd binaries + 9 held-out vals.
@@ -66,7 +66,11 @@ fi
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 for B2 in $BETA2_GRID; do
   SAFE="${B2//./p}"
-  if [ "$COUPLE_WARMUP" = "1" ]; then WU=""; else WU="$FIXED_WARMUP"; fi
+  if [ "$COUPLE_WARMUP" = "1" ]; then
+    WU="$(awk -v b="$B2" 'BEGIN{printf "%d", (2/(1-b))+0.5}')"
+  else
+    WU="$FIXED_WARMUP"
+  fi
   RUN_TAG="curr_td_b2${SAFE}_b3p999_${RUN_LABEL}_${STAMP}" \
     ARM=td R=0.25 \
     FOREIGN_REPLAY_R="$FOREIGN_REPLAY_R" OLD_GREEK_REPLAY_R="$OLD_GREEK_REPLAY_R" \
@@ -78,4 +82,4 @@ done
 
 echo "β2 sweep submitted ($RUN_LABEL): BETA2_GRID=$BETA2_GRID  STAGE=$STAGE"
 echo "  warmup: $([ "$COUPLE_WARMUP" = 1 ] && echo "COUPLED 2/(1-β2)" || echo "FIXED ${FIXED_WARMUP} it")  (β3=$ADEMA_BETA3 α=$ADEMA_ALPHA LR=$LR_PEAK, replay 79/20/1)"
-echo "  integrate β2=0.995 from the completed α=4 run (same dataset + warmup 400)."
+echo "  control β2=0.995 comes from the completed α=4 run (same dataset + warmup 400); selected β2=0.999."

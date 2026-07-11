@@ -2,7 +2,7 @@
 
 **Base model / checkpoint:** **`swiss-ai/Apertus-8B-2509`** — the released `main` checkpoint. We train from this; we do **not** have the GPU-hours to resume from an earlier (pre-decay) checkpoint. 32 layers, dim 4096, untied input/output embeddings, xIELU activation, QK-Norm, decoder-only.
 **Optimizer:** AdEMAMix (Swiss-AI Megatron-LM fork).
-**Status:** Parameter block finalized. Experiment design (token budgets, evaluation suite, success criteria) and the peak-LR sweep are specified separately.
+**Status:** **Frozen for the full-corpus probe.** Replay, peak LR, alpha, beta3 and beta2 sweeps are complete; see `05_token_distillation_cpt/PRODUCTION_HYPERPARAMETERS_DECISION_20260711.md`.
 **Provenance:** Values not listed as *changed* trace to the validated Task-1 regime (`04_cpt_training_regime_on_vanilla/goal/hyperparameters.json` + the iter-1192 as-run log). Changed values and their rationale are flagged below.
 
 ---
@@ -12,10 +12,10 @@
 | Parameter | Value | Justification |
 |---|---|---|
 | β₁ (fast EMA) | **0.9** | Standard AdamW/AdEMAMix value; matches Apertus. AdEMAMix's design assumes the *slow* first-moment EMA β₃ is comfortably larger than β₁ (Pagliardini et al. 2025) — satisfied here (0.999 ≫ 0.9). (β₂ is the unchanged Adam *second*-moment EMA — a separate role.) |
-| β₂ (second moment) | **0.995** *(starting value)* | Lower than Apertus's 0.999: a faster (slightly noisier) second-moment estimate adapts more quickly to the shifted (Greek) gradient statistics on a short run. β₂ is the ordinary Adam variance EMA and is free to tune — AdEMAMix's stability constraint is β₃ > β₁, which β₂ does not affect. Couples to warmup via 2/(1−β₂) (§2). To be swept in [0.99, 0.999]. |
+| β₂ (second moment) | **0.999** | Selected from the mechanically comparable `{0.99, 0.995, 0.999}` sweep at a fixed 400-iteration LR warmup. It had the best GreekMMLU and new-Greek held-out loss with only a negligible foreign-loss tradeoff. |
 | β₃ (slow EMA) | **0.999** | The AdEMAMix paper's value for **low-iteration** runs (App. C.1.5 / Fig. 17: β₃ = 0.999 beats 0.9999 at 32k–64k steps; 0.9999 wins only for longer runs) — and our CPT is short. Lower than Apertus's pretraining 0.9999. *(The paper flags fast distribution-shift only as a stated limitation with no β₃ value attached, so we lean on the low-iteration result, not a distribution-shift claim.)* |
-| α (slow-EMA mixing) | **4** *(starting value)* | The paper's reference α = 8 was tuned with β₃ = 0.9999; no α is published for β₃ = 0.999. Both the lower β₃ and the large (~4.2M-token) batch argue for less slow-momentum weight, so α = 4 (≈ half of Apertus's 8) is the starting point, to be swept. |
-| α / β₃ warmup | **Whole run, T_{α,β₃} = T** (paper schedulers) | A large β₃ diverges if applied from step 0, so both are warmed from β_start = β₁ (Pagliardini et al. 2025). Apertus used a **fixed 100k-step** warmup (Table C.4) — longer than our entire short CPT — so a run-length-relative schedule is used instead; the paper notes scheduling need not span all of training. *(Open — §6: confirm β₃ actually engages on a short run, and that the Megatron fork supports the schedule.)* |
+| α (slow-EMA mixing) | **4** | Sweep winner over `{0, 4, 8}`: strongest GreekMMLU with the best overall adaptation/retention compromise. |
+| α / β₃ warmup | **Whole run, T_{α,β₃} = T** (paper schedulers) | A large β₃ diverges if applied from step 0, so both are warmed from β_start = β₁ (Pagliardini et al. 2025). Apertus used a fixed 100k-step warmup; our run-length-relative schedule was code-verified and used by every selected sweep arm. |
 | Weight decay | **0.1** | Apertus / bakeoff value; unchanged. Applied to all parameters including new embedding rows (no exclusion, since differential LR is not used). |
 | Gradient clipping | **0.1** (global norm) | Apertus value; unchanged. Expected to be active most steps under AdEMAMix's long-momentum term. |
 | ε | 1e-8 | Standard default. |
@@ -28,12 +28,12 @@ Shape follows Apertus's pretraining schedule (trapezoid, 1-sqrt cooldown), with 
 
 | Phase | Span | LR | Shape |
 |---|---|---|---|
-| Warmup | **2/(1−β₂)** iters (β₂=0.995 → ~400, ≈12%) | 5.5e-6 → 5.5e-5 | linear |
-| Stable | remainder (≈68% at β₂=0.995) | 5.5e-5 | constant |
+| Warmup | **400 iterations, fixed** (≈12% of the 13.5B sweep horizon) | 5.5e-6 → 5.5e-5 | linear |
+| Stable | remainder (≈68% at the 13.5B horizon) | 5.5e-5 | constant |
 | Decay | final **20%** | 5.5e-5 → 5.5e-6 | 1-sqrt |
 
-- **Peak LR = 5.5e-5** = 0.5 × Apertus-8B's pretraining peak (1.1e-4). This sits on the *adaptation-favoring* side of the documented adaptation-vs-forgetting tradeoff (Ibrahim et al. 2024: a higher peak improves adaptation, a lower peak reduces forgetting). It is more aggressive than Apertus's own long-context continuation LR (0.1× peak = 1.1e-5) and than the project's prior 1.1e-5 runs; the higher peak is paired with the reduced α (4) to moderate effective update magnitude, and with replay + the decay tail to protect retention. **This peak is the primary subject of the planned peak-LR sweep.**
-- **Warmup = 2/(1−β₂) iterations** (policy, decided 2026-06-09), linear, from 0.1× peak — the untuned-warmup horizon over which the second-moment estimate becomes reliable (Ma & Yarats 2021); a re-warm is needed because Adam-family optimizers overstep early even when restarted at a minimum. It **scales with β₂** across the sweep: 0.99→200, 0.995→400, 0.999→2000 iters. ⚠ **Coupling:** at the top of the β₂ sweep (0.999) this is ~2000 iters ≈ 62% of a 3,218-iter run — so β₂ and warmup must be chosen together (high β₂ is incompatible with this warmup rule on a short run).
+- **Peak LR = 5.5e-5** = 0.5 × Apertus-8B's pretraining peak (1.1e-4). The completed sweep selected it as the loss-first adaptation/retention knee: nearly the high-LR GreekMMLU gain without their foreign held-out loss cost.
+- **Warmup = 400 iterations, fixed**, linear from 0.1× peak. The beta2 sweep deliberately held this constant so beta2 was the only changed field. Do **not** reapply `2/(1-beta2)`: at the selected beta2=0.999 it would produce 2,000 iterations and a recipe that was never compared.
 - **Decay = final 20%, 1-sqrt**, to 0.1× peak — the cooldown shape Apertus used. 20% is the upper end of the 10–20% WSD sweet spot. Supplies the "re-decay" ingredient of the canonical CPT recipe (Ibrahim et al. 2024) that the constant-LR diagnostics omitted.
 
 ---
@@ -72,11 +72,11 @@ Shape follows Apertus's pretraining schedule (trapezoid, 1-sqrt cooldown), with 
 | Precision | bf16 |
 | Parallelism | TP = 2, PP = 1 |
 | Attention masking | EoD + cross-document attention masking (`--reset-attention-mask --reset-position-ids`) |
-| Data mixture | **new Greek (= 70% HPLT + 30% openarchives, unseen) is primary; replay = +35% OF the new-Greek budget** (24% multilingual + 4% code + 2% math + 5% Greek-replay). 10B new → 13.5B total; per-step shares ≈ 74% new / 18% ML / 3% code / 1.5% math / 3.7% Greek-replay. 3 held-out val sets (0.5B each: HPLT, openarchives, greek_phd) excluded from training; per-set loss at eval cadence. |
+| Data mixture | **79% new Greek / 20% foreign replay / 1% old-Greek replay.** Foreign replay remains Apertus-family matched (FineWeb-Edu, FineWeb-2-HQ, StarCoderData, FineMath). Stable document-hash held-outs are excluded from training. |
 
 Held at the Apertus/bakeoff regime so the run stays faithful to the base model's training dynamics.
 
-**Data-mixture note.** The **new Greek corpus (glossapi + HPLT**, post-dedup → decontamination → HPLT confident-only residue cleaning (`02_corpus_preparation/10_clean_hplt`) → PII masking) is the **primary** stream: its token budget is set first per experiment (a fixed amount — e.g. 10B — or all available), and replay is added **as a percentage OF that new-Greek count** (+35% total, so 10B new → 13.5B): **24% multilingual** (en/fr/de/ru… per the Vanilla-run B1 recipe), **4% code**, **2% math**, and a new **5% Greek replay** of *Apertus-original* Greek to anchor the model's existing Greek against drift (candidate source: the `apertus_overlap_drop` docs removed during dedup — i.e. Greek that was already in Apertus's pretraining). Shares are interleaver probabilities; effective token shares track them up to per-source exhaustion. The 24/4/2 sub-composition follows the Vanilla B1 recipe (`03_…/init_bakeoff/corpus_build/MIX_RECIPE.md`).
+**Data-mixture note.** New Greek is the primary stream. The replay sweep fixed the total-token shares at **79/20/1**; this supersedes the pilot's +35%-of-new-Greek composition. Exact realized source counts must be checked from the new full-corpus materialization before launch.
 
 **Geometry note (verified).** The RoPE settings above (θ=500k, seq 4096, `llama3` ×8) are Apertus's **main-pretraining** geometry, not an override we invent — stated explicitly in the **Apertus paper §2.4 + Table C.4** ("RoPE base Θ = 500,000 during pretraining, which we extend in the long-context phase"; "context of 4,096 tokens during pretraining"; NTK/LLaMA-3 scaling, factor 8; the paper also lists "RoPE θ after 64k context expansion = 12,000,000"). It is verified identical in the pre-decay checkpoint config (`step2400000-tokens13112B`: `rope_theta=500000`, `max_position_embeddings=4096`, `rope_scaling.rope_type=llama3`) and in the validated Vanilla-5B run's as-run config. The released `main` carries the *post*-long-context geometry (`rope_theta=12,000,000`, seq 65536); since we start from `main`, we **revert it to this seq-4096 pretraining geometry**. This reframes the archived Path-A geometry-probe decision (`04_cpt_training_regime_on_vanilla/_archive/.../cpt-plan.md` + `PATH_A_GEOMETRY_PROBE_PLAN.md`) — rope-500k/4096 is the model's actual pretraining geometry, not a "Path-B mistake." Documented trade-off: the Path-A probe measured a minor retention cost for the seq-4096 geometry on `main` (xnli_ru −1.57 pp); revisit only if multilingual retention regresses. *(Data mixture is specified in §5's data-mixture note above.)*
 
@@ -86,9 +86,9 @@ Held at the Apertus/bakeoff regime so the run stays faithful to the base model's
 
 - ~~α/β₃ warmup on a short run~~ — **resolved (code-verified):** the fork's AdEMAMix warms over iterations (T_{α,β₃}=TRAIN_ITERS), β₃ warms from β₁ and reaches 0.999 by run end (long-memory engaged within the first ~10%), and `group["step"]` is restored on resume (no per-segment reset).
 - ~~Goldfish mask offline~~ — **resolved (code-verified):** the fork computes the mask in the dataloader (`GPTDataset.__getitem__`); no offline pass needed; the hash is uniform over the extended 148,480 vocab.
-- **5% Greek-replay source.** Wire the 5% *Apertus-original* Greek replay into the mix recipe — candidate source is the `apertus_overlap_drop` docs removed during dedup (Greek that was in Apertus's own pretraining); confirm and build it into `mix_builder.py`.
+- ~~Replay fraction and old-Greek replay~~ — **resolved:** 79/20/1 of total tokens; see `05_token_distillation_cpt/PRODUCTION_MIX_DECISION_20260612.md`.
 - **Citation hygiene (from `papers/CITATION_AUDIT.md`):** two supporting citations point the wrong way and should be re-framed or dropped — `optimal-embedding-lr` (2506.15025) actually argues for a *higher* embedding LR, not the uniform LR it's cited for; `jiang-tokenizer-aware-adaptation` solves the generation caveat with a *frozen*-body adapter, not by unfreezing. The uniform-LR decision still stands on the bakeoff empirics + ALLaM/Tokenization-Bottleneck practice; only the citations need fixing.
-- **Experiment design (next):** evaluation suite, success criteria, and the peak-LR sweep that validates the 5.5e-5 choice. (Per-experiment token budget = the primary new-Greek amount, set per run.)
+- ~~Peak LR / alpha / beta3 / beta2 sweeps~~ — **resolved:** see `05_token_distillation_cpt/PRODUCTION_HYPERPARAMETERS_DECISION_20260711.md` and the machine-readable sweep audit.
 
 ---
 

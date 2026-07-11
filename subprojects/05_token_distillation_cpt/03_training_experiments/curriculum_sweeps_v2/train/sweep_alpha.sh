@@ -40,7 +40,10 @@ for ALPHA in $ALPHA_GRID; do
     FOREIGN_REPLAY_R="$FOREIGN_REPLAY_R" \
     OLD_GREEK_REPLAY_R="$OLD_GREEK_REPLAY_R" \
     LR_PEAK="$LR_PEAK" \
+    ADEMA_BETA2=0.995 \
+    ADEMA_BETA3=0.999 \
     ADEMA_ALPHA="$ALPHA" \
+    LR_WARMUP_ITERS=400 \
     bash "$V2/train/submit_curriculum_two_phase.sh"
 done
 

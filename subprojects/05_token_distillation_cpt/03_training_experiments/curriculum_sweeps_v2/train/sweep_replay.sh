@@ -9,6 +9,7 @@ source "$(dirname "$0")/../paths.env"
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 for R in 0.35 0.25 0.15; do
   RUN_TAG="curr_td_replay${R}_${STAMP}" ARM=td R="$R" LR_PEAK=5.5e-5 \
+    ADEMA_BETA2=0.995 ADEMA_BETA3=0.999 ADEMA_ALPHA=4 LR_WARMUP_ITERS=400 \
     bash "$V2/train/submit_curriculum_two_phase.sh"
 done
 echo "replay sweep submitted: R in {0.35(control),0.25,0.15}"

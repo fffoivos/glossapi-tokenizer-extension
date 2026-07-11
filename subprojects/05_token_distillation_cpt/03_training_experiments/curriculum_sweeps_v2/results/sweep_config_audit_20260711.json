@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "audited_at": "2026-07-11T21:00:00Z",
+  "clariden_run_root": "/capstor/scratch/cscs/fffoivos/runs/curriculum_v2",
+  "canonical": {
+    "tokenizer": "modern-greek-148480-token-distillation-layer-11",
+    "ademamix_beta1": 0.9,
+    "ademamix_beta2": 0.999,
+    "ademamix_beta3": 0.999,
+    "ademamix_alpha": 4,
+    "lr_peak": "5.5e-5",
+    "lr_final": "5.5e-6",
+    "lr_warmup_iters": 400,
+    "lr_cooldown_fraction": 0.2,
+    "lr_cooldown_style": "1-sqrt",
+    "replay_total_fraction": {
+      "new_greek": 0.79,
+      "foreign": 0.2,
+      "old_greek": 0.01
+    }
+  },
+  "beta2_policy": {
+    "selected_if_comparable": 0.999,
+    "fallback": 0.995,
+    "fixed_lr_warmup_iters": 400
+  },
+  "sweeps": {
+    "replay": {
+      "varied_fields": ["data_prefix"],
+      "comparable": true,
+      "normalized_common_sha256": "6487e4792416afded21dfedf96feb57fe8142f6840fad788e7944a346f6e94c3",
+      "required_common": {
+        "train_iters": 3218,
+        "lr_peak": "5.5e-5",
+        "ademamix_beta2": 0.995,
+        "ademamix_beta3": 0.999,
+        "ademamix_alpha": 4,
+        "data_seed": 20260609
+      },
+      "runs": [
+        {
+          "run_tag": "curr_td_replay0.35_20260611T181235Z",
+          "metadata_sha256": "9f8e920f7a54295215576eb8588c8ca27e3a50652d5f88062d31f7c28ac9c1b9",
+          "varied": {"data_prefix": "1.0 /iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/megatron/glossapi_only_ext_text_document 0.35 /iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/megatron/replay_only_ext_text_document"},
+          "final_checkpoint": 3218
+        },
+        {
+          "run_tag": "curr_td_replay0.25_20260611T181235Z",
+          "metadata_sha256": "b56c670295b6406c074ccd23d177a9a16c408985c69377eceb51598737e120cc",
+          "varied": {"data_prefix": "1.0 /iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/megatron/glossapi_only_ext_text_document 0.25 /iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/megatron/replay_only_ext_text_document"},
+          "final_checkpoint": 3218
+        },
+        {
+          "run_tag": "curr_td_replay0.15_20260611T181235Z",
+          "metadata_sha256": "d3640c62218b8f50ab53911af5d83495fe6bc8b5d30446ea55606eaffc0c7ea5",
+          "varied": {"data_prefix": "1.0 /iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/megatron/glossapi_only_ext_text_document 0.15 /iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2/megatron/replay_only_ext_text_document"},
+          "final_checkpoint": 3218
+        }
+      ]
+    },
+    "lr": {
+      "varied_fields": ["lr_peak"],
+      "comparable": true,
+      "normalized_common_sha256": "5181d610b8ec600fea03b3291ad62cc1bae592178568bdcc1e14eb2ef9b6f72d",
+      "required_common": {
+        "train_iters": 3218,
+        "lr_warmup_samples": 409600,
+        "ademamix_beta2": 0.995,
+        "ademamix_beta3": 0.999,
+        "ademamix_alpha": 4,
+        "data_seed": 20260609
+      },
+      "runs": [
+        {"run_tag": "curr_td_f20_g1_lr2.75e-5_20260612T191957Z", "metadata_sha256": "f17da6624e3702090744203d892e28859d4ab1ee8b2e61c9b025c91afbe98601", "varied": {"lr_peak": "2.75e-5"}, "final_checkpoint": 3218},
+        {"run_tag": "curr_td_f20_g1_lr5.5e-5_20260612T191957Z", "metadata_sha256": "6e6abe29b593982447418a2bff15310d0893e799748eb9ba7107d999ecdc1563", "varied": {"lr_peak": "5.5e-5"}, "final_checkpoint": 3218},
+        {"run_tag": "curr_td_f20_g1_lr8.25e-5_20260612T191957Z", "metadata_sha256": "6cff98ab07d35c32ce322a20fe2ee69eff1e69abb29e39981909178d5f95bacc", "varied": {"lr_peak": "8.25e-5"}, "final_checkpoint": 3218},
+        {"run_tag": "curr_td_f20_g1_lr1.1e-4_20260612T191957Z", "metadata_sha256": "2364b009ce90025afc08db07a7d36e8709a483179c69dbc4b3c0a714d37f4a13", "varied": {"lr_peak": "1.1e-4"}, "final_checkpoint": 3218}
+      ]
+    },
+    "alpha": {
+      "varied_fields": ["ademamix_alpha"],
+      "comparable": true,
+      "normalized_common_sha256": "6055005e41615fb068100c78f29840ee12037d1f8cb24ec556c674dd0f3239c1",
+      "required_common": {
+        "train_iters": 3218,
+        "lr_peak": "5.5e-5",
+        "lr_warmup_samples": 409600,
+        "ademamix_beta2": 0.995,
+        "ademamix_beta3": 0.999,
+        "data_seed": 20260609
+      },
+      "runs": [
+        {"run_tag": "curr_td_f20_g1_lr5.5e-5_a0_20260613T090652Z", "metadata_sha256": "f35fee6c54a861458f6e1c7d4804b92d3b277a74e46b3c5c0163e3cc5aca8cba", "varied": {"ademamix_alpha": 0}, "final_checkpoint": 3218},
+        {"run_tag": "curr_td_f20_g1_lr5.5e-5_a4_20260613T090652Z", "metadata_sha256": "7b86647db85671c0b63e621b89fb5ec274bbf0394bdb7ef9b1a5d0a49f01a340", "varied": {"ademamix_alpha": 4}, "final_checkpoint": 3218},
+        {"run_tag": "curr_td_f20_g1_lr5.5e-5_a8_20260613T090652Z", "metadata_sha256": "6a6f657bc4ec8ceee3f122c889e11d0424465aed560dfe292bd1128e36260071", "varied": {"ademamix_alpha": 8}, "final_checkpoint": 3218}
+      ]
+    },
+    "beta3": {
+      "varied_fields": ["ademamix_beta3"],
+      "comparable": true,
+      "normalized_common_sha256": "a7ad17edb8d86236b4f31f47e24eeaa2779efab3aad4fd2c8791f907866617fb",
+      "required_common": {
+        "train_iters": 3218,
+        "lr_peak": "5.5e-5",
+        "lr_warmup_samples": 409600,
+        "ademamix_beta2": 0.995,
+        "ademamix_alpha": 4,
+        "data_seed": 20260609
+      },
+      "runs": [
+        {"run_tag": "curr_td_b30p99_13b_20260615T130321Z", "metadata_sha256": "f71ecb9c4bb125e6ff2d2bf063c889fc2f1f117697f04d0a85bee8ec8afd3d81", "varied": {"ademamix_beta3": 0.99}, "final_checkpoint": 3218},
+        {"run_tag": "curr_td_b30p995_13b_20260615T130321Z", "metadata_sha256": "4c62cf917f7e18e1840145e19067563d4cffb0c292e9b61fd5d0448b7d495bba", "varied": {"ademamix_beta3": 0.995}, "final_checkpoint": 3218},
+        {"run_tag": "curr_td_f20_g1_lr5.5e-5_a4_20260613T090652Z", "metadata_sha256": "7b86647db85671c0b63e621b89fb5ec274bbf0394bdb7ef9b1a5d0a49f01a340", "varied": {"ademamix_beta3": 0.999}, "final_checkpoint": 3218}
+      ]
+    },
+    "beta2": {
+      "varied_fields": ["ademamix_beta2"],
+      "comparable": true,
+      "normalized_common_sha256": "72992288d2117774d5e8d7a68e170acf1a36ea9a09a4e2470d6c083bcf40f9ca",
+      "required_common": {
+        "train_iters": 3218,
+        "lr_peak": "5.5e-5",
+        "lr_warmup_samples": 409600,
+        "ademamix_beta3": 0.999,
+        "ademamix_alpha": 4,
+        "data_seed": 20260609
+      },
+      "runs": [
+        {"run_tag": "curr_td_b20p99_b3p999_13b_20260616T093527Z", "metadata_sha256": "b09b53d56e181e5ae17949a7fa8f7e36fa222c13891f4800bbdf6b434def7545", "varied": {"ademamix_beta2": 0.99}, "final_checkpoint": 3218},
+        {"run_tag": "curr_td_f20_g1_lr5.5e-5_a4_20260613T090652Z", "metadata_sha256": "7b86647db85671c0b63e621b89fb5ec274bbf0394bdb7ef9b1a5d0a49f01a340", "varied": {"ademamix_beta2": 0.995}, "final_checkpoint": 3218},
+        {"run_tag": "curr_td_b20p999_b3p999_13b_20260616T093527Z", "metadata_sha256": "5613bdceb1f68fca1f37f48c429a42e71341b531a3de605c0bd6d1c978bcf1be", "varied": {"ademamix_beta2": 0.999}, "final_checkpoint": 3218}
+      ]
+    }
+  },
+  "missing_artifacts": [
+    "The curriculum_v2 Megatron .bin/.idx files are no longer present on Clariden; the stage contained zero files and 424 KiB total at audit time.",
+    "Dataset payload hashes therefore cannot be recomputed. Comparability is established from identical raw metadata data_prefix values, data_seed, tokenizer, geometry, and all non-swept fields."
+  ]
+}

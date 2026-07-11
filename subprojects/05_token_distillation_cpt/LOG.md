@@ -3,6 +3,24 @@
 This is the one living log for the subproject. It records the decisions that
 matter after cleanup; old reports are summarized in `ARCHIVE.md`.
 
+## 2026-07-11
+
+- Re-audited the completed curriculum-v2 replay, LR, alpha, beta3 and beta2
+  sweeps from Clariden `run_metadata.json`, trainer logs, final checkpoint
+  markers and GreekMMLU sidecars. Each sweep is mechanically comparable after
+  removing only its intended axis and run-local paths.
+- Froze the probe recipe at replay 79/20/1, LR `5.5e-5`, alpha 4, beta3
+  `0.999`, beta2 `0.999`, and a fixed 400-iteration LR warmup. The beta2
+  selection is conditional on that fixed warmup; the old coupled rule would
+  create an untested 2,000-iteration warmup.
+- Added a machine-readable sweep manifest, live Clariden verifier, offline
+  hyperparameter gate and beta2/beta3 decision tables. Historical sweep
+  launchers now pin their original beta2 `0.995` and warmup 400 so the new
+  production defaults cannot corrupt reproduction.
+- Clariden still holds the run/eval outputs, but the old curriculum-v2
+  Megatron `.bin/.idx` payloads are absent (zero files). The new full-corpus
+  build must create and hash fresh binaries before the 25B probe.
+
 ## 2026-06-11
 
 - Post-run methodology caveat: the dataset builder produced the intended

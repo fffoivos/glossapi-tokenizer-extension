@@ -1,13 +1,14 @@
 # EXP — AdEMAMix β2 sweep on the existing 13.5 B curriculum_v2 dataset
 
-**Date:** 2026-06-16 · **Status:** LIVE — launched 2026-06-16; β₂=0.99 jobs 2543647–50, β₂=0.999 jobs 2543651–54, + 2 GreekMMLU watchers. All PENDING (cluster busy; cluster maintenance Tomorrow 08:00–14:00 → runs/watchers begin around/after it; watcher backfills checkpoints). · **Owner:** Foivos / execution agent
+**Date:** 2026-06-16 · **Status:** COMPLETE — selected beta2 `0.999` at the fixed 400-iteration LR warmup; see `results/beta2_decision_table_20260711.csv` and `../../PRODUCTION_HYPERPARAMETERS_DECISION_20260711.md` · **Owner:** Foivos / execution agent
 **One-liner:** sweep `ADEMA_BETA2 ∈ {0.99, 0.995, 0.999}` at β₃=0.999 on the already-built 13.5 B
 `curriculum_v2` dataset, settled HP set, **LR warmup pinned to 400 it to isolate β₂**.
 
 ## 0 · Decision / scope (settled with the user)
-- **Sweep:** β₂ ∈ {0.99, **0.995**, 0.999} at **β₃=0.999**. **Production β₂ is 0.995** (`common_cpt.env:22`,
-  env-overridable; the comment even reads *"sweep [0.99,0.999]"*), so the completed α=4 run
+- **Sweep:** β₂ ∈ {0.99, **0.995**, 0.999} at **β₃=0.999**. At launch the baseline
+  default was 0.995, so the completed alpha=4 run
   (`curr_td_f20_g1_lr5.5e-5_a4`) **is the β₂=0.995 middle point** — integrate it, don't re-run.
+  The completed comparison selected **0.999**; current production defaults now reflect that result.
   → **2 new arms:** β₂ ∈ {0.99, 0.999}.
 - **Dropped this round:** the β₃=0.9999 probe and the 27 B long-dataset build (shelved; both recoverable).
 - **Held fixed:** LR 5.5e-5 · β₃=0.999 · α=4 · split replay 79/20/1 (FOREIGN=20/79, OLD_GREEK=1/79).
@@ -20,9 +21,9 @@
 
 ## 1 · Scripts
 - **NEW** `train/sweep_beta2.sh` — launcher; β₂ grid + pinned warmup + 13.5 B geometry; STAGE=curriculum_v2.
-- **EDIT** `train/submit_curriculum_two_phase.sh` — now reads `ADEMA_BETA2` + `LR_WARMUP_ITERS` and threads
-  both into the per-segment `--export` (both were missing → β₂ would have silently stayed 0.995; warmup
-  could not be pinned). Defaults (β₂=0.995, warmup=auto) → no change to prior sweeps.
+- **EDIT** `train/submit_curriculum_two_phase.sh` — reads `ADEMA_BETA2` + `LR_WARMUP_ITERS` and threads
+  both into the per-segment `--export`. At sweep time its defaults were beta2=0.995 and coupled warmup;
+  after the decision they are beta2=0.999 and fixed 400 iterations.
 
 ## 2 · β₂ → warmup (pinned vs coupled)
 | β₂ | variance half-life 1/(1-β₂) | coupled warmup 2/(1-β₂) | % of 3218 it | **PINNED (used)** |

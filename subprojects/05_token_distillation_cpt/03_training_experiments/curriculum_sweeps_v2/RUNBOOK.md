@@ -1,8 +1,8 @@
 # curriculum_sweeps_v2 — RUNBOOK
 
-Implements `EPISTEMIC_PLAN.md` steps (a)–(d): the two-phase HPLT→GlossAPI curriculum, the replay
-sweep (TD), and the peak-LR sweep (TD), plus the one Vanilla control. Built on the deployed pilot
-infra; every path is in `paths.env`. **Read §6 (decisions) and §7 (upstream edits) before running.**
+Historical runbook for the completed curriculum-v2 replay/LR/alpha/beta3/beta2
+sweeps. **Do not launch new arms.** The old data binaries have been removed;
+the frozen decision is `../../PRODUCTION_HYPERPARAMETERS_DECISION_20260711.md`.
 
 ## 0 · Key decisions (with the deployed evidence)
 
@@ -75,16 +75,16 @@ DRY_RUN=0 CONFIRM_LAUNCH=1 TOTAL_ITER=2 PHASE1_EXIT_ITER=1 SAVE_INTERVAL=1 SEG=1
 - the iteration/`lm loss`/`learning rate` continue (no schedule reset, no NaN),
 - the extra-valid `[english]/[old_greek]/...` lines appear.
 
-## 4 · Sweeps (b)→(c)→(d)
+## 4 · Completed sweep commands (reproduction reference only)
 
 ```bash
-DRY_RUN=0 CONFIRM_LAUNCH=1 bash train/submit_vanilla_control.sh  # (b) 1 vanilla chain, R=0.35
-DRY_RUN=0 CONFIRM_LAUNCH=1 bash train/sweep_replay.sh            # (c) TD, R in {0.35,0.25,0.15}
-#   ... choose R* from the forgetting↔adaptation tradeoff ...
-DRY_RUN=0 CONFIRM_LAUNCH=1 R_STAR=0.25 bash train/sweep_peak_lr.sh # (d) DONE; selected LR_PEAK=5.5e-5
-DRY_RUN=0 CONFIRM_LAUNCH=1 bash train/sweep_alpha.sh      # next: ADEMA_ALPHA in {0,4,8}, settled replay+LR
-# per run, fire the GreekMMLU-only watcher:
-RUN_TAG=<tag> EVAL_ARM=td bash eval/curriculum_eval_watcher.sh
+# These commands are retained to explain provenance. They now fail their data
+# preflight because curriculum_v2/megatron is intentionally absent.
+bash train/sweep_replay.sh
+bash train/sweep_peak_lr.sh
+bash train/sweep_alpha.sh
+bash train/sweep_beta3.sh
+bash train/sweep_beta2.sh
 ```
 
 ## 5 · Reading results
@@ -97,7 +97,7 @@ Adaptation = GreekMMLU ↑ + new-Greek held-out loss ↓; forgetting = the 6 old
 rise. Pick R* (c) and LR (d) at the best balance. **Per-token loss is not comparable across arms**
 (ext vs base tokenizer) — compare within an arm/sweep.
 
-## 6 · DECISIONS (resolve before building) — no hard blockers remain
+## 6 · Decisions and current artifact status
 
 All 6 old-data validation sets are buildable, but their provenance differs:
 - **english / de / ru / zh** — Apertus pretraining source families per
@@ -124,6 +124,11 @@ Validation split policy:
 
 1. **PHASE1_EXIT_ITER** is pinned to `2261` from realized ext-tokenizer Stage B sizes (§2).
 2. **Per-tokenizer non-comparability** of forgetting loss (vanilla base vs td ext) — within-arm only.
+3. **Final settings:** replay 79/20/1, LR `5.5e-5`, alpha 4, beta3
+   `0.999`, beta2 `0.999`, fixed 400-iteration LR warmup, final 20%
+   `1-sqrt` cooldown.
+4. **Artifact limitation:** all run/eval outputs remain, but the old Megatron
+   payloads are gone. Use the new full-corpus materialization for the probe.
 
 ## 7 · Required upstream edits (see `train/UPSTREAM_EDITS.md`)
 

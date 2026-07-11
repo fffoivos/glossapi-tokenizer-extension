@@ -5,4 +5,5 @@
 set -euo pipefail
 source "$(dirname "$0")/../paths.env"
 RUN_TAG="curr_vanilla_r0.35_$(date -u +%Y%m%dT%H%M%SZ)" ARM=vanilla R=0.35 LR_PEAK=5.5e-5 \
+  ADEMA_BETA2=0.995 ADEMA_BETA3=0.999 ADEMA_ALPHA=4 LR_WARMUP_ITERS=400 \
   bash "$V2/train/submit_curriculum_two_phase.sh"
