@@ -153,6 +153,42 @@ def test_staged_schema_verifier_checks_text_and_candidate_id_columns(tmp_path: P
     assert bad_report["status"] == "error"
     assert len(bad_errors) == 2
 
+    second = local_dir / "new-edition.parquet"
+    pq.write_table(
+        pa.table({"identifier": ["2"], "text_content": ["νεότερο κείμενο"]}), second
+    )
+    heterogeneous_lock = {
+        "source_id": "fixture",
+        "revision": revision,
+        "selected_files": [{"path": "data.parquet"}, {"path": "new-edition.parquet"}],
+    }
+    heterogeneous, heterogeneous_errors = VERIFY.verify_source(
+        {
+            "text_columns": ["text", "plain_text", "text_content"],
+            "alternate_text_columns": ["markdown", "markdown_content"],
+            "id_columns": ["doc_id", "identifier"],
+        },
+        heterogeneous_lock,
+        tmp_path,
+    )
+    assert heterogeneous_errors == []
+    assert heterogeneous["status"] == "ok"
+    assert [row["text_columns"] for row in heterogeneous["files"]] == [
+        ["text"],
+        ["text_content"],
+    ]
+
+    _, required_errors = VERIFY.verify_source(
+        {
+            "text_columns": ["text", "documents"],
+            "required_text_columns": ["text", "documents"],
+            "id_columns": ["doc_id", "identifier"],
+        },
+        heterogeneous_lock,
+        tmp_path,
+    )
+    assert any("missing required text columns" in error for error in required_errors)
+
 
 def test_structural_route_gate_blocks_diavgeia_and_requires_exact_embedded_filter() -> None:
     script = HERE / "scripts" / "check_source_route.py"
@@ -184,7 +220,7 @@ def test_structural_route_gate_blocks_diavgeia_and_requires_exact_embedded_filte
             "--input-scope",
             "canonical_mixed",
             "--source-regex",
-            r"^openarchives\.gr",
+            r"^openarchives\.gr$",
             "--text-column",
             "text",
             "--id-column",

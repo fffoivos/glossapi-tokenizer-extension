@@ -1,4 +1,9 @@
-<!-- Generated 2026-06-19 by the struct-classifier-design-research workflow (11 agents). Companion: the 2000-doc gold STRUCT_2K_gold.jsonl. -->
+<!-- Generated 2026-06-19. The historically named STRUCT_2K_gold.jsonl contains LLM-silver labels, not human gold. -->
+
+> Historical research report: “gold” below is only the legacy artifact name.
+> No full human annotation is required or planned; production safety uses the
+> separate receipt-bound 100-case deletion audit (50 ToC + 50 BIB), Stage54 and
+> a policy approved before Stage10. The current CPT policy is `audit_only`.
 
 The skeptics' key code-level corrections are confirmed: `_GRK` at span_signals.py:47 omits the polytonic Greek Extended block (`Α-Ωα-ωΆ-ώϊϋΐΰ`, no `ἀ-῿`), while the Rust `greek_letter_fraction` exists separately — a real KEEP-IN-SYNC drift. The DL gate (`dl_probe.py:66`) is hardcoded `target=0.94`, not the contract's 0.97. The operating point's 0.999/0.997/0.995 frontier rests on 45/161/206 prose lines with no CI. These land, so I'll favor the cheaper/safer corrections in the synthesis.
 
@@ -6,9 +11,9 @@ Now writing the definitive document.
 
 ---
 
-# Line classifier design — ToC + Bibliography (2000-doc gold)
+# Line classifier design — ToC + Bibliography (2,000-doc LLM silver)
 
-This is the implementation-guiding design for the line-level structural tagger over the STRUCT_2K gold (2000 docs; labels `0=other` 78.35% / `1=bibliography` 15.31% / `2=table_of_contents` 6.34%; leak-free doc-grouped split, train 1392 / test 608). Every decision is anchored to the existing `reference_detector` crate and `eval/` harness, and to the precision-first / Rust-deployable contract. Where the research and the skeptics disagree, I take the cheaper, safer option and say so.
+This is the historical implementation-guiding design for the line-level structural tagger over the reported STRUCT_2K LLM-silver run (2,000 docs; labels `0=other` 78.35% / `1=bibliography` 15.31% / `2=table_of_contents` 6.34%; leak-free doc-grouped split, train 1392 / test 608). The raw joint corpus is now absent, so these numbers are historical results rather than currently reproducible promotion evidence. Every decision is anchored to the existing `reference_detector` crate and `eval/` harness, and to the precision-first / Rust-deployable contract.
 
 The one rule that overrides everything below: **what ships is a synced Rust dot-product + hysteresis scalar pass.** A fired DL gate authorizes *distill-and-mine*, never *ship-the-net*. The bibliography precedent already followed this (the e5 probe gate fired, the net was not shipped), and that is the binding default — not an exception to be relitigated per facet.
 
@@ -33,7 +38,7 @@ Concretely, per present (non-blank) line:
 **ToC head signals** (cheap, deterministic, and — critically — *not* dot-leader alone, which the skeptic measured at only ~53% recall on TEST):
 - dot/underscore leader run (`\.{4,}` / `_{4,}`);
 - **multi-level section-number prefix** `^\s*\|?\s*\d+(\.\d+){1,4}\.?\s` (covers bare-number and pipe-table ToC rows);
-- **markdown-table-row-in-front-window** signal (gold ToCs are frequently rendered as `| … |` tables);
+- **markdown-table-row-in-front-window** signal (silver-labelled ToCs were frequently rendered as `| … |` tables);
 - trailing page-number signal, independent of leaders;
 - front-position prior (monotone in `abs_idx/N`);
 - low year-density (anti-bib context, reusing the bib `hasyear` signal — bib `hasyear≈0.87` vs ToC `≈0.013`, so this separates the two minority classes for free);
@@ -43,7 +48,7 @@ Concretely, per present (non-blank) line:
 - **Polytonic `latin_fraction` bug / KEEP-IN-SYNC drift.** `eval/span_signals.py:47` `_GRK = [Α-Ωα-ωΆ-ώϊϋΐΰ]` omits the polytonic Greek Extended block; the Rust `greek_letter_fraction` (`reference_signals.rs:180`) already covers `0x1F00–0x1FFF`. The Python mirror drifted. Fix `_GRK` to include `ἀ-῿`. This is a **shared** feature both heads inherit; today it inflates `latin_fraction` on ~21 classical/Byzantine citation lines, pushing label-0 footnotes toward bib-positive — a direct precision-first violation. Re-run eval on TEST **after** the fix; do not inherit the buggy MODEL_TRADEOFF numbers.
 - **Rust `fold_char` polytonic-capital hole.** `reference_signals.rs:29` folds polytonic *lowercase* vowels but **zero capital/adscript forms** (Ἀ Ἁ … ᾼ ῌ ῼ). Polytonic-cased headers (`ΒΙΒΛΙΟΓΡΑΦΙΑ`, `ΠΕΡΙΕΧΟΜΕΝΑ` in the U+1F00 block) miss the H_BIB / H_CV / contents anchor that the aux flags, the chapter-bib rule, and the ToC header signal all depend on. Either extend the fold table to capital/adscript ranges, or document the recall hole and log every doc where a header anchor is expected-but-missing. Add a polytonic-capital-header regression fixture to the parity tests so it is caught, not silently shipped.
 
-This is a pure scalar Rust pass: no torch, no ONNX on the hot path, runs on home (31 GB / 12 CPU).
+This is a pure scalar Rust pass: no torch or ONNX on the hot path. Current corpus-scale work runs on Clariden CPU allocations, not `home` or the Mac.
 
 ---
 
@@ -65,7 +70,7 @@ Reasoning:
 
 ## 3) Other heads on top for the extra info?
 
-Sub-flags (`is_chapter_bibliography`, `is_authors_own_works`, `has_header`, `n_entries`, `doc_type`) are **span-level attributes**, not line classes — the gold collapses them all to label 1/2 with no per-line supervision. They attach as a thin **post-decode per-span attribute pass** over the conservatively-decoded (under-capturing) spans the precision-first decoder already produces. **No multi-task neural heads** — there is no neural backbone in the shipping artifact to hang them on.
+Sub-flags (`is_chapter_bibliography`, `is_authors_own_works`, `has_header`, `n_entries`, `doc_type`) are **span-level attributes**, not line classes — the silver labels collapse them all to label 1/2 with no per-line supervision. They attach as a thin **post-decode per-span attribute pass** over the conservatively-decoded (under-capturing) spans the precision-first decoder already produces. **No multi-task neural heads** — there is no neural backbone in the shipping artifact to hang them on.
 
 Per signal, measured on the 2000-doc `ann_*.json`:
 
@@ -87,13 +92,13 @@ Net shape: one interpretable per-line backbone (two heads) → decode spans → 
 
 ---
 
-## 4) Gold standard — strong baseline vs SOTA ceiling
+## 4) Reference architectures — strong baseline vs SOTA ceiling
 
 There are **two distinct notions of "best"** and they must not be conflated:
 
-- **Gold standard for ACCURACY (the ceiling probe):** a line-based **linear-chain CRF / BiLSTM-CRF** over a BIO tag set — the GROBID / Neural-ParsCit / Körner-2017 lineage. The closest published match to our exact task is **Körner 2017, "Reference String Extraction Using Line-Based CRFs"** (arXiv:1705.08154): a whole-document line-stream BIO CRF, text-only, that deliberately avoids a separate reference-area detector. **CERMINE** (SVM zone classifier into METADATA/REFERENCES/BODY/OTHER, ~91.7% P / 87.3% R) is the same anchor-then-derive framing and the strong classical baseline.
+- **Reference architecture for ACCURACY (the ceiling probe):** a line-based **linear-chain CRF / BiLSTM-CRF** over a BIO tag set — the GROBID / Neural-ParsCit / Körner-2017 lineage. The closest published match to our exact task is **Körner 2017, "Reference String Extraction Using Line-Based CRFs"** (arXiv:1705.08154): a whole-document line-stream BIO CRF, text-only, that deliberately avoids a separate reference-area detector. **CERMINE** (SVM zone classifier into METADATA/REFERENCES/BODY/OTHER, ~91.7% P / 87.3% R) is the same anchor-then-derive framing and the strong classical baseline.
 
-- **Gold standard for a SHIPPABLE INTERPRETABLE system (what we adopt):** the **two binary hysteresis heads** of §1.
+- **Reference architecture for a SHIPPABLE INTERPRETABLE system (what we adopt):** the **two binary hysteresis heads** of §1.
 
 **I explicitly demote the `sota` facet's "ship a CRF" headline to ORACLE/CEILING.** Verified: there is **no CRF/Viterbi/transition matrix anywhere in `reference_detector/src/`** — the shipped decoder is `hysteresis()` (`span_line_model.rs:158`), a pure scalar run-length pass. A linear-chain CRF needs a learned transition matrix + Viterbi decode (not a synced Rust dot-product), and its MAP path optimizes **joint likelihood**, not our actual metric (max recall s.t. prose-protection ≥ floor). It belongs in the same bucket as XLM-R, not on the ship line.
 
@@ -111,7 +116,7 @@ Why hysteresis wins as the *shipped* system:
 
 **No — do not embed for the shipped tagger. Embeddings are a feature-discovery ORACLE only.**
 
-The embed-or-not question is already answered for the bib half and the answer is no-to-ship: `dl_probe.py` was run; `results_dl_probe.json` shows frozen e5-small lifts recall **+0.042** (at line-precision 0.94) / **+0.048** on Greek-script bib — and `MODEL_TRADEOFF.md` records the standing decision: ship the interpretable Rust line-LR (prose-amputation 52% → 5.6%), keep DL as an oracle. CPU embedding is infeasible at scale anyway (~80 lines/s → ~3 h for 840k gold lines; production corpus ~47M rows), and the deployment contract is a Rust dot-product. The **new** ToC class is *even more* hand-separable than bib (layout/positional cues), so embeddings are even less justified for it.
+The embed-or-not question is already answered for the bib half and the answer is no-to-ship: `dl_probe.py` was run; `results_dl_probe.json` shows frozen e5-small lifts recall **+0.042** (at line-precision 0.94) / **+0.048** on Greek-script bib — and `MODEL_TRADEOFF.md` records the standing decision: ship the interpretable Rust line-LR (prose-amputation 52% → 5.6%), keep DL as an oracle. CPU embedding is infeasible at scale anyway (~80 lines/s → ~3 h for 840k silver-labelled lines; production corpus ~47M rows), and the deployment contract is a Rust dot-product. The **new** ToC class is *even more* hand-separable than bib (layout/positional cues), so embeddings are even less justified for it.
 
 **Oracle model (when run):** `intfloat/multilingual-e5-small` — 384-d (cheapest on the 31 GB / 12 CPU box), frozen, via its **ONNX build on onnxruntime-CPU** (the one DL runtime home has), already wired into `embed_lines.py` / `dl_probe.py`. XLM-R SentencePiece byte-fallback → mixed polytonic + Latin reference strings never OOV, and no NFC assumed (matches the Apertus no-normalization rule).
 
@@ -119,7 +124,7 @@ The embed-or-not question is already answered for the bib half and the answer is
 
 **Ceiling / fine-tune fallback (Clariden GPU, burden-of-proof only):** `XLM-RoBERTa-base` 3-class token classifier (shares e5/mGTE's SentencePiece tokenizer).
 
-**Rejected:** Greek-monolingual encoders (nlpaueb Greek-BERT is uncased/monotonic — strips the casing AND polytonic the task depends on; single-script) and heavyweight multilingual encoders (BGE-M3, e5-large, LaBSE — same Greek coverage as e5-small, far more CPU/RAM, no discrimination win the gold can't already get from hand-features).
+**Rejected:** Greek-monolingual encoders (nlpaueb Greek-BERT is uncased/monotonic — strips the casing AND polytonic the task depends on; single-script) and heavyweight multilingual encoders (BGE-M3, e5-large, LaBSE — same Greek coverage as e5-small, far more CPU/RAM, no discrimination win the historical silver comparison could not already get from hand-features).
 
 **Two corrections to the research's embedding claims that I take from the skeptics:**
 1. **The mining loop is OPEN, not closed.** The bib oracle gap *still* shows 0.972 line-recall@prec0.94 vs the shipped model's 0.865 at the strict floor — one mining round happened (monotonic-Greek recall 0.33→0.47), not full closure. Do not assert "wins already mined." Run the **same loop fresh for ToC**: ship cheap Rust ToC signals first, run the e5 probe on ToC only to discover a residual recall hole, never ship the embedding.
@@ -131,9 +136,9 @@ The embed-or-not question is already answered for the bib half and the answer is
 
 | Option | Accuracy | Precision control (≥0.97 / prose-protection) | Interpretability | Rust-deployable | Compute | Verdict |
 |---|---|---|---|---|---|---|
-| **Two binary hysteresis heads** (bib + ToC) | High (bib proven; ToC TBD) | **Best** — 4 scalar knobs/class, independent `cost_fp` | **Best** — auditable dot-product + thresholds | **Yes** (already shipped pattern) | Home CPU, scalar pass | **SHIP** |
-| 3-way softmax + per-class hysteresis | ~equal | Worse — coupled thresholds via softmax norm | Good | Yes | Home CPU | Sanity baseline only |
-| Linear-chain CRF / BiLSTM-CRF (BIO) | **Ceiling** (+0.5–1 F1 prior) | Poor for our metric — buried in transition logits | Lower (Viterbi) | **No** (transition matrix, not dot-product) | Clariden GPU | **Oracle/ceiling probe** |
+| **Two binary hysteresis heads** (bib + ToC) | High (bib proven; ToC TBD) | **Best** — 4 scalar knobs/class, independent `cost_fp` | **Best** — auditable dot-product + thresholds | **Yes** (already shipped pattern) | Clariden CPU, scalar pass | **SHIP** |
+| 3-way softmax + per-class hysteresis | ~equal | Worse — coupled thresholds via softmax norm | Good | Yes | Clariden CPU | Sanity baseline only |
+| Linear-chain CRF / BiLSTM-CRF (BIO) | **Ceiling** (+0.5–1 F1 prior) | Poor for our metric — buried in transition logits | Lower (Viterbi) | **No** (transition matrix, not dot-product) | Deferred research probe | **Oracle/ceiling probe** |
 | XLM-R / SciBERT token classifier | ≤ BiLSTM-CRF on structure tasks | Poor (softmax head) | Lowest | No | Clariden GPU | Probe only; never ship |
 | Frozen e5-small embedding feature | small lift (+0.042 @0.94) | n/a (feature) | Opaque feature | No (infeasible at corpus scale) | ONNX-CPU oracle / ~3h for 840k lines | **Feature-discovery oracle only** |
 | LayoutLMv3 / DiT | n/a (no layout input) | n/a | Low | No | GPU | **Rejected** (text-only input) |
@@ -151,11 +156,11 @@ The embed-or-not question is already answered for the bib half and the answer is
 6. **Distill wins to Rust.** Any oracle win that survives on the polytonic slice → mine into a cheap Rust signal (the bib playbook: +0.042 Greek-script recall → Greek-author/edition-marker regexes). Never ship the net or the embedding.
 7. **(Gated) CV-list scalar head** only if the deny-lexicon recall hole is decided to cost corpus, with a doc-bootstrap CI lower bound clearing the target.
 
-**Highest-value validity correction across all stages:** the team is already annotating more docs (`build_STRUCT_2K.log` / `full_run.log`). Reserve a **fresh untouched holdout** never seen during any feature/threshold selection, and report the one final per-class number there once. Two new per-class grids + new features + (maybe) a new head all tuned on the same 608-doc TEST that the repo itself flags for "feature-design-on-test optimism" makes current test numbers an upper bound, not an unbiased estimate.
+**Highest-value validity correction across all stages:** treat the reported 608-doc TEST as feature-design evidence, not an unbiased final estimate. If a small future source-balanced holdout is ever authorized, freeze it before feature/threshold selection and report one final per-class result. No new 2,000-item annotation run is required or planned.
 
 ---
 
 ## WHAT SHIPS vs WHAT'S A RESEARCH PROBE
 
-- **SHIPS (Rust hot path, home CPU, interpretable):** two binary per-line heads (bib unchanged + new ToC), each `standardize→dot→sigmoid`, each with its own front-gate/position feature and its own hysteresis run-length decoder; a thin post-decode per-span pass deriving `has_header` / `n_entries` / `doc_type` / `is_chapter_bibliography` by rule and applying the CV deny-lexicon as a precision floor. Pure scalar pass, parity-tested against the Python fit.
-- **RESEARCH PROBE (Clariden GPU or ONNX-CPU oracle, never the hot path):** frozen e5-small embedding feature-discovery; BiLSTM-CRF / XLM-R accuracy ceiling; the optional CV-list learned scalar head. A fired gate authorizes **distill-and-mine into cheap Rust features**, not shipping the model. The binding precedent: the bib e5 gate fired, the net was not shipped.
+- **SHIPS (Rust hot path, Clariden CPU, interpretable):** two binary per-line heads (bib unchanged + new ToC), each `standardize→dot→sigmoid`, each with its own front-gate/position feature and its own hysteresis run-length decoder; a thin post-decode per-span pass deriving `has_header` / `n_entries` / `doc_type` / `is_chapter_bibliography` by rule and applying the CV deny-lexicon as a precision floor. Pure scalar pass, parity-tested against the Python fit.
+- **RESEARCH PROBE (CPU first; neural ceiling deferred, never the hot path):** frozen e5-small embedding feature-discovery; BiLSTM-CRF / XLM-R accuracy ceiling; the optional CV-list learned scalar head. A fired gate authorizes **distill-and-mine into cheap Rust features**, not shipping the model. The binding precedent: the bib e5 gate fired, the net was not shipped.

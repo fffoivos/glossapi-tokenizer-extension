@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "structural_token_loss.schema.json",
+  "title": "Exact Stage50 structural token-loss counterfactual",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "status",
+    "semantics",
+    "raw_manifest_sha256",
+    "stage50_cleaning_manifest_sha256",
+    "tokenizer",
+    "per_document",
+    "full_stage50_training_tokens_before",
+    "all_routed",
+    "training_eligible",
+    "per_source"
+  ],
+  "properties": {
+    "schema_version": {"const": "phase04_structural_token_loss_v1"},
+    "status": {"const": "completed"},
+    "semantics": {"const": "exact_whole_document_counterfactual_no_corpus_mutation"},
+    "raw_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "stage50_cleaning_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "full_stage50_training_tokens_before": {"type": "integer", "minimum": 0},
+    "all_routed": {"$ref": "#/$defs/loss"},
+    "training_eligible": {"$ref": "#/$defs/loss"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "loss": {
+      "type": "object",
+      "required": [
+        "tokens_before",
+        "tokens_removed_bibliography",
+        "tokens_removed_toc",
+        "tokens_removed_union",
+        "bibliography_loss_fraction",
+        "toc_loss_fraction",
+        "union_loss_fraction"
+      ],
+      "properties": {
+        "tokens_before": {"type": "integer", "minimum": 0},
+        "tokens_removed_bibliography": {"type": "integer"},
+        "tokens_removed_toc": {"type": "integer"},
+        "tokens_removed_union": {"type": "integer"},
+        "bibliography_loss_fraction": {"type": "number"},
+        "toc_loss_fraction": {"type": "number"},
+        "union_loss_fraction": {"type": "number"}
+      }
+    }
+  }
+}

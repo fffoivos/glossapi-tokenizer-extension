@@ -25,6 +25,7 @@ from source_lineage import (
     canonicalize_row,
     iter_jsonl,
     load_json,
+    resolve_canonical_inputs,
     sha256_parts,
     write_json,
 )
@@ -43,6 +44,9 @@ HTML_RE = re.compile(r"<\s*/?\s*[A-Za-z][^>]{0,200}>")
 MOJIBAKE_RE = re.compile(r"(?:Ã.|Â.|â€|Î[\x80-\xbf]|Ï[\x80-\xbf]|\ufffd)")
 GREEK_RE = re.compile(r"[\u0370-\u03ff\u1f00-\u1fff]")
 LETTER_RE = re.compile(r"[^\W\d_]", re.UNICODE)
+TEMPLATE_WORD_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
+TEMPLATE_NUMBER_RE = re.compile(r"\d+(?:[.,:/-]\d+)*")
+TEMPLATE_URL_RE = re.compile(r"(?i)\b(?:https?://|www\.)\S+")
 
 
 def metadata_private(row: Mapping[str, Any]) -> bool:
@@ -148,6 +152,20 @@ def cluster_id(row: Mapping[str, Any], lineage: Mapping[str, Any], policy: Mappi
         value = row.get(field)
         if value is not None and str(value):
             return f"{field}:{value}"
+    text = str(row.get("text") or "")
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    if len(lines) >= 3:
+        selected = lines[:16] + (lines[-4:] if len(lines) > 20 else [])
+        skeleton: list[str] = []
+        for line in selected:
+            value = TEMPLATE_URL_RE.sub(" URL ", line)
+            value = EMAIL_RE.sub(" EMAIL ", value)
+            value = TEMPLATE_NUMBER_RE.sub(" N ", value)
+            value = TEMPLATE_WORD_RE.sub(" W ", value)
+            value = re.sub(r"\s+", " ", value).strip()[:240]
+            skeleton.append(value)
+        digest = hashlib.sha256("\n".join(skeleton).encode("utf-8")).hexdigest()
+        return "structural_template_v1:" + digest
     return "exact:" + str(lineage["normalized_text_sha256"])
 
 
@@ -251,6 +269,46 @@ def validate_policy(policy: Mapping[str, Any]) -> None:
         raise ValueError("double_review_fraction must be in [0,1]")
 
 
+def admission_filter(path: Path | None, decisions: set[str]) -> dict[str, str] | None:
+    if path is None:
+        if decisions:
+            raise ValueError("--decision requires --source-admission")
+        return None
+    value = load_json(path)
+    if value.get("schema_version") != "source_quality_review_admission_v1":
+        raise ValueError("source admission must use source_quality_review_admission_v1")
+    if int(value.get("pending_adjudications", 0)):
+        raise ValueError("source admission still has pending adjudications")
+    rows = value.get("sources")
+    if not isinstance(rows, list):
+        raise ValueError("source admission sources must be a list")
+    result = {str(row["source_dataset"]): str(row["decision"]) for row in rows}
+    if len(result) != len(rows):
+        raise ValueError("source admission has duplicate source_dataset values")
+    return result
+
+
+def review_row_selected(
+    row: Mapping[str, Any],
+    *,
+    source_ids: set[str],
+    admissions: Mapping[str, str] | None,
+    decisions: set[str],
+) -> bool:
+    source_id = str(row.get("source_id") or row.get("acquisition_source_id") or "")
+    if source_id == "nanochat_base":
+        return False
+    if source_ids and source_id not in source_ids:
+        return False
+    if admissions is not None:
+        source_dataset = str(row.get("source_dataset") or "")
+        if source_dataset not in admissions:
+            return False
+        if decisions and admissions[source_dataset] not in decisions:
+            return False
+    return True
+
+
 def first_pass(
     paths: list[Path],
     *,
@@ -259,6 +317,9 @@ def first_pass(
     aliases: dict,
     policy: dict,
     connection: sqlite3.Connection,
+    selected_source_ids: set[str],
+    admissions: Mapping[str, str] | None,
+    decisions: set[str],
 ) -> tuple[Counter, dict[str, set[str]], Counter]:
     counts: Counter = Counter()
     source_ids: dict[str, set[str]] = defaultdict(set)
@@ -275,6 +336,13 @@ def first_pass(
         """
     )
     for path, line_number, row in iter_jsonl(paths):
+        if not review_row_selected(
+            row,
+            source_ids=selected_source_ids,
+            admissions=admissions,
+            decisions=decisions,
+        ):
+            continue
         try:
             lineage = canonicalize_row(
                 row,
@@ -349,6 +417,9 @@ def select_items(
     source_ids: Mapping[str, set[str]],
     top_clusters: Mapping[str, list[tuple[str, int]]],
     cluster_sizes: Mapping[tuple[str, str], int],
+    selected_source_ids: set[str],
+    admissions: Mapping[str, str] | None,
+    decisions: set[str],
 ) -> tuple[dict[str, list[dict]], dict[str, dict[str, int]]]:
     random_heaps: dict[str, list] = defaultdict(list)
     risk_heaps: dict[str, list] = defaultdict(list)
@@ -357,6 +428,13 @@ def select_items(
     seed = str(policy["seed"])
 
     for path, line_number, row in iter_jsonl(paths):
+        if not review_row_selected(
+            row,
+            source_ids=selected_source_ids,
+            admissions=admissions,
+            decisions=decisions,
+        ):
+            continue
         try:
             lineage = canonicalize_row(
                 row,
@@ -516,16 +594,23 @@ def build_packet(args: argparse.Namespace) -> int:
     aliases = load_json(args.aliases_config)
     policy = load_json(args.review_policy)
     validate_policy(policy)
+    candidate_inputs = resolve_canonical_inputs(args.candidate_jsonl)
+    decisions = set(args.decision or [])
+    admissions = admission_filter(args.source_admission, decisions)
+    selected_source_ids = set(args.source_id or [])
 
     with tempfile.TemporaryDirectory(prefix="source-review-clusters-") as temporary:
         connection = sqlite3.connect(Path(temporary) / "clusters.sqlite")
         counts, source_ids, skipped = first_pass(
-            args.candidate_jsonl,
+            candidate_inputs,
             sources=sources,
             roster=roster,
             aliases=aliases,
             policy=policy,
             connection=connection,
+            selected_source_ids=selected_source_ids,
+            admissions=admissions,
+            decisions=decisions,
         )
         if not counts:
             raise ValueError("no review-eligible candidate rows")
@@ -538,7 +623,7 @@ def build_packet(args: argparse.Namespace) -> int:
             connection, counts, source_ids, policy
         )
         selected, actual_strata = select_items(
-            args.candidate_jsonl,
+            candidate_inputs,
             sources=sources,
             roster=roster,
             aliases=aliases,
@@ -547,6 +632,9 @@ def build_packet(args: argparse.Namespace) -> int:
             source_ids=source_ids,
             top_clusters=top_clusters,
             cluster_sizes=cluster_sizes,
+            selected_source_ids=selected_source_ids,
+            admissions=admissions,
+            decisions=decisions,
         )
         connection.close()
 
@@ -602,7 +690,7 @@ def build_packet(args: argparse.Namespace) -> int:
         "seed": policy["seed"],
         "grouping_field": "source_dataset",
         "input_files": [
-            {"path": str(path), "bytes": path.stat().st_size} for path in args.candidate_jsonl
+            {"path": str(path), "bytes": path.stat().st_size} for path in candidate_inputs
         ],
         "response_schema": str(args.response_schema),
         "requests": {"path": str(args.requests_out), "rows": request_count},
@@ -619,7 +707,27 @@ def build_packet(args: argparse.Namespace) -> int:
 def main() -> int:
     here = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser()
-    parser.add_argument("--candidate-jsonl", action="append", type=Path, required=True)
+    parser.add_argument(
+        "--candidate-jsonl",
+        "--candidate-input",
+        dest="candidate_jsonl",
+        action="append",
+        type=Path,
+        required=True,
+        help="canonical JSONL, Parquet file, or sharded Parquet root (repeatable)",
+    )
+    parser.add_argument("--source-id", action="append", help="limit to acquisition source_id")
+    parser.add_argument(
+        "--source-admission",
+        type=Path,
+        help="optional completed admission report used to select exact source_dataset values",
+    )
+    parser.add_argument(
+        "--decision",
+        action="append",
+        choices=("include", "include_after_cleaning", "quarantine", "exclude"),
+        help="with --source-admission, retain only these decisions (repeatable)",
+    )
     parser.add_argument("--sources-config", type=Path, default=here / "configs" / "sources.json")
     parser.add_argument(
         "--roster-config", type=Path, default=here / "configs" / "nanochat_initial_roster.json"

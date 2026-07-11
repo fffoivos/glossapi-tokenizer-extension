@@ -1,0 +1,340 @@
+{
+  "schema_version": "full_cpt_source_license_adjudication_v1",
+  "status": "technical_audit_complete",
+  "audited_at": "2026-07-12",
+  "audit_provenance": {
+    "performed_by": "Codex evidence audit",
+    "completed_at": "2026-07-12T01:30:00+03:00",
+    "review_class": "technical_evidence_review_not_legal_advice",
+    "method": "Pinned Hugging Face repository metadata and cards were checked at the registered revisions; cited upstream terms were checked where the card license was absent, nonstandard, mixed, or materially qualified."
+  },
+  "purpose": "noncommercial_research_continued_pretraining",
+  "default_policy": "deny_training_and_redistribution",
+  "source_registry": {
+    "path": "configs/sources.json",
+    "sha256": "b5b595ea634235edfbfd2bd8637cfcc26b2a492c82a289577918b7041bac0e8c"
+  },
+  "decision_semantics": {
+    "local_training": "Permission decision for this project's noncommercial local CPT only; it is not a conclusion about commercial model use.",
+    "redistribution": "Permission decision for copying cleaned source text into the new public Hugging Face dataset; access gating alone is never evidence.",
+    "excluded": "Fail closed until the stated condition is resolved and this immutable adjudication is replaced and re-reviewed."
+  },
+  "base": {
+    "source_id": "nanochat_base",
+    "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+    "revision": "e1d54136a880ed1df2ed95a5445dabd230453207",
+    "declared_license": "other",
+    "local_training": {
+      "eligible": true,
+      "status": "allowed_for_pipeline",
+      "conditions": ["noncommercial_research_only", "existing_project_training_corpus", "no_public_redistribution"]
+    },
+    "redistribution": {
+      "eligible": false,
+      "status": "excluded",
+      "conditions": ["composite_license_is_other", "per_source_redistribution_audit_required"]
+    },
+    "evidence": [
+      {
+        "kind": "hf_dataset_card",
+        "url": "https://huggingface.co/datasets/fffoivos/glossapi-greek-nanochat-pretraining-dataset/blob/e1d54136a880ed1df2ed95a5445dabd230453207/README.md",
+        "revision": "e1d54136a880ed1df2ed95a5445dabd230453207",
+        "finding": "The card declares license=other and describes the repository as the source-separated corpus used to build Greek pretraining mixtures.",
+        "supports_redistribution": false
+      }
+    ]
+  },
+  "sources": [
+    {
+      "source_id": "diavgeia",
+      "repo_id": "glossAPI/diavgeia",
+      "revision": "ce873e49bfd8068bcf2d8692b1eb176b523ab193",
+      "registry_training_eligibility": "eligible_open",
+      "declared_license": "cc-by-4.0",
+      "local_training": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["attribution_required", "drop_privateData_true", "pii_cleaning_required"]},
+      "redistribution": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["attribution_required", "exclude_identified_third_party_material", "pii_cleaning_required"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/diavgeia/blob/ce873e49bfd8068bcf2d8692b1eb176b523ab193/README.md", "revision": "ce873e49bfd8068bcf2d8692b1eb176b523ab193", "finding": "Pinned card declares CC BY 4.0 and identifies the Diavgeia OpenData API.", "supports_redistribution": true},
+        {"kind": "upstream_terms", "url": "https://diavgeia.gov.gr/termsOfUse", "retrieved_at": "2026-07-12", "finding": "Official terms place site content under CC BY 4.0 and permit reuse/republication, subject to the exception for identified third-party material.", "supports_redistribution": true}
+      ]
+    },
+    {
+      "source_id": "amna_press",
+      "repo_id": "glossAPI/amna-press",
+      "revision": "25f0da0935ea3f972386e080070109d0e6b42f56",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-nd-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives_cleaning_and_training_scope_unresolved", "written_permission_or_legal_review_required"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives", "commercial_reuse_requires_written_permission"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/amna-press/blob/25f0da0935ea3f972386e080070109d0e6b42f56/README.md", "revision": "25f0da0935ea3f972386e080070109d0e6b42f56", "finding": "Pinned card declares CC BY-NC-ND 4.0, says all rights remain with AMNA, and requires written permission for commercial use.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "ellakv2",
+      "repo_id": "glossAPI/ellakv2",
+      "revision": "d13d78af32e597c6ad7042a97d624cca85dcc613",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-nd-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives_cleaning_and_training_scope_unresolved", "prefer_explicitly_authorized_eellak_articles_snapshot"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives", "cross_repository_rights_not_documented"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/ellakv2/blob/d13d78af32e597c6ad7042a97d624cca85dcc613/README.md", "revision": "d13d78af32e597c6ad7042a97d624cca85dcc613", "finding": "Pinned card metadata declares CC BY-NC-ND 4.0 but does not document an upstream redistribution authorization for every included site.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "psepheda",
+      "repo_id": "glossAPI/psepheda",
+      "revision": "fba42b5e0ee030c15f337b926527acc98693641b",
+      "registry_training_eligibility": "per_item_review",
+      "declared_license": "cc-by-nc-nd-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["implement_and_receipt_bind_per_item_rights_filter", "exclude_nd_embargoed_unspecified_and_all_rights_reserved"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["per_item_rights_mixed", "public_subset_allowlist_not_implemented"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/psepheda/blob/fba42b5e0ee030c15f337b926527acc98693641b/README.md", "revision": "fba42b5e0ee030c15f337b926527acc98693641b", "finding": "Pinned card says each row's rights field is authoritative; 44.8% are unspecified, with additional ND, embargoed, and all-rights-reserved groups.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "elocus",
+      "repo_id": "glossAPI/elocus",
+      "revision": "2a3c659924453661578ca2d29aa801b48365263b",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-sa-4.0",
+      "local_training": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["noncommercial_research_only", "no_public_redistribution", "source_attribution_required"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["underlying_texts_lack_machine_readable_per_item_license", "permission_required_outside_research_context"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/elocus/blob/2a3c659924453661578ca2d29aa801b48365263b/README.md", "revision": "2a3c659924453661578ca2d29aa801b48365263b", "finding": "Pinned card offers the dataset for non-commercial academic and research use, while warning that underlying theses have no machine-readable per-item license and redistribution outside research requires permission.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "libduth",
+      "repo_id": "glossAPI/libduth",
+      "revision": "359623de339aa7bca01cc707620ec763dfb3ab8e",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-nd-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives_cleaning_and_training_scope_unresolved", "written_permission_or_legal_review_required"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives", "underlying_author_rights_reserved"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/libduth/blob/359623de339aa7bca01cc707620ec763dfb3ab8e/README.md", "revision": "359623de339aa7bca01cc707620ec763dfb3ab8e", "finding": "Pinned card declares CC BY-NC-ND 4.0 and retains underlying rights with the university and authors.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "libiep",
+      "repo_id": "glossAPI/libiep",
+      "revision": "aeb7ecda4a9d9906c065771cf98ba24c6d2ed39a",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-sa-4.0",
+      "local_training": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["noncommercial_research_only", "no_public_redistribution", "source_attribution_required"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["underlying_copyright_is_mixed", "official_terms_prohibit_republication_without_permission"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/libiep/blob/aeb7ecda4a9d9906c065771cf98ba24c6d2ed39a/README.md", "revision": "aeb7ecda4a9d9906c065771cf98ba24c6d2ed39a", "finding": "Pinned card documents CC BY-NC-SA compilation terms and official permission for personal, educational, noncommercial use, but no per-record copyright assessment.", "supports_redistribution": false},
+        {"kind": "upstream_terms", "url": "https://www.iep.edu.gr/wp-content/uploads/2025/12/%CE%8C%CF%81%CE%BF%CE%B9-%CF%87%CF%81%CE%AE%CF%83%CE%B7%CF%82-%CF%84%CE%B7%CF%82-%CE%B9%CF%83%CF%84%CE%BF%CF%83%CE%B5%CE%BB%CE%AF%CE%B4%CE%B1%CF%82-%CF%84%CE%BF%CF%85-%CF%86%CE%BF%CF%81%CE%AD%CE%B1-%CE%BC%CE%B1%CF%82.pdf", "retrieved_at": "2026-07-12", "finding": "Official terms are cited by the pinned card as allowing noncommercial educational use with attribution and restricting commercial reproduction/republication.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "ecclesia",
+      "repo_id": "glossAPI/ecclesia",
+      "revision": "f07fcf567e723bc3dbaf5f1fef81eb80eec05c1b",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-sa-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["resolve_card_frontmatter_vs_body_license_conflict", "confirm_no_derivatives_scope"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["license_conflict", "underlying_rights_reserved"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/ecclesia/blob/f07fcf567e723bc3dbaf5f1fef81eb80eec05c1b/README.md", "revision": "f07fcf567e723bc3dbaf5f1fef81eb80eec05c1b", "finding": "Pinned front matter declares CC BY-NC-SA 4.0, while the license section says CC BY-NC-ND 4.0 and reserves rights with Ecclesia.gr.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "opengov_deliberations_v2",
+      "repo_id": "glossAPI/opengov-deliberations-v2",
+      "revision": "dfc84a00bbe34b179b1f170530224419e5dc6c9d",
+      "registry_training_eligibility": "eligible_open",
+      "declared_license": "cc-by-4.0",
+      "local_training": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["attribution_required", "pii_cleaning_required", "exclude_identified_third_party_material"]},
+      "redistribution": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["attribution_required", "pii_cleaning_required", "exclude_identified_third_party_material"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/opengov-deliberations-v2/blob/dfc84a00bbe34b179b1f170530224419e5dc6c9d/README.md", "revision": "dfc84a00bbe34b179b1f170530224419e5dc6c9d", "finding": "Pinned card declares CC BY 4.0 and traces the source to official CC BY 3.0 GR terms.", "supports_redistribution": true},
+        {"kind": "upstream_terms", "url": "https://www.opengov.gr/home/%CF%8C%CF%81%CE%BF%CE%B9-%CF%87%CF%81%CE%AE%CF%83%CE%B7%CF%82", "retrieved_at": "2026-07-12", "finding": "Official OpenGov terms license site content under CC BY 3.0 GR except identified third-party intellectual property.", "supports_redistribution": true}
+      ]
+    },
+    {
+      "source_id": "archetai",
+      "repo_id": "glossAPI/archetai",
+      "revision": "bd1901ced177c6eedacafa2afc2399f7f797ddc9",
+      "registry_training_eligibility": "policy_review",
+      "declared_license": "cc-by-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["obtain_upstream_reuse_or_ml_permission", "free_access_is_not_reuse_permission"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["hf_card_grant_not_correlated_with_upstream_rights", "recent_publications_may_be_protected"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/archetai/blob/bd1901ced177c6eedacafa2afc2399f7f797ddc9/README.md", "revision": "bd1901ced177c6eedacafa2afc2399f7f797ddc9", "finding": "Pinned card declares CC BY 4.0 but supports that assertion only with the publisher's free-access notice; it does not cite an upstream reuse license.", "supports_redistribution": false},
+        {"kind": "upstream_terms", "url": "https://www.archetai.gr/", "retrieved_at": "2026-07-12", "finding": "Publisher offers digitized access except for recent years; no explicit text-reuse grant was found in the evidence cited by the card.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "eellak_articles",
+      "repo_id": "glossAPI/eellak-articles",
+      "revision": "59fd681c483e6bdcdabe7c1a1f8685c5eebf7883",
+      "registry_training_eligibility": "eligible_open",
+      "declared_license": "cc-by-sa-4.0",
+      "local_training": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["attribution_required", "sharealike_obligations_for_distributed_adaptations"]},
+      "redistribution": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["attribution_required", "publish_source_license_notice", "sharealike_required"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/eellak-articles/blob/59fd681c483e6bdcdabe7c1a1f8685c5eebf7883/README.md", "revision": "59fd681c483e6bdcdabe7c1a1f8685c5eebf7883", "finding": "Pinned card declares CC BY-SA 4.0 and explicitly states that EELLAK is the source publisher and authorizes redistribution.", "supports_redistribution": true}
+      ]
+    },
+    {
+      "source_id": "open_council",
+      "repo_id": "glossAPI/OpenCouncil",
+      "revision": "305a9e102814ca9bcca51b5a36f1cec52152b2e4",
+      "registry_training_eligibility": "eligible_open",
+      "declared_license": "other",
+      "local_training": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["official_terms_apply", "pii_cleaning_required", "exclude_user_petition_content"]},
+      "redistribution": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["official_terms_apply", "pii_cleaning_required", "only_database_and_automated_transcript_fields"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/OpenCouncil/blob/305a9e102814ca9bcca51b5a36f1cec52152b2e4/README.md", "revision": "305a9e102814ca9bcca51b5a36f1cec52152b2e4", "finding": "Pinned card declares license=other and points to OpenCouncil terms for redistribution.", "supports_redistribution": true},
+        {"kind": "upstream_terms", "url": "https://opencouncil.gr/terms", "retrieved_at": "2026-07-12", "finding": "Official terms updated 2025-01-02 expressly allow free use and redistribution of the provided information, database organization, and automated transcripts.", "supports_redistribution": true}
+      ]
+    },
+    {
+      "source_id": "artos_zois",
+      "repo_id": "glossAPI/artos-zois",
+      "revision": "97115ecacdb7435c5e529e0cf56c68b0290751b6",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-nd-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives_cleaning_and_training_scope_unresolved", "written_permission_or_legal_review_required"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives", "underlying_foundation_and_author_rights_reserved"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/artos-zois/blob/97115ecacdb7435c5e529e0cf56c68b0290751b6/README.md", "revision": "97115ecacdb7435c5e529e0cf56c68b0290751b6", "finding": "Pinned card declares CC BY-NC-ND 4.0 and reserves underlying article rights.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "e_nautilia",
+      "repo_id": "glossAPI/e-nautilia",
+      "revision": "5c8cbbb80976a3fa0c6f59e1cecb7d1bb86ed352",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-nd-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives_cleaning_and_training_scope_unresolved", "publisher_permission_required"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives", "underlying_publisher_and_author_rights_reserved"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/e-nautilia/blob/5c8cbbb80976a3fa0c6f59e1cecb7d1bb86ed352/README.md", "revision": "5c8cbbb80976a3fa0c6f59e1cecb7d1bb86ed352", "finding": "Pinned card declares CC BY-NC-ND 4.0 and retains rights with textbook publishers and authors.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "national_theatre_press",
+      "repo_id": "glossAPI/greek-national-theatre-corpus",
+      "revision": "a4debd3ca0e0cde06c49b7633158a2a88c0b6eb5",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-nd-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives_cleaning_and_training_scope_unresolved", "archive_permission_required"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives", "archive_and_author_rights_reserved"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/greek-national-theatre-corpus/blob/a4debd3ca0e0cde06c49b7633158a2a88c0b6eb5/README.md", "revision": "a4debd3ca0e0cde06c49b7633158a2a88c0b6eb5", "finding": "Pinned card declares CC BY-NC-ND 4.0 and retains underlying press rights with the archive and authors.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "heinrich_boell_publications",
+      "repo_id": "glossAPI/heinrich_boell_stiftung",
+      "revision": "e222522ba0ea00d819344f70a640d58522d55af5",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-nd-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives_cleaning_and_training_scope_unresolved", "foundation_permission_required"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives", "foundation_and_author_rights_reserved"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/heinrich_boell_stiftung/blob/e222522ba0ea00d819344f70a640d58522d55af5/README.md", "revision": "e222522ba0ea00d819344f70a640d58522d55af5", "finding": "Pinned card declares CC BY-NC-ND 4.0 and retains rights with the foundation and original authors.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "new_sociology",
+      "repo_id": "glossAPI/new-sociology",
+      "revision": "db183139ea0826a2dfb197c6259cbdf26f314376",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-nd-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["resolve_internal_license_conflict", "correct_misattributed_rightsholder"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["frontmatter_and_body_conflict", "license_section_names_wrong_owner"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/new-sociology/blob/db183139ea0826a2dfb197c6259cbdf26f314376/README.md", "revision": "db183139ea0826a2dfb197c6259cbdf26f314376", "finding": "Pinned card front matter says CC BY-NC-ND; body calls it both CC BY-NC-ND and CC BY, and incorrectly names OpenCouncil as rightsholder.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "school_books_new_editions",
+      "repo_id": "glossAPI/School_books",
+      "revision": "5f1c21276c021ebfe3e1b5ae2ca5ea6e4b81a87e",
+      "registry_training_eligibility": "policy_review",
+      "declared_license": null,
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["official_terms_do_not_explicitly_cover_ml_training", "written_permission_or_legal_review_required"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["no_declared_hf_license", "official_distribution_is_education_specific"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/School_books/blob/5f1c21276c021ebfe3e1b5ae2ca5ea6e4b81a87e/README.md", "revision": "5f1c21276c021ebfe3e1b5ae2ca5ea6e4b81a87e", "finding": "Pinned card has no declared license and only refers generally to Ministry terms for research/scientific use.", "supports_redistribution": false},
+        {"kind": "upstream_terms", "url": "https://ebooks.edu.gr/ebooks/feedback/licenses.jsp", "retrieved_at": "2026-07-12", "finding": "Official page describes distribution for teachers and students in the educational process; it is not an explicit ML-training or corpus-republication grant.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "openbook_v2",
+      "repo_id": "glossAPI/openbook.gr",
+      "revision": "679c9674eed4ed03af8e899f479549176c0be1d0",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-sa-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["document_underlying_book_rights_or_per_item_license", "dataset_header_alone_is_insufficient"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["underlying_book_rights_unresolved", "no_card_license_analysis"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/openbook.gr/blob/679c9674eed4ed03af8e899f479549176c0be1d0/README.md", "revision": "679c9674eed4ed03af8e899f479549176c0be1d0", "finding": "Pinned metadata declares CC BY-NC-SA 4.0, but the card contains no license section or evidence covering the rights in 3,193 underlying books.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "pergamos_sections",
+      "repo_id": "glossAPI/Apothetirio_Pergamos",
+      "revision": "66d0c6855c9553caba4d96554087bfe45ffee76a",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-4.0",
+      "local_training": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["noncommercial_research_only", "no_public_redistribution", "source_attribution_required"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["public_target_not_license_scoped", "preserve_source_attribution_and_noncommercial_terms"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/Apothetirio_Pergamos/blob/66d0c6855c9553caba4d96554087bfe45ffee76a/README.md", "revision": "66d0c6855c9553caba4d96554087bfe45ffee76a", "finding": "Pinned card declares CC BY-NC 4.0 and says use is strictly for research and scientific purposes.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "kallipos_sections",
+      "repo_id": "glossAPI/Apothetirio_Kallipos",
+      "revision": "29f52e7ce8429350758d605583b9c1a1a8bc57e3",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-sa-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["implement_per_item_license_inventory", "card_says_content_is_primarily_not_uniformly_nc_or_nc_sa"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["mixed_item_terms", "public_subset_allowlist_not_implemented"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/Apothetirio_Kallipos/blob/29f52e7ce8429350758d605583b9c1a1a8bc57e3/README.md", "revision": "29f52e7ce8429350758d605583b9c1a1a8bc57e3", "finding": "Pinned card says Kallipos content is primarily, rather than uniformly, CC BY-NC or CC BY-NC-SA and requires compliance with original repository terms.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "greek_phd_v2",
+      "repo_id": "glossAPI/Greek_PhD_Theses_Corpus",
+      "revision": "5009cb56cd48e7c8baf1a929231df05f38e2cfe3",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-sa-4.0",
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["document_underlying_thesis_rights", "current_artifact_is_only_a_240_row_fragment"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["openarchives_and_didaktorika_rights_are_not_uniform", "no_per_item_license_filter"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/Greek_PhD_Theses_Corpus/blob/5009cb56cd48e7c8baf1a929231df05f38e2cfe3/README.md", "revision": "5009cb56cd48e7c8baf1a929231df05f38e2cfe3", "finding": "Pinned metadata declares CC BY-NC-SA 4.0, but the card provides no license analysis for source theses from OpenArchives and didaktorika.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "openarchives_current",
+      "repo_id": "glossAPI/openarchives.gr",
+      "revision": "02e830632e3b94f72fca316542bc218e7b798f3c",
+      "registry_training_eligibility": "policy_review",
+      "declared_license": null,
+      "local_training": {"eligible": false, "status": "excluded", "conditions": ["implement_repository_and_item_rights_filter", "aggregated_third_party_full_text_not_covered_by_portal_license"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["no_declared_hf_license", "third_party_content_excluded_from_portal_license"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/openarchives.gr/blob/02e830632e3b94f72fca316542bc218e7b798f3c/README.md", "revision": "02e830632e3b94f72fca316542bc218e7b798f3c", "finding": "Pinned card has no declared license and describes full text aggregated from many academic and cultural repositories.", "supports_redistribution": false},
+        {"kind": "upstream_terms", "url": "https://www.openarchives.gr/aggregator-openarchives/portal/termsOfUse?language=el", "retrieved_at": "2026-07-12", "finding": "OpenArchives terms apply CC BY-SA 4.0 only where EKT has the necessary rights and expressly distinguish third-party content and its terms.", "supports_redistribution": false}
+      ]
+    }
+  ],
+  "summary": {
+    "candidate_sources": 23,
+    "base_local_training_allowed": true,
+    "candidate_local_training_allowed_sources": 7,
+    "candidate_redistribution_allowed_sources": 4,
+    "candidate_local_training_allowed_source_ids": ["diavgeia", "eellak_articles", "elocus", "libiep", "open_council", "opengov_deliberations_v2", "pergamos_sections"],
+    "candidate_redistribution_allowed_source_ids": ["diavgeia", "eellak_articles", "open_council", "opengov_deliberations_v2"]
+  }
+}

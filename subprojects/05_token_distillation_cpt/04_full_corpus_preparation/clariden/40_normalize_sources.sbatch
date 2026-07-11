@@ -33,6 +33,10 @@ args=(
     --manifest "$PHASE04_STAGE_DIR/normalization_manifest.json"
     --rows-per-shard "${ROWS_PER_SHARD:-50000}"
     --progress-every "${PROGRESS_EVERY:-100000}"
+    --workers "${NORMALIZE_WORKERS:-32}"
+    --temporary-directory "${NORMALIZE_TEMP_DIRECTORY:-$DATA_ROOT/work/$PIPELINE_RUN_ID/normalize}"
+    --duckdb-memory-limit "${NORMALIZE_DUCKDB_MEMORY_LIMIT:-300GB}"
+    --duckdb-threads "${NORMALIZE_DUCKDB_THREADS:-32}"
 )
 for source_id in ${SOURCES:-}; do
     args+=(--source "$source_id")
@@ -41,6 +45,7 @@ if [[ -n "${MAX_ROWS_PER_SOURCE:-}" ]]; then
     args+=(--max-rows-per-source "$MAX_ROWS_PER_SOURCE")
 fi
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+export SECTION_SQLITE_CACHE_MB="${SECTION_SQLITE_CACHE_MB:-512}"
 if [[ ! -s "$PHASE04_STAGE_DIR/normalization_manifest.json" ]]; then
     uenv run "$PHASE04_UENV" --view=default -- \
         "$RUNTIME_VENV/bin/python" "$NORMALIZE_SCRIPT" "${args[@]}"
@@ -48,6 +53,7 @@ fi
 
 phase04_contract_python validate-inventory \
     --manifest "$PHASE04_STAGE_DIR/normalization_manifest.json" \
+    --exact-parquet-root "$PHASE04_STAGE_DIR/canonical" \
     --output "$PHASE04_STAGE_DIR/inventory_validation.json"
 phase04_stage_finish \
     "$PHASE04_STAGE_DIR/normalization_manifest.json" \

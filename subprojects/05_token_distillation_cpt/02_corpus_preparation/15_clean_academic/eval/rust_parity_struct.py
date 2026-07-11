@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Python↔Rust parity for the promoted bibliography and ToC line heads.
+"""Python↔Rust parity on the historical LLM-silver structural corpus.
 
-Requires the hydrated `units/STRUCT_2K_gold.jsonl`, which is intentionally not
-stored in Git. The check compares per-line probabilities and decoded absolute
-line spans for both heads.
+The legacy filename is `units/STRUCT_2K_gold.jsonl`, but its annotations are
+LLM-produced silver. The check compares per-line probabilities and decoded
+absolute line spans; it cannot itself authorize production.
 """
 
 from __future__ import annotations
@@ -187,21 +187,25 @@ def main() -> int:
     parser.add_argument("--binary", type=Path, default=DEFAULT_BIN)
     parser.add_argument("--documents", type=int, default=0, help="0 means every held-out test document")
     parser.add_argument("--expected-documents", type=int, default=608)
-    parser.add_argument("--expected-gold-sha256", required=True)
+    expected = parser.add_mutually_exclusive_group(required=True)
+    expected.add_argument("--expected-corpus-sha256")
+    expected.add_argument("--expected-gold-sha256", help="deprecated legacy spelling")
     parser.add_argument("--tolerance", type=float, default=1e-3)
     parser.add_argument("--receipt", type=Path, required=True)
     args = parser.parse_args()
 
     if not struct_lines.GOLD or not os.path.exists(struct_lines.GOLD):
         raise SystemExit(
-            f"missing hydrated structural gold: {struct_lines.GOLD}; hydrate the pinned private artifact first"
+            f"missing hydrated structural LLM-silver corpus: {struct_lines.GOLD}"
         )
     if not args.binary.is_file():
         raise SystemExit(f"missing Rust binary: {args.binary}")
-    actual_gold_sha256 = sha256_file(Path(struct_lines.GOLD))
-    if actual_gold_sha256 != args.expected_gold_sha256:
+    expected_corpus_sha256 = args.expected_corpus_sha256 or args.expected_gold_sha256
+    actual_corpus_sha256 = sha256_file(Path(struct_lines.GOLD))
+    if actual_corpus_sha256 != expected_corpus_sha256:
         raise SystemExit(
-            f"structural gold hash mismatch: expected {args.expected_gold_sha256}, got {actual_gold_sha256}"
+            "structural LLM-silver corpus hash mismatch: "
+            f"expected {expected_corpus_sha256}, got {actual_corpus_sha256}"
         )
     data = struct_lines.load()
     docs = [doc_id for doc_id, document in data.docs.items() if document["split"] == "test"]
@@ -227,11 +231,12 @@ def main() -> int:
     receipt = {
         "schema_version": "struct_rust_parity_receipt_v1",
         "status": "passed",
+        "evidence_status": "LLM_silver",
         "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "binary": str(args.binary.resolve()),
         "binary_sha256": sha256_file(args.binary),
-        "gold": str(Path(struct_lines.GOLD).resolve()),
-        "gold_sha256": actual_gold_sha256,
+        "corpus": str(Path(struct_lines.GOLD).resolve()),
+        "corpus_sha256": actual_corpus_sha256,
         "heldout_documents": len(docs),
         "source_document_counts": dict(sorted(sources.items())),
         "positive_document_counts": positive_docs,

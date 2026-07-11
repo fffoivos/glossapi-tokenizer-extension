@@ -72,6 +72,7 @@ def main() -> None:
             counts[benchmark] = {
                 "source": spec["source"],
                 "config": spec.get("config"),
+                "revision": spec.get("revision"),
                 "split_requested": spec.get("split"),
                 "split_loaded": split,
                 "items": 0,
@@ -95,6 +96,10 @@ def main() -> None:
                     "schema": "greek-mcq-decontam-query-v1",
                     "generated_utc": generated_utc,
                     "benchmark": benchmark,
+                    "dataset_repo_id": spec["source"],
+                    "dataset_revision": spec.get("revision"),
+                    "dataset_config": spec.get("config"),
+                    "split": split,
                     "example_id": example.example_id,
                     "row_index": row_index,
                     "subject": example.subject,
@@ -116,11 +121,13 @@ def main() -> None:
         "schema": "greek-mcq-decontam-query-summary-v1",
         "generated_utc": generated_utc,
         "registry": str(args.registry),
+        "registry_sha256": hashlib.sha256(args.registry.read_bytes()).hexdigest(),
         "eval_dir": str(args.eval_dir),
         "benchmarks": counts,
         "total_items": n_items,
         "total_surfaces": n_surfaces,
         "output_jsonl": str(args.output_jsonl),
+        "output_jsonl_sha256": hashlib.sha256(args.output_jsonl.read_bytes()).hexdigest(),
     }
     args.summary_json.write_text(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))

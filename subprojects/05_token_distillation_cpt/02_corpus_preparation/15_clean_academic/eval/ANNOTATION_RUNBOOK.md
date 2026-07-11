@@ -1,11 +1,17 @@
-# Annotation + retrain runbook
+# Archived LLM-silver annotation + retrain runbook
 
-> **STATUS 2026-06-19: annotation COMPLETE.** 2000/2000 done via gpt-5.5 (steps 1–3 below). Gold at
-> `units/STRUCT_2K_gold.jsonl` (train 1392 / test 608; other 78% / bib 15% / toc 6%). Weekly budget ended
-> 57% used (43% left, floor protected). **Next = step 4 (retrain), not started.**
+> **ARCHIVED HISTORICAL PROCEDURE — DO NOT RERUN.** The reported 2,000/2,000
+> labels were produced by gpt-5.5 and are `LLM_silver`, despite the legacy
+> `gold` filename below. The run completed and produced the surviving fitted
+> model/evaluation artifacts. Its ignored raw joint ToC+BIB
+> `units/STRUCT_2K_gold.jsonl` and original units are absent from the current checkout, Git history, Clariden
+> search and authenticated Hugging Face search. Do not replace them with human
+> annotation. Production's only new manual classifier work is the separate
+> 100-case (50 ToC + 50 BIB) deletion-safety audit. The current CPT policy is
+> `audit_only`, so Stage58 remains a deterministic no-op.
 
 
-**Goal:** **2000 documents, balanced across the 3 datasets** (greek_phd / kallipos / openarchives, ~667
+**Historical goal:** **2,000 documents, balanced across the 3 datasets** (greek_phd / kallipos / openarchives, ~667
 each), each annotated for **table_of_contents + bibliography** only (front+tail windowing on long docs);
 front-matter / main-text / appendix are derived deterministically from those two anchors.
 
@@ -31,7 +37,7 @@ over a day and burned millions of tokens (memory `feedback_no_autonomous_agent_l
    (one run hit 178 agents). Do not reintroduce chunking.
 6. **If a run stalls, STOP it** (`TaskStop` / kill) — never abandon it.
 
-## Pipeline
+## Historical pipeline (reference only)
 
 ### 1. Build units (local CPU, free) — `build_annotation_units.py`
 Representative balanced sampling (seeded reservoir over the FULL stream of each source), badness>60 dropped,
@@ -68,7 +74,7 @@ python run_codex_annotate.py --in-dir units/STRUCT_2K --horizon-hours 18 --effor
 ONE sequential, resumable, paced, limit-aware process. Rerun the same line to continue after any backoff/stop.
 Verify: `ls units/STRUCT_2K/ann_*.json | wc -l == 2000`.
 
-### 3. Build gold (local, free) — `build_gold_from_ann.py`
+### 3. Build legacy-named LLM silver (local, free) — `build_gold_from_ann.py`
 ```
 python build_gold_from_ann.py units/STRUCT_2K        # -> units/STRUCT_2K_gold.jsonl
 ```
@@ -90,7 +96,7 @@ Our own model (not GlossAPI's SVM). Adapt `line_lr.py` to multi-class {0,1,2}:
 - **Opus engine:** `wf_struct_annotate.js` (budget-guarded workflow).
 - **gpt-5.5 engine (Plan B):** `run_codex_annotate.py` (reuses forum `codex_runner.py`), `CODEX_LIMITS.md`
   (auth + windows + pacing), `score_engine_agreement.py` (bake-off vs Opus).
-- **Gold + viz:** `build_gold_from_ann.py`, `build_struct_viz.py`.
+- **Legacy silver + viz:** `build_gold_from_ann.py`, `build_struct_viz.py`.
 - **Superseded (ignore):** `build_struct_experiment.py`, `sample_new_docs.py`, `build_fronttail.py`,
   `rechunk_full.py`, `merge_chunks.py` (the chunking path).
 - **Cleanup (optional, ask first):** `~/.claude/.../subagents/workflows/` holds ~354MB of stale agent

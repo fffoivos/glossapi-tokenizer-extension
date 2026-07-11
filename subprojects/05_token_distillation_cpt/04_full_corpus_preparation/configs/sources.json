@@ -57,7 +57,12 @@
       "source_id": "greek_phd",
       "acquisition_source_id": "nanochat_base",
       "acquisition_include_globs": ["data/greek_phd*.parquet"],
-      "source_regex": "^greek_phd",
+      "source_regex": "^greek_phd$",
+      "coverage_contract": {
+        "expected_source_dataset": "greek_phd",
+        "minimum_normalized_rows": 1,
+        "enforcement_scope": "unbounded_normalization"
+      },
       "cleaning_profile": "academic_ocr",
       "structural_policy": "apply_after_review",
       "input_scope": "canonical_mixed",
@@ -69,7 +74,12 @@
       "source_id": "openarchives",
       "acquisition_source_id": "nanochat_base",
       "acquisition_include_globs": ["data/openarchives.gr*.parquet"],
-      "source_regex": "^openarchives\\.gr",
+      "source_regex": "^openarchives\\.gr$",
+      "coverage_contract": {
+        "expected_source_dataset": "openarchives.gr",
+        "minimum_normalized_rows": 1,
+        "enforcement_scope": "unbounded_normalization"
+      },
       "cleaning_profile": "academic_ocr",
       "structural_policy": "apply_after_review",
       "input_scope": "canonical_mixed",
@@ -81,7 +91,12 @@
       "source_id": "kallipos",
       "acquisition_source_id": "nanochat_base",
       "acquisition_include_globs": ["data/Apothetirio_Kallipos.parquet"],
-      "source_regex": "^Apothetirio_Kallipos",
+      "source_regex": "^Apothetirio_Kallipos$",
+      "coverage_contract": {
+        "expected_source_dataset": "Apothetirio_Kallipos",
+        "minimum_normalized_rows": 1,
+        "enforcement_scope": "unbounded_normalization"
+      },
       "cleaning_profile": "academic_ocr",
       "structural_policy": "apply_after_review",
       "input_scope": "canonical_mixed",
@@ -93,7 +108,12 @@
       "source_id": "pergamos",
       "acquisition_source_id": "nanochat_base",
       "acquisition_include_globs": ["data/Apothetirio_Pergamos.parquet"],
-      "source_regex": "^Apothetirio_Pergamos",
+      "source_regex": "^Apothetirio_Pergamos$",
+      "coverage_contract": {
+        "expected_source_dataset": "Apothetirio_Pergamos",
+        "minimum_normalized_rows": 1,
+        "enforcement_scope": "unbounded_normalization"
+      },
       "cleaning_profile": "academic_ocr",
       "structural_policy": "apply_after_review",
       "input_scope": "canonical_mixed",
@@ -235,6 +255,7 @@
       "content_relation": "same_source_replacement",
       "merge_policy": "keyed_replacement_audit_base_wins_ties_retain_candidate_only_docs",
       "text_columns": ["articles", "documents"],
+      "required_text_columns": ["articles", "documents"],
       "id_columns": ["consultation_id"],
       "text_strategy": "flatten_articles_and_comments_as_separate_documents_never_repeat_consultation_context",
       "cleaning_profile": "nested_comments_legal",
@@ -254,7 +275,7 @@
       "id_columns": ["pdf_url"],
       "cleaning_profile": "historical_ocr",
       "structural_policy": "shadow_after_segmentation",
-      "training_eligibility": "eligible_open"
+      "training_eligibility": "policy_review"
     },
     {
       "source_id": "eellak_articles",
@@ -285,7 +306,7 @@
       "text_strategy": "full_transcript_only_do_not_concatenate_generated_or_nested_representations",
       "cleaning_profile": "transcript",
       "structural_policy": "disabled",
-      "training_eligibility": "policy_review"
+      "training_eligibility": "eligible_open"
     },
     {
       "source_id": "artos_zois",
@@ -372,8 +393,9 @@
       "source_family_id": "school_books",
       "content_relation": "hybrid_new_editions_partial_base_overlap",
       "merge_policy": "edition_key_union_base_wins_exact_retain_candidate_only_docs",
-      "text_columns": ["text"],
-      "id_columns": ["titlos", "taxis", "mathima", "kateuthinsi"],
+      "text_columns": ["plain_text", "text_content"],
+      "alternate_text_columns": ["markdown", "markdown_content"],
+      "id_columns": ["book_id", "identifier", "handle", "mdb_code"],
       "cleaning_profile": "modern_textbook",
       "structural_policy": "shadow_after_segmentation",
       "training_eligibility": "policy_review"
@@ -405,6 +427,8 @@
       "merge_policy": "group_sections_to_work_then_keyed_replacement_audit_base_wins_ties_retain_candidate_only_docs",
       "text_columns": ["section"],
       "id_columns": ["id"],
+      "work_id_columns": ["filename"],
+      "section_order_columns": ["id"],
       "cleaning_profile": "academic_sectioned",
       "structural_policy": "apply_after_review",
       "training_eligibility": "noncommercial_review"
@@ -421,6 +445,8 @@
       "merge_policy": "group_sections_to_work_then_keyed_replacement_audit_base_wins_ties_retain_candidate_only_docs",
       "text_columns": ["section"],
       "id_columns": ["id"],
+      "work_id_columns": ["filename"],
+      "section_order_columns": ["id"],
       "cleaning_profile": "academic_sectioned",
       "structural_policy": "apply_after_review",
       "training_eligibility": "noncommercial_review"

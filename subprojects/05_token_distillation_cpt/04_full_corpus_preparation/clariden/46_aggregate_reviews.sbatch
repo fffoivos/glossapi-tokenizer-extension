@@ -25,20 +25,21 @@ phase04_init_pipeline_run
 phase04_stage_begin "40-review-aggregate"
 [[ "$PHASE04_STAGE_ALREADY_DONE" == "0" ]] || exit 0
 phase04_stage_require_upstream "30-review-packet"
+phase04_stage_require_upstream "20-lineage"
 
 PACKET_DIR="$PIPELINE_RUN_ROOT/stages/30-review-packet"
+LINEAGE_DIR="$PIPELINE_RUN_ROOT/stages/20-lineage"
+phase04_require_file "$LINEAGE_DIR/source_novelty.json"
 phase04_stage_add_input reviewer_responses "$REVIEWS_JSONL"
+phase04_stage_add_input novelty_summary "$LINEAGE_DIR/source_novelty.json"
 args=(
     --requests "$PACKET_DIR/requests.jsonl"
     --packet-summary "$PACKET_DIR/summary.json"
     --reviews "$REVIEWS_JSONL"
+    --novelty-summary "$LINEAGE_DIR/source_novelty.json"
     --review-policy "$SOURCE_REVIEW_POLICY"
     --output "$PHASE04_STAGE_DIR/admission_candidate.json"
 )
-if [[ -n "${NOVELTY_SUMMARY:-}" ]]; then
-    phase04_stage_add_input novelty_summary "$NOVELTY_SUMMARY"
-    args+=(--novelty-summary "$NOVELTY_SUMMARY")
-fi
 uenv run "$PHASE04_UENV" --view=default -- \
     "$RUNTIME_VENV/bin/python" "$REVIEW_AGGREGATE_SCRIPT" "${args[@]}"
 

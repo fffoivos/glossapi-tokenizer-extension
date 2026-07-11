@@ -25,6 +25,7 @@ phase04_init_pipeline_run
 phase04_stage_begin "80-materialize-validate"
 [[ "$PHASE04_STAGE_ALREADY_DONE" == "0" ]] || exit 0
 phase04_stage_require_upstream "70-dedup"
+phase04_stage_require_upstream "60-greekmmlu-decontam"
 
 DECONTAM_DIR="$PIPELINE_RUN_ROOT/stages/60-greekmmlu-decontam"
 DEDUP_DIR="$PIPELINE_RUN_ROOT/stages/70-dedup"
@@ -36,13 +37,32 @@ case "$FINAL_CLEAN_STAGE" in
 esac
 phase04_stage_require_upstream "$FINAL_CLEAN_STAGE"
 CLEAN_DIR="$PIPELINE_RUN_ROOT/stages/$FINAL_CLEAN_STAGE"
-DECISIONS="$DEDUP_DIR/run/final/dedup_decisions.parquet"
+CLEANING_MANIFEST="$CLEAN_DIR/cleaning_manifest.json"
+DECONTAMINATION_MANIFEST="$DECONTAM_DIR/decontamination_manifest.json"
+DEDUP_MANIFEST="$DEDUP_DIR/dedup_manifest.json"
+phase04_require_file "$CLEANING_MANIFEST"
+phase04_require_file "$DECONTAMINATION_MANIFEST"
+phase04_require_file "$DEDUP_MANIFEST"
+DECISIONS=$(phase04_contract_python get-json-field \
+    --path "$DEDUP_MANIFEST" --field dedup_output.content_bound_decisions.path)
+phase04_require_file "$DECISIONS"
 phase04_stage_add_input dedup_decisions "$DECISIONS"
+phase04_stage_add_input cleaning_manifest "$CLEANING_MANIFEST"
+phase04_stage_add_input decontamination_manifest "$DECONTAMINATION_MANIFEST"
+phase04_stage_add_input dedup_manifest "$DEDUP_MANIFEST"
 export TOKENIZERS_PARALLELISM=true OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 if [[ ! -s "$PHASE04_STAGE_DIR/release_manifest.json" ]]; then
+    materialize_resume=()
+    if [[ -d "$PHASE04_STAGE_DIR/release" ]] && \
+       [[ -n "$(find "$PHASE04_STAGE_DIR/release" -mindepth 1 -print -quit)" ]]; then
+        materialize_resume+=(--resume)
+    fi
     uenv run "$PHASE04_UENV" --view=default -- \
         "$RUNTIME_VENV/bin/python" "$MATERIALIZE_SCRIPT" \
         --input "$DECONTAM_DIR/corpus" \
+        --cleaning-manifest "$CLEANING_MANIFEST" \
+        --decontamination-manifest "$DECONTAMINATION_MANIFEST" \
+        --dedup-manifest "$DEDUP_MANIFEST" \
         --dedup-decisions "$DECISIONS" \
         --cleaning-ledger "$CLEAN_DIR/ledger" \
         --decontam-ledger "$DECONTAM_DIR/ledger" \
@@ -51,20 +71,70 @@ if [[ ! -s "$PHASE04_STAGE_DIR/release_manifest.json" ]]; then
         --token-waterfall "$PHASE04_STAGE_DIR/token_waterfall.json" \
         --temporary-directory "$PHASE04_STAGE_DIR/duckdb-tmp" \
         --memory-limit "${DUCKDB_MEMORY_LIMIT:-350GB}" \
-        --threads "${DUCKDB_THREADS:-128}"
+        --threads "${DUCKDB_THREADS:-128}" \
+        "${materialize_resume[@]}"
 fi
 
-if [[ ! -s "$PHASE04_STAGE_DIR/validation.json" ]]; then
+if [[ ! -e "$PHASE04_STAGE_DIR/validation.json" ]]; then
+    VALIDATION_ATTEMPT_DIR="$PHASE04_STAGE_DIR/validation_attempts"
+    mkdir -p "$VALIDATION_ATTEMPT_DIR"
+    VALIDATION_ATTEMPT="$VALIDATION_ATTEMPT_DIR/validation-${SLURM_JOB_ID}-${SLURM_RESTART_COUNT:-0}.json"
+    [[ ! -e "$VALIDATION_ATTEMPT" ]] || {
+        echo "ERROR: refusing to overwrite immutable validation attempt $VALIDATION_ATTEMPT" >&2
+        exit 121
+    }
     uenv run "$PHASE04_UENV" --view=default -- \
         "$RUNTIME_VENV/bin/python" "$VALIDATE_RELEASE_SCRIPT" \
         --release "$PHASE04_STAGE_DIR/release" \
         --manifest "$PHASE04_STAGE_DIR/release_manifest.json" \
+        --cleaning-manifest "$CLEANING_MANIFEST" \
+        --decontamination-manifest "$DECONTAMINATION_MANIFEST" \
+        --dedup-manifest "$DEDUP_MANIFEST" \
         --dedup-decisions "$DECISIONS" \
-        --output "$PHASE04_STAGE_DIR/validation.json" \
+        --output "$VALIDATION_ATTEMPT" \
         --temporary-directory "$PHASE04_STAGE_DIR/duckdb-tmp" \
         --memory-limit "${DUCKDB_MEMORY_LIMIT:-350GB}" \
         --threads "${DUCKDB_THREADS:-128}"
+    uenv run "$PHASE04_UENV" --view=default -- \
+        "$RUNTIME_VENV/bin/python" - "$VALIDATION_ATTEMPT" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+value = json.loads(path.read_text(encoding="utf-8"))
+if (
+    value.get("schema_version") != "full_cpt_release_validation_v1"
+    or value.get("integrity_contract_version") != "full_cpt_release_integrity_v1"
+    or value.get("status") != "passed"
+    or value.get("failed_checks") != []
+):
+    raise SystemExit(f"ERROR: validation attempt is not promotable: {path}")
+PY
+    mv "$VALIDATION_ATTEMPT" "$PHASE04_STAGE_DIR/validation.json"
 fi
+
+# Never accept the mere existence of a validation receipt.  A failed validator
+# deliberately leaves an immutable diagnostic JSON, so resume must inspect all
+# three fail-closed fields before the stage can be marked complete.
+uenv run "$PHASE04_UENV" --view=default -- \
+    "$RUNTIME_VENV/bin/python" - "$PHASE04_STAGE_DIR/validation.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+value = json.loads(path.read_text(encoding="utf-8"))
+if value.get("schema_version") != "full_cpt_release_validation_v1":
+    raise SystemExit(f"ERROR: unsupported release validation schema: {path}")
+if value.get("integrity_contract_version") != "full_cpt_release_integrity_v1":
+    raise SystemExit(f"ERROR: release validation integrity contract mismatch: {path}")
+if value.get("status") != "passed" or value.get("failed_checks") != []:
+    raise SystemExit(
+        f"ERROR: release validation did not pass: status={value.get('status')!r} "
+        f"failed_checks={value.get('failed_checks')!r}"
+    )
+PY
 
 phase04_contract_python validate-inventory \
     --manifest "$PHASE04_STAGE_DIR/release_manifest.json" \

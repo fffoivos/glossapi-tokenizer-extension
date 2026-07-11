@@ -1,4 +1,9 @@
-# gpt-5.5-via-codex: limits, auth, and pacing for the 2000-doc annotation
+# gpt-5.5-via-codex: historical LLM-silver annotation notes
+
+The completed labels described below are LLM silver, not human gold. This is an
+archived historical record: do not execute the annotation commands below. The
+raw joint artifact is absent and no replacement 2,000-item annotation run is
+requested or planned.
 
 Plan B annotates with **gpt-5.5 through the codex CLI** (Opus weekly usage was ~82% on 2026-06-18 and
 won't finish 2000 before the Jun 22 reset). This is the operating note: how to read the subscription's

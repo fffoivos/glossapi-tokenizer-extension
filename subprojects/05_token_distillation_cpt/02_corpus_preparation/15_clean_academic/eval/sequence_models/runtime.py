@@ -8,7 +8,7 @@ import resource
 import sys
 import time
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Sequence
 
 from .baseline import _load_json, predict_document
 from .contract import canonical_json_sha256, read_gold, sha256_file
@@ -43,11 +43,12 @@ def compare_prediction_files(left: str | Path, right: str | Path) -> dict[str, A
         "document_count": len(set(lrows) | set(rrows)),
         "mismatched_document_count": len(mismatched_documents),
         "first_mismatched_documents": mismatched_documents[:20],
+        "peak_rss_bytes": peak_rss_bytes,
     }
 
 
-def benchmark_baseline(gold_path: str | Path, repeats: int) -> dict[str, Any]:
-    documents = read_gold(gold_path)
+def benchmark_baseline(silver_path: str | Path, repeats: int) -> dict[str, Any]:
+    documents = read_gold(silver_path)
     bib_path = EVAL_DIR / "span_line_lr_struct_model.json"
     toc_path = EVAL_DIR / "toc_line_lr_model.json"
     decoder_path = EVAL_DIR / "struct_smooth_params.json"
@@ -60,6 +61,8 @@ def benchmark_baseline(gold_path: str | Path, repeats: int) -> dict[str, Any]:
         durations.append(time.perf_counter() - started)
     duration = min(durations)
     lines = sum(len(document.lines) for document in documents)
+    peak_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    peak_rss_bytes = int(peak_rss if sys.platform == "darwin" else peak_rss * 1024)
     return {
         "schema_version": "academic-structure-cpu-benchmark-v1",
         "runtime": "python-c0-parity",
@@ -69,7 +72,7 @@ def benchmark_baseline(gold_path: str | Path, repeats: int) -> dict[str, Any]:
         "documents_per_second": len(documents) / duration,
         "lines_per_second": lines / duration,
         "peak_rss_bytes": peak_rss_bytes,
-        "gold_sha256": sha256_file(gold_path),
+        "silver_sha256": sha256_file(silver_path),
         "artifact_inventory_sha256": canonical_json_sha256(
             {path.name: sha256_file(path) for path in (bib_path, toc_path, decoder_path)}
         ),
@@ -83,7 +86,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parity.add_argument("--left", required=True)
     parity.add_argument("--right", required=True)
     benchmark = subparsers.add_parser("benchmark-c0")
-    benchmark.add_argument("--gold", required=True)
+    benchmark.add_argument("--silver", required=True)
     benchmark.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--output")
     args = parser.parse_args(argv)
@@ -92,7 +95,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     else:
         if args.repeats < 1:
             raise ValueError("repeats must be positive")
-        receipt = benchmark_baseline(args.gold, args.repeats)
+        receipt = benchmark_baseline(args.silver, args.repeats)
     payload = json.dumps(receipt, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
     if args.output:
         Path(args.output).write_text(payload, encoding="utf-8")

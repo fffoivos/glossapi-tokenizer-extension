@@ -26,6 +26,7 @@ phase04_init_pipeline_run
 phase04_stage_begin "56-post-clean-review-aggregate"
 [[ "$PHASE04_STAGE_ALREADY_DONE" == "0" ]] || exit 0
 phase04_stage_require_upstream "55-post-clean-review-packet"
+phase04_stage_require_upstream "50-clean"
 
 PACKET_DIR="$PIPELINE_RUN_ROOT/stages/55-post-clean-review-packet"
 PRE_CLEAN_DIR="$PIPELINE_RUN_ROOT/stages/50-clean"

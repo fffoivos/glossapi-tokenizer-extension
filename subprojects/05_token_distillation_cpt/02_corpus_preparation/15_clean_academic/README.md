@@ -72,14 +72,22 @@ to `bib_span` and π sections to `toc_span`, skips empty spans and has trailing-
 crate has 18 passing tests. The Phase-04 suite also checks both heads across every U+0370–U+03FF edge
 code point at `<1e-12` Python↔Rust probability difference.
 
-Still required before destructive use:
+Current evidence state:
 
-- hydrate the absent `STRUCT_2K_gold.jsonl` artifact and run `eval/rust_parity_struct.py` on the full
-  held-out documents;
+- the surviving SPAN/Opus decisions are LLM-silver BIB supervision. Their
+  coordinates are tracked and the missing source text can be rehydrated from
+  receipt-bound Clariden inputs without creating labels;
+- the raw joint ToC+BIB `STRUCT_2K` corpus is absent, so no joint comparison or
+  Stage54 evidence receipt can be claimed from it;
 - add Pergamos to a fresh source-balanced validation sample;
 - run the Phase-04 exact ModernGreek-148k counterfactual token-loss audit;
-- approve the tracked cleaning policy. It currently remains `audit_only`.
+- complete the independent receipt-bound review of 100 high-risk predicted
+  removals (exactly 50 ToC and 50 BIB) with zero catastrophic deletions.
 
-Materialization is not implemented in this phase and is hard-disabled even if a policy flag is edited.
+No new 2,000-item human annotation is required or planned. For the current CPT
+run the tracked cleaning policy remains `audit_only`, both structural flags are
+false, and Phase-04 Stage58 records a deterministic no-op. A future application
+run would need a pre-authorized policy frozen before Stage10 plus passed Stage54
+evidence; editing policy during a run is not allowed.
 
 Corpus-scale work belongs on Clariden compute nodes. `xfer` is transfer-only.

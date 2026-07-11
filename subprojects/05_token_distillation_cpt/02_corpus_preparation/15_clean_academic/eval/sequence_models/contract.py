@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Gold-data and split contract for structural sequence-model promotion.
+"""Shared row/split contract with an active LLM-silver validation CLI.
 
-The historical STRUCT_2K labels were produced by language models and the large
-artifact is absent.  They are useful silver training data if recovered, but this
-validator never upgrades them to human gold.  Promotion requires a separately
-locked, full-document, human-adjudicated test set.
+The historical row type retains its legacy ``GoldDocument`` name, but the active
+execution path validates only explicit ``LLM_silver``.  ``validate_gold`` remains
+as an unused library compatibility helper; no human-gold collection is planned or
+required by this track.
 """
 from __future__ import annotations
 
@@ -485,25 +485,19 @@ def _load_config(path: str | Path) -> Mapping[str, Any]:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
-    validate = sub.add_parser("validate", help="validate gold and emit a receipt")
-    validate.add_argument("--gold", required=True)
-    validate.add_argument("--config", required=True)
-    validate.add_argument("--split-manifest")
-    validate.add_argument("--promotion", action="store_true")
-    validate.add_argument("--output")
     silver = sub.add_parser("validate-silver", help="validate comparison-only LLM silver")
     silver.add_argument("--silver", required=True)
     silver.add_argument("--config", required=True)
     silver.add_argument("--split-manifest", required=True)
     silver.add_argument("--output")
     split = sub.add_parser("make-split", help="make a deterministic work-group split manifest")
-    split.add_argument("--gold", required=True, help="inventory/gold JSONL; labels are ignored")
+    split.add_argument("--silver", required=True, help="LLM-silver JSONL; labels are ignored")
     split.add_argument("--config", required=True)
     split.add_argument("--output", required=True)
     args = parser.parse_args(argv)
 
     config = _load_config(args.config)
-    documents = read_gold(args.silver if args.command == "validate-silver" else args.gold)
+    documents = read_gold(args.silver)
     if args.command == "validate-silver":
         manifest = _load_manifest(args.split_manifest)
         receipt = validate_silver(documents, config["silver_contract"], split_manifest=manifest)
@@ -516,25 +510,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         else:
             print(payload, end="")
         return 0
-    if args.command == "validate":
-        manifest = _load_manifest(args.split_manifest) if args.split_manifest else None
-        receipt = validate_gold(
-            documents,
-            config["gold_contract"],
-            split_manifest=manifest,
-            for_promotion=args.promotion,
-        )
-        receipt["gold_sha256"] = sha256_file(args.gold)
-        receipt["config_sha256"] = sha256_file(args.config)
-        if args.split_manifest:
-            receipt["split_manifest_sha256"] = sha256_file(args.split_manifest)
-        payload = json.dumps(receipt, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
-        if args.output:
-            Path(args.output).write_text(payload, encoding="utf-8")
-        else:
-            print(payload, end="")
-        return 0
-
     manifest = build_split_manifest(documents, config["split"])
     Path(args.output).write_text(
         json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=2) + "\n",

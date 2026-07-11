@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import hashlib
 import json
+import re
 from pathlib import Path
 
 
@@ -717,7 +719,7 @@ def validate_sources(cfg: dict) -> list[str]:
         errors.append("sources: non-empty list required")
         return errors
 
-    seen_ids: set[str] = set()
+    seen_ids: set[str] = {"nanochat_base"}
     seen_repos: dict[str, list[str]] = {}
     for index, source in enumerate(sources):
         label = f"sources[{index}]"
@@ -764,6 +766,22 @@ def validate_sources(cfg: dict) -> list[str]:
             or not all(isinstance(value, str) and value for value in alternate)
         ):
             errors.append(f"{label}: alternate_text_columns must be a non-empty string list when set")
+        required_text = source.get("required_text_columns")
+        if required_text is not None:
+            if (
+                not isinstance(required_text, list)
+                or not required_text
+                or not all(isinstance(value, str) and value for value in required_text)
+            ):
+                errors.append(
+                    f"{label}: required_text_columns must be a non-empty string list when set"
+                )
+            elif not set(required_text).issubset(
+                set(source.get("text_columns", [])) | set(alternate or [])
+            ):
+                errors.append(
+                    f"{label}: required_text_columns must be a subset of candidate text columns"
+                )
         if source.get("structural_policy") == "apply_after_review" and not str(
             source.get("cleaning_profile", "")
         ).startswith("academic"):
@@ -796,6 +814,36 @@ def validate_sources(cfg: dict) -> list[str]:
                 )
             if not isinstance(route.get("source_regex"), str) or not route.get("source_regex"):
                 errors.append(f"{label}: non-empty source_regex required")
+            else:
+                try:
+                    re.compile(str(route["source_regex"]))
+                except re.error as exc:
+                    errors.append(f"{label}: invalid source_regex: {exc}")
+            coverage = route.get("coverage_contract")
+            if not isinstance(coverage, dict):
+                errors.append(f"{label}: coverage_contract must be an object")
+            else:
+                if not isinstance(coverage.get("expected_source_dataset"), str) or not coverage.get(
+                    "expected_source_dataset"
+                ):
+                    errors.append(
+                        f"{label}: coverage_contract.expected_source_dataset required"
+                    )
+                minimum_rows = coverage.get("minimum_normalized_rows")
+                if (
+                    not isinstance(minimum_rows, int)
+                    or isinstance(minimum_rows, bool)
+                    or minimum_rows < 1
+                ):
+                    errors.append(
+                        f"{label}: coverage_contract.minimum_normalized_rows "
+                        "must be a positive integer"
+                    )
+                if coverage.get("enforcement_scope") != "unbounded_normalization":
+                    errors.append(
+                        f"{label}: coverage_contract.enforcement_scope must be "
+                        "unbounded_normalization"
+                    )
             for field in ("text_columns", "id_columns"):
                 value = route.get(field)
                 if not isinstance(value, list) or not value or not all(
@@ -811,6 +859,107 @@ def validate_sources(cfg: dict) -> list[str]:
     for repo_id, ids in seen_repos.items():
         if len(ids) > 1:
             errors.append(f"sources: repo {repo_id!r} is listed more than once ({', '.join(ids)})")
+    return errors
+
+
+def validate_embedded_route_roster_coverage(
+    sources_cfg: dict, roster_cfg: dict
+) -> list[str]:
+    """Prove tracked embedded routes against the frozen Nanochat roster.
+
+    This static proof catches misspelled artifact globs and source regexes
+    before a normalization job. Runtime normalization separately requires a
+    positive routed-row count against the actual acquisition receipt.
+    """
+
+    errors: list[str] = []
+    routes = sources_cfg.get("embedded_structural_routes")
+    roster = roster_cfg.get("sources")
+    if not isinstance(routes, list) or not isinstance(roster, list):
+        return ["embedded route coverage proof requires route and roster lists"]
+    roster_rows = {
+        str(row.get("source_dataset")): row
+        for row in roster
+        if isinstance(row, dict) and isinstance(row.get("source_dataset"), str)
+    }
+    all_artifacts = [
+        (source_dataset, str(artifact))
+        for source_dataset, row in roster_rows.items()
+        for artifact in row.get("artifacts", [])
+        if isinstance(artifact, str)
+    ]
+    base_globs = sources_cfg.get("base", {}).get("include_globs", [])
+    for index, route in enumerate(routes):
+        label = f"embedded_structural_routes[{index}]"
+        if not isinstance(route, dict):
+            continue
+        coverage = route.get("coverage_contract")
+        if not isinstance(coverage, dict):
+            continue
+        expected = coverage.get("expected_source_dataset")
+        if not isinstance(expected, str) or not expected:
+            continue
+        roster_row = roster_rows.get(expected)
+        if roster_row is None:
+            errors.append(
+                f"{label}: expected source_dataset {expected!r} is absent from the "
+                "frozen Nanochat roster"
+            )
+            continue
+        rows = roster_row.get("rows")
+        if not isinstance(rows, int) or isinstance(rows, bool) or rows < 1:
+            errors.append(f"{label}: frozen roster has no positive rows for {expected!r}")
+        pattern = route.get("source_regex")
+        try:
+            compiled = re.compile(str(pattern))
+        except re.error:
+            continue
+        regex_matches = sorted(
+            name for name in roster_rows if compiled.search(name) is not None
+        )
+        if regex_matches != [expected]:
+            errors.append(
+                f"{label}: source_regex must match exactly the expected frozen source "
+                f"{expected!r}; matched={regex_matches}"
+            )
+        globs = route.get("acquisition_include_globs")
+        if not isinstance(globs, list) or not globs:
+            continue
+        target_artifacts = [
+            str(artifact)
+            for artifact in roster_row.get("artifacts", [])
+            if isinstance(artifact, str)
+        ]
+        missing = [
+            artifact
+            for artifact in target_artifacts
+            if not any(fnmatch.fnmatchcase(artifact, str(pattern)) for pattern in globs)
+        ]
+        if missing:
+            errors.append(
+                f"{label}: acquisition globs miss frozen artifacts for {expected!r}: {missing}"
+            )
+        cross_matches = sorted(
+            f"{source_dataset}:{artifact}"
+            for source_dataset, artifact in all_artifacts
+            if source_dataset != expected
+            and any(fnmatch.fnmatchcase(artifact, str(pattern)) for pattern in globs)
+        )
+        if cross_matches:
+            errors.append(
+                f"{label}: acquisition globs also match other frozen sources: {cross_matches}"
+            )
+        base_missing = [
+            artifact
+            for artifact in target_artifacts
+            if not any(
+                fnmatch.fnmatchcase(artifact, str(pattern)) for pattern in base_globs
+            )
+        ]
+        if base_missing:
+            errors.append(
+                f"{label}: expected artifacts are outside base.include_globs: {base_missing}"
+            )
     return errors
 
 
@@ -969,13 +1118,46 @@ def validate_policy(cfg: dict) -> list[str]:
     ):
         errors.append("policy: destructive structural materialization cannot be enabled before approval")
     validation = cfg.get("validation", {})
-    gold_hash = validation.get("structural_gold_sha256")
-    if gold_hash is not None and (
-        not isinstance(gold_hash, str) or len(gold_hash) != 64 or any(c not in HEX40 for c in gold_hash)
+    parity_hash = validation.get("structural_parity_corpus_sha256")
+    if parity_hash is not None and (
+        not isinstance(parity_hash, str)
+        or len(parity_hash) != 64
+        or any(c not in HEX40 for c in parity_hash)
     ):
-        errors.append("policy: validation.structural_gold_sha256 must be null or lowercase 64-hex")
-    if cfg.get("status") == "approved" and gold_hash is None:
-        errors.append("policy: approved status requires a pinned structural gold SHA-256")
+        errors.append(
+            "policy: validation.structural_parity_corpus_sha256 must be null or lowercase 64-hex"
+        )
+    if validation.get("structural_parity_evidence") != "LLM_silver":
+        errors.append("policy: structural parity evidence must be declared as LLM_silver")
+    parity_documents = validation.get("required_parity_documents")
+    if not isinstance(parity_documents, int) or isinstance(parity_documents, bool) or parity_documents < 1:
+        errors.append("policy: required_parity_documents must be a positive integer")
+    structural_enabled = any(
+        structural.get(kind, {}).get("enabled_for_materialization")
+        for kind in ("bibliography", "toc")
+    )
+    if structural_enabled:
+        if validation.get("structural_application_receipt_required") is not True:
+            errors.append("policy: enabled structural cleaning requires an application receipt")
+        if validation.get("required_model_evidence") != "LLM_silver":
+            errors.append("policy: structural model evidence must be declared as LLM_silver")
+        if validation.get("required_safety_evidence") != "targeted_manual_false_deletion_audit":
+            errors.append("policy: enabled structural cleaning requires targeted manual safety evidence")
+    gates = structural.get("application_gates")
+    if not isinstance(gates, dict):
+        errors.append("policy: structural.application_gates must be an object")
+    else:
+        reviewed = gates.get("minimum_reviewed_deletions")
+        if not isinstance(reviewed, int) or isinstance(reviewed, bool) or reviewed < 1:
+            errors.append("policy: minimum_reviewed_deletions must be a positive integer")
+        for name in (
+            "maximum_running_prose_deletion_rate",
+            "minimum_main_text_retention_rate",
+            "maximum_catastrophic_document_deletion_rate",
+        ):
+            value = gates.get(name)
+            if isinstance(value, bool) or not isinstance(value, (float, int)) or not 0 <= float(value) <= 1:
+                errors.append(f"policy: structural.application_gates.{name} must be in [0, 1]")
     if cfg.get("diavgeia", {}).get("academic_structural_cleaner") != "disabled":
         errors.append("policy: Diavgeia academic structural cleaner must be disabled")
     return errors
@@ -1119,6 +1301,7 @@ def main() -> int:
             backlog_cfg,
         )
         + validate_sources(source_cfg)
+        + validate_embedded_route_roster_coverage(source_cfg, roster_cfg)
         + validate_backlog(backlog_cfg, source_cfg)
         + validate_policy(policy_cfg)
         + validate_source_review_policy(source_review_cfg, source_cfg)

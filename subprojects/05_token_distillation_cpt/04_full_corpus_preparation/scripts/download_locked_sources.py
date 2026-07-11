@@ -9,7 +9,9 @@ import hashlib
 import json
 import os
 import tempfile
+import time
 from pathlib import Path
+from typing import Any, Callable
 
 
 def sha256_file(path: Path, chunk_size: int = 16 * 1024 * 1024) -> str:
@@ -50,6 +52,73 @@ def write_json_atomic(path: Path, value: dict) -> None:
         raise
 
 
+def _retryable_download_error(exc: BaseException) -> bool:
+    """Return whether a Hugging Face download failure is safe to resume.
+
+    The common Clariden failure is ``requests.ChunkedEncodingError`` wrapping
+    ``IncompleteRead``.  Walk the exception chain so a wrapper raised by
+    ``huggingface_hub`` does not hide the transient transport error.  Definite
+    4xx responses are intentionally not retried, except for timeout/rate-limit
+    statuses.
+    """
+
+    try:
+        import requests
+    except ImportError:  # pragma: no cover - huggingface_hub currently depends on requests
+        requests = None  # type: ignore[assignment]
+
+    seen: set[int] = set()
+    current: BaseException | None = exc
+    while current is not None and id(current) not in seen:
+        seen.add(id(current))
+        response = getattr(current, "response", None)
+        status = getattr(response, "status_code", None)
+        if isinstance(status, int):
+            if status in {408, 409, 425, 429} or status >= 500:
+                return True
+            if 400 <= status < 500:
+                return False
+        if requests is not None and isinstance(current, requests.exceptions.RequestException):
+            return True
+        if isinstance(current, (TimeoutError, ConnectionError)):
+            return True
+        name = type(current).__name__
+        if name in {"IncompleteRead", "ProtocolError", "RemoteDisconnected"}:
+            return True
+        current = current.__cause__ or current.__context__
+    return False
+
+
+def snapshot_download_with_retries(
+    download: Callable[..., Any],
+    *,
+    attempts: int,
+    backoff_seconds: float,
+    source_id: str,
+    **kwargs: Any,
+) -> Any:
+    """Run a resumable snapshot download with bounded transport retries."""
+
+    if attempts < 1:
+        raise ValueError("download attempts must be positive")
+    if backoff_seconds < 0:
+        raise ValueError("retry backoff must be non-negative")
+    for attempt in range(1, attempts + 1):
+        try:
+            return download(**kwargs)
+        except Exception as exc:
+            if attempt >= attempts or not _retryable_download_error(exc):
+                raise
+            delay = min(60.0, backoff_seconds * (2 ** (attempt - 1)))
+            print(
+                f"transient download failure for {source_id} "
+                f"(attempt {attempt}/{attempts}); resuming in {delay:g}s: "
+                f"{type(exc).__name__}: {exc}",
+                flush=True,
+            )
+            time.sleep(delay)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--lock", type=Path, required=True)
@@ -57,13 +126,22 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--source", action="append", help="download only selected source_id values")
     parser.add_argument("--workers", type=int, default=8)
+    parser.add_argument("--download-attempts", type=int, default=8)
+    parser.add_argument("--retry-backoff-seconds", type=float, default=15.0)
     parser.add_argument("--verify-lfs", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument(
+        "--existing-only",
+        action="store_true",
+        help="verify already-staged locked payloads without contacting Hugging Face",
+    )
     args = parser.parse_args()
 
-    try:
-        from huggingface_hub import snapshot_download
-    except ImportError as exc:  # pragma: no cover - exercised on Clariden
-        raise RuntimeError("install huggingface_hub in the Phase-04 runtime") from exc
+    snapshot_download = None
+    if not args.existing_only:
+        try:
+            from huggingface_hub import snapshot_download
+        except ImportError as exc:  # pragma: no cover - exercised on Clariden
+            raise RuntimeError("install huggingface_hub in the Phase-04 runtime") from exc
 
     lock = json.loads(args.lock.read_text(encoding="utf-8"))
     if lock.get("schema_version") != "full_cpt_sources_lock_v1":
@@ -74,7 +152,7 @@ def main() -> int:
     if unknown:
         raise ValueError(f"unknown or unresolved source ids: {sorted(unknown)}")
     token = os.environ.get("HF_TOKEN")
-    if not token:
+    if not token and not args.existing_only:
         raise ValueError("HF_TOKEN must be supplied in the job environment; it is never read from repo files")
 
     completed = []
@@ -82,15 +160,21 @@ def main() -> int:
         local_dir = args.destination / source["source_id"] / source["revision"]
         local_dir.mkdir(parents=True, exist_ok=True)
         patterns = [row["path"] for row in source["selected_files"]]
-        snapshot_download(
-            repo_id=source["repo_id"],
-            repo_type=source["repo_type"],
-            revision=source["revision"],
-            allow_patterns=patterns,
-            local_dir=local_dir,
-            max_workers=args.workers,
-            token=token,
-        )
+        if not args.existing_only:
+            assert snapshot_download is not None
+            snapshot_download_with_retries(
+                snapshot_download,
+                attempts=args.download_attempts,
+                backoff_seconds=args.retry_backoff_seconds,
+                source_id=source["source_id"],
+                repo_id=source["repo_id"],
+                repo_type=source["repo_type"],
+                revision=source["revision"],
+                allow_patterns=patterns,
+                local_dir=local_dir,
+                max_workers=args.workers,
+                token=token,
+            )
         lfs_verified = 0
         git_blobs_verified = 0
         verified_files: list[dict] = []
@@ -169,6 +253,15 @@ def main() -> int:
         "source_lock": str(args.lock.resolve()),
         "source_lock_sha256": sha256_file(args.lock),
         "destination": str(args.destination.resolve()),
+        "download_policy": {
+            "workers": args.workers,
+            "attempts": args.download_attempts,
+            "retry_backoff_seconds": args.retry_backoff_seconds,
+            "verify_lfs": args.verify_lfs,
+            "existing_only": args.existing_only,
+            "hf_hub_disable_xet": os.environ.get("HF_HUB_DISABLE_XET", "").strip().lower()
+            in {"1", "on", "true", "yes"},
+        },
         "sources": completed,
     }
     if args.manifest.exists():

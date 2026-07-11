@@ -22,7 +22,7 @@ import numpy as np
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from sequence_models.contract import (
-        GoldDocument, read_gold, sha256_file, validate_gold, validate_silver,
+        GoldDocument, read_gold, sha256_file, validate_silver,
     )
     from sequence_models.features import (
         TAGS,
@@ -32,7 +32,7 @@ if __package__ in (None, ""):
         document_tag_ids,
     )
 else:
-    from .contract import GoldDocument, read_gold, sha256_file, validate_gold, validate_silver
+    from .contract import GoldDocument, read_gold, sha256_file, validate_silver
     from .features import (
         TAGS,
         FeatureEncoder,
@@ -237,7 +237,6 @@ def make_examples(documents: Sequence[GoldDocument], encoder: FeatureEncoder) ->
             while end < len(document.lines) and document.lines[end].label != "UNKNOWN":
                 end += 1
             if end > start:
-                labels = [line.label for line in document.lines[start:end]]
                 tags = document_tag_ids(type("Segment", (), {"lines": document.lines[start:end]})())
                 examples.append(SequenceExample(
                     document=document,
@@ -404,7 +403,7 @@ def _architecture(config: Mapping[str, Any], architecture_id: str) -> Mapping[st
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--gold", required=True, help="promotion gold or reconstructed silver JSONL")
+    parser.add_argument("--silver", required=True, help="reconstructed LLM/Opus silver JSONL")
     parser.add_argument("--config", required=True)
     parser.add_argument("--split-manifest", required=True)
     parser.add_argument("--architecture", required=True,
@@ -413,49 +412,30 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--validation-predictions", required=True)
     parser.add_argument("--test-predictions", help="write only after architecture/calibration are frozen")
     parser.add_argument("--seed", type=int)
-    parser.add_argument(
-        "--evidence-tier", choices=("promotion_gold", "LLM_silver"), default="promotion_gold"
-    )
-    parser.add_argument("--target", choices=("joint", "bib"), default="joint")
+    parser.add_argument("--target", choices=("joint", "bib"), default="bib")
     args = parser.parse_args(argv)
 
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
     architecture = _architecture(config, args.architecture)
     seed = int(config["execution"]["seed"] if args.seed is None else args.seed)
-    documents = read_gold(args.gold)
+    documents = read_gold(args.silver)
     split_manifest = json.loads(Path(args.split_manifest).read_text(encoding="utf-8"))
-    if args.evidence_tier == "LLM_silver":
-        contract_receipt = validate_silver(
-            documents, config["silver_contract"], split_manifest=split_manifest
-        )
-        scopes = {document.task_scope for document in documents}
-        if args.target == "joint":
-            if scopes != {"bibliography_toc_windows"}:
-                raise RuntimeError("joint silver fitting requires explicit BIB/TOC task supervision")
-            active_classes = ("BIB", "TOC")
-        else:
-            if any(line.label == "TOC" for doc in documents for line in doc.lines):
-                raise RuntimeError("BIB-only fitting cannot mask observed TOC targets")
-            active_classes = ("BIB",)
-    else:
-        if args.target != "joint":
-            raise RuntimeError("promotion-gold fitting uses the locked joint BIB/TOC target")
-        contract_receipt = validate_gold(
-            documents,
-            config["gold_contract"],
-            split_manifest=split_manifest,
-            for_promotion=True,
-        )
+    contract_receipt = validate_silver(
+        documents, config["silver_contract"], split_manifest=split_manifest
+    )
+    scopes = {document.task_scope for document in documents}
+    if args.target == "joint":
+        if scopes != {"bibliography_toc_windows"}:
+            raise RuntimeError("joint silver fitting requires explicit BIB/TOC task supervision")
         active_classes = ("BIB", "TOC")
+    else:
+        if any(line.label == "TOC" for doc in documents for line in doc.lines):
+            raise RuntimeError("BIB-only fitting cannot mask observed TOC targets")
+        active_classes = ("BIB",)
     train_docs = [doc for doc in documents if doc.split == "train"]
     validation_docs = [doc for doc in documents if doc.split == "validation"]
     if not train_docs or not validation_docs:
         raise RuntimeError("feature CRF requires non-empty train and validation splits")
-    if args.evidence_tier == "promotion_gold" and any(
-        line.label != "UNKNOWN" and line.is_running_prose is None
-        for document in validation_docs for line in document.lines
-    ):
-        raise RuntimeError("validation calibration requires running-prose adjudication on every known line")
     encoder = FeatureEncoder(
         char_hash_dim=int(architecture.get("char_hash_dim", 0)),
         char_ngram_min=int(architecture.get("char_ngram_min", 2)),
@@ -476,14 +456,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     calibration = config["calibration"]
     # Silver has no independent running-prose judgment, so its calibration is
     # explicitly comparison-only. It must not be presented as a safety result.
-    minimum_precision = (
-        0.0 if args.evidence_tier == "LLM_silver"
-        else float(calibration["minimum_deletion_token_precision"])
-    )
-    maximum_contamination = (
-        1.0 if args.evidence_tier == "LLM_silver"
-        else float(calibration["maximum_prose_token_contamination"])
-    )
+    minimum_precision = 0.0
+    maximum_contamination = 1.0
     deletion_bias, validation_metrics = calibrate_deletion_bias(
         validation_examples,
         model,
@@ -491,25 +465,21 @@ def main(argv: Sequence[str] | None = None) -> int:
         minimum_precision=minimum_precision,
         maximum_contamination=maximum_contamination,
     )
-    if args.evidence_tier == "LLM_silver":
-        validation_metrics["prose_contamination"] = None
+    validation_metrics["prose_contamination"] = None
     metadata = {
         "schema_version": "academic-structure-feature-crf-v1",
         "architecture_id": args.architecture,
         "config_sha256": sha256_file(args.config),
-        "gold_sha256": sha256_file(args.gold),
+        "silver_sha256": sha256_file(args.silver),
         "split_manifest_sha256": sha256_file(args.split_manifest),
         "contract_inventory_sha256": contract_receipt["inventory_sha256"],
         "feature_encoder": encoder.metadata(),
         "tags": list(TAGS),
         "active_classes": list(active_classes),
-        "evidence_tier": args.evidence_tier,
-        "production_eligible": False if args.evidence_tier == "LLM_silver" else None,
-        "safety_metrics_available": args.evidence_tier == "promotion_gold",
-        "metric_semantics": (
-            "agreement_with_LLM_silver; not production safety"
-            if args.evidence_tier == "LLM_silver" else "promotion_gold"
-        ),
+        "evidence_tier": "LLM_silver",
+        "production_eligible": False,
+        "safety_metrics_available": False,
+        "metric_semantics": "agreement_with_LLM_silver; not production safety",
         "deletion_bias": deletion_bias,
         "validation_metrics": validation_metrics,
         "training_loss": history,

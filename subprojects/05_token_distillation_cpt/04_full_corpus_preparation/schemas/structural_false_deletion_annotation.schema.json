@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "structural_false_deletion_annotation.schema.json",
+  "title": "Manual structural false-deletion adjudication",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "case_id",
+    "review_context_sha256",
+    "decision",
+    "running_prose_chars_removed",
+    "main_text_chars_removed",
+    "catastrophic_document_deletion",
+    "reviewer_notes"
+  ],
+  "properties": {
+    "case_id": {"$ref": "#/$defs/sha256"},
+    "review_context_sha256": {"$ref": "#/$defs/sha256"},
+    "decision": {
+      "enum": [
+        "structural_only",
+        "mixed_with_running_prose",
+        "running_prose",
+        "catastrophic_document_deletion"
+      ]
+    },
+    "running_prose_chars_removed": {"type": "integer", "minimum": 0},
+    "main_text_chars_removed": {"type": "integer", "minimum": 0},
+    "catastrophic_document_deletion": {"type": "boolean"},
+    "reviewer_notes": {"type": "string"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}
+

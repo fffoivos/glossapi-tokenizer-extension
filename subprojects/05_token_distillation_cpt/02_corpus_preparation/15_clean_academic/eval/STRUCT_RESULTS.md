@@ -1,4 +1,4 @@
-# Two-head line classifier — results (2000-doc gold)
+# Two-head line classifier — historical results (2,000-doc LLM silver)
 
 ## Deployment update — 2026-07-11
 
@@ -12,18 +12,22 @@ The Step-6 Rust scope below is now implemented in the Phase-04 integration:
 - immutable provenance, conflict accounting and exact counterfactual token accounting in Phase 04.
 
 The crate has 18 passing tests. The Phase-04 suite probes every U+0370–U+03FF
-edge code point and matches Python probabilities within `1e-12` for both heads. Full held-out span parity remains gated by
-the absent `units/STRUCT_2K_gold.jsonl`; hydrate it, then run
-`rust_parity_struct.py` before production detection.
+edge code point and matches Python probabilities within `1e-12` for both heads.
+The raw joint ToC+BIB `units/STRUCT_2K_gold.jsonl` remains absent; the recoverable
+SPAN evidence supplies BIB coordinates/text only and cannot establish joint
+coverage. Production authorization would separately require a policy frozen
+before Stage10, passed Stage54, and the manual 100-case deletion-safety audit
+(exactly 50 ToC + 50 BIB). The current CPT policy is `audit_only`, so Stage58 is
+a deterministic no-op. No new 2,000-item human annotation is planned.
 
 Per-line structural tagger: two independent binary heads (bibliography + table-of-contents) over the
-unified gold `units/STRUCT_2K_gold.jsonl` (2000 docs; labels 0 other 78% / 1 bib 15% / 2 toc 6%;
+unified LLM-silver `units/STRUCT_2K_gold.jsonl` (2,000 docs; labels 0 other 78% / 1 bib 15% / 2 toc 6%;
 doc-grouped leak-free split train 1392 / test 608). Design = `MODEL_DESIGN_RESEARCH.md`. All numbers on the
 held-out TEST. Pipeline: `struct_lines.py` (loader) → `train_struct.py` (heads) → `decode_struct.py`
 (hysteresis) → `eval_struct.py` (prose-protection frontier).
 
 ## Heads
-- **bib** = LR over the existing 22 features (`line_lr.FEATS`), retrained on the new gold.
+- **bib** = LR over the existing 22 features (`line_lr.FEATS`), retrained on the LLM-silver labels.
 - **toc** = LR over 27 features = the 22 (incl. `pos`, year/entry signals as anti-features) + 5 new ToC
   signals (`toc_leader`, `toc_secnum`, `toc_pagetail`, `toc_mdrow`, `toc_contents_hdr`). Probabilities
   **front-gated** to `abs_idx < min(300, 0.30·N)` before decoding.
@@ -33,11 +37,11 @@ Learned ToC weights (top): `pos −1.17` (front prior), `toc_mdrow 0.67`, `toc_s
 ## Raw per-line (pre-smoothing), recall @ line-precision 0.97
 | head | recall@p0.97 |
 |---|---|
-| bib (new gold) | **0.876** |
+| bib (LLM silver) | **0.876** |
 | bib (deployed/old-data model, on new test) | 0.857 |
 | toc (front-gated) | 0.380 |
 
-**No-regression check:** the new-gold bib head beats the deployed model on the new test (+0.019) → promote.
+**Historical comparison:** the silver-fit bib head beat the deployed model on the silver test (+0.019); this result alone does not authorize production.
 ToC's low raw recall is expected (chapter-title lines inside a ToC block carry no own-line signal); the
 smoother recovers them.
 
@@ -64,7 +68,7 @@ Both heads remove their target structure while eating **almost no main text**. F
 negligible prose cost — an operating-point choice for the user.
 
 ## Known ceilings / caveats
-- **ToC front-gate** keeps 91% of gold ToC lines; the other 9% sit past `min(300, 0.30·N)` (long
+- **ToC front-gate** keeps 91% of silver ToC lines; the other 9% sit past `min(300, 0.30·N)` (long
   front-matter) — a structural recall cap. Loosening the gate is a tunable knob.
 - TEST is reused for ToC feature design → treat these as an upper bound; a fresh holdout should give the
   one final number (per the design's validity note).

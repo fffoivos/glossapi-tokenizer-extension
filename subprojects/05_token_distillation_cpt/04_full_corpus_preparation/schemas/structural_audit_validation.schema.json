@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "structural_audit_validation.schema.json",
+  "title": "Validated targeted manual structural safety audit",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "status",
+    "evidence_status",
+    "reviewed_deletions",
+    "packet_manifest_sha256",
+    "raw_manifest_sha256",
+    "manual_receipt_sha256",
+    "cleaning_policy_sha256",
+    "metrics",
+    "metric_gate_passed",
+    "automatic_adjudication_used"
+  ],
+  "properties": {
+    "schema_version": {"const": "academic_structural_audit_validation_v1"},
+    "status": {"enum": ["passed", "failed"]},
+    "evidence_status": {"const": "targeted_manual_false_deletion_audit"},
+    "reviewed_deletions": {"const": 100},
+    "packet_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "raw_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "manual_receipt_sha256": {"$ref": "#/$defs/sha256"},
+    "cleaning_policy_sha256": {"$ref": "#/$defs/sha256"},
+    "metric_gate_passed": {"type": "boolean"},
+    "automatic_adjudication_used": {"const": false},
+    "metrics": {
+      "type": "object",
+      "required": [
+        "running_prose_deletion_rate",
+        "main_text_retention_rate",
+        "catastrophic_document_deletion_rate"
+      ],
+      "properties": {
+        "running_prose_deletion_rate": {"$ref": "#/$defs/rate"},
+        "main_text_retention_rate": {"$ref": "#/$defs/rate"},
+        "catastrophic_document_deletion_rate": {"$ref": "#/$defs/rate"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "rate": {"type": "number", "minimum": 0, "maximum": 1}
+  }
+}

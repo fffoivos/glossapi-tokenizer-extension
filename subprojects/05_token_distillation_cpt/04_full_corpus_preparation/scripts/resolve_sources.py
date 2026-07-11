@@ -66,6 +66,11 @@ def main() -> int:
     parser.add_argument("--sources", type=Path, default=here / "configs" / "sources.json")
     parser.add_argument("--output", type=Path, default=here / "configs" / "sources.lock.json")
     parser.add_argument("--source", action="append", help="resolve only selected source_id values")
+    parser.add_argument(
+        "--anonymous",
+        action="store_true",
+        help="resolve public metadata without env or cached Hugging Face credentials",
+    )
     args = parser.parse_args()
 
     if args.output.exists():
@@ -83,7 +88,7 @@ def main() -> int:
     if selected_ids - {entry["source_id"] for entry in registry}:
         raise ValueError(f"unknown source ids: {sorted(selected_ids - {entry['source_id'] for entry in registry})}")
 
-    api = HfApi(token=os.environ.get("HF_TOKEN"))
+    api = HfApi(token=False if args.anonymous else os.environ.get("HF_TOKEN"))
     locked: list[dict] = []
     for entry in registry:
         repo_id = entry["repo_id"]

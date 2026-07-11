@@ -35,10 +35,18 @@ set -euo pipefail
 python3 -m venv "$1"
 "$1/bin/python" -m pip install --requirement "$2"
 "$1/bin/python" - <<"PY"
-import pyarrow, tokenizers, huggingface_hub
-print("python runtime OK", pyarrow.__version__, tokenizers.__version__, huggingface_hub.__version__)
+import blake3, datasets, duckdb, huggingface_hub, pyarrow, regex, tokenizers, zstandard
+print(
+    "python runtime OK",
+    pyarrow.__version__,
+    tokenizers.__version__,
+    huggingface_hub.__version__,
+    duckdb.__version__,
+    zstandard.__version__,
+)
 PY
-' bash "$PARTIAL" "$PHASE04_DIR/requirements-runtime.txt"
+"$1/bin/python" "$3" --help >/dev/null
+' bash "$PARTIAL" "$PHASE04_DIR/requirements-runtime.txt" "$PHASE04_DIR/scripts/invoke_text_dedup.py"
 
 if [[ -e "$RUNTIME_VENV" ]]; then
     mv "$RUNTIME_VENV" "$BACKUP"

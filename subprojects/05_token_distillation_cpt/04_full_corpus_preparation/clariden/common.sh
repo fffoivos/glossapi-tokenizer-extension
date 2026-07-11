@@ -123,6 +123,8 @@ phase04_init_pipeline_run() {
         --code-commit "${PHASE04_EXPECTED_COMMIT:?PHASE04_EXPECTED_COMMIT is unset}" \
         --sources "$SOURCE_CONFIG" \
         --cleaning-policy "$CLEANING_POLICY" \
+        --eligibility-policy "$TRAINING_ELIGIBILITY_POLICY" \
+        --source-license-adjudication "$SOURCE_LICENSE_ADJUDICATION" \
         --tokenizer-sha256 "$TOKENIZER_SHA256"
 }
 
@@ -192,6 +194,13 @@ phase04_stage_add_input() {
     phase04_require_file "$path"
     phase04_contract_python add-input \
         --stage-dir "$PHASE04_STAGE_DIR" --name "$name" --path "$path"
+}
+
+phase04_stage_bind_parameter() {
+    local name=$1
+    local value=$2
+    phase04_contract_python bind-parameter \
+        --stage-dir "$PHASE04_STAGE_DIR" --name "$name" --value "$value"
 }
 
 phase04_stage_require_upstream() {

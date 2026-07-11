@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "full_cpt_publication_receipt.schema.json",
+  "title": "Full CPT Hugging Face publication receipt",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "integrity_contract_version",
+    "completed_at",
+    "status",
+    "repo_id",
+    "repo_type",
+    "gate_mode",
+    "remote_mode",
+    "storage_mode",
+    "release",
+    "release_manifest_sha256",
+    "validation_receipt_sha256",
+    "redistribution_root",
+    "counts",
+    "local_inventory",
+    "execute",
+    "commit_sha",
+    "remote_inventory"
+  ],
+  "properties": {
+    "schema_version": {"const": "full_cpt_publication_receipt_v1"},
+    "integrity_contract_version": {"const": "full_cpt_release_integrity_v1"},
+    "completed_at": {"type": "string", "minLength": 1},
+    "status": {"enum": ["dry_run", "passed"]},
+    "repo_id": {"type": "string", "pattern": "^[^/]+/[^/]+$"},
+    "repo_type": {"const": "dataset"},
+    "gate_mode": {"const": "manual"},
+    "remote_mode": {"const": "new-empty"},
+    "storage_mode": {"const": "git_lfs_sha256_verifiable"},
+    "execute": {"type": "boolean"},
+    "commit_sha": {"type": ["string", "null"]},
+    "local_inventory": {"type": "array", "minItems": 1},
+    "remote_inventory": {"type": "array"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "passed"}}},
+      "then": {
+        "properties": {
+          "execute": {"const": true},
+          "commit_sha": {"type": "string", "minLength": 7},
+          "remote_inventory": {"minItems": 1}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "dry_run"}}},
+      "then": {"properties": {"execute": {"const": false}, "commit_sha": {"type": "null"}}}
+    }
+  ]
+}

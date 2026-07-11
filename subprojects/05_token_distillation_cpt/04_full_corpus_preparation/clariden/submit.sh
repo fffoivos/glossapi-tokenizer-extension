@@ -18,17 +18,21 @@ usage:
   submit.sh chain-to-review
   submit.sh chain-after-admission
   submit.sh chain-after-post-clean
+  submit.sh chain-structural-to-audit
+  submit.sh chain-finalize-noop
+  submit.sh chain-finalize-promoted
 
 Corpus stages:
   normalize lineage review-packet review-aggregate clean post-clean-packet
-  post-clean-aggregate final-clean decontam dedup materialize publish
+  post-clean-aggregate structural-stage50-detect structural-review-packet
+  structural-promote final-clean greekmmlu-freeze decontam dedup materialize publish
 
 Legacy/audit stages:
   bootstrap-runtime build-detector acquire quality structural-detect structural-token-loss
 
-All submissions are dry runs unless CONFIRM_LAUNCH=1.  The chain commands stop
-at explicit human/Codex boundaries: chain-to-review never invokes reviewers,
-and both cleaning chains require a manually confirmed admission-file hash.
+All submissions are dry runs unless CONFIRM_LAUNCH=1.  The cleaning chains stop
+before irreversible Stage58 finalization.  Finalization is a separate explicit
+choice between a confirmed structural no-op and exact Stage54-promoted spans.
 Publication is never part of a chain.
 EOF
 }
@@ -46,9 +50,13 @@ stage_script() {
         review-packet|30-review-packet) echo "$HERE/44_build_review_packet.sbatch" ;;
         review-aggregate|40-review-aggregate) echo "$HERE/46_aggregate_reviews.sbatch" ;;
         clean|50-clean) echo "$HERE/60_apply_cleaning.sbatch" ;;
+        structural-stage50-detect|52-structural-detect) echo "$HERE/52_detect_stage50_structural_spans.sbatch" ;;
+        structural-review-packet|53-structural-review-packet) echo "$HERE/53_build_structural_review_packet.sbatch" ;;
+        structural-promote|54-structural-promote) echo "$HERE/54_promote_structural_spans.sbatch" ;;
         post-clean-packet|55-post-clean-review-packet) echo "$HERE/62_build_post_clean_review_packet.sbatch" ;;
         post-clean-aggregate|56-post-clean-review-aggregate) echo "$HERE/64_aggregate_post_clean_reviews.sbatch" ;;
         final-clean|58-final-clean) echo "$HERE/66_finalize_cleaning.sbatch" ;;
+        greekmmlu-freeze|59-greekmmlu-freeze) echo "$HERE/68_freeze_greekmmlu.sbatch" ;;
         decontam|60-greekmmlu-decontam) echo "$HERE/70_greekmmlu_decontam.sbatch" ;;
         dedup|70-dedup) echo "$HERE/80_dedup.sbatch" ;;
         materialize|80-materialize-validate) echo "$HERE/90_materialize_validate.sbatch" ;;
@@ -64,9 +72,13 @@ canonical_stage() {
         review-packet|30-review-packet) echo 30-review-packet ;;
         review-aggregate|40-review-aggregate) echo 40-review-aggregate ;;
         clean|50-clean) echo 50-clean ;;
+        structural-stage50-detect|52-structural-detect) echo 52-structural-detect ;;
+        structural-review-packet|53-structural-review-packet) echo 53-structural-review-packet ;;
+        structural-promote|54-structural-promote) echo 54-structural-promote ;;
         post-clean-packet|55-post-clean-review-packet) echo 55-post-clean-review-packet ;;
         post-clean-aggregate|56-post-clean-review-aggregate) echo 56-post-clean-review-aggregate ;;
         final-clean|58-final-clean) echo 58-final-clean ;;
+        greekmmlu-freeze|59-greekmmlu-freeze) echo 59-greekmmlu-freeze ;;
         decontam|60-greekmmlu-decontam) echo 60-greekmmlu-decontam ;;
         dedup|70-dedup) echo 70-dedup ;;
         materialize|80-materialize-validate) echo 80-materialize-validate ;;
@@ -99,16 +111,38 @@ file_sha256() {
     fi
 }
 
+final_admission_preflight() {
+    [[ "${CONFIRM_LAUNCH:-0}" == "1" ]] || return 0
+    [[ -s "${FINAL_SOURCE_ADMISSION:-}" && -n "${CONFIRM_FINAL_ADMISSION_SHA256:-}" ]] || {
+        echo "ERROR: final cleaning requires FINAL_SOURCE_ADMISSION and CONFIRM_FINAL_ADMISSION_SHA256." >&2
+        exit 7
+    }
+    [[ "$(file_sha256 "$FINAL_SOURCE_ADMISSION")" == "$CONFIRM_FINAL_ADMISSION_SHA256" ]] || {
+        echo "ERROR: CONFIRM_FINAL_ADMISSION_SHA256 does not match FINAL_SOURCE_ADMISSION." >&2
+        exit 7
+    }
+    [[ "${REUSE_STAGE50_ADMISSION+x}" == "x" ]] && \
+        [[ "$REUSE_STAGE50_ADMISSION" == "0" || "$REUSE_STAGE50_ADMISSION" == "1" ]] || {
+        echo "ERROR: final cleaning requires explicit REUSE_STAGE50_ADMISSION=0 or 1." >&2
+        exit 7
+    }
+}
+
 manual_preflight() {
     local target=$1
     [[ "${CONFIRM_LAUNCH:-0}" == "1" ]] || return 0
     case "$target" in
         acquire)
             [[ "${CONFIRM_ACQUIRE:-0}" == "1" ]] || {
-                echo "ERROR: acquisition is already represented by live job 2735235; set CONFIRM_ACQUIRE=1 only for an intentional future acquisition." >&2
+                echo "ERROR: set CONFIRM_ACQUIRE=1 for an intentional acquisition or existing-payload verification run." >&2
                 exit 5
             }
-            [[ -n "${HF_TOKEN:-}" ]] || { echo "ERROR: HF_TOKEN is not in the submission environment." >&2; exit 5; }
+            if [[ "${ACQUISITION_EXISTING_ONLY:-0}" != "1" ]]; then
+                [[ -n "${HF_TOKEN:-}" ]] || {
+                    echo "ERROR: HF_TOKEN is required for payload acquisition." >&2
+                    exit 5
+                }
+            fi
             ;;
         review-aggregate|40-review-aggregate)
             [[ -s "${REVIEWS_JSONL:-}" ]] || { echo "ERROR: REVIEWS_JSONL is missing/empty." >&2; exit 6; }
@@ -130,14 +164,47 @@ manual_preflight() {
             }
             ;;
         final-clean|58-final-clean)
-            [[ -s "${FINAL_SOURCE_ADMISSION:-}" && -n "${CONFIRM_FINAL_ADMISSION_SHA256:-}" ]] || {
-                echo "ERROR: final cleaning requires FINAL_SOURCE_ADMISSION and CONFIRM_FINAL_ADMISSION_SHA256." >&2
+            final_admission_preflight
+            [[ "${APPLY_STRUCTURAL+x}" == "x" ]] && \
+                [[ "$APPLY_STRUCTURAL" == "0" || "$APPLY_STRUCTURAL" == "1" ]] || {
+                echo "ERROR: final cleaning requires explicit APPLY_STRUCTURAL=0 or 1." >&2
                 exit 7
             }
-            [[ "$(file_sha256 "$FINAL_SOURCE_ADMISSION")" == "$CONFIRM_FINAL_ADMISSION_SHA256" ]] || {
-                echo "ERROR: CONFIRM_FINAL_ADMISSION_SHA256 does not match FINAL_SOURCE_ADMISSION." >&2
-                exit 7
-            }
+            if [[ "$APPLY_STRUCTURAL" == "0" ]]; then
+                [[ "${CONFIRM_STRUCTURAL_NOOP:-0}" == "1" ]] || {
+                    echo "ERROR: explicit no-op finalization requires CONFIRM_STRUCTURAL_NOOP=1." >&2
+                    exit 7
+                }
+                [[ -z "${STRUCTURAL_MODEL_RECEIPT:-}" && -z "${STRUCTURAL_SPANS:-}" ]] || {
+                    echo "ERROR: no-op finalization must not carry structural receipt/span paths." >&2
+                    exit 7
+                }
+            else
+                [[ -s "${STRUCTURAL_MODEL_RECEIPT:-}" && -s "${STRUCTURAL_SPANS:-}" ]] || {
+                    echo "ERROR: promoted finalization requires Stage54 STRUCTURAL_MODEL_RECEIPT and STRUCTURAL_SPANS." >&2
+                    exit 7
+                }
+                [[ -n "${CONFIRM_STRUCTURAL_MODEL_RECEIPT_SHA256:-}" ]] || {
+                    echo "ERROR: promoted finalization requires CONFIRM_STRUCTURAL_MODEL_RECEIPT_SHA256." >&2
+                    exit 7
+                }
+                [[ "$(file_sha256 "$STRUCTURAL_MODEL_RECEIPT")" == \
+                    "$CONFIRM_STRUCTURAL_MODEL_RECEIPT_SHA256" ]] || {
+                    echo "ERROR: promoted structural model receipt confirmation hash mismatch." >&2
+                    exit 7
+                }
+            fi
+            ;;
+        structural-promote|54-structural-promote)
+            for required in \
+                STRUCTURAL_MANUAL_AUDIT_RECEIPT STRUCTURAL_AUDIT_ANNOTATIONS \
+                STRUCTURAL_SILVER_RECEIPT STRUCTURAL_SILVER_SPLIT \
+                STRUCTURAL_PARITY_RECEIPT; do
+                [[ -s "${!required:-}" ]] || {
+                    echo "ERROR: structural promotion requires a non-empty $required." >&2
+                    exit 7
+                }
+            done
             ;;
         publish|90-publish)
             [[ -n "${HF_TOKEN:-}" ]] || { echo "ERROR: HF_TOKEN is not in the submission environment." >&2; exit 8; }
@@ -188,7 +255,8 @@ show_status() {
     for stage in \
         10-normalize 20-lineage 30-review-packet 40-review-aggregate \
         50-clean 55-post-clean-review-packet 56-post-clean-review-aggregate \
-        58-final-clean 60-greekmmlu-decontam 70-dedup 80-materialize-validate 90-publish; do
+        52-structural-detect 53-structural-review-packet 54-structural-promote \
+        58-final-clean 59-greekmmlu-freeze 60-greekmmlu-decontam 70-dedup 80-materialize-validate 90-publish; do
         if [[ -s "$root/stages/$stage/stage_receipt.json" && -s "$root/stages/$stage/COMPLETED" ]]; then
             state=COMPLETE
         elif [[ -e "$root/stages/$stage" ]]; then
@@ -207,11 +275,11 @@ show_status() {
 chain_to_review() {
     require_pipeline_id
     [[ -n "${ACQUISITION_RECEIPT:-}" ]] || {
-        echo "ERROR: set ACQUISITION_RECEIPT to job 2735235's final receipt path." >&2
+        echo "ERROR: set ACQUISITION_RECEIPT to a passed current-config acquisition receipt." >&2
         exit 10
     }
     if [[ "${CONFIRM_LAUNCH:-0}" == "1" && ! -s "$ACQUISITION_RECEIPT" && -z "${ACQUISITION_JOB_ID:-}" ]]; then
-        echo "ERROR: acquisition receipt does not exist yet; set ACQUISITION_JOB_ID=2735235 for an afterok dependency." >&2
+        echo "ERROR: acquisition receipt does not exist yet; set ACQUISITION_JOB_ID to the active receipt-building job for an afterok dependency." >&2
         exit 10
     fi
     local dependency=""
@@ -228,16 +296,14 @@ chain_to_review() {
 
 chain_after_admission() {
     require_pipeline_id
+    [[ -s "${SOURCE_ADMISSION:-}" ]] || {
+        echo "ERROR: set SOURCE_ADMISSION to the reviewed admission JSON before planning this chain." >&2
+        exit 7
+    }
     manual_preflight clean
     local needs_post_clean=0
     admission_needs_post_clean "$SOURCE_ADMISSION" && needs_post_clean=1
-    if [[ "$needs_post_clean" == "0" ]]; then
-        [[ -s "${GREEKMMLU_QUERIES_JSONL:-}" && -s "${GREEKMMLU_BENCHMARK_MANIFEST:-}" ]] || {
-            echo "ERROR: set GREEKMMLU_QUERIES_JSONL and GREEKMMLU_BENCHMARK_MANIFEST before downstream processing." >&2
-            exit 11
-        }
-    fi
-    local clean post_clean_packet decontam dedup materialize
+    local clean post_clean_packet
     clean=$(submit_one clean 0 "")
     if [[ "$needs_post_clean" == "1" ]]; then
         post_clean_packet=$(submit_one post-clean-packet 0 "afterok:$clean")
@@ -246,15 +312,9 @@ chain_after_admission() {
         echo "STOP_BOUNDARY=post-clean review $PIPELINE_RUNS_ROOT/$PIPELINE_RUN_ID/stages/55-post-clean-review-packet/requests.jsonl"
         return 0
     fi
-    export FINAL_CLEAN_STAGE=50-clean
-    decontam=$(submit_one decontam 0 "afterok:$clean")
-    dedup=$(submit_one dedup 0 "afterok:$decontam")
-    materialize=$(submit_one materialize 0 "afterok:$dedup")
     echo "clean_job=$clean"
-    echo "decontam_job=$decontam"
-    echo "dedup_job=$dedup"
-    echo "materialize_job=$materialize"
-    echo "STOP_BOUNDARY=validated local release; publication was not submitted"
+    echo "STOP_BOUNDARY=Stage50 complete; structural audit/promotion and finalization choice remain open"
+    echo "No Stage58 or downstream job was submitted. After Stage50 completes, choose chain-finalize-noop or chain-finalize-promoted explicitly."
 }
 
 admission_needs_post_clean() {
@@ -269,22 +329,76 @@ PY
 
 chain_after_post_clean() {
     require_pipeline_id
+    final_admission_preflight
+    if [[ "${CONFIRM_LAUNCH:-0}" == "1" && "${REUSE_STAGE50_ADMISSION:-}" != "0" ]]; then
+        echo "ERROR: post-clean terminal admission requires REUSE_STAGE50_ADMISSION=0." >&2
+        exit 7
+    fi
+    echo "STOP_BOUNDARY=terminal post-clean admission confirmed; structural finalization choice remains open"
+    echo "No job was submitted. Choose chain-finalize-noop or chain-finalize-promoted explicitly."
+}
+
+chain_finalize() {
+    require_pipeline_id
     manual_preflight final-clean
-    [[ -s "${GREEKMMLU_QUERIES_JSONL:-}" && -s "${GREEKMMLU_BENCHMARK_MANIFEST:-}" ]] || {
-        echo "ERROR: set GREEKMMLU_QUERIES_JSONL and GREEKMMLU_BENCHMARK_MANIFEST before the final chain." >&2
-        exit 12
-    }
-    local final_clean decontam dedup materialize
+    local final_clean greekmmlu decontam dedup materialize
     final_clean=$(submit_one final-clean 0 "")
+    greekmmlu=$(submit_one greekmmlu-freeze 0 "")
     export FINAL_CLEAN_STAGE=58-final-clean
-    decontam=$(submit_one decontam 0 "afterok:$final_clean")
+    decontam=$(submit_one decontam 0 "afterok:$final_clean:$greekmmlu")
     dedup=$(submit_one dedup 0 "afterok:$decontam")
     materialize=$(submit_one materialize 0 "afterok:$dedup")
     echo "final_clean_job=$final_clean"
+    echo "greekmmlu_freeze_job=$greekmmlu"
     echo "decontam_job=$decontam"
     echo "dedup_job=$dedup"
     echo "materialize_job=$materialize"
     echo "STOP_BOUNDARY=validated local release; publication was not submitted"
+}
+
+chain_finalize_noop() {
+    if [[ "${CONFIRM_LAUNCH:-0}" == "1" && "${CONFIRM_STRUCTURAL_NOOP:-0}" != "1" ]]; then
+        echo "ERROR: live no-op finalization requires CONFIRM_STRUCTURAL_NOOP=1." >&2
+        exit 7
+    fi
+    export APPLY_STRUCTURAL=0
+    unset STRUCTURAL_MODEL_RECEIPT STRUCTURAL_SPANS
+    chain_finalize
+}
+
+chain_finalize_promoted() {
+    require_pipeline_id
+    local promoted_dir="$PIPELINE_RUNS_ROOT/$PIPELINE_RUN_ID/stages/54-structural-promote"
+    export APPLY_STRUCTURAL=1
+    export STRUCTURAL_MODEL_RECEIPT="${STRUCTURAL_MODEL_RECEIPT:-$promoted_dir/academic_structural_model_receipt.json}"
+    export STRUCTURAL_SPANS="${STRUCTURAL_SPANS:-$promoted_dir/structural_spans.jsonl}"
+    if [[ "${CONFIRM_LAUNCH:-0}" == "1" ]]; then
+        [[ -s "$STRUCTURAL_MODEL_RECEIPT" && -s "$STRUCTURAL_SPANS" ]] || {
+            echo "ERROR: live promoted finalization requires the completed Stage54 receipt and spans." >&2
+            exit 7
+        }
+        [[ -n "${CONFIRM_STRUCTURAL_MODEL_RECEIPT_SHA256:-}" ]] || {
+            echo "ERROR: live promoted finalization requires CONFIRM_STRUCTURAL_MODEL_RECEIPT_SHA256." >&2
+            exit 7
+        }
+        [[ "$(file_sha256 "$STRUCTURAL_MODEL_RECEIPT")" == \
+            "$CONFIRM_STRUCTURAL_MODEL_RECEIPT_SHA256" ]] || {
+            echo "ERROR: confirmed structural model-receipt SHA-256 does not match Stage54." >&2
+            exit 7
+        }
+    fi
+    chain_finalize
+}
+
+chain_structural_to_audit() {
+    require_pipeline_id
+    local detect packet
+    detect=$(submit_one structural-stage50-detect 0 "")
+    packet=$(submit_one structural-review-packet 0 "afterok:$detect")
+    echo "structural_detect_job=$detect"
+    echo "structural_review_packet_job=$packet"
+    echo "STOP_BOUNDARY=targeted 100-case structural safety audit $PIPELINE_RUNS_ROOT/$PIPELINE_RUN_ID/stages/53-structural-review-packet/review_cases.jsonl"
+    echo "No model or spans were promoted. Submit structural-promote separately after the audit artifacts exist."
 }
 
 command=${1:-}
@@ -317,6 +431,21 @@ case "$command" in
         [[ $# -eq 1 ]] || { usage; exit 2; }
         require_clean_live_checkout
         chain_after_post_clean
+        ;;
+    chain-structural-to-audit)
+        [[ $# -eq 1 ]] || { usage; exit 2; }
+        require_clean_live_checkout
+        chain_structural_to_audit
+        ;;
+    chain-finalize-noop)
+        [[ $# -eq 1 ]] || { usage; exit 2; }
+        require_clean_live_checkout
+        chain_finalize_noop
+        ;;
+    chain-finalize-promoted)
+        [[ $# -eq 1 ]] || { usage; exit 2; }
+        require_clean_live_checkout
+        chain_finalize_promoted
         ;;
     ""|-h|--help|help)
         usage

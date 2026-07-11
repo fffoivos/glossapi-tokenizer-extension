@@ -1,0 +1,139 @@
+{
+  "schema_version": "full_cpt_training_bridge_config_v1",
+  "recipe_id": "full_corpus_td_25b_79_20_1_v1",
+  "seed": 20260609,
+  "probe": {
+    "nominal_tokens": 25000000000,
+    "effective_steps": 5960,
+    "effective_training_samples": 6103040,
+    "effective_training_tokens": 24998051840,
+    "nominal_token_floor_residual": 1948160,
+    "sequence_length": 4096,
+    "global_batch_sequences": 1024,
+    "mix_numerators": {
+      "new_greek": 79,
+      "foreign_replay": 20,
+      "old_greek_replay": 1
+    },
+    "mix_denominator": 100,
+    "minimum_unique_capacity_ratio": 1.005,
+    "physical_prefix_sample_capacity_ratio": 1.005,
+    "physical_prefix_boundary_samples": 1
+  },
+  "tokenizer": {
+    "repo_id": "fffoivos/apertus-tokenizer-extension",
+    "revision": "a4826df7f76b54cdd6dc21d09fe97283c466999b",
+    "tokenizer_json_sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394",
+    "vocab_size": 148480,
+    "identity": "ModernGreek-148480"
+  },
+  "new_greek": {
+    "source": "phase04_validated_private_training_release",
+    "text_column": "text",
+    "id_column": "stable_uid",
+    "already_greekmmlu_decontaminated": true
+  },
+  "foreign_replay": {
+    "legacy_recipe": "../../03_training_experiments/dataset_build/bulk_13b.json",
+    "legacy_recipe_sha256": "a3f9591b62d033c8eced6db76d3aa43e1b07abb03997b2f3be7c16386f23c144",
+    "include_buckets": [
+      "replay",
+      "code",
+      "math"
+    ],
+    "expand_local_recipe_file_to_sibling_parquets": true,
+    "decontaminate_greekmmlu": true,
+    "path_overrides": {
+      "replay_t1_english_edu": "{scratch_root}/cpt_corpus/replay/eng_fineweb_edu/sample/10BT/*.parquet",
+      "replay_t1_deu_Latn": "{scratch_root}/cpt_corpus/replay/deu_Latn_fw2hq/deu_Latn/*.parquet",
+      "replay_t1_rus_Cyrl": "{scratch_root}/cpt_corpus/replay/rus_Cyrl_fw2hq/rus_Cyrl/*.parquet",
+      "replay_t1_cmn_Hani": "{scratch_root}/cpt_corpus/replay/cmn_Hani_fw2hq/cmn_Hani/*.parquet",
+      "math_finemath": "{scratch_root}/cpt_corpus/math/finemath/finemath-3plus/train-*.parquet"
+    },
+    "source_replacements": {
+      "code_codeparrot_clean": {
+        "name": "code_starcoderdata_subset",
+        "bucket": "code",
+        "repo_id": "bigcode/starcoderdata",
+        "local_parquet": "{scratch_root}/cpt_corpus/replay/starcoderdata_v2/*/*.parquet",
+        "text_column": "content",
+        "id_column": "doc_id",
+        "identity_scope": "global",
+        "comment": "Apertus-family code replay; replaces the pilot-only CodeParrot fallback while retaining its frozen foreign-pool weight."
+      }
+    }
+  },
+  "old_greek_replay": {
+    "name": "greek_replay_apertus_original",
+    "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+    "local_parquet": "{scratch_root}/cpt_corpus/greek_replay/greek_replay.parquet",
+    "text_column": "text",
+    "id_column": "source_doc_id",
+    "identity_columns": ["source_dataset", "source_doc_id"],
+    "identity_scope": "global",
+    "decontaminate_greekmmlu": true
+  },
+  "heldouts": {
+    "char_budget_per_set": 2000000000,
+    "max_pool_fraction": 0.25,
+    "selection": "domain_separated_sha256_threshold_v1",
+    "new_greek": [
+      {
+        "name": "hplt",
+        "selector_column": "source_dataset",
+        "selector_regex": "^HPLT/ell_Grek"
+      },
+      {
+        "name": "openarchives",
+        "selector_column": "source_family_id",
+        "selector_equals": "openarchives"
+      },
+      {
+        "name": "greek_phd",
+        "selector_column": "source_family_id",
+        "selector_equals": "greek_phd"
+      }
+    ],
+    "foreign_replay": [
+      {"name": "english", "source_name": "replay_t1_english_edu"},
+      {"name": "de", "source_name": "replay_t1_deu_Latn"},
+      {"name": "ru", "source_name": "replay_t1_rus_Cyrl"},
+      {"name": "zh", "source_name": "replay_t1_cmn_Hani"},
+      {"name": "code", "source_name": "code_starcoderdata_subset"}
+    ],
+    "old_greek_replay": [
+      {"name": "old_greek", "source_name": "greek_replay_apertus_original"}
+    ]
+  },
+  "builder": {
+    "format": "Megatron indexed dataset v1",
+    "dtype": "int32",
+    "append_eod": true,
+    "tokenization": "HuggingFaceTokenizer.encode(add_special_tokens=false)+eod",
+    "expected_megatron_commit": "c92402e39ef3c8e69ea378a59e79059dc14541f4"
+  },
+  "training_assets": {
+    "distillation_layer": 11,
+    "init_checkpoint": "{scratch_root}/token_distillation/td_full25_layer11_r17_roundtrip_2357565/megatron_tp2_r17patched",
+    "evidence_bundle": "subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/megatron_patches/td_layer11_r17_roundtrip_2357565",
+    "evidence_manifest": "td_r17_roundtrip_manifest.json",
+    "verification": "verification.json",
+    "megatron_commit_marker": "megatron_commit.txt",
+    "expected_checkpoint_marker": "release",
+    "expected_tensor_parallel_size": 2,
+    "expected_pipeline_parallel_size": 1,
+    "required_zero_metrics": [
+      "standard_max_abs_diff",
+      "r17_max_abs_diff",
+      "xielu_max_abs_diff",
+      "qk_norm_max_abs_diff"
+    ],
+    "required_empty_metrics": [
+      "orig_only",
+      "trip_only",
+      "standard_changed_over_tol",
+      "r17_changed_over_tol",
+      "shape_mismatches"
+    ]
+  }
+}

@@ -204,6 +204,10 @@ def novelty_by_source(path: Path | None) -> dict[str, float]:
     if path is None:
         return {}
     value = load_json(path)
+    if value.get("schema_version") != "full_cpt_source_novelty_v1":
+        raise ValueError("novelty summary must use full_cpt_source_novelty_v1")
+    if value.get("near_duplicate_novelty_deferred_to_global_dedup") is not True:
+        raise ValueError("novelty summary must declare the downstream near-dedup boundary")
     entries = value.get("sources", value)
     result: dict[str, float] = {}
     if isinstance(entries, list):
@@ -292,6 +296,9 @@ def aggregate(args: argparse.Namespace) -> int:
     requests_by_id, requests_by_sample = load_requests(args.requests)
     responses = load_responses(args.reviews, requests_by_id, requests_by_sample)
     novelty = novelty_by_source(args.novelty_summary)
+    review_phase = str(packet_summary.get("review_phase", "pre_clean"))
+    if review_phase == "pre_clean" and args.novelty_summary is None:
+        raise ValueError("pre-clean source admission requires --novelty-summary")
 
     samples_by_source: dict[str, list[str]] = defaultdict(list)
     for sample_id, requested in requests_by_sample.items():
@@ -302,6 +309,8 @@ def aggregate(args: argparse.Namespace) -> int:
     source_results: list[dict[str, Any]] = []
     pending_total = 0
     for source_dataset in sorted(samples_by_source):
+        if review_phase == "pre_clean" and source_dataset not in novelty:
+            raise ValueError(f"novelty summary lacks reviewed source_dataset {source_dataset!r}")
         resolved: list[dict] = []
         pending: list[dict[str, str]] = []
         for sample_id in sorted(samples_by_source[source_dataset]):
@@ -328,7 +337,7 @@ def aggregate(args: argparse.Namespace) -> int:
         else:
             decision, reasons, metrics = admission_decision(
                 resolved,
-                review_phase=str(packet_summary.get("review_phase", "pre_clean")),
+                review_phase=review_phase,
                 policy=policy,
                 novel_fraction=novelty.get(source_dataset),
             )

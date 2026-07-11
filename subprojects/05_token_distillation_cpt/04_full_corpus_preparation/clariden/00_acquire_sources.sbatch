@@ -18,10 +18,24 @@ source "$HERE/paths.env"
 source "$HERE/common.sh"
 
 phase04_require_compute_partition "external Hugging Face acquisition"
-[[ -n "${HF_TOKEN:-}" ]] || { echo "ERROR: export HF_TOKEN at submission; never store it in the repo" >&2; exit 81; }
+if [[ "${ACQUISITION_EXISTING_ONLY:-0}" != "1" ]]; then
+    [[ -n "${HF_TOKEN:-}" ]] || {
+        echo "ERROR: payload acquisition requires HF_TOKEN at submission; never store it in the repo" >&2
+        exit 81
+    }
+fi
 phase04_require_uenv_python
 phase04_require_clean_git "$REPO_ROOT"
 phase04_require_expected_commit "$REPO_ROOT"
+
+# Xet has repeatedly left large Clariden downloads parked indefinitely with
+# every CloudFront socket in CLOSE_WAIT.  The regular HTTP downloader resumes
+# Hugging Face `.incomplete` files and is the conservative default for this
+# receipt-bound bulk acquisition.  Callers can explicitly set this to 0 after
+# validating a newer Xet runtime on Clariden.
+export HF_HUB_DISABLE_XET=${HF_HUB_DISABLE_XET:-1}
+export HF_HUB_DOWNLOAD_TIMEOUT=${HF_HUB_DOWNLOAD_TIMEOUT:-600}
+export HF_HUB_ETAG_TIMEOUT=${HF_HUB_ETAG_TIMEOUT:-60}
 
 LOCK=${LOCK:-$RUN_ROOT/source_locks/sources_$(date -u +%Y%m%dT%H%M%SZ)_${SLURM_JOB_ID}.lock.json}
 DESTINATION=${DESTINATION:-$DATA_ROOT/hf}
@@ -52,14 +66,25 @@ for source_id in ${SOURCES:-}; do
     source_args+=(--source "$source_id")
 done
 
+resolve_args=(--sources "$SOURCE_CONFIG" --output "$LOCK" "${source_args[@]}")
+[[ "${ACQUISITION_EXISTING_ONLY:-0}" != "1" ]] || resolve_args+=(--anonymous)
 uenv run "$PHASE04_UENV" --view=default -- \
     "$RUNTIME_VENV/bin/python" "$PHASE04_DIR/scripts/resolve_sources.py" \
-    --sources "$SOURCE_CONFIG" --output "$LOCK" "${source_args[@]}"
+    "${resolve_args[@]}"
 
+download_args=(
+    --lock "$LOCK"
+    --destination "$DESTINATION"
+    --manifest "$DOWNLOAD_MANIFEST"
+    --workers "${HF_DOWNLOAD_WORKERS:-12}"
+    --download-attempts "${HF_DOWNLOAD_ATTEMPTS:-8}"
+    --retry-backoff-seconds "${HF_RETRY_BACKOFF_SECONDS:-15}"
+    "${source_args[@]}"
+)
+[[ "${ACQUISITION_EXISTING_ONLY:-0}" != "1" ]] || download_args+=(--existing-only)
 uenv run "$PHASE04_UENV" --view=default -- \
     "$RUNTIME_VENV/bin/python" "$PHASE04_DIR/scripts/download_locked_sources.py" \
-    --lock "$LOCK" --destination "$DESTINATION" --manifest "$DOWNLOAD_MANIFEST" \
-    --workers 12 "${source_args[@]}"
+    "${download_args[@]}"
 
 uenv run "$PHASE04_UENV" --view=default -- \
     "$RUNTIME_VENV/bin/python" "$PHASE04_DIR/scripts/verify_staged_schemas.py" \

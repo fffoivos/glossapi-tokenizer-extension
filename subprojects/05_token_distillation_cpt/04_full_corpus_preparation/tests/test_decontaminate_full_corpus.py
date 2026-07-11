@@ -13,6 +13,7 @@ import pytest
 
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
+REVISION = "0123456789abcdef0123456789abcdef01234567"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
@@ -34,7 +35,11 @@ def _sha(path: Path) -> str:
 def test_manifest_is_mandatory_and_checksum_bound(tmp_path: Path) -> None:
     queries = tmp_path / "queries.jsonl"
     query = {
+        "schema": "greek-mcq-decontam-query-v1",
         "benchmark": "greekmmlu",
+        "dataset_repo_id": "dascim/GreekMMLU",
+        "dataset_revision": REVISION,
+        "dataset_config": "All",
         "split": "test",
         "example_id": "q1",
         "question": "Ποια είναι η πρωτεύουσα της Ελλάδας;",
@@ -60,8 +65,12 @@ def test_manifest_is_mandatory_and_checksum_bound(tmp_path: Path) -> None:
                 "schema_version": "greekmmlu_query_manifest_v1",
                 "benchmark_id": "greekmmlu",
                 "dataset_repo_id": "dascim/GreekMMLU",
-                "dataset_revision": "0123456789abcdef",
+                "dataset_revision": REVISION,
+                "dataset_config": "All",
                 "required_splits": ["test"],
+                "observed_splits": ["test"],
+                "default_split": "",
+                "query_rows": 1,
                 "queries_sha256": "0" * 64,
             }
         ),
@@ -91,6 +100,91 @@ def test_manifest_is_mandatory_and_checksum_bound(tmp_path: Path) -> None:
     )
     assert len(index.items) == 1
     assert receipt["observed_splits"] == ["test"]
+
+
+def test_freezer_binds_registry_builder_and_row_provenance(tmp_path: Path) -> None:
+    registry = tmp_path / "registry.json"
+    registry.write_text(
+        json.dumps(
+            {
+                "schema": "native-greek-eval-registry-v1",
+                "benchmarks": [
+                    {
+                        "id": "greekmmlu",
+                        "source_type": "hf_dataset",
+                        "source": "dascim/GreekMMLU",
+                        "revision": REVISION,
+                        "config": "All",
+                        "split": "test",
+                    }
+                ],
+            }
+        )
+    )
+    queries = tmp_path / "queries.jsonl"
+    queries.write_text(
+        json.dumps(
+            {
+                "schema": "greek-mcq-decontam-query-v1",
+                "benchmark": "greekmmlu",
+                "dataset_repo_id": "dascim/GreekMMLU",
+                "dataset_revision": REVISION,
+                "dataset_config": "All",
+                "split": "test",
+                "example_id": "q1",
+                "question": "Ερώτηση;",
+                "choices": ["Α", "Β"],
+                "answer_index": 0,
+            },
+            ensure_ascii=False,
+        )
+        + "\n"
+    )
+    summary = tmp_path / "builder.json"
+    summary.write_text(
+        json.dumps(
+            {
+                "schema": "greek-mcq-decontam-query-summary-v1",
+                "registry_sha256": _sha(registry),
+                "output_jsonl_sha256": _sha(queries),
+                "benchmarks": {
+                    "greekmmlu": {
+                        "source": "dascim/GreekMMLU",
+                        "config": "All",
+                        "revision": REVISION,
+                        "split_loaded": "test",
+                        "items": 1,
+                    }
+                },
+            }
+        )
+    )
+    output = tmp_path / "manifest.json"
+    subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPTS / "freeze_greekmmlu_queries.py"),
+            "--queries-jsonl",
+            str(queries),
+            "--output",
+            str(output),
+            "--dataset-revision",
+            REVISION,
+            "--required-split",
+            "test",
+            "--registry",
+            str(registry),
+            "--builder-summary",
+            str(summary),
+            "--no-verify-hf-revision",
+        ],
+        check=True,
+    )
+    frozen = json.loads(output.read_text())
+    assert frozen["registry_sha256"] == _sha(registry)
+    assert frozen["builder_summary_sha256"] == _sha(summary)
+    assert frozen["query_rows"] == 1
+    assert frozen["observed_splits"] == ["test"]
 
 
 def _index(question: str, answer: str, prompt: str = "", *, k: int = 8) -> BenchmarkIndex:
@@ -159,7 +253,11 @@ def test_cli_streams_kept_dropped_and_hash_bound_ledger(tmp_path: Path) -> None:
     queries.write_text(
         json.dumps(
             {
+                "schema": "greek-mcq-decontam-query-v1",
                 "benchmark": "greekmmlu",
+                "dataset_repo_id": "dascim/GreekMMLU",
+                "dataset_revision": REVISION,
+                "dataset_config": "All",
                 "split": "test",
                 "example_id": "q1",
                 "question": question,
@@ -178,8 +276,12 @@ def test_cli_streams_kept_dropped_and_hash_bound_ledger(tmp_path: Path) -> None:
                 "schema_version": "greekmmlu_query_manifest_v1",
                 "benchmark_id": "greekmmlu",
                 "dataset_repo_id": "dascim/GreekMMLU",
-                "dataset_revision": "0123456789abcdef",
+                "dataset_revision": REVISION,
+                "dataset_config": "All",
                 "required_splits": ["test"],
+                "observed_splits": ["test"],
+                "default_split": "",
+                "query_rows": 1,
                 "queries_sha256": _sha(queries),
             }
         ),

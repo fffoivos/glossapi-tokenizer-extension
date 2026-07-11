@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "structural_false_deletion_review_case.schema.json",
+  "title": "One manually reviewed predicted structural deletion",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "case_id",
+    "prediction_id",
+    "stable_uid",
+    "source_dataset",
+    "input_text_sha256",
+    "kind",
+    "char_start",
+    "char_end",
+    "predicted_deletion_chars",
+    "document_chars",
+    "predicted_text",
+    "context_text",
+    "review_context_sha256",
+    "risk_score",
+    "risk_factors"
+  ],
+  "properties": {
+    "schema_version": {"const": "academic_structural_false_deletion_review_case_v1"},
+    "case_id": {"$ref": "#/$defs/sha256"},
+    "prediction_id": {"$ref": "#/$defs/sha256"},
+    "stable_uid": {"$ref": "#/$defs/sha256"},
+    "input_text_sha256": {"$ref": "#/$defs/sha256"},
+    "review_context_sha256": {"$ref": "#/$defs/sha256"},
+    "kind": {"enum": ["toc", "bibliography"]},
+    "char_start": {"type": "integer", "minimum": 0},
+    "char_end": {"type": "integer", "minimum": 1},
+    "predicted_deletion_chars": {"type": "integer", "minimum": 1},
+    "document_chars": {"type": "integer", "minimum": 1},
+    "risk_score": {"type": "number", "minimum": 0}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}
+

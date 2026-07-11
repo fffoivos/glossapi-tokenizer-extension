@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "academic_structural_model_receipt.schema.json",
+  "title": "Academic structural model application receipt",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "status",
+    "promotion_status",
+    "model_id",
+    "stage50_cleaning_manifest_sha256",
+    "artifacts",
+    "evidence",
+    "safety"
+  ],
+  "properties": {
+    "schema_version": {"const": "academic_structural_model_receipt_v1"},
+    "status": {"enum": ["passed", "no_op", "failed"]},
+    "promotion_status": {"enum": ["passed", "no_op", "failed"]},
+    "model_id": {"type": "string", "minLength": 1},
+    "stage50_cleaning_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "artifacts": {
+      "type": "object",
+      "required": ["code", "config", "checkpoint"],
+      "properties": {
+        "code": {"$ref": "#/$defs/hashReceipt"},
+        "config": {"$ref": "#/$defs/hashReceipt"},
+        "checkpoint": {"$ref": "#/$defs/hashReceipt"}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["annotation_status", "inventory_sha256", "task_coverage", "work_split"],
+      "properties": {
+        "annotation_status": {"const": "LLM_silver"},
+        "inventory_sha256": {"$ref": "#/$defs/sha256"},
+        "task_coverage": {
+          "type": "array",
+          "items": {"enum": ["toc", "bibliography"]},
+          "uniqueItems": true,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "work_split": {
+          "type": "object",
+          "required": [
+            "leak_free",
+            "work_overlap_count",
+            "exact_text_overlap_count",
+            "split_manifest_sha256"
+          ],
+          "properties": {
+            "leak_free": {"const": true},
+            "work_overlap_count": {"const": 0},
+            "exact_text_overlap_count": {"const": 0},
+            "split_manifest_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "status",
+        "evidence_status",
+        "reviewed_deletions",
+        "audit_receipt_sha256",
+        "metrics"
+      ],
+      "properties": {
+        "status": {"enum": ["passed", "unavailable", "failed"]},
+        "evidence_status": {
+          "enum": ["targeted_manual_false_deletion_audit", "unavailable"]
+        },
+        "reviewed_deletions": {"type": "integer", "minimum": 0},
+        "audit_receipt_sha256": {
+          "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+        },
+        "metrics": {
+          "type": "object",
+          "required": [
+            "running_prose_deletion_rate",
+            "main_text_retention_rate",
+            "catastrophic_document_deletion_rate"
+          ],
+          "properties": {
+            "running_prose_deletion_rate": {"$ref": "#/$defs/rateOrNull"},
+            "main_text_retention_rate": {"$ref": "#/$defs/rateOrNull"},
+            "catastrophic_document_deletion_rate": {"$ref": "#/$defs/rateOrNull"}
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "hashReceipt": {
+      "oneOf": [
+        {"$ref": "#/$defs/sha256"},
+        {
+          "type": "object",
+          "required": ["sha256"],
+          "properties": {"sha256": {"$ref": "#/$defs/sha256"}}
+        }
+      ]
+    },
+    "rateOrNull": {
+      "type": ["number", "null"],
+      "minimum": 0.0,
+      "maximum": 1.0
+    }
+  }
+}

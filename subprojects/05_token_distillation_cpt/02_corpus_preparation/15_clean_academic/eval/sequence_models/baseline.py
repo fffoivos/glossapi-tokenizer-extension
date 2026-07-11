@@ -100,14 +100,14 @@ def predict_document(
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--gold", required=True)
+    parser.add_argument("--silver", required=True)
     parser.add_argument("--output", required=True)
     args = parser.parse_args(argv)
     bib_path = EVAL_DIR / "span_line_lr_struct_model.json"
     toc_path = EVAL_DIR / "toc_line_lr_model.json"
     decoder_path = EVAL_DIR / "struct_smooth_params.json"
     bib_model, toc_model, decoder = map(_load_json, (bib_path, toc_path, decoder_path))
-    documents = read_gold(args.gold)
+    documents = read_gold(args.silver)
     with Path(args.output).open("w", encoding="utf-8") as handle:
         for document in documents:
             predictions, conflicts = predict_document(document, bib_model, toc_model, decoder)

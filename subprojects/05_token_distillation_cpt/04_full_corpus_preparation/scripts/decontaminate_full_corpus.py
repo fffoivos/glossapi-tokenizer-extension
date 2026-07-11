@@ -43,7 +43,11 @@ from finalization_io import (
 
 
 TOKEN_RE = re.compile(r"[^\W_]+", re.UNICODE)
-HEX_REVISION = re.compile(r"^[0-9a-f]{7,64}$")
+HEX_REVISION = re.compile(r"^[0-9a-f]{40}$")
+GREEKMMLU_REPO_ID = "dascim/GreekMMLU"
+GREEKMMLU_CONFIG = "All"
+QUERY_SCHEMA = "greek-mcq-decontam-query-v1"
+POLICY_VERSION = "greekmmlu_decontamination_v1"
 DEFAULT_K = 8
 DEFAULT_MIN_COVERAGE = 0.85
 DEFAULT_MINHASH_THRESHOLD = 0.85
@@ -197,9 +201,13 @@ def load_benchmark_index(
         raise ValueError(f"{manifest_path}: unsupported GreekMMLU manifest schema")
     if str(manifest.get("benchmark_id", "")).casefold() != "greekmmlu":
         raise ValueError(f"{manifest_path}: benchmark_id must be greekmmlu")
+    if manifest.get("dataset_repo_id") != GREEKMMLU_REPO_ID:
+        raise ValueError(f"{manifest_path}: dataset_repo_id must be {GREEKMMLU_REPO_ID}")
+    if manifest.get("dataset_config") != GREEKMMLU_CONFIG:
+        raise ValueError(f"{manifest_path}: dataset_config must be {GREEKMMLU_CONFIG}")
     revision = str(manifest.get("dataset_revision", ""))
     if not HEX_REVISION.fullmatch(revision):
-        raise ValueError(f"{manifest_path}: dataset_revision must be an immutable hexadecimal revision")
+        raise ValueError(f"{manifest_path}: dataset_revision must be a full 40-hex commit")
     expected_hash = str(manifest.get("queries_sha256", ""))
     actual_hash = sha256_file(queries_jsonl)
     if expected_hash != actual_hash:
@@ -207,7 +215,14 @@ def load_benchmark_index(
     required_splits = {str(value) for value in manifest.get("required_splits", [])}
     if not required_splits:
         raise ValueError(f"{manifest_path}: required_splits must be non-empty")
-    default_split = str(manifest.get("default_split", ""))
+    if manifest.get("default_split") != "":
+        raise ValueError(f"{manifest_path}: default_split must be empty; row provenance is mandatory")
+    frozen_observed = {str(value) for value in manifest.get("observed_splits", [])}
+    if frozen_observed != required_splits:
+        raise ValueError(f"{manifest_path}: observed_splits must exactly equal required_splits")
+    frozen_rows = manifest.get("query_rows")
+    if not isinstance(frozen_rows, int) or isinstance(frozen_rows, bool) or frozen_rows < 1:
+        raise ValueError(f"{manifest_path}: query_rows must be a positive integer")
     rows: list[dict[str, Any]] = []
     with queries_jsonl.open(encoding="utf-8") as handle:
         for line_number, line in enumerate(handle, start=1):
@@ -219,22 +234,36 @@ def load_benchmark_index(
                 raise ValueError(f"{queries_jsonl}:{line_number}: invalid JSON") from exc
             if not isinstance(row, dict):
                 raise ValueError(f"{queries_jsonl}:{line_number}: query must be an object")
-            benchmark = str(row.get("benchmark", "greekmmlu")).casefold()
+            benchmark = str(row.get("benchmark", "")).casefold()
             if benchmark != "greekmmlu":
                 continue
+            if row.get("schema") != QUERY_SCHEMA:
+                raise ValueError(f"{queries_jsonl}:{line_number}: unsupported GreekMMLU query schema")
+            if row.get("dataset_repo_id") != GREEKMMLU_REPO_ID:
+                raise ValueError(f"{queries_jsonl}:{line_number}: dataset_repo_id drift")
+            if row.get("dataset_revision") != revision:
+                raise ValueError(f"{queries_jsonl}:{line_number}: dataset_revision drift")
+            if row.get("dataset_config") != GREEKMMLU_CONFIG:
+                raise ValueError(f"{queries_jsonl}:{line_number}: dataset_config drift")
             rows.append(row)
     if not rows:
         raise ValueError(f"{queries_jsonl}: no GreekMMLU query rows")
+    if len(rows) != frozen_rows:
+        raise ValueError(
+            f"{queries_jsonl}: GreekMMLU row count differs from manifest: {len(rows)} != {frozen_rows}"
+        )
 
     items: list[BenchmarkItem] = []
     seen_ids: set[tuple[str, str]] = set()
     observed_splits: set[str] = set()
     for row_number, row in enumerate(rows):
-        split = str(row.get("split") or default_split)
+        split = str(row.get("split") or "")
         if not split:
-            raise ValueError(f"GreekMMLU query row {row_number}: split is absent and no default_split is frozen")
+            raise ValueError(f"GreekMMLU query row {row_number}: split provenance is absent")
         observed_splits.add(split)
-        item_id = str(_field(row, "example_id", "id", "item_id") or f"row:{row_number}")
+        item_id = str(row.get("example_id") or "")
+        if not item_id:
+            raise ValueError(f"GreekMMLU query row {row_number}: example_id is absent")
         if (split, item_id) in seen_ids:
             raise ValueError(f"duplicate GreekMMLU query identity: {split}/{item_id}")
         seen_ids.add((split, item_id))
@@ -276,9 +305,11 @@ def load_benchmark_index(
                 prompt_surfaces=prompt_surfaces,
             )
         )
-    missing = required_splits - observed_splits
-    if missing:
-        raise ValueError(f"{queries_jsonl}: missing manifest-required splits: {sorted(missing)}")
+    if observed_splits != required_splits:
+        raise ValueError(
+            f"{queries_jsonl}: split set differs from manifest: "
+            f"observed={sorted(observed_splits)} required={sorted(required_splits)}"
+        )
 
     qindex: dict[tuple[str, ...], list[tuple[int, int]]] = defaultdict(list)
     pindex: dict[tuple[str, ...], list[tuple[int, str, tuple[str, ...]]]] = defaultdict(list)
@@ -305,6 +336,7 @@ def load_benchmark_index(
         "queries_sha256": actual_hash,
         "dataset_repo_id": manifest.get("dataset_repo_id"),
         "dataset_revision": revision,
+        "dataset_config": manifest.get("dataset_config"),
         "required_splits": sorted(required_splits),
         "observed_splits": sorted(observed_splits),
         "items": len(items),
@@ -456,8 +488,14 @@ def _process_file(task: tuple[str, str, str, str, str]) -> dict[str, Any]:
             action_rows: list[dict[str, Any]] = []
             for row in rows:
                 text = str(row.get("text") or "")
+                actual_text_hash = sha256_text(text)
+                claimed_text_hash = row.get("cleaned_text_sha256")
+                if claimed_text_hash and str(claimed_text_hash) != actual_text_hash:
+                    raise ValueError(
+                        f"{input_path}: cleaned_text_sha256 drift for stable_uid={row['stable_uid']}"
+                    )
                 action, reason, evidence = match_document(text, index)
-                text_hash = str(row.get("cleaned_text_sha256") or sha256_text(text))
+                text_hash = actual_text_hash
                 action_rows.append(
                     {
                         "stable_uid": str(row["stable_uid"]),
@@ -530,6 +568,14 @@ def main() -> int:
     args = parse_args()
     if args.workers < 1:
         raise ValueError("--workers must be >= 1")
+    if args.k < DEFAULT_K:
+        raise ValueError(f"production --k cannot be lower than {DEFAULT_K}")
+    if args.min_matched_grams < DEFAULT_MIN_MATCHED_GRAMS:
+        raise ValueError(
+            f"production --min-matched-grams cannot be lower than {DEFAULT_MIN_MATCHED_GRAMS}"
+        )
+    if not 0 <= args.max_gap_tokens <= DEFAULT_MAX_GAP:
+        raise ValueError(f"production --max-gap-tokens must be in [0,{DEFAULT_MAX_GAP}]")
     if not (0.85 <= args.min_coverage <= 1.0) or not (0.85 <= args.minhash_threshold <= 1.0):
         raise ValueError("production thresholds cannot be lower than 0.85")
     if args.manifest.exists():
@@ -580,6 +626,7 @@ def main() -> int:
             totals[key] += int(value)
     payload = {
         "schema_version": "full_cpt_greekmmlu_decontamination_v1",
+        "status": "completed",
         "completed_at": utc_now(),
         "input": str(args.input.resolve()),
         "output": str(args.output.resolve()),
@@ -587,6 +634,7 @@ def main() -> int:
         "ledger": str(args.ledger.resolve()),
         "benchmark": benchmark_receipt,
         "policy": {
+            "policy_version": POLICY_VERSION,
             "normalization": "NFKC+strip_combining_marks+casefold+unicode_word_tokens_v1",
             "k": args.k,
             "min_coverage": args.min_coverage,

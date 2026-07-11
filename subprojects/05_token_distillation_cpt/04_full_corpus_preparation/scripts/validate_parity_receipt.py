@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate that the exact detector binary passed the pinned full held-out parity gate."""
+"""Validate exact Rust parity on a pinned LLM-silver comparison corpus."""
 
 from __future__ import annotations
 
@@ -25,16 +25,22 @@ def main() -> int:
     args = parser.parse_args()
     receipt = json.loads(args.receipt.read_text(encoding="utf-8"))
     policy = json.loads(args.policy.read_text(encoding="utf-8"))
-    expected_gold = policy.get("validation", {}).get("structural_gold_sha256")
+    validation = policy.get("validation", {})
+    expected_corpus = validation.get("structural_parity_corpus_sha256")
+    expected_documents = validation.get("required_parity_documents")
     errors = []
     if receipt.get("schema_version") != "struct_rust_parity_receipt_v1" or receipt.get("status") != "passed":
         errors.append("receipt schema/status is not passed")
-    if not isinstance(expected_gold, str) or len(expected_gold) != 64:
-        errors.append("cleaning policy does not pin validation.structural_gold_sha256")
-    elif receipt.get("gold_sha256") != expected_gold:
-        errors.append("receipt gold hash does not match cleaning policy")
-    if receipt.get("heldout_documents") != 608:
-        errors.append("receipt does not cover all 608 held-out documents")
+    if validation.get("structural_parity_evidence") != "LLM_silver":
+        errors.append("cleaning policy does not declare parity evidence as LLM_silver")
+    if not isinstance(expected_corpus, str) or len(expected_corpus) != 64:
+        errors.append("cleaning policy does not pin structural_parity_corpus_sha256")
+    elif receipt.get("corpus_sha256", receipt.get("gold_sha256")) != expected_corpus:
+        errors.append("receipt comparison-corpus hash does not match cleaning policy")
+    if receipt.get("evidence_status") != "LLM_silver":
+        errors.append("parity receipt does not declare LLM_silver evidence")
+    if receipt.get("heldout_documents") != expected_documents:
+        errors.append(f"receipt does not cover all {expected_documents} parity documents")
     if receipt.get("binary_sha256") != sha256_file(args.binary):
         errors.append("receipt does not match detector binary")
     if any(int(receipt.get("positive_document_counts", {}).get(head, 0)) <= 0 for head in ("bib", "toc")):
@@ -48,7 +54,16 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}")
         return 2
-    print(json.dumps({"ok": True, "binary_sha256": receipt["binary_sha256"], "gold_sha256": expected_gold}))
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "binary_sha256": receipt["binary_sha256"],
+                "corpus_sha256": expected_corpus,
+                "evidence_status": "LLM_silver",
+            }
+        )
+    )
     return 0
 
 

@@ -98,6 +98,9 @@ FILE_FINGERPRINT_SAMPLE_BYTES = 65536
 OVERSIZED_BUCKET_TOKEN_BIN = 32
 DEFAULT_GREEK_DIACRITIC_POLICY = "preserve"
 GREEK_DIACRITIC_POLICIES = {"preserve", "strip"}
+DUCKDB_TEMP_DIRECTORY_ENV = "GLOSSAPI_DUCKDB_TEMP_DIRECTORY"
+DUCKDB_MEMORY_LIMIT_ENV = "GLOSSAPI_DUCKDB_MEMORY_LIMIT"
+DUCKDB_THREADS_ENV = "GLOSSAPI_DUCKDB_THREADS"
 PROCESS_POOL_CONTEXT = mp.get_context("spawn")
 PARQUET_COMPRESSION = "zstd"
 NEAR_CANDIDATE_FLUSH_ROWS = 4096
@@ -962,13 +965,62 @@ def require_duckdb() -> Any:
     return duckdb
 
 
-def connect_duckdb(*, threads: int | None = None) -> Any:
+def _duckdb_sql_string(value: str) -> str:
+    """Return a quoted DuckDB string literal for a trusted runtime setting."""
+
+    return "'" + value.replace("'", "''") + "'"
+
+
+def connect_duckdb(
+    *,
+    threads: int | None = None,
+    temporary_directory: Path | str | None = None,
+    memory_limit: str | None = None,
+) -> Any:
+    """Open DuckDB with the process-wide production resource contract.
+
+    Explicit arguments take precedence.  The environment variables are used
+    by lightweight launchers so every connection opened by the deduplicator,
+    including short-lived helper connections, receives the same temp and
+    memory settings without threading those options through every stage.
+    """
+
     db = require_duckdb()
-    conn = db.connect()
     if threads is None:
-        threads = max(1, os.cpu_count() or 1)
-    conn.execute(f"PRAGMA threads={int(max(1, threads))}")
-    return conn
+        raw_threads = os.environ.get(DUCKDB_THREADS_ENV, "").strip()
+        if raw_threads:
+            try:
+                threads = int(raw_threads)
+            except ValueError as exc:
+                raise ValueError(f"{DUCKDB_THREADS_ENV} must be an integer") from exc
+        else:
+            threads = max(1, os.cpu_count() or 1)
+    if int(threads) < 1:
+        raise ValueError("DuckDB threads must be >= 1")
+
+    if temporary_directory is None:
+        temporary_directory = os.environ.get(DUCKDB_TEMP_DIRECTORY_ENV, "").strip() or None
+    temporary_path: Path | None = None
+    if temporary_directory is not None:
+        temporary_path = Path(temporary_directory).expanduser().resolve()
+        ensure_dir(temporary_path)
+
+    if memory_limit is None:
+        memory_limit = os.environ.get(DUCKDB_MEMORY_LIMIT_ENV, "").strip() or None
+    elif not str(memory_limit).strip():
+        raise ValueError("DuckDB memory_limit must not be empty")
+
+    conn = db.connect()
+    try:
+        conn.execute(f"PRAGMA threads={int(threads)}")
+        if temporary_path is not None:
+            conn.execute(f"SET temp_directory={_duckdb_sql_string(str(temporary_path))}")
+        if memory_limit is not None:
+            conn.execute(f"SET memory_limit={_duckdb_sql_string(str(memory_limit).strip())}")
+        return conn
+    except BaseException:
+        conn.close()
+        raise
 
 
 def db_path(state_root: Path) -> Path:
@@ -2632,7 +2684,6 @@ def _run_exact_survivor_export_stage(
     stage_root = run_root / "stage_01_exact"
     docs_exact_path = stage_root / "docs_exact.parquet"
     progress_path = progress_file_path(run_root, EXACT_SURVIVOR_STAGE)
-    chunk_specs = [(input_file.path, row_group_index) for input_file in files for row_group_index in range(input_file.row_groups)]
     row_group_chunks = enumerate_row_group_chunks(files)
     chunk_keys = [exact_survivor_chunk_key(chunk.file_path, chunk.row_group_index) for chunk in row_group_chunks]
     register_stage_chunks(conn, run_id=run_id, stage=EXACT_SURVIVOR_STAGE, chunk_keys=chunk_keys)

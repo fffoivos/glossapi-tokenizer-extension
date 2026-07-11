@@ -58,11 +58,15 @@ an AArch64 binary, `COMPLETED` marker and `build_receipt.json` under
 `$RUN_ROOT/detector_builds/<commit>-<job-id>/`. Preserve the printed
 `REFERENCE_BIN` and `DETECTOR_BUILD_RECEIPT` values for structural submission.
 
-Before a structural job can run, hydrate the private `STRUCT_2K_gold.jsonl`, pin
-its SHA-256 in `configs/cleaning_policy.json`, and run all 608 held-out documents
-through `eval/rust_parity_struct.py`. The resulting parity receipt is bound to
-the exact detector binary, gold hash, model files and smoother. `20_structural_detect.sbatch`
-fails before scanning data if that receipt is missing, partial, stale or hash-mismatched.
+The legacy filename `STRUCT_2K_gold.jsonl` refers to LLM-silver annotations, not
+human gold, and the raw joint ToC+BIB artifact is currently absent. If that
+exact historical artifact is ever recovered, declare `LLM_silver`, pin its
+comparison-corpus SHA-256, and run the full parity split through
+`eval/rust_parity_struct.py`. Production structural application does not
+require a new full-corpus annotation effort: Stage58 requires leak-free model
+evidence plus the independent receipt-bound manual audit of exactly 100
+high-risk predicted removals (50 ToC + 50 BIB). Missing evidence yields a
+deterministic no-op.
 
 ## 4. Resolve and acquire sources
 
@@ -79,66 +83,73 @@ bash clariden/submit.sh acquire
 ```
 
 For a bounded first acquisition, export `SOURCES` with space-separated registry
-IDs and supply `HF_TOKEN` only in the submission environment. For example, begin
-with the tokenizer and one audit source. Live submission always requires:
+IDs and supply `HF_TOKEN` only in the submission environment. A payload-download
+submission requires:
 
 ```bash
 CONFIRM_ACQUIRE=1 CONFIRM_LAUNCH=1 bash clariden/submit.sh acquire
 ```
 
-Job `2735235` is the current full acquisition. Do not submit a second copy. The
-extra `CONFIRM_ACQUIRE` guard exists for a deliberate future acquisition, not as
-part of the downstream production chain.
+### Recover the completed staged payload
+
+Clariden currently holds all 26 pinned source directories under
+`/iopsstor/scratch/cscs/fffoivos/cpt_corpus/full_corpus_v2/hf`: 158 GiB on disk,
+168,623,515,496 selected payload bytes, and no `.incomplete` files. Job `2735391`
+downloaded and payload-verified all of it, but its old checkout rejected the two
+School-books schemas. It therefore did **not** produce a passed receipt and must
+not be used as an upstream job dependency.
+
+After checking out the corrected clean commit and rebuilding the runtime, submit
+exactly one existing-payload verification run:
+
+```bash
+cd "$REPO/subprojects/05_token_distillation_cpt/04_full_corpus_preparation"
+export ACQUISITION_EXISTING_ONLY=1
+export CONFIRM_ACQUIRE=1
+export CONFIRM_LAUNCH=1
+unset HF_TOKEN  # optional for this public, existing-payload verification path
+bash clariden/submit.sh acquire
+```
+
+Do not set `LOCK`, `DOWNLOAD_MANIFEST`, `SCHEMA_AUDIT` or
+`ACQUISITION_RECEIPT`: the job creates fresh timestamp/job-ID paths for all four.
+`--existing-only` performs no network payload download and does not require an
+HF token for the currently public source registry. Stage 00 still resolves the
+pinned public repository metadata anonymously to create the fresh lock; all
+158 GiB payload checks are local. It fails if metadata access is unavailable or
+any locked file is missing, then rechecks payload identity and the corrected
+schemas before writing the new receipt. Preserve the four paths printed by this
+new job. A future private source will naturally require a token even in this
+mode because its metadata cannot be resolved anonymously.
+
+For the downstream chain, use only the fresh passed receipt and omit the old job
+ID entirely:
+
+```bash
+export ACQUISITION_RECEIPT=/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/source_locks/sources_<fresh-timestamp>_<fresh-job>.receipt.json
+unset ACQUISITION_JOB_ID
+```
+
+This recovery has no dependency on `2735391`; that job is historical evidence
+that the bytes arrived, not a completion gate.
 
 Do not use `xfer` for this job. Hugging Face is external; `xfer` is restricted to
 `cp`/`mv`/`rsync` between CSCS filesystems.
 
 ## 5. Run source audits
 
-Before destructive audits, build the immutable route manifest locally or on a
-Clariden CPU node (this reads configs only):
+Use the receipt-bound stages, not ad-hoc JSONL exports. `chain-to-review` runs
+normalization, lineage and review-packet construction on Clariden CPU nodes and
+then stops. The packet is grouped by the exact preserved `source_dataset`:
+every group receives at least 100 unique redacted documents (60 random, 20
+high-risk and 20 cluster representatives), while the frozen policy uses 200 for
+named large/heterogeneous groups. It checks quality, markup/PDF corruption and
+template variability. The packet builder invokes no model and approves no
+source.
 
-```bash
-python scripts/build_source_lineage.py registry \
-  --output "$RUN_ROOT/lineage/registry.json"
-```
-
-After source-specific normalizers have emitted canonical JSONL envelopes, build
-the base/candidate identity graph. Sectioned inputs must already have a
-work-level `work_id`:
-
-```bash
-python scripts/build_source_lineage.py rows \
-  --base-jsonl "$RUN_ROOT/normalized/base.jsonl" \
-  --candidate-jsonl "$RUN_ROOT/normalized/candidates.jsonl" \
-  --registry-manifest-out "$RUN_ROOT/lineage/registry.json" \
-  --rows-out "$RUN_ROOT/lineage/rows.jsonl" \
-  --relationships-out "$RUN_ROOT/lineage/relationships.jsonl" \
-  --summary-out "$RUN_ROOT/lineage/summary.json"
-```
-
-Build review requests from the canonical candidate stream. This is a packet
-builder, not a model invocation:
-
-```bash
-python scripts/build_source_review_packet.py \
-  --candidate-jsonl "$RUN_ROOT/normalized/candidates.jsonl" \
-  --requests-out "$RUN_ROOT/source_review/pre_clean_requests.jsonl" \
-  --summary-out "$RUN_ROOT/source_review/pre_clean_summary.json"
-```
-
-After independent structured reviews have been collected, validate and
-aggregate them. A nonzero exit means a requested review or adjudication remains
-unresolved:
-
-```bash
-python scripts/aggregate_source_reviews.py \
-  --requests "$RUN_ROOT/source_review/pre_clean_requests.jsonl" \
-  --packet-summary "$RUN_ROOT/source_review/pre_clean_summary.json" \
-  --reviews "$RUN_ROOT/source_review/pre_clean_responses.jsonl" \
-  --novelty-summary "$RUN_ROOT/lineage/source_novelty.json" \
-  --output "$RUN_ROOT/source_review/admission.json"
-```
+Only the small redacted packet and its receipts may be copied to the Mac for
+review. Never rsync normalized, cleaned, quarantined or private source trees to
+the Mac.
 
 Do not copy review excerpts or quarantined/private rows into the HF release.
 The source-quality admission report is necessary but not sufficient: candidate
@@ -173,23 +184,31 @@ re-hash the full corpus on every launch; this assumes the IOPS acquisition tree
 is trusted and write-restricted. Run an explicit full payload scrub again before
 any later materialization if that storage trust boundary cannot be guaranteed.
 
-The current audit runtime pins direct Python package versions and records the
-Rust toolchain in each detector-build receipt. Before materialization, replace
-that bootstrap contract with a hash-locked transitive Python environment and a
-pinned Rust toolchain/runtime receipt; this is a materialization-stage provenance
-gate, not authorization to expand the present audit-only phase.
+The runtime requirements pin direct Python package versions and detector builds
+record the Rust toolchain. The transitive Python environment is not yet
+hash-locked; record that provenance limitation explicitly rather than claiming
+a fully reproducible package closure.
 
-Raw Kallipos/Pergamos section Parquets are currently blocked by the route gate;
-their grouped canonical normalizer must be implemented first. The already
-concatenated Kallipos/Pergamos rows inside the nanochat base have explicit
-`canonical_mixed` routes and can be audited with their exact tracked source regex.
+The production normalizer now groups raw Kallipos/Pergamos section Parquets to
+work level before lineage comparison. The already concatenated rows inside the
+Nanochat base retain their separate `canonical_mixed` routes; the two
+representations are never silently concatenated or treated as snapshot-equal.
 
 ## 6. Policy gate
 
-Before changing `configs/cleaning_policy.json` from `audit_only`, require:
+For the current CPT run, do not change `configs/cleaning_policy.json`: it is
+`audit_only`, both structural materialization flags are false, and Stage58 must
+record a deterministic no-op. Existing classifier supervision is LLM silver,
+not human gold. The rehydrated SPAN corpus supplies BIB coordinates/text only;
+the raw joint ToC+BIB `STRUCT_2K` corpus is absent. Nobody is being asked to
+annotate 2,000 lines or documents.
 
-1. a fresh source-balanced holdout for Greek PhD, OpenArchives, Kallipos and
-   Pergamos;
+Any later run that proposes structural deletion must use a separately reviewed
+commit whose policy was approved and frozen **before Stage10 starts**. Do not
+edit policy in the middle of a run. Before that future approval, require:
+
+1. a receipt-bound, source-balanced LLM-silver comparison split for Greek PhD,
+   OpenArchives, Kallipos and Pergamos (not a new human annotation set);
 2. exact bibliography-only, ToC-only and union token deltas;
 3. separate Greek, Latin and polytonic removed-character mass alongside exact
    bibliography token loss;
@@ -198,14 +217,21 @@ Before changing `configs/cleaning_policy.json` from `audit_only`, require:
    replacements and template/downsampling loss;
 6. a recorded decision for every source/profile pair.
 
+That future run must also complete Stage52 detection, the Stage53 deletion-
+safety packet of exactly 100 cases (50 ToC and 50 bibliography), manual review,
+and Stage54 promotion. The 100 cases assess only whether predicted deletions eat
+running prose/main text or catastrophically damage a document; they are not a
+new training corpus and are not automatic/LLM adjudication. A clean audit alone
+does not override the pre-authorized policy.
+
 ## 7. Run the receipt-bound production CPU DAG
 
 Choose one stable run ID. Do not change it on retries:
 
 ```bash
-export PIPELINE_RUN_ID=full-corpus-v2-20260711
-export ACQUISITION_RECEIPT="$RUN_ROOT/source_locks/<job-2735235>.receipt.json"
-export ACQUISITION_JOB_ID=2735235  # omit after the receipt already exists
+export PIPELINE_RUN_ID=full-corpus-v2-<date>
+export ACQUISITION_RECEIPT="$RUN_ROOT/source_locks/sources_<fresh-timestamp>_<fresh-job>.receipt.json"
+unset ACQUISITION_JOB_ID  # the fresh existing-only receipt already exists
 bash clariden/submit.sh chain-to-review
 CONFIRM_LAUNCH=1 bash clariden/submit.sh chain-to-review
 ```
@@ -216,11 +242,102 @@ directly; no redundant full-corpus JSONL copy is materialized. Every normalized
 row preserves the exact upstream `source_dataset`, candidate `source_id` and a
 work-level `work_id`.
 
-Review every request using the response schema. The packet job does not call a
-model. After all primary, secondary and required adjudicator responses exist:
+### Review the redacted packet on the Mac
+
+From the authenticated Mac, copy exactly the three packet files plus the
+text-free novelty summary—never a corpus directory—and run the repository's
+resumable reviewer. Replace the run ID but keep the paths and model settings:
 
 ```bash
-export REVIEWS_JSONL=/path/to/pre_clean_responses.jsonl
+export PIPELINE_RUN_ID=full-corpus-v2-<date>
+export REMOTE_PACKET_ROOT="/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/pipeline_runs/$PIPELINE_RUN_ID/stages/30-review-packet"
+export LOCAL_REVIEW_ROOT="$HOME/cpt-review-runs/$PIPELINE_RUN_ID/pre_clean"
+mkdir -p "$LOCAL_REVIEW_ROOT"
+for name in requests.jsonl summary.json stage_receipt.json; do
+  rsync -av "clariden:$REMOTE_PACKET_ROOT/$name" "$LOCAL_REVIEW_ROOT/"
+done
+rsync -av \
+  "clariden:/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/pipeline_runs/$PIPELINE_RUN_ID/stages/20-lineage/source_novelty.json" \
+  "$LOCAL_REVIEW_ROOT/"
+```
+
+Run a bounded smoke in its own immutable output directory:
+
+```bash
+cd /path/to/train-apertus-with-glossapi/subprojects/05_token_distillation_cpt/04_full_corpus_preparation
+mkdir -p "$LOCAL_REVIEW_ROOT/smoke"
+python3 scripts/run_codex_source_reviews.py \
+  --requests "$LOCAL_REVIEW_ROOT/requests.jsonl" \
+  --output "$LOCAL_REVIEW_ROOT/smoke/responses.jsonl" \
+  --manifest "$LOCAL_REVIEW_ROOT/smoke/run_manifest.json" \
+  --state-dir "$LOCAL_REVIEW_ROOT/smoke/state" \
+  --model gpt-5.6-luna \
+  --reasoning-effort low \
+  --batch-size 12 \
+  --workers 2 \
+  --max-requests 12
+```
+
+The smoke is interface validation only and must not be aggregated. Run the full
+packet with the same frozen settings:
+
+```bash
+mkdir -p "$LOCAL_REVIEW_ROOT/full"
+python3 scripts/run_codex_source_reviews.py \
+  --requests "$LOCAL_REVIEW_ROOT/requests.jsonl" \
+  --output "$LOCAL_REVIEW_ROOT/full/responses.jsonl" \
+  --manifest "$LOCAL_REVIEW_ROOT/full/run_manifest.json" \
+  --state-dir "$LOCAL_REVIEW_ROOT/full/state" \
+  --model gpt-5.6-luna \
+  --reasoning-effort low \
+  --batch-size 12 \
+  --workers 2
+```
+
+If the full command is interrupted before it writes `run_manifest.json`, rerun
+that exact command. Completed batches are checksum-keyed in `full/state` and are
+reused after schema/identity validation. Once the immutable manifest exists,
+do not rerun over it.
+
+Before creating a Clariden stage, make a separate resolution file and run the
+aggregator locally as a diagnostic:
+
+```bash
+cp "$LOCAL_REVIEW_ROOT/full/responses.jsonl" \
+  "$LOCAL_REVIEW_ROOT/resolved_responses.jsonl"
+python3 scripts/aggregate_source_reviews.py \
+  --requests "$LOCAL_REVIEW_ROOT/requests.jsonl" \
+  --packet-summary "$LOCAL_REVIEW_ROOT/summary.json" \
+  --reviews "$LOCAL_REVIEW_ROOT/resolved_responses.jsonl" \
+  --novelty-summary "$LOCAL_REVIEW_ROOT/source_novelty.json" \
+  --review-policy configs/source_review_policy.json \
+  --output "$LOCAL_REVIEW_ROOT/diagnostic_admission.json" \
+  --allow-incomplete
+jq '.pending_adjudications' "$LOCAL_REVIEW_ROOT/diagnostic_admission.json"
+```
+
+Do not submit Stage40 until this is zero. If it is nonzero, use only the listed
+redacted samples to obtain separate schema-valid `adjudicator` responses, merge
+those into a new resolved response JSONL without altering the manifest-bound
+primary/secondary output, and rerun the same diagnostic command. This prevents
+a failed Stage40 from binding an incomplete response-file hash.
+
+Copy back only the responses and reviewer manifest to a new response directory:
+
+```bash
+export REMOTE_RESPONSE_ROOT="/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/reviewer_responses/$PIPELINE_RUN_ID/pre_clean"
+ssh clariden "mkdir -p '$REMOTE_RESPONSE_ROOT'"
+rsync -av "$LOCAL_REVIEW_ROOT/resolved_responses.jsonl" \
+  "$LOCAL_REVIEW_ROOT/full/run_manifest.json" \
+  "clariden:$REMOTE_RESPONSE_ROOT/"
+```
+
+Back on Clariden, submit Stage40 exactly once with the zero-pending resolved
+response file:
+
+```bash
+export REMOTE_RESPONSE_ROOT="/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/reviewer_responses/$PIPELINE_RUN_ID/pre_clean"
+export REVIEWS_JSONL="$REMOTE_RESPONSE_ROOT/resolved_responses.jsonl"
 bash clariden/submit.sh review-aggregate
 CONFIRM_LAUNCH=1 bash clariden/submit.sh review-aggregate
 ```
@@ -237,11 +354,20 @@ bash clariden/submit.sh chain-after-admission
 CONFIRM_LAUNCH=1 bash clariden/submit.sh chain-after-admission
 ```
 
-If every admitted source is already `include`, this continues through
-GreekMMLU, dedup and local release validation. If any source is
-`include_after_cleaning`, the chain runs deterministic cleaning/PII masking,
-builds a fresh packet from only those post-clean source datasets, and stops.
-Review that packet, then aggregate and inspect the merged final admission:
+Stage50 now applies the confirmed source decisions, narrow source-specific
+cleaning and high-confidence PII masking. It never applies ToC/bibliography
+spans. If every admitted source is already `include`, the chain stops after
+Stage50. If any source is `include_after_cleaning`, it builds a fresh redacted
+packet from only those Stage50 source datasets and stops there instead. Neither
+path submits Stage58 or any downstream job: the structural audit/promotion
+track remains free to finish before the irreversible finalization choice.
+
+For that optional boundary, repeat the safe Mac smoke/full/resume protocol above
+with remote stage `55-post-clean-review-packet`, local phase `post_clean`, and a
+distinct remote response directory ending in `/post_clean`. Its local diagnostic
+omits `--novelty-summary` because novelty was a pre-clean gate. Require zero
+pending adjudications before copying the resolved response file back. Then
+aggregate and inspect the merged terminal admission:
 
 ```bash
 export POST_CLEAN_REVIEWS_JSONL=/path/to/post_clean_responses.jsonl
@@ -249,22 +375,70 @@ CONFIRM_LAUNCH=1 bash clariden/submit.sh post-clean-aggregate
 
 export FINAL_SOURCE_ADMISSION="$PIPELINE_RUNS_ROOT/$PIPELINE_RUN_ID/stages/56-post-clean-review-aggregate/final_admission_candidate.json"
 export CONFIRM_FINAL_ADMISSION_SHA256="$(sha256sum "$FINAL_SOURCE_ADMISSION" | awk '{print $1}')"
+export REUSE_STAGE50_ADMISSION=0
 bash clariden/submit.sh chain-after-post-clean
 CONFIRM_LAUNCH=1 bash clariden/submit.sh chain-after-post-clean
 ```
 
-The final cleaning job replays the same document actions and structural inputs
-against the normalized corpus. It fails if those inputs differ from the reviewed
-cleaning pass. Structural ToC/bibliography spans are off by default; enabling
-them additionally requires `APPLY_STRUCTURAL=1`, a passed
-`STRUCTURAL_MODEL_RECEIPT`, immutable span paths and an approved tracked policy.
-The cleaner applies structural spans last.
+`chain-after-post-clean` only validates the terminal admission and prints the
+finalization stop boundary; it submits no jobs. If no post-clean review was
+needed, prepare the same terminal inputs from the confirmed Stage40 admission:
 
-The downstream chain runs GreekMMLU decontamination, the existing
+```bash
+export FINAL_SOURCE_ADMISSION="$SOURCE_ADMISSION"
+export CONFIRM_FINAL_ADMISSION_SHA256="$CONFIRM_ADMISSION_SHA256"
+export REUSE_STAGE50_ADMISSION=1
+```
+
+Stage58 is required, but deliberately never automatic. It consumes the exact
+Stage50 corpus and ledger and does not rerun source cleanup or PII detection.
+Choose exactly one separate finalization command. For the current run's frozen
+`audit_only` policy, explicitly confirm the deterministic no-op:
+
+```bash
+export CONFIRM_STRUCTURAL_NOOP=1
+bash clariden/submit.sh chain-finalize-noop
+CONFIRM_LAUNCH=1 bash clariden/submit.sh chain-finalize-noop
+```
+
+A run whose cleaning policy was already frozen before Stage10 as approved for
+both structural heads may instead apply exact Stage54-promoted spans:
+
+```bash
+export STRUCTURAL_MODEL_RECEIPT="$PIPELINE_RUNS_ROOT/$PIPELINE_RUN_ID/stages/54-structural-promote/academic_structural_model_receipt.json"
+export STRUCTURAL_SPANS="$PIPELINE_RUNS_ROOT/$PIPELINE_RUN_ID/stages/54-structural-promote/structural_spans.jsonl"
+export CONFIRM_STRUCTURAL_MODEL_RECEIPT_SHA256="$(sha256sum "$STRUCTURAL_MODEL_RECEIPT" | awk '{print $1}')"
+bash clariden/submit.sh chain-finalize-promoted
+CONFIRM_LAUNCH=1 bash clariden/submit.sh chain-finalize-promoted
+```
+
+The promoted path fails rather than degrading to a no-op if Stage54, its exact
+receipt, spans, policy approval, or safety evidence is missing. Stage58 freezes
+the requested mode and model-receipt SHA-256 in an immutable request and its
+decision. An interrupted resume must provide the same choice and exact receipt;
+a different choice requires a new `PIPELINE_RUN_ID`.
+
+For example, resume an interrupted no-op Stage58 only with the same terminal
+admission variables prepared above and the same explicit choice:
+
+```bash
+APPLY_STRUCTURAL=0 CONFIRM_STRUCTURAL_NOOP=1 \
+  bash clariden/submit.sh resume final-clean
+CONFIRM_LAUNCH=1 APPLY_STRUCTURAL=0 CONFIRM_STRUCTURAL_NOOP=1 \
+  bash clariden/submit.sh resume final-clean
+```
+
+For a promoted resume, use `APPLY_STRUCTURAL=1` plus the same
+`STRUCTURAL_MODEL_RECEIPT`, `STRUCTURAL_SPANS`, and
+`CONFIRM_STRUCTURAL_MODEL_RECEIPT_SHA256` values instead.
+
+The downstream semantic order is Stage58, frozen GreekMMLU decontamination, the existing
 `glossapi-corpus dedup-text run` CLI and final materialization/validation. Dedup
 is explicit and receipt-bound: preserved Greek diacritics, exact plus near
 dedup, 128 MinHash permutations, 32 × 4 bands, token 5-shingles, threshold 0.85
-and a 5,000-member bucket ceiling. Publication is not submitted.
+and a 5,000-member bucket ceiling. The independent GreekMMLU freeze job may run
+concurrently earlier, but decontamination cannot consume it until both it and
+Stage58 pass. Publication is not submitted.
 
 Check or resume without inventing a new run:
 
@@ -274,8 +448,10 @@ FINAL_CLEAN_STAGE=58-final-clean bash clariden/submit.sh resume decontam
 CONFIRM_LAUNCH=1 FINAL_CLEAN_STAGE=58-final-clean bash clariden/submit.sh resume decontam
 ```
 
-A completed receipt makes a resubmitted stage a validated no-op. An incomplete
-stage requires explicit resume; downstream stages reject missing, mismatched or
+A completed receipt makes a resubmitted stage a validated no-op only after the
+same structural finalization request is revalidated. An incomplete stage
+requires explicit resume with the same no-op/apply choice (and the same exact
+promoted receipt for apply); downstream stages reject missing, mismatched or
 drifted receipts even if Slurm reported success.
 
 ## 8. Optional gated Hugging Face publication
@@ -285,37 +461,33 @@ manifest, exact token waterfall and validation receipt. Then inject the token
 only into the submission environment, never a CLI argument or file:
 
 ```bash
-export HF_REPO_ID=fffoivos/glossapi-greek-cpt-full-corpus-v2
+export HF_REPO_ID=fffoivos/glossapi-greek-cpt-redistributable-delta-v2
 export CONFIRM_PUBLISH="$HF_REPO_ID"
-HF_TOKEN="$(security find-generic-password -a "$USER" -s codex-hf-token -w)" \
-  CONFIRM_LAUNCH=1 bash clariden/submit.sh publish
+# Run on Clariden after an explicit secure HF_TOKEN handoff.
+HF_TOKEN="$HF_TOKEN" CONFIRM_LAUNCH=1 bash clariden/submit.sh publish
 ```
 
-On Clariden use the equivalent secure token handoff; do not copy the macOS
-Keychain command literally. The publisher must verify the local validation
-receipt, create/update the dataset with `gated=auto`, and write a publication
-receipt. Gating does not override source redistribution restrictions.
+Do not put the token in a file, command argument or receipt. The publisher
+accepts only manual gating and a new/empty repository. It uploads the
+checksum-bound `README.md`, the validated
+redistribution Parquet inventory and the exact provenance receipts, then
+verifies that complete remote inventory at the returned commit. This is the
+license-limited **redistributable delta**, not the full private CPT corpus.
+Gating does not override source redistribution restrictions.
 
-## Script-interface handoff
+If a failed upload left any payload, the publisher deletes nothing and refuses
+to continue. The temporary upload cache is intentionally discarded, so partial
+uploads are not resumed. Inspect the remote repository, then delete/recreate it
+manually or choose a new empty `HF_REPO_ID` before rerunning.
 
-The orchestration binds normalization, lineage, review and cleaning CLIs
-directly. The parallel decontamination/release implementation must expose these
-stable entry points, or their paths must be overridden centrally in
-`clariden/paths.env` before the exact execution commit is frozen:
+## Script-interface boundary
 
-- `decontaminate_full_corpus.py`: `--input --output --dropped --ledger
-  --manifest --queries-jsonl --benchmark-manifest --workers`;
-- `materialize_release.py`: `--input --dedup-decisions --cleaning-ledger
-  --decontam-ledger --output --manifest --token-waterfall
-  --temporary-directory --memory-limit --threads`;
-- `validate_release.py`: `--release --manifest --dedup-decisions --output
-  --temporary-directory --memory-limit --threads`;
-- `publish_release.py`: `--release --release-manifest --validation-receipt
-  --repo-id --gate-mode auto --execute`, reading `HF_TOKEN` from the environment.
-
-Every launcher fails before data access if its expected script is absent. This
-is intentional: a renamed or half-integrated implementation cannot silently
-fall back to an older corpus path.
+The orchestration now binds implemented normalization, lineage, review,
+cleaning, structural-finalization, decontamination, deduplication,
+materialization, validation and publication entry points centrally in
+`clariden/paths.env`. Every launcher fails before data access if its expected
+script is absent, and receipts bind the exact clean Git commit and input
+inventories. Do not override an entry point during a production run.
 
 ## Clariden resource policy
 

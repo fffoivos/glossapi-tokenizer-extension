@@ -1,0 +1,36 @@
+{
+  "batch_size": 14,
+  "batchpaths_sha256": "0701154848afca5516b105cc6e754468af61d0242f8fc9e4ec9fdd49966a7bdf",
+  "builders": [
+    {
+      "name": "base",
+      "path": "../build_span_units.py",
+      "sha256": "1ac663df0bda3078fe2c4e5ae03444a4474ff1ebdd6cd76fa38b014b3204237f"
+    },
+    {
+      "name": "unseen_extension",
+      "path": "../build_span_units_ext.py",
+      "sha256": "5bd30e5adc4315974377d8f84a2e5da01e7fca3690f347388e745d42f9f0213c"
+    }
+  ],
+  "manifest_sha256": "819c7fa1c7a8924af6c6305ae59704928c4624800cc8354aa6c65eb8ad0933fc",
+  "phases": [
+    {
+      "builder": "base",
+      "expected_batch_count": 178,
+      "expected_unit_count": 2483,
+      "expected_unit_ids_sha256": "1455e52907d1abf4dcf657619656996dfac68268a50e70f12b4f31546ff47a97",
+      "name": "base",
+      "start_unit_id": "S00000"
+    },
+    {
+      "builder": "unseen_extension",
+      "expected_batch_count": 62,
+      "expected_unit_count": 857,
+      "expected_unit_ids_sha256": "6cbe3162c6f726d5bb5ad2ccfd80d8aa43c7168bdfb861477dc32488915ce71b",
+      "name": "unseen_extension",
+      "start_unit_id": "S02483"
+    }
+  ],
+  "schema_version": "span-rehydration-layout-v1"
+}

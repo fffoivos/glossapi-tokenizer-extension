@@ -96,10 +96,11 @@ def _load_dataset(spec: dict[str, Any]):
     from datasets import get_dataset_config_names, load_dataset
 
     dataset_id = spec["source"]
+    revision = spec.get("revision")
     config = spec.get("config")
     if not config:
         try:
-            configs = get_dataset_config_names(dataset_id)
+            configs = get_dataset_config_names(dataset_id, revision=revision)
         except Exception:
             configs = []
         if len(configs) == 1 and configs[0] != "default":
@@ -120,6 +121,8 @@ def _load_dataset(spec: dict[str, Any]):
     for candidate in candidates:
         try:
             kwargs: dict[str, Any] = {}
+            if revision:
+                kwargs["revision"] = revision
             if candidate:
                 kwargs["split"] = candidate
             ds = load_dataset(dataset_id, config, **kwargs)

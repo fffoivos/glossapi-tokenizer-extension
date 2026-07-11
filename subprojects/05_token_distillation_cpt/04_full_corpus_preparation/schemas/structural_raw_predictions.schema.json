@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "structural_raw_predictions.schema.json",
+  "title": "Phase-04 raw Stage50 structural predictions",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "status",
+    "mode",
+    "stage50_cleaning_manifest_sha256",
+    "cleaning_policy_sha256",
+    "allowed_apply_profiles",
+    "eligible_structural_policy",
+    "detector",
+    "artifacts",
+    "input_text_inventory_sha256",
+    "raw_prediction_inventory_sha256",
+    "counts",
+    "conflicts",
+    "files"
+  ],
+  "properties": {
+    "schema_version": {"const": "phase04_structural_raw_predictions_v1"},
+    "status": {"const": "completed"},
+    "mode": {"const": "structure-spans"},
+    "character_offset_unit": {"const": "Unicode scalar values / Python code points"},
+    "stage50_cleaning_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "cleaning_policy_sha256": {"$ref": "#/$defs/sha256"},
+    "allowed_apply_profiles": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "eligible_structural_policy": {"const": "apply_after_review"},
+    "input_text_inventory_sha256": {"$ref": "#/$defs/sha256"},
+    "raw_prediction_inventory_sha256": {"$ref": "#/$defs/sha256"},
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["relative_path", "input", "receipt", "index", "counters", "spans", "input_rows", "span_rows"],
+        "properties": {
+          "input_rows": {"type": "integer", "minimum": 0},
+          "span_rows": {"type": "integer", "minimum": 0},
+          "receipt": {"$ref": "#/$defs/fileReceipt"},
+          "index": {"$ref": "#/$defs/fileReceipt"},
+          "counters": {"$ref": "#/$defs/fileReceipt"},
+          "spans": {"$ref": "#/$defs/fileReceipt"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "fileReceipt": {
+      "type": "object",
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

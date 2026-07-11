@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/full_cpt_source_novelty_v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "method",
+    "near_duplicate_novelty_deferred_to_global_dedup",
+    "document_actions",
+    "sources"
+  ],
+  "properties": {
+    "schema_version": {"const": "full_cpt_source_novelty_v1"},
+    "method": {
+      "const": "exact_normalized_text_plus_reviewed_same_work_word_token_proxy_v1"
+    },
+    "near_duplicate_novelty_deferred_to_global_dedup": {"const": true},
+    "document_actions": {
+      "type": "object",
+      "required": ["path", "sha256", "counts"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "counts": {"type": "object"}
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_dataset",
+          "rows",
+          "identity_word_tokens",
+          "novel_rows_after_lineage_resolution",
+          "novel_word_tokens_after_lineage_resolution",
+          "novel_token_fraction"
+        ],
+        "properties": {
+          "source_dataset": {"type": "string", "minLength": 1},
+          "rows": {"type": "integer", "minimum": 1},
+          "identity_word_tokens": {"type": "integer", "minimum": 0},
+          "novel_rows_after_lineage_resolution": {"type": "integer", "minimum": 0},
+          "novel_word_tokens_after_lineage_resolution": {"type": "integer", "minimum": 0},
+          "novel_token_fraction": {"type": "number", "minimum": 0, "maximum": 1}
+        }
+      }
+    }
+  }
+}

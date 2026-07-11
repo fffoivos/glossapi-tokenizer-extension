@@ -33,18 +33,35 @@ phase04_stage_require_upstream "80-materialize-validate"
 RELEASE_DIR="$PIPELINE_RUN_ROOT/stages/80-materialize-validate"
 phase04_stage_add_input release_manifest "$RELEASE_DIR/release_manifest.json"
 phase04_stage_add_input release_validation "$RELEASE_DIR/validation.json"
-# Never print the command environment or token.  The publisher reads HF_TOKEN
-# from its process environment and must set the dataset repository gate to auto.
-if [[ ! -s "$PHASE04_STAGE_DIR/publication_receipt.json" ]]; then
+# Never print the command environment or token.  Publication is manual-gated
+# and new-empty only; widening either policy requires a reviewed code change.
+if [[ ! -e "$PHASE04_STAGE_DIR/publication_receipt.json" ]]; then
     uenv run "$PHASE04_UENV" --view=default -- \
         "$RUNTIME_VENV/bin/python" "$PUBLISH_RELEASE_SCRIPT" \
         --release "$RELEASE_DIR/release" \
         --release-manifest "$RELEASE_DIR/release_manifest.json" \
         --validation-receipt "$RELEASE_DIR/validation.json" \
         --repo-id "$HF_REPO_ID" \
-        --gate-mode auto \
-        --execute \
-        | tee "$PHASE04_STAGE_DIR/publication_receipt.json"
+        --gate-mode manual \
+        --remote-mode new-empty \
+        --output "$PHASE04_STAGE_DIR/publication_receipt.json" \
+        --execute
 fi
+
+uenv run "$PHASE04_UENV" --view=default -- \
+    "$RUNTIME_VENV/bin/python" - "$PHASE04_STAGE_DIR/publication_receipt.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+value = json.loads(path.read_text(encoding="utf-8"))
+if value.get("schema_version") != "full_cpt_publication_receipt_v1":
+    raise SystemExit(f"ERROR: unsupported publication receipt schema: {path}")
+if value.get("status") != "passed" or not value.get("commit_sha"):
+    raise SystemExit(f"ERROR: publication receipt is not a completed remote publication: {path}")
+if value.get("gate_mode") != "manual" or value.get("remote_mode") != "new-empty":
+    raise SystemExit(f"ERROR: publication policy drift recorded in {path}")
+PY
 
 phase04_stage_finish "$PHASE04_STAGE_DIR/publication_receipt.json"

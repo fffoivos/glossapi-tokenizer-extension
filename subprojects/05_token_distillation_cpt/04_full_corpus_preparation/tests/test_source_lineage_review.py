@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import sqlite3
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -14,6 +17,8 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import aggregate_source_reviews as AGGREGATE  # noqa: E402
+import build_source_lineage as BUILD  # noqa: E402
+import full_corpus_io as CORPUS_IO  # noqa: E402
 import source_lineage as LINEAGE  # noqa: E402
 
 
@@ -28,9 +33,25 @@ def configs() -> tuple[dict, dict, dict, dict]:
 
 def write_jsonl(path: Path, rows: list[dict]) -> None:
     path.write_text(
-        "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows),
+        "".join(
+            json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows
+        ),
         encoding="utf-8",
     )
+
+
+def test_canonical_iterator_streams_sharded_parquet_root(tmp_path: Path) -> None:
+    pa = pytest.importorskip("pyarrow")
+    pq = pytest.importorskip("pyarrow.parquet")
+    root = tmp_path / "canonical"
+    root.mkdir()
+    pq.write_table(
+        pa.table({"source_id": ["a", "b"], "text": ["ένα", "δύο"]}),
+        root / "part.parquet",
+    )
+    rows = list(LINEAGE.iter_jsonl([root]))
+    assert [row[2]["source_id"] for row in rows] == ["a", "b"]
+    assert [row[1] for row in rows] == [1, 2]
 
 
 def test_first_appearance_is_anchored_to_first_data_revision() -> None:
@@ -55,13 +76,18 @@ def test_registry_manifest_never_authorizes_blind_append() -> None:
     assert len(routes) == 23
     assert all(route["blind_append_allowed"] is False for route in routes.values())
     assert routes["opengov_deliberations_v2"]["requires_base_identity_audit"] is True
-    assert routes["school_books_new_editions"]["reviewed_aliases"][0]["alias_kind"] == "hybrid"
+    assert (
+        routes["school_books_new_editions"]["reviewed_aliases"][0]["alias_kind"]
+        == "hybrid"
+    )
     assert routes["diavgeia"]["fallback_first_appearance"]["cohort"] == (
         "not_present_at_nanochat_anchor"
     )
 
 
-def test_canonical_lineage_preserves_exact_name_and_stable_identity_across_cleaning() -> None:
+def test_canonical_lineage_preserves_exact_name_and_stable_identity_across_cleaning() -> (
+    None
+):
     sources, roster, aliases, _ = configs()
     row = {
         "source_id": "archetai",
@@ -89,7 +115,9 @@ def test_canonical_lineage_preserves_exact_name_and_stable_identity_across_clean
     assert first["first_appearance"]["cohort"] == "not_present_at_nanochat_anchor"
 
 
-def test_missing_source_name_uses_pinned_repo_and_resegmentation_requires_work_id() -> None:
+def test_missing_source_name_uses_pinned_repo_and_resegmentation_requires_work_id() -> (
+    None
+):
     sources, roster, aliases, _ = configs()
     fallback = LINEAGE.canonicalize_row(
         {
@@ -123,7 +151,9 @@ def test_missing_source_name_uses_pinned_repo_and_resegmentation_requires_work_i
         )
 
 
-def test_lineage_cli_detects_base_candidate_exact_and_work_relationships(tmp_path: Path) -> None:
+def test_lineage_cli_detects_base_candidate_exact_and_work_relationships(
+    tmp_path: Path,
+) -> None:
     base = tmp_path / "base.jsonl"
     candidate = tmp_path / "candidate.jsonl"
     write_jsonl(
@@ -157,6 +187,8 @@ def test_lineage_cli_detects_base_candidate_exact_and_work_relationships(tmp_pat
     registry = tmp_path / "registry.json"
     rows = tmp_path / "rows.jsonl"
     relationships = tmp_path / "relationships.jsonl"
+    actions = tmp_path / "actions.jsonl"
+    novelty = tmp_path / "novelty.json"
     summary = tmp_path / "summary.json"
     subprocess.run(
         [
@@ -173,6 +205,10 @@ def test_lineage_cli_detects_base_candidate_exact_and_work_relationships(tmp_pat
             str(rows),
             "--relationships-out",
             str(relationships),
+            "--actions-out",
+            str(actions),
+            "--novelty-out",
+            str(novelty),
             "--summary-out",
             str(summary),
         ],
@@ -190,7 +226,354 @@ def test_lineage_cli_detects_base_candidate_exact_and_work_relationships(tmp_pat
     )
     assert candidate_summary["base_candidate_exact_clusters"] == 1
     assert candidate_summary["base_candidate_work_clusters"] == 1
-    assert "observed_base_candidate_exact_text" in candidate_summary["double_add_hazard_reasons"]
+    assert (
+        "observed_base_candidate_exact_text"
+        in candidate_summary["double_add_hazard_reasons"]
+    )
+    action = json.loads(actions.read_text())
+    assert action["action"] == "drop"
+    assert action["reason"] == "lineage_exact_text_already_in_nanochat"
+    novelty_row = json.loads(novelty.read_text())["sources"][0]
+    assert novelty_row["novel_token_fraction"] == 0.0
+
+
+def test_lineage_cli_does_not_emit_large_debug_exports_by_default(
+    tmp_path: Path,
+) -> None:
+    candidate = tmp_path / "candidate.jsonl"
+    write_jsonl(
+        candidate,
+        [
+            {
+                "source_id": "archetai",
+                "source_dataset": "glossAPI/archetai",
+                "source_artifact_path": "candidate.jsonl",
+                "source_row_id": "1",
+                "source_doc_id": "doc-1",
+                "text": "Ένα αυτόνομο κείμενο.",
+            }
+        ],
+    )
+    outputs = {
+        "registry": tmp_path / "registry.json",
+        "actions": tmp_path / "actions.jsonl",
+        "novelty": tmp_path / "novelty.json",
+        "summary": tmp_path / "summary.json",
+    }
+    command = [
+        sys.executable,
+        str(SCRIPTS / "build_source_lineage.py"),
+        "rows",
+        "--candidate-jsonl",
+        str(candidate),
+        "--registry-manifest-out",
+        str(outputs["registry"]),
+        "--actions-out",
+        str(outputs["actions"]),
+        "--novelty-out",
+        str(outputs["novelty"]),
+        "--summary-out",
+        str(outputs["summary"]),
+    ]
+    completed = subprocess.run(command, text=True, capture_output=True)
+    assert completed.returncode == 0, completed.stderr
+    summary = json.loads(outputs["summary"].read_text(encoding="utf-8"))
+    assert summary["debug_exports_enabled"] is False
+    assert summary["row_manifest"] is None
+    assert summary["relationship_manifest"] is None
+    assert not (tmp_path / "rows.jsonl").exists()
+    assert not (tmp_path / "relationships.jsonl").exists()
+
+
+def test_lineage_resume_contract_binds_debug_export_mode(tmp_path: Path) -> None:
+    candidate = tmp_path / "candidate.jsonl"
+    candidate.write_text("{}\n", encoding="utf-8")
+    configs = []
+    for name in ("sources.json", "roster.json", "aliases.json"):
+        path = tmp_path / name
+        path.write_text("{}\n", encoding="utf-8")
+        configs.append(path)
+    common = {
+        "sources_config": configs[0],
+        "roster_config": configs[1],
+        "aliases_config": configs[2],
+        "normalization_manifest": None,
+        "normalization_inventory_validation": None,
+        "canonical_verification_interval": 100_000,
+    }
+    normal = BUILD.lineage_contract(
+        SimpleNamespace(
+            **common,
+            rows_out=None,
+            relationships_out=None,
+        ),
+        base_paths=[],
+        candidate_paths=[candidate],
+        bindings={},
+    )
+    debug = BUILD.lineage_contract(
+        SimpleNamespace(
+            **common,
+            rows_out=tmp_path / "rows.jsonl",
+            relationships_out=tmp_path / "relationships.jsonl",
+        ),
+        base_paths=[],
+        candidate_paths=[candidate],
+        bindings={},
+    )
+    assert normal != debug
+
+
+def _canonical_fixture_row(
+    *,
+    source_id: str,
+    source_dataset: str,
+    source_family_id: str,
+    repo_id: str,
+    revision: str,
+    source_doc_id: str,
+    text: str,
+) -> dict:
+    artifact = f"{source_id}/part.parquet"
+    source_row_id = f"{artifact}:0:0"
+    text_hash = hashlib.sha256(text.encode()).hexdigest()
+    work_id = source_doc_id
+    return {
+        "source_id": source_id,
+        "source_dataset": source_dataset,
+        "source_doc_id": source_doc_id,
+        "text": text,
+        "title": None,
+        "author": None,
+        "greek_badness_score": None,
+        "mojibake_badness_score": None,
+        "needs_ocr": None,
+        "is_empty": False,
+        "ocr_success": None,
+        "is_historical_or_polytonic": None,
+        "source_family_id": source_family_id,
+        "acquisition_source_id": source_id,
+        "source_repo_id": repo_id,
+        "source_revision": revision,
+        "source_artifact_path": artifact,
+        "source_row_id": source_row_id,
+        "source_text_field": "text",
+        "original_text_sha256": text_hash,
+        "normalized_text_sha256": text_hash,
+        "stable_uid": LINEAGE.sha256_parts(
+            "full_cpt_stable_uid_v1",
+            repo_id,
+            revision,
+            artifact,
+            source_row_id,
+            source_dataset,
+            "text",
+        ),
+        "work_key": LINEAGE.sha256_parts(
+            "full_cpt_work_key_v1", source_family_id, work_id
+        ),
+        "work_id": work_id,
+        "representation_generation": (
+            "nanochat_pinned_release"
+            if source_id == "nanochat_base"
+            else "candidate_first_representation"
+        ),
+        "lineage_alias_id": None,
+        "source_metadata_json": "{}",
+        "cleaning_profile": "base_canonical",
+        "structural_policy": "source_routed",
+        "training_eligibility": "review",
+        "source_role": "base" if source_id == "nanochat_base" else "additive_candidate",
+    }
+
+
+def test_bound_lineage_omits_base_text_and_resumes_per_canonical_shard(
+    tmp_path: Path,
+) -> None:
+    pa = pytest.importorskip("pyarrow")
+    pq = pytest.importorskip("pyarrow.parquet")
+    base_root = tmp_path / "canonical" / "nanochat_base"
+    candidate_root = tmp_path / "canonical" / "candidate"
+    base_root.mkdir(parents=True)
+    candidate_root.mkdir(parents=True)
+    base_path = base_root / "base.parquet"
+    candidate_path = candidate_root / "candidate.parquet"
+    pq.write_table(
+        pa.Table.from_pylist(
+            [
+                _canonical_fixture_row(
+                    source_id="nanochat_base",
+                    source_dataset="base-name",
+                    source_family_id="base-name",
+                    repo_id="owner/base",
+                    revision="base-rev",
+                    source_doc_id="base-1",
+                    text="κείμενο βάσης",
+                )
+            ],
+            schema=CORPUS_IO.canonical_schema(),
+        ),
+        base_path,
+    )
+    pq.write_table(
+        pa.Table.from_pylist(
+            [
+                _canonical_fixture_row(
+                    source_id="candidate",
+                    source_dataset="candidate-name",
+                    source_family_id="candidate-family",
+                    repo_id="owner/candidate",
+                    revision="candidate-rev",
+                    source_doc_id="candidate-1",
+                    text="καινούριο ελληνικό κείμενο",
+                )
+            ],
+            schema=CORPUS_IO.canonical_schema(),
+        ),
+        candidate_path,
+    )
+    config = {
+        "base": {
+            "repo_id": "owner/base",
+            "revision": "base-rev",
+            "role": "base",
+            "text_columns": ["text"],
+        },
+        "sources": [
+            {
+                "source_id": "candidate",
+                "repo_id": "owner/candidate",
+                "revision": "candidate-rev",
+                "role": "additive_candidate",
+                "source_family_id": "candidate-family",
+                "content_relation": "new_family",
+                "merge_policy": "append_after_review_and_global_dedup",
+                "text_columns": ["text"],
+            }
+        ],
+    }
+    sources = tmp_path / "sources.json"
+    roster = tmp_path / "roster.json"
+    aliases = tmp_path / "aliases.json"
+    sources.write_text(json.dumps(config))
+    roster.write_text(json.dumps({"repository": {}, "sources": []}))
+    aliases.write_text(json.dumps({"aliases": []}))
+
+    def inventory(path: Path) -> dict:
+        return {
+            "path": str(path.resolve()),
+            "bytes": path.stat().st_size,
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "rows": 1,
+        }
+
+    manifest = tmp_path / "normalization.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "full_cpt_normalization_manifest_v1",
+                "sources": [
+                    {"source_id": "nanochat_base", "shards": [inventory(base_path)]},
+                    {"source_id": "candidate", "shards": [inventory(candidate_path)]},
+                ],
+            }
+        )
+    )
+    validation = tmp_path / "inventory-validation.json"
+    validation.write_text(
+        json.dumps(
+            {
+                "schema_version": "full_cpt_shard_inventory_validation_v1",
+                "manifest": str(manifest.resolve()),
+                "manifest_sha256": hashlib.sha256(manifest.read_bytes()).hexdigest(),
+                "files": 2,
+                "bytes": base_path.stat().st_size + candidate_path.stat().st_size,
+                "inventory_sha256": "a" * 64,
+            }
+        )
+    )
+    bindings = BUILD.normalization_bindings(manifest)
+    base_rows = list(
+        LINEAGE.iter_lineage_rows([base_root], origin="base", bound_inputs=bindings)
+    )
+    assert len(base_rows) == 1
+    assert "text" not in base_rows[0][2]
+    verified = LINEAGE.canonicalize_row(
+        base_rows[0][2],
+        origin="base",
+        sources=config,
+        roster={"repository": {}, "sources": []},
+        aliases={"aliases": []},
+        canonical_bound=True,
+        verify_bound=True,
+    )
+    assert verified["identity_word_tokens"] == 0
+
+    outputs = {
+        "registry": tmp_path / "registry.json",
+        "rows": tmp_path / "rows.jsonl",
+        "relationships": tmp_path / "relationships.jsonl",
+        "actions": tmp_path / "actions.jsonl",
+        "novelty": tmp_path / "novelty.json",
+        "summary": tmp_path / "summary.json",
+    }
+    database = tmp_path / "work" / "lineage.sqlite"
+    command = [
+        sys.executable,
+        str(SCRIPTS / "build_source_lineage.py"),
+        "rows",
+        "--sources-config",
+        str(sources),
+        "--roster-config",
+        str(roster),
+        "--aliases-config",
+        str(aliases),
+        "--base-input",
+        str(base_root),
+        "--candidate-input",
+        str(candidate_root),
+        "--normalization-manifest",
+        str(manifest),
+        "--normalization-inventory-validation",
+        str(validation),
+        "--registry-manifest-out",
+        str(outputs["registry"]),
+        "--rows-out",
+        str(outputs["rows"]),
+        "--relationships-out",
+        str(outputs["relationships"]),
+        "--actions-out",
+        str(outputs["actions"]),
+        "--novelty-out",
+        str(outputs["novelty"]),
+        "--summary-out",
+        str(outputs["summary"]),
+        "--sqlite-work-path",
+        str(database),
+        "--input-spool-directory",
+        str(tmp_path / "fragments"),
+        "--input-workers",
+        "2",
+        "--resume",
+    ]
+    first = subprocess.run(command, text=True, capture_output=True)
+    assert first.returncode == 0, first.stderr
+    with sqlite3.connect(database) as connection:
+        assert (
+            connection.execute("SELECT COUNT(*) FROM ingested_inputs").fetchone()[0]
+            == 2
+        )
+    checksums = {
+        key: hashlib.sha256(path.read_bytes()).hexdigest()
+        for key, path in outputs.items()
+    }
+    second = subprocess.run(command, text=True, capture_output=True)
+    assert second.returncode == 0, second.stderr
+    assert "ingested origin=" not in second.stdout
+    assert checksums == {
+        key: hashlib.sha256(path.read_bytes()).hexdigest()
+        for key, path in outputs.items()
+    }
 
 
 def candidate_rows(source_id: str, source_dataset: str, count: int) -> list[dict]:
@@ -216,7 +599,9 @@ def candidate_rows(source_id: str, source_dataset: str, count: int) -> list[dict
     return rows
 
 
-def run_review_packet(input_path: Path, output_dir: Path) -> tuple[Path, Path]:
+def run_review_packet(
+    input_path: Path, output_dir: Path, extra_args: list[str] | None = None
+) -> tuple[Path, Path]:
     requests = output_dir / "requests.jsonl"
     summary = output_dir / "summary.json"
     output_dir.mkdir()
@@ -230,13 +615,52 @@ def run_review_packet(input_path: Path, output_dir: Path) -> tuple[Path, Path]:
             str(requests),
             "--summary-out",
             str(summary),
+            *(extra_args or []),
         ],
         check=True,
     )
     return requests, summary
 
 
-def test_review_packet_uses_exact_100_200_strata_and_is_order_independent(tmp_path: Path) -> None:
+def test_postclean_packet_filters_exact_admission_decision(tmp_path: Path) -> None:
+    rows = candidate_rows("archetai", "keep-after-clean", 105) + candidate_rows(
+        "diavgeia", "already-included", 105
+    )
+    input_path = tmp_path / "candidates.jsonl"
+    write_jsonl(input_path, rows)
+    admission = {
+        "schema_version": "source_quality_review_admission_v1",
+        "pending_adjudications": 0,
+        "sources": [
+            {
+                "source_dataset": "keep-after-clean",
+                "decision": "include_after_cleaning",
+            },
+            {"source_dataset": "already-included", "decision": "include"},
+        ],
+    }
+    admission_path = tmp_path / "admission.json"
+    admission_path.write_text(json.dumps(admission))
+    _, summary_path = run_review_packet(
+        input_path,
+        tmp_path / "filtered",
+        [
+            "--source-admission",
+            str(admission_path),
+            "--decision",
+            "include_after_cleaning",
+            "--review-phase",
+            "post_clean",
+        ],
+    )
+    summary = json.loads(summary_path.read_text())
+    assert summary["review_phase"] == "post_clean"
+    assert [row["source_dataset"] for row in summary["sources"]] == ["keep-after-clean"]
+
+
+def test_review_packet_uses_exact_100_200_strata_and_is_order_independent(
+    tmp_path: Path,
+) -> None:
     default_rows = candidate_rows("archetai", "Exact Archetai Source", 121)
     default_rows[-1]["privateData"] = True
     large_rows = candidate_rows("diavgeia", "Exact Diavgeia Source", 220)
@@ -248,8 +672,12 @@ def test_review_packet_uses_exact_100_200_strata_and_is_order_independent(tmp_pa
 
     first_requests, first_summary = run_review_packet(first_input, tmp_path / "first")
     second_requests, _ = run_review_packet(second_input, tmp_path / "second")
-    first_records = [json.loads(line) for line in first_requests.read_text().splitlines()]
-    second_records = [json.loads(line) for line in second_requests.read_text().splitlines()]
+    first_records = [
+        json.loads(line) for line in first_requests.read_text().splitlines()
+    ]
+    second_records = [
+        json.loads(line) for line in second_requests.read_text().splitlines()
+    ]
     assert [record["review_id"] for record in first_records] == [
         record["review_id"] for record in second_records
     ]
@@ -272,7 +700,9 @@ def test_review_packet_uses_exact_100_200_strata_and_is_order_independent(tmp_pa
     assert summary["unique_sampled_documents"] == 300
 
 
-def review_response(request: dict, action: str = "include", confidence: str = "high") -> dict:
+def review_response(
+    request: dict, action: str = "include", confidence: str = "high"
+) -> dict:
     return {
         "schema_version": "source_quality_review_response_v1",
         "review_id": request["review_id"],
@@ -292,18 +722,26 @@ def review_response(request: dict, action: str = "include", confidence: str = "h
     }
 
 
-def test_review_aggregation_requires_adjudication_and_applies_cleaning_gate(tmp_path: Path) -> None:
+def test_review_aggregation_requires_adjudication_and_applies_cleaning_gate(
+    tmp_path: Path,
+) -> None:
     input_path = tmp_path / "input.jsonl"
     write_jsonl(input_path, candidate_rows("archetai", "Exact Archetai Source", 120))
     requests_path, summary_path = run_review_packet(input_path, tmp_path / "packet")
     requests = [json.loads(line) for line in requests_path.read_text().splitlines()]
-    cleaning_samples = {request["sample_id"] for request in requests if request["reviewer_slot"] == "primary"}
+    cleaning_samples = {
+        request["sample_id"]
+        for request in requests
+        if request["reviewer_slot"] == "primary"
+    }
     cleaning_samples = set(sorted(cleaning_samples)[:5])
     responses = [
         review_response(
             request,
             action=(
-                "include_after_cleaning" if request["sample_id"] in cleaning_samples else "include"
+                "include_after_cleaning"
+                if request["sample_id"] in cleaning_samples
+                else "include"
             ),
         )
         for request in requests
@@ -311,6 +749,21 @@ def test_review_aggregation_requires_adjudication_and_applies_cleaning_gate(tmp_
     reviews_path = tmp_path / "reviews.jsonl"
     write_jsonl(reviews_path, responses)
     output = tmp_path / "admission.json"
+    novelty_path = tmp_path / "novelty.json"
+    novelty_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "full_cpt_source_novelty_v1",
+                "near_duplicate_novelty_deferred_to_global_dedup": True,
+                "sources": [
+                    {
+                        "source_dataset": "Exact Archetai Source",
+                        "novel_token_fraction": 1.0,
+                    }
+                ],
+            }
+        )
+    )
     completed = subprocess.run(
         [
             sys.executable,
@@ -321,6 +774,8 @@ def test_review_aggregation_requires_adjudication_and_applies_cleaning_gate(tmp_
             str(summary_path),
             "--reviews",
             str(reviews_path),
+            "--novelty-summary",
+            str(novelty_path),
             "--output",
             str(output),
         ]
@@ -330,7 +785,9 @@ def test_review_aggregation_requires_adjudication_and_applies_cleaning_gate(tmp_
     assert source["decision"] == "include_after_cleaning"
     assert source["post_clean_review_required"] is True
 
-    secondary = next(request for request in requests if request["reviewer_slot"] == "secondary")
+    secondary = next(
+        request for request in requests if request["reviewer_slot"] == "secondary"
+    )
     for response in responses:
         if response["review_id"] == secondary["review_id"]:
             response["action"] = "exclude"
@@ -346,6 +803,8 @@ def test_review_aggregation_requires_adjudication_and_applies_cleaning_gate(tmp_
             str(summary_path),
             "--reviews",
             str(reviews_path),
+            "--novelty-summary",
+            str(novelty_path),
             "--output",
             str(output),
         ]

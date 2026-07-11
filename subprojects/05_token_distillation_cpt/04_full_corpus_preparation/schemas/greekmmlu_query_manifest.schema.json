@@ -16,22 +16,29 @@
     "queries_path",
     "queries_sha256",
     "query_rows",
-    "observed_splits"
+    "observed_splits",
+    "registry_path",
+    "registry_sha256",
+    "registry_schema",
+    "registry_benchmark_spec",
+    "builder_summary_path",
+    "builder_summary_sha256",
+    "builder_summary_schema"
   ],
   "properties": {
     "schema_version": {"const": "greekmmlu_query_manifest_v1"},
     "created_at": {"type": "string"},
     "benchmark_id": {"const": "greekmmlu"},
     "dataset_repo_id": {"const": "dascim/GreekMMLU"},
-    "dataset_revision": {"type": "string", "pattern": "^[0-9a-f]{7,64}$"},
-    "dataset_config": {"type": ["string", "null"]},
+    "dataset_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "dataset_config": {"const": "All"},
     "required_splits": {
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
       "items": {"type": "string", "minLength": 1}
     },
-    "default_split": {"type": "string"},
+    "default_split": {"const": ""},
     "queries_path": {"type": "string", "minLength": 1},
     "queries_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "query_rows": {"type": "integer", "minimum": 1},
@@ -41,7 +48,23 @@
       "uniqueItems": true,
       "items": {"type": "string", "minLength": 1}
     },
-    "registry_path": {"type": ["string", "null"]},
-    "registry_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+    "registry_path": {"type": "string", "minLength": 1},
+    "registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "registry_schema": {"const": "native-greek-eval-registry-v1"},
+    "registry_benchmark_spec": {
+      "type": "object",
+      "required": ["id", "source_type", "source", "revision", "config", "split"],
+      "properties": {
+        "id": {"const": "greekmmlu"},
+        "source_type": {"const": "hf_dataset"},
+        "source": {"const": "dascim/GreekMMLU"},
+        "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "config": {"const": "All"},
+        "split": {"const": "test"}
+      }
+    },
+    "builder_summary_path": {"type": "string", "minLength": 1},
+    "builder_summary_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "builder_summary_schema": {"const": "greek-mcq-decontam-query-summary-v1"}
   }
 }

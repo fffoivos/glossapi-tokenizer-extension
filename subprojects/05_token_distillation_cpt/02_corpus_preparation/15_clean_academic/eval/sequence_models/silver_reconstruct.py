@@ -23,12 +23,20 @@ from .contract import (
     validate_silver,
 )
 from .evaluate import read_predictions
+from .span_rehydration import (
+    inspect_span_snapshot,
+    rehydrate_span_units,
+    verify_rehydration_receipt,
+)
 
 HERE = Path(__file__).resolve().parent
 EVAL_DIR = HERE.parent
 LINE_RE = re.compile(r"^L(\d+):\s?(.*)$")
 TOKENIZER_SHA256 = "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394"
 TOKENIZER_REVISION = "a4826df7f76b54cdd6dc21d09fe97283c466999b"
+SPAN_MANIFEST = EVAL_DIR / "units" / "SPAN_manifest.jsonl"
+SPAN_BATCHPATHS = EVAL_DIR / "units" / "SPAN_batchpaths.json"
+SPAN_REHYDRATION_LAYOUT = HERE / "span_rehydration_layout.json"
 
 
 def _load_json(path: Path) -> Any:
@@ -276,8 +284,12 @@ def audit_tracked() -> dict[str, Any]:
             name: sha256_file(EVAL_DIR / name) for name in reconstruction_scripts
         },
         "legacy_struct_2k": {
-            "gold_path": "units/STRUCT_2K_gold.jsonl",
-            "gold_present": (units / "STRUCT_2K_gold.jsonl").is_file(),
+            "historical_raw_path": "units/STRUCT_2K_gold.jsonl",
+            "evidence_status": "LLM_silver_despite_historical_filename",
+            "task_scope": "bibliography_toc_windows",
+            "expected_document_count": 2000,
+            "raw_artifact_present": (units / "STRUCT_2K_gold.jsonl").is_file(),
+            "new_annotation_proposed": False,
             "run_directory": "units/STRUCT_2K",
             "run_directory_present": (units / "STRUCT_2K").is_dir(),
             "required_for_bib_toc_reconstruction": [
@@ -328,6 +340,43 @@ def _line_rows(text_numbered: str) -> list[tuple[int, str]]:
     return rows
 
 
+def _validate_annotation_coordinate_alignment(
+    unit_id: str,
+    meta: Mapping[str, Any],
+    annotation: Mapping[str, Any],
+    unit: Mapping[str, Any],
+) -> int:
+    line_rows = _line_rows(str(unit["text_numbered"]))
+    coordinates = [index for index, _ in line_rows]
+    if not coordinates or coordinates != sorted(set(coordinates)):
+        raise ValueError(f"{unit_id}: numbered text coordinates are empty, duplicate, or unordered")
+    lo, hi = int(meta["win_lo"]), int(meta["win_hi"])
+    if coordinates[0] < lo or coordinates[-1] >= hi:
+        raise ValueError(f"{unit_id}: numbered text coordinates escape manifest window [{lo}, {hi})")
+    coordinate_set = set(coordinates)
+    spans = annotation.get("spans", [])
+    if not isinstance(spans, list):
+        raise ValueError(f"{unit_id}: annotation spans must be a list")
+    has_bib = annotation.get("has_bib")
+    if has_bib is True and not spans:
+        raise ValueError(f"{unit_id}: has_bib=true but no spans are present")
+    if has_bib is False and spans:
+        raise ValueError(f"{unit_id}: has_bib=false but spans are present")
+    for span_index, span in enumerate(spans):
+        if not isinstance(span, Mapping):
+            raise ValueError(f"{unit_id}: span {span_index} must be an object")
+        start, end = int(span["start_line"]), int(span["end_line"])
+        if not (lo <= start <= end < hi):
+            raise ValueError(
+                f"{unit_id}: annotation span {start}..{end} escapes manifest window [{lo}, {hi})"
+            )
+        if start not in coordinate_set or end not in coordinate_set:
+            raise ValueError(
+                f"{unit_id}: annotation boundary {start}..{end} is absent from rehydrated text"
+            )
+    return len(spans)
+
+
 @dataclass
 class SilverDraft:
     upstream_doc_id: str
@@ -362,12 +411,31 @@ def _token_counts(tokenizer: ExactTokenizer, texts: Sequence[str]) -> list[int]:
 def hydrate_span(args: argparse.Namespace) -> int:
     _require_new_outputs(args.output, args.split_manifest, args.receipt)
     config = _load_json(Path(args.config))
-    manifest_rows = _jsonl(EVAL_DIR / "units" / "SPAN_manifest.jsonl")
+    manifest_rows = _jsonl(SPAN_MANIFEST)
     manifest = {row["unit_id"]: row for row in manifest_rows}
     annotations = {
         row["unit_id"]: row for row in _annotation_family(EVAL_DIR / "annotations_span" / "all.json")
     }
-    expected = _load_json(EVAL_DIR / "units" / "SPAN_batchpaths.json")
+    expected = _load_json(SPAN_BATCHPATHS)
+    if args.unit_rehydration_receipt:
+        unit_snapshot = verify_rehydration_receipt(
+            args.unit_dir,
+            args.unit_rehydration_receipt,
+            SPAN_MANIFEST,
+            SPAN_BATCHPATHS,
+            args.unit_layout,
+        )
+    else:
+        unit_snapshot = {
+            "receipt_path": None,
+            "receipt_sha256": None,
+            "snapshot_artifact_sha256": None,
+            "snapshot_equivalence_status": "unreceipted_external_unit_directory",
+            "snapshot_equivalence_verified": False,
+            "research_fit_eligible": False,
+            "research_evidence_scope": "none",
+            "production_eligible": False,
+        }
     units = _load_units(Path(args.unit_dir), expected)
     missing_annotation = sorted(set(manifest) - set(annotations))
     joined = sorted(set(manifest) & set(annotations) & set(units))
@@ -377,6 +445,7 @@ def hydrate_span(args: argparse.Namespace) -> int:
             f"extra={len(set(units)-set(manifest))}"
         )
     drafts: dict[tuple[str, str], SilverDraft] = {}
+    aligned_span_count = 0
     for unit_id in joined:
         meta = manifest[unit_id]
         annotation = annotations[unit_id]
@@ -387,6 +456,9 @@ def hydrate_span(args: argparse.Namespace) -> int:
         ))
         draft.n_physical_lines = max(draft.n_physical_lines, int(meta["win_hi"]))
         draft.annotation_units.append(unit_id)
+        aligned_span_count += _validate_annotation_coordinate_alignment(
+            unit_id, meta, annotation, units[unit_id]
+        )
         for abs_idx, text in _line_rows(units[unit_id]["text_numbered"]):
             previous = draft.lines.setdefault(abs_idx, text)
             if previous != text:
@@ -447,16 +519,31 @@ def hydrate_span(args: argparse.Namespace) -> int:
     for row in rows:
         row["split"] = split_manifest["assignments"][row["document_id"]]
     split_path = Path(args.split_manifest)
-    receipt, gold_sha256 = _atomic_validated_silver(
+    receipt, silver_sha256 = _atomic_validated_silver(
         Path(args.output), rows, config["silver_contract"], split_manifest
     )
     receipt.update({
-        "gold_sha256": gold_sha256,
+        "silver_sha256": silver_sha256,
         "missing_annotation_unit_ids": missing_annotation,
-        "source_manifest_sha256": sha256_file(EVAL_DIR / "units" / "SPAN_manifest.jsonl"),
+        "source_manifest_sha256": sha256_file(SPAN_MANIFEST),
         "source_batches_inventory_sha256": canonical_json_sha256(
             sorted((path.name, sha256_file(path)) for path in Path(args.unit_dir).glob("batch_*.json"))
         ),
+        "source_unit_snapshot": unit_snapshot,
+        "sequence_fit_eligible": unit_snapshot["research_fit_eligible"],
+        "sequence_evidence_scope": unit_snapshot["research_evidence_scope"],
+        "annotation_coordinate_alignment": {
+            "status": "verified",
+            "unit_count": len(joined),
+            "span_count": aligned_span_count,
+            "checks": [
+                "numbered coordinates unique and ordered",
+                "coordinates contained by manifest win_lo/win_hi",
+                "span bounds contained by manifest window",
+                "span start/end present in rehydrated nonempty-line coordinates",
+            ],
+        },
+        "production_eligible": False,
     })
     _write_json(split_path, split_manifest)
     receipt["split_manifest_sha256"] = sha256_file(split_path)
@@ -538,11 +625,11 @@ def import_legacy(args: argparse.Namespace) -> int:
                 "lines": lines,
             }
 
-    receipt, gold_sha256 = _atomic_validated_silver(
+    receipt, silver_sha256 = _atomic_validated_silver(
         Path(args.output), converted_rows(), config["silver_contract"], split_manifest
     )
     receipt.update({
-        "gold_sha256": gold_sha256,
+        "silver_sha256": silver_sha256,
         "legacy_input_sha256": legacy_sha256,
     })
     _write_json(Path(args.split_manifest), split_manifest)
@@ -588,15 +675,41 @@ def false_deletion_packet(args: argparse.Namespace) -> int:
                     "manual_is_running_prose": None,
                     "reviewer_note": "",
                 })
-    chosen = []
+    ranked: dict[str, list[dict[str, Any]]] = {}
     for source, rows in sorted(per_source.items()):
         rows.sort(key=lambda row: (-row["token_count"], _hash(args.seed, row["document_id"], row["abs_idx"])))
-        chosen.extend(rows[:args.per_source])
+        ranked[source] = rows
+    available = sum(len(rows) for rows in ranked.values())
+    if available < args.total:
+        raise ValueError(
+            f"only {available} high-risk predicted removals are available; "
+            f"the deployment audit requires exactly {args.total}"
+        )
+    chosen: list[dict[str, Any]] = []
+    offsets = {source: 0 for source in ranked}
+    while len(chosen) < args.total:
+        progressed = False
+        for source in sorted(ranked):
+            offset = offsets[source]
+            if offset < len(ranked[source]) and len(chosen) < args.total:
+                chosen.append(ranked[source][offset])
+                offsets[source] += 1
+                progressed = True
+        if not progressed:  # guarded by the aggregate availability check
+            raise RuntimeError("source-balanced audit selection stalled")
     _atomic_write(
         Path(args.output),
         "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in chosen).encode(),
     )
-    print(json.dumps({"rows": len(chosen), "by_source": dict(collections.Counter(r["source"] for r in chosen))}))
+    print(json.dumps({
+        "schema_version": "academic-structure-targeted-false-deletion-packet-receipt-v1",
+        "rows": len(chosen),
+        "required_rows": args.total,
+        "by_source": dict(collections.Counter(r["source"] for r in chosen)),
+        "output_sha256": sha256_file(args.output),
+        "manual_review_complete": False,
+        "production_eligible": False,
+    }, sort_keys=True))
     return 0
 
 
@@ -607,6 +720,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     audit.add_argument("--output")
     hydrate = sub.add_parser("hydrate-span")
     hydrate.add_argument("--unit-dir", required=True)
+    hydrate.add_argument(
+        "--unit-rehydration-receipt",
+        help="receipt from rehydrate-span-units; receipted snapshots are silver-fit eligible even when historical equivalence is unverified",
+    )
+    hydrate.add_argument("--unit-layout", default=str(SPAN_REHYDRATION_LAYOUT))
     hydrate.add_argument("--tokenizer-json", required=True)
     hydrate.add_argument("--config", default=str(HERE / "config.json"))
     hydrate.add_argument("--output", required=True)
@@ -623,8 +741,34 @@ def main(argv: Sequence[str] | None = None) -> int:
     packet.add_argument("--silver", required=True)
     packet.add_argument("--predictions", required=True)
     packet.add_argument("--output", required=True)
-    packet.add_argument("--per-source", type=int, default=25)
+    packet.add_argument("--total", type=int, choices=(100,), default=100)
     packet.add_argument("--seed", default="silver-high-risk-v1")
+    rehydrate = sub.add_parser(
+        "rehydrate-span-units",
+        help="rebuild missing text-only SPAN batches from receipt-bound source artifacts",
+    )
+    rehydrate.add_argument("--manifest", default=str(SPAN_MANIFEST))
+    rehydrate.add_argument("--batchpaths", default=str(SPAN_BATCHPATHS))
+    rehydrate.add_argument("--layout", default=str(SPAN_REHYDRATION_LAYOUT))
+    rehydrate.add_argument("--source-artifacts", required=True)
+    rehydrate.add_argument("--output-dir", required=True)
+    rehydrate.add_argument("--receipt", required=True)
+    rehydrate.add_argument(
+        "--expected-artifact-sha256",
+        help="explicit expected span-unit-snapshot-artifact-v1 SHA-256; mismatch fails atomically",
+    )
+    rehydrate.add_argument(
+        "--reference-unit-dir",
+        help="optional original snapshot for byte/unit comparison only; never supplies labels",
+    )
+    snapshot = sub.add_parser(
+        "span-snapshot-digest",
+        help="validate an existing batch directory and calculate its artifact SHA-256",
+    )
+    snapshot.add_argument("--unit-dir", required=True)
+    snapshot.add_argument("--manifest", default=str(SPAN_MANIFEST))
+    snapshot.add_argument("--batchpaths", default=str(SPAN_BATCHPATHS))
+    snapshot.add_argument("--layout", default=str(SPAN_REHYDRATION_LAYOUT))
     args = parser.parse_args(argv)
     if args.command == "audit":
         report = audit_tracked()
@@ -637,6 +781,28 @@ def main(argv: Sequence[str] | None = None) -> int:
         return hydrate_span(args)
     if args.command == "import-legacy":
         return import_legacy(args)
+    if args.command == "rehydrate-span-units":
+        receipt = rehydrate_span_units(
+            manifest_path=args.manifest,
+            batchpaths_path=args.batchpaths,
+            layout_path=args.layout,
+            source_receipt_path=args.source_artifacts,
+            output_dir=args.output_dir,
+            receipt_path=args.receipt,
+            expected_artifact_sha256=args.expected_artifact_sha256,
+            reference_unit_dir=args.reference_unit_dir,
+        )
+        print(json.dumps(receipt, ensure_ascii=False, sort_keys=True))
+        return 0
+    if args.command == "span-snapshot-digest":
+        inspection = inspect_span_snapshot(
+            unit_dir=args.unit_dir,
+            manifest_path=args.manifest,
+            batchpaths_path=args.batchpaths,
+            layout_path=args.layout,
+        )
+        print(json.dumps(inspection, ensure_ascii=False, sort_keys=True, indent=2))
+        return 0
     return false_deletion_packet(args)
 
 

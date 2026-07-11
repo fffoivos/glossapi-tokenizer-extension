@@ -32,21 +32,13 @@
     "production_fallback": "no_op",
     "required_manual_audit": "targeted_high_risk_false_deletions"
   },
-  "gold_contract": {
-    "schema_version": "academic-structure-gold-v1",
-    "required_sources": [
-      "openarchives.gr",
-      "greek_phd",
-      "Apothetirio_Kallipos",
-      "Apothetirio_Pergamos"
-    ],
-    "minimum_test_documents": 600,
-    "minimum_test_documents_per_source": 150,
-    "minimum_double_annotated_fraction": 0.2,
-    "test_annotation_status": "human_adjudicated",
-    "test_coverage": "full_document",
-    "require_token_counts": true,
-    "require_split_manifest": true
+  "deployment_safety_audit": {
+    "schema_version": "academic-structure-targeted-false-deletion-audit-v1",
+    "required_review_count": 100,
+    "maximum_catastrophic_false_deletions": 0,
+    "selection": "highest-risk predicted removals, source-balanced and receipt-bound",
+    "automatic_adjudication_forbidden": true,
+    "required_in_addition_to_metric_gates": true
   },
   "split": {
     "seed": "academic-structure-v1-20260711",
@@ -113,10 +105,9 @@
   "calibration": {
     "split": "validation",
     "deletion_bias_grid": [0.0, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0],
-    "minimum_deletion_token_precision": 0.99,
-    "maximum_prose_token_contamination": 0.001
+    "objective": "agreement_with_LLM_silver_only; safety calibration is deferred to the deployment audit"
   },
-  "promotion_gates": {
+  "deployment_gates": {
     "bootstrap_replicates": 10000,
     "bootstrap_seed": 1729,
     "minimum_deletion_token_precision": 0.99,

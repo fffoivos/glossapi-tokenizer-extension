@@ -3,14 +3,25 @@
   "status": "audit_only",
   "approved_at": null,
   "validation": {
-    "structural_gold_sha256": null,
-    "required_heldout_documents": 608,
+    "structural_parity_corpus_sha256": null,
+    "structural_parity_evidence": "LLM_silver",
+    "structural_application_receipt_required": true,
+    "required_model_evidence": "LLM_silver",
+    "required_safety_evidence": "targeted_manual_false_deletion_audit",
+    "required_parity_documents": 608,
     "maximum_probability_delta": 0.001,
     "require_identical_decoded_spans": true
   },
   "structural": {
     "model": "two_head_line_lr",
     "allowed_apply_profiles": ["academic_ocr", "academic_sectioned"],
+    "application_gates": {
+      "evidence": "targeted_manual_false_deletion_audit",
+      "minimum_reviewed_deletions": 100,
+      "maximum_running_prose_deletion_rate": 0.001,
+      "minimum_main_text_retention_rate": 0.999,
+      "maximum_catastrophic_document_deletion_rate": 0.0
+    },
     "bibliography": {
       "enabled_for_materialization": false,
       "prose_protection_floor": 0.999,
@@ -35,16 +46,16 @@
   "diavgeia": {
     "academic_structural_cleaner": "disabled",
     "digital_signature_footer": "audit_only",
-    "private_data_true": "exclude_pending_token_report",
-    "structured_pii": "audit_only",
-    "personnel_tables": "quarantine_audit",
-    "template_clusters": "audit_only",
+    "private_data_true": "drop_before_training",
+    "structured_pii": "validated_high_confidence_masking",
+    "personnel_tables": "quarantine_when_pii_heavy",
+    "template_clusters": "source_review_variability_gate",
     "preserve_legal_citations": true
   },
   "global": {
     "post_clean_exact_dedup": true,
     "post_clean_near_dedup": "audit_then_apply",
-    "greekmmlu_decontamination": "correct_only_plus_short_question_fallback",
+    "greekmmlu_decontamination": "high_confidence_exact_or_aligned_question_answer_only",
     "pii_masking": "high_confidence_direct_identifiers",
     "generic_person_name_ner": false
   }

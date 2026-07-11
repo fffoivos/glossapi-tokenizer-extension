@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "full_cpt_release_validation.schema.json",
+  "title": "Full CPT release validation receipt",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "integrity_contract_version",
+    "completed_at",
+    "status",
+    "release",
+    "release_manifest",
+    "release_manifest_sha256",
+    "upstream_manifests",
+    "source_license_adjudication",
+    "dedup_decisions",
+    "dedup_decisions_sha256",
+    "publication_inventory",
+    "publication_metadata_inventory",
+    "checks",
+    "failed_checks"
+  ],
+  "properties": {
+    "schema_version": {"const": "full_cpt_release_validation_v1"},
+    "integrity_contract_version": {"const": "full_cpt_release_integrity_v1"},
+    "completed_at": {"type": "string", "minLength": 1},
+    "status": {"enum": ["passed", "failed"]},
+    "release": {"type": "string", "minLength": 1},
+    "release_manifest": {"type": "string", "minLength": 1},
+    "release_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "dedup_decisions": {"type": "string", "minLength": 1},
+    "dedup_decisions_sha256": {"$ref": "#/$defs/sha256"},
+    "upstream_manifests": {"type": "object", "required": ["cleaning", "decontamination", "dedup"]},
+    "source_license_adjudication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "schema_version", "status", "audited_at"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "schema_version": {"const": "full_cpt_source_license_adjudication_v1"},
+        "status": {"const": "technical_audit_complete"},
+        "audited_at": {"type": "string", "format": "date"}
+      }
+    },
+    "publication_inventory": {
+      "type": "object",
+      "required": ["root", "files", "bytes", "rows"],
+      "properties": {
+        "root": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 0},
+        "rows": {"type": "integer", "minimum": 0},
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["path", "remote_path", "sha256", "bytes", "rows"],
+            "properties": {
+              "path": {"type": "string", "pattern": "^[^/].*\\.parquet$"},
+              "remote_path": {"type": "string", "pattern": "^data/.+\\.parquet$"},
+              "sha256": {"$ref": "#/$defs/sha256"},
+              "bytes": {"type": "integer", "minimum": 0},
+              "rows": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      }
+    },
+    "publication_metadata_inventory": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "remote_path", "sha256", "bytes"],
+        "properties": {
+          "path": {"const": "publication/README.md"},
+          "remote_path": {"const": "README.md"},
+          "sha256": {"$ref": "#/$defs/sha256"},
+          "bytes": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "passed", "observed", "expected"],
+        "properties": {"name": {"type": "string"}, "passed": {"type": "boolean"}}
+      }
+    },
+    "failed_checks": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "passed"}}},
+      "then": {"properties": {"failed_checks": {"maxItems": 0}}}
+    }
+  ],
+  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

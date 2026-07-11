@@ -1,11 +1,18 @@
 # Full-corpus decontamination, deduplication and release
 
-These stages operate on Clariden CPU nodes after `apply_cleaning_policy.py`.
-They stream Parquet row groups, use DuckDB spill for global joins and never
-load the roughly 170 GB corpus into memory. Bibliography/ToC spans have already
-been applied by the cleaner at this point, so the order is:
+These stages operate on the CPU side of Clariden `normal` nodes after Stage50
+source/PII cleaning and terminal source admission. They stream Parquet row
+groups, use DuckDB spill for global joins and never load the roughly 170 GB
+corpus into memory. Stage58 always runs before them: it either applies
+pre-authorized, Stage54-promoted bibliography/ToC spans last or records an
+explicit no-op and copies Stage50 text. The current `audit_only` policy takes
+the no-op path. Ordinary cleaning chains stop after Stage50 or the optional
+post-clean admission review. A separate, confirmed `chain-finalize-noop` or
+`chain-finalize-promoted` command freezes the finalization choice and only then
+submits the downstream order:
 
-1. cleaning, PII masking and optional approved ToC/bibliography spans;
+1. Stage50 source/PII cleaning, optional post-clean source review, then the
+   separately confirmed, required structural-last Stage58;
 2. GreekMMLU decontamination;
 3. existing GlossAPI exact/near deduplication;
 4. release materialization, exact token waterfall and validation;
@@ -15,9 +22,10 @@ been applied by the cleaner at this point, so the order is:
 
 Build the canonical query JSONL with the existing
 `02_corpus_preparation/30_decontaminate/scripts/build_decontamination_queries.py`
-tool. Every row must expose `question`, choices, the correct answer and a split,
-or the whole file must have a frozen `--default-split`. Then bind it to the
-immutable Hugging Face dataset commit:
+tool. Every GreekMMLU row must carry its query schema, exact repository,
+configuration, immutable revision, example ID and split. Then bind both the
+query bytes and builder summary to the tracked registry and immutable
+Hugging Face dataset commit:
 
 ```bash
 python scripts/freeze_greekmmlu_queries.py \
@@ -25,14 +33,14 @@ python scripts/freeze_greekmmlu_queries.py \
   --output "$RUN/queries/greekmmlu.jsonl.manifest.json" \
   --dataset-revision "$GREEKMMLU_COMMIT" \
   --required-split test \
-  --default-split test \
-  --registry "$REPO/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/native_greek_benchmark_registry.json"
+  --registry "$REPO/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/native_greek_benchmark_registry.json" \
+  --builder-summary "$RUN/queries/build-summary.json"
 ```
 
 `decontaminate_full_corpus.py` fails closed if that sidecar is missing, the
-query checksum drifts, the dataset revision is mutable or a required split is
-absent. A manifest may include both train and test in `required_splits`; all
-listed splits are normalized and indexed.
+query checksum drifts, the dataset revision is not a full commit, the registry
+or builder summary differs, or the observed split is not exactly the tracked
+GreekMMLU split.
 
 ## Decontaminate
 
@@ -81,7 +89,10 @@ Use `--stage-only` only to inspect the immutable staged contract.
 ```bash
 python scripts/materialize_release.py \
   --input "$RUN/decontaminated" \
-  --dedup-decisions "$RUN/dedup_run/final/dedup_decisions.parquet" \
+  --cleaning-manifest "$RUN/manifests/cleaning.json" \
+  --decontamination-manifest "$RUN/manifests/decontamination.json" \
+  --dedup-manifest "$RUN/manifests/dedup.json" \
+  --dedup-decisions "$RUN/dedup_run/final/dedup_decisions_content_bound.parquet" \
   --output "$RUN/release" \
   --manifest "$RUN/manifests/release.json" \
   --token-waterfall "$RUN/manifests/token_waterfall.json" \
@@ -93,7 +104,10 @@ python scripts/materialize_release.py \
 python scripts/validate_release.py \
   --release "$RUN/release" \
   --manifest "$RUN/manifests/release.json" \
-  --dedup-decisions "$RUN/dedup_run/final/dedup_decisions.parquet" \
+  --cleaning-manifest "$RUN/manifests/cleaning.json" \
+  --decontamination-manifest "$RUN/manifests/decontamination.json" \
+  --dedup-manifest "$RUN/manifests/dedup.json" \
+  --dedup-decisions "$RUN/dedup_run/final/dedup_decisions_content_bound.parquet" \
   --output "$RUN/manifests/release_validation.json" \
   --temporary-directory "$RUN/duckdb_tmp" \
   --threads 32
@@ -106,11 +120,13 @@ relaxed exact and near dedup. Its final count must equal the token mass of kept
 dedup decisions.
 
 The release contains two disjoint views. `training/data` includes every
-training-eligible dedup survivor. `redistribution/data` is the subset also
-approved for redistribution and excludes raw source metadata and author
-columns. Validation rehashes every file and gates duplicate stable IDs, exact
-cleaned-text hashes, text/hash drift, missing provenance, eligibility leaks,
-dedup join coverage and the redistribution subset relation.
+training-eligible dedup survivor. `redistribution/data` is an explicit public
+allowlist for survivors also approved for redistribution. Titles, authors, raw
+metadata and raw upstream IDs never pass through; selected upstream IDs are
+replaced by domain-separated hashes. Validation rehashes every file and proves
+both directions of public/private completeness plus exact content, safe
+provenance, eligibility and hashed-metadata parity. It also independently
+rechecks every content-bound dedup decision against the decontaminated input.
 
 ## Gated publication
 
@@ -122,12 +138,29 @@ python scripts/publish_release.py \
   --release "$RUN/release" \
   --release-manifest "$RUN/manifests/release.json" \
   --validation-receipt "$RUN/manifests/release_validation.json" \
-  --repo-id fffoivos/glossapi-greek-cpt-full-corpus-v2
+  --repo-id fffoivos/glossapi-greek-cpt-redistributable-delta-v2 \
+  --output "$RUN/manifests/publication-dry-run.json"
 
 HF_TOKEN="$HF_TOKEN" python scripts/publish_release.py \
   --release "$RUN/release" \
   --release-manifest "$RUN/manifests/release.json" \
   --validation-receipt "$RUN/manifests/release_validation.json" \
-  --repo-id fffoivos/glossapi-greek-cpt-full-corpus-v2 \
-  --gate-mode manual --execute
+  --repo-id fffoivos/glossapi-greek-cpt-redistributable-delta-v2 \
+  --gate-mode manual \
+  --remote-mode new-empty \
+  --output "$RUN/manifests/publication.json" \
+  --execute
 ```
+
+The publisher rejects symlinks, unvalidated files, local checksum drift, and a
+token waterfall whose current hash differs from the release manifest. Any
+remote payload, including a partial upload from a failed attempt, fails with an
+instruction to inspect and delete/recreate the repository manually or choose a
+new empty repository. The temporary uploader cache is discarded and the
+publisher performs no automatic resume or remote cleanup. The exact remote inventory
+is the generated, checksum-bound `README.md`, validated `data/**/*.parquet`, and
+the explicit provenance receipts. It verifies every remote path/size/SHA-256 at
+the returned Hugging Face commit and records that commit in the immutable
+publication receipt. This repository is the redistributable delta only, not the
+full private training corpus. See `docs/release_integrity.md` for the full
+contract and schema links.

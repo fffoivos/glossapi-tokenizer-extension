@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "full_cpt_release_manifest.schema.json",
+  "title": "Full CPT release manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "integrity_contract_version",
+    "completed_at",
+    "input",
+    "upstream_manifests",
+    "dedup_decisions",
+    "dedup_decisions_sha256",
+    "token_waterfall",
+    "token_waterfall_sha256",
+    "source_license_adjudication",
+    "output",
+    "training_root",
+    "redistribution_root",
+    "dataset_card",
+    "redistribution_sources",
+    "redistribution_policy",
+    "materialization",
+    "input_gates",
+    "counts",
+    "files"
+  ],
+  "properties": {
+    "schema_version": {"const": "full_cpt_release_manifest_v1"},
+    "integrity_contract_version": {"const": "full_cpt_release_integrity_v1"},
+    "completed_at": {"type": "string", "minLength": 1},
+    "input": {"type": "string", "minLength": 1},
+    "output": {"type": "string", "minLength": 1},
+    "training_root": {"const": "training/data"},
+    "redistribution_root": {"const": "redistribution/data"},
+    "dataset_card": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "remote_path", "sha256", "bytes"],
+      "properties": {
+        "path": {"const": "publication/README.md"},
+        "remote_path": {"const": "README.md"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "bytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "redistribution_sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_id", "repo_id", "revision", "rows"],
+        "properties": {
+          "source_id": {"type": "string", "minLength": 1},
+          "repo_id": {"type": "string", "minLength": 3},
+          "revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
+          "rows": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "dedup_decisions": {"type": "string", "minLength": 1},
+    "dedup_decisions_sha256": {"$ref": "#/$defs/sha256"},
+    "token_waterfall": {"type": "string", "minLength": 1},
+    "token_waterfall_sha256": {"$ref": "#/$defs/sha256"},
+    "source_license_adjudication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "schema_version", "status", "audited_at"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "schema_version": {"const": "full_cpt_source_license_adjudication_v1"},
+        "status": {"const": "technical_audit_complete"},
+        "audited_at": {"type": "string", "format": "date"}
+      }
+    },
+    "upstream_manifests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cleaning", "decontamination", "dedup"],
+      "properties": {
+        "cleaning": {"$ref": "#/$defs/manifestReceipt"},
+        "decontamination": {"$ref": "#/$defs/manifestReceipt"},
+        "dedup": {"$ref": "#/$defs/manifestReceipt"}
+      }
+    },
+    "redistribution_policy": {
+      "type": "object",
+      "required": [
+        "policy_version",
+        "mode",
+        "requires_eligible_for_training",
+        "requires_eligible_for_redistribution",
+        "shared_columns",
+        "hashed_columns",
+        "public_columns",
+        "dropped_columns",
+        "always_forbidden_columns"
+      ],
+      "properties": {
+        "policy_version": {"const": "full_cpt_public_metadata_v1"},
+        "mode": {"const": "explicit_allowlist_with_domain_separated_hashes"},
+        "requires_eligible_for_training": {"const": true},
+        "requires_eligible_for_redistribution": {"const": true},
+        "shared_columns": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "hashed_columns": {"type": "object", "additionalProperties": {"type": "string"}},
+        "public_columns": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "dropped_columns": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "always_forbidden_columns": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "materialization": {
+      "type": "object",
+      "required": [
+        "dedup_decisions_materialized_once",
+        "resume_contract",
+        "resumed",
+        "join_identity",
+        "decision_content_binding"
+      ],
+      "properties": {
+        "dedup_decisions_materialized_once": {"const": true},
+        "resume_contract": {"const": "full_cpt_materialization_checkpoint_v1"},
+        "resumed": {"type": "boolean"},
+        "join_identity": {"type": "array", "minItems": 2, "items": {"type": "string"}},
+        "decision_content_binding": {"const": "input_text_sha256=cleaned_text_sha256=sha256(text)"}
+      }
+    },
+    "counts": {
+      "type": "object",
+      "required": ["training_rows", "redistribution_rows"],
+      "properties": {
+        "training_rows": {"type": "integer", "minimum": 0},
+        "redistribution_rows": {"type": "integer", "minimum": 0}
+      }
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["input", "training", "redistribution"],
+        "properties": {
+          "input": {"type": "string", "minLength": 1},
+          "training": {"$ref": "#/$defs/fileReceipt"},
+          "redistribution": {"$ref": "#/$defs/fileReceipt"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "manifestReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "schema_version", "completed_at"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "schema_version": {"type": "string", "minLength": 1},
+        "completed_at": {"type": "string", "minLength": 1}
+      }
+    },
+    "fileReceipt": {
+      "type": "object",
+      "required": ["path", "sha256", "bytes", "rows", "row_groups"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "bytes": {"type": "integer", "minimum": 0},
+        "rows": {"type": "integer", "minimum": 0},
+        "row_groups": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

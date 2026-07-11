@@ -8,6 +8,9 @@ REPO_ROOT=$(git -C "$PHASE04_DIR" rev-parse --show-toplevel)
 ACADEMIC_DIR="$REPO_ROOT/subprojects/05_token_distillation_cpt/02_corpus_preparation/15_clean_academic"
 
 python3 "$PHASE04_DIR/scripts/validate_configs.py"
+python3 "$PHASE04_DIR/scripts/validate_source_license_adjudication.py" \
+    --sources "$SOURCE_CONFIG" \
+    --adjudication "$SOURCE_LICENSE_ADJUDICATION"
 python3 -m compileall -q "$PHASE04_DIR/scripts" "$PHASE04_DIR/clariden" "$ACADEMIC_DIR/driver"
 
 while IFS= read -r shell_file; do

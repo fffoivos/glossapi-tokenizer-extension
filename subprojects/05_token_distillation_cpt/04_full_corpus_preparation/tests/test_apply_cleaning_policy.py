@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 import subprocess
 import sys
@@ -72,9 +73,9 @@ def canonical_row(**updates):
         "ocr_success": True,
         "is_historical_or_polytonic": False,
         "source_family_id": "demo",
-        "acquisition_source_id": "demo",
-        "source_repo_id": "owner/demo",
-        "source_revision": "rev",
+        "acquisition_source_id": "eellak_articles",
+        "source_repo_id": "glossAPI/eellak-articles",
+        "source_revision": "59fd681c483e6bdcdabe7c1a1f8685c5eebf7883",
         "source_artifact_path": "data.parquet",
         "source_row_id": "data.parquet:0:0",
         "source_text_field": "content",
@@ -92,6 +93,8 @@ def canonical_row(**updates):
         "source_role": "additive_candidate",
     }
     base.update(updates)
+    if "normalized_text_sha256" not in updates:
+        base["normalized_text_sha256"] = hashlib.sha256(base["text"].encode("utf-8")).hexdigest()
     return base
 
 

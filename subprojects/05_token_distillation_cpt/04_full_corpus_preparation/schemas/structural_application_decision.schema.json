@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "structural_application_decision.schema.json",
+  "title": "Validated structural application decision",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "requested_mode",
+    "apply_structural_requested",
+    "status",
+    "apply_structural",
+    "reason",
+    "stage50_cleaning_manifest_sha256",
+    "cleaning_policy_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": "full_cpt_structural_application_decision_v1"},
+    "requested_mode": {"enum": ["no_op", "apply"]},
+    "apply_structural_requested": {"type": "boolean"},
+    "status": {"enum": ["passed", "no_op"]},
+    "apply_structural": {"type": "boolean"},
+    "reason": {"type": "string", "minLength": 1},
+    "stage50_cleaning_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "cleaning_policy_sha256": {"$ref": "#/$defs/sha256"},
+    "model_receipt_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"requested_mode": {"const": "apply"}}},
+      "then": {
+        "properties": {
+          "apply_structural_requested": {"const": true},
+          "status": {"const": "passed"},
+          "apply_structural": {"const": true},
+          "model_receipt_sha256": {"$ref": "#/$defs/sha256"}
+        }
+      },
+      "else": {
+        "properties": {
+          "apply_structural_requested": {"const": false},
+          "status": {"const": "no_op"},
+          "apply_structural": {"const": false},
+          "model_receipt_sha256": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"apply_structural": {"const": true}}},
+      "then": {
+        "properties": {
+          "status": {"const": "passed"},
+          "model_receipt_sha256": {"$ref": "#/$defs/sha256"}
+        }
+      },
+      "else": {"properties": {"status": {"const": "no_op"}}}
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

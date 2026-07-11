@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "structural_finalization_request.schema.json",
+  "title": "Immutable operator-selected structural finalization request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "requested_mode",
+    "apply_structural_requested",
+    "model_receipt",
+    "model_receipt_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": "full_cpt_structural_finalization_request_v1"},
+    "requested_mode": {"enum": ["no_op", "apply"]},
+    "apply_structural_requested": {"type": "boolean"},
+    "model_receipt": {"type": ["string", "null"]},
+    "model_receipt_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"requested_mode": {"const": "apply"}}},
+      "then": {
+        "properties": {
+          "apply_structural_requested": {"const": true},
+          "model_receipt": {"type": "string", "minLength": 1},
+          "model_receipt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      },
+      "else": {
+        "properties": {
+          "apply_structural_requested": {"const": false},
+          "model_receipt": {"type": "null"},
+          "model_receipt_sha256": {"type": "null"}
+        }
+      }
+    }
+  ]
+}

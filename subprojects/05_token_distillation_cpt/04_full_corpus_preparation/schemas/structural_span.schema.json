@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "structural_span.schema.json",
+  "title": "Content-bound structural span JSONL row",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "stable_uid",
+    "input_text_sha256",
+    "stage50_cleaning_manifest_sha256",
+    "model_receipt_sha256",
+    "kind",
+    "char_start",
+    "char_end",
+    "rule_id"
+  ],
+  "properties": {
+    "stable_uid": {"$ref": "#/$defs/sha256"},
+    "input_text_sha256": {"$ref": "#/$defs/sha256"},
+    "stage50_cleaning_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "model_receipt_sha256": {"$ref": "#/$defs/sha256"},
+    "kind": {"enum": ["toc", "toc_span", "bibliography", "bib_span"]},
+    "char_start": {"type": "integer", "minimum": 0},
+    "char_end": {"type": "integer", "minimum": 1},
+    "rule_id": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

@@ -37,6 +37,10 @@ def tracked_inventory_config():
     return VALIDATE.load_json(HERE / "configs" / "post_december_inventory.json")
 
 
+def tracked_cleaning_policy():
+    return VALIDATE.load_json(HERE / "configs" / "cleaning_policy.json")
+
+
 EXPECTED_INITIAL_ROWS = {
     "1000_prwta_xronia_ellhnikhs": 418,
     "AI-team-UoA/greek_legal_code": 43525,
@@ -57,6 +61,20 @@ EXPECTED_INITIAL_ROWS = {
     "openbook_gr": 3374,
     "opengov.gr-diaboyleuseis": 1110,
 }
+
+
+def test_cleaning_policy_does_not_invent_human_gold_requirement() -> None:
+    policy = tracked_cleaning_policy()
+    assert VALIDATE.validate_policy(policy) == []
+    approved_nonstructural = copy.deepcopy(policy)
+    approved_nonstructural["status"] = "approved"
+    assert VALIDATE.validate_policy(approved_nonstructural) == []
+
+    enabled = copy.deepcopy(approved_nonstructural)
+    enabled["structural"]["toc"]["enabled_for_materialization"] = True
+    enabled["validation"]["structural_application_receipt_required"] = False
+    errors = VALIDATE.validate_policy(enabled)
+    assert any("requires an application receipt" in error for error in errors)
 
 
 def test_tracked_nanochat_initial_roster_is_exact_and_valid() -> None:
@@ -179,6 +197,41 @@ def test_source_registry_freezes_exact_source_name_provenance() -> None:
     errors = VALIDATE.validate_sources(mutated)
     assert any("source_column must remain source_dataset" in error for error in errors)
     assert any("must match the frozen contract" in error for error in errors)
+
+    mutated = copy.deepcopy(sources)
+    mutated["sources"][0]["required_text_columns"] = ["not_a_candidate"]
+    errors = VALIDATE.validate_sources(mutated)
+    assert any("required_text_columns must be a subset" in error for error in errors)
+
+
+def test_embedded_structural_routes_have_static_positive_coverage_proof() -> None:
+    sources, _ = tracked_configs()
+    roster, _ = tracked_lineage_configs()
+    assert VALIDATE.validate_embedded_route_roster_coverage(sources, roster) == []
+    assert all(
+        route["coverage_contract"]["minimum_normalized_rows"] >= 1
+        for route in sources["embedded_structural_routes"]
+    )
+
+    bad_glob = copy.deepcopy(sources)
+    bad_glob["embedded_structural_routes"][0]["acquisition_include_globs"] = [
+        "data/not-greek-phd*.parquet"
+    ]
+    assert any(
+        "acquisition globs miss frozen artifacts" in error
+        for error in VALIDATE.validate_embedded_route_roster_coverage(
+            bad_glob, roster
+        )
+    )
+
+    bad_regex = copy.deepcopy(sources)
+    bad_regex["embedded_structural_routes"][0]["source_regex"] = "^absent$"
+    assert any(
+        "source_regex must match exactly" in error
+        for error in VALIDATE.validate_embedded_route_roster_coverage(
+            bad_regex, roster
+        )
+    )
 
 
 def test_tracked_source_backlog_is_non_acquiring_and_valid() -> None:

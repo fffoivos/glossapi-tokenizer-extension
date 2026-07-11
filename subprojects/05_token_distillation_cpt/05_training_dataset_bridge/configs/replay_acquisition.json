@@ -1,0 +1,151 @@
+{
+  "schema_version": "full_cpt_replay_acquisition_config_v1",
+  "reviewed_at_utc": "2026-07-12",
+  "status": "ready_for_receipt_bound_acquisition",
+  "revision_policy": "Every dataset is pinned to the immutable commit established by retained Clariden build-time cache or job evidence. The acquisition stage must resolve that exact commit and receipt every selected payload byte; it must never substitute a later head.",
+  "phase04_sources_config": "../../04_full_corpus_preparation/configs/sources.json",
+  "selection_policy": "all_matching_files_at_immutable_revision_v1",
+  "historical_revision_adjudication": {
+    "status": "approved_from_retained_build_evidence",
+    "historical_acquisition_git_commit": "3aefb95aa8abfe9b2a7795709c4ff181012116ff",
+    "historical_acquisition_script_blob": "05c4807f28b4ffc77fa88017cfd3aff5d8116be6",
+    "payload_byte_revalidation_from_old_local_copies_available": false,
+    "note": "The old local Parquets were deleted. The immutable revisions are recoverable from acquisition-day Hugging Face cache refs/snapshots and the completed StarCoder staging log; new downloads remain subject to exact receipt validation.",
+    "cache_refs": {
+      "HuggingFaceFW/fineweb-edu": {
+        "path": "/users/fffoivos/.cache/huggingface/hub/datasets--HuggingFaceFW--fineweb-edu/refs/main",
+        "sha256": "1a22e086c375c36d0ea8906a963cd43f6582e2768f41aa4adf4c53ef495274e3"
+      },
+      "epfml/FineWeb2-HQ": {
+        "path": "/users/fffoivos/.cache/huggingface/hub/datasets--epfml--FineWeb2-HQ/refs/main",
+        "sha256": "b617551dc413faaa077826014456c8bedae9f6182f74060320b33d697d99ed31"
+      },
+      "HuggingFaceFW/fineweb-2": {
+        "path": "/users/fffoivos/.cache/huggingface/hub/datasets--HuggingFaceFW--fineweb-2/refs/main",
+        "sha256": "8397971209d3e78b21ce035f287737faf711b0269ec53437a7e26ed944be4269"
+      },
+      "HuggingFaceTB/finemath": {
+        "path": "/users/fffoivos/.cache/huggingface/hub/datasets--HuggingFaceTB--finemath/refs/main",
+        "sha256": "e04366571aa2a5d8ee5df30d8fc94fc04526b511ca886d1cd22fe3a59aadd259"
+      }
+    },
+    "starcoder_job_evidence": {
+      "snapshot": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/replay/.hf_cache_starcoderdata_v2/datasets--bigcode--starcoderdata/snapshots/9fc30b578cedaec69e47302df72cf00feed7c8c4",
+      "selected_link_count": 28,
+      "selected_link_inventory_sha256": "8606c17ca94f67353763fdcdc2d070c711e6121d3ff77508df0a95acdaa1fc19",
+      "completed_log": "/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/v2_stage_starcoder-2519897.out",
+      "completed_log_sha256": "6aefa67cef1d8091d91e765c93ed621a26d97f0688dd71c7c0963633a30f292d"
+    }
+  },
+  "repositories": [
+    {
+      "repo_id": "HuggingFaceFW/fineweb-edu",
+      "revision": "87f09149ef4734204d70ed1d046ddc9ca3f2b8f9",
+      "observed_head_2026_07_12": "87f09149ef4734204d70ed1d046ddc9ca3f2b8f9",
+      "mappings": [
+        {
+          "source_name": "replay_t1_english_edu",
+          "role": "foreign_replay",
+          "remote_glob": "sample/10BT/*.parquet",
+          "destination_root": "{scratch_root}/cpt_corpus/replay/eng_fineweb_edu"
+        }
+      ]
+    },
+    {
+      "repo_id": "epfml/FineWeb2-HQ",
+      "revision": "c0c06e94fd3a44ae9e802b2b0fc533817601eb5e",
+      "observed_head_2026_07_12": "c0c06e94fd3a44ae9e802b2b0fc533817601eb5e",
+      "mappings": [
+        {"source_name": "replay_t1_fra_Latn", "role": "foreign_replay", "remote_glob": "fra_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/fra_Latn_fw2hq"},
+        {"source_name": "replay_t1_deu_Latn", "role": "foreign_replay", "remote_glob": "deu_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/deu_Latn_fw2hq"},
+        {"source_name": "replay_t1_ita_Latn", "role": "foreign_replay", "remote_glob": "ita_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/ita_Latn_fw2hq"},
+        {"source_name": "replay_t1_spa_Latn", "role": "foreign_replay", "remote_glob": "spa_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/spa_Latn_fw2hq"},
+        {"source_name": "replay_t1_rus_Cyrl", "role": "foreign_replay", "remote_glob": "rus_Cyrl/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/rus_Cyrl_fw2hq"},
+        {"source_name": "replay_t1_arb_Arab", "role": "foreign_replay", "remote_glob": "arb_Arab/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/arb_Arab_fw2hq"},
+        {"source_name": "replay_t1_cmn_Hani", "role": "foreign_replay", "remote_glob": "cmn_Hani/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/cmn_Hani_fw2hq"},
+        {"source_name": "replay_t2_tur_Latn", "role": "foreign_replay", "remote_glob": "tur_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/tur_Latn_fw2hq"},
+        {"source_name": "replay_t2_por_Latn", "role": "foreign_replay", "remote_glob": "por_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/por_Latn_fw2hq"},
+        {"source_name": "replay_t2_pol_Latn", "role": "foreign_replay", "remote_glob": "pol_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/pol_Latn_fw2hq"},
+        {"source_name": "replay_t2_nld_Latn", "role": "foreign_replay", "remote_glob": "nld_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/nld_Latn_fw2hq"},
+        {"source_name": "replay_t2_jpn_Jpan", "role": "foreign_replay", "remote_glob": "jpn_Jpan/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/jpn_Jpan_fw2hq"}
+      ]
+    },
+    {
+      "repo_id": "HuggingFaceFW/fineweb-2",
+      "revision": "af9c13333eb981300149d5ca60a8e9d659b276b9",
+      "observed_head_2026_07_12": "af9c13333eb981300149d5ca60a8e9d659b276b9",
+      "mappings": [
+        {"source_name": "replay_t2_bul_Cyrl", "role": "foreign_replay", "remote_glob": "data/bul_Cyrl/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/bul_Cyrl_fw2"},
+        {"source_name": "replay_t2_srp_Cyrl", "role": "foreign_replay", "remote_glob": "data/srp_Cyrl/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/srp_Cyrl_fw2"},
+        {"source_name": "replay_t2_ron_Latn", "role": "foreign_replay", "remote_glob": "data/ron_Latn/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/ron_Latn_fw2"},
+        {"source_name": "replay_t2_heb_Hebr", "role": "foreign_replay", "remote_glob": "data/heb_Hebr/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/heb_Hebr_fw2"},
+        {"source_name": "replay_t2_pes_Arab", "role": "foreign_replay", "remote_glob": "data/fas_Arab/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/fas_Arab_fw2"},
+        {"source_name": "replay_t2_ukr_Cyrl", "role": "foreign_replay", "remote_glob": "data/ukr_Cyrl/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/ukr_Cyrl_fw2"},
+        {"source_name": "replay_t3_lat_Latn", "role": "foreign_replay", "remote_glob": "data/lat_Latn/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/lat_Latn_fw2"},
+        {"source_name": "replay_t3_hye_Armn", "role": "foreign_replay", "remote_glob": "data/hye_Armn/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/hye_Armn_fw2"},
+        {"source_name": "replay_t3_kat_Geor", "role": "foreign_replay", "remote_glob": "data/kat_Geor/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/kat_Geor_fw2"},
+        {"source_name": "replay_t3_als_Latn", "role": "foreign_replay", "remote_glob": "data/als_Latn/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/als_Latn_fw2"},
+        {"source_name": "replay_t3_mkd_Cyrl", "role": "foreign_replay", "remote_glob": "data/mkd_Cyrl/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/mkd_Cyrl_fw2"}
+      ]
+    },
+    {
+      "repo_id": "HuggingFaceTB/finemath",
+      "revision": "e92b25a616738fe95dc186b64dfb19f9c8525594",
+      "observed_head_2026_07_12": "e92b25a616738fe95dc186b64dfb19f9c8525594",
+      "mappings": [
+        {"source_name": "math_finemath", "role": "foreign_replay", "remote_glob": "finemath-3plus/train-*.parquet", "destination_root": "{scratch_root}/cpt_corpus/math/finemath"}
+      ]
+    },
+    {
+      "repo_id": "bigcode/starcoderdata",
+      "revision": "9fc30b578cedaec69e47302df72cf00feed7c8c4",
+      "observed_head_2026_07_12": "9fc30b578cedaec69e47302df72cf00feed7c8c4",
+      "gated": true,
+      "transform": "starcoder_stable_doc_id_v1",
+      "plan": "python:8,javascript:6,java:4,go:3,rust:2,cpp:2,typescript:3",
+      "destination_root": "{scratch_root}/cpt_corpus/replay/starcoderdata_v2",
+      "source_name": "code_starcoderdata_subset",
+      "role": "foreign_replay"
+    },
+    {
+      "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "revision": "e1d54136a880ed1df2ed95a5445dabd230453207",
+      "observed_head_2026_07_12": "e1d54136a880ed1df2ed95a5445dabd230453207",
+      "phase04_pin": "base",
+      "gated": true,
+      "mappings": [
+        {"source_name": "nanochat_for_old_greek", "role": "old_greek_input", "remote_glob": "data/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/nanochat"}
+      ]
+    },
+    {
+      "repo_id": "fffoivos/apertus-c3-dedup-audit-dedup-20260519t010924z",
+      "revision": "54faa75b5e0b4fad01bf7bf5541210c741cb10b8",
+      "observed_head_2026_07_12": "54faa75b5e0b4fad01bf7bf5541210c741cb10b8",
+      "phase04_pin": "apertus_overlap_overlay",
+      "gated": true,
+      "mappings": [
+        {
+          "source_name": "apertus_overlap_drop_overlay",
+          "role": "old_greek_overlay",
+          "remote_glob": "artifacts/dedup_20260519T010924Z/cpt_final_overlay/apertus_overlap_drop_docs.parquet",
+          "destination_root": "{scratch_root}/cpt_corpus/dedup_audit"
+        }
+      ]
+    }
+  ],
+  "git_sources": [
+    {
+      "name": "swiss-ai-megatron-lm",
+      "url": "https://github.com/swiss-ai/Megatron-LM.git",
+      "commit": "c92402e39ef3c8e69ea378a59e79059dc14541f4",
+      "destination": "{scratch_root}/code/training/Megatron-LM-Swiss-AI"
+    }
+  ],
+  "old_greek_build": {
+    "nanochat_glob": "{scratch_root}/cpt_corpus/nanochat/data/*.parquet",
+    "overlay": "{scratch_root}/cpt_corpus/dedup_audit/artifacts/dedup_20260519T010924Z/cpt_final_overlay/apertus_overlap_drop_docs.parquet",
+    "output": "{scratch_root}/cpt_corpus/greek_replay/greek_replay.parquet",
+    "identity_columns": ["source_dataset", "source_doc_id"],
+    "join": "exact (source_dataset, source_doc_id) intersection"
+  }
+}

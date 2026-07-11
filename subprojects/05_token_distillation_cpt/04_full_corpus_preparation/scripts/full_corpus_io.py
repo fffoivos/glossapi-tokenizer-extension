@@ -9,10 +9,12 @@ remain separate, receipt-bound stages.
 
 from __future__ import annotations
 
+import fnmatch
 import hashlib
 import html
 import io
 import json
+import os
 import re
 import sqlite3
 import tempfile
@@ -45,6 +47,7 @@ class SourceArtifact:
     role: str
     source_family_id: str
     files: tuple[Path, ...]
+    file_bindings: tuple[Mapping[str, Any], ...]
     config: Mapping[str, Any]
 
 
@@ -61,6 +64,14 @@ def sha256_bytes(value: bytes) -> str:
 
 def sha256_text(value: str) -> str:
     return sha256_bytes(value.encode("utf-8"))
+
+
+def sha256_file(path: Path, chunk_size: int = 16 * 1024 * 1024) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        while chunk := handle.read(chunk_size):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def stable_hash(*values: object) -> str:
@@ -104,11 +115,19 @@ def jsonable(value: Any) -> Any:
 
 
 def compact_metadata(row: Mapping[str, Any], excluded: set[str]) -> str:
-    payload = {str(key): jsonable(value) for key, value in row.items() if key not in excluded and value is not None}
-    return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    payload = {
+        str(key): jsonable(value)
+        for key, value in row.items()
+        if key not in excluded and value is not None
+    }
+    return json.dumps(
+        payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
 
 
-def first_nonempty(row: Mapping[str, Any], columns: Sequence[str]) -> tuple[str, str] | None:
+def first_nonempty(
+    row: Mapping[str, Any], columns: Sequence[str]
+) -> tuple[str, str] | None:
     for column in columns:
         value = row.get(column)
         if value is None:
@@ -162,34 +181,55 @@ def base_family_map(
     family_by_repo = {
         str(row["repo_id"]): str(row["source_family_id"])
         for row in config.get("sources", [])
-        if isinstance(row, Mapping) and row.get("repo_id") and row.get("source_family_id")
+        if isinstance(row, Mapping)
+        and row.get("repo_id")
+        and row.get("source_family_id")
     }
     result: dict[str, str] = {}
+    priorities: dict[str, int] = {}
     for alias in aliases.get("aliases", []):
         if not isinstance(alias, Mapping):
             continue
         family = family_by_repo.get(str(alias.get("current_repo_id") or ""))
         if not family:
             continue
+        priority = 1 if alias.get("alias_kind") == "hybrid" else 2
         for name in alias.get("initial_source_datasets", []):
             source_dataset = str(name)
             previous = result.get(source_dataset)
-            if previous is not None and previous != family:
+            previous_priority = priorities.get(source_dataset, -1)
+            if (
+                previous is not None
+                and previous != family
+                and previous_priority == priority
+            ):
                 raise ValueError(
                     f"conflicting reviewed families for base source_dataset {source_dataset!r}: "
                     f"{previous!r} vs {family!r}"
                 )
-            result[source_dataset] = family
+            # A direct/replacement lineage is stronger than an incidental
+            # membership inside a hybrid aggregate (for example greek_phd is
+            # also present in the current OpenArchives repository).
+            if previous is None or priority > previous_priority:
+                result[source_dataset] = family
+                priorities[source_dataset] = priority
     return result
 
 
-def artifacts_from_receipt(config_path: Path, receipt_path: Path, selected: set[str] | None = None) -> list[SourceArtifact]:
+def artifacts_from_receipt(
+    config_path: Path, receipt_path: Path, selected: set[str] | None = None
+) -> list[SourceArtifact]:
     config = read_json_object(config_path)
     receipt = read_json_object(receipt_path)
     if receipt.get("schema_version") != "full_cpt_acquisition_receipt_v1":
         raise ValueError(f"{receipt_path}: unsupported acquisition receipt schema")
     if receipt.get("status") != "passed":
         raise ValueError(f"{receipt_path}: acquisition receipt is not complete")
+    current_config_sha256 = sha256_file(config_path)
+    if receipt.get("sources_config_sha256") != current_config_sha256:
+        raise ValueError(
+            f"{receipt_path}: acquisition receipt was not finalized against the current sources.json"
+        )
     configs = source_config_map(config)
     artifacts: list[SourceArtifact] = []
     seen: set[str] = set()
@@ -198,19 +238,68 @@ def artifacts_from_receipt(config_path: Path, receipt_path: Path, selected: set[
         if source_id not in configs or (selected and source_id not in selected):
             continue
         source = configs[source_id]
-        files = tuple(Path(str(row["local_path"])).resolve() for row in receipt_row.get("files", []))
+        receipt_files = sorted(
+            [
+                dict(row)
+                for row in receipt_row.get("files", [])
+                if isinstance(row, Mapping)
+            ],
+            key=lambda row: str(row.get("path") or row.get("local_path") or ""),
+        )
+        files = tuple(Path(str(row["local_path"])).resolve() for row in receipt_files)
         if not files or any(not path.is_file() for path in files):
             raise FileNotFoundError(f"{source_id}: receipt-bound files are missing")
         if str(receipt_row.get("revision")) != str(source["revision"]):
             raise ValueError(f"{source_id}: receipt revision differs from registry")
+        bindings: list[dict[str, Any]] = []
+        for path, row in zip(files, receipt_files, strict=True):
+            stat = path.stat()
+            declared_size = int(row.get("size", stat.st_size))
+            if stat.st_size != declared_size:
+                raise ValueError(
+                    f"{source_id}: receipt-bound file size drift for {path}: "
+                    f"{stat.st_size} != {declared_size}"
+                )
+            # Production acquisition receipts carry either an LFS SHA-256 or a
+            # pinned Git blob ID.  Tiny legacy/test receipts do not, so only
+            # those fall back to hashing the local payload here.
+            hash_kind = str(row.get("hash_kind") or "sha256")
+            expected_hash = str(row.get("expected_hash") or "")
+            if not expected_hash:
+                expected_hash = sha256_file(path)
+            stat_fields = {
+                "device": stat.st_dev,
+                "inode": stat.st_ino,
+                "mtime_ns": stat.st_mtime_ns,
+                "ctime_ns": stat.st_ctime_ns,
+            }
+            for field, actual in stat_fields.items():
+                if field in row and int(row[field]) != int(actual):
+                    raise ValueError(
+                        f"{source_id}: acquisition stat drift for {path}: {field}"
+                    )
+            bindings.append(
+                {
+                    "path": str(row.get("path") or path.name),
+                    "local_path": str(path),
+                    "bytes": stat.st_size,
+                    "hash_kind": hash_kind,
+                    "expected_hash": expected_hash,
+                }
+            )
         artifacts.append(
             SourceArtifact(
                 source_id=source_id,
                 repo_id=str(source["repo_id"]),
                 revision=str(source["revision"]),
-                role=str(source.get("role", "base" if source_id == "nanochat_base" else "candidate")),
+                role=str(
+                    source.get(
+                        "role", "base" if source_id == "nanochat_base" else "candidate"
+                    )
+                ),
                 source_family_id=str(source.get("source_family_id", "nanochat_base")),
                 files=files,
+                file_bindings=tuple(bindings),
                 config=source,
             )
         )
@@ -218,21 +307,34 @@ def artifacts_from_receipt(config_path: Path, receipt_path: Path, selected: set[
     requested = selected or set(configs)
     missing = requested - seen
     if missing:
-        raise ValueError(f"acquisition receipt does not contain requested data sources: {sorted(missing)}")
+        raise ValueError(
+            f"acquisition receipt does not contain requested data sources: {sorted(missing)}"
+        )
     return sorted(artifacts, key=lambda item: item.source_id)
 
 
-def iter_parquet_rows(path: Path, columns: Sequence[str] | None = None, batch_size: int = 1024) -> Iterator[tuple[int, dict[str, Any]]]:
+def iter_parquet_rows(
+    path: Path, columns: Sequence[str] | None = None, batch_size: int = 8192
+) -> Iterator[tuple[int, dict[str, Any]]]:
     import pyarrow.parquet as pq
 
     parquet = pq.ParquetFile(path)
     available = set(parquet.schema_arrow.names)
-    selected = None if columns is None else [column for column in columns if column in available]
+    selected = (
+        None
+        if columns is None
+        else [column for column in columns if column in available]
+    )
     row_index = 0
-    for batch in parquet.iter_batches(batch_size=batch_size, columns=selected, use_threads=False):
+    for batch in parquet.iter_batches(
+        batch_size=batch_size, columns=selected, use_threads=False
+    ):
         payload = batch.to_pydict()
         for index in range(batch.num_rows):
-            yield row_index, {column: values[index] for column, values in payload.items()}
+            yield (
+                row_index,
+                {column: values[index] for column, values in payload.items()},
+            )
             row_index += 1
 
 
@@ -247,7 +349,11 @@ def _zstd_text_reader(path: Path) -> io.TextIOBase:
 
 
 def iter_jsonl_rows(path: Path) -> Iterator[tuple[int, dict[str, Any]]]:
-    opener = _zstd_text_reader if path.name.endswith(".zst") else lambda value: value.open(encoding="utf-8")
+    opener = (
+        _zstd_text_reader
+        if path.name.endswith(".zst")
+        else lambda value: value.open(encoding="utf-8")
+    )
     with opener(path) as handle:
         for index, line in enumerate(handle):
             if not line.strip():
@@ -282,13 +388,17 @@ def iter_grouped_section_rows(
     """
 
     id_columns = list(source.config.get("id_columns", []))
+    work_id_columns = list(source.config.get("work_id_columns", [])) or id_columns
+    order_columns = list(source.config.get("section_order_columns", []))
     text_columns = list(source.config.get("text_columns", []))
-    if not id_columns or not text_columns:
-        raise ValueError(f"{source.source_id}: section grouping requires id_columns and text_columns")
+    if not work_id_columns or not text_columns:
+        raise ValueError(
+            f"{source.source_id}: section grouping requires work_id_columns and text_columns"
+        )
     temporary_root.mkdir(parents=True, exist_ok=True)
-    descriptor, db_name = tempfile.mkstemp(prefix=f".{source.source_id}.", suffix=".sections.sqlite", dir=temporary_root)
-    import os
-
+    descriptor, db_name = tempfile.mkstemp(
+        prefix=f".{source.source_id}.", suffix=".sections.sqlite", dir=temporary_root
+    )
     os.close(descriptor)
     Path(db_name).unlink(missing_ok=True)
     try:
@@ -296,36 +406,62 @@ def iter_grouped_section_rows(
         try:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA synchronous=NORMAL")
+            conn.execute("PRAGMA temp_store=FILE")
+            cache_mb = max(16, int(os.environ.get("SECTION_SQLITE_CACHE_MB", "256")))
+            conn.execute(f"PRAGMA cache_size=-{cache_mb * 1024}")
             conn.execute(
-                "CREATE TABLE sections (work_id TEXT NOT NULL, row_index INTEGER NOT NULL, "
+                "CREATE TABLE sections (work_id TEXT NOT NULL, order_key REAL NOT NULL, "
+                "row_index INTEGER NOT NULL, "
                 "text_field TEXT NOT NULL, text_value TEXT NOT NULL, row_json TEXT NOT NULL)"
             )
-            pending: list[tuple[str, int, str, str, str]] = []
+            pending: list[tuple[str, float, int, str, str, str]] = []
             for row_index, row in iter_artifact_rows(path):
-                identity = first_nonempty(row, id_columns)
+                identity = first_nonempty(row, work_id_columns)
                 selected = first_nonempty(row, text_columns)
                 if identity is None or selected is None or not selected[1].strip():
                     continue
+                order_value = first_nonempty(row, order_columns)
+                try:
+                    order_key = (
+                        float(order_value[1])
+                        if order_value is not None
+                        else float(row_index)
+                    )
+                except ValueError:
+                    order_key = float(row_index)
                 pending.append(
                     (
                         identity[1],
+                        order_key,
                         row_index,
                         selected[0],
                         selected[1],
-                        json.dumps(jsonable(row), ensure_ascii=False, sort_keys=True, separators=(",", ":")),
+                        json.dumps(
+                            jsonable(row),
+                            ensure_ascii=False,
+                            sort_keys=True,
+                            separators=(",", ":"),
+                        ),
                     )
                 )
                 if len(pending) >= 4096:
-                    conn.executemany("INSERT INTO sections VALUES (?, ?, ?, ?, ?)", pending)
+                    conn.executemany(
+                        "INSERT INTO sections VALUES (?, ?, ?, ?, ?, ?)", pending
+                    )
                     conn.commit()
                     pending = []
             if pending:
-                conn.executemany("INSERT INTO sections VALUES (?, ?, ?, ?, ?)", pending)
+                conn.executemany(
+                    "INSERT INTO sections VALUES (?, ?, ?, ?, ?, ?)", pending
+                )
                 conn.commit()
-            conn.execute("CREATE INDEX sections_work_order ON sections(work_id, row_index)")
+            conn.execute(
+                "CREATE INDEX sections_work_order "
+                "ON sections(work_id, order_key, row_index)"
+            )
             cursor = conn.execute(
                 "SELECT work_id, row_index, text_field, text_value, row_json "
-                "FROM sections ORDER BY work_id, row_index"
+                "FROM sections ORDER BY work_id, order_key, row_index"
             )
             current_id: str | None = None
             first_index = 0
@@ -336,12 +472,19 @@ def iter_grouped_section_rows(
                 if current_id is not None and work_id != current_id:
                     first_row["_section_count"] = len(sections)
                     first_row["_section_text_fields"] = sorted(set(fields))
-                    yield first_index, first_row, "section_grouped", "\n\n".join(sections)
+                    yield (
+                        first_index,
+                        first_row,
+                        "section_grouped",
+                        "\n\n".join(sections),
+                    )
                     fields, sections = [], []
                 if work_id != current_id:
                     current_id = str(work_id)
                     first_index = int(row_index)
                     first_row = json.loads(str(row_json))
+                    first_row["_grouped_work_id"] = current_id
+                    first_row["_grouped_work_id_field"] = work_id_columns[0]
                 fields.append(str(text_field))
                 sections.append(str(text_value).strip())
             if current_id is not None:
@@ -362,28 +505,48 @@ def _nested_text(value: Any) -> str:
     if not isinstance(value, Mapping):
         return ""
     preferred = ("text", "content", "body", "comment", "description", "title")
-    pieces = [str(value[key]) for key in preferred if value.get(key) not in (None, "") and not isinstance(value[key], (list, dict))]
+    pieces = [
+        str(value[key])
+        for key in preferred
+        if value.get(key) not in (None, "") and not isinstance(value[key], (list, dict))
+    ]
     return "\n\n".join(dict.fromkeys(pieces))
 
 
-def expand_nested_row(row: Mapping[str, Any], source: SourceArtifact) -> Iterator[tuple[str, str, str]]:
+def expand_nested_row(
+    row: Mapping[str, Any], source: SourceArtifact
+) -> Iterator[tuple[str, str, str]]:
     """Yield `(suffix, text_field, text)` without repeating parent context."""
 
     if source.source_id != "opengov_deliberations_v2":
-        selected = first_nonempty(row, list(source.config.get("text_columns", [])) + list(source.config.get("alternate_text_columns", [])))
+        selected = first_nonempty(
+            row,
+            list(source.config.get("text_columns", []))
+            + list(source.config.get("alternate_text_columns", [])),
+        )
         if selected:
             yield "0", selected[0], selected[1]
         return
     emitted = False
     for field in source.config.get("text_columns", []):
         value = row.get(field)
-        members = value if isinstance(value, list) else [value] if isinstance(value, Mapping) else []
+        members = (
+            value
+            if isinstance(value, list)
+            else [value]
+            if isinstance(value, Mapping)
+            else []
+        )
         for index, member in enumerate(members):
             text = _nested_text(member)
             if text.strip():
                 emitted = True
                 member_id = member.get("id") if isinstance(member, Mapping) else None
-                yield f"{field}:{member_id if member_id is not None else index}", field, text
+                yield (
+                    f"{field}:{member_id if member_id is not None else index}",
+                    field,
+                    text,
+                )
             if isinstance(member, Mapping):
                 for child_field in ("comments", "responses"):
                     children = member.get(child_field)
@@ -393,7 +556,11 @@ def expand_nested_row(row: Mapping[str, Any], source: SourceArtifact) -> Iterato
                         child_text = _nested_text(child)
                         if child_text.strip():
                             emitted = True
-                            yield f"{field}:{index}:{child_field}:{child_index}", child_field, child_text
+                            yield (
+                                f"{field}:{index}:{child_field}:{child_index}",
+                                child_field,
+                                child_text,
+                            )
     if not emitted:
         selected = first_nonempty(row, list(source.config.get("text_columns", [])))
         if selected and selected[1].strip():
@@ -411,10 +578,22 @@ def canonical_row(
     raw_text: str,
     lineage_aliases: Mapping[str, Any],
     base_families: Mapping[str, str],
+    embedded_structural_routes: Sequence[Mapping[str, Any]] = (),
 ) -> dict[str, Any]:
     id_columns = list(source.config.get("id_columns", []))
-    id_values = [str(raw_row[column]) for column in id_columns if raw_row.get(column) not in (None, "")]
-    upstream_id = "|".join(id_values) if id_values else f"row:{artifact_row_index}"
+    id_values = [
+        str(raw_row[column])
+        for column in id_columns
+        if raw_row.get(column) not in (None, "")
+    ]
+    grouped_work_id = raw_row.get("_grouped_work_id")
+    upstream_id = (
+        str(grouped_work_id)
+        if grouped_work_id not in (None, "")
+        else "|".join(id_values)
+        if id_values
+        else f"row:{artifact_row_index}"
+    )
     source_column = str(source.config.get("source_column", "source_dataset"))
     exact_source = str(raw_row.get(source_column) or source.repo_id)
     original = str(raw_text)
@@ -422,15 +601,46 @@ def canonical_row(
     original_hash = sha256_text(original)
     normalized_hash = sha256_text(normalized)
     relative_artifact = artifact_relative_path(source, artifact_path)
+    embedded_matches = [
+        route
+        for route in embedded_structural_routes
+        if str(route.get("acquisition_source_id")) == source.source_id
+        and any(
+            fnmatch.fnmatchcase(relative_artifact, str(pattern))
+            for pattern in route.get("acquisition_include_globs", [])
+        )
+        and re.search(str(route.get("source_regex", r"(?!x)x")), exact_source) is not None
+    ]
+    if len(embedded_matches) > 1:
+        raise ValueError(
+            "canonical row matches multiple embedded structural routes: "
+            f"artifact={relative_artifact!r}, source_dataset={exact_source!r}, "
+            f"routes={[route.get('source_id') for route in embedded_matches]}"
+        )
+    embedded_route = embedded_matches[0] if embedded_matches else None
     source_row_id = f"{relative_artifact}:{artifact_row_index}:{representation_suffix}"
-    source_doc_id = upstream_id if representation_suffix == "0" else f"{upstream_id}#{representation_suffix}"
-    origin = "base" if source.source_id == "nanochat_base" or source.role == "base" else "candidate"
+    source_doc_id = (
+        upstream_id
+        if representation_suffix == "0"
+        else f"{upstream_id}#{representation_suffix}"
+    )
+    origin = (
+        "base"
+        if source.source_id == "nanochat_base" or source.role == "base"
+        else "candidate"
+    )
     source_family_id = (
         str(base_families.get(exact_source, exact_source))
         if origin == "base"
         else source.source_family_id
     )
-    work_id = normalize_work_identifier(id_values[0] if id_values else source_doc_id)
+    if source.source_id == "opengov_deliberations_v2" and representation_suffix != "0":
+        work_identity = source_doc_id
+    elif grouped_work_id not in (None, ""):
+        work_identity = grouped_work_id
+    else:
+        work_identity = id_values[0] if id_values else source_doc_id
+    work_id = normalize_work_identifier(work_identity)
     work_key = sha256_parts("full_cpt_work_key_v1", source_family_id, work_id)
     stable_uid = sha256_parts(
         "full_cpt_stable_uid_v1",
@@ -446,23 +656,33 @@ def canonical_row(
         if origin == "base"
         else choose_alias_id(raw_row, source.repo_id, exact_source, lineage_aliases)
     )
-    excluded = {text_field, *source.config.get("text_columns", []), *source.config.get("alternate_text_columns", [])}
+    excluded = {
+        text_field,
+        "_grouped_work_id",
+        "_grouped_work_id_field",
+        *source.config.get("text_columns", []),
+        *source.config.get("alternate_text_columns", []),
+    }
     metadata = compact_metadata(raw_row, excluded)
     title = raw_row.get("title") or raw_row.get("titlos")
     author = raw_row.get("author") or raw_row.get("creator")
     return {
-        "source_id": source.source_id,
+        "source_id": str(embedded_route["source_id"]) if embedded_route else source.source_id,
         "source_dataset": exact_source,
         "source_doc_id": source_doc_id,
         "text": normalized,
         "title": None if title is None else str(title),
         "author": None if author is None else str(author),
         "greek_badness_score": _optional_float(raw_row.get("greek_badness_score")),
-        "mojibake_badness_score": _optional_float(raw_row.get("mojibake_badness_score")),
+        "mojibake_badness_score": _optional_float(
+            raw_row.get("mojibake_badness_score")
+        ),
         "needs_ocr": _optional_bool(raw_row.get("needs_ocr")),
         "is_empty": not bool(normalized),
         "ocr_success": _optional_bool(raw_row.get("ocr_success")),
-        "is_historical_or_polytonic": _optional_bool(raw_row.get("is_historical_or_polytonic")),
+        "is_historical_or_polytonic": _optional_bool(
+            raw_row.get("is_historical_or_polytonic")
+        ),
         "source_family_id": source_family_id,
         "acquisition_source_id": source.source_id,
         "source_repo_id": source.repo_id,
@@ -475,12 +695,24 @@ def canonical_row(
         "stable_uid": stable_uid,
         "work_key": work_key,
         "work_id": work_id,
-        "representation_generation": lineage_representation_generation(origin, source.config),
+        "representation_generation": lineage_representation_generation(
+            origin, source.config
+        ),
         "lineage_alias_id": alias_id,
         "source_metadata_json": metadata,
-        "cleaning_profile": str(source.config.get("cleaning_profile", "base_canonical")),
-        "structural_policy": str(source.config.get("structural_policy", "source_routed")),
-        "training_eligibility": str(source.config.get("training_eligibility", "inherited_base")),
+        "cleaning_profile": str(
+            embedded_route.get("cleaning_profile")
+            if embedded_route
+            else source.config.get("cleaning_profile", "base_canonical")
+        ),
+        "structural_policy": str(
+            embedded_route.get("structural_policy")
+            if embedded_route
+            else source.config.get("structural_policy", "source_routed")
+        ),
+        "training_eligibility": str(
+            source.config.get("training_eligibility", "inherited_base")
+        ),
         "source_role": source.role,
     }
 
@@ -556,7 +788,9 @@ def token_count(tokenizer: Any, text: str) -> int:
 def strip_html_markup(text: str) -> tuple[str, int]:
     """Conservative markup removal for explicitly web-routed sources."""
 
-    script = re.compile(r"(?is)<(?:script|style|noscript)\b[^>]*>.*?</(?:script|style|noscript)>")
+    script = re.compile(
+        r"(?is)<(?:script|style|noscript)\b[^>]*>.*?</(?:script|style|noscript)>"
+    )
     tags = re.compile(r"(?s)<[^>]{1,1000}>")
     without_script, script_count = script.subn("\n", text)
     without_tags, tag_count = tags.subn(" ", without_script)

@@ -78,7 +78,10 @@ def verify_source(source: dict, locked: dict, destination: Path) -> tuple[dict, 
     except ImportError as exc:  # pragma: no cover - exercised on Clariden
         raise RuntimeError("install pyarrow in the Phase-04 runtime") from exc
 
-    expected_text = set(source.get("text_columns", []))
+    candidate_text = set(source.get("text_columns", [])) | set(
+        source.get("alternate_text_columns", [])
+    )
+    required_text = set(source.get("required_text_columns", []))
     candidate_ids = set(source.get("id_columns", []))
     schemas: list[dict[str, object]] = []
     total_rows = 0
@@ -88,10 +91,19 @@ def verify_source(source: dict, locked: dict, destination: Path) -> tuple[dict, 
             continue
         parquet = pq.ParquetFile(path)
         columns = set(parquet.schema_arrow.names)
-        missing_text = sorted(expected_text - columns)
+        present_text = sorted(candidate_text & columns)
+        missing_required_text = sorted(required_text - columns)
         present_ids = sorted(candidate_ids & columns)
-        if missing_text:
-            errors.append(f"{source_id}:{path.name}: missing text columns {missing_text}")
+        if missing_required_text:
+            errors.append(
+                f"{source_id}:{path.name}: missing required text columns "
+                f"{missing_required_text}"
+            )
+        if candidate_text and not present_text:
+            errors.append(
+                f"{source_id}:{path.name}: none of the candidate text columns are present: "
+                f"{sorted(candidate_text)}"
+            )
         if candidate_ids and not present_ids:
             errors.append(
                 f"{source_id}:{path.name}: none of the candidate id columns are present: {sorted(candidate_ids)}"
@@ -105,7 +117,7 @@ def verify_source(source: dict, locked: dict, destination: Path) -> tuple[dict, 
                 "row_groups": parquet.num_row_groups,
                 "columns": sorted(columns),
                 "present_id_columns": present_ids,
-                "text_columns": sorted(expected_text & columns),
+                "text_columns": present_text,
             }
         )
     return (

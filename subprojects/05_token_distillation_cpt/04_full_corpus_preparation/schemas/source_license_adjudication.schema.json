@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "source_license_adjudication.schema.json",
+  "title": "Phase-04 source license adjudication",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "audited_at",
+    "audit_provenance",
+    "purpose",
+    "default_policy",
+    "source_registry",
+    "decision_semantics",
+    "base",
+    "sources",
+    "summary"
+  ],
+  "properties": {
+    "schema_version": {"const": "full_cpt_source_license_adjudication_v1"},
+    "status": {"const": "technical_audit_complete"},
+    "audited_at": {"type": "string", "format": "date"},
+    "audit_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["performed_by", "completed_at", "review_class", "method"],
+      "properties": {
+        "performed_by": {"type": "string", "minLength": 1},
+        "completed_at": {"type": "string", "format": "date-time"},
+        "review_class": {"const": "technical_evidence_review_not_legal_advice"},
+        "method": {"type": "string", "minLength": 1}
+      }
+    },
+    "purpose": {"const": "noncommercial_research_continued_pretraining"},
+    "default_policy": {"const": "deny_training_and_redistribution"},
+    "source_registry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"const": "configs/sources.json"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "decision_semantics": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "minLength": 1},
+      "required": ["local_training", "redistribution", "excluded"]
+    },
+    "base": {"$ref": "#/$defs/baseDecision"},
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/sourceDecision"}
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "candidate_sources",
+        "base_local_training_allowed",
+        "candidate_local_training_allowed_sources",
+        "candidate_redistribution_allowed_sources",
+        "candidate_local_training_allowed_source_ids",
+        "candidate_redistribution_allowed_source_ids"
+      ],
+      "properties": {
+        "candidate_sources": {"type": "integer", "minimum": 1},
+        "base_local_training_allowed": {"type": "boolean"},
+        "candidate_local_training_allowed_sources": {"type": "integer", "minimum": 0},
+        "candidate_redistribution_allowed_sources": {"type": "integer", "minimum": 0},
+        "candidate_local_training_allowed_source_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "candidate_redistribution_allowed_source_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eligible", "status", "conditions"],
+      "properties": {
+        "eligible": {"type": "boolean"},
+        "status": {"enum": ["allowed_for_pipeline", "excluded"]},
+        "conditions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["kind", "url", "finding", "supports_redistribution"],
+      "properties": {
+        "kind": {"enum": ["hf_repo_metadata", "hf_dataset_card", "upstream_terms"]},
+        "url": {"type": "string", "pattern": "^https://"},
+        "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "retrieved_at": {"type": "string", "format": "date"},
+        "finding": {"type": "string", "minLength": 1},
+        "supports_redistribution": {"type": "boolean"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"kind": {"enum": ["hf_repo_metadata", "hf_dataset_card"]}}},
+          "then": {"required": ["revision"]}
+        },
+        {
+          "if": {"properties": {"kind": {"const": "upstream_terms"}}},
+          "then": {"required": ["retrieved_at"]}
+        }
+      ]
+    },
+    "baseDecision": {
+      "type": "object",
+      "required": ["source_id", "repo_id", "revision", "declared_license", "local_training", "redistribution", "evidence"],
+      "properties": {
+        "source_id": {"const": "nanochat_base"},
+        "repo_id": {"type": "string", "minLength": 3},
+        "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "declared_license": {"type": ["string", "null"]},
+        "local_training": {"$ref": "#/$defs/decision"},
+        "redistribution": {"$ref": "#/$defs/decision"},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
+      }
+    },
+    "sourceDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "repo_id",
+        "revision",
+        "registry_training_eligibility",
+        "declared_license",
+        "local_training",
+        "redistribution",
+        "evidence"
+      ],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "repo_id": {"type": "string", "pattern": "^[^/]+/[^/]+$"},
+        "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "registry_training_eligibility": {"enum": ["eligible_open", "noncommercial_review", "per_item_review", "policy_review"]},
+        "declared_license": {"type": ["string", "null"]},
+        "local_training": {"$ref": "#/$defs/decision"},
+        "redistribution": {"$ref": "#/$defs/decision"},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}}
+      }
+    }
+  }
+}
