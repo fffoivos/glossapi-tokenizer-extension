@@ -1,0 +1,368 @@
+{
+  "schema_version": "full_cpt_source_backlog_v1",
+  "audited_at": "2026-07-11",
+  "purpose": "Pinned metadata for reviewed glossAPI organization repositories that are not acquisition inputs.",
+  "base": {
+    "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+    "revision": "e1d54136a880ed1df2ed95a5445dabd230453207"
+  },
+  "entries": [
+    {
+      "backlog_id": "first_1000_years",
+      "repo_id": "glossAPI/1000_prwta_xronia_ellhnikhs",
+      "revision": "c117ed41194e707faeaf6bd046aa81f3c4db3b13",
+      "acquisition_eligible": false,
+      "disposition": "already_in_base",
+      "relationship_to_base": "same_source_in_base",
+      "license": {"declared": "cc-by-sa-4.0", "status": "open_with_attribution"},
+      "candidate_files": [
+        {"path": "1k_texts.parquet", "bytes": 109289009, "schema": ["author", "title", "text"]}
+      ],
+      "known_metrics": {"repository_rows": 1016, "card_rows": 1016, "repository_bytes": 109289009, "reported_tokens": null, "tokenizer": null},
+      "route": {"cleaning_profile": "base_existing", "structural_policy": "disabled", "text_columns": ["text"], "id_columns": ["author", "title"]},
+      "blockers": ["Nanochat already contains this source; only a keyed replacement audit could justify separate acquisition."]
+    },
+    {
+      "backlog_id": "greek_variety_95k",
+      "repo_id": "glossAPI/95k_deigma_ellinikis",
+      "revision": "e932cf346612d0b2df1848a54edc54e9aa901aea",
+      "acquisition_eligible": false,
+      "disposition": "exclude",
+      "relationship_to_base": "mixed_source_overlap",
+      "license": {"declared": null, "status": "unknown"},
+      "candidate_files": [
+        {"path": "95k.csv", "bytes": 29719455, "schema": ["text", "ποικιλία"]}
+      ],
+      "known_metrics": {"repository_rows": null, "card_rows": 95000, "repository_bytes": 29719455, "reported_tokens": 2937264, "tokenizer": "unspecified_dataset_card"},
+      "route": {"cleaning_profile": "classification_support", "structural_policy": "disabled", "text_columns": ["text"], "id_columns": []},
+      "blockers": ["Automatically labelled classification mixture reuses Europarl, Wikipedia, CCMatrix, Gutenberg and other web sources.", "License is unspecified and the HF dataset server does not expose parsed rows."]
+    },
+    {
+      "backlog_id": "ecclesiastical_texts",
+      "repo_id": "glossAPI/Ekklisiastika_Keimena",
+      "revision": "0fe734ce988b35a6a6273464846d673692120083",
+      "acquisition_eligible": false,
+      "disposition": "already_in_base",
+      "relationship_to_base": "same_source_in_base",
+      "license": {"declared": "cc-by-4.0", "status": "open_with_attribution"},
+      "candidate_files": [
+        {"path": "litourgical_texts.parquet", "bytes": 17520011, "schema": ["texts", "katigoria", "ypokatigoria", "titlos"]}
+      ],
+      "known_metrics": {"repository_rows": 675, "card_rows": 675, "repository_bytes": 17520011, "reported_tokens": null, "tokenizer": null},
+      "route": {"cleaning_profile": "base_existing", "structural_policy": "disabled", "text_columns": ["texts"], "id_columns": ["katigoria", "ypokatigoria", "titlos"]},
+      "blockers": ["Nanochat already contains the same 675-row source."]
+    },
+    {
+      "backlog_id": "project_gutenberg_greek",
+      "repo_id": "glossAPI/Ellinika_Keimena_Project_Gutenberg",
+      "revision": "b903fbea7d6e724001cb0b5d87c7297b6de221e8",
+      "acquisition_eligible": false,
+      "disposition": "already_in_base",
+      "relationship_to_base": "same_source_in_base",
+      "license": {"declared": "cc-by-4.0", "status": "open_with_attribution"},
+      "candidate_files": [
+        {"path": "gutenberg_clean.parquet", "bytes": 40842245, "schema": ["Text Number", "Title", "Author", "Author Year", "Translator", "Translation Year", "Text", "Variety"]}
+      ],
+      "known_metrics": {"repository_rows": 214, "card_rows": 214, "repository_bytes": 40842245, "reported_tokens": null, "tokenizer": null},
+      "route": {"cleaning_profile": "base_existing", "structural_policy": "disabled", "text_columns": ["Text"], "id_columns": ["Text Number"]},
+      "blockers": ["Nanochat already contains the same 214-row source."]
+    },
+    {
+      "backlog_id": "school_books_refresh",
+      "repo_id": "glossAPI/School_books",
+      "revision": "5f1c21276c021ebfe3e1b5ae2ca5ea6e4b81a87e",
+      "acquisition_eligible": false,
+      "disposition": "overlap_audit",
+      "relationship_to_base": "partial_base_overlap",
+      "license": {"declared": null, "status": "policy_review"},
+      "candidate_files": [
+        {"path": "Schoolbook_clean.parquet", "bytes": 32562138, "schema": ["text", "titlos", "taxis", "mathima", "kateuthinsi"]},
+        {"path": "Schoolbooks_2025-2026.parquet", "bytes": 125003902, "schema": ["text", "titlos", "taxis", "mathima", "kateuthinsi"]},
+        {"path": "school_books_2026-2027.parquet", "bytes": 139535462, "schema": ["text", "titlos", "taxis", "mathima", "kateuthinsi"]}
+      ],
+      "known_metrics": {"repository_rows": 890, "card_rows": 889, "repository_bytes": 297101502, "reported_tokens": 103573375, "tokenizer": "unspecified_dataset_card"},
+      "route": {"cleaning_profile": "modern_textbook", "structural_policy": "shadow_after_segmentation", "text_columns": ["text"], "id_columns": ["titlos", "taxis", "mathima", "kateuthinsi"]},
+      "blockers": ["Schoolbook_clean is already represented by Nanochat's 123-row Sxolika_vivlia source.", "The two school-year snapshots require edition-family and cross-snapshot deduplication.", "The dataset card has no machine-readable license and its component row counts sum to 889 while the server reports 890."]
+    },
+    {
+      "backlog_id": "wikisource_greek",
+      "repo_id": "glossAPI/Wikisource_Greek_texts",
+      "revision": "3528a9ca06f00cd4c4fc63aa77b1a191d8ae7309",
+      "acquisition_eligible": false,
+      "disposition": "already_in_base",
+      "relationship_to_base": "same_source_in_base",
+      "license": {"declared": "cc-by-sa-3.0", "status": "open_with_attribution"},
+      "candidate_files": [
+        {"path": "wikisource_greek_deduped.parquet", "bytes": 122014016, "schema": ["author", "author_year", "title", "text", "url", "__index_level_0__"]}
+      ],
+      "known_metrics": {"repository_rows": 5394, "card_rows": 5394, "repository_bytes": 122014016, "reported_tokens": null, "tokenizer": null},
+      "route": {"cleaning_profile": "base_existing", "structural_policy": "disabled", "text_columns": ["text"], "id_columns": ["url"]},
+      "blockers": ["Nanochat already contains 5,377 rows from the same source; any 17-row delta needs a keyed audit."]
+    },
+    {
+      "backlog_id": "artos_zois",
+      "repo_id": "glossAPI/artos-zois",
+      "revision": "97115ecacdb7435c5e529e0cf56c68b0290751b6",
+      "acquisition_eligible": false,
+      "disposition": "optional_additive",
+      "relationship_to_base": "additive",
+      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
+      "candidate_files": [
+        {"path": "artos-zois.parquet", "bytes": 6237290, "schema": ["title", "content", "pdf_url"]}
+      ],
+      "known_metrics": {"repository_rows": 43, "card_rows": 43, "repository_bytes": 6237290, "reported_tokens": 3124553, "tokenizer": "nlpaueb/bert-base-greek-uncased-v1"},
+      "route": {"cleaning_profile": "historical_serial", "structural_policy": "shadow_after_segmentation", "text_columns": ["content"], "id_columns": ["pdf_url"]},
+      "blockers": ["Noncommercial/no-derivatives license review is required.", "Issue-level OCR contains ToCs, bibliographies, polytonic errors and a repeated digitization stamp; segment before structural detection."]
+    },
+    {
+      "backlog_id": "demotic_literature",
+      "repo_id": "glossAPI/dimodis_logotexnia",
+      "revision": "9f1b79d64f06201e0f4dde49befe136e136b3efa",
+      "acquisition_eligible": false,
+      "disposition": "already_in_base",
+      "relationship_to_base": "same_source_in_base",
+      "license": {"declared": "other", "status": "policy_review"},
+      "candidate_files": [
+        {"path": "dimodous_mathimata.parquet", "bytes": 394012, "schema": ["title", "text"]},
+        {"path": "erga_dimodous.csv", "bytes": 4445853, "schema": []}
+      ],
+      "known_metrics": {"repository_rows": 11, "card_rows": 11, "repository_bytes": 4839865, "reported_tokens": null, "tokenizer": null},
+      "route": {"cleaning_profile": "base_existing", "structural_policy": "disabled", "text_columns": ["text"], "id_columns": ["title"]},
+      "blockers": ["Nanochat already contains the 11-row Parquet source; the extra CSV needs schema and license review before any replacement audit."]
+    },
+    {
+      "backlog_id": "merchant_marine_textbooks",
+      "repo_id": "glossAPI/e-nautilia",
+      "revision": "5c8cbbb80976a3fa0c6f59e1cecb7d1bb86ed352",
+      "acquisition_eligible": false,
+      "disposition": "optional_additive",
+      "relationship_to_base": "additive",
+      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
+      "candidate_files": [
+        {"path": "enautilia.parquet", "bytes": 1530039, "schema": ["title", "content", "pdf_url"]}
+      ],
+      "known_metrics": {"repository_rows": 25, "card_rows": 25, "repository_bytes": 1530039, "reported_tokens": 1092978, "tokenizer": "nlpaueb/bert-base-greek-uncased-v1"},
+      "route": {"cleaning_profile": "technical_textbook", "structural_policy": "shadow_after_segmentation", "text_columns": ["content"], "id_columns": ["pdf_url"]},
+      "blockers": ["Noncommercial/no-derivatives license review is required.", "Normalization must preserve HTML tables, superscripts, subscripts and mathematical content."]
+    },
+    {
+      "backlog_id": "european_parliament_sectioned",
+      "repo_id": "glossAPI/ellinika_dedomena_europaikou_koinovouliou",
+      "revision": "af58f072df0df94963ee4f7683bffe77d75b881c",
+      "acquisition_eligible": false,
+      "disposition": "overlap_audit",
+      "relationship_to_base": "same_source_resegmented",
+      "license": {"declared": "cc-by-sa-4.0", "status": "open_with_attribution"},
+      "candidate_files": [
+        {"path": "ellhnika_dedomena_europaikou_koinovouliou.parquet", "bytes": 1172008146, "schema": ["id", "row_id", "filename", "has_table", "has_list", "has_other", "has_text", "header", "place", "section", "json_section", "section_length", "section_propo", "predicted_section", "processing_stage"]},
+        {"path": "metadata.parquet", "bytes": 6101215, "schema": []}
+      ],
+      "known_metrics": {"repository_rows": 183690, "card_rows": null, "repository_bytes": 1178109361, "reported_tokens": 273076097, "tokenizer": "unspecified_dataset_card"},
+      "route": {"cleaning_profile": "legal_sectioned", "structural_policy": "disabled", "text_columns": ["section"], "id_columns": ["row_id"]},
+      "blockers": ["Nanochat already contains the same European Parliament source in a different document segmentation.", "A document-key and content-hash replacement audit is required; section and JSON representations must never be concatenated."]
+    },
+    {
+      "backlog_id": "elstat",
+      "repo_id": "glossAPI/elstat",
+      "revision": "a78a43d0dadd33b2c718df160e2a8a8b0b2614c9",
+      "acquisition_eligible": false,
+      "disposition": "empty_scaffold",
+      "relationship_to_base": "not_in_base",
+      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
+      "candidate_files": [],
+      "known_metrics": {"repository_rows": null, "card_rows": null, "repository_bytes": null, "reported_tokens": null, "tokenizer": null},
+      "route": {"cleaning_profile": "unknown", "structural_policy": "disabled", "text_columns": [], "id_columns": []},
+      "blockers": ["Private repository contains no data artifact or documented schema."]
+    },
+    {
+      "backlog_id": "ert_press_external",
+      "repo_id": "glossAPI/ert-press",
+      "revision": "fb4d3c957deaad38d3a037c3c69e615aa5464f14",
+      "acquisition_eligible": false,
+      "disposition": "unavailable_external",
+      "relationship_to_base": "external_only",
+      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
+      "candidate_files": [],
+      "known_metrics": {"repository_rows": null, "card_rows": null, "repository_bytes": null, "reported_tokens": 9790656, "tokenizer": "unspecified_dataset_card"},
+      "route": {"cleaning_profile": "news", "structural_policy": "disabled", "text_columns": ["text"], "id_columns": ["url"]},
+      "blockers": ["HF repository has no data files and points to Mozilla Data Collective.", "External acquisition and noncommercial/no-derivatives policy review are required; news dedup must cover AMNA and EELLAK."]
+    },
+    {
+      "backlog_id": "eurlex_current",
+      "repo_id": "glossAPI/eurlex-greek-legislation",
+      "revision": "70f741f8adc9a50b53e6b3da0e6e40608c55f19e",
+      "acquisition_eligible": false,
+      "disposition": "replacement_audit",
+      "relationship_to_base": "same_source_replacement",
+      "license": {"declared": "eupl-1.2", "status": "open_with_attribution"},
+      "candidate_files": [
+        {"path": "cleaned_dataset_md.zip", "bytes": 771399833, "schema": []},
+        {"path": "cleaned_dataset_md_20260304.zip", "bytes": 41768035, "schema": []},
+        {"path": "eurlex_legislation_data.parquet", "bytes": 2447022, "schema": ["title", "document_link", "el_html_link", "category_id", "category_title", "category_acts_count"]}
+      ],
+      "known_metrics": {"repository_rows": null, "card_rows": null, "repository_bytes": 815614890, "reported_tokens": 604032339, "tokenizer": "unspecified_dataset_card"},
+      "route": {"cleaning_profile": "legal_markdown", "structural_policy": "disabled", "text_columns": ["markdown_file"], "id_columns": ["document_link"]},
+      "blockers": ["Nanochat already contains EUR-Lex Greek legislation.", "The current release is a metadata Parquet plus overlapping ZIP snapshots, not a directly streamable row dataset; manifest and document-key comparison are required."]
+    },
+    {
+      "backlog_id": "national_theatre_press",
+      "repo_id": "glossAPI/greek-national-theatre-corpus",
+      "revision": "a4debd3ca0e0cde06c49b7633158a2a88c0b6eb5",
+      "acquisition_eligible": false,
+      "disposition": "optional_additive",
+      "relationship_to_base": "additive",
+      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
+      "candidate_files": [
+        {"path": "ethniko_theatro.parquet", "bytes": 42575810, "schema": ["id", "title", "content", "author", "publication_name", "medium_type", "article_type", "section", "theatre_production", "date_published", "page_url", "file_url"]}
+      ],
+      "known_metrics": {"repository_rows": 9404, "card_rows": null, "repository_bytes": 42575810, "reported_tokens": 11172629, "tokenizer": "unspecified_dataset_card"},
+      "route": {"cleaning_profile": "historical_press_ocr", "structural_policy": "disabled", "text_columns": ["content"], "id_columns": ["id"]},
+      "blockers": ["Noncommercial/no-derivatives license review is required.", "Historical press OCR needs masthead, page-furniture and extraction-noise auditing before use."]
+    },
+    {
+      "backlog_id": "heinrich_boell_publications",
+      "repo_id": "glossAPI/heinrich_boell_stiftung",
+      "revision": "e222522ba0ea00d819344f70a640d58522d55af5",
+      "acquisition_eligible": false,
+      "disposition": "optional_additive",
+      "relationship_to_base": "additive",
+      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
+      "candidate_files": [
+        {"path": "heinrich_boell_rapidocr_cleaned1.parquet", "bytes": 122142, "schema": ["doc_num", "title", "content", "date_scraped", "date_published", "page_url", "file_url", "year", "document_id", "sha256", "topics", "filename_local", "filename_original", "file_size_bytes", "date_last_modified", "total_chars"]}
+      ],
+      "known_metrics": {"repository_rows": 62, "card_rows": 62, "repository_bytes": 122142, "reported_tokens": 46995, "tokenizer": "nlpaueb/bert-base-greek-uncased-v1"},
+      "route": {"cleaning_profile": "pdf_report_ocr", "structural_policy": "shadow_after_segmentation", "text_columns": ["content"], "id_columns": ["document_id", "sha256"]},
+      "blockers": ["Noncommercial/no-derivatives license review is required.", "Only 120 KB and 46,995 tokens are reported for 62 publications, so extraction completeness must be checked first."]
+    },
+    {
+      "backlog_id": "hellenic_parliament_legislative_work",
+      "repo_id": "glossAPI/hellenic-parliament-legislative-work",
+      "revision": "805b6b04caef383b23c8f658c6ef6ad8398501d3",
+      "acquisition_eligible": false,
+      "disposition": "empty_scaffold",
+      "relationship_to_base": "not_in_base",
+      "license": {"declared": "other", "status": "policy_review"},
+      "candidate_files": [],
+      "known_metrics": {"repository_rows": null, "card_rows": null, "repository_bytes": null, "reported_tokens": null, "tokenizer": null},
+      "route": {"cleaning_profile": "legal", "structural_policy": "disabled", "text_columns": [], "id_columns": []},
+      "blockers": ["Private repository is an empty scaffold with no data files, schema or corpus statistics."]
+    },
+    {
+      "backlog_id": "istorima_external",
+      "repo_id": "glossAPI/istorima",
+      "revision": "0f3f32db50235b0e42e130983e6a06c709835e16",
+      "acquisition_eligible": false,
+      "disposition": "unavailable_external",
+      "relationship_to_base": "external_only",
+      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
+      "candidate_files": [],
+      "known_metrics": {"repository_rows": null, "card_rows": 13548, "repository_bytes": null, "reported_tokens": 138933365, "tokenizer": "unspecified_dataset_card"},
+      "route": {"cleaning_profile": "oral_history_transcript", "structural_policy": "disabled", "text_columns": ["transcription"], "id_columns": ["id"]},
+      "blockers": ["HF repository has no data files and points to Mozilla Data Collective.", "The source includes speaker/researcher names, locations, sensitive narratives and 2,392 age-restricted interviews; consent, privacy and PII policy review are mandatory."]
+    },
+    {
+      "backlog_id": "classical_ancient_greek",
+      "repo_id": "glossAPI/klasikh_arx_ell_grammateia",
+      "revision": "41a228ef7425964aa2db8062f7041b82100b9502",
+      "acquisition_eligible": false,
+      "disposition": "already_in_base",
+      "relationship_to_base": "same_source_in_base",
+      "license": {"declared": "cc-by-sa-4.0", "status": "open_with_attribution"},
+      "candidate_files": [
+        {"path": "Classic_AG_texts_v2.parquet", "bytes": 66970928, "schema": ["author", "title", "text"]}
+      ],
+      "known_metrics": {"repository_rows": 815, "card_rows": 815, "repository_bytes": 66970928, "reported_tokens": null, "tokenizer": null},
+      "route": {"cleaning_profile": "base_existing", "structural_policy": "disabled", "text_columns": ["text"], "id_columns": ["author", "title"]},
+      "blockers": ["Nanochat already contains the same 815-row source."]
+    },
+    {
+      "backlog_id": "modern_greek_dictionary_external",
+      "repo_id": "glossAPI/modern-greek-dictionary",
+      "revision": "bafabdb324584e562a0d1352be1befc3cf538df4",
+      "acquisition_eligible": false,
+      "disposition": "unavailable_external",
+      "relationship_to_base": "external_only",
+      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
+      "candidate_files": [],
+      "known_metrics": {"repository_rows": null, "card_rows": 46745, "repository_bytes": null, "reported_tokens": 4860918, "tokenizer": "unspecified_dataset_card"},
+      "route": {"cleaning_profile": "dictionary_entries", "structural_policy": "disabled", "text_columns": ["entry_text"], "id_columns": ["source_url", "lemma"]},
+      "blockers": ["HF repository has no data files and points to Mozilla Data Collective.", "Dictionary entries require a deliberate low-weight or exclusion policy rather than ordinary prose sampling."]
+    },
+    {
+      "backlog_id": "new_sociology",
+      "repo_id": "glossAPI/new-sociology",
+      "revision": "db183139ea0826a2dfb197c6259cbdf26f314376",
+      "acquisition_eligible": false,
+      "disposition": "optional_additive",
+      "relationship_to_base": "additive",
+      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
+      "candidate_files": [
+        {"path": "new_sociology_chandra.parquet", "bytes": 14516504, "schema": ["title", "content", "date", "download_link"]}
+      ],
+      "known_metrics": {"repository_rows": 45, "card_rows": 45, "repository_bytes": 14516504, "reported_tokens": 6106912, "tokenizer": "unspecified_dataset_card"},
+      "route": {"cleaning_profile": "historical_serial", "structural_policy": "shadow_after_segmentation", "text_columns": ["content"], "id_columns": ["download_link"]},
+      "blockers": ["The card metadata declares CC BY-NC-ND while prose says CC BY and then restricts commercial use; treat as noncommercial pending correction.", "Issue-level Markdown requires segmentation before ToC/bibliography shadow detection."]
+    },
+    {
+      "backlog_id": "old_openbook_metadata",
+      "repo_id": "glossAPI/oldopenbook.gr",
+      "revision": "88c258ae6aaf0c139d1b1b478e7f11e920fc5a8e",
+      "acquisition_eligible": false,
+      "disposition": "superseded",
+      "relationship_to_base": "same_source_replacement",
+      "license": {"declared": "cc-by-nc-4.0", "status": "noncommercial_review"},
+      "candidate_files": [
+        {"path": "openbook.gr_metadata.parquet", "bytes": 578741, "schema": []}
+      ],
+      "known_metrics": {"repository_rows": null, "card_rows": null, "repository_bytes": 578741, "reported_tokens": null, "tokenizer": null},
+      "route": {"cleaning_profile": "metadata_only", "structural_policy": "disabled", "text_columns": [], "id_columns": []},
+      "blockers": ["Private metadata-only repository is superseded by the public V2 repository and the Nanochat source."]
+    },
+    {
+      "backlog_id": "openbook_v2",
+      "repo_id": "glossAPI/openbook.gr",
+      "revision": "679c9674eed4ed03af8e899f479549176c0be1d0",
+      "acquisition_eligible": false,
+      "disposition": "replacement_audit",
+      "relationship_to_base": "same_source_replacement",
+      "license": {"declared": "cc-by-nc-sa-4.0", "status": "noncommercial_review"},
+      "candidate_files": [
+        {"path": "openbook.gr_V2.parquet", "bytes": 426450898, "schema": ["title", "book_url", "pdf_url", "text"]}
+      ],
+      "known_metrics": {"repository_rows": 3193, "card_rows": 3193, "repository_bytes": 426450898, "reported_tokens": 118304239, "tokenizer": "unspecified_dataset_card"},
+      "route": {"cleaning_profile": "book_ocr", "structural_policy": "shadow_after_segmentation", "text_columns": ["text"], "id_columns": ["book_url", "pdf_url"]},
+      "blockers": ["Nanochat already contains 3,719 rows from openbook_gr; V2 has only 3,193 books and is not a demonstrated superset.", "Compare source URLs and content hashes and retain one best extraction per work."]
+    },
+    {
+      "backlog_id": "opengov_legacy_sqlite",
+      "repo_id": "glossAPI/opengov.gr-diaboyleuseis",
+      "revision": "ae0c49c9160b13c8f01581a937dd6cf336f105c7",
+      "acquisition_eligible": false,
+      "disposition": "superseded",
+      "relationship_to_base": "superseded_by_registered_source",
+      "license": {"declared": null, "status": "policy_review"},
+      "candidate_files": [
+        {"path": "backups/db_anonymized_20250725_115544.db", "bytes": 1437224960, "schema": ["ministries", "consultations", "articles", "comments", "documents"]},
+        {"path": "deliberation_data_gr_MIGRATED_FRESH_20250602170747.db", "bytes": 1471119360, "schema": ["ministries", "consultations", "articles", "comments", "documents"]}
+      ],
+      "known_metrics": {"repository_rows": null, "card_rows": 1104, "repository_bytes": 2908344320, "reported_tokens": 360000000, "tokenizer": "unspecified_dataset_card"},
+      "route": {"cleaning_profile": "nested_comments_legal", "structural_policy": "disabled", "text_columns": ["cleaned_content"], "id_columns": ["consultation_id"]},
+      "blockers": ["Legacy private SQLite snapshots are superseded by the registered opengov-deliberations-v2 Parquet source.", "Acquiring both would duplicate consultations, articles and comments."]
+    },
+    {
+      "backlog_id": "pandemos",
+      "repo_id": "glossAPI/pandemos",
+      "revision": "f91006e7d08ac18d22fb7adbc6d6f4ef85a9660d",
+      "acquisition_eligible": false,
+      "disposition": "needs_metadata",
+      "relationship_to_base": "unknown",
+      "license": {"declared": null, "status": "unknown"},
+      "candidate_files": [
+        {"path": "pandemos.parquet", "bytes": 10417910, "schema": []}
+      ],
+      "known_metrics": {"repository_rows": null, "card_rows": null, "repository_bytes": 10417910, "reported_tokens": null, "tokenizer": null},
+      "route": {"cleaning_profile": "unknown", "structural_policy": "disabled", "text_columns": [], "id_columns": []},
+      "blockers": ["Private repository has no dataset card, declared license, schema or provenance description."]
+    }
+  ]
+}
