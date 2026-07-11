@@ -83,8 +83,12 @@ IDs and supply `HF_TOKEN` only in the submission environment. For example, begin
 with the tokenizer and one audit source. Live submission always requires:
 
 ```bash
-CONFIRM_LAUNCH=1 bash clariden/submit.sh acquire
+CONFIRM_ACQUIRE=1 CONFIRM_LAUNCH=1 bash clariden/submit.sh acquire
 ```
+
+Job `2735235` is the current full acquisition. Do not submit a second copy. The
+extra `CONFIRM_ACQUIRE` guard exists for a deliberate future acquisition, not as
+part of the downstream production chain.
 
 Do not use `xfer` for this job. Hugging Face is external; `xfer` is restricted to
 `cp`/`mv`/`rsync` between CSCS filesystems.
@@ -194,11 +198,124 @@ Before changing `configs/cleaning_policy.json` from `audit_only`, require:
    replacements and template/downsampling loss;
 6. a recorded decision for every source/profile pair.
 
-This commit contains no working materializer. Passing `--materialize-dir` is a
-hard error even if someone edits the policy flags. The later materialization phase
-must bind source/profile, immutable input revision and hashes, detector binary and
-model identity, parity receipt, span ledger, tokenizer, conflict decisions and
-empty-document quarantine; it must write atomically and emit a completion manifest.
+## 7. Run the receipt-bound production CPU DAG
+
+Choose one stable run ID. Do not change it on retries:
+
+```bash
+export PIPELINE_RUN_ID=full-corpus-v2-20260711
+export ACQUISITION_RECEIPT="$RUN_ROOT/source_locks/<job-2735235>.receipt.json"
+export ACQUISITION_JOB_ID=2735235  # omit after the receipt already exists
+bash clariden/submit.sh chain-to-review
+CONFIRM_LAUNCH=1 bash clariden/submit.sh chain-to-review
+```
+
+This creates Slurm `afterok` dependencies for `10-normalize`, `20-lineage` and
+`30-review-packet`, and then stops. Lineage and review stream canonical Parquet
+directly; no redundant full-corpus JSONL copy is materialized. Every normalized
+row preserves the exact upstream `source_dataset`, candidate `source_id` and a
+work-level `work_id`.
+
+Review every request using the response schema. The packet job does not call a
+model. After all primary, secondary and required adjudicator responses exist:
+
+```bash
+export REVIEWS_JSONL=/path/to/pre_clean_responses.jsonl
+bash clariden/submit.sh review-aggregate
+CONFIRM_LAUNCH=1 bash clariden/submit.sh review-aggregate
+```
+
+The aggregate is a candidate decision artifact, not an implicit authorization.
+Inspect every exact `source_dataset` decision and record its displayed hash:
+
+```bash
+export SOURCE_ADMISSION="$PIPELINE_RUNS_ROOT/$PIPELINE_RUN_ID/stages/40-review-aggregate/admission_candidate.json"
+export CONFIRM_ADMISSION_SHA256="$(sha256sum "$SOURCE_ADMISSION" | awk '{print $1}')"
+export GREEKMMLU_QUERIES_JSONL=/immutable/path/native_greek_mcq_decontam_queries.jsonl
+export GREEKMMLU_BENCHMARK_MANIFEST="$GREEKMMLU_QUERIES_JSONL.manifest.json"
+bash clariden/submit.sh chain-after-admission
+CONFIRM_LAUNCH=1 bash clariden/submit.sh chain-after-admission
+```
+
+If every admitted source is already `include`, this continues through
+GreekMMLU, dedup and local release validation. If any source is
+`include_after_cleaning`, the chain runs deterministic cleaning/PII masking,
+builds a fresh packet from only those post-clean source datasets, and stops.
+Review that packet, then aggregate and inspect the merged final admission:
+
+```bash
+export POST_CLEAN_REVIEWS_JSONL=/path/to/post_clean_responses.jsonl
+CONFIRM_LAUNCH=1 bash clariden/submit.sh post-clean-aggregate
+
+export FINAL_SOURCE_ADMISSION="$PIPELINE_RUNS_ROOT/$PIPELINE_RUN_ID/stages/56-post-clean-review-aggregate/final_admission_candidate.json"
+export CONFIRM_FINAL_ADMISSION_SHA256="$(sha256sum "$FINAL_SOURCE_ADMISSION" | awk '{print $1}')"
+bash clariden/submit.sh chain-after-post-clean
+CONFIRM_LAUNCH=1 bash clariden/submit.sh chain-after-post-clean
+```
+
+The final cleaning job replays the same document actions and structural inputs
+against the normalized corpus. It fails if those inputs differ from the reviewed
+cleaning pass. Structural ToC/bibliography spans are off by default; enabling
+them additionally requires `APPLY_STRUCTURAL=1`, a passed
+`STRUCTURAL_MODEL_RECEIPT`, immutable span paths and an approved tracked policy.
+The cleaner applies structural spans last.
+
+The downstream chain runs GreekMMLU decontamination, the existing
+`glossapi-corpus dedup-text run` CLI and final materialization/validation. Dedup
+is explicit and receipt-bound: preserved Greek diacritics, exact plus near
+dedup, 128 MinHash permutations, 32 × 4 bands, token 5-shingles, threshold 0.85
+and a 5,000-member bucket ceiling. Publication is not submitted.
+
+Check or resume without inventing a new run:
+
+```bash
+bash clariden/submit.sh status "$PIPELINE_RUN_ID"
+FINAL_CLEAN_STAGE=58-final-clean bash clariden/submit.sh resume decontam
+CONFIRM_LAUNCH=1 FINAL_CLEAN_STAGE=58-final-clean bash clariden/submit.sh resume decontam
+```
+
+A completed receipt makes a resubmitted stage a validated no-op. An incomplete
+stage requires explicit resume; downstream stages reject missing, mismatched or
+drifted receipts even if Slurm reported success.
+
+## 8. Optional gated Hugging Face publication
+
+Publication is standalone and never part of a chain. First inspect the release
+manifest, exact token waterfall and validation receipt. Then inject the token
+only into the submission environment, never a CLI argument or file:
+
+```bash
+export HF_REPO_ID=fffoivos/glossapi-greek-cpt-full-corpus-v2
+export CONFIRM_PUBLISH="$HF_REPO_ID"
+HF_TOKEN="$(security find-generic-password -a "$USER" -s codex-hf-token -w)" \
+  CONFIRM_LAUNCH=1 bash clariden/submit.sh publish
+```
+
+On Clariden use the equivalent secure token handoff; do not copy the macOS
+Keychain command literally. The publisher must verify the local validation
+receipt, create/update the dataset with `gated=auto`, and write a publication
+receipt. Gating does not override source redistribution restrictions.
+
+## Script-interface handoff
+
+The orchestration binds normalization, lineage, review and cleaning CLIs
+directly. The parallel decontamination/release implementation must expose these
+stable entry points, or their paths must be overridden centrally in
+`clariden/paths.env` before the exact execution commit is frozen:
+
+- `decontaminate_full_corpus.py`: `--input --output --dropped --ledger
+  --manifest --queries-jsonl --benchmark-manifest --workers`;
+- `materialize_release.py`: `--input --dedup-decisions --cleaning-ledger
+  --decontam-ledger --output --manifest --token-waterfall
+  --temporary-directory --memory-limit --threads`;
+- `validate_release.py`: `--release --manifest --dedup-decisions --output
+  --temporary-directory --memory-limit --threads`;
+- `publish_release.py`: `--release --release-manifest --validation-receipt
+  --repo-id --gate-mode auto --execute`, reading `HF_TOKEN` from the environment.
+
+Every launcher fails before data access if its expected script is absent. This
+is intentional: a renamed or half-integrated implementation cannot silently
+fall back to an older corpus path.
 
 ## Clariden resource policy
 

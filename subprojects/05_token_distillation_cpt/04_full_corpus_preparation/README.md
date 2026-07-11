@@ -27,7 +27,9 @@ The evidence, recommendations and sign-off boundary are summarized in
 - Ready: immutable HF source resolution/download, staged Parquet schema checks,
   source-quality/PII/template audits, reversible Diavgeia boilerplate candidates,
   the promoted bibliography + ToC detector, and exact structural token-loss
-  accounting.
+  accounting. Clariden CPU orchestration now covers normalization through local
+  release validation with immutable run/stage receipts and explicit pre-clean,
+  post-clean admission and publication stops.
 - Still to implement before production: canonical normalizers for nested and
   non-Parquet sources, exact rule/document token accounting for Diavgeia
   signing/ADA spans, exclusions and PII replacements, source-specific overlay
@@ -268,7 +270,22 @@ QoS.
   add row-group checkpoint/resume before a measured run approaches 12 hours.
 
 The thin launchers under `clariden/` default to dry-run. Submission requires
-`CONFIRM_LAUNCH=1`.
+`CONFIRM_LAUNCH=1`. Production corpus stages also require one operator-chosen
+`PIPELINE_RUN_ID`; it resolves only to
+`$RUN_ROOT/pipeline_runs/$PIPELINE_RUN_ID`. A completed stage has both a
+hash-bound `stage_receipt.json` and `COMPLETED` marker. An incomplete directory
+is never accepted downstream and can only be re-entered with the explicit
+`submit.sh resume <stage>` path.
+
+`chain-to-review` submits normalization, lineage and packet construction with
+`afterok` dependencies, then stops. It does not invoke a reviewer.
+`chain-after-admission` requires the exact SHA-256 of the inspected admission
+file. If any source is `include_after_cleaning`, it runs the reviewed cleaning
+pass, builds a fresh post-clean packet and stops again. Only a separately
+confirmed merged final admission can launch the final deterministic cleaning
+replay and decontamination. The Hugging Face publisher is always standalone and
+requires `CONFIRM_PUBLISH` equal to the target gated repository ID. No token is
+written to a run receipt or printed as a command argument.
 
 ## Repository/runtime boundary
 

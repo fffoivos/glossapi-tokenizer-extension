@@ -32,6 +32,24 @@ phase04_require_compute_partition() {
     esac
 }
 
+phase04_require_cpu_request() {
+    # Clariden normal nodes physically contain GH200 GPUs, but these corpus jobs
+    # request no GPU/GRES.  AllocTRES still reports the four physical GPUs on an
+    # exclusive node, so inspect ReqTRES rather than SLURM_JOB_GPUS.
+    local job_record requested
+    job_record=$(scontrol show job "${SLURM_JOB_ID:?SLURM_JOB_ID is unset}" -o)
+    if [[ "$job_record" =~ ReqTRES=([^[:space:]]+) ]]; then
+        requested=${BASH_REMATCH[1]}
+    else
+        echo "ERROR: cannot determine requested TRES for CPU-only safety gate." >&2
+        return 93
+    fi
+    if [[ "$requested" == *"gres/gpu"* || "$requested" == *"gpu="* ]]; then
+        echo "ERROR: Phase-04 corpus preparation explicitly requested GPU resources: $requested" >&2
+        return 93
+    fi
+}
+
 phase04_require_file() {
     local path=$1
     [[ -s "$path" ]] || { echo "ERROR: required non-empty file missing: $path" >&2; return 85; }
@@ -74,6 +92,132 @@ phase04_require_expected_commit() {
         echo "ERROR: queued Phase-04 commit $expected differs from current checkout $actual." >&2
         return 92
     }
+}
+
+phase04_contract_python() {
+    uenv run "${PHASE04_UENV:?PHASE04_UENV is unset}" --view=default -- \
+        "${RUNTIME_VENV:?RUNTIME_VENV is unset}/bin/python" \
+        "${PHASE04_CLARIDEN_DIR:?PHASE04_CLARIDEN_DIR is unset}/stage_contract.py" "$@"
+}
+
+phase04_init_pipeline_run() {
+    [[ -n "${PIPELINE_RUN_ID:-}" ]] || {
+        echo "ERROR: set PIPELINE_RUN_ID to a stable operator-chosen run ID." >&2
+        return 94
+    }
+    [[ "$PIPELINE_RUN_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{2,79}$ ]] || {
+        echo "ERROR: invalid PIPELINE_RUN_ID: $PIPELINE_RUN_ID" >&2
+        return 95
+    }
+    local expected_root="$PIPELINE_RUNS_ROOT/$PIPELINE_RUN_ID"
+    if [[ -n "${PIPELINE_RUN_ROOT:-}" && "$PIPELINE_RUN_ROOT" != "$expected_root" ]]; then
+        echo "ERROR: PIPELINE_RUN_ROOT must equal $expected_root" >&2
+        return 96
+    fi
+    PIPELINE_RUN_ROOT=$expected_root
+    export PIPELINE_RUN_ROOT
+    mkdir -p "$PIPELINE_RUNS_ROOT"
+    phase04_contract_python init-run \
+        --run-root "$PIPELINE_RUN_ROOT" \
+        --run-id "$PIPELINE_RUN_ID" \
+        --code-commit "${PHASE04_EXPECTED_COMMIT:?PHASE04_EXPECTED_COMMIT is unset}" \
+        --sources "$SOURCE_CONFIG" \
+        --cleaning-policy "$CLEANING_POLICY" \
+        --tokenizer-sha256 "$TOKENIZER_SHA256"
+}
+
+phase04_stage_begin() {
+    local stage=$1
+    [[ "$stage" =~ ^[0-9][0-9]-[a-z0-9-]+$ ]] || {
+        echo "ERROR: invalid canonical stage name: $stage" >&2
+        return 97
+    }
+    PHASE04_STAGE=$stage
+    PHASE04_STAGE_DIR="$PIPELINE_RUN_ROOT/stages/$stage"
+    export PHASE04_STAGE PHASE04_STAGE_DIR
+    command -v flock >/dev/null || { echo "ERROR: flock is required for stage serialization" >&2; return 97; }
+    mkdir -p "$PIPELINE_RUN_ROOT/stage_locks"
+    exec {PHASE04_STAGE_LOCK_FD}>"$PIPELINE_RUN_ROOT/stage_locks/$stage.lock"
+    flock -n "$PHASE04_STAGE_LOCK_FD" || {
+        echo "ERROR: another job is already executing $PIPELINE_RUN_ID/$stage" >&2
+        return 97
+    }
+    PHASE04_STAGE_ALREADY_DONE=0
+    if [[ -s "$PHASE04_STAGE_DIR/stage_receipt.json" && ! -e "$PHASE04_STAGE_DIR/COMPLETED" ]]; then
+        [[ "${RESUME_STAGE:-0}" == "1" ]] || {
+            echo "ERROR: stage receipt exists without its completion marker; inspect and resume $stage." >&2
+            return 98
+        }
+        phase04_contract_python repair-stage-marker \
+            --stage-dir "$PHASE04_STAGE_DIR" \
+            --stage "$stage" \
+            --run-id "$PIPELINE_RUN_ID" \
+            --code-commit "$PHASE04_EXPECTED_COMMIT"
+    fi
+    if [[ -e "$PHASE04_STAGE_DIR/stage_receipt.json" || -e "$PHASE04_STAGE_DIR/COMPLETED" ]]; then
+        phase04_contract_python validate-stage \
+            --stage-dir "$PHASE04_STAGE_DIR" \
+            --stage "$stage" \
+            --run-id "$PIPELINE_RUN_ID" \
+            --code-commit "$PHASE04_EXPECTED_COMMIT"
+        PHASE04_STAGE_ALREADY_DONE=1
+        export PHASE04_STAGE_ALREADY_DONE
+        echo "STAGE_ALREADY_COMPLETE=$PHASE04_STAGE_DIR"
+        return 0
+    fi
+    if [[ -e "$PHASE04_STAGE_DIR" ]]; then
+        [[ "${RESUME_STAGE:-0}" == "1" ]] || {
+            echo "ERROR: incomplete stage exists: $PHASE04_STAGE_DIR" >&2
+            echo "Use 'clariden/submit.sh resume $stage' after inspecting it." >&2
+            return 98
+        }
+    else
+        [[ "${RESUME_STAGE:-0}" != "1" ]] || {
+            echo "ERROR: cannot resume absent stage: $PHASE04_STAGE_DIR" >&2
+            return 99
+        }
+        mkdir -p "$PHASE04_STAGE_DIR"
+    fi
+    phase04_contract_python begin-stage \
+        --stage-dir "$PHASE04_STAGE_DIR" \
+        --stage "$stage" \
+        --run-id "$PIPELINE_RUN_ID" \
+        --code-commit "$PHASE04_EXPECTED_COMMIT" \
+        --job-id "${SLURM_JOB_ID:?SLURM_JOB_ID is unset}"
+}
+
+phase04_stage_add_input() {
+    local name=$1
+    local path=$2
+    phase04_require_file "$path"
+    phase04_contract_python add-input \
+        --stage-dir "$PHASE04_STAGE_DIR" --name "$name" --path "$path"
+}
+
+phase04_stage_require_upstream() {
+    local stage=$1
+    local receipt="$PIPELINE_RUN_ROOT/stages/$stage/stage_receipt.json"
+    phase04_contract_python validate-stage \
+        --stage-dir "$PIPELINE_RUN_ROOT/stages/$stage" \
+        --stage "$stage" \
+        --run-id "$PIPELINE_RUN_ID" \
+        --code-commit "$PHASE04_EXPECTED_COMMIT"
+    phase04_stage_add_input "upstream:$stage" "$receipt"
+}
+
+phase04_stage_finish() {
+    local args=()
+    local output
+    for output in "$@"; do
+        args+=(--required-output "$output")
+    done
+    phase04_contract_python finish-stage \
+        --stage-dir "$PHASE04_STAGE_DIR" \
+        --stage "$PHASE04_STAGE" \
+        --run-id "$PIPELINE_RUN_ID" \
+        --code-commit "$PHASE04_EXPECTED_COMMIT" \
+        "${args[@]}"
+    echo "STAGE_COMPLETE=$PHASE04_STAGE_DIR"
 }
 
 phase04_print_runtime() {
