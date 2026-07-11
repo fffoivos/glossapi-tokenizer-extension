@@ -76,10 +76,15 @@ def adapt_batch(batch: Any, output_schema: Any) -> Any:
     table = pa.Table.from_batches([batch])
     training_mask = pc.fill_null(pc.equal(table["eligible_for_training"], True), False)  # noqa: E712
     table = table.filter(training_mask)
-    payload = table.to_pydict()
-    payload["upstream_source_doc_id"] = payload["source_doc_id"]
-    payload["source_doc_id"] = payload["stable_uid"]
-    return pa.Table.from_pydict(payload, schema=output_schema)
+    arrays = []
+    for field in output_schema:
+        if field.name == "source_doc_id":
+            arrays.append(table["stable_uid"])
+        elif field.name == "upstream_source_doc_id":
+            arrays.append(table["source_doc_id"])
+        else:
+            arrays.append(table[field.name])
+    return pa.Table.from_arrays(arrays, schema=output_schema)
 
 
 def stage_file(input_path: Path, input_root: Path, staged_root: Path) -> dict[str, Any]:
