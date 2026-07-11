@@ -26,13 +26,29 @@ DOWNLOAD = load_module(
     "phase04_download_locked_sources",
     HERE / "scripts" / "download_locked_sources.py",
 )
+RESOLVE = load_module(
+    "phase04_resolve_sources",
+    HERE / "scripts" / "resolve_sources.py",
+)
 
 
 class IncompleteRead(Exception):
     pass
 
 
-def test_snapshot_download_resumes_transient_incomplete_reads(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_resolver_rejects_redacted_lfs_content_identifier() -> None:
+    with pytest.raises(ValueError, match="authenticated metadata"):
+        RESOLVE.exact_lfs_sha256("*" * 64, repo_id="owner/data", path="part.parquet")
+    digest = "a" * 64
+    assert (
+        RESOLVE.exact_lfs_sha256(digest, repo_id="owner/data", path="part.parquet")
+        == digest
+    )
+
+
+def test_snapshot_download_resumes_transient_incomplete_reads(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     calls = 0
     sleeps: list[float] = []
 

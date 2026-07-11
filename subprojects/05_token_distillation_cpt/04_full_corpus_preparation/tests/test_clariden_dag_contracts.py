@@ -54,7 +54,9 @@ def test_cleaning_chains_stop_before_final_clean_and_finalization_is_explicit() 
     assert "CONFIRM_STRUCTURAL_MODEL_RECEIPT_SHA256" in submit
 
 
-def test_final_clean_request_is_immutable_and_structural_apply_is_stage54_bound() -> None:
+def test_final_clean_request_is_immutable_and_structural_apply_is_stage54_bound() -> (
+    None
+):
     submit = text("submit.sh")
     finalizer = text("66_finalize_cleaning.sbatch")
     assert "final_clean=$(submit_one final-clean" in submit
@@ -67,18 +69,23 @@ def test_final_clean_request_is_immutable_and_structural_apply_is_stage54_bound(
     assert '[[ "${APPLY_STRUCTURAL+x}" == "x" ]]' in finalizer
     assert "CONFIRM_STRUCTURAL_NOOP" in finalizer
     assert "CONFIRM_STRUCTURAL_MODEL_RECEIPT_SHA256" in finalizer
-    assert 'phase04_stage_add_input structural_finalization_request' in finalizer
+    assert "phase04_stage_add_input structural_finalization_request" in finalizer
     assert 'phase04_contract_python "${decision_args[@]}"' in finalizer
     assert "validate-cleaning-replay" in finalizer
     assert "--finalizer" in finalizer
     assert "cleaning_replay_validation.json" in finalizer
 
 
-def test_existing_only_acquisition_is_token_optional_but_lineage_debug_is_bound() -> None:
+def test_existing_only_acquisition_uses_authenticated_lock_and_lineage_debug_is_bound() -> (
+    None
+):
     acquisition = text("00_acquire_sources.sbatch")
     submit = text("submit.sh")
     lineage = text("42_build_lineage.sbatch")
-    assert 'if [[ "${ACQUISITION_EXISTING_ONLY:-0}" != "1" ]]; then' in acquisition
-    assert "resolve_args+=(--anonymous)" in acquisition
-    assert 'if [[ "${ACQUISITION_EXISTING_ONLY:-0}" != "1" ]]; then' in submit
+    assert "exact Hugging Face lock resolution requires HF_TOKEN" in acquisition
+    assert "resolve_args+=(--anonymous)" not in acquisition
+    assert (
+        "HF_TOKEN is required to resolve exact Hugging Face content identifiers"
+        in submit
+    )
     assert "phase04_stage_bind_parameter lineage_debug_exports" in lineage

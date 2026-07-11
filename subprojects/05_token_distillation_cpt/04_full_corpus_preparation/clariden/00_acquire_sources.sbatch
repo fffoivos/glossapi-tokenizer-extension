@@ -18,12 +18,10 @@ source "$HERE/paths.env"
 source "$HERE/common.sh"
 
 phase04_require_compute_partition "external Hugging Face acquisition"
-if [[ "${ACQUISITION_EXISTING_ONLY:-0}" != "1" ]]; then
-    [[ -n "${HF_TOKEN:-}" ]] || {
-        echo "ERROR: payload acquisition requires HF_TOKEN at submission; never store it in the repo" >&2
-        exit 81
-    }
-fi
+[[ -n "${HF_TOKEN:-}" ]] || {
+    echo "ERROR: exact Hugging Face lock resolution requires HF_TOKEN at submission; never store it in the repo" >&2
+    exit 81
+}
 phase04_require_uenv_python
 phase04_require_clean_git "$REPO_ROOT"
 phase04_require_expected_commit "$REPO_ROOT"
@@ -67,7 +65,6 @@ for source_id in ${SOURCES:-}; do
 done
 
 resolve_args=(--sources "$SOURCE_CONFIG" --output "$LOCK" "${source_args[@]}")
-[[ "${ACQUISITION_EXISTING_ONLY:-0}" != "1" ]] || resolve_args+=(--anonymous)
 uenv run "$PHASE04_UENV" --view=default -- \
     "$RUNTIME_VENV/bin/python" "$PHASE04_DIR/scripts/resolve_sources.py" \
     "${resolve_args[@]}"

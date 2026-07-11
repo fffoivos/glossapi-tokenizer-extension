@@ -13,13 +13,18 @@ import tempfile
 from pathlib import Path
 
 
+HEX_SHA256 = frozenset("0123456789abcdef")
+
+
 def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def write_json_atomic(path: Path, value: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".partial", dir=path.parent)
+    descriptor, temporary = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".partial", dir=path.parent
+    )
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
             json.dump(value, handle, ensure_ascii=False, indent=2, sort_keys=True)
@@ -44,15 +49,33 @@ def lfs_value(value: object, name: str) -> object | None:
     return getattr(value, name, None)
 
 
+def exact_lfs_sha256(value: object | None, *, repo_id: str, path: str) -> str | None:
+    """Require an exact LFS content identifier when the API declares LFS metadata."""
+
+    if value is None:
+        return None
+    if not isinstance(value, str) or len(value) != 64 or set(value) - HEX_SHA256:
+        raise ValueError(
+            f"{repo_id}:{path}: Hugging Face did not expose an exact LFS SHA-256; "
+            "resolve with authenticated metadata (HF_TOKEN)"
+        )
+    return value
+
+
 def matches(path: str, includes: list[str], excludes: list[str]) -> bool:
-    included = not includes or any(fnmatch.fnmatchcase(path, pattern) for pattern in includes)
+    included = not includes or any(
+        fnmatch.fnmatchcase(path, pattern) for pattern in includes
+    )
     excluded = any(fnmatch.fnmatchcase(path, pattern) for pattern in excludes)
     return included and not excluded
 
 
 def entries(config: dict) -> list[dict]:
     base = {"source_id": "nanochat_base", **config["base"]}
-    overlap = {"source_id": "apertus_overlap_overlay", **config["apertus_overlap_overlay"]}
+    overlap = {
+        "source_id": "apertus_overlap_overlay",
+        **config["apertus_overlap_overlay"],
+    }
     tokenizer = {
         "source_id": "modern_greek_148k_tokenizer",
         **config["tokenizer"],
@@ -63,9 +86,15 @@ def entries(config: dict) -> list[dict]:
 def main() -> int:
     here = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser()
-    parser.add_argument("--sources", type=Path, default=here / "configs" / "sources.json")
-    parser.add_argument("--output", type=Path, default=here / "configs" / "sources.lock.json")
-    parser.add_argument("--source", action="append", help="resolve only selected source_id values")
+    parser.add_argument(
+        "--sources", type=Path, default=here / "configs" / "sources.json"
+    )
+    parser.add_argument(
+        "--output", type=Path, default=here / "configs" / "sources.lock.json"
+    )
+    parser.add_argument(
+        "--source", action="append", help="resolve only selected source_id values"
+    )
     parser.add_argument(
         "--anonymous",
         action="store_true",
@@ -74,7 +103,9 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.output.exists():
-        raise FileExistsError(f"refusing to overwrite immutable source lock: {args.output}")
+        raise FileExistsError(
+            f"refusing to overwrite immutable source lock: {args.output}"
+        )
 
     try:
         from huggingface_hub import HfApi
@@ -84,9 +115,15 @@ def main() -> int:
 
     config = json.loads(args.sources.read_text(encoding="utf-8"))
     selected_ids = set(args.source or [])
-    registry = [entry for entry in entries(config) if not selected_ids or entry["source_id"] in selected_ids]
+    registry = [
+        entry
+        for entry in entries(config)
+        if not selected_ids or entry["source_id"] in selected_ids
+    ]
     if selected_ids - {entry["source_id"] for entry in registry}:
-        raise ValueError(f"unknown source ids: {sorted(selected_ids - {entry['source_id'] for entry in registry})}")
+        raise ValueError(
+            f"unknown source ids: {sorted(selected_ids - {entry['source_id'] for entry in registry})}"
+        )
 
     api = HfApi(token=False if args.anonymous else os.environ.get("HF_TOKEN"))
     locked: list[dict] = []
@@ -94,9 +131,13 @@ def main() -> int:
         repo_id = entry["repo_id"]
         repo_type = entry.get("repo_type", "dataset")
         revision = entry["revision"]
-        info = api.repo_info(repo_id=repo_id, repo_type=repo_type, revision=revision, files_metadata=True)
+        info = api.repo_info(
+            repo_id=repo_id, repo_type=repo_type, revision=revision, files_metadata=True
+        )
         if info.sha != revision:
-            raise ValueError(f"{repo_id}: requested {revision}, API resolved {info.sha}")
+            raise ValueError(
+                f"{repo_id}: requested {revision}, API resolved {info.sha}"
+            )
         includes = list(entry.get("include_globs", []))
         excludes = list(entry.get("exclude_globs", []))
         files = []
@@ -107,15 +148,20 @@ def main() -> int:
             recursive=True,
             expand=True,
         ):
-            if not isinstance(item, RepoFile) or not matches(item.path, includes, excludes):
+            if not isinstance(item, RepoFile) or not matches(
+                item.path, includes, excludes
+            ):
                 continue
             lfs = getattr(item, "lfs", None)
+            lfs_sha256 = exact_lfs_sha256(
+                lfs_value(lfs, "sha256"), repo_id=repo_id, path=item.path
+            )
             files.append(
                 {
                     "path": item.path,
                     "size": int(item.size or 0),
                     "blob_id": getattr(item, "blob_id", None),
-                    "lfs_sha256": lfs_value(lfs, "sha256"),
+                    "lfs_sha256": lfs_sha256,
                     "lfs_size": lfs_value(lfs, "size"),
                 }
             )

@@ -107,20 +107,19 @@ cd "$REPO/subprojects/05_token_distillation_cpt/04_full_corpus_preparation"
 export ACQUISITION_EXISTING_ONLY=1
 export CONFIRM_ACQUIRE=1
 export CONFIRM_LAUNCH=1
-unset HF_TOKEN  # optional for this public, existing-payload verification path
+# Inject HF_TOKEN through the secure submission environment; never store it.
 bash clariden/submit.sh acquire
 ```
 
 Do not set `LOCK`, `DOWNLOAD_MANIFEST`, `SCHEMA_AUDIT` or
 `ACQUISITION_RECEIPT`: the job creates fresh timestamp/job-ID paths for all four.
-`--existing-only` performs no network payload download and does not require an
-HF token for the currently public source registry. Stage 00 still resolves the
-pinned public repository metadata anonymously to create the fresh lock; all
-158 GiB payload checks are local. It fails if metadata access is unavailable or
-any locked file is missing, then rechecks payload identity and the corrected
-schemas before writing the new receipt. Preserve the four paths printed by this
-new job. A future private source will naturally require a token even in this
-mode because its metadata cannot be resolved anonymously.
+`--existing-only` performs no network payload download. It does require an HF
+token to resolve exact LFS content identifiers: the anonymous API can redact an
+LFS SHA-256 as 64 asterisks, which is not acceptable receipt evidence. All
+158 GiB payload checks remain local. The resolver now rejects redacted hashes
+before payload verification; the downloader then fails if any locked file is
+missing or mismatched and rechecks the corrected schemas before writing the new
+receipt. Preserve the four paths printed by this new job.
 
 For the downstream chain, use only the fresh passed receipt and omit the old job
 ID entirely:

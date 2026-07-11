@@ -137,12 +137,10 @@ manual_preflight() {
                 echo "ERROR: set CONFIRM_ACQUIRE=1 for an intentional acquisition or existing-payload verification run." >&2
                 exit 5
             }
-            if [[ "${ACQUISITION_EXISTING_ONLY:-0}" != "1" ]]; then
-                [[ -n "${HF_TOKEN:-}" ]] || {
-                    echo "ERROR: HF_TOKEN is required for payload acquisition." >&2
-                    exit 5
-                }
-            fi
+            [[ -n "${HF_TOKEN:-}" ]] || {
+                echo "ERROR: HF_TOKEN is required to resolve exact Hugging Face content identifiers." >&2
+                exit 5
+            }
             ;;
         review-aggregate|40-review-aggregate)
             [[ -s "${REVIEWS_JSONL:-}" ]] || { echo "ERROR: REVIEWS_JSONL is missing/empty." >&2; exit 6; }
