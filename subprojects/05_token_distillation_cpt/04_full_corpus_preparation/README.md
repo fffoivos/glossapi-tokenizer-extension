@@ -112,11 +112,18 @@ that appears in `configs/sources.json`. Moving an entry into acquisition require
 an explicit source-contract review, removal from the backlog, and a separate
 registry change.
 
-The five genuinely additive HF-resident cultural candidates contribute only
-about 21.5 million card-reported BERT tokens. The larger School-books and
-Openbook V2 artifacts are overlap/replacement audits, not additive volume. They
-therefore do not materially change the roughly 60-billion-token planning case;
-their value, if licensing and extraction checks pass, is register diversity.
+The 21.5-million-token figure applies only to the five small
+`optional_additive` entries in this backlog. It is **not** the total published
+after Nanochat was assembled. `configs/sources.json` separately tracks 16 much
+larger acquisition candidates: 30.03 GB of pinned HF payloads, split into 15.55
+GB marked additive and 14.47 GB marked replacement/overlap. Their comparable
+ModernGreek-148k token count is deliberately left for the corpus audit rather
+than inferred from compressed bytes or incompatible dataset-card tokenizers.
+
+School-books and Openbook V2 also remain overlap/replacement audits, not raw
+additive volume. The backlog's small additive sources primarily offer register
+diversity; the registered candidates are where most prospective new volume
+lives.
 
 ## Exact token-loss contract
 
