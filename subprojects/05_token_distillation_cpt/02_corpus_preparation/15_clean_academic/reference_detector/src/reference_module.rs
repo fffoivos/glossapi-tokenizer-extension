@@ -56,7 +56,7 @@ impl Default for DetectConfig {
 #[derive(Serialize, Clone, Debug)]
 pub struct Span {
     pub doc_id: String,
-    /// endmatter_bib | footnote_citation | footnote_prose | beta_section |
+    /// endmatter_bib | bib_span | toc_span | beta_section_kept | footnote_citation | footnote_prose |
     /// intext_paren_ay | intext_bracket | intext_paren_num
     pub kind: String,
     pub char_start: usize,
@@ -98,6 +98,8 @@ pub struct Counters {
     pub beta_sections_total: u32,
     pub beta_kept_as_non_bib: u32,
     pub beta_chars_flagged: usize,
+    pub pi_toc_sections_total: u32,
+    pub pi_toc_chars_flagged: usize,
     // routing
     pub dominant_regime: String,
 }
@@ -137,7 +139,7 @@ fn index_lines(text: &str) -> (Vec<Line<'_>>, usize) {
 }
 
 fn header_text(line: &str) -> &str {
-    line.trim_start_matches(|c| c == '#' || c == ' ' || c == '\t')
+    line.trim_start_matches(['#', ' ', '\t'])
 }
 
 fn is_allcaps_ish(line: &str) -> bool {
@@ -408,7 +410,7 @@ fn pick_regime(c: &Counters) -> String {
 }
 
 // ---------------------------------------------------------------------------
-// Section-level detection (kallipos / pergamos: predicted_section == "β")
+// Section-level detection (kallipos / pergamos: β=bibliography, π=table of contents)
 // ---------------------------------------------------------------------------
 #[derive(Clone, Debug)]
 pub struct SectionRow {
@@ -433,8 +435,17 @@ pub fn detect_sections(doc_id: &str, source: &str, rows: &[SectionRow], cfg: &De
         .map(|r| r.positional_fraction)
         .collect();
     let mut cum_chars = 0usize;
+    let mut cum_lines = 0usize;
     for row in rows {
         let seclen = row.section.chars().count();
+        let newline_count = row.section.chars().filter(|c| *c == '\n').count();
+        // The reconstructed document joins every section with one newline. The
+        // next section cursor therefore advances by internal newlines + 1, but
+        // a span ending on a trailing newline belongs to the preceding line.
+        let section_lines = newline_count + 1;
+        let span_line_end = cum_lines
+            + newline_count
+            - usize::from(!row.section.is_empty() && row.section.ends_with('\n'));
         // in-text counters across all body text
         c.intext_paren_authoryear += sig::INTEXT_PAREN_AY.find_iter(&row.section).count() as u32;
         c.intext_bracket_numeric += sig::INTEXT_BRACKET.find_iter(&row.section).count() as u32;
@@ -488,27 +499,50 @@ pub fn detect_sections(doc_id: &str, source: &str, rows: &[SectionRow], cfg: &De
             } else {
                 c.beta_chars_flagged += seclen;
             }
-            spans.push(Span {
-                doc_id: doc_id.to_string(),
-                kind: "beta_section".to_string(),
-                char_start: cum_chars,
-                char_end: cum_chars + seclen,
-                line_start: 0,
-                line_end: 0,
-                trigger: format!(
-                    "{} | yc={} yd={:.2} latin={:.2} dash={:.2} pos={:.2}",
-                    row.header.chars().take(40).collect::<String>(),
-                    year_count,
-                    year_density,
-                    latin_frac,
-                    dashlist_density,
-                    row.positional_fraction
-                ),
-                gated_by: format!("{}:{}", decision, reason),
-                row_id: Some(row.row_id.clone()),
-            });
+            if seclen > 0 {
+                spans.push(Span {
+                    doc_id: doc_id.to_string(),
+                    kind: if decision == "bib" {
+                        "bib_span".to_string()
+                    } else {
+                        "beta_section_kept".to_string()
+                    },
+                    char_start: cum_chars,
+                    char_end: cum_chars + seclen,
+                    line_start: cum_lines,
+                    line_end: span_line_end,
+                    trigger: format!(
+                        "{} | yc={} yd={:.2} latin={:.2} dash={:.2} pos={:.2}",
+                        row.header.chars().take(40).collect::<String>(),
+                        year_count,
+                        year_density,
+                        latin_frac,
+                        dashlist_density,
+                        row.positional_fraction
+                    ),
+                    gated_by: format!("{}:{}", decision, reason),
+                    row_id: Some(row.row_id.clone()),
+                });
+            }
+        } else if row.predicted_section.trim() == "π" {
+            c.pi_toc_sections_total += 1;
+            c.pi_toc_chars_flagged += seclen;
+            if seclen > 0 {
+                spans.push(Span {
+                    doc_id: doc_id.to_string(),
+                    kind: "toc_span".to_string(),
+                    char_start: cum_chars,
+                    char_end: cum_chars + seclen,
+                    line_start: cum_lines,
+                    line_end: span_line_end,
+                    trigger: row.header.chars().take(80).collect(),
+                    gated_by: "section_label:pi".to_string(),
+                    row_id: Some(row.row_id.clone()),
+                });
+            }
         }
         cum_chars += seclen + 1;
+        cum_lines += section_lines;
     }
     c.dominant_regime = pick_regime(&c);
     DocResult { spans, counters: c }
@@ -525,6 +559,7 @@ mod tests {
     fn folds_accents_and_homoglyphs() {
         assert!(sig::fold("ΒΙΒΛΙΟΓΡΑΦΙΑ").contains("βιβλιογραφ"));
         assert!(sig::fold_header("Bιβλιογραφία").contains("βιβλιογραφ")); // Latin capital B
+        assert!(sig::fold_header("## ἈΝΑΦΟΡΑΊ").contains("αναφοραι"));
         assert!(sig::fold("Πηγές").contains("πηγ"));
     }
 
@@ -586,7 +621,62 @@ mod tests {
         assert_eq!(r.counters.beta_sections_total, 3);
         assert!(r.counters.beta_kept_as_non_bib >= 2, "colophon + CV kept");
         // r3 is a real end bibliography → flagged
-        assert!(r.spans.iter().any(|s| s.gated_by.starts_with("bib")));
+        assert!(r.spans.iter().any(|s| s.kind == "bib_span" && s.gated_by.starts_with("bib")));
+    }
+
+    #[test]
+    fn pi_section_emits_toc_span_with_document_offsets() {
+        let rows = vec![
+            SectionRow { row_id: "body".into(), header: "Εισαγωγή".into(),
+                section: "Πρώτη γραμμή\nΔεύτερη γραμμή".into(),
+                predicted_section: "κ".into(), positional_fraction: 0.0 },
+            SectionRow { row_id: "toc".into(), header: "Περιεχόμενα".into(),
+                section: "1. Εισαγωγή .... 1\n2. Μέθοδος .... 4".into(),
+                predicted_section: "π".into(), positional_fraction: 0.1 },
+        ];
+        let result = detect_sections("p2", "pergamos", &rows, &DetectConfig::default());
+        let span = result.spans.iter().find(|span| span.kind == "toc_span").unwrap();
+        assert_eq!(result.counters.pi_toc_sections_total, 1);
+        assert_eq!(span.row_id.as_deref(), Some("toc"));
+        assert_eq!(span.line_start, 2);
+        assert_eq!(span.char_start, rows[0].section.chars().count() + 1);
+    }
+
+    #[test]
+    fn section_spans_handle_trailing_newline_and_empty_sections() {
+        let rows = vec![
+            SectionRow {
+                row_id: "toc-newline".into(),
+                header: "Περιεχόμενα".into(),
+                section: "1. Εισαγωγή .... 1\n".into(),
+                predicted_section: "π".into(),
+                positional_fraction: 0.0,
+            },
+            SectionRow {
+                row_id: "toc-empty".into(),
+                header: "Περιεχόμενα".into(),
+                section: "".into(),
+                predicted_section: "π".into(),
+                positional_fraction: 0.1,
+            },
+            SectionRow {
+                row_id: "body".into(),
+                header: "Κείμενο".into(),
+                section: "σώμα".into(),
+                predicted_section: "κ".into(),
+                positional_fraction: 0.2,
+            },
+        ];
+        let result = detect_sections("p3", "pergamos", &rows, &DetectConfig::default());
+        let toc: Vec<_> = result
+            .spans
+            .iter()
+            .filter(|span| span.kind == "toc_span")
+            .collect();
+        assert_eq!(toc.len(), 1, "empty sections must not emit zero-length spans");
+        assert_eq!(toc[0].line_start, 0);
+        assert_eq!(toc[0].line_end, 0, "trailing newline belongs to line zero");
+        assert!(toc[0].char_end > toc[0].char_start);
     }
 
     #[test]

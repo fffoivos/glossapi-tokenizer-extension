@@ -22,8 +22,10 @@ emitted spans + counters.
 ```
 reference_detector/   Rust crate — the detector (hot path). cargo test; cargo build --release
   src/reference_signals.rs   regex / label / codepoint inventory (accent+homoglyph fold, U+0387≠U+00B7)
-  src/reference_module.rs    detect_doc (whole-doc) + detect_sections (β gate); split counters; tests
-  src/main.rs                reference_detect CLI — zstd/JSONL streaming, rayon batches
+  src/reference_module.rs    detect_doc + section labels (β=bib, π=ToC); split counters; tests
+  src/span_line_model.rs     promoted conservative bibliography line head
+  src/toc_line_model.rs      frozen ToC line head + front gate
+  src/main.rs                JSONL streaming, rayon batches, combined structure-spans mode
 driver/run_reference_detect.py   thin I/O driver (parquet→grouped-jsonl | jsonl.zst→binary). No per-doc text work in Python.
 review/sample_refspans.py        review sampler — full-doc, post-cleaner, inline <match kind=…>, stratified, metric-prefixed
 investigation/                   multi-agent synthesis (_raw_synthesis.json) + section-labelled samples + example render
@@ -32,23 +34,26 @@ out/                             spans + counters per source (gitignored scratch
 
 ## Run
 
+Production orchestration and exact token-loss accounting live in
+[`../../04_full_corpus_preparation`](../../04_full_corpus_preparation/README.md). The commands below are
+component-level examples only.
+
 ```bash
-PY=/home/foivos/Projects/glossapi-tokenizer-extension/.venv-hplt-review/bin/python
 cargo build --release --manifest-path reference_detector/Cargo.toml
 
 # section sources (parquet, β label available)
-$PY driver/run_reference_detect.py --source kallipos --mode sections \
-    --input /home/foivos/data/glossapi_raw/hf/Apothetirio_Kallipos/Dataset_Kallipos.parquet \
+python3 driver/run_reference_detect.py --source kallipos --mode sections \
+    --input /path/to/Apothetirio_Kallipos/Dataset_Kallipos.parquet \
     --doc-col filename --out-dir out/kallipos
 
-# whole-doc sources (jsonl.zst, header+footnote detection)
-$PY driver/run_reference_detect.py --source greek_phd --mode wholedoc \
-    --input '/home/foivos/data/glossapi_raw/mozilla/greek_phd/phd-theses-corpus/contents/*.jsonl.zst' \
+# whole-doc sources (combined promoted bibliography + ToC heads)
+python3 driver/run_reference_detect.py --source greek_phd --mode structure-spans \
+    --input '/path/to/greek_phd/*.jsonl.zst' \
     --out-dir out/greek_phd
 
 # review (inline <match>, stratified on a counter)
-$PY review/sample_refspans.py --source greek_phd --mode wholedoc \
-    --text-input '/home/foivos/data/glossapi_raw/mozilla/greek_phd/phd-theses-corpus/contents/*.jsonl.zst' \
+python3 review/sample_refspans.py --source greek_phd --mode wholedoc \
+    --text-input '/path/to/greek_phd/*.jsonl.zst' \
     --spans out/greek_phd/refspans/greek_phd.spans.jsonl \
     --counters out/greek_phd/greek_phd.counters.jsonl \
     --metric footnote_citation_only --out-dir out/greek_phd/review_samples
@@ -60,7 +65,21 @@ passed through the driver via `--knob=--flag=value`.
 
 ## Status
 
-Detector built + unit-tested (7/7) + validated on real greek_phd 006 (reproduces U+0387=983, bib
-boundary at L7397) and a Kallipos section slice (gate split 1657 bib / 545 kept-non-bib). Drop-policy
-thresholds, the section-classifier-on-whole-doc question, and the mojibake/Pergamos-count items are
-**open for the user** (see investigation §7). Production runs at corpus scale belong on CSCS, not home.
+As of 2026-07-11, the promoted bibliography constants/operating point and ToC head are deployed to
+Rust. `structure-spans` emits both span kinds, immutable text/source provenance, separate counters and
+explicit overlap/conflict mass; any malformed input row is fatal. Section mode maps approved β sections
+to `bib_span` and π sections to `toc_span`, skips empty spans and has trailing-newline offset tests. The
+crate has 18 passing tests. The Phase-04 suite also checks both heads across every U+0370–U+03FF edge
+code point at `<1e-12` Python↔Rust probability difference.
+
+Still required before destructive use:
+
+- hydrate the absent `STRUCT_2K_gold.jsonl` artifact and run `eval/rust_parity_struct.py` on the full
+  held-out documents;
+- add Pergamos to a fresh source-balanced validation sample;
+- run the Phase-04 exact ModernGreek-148k counterfactual token-loss audit;
+- approve the tracked cleaning policy. It currently remains `audit_only`.
+
+Materialization is not implemented in this phase and is hard-disabled even if a policy flag is edited.
+
+Corpus-scale work belongs on Clariden compute nodes. `xfer` is transfer-only.

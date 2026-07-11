@@ -1,5 +1,21 @@
 # Two-head line classifier — results (2000-doc gold)
 
+## Deployment update — 2026-07-11
+
+The Step-6 Rust scope below is now implemented in the Phase-04 integration:
+
+- promoted bibliography constants plus the 0.999 prose-protection operating point;
+- polytonic Greek parity in `latin_fraction`;
+- `toc_line_model.rs`, `toc-spans`, `toc-score-lines` and combined
+  `structure-spans` modes;
+- π-labelled ToC sections and gated β-labelled bibliography sections;
+- immutable provenance, conflict accounting and exact counterfactual token accounting in Phase 04.
+
+The crate has 18 passing tests. The Phase-04 suite probes every U+0370–U+03FF
+edge code point and matches Python probabilities within `1e-12` for both heads. Full held-out span parity remains gated by
+the absent `units/STRUCT_2K_gold.jsonl`; hydrate it, then run
+`rust_parity_struct.py` before production detection.
+
 Per-line structural tagger: two independent binary heads (bibliography + table-of-contents) over the
 unified gold `units/STRUCT_2K_gold.jsonl` (2000 docs; labels 0 other 78% / 1 bib 15% / 2 toc 6%;
 doc-grouped leak-free split train 1392 / test 608). Design = `MODEL_DESIGN_RESEARCH.md`. All numbers on the
@@ -55,7 +71,7 @@ negligible prose cost — an operating-point choice for the user.
 - Span-level IoU + doc-bootstrap CIs (the other two of the three views) are not yet run — line-level
   prose-protection is the headline; those are refinement.
 
-## Next — Step 6, Rust deployment (gated on this eval; cleared). Precise scope:
+## Step 6 Rust deployment specification (implemented; full held-out parity pending)
 1. **Promote bib + re-sync `span_line_model.rs`** from the new `span_line_lr_struct_model.json`:
    `MU/SD/W/BIAS` (22 feats) + `THETA_*` from `struct_smooth_params.json["bib"]`. **Coupled fix:**
    `py_latin_fraction` (`:67`) must add `'\u{1F00}'..='\u{1FFF}'` to match the now-polytonic Python `_GRK`

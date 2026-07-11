@@ -4,35 +4,37 @@
 //! eval/decode_spans.py): per-PRESENT-line (non-blank) features → standardized logistic-regression
 //! dot-product → per-line probability → hysteresis run-length decoder → multi-span (start_line,end_line).
 //!
-//! Constants below are the exported eval/span_line_lr_model.json + eval/span_smooth_params.json — KEEP
-//! IN SYNC if the model is refit. Regexes mirror span_signals.py EXACTLY (NOT the β-gate signals —
-//! latin_fraction uses Greek U+0386..=03CE only, NAME includes polytonic U+1F00..=1FFF), verified to
-//! per-line parity by tests/parity (see eval/rust_parity.py).
+//! Constants below are the promoted eval/span_line_lr_struct_model.json + the conservative bibliography
+//! operating point in eval/struct_smooth_params.json. KEEP IN SYNC if the model is refit. Regexes mirror
+//! span_signals.py exactly, including its literal U+0386..U+03CE and Greek
+//! Extended ranges in latin_fraction.
 use once_cell::sync::Lazy;
 use regex::Regex;
 
-// ---- model (synced from eval/span_line_lr_model.json) ----
+// ---- model (synced from eval/span_line_lr_struct_model.json) ----
 pub const FEATS: usize = 22;
+pub const MODEL_ID: &str = "bib_span_line_lr_struct_v1";
+pub const DECODER_ID: &str = "hysteresis_hi0.9_lo0.6_gap4_lmin2";
 const MU: [f64; FEATS] = [
-    0.35766, 0.15613, 0.01851, 0.02984, 0.10199, 0.17111, 0.04709, 0.08027, 0.40398, 0.00202,
-    0.17659, 0.02554, 0.10184, 0.35768, 0.35771, 0.35783, 0.3137, 0.17117, 0.95755, 0.11916,
-    0.02128, 0.68316,
+    0.24535, 0.09646, 0.01305, 0.02029, 0.06425, 0.1103, 0.03258, 0.05216, 0.34169, 0.00142,
+    0.23913, 0.01421, 0.07026, 0.24538, 0.2454, 0.24539, 0.20549, 0.11032, 0.96995, 0.09293,
+    0.01179, 0.54782,
 ];
 const SD: [f64; FEATS] = [
-    0.47931, 0.36297, 0.13478, 0.17016, 0.30263, 0.3766, 0.21184, 0.27171, 0.46496, 0.04493,
-    0.38132, 0.15775, 0.30244, 0.39577, 0.37694, 0.3688, 0.3766, 0.27155, 0.16742, 0.32398,
-    0.11391, 0.27349,
+    0.43029, 0.29522, 0.11351, 0.141, 0.24519, 0.31326, 0.17754, 0.22234, 0.44758, 0.03761,
+    0.42655, 0.11834, 0.25559, 0.3468, 0.32925, 0.32231, 0.32298, 0.22096, 0.14168, 0.29033,
+    0.08553, 0.3309,
 ];
 const W: [f64; FEATS] = [
-    0.06301, 0.27481, 0.15979, 0.12066, 0.18983, 0.03823, 0.09949, -0.02856, 0.54876, -0.13274,
-    0.14505, 0.26076, -0.12174, 0.36788, 0.41554, 0.5211, 0.73694, 0.27771, -0.31073, 0.28922,
-    0.12992, 0.54016,
+    0.04336, 0.27885, 0.08806, 0.07054, 0.23073, 0.06998, 0.05731, -0.00128, 0.54541, 0.00399,
+    0.4445, 0.19375, -0.0473, 0.23625, 0.25282, 0.2996, 0.60468, 0.33603, -0.06961, 0.89524,
+    0.18378, 0.74429,
 ];
-const BIAS: f64 = -2.86499;
-// hysteresis (eval/span_smooth_params.json)
-const THETA_HI: f64 = 0.8;
+const BIAS: f64 = -3.33904;
+// Conservative bibliography operating point (eval/struct_smooth_params.json, floor 0.999).
+const THETA_HI: f64 = 0.9;
 const THETA_LO: f64 = 0.6;
-const GAP: usize = 2;
+const GAP: usize = 4;
 const LMIN: usize = 2;
 
 // ---- regexes (EXACTLY span_signals.py) ----
@@ -62,10 +64,10 @@ const H_APP: &[&str] = &["δραστηριοτ", "λεξεις-κλειδ", "λ�
 fn py_latin_fraction(s: &str) -> f64 {
     let (mut lat, mut grk) = (0u32, 0u32);
     for c in s.chars() {
-        if ('A'..='Z').contains(&c) || ('a'..='z').contains(&c) {
+        if c.is_ascii_alphabetic() {
             lat += 1;
-        } else if ('\u{0386}'..='\u{03CE}').contains(&c) {
-            grk += 1; // matches Python _GRK = [Α-Ωα-ωΆ-ώϊϋΐΰ] (NO polytonic)
+        } else if ('\u{0386}'..='\u{03CE}').contains(&c) || ('\u{1F00}'..='\u{1FFF}').contains(&c) {
+            grk += 1;
         }
     }
     let d = lat + grk;
@@ -91,9 +93,9 @@ fn mean(v: &[f64], i: usize, k: usize) -> f64 {
     if b > a { v[a..b].iter().sum::<f64>() / (b - a) as f64 } else { 0.0 }
 }
 
-/// Per-present-line probability. `present`: non-blank line texts in order; `abs_idx`: their absolute
-/// line indices in the full doc; `n_total`: total doc lines (for `pos`). Mirrors line_lr.doc_features.
-pub fn span_scores(present: &[&str], abs_idx: &[usize], n_total: usize) -> Vec<f64> {
+/// Shared 22-feature vector used by both frozen heads. `present` contains non-blank lines, `abs_idx`
+/// their absolute line indices, and `n_total` the full document line count.
+pub fn base_features(present: &[&str], abs_idx: &[usize], n_total: usize) -> Vec<[f64; FEATS]> {
     let n = present.len();
     let low: Vec<String> = present.iter().map(|s| s.to_lowercase()).collect();
     let ent: Vec<f64> = (0..n).map(|i| if is_entry(present[i], &low[i]) { 1.0 } else { 0.0 }).collect();
@@ -121,7 +123,7 @@ pub fn span_scores(present: &[&str], abs_idx: &[usize], n_total: usize) -> Vec<f
         let lo = &low[i];
         let trimmed_len = l.trim().chars().count();
         let lead = LEADNUM.captures(l).and_then(|c| c.get(1)).and_then(|m| m.as_str().parse::<f64>().ok()).unwrap_or(0.0);
-        let f = [
+        out.push([
             ent[i],
             if AUTHOR.is_match(l) { 1.0 } else { 0.0 },
             if GREEK_AUTHOR.is_match(l) { 1.0 } else { 0.0 },
@@ -144,14 +146,23 @@ pub fn span_scores(present: &[&str], abs_idx: &[usize], n_total: usize) -> Vec<f
             under[i],
             lead.min(300.0) / 300.0,
             abs_idx[i] as f64 / nt,
-        ];
-        let mut s = BIAS;
-        for j in 0..FEATS {
-            s += W[j] * ((f[j] - MU[j]) / SD[j]);
-        }
-        out.push(1.0 / (1.0 + (-s).exp()));
+        ]);
     }
     out
+}
+
+/// Per-present-line bibliography probability. Mirrors line_lr.doc_features + the promoted LR head.
+pub fn span_scores(present: &[&str], abs_idx: &[usize], n_total: usize) -> Vec<f64> {
+    base_features(present, abs_idx, n_total)
+        .iter()
+        .map(|features| {
+            let mut score = BIAS;
+            for j in 0..FEATS {
+                score += W[j] * ((features[j] - MU[j]) / SD[j]);
+            }
+            1.0 / (1.0 + (-score).exp())
+        })
+        .collect()
 }
 
 /// Hysteresis run-length over per-present-line probabilities → (start_idx,end_idx) present-line runs.
@@ -159,10 +170,10 @@ pub fn hysteresis(p: &[f64]) -> Vec<(usize, usize)> {
     let mut runs: Vec<(usize, usize)> = Vec::new();
     let mut inrun = false;
     let mut start = 0usize;
-    for i in 0..p.len() {
+    for (i, probability) in p.iter().enumerate() {
         if !inrun {
-            if p[i] >= THETA_HI { inrun = true; start = i; }
-        } else if p[i] < THETA_LO {
+            if *probability >= THETA_HI { inrun = true; start = i; }
+        } else if *probability < THETA_LO {
             runs.push((start, i - 1)); inrun = false;
         }
     }
@@ -223,17 +234,21 @@ pub fn span_detect(doc_id: &str, _source: &str, text: &str) -> Vec<Span> {
 mod tests {
     use super::*;
     #[test]
-    fn latin_fraction_excludes_polytonic_like_python() {
-        // 'ἱστορίαι' is polytonic (U+1F00+) -> NOT counted Greek by the Python def -> latin_frac on a
-        // pure-polytonic word is 0 (no Latin, no monotonic-Greek letters counted).
+    fn latin_fraction_includes_polytonic_like_python() {
         assert_eq!(py_latin_fraction("ἱστορίαι"), 0.0);
+        assert!((py_latin_fraction("aἱ") - 0.5).abs() < 1e-9);
         assert!((py_latin_fraction("Smith") - 1.0).abs() < 1e-9);
         assert!((py_latin_fraction("Παπαδ") - 0.0).abs() < 1e-9);
+        // Python's literal regex range does not count Greek question mark U+037E
+        // or U+03CF; these edge cases previously broke frozen-head parity.
+        assert_eq!(py_latin_fraction("a\u{037e}"), 1.0);
+        assert_eq!(py_latin_fraction("a\u{03cf}"), 1.0);
+        assert!((py_latin_fraction("aΆ") - 0.5).abs() < 1e-9);
     }
     #[test]
     fn is_entry_matches_greek_and_latin() {
-        assert!(is_entry("Παπαδόπουλος, Α. (2011). Τίτλος. Αθήνα: Εκδόσεις.", &"παπαδόπουλος, α. (2011). τίτλος. αθήνα: εκδόσεις.".to_string()));
-        assert!(!is_entry("This is a plain sentence of running prose.", &"this is a plain sentence of running prose.".to_string()));
+        assert!(is_entry("Παπαδόπουλος, Α. (2011). Τίτλος. Αθήνα: Εκδόσεις.", "παπαδόπουλος, α. (2011). τίτλος. αθήνα: εκδόσεις."));
+        assert!(!is_entry("This is a plain sentence of running prose.", "this is a plain sentence of running prose."));
     }
     #[test]
     fn hysteresis_merges_and_trims() {

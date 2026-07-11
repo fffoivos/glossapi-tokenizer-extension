@@ -1,0 +1,51 @@
+{
+  "schema_version": "full_cpt_cleaning_policy_v1",
+  "status": "audit_only",
+  "approved_at": null,
+  "validation": {
+    "structural_gold_sha256": null,
+    "required_heldout_documents": 608,
+    "maximum_probability_delta": 0.001,
+    "require_identical_decoded_spans": true
+  },
+  "structural": {
+    "model": "two_head_line_lr",
+    "allowed_apply_profiles": ["academic_ocr", "academic_sectioned"],
+    "bibliography": {
+      "enabled_for_materialization": false,
+      "prose_protection_floor": 0.999,
+      "theta_hi": 0.9,
+      "theta_lo": 0.6,
+      "gap": 4,
+      "minimum_lines": 2,
+      "report_script_buckets": true
+    },
+    "toc": {
+      "enabled_for_materialization": false,
+      "prose_protection_floor": 0.999,
+      "theta_hi": 0.5,
+      "theta_lo": 0.3,
+      "gap": 8,
+      "minimum_lines": 2,
+      "front_gate": "abs_line < min(300, floor(0.30 * document_lines))"
+    },
+    "replacement": "two_newlines_max",
+    "empty_document_action": "quarantine"
+  },
+  "diavgeia": {
+    "academic_structural_cleaner": "disabled",
+    "digital_signature_footer": "audit_only",
+    "private_data_true": "exclude_pending_token_report",
+    "structured_pii": "audit_only",
+    "personnel_tables": "quarantine_audit",
+    "template_clusters": "audit_only",
+    "preserve_legal_citations": true
+  },
+  "global": {
+    "post_clean_exact_dedup": true,
+    "post_clean_near_dedup": "audit_then_apply",
+    "greekmmlu_decontamination": "correct_only_plus_short_question_fallback",
+    "pii_masking": "high_confidence_direct_identifiers",
+    "generic_person_name_ner": false
+  }
+}
