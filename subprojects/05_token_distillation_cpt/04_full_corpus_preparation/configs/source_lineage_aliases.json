@@ -1,0 +1,239 @@
+{
+  "schema_version": "source_lineage_aliases_v1",
+  "reviewed_at": "2026-07-11",
+  "anchor_revision": "500b8bf577e1e70f4902b77edce2cda02a2559cb",
+  "authority": "lineage_only_not_snapshot_equivalence",
+  "alias_kind_definitions": {
+    "direct": "The repository is the same named source family, but its current artifact may still be a later extraction or coverage snapshot.",
+    "replacement": "The current artifact is a reprocessed, resegmented or successor representation that must compete with the Nanochat representation rather than be appended blindly.",
+    "hybrid": "The repository contains multiple editions, artifact families or overlaps with more than one Nanochat source name and must be routed per artifact before deduplication."
+  },
+  "aliases": [
+    {
+      "alias_id": "first_1000_years",
+      "current_repo_id": "glossAPI/1000_prwta_xronia_ellhnikhs",
+      "reviewed_revision": "c117ed41194e707faeaf6bd046aa81f3c4db3b13",
+      "initial_source_datasets": ["1000_prwta_xronia_ellhnikhs"],
+      "alias_kind": "direct",
+      "confidence": "high",
+      "artifact_globs": ["1k_texts.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Exact source-family name; the current 1,016-row artifact is larger than the 418-row initial Nanochat representation."]
+    },
+    {
+      "alias_id": "kallipos_sectioned_replacement",
+      "current_repo_id": "glossAPI/Apothetirio_Kallipos",
+      "reviewed_revision": "29f52e7ce8429350758d605583b9c1a1a8bc57e3",
+      "initial_source_datasets": ["Apothetirio_Kallipos"],
+      "alias_kind": "replacement",
+      "confidence": "high",
+      "artifact_globs": ["Dataset_Kallipos.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Exact source-family name; the current repository is section-level while Nanochat stores a canonical document representation."]
+    },
+    {
+      "alias_id": "pergamos_sectioned_replacement",
+      "current_repo_id": "glossAPI/Apothetirio_Pergamos",
+      "reviewed_revision": "66d0c6855c9553caba4d96554087bfe45ffee76a",
+      "initial_source_datasets": ["Apothetirio_Pergamos"],
+      "alias_kind": "replacement",
+      "confidence": "high",
+      "artifact_globs": ["sections_with_annotation_n_metadata.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Exact source-family name; the current repository is section-level and cannot be concatenated with the initial document representation."]
+    },
+    {
+      "alias_id": "ecclesiastical_texts",
+      "current_repo_id": "glossAPI/Ekklisiastika_Keimena",
+      "reviewed_revision": "0fe734ce988b35a6a6273464846d673692120083",
+      "initial_source_datasets": ["Ekklisiastika_Keimena"],
+      "alias_kind": "direct",
+      "confidence": "high",
+      "artifact_globs": ["litourgical_texts.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Exact source-family name; current and refreshed Nanochat counts match at 675 rows, while the first Nanochat upload held 39 rows."]
+    },
+    {
+      "alias_id": "project_gutenberg_greek",
+      "current_repo_id": "glossAPI/Ellinika_Keimena_Project_Gutenberg",
+      "reviewed_revision": "b903fbea7d6e724001cb0b5d87c7297b6de221e8",
+      "initial_source_datasets": ["Ellinika_Keimena_Project_Gutenberg"],
+      "alias_kind": "direct",
+      "confidence": "high",
+      "artifact_globs": ["gutenberg_clean.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Exact source-family name and a single current text artifact from the same Project Gutenberg collection."]
+    },
+    {
+      "alias_id": "school_books_multi_edition",
+      "current_repo_id": "glossAPI/School_books",
+      "reviewed_revision": "5f1c21276c021ebfe3e1b5ae2ca5ea6e4b81a87e",
+      "initial_source_datasets": ["Sxolika_vivlia"],
+      "alias_kind": "hybrid",
+      "confidence": "high",
+      "artifact_globs": [
+        "Schoolbook_clean.parquet",
+        "Schoolbooks_2025-2026.parquet",
+        "school_books_2026-2027.parquet"
+      ],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Nanochat's Sxolika_vivlia name is the original school-book family; the current repository combines the legacy clean set with two overlapping school-year editions uploaded in June and July 2026."]
+    },
+    {
+      "alias_id": "wikisource_greek",
+      "current_repo_id": "glossAPI/Wikisource_Greek_texts",
+      "reviewed_revision": "3528a9ca06f00cd4c4fc63aa77b1a191d8ae7309",
+      "initial_source_datasets": ["Wikisource_Greek_texts"],
+      "alias_kind": "direct",
+      "confidence": "high",
+      "artifact_globs": ["wikisource_greek_deduped.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Exact source-family name; row-count drift requires URL-key and content-hash comparison."]
+    },
+    {
+      "alias_id": "demotic_literature",
+      "current_repo_id": "glossAPI/dimodis_logotexnia",
+      "reviewed_revision": "9f1b79d64f06201e0f4dde49befe136e136b3efa",
+      "initial_source_datasets": ["dimodis_logotexnia"],
+      "alias_kind": "direct",
+      "confidence": "high",
+      "artifact_globs": ["dimodous_mathimata.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Exact source-family name and the same 11-row Parquet family; the additional CSV is deliberately outside this alias scope."]
+    },
+    {
+      "alias_id": "european_parliament_resegmented",
+      "current_repo_id": "glossAPI/ellinika_dedomena_europaikou_koinovouliou",
+      "reviewed_revision": "af58f072df0df94963ee4f7683bffe77d75b881c",
+      "initial_source_datasets": ["ellinika_dedomena_europaikou_koinovouliou"],
+      "alias_kind": "replacement",
+      "confidence": "high",
+      "artifact_globs": ["ellhnika_dedomena_europaikou_koinovouliou.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Exact source-family name; the current artifact is sectioned and has a different row granularity from Nanochat."]
+    },
+    {
+      "alias_id": "eurlex_markdown_replacement",
+      "current_repo_id": "glossAPI/eurlex-greek-legislation",
+      "reviewed_revision": "70f741f8adc9a50b53e6b3da0e6e40608c55f19e",
+      "initial_source_datasets": ["eurlex-greek-legislation"],
+      "alias_kind": "replacement",
+      "confidence": "high",
+      "artifact_globs": ["cleaned_dataset_md*.zip", "eurlex_legislation_data.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Exact EUR-Lex source family; the current release uses overlapping Markdown ZIP snapshots plus metadata rather than Nanochat's canonical Parquet rows."]
+    },
+    {
+      "alias_id": "greek_phd_v2_replacement",
+      "current_repo_id": "glossAPI/Greek_PhD_Theses_Corpus",
+      "reviewed_revision": "5009cb56cd48e7c8baf1a929231df05f38e2cfe3",
+      "initial_source_datasets": ["greek_phd"],
+      "alias_kind": "replacement",
+      "confidence": "high",
+      "artifact_globs": ["Greek PhD Theses Corpus v2.0.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["The card identifies V2 as an enriched and updated version preserving the original source material; its Parquet was uploaded on 2026-07-07, after the first Nanochat data commit."]
+    },
+    {
+      "alias_id": "classical_ancient_greek",
+      "current_repo_id": "glossAPI/klasikh_arx_ell_grammateia",
+      "reviewed_revision": "41a228ef7425964aa2db8062f7041b82100b9502",
+      "initial_source_datasets": ["klasikh_arx_ell_grammateia"],
+      "alias_kind": "direct",
+      "confidence": "high",
+      "artifact_globs": ["Classic_AG_texts_v2.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Exact source-family name and a single current V2 text artifact."]
+    },
+    {
+      "alias_id": "openarchives_hybrid_repository",
+      "current_repo_id": "glossAPI/openarchives.gr",
+      "reviewed_revision": "02e830632e3b94f72fca316542bc218e7b798f3c",
+      "initial_source_datasets": ["openarchives.gr", "greek_phd"],
+      "alias_kind": "hybrid",
+      "confidence": "high",
+      "artifact_globs": ["data/openarchives/**/*.jsonl.zst", "data/didaktorika*.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["The repository contains an OpenArchives OCR artifact family plus Didaktorika metadata that overlaps the separately named greek_phd lineage; artifact-level routing is mandatory."]
+    },
+    {
+      "alias_id": "openbook_v2_replacement",
+      "current_repo_id": "glossAPI/openbook.gr",
+      "reviewed_revision": "679c9674eed4ed03af8e899f479549176c0be1d0",
+      "initial_source_datasets": ["openbook_gr"],
+      "alias_kind": "replacement",
+      "confidence": "high",
+      "artifact_globs": ["openbook.gr_V2.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["The card identifies the same openbook.gr collection as V2; its Parquet was uploaded on 2026-06-23 and is not a demonstrated superset of Nanochat's openbook_gr rows."]
+    },
+    {
+      "alias_id": "openbook_legacy_metadata",
+      "current_repo_id": "glossAPI/oldopenbook.gr",
+      "reviewed_revision": "88c258ae6aaf0c139d1b1b478e7f11e920fc5a8e",
+      "initial_source_datasets": ["openbook_gr"],
+      "alias_kind": "replacement",
+      "confidence": "medium",
+      "artifact_globs": ["openbook.gr_metadata.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Repository name and metadata identify the openbook.gr family, but it is metadata-only and superseded by the public V2 artifact."]
+    },
+    {
+      "alias_id": "opengov_legacy",
+      "current_repo_id": "glossAPI/opengov.gr-diaboyleuseis",
+      "reviewed_revision": "ae0c49c9160b13c8f01581a937dd6cf336f105c7",
+      "initial_source_datasets": ["opengov.gr-diaboyleuseis"],
+      "alias_kind": "direct",
+      "confidence": "high",
+      "artifact_globs": ["*.db", "backups/*.db"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["Exact source-family name; the current SQLite snapshots are later nested exports rather than the initial canonical Parquet representation."]
+    },
+    {
+      "alias_id": "opengov_v2_replacement",
+      "current_repo_id": "glossAPI/opengov-deliberations-v2",
+      "reviewed_revision": "dfc84a00bbe34b179b1f170530224419e5dc6c9d",
+      "initial_source_datasets": ["opengov.gr-diaboyleuseis"],
+      "alias_kind": "replacement",
+      "confidence": "high",
+      "artifact_globs": ["data/**/*.parquet"],
+      "snapshot_equivalence": "unproven",
+      "requires_document_key_audit": true,
+      "evidence": ["The V2 repository is the registered successor for the same OpenGov deliberations family; consultations, articles and comments overlap the initial source and must be normalized by entity before deduplication."]
+    }
+  ],
+  "unaliased_initial_sources": [
+    {
+      "source_dataset": "AI-team-UoA/greek_legal_code",
+      "reason": "The authoritative source_dataset already is an upstream repository ID; no GlossAPI name alias is needed."
+    },
+    {
+      "source_dataset": "HuggingFaceFW/finepdfs-edu",
+      "reason": "The authoritative source_dataset already is an upstream repository/config ID; no GlossAPI name alias is needed."
+    },
+    {
+      "source_dataset": "HuggingFaceFW/finewiki",
+      "reason": "The authoritative source_dataset already is an upstream repository ID; no GlossAPI name alias is needed."
+    }
+  ],
+  "notes": [
+    "Aliases identify source lineage only. They never authorize appending a current artifact to Nanochat without canonical document keys and cross-version content hashes.",
+    "Repository creation and latest-modified timestamps are not corpus cutoffs. Use per-artifact upload history and the first Nanochat source_dataset roster."
+  ]
+}

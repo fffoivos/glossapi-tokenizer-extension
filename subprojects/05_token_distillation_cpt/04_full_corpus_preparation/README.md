@@ -42,8 +42,8 @@ The evidence, recommendations and sign-off boundary are summarized in
 The live Clariden audit on 2026-07-11 found that the old
 `$SCRATCH/cpt_corpus/nanochat/data` directory is empty. Existing Megatron binaries
 and small detector counters are not substitutes for the raw source corpus. The
-tracked HF registry currently resolves to about 168 GB after narrowing the prior
-Apertus-overlap repository to its four final overlay/validation artifacts.
+tracked HF registry is therefore a reacquisition plan, not a claim that the raw
+inputs survive on Clariden.
 
 ## Production DAG
 
@@ -51,17 +51,20 @@ Apertus-overlap repository to its four final overlay/validation artifacts.
    revisions and selected file/LFS hashes.
 2. Download on Clariden and normalize to the canonical source-preserving schema.
 3. Apply the already validated Apertus-overlap overlay to the nanochat base and
-   run incremental overlap checks only for genuinely new sources.
+   build the source-key and exact-identity graph for new/replacement candidates.
 4. Run source-specific quality and structural detectors in **audit-only** mode.
 5. Measure exact counterfactual token loss with the pinned ModernGreek-148k
    tokenizer for bibliography-only, ToC-only and combined removal.
 6. Review the stratified samples and freeze `configs/cleaning_policy.json`.
 7. Apply only approved cleaning overlays.
-8. Run cross-source and post-clean exact/near deduplication.
-9. Run GreekMMLU decontamination, including the short-question fallback.
-10. Run high-confidence PII masking.
-11. Run a final exact-dedup check and exact token accounting.
-12. Materialize immutable Parquet shards plus a complete provenance manifest.
+8. Run GreekMMLU decontamination, including the short-question fallback.
+9. Run high-confidence PII masking.
+10. Resolve same-source replacements and hybrids at canonical work/document
+    granularity, retaining base-only and eligible candidate-only documents.
+11. Run post-transform exact deduplication, then within-family and cross-family
+    near deduplication, then one final exact check.
+12. Compute the exact token waterfall and materialize immutable Parquet shards
+    plus a complete provenance manifest.
 
 Megatron preprocessing belongs to the later production-training phase, not here.
 
@@ -112,18 +115,89 @@ that appears in `configs/sources.json`. Moving an entry into acquisition require
 an explicit source-contract review, removal from the backlog, and a separate
 registry change.
 
-The 21.5-million-token figure applies only to the five small
-`optional_additive` entries in this backlog. It is **not** the total published
-after Nanochat was assembled. `configs/sources.json` separately tracks 16 much
-larger acquisition candidates: 30.03 GB of pinned HF payloads, split into 15.55
-GB marked additive and 14.47 GB marked replacement/overlap. Their comparable
-ModernGreek-148k token count is deliberately left for the corpus audit rather
-than inferred from compressed bytes or incompatible dataset-card tokenizers.
+The source-lineage anchor is the first commit that actually added corpus data,
+not the latest Nanochat processing commit. `configs/nanochat_initial_roster.json`
+pins commit `500b8bf577e1e70f4902b77edce2cda02a2559cb`, its 18 exact
+`source_dataset` values, 717,265 rows and the SHA-256 of `row_counts.csv`. It
+also records OPUS and HPLT as the only later source-name additions. Current
+repository names are reviewed in `configs/source_lineage_aliases.json` as
+direct, replacement or hybrid lineages. An alias never establishes snapshot
+equivalence: refreshed and successor artifacts still require canonical document
+keys and cross-version content hashes before replacement or addition.
 
-School-books and Openbook V2 also remain overlap/replacement audits, not raw
-additive volume. The backlog's small additive sources primarily offer register
-diversity; the registered candidates are where most prospective new volume
-lives.
+`source_dataset` is a real corpus column, not a filename guess: the Nanochat
+release builder derives `row_counts.csv` from that field. The normalized schema
+therefore freezes its exact value when present (falling back to the pinned HF
+repository ID only when an upstream source field is absent) and stores the
+reviewed `source_family_id` separately. The latest Nanochat roster has 19 names:
+the initial 18 plus OPUS and HPLT, minus the later-removed FinePDFs source.
+
+Repository creation and last-modified timestamps are not source cutoffs. For
+example, the current Greek-PhD and Openbook V2 Parquets were uploaded after the
+first Nanochat data commit, while their source families were already represented
+under `greek_phd` and `openbook_gr`. School-books now also contains multiple
+overlapping editions. Candidate discovery therefore uses the initial names plus
+per-artifact history, not a comparison against Nanochat's latest commit.
+
+The earlier 21.5-million-token figure described only five small backlog entries.
+It was **not** the total published after the Nanochat source roster was composed.
+The complete pinned inventory is in `configs/post_december_inventory.json`:
+
+- 25 current organization repositories were created on or after 2026-01-01;
+- 22 represent names/source families absent from the first Nanochat roster;
+- 16 of those have usable full text on HF, totalling 15,644,950,021 artifact
+  bytes, 4,188,366 raw Parquet-footer rows and 4,324,586,953 card-reported tokens;
+- three are external-only cards (153,584,939 reported tokens), one is
+  metadata-only and two are empty scaffolds;
+- three are same-source replacements already represented in Nanochat; and
+- four older organization repositories have material post-cutoff payload
+  changes, including new School-books editions and reprocessed OpenArchives.
+
+Those token numbers are inventory sizing only. They mix tokenizer scopes and
+include stale Diavgeia and Archetai card counts. They are neither a
+ModernGreek-148k total nor net-additive mass. `configs/sources.json` now tracks
+23 acquisition candidates: the 16 usable new-name families plus seven
+replacement/overlap routes. Their selected payload is about 30.78 GB; the 17
+remaining organization repositories stay non-acquiring in the backlog.
+
+A metadata-only resolution on 2026-07-11 verified all pinned revisions and
+selected 26 registry entries (base, overlap evidence, tokenizer and 23
+candidates), 521 files and 168,623,515,496 bytes. Candidate payload accounts for
+30,781,620,482 of those bytes. No dataset payload was downloaded by that check.
+
+## Logical union and source-aware deduplication
+
+The published Nanochat release remains an immutable physical base. The output
+is a new `full_corpus_v2` release; it is not an in-place Nanochat rewrite and it
+is not a raw concatenation of every current repository.
+
+The first-upload `source_dataset` value is the primary lineage signal. Reviewed
+name aliases identify same-source refreshes, replacements and hybrids, while
+document keys and content hashes decide actual identity. Every normalized row
+must preserve the exact upstream source name, source-family ID, repository,
+revision, artifact path, upstream row/document ID, original hash, stable corpus
+UID and representation generation.
+
+For each source family:
+
+1. Normalize alternate representations without concatenating them; group
+   sectioned sources to comparable work/document granularity.
+2. Match canonical source keys and original/normalized exact hashes.
+3. Retain base-only documents; retain candidate-only documents after policy
+   review; choose the better complete extraction for matched-but-different
+   documents; quarantine ambiguous matches.
+4. Prefer an eligible, decontaminated, PII-safe and higher-quality extraction.
+   The base wins otherwise, including unresolved cross-family ties. Record every
+   loser as a provenance alias with a reason.
+5. After approved source cleaning, GreekMMLU decontamination and PII masking,
+   run exact deduplication and then near deduplication within each family and
+   across the retained base/candidate union. Finish with another exact check.
+
+The final report must show an exact ModernGreek-148k token waterfall per source:
+raw candidate, normalization, source cleaner, GreekMMLU, PII, replacement
+candidate added/base retired/net, exact dedup, near dedup and final retained
+tokens. Until that Clariden CPU audit runs, the gross 4.32B card number must not
+be reported as training contribution.
 
 ## Exact token-loss contract
 

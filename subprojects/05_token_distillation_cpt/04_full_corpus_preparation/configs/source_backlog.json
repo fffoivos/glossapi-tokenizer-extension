@@ -68,23 +68,6 @@
       "blockers": ["Nanochat already contains the same 214-row source."]
     },
     {
-      "backlog_id": "school_books_refresh",
-      "repo_id": "glossAPI/School_books",
-      "revision": "5f1c21276c021ebfe3e1b5ae2ca5ea6e4b81a87e",
-      "acquisition_eligible": false,
-      "disposition": "overlap_audit",
-      "relationship_to_base": "partial_base_overlap",
-      "license": {"declared": null, "status": "policy_review"},
-      "candidate_files": [
-        {"path": "Schoolbook_clean.parquet", "bytes": 32562138, "schema": ["text", "titlos", "taxis", "mathima", "kateuthinsi"]},
-        {"path": "Schoolbooks_2025-2026.parquet", "bytes": 125003902, "schema": ["text", "titlos", "taxis", "mathima", "kateuthinsi"]},
-        {"path": "school_books_2026-2027.parquet", "bytes": 139535462, "schema": ["text", "titlos", "taxis", "mathima", "kateuthinsi"]}
-      ],
-      "known_metrics": {"repository_rows": 890, "card_rows": 889, "repository_bytes": 297101502, "reported_tokens": 103573375, "tokenizer": "unspecified_dataset_card"},
-      "route": {"cleaning_profile": "modern_textbook", "structural_policy": "shadow_after_segmentation", "text_columns": ["text"], "id_columns": ["titlos", "taxis", "mathima", "kateuthinsi"]},
-      "blockers": ["Schoolbook_clean is already represented by Nanochat's 123-row Sxolika_vivlia source.", "The two school-year snapshots require edition-family and cross-snapshot deduplication.", "The dataset card has no machine-readable license and its component row counts sum to 889 while the server reports 890."]
-    },
-    {
       "backlog_id": "wikisource_greek",
       "repo_id": "glossAPI/Wikisource_Greek_texts",
       "revision": "3528a9ca06f00cd4c4fc63aa77b1a191d8ae7309",
@@ -98,21 +81,6 @@
       "known_metrics": {"repository_rows": 5394, "card_rows": 5394, "repository_bytes": 122014016, "reported_tokens": null, "tokenizer": null},
       "route": {"cleaning_profile": "base_existing", "structural_policy": "disabled", "text_columns": ["text"], "id_columns": ["url"]},
       "blockers": ["Nanochat already contains 5,377 rows from the same source; any 17-row delta needs a keyed audit."]
-    },
-    {
-      "backlog_id": "artos_zois",
-      "repo_id": "glossAPI/artos-zois",
-      "revision": "97115ecacdb7435c5e529e0cf56c68b0290751b6",
-      "acquisition_eligible": false,
-      "disposition": "optional_additive",
-      "relationship_to_base": "additive",
-      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
-      "candidate_files": [
-        {"path": "artos-zois.parquet", "bytes": 6237290, "schema": ["title", "content", "pdf_url"]}
-      ],
-      "known_metrics": {"repository_rows": 43, "card_rows": 43, "repository_bytes": 6237290, "reported_tokens": 3124553, "tokenizer": "nlpaueb/bert-base-greek-uncased-v1"},
-      "route": {"cleaning_profile": "historical_serial", "structural_policy": "shadow_after_segmentation", "text_columns": ["content"], "id_columns": ["pdf_url"]},
-      "blockers": ["Noncommercial/no-derivatives license review is required.", "Issue-level OCR contains ToCs, bibliographies, polytonic errors and a repeated digitization stamp; segment before structural detection."]
     },
     {
       "backlog_id": "demotic_literature",
@@ -129,21 +97,6 @@
       "known_metrics": {"repository_rows": 11, "card_rows": 11, "repository_bytes": 4839865, "reported_tokens": null, "tokenizer": null},
       "route": {"cleaning_profile": "base_existing", "structural_policy": "disabled", "text_columns": ["text"], "id_columns": ["title"]},
       "blockers": ["Nanochat already contains the 11-row Parquet source; the extra CSV needs schema and license review before any replacement audit."]
-    },
-    {
-      "backlog_id": "merchant_marine_textbooks",
-      "repo_id": "glossAPI/e-nautilia",
-      "revision": "5c8cbbb80976a3fa0c6f59e1cecb7d1bb86ed352",
-      "acquisition_eligible": false,
-      "disposition": "optional_additive",
-      "relationship_to_base": "additive",
-      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
-      "candidate_files": [
-        {"path": "enautilia.parquet", "bytes": 1530039, "schema": ["title", "content", "pdf_url"]}
-      ],
-      "known_metrics": {"repository_rows": 25, "card_rows": 25, "repository_bytes": 1530039, "reported_tokens": 1092978, "tokenizer": "nlpaueb/bert-base-greek-uncased-v1"},
-      "route": {"cleaning_profile": "technical_textbook", "structural_policy": "shadow_after_segmentation", "text_columns": ["content"], "id_columns": ["pdf_url"]},
-      "blockers": ["Noncommercial/no-derivatives license review is required.", "Normalization must preserve HTML tables, superscripts, subscripts and mathematical content."]
     },
     {
       "backlog_id": "european_parliament_sectioned",
@@ -205,36 +158,6 @@
       "blockers": ["Nanochat already contains EUR-Lex Greek legislation.", "The current release is a metadata Parquet plus overlapping ZIP snapshots, not a directly streamable row dataset; manifest and document-key comparison are required."]
     },
     {
-      "backlog_id": "national_theatre_press",
-      "repo_id": "glossAPI/greek-national-theatre-corpus",
-      "revision": "a4debd3ca0e0cde06c49b7633158a2a88c0b6eb5",
-      "acquisition_eligible": false,
-      "disposition": "optional_additive",
-      "relationship_to_base": "additive",
-      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
-      "candidate_files": [
-        {"path": "ethniko_theatro.parquet", "bytes": 42575810, "schema": ["id", "title", "content", "author", "publication_name", "medium_type", "article_type", "section", "theatre_production", "date_published", "page_url", "file_url"]}
-      ],
-      "known_metrics": {"repository_rows": 9404, "card_rows": null, "repository_bytes": 42575810, "reported_tokens": 11172629, "tokenizer": "unspecified_dataset_card"},
-      "route": {"cleaning_profile": "historical_press_ocr", "structural_policy": "disabled", "text_columns": ["content"], "id_columns": ["id"]},
-      "blockers": ["Noncommercial/no-derivatives license review is required.", "Historical press OCR needs masthead, page-furniture and extraction-noise auditing before use."]
-    },
-    {
-      "backlog_id": "heinrich_boell_publications",
-      "repo_id": "glossAPI/heinrich_boell_stiftung",
-      "revision": "e222522ba0ea00d819344f70a640d58522d55af5",
-      "acquisition_eligible": false,
-      "disposition": "optional_additive",
-      "relationship_to_base": "additive",
-      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
-      "candidate_files": [
-        {"path": "heinrich_boell_rapidocr_cleaned1.parquet", "bytes": 122142, "schema": ["doc_num", "title", "content", "date_scraped", "date_published", "page_url", "file_url", "year", "document_id", "sha256", "topics", "filename_local", "filename_original", "file_size_bytes", "date_last_modified", "total_chars"]}
-      ],
-      "known_metrics": {"repository_rows": 62, "card_rows": 62, "repository_bytes": 122142, "reported_tokens": 46995, "tokenizer": "nlpaueb/bert-base-greek-uncased-v1"},
-      "route": {"cleaning_profile": "pdf_report_ocr", "structural_policy": "shadow_after_segmentation", "text_columns": ["content"], "id_columns": ["document_id", "sha256"]},
-      "blockers": ["Noncommercial/no-derivatives license review is required.", "Only 120 KB and 46,995 tokens are reported for 62 publications, so extraction completeness must be checked first."]
-    },
-    {
       "backlog_id": "hellenic_parliament_legislative_work",
       "repo_id": "glossAPI/hellenic-parliament-legislative-work",
       "revision": "805b6b04caef383b23c8f658c6ef6ad8398501d3",
@@ -289,21 +212,6 @@
       "blockers": ["HF repository has no data files and points to Mozilla Data Collective.", "Dictionary entries require a deliberate low-weight or exclusion policy rather than ordinary prose sampling."]
     },
     {
-      "backlog_id": "new_sociology",
-      "repo_id": "glossAPI/new-sociology",
-      "revision": "db183139ea0826a2dfb197c6259cbdf26f314376",
-      "acquisition_eligible": false,
-      "disposition": "optional_additive",
-      "relationship_to_base": "additive",
-      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
-      "candidate_files": [
-        {"path": "new_sociology_chandra.parquet", "bytes": 14516504, "schema": ["title", "content", "date", "download_link"]}
-      ],
-      "known_metrics": {"repository_rows": 45, "card_rows": 45, "repository_bytes": 14516504, "reported_tokens": 6106912, "tokenizer": "unspecified_dataset_card"},
-      "route": {"cleaning_profile": "historical_serial", "structural_policy": "shadow_after_segmentation", "text_columns": ["content"], "id_columns": ["download_link"]},
-      "blockers": ["The card metadata declares CC BY-NC-ND while prose says CC BY and then restricts commercial use; treat as noncommercial pending correction.", "Issue-level Markdown requires segmentation before ToC/bibliography shadow detection."]
-    },
-    {
       "backlog_id": "old_openbook_metadata",
       "repo_id": "glossAPI/oldopenbook.gr",
       "revision": "88c258ae6aaf0c139d1b1b478e7f11e920fc5a8e",
@@ -317,21 +225,6 @@
       "known_metrics": {"repository_rows": null, "card_rows": null, "repository_bytes": 578741, "reported_tokens": null, "tokenizer": null},
       "route": {"cleaning_profile": "metadata_only", "structural_policy": "disabled", "text_columns": [], "id_columns": []},
       "blockers": ["Private metadata-only repository is superseded by the public V2 repository and the Nanochat source."]
-    },
-    {
-      "backlog_id": "openbook_v2",
-      "repo_id": "glossAPI/openbook.gr",
-      "revision": "679c9674eed4ed03af8e899f479549176c0be1d0",
-      "acquisition_eligible": false,
-      "disposition": "replacement_audit",
-      "relationship_to_base": "same_source_replacement",
-      "license": {"declared": "cc-by-nc-sa-4.0", "status": "noncommercial_review"},
-      "candidate_files": [
-        {"path": "openbook.gr_V2.parquet", "bytes": 426450898, "schema": ["title", "book_url", "pdf_url", "text"]}
-      ],
-      "known_metrics": {"repository_rows": 3193, "card_rows": 3193, "repository_bytes": 426450898, "reported_tokens": 118304239, "tokenizer": "unspecified_dataset_card"},
-      "route": {"cleaning_profile": "book_ocr", "structural_policy": "shadow_after_segmentation", "text_columns": ["text"], "id_columns": ["book_url", "pdf_url"]},
-      "blockers": ["Nanochat already contains 3,719 rows from openbook_gr; V2 has only 3,193 books and is not a demonstrated superset.", "Compare source URLs and content hashes and retain one best extraction per work."]
     },
     {
       "backlog_id": "opengov_legacy_sqlite",

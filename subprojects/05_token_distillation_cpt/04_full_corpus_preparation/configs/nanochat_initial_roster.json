@@ -1,0 +1,159 @@
+{
+  "schema_version": "nanochat_initial_roster_v1",
+  "authority": "first_data_commit_source_dataset_roster",
+  "repository": {
+    "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+    "empty_initial_revision": "1da2730c4e8aa4cd42c3662fbd7c64dc883d7dfe",
+    "first_data_revision": "500b8bf577e1e70f4902b77edce2cda02a2559cb",
+    "first_data_committed_at": "2026-03-16T16:40:36.000Z"
+  },
+  "row_counts": {
+    "path": "row_counts.csv",
+    "sha256": "4f55caa8e709777af644958d8deb19d26a7adc64d52d402c837dba5cbc0dac8d",
+    "source_count": 18,
+    "total_rows": 717265
+  },
+  "sources": [
+    {
+      "source_dataset": "1000_prwta_xronia_ellhnikhs",
+      "rows": 418,
+      "file_count": 1,
+      "artifacts": ["data/1000_prwta_xronia_ellhnikhs.parquet"]
+    },
+    {
+      "source_dataset": "AI-team-UoA/greek_legal_code",
+      "rows": 43525,
+      "file_count": 1,
+      "artifacts": ["data/AI-team-UoA__greek_legal_code.parquet"]
+    },
+    {
+      "source_dataset": "Apothetirio_Kallipos",
+      "rows": 4588,
+      "file_count": 1,
+      "artifacts": ["data/Apothetirio_Kallipos.parquet"]
+    },
+    {
+      "source_dataset": "Apothetirio_Pergamos",
+      "rows": 14416,
+      "file_count": 1,
+      "artifacts": ["data/Apothetirio_Pergamos.parquet"]
+    },
+    {
+      "source_dataset": "Ekklisiastika_Keimena",
+      "rows": 39,
+      "file_count": 1,
+      "artifacts": ["data/Ekklisiastika_Keimena.parquet"]
+    },
+    {
+      "source_dataset": "Ellinika_Keimena_Project_Gutenberg",
+      "rows": 180,
+      "file_count": 1,
+      "artifacts": ["data/Ellinika_Keimena_Project_Gutenberg.parquet"]
+    },
+    {
+      "source_dataset": "HuggingFaceFW/finepdfs-edu",
+      "rows": 180586,
+      "file_count": 1,
+      "artifacts": ["data/HuggingFaceFW__finepdfs-edu.parquet"]
+    },
+    {
+      "source_dataset": "HuggingFaceFW/finewiki",
+      "rows": 239099,
+      "file_count": 1,
+      "artifacts": ["data/HuggingFaceFW__finewiki.parquet"]
+    },
+    {
+      "source_dataset": "Sxolika_vivlia",
+      "rows": 114,
+      "file_count": 1,
+      "artifacts": ["data/Sxolika_vivlia.parquet"]
+    },
+    {
+      "source_dataset": "Wikisource_Greek_texts",
+      "rows": 3735,
+      "file_count": 1,
+      "artifacts": ["data/Wikisource_Greek_texts.parquet"]
+    },
+    {
+      "source_dataset": "dimodis_logotexnia",
+      "rows": 11,
+      "file_count": 1,
+      "artifacts": ["data/dimodis_logotexnia.parquet"]
+    },
+    {
+      "source_dataset": "ellinika_dedomena_europaikou_koinovouliou",
+      "rows": 28652,
+      "file_count": 1,
+      "artifacts": ["data/ellinika_dedomena_europaikou_koinovouliou.parquet"]
+    },
+    {
+      "source_dataset": "eurlex-greek-legislation",
+      "rows": 20993,
+      "file_count": 1,
+      "artifacts": ["data/eurlex-greek-legislation.parquet"]
+    },
+    {
+      "source_dataset": "greek_phd",
+      "rows": 29634,
+      "file_count": 2,
+      "artifacts": [
+        "data/greek_phd.part-00000.parquet",
+        "data/greek_phd.part-00001.parquet"
+      ]
+    },
+    {
+      "source_dataset": "klasikh_arx_ell_grammateia",
+      "rows": 753,
+      "file_count": 1,
+      "artifacts": ["data/klasikh_arx_ell_grammateia.parquet"]
+    },
+    {
+      "source_dataset": "openarchives.gr",
+      "rows": 146038,
+      "file_count": 4,
+      "artifacts": [
+        "data/openarchives.gr.part-00000.parquet",
+        "data/openarchives.gr.part-00001.parquet",
+        "data/openarchives.gr.part-00002.parquet",
+        "data/openarchives.gr.part-00003.parquet"
+      ]
+    },
+    {
+      "source_dataset": "openbook_gr",
+      "rows": 3374,
+      "file_count": 1,
+      "artifacts": ["data/openbook_gr.parquet"]
+    },
+    {
+      "source_dataset": "opengov.gr-diaboyleuseis",
+      "rows": 1110,
+      "file_count": 1,
+      "artifacts": ["data/opengov.gr-diaboyleuseis.parquet"]
+    }
+  ],
+  "later_source_name_additions": [
+    {
+      "source_dataset": "OPUS/OpenSubtitles-el-v2018",
+      "first_roster_revision": "dd2ebf9c6c8fc041bb0d7c9db51f15fc1cabbe6b",
+      "committed_at": "2026-04-10T18:26:40.000Z",
+      "row_counts_path": "row_counts.csv",
+      "rows_at_addition": 143441,
+      "file_count_at_addition": 1,
+      "artifact_globs": ["data/OPUS__OpenSubtitles-el-v2018.parquet"]
+    },
+    {
+      "source_dataset": "HPLT/ell_Grek_ge8_no_mt_clean60",
+      "first_roster_revision": "36fd486d6524205bff67953373b39c6a3fdb9d5a",
+      "committed_at": "2026-04-14T18:11:17.000Z",
+      "row_counts_path": "row_counts.csv",
+      "rows_at_addition": 48728774,
+      "file_count_at_addition": 250,
+      "artifact_globs": ["data/HPLT__ell_Grek_ge8_no_mt_clean60*.parquet"]
+    }
+  ],
+  "notes": [
+    "The initial repository commit contains only .gitattributes; the next commit is the first actual corpus upload.",
+    "The source_dataset values and the pinned row_counts artifact define source lineage. Later row-count changes alone are processing or packaging changes, not evidence of a new source family.",
+    "Upstream source revisions were not recorded by the first build, so a name alias never proves document-level equivalence."
+  ]
+}
