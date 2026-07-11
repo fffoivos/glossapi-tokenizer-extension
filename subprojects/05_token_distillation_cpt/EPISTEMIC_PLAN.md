@@ -1,6 +1,11 @@
 # Epistemic plan — experiments before the 60 B run
 
-Living agenda. The pilot answered "does the TD/Greek-tokenizer recipe work?" (yes,
+**2026-07-11 status:** all pilot-scale replay/LR/alpha/beta3/beta2 sweeps are
+complete. No additional 13.5B arm is planned. The frozen settings are in
+`PRODUCTION_HYPERPARAMETERS_DECISION_20260711.md`; the next experiment is the
+full-corpus 25B probe.
+
+Historical agenda. The pilot answered "does the TD/Greek-tokenizer recipe work?" (yes,
 clean GreekMMLU win). What remains is a small set of experiments whose answers set
 the 60 B design. Each is framed as: *question → decision it gates → method →
 decision rule*. We read results against the rule — no post-hoc rationalizing.
@@ -111,7 +116,7 @@ and the optimizer has room to handle it.
 
 ---
 
-## Sequence
+## Historical sequence (completed through the parameter sweeps)
 
 1. **(a)** prerequisites (parallel).
 2. **(b)** Vanilla control.

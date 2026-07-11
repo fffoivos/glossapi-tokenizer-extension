@@ -24,8 +24,8 @@ OLD_GREEK_REPLAY_R="${OLD_GREEK_REPLAY_R:-}"
 LR_PEAK="${LR_PEAK:-5.5e-5}"
 ADEMA_ALPHA="${ADEMA_ALPHA:-4.0}"
 ADEMA_BETA3="${ADEMA_BETA3:-0.999}"   # swept by sweep_beta3.sh; default = config value (no-op for prior sweeps)
-ADEMA_BETA2="${ADEMA_BETA2:-0.995}"   # swept by sweep_beta2.sh; default = config value (no-op for prior sweeps)
-LR_WARMUP_ITERS="${LR_WARMUP_ITERS:-}" # empty => common_cpt.env computes 2/(1-β2); sweep_beta2.sh pins it to isolate β2
+ADEMA_BETA2="${ADEMA_BETA2:-0.999}"   # selected by the fixed-400-it β2 sweep
+LR_WARMUP_ITERS="${LR_WARMUP_ITERS:-400}" # fixed independently of β2; reproduces the selected arm
 RUN_TAG="${RUN_TAG:-curr_${ARM}_r${R}_lr${LR_PEAK}}"
 OUTPUT_DIR="$RUN_ROOT/$RUN_TAG"
 DRY_RUN="${DRY_RUN:-0}"

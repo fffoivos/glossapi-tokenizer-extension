@@ -69,6 +69,9 @@ printf '=== CPT 2-arm artifact gate ===\n'
 printf 'SC=%s\nSTAGE=%s\nEXP_DIR=%s\n\n' "$SC" "$STAGE" "$EXP_DIR"
 
 printf '%s\n' '--- config invariants ---'
+if ! bash "$EXP_DIR/scripts/gate_frozen_hyperparameters.sh"; then
+  failures=$((failures + 1))
+fi
 # shellcheck disable=SC1090
 source "$COMMON_ENV"
 declare -A expected=(
@@ -79,7 +82,7 @@ declare -A expected=(
   [LR_FINAL]=5.5e-6
   [LR_WARMUP_ITERS]=400
   [LR_WSD_DECAY_SAMPLES]=659179
-  [ADEMA_BETA2]=0.995
+  [ADEMA_BETA2]=0.999
   [ADEMA_BETA3]=0.999
   [ADEMA_ALPHA]=4.0
   [SEQ_LENGTH]=4096

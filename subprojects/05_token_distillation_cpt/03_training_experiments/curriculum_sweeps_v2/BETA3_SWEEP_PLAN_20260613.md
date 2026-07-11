@@ -1,6 +1,6 @@
 # EXP — AdEMAMix β3 sweep on the existing 13.5 B curriculum_v2 dataset
 
-**Date:** 2026-06-13 · **Pivoted:** 2026-06-15 · **Status:** LIVE — active arms are β3 `0.99` + `0.995`; the launched `0.999` duplicate was canceled after config verification · **Owner:** execution agent
+**Date:** 2026-06-13 · **Pivoted:** 2026-06-15 · **Status:** COMPLETE — selected beta3 `0.999`; see `results/beta3_decision_table_20260711.csv` and `../../PRODUCTION_HYPERPARAMETERS_DECISION_20260711.md` · **Owner:** execution agent
 **One-liner:** sweep `ADEMA_BETA3 ∈ {0.99, 0.995}` on the **already-built 13.5 B `curriculum_v2`**
 dataset at the settled HP set, reusing the completed α=4 run as the β3 `0.999` control point, **keeping
 the production (fraction-of-run) ramp**, to see whether the β3 target matters under the production
