@@ -91,6 +91,55 @@ Do not use `xfer` for this job. Hugging Face is external; `xfer` is restricted t
 
 ## 5. Run source audits
 
+Before destructive audits, build the immutable route manifest locally or on a
+Clariden CPU node (this reads configs only):
+
+```bash
+python scripts/build_source_lineage.py registry \
+  --output "$RUN_ROOT/lineage/registry.json"
+```
+
+After source-specific normalizers have emitted canonical JSONL envelopes, build
+the base/candidate identity graph. Sectioned inputs must already have a
+work-level `work_id`:
+
+```bash
+python scripts/build_source_lineage.py rows \
+  --base-jsonl "$RUN_ROOT/normalized/base.jsonl" \
+  --candidate-jsonl "$RUN_ROOT/normalized/candidates.jsonl" \
+  --registry-manifest-out "$RUN_ROOT/lineage/registry.json" \
+  --rows-out "$RUN_ROOT/lineage/rows.jsonl" \
+  --relationships-out "$RUN_ROOT/lineage/relationships.jsonl" \
+  --summary-out "$RUN_ROOT/lineage/summary.json"
+```
+
+Build review requests from the canonical candidate stream. This is a packet
+builder, not a model invocation:
+
+```bash
+python scripts/build_source_review_packet.py \
+  --candidate-jsonl "$RUN_ROOT/normalized/candidates.jsonl" \
+  --requests-out "$RUN_ROOT/source_review/pre_clean_requests.jsonl" \
+  --summary-out "$RUN_ROOT/source_review/pre_clean_summary.json"
+```
+
+After independent structured reviews have been collected, validate and
+aggregate them. A nonzero exit means a requested review or adjudication remains
+unresolved:
+
+```bash
+python scripts/aggregate_source_reviews.py \
+  --requests "$RUN_ROOT/source_review/pre_clean_requests.jsonl" \
+  --packet-summary "$RUN_ROOT/source_review/pre_clean_summary.json" \
+  --reviews "$RUN_ROOT/source_review/pre_clean_responses.jsonl" \
+  --novelty-summary "$RUN_ROOT/lineage/source_novelty.json" \
+  --output "$RUN_ROOT/source_review/admission.json"
+```
+
+Do not copy review excerpts or quarantined/private rows into the HF release.
+The source-quality admission report is necessary but not sufficient: candidate
+survivors still pass base/candidate exact and near deduplication.
+
 Example shape for Diavgeia after acquisition:
 
 ```bash

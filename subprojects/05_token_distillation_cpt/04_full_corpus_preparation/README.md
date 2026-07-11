@@ -199,6 +199,38 @@ candidate added/base retired/net, exact dedup, near dedup and final retained
 tokens. Until that Clariden CPU audit runs, the gross 4.32B card number must not
 be reported as training contribution.
 
+### Lineage and source-review tooling
+
+`scripts/build_source_lineage.py` turns canonical base/candidate JSONL
+envelopes into three text-free, deterministic artifacts: a route-level registry
+manifest, a row provenance manifest and exact/work relationship memberships.
+Every candidate route has `blind_append_allowed=false`. The row envelope must
+contain `text`, `source_artifact_path`, `source_row_id` and `source_doc_id`;
+candidate rows also contain the registered `source_id`. Preserve an upstream
+`source_dataset` byte-for-byte. When it is absent, and only then, the pinned HF
+repository ID becomes the explicit fallback name. Resegmented sources must
+provide a work-level `work_id` rather than allowing a section ID to masquerade
+as a document identity.
+
+`scripts/build_source_review_packet.py` samples each exact `source_dataset`
+value independently. The tracked policy fixes the ordinary sample at 100 unique
+documents (60 deterministic-random, 20 high-risk and 20 cluster
+representatives), and large/heterogeneous sources at 200 (100/50/50).
+`privateData=true` rows are excluded, direct identifiers are redacted, long
+documents use front/middle/end excerpts, and a deterministic 10% is duplicated
+for independent review. A normalizer may provide `review_cluster_id`,
+`minhash_cluster_id` or `template_cluster_id`; otherwise the exact normalized
+text hash is the conservative fallback. Replacement samples may also carry a
+`base_comparison_text` and `base_comparison_uid` for paired review.
+
+Reviewers return JSON matching
+`schemas/source_review_response.schema.json`. The aggregator rejects missing or
+identity-drifted responses, requires adjudication for low confidence or
+primary/secondary disagreement, and emits `include`,
+`include_after_cleaning`, `quarantine`, `exclude` or
+`pending_adjudication`. A source admitted only after cleaning must receive a new
+post-clean packet; pre-clean reviews cannot be reused as proof of cleaning.
+
 ## Exact token-loss contract
 
 Token loss is calculated on complete text variants, not by tokenizing removed

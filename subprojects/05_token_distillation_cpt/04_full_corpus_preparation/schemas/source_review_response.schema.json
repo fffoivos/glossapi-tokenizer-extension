@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/source-quality-review-response-v1.json",
+  "title": "Full CPT source quality review response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "review_id",
+    "sample_id",
+    "reviewer_slot",
+    "source_dataset",
+    "substantive_training_value",
+    "quality_score",
+    "language_register",
+    "defects",
+    "variability",
+    "action",
+    "defects_deterministically_repairable",
+    "safety_or_license_blocker",
+    "confidence",
+    "evidence"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "source_quality_review_response_v1"
+    },
+    "review_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sample_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "reviewer_slot": {
+      "enum": ["primary", "secondary", "adjudicator"]
+    },
+    "source_dataset": {
+      "type": "string",
+      "minLength": 1
+    },
+    "substantive_training_value": {
+      "enum": ["high", "medium", "low", "none"]
+    },
+    "quality_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4
+    },
+    "language_register": {
+      "enum": [
+        "modern_greek",
+        "polytonic_or_ancient_greek",
+        "mixed_greek_foreign",
+        "foreign_language",
+        "code_or_data",
+        "unknown"
+      ]
+    },
+    "defects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "html_or_markup",
+        "boilerplate",
+        "ocr_corruption",
+        "mojibake",
+        "fragmentation",
+        "tables_or_loops",
+        "pii",
+        "non_greek_drift"
+      ],
+      "properties": {
+        "html_or_markup": {"$ref": "#/$defs/severity"},
+        "boilerplate": {"$ref": "#/$defs/severity"},
+        "ocr_corruption": {"$ref": "#/$defs/severity"},
+        "mojibake": {"$ref": "#/$defs/severity"},
+        "fragmentation": {"$ref": "#/$defs/severity"},
+        "tables_or_loops": {"$ref": "#/$defs/severity"},
+        "pii": {"$ref": "#/$defs/severity"},
+        "non_greek_drift": {"$ref": "#/$defs/severity"}
+      }
+    },
+    "variability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["template_similarity", "substantive_variation"],
+      "properties": {
+        "template_similarity": {
+          "enum": ["low", "medium", "high", "extreme", "unknown"]
+        },
+        "substantive_variation": {
+          "enum": ["high", "medium", "low", "negligible", "unknown"]
+        }
+      }
+    },
+    "action": {
+      "enum": ["include", "include_after_cleaning", "quarantine", "exclude"]
+    },
+    "defects_deterministically_repairable": {
+      "type": "boolean"
+    },
+    "safety_or_license_blocker": {
+      "type": "boolean"
+    },
+    "confidence": {
+      "enum": ["high", "medium", "low"]
+    },
+    "evidence": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    }
+  },
+  "$defs": {
+    "severity": {
+      "enum": ["none", "minor", "major", "severe"]
+    }
+  }
+}

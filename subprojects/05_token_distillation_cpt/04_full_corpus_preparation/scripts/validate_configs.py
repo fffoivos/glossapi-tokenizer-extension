@@ -981,6 +981,93 @@ def validate_policy(cfg: dict) -> list[str]:
     return errors
 
 
+def validate_source_review_policy(cfg: dict, sources_cfg: dict) -> list[str]:
+    errors: list[str] = []
+    label = "source_review_policy"
+    if cfg.get("schema_version") != "full_cpt_source_review_policy_v1":
+        errors.append(f"{label}: unsupported schema_version")
+    if not isinstance(cfg.get("seed"), str) or not cfg.get("seed"):
+        errors.append(f"{label}: deterministic seed required")
+    if cfg.get("grouping_field") != "source_dataset":
+        errors.append(f"{label}: grouping_field must remain source_dataset")
+    if cfg.get("source_dataset_policy") != (
+        "preserve_exact_upstream_value_otherwise_pinned_repo_fallback"
+    ):
+        errors.append(f"{label}: source_dataset preservation policy drift")
+    expected_samples = {
+        "default_sample": {
+            "total_unique_documents": 100,
+            "random": 60,
+            "risk": 20,
+            "cluster": 20,
+        },
+        "large_or_heterogeneous_sample": {
+            "total_unique_documents": 200,
+            "random": 100,
+            "risk": 50,
+            "cluster": 50,
+        },
+    }
+    for field, expected in expected_samples.items():
+        if cfg.get(field) != expected:
+            errors.append(f"{label}: {field} must remain {expected}")
+    threshold = cfg.get("large_source_min_documents")
+    if not isinstance(threshold, int) or isinstance(threshold, bool) or threshold < 100:
+        errors.append(f"{label}: large_source_min_documents must be an integer >= 100")
+    known_source_ids = {
+        entry.get("source_id") for entry in sources_cfg.get("sources", []) if isinstance(entry, dict)
+    }
+    heterogeneous = cfg.get("heterogeneous_source_ids")
+    if (
+        not isinstance(heterogeneous, list)
+        or len(heterogeneous) != len(set(heterogeneous))
+        or any(source_id not in known_source_ids for source_id in heterogeneous)
+        or "diavgeia" not in heterogeneous
+    ):
+        errors.append(
+            f"{label}: heterogeneous_source_ids must be unique, registered and include diavgeia"
+        )
+    cluster_fields = cfg.get("cluster_fields_in_priority_order")
+    if (
+        not isinstance(cluster_fields, list)
+        or not cluster_fields
+        or not all(isinstance(field, str) and field for field in cluster_fields)
+    ):
+        errors.append(f"{label}: cluster_fields_in_priority_order must be a non-empty string list")
+    fraction = cfg.get("double_review_fraction")
+    if not isinstance(fraction, (int, float)) or isinstance(fraction, bool) or float(fraction) != 0.1:
+        errors.append(f"{label}: double_review_fraction must remain 0.1")
+    excerpt = cfg.get("excerpt")
+    if not isinstance(excerpt, dict) or any(
+        not isinstance(excerpt.get(field), int)
+        or isinstance(excerpt.get(field), bool)
+        or excerpt.get(field) <= 0
+        for field in ("full_text_max_characters", "segment_characters")
+    ):
+        errors.append(f"{label}: excerpt limits must be positive integers")
+    admission = cfg.get("admission")
+    if not isinstance(admission, dict):
+        errors.append(f"{label}: admission must be an object")
+    else:
+        expected_fractions = {
+            "direct_include_min_usable_fraction": 0.9,
+            "cleanable_min_useful_fraction": 0.8,
+            "post_clean_min_usable_fraction": 0.9,
+            "minimum_novel_token_fraction": 0.05,
+        }
+        for field, expected in expected_fractions.items():
+            if admission.get(field) != expected:
+                errors.append(f"{label}: admission.{field} must remain {expected}")
+        for field in (
+            "low_confidence_requires_adjudication",
+            "disagreement_requires_adjudication",
+            "safety_or_license_blocker_forces_quarantine",
+        ):
+            if admission.get(field) is not True:
+                errors.append(f"{label}: admission.{field} must remain true")
+    return errors
+
+
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -1006,6 +1093,11 @@ def main() -> int:
         type=Path,
         default=here / "configs" / "post_december_inventory.json",
     )
+    parser.add_argument(
+        "--source-review-policy",
+        type=Path,
+        default=here / "configs" / "source_review_policy.json",
+    )
     parser.add_argument("--json", action="store_true", help="print machine-readable result")
     args = parser.parse_args()
 
@@ -1015,6 +1107,7 @@ def main() -> int:
     roster_cfg = load_json(args.nanochat_roster)
     aliases_cfg = load_json(args.lineage_aliases)
     inventory_cfg = load_json(args.post_december_inventory)
+    source_review_cfg = load_json(args.source_review_policy)
     errors = (
         validate_initial_roster(roster_cfg)
         + validate_lineage_aliases(aliases_cfg, roster_cfg)
@@ -1028,6 +1121,7 @@ def main() -> int:
         + validate_sources(source_cfg)
         + validate_backlog(backlog_cfg, source_cfg)
         + validate_policy(policy_cfg)
+        + validate_source_review_policy(source_review_cfg, source_cfg)
     )
     result = {
         "ok": not errors,
@@ -1042,6 +1136,7 @@ def main() -> int:
         "nanochat_roster_sha256": digest(args.nanochat_roster),
         "lineage_aliases_sha256": digest(args.lineage_aliases),
         "post_december_inventory_sha256": digest(args.post_december_inventory),
+        "source_review_policy_sha256": digest(args.source_review_policy),
         "post_december_repositories": len(inventory_cfg.get("post_cutoff_repositories", [])),
         "policy_status": policy_cfg.get("status"),
     }

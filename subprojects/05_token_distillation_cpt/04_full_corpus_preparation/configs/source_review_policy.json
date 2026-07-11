@@ -1,0 +1,45 @@
+{
+  "schema_version": "full_cpt_source_review_policy_v1",
+  "seed": "greek-apertus-full-corpus-v2-source-review-v1",
+  "grouping_field": "source_dataset",
+  "source_dataset_policy": "preserve_exact_upstream_value_otherwise_pinned_repo_fallback",
+  "default_sample": {
+    "total_unique_documents": 100,
+    "random": 60,
+    "risk": 20,
+    "cluster": 20
+  },
+  "large_or_heterogeneous_sample": {
+    "total_unique_documents": 200,
+    "random": 100,
+    "risk": 50,
+    "cluster": 50
+  },
+  "large_source_min_documents": 100000,
+  "heterogeneous_source_ids": [
+    "diavgeia",
+    "amna_press",
+    "ellakv2",
+    "eellak_articles",
+    "openarchives_current"
+  ],
+  "cluster_fields_in_priority_order": [
+    "review_cluster_id",
+    "minhash_cluster_id",
+    "template_cluster_id"
+  ],
+  "double_review_fraction": 0.1,
+  "excerpt": {
+    "full_text_max_characters": 12000,
+    "segment_characters": 4000
+  },
+  "admission": {
+    "direct_include_min_usable_fraction": 0.9,
+    "cleanable_min_useful_fraction": 0.8,
+    "post_clean_min_usable_fraction": 0.9,
+    "minimum_novel_token_fraction": 0.05,
+    "low_confidence_requires_adjudication": true,
+    "disagreement_requires_adjudication": true,
+    "safety_or_license_blocker_forces_quarantine": true
+  }
+}
