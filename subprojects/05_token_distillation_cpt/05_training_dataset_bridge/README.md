@@ -100,7 +100,10 @@ The launcher requires the exact clean repository root and commit frozen by the
 bridge. It re-hashes every `.bin`/`.idx`, the complete TD init checkpoint, the
 semantic layer-11 roundtrip evidence bundle, the top-level and sourced common
 training environments, trainer, runtime wrapper, launcher itself, and the
-complete clean effective Megatron tree. The evidence must name the same patched
+complete clean effective Megatron tree. The launch-assets receipt also carries
+the entire tokenizer-tree receipt frozen at bridge input time; both the login
+check and the batch-start check re-enumerate and re-hash that tree and require
+the exact root consumed by the generated data environment. The evidence must name the same patched
 checkpoint, layer 11, parallel geometry, and Megatron commit, with zero
 standard/R17/QK/xIELU tensor and logit drift. The receipt-owned Megatron root is
 exported under the exact variable consumed by the trainer.
@@ -109,7 +112,12 @@ The launcher verifies once before submission and exports the complete verificati
 argument set into Slurm. The batch job reruns the same receipt verifier at job
 start, through the pinned uenv/runtime, before sourcing either training
 environment. The full-corpus config refuses to train without this completed
-job-start hook; legacy bakeoff jobs do not opt in and retain their existing path.
+job-start hook. After sourcing the shared common and receipt-bound data
+environments, it overwrites and asserts the complete effective 25B recipe,
+including mock-data off, exact uenv/TP/PP, optimizer and overlap, warmup start,
+seed/order, loss, geometry/batch, tokenizer/data roots, validation/cadence, and
+resume/exit boundary. Slurm/system and transport variables remain available;
+legacy bakeoff jobs do not opt in and retain their existing path.
 
 ```bash
 export BRIDGE_STAGE_ROOT=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/training_bridge/full-corpus-25b-v1

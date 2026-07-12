@@ -324,19 +324,30 @@ def test_merge_requires_every_configured_source(tmp_path: Path) -> None:
             hf_path=hf,
             mdc_path=mdc,
             destination_root=tmp_path,
+            expected_code_commit="a" * 40,
         )
 
 
 def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
     sources = tmp_path / "sources.json"
+    revision = "4" * 40
+    mdc_destination = tmp_path / "mdc"
+    source_root = mdc_destination / "external" / revision
+    payload_root = source_root / "payload"
+    archive_path = source_root / "archive" / "external.tar.gz"
+    archive_path.parent.mkdir(parents=True)
+    archive_path.write_bytes(b"frozen archive fixture")
     external = {
         "source_id": "external",
         "repo_id": "a/external",
-        "revision": "4" * 40,
+        "revision": revision,
+        "role": "additive_candidate",
         "acquisition_kind": "mozilla_data_collective",
         "mdc_dataset_id": "external-1",
         "mdc_format": "PARQUET",
-        "mdc_expected_sha256": "f" * 64,
+        "mdc_expected_filename": archive_path.name,
+        "mdc_expected_bytes": archive_path.stat().st_size,
+        "mdc_expected_sha256": MDC.sha256_file(archive_path),
         "text_columns": ["text"],
         "id_columns": ["id"],
     }
@@ -349,8 +360,11 @@ def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
     write_json(sources, config)
     config_hash = MERGE.sha256_file(sources)
 
-    def file_row(name: str, *, parquet: bool = False) -> dict:
-        path = tmp_path / name
+    def file_row(
+        name: str, *, parquet: bool = False, root: Path = tmp_path
+    ) -> dict:
+        root.mkdir(parents=True, exist_ok=True)
+        path = root / name
         if parquet:
             pq.write_table(pa.table({"text": ["κείμενο"], "id": ["1"]}), path)
         else:
@@ -392,10 +406,35 @@ def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
             ],
         },
     )
-    external_file = file_row("external.parquet", parquet=True)
+    external_file = file_row("external.parquet", parquet=True, root=payload_root)
     external_validation = MDC.validate_payload(
         [Path(external_file["local_path"])], external
     )
+    external_row = {
+        "schema_version": MDC.SOURCE_SCHEMA,
+        "source_id": "external",
+        "repo_id": external["repo_id"],
+        "revision": external["revision"],
+        "role": external["role"],
+        "mdc_dataset_id": external["mdc_dataset_id"],
+        "mdc_slug": "external-v1",
+        "source_config_sha256": MERGE.canonical_object_sha256(external),
+        "archive": {
+            "filename": archive_path.name,
+            "local_path": str(archive_path),
+            "bytes": archive_path.stat().st_size,
+            "sha256": external["mdc_expected_sha256"],
+            "registry_sha256": external["mdc_expected_sha256"],
+            "metadata_sha256": external["mdc_expected_sha256"],
+            "content_type": "application/gzip",
+        },
+        "local_root": str(payload_root.resolve()),
+        "selected_file_count": 1,
+        "selected_bytes": external_file["size"],
+        "payload_validation": external_validation,
+        "files": [external_file],
+    }
+    write_json(source_root / "source_receipt.json", external_row)
     write_json(
         mdc,
         {
@@ -403,22 +442,8 @@ def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
             "status": "passed",
             "code_commit": "a" * 40,
             "sources_config_sha256": config_hash,
-            "sources": [
-                {
-                    "source_id": "external",
-                    "repo_id": external["repo_id"],
-                    "revision": external["revision"],
-                    "mdc_dataset_id": external["mdc_dataset_id"],
-                    "source_config_sha256": MERGE.canonical_object_sha256(external),
-                    "archive": {
-                        "sha256": external["mdc_expected_sha256"],
-                        "registry_sha256": external["mdc_expected_sha256"],
-                        "metadata_sha256": external["mdc_expected_sha256"],
-                    },
-                    "payload_validation": external_validation,
-                    "files": [external_file],
-                }
-            ],
+            "destination": str(mdc_destination),
+            "sources": [external_row],
         },
     )
     receipt = MERGE.build_receipt(
@@ -426,6 +451,7 @@ def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
         hf_path=hf,
         mdc_path=mdc,
         destination_root=tmp_path,
+        expected_code_commit="a" * 40,
     )
     assert [row["source_id"] for row in receipt["sources"]] == [
         "apertus_overlap_overlay",
@@ -433,6 +459,28 @@ def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
         "modern_greek_148k_tokenizer",
         "nanochat_base",
     ]
+
+    archive_bytes = archive_path.read_bytes()
+    archive_path.unlink()
+    with pytest.raises(ValueError, match="archive"):
+        MERGE.build_receipt(
+            sources_path=sources,
+            hf_path=hf,
+            mdc_path=mdc,
+            destination_root=tmp_path,
+            expected_code_commit="a" * 40,
+        )
+    archive_path.write_bytes(archive_bytes)
+    archive_path.write_bytes(b"X" + archive_bytes[1:])
+    with pytest.raises(ValueError, match="archive SHA-256"):
+        MERGE.build_receipt(
+            sources_path=sources,
+            hf_path=hf,
+            mdc_path=mdc,
+            destination_root=tmp_path,
+            expected_code_commit="a" * 40,
+        )
+    archive_path.write_bytes(archive_bytes)
 
     mdc_value = json.loads(mdc.read_text(encoding="utf-8"))
     del mdc_value["sources"][0]["payload_validation"]
@@ -443,4 +491,41 @@ def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
             hf_path=hf,
             mdc_path=mdc,
             destination_root=tmp_path,
+            expected_code_commit="a" * 40,
+        )
+
+    # A forged embedded audit is rejected because merge re-opens the payload
+    # and compares a fresh, format-specific validation result byte-for-byte.
+    mdc_value = json.loads(mdc.read_text(encoding="utf-8"))
+    mdc_value["sources"][0]["payload_validation"] = json.loads(
+        json.dumps(external_validation)
+    )
+    mdc_value["sources"][0]["payload_validation"]["total_rows"] = 999
+    write_json(mdc, mdc_value)
+    with pytest.raises(ValueError, match="differs from fresh recomputation"):
+        MERGE.build_receipt(
+            sources_path=sources,
+            hf_path=hf,
+            mdc_path=mdc,
+            destination_root=tmp_path,
+            expected_code_commit="a" * 40,
+        )
+
+    # Agreement between two stale receipts is insufficient: each component
+    # must equal the commit explicitly submitted to this merge job.
+    hf_value = json.loads(hf.read_text(encoding="utf-8"))
+    mdc_value["sources"][0]["payload_validation"] = json.loads(
+        json.dumps(external_validation)
+    )
+    hf_value["code_commit"] = "b" * 40
+    mdc_value["code_commit"] = "b" * 40
+    write_json(hf, hf_value)
+    write_json(mdc, mdc_value)
+    with pytest.raises(ValueError, match="explicitly submitted commit"):
+        MERGE.build_receipt(
+            sources_path=sources,
+            hf_path=hf,
+            mdc_path=mdc,
+            destination_root=tmp_path,
+            expected_code_commit="a" * 40,
         )

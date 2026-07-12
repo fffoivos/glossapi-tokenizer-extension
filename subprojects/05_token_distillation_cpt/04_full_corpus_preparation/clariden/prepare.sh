@@ -23,6 +23,7 @@ cargo build --locked --manifest-path "$ACADEMIC_DIR/reference_detector/Cargo.tom
 
 if command -v uv >/dev/null; then
     uv run --python 3.12 --with pytest --with pyarrow --with tokenizers --with numpy \
+        --with duckdb --with zstandard --with regex --with blake3 \
         pytest -q "$PHASE04_DIR/tests"
 else
     echo "WARNING: uv unavailable; Phase-04 pytest suite was not run." >&2

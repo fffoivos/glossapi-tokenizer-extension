@@ -24,12 +24,12 @@ VERIFY_RUNTIME_PYTHON="$SCRATCH_ROOT/python_envs/full_corpus_v2/bin/python"
 
 DRY_RUN="${DRY_RUN:-1}"
 CONFIRM_GPU_LAUNCH="${CONFIRM_GPU_LAUNCH:-}"
-ACCOUNT="${ACCOUNT:-a0140}"
-PARTITION="${PARTITION:-normal}"
-NODES="${NODES:-16}"
-GPUS_PER_NODE="${GPUS_PER_NODE:-4}"
-CPUS_PER_TASK="${CPUS_PER_TASK:-288}"
-TIME_LIMIT="${TIME_LIMIT:-06:00:00}"
+ACCOUNT="a0140"
+PARTITION="normal"
+NODES="16"
+GPUS_PER_NODE="4"
+CPUS_PER_TASK="288"
+TIME_LIMIT="06:00:00"
 SEGMENT_ITERS="${SEGMENT_ITERS:-952}"  # 8 * 119
 START_ITERATION="${START_ITERATION:-0}"
 RESUME_CHECKPOINT_RECEIPT="${RESUME_CHECKPOINT_RECEIPT:-}"
@@ -80,7 +80,7 @@ elif [[ -n "$RESUME_CHECKPOINT_RECEIPT" ]]; then
     echo "ERROR: initial segment must not set RESUME_CHECKPOINT_RECEIPT" >&2; exit 3
 fi
 
-read -r INIT_CKPT MEGATRON_LM_SWISSAI_DIR < <(python3 - "$TRAINING_ASSETS_RECEIPT" "$START_ITERATION" "$RESUME_CHECKPOINT_RECEIPT" <<'PY'
+read -r INIT_CKPT MEGATRON_LM_SWISSAI_DIR FULL_CPT_TOKENIZER_DIR < <(python3 - "$TRAINING_ASSETS_RECEIPT" "$START_ITERATION" "$RESUME_CHECKPOINT_RECEIPT" <<'PY'
 import json,os,sys
 assets=json.load(open(sys.argv[1],encoding="utf-8"))
 start=int(sys.argv[2]); resume=sys.argv[3]
@@ -91,7 +91,11 @@ megatron=os.path.realpath(assets["megatron"]["root"])
 tree_root=os.path.realpath(assets["megatron"]["tree"]["root"])
 if megatron != tree_root:
     raise SystemExit("training-assets Megatron root/tree mismatch")
-print(load, megatron)
+tokenizer=os.path.realpath(assets["tokenizer"]["root"])
+tokenizer_tree_root=os.path.realpath(assets["tokenizer"]["tree"]["root"])
+if tokenizer != tokenizer_tree_root:
+    raise SystemExit("training-assets tokenizer root/tree mismatch")
+print(load, megatron, tokenizer)
 PY
 )
 
@@ -100,6 +104,7 @@ verify_args=(--bridge-manifest "$BRIDGE_MANIFEST" --training-data-env "$BRIDGE_D
     --training-env "$CONFIG" --common-training-env "$COMMON_TRAINING_ENV"
     --trainer "$TRAIN_SCRIPT" --runtime-wrapper "$RUNTIME_WRAPPER" --launcher "$LAUNCHER"
     --expected-load-checkpoint "$INIT_CKPT" --expected-megatron-dir "$MEGATRON_LM_SWISSAI_DIR"
+    --expected-tokenizer-dir "$FULL_CPT_TOKENIZER_DIR"
     --start-iteration "$START_ITERATION")
 if (( START_ITERATION > 0 )); then
     verify_args+=(--probe-plan "$OUTPUT_DIR/probe_plan.json" --resume-checkpoint-receipt "$RESUME_CHECKPOINT_RECEIPT")
@@ -176,8 +181,18 @@ verify_export+=",FULL_CPT_VERIFY_REPO_ROOT=$REPO_ROOT,FULL_CPT_VERIFY_TRAINING_E
 verify_export+=",FULL_CPT_VERIFY_COMMON_TRAINING_ENV=$COMMON_TRAINING_ENV,FULL_CPT_VERIFY_TRAINER=$TRAIN_SCRIPT"
 verify_export+=",FULL_CPT_VERIFY_RUNTIME_WRAPPER=$RUNTIME_WRAPPER,FULL_CPT_VERIFY_LAUNCHER=$LAUNCHER"
 verify_export+=",FULL_CPT_VERIFY_EXPECTED_LOAD_CHECKPOINT=$INIT_CKPT,FULL_CPT_VERIFY_EXPECTED_MEGATRON_DIR=$MEGATRON_LM_SWISSAI_DIR"
+verify_export+=",FULL_CPT_VERIFY_EXPECTED_TOKENIZER_DIR=$FULL_CPT_TOKENIZER_DIR"
 verify_export+=",FULL_CPT_VERIFY_START_ITERATION=$START_ITERATION,FULL_CPT_VERIFY_PROBE_PLAN=$VERIFY_PROBE_PLAN"
 verify_export+=",FULL_CPT_VERIFY_RESUME_RECEIPT=$VERIFY_RESUME_RECEIPT"
+verify_export+=",FULL_CPT_VERIFY_EXPECTED_EXIT_INTERVAL=$next"
+recipe_export="ARM=td,UENV_IMAGE=$VERIFY_UENV,USE_MOCK_DATA=0"
+recipe_export+=",TENSOR_MODEL_PARALLEL_SIZE=2,PIPELINE_MODEL_PARALLEL_SIZE=1"
+recipe_export+=",USE_DISTRIBUTED_OPTIMIZER=1,USE_COMM_OVERLAP=1"
+recipe_export+=",TRAIN_TOKENS=25000000000,SEQ_LENGTH=4096,MICROBATCH_SIZE=2,GLOBAL_BATCH_SIZE=1024,GLOBAL_BATCH_TOKENS=4194304"
+recipe_export+=",LR_PEAK=5.5e-5,LR_FINAL=5.5e-6,LR_WARMUP_INIT=5.5e-6,LR_WARMUP_ITERS=400"
+recipe_export+=",ADEMA_BETA1=0.9,ADEMA_BETA2=0.999,ADEMA_BETA3=0.999,ADEMA_ALPHA=4.0"
+recipe_export+=",CURRICULUM_ORDER_MODE=physical_order,DATA_SEED=20260609,LOSS_OBJECTIVE=goldfish"
+recipe_export+=",SAVE_INTERVAL=119,EVAL_INTERVAL=25,EVAL_ITERS=1,ENABLE_EXTRA_VALID=1"
 submission_receipt="$OUTPUT_DIR/segment_submissions/${current}_${next}.json"
 if [[ "$DRY_RUN" == 0 && -e "$submission_receipt" ]]; then
     echo "ERROR: segment already has a submission receipt: $submission_receipt" >&2; exit 5
@@ -187,7 +202,7 @@ cmd=(sbatch --parsable
         --nodes="$NODES" --ntasks-per-node=1 --gpus-per-node="$GPUS_PER_NODE" --gres="gpu:$GPUS_PER_NODE"
         --cpus-per-task="$CPUS_PER_TASK" --mem=460G --time="$TIME_LIMIT"
         --output="$OUTPUT_DIR/%x-%j.out" --error="$OUTPUT_DIR/%x-%j.err"
-        --export="ALL,$verify_export,ARM=td,INIT_CKPT=$INIT_CKPT,MEGATRON_LM_SWISSAI_DIR=$MEGATRON_LM_SWISSAI_DIR,OUTPUT_DIR=$OUTPUT_DIR,SCRIPT_DIR_OVERRIDE=$TRAIN_DIR,TRAIN_CONFIG_OVERRIDE=$CONFIG,BRIDGE_DATA_ENV=$BRIDGE_DATA_ENV,TRAIN_TOKENS=$TRAIN_TOKENS,RESUME_TRAINING=$resume,DISABLE_SAVE=0,SAVE_INTERVAL=$SAVE_INTERVAL,EXIT_INTERVAL=$next,ACCOUNT=$ACCOUNT,PARTITION=$PARTITION,NODES=$NODES,GPUS_PER_NODE=$GPUS_PER_NODE,LAUNCH_MODE=torchrun,TIME_LIMIT=$TIME_LIMIT"
+        --export="ALL,$verify_export,$recipe_export,INIT_CKPT=$INIT_CKPT,MEGATRON_LM_SWISSAI_DIR=$MEGATRON_LM_SWISSAI_DIR,FULL_CPT_TOKENIZER_DIR=$FULL_CPT_TOKENIZER_DIR,OUTPUT_DIR=$OUTPUT_DIR,SCRIPT_DIR_OVERRIDE=$TRAIN_DIR,TRAIN_CONFIG_OVERRIDE=$CONFIG,BRIDGE_DATA_ENV=$BRIDGE_DATA_ENV,RESUME_TRAINING=$resume,DISABLE_SAVE=0,EXIT_INTERVAL=$next,ACCOUNT=$ACCOUNT,PARTITION=$PARTITION,NODES=$NODES,GPUS_PER_NODE=$GPUS_PER_NODE,LAUNCH_MODE=torchrun,TIME_LIMIT=$TIME_LIMIT"
         "$TRAIN_SCRIPT")
 printf 'segment: iterations %d..%d resume=%d\n' "$current" "$next" "$resume"
 if [[ "$DRY_RUN" == 1 ]]; then

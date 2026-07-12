@@ -166,9 +166,14 @@ bash clariden/submit.sh merge-acquisition
 CONFIRM_LAUNCH=1 bash clariden/submit.sh merge-acquisition
 ```
 
-The merge revalidates source identity, current configuration, local inventories
-and the passed MDC payload-schema receipts. Normalization consumes only that
-merged `full_cpt_acquisition_receipt_v1`.
+The merge requires both component receipts to name the exact Git commit
+explicitly submitted to the job. It revalidates source identity and current
+configuration, re-hashes every MDC payload, re-opens the Parquet shards, and
+recomputes the format-specific schema audit instead of trusting the embedded
+audit. It also stream-hashes the actual archive at its pinned acquisition path
+and revalidates the immutable per-source receipt. The fresh audit must equal
+the embedded receipt. Normalization consumes
+only that merged `full_cpt_acquisition_receipt_v1`.
 
 For the downstream chain, use only the fresh passed receipt and omit the old job
 ID entirely:

@@ -15,6 +15,7 @@ from bridge_common import (
     validate_file_tree_receipt,
     validate_frozen_repository,
     validate_launch_dependency_receipts,
+    validate_tokenizer_tree_receipt,
 )
 
 
@@ -27,6 +28,31 @@ def _git(repo: Path, *args: str) -> str:
         stderr=subprocess.PIPE,
     )
     return result.stdout.strip()
+
+
+def validate_tokenizer_asset(
+    input_receipt: dict[str, object],
+    assets: dict[str, object],
+    expected_tokenizer_dir: Path,
+) -> Path:
+    frozen_tokenizer = input_receipt.get("tokenizer", {})
+    if not isinstance(frozen_tokenizer, dict):
+        raise ValueError("input receipt has no tokenizer binding")
+    input_tokenizer_tree = {
+        "root": str(frozen_tokenizer.get("root", "")),
+        "files": frozen_tokenizer.get("files"),
+        "tree_sha256": frozen_tokenizer.get("tree_sha256"),
+    }
+    expected_tokenizer_asset = {
+        "root": str(Path(str(frozen_tokenizer.get("root", ""))).resolve()),
+        "tree": input_tokenizer_tree,
+    }
+    if assets.get("tokenizer") != expected_tokenizer_asset:
+        raise ValueError("training assets are bound to a different tokenizer tree")
+    tokenizer_root = validate_tokenizer_tree_receipt(input_tokenizer_tree)
+    if tokenizer_root != expected_tokenizer_dir.resolve():
+        raise ValueError("exported tokenizer root differs from the frozen input tree")
+    return tokenizer_root
 
 
 def parse_args() -> argparse.Namespace:
@@ -42,6 +68,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--launcher", type=Path, required=True)
     parser.add_argument("--expected-load-checkpoint", type=Path, required=True)
     parser.add_argument("--expected-megatron-dir", type=Path, required=True)
+    parser.add_argument("--expected-tokenizer-dir", type=Path, required=True)
     parser.add_argument("--start-iteration", type=int, required=True)
     parser.add_argument("--probe-plan", type=Path)
     parser.add_argument("--resume-checkpoint-receipt", type=Path)
@@ -73,6 +100,9 @@ def main() -> int:
     repository = validate_frozen_repository(input_receipt, args.repo_root)
     if assets.get("repository") != repository:
         raise ValueError("training assets are bound to a different repository checkout")
+    tokenizer_root = validate_tokenizer_asset(
+        input_receipt, assets, args.expected_tokenizer_dir
+    )
     bound_code_sha(input_receipt, Path(__file__))
     bound_code_sha(input_receipt, Path(__file__).with_name("bridge_common.py"))
     assets_impl = Path(str(assets.get("implementation", ""))).resolve()
@@ -156,6 +186,7 @@ def main() -> int:
         "start_iteration": args.start_iteration,
         "initial_checkpoint": str(init_root),
         "megatron_root": str(megatron_root),
+        "tokenizer_root": str(tokenizer_root),
     }
     if args.start_iteration == 0:
         if args.resume_checkpoint_receipt is not None:

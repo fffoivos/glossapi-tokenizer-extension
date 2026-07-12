@@ -42,6 +42,7 @@ uenv run "$PHASE04_UENV" --view=default -- \
     --hf-receipt "$HF_RECEIPT" \
     --mdc-receipt "$MDC_RECEIPT" \
     --destination-root "$DATA_ROOT" \
+    --expected-code-commit "$PHASE04_EXPECTED_COMMIT" \
     --output "$OUTPUT"
 
 echo "ACQUISITION_RECEIPT=$OUTPUT"

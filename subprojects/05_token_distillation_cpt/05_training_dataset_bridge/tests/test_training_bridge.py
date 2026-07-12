@@ -21,8 +21,10 @@ from bridge_common import (  # noqa: E402
     heldout_hash,
     iter_index_lengths,
     selected_by_threshold,
+    tokenizer_tree_receipt,
     validate_frozen_repository,
     validate_launch_dependency_receipts,
+    validate_tokenizer_tree_receipt,
     write_index,
 )
 from finalize_bridge import (  # noqa: E402
@@ -30,6 +32,7 @@ from finalize_bridge import (  # noqa: E402
     capacity_report,
     compute_blend,
 )
+from verify_launch_assets import validate_tokenizer_asset  # noqa: E402
 
 
 def shard(
@@ -262,6 +265,45 @@ def test_tree_receipt_rejects_extra_files(tmp_path: Path) -> None:
         validate_file_tree_receipt(receipt)
 
 
+def test_tokenizer_tree_receipt_rejects_mutation_extra_and_symlinks(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "tokenizer"
+    root.mkdir()
+    tokenizer_json = root / "tokenizer.json"
+    tokenizer_json.write_text("frozen", encoding="utf-8")
+    receipt = tokenizer_tree_receipt(root)
+    assert validate_tokenizer_tree_receipt(receipt) == root.resolve()
+    input_receipt = {"tokenizer": dict(receipt)}
+    assets = {"tokenizer": {"root": str(root.resolve()), "tree": receipt}}
+    assert validate_tokenizer_asset(input_receipt, assets, root) == root.resolve()
+
+    tokenizer_json.write_text("mutated", encoding="utf-8")
+    with pytest.raises(ValueError, match="content drift"):
+        validate_tokenizer_tree_receipt(receipt)
+    with pytest.raises(ValueError, match="content drift"):
+        validate_tokenizer_asset(input_receipt, assets, root)
+    tokenizer_json.write_text("frozen", encoding="utf-8")
+
+    extra = root / "extra.json"
+    extra.write_text("extra", encoding="utf-8")
+    with pytest.raises(ValueError, match="content drift"):
+        validate_tokenizer_tree_receipt(receipt)
+    extra.unlink()
+
+    internal_link = root / "linked.json"
+    internal_link.symlink_to(tokenizer_json)
+    with pytest.raises(ValueError, match="contains a symlink"):
+        validate_tokenizer_tree_receipt(receipt)
+    internal_link.unlink()
+
+    root_link = tmp_path / "tokenizer-link"
+    root_link.symlink_to(root, target_is_directory=True)
+    linked_receipt = dict(receipt, root=str(root_link))
+    with pytest.raises(ValueError, match="root is a symlink"):
+        validate_tokenizer_tree_receipt(linked_receipt)
+
+
 def test_frozen_config_and_launcher_are_25b_only() -> None:
     config = json.loads(
         (ROOT / "configs" / "frozen_25b_td.json").read_text(encoding="utf-8")
@@ -329,7 +371,9 @@ def test_full_corpus_launch_revalidates_inside_batch_before_config_source() -> N
         "LAUNCHER",
         "EXPECTED_LOAD_CHECKPOINT",
         "EXPECTED_MEGATRON_DIR",
+        "EXPECTED_TOKENIZER_DIR",
         "START_ITERATION",
+        "EXPECTED_EXIT_INTERVAL",
         "PROBE_PLAN",
         "RESUME_RECEIPT",
     )
@@ -339,10 +383,20 @@ def test_full_corpus_launch_revalidates_inside_batch_before_config_source() -> N
         assert variable in trainer
     assert "--expected-load-checkpoint" in trainer
     assert "--expected-megatron-dir" in trainer
+    assert "--expected-tokenizer-dir" in trainer
     assert "--expected-load-checkpoint" in launcher
     assert "--expected-megatron-dir" in launcher
+    assert "--expected-tokenizer-dir" in launcher
     assert "validate_frozen_repository" in verifier
     assert "validate_launch_dependency_receipts" in verifier
+    assert "validate_tokenizer_tree_receipt" in verifier
+    freezer = (ROOT / "scripts" / "freeze_training_assets.py").read_text(
+        encoding="utf-8"
+    )
+    assert '"tokenizer": tokenizer' in freezer
+    assert "validate_tokenizer_tree_receipt" in freezer
+    assert "full_cpt_assert_frozen_recipe" in trainer
+    assert "FULL_CPT_FROZEN_RECIPE_CONTRACT" in config
 
 
 def test_legacy_trainer_without_hook_reaches_legacy_config_unchanged(
@@ -397,6 +451,8 @@ def test_full_corpus_config_cannot_bypass_job_start_hook(tmp_path: Path) -> None
                 'FULL_CPT_INPUT_RECEIPT="/tmp/input.json"',
                 'FULL_CPT_HELDOUT_MANIFEST="/tmp/heldout.json"',
                 'FULL_CPT_MIX_RECIPE="/tmp/mix.json"',
+                'VAL_DATA_DIR="/tmp/heldout"',
+                'EXTRA_VALID_SETS="hplt openarchives greek_phd"',
             ]
         )
         + "\n",
@@ -422,6 +478,80 @@ def test_full_corpus_config_cannot_bypass_job_start_hook(tmp_path: Path) -> None
     )
     assert result.returncode == 10, result.stderr
     assert "requires the job-start receipt verifier" in result.stderr
+
+
+def test_full_corpus_config_sanitizes_inherited_semantic_recipe(
+    tmp_path: Path,
+) -> None:
+    bridge_env = tmp_path / "training_data.env"
+    bridge_env.write_text(
+        "\n".join(
+            [
+                'FULL_CPT_TOKENIZER_DIR="/frozen/tokenizer"',
+                'FULL_CPT_DATA_PREFIX="79 /frozen/new,20 /frozen/foreign,1 /frozen/old"',
+                'FULL_CPT_BRIDGE_MANIFEST="/frozen/bridge.json"',
+                'FULL_CPT_INPUT_RECEIPT="/frozen/input.json"',
+                'FULL_CPT_HELDOUT_MANIFEST="/frozen/heldout.json"',
+                'FULL_CPT_MIX_RECIPE="/frozen/mix.json"',
+                'VAL_DATA_DIR="/frozen/validation"',
+                'EXTRA_VALID_SETS="hplt openarchives greek_phd"',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    script = tmp_path / "assert-recipe.sh"
+    script.write_text(
+        "\n".join(
+            [
+                "set -euo pipefail",
+                f'source "{ROOT / "train" / "full_corpus_25b.env"}"',
+                "full_cpt_assert_frozen_recipe",
+                'printf "%s\\n" "$USE_MOCK_DATA|$UENV_IMAGE|$TENSOR_MODEL_PARALLEL_SIZE|$PIPELINE_MODEL_PARALLEL_SIZE|$LR_WARMUP_INIT|$DATA_SEED|$CURRICULUM_ORDER_MODE|$LOSS_OBJECTIVE|$RESUME_TRAINING|$EXIT_INTERVAL|$BASE_TOKENIZER_DIR|$BASE_DATA_PREFIX"',
+                "[[ ! -v DDP_BUCKET_SIZE && ! -v TRAINER_WRAPPER ]]",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "BRIDGE_DATA_ENV": str(bridge_env),
+            "FULL_CPT_VERIFY_START_ITERATION": "119",
+            "FULL_CPT_VERIFY_EXPECTED_EXIT_INTERVAL": "238",
+            "FULL_CPT_VERIFY_EXPECTED_LOAD_CHECKPOINT": "/frozen/resume",
+            "FULL_CPT_VERIFY_EXPECTED_MEGATRON_DIR": "/frozen/megatron",
+            "USE_MOCK_DATA": "1",
+            "UENV_IMAGE": "evil/uenv:v0",
+            "TENSOR_MODEL_PARALLEL_SIZE": "99",
+            "PIPELINE_MODEL_PARALLEL_SIZE": "7",
+            "LR_WARMUP_INIT": "9",
+            "DATA_SEED": "0",
+            "CURRICULUM_ORDER_MODE": "randomized",
+            "LOSS_OBJECTIVE": "ntp",
+            "RESUME_TRAINING": "0",
+            "EXIT_INTERVAL": "999",
+            "ENABLE_EXTRA_VALID": "0",
+            "USE_DISTRIBUTED_OPTIMIZER": "0",
+            "USE_COMM_OVERLAP": "0",
+            "DDP_BUCKET_SIZE": "1",
+            "TRAINER_WRAPPER": "/evil/wrapper",
+        }
+    )
+    result = subprocess.run(
+        ["bash", str(script)],
+        env=environment,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == (
+        "0|pytorch/v2.9.1:v2|2|1|5.5e-6|20260609|physical_order|goldfish|"
+        "1|238|/frozen/tokenizer|79 /frozen/new,20 /frozen/foreign,1 /frozen/old"
+    )
 
 
 @pytest.mark.parametrize(
@@ -480,7 +610,9 @@ def test_job_start_hook_builds_initial_and_resume_verifier_args(
             "FULL_CPT_VERIFY_LAUNCHER": "/repo/submit_25b_probe.sh",
             "FULL_CPT_VERIFY_EXPECTED_LOAD_CHECKPOINT": "/checkpoints/load",
             "FULL_CPT_VERIFY_EXPECTED_MEGATRON_DIR": "/megatron",
+            "FULL_CPT_VERIFY_EXPECTED_TOKENIZER_DIR": "/tokenizer",
             "FULL_CPT_VERIFY_START_ITERATION": str(start),
+            "FULL_CPT_VERIFY_EXPECTED_EXIT_INTERVAL": str(start + 119),
             "FULL_CPT_VERIFY_PROBE_PLAN": probe_plan,
             "FULL_CPT_VERIFY_RESUME_RECEIPT": resume_receipt,
         }
@@ -498,6 +630,7 @@ def test_job_start_hook_builds_initial_and_resume_verifier_args(
     assert arguments[0:4] == ["run", "pytorch/test:v1", "--view=default", "--"]
     assert arguments[4:6] == ["/runtime/python", "/repo/verify_launch_assets.py"]
     assert arguments[arguments.index("--start-iteration") + 1] == str(start)
+    assert arguments[arguments.index("--expected-tokenizer-dir") + 1] == "/tokenizer"
     if expects_resume:
         assert arguments[arguments.index("--probe-plan") + 1] == probe_plan
         assert (

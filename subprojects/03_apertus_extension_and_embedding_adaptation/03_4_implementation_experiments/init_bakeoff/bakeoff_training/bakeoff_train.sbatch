@@ -47,7 +47,9 @@ case "${FULL_CPT_LAUNCH_VERIFY:-0}" in
             FULL_CPT_VERIFY_TRAINING_ENV FULL_CPT_VERIFY_COMMON_TRAINING_ENV \
             FULL_CPT_VERIFY_TRAINER FULL_CPT_VERIFY_RUNTIME_WRAPPER \
             FULL_CPT_VERIFY_LAUNCHER FULL_CPT_VERIFY_EXPECTED_LOAD_CHECKPOINT \
-            FULL_CPT_VERIFY_EXPECTED_MEGATRON_DIR FULL_CPT_VERIFY_START_ITERATION; do
+            FULL_CPT_VERIFY_EXPECTED_MEGATRON_DIR \
+            FULL_CPT_VERIFY_EXPECTED_TOKENIZER_DIR FULL_CPT_VERIFY_START_ITERATION \
+            FULL_CPT_VERIFY_EXPECTED_EXIT_INTERVAL; do
             [[ -n "${!required:-}" ]] || {
                 echo "ERROR: full-corpus job-start verification requires $required" >&2
                 exit 10
@@ -70,6 +72,11 @@ case "${FULL_CPT_LAUNCH_VERIFY:-0}" in
             echo "ERROR: full-corpus verification start iteration must be a nonnegative integer" >&2
             exit 10
         }
+        [[ "$FULL_CPT_VERIFY_EXPECTED_EXIT_INTERVAL" =~ ^[0-9]+$ ]] \
+            && (( FULL_CPT_VERIFY_EXPECTED_EXIT_INTERVAL > FULL_CPT_VERIFY_START_ITERATION )) || {
+            echo "ERROR: full-corpus exit boundary must be after its start boundary" >&2
+            exit 10
+        }
         verify_args=(
             --bridge-manifest "$FULL_CPT_VERIFY_BRIDGE_MANIFEST"
             --training-data-env "$FULL_CPT_VERIFY_TRAINING_DATA_ENV"
@@ -82,6 +89,7 @@ case "${FULL_CPT_LAUNCH_VERIFY:-0}" in
             --launcher "$FULL_CPT_VERIFY_LAUNCHER"
             --expected-load-checkpoint "$FULL_CPT_VERIFY_EXPECTED_LOAD_CHECKPOINT"
             --expected-megatron-dir "$FULL_CPT_VERIFY_EXPECTED_MEGATRON_DIR"
+            --expected-tokenizer-dir "$FULL_CPT_VERIFY_EXPECTED_TOKENIZER_DIR"
             --start-iteration "$FULL_CPT_VERIFY_START_ITERATION"
         )
         if (( FULL_CPT_VERIFY_START_ITERATION > 0 )); then
@@ -129,6 +137,29 @@ if [[ "${FULL_CPT_REQUIRE_JOB_START_VERIFY:-0}" == "1" ]]; then
     }
     [[ "${FULL_CPT_EFFECTIVE_COMMON_TRAINING_ENV:-}" == "$FULL_CPT_VERIFY_COMMON_TRAINING_ENV" ]] || {
         echo "ERROR: effective common training environment differs from the verified receipt" >&2
+        exit 10
+    }
+    [[ "${FULL_CPT_TOKENIZER_DIR:-}" == "$FULL_CPT_VERIFY_EXPECTED_TOKENIZER_DIR" ]] || {
+        echo "ERROR: effective tokenizer root differs from the verified receipt" >&2
+        exit 10
+    }
+    declare -F full_cpt_assert_frozen_recipe >/dev/null || {
+        echo "ERROR: full-corpus config did not define its frozen effective-recipe contract" >&2
+        exit 10
+    }
+    full_cpt_assert_frozen_recipe || exit 10
+    [[ "${UENV_IMAGE:-}" == "$FULL_CPT_VERIFY_UENV" ]] || {
+        echo "ERROR: effective training uenv differs from the verified job-start uenv" >&2
+        exit 10
+    }
+    expected_resume=0
+    (( FULL_CPT_VERIFY_START_ITERATION == 0 )) || expected_resume=1
+    [[ "${RESUME_TRAINING:-}" == "$expected_resume" ]] || {
+        echo "ERROR: effective resume mode disagrees with the verified start boundary" >&2
+        exit 10
+    }
+    [[ "${EXIT_INTERVAL:-}" == "$FULL_CPT_VERIFY_EXPECTED_EXIT_INTERVAL" ]] || {
+        echo "ERROR: effective exit boundary differs from the submitted segment" >&2
         exit 10
     }
 fi

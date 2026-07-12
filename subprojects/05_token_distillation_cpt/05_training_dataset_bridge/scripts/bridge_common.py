@@ -122,11 +122,18 @@ def validate_file_receipt(
 
 
 def tokenizer_tree_receipt(root: Path) -> dict[str, Any]:
+    if root.is_symlink():
+        raise ValueError(f"tokenizer root is a symlink: {root}")
+    root = root.resolve()
     if not root.is_dir():
         raise FileNotFoundError(root)
-    files = sorted(
-        path for path in root.rglob("*") if path.is_file() and not path.is_symlink()
-    )
+    files: list[Path] = []
+    for path in root.rglob("*"):
+        if path.is_symlink():
+            raise ValueError(f"tokenizer tree contains a symlink: {path}")
+        if path.is_file():
+            files.append(path)
+    files.sort(key=lambda path: path.relative_to(root).as_posix())
     if not files:
         raise ValueError(f"tokenizer directory is empty: {root}")
     receipts = [relative_file_receipt(path, root) for path in files]
@@ -135,6 +142,25 @@ def tokenizer_tree_receipt(root: Path) -> dict[str, Any]:
         "files": receipts,
         "tree_sha256": canonical_sha256(receipts),
     }
+
+
+def validate_tokenizer_tree_receipt(receipt: Mapping[str, Any]) -> Path:
+    """Re-hash the complete tokenizer tree using the historical receipt shape."""
+
+    raw_root = Path(str(receipt.get("root", "")))
+    expected_files = receipt.get("files")
+    if not isinstance(expected_files, list) or not expected_files:
+        raise ValueError("tokenizer tree receipt has no files")
+    expected_paths = [str(row.get("path", "")) for row in expected_files]
+    if len(set(expected_paths)) != len(expected_paths):
+        raise ValueError("tokenizer tree receipt contains duplicate paths")
+    actual = tokenizer_tree_receipt(raw_root)
+    root = Path(actual["root"])
+    if actual["files"] != expected_files:
+        raise ValueError(f"tokenizer tree content drift: {root}")
+    if receipt.get("tree_sha256") != actual["tree_sha256"]:
+        raise ValueError(f"tokenizer tree digest drift: {root}")
+    return root
 
 
 def file_tree_receipt(

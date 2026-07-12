@@ -18,6 +18,7 @@ from bridge_common import (
     utc_now,
     validate_frozen_repository,
     validate_file_tree_receipt,
+    validate_tokenizer_tree_receipt,
     write_json_atomic,
 )
 
@@ -41,6 +42,7 @@ def _validate_existing(
     implementation_sha: str,
     repository: dict[str, Any],
     launch_dependencies: dict[str, dict[str, Any]],
+    tokenizer: dict[str, Any],
 ) -> bool:
     if not path.is_file():
         return False
@@ -53,11 +55,13 @@ def _validate_existing(
         or value.get("implementation_sha256") != implementation_sha
         or value.get("repository") != repository
         or value.get("launch_dependencies") != launch_dependencies
+        or value.get("tokenizer") != tokenizer
     ):
         raise ValueError("existing training-assets receipt has different bindings")
     validate_file_tree_receipt(value["init_checkpoint"]["tree"])
     megatron_root = validate_file_tree_receipt(value["megatron"]["tree"])
     validate_file_tree_receipt(value["td_layer11_evidence"]["bundle_tree"])
+    validate_tokenizer_tree_receipt(value["tokenizer"]["tree"])
     if _git(megatron_root, "rev-parse", "HEAD") != value["megatron"]["commit"]:
         raise ValueError("existing training-assets Megatron commit drift")
     if _git(megatron_root, "status", "--porcelain", "--untracked-files=all"):
@@ -109,6 +113,14 @@ def main() -> int:
         raise ValueError("bridge input receipt drift")
     input_receipt = read_json(input_receipt_path)
     repository = validate_frozen_repository(input_receipt, args.repo_root)
+    frozen_tokenizer = input_receipt.get("tokenizer", {})
+    tokenizer_tree = {
+        "root": str(frozen_tokenizer.get("root", "")),
+        "files": frozen_tokenizer.get("files"),
+        "tree_sha256": frozen_tokenizer.get("tree_sha256"),
+    }
+    tokenizer_root = validate_tokenizer_tree_receipt(tokenizer_tree)
+    tokenizer = {"root": str(tokenizer_root), "tree": tokenizer_tree}
     implementation_sha = bound_code_sha(input_receipt, Path(__file__))
     bound_code_sha(input_receipt, Path(__file__).with_name("bridge_common.py"))
     expected_launch_paths = {
@@ -145,6 +157,7 @@ def main() -> int:
         implementation_sha=implementation_sha,
         repository=repository,
         launch_dependencies=launch_dependencies,
+        tokenizer=tokenizer,
     ):
         print(json.dumps({"ok": True, "resumed": True, "output": str(args.output)}))
         return 0
@@ -240,6 +253,7 @@ def main() -> int:
         "implementation_sha256": implementation_sha,
         "repository": repository,
         "launch_dependencies": launch_dependencies,
+        "tokenizer": tokenizer,
         "init_checkpoint": {
             "distillation_layer": int(assets["distillation_layer"]),
             "marker": str(assets["expected_checkpoint_marker"]),

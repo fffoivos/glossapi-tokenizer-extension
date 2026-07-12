@@ -8,9 +8,19 @@ import datetime as dt
 import hashlib
 import json
 import os
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from acquire_mdc_sources import (  # noqa: E402
+    validate_payload,
+    validate_source_receipt,
+)
 
 
 HEX = frozenset("0123456789abcdef")
@@ -24,8 +34,12 @@ def load_object(path: Path) -> dict[str, Any]:
     return value
 
 
-def sha256_file(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def sha256_file(path: Path, chunk_size: int = 16 * 1024 * 1024) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        while chunk := handle.read(chunk_size):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def canonical_object_sha256(value: dict[str, Any]) -> str:
@@ -64,11 +78,17 @@ def build_receipt(
     hf_path: Path,
     mdc_path: Path,
     destination_root: Path,
+    expected_code_commit: str,
 ) -> dict[str, Any]:
     config = load_object(sources_path)
     hf = load_object(hf_path)
     mdc = load_object(mdc_path)
     errors: list[str] = []
+    if (
+        len(expected_code_commit) != 40
+        or set(expected_code_commit) - HEX
+    ):
+        raise ValueError("expected code commit must be a full lowercase Git commit")
     config_hash = sha256_file(sources_path)
     registry = {
         "nanochat_base": dict(config.get("base", {})),
@@ -88,8 +108,11 @@ def build_receipt(
     for label, receipt in (("HF", hf), ("MDC", mdc)):
         if receipt.get("sources_config_sha256") != config_hash:
             errors.append(f"{label} acquisition receipt is not bound to current sources.json")
-    if hf.get("code_commit") != mdc.get("code_commit"):
-        errors.append("HF and MDC acquisition code commits differ")
+    for label, receipt in (("HF", hf), ("MDC", mdc)):
+        if receipt.get("code_commit") != expected_code_commit:
+            errors.append(
+                f"{label} acquisition code commit differs from the explicitly submitted commit"
+            )
 
     component_ids: dict[str, set[str]] = {"HF": set(), "MDC": set()}
     rows: dict[str, dict[str, Any]] = {}
@@ -128,12 +151,26 @@ def build_receipt(
             f"missing={sorted(expected - set(rows))}, unexpected={sorted(set(rows) - expected)}"
         )
     destination_root = destination_root.resolve()
+    raw_mdc_destination = Path(str(mdc.get("destination", "")))
+    mdc_destination = raw_mdc_destination.resolve()
+    try:
+        mdc_destination.relative_to(destination_root)
+    except ValueError:
+        errors.append("MDC acquisition destination is outside the selected destination root")
+    if not mdc_destination.is_dir() or raw_mdc_destination.is_symlink():
+        errors.append("MDC acquisition destination is absent or linked")
     for source_id, row in rows.items():
         tracked = registry.get(source_id, {})
+        mdc_payload_paths: list[Path] = []
+        mdc_payload_files_valid = True
         for field in ("repo_id", "revision"):
             if row.get(field) != tracked.get(field):
                 errors.append(f"{source_id}: acquisition {field} differs from sources.json")
         if source_id in external_ids:
+            source_root = mdc_destination / source_id / str(tracked.get("revision", ""))
+            payload_root = source_root / "payload"
+            if Path(str(row.get("local_root", ""))).resolve() != payload_root.resolve():
+                errors.append(f"{source_id}: MDC payload root differs from its acquisition root")
             if row.get("mdc_dataset_id") != tracked.get("mdc_dataset_id"):
                 errors.append(f"{source_id}: acquisition MDC dataset ID differs from sources.json")
             if row.get("source_config_sha256") != canonical_object_sha256(tracked):
@@ -147,6 +184,41 @@ def build_receipt(
                 or archive.get("metadata_sha256") != pinned_archive_sha
             ):
                 errors.append(f"{source_id}: MDC archive receipt differs from registry SHA-256")
+            else:
+                raw_archive_path = Path(str(archive.get("local_path", "")))
+                archive_path = raw_archive_path.resolve()
+                expected_archive_path = (
+                    source_root
+                    / "archive"
+                    / str(tracked.get("mdc_expected_filename", ""))
+                ).resolve()
+                try:
+                    archive_path.relative_to(destination_root)
+                except ValueError:
+                    errors.append(
+                        f"{source_id}: MDC archive is outside destination root"
+                    )
+                else:
+                    if archive_path != expected_archive_path:
+                        errors.append(
+                            f"{source_id}: MDC archive path differs from its acquisition root"
+                        )
+                    elif (
+                        not archive_path.is_file()
+                        or raw_archive_path.is_symlink()
+                        or archive_path.name != tracked.get("mdc_expected_filename")
+                        or archive_path.stat().st_size
+                        != int(tracked.get("mdc_expected_bytes", -1))
+                        or archive_path.stat().st_size
+                        != int(archive.get("bytes", -1))
+                    ):
+                        errors.append(
+                            f"{source_id}: pinned MDC archive is missing or size-drifted"
+                        )
+                    elif sha256_file(archive_path) != pinned_archive_sha:
+                        errors.append(
+                            f"{source_id}: pinned MDC archive SHA-256 drift"
+                        )
             audit = row.get("payload_validation")
             tracked_format = str(tracked.get("mdc_format", "")).upper()
             if not isinstance(audit, dict):
@@ -233,14 +305,21 @@ def build_receipt(
                             f"{source_id}: MDC payload validation inventory differs from acquisition"
                         )
         for file in row.get("files", []):
-            path = Path(str(file.get("local_path", ""))).resolve()
+            raw_path = Path(str(file.get("local_path", "")))
+            path = raw_path.resolve()
             try:
                 path.relative_to(destination_root)
             except ValueError:
                 errors.append(f"{source_id}: acquired file is outside destination root: {path}")
+                mdc_payload_files_valid = False
                 continue
-            if not path.is_file() or path.stat().st_size != int(file.get("size", -1)):
+            if (
+                not path.is_file()
+                or raw_path.is_symlink()
+                or path.stat().st_size != int(file.get("size", -1))
+            ):
                 errors.append(f"{source_id}: acquired file is missing or size-drifted: {path}")
+                mdc_payload_files_valid = False
                 continue
             stat = path.stat()
             for field, actual in {
@@ -251,17 +330,65 @@ def build_receipt(
             }.items():
                 if int(file.get(field, -1)) != actual:
                     errors.append(f"{source_id}: acquired file {field} drifted: {path}")
+                    mdc_payload_files_valid = False
             if source_id in external_ids:
+                try:
+                    path.relative_to(
+                        mdc_destination
+                        / source_id
+                        / str(tracked.get("revision", ""))
+                        / "payload"
+                    )
+                except ValueError:
+                    errors.append(
+                        f"{source_id}: MDC payload file is outside its acquisition payload root: {path}"
+                    )
+                    mdc_payload_files_valid = False
                 digest = str(file.get("expected_hash", ""))
                 if file.get("hash_kind") != "sha256" or len(digest) != 64 or set(digest) - HEX:
                     errors.append(f"{source_id}: MDC payload lacks a valid SHA-256 binding: {path}")
+                    mdc_payload_files_valid = False
+                elif sha256_file(path) != digest:
+                    errors.append(f"{source_id}: MDC payload SHA-256 drift: {path}")
+                    mdc_payload_files_valid = False
+                else:
+                    mdc_payload_paths.append(path)
+        if source_id in external_ids and mdc_payload_files_valid:
+            source_receipt_path = (
+                mdc_destination
+                / source_id
+                / str(tracked.get("revision", ""))
+                / "source_receipt.json"
+            )
+            try:
+                fresh_source_receipt = validate_source_receipt(
+                    source_receipt_path, tracked
+                )
+            except (OSError, TypeError, ValueError) as error:
+                errors.append(f"{source_id}: source receipt revalidation failed: {error}")
+            else:
+                if fresh_source_receipt != row:
+                    errors.append(
+                        f"{source_id}: top-level MDC row differs from immutable source receipt"
+                    )
+            try:
+                fresh_payload_validation = validate_payload(mdc_payload_paths, tracked)
+            except (OSError, TypeError, ValueError) as error:
+                errors.append(
+                    f"{source_id}: fresh MDC payload validation failed: {error}"
+                )
+            else:
+                if fresh_payload_validation != row.get("payload_validation"):
+                    errors.append(
+                        f"{source_id}: embedded MDC payload validation differs from fresh recomputation"
+                    )
     if errors:
         raise ValueError("acquisition receipt merge failed:\n- " + "\n- ".join(errors))
     return {
         "schema_version": "full_cpt_acquisition_receipt_v1",
         "status": "passed",
         "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "code_commit": hf["code_commit"],
+        "code_commit": expected_code_commit,
         "destination": str(destination_root),
         "sources_config": str(sources_path.resolve()),
         "sources_config_sha256": config_hash,
@@ -283,6 +410,7 @@ def main() -> int:
     parser.add_argument("--hf-receipt", type=Path, required=True)
     parser.add_argument("--mdc-receipt", type=Path, required=True)
     parser.add_argument("--destination-root", type=Path, required=True)
+    parser.add_argument("--expected-code-commit", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     receipt = build_receipt(
@@ -290,6 +418,7 @@ def main() -> int:
         hf_path=args.hf_receipt,
         mdc_path=args.mdc_receipt,
         destination_root=args.destination_root,
+        expected_code_commit=args.expected_code_commit,
     )
     write_json_atomic(args.output, receipt)
     print(json.dumps({"ok": True, "sources": len(receipt["sources"]), "output": str(args.output)}))
