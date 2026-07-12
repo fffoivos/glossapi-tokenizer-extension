@@ -1,0 +1,310 @@
+{
+  "schema_version": "deterministic-structure-parity-fixtures-v1",
+  "fixtures": [
+    {
+      "id": "toc_plain_heading_arabic",
+      "source": "fixture-specific-source",
+      "role_targets": ["toc"],
+      "lines": [
+        "Περιεχόμενα",
+        "1. Εισαγωγή ........ 1",
+        "2. Μέθοδος ........ 7",
+        "## ΚΕΦΑΛΑΙΟ 1"
+      ],
+      "expected": {
+        "spans": [
+          {
+            "kind": "toc",
+            "line_start": 0,
+            "line_end": 2,
+            "supporting_lines": [0, 1, 2],
+            "bridged_lines": [],
+            "terminated_by": 3
+          }
+        ],
+        "conflicts": []
+      }
+    },
+    {
+      "id": "toc_plain_heading_roman",
+      "role_targets": ["toc"],
+      "lines": [
+        "Πίνακας Περιεχομένων",
+        "Πρόλογος ........ i",
+        "Εισαγωγή ........ ii",
+        "Ordinary body resumes here"
+      ],
+      "expected": {
+        "spans": [
+          {
+            "kind": "toc",
+            "line_start": 0,
+            "line_end": 2,
+            "supporting_lines": [0, 1, 2],
+            "bridged_lines": [],
+            "terminated_by": 3
+          }
+        ],
+        "conflicts": []
+      }
+    },
+    {
+      "id": "toc_acronym_heading",
+      "role_targets": ["toc"],
+      "lines": [
+        "TOC",
+        "1. Introduction ........ 1",
+        "2. Method ........ 7",
+        "## CHAPTER 1"
+      ],
+      "expected": {
+        "spans": [
+          {
+            "kind": "toc",
+            "line_start": 0,
+            "line_end": 2,
+            "supporting_lines": [0, 1, 2],
+            "bridged_lines": [],
+            "terminated_by": 3
+          }
+        ],
+        "conflicts": []
+      }
+    },
+    {
+      "id": "toc_repeated_heading",
+      "role_targets": ["toc"],
+      "lines": [
+        "ΠΕΡΙΕΧΟΜΕΝΑ",
+        "1. Εισαγωγή ........ 1",
+        "ΠΕΡΙΕΧΟΜΕΝΑ",
+        "2. Μέθοδος ........ 7",
+        "Ordinary body resumes here"
+      ],
+      "expected": {
+        "spans": [
+          {
+            "kind": "toc",
+            "line_start": 0,
+            "line_end": 3,
+            "supporting_lines": [0, 1, 2, 3],
+            "bridged_lines": [],
+            "terminated_by": 4
+          }
+        ],
+        "conflicts": []
+      }
+    },
+    {
+      "id": "bib_plain_heading",
+      "role_targets": ["bib"],
+      "lines": [
+        "Βιβλιογραφία",
+        "Παπαδόπουλος, Α. (2019). Η γλώσσα. Αθήνα: Εκδόσεις Πατάκη.",
+        "Smith, J. (2020). A title. London: Press.",
+        "Ordinary body resumes here"
+      ],
+      "expected": {
+        "spans": [
+          {
+            "kind": "bibliography",
+            "line_start": 0,
+            "line_end": 2,
+            "supporting_lines": [0, 1, 2],
+            "bridged_lines": [],
+            "terminated_by": 3
+          }
+        ],
+        "conflicts": []
+      }
+    },
+    {
+      "id": "bib_bibliographical_references_heading",
+      "role_targets": ["bib"],
+      "lines": [
+        "Bibliographical References",
+        "Smith, J. (2020). A title. London: Press.",
+        "Brown, K. (2021). Another title. London: Press.",
+        "Ordinary body resumes here"
+      ],
+      "expected": {
+        "spans": [
+          {
+            "kind": "bibliography",
+            "line_start": 0,
+            "line_end": 2,
+            "supporting_lines": [0, 1, 2],
+            "bridged_lines": [],
+            "terminated_by": 3
+          }
+        ],
+        "conflicts": []
+      }
+    },
+    {
+      "id": "bib_headerless",
+      "role_targets": ["bib"],
+      "lines": [
+        "Smith, J. (2018). First title. London: Press.",
+        "Brown, K. (2019). Second title. London: Press.",
+        "Jones, P. (2020). Third title. London: Press.",
+        "White, R. (2021). Fourth title. London: Press.",
+        "Ordinary body resumes here"
+      ],
+      "expected": {
+        "spans": [
+          {
+            "kind": "bibliography",
+            "line_start": 0,
+            "line_end": 3,
+            "supporting_lines": [0, 1, 2, 3],
+            "bridged_lines": [],
+            "terminated_by": 4
+          }
+        ],
+        "conflicts": []
+      }
+    },
+    {
+      "id": "bib_continuation_atx_barrier",
+      "role_targets": ["bib"],
+      "lines": [
+        "Βιβλιογραφία",
+        "Παπαδόπουλος, Α. (2019). Η γλώσσα.",
+        "  Αθήνα: Εκδόσεις Πατάκη.",
+        "Smith, J. (2020). A title. London: Press.",
+        "## ΚΕΦΑΛΑΙΟ 2"
+      ],
+      "expected": {
+        "spans": [
+          {
+            "kind": "bibliography",
+            "line_start": 0,
+            "line_end": 3,
+            "supporting_lines": [0, 1, 3],
+            "bridged_lines": [2],
+            "terminated_by": 4
+          }
+        ],
+        "conflicts": []
+      }
+    },
+    {
+      "id": "cv_publications_scope",
+      "role_targets": ["bib"],
+      "lines": [
+        "Δημοσιεύσεις",
+        "Smith, J. (2018). First title. London: Press.",
+        "Brown, K. (2019). Second title. London: Press.",
+        "Jones, P. (2020). Third title. London: Press.",
+        "White, R. (2021). Fourth title. London: Press."
+      ],
+      "expected": {"spans": [], "conflicts": []}
+    },
+    {
+      "id": "notes_scope",
+      "role_targets": ["bib"],
+      "lines": [
+        "Σημειώσεις",
+        "Smith, J. (2018). First title. London: Press.",
+        "Brown, K. (2019). Second title. London: Press.",
+        "Jones, P. (2020). Third title. London: Press.",
+        "White, R. (2021). Fourth title. London: Press."
+      ],
+      "expected": {"spans": [], "conflicts": []}
+    },
+    {
+      "id": "late_headerless_toc",
+      "role_targets": ["toc"],
+      "repeat_prefix": {"line": "Κανονικό σώμα.", "count": 40},
+      "lines": [
+        "1. Εισαγωγή ........ 1",
+        "2. Θεωρία ........ 5",
+        "3. Μέθοδος ........ 12",
+        "4. Αποτελέσματα ........ 20"
+      ],
+      "expected": {"spans": [], "conflicts": []}
+    },
+    {
+      "id": "bib_numbered_chronology_negative",
+      "role_targets": ["bib"],
+      "lines": [
+        "1. Το 2018 ξεκίνησε το πρώτο έργο.",
+        "2. Το 2019 συνεχίστηκε η δεύτερη φάση.",
+        "3. Το 2020 ολοκληρώθηκε η τρίτη φάση.",
+        "4. Το 2021 άρχισε το νέο πρόγραμμα."
+      ],
+      "expected": {"spans": [], "conflicts": []}
+    },
+    {
+      "id": "bib_literature_review_negative",
+      "role_targets": ["bib"],
+      "lines": [
+        "Smith (2020) argues that this policy failed in practice.",
+        "Jones (2021) explains the different outcome in Greece.",
+        "Brown (2019) instead supports the older interpretation.",
+        "White (2022) rejects both accounts in the final analysis."
+      ],
+      "expected": {"spans": [], "conflicts": []}
+    },
+    {
+      "id": "bib_sources_chronology_negative",
+      "role_targets": ["bib"],
+      "lines": [
+        "Sources",
+        "1. Το 2018 ξεκίνησε το πρώτο έργο.",
+        "2. Το 2019 συνεχίστηκε η δεύτερη φάση."
+      ],
+      "expected": {"spans": [], "conflicts": []}
+    },
+    {
+      "id": "toc_three_blank_gap_negative",
+      "role_targets": [],
+      "lines": [
+        "ΠΕΡΙΕΧΟΜΕΝΑ",
+        "1. Εισαγωγή ........ 1",
+        "",
+        "",
+        "",
+        "2. Μέθοδος ........ 7"
+      ],
+      "expected": {"spans": [], "conflicts": []}
+    },
+    {
+      "id": "toc_mixed_four_line_gap_negative",
+      "role_targets": [],
+      "lines": [
+        "ΠΕΡΙΕΧΟΜΕΝΑ",
+        "1. Εισαγωγή ........ 1",
+        "",
+        "",
+        "ΜΕΡΟΣ ΠΡΩΤΟ ........",
+        "ΚΥΡΙΑ ΕΝΟΤΗΤΑ ........",
+        "2. Μέθοδος ........ 7"
+      ],
+      "expected": {"spans": [], "conflicts": []}
+    },
+    {
+      "id": "toc_bib_overlap_conflict",
+      "role_targets": ["toc", "bib"],
+      "lines": [
+        "ΠΕΡΙΕΧΟΜΕΝΑ",
+        "[1] Smith (2018). First title ........ 7",
+        "[2] Brown (2019). Second title ........ 15",
+        "[3] Jones (2020). Third title ........ 29",
+        "[4] White (2021). Fourth title ........ 40"
+      ],
+      "expected": {
+        "spans": [],
+        "conflicts": [
+          {
+            "toc_line_start": 0,
+            "toc_line_end": 4,
+            "bib_line_start": 1,
+            "bib_line_end": 4
+          }
+        ]
+      }
+    }
+  ]
+}

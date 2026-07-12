@@ -9,10 +9,15 @@ pub mod reference_signals;
 pub mod reference_module;
 pub mod beta_gate_model;
 pub mod span_line_model;
+pub mod structural_rules;
 pub mod toc_line_model;
 
 pub use reference_module::{
     detect_doc, detect_sections, Counters, DetectConfig, DocResult, SectionRow, Span,
 };
 pub use span_line_model::span_detect;
+pub use structural_rules::{
+    structural_detect, BibStyle, LineRole, PageTail, ReasonCode, StructuralConfig,
+    StructuralDecision, StructureConflict, StructureKind, StructureLineEvidence, StructureSpan,
+};
 pub use toc_line_model::toc_detect;

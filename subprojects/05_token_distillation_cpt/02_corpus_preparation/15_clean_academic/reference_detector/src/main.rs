@@ -6,6 +6,7 @@
 //!   --mode bib-spans|spans   promoted bibliography line head (`spans` is the compatibility alias)
 //!   --mode toc-spans         table-of-contents line head
 //!   --mode structure-spans   both frozen line heads
+//!   --mode deterministic-structure  explainable rules + typed block decoder
 //!   --mode score-lines       bibliography parity harness
 //!   --mode toc-score-lines   ToC parity harness
 //!
@@ -24,8 +25,8 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 
 use reference_detector::{
-    detect_doc, detect_sections, span_line_model, toc_line_model, DetectConfig, DocResult, SectionRow,
-    Span,
+    detect_doc, detect_sections, span_line_model, structural_rules, toc_line_model, DetectConfig,
+    DocResult, SectionRow, Span,
 };
 
 struct Args {
@@ -165,7 +166,49 @@ fn run_span_mode(a: &Args, reader: &mut dyn BufRead, spans_w: &mut dyn Write, co
             .map(|(i, l)| match serde_json::from_str::<Value>(l) {
                 Err(e) => (true, serde_json::json!({"doc_idx": i, "error": format!("json parse error: {e}")}).to_string(), Vec::new()),
                 Ok(v) => {
-                    if a.mode == "score-lines" || a.mode == "bib-score-lines" || a.mode == "toc-score-lines" {
+                    if a.mode == "deterministic-structure" {
+                        let Some(id) = pick_str(&v, &a.id_fields).map(str::to_string) else {
+                            return (true, serde_json::json!({"doc_idx": i, "error": format!("missing id field (tried {:?})", a.id_fields)}).to_string(), Vec::new());
+                        };
+                        let Some(text) = pick_str(&v, &a.text_fields) else {
+                            return (true, serde_json::json!({"doc_idx": i, "error": format!("missing text field (tried {:?})", a.text_fields)}).to_string(), Vec::new());
+                        };
+                        let source = v.get("source")
+                            .and_then(|value| value.as_str())
+                            .filter(|value| !value.is_empty())
+                            .unwrap_or(&a.source);
+                        let original_sha256 = sha256_hex(text.as_bytes());
+                        let original_chars = text.chars().count();
+                        let uid = row_uid(source, &id);
+                        let decision = structural_rules::structural_detect(
+                            &id,
+                            source,
+                            text,
+                            &structural_rules::StructuralConfig::default(),
+                        );
+                        let span_rows = decision.spans.iter().map(|span| {
+                            serde_json::json!({
+                                "schema_version": "academic-structure-deterministic-span-v1",
+                                "doc_id": id,
+                                "source": source,
+                                "row_uid": uid,
+                                "original_sha256": original_sha256,
+                                "original_chars": original_chars,
+                                "model_id": decision.model_id,
+                                "decoder_id": decision.decoder_id,
+                                "span": span,
+                            }).to_string()
+                        }).collect();
+                        let mut decision_value = serde_json::to_value(&decision).unwrap();
+                        let object = decision_value.as_object_mut().unwrap();
+                        object.insert("row_uid".into(), Value::String(uid));
+                        object.insert(
+                            "original_sha256".into(),
+                            Value::String(original_sha256),
+                        );
+                        object.insert("original_chars".into(), Value::from(original_chars));
+                        (false, decision_value.to_string(), span_rows)
+                    } else if a.mode == "score-lines" || a.mode == "bib-score-lines" || a.mode == "toc-score-lines" {
                         let present: Vec<String> = v.get("present").and_then(|x| x.as_array())
                             .map(|arr| arr.iter().filter_map(|s| s.as_str().map(str::to_string)).collect())
                             .unwrap_or_default();
@@ -333,6 +376,7 @@ fn main() {
             | "bib-spans"
             | "toc-spans"
             | "structure-spans"
+            | "deterministic-structure"
             | "score-lines"
             | "bib-score-lines"
             | "toc-score-lines"
