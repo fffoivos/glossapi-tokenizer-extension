@@ -114,6 +114,7 @@ def test_mdc_acquisition_binds_archive_and_never_persists_url(
     serialized = json.dumps(receipt, sort_keys=True)
     assert "never-store" not in serialized
     assert receipt["archive"]["sha256"] == archive_hash
+    assert receipt["source_config_sha256"] == MDC.canonical_object_sha256(source)
     assert receipt["selected_file_count"] == 1
     assert receipt["files"][0]["expected_hash"] == MDC.sha256_file(
         Path(receipt["files"][0]["local_path"])
@@ -125,6 +126,25 @@ def test_mdc_acquisition_binds_archive_and_never_persists_url(
         extraction_multiplier=20,
     )
     assert resumed == receipt
+
+    changed_source = dict(source)
+    changed_source["include_globs"] = ["*.jsonl"]
+    with pytest.raises(ValueError, match="source_config_sha256"):
+        MDC.acquire_source(
+            changed_source,
+            client=FakeClient(),
+            destination=tmp_path / "destination",
+            extraction_multiplier=20,
+        )
+
+    Path(receipt["archive"]["local_path"]).write_bytes(b"tampered")
+    with pytest.raises(ValueError, match="archive drift"):
+        MDC.acquire_source(
+            source,
+            client=FakeClient(),
+            destination=tmp_path / "destination",
+            extraction_multiplier=20,
+        )
 
 
 def test_hf_resolver_excludes_external_routes() -> None:

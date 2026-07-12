@@ -39,6 +39,16 @@ def sha256_file(path: Path, chunk_size: int = 16 * 1024 * 1024) -> str:
     return digest.hexdigest()
 
 
+def canonical_object_sha256(value: dict[str, Any]) -> str:
+    encoded = json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def load_object(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
@@ -245,9 +255,25 @@ def validate_source_receipt(path: Path, source: dict[str, Any]) -> dict[str, Any
         "repo_id": source["repo_id"],
         "revision": source["revision"],
         "mdc_dataset_id": source["mdc_dataset_id"],
+        "source_config_sha256": canonical_object_sha256(source),
     }.items():
         if receipt.get(field) != expected:
             raise ValueError(f"{path}: source receipt drift for {field}")
+    archive = receipt.get("archive")
+    if not isinstance(archive, dict):
+        raise ValueError(f"{path}: source receipt has no archive evidence")
+    archive_path = Path(str(archive.get("local_path", "")))
+    if (
+        not archive_path.is_file()
+        or archive_path.name != source["mdc_expected_filename"]
+        or archive_path.stat().st_size != int(archive.get("bytes", -1))
+        or archive_path.stat().st_size != int(source["mdc_expected_bytes"])
+        or sha256_file(archive_path) != archive.get("sha256")
+    ):
+        raise ValueError(f"{path}: downloaded archive drift for {archive_path}")
+    pinned = source.get("mdc_expected_sha256")
+    if pinned is not None and archive.get("sha256") != pinned:
+        raise ValueError(f"{path}: archive differs from pinned source checksum")
     for row in receipt.get("files", []):
         local = Path(str(row.get("local_path", "")))
         if (
@@ -339,8 +365,10 @@ def acquire_source(
         "role": source["role"],
         "mdc_dataset_id": dataset_id,
         "mdc_slug": details["slug"],
+        "source_config_sha256": canonical_object_sha256(source),
         "archive": {
             "filename": filename,
+            "local_path": str(archive.resolve()),
             "bytes": size,
             "sha256": checksum,
             "content_type": download.get("contentType"),
