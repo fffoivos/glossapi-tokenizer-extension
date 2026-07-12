@@ -1335,10 +1335,22 @@ def test_quality_summary_rejects_duplicate_checkpoint_paths_and_batch_identities
 
 
 def test_full_scan_rejects_partial_selected_shard_coverage(tmp_path: Path) -> None:
+    sources_config = write_sources_config(
+        tmp_path / "sources.json",
+        [
+            {
+                "source_id": "alpha",
+                "repo_id": "owner/alpha",
+                "revision": "a" * 40,
+                "role": "additive_candidate",
+            }
+        ],
+    )
     summary_path, _ = write_quality_summary_and_handoff(
         tmp_path,
         repositories=[("alpha", "owner/alpha", "a" * 40)],
         scan_mode="full_scan",
+        sources_config=sources_config,
     )
     summary = json.loads(summary_path.read_text())
     summary["input_shards"][0]["rows"] = 100
@@ -1350,10 +1362,22 @@ def test_full_scan_rejects_partial_selected_shard_coverage(tmp_path: Path) -> No
 def test_full_scan_rejects_overlapping_or_gapped_checkpoint_intervals(
     tmp_path: Path, second_start: int
 ) -> None:
+    sources_config = write_sources_config(
+        tmp_path / "sources.json",
+        [
+            {
+                "source_id": "alpha",
+                "repo_id": "owner/alpha",
+                "revision": "a" * 40,
+                "role": "additive_candidate",
+            }
+        ],
+    )
     summary_path, _ = write_quality_summary_and_handoff(
         tmp_path,
         repositories=[("alpha", "owner/alpha", "a" * 40)],
         scan_mode="full_scan",
+        sources_config=sources_config,
     )
     summary = json.loads(summary_path.read_text())
     summary["input_shards"][0].update({"rows": 3, "batches": 2})
