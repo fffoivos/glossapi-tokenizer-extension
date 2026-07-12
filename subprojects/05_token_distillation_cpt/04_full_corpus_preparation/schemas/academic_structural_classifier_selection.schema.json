@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "academic_structural_classifier_selection.schema.json",
+  "title": "Receipt-bound structural classifier selection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "selected_architecture",
+    "selection_method",
+    "selection_rationale",
+    "automatic_winner_selection",
+    "evidence_tier",
+    "joint_ladder",
+    "joint_source",
+    "deployment_artifacts",
+    "runtime_compatibility",
+    "stage52_candidate_eligible",
+    "stage54_model_selection_eligible",
+    "structural_application_eligible",
+    "remaining_gates"
+  ],
+  "properties": {
+    "schema_version": {"const": "academic_structural_classifier_selection_v1"},
+    "status": {"const": "passed_c0_runtime_compatibility_selection"},
+    "selected_architecture": {"const": "c0-rust-lr-hysteresis"},
+    "selection_method": {
+      "const": "explicit_operator_choice_after_receipt_bound_joint_ladder"
+    },
+    "selection_rationale": {"type": "string", "minLength": 1},
+    "automatic_winner_selection": {"const": false},
+    "evidence_tier": {"const": "LLM_silver"},
+    "joint_ladder": {"type": "object"},
+    "joint_source": {"type": "object"},
+    "deployment_artifacts": {"type": "object"},
+    "runtime_compatibility": {
+      "type": "object",
+      "required": [
+        "status",
+        "rust_deployable",
+        "port_package_required",
+        "parity_receipt_created"
+      ],
+      "properties": {
+        "status": {
+          "const": "existing_rust_c0_implementation_requires_fresh_exact_parity"
+        },
+        "rust_deployable": {"const": true},
+        "port_package_required": {"const": false},
+        "parity_receipt_created": {"const": false}
+      }
+    },
+    "stage52_candidate_eligible": {"const": true},
+    "stage54_model_selection_eligible": {"const": true},
+    "structural_application_eligible": {"const": false},
+    "remaining_gates": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}

@@ -24,6 +24,7 @@ phase04_require_file "${STRUCTURAL_MANUAL_AUDIT_RECEIPT:?set STRUCTURAL_MANUAL_A
 phase04_require_file "${STRUCTURAL_AUDIT_ANNOTATIONS:?set STRUCTURAL_AUDIT_ANNOTATIONS}"
 phase04_require_file "${STRUCTURAL_SILVER_RECEIPT:?set STRUCTURAL_SILVER_RECEIPT}"
 phase04_require_file "${STRUCTURAL_SILVER_SPLIT:?set STRUCTURAL_SILVER_SPLIT}"
+phase04_require_file "${STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT:?set the passed C0 classifier-selection receipt after the joint ladder}"
 phase04_require_file "${STRUCTURAL_PARITY_RECEIPT:?set STRUCTURAL_PARITY_RECEIPT after joint LLM-silver recovery}"
 phase04_init_pipeline_run
 phase04_stage_begin "54-structural-promote"
@@ -39,6 +40,7 @@ phase04_stage_add_input manual_audit_receipt "$STRUCTURAL_MANUAL_AUDIT_RECEIPT"
 phase04_stage_add_input manual_audit_annotations "$STRUCTURAL_AUDIT_ANNOTATIONS"
 phase04_stage_add_input llm_silver_receipt "$STRUCTURAL_SILVER_RECEIPT"
 phase04_stage_add_input llm_silver_split "$STRUCTURAL_SILVER_SPLIT"
+phase04_stage_add_input classifier_selection_receipt "$STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT"
 phase04_stage_add_input detector_parity_receipt "$STRUCTURAL_PARITY_RECEIPT"
 phase04_stage_add_input cleaning_policy "$CLEANING_POLICY"
 
@@ -58,6 +60,7 @@ if [[ ! -s "$PHASE04_STAGE_DIR/academic_structural_model_receipt.json" ]]; then
         --audit-validation "$PHASE04_STAGE_DIR/audit_validation.json" \
         --silver-receipt "$STRUCTURAL_SILVER_RECEIPT" \
         --silver-split-manifest "$STRUCTURAL_SILVER_SPLIT" \
+        --classifier-selection-receipt "$STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT" \
         --parity-receipt "$STRUCTURAL_PARITY_RECEIPT" \
         --output "$PHASE04_STAGE_DIR/academic_structural_model_receipt.json"
 fi

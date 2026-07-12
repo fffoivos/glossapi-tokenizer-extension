@@ -116,12 +116,44 @@ submitted as part of this implementation.
 profile, models, calibration decisions, validation predictions, metrics, and resource measurements.
 The finalizer reproduces the predictions from the bound model artifacts and rejects extra files.
 
+## 4. Record a deployable C0 choice and run fresh Rust parity
+
+The ladder does not automatically choose a winner. If the operator selects C0,
+run the bridge against an exact detector build:
+
+```bash
+sbatch --export=ALL,\
+REPO_ROOT=/path/to/exact/classifier/worktree,\
+PHASE04_CLARIDEN_DIR=/path/to/exact/classifier/worktree/subprojects/05_token_distillation_cpt/04_full_corpus_preparation/clariden,\
+PHASE04_EXPECTED_COMMIT=<40-character-commit>,\
+STRUCT2K_SOURCE_ROOT=<immutable-output-from-step-1>,\
+JOINT_LADDER_RUN_ROOT=<immutable-output-from-step-3>,\
+REFERENCE_BIN=<exact-detector-build>/reference_detect,\
+DETECTOR_BUILD_RECEIPT=<exact-detector-build>/build_receipt.json,\
+STRUCTURAL_C0_BRIDGE_RUN_ID=<operator-chosen-id>,\
+STRUCTURAL_SELECTION_RATIONALE=C0_is_the_only_arm_with_an_existing_Rust_implementation,\
+CONFIRM_STRUCTURAL_C0_BRIDGE=1 \
+subprojects/05_token_distillation_cpt/02_corpus_preparation/15_clean_academic/eval/sequence_models/clariden/build_joint_c0_bridge.sbatch
+```
+
+This emits a classifier-selection receipt and a fresh Python↔Rust parity
+receipt over the imported validation partition. Runtime parity checks
+implementation equivalence; that validation partition is derived from
+historical train and is not independent quality evidence. Both receipts are
+required by the official Stage52/54 path.
+
+C1, C2 and N1 are Python research arms, not Rust deployment packages. The
+bridge rejects them. Selecting one requires a separate reviewed Rust
+port/export, artifact contract and exact probability/span parity package before
+Stage52; a `.npz` or `.pt` checkpoint must never be presented as deployable
+Rust evidence.
+
 ## Interpretation and production boundary
 
 The recovered corpus contains 1,289 whole documents and 711 front/tail or other historical windows.
 It is useful for comparing structured line models but does not independently measure running-prose
 safety. Prose contamination, true main-text retention, and catastrophic prose-deletion metrics remain
-unavailable. A later production candidate still requires a frozen cleaning policy, Stage54, runtime
-parity and resource receipts, all configured deployment gates, and the separate receipt-bound
+unavailable. A later production candidate still requires the explicit post-ladder selection, a frozen
+cleaning policy, Stage54, runtime parity and resource receipts, all configured deployment gates, and the separate receipt-bound
 100-case high-risk deletion review (50 ToC and 50 BIB, zero catastrophic deletions). Until then the
 production fallback remains no-op.

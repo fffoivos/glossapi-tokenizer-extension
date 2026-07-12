@@ -865,6 +865,16 @@ def cmd_validate_structural_model(args: argparse.Namespace) -> None:
     coverage = evidence.get("task_coverage")
     if not isinstance(coverage, list) or set(coverage) != {"toc", "bibliography"}:
         raise ValueError("structural receipt must cover both ToC and bibliography")
+    classifier_selection = evidence.get("classifier_selection_receipt")
+    if (
+        evidence.get("selected_architecture") != "c0-rust-lr-hysteresis"
+        or not isinstance(classifier_selection, dict)
+        or not valid_sha256(classifier_selection.get("sha256"))
+        or not valid_sha256(evidence.get("joint_ladder_run_receipt_sha256"))
+    ):
+        raise ValueError(
+            "structural receipt lacks a passed post-ladder C0 classifier selection"
+        )
 
     safety = receipt.get("safety")
     if not isinstance(safety, dict):

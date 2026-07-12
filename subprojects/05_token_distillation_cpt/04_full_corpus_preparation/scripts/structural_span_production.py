@@ -39,6 +39,7 @@ from cleaning_runtime import (
 )
 from full_corpus_io import read_json_object, sha256_file, sha256_text
 from full_corpus_io import normalize_text
+from structural_classifier_selection import validate_selection as validate_classifier_selection
 
 
 RAW_SCHEMA = "phase04_structural_raw_predictions_v1"
@@ -242,6 +243,7 @@ def _validate_parity(
     toc_model: Path,
     smoother: Path,
     silver_receipt: Mapping[str, Any] | None = None,
+    silver_receipt_sha256: str | None = None,
     cleaning_policy: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     parity = _load(parity_path, schema="struct_rust_parity_receipt_v1")
@@ -259,15 +261,27 @@ def _validate_parity(
     }
     if parity.get("model_sha256") != expected:
         raise ValueError("Rust parity receipt does not bind the exact model artifacts")
-    if (silver_receipt is None) != (cleaning_policy is None):
+    if (silver_receipt is None) != (cleaning_policy is None) or (
+        silver_receipt is None
+    ) != (silver_receipt_sha256 is None):
         raise ValueError(
-            "strict parity validation requires both silver receipt and cleaning policy"
+            "strict parity validation requires the silver receipt/hash and cleaning policy"
         )
     if silver_receipt is not None and cleaning_policy is not None:
         silver_sha = silver_receipt.get("silver_sha256")
         if not valid_sha256(silver_sha) or parity.get("corpus_sha256") != silver_sha:
             raise ValueError(
                 "Rust parity corpus differs from the validated joint LLM-silver corpus"
+            )
+        if (
+            parity.get("source_receipt_sha256") != silver_receipt_sha256
+            or parity.get("evaluation_partition") != "validation"
+            or parity.get("partition_semantics")
+            != "derived_historical_train_validation_runtime_parity_not_quality_holdout"
+            or parity.get("historical_test_documents_loaded") != 0
+        ):
+            raise ValueError(
+                "Rust parity is not bound to the imported validation-only joint source"
             )
         validation = cleaning_policy.get("validation")
         if not isinstance(validation, dict):
@@ -2140,8 +2154,9 @@ def _validate_silver_evidence(receipt_path: Path, split_path: Path) -> dict[str,
         or int(scopes.get("bibliography_toc_windows", 0)) <= 0
     ):
         raise ValueError(
-            "joint bibliography+ToC LLM-silver evidence is absent; recover and import the raw "
-            "STRUCT_2K artifact before constructing a two-head production receipt"
+            "joint bibliography+ToC LLM-silver evidence is absent from the supplied receipt; "
+            "supply the passed locked STRUCT_2K import receipt before constructing a two-head "
+            "production receipt"
         )
     if not valid_sha256(receipt.get("inventory_sha256")):
         raise ValueError("LLM-silver evidence inventory hash is invalid")
@@ -2196,6 +2211,23 @@ def build_model_receipt(args: argparse.Namespace) -> int:
         args.audit_validation, raw_manifest_sha256=raw_sha
     )
     silver = _validate_silver_evidence(args.silver_receipt, args.silver_split_manifest)
+    classifier_selection = validate_classifier_selection(
+        args.classifier_selection_receipt,
+        source_receipt=args.silver_receipt,
+        source_split_manifest=args.silver_split_manifest,
+        sequence_config=_artifact_path(
+            raw["artifacts"], category="config", name="sequence_config"
+        ),
+        bib_model=_artifact_path(
+            raw["artifacts"], category="checkpoint", name="bibliography_line_model"
+        ),
+        toc_model=_artifact_path(
+            raw["artifacts"], category="checkpoint", name="toc_line_model"
+        ),
+        smoother=_artifact_path(
+            raw["artifacts"], category="config", name="structural_smoother"
+        ),
+    )
     audit_policy = _load(
         verify_file_receipt(audit["cleaning_policy"]),
         schema="full_cpt_cleaning_policy_v1",
@@ -2214,6 +2246,7 @@ def build_model_receipt(args: argparse.Namespace) -> int:
             raw["artifacts"], category="config", name="structural_smoother"
         ),
         silver_receipt=silver,
+        silver_receipt_sha256=sha256_file(args.silver_receipt),
         cleaning_policy=audit_policy,
     )
     embedded_parity = raw["detector"].get("parity_receipt")
@@ -2243,6 +2276,13 @@ def build_model_receipt(args: argparse.Namespace) -> int:
             "annotation_status": "LLM_silver",
             "inventory_sha256": silver["inventory_sha256"],
             "task_coverage": ["toc", "bibliography"],
+            "selected_architecture": classifier_selection["selected_architecture"],
+            "classifier_selection_receipt": file_receipt(
+                args.classifier_selection_receipt
+            ),
+            "joint_ladder_run_receipt_sha256": classifier_selection["joint_ladder"][
+                "run_receipt_sha256"
+            ],
             "silver_receipt": file_receipt(args.silver_receipt),
             "silver_split_manifest": file_receipt(args.silver_split_manifest),
             "runtime_parity_receipt": file_receipt(args.parity_receipt),
@@ -2302,9 +2342,12 @@ def validate_model_receipt(
     if (
         not isinstance(evidence, dict)
         or evidence.get("annotation_status") != "LLM_silver"
+        or evidence.get("selected_architecture") != "c0-rust-lr-hysteresis"
+        or not isinstance(evidence.get("classifier_selection_receipt"), dict)
+        or not valid_sha256(evidence.get("joint_ladder_run_receipt_sha256"))
     ):
         raise ValueError(
-            "structural model receipt falsely/mistakenly describes its evidence"
+            "structural model receipt lacks honest joint-ladder C0 selection evidence"
         )
     if set(evidence.get("task_coverage", [])) != {"toc", "bibliography"}:
         raise ValueError("structural model receipt lacks two-head task coverage")
@@ -2327,6 +2370,33 @@ def validate_model_receipt(
     validation = _validate_audit_validation(
         validation_path, raw_manifest_sha256=sha256_file(raw_path)
     )
+    classifier_selection_path = verify_file_receipt(
+        evidence["classifier_selection_receipt"]
+    )
+    classifier_selection = validate_classifier_selection(
+        classifier_selection_path,
+        source_receipt=silver_path,
+        source_split_manifest=split_path,
+        sequence_config=_artifact_path(
+            raw["artifacts"], category="config", name="sequence_config"
+        ),
+        bib_model=_artifact_path(
+            raw["artifacts"], category="checkpoint", name="bibliography_line_model"
+        ),
+        toc_model=_artifact_path(
+            raw["artifacts"], category="checkpoint", name="toc_line_model"
+        ),
+        smoother=_artifact_path(
+            raw["artifacts"], category="config", name="structural_smoother"
+        ),
+    )
+    if (
+        evidence.get("selected_architecture")
+        != classifier_selection["selected_architecture"]
+        or evidence.get("joint_ladder_run_receipt_sha256")
+        != classifier_selection["joint_ladder"]["run_receipt_sha256"]
+    ):
+        raise ValueError("structural model receipt classifier-selection binding drift")
     audit_policy = _load(
         verify_file_receipt(validation["cleaning_policy"]),
         schema="full_cpt_cleaning_policy_v1",
@@ -2345,6 +2415,7 @@ def validate_model_receipt(
             raw["artifacts"], category="config", name="structural_smoother"
         ),
         silver_receipt=silver,
+        silver_receipt_sha256=sha256_file(silver_path),
         cleaning_policy=audit_policy,
     )
     split = evidence.get("work_split")
@@ -2588,6 +2659,7 @@ def build_parser() -> argparse.ArgumentParser:
     model.add_argument("--audit-validation", type=Path, required=True)
     model.add_argument("--silver-receipt", type=Path, required=True)
     model.add_argument("--silver-split-manifest", type=Path, required=True)
+    model.add_argument("--classifier-selection-receipt", type=Path, required=True)
     model.add_argument("--parity-receipt", type=Path, required=True)
     model.add_argument("--output", type=Path, required=True)
     model.set_defaults(func=build_model_receipt)

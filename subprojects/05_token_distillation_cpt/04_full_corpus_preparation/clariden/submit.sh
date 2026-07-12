@@ -171,6 +171,16 @@ manual_preflight() {
                 exit 7
             }
             ;;
+        structural-stage50-detect|52-structural-detect)
+            for required in \
+                STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT \
+                STRUCTURAL_SILVER_RECEIPT STRUCTURAL_SILVER_SPLIT; do
+                [[ -s "${!required:-}" ]] || {
+                    echo "ERROR: structural detection requires the post-ladder $required." >&2
+                    exit 7
+                }
+            done
+            ;;
         final-clean|58-final-clean)
             final_admission_preflight
             [[ "${APPLY_STRUCTURAL+x}" == "x" ]] && \
@@ -207,7 +217,7 @@ manual_preflight() {
             for required in \
                 STRUCTURAL_MANUAL_AUDIT_RECEIPT STRUCTURAL_AUDIT_ANNOTATIONS \
                 STRUCTURAL_SILVER_RECEIPT STRUCTURAL_SILVER_SPLIT \
-                STRUCTURAL_PARITY_RECEIPT; do
+                STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT STRUCTURAL_PARITY_RECEIPT; do
                 [[ -s "${!required:-}" ]] || {
                     echo "ERROR: structural promotion requires a non-empty $required." >&2
                     exit 7

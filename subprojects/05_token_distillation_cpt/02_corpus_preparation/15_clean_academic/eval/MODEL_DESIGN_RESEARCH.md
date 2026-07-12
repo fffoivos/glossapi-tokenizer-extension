@@ -13,7 +13,7 @@ Now writing the definitive document.
 
 # Line classifier design — ToC + Bibliography (2,000-doc LLM silver)
 
-This is the historical implementation-guiding design for the line-level structural tagger over the reported STRUCT_2K LLM-silver run (2,000 docs; labels `0=other` 78.35% / `1=bibliography` 15.31% / `2=table_of_contents` 6.34%; leak-free doc-grouped split, train 1392 / test 608). The raw joint corpus is now absent, so these numbers are historical results rather than currently reproducible promotion evidence. Every decision is anchored to the existing `reference_detector` crate and `eval/` harness, and to the precision-first / Rust-deployable contract.
+This is the historical implementation-guiding design for the line-level structural tagger over the reported STRUCT_2K LLM-silver run (2,000 docs; labels `0=other` 78.35% / `1=bibliography` 15.31% / `2=table_of_contents` 6.34%; historical train 1392 / test 608). The exact raw handoff is now recovered and checksum-locked. The new importer derives validation only from the 1,392 historical-train documents and physically excludes all 608 historical-test documents; no import, ladder or parity job has run yet, so the historical results below are not current promotion evidence. Every decision is anchored to the existing `reference_detector` crate and `eval/` harness, and to the precision-first / Rust-deployable contract.
 
 The one rule that overrides everything below: **what ships is a synced Rust dot-product + hysteresis scalar pass.** A fired DL gate authorizes *distill-and-mine*, never *ship-the-net*. The bibliography precedent already followed this (the e5 probe gate fired, the net was not shipped), and that is the binding default — not an exception to be relitigated per facet.
 
@@ -25,7 +25,7 @@ Ship **two parallel binary per-line heads** that extend the already-deployed, pa
 
 Concretely, per present (non-blank) line:
 
-1. **Two scalar heads.** `p_bib` and `p_toc`, each computed as `standardize(features) → dot(weights) → sigmoid`. The bib head is the *existing* 22-feature span LR in `reference_detector/src/span_line_model.rs` (unchanged, no refit, no re-parity). The ToC head is **new**: the same standardize→dot→sigmoid shape over a small set of cheap, deterministic, Rust-portable signals (below).
+1. **Two scalar heads.** `p_bib` and `p_toc`, each computed as `standardize(features) → dot(weights) → sigmoid`. The bib head is the *existing* 22-feature span LR in `reference_detector/src/span_line_model.rs` (unchanged and not refit). The current operational bridge nevertheless requires fresh exact parity for the complete C0 artifact bundle on the imported source. The ToC head is **new**: the same standardize→dot→sigmoid shape over a small set of cheap, deterministic, Rust-portable signals (below).
 
 2. **Position handling as score-gates/features, not constraints.**
    - ToC: a **hard front-gate applied to the score before decoding** — `p_toc *= 1[abs_idx < min(300, 0.30·N)]`, where `N` is the **true full-document line count** (verify the denominator at deploy is true `N`, not the present-line count — training used absolute indices). Gating the score, not post-filtering spans, means the decoder never opens a ToC run outside the front window.
@@ -57,7 +57,7 @@ This is a pure scalar Rust pass: no torch or ONNX on the hot path. Current corpu
 **Two binary heads. Decisively.**
 
 Reasoning:
-- **The proven bib head is preserved untouched.** Two heads keep the deployed, parity-verified bib LR with no refit and no re-parity; a 3-way softmax would force a refit of the thing that already works.
+- **The proven bib head is preserved untouched.** Two heads keep the deployed bib LR with no refit; a 3-way softmax would force a refit of the thing that already works. Fresh bundle-level parity is still mandatory before Stage52/54.
 - **Each class keeps its own everything.** Separate `cost_fp` class-weight, separate operating point, separate hysteresis `(θ_hi, θ_lo, G, Lmin)`, separate gate. ToC at 6.34% prevalence is fit cleanly as its own binary problem instead of being a minority arm under 78% "other". A shared softmax normalization *couples* the two thresholds, making per-class precision-first tuning harder — the opposite of what the asymmetric-cost contract needs.
 - **The classes never touch.** ToC is front-located and single-block in 1260/1320 docs; bib is mid/back and multi-span. There is no `bib↔toc` adjacency for a joint model to exploit — a 3-state transition matrix would model noise.
 - **It stays a Rust dot-product.** Two thresholded sigmoids + two run-length passes; no shared machinery, no new failure modes.
