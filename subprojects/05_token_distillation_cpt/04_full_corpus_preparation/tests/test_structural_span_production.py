@@ -176,15 +176,22 @@ def test_strict_parity_requires_imported_validation_and_zero_historical_test_acc
         path.write_bytes(path.name.encode())
     source_receipt = tmp_path / "source.json"
     write_json(source_receipt, {"fixture": True})
+    source_split = tmp_path / "split.json"
+    write_json(source_split, {"fixture": True})
     corpus_sha = "c" * 64
     parity = tmp_path / "parity.json"
     value = {
         "schema_version": "struct_rust_parity_receipt_v1",
         "status": "passed",
         "evidence_status": "LLM_silver",
+        "input_snapshot_method": (
+            "private_job_local_o_nofollow_copy_rehash_before_publish"
+        ),
+        "inputs_rehashed_before_publication": True,
         "binary_sha256": sha(binary),
         "corpus_sha256": corpus_sha,
         "source_receipt_sha256": sha(source_receipt),
+        "source_split_manifest_sha256": sha(source_split),
         "evaluation_partition": "validation",
         "partition_semantics": (
             "derived_historical_train_validation_runtime_parity_not_quality_holdout"
@@ -194,8 +201,16 @@ def test_strict_parity_requires_imported_validation_and_zero_historical_test_acc
         "positive_document_counts": {"bib": 1, "toc": 1},
         "tolerance": 0.001,
         "heads": {
-            "bib": {"span_mismatches": 0, "max_probability_difference": 0.0},
-            "toc": {"span_mismatches": 0, "max_probability_difference": 0.0},
+            "bib": {
+                "documents": 2,
+                "span_mismatches": 0,
+                "max_probability_difference": 0.0,
+            },
+            "toc": {
+                "documents": 2,
+                "span_mismatches": 0,
+                "max_probability_difference": 0.0,
+            },
         },
         "model_sha256": {
             "bib": sha(bib),
@@ -217,8 +232,12 @@ def test_strict_parity_requires_imported_validation_and_zero_historical_test_acc
             bib_model=bib,
             toc_model=toc,
             smoother=smoother,
-            silver_receipt={"silver_sha256": corpus_sha},
+            silver_receipt={
+                "silver_sha256": corpus_sha,
+                "split_counts": {"validation": 2},
+            },
             silver_receipt_sha256=sha(source_receipt),
+            silver_split_manifest_sha256=sha(source_split),
             cleaning_policy=policy,
         )["evaluation_partition"]
         == "validation"
@@ -232,13 +251,291 @@ def test_strict_parity_requires_imported_validation_and_zero_historical_test_acc
             bib_model=bib,
             toc_model=toc,
             smoother=smoother,
-            silver_receipt={"silver_sha256": corpus_sha},
+            silver_receipt={
+                "silver_sha256": corpus_sha,
+                "split_counts": {"validation": 2},
+            },
             silver_receipt_sha256=sha(source_receipt),
+            silver_split_manifest_sha256=sha(source_split),
             cleaning_policy=policy,
         )
 
 
-def test_detection_routes_only_explicit_apply_after_review_rows(tmp_path: Path) -> None:
+def _strict_parity_fixture(tmp_path: Path) -> dict[str, object]:
+    binary = tmp_path / "detector"
+    bib = tmp_path / "bib.json"
+    toc = tmp_path / "toc.json"
+    smoother = tmp_path / "smooth.json"
+    for path in (binary, bib, toc, smoother):
+        path.write_bytes(path.name.encode())
+    source_receipt = tmp_path / "source.json"
+    source_split = tmp_path / "split.json"
+    write_json(source_receipt, {"fixture": True})
+    write_json(source_split, {"fixture": True})
+    corpus_sha = "c" * 64
+    parity = tmp_path / "parity.json"
+    value = {
+        "schema_version": "struct_rust_parity_receipt_v1",
+        "status": "passed",
+        "evidence_status": "LLM_silver",
+        "input_snapshot_method": (
+            "private_job_local_o_nofollow_copy_rehash_before_publish"
+        ),
+        "inputs_rehashed_before_publication": True,
+        "binary_sha256": sha(binary),
+        "corpus_sha256": corpus_sha,
+        "source_receipt_sha256": sha(source_receipt),
+        "source_split_manifest_sha256": sha(source_split),
+        "evaluation_partition": "validation",
+        "partition_semantics": (
+            "derived_historical_train_validation_runtime_parity_not_quality_holdout"
+        ),
+        "historical_test_documents_loaded": 0,
+        "heldout_documents": 2,
+        "positive_document_counts": {"bib": 1, "toc": 1},
+        "tolerance": 0.001,
+        "heads": {
+            "bib": {
+                "documents": 2,
+                "span_mismatches": 0,
+                "max_probability_difference": 0.0,
+            },
+            "toc": {
+                "documents": 2,
+                "span_mismatches": 0,
+                "max_probability_difference": 0.0,
+            },
+        },
+        "model_sha256": {
+            "bib": sha(bib),
+            "toc": sha(toc),
+            "smoother": sha(smoother),
+        },
+    }
+    policy = {
+        "validation": {
+            "required_parity_documents": 608,
+            "maximum_probability_delta": 0.001,
+            "structural_parity_corpus_sha256": None,
+        }
+    }
+    return {
+        "binary": binary,
+        "bib": bib,
+        "toc": toc,
+        "smoother": smoother,
+        "source_receipt": source_receipt,
+        "source_split": source_split,
+        "corpus_sha": corpus_sha,
+        "parity": parity,
+        "value": value,
+        "policy": policy,
+    }
+
+
+@pytest.mark.parametrize(
+    ("target", "value", "message"),
+    [
+        ("tolerance", True, "finite non-negative"),
+        ("tolerance", float("nan"), "finite non-negative"),
+        ("tolerance", float("inf"), "finite non-negative"),
+        ("tolerance", -0.1, "finite non-negative"),
+        ("tolerance", 0.002, "looser than cleaning policy"),
+        ("bib_delta", True, "finite non-negative"),
+        ("bib_delta", float("nan"), "finite non-negative"),
+        ("bib_delta", float("inf"), "finite non-negative"),
+        ("bib_delta", -0.1, "finite non-negative"),
+        ("bib_delta", 0.002, "exceeds its tolerance"),
+        ("bib_documents", True, "positive integer"),
+        ("bib_documents", 1, "differs from top level"),
+        ("bib_documents_missing", None, "positive integer"),
+        ("policy_max", True, "finite non-negative"),
+        ("policy_max", float("nan"), "finite non-negative"),
+        ("policy_max", -0.1, "finite non-negative"),
+    ],
+)
+def test_strict_parity_rejects_adversarial_numeric_and_head_coverage(
+    tmp_path: Path, target: str, value: object, message: str
+) -> None:
+    fixture = _strict_parity_fixture(tmp_path)
+    receipt = fixture["value"]
+    assert isinstance(receipt, dict)
+    if target == "tolerance":
+        receipt["tolerance"] = value
+    elif target == "bib_delta":
+        receipt["heads"]["bib"]["max_probability_difference"] = value
+    elif target == "bib_documents":
+        receipt["heads"]["bib"]["documents"] = value
+    elif target == "bib_documents_missing":
+        receipt["heads"]["bib"].pop("documents")
+    else:
+        fixture["policy"]["validation"]["maximum_probability_delta"] = value
+    write_json(fixture["parity"], receipt)
+    with pytest.raises(ValueError, match=message):
+        PRODUCTION._validate_parity(
+            fixture["parity"],
+            detector_binary=fixture["binary"],
+            bib_model=fixture["bib"],
+            toc_model=fixture["toc"],
+            smoother=fixture["smoother"],
+            silver_receipt={
+                "silver_sha256": fixture["corpus_sha"],
+                "split_counts": {"validation": 2},
+            },
+            silver_receipt_sha256=sha(fixture["source_receipt"]),
+            silver_split_manifest_sha256=sha(fixture["source_split"]),
+            cleaning_policy=fixture["policy"],
+            enforce_policy_document_count=False,
+        )
+
+
+def test_stage52_uses_exact_source_validation_count_but_promotion_keeps_policy_gate(
+    tmp_path: Path,
+) -> None:
+    fixture = _strict_parity_fixture(tmp_path)
+    write_json(fixture["parity"], fixture["value"])
+    kwargs = {
+        "detector_binary": fixture["binary"],
+        "bib_model": fixture["bib"],
+        "toc_model": fixture["toc"],
+        "smoother": fixture["smoother"],
+        "silver_receipt": {
+            "silver_sha256": fixture["corpus_sha"],
+            "split_counts": {"validation": 2},
+        },
+        "silver_receipt_sha256": sha(fixture["source_receipt"]),
+        "silver_split_manifest_sha256": sha(fixture["source_split"]),
+        "cleaning_policy": fixture["policy"],
+    }
+    assert (
+        PRODUCTION._validate_parity(
+            fixture["parity"], **kwargs, enforce_policy_document_count=False
+        )["heldout_documents"]
+        == 2
+    )
+    with pytest.raises(ValueError, match="apply policy requires 608"):
+        PRODUCTION._validate_parity(
+            fixture["parity"], **kwargs, enforce_policy_document_count=True
+        )
+
+    mismatched_source = dict(kwargs)
+    mismatched_source["silver_receipt"] = {
+        "silver_sha256": fixture["corpus_sha"],
+        "split_counts": {"validation": 3},
+    }
+    with pytest.raises(ValueError, match="split_counts.validation"):
+        PRODUCTION._validate_parity(
+            fixture["parity"],
+            **mismatched_source,
+            enforce_policy_document_count=False,
+        )
+
+
+def test_promotion_requires_exact_detection_time_file_receipt(tmp_path: Path) -> None:
+    original = tmp_path / "original.json"
+    copy = tmp_path / "copy.json"
+    write_json(original, {"same": "bytes"})
+    copy.write_bytes(original.read_bytes())
+    embedded = PRODUCTION.file_receipt(original)
+    assert (
+        PRODUCTION._require_exact_file_receipt(embedded, original, label="fixture")
+        == original.resolve()
+    )
+    with pytest.raises(ValueError, match="detection time"):
+        PRODUCTION._require_exact_file_receipt(embedded, copy, label="fixture")
+
+
+@pytest.mark.parametrize(
+    ("target", "message"),
+    [
+        ("classifier_selection_receipt", "promotion classifier selection"),
+        ("silver_receipt", "promotion joint source receipt"),
+        ("silver_split_manifest", "promotion joint source split manifest"),
+        ("parity_receipt", "promotion parity receipt"),
+    ],
+)
+def test_stage54_rejects_post_hoc_same_byte_qualification_substitution(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    target: str,
+    message: str,
+) -> None:
+    originals = {}
+    substitutes = {}
+    for name in (
+        "classifier_selection_receipt",
+        "silver_receipt",
+        "silver_split_manifest",
+        "parity_receipt",
+    ):
+        original = tmp_path / f"{name}.json"
+        substitute = tmp_path / f"{name}.copy.json"
+        write_json(original, {"name": name})
+        substitute.write_bytes(original.read_bytes())
+        originals[name] = original
+        substitutes[name] = substitute
+    raw = {
+        "conflicts": {"overlap_pairs": 0},
+        "qualification": {
+            "classifier_selection_receipt": PRODUCTION.file_receipt(
+                originals["classifier_selection_receipt"]
+            ),
+            "joint_source_receipt": PRODUCTION.file_receipt(
+                originals["silver_receipt"]
+            ),
+            "joint_source_split_manifest": PRODUCTION.file_receipt(
+                originals["silver_split_manifest"]
+            ),
+        },
+        "detector": {
+            "parity_receipt": PRODUCTION.file_receipt(originals["parity_receipt"])
+        },
+    }
+    raw_manifest = tmp_path / "raw.json"
+    write_json(raw_manifest, {"fixture": True})
+    monkeypatch.setattr(PRODUCTION, "validate_raw_manifest", lambda _path: raw)
+    supplied = dict(originals)
+    supplied[target] = substitutes[target]
+    with pytest.raises(ValueError, match=message):
+        PRODUCTION.build_model_receipt(
+            argparse.Namespace(
+                raw_manifest=raw_manifest,
+                audit_validation=tmp_path / "unused-audit.json",
+                output=tmp_path / "model.json",
+                **supplied,
+            )
+        )
+
+
+def test_raw_identity_binds_selection_source_split_and_parity() -> None:
+    kwargs = {
+        "stage50_manifest_sha256": "1" * 64,
+        "detector_binary_sha256": "2" * 64,
+        "detector_build_receipt_sha256": "3" * 64,
+        "classifier_selection_receipt_sha256": "4" * 64,
+        "joint_source_receipt_sha256": "5" * 64,
+        "joint_source_split_manifest_sha256": "6" * 64,
+        "parity_receipt_sha256": "7" * 64,
+        "cleaning_policy_sha256": "8" * 64,
+        "allowed_apply_profiles": ["academic_ocr"],
+        "eligible_structural_policy": "apply_after_review",
+        "artifacts": {"fixture": {"sha256": "9" * 64}},
+    }
+    baseline = PRODUCTION._raw_identity(**kwargs)
+    for field in (
+        "classifier_selection_receipt_sha256",
+        "joint_source_receipt_sha256",
+        "joint_source_split_manifest_sha256",
+        "parity_receipt_sha256",
+    ):
+        changed = dict(kwargs)
+        changed[field] = "a" * 64
+        assert PRODUCTION._raw_identity(**changed) != baseline
+
+
+def test_detection_routes_only_explicit_apply_after_review_rows(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     pa = pytest.importorskip("pyarrow")
     pq = pytest.importorskip("pyarrow.parquet")
     tokenizers = pytest.importorskip("tokenizers")
@@ -392,13 +689,37 @@ spans.close(); counters.close()
             },
         },
     )
+    silver_receipt = tmp_path / "silver-receipt.json"
+    silver_split = tmp_path / "silver-split.json"
+    classifier_selection = tmp_path / "classifier-selection.json"
+    for path, value in (
+        (silver_receipt, {"fixture": "source"}),
+        (silver_split, {"fixture": "split"}),
+        (classifier_selection, {"fixture": "selection"}),
+    ):
+        write_json(path, value)
+    monkeypatch.setattr(
+        PRODUCTION,
+        "_validate_detection_qualification",
+        lambda **_kwargs: (
+            {"inventory_sha256": "1" * 64},
+            {
+                "selected_architecture": "c0-rust-lr-hysteresis",
+                "joint_ladder": {"run_receipt_sha256": "2" * 64},
+            },
+            {"evaluation_partition": "validation", "heldout_documents": 2},
+        ),
+    )
     raw_root, raw_manifest = tmp_path / "raw", tmp_path / "raw-manifest.json"
     args = argparse.Namespace(
         stage50_cleaning_manifest=stage50,
         cleaning_policy=policy,
         detector_binary=binary,
         detector_build_receipt=build,
-        parity_receipt=None,
+        classifier_selection_receipt=classifier_selection,
+        silver_receipt=silver_receipt,
+        silver_split_manifest=silver_split,
+        parity_receipt=parity,
         model_code=[code],
         sequence_config=config,
         smoother=smoother,
@@ -416,7 +737,16 @@ spans.close(); counters.close()
     assert manifest["counts"]["documents"] == 1
     assert manifest["counts"]["excluded_nonacademic_rows"] == 2
     assert manifest["counts"]["prediction_rows"] == 1
-    assert manifest["detector"]["parity_status"] == "unavailable"
+    assert manifest["detector"]["parity_status"] == "passed"
+    assert manifest["qualification"]["classifier_selection_receipt"]["sha256"] == sha(
+        classifier_selection
+    )
+    assert manifest["qualification"]["joint_source_receipt"]["sha256"] == sha(
+        silver_receipt
+    )
+    assert manifest["qualification"]["joint_source_split_manifest"]["sha256"] == sha(
+        silver_split
+    )
     assert manifest["eligible_structural_policy"] == "apply_after_review"
     index_path = Path(manifest["files"][0]["index"]["path"])
     indexed = list(PRODUCTION._iter_jsonl(index_path))
@@ -654,6 +984,12 @@ def test_new_slurm_stages_are_cpu_only_and_stop_at_manual_boundary() -> None:
         assert "--gres" not in body and "--gpus" not in body
     assert "STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT" in detect
     assert "STRUCTURAL_PRODUCTION_SEQUENCE_CONFIG" in detect
+    assert "${STRUCTURAL_PARITY_RECEIPT:?" in detect
+    assert "--classifier-selection-receipt" in detect
+    assert "--silver-receipt" in detect
+    assert "--silver-split-manifest" in detect
+    assert "--parity-receipt" in detect
+    assert "parity_args" not in detect
     assert "AUTOMATIC_ADJUDICATION_FORBIDDEN=1" in packet
     assert "STRUCTURAL_MANUAL_AUDIT_RECEIPT" in promote
     assert "--classifier-selection-receipt" in promote

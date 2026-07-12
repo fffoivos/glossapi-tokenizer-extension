@@ -245,6 +245,14 @@ but still needs fresh parity on the imported source. C1, C2 and N1 are Python
 research arms: selecting any of them requires a separate reviewed Rust
 port/export and exact parity package before detection or promotion.
 
+Stage52 accepts no parity-free development mode. Detection validates and embeds
+the exact classifier selection, imported source receipt/split and fresh parity,
+and includes all four hashes in the raw run identity. Its coverage gate is the
+imported receipt's exact `split_counts.validation`, not the tracked historical
+608-document apply-policy requirement. Stage54 requires byte-for-byte receipt
+equality with that detection-time bundle and still applies the tracked policy,
+so the current `audit_only` policy intentionally blocks promotion.
+
 That future run must also complete Stage52 detection, the Stage53 deletion-
 safety packet of exactly 100 cases (50 ToC and 50 bibliography), manual review,
 and Stage54 promotion. The 100 cases assess only whether predicted deletions eat

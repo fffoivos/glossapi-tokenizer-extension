@@ -38,6 +38,9 @@
         "selected_architecture",
         "classifier_selection_receipt",
         "joint_ladder_run_receipt_sha256",
+        "silver_receipt",
+        "silver_split_manifest",
+        "runtime_parity_receipt",
         "work_split"
       ],
       "properties": {
@@ -51,8 +54,11 @@
           "maxItems": 2
         },
         "selected_architecture": {"const": "c0-rust-lr-hysteresis"},
-        "classifier_selection_receipt": {"type": "object"},
+        "classifier_selection_receipt": {"$ref": "#/$defs/fileReceipt"},
         "joint_ladder_run_receipt_sha256": {"$ref": "#/$defs/sha256"},
+        "silver_receipt": {"$ref": "#/$defs/fileReceipt"},
+        "silver_split_manifest": {"$ref": "#/$defs/fileReceipt"},
+        "runtime_parity_receipt": {"$ref": "#/$defs/fileReceipt"},
         "work_split": {
           "type": "object",
           "required": [
@@ -115,6 +121,15 @@
           "properties": {"sha256": {"$ref": "#/$defs/sha256"}}
         }
       ]
+    },
+    "fileReceipt": {
+      "type": "object",
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
     },
     "rateOrNull": {
       "type": ["number", "null"],

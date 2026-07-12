@@ -26,6 +26,7 @@ phase04_require_file "${DETECTOR_BUILD_RECEIPT:?set DETECTOR_BUILD_RECEIPT}"
 phase04_require_file "${STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT:?run the joint ladder and C0 bridge first}"
 phase04_require_file "${STRUCTURAL_SILVER_RECEIPT:?set the imported joint source receipt}"
 phase04_require_file "${STRUCTURAL_SILVER_SPLIT:?set the imported joint split manifest}"
+phase04_require_file "${STRUCTURAL_PARITY_RECEIPT:?run the C0 bridge and set its exact parity receipt}"
 phase04_init_pipeline_run
 phase04_stage_begin "52-structural-detect"
 [[ "$PHASE04_STAGE_ALREADY_DONE" == "0" ]] || exit 0
@@ -39,19 +40,13 @@ phase04_stage_add_input detector_build_receipt "$DETECTOR_BUILD_RECEIPT"
 phase04_stage_add_input classifier_selection_receipt "$STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT"
 phase04_stage_add_input llm_silver_receipt "$STRUCTURAL_SILVER_RECEIPT"
 phase04_stage_add_input llm_silver_split "$STRUCTURAL_SILVER_SPLIT"
+phase04_stage_add_input detector_parity_receipt "$STRUCTURAL_PARITY_RECEIPT"
 phase04_stage_add_input bibliography_model "$STRUCTURAL_BIB_MODEL"
 phase04_stage_add_input toc_model "$STRUCTURAL_TOC_MODEL"
 phase04_stage_add_input smoother "$STRUCTURAL_SMOOTHER"
 phase04_stage_add_input sequence_config "$STRUCTURAL_PRODUCTION_SEQUENCE_CONFIG"
 phase04_stage_add_input bibliography_rust_code "$STRUCTURAL_BIB_RUST_CODE"
 phase04_stage_add_input toc_rust_code "$STRUCTURAL_TOC_RUST_CODE"
-
-parity_args=()
-if [[ -n "${STRUCTURAL_PARITY_RECEIPT:-}" ]]; then
-    phase04_require_file "$STRUCTURAL_PARITY_RECEIPT"
-    phase04_stage_add_input detector_parity_receipt "$STRUCTURAL_PARITY_RECEIPT"
-    parity_args+=(--parity-receipt "$STRUCTURAL_PARITY_RECEIPT")
-fi
 
 uenv run "$PHASE04_UENV" --view=default -- \
     "$RUNTIME_VENV/bin/python" "$STRUCTURAL_CLASSIFIER_SELECTION_SCRIPT" validate \
@@ -69,7 +64,10 @@ uenv run "$PHASE04_UENV" --view=default -- \
     --cleaning-policy "$CLEANING_POLICY" \
     --detector-binary "$REFERENCE_BIN" \
     --detector-build-receipt "$DETECTOR_BUILD_RECEIPT" \
-    "${parity_args[@]}" \
+    --classifier-selection-receipt "$STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT" \
+    --silver-receipt "$STRUCTURAL_SILVER_RECEIPT" \
+    --silver-split-manifest "$STRUCTURAL_SILVER_SPLIT" \
+    --parity-receipt "$STRUCTURAL_PARITY_RECEIPT" \
     --model-code "$STRUCTURAL_BIB_RUST_CODE" \
     --model-code "$STRUCTURAL_TOC_RUST_CODE" \
     --sequence-config "$STRUCTURAL_PRODUCTION_SEQUENCE_CONFIG" \

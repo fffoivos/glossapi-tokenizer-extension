@@ -8,10 +8,12 @@
     "schema_version",
     "status",
     "mode",
+    "run_identity_sha256",
     "stage50_cleaning_manifest_sha256",
     "cleaning_policy_sha256",
     "allowed_apply_profiles",
     "eligible_structural_policy",
+    "qualification",
     "detector",
     "artifacts",
     "input_text_inventory_sha256",
@@ -24,6 +26,7 @@
     "schema_version": {"const": "phase04_structural_raw_predictions_v1"},
     "status": {"const": "completed"},
     "mode": {"const": "structure-spans"},
+    "run_identity_sha256": {"$ref": "#/$defs/sha256"},
     "character_offset_unit": {"const": "Unicode scalar values / Python code points"},
     "stage50_cleaning_manifest_sha256": {"$ref": "#/$defs/sha256"},
     "cleaning_policy_sha256": {"$ref": "#/$defs/sha256"},
@@ -34,6 +37,39 @@
       "items": {"type": "string", "minLength": 1}
     },
     "eligible_structural_policy": {"const": "apply_after_review"},
+    "qualification": {
+      "type": "object",
+      "required": [
+        "classifier_selection_receipt",
+        "joint_source_receipt",
+        "joint_source_split_manifest",
+        "selected_architecture",
+        "joint_ladder_run_receipt_sha256",
+        "joint_source_inventory_sha256",
+        "parity_evaluation_partition",
+        "parity_validation_documents"
+      ],
+      "properties": {
+        "classifier_selection_receipt": {"$ref": "#/$defs/fileReceipt"},
+        "joint_source_receipt": {"$ref": "#/$defs/fileReceipt"},
+        "joint_source_split_manifest": {"$ref": "#/$defs/fileReceipt"},
+        "selected_architecture": {"const": "c0-rust-lr-hysteresis"},
+        "joint_ladder_run_receipt_sha256": {"$ref": "#/$defs/sha256"},
+        "joint_source_inventory_sha256": {"$ref": "#/$defs/sha256"},
+        "parity_evaluation_partition": {"const": "validation"},
+        "parity_validation_documents": {"type": "integer", "minimum": 1}
+      }
+    },
+    "detector": {
+      "type": "object",
+      "required": ["binary", "build_receipt", "parity_receipt", "parity_status"],
+      "properties": {
+        "binary": {"$ref": "#/$defs/fileReceipt"},
+        "build_receipt": {"$ref": "#/$defs/fileReceipt"},
+        "parity_receipt": {"$ref": "#/$defs/fileReceipt"},
+        "parity_status": {"const": "passed"}
+      }
+    },
     "input_text_inventory_sha256": {"$ref": "#/$defs/sha256"},
     "raw_prediction_inventory_sha256": {"$ref": "#/$defs/sha256"},
     "files": {
