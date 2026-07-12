@@ -168,7 +168,19 @@ def validate_adjudication(
         if redistribution and isinstance(declared, str) and "-nc" in declared:
             errors.append(f"{label}: noncommercial source cannot enter the public release")
         if training and isinstance(declared, str) and "-nd" in declared:
-            errors.append(f"{label}: NoDerivatives source cannot be approved for cleaned CPT")
+            # A card-level ND label is default-deny for cleaned CPT.  The
+            # operator may record a separately confirmed project-specific
+            # research-training authorization, but it never creates public
+            # redistribution rights.
+            authorization = "operator_confirmed_noncommercial_research_training_rights"
+            if authorization not in training_conditions:
+                errors.append(
+                    f"{label}: NoDerivatives source needs explicit project training authorization"
+                )
+            if redistribution:
+                errors.append(
+                    f"{label}: NoDerivatives project authorization cannot permit redistribution"
+                )
 
         evidence = item.get("evidence")
         if not isinstance(evidence, list) or not evidence:

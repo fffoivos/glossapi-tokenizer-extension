@@ -51,9 +51,10 @@ build. The evidence, recommendations and sign-off boundary are summarized in
   on job `2735391`.
 - Structural application is deliberately a deterministic no-op in this CPT run.
   The tracked policy is `audit_only` and both materialization flags are false.
-  Existing supervision is LLM silver, never human gold: BIB text/coordinates can
-  be rehydrated, but the raw joint ToC+BIB `STRUCT_2K` corpus is absent. No new
-  2,000-item annotation effort is planned.
+  Existing supervision is LLM silver, never human gold. The exact historical
+  joint ToC+BIB `STRUCT_2K` handoff is now recovered and checksum-verified; it
+  is integrated through a sealed historical split. No new 2,000-item
+  annotation effort is planned.
 
 ## Production DAG
 
@@ -167,9 +168,9 @@ The complete pinned inventory is in `configs/post_december_inventory.json`:
 - 25 current organization repositories were created on or after 2026-01-01;
 - 22 represent names/source families absent from the first Nanochat roster;
 - 16 of those have usable full text on HF, totalling 15,644,950,021 artifact
-  bytes, 4,188,366 raw Parquet-footer rows and 4,324,586,953 card-reported tokens;
-- three are external-only cards (153,584,939 reported tokens), one is
-  metadata-only and two are empty scaffolds;
+  bytes, 4,267,638 raw/reported rows and 4,478,171,892 card-reported tokens after
+  registering the three Mozilla Data Collective releases;
+- one is metadata-only and two are empty scaffolds;
 - three are same-source replacements already represented in Nanochat; and
 - four older organization repositories have material post-cutoff payload
   changes, including new School-books editions and reprocessed OpenArchives.
@@ -177,9 +178,10 @@ The complete pinned inventory is in `configs/post_december_inventory.json`:
 Those token numbers are inventory sizing only. They mix tokenizer scopes and
 include stale Diavgeia and Archetai card counts. They are neither a
 ModernGreek-148k total nor net-additive mass. `configs/sources.json` now tracks
-23 acquisition candidates: the 16 usable new-name families plus seven
-replacement/overlap routes. Their selected payload is about 30.78 GB; the 17
-remaining organization repositories stay non-acquiring in the backlog.
+26 candidates: 19 registered new-name families plus seven replacement/overlap
+routes. The three MDC routes use their own authenticated, checksum-bound
+acquisition path; metadata-only, empty and superseded repositories remain in
+the non-acquiring backlog.
 
 A metadata-only resolution on 2026-07-11 verified all pinned revisions and
 selected 26 registry entries (base, overlap evidence, tokenizer and 23

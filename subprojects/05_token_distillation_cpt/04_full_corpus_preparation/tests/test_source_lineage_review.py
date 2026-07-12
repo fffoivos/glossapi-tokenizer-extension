@@ -73,7 +73,7 @@ def test_registry_manifest_never_authorizes_blind_append() -> None:
     sources, roster, aliases, _ = configs()
     manifest = LINEAGE.build_registry_manifest(sources, roster, aliases)
     routes = {entry["source_id"]: entry for entry in manifest["candidates"]}
-    assert len(routes) == 23
+    assert len(routes) == 26
     assert all(route["blind_append_allowed"] is False for route in routes.values())
     assert routes["opengov_deliberations_v2"]["requires_base_identity_audit"] is True
     assert (

@@ -128,19 +128,6 @@
       "blockers": ["Private repository contains no data artifact or documented schema."]
     },
     {
-      "backlog_id": "ert_press_external",
-      "repo_id": "glossAPI/ert-press",
-      "revision": "fb4d3c957deaad38d3a037c3c69e615aa5464f14",
-      "acquisition_eligible": false,
-      "disposition": "unavailable_external",
-      "relationship_to_base": "external_only",
-      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
-      "candidate_files": [],
-      "known_metrics": {"repository_rows": null, "card_rows": null, "repository_bytes": null, "reported_tokens": 9790656, "tokenizer": "unspecified_dataset_card"},
-      "route": {"cleaning_profile": "news", "structural_policy": "disabled", "text_columns": ["text"], "id_columns": ["url"]},
-      "blockers": ["HF repository has no data files and points to Mozilla Data Collective.", "External acquisition and noncommercial/no-derivatives policy review are required; news dedup must cover AMNA and EELLAK."]
-    },
-    {
       "backlog_id": "eurlex_current",
       "repo_id": "glossAPI/eurlex-greek-legislation",
       "revision": "70f741f8adc9a50b53e6b3da0e6e40608c55f19e",
@@ -171,19 +158,6 @@
       "blockers": ["Private repository is an empty scaffold with no data files, schema or corpus statistics."]
     },
     {
-      "backlog_id": "istorima_external",
-      "repo_id": "glossAPI/istorima",
-      "revision": "0f3f32db50235b0e42e130983e6a06c709835e16",
-      "acquisition_eligible": false,
-      "disposition": "unavailable_external",
-      "relationship_to_base": "external_only",
-      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
-      "candidate_files": [],
-      "known_metrics": {"repository_rows": null, "card_rows": 13548, "repository_bytes": null, "reported_tokens": 138933365, "tokenizer": "unspecified_dataset_card"},
-      "route": {"cleaning_profile": "oral_history_transcript", "structural_policy": "disabled", "text_columns": ["transcription"], "id_columns": ["id"]},
-      "blockers": ["HF repository has no data files and points to Mozilla Data Collective.", "The source includes speaker/researcher names, locations, sensitive narratives and 2,392 age-restricted interviews; consent, privacy and PII policy review are mandatory."]
-    },
-    {
       "backlog_id": "classical_ancient_greek",
       "repo_id": "glossAPI/klasikh_arx_ell_grammateia",
       "revision": "41a228ef7425964aa2db8062f7041b82100b9502",
@@ -197,19 +171,6 @@
       "known_metrics": {"repository_rows": 815, "card_rows": 815, "repository_bytes": 66970928, "reported_tokens": null, "tokenizer": null},
       "route": {"cleaning_profile": "base_existing", "structural_policy": "disabled", "text_columns": ["text"], "id_columns": ["author", "title"]},
       "blockers": ["Nanochat already contains the same 815-row source."]
-    },
-    {
-      "backlog_id": "modern_greek_dictionary_external",
-      "repo_id": "glossAPI/modern-greek-dictionary",
-      "revision": "bafabdb324584e562a0d1352be1befc3cf538df4",
-      "acquisition_eligible": false,
-      "disposition": "unavailable_external",
-      "relationship_to_base": "external_only",
-      "license": {"declared": "cc-by-nc-nd-4.0", "status": "noncommercial_review"},
-      "candidate_files": [],
-      "known_metrics": {"repository_rows": null, "card_rows": 46745, "repository_bytes": null, "reported_tokens": 4860918, "tokenizer": "unspecified_dataset_card"},
-      "route": {"cleaning_profile": "dictionary_entries", "structural_policy": "disabled", "text_columns": ["entry_text"], "id_columns": ["source_url", "lemma"]},
-      "blockers": ["HF repository has no data files and points to Mozilla Data Collective.", "Dictionary entries require a deliberate low-weight or exclusion policy rather than ordinary prose sampling."]
     },
     {
       "backlog_id": "old_openbook_metadata",

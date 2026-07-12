@@ -59,10 +59,10 @@ an AArch64 binary, `COMPLETED` marker and `build_receipt.json` under
 `REFERENCE_BIN` and `DETECTOR_BUILD_RECEIPT` values for structural submission.
 
 The legacy filename `STRUCT_2K_gold.jsonl` refers to LLM-silver annotations, not
-human gold, and the raw joint ToC+BIB artifact is currently absent. If that
-exact historical artifact is ever recovered, declare `LLM_silver`, pin its
-comparison-corpus SHA-256, and run the full parity split through
-`eval/rust_parity_struct.py`. Production structural application does not
+human gold. The exact historical joint ToC+BIB handoff is recovered and pinned;
+its 608 historical-test documents remain physically excluded from fitting,
+validation and calibration. Run the final sealed split through the joint model
+and Rust-parity receipts. Production structural application does not
 require a new full-corpus annotation effort: Stage58 requires leak-free model
 evidence plus the independent receipt-bound manual audit of exactly 100
 high-risk predicted removals (50 ToC + 50 BIB). Missing evidence yields a
@@ -120,6 +120,24 @@ LFS SHA-256 as 64 asterisks, which is not acceptable receipt evidence. All
 before payload verification; the downloader then fails if any locked file is
 missing or mismatched and rechecks the corrected schemas before writing the new
 receipt. Preserve the four paths printed by this new job.
+
+### Mozilla Data Collective routes
+
+Istorima, the Modern Greek Dictionary and ERT Press are registered by exact MDC
+dataset ID, slug, filename and size. Istorima also has a pinned archive SHA-256;
+the other two fail closed until their web terms are accepted and the API exposes
+their checksums. The acquisition holds presigned URLs only in memory, supports
+Range resume, safely extracts regular files only, and hashes both the archive
+and every selected payload file.
+
+```bash
+# Inject MOZILLA_DATA_COLLECTIVE_API_KEY only into the submission environment.
+CONFIRM_LAUNCH=1 bash clariden/submit.sh acquire-mdc
+```
+
+Combine the passed HF and MDC receipts with
+`scripts/merge_acquisition_receipts.py`. Normalization consumes only that merged
+`full_cpt_acquisition_receipt_v1`.
 
 For the downstream chain, use only the fresh passed receipt and omit the old job
 ID entirely:

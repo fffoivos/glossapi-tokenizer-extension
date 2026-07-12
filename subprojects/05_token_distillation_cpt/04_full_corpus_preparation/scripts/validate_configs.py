@@ -739,6 +739,35 @@ def validate_sources(cfg: dict) -> list[str]:
         else:
             seen_repos.setdefault(repo_id, []).append(str(source_id))
         require_revision(source.get("revision"), label, errors)
+        acquisition_kind = source.get("acquisition_kind", "huggingface")
+        if acquisition_kind not in {"huggingface", "mozilla_data_collective"}:
+            errors.append(f"{label}: invalid acquisition_kind {acquisition_kind!r}")
+        if acquisition_kind == "mozilla_data_collective":
+            for field in (
+                "mdc_dataset_id",
+                "mdc_slug",
+                "mdc_name",
+                "mdc_format",
+                "mdc_expected_filename",
+            ):
+                if not isinstance(source.get(field), str) or not source.get(field):
+                    errors.append(f"{label}: {field} required for MDC acquisition")
+            expected_bytes = source.get("mdc_expected_bytes")
+            if (
+                not isinstance(expected_bytes, int)
+                or isinstance(expected_bytes, bool)
+                or expected_bytes < 1
+            ):
+                errors.append(f"{label}: mdc_expected_bytes must be a positive integer")
+            expected_hash = source.get("mdc_expected_sha256")
+            if expected_hash is not None and (
+                not isinstance(expected_hash, str)
+                or len(expected_hash) != 64
+                or any(character not in HEX40 for character in expected_hash)
+            ):
+                errors.append(
+                    f"{label}: mdc_expected_sha256 must be null or lowercase 64-hex"
+                )
         if source.get("role") not in ROLES:
             errors.append(f"{label}: invalid role {source.get('role')!r}")
         if source.get("structural_policy") not in STRUCTURAL_POLICIES:

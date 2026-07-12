@@ -47,8 +47,8 @@ def test_tracked_adjudication_is_complete_default_deny_and_receipt_bound() -> No
         "technical_evidence_review_not_legal_advice"
     )
     assert adjudication["default_policy"] == "deny_training_and_redistribution"
-    assert adjudication["summary"]["candidate_sources"] == 23
-    assert adjudication["summary"]["candidate_local_training_allowed_sources"] == 7
+    assert adjudication["summary"]["candidate_sources"] == 26
+    assert adjudication["summary"]["candidate_local_training_allowed_sources"] == 10
     assert adjudication["summary"]["candidate_redistribution_allowed_sources"] == 4
     assert adjudication["summary"]["base_local_training_allowed"] is True
 
@@ -73,12 +73,16 @@ def test_summary_ids_are_derived_exactly_and_base_is_not_counted_as_candidate() 
     assert any("candidate_redistribution_allowed_source_ids" in error for error in errors)
 
 
-def test_no_nd_source_is_trainable_and_no_nc_source_is_public() -> None:
+def test_nd_training_needs_explicit_project_authorization_and_no_nc_source_is_public() -> None:
     _, adjudication = tracked()
     for row in adjudication["sources"]:
         declared = row["declared_license"] or ""
         if "-nd" in declared:
-            assert row["local_training"]["eligible"] is False
+            if row["local_training"]["eligible"]:
+                assert (
+                    "operator_confirmed_noncommercial_research_training_rights"
+                    in row["local_training"]["conditions"]
+                )
         if "-nc" in declared:
             assert row["redistribution"]["eligible"] is False
 

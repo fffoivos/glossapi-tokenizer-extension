@@ -156,9 +156,9 @@ def test_tracked_post_december_inventory_is_complete_and_arithmetic_is_valid() -
         inventory, roster, sources, backlog
     ) == []
     assert inventory["summary"]["post_cutoff_repository_count"] == 25
-    assert inventory["summary"]["post_cutoff_new_family_full_text_repository_count"] == 16
-    assert inventory["summary"]["new_family_full_text_data_artifact_bytes"] == 15_644_950_021
-    assert inventory["summary"]["new_family_card_reported_tokens_arithmetic_sum"] == 4_324_586_953
+    assert inventory["summary"]["post_cutoff_new_family_full_text_repository_count"] == 19
+    assert inventory["summary"]["new_family_full_text_data_artifact_bytes"] == 16_127_958_471
+    assert inventory["summary"]["new_family_card_reported_tokens_arithmetic_sum"] == 4_478_171_892
 
 
 def test_post_december_inventory_rejects_bad_cutoff_and_token_arithmetic() -> None:

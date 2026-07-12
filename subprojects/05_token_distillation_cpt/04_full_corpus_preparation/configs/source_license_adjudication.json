@@ -12,7 +12,7 @@
   "default_policy": "deny_training_and_redistribution",
   "source_registry": {
     "path": "configs/sources.json",
-    "sha256": "b5b595ea634235edfbfd2bd8637cfcc26b2a492c82a289577918b7041bac0e8c"
+    "sha256": "701c2666b61092aa477deb4e79411dba1386a19a388db44c1594e36835102b72"
   },
   "decision_semantics": {
     "local_training": "Permission decision for this project's noncommercial local CPT only; it is not a conclusion about commercial model use.",
@@ -327,14 +327,53 @@
         {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/openarchives.gr/blob/02e830632e3b94f72fca316542bc218e7b798f3c/README.md", "revision": "02e830632e3b94f72fca316542bc218e7b798f3c", "finding": "Pinned card has no declared license and describes full text aggregated from many academic and cultural repositories.", "supports_redistribution": false},
         {"kind": "upstream_terms", "url": "https://www.openarchives.gr/aggregator-openarchives/portal/termsOfUse?language=el", "retrieved_at": "2026-07-12", "finding": "OpenArchives terms apply CC BY-SA 4.0 only where EKT has the necessary rights and expressly distinguish third-party content and its terms.", "supports_redistribution": false}
       ]
+    },
+    {
+      "source_id": "istorima",
+      "repo_id": "glossAPI/istorima",
+      "revision": "0f3f32db50235b0e42e130983e6a06c709835e16",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-nd-4.0",
+      "local_training": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["noncommercial_research_only", "no_public_redistribution", "operator_confirmed_noncommercial_research_training_rights", "no_reidentification", "privacy_and_pii_review_required", "age_restricted_rows_require_separate_admission"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives", "no_redistribution", "oral_history_privacy_constraints"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/istorima/blob/0f3f32db50235b0e42e130983e6a06c709835e16/README.md", "revision": "0f3f32db50235b0e42e130983e6a06c709835e16", "finding": "Pinned card declares CC BY-NC-ND 4.0, documents the oral-history fields and points to the controlled MDC release.", "supports_redistribution": false},
+        {"kind": "upstream_terms", "url": "https://mozilladatacollective.com/datasets/cmmxib8ic00v6nw07bjrci8vj", "retrieved_at": "2026-07-12", "finding": "MDC records the controlled noncommercial research release and no-reidentification restrictions; the project operator separately confirmed research-training rights for GlossAPI datasets.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "modern_greek_dictionary",
+      "repo_id": "glossAPI/modern-greek-dictionary",
+      "revision": "bafabdb324584e562a0d1352be1befc3cf538df4",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-nd-4.0",
+      "local_training": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["noncommercial_research_only", "no_public_redistribution", "operator_confirmed_noncommercial_research_training_rights", "low_weight_dictionary_cap_required"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives", "no_redistribution", "original_rightsholder_permission_required"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/modern-greek-dictionary/blob/bafabdb324584e562a0d1352be1befc3cf538df4/README.md", "revision": "bafabdb324584e562a0d1352be1befc3cf538df4", "finding": "Pinned card declares CC BY-NC-ND 4.0 and points to the controlled MDC release.", "supports_redistribution": false},
+        {"kind": "upstream_terms", "url": "https://mozilladatacollective.com/datasets/cmo1sklpo00d0mk07taoepe1a", "retrieved_at": "2026-07-12", "finding": "MDC explicitly permits noncommercial research language-model training; the project operator confirmed the applicable research-training right.", "supports_redistribution": false}
+      ]
+    },
+    {
+      "source_id": "ert_press",
+      "repo_id": "glossAPI/ert-press",
+      "revision": "fb4d3c957deaad38d3a037c3c69e615aa5464f14",
+      "registry_training_eligibility": "noncommercial_review",
+      "declared_license": "cc-by-nc-nd-4.0",
+      "local_training": {"eligible": true, "status": "allowed_for_pipeline", "conditions": ["noncommercial_research_only", "no_public_redistribution", "operator_confirmed_noncommercial_research_training_rights", "news_cross_dedup_required"]},
+      "redistribution": {"eligible": false, "status": "excluded", "conditions": ["no_derivatives", "no_redistribution", "ert_permission_required_outside_research"]},
+      "evidence": [
+        {"kind": "hf_dataset_card", "url": "https://huggingface.co/datasets/glossAPI/ert-press/blob/fb4d3c957deaad38d3a037c3c69e615aa5464f14/README.md", "revision": "fb4d3c957deaad38d3a037c3c69e615aa5464f14", "finding": "Pinned card declares CC BY-NC-ND 4.0 and points to the controlled MDC release.", "supports_redistribution": false},
+        {"kind": "upstream_terms", "url": "https://mozilladatacollective.com/datasets/cmo1sg74a00cwmk07q6nin2of", "retrieved_at": "2026-07-12", "finding": "MDC explicitly permits noncommercial research language-model training; the project operator confirmed the applicable research-training right.", "supports_redistribution": false}
+      ]
     }
   ],
   "summary": {
-    "candidate_sources": 23,
+    "candidate_sources": 26,
     "base_local_training_allowed": true,
-    "candidate_local_training_allowed_sources": 7,
+    "candidate_local_training_allowed_sources": 10,
     "candidate_redistribution_allowed_sources": 4,
-    "candidate_local_training_allowed_source_ids": ["diavgeia", "eellak_articles", "elocus", "libiep", "open_council", "opengov_deliberations_v2", "pergamos_sections"],
+    "candidate_local_training_allowed_source_ids": ["diavgeia", "eellak_articles", "elocus", "ert_press", "istorima", "libiep", "modern_greek_dictionary", "open_council", "opengov_deliberations_v2", "pergamos_sections"],
     "candidate_redistribution_allowed_source_ids": ["diavgeia", "eellak_articles", "open_council", "opengov_deliberations_v2"]
   }
 }

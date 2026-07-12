@@ -27,6 +27,9 @@ Corpus stages:
   post-clean-aggregate structural-stage50-detect structural-review-packet
   structural-promote final-clean greekmmlu-freeze decontam dedup materialize publish
 
+Acquisition stages:
+  acquire acquire-mdc
+
 Legacy/audit stages:
   bootstrap-runtime build-detector acquire quality structural-detect structural-token-loss
 
@@ -42,6 +45,7 @@ stage_script() {
         bootstrap-runtime) echo "$HERE/04_bootstrap_runtime.sbatch" ;;
         build-detector) echo "$HERE/05_build_detector.sbatch" ;;
         acquire) echo "$HERE/00_acquire_sources.sbatch" ;;
+        acquire-mdc) echo "$HERE/02_acquire_mdc_sources.sbatch" ;;
         quality) echo "$HERE/10_quality_audit.sbatch" ;;
         structural-detect) echo "$HERE/20_structural_detect.sbatch" ;;
         structural-token-loss) echo "$HERE/30_structural_token_loss.sbatch" ;;
@@ -139,6 +143,12 @@ manual_preflight() {
             }
             [[ -n "${HF_TOKEN:-}" ]] || {
                 echo "ERROR: HF_TOKEN is required to resolve exact Hugging Face content identifiers." >&2
+                exit 5
+            }
+            ;;
+        acquire-mdc)
+            [[ -n "${MOZILLA_DATA_COLLECTIVE_API_KEY:-}" ]] || {
+                echo "ERROR: MOZILLA_DATA_COLLECTIVE_API_KEY is required in the submission environment." >&2
                 exit 5
             }
             ;;

@@ -80,7 +80,16 @@ def entries(config: dict) -> list[dict]:
         "source_id": "modern_greek_148k_tokenizer",
         **config["tokenizer"],
     }
-    return [base, overlap, tokenizer, *config["sources"]]
+    # External registries (currently Mozilla Data Collective) have their own
+    # authenticated, checksum-bound acquisition path.  Never ask the HF
+    # resolver to interpret their metadata-only pointer repositories as empty
+    # corpus artifacts.
+    hf_sources = [
+        source
+        for source in config["sources"]
+        if source.get("acquisition_kind", "huggingface") == "huggingface"
+    ]
+    return [base, overlap, tokenizer, *hf_sources]
 
 
 def main() -> int:
