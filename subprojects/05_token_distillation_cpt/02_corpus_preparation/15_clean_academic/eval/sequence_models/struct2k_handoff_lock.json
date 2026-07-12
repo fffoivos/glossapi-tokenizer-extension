@@ -1,0 +1,107 @@
+{
+  "schema_version": "struct2k-handoff-lock-v1",
+  "source": {
+    "host": "foivos-B550M-DS3H",
+    "repo": "/home/foivos/Projects/glossapi-tokenizer-extension",
+    "commit": "3742974610899da1d63339bee62873943339b942"
+  },
+  "inventory": {
+    "filename": "INVENTORY.sha256",
+    "sha256": "26bf52e4a23caf08fc99f96dfcafa77bb5b5a95294673551e590b0ce92233a4f",
+    "entry_count": 4273,
+    "required_files": {
+      "SOURCE_STATE.txt": "bd523c76e00822aa8f4c94a0e1b8574109c59acc246a991fc9d67bdfdfebbab1",
+      "STRUCT_2K_gold.jsonl": "ff4146763fd7f82cdcd5bd2eaf4cd0080527df011e238325e5ad6f08013ca1cf",
+      "STRUCT_2K/manifest.jsonl": "c08611352517ff40668eb1a74daf1c5bb645f3acf03eec4c002bb2b3f222621c",
+      "STRUCT_linemat.npz": "6729abd347d076234cb52d1e76110caffed1600e9161f27e9861add52b1500cb"
+    }
+  },
+  "legacy_contract": {
+    "document_count": 2000,
+    "present_line_count": 1683369,
+    "label_counts": {
+      "0": 1318877,
+      "1": 257723,
+      "2": 106769
+    },
+    "source_counts": {
+      "greek_phd": 667,
+      "kallipos": 666,
+      "openarchives": 667
+    },
+    "historical_split_counts": {
+      "train": 1392,
+      "test": 608
+    },
+    "historical_split_algorithm": "md5(document_id)%10<3_is_test",
+    "annotation_engine": "gpt-5.5",
+    "annotation_effort": "medium",
+    "annotation_status": "LLM_silver"
+  },
+  "coordinate_corrections": [
+    {
+      "annotation_file": "STRUCT_2K/ann_00063.json",
+      "document_id": "3e1341627ad0bb93d9d975bc9b9936af16c6c033ab13246ef3398308d87696eb",
+      "kind": "bibliography",
+      "original": [2515, 30015],
+      "corrected": [2515, 3015],
+      "evidence": "single duplicated zero; bibliography entries end at L03015 and maps start at L03017"
+    },
+    {
+      "annotation_file": "STRUCT_2K/ann_00202.json",
+      "document_id": "8f406e64997cecfd3b9b2b48cc4b477056caa54ed69a84392b67826b62f5b6b9",
+      "kind": "bibliography",
+      "original": [2488, 27778],
+      "corrected": [2488, 2778],
+      "evidence": "single duplicated seven; numbered list ends at L02778 and tables start at L02780"
+    },
+    {
+      "annotation_file": "STRUCT_2K/ann_00566.json",
+      "document_id": "3e915e303b4a73cc7bbb5cc4385556f58021e0983e96e8ed667c4439fe996254",
+      "kind": "bibliography",
+      "original": [1324, 16666],
+      "corrected": [1324, 1666],
+      "evidence": "single duplicated six; references end at L01666 and photographic material starts at L01668"
+    },
+    {
+      "annotation_file": "STRUCT_2K/ann_00773.json",
+      "document_id": "1fd7f5863d43faafe6631b1566a6e899aee72dc235f3d2782e64ca533e79f7be",
+      "kind": "bibliography",
+      "original": [45566, 47776],
+      "corrected": [4566, 4776],
+      "evidence": "duplicated terminal digits; bibliography header is L04566 and final entry is L04776"
+    },
+    {
+      "annotation_file": "STRUCT_2K/ann_00773.json",
+      "document_id": "1fd7f5863d43faafe6631b1566a6e899aee72dc235f3d2782e64ca533e79f7be",
+      "kind": "table_of_contents",
+      "original": [47778, 4910],
+      "corrected": [4778, 4910],
+      "evidence": "duplicated terminal digit; contents header is L04778 and its last row is L04910"
+    },
+    {
+      "annotation_file": "STRUCT_2K/ann_00788.json",
+      "document_id": "042bbdb6fc82eb363e716b04ac34901d82bc4ca6e2ace7a32bde4d3436219963",
+      "kind": "bibliography",
+      "original": [11117, 12230],
+      "corrected": [1117, 1230],
+      "evidence": "duplicated digits; references header is L01117 and final cover-image reference is L01230"
+    },
+    {
+      "annotation_file": "STRUCT_2K/ann_00931.json",
+      "document_id": "63dddc5dcd23e3954b183204ad8e7485596adb44563f72f7df76011e247fbd23",
+      "kind": "bibliography",
+      "original": [11118, 1328],
+      "corrected": [1118, 1328],
+      "evidence": "duplicated terminal digit; bibliography header is L01118 and references continue through L01328"
+    },
+    {
+      "annotation_file": "STRUCT_2K/ann_01605.json",
+      "document_id": "paper_A_3175",
+      "kind": "bibliography",
+      "original": [1058, 11114],
+      "corrected": [1058, 1114],
+      "evidence": "single duplicated one; references end at L01114 and examination questions start at L01116"
+    }
+  ]
+}

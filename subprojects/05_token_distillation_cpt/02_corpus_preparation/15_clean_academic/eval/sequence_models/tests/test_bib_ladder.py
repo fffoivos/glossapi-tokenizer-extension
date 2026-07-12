@@ -107,7 +107,9 @@ def _json(path: Path, value: object) -> None:
 
 def _jsonl(path: Path, rows: list[dict[str, object]]) -> None:
     path.write_text(
-        "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows),
+        "".join(
+            json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows
+        ),
         encoding="utf-8",
     )
 
@@ -226,6 +228,8 @@ def _arm_receipts(
             "schema_version": "academic-structure-c0-reference-v2",
             "status": "passed_descriptive_reference_prediction",
             "comparison_role": "historical_reference_only",
+            "target": "BIB",
+            "active_classes": ["BIB"],
             "overlap_caveat": "fixture overlap cannot be excluded",
             "production_eligible": False,
             "outputs": {"validation_predictions_sha256": sha256_file(baseline)},
@@ -255,17 +259,19 @@ def _arm_receipts(
                     else "academic-structure-feature-crf-training-v2"
                 ),
                 "architecture_id": architecture_id,
+                "target": "BIB",
+                "active_classes": ["BIB"],
                 "production_eligible": False,
                 "calibration": calibration,
-                "outputs": {
-                    "validation_predictions_sha256": sha256_file(predictions)
-                },
+                "outputs": {"validation_predictions_sha256": sha256_file(predictions)},
             },
         )
     return result
 
 
-def test_prepare_physically_excludes_locked_test_and_binds_outputs(tmp_path: Path) -> None:
+def test_prepare_physically_excludes_locked_test_and_binds_outputs(
+    tmp_path: Path,
+) -> None:
     paths = _prepare(tmp_path)
     documents, validation, receipt = verify_selection_bundle(
         selection_silver_path=paths["selection"],
@@ -281,7 +287,10 @@ def test_prepare_physically_excludes_locked_test_and_binds_outputs(tmp_path: Pat
         receipt["architecture_access_contract"]["historically_named_test_rows_emitted"]
         == 0
     )
-    assert "not an unbiased" in receipt["architecture_access_contract"]["partition_semantics"]
+    assert (
+        "not an unbiased"
+        in receipt["architecture_access_contract"]["partition_semantics"]
+    )
     with pytest.raises(FileExistsError, match="immutable"):
         prepare_selection(
             silver_path=paths["silver"],
@@ -331,7 +340,9 @@ def test_prepare_rejects_config_and_split_manifest_drift(tmp_path: Path) -> None
     config = json.loads(CONFIG.read_text(encoding="utf-8"))
     config["split"]["seed"] = "different-seed"
     _json(changed_config, config)
-    outputs = [tmp_path / name for name in ("selection", "manifest", "validation", "receipt")]
+    outputs = [
+        tmp_path / name for name in ("selection", "manifest", "validation", "receipt")
+    ]
     with pytest.raises(LadderError, match="different sequence config"):
         prepare_selection(
             silver_path=source["silver"],
@@ -363,7 +374,9 @@ def test_prepare_rejects_config_and_split_manifest_drift(tmp_path: Path) -> None
         )
 
 
-def test_prepare_rejects_source_unit_receipt_outside_hydration_root(tmp_path: Path) -> None:
+def test_prepare_rejects_source_unit_receipt_outside_hydration_root(
+    tmp_path: Path,
+) -> None:
     source = _source_fixture(tmp_path / "source")
     outside = tmp_path / "outside-unit-receipt.json"
     outside.write_bytes(source["unit_receipt"].read_bytes())
@@ -384,7 +397,9 @@ def test_prepare_rejects_source_unit_receipt_outside_hydration_root(tmp_path: Pa
         )
 
 
-def test_prepare_rejects_noncanonical_split_bytes_even_when_receipted(tmp_path: Path) -> None:
+def test_prepare_rejects_noncanonical_split_bytes_even_when_receipted(
+    tmp_path: Path,
+) -> None:
     source = _source_fixture(tmp_path / "source")
     source["split"].write_text(
         source["split"].read_text(encoding="utf-8") + "\n", encoding="utf-8"
@@ -461,7 +476,9 @@ def test_c0_bib_projection_never_emits_unsupervised_toc(tmp_path: Path) -> None:
 def test_n1_example_builder_segments_unknown_without_torch(tmp_path: Path) -> None:
     paths = _prepare(tmp_path)
     document = read_gold(paths["selection"])[0]
-    examples = make_neural_examples([document], FeatureEncoder(char_hash_dim=0), max_bytes=32)
+    examples = make_neural_examples(
+        [document], FeatureEncoder(char_hash_dim=0), max_bytes=32
+    )
     assert len(examples) == 1
     assert examples[0].line_indices == (0, 1, 2)
     assert len(examples[0].engineered[0]) == FeatureEncoder(char_hash_dim=0).n_features
@@ -499,7 +516,9 @@ def test_n1_forward_loss_and_bib_mask_when_torch_is_available(tmp_path: Path) ->
 
 def test_strict_feature_checkpoint_rejects_metadata_only_npz(tmp_path: Path) -> None:
     malformed = tmp_path / "metadata-only.npz"
-    np.savez_compressed(malformed, metadata=np.asarray(json.dumps({"active_classes": ["BIB"]})))
+    np.savez_compressed(
+        malformed, metadata=np.asarray(json.dumps({"active_classes": ["BIB"]}))
+    )
     with pytest.raises(ValueError, match="array inventory"):
         LinearChainCRF.load(malformed)
 
@@ -606,6 +625,8 @@ def test_publication_verifier_rejects_empty_artifact_receipt(tmp_path: Path) -> 
                 "c2-char-ngram-feature-bioes-crf",
                 "n1-bytecnn-tcn-masked-crf",
             ],
+            "target": "BIB",
+            "active_classes": ["BIB"],
             "production_eligible": False,
             "artifacts": rows,
             "artifact_inventory_sha256": "0" * 64,
@@ -641,14 +662,22 @@ def _build_real_receipted_run(
     c0_receipt = run / "c0.receipt.json"
     baseline_main(
         [
-            "--selection-silver", str(paths["selection"]),
-            "--selection-manifest", str(paths["selection_manifest"]),
-            "--validation-silver", str(paths["validation"]),
-            "--selection-receipt", str(paths["selection_receipt"]),
-            "--config", str(CONFIG),
-            "--uenv", "fixture-uenv",
-            "--output", str(baseline),
-            "--receipt-out", str(c0_receipt),
+            "--selection-silver",
+            str(paths["selection"]),
+            "--selection-manifest",
+            str(paths["selection_manifest"]),
+            "--validation-silver",
+            str(paths["validation"]),
+            "--selection-receipt",
+            str(paths["selection_receipt"]),
+            "--config",
+            str(CONFIG),
+            "--uenv",
+            "fixture-uenv",
+            "--output",
+            str(baseline),
+            "--receipt-out",
+            str(c0_receipt),
         ]
     )
     runtime = json.loads(c0_receipt.read_text(encoding="utf-8"))["execution"]
@@ -721,9 +750,14 @@ def _build_real_receipted_run(
                 "schema_version": "academic-structure-feature-crf-training-v2",
                 "status": "passed_cpu_fit_checkpoint_reload_and_validation_prediction",
                 "architecture_id": architecture_id,
+                "target": "BIB",
+                "active_classes": ["BIB"],
                 "production_eligible": False,
                 "effective_seed": seed,
-                "inputs": {**common, "reference_predictions_sha256": sha256_file(baseline)},
+                "inputs": {
+                    **common,
+                    "reference_predictions_sha256": sha256_file(baseline),
+                },
                 "execution": {**runtime, "effective_seed": seed},
                 "calibration": calibration,
                 "outputs": {
@@ -736,7 +770,9 @@ def _build_real_receipted_run(
         candidates[architecture_id] = prediction_path
         arm_receipts[architecture_id] = receipt_path
 
-    source = json.loads(paths["selection_receipt"].read_text(encoding="utf-8"))["source"]
+    source = json.loads(paths["selection_receipt"].read_text(encoding="utf-8"))[
+        "source"
+    ]
     profile = run / "n1.profile.receipt.json"
     _json(
         profile,
@@ -744,6 +780,8 @@ def _build_real_receipted_run(
             "schema_version": "academic-structure-n1-profile-v1",
             "status": "passed_one_epoch_profile_and_determinism_smoke",
             "architecture_id": "n1-bytecnn-tcn-masked-crf",
+            "target": "BIB",
+            "active_classes": ["BIB"],
             "production_eligible": False,
             "inputs": {
                 **common,
@@ -778,6 +816,7 @@ def _build_real_receipted_run(
                 "losses": [1.0, 0.5],
                 "replicas": 2,
                 "steps_per_replica": 2,
+                "active_classes": ["BIB"],
             },
             "one_epoch_seconds": 1.0,
             "projected_full_fit_seconds_with_15pct_margin": 9.2,
@@ -787,7 +826,8 @@ def _build_real_receipted_run(
         },
     )
     n1_architecture = next(
-        row for row in config["architecture_ladder"]
+        row
+        for row in config["architecture_ladder"]
         if row["id"] == "n1-bytecnn-tcn-masked-crf"
     )
     n1_encoder = FeatureEncoder(char_hash_dim=0)
@@ -800,7 +840,9 @@ def _build_real_receipted_run(
         "profile_receipt_sha256": sha256_file(profile),
     }
     n1_examples = make_neural_examples(
-        validation, n1_encoder, max_bytes=int(n1_architecture["max_utf8_bytes_per_line"])
+        validation,
+        n1_encoder,
+        max_bytes=int(n1_architecture["max_utf8_bytes_per_line"]),
     )
     n1_emissions = _cache_emissions(
         n1, n1_examples, batch_size=int(n1_architecture["batch_size"])
@@ -842,6 +884,8 @@ def _build_real_receipted_run(
             "schema_version": "academic-structure-n1-training-v2",
             "status": "passed_cpu_fit_checkpoint_reload_and_validation_prediction",
             "architecture_id": "n1-bytecnn-tcn-masked-crf",
+            "target": "BIB",
+            "active_classes": ["BIB"],
             "production_eligible": False,
             "effective_seed": seed,
             "inputs": n1_inputs,
@@ -936,12 +980,17 @@ def test_finalizer_rejects_model_prediction_mismatch(
 ) -> None:
     paths, artifacts = _build_real_receipted_run(tmp_path, monkeypatch)
     prediction_path = artifacts["c1_validation_predictions"]
-    rows = [json.loads(line) for line in prediction_path.read_text(encoding="utf-8").splitlines()]
+    rows = [
+        json.loads(line)
+        for line in prediction_path.read_text(encoding="utf-8").splitlines()
+    ]
     current = rows[0]["lines"][0]["prediction"]
     rows[0]["lines"][0]["prediction"] = "BIB" if current == "O" else "O"
     _jsonl(prediction_path, rows)
     c1_receipt = json.loads(artifacts["c1_receipt"].read_text(encoding="utf-8"))
-    c1_receipt["outputs"]["validation_predictions_sha256"] = sha256_file(prediction_path)
+    c1_receipt["outputs"]["validation_predictions_sha256"] = sha256_file(
+        prediction_path
+    )
     artifacts["c1_receipt"].unlink()
     _json(artifacts["c1_receipt"], c1_receipt)
     report = json.loads(artifacts["validation_report"].read_text(encoding="utf-8"))

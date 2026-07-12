@@ -7,6 +7,7 @@ same legal BIOES transition mask as the feature baselines.  This module is an
 offline CPU shadow candidate, never a replacement for the Rust hot path without
 the separate promotion and runtime receipts.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -26,13 +27,19 @@ from typing import Any, Mapping, Sequence
 try:  # Optional locally; available in the pinned Clariden PyTorch uenv.
     import torch
     from torch import nn
-except ModuleNotFoundError:  # pragma: no cover - exercised by dependency-free smoke tests
+except (
+    ModuleNotFoundError
+):  # pragma: no cover - exercised by dependency-free smoke tests
     torch = None
     nn = None
 
 from .bib_ladder import (
+    active_classes_for_documents,
+    active_classes_from_config,
     configure_runtime,
+    mark_silver_safety_unavailable,
     select_shared_calibration,
+    target_name,
     verify_selection_bundle,
 )
 from .contract import GoldDocument, sha256_file
@@ -68,7 +75,9 @@ if torch is not None:
             super().__init__()
             self.embedding = nn.Embedding(257, embedding_dim, padding_idx=0)
             self.convolutions = nn.ModuleList(
-                nn.Conv1d(embedding_dim, channels, kernel_size=kernel, padding=kernel // 2)
+                nn.Conv1d(
+                    embedding_dim, channels, kernel_size=kernel, padding=kernel // 2
+                )
                 for kernel in kernels
             )
             self.output_dim = channels * len(kernels)
@@ -90,7 +99,6 @@ if torch is not None:
                 pooled.append(values * valid)
             return torch.cat(pooled, dim=1).reshape(batch, lines, self.output_dim)
 
-
     class ResidualTCNBlock(nn.Module):
         def __init__(self, hidden_dim: int, dilation: int, dropout: float):
             super().__init__()
@@ -104,34 +112,37 @@ if torch is not None:
             )
             self.dropout = nn.Dropout(dropout)
 
-        def forward(self, values: "torch.Tensor", mask: "torch.Tensor") -> "torch.Tensor":
+        def forward(
+            self, values: "torch.Tensor", mask: "torch.Tensor"
+        ) -> "torch.Tensor":
             residual = values
             values = self.norm(values).transpose(1, 2)
             values = torch.nn.functional.gelu(self.conv(values)).transpose(1, 2)
             values = residual + self.dropout(values)
             return values * mask.unsqueeze(-1)
 
-
     class MaskedBIOESCRF(nn.Module):
         """Batched log-likelihood and Viterbi with forbidden BIOES transitions masked."""
 
-        def __init__(
-            self, n_tags: int, active_classes: Sequence[str] = ("BIB", "TOC")
-        ):
+        def __init__(self, n_tags: int, active_classes: Sequence[str] = ("BIB", "TOC")):
             super().__init__()
             transition_mask, start_mask, end_mask = allowed_transition_mask()
             unknown = set(active_classes) - {"BIB", "TOC"}
             if unknown:
                 raise ValueError(f"unknown active classes: {sorted(unknown)!r}")
-            active = torch.as_tensor([
-                tag == "O" or any(tag.endswith(f"-{target}") for target in active_classes)
-                for tag in TAGS
-            ])
+            active = torch.as_tensor(
+                [
+                    tag == "O"
+                    or any(tag.endswith(f"-{target}") for target in active_classes)
+                    for tag in TAGS
+                ]
+            )
             self.transitions = nn.Parameter(torch.zeros(n_tags, n_tags))
             self.start = nn.Parameter(torch.zeros(n_tags))
             self.end = nn.Parameter(torch.zeros(n_tags))
             self.register_buffer(
-                "transition_mask", torch.as_tensor(transition_mask) & active[:, None] & active[None, :]
+                "transition_mask",
+                torch.as_tensor(transition_mask) & active[:, None] & active[None, :],
             )
             self.register_buffer("start_mask", torch.as_tensor(start_mask) & active)
             self.register_buffer("end_mask", torch.as_tensor(end_mask) & active)
@@ -163,9 +174,20 @@ if torch is not None:
                 or not bool(transition_mask.any(dim=0).all())
                 or not bool(transition_mask.any(dim=1).all())
             ):
-                raise ValueError("active CRF graph is not a complete BIOES state machine")
-            transitions = self.transitions.index_select(0, active).index_select(1, active)
-            return active, transition_mask, start_mask, end_mask, transitions, self.start.index_select(0, active)
+                raise ValueError(
+                    "active CRF graph is not a complete BIOES state machine"
+                )
+            transitions = self.transitions.index_select(0, active).index_select(
+                1, active
+            )
+            return (
+                active,
+                transition_mask,
+                start_mask,
+                end_mask,
+                transitions,
+                self.start.index_select(0, active),
+            )
 
         @staticmethod
         def _validate_sequence_mask(mask: "torch.Tensor") -> None:
@@ -174,7 +196,9 @@ if torch is not None:
             if not bool(mask[:, 0].all()) or bool((mask[:, 1:] & ~mask[:, :-1]).any()):
                 raise ValueError("CRF masks must be non-empty contiguous prefixes")
 
-        def log_partition(self, emissions: "torch.Tensor", mask: "torch.Tensor") -> "torch.Tensor":
+        def log_partition(
+            self, emissions: "torch.Tensor", mask: "torch.Tensor"
+        ) -> "torch.Tensor":
             self._validate_sequence_mask(mask)
             active, transition_mask, start_mask, end_mask, transitions, start = (
                 self._local_graph()
@@ -183,7 +207,11 @@ if torch is not None:
             transitions = self._masked(transitions, transition_mask)
             score = self._masked(start, start_mask) + emissions[:, 0]
             for t in range(1, emissions.shape[1]):
-                candidate = score.unsqueeze(2) + transitions.unsqueeze(0) + emissions[:, t].unsqueeze(1)
+                candidate = (
+                    score.unsqueeze(2)
+                    + transitions.unsqueeze(0)
+                    + emissions[:, t].unsqueeze(1)
+                )
                 next_score = torch.logsumexp(candidate, dim=1)
                 score = torch.where(mask[:, t].unsqueeze(1), next_score, score)
             end = self.end.index_select(0, active)
@@ -194,7 +222,9 @@ if torch is not None:
         ) -> "torch.Tensor":
             self._validate_sequence_mask(mask)
             if not bool(self.active_tag_mask[tags[mask]].all()):
-                raise ValueError("gold contains a class disabled for this evidence tier")
+                raise ValueError(
+                    "gold contains a class disabled for this evidence tier"
+                )
             lengths = mask.long().sum(dim=1) - 1
             last_tags = tags.gather(1, lengths.unsqueeze(1)).squeeze(1)
             if not bool(self.start_mask[tags[:, 0]].all()) or not bool(
@@ -206,12 +236,17 @@ if torch is not None:
                 if not bool(legal_steps[mask[:, 1:]].all()):
                     raise ValueError("gold contains an illegal BIOES transition")
             if bool((tags[mask] < 0).any()) or bool((tags[mask] >= len(TAGS)).any()):
-                raise ValueError("gold contains a tag index outside the BIOES inventory")
+                raise ValueError(
+                    "gold contains a tag index outside the BIOES inventory"
+                )
             batch = torch.arange(emissions.shape[0], device=emissions.device)
             score = self.start[tags[:, 0]]
             score = score + emissions[batch, 0, tags[:, 0]]
             for t in range(1, emissions.shape[1]):
-                step = self.transitions[tags[:, t - 1], tags[:, t]] + emissions[batch, t, tags[:, t]]
+                step = (
+                    self.transitions[tags[:, t - 1], tags[:, t]]
+                    + emissions[batch, t, tags[:, t]]
+                )
                 score = score + torch.where(mask[:, t], step, torch.zeros_like(step))
             return score + self.end[last_tags]
 
@@ -220,7 +255,10 @@ if torch is not None:
         ) -> "torch.Tensor":
             if not bool(mask[:, 0].all()):
                 raise ValueError("every sequence must contain at least one line")
-            return (self.log_partition(emissions, mask) - self.gold_score(emissions, tags, mask)).mean()
+            return (
+                self.log_partition(emissions, mask)
+                - self.gold_score(emissions, tags, mask)
+            ).mean()
 
         def decode(
             self,
@@ -261,7 +299,6 @@ if torch is not None:
                 decoded.append(active[list(reversed(path))].tolist())
             return decoded
 
-
     class CharTCNCRF(nn.Module):
         def __init__(
             self,
@@ -276,10 +313,15 @@ if torch is not None:
             target_classes: Sequence[str] = ("BIB", "TOC"),
         ):
             super().__init__()
-            self.byte_cnn = ByteCNN(byte_embedding_dim, char_channels_per_kernel, char_kernels)
-            self.input_projection = nn.Linear(self.byte_cnn.output_dim + engineered_dim, hidden_dim)
+            self.byte_cnn = ByteCNN(
+                byte_embedding_dim, char_channels_per_kernel, char_kernels
+            )
+            self.input_projection = nn.Linear(
+                self.byte_cnn.output_dim + engineered_dim, hidden_dim
+            )
             self.blocks = nn.ModuleList(
-                ResidualTCNBlock(hidden_dim, dilation, dropout) for dilation in tcn_dilations
+                ResidualTCNBlock(hidden_dim, dilation, dropout)
+                for dilation in tcn_dilations
             )
             self.output_norm = nn.LayerNorm(hidden_dim)
             self.emissions = nn.Linear(hidden_dim, len(TAGS))
@@ -305,7 +347,9 @@ if torch is not None:
             line_mask: "torch.Tensor",
             tags: "torch.Tensor",
         ) -> "torch.Tensor":
-            return self.crf.neg_log_likelihood(self(byte_ids, engineered, line_mask), tags, line_mask)
+            return self.crf.neg_log_likelihood(
+                self(byte_ids, engineered, line_mask), tags, line_mask
+            )
 
         def decode(
             self,
@@ -348,7 +392,9 @@ def export_torchscript_emissions(
         scripted = traced(*inputs)
     maximum_absolute_delta = float((eager - scripted).abs().max().item())
     if maximum_absolute_delta > 1.0e-6:
-        raise RuntimeError(f"TorchScript parity failed: max |delta|={maximum_absolute_delta}")
+        raise RuntimeError(
+            f"TorchScript parity failed: max |delta|={maximum_absolute_delta}"
+        )
     output_path = Path(output_path)
     traced.save(str(output_path))
     receipt = {
@@ -386,7 +432,9 @@ def make_neural_examples(
         sparse = encoder.encode_document(document)
         start = 0
         while start < len(document.lines):
-            while start < len(document.lines) and document.lines[start].label == "UNKNOWN":
+            while (
+                start < len(document.lines) and document.lines[start].label == "UNKNOWN"
+            ):
                 start += 1
             end = start
             while end < len(document.lines) and document.lines[end].label != "UNKNOWN":
@@ -475,7 +523,9 @@ def _architecture(config: Mapping[str, Any]) -> Mapping[str, Any]:
 
 
 def _make_model(
-    architecture: Mapping[str, Any], engineered_dim: int
+    architecture: Mapping[str, Any],
+    engineered_dim: int,
+    active_classes: Sequence[str] = ("BIB",),
 ) -> Any:
     require_torch()
     return CharTCNCRF(
@@ -486,7 +536,7 @@ def _make_model(
         hidden_dim=int(architecture["hidden_dim"]),
         tcn_dilations=tuple(int(value) for value in architecture["tcn_dilations"]),
         dropout=float(architecture["dropout"]),
-        target_classes=("BIB",),
+        target_classes=active_classes,
     ).cpu()
 
 
@@ -504,7 +554,9 @@ def train_n1(
     """Run deterministic AdamW fitting on CPU and return epoch NLLs."""
     require_torch()
     if not examples or epochs < 1 or batch_size < 1:
-        raise ValueError("N1 requires examples, positive epochs, and a positive batch size")
+        raise ValueError(
+            "N1 requires examples, positive epochs, and a positive batch size"
+        )
     optimizer = torch.optim.AdamW(
         model.parameters(), lr=float(learning_rate), weight_decay=float(weight_decay)
     )
@@ -518,7 +570,9 @@ def train_n1(
         total_sequences = 0
         model.train()
         for offset in range(0, len(order), int(batch_size)):
-            batch_examples = [examples[index] for index in order[offset : offset + batch_size]]
+            batch_examples = [
+                examples[index] for index in order[offset : offset + batch_size]
+            ]
             byte_ids, engineered, line_mask, tags = _collate(batch_examples)
             optimizer.zero_grad(set_to_none=True)
             loss = model.loss(byte_ids, engineered, line_mask, tags)
@@ -562,7 +616,9 @@ def _predictions_from_emissions(
     deletion_bias: float,
 ) -> dict[str, list[str]]:
     require_torch()
-    result = {document.document_id: ["O"] * len(document.lines) for document in documents}
+    result = {
+        document.document_id: ["O"] * len(document.lines) for document in documents
+    }
     for example, values in zip(examples, emissions):
         mask = torch.ones((1, len(example.line_indices)), dtype=torch.bool)
         path = model.crf.decode(
@@ -582,6 +638,7 @@ def calibrate_n1(
     candidates: Sequence[float],
     *,
     reference_action_precision: float,
+    active_classes: Sequence[str] = ("BIB",),
 ) -> dict[str, Any]:
     """Select comparison-only deletion bias on validation silver."""
     rows: list[dict[str, Any]] = []
@@ -593,9 +650,7 @@ def calibrate_n1(
         predicted_tokens = sum(
             line.token_count
             for document in documents
-            for line, guess in zip(
-                document.lines, predictions[document.document_id]
-            )
+            for line, guess in zip(document.lines, predictions[document.document_id])
             if line.label != "UNKNOWN" and guess != "O"
         )
         rows.append(
@@ -604,11 +659,14 @@ def calibrate_n1(
                 "action_precision": metrics["token"]["action_precision"],
                 "action_recall": metrics["token"]["action_recall"],
                 "bib_recall": metrics["token"]["bib_recall"],
+                "toc_recall": metrics["token"]["toc_recall"],
                 "predicted_action_tokens": predicted_tokens,
             }
         )
     return select_shared_calibration(
-        rows, reference_action_precision=reference_action_precision
+        rows,
+        reference_action_precision=reference_action_precision,
+        active_classes=active_classes,
     )
 
 
@@ -739,6 +797,7 @@ def load_n1_checkpoint(
     if not isinstance(value, dict) or set(value) != required:
         raise ValueError("N1 checkpoint has an unexpected field inventory")
     architecture = _architecture(config)
+    active_classes = active_classes_from_config(config)
     encoder = FeatureEncoder(char_hash_dim=0)
     if (
         value.get("schema_version") != "n1-checkpoint-v2"
@@ -746,7 +805,7 @@ def load_n1_checkpoint(
         or value.get("architecture") != architecture
         or value.get("engineered_dim") != encoder.n_features
         or value.get("feature_encoder") != encoder.metadata()
-        or value.get("active_classes") != ["BIB"]
+        or value.get("active_classes") != list(active_classes)
         or value.get("seed") != int(config["execution"]["seed"])
         or value.get("production_eligible") is not False
         or value.get("deletion_bias") not in config["calibration"]["deletion_bias_grid"]
@@ -758,7 +817,7 @@ def load_n1_checkpoint(
     state = value.get("state_dict")
     if not isinstance(state, Mapping):
         raise ValueError("N1 checkpoint state_dict is missing")
-    model = _make_model(architecture, encoder.n_features)
+    model = _make_model(architecture, encoder.n_features, active_classes)
     expected = model.state_dict()
     if set(state) != set(expected):
         raise ValueError("N1 checkpoint state_dict key inventory differs")
@@ -777,7 +836,9 @@ def load_n1_checkpoint(
             "crf.start_mask",
             "crf.end_mask",
         } and not torch.equal(observed, expected_tensor):
-            raise ValueError(f"N1 checkpoint derived mask {name!r} differs from metadata")
+            raise ValueError(
+                f"N1 checkpoint derived mask {name!r} differs from metadata"
+            )
     model.load_state_dict(state, strict=True)
     return model.cpu().eval(), value
 
@@ -786,13 +847,17 @@ def _require_clariden_cpu(confirmed: bool) -> None:
     if not confirmed:
         raise RuntimeError("N1 fitting requires --confirm-clariden-cpu-only")
     if not os.environ.get("SLURM_JOB_ID"):
-        raise RuntimeError("N1 fitting is forbidden outside a Clariden Slurm allocation")
+        raise RuntimeError(
+            "N1 fitting is forbidden outside a Clariden Slurm allocation"
+        )
     if os.environ.get("SLURM_JOB_PARTITION") not in {"normal", "debug"}:
         raise RuntimeError("N1 fitting requires a Clariden compute partition")
     if platform.machine() != "aarch64":
         raise RuntimeError("N1 fitting requires the Clariden aarch64 CPU runtime")
     if os.environ.get("CUDA_VISIBLE_DEVICES") not in {"", "-1"}:
-        raise RuntimeError("N1 fitting requires CUDA_VISIBLE_DEVICES to disable accelerators")
+        raise RuntimeError(
+            "N1 fitting requires CUDA_VISIBLE_DEVICES to disable accelerators"
+        )
 
 
 def _peak_rss_bytes() -> int:
@@ -800,20 +865,10 @@ def _peak_rss_bytes() -> int:
     return int(peak if platform.system() == "Darwin" else peak * 1024)
 
 
-def _scrub_silver_safety(metrics: dict[str, Any]) -> None:
-    for row in [metrics, *metrics.get("by_source", {}).values()]:
-        row["token"]["prose_contamination"] = None
-        row["token"]["true_main_text_retention"] = None
-        row["token"]["toc_recall"] = None
-        row["line"]["toc_recall"] = None
-        row["span"]["toc"] = {key: None for key in row["span"]["toc"]}
-        row["document"]["catastrophic_prose_deletions"] = None
-        row["document"]["maximum_contiguous_false_deletion_tokens"] = None
-    metrics["metric_availability"] = {
-        "LLM_silver_agreement": True,
-        "independent_running_prose_safety": False,
-        "toc_supervision": False,
-    }
+def _scrub_silver_safety(
+    metrics: dict[str, Any], active_classes: Sequence[str] = ("BIB",)
+) -> None:
+    mark_silver_safety_unavailable(metrics, active_classes)
 
 
 def _state_digest(model: Any) -> str:
@@ -829,7 +884,9 @@ def _state_digest(model: Any) -> str:
     return digest.hexdigest()
 
 
-def _tiny_determinism_smoke(seed: int) -> dict[str, Any]:
+def _tiny_determinism_smoke(
+    seed: int, active_classes: Sequence[str] = ("BIB",)
+) -> dict[str, Any]:
     """Fit two tiny synthetic models; callable only behind the Clariden gate."""
     require_torch()
 
@@ -843,13 +900,21 @@ def _tiny_determinism_smoke(seed: int) -> dict[str, Any]:
             hidden_dim=8,
             tcn_dilations=(1,),
             dropout=0.0,
-            target_classes=("BIB",),
+            target_classes=active_classes,
         ).cpu()
         optimizer = torch.optim.AdamW(model.parameters(), lr=1.0e-3)
         byte_ids = torch.tensor([[[66, 67, 0], [68, 69, 70], [71, 0, 0]]])
         engineered = torch.tensor([[[0.1, 0.2], [0.4, -0.1], [0.0, 0.3]]])
         mask = torch.ones((1, 3), dtype=torch.bool)
-        tags = torch.tensor([[0, TAGS.index("S-BIB"), 0]])
+        tags = torch.tensor(
+            [
+                [
+                    TAGS.index("S-TOC") if "TOC" in active_classes else 0,
+                    TAGS.index("S-BIB"),
+                    0,
+                ]
+            ]
+        )
         losses = []
         for _ in range(2):
             optimizer.zero_grad(set_to_none=True)
@@ -869,6 +934,7 @@ def _tiny_determinism_smoke(seed: int) -> dict[str, Any]:
         "losses": first_loss,
         "replicas": 2,
         "steps_per_replica": 2,
+        "active_classes": list(active_classes),
     }
 
 
@@ -887,6 +953,7 @@ def validate_n1_profile_receipt(
     if not re.fullmatch(r"[0-9a-f]{40}", expected_code_commit):
         raise RuntimeError("N1 profile code commit must be an exact Git SHA")
     architecture = _architecture(config)
+    active_classes = active_classes_from_config(config)
     smoke = profile.get("determinism_smoke")
     counts = profile.get("counts")
     one_epoch = profile.get("one_epoch_seconds")
@@ -906,7 +973,14 @@ def validate_n1_profile_receipt(
     smoke_valid = (
         isinstance(smoke, Mapping)
         and set(smoke)
-        == {"status", "state_sha256", "losses", "replicas", "steps_per_replica"}
+        == {
+            "status",
+            "state_sha256",
+            "losses",
+            "replicas",
+            "steps_per_replica",
+            "active_classes",
+        }
         and smoke.get("status") == "pass"
         and isinstance(smoke.get("state_sha256"), str)
         and re.fullmatch(r"[0-9a-f]{64}", smoke["state_sha256"]) is not None
@@ -920,6 +994,7 @@ def validate_n1_profile_receipt(
         )
         and smoke.get("replicas") == 2
         and smoke.get("steps_per_replica") == 2
+        and smoke.get("active_classes") == list(active_classes)
     )
     counts_valid = counts == dict(expected_counts) and all(
         isinstance(value, int) and not isinstance(value, bool) and value > 0
@@ -945,9 +1020,10 @@ def validate_n1_profile_receipt(
     )
     if (
         profile.get("schema_version") != "academic-structure-n1-profile-v1"
-        or profile.get("status")
-        != "passed_one_epoch_profile_and_determinism_smoke"
+        or profile.get("status") != "passed_one_epoch_profile_and_determinism_smoke"
         or profile.get("architecture_id") != "n1-bytecnn-tcn-masked-crf"
+        or profile.get("target") != target_name(active_classes)
+        or profile.get("active_classes") != list(active_classes)
         or profile.get("production_eligible") is not False
         or profile.get("effective_seed") != int(config["execution"]["seed"])
         or profile.get("inputs") != dict(expected_inputs)
@@ -976,7 +1052,9 @@ def profile_cli(args: argparse.Namespace) -> dict[str, Any]:
     require_torch()
     _require_clariden_cpu(args.confirm_clariden_cpu_only)
     if Path(args.receipt_out).exists() or Path(args.receipt_out).is_symlink():
-        raise FileExistsError(f"refusing immutable output overwrite: {args.receipt_out}")
+        raise FileExistsError(
+            f"refusing immutable output overwrite: {args.receipt_out}"
+        )
     documents, validation, selection_receipt = verify_selection_bundle(
         selection_silver_path=args.selection_silver,
         selection_manifest_path=args.selection_manifest,
@@ -985,14 +1063,17 @@ def profile_cli(args: argparse.Namespace) -> dict[str, Any]:
         config_path=args.config,
     )
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    active_classes = active_classes_for_documents(documents, config)
     seed = int(config["execution"]["seed"])
     runtime = configure_runtime(config, uenv=args.uenv, effective_seed=seed)
     if not re.fullmatch(r"[0-9a-f]{40}", args.code_commit):
         raise RuntimeError("N1 profile code commit must be an exact Git SHA")
     runtime["code_commit"] = args.code_commit
     torch.manual_seed(seed)
-    torch.use_deterministic_algorithms(bool(config["execution"]["deterministic_algorithms"]))
-    smoke = _tiny_determinism_smoke(seed)
+    torch.use_deterministic_algorithms(
+        bool(config["execution"]["deterministic_algorithms"])
+    )
+    smoke = _tiny_determinism_smoke(seed, active_classes)
     architecture = _architecture(config)
     encoder = FeatureEncoder(char_hash_dim=0)
     train_documents = [document for document in documents if document.split == "train"]
@@ -1001,7 +1082,7 @@ def profile_cli(args: argparse.Namespace) -> dict[str, Any]:
         encoder,
         max_bytes=int(architecture["max_utf8_bytes_per_line"]),
     )
-    model = _make_model(architecture, encoder.n_features)
+    model = _make_model(architecture, encoder.n_features, active_classes)
     _history, epoch_seconds = train_n1(
         model,
         examples,
@@ -1017,6 +1098,8 @@ def profile_cli(args: argparse.Namespace) -> dict[str, Any]:
         "schema_version": "academic-structure-n1-profile-v1",
         "status": "passed_one_epoch_profile_and_determinism_smoke",
         "architecture_id": "n1-bytecnn-tcn-masked-crf",
+        "target": target_name(active_classes),
+        "active_classes": list(active_classes),
         "production_eligible": False,
         "inputs": {
             "selection_silver_sha256": sha256_file(args.selection_silver),
@@ -1032,7 +1115,9 @@ def profile_cli(args: argparse.Namespace) -> dict[str, Any]:
         "effective_seed": seed,
         "counts": {
             "train_documents": len(train_documents),
-            "validation_documents_contract_checked_not_scored_by_profile": len(validation),
+            "validation_documents_contract_checked_not_scored_by_profile": len(
+                validation
+            ),
             "train_sequences": len(examples),
         },
         "determinism_smoke": smoke,
@@ -1044,7 +1129,9 @@ def profile_cli(args: argparse.Namespace) -> dict[str, Any]:
         "note": "config deployment resource gates are promotion-only and are not applied here",
     }
     if not receipt["within_full_fit_budget"]:
-        raise RuntimeError("N1 profile projects beyond the non-resumable full-fit budget")
+        raise RuntimeError(
+            "N1 profile projects beyond the non-resumable full-fit budget"
+        )
     _atomic_json(args.receipt_out, receipt)
     return receipt
 
@@ -1080,9 +1167,7 @@ def _validate_profile_receipt(
         expected_code_commit=args.code_commit,
         current_runtime=current_runtime,
         expected_counts={
-            "train_documents": sum(
-                document.split == "train" for document in documents
-            ),
+            "train_documents": sum(document.split == "train" for document in documents),
             "validation_documents_contract_checked_not_scored_by_profile": len(
                 validation
             ),
@@ -1109,6 +1194,7 @@ def train_cli(args: argparse.Namespace) -> dict[str, Any]:
     )
     train_documents = [document for document in documents if document.split == "train"]
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    active_classes = active_classes_for_documents(documents, config)
     architecture = _architecture(config)
     seed = int(config["execution"]["seed"])
     runtime = configure_runtime(config, uenv=args.uenv, effective_seed=seed)
@@ -1117,7 +1203,9 @@ def train_cli(args: argparse.Namespace) -> dict[str, Any]:
     runtime["code_commit"] = args.code_commit
     profile = _validate_profile_receipt(args, config, documents, validation)
     torch.manual_seed(seed)
-    torch.use_deterministic_algorithms(bool(config["execution"]["deterministic_algorithms"]))
+    torch.use_deterministic_algorithms(
+        bool(config["execution"]["deterministic_algorithms"])
+    )
     reference_predictions = read_predictions(args.reference_predictions, validation)
     reference_metrics, _ = evaluate(
         validation, reference_predictions, split="validation"
@@ -1128,7 +1216,7 @@ def train_cli(args: argparse.Namespace) -> dict[str, Any]:
     max_bytes = int(architecture["max_utf8_bytes_per_line"])
     train_examples = make_neural_examples(train_documents, encoder, max_bytes=max_bytes)
     validation_examples = make_neural_examples(validation, encoder, max_bytes=max_bytes)
-    model = _make_model(architecture, encoder.n_features)
+    model = _make_model(architecture, encoder.n_features, active_classes)
     history, training_seconds = train_n1(
         model,
         train_examples,
@@ -1149,6 +1237,7 @@ def train_cli(args: argparse.Namespace) -> dict[str, Any]:
         model,
         config["calibration"]["deletion_bias_grid"],
         reference_action_precision=reference_precision,
+        active_classes=active_classes,
     )
     deletion_bias = float(calibration_receipt["selected"]["deletion_bias"])
     predictions = _predictions_from_emissions(
@@ -1164,7 +1253,7 @@ def train_cli(args: argparse.Namespace) -> dict[str, Any]:
         "architecture": dict(architecture),
         "engineered_dim": encoder.n_features,
         "feature_encoder": encoder.metadata(),
-        "active_classes": ["BIB"],
+        "active_classes": list(active_classes),
         "deletion_bias": deletion_bias,
         "state_dict": model.state_dict(),
         "inputs": {
@@ -1196,12 +1285,12 @@ def train_cli(args: argparse.Namespace) -> dict[str, Any]:
         deletion_bias=deletion_bias,
     )
     if loaded_predictions != predictions:
-        raise RuntimeError("reloaded N1 checkpoint predictions differ before publication")
+        raise RuntimeError(
+            "reloaded N1 checkpoint predictions differ before publication"
+        )
     write_n1_predictions(args.validation_predictions, validation, loaded_predictions)
-    validation_metrics, _ = evaluate(
-        validation, loaded_predictions, split="validation"
-    )
-    _scrub_silver_safety(validation_metrics)
+    validation_metrics, _ = evaluate(validation, loaded_predictions, split="validation")
+    _scrub_silver_safety(validation_metrics, active_classes)
     runtime["wall_seconds"] = time.perf_counter() - wall_started
     runtime["training_seconds"] = training_seconds
     runtime["peak_rss_bytes"] = _peak_rss_bytes()
@@ -1209,7 +1298,8 @@ def train_cli(args: argparse.Namespace) -> dict[str, Any]:
         "schema_version": "academic-structure-n1-training-v2",
         "status": "passed_cpu_fit_checkpoint_reload_and_validation_prediction",
         "architecture_id": "n1-bytecnn-tcn-masked-crf",
-        "target": "BIB",
+        "target": target_name(active_classes),
+        "active_classes": list(active_classes),
         "evidence_tier": "LLM_silver",
         "production_eligible": False,
         "execution": runtime,
@@ -1263,15 +1353,22 @@ def predict_cli(args: argparse.Namespace) -> dict[str, Any]:
         config_path=args.config,
     )
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    active_classes = active_classes_for_documents(documents, config)
     runtime = configure_runtime(
         config, uenv=args.uenv, effective_seed=int(config["execution"]["seed"])
     )
-    selected = validation if args.split == "validation" else [
-        document for document in documents if document.split == "train"
-    ]
+    selected = (
+        validation
+        if args.split == "validation"
+        else [document for document in documents if document.split == "train"]
+    )
     if not selected or any(document.split == "test" for document in selected):
-        raise RuntimeError("N1 prediction entry point rejects the historical test partition")
-    training_receipt = json.loads(Path(args.training_receipt).read_text(encoding="utf-8"))
+        raise RuntimeError(
+            "N1 prediction entry point rejects the historical test partition"
+        )
+    training_receipt = json.loads(
+        Path(args.training_receipt).read_text(encoding="utf-8")
+    )
     expected_inputs = {
         "selection_silver_sha256": sha256_file(args.selection_silver),
         "selection_manifest_sha256": sha256_file(args.selection_manifest),
@@ -1284,6 +1381,8 @@ def predict_cli(args: argparse.Namespace) -> dict[str, Any]:
         or training_receipt.get("status")
         != "passed_cpu_fit_checkpoint_reload_and_validation_prediction"
         or training_receipt.get("production_eligible") is not False
+        or training_receipt.get("target") != target_name(active_classes)
+        or training_receipt.get("active_classes") != list(active_classes)
         or training_receipt.get("outputs", {}).get("model_sha256")
         != sha256_file(args.model)
         or any(
@@ -1293,14 +1392,18 @@ def predict_cli(args: argparse.Namespace) -> dict[str, Any]:
     ):
         raise RuntimeError("N1 model/training/selection receipt binding failed")
     model, checkpoint = load_n1_checkpoint(args.model, config)
-    if any(checkpoint["inputs"].get(key) != value for key, value in expected_inputs.items()):
+    if any(
+        checkpoint["inputs"].get(key) != value for key, value in expected_inputs.items()
+    ):
         raise RuntimeError("N1 checkpoint differs from current config/selection inputs")
     architecture = checkpoint["architecture"]
     encoder = FeatureEncoder(char_hash_dim=0)
     examples = make_neural_examples(
         selected, encoder, max_bytes=int(architecture["max_utf8_bytes_per_line"])
     )
-    emissions = _cache_emissions(model, examples, batch_size=int(architecture["batch_size"]))
+    emissions = _cache_emissions(
+        model, examples, batch_size=int(architecture["batch_size"])
+    )
     predictions = _predictions_from_emissions(
         selected,
         examples,
@@ -1313,6 +1416,8 @@ def predict_cli(args: argparse.Namespace) -> dict[str, Any]:
     receipt = {
         "schema_version": "academic-structure-n1-prediction-v1",
         "status": "pass",
+        "target": target_name(active_classes),
+        "active_classes": list(active_classes),
         "split": args.split,
         "document_count": len(selected),
         "predictions_sha256": sha256_file(args.predictions),
@@ -1368,7 +1473,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     predict.add_argument("--selection-receipt", required=True)
     predict.add_argument("--config", required=True)
     predict.add_argument("--uenv", required=True)
-    predict.add_argument("--split", choices=("train", "validation"), default="validation")
+    predict.add_argument(
+        "--split", choices=("train", "validation"), default="validation"
+    )
     predict.add_argument("--predictions", required=True)
     predict.add_argument("--receipt-out", required=True)
 

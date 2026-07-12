@@ -1,6 +1,6 @@
 {
   "schema_version": "academic-structure-sequence-eval-v1",
-  "active_classes": ["BIB"],
+  "active_classes": ["BIB", "TOC"],
   "execution": {
     "fit_location": "Clariden CPU node only",
     "accelerator": "none",
@@ -17,18 +17,19 @@
   },
   "historical_partition_usage": {
     "historical_split_name": "test",
-    "semantics": "sealed_retrospective_comparison_not_unbiased_never_seen_test",
+    "source_document_count": 2000,
+    "historical_train_document_count": 1392,
+    "historical_test_document_count": 608,
+    "semantics": "historical_test_reused_by_old_feature_work_and_physically_excluded_before_new_split",
     "model_process_access": false,
     "prediction_generation": false,
     "human_gold": false,
+    "validation_source": "deterministic_source_stratified_subset_of_historical_train_only",
     "future_independent_option": "newly_sampled_LLM_silver_documents"
   },
   "silver_contract": {
     "annotation_status": "LLM_silver",
-    "allowed_task_scopes": [
-      "bibliography_binary_windows",
-      "bibliography_toc_windows"
-    ],
+    "allowed_task_scopes": ["bibliography_toc_windows"],
     "comparison_only": true,
     "production_eligible": false,
     "production_fallback": "no_op",
@@ -43,25 +44,26 @@
     "required_in_addition_to_metric_gates": true
   },
   "split": {
-    "seed": "academic-structure-v1-20260711",
-    "train_fraction": 0.55,
-    "validation_fraction": 0.15,
-    "test_fraction": 0.3,
+    "seed": "academic-structure-joint-v1-20260712",
+    "train_fraction": 0.8,
+    "validation_fraction": 0.2,
+    "test_fraction": 0.0,
     "group_field": "work_id",
     "stratify_field": "source",
-    "algorithm": "source-stratified-sha256-work-order-v1"
+    "algorithm": "source-stratified-sha256-work-order-v1",
+    "eligible_upstream_partition": "historical_train_only"
   },
   "architecture_ladder": [
     {
       "id": "c0-rust-lr-hysteresis",
       "kind": "external_baseline",
-      "status": "deployed_audit_baseline",
-      "notes": "The existing two-head Rust detector is preserved byte-for-byte and supplies baseline predictions."
+      "status": "known_in_sample_historical_reference",
+      "notes": "Both frozen heads were fit on the historical train partition; every new validation row therefore overlaps C0 fitting and C0 is descriptive only."
     },
     {
       "id": "c1-feature-bioes-crf",
       "kind": "feature_crf",
-      "silver_targets": ["bib", "joint_when_task_scope_includes_toc"],
+      "silver_targets": ["bib", "toc"],
       "char_hash_dim": 0,
       "epochs": 18,
       "learning_rate": 0.08,
@@ -71,7 +73,7 @@
     {
       "id": "c2-char-ngram-feature-bioes-crf",
       "kind": "feature_crf",
-      "silver_targets": ["bib", "joint_when_task_scope_includes_toc"],
+      "silver_targets": ["bib", "toc"],
       "char_hash_dim": 8192,
       "char_ngram_min": 2,
       "char_ngram_max": 5,
@@ -84,7 +86,7 @@
       "id": "n1-bytecnn-tcn-masked-crf",
       "kind": "char_tcn_crf",
       "status": "trainer_ready_cpu_shadow_only",
-      "silver_targets": ["bib", "joint_when_task_scope_includes_toc"],
+      "silver_targets": ["bib", "toc"],
       "max_utf8_bytes_per_line": 256,
       "byte_embedding_dim": 32,
       "char_channels_per_kernel": 48,
@@ -112,7 +114,7 @@
   "calibration": {
     "split": "validation",
     "deletion_bias_grid": [0.0, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0],
-    "objective": "agreement_with_LLM_silver_only; safety calibration is deferred to the deployment audit"
+    "objective": "maximize joint action recall at or above descriptive in-sample C0 action precision; agreement with LLM silver only"
   },
   "deployment_gates": {
     "scope": "promotion_only_not_a_gate_on_LLM_silver_retrospective_replay",

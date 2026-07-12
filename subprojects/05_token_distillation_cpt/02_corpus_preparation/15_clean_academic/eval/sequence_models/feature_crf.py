@@ -6,6 +6,7 @@ masked Viterbi), not a post-hoc smoother relabelled as a CRF.  It is deliberatel
 small and dependency-light so the feature baselines can run on a Clariden CPU
 node.  The production Rust detector is not modified by this research module.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -26,9 +27,12 @@ import numpy as np
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from sequence_models.bib_ladder import (
+        active_classes_for_documents,
         configure_runtime,
+        mark_silver_safety_unavailable,
         peak_rss_bytes,
         select_shared_calibration,
+        target_name,
         verify_selection_bundle,
     )
     from sequence_models.contract import GoldDocument, sha256_file
@@ -42,9 +46,12 @@ if __package__ in (None, ""):
     )
 else:
     from .bib_ladder import (
+        active_classes_for_documents,
         configure_runtime,
+        mark_silver_safety_unavailable,
         peak_rss_bytes,
         select_shared_calibration,
+        target_name,
         verify_selection_bundle,
     )
     from .contract import GoldDocument, sha256_file
@@ -93,7 +100,9 @@ class LinearChainCRF:
         self.n_features = int(n_features)
         self.n_tags = len(TAGS)
         rng = np.random.default_rng(seed)
-        self.emission = rng.normal(0.0, 0.002, (self.n_features, self.n_tags)).astype(np.float64)
+        self.emission = rng.normal(0.0, 0.002, (self.n_features, self.n_tags)).astype(
+            np.float64
+        )
         self.emission_bias = np.zeros(self.n_tags, dtype=np.float64)
         self.transition = np.zeros((self.n_tags, self.n_tags), dtype=np.float64)
         self.start = np.zeros(self.n_tags, dtype=np.float64)
@@ -102,10 +111,13 @@ class LinearChainCRF:
         if unknown:
             raise ValueError(f"unknown active classes: {sorted(unknown)!r}")
         self.active_classes = tuple(sorted(set(active_classes)))
-        active = np.asarray([
-            tag == "O" or any(tag.endswith(f"-{target}") for target in self.active_classes)
-            for tag in TAGS
-        ])
+        active = np.asarray(
+            [
+                tag == "O"
+                or any(tag.endswith(f"-{target}") for target in self.active_classes)
+                for tag in TAGS
+            ]
+        )
         transition, start, end = allowed_transition_mask()
         self.active_tag_mask = active
         self.transition_mask = transition & active[:, None] & active[None, :]
@@ -200,14 +212,21 @@ class LinearChainCRF:
 
     def nll_and_grad(
         self, rows: Sequence[Mapping[int, float]], gold: np.ndarray
-    ) -> tuple[float, dict[int, np.ndarray], np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[
+        float, dict[int, np.ndarray], np.ndarray, np.ndarray, np.ndarray, np.ndarray
+    ]:
         if len(rows) != len(gold) or not len(gold):
-            raise ValueError("gold tag sequence must match a non-empty feature sequence")
+            raise ValueError(
+                "gold tag sequence must match a non-empty feature sequence"
+            )
         if (
             not self.start_mask[gold[0]]
             or not self.end_mask[gold[-1]]
             or not self.active_tag_mask[gold].all()
-            or any(not self.transition_mask[left, right] for left, right in zip(gold, gold[1:]))
+            or any(
+                not self.transition_mask[left, right]
+                for left, right in zip(gold, gold[1:])
+            )
         ):
             raise ValueError("gold tag sequence contains an illegal BIOES path")
         emissions = self.emission_scores(rows)
@@ -215,7 +234,9 @@ class LinearChainCRF:
         transition, start, end = self._masked_parameters()
         path_score = start[gold[0]] + emissions[0, gold[0]] + end[gold[-1]]
         if len(gold) > 1:
-            path_score += sum(transition[left, right] for left, right in zip(gold[:-1], gold[1:]))
+            path_score += sum(
+                transition[left, right] for left, right in zip(gold[:-1], gold[1:])
+            )
             path_score += float(sum(emissions[t, gold[t]] for t in range(1, len(gold))))
         nll = float(log_z - path_score)
 
@@ -226,10 +247,14 @@ class LinearChainCRF:
             delta = node[t].copy()
             delta[gold_tag] -= 1.0
             for index, value in row.items():
-                grad = emission_grad.setdefault(int(index), np.zeros(self.n_tags, dtype=np.float64))
+                grad = emission_grad.setdefault(
+                    int(index), np.zeros(self.n_tags, dtype=np.float64)
+                )
                 grad += float(value) * delta
 
-        transition_grad = edge.sum(axis=0) if len(edge) else np.zeros_like(self.transition)
+        transition_grad = (
+            edge.sum(axis=0) if len(edge) else np.zeros_like(self.transition)
+        )
         for left, right in zip(gold[:-1], gold[1:]):
             transition_grad[left, right] -= 1.0
         transition_grad[~self.transition_mask] = 0.0
@@ -241,7 +266,9 @@ class LinearChainCRF:
         end_grad[~self.end_mask] = 0.0
         return nll, emission_grad, bias_grad, transition_grad, start_grad, end_grad
 
-    def viterbi(self, rows: Sequence[Mapping[int, float]], *, deletion_bias: float = 0.0) -> np.ndarray:
+    def viterbi(
+        self, rows: Sequence[Mapping[int, float]], *, deletion_bias: float = 0.0
+    ) -> np.ndarray:
         if not rows:
             raise ValueError("CRF sequences cannot be empty")
         emissions = self.emission_scores(rows).copy()
@@ -272,7 +299,9 @@ class LinearChainCRF:
             score[t] = emissions[t] + np.max(candidates, axis=0)
         tags = np.empty(length, dtype=np.int64)
         allowed_end = np.flatnonzero(end_mask)
-        tags[-1] = int(allowed_end[np.argmax(score[-1, allowed_end] + end[allowed_end])])
+        tags[-1] = int(
+            allowed_end[np.argmax(score[-1, allowed_end] + end[allowed_end])]
+        )
         for t in range(length - 1, 0, -1):
             tags[t - 1] = back[t, tags[t]]
         return active[tags]
@@ -352,7 +381,9 @@ class LinearChainCRF:
             ("end", end),
         ):
             if not np.isfinite(value).all():
-                raise ValueError(f"feature checkpoint {name} contains non-finite values")
+                raise ValueError(
+                    f"feature checkpoint {name} contains non-finite values"
+                )
         active_classes = metadata.get("active_classes")
         if not isinstance(active_classes, list) or not active_classes:
             raise ValueError("feature checkpoint active_classes are missing")
@@ -367,26 +398,34 @@ class LinearChainCRF:
         return model, metadata
 
 
-def make_examples(documents: Sequence[GoldDocument], encoder: FeatureEncoder) -> list[SequenceExample]:
+def make_examples(
+    documents: Sequence[GoldDocument], encoder: FeatureEncoder
+) -> list[SequenceExample]:
     """Build known-label segments; UNKNOWN is never coerced to a negative label."""
     examples: list[SequenceExample] = []
     for document in documents:
         encoded = encoder.encode_document(document)
         start = 0
         while start < len(document.lines):
-            while start < len(document.lines) and document.lines[start].label == "UNKNOWN":
+            while (
+                start < len(document.lines) and document.lines[start].label == "UNKNOWN"
+            ):
                 start += 1
             end = start
             while end < len(document.lines) and document.lines[end].label != "UNKNOWN":
                 end += 1
             if end > start:
-                tags = document_tag_ids(type("Segment", (), {"lines": document.lines[start:end]})())
-                examples.append(SequenceExample(
-                    document=document,
-                    features=encoded[start:end],
-                    tags=tags,
-                    line_indices=tuple(range(start, end)),
-                ))
+                tags = document_tag_ids(
+                    type("Segment", (), {"lines": document.lines[start:end]})()
+                )
+                examples.append(
+                    SequenceExample(
+                        document=document,
+                        features=encoded[start:end],
+                        tags=tags,
+                        line_indices=tuple(range(start, end)),
+                    )
+                )
             start = end + 1
     return examples
 
@@ -419,8 +458,8 @@ def train_model(
         epoch_loss = 0.0
         for example_index in order:
             example = examples[example_index]
-            loss, emission_grad, bias_grad, transition_grad, start_grad, end_grad = model.nll_and_grad(
-                example.features, example.tags
+            loss, emission_grad, bias_grad, transition_grad, start_grad, end_grad = (
+                model.nll_and_grad(example.features, example.tags)
             )
             epoch_loss += loss
             # Decoupled weight decay is deterministic and avoids densifying the
@@ -428,13 +467,20 @@ def train_model(
             if l2:
                 model.emission *= max(0.0, 1.0 - learning_rate * l2)
                 model.transition *= max(0.0, 1.0 - learning_rate * l2)
-            parts = list(emission_grad.values()) + [bias_grad, transition_grad, start_grad, end_grad]
+            parts = list(emission_grad.values()) + [
+                bias_grad,
+                transition_grad,
+                start_grad,
+                end_grad,
+            ]
             norm = _gradient_norm(parts)
             scale = min(1.0, float(gradient_clip) / max(norm, 1.0e-12))
             for index, grad in emission_grad.items():
                 grad = grad * scale
                 acc_emission[index] += grad * grad
-                model.emission[index] -= learning_rate * grad / np.sqrt(acc_emission[index])
+                model.emission[index] -= (
+                    learning_rate * grad / np.sqrt(acc_emission[index])
+                )
             for parameter, accumulator, grad in (
                 (model.emission_bias, acc_bias, bias_grad),
                 (model.transition, acc_transition, transition_grad),
@@ -448,12 +494,16 @@ def train_model(
     return history
 
 
-def _token_metrics(examples: Sequence[SequenceExample], model: LinearChainCRF, bias: float) -> dict[str, float]:
+def _token_metrics(
+    examples: Sequence[SequenceExample], model: LinearChainCRF, bias: float
+) -> dict[str, float]:
     predicted = correct = gold_action = action_tp = prose = false_prose = 0
     gold_by_class = {"BIB": 0, "TOC": 0}
     tp_by_class = {"BIB": 0, "TOC": 0}
     for example in examples:
-        pred = bioes_to_classes([TAGS[x] for x in model.viterbi(example.features, deletion_bias=bias)])
+        pred = bioes_to_classes(
+            [TAGS[x] for x in model.viterbi(example.features, deletion_bias=bias)]
+        )
         for line_index, guess in zip(example.line_indices, pred):
             line = example.document.lines[line_index]
             weight = line.token_count
@@ -474,8 +524,12 @@ def _token_metrics(examples: Sequence[SequenceExample], model: LinearChainCRF, b
         "action_recall": action_tp / gold_action if gold_action else 0.0,
         "predicted_action_tokens": predicted,
         "prose_contamination": false_prose / prose if prose else 0.0,
-        "bib_recall": tp_by_class["BIB"] / gold_by_class["BIB"] if gold_by_class["BIB"] else 0.0,
-        "toc_recall": tp_by_class["TOC"] / gold_by_class["TOC"] if gold_by_class["TOC"] else 0.0,
+        "bib_recall": tp_by_class["BIB"] / gold_by_class["BIB"]
+        if gold_by_class["BIB"]
+        else 0.0,
+        "toc_recall": tp_by_class["TOC"] / gold_by_class["TOC"]
+        if gold_by_class["TOC"]
+        else 0.0,
     }
 
 
@@ -485,6 +539,7 @@ def calibrate_deletion_bias(
     candidates: Sequence[float],
     *,
     reference_action_precision: float,
+    active_classes: Sequence[str] = ("BIB",),
 ) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     for candidate in candidates:
@@ -495,11 +550,14 @@ def calibrate_deletion_bias(
                 "action_precision": metrics["action_precision"],
                 "action_recall": metrics["action_recall"],
                 "bib_recall": metrics["bib_recall"],
+                "toc_recall": metrics["toc_recall"],
                 "predicted_action_tokens": int(metrics["predicted_action_tokens"]),
             }
         )
     return select_shared_calibration(
-        rows, reference_action_precision=reference_action_precision
+        rows,
+        reference_action_precision=reference_action_precision,
+        active_classes=active_classes,
     )
 
 
@@ -516,7 +574,9 @@ def predict_documents(
         classes = ["O"] * len(document.lines)
         start = 0
         while start < len(document.lines):
-            while start < len(document.lines) and document.lines[start].label == "UNKNOWN":
+            while (
+                start < len(document.lines) and document.lines[start].label == "UNKNOWN"
+            ):
                 start += 1
             end = start
             while end < len(document.lines) and document.lines[end].label != "UNKNOWN":
@@ -560,7 +620,11 @@ def write_predictions(
                     "source": document.source,
                     "split": document.split,
                     "lines": [
-                        {"line_id": line.line_id, "abs_idx": line.abs_idx, "prediction": guess}
+                        {
+                            "line_id": line.line_id,
+                            "abs_idx": line.abs_idx,
+                            "prediction": guess,
+                        }
                         for line, guess in zip(document.lines, classes)
                     ],
                 }
@@ -612,20 +676,10 @@ def _atomic_json(path: str | Path, value: Mapping[str, Any]) -> None:
         raise
 
 
-def _scrub_silver_safety(metrics: dict[str, Any]) -> None:
-    for row in [metrics, *metrics.get("by_source", {}).values()]:
-        row["token"]["prose_contamination"] = None
-        row["token"]["true_main_text_retention"] = None
-        row["token"]["toc_recall"] = None
-        row["line"]["toc_recall"] = None
-        row["span"]["toc"] = {key: None for key in row["span"]["toc"]}
-        row["document"]["catastrophic_prose_deletions"] = None
-        row["document"]["maximum_contiguous_false_deletion_tokens"] = None
-    metrics["metric_availability"] = {
-        "LLM_silver_agreement": True,
-        "independent_running_prose_safety": False,
-        "toc_supervision": False,
-    }
+def _scrub_silver_safety(
+    metrics: dict[str, Any], active_classes: Sequence[str] = ("BIB",)
+) -> None:
+    mark_silver_safety_unavailable(metrics, active_classes)
 
 
 def _require_clariden_cpu(confirmed: bool, config: Mapping[str, Any]) -> None:
@@ -635,17 +689,25 @@ def _require_clariden_cpu(confirmed: bool, config: Mapping[str, Any]) -> None:
         or execution.get("accelerator") != "none"
         or execution.get("local_training_forbidden") is not True
     ):
-        raise RuntimeError("feature CRF config must forbid local or accelerated fitting")
+        raise RuntimeError(
+            "feature CRF config must forbid local or accelerated fitting"
+        )
     if not confirmed:
         raise RuntimeError("feature CRF fitting requires --confirm-clariden-cpu-only")
     if not os.environ.get("SLURM_JOB_ID"):
-        raise RuntimeError("feature CRF fitting is forbidden outside a Clariden Slurm allocation")
+        raise RuntimeError(
+            "feature CRF fitting is forbidden outside a Clariden Slurm allocation"
+        )
     if os.environ.get("SLURM_JOB_PARTITION") not in {"normal", "debug"}:
         raise RuntimeError("feature CRF fitting requires a Clariden compute partition")
     if platform.machine() != "aarch64":
-        raise RuntimeError("feature CRF fitting requires the Clariden aarch64 CPU runtime")
+        raise RuntimeError(
+            "feature CRF fitting requires the Clariden aarch64 CPU runtime"
+        )
     if os.environ.get("CUDA_VISIBLE_DEVICES") not in {"", "-1"}:
-        raise RuntimeError("feature CRF fitting requires CUDA_VISIBLE_DEVICES to disable accelerators")
+        raise RuntimeError(
+            "feature CRF fitting requires CUDA_VISIBLE_DEVICES to disable accelerators"
+        )
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -655,8 +717,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--validation-silver", required=True)
     parser.add_argument("--selection-receipt", required=True)
     parser.add_argument("--config", required=True)
-    parser.add_argument("--architecture", required=True,
-                        choices=("c1-feature-bioes-crf", "c2-char-ngram-feature-bioes-crf"))
+    parser.add_argument(
+        "--architecture",
+        required=True,
+        choices=("c1-feature-bioes-crf", "c2-char-ngram-feature-bioes-crf"),
+    )
     parser.add_argument("--reference-predictions", required=True)
     parser.add_argument("--model-out", required=True)
     parser.add_argument("--validation-predictions", required=True)
@@ -677,16 +742,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         selection_receipt_path=args.selection_receipt,
         config_path=args.config,
     )
-    scopes = {document.task_scope for document in documents}
-    if scopes != {"bibliography_binary_windows"} or any(
-        line.label == "TOC" for doc in documents for line in doc.lines
-    ):
-        raise RuntimeError("operational feature fitting accepts only BIB-supervised SPAN silver")
-    active_classes = ("BIB",)
+    active_classes = active_classes_for_documents(documents, config)
     train_docs = [doc for doc in documents if doc.split == "train"]
     if not train_docs or not validation_docs:
         raise RuntimeError("feature CRF requires non-empty train and validation splits")
-    reference_predictions = read_predictions(args.reference_predictions, validation_docs)
+    reference_predictions = read_predictions(
+        args.reference_predictions, validation_docs
+    )
     reference_metrics, _ = evaluate(
         validation_docs, reference_predictions, split="validation"
     )
@@ -715,6 +777,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         model,
         calibration["deletion_bias_grid"],
         reference_action_precision=reference_precision,
+        active_classes=active_classes,
     )
     deletion_bias = float(calibration_receipt["selected"]["deletion_bias"])
     metadata = {
@@ -755,18 +818,21 @@ def main(argv: Sequence[str] | None = None) -> int:
         model_id=args.architecture,
         deletion_bias=deletion_bias,
     )
-    selected_predictions = read_predictions(args.validation_predictions, validation_docs)
+    selected_predictions = read_predictions(
+        args.validation_predictions, validation_docs
+    )
     validation_metrics, _ = evaluate(
         validation_docs, selected_predictions, split="validation"
     )
-    _scrub_silver_safety(validation_metrics)
+    _scrub_silver_safety(validation_metrics, active_classes)
     runtime["wall_seconds"] = time.perf_counter() - started
     runtime["peak_rss_bytes"] = peak_rss_bytes()
     receipt = {
         "schema_version": "academic-structure-feature-crf-training-v2",
         "status": "passed_cpu_fit_checkpoint_reload_and_validation_prediction",
         "architecture_id": args.architecture,
-        "target": "BIB",
+        "target": target_name(active_classes),
+        "active_classes": list(active_classes),
         "production_eligible": False,
         "inputs": {
             "selection_silver_sha256": sha256_file(args.selection_silver),

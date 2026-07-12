@@ -95,3 +95,6 @@ binds the rehydration receipt, source-unit receipt, exact recomputed split/confi
 versions/thread settings, per-arm wall/RSS, all real checkpoints/predictions, and the retrospective
 report. Resource thresholds in `config.json` are promotion-only; this replay measures resources but
 does not apply those thresholds or make a promotion claim.
+
+The recovered joint ToC+BIB corpus uses a separate import, profile, and comparison path documented in
+`JOINT_LADDER_RUNBOOK.md`; this SPAN runner remains intentionally BIB-only.

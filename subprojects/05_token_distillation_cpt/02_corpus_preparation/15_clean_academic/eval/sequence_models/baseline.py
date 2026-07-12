@@ -6,6 +6,7 @@ Joint BIB+ToC decoding retains overlaps as fail-closed conflicts. The current
 BIB-only replay instead follows the frozen BIB head and records whether the
 inactive ToC head also fired; that observation does not suppress a BIB output.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -17,7 +18,13 @@ import time
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
-from .bib_ladder import configure_runtime, peak_rss_bytes, verify_selection_bundle
+from .bib_ladder import (
+    active_classes_for_documents,
+    configure_runtime,
+    peak_rss_bytes,
+    target_name,
+    verify_selection_bundle,
+)
 from .contract import GoldDocument, sha256_file
 from .features import EVAL_DIR, existing_features, span_signals
 
@@ -33,7 +40,9 @@ def _sigmoid(value: float) -> float:
     return exponential / (1.0 + exponential)
 
 
-def _scores(rows: Sequence[Mapping[str, float]], model: Mapping[str, Any]) -> list[float]:
+def _scores(
+    rows: Sequence[Mapping[str, float]], model: Mapping[str, Any]
+) -> list[float]:
     scores: list[float] = []
     for row in rows:
         value = float(model["bias"])
@@ -45,7 +54,9 @@ def _scores(rows: Sequence[Mapping[str, float]], model: Mapping[str, Any]) -> li
     return scores
 
 
-def hysteresis(probabilities: Sequence[float], params: Mapping[str, Any]) -> list[tuple[int, int]]:
+def hysteresis(
+    probabilities: Sequence[float], params: Mapping[str, Any]
+) -> list[tuple[int, int]]:
     hi, lo = float(params["theta_hi"]), float(params["theta_lo"])
     gap, minimum = int(params["gap"]), int(params["lmin"])
     runs: list[tuple[int, int]] = []
@@ -105,7 +116,9 @@ def predict_document(
     if active == {"BIB"}:
         # SPAN evidence supervises only the BIB task. Compare with the frozen
         # BIB head itself; absence of a ToC label is not a ToC-negative label.
-        predictions = ["BIB" if index in bib else "O" for index in range(len(document.lines))]
+        predictions = [
+            "BIB" if index in bib else "O" for index in range(len(document.lines))
+        ]
     else:
         predictions = [
             "O"
@@ -140,6 +153,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         selection_receipt_path=args.selection_receipt,
         config_path=args.config,
     )
+    active_classes = active_classes_for_documents(documents, config)
     bib_path = EVAL_DIR / "span_line_lr_struct_model.json"
     toc_path = EVAL_DIR / "toc_line_lr_model.json"
     decoder_path = EVAL_DIR / "struct_smooth_params.json"
@@ -162,11 +176,15 @@ def main(argv: Sequence[str] | None = None) -> int:
                     bib_model,
                     toc_model,
                     decoder,
-                    active_classes=("BIB",),
+                    active_classes=active_classes,
                 )
                 row = {
                     "schema_version": "academic-structure-predictions-v1",
-                    "model_id": "c0-rust-lr-hysteresis-python-bib-head",
+                    "model_id": (
+                        "c0-rust-lr-hysteresis-python-bib-head"
+                        if active_classes == ("BIB",)
+                        else "c0-rust-lr-hysteresis-python-joint-heads"
+                    ),
                     "document_id": document.document_id,
                     "work_id": document.work_id,
                     "source": document.source,
@@ -204,10 +222,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         "schema_version": "academic-structure-c0-reference-v2",
         "status": "passed_descriptive_reference_prediction",
         "architecture_id": "c0-rust-lr-hysteresis",
+        "target": target_name(active_classes),
+        "active_classes": list(active_classes),
         "comparison_role": "historical_reference_only",
         "overlap_caveat": (
             "STRUCT-2K training overlap with SPAN cannot be excluded; this is not an "
             "independent held-out baseline and differences are descriptive only"
+            if active_classes == ("BIB",)
+            else "Both frozen C0 heads were fit on the historical train partition, and this "
+            "validation subset is derived only from that partition. C0 is therefore a known "
+            "in-sample descriptive reference; no candidate delta against it is a fair gain."
         ),
         "production_eligible": False,
         "inputs": {

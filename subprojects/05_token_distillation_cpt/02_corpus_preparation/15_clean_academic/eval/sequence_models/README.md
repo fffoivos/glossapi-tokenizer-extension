@@ -16,9 +16,9 @@ Corrected or added here:
   it is never converted to `O`;
 - work identities cannot cross splits, exact-text duplicates cannot cross splits, and work groups are
   deterministically balanced within source strata;
-- the historical LLM-labelled `STRUCT_2K` run completed and produced the surviving fitted models. If its
-  ignored raw intermediates are recovered, they remain silver only. Its historically named test
-  partition is retrospective replay evidence, not an unbiased never-seen test;
+- the historical LLM-labelled `STRUCT_2K` run completed and produced the surviving fitted models. Its
+  recovered raw handoff is frozen by `struct2k_handoff_lock.json` and remains silver only. Its
+  historically named test partition is retrospective replay evidence, not an unbiased never-seen test;
 - C0 loads the tracked LR artifacts and hysteresis constants without fitting. Joint decoding retains
   overlap between its two heads as a fail-closed conflict; the current BIB-only replay follows the BIB
   head and records overlap from the inactive ToC head without suppressing the BIB prediction;
@@ -76,9 +76,9 @@ the production no-op fallback.
 4. `n1-bytecnn-tcn-masked-crf`: compact character-aware CPU shadow candidate. It is a functional model
    and CPU TorchScript emission-export scaffold; receipt-bound silver may fit it for comparison only.
 
-The deterministic choices and exact promotion gates live in `config.json`. Training is forbidden locally
-and on GPUs. Operational silver fitting, once the text recovery receipt is available, belongs on a
-Clariden CPU node; the separate targeted manual safety receipt remains mandatory for production.
+The BIB-only choices live in `config.json`; the recovered joint ToC+BIB choices live in
+`joint_config.json`. Training is forbidden locally and on GPUs. Operational silver fitting belongs on
+a Clariden CPU node; the separate targeted manual safety receipt remains mandatory for production.
 
 ## Commands
 
@@ -87,6 +87,10 @@ even though its legacy row schema is named `academic-structure-gold-v1`:
 
 ```bash
 python3 -m sequence_models.silver_reconstruct audit
+python3 -m sequence_models.struct2k_import audit \
+  --handoff-root APERTUS_CLASSIFIER_HANDOFF_20260712 \
+  --lock sequence_models/struct2k_handoff_lock.json \
+  --receipt struct2k.handoff.audit.receipt.json
 python3 -m sequence_models.contract validate-silver --silver SILVER.jsonl \
   --config sequence_models/config.json --split-manifest silver.split.json
 python3 -m sequence_models.contract make-split --silver SILVER.jsonl \
@@ -100,13 +104,16 @@ python3 -m sequence_models.runtime parity --left python.jsonl --right cpu_runtim
 python3 -m sequence_models.runtime benchmark-c0 --silver SILVER.jsonl
 ```
 
-For C1/C2 fitting on the current SPAN evidence use `--target bib`; this hard-disables every ToC tag
-instead of learning false ToC negatives from a BIB-only annotation task. Joint comparison remains
-blocked unless the separate missing STRUCT_2K LLM-silver raw artifact is recovered.
+The SPAN experiment remains BIB-only and hard-disables every ToC tag instead of learning false ToC
+negatives from a BIB-only annotation task. The recovered `STRUCT_2K` experiment activates both BIB and
+ToC. Its importer authenticates all 2,000 documents but materializes only the 1,392 historical-train
+documents; all 608 historical-test documents are physically absent from the newly derived
+train/validation corpus and every model/calibration process.
 
 The operational feature CLI requires the receipt-bound train+validation selection bundle and has no
-test-prediction option or seed override. Use `BIB_LADDER_RUNBOOK.md` for the mandatory one-epoch N1
-profile and the exact detached Clariden commands. There is no human-gold dataset and no human
+test-prediction option or seed override. Use `BIB_LADDER_RUNBOOK.md` for the SPAN replay and
+`JOINT_LADDER_RUNBOOK.md` for the recovered STRUCT-2K import, mandatory joint N1 profile, and full
+joint ladder. There is no human-gold dataset and no human
 annotation campaign is required or planned; every ladder result is retrospective LLM-silver replay.
 Silver comparison never authorizes deployment by itself. Deployment additionally requires a pre-authorized
 frozen policy, Stage54, the receipt-bound 100-case high-risk false-deletion review (50 ToC + 50 BIB,

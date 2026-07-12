@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Receipt-bound preparation and validation reporting for the BIB model ladder.
+"""Receipt-bound preparation and reporting for the BIB-only and joint ladders.
 
-The rehydrated SPAN artifact contains a locked comparison test split.  This
-module is the narrow gate that validates that artifact and emits a separate
-train+validation selection bundle. Model processes receive only that bundle;
-they never open the historically named sealed comparison partition.
+The SPAN artifact contains a locked retrospective test split; the recovered
+STRUCT-2K source is materialized only after its historical test is excluded.
+This module is the narrow gate that emits a receipt-bound train+validation
+selection. Model processes receive only that selection and never open the
+historically named sealed partition.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -59,10 +61,69 @@ EXPECTED_ARTIFACT_ROLES = {
     "n1_validation_predictions",
     "validation_report",
 }
+TASK_SCOPE_CLASSES = {
+    "bibliography_binary_windows": ("BIB",),
+    "bibliography_toc_windows": ("BIB", "TOC"),
+}
+STRUCT2K_LOCK_PATH = Path(__file__).with_name("struct2k_handoff_lock.json")
 
 
 class LadderError(ValueError):
     """Raised when evidence or output state would invalidate the comparison."""
+
+
+def active_classes_from_config(config: Mapping[str, Any]) -> tuple[str, ...]:
+    raw = config.get("active_classes", ["BIB"])
+    if raw not in (["BIB"], ["BIB", "TOC"]):
+        raise LadderError(f"unsupported active_classes contract: {raw!r}")
+    return tuple(raw)
+
+
+def active_classes_for_documents(
+    documents: Sequence[GoldDocument], config: Mapping[str, Any]
+) -> tuple[str, ...]:
+    scopes = {document.task_scope for document in documents}
+    if len(scopes) != 1 or next(iter(scopes)) not in TASK_SCOPE_CLASSES:
+        raise LadderError(
+            f"unsupported or mixed task scopes: {sorted(map(str, scopes))!r}"
+        )
+    observed = TASK_SCOPE_CLASSES[next(iter(scopes))]
+    configured = active_classes_from_config(config)
+    if observed != configured:
+        raise LadderError(
+            f"task scope activates {observed!r}, but config activates {configured!r}"
+        )
+    if configured == ("BIB",) and any(
+        line.label == "TOC" for document in documents for line in document.lines
+    ):
+        raise LadderError("BIB-only evidence contains observed ToC labels")
+    return configured
+
+
+def target_name(active_classes: Sequence[str]) -> str:
+    return "+".join(active_classes)
+
+
+def mark_silver_safety_unavailable(
+    metrics: dict[str, Any], active_classes: Sequence[str]
+) -> None:
+    joint = tuple(active_classes) == ("BIB", "TOC")
+    for row in [metrics, *metrics.get("by_source", {}).values()]:
+        row["token"]["prose_contamination"] = None
+        row["token"]["true_main_text_retention"] = None
+        row["document"]["catastrophic_prose_deletions"] = None
+        row["document"]["maximum_contiguous_false_deletion_tokens"] = None
+        if not joint:
+            row["token"]["toc_recall"] = None
+            row["line"]["toc_recall"] = None
+            row["span"]["toc"] = {key: None for key in row["span"]["toc"]}
+    metrics["metric_availability"] = {
+        "silver_agreement_metrics": True,
+        "bib_metrics": True,
+        "toc_metrics": joint,
+        "toc_reason": None if joint else "SPAN supervision is BIB-only",
+        "independent_running_prose_safety_metrics": False,
+    }
 
 
 def configure_runtime(
@@ -112,14 +173,22 @@ def peak_rss_bytes() -> int:
 
 
 def select_shared_calibration(
-    rows: Sequence[Mapping[str, Any]], *, reference_action_precision: float
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    reference_action_precision: float,
+    active_classes: Sequence[str] = ("BIB",),
 ) -> dict[str, Any]:
     """Apply one auditable validation-silver operating-point rule to every arm.
 
-    The C0 precision is only a historical descriptive operating point; overlap
-    between its old STRUCT-2K fitting corpus and SPAN cannot be excluded.  It is
-    therefore a matching rule, never a held-out safety floor or gain estimate.
+    C0 precision is only a historical descriptive operating point. Its old
+    STRUCT-2K overlap with SPAN cannot be excluded, and joint validation is
+    known to be a subset of C0's historical training partition. It is a
+    matching rule, never a held-out safety floor or gain estimate.
     """
+    active = tuple(active_classes)
+    if active not in (("BIB",), ("BIB", "TOC")):
+        raise LadderError(f"unsupported calibration active classes: {active!r}")
+    recall_key = "bib_recall" if active == ("BIB",) else "action_recall"
     normalized: list[dict[str, Any]] = []
     for raw in rows:
         row = {
@@ -129,6 +198,8 @@ def select_shared_calibration(
             "bib_recall": float(raw["bib_recall"]),
             "predicted_action_tokens": int(raw["predicted_action_tokens"]),
         }
+        if active == ("BIB", "TOC"):
+            row["toc_recall"] = float(raw["toc_recall"])
         normalized.append(row)
     if not normalized:
         raise LadderError("calibration grid is empty")
@@ -140,31 +211,44 @@ def select_shared_calibration(
         for row in normalized
         if not any(
             other["action_precision"] >= row["action_precision"]
-            and other["bib_recall"] >= row["bib_recall"]
+            and other[recall_key] >= row[recall_key]
             and (
                 other["action_precision"] > row["action_precision"]
-                or other["bib_recall"] > row["bib_recall"]
+                or other[recall_key] > row[recall_key]
             )
             for other in normalized
         )
     ]
-    frontier.sort(key=lambda row: (row["action_precision"], row["bib_recall"], -row["deletion_bias"]))
+    frontier.sort(
+        key=lambda row: (
+            row["action_precision"],
+            row[recall_key],
+            -row["deletion_bias"],
+        )
+    )
     eligible = [
         row for row in frontier if row["action_precision"] >= reference_action_precision
     ]
     if not eligible:
-        raise LadderError("no calibration point matches the descriptive C0 action precision")
+        raise LadderError(
+            "no calibration point matches the descriptive C0 action precision"
+        )
     selected = max(
         eligible,
         key=lambda row: (
-            row["bib_recall"],
+            row[recall_key],
             row["action_precision"],
             -row["deletion_bias"],
         ),
     )
     return {
         "schema_version": "academic-structure-shared-calibration-v1",
-        "rule": "maximize_BIB_recall_on_PR_frontier_at_or_above_descriptive_C0_action_precision",
+        "rule": (
+            "maximize_BIB_recall_on_PR_frontier_at_or_above_descriptive_C0_action_precision"
+            if active == ("BIB",)
+            else "maximize_joint_action_recall_on_PR_frontier_at_or_above_descriptive_C0_action_precision"
+        ),
+        "active_classes": list(active),
         "reference": {
             "architecture_id": "c0-rust-lr-hysteresis",
             "action_precision": float(reference_action_precision),
@@ -226,7 +310,9 @@ def _atomic_jsonl(path: str | Path, rows: Iterable[Mapping[str, Any]]) -> None:
 
 
 def _require_new_outputs(*paths: str | Path) -> None:
-    existing = [str(path) for path in map(Path, paths) if path.exists() or path.is_symlink()]
+    existing = [
+        str(path) for path in map(Path, paths) if path.exists() or path.is_symlink()
+    ]
     if existing:
         raise FileExistsError(f"refusing immutable output overwrite: {existing}")
 
@@ -261,11 +347,17 @@ def _validate_rehydration_receipt(
     if receipt.get("split_manifest_sha256") != sha256_file(split_manifest_path):
         raise LadderError("source split manifest differs from its rehydration receipt")
     if receipt.get("config_sha256") != sha256_file(config_path):
-        raise LadderError("source silver was hydrated under a different sequence config")
+        raise LadderError(
+            "source silver was hydrated under a different sequence config"
+        )
     if receipt.get("sequence_fit_eligible") is not True:
-        raise LadderError("rehydration receipt does not authorize silver research fitting")
+        raise LadderError(
+            "rehydration receipt does not authorize silver research fitting"
+        )
     if receipt.get("sequence_evidence_scope") != "LLM_silver_comparison_only":
-        raise LadderError("rehydration receipt has an unexpected research evidence scope")
+        raise LadderError(
+            "rehydration receipt has an unexpected research evidence scope"
+        )
     if receipt.get("production_eligible") is not False:
         raise LadderError("LLM silver must remain ineligible for production")
     snapshot = receipt.get("source_unit_snapshot")
@@ -276,7 +368,9 @@ def _validate_rehydration_receipt(
         or snapshot.get("research_evidence_scope") != "LLM_silver_comparison_only"
         or snapshot.get("production_eligible") is not False
     ):
-        raise LadderError("source-unit snapshot does not authorize comparison-only fitting")
+        raise LadderError(
+            "source-unit snapshot does not authorize comparison-only fitting"
+        )
     digest = snapshot.get("receipt_sha256")
     if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
         raise LadderError("source-unit snapshot receipt SHA-256 is missing")
@@ -284,22 +378,93 @@ def _validate_rehydration_receipt(
     if not isinstance(receipt_path, str) or not receipt_path:
         raise LadderError("source-unit snapshot receipt path is missing")
     unit_receipt = Path(receipt_path)
+    if not unit_receipt.is_absolute():
+        unit_receipt = Path(silver_path).resolve().parent / unit_receipt
     if unit_receipt.is_symlink() or not unit_receipt.is_file():
         raise LadderError("source-unit snapshot receipt is not a regular file")
     if unit_receipt.resolve().parent != Path(silver_path).resolve().parent:
-        raise LadderError("source-unit snapshot receipt is outside the immutable hydration root")
+        raise LadderError(
+            "source-unit snapshot receipt is outside the immutable hydration root"
+        )
     if sha256_file(unit_receipt) != digest:
-        raise LadderError("source-unit snapshot receipt bytes differ from the silver receipt")
+        raise LadderError(
+            "source-unit snapshot receipt bytes differ from the silver receipt"
+        )
     unit_value = _load_json(unit_receipt)
-    if (
-        unit_value.get("schema_version") != "span-unit-rehydration-receipt-v1"
-        or unit_value.get("operation") != "text_payload_rehydration_only"
-        or unit_value.get("labels_read_created_or_inferred") is not False
-        or unit_value.get("research_fit_eligible") is not True
-        or unit_value.get("research_evidence_scope") != "LLM_silver_comparison_only"
-        or unit_value.get("promotion_eligible") is not False
-    ):
+    if unit_value.get("schema_version") == "span-unit-rehydration-receipt-v1":
+        valid_snapshot = (
+            unit_value.get("operation") == "text_payload_rehydration_only"
+            and unit_value.get("labels_read_created_or_inferred") is False
+            and unit_value.get("research_fit_eligible") is True
+            and unit_value.get("research_evidence_scope")
+            == "LLM_silver_comparison_only"
+            and unit_value.get("promotion_eligible") is False
+        )
+    elif unit_value.get("schema_version") == "struct2k-handoff-audit-receipt-v1":
+        lock_path = STRUCT2K_LOCK_PATH
+        lock = _load_json(lock_path)
+        handoff = unit_value.get("handoff", {})
+        historical = unit_value.get("historical_partition", {})
+        valid_snapshot = (
+            unit_value.get("status")
+            == "passed_inventory_and_legacy_replay_with_locked_coordinate_corrections"
+            and unit_value.get("operation")
+            == "audit_and_transcode_existing_joint_LLM_silver"
+            and unit_value.get("annotation_status") == "LLM_silver"
+            and unit_value.get("human_gold") is False
+            and unit_value.get("new_semantic_annotations_created") is False
+            and unit_value.get("coordinate_corrections_applied")
+            == len(lock.get("coordinate_corrections", []))
+            and unit_value.get("coordinate_correction_lock_sha256")
+            == sha256_file(lock_path)
+            and handoff.get("inventory_sha256") == lock["inventory"]["sha256"]
+            and handoff.get("legacy_silver_sha256")
+            == lock["inventory"]["required_files"]["STRUCT_2K_gold.jsonl"]
+            and handoff.get("source_commit") == lock["source"]["commit"]
+            and historical.get("eligible_for_new_split") == "train_only"
+            and historical.get("test_documents_available_to_model_processes") == 0
+            and unit_value.get("research_fit_eligible") is True
+            and unit_value.get("research_evidence_scope")
+            == "LLM_silver_comparison_only"
+            and unit_value.get("production_eligible") is False
+        )
+    else:
+        valid_snapshot = False
+    if not valid_snapshot:
         raise LadderError("source-unit snapshot receipt semantics are invalid")
+
+
+def _source_artifact_paths(
+    receipt_path: str | Path, receipt: Mapping[str, Any]
+) -> tuple[Path, Path]:
+    root = Path(receipt_path).resolve().parent
+    artifacts = receipt.get("materialized_artifacts")
+    if artifacts is None:
+        silver_name = "span.LLM_silver.jsonl"
+        split_name = "span.LLM_silver.split.json"
+    else:
+        if not isinstance(artifacts, Mapping):
+            raise LadderError("source receipt materialized_artifacts is malformed")
+        silver_name = artifacts.get("silver_filename")
+        split_name = artifacts.get("split_manifest_filename")
+    paths: list[Path] = []
+    for name in (silver_name, split_name):
+        if (
+            not isinstance(name, str)
+            or not name
+            or Path(name).name != name
+            or Path(name).is_absolute()
+        ):
+            raise LadderError("source receipt contains an unsafe artifact filename")
+        path = root / name
+        if path.is_symlink() or not path.is_file():
+            raise LadderError(f"source artifact is not a regular file: {name}")
+        paths.append(path)
+    if receipt.get("silver_sha256") != sha256_file(paths[0]):
+        raise LadderError("resolved source silver differs from its receipt")
+    if receipt.get("split_manifest_sha256") != sha256_file(paths[1]):
+        raise LadderError("resolved source split differs from its receipt")
+    return paths[0], paths[1]
 
 
 def prepare_selection(
@@ -334,19 +499,30 @@ def prepare_selection(
     documents = read_gold(silver_path)
     recomputed_manifest = build_split_manifest(documents, config["split"])
     if source_manifest != recomputed_manifest:
-        raise LadderError("source split manifest is not the exact config-derived manifest")
+        raise LadderError(
+            "source split manifest is not the exact config-derived manifest"
+        )
     if Path(split_manifest_path).read_bytes() != _json_bytes(recomputed_manifest):
-        raise LadderError("source split manifest bytes are not canonical config-derived JSON")
+        raise LadderError(
+            "source split manifest bytes are not canonical config-derived JSON"
+        )
     contract = validate_silver(
         documents, config["silver_contract"], split_manifest=source_manifest
     )
     if contract["inventory_sha256"] != source_receipt.get("inventory_sha256"):
-        raise LadderError("source receipt contract inventory differs from current silver")
-    scopes = {document.task_scope for document in documents}
-    if scopes != {"bibliography_binary_windows"}:
-        raise LadderError("the BIB ladder requires bibliography-only SPAN supervision")
-    if any(line.label == "TOC" for document in documents for line in document.lines):
-        raise LadderError("the BIB ladder refuses silver containing observed ToC labels")
+        raise LadderError(
+            "source receipt contract inventory differs from current silver"
+        )
+    active_classes = active_classes_for_documents(documents, config)
+    snapshot_contract = source_receipt.get("source_unit_snapshot", {})
+    if (
+        active_classes == ("BIB", "TOC")
+        and snapshot_contract.get("snapshot_schema_version")
+        != "struct2k-handoff-audit-receipt-v1"
+    ):
+        raise LadderError(
+            "joint evidence must originate from the locked STRUCT-2K handoff audit"
+        )
 
     source_rows: list[dict[str, Any]] = []
     with Path(silver_path).open(encoding="utf-8") as handle:
@@ -361,11 +537,42 @@ def prepare_selection(
     if len(rows_by_id) != len(documents):
         raise LadderError("source JSONL document identity inventory is not unique")
 
-    selected_documents = [doc for doc in documents if doc.split in ("train", "validation")]
+    selected_documents = [
+        doc for doc in documents if doc.split in ("train", "validation")
+    ]
     validation_documents = [doc for doc in documents if doc.split == "validation"]
     test_documents = [doc for doc in documents if doc.split == "test"]
-    if not selected_documents or not validation_documents or not test_documents:
-        raise LadderError("source evidence requires non-empty train, validation, and test splits")
+    exclusion = source_receipt.get("historical_partition_exclusion")
+    if active_classes == ("BIB",):
+        if not selected_documents or not validation_documents or not test_documents:
+            raise LadderError(
+                "SPAN evidence requires non-empty train, validation, and test splits"
+            )
+        excluded_count = len(test_documents)
+    else:
+        expected_historical_test = int(
+            config.get("historical_partition_usage", {}).get(
+                "historical_test_document_count", -1
+            )
+        )
+        if not selected_documents or not validation_documents or test_documents:
+            raise LadderError(
+                "joint materialization must contain train/validation only after upstream exclusion"
+            )
+        if (
+            not isinstance(exclusion, Mapping)
+            or exclusion.get("status") != "passed_before_materialization"
+            or expected_historical_test <= 0
+            or exclusion.get("historical_test_documents_excluded")
+            != expected_historical_test
+            or exclusion.get("historical_test_rows_emitted") != 0
+            or exclusion.get("historical_test_predictions_permitted") is not False
+            or exclusion.get("eligible_historical_train_documents") != len(documents)
+        ):
+            raise LadderError(
+                "joint source receipt does not prove the configured historical-test exclusion"
+            )
+        excluded_count = expected_historical_test
     selection_manifest = _manifest_for_subset(selected_documents, source_manifest)
     selected_rows = [rows_by_id[doc.document_id] for doc in selected_documents]
     validation_rows = [rows_by_id[doc.document_id] for doc in validation_documents]
@@ -381,14 +588,15 @@ def prepare_selection(
     receipt = {
         "schema_version": SELECTION_SCHEMA,
         "status": "passed_historical_partition_physically_excluded",
-        "target": "BIB",
+        "target": target_name(active_classes),
+        "active_classes": list(active_classes),
         "evidence_tier": "LLM_silver",
         "production_eligible": False,
         "source": {
             "silver_sha256": sha256_file(silver_path),
             "split_manifest_sha256": sha256_file(split_manifest_path),
             "rehydration_receipt_sha256": sha256_file(rehydration_receipt_path),
-            "source_unit_snapshot_receipt_sha256": source_receipt["source_unit_snapshot"][
+            "source_snapshot_receipt_sha256": source_receipt["source_unit_snapshot"][
                 "receipt_sha256"
             ],
             "snapshot_equivalence_status": source_receipt["source_unit_snapshot"].get(
@@ -406,7 +614,8 @@ def prepare_selection(
             "source_documents": len(documents),
             "train_documents": sum(doc.split == "train" for doc in selected_documents),
             "validation_documents": len(validation_documents),
-            "historically_named_test_documents_excluded": len(test_documents),
+            "historically_named_test_documents_excluded": excluded_count,
+            "source_materialized_documents": len(documents),
         },
         "selection_contract": selection_contract,
         "architecture_access_contract": {
@@ -441,9 +650,17 @@ def verify_selection_bundle(
     if receipt.get("schema_version") != SELECTION_SCHEMA:
         raise LadderError("selection receipt has an unsupported schema")
     if receipt.get("status") != "passed_historical_partition_physically_excluded":
-        raise LadderError("selection receipt did not pass historical-partition exclusion")
-    if receipt.get("target") != "BIB" or receipt.get("production_eligible") is not False:
-        raise LadderError("selection receipt is not BIB-only comparison evidence")
+        raise LadderError(
+            "selection receipt did not pass historical-partition exclusion"
+        )
+    config = _load_json(config_path)
+    expected_active = active_classes_from_config(config)
+    if (
+        receipt.get("target") != target_name(expected_active)
+        or receipt.get("active_classes") != list(expected_active)
+        or receipt.get("production_eligible") is not False
+    ):
+        raise LadderError("selection receipt task differs from the active config")
     expected = {
         "selection_silver_sha256": sha256_file(selection_silver_path),
         "selection_manifest_sha256": sha256_file(selection_manifest_path),
@@ -461,28 +678,50 @@ def verify_selection_bundle(
         or access.get("partition_semantics")
         != "sealed_retrospective_comparison; not an unbiased never-seen test"
     ):
-        raise LadderError("selection receipt does not prove historical-partition exclusion")
+        raise LadderError(
+            "selection receipt does not prove historical-partition exclusion"
+        )
 
-    config = _load_json(config_path)
     manifest = _load_json(selection_manifest_path)
     documents = read_gold(selection_silver_path)
+    active_classes_for_documents(documents, config)
     recomputed_contract = validate_silver(
         documents, config["silver_contract"], split_manifest=manifest
     )
     if receipt.get("selection_contract") != recomputed_contract:
         raise LadderError("selection receipt contract differs from current files")
     if {doc.split for doc in documents} != {"train", "validation"}:
-        raise LadderError("selection bundle must contain exactly train and validation splits")
+        raise LadderError(
+            "selection bundle must contain exactly train and validation splits"
+        )
     validation = read_gold(validation_silver_path)
     if any(doc.split != "validation" for doc in validation):
         raise LadderError("validation view contains a non-validation document")
-    expected_validation = [doc.document_id for doc in documents if doc.split == "validation"]
+    expected_validation = [
+        doc.document_id for doc in documents if doc.split == "validation"
+    ]
     if [doc.document_id for doc in validation] != expected_validation:
         raise LadderError("validation view is not the exact ordered selection subset")
-    counts = receipt.get("counts", {})
+    counts = receipt.get("counts")
+    if not isinstance(counts, Mapping):
+        raise LadderError("selection receipt document counts are malformed")
+    excluded = counts.get("historically_named_test_documents_excluded")
+    expected_source_documents = len(documents)
+    if expected_active == ("BIB",):
+        if not isinstance(excluded, int) or isinstance(excluded, bool) or excluded <= 0:
+            raise LadderError("BIB selection receipt lacks its excluded-test count")
+        expected_source_documents += excluded
+    else:
+        expected_excluded = config.get("historical_partition_usage", {}).get(
+            "historical_test_document_count"
+        )
+        if excluded != expected_excluded:
+            raise LadderError("joint selection receipt excluded-test count drift")
     if (
         counts.get("train_documents") != sum(doc.split == "train" for doc in documents)
         or counts.get("validation_documents") != len(validation)
+        or counts.get("source_documents") != expected_source_documents
+        or counts.get("source_materialized_documents") != expected_source_documents
     ):
         raise LadderError("selection receipt document counts differ from current files")
     return documents, validation, receipt
@@ -502,26 +741,10 @@ def _prediction_model_ids(path: str | Path) -> set[str]:
     return model_ids
 
 
-def _mark_silver_safety_unavailable(metrics: dict[str, Any]) -> None:
-    for row in [metrics, *metrics.get("by_source", {}).values()]:
-        row["token"]["prose_contamination"] = None
-        row["token"]["true_main_text_retention"] = None
-        row["token"]["toc_recall"] = None
-        row["line"]["toc_recall"] = None
-        row["span"]["toc"] = {
-            "exact_precision": None,
-            "exact_recall": None,
-            "iou50_precision": None,
-            "iou50_recall": None,
-        }
-        row["document"]["catastrophic_prose_deletions"] = None
-        row["document"]["maximum_contiguous_false_deletion_tokens"] = None
-    metrics["metric_availability"] = {
-        "silver_agreement_metrics": True,
-        "toc_metrics": False,
-        "toc_reason": "SPAN supervision is BIB-only",
-        "independent_running_prose_safety_metrics": False,
-    }
+def _mark_silver_safety_unavailable(
+    metrics: dict[str, Any], active_classes: Sequence[str] = ("BIB",)
+) -> None:
+    mark_silver_safety_unavailable(metrics, active_classes)
 
 
 def evaluate_validation(
@@ -537,15 +760,19 @@ def evaluate_validation(
     output_path: str | Path,
 ) -> dict[str, Any]:
     _require_new_outputs(output_path)
-    _documents, validation, selection_receipt = verify_selection_bundle(
+    config = _load_json(config_path)
+    documents, validation, selection_receipt = verify_selection_bundle(
         selection_silver_path=selection_silver_path,
         selection_manifest_path=selection_manifest_path,
         validation_silver_path=validation_silver_path,
         selection_receipt_path=selection_receipt_path,
         config_path=config_path,
     )
+    active_classes = active_classes_for_documents(documents, config)
     if tuple(sorted(candidate_paths)) != tuple(sorted(EXPECTED_CANDIDATES)):
-        raise LadderError(f"validation comparison requires exactly {EXPECTED_CANDIDATES!r}")
+        raise LadderError(
+            f"validation comparison requires exactly {EXPECTED_CANDIDATES!r}"
+        )
     expected_arm_ids = {"c0-rust-lr-hysteresis", *EXPECTED_CANDIDATES}
     if set(arm_receipt_paths) != expected_arm_ids:
         raise LadderError("validation comparison requires one receipt for every arm")
@@ -555,16 +782,25 @@ def evaluate_validation(
         or c0_receipt.get("status") != "passed_descriptive_reference_prediction"
         or c0_receipt.get("comparison_role") != "historical_reference_only"
         or c0_receipt.get("production_eligible") is not False
+        or c0_receipt.get("target") != target_name(active_classes)
+        or c0_receipt.get("active_classes") != list(active_classes)
         or c0_receipt.get("outputs", {}).get("validation_predictions_sha256")
         != sha256_file(baseline_path)
     ):
         raise LadderError("C0 descriptive reference receipt is invalid")
+    expected_c0_model_id = (
+        "c0-rust-lr-hysteresis-python-bib-head"
+        if active_classes == ("BIB",)
+        else "c0-rust-lr-hysteresis-python-joint-heads"
+    )
     baseline_ids = _prediction_model_ids(baseline_path)
-    if baseline_ids != {"c0-rust-lr-hysteresis-python-bib-head"}:
-        raise LadderError(f"unexpected C0 prediction model IDs: {sorted(baseline_ids)!r}")
+    if baseline_ids != {expected_c0_model_id}:
+        raise LadderError(
+            f"unexpected C0 prediction model IDs: {sorted(baseline_ids)!r}"
+        )
     baseline_predictions = read_predictions(baseline_path, validation)
     baseline_metrics, _ = evaluate(validation, baseline_predictions, split="validation")
-    _mark_silver_safety_unavailable(baseline_metrics)
+    _mark_silver_safety_unavailable(baseline_metrics, active_classes)
 
     candidates: dict[str, Any] = {}
     prediction_receipts: dict[str, str] = {
@@ -581,6 +817,8 @@ def evaluate_validation(
         if (
             arm_receipt.get("schema_version") != expected_schema
             or arm_receipt.get("architecture_id") != architecture_id
+            or arm_receipt.get("target") != target_name(active_classes)
+            or arm_receipt.get("active_classes") != list(active_classes)
             or arm_receipt.get("production_eligible") is not False
             or arm_receipt.get("outputs", {}).get("validation_predictions_sha256")
             != sha256_file(path)
@@ -590,7 +828,7 @@ def evaluate_validation(
             raise LadderError(f"{architecture_id}: prediction model_id does not match")
         predictions = read_predictions(path, validation)
         metrics, _ = evaluate(validation, predictions, split="validation")
-        _mark_silver_safety_unavailable(metrics)
+        _mark_silver_safety_unavailable(metrics, active_classes)
         candidates[architecture_id] = {
             "metrics": metrics,
             "calibration": arm_receipt["calibration"],
@@ -604,6 +842,8 @@ def evaluate_validation(
         "schema_version": VALIDATION_REPORT_SCHEMA,
         "status": "sealed_retrospective_comparison_complete",
         "evidence_tier": "LLM_silver",
+        "target": target_name(active_classes),
+        "active_classes": list(active_classes),
         "production_eligible": False,
         "selection_receipt_sha256": sha256_file(selection_receipt_path),
         "source_rehydration_receipt_sha256": selection_receipt["source"][
@@ -655,8 +895,8 @@ def _parse_artifacts(values: Sequence[str]) -> dict[str, Path]:
     if set(artifacts) != EXPECTED_ARTIFACT_ROLES:
         raise LadderError(
             "final artifact roles differ: "
-            f"missing={sorted(EXPECTED_ARTIFACT_ROLES-set(artifacts))}, "
-            f"extra={sorted(set(artifacts)-EXPECTED_ARTIFACT_ROLES)}"
+            f"missing={sorted(EXPECTED_ARTIFACT_ROLES - set(artifacts))}, "
+            f"extra={sorted(set(artifacts) - EXPECTED_ARTIFACT_ROLES)}"
         )
     return artifacts
 
@@ -690,7 +930,9 @@ def finalize_run(
             raise LadderError(f"{role}: artifact is outside the run root") from error
         resolved[role] = path
     if set(resolved) != EXPECTED_ARTIFACT_ROLES:
-        raise LadderError("finalization requires the exact BIB ladder artifact role set")
+        raise LadderError(
+            "finalization requires the exact sequence-ladder artifact role set"
+        )
     discovered: set[Path] = set()
     for path in root.rglob("*"):
         if path.is_symlink():
@@ -700,7 +942,7 @@ def finalize_run(
     if discovered != set(resolved.values()):
         raise LadderError(
             "run root contains unreceipted files: "
-            f"{sorted(str(path.relative_to(root)) for path in discovered-set(resolved.values()))}"
+            f"{sorted(str(path.relative_to(root)) for path in discovered - set(resolved.values()))}"
         )
 
     config = _load_json(config_path)
@@ -714,24 +956,30 @@ def finalize_run(
         selection_receipt_path=resolved["selection_receipt"],
         config_path=config_path,
     )
+    active_classes = active_classes_for_documents(documents, config)
     if any(document.split == "test" for document in documents):
         raise LadderError("final selection verification loaded a historical test row")
     source_receipt_file = Path(source_rehydration_receipt_path)
     if source_receipt_file.is_symlink() or not source_receipt_file.is_file():
-        raise LadderError("source rehydration receipt must be a regular non-symlink file")
+        raise LadderError(
+            "source rehydration receipt must be a regular non-symlink file"
+        )
     source_receipt = _load_json(source_receipt_file)
+    source_silver_path, source_split_path = _source_artifact_paths(
+        source_receipt_file, source_receipt
+    )
     _validate_rehydration_receipt(
         source_receipt,
-        silver_path=source_receipt_file.parent / "span.LLM_silver.jsonl",
-        split_manifest_path=source_receipt_file.parent / "span.LLM_silver.split.json",
+        silver_path=source_silver_path,
+        split_manifest_path=source_split_path,
         config_path=config_path,
     )
-    source_silver_path = source_receipt_file.parent / "span.LLM_silver.jsonl"
-    source_split_path = source_receipt_file.parent / "span.LLM_silver.split.json"
     source_documents = read_gold(source_silver_path)
     source_manifest = _load_json(source_split_path)
     if source_manifest != build_split_manifest(source_documents, config["split"]):
-        raise LadderError("source split no longer recomputes from current identities/config")
+        raise LadderError(
+            "source split no longer recomputes from current identities/config"
+        )
     source_rows = []
     with source_silver_path.open(encoding="utf-8") as handle:
         for line in handle:
@@ -747,15 +995,17 @@ def finalize_run(
         document for document in source_documents if document.split == "validation"
     ]
     expected_selection_payload = b"".join(
-        (json.dumps(rows_by_id[doc.document_id], ensure_ascii=False, sort_keys=True) + "\n").encode(
-            "utf-8"
-        )
+        (
+            json.dumps(rows_by_id[doc.document_id], ensure_ascii=False, sort_keys=True)
+            + "\n"
+        ).encode("utf-8")
         for doc in source_selected
     )
     expected_validation_payload = b"".join(
-        (json.dumps(rows_by_id[doc.document_id], ensure_ascii=False, sort_keys=True) + "\n").encode(
-            "utf-8"
-        )
+        (
+            json.dumps(rows_by_id[doc.document_id], ensure_ascii=False, sort_keys=True)
+            + "\n"
+        ).encode("utf-8")
         for doc in source_validation
     )
     if (
@@ -766,7 +1016,9 @@ def finalize_run(
         or resolved["selection_manifest"].read_bytes()
         != _json_bytes(_manifest_for_subset(source_selected, source_manifest))
     ):
-        raise LadderError("selection bundle does not exactly derive from the current source silver")
+        raise LadderError(
+            "selection bundle does not exactly derive from the current source silver"
+        )
     if (
         sha256_file(source_rehydration_receipt_path)
         != selection_receipt["source"]["rehydration_receipt_sha256"]
@@ -777,7 +1029,9 @@ def finalize_run(
         != selection_receipt["source"]["split_manifest_sha256"]
         or source_receipt.get("production_eligible") is not False
     ):
-        raise LadderError("current source rehydration receipt differs from selection provenance")
+        raise LadderError(
+            "current source rehydration receipt differs from selection provenance"
+        )
     validation_report = _load_json(resolved["validation_report"])
     c0_receipt = _load_json(resolved["c0_receipt"])
     c1_receipt = _load_json(resolved["c1_receipt"])
@@ -818,7 +1072,9 @@ def finalize_run(
         ):
             expected = seed if key == "effective_seed" else current_runtime.get(key)
             if runtime.get(key) != expected:
-                raise LadderError(f"arm runtime {key} differs from finalization runtime")
+                raise LadderError(
+                    f"arm runtime {key} differs from finalization runtime"
+                )
         if receipt.get("effective_seed") != seed:
             raise LadderError("arm effective seed differs from the config")
         measurements = (runtime.get("wall_seconds"), runtime.get("peak_rss_bytes"))
@@ -837,6 +1093,8 @@ def finalize_run(
         or c0_receipt.get("status") != "passed_descriptive_reference_prediction"
         or c0_receipt.get("comparison_role") != "historical_reference_only"
         or c0_receipt.get("production_eligible") is not False
+        or c0_receipt.get("target") != target_name(active_classes)
+        or c0_receipt.get("active_classes") != list(active_classes)
         or c0_receipt.get("inputs")
         != {
             **expected_common_inputs,
@@ -856,28 +1114,41 @@ def finalize_run(
     bib, toc, decoder = map(load_baseline_json, (bib_path, toc_path, decoder_path))
     c0_recomputed = {
         document.document_id: predict_document(
-            document, bib, toc, decoder, active_classes=("BIB",)
+            document, bib, toc, decoder, active_classes=active_classes
         )[0]
         for document in validation
     }
-    if read_predictions(resolved["c0_validation_predictions"], validation) != c0_recomputed:
-        raise LadderError("C0 predictions do not reproduce from tracked reference artifacts")
+    if (
+        read_predictions(resolved["c0_validation_predictions"], validation)
+        != c0_recomputed
+    ):
+        raise LadderError(
+            "C0 predictions do not reproduce from tracked reference artifacts"
+        )
     c0_metrics, _ = evaluate(validation, c0_recomputed, split="validation")
     c0_reference_precision = float(c0_metrics["token"]["action_precision"])
 
     def validate_calibration(receipt: Mapping[str, Any]) -> None:
         calibration = receipt.get("calibration", {})
+        expected_rule = (
+            "maximize_BIB_recall_on_PR_frontier_at_or_above_descriptive_C0_action_precision"
+            if active_classes == ("BIB",)
+            else "maximize_joint_action_recall_on_PR_frontier_at_or_above_descriptive_C0_action_precision"
+        )
         if (
-            calibration.get("schema_version") != "academic-structure-shared-calibration-v1"
-            or calibration.get("rule")
-            != "maximize_BIB_recall_on_PR_frontier_at_or_above_descriptive_C0_action_precision"
+            calibration.get("schema_version")
+            != "academic-structure-shared-calibration-v1"
+            or calibration.get("rule") != expected_rule
+            or calibration.get("active_classes") != list(active_classes)
             or calibration.get("reference", {}).get("action_precision")
             != c0_reference_precision
             or [row.get("deletion_bias") for row in calibration.get("grid", [])]
             != [float(value) for value in config["calibration"]["deletion_bias_grid"]]
             or calibration.get("selected") not in calibration.get("pareto_frontier", [])
         ):
-            raise LadderError("arm calibration grid/frontier differs from the shared rule")
+            raise LadderError(
+                "arm calibration grid/frontier differs from the shared rule"
+            )
 
     from .feature_crf import (
         LinearChainCRF,
@@ -902,11 +1173,14 @@ def finalize_run(
         ),
     ):
         if (
-            receipt.get("schema_version") != "academic-structure-feature-crf-training-v2"
+            receipt.get("schema_version")
+            != "academic-structure-feature-crf-training-v2"
             or receipt.get("status")
             != "passed_cpu_fit_checkpoint_reload_and_validation_prediction"
             or receipt.get("architecture_id") != architecture_id
             or receipt.get("production_eligible") is not False
+            or receipt.get("target") != target_name(active_classes)
+            or receipt.get("active_classes") != list(active_classes)
             or receipt.get("effective_seed") != int(config["execution"]["seed"])
             or receipt.get("inputs")
             != {
@@ -920,7 +1194,9 @@ def finalize_run(
             or receipt.get("outputs", {}).get("validation_predictions_sha256")
             != sha256_file(resolved[prediction_role])
         ):
-            raise LadderError(f"{architecture_id}: per-arm receipt fails final validation")
+            raise LadderError(
+                f"{architecture_id}: per-arm receipt fails final validation"
+            )
         validate_runtime(receipt, seed=int(config["execution"]["seed"]))
         validate_calibration(receipt)
         model, metadata = LinearChainCRF.load(resolved[model_role])
@@ -942,7 +1218,7 @@ def finalize_run(
             or metadata.get("config_sha256") != config_sha
             or metadata.get("reference_predictions_sha256")
             != sha256_file(resolved["c0_validation_predictions"])
-            or metadata.get("active_classes") != ["BIB"]
+            or metadata.get("active_classes") != list(active_classes)
             or metadata.get("test_used_for_training_or_calibration") is not False
             or metadata.get("production_eligible") is not False
             or model.n_features != encoder.n_features
@@ -950,15 +1226,20 @@ def finalize_run(
             or metadata.get("deletion_bias")
             != receipt.get("calibration", {}).get("selected", {}).get("deletion_bias")
         ):
-            raise LadderError(f"{architecture_id}: model metadata fails the receipt contract")
+            raise LadderError(
+                f"{architecture_id}: model metadata fails the receipt contract"
+            )
         recomputed_calibration = calibrate_deletion_bias(
             make_examples(validation, encoder),
             model,
             config["calibration"]["deletion_bias_grid"],
             reference_action_precision=c0_reference_precision,
+            active_classes=active_classes,
         )
         if recomputed_calibration != receipt.get("calibration"):
-            raise LadderError(f"{architecture_id}: calibration does not reproduce from model")
+            raise LadderError(
+                f"{architecture_id}: calibration does not reproduce from model"
+            )
         recomputed = predict_documents(
             validation,
             encoder,
@@ -966,7 +1247,9 @@ def finalize_run(
             deletion_bias=float(metadata["deletion_bias"]),
         )
         if read_predictions(resolved[prediction_role], validation) != recomputed:
-            raise LadderError(f"{architecture_id}: predictions do not reproduce from model")
+            raise LadderError(
+                f"{architecture_id}: predictions do not reproduce from model"
+            )
 
     from .char_tcn_crf import count_neural_sequences, validate_n1_profile_receipt
 
@@ -999,8 +1282,7 @@ def finalize_run(
         n1_receipt.get("schema_version") != "academic-structure-n1-training-v2"
         or n1_receipt.get("status")
         != "passed_cpu_fit_checkpoint_reload_and_validation_prediction"
-        or
-        n1_receipt.get("architecture_id") != "n1-bytecnn-tcn-masked-crf"
+        or n1_receipt.get("architecture_id") != "n1-bytecnn-tcn-masked-crf"
         or n1_receipt.get("inputs")
         != {
             **expected_common_inputs,
@@ -1013,9 +1295,13 @@ def finalize_run(
         != sha256_file(resolved["n1_model"])
         or n1_receipt.get("outputs", {}).get("validation_predictions_sha256")
         != sha256_file(resolved["n1_validation_predictions"])
-        or n1_receipt.get("historically_named_test_partition", {}).get("documents_loaded")
+        or n1_receipt.get("historically_named_test_partition", {}).get(
+            "documents_loaded"
+        )
         != 0
         or n1_receipt.get("production_eligible") is not False
+        or n1_receipt.get("target") != target_name(active_classes)
+        or n1_receipt.get("active_classes") != list(active_classes)
         or n1_receipt.get("execution", {}).get("code_commit") != code_commit
     ):
         raise LadderError("N1 training metadata fails the receipt contract")
@@ -1050,6 +1336,7 @@ def finalize_run(
         n1_model,
         config["calibration"]["deletion_bias_grid"],
         reference_action_precision=c0_reference_precision,
+        active_classes=active_classes,
     )
     if (
         n1_recomputed_calibration != n1_receipt.get("calibration")
@@ -1058,7 +1345,9 @@ def finalize_run(
         or n1_receipt.get("deletion_bias")
         != n1_recomputed_calibration["selected"]["deletion_bias"]
     ):
-        raise LadderError("N1 calibration does not reproduce from the strict checkpoint")
+        raise LadderError(
+            "N1 calibration does not reproduce from the strict checkpoint"
+        )
     n1_recomputed = _predictions_from_emissions(
         validation,
         n1_examples,
@@ -1066,7 +1355,10 @@ def finalize_run(
         n1_model,
         deletion_bias=float(n1_checkpoint["deletion_bias"]),
     )
-    if read_predictions(resolved["n1_validation_predictions"], validation) != n1_recomputed:
+    if (
+        read_predictions(resolved["n1_validation_predictions"], validation)
+        != n1_recomputed
+    ):
         raise LadderError("N1 predictions do not reproduce from the strict checkpoint")
 
     expected_predictions = {
@@ -1075,12 +1367,12 @@ def finalize_run(
         "c2-char-ngram-feature-bioes-crf": sha256_file(
             resolved["c2_validation_predictions"]
         ),
-        "n1-bytecnn-tcn-masked-crf": sha256_file(
-            resolved["n1_validation_predictions"]
-        ),
+        "n1-bytecnn-tcn-masked-crf": sha256_file(resolved["n1_validation_predictions"]),
     }
     if validation_report.get("prediction_sha256") != expected_predictions:
-        raise LadderError("validation report prediction bindings differ from run artifacts")
+        raise LadderError(
+            "validation report prediction bindings differ from run artifacts"
+        )
     expected_arm_receipts = {
         "c0-rust-lr-hysteresis": sha256_file(resolved["c0_receipt"]),
         "c1-feature-bioes-crf": sha256_file(resolved["c1_receipt"]),
@@ -1091,6 +1383,8 @@ def finalize_run(
         validation_report.get("schema_version") != VALIDATION_REPORT_SCHEMA
         or validation_report.get("status") != "sealed_retrospective_comparison_complete"
         or validation_report.get("production_eligible") is not False
+        or validation_report.get("target") != target_name(active_classes)
+        or validation_report.get("active_classes") != list(active_classes)
         or validation_report.get("config_sha256") != config_sha
         or validation_report.get("selection_receipt_sha256")
         != expected_selection_receipt_sha
@@ -1114,7 +1408,9 @@ def finalize_run(
             baseline_path=resolved["c0_validation_predictions"],
             candidate_paths={
                 "c1-feature-bioes-crf": resolved["c1_validation_predictions"],
-                "c2-char-ngram-feature-bioes-crf": resolved["c2_validation_predictions"],
+                "c2-char-ngram-feature-bioes-crf": resolved[
+                    "c2_validation_predictions"
+                ],
                 "n1-bytecnn-tcn-masked-crf": resolved["n1_validation_predictions"],
             },
             arm_receipt_paths={
@@ -1126,7 +1422,9 @@ def finalize_run(
             output_path=Path(directory) / "report.json",
         )
     if recomputed_report != validation_report:
-        raise LadderError("validation report content does not reproduce from bound predictions")
+        raise LadderError(
+            "validation report content does not reproduce from bound predictions"
+        )
 
     artifact_rows = []
     for role, path in sorted(resolved.items()):
@@ -1145,7 +1443,8 @@ def finalize_run(
             "c0-rust-lr-hysteresis",
             *EXPECTED_CANDIDATES,
         ],
-        "target": "BIB",
+        "target": target_name(active_classes),
+        "active_classes": list(active_classes),
         "evidence_tier": "LLM_silver",
         "production_eligible": False,
         "execution": {
@@ -1192,6 +1491,8 @@ def verify_published_run(run_root: str | Path) -> dict[str, Any]:
         or receipt.get("status") != "passed_cpu_sealed_retrospective_comparison"
         or receipt.get("production_eligible") is not False
         or receipt.get("architecture_ids") != expected_architectures
+        or receipt.get("active_classes") not in (["BIB"], ["BIB", "TOC"])
+        or receipt.get("target") != target_name(receipt.get("active_classes", []))
         or receipt.get("decision")
         != "LLM_silver_replay_only_no_automatic_selection_no_production_change"
         or receipt.get("human_annotation")
