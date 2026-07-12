@@ -114,6 +114,7 @@ run_uenv_python "$ACADEMIC_DIR/eval/rust_parity_struct.py" \
     --binary "$REFERENCE_BIN" \
     --corpus "$SILVER" \
     --source-receipt "$SOURCE_RECEIPT" \
+    --source-split-manifest "$SPLIT" \
     --partition validation \
     --expected-documents "$EXPECTED_VALIDATION_DOCUMENTS" \
     --expected-corpus-sha256 "$EXPECTED_CORPUS_SHA256" \
@@ -128,7 +129,7 @@ run_runtime_python "$STRUCTURAL_CLASSIFIER_SELECTION_SCRIPT" validate \
     --bib-model "$STRUCTURAL_BIB_MODEL" \
     --toc-model "$STRUCTURAL_TOC_MODEL" \
     --smoother "$STRUCTURAL_SMOOTHER" >/dev/null
-run_runtime_python -c 'import json,sys; p=json.load(open(sys.argv[1], encoding="utf-8")); assert p["status"] == "passed" and p["evaluation_partition"] == "validation" and p["historical_test_documents_loaded"] == 0 and p["source_receipt_sha256"] == __import__("hashlib").sha256(open(sys.argv[2], "rb").read()).hexdigest()' "$PARITY" "$SOURCE_RECEIPT"
+run_runtime_python -c 'import json,sys; h=__import__("hashlib"); p=json.load(open(sys.argv[1], encoding="utf-8")); sha=lambda x:h.sha256(open(x,"rb").read()).hexdigest(); assert p["status"] == "passed" and p["evaluation_partition"] == "validation" and p["historical_test_documents_loaded"] == 0 and p["input_snapshot_method"] == "private_job_local_o_nofollow_copy_rehash_before_publish" and p["inputs_rehashed_before_publication"] is True and p["source_receipt_sha256"] == sha(sys.argv[2]) and p["source_split_manifest_sha256"] == sha(sys.argv[3])' "$PARITY" "$SOURCE_RECEIPT" "$SPLIT"
 
 mkdir -p "$(dirname "$OUTPUT_ROOT")"
 mv --no-clobber -T "$PARTIAL" "$OUTPUT_ROOT"

@@ -140,7 +140,15 @@ This emits a classifier-selection receipt and a fresh Python↔Rust parity
 receipt over the imported validation partition. Runtime parity checks
 implementation equivalence; that validation partition is derived from
 historical train and is not independent quality evidence. Both receipts are
-required by the official Stage52/54 path.
+required by the official Stage52/54 path. The runner snapshots and hashes the
+corpus, source receipt/split, detector, both line models and smoother in a
+private job-local directory, rejects symlinks/non-finite values, and rehashes
+all original inputs before atomic receipt publication. Stage52 requires both
+heads to cover exactly the imported receipt's `split_counts.validation` and
+binds the exact selection/source/split/parity bundle into its raw run identity.
+Stage54 additionally applies the separately frozen cleaning-policy count, so
+the current historical 608-document policy cannot promote a derived-validation
+receipt and remains fail-closed.
 
 C1, C2 and N1 are Python research arms, not Rust deployment packages. The
 bridge rejects them. Selecting one requires a separate reviewed Rust

@@ -181,7 +181,8 @@ manual_preflight() {
         structural-stage50-detect|52-structural-detect)
             for required in \
                 STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT \
-                STRUCTURAL_SILVER_RECEIPT STRUCTURAL_SILVER_SPLIT; do
+                STRUCTURAL_SILVER_RECEIPT STRUCTURAL_SILVER_SPLIT \
+                STRUCTURAL_PARITY_RECEIPT; do
                 [[ -s "${!required:-}" ]] || {
                     echo "ERROR: structural detection requires the post-ladder $required." >&2
                     exit 7

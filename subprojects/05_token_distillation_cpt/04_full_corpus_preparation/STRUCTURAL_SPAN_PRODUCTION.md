@@ -92,10 +92,18 @@ The official Stage52 wrapper now requires a post-ladder classifier-selection
 receipt plus the imported joint source receipt/split. C0 is the only arm that
 can currently produce that receipt because its exact LR+hysteresis artifacts
 already have a Rust implementation. The C0 bridge also produces fresh parity
-on the imported validation partition; supplying it to Stage52 binds it into the
-raw run. Stage54 always requires that same passed parity receipt. The lower-level
-detector API can still omit parity for isolated audit development, but such a
-run is not an eligible production candidate.
+on the imported validation partition. Stage52 requires the exact selection,
+joint source receipt, joint split manifest and parity receipt inside `detect`;
+their hashes are part of the raw run identity and their file receipts are
+embedded in the raw manifest. Parity cannot be omitted. Raw validation derives
+the exact coverage from `source_receipt.split_counts.validation`, requires both
+heads to report that same positive document count, and requires finite
+`0 <= delta <= tolerance <= policy maximum` values.
+
+The parity runner rejects symlinks, snapshots the corpus, source receipt/split,
+binary, both models and smoother into a private job-local directory, executes
+only against those snapshots, then rehashes snapshots and original inputs
+before atomically publishing a no-clobber receipt.
 
 ## Manual 100-case audit
 
@@ -191,9 +199,14 @@ so Stage52/54 have no current joint receipt to consume and the tracked
 
 That tracked policy still carries the historical
 `required_parity_documents=608` and a null parity-corpus hash. Do not edit it
-mid-run. A future separately approved policy must be frozen before Stage10 with
-the exact imported corpus SHA-256 and actual derived-validation document count
-before Stage54 can accept the new parity receipt.
+mid-run. This does not prevent receipt-bound Stage52 audit prediction: Stage52
+uses the imported source's exact derived-validation count independently of the
+apply-policy count. Stage54 requires exact equality with the selection, source,
+split and parity receipts already embedded at detection time and then applies
+the tracked 608-document policy gate, so promotion intentionally remains
+blocked. A future separately approved policy must be frozen before Stage10
+with the exact imported corpus SHA-256 and actual derived-validation document
+count before Stage54 can accept the new parity receipt.
 
 Run the joint ladder before choosing a production candidate. C0 is already
 represented by the frozen Rust LR+hysteresis implementation, but requires a

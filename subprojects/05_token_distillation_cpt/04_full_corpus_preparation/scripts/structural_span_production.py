@@ -20,6 +20,7 @@ import collections
 import datetime as dt
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
@@ -39,7 +40,9 @@ from cleaning_runtime import (
 )
 from full_corpus_io import read_json_object, sha256_file, sha256_text
 from full_corpus_io import normalize_text
-from structural_classifier_selection import validate_selection as validate_classifier_selection
+from structural_classifier_selection import (
+    validate_selection as validate_classifier_selection,
+)
 
 
 RAW_SCHEMA = "phase04_structural_raw_predictions_v1"
@@ -59,6 +62,21 @@ ELIGIBLE_STRUCTURAL_POLICY = "apply_after_review"
 
 def _utc_now() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
+
+
+def _positive_integer(value: object, *, label: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        raise ValueError(f"{label} must be a positive integer")
+    return value
+
+
+def _finite_nonnegative(value: object, *, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{label} must be a finite non-negative number")
+    number = float(value)
+    if not math.isfinite(number) or number < 0.0:
+        raise ValueError(f"{label} must be a finite non-negative number")
+    return number
 
 
 def _json_line(value: Mapping[str, Any]) -> str:
@@ -86,6 +104,20 @@ def _iter_jsonl(path: Path) -> Iterator[dict[str, Any]]:
             if not isinstance(value, dict):
                 raise ValueError(f"{path}:{line_number}: expected an object")
             yield value
+
+
+def _require_exact_file_receipt(
+    embedded: object, supplied_path: Path, *, label: str
+) -> Path:
+    expected = file_receipt(supplied_path)
+    if not isinstance(embedded, Mapping) or dict(embedded) != expected:
+        raise ValueError(f"{label} differs from the receipt bound at detection time")
+    verified = verify_file_receipt(embedded)
+    if verified != supplied_path.resolve():
+        raise ValueError(
+            f"{label} path differs from the receipt bound at detection time"
+        )
+    return verified
 
 
 def _resolve_receipt(receipt: Mapping[str, Any], root: Path) -> Path:
@@ -244,14 +276,21 @@ def _validate_parity(
     smoother: Path,
     silver_receipt: Mapping[str, Any] | None = None,
     silver_receipt_sha256: str | None = None,
+    silver_split_manifest_sha256: str | None = None,
     cleaning_policy: Mapping[str, Any] | None = None,
+    enforce_policy_document_count: bool = True,
 ) -> dict[str, Any]:
     parity = _load(parity_path, schema="struct_rust_parity_receipt_v1")
     if (
         parity.get("status") != "passed"
         or parity.get("evidence_status") != "LLM_silver"
+        or parity.get("input_snapshot_method")
+        != "private_job_local_o_nofollow_copy_rehash_before_publish"
+        or parity.get("inputs_rehashed_before_publication") is not True
     ):
-        raise ValueError("Rust parity receipt is not passed LLM-silver evidence")
+        raise ValueError(
+            "Rust parity receipt is not passed snapshotted/rehashed LLM-silver evidence"
+        )
     if parity.get("binary_sha256") != sha256_file(detector_binary):
         raise ValueError("Rust parity receipt does not bind the detector binary")
     expected = {
@@ -261,12 +300,61 @@ def _validate_parity(
     }
     if parity.get("model_sha256") != expected:
         raise ValueError("Rust parity receipt does not bind the exact model artifacts")
-    if (silver_receipt is None) != (cleaning_policy is None) or (
-        silver_receipt is None
-    ) != (silver_receipt_sha256 is None):
+    strict_values = (
+        silver_receipt,
+        silver_receipt_sha256,
+        silver_split_manifest_sha256,
+        cleaning_policy,
+    )
+    if any(value is None for value in strict_values) and not all(
+        value is None for value in strict_values
+    ):
         raise ValueError(
-            "strict parity validation requires the silver receipt/hash and cleaning policy"
+            "strict parity validation requires the silver receipt/hash, split hash and policy"
         )
+    heldout_documents = _positive_integer(
+        parity.get("heldout_documents"), label="Rust parity heldout_documents"
+    )
+    tolerance = _finite_nonnegative(
+        parity.get("tolerance"), label="Rust parity tolerance"
+    )
+    heads = parity.get("heads")
+    positive_counts = parity.get("positive_document_counts")
+    if not isinstance(heads, Mapping) or not isinstance(positive_counts, Mapping):
+        raise ValueError("Rust parity head/positive coverage is malformed")
+    for head in ("bib", "toc"):
+        positive = _positive_integer(
+            positive_counts.get(head), label=f"Rust parity {head} positive documents"
+        )
+        if positive > heldout_documents:
+            raise ValueError(
+                f"Rust parity {head} positive coverage exceeds total coverage"
+            )
+        result = heads.get(head)
+        if not isinstance(result, Mapping):
+            raise ValueError(f"Rust parity result is missing for {head}")
+        if (
+            _positive_integer(
+                result.get("documents"), label=f"Rust parity {head} documents"
+            )
+            != heldout_documents
+        ):
+            raise ValueError(
+                f"Rust parity {head} document coverage differs from top level"
+            )
+        mismatches = result.get("span_mismatches")
+        if isinstance(mismatches, bool) or not isinstance(mismatches, int):
+            raise ValueError(
+                f"Rust parity {head} span mismatch count is not an integer"
+            )
+        if mismatches != 0:
+            raise ValueError(f"Rust parity has decoded span mismatches for {head}")
+        delta = _finite_nonnegative(
+            result.get("max_probability_difference"),
+            label=f"Rust parity {head} maximum probability difference",
+        )
+        if delta > tolerance:
+            raise ValueError(f"Rust probability delta exceeds its tolerance for {head}")
     if silver_receipt is not None and cleaning_policy is not None:
         silver_sha = silver_receipt.get("silver_sha256")
         if not valid_sha256(silver_sha) or parity.get("corpus_sha256") != silver_sha:
@@ -275,6 +363,8 @@ def _validate_parity(
             )
         if (
             parity.get("source_receipt_sha256") != silver_receipt_sha256
+            or parity.get("source_split_manifest_sha256")
+            != silver_split_manifest_sha256
             or parity.get("evaluation_partition") != "validation"
             or parity.get("partition_semantics")
             != "derived_historical_train_validation_runtime_parity_not_quality_holdout"
@@ -283,35 +373,52 @@ def _validate_parity(
             raise ValueError(
                 "Rust parity is not bound to the imported validation-only joint source"
             )
+        split_counts = silver_receipt.get("split_counts")
+        if not isinstance(split_counts, Mapping):
+            raise ValueError("joint source receipt lacks split_counts")
+        source_validation_documents = _positive_integer(
+            split_counts.get("validation"),
+            label="joint source split_counts.validation",
+        )
+        if heldout_documents != source_validation_documents:
+            raise ValueError(
+                "Rust parity coverage differs from joint source split_counts.validation"
+            )
         validation = cleaning_policy.get("validation")
         if not isinstance(validation, dict):
             raise ValueError(
                 "cleaning policy lacks structural parity validation settings"
             )
-        required_documents = int(validation.get("required_parity_documents", -1))
-        if int(parity.get("heldout_documents", -1)) != required_documents:
+        policy_corpus_sha = validation.get("structural_parity_corpus_sha256")
+        if policy_corpus_sha is not None and policy_corpus_sha != silver_sha:
             raise ValueError(
-                f"Rust parity covers {parity.get('heldout_documents')} documents; "
-                f"{required_documents} are required"
+                "cleaning policy pins a different structural parity corpus"
             )
-        if any(
-            int(parity.get("positive_document_counts", {}).get(head, 0)) <= 0
-            for head in ("bib", "toc")
-        ):
-            raise ValueError(
-                "Rust parity lacks positive held-out coverage for one or both heads"
-            )
-        maximum_delta = float(validation.get("maximum_probability_delta", -1.0))
+        maximum_delta = _finite_nonnegative(
+            validation.get("maximum_probability_delta"),
+            label="cleaning policy maximum_probability_delta",
+        )
+        if tolerance > maximum_delta:
+            raise ValueError("Rust parity tolerance is looser than cleaning policy")
         for head in ("bib", "toc"):
-            result = parity.get("heads", {}).get(head, {})
-            if int(result.get("span_mismatches", -1)) != 0:
-                raise ValueError(f"Rust parity has decoded span mismatches for {head}")
-            if float(result.get("max_probability_difference", 2.0)) > maximum_delta:
+            delta = _finite_nonnegative(
+                heads[head].get("max_probability_difference"),
+                label=f"Rust parity {head} maximum probability difference",
+            )
+            if delta > maximum_delta:
                 raise ValueError(
                     f"Rust probability parity exceeds the policy delta for {head}"
                 )
-        if float(parity.get("tolerance", 2.0)) > maximum_delta:
-            raise ValueError("Rust parity tolerance is looser than cleaning policy")
+        if enforce_policy_document_count:
+            required_documents = _positive_integer(
+                validation.get("required_parity_documents"),
+                label="cleaning policy required_parity_documents",
+            )
+            if heldout_documents != required_documents:
+                raise ValueError(
+                    f"Rust parity covers {heldout_documents} documents; "
+                    f"the apply policy requires {required_documents}"
+                )
     return parity
 
 
@@ -320,6 +427,9 @@ def _raw_identity(
     stage50_manifest_sha256: str,
     detector_binary_sha256: str,
     detector_build_receipt_sha256: str,
+    classifier_selection_receipt_sha256: str,
+    joint_source_receipt_sha256: str,
+    joint_source_split_manifest_sha256: str,
     parity_receipt_sha256: str,
     cleaning_policy_sha256: str,
     allowed_apply_profiles: Sequence[str],
@@ -332,6 +442,9 @@ def _raw_identity(
             "stage50_cleaning_manifest_sha256": stage50_manifest_sha256,
             "detector_binary_sha256": detector_binary_sha256,
             "detector_build_receipt_sha256": detector_build_receipt_sha256,
+            "classifier_selection_receipt_sha256": classifier_selection_receipt_sha256,
+            "joint_source_receipt_sha256": joint_source_receipt_sha256,
+            "joint_source_split_manifest_sha256": joint_source_split_manifest_sha256,
             "parity_receipt_sha256": parity_receipt_sha256,
             "cleaning_policy_sha256": cleaning_policy_sha256,
             "allowed_apply_profiles": sorted(allowed_apply_profiles),
@@ -944,6 +1057,45 @@ def _aggregate_raw(
     return records, dict(sorted(totals.items())), models, overlap_pairs
 
 
+def _validate_detection_qualification(
+    *,
+    classifier_selection_receipt: Path,
+    silver_receipt_path: Path,
+    silver_split_manifest: Path,
+    parity_receipt: Path,
+    detector_binary: Path,
+    sequence_config: Path,
+    bib_model: Path,
+    toc_model: Path,
+    smoother: Path,
+    cleaning_policy: Mapping[str, Any],
+    enforce_policy_document_count: bool,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    silver = _validate_silver_evidence(silver_receipt_path, silver_split_manifest)
+    selection = validate_classifier_selection(
+        classifier_selection_receipt,
+        source_receipt=silver_receipt_path,
+        source_split_manifest=silver_split_manifest,
+        sequence_config=sequence_config,
+        bib_model=bib_model,
+        toc_model=toc_model,
+        smoother=smoother,
+    )
+    parity = _validate_parity(
+        parity_receipt,
+        detector_binary=detector_binary,
+        bib_model=bib_model,
+        toc_model=toc_model,
+        smoother=smoother,
+        silver_receipt=silver,
+        silver_receipt_sha256=sha256_file(silver_receipt_path),
+        silver_split_manifest_sha256=sha256_file(silver_split_manifest),
+        cleaning_policy=cleaning_policy,
+        enforce_policy_document_count=enforce_policy_document_count,
+    )
+    return silver, selection, parity
+
+
 def detect(args: argparse.Namespace) -> int:
     if args.batch_rows < 1 or args.rayon_threads < 1:
         raise ValueError("batch rows and Rayon threads must be positive")
@@ -954,16 +1106,6 @@ def detect(args: argparse.Namespace) -> int:
         args.detector_binary,
         expected_commit=args.code_commit,
     )
-    parity_receipt_sha256 = "unavailable"
-    if args.parity_receipt is not None:
-        _validate_parity(
-            args.parity_receipt,
-            detector_binary=args.detector_binary,
-            bib_model=args.bib_model,
-            toc_model=args.toc_model,
-            smoother=args.smoother,
-        )
-        parity_receipt_sha256 = sha256_file(args.parity_receipt)
     artifacts = build_artifacts(
         code_files=args.model_code,
         sequence_config=args.sequence_config,
@@ -973,6 +1115,19 @@ def detect(args: argparse.Namespace) -> int:
     )
     _validate_artifacts(artifacts)
     cleaning_policy = _load(args.cleaning_policy, schema="full_cpt_cleaning_policy_v1")
+    silver, classifier_selection, parity = _validate_detection_qualification(
+        classifier_selection_receipt=args.classifier_selection_receipt,
+        silver_receipt_path=args.silver_receipt,
+        silver_split_manifest=args.silver_split_manifest,
+        parity_receipt=args.parity_receipt,
+        detector_binary=args.detector_binary,
+        sequence_config=args.sequence_config,
+        bib_model=args.bib_model,
+        toc_model=args.toc_model,
+        smoother=args.smoother,
+        cleaning_policy=cleaning_policy,
+        enforce_policy_document_count=False,
+    )
     raw_profiles = cleaning_policy.get("structural", {}).get("allowed_apply_profiles")
     if (
         not isinstance(raw_profiles, list)
@@ -987,7 +1142,12 @@ def detect(args: argparse.Namespace) -> int:
         stage50_manifest_sha256=stage50_sha,
         detector_binary_sha256=sha256_file(args.detector_binary),
         detector_build_receipt_sha256=sha256_file(args.detector_build_receipt),
-        parity_receipt_sha256=parity_receipt_sha256,
+        classifier_selection_receipt_sha256=sha256_file(
+            args.classifier_selection_receipt
+        ),
+        joint_source_receipt_sha256=sha256_file(args.silver_receipt),
+        joint_source_split_manifest_sha256=sha256_file(args.silver_split_manifest),
+        parity_receipt_sha256=sha256_file(args.parity_receipt),
         cleaning_policy_sha256=sha256_file(args.cleaning_policy),
         allowed_apply_profiles=sorted(allowed_apply_profiles),
         eligible_structural_policy=ELIGIBLE_STRUCTURAL_POLICY,
@@ -1051,18 +1211,26 @@ def detect(args: argparse.Namespace) -> int:
         "cleaning_policy_sha256": sha256_file(args.cleaning_policy),
         "allowed_apply_profiles": sorted(allowed_apply_profiles),
         "eligible_structural_policy": ELIGIBLE_STRUCTURAL_POLICY,
+        "qualification": {
+            "classifier_selection_receipt": file_receipt(
+                args.classifier_selection_receipt
+            ),
+            "joint_source_receipt": file_receipt(args.silver_receipt),
+            "joint_source_split_manifest": file_receipt(args.silver_split_manifest),
+            "selected_architecture": classifier_selection["selected_architecture"],
+            "joint_ladder_run_receipt_sha256": classifier_selection["joint_ladder"][
+                "run_receipt_sha256"
+            ],
+            "joint_source_inventory_sha256": silver["inventory_sha256"],
+            "parity_evaluation_partition": parity["evaluation_partition"],
+            "parity_validation_documents": parity["heldout_documents"],
+        },
         "output_root": str(args.output_dir.resolve()),
         "detector": {
             "binary": file_receipt(args.detector_binary),
             "build_receipt": file_receipt(args.detector_build_receipt),
-            "parity_receipt": (
-                file_receipt(args.parity_receipt)
-                if args.parity_receipt is not None
-                else None
-            ),
-            "parity_status": "passed"
-            if args.parity_receipt is not None
-            else "unavailable",
+            "parity_receipt": file_receipt(args.parity_receipt),
+            "parity_status": "passed",
             "build_code_commit": build["code_commit"],
         },
         "artifacts": artifacts,
@@ -1140,35 +1308,64 @@ def validate_raw_manifest(path: Path) -> dict[str, Any]:
     binary = verify_file_receipt(detector["binary"])
     build_path = verify_file_receipt(detector["build_receipt"])
     parity_record = detector.get("parity_receipt")
-    parity_path = (
-        verify_file_receipt(parity_record) if isinstance(parity_record, dict) else None
-    )
-    if (parity_path is None) != (detector.get("parity_status") == "unavailable"):
-        raise ValueError(f"{path}: raw detector parity status/receipt disagree")
+    if not isinstance(parity_record, dict) or detector.get("parity_status") != "passed":
+        raise ValueError(f"{path}: raw detector lacks mandatory passed parity")
+    parity_path = verify_file_receipt(parity_record)
     build = _build_receipt_matches(
         build_path, binary, expected_commit=manifest.get("code_commit")
     )
     if build.get("code_commit") != detector.get("build_code_commit"):
         raise ValueError(f"{path}: detector build commit drift")
     _validate_artifacts(manifest.get("artifacts", {}))
-    if parity_path is not None:
-        _validate_parity(
-            parity_path,
-            detector_binary=binary,
-            bib_model=_artifact_path(
-                manifest["artifacts"],
-                category="checkpoint",
-                name="bibliography_line_model",
-            ),
-            toc_model=_artifact_path(
-                manifest["artifacts"], category="checkpoint", name="toc_line_model"
-            ),
-            smoother=_artifact_path(
-                manifest["artifacts"],
-                category="config",
-                name="structural_smoother",
-            ),
-        )
+    qualification = manifest.get("qualification")
+    if not isinstance(qualification, Mapping):
+        raise ValueError(f"{path}: raw detector qualification is missing")
+    selection_record = qualification.get("classifier_selection_receipt")
+    source_record = qualification.get("joint_source_receipt")
+    split_record = qualification.get("joint_source_split_manifest")
+    if not all(
+        isinstance(record, Mapping)
+        for record in (selection_record, source_record, split_record)
+    ):
+        raise ValueError(f"{path}: raw detector qualification receipts are malformed")
+    selection_path = verify_file_receipt(selection_record)
+    source_path = verify_file_receipt(source_record)
+    split_path = verify_file_receipt(split_record)
+    silver, selection, parity = _validate_detection_qualification(
+        classifier_selection_receipt=selection_path,
+        silver_receipt_path=source_path,
+        silver_split_manifest=split_path,
+        parity_receipt=parity_path,
+        detector_binary=binary,
+        sequence_config=_artifact_path(
+            manifest["artifacts"], category="config", name="sequence_config"
+        ),
+        bib_model=_artifact_path(
+            manifest["artifacts"],
+            category="checkpoint",
+            name="bibliography_line_model",
+        ),
+        toc_model=_artifact_path(
+            manifest["artifacts"], category="checkpoint", name="toc_line_model"
+        ),
+        smoother=_artifact_path(
+            manifest["artifacts"], category="config", name="structural_smoother"
+        ),
+        cleaning_policy=policy,
+        enforce_policy_document_count=False,
+    )
+    if (
+        qualification.get("selected_architecture") != selection["selected_architecture"]
+        or qualification.get("joint_ladder_run_receipt_sha256")
+        != selection["joint_ladder"]["run_receipt_sha256"]
+        or qualification.get("joint_source_inventory_sha256")
+        != silver["inventory_sha256"]
+        or qualification.get("parity_evaluation_partition")
+        != parity["evaluation_partition"]
+        or qualification.get("parity_validation_documents")
+        != parity["heldout_documents"]
+    ):
+        raise ValueError(f"{path}: raw detector qualification binding drift")
     files = manifest.get("files")
     root = Path(str(manifest.get("output_root", "")))
     if not isinstance(files, list) or not files:
@@ -1209,9 +1406,10 @@ def validate_raw_manifest(path: Path) -> dict[str, Any]:
         stage50_manifest_sha256=manifest["stage50_cleaning_manifest_sha256"],
         detector_binary_sha256=sha256_file(binary),
         detector_build_receipt_sha256=sha256_file(build_path),
-        parity_receipt_sha256=(
-            sha256_file(parity_path) if parity_path is not None else "unavailable"
-        ),
+        classifier_selection_receipt_sha256=sha256_file(selection_path),
+        joint_source_receipt_sha256=sha256_file(source_path),
+        joint_source_split_manifest_sha256=sha256_file(split_path),
+        parity_receipt_sha256=sha256_file(parity_path),
         cleaning_policy_sha256=sha256_file(policy_path),
         allowed_apply_profiles=sorted(allowed_apply_profiles),
         eligible_structural_policy=ELIGIBLE_STRUCTURAL_POLICY,
@@ -2206,6 +2404,29 @@ def build_model_receipt(args: argparse.Namespace) -> int:
         raise ValueError(
             "raw ToC/bibliography predictions overlap; strict production rebind is blocked"
         )
+    qualification = raw.get("qualification")
+    if not isinstance(qualification, Mapping):
+        raise ValueError("raw detector lacks qualification receipts")
+    _require_exact_file_receipt(
+        qualification.get("classifier_selection_receipt"),
+        args.classifier_selection_receipt,
+        label="promotion classifier selection",
+    )
+    _require_exact_file_receipt(
+        qualification.get("joint_source_receipt"),
+        args.silver_receipt,
+        label="promotion joint source receipt",
+    )
+    _require_exact_file_receipt(
+        qualification.get("joint_source_split_manifest"),
+        args.silver_split_manifest,
+        label="promotion joint source split manifest",
+    )
+    _require_exact_file_receipt(
+        raw.get("detector", {}).get("parity_receipt"),
+        args.parity_receipt,
+        label="promotion parity receipt",
+    )
     raw_sha = sha256_file(args.raw_manifest)
     audit = _validate_audit_validation(
         args.audit_validation, raw_manifest_sha256=raw_sha
@@ -2228,10 +2449,13 @@ def build_model_receipt(args: argparse.Namespace) -> int:
             raw["artifacts"], category="config", name="structural_smoother"
         ),
     )
-    audit_policy = _load(
-        verify_file_receipt(audit["cleaning_policy"]),
-        schema="full_cpt_cleaning_policy_v1",
+    audit_policy_path = verify_file_receipt(audit["cleaning_policy"])
+    _require_exact_file_receipt(
+        raw.get("cleaning_policy"),
+        audit_policy_path,
+        label="promotion cleaning policy",
     )
+    audit_policy = _load(audit_policy_path, schema="full_cpt_cleaning_policy_v1")
     detector_binary = verify_file_receipt(raw["detector"]["binary"])
     _validate_parity(
         args.parity_receipt,
@@ -2247,15 +2471,10 @@ def build_model_receipt(args: argparse.Namespace) -> int:
         ),
         silver_receipt=silver,
         silver_receipt_sha256=sha256_file(args.silver_receipt),
+        silver_split_manifest_sha256=sha256_file(args.silver_split_manifest),
         cleaning_policy=audit_policy,
+        enforce_policy_document_count=True,
     )
-    embedded_parity = raw["detector"].get("parity_receipt")
-    if isinstance(embedded_parity, dict) and embedded_parity.get(
-        "sha256"
-    ) != sha256_file(args.parity_receipt):
-        raise ValueError(
-            "promotion parity receipt differs from the one bound at detection time"
-        )
     models = raw["models"]
     model_id = (
         f"bib={models['bib_model_id']}:{models['bib_decoder_id']};"
@@ -2353,6 +2572,19 @@ def validate_model_receipt(
         raise ValueError("structural model receipt lacks two-head task coverage")
     silver_path = verify_file_receipt(evidence["silver_receipt"])
     split_path = verify_file_receipt(evidence["silver_split_manifest"])
+    raw_qualification = raw.get("qualification")
+    if not isinstance(raw_qualification, Mapping):
+        raise ValueError("raw detector lacks qualification receipts")
+    _require_exact_file_receipt(
+        raw_qualification.get("joint_source_receipt"),
+        silver_path,
+        label="model-receipt joint source",
+    )
+    _require_exact_file_receipt(
+        raw_qualification.get("joint_source_split_manifest"),
+        split_path,
+        label="model-receipt joint source split",
+    )
     silver = _validate_silver_evidence(silver_path, split_path)
     if silver["inventory_sha256"] != evidence.get("inventory_sha256"):
         raise ValueError("structural model receipt silver inventory drift")
@@ -2372,6 +2604,11 @@ def validate_model_receipt(
     )
     classifier_selection_path = verify_file_receipt(
         evidence["classifier_selection_receipt"]
+    )
+    _require_exact_file_receipt(
+        raw_qualification.get("classifier_selection_receipt"),
+        classifier_selection_path,
+        label="model-receipt classifier selection",
     )
     classifier_selection = validate_classifier_selection(
         classifier_selection_path,
@@ -2397,11 +2634,19 @@ def validate_model_receipt(
         != classifier_selection["joint_ladder"]["run_receipt_sha256"]
     ):
         raise ValueError("structural model receipt classifier-selection binding drift")
-    audit_policy = _load(
-        verify_file_receipt(validation["cleaning_policy"]),
-        schema="full_cpt_cleaning_policy_v1",
+    audit_policy_path = verify_file_receipt(validation["cleaning_policy"])
+    _require_exact_file_receipt(
+        raw.get("cleaning_policy"),
+        audit_policy_path,
+        label="model-receipt cleaning policy",
     )
+    audit_policy = _load(audit_policy_path, schema="full_cpt_cleaning_policy_v1")
     parity_path = verify_file_receipt(evidence["runtime_parity_receipt"])
+    _require_exact_file_receipt(
+        raw.get("detector", {}).get("parity_receipt"),
+        parity_path,
+        label="model-receipt parity",
+    )
     _validate_parity(
         parity_path,
         detector_binary=verify_file_receipt(raw["detector"]["binary"]),
@@ -2416,7 +2661,9 @@ def validate_model_receipt(
         ),
         silver_receipt=silver,
         silver_receipt_sha256=sha256_file(silver_path),
+        silver_split_manifest_sha256=sha256_file(split_path),
         cleaning_policy=audit_policy,
+        enforce_policy_document_count=True,
     )
     split = evidence.get("work_split")
     if (
@@ -2603,7 +2850,10 @@ def _add_detection_inputs(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--cleaning-policy", type=Path, required=True)
     parser.add_argument("--detector-binary", type=Path, required=True)
     parser.add_argument("--detector-build-receipt", type=Path, required=True)
-    parser.add_argument("--parity-receipt", type=Path)
+    parser.add_argument("--classifier-selection-receipt", type=Path, required=True)
+    parser.add_argument("--silver-receipt", type=Path, required=True)
+    parser.add_argument("--silver-split-manifest", type=Path, required=True)
+    parser.add_argument("--parity-receipt", type=Path, required=True)
     parser.add_argument("--model-code", action="append", type=Path, required=True)
     parser.add_argument("--sequence-config", type=Path, required=True)
     parser.add_argument("--smoother", type=Path, required=True)

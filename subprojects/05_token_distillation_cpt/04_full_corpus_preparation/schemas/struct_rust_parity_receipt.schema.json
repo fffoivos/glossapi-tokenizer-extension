@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "struct_rust_parity_receipt.schema.json",
+  "title": "Snapshotted Python-Rust structural parity receipt",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "status",
+    "evidence_status",
+    "input_snapshot_method",
+    "inputs_rehashed_before_publication",
+    "binary_sha256",
+    "corpus_sha256",
+    "heldout_documents",
+    "evaluation_partition",
+    "historical_test_documents_loaded",
+    "tolerance",
+    "positive_document_counts",
+    "heads",
+    "model_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": "struct_rust_parity_receipt_v1"},
+    "status": {"const": "passed"},
+    "evidence_status": {"const": "LLM_silver"},
+    "input_snapshot_method": {
+      "const": "private_job_local_o_nofollow_copy_rehash_before_publish"
+    },
+    "inputs_rehashed_before_publication": {"const": true},
+    "binary_sha256": {"$ref": "#/$defs/sha256"},
+    "corpus_sha256": {"$ref": "#/$defs/sha256"},
+    "source_receipt_sha256": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "source_split_manifest_sha256": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "heldout_documents": {"type": "integer", "minimum": 1},
+    "evaluation_partition": {
+      "enum": ["train", "validation", "test", "all"]
+    },
+    "historical_test_documents_loaded": {"type": "integer", "minimum": 0},
+    "tolerance": {"type": "number", "minimum": 0.0},
+    "positive_document_counts": {
+      "type": "object",
+      "required": ["bib", "toc"],
+      "properties": {
+        "bib": {"type": "integer", "minimum": 1},
+        "toc": {"type": "integer", "minimum": 1}
+      }
+    },
+    "heads": {
+      "type": "object",
+      "required": ["bib", "toc"],
+      "properties": {
+        "bib": {"$ref": "#/$defs/head"},
+        "toc": {"$ref": "#/$defs/head"}
+      }
+    },
+    "model_sha256": {
+      "type": "object",
+      "required": ["bib", "toc", "smoother"],
+      "properties": {
+        "bib": {"$ref": "#/$defs/sha256"},
+        "toc": {"$ref": "#/$defs/sha256"},
+        "smoother": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "head": {
+      "type": "object",
+      "required": ["documents", "max_probability_difference", "span_mismatches"],
+      "properties": {
+        "documents": {"type": "integer", "minimum": 1},
+        "max_probability_difference": {"type": "number", "minimum": 0.0},
+        "span_mismatches": {"const": 0}
+      }
+    }
+  }
+}
