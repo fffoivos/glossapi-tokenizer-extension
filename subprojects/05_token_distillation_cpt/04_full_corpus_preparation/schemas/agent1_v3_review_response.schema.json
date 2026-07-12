@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/agent1-v3-review-response-v1.json",
+  "title": "Agent 1 v3 source review response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "review_id",
+    "sample_id",
+    "reviewer_slot",
+    "source_id",
+    "source_dataset",
+    "source_revision",
+    "source_route",
+    "sampling_stratum",
+    "original_text_sha256",
+    "review_copy_sha256",
+    "prompt_sha256",
+    "response_schema_sha256",
+    "model",
+    "code_commit",
+    "attempt",
+    "cleanliness_score",
+    "quality_score",
+    "diversity_contribution_score",
+    "issues",
+    "recommendation",
+    "confidence_score",
+    "evidence"
+  ],
+  "properties": {
+    "schema_version": {"const": "agent1_v3_review_response_v1"},
+    "review_id": {"$ref": "#/$defs/sha256"},
+    "sample_id": {"$ref": "#/$defs/sha256"},
+    "reviewer_slot": {"enum": ["primary", "secondary", "adjudicator"]},
+    "source_id": {"type": "string", "minLength": 1},
+    "source_dataset": {"type": "string", "minLength": 1},
+    "source_revision": {"type": "string", "minLength": 1},
+    "source_route": {"enum": ["html_web", "pdf_ocr", "mixed", "structured"]},
+    "sampling_stratum": {"enum": ["random", "risk", "cluster"]},
+    "original_text_sha256": {"$ref": "#/$defs/sha256"},
+    "review_copy_sha256": {"$ref": "#/$defs/sha256"},
+    "prompt_sha256": {"$ref": "#/$defs/sha256"},
+    "response_schema_sha256": {"$ref": "#/$defs/sha256"},
+    "model": {"type": "string", "minLength": 1},
+    "code_commit": {"type": "string", "minLength": 1},
+    "attempt": {"type": "integer", "minimum": 1},
+    "cleanliness_score": {"$ref": "#/$defs/score"},
+    "quality_score": {"$ref": "#/$defs/score"},
+    "diversity_contribution_score": {"$ref": "#/$defs/score"},
+    "issues": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/issue"}
+    },
+    "recommendation": {
+      "enum": ["include", "include_after_cleaning", "low_weight", "exclude", "uncertain"]
+    },
+    "confidence_score": {"$ref": "#/$defs/score"},
+    "evidence": {"type": "string", "minLength": 1, "maxLength": 1000}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "score": {"type": "integer", "minimum": 1, "maximum": 5},
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity_score"],
+      "properties": {
+        "code": {
+          "enum": [
+            "html_or_markup",
+            "navigation_or_boilerplate",
+            "ocr_corruption",
+            "mojibake",
+            "fragmentation",
+            "broken_words_or_hyphenation",
+            "page_furniture",
+            "tables_or_formulas",
+            "template_replay",
+            "structured_incomplete",
+            "pii",
+            "non_greek_drift",
+            "placeholder_or_empty",
+            "copyright_or_license",
+            "other"
+          ]
+        },
+        "severity_score": {"$ref": "#/$defs/score"}
+      }
+    }
+  }
+}

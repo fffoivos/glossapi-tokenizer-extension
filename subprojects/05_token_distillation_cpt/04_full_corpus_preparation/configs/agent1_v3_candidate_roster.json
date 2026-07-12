@@ -1,0 +1,79 @@
+{
+  "schema_version": "agent1_full_corpus_v3_candidate_roster_v1",
+  "definition": "A candidate is evaluated against its first addition to the frozen Nanochat roster, never against a later repository upload date.",
+  "base_source_id": "nanochat_base",
+  "candidate_source_ids": [
+    "diavgeia",
+    "amna_press",
+    "ellakv2",
+    "psepheda",
+    "elocus",
+    "libduth",
+    "libiep",
+    "ecclesia",
+    "opengov_deliberations_v2",
+    "archetai",
+    "eellak_articles",
+    "open_council",
+    "artos_zois",
+    "e_nautilia",
+    "national_theatre_press",
+    "heinrich_boell_publications",
+    "new_sociology",
+    "school_books_new_editions",
+    "openbook_v2",
+    "pergamos_sections",
+    "kallipos_sections",
+    "greek_phd_v2",
+    "openarchives_current",
+    "istorima",
+    "modern_greek_dictionary",
+    "ert_press"
+  ],
+  "inventory_only_exclusions": [
+    {
+      "repo_id": "glossAPI/pandemos",
+      "reason": "metadata_only_no_training_text",
+      "review_required": false
+    },
+    {
+      "repo_id": "glossAPI/elstat",
+      "reason": "empty_scaffold",
+      "review_required": false
+    },
+    {
+      "repo_id": "glossAPI/hellenic-parliament-legislative-work",
+      "reason": "empty_scaffold",
+      "review_required": false
+    }
+  ],
+  "review_routes": {
+    "diavgeia": "structured",
+    "amna_press": "html_web",
+    "ellakv2": "html_web",
+    "psepheda": "pdf_ocr",
+    "elocus": "pdf_ocr",
+    "libduth": "pdf_ocr",
+    "libiep": "pdf_ocr",
+    "ecclesia": "pdf_ocr",
+    "opengov_deliberations_v2": "structured",
+    "archetai": "pdf_ocr",
+    "eellak_articles": "html_web",
+    "open_council": "structured",
+    "artos_zois": "pdf_ocr",
+    "e_nautilia": "pdf_ocr",
+    "national_theatre_press": "pdf_ocr",
+    "heinrich_boell_publications": "pdf_ocr",
+    "new_sociology": "pdf_ocr",
+    "school_books_new_editions": "mixed",
+    "openbook_v2": "pdf_ocr",
+    "pergamos_sections": "mixed",
+    "kallipos_sections": "mixed",
+    "greek_phd_v2": "pdf_ocr",
+    "openarchives_current": "mixed",
+    "istorima": "structured",
+    "modern_greek_dictionary": "structured",
+    "ert_press": "html_web"
+  },
+  "review_scope": "Every listed source with full text or replacement content is reviewed; a source with fewer than 100 eligible documents is exhaustively reviewed and carries an explicit denominator exception."
+}

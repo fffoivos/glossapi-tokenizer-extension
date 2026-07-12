@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# Dry-run-first submission/status helper for Agent 1's isolated v3 lane.
+set -euo pipefail
+
+HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+PHASE04_DIR=$(cd "$HERE/.." && pwd)
+REPO_ROOT=$(git -C "$PHASE04_DIR" rev-parse --show-toplevel)
+source "$HERE/agent1_v3_paths.env"
+
+usage() {
+    cat >&2 <<'EOF'
+usage: agent1_v3_submit.sh <action> [sbatch args...]
+
+Phase 0 actions:
+  bootstrap-runtime acquire-hf-existing acquire-mdc merge-acquisition freeze-run
+  validate-contract status
+
+All submissions are dry runs unless CONFIRM_LAUNCH=1.  A real Clariden
+submission additionally requires CONFIRM_CLARIDEN_CPU_EXCEPTION=REQTRES_NO_GPU:
+normal nodes report physical GPUs in AllocTRES despite a GPU-free ReqTRES.
+Acquisition also requires CONFIRM_ACQUIRE=1 and ephemeral credentials in the
+submission environment.  This wrapper never publishes a dataset.
+EOF
+}
+
+require_run_id() {
+    [[ "${AGENT1_V3_RUN_ID:-}" =~ ^agent1-full-corpus-v3-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{7,40}$ ]] || {
+        echo "ERROR: export AGENT1_V3_RUN_ID=agent1-full-corpus-v3-<UTC>-<shortsha>" >&2
+        exit 2
+    }
+}
+
+resources_for() {
+    case "$1" in
+        bootstrap-runtime) printf '%s\n' '--cpus-per-task=16 --mem=64G --time=01:00:00' ;;
+        acquire-hf-existing) printf '%s\n' '--cpus-per-task=16 --mem=128G --time=12:00:00' ;;
+        acquire-mdc) printf '%s\n' '--cpus-per-task=16 --mem=96G --time=12:00:00' ;;
+        merge-acquisition|freeze-run|validate-contract) printf '%s\n' '--cpus-per-task=8 --mem=32G --time=02:00:00' ;;
+        *) return 1 ;;
+    esac
+}
+
+action=${1:-}
+shift || true
+case "$action" in
+    -h|--help|help|'') usage; exit 0 ;;
+    status)
+        require_run_id
+        squeue -u "${USER:?USER is required}" -o '%.18i %.10T %.24j %.10P %.8M %.12R'
+        exit 0
+        ;;
+esac
+resources=$(resources_for "$action") || { usage; exit 2; }
+require_run_id
+
+if [[ "${CONFIRM_LAUNCH:-0}" != "1" ]]; then
+    printf 'DRY RUN: AGENT1_V3_ACTION=%q AGENT1_V3_RUN_ID=%q sbatch %s %q' \
+        "$action" "$AGENT1_V3_RUN_ID" "$resources" "$HERE/agent1_v3_stage.sbatch"
+    for value in "$@"; do printf ' %q' "$value"; done
+    printf '\n'
+    exit 0
+fi
+
+[[ "${CONFIRM_CLARIDEN_CPU_EXCEPTION:-}" == "REQTRES_NO_GPU" ]] || {
+    echo "ERROR: confirm Clariden's CPU-only ReqTRES exception explicitly: CONFIRM_CLARIDEN_CPU_EXCEPTION=REQTRES_NO_GPU" >&2
+    exit 3
+}
+case "$action" in
+    acquire-hf-existing|acquire-mdc)
+        [[ "${CONFIRM_ACQUIRE:-0}" == "1" ]] || {
+            echo "ERROR: set CONFIRM_ACQUIRE=1 for intentional receipt-bound acquisition" >&2
+            exit 3
+        }
+        ;;
+esac
+
+export REPO_ROOT
+export AGENT1_V3_CLARIDEN_DIR="$HERE"
+export AGENT1_V3_EXPECTED_COMMIT
+AGENT1_V3_EXPECTED_COMMIT=$(git -C "$REPO_ROOT" rev-parse HEAD)
+read -r -a resources_array <<<"$resources"
+sbatch --export=ALL,AGENT1_V3_ACTION="$action" "${resources_array[@]}" "$@" "$HERE/agent1_v3_stage.sbatch"
