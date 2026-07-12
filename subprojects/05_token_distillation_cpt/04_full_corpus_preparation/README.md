@@ -167,9 +167,10 @@ The complete pinned inventory is in `configs/post_december_inventory.json`:
 
 - 25 current organization repositories were created on or after 2026-01-01;
 - 22 represent names/source families absent from the first Nanochat roster;
-- 16 of those have usable full text on HF, totalling 15,644,950,021 artifact
-  bytes, 4,267,638 raw/reported rows and 4,478,171,892 card-reported tokens after
-  registering the three Mozilla Data Collective releases;
+- 16 of those have usable full text on HF and three more are registered through
+  Mozilla Data Collective; together those 19 releases total 16,127,958,471
+  artifact bytes, 4,267,638 raw/reported rows and 4,478,171,892 card-reported
+  tokens;
 - one is metadata-only and two are empty scaffolds;
 - three are same-source replacements already represented in Nanochat; and
 - four older organization repositories have material post-cutoff payload
@@ -183,10 +184,12 @@ routes. The three MDC routes use their own authenticated, checksum-bound
 acquisition path; metadata-only, empty and superseded repositories remain in
 the non-acquiring backlog.
 
-A metadata-only resolution on 2026-07-11 verified all pinned revisions and
-selected 26 registry entries (base, overlap evidence, tokenizer and 23
-candidates), 521 files and 168,623,515,496 bytes. Candidate payload accounts for
-30,781,620,482 of those bytes. No dataset payload was downloaded by that check.
+An HF metadata-only resolution on 2026-07-11 verified all pinned revisions and
+selected 26 HF registry entries (base, overlap evidence, tokenizer and 23
+candidates), 521 files and 168,623,515,496 bytes. HF candidate payload accounts
+for 30,781,620,482 of those bytes; the three MDC archives add 483,008,450
+declared bytes through the separate authenticated route. No dataset payload was
+downloaded by that check.
 
 ## Logical union and source-aware deduplication
 
