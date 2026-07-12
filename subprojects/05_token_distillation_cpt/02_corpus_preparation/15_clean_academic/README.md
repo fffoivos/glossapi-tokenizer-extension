@@ -77,8 +77,10 @@ Current evidence state:
 - the surviving SPAN/Opus decisions are LLM-silver BIB supervision. Their
   coordinates are tracked and the missing source text can be rehydrated from
   receipt-bound Clariden inputs without creating labels;
-- the raw joint ToC+BIB `STRUCT_2K` corpus is absent, so no joint comparison or
-  Stage54 evidence receipt can be claimed from it;
+- the exact joint ToC+BIB `STRUCT_2K` handoff is recovered and checksum-locked;
+  its CPU importer/ladder path is implemented, but no import, profile, ladder,
+  C0 parity or Stage54 job has run, so no new result or promotion receipt can be
+  claimed from it;
 - add Pergamos to a fresh source-balanced validation sample;
 - run the Phase-04 exact ModernGreek-148k counterfactual token-loss audit;
 - complete the independent receipt-bound review of 100 high-risk predicted

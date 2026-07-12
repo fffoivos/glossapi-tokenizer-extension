@@ -92,13 +92,16 @@ def model_receipt(stage50: Path, *, metrics: dict | None, claims_pass: bool) -> 
         "schema_version": "academic_structural_model_receipt_v1",
         "status": "passed" if claims_pass else "no_op",
         "promotion_status": "passed" if claims_pass else "no_op",
-        "model_id": "fixture-c2",
+        "model_id": "fixture-c0",
         "stage50_cleaning_manifest_sha256": sha(stage50),
         "artifacts": {"code": zero, "config": zero, "checkpoint": zero},
         "evidence": {
             "annotation_status": "LLM_silver",
             "inventory_sha256": zero,
             "task_coverage": ["toc", "bibliography"],
+            "selected_architecture": "c0-rust-lr-hysteresis",
+            "classifier_selection_receipt": {"sha256": zero},
+            "joint_ladder_run_receipt_sha256": zero,
             "work_split": {
                 "leak_free": True,
                 "work_overlap_count": 0,
@@ -174,6 +177,22 @@ def test_targeted_manual_safety_can_promote_silver_model(tmp_path: Path) -> None
     assert decision["requested_mode"] == "apply"
     assert decision["apply_structural_requested"] is True
     assert decision["model_selection_evidence"] == "LLM_silver"
+
+
+def test_structural_apply_rejects_missing_post_ladder_selection(tmp_path: Path) -> None:
+    stage50 = stage50_manifest(tmp_path)
+    receipt = model_receipt(
+        stage50,
+        metrics={
+            "running_prose_deletion_rate": 0.0,
+            "main_text_retention_rate": 1.0,
+            "catastrophic_document_deletion_rate": 0.0,
+        },
+        claims_pass=True,
+    )
+    receipt["evidence"].pop("classifier_selection_receipt")
+    with pytest.raises(ValueError, match="post-ladder C0 classifier selection"):
+        validate_receipt(tmp_path, receipt)
 
 
 def test_explicit_noop_and_resume_mode_or_receipt_drift_fail_closed(

@@ -75,8 +75,10 @@ node. See `docs/dataset_quality_review.md` for the receipt contract.
 The legacy filename `STRUCT_2K_gold.jsonl` refers to LLM-silver annotations, not
 human gold. The exact historical joint ToC+BIB handoff is recovered and pinned;
 its 608 historical-test documents remain physically excluded from fitting,
-validation and calibration. Run the final sealed split through the joint model
-and Rust-parity receipts. Production structural application does not
+validation and calibration. No import, ladder or parity job has run. First run
+the imported-source ladder, then record an explicit C0 selection and fresh Rust
+parity with `build_joint_c0_bridge.sbatch`; non-C0 arms need a separate Rust
+port/parity package. Production structural application does not
 require a new full-corpus annotation effort: Stage58 requires leak-free model
 evidence plus the independent receipt-bound manual audit of exactly 100
 high-risk predicted removals (50 ToC + 50 BIB). Missing evidence yields a
@@ -230,9 +232,12 @@ representations are never silently concatenated or treated as snapshot-equal.
 For the current CPT run, do not change `configs/cleaning_policy.json`: it is
 `audit_only`, both structural materialization flags are false, and Stage58 must
 record a deterministic no-op. Existing classifier supervision is LLM silver,
-not human gold. The rehydrated SPAN corpus supplies BIB coordinates/text only;
-the raw joint ToC+BIB `STRUCT_2K` corpus is absent. Nobody is being asked to
-annotate 2,000 lines or documents.
+not human gold. The exact 2,000-document joint ToC+BIB `STRUCT_2K` handoff is
+recovered and checksum-locked. The CPU importer is ready to emit a receipt-bound
+1,392-document source after physically excluding all 608 historical-test
+documents, but no Clariden import, N1 profile, joint ladder, C0 Rust parity or
+production-selection job has run. Nobody is being asked to annotate 2,000 lines
+or documents.
 
 Any later run that proposes structural deletion must use a separately reviewed
 commit whose policy was approved and frozen **before Stage10 starts**. Do not
@@ -247,6 +252,12 @@ edit policy in the middle of a run. Before that future approval, require:
 5. a Diavgeia report separating boilerplate spans, excluded documents, PII
    replacements and template/downsampling loss;
 6. a recorded decision for every source/profile pair.
+
+Before Stage52 in such a run, complete the joint C0/C1/C2/N1 ladder and record
+an explicit classifier-selection receipt. C0 already has a Rust implementation,
+but still needs fresh parity on the imported source. C1, C2 and N1 are Python
+research arms: selecting any of them requires a separate reviewed Rust
+port/export and exact parity package before detection or promotion.
 
 That future run must also complete Stage52 detection, the Stage53 deletion-
 safety packet of exactly 100 cases (50 ToC and 50 bibliography), manual review,

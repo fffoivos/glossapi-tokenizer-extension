@@ -53,8 +53,10 @@ build. The evidence, recommendations and sign-off boundary are summarized in
   The tracked policy is `audit_only` and both materialization flags are false.
   Existing supervision is LLM silver, never human gold. The exact historical
   joint ToC+BIB `STRUCT_2K` handoff is now recovered and checksum-verified; it
-  is integrated through a sealed historical split. No new 2,000-item
-  annotation effort is planned.
+  is integrated through a sealed historical split. No import, profile, ladder,
+  classifier-selection or parity job has run. C0 has an existing Rust path;
+  C1/C2/N1 remain Python research models and require a separate Rust port/parity
+  package if selected. No new 2,000-item annotation effort is planned.
 
 ## Production DAG
 

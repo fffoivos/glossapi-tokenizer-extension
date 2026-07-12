@@ -327,6 +327,11 @@ def test_joint_materialization_and_selection_physically_exclude_historical_test(
         for line in paths["silver"].read_text(encoding="utf-8").splitlines()
         if line
     ]
+    assert all(row["n_physical_lines"] == 3 for row in materialized_rows)
+    assert all(
+        [line["abs_idx"] for line in row["lines"]] == [0, 1, 2]
+        for row in materialized_rows
+    ), "imported abs_idx is zero-based and strictly below n_physical_lines"
     assert {row["historical_split"] for row in materialized_rows} == {"train"}
     assert {row["upstream_document_id"] for row in materialized_rows}.isdisjoint(
         _ids("test", 2)

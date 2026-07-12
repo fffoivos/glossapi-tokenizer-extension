@@ -31,7 +31,15 @@
     },
     "evidence": {
       "type": "object",
-      "required": ["annotation_status", "inventory_sha256", "task_coverage", "work_split"],
+      "required": [
+        "annotation_status",
+        "inventory_sha256",
+        "task_coverage",
+        "selected_architecture",
+        "classifier_selection_receipt",
+        "joint_ladder_run_receipt_sha256",
+        "work_split"
+      ],
       "properties": {
         "annotation_status": {"const": "LLM_silver"},
         "inventory_sha256": {"$ref": "#/$defs/sha256"},
@@ -42,6 +50,9 @@
           "minItems": 2,
           "maxItems": 2
         },
+        "selected_architecture": {"const": "c0-rust-lr-hysteresis"},
+        "classifier_selection_receipt": {"type": "object"},
+        "joint_ladder_run_receipt_sha256": {"$ref": "#/$defs/sha256"},
         "work_split": {
           "type": "object",
           "required": [

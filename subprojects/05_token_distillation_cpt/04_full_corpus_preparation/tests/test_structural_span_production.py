@@ -165,6 +165,79 @@ def test_joint_llm_silver_is_required_without_claiming_human_gold(
     )
 
 
+def test_strict_parity_requires_imported_validation_and_zero_historical_test_access(
+    tmp_path: Path,
+) -> None:
+    binary = tmp_path / "detector"
+    bib = tmp_path / "bib.json"
+    toc = tmp_path / "toc.json"
+    smoother = tmp_path / "smooth.json"
+    for path in (binary, bib, toc, smoother):
+        path.write_bytes(path.name.encode())
+    source_receipt = tmp_path / "source.json"
+    write_json(source_receipt, {"fixture": True})
+    corpus_sha = "c" * 64
+    parity = tmp_path / "parity.json"
+    value = {
+        "schema_version": "struct_rust_parity_receipt_v1",
+        "status": "passed",
+        "evidence_status": "LLM_silver",
+        "binary_sha256": sha(binary),
+        "corpus_sha256": corpus_sha,
+        "source_receipt_sha256": sha(source_receipt),
+        "evaluation_partition": "validation",
+        "partition_semantics": (
+            "derived_historical_train_validation_runtime_parity_not_quality_holdout"
+        ),
+        "historical_test_documents_loaded": 0,
+        "heldout_documents": 2,
+        "positive_document_counts": {"bib": 1, "toc": 1},
+        "tolerance": 0.001,
+        "heads": {
+            "bib": {"span_mismatches": 0, "max_probability_difference": 0.0},
+            "toc": {"span_mismatches": 0, "max_probability_difference": 0.0},
+        },
+        "model_sha256": {
+            "bib": sha(bib),
+            "toc": sha(toc),
+            "smoother": sha(smoother),
+        },
+    }
+    write_json(parity, value)
+    policy = {
+        "validation": {
+            "required_parity_documents": 2,
+            "maximum_probability_delta": 0.001,
+        }
+    }
+    assert (
+        PRODUCTION._validate_parity(
+            parity,
+            detector_binary=binary,
+            bib_model=bib,
+            toc_model=toc,
+            smoother=smoother,
+            silver_receipt={"silver_sha256": corpus_sha},
+            silver_receipt_sha256=sha(source_receipt),
+            cleaning_policy=policy,
+        )["evaluation_partition"]
+        == "validation"
+    )
+    value["historical_test_documents_loaded"] = 1
+    write_json(parity, value)
+    with pytest.raises(ValueError, match="validation-only joint source"):
+        PRODUCTION._validate_parity(
+            parity,
+            detector_binary=binary,
+            bib_model=bib,
+            toc_model=toc,
+            smoother=smoother,
+            silver_receipt={"silver_sha256": corpus_sha},
+            silver_receipt_sha256=sha(source_receipt),
+            cleaning_policy=policy,
+        )
+
+
 def test_detection_routes_only_explicit_apply_after_review_rows(tmp_path: Path) -> None:
     pa = pytest.importorskip("pyarrow")
     pq = pytest.importorskip("pyarrow.parquet")
@@ -567,10 +640,24 @@ def test_new_slurm_stages_are_cpu_only_and_stop_at_manual_boundary() -> None:
     promote = (clariden / "54_promote_structural_spans.sbatch").read_text(
         encoding="utf-8"
     )
-    for body in (detect, packet, promote):
+    bridge = (
+        HERE.parent
+        / "02_corpus_preparation"
+        / "15_clean_academic"
+        / "eval"
+        / "sequence_models"
+        / "clariden"
+        / "build_joint_c0_bridge.sbatch"
+    ).read_text(encoding="utf-8")
+    for body in (detect, packet, promote, bridge):
         assert "phase04_require_cpu_request" in body
         assert "--gres" not in body and "--gpus" not in body
+    assert "STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT" in detect
+    assert "STRUCTURAL_PRODUCTION_SEQUENCE_CONFIG" in detect
     assert "AUTOMATIC_ADJUDICATION_FORBIDDEN=1" in packet
     assert "STRUCTURAL_MANUAL_AUDIT_RECEIPT" in promote
+    assert "--classifier-selection-receipt" in promote
     assert "build-model-receipt" in promote
     assert " rebind " in promote
+    assert "c0-rust-lr-hysteresis" in bridge
+    assert "rust_parity_struct.py" in bridge

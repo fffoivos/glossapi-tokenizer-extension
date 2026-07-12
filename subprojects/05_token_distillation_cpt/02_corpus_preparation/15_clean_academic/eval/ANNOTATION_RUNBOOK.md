@@ -3,9 +3,10 @@
 > **ARCHIVED HISTORICAL PROCEDURE — DO NOT RERUN.** The reported 2,000/2,000
 > labels were produced by gpt-5.5 and are `LLM_silver`, despite the legacy
 > `gold` filename below. The run completed and produced the surviving fitted
-> model/evaluation artifacts. Its ignored raw joint ToC+BIB
-> `units/STRUCT_2K_gold.jsonl` and original units are absent from the current checkout, Git history, Clariden
-> search and authenticated Hugging Face search. Do not replace them with human
+> model/evaluation artifacts. Its ignored raw joint ToC+BIB artifact and
+> original units were later recovered in a checksum-locked external handoff;
+> they remain absent from the tracked legacy `units/` path. Use the recovered
+> importer and never rerun this annotation workflow or replace it with human
 > annotation. Production's only new manual classifier work is the separate
 > 100-case (50 ToC + 50 BIB) deletion-safety audit. The current CPT policy is
 > `audit_only`, so Stage58 remains a deterministic no-op.

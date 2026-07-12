@@ -69,6 +69,10 @@ immutable detector artifacts:
 export PIPELINE_RUN_ID=<the-existing-phase04-run>
 export REFERENCE_BIN=<detector-build-dir>/reference_detect
 export DETECTOR_BUILD_RECEIPT=<detector-build-dir>/build_receipt.json
+export STRUCTURAL_SILVER_RECEIPT=<joint-import>/struct2k.LLM_silver.receipt.json
+export STRUCTURAL_SILVER_SPLIT=<joint-import>/struct2k.LLM_silver.split.json
+export STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT=<joint-c0-bridge>/classifier_selection.receipt.json
+export STRUCTURAL_PARITY_RECEIPT=<joint-c0-bridge>/c0.struct_rust_parity.receipt.json
 
 clariden/submit.sh structural-stage50-detect
 clariden/submit.sh structural-review-packet
@@ -84,11 +88,14 @@ stages/53-structural-review-packet/review_cases.jsonl
 `CONFIRM_LAUNCH=1` is the normal explicit launch gate. These scripts request no
 GPU/GRES and recheck the CPU-only Slurm request on-node.
 
-A passed parity receipt may be supplied to Stage52 and will then be bound to
-the raw run, but it is deliberately optional for audit-only detection. This
-lets the 100-case safety review proceed even though the raw joint LLM-silver
-artifact is currently absent. Stage54 promotion always requires the passed
-joint-head parity receipt.
+The official Stage52 wrapper now requires a post-ladder classifier-selection
+receipt plus the imported joint source receipt/split. C0 is the only arm that
+can currently produce that receipt because its exact LR+hysteresis artifacts
+already have a Rust implementation. The C0 bridge also produces fresh parity
+on the imported validation partition; supplying it to Stage52 binds it into the
+raw run. Stage54 always requires that same passed parity receipt. The lower-level
+detector API can still omit parity for isolated audit development, but such a
+run is not an eligible production candidate.
 
 ## Manual 100-case audit
 
@@ -126,6 +133,7 @@ export STRUCTURAL_MANUAL_AUDIT_RECEIPT=<manual-audit-receipt.json>
 export STRUCTURAL_AUDIT_ANNOTATIONS=<manual-adjudications.jsonl>
 export STRUCTURAL_SILVER_RECEIPT=<joint-bib-toc-LLM-silver-receipt.json>
 export STRUCTURAL_SILVER_SPLIT=<joint-bib-toc-split-manifest.json>
+export STRUCTURAL_CLASSIFIER_SELECTION_RECEIPT=<passed-post-ladder-c0-selection.json>
 export STRUCTURAL_PARITY_RECEIPT=<passed-joint-head-rust-parity-receipt.json>
 clariden/submit.sh structural-promote
 ```
@@ -171,12 +179,27 @@ deletions, and policy must not be edited mid-run. The no-op still requires the
 separate explicit finalization confirmation; it is not queued by a cleaning
 chain.
 
-## Known remaining evidence gap
+## Current execution and deployment boundary
 
-The reconstructable SPAN LLM-silver set supervises bibliography only. The
-historically named `STRUCT_2K_gold.jsonl` was also LLM-silver, not human gold,
-and its raw joint bibliography/ToC artifact is currently absent. Stage54
-therefore rejects the bibliography-only silver receipt with an explicit error;
-it will not invent ToC coverage. Recovering/importing that raw joint artifact
-is still required for a two-head model receipt. No 2,000-line human annotation
-effort is requested or implied.
+The reconstructable SPAN set remains BIB-only. Separately, the exact
+2,000-document joint ToC+BIB handoff is recovered and checksum-locked. Its CPU
+importer emits only the 1,392 historical-train documents and derives validation
+after physically excluding all 608 historical-test documents. No Clariden
+import, N1 profile, joint ladder, classifier-selection or parity job has run,
+so Stage52/54 have no current joint receipt to consume and the tracked
+`audit_only` policy remains a deterministic no-op.
+
+That tracked policy still carries the historical
+`required_parity_documents=608` and a null parity-corpus hash. Do not edit it
+mid-run. A future separately approved policy must be frozen before Stage10 with
+the exact imported corpus SHA-256 and actual derived-validation document count
+before Stage54 can accept the new parity receipt.
+
+Run the joint ladder before choosing a production candidate. C0 is already
+represented by the frozen Rust LR+hysteresis implementation, but requires a
+fresh selection receipt and exact parity on the imported source. C1, C2 and N1
+are Python research artifacts (`.npz`/`.pt`) and cannot feed Stage52 or Stage54.
+If one is chosen, first build and review a separate Rust port/export package,
+then produce exact probability/span parity for that package; do not relabel a
+Python checkpoint as Rust-deployable. No new human annotation effort is
+requested or implied.

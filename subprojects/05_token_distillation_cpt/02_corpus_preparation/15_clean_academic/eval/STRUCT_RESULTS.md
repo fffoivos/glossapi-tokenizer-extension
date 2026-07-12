@@ -13,12 +13,16 @@ The Step-6 Rust scope below is now implemented in the Phase-04 integration:
 
 The crate has 18 passing tests. The Phase-04 suite probes every U+0370–U+03FF
 edge code point and matches Python probabilities within `1e-12` for both heads.
-The raw joint ToC+BIB `units/STRUCT_2K_gold.jsonl` remains absent; the recoverable
-SPAN evidence supplies BIB coordinates/text only and cannot establish joint
-coverage. Production authorization would separately require a policy frozen
-before Stage10, passed Stage54, and the manual 100-case deletion-safety audit
-(exactly 50 ToC + 50 BIB). The current CPT policy is `audit_only`, so Stage58 is
-a deterministic no-op. No new 2,000-item human annotation is planned.
+The exact raw joint ToC+BIB handoff is recovered outside the tracked legacy
+`units/` path and checksum-locked. Its importer will emit only the 1,392
+historical-train documents and derive a new train/validation split after
+excluding all 608 historical-test documents. No import, profile, ladder or C0
+parity job has run, so the historical numbers below remain historical rather
+than current promotion evidence. Production authorization would separately
+require an explicit post-ladder model selection, exact Rust parity, a policy
+frozen before Stage10, passed Stage54, and the manual 100-case deletion-safety
+audit (exactly 50 ToC + 50 BIB). The current CPT policy is `audit_only`, so
+Stage58 is a deterministic no-op. No new 2,000-item human annotation is planned.
 
 Per-line structural tagger: two independent binary heads (bibliography + table-of-contents) over the
 unified LLM-silver `units/STRUCT_2K_gold.jsonl` (2,000 docs; labels 0 other 78% / 1 bib 15% / 2 toc 6%;
