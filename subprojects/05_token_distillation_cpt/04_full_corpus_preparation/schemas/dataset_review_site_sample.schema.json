@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/dataset-review-site-sample-v1.json",
+  "title": "Private escaped-text site sample",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "site_sample_id", "site_document_id", "source_repo_id", "source_dataset",
+    "high_precision_identifier_patterns_masked", "redaction_counts",
+    "characters", "text"
+  ],
+  "properties": {
+    "schema_version": {"const": "dataset_review_site_sample_v1"},
+    "site_sample_id": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+    "site_document_id": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+    "source_repo_id": {"type": "string", "minLength": 1},
+    "source_dataset": {"type": "string", "minLength": 1},
+    "high_precision_identifier_patterns_masked": {"const": true},
+    "redaction_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "characters": {"type": "integer", "minimum": 0},
+    "text": {"type": "string"}
+  }
+}

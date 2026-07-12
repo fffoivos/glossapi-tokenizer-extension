@@ -191,6 +191,15 @@ for 30,781,620,482 of those bytes; the three MDC archives add 483,008,450
 declared bytes through the separate authenticated route. No dataset payload was
 downloaded by that check.
 
+The private review presentation and GlossAPI Rust diagnostics are specified in
+[`docs/dataset_quality_review.md`](docs/dataset_quality_review.md). The prompt
+path profiles the exact Stage30 representative sample at
+`35-dataset-quality-sample`; it is never presented as a corpus-wide estimate.
+The optional `15-dataset-quality-full` scan is separately resumable and excludes
+`nanochat_base` unless explicitly requested. Inventory-only MDC, metadata and
+empty repositories retain honest missing-data states until a payload is
+acquired and normalized.
+
 ## Logical union and source-aware deduplication
 
 The published Nanochat release remains an immutable physical base. The output

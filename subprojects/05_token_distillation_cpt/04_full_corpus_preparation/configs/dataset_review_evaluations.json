@@ -1,0 +1,180 @@
+{
+  "schema_version": "dataset_review_evaluations_v1",
+  "inventory_schema_version": "post_december_glossapi_inventory_v1",
+  "entries": [
+    {
+      "repo_id": "glossAPI/openbook.gr",
+      "assessment": "A useful replacement extraction, but not a demonstrated additive source: V2 has fewer rows than the Nanochat snapshot.",
+      "recommended_action": "replacement_audit",
+      "main_risks": ["double addition", "inferior replacement", "work-level overlap"]
+    },
+    {
+      "repo_id": "glossAPI/Greek_PhD_Theses_Corpus",
+      "assessment": "The published 240-row artifact is a fragment of the much larger corpus described by the card and cannot serve as a complete replacement.",
+      "recommended_action": "fragment_audit",
+      "main_risks": ["incomplete extraction", "double addition", "misleading card totals"]
+    },
+    {
+      "repo_id": "glossAPI/istorima",
+      "assessment": "Potentially high-value oral and conversational Greek with distinctive registers, provided the external payload is acquired and privacy controls pass.",
+      "recommended_action": "conditional_candidate",
+      "main_risks": ["direct identifiers", "sensitive narratives", "speaker-template repetition"]
+    },
+    {
+      "repo_id": "glossAPI/pandemos",
+      "assessment": "The current repository contains metadata and links rather than training text.",
+      "recommended_action": "exclude_no_text",
+      "main_risks": ["no text payload", "unknown downstream overlap"]
+    },
+    {
+      "repo_id": "glossAPI/eellak-articles",
+      "assessment": "A useful modern technical and civic-news candidate after cross-deduplication with EELLAK network and web-derived material.",
+      "recommended_action": "conditional_candidate",
+      "main_risks": ["ellakv2 overlap", "web replay", "site boilerplate"]
+    },
+    {
+      "repo_id": "glossAPI/modern-greek-dictionary",
+      "assessment": "Useful lexical coverage, but non-prose structure and repetition make it appropriate only at a deliberately low sampling weight.",
+      "recommended_action": "low_weight_candidate",
+      "main_risks": ["entry-template repetition", "non-prose distribution", "overweighting"]
+    },
+    {
+      "repo_id": "glossAPI/ert-press",
+      "assessment": "Potentially useful current-affairs Greek after external acquisition and cross-news deduplication.",
+      "recommended_action": "conditional_candidate",
+      "main_risks": ["AMNA overlap", "web/news duplication", "article furniture"]
+    },
+    {
+      "repo_id": "glossAPI/amna-press",
+      "assessment": "A strong large-scale news candidate if one canonical representation is selected and temporal/news duplication is controlled.",
+      "recommended_action": "candidate_after_dedup",
+      "main_risks": ["alternate text duplication", "syndicated repetition", "template boilerplate"]
+    },
+    {
+      "repo_id": "glossAPI/opengov-deliberations-v2",
+      "assessment": "The preferred OpenGov representation, provided nested articles, comments, and documents are flattened without repeating consultation context.",
+      "recommended_action": "replace_legacy",
+      "main_risks": ["legacy duplication", "repeated parent context", "nested representation duplication"]
+    },
+    {
+      "repo_id": "glossAPI/artos-zois",
+      "assessment": "Small but potentially valuable issue-level material that first needs document segmentation and academic-structure cleanup.",
+      "recommended_action": "conditional_candidate",
+      "main_risks": ["issue-level aggregation", "OCR noise", "ToC and bibliography mass"]
+    },
+    {
+      "repo_id": "glossAPI/e-nautilia",
+      "assessment": "Potentially useful technical material; tables, formulae, superscripts, and subscripts must be preserved rather than destructively normalized.",
+      "recommended_action": "conditional_candidate",
+      "main_risks": ["table loss", "formula loss", "small sample"]
+    },
+    {
+      "repo_id": "glossAPI/elstat",
+      "assessment": "The current repository is an empty scaffold.",
+      "recommended_action": "exclude_no_text",
+      "main_risks": ["no payload"]
+    },
+    {
+      "repo_id": "glossAPI/archetai",
+      "assessment": "A plausible academic candidate, but the current artifact and stale card disagree and must be recounted before admission.",
+      "recommended_action": "conditional_candidate",
+      "main_risks": ["stale card", "renamed partial artifact", "extraction completeness"]
+    },
+    {
+      "repo_id": "glossAPI/greek-national-theatre-corpus",
+      "assessment": "Valuable cultural and historical press material after OCR, masthead, page-furniture, and repeated-article cleanup.",
+      "recommended_action": "conditional_candidate",
+      "main_risks": ["OCR corruption", "mastheads", "reprinted article duplication"]
+    },
+    {
+      "repo_id": "glossAPI/ellakv2",
+      "assessment": "Large and promising, contingent on strong template analysis and cross-deduplication with EELLAK articles and web sources.",
+      "recommended_action": "candidate_after_dedup",
+      "main_risks": ["eellak-articles overlap", "web replay", "template concentration"]
+    },
+    {
+      "repo_id": "glossAPI/elocus",
+      "assessment": "Admit only documents demonstrated novel relative to Nanochat and OpenArchives representations.",
+      "recommended_action": "novel_delta_only",
+      "main_risks": ["OpenArchives overlap", "alternate extraction", "work duplication"]
+    },
+    {
+      "repo_id": "glossAPI/libduth",
+      "assessment": "Admit only a document-key and content-verified novel delta relative to OpenArchives.",
+      "recommended_action": "novel_delta_only",
+      "main_risks": ["OpenArchives overlap", "alternate extraction", "work duplication"]
+    },
+    {
+      "repo_id": "glossAPI/libiep",
+      "assessment": "Potentially useful educational material after work-level comparison with existing school-book content.",
+      "recommended_action": "novel_delta_only",
+      "main_risks": ["school-book overlap", "edition duplication", "page furniture"]
+    },
+    {
+      "repo_id": "glossAPI/heinrich_boell_stiftung",
+      "assessment": "A small potentially useful publication collection, but the tiny payload warrants an extraction-completeness check.",
+      "recommended_action": "conditional_candidate",
+      "main_risks": ["truncated extraction", "small sample", "publication furniture"]
+    },
+    {
+      "repo_id": "glossAPI/psepheda",
+      "assessment": "Admit only content novel to OpenArchives after work-level provenance and extraction comparison.",
+      "recommended_action": "novel_delta_only",
+      "main_risks": ["OpenArchives overlap", "mixed item provenance", "alternate extraction"]
+    },
+    {
+      "repo_id": "glossAPI/OpenCouncil",
+      "assessment": "Useful parliamentary dialogue if the full transcript is selected exactly once and nested, flattened, and generated variants are not combined.",
+      "recommended_action": "conditional_candidate",
+      "main_risks": ["representation duplication", "generated variants", "repeated meeting structure"]
+    },
+    {
+      "repo_id": "glossAPI/diavgeia",
+      "assessment": "Large and potentially valuable, but it needs a source-specific governance-document cleaner and template controls rather than academic ToC/BIB cleaning.",
+      "recommended_action": "source_specific_cleaning",
+      "main_risks": ["direct identifiers", "signature boilerplate", "corrected versions", "template concentration"]
+    },
+    {
+      "repo_id": "glossAPI/new-sociology",
+      "assessment": "A small issue-level collection requiring article segmentation and structural/OCR review before admission.",
+      "recommended_action": "conditional_candidate",
+      "main_risks": ["issue-level aggregation", "OCR noise", "ToC and bibliography mass"]
+    },
+    {
+      "repo_id": "glossAPI/ecclesia",
+      "assessment": "A plausible domain candidate after cross-deduplication and structural-cleanliness review; topical overlap alone is not duplicate evidence.",
+      "recommended_action": "conditional_candidate",
+      "main_risks": ["cross-source overlap", "structural noise", "template repetition"]
+    },
+    {
+      "repo_id": "glossAPI/hellenic-parliament-legislative-work",
+      "assessment": "The current repository is an empty scaffold and cannot contribute training text.",
+      "recommended_action": "exclude_no_text",
+      "main_risks": ["no payload"]
+    },
+    {
+      "repo_id": "glossAPI/School_books",
+      "assessment": "Add only novel works or editions from the 767 added rows, normalizing the two new schemas independently.",
+      "recommended_action": "novel_delta_only",
+      "main_risks": ["edition duplication", "schema mismatch", "card arithmetic mismatch"]
+    },
+    {
+      "repo_id": "glossAPI/opengov.gr-diaboyleuseis",
+      "assessment": "Superseded by OpenGov V2; the changed legacy SQLite snapshot must not be trained alongside V2.",
+      "recommended_action": "exclude_superseded",
+      "main_risks": ["wholesale duplication", "stale representation"]
+    },
+    {
+      "repo_id": "glossAPI/eurlex-greek-legislation",
+      "assessment": "Treat the changed release as a snapshot/replacement audit and never concatenate overlapping ZIPs.",
+      "recommended_action": "replacement_audit",
+      "main_risks": ["overlapping ZIP snapshots", "non-incremental token total", "base overlap"]
+    },
+    {
+      "repo_id": "glossAPI/openarchives.gr",
+      "assessment": "Treat the post-cutoff corpus as wholesale reprocessing: choose one representation per work and add only a demonstrated novel delta.",
+      "recommended_action": "novel_delta_only",
+      "main_risks": ["wholesale base overlap", "alternate extraction", "deleted and regenerated shards"]
+    }
+  ]
+}

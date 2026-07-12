@@ -58,6 +58,20 @@ an AArch64 binary, `COMPLETED` marker and `build_receipt.json` under
 `$RUN_ROOT/detector_builds/<commit>-<job-id>/`. Preserve the printed
 `REFERENCE_BIN` and `DETECTOR_BUILD_RECEIPT` values for structural submission.
 
+Build and attest the two GlossAPI quality extensions separately. First prepare
+a clean Clariden checkout at `$GLOSSAPI_QUALITY_ROOT`, pinned to the commit in
+`paths.env`; then submit the CPU-only build:
+
+```bash
+bash clariden/submit.sh build-quality-runtime
+CONFIRM_LAUNCH=1 bash clariden/submit.sh build-quality-runtime
+```
+
+The job uses job-local Cargo targets and a staged module directory. The two
+modules and their source/Cargo/runtime receipt become visible together through
+one atomic directory rename. Compilation is not permitted on the Mac or login
+node. See `docs/dataset_quality_review.md` for the receipt contract.
+
 The legacy filename `STRUCT_2K_gold.jsonl` refers to LLM-silver annotations, not
 human gold. The exact historical joint ToC+BIB handoff is recovered and pinned;
 its 608 historical-test documents remain physically excluded from fitting,
@@ -272,6 +286,33 @@ This creates Slurm `afterok` dependencies for `10-normalize`, `20-lineage` and
 directly; no redundant full-corpus JSONL copy is materialized. Every normalized
 row preserves the exact upstream `source_dataset`, candidate `source_id` and a
 work-level `work_id`.
+
+Once Stage30 is complete, run the exact representative-sample diagnostics. This
+is the default dataset-quality route and requires Stage30 by construction:
+
+```bash
+bash clariden/submit.sh dataset-quality-sample
+CONFIRM_LAUNCH=1 bash clariden/submit.sh dataset-quality-sample
+```
+
+It creates `35-dataset-quality-sample`, exports only the selected primary
+review documents with high-precision identifier patterns masked and raw source
+document IDs omitted, and usually evaluates them in one 4,096-document Rust
+batch. Generic names and addresses may remain. The relocatable packet receipt
+and per-shard export checkpoints bind the exact Stage30 requests and canonical
+inputs. The summary is labelled `review_sample` and carries both global and
+per-repository denominators.
+
+The optional raw population scan is independent and may start after Stage10:
+
+```bash
+bash clariden/submit.sh dataset-quality-full
+CONFIRM_LAUNCH=1 bash clariden/submit.sh dataset-quality-full
+```
+
+It creates `15-dataset-quality-full`. Resume preemption with
+`clariden/submit.sh resume dataset-quality-full`. Nanochat is excluded by
+default; `INCLUDE_NANOCHAT_BASE=1` is an explicit, much larger audit.
 
 ### Review the redacted packet on the Mac
 

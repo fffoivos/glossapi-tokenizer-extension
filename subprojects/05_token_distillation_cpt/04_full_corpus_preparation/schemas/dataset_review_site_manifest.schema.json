@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/dataset-review-site-manifest-v1.json",
+  "title": "Private offline dataset review site manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "status", "generated_at", "output_root", "repository_count",
+    "dataset_page_count", "complete_sample_count", "inputs", "security", "files"
+  ],
+  "properties": {
+    "schema_version": {"const": "dataset_review_site_manifest_v1"},
+    "status": {"const": "passed"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "output_root": {"type": "string", "minLength": 1},
+    "repository_count": {"const": 29},
+    "dataset_page_count": {"const": 29},
+    "complete_sample_count": {"type": "integer", "minimum": 0},
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inventory", "evaluations", "sources_config", "quality_summary",
+        "review_requests", "review_responses", "admission", "novelty",
+        "complete_samples", "complete_samples_receipt"
+      ],
+      "properties": {
+        "inventory": {"$ref": "#/$defs/inputFile"},
+        "evaluations": {"$ref": "#/$defs/inputFile"},
+        "sources_config": {"$ref": "#/$defs/inputFile"},
+        "quality_summary": {"$ref": "#/$defs/nullableInputFile"},
+        "review_requests": {"$ref": "#/$defs/nullableInputFile"},
+        "review_responses": {"$ref": "#/$defs/nullableInputFile"},
+        "admission": {"$ref": "#/$defs/nullableInputFile"},
+        "novelty": {"$ref": "#/$defs/nullableInputFile"},
+        "complete_samples": {"$ref": "#/$defs/nullableInputFile"},
+        "complete_samples_receipt": {"$ref": "#/$defs/nullableInputFile"}
+      }
+    },
+    "security": {
+      "type": "object",
+      "required": ["bind_address", "external_resources", "content_security_policy", "sample_text_inserted_with_text_content", "file_mode", "directory_mode", "sensitive_do_not_share", "opaque_id_key_sha256"],
+      "properties": {
+        "bind_address": {"const": "127.0.0.1"},
+        "external_resources": {"const": false},
+        "content_security_policy": {"const": true},
+        "sample_text_inserted_with_text_content": {"const": true},
+        "file_mode": {"const": "0600"},
+        "directory_mode": {"const": "0700"},
+        "sensitive_do_not_share": {"const": true},
+        "opaque_id_key_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "files": {"type": "array", "minItems": 33, "items": {"$ref": "#/$defs/file"}}
+  },
+  "$defs": {
+    "inputFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "nullableInputFile": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/inputFile"}
+      ]
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

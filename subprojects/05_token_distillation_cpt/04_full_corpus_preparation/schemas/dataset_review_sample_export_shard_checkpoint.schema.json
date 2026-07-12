@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/dataset-review-sample-export-shard-checkpoint-v1.json",
+  "title": "Per-shard resumable review sample export checkpoint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "status", "contract_sha256", "input_shard",
+    "rows_scanned", "redaction_totals", "output"
+  ],
+  "properties": {
+    "schema_version": {"const": "dataset_review_sample_export_shard_checkpoint_v1"},
+    "status": {"const": "passed"},
+    "contract_sha256": {"$ref": "#/$defs/sha256"},
+    "input_shard": {"$ref": "#/$defs/shard"},
+    "rows_scanned": {"type": "integer", "minimum": 1},
+    "redaction_totals": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "bytes", "sha256", "rows"],
+      "properties": {
+        "path": {"const": "samples.jsonl"},
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "rows": {"type": "integer", "minimum": 0}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "shard": {
+      "type": "object",
+      "required": ["source_id", "path", "bytes", "sha256", "rows"],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "rows": {"type": "integer", "minimum": 1}
+      }
+    }
+  }
+}

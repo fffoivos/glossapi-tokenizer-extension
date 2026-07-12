@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/dataset-review-complete-sample-v1.json",
+  "title": "Local-only complete review document with high-precision identifier masking",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "sample_id", "source_id", "source_repo_id", "source_revision",
+    "source_dataset", "display_document_id", "normalized_text_sha256", "profile_text_sha256",
+    "profile_text_variant", "input_shard_path", "input_shard_sha256", "input_row_index",
+    "private_data_true", "corrected_version_present",
+    "high_precision_identifier_patterns_masked", "redaction_counts", "text"
+  ],
+  "properties": {
+    "schema_version": {"const": "dataset_review_complete_sample_v1"},
+    "sample_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_id": {"type": "string", "minLength": 1},
+    "source_repo_id": {"type": "string", "minLength": 1},
+    "source_revision": {"type": "string", "minLength": 1},
+    "source_dataset": {"type": "string", "minLength": 1},
+    "display_document_id": {"type": "string", "pattern": "^[0-9a-f]{16}$"},
+    "normalized_text_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "profile_text_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "profile_text_variant": {"const": "high_precision_identifier_masked_review_sample"},
+    "input_shard_path": {"type": "string", "minLength": 1},
+    "input_shard_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "input_row_index": {"type": "integer", "minimum": 0},
+    "private_data_true": {"const": false},
+    "corrected_version_present": {"type": "boolean"},
+    "high_precision_identifier_patterns_masked": {"const": true},
+    "redaction_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "text": {"type": "string"}
+  }
+}

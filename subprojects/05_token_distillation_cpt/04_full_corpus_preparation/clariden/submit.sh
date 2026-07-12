@@ -23,7 +23,8 @@ usage:
   submit.sh chain-finalize-promoted
 
 Corpus stages:
-  normalize lineage review-packet review-aggregate clean post-clean-packet
+  normalize dataset-quality-sample dataset-quality-full lineage review-packet
+  review-aggregate clean post-clean-packet
   post-clean-aggregate structural-stage50-detect structural-review-packet
   structural-promote final-clean greekmmlu-freeze decontam dedup materialize publish
 
@@ -31,7 +32,8 @@ Acquisition stages:
   acquire acquire-mdc
 
 Legacy/audit stages:
-  bootstrap-runtime build-detector acquire quality structural-detect structural-token-loss
+  bootstrap-runtime build-detector build-quality-runtime acquire quality
+  structural-detect structural-token-loss
 
 All submissions are dry runs unless CONFIRM_LAUNCH=1.  The cleaning chains stop
 before irreversible Stage58 finalization.  Finalization is a separate explicit
@@ -44,12 +46,15 @@ stage_script() {
     case "$1" in
         bootstrap-runtime) echo "$HERE/04_bootstrap_runtime.sbatch" ;;
         build-detector) echo "$HERE/05_build_detector.sbatch" ;;
+        build-quality-runtime) echo "$HERE/06_build_glossapi_quality_runtime.sbatch" ;;
         acquire) echo "$HERE/00_acquire_sources.sbatch" ;;
         acquire-mdc) echo "$HERE/02_acquire_mdc_sources.sbatch" ;;
         quality) echo "$HERE/10_quality_audit.sbatch" ;;
         structural-detect) echo "$HERE/20_structural_detect.sbatch" ;;
         structural-token-loss) echo "$HERE/30_structural_token_loss.sbatch" ;;
         normalize|10-normalize) echo "$HERE/40_normalize_sources.sbatch" ;;
+        dataset-quality|dataset-quality-sample|35-dataset-quality-sample) echo "$HERE/41_profile_dataset_quality_rust.sbatch" ;;
+        dataset-quality-full|15-dataset-quality-full) echo "$HERE/41_profile_dataset_quality_rust.sbatch" ;;
         lineage|20-lineage) echo "$HERE/42_build_lineage.sbatch" ;;
         review-packet|30-review-packet) echo "$HERE/44_build_review_packet.sbatch" ;;
         review-aggregate|40-review-aggregate) echo "$HERE/46_aggregate_reviews.sbatch" ;;
@@ -72,6 +77,8 @@ stage_script() {
 canonical_stage() {
     case "$1" in
         normalize|10-normalize) echo 10-normalize ;;
+        dataset-quality|dataset-quality-sample|35-dataset-quality-sample) echo 35-dataset-quality-sample ;;
+        dataset-quality-full|15-dataset-quality-full) echo 15-dataset-quality-full ;;
         lineage|20-lineage) echo 20-lineage ;;
         review-packet|30-review-packet) echo 30-review-packet ;;
         review-aggregate|40-review-aggregate) echo 40-review-aggregate ;;
@@ -239,6 +246,12 @@ submit_one() {
     script=$(stage_script "$target") || { echo "ERROR: unknown stage: $target" >&2; exit 2; }
     manual_preflight "$target"
     local export_spec="ALL,REPO_ROOT=$REPO_ROOT,PHASE04_DIR=$PHASE04_DIR,ACADEMIC_DIR=$ACADEMIC_DIR,PHASE04_CLARIDEN_DIR=$HERE,PHASE04_EXPECTED_COMMIT=$PHASE04_EXPECTED_COMMIT"
+    case "$target" in
+        dataset-quality|dataset-quality-sample|35-dataset-quality-sample)
+            export_spec+=",QUALITY_MODE=review_sample" ;;
+        dataset-quality-full|15-dataset-quality-full)
+            export_spec+=",QUALITY_MODE=full_scan" ;;
+    esac
     if [[ -n "${PIPELINE_RUN_ID:-}" ]]; then
         export_spec+=",PIPELINE_RUN_ID=$PIPELINE_RUN_ID,PIPELINE_RUNS_ROOT=$PIPELINE_RUNS_ROOT"
     fi
@@ -261,7 +274,8 @@ show_status() {
     echo "PIPELINE_RUN_ROOT=$root"
     local stage state
     for stage in \
-        10-normalize 20-lineage 30-review-packet 40-review-aggregate \
+        10-normalize 15-dataset-quality-full 20-lineage 30-review-packet \
+        35-dataset-quality-sample 40-review-aggregate \
         50-clean 55-post-clean-review-packet 56-post-clean-review-aggregate \
         52-structural-detect 53-structural-review-packet 54-structural-promote \
         58-final-clean 59-greekmmlu-freeze 60-greekmmlu-decontam 70-dedup 80-materialize-validate 90-publish; do
