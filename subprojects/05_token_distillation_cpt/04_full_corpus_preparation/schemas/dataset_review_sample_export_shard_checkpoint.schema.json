@@ -33,12 +33,17 @@
   },
   "$defs": {
     "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "relativePath": {
+      "type": "string", "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*(?:^|/)\\.(?:/|$))(?!.*//)(?!.*\\\\)[^/]+(?:/[^/]+)*$"
+    },
     "shard": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["source_id", "path", "bytes", "sha256", "rows"],
       "properties": {
         "source_id": {"type": "string", "minLength": 1},
-        "path": {"type": "string", "minLength": 1},
+        "path": {"$ref": "#/$defs/relativePath"},
         "bytes": {"type": "integer", "minimum": 1},
         "sha256": {"$ref": "#/$defs/sha256"},
         "rows": {"type": "integer", "minimum": 1}

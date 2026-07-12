@@ -457,6 +457,21 @@ def load_relative_json_nofollow(
     return path, parsed, size, digest
 
 
+def relative_file_physical_identity_nofollow(
+    root: Path, value: Any, *, context: str
+) -> tuple[int, int]:
+    """Return a stable device/inode identity for a contained regular file."""
+
+    relative = safe_relative_path(value, context=f"{context}.path")
+    descriptor, _ = _open_relative_regular_nofollow(root, relative, context=context)
+    try:
+        before = os.fstat(descriptor)
+        _verify_relative_path_identity(root, relative, before, context=context)
+        return before.st_dev, before.st_ino
+    finally:
+        os.close(descriptor)
+
+
 def validate_relative_file_receipt_nofollow(
     root: Path,
     value: Any,
@@ -582,7 +597,9 @@ def validate_checkpoint_inventory_coverage(
         raise ValueError("quality_summary.batch_checkpoints.inventory: expected list")
     normalized: list[dict[str, Any]] = []
     seen_receipt_paths: set[str] = set()
-    seen_batches: set[tuple[str, str, str, int]] = set()
+    seen_receipt_parents: set[str] = set()
+    seen_output_paths: set[str] = set()
+    seen_batches: set[tuple[str, int]] = set()
     for index, row in enumerate(inventory):
         context = f"quality_summary.batch_checkpoints.inventory[{index}]"
         if not isinstance(row, Mapping):
@@ -606,6 +623,11 @@ def validate_checkpoint_inventory_coverage(
         receipt_path = safe_relative_path(
             row["receipt_path"], context=f"{context}.receipt_path"
         ).as_posix()
+        receipt = Path(receipt_path)
+        if receipt.name != "receipt.json":
+            raise ValueError(f"{context}.receipt_path: expected receipt.json basename")
+        receipt_parent = receipt.parent.as_posix()
+        output_path = (receipt.parent / "documents.parquet").as_posix()
         input_shard_source_id = str(row["input_shard_source_id"])
         if not input_shard_source_id:
             raise ValueError(f"{context}.input_shard_source_id: empty")
@@ -633,17 +655,16 @@ def validate_checkpoint_inventory_coverage(
         )
         if rows < 1 or row_end <= row_start or row_end - row_start != rows:
             raise ValueError(f"{context}: invalid checkpoint row interval")
-        identity = (
-            input_shard_source_id,
-            input_shard_path,
-            input_shard_sha256,
-            batch_index,
-        )
+        identity = (input_shard_path, batch_index)
         if receipt_path in seen_receipt_paths:
             raise ValueError("quality_summary: duplicate checkpoint receipt path")
+        if receipt_parent in seen_receipt_parents or output_path in seen_output_paths:
+            raise ValueError("quality_summary: duplicate checkpoint output identity")
         if identity in seen_batches:
-            raise ValueError("quality_summary: duplicate input-shard batch identity")
+            raise ValueError("quality_summary: duplicate physical-shard batch identity")
         seen_receipt_paths.add(receipt_path)
+        seen_receipt_parents.add(receipt_parent)
+        seen_output_paths.add(output_path)
         seen_batches.add(identity)
         normalized.append(
             {
@@ -1081,6 +1102,8 @@ def validate_and_project_quality_summary(value: Any) -> dict[str, Any]:
         }
     ) != len(normalized_shards):
         raise ValueError("quality_summary.input_shards: duplicate shard identity")
+    if len({str(row["path"]) for row in normalized_shards}) != len(normalized_shards):
+        raise ValueError("quality_summary.input_shards: duplicate physical shard path")
 
     checkpoints = value["batch_checkpoints"]
     if not isinstance(checkpoints, Mapping):
@@ -1167,6 +1190,24 @@ def validate_and_project_quality_summary(value: Any) -> dict[str, Any]:
         != sorted({str(row["source_id"]) for row in normalized_shards})
     ):
         raise ValueError("quality_summary: incomplete full-scan document coverage")
+    if scan_mode == "review_sample":
+        sample_identities = {
+            (
+                str(row["input_shard_source_id"]),
+                str(row["input_shard_path"]),
+                str(row["input_shard_sha256"]),
+            )
+            for row in validated_inventory
+        }
+        if len(sample_identities) != 1:
+            raise ValueError("quality_summary: review-sample checkpoint identity drift")
+        sample_source_id, sample_path, _ = next(iter(sample_identities))
+        if (
+            sample_source_id != "exact_source_review_sample"
+            or Path(sample_path).parent.as_posix() != "review-sample"
+            or int(validated_inventory[-1]["row_end_exclusive"]) != documents
+        ):
+            raise ValueError("quality_summary: review-sample checkpoint identity drift")
     if (
         global_validated["characters"]
         != sum(row["characters"] for row in validated_repositories)
@@ -1264,6 +1305,45 @@ def validate_and_project_quality_summary(value: Any) -> dict[str, Any]:
         "checkpoint_inventory_sha256": str(checkpoints["inventory_sha256"]),
         "document_output": document_output,
     }
+
+
+def validate_review_sample_checkpoint_binding(
+    summary: Mapping[str, Any],
+    review_sample: Mapping[str, Any],
+    *,
+    context: str,
+) -> None:
+    """Bind the synthetic checkpoint shard to the exact masked sample packet."""
+
+    packet = validate_receipt_object(
+        review_sample.get("review_sample_packet"),
+        context=f"{context}.review_sample_packet",
+    )
+    packet_name = Path(str(packet["path"])).name
+    if not packet_name:
+        raise ValueError(f"{context}: review sample packet path is empty")
+    expected_path = f"review-sample/{packet_name}"
+    expected_sha256 = str(packet["sha256"])
+    documents = require_nonnegative_int(
+        review_sample.get("documents"), context=f"{context}.documents"
+    )
+    inventory = summary.get("batch_checkpoints", {}).get("inventory", [])
+    if (
+        documents < 1
+        or not isinstance(inventory, list)
+        or not inventory
+        or int(summary.get("batch_checkpoints", {}).get("rows", -1)) != documents
+        or any(
+            row.get("input_shard_source_id") != "exact_source_review_sample"
+            or row.get("input_shard_path") != expected_path
+            or row.get("input_shard_sha256") != expected_sha256
+            for row in inventory
+            if isinstance(row, Mapping)
+        )
+        or any(not isinstance(row, Mapping) for row in inventory)
+        or int(inventory[-1].get("row_end_exclusive", -1)) != documents
+    ):
+        raise ValueError(f"{context}: review-sample checkpoint binding drift")
 
 
 def _portable_file_receipt(path: Path, *, label: str) -> dict[str, Any]:
@@ -1652,6 +1732,15 @@ def build_quality_site_handoff(
         or contract.get("zero_badness_zero_greek_guard") is not True
     ):
         raise ValueError("quality contract/summary semantic drift")
+    if summary["scan_mode"] == "review_sample":
+        review_sample = contract.get("review_sample")
+        if not isinstance(review_sample, Mapping):
+            raise ValueError("quality contract lacks review-sample binding")
+        validate_review_sample_checkpoint_binding(
+            summary,
+            review_sample,
+            context="quality contract review_sample",
+        )
 
     validate_relative_file_receipt_nofollow(
         output_root,
@@ -1661,6 +1750,8 @@ def build_quality_site_handoff(
     )
     checkpoints = summary["batch_checkpoints"]
     receipt_closure: list[dict[str, Any]] = []
+    seen_checkpoint_output_paths: set[str] = set()
+    seen_checkpoint_output_identities: set[tuple[int, int]] = set()
     for item in checkpoints["inventory"]:
         receipt_path, receipt_value, receipt_bytes, receipt_sha256 = (
             load_relative_json_nofollow(
@@ -1696,6 +1787,8 @@ def build_quality_site_handoff(
             item["receipt_path"], context="quality checkpoint receipt path"
         )
         output_root_relative = (receipt_relative.parent / output_relative).as_posix()
+        if output_root_relative in seen_checkpoint_output_paths:
+            raise ValueError("duplicate quality checkpoint output path")
         output_path = validate_relative_file_receipt_nofollow(
             output_root,
             output_root_relative,
@@ -1703,6 +1796,15 @@ def build_quality_site_handoff(
             context="quality checkpoint document output",
             rows=int(item["rows"]),
         )
+        output_identity = relative_file_physical_identity_nofollow(
+            output_root,
+            output_root_relative,
+            context="quality checkpoint document output",
+        )
+        if output_identity in seen_checkpoint_output_identities:
+            raise ValueError("aliased quality checkpoint output identity")
+        seen_checkpoint_output_paths.add(output_root_relative)
+        seen_checkpoint_output_identities.add(output_identity)
         if (
             receipt_bytes < 1
             or str(receipt_value["output"]["sha256"]) != item["output_sha256"]
@@ -2209,6 +2311,11 @@ def validate_quality_site_handoff(
             != "high_precision_identifier_masked_review_sample"
         ):
             raise ValueError("quality_handoff: review-sample contract drift")
+        validate_review_sample_checkpoint_binding(
+            summary,
+            review_sample,
+            context="quality_handoff.contract.review_sample",
+        )
     elif review_sample is not None:
         raise ValueError(
             "quality_handoff: full scan unexpectedly has review-sample contract"
@@ -3739,6 +3846,9 @@ def consolidate_batches(
     writer = None
     groups: dict[str, GroupStats] = defaultdict(lambda: GroupStats(reservoir_size))
     global_group = GroupStats(reservoir_size)
+    seen_checkpoint_parents: set[str] = set()
+    seen_output_paths: set[str] = set()
+    seen_output_identities: set[tuple[int, int]] = set()
     rows = 0
     try:
         for receipt in sorted(
@@ -3754,9 +3864,20 @@ def consolidate_batches(
                 root=output_root,
                 context="quality checkpoint receipt",
             )
+            if receipt_path.name != "receipt.json":
+                raise ValueError(
+                    "quality checkpoint receipt must be named receipt.json"
+                )
+            checkpoint_parent = receipt_path.parent.relative_to(output_root).as_posix()
             data_relative = (
                 receipt_path.parent.relative_to(output_root) / "documents.parquet"
             )
+            data_relative_value = data_relative.as_posix()
+            if (
+                checkpoint_parent in seen_checkpoint_parents
+                or data_relative_value in seen_output_paths
+            ):
+                raise ValueError("duplicate quality checkpoint output path")
             descriptor, data_path = _open_relative_regular_nofollow(
                 output_root,
                 data_relative,
@@ -3764,6 +3885,12 @@ def consolidate_batches(
             )
             try:
                 before = os.fstat(descriptor)
+                output_identity = (before.st_dev, before.st_ino)
+                if output_identity in seen_output_identities:
+                    raise ValueError("aliased quality checkpoint output identity")
+                seen_checkpoint_parents.add(checkpoint_parent)
+                seen_output_paths.add(data_relative_value)
+                seen_output_identities.add(output_identity)
                 if before.st_size != int(
                     receipt["output"].get("bytes", -1)
                 ) or _sha256_fd(descriptor) != str(receipt["output"].get("sha256", "")):

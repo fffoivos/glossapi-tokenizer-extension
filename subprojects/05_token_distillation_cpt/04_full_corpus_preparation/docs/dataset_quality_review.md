@@ -100,7 +100,9 @@ that attestation on Clariden, the exporter rehashes every checkpoint fragment,
 revalidates the exact normalization/acquisition identity closure, and records
 the current masking implementation hashes. Its contract, checkpoint directories,
 receipts, and fragments must remain beneath the packet checkpoint root and are
-opened component-by-component without following symlinks. The packet, receipt,
+opened component-by-component without following symlinks. Checkpoint receipt
+objects are validated against the same exact-key, non-boolean integer, SHA, and
+relative-path contract as their JSON schema before reuse. The packet, receipt,
 and attestation are inputs to the Rust profiler, so the usual 100/200 per
 exact-source sampling strata remain intact.
 
@@ -118,13 +120,18 @@ audit; the default scans candidates, not Nanochat.
 
 Checkpoint receipts and outputs are opened by walking every path component with
 `O_NOFOLLOW`; absolute, non-canonical, traversal, duplicate, and symlinked paths
-are rejected. Each checkpoint inventory entry binds the source ID, canonical
-shard path and SHA, batch index, and half-open row interval. A `full_scan`
-summary is valid only when those intervals start at zero, are contiguous and
-non-overlapping, end at every selected shard's declared row count, and sum to
-the consolidated document and repository denominators. The compact site
-handoff repeats this validation and reopens each receipt/output beneath the
-quality output root before attesting it.
+are rejected. Selected physical shard paths are globally unique regardless of
+source labels or hashes. Every batch has its own directory containing exactly
+`receipt.json` and `documents.parquet`; receipt parents, derived output paths,
+and device/inode output identities cannot alias. Each checkpoint inventory
+entry binds the source ID, canonical shard path and SHA, batch index, and
+half-open row interval. A `full_scan` summary is valid only when those intervals
+start at zero, are contiguous and non-overlapping, end at every selected
+shard's declared row count, and sum to the consolidated document and repository
+denominators. A `review_sample` summary instead binds its single synthetic shard
+to the exact masked packet filename, SHA, and document count recorded in the
+contract. The compact site handoff repeats these validations and reopens each
+receipt/output beneath the quality output root before attesting it.
 
 The zero-badness/zero-Greek case is an explicit guard state because the current
 Rust noise scorer can return zero when no Greek remains after table filtering.

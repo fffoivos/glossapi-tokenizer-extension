@@ -437,21 +437,39 @@ def write_quality_summary_and_handoff(
         {key: shard[key] for key in ("source_id", "path", "bytes", "sha256", "rows")}
         for shard in shards
     ]
-    checkpoint_inventory = [
-        {
-            "receipt_path": f"batches/{index}/receipt.json",
-            "receipt_sha256": hashlib.sha256(f"receipt:{index}".encode()).hexdigest(),
-            "output_sha256": hashlib.sha256(f"output:{index}".encode()).hexdigest(),
-            "rows": 1,
-            "input_shard_source_id": str(shard["source_id"]),
-            "input_shard_path": str(shard["path"]),
-            "input_shard_sha256": shard["sha256"],
-            "batch_index": 0,
-            "row_start": 0,
-            "row_end_exclusive": 1,
-        }
-        for index, shard in enumerate(shards)
-    ]
+    if scan_mode == "review_sample":
+        checkpoint_inventory = [
+            {
+                "receipt_path": "batches/review/receipt.json",
+                "receipt_sha256": hashlib.sha256(b"receipt:review").hexdigest(),
+                "output_sha256": hashlib.sha256(b"output:review").hexdigest(),
+                "rows": len(repositories),
+                "input_shard_source_id": "exact_source_review_sample",
+                "input_shard_path": "review-sample/samples",
+                "input_shard_sha256": "1" * 64,
+                "batch_index": 0,
+                "row_start": 0,
+                "row_end_exclusive": len(repositories),
+            }
+        ]
+    else:
+        checkpoint_inventory = [
+            {
+                "receipt_path": f"batches/{index}/receipt.json",
+                "receipt_sha256": hashlib.sha256(
+                    f"receipt:{index}".encode()
+                ).hexdigest(),
+                "output_sha256": hashlib.sha256(f"output:{index}".encode()).hexdigest(),
+                "rows": 1,
+                "input_shard_source_id": str(shard["source_id"]),
+                "input_shard_path": str(shard["path"]),
+                "input_shard_sha256": shard["sha256"],
+                "batch_index": 0,
+                "row_start": 0,
+                "row_end_exclusive": 1,
+            }
+            for index, shard in enumerate(shards)
+        ]
     contract_receipt = {"path": "contract.json", "bytes": 1, "sha256": "c" * 64}
     normalization_receipt = {
         "path": "/clariden/normalization_manifest.json",
@@ -1288,7 +1306,7 @@ def test_full_quality_scope_is_selected_population_not_corpus_wide(
 def test_quality_summary_rejects_checkpoint_path_traversal_with_rehashed_inventory(
     tmp_path: Path,
 ) -> None:
-    summary_path, _ = write_quality_summary_and_handoff(tmp_path)
+    summary_path, _ = write_quality_summary_and_handoff(tmp_path, scan_mode="full_scan")
     summary = json.loads(summary_path.read_text())
     inventory = summary["batch_checkpoints"]["inventory"]
     inventory[0]["receipt_path"] = "../outside/receipt.json"
@@ -1309,7 +1327,7 @@ def test_quality_summary_rejects_checkpoint_path_traversal_with_rehashed_invento
 def test_quality_summary_rejects_duplicate_checkpoint_paths_and_batch_identities(
     tmp_path: Path,
 ) -> None:
-    summary_path, _ = write_quality_summary_and_handoff(tmp_path)
+    summary_path, _ = write_quality_summary_and_handoff(tmp_path, scan_mode="full_scan")
     summary = json.loads(summary_path.read_text())
     inventory = summary["batch_checkpoints"]["inventory"]
     inventory[1]["receipt_path"] = inventory[0]["receipt_path"]
@@ -1319,7 +1337,9 @@ def test_quality_summary_rejects_duplicate_checkpoint_paths_and_batch_identities
 
     identity_root = tmp_path / "identity"
     identity_root.mkdir()
-    summary_path, _ = write_quality_summary_and_handoff(identity_root)
+    summary_path, _ = write_quality_summary_and_handoff(
+        identity_root, scan_mode="full_scan"
+    )
     summary = json.loads(summary_path.read_text())
     inventory = summary["batch_checkpoints"]["inventory"]
     for key in (
@@ -1330,8 +1350,80 @@ def test_quality_summary_rejects_duplicate_checkpoint_paths_and_batch_identities
     ):
         inventory[1][key] = inventory[0][key]
     summary["batch_checkpoints"]["inventory_sha256"] = QUALITY.sha256_json(inventory)
-    with pytest.raises(ValueError, match="duplicate input-shard batch identity"):
+    with pytest.raises(ValueError, match="duplicate physical-shard batch identity"):
         QUALITY.validate_and_project_quality_summary(summary)
+
+
+def test_quality_summary_rejects_duplicate_physical_shard_paths(
+    tmp_path: Path,
+) -> None:
+    summary_path, _ = write_quality_summary_and_handoff(tmp_path, scan_mode="full_scan")
+    summary = json.loads(summary_path.read_text())
+    first_path = summary["input_shards"][0]["path"]
+    second_source = summary["input_shards"][1]["source_id"]
+    summary["input_shards"][1]["path"] = first_path
+    inventory = summary["batch_checkpoints"]["inventory"]
+    second_checkpoint = next(
+        row for row in inventory if row["input_shard_source_id"] == second_source
+    )
+    second_checkpoint["input_shard_path"] = first_path
+    summary["batch_checkpoints"]["inventory_sha256"] = QUALITY.sha256_json(inventory)
+    with pytest.raises(ValueError, match="duplicate physical shard path"):
+        QUALITY.validate_and_project_quality_summary(summary)
+
+
+def test_quality_summary_rejects_checkpoint_receipt_filename_aliases(
+    tmp_path: Path,
+) -> None:
+    summary_path, _ = write_quality_summary_and_handoff(tmp_path, scan_mode="full_scan")
+    summary = json.loads(summary_path.read_text())
+    inventory = summary["batch_checkpoints"]["inventory"]
+    inventory[0]["receipt_path"] = "batches/shared/a.json"
+    inventory[1]["receipt_path"] = "batches/shared/b.json"
+    summary["batch_checkpoints"]["inventory_sha256"] = QUALITY.sha256_json(inventory)
+    with pytest.raises(ValueError, match="expected receipt.json basename"):
+        QUALITY.validate_and_project_quality_summary(summary)
+
+
+def test_review_sample_checkpoint_is_bound_to_exact_packet_identity(
+    tmp_path: Path,
+) -> None:
+    summary_path, handoff_path = write_quality_summary_and_handoff(tmp_path)
+    summary = json.loads(summary_path.read_text())
+    inventory = summary["batch_checkpoints"]["inventory"]
+    inventory[0].update(
+        {
+            "input_shard_source_id": "forged-review-source",
+            "input_shard_path": "review-sample/forged.jsonl",
+            "input_shard_sha256": "f" * 64,
+        }
+    )
+    summary["batch_checkpoints"]["inventory_sha256"] = QUALITY.sha256_json(inventory)
+    with pytest.raises(ValueError, match="review-sample checkpoint identity drift"):
+        QUALITY.validate_and_project_quality_summary(summary)
+
+    summary = json.loads(summary_path.read_text())
+    inventory = summary["batch_checkpoints"]["inventory"]
+    inventory[0]["input_shard_sha256"] = "f" * 64
+    summary["batch_checkpoints"]["inventory_sha256"] = QUALITY.sha256_json(inventory)
+    summary_path.write_text(json.dumps(summary))
+    projection = QUALITY.validate_and_project_quality_summary(summary)
+    handoff = json.loads(handoff_path.read_text())
+    handoff["aggregate_projection_sha256"] = QUALITY.sha256_json(projection)
+    handoff["summary"].update(
+        {
+            "bytes": summary_path.stat().st_size,
+            "sha256": QUALITY.sha256_file(summary_path),
+        }
+    )
+    handoff["checkpoint_closure"]["inventory_sha256"] = summary["batch_checkpoints"][
+        "inventory_sha256"
+    ]
+    handoff_path.write_text(json.dumps(handoff))
+    with pytest.raises(ValueError, match="review-sample checkpoint binding drift"):
+        QUALITY.validate_quality_site_handoff(
+            summary_path=summary_path, handoff_path=handoff_path
+        )
 
 
 def test_full_scan_rejects_partial_selected_shard_coverage(tmp_path: Path) -> None:
@@ -2361,6 +2453,27 @@ def test_rust_batch_checkpoint_and_zero_greek_guard(tmp_path: Path) -> None:
     ).to_pylist():
         jsonschema.Draft202012Validator(document_contract).validate(row)
 
+    original_checkpoint = Path(receipt["receipt"]["path"]).parent
+    alias_checkpoint = output / "alias-checkpoint"
+    alias_checkpoint.mkdir()
+    (alias_checkpoint / "receipt.json").write_text("{}")
+    os.link(
+        original_checkpoint / "documents.parquet",
+        alias_checkpoint / "documents.parquet",
+    )
+    aliased_receipt = {
+        **receipt,
+        "receipt": {
+            **receipt["receipt"],
+            "path": str(alias_checkpoint / "receipt.json"),
+        },
+        "batch_index": 1,
+    }
+    with pytest.raises(ValueError, match="aliased quality checkpoint output identity"):
+        QUALITY.consolidate_batches(
+            [receipt, aliased_receipt], output_root=output, reservoir_size=100
+        )
+
 
 def test_nofollow_reader_rejects_path_swap_during_read(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -2553,6 +2666,85 @@ def test_sample_export_checkpoint_rejects_symlinked_directory_and_files(
             contract_sha256="c" * 64,
             shard_receipt=shard_receipt,
         )
+
+
+def test_sample_export_checkpoint_runtime_matches_strict_schema(
+    tmp_path: Path,
+) -> None:
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = json.loads(
+        (
+            HERE
+            / "schemas"
+            / "dataset_review_sample_export_shard_checkpoint.schema.json"
+        ).read_text()
+    )
+    validator = jsonschema.Draft202012Validator(schema)
+    shard_receipt = {
+        "source_id": "candidate",
+        "path": "candidate/part.parquet",
+        "bytes": 10,
+        "sha256": "a" * 64,
+        "rows": 1,
+    }
+    fragment_bytes = b'{"sample_id":"one"}\n'
+    base = {
+        "schema_version": EXPORTER.CHECKPOINT_SCHEMA,
+        "status": "passed",
+        "contract_sha256": "c" * 64,
+        "input_shard": shard_receipt,
+        "rows_scanned": 1,
+        "redaction_totals": {},
+        "output": {
+            "path": "samples.jsonl",
+            "bytes": len(fragment_bytes),
+            "sha256": hashlib.sha256(fragment_bytes).hexdigest(),
+            "rows": 1,
+        },
+    }
+    cases: list[dict[str, object]] = []
+    for mutation in (
+        ("unexpected_root", "root"),
+        ("unexpected_output", "output"),
+        ("unexpected_input", "input"),
+        ("boolean_rows_scanned", "rows_scanned"),
+        ("boolean_output_rows", "output_rows"),
+        ("string_output_bytes", "output_bytes"),
+    ):
+        value = json.loads(json.dumps(base))
+        if mutation[1] == "root":
+            value["unexpected_root"] = True
+        elif mutation[1] == "output":
+            value["output"]["unexpected"] = True
+        elif mutation[1] == "input":
+            value["input_shard"]["unexpected"] = True
+        elif mutation[1] == "rows_scanned":
+            value["rows_scanned"] = True
+        elif mutation[1] == "output_rows":
+            value["output"]["rows"] = True
+        else:
+            value["output"]["bytes"] = str(len(fragment_bytes))
+        value["_case_name"] = mutation[0]
+        cases.append(value)
+
+    checkpoint_root = tmp_path / "checkpoints"
+    checkpoint_root.mkdir()
+    for index, value in enumerate(cases):
+        case_name = str(value.pop("_case_name"))
+        directory = checkpoint_root / f"case-{index}"
+        directory.mkdir()
+        (directory / "samples.jsonl").write_bytes(fragment_bytes)
+        (directory / "receipt.json").write_text(json.dumps(value))
+        with pytest.raises(jsonschema.ValidationError):
+            validator.validate(value)
+        with pytest.raises(ValueError):
+            EXPORTER.validate_checkpoint(
+                directory,
+                checkpoint_root=checkpoint_root,
+                contract_sha256="c" * 64,
+                shard_receipt=shard_receipt,
+            )
+        assert case_name
 
 
 @pytest.mark.parametrize(

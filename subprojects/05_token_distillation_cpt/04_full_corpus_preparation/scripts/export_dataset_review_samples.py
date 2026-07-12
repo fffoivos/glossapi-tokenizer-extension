@@ -33,6 +33,10 @@ from profile_dataset_quality_rust import (
     normalization_identity_closure,
     prepare_secure_directory,
     read_json,
+    require_exact_keys,
+    require_nonnegative_int,
+    require_sha256,
+    safe_relative_path,
     secure_directory_under_root,
     sha256_file,
     sha256_json,
@@ -196,18 +200,80 @@ def validate_checkpoint(
         (directory_relative / "receipt.json").as_posix(),
         context="sample-export checkpoint receipt",
     )
-    if not isinstance(value, dict):
-        raise ValueError(f"{receipt_path}: checkpoint root must be an object")
+    require_exact_keys(
+        value,
+        required=(
+            "schema_version",
+            "status",
+            "contract_sha256",
+            "input_shard",
+            "rows_scanned",
+            "redaction_totals",
+            "output",
+        ),
+        context=f"{receipt_path}: checkpoint",
+    )
+    require_sha256(value["contract_sha256"], context=f"{receipt_path}: contract_sha256")
+    input_shard = value["input_shard"]
+    if not isinstance(input_shard, Mapping):
+        raise ValueError(f"{receipt_path}: input_shard must be an object")
+    require_exact_keys(
+        input_shard,
+        required=("source_id", "path", "bytes", "sha256", "rows"),
+        context=f"{receipt_path}: input_shard",
+    )
+    if not isinstance(input_shard["source_id"], str) or not input_shard["source_id"]:
+        raise ValueError(f"{receipt_path}: invalid input_shard source_id")
+    safe_relative_path(input_shard["path"], context=f"{receipt_path}: input_shard.path")
+    if (
+        require_nonnegative_int(
+            input_shard["bytes"], context=f"{receipt_path}: input_shard.bytes"
+        )
+        < 1
+        or require_nonnegative_int(
+            input_shard["rows"], context=f"{receipt_path}: input_shard.rows"
+        )
+        < 1
+    ):
+        raise ValueError(f"{receipt_path}: invalid input_shard size")
+    require_sha256(input_shard["sha256"], context=f"{receipt_path}: input_shard.sha256")
+    rows_scanned = require_nonnegative_int(
+        value["rows_scanned"], context=f"{receipt_path}: rows_scanned"
+    )
+    redaction_totals = value["redaction_totals"]
+    if not isinstance(redaction_totals, Mapping) or any(
+        not isinstance(name, str)
+        or not name
+        or not isinstance(count, int)
+        or isinstance(count, bool)
+        or count < 0
+        for name, count in redaction_totals.items()
+    ):
+        raise ValueError(f"{receipt_path}: invalid redaction_totals")
     if (
         value.get("schema_version") != CHECKPOINT_SCHEMA
         or value.get("status") != "passed"
         or value.get("contract_sha256") != contract_sha256
-        or value.get("input_shard") != shard_receipt
-        or int(value.get("rows_scanned", -1)) != int(shard_receipt["rows"])
+        or input_shard != shard_receipt
+        or rows_scanned != shard_receipt["rows"]
     ):
         raise ValueError(f"{receipt_path}: sample-export checkpoint drift")
     output = value.get("output")
-    if not isinstance(output, dict) or output.get("path") != "samples.jsonl":
+    if not isinstance(output, Mapping):
+        raise ValueError(f"{receipt_path}: checkpoint output must be an object")
+    require_exact_keys(
+        output,
+        required=("path", "bytes", "sha256", "rows"),
+        context=f"{receipt_path}: checkpoint output",
+    )
+    output_bytes = require_nonnegative_int(
+        output["bytes"], context=f"{receipt_path}: output.bytes"
+    )
+    output_rows = require_nonnegative_int(
+        output["rows"], context=f"{receipt_path}: output.rows"
+    )
+    require_sha256(output["sha256"], context=f"{receipt_path}: output.sha256")
+    if output.get("path") != "samples.jsonl":
         raise ValueError(f"{receipt_path}: invalid checkpoint output")
     fragment, fragment_bytes, fragment_size, fragment_sha256 = (
         load_relative_bytes_nofollow(
@@ -221,10 +287,9 @@ def validate_checkpoint(
     except UnicodeDecodeError as exc:
         raise ValueError(f"{fragment}: checkpoint output is not UTF-8") from exc
     if (
-        int(output.get("bytes", -1)) != fragment_size
+        output_bytes != fragment_size
         or str(output.get("sha256", "")) != fragment_sha256
-        or int(output.get("rows", -1))
-        != len([line for line in fragment_text.splitlines() if line])
+        or output_rows != len([line for line in fragment_text.splitlines() if line])
     ):
         raise ValueError(f"{receipt_path}: checkpoint output drift")
     validate_redaction_counts(
