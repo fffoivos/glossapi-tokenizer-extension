@@ -142,6 +142,16 @@ DISTRIBUTION_METRICS: tuple[str, ...] = (
     "cleaner_removed_character_fraction",
 )
 
+UNIT_INTERVAL_DISTRIBUTION_METRICS = frozenset(
+    {
+        "raw_greek_letter_fraction",
+        "raw_repeated_line_fraction",
+        "raw_one_token_line_fraction",
+        "rust_noise_table_ratio",
+        "cleaner_removed_character_fraction",
+    }
+)
+
 DOCUMENT_COUNTERS: tuple[str, ...] = (
     "empty_input_documents",
     "html_documents",
@@ -864,6 +874,34 @@ def _validate_statistics(
         )
         for name in DISTRIBUTION_METRICS
     }
+    for metric_name, distribution in validated_distributions.items():
+        values = (
+            distribution[name]
+            for name in (
+                "min",
+                "mean",
+                "p10_approx",
+                "p50_approx",
+                "p90_approx",
+                "p99_approx",
+                "max",
+            )
+            if distribution[name] is not None
+        )
+        upper = (
+            1.0
+            if metric_name in UNIT_INTERVAL_DISTRIBUTION_METRICS
+            else 100.0
+            if metric_name == "rust_noise_latin_percentage"
+            else None
+        )
+        if any(
+            value < 0.0 or (upper is not None and value > upper) for value in values
+        ):
+            expected = f"[0, {upper:g}]" if upper is not None else "nonnegative"
+            raise ValueError(
+                f"{context}.distributions.{metric_name}: values must be {expected}"
+            )
     template = value["template_concentration"]
     if not isinstance(template, Mapping):
         raise ValueError(f"{context}.template_concentration: expected object")
@@ -1317,6 +1355,26 @@ def normalization_identity_closure(manifest_path: Path) -> dict[str, Any]:
             or configured.get("role") != source.get("role")
         ):
             raise ValueError(f"{source_id}: config/normalization identity drift")
+        configured_acquisition_kind = configured.get("acquisition_kind")
+        if configured_acquisition_kind in (None, ""):
+            configured_acquisition_kind = "hugging_face"
+        if (
+            not isinstance(configured_acquisition_kind, str)
+            or not configured_acquisition_kind
+        ):
+            raise ValueError(f"{source_id}: invalid configured acquisition kind")
+        configured_mdc_dataset_id = configured.get("mdc_dataset_id")
+        if configured_mdc_dataset_id == "":
+            configured_mdc_dataset_id = None
+        if configured_acquisition_kind == "mozilla_data_collective":
+            if (
+                not isinstance(configured_mdc_dataset_id, str)
+                or not configured_mdc_dataset_id
+            ):
+                raise ValueError(f"{source_id}: MDC source lacks mdc_dataset_id")
+        elif configured_mdc_dataset_id is not None:
+            raise ValueError(f"{source_id}: non-MDC source declares mdc_dataset_id")
+        source_config_sha256 = sha256_json({"source_id": source_id, **dict(configured)})
         acquisition_source = acquisition_sources.get(source_id)
         if (
             acquisition_source is None
@@ -1325,6 +1383,28 @@ def normalization_identity_closure(manifest_path: Path) -> dict[str, Any]:
             or acquisition_source.get("role") != source.get("role")
         ):
             raise ValueError(f"{source_id}: normalization/acquisition identity drift")
+        acquisition_mdc_dataset_id = acquisition_source.get("mdc_dataset_id")
+        if acquisition_mdc_dataset_id == "":
+            acquisition_mdc_dataset_id = None
+        acquisition_kind = acquisition_source.get("acquisition_kind")
+        if acquisition_kind in (None, ""):
+            # Existing MDC acquisition receipts identify the provider with the
+            # pinned dataset ID but predate the explicit acquisition_kind field.
+            acquisition_kind = (
+                "mozilla_data_collective"
+                if isinstance(acquisition_mdc_dataset_id, str)
+                and acquisition_mdc_dataset_id
+                else "hugging_face"
+            )
+        if not isinstance(acquisition_kind, str) or not acquisition_kind:
+            raise ValueError(f"{source_id}: invalid acquisition provenance kind")
+        if (
+            acquisition_kind != configured_acquisition_kind
+            or acquisition_mdc_dataset_id != configured_mdc_dataset_id
+        ):
+            raise ValueError(
+                f"{source_id}: config/acquisition provenance identity drift"
+            )
         source_receipt = source.get("receipt")
         if not isinstance(source_receipt, Mapping):
             raise ValueError(f"{source_id}: missing normalization source receipt")
@@ -1481,6 +1561,9 @@ def normalization_identity_closure(manifest_path: Path) -> dict[str, Any]:
                 "repo_id": repo_id,
                 "revision": revision,
                 "role": str(source.get("role", "")),
+                "acquisition_kind": configured_acquisition_kind,
+                "mdc_dataset_id": configured_mdc_dataset_id,
+                "source_config_sha256": source_config_sha256,
                 "documents": documents,
                 "shards": len(shards),
                 "shard_inventory_sha256": sha256_json(shards),
@@ -1806,7 +1889,10 @@ def snapshot_quality_handoff_outputs(
 
 
 def validate_quality_site_handoff(
-    *, summary_path: Path, handoff_path: Path
+    *,
+    summary_path: Path,
+    handoff_path: Path,
+    expected_sources_config_sha256: str | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Validate the compact on-cluster attestation and return safe projections."""
 
@@ -1867,6 +1953,13 @@ def validate_quality_site_handoff(
     )
     if normalization["schema_version"] != "full_cpt_normalization_manifest_v1":
         raise ValueError("quality_handoff: normalization schema drift")
+    if expected_sources_config_sha256 is not None:
+        expected_sources_config_sha256 = require_sha256(
+            expected_sources_config_sha256,
+            context="quality_handoff.expected_sources_config_sha256",
+        )
+        if normalization["sources_config_sha256"] != expected_sources_config_sha256:
+            raise ValueError("quality_handoff: local sources config identity drift")
     normalization_manifest_receipt = validate_receipt_object(
         normalization["manifest"],
         context="quality_handoff.normalization.manifest",
@@ -1903,6 +1996,9 @@ def validate_quality_site_handoff(
                 "repo_id",
                 "revision",
                 "role",
+                "acquisition_kind",
+                "mdc_dataset_id",
+                "source_config_sha256",
                 "documents",
                 "shards",
                 "shard_inventory_sha256",
@@ -1917,6 +2013,12 @@ def validate_quality_site_handoff(
             "repo_id": str(row["repo_id"]),
             "revision": str(row["revision"]),
             "role": str(row["role"]),
+            "acquisition_kind": str(row["acquisition_kind"]),
+            "mdc_dataset_id": row["mdc_dataset_id"],
+            "source_config_sha256": require_sha256(
+                row["source_config_sha256"],
+                context="quality_handoff.identity.source_config_sha256",
+            ),
             "documents": require_nonnegative_int(
                 row["documents"], context="quality_handoff.identity.documents"
             ),
@@ -1944,6 +2046,19 @@ def validate_quality_site_handoff(
             not identity["source_id"]
             or not identity["repo_id"]
             or not identity["revision"]
+            or not identity["role"]
+            or not identity["acquisition_kind"]
+            or (
+                identity["acquisition_kind"] == "mozilla_data_collective"
+                and (
+                    not isinstance(identity["mdc_dataset_id"], str)
+                    or not identity["mdc_dataset_id"]
+                )
+            )
+            or (
+                identity["acquisition_kind"] != "mozilla_data_collective"
+                and identity["mdc_dataset_id"] is not None
+            )
             or identity["documents"] < 1
             or identity["shards"] < 1
             or identity["acquisition_selected_file_count"] < 1
@@ -2259,7 +2374,13 @@ def normalization_dependency_receipt_paths(manifest_path: Path) -> list[Path]:
 
 
 def canonical_json(value: Any) -> str:
-    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
 
 
 def sha256_json(value: Any) -> str:
@@ -2333,10 +2454,17 @@ def strict_json_loads(text: str, *, context: str) -> Any:
     def reject_constant(value: str) -> Any:
         raise ValueError(f"{context}: non-finite JSON constant {value}")
 
+    def finite_float(value: str) -> float:
+        result = float(value)
+        if not math.isfinite(result):
+            raise ValueError(f"{context}: non-finite JSON number {value}")
+        return result
+
     return json.loads(
         text,
         object_pairs_hook=object_pairs,
         parse_constant=reject_constant,
+        parse_float=finite_float,
     )
 
 
@@ -2356,7 +2484,14 @@ def write_json_atomic(
     descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-            json.dump(value, handle, ensure_ascii=False, indent=2, sort_keys=True)
+            json.dump(
+                value,
+                handle,
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+                allow_nan=False,
+            )
             handle.write("\n")
             handle.flush()
             os.fsync(handle.fileno())

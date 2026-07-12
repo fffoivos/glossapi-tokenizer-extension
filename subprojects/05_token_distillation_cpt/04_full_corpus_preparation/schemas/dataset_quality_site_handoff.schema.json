@@ -136,20 +136,30 @@
       "required": [
         "source_id", "repo_id", "revision", "role", "documents", "shards",
         "shard_inventory_sha256", "acquisition_selected_file_count",
-        "acquisition_selected_bytes", "acquisition_file_inventory_sha256"
+        "acquisition_selected_bytes", "acquisition_file_inventory_sha256",
+        "acquisition_kind", "mdc_dataset_id", "source_config_sha256"
       ],
       "properties": {
         "source_id": {"type": "string", "minLength": 1},
         "repo_id": {"type": "string", "minLength": 1},
         "revision": {"type": "string", "minLength": 1},
-        "role": {"type": "string"},
+        "role": {"type": "string", "minLength": 1},
+        "acquisition_kind": {"type": "string", "minLength": 1},
+        "mdc_dataset_id": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1}]},
+        "source_config_sha256": {"$ref": "#/$defs/sha256"},
         "documents": {"type": "integer", "minimum": 1},
         "shards": {"type": "integer", "minimum": 1},
         "shard_inventory_sha256": {"$ref": "#/$defs/sha256"},
         "acquisition_selected_file_count": {"type": "integer", "minimum": 1},
         "acquisition_selected_bytes": {"type": "integer", "minimum": 0},
         "acquisition_file_inventory_sha256": {"$ref": "#/$defs/sha256"}
-      }
+      },
+      "if": {
+        "properties": {"acquisition_kind": {"const": "mozilla_data_collective"}},
+        "required": ["acquisition_kind"]
+      },
+      "then": {"properties": {"mdc_dataset_id": {"type": "string", "minLength": 1}}},
+      "else": {"properties": {"mdc_dataset_id": {"type": "null"}}}
     },
     "reviewSample": {
       "type": "object", "additionalProperties": false,

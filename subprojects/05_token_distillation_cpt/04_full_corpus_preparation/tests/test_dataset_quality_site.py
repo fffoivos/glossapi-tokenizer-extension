@@ -4,6 +4,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -38,6 +39,32 @@ EXPORTER = load_module(
     "phase04_export_dataset_review_samples",
     HERE / "scripts" / "export_dataset_review_samples.py",
 )
+SOURCES_CONFIG = HERE / "configs" / "sources.json"
+
+
+def source_identities(path: Path = SOURCES_CONFIG) -> dict[str, dict[str, object]]:
+    return SITE.source_identity_map(json.loads(path.read_text(encoding="utf-8")))
+
+
+def write_sources_config(
+    path: Path,
+    sources: list[dict[str, object]],
+) -> Path:
+    path.write_text(
+        json.dumps(
+            {
+                "schema_version": "full_cpt_sources_v1",
+                "base": {
+                    "repo_id": "owner/base",
+                    "revision": "b" * 40,
+                    "role": "base",
+                },
+                "sources": sources,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return path
 
 
 def tracked_inventory() -> dict:
@@ -52,7 +79,10 @@ def review_request(
     dataset: str = "diavgeia",
     doc_id: str = "ADA-1",
     preview_sentinel: str | None = None,
+    revision: str | None = None,
 ) -> dict[str, object]:
+    if revision is None:
+        revision = str(source_identities()[source_id]["revision"])
     row: dict[str, object] = {
         "schema_version": "source_quality_review_request_v1",
         "reviewer_slot": "primary",
@@ -62,7 +92,7 @@ def review_request(
         "source": {
             "source_id": source_id,
             "source_repo_id": repo_id,
-            "source_revision": "a" * 40,
+            "source_revision": revision,
             "source_doc_id": doc_id,
         },
     }
@@ -79,13 +109,16 @@ def complete_sample(
     repo_id: str = "glossAPI/diavgeia",
     dataset: str = "diavgeia",
     doc_id: str = "ADA-1",
+    revision: str | None = None,
 ) -> dict[str, object]:
+    if revision is None:
+        revision = str(source_identities()[source_id]["revision"])
     return {
         "schema_version": "dataset_review_complete_sample_v1",
         "sample_id": uid,
         "source_id": source_id,
         "source_repo_id": repo_id,
-        "source_revision": "a" * 40,
+        "source_revision": revision,
         "source_dataset": dataset,
         "display_document_id": QUALITY.display_document_id(doc_id),
         "normalized_text_sha256": hashlib.sha256(text.encode()).hexdigest(),
@@ -111,6 +144,7 @@ def write_packet_receipt(
     requests: Path,
     rows: int,
     normalization: Path | None = None,
+    sources_config: Path = SOURCES_CONFIG,
 ) -> Path:
     packet_rows = [
         json.loads(line) for line in packet.read_text().splitlines() if line.strip()
@@ -196,15 +230,22 @@ def write_packet_receipt(
         "sha256": "c" * 64,
     }
     identities = []
+    tracked_sources = source_identities(sources_config)
     for source_id in sorted({str(row["source_id"]) for row in packet_rows}):
         source_rows = [row for row in packet_rows if row["source_id"] == source_id]
         source_shards = [row for row in input_shards if row["source_id"] == source_id]
+        tracked = tracked_sources[source_id]
+        assert source_rows[0]["source_repo_id"] == tracked["repo_id"]
+        assert source_rows[0]["source_revision"] == tracked["revision"]
         identities.append(
             {
                 "source_id": source_id,
-                "repo_id": str(source_rows[0]["source_repo_id"]),
-                "revision": str(source_rows[0]["source_revision"]),
-                "role": "additive_candidate",
+                "repo_id": tracked["repo_id"],
+                "revision": tracked["revision"],
+                "role": tracked["role"],
+                "acquisition_kind": tracked["acquisition_kind"],
+                "mdc_dataset_id": tracked["mdc_dataset_id"],
+                "source_config_sha256": tracked["source_config_sha256"],
                 "documents": len(source_rows),
                 "shards": len(source_shards),
                 "shard_inventory_sha256": QUALITY.sha256_json(source_shards),
@@ -234,7 +275,7 @@ def write_packet_receipt(
         "normalization": {
             "schema_version": "full_cpt_normalization_manifest_v1",
             "manifest": normalization_receipt,
-            "sources_config_sha256": "1" * 64,
+            "sources_config_sha256": QUALITY.sha256_file(sources_config),
             "acquisition_receipt_sha256": "2" * 64,
             "source_identities": identities,
             "source_identity_inventory_sha256": QUALITY.sha256_json(identities),
@@ -294,6 +335,28 @@ def write_packet_receipt(
     return attestation_path
 
 
+def refresh_packet_attestation_receipts(
+    *, packet: Path, receipt_path: Path, attestation_path: Path
+) -> None:
+    attestation = json.loads(attestation_path.read_text(encoding="utf-8"))
+    attestation["packet"].update(
+        {
+            "bytes": packet.stat().st_size,
+            "sha256": QUALITY.sha256_file(packet),
+        }
+    )
+    attestation_path.write_text(json.dumps(attestation), encoding="utf-8")
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    receipt["output"] = attestation["packet"]
+    receipt["site_attestation"].update(
+        {
+            "bytes": attestation_path.stat().st_size,
+            "sha256": QUALITY.sha256_file(attestation_path),
+        }
+    )
+    receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+
+
 def quality_distribution(documents: int, value: float = 0.0) -> dict[str, object]:
     metric = value if documents else None
     return {
@@ -343,10 +406,20 @@ def write_quality_summary_and_handoff(
     *,
     repositories: list[tuple[str, str, str]] | None = None,
     scan_mode: str = "review_sample",
+    sources_config: Path = SOURCES_CONFIG,
 ) -> tuple[Path, Path]:
+    tracked_sources = source_identities(sources_config)
     repositories = repositories or [
-        ("kallipos", "glossAPI/Apothetirio_Kallipos", "a" * 40),
-        ("diavgeia", "glossAPI/diavgeia", "a" * 40),
+        (
+            "kallipos_sections",
+            str(tracked_sources["kallipos_sections"]["repo_id"]),
+            str(tracked_sources["kallipos_sections"]["revision"]),
+        ),
+        (
+            "diavgeia",
+            str(tracked_sources["diavgeia"]["repo_id"]),
+            str(tracked_sources["diavgeia"]["revision"]),
+        ),
     ]
     repositories = sorted(repositories, key=lambda row: row[1])
     shards = [
@@ -442,7 +515,10 @@ def write_quality_summary_and_handoff(
             "source_id": source_id,
             "repo_id": repo_id,
             "revision": revision,
-            "role": "additive_candidate",
+            "role": tracked_sources[source_id]["role"],
+            "acquisition_kind": tracked_sources[source_id]["acquisition_kind"],
+            "mdc_dataset_id": tracked_sources[source_id]["mdc_dataset_id"],
+            "source_config_sha256": tracked_sources[source_id]["source_config_sha256"],
             "documents": 1,
             "shards": 1,
             "shard_inventory_sha256": hashlib.sha256(
@@ -500,7 +576,7 @@ def write_quality_summary_and_handoff(
                 "bytes": normalization_receipt["bytes"],
                 "sha256": normalization_receipt["sha256"],
             },
-            "sources_config_sha256": "5" * 64,
+            "sources_config_sha256": QUALITY.sha256_file(sources_config),
             "acquisition_receipt_sha256": "6" * 64,
             "source_identities": identities,
             "source_identity_inventory_sha256": QUALITY.sha256_json(identities),
@@ -557,8 +633,23 @@ def write_normalization_fixture(
     repo_id: str,
     revision: str,
     rows: int,
+    mdc_dataset_id: str | None = None,
+    acquisition_receipt_kind: str | None = None,
 ) -> Path:
     shard_sha = QUALITY.sha256_file(shard)
+    configured_source: dict[str, object] = {
+        "source_id": source_id,
+        "repo_id": repo_id,
+        "revision": revision,
+        "role": "additive_candidate",
+    }
+    if mdc_dataset_id is not None:
+        configured_source.update(
+            {
+                "acquisition_kind": "mozilla_data_collective",
+                "mdc_dataset_id": mdc_dataset_id,
+            }
+        )
     sources_config = tmp_path / "sources.json"
     sources_config.write_text(
         json.dumps(
@@ -569,17 +660,32 @@ def write_normalization_fixture(
                     "revision": "b" * 40,
                     "role": "base",
                 },
-                "sources": [
-                    {
-                        "source_id": source_id,
-                        "repo_id": repo_id,
-                        "revision": revision,
-                        "role": "additive_candidate",
-                    }
-                ],
+                "sources": [configured_source],
             }
         )
     )
+    acquisition_source: dict[str, object] = {
+        "source_id": source_id,
+        "repo_id": repo_id,
+        "revision": revision,
+        "role": "additive_candidate",
+        "selected_file_count": 1,
+        "selected_bytes": shard.stat().st_size,
+        "files": [
+            {
+                "path": shard.name,
+                "size": shard.stat().st_size,
+                "hash_kind": "sha256",
+                "expected_hash": shard_sha,
+            }
+        ],
+    }
+    if mdc_dataset_id is not None:
+        # This is the current realistic MDC receipt shape: the pinned dataset
+        # ID predates the optional explicit acquisition_kind field.
+        acquisition_source["mdc_dataset_id"] = mdc_dataset_id
+    if acquisition_receipt_kind is not None:
+        acquisition_source["acquisition_kind"] = acquisition_receipt_kind
     acquisition = tmp_path / "acquisition.json"
     acquisition.write_text(
         json.dumps(
@@ -587,24 +693,7 @@ def write_normalization_fixture(
                 "schema_version": "full_cpt_acquisition_receipt_v1",
                 "status": "passed",
                 "sources_config_sha256": QUALITY.sha256_file(sources_config),
-                "sources": [
-                    {
-                        "source_id": source_id,
-                        "repo_id": repo_id,
-                        "revision": revision,
-                        "role": "additive_candidate",
-                        "selected_file_count": 1,
-                        "selected_bytes": shard.stat().st_size,
-                        "files": [
-                            {
-                                "path": shard.name,
-                                "size": shard.stat().st_size,
-                                "hash_kind": "sha256",
-                                "expected_hash": shard_sha,
-                            }
-                        ],
-                    }
-                ],
+                "sources": [acquisition_source],
             }
         )
     )
@@ -769,7 +858,7 @@ def test_site_build_is_offline_complete_and_safe_for_hostile_sample(
         "is_corpus_wide": False,
         "label": "Representative source-review sample",
         "scan_mode": "review_sample",
-        "selected_source_ids": ["diavgeia", "kallipos"],
+        "selected_source_ids": ["diavgeia", "kallipos_sections"],
     }
     assert data["overview"]["supplemental_profiled_repositories_outside_inventory"] == [
         "glossAPI/Apothetirio_Kallipos"
@@ -907,7 +996,7 @@ def test_site_filters_supplemental_complete_samples_and_emits_no_hidden_text(
                 json.dumps(
                     review_request(
                         hidden_uid,
-                        source_id="kallipos",
+                        source_id="kallipos_sections",
                         repo_id="glossAPI/Apothetirio_Kallipos",
                         dataset="kallipos",
                         doc_id="hidden-doc",
@@ -927,7 +1016,7 @@ def test_site_filters_supplemental_complete_samples_and_emits_no_hidden_text(
                     complete_sample(
                         hidden_uid,
                         hidden_text,
-                        source_id="kallipos",
+                        source_id="kallipos_sections",
                         repo_id="glossAPI/Apothetirio_Kallipos",
                         dataset="kallipos",
                         doc_id="hidden-doc",
@@ -1060,9 +1149,117 @@ def test_site_manifest_validation_rejects_tamper_extra_and_symlink(
         SITE.validate_site_directory(output)
 
 
+def test_site_inputs_refuse_symlinked_parent_components(tmp_path: Path) -> None:
+    real_inputs = tmp_path / "real-inputs"
+    real_inputs.mkdir()
+    for name, source in (
+        ("inventory.json", HERE / "configs" / "post_december_inventory.json"),
+        ("evaluations.json", HERE / "configs" / "dataset_review_evaluations.json"),
+        ("sources.json", SOURCES_CONFIG),
+    ):
+        shutil.copy2(source, real_inputs / name)
+    linked_inputs = tmp_path / "linked-inputs"
+    linked_inputs.symlink_to(real_inputs, target_is_directory=True)
+    with pytest.raises(ValueError, match="symlink/non-directory"):
+        SITE.build_site(
+            SimpleNamespace(
+                inventory=linked_inputs / "inventory.json",
+                evaluations=linked_inputs / "evaluations.json",
+                sources_config=linked_inputs / "sources.json",
+                quality_summary=None,
+                quality_handoff_receipt=None,
+                review_requests=None,
+                review_responses=None,
+                admission=None,
+                novelty=None,
+                complete_samples=None,
+                complete_samples_receipt=None,
+                complete_samples_attestation=None,
+                output_dir=tmp_path / "site",
+                replace=False,
+            )
+        )
+
+
+def test_site_parses_private_stable_copies_during_parent_swap_and_restore(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    inputs = tmp_path / "inputs"
+    attacker = tmp_path / "attacker"
+    held = tmp_path / "inputs-held"
+    inputs.mkdir()
+    attacker.mkdir()
+    source_files = {
+        "inventory.json": HERE / "configs" / "post_december_inventory.json",
+        "evaluations.json": HERE / "configs" / "dataset_review_evaluations.json",
+        "sources.json": SOURCES_CONFIG,
+    }
+    for name, source in source_files.items():
+        shutil.copy2(source, inputs / name)
+        shutil.copy2(source, attacker / name)
+    sentinel = "ATTACKER_PARENT_SWAP_SENTINEL"
+    attacker_evaluations = json.loads(
+        (attacker / "evaluations.json").read_text(encoding="utf-8")
+    )
+    attacker_evaluations["entries"][0]["assessment"] = sentinel
+    (attacker / "evaluations.json").write_text(json.dumps(attacker_evaluations))
+
+    original_load_evaluations = SITE.load_evaluations
+
+    def load_while_parent_is_swapped(path: Path, repos: set[str]):
+        inputs.rename(held)
+        inputs.symlink_to(attacker, target_is_directory=True)
+        try:
+            return original_load_evaluations(path, repos)
+        finally:
+            inputs.unlink()
+            held.rename(inputs)
+
+    monkeypatch.setattr(SITE, "load_evaluations", load_while_parent_is_swapped)
+    output = tmp_path / "site"
+    SITE.build_site(
+        SimpleNamespace(
+            inventory=inputs / "inventory.json",
+            evaluations=inputs / "evaluations.json",
+            sources_config=inputs / "sources.json",
+            quality_summary=None,
+            quality_handoff_receipt=None,
+            review_requests=None,
+            review_responses=None,
+            admission=None,
+            novelty=None,
+            complete_samples=None,
+            complete_samples_receipt=None,
+            complete_samples_attestation=None,
+            output_dir=output,
+            replace=False,
+        )
+    )
+    assert sentinel not in (output / "site_data.json").read_text(encoding="utf-8")
+    snapshot = SITE.snapshot_site_input(inputs / "inventory.json")
+    assert not hasattr(snapshot, "content")
+
+
 def test_full_quality_scope_is_selected_population_not_corpus_wide(
     tmp_path: Path,
 ) -> None:
+    sources_config = write_sources_config(
+        tmp_path / "sources.json",
+        [
+            {
+                "source_id": "alpha",
+                "repo_id": "owner/alpha",
+                "revision": "a" * 40,
+                "role": "additive_candidate",
+            },
+            {
+                "source_id": "beta",
+                "repo_id": "owner/beta",
+                "revision": "b" * 40,
+                "role": "additive_candidate",
+            },
+        ],
+    )
     path, handoff = write_quality_summary_and_handoff(
         tmp_path,
         repositories=[
@@ -1070,8 +1267,9 @@ def test_full_quality_scope_is_selected_population_not_corpus_wide(
             ("beta", "owner/beta", "b" * 40),
         ],
         scan_mode="full_scan",
+        sources_config=sources_config,
     )
-    _, scope, _ = SITE.load_quality(path, handoff)
+    _, scope, _ = SITE.load_quality(path, handoff, sources_config_path=sources_config)
     assert scope == {
         "scan_mode": "full_scan",
         "documents": 2,
@@ -1084,7 +1282,7 @@ def test_full_quality_scope_is_selected_population_not_corpus_wide(
     value["excluded_source_ids"] = ["alpha"]
     path.write_text(json.dumps(value))
     with pytest.raises(ValueError, match="overlap"):
-        SITE.load_quality(path, handoff)
+        SITE.load_quality(path, handoff, sources_config_path=sources_config)
 
 
 def test_quality_summary_rejects_checkpoint_path_traversal_with_rehashed_inventory(
@@ -1189,7 +1387,9 @@ def test_quality_summary_rejects_unconstrained_preview_or_raw_identifier_keys(
     summary["repositories"][0]["document_preview"] = "RAW-DOCUMENT-ID-123"
     summary_path.write_text(json.dumps(summary))
     with pytest.raises(ValueError, match="unexpected=.*document_preview"):
-        SITE.load_quality(summary_path, handoff_path)
+        SITE.load_quality(
+            summary_path, handoff_path, sources_config_path=SOURCES_CONFIG
+        )
     second = tmp_path / "handoff-case"
     second.mkdir()
     summary_path, handoff_path = write_quality_summary_and_handoff(second)
@@ -1197,23 +1397,104 @@ def test_quality_summary_rejects_unconstrained_preview_or_raw_identifier_keys(
     handoff["normalization"]["source_identities"][0]["raw_document_id"] = "secret"
     handoff_path.write_text(json.dumps(handoff))
     with pytest.raises(ValueError, match="unexpected=.*raw_document_id"):
-        SITE.load_quality(summary_path, handoff_path)
+        SITE.load_quality(
+            summary_path, handoff_path, sources_config_path=SOURCES_CONFIG
+        )
+
+
+def test_json_numbers_are_finite_and_serialization_cannot_emit_nan() -> None:
+    for loader in (SITE.strict_json_loads, QUALITY.strict_json_loads):
+        with pytest.raises(ValueError, match="non-finite JSON number"):
+            loader('{"overflow":1e999}', context="fixture")
+    with pytest.raises(ValueError, match="Out of range float values"):
+        SITE.safe_json({"invalid": float("inf")})
+    with pytest.raises(ValueError, match="Out of range float values"):
+        EXPORTER.canonical_json({"invalid": float("nan")})
+
+
+def test_quality_fraction_distributions_reject_out_of_range_values(
+    tmp_path: Path,
+) -> None:
+    summary_path, _ = write_quality_summary_and_handoff(tmp_path)
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    for statistics in [summary["global"], *summary["repositories"]]:
+        statistics["distributions"]["raw_greek_letter_fraction"] = quality_distribution(
+            int(statistics["documents"]), 1.01
+        )
+    with pytest.raises(ValueError, match=r"raw_greek_letter_fraction.*\[0, 1\]"):
+        QUALITY.validate_and_project_quality_summary(summary)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("novel_token_fraction", 1.01, "finite fraction in"),
+        ("exact_unique_word_tokens", 11, "denominator drift"),
+        ("rows", True, "signed-64-bit integer"),
+    ],
+)
+def test_novelty_values_obey_ranges_and_denominators(
+    tmp_path: Path, field: str, value: object, message: str
+) -> None:
+    novelty = {
+        "schema_version": "full_cpt_source_novelty_v1",
+        "sources": [
+            {
+                "source_dataset": "candidate",
+                "rows": 1,
+                "identity_word_tokens": 10,
+                "exact_unique_word_tokens": 9,
+                "novel_word_tokens_after_lineage_resolution": 8,
+                "novel_token_fraction": 0.8,
+            }
+        ],
+    }
+    novelty["sources"][0][field] = value
+    path = tmp_path / "novelty.json"
+    path.write_text(json.dumps(novelty), encoding="utf-8")
+    with pytest.raises(ValueError, match=message):
+        SITE.load_novelty(path, {"candidate": "owner/candidate"})
+
+
+def test_novelty_exponent_overflow_is_rejected_during_parse(tmp_path: Path) -> None:
+    path = tmp_path / "novelty.json"
+    path.write_text(
+        '{"schema_version":"full_cpt_source_novelty_v1","sources":['
+        '{"source_dataset":"candidate","rows":1,"identity_word_tokens":1,'
+        '"exact_unique_word_tokens":1,"novel_word_tokens_after_lineage_resolution":1,'
+        '"novel_token_fraction":1e999}]}',
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="non-finite JSON number"):
+        SITE.load_novelty(path, {"candidate": "owner/candidate"})
 
 
 def test_external_repository_needs_exact_acquired_revision_evidence(
     tmp_path: Path,
 ) -> None:
+    sources_config = write_sources_config(
+        tmp_path / "sources.json",
+        [
+            {
+                "source_id": "istorima",
+                "repo_id": "glossAPI/istorima",
+                "revision": "0" * 40,
+                "role": "additive_candidate",
+            }
+        ],
+    )
     summary_path, handoff_path = write_quality_summary_and_handoff(
         tmp_path,
         repositories=[("istorima", "glossAPI/istorima", "0" * 40)],
         scan_mode="full_scan",
+        sources_config=sources_config,
     )
     output = tmp_path / "site"
     SITE.build_site(
         SimpleNamespace(
             inventory=HERE / "configs" / "post_december_inventory.json",
             evaluations=HERE / "configs" / "dataset_review_evaluations.json",
-            sources_config=HERE / "configs" / "sources.json",
+            sources_config=sources_config,
             quality_summary=summary_path,
             quality_handoff_receipt=handoff_path,
             review_requests=None,
@@ -1233,6 +1514,169 @@ def test_external_repository_needs_exact_acquired_revision_evidence(
     )
     assert istorima["quality"] is not None
     assert istorima["payload_state"] == "external_unavailable"
+
+
+def test_external_repository_promotes_only_with_exact_mdc_identity(
+    tmp_path: Path,
+) -> None:
+    revision = "0f3f32db50235b0e42e130983e6a06c709835e16"
+    sources_config = write_sources_config(
+        tmp_path / "sources.json",
+        [
+            {
+                "source_id": "istorima",
+                "repo_id": "glossAPI/istorima",
+                "revision": revision,
+                "role": "additive_candidate",
+                "acquisition_kind": "mozilla_data_collective",
+                "mdc_dataset_id": "mdc-istorima-pinned-id",
+            }
+        ],
+    )
+    summary_path, handoff_path = write_quality_summary_and_handoff(
+        tmp_path,
+        repositories=[("istorima", "glossAPI/istorima", revision)],
+        scan_mode="full_scan",
+        sources_config=sources_config,
+    )
+    output = tmp_path / "site"
+    SITE.build_site(
+        SimpleNamespace(
+            inventory=HERE / "configs" / "post_december_inventory.json",
+            evaluations=HERE / "configs" / "dataset_review_evaluations.json",
+            sources_config=sources_config,
+            quality_summary=summary_path,
+            quality_handoff_receipt=handoff_path,
+            review_requests=None,
+            review_responses=None,
+            admission=None,
+            novelty=None,
+            complete_samples=None,
+            complete_samples_receipt=None,
+            complete_samples_attestation=None,
+            output_dir=output,
+            replace=False,
+        )
+    )
+    data = json.loads((output / "site_data.json").read_text(encoding="utf-8"))
+    istorima = next(
+        row for row in data["repositories"] if row["repo_id"] == "glossAPI/istorima"
+    )
+    assert istorima["payload_state"] == "external_acquired"
+
+
+def test_quality_handoff_is_bound_to_exact_local_sources_config(
+    tmp_path: Path,
+) -> None:
+    summary_path, handoff_path = write_quality_summary_and_handoff(tmp_path)
+    alternate = tmp_path / "sources-copy.json"
+    alternate.write_text(SOURCES_CONFIG.read_text(encoding="utf-8") + "\n")
+    with pytest.raises(ValueError, match="local sources config identity drift"):
+        SITE.load_quality(summary_path, handoff_path, sources_config_path=alternate)
+
+
+def test_review_request_cannot_relabel_supplemental_source_as_visible(
+    tmp_path: Path,
+) -> None:
+    source = source_identities()["kallipos_sections"]
+    request = review_request(
+        hashlib.sha256(b"relabelled-request").hexdigest(),
+        source_id="kallipos_sections",
+        repo_id="glossAPI/diavgeia",
+        dataset="kallipos",
+        revision=str(source["revision"]),
+    )
+    path = tmp_path / "requests.jsonl"
+    path.write_text(json.dumps(request) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="differs from sources config"):
+        SITE.load_requests(path, source_identities(), b"site-key")
+
+
+def test_sample_attestation_identity_cannot_relabel_a_tracked_source(
+    tmp_path: Path,
+) -> None:
+    uid = hashlib.sha256(b"attested-source-relabel").hexdigest()
+    requests = tmp_path / "requests.jsonl"
+    requests.write_text(json.dumps(review_request(uid)) + "\n")
+    packet = tmp_path / "samples.jsonl"
+    packet.write_text(json.dumps(complete_sample(uid, "κείμενο")) + "\n")
+    receipt_path = tmp_path / "samples-receipt.json"
+    attestation_path = write_packet_receipt(
+        receipt_path, packet=packet, requests=requests, rows=1
+    )
+    attestation = json.loads(attestation_path.read_text(encoding="utf-8"))
+    attestation["normalization"]["source_identities"][0]["repo_id"] = (
+        "glossAPI/Apothetirio_Kallipos"
+    )
+    attestation["normalization"]["source_identity_inventory_sha256"] = (
+        QUALITY.sha256_json(attestation["normalization"]["source_identities"])
+    )
+    attestation_path.write_text(json.dumps(attestation), encoding="utf-8")
+    refresh_packet_attestation_receipts(
+        packet=packet,
+        receipt_path=receipt_path,
+        attestation_path=attestation_path,
+    )
+    with pytest.raises(ValueError, match="source identity is incomplete"):
+        SITE.build_site(
+            SimpleNamespace(
+                inventory=HERE / "configs" / "post_december_inventory.json",
+                evaluations=HERE / "configs" / "dataset_review_evaluations.json",
+                sources_config=SOURCES_CONFIG,
+                quality_summary=None,
+                quality_handoff_receipt=None,
+                review_requests=requests,
+                review_responses=None,
+                admission=None,
+                novelty=None,
+                complete_samples=packet,
+                complete_samples_receipt=receipt_path,
+                complete_samples_attestation=attestation_path,
+                output_dir=tmp_path / "site",
+                replace=False,
+            )
+        )
+
+
+def test_complete_sample_row_cannot_relabel_a_tracked_source(
+    tmp_path: Path,
+) -> None:
+    uid = hashlib.sha256(b"sample-row-relabel").hexdigest()
+    requests = tmp_path / "requests.jsonl"
+    requests.write_text(json.dumps(review_request(uid)) + "\n")
+    packet = tmp_path / "samples.jsonl"
+    row = complete_sample(uid, "κείμενο")
+    packet.write_text(json.dumps(row) + "\n")
+    receipt_path = tmp_path / "samples-receipt.json"
+    attestation_path = write_packet_receipt(
+        receipt_path, packet=packet, requests=requests, rows=1
+    )
+    row["source_repo_id"] = "glossAPI/Apothetirio_Kallipos"
+    packet.write_text(json.dumps(row) + "\n")
+    refresh_packet_attestation_receipts(
+        packet=packet,
+        receipt_path=receipt_path,
+        attestation_path=attestation_path,
+    )
+    with pytest.raises(ValueError, match="complete sample identity drift"):
+        SITE.build_site(
+            SimpleNamespace(
+                inventory=HERE / "configs" / "post_december_inventory.json",
+                evaluations=HERE / "configs" / "dataset_review_evaluations.json",
+                sources_config=SOURCES_CONFIG,
+                quality_summary=None,
+                quality_handoff_receipt=None,
+                review_requests=requests,
+                review_responses=None,
+                admission=None,
+                novelty=None,
+                complete_samples=packet,
+                complete_samples_receipt=receipt_path,
+                complete_samples_attestation=attestation_path,
+                output_dir=tmp_path / "site",
+                replace=False,
+            )
+        )
 
 
 def test_site_rejects_forged_checkpoint_attestation_even_with_updated_self_hash(
@@ -1450,6 +1894,54 @@ def test_normalization_identity_closure_rejects_acquisition_file_total_drift(
         QUALITY.normalization_identity_closure(manifest_path)
 
 
+def test_normalization_identity_closure_accepts_realistic_mdc_receipt_identity(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "canonical"
+    shard = root / "istorima" / "part.parquet"
+    shard.parent.mkdir(parents=True)
+    shard.write_bytes(b"fixture")
+    manifest_path = write_normalization_fixture(
+        tmp_path,
+        canonical_root=root,
+        shard=shard,
+        source_id="istorima",
+        repo_id="glossAPI/istorima",
+        revision="0" * 40,
+        rows=1,
+        mdc_dataset_id="mdc-istorima-pinned-id",
+    )
+    closure = QUALITY.normalization_identity_closure(manifest_path)
+    identity = closure["source_identities"][0]
+    sources_path = Path(json.loads(manifest_path.read_text())["sources_config"])
+    configured = source_identities(sources_path)["istorima"]
+    assert identity["acquisition_kind"] == "mozilla_data_collective"
+    assert identity["mdc_dataset_id"] == "mdc-istorima-pinned-id"
+    assert identity["source_config_sha256"] == configured["source_config_sha256"]
+
+
+def test_normalization_identity_closure_rejects_explicit_mdc_kind_mismatch(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "canonical"
+    shard = root / "istorima" / "part.parquet"
+    shard.parent.mkdir(parents=True)
+    shard.write_bytes(b"fixture")
+    manifest_path = write_normalization_fixture(
+        tmp_path,
+        canonical_root=root,
+        shard=shard,
+        source_id="istorima",
+        repo_id="glossAPI/istorima",
+        revision="0" * 40,
+        rows=1,
+        mdc_dataset_id="mdc-istorima-pinned-id",
+        acquisition_receipt_kind="hugging_face",
+    )
+    with pytest.raises(ValueError, match="provenance identity drift"):
+        QUALITY.normalization_identity_closure(manifest_path)
+
+
 def test_quantile_sample_size_is_bound_into_resume_contract(tmp_path: Path) -> None:
     manifest = tmp_path / "normalization.json"
     build = tmp_path / "build.json"
@@ -1609,7 +2101,7 @@ def test_exact_review_sample_packet_is_bound_and_uses_hashed_display_id(
                 "source": {
                     "source_id": "diavgeia",
                     "source_repo_id": "glossAPI/diavgeia",
-                    "source_revision": "a" * 40,
+                    "source_revision": source_identities()["diavgeia"]["revision"],
                     "source_doc_id": raw_doc_id,
                 },
             }
@@ -1931,6 +2423,33 @@ def test_build_receipt_can_bind_staged_modules_to_atomic_publish_paths(
     assert value["runtime"]["rustc"] == "rustc test-version"
     assert value["runtime"]["cargo"] == "cargo test-version"
     assert value["runtime"]["maturin"] == "1.9.4"
+
+
+@pytest.mark.parametrize(
+    "counts",
+    [
+        {"raw_identifier": 1},
+        {"email": 0},
+        {"email": -1},
+        {"email": True},
+    ],
+)
+def test_redaction_count_registry_is_closed_and_positive(
+    counts: dict[str, object],
+) -> None:
+    with pytest.raises(ValueError, match="invalid redaction count"):
+        EXPORTER.validate_redaction_counts(counts, context="fixture")
+
+
+def test_redaction_count_schema_rejects_unknown_and_zero_values() -> None:
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = json.loads(
+        (HERE / "schemas" / "dataset_review_complete_sample.schema.json").read_text()
+    )
+    row = complete_sample("a" * 64, "κείμενο")
+    row["redaction_counts"] = {"raw_identifier": 0}
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.Draft202012Validator(schema).validate(row)
 
 
 def test_complete_sample_redaction_covers_identity_ipv6_and_email() -> None:

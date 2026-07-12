@@ -28,7 +28,11 @@
     "private_data_true": {"const": false},
     "corrected_version_present": {"type": "boolean"},
     "high_precision_identifier_patterns_masked": {"const": true},
-    "redaction_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "redaction_counts": {
+      "type": "object",
+      "propertyNames": {"enum": ["email", "ipv4", "iban", "afm", "amka", "phone", "url", "ipv6", "identity"]},
+      "additionalProperties": {"type": "integer", "minimum": 1}
+    },
     "text": {"type": "string"}
   }
 }

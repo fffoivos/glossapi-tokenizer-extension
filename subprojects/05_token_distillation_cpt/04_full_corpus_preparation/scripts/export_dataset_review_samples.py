@@ -48,6 +48,9 @@ RECEIPT_SCHEMA = "dataset_review_complete_sample_packet_receipt_v1"
 CHECKPOINT_SCHEMA = "dataset_review_sample_export_shard_checkpoint_v1"
 EXPORT_CONTRACT_SCHEMA = "dataset_review_sample_export_contract_v1"
 SITE_ATTESTATION_SCHEMA = "dataset_review_complete_sample_site_attestation_v1"
+REDACTION_COUNT_KEYS = frozenset(
+    {"email", "ipv4", "iban", "afm", "amka", "phone", "url", "ipv6", "identity"}
+)
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 URL_RE = re.compile(r"(?i)(?<![\w@])(?:https?://|www\.)[^\s<>\"']+")
 IPV6_RE = re.compile(
@@ -61,7 +64,29 @@ IDENTITY_RE = re.compile(
 
 
 def canonical_json(value: Any) -> str:
-    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+
+
+def validate_redaction_counts(value: Any, *, context: str) -> dict[str, int]:
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{context}: redaction counts must be an object")
+    result: dict[str, int] = {}
+    for name, count in value.items():
+        if (
+            name not in REDACTION_COUNT_KEYS
+            or not isinstance(count, int)
+            or isinstance(count, bool)
+            or count <= 0
+        ):
+            raise ValueError(f"{context}: invalid redaction count {name!r}={count!r}")
+        result[str(name)] = count
+    return dict(sorted(result.items()))
 
 
 def display_document_id(value: str) -> str:
@@ -202,6 +227,9 @@ def validate_checkpoint(
         != len([line for line in fragment_text.splitlines() if line])
     ):
         raise ValueError(f"{receipt_path}: checkpoint output drift")
+    validate_redaction_counts(
+        value.get("redaction_totals"), context=f"{receipt_path}.redaction_totals"
+    )
     return value
 
 
@@ -327,7 +355,12 @@ def build_site_attestation(
         if inventory != expected_inventory:
             raise ValueError("sample checkpoint inventory semantic drift")
         selected_rows += int(checkpoint["output"]["rows"])
-        checkpoint_redactions.update(checkpoint["redaction_totals"])
+        checkpoint_redactions.update(
+            validate_redaction_counts(
+                checkpoint["redaction_totals"],
+                context=f"{directory / 'receipt.json'}.redaction_totals",
+            )
+        )
         checkpoint_closure.append(
             {
                 "input_shard_sha256": str(shard["sha256"]),
@@ -343,9 +376,10 @@ def build_site_attestation(
     )
     if selected_rows != packet_rows or selected_rows != len(primary_sample_ids):
         raise ValueError("sample checkpoint/packet/request coverage drift")
-    if dict(sorted(checkpoint_redactions.items())) != dict(
-        sorted(redaction_totals.items())
-    ):
+    validated_redaction_totals = validate_redaction_counts(
+        redaction_totals, context="sample site attestation redaction totals"
+    )
+    if dict(sorted(checkpoint_redactions.items())) != validated_redaction_totals:
         raise ValueError("sample checkpoint redaction totals drift")
 
     return {
@@ -386,10 +420,8 @@ def build_site_attestation(
             },
             "high_precision_identifier_patterns_masked": True,
             "private_data_true_rows": 0,
-            "redaction_totals": dict(sorted(redaction_totals.items())),
-            "redaction_totals_sha256": sha256_json(
-                dict(sorted(redaction_totals.items()))
-            ),
+            "redaction_totals": validated_redaction_totals,
+            "redaction_totals_sha256": sha256_json(validated_redaction_totals),
         },
     }
 
@@ -790,7 +822,12 @@ def export_samples(args: argparse.Namespace) -> int:
                     raise ValueError(f"{fragment}:{line_number}: sample identity drift")
             samples_by_id[uid] = canonical_json(row) + "\n"
             found.add(uid)
-            redaction_totals.update(row.get("redaction_counts", {}))
+            redaction_totals.update(
+                validate_redaction_counts(
+                    row.get("redaction_counts"),
+                    context=f"{fragment}:{line_number}.redaction_counts",
+                )
+            )
         _, _, _, checkpoint_receipt_sha256 = load_relative_json_nofollow(
             checkpoint_root,
             (checkpoint_relative / "receipt.json").as_posix(),
@@ -886,7 +923,9 @@ def export_samples(args: argparse.Namespace) -> int:
             canonical_json(checkpoint_inventory).encode("utf-8")
         ).hexdigest(),
         "output": file_output(args.output, rows=len(found)),
-        "redaction_totals": dict(sorted(redaction_totals.items())),
+        "redaction_totals": validate_redaction_counts(
+            redaction_totals, context="sample packet redaction totals"
+        ),
         "high_precision_identifier_patterns_masked": True,
     }
     verify_input_snapshots(input_snapshots)

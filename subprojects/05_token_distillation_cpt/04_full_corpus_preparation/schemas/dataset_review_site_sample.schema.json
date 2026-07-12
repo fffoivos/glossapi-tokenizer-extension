@@ -16,7 +16,11 @@
     "source_repo_id": {"type": "string", "minLength": 1},
     "source_dataset": {"type": "string", "minLength": 1},
     "high_precision_identifier_patterns_masked": {"const": true},
-    "redaction_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "redaction_counts": {
+      "type": "object",
+      "propertyNames": {"enum": ["email", "ipv4", "iban", "afm", "amka", "phone", "url", "ipv6", "identity"]},
+      "additionalProperties": {"type": "integer", "minimum": 1}
+    },
     "characters": {"type": "integer", "minimum": 0},
     "text": {"type": "string"}
   }

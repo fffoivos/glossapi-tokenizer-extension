@@ -16,7 +16,8 @@
     "rows_scanned": {"type": "integer", "minimum": 1},
     "redaction_totals": {
       "type": "object",
-      "additionalProperties": {"type": "integer", "minimum": 0}
+      "propertyNames": {"enum": ["email", "ipv4", "iban", "afm", "amka", "phone", "url", "ipv6", "identity"]},
+      "additionalProperties": {"type": "integer", "minimum": 1}
     },
     "output": {
       "type": "object",

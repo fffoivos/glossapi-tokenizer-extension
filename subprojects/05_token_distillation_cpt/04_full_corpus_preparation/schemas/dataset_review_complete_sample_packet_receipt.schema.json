@@ -46,7 +46,11 @@
         {"type": "object", "required": ["rows"], "properties": {"rows": {"type": "integer", "minimum": 1}}}
       ]
     },
-    "redaction_totals": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "redaction_totals": {
+      "type": "object",
+      "propertyNames": {"enum": ["email", "ipv4", "iban", "afm", "amka", "phone", "url", "ipv6", "identity"]},
+      "additionalProperties": {"type": "integer", "minimum": 1}
+    },
     "high_precision_identifier_patterns_masked": {"const": true}
   },
   "$defs": {

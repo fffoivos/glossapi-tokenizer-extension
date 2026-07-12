@@ -11,36 +11,39 @@ can remain; generated material is therefore always treated as sensitive.
 from __future__ import annotations
 
 import argparse
+import copy
 import functools
 import hashlib
 import hmac
 import html
 import json
+import math
 import os
 import re
 import secrets
 import shutil
+import stat
 import tempfile
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from dataclasses import dataclass
+from typing import Any, BinaryIO, Iterable, Mapping
 
 import export_dataset_review_samples as sample_exporter
 from export_dataset_review_samples import (
     SITE_ATTESTATION_SCHEMA,
     redact_complete_text,
+    validate_redaction_counts,
 )
 from profile_dataset_quality_rust import (
     require_exact_keys,
     require_nonnegative_int,
     require_sha256,
     sha256_json,
-    snapshot_inputs,
     validate_receipt_object,
     validate_quality_site_handoff,
-    verify_input_snapshots,
 )
 
 
@@ -59,6 +62,161 @@ DEFAULT_OUTPUT = (
     / "train-apertus-with-glossapi"
     / "full-corpus-v2-dataset-review"
 )
+
+
+def lexical_absolute(path: Path) -> Path:
+    """Return an absolute path without following any filesystem links."""
+
+    return Path(os.path.abspath(os.fspath(path.expanduser())))
+
+
+def open_regular_nofollow(path: Path) -> BinaryIO:
+    """Open one regular file while refusing symlinks in every path component."""
+
+    if (
+        not hasattr(os, "O_DIRECTORY")
+        or not hasattr(os, "O_NOFOLLOW")
+        or os.open not in os.supports_dir_fd
+    ):
+        raise RuntimeError(
+            "secure all-component no-follow input opening is unavailable"
+        )
+    absolute = lexical_absolute(path)
+    parts = absolute.parts
+    if len(parts) < 2 or parts[0] != absolute.anchor:
+        raise ValueError(f"input path is not an absolute file path: {path}")
+    directory_fd = os.open(
+        absolute.anchor,
+        os.O_RDONLY | os.O_DIRECTORY,
+    )
+    try:
+        for component in parts[1:-1]:
+            next_fd = os.open(
+                component,
+                os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                dir_fd=directory_fd,
+            )
+            os.close(directory_fd)
+            directory_fd = next_fd
+        file_fd = os.open(
+            parts[-1],
+            os.O_RDONLY | os.O_NOFOLLOW,
+            dir_fd=directory_fd,
+        )
+    except OSError as exc:
+        raise ValueError(
+            f"input path contains a symlink/non-directory component: {absolute}"
+        ) from exc
+    finally:
+        os.close(directory_fd)
+    file_stat = os.fstat(file_fd)
+    if not stat.S_ISREG(file_stat.st_mode):
+        os.close(file_fd)
+        raise ValueError(f"input is not a regular file: {absolute}")
+    return os.fdopen(file_fd, "rb", closefd=True)
+
+
+@dataclass(frozen=True)
+class SiteInputSnapshot:
+    path: Path
+    bytes: int
+    sha256: str
+    device: int
+    inode: int
+    mtime_ns: int
+    ctime_ns: int
+
+
+def snapshot_site_input(
+    path: Path, *, copy_to: Path | None = None
+) -> SiteInputSnapshot:
+    absolute = lexical_absolute(path)
+    digest = hashlib.sha256()
+    copied_bytes = 0
+    output_handle = None
+    with open_regular_nofollow(absolute) as handle:
+        before = os.fstat(handle.fileno())
+        if copy_to is not None:
+            copy_to.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            output_fd = os.open(
+                copy_to,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                0o600,
+            )
+            output_handle = os.fdopen(output_fd, "wb", closefd=True)
+        try:
+            while chunk := handle.read(16 * 1024 * 1024):
+                digest.update(chunk)
+                copied_bytes += len(chunk)
+                if output_handle is not None:
+                    output_handle.write(chunk)
+            after = os.fstat(handle.fileno())
+            if output_handle is not None:
+                output_handle.flush()
+                os.fsync(output_handle.fileno())
+        except BaseException:
+            if output_handle is not None:
+                output_handle.close()
+            if copy_to is not None:
+                copy_to.unlink(missing_ok=True)
+            raise
+        finally:
+            if output_handle is not None and not output_handle.closed:
+                output_handle.close()
+    identity = (
+        before.st_size,
+        before.st_dev,
+        before.st_ino,
+        before.st_mtime_ns,
+        before.st_ctime_ns,
+    )
+    if (
+        identity
+        != (
+            after.st_size,
+            after.st_dev,
+            after.st_ino,
+            after.st_mtime_ns,
+            after.st_ctime_ns,
+        )
+        or copied_bytes != after.st_size
+    ):
+        raise ValueError(f"input changed while snapshotting: {absolute}")
+    return SiteInputSnapshot(
+        path=absolute,
+        bytes=after.st_size,
+        sha256=digest.hexdigest(),
+        device=after.st_dev,
+        inode=after.st_ino,
+        mtime_ns=after.st_mtime_ns,
+        ctime_ns=after.st_ctime_ns,
+    )
+
+
+def snapshot_site_inputs(
+    paths: Iterable[Path | None], root: Path
+) -> tuple[dict[Path, SiteInputSnapshot], dict[Path, Path]]:
+    snapshots: dict[Path, SiteInputSnapshot] = {}
+    copies: dict[Path, Path] = {}
+    for path in paths:
+        if path is None:
+            continue
+        absolute = lexical_absolute(path)
+        if absolute in snapshots:
+            continue
+        target = root / Path(*absolute.parts[1:])
+        snapshot = snapshot_site_input(absolute, copy_to=target)
+        snapshots[snapshot.path] = snapshot
+        copies[snapshot.path] = target
+    return snapshots, copies
+
+
+def verify_site_input_snapshots(
+    snapshots: Mapping[Path, SiteInputSnapshot],
+) -> None:
+    for path, expected in snapshots.items():
+        if snapshot_site_input(path) != expected:
+            raise ValueError(f"input drift before atomic publication: {path}")
 
 
 def utc_now() -> str:
@@ -82,10 +240,17 @@ def strict_json_loads(text: str, *, context: str) -> Any:
     def reject_constant(value: str) -> Any:
         raise ValueError(f"{context}: non-finite JSON constant {value}")
 
+    def finite_float(value: str) -> float:
+        result = float(value)
+        if not math.isfinite(result):
+            raise ValueError(f"{context}: non-finite JSON number {value}")
+        return result
+
     return json.loads(
         text,
         object_pairs_hook=object_pairs,
         parse_constant=reject_constant,
+        parse_float=finite_float,
     )
 
 
@@ -129,7 +294,7 @@ def input_receipt(
 ) -> dict[str, Any] | None:
     if path is None:
         return None
-    resolved = path.resolve()
+    resolved = lexical_absolute(path)
     if snapshots is not None:
         snapshot = snapshots.get(resolved)
         if snapshot is None:
@@ -155,10 +320,31 @@ def safe_json(value: Any, *, indent: int | None = None) -> str:
         sort_keys=True,
         indent=indent,
         separators=None if indent else (",", ":"),
+        allow_nan=False,
     )
     return (
         result.replace("&", "\\u0026").replace("<", "\\u003c").replace(">", "\\u003e")
     )
+
+
+def site_nonnegative_int(value: Any, *, context: str) -> int:
+    if (
+        not isinstance(value, int)
+        or isinstance(value, bool)
+        or value < 0
+        or value > (1 << 63) - 1
+    ):
+        raise ValueError(f"{context}: expected a nonnegative signed-64-bit integer")
+    return value
+
+
+def site_fraction(value: Any, *, context: str) -> float:
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise ValueError(f"{context}: expected a finite fraction")
+    result = float(value)
+    if not math.isfinite(result) or not 0.0 <= result <= 1.0:
+        raise ValueError(f"{context}: expected a finite fraction in [0, 1]")
+    return result
 
 
 def canonical_display_document_id(value: str) -> str:
@@ -178,11 +364,64 @@ def write_private(path: Path, content: str) -> None:
     path.chmod(0o600)
 
 
-def source_repo_map(sources: Mapping[str, Any]) -> dict[str, str]:
-    result = {"nanochat_base": str(sources.get("base", {}).get("repo_id", ""))}
-    for row in sources.get("sources", []):
-        if isinstance(row, dict):
-            result[str(row.get("source_id", ""))] = str(row.get("repo_id", ""))
+def source_identity_map(sources: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
+    if (
+        sources.get("schema_version") != "full_cpt_sources_v1"
+        or not isinstance(sources.get("base"), Mapping)
+        or not isinstance(sources.get("sources"), list)
+    ):
+        raise ValueError("unsupported local sources config")
+    configured: list[tuple[str, Mapping[str, Any]]] = [
+        ("nanochat_base", sources["base"]),
+    ]
+    for row in sources["sources"]:
+        if not isinstance(row, Mapping):
+            raise ValueError("local sources config contains a non-object source")
+        raw_source_id = row.get("source_id")
+        if not isinstance(raw_source_id, str):
+            raise ValueError("local sources config contains a non-string source_id")
+        configured.append((raw_source_id, row))
+    result: dict[str, dict[str, Any]] = {}
+    for source_id, row in configured:
+        repo_id = row.get("repo_id")
+        revision = row.get("revision")
+        role = row.get("role")
+        if (
+            not source_id
+            or not isinstance(repo_id, str)
+            or not repo_id
+            or not isinstance(revision, str)
+            or not revision
+            or not isinstance(role, str)
+            or not role
+            or source_id in result
+        ):
+            raise ValueError(
+                "local sources config has an incomplete/duplicate identity"
+            )
+        acquisition_kind = row.get("acquisition_kind")
+        if acquisition_kind in (None, ""):
+            acquisition_kind = "hugging_face"
+        if not isinstance(acquisition_kind, str) or not acquisition_kind:
+            raise ValueError(f"{source_id}: invalid acquisition_kind")
+        mdc_dataset_id = row.get("mdc_dataset_id")
+        if mdc_dataset_id == "":
+            mdc_dataset_id = None
+        if acquisition_kind == "mozilla_data_collective":
+            if not isinstance(mdc_dataset_id, str) or not mdc_dataset_id:
+                raise ValueError(f"{source_id}: MDC source lacks mdc_dataset_id")
+        elif mdc_dataset_id not in (None, ""):
+            raise ValueError(f"{source_id}: non-MDC source declares mdc_dataset_id")
+        canonical_config = {"source_id": source_id, **dict(row)}
+        result[source_id] = {
+            "source_id": source_id,
+            "repo_id": repo_id,
+            "revision": revision,
+            "role": role,
+            "acquisition_kind": acquisition_kind,
+            "mdc_dataset_id": mdc_dataset_id or None,
+            "source_config_sha256": sha256_json(canonical_config),
+        }
     return result
 
 
@@ -244,6 +483,8 @@ def load_evaluations(path: Path, expected_repos: set[str]) -> dict[str, dict[str
 def load_quality(
     path: Path | None,
     handoff_path: Path | None,
+    *,
+    sources_config_path: Path | None = None,
 ) -> tuple[
     dict[str, dict[str, Any]],
     dict[str, Any] | None,
@@ -255,9 +496,34 @@ def load_quality(
         raise ValueError(
             "--quality-summary and --quality-handoff-receipt are an inseparable pair"
         )
+    if sources_config_path is None:
+        raise ValueError("quality handoff requires the exact local sources config")
     projection, acquired_identities = validate_quality_site_handoff(
-        summary_path=path, handoff_path=handoff_path
+        summary_path=path,
+        handoff_path=handoff_path,
+        expected_sources_config_sha256=sha256_file(sources_config_path),
     )
+    tracked_sources = source_identity_map(read_json(sources_config_path))
+    for identity in acquired_identities:
+        tracked = tracked_sources.get(str(identity["source_id"]))
+        if tracked is None or any(
+            identity[name] != tracked[name]
+            for name in (
+                "repo_id",
+                "revision",
+                "role",
+                "acquisition_kind",
+                "mdc_dataset_id",
+                "source_config_sha256",
+            )
+        ):
+            raise ValueError(
+                "quality handoff source identity differs from sources config"
+            )
+    if {str(row["repo_id"]) for row in acquired_identities} != {
+        str(row["repo_id"]) for row in projection["repositories"]
+    }:
+        raise ValueError("quality handoff source/repository coverage drift")
     result = {str(row["repo_id"]): row for row in projection["repositories"]}
     scan_mode = str(projection["scan_mode"])
     return (
@@ -282,7 +548,7 @@ def load_quality(
 
 def load_requests(
     path: Path | None,
-    source_id_to_repo: Mapping[str, str],
+    tracked_sources: Mapping[str, Mapping[str, Any]],
     site_key: bytes,
 ) -> tuple[dict[str, dict[str, Any]], dict[str, str], dict[str, list[dict[str, Any]]]]:
     if path is None:
@@ -300,13 +566,20 @@ def load_requests(
         if not isinstance(source, dict):
             raise ValueError(f"{path}:{line_number}: missing source envelope")
         source_id = str(source.get("source_id", ""))
-        repo_id = str(
-            source.get("source_repo_id") or source_id_to_repo.get(source_id, "")
-        )
+        tracked = tracked_sources.get(source_id)
+        repo_id = str(source.get("source_repo_id", ""))
+        revision = str(source.get("source_revision", ""))
         dataset = str(row.get("source_dataset", ""))
-        if not repo_id or not dataset:
+        if (
+            tracked is None
+            or not repo_id
+            or not revision
+            or not dataset
+            or repo_id != tracked["repo_id"]
+            or revision != tracked["revision"]
+        ):
             raise ValueError(
-                f"{path}:{line_number}: request cannot be mapped to a repository"
+                f"{path}:{line_number}: request source identity differs from sources config"
             )
         previous = dataset_to_repo.setdefault(dataset, repo_id)
         if previous != repo_id:
@@ -317,7 +590,6 @@ def load_requests(
             continue
         if sample_id in samples:
             raise ValueError(f"{path}:{line_number}: duplicate primary sample")
-        revision = str(source.get("source_revision", ""))
         raw_doc_id = str(source.get("source_doc_id", ""))
         site_record = {
             "site_sample_id": opaque_site_id(
@@ -378,8 +650,13 @@ def load_review_responses(
             ] += 1
         if bool(row.get("safety_or_license_blocker")):
             counters[repo_id]["safety_or_license_blockers"] += 1
-        if isinstance(row.get("quality_score"), int):
-            scores[repo_id].append(int(row["quality_score"]))
+        quality_score = site_nonnegative_int(
+            row.get("quality_score"),
+            context=f"{path}:{line_number}.quality_score",
+        )
+        if quality_score > 4:
+            raise ValueError(f"{path}:{line_number}: quality_score exceeds 4")
+        scores[repo_id].append(quality_score)
     result = {}
     for repo_id in sorted(set(counters) | set(scores)):
         result[repo_id] = {
@@ -466,25 +743,55 @@ def load_novelty(
     if value.get("schema_version") != "full_cpt_source_novelty_v1":
         raise ValueError(f"{path}: unsupported novelty summary")
     result: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for row in value.get("sources", []):
+    sources = value.get("sources")
+    if not isinstance(sources, list):
+        raise ValueError(f"{path}: novelty sources must be an array")
+    for index, row in enumerate(sources):
         if not isinstance(row, dict):
-            continue
-        repo_id = dataset_to_repo.get(str(row.get("source_dataset", "")))
+            raise ValueError(f"{path}: novelty source {index} must be an object")
+        source_dataset = str(row.get("source_dataset", ""))
+        repo_id = dataset_to_repo.get(source_dataset)
         if repo_id:
+            rows = site_nonnegative_int(
+                row.get("rows"), context=f"{path}.sources[{index}].rows"
+            )
+            identity_tokens = site_nonnegative_int(
+                row.get("identity_word_tokens"),
+                context=f"{path}.sources[{index}].identity_word_tokens",
+            )
+            exact_tokens = site_nonnegative_int(
+                row.get("exact_unique_word_tokens"),
+                context=f"{path}.sources[{index}].exact_unique_word_tokens",
+            )
+            novel_tokens = site_nonnegative_int(
+                row.get("novel_word_tokens_after_lineage_resolution"),
+                context=(
+                    f"{path}.sources[{index}]."
+                    "novel_word_tokens_after_lineage_resolution"
+                ),
+            )
+            fraction = site_fraction(
+                row.get("novel_token_fraction"),
+                context=f"{path}.sources[{index}].novel_token_fraction",
+            )
+            expected_fraction = (
+                round(novel_tokens / identity_tokens, 8) if identity_tokens else 0.0
+            )
+            if (
+                rows < 1
+                or exact_tokens > identity_tokens
+                or novel_tokens > exact_tokens
+                or not math.isclose(fraction, expected_fraction, abs_tol=1e-8)
+            ):
+                raise ValueError(f"{path}.sources[{index}]: novelty denominator drift")
             result[repo_id].append(
                 {
-                    "source_dataset": str(row.get("source_dataset", "")),
-                    "rows": int(row.get("rows", 0)),
-                    "identity_word_tokens": int(row.get("identity_word_tokens", 0)),
-                    "exact_unique_word_tokens": (
-                        int(row["exact_unique_word_tokens"])
-                        if isinstance(row.get("exact_unique_word_tokens"), int)
-                        else None
-                    ),
-                    "novel_word_tokens_after_lineage_resolution": int(
-                        row.get("novel_word_tokens_after_lineage_resolution", 0)
-                    ),
-                    "novel_token_fraction": float(row.get("novel_token_fraction", 0.0)),
+                    "source_dataset": source_dataset,
+                    "rows": rows,
+                    "identity_word_tokens": identity_tokens,
+                    "exact_unique_word_tokens": exact_tokens,
+                    "novel_word_tokens_after_lineage_resolution": novel_tokens,
+                    "novel_token_fraction": fraction,
                 }
             )
     return {
@@ -515,51 +822,68 @@ def has_external_acquisition_evidence(
     *,
     quality_present: bool,
     acquired_identities: Iterable[Mapping[str, Any]],
+    tracked_sources: Mapping[str, Mapping[str, Any]],
 ) -> bool:
     if not quality_present:
         return False
     repo_id = str(inventory_row.get("repo_id", ""))
     revision = str(inventory_row.get("revision", ""))
-    return any(
-        str(identity.get("repo_id", "")) == repo_id
-        and str(identity.get("revision", "")) == revision
-        and int(identity.get("documents", 0)) > 0
-        and int(identity.get("shards", 0)) > 0
-        and int(identity.get("acquisition_selected_file_count", 0)) > 0
-        for identity in acquired_identities
-    )
+    for identity in acquired_identities:
+        source_id = str(identity.get("source_id", ""))
+        tracked = tracked_sources.get(source_id)
+        if (
+            tracked is not None
+            and str(identity.get("repo_id", "")) == repo_id == tracked["repo_id"]
+            and str(identity.get("revision", "")) == revision == tracked["revision"]
+            and identity.get("acquisition_kind")
+            == tracked["acquisition_kind"]
+            == "mozilla_data_collective"
+            and identity.get("mdc_dataset_id") == tracked["mdc_dataset_id"]
+            and isinstance(identity.get("mdc_dataset_id"), str)
+            and bool(identity["mdc_dataset_id"])
+            and identity.get("source_config_sha256") == tracked["source_config_sha256"]
+            and int(identity.get("documents", 0)) > 0
+            and int(identity.get("shards", 0)) > 0
+            and int(identity.get("acquisition_selected_file_count", 0)) > 0
+        ):
+            return True
+    return False
 
 
 def row_total(row: Mapping[str, Any]) -> int | None:
     rows = row.get("rows")
     if isinstance(rows, dict):
         for field in ("footer", "card"):
-            if isinstance(rows.get(field), int):
-                return int(rows[field])
+            if rows.get(field) is not None:
+                return site_nonnegative_int(
+                    rows[field], context=f"inventory.rows.{field}"
+                )
     for field in (
         "new_asset_footer_rows",
         "current_metadata_footer_rows",
         "current_card_documents",
     ):
-        if isinstance(row.get(field), int):
-            return int(row[field])
+        if row.get(field) is not None:
+            return site_nonnegative_int(row[field], context=f"inventory.{field}")
     return None
 
 
 def byte_total(row: Mapping[str, Any]) -> int | None:
     for field in ("data_artifact_bytes", "new_asset_bytes", "payload_bytes_current"):
-        if isinstance(row.get(field), int):
-            return int(row[field])
+        if row.get(field) is not None:
+            return site_nonnegative_int(row[field], context=f"inventory.{field}")
     return None
 
 
 def token_total(row: Mapping[str, Any]) -> int | None:
     card = row.get("card_tokens")
-    if isinstance(card, dict) and isinstance(card.get("value"), int):
-        return int(card["value"])
+    if isinstance(card, dict) and card.get("value") is not None:
+        return site_nonnegative_int(
+            card["value"], context="inventory.card_tokens.value"
+        )
     for field in ("new_asset_card_tokens_sum", "current_card_tokens"):
-        if isinstance(row.get(field), int):
-            return int(row[field])
+        if row.get(field) is not None:
+            return site_nonnegative_int(row[field], context=f"inventory.{field}")
     return None
 
 
@@ -575,6 +899,8 @@ def validate_sample_site_attestation(
     attestation_path: Path,
     review_requests_path: Path,
     primary_sample_ids: set[str],
+    tracked_sources: Mapping[str, Mapping[str, Any]],
+    local_sources_config_sha256: str,
 ) -> tuple[dict[str, Any], dict[tuple[str, str, str], int]]:
     receipt = read_json(packet_receipt_path)
     require_exact_keys(
@@ -812,6 +1138,7 @@ def validate_sample_site_attestation(
     )
     if (
         normalization["schema_version"] != "full_cpt_normalization_manifest_v1"
+        or normalization["sources_config_sha256"] != local_sources_config_sha256
         or manifest_receipt != receipt["normalization_manifest"]
         or normalization["input_shards"] != input_shards
         or normalization["input_shard_inventory_sha256"] != sha256_json(input_shards)
@@ -847,14 +1174,25 @@ def validate_sample_site_attestation(
                 "acquisition_selected_file_count",
                 "acquisition_selected_bytes",
                 "acquisition_file_inventory_sha256",
+                "acquisition_kind",
+                "mdc_dataset_id",
+                "source_config_sha256",
             ),
             context=f"sample_site_attestation.source_identities[{index}]",
         )
         source_id = str(identity["source_id"])
+        tracked = tracked_sources.get(source_id)
         if (
             not source_id
+            or tracked is None
             or not str(identity["repo_id"])
             or not str(identity["revision"])
+            or identity["repo_id"] != tracked["repo_id"]
+            or identity["revision"] != tracked["revision"]
+            or identity["role"] != tracked["role"]
+            or identity["acquisition_kind"] != tracked["acquisition_kind"]
+            or identity["mdc_dataset_id"] != tracked["mdc_dataset_id"]
+            or identity["source_config_sha256"] != tracked["source_config_sha256"]
             or source_id in seen_identity_sources
             or require_nonnegative_int(
                 identity["documents"], context="sample_attestation.identity.documents"
@@ -878,6 +1216,7 @@ def validate_sample_site_attestation(
         for name in (
             "shard_inventory_sha256",
             "acquisition_file_inventory_sha256",
+            "source_config_sha256",
         ):
             require_sha256(
                 identity[name], context=f"sample_attestation.identity.{name}"
@@ -1019,16 +1358,12 @@ def validate_sample_site_attestation(
         "exporter": str(contract["exporter_script_sha256"]),
         **dependency_hashes,
     }
-    redaction_totals = masking["redaction_totals"]
-    if not isinstance(redaction_totals, Mapping) or any(
-        not isinstance(name, str)
-        or not name
-        or not isinstance(count, int)
-        or isinstance(count, bool)
-        or count < 0
-        for name, count in redaction_totals.items()
-    ):
-        raise ValueError("sample attestation redaction totals are invalid")
+    redaction_totals = validate_redaction_counts(
+        masking["redaction_totals"], context="sample attestation redaction totals"
+    )
+    receipt_redaction_totals = validate_redaction_counts(
+        receipt["redaction_totals"], context="sample packet redaction totals"
+    )
     implementation = masking["implementation_sha256"]
     if not isinstance(implementation, Mapping):
         raise ValueError("sample attestation masking implementation is invalid")
@@ -1051,7 +1386,7 @@ def validate_sample_site_attestation(
             context="sample_attestation.masking.private_data_true_rows",
         )
         != 0
-        or redaction_totals != receipt["redaction_totals"]
+        or redaction_totals != receipt_redaction_totals
         or masking["redaction_totals_sha256"] != sha256_json(redaction_totals)
     ):
         raise ValueError("sample attestation masking closure drift")
@@ -1066,6 +1401,8 @@ def write_complete_samples(
     review_requests_path: Path | None,
     output: Path,
     requests: dict[str, dict[str, Any]],
+    tracked_sources: Mapping[str, Mapping[str, Any]],
+    local_sources_config_sha256: str,
     visible_repositories: set[str],
 ) -> tuple[list[dict[str, Any]], int]:
     if path is None and packet_receipt_path is None and site_attestation_path is None:
@@ -1085,6 +1422,8 @@ def write_complete_samples(
         attestation_path=site_attestation_path,
         review_requests_path=review_requests_path,
         primary_sample_ids=set(requests),
+        tracked_sources=tracked_sources,
+        local_sources_config_sha256=local_sources_config_sha256,
     )
     declared_output = packet_receipt["output"]
 
@@ -1153,15 +1492,11 @@ def write_complete_samples(
             raise ValueError(
                 f"{path}:{line_number}: residual known identifier or URL after masking"
             )
-        redaction_counts = row.get("redaction_counts")
-        if not isinstance(redaction_counts, Mapping):
-            raise ValueError(f"{path}:{line_number}: invalid redaction counts")
-        for name, count in redaction_counts.items():
-            if not isinstance(name, str) or not name:
-                raise ValueError(f"{path}:{line_number}: invalid redaction type")
-            observed_redactions[name] += require_nonnegative_int(
-                count, context=f"{path}:{line_number}.redaction_counts.{name}"
-            )
+        redaction_counts = validate_redaction_counts(
+            row.get("redaction_counts"),
+            context=f"{path}:{line_number}.redaction_counts",
+        )
+        observed_redactions.update(redaction_counts)
         expected = requests[sample_id]
         repo_id = str(row.get("source_repo_id", ""))
         dataset = str(row.get("source_dataset", ""))
@@ -1172,10 +1507,14 @@ def write_complete_samples(
             "source_dataset": dataset,
             "canonical_display_document_id": str(row.get("display_document_id", "")),
         }
+        tracked = tracked_sources.get(identity["source_id"])
         if (
-            identity["source_id"] != expected["source_id"]
+            tracked is None
+            or identity["source_id"] != expected["source_id"]
             or repo_id != expected["repo_id"]
             or identity["source_revision"] != expected["source_revision"]
+            or repo_id != tracked["repo_id"]
+            or identity["source_revision"] != tracked["revision"]
             or dataset != expected["source_dataset"]
             or identity["canonical_display_document_id"]
             != expected["canonical_display_document_id"]
@@ -1288,53 +1627,67 @@ if(page==='overview')renderOverview();else if(page==='detail')renderDetail();
 
 
 def build_site(args: argparse.Namespace) -> int:
-    input_snapshots = snapshot_inputs(
-        (
-            args.inventory,
-            args.evaluations,
-            args.sources_config,
-            args.quality_summary,
-            getattr(args, "quality_handoff_receipt", None),
-            args.review_requests,
-            args.review_responses,
-            args.admission,
-            args.novelty,
-            args.complete_samples,
-            getattr(args, "complete_samples_receipt", None),
-            getattr(args, "complete_samples_attestation", None),
-        )
-    )
-    inventory = load_inventory(args.inventory)
-    repos = {str(row["repo_id"]) for row in inventory}
-    evaluations = load_evaluations(args.evaluations, repos)
-    sources = read_json(args.sources_config)
-    quality, quality_scope, acquired_identities = load_quality(
-        args.quality_summary, getattr(args, "quality_handoff_receipt", None)
-    )
-    supplemental_quality_repositories = sorted(set(quality) - repos)
-    site_key = secrets.token_bytes(32)
-    requests, dataset_to_repo, by_repo = load_requests(
-        args.review_requests, source_repo_map(sources), site_key
-    )
-    opaque_ids = [
-        str(value)
-        for rows in by_repo.values()
-        for row in rows
-        for value in (row["site_sample_id"], row["site_document_id"])
-    ]
-    if len(opaque_ids) != len(set(opaque_ids)):
-        raise ValueError("site-local opaque identifier collision")
-    responses = load_review_responses(args.review_responses, requests)
-    admissions = load_admission(args.admission, dataset_to_repo)
-    novelty = load_novelty(args.novelty, dataset_to_repo)
-
-    output = args.output_dir.expanduser().resolve()
+    output = lexical_absolute(args.output_dir)
     output.parent.mkdir(parents=True, exist_ok=True)
     temporary = Path(
         tempfile.mkdtemp(prefix=f".{output.name}.partial-", dir=output.parent)
     )
     temporary.chmod(0o700)
+    stable_inputs_root = Path(
+        tempfile.mkdtemp(prefix=f".{output.name}.inputs-", dir=output.parent)
+    )
+    stable_inputs_root.chmod(0o700)
     try:
+        input_names = (
+            "inventory",
+            "evaluations",
+            "sources_config",
+            "quality_summary",
+            "quality_handoff_receipt",
+            "review_requests",
+            "review_responses",
+            "admission",
+            "novelty",
+            "complete_samples",
+            "complete_samples_receipt",
+            "complete_samples_attestation",
+        )
+        original_inputs = {name: getattr(args, name, None) for name in input_names}
+        input_snapshots, stable_paths = snapshot_site_inputs(
+            original_inputs.values(), stable_inputs_root
+        )
+        args = copy.copy(args)
+        for name, path in original_inputs.items():
+            if path is not None:
+                setattr(args, name, stable_paths[lexical_absolute(path)])
+
+        inventory = load_inventory(args.inventory)
+        repos = {str(row["repo_id"]) for row in inventory}
+        evaluations = load_evaluations(args.evaluations, repos)
+        sources = read_json(args.sources_config)
+        tracked_sources = source_identity_map(sources)
+        quality, quality_scope, acquired_identities = load_quality(
+            args.quality_summary,
+            getattr(args, "quality_handoff_receipt", None),
+            sources_config_path=args.sources_config,
+        )
+        supplemental_quality_repositories = sorted(set(quality) - repos)
+        site_key = secrets.token_bytes(32)
+        requests, dataset_to_repo, by_repo = load_requests(
+            args.review_requests, tracked_sources, site_key
+        )
+        opaque_ids = [
+            str(value)
+            for rows in by_repo.values()
+            for row in rows
+            for value in (row["site_sample_id"], row["site_document_id"])
+        ]
+        if len(opaque_ids) != len(set(opaque_ids)):
+            raise ValueError("site-local opaque identifier collision")
+        responses = load_review_responses(args.review_responses, requests)
+        admissions = load_admission(args.admission, dataset_to_repo)
+        novelty = load_novelty(args.novelty, dataset_to_repo)
+
         sample_receipts, excluded_complete_samples = write_complete_samples(
             args.complete_samples,
             packet_receipt_path=getattr(args, "complete_samples_receipt", None),
@@ -1342,6 +1695,8 @@ def build_site(args: argparse.Namespace) -> int:
             review_requests_path=args.review_requests,
             output=temporary,
             requests=requests,
+            tracked_sources=tracked_sources,
+            local_sources_config_sha256=sha256_file(args.sources_config),
             visible_repositories=repos,
         )
         repositories: list[dict[str, Any]] = []
@@ -1353,6 +1708,7 @@ def build_site(args: argparse.Namespace) -> int:
                 row,
                 quality_present=repo_id in quality,
                 acquired_identities=acquired_identities,
+                tracked_sources=tracked_sources,
             ):
                 state = "external_acquired"
             notes = row.get("notes", row.get("warnings", []))
@@ -1477,27 +1833,39 @@ def build_site(args: argparse.Namespace) -> int:
             "dataset_page_count": len(repositories),
             "complete_sample_count": len(sample_receipts),
             "inputs": {
-                "inventory": input_receipt(args.inventory, input_snapshots),
-                "evaluations": input_receipt(args.evaluations, input_snapshots),
-                "sources_config": input_receipt(args.sources_config, input_snapshots),
-                "quality_summary": input_receipt(args.quality_summary, input_snapshots),
+                "inventory": input_receipt(
+                    original_inputs["inventory"], input_snapshots
+                ),
+                "evaluations": input_receipt(
+                    original_inputs["evaluations"], input_snapshots
+                ),
+                "sources_config": input_receipt(
+                    original_inputs["sources_config"], input_snapshots
+                ),
+                "quality_summary": input_receipt(
+                    original_inputs["quality_summary"], input_snapshots
+                ),
                 "quality_handoff_receipt": input_receipt(
-                    getattr(args, "quality_handoff_receipt", None), input_snapshots
+                    original_inputs["quality_handoff_receipt"], input_snapshots
                 ),
-                "review_requests": input_receipt(args.review_requests, input_snapshots),
+                "review_requests": input_receipt(
+                    original_inputs["review_requests"], input_snapshots
+                ),
                 "review_responses": input_receipt(
-                    args.review_responses, input_snapshots
+                    original_inputs["review_responses"], input_snapshots
                 ),
-                "admission": input_receipt(args.admission, input_snapshots),
-                "novelty": input_receipt(args.novelty, input_snapshots),
+                "admission": input_receipt(
+                    original_inputs["admission"], input_snapshots
+                ),
+                "novelty": input_receipt(original_inputs["novelty"], input_snapshots),
                 "complete_samples": input_receipt(
-                    args.complete_samples, input_snapshots
+                    original_inputs["complete_samples"], input_snapshots
                 ),
                 "complete_samples_receipt": input_receipt(
-                    getattr(args, "complete_samples_receipt", None), input_snapshots
+                    original_inputs["complete_samples_receipt"], input_snapshots
                 ),
                 "complete_samples_attestation": input_receipt(
-                    getattr(args, "complete_samples_attestation", None), input_snapshots
+                    original_inputs["complete_samples_attestation"], input_snapshots
                 ),
             },
             "security": {
@@ -1516,7 +1884,7 @@ def build_site(args: argparse.Namespace) -> int:
             temporary / "site_manifest.json", safe_json(manifest, indent=2) + "\n"
         )
         validate_site_directory(temporary)
-        verify_input_snapshots(input_snapshots)
+        verify_site_input_snapshots(input_snapshots)
 
         if output.exists():
             if not args.replace:
@@ -1534,14 +1902,14 @@ def build_site(args: argparse.Namespace) -> int:
                 raise FileExistsError(backup)
             os.replace(output, backup)
             try:
-                verify_input_snapshots(input_snapshots)
+                verify_site_input_snapshots(input_snapshots)
                 os.replace(temporary, output)
             except BaseException:
                 os.replace(backup, output)
                 raise
             shutil.rmtree(backup)
         else:
-            verify_input_snapshots(input_snapshots)
+            verify_site_input_snapshots(input_snapshots)
             os.replace(temporary, output)
         print(
             safe_json(
@@ -1558,6 +1926,8 @@ def build_site(args: argparse.Namespace) -> int:
     finally:
         if temporary.exists():
             shutil.rmtree(temporary)
+        if stable_inputs_root.exists():
+            shutil.rmtree(stable_inputs_root)
 
 
 def validate_site_directory(root: Path) -> dict[str, Any]:
