@@ -8,6 +8,7 @@ batch phase boundaries (the extension intentionally began a new partial batch).
 """
 from __future__ import annotations
 
+import collections
 import contextlib
 import hashlib
 import io
@@ -214,6 +215,277 @@ def _resolve_input(base: Path, value: Any, context: str) -> tuple[Path, str]:
     return candidate, declared
 
 
+def _path_is_under(root: Path, child: Path) -> bool:
+    try:
+        child.relative_to(root)
+    except ValueError:
+        return False
+    return True
+
+
+def _load_bound_receipt(
+    base: Path,
+    declared_path: Any,
+    expected_sha256: Any,
+    schema_version: str,
+    context: str,
+) -> tuple[Path, dict[str, Any]]:
+    path, _ = _resolve_input(base, declared_path, context)
+    expected = _require_sha256(expected_sha256, f"{context} SHA-256")
+    if sha256_file(path) != expected:
+        raise RehydrationError(f"{context}: receipt SHA-256 drift")
+    value = _load_json(path)
+    if not isinstance(value, dict) or value.get("schema_version") != schema_version:
+        raise RehydrationError(f"{context}: expected schema_version {schema_version}")
+    return path, value
+
+
+def _validate_mdc_raw_builder_derivation(
+    receipt_path: Path,
+    receipt: Mapping[str, Any],
+    raw_source: Mapping[str, Any],
+) -> None:
+    derivation = receipt.get("derivation")
+    if (
+        not isinstance(derivation, dict)
+        or derivation.get("schema_version") != "span-source-artifact-derivation-v1"
+    ):
+        raise RehydrationError(
+            "mdc_raw_forensic source requires builder derivation; hand-authored receipt rejected"
+        )
+    builder = derivation.get("builder")
+    current_builder = Path(__file__).with_name("build_span_source_receipt.py")
+    if (
+        not isinstance(builder, dict)
+        or builder.get("sha256") != sha256_file(current_builder)
+    ):
+        raise RehydrationError("mdc_raw_forensic builder SHA-256 differs from this checkout")
+    routes = derivation.get("route_choices")
+    external = derivation.get("external_forensic_inputs")
+    raw_external = external.get("greek_phd") if isinstance(external, dict) else None
+    if (
+        not isinstance(routes, dict)
+        or routes.get("greek_phd") != "mdc_raw_forensic"
+        or not isinstance(raw_external, dict)
+    ):
+        raise RehydrationError("mdc_raw_forensic route derivation is absent")
+    quarantine_path, quarantine = _load_bound_receipt(
+        receipt_path.parent,
+        raw_external.get("quarantine_receipt"),
+        raw_external.get("quarantine_receipt_sha256"),
+        "mdc_quarantined_object_receipt_v2",
+        "MDC quarantine receipt",
+    )
+    extraction_path, extraction = _load_bound_receipt(
+        receipt_path.parent,
+        raw_external.get("safe_extraction_receipt"),
+        raw_external.get("safe_extraction_receipt_sha256"),
+        "mdc_safe_extraction_receipt_v1",
+        "MDC safe extraction receipt",
+    )
+    audit_path, audit = _load_bound_receipt(
+        receipt_path.parent,
+        raw_external.get("span_coordinate_audit"),
+        raw_external.get("span_coordinate_audit_sha256"),
+        "mdc_greek_phd_span_coordinate_audit_v2",
+        "MDC SPAN audit receipt",
+    )
+    for field, actual in (
+        ("quarantine_receipt_sha256", sha256_file(quarantine_path)),
+        ("safe_extraction_receipt_sha256", sha256_file(extraction_path)),
+        ("span_coordinate_audit_sha256", sha256_file(audit_path)),
+    ):
+        if raw_source.get(field) != actual:
+            raise RehydrationError(f"mdc_raw_forensic source {field} differs from derivation")
+    if (
+        quarantine.get("status") != "quarantined_publisher_checksum_mismatch"
+        or extraction.get("status") != "passed_fresh_archive_tree_matches"
+        or audit.get("status")
+        not in {"passed", "comparison_only_with_silver_anomalies"}
+        or audit.get("production_eligible") is not False
+        or audit.get("research_evidence_scope") != "LLM_silver_comparison_only"
+    ):
+        raise RehydrationError("mdc_raw_forensic receipt status is not comparison-only safe")
+    source_integrity = audit.get("source_coordinate_integrity")
+    if (
+        not isinstance(source_integrity, dict)
+        or source_integrity.get("status") != "passed"
+        or not isinstance(source_integrity.get("failure_counts"), dict)
+        or any(source_integrity["failure_counts"].values())
+    ):
+        raise RehydrationError("mdc_raw_forensic source-coordinate audit did not pass")
+    safe = quarantine.get("safe_extraction")
+    audit_inputs = audit.get("inputs")
+    audit_quarantine = (
+        audit_inputs.get("quarantine_receipt") if isinstance(audit_inputs, dict) else None
+    )
+    audit_extraction = (
+        audit_inputs.get("safe_extraction_receipt")
+        if isinstance(audit_inputs, dict)
+        else None
+    )
+    if (
+        not isinstance(safe, dict)
+        or safe.get("receipt_sha256") != sha256_file(extraction_path)
+        or not isinstance(audit_quarantine, dict)
+        or audit_quarantine.get("sha256") != sha256_file(quarantine_path)
+        or not isinstance(audit_extraction, dict)
+        or audit_extraction.get("sha256") != sha256_file(extraction_path)
+    ):
+        raise RehydrationError("mdc_raw_forensic quarantine/audit/extraction chain differs")
+    extraction_tool = extraction.get("tool")
+    audit_tool = audit_inputs.get("tool") if isinstance(audit_inputs, dict) else None
+    if (
+        not isinstance(extraction_tool, dict)
+        or extraction_tool.get("sha256")
+        != sha256_file(Path(__file__).with_name("mdc_safe_extract.py"))
+        or not isinstance(audit_tool, dict)
+        or audit_tool.get("sha256")
+        != sha256_file(Path(__file__).with_name("mdc_span_audit.py"))
+    ):
+        raise RehydrationError("mdc_raw_forensic forensic tool SHA-256 differs")
+    selected_digest = _require_sha256(
+        audit.get("selected_documents_text_sha256"),
+        "MDC selected document text digest",
+    )
+    if raw_source.get("selected_documents_text_sha256") != selected_digest:
+        raise RehydrationError("mdc_raw_forensic selected document text digest differs")
+    selection = audit_inputs.get("selection_contract")
+    if (
+        not isinstance(selection, dict)
+        or raw_source.get("selected_document_id_field_counts")
+        != selection.get("selected_document_id_field_counts")
+        or raw_source.get("selected_text_field_counts")
+        != selection.get("selected_text_field_counts")
+        or selection.get("document_id_field") != "doc_id"
+        or selection.get("text_precedence") != ["text", "document", "content"]
+    ):
+        raise RehydrationError("mdc_raw_forensic selected field counts differ")
+    extraction_payload = extraction.get("extraction")
+    if not isinstance(extraction_payload, dict):
+        raise RehydrationError("mdc_raw_forensic safe extraction manifest is malformed")
+    extraction_manifest_path, _ = _resolve_input(
+        receipt_path.parent,
+        raw_external.get("extracted_sha256_manifest"),
+        "MDC extraction manifest",
+    )
+    receipt_manifest_path, _ = _resolve_input(
+        extraction_path.parent,
+        extraction_payload.get("manifest_path"),
+        "MDC extraction-receipt manifest",
+    )
+    declared_manifest_sha = _require_sha256(
+        raw_external.get("extracted_sha256_manifest_sha256"),
+        "MDC extraction manifest SHA-256",
+    )
+    receipt_manifest_sha = _require_sha256(
+        extraction_payload.get("manifest_sha256"),
+        "MDC extraction-receipt manifest SHA-256",
+    )
+    if (
+        extraction_manifest_path != receipt_manifest_path
+        or declared_manifest_sha != receipt_manifest_sha
+        or sha256_file(extraction_manifest_path) != receipt_manifest_sha
+    ):
+        raise RehydrationError(
+            "mdc_raw_forensic extraction manifest path/hash differs from "
+            "the safe extraction receipt"
+        )
+    manifest_value = _load_json(extraction_manifest_path)
+    manifest_rows = (
+        manifest_value.get("files") if isinstance(manifest_value, dict) else None
+    )
+    if (
+        not isinstance(manifest_value, dict)
+        or manifest_value.get("schema_version")
+        != "mdc_safe_extraction_manifest_v1"
+        or not isinstance(manifest_rows, list)
+        or manifest_value.get("file_count") != extraction_payload.get("file_count")
+        or manifest_value.get("directory_count")
+        != extraction_payload.get("directory_count")
+        or manifest_value.get("total_file_bytes")
+        != extraction_payload.get("total_file_bytes")
+        or canonical_json_sha256(manifest_value)
+        != extraction_payload.get("inventory_sha256")
+    ):
+        raise RehydrationError("mdc_raw_forensic safe extraction manifest is malformed")
+    extraction_root = Path(str(extraction_payload.get("root", ""))).resolve()
+    expected_artifacts: list[dict[str, Any]] = []
+    prefix = "phd-theses-corpus/contents/"
+    for index, row in enumerate(manifest_rows):
+        if not isinstance(row, dict):
+            raise RehydrationError(
+                f"mdc_raw_forensic extraction manifest row {index} is malformed"
+            )
+        repository_path = str(row.get("path", ""))
+        if not (
+            repository_path.startswith(prefix)
+            and repository_path.endswith(".jsonl.zst")
+        ):
+            continue
+        relative = Path(repository_path)
+        expected_sha = _require_sha256(
+            row.get("sha256", ""),
+            f"mdc_raw_forensic extraction manifest row {index}",
+        )
+        expected_bytes = row.get("bytes")
+        declared_artifact = extraction_root / relative
+        resolved = declared_artifact.resolve()
+        if (
+            relative.is_absolute()
+            or ".." in relative.parts
+            or not _path_is_under(extraction_root, resolved)
+            or declared_artifact.is_symlink()
+            or not resolved.is_file()
+            or isinstance(expected_bytes, bool)
+            or not isinstance(expected_bytes, int)
+            or expected_bytes < 0
+        ):
+            raise RehydrationError(
+                f"mdc_raw_forensic extraction manifest row {index} is unsafe"
+            )
+        expected_artifacts.append(
+            {
+                "path": str(resolved),
+                "repository_path": repository_path,
+                "sha256": expected_sha,
+                "bytes": expected_bytes,
+                "acquisition_hash_kind": "quarantined_extracted_sha256",
+            }
+        )
+    expected_artifacts.sort(key=lambda row: str(row["repository_path"]))
+    if not expected_artifacts or raw_source.get("artifacts") != expected_artifacts:
+        raise RehydrationError(
+            "mdc_raw_forensic source artifacts differ from the safe extraction manifest"
+        )
+    if (
+        raw_source.get("repo_type") != "archive"
+        or raw_source.get("repo_id")
+        != "mozilla-data-collective/cmkwvpu7s0032mo07jpk20pj1"
+        or raw_source.get("selection_globs")
+        != ["phd-theses-corpus/contents/*.jsonl.zst"]
+        or raw_source.get("fields")
+        != {
+            "document_id": "doc_id",
+            "text_precedence": ["text", "document", "content"],
+        }
+        or raw_source.get("publisher_checksum_status") != "mismatch_quarantined"
+    ):
+        raise RehydrationError("mdc_raw_forensic source identity contract differs")
+    archive = quarantine.get("archive")
+    extraction_archive = extraction.get("archive")
+    if (
+        not isinstance(archive, dict)
+        or not isinstance(extraction_archive, dict)
+        or archive.get("observed_sha256") != raw_source.get("revision")
+        or archive.get("publisher_declared_sha256") == raw_source.get("revision")
+        or extraction_archive.get("sha256") != raw_source.get("revision")
+        or raw_external.get("archive_sha256") != raw_source.get("revision")
+        or raw_source.get("publisher_checksum_status") != "mismatch_quarantined"
+    ):
+        raise RehydrationError("mdc_raw_forensic archive identity chain differs")
+
+
 def load_source_specs(
     path: str | Path, expected_sources: set[str]
 ) -> tuple[dict[str, SourceSpec], list[dict[str, Any]]]:
@@ -229,6 +501,21 @@ def load_source_specs(
             f"missing={sorted(expected_sources-observed_sources)}, "
             f"extra={sorted(observed_sources-expected_sources)}"
         )
+    greek_raw = sources.get("greek_phd")
+    if isinstance(greek_raw, dict) and (
+        greek_raw.get("format") == "jsonl_documents"
+        or greek_raw.get("acquisition_source_id") == "mdc_raw_forensic"
+        or greek_raw.get("repo_type") == "archive"
+    ):
+        if (
+            greek_raw.get("format") != "jsonl_documents"
+            or greek_raw.get("repo_type") != "archive"
+            or greek_raw.get("acquisition_source_id") != "mdc_raw_forensic"
+        ):
+            raise RehydrationError(
+                "Greek PhD JSONL/archive source must use exact mdc_raw_forensic provenance"
+            )
+        _validate_mdc_raw_builder_derivation(receipt_path, value, greek_raw)
     result: dict[str, SourceSpec] = {}
     all_paths: set[Path] = set()
     all_repository_artifacts: set[tuple[str, str, str]] = set()
@@ -362,6 +649,19 @@ def load_source_specs(
                 "historical_source_relation": raw.get("historical_source_relation"),
                 "label_text_equivalence": raw.get("label_text_equivalence"),
                 "document_id_alignment": raw.get("document_id_alignment"),
+                "quarantine_receipt_sha256": raw.get("quarantine_receipt_sha256"),
+                "safe_extraction_receipt_sha256": raw.get(
+                    "safe_extraction_receipt_sha256"
+                ),
+                "span_coordinate_audit_sha256": raw.get("span_coordinate_audit_sha256"),
+                "selected_documents_text_sha256": raw.get(
+                    "selected_documents_text_sha256"
+                ),
+                "selected_document_id_field_counts": raw.get(
+                    "selected_document_id_field_counts"
+                ),
+                "selected_text_field_counts": raw.get("selected_text_field_counts"),
+                "publisher_checksum_status": raw.get("publisher_checksum_status"),
             },
         )
     return result, artifact_receipts
@@ -580,6 +880,8 @@ def _scan_jsonl_source(
     document_receipts: list[tuple[str, str]] = []
     rows_scanned = 0
     selected_by_artifact: dict[str, int] = {}
+    selected_id_field_counts: collections.Counter[str] = collections.Counter()
+    selected_text_field_counts: collections.Counter[str] = collections.Counter()
     document_id_field = str(spec.fields["document_id"])
     text_fields = tuple(str(item) for item in spec.fields["text_precedence"])
     for artifact in spec.artifacts:
@@ -609,8 +911,13 @@ def _scan_jsonl_source(
                 text = _pick_text(
                     row, text_fields, f"{artifact.local_path}:{line_number}:{doc_id}"
                 )
+                text_field = next(
+                    field for field in text_fields if isinstance(row.get(field), str)
+                )
                 found.add(doc_id)
                 selected += 1
+                selected_id_field_counts[document_id_field] += 1
+                selected_text_field_counts[text_field] += 1
                 document_receipts.append((doc_id, hashlib.sha256(text.encode("utf-8")).hexdigest()))
                 for unit_id, unit in _unit_payloads_for_document(
                     spec.name, doc_id, text, manifests_by_doc[doc_id]
@@ -626,12 +933,34 @@ def _scan_jsonl_source(
             f"{spec.name}: selected document inventory mismatch: "
             f"missing={missing[:20]}, extra={extra[:20]}"
         )
+    selected_text_sha256 = canonical_json_sha256(sorted(document_receipts))
+    if spec.provenance.get("acquisition_source_id") == "mdc_raw_forensic":
+        if (
+            selected_text_sha256
+            != spec.provenance.get("selected_documents_text_sha256")
+        ):
+            raise RehydrationError(
+                "greek_phd: selected document text digest differs from the forensic audit"
+            )
+        if (
+            dict(sorted(selected_id_field_counts.items()))
+            != spec.provenance.get("selected_document_id_field_counts")
+            or dict(sorted(selected_text_field_counts.items()))
+            != spec.provenance.get("selected_text_field_counts")
+        ):
+            raise RehydrationError(
+                "greek_phd: selected ID/text field counts differ from the forensic audit"
+            )
     return units, {
         "source": spec.name,
         "required_document_count": len(required),
         "required_document_ids_sha256": canonical_json_sha256(sorted(required)),
         "selected_document_count": len(found),
-        "selected_documents_text_sha256": canonical_json_sha256(sorted(document_receipts)),
+        "selected_documents_text_sha256": selected_text_sha256,
+        "selected_document_id_field_counts": dict(
+            sorted(selected_id_field_counts.items())
+        ),
+        "selected_text_field_counts": dict(sorted(selected_text_field_counts.items())),
         "rows_scanned": rows_scanned,
         "selected_documents_by_artifact": selected_by_artifact,
         "ignored_non_target_rows": rows_scanned - len(found),

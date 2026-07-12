@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import importlib.util
 import shutil
 import subprocess
@@ -14,8 +15,12 @@ EVAL_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(EVAL_DIR))
 
 from sequence_models.span_rehydration import (  # noqa: E402
+    Artifact,
+    ManifestUnit,
     RehydrationError,
+    SourceSpec,
     _load_layout,
+    _scan_jsonl_source,
     assemble_kallipos_document,
     canonical_json_sha256,
     inspect_span_snapshot,
@@ -26,7 +31,11 @@ from sequence_models.span_rehydration import (  # noqa: E402
     verify_rehydration_receipt,
 )
 from sequence_models.silver_reconstruct import (  # noqa: E402
-    _validate_annotation_coordinate_alignment,
+    DeclaredSpan,
+    SilverDraft,
+    _build_span_drafts,
+    _project_document_spans,
+    _validate_unit_and_annotation,
 )
 
 
@@ -43,7 +52,7 @@ class SpanRehydrationTests(unittest.TestCase):
             {
                 "unit_id": "U000",
                 "doc_id": "doc-a",
-                "source": "greek_phd",
+                "source": "openarchives",
                 "window": "tail",
                 "win_lo": 0,
                 "win_hi": 4,
@@ -51,7 +60,7 @@ class SpanRehydrationTests(unittest.TestCase):
             {
                 "unit_id": "U001",
                 "doc_id": "doc-a",
-                "source": "greek_phd",
+                "source": "openarchives",
                 "window": "body",
                 "win_lo": 2,
                 "win_hi": 6,
@@ -59,7 +68,7 @@ class SpanRehydrationTests(unittest.TestCase):
             {
                 "unit_id": "U002",
                 "doc_id": "doc-b",
-                "source": "greek_phd",
+                "source": "openarchives",
                 "window": "tail",
                 "win_lo": 0,
                 "win_hi": 2,
@@ -127,7 +136,7 @@ class SpanRehydrationTests(unittest.TestCase):
                 {
                     "schema_version": "span-source-artifacts-v1",
                     "sources": {
-                        "greek_phd": {
+                        "openarchives": {
                             "repo_type": "dataset",
                             "repo_id": "example/greek-phd",
                             "revision": "a" * 40,
@@ -271,6 +280,10 @@ class SpanRehydrationTests(unittest.TestCase):
         import pyarrow as pa
         import pyarrow.parquet as pq
 
+        self.rows = [{**row, "source": "kallipos"} for row in self.rows]
+        self._write_jsonl(self.manifest, self.rows)
+        self._write_layout()
+
         parquet = self.root / "greek-phd.parquet"
         pq.write_table(
             pa.table(
@@ -292,7 +305,7 @@ class SpanRehydrationTests(unittest.TestCase):
                 {
                     "schema_version": "span-source-artifacts-v1",
                     "sources": {
-                        "greek_phd": {
+                        "kallipos": {
                             "repo_type": "dataset",
                             "repo_id": "example/nanochat",
                             "revision": "b" * 40,
@@ -334,6 +347,48 @@ class SpanRehydrationTests(unittest.TestCase):
         with self.assertRaisesRegex(RehydrationError, "duplicate section id"):
             assemble_kallipos_document([(1, "a"), (1, "b")], "book-1")
 
+    def test_raw_jsonl_scan_enforces_forensic_text_digest_and_field_counts(self) -> None:
+        source = self.root / "raw-mdc.jsonl"
+        text = "first\nsecond"
+        self._write_jsonl(
+            source,
+            [{"doc_id": "doc", "text": text, "document": "must not win"}],
+        )
+        artifact = Artifact(source, str(source), "contents/raw-mdc.jsonl", sha256_file(source))
+        manifest = ManifestUnit("U", "doc", "greek_phd", "tail", 0, 2)
+        base_provenance = {
+            "acquisition_source_id": "mdc_raw_forensic",
+            "selected_document_id_field_counts": {"doc_id": 1},
+            "selected_text_field_counts": {"text": 1},
+        }
+        wrong = SourceSpec(
+            "greek_phd",
+            "mozilla-data-collective/test",
+            "archive",
+            "a" * 64,
+            "jsonl_documents",
+            (artifact,),
+            {"document_id": "doc_id", "text_precedence": ["text", "document", "content"]},
+            {**base_provenance, "selected_documents_text_sha256": "0" * 64},
+        )
+        with self.assertRaisesRegex(RehydrationError, "text digest differs"):
+            _scan_jsonl_source(wrong, {"doc": [manifest]})
+        expected_digest = canonical_json_sha256(
+            [("doc", hashlib.sha256(text.encode("utf-8")).hexdigest())]
+        )
+        correct = SourceSpec(
+            **{
+                **wrong.__dict__,
+                "provenance": {
+                    **base_provenance,
+                    "selected_documents_text_sha256": expected_digest,
+                },
+            }
+        )
+        _, extraction = _scan_jsonl_source(correct, {"doc": [manifest]})
+        self.assertEqual(extraction["selected_documents_text_sha256"], expected_digest)
+        self.assertEqual(extraction["selected_text_field_counts"], {"text": 1})
+
     def test_tracked_layout_preserves_240_historical_batches(self) -> None:
         manifest = EVAL_DIR / "units" / "SPAN_manifest.jsonl"
         batchpaths = EVAL_DIR / "units" / "SPAN_batchpaths.json"
@@ -362,19 +417,81 @@ class SpanRehydrationTests(unittest.TestCase):
             config["deployment_safety_audit"]["maximum_catastrophic_false_deletions"], 0
         )
 
-    def test_annotation_boundaries_must_align_with_rehydrated_numbered_text(self) -> None:
+    def test_annotation_shape_and_unit_coordinates_remain_fail_closed(self) -> None:
         meta = {"win_lo": 10, "win_hi": 15}
         unit = {"text_numbered": "L00010: prose\nL00012: citation\nL00014: citation"}
         annotation = {
             "has_bib": True,
             "spans": [{"start_line": 12, "end_line": 14}],
         }
-        self.assertEqual(
-            _validate_annotation_coordinate_alignment("U", meta, annotation, unit), 1
+        line_rows, declared = _validate_unit_and_annotation("U", meta, annotation, unit)
+        self.assertEqual([index for index, _ in line_rows], [10, 12, 14])
+        self.assertEqual(len(declared), 1)
+        annotation["spans"][0]["start_line"] = "11"
+        with self.assertRaisesRegex(ValueError, "ordered integer coordinates"):
+            _validate_unit_and_annotation("U", meta, annotation, unit)
+
+    def test_document_union_projection_matches_historical_present_line_semantics(self) -> None:
+        draft = SilverDraft(
+            upstream_doc_id="doc",
+            source="greek_phd",
+            n_physical_lines=30,
+            lines={10: "a", 12: "b", 14: "c", 20: "d"},
+            bib_lines=set(),
+            declared_spans=[
+                DeclaredSpan("exact", 0, 12, 14, 10, 15),
+                # End escapes this unit but is present through another window.
+                DeclaredSpan("overlap", 0, 10, 20, 10, 15),
+                # No sampled present coordinate: historical comparison yields no positives.
+                DeclaredSpan("zero", 0, 25, 27, 0, 5),
+            ],
+            sampled_units=["exact", "overlap", "zero"],
+            annotation_units=["exact", "overlap", "zero"],
+            missing_annotation_units=[],
         )
-        annotation["spans"][0]["start_line"] = 11
-        with self.assertRaisesRegex(ValueError, "absent from rehydrated text"):
-            _validate_annotation_coordinate_alignment("U", meta, annotation, unit)
+        counts, anomalies = _project_document_spans(draft)
+        self.assertEqual(draft.bib_lines, {10, 12, 14, 20})
+        self.assertEqual(counts["exact_nonempty_span_count"], 1)
+        self.assertEqual(counts["adjusted_nonempty_span_count"], 1)
+        self.assertEqual(counts["zero_effective_span_count"], 1)
+        self.assertEqual([row["outcome"] for row in anomalies], [
+            "projected_nonempty", "zero_effective"
+        ])
+        self.assertEqual(anomalies[0]["effective_last_present_line"], 20)
+        self.assertEqual(anomalies[1]["effective_present_line_count"], 0)
+
+    def test_missing_annotation_unit_text_is_retained_as_historical_negative(self) -> None:
+        manifest = {
+            "annotated": {
+                "source": "greek_phd", "doc_id": "doc-a", "win_lo": 0, "win_hi": 2,
+            },
+            "missing": {
+                "source": "greek_phd", "doc_id": "doc-b", "win_lo": 4, "win_hi": 6,
+            },
+        }
+        units = {
+            "annotated": {"text_numbered": "L00000: prose\nL00001: citation"},
+            "missing": {"text_numbered": "L00004: retained\nL00005: negative"},
+        }
+        annotations = {
+            "annotated": {
+                "has_bib": True,
+                "spans": [{"start_line": 1, "end_line": 1}],
+            }
+        }
+
+        drafts = _build_span_drafts(manifest, annotations, units)
+
+        missing = drafts[("greek_phd", "doc-b")]
+        self.assertEqual(missing.lines, {4: "retained", 5: "negative"})
+        self.assertEqual(missing.declared_spans, [])
+        self.assertEqual(missing.sampled_units, ["missing"])
+        self.assertEqual(missing.annotation_units, [])
+        self.assertEqual(missing.missing_annotation_units, ["missing"])
+        counts, anomalies = _project_document_spans(missing)
+        self.assertEqual(counts, {})
+        self.assertEqual(anomalies, [])
+        self.assertEqual(missing.bib_lines, set())
 
 
 if __name__ == "__main__":

@@ -1,5 +1,10 @@
 # Document-structure segmentation — annotation specification (v2)
 
+> **Historical terminology notice:** This specification predates the repository-wide evidence-tier
+> cleanup. Every completed annotation described here was produced by an LLM and is **LLM-silver**, not
+> human gold. References to “gold” below are legacy experimental terminology or filenames; they do not
+> imply human annotation or adjudication.
+
 ## Decisions log (v2 final — read this first)
 - **Annotation unit = front+tail, ONE unit/doc** (`build_fronttail.py`): whole-doc when it fits ≤420k chars,
   else front (≤140k chars) + tail (≤260k chars) with the middle elided. CHAR-bounded so long-line sources

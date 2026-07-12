@@ -227,6 +227,20 @@ does not override the pre-authorized policy.
 
 Choose one stable run ID. Do not change it on retries:
 
+The normalizer schedules receipt-bound tasks below 2 GiB through the ordinary
+pool and tasks at or above 2 GiB through a separate pool capped at two workers.
+The pools run sequentially so ordinary concurrency cannot overlap the
+high-memory Parquet conversions. Override these execution-only limits with
+`NORMALIZE_LARGE_TASK_BYTE_THRESHOLD` and `NORMALIZE_LARGE_TASK_WORKERS`; they
+do not alter canonical bytes, immutable receipt identities or resume validity.
+The global DuckDB inventory pass defaults to a 240 GB limit and 16 threads.
+
+If normalization is interrupted after committing some file receipts, preserve
+the run directory and use `clariden/submit.sh resume normalize` with the same
+run ID and acquisition receipt. Resume validates committed shards, removes only
+uncommitted hidden partial directories, and recreates missing file tasks. It is
+safe to lower the execution-only worker caps for that retry.
+
 ```bash
 export PIPELINE_RUN_ID=full-corpus-v2-<date>
 export ACQUISITION_RECEIPT="$RUN_ROOT/source_locks/sources_<fresh-timestamp>_<fresh-job>.receipt.json"

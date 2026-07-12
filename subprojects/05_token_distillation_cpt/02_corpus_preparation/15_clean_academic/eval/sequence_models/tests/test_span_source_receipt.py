@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import importlib.util
 import json
 import sys
 import tempfile
+import tarfile
 import unittest
 from pathlib import Path
 
@@ -17,6 +19,8 @@ from sequence_models.build_span_source_receipt import (  # noqa: E402
     _config_sources,
     build_span_source_receipt,
 )
+from sequence_models.mdc_span_audit import audit as audit_mdc_span  # noqa: E402
+from sequence_models.mdc_safe_extract import safe_extract  # noqa: E402
 from sequence_models.span_rehydration import (  # noqa: E402
     RehydrationError,
     load_source_specs,
@@ -60,6 +64,7 @@ class SpanSourceReceiptBuilderTests(unittest.TestCase):
         self.lock_path = self.root / "sources.lock.json"
         self.acquisition_path = self.root / "acquisition.receipt.json"
         self.manifest_path = self.root / "SPAN_manifest.jsonl"
+        self.annotations_path = self.root / "annotations.json"
         self.output_path = self.root / "span-source-artifacts.json"
         revisions = {
             "nanochat_base": "1" * 40,
@@ -298,6 +303,16 @@ class SpanSourceReceiptBuilderTests(unittest.TestCase):
             ),
             encoding="utf-8",
         )
+        self._write_json(
+            self.annotations_path,
+            {
+                "annotations": [
+                    {"unit_id": "S0", "has_bib": False, "spans": []},
+                    {"unit_id": "S1", "has_bib": False, "spans": []},
+                    {"unit_id": "S2", "has_bib": False, "spans": []},
+                ]
+            },
+        )
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
@@ -313,15 +328,101 @@ class SpanSourceReceiptBuilderTests(unittest.TestCase):
             "source_lock": str(self.lock_path),
             "sources_config": str(self.sources_path),
             "manifest": str(self.manifest_path),
+            "annotations": str(self.annotations_path),
             "greek_phd_route": "nanochat_base",
             "kallipos_route": "kallipos_sections",
             "greek_phd_document_id_column": None,
             "greek_phd_text_column": None,
             "allow_unverified_greek_phd_id_domain": False,
+            "mdc_quarantine_receipt": None,
+            "mdc_span_audit_receipt": None,
+            "mdc_expected_observed_sha256": None,
+            "allow_quarantined_mdc_comparison_only": False,
             "output": str(self.output_path),
         }
         values.update(overrides)
         return argparse.Namespace(**values)
+
+    def _write_mdc_fixture(self) -> tuple[Path, Path, str]:
+        import zstandard
+
+        self._write_json(
+            self.annotations_path,
+            {
+                "annotations": [
+                    {
+                        "unit_id": "S0",
+                        "has_bib": True,
+                        "spans": [{"start_line": 0, "end_line": 1}],
+                    },
+                    {"unit_id": "S1", "has_bib": False, "spans": []},
+                    {"unit_id": "S2", "has_bib": False, "spans": []},
+                ]
+            },
+        )
+        root = self.root / "mdc-observed"
+        archive = root / "greek-phd.tar.gz"
+        archive.parent.mkdir(parents=True)
+        payload = (
+            json.dumps({"doc_id": "a" * 64, "text": "Greek PhD text"}) + "\n"
+        ).encode()
+        compressed = zstandard.ZstdCompressor().compress(payload)
+        with tarfile.open(archive, "w:gz") as tar:
+            member = tarfile.TarInfo("phd-theses-corpus/contents/part.jsonl.zst")
+            member.size = len(compressed)
+            tar.addfile(member, io.BytesIO(compressed))
+        observed = sha256_file(archive)
+        publisher = "0" * 64
+        extracted_root = root / "extracted"
+        extracted_manifest = root / "extraction.manifest.json"
+        extraction_receipt_path = root / "extraction.receipt.json"
+        extraction_receipt = safe_extract(
+            archive,
+            extracted_root,
+            extracted_manifest,
+            extraction_receipt_path,
+        )
+        contents = extracted_root / "phd-theses-corpus" / "contents"
+        quarantine = root / "quarantine.receipt.json"
+        self._write_json(
+            quarantine,
+            {
+                "schema_version": "mdc_quarantined_object_receipt_v2",
+                "status": "quarantined_publisher_checksum_mismatch",
+                "archive": {
+                    "path": str(archive.resolve()),
+                    "bytes": archive.stat().st_size,
+                    "observed_sha256": observed,
+                    "publisher_declared_sha256": publisher,
+                    "gzip_and_tar_integrity": "passed",
+                },
+                "safe_extraction": {
+                    "receipt_path": str(extraction_receipt_path.resolve()),
+                    "receipt_sha256": sha256_file(extraction_receipt_path),
+                    "status": "passed_fresh_archive_tree_matches",
+                },
+                "extracted": {
+                    "path": str(extracted_root.resolve()),
+                    "file_count": extraction_receipt["extraction"]["file_count"],
+                    "sha256_manifest_path": str(extracted_manifest.resolve()),
+                    "sha256_manifest_sha256": sha256_file(extracted_manifest),
+                },
+            },
+        )
+        audit_path = root / "span-coordinate-audit.json"
+        audit_mdc_span(
+            argparse.Namespace(
+                archive=str(archive),
+                quarantine_receipt=str(quarantine),
+                publisher_declared_sha256=publisher,
+                contents_root=str(contents),
+                shard_glob="*.jsonl.zst",
+                manifest=str(self.manifest_path),
+                annotations=str(self.annotations_path),
+                output=str(audit_path),
+            )
+        )
+        return quarantine, audit_path, observed
 
     def test_builds_path_filtered_receipt_from_acquisition_and_lock(self) -> None:
         receipt = build_span_source_receipt(self._args())
@@ -380,6 +481,188 @@ class SpanSourceReceiptBuilderTests(unittest.TestCase):
             [row["repository_path"] for row in kallipos["artifacts"]],
             ["data/Apothetirio_Kallipos.parquet"],
         )
+
+    def test_raw_mdc_route_is_quarantine_and_audit_bound(self) -> None:
+        quarantine, audit_path, observed = self._write_mdc_fixture()
+        output = self.root / "span-source-artifacts-mdc.json"
+        receipt = build_span_source_receipt(
+            self._args(
+                output=str(output),
+                greek_phd_route="mdc_raw_forensic",
+                mdc_quarantine_receipt=str(quarantine),
+                mdc_span_audit_receipt=str(audit_path),
+                mdc_expected_observed_sha256=observed,
+                allow_quarantined_mdc_comparison_only=True,
+            )
+        )
+        greek = receipt["sources"]["greek_phd"]
+        self.assertEqual(greek["repo_type"], "archive")
+        self.assertEqual(greek["revision"], observed)
+        self.assertEqual(greek["acquisition_source_id"], "mdc_raw_forensic")
+        self.assertEqual(len(greek["artifacts"]), 1)
+        self.assertEqual(greek["selected_document_id_field_counts"], {"doc_id": 1})
+        self.assertEqual(greek["selected_text_field_counts"], {"text": 1})
+        self.assertRegex(greek["selected_documents_text_sha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(
+            receipt["derivation"]["schema_reports"]["greek_phd"]["audit_status"],
+            "comparison_only_with_silver_anomalies",
+        )
+        self.assertEqual(
+            receipt["derivation"]["schema_reports"]["greek_phd"][
+                "projection_counts"
+            ]["adjusted_nonempty_spans"],
+            1,
+        )
+        specs, artifacts = load_source_specs(
+            output, {"greek_phd", "openarchives", "kallipos"}
+        )
+        self.assertEqual(specs["greek_phd"].revision, observed)
+        self.assertEqual(len(artifacts), 3)
+
+    def test_raw_mdc_hand_authored_derivation_bypass_is_rejected(self) -> None:
+        quarantine, audit_path, observed = self._write_mdc_fixture()
+        output = self.root / "span-source-artifacts-mdc-bypass.json"
+        build_span_source_receipt(
+            self._args(
+                output=str(output),
+                greek_phd_route="mdc_raw_forensic",
+                mdc_quarantine_receipt=str(quarantine),
+                mdc_span_audit_receipt=str(audit_path),
+                mdc_expected_observed_sha256=observed,
+                allow_quarantined_mdc_comparison_only=True,
+            )
+        )
+        receipt = json.loads(output.read_text(encoding="utf-8"))
+        del receipt["derivation"]
+        bypass = self.root / "hand-authored-mdc.json"
+        self._write_json(bypass, receipt)
+        with self.assertRaisesRegex(RehydrationError, "hand-authored receipt rejected"):
+            load_source_specs(bypass, {"greek_phd", "openarchives", "kallipos"})
+        receipt["sources"]["greek_phd"]["repo_type"] = "dataset"
+        receipt["sources"]["greek_phd"]["acquisition_source_id"] = "nanochat_base"
+        disguised = self.root / "disguised-jsonl-mdc.json"
+        self._write_json(disguised, receipt)
+        with self.assertRaisesRegex(RehydrationError, "exact mdc_raw_forensic provenance"):
+            load_source_specs(disguised, {"greek_phd", "openarchives", "kallipos"})
+
+    def test_raw_mdc_selected_text_digest_tamper_is_rejected_at_consumption(self) -> None:
+        quarantine, audit_path, observed = self._write_mdc_fixture()
+        output = self.root / "span-source-artifacts-mdc-digest.json"
+        build_span_source_receipt(
+            self._args(
+                output=str(output),
+                greek_phd_route="mdc_raw_forensic",
+                mdc_quarantine_receipt=str(quarantine),
+                mdc_span_audit_receipt=str(audit_path),
+                mdc_expected_observed_sha256=observed,
+                allow_quarantined_mdc_comparison_only=True,
+            )
+        )
+        receipt = json.loads(output.read_text(encoding="utf-8"))
+        receipt["sources"]["greek_phd"]["selected_documents_text_sha256"] = "f" * 64
+        tampered = self.root / "tampered-mdc-digest.json"
+        self._write_json(tampered, receipt)
+        with self.assertRaisesRegex(RehydrationError, "selected document text digest differs"):
+            load_source_specs(tampered, {"greek_phd", "openarchives", "kallipos"})
+
+    def test_raw_mdc_artifact_substitution_is_rejected_at_consumption(self) -> None:
+        quarantine, audit_path, observed = self._write_mdc_fixture()
+        output = self.root / "span-source-artifacts-mdc-artifact.json"
+        build_span_source_receipt(
+            self._args(
+                output=str(output),
+                greek_phd_route="mdc_raw_forensic",
+                mdc_quarantine_receipt=str(quarantine),
+                mdc_span_audit_receipt=str(audit_path),
+                mdc_expected_observed_sha256=observed,
+                allow_quarantined_mdc_comparison_only=True,
+            )
+        )
+        receipt = json.loads(output.read_text(encoding="utf-8"))
+        artifact = receipt["sources"]["greek_phd"]["artifacts"][0]
+        substituted = self.root / "substituted" / "part.jsonl.zst"
+        substituted.parent.mkdir()
+        substituted.write_bytes(Path(artifact["path"]).read_bytes())
+        artifact["path"] = str(substituted)
+        artifact["bytes"] = substituted.stat().st_size
+        artifact["sha256"] = sha256_file(substituted)
+        tampered = self.root / "tampered-mdc-artifact.json"
+        self._write_json(tampered, receipt)
+        with self.assertRaisesRegex(
+            RehydrationError, "source artifacts differ from the safe extraction manifest"
+        ):
+            load_source_specs(tampered, {"greek_phd", "openarchives", "kallipos"})
+
+    def test_raw_mdc_fake_manifest_derivation_is_rejected_at_consumption(self) -> None:
+        quarantine, audit_path, observed = self._write_mdc_fixture()
+        output = self.root / "span-source-artifacts-mdc-manifest.json"
+        build_span_source_receipt(
+            self._args(
+                output=str(output),
+                greek_phd_route="mdc_raw_forensic",
+                mdc_quarantine_receipt=str(quarantine),
+                mdc_span_audit_receipt=str(audit_path),
+                mdc_expected_observed_sha256=observed,
+                allow_quarantined_mdc_comparison_only=True,
+            )
+        )
+        receipt = json.loads(output.read_text(encoding="utf-8"))
+        external = receipt["derivation"]["external_forensic_inputs"]["greek_phd"]
+        original = Path(external["extracted_sha256_manifest"])
+        substituted = self.root / "copied-extraction.manifest.json"
+        substituted.write_bytes(original.read_bytes())
+        external["extracted_sha256_manifest"] = str(substituted)
+        external["extracted_sha256_manifest_sha256"] = sha256_file(substituted)
+        tampered = self.root / "tampered-mdc-manifest.json"
+        self._write_json(tampered, receipt)
+        with self.assertRaisesRegex(
+            RehydrationError,
+            "manifest path/hash differs from the safe extraction receipt",
+        ):
+            load_source_specs(tampered, {"greek_phd", "openarchives", "kallipos"})
+
+    def test_raw_mdc_route_rejects_audit_binding_drift(self) -> None:
+        quarantine, audit_path, observed = self._write_mdc_fixture()
+        audit = json.loads(audit_path.read_text(encoding="utf-8"))
+        audit["inputs"]["manifest"]["sha256"] = "f" * 64
+        self._write_json(audit_path, audit)
+        with self.assertRaisesRegex(RehydrationError, "manifest binding differs"):
+            build_span_source_receipt(
+                self._args(
+                    output=str(self.root / "bad-mdc.json"),
+                    greek_phd_route="mdc_raw_forensic",
+                    mdc_quarantine_receipt=str(quarantine),
+                    mdc_span_audit_receipt=str(audit_path),
+                    mdc_expected_observed_sha256=observed,
+                    allow_quarantined_mdc_comparison_only=True,
+                )
+            )
+
+    def test_raw_mdc_route_requires_acknowledgement_and_rejects_shard_drift(self) -> None:
+        quarantine, audit_path, observed = self._write_mdc_fixture()
+        with self.assertRaisesRegex(RehydrationError, "requires --allow-quarantined"):
+            build_span_source_receipt(
+                self._args(
+                    output=str(self.root / "unacknowledged-mdc.json"),
+                    greek_phd_route="mdc_raw_forensic",
+                    mdc_quarantine_receipt=str(quarantine),
+                    mdc_span_audit_receipt=str(audit_path),
+                    mdc_expected_observed_sha256=observed,
+                )
+            )
+        shard = next((quarantine.parent / "extracted").rglob("*.jsonl.zst"))
+        shard.write_bytes(shard.read_bytes() + b"drift")
+        with self.assertRaisesRegex(RehydrationError, "extracted tree differs"):
+            build_span_source_receipt(
+                self._args(
+                    output=str(self.root / "drifted-mdc.json"),
+                    greek_phd_route="mdc_raw_forensic",
+                    mdc_quarantine_receipt=str(quarantine),
+                    mdc_span_audit_receipt=str(audit_path),
+                    mdc_expected_observed_sha256=observed,
+                    allow_quarantined_mdc_comparison_only=True,
+                )
+            )
 
     def test_rejects_acquisition_lock_hash_drift(self) -> None:
         acquisition = json.loads(self.acquisition_path.read_text(encoding="utf-8"))

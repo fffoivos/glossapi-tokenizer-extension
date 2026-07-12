@@ -35,6 +35,8 @@ SOURCE_RECEIPT_SCHEMA = "full_cpt_normalization_source_receipt_v1"
 FILE_RECEIPT_SCHEMA = "full_cpt_normalization_file_receipt_v1"
 SHARD_RECEIPT_SCHEMA = "full_cpt_normalization_shard_receipt_v1"
 UNIQUENESS_RECEIPT_SCHEMA = "full_cpt_normalization_uid_uniqueness_v1"
+DEFAULT_LARGE_TASK_BYTE_THRESHOLD = 2 * 1024**3
+DEFAULT_LARGE_TASK_WORKERS = 2
 
 
 def write_json_atomic(
@@ -535,6 +537,71 @@ def normalize_task(payload: dict[str, Any]) -> list[dict[str, Any]]:
     return results
 
 
+def normalization_task_input_bytes(payload: dict[str, Any]) -> int:
+    """Return receipt-bound input bytes for one independently scheduled task."""
+
+    artifact: SourceArtifact = payload["artifact"]
+    return sum(
+        int(artifact.file_bindings[file_index]["bytes"])
+        for file_index in payload["file_indices"]
+    )
+
+
+def partition_normalization_tasks(
+    tasks: list[dict[str, Any]], *, large_task_byte_threshold: int
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Stably split ordinary tasks from high-memory, large-input tasks."""
+
+    if large_task_byte_threshold < 1:
+        raise ValueError("large-task byte threshold must be positive")
+    ordinary: list[dict[str, Any]] = []
+    large: list[dict[str, Any]] = []
+    for task in tasks:
+        target = (
+            large
+            if normalization_task_input_bytes(task) >= large_task_byte_threshold
+            else ordinary
+        )
+        target.append(task)
+    return ordinary, large
+
+
+def collect_task_receipts(
+    tasks: list[dict[str, Any]],
+    *,
+    workers: int,
+    pool_name: str,
+    file_receipts: dict[str, list[dict[str, Any]]],
+) -> None:
+    """Run one bounded process pool and collect its immutable file receipts."""
+
+    if not tasks:
+        return
+    pool_workers = min(workers, len(tasks))
+    print(
+        f"normalize_sources: starting pool={pool_name} "
+        f"tasks={len(tasks)} workers={pool_workers}",
+        flush=True,
+    )
+    with ProcessPoolExecutor(max_workers=pool_workers) as executor:
+        futures = {executor.submit(normalize_task, task): task for task in tasks}
+        try:
+            for future in as_completed(futures):
+                task = futures[future]
+                artifact: SourceArtifact = task["artifact"]
+                for receipt in future.result():
+                    file_receipts[artifact.source_id].append(receipt)
+                print(
+                    f"normalize_sources: completed task source={artifact.source_id} "
+                    f"files={task['file_indices']}",
+                    flush=True,
+                )
+        except BaseException:
+            for future in futures:
+                future.cancel()
+            raise
+
+
 def duckdb_literal(value: str) -> str:
     return "'" + value.replace("'", "''") + "'"
 
@@ -817,6 +884,21 @@ def main() -> int:
     parser.add_argument("--max-rows-per-source", type=int, default=0)
     parser.add_argument("--progress-every", type=int, default=100_000)
     parser.add_argument("--workers", type=int, default=min(32, os.cpu_count() or 1))
+    parser.add_argument(
+        "--large-task-byte-threshold",
+        type=int,
+        default=DEFAULT_LARGE_TASK_BYTE_THRESHOLD,
+        help=(
+            "receipt-bound bytes at or above which a file task uses the "
+            "separate high-memory pool"
+        ),
+    )
+    parser.add_argument(
+        "--large-task-workers",
+        type=int,
+        default=DEFAULT_LARGE_TASK_WORKERS,
+        help="maximum workers in the separate high-memory task pool",
+    )
     parser.add_argument("--temporary-directory", type=Path)
     parser.add_argument("--duckdb-memory-limit", default="32GB")
     parser.add_argument(
@@ -825,8 +907,13 @@ def main() -> int:
     args = parser.parse_args()
     if args.rows_per_shard < 1:
         parser.error("--rows-per-shard must be positive")
-    if args.workers < 1 or args.duckdb_threads < 1:
-        parser.error("worker and DuckDB thread counts must be positive")
+    if (
+        args.workers < 1
+        or args.large_task_workers < 1
+        or args.large_task_byte_threshold < 1
+        or args.duckdb_threads < 1
+    ):
+        parser.error("worker, byte-threshold and DuckDB settings must be positive")
     if args.manifest.exists():
         raise FileExistsError(
             f"refusing to overwrite immutable manifest: {args.manifest}"
@@ -881,24 +968,25 @@ def main() -> int:
                 for file_index in file_indices
             )
 
+    ordinary_tasks, large_tasks = partition_normalization_tasks(
+        tasks, large_task_byte_threshold=args.large_task_byte_threshold
+    )
     file_receipts: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    with ProcessPoolExecutor(max_workers=min(args.workers, len(tasks))) as executor:
-        futures = {executor.submit(normalize_task, task): task for task in tasks}
-        try:
-            for future in as_completed(futures):
-                task = futures[future]
-                artifact = task["artifact"]
-                for receipt in future.result():
-                    file_receipts[artifact.source_id].append(receipt)
-                print(
-                    f"normalize_sources: completed task source={artifact.source_id} "
-                    f"files={task['file_indices']}",
-                    flush=True,
-                )
-        except BaseException:
-            for future in futures:
-                future.cancel()
-            raise
+    # These execution-only limits intentionally do not enter the immutable
+    # normalization contract: changing concurrency cannot change canonical
+    # bytes, receipt identities or the validity of an incomplete-stage resume.
+    collect_task_receipts(
+        ordinary_tasks,
+        workers=args.workers,
+        pool_name="ordinary",
+        file_receipts=file_receipts,
+    )
+    collect_task_receipts(
+        large_tasks,
+        workers=args.large_task_workers,
+        pool_name="large",
+        file_receipts=file_receipts,
+    )
 
     all_shards: list[Path] = []
     declared_shards: list[dict[str, Any]] = []

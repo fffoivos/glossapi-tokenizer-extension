@@ -26,7 +26,9 @@ dependency for converting the committed SPAN decisions into new fit rows is all 
 tracked `units/SPAN_batchpaths.json`: `batch_0000.json` through
 `batch_0239.json`. Their ordered-name digest is
 `913416375b3743ab86eeb4f23ad49487edb783bbde8545788627398b4ad6d481`.
-The one absent annotation is `S00772`; it is omitted, never inferred.
+The one absent annotation is `S00772`; no decision is inferred. Its sampled text is retained as
+negative-only (`O`) exactly as the historical `span_seq_data.load()` path did, and that assumption is
+called out in the reconstruction receipt.
 
 The 2,000-document joint BIB/ToC LLM annotation run was completed and produced the surviving fitted
 models. Its ignored intermediate export, historically misnamed `units/STRUCT_2K_gold.jsonl`, and the
@@ -112,11 +114,45 @@ Both route choices are mandatory; the builder never prefers a newer artifact imp
   therefore requires an explicit `--greek-phd-document-id-column` and
   `--allow-unverified-greek-phd-id-domain`; without a proven mapping, rehydration is expected to fail
   the exact manifest-document join.
+- `--greek-phd-route mdc_raw_forensic` is the only supported route for the quarantined current MDC v1
+  archive. It requires the quarantine receipt, the v2 coordinate/projection audit, the exact observed
+  archive SHA-256, and `--allow-quarantined-mdc-comparison-only`. The builder recomputes the archive,
+  safe-extraction manifest and selected-shard hashes; cross-binds the quarantine-v2, immutable safe
+  extraction and audit receipts to the tracked manifest and annotations; and requires source-coordinate
+  integrity to pass. Every forensic audit freshly extracts the archive with a Python extractor that
+  rejects traversal, duplicates, links, devices and FIFOs, then compares that fresh tree to the retained
+  extraction. The publisher checksum mismatch is
+  preserved in every downstream receipt. This route can produce comparison evidence only and must not
+  be represented by a hand-authored generic source receipt.
+
+The forensic evidence that motivated this route found exact source coordinates for all 640 requested
+Greek-PhD documents and all 1,597 sampled windows. Under the historical document-union projection,
+1,279 declared positive spans partition into 1,271 exact nonempty, 6 adjusted nonempty, and 2
+zero-effective silver spans; 4 declarations escape their own unit window. These are LLM-silver
+diagnostics, not source drift and not human adjudication. The v2 audit recomputes and receipts those
+counts rather than hard-coding an exception list into hydration. It also receipts the exact selected
+document-text digest and `doc_id`/`text → document → content` field-use counts; rehydration recomputes
+and enforces all three before writing units.
 - `--kallipos-route kallipos_sections` selects `Dataset_Kallipos.parquet` and reproduces the historical
   filename/id section grouping. `--kallipos-route nanochat_base` instead selects the processed
   `data/Apothetirio_Kallipos.parquet` document representation and remains an explicit comparison route.
 - OpenArchives always selects the pinned `openarchives_current` raw `data/openarchives/**/*.jsonl.zst`
   files with `doc_id` and the original `text`, `document`, `content` precedence.
+
+The raw forensic route adds these mandatory builder arguments:
+
+```bash
+--greek-phd-route mdc_raw_forensic \
+--mdc-quarantine-receipt "$MDC_QUARANTINE_RECEIPT" \
+--mdc-span-audit-receipt "$MDC_SPAN_AUDIT_RECEIPT" \
+--mdc-expected-observed-sha256 "$MDC_EXPECTED_OBSERVED_SHA256" \
+--allow-quarantined-mdc-comparison-only
+```
+
+The Clariden wrapper additionally requires
+`CONFIRM_QUARANTINED_MDC_COMPARISON_ONLY=1` and rejects
+`EXPECTED_SPAN_ARTIFACT_SHA256` on this route, preventing a rehydrated current object from being
+self-pinned as an independently verified historical snapshot.
 
 The inspected Phase-04 lock contains all of those path families. The already staged Nanochat Greek
 files expose `source_doc_id`/`text` with hash-shaped IDs, while the registry declares the required
@@ -162,10 +198,14 @@ Full source shards naturally contain non-target documents; those rows are counte
 the extracted document set must equal the manifest request exactly and a repeated requested `doc_id`
 fails closed.
 Hydration additionally refuses conflicting overlap text, tokenizer hash drift, identity collisions,
-exact-text or work leakage, split-manifest drift, annotation spans outside `win_lo`/`win_hi`, and any
-positive span whose start/end coordinate is absent from the rehydrated nonempty lines. The resulting
-silver receipt records this coordinate-alignment check. Source-balanced allocation remains
-deterministic and label-blind until the existing annotation join.
+exact-text or work leakage, split-manifest drift, and malformed annotation coordinates. It then
+reproduces the historical `span_seq_data.py` semantics exactly: merge present nonblank lines from all
+sampled windows by document and label only the intersection with each inclusive declared span. It does
+not invent or rewrite a boundary. Missing endpoints, spans escaping their own unit window, adjusted
+nonempty projections and zero-effective spans are recorded as coordinate-only diagnostics. A
+zero-effective positive declaration contributes no positive line; sampled lines remain `O`, matching
+the historical comparison dataset. Any such output remains explicit LLM-silver comparison evidence,
+never verified gold or a production authorization.
 
 Without `--expected-artifact-sha256`, the receipt is explicitly
 `rehydrated_unverified_snapshot`. A matching reference directory is useful diagnostic evidence but does
@@ -247,6 +287,7 @@ sbatch --export=ALL "$PHASE04_CLARIDEN_DIR/07_rehydrate_span_silver.sbatch"
 ```
 
 This job creates no labels. It reconnects the 3,339 existing Opus bibliography-window decisions to
-receipt-bound text; the missing `S00772` decision remains missing, and no ToC target is inferred. This
+receipt-bound text; the missing `S00772` decision remains missing while its sampled lines retain the
+historical negative-only treatment, and no ToC target is inferred. This
 BIB-only output cannot satisfy Stage54's joint-head evidence contract. The current CPT run does not need
 it for application because the tracked policy is `audit_only` and Stage58 is an explicit no-op.

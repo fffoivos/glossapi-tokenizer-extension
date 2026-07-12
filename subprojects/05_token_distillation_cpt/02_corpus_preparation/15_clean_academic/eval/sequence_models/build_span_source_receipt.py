@@ -14,7 +14,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
-from .span_rehydration import RehydrationError, _open_jsonl_text, sha256_file
+from .mdc_safe_extract import tree_manifest
+from .span_rehydration import (
+    RehydrationError,
+    _open_jsonl_text,
+    canonical_json_sha256,
+    sha256_file,
+)
 
 
 HERE = Path(__file__).resolve().parent
@@ -22,8 +28,10 @@ EVAL_DIR = HERE.parent
 PHASE04_DIR = HERE.parents[3] / "04_full_corpus_preparation"
 DEFAULT_SOURCES = PHASE04_DIR / "configs" / "sources.json"
 DEFAULT_MANIFEST = EVAL_DIR / "units" / "SPAN_manifest.jsonl"
+DEFAULT_ANNOTATIONS = EVAL_DIR / "annotations_span" / "all.json"
 HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
 REQUIRED_LOGICAL_SOURCES = {"greek_phd", "openarchives", "kallipos"}
+MDC_GREEK_PHD_DATASET_ID = "cmkwvpu7s0032mo07jpk20pj1"
 
 
 @dataclass(frozen=True)
@@ -79,6 +87,449 @@ def _under(root: Path, child: Path) -> bool:
     except ValueError:
         return False
     return True
+
+
+def _greek_manifest_expectations(
+    manifest_path: Path, annotations_path: Path
+) -> dict[str, Any]:
+    units: list[str] = []
+    documents: set[str] = set()
+    with manifest_path.open(encoding="utf-8") as handle:
+        for line_number, raw in enumerate(handle, 1):
+            if not raw.strip():
+                continue
+            try:
+                row = json.loads(raw)
+            except json.JSONDecodeError as exc:
+                raise RehydrationError(
+                    f"{manifest_path}:{line_number}: invalid JSON"
+                ) from exc
+            if isinstance(row, dict) and row.get("source") == "greek_phd":
+                unit_id = row.get("unit_id")
+                doc_id = row.get("doc_id")
+                if not isinstance(unit_id, str) or not isinstance(doc_id, str):
+                    raise RehydrationError(
+                        f"{manifest_path}:{line_number}: invalid Greek-PhD identity"
+                    )
+                units.append(unit_id)
+                documents.add(doc_id)
+    if not units or len(units) != len(set(units)):
+        raise RehydrationError(f"{manifest_path}: invalid Greek-PhD unit inventory")
+    try:
+        value = json.loads(annotations_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RehydrationError(f"cannot read {annotations_path}: {exc}") from exc
+    rows = value.get("annotations")
+    if not isinstance(rows, list):
+        raise RehydrationError(f"{annotations_path}: annotations must be a list")
+    by_unit: dict[str, Mapping[str, Any]] = {}
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict) or not isinstance(row.get("unit_id"), str):
+            raise RehydrationError(f"{annotations_path}:{index}: invalid annotation")
+        unit_id = str(row["unit_id"])
+        if unit_id in by_unit:
+            raise RehydrationError(f"{annotations_path}: duplicate unit {unit_id}")
+        by_unit[unit_id] = row
+    unit_set = set(units)
+    positive_spans = 0
+    for unit_id in sorted(unit_set & set(by_unit)):
+        spans = by_unit[unit_id].get("spans")
+        if not isinstance(spans, list):
+            raise RehydrationError(f"{annotations_path}: {unit_id} spans are malformed")
+        positive_spans += len(spans)
+    return {
+        "target_documents": len(documents),
+        "manifest_units": len(units),
+        "positive_spans": positive_spans,
+        "missing_annotation_units": sorted(unit_set - set(by_unit)),
+    }
+
+
+def _read_safe_extraction_manifest(
+    manifest_path: Path, extracted_root: Path
+) -> dict[str, tuple[Path, str, int]]:
+    value = _load_object(manifest_path, "mdc_safe_extraction_manifest_v1")
+    rows = value.get("files")
+    if not isinstance(rows, list) or not rows:
+        raise RehydrationError(f"{manifest_path}: empty extracted inventory")
+    result: dict[str, tuple[Path, str, int]] = {}
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict):
+            raise RehydrationError(f"{manifest_path}: malformed file row {index}")
+        relative = Path(str(row.get("path", "")))
+        digest = str(row.get("sha256", ""))
+        size = row.get("bytes")
+        if (
+            relative.is_absolute()
+            or ".." in relative.parts
+            or not relative.parts
+            or not HEX64_RE.fullmatch(digest)
+            or isinstance(size, bool)
+            or not isinstance(size, int)
+            or size < 0
+        ):
+            raise RehydrationError(f"{manifest_path}: unsafe file row {index}")
+        key = relative.as_posix()
+        if key in result:
+            raise RehydrationError(f"{manifest_path}: duplicate extracted path {key}")
+        resolved = (extracted_root / relative).resolve()
+        if not _under(extracted_root, resolved) or not resolved.is_file():
+            raise RehydrationError(
+                f"{manifest_path}: extracted file is missing or unsafe: {key}"
+            )
+        result[key] = (resolved, digest, size)
+    if (
+        int(value.get("file_count", -1)) != len(result)
+        or int(value.get("total_file_bytes", -1))
+        != sum(size for _, _, size in result.values())
+    ):
+        raise RehydrationError(f"{manifest_path}: aggregate inventory drift")
+    return result
+
+
+def _mdc_raw_forensic_source(
+    args: argparse.Namespace,
+    manifest_path: Path,
+    annotations_path: Path,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    if not args.allow_quarantined_mdc_comparison_only:
+        raise RehydrationError(
+            "mdc_raw_forensic requires --allow-quarantined-mdc-comparison-only"
+        )
+    expected_observed = str(args.mdc_expected_observed_sha256 or "")
+    if not HEX64_RE.fullmatch(expected_observed):
+        raise RehydrationError(
+            "mdc_raw_forensic requires --mdc-expected-observed-sha256"
+        )
+    if not args.mdc_quarantine_receipt or not args.mdc_span_audit_receipt:
+        raise RehydrationError(
+            "mdc_raw_forensic requires quarantine and span-audit receipts"
+        )
+    quarantine_path = Path(args.mdc_quarantine_receipt).resolve()
+    audit_path = Path(args.mdc_span_audit_receipt).resolve()
+    quarantine = _load_object(
+        quarantine_path, "mdc_quarantined_object_receipt_v2"
+    )
+    if quarantine.get("status") != "quarantined_publisher_checksum_mismatch":
+        raise RehydrationError(f"{quarantine_path}: object is not quarantined")
+    archive = quarantine.get("archive")
+    extracted = quarantine.get("extracted")
+    safe_extraction = quarantine.get("safe_extraction")
+    if (
+        not isinstance(archive, dict)
+        or not isinstance(extracted, dict)
+        or not isinstance(safe_extraction, dict)
+    ):
+        raise RehydrationError(f"{quarantine_path}: incomplete quarantine receipt")
+    archive_path = Path(str(archive.get("path", ""))).resolve()
+    if not archive_path.is_file() or archive_path.parent != quarantine_path.parent:
+        raise RehydrationError(f"{quarantine_path}: unsafe or missing archive path")
+    if archive.get("observed_sha256") != expected_observed:
+        raise RehydrationError(f"{quarantine_path}: observed SHA-256 differs from explicit pin")
+    publisher_sha = str(archive.get("publisher_declared_sha256", ""))
+    if (
+        not HEX64_RE.fullmatch(publisher_sha)
+        or publisher_sha == expected_observed
+        or archive.get("gzip_and_tar_integrity") != "passed"
+    ):
+        raise RehydrationError(f"{quarantine_path}: invalid quarantine hash/integrity state")
+    if sha256_file(archive_path) != expected_observed:
+        raise RehydrationError(f"{archive_path}: observed archive SHA-256 drift")
+    if int(archive.get("bytes", -1)) != archive_path.stat().st_size:
+        raise RehydrationError(f"{quarantine_path}: archive byte count drift")
+
+    extracted_manifest = Path(str(extracted.get("sha256_manifest_path", ""))).resolve()
+    extraction_receipt_path = Path(
+        str(safe_extraction.get("receipt_path", ""))
+    ).resolve()
+    if (
+        extracted_manifest.parent != quarantine_path.parent
+        or not extracted_manifest.is_file()
+        or sha256_file(extracted_manifest) != extracted.get("sha256_manifest_sha256")
+        or extraction_receipt_path.parent != quarantine_path.parent
+        or not extraction_receipt_path.is_file()
+        or sha256_file(extraction_receipt_path)
+        != safe_extraction.get("receipt_sha256")
+        or safe_extraction.get("status") != "passed_fresh_archive_tree_matches"
+    ):
+        raise RehydrationError(f"{quarantine_path}: safe extraction binding drift")
+    extraction_receipt = _load_object(
+        extraction_receipt_path, "mdc_safe_extraction_receipt_v1"
+    )
+    extraction_archive = extraction_receipt.get("archive")
+    extraction = extraction_receipt.get("extraction")
+    extraction_tool = extraction_receipt.get("tool")
+    extracted_root = Path(str(extracted.get("path", ""))).resolve()
+    if (
+        extraction_receipt.get("status") != "passed_fresh_archive_tree_matches"
+        or not isinstance(extraction_archive, dict)
+        or Path(str(extraction_archive.get("path", ""))).resolve() != archive_path
+        or extraction_archive.get("sha256") != expected_observed
+        or not isinstance(extraction, dict)
+        or Path(str(extraction.get("root", ""))).resolve() != extracted_root
+        or Path(str(extraction.get("manifest_path", ""))).resolve()
+        != extracted_manifest
+        or extraction.get("manifest_sha256") != sha256_file(extracted_manifest)
+        or not isinstance(extraction_tool, dict)
+        or extraction_tool.get("sha256")
+        != sha256_file(HERE / "mdc_safe_extract.py")
+    ):
+        raise RehydrationError(f"{extraction_receipt_path}: extraction provenance drift")
+    if not extracted_root.is_dir() or extracted_root.parent != quarantine_path.parent:
+        raise RehydrationError(f"{quarantine_path}: extracted root is absent or unsafe")
+    expected_tree = _load_object(
+        extracted_manifest, "mdc_safe_extraction_manifest_v1"
+    )
+    if tree_manifest(extracted_root) != expected_tree:
+        raise RehydrationError(f"{quarantine_path}: extracted tree differs from safe manifest")
+    inventory = _read_safe_extraction_manifest(extracted_manifest, extracted_root)
+    if int(extracted.get("file_count", -1)) != len(inventory):
+        raise RehydrationError(f"{quarantine_path}: extracted file count drift")
+    prefix = "phd-theses-corpus/contents/"
+    selected = {
+        relative: item
+        for relative, item in inventory.items()
+        if relative.startswith(prefix) and relative.endswith(".jsonl.zst")
+    }
+    if not selected:
+        raise RehydrationError(f"{quarantine_path}: no MDC content shards selected")
+    artifacts: list[dict[str, Any]] = []
+    for relative, (path, expected_sha, expected_bytes) in sorted(selected.items()):
+        actual_sha = sha256_file(path)
+        if actual_sha != expected_sha or path.stat().st_size != expected_bytes:
+            raise RehydrationError(f"{path}: extracted shard SHA-256 drift")
+        artifacts.append(
+            {
+                "path": str(path),
+                "repository_path": relative,
+                "sha256": actual_sha,
+                "bytes": path.stat().st_size,
+                "acquisition_hash_kind": "quarantined_extracted_sha256",
+            }
+        )
+
+    audit = _load_object(audit_path, "mdc_greek_phd_span_coordinate_audit_v2")
+    if (
+        audit.get("status")
+        not in {"passed", "comparison_only_with_silver_anomalies"}
+        or audit.get("snapshot_equivalence_to_historical_span_inputs") != "unverified"
+        or audit.get("research_evidence_scope") != "LLM_silver_comparison_only"
+        or audit.get("production_eligible") is not False
+    ):
+        raise RehydrationError(f"{audit_path}: audit is not comparison-only eligible")
+    audit_archive = audit.get("archive")
+    audit_inputs = audit.get("inputs")
+    if not isinstance(audit_archive, dict) or not isinstance(audit_inputs, dict):
+        raise RehydrationError(f"{audit_path}: incomplete archive/input bindings")
+    if (
+        Path(str(audit_archive.get("path", ""))).resolve() != archive_path
+        or int(audit_archive.get("bytes", -1)) != archive_path.stat().st_size
+        or audit_archive.get("observed_sha256") != expected_observed
+        or audit_archive.get("publisher_declared_sha256") != publisher_sha
+        or audit_archive.get("publisher_checksum_matches") is not False
+    ):
+        raise RehydrationError(f"{audit_path}: archive binding differs from quarantine")
+    audit_quarantine = audit_inputs.get("quarantine_receipt")
+    audit_extraction = audit_inputs.get("safe_extraction_receipt")
+    audit_tool = audit_inputs.get("tool")
+    expected_audit_tool = HERE / "mdc_span_audit.py"
+    if (
+        not isinstance(audit_tool, dict)
+        or audit_tool.get("sha256") != sha256_file(expected_audit_tool)
+    ):
+        raise RehydrationError(f"{audit_path}: audit tool hash differs from this checkout")
+    if (
+        not isinstance(audit_quarantine, dict)
+        or Path(str(audit_quarantine.get("path", ""))).resolve() != quarantine_path
+        or audit_quarantine.get("sha256") != sha256_file(quarantine_path)
+    ):
+        raise RehydrationError(f"{audit_path}: quarantine receipt binding differs")
+    if (
+        not isinstance(audit_extraction, dict)
+        or Path(str(audit_extraction.get("path", ""))).resolve()
+        != extraction_receipt_path
+        or audit_extraction.get("sha256") != sha256_file(extraction_receipt_path)
+        or audit_extraction.get("status") != "passed_fresh_archive_tree_matches"
+    ):
+        raise RehydrationError(f"{audit_path}: safe extraction binding differs")
+    contents_root = (extracted_root / "phd-theses-corpus" / "contents").resolve()
+    if (
+        Path(str(audit_inputs.get("contents_root", ""))).resolve() != contents_root
+        or int(audit_inputs.get("shard_count", -1)) != len(artifacts)
+    ):
+        raise RehydrationError(f"{audit_path}: selected shard inventory differs")
+    audit_inventory_sha = canonical_json_sha256(
+        [
+            (str(Path(row["path"]).relative_to(contents_root)), row["bytes"])
+            for row in artifacts
+        ]
+    )
+    if audit_inputs.get("shard_inventory_sha256") != audit_inventory_sha:
+        raise RehydrationError(f"{audit_path}: shard path/size inventory hash differs")
+    for key, path in (("manifest", manifest_path), ("annotations", annotations_path)):
+        item = audit_inputs.get(key)
+        if (
+            not isinstance(item, dict)
+            or Path(str(item.get("path", ""))).resolve() != path
+            or item.get("sha256") != sha256_file(path)
+        ):
+            raise RehydrationError(f"{audit_path}: {key} binding differs")
+    source_integrity = audit.get("source_coordinate_integrity")
+    failure_counts = (
+        source_integrity.get("failure_counts")
+        if isinstance(source_integrity, dict)
+        else None
+    )
+    if (
+        not isinstance(source_integrity, dict)
+        or source_integrity.get("status") != "passed"
+        or not isinstance(failure_counts, dict)
+        or any(failure_counts.values())
+    ):
+        raise RehydrationError(f"{audit_path}: source-coordinate integrity did not pass")
+    source_details = audit.get("source_details")
+    projection_details = audit.get("projection_details")
+    if (
+        not isinstance(source_details, dict)
+        or audit.get("source_details_sha256") != canonical_json_sha256(source_details)
+        or not isinstance(projection_details, dict)
+        or audit.get("projection_details_sha256")
+        != canonical_json_sha256(projection_details)
+    ):
+        raise RehydrationError(f"{audit_path}: diagnostic details hash drift")
+    projection = audit.get("historical_document_union_projection")
+    projection_counts = projection.get("counts") if isinstance(projection, dict) else None
+    if not isinstance(projection_counts, dict):
+        raise RehydrationError(f"{audit_path}: projection counts are absent")
+    expected = _greek_manifest_expectations(manifest_path, annotations_path)
+    audit_counts = audit.get("counts")
+    if not isinstance(audit_counts, dict):
+        raise RehydrationError(f"{audit_path}: audit counts are absent")
+    for field, expected_value in (
+        ("target_documents", expected["target_documents"]),
+        ("found_documents", expected["target_documents"]),
+        ("manifest_units", expected["manifest_units"]),
+        ("positive_spans_checked", expected["positive_spans"]),
+        ("missing_annotation_units", len(expected["missing_annotation_units"])),
+    ):
+        if int(audit_counts.get(field, -1)) != expected_value:
+            raise RehydrationError(f"{audit_path}: {field} differs from tracked inputs")
+    if projection_details.get("missing_annotation_units") != expected["missing_annotation_units"]:
+        raise RehydrationError(f"{audit_path}: missing-annotation ledger differs")
+    selection_contract = audit_inputs.get("selection_contract")
+    id_field_counts = (
+        selection_contract.get("selected_document_id_field_counts")
+        if isinstance(selection_contract, dict)
+        else None
+    )
+    text_field_counts = (
+        selection_contract.get("selected_text_field_counts")
+        if isinstance(selection_contract, dict)
+        else None
+    )
+    if (
+        not isinstance(selection_contract, dict)
+        or selection_contract.get("document_id_field") != "doc_id"
+        or selection_contract.get("text_precedence")
+        != ["text", "document", "content"]
+        or id_field_counts != {"doc_id": expected["target_documents"]}
+        or not isinstance(text_field_counts, dict)
+        or set(text_field_counts) - {"text", "document", "content"}
+        or any(
+            isinstance(value, bool) or not isinstance(value, int) or value < 0
+            for value in text_field_counts.values()
+        )
+        or sum(text_field_counts.values()) != expected["target_documents"]
+    ):
+        raise RehydrationError(f"{audit_path}: JSONL field-selection contract differs")
+    exact = int(projection_counts.get("exact_nonempty_spans", -1))
+    adjusted = int(projection_counts.get("adjusted_nonempty_spans", -1))
+    zero = int(projection_counts.get("zero_effective_spans", -1))
+    if min(exact, adjusted, zero) < 0 or exact + adjusted + zero != expected["positive_spans"]:
+        raise RehydrationError(f"{audit_path}: projection partition is inconsistent")
+    expected_projection_status = (
+        "comparison_only_with_silver_anomalies"
+        if adjusted or zero
+        else "exact_on_present_document_union"
+    )
+    expected_audit_status = (
+        "comparison_only_with_silver_anomalies" if adjusted or zero else "passed"
+    )
+    if (
+        projection.get("status") != expected_projection_status
+        or audit.get("status") != expected_audit_status
+        or not HEX64_RE.fullmatch(str(audit.get("selected_documents_text_sha256", "")))
+    ):
+        raise RehydrationError(f"{audit_path}: projection/audit status is inconsistent")
+    for detail_key, count_key in (
+        ("adjusted_nonempty_spans", "adjusted_nonempty_spans"),
+        ("zero_effective_spans", "zero_effective_spans"),
+        ("unit_window_escapes", "unit_window_escape_spans"),
+    ):
+        rows = projection_details.get(detail_key)
+        if not isinstance(rows, list) or len(rows) != int(projection_counts.get(count_key, -1)):
+            raise RehydrationError(f"{audit_path}: {detail_key} ledger/count mismatch")
+
+    source = {
+        "repo_type": "archive",
+        "repo_id": f"mozilla-data-collective/{MDC_GREEK_PHD_DATASET_ID}",
+        "revision": expected_observed,
+        "format": "jsonl_documents",
+        "fields": {
+            "document_id": "doc_id",
+            "text_precedence": ["text", "document", "content"],
+        },
+        "acquisition_source_id": "mdc_raw_forensic",
+        "selection_globs": ["phd-theses-corpus/contents/*.jsonl.zst"],
+        "historical_source_relation": (
+            "current MDC Greek-PhD v1 raw layout with exact tracked coordinate coverage; "
+            "publisher checksum mismatch keeps the object quarantined"
+        ),
+        "label_text_equivalence": "unverified_without_independent_historical_snapshot_digest",
+        "document_id_alignment": "exact_tracked_hash_domain_coordinate_audited",
+        "quarantine_receipt_sha256": sha256_file(quarantine_path),
+        "safe_extraction_receipt_sha256": sha256_file(extraction_receipt_path),
+        "span_coordinate_audit_sha256": sha256_file(audit_path),
+        "selected_documents_text_sha256": audit["selected_documents_text_sha256"],
+        "selected_document_id_field_counts": id_field_counts,
+        "selected_text_field_counts": text_field_counts,
+        "publisher_checksum_status": "mismatch_quarantined",
+        "artifacts": artifacts,
+    }
+    report = {
+        "format": "jsonl_documents",
+        "archive_sha256": expected_observed,
+        "publisher_declared_sha256": publisher_sha,
+        "publisher_checksum_matches": False,
+        "extracted_manifest_sha256": sha256_file(extracted_manifest),
+        "safe_extraction_receipt_sha256": sha256_file(extraction_receipt_path),
+        "selected_documents_text_sha256": audit["selected_documents_text_sha256"],
+        "selected_document_id_field_counts": id_field_counts,
+        "selected_text_field_counts": text_field_counts,
+        "selected_shard_count": len(artifacts),
+        "selected_shards_inventory_sha256": canonical_json_sha256(
+            [
+                (row["repository_path"], row["bytes"], row["sha256"])
+                for row in artifacts
+            ]
+        ),
+        "audit_status": audit["status"],
+        "source_coordinate_integrity": source_integrity["status"],
+        "projection_counts": projection_counts,
+    }
+    derivation = {
+        "quarantine_receipt": str(quarantine_path),
+        "quarantine_receipt_sha256": sha256_file(quarantine_path),
+        "safe_extraction_receipt": str(extraction_receipt_path),
+        "safe_extraction_receipt_sha256": sha256_file(extraction_receipt_path),
+        "span_coordinate_audit": str(audit_path),
+        "span_coordinate_audit_sha256": sha256_file(audit_path),
+        "archive": str(archive_path),
+        "archive_sha256": expected_observed,
+        "extracted_sha256_manifest": str(extracted_manifest),
+        "extracted_sha256_manifest_sha256": sha256_file(extracted_manifest),
+    }
+    return source, report, derivation
 
 
 def _validate_phase04_bindings(
@@ -243,7 +694,7 @@ def _routes(args: argparse.Namespace, config: Mapping[str, Any]) -> list[Route]:
             ),
             document_id_alignment="hash_domain_compatible_unverified",
         )
-    else:
+    elif args.greek_phd_route == "greek_phd_v2":
         configured = _config_sources(config)["greek_phd_v2"]
         id_column = args.greek_phd_document_id_column
         if not id_column:
@@ -271,6 +722,23 @@ def _routes(args: argparse.Namespace, config: Mapping[str, Any]) -> list[Route]:
                 "route must not be treated as equivalent"
             ),
             document_id_alignment="unverified_nonhistorical_identifier_requires_mapping",
+        )
+    else:
+        if args.greek_phd_document_id_column or args.greek_phd_text_column:
+            raise RehydrationError(
+                "mdc_raw_forensic retains historical JSONL fields; do not override them"
+            )
+        greek = Route(
+            logical_source="greek_phd",
+            acquisition_source_id="mdc_raw_forensic",
+            path_patterns=("phd-theses-corpus/contents/*.jsonl.zst",),
+            format="jsonl_documents",
+            fields={
+                "document_id": "doc_id",
+                "text_precedence": ["text", "document", "content"],
+            },
+            historical_source_relation="quarantined current MDC raw comparison route",
+            document_id_alignment="validated_by_forensic_coordinate_audit",
         )
     if args.kallipos_route == "kallipos_sections":
         kallipos = Route(
@@ -446,7 +914,18 @@ def build_span_source_receipt(args: argparse.Namespace) -> dict[str, Any]:
     lock_path = Path(args.source_lock).resolve()
     sources_path = Path(args.sources_config).resolve()
     manifest_path = Path(args.manifest).resolve()
+    annotations_path = Path(args.annotations).resolve()
     output = Path(args.output).resolve()
+    raw_route_options = (
+        args.mdc_quarantine_receipt,
+        args.mdc_span_audit_receipt,
+        args.mdc_expected_observed_sha256,
+        args.allow_quarantined_mdc_comparison_only,
+    )
+    if args.greek_phd_route != "mdc_raw_forensic" and any(raw_route_options):
+        raise RehydrationError(
+            "MDC quarantine options are valid only with greek_phd_route=mdc_raw_forensic"
+        )
     if output.exists():
         raise FileExistsError(f"refusing to overwrite immutable output {output}")
     acquisition, locked, acquired, config_rows = _validate_phase04_bindings(
@@ -460,8 +939,17 @@ def build_span_source_receipt(args: argparse.Namespace) -> dict[str, Any]:
         )
     logical_sources: dict[str, Any] = {}
     schema_reports: dict[str, Any] = {}
+    external_derivations: dict[str, Any] = {}
     for route in routes:
         source_id = route.acquisition_source_id
+        if source_id == "mdc_raw_forensic":
+            source, report, external_derivation = _mdc_raw_forensic_source(
+                args, manifest_path, annotations_path
+            )
+            logical_sources[route.logical_source] = source
+            schema_reports[route.logical_source] = report
+            external_derivations[route.logical_source] = external_derivation
+            continue
         if (
             source_id not in locked
             or source_id not in acquired
@@ -547,6 +1035,8 @@ def build_span_source_receipt(args: argparse.Namespace) -> dict[str, Any]:
             "sources_config_sha256": sha256_file(sources_path),
             "manifest": str(manifest_path),
             "manifest_sha256": sha256_file(manifest_path),
+            "annotations": str(annotations_path),
+            "annotations_sha256": sha256_file(annotations_path),
             "acquisition_code_commit": acquisition.get("code_commit"),
             "builder": {
                 "path": str(Path(__file__).resolve()),
@@ -559,6 +1049,7 @@ def build_span_source_receipt(args: argparse.Namespace) -> dict[str, Any]:
                 "kallipos": args.kallipos_route,
             },
             "schema_reports": schema_reports,
+            "external_forensic_inputs": external_derivations,
         },
         "sources": logical_sources,
     }
@@ -589,11 +1080,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--source-lock", required=True)
     parser.add_argument("--sources-config", default=str(DEFAULT_SOURCES))
     parser.add_argument("--manifest", default=str(DEFAULT_MANIFEST))
+    parser.add_argument("--annotations", default=str(DEFAULT_ANNOTATIONS))
     parser.add_argument(
         "--greek-phd-route",
         required=True,
-        choices=("nanochat_base", "greek_phd_v2"),
-        help="explicitly choose the historical candidate; newer v2 is never preferred implicitly",
+        choices=("nanochat_base", "greek_phd_v2", "mdc_raw_forensic"),
+        help="explicitly choose a Greek-PhD comparison route; no replacement is preferred implicitly",
     )
     parser.add_argument(
         "--kallipos-route",
@@ -603,6 +1095,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--greek-phd-document-id-column")
     parser.add_argument("--greek-phd-text-column", action="append")
     parser.add_argument("--allow-unverified-greek-phd-id-domain", action="store_true")
+    parser.add_argument("--mdc-quarantine-receipt")
+    parser.add_argument("--mdc-span-audit-receipt")
+    parser.add_argument("--mdc-expected-observed-sha256")
+    parser.add_argument(
+        "--allow-quarantined-mdc-comparison-only", action="store_true"
+    )
     parser.add_argument("--output", required=True)
     args = parser.parse_args(argv)
     receipt = build_span_source_receipt(args)

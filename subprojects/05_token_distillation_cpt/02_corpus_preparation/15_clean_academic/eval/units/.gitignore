@@ -25,9 +25,11 @@ SPAN_pred_dl.json
 FPVAL/
 FPVAL_batchpaths.json
 
-# STRUCT structural-annotation runs (gpt-5.5 ToC+bib). Large/regenerable: the gold (538MB) + per-batch
-# window files + feature cache. The annotation OUTPUTS (ann_*.json) are the expensive artifact — back them
-# up out-of-band (no git-lfs here). Code + small model JSONs ARE tracked, so the pipeline is reproducible.
+# STRUCT structural-annotation runs (gpt-5.5 ToC+bib). Large intermediates: the historically named
+# 538MB ``*_gold.jsonl`` is LLM-silver, not human gold, plus per-batch windows and the feature cache.
+# The LLM annotation outputs (ann_*.json) were the expensive artifact and required an out-of-band backup
+# (no git-lfs here). Code + small fitted model JSONs are tracked; the missing raw run is not reconstructable
+# from Git alone.
 STRUCT_2K/
 STRUCT_2K_gold.jsonl
 STRUCT_linemat.npz

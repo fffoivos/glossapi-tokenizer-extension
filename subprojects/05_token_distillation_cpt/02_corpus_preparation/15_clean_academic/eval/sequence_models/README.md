@@ -36,6 +36,18 @@ receipt. Recovery never reads, invents, or alters a label. Historical snapshot e
 only when an explicit expected snapshot artifact SHA-256 matches; otherwise it is stamped
 `rehydrated_unverified_snapshot` and remains comparison-only.
 
+SPAN labels use their historical document-union semantics: all present nonblank lines from sampled
+windows are merged by document, then inclusive declared spans are intersected with those coordinates.
+The silver receipt exposes adjusted nonempty and zero-effective projections instead of pretending a
+blank/misaligned LLM endpoint was exact. The sole unit without an annotation decision remains in the
+document union as negative-only, matching the historical loader, and is explicitly ledgered rather
+than silently dropped. The quarantined current MDC v1 raw archive is available only
+through the explicit `mdc_raw_forensic` route, which requires and revalidates its quarantine and v2
+forensic-audit receipts plus an explicit comparison-only acknowledgement. A fresh safe extraction is
+compared with the retained tree on every audit, and the final consumer requires current builder/tool
+hashes plus exact selected-document text and field-use digests. It never upgrades snapshot equivalence
+or production eligibility.
+
 When using the Phase-04 Clariden acquisition, first run
 `sequence_models.build_span_source_receipt` against its passed receipt and exact lock. Greek PhD and
 Kallipos route choices are mandatory: Nanochat document Parquet and standalone replacement artifacts

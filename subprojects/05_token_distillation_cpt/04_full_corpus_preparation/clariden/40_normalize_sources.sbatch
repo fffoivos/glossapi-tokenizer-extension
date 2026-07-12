@@ -34,9 +34,11 @@ args=(
     --rows-per-shard "${ROWS_PER_SHARD:-50000}"
     --progress-every "${PROGRESS_EVERY:-100000}"
     --workers "${NORMALIZE_WORKERS:-32}"
+    --large-task-byte-threshold "${NORMALIZE_LARGE_TASK_BYTE_THRESHOLD:-2147483648}"
+    --large-task-workers "${NORMALIZE_LARGE_TASK_WORKERS:-2}"
     --temporary-directory "${NORMALIZE_TEMP_DIRECTORY:-$DATA_ROOT/work/$PIPELINE_RUN_ID/normalize}"
-    --duckdb-memory-limit "${NORMALIZE_DUCKDB_MEMORY_LIMIT:-300GB}"
-    --duckdb-threads "${NORMALIZE_DUCKDB_THREADS:-32}"
+    --duckdb-memory-limit "${NORMALIZE_DUCKDB_MEMORY_LIMIT:-240GB}"
+    --duckdb-threads "${NORMALIZE_DUCKDB_THREADS:-16}"
 )
 for source_id in ${SOURCES:-}; do
     args+=(--source "$source_id")

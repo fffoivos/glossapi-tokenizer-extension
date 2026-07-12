@@ -340,12 +340,21 @@ def _line_rows(text_numbered: str) -> list[tuple[int, str]]:
     return rows
 
 
-def _validate_annotation_coordinate_alignment(
+@dataclass(frozen=True)
+class DeclaredSpan:
+    unit_id: str
+    span_index: int
+    start_line: int
+    end_line: int
+    unit_win_lo: int
+    unit_win_hi: int
+
+
+def _validate_unit_coordinates(
     unit_id: str,
     meta: Mapping[str, Any],
-    annotation: Mapping[str, Any],
     unit: Mapping[str, Any],
-) -> int:
+) -> list[tuple[int, str]]:
     line_rows = _line_rows(str(unit["text_numbered"]))
     coordinates = [index for index, _ in line_rows]
     if not coordinates or coordinates != sorted(set(coordinates)):
@@ -353,28 +362,55 @@ def _validate_annotation_coordinate_alignment(
     lo, hi = int(meta["win_lo"]), int(meta["win_hi"])
     if coordinates[0] < lo or coordinates[-1] >= hi:
         raise ValueError(f"{unit_id}: numbered text coordinates escape manifest window [{lo}, {hi})")
-    coordinate_set = set(coordinates)
+    return line_rows
+
+
+def _validate_annotation(
+    unit_id: str,
+    meta: Mapping[str, Any],
+    annotation: Mapping[str, Any],
+) -> list[DeclaredSpan]:
+    lo, hi = int(meta["win_lo"]), int(meta["win_hi"])
     spans = annotation.get("spans", [])
     if not isinstance(spans, list):
         raise ValueError(f"{unit_id}: annotation spans must be a list")
     has_bib = annotation.get("has_bib")
+    if not isinstance(has_bib, bool):
+        raise ValueError(f"{unit_id}: has_bib must be boolean")
     if has_bib is True and not spans:
         raise ValueError(f"{unit_id}: has_bib=true but no spans are present")
     if has_bib is False and spans:
         raise ValueError(f"{unit_id}: has_bib=false but spans are present")
+    declared: list[DeclaredSpan] = []
     for span_index, span in enumerate(spans):
         if not isinstance(span, Mapping):
             raise ValueError(f"{unit_id}: span {span_index} must be an object")
-        start, end = int(span["start_line"]), int(span["end_line"])
-        if not (lo <= start <= end < hi):
+        start, end = span.get("start_line"), span.get("end_line")
+        if (
+            isinstance(start, bool)
+            or isinstance(end, bool)
+            or not isinstance(start, int)
+            or not isinstance(end, int)
+            or start < 0
+            or end < start
+        ):
             raise ValueError(
-                f"{unit_id}: annotation span {start}..{end} escapes manifest window [{lo}, {hi})"
+                f"{unit_id}: span {span_index} must have nonnegative ordered integer coordinates"
             )
-        if start not in coordinate_set or end not in coordinate_set:
-            raise ValueError(
-                f"{unit_id}: annotation boundary {start}..{end} is absent from rehydrated text"
-            )
-    return len(spans)
+        declared.append(DeclaredSpan(unit_id, span_index, start, end, lo, hi))
+    return declared
+
+
+def _validate_unit_and_annotation(
+    unit_id: str,
+    meta: Mapping[str, Any],
+    annotation: Mapping[str, Any],
+    unit: Mapping[str, Any],
+) -> tuple[list[tuple[int, str]], list[DeclaredSpan]]:
+    return (
+        _validate_unit_coordinates(unit_id, meta, unit),
+        _validate_annotation(unit_id, meta, annotation),
+    )
 
 
 @dataclass
@@ -384,7 +420,110 @@ class SilverDraft:
     n_physical_lines: int
     lines: dict[int, str]
     bib_lines: set[int]
+    declared_spans: list[DeclaredSpan]
+    sampled_units: list[str]
     annotation_units: list[str]
+    missing_annotation_units: list[str]
+
+
+def _build_span_drafts(
+    manifest: Mapping[str, Mapping[str, Any]],
+    annotations: Mapping[str, Mapping[str, Any]],
+    units: Mapping[str, Mapping[str, Any]],
+) -> dict[tuple[str, str], SilverDraft]:
+    """Rebuild historical document unions while retaining unannotated unit text."""
+
+    drafts: dict[tuple[str, str], SilverDraft] = {}
+    for unit_id in sorted(manifest):
+        meta = manifest[unit_id]
+        key = (str(meta["source"]), str(meta["doc_id"]))
+        draft = drafts.setdefault(key, SilverDraft(
+            upstream_doc_id=key[1], source=key[0], n_physical_lines=int(meta["win_hi"]),
+            lines={}, bib_lines=set(), declared_spans=[], sampled_units=[],
+            annotation_units=[], missing_annotation_units=[],
+        ))
+        draft.n_physical_lines = max(draft.n_physical_lines, int(meta["win_hi"]))
+        draft.sampled_units.append(unit_id)
+        line_rows = _validate_unit_coordinates(unit_id, meta, units[unit_id])
+        for abs_idx, text in line_rows:
+            previous = draft.lines.setdefault(abs_idx, text)
+            if previous != text:
+                raise ValueError(f"{unit_id}: conflicting text at absolute line {abs_idx}")
+        annotation = annotations.get(unit_id)
+        if annotation is None:
+            # Historical span_seq_data.load() retained every sampled unit's text
+            # and added spans only when its annotation existed.  Preserve that
+            # comparison behavior explicitly instead of dropping this document.
+            draft.missing_annotation_units.append(unit_id)
+        else:
+            draft.annotation_units.append(unit_id)
+            draft.declared_spans.extend(
+                _validate_annotation(unit_id, meta, annotation)
+            )
+    return drafts
+
+
+def _project_document_spans(
+    draft: SilverDraft,
+) -> tuple[collections.Counter[str], list[dict[str, Any]]]:
+    """Apply the historical present-line document-union semantics without repairing labels."""
+    present = set(draft.lines)
+    counts: collections.Counter[str] = collections.Counter()
+    anomalies: list[dict[str, Any]] = []
+    for span in draft.declared_spans:
+        counts["declared_span_count"] += 1
+        effective = sorted(
+            index
+            for index in present
+            if span.start_line <= index <= span.end_line
+        )
+        unit_window_contains = (
+            span.unit_win_lo <= span.start_line <= span.end_line < span.unit_win_hi
+        )
+        start_present = span.start_line in present
+        end_present = span.end_line in present
+        within_document = (
+            0 <= span.start_line <= span.end_line < draft.n_physical_lines
+        )
+        if not unit_window_contains:
+            counts["unit_window_escape_span_count"] += 1
+        if not (start_present and end_present):
+            counts["declared_boundary_absence_span_count"] += 1
+        if not within_document:
+            counts["declared_outside_document_span_count"] += 1
+        if not effective:
+            outcome = "zero_effective"
+            counts["zero_effective_span_count"] += 1
+        elif unit_window_contains and start_present and end_present:
+            outcome = "exact_nonempty"
+            counts["exact_nonempty_span_count"] += 1
+        else:
+            outcome = "projected_nonempty"
+            counts["adjusted_nonempty_span_count"] += 1
+        draft.bib_lines.update(effective)
+        counts["effective_positive_coordinate_assignments"] += len(effective)
+        if outcome != "exact_nonempty":
+            anomalies.append(
+                {
+                    "source": draft.source,
+                    "upstream_document_id": draft.upstream_doc_id,
+                    "unit_id": span.unit_id,
+                    "span_index": span.span_index,
+                    "declared_start_line": span.start_line,
+                    "declared_end_line": span.end_line,
+                    "unit_win_lo": span.unit_win_lo,
+                    "unit_win_hi": span.unit_win_hi,
+                    "unit_window_contains_declared_span": unit_window_contains,
+                    "declared_span_within_document_physical_range": within_document,
+                    "declared_start_present_in_document_union": start_present,
+                    "declared_end_present_in_document_union": end_present,
+                    "effective_present_line_count": len(effective),
+                    "effective_first_present_line": effective[0] if effective else None,
+                    "effective_last_present_line": effective[-1] if effective else None,
+                    "outcome": outcome,
+                }
+            )
+    return counts, anomalies
 
 
 @dataclass(frozen=True)
@@ -438,36 +577,33 @@ def hydrate_span(args: argparse.Namespace) -> int:
         }
     units = _load_units(Path(args.unit_dir), expected)
     missing_annotation = sorted(set(manifest) - set(annotations))
-    joined = sorted(set(manifest) & set(annotations) & set(units))
+    annotated_unit_ids = set(manifest) & set(annotations)
     if set(units) != set(manifest):
         raise ValueError(
             f"unit payload/manifest mismatch: missing={len(set(manifest)-set(units))}, "
             f"extra={len(set(units)-set(manifest))}"
         )
-    drafts: dict[tuple[str, str], SilverDraft] = {}
-    aligned_span_count = 0
-    for unit_id in joined:
-        meta = manifest[unit_id]
-        annotation = annotations[unit_id]
-        key = (str(meta["source"]), str(meta["doc_id"]))
-        draft = drafts.setdefault(key, SilverDraft(
-            upstream_doc_id=key[1], source=key[0], n_physical_lines=int(meta["win_hi"]),
-            lines={}, bib_lines=set(), annotation_units=[],
-        ))
-        draft.n_physical_lines = max(draft.n_physical_lines, int(meta["win_hi"]))
-        draft.annotation_units.append(unit_id)
-        aligned_span_count += _validate_annotation_coordinate_alignment(
-            unit_id, meta, annotation, units[unit_id]
-        )
-        for abs_idx, text in _line_rows(units[unit_id]["text_numbered"]):
-            previous = draft.lines.setdefault(abs_idx, text)
-            if previous != text:
-                raise ValueError(f"{unit_id}: conflicting text at absolute line {abs_idx}")
-        for span in annotation.get("spans", []):
-            start, end = int(span["start_line"]), int(span["end_line"])
-            if end < start:
-                raise ValueError(f"{unit_id}: invalid silver span {start}..{end}")
-            draft.bib_lines.update(range(start, end + 1))
+    drafts = _build_span_drafts(manifest, annotations, units)
+    projection_counts: collections.Counter[str] = collections.Counter()
+    projection_anomalies: list[dict[str, Any]] = []
+    for draft in drafts.values():
+        document_counts, document_anomalies = _project_document_spans(draft)
+        projection_counts.update(document_counts)
+        projection_anomalies.extend(document_anomalies)
+    projection_counts["effective_unique_bib_line_count"] = sum(
+        len(draft.bib_lines) for draft in drafts.values()
+    )
+    for key in (
+        "declared_span_count",
+        "exact_nonempty_span_count",
+        "adjusted_nonempty_span_count",
+        "zero_effective_span_count",
+        "unit_window_escape_span_count",
+        "declared_boundary_absence_span_count",
+        "declared_outside_document_span_count",
+        "effective_positive_coordinate_assignments",
+    ):
+        projection_counts.setdefault(key, 0)
     tokenizer = ExactTokenizer(Path(args.tokenizer_json))
     rows: list[dict[str, Any]] = []
     for (source, upstream_id), draft in sorted(drafts.items()):
@@ -504,7 +640,9 @@ def hydrate_span(args: argparse.Namespace) -> int:
                 "task_scope": "bibliography_binary_windows",
                 "annotator_ids": ["LLM:Claude-Opus"],
                 "adjudicator_id": None,
+                "sampled_unit_ids": sorted(draft.sampled_units),
                 "unit_ids": sorted(draft.annotation_units),
+                "missing_annotation_unit_ids": sorted(draft.missing_annotation_units),
                 "source_annotations_sha256": sha256_file(EVAL_DIR / "annotations_span" / "all.json"),
                 "toc_supervised": False,
             },
@@ -525,6 +663,9 @@ def hydrate_span(args: argparse.Namespace) -> int:
     receipt.update({
         "silver_sha256": silver_sha256,
         "missing_annotation_unit_ids": missing_annotation,
+        "missing_annotation_policy": (
+            "retain sampled present lines as O, matching historical span_seq_data.load semantics"
+        ),
         "source_manifest_sha256": sha256_file(SPAN_MANIFEST),
         "source_batches_inventory_sha256": canonical_json_sha256(
             sorted((path.name, sha256_file(path)) for path in Path(args.unit_dir).glob("batch_*.json"))
@@ -533,14 +674,28 @@ def hydrate_span(args: argparse.Namespace) -> int:
         "sequence_fit_eligible": unit_snapshot["research_fit_eligible"],
         "sequence_evidence_scope": unit_snapshot["research_evidence_scope"],
         "annotation_coordinate_alignment": {
-            "status": "verified",
-            "unit_count": len(joined),
-            "span_count": aligned_span_count,
+            "status": (
+                "document_union_projection_with_silver_anomalies"
+                if projection_anomalies
+                else "exact_on_present_document_union"
+            ),
+            "unit_count": len(manifest),
+            "annotated_unit_count": len(annotated_unit_ids),
+            "missing_annotation_unit_count": len(missing_annotation),
+            "semantics": (
+                "merge present nonblank lines from all sampled windows by document, then label "
+                "the intersection with each inclusive declared span"
+            ),
+            "zero_effective_policy": (
+                "retain sampled lines as O, matching historical span_seq_data comparison semantics"
+            ),
+            "counts": dict(sorted(projection_counts.items())),
+            "anomalies": projection_anomalies,
             "checks": [
                 "numbered coordinates unique and ordered",
                 "coordinates contained by manifest win_lo/win_hi",
-                "span bounds contained by manifest window",
-                "span start/end present in rehydrated nonempty-line coordinates",
+                "annotation shape and coordinate types valid",
+                "declared spans projected only onto present document-union coordinates",
             ],
         },
         "production_eligible": False,

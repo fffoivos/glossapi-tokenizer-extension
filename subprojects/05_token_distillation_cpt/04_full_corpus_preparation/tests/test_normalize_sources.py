@@ -6,6 +6,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -246,6 +247,26 @@ def test_embedded_route_coverage_requires_positive_rows_without_smoke_false_posi
     assert smoke["routes"][0]["postcondition_enforced"] is False
 
 
+def test_large_normalization_tasks_use_receipt_bound_byte_sum() -> None:
+    normalize = load_normalize_module()
+    artifact = SimpleNamespace(file_bindings=({"bytes": 7}, {"bytes": 5}, {"bytes": 3}))
+    tasks = [
+        {"artifact": artifact, "file_indices": [0]},
+        {"artifact": artifact, "file_indices": [1, 2]},
+        {"artifact": artifact, "file_indices": [2]},
+    ]
+
+    ordinary, large = normalize.partition_normalization_tasks(
+        tasks, large_task_byte_threshold=8
+    )
+
+    assert ordinary == [tasks[0], tasks[2]]
+    assert large == [tasks[1]]
+    assert normalize.normalization_task_input_bytes(tasks[1]) == 8
+    with pytest.raises(ValueError, match="threshold must be positive"):
+        normalize.partition_normalization_tasks(tasks, large_task_byte_threshold=0)
+
+
 def test_normalizer_preserves_source_names_and_groups_sectioned_works(
     tmp_path: Path,
 ) -> None:
@@ -392,31 +413,34 @@ def _run_normalizer(
     manifest: Path,
     *,
     workers: int,
+    large_task_byte_threshold: int | None = None,
+    large_task_workers: int = 1,
 ) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        [
-            sys.executable,
-            str(HERE / "scripts" / "normalize_sources.py"),
-            "--sources",
-            str(config),
-            "--acquisition-receipt",
-            str(receipt),
-            "--output",
-            str(output),
-            "--manifest",
-            str(manifest),
-            "--rows-per-shard",
-            "2",
-            "--workers",
-            str(workers),
-            "--duckdb-threads",
-            "2",
-            "--duckdb-memory-limit",
-            "256MB",
-        ],
-        text=True,
-        capture_output=True,
-    )
+    command = [
+        sys.executable,
+        str(HERE / "scripts" / "normalize_sources.py"),
+        "--sources",
+        str(config),
+        "--acquisition-receipt",
+        str(receipt),
+        "--output",
+        str(output),
+        "--manifest",
+        str(manifest),
+        "--rows-per-shard",
+        "2",
+        "--workers",
+        str(workers),
+        "--large-task-workers",
+        str(large_task_workers),
+        "--duckdb-threads",
+        "2",
+        "--duckdb-memory-limit",
+        "256MB",
+    ]
+    if large_task_byte_threshold is not None:
+        command.extend(["--large-task-byte-threshold", str(large_task_byte_threshold)])
+    return subprocess.run(command, text=True, capture_output=True)
 
 
 def test_normalizer_parallel_outputs_are_deterministic_and_receipt_resumable(
@@ -485,12 +509,17 @@ def test_normalizer_parallel_outputs_are_deterministic_and_receipt_resumable(
         ).returncode
         == 0
     )
-    assert (
-        _run_normalizer(
-            config, receipt, second_output, second_manifest, workers=2
-        ).returncode
-        == 0
+    large_pool_run = _run_normalizer(
+        config,
+        receipt,
+        second_output,
+        second_manifest,
+        workers=2,
+        large_task_byte_threshold=1,
+        large_task_workers=1,
     )
+    assert large_pool_run.returncode == 0, large_pool_run.stderr
+    assert "starting pool=large tasks=2 workers=1" in large_pool_run.stdout
 
     def shard_contract(path: Path) -> list[tuple[int, str]]:
         value = json.loads(path.read_text())
@@ -509,7 +538,15 @@ def test_normalizer_parallel_outputs_are_deterministic_and_receipt_resumable(
     mtimes = {path: path.stat().st_mtime_ns for path in first_output.rglob("*.parquet")}
     manifest_sha256 = hashlib.sha256(first_manifest.read_bytes()).hexdigest()
     first_manifest.unlink()
-    resumed = _run_normalizer(config, receipt, first_output, first_manifest, workers=2)
+    resumed = _run_normalizer(
+        config,
+        receipt,
+        first_output,
+        first_manifest,
+        workers=2,
+        large_task_byte_threshold=1,
+        large_task_workers=1,
+    )
     assert resumed.returncode == 0, resumed.stderr
     assert mtimes == {
         path: path.stat().st_mtime_ns for path in first_output.rglob("*.parquet")
