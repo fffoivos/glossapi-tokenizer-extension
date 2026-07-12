@@ -63,6 +63,8 @@ class LegacyDocumentAudit:
     source: str
     historical_split: str
     mode: str
+    manifest_mode: str
+    mode_binding: str
     n_physical_lines: int
     n_present_lines: int
     observed_text_sha256: str
@@ -265,6 +267,101 @@ def _correction_map(
     return result
 
 
+def _mode_compatibility_map(
+    lock: Mapping[str, Any],
+) -> dict[tuple[int, str], tuple[str, str]]:
+    """Return the deliberately tiny set of legacy/manifest mode aliases.
+
+    The legacy gold, annotation, and batch artifacts define the semantic mode
+    used by downstream reconstruction.  Some historical manifest rows instead
+    preserved their concrete selected-window sizes.  Those are metadata aliases,
+    not an invitation to accept arbitrary mode drift, so every one is pinned by
+    row index, document id, and both representations in the checked-in lock.
+    """
+    result: dict[tuple[int, str], tuple[str, str]] = {}
+    rows = lock.get("manifest_mode_compatibility_exceptions", [])
+    _require(isinstance(rows, list), "mode compatibility exceptions are not a list")
+    for position, row in enumerate(rows, 1):
+        _require(
+            isinstance(row, Mapping),
+            f"mode compatibility exception {position} is not an object",
+        )
+        row_index = row.get("row_index")
+        document_id = row.get("document_id")
+        legacy_mode = row.get("legacy_mode")
+        manifest_mode = row.get("manifest_mode")
+        evidence = row.get("evidence")
+        _require(
+            isinstance(row_index, int) and row_index >= 0,
+            f"mode compatibility exception {position} has invalid row_index",
+        )
+        _require(
+            isinstance(document_id, str) and document_id,
+            f"mode compatibility exception {position} has invalid document_id",
+        )
+        _require(
+            isinstance(legacy_mode, str) and legacy_mode,
+            f"mode compatibility exception {position} has invalid legacy_mode",
+        )
+        _require(
+            isinstance(manifest_mode, str) and manifest_mode,
+            f"mode compatibility exception {position} has invalid manifest_mode",
+        )
+        _require(
+            isinstance(evidence, str) and evidence,
+            f"mode compatibility exception {position} lacks evidence",
+        )
+        key = (row_index, document_id)
+        _require(
+            key not in result,
+            f"duplicate mode compatibility exception {key!r}",
+        )
+        result[key] = (legacy_mode, manifest_mode)
+    return result
+
+
+def _validate_mode_binding(
+    *,
+    row_index: int,
+    document_id: str,
+    legacy_mode: str,
+    annotation_mode: object,
+    batch_mode: object,
+    manifest_mode: object,
+    exceptions: Mapping[tuple[int, str], tuple[str, str]],
+    consumed: set[tuple[int, str]],
+) -> tuple[str, str]:
+    """Validate modes without normalising or mutating the handoff.
+
+    Annotation and batch must exactly retain the gold semantic mode.  Manifest
+    mode must also match unless this exact row is a lock-pinned historical alias.
+    """
+    _require(
+        annotation_mode == legacy_mode,
+        f"{document_id}: annotation mode drift",
+    )
+    _require(batch_mode == legacy_mode, f"{document_id}: batch mode drift")
+    _require(
+        isinstance(manifest_mode, str) and manifest_mode,
+        f"{document_id}: manifest mode missing",
+    )
+    if manifest_mode == legacy_mode:
+        _require(
+            (row_index, document_id) not in exceptions,
+            f"{document_id}: stale mode compatibility exception",
+        )
+        return "exact", manifest_mode
+    key = (row_index, document_id)
+    expected = exceptions.get(key)
+    _require(expected is not None, f"{document_id}: manifest mode drift")
+    _require(
+        (legacy_mode, manifest_mode) == expected,
+        f"{document_id}: manifest mode differs from locked compatibility exception",
+    )
+    consumed.add(key)
+    return "locked_manifest_alias", manifest_mode
+
+
 def _sections_with_locked_corrections(
     annotation: Mapping[str, Any],
     annotation_relative: str,
@@ -366,6 +463,8 @@ def audit_handoff(
     manifest_rows = list(_iter_jsonl(root / "STRUCT_2K" / "manifest.jsonl"))
     corrections = _correction_map(lock)
     consumed: set[tuple[str, str, str, tuple[int, int]]] = set()
+    mode_exceptions = _mode_compatibility_map(lock)
+    consumed_mode_exceptions: set[tuple[int, str]] = set()
     audits: list[LegacyDocumentAudit] = []
     seen_upstream: set[str] = set()
     source_counts: collections.Counter[str] = collections.Counter()
@@ -373,6 +472,7 @@ def audit_handoff(
     label_counts: collections.Counter[int] = collections.Counter()
     corrected_label_counts: collections.Counter[int] = collections.Counter()
     mode_counts: collections.Counter[str] = collections.Counter()
+    mode_binding_counts: collections.Counter[str] = collections.Counter()
     engine_counts: collections.Counter[str] = collections.Counter()
     effort_counts: collections.Counter[str] = collections.Counter()
     total_delta = 0
@@ -439,12 +539,21 @@ def audit_handoff(
             _require(
                 value.get("split") == split, f"{upstream_id}: {context} split drift"
             )
-            _require(value.get("mode") == mode, f"{upstream_id}: {context} mode drift")
             _require(
                 value.get("n_lines") == n_lines,
                 f"{upstream_id}: {context} n_lines drift",
             )
         _require(manifest.get("i") == index, f"{upstream_id}: manifest row index drift")
+        mode_binding, manifest_mode = _validate_mode_binding(
+            row_index=index,
+            document_id=upstream_id,
+            legacy_mode=str(mode),
+            annotation_mode=annotation.get("mode"),
+            batch_mode=batch.get("mode"),
+            manifest_mode=manifest.get("mode"),
+            exceptions=mode_exceptions,
+            consumed=consumed_mode_exceptions,
+        )
         engine = annotation.get("_engine")
         _require(
             isinstance(engine, Mapping), f"{upstream_id}: annotation engine missing"
@@ -510,6 +619,8 @@ def audit_handoff(
                 source=str(source_name),
                 historical_split=str(split),
                 mode=str(mode),
+                manifest_mode=manifest_mode,
+                mode_binding=mode_binding,
                 n_physical_lines=n_lines,
                 n_present_lines=len(raw_lines),
                 observed_text_sha256=text_sha,
@@ -519,6 +630,7 @@ def audit_handoff(
         source_counts[str(source_name)] += 1
         split_counts[str(split)] += 1
         mode_counts[str(mode)] += 1
+        mode_binding_counts[mode_binding] += 1
         label_counts.update(legacy_labels)
         corrected_label_counts.update(corrected_labels)
         total_delta += delta
@@ -526,6 +638,10 @@ def audit_handoff(
     _require(
         consumed == set(corrections),
         "one or more locked coordinate corrections were not consumed",
+    )
+    _require(
+        consumed_mode_exceptions == set(mode_exceptions),
+        "one or more locked mode compatibility exceptions were not consumed",
     )
     expected = lock.get("legacy_contract", {})
     _require(
@@ -586,6 +702,16 @@ def audit_handoff(
         "historical_split_counts": dict(sorted(split_counts.items())),
         "whole_document_count": mode_counts.get("whole", 0),
         "windowed_document_count": len(audits) - mode_counts.get("whole", 0),
+        "manifest_mode_compatibility": {
+            "exact_matches": mode_binding_counts.get("exact", 0),
+            "locked_aliases_applied": mode_binding_counts.get(
+                "locked_manifest_alias", 0
+            ),
+            "locked_exception_count": len(mode_exceptions),
+            "exception_inventory_sha256": canonical_json_sha256(
+                lock.get("manifest_mode_compatibility_exceptions", [])
+            ),
+        },
         "exact_text_groups": len(exact_hash_splits),
         "historical_cross_split_exact_text_groups": sum(
             len(value) > 1 for value in exact_hash_splits.values()
@@ -710,6 +836,8 @@ def _write_materialized_silver(
                     "upstream_document_id": upstream_id,
                     "historical_split": audit.historical_split,
                     "historical_mode": audit.mode,
+                    "historical_manifest_mode": audit.manifest_mode,
+                    "historical_mode_binding": audit.mode_binding,
                     "observed_text_sha256": audit.observed_text_sha256,
                     "source_annotation_sha256": inventory[annotation_relative],
                     "source_batch_sha256": inventory[
@@ -994,6 +1122,20 @@ def verify_materialized_source(
     _require(
         snapshot.get("coordinate_correction_lock_sha256") == sha256_file(lock_path),
         "coordinate correction lock drift",
+    )
+    mode_compatibility = snapshot.get("manifest_mode_compatibility")
+    mode_exceptions = lock.get("manifest_mode_compatibility_exceptions", [])
+    _require(
+        isinstance(mode_compatibility, Mapping)
+        and isinstance(mode_exceptions, list)
+        and mode_compatibility.get("exact_matches", -1)
+        + mode_compatibility.get("locked_aliases_applied", -1)
+        == legacy.get("document_count")
+        and mode_compatibility.get("locked_aliases_applied") == len(mode_exceptions)
+        and mode_compatibility.get("locked_exception_count") == len(mode_exceptions)
+        and mode_compatibility.get("exception_inventory_sha256")
+        == canonical_json_sha256(mode_exceptions),
+        "manifest mode compatibility receipt drift",
     )
     handoff = snapshot.get("handoff", {})
     _require(

@@ -54,7 +54,9 @@ def _ids(split: str, count: int) -> list[str]:
     return result
 
 
-def _build_handoff(root: Path) -> tuple[Path, dict[str, object]]:
+def _build_handoff(
+    root: Path, *, manifest_mode_alias: bool = False
+) -> tuple[Path, dict[str, object]]:
     struct = root / "STRUCT_2K"
     struct.mkdir(parents=True)
     ids = _ids("train", 4) + _ids("test", 2)
@@ -62,6 +64,7 @@ def _build_handoff(root: Path) -> tuple[Path, dict[str, object]]:
     gold: list[dict[str, object]] = []
     manifests: list[dict[str, object]] = []
     corrections: list[dict[str, object]] = []
+    mode_exceptions: list[dict[str, object]] = []
     label_counts = {0: 0, 1: 0, 2: 0}
     for index, (document_id, source) in enumerate(zip(ids, sources)):
         split = _historical_split(document_id)
@@ -99,7 +102,8 @@ def _build_handoff(root: Path) -> tuple[Path, dict[str, object]]:
             [coordinate, text, label]
             for coordinate, (text, label) in enumerate(zip(texts, labels))
         ]
-        mode = "whole"
+        mode = "front+tail-shrunk" if manifest_mode_alias and index == 1 else "whole"
+        manifest_mode = "front2+tail1" if manifest_mode_alias and index == 1 else mode
         gold.append(
             {
                 "doc_id": document_id,
@@ -117,7 +121,7 @@ def _build_handoff(root: Path) -> tuple[Path, dict[str, object]]:
                 "source": source,
                 "split": split,
                 "n_lines": 3,
-                "mode": mode,
+                "mode": manifest_mode,
                 "chars": 30,
                 "badness": 0,
             }
@@ -159,6 +163,16 @@ def _build_handoff(root: Path) -> tuple[Path, dict[str, object]]:
                 "_engine": {"model": "gpt-5.5", "effort": "medium"},
             },
         )
+        if manifest_mode_alias and index == 1:
+            mode_exceptions.append(
+                {
+                    "row_index": index,
+                    "document_id": document_id,
+                    "legacy_mode": mode,
+                    "manifest_mode": manifest_mode,
+                    "evidence": "fixture semantic alias with concrete manifest window",
+                }
+            )
     _jsonl(root / "STRUCT_2K_gold.jsonl", gold)
     _jsonl(struct / "manifest.jsonl", manifests)
     (root / "SOURCE_STATE.txt").write_text("fixture\n", encoding="utf-8")
@@ -209,6 +223,7 @@ def _build_handoff(root: Path) -> tuple[Path, dict[str, object]]:
             "annotation_effort": "medium",
             "annotation_status": "LLM_silver",
         },
+        "manifest_mode_compatibility_exceptions": mode_exceptions,
         "coordinate_corrections": corrections,
     }
     lock_path = root.parent / "lock.json"
@@ -263,6 +278,83 @@ def test_handoff_audit_replays_lineage_and_applies_only_locked_correction(
     assert len(inventory) == 16
 
 
+def test_handoff_audit_records_only_locked_manifest_mode_alias(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "handoff"
+    lock_path, lock = _build_handoff(root, manifest_mode_alias=True)
+    receipt, documents, _inventory = struct2k_import.audit_handoff(root, lock_path)
+    alias = documents[1]
+    assert alias.mode == "front+tail-shrunk"
+    assert alias.manifest_mode == "front2+tail1"
+    assert alias.mode_binding == "locked_manifest_alias"
+    assert receipt["manifest_mode_compatibility"] == {
+        "exact_matches": 5,
+        "locked_aliases_applied": 1,
+        "locked_exception_count": 1,
+        "exception_inventory_sha256": struct2k_import.canonical_json_sha256(
+            lock["manifest_mode_compatibility_exceptions"]
+        ),
+    }
+
+
+def test_mode_aliases_reject_unknown_stale_or_nonsemantic_drift() -> None:
+    exception = {(1, "fixture-document"): ("front+tail-shrunk", "front2+tail1")}
+    consumed: set[tuple[int, str]] = set()
+    assert struct2k_import._validate_mode_binding(
+        row_index=1,
+        document_id="fixture-document",
+        legacy_mode="front+tail-shrunk",
+        annotation_mode="front+tail-shrunk",
+        batch_mode="front+tail-shrunk",
+        manifest_mode="front2+tail1",
+        exceptions=exception,
+        consumed=consumed,
+    ) == ("locked_manifest_alias", "front2+tail1")
+    assert consumed == {(1, "fixture-document")}
+    with pytest.raises(
+        struct2k_import.Struct2KImportError, match="manifest mode drift"
+    ):
+        struct2k_import._validate_mode_binding(
+            row_index=2,
+            document_id="other-document",
+            legacy_mode="front+tail-shrunk",
+            annotation_mode="front+tail-shrunk",
+            batch_mode="front+tail-shrunk",
+            manifest_mode="front2+tail1",
+            exceptions=exception,
+            consumed=set(),
+        )
+    with pytest.raises(
+        struct2k_import.Struct2KImportError,
+        match="annotation mode drift",
+    ):
+        struct2k_import._validate_mode_binding(
+            row_index=1,
+            document_id="fixture-document",
+            legacy_mode="front+tail-shrunk",
+            annotation_mode="whole",
+            batch_mode="front+tail-shrunk",
+            manifest_mode="front2+tail1",
+            exceptions=exception,
+            consumed=set(),
+        )
+    with pytest.raises(
+        struct2k_import.Struct2KImportError,
+        match="stale mode compatibility exception",
+    ):
+        struct2k_import._validate_mode_binding(
+            row_index=1,
+            document_id="fixture-document",
+            legacy_mode="front+tail-shrunk",
+            annotation_mode="front+tail-shrunk",
+            batch_mode="front+tail-shrunk",
+            manifest_mode="front+tail-shrunk",
+            exceptions=exception,
+            consumed=set(),
+        )
+
+
 def test_handoff_audit_fails_closed_on_inventory_or_unlocked_coordinate_drift(
     tmp_path: Path,
 ) -> None:
@@ -285,7 +377,7 @@ def test_joint_materialization_and_selection_physically_exclude_historical_test(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     root = tmp_path / "handoff"
-    lock_path, _lock = _build_handoff(root)
+    lock_path, _lock = _build_handoff(root, manifest_mode_alias=True)
     config = tmp_path / "joint.json"
     _joint_config(config)
     tokenizer = tmp_path / "tokenizer.json"
@@ -333,6 +425,13 @@ def test_joint_materialization_and_selection_physically_exclude_historical_test(
         for row in materialized_rows
     ), "imported abs_idx is zero-based and strictly below n_physical_lines"
     assert {row["historical_split"] for row in materialized_rows} == {"train"}
+    alias = next(
+        row
+        for row in materialized_rows
+        if row["historical_mode"] == "front+tail-shrunk"
+    )
+    assert alias["historical_manifest_mode"] == "front2+tail1"
+    assert alias["historical_mode_binding"] == "locked_manifest_alias"
     assert {row["upstream_document_id"] for row in materialized_rows}.isdisjoint(
         _ids("test", 2)
     )

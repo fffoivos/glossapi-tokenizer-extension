@@ -38,6 +38,22 @@
     "annotation_effort": "medium",
     "annotation_status": "LLM_silver"
   },
+  "manifest_mode_compatibility_exceptions": [
+    {
+      "row_index": 233,
+      "document_id": "ef031c16c5cd6558c59a2c502de8c79b80d5a0c78015565c17affe3eea9e63c0",
+      "legacy_mode": "front+tail-shrunk",
+      "manifest_mode": "front4520+tail4572",
+      "evidence": "The immutable gold, annotation, and batch use the semantic historical alias; the immutable manifest retains the concrete selected front/tail window sizes. Clariden audit confirmed all other identity and line-count metadata agree."
+    },
+    {
+      "row_index": 1217,
+      "document_id": "3a1c74f18c202b21c9a574e6c743632f3cb4e65cbfe35938f0dd3c270fa9b480",
+      "legacy_mode": "front+tail-shrunk",
+      "manifest_mode": "front446+tail1440",
+      "evidence": "The immutable gold, annotation, and batch use the semantic historical alias; the immutable manifest retains the concrete selected front/tail window sizes. Clariden audit confirmed all other identity and line-count metadata agree."
+    }
+  ],
   "coordinate_corrections": [
     {
       "annotation_file": "STRUCT_2K/ann_00063.json",
