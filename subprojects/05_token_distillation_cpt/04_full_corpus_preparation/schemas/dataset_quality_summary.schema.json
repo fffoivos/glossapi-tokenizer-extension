@@ -1,13 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://glossapi.example/schemas/dataset-quality-summary-v1.json",
-  "title": "Receipt-bound full-corpus dataset quality summary",
+  "title": "Strict receipt-bound dataset quality summary",
   "type": "object",
+  "additionalProperties": false,
   "required": [
-    "schema_version", "status", "created_at", "mode", "contract_sha256", "contract",
-    "normalization_manifest", "glossapi_build_receipt", "glossapi_commit", "scan_mode", "batch_size",
-    "threads", "quantile_sample_size", "selected_source_ids", "excluded_source_ids", "input_shards",
-    "batch_checkpoints", "document_output",
+    "schema_version", "status", "created_at", "mode", "scan_mode",
+    "contract_sha256", "contract", "normalization_manifest",
+    "normalization_schema_version", "glossapi_build_receipt", "glossapi_commit",
+    "batch_size", "threads", "quantile_sample_size", "selected_source_ids",
+    "excluded_source_ids", "input_shards", "batch_checkpoints", "document_output",
     "global", "repositories", "metric_notes"
   ],
   "properties": {
@@ -17,62 +19,260 @@
     "mode": {"const": "diagnostic_only_no_cleaned_text_persisted"},
     "scan_mode": {"enum": ["review_sample", "full_scan"]},
     "contract_sha256": {"$ref": "#/$defs/sha256"},
+    "contract": {"$ref": "#/$defs/file"},
+    "normalization_manifest": {"$ref": "#/$defs/file"},
+    "normalization_schema_version": {"const": "full_cpt_normalization_manifest_v1"},
+    "glossapi_build_receipt": {"$ref": "#/$defs/file"},
     "glossapi_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
     "batch_size": {"type": "integer", "minimum": 1},
     "threads": {"type": "integer", "minimum": 1},
     "quantile_sample_size": {"type": "integer", "minimum": 100},
-    "selected_source_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-    "excluded_source_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-    "input_shards": {"type": "array", "minItems": 1},
+    "selected_source_ids": {"$ref": "#/$defs/nonemptyStringSet"},
+    "excluded_source_ids": {"$ref": "#/$defs/stringSet"},
+    "input_shards": {
+      "type": "array", "minItems": 1,
+      "items": {"$ref": "#/$defs/inputShard"}
+    },
     "batch_checkpoints": {
-      "type": "object",
+      "type": "object", "additionalProperties": false,
       "required": ["count", "rows", "inventory_sha256", "inventory"],
       "properties": {
         "count": {"type": "integer", "minimum": 1},
         "rows": {"type": "integer", "minimum": 1},
         "inventory_sha256": {"$ref": "#/$defs/sha256"},
-        "inventory": {"type": "array", "minItems": 1}
+        "inventory": {
+          "type": "array", "minItems": 1,
+          "items": {"$ref": "#/$defs/checkpoint"}
+        }
       }
     },
-    "document_output": {"$ref": "#/$defs/file"},
-    "global": {"$ref": "#/$defs/statistics"},
-    "repositories": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/statistics"}},
-    "metric_notes": {"type": "object"}
+    "document_output": {"$ref": "#/$defs/fileWithRows"},
+    "global": {"$ref": "#/$defs/globalStatistics"},
+    "repositories": {
+      "type": "array", "minItems": 1,
+      "items": {"$ref": "#/$defs/repositoryStatistics"}
+    },
+    "metric_notes": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "rust_noise_badness_score", "cleaner_removed_character_fraction",
+        "approximate_quantiles", "zero_badness_zero_greek_guard", "profile_scope"
+      ],
+      "properties": {
+        "rust_noise_badness_score": {"type": "string", "minLength": 1},
+        "cleaner_removed_character_fraction": {"type": "string", "minLength": 1},
+        "approximate_quantiles": {"type": "string", "minLength": 1},
+        "zero_badness_zero_greek_guard": {"type": "string", "minLength": 1},
+        "profile_scope": {"type": "string", "minLength": 1}
+      }
+    }
   },
   "$defs": {
     "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "stringSet": {
+      "type": "array", "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "nonemptyStringSet": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
     "file": {
-      "type": "object",
+      "type": "object", "additionalProperties": false,
       "required": ["path", "bytes", "sha256"],
       "properties": {
         "path": {"type": "string", "minLength": 1},
-        "bytes": {"type": "integer", "minimum": 1},
-        "sha256": {"$ref": "#/$defs/sha256"},
-        "rows": {"type": "integer", "minimum": 1}
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/sha256"}
       }
     },
-    "statistics": {
-      "type": "object",
+    "fileWithRows": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "bytes", "sha256", "rows"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "rows": {"type": "integer", "minimum": 0}
+      }
+    },
+    "inputShard": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_id", "path", "bytes", "sha256", "rows"],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "rows": {"type": "integer", "minimum": 1},
+        "batches": {"type": "integer", "minimum": 0}
+      }
+    },
+    "checkpoint": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "receipt_path", "receipt_sha256", "output_sha256", "rows",
+        "input_shard_sha256", "batch_index"
+      ],
+      "properties": {
+        "receipt_path": {"type": "string", "minLength": 1},
+        "receipt_sha256": {"$ref": "#/$defs/sha256"},
+        "output_sha256": {"$ref": "#/$defs/sha256"},
+        "rows": {"type": "integer", "minimum": 0},
+        "input_shard_sha256": {"$ref": "#/$defs/sha256"},
+        "batch_index": {"type": "integer", "minimum": 0}
+      }
+    },
+    "distribution": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "count", "min", "mean", "p10_approx", "p50_approx", "p90_approx",
+        "p99_approx", "max", "quantile_sample_documents"
+      ],
+      "properties": {
+        "count": {"type": "integer", "minimum": 0},
+        "min": {"type": ["number", "null"]},
+        "mean": {"type": ["number", "null"]},
+        "p10_approx": {"type": ["number", "null"]},
+        "p50_approx": {"type": ["number", "null"]},
+        "p90_approx": {"type": ["number", "null"]},
+        "p99_approx": {"type": ["number", "null"]},
+        "max": {"type": ["number", "null"]},
+        "quantile_sample_documents": {"type": "integer", "minimum": 0}
+      }
+    },
+    "documentCounts": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "empty_input_documents", "html_documents", "mojibake_documents",
+        "replacement_character_documents", "control_character_documents",
+        "low_unique_line_fraction_documents", "one_token_per_line_documents",
+        "markdown_table_documents", "large_markdown_table_documents",
+        "bibliography_header_documents", "toc_header_documents",
+        "digital_governance_footer_documents", "personnel_cue_documents",
+        "isolated_ada_stamp_documents", "private_data_true_documents",
+        "corrected_version_documents", "direct_identifier_documents",
+        "cleaner_empty_documents", "zero_badness_zero_greek_guard_documents"
+      ],
+      "properties": {
+        "empty_input_documents": {"type": "integer", "minimum": 0},
+        "html_documents": {"type": "integer", "minimum": 0},
+        "mojibake_documents": {"type": "integer", "minimum": 0},
+        "replacement_character_documents": {"type": "integer", "minimum": 0},
+        "control_character_documents": {"type": "integer", "minimum": 0},
+        "low_unique_line_fraction_documents": {"type": "integer", "minimum": 0},
+        "one_token_per_line_documents": {"type": "integer", "minimum": 0},
+        "markdown_table_documents": {"type": "integer", "minimum": 0},
+        "large_markdown_table_documents": {"type": "integer", "minimum": 0},
+        "bibliography_header_documents": {"type": "integer", "minimum": 0},
+        "toc_header_documents": {"type": "integer", "minimum": 0},
+        "digital_governance_footer_documents": {"type": "integer", "minimum": 0},
+        "personnel_cue_documents": {"type": "integer", "minimum": 0},
+        "isolated_ada_stamp_documents": {"type": "integer", "minimum": 0},
+        "private_data_true_documents": {"type": "integer", "minimum": 0},
+        "corrected_version_documents": {"type": "integer", "minimum": 0},
+        "direct_identifier_documents": {"type": "integer", "minimum": 0},
+        "cleaner_empty_documents": {"type": "integer", "minimum": 0},
+        "zero_badness_zero_greek_guard_documents": {"type": "integer", "minimum": 0}
+      }
+    },
+    "documentRates": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "empty_input_rate", "html_rate", "mojibake_rate", "replacement_character_rate",
+        "control_character_rate", "low_unique_line_fraction_rate",
+        "one_token_per_line_rate", "markdown_table_rate", "large_markdown_table_rate",
+        "bibliography_header_rate", "toc_header_rate", "digital_governance_footer_rate",
+        "personnel_cue_rate", "isolated_ada_stamp_rate", "private_data_true_rate",
+        "corrected_version_rate", "direct_identifier_rate", "cleaner_empty_rate",
+        "zero_badness_zero_greek_guard_rate"
+      ],
+      "properties": {
+        "empty_input_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "html_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "mojibake_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "replacement_character_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "control_character_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "low_unique_line_fraction_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "one_token_per_line_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "markdown_table_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "large_markdown_table_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "bibliography_header_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "toc_header_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "digital_governance_footer_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "personnel_cue_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "isolated_ada_stamp_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "private_data_true_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "corrected_version_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "direct_identifier_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "cleaner_empty_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "zero_badness_zero_greek_guard_rate": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "distributions": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "original_characters", "raw_greek_letter_fraction", "raw_html_tags_per_1000_chars",
+        "raw_mojibake_per_1000_chars", "raw_replacement_per_1000_chars",
+        "raw_control_per_1000_chars", "raw_repeated_line_fraction",
+        "raw_one_token_line_fraction", "raw_markdown_table_lines",
+        "rust_noise_badness_score", "rust_noise_latin_percentage", "rust_noise_table_ratio",
+        "cleaner_badness_score", "cleaner_removed_character_fraction"
+      ],
+      "properties": {
+        "original_characters": {"$ref": "#/$defs/distribution"},
+        "raw_greek_letter_fraction": {"$ref": "#/$defs/distribution"},
+        "raw_html_tags_per_1000_chars": {"$ref": "#/$defs/distribution"},
+        "raw_mojibake_per_1000_chars": {"$ref": "#/$defs/distribution"},
+        "raw_replacement_per_1000_chars": {"$ref": "#/$defs/distribution"},
+        "raw_control_per_1000_chars": {"$ref": "#/$defs/distribution"},
+        "raw_repeated_line_fraction": {"$ref": "#/$defs/distribution"},
+        "raw_one_token_line_fraction": {"$ref": "#/$defs/distribution"},
+        "raw_markdown_table_lines": {"$ref": "#/$defs/distribution"},
+        "rust_noise_badness_score": {"$ref": "#/$defs/distribution"},
+        "rust_noise_latin_percentage": {"$ref": "#/$defs/distribution"},
+        "rust_noise_table_ratio": {"$ref": "#/$defs/distribution"},
+        "cleaner_badness_score": {"$ref": "#/$defs/distribution"},
+        "cleaner_removed_character_fraction": {"$ref": "#/$defs/distribution"}
+      }
+    },
+    "templateConcentration": {
+      "type": "object", "additionalProperties": false,
+      "required": ["documents_with_template", "unique_templates", "top_1_fraction", "top_10_fraction"],
+      "properties": {
+        "documents_with_template": {"type": "integer", "minimum": 0},
+        "unique_templates": {"type": "integer", "minimum": 0},
+        "top_1_fraction": {"type": "number", "minimum": 0, "maximum": 1},
+        "top_10_fraction": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "globalStatistics": {
+      "type": "object", "additionalProperties": false,
       "required": ["documents", "characters", "bytes_utf8", "source_datasets", "document_counts", "document_rates", "distributions", "template_concentration"],
       "properties": {
-        "repo_id": {"type": "string"},
         "documents": {"type": "integer", "minimum": 0},
         "characters": {"type": "integer", "minimum": 0},
         "bytes_utf8": {"type": "integer", "minimum": 0},
-        "source_datasets": {"type": "array", "items": {"type": "string"}},
-        "document_counts": {"type": "object"},
-        "document_rates": {"type": "object"},
-        "distributions": {"type": "object"},
-        "template_concentration": {
-          "type": "object",
-          "required": ["documents_with_template", "unique_templates", "top_1_fraction", "top_10_fraction"],
-          "properties": {
-            "documents_with_template": {"type": "integer", "minimum": 0},
-            "unique_templates": {"type": "integer", "minimum": 0},
-            "top_1_fraction": {"type": "number", "minimum": 0, "maximum": 1},
-            "top_10_fraction": {"type": "number", "minimum": 0, "maximum": 1}
-          }
-        }
+        "source_datasets": {"$ref": "#/$defs/stringSet"},
+        "document_counts": {"$ref": "#/$defs/documentCounts"},
+        "document_rates": {"$ref": "#/$defs/documentRates"},
+        "distributions": {"$ref": "#/$defs/distributions"},
+        "template_concentration": {"$ref": "#/$defs/templateConcentration"}
+      }
+    },
+    "repositoryStatistics": {
+      "type": "object", "additionalProperties": false,
+      "required": ["repo_id", "documents", "characters", "bytes_utf8", "source_datasets", "document_counts", "document_rates", "distributions", "template_concentration"],
+      "properties": {
+        "repo_id": {"type": "string", "minLength": 1},
+        "documents": {"type": "integer", "minimum": 0},
+        "characters": {"type": "integer", "minimum": 0},
+        "bytes_utf8": {"type": "integer", "minimum": 0},
+        "source_datasets": {"$ref": "#/$defs/stringSet"},
+        "document_counts": {"$ref": "#/$defs/documentCounts"},
+        "document_rates": {"$ref": "#/$defs/documentRates"},
+        "distributions": {"$ref": "#/$defs/distributions"},
+        "template_concentration": {"$ref": "#/$defs/templateConcentration"}
       }
     }
   }

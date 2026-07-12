@@ -89,11 +89,18 @@ CONFIRM_LAUNCH=1 PIPELINE_RUN_ID=<run-id> \
 Stage 35 first exports only the exact primary review sample from the canonical
 shards. High-precision identifier patterns are masked; this is not a claim that
 generic names, addresses, or identifying context have been anonymized. Raw
-`source_doc_id` values and URLs are not persisted. The relocatable packet
-receipt binds the exact Stage30 request hash, canonical shards, profile-text
-hashes, redaction implementation hashes, and persistent per-shard export
-checkpoints. The packet and its receipt are inputs to the Rust profiler, so the
-usual 100/200 per exact-source sampling strata remain intact.
+`source_doc_id` values are not persisted. Complete `http://`, `https://`, and
+`www.` URL spans in exported sample text are masked, including their query and
+fragment material. This targeted masking still does not make the samples
+anonymous or safe to publish. The relocatable packet receipt binds the exact
+Stage30 request hash, canonical shards, profile-text hashes, redaction
+implementation hashes, and persistent per-shard export checkpoints. The packet
+receipt also points to a compact, text-free site attestation. Before emitting
+that attestation on Clariden, the exporter rehashes every checkpoint fragment,
+revalidates the exact normalization/acquisition identity closure, and records
+the current masking implementation hashes. The packet, receipt, and attestation
+are inputs to the Rust profiler, so the usual 100/200 per exact-source sampling
+strata remain intact.
 
 For the optional population scan:
 
@@ -121,16 +128,23 @@ pending in the separate structural-cleaning lane.
 
 ## Private local site
 
-Transfer the Stage 35 summary, requests, complete-sample packet, and its receipt
-to the Mac as private artifacts. Site generation itself is lightweight
-coordination work:
+Transfer only these compact/private Stage 35 artifacts to the Mac: the quality
+summary, `dataset_quality_site_handoff.json`, Stage30 requests, the masked
+complete-sample packet, its packet receipt, and
+`complete_review_samples_site_attestation.json`. Do not transfer quality
+checkpoint Parquets, sample-export checkpoint fragments, normalized shards, or
+corpus directories. The two compact attestations are generated on Clariden
+after those large dependencies have been rehashed there. Site generation itself
+is lightweight coordination work:
 
 ```bash
 python scripts/build_dataset_review_site.py build \
   --quality-summary /path/to/dataset_quality_summary_v1.json \
+  --quality-handoff-receipt /path/to/dataset_quality_site_handoff.json \
   --review-requests /path/to/requests.jsonl \
   --complete-samples /path/to/complete_review_samples.jsonl \
-  --complete-samples-receipt /path/to/complete_review_samples_receipt.json
+  --complete-samples-receipt /path/to/complete_review_samples_receipt.json \
+  --complete-samples-attestation /path/to/complete_review_samples_site_attestation.json
 
 python scripts/build_dataset_review_site.py serve
 ```
@@ -143,6 +157,12 @@ unmissable sample/full-scan scope label. Complete documents live in separate
 mode-0600 JSON files, are fetched only on request, and are inserted with DOM
 `textContent`; corpus HTML never executes. Canonical sample/document IDs never
 enter the site: each build uses an ephemeral random HMAC key to derive opaque
-site-local IDs and filenames. The manifest binds every input and every emitted
-file, and the local server refuses tampered, extra, or symlinked content before
-binding to `127.0.0.1`. The material remains sensitive and must not be shared.
+site-local IDs and filenames. The builder rejects quality fields outside the
+strict aggregate contract, requires exact acquired/normalized identity evidence
+before upgrading an external repository's availability state, and reruns the
+current masker idempotently on every complete document immediately before site
+emission. It snapshots and hashes every local input before parsing, then rehashes
+the same inputs immediately before atomic publication. The manifest binds every
+input and every emitted file, and the local server refuses tampered, extra, or
+symlinked content before binding to `127.0.0.1`. The material remains sensitive
+and must not be shared.

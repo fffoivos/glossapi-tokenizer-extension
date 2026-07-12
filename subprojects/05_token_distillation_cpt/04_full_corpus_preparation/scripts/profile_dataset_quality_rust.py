@@ -54,6 +54,7 @@ DOCUMENT_SCHEMA = "dataset_quality_document_v1"
 BATCH_RECEIPT_SCHEMA = "dataset_quality_rust_batch_receipt_v1"
 SUMMARY_SCHEMA = "dataset_quality_summary_v1"
 CONTRACT_SCHEMA = "dataset_quality_rust_contract_v1"
+QUALITY_HANDOFF_SCHEMA = "dataset_quality_site_handoff_v1"
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GREEK_RE = re.compile(r"[\u0370-\u03ff\u1f00-\u1fff]")
@@ -162,6 +163,1468 @@ DOCUMENT_COUNTERS: tuple[str, ...] = (
     "zero_badness_zero_greek_guard_documents",
 )
 
+UI_RATE_METRICS: tuple[str, ...] = (
+    "html_rate",
+    "mojibake_rate",
+    "replacement_character_rate",
+    "control_character_rate",
+    "one_token_per_line_rate",
+    "markdown_table_rate",
+    "large_markdown_table_rate",
+    "bibliography_header_rate",
+    "toc_header_rate",
+    "digital_governance_footer_rate",
+    "personnel_cue_rate",
+    "isolated_ada_stamp_rate",
+    "private_data_true_rate",
+    "corrected_version_rate",
+    "direct_identifier_rate",
+    "zero_badness_zero_greek_guard_rate",
+)
+
+UI_DISTRIBUTION_METRICS: tuple[str, ...] = (
+    "original_characters",
+    "raw_greek_letter_fraction",
+    "raw_mojibake_per_1000_chars",
+    "raw_replacement_per_1000_chars",
+    "raw_repeated_line_fraction",
+    "raw_one_token_line_fraction",
+    "rust_noise_badness_score",
+    "cleaner_removed_character_fraction",
+)
+
+SUMMARY_TOP_LEVEL_KEYS = frozenset(
+    {
+        "schema_version",
+        "status",
+        "created_at",
+        "mode",
+        "scan_mode",
+        "contract_sha256",
+        "contract",
+        "normalization_manifest",
+        "normalization_schema_version",
+        "glossapi_build_receipt",
+        "glossapi_commit",
+        "batch_size",
+        "threads",
+        "quantile_sample_size",
+        "selected_source_ids",
+        "excluded_source_ids",
+        "input_shards",
+        "batch_checkpoints",
+        "document_output",
+        "global",
+        "repositories",
+        "metric_notes",
+    }
+)
+
+
+def require_exact_keys(
+    value: Mapping[str, Any],
+    *,
+    required: Iterable[str],
+    optional: Iterable[str] = (),
+    context: str,
+) -> None:
+    required_set = set(required)
+    allowed = required_set | set(optional)
+    actual = set(value)
+    missing = required_set - actual
+    unexpected = actual - allowed
+    if missing or unexpected:
+        raise ValueError(
+            f"{context}: key contract drift; missing={sorted(missing)}, "
+            f"unexpected={sorted(unexpected)}"
+        )
+
+
+def require_sha256(value: Any, *, context: str) -> str:
+    result = str(value)
+    if not SHA256_RE.fullmatch(result):
+        raise ValueError(f"{context}: expected SHA-256")
+    return result
+
+
+def require_nonnegative_int(value: Any, *, context: str) -> int:
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+        raise ValueError(f"{context}: expected a nonnegative integer")
+    return value
+
+
+def require_finite_number(
+    value: Any, *, context: str, nullable: bool = False
+) -> float | None:
+    if value is None and nullable:
+        return None
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise ValueError(f"{context}: expected a finite number")
+    result = float(value)
+    if not math.isfinite(result):
+        raise ValueError(f"{context}: expected a finite number")
+    return result
+
+
+def validate_receipt_object(
+    value: Any,
+    *,
+    context: str,
+    require_rows: bool = False,
+    allow_rows: bool = True,
+) -> dict[str, Any]:
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{context}: receipt must be an object")
+    required = {"path", "bytes", "sha256"}
+    if require_rows:
+        required.add("rows")
+    optional = {"rows"} if allow_rows else set()
+    require_exact_keys(value, required=required, optional=optional, context=context)
+    path = str(value["path"])
+    if not path:
+        raise ValueError(f"{context}: empty receipt path")
+    result = {
+        "path": path,
+        "bytes": require_nonnegative_int(value["bytes"], context=f"{context}.bytes"),
+        "sha256": require_sha256(value["sha256"], context=f"{context}.sha256"),
+    }
+    if "rows" in value:
+        result["rows"] = require_nonnegative_int(
+            value["rows"], context=f"{context}.rows"
+        )
+    return result
+
+
+def _validate_distribution(value: Any, *, context: str) -> dict[str, Any]:
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{context}: distribution must be an object")
+    keys = {
+        "count",
+        "min",
+        "mean",
+        "p10_approx",
+        "p50_approx",
+        "p90_approx",
+        "p99_approx",
+        "max",
+        "quantile_sample_documents",
+    }
+    require_exact_keys(value, required=keys, context=context)
+    count = require_nonnegative_int(value["count"], context=f"{context}.count")
+    sampled = require_nonnegative_int(
+        value["quantile_sample_documents"],
+        context=f"{context}.quantile_sample_documents",
+    )
+    if sampled > count:
+        raise ValueError(f"{context}: quantile sample exceeds metric count")
+    result: dict[str, Any] = {"count": count, "quantile_sample_documents": sampled}
+    for name in (
+        "min",
+        "mean",
+        "p10_approx",
+        "p50_approx",
+        "p90_approx",
+        "p99_approx",
+        "max",
+    ):
+        result[name] = require_finite_number(
+            value[name], context=f"{context}.{name}", nullable=True
+        )
+    nonnull_quantiles = [
+        result[name]
+        for name in (
+            "min",
+            "p10_approx",
+            "p50_approx",
+            "p90_approx",
+            "p99_approx",
+            "max",
+        )
+        if result[name] is not None
+    ]
+    if nonnull_quantiles != sorted(nonnull_quantiles):
+        raise ValueError(f"{context}: quantiles are not monotonic")
+    statistic_names = (
+        "min",
+        "mean",
+        "p10_approx",
+        "p50_approx",
+        "p90_approx",
+        "p99_approx",
+        "max",
+    )
+    if (
+        count == 0
+        and (sampled != 0 or any(result[name] is not None for name in statistic_names))
+    ) or (
+        count > 0
+        and (sampled < 1 or any(result[name] is None for name in statistic_names))
+    ):
+        raise ValueError(f"{context}: distribution count/statistic nullability drift")
+    return result
+
+
+def _validate_statistics(
+    value: Any, *, context: str, require_repo_id: bool
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{context}: statistics must be an object")
+    keys = {
+        "documents",
+        "characters",
+        "bytes_utf8",
+        "source_datasets",
+        "document_counts",
+        "document_rates",
+        "distributions",
+        "template_concentration",
+    }
+    if require_repo_id:
+        keys.add("repo_id")
+    require_exact_keys(value, required=keys, context=context)
+    documents = require_nonnegative_int(
+        value["documents"], context=f"{context}.documents"
+    )
+    characters = require_nonnegative_int(
+        value["characters"], context=f"{context}.characters"
+    )
+    bytes_utf8 = require_nonnegative_int(
+        value["bytes_utf8"], context=f"{context}.bytes_utf8"
+    )
+    source_datasets = value["source_datasets"]
+    if (
+        not isinstance(source_datasets, list)
+        or documents < 1
+        or not source_datasets
+        or any(not isinstance(item, str) or not item for item in source_datasets)
+        or source_datasets != sorted(set(source_datasets))
+    ):
+        raise ValueError(f"{context}.source_datasets: invalid sorted unique strings")
+
+    counts = value["document_counts"]
+    rates = value["document_rates"]
+    if not isinstance(counts, Mapping) or not isinstance(rates, Mapping):
+        raise ValueError(f"{context}: count/rate maps must be objects")
+    expected_rate_names = {
+        name.removesuffix("_documents") + "_rate" for name in DOCUMENT_COUNTERS
+    }
+    require_exact_keys(
+        counts, required=DOCUMENT_COUNTERS, context=f"{context}.document_counts"
+    )
+    require_exact_keys(
+        rates, required=expected_rate_names, context=f"{context}.document_rates"
+    )
+    validated_counts: dict[str, int] = {}
+    validated_rates: dict[str, float] = {}
+    for counter_name in DOCUMENT_COUNTERS:
+        count = require_nonnegative_int(
+            counts[counter_name], context=f"{context}.document_counts.{counter_name}"
+        )
+        if count > documents:
+            raise ValueError(f"{context}: document counter exceeds denominator")
+        validated_counts[counter_name] = count
+        rate_name = counter_name.removesuffix("_documents") + "_rate"
+        rate = require_finite_number(rates[rate_name], context=f"{context}.{rate_name}")
+        assert rate is not None
+        expected = count / documents if documents else 0.0
+        if not 0.0 <= rate <= 1.0 or not math.isclose(rate, expected, abs_tol=1e-12):
+            raise ValueError(f"{context}: inconsistent document rate {rate_name}")
+        validated_rates[rate_name] = rate
+
+    distributions = value["distributions"]
+    if not isinstance(distributions, Mapping):
+        raise ValueError(f"{context}.distributions: expected object")
+    require_exact_keys(
+        distributions,
+        required=DISTRIBUTION_METRICS,
+        context=f"{context}.distributions",
+    )
+    validated_distributions = {
+        name: _validate_distribution(
+            distributions[name], context=f"{context}.distributions.{name}"
+        )
+        for name in DISTRIBUTION_METRICS
+    }
+    template = value["template_concentration"]
+    if not isinstance(template, Mapping):
+        raise ValueError(f"{context}.template_concentration: expected object")
+    require_exact_keys(
+        template,
+        required=(
+            "documents_with_template",
+            "unique_templates",
+            "top_1_fraction",
+            "top_10_fraction",
+        ),
+        context=f"{context}.template_concentration",
+    )
+    template_documents = require_nonnegative_int(
+        template["documents_with_template"],
+        context=f"{context}.template_concentration.documents_with_template",
+    )
+    unique_templates = require_nonnegative_int(
+        template["unique_templates"],
+        context=f"{context}.template_concentration.unique_templates",
+    )
+    if template_documents > documents or unique_templates > template_documents:
+        raise ValueError(f"{context}: invalid template denominators")
+    top_1 = require_finite_number(
+        template["top_1_fraction"],
+        context=f"{context}.template_concentration.top_1_fraction",
+    )
+    top_10 = require_finite_number(
+        template["top_10_fraction"],
+        context=f"{context}.template_concentration.top_10_fraction",
+    )
+    assert top_1 is not None and top_10 is not None
+    if not 0 <= top_1 <= top_10 <= 1:
+        raise ValueError(f"{context}: invalid template concentration")
+
+    repo_id = str(value.get("repo_id", ""))
+    if require_repo_id and not repo_id:
+        raise ValueError(f"{context}: empty repo_id")
+    validated = {
+        "repo_id": repo_id,
+        "documents": documents,
+        "characters": characters,
+        "bytes_utf8": bytes_utf8,
+        "source_datasets": list(source_datasets),
+        "document_counts": validated_counts,
+        "document_rates": validated_rates,
+        "distributions": validated_distributions,
+        "template_concentration": {
+            "documents_with_template": template_documents,
+            "unique_templates": unique_templates,
+            "top_1_fraction": top_1,
+            "top_10_fraction": top_10,
+        },
+    }
+    projected = {
+        "documents": documents,
+        "document_rates": {name: validated_rates[name] for name in UI_RATE_METRICS},
+        "distributions": {
+            name: {
+                key: validated_distributions[name][key]
+                for key in ("p50_approx", "p90_approx", "p99_approx")
+            }
+            for name in UI_DISTRIBUTION_METRICS
+        },
+        "template_concentration": dict(validated["template_concentration"]),
+    }
+    if require_repo_id:
+        projected["repo_id"] = repo_id
+    return validated, projected
+
+
+def validate_and_project_quality_summary(value: Any) -> dict[str, Any]:
+    """Strictly validate a quality summary and return only site UI aggregates."""
+
+    if not isinstance(value, Mapping):
+        raise ValueError("quality summary root must be an object")
+    require_exact_keys(
+        value, required=SUMMARY_TOP_LEVEL_KEYS, context="quality_summary"
+    )
+    if (
+        value["schema_version"] != SUMMARY_SCHEMA
+        or value["status"] != "passed"
+        or value["mode"] != "diagnostic_only_no_cleaned_text_persisted"
+    ):
+        raise ValueError("quality_summary: unsupported schema/status/mode")
+    scan_mode = str(value["scan_mode"])
+    if scan_mode not in {"review_sample", "full_scan"}:
+        raise ValueError("quality_summary.scan_mode: invalid")
+    require_sha256(value["contract_sha256"], context="quality_summary.contract_sha256")
+    validate_receipt_object(value["contract"], context="quality_summary.contract")
+    validate_receipt_object(
+        value["normalization_manifest"],
+        context="quality_summary.normalization_manifest",
+    )
+    validate_receipt_object(
+        value["glossapi_build_receipt"],
+        context="quality_summary.glossapi_build_receipt",
+    )
+    if value["normalization_schema_version"] != "full_cpt_normalization_manifest_v1":
+        raise ValueError("quality_summary: normalization schema drift")
+    if not re.fullmatch(r"[0-9a-f]{40}", str(value["glossapi_commit"])):
+        raise ValueError("quality_summary.glossapi_commit: invalid")
+    for name in ("batch_size", "threads", "quantile_sample_size"):
+        if require_nonnegative_int(value[name], context=f"quality_summary.{name}") < 1:
+            raise ValueError(f"quality_summary.{name}: must be positive")
+
+    selected = value["selected_source_ids"]
+    excluded = value["excluded_source_ids"]
+    for name, items, allow_empty in (
+        ("selected_source_ids", selected, False),
+        ("excluded_source_ids", excluded, True),
+    ):
+        if (
+            not isinstance(items, list)
+            or (not allow_empty and not items)
+            or any(not isinstance(item, str) or not item for item in items)
+            or items != sorted(set(items))
+        ):
+            raise ValueError(f"quality_summary.{name}: invalid sorted unique strings")
+    if set(selected) & set(excluded):
+        raise ValueError("quality_summary: selected/excluded source overlap")
+
+    input_shards = value["input_shards"]
+    if not isinstance(input_shards, list) or not input_shards:
+        raise ValueError("quality_summary.input_shards: expected nonempty list")
+    normalized_shards: list[dict[str, Any]] = []
+    for index, row in enumerate(input_shards):
+        if not isinstance(row, Mapping):
+            raise ValueError(f"quality_summary.input_shards[{index}]: expected object")
+        require_exact_keys(
+            row,
+            required=("source_id", "path", "bytes", "sha256", "rows"),
+            optional=("batches",),
+            context=f"quality_summary.input_shards[{index}]",
+        )
+        source_id = str(row["source_id"])
+        path = str(row["path"])
+        if not source_id or not path:
+            raise ValueError("quality_summary.input_shards: empty identity")
+        item = {
+            "source_id": source_id,
+            "path": path,
+            "bytes": require_nonnegative_int(
+                row["bytes"], context=f"quality_summary.input_shards[{index}].bytes"
+            ),
+            "sha256": require_sha256(
+                row["sha256"], context=f"quality_summary.input_shards[{index}].sha256"
+            ),
+            "rows": require_nonnegative_int(
+                row["rows"], context=f"quality_summary.input_shards[{index}].rows"
+            ),
+        }
+        if "batches" in row:
+            item["batches"] = require_nonnegative_int(
+                row["batches"], context=f"quality_summary.input_shards[{index}].batches"
+            )
+        normalized_shards.append(item)
+    if normalized_shards != sorted(
+        normalized_shards, key=lambda row: (str(row["source_id"]), str(row["path"]))
+    ):
+        raise ValueError("quality_summary.input_shards: inventory is not canonical")
+
+    checkpoints = value["batch_checkpoints"]
+    if not isinstance(checkpoints, Mapping):
+        raise ValueError("quality_summary.batch_checkpoints: expected object")
+    require_exact_keys(
+        checkpoints,
+        required=("count", "rows", "inventory_sha256", "inventory"),
+        context="quality_summary.batch_checkpoints",
+    )
+    checkpoint_count = require_nonnegative_int(
+        checkpoints["count"], context="quality_summary.batch_checkpoints.count"
+    )
+    checkpoint_rows = require_nonnegative_int(
+        checkpoints["rows"], context="quality_summary.batch_checkpoints.rows"
+    )
+    require_sha256(
+        checkpoints["inventory_sha256"],
+        context="quality_summary.batch_checkpoints.inventory_sha256",
+    )
+    inventory = checkpoints["inventory"]
+    if not isinstance(inventory, list) or len(inventory) != checkpoint_count:
+        raise ValueError("quality_summary.batch_checkpoints: count/inventory drift")
+    for index, row in enumerate(inventory):
+        if not isinstance(row, Mapping):
+            raise ValueError(
+                "quality_summary.batch_checkpoints.inventory: expected objects"
+            )
+        require_exact_keys(
+            row,
+            required=(
+                "receipt_path",
+                "receipt_sha256",
+                "output_sha256",
+                "rows",
+                "input_shard_sha256",
+                "batch_index",
+            ),
+            context=f"quality_summary.batch_checkpoints.inventory[{index}]",
+        )
+        if not str(row["receipt_path"]):
+            raise ValueError("quality_summary: empty checkpoint receipt path")
+        for name in ("receipt_sha256", "output_sha256", "input_shard_sha256"):
+            require_sha256(row[name], context=f"quality_summary.checkpoint.{name}")
+        require_nonnegative_int(row["rows"], context="quality_summary.checkpoint.rows")
+        require_nonnegative_int(
+            row["batch_index"], context="quality_summary.checkpoint.batch_index"
+        )
+    if sha256_json(inventory) != checkpoints["inventory_sha256"]:
+        raise ValueError("quality_summary: checkpoint inventory hash drift")
+
+    document_output = validate_receipt_object(
+        value["document_output"],
+        context="quality_summary.document_output",
+        require_rows=True,
+    )
+    global_validated, _ = _validate_statistics(
+        value["global"], context="quality_summary.global", require_repo_id=False
+    )
+    repositories = value["repositories"]
+    if not isinstance(repositories, list) or not repositories:
+        raise ValueError("quality_summary.repositories: expected nonempty list")
+    validated_repositories: list[dict[str, Any]] = []
+    projected_repositories: list[dict[str, Any]] = []
+    seen_repos: set[str] = set()
+    for index, row in enumerate(repositories):
+        validated, projected = _validate_statistics(
+            row, context=f"quality_summary.repositories[{index}]", require_repo_id=True
+        )
+        if validated["repo_id"] in seen_repos:
+            raise ValueError("quality_summary.repositories: duplicate repo_id")
+        seen_repos.add(validated["repo_id"])
+        validated_repositories.append(validated)
+        projected_repositories.append(projected)
+    if repositories != sorted(
+        repositories, key=lambda row: str(row.get("repo_id", ""))
+    ):
+        raise ValueError("quality_summary.repositories: not sorted")
+    documents = global_validated["documents"]
+    if (
+        documents != document_output.get("rows")
+        or documents != checkpoint_rows
+        or documents != sum(row["documents"] for row in validated_repositories)
+        or checkpoint_rows
+        != sum(
+            require_nonnegative_int(
+                row["rows"], context="quality_summary.checkpoint.rows"
+            )
+            for row in inventory
+        )
+    ):
+        raise ValueError(
+            "quality_summary: document/checkpoint/repository denominator drift"
+        )
+    if (
+        global_validated["characters"]
+        != sum(row["characters"] for row in validated_repositories)
+        or global_validated["bytes_utf8"]
+        != sum(row["bytes_utf8"] for row in validated_repositories)
+        or global_validated["source_datasets"]
+        != sorted(
+            {
+                dataset
+                for row in validated_repositories
+                for dataset in row["source_datasets"]
+            }
+        )
+        or global_validated["template_concentration"]["documents_with_template"]
+        != sum(
+            row["template_concentration"]["documents_with_template"]
+            for row in validated_repositories
+        )
+    ):
+        raise ValueError("quality_summary: global/repository aggregate drift")
+    for counter_name in DOCUMENT_COUNTERS:
+        if global_validated["document_counts"][counter_name] != sum(
+            row["document_counts"][counter_name] for row in validated_repositories
+        ):
+            raise ValueError(
+                f"quality_summary: global counter drift for {counter_name}"
+            )
+    for metric_name in DISTRIBUTION_METRICS:
+        global_metric = global_validated["distributions"][metric_name]
+        repository_metrics = [
+            row["distributions"][metric_name] for row in validated_repositories
+        ]
+        count = sum(row["count"] for row in repository_metrics)
+        if global_metric["count"] != count:
+            raise ValueError(
+                f"quality_summary: global distribution count drift for {metric_name}"
+            )
+        if count:
+            mean = (
+                sum(
+                    float(row["mean"]) * int(row["count"])
+                    for row in repository_metrics
+                    if row["mean"] is not None
+                )
+                / count
+            )
+            minimum = min(
+                float(row["min"])
+                for row in repository_metrics
+                if row["min"] is not None
+            )
+            maximum = max(
+                float(row["max"])
+                for row in repository_metrics
+                if row["max"] is not None
+            )
+            if (
+                global_metric["mean"] is None
+                or global_metric["min"] is None
+                or global_metric["max"] is None
+                or not math.isclose(float(global_metric["mean"]), mean, rel_tol=1e-12)
+                or not math.isclose(float(global_metric["min"]), minimum, rel_tol=1e-12)
+                or not math.isclose(float(global_metric["max"]), maximum, rel_tol=1e-12)
+            ):
+                raise ValueError(
+                    f"quality_summary: global distribution aggregate drift for {metric_name}"
+                )
+
+    metric_notes = value["metric_notes"]
+    expected_notes = {
+        "rust_noise_badness_score",
+        "cleaner_removed_character_fraction",
+        "approximate_quantiles",
+        "zero_badness_zero_greek_guard",
+        "profile_scope",
+    }
+    if not isinstance(metric_notes, Mapping):
+        raise ValueError("quality_summary.metric_notes: expected object")
+    require_exact_keys(
+        metric_notes, required=expected_notes, context="quality_summary.metric_notes"
+    )
+    if any(
+        not isinstance(metric_notes[name], str) or not metric_notes[name]
+        for name in expected_notes
+    ):
+        raise ValueError("quality_summary.metric_notes: invalid text")
+
+    return {
+        "scan_mode": scan_mode,
+        "documents": documents,
+        "selected_source_ids": list(selected),
+        "excluded_source_ids": list(excluded),
+        "repositories": projected_repositories,
+        "input_shard_inventory_sha256": sha256_json(normalized_shards),
+        "checkpoint_inventory_sha256": str(checkpoints["inventory_sha256"]),
+        "document_output": document_output,
+    }
+
+
+def _portable_file_receipt(path: Path, *, label: str) -> dict[str, Any]:
+    return {
+        "path": label,
+        "bytes": path.stat().st_size,
+        "sha256": sha256_file(path),
+    }
+
+
+def normalization_identity_closure(manifest_path: Path) -> dict[str, Any]:
+    """Validate text-free normalization/acquisition identities and project them."""
+
+    manifest = read_json(manifest_path)
+    if manifest.get("schema_version") != "full_cpt_normalization_manifest_v1":
+        raise ValueError(f"{manifest_path}: unsupported normalization manifest")
+    sources_config_path = Path(str(manifest.get("sources_config", ""))).resolve()
+    acquisition_path = Path(str(manifest.get("acquisition_receipt", ""))).resolve()
+    if (
+        not sources_config_path.is_file()
+        or sha256_file(sources_config_path) != manifest.get("sources_config_sha256")
+        or not acquisition_path.is_file()
+        or sha256_file(acquisition_path) != manifest.get("acquisition_receipt_sha256")
+    ):
+        raise ValueError("normalization dependency receipt drift")
+    sources_config = read_json(sources_config_path)
+    acquisition = read_json(acquisition_path)
+    if (
+        acquisition.get("schema_version") != "full_cpt_acquisition_receipt_v1"
+        or acquisition.get("status") != "passed"
+        or acquisition.get("sources_config_sha256") != sha256_file(sources_config_path)
+    ):
+        raise ValueError("normalization acquisition receipt is unsupported/unbound")
+    if (
+        sources_config.get("schema_version") != "full_cpt_sources_v1"
+        or not isinstance(sources_config.get("base"), Mapping)
+        or not isinstance(sources_config.get("sources"), list)
+    ):
+        raise ValueError("unsupported sources config identity closure")
+    configured_sources: dict[str, Mapping[str, Any]] = {}
+    configured_rows = [
+        ("nanochat_base", sources_config["base"]),
+        *(
+            (str(row.get("source_id", "")), row)
+            for row in sources_config["sources"]
+            if isinstance(row, Mapping)
+        ),
+    ]
+    if len(configured_rows) != 1 + len(sources_config["sources"]):
+        raise ValueError("sources config contains a non-object source")
+    for source_id, row in configured_rows:
+        if not source_id or source_id in configured_sources:
+            raise ValueError(
+                "sources config contains a duplicate/empty source identity"
+            )
+        configured_sources[source_id] = row
+    acquisition_sources: dict[str, Mapping[str, Any]] = {}
+    for row in acquisition.get("sources", []):
+        if not isinstance(row, Mapping):
+            raise ValueError("acquisition source identity must be an object")
+        source_id = str(row.get("source_id", ""))
+        if not source_id or source_id in acquisition_sources:
+            raise ValueError("duplicate/empty acquisition source identity")
+        acquisition_sources[source_id] = row
+
+    identities: list[dict[str, Any]] = []
+    normalized_shards: list[dict[str, Any]] = []
+    seen_manifest_source_ids: set[str] = set()
+    canonical_root = Path(str(manifest.get("output", ""))).resolve()
+    for source in manifest.get("sources", []):
+        if not isinstance(source, Mapping):
+            raise ValueError("normalization source identity must be an object")
+        source_id = str(source.get("source_id", ""))
+        repo_id = str(source.get("repo_id", ""))
+        revision = str(source.get("revision", ""))
+        if (
+            not source_id
+            or not repo_id
+            or not revision
+            or source_id in seen_manifest_source_ids
+        ):
+            raise ValueError("normalization source identity is incomplete")
+        seen_manifest_source_ids.add(source_id)
+        configured = configured_sources.get(source_id)
+        if (
+            configured is None
+            or configured.get("repo_id") != repo_id
+            or configured.get("revision") != revision
+            or configured.get("role") != source.get("role")
+        ):
+            raise ValueError(f"{source_id}: config/normalization identity drift")
+        acquisition_source = acquisition_sources.get(source_id)
+        if (
+            acquisition_source is None
+            or acquisition_source.get("repo_id") != repo_id
+            or acquisition_source.get("revision") != revision
+            or acquisition_source.get("role") != source.get("role")
+        ):
+            raise ValueError(f"{source_id}: normalization/acquisition identity drift")
+        source_receipt = source.get("receipt")
+        if not isinstance(source_receipt, Mapping):
+            raise ValueError(f"{source_id}: missing normalization source receipt")
+        source_receipt_path = Path(str(source_receipt.get("path", ""))).resolve()
+        validate_file_receipt(source_receipt_path, source_receipt)
+        source_receipt_value = read_json(source_receipt_path)
+        if any(
+            source_receipt_value.get(name) != expected
+            for name, expected in (
+                ("schema_version", "full_cpt_normalization_source_receipt_v1"),
+                ("source_id", source_id),
+                ("repo_id", repo_id),
+                ("revision", revision),
+            )
+        ):
+            raise ValueError(
+                f"{source_id}: normalization source receipt identity drift"
+            )
+
+        shards: list[dict[str, Any]] = []
+        for shard in source.get("shards", []):
+            if not isinstance(shard, Mapping):
+                raise ValueError(f"{source_id}: invalid normalized shard")
+            core = {
+                "source_id": source_id,
+                "path": _safe_under(
+                    Path(str(shard.get("path", ""))).resolve(), canonical_root
+                ),
+                "bytes": require_nonnegative_int(
+                    shard.get("bytes"), context=f"{source_id}.shard.bytes"
+                ),
+                "sha256": require_sha256(
+                    shard.get("sha256"), context=f"{source_id}.shard.sha256"
+                ),
+                "rows": require_nonnegative_int(
+                    shard.get("rows"), context=f"{source_id}.shard.rows"
+                ),
+            }
+            if not core["path"] or core["rows"] < 1:
+                raise ValueError(f"{source_id}: invalid normalized shard identity")
+            shard_receipt = shard.get("receipt")
+            if not isinstance(shard_receipt, Mapping):
+                raise ValueError(f"{source_id}: missing normalized shard receipt")
+            shard_receipt_path = Path(str(shard_receipt.get("path", ""))).resolve()
+            validate_file_receipt(shard_receipt_path, shard_receipt)
+            shard_receipt_value = read_json(shard_receipt_path)
+            shard_output = shard_receipt_value.get("output")
+            if (
+                shard_receipt_value.get("schema_version")
+                != "full_cpt_normalization_shard_receipt_v1"
+                or shard_receipt_value.get("source_id") != source_id
+                or not isinstance(shard_output, Mapping)
+                or _safe_under(
+                    Path(str(shard_output.get("path", ""))).resolve(), canonical_root
+                )
+                != core["path"]
+                or int(shard_output.get("bytes", -1)) != core["bytes"]
+                or shard_output.get("sha256") != core["sha256"]
+                or int(shard_output.get("rows", -1)) != core["rows"]
+            ):
+                raise ValueError(f"{source_id}: normalized shard receipt drift")
+            shards.append(core)
+            normalized_shards.append(core)
+        if not shards:
+            raise ValueError(f"{source_id}: normalized source has no shards")
+        source_receipt_shards = source_receipt_value.get("shards")
+        if not isinstance(source_receipt_shards, list):
+            raise ValueError(f"{source_id}: source receipt lacks shard closure")
+        source_receipt_shard_core: list[dict[str, Any]] = []
+        for row in source_receipt_shards:
+            if not isinstance(row, Mapping):
+                raise ValueError(f"{source_id}: invalid source-receipt shard")
+            source_receipt_shard_core.append(
+                {
+                    "source_id": source_id,
+                    "path": _safe_under(
+                        Path(str(row.get("path", ""))).resolve(), canonical_root
+                    ),
+                    "bytes": int(row.get("bytes", -1)),
+                    "sha256": str(row.get("sha256", "")),
+                    "rows": int(row.get("rows", -1)),
+                }
+            )
+        if sorted(
+            source_receipt_shard_core, key=lambda row: str(row["path"])
+        ) != sorted(
+            shards, key=lambda row: str(row["path"])
+        ) or source_receipt_value.get("role") != source.get("role"):
+            raise ValueError(f"{source_id}: source receipt shard/role drift")
+
+        acquisition_files = acquisition_source.get("files", [])
+        if not isinstance(acquisition_files, list) or not acquisition_files:
+            raise ValueError(f"{source_id}: acquisition source has no files")
+        file_projection: list[dict[str, Any]] = []
+        for file_row in acquisition_files:
+            if not isinstance(file_row, Mapping):
+                raise ValueError(f"{source_id}: invalid acquisition file receipt")
+            file_projection.append(
+                {
+                    "path": str(file_row.get("path", "")),
+                    "size": require_nonnegative_int(
+                        file_row.get("size"), context=f"{source_id}.acquisition.size"
+                    ),
+                    "hash_kind": str(file_row.get("hash_kind", "")),
+                    "expected_hash": str(file_row.get("expected_hash", "")),
+                }
+            )
+        if any(
+            not row["path"]
+            or row["hash_kind"] not in {"sha256", "lfs_sha256", "git_blob_id"}
+            or not re.fullmatch(
+                (
+                    r"[0-9a-f]{40}|[0-9a-f]{64}"
+                    if row["hash_kind"] == "git_blob_id"
+                    else r"[0-9a-f]{64}"
+                ),
+                row["expected_hash"],
+            )
+            for row in file_projection
+        ):
+            raise ValueError(f"{source_id}: incomplete acquisition file identity")
+        file_projection.sort(key=lambda row: str(row["path"]))
+        if len({row["path"] for row in file_projection}) != len(file_projection):
+            raise ValueError(f"{source_id}: duplicate acquisition file identity")
+        declared_file_count = require_nonnegative_int(
+            acquisition_source.get("selected_file_count"),
+            context=f"{source_id}.acquisition.selected_file_count",
+        )
+        declared_file_bytes = require_nonnegative_int(
+            acquisition_source.get("selected_bytes"),
+            context=f"{source_id}.acquisition.selected_bytes",
+        )
+        if declared_file_count != len(file_projection) or declared_file_bytes != sum(
+            int(row["size"]) for row in file_projection
+        ):
+            raise ValueError(f"{source_id}: acquisition file totals drift")
+        counts = source.get("counts", {})
+        documents = (
+            int(counts.get("documents_emitted", 0))
+            if isinstance(counts, Mapping)
+            else 0
+        )
+        receipt_counts = source_receipt_value.get("counts")
+        if (
+            documents < 1
+            or documents != sum(int(row["rows"]) for row in shards)
+            or not isinstance(receipt_counts, Mapping)
+            or int(receipt_counts.get("documents_emitted", -1)) != documents
+        ):
+            raise ValueError(f"{source_id}: normalized document count drift")
+        identities.append(
+            {
+                "source_id": source_id,
+                "repo_id": repo_id,
+                "revision": revision,
+                "role": str(source.get("role", "")),
+                "documents": documents,
+                "shards": len(shards),
+                "shard_inventory_sha256": sha256_json(shards),
+                "acquisition_selected_file_count": declared_file_count,
+                "acquisition_selected_bytes": declared_file_bytes,
+                "acquisition_file_inventory_sha256": sha256_json(file_projection),
+            }
+        )
+    identities.sort(key=lambda row: str(row["source_id"]))
+    normalized_shards.sort(key=lambda row: (str(row["source_id"]), str(row["path"])))
+    return {
+        "schema_version": "full_cpt_normalization_manifest_v1",
+        "manifest": _portable_file_receipt(
+            manifest_path, label="normalization_manifest.json"
+        ),
+        "sources_config_sha256": sha256_file(sources_config_path),
+        "acquisition_receipt_sha256": sha256_file(acquisition_path),
+        "source_identities": identities,
+        "source_identity_inventory_sha256": sha256_json(identities),
+        "normalized_shard_inventory_sha256": sha256_json(normalized_shards),
+        "_normalized_shards": normalized_shards,
+    }
+
+
+def build_quality_site_handoff(
+    *,
+    summary_path: Path,
+    output_root: Path,
+    normalization_manifest: Path,
+    build_receipt: Path,
+    contract_path: Path,
+) -> dict[str, Any]:
+    """Revalidate the full on-cluster closure and emit a compact site handoff."""
+
+    summary = read_json(summary_path)
+    projection = validate_and_project_quality_summary(summary)
+    contract = read_json(contract_path)
+    if contract.get("schema_version") != CONTRACT_SCHEMA:
+        raise ValueError("quality contract schema drift")
+    contract_sha256 = sha256_json(contract)
+    if (
+        contract_sha256 != summary["contract_sha256"]
+        or sha256_file(contract_path) != summary["contract"]["sha256"]
+        or sha256_file(normalization_manifest)
+        != summary["normalization_manifest"]["sha256"]
+        or sha256_file(build_receipt) != summary["glossapi_build_receipt"]["sha256"]
+    ):
+        raise ValueError("quality summary dependency closure drift")
+    if (
+        contract.get("scan_mode") != summary["scan_mode"]
+        or contract.get("batch_size") != summary["batch_size"]
+        or contract.get("threads") != summary["threads"]
+        or contract.get("quantile_sample_size") != summary["quantile_sample_size"]
+        or contract.get("excluded_source_ids") != summary["excluded_source_ids"]
+        or contract.get("normalization_manifest", {}).get("sha256")
+        != summary["normalization_manifest"]["sha256"]
+        or contract.get("build_receipt", {}).get("sha256")
+        != summary["glossapi_build_receipt"]["sha256"]
+        or contract.get("expected_glossapi_commit") != summary["glossapi_commit"]
+        or contract.get("document_schema") != DOCUMENT_SCHEMA
+        or contract.get("zero_badness_zero_greek_guard") is not True
+    ):
+        raise ValueError("quality contract/summary semantic drift")
+
+    document_path = output_root / str(summary["document_output"]["path"])
+    validate_file_receipt(document_path, summary["document_output"])
+    checkpoints = summary["batch_checkpoints"]
+    receipt_closure: list[dict[str, Any]] = []
+    for item in checkpoints["inventory"]:
+        receipt_path = output_root / str(item["receipt_path"])
+        if sha256_file(receipt_path) != item["receipt_sha256"]:
+            raise ValueError(f"checkpoint receipt drift: {receipt_path}")
+        receipt_value = read_json(receipt_path)
+        if (
+            receipt_value.get("schema_version") != BATCH_RECEIPT_SCHEMA
+            or receipt_value.get("contract_sha256") != contract_sha256
+            or receipt_value.get("output", {}).get("sha256") != item["output_sha256"]
+            or int(receipt_value.get("output", {}).get("rows", -1)) != item["rows"]
+            or receipt_value.get("input_shard", {}).get("sha256")
+            != item["input_shard_sha256"]
+            or int(receipt_value.get("batch_index", -1)) != item["batch_index"]
+        ):
+            raise ValueError(f"checkpoint receipt semantic drift: {receipt_path}")
+        output_path = receipt_path.parent / str(receipt_value["output"]["path"])
+        if (
+            not output_path.is_file()
+            or output_path.stat().st_size != int(receipt_value["output"]["bytes"])
+            or sha256_file(output_path) != item["output_sha256"]
+        ):
+            raise ValueError(f"checkpoint output stat drift: {output_path}")
+        receipt_closure.append(
+            {
+                "receipt_sha256": str(item["receipt_sha256"]),
+                "output_sha256": str(item["output_sha256"]),
+                "rows": int(item["rows"]),
+                "input_shard_sha256": str(item["input_shard_sha256"]),
+                "batch_index": int(item["batch_index"]),
+            }
+        )
+    build = read_json(build_receipt)
+    if (
+        build.get("schema_version") != BUILD_RECEIPT_SCHEMA
+        or build.get("status") != "passed"
+        or build.get("source", {}).get("commit") != summary["glossapi_commit"]
+    ):
+        raise ValueError("quality build receipt drift")
+    cargo_locks = [
+        {name: row[name] for name in ("path", "bytes", "sha256")}
+        for row in build.get("source", {}).get("cargo_locks", [])
+    ]
+    modules = [
+        {name: row[name] for name in ("name", "bytes", "sha256")}
+        for row in build.get("modules", [])
+    ]
+    if len(cargo_locks) != 2 or len(modules) != 2:
+        raise ValueError("quality build dependency inventory drift")
+    normalization = normalization_identity_closure(normalization_manifest)
+    normalized_shards = normalization.pop("_normalized_shards")
+    summary_shards = [
+        {name: row[name] for name in ("source_id", "path", "bytes", "sha256", "rows")}
+        for row in summary["input_shards"]
+    ]
+    contract_shards = [
+        {name: row[name] for name in ("source_id", "path", "bytes", "sha256", "rows")}
+        for row in contract.get("selected_shards", [])
+    ]
+    if summary_shards != contract_shards:
+        raise ValueError("quality summary/contract selected-shard inventory drift")
+    normalized_by_identity = {
+        (str(row["source_id"]), str(row["path"]), str(row["sha256"])): row
+        for row in normalized_shards
+    }
+    if len(normalized_by_identity) != len(normalized_shards):
+        raise ValueError("normalization shard identity collision")
+    for row in contract_shards:
+        normalized = normalized_by_identity.get(
+            (str(row["source_id"]), str(row["path"]), str(row["sha256"]))
+        )
+        if normalized != row:
+            raise ValueError(
+                "quality contract shard is absent from normalization manifest"
+            )
+    selected_normalized_source_ids = sorted(
+        {str(row["source_id"]) for row in contract_shards}
+    )
+    if (
+        summary["scan_mode"] == "full_scan"
+        and selected_normalized_source_ids != summary["selected_source_ids"]
+    ):
+        raise ValueError("full-scan selected source IDs differ from selected shards")
+    normalization["selected_normalized_source_ids"] = selected_normalized_source_ids
+    normalization["selected_normalized_shard_inventory_sha256"] = sha256_json(
+        contract_shards
+    )
+    return {
+        "schema_version": QUALITY_HANDOFF_SCHEMA,
+        "status": "passed",
+        "created_at": utc_now(),
+        "summary": _portable_file_receipt(summary_path, label=summary_path.name),
+        "scan_mode": str(summary["scan_mode"]),
+        "aggregate_projection_sha256": sha256_json(projection),
+        "normalization": normalization,
+        "build": {
+            "receipt_sha256": sha256_file(build_receipt),
+            "commit": str(summary["glossapi_commit"]),
+            "cargo_lock_inventory_sha256": sha256_json(cargo_locks),
+            "module_inventory_sha256": sha256_json(modules),
+            "runtime": {
+                name: str(build.get("runtime", {}).get(name, ""))
+                for name in (
+                    "python",
+                    "platform",
+                    "machine",
+                    "rustc",
+                    "cargo",
+                    "maturin",
+                )
+            },
+        },
+        "contract": {
+            "receipt": _portable_file_receipt(contract_path, label="contract.json"),
+            "canonical_sha256": contract_sha256,
+            "schema_version": CONTRACT_SCHEMA,
+            "selected_shard_inventory_sha256": sha256_json(contract_shards),
+            "excluded_source_ids": list(summary["excluded_source_ids"]),
+            "profiler_script_sha256": str(contract.get("profiler_script_sha256", "")),
+            "review_sample": contract.get("review_sample"),
+        },
+        "document_output": dict(projection["document_output"]),
+        "checkpoint_closure": {
+            "count": int(checkpoints["count"]),
+            "rows": int(checkpoints["rows"]),
+            "inventory_sha256": str(checkpoints["inventory_sha256"]),
+            "receipt_closure_sha256": sha256_json(receipt_closure),
+            "checkpoint_outputs_rehashed_for_handoff": True,
+            "consolidated_document_output_rehashed_for_handoff": True,
+        },
+    }
+
+
+def snapshot_quality_handoff_outputs(
+    summary_path: Path, output_root: Path
+) -> dict[Path, InputSnapshot]:
+    """Snapshot every generated artifact parsed or hashed into the handoff.
+
+    The caller must snapshot ``summary_path`` first.  Receipt files are then
+    snapshotted before they are parsed to discover their checkpoint outputs.
+    """
+
+    summary = read_json(summary_path)
+    document_path = output_root / str(
+        summary.get("document_output", {}).get("path", "")
+    )
+    inventory = summary.get("batch_checkpoints", {}).get("inventory", [])
+    if not isinstance(inventory, list):
+        raise ValueError("quality summary checkpoint inventory must be a list")
+    receipt_paths = [
+        output_root / str(row.get("receipt_path", ""))
+        for row in inventory
+        if isinstance(row, Mapping)
+    ]
+    if len(receipt_paths) != len(inventory):
+        raise ValueError("quality summary checkpoint inventory contains non-objects")
+    snapshots = snapshot_inputs((document_path, *receipt_paths))
+    output_paths: list[Path] = []
+    for receipt_path in receipt_paths:
+        checkpoint = read_json(receipt_path)
+        output = checkpoint.get("output")
+        if not isinstance(output, Mapping) or not str(output.get("path", "")):
+            raise ValueError(f"{receipt_path}: checkpoint output path missing")
+        output_paths.append(receipt_path.parent / str(output["path"]))
+    snapshots.update(snapshot_inputs(output_paths))
+    return snapshots
+
+
+def validate_quality_site_handoff(
+    *, summary_path: Path, handoff_path: Path
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Validate the compact on-cluster attestation and return safe projections."""
+
+    summary = read_json(summary_path)
+    projection = validate_and_project_quality_summary(summary)
+    handoff = read_json(handoff_path)
+    require_exact_keys(
+        handoff,
+        required=(
+            "schema_version",
+            "status",
+            "created_at",
+            "summary",
+            "scan_mode",
+            "aggregate_projection_sha256",
+            "normalization",
+            "build",
+            "contract",
+            "document_output",
+            "checkpoint_closure",
+        ),
+        context="quality_handoff",
+    )
+    if (
+        handoff["schema_version"] != QUALITY_HANDOFF_SCHEMA
+        or handoff["status"] != "passed"
+        or handoff["scan_mode"] != projection["scan_mode"]
+        or handoff["aggregate_projection_sha256"] != sha256_json(projection)
+    ):
+        raise ValueError("quality_handoff: schema/status/projection drift")
+    summary_receipt = validate_receipt_object(
+        handoff["summary"], context="quality_handoff.summary", allow_rows=False
+    )
+    if (
+        summary_receipt["path"] != summary_path.name
+        or summary_receipt["bytes"] != summary_path.stat().st_size
+        or summary_receipt["sha256"] != sha256_file(summary_path)
+    ):
+        raise ValueError("quality_handoff: summary receipt drift")
+
+    normalization = handoff["normalization"]
+    if not isinstance(normalization, Mapping):
+        raise ValueError("quality_handoff.normalization: expected object")
+    require_exact_keys(
+        normalization,
+        required=(
+            "schema_version",
+            "manifest",
+            "sources_config_sha256",
+            "acquisition_receipt_sha256",
+            "source_identities",
+            "source_identity_inventory_sha256",
+            "normalized_shard_inventory_sha256",
+            "selected_normalized_source_ids",
+            "selected_normalized_shard_inventory_sha256",
+        ),
+        context="quality_handoff.normalization",
+    )
+    if normalization["schema_version"] != "full_cpt_normalization_manifest_v1":
+        raise ValueError("quality_handoff: normalization schema drift")
+    normalization_manifest_receipt = validate_receipt_object(
+        normalization["manifest"],
+        context="quality_handoff.normalization.manifest",
+        allow_rows=False,
+    )
+    if (
+        normalization_manifest_receipt["bytes"]
+        != summary["normalization_manifest"]["bytes"]
+        or normalization_manifest_receipt["sha256"]
+        != summary["normalization_manifest"]["sha256"]
+    ):
+        raise ValueError("quality_handoff: normalization manifest receipt drift")
+    for name in (
+        "sources_config_sha256",
+        "acquisition_receipt_sha256",
+        "source_identity_inventory_sha256",
+        "normalized_shard_inventory_sha256",
+        "selected_normalized_shard_inventory_sha256",
+    ):
+        require_sha256(
+            normalization[name], context=f"quality_handoff.normalization.{name}"
+        )
+    identities = normalization["source_identities"]
+    if not isinstance(identities, list) or not identities:
+        raise ValueError("quality_handoff: source identities must be nonempty")
+    validated_identities: list[dict[str, Any]] = []
+    for index, row in enumerate(identities):
+        if not isinstance(row, Mapping):
+            raise ValueError("quality_handoff: source identity must be object")
+        require_exact_keys(
+            row,
+            required=(
+                "source_id",
+                "repo_id",
+                "revision",
+                "role",
+                "documents",
+                "shards",
+                "shard_inventory_sha256",
+                "acquisition_selected_file_count",
+                "acquisition_selected_bytes",
+                "acquisition_file_inventory_sha256",
+            ),
+            context=f"quality_handoff.source_identities[{index}]",
+        )
+        identity = {
+            "source_id": str(row["source_id"]),
+            "repo_id": str(row["repo_id"]),
+            "revision": str(row["revision"]),
+            "role": str(row["role"]),
+            "documents": require_nonnegative_int(
+                row["documents"], context="quality_handoff.identity.documents"
+            ),
+            "shards": require_nonnegative_int(
+                row["shards"], context="quality_handoff.identity.shards"
+            ),
+            "shard_inventory_sha256": require_sha256(
+                row["shard_inventory_sha256"],
+                context="quality_handoff.identity.shard_inventory_sha256",
+            ),
+            "acquisition_selected_file_count": require_nonnegative_int(
+                row["acquisition_selected_file_count"],
+                context="quality_handoff.identity.acquisition_selected_file_count",
+            ),
+            "acquisition_selected_bytes": require_nonnegative_int(
+                row["acquisition_selected_bytes"],
+                context="quality_handoff.identity.acquisition_selected_bytes",
+            ),
+            "acquisition_file_inventory_sha256": require_sha256(
+                row["acquisition_file_inventory_sha256"],
+                context="quality_handoff.identity.acquisition_file_inventory_sha256",
+            ),
+        }
+        if (
+            not identity["source_id"]
+            or not identity["repo_id"]
+            or not identity["revision"]
+            or identity["documents"] < 1
+            or identity["shards"] < 1
+            or identity["acquisition_selected_file_count"] < 1
+        ):
+            raise ValueError("quality_handoff: incomplete source identity")
+        validated_identities.append(identity)
+    if validated_identities != sorted(
+        validated_identities, key=lambda row: str(row["source_id"])
+    ) or len({row["source_id"] for row in validated_identities}) != len(
+        validated_identities
+    ):
+        raise ValueError("quality_handoff: source identity ordering/uniqueness drift")
+    if (
+        sha256_json(validated_identities)
+        != normalization["source_identity_inventory_sha256"]
+    ):
+        raise ValueError("quality_handoff: source identity inventory hash drift")
+    selected_normalized_source_ids = normalization["selected_normalized_source_ids"]
+    if (
+        not isinstance(selected_normalized_source_ids, list)
+        or not selected_normalized_source_ids
+        or selected_normalized_source_ids != sorted(set(selected_normalized_source_ids))
+        or any(
+            not isinstance(source_id, str) or not source_id
+            for source_id in selected_normalized_source_ids
+        )
+        or not set(selected_normalized_source_ids).issubset(
+            {row["source_id"] for row in validated_identities}
+        )
+    ):
+        raise ValueError("quality_handoff: selected normalized source identity drift")
+    if (
+        projection["scan_mode"] == "full_scan"
+        and selected_normalized_source_ids != projection["selected_source_ids"]
+    ):
+        raise ValueError("quality_handoff: full-scan selected sources drift")
+
+    build = handoff["build"]
+    if not isinstance(build, Mapping):
+        raise ValueError("quality_handoff.build: expected object")
+    require_exact_keys(
+        build,
+        required=(
+            "receipt_sha256",
+            "commit",
+            "cargo_lock_inventory_sha256",
+            "module_inventory_sha256",
+            "runtime",
+        ),
+        context="quality_handoff.build",
+    )
+    for name in (
+        "receipt_sha256",
+        "cargo_lock_inventory_sha256",
+        "module_inventory_sha256",
+    ):
+        require_sha256(build[name], context=f"quality_handoff.build.{name}")
+    if (
+        build["receipt_sha256"] != summary["glossapi_build_receipt"]["sha256"]
+        or build["commit"] != summary["glossapi_commit"]
+    ):
+        raise ValueError("quality_handoff: build receipt/commit drift")
+    runtime = build["runtime"]
+    if not isinstance(runtime, Mapping):
+        raise ValueError("quality_handoff.build.runtime: expected object")
+    require_exact_keys(
+        runtime,
+        required=("python", "platform", "machine", "rustc", "cargo", "maturin"),
+        context="quality_handoff.build.runtime",
+    )
+    if any(not isinstance(runtime[name], str) or not runtime[name] for name in runtime):
+        raise ValueError("quality_handoff: incomplete build runtime")
+
+    contract = handoff["contract"]
+    if not isinstance(contract, Mapping):
+        raise ValueError("quality_handoff.contract: expected object")
+    require_exact_keys(
+        contract,
+        required=(
+            "receipt",
+            "canonical_sha256",
+            "schema_version",
+            "selected_shard_inventory_sha256",
+            "excluded_source_ids",
+            "profiler_script_sha256",
+            "review_sample",
+        ),
+        context="quality_handoff.contract",
+    )
+    contract_receipt = validate_receipt_object(
+        contract["receipt"],
+        context="quality_handoff.contract.receipt",
+        allow_rows=False,
+    )
+    if (
+        contract_receipt["path"] != "contract.json"
+        or contract_receipt["bytes"] != summary["contract"]["bytes"]
+        or contract_receipt["sha256"] != summary["contract"]["sha256"]
+        or contract["canonical_sha256"] != summary["contract_sha256"]
+        or contract["schema_version"] != CONTRACT_SCHEMA
+        or contract["excluded_source_ids"] != projection["excluded_source_ids"]
+        or contract["selected_shard_inventory_sha256"]
+        != normalization["selected_normalized_shard_inventory_sha256"]
+    ):
+        raise ValueError("quality_handoff: contract closure drift")
+    for name in (
+        "canonical_sha256",
+        "selected_shard_inventory_sha256",
+        "profiler_script_sha256",
+    ):
+        require_sha256(contract[name], context=f"quality_handoff.contract.{name}")
+    review_sample = contract["review_sample"]
+    if projection["scan_mode"] == "review_sample":
+        if not isinstance(review_sample, Mapping):
+            raise ValueError(
+                "quality_handoff: sample mode lacks review-sample contract"
+            )
+        require_exact_keys(
+            review_sample,
+            required=(
+                "review_sample_packet",
+                "review_sample_receipt",
+                "review_sample_attestation",
+                "review_requests",
+                "documents",
+                "text_variant",
+            ),
+            context="quality_handoff.contract.review_sample",
+        )
+        for name in (
+            "review_sample_packet",
+            "review_sample_receipt",
+            "review_sample_attestation",
+            "review_requests",
+        ):
+            validate_receipt_object(
+                review_sample[name],
+                context=f"quality_handoff.contract.review_sample.{name}",
+                allow_rows=False,
+            )
+        if (
+            require_nonnegative_int(
+                review_sample["documents"],
+                context="quality_handoff.contract.review_sample.documents",
+            )
+            != projection["documents"]
+            or review_sample["text_variant"]
+            != "high_precision_identifier_masked_review_sample"
+        ):
+            raise ValueError("quality_handoff: review-sample contract drift")
+    elif review_sample is not None:
+        raise ValueError(
+            "quality_handoff: full scan unexpectedly has review-sample contract"
+        )
+
+    document_output = validate_receipt_object(
+        handoff["document_output"],
+        context="quality_handoff.document_output",
+        require_rows=True,
+    )
+    if document_output != projection["document_output"]:
+        raise ValueError("quality_handoff: document output receipt drift")
+    checkpoints = handoff["checkpoint_closure"]
+    if not isinstance(checkpoints, Mapping):
+        raise ValueError("quality_handoff.checkpoint_closure: expected object")
+    require_exact_keys(
+        checkpoints,
+        required=(
+            "count",
+            "rows",
+            "inventory_sha256",
+            "receipt_closure_sha256",
+            "checkpoint_outputs_rehashed_for_handoff",
+            "consolidated_document_output_rehashed_for_handoff",
+        ),
+        context="quality_handoff.checkpoint_closure",
+    )
+    if (
+        require_nonnegative_int(
+            checkpoints["count"], context="quality_handoff.checkpoints.count"
+        )
+        != summary["batch_checkpoints"]["count"]
+        or require_nonnegative_int(
+            checkpoints["rows"], context="quality_handoff.checkpoints.rows"
+        )
+        != projection["documents"]
+        or checkpoints["inventory_sha256"] != projection["checkpoint_inventory_sha256"]
+        or checkpoints["checkpoint_outputs_rehashed_for_handoff"] is not True
+        or checkpoints["consolidated_document_output_rehashed_for_handoff"] is not True
+    ):
+        raise ValueError("quality_handoff: checkpoint closure drift")
+    require_sha256(
+        checkpoints["receipt_closure_sha256"],
+        context="quality_handoff.checkpoint_closure.receipt_closure_sha256",
+    )
+    selected_identity_set = set(selected_normalized_source_ids)
+    return projection, [
+        row for row in validated_identities if row["source_id"] in selected_identity_set
+    ]
+
 
 def utc_now() -> str:
     return (
@@ -178,6 +1641,103 @@ def sha256_file(path: Path, chunk_size: int = 16 * 1024 * 1024) -> str:
         while chunk := handle.read(chunk_size):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+@dataclass(frozen=True)
+class InputSnapshot:
+    path: Path
+    bytes: int
+    sha256: str
+    device: int
+    inode: int
+    mtime_ns: int
+    ctime_ns: int
+
+    def receipt(self) -> dict[str, Any]:
+        return {
+            "path": str(self.path),
+            "bytes": self.bytes,
+            "sha256": self.sha256,
+        }
+
+
+def snapshot_input(path: Path) -> InputSnapshot:
+    resolved = path.expanduser().resolve()
+    if path.is_symlink() or not resolved.is_file():
+        raise ValueError(f"input must be a regular non-symlinked file: {path}")
+    before = resolved.stat()
+    digest = sha256_file(resolved)
+    after = resolved.stat()
+    identity = (
+        before.st_size,
+        before.st_dev,
+        before.st_ino,
+        before.st_mtime_ns,
+        before.st_ctime_ns,
+    )
+    if identity != (
+        after.st_size,
+        after.st_dev,
+        after.st_ino,
+        after.st_mtime_ns,
+        after.st_ctime_ns,
+    ):
+        raise ValueError(f"input changed while hashing: {resolved}")
+    return InputSnapshot(
+        path=resolved,
+        bytes=after.st_size,
+        sha256=digest,
+        device=after.st_dev,
+        inode=after.st_ino,
+        mtime_ns=after.st_mtime_ns,
+        ctime_ns=after.st_ctime_ns,
+    )
+
+
+def snapshot_inputs(paths: Iterable[Path | None]) -> dict[Path, InputSnapshot]:
+    result: dict[Path, InputSnapshot] = {}
+    for path in paths:
+        if path is None:
+            continue
+        snapshot = snapshot_input(path)
+        result[snapshot.path] = snapshot
+    return result
+
+
+def verify_input_snapshots(snapshots: Mapping[Path, InputSnapshot]) -> None:
+    for path, expected in snapshots.items():
+        actual = snapshot_input(path)
+        if actual != expected:
+            raise ValueError(f"input drift before atomic publication: {path}")
+
+
+def normalization_dependency_receipt_paths(manifest_path: Path) -> list[Path]:
+    manifest = read_json(manifest_path)
+    if manifest.get("schema_version") != "full_cpt_normalization_manifest_v1":
+        raise ValueError(f"{manifest_path}: unsupported normalization manifest")
+    paths = [
+        Path(str(manifest.get("sources_config", ""))),
+        Path(str(manifest.get("acquisition_receipt", ""))),
+    ]
+    contract = manifest.get("contract")
+    if isinstance(contract, Mapping):
+        paths.append(Path(str(contract.get("path", ""))))
+    for source in manifest.get("sources", []):
+        if not isinstance(source, Mapping):
+            raise ValueError("normalization manifest source must be an object")
+        source_receipt = source.get("receipt")
+        if not isinstance(source_receipt, Mapping):
+            raise ValueError("normalization source lacks receipt")
+        paths.append(Path(str(source_receipt.get("path", ""))))
+        for shard in source.get("shards", []):
+            if not isinstance(shard, Mapping) or not isinstance(
+                shard.get("receipt"), Mapping
+            ):
+                raise ValueError("normalization shard lacks receipt")
+            paths.append(Path(str(shard["receipt"].get("path", ""))))
+    if any(not str(path) for path in paths):
+        raise ValueError("normalization dependency has an empty receipt path")
+    return paths
 
 
 def canonical_json(value: Any) -> str:
@@ -243,8 +1803,27 @@ def metadata_flags(value: Any) -> tuple[bool, bool]:
     return private, corrected
 
 
+def strict_json_loads(text: str, *, context: str) -> Any:
+    def object_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, item in pairs:
+            if key in result:
+                raise ValueError(f"{context}: duplicate JSON key {key!r}")
+            result[key] = item
+        return result
+
+    def reject_constant(value: str) -> Any:
+        raise ValueError(f"{context}: non-finite JSON constant {value}")
+
+    return json.loads(
+        text,
+        object_pairs_hook=object_pairs,
+        parse_constant=reject_constant,
+    )
+
+
 def read_json(path: Path) -> dict[str, Any]:
-    value = json.loads(path.read_text(encoding="utf-8"))
+    value = strict_json_loads(path.read_text(encoding="utf-8"), context=str(path))
     if not isinstance(value, dict):
         raise ValueError(f"{path}: JSON root must be an object")
     return value
@@ -580,6 +2159,7 @@ def load_review_sample_packet(
     *,
     packet_path: Path,
     receipt_path: Path,
+    attestation_path: Path,
     requests_path: Path,
     normalization_manifest: Path,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
@@ -595,6 +2175,25 @@ def load_review_sample_packet(
         raise ValueError(
             f"{receipt_path}: unsupported or incomplete review sample receipt"
         )
+    require_exact_keys(
+        receipt_value,
+        required=(
+            "schema_version",
+            "status",
+            "normalization_manifest",
+            "canonical_root",
+            "review_requests",
+            "export_contract",
+            "site_attestation",
+            "input_shards",
+            "checkpoint_inventory",
+            "checkpoint_inventory_sha256",
+            "output",
+            "redaction_totals",
+            "high_precision_identifier_patterns_masked",
+        ),
+        context="review_sample_receipt",
+    )
     output = receipt_value.get("output")
     if not isinstance(output, dict):
         raise ValueError(f"{receipt_path}: missing sample output receipt")
@@ -614,12 +2213,88 @@ def load_review_sample_packet(
     ):
         raise ValueError(f"{receipt_path}: review sample upstream receipt drift")
 
+    attestation_receipt = validate_receipt_object(
+        receipt_value["site_attestation"],
+        context="review_sample_receipt.site_attestation",
+        allow_rows=False,
+    )
+    declared_attestation = Path(attestation_receipt["path"])
+    if not declared_attestation.is_absolute():
+        declared_attestation = receipt_path.resolve().parent / declared_attestation
+    if declared_attestation.resolve() != attestation_path.resolve():
+        raise ValueError(f"{receipt_path}: review sample attestation path drift")
+    validate_file_receipt(attestation_path, attestation_receipt)
+    attestation = read_json(attestation_path)
+    require_exact_keys(
+        attestation,
+        required=(
+            "schema_version",
+            "status",
+            "created_at",
+            "packet",
+            "review_requests",
+            "primary_sample_count",
+            "primary_sample_id_inventory_sha256",
+            "normalization",
+            "export_contract",
+            "checkpoint_closure",
+            "masking",
+        ),
+        context="review_sample_attestation",
+    )
+    if (
+        attestation["schema_version"]
+        != "dataset_review_complete_sample_site_attestation_v1"
+        or attestation["status"] != "passed"
+    ):
+        raise ValueError(f"{attestation_path}: unsupported sample attestation")
+    packet_receipt = validate_receipt_object(
+        attestation["packet"],
+        context="review_sample_attestation.packet",
+        require_rows=True,
+    )
+    requests_receipt = validate_receipt_object(
+        attestation["review_requests"],
+        context="review_sample_attestation.review_requests",
+        allow_rows=False,
+    )
+    if (
+        packet_receipt
+        != validate_receipt_object(
+            output,
+            context="review_sample_receipt.output",
+            require_rows=True,
+        )
+        or requests_receipt["bytes"] != requests_path.stat().st_size
+        or requests_receipt["sha256"] != sha256_file(requests_path)
+        or int(attestation["primary_sample_count"]) != int(output.get("rows", -1))
+    ):
+        raise ValueError(f"{attestation_path}: packet/request coverage drift")
+    normalization = attestation["normalization"]
+    checkpoint_closure = attestation["checkpoint_closure"]
+    masking = attestation["masking"]
+    if (
+        not isinstance(normalization, Mapping)
+        or normalization.get("manifest", {}).get("sha256")
+        != sha256_file(normalization_manifest)
+        or not isinstance(checkpoint_closure, Mapping)
+        or checkpoint_closure.get("checkpoint_text_outputs_rehashed_for_attestation")
+        is not True
+        or int(checkpoint_closure.get("selected_rows", -1))
+        != int(output.get("rows", -1))
+        or not isinstance(masking, Mapping)
+        or masking.get("pipeline") != "high_precision_identifier_patterns_v1"
+        or masking.get("high_precision_identifier_patterns_masked") is not True
+        or int(masking.get("private_data_true_rows", -1)) != 0
+    ):
+        raise ValueError(f"{attestation_path}: incomplete sample dependency closure")
+
     requested: dict[str, dict[str, str]] = {}
     with requests_path.open(encoding="utf-8") as handle:
         for line_number, line in enumerate(handle, 1):
             if not line.strip():
                 continue
-            row = json.loads(line)
+            row = strict_json_loads(line, context=f"{requests_path}:{line_number}")
             if (
                 not isinstance(row, dict)
                 or row.get("schema_version") != "source_quality_review_request_v1"
@@ -657,7 +2332,7 @@ def load_review_sample_packet(
         for line_number, line in enumerate(handle, 1):
             if not line.strip():
                 continue
-            row = json.loads(line)
+            row = strict_json_loads(line, context=f"{packet_path}:{line_number}")
             if (
                 not isinstance(row, dict)
                 or row.get("schema_version") != "dataset_review_complete_sample_v1"
@@ -738,6 +2413,21 @@ def load_review_sample_packet(
         raise ValueError(
             f"{receipt_path}: review sample receipt lacks canonical input shards"
         )
+    if (
+        attestation["primary_sample_id_inventory_sha256"]
+        != sha256_json(sorted(requested))
+        or normalization.get("input_shards") != input_shards
+        or normalization.get("input_shard_inventory_sha256")
+        != sha256_json(input_shards)
+        or checkpoint_closure.get("count")
+        != len(receipt_value.get("checkpoint_inventory", []))
+        or checkpoint_closure.get("inventory_sha256")
+        != receipt_value.get("checkpoint_inventory_sha256")
+        or masking.get("redaction_totals") != receipt_value.get("redaction_totals")
+        or masking.get("redaction_totals_sha256")
+        != sha256_json(receipt_value.get("redaction_totals"))
+    ):
+        raise ValueError(f"{attestation_path}: sample attestation semantic drift")
     return sorted(rows, key=lambda row: str(row["stable_uid"])), [
         dict(row) for row in input_shards if isinstance(row, dict)
     ]
@@ -1447,6 +3137,33 @@ def run_diagnostics(args: argparse.Namespace) -> int:
         raise ValueError(
             "batch size/threads must be positive and quantile sample size >= 100"
         )
+    if args.scan_mode == "review_sample":
+        required = {
+            "--review-sample-packet": args.review_sample_packet,
+            "--review-sample-receipt": args.review_sample_receipt,
+            "--review-sample-attestation": args.review_sample_attestation,
+            "--review-requests": args.review_requests,
+        }
+        missing = [name for name, value in required.items() if value is None]
+        if missing:
+            raise ValueError(f"review_sample mode requires {', '.join(missing)}")
+    # Snapshot the manifest before parsing it to discover its receipt closure.
+    # A manifest swap during discovery is then detected before publication.
+    input_snapshots = snapshot_inputs(
+        (
+            args.normalization_manifest,
+            args.build_receipt,
+            args.review_sample_packet,
+            args.review_sample_receipt,
+            args.review_sample_attestation,
+            args.review_requests,
+        )
+    )
+    input_snapshots.update(
+        snapshot_inputs(
+            normalization_dependency_receipt_paths(args.normalization_manifest)
+        )
+    )
     runtime = validate_runtime_receipt(args.build_receipt, args.expected_commit)
     manifest, shards, excluded = load_normalized_shards(
         args.normalization_manifest,
@@ -1462,17 +3179,14 @@ def run_diagnostics(args: argparse.Namespace) -> int:
             raise ValueError(
                 "review_sample mode uses the exact packet and cannot alter source coverage"
             )
-        required = {
-            "--review-sample-packet": args.review_sample_packet,
-            "--review-sample-receipt": args.review_sample_receipt,
-            "--review-requests": args.review_requests,
-        }
-        missing = [name for name, value in required.items() if value is None]
-        if missing:
-            raise ValueError(f"review_sample mode requires {', '.join(missing)}")
+        assert args.review_sample_packet is not None
+        assert args.review_sample_receipt is not None
+        assert args.review_sample_attestation is not None
+        assert args.review_requests is not None
         sample_rows, sample_input_shards = load_review_sample_packet(
             packet_path=args.review_sample_packet,
             receipt_path=args.review_sample_receipt,
+            attestation_path=args.review_sample_attestation,
             requests_path=args.review_requests,
             normalization_manifest=args.normalization_manifest,
         )
@@ -1501,6 +3215,7 @@ def run_diagnostics(args: argparse.Namespace) -> int:
         sample_contract = {
             "review_sample_packet": file_receipt(args.review_sample_packet),
             "review_sample_receipt": file_receipt(args.review_sample_receipt),
+            "review_sample_attestation": file_receipt(args.review_sample_attestation),
             "review_requests": file_receipt(args.review_requests),
             "documents": len(sample_rows),
             "text_variant": "high_precision_identifier_masked_review_sample",
@@ -1517,6 +3232,7 @@ def run_diagnostics(args: argparse.Namespace) -> int:
     output_root.mkdir(parents=True, exist_ok=True)
     contract_path = output_root / "contract.json"
     if contract_path.exists():
+        input_snapshots.update(snapshot_inputs((contract_path,)))
         if read_json(contract_path) != contract:
             raise ValueError(f"{contract_path}: resume contract drift")
         if not args.resume:
@@ -1529,16 +3245,56 @@ def run_diagnostics(args: argparse.Namespace) -> int:
                 f"refusing non-empty output without a matching contract: {output_root}"
             )
         write_json_atomic(contract_path, contract, immutable=True)
+        input_snapshots.update(snapshot_inputs((contract_path,)))
 
     summary_path = output_root / f"{SUMMARY_SCHEMA}.json"
     if summary_path.exists():
+        input_snapshots.update(snapshot_inputs((summary_path,)))
         value = validate_completed_summary(summary_path, output_root, contract_sha256)
+        input_snapshots.update(
+            snapshot_quality_handoff_outputs(summary_path, output_root)
+        )
+        verify_input_snapshots(input_snapshots)
+        handoff_payload = build_quality_site_handoff(
+            summary_path=summary_path,
+            output_root=output_root,
+            normalization_manifest=args.normalization_manifest,
+            build_receipt=args.build_receipt,
+            contract_path=contract_path,
+        )
+        if args.site_handoff.exists():
+            input_snapshots.update(snapshot_inputs((args.site_handoff,)))
+            existing_handoff = read_json(args.site_handoff)
+            # Creation time is the only intentionally non-contractual field.
+            if {
+                key: value
+                for key, value in existing_handoff.items()
+                if key != "created_at"
+            } != {
+                key: value
+                for key, value in handoff_payload.items()
+                if key != "created_at"
+            }:
+                raise ValueError(f"{args.site_handoff}: completed handoff drift")
+            verify_input_snapshots(input_snapshots)
+        else:
+            verify_input_snapshots(input_snapshots)
+            write_json_atomic(args.site_handoff, handoff_payload, immutable=True)
         print(
             canonical_json(
                 {"ok": True, "already_complete": True, "summary": str(summary_path)}
             )
         )
         return 0 if value["status"] == "passed" else 1
+
+    canonical_shard_snapshots: dict[Path, InputSnapshot] = {}
+    if args.scan_mode == "full_scan":
+        canonical_shard_snapshots = snapshot_inputs(shard.path for shard in shards)
+        for shard in shards:
+            snapshot = canonical_shard_snapshots[shard.path.resolve()]
+            if snapshot.bytes != shard.bytes or snapshot.sha256 != shard.sha256:
+                raise ValueError(f"canonical shard receipt drift: {shard.path}")
+        input_snapshots.update(canonical_shard_snapshots)
 
     args.scratch_dir.mkdir(parents=True, exist_ok=True)
     batch_receipts: list[dict[str, Any]] = []
@@ -1584,7 +3340,6 @@ def run_diagnostics(args: argparse.Namespace) -> int:
         import pyarrow.parquet as pq
 
         for shard in shards:
-            validate_file_receipt(shard.path, shard.receipt(), rows=shard.rows)
             parquet = pq.ParquetFile(shard.path)
             missing = sorted(set(required_columns) - set(parquet.schema_arrow.names))
             if missing:
@@ -1704,7 +3459,24 @@ def run_diagnostics(args: argparse.Namespace) -> int:
             ),
         },
     }
+    verify_input_snapshots(input_snapshots)
     write_json_atomic(summary_path, payload, immutable=True)
+    # The summary is now the terminal receipt for the full-corpus read.  The
+    # compact handoff derives only from that summary and generated checkpoints,
+    # so do not rehash terabytes of canonical shards a second time.
+    for path in canonical_shard_snapshots:
+        input_snapshots.pop(path)
+    input_snapshots.update(snapshot_inputs((summary_path,)))
+    input_snapshots.update(snapshot_quality_handoff_outputs(summary_path, output_root))
+    handoff_payload = build_quality_site_handoff(
+        summary_path=summary_path,
+        output_root=output_root,
+        normalization_manifest=args.normalization_manifest,
+        build_receipt=args.build_receipt,
+        contract_path=contract_path,
+    )
+    verify_input_snapshots(input_snapshots)
+    write_json_atomic(args.site_handoff, handoff_payload, immutable=True)
     print(
         canonical_json(
             {
@@ -1760,6 +3532,7 @@ def parse_args() -> argparse.Namespace:
     )
     run.add_argument("--review-sample-packet", type=Path)
     run.add_argument("--review-sample-receipt", type=Path)
+    run.add_argument("--review-sample-attestation", type=Path)
     run.add_argument("--review-requests", type=Path)
     run.add_argument(
         "--source-id",
@@ -1774,6 +3547,7 @@ def parse_args() -> argparse.Namespace:
     run.add_argument("--quantile-sample-size", type=int, default=8192)
     run.add_argument("--scratch-dir", type=Path, required=True)
     run.add_argument("--output-dir", type=Path, required=True)
+    run.add_argument("--site-handoff", type=Path, required=True)
     run.add_argument("--resume", action="store_true")
     run.set_defaults(function=run_diagnostics)
     return parser.parse_args()

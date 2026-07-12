@@ -20,21 +20,23 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "inventory", "evaluations", "sources_config", "quality_summary",
+        "inventory", "evaluations", "sources_config", "quality_summary", "quality_handoff_receipt",
         "review_requests", "review_responses", "admission", "novelty",
-        "complete_samples", "complete_samples_receipt"
+        "complete_samples", "complete_samples_receipt", "complete_samples_attestation"
       ],
       "properties": {
         "inventory": {"$ref": "#/$defs/inputFile"},
         "evaluations": {"$ref": "#/$defs/inputFile"},
         "sources_config": {"$ref": "#/$defs/inputFile"},
         "quality_summary": {"$ref": "#/$defs/nullableInputFile"},
+        "quality_handoff_receipt": {"$ref": "#/$defs/nullableInputFile"},
         "review_requests": {"$ref": "#/$defs/nullableInputFile"},
         "review_responses": {"$ref": "#/$defs/nullableInputFile"},
         "admission": {"$ref": "#/$defs/nullableInputFile"},
         "novelty": {"$ref": "#/$defs/nullableInputFile"},
         "complete_samples": {"$ref": "#/$defs/nullableInputFile"},
-        "complete_samples_receipt": {"$ref": "#/$defs/nullableInputFile"}
+        "complete_samples_receipt": {"$ref": "#/$defs/nullableInputFile"},
+        "complete_samples_attestation": {"$ref": "#/$defs/nullableInputFile"}
       }
     },
     "security": {

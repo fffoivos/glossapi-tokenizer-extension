@@ -49,6 +49,7 @@ BATCH_SIZE=4096
 QUANTILE_SAMPLE_SIZE=${QUANTILE_SAMPLE_SIZE:-8192}
 THREADS=${SLURM_CPUS_PER_TASK:?SLURM_CPUS_PER_TASK is unset}
 QUALITY_OUT="$PHASE04_STAGE_DIR/quality"
+QUALITY_SITE_HANDOFF="$PHASE04_STAGE_DIR/dataset_quality_site_handoff.json"
 SCRATCH_ROOT=${SLURM_TMPDIR:-$DATA_ROOT/tmp/$PIPELINE_RUN_ID/dataset-quality/$SLURM_JOB_ID}
 
 phase04_stage_add_input normalization_manifest "$NORMALIZATION_MANIFEST"
@@ -80,12 +81,14 @@ args=(
     --threads "$THREADS"
     --scratch-dir "$SCRATCH_ROOT"
     --output-dir "$QUALITY_OUT"
+    --site-handoff "$QUALITY_SITE_HANDOFF"
 )
 
 if [[ "$QUALITY_MODE" == "review_sample" ]]; then
     REVIEW_REQUESTS=${REVIEW_REQUESTS:-$PIPELINE_RUN_ROOT/stages/30-review-packet/requests.jsonl}
     SAMPLE_PACKET="$PHASE04_STAGE_DIR/complete_review_samples.jsonl"
     SAMPLE_RECEIPT="$PHASE04_STAGE_DIR/complete_review_samples_receipt.json"
+    SAMPLE_ATTESTATION="$PHASE04_STAGE_DIR/complete_review_samples_site_attestation.json"
     phase04_stage_add_input review_requests "$REVIEW_REQUESTS"
     export_args=(
         --normalization-manifest "$NORMALIZATION_MANIFEST"
@@ -95,6 +98,7 @@ if [[ "$QUALITY_MODE" == "review_sample" ]]; then
         --checkpoint-dir "$PHASE04_STAGE_DIR/sample-export-checkpoints"
         --output "$SAMPLE_PACKET"
         --receipt "$SAMPLE_RECEIPT"
+        --site-attestation "$SAMPLE_ATTESTATION"
     )
     [[ "${RESUME_STAGE:-0}" == "1" ]] && export_args+=(--resume)
     uenv run "$PHASE04_UENV" --view=default -- \
@@ -103,6 +107,7 @@ if [[ "$QUALITY_MODE" == "review_sample" ]]; then
     args+=(
         --review-sample-packet "$SAMPLE_PACKET"
         --review-sample-receipt "$SAMPLE_RECEIPT"
+        --review-sample-attestation "$SAMPLE_ATTESTATION"
         --review-requests "$REVIEW_REQUESTS"
     )
 else
@@ -125,9 +130,10 @@ outputs=(
     "$QUALITY_OUT/contract.json"
     "$SUMMARY"
     "$DOCUMENTS"
+    "$QUALITY_SITE_HANDOFF"
 )
 if [[ "$QUALITY_MODE" == "review_sample" ]]; then
-    outputs+=("$SAMPLE_PACKET" "$SAMPLE_RECEIPT")
+    outputs+=("$SAMPLE_PACKET" "$SAMPLE_RECEIPT" "$SAMPLE_ATTESTATION")
 fi
 phase04_stage_finish "${outputs[@]}"
 echo "DATASET_QUALITY_COMPLETE=$SUMMARY"

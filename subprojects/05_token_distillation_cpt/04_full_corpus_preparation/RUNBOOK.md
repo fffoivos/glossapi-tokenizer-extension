@@ -318,9 +318,12 @@ It creates `35-dataset-quality-sample`, exports only the selected primary
 review documents with high-precision identifier patterns masked and raw source
 document IDs omitted, and usually evaluates them in one 4,096-document Rust
 batch. Generic names and addresses may remain. The relocatable packet receipt
-and per-shard export checkpoints bind the exact Stage30 requests and canonical
-inputs. The summary is labelled `review_sample` and carries both global and
-per-repository denominators.
+and compact site attestation bind the exact Stage30 requests, canonical inputs,
+masking implementation, and rehashed per-shard export checkpoints. The quality
+summary is paired with `dataset_quality_site_handoff.json`; its checkpoint
+Parquets are rehashed on Clariden and are not transferred to the Mac. The
+summary is labelled `review_sample` and carries both global and per-repository
+denominators.
 
 The optional raw population scan is independent and may start after Stage10:
 

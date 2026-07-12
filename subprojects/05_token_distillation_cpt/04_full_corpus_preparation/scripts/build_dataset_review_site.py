@@ -27,6 +27,22 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
+import export_dataset_review_samples as sample_exporter
+from export_dataset_review_samples import (
+    SITE_ATTESTATION_SCHEMA,
+    redact_complete_text,
+)
+from profile_dataset_quality_rust import (
+    require_exact_keys,
+    require_nonnegative_int,
+    require_sha256,
+    sha256_json,
+    snapshot_inputs,
+    validate_receipt_object,
+    validate_quality_site_handoff,
+    verify_input_snapshots,
+)
+
 
 SITE_SCHEMA = "dataset_review_site_manifest_v1"
 SITE_DATA_SCHEMA = "dataset_review_site_data_v1"
@@ -54,8 +70,27 @@ def utc_now() -> str:
     )
 
 
+def strict_json_loads(text: str, *, context: str) -> Any:
+    def object_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError(f"{context}: duplicate JSON key {key!r}")
+            result[key] = value
+        return result
+
+    def reject_constant(value: str) -> Any:
+        raise ValueError(f"{context}: non-finite JSON constant {value}")
+
+    return json.loads(
+        text,
+        object_pairs_hook=object_pairs,
+        parse_constant=reject_constant,
+    )
+
+
 def read_json(path: Path) -> dict[str, Any]:
-    value = json.loads(path.read_text(encoding="utf-8"))
+    value = strict_json_loads(path.read_text(encoding="utf-8"), context=str(path))
     if not isinstance(value, dict):
         raise ValueError(f"{path}: JSON root must be an object")
     return value
@@ -66,7 +101,7 @@ def iter_jsonl(path: Path) -> Iterable[tuple[int, dict[str, Any]]]:
         for line_number, line in enumerate(handle, 1):
             if not line.strip():
                 continue
-            value = json.loads(line)
+            value = strict_json_loads(line, context=f"{path}:{line_number}")
             if not isinstance(value, dict):
                 raise ValueError(f"{path}:{line_number}: row must be an object")
             yield line_number, value
@@ -88,10 +123,22 @@ def receipt(path: Path, root: Path) -> dict[str, Any]:
     }
 
 
-def input_receipt(path: Path | None) -> dict[str, Any] | None:
+def input_receipt(
+    path: Path | None,
+    snapshots: Mapping[Path, Any] | None = None,
+) -> dict[str, Any] | None:
     if path is None:
         return None
     resolved = path.resolve()
+    if snapshots is not None:
+        snapshot = snapshots.get(resolved)
+        if snapshot is None:
+            raise ValueError(f"input lacks a pre-parse snapshot: {resolved}")
+        return {
+            "path": str(resolved),
+            "bytes": int(snapshot.bytes),
+            "sha256": str(snapshot.sha256),
+        }
     return {
         "path": str(resolved),
         "bytes": resolved.stat().st_size,
@@ -196,48 +243,41 @@ def load_evaluations(path: Path, expected_repos: set[str]) -> dict[str, dict[str
 
 def load_quality(
     path: Path | None,
-) -> tuple[dict[str, dict[str, Any]], dict[str, Any] | None]:
-    if path is None:
-        return {}, None
-    value = read_json(path)
-    if value.get("schema_version") != QUALITY_SCHEMA or value.get("status") != "passed":
-        raise ValueError(f"{path}: unsupported or incomplete quality summary")
-    result = {}
-    for row in value.get("repositories", []):
-        if not isinstance(row, dict):
-            raise ValueError(f"{path}: quality repository row must be an object")
-        repo_id = str(row.get("repo_id", ""))
-        if not repo_id or repo_id in result:
-            raise ValueError(f"{path}: duplicate or empty quality repo_id")
-        result[repo_id] = row
-    scan_mode = str(value.get("scan_mode", ""))
-    if scan_mode not in {"review_sample", "full_scan"}:
-        raise ValueError(f"{path}: invalid quality scan_mode")
-    global_summary = (
-        value.get("global") if isinstance(value.get("global"), dict) else {}
+    handoff_path: Path | None,
+) -> tuple[
+    dict[str, dict[str, Any]],
+    dict[str, Any] | None,
+    list[dict[str, Any]],
+]:
+    if path is None and handoff_path is None:
+        return {}, None, []
+    if path is None or handoff_path is None:
+        raise ValueError(
+            "--quality-summary and --quality-handoff-receipt are an inseparable pair"
+        )
+    projection, acquired_identities = validate_quality_site_handoff(
+        summary_path=path, handoff_path=handoff_path
     )
-    selected_source_ids = sorted(
-        str(item) for item in value.get("selected_source_ids", []) if str(item)
+    result = {str(row["repo_id"]): row for row in projection["repositories"]}
+    scan_mode = str(projection["scan_mode"])
+    return (
+        result,
+        {
+            "scan_mode": scan_mode,
+            "documents": int(projection["documents"]),
+            # This profiler intentionally selects a population (and normally
+            # excludes nanochat_base).  Never promote that to a corpus-wide claim.
+            "is_corpus_wide": False,
+            "label": (
+                "Representative source-review sample"
+                if scan_mode == "review_sample"
+                else "Full scan of selected canonical sources"
+            ),
+            "selected_source_ids": list(projection["selected_source_ids"]),
+            "excluded_source_ids": list(projection["excluded_source_ids"]),
+        },
+        acquired_identities,
     )
-    excluded_source_ids = sorted(
-        str(item) for item in value.get("excluded_source_ids", []) if str(item)
-    )
-    if set(selected_source_ids) & set(excluded_source_ids):
-        raise ValueError(f"{path}: selected/excluded quality sources overlap")
-    return result, {
-        "scan_mode": scan_mode,
-        "documents": int(global_summary.get("documents", 0)),
-        # This profiler intentionally selects a population (and normally
-        # excludes nanochat_base).  Never promote that to a corpus-wide claim.
-        "is_corpus_wide": False,
-        "label": (
-            "Representative source-review sample"
-            if scan_mode == "review_sample"
-            else "Full scan of selected canonical sources"
-        ),
-        "selected_source_ids": selected_source_ids,
-        "excluded_source_ids": excluded_source_ids,
-    }
 
 
 def load_requests(
@@ -470,6 +510,26 @@ def payload_state(row: Mapping[str, Any]) -> str:
     return "text_available"
 
 
+def has_external_acquisition_evidence(
+    inventory_row: Mapping[str, Any],
+    *,
+    quality_present: bool,
+    acquired_identities: Iterable[Mapping[str, Any]],
+) -> bool:
+    if not quality_present:
+        return False
+    repo_id = str(inventory_row.get("repo_id", ""))
+    revision = str(inventory_row.get("revision", ""))
+    return any(
+        str(identity.get("repo_id", "")) == repo_id
+        and str(identity.get("revision", "")) == revision
+        and int(identity.get("documents", 0)) > 0
+        and int(identity.get("shards", 0)) > 0
+        and int(identity.get("acquisition_selected_file_count", 0)) > 0
+        for identity in acquired_identities
+    )
+
+
 def row_total(row: Mapping[str, Any]) -> int | None:
     rows = row.get("rows")
     if isinstance(rows, dict):
@@ -508,46 +568,530 @@ def slug(index: int, repo_id: str) -> str:
     return f"{index + 1:02d}-{name[:80]}"
 
 
+def validate_sample_site_attestation(
+    *,
+    packet_path: Path,
+    packet_receipt_path: Path,
+    attestation_path: Path,
+    review_requests_path: Path,
+    primary_sample_ids: set[str],
+) -> tuple[dict[str, Any], dict[tuple[str, str, str], int]]:
+    receipt = read_json(packet_receipt_path)
+    require_exact_keys(
+        receipt,
+        required=(
+            "schema_version",
+            "status",
+            "normalization_manifest",
+            "canonical_root",
+            "review_requests",
+            "export_contract",
+            "site_attestation",
+            "input_shards",
+            "checkpoint_inventory",
+            "checkpoint_inventory_sha256",
+            "output",
+            "redaction_totals",
+            "high_precision_identifier_patterns_masked",
+        ),
+        context="sample_packet_receipt",
+    )
+    if (
+        receipt["schema_version"] != SAMPLE_RECEIPT_SCHEMA
+        or receipt["status"] != "passed"
+        or receipt["high_precision_identifier_patterns_masked"] is not True
+    ):
+        raise ValueError("sample packet receipt schema/status/masking drift")
+    output = validate_receipt_object(
+        receipt["output"], context="sample_packet_receipt.output", require_rows=True
+    )
+    declared_packet = Path(str(output["path"]))
+    if not declared_packet.is_absolute():
+        declared_packet = packet_receipt_path.resolve().parent / declared_packet
+    if (
+        declared_packet.resolve() != packet_path.resolve()
+        or output["bytes"] != packet_path.stat().st_size
+        or output["sha256"] != sha256_file(packet_path)
+    ):
+        raise ValueError("sample packet output receipt drift")
+    requests_receipt = validate_receipt_object(
+        receipt["review_requests"],
+        context="sample_packet_receipt.review_requests",
+        allow_rows=False,
+    )
+    declared_requests = Path(requests_receipt["path"])
+    if not declared_requests.is_absolute():
+        declared_requests = packet_receipt_path.resolve().parent / declared_requests
+    if (
+        declared_requests.resolve() != review_requests_path.resolve()
+        or requests_receipt["bytes"] != review_requests_path.stat().st_size
+        or requests_receipt["sha256"] != sha256_file(review_requests_path)
+    ):
+        raise ValueError("sample packet request receipt drift")
+    attestation_receipt = validate_receipt_object(
+        receipt["site_attestation"],
+        context="sample_packet_receipt.site_attestation",
+        allow_rows=False,
+    )
+    declared_attestation = Path(attestation_receipt["path"])
+    if not declared_attestation.is_absolute():
+        declared_attestation = (
+            packet_receipt_path.resolve().parent / declared_attestation
+        )
+    if (
+        declared_attestation.resolve() != attestation_path.resolve()
+        or attestation_receipt["bytes"] != attestation_path.stat().st_size
+        or attestation_receipt["sha256"] != sha256_file(attestation_path)
+    ):
+        raise ValueError("sample site attestation receipt drift")
+    for name in ("normalization_manifest", "export_contract"):
+        value = receipt[name]
+        if not isinstance(value, Mapping):
+            raise ValueError(f"sample_packet_receipt.{name}: expected object")
+        required = {"path", "bytes", "sha256"}
+        if name == "export_contract":
+            required.add("contract_sha256")
+        require_exact_keys(
+            value, required=required, context=f"sample_packet_receipt.{name}"
+        )
+        require_nonnegative_int(
+            value["bytes"], context=f"sample_packet_receipt.{name}.bytes"
+        )
+        require_sha256(value["sha256"], context=f"sample_packet_receipt.{name}.sha256")
+        if name == "export_contract":
+            require_sha256(
+                value["contract_sha256"],
+                context="sample_packet_receipt.export_contract.contract_sha256",
+            )
+
+    input_shards = receipt["input_shards"]
+    if not isinstance(input_shards, list) or not input_shards:
+        raise ValueError("sample packet receipt input shards missing")
+    shard_rows: dict[tuple[str, str, str], int] = {}
+    for index, row in enumerate(input_shards):
+        if not isinstance(row, Mapping):
+            raise ValueError("sample packet input shard must be object")
+        require_exact_keys(
+            row,
+            required=("source_id", "path", "bytes", "sha256", "rows"),
+            context=f"sample_packet_receipt.input_shards[{index}]",
+        )
+        source_id = str(row["source_id"])
+        shard_path = str(row["path"])
+        sha = require_sha256(
+            row["sha256"], context="sample_packet_receipt.input_shard.sha256"
+        )
+        rows = require_nonnegative_int(
+            row["rows"], context="sample_packet_receipt.input_shard.rows"
+        )
+        require_nonnegative_int(
+            row["bytes"], context="sample_packet_receipt.input_shard.bytes"
+        )
+        if (
+            not source_id
+            or not shard_path
+            or rows < 1
+            or (
+                source_id,
+                shard_path,
+                sha,
+            )
+            in shard_rows
+        ):
+            raise ValueError("sample packet input shard identity drift")
+        shard_rows[(source_id, shard_path, sha)] = rows
+
+    checkpoint_inventory = receipt["checkpoint_inventory"]
+    if not isinstance(checkpoint_inventory, list) or len(checkpoint_inventory) != len(
+        input_shards
+    ):
+        raise ValueError("sample packet checkpoint coverage drift")
+    selected_rows = 0
+    for index, row in enumerate(checkpoint_inventory):
+        if not isinstance(row, Mapping):
+            raise ValueError("sample packet checkpoint entry must be object")
+        require_exact_keys(
+            row,
+            required=(
+                "input_shard_sha256",
+                "checkpoint_receipt_sha256",
+                "output_sha256",
+                "selected_rows",
+            ),
+            context=f"sample_packet_receipt.checkpoint_inventory[{index}]",
+        )
+        for name in (
+            "input_shard_sha256",
+            "checkpoint_receipt_sha256",
+            "output_sha256",
+        ):
+            require_sha256(
+                row[name], context=f"sample_packet_receipt.checkpoint.{name}"
+            )
+        if row["input_shard_sha256"] != input_shards[index]["sha256"]:
+            raise ValueError("sample checkpoint/input-shard ordering drift")
+        selected_rows += require_nonnegative_int(
+            row["selected_rows"],
+            context="sample_packet_receipt.checkpoint.selected_rows",
+        )
+    if (
+        sha256_json(checkpoint_inventory) != receipt["checkpoint_inventory_sha256"]
+        or selected_rows != output["rows"]
+        or output["rows"] != len(primary_sample_ids)
+    ):
+        raise ValueError("sample packet checkpoint/request denominator drift")
+
+    attestation = read_json(attestation_path)
+    require_exact_keys(
+        attestation,
+        required=(
+            "schema_version",
+            "status",
+            "created_at",
+            "packet",
+            "review_requests",
+            "primary_sample_count",
+            "primary_sample_id_inventory_sha256",
+            "normalization",
+            "export_contract",
+            "checkpoint_closure",
+            "masking",
+        ),
+        context="sample_site_attestation",
+    )
+    if (
+        attestation["schema_version"] != SITE_ATTESTATION_SCHEMA
+        or attestation["status"] != "passed"
+    ):
+        raise ValueError("sample site attestation schema/status drift")
+    if (
+        validate_receipt_object(
+            attestation["packet"],
+            context="sample_site_attestation.packet",
+            require_rows=True,
+        )
+        != output
+        or validate_receipt_object(
+            attestation["review_requests"],
+            context="sample_site_attestation.review_requests",
+            allow_rows=False,
+        )
+        != requests_receipt
+        or require_nonnegative_int(
+            attestation["primary_sample_count"],
+            context="sample_site_attestation.primary_sample_count",
+        )
+        != len(primary_sample_ids)
+        or attestation["primary_sample_id_inventory_sha256"]
+        != sha256_json(sorted(primary_sample_ids))
+    ):
+        raise ValueError("sample site attestation packet/request closure drift")
+
+    normalization = attestation["normalization"]
+    if not isinstance(normalization, Mapping):
+        raise ValueError("sample attestation normalization closure missing")
+    require_exact_keys(
+        normalization,
+        required=(
+            "schema_version",
+            "manifest",
+            "sources_config_sha256",
+            "acquisition_receipt_sha256",
+            "source_identities",
+            "source_identity_inventory_sha256",
+            "normalized_shard_inventory_sha256",
+            "input_shards",
+            "input_shard_inventory_sha256",
+        ),
+        context="sample_site_attestation.normalization",
+    )
+    manifest_receipt = validate_receipt_object(
+        normalization["manifest"],
+        context="sample_site_attestation.normalization.manifest",
+        allow_rows=False,
+    )
+    if (
+        normalization["schema_version"] != "full_cpt_normalization_manifest_v1"
+        or manifest_receipt != receipt["normalization_manifest"]
+        or normalization["input_shards"] != input_shards
+        or normalization["input_shard_inventory_sha256"] != sha256_json(input_shards)
+    ):
+        raise ValueError("sample attestation normalization/input-shard drift")
+    for name in (
+        "sources_config_sha256",
+        "acquisition_receipt_sha256",
+        "source_identity_inventory_sha256",
+        "normalized_shard_inventory_sha256",
+        "input_shard_inventory_sha256",
+    ):
+        require_sha256(
+            normalization[name], context=f"sample_attestation.normalization.{name}"
+        )
+    identities = normalization["source_identities"]
+    if not isinstance(identities, list) or not identities:
+        raise ValueError("sample attestation source identity closure drift")
+    seen_identity_sources: set[str] = set()
+    for index, identity in enumerate(identities):
+        if not isinstance(identity, Mapping):
+            raise ValueError("sample attestation source identity must be an object")
+        require_exact_keys(
+            identity,
+            required=(
+                "source_id",
+                "repo_id",
+                "revision",
+                "role",
+                "documents",
+                "shards",
+                "shard_inventory_sha256",
+                "acquisition_selected_file_count",
+                "acquisition_selected_bytes",
+                "acquisition_file_inventory_sha256",
+            ),
+            context=f"sample_site_attestation.source_identities[{index}]",
+        )
+        source_id = str(identity["source_id"])
+        if (
+            not source_id
+            or not str(identity["repo_id"])
+            or not str(identity["revision"])
+            or source_id in seen_identity_sources
+            or require_nonnegative_int(
+                identity["documents"], context="sample_attestation.identity.documents"
+            )
+            < 1
+            or require_nonnegative_int(
+                identity["shards"], context="sample_attestation.identity.shards"
+            )
+            < 1
+            or require_nonnegative_int(
+                identity["acquisition_selected_file_count"],
+                context="sample_attestation.identity.acquisition_file_count",
+            )
+            < 1
+        ):
+            raise ValueError("sample attestation source identity is incomplete")
+        require_nonnegative_int(
+            identity["acquisition_selected_bytes"],
+            context="sample_attestation.identity.acquisition_bytes",
+        )
+        for name in (
+            "shard_inventory_sha256",
+            "acquisition_file_inventory_sha256",
+        ):
+            require_sha256(
+                identity[name], context=f"sample_attestation.identity.{name}"
+            )
+        seen_identity_sources.add(source_id)
+    if (
+        identities != sorted(identities, key=lambda row: str(row["source_id"]))
+        or sha256_json(identities) != normalization["source_identity_inventory_sha256"]
+        or not {str(row["source_id"]) for row in input_shards}.issubset(
+            seen_identity_sources
+        )
+    ):
+        raise ValueError("sample attestation source identity closure drift")
+
+    export_contract = attestation["export_contract"]
+    if not isinstance(export_contract, Mapping):
+        raise ValueError("sample attestation export contract missing")
+    require_exact_keys(
+        export_contract,
+        required=("receipt", "canonical_sha256", "value"),
+        context="sample_site_attestation.export_contract",
+    )
+    contract_receipt = validate_receipt_object(
+        export_contract["receipt"],
+        context="sample_site_attestation.export_contract.receipt",
+        allow_rows=False,
+    )
+    contract = export_contract["value"]
+    if not isinstance(contract, Mapping):
+        raise ValueError("sample attestation export contract value missing")
+    require_exact_keys(
+        contract,
+        required=(
+            "schema_version",
+            "normalization_manifest_sha256",
+            "review_requests_sha256",
+            "exporter_script_sha256",
+            "redaction_dependency_sha256",
+            "redaction_pipeline",
+            "batch_size",
+            "selected_sample_count",
+        ),
+        context="sample_site_attestation.export_contract.value",
+    )
+    dependency_hashes = {
+        "build_source_review_packet": sha256_file(
+            Path(
+                sample_exporter.redact_direct_identifiers.__code__.co_filename
+            ).resolve()
+        ),
+        "greek_pii": sha256_file(
+            Path(sample_exporter.mask_greek_identifiers.__code__.co_filename).resolve()
+        ),
+        "profile_dataset_quality_rust": sha256_file(
+            Path(sample_exporter.metadata_flags.__code__.co_filename).resolve()
+        ),
+    }
+    contract_batch_size = require_nonnegative_int(
+        contract["batch_size"], context="sample_attestation.export_contract.batch_size"
+    )
+    contract_sample_count = require_nonnegative_int(
+        contract["selected_sample_count"],
+        context="sample_attestation.export_contract.selected_sample_count",
+    )
+    if (
+        contract["schema_version"] != "dataset_review_sample_export_contract_v1"
+        or contract["normalization_manifest_sha256"]
+        != receipt["normalization_manifest"]["sha256"]
+        or contract["review_requests_sha256"] != requests_receipt["sha256"]
+        or contract["exporter_script_sha256"]
+        != sha256_file(Path(sample_exporter.__file__).resolve())
+        or contract["redaction_dependency_sha256"] != dependency_hashes
+        or contract["redaction_pipeline"] != "high_precision_identifier_patterns_v1"
+        or contract_batch_size < 1
+        or contract_sample_count != len(primary_sample_ids)
+        or sha256_json(contract) != export_contract["canonical_sha256"]
+        or export_contract["canonical_sha256"]
+        != receipt["export_contract"]["contract_sha256"]
+        or contract_receipt
+        != {
+            name: receipt["export_contract"][name]
+            for name in ("path", "bytes", "sha256")
+        }
+    ):
+        raise ValueError("sample attestation export contract/implementation drift")
+
+    checkpoint_closure = attestation["checkpoint_closure"]
+    if not isinstance(checkpoint_closure, Mapping):
+        raise ValueError("sample attestation checkpoint closure missing")
+    require_exact_keys(
+        checkpoint_closure,
+        required=(
+            "count",
+            "selected_rows",
+            "inventory_sha256",
+            "receipt_closure_sha256",
+            "checkpoint_text_outputs_rehashed_for_attestation",
+        ),
+        context="sample_site_attestation.checkpoint_closure",
+    )
+    if (
+        require_nonnegative_int(
+            checkpoint_closure["count"],
+            context="sample_attestation.checkpoint_closure.count",
+        )
+        != len(checkpoint_inventory)
+        or require_nonnegative_int(
+            checkpoint_closure["selected_rows"],
+            context="sample_attestation.checkpoint_closure.selected_rows",
+        )
+        != output["rows"]
+        or checkpoint_closure["inventory_sha256"]
+        != receipt["checkpoint_inventory_sha256"]
+        or checkpoint_closure["checkpoint_text_outputs_rehashed_for_attestation"]
+        is not True
+    ):
+        raise ValueError("sample attestation checkpoint closure drift")
+    require_sha256(
+        checkpoint_closure["receipt_closure_sha256"],
+        context="sample_attestation.checkpoint_closure.receipt_closure_sha256",
+    )
+
+    masking = attestation["masking"]
+    if not isinstance(masking, Mapping):
+        raise ValueError("sample attestation masking closure missing")
+    require_exact_keys(
+        masking,
+        required=(
+            "pipeline",
+            "implementation_sha256",
+            "high_precision_identifier_patterns_masked",
+            "private_data_true_rows",
+            "redaction_totals",
+            "redaction_totals_sha256",
+        ),
+        context="sample_site_attestation.masking",
+    )
+    expected_implementation = {
+        "exporter": str(contract["exporter_script_sha256"]),
+        **dependency_hashes,
+    }
+    redaction_totals = masking["redaction_totals"]
+    if not isinstance(redaction_totals, Mapping) or any(
+        not isinstance(name, str)
+        or not name
+        or not isinstance(count, int)
+        or isinstance(count, bool)
+        or count < 0
+        for name, count in redaction_totals.items()
+    ):
+        raise ValueError("sample attestation redaction totals are invalid")
+    implementation = masking["implementation_sha256"]
+    if not isinstance(implementation, Mapping):
+        raise ValueError("sample attestation masking implementation is invalid")
+    require_exact_keys(
+        implementation,
+        required=(
+            "exporter",
+            "build_source_review_packet",
+            "greek_pii",
+            "profile_dataset_quality_rust",
+        ),
+        context="sample_site_attestation.masking.implementation_sha256",
+    )
+    if (
+        masking["pipeline"] != "high_precision_identifier_patterns_v1"
+        or masking["implementation_sha256"] != expected_implementation
+        or masking["high_precision_identifier_patterns_masked"] is not True
+        or require_nonnegative_int(
+            masking["private_data_true_rows"],
+            context="sample_attestation.masking.private_data_true_rows",
+        )
+        != 0
+        or redaction_totals != receipt["redaction_totals"]
+        or masking["redaction_totals_sha256"] != sha256_json(redaction_totals)
+    ):
+        raise ValueError("sample attestation masking closure drift")
+    return receipt, shard_rows
+
+
 def write_complete_samples(
     path: Path | None,
     *,
     packet_receipt_path: Path | None,
+    site_attestation_path: Path | None,
     review_requests_path: Path | None,
     output: Path,
     requests: dict[str, dict[str, Any]],
     visible_repositories: set[str],
 ) -> tuple[list[dict[str, Any]], int]:
-    if path is None and packet_receipt_path is None:
+    if path is None and packet_receipt_path is None and site_attestation_path is None:
         return [], 0
-    if path is None or packet_receipt_path is None or review_requests_path is None:
+    if (
+        path is None
+        or packet_receipt_path is None
+        or site_attestation_path is None
+        or review_requests_path is None
+    ):
         raise ValueError(
-            "--complete-samples requires --complete-samples-receipt and --review-requests"
+            "--complete-samples requires its receipt, site attestation, and review requests"
         )
-    packet_receipt = read_json(packet_receipt_path)
-    if (
-        packet_receipt.get("schema_version") != SAMPLE_RECEIPT_SCHEMA
-        or packet_receipt.get("status") != "passed"
-        or packet_receipt.get("high_precision_identifier_patterns_masked") is not True
-    ):
-        raise ValueError(f"{packet_receipt_path}: incomplete sample-packet receipt")
-    declared_output = packet_receipt.get("output")
-    if not isinstance(declared_output, dict):
-        raise ValueError(f"{packet_receipt_path}: missing output receipt")
-    declared_path = Path(str(declared_output.get("path", "")))
-    if not declared_path.is_absolute():
-        declared_path = packet_receipt_path.resolve().parent / declared_path
-    if declared_path.resolve() != path.resolve():
-        raise ValueError(f"{packet_receipt_path}: sample packet path drift")
-    if (
-        int(declared_output.get("bytes", -1)) != path.stat().st_size
-        or str(declared_output.get("sha256", "")) != sha256_file(path)
-        or packet_receipt.get("review_requests", {}).get("sha256")
-        != sha256_file(review_requests_path)
-    ):
-        raise ValueError(f"{packet_receipt_path}: sample packet/upstream receipt drift")
+    packet_receipt, shard_rows = validate_sample_site_attestation(
+        packet_path=path,
+        packet_receipt_path=packet_receipt_path,
+        attestation_path=site_attestation_path,
+        review_requests_path=review_requests_path,
+        primary_sample_ids=set(requests),
+    )
+    declared_output = packet_receipt["output"]
 
     written: list[dict[str, Any]] = []
     seen: set[str] = set()
+    seen_addresses: set[tuple[str, str, str, int]] = set()
+    observed_redactions: Counter[str] = Counter()
     excluded_outside_inventory = 0
     site_index = {
         request["canonical_sample_id"]: request["site_record"]
@@ -555,6 +1099,30 @@ def write_complete_samples(
         if request["repo_id"] in visible_repositories
     }
     for line_number, row in iter_jsonl(path):
+        require_exact_keys(
+            row,
+            required=(
+                "schema_version",
+                "sample_id",
+                "source_id",
+                "source_repo_id",
+                "source_revision",
+                "source_dataset",
+                "display_document_id",
+                "normalized_text_sha256",
+                "profile_text_sha256",
+                "profile_text_variant",
+                "input_shard_path",
+                "input_shard_sha256",
+                "input_row_index",
+                "private_data_true",
+                "corrected_version_present",
+                "high_precision_identifier_patterns_masked",
+                "redaction_counts",
+                "text",
+            ),
+            context=f"{path}:{line_number}",
+        )
         if row.get("schema_version") != SAMPLE_SCHEMA:
             raise ValueError(
                 f"{path}:{line_number}: unsupported complete sample schema"
@@ -580,6 +1148,20 @@ def write_complete_samples(
             raise ValueError(
                 f"{path}:{line_number}: complete sample lacks valid masking/text attestation"
             )
+        remasked, residual_identifiers = redact_complete_text(text)
+        if remasked != text or residual_identifiers:
+            raise ValueError(
+                f"{path}:{line_number}: residual known identifier or URL after masking"
+            )
+        redaction_counts = row.get("redaction_counts")
+        if not isinstance(redaction_counts, Mapping):
+            raise ValueError(f"{path}:{line_number}: invalid redaction counts")
+        for name, count in redaction_counts.items():
+            if not isinstance(name, str) or not name:
+                raise ValueError(f"{path}:{line_number}: invalid redaction type")
+            observed_redactions[name] += require_nonnegative_int(
+                count, context=f"{path}:{line_number}.redaction_counts.{name}"
+            )
         expected = requests[sample_id]
         repo_id = str(row.get("source_repo_id", ""))
         dataset = str(row.get("source_dataset", ""))
@@ -599,6 +1181,22 @@ def write_complete_samples(
             != expected["canonical_display_document_id"]
         ):
             raise ValueError(f"{path}:{line_number}: complete sample identity drift")
+        input_address = (
+            identity["source_id"],
+            str(row["input_shard_path"]),
+            str(row["input_shard_sha256"]),
+            int(row["input_row_index"]),
+        )
+        declared_shard_rows = shard_rows.get(input_address[:3])
+        if (
+            declared_shard_rows is None
+            or input_address[3] >= declared_shard_rows
+            or input_address in seen_addresses
+        ):
+            raise ValueError(
+                f"{path}:{line_number}: invalid/duplicate canonical row binding"
+            )
+        seen_addresses.add(input_address)
         seen.add(sample_id)
         if repo_id not in visible_repositories:
             excluded_outside_inventory += 1
@@ -613,7 +1211,7 @@ def write_complete_samples(
             "source_repo_id": repo_id,
             "source_dataset": dataset,
             "high_precision_identifier_patterns_masked": True,
-            "redaction_counts": row.get("redaction_counts", {}),
+            "redaction_counts": dict(redaction_counts),
             "characters": len(text),
             "text": text,
         }
@@ -622,15 +1220,12 @@ def write_complete_samples(
         site_record["complete_document_available"] = True
         site_record["complete_document_path"] = relative
         written.append(receipt(sample_path, output))
-    if len(seen) != int(declared_output.get("rows", -1)):
-        raise ValueError(f"{path}: sample row count differs from receipt")
-    missing = set(site_index) - seen
-    if missing:
-        # Missing complete documents remain visible as explicit unavailable states.
-        for sample_id in missing:
-            site_index[sample_id]["complete_document_unavailable_reason"] = (
-                "not_present_in_complete_sample_packet"
-            )
+    if seen != set(requests) or len(seen) != int(declared_output["rows"]):
+        raise ValueError(
+            f"{path}: complete sample coverage differs from primary requests"
+        )
+    if dict(sorted(observed_redactions.items())) != packet_receipt["redaction_totals"]:
+        raise ValueError(f"{path}: per-row redaction totals differ from receipt")
     return written, excluded_outside_inventory
 
 
@@ -693,11 +1288,29 @@ if(page==='overview')renderOverview();else if(page==='detail')renderDetail();
 
 
 def build_site(args: argparse.Namespace) -> int:
+    input_snapshots = snapshot_inputs(
+        (
+            args.inventory,
+            args.evaluations,
+            args.sources_config,
+            args.quality_summary,
+            getattr(args, "quality_handoff_receipt", None),
+            args.review_requests,
+            args.review_responses,
+            args.admission,
+            args.novelty,
+            args.complete_samples,
+            getattr(args, "complete_samples_receipt", None),
+            getattr(args, "complete_samples_attestation", None),
+        )
+    )
     inventory = load_inventory(args.inventory)
     repos = {str(row["repo_id"]) for row in inventory}
     evaluations = load_evaluations(args.evaluations, repos)
     sources = read_json(args.sources_config)
-    quality, quality_scope = load_quality(args.quality_summary)
+    quality, quality_scope, acquired_identities = load_quality(
+        args.quality_summary, getattr(args, "quality_handoff_receipt", None)
+    )
     supplemental_quality_repositories = sorted(set(quality) - repos)
     site_key = secrets.token_bytes(32)
     requests, dataset_to_repo, by_repo = load_requests(
@@ -725,6 +1338,7 @@ def build_site(args: argparse.Namespace) -> int:
         sample_receipts, excluded_complete_samples = write_complete_samples(
             args.complete_samples,
             packet_receipt_path=getattr(args, "complete_samples_receipt", None),
+            site_attestation_path=getattr(args, "complete_samples_attestation", None),
             review_requests_path=args.review_requests,
             output=temporary,
             requests=requests,
@@ -735,7 +1349,11 @@ def build_site(args: argparse.Namespace) -> int:
             repo_id = str(row["repo_id"])
             evaluation = evaluations[repo_id]
             state = payload_state(row)
-            if state == "external_unavailable" and repo_id in quality:
+            if state == "external_unavailable" and has_external_acquisition_evidence(
+                row,
+                quality_present=repo_id in quality,
+                acquired_identities=acquired_identities,
+            ):
                 state = "external_acquired"
             notes = row.get("notes", row.get("warnings", []))
             if not isinstance(notes, list):
@@ -859,17 +1477,27 @@ def build_site(args: argparse.Namespace) -> int:
             "dataset_page_count": len(repositories),
             "complete_sample_count": len(sample_receipts),
             "inputs": {
-                "inventory": input_receipt(args.inventory),
-                "evaluations": input_receipt(args.evaluations),
-                "sources_config": input_receipt(args.sources_config),
-                "quality_summary": input_receipt(args.quality_summary),
-                "review_requests": input_receipt(args.review_requests),
-                "review_responses": input_receipt(args.review_responses),
-                "admission": input_receipt(args.admission),
-                "novelty": input_receipt(args.novelty),
-                "complete_samples": input_receipt(args.complete_samples),
+                "inventory": input_receipt(args.inventory, input_snapshots),
+                "evaluations": input_receipt(args.evaluations, input_snapshots),
+                "sources_config": input_receipt(args.sources_config, input_snapshots),
+                "quality_summary": input_receipt(args.quality_summary, input_snapshots),
+                "quality_handoff_receipt": input_receipt(
+                    getattr(args, "quality_handoff_receipt", None), input_snapshots
+                ),
+                "review_requests": input_receipt(args.review_requests, input_snapshots),
+                "review_responses": input_receipt(
+                    args.review_responses, input_snapshots
+                ),
+                "admission": input_receipt(args.admission, input_snapshots),
+                "novelty": input_receipt(args.novelty, input_snapshots),
+                "complete_samples": input_receipt(
+                    args.complete_samples, input_snapshots
+                ),
                 "complete_samples_receipt": input_receipt(
-                    getattr(args, "complete_samples_receipt", None)
+                    getattr(args, "complete_samples_receipt", None), input_snapshots
+                ),
+                "complete_samples_attestation": input_receipt(
+                    getattr(args, "complete_samples_attestation", None), input_snapshots
                 ),
             },
             "security": {
@@ -888,6 +1516,7 @@ def build_site(args: argparse.Namespace) -> int:
             temporary / "site_manifest.json", safe_json(manifest, indent=2) + "\n"
         )
         validate_site_directory(temporary)
+        verify_input_snapshots(input_snapshots)
 
         if output.exists():
             if not args.replace:
@@ -905,12 +1534,14 @@ def build_site(args: argparse.Namespace) -> int:
                 raise FileExistsError(backup)
             os.replace(output, backup)
             try:
+                verify_input_snapshots(input_snapshots)
                 os.replace(temporary, output)
             except BaseException:
                 os.replace(backup, output)
                 raise
             shutil.rmtree(backup)
         else:
+            verify_input_snapshots(input_snapshots)
             os.replace(temporary, output)
         print(
             safe_json(
@@ -1050,6 +1681,7 @@ def parse_args() -> argparse.Namespace:
         "--sources-config", type=Path, default=here / "configs" / "sources.json"
     )
     build.add_argument("--quality-summary", type=Path)
+    build.add_argument("--quality-handoff-receipt", type=Path)
     build.add_argument("--review-requests", type=Path)
     build.add_argument("--review-responses", type=Path)
     build.add_argument("--admission", type=Path)
@@ -1064,6 +1696,7 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         help="receipt binding the complete sample packet and review requests",
     )
+    build.add_argument("--complete-samples-attestation", type=Path)
     build.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     build.add_argument("--replace", action="store_true")
     build.set_defaults(function=build_site)

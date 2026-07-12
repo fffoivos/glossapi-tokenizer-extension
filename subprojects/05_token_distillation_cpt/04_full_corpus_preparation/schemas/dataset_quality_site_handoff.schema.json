@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/dataset-quality-site-handoff-v1.json",
+  "title": "Compact text-free quality-site dependency attestation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "status", "created_at", "summary", "scan_mode",
+    "aggregate_projection_sha256", "normalization", "build", "contract",
+    "document_output", "checkpoint_closure"
+  ],
+  "properties": {
+    "schema_version": {"const": "dataset_quality_site_handoff_v1"},
+    "status": {"const": "passed"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "summary": {"$ref": "#/$defs/file"},
+    "scan_mode": {"enum": ["review_sample", "full_scan"]},
+    "aggregate_projection_sha256": {"$ref": "#/$defs/sha256"},
+    "normalization": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema_version", "manifest", "sources_config_sha256",
+        "acquisition_receipt_sha256", "source_identities",
+        "source_identity_inventory_sha256", "normalized_shard_inventory_sha256",
+        "selected_normalized_source_ids", "selected_normalized_shard_inventory_sha256"
+      ],
+      "properties": {
+        "schema_version": {"const": "full_cpt_normalization_manifest_v1"},
+        "manifest": {"$ref": "#/$defs/file"},
+        "sources_config_sha256": {"$ref": "#/$defs/sha256"},
+        "acquisition_receipt_sha256": {"$ref": "#/$defs/sha256"},
+        "source_identities": {
+          "type": "array", "minItems": 1,
+          "items": {"$ref": "#/$defs/sourceIdentity"}
+        },
+        "source_identity_inventory_sha256": {"$ref": "#/$defs/sha256"},
+        "normalized_shard_inventory_sha256": {"$ref": "#/$defs/sha256"},
+        "selected_normalized_source_ids": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "selected_normalized_shard_inventory_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "build": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "receipt_sha256", "commit", "cargo_lock_inventory_sha256",
+        "module_inventory_sha256", "runtime"
+      ],
+      "properties": {
+        "receipt_sha256": {"$ref": "#/$defs/sha256"},
+        "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "cargo_lock_inventory_sha256": {"$ref": "#/$defs/sha256"},
+        "module_inventory_sha256": {"$ref": "#/$defs/sha256"},
+        "runtime": {
+          "type": "object", "additionalProperties": false,
+          "required": ["python", "platform", "machine", "rustc", "cargo", "maturin"],
+          "properties": {
+            "python": {"type": "string", "minLength": 1},
+            "platform": {"type": "string", "minLength": 1},
+            "machine": {"type": "string", "minLength": 1},
+            "rustc": {"type": "string", "minLength": 1},
+            "cargo": {"type": "string", "minLength": 1},
+            "maturin": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "contract": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "receipt", "canonical_sha256", "schema_version",
+        "selected_shard_inventory_sha256", "excluded_source_ids",
+        "profiler_script_sha256", "review_sample"
+      ],
+      "properties": {
+        "receipt": {"$ref": "#/$defs/file"},
+        "canonical_sha256": {"$ref": "#/$defs/sha256"},
+        "schema_version": {"const": "dataset_quality_rust_contract_v1"},
+        "selected_shard_inventory_sha256": {"$ref": "#/$defs/sha256"},
+        "excluded_source_ids": {
+          "type": "array", "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "profiler_script_sha256": {"$ref": "#/$defs/sha256"},
+        "review_sample": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/reviewSample"}
+          ]
+        }
+      }
+    },
+    "document_output": {"$ref": "#/$defs/fileWithRows"},
+    "checkpoint_closure": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "count", "rows", "inventory_sha256", "receipt_closure_sha256",
+        "checkpoint_outputs_rehashed_for_handoff",
+        "consolidated_document_output_rehashed_for_handoff"
+      ],
+      "properties": {
+        "count": {"type": "integer", "minimum": 1},
+        "rows": {"type": "integer", "minimum": 1},
+        "inventory_sha256": {"$ref": "#/$defs/sha256"},
+        "receipt_closure_sha256": {"$ref": "#/$defs/sha256"},
+        "checkpoint_outputs_rehashed_for_handoff": {"const": true},
+        "consolidated_document_output_rehashed_for_handoff": {"const": true}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "file": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "fileWithRows": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "bytes", "sha256", "rows"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "rows": {"type": "integer", "minimum": 1}
+      }
+    },
+    "sourceIdentity": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "source_id", "repo_id", "revision", "role", "documents", "shards",
+        "shard_inventory_sha256", "acquisition_selected_file_count",
+        "acquisition_selected_bytes", "acquisition_file_inventory_sha256"
+      ],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "repo_id": {"type": "string", "minLength": 1},
+        "revision": {"type": "string", "minLength": 1},
+        "role": {"type": "string"},
+        "documents": {"type": "integer", "minimum": 1},
+        "shards": {"type": "integer", "minimum": 1},
+        "shard_inventory_sha256": {"$ref": "#/$defs/sha256"},
+        "acquisition_selected_file_count": {"type": "integer", "minimum": 1},
+        "acquisition_selected_bytes": {"type": "integer", "minimum": 0},
+        "acquisition_file_inventory_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "reviewSample": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "review_sample_packet", "review_sample_receipt", "review_sample_attestation",
+        "review_requests", "documents", "text_variant"
+      ],
+      "properties": {
+        "review_sample_packet": {"$ref": "#/$defs/file"},
+        "review_sample_receipt": {"$ref": "#/$defs/file"},
+        "review_sample_attestation": {"$ref": "#/$defs/file"},
+        "review_requests": {"$ref": "#/$defs/file"},
+        "documents": {"type": "integer", "minimum": 1},
+        "text_variant": {"const": "high_precision_identifier_masked_review_sample"}
+      }
+    }
+  }
+}

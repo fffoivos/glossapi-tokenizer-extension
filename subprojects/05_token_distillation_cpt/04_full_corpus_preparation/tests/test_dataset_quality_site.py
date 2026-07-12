@@ -92,7 +92,9 @@ def complete_sample(
         "profile_text_sha256": hashlib.sha256(text.encode()).hexdigest(),
         "profile_text_variant": "high_precision_identifier_masked_review_sample",
         "input_shard_path": f"{source_id}/part.parquet",
-        "input_shard_sha256": "b" * 64,
+        "input_shard_sha256": hashlib.sha256(
+            f"fixture-shard:{source_id}".encode()
+        ).hexdigest(),
         "input_row_index": 7,
         "private_data_true": False,
         "corrected_version_present": False,
@@ -109,49 +111,573 @@ def write_packet_receipt(
     requests: Path,
     rows: int,
     normalization: Path | None = None,
-) -> None:
+) -> Path:
+    packet_rows = [
+        json.loads(line) for line in packet.read_text().splitlines() if line.strip()
+    ]
+    assert len(packet_rows) == rows
+    normalization_bytes = (
+        normalization.read_bytes() if normalization else b"normalization"
+    )
+    normalization_receipt = {
+        "path": "normalization_manifest.json",
+        "bytes": len(normalization_bytes),
+        "sha256": hashlib.sha256(normalization_bytes).hexdigest(),
+    }
+    requests_receipt = {
+        "path": requests.name,
+        "bytes": requests.stat().st_size,
+        "sha256": hashlib.sha256(requests.read_bytes()).hexdigest(),
+    }
+    shard_groups: dict[tuple[str, str, str], list[dict]] = {}
+    for row in packet_rows:
+        key = (
+            str(row["source_id"]),
+            str(row["input_shard_path"]),
+            str(row["input_shard_sha256"]),
+        )
+        shard_groups.setdefault(key, []).append(row)
+    input_shards = [
+        {
+            "source_id": source_id,
+            "path": shard_path,
+            "bytes": 1,
+            "rows": max(int(row["input_row_index"]) for row in group) + 1,
+            "sha256": shard_sha,
+        }
+        for (source_id, shard_path, shard_sha), group in sorted(shard_groups.items())
+    ]
+    checkpoint_inventory = [
+        {
+            "input_shard_sha256": shard["sha256"],
+            "checkpoint_receipt_sha256": hashlib.sha256(
+                f"checkpoint:{shard['sha256']}".encode()
+            ).hexdigest(),
+            "output_sha256": hashlib.sha256(
+                f"output:{shard['sha256']}".encode()
+            ).hexdigest(),
+            "selected_rows": sum(
+                row["input_shard_sha256"] == shard["sha256"] for row in packet_rows
+            ),
+        }
+        for shard in input_shards
+    ]
+    redaction_totals: dict[str, int] = {}
+    for row in packet_rows:
+        for name, count in row["redaction_counts"].items():
+            redaction_totals[name] = redaction_totals.get(name, 0) + int(count)
+    dependency_hashes = {
+        "build_source_review_packet": QUALITY.sha256_file(
+            Path(EXPORTER.redact_direct_identifiers.__code__.co_filename).resolve()
+        ),
+        "greek_pii": QUALITY.sha256_file(
+            Path(EXPORTER.mask_greek_identifiers.__code__.co_filename).resolve()
+        ),
+        "profile_dataset_quality_rust": QUALITY.sha256_file(
+            Path(EXPORTER.metadata_flags.__code__.co_filename).resolve()
+        ),
+    }
+    contract = {
+        "schema_version": "dataset_review_sample_export_contract_v1",
+        "normalization_manifest_sha256": normalization_receipt["sha256"],
+        "review_requests_sha256": requests_receipt["sha256"],
+        "exporter_script_sha256": QUALITY.sha256_file(
+            Path(EXPORTER.__file__).resolve()
+        ),
+        "redaction_dependency_sha256": dependency_hashes,
+        "redaction_pipeline": "high_precision_identifier_patterns_v1",
+        "batch_size": 8,
+        "selected_sample_count": rows,
+    }
+    contract_sha = QUALITY.sha256_json(contract)
+    contract_receipt = {
+        "path": "sample-export-checkpoints/contract.json",
+        "bytes": 1,
+        "sha256": "c" * 64,
+    }
+    identities = []
+    for source_id in sorted({str(row["source_id"]) for row in packet_rows}):
+        source_rows = [row for row in packet_rows if row["source_id"] == source_id]
+        source_shards = [row for row in input_shards if row["source_id"] == source_id]
+        identities.append(
+            {
+                "source_id": source_id,
+                "repo_id": str(source_rows[0]["source_repo_id"]),
+                "revision": str(source_rows[0]["source_revision"]),
+                "role": "additive_candidate",
+                "documents": len(source_rows),
+                "shards": len(source_shards),
+                "shard_inventory_sha256": QUALITY.sha256_json(source_shards),
+                "acquisition_selected_file_count": 1,
+                "acquisition_selected_bytes": 1,
+                "acquisition_file_inventory_sha256": hashlib.sha256(
+                    f"acquisition:{source_id}".encode()
+                ).hexdigest(),
+            }
+        )
+    packet_output = {
+        "path": packet.name,
+        "bytes": packet.stat().st_size,
+        "rows": rows,
+        "sha256": hashlib.sha256(packet.read_bytes()).hexdigest(),
+    }
+    attestation = {
+        "schema_version": "dataset_review_complete_sample_site_attestation_v1",
+        "status": "passed",
+        "created_at": "2026-07-12T00:00:00Z",
+        "packet": packet_output,
+        "review_requests": requests_receipt,
+        "primary_sample_count": rows,
+        "primary_sample_id_inventory_sha256": QUALITY.sha256_json(
+            sorted(str(row["sample_id"]) for row in packet_rows)
+        ),
+        "normalization": {
+            "schema_version": "full_cpt_normalization_manifest_v1",
+            "manifest": normalization_receipt,
+            "sources_config_sha256": "1" * 64,
+            "acquisition_receipt_sha256": "2" * 64,
+            "source_identities": identities,
+            "source_identity_inventory_sha256": QUALITY.sha256_json(identities),
+            "normalized_shard_inventory_sha256": QUALITY.sha256_json(input_shards),
+            "input_shards": input_shards,
+            "input_shard_inventory_sha256": QUALITY.sha256_json(input_shards),
+        },
+        "export_contract": {
+            "receipt": contract_receipt,
+            "canonical_sha256": contract_sha,
+            "value": contract,
+        },
+        "checkpoint_closure": {
+            "count": len(checkpoint_inventory),
+            "selected_rows": rows,
+            "inventory_sha256": QUALITY.sha256_json(checkpoint_inventory),
+            "receipt_closure_sha256": "3" * 64,
+            "checkpoint_text_outputs_rehashed_for_attestation": True,
+        },
+        "masking": {
+            "pipeline": "high_precision_identifier_patterns_v1",
+            "implementation_sha256": {
+                "exporter": contract["exporter_script_sha256"],
+                **dependency_hashes,
+            },
+            "high_precision_identifier_patterns_masked": True,
+            "private_data_true_rows": 0,
+            "redaction_totals": redaction_totals,
+            "redaction_totals_sha256": QUALITY.sha256_json(redaction_totals),
+        },
+    }
+    attestation_path = path.with_name("samples-attestation.json")
+    attestation_path.write_text(json.dumps(attestation), encoding="utf-8")
     value = {
         "schema_version": "dataset_review_complete_sample_packet_receipt_v1",
         "status": "passed",
-        "normalization_manifest": {
-            "path": str(normalization.resolve())
-            if normalization
-            else "normalization.json",
-            "sha256": hashlib.sha256(
-                normalization.read_bytes() if normalization else b"normalization"
-            ).hexdigest(),
-        },
+        "normalization_manifest": normalization_receipt,
         "canonical_root": "/receipt-bound/canonical",
-        "review_requests": {
-            "path": str(requests.resolve()),
-            "sha256": hashlib.sha256(requests.read_bytes()).hexdigest(),
-        },
+        "review_requests": requests_receipt,
         "export_contract": {
-            "path": "contract.json",
-            "sha256": "c" * 64,
-            "contract_sha256": "d" * 64,
+            **contract_receipt,
+            "contract_sha256": contract_sha,
         },
-        "input_shards": [
-            {
-                "source_id": "diavgeia",
-                "path": "diavgeia/part.parquet",
-                "bytes": 1,
-                "rows": max(rows, 1),
-                "sha256": "b" * 64,
-            }
-        ],
-        "checkpoint_inventory": [{}],
-        "checkpoint_inventory_sha256": "e" * 64,
-        "output": {
-            "path": packet.name,
-            "bytes": packet.stat().st_size,
-            "rows": rows,
-            "sha256": hashlib.sha256(packet.read_bytes()).hexdigest(),
+        "site_attestation": {
+            "path": attestation_path.name,
+            "bytes": attestation_path.stat().st_size,
+            "sha256": hashlib.sha256(attestation_path.read_bytes()).hexdigest(),
         },
-        "redaction_totals": {},
+        "input_shards": input_shards,
+        "checkpoint_inventory": checkpoint_inventory,
+        "checkpoint_inventory_sha256": QUALITY.sha256_json(checkpoint_inventory),
+        "output": packet_output,
+        "redaction_totals": redaction_totals,
         "high_precision_identifier_patterns_masked": True,
     }
     path.write_text(json.dumps(value), encoding="utf-8")
+    return attestation_path
+
+
+def quality_distribution(documents: int, value: float = 0.0) -> dict[str, object]:
+    metric = value if documents else None
+    return {
+        "count": documents,
+        "min": metric,
+        "mean": metric,
+        "p10_approx": metric,
+        "p50_approx": metric,
+        "p90_approx": metric,
+        "p99_approx": metric,
+        "max": metric,
+        "quantile_sample_documents": documents,
+    }
+
+
+def quality_statistics(repo_id: str | None, documents: int) -> dict[str, object]:
+    counts = {name: 0 for name in QUALITY.DOCUMENT_COUNTERS}
+    rates = {
+        name.removesuffix("_documents") + "_rate": 0.0
+        for name in QUALITY.DOCUMENT_COUNTERS
+    }
+    value: dict[str, object] = {
+        "documents": documents,
+        "characters": documents * 100,
+        "bytes_utf8": documents * 150,
+        "source_datasets": [repo_id.rsplit("/", 1)[-1]] if repo_id else ["global"],
+        "document_counts": counts,
+        "document_rates": rates,
+        "distributions": {
+            name: quality_distribution(documents)
+            for name in QUALITY.DISTRIBUTION_METRICS
+        },
+        "template_concentration": {
+            "documents_with_template": 0,
+            "unique_templates": 0,
+            "top_1_fraction": 0.0,
+            "top_10_fraction": 0.0,
+        },
+    }
+    if repo_id is not None:
+        value["repo_id"] = repo_id
+    return value
+
+
+def write_quality_summary_and_handoff(
+    tmp_path: Path,
+    *,
+    repositories: list[tuple[str, str, str]] | None = None,
+    scan_mode: str = "review_sample",
+) -> tuple[Path, Path]:
+    repositories = repositories or [
+        ("kallipos", "glossAPI/Apothetirio_Kallipos", "a" * 40),
+        ("diavgeia", "glossAPI/diavgeia", "a" * 40),
+    ]
+    repositories = sorted(repositories, key=lambda row: row[1])
+    shards = [
+        {
+            "source_id": source_id,
+            "path": f"{source_id}/part.parquet",
+            "bytes": 10,
+            "sha256": hashlib.sha256(f"quality-shard:{source_id}".encode()).hexdigest(),
+            "rows": 1,
+        }
+        for source_id, _, _ in sorted(repositories)
+    ]
+    checkpoint_inventory = [
+        {
+            "receipt_path": f"batches/{index}/receipt.json",
+            "receipt_sha256": hashlib.sha256(f"receipt:{index}".encode()).hexdigest(),
+            "output_sha256": hashlib.sha256(f"output:{index}".encode()).hexdigest(),
+            "rows": 1,
+            "input_shard_sha256": shard["sha256"],
+            "batch_index": index,
+        }
+        for index, shard in enumerate(shards)
+    ]
+    contract_receipt = {"path": "contract.json", "bytes": 1, "sha256": "c" * 64}
+    normalization_receipt = {
+        "path": "/clariden/normalization_manifest.json",
+        "bytes": 1,
+        "sha256": "d" * 64,
+    }
+    build_receipt = {"path": "/clariden/build.json", "bytes": 1, "sha256": "e" * 64}
+    documents = len(repositories)
+    selected_sources = sorted(row[0] for row in repositories)
+    global_statistics = quality_statistics(None, documents)
+    global_statistics["source_datasets"] = sorted(
+        {repo_id.rsplit("/", 1)[-1] for _, repo_id, _ in repositories}
+    )
+    summary = {
+        "schema_version": "dataset_quality_summary_v1",
+        "status": "passed",
+        "created_at": "2026-07-12T00:00:00Z",
+        "mode": "diagnostic_only_no_cleaned_text_persisted",
+        "scan_mode": scan_mode,
+        "contract_sha256": "f" * 64,
+        "contract": contract_receipt,
+        "normalization_manifest": normalization_receipt,
+        "normalization_schema_version": "full_cpt_normalization_manifest_v1",
+        "glossapi_build_receipt": build_receipt,
+        "glossapi_commit": "a" * 40,
+        "batch_size": 4096,
+        "threads": 256,
+        "quantile_sample_size": 8192,
+        "selected_source_ids": selected_sources,
+        "excluded_source_ids": ["nanochat_base"],
+        "input_shards": shards,
+        "batch_checkpoints": {
+            "count": len(checkpoint_inventory),
+            "rows": documents,
+            "inventory_sha256": QUALITY.sha256_json(checkpoint_inventory),
+            "inventory": checkpoint_inventory,
+        },
+        "document_output": {
+            "path": "dataset_quality_document_v1.parquet",
+            "bytes": 10,
+            "sha256": "9" * 64,
+            "rows": documents,
+        },
+        "global": global_statistics,
+        "repositories": [
+            quality_statistics(repo_id, 1) for _, repo_id, _ in repositories
+        ],
+        "metric_notes": {
+            "rust_noise_badness_score": "diagnostic",
+            "cleaner_removed_character_fraction": "diagnostic",
+            "approximate_quantiles": "bounded",
+            "zero_badness_zero_greek_guard": "guarded",
+            "profile_scope": "selected population",
+        },
+    }
+    summary_path = tmp_path / "quality.json"
+    summary_path.write_text(json.dumps(summary), encoding="utf-8")
+    projection = QUALITY.validate_and_project_quality_summary(summary)
+    identities = [
+        {
+            "source_id": source_id,
+            "repo_id": repo_id,
+            "revision": revision,
+            "role": "additive_candidate",
+            "documents": 1,
+            "shards": 1,
+            "shard_inventory_sha256": hashlib.sha256(
+                f"identity-shards:{source_id}".encode()
+            ).hexdigest(),
+            "acquisition_selected_file_count": 1,
+            "acquisition_selected_bytes": 10,
+            "acquisition_file_inventory_sha256": hashlib.sha256(
+                f"identity-files:{source_id}".encode()
+            ).hexdigest(),
+        }
+        for source_id, repo_id, revision in sorted(repositories)
+    ]
+    review_sample = None
+    if scan_mode == "review_sample":
+        review_sample = {
+            "review_sample_packet": {
+                "path": "/clariden/samples",
+                "bytes": 1,
+                "sha256": "1" * 64,
+            },
+            "review_sample_receipt": {
+                "path": "/clariden/receipt",
+                "bytes": 1,
+                "sha256": "2" * 64,
+            },
+            "review_sample_attestation": {
+                "path": "/clariden/attestation",
+                "bytes": 1,
+                "sha256": "3" * 64,
+            },
+            "review_requests": {
+                "path": "/clariden/requests",
+                "bytes": 1,
+                "sha256": "4" * 64,
+            },
+            "documents": documents,
+            "text_variant": "high_precision_identifier_masked_review_sample",
+        }
+    handoff = {
+        "schema_version": "dataset_quality_site_handoff_v1",
+        "status": "passed",
+        "created_at": "2026-07-12T00:00:00Z",
+        "summary": {
+            "path": summary_path.name,
+            "bytes": summary_path.stat().st_size,
+            "sha256": QUALITY.sha256_file(summary_path),
+        },
+        "scan_mode": scan_mode,
+        "aggregate_projection_sha256": QUALITY.sha256_json(projection),
+        "normalization": {
+            "schema_version": "full_cpt_normalization_manifest_v1",
+            "manifest": {
+                "path": "normalization_manifest.json",
+                "bytes": normalization_receipt["bytes"],
+                "sha256": normalization_receipt["sha256"],
+            },
+            "sources_config_sha256": "5" * 64,
+            "acquisition_receipt_sha256": "6" * 64,
+            "source_identities": identities,
+            "source_identity_inventory_sha256": QUALITY.sha256_json(identities),
+            "normalized_shard_inventory_sha256": "7" * 64,
+            "selected_normalized_source_ids": selected_sources,
+            "selected_normalized_shard_inventory_sha256": QUALITY.sha256_json(shards),
+        },
+        "build": {
+            "receipt_sha256": build_receipt["sha256"],
+            "commit": summary["glossapi_commit"],
+            "cargo_lock_inventory_sha256": "8" * 64,
+            "module_inventory_sha256": "a" * 64,
+            "runtime": {
+                "python": "3.12",
+                "platform": "linux",
+                "machine": "x86_64",
+                "rustc": "rustc",
+                "cargo": "cargo",
+                "maturin": "maturin",
+            },
+        },
+        "contract": {
+            "receipt": contract_receipt,
+            "canonical_sha256": summary["contract_sha256"],
+            "schema_version": "dataset_quality_rust_contract_v1",
+            "selected_shard_inventory_sha256": QUALITY.sha256_json(shards),
+            "excluded_source_ids": summary["excluded_source_ids"],
+            "profiler_script_sha256": "b" * 64,
+            "review_sample": review_sample,
+        },
+        "document_output": summary["document_output"],
+        "checkpoint_closure": {
+            "count": len(checkpoint_inventory),
+            "rows": documents,
+            "inventory_sha256": summary["batch_checkpoints"]["inventory_sha256"],
+            "receipt_closure_sha256": "0" * 64,
+            "checkpoint_outputs_rehashed_for_handoff": True,
+            "consolidated_document_output_rehashed_for_handoff": True,
+        },
+    }
+    handoff_path = tmp_path / "quality-handoff.json"
+    handoff_path.write_text(json.dumps(handoff), encoding="utf-8")
+    return summary_path, handoff_path
+
+
+def write_normalization_fixture(
+    tmp_path: Path,
+    *,
+    canonical_root: Path,
+    shard: Path,
+    source_id: str,
+    repo_id: str,
+    revision: str,
+    rows: int,
+) -> Path:
+    shard_sha = QUALITY.sha256_file(shard)
+    sources_config = tmp_path / "sources.json"
+    sources_config.write_text(
+        json.dumps(
+            {
+                "schema_version": "full_cpt_sources_v1",
+                "base": {
+                    "repo_id": "owner/base",
+                    "revision": "b" * 40,
+                    "role": "base",
+                },
+                "sources": [
+                    {
+                        "source_id": source_id,
+                        "repo_id": repo_id,
+                        "revision": revision,
+                        "role": "additive_candidate",
+                    }
+                ],
+            }
+        )
+    )
+    acquisition = tmp_path / "acquisition.json"
+    acquisition.write_text(
+        json.dumps(
+            {
+                "schema_version": "full_cpt_acquisition_receipt_v1",
+                "status": "passed",
+                "sources_config_sha256": QUALITY.sha256_file(sources_config),
+                "sources": [
+                    {
+                        "source_id": source_id,
+                        "repo_id": repo_id,
+                        "revision": revision,
+                        "role": "additive_candidate",
+                        "selected_file_count": 1,
+                        "selected_bytes": shard.stat().st_size,
+                        "files": [
+                            {
+                                "path": shard.name,
+                                "size": shard.stat().st_size,
+                                "hash_kind": "sha256",
+                                "expected_hash": shard_sha,
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+    )
+    source_receipt = tmp_path / "normalization-source-receipt.json"
+    source_receipt.write_text(
+        json.dumps(
+            {
+                "schema_version": "full_cpt_normalization_source_receipt_v1",
+                "source_id": source_id,
+                "repo_id": repo_id,
+                "revision": revision,
+                "role": "additive_candidate",
+                "counts": {"documents_emitted": rows},
+                "shards": [
+                    {
+                        "path": str(shard.resolve()),
+                        "bytes": shard.stat().st_size,
+                        "sha256": shard_sha,
+                        "rows": rows,
+                    }
+                ],
+            }
+        )
+    )
+    shard_receipt = tmp_path / "normalization-shard-receipt.json"
+    shard_receipt.write_text(
+        json.dumps(
+            {
+                "schema_version": "full_cpt_normalization_shard_receipt_v1",
+                "source_id": source_id,
+                "output": {
+                    "path": str(shard.resolve()),
+                    "bytes": shard.stat().st_size,
+                    "sha256": shard_sha,
+                    "rows": rows,
+                },
+            }
+        )
+    )
+    normalization_contract = tmp_path / "normalization-contract.json"
+    normalization_contract.write_text(json.dumps({"schema_version": "fixture"}))
+    manifest = {
+        "schema_version": "full_cpt_normalization_manifest_v1",
+        "sources_config": str(sources_config.resolve()),
+        "sources_config_sha256": QUALITY.sha256_file(sources_config),
+        "acquisition_receipt": str(acquisition.resolve()),
+        "acquisition_receipt_sha256": QUALITY.sha256_file(acquisition),
+        "contract": {
+            "path": str(normalization_contract.resolve()),
+            "bytes": normalization_contract.stat().st_size,
+            "sha256": QUALITY.sha256_file(normalization_contract),
+        },
+        "output": str(canonical_root.resolve()),
+        "sources": [
+            {
+                "source_id": source_id,
+                "repo_id": repo_id,
+                "revision": revision,
+                "role": "additive_candidate",
+                "counts": {"documents_emitted": rows},
+                "receipt": {
+                    "path": str(source_receipt.resolve()),
+                    "bytes": source_receipt.stat().st_size,
+                    "sha256": QUALITY.sha256_file(source_receipt),
+                },
+                "shards": [
+                    {
+                        "path": str(shard.resolve()),
+                        "bytes": shard.stat().st_size,
+                        "sha256": shard_sha,
+                        "rows": rows,
+                        "receipt": {
+                            "path": str(shard_receipt.resolve()),
+                            "bytes": shard_receipt.stat().st_size,
+                            "sha256": QUALITY.sha256_file(shard_receipt),
+                        },
+                    }
+                ],
+            }
+        ],
+    }
+    manifest_path = tmp_path / "normalization.json"
+    manifest_path.write_text(json.dumps(manifest))
+    return manifest_path
 
 
 def test_evaluations_cover_exact_29_repository_inventory() -> None:
@@ -196,37 +722,10 @@ def test_site_build_is_offline_complete_and_safe_for_hostile_sample(
         json.dumps(complete_sample(uid, hostile)) + "\n", encoding="utf-8"
     )
     sample_receipt = tmp_path / "samples-receipt.json"
-    write_packet_receipt(sample_receipt, packet=samples, requests=requests, rows=1)
-    quality = tmp_path / "quality.json"
-    quality.write_text(
-        json.dumps(
-            {
-                "schema_version": "dataset_quality_summary_v1",
-                "status": "passed",
-                "scan_mode": "review_sample",
-                "selected_source_ids": ["diavgeia"],
-                "excluded_source_ids": ["nanochat_base"],
-                "global": {"documents": 1},
-                "repositories": [
-                    {
-                        "repo_id": "glossAPI/diavgeia",
-                        "documents": 1,
-                        "document_rates": {"html_rate": 0.25},
-                        "distributions": {},
-                        "template_concentration": {},
-                    },
-                    {
-                        "repo_id": "glossAPI/Apothetirio_Kallipos",
-                        "documents": 1,
-                        "document_rates": {},
-                        "distributions": {},
-                        "template_concentration": {},
-                    },
-                ],
-            }
-        ),
-        encoding="utf-8",
+    sample_attestation = write_packet_receipt(
+        sample_receipt, packet=samples, requests=requests, rows=1
     )
+    quality, quality_handoff = write_quality_summary_and_handoff(tmp_path)
     output = tmp_path / "site"
     subprocess.run(
         [
@@ -239,8 +738,12 @@ def test_site_build_is_offline_complete_and_safe_for_hostile_sample(
             str(samples),
             "--complete-samples-receipt",
             str(sample_receipt),
+            "--complete-samples-attestation",
+            str(sample_attestation),
             "--quality-summary",
             str(quality),
+            "--quality-handoff-receipt",
+            str(quality_handoff),
             "--output-dir",
             str(output),
         ],
@@ -250,12 +753,12 @@ def test_site_build_is_offline_complete_and_safe_for_hostile_sample(
     assert len(data["repositories"]) == 29
     assert data["overview"]["complete_samples"] == 1
     assert data["overview"]["quality_scope"] == {
-        "documents": 1,
+        "documents": 2,
         "excluded_source_ids": ["nanochat_base"],
         "is_corpus_wide": False,
         "label": "Representative source-review sample",
         "scan_mode": "review_sample",
-        "selected_source_ids": ["diavgeia"],
+        "selected_source_ids": ["diavgeia", "kallipos"],
     }
     assert data["overview"]["supplemental_profiled_repositories_outside_inventory"] == [
         "glossAPI/Apothetirio_Kallipos"
@@ -300,6 +803,9 @@ def test_site_build_is_offline_complete_and_safe_for_hostile_sample(
     assert manifest["inputs"]["complete_samples_receipt"][
         "sha256"
     ] == QUALITY.sha256_file(sample_receipt)
+    assert manifest["inputs"]["complete_samples_attestation"][
+        "sha256"
+    ] == QUALITY.sha256_file(sample_attestation)
     assert os.stat(sample_path).st_mode & 0o777 == 0o600
     assert SITE.validate_site_directory(output)["status"] == "passed"
     jsonschema = pytest.importorskip("jsonschema")
@@ -309,8 +815,40 @@ def test_site_build_is_offline_complete_and_safe_for_hostile_sample(
     sample_schema = json.loads(
         (HERE / "schemas" / "dataset_review_site_sample.schema.json").read_text()
     )
+    packet_receipt_schema = json.loads(
+        (
+            HERE
+            / "schemas"
+            / "dataset_review_complete_sample_packet_receipt.schema.json"
+        ).read_text()
+    )
+    sample_attestation_schema = json.loads(
+        (
+            HERE
+            / "schemas"
+            / "dataset_review_complete_sample_site_attestation.schema.json"
+        ).read_text()
+    )
+    quality_schema = json.loads(
+        (HERE / "schemas" / "dataset_quality_summary.schema.json").read_text()
+    )
+    quality_handoff_schema = json.loads(
+        (HERE / "schemas" / "dataset_quality_site_handoff.schema.json").read_text()
+    )
     jsonschema.Draft202012Validator(manifest_schema).validate(manifest)
     jsonschema.Draft202012Validator(sample_schema).validate(parsed_sample)
+    jsonschema.Draft202012Validator(packet_receipt_schema).validate(
+        json.loads(sample_receipt.read_text())
+    )
+    jsonschema.Draft202012Validator(sample_attestation_schema).validate(
+        json.loads(sample_attestation.read_text())
+    )
+    jsonschema.Draft202012Validator(quality_schema).validate(
+        json.loads(quality.read_text())
+    )
+    jsonschema.Draft202012Validator(quality_handoff_schema).validate(
+        json.loads(quality_handoff.read_text())
+    )
 
 
 def test_site_rejects_unredacted_complete_sample(tmp_path: Path) -> None:
@@ -322,7 +860,9 @@ def test_site_rejects_unredacted_complete_sample(tmp_path: Path) -> None:
     row["high_precision_identifier_patterns_masked"] = False
     samples.write_text(json.dumps(row) + "\n")
     sample_receipt = tmp_path / "samples-receipt.json"
-    write_packet_receipt(sample_receipt, packet=samples, requests=requests, rows=1)
+    sample_attestation = write_packet_receipt(
+        sample_receipt, packet=samples, requests=requests, rows=1
+    )
     with pytest.raises(ValueError, match="masking/text attestation"):
         SITE.build_site(
             SimpleNamespace(
@@ -336,6 +876,7 @@ def test_site_rejects_unredacted_complete_sample(tmp_path: Path) -> None:
                 novelty=None,
                 complete_samples=samples,
                 complete_samples_receipt=sample_receipt,
+                complete_samples_attestation=sample_attestation,
                 output_dir=tmp_path / "site",
                 replace=False,
             )
@@ -386,7 +927,9 @@ def test_site_filters_supplemental_complete_samples_and_emits_no_hidden_text(
         + "\n"
     )
     sample_receipt = tmp_path / "samples-receipt.json"
-    write_packet_receipt(sample_receipt, packet=samples, requests=requests, rows=2)
+    sample_attestation = write_packet_receipt(
+        sample_receipt, packet=samples, requests=requests, rows=2
+    )
     output = tmp_path / "site"
     SITE.build_site(
         SimpleNamespace(
@@ -400,6 +943,7 @@ def test_site_filters_supplemental_complete_samples_and_emits_no_hidden_text(
             novelty=None,
             complete_samples=samples,
             complete_samples_receipt=sample_receipt,
+            complete_samples_attestation=sample_attestation,
             output_dir=output,
             replace=False,
         )
@@ -424,7 +968,9 @@ def test_site_rejects_sample_receipt_and_profile_hash_drift(tmp_path: Path) -> N
     row["profile_text_sha256"] = "f" * 64
     samples.write_text(json.dumps(row) + "\n")
     receipt_path = tmp_path / "samples-receipt.json"
-    write_packet_receipt(receipt_path, packet=samples, requests=requests, rows=1)
+    sample_attestation = write_packet_receipt(
+        receipt_path, packet=samples, requests=requests, rows=1
+    )
     with pytest.raises(ValueError, match="masking/text attestation"):
         SITE.build_site(
             SimpleNamespace(
@@ -438,6 +984,7 @@ def test_site_rejects_sample_receipt_and_profile_hash_drift(tmp_path: Path) -> N
                 novelty=None,
                 complete_samples=samples,
                 complete_samples_receipt=receipt_path,
+                complete_samples_attestation=sample_attestation,
                 output_dir=tmp_path / "site",
                 replace=False,
             )
@@ -445,7 +992,7 @@ def test_site_rejects_sample_receipt_and_profile_hash_drift(tmp_path: Path) -> N
     receipt = json.loads(receipt_path.read_text())
     receipt["review_requests"]["sha256"] = "0" * 64
     receipt_path.write_text(json.dumps(receipt))
-    with pytest.raises(ValueError, match="packet/upstream receipt drift"):
+    with pytest.raises(ValueError, match="request receipt drift"):
         SITE.build_site(
             SimpleNamespace(
                 inventory=HERE / "configs" / "post_december_inventory.json",
@@ -458,6 +1005,7 @@ def test_site_rejects_sample_receipt_and_profile_hash_drift(tmp_path: Path) -> N
                 novelty=None,
                 complete_samples=samples,
                 complete_samples_receipt=receipt_path,
+                complete_samples_attestation=sample_attestation,
                 output_dir=tmp_path / "site-two",
                 replace=False,
             )
@@ -479,6 +1027,7 @@ def test_site_manifest_validation_rejects_tamper_extra_and_symlink(
         novelty=None,
         complete_samples=None,
         complete_samples_receipt=None,
+        complete_samples_attestation=None,
         output_dir=output,
         replace=False,
     )
@@ -503,24 +1052,18 @@ def test_site_manifest_validation_rejects_tamper_extra_and_symlink(
 def test_full_quality_scope_is_selected_population_not_corpus_wide(
     tmp_path: Path,
 ) -> None:
-    path = tmp_path / "quality.json"
-    path.write_text(
-        json.dumps(
-            {
-                "schema_version": "dataset_quality_summary_v1",
-                "status": "passed",
-                "scan_mode": "full_scan",
-                "selected_source_ids": ["alpha", "beta"],
-                "excluded_source_ids": ["nanochat_base"],
-                "global": {"documents": 9},
-                "repositories": [],
-            }
-        )
+    path, handoff = write_quality_summary_and_handoff(
+        tmp_path,
+        repositories=[
+            ("alpha", "owner/alpha", "a" * 40),
+            ("beta", "owner/beta", "b" * 40),
+        ],
+        scan_mode="full_scan",
     )
-    _, scope = SITE.load_quality(path)
+    _, scope, _ = SITE.load_quality(path, handoff)
     assert scope == {
         "scan_mode": "full_scan",
-        "documents": 9,
+        "documents": 2,
         "is_corpus_wide": False,
         "label": "Full scan of selected canonical sources",
         "selected_source_ids": ["alpha", "beta"],
@@ -530,7 +1073,212 @@ def test_full_quality_scope_is_selected_population_not_corpus_wide(
     value["excluded_source_ids"] = ["alpha"]
     path.write_text(json.dumps(value))
     with pytest.raises(ValueError, match="overlap"):
-        SITE.load_quality(path)
+        SITE.load_quality(path, handoff)
+
+
+def test_quality_summary_rejects_unconstrained_preview_or_raw_identifier_keys(
+    tmp_path: Path,
+) -> None:
+    summary_path, handoff_path = write_quality_summary_and_handoff(tmp_path)
+    summary = json.loads(summary_path.read_text())
+    summary["repositories"][0]["document_preview"] = "RAW-DOCUMENT-ID-123"
+    summary_path.write_text(json.dumps(summary))
+    with pytest.raises(ValueError, match="unexpected=.*document_preview"):
+        SITE.load_quality(summary_path, handoff_path)
+    second = tmp_path / "handoff-case"
+    second.mkdir()
+    summary_path, handoff_path = write_quality_summary_and_handoff(second)
+    handoff = json.loads(handoff_path.read_text())
+    handoff["normalization"]["source_identities"][0]["raw_document_id"] = "secret"
+    handoff_path.write_text(json.dumps(handoff))
+    with pytest.raises(ValueError, match="unexpected=.*raw_document_id"):
+        SITE.load_quality(summary_path, handoff_path)
+
+
+def test_external_repository_needs_exact_acquired_revision_evidence(
+    tmp_path: Path,
+) -> None:
+    summary_path, handoff_path = write_quality_summary_and_handoff(
+        tmp_path,
+        repositories=[("istorima", "glossAPI/istorima", "0" * 40)],
+        scan_mode="full_scan",
+    )
+    output = tmp_path / "site"
+    SITE.build_site(
+        SimpleNamespace(
+            inventory=HERE / "configs" / "post_december_inventory.json",
+            evaluations=HERE / "configs" / "dataset_review_evaluations.json",
+            sources_config=HERE / "configs" / "sources.json",
+            quality_summary=summary_path,
+            quality_handoff_receipt=handoff_path,
+            review_requests=None,
+            review_responses=None,
+            admission=None,
+            novelty=None,
+            complete_samples=None,
+            complete_samples_receipt=None,
+            complete_samples_attestation=None,
+            output_dir=output,
+            replace=False,
+        )
+    )
+    data = json.loads((output / "site_data.json").read_text())
+    istorima = next(
+        row for row in data["repositories"] if row["repo_id"] == "glossAPI/istorima"
+    )
+    assert istorima["quality"] is not None
+    assert istorima["payload_state"] == "external_unavailable"
+
+
+def test_site_rejects_forged_checkpoint_attestation_even_with_updated_self_hash(
+    tmp_path: Path,
+) -> None:
+    uid = hashlib.sha256(b"forged-attestation").hexdigest()
+    requests = tmp_path / "requests.jsonl"
+    requests.write_text(json.dumps(review_request(uid)) + "\n")
+    packet = tmp_path / "samples.jsonl"
+    packet.write_text(json.dumps(complete_sample(uid, "ασφαλές κείμενο")) + "\n")
+    receipt_path = tmp_path / "samples-receipt.json"
+    attestation_path = write_packet_receipt(
+        receipt_path, packet=packet, requests=requests, rows=1
+    )
+    attestation = json.loads(attestation_path.read_text())
+    attestation["checkpoint_closure"][
+        "checkpoint_text_outputs_rehashed_for_attestation"
+    ] = False
+    attestation_path.write_text(json.dumps(attestation))
+    receipt = json.loads(receipt_path.read_text())
+    receipt["site_attestation"].update(
+        {
+            "bytes": attestation_path.stat().st_size,
+            "sha256": QUALITY.sha256_file(attestation_path),
+        }
+    )
+    receipt_path.write_text(json.dumps(receipt))
+    with pytest.raises(ValueError, match="checkpoint closure drift"):
+        SITE.build_site(
+            SimpleNamespace(
+                inventory=HERE / "configs" / "post_december_inventory.json",
+                evaluations=HERE / "configs" / "dataset_review_evaluations.json",
+                sources_config=HERE / "configs" / "sources.json",
+                quality_summary=None,
+                review_requests=requests,
+                review_responses=None,
+                admission=None,
+                novelty=None,
+                complete_samples=packet,
+                complete_samples_receipt=receipt_path,
+                complete_samples_attestation=attestation_path,
+                output_dir=tmp_path / "site",
+                replace=False,
+            )
+        )
+
+
+def test_site_rejects_complete_samples_without_cluster_attestation(
+    tmp_path: Path,
+) -> None:
+    uid = hashlib.sha256(b"missing-attestation").hexdigest()
+    requests = tmp_path / "requests.jsonl"
+    requests.write_text(json.dumps(review_request(uid)) + "\n")
+    packet = tmp_path / "samples.jsonl"
+    packet.write_text(json.dumps(complete_sample(uid, "κείμενο")) + "\n")
+    receipt_path = tmp_path / "samples-receipt.json"
+    write_packet_receipt(receipt_path, packet=packet, requests=requests, rows=1)
+    with pytest.raises(ValueError, match="requires its receipt, site attestation"):
+        SITE.build_site(
+            SimpleNamespace(
+                inventory=HERE / "configs" / "post_december_inventory.json",
+                evaluations=HERE / "configs" / "dataset_review_evaluations.json",
+                sources_config=HERE / "configs" / "sources.json",
+                quality_summary=None,
+                review_requests=requests,
+                review_responses=None,
+                admission=None,
+                novelty=None,
+                complete_samples=packet,
+                complete_samples_receipt=receipt_path,
+                complete_samples_attestation=None,
+                output_dir=tmp_path / "site",
+                replace=False,
+            )
+        )
+
+
+def test_site_remasks_immediately_before_emission_and_rejects_residual_url(
+    tmp_path: Path,
+) -> None:
+    uid = hashlib.sha256(b"residual-url").hexdigest()
+    requests = tmp_path / "requests.jsonl"
+    requests.write_text(json.dumps(review_request(uid)) + "\n")
+    packet = tmp_path / "samples.jsonl"
+    residual = "κείμενο https://example.org/view?token=private#person-42"
+    packet.write_text(json.dumps(complete_sample(uid, residual)) + "\n")
+    receipt_path = tmp_path / "samples-receipt.json"
+    attestation_path = write_packet_receipt(
+        receipt_path, packet=packet, requests=requests, rows=1
+    )
+    with pytest.raises(ValueError, match="residual known identifier or URL"):
+        SITE.build_site(
+            SimpleNamespace(
+                inventory=HERE / "configs" / "post_december_inventory.json",
+                evaluations=HERE / "configs" / "dataset_review_evaluations.json",
+                sources_config=HERE / "configs" / "sources.json",
+                quality_summary=None,
+                review_requests=requests,
+                review_responses=None,
+                admission=None,
+                novelty=None,
+                complete_samples=packet,
+                complete_samples_receipt=receipt_path,
+                complete_samples_attestation=attestation_path,
+                output_dir=tmp_path / "site",
+                replace=False,
+            )
+        )
+
+
+def test_site_detects_input_drift_after_parse_before_atomic_publish(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    inventory = tmp_path / "inventory.json"
+    evaluations = tmp_path / "evaluations.json"
+    sources = tmp_path / "sources.json"
+    inventory.write_bytes(
+        (HERE / "configs" / "post_december_inventory.json").read_bytes()
+    )
+    evaluations.write_bytes(
+        (HERE / "configs" / "dataset_review_evaluations.json").read_bytes()
+    )
+    sources.write_bytes((HERE / "configs" / "sources.json").read_bytes())
+    original_validate = SITE.validate_site_directory
+
+    def validate_then_drift(root: Path) -> dict[str, object]:
+        result = original_validate(root)
+        inventory.write_bytes(inventory.read_bytes() + b" ")
+        return result
+
+    monkeypatch.setattr(SITE, "validate_site_directory", validate_then_drift)
+    output = tmp_path / "site"
+    with pytest.raises(ValueError, match="input drift before atomic publication"):
+        SITE.build_site(
+            SimpleNamespace(
+                inventory=inventory,
+                evaluations=evaluations,
+                sources_config=sources,
+                quality_summary=None,
+                review_requests=None,
+                review_responses=None,
+                admission=None,
+                novelty=None,
+                complete_samples=None,
+                complete_samples_receipt=None,
+                complete_samples_attestation=None,
+                output_dir=output,
+                replace=False,
+            )
+        )
+    assert not output.exists()
 
 
 def test_normalized_shard_loader_is_manifest_exact(tmp_path: Path) -> None:
@@ -568,6 +1316,33 @@ def test_normalized_shard_loader_is_manifest_exact(tmp_path: Path) -> None:
         QUALITY.load_normalized_shards(
             path, root, include_source_ids=set(), include_base=False
         )
+
+
+def test_normalization_identity_closure_rejects_acquisition_file_total_drift(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "canonical"
+    shard = root / "candidate" / "part.parquet"
+    shard.parent.mkdir(parents=True)
+    shard.write_bytes(b"fixture")
+    manifest_path = write_normalization_fixture(
+        tmp_path,
+        canonical_root=root,
+        shard=shard,
+        source_id="candidate",
+        repo_id="owner/candidate",
+        revision="a" * 40,
+        rows=1,
+    )
+    manifest = json.loads(manifest_path.read_text())
+    acquisition_path = Path(manifest["acquisition_receipt"])
+    acquisition = json.loads(acquisition_path.read_text())
+    acquisition["sources"][0]["selected_file_count"] = 2
+    acquisition_path.write_text(json.dumps(acquisition))
+    manifest["acquisition_receipt_sha256"] = QUALITY.sha256_file(acquisition_path)
+    manifest_path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="acquisition file totals drift"):
+        QUALITY.normalization_identity_closure(manifest_path)
 
 
 def test_quantile_sample_size_is_bound_into_resume_contract(tmp_path: Path) -> None:
@@ -743,7 +1518,7 @@ def test_exact_review_sample_packet_is_bound_and_uses_hashed_display_id(
     assert row["display_document_id"] == display_id
     packet.write_text(json.dumps(row) + "\n")
     receipt_path = tmp_path / "sample-receipt.json"
-    write_packet_receipt(
+    attestation_path = write_packet_receipt(
         receipt_path,
         packet=packet,
         requests=requests,
@@ -753,6 +1528,7 @@ def test_exact_review_sample_packet_is_bound_and_uses_hashed_display_id(
     rows, inputs = QUALITY.load_review_sample_packet(
         packet_path=packet,
         receipt_path=receipt_path,
+        attestation_path=attestation_path,
         requests_path=requests,
         normalization_manifest=normalization,
     )
@@ -977,6 +1753,42 @@ def test_complete_sample_redaction_covers_identity_ipv6_and_email() -> None:
     assert counts["email"] == counts["ipv6"] == counts["identity"] == 1
 
 
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://user:password@example.org:8443/private/report.pdf?email="
+        "alice%40example.org&token=s3cr3t%2Bvalue#account-123",
+        "HTTP://example.org/a_(balanced)/b;params?q=one%20two&next="
+        "https%3A%2F%2Fevil.example%2Fprivate#Greek-\u03b1\u03c0\u03cc\u03c1\u03c1\u03b7\u03c4\u03bf",
+        "www.example.gr/path/to/page?session=abc123&empty=#private-fragment",
+    ],
+)
+def test_complete_sample_redaction_masks_full_url_query_and_fragment(url: str) -> None:
+    redacted, counts = EXPORTER.redact_complete_text(f"before <{url}> after")
+    assert redacted == "before <[REDACTED_URL]> after"
+    assert counts == {"url": 1}
+    for secret in ("password", "alice", "s3cr3t", "session", "private"):
+        assert secret not in redacted
+
+
+def test_complete_sample_url_redaction_handles_multiple_contexts_without_email_overlap() -> (
+    None
+):
+    text = (
+        'href="https://example.org/download?owner=user@example.gr#record-7" '
+        "markdown=(www.example.gr/a?x=1&y=2#section) "
+        "standalone=user@www.example.gr"
+    )
+    redacted, counts = EXPORTER.redact_complete_text(text)
+    assert "https://" not in redacted
+    assert "www.example.gr/a" not in redacted
+    assert "owner=" not in redacted
+    assert "#record-7" not in redacted
+    assert "#section" not in redacted
+    assert "user@www.example.gr" not in redacted
+    assert counts == {"email": 1, "url": 2}
+
+
 def test_sample_export_omits_raw_source_document_identifier(tmp_path: Path) -> None:
     pa = pytest.importorskip("pyarrow")
     pq = pytest.importorskip("pyarrow.parquet")
@@ -1002,29 +1814,14 @@ def test_sample_export_omits_raw_source_document_identifier(tmp_path: Path) -> N
         ),
         shard,
     )
-    manifest_path = tmp_path / "normalization.json"
-    manifest_path.write_text(
-        json.dumps(
-            {
-                "schema_version": "full_cpt_normalization_manifest_v1",
-                "output": str(root.resolve()),
-                "sources": [
-                    {
-                        "source_id": "diavgeia",
-                        "shards": [
-                            {
-                                "path": str(shard.resolve()),
-                                "bytes": shard.stat().st_size,
-                                "sha256": hashlib.sha256(
-                                    shard.read_bytes()
-                                ).hexdigest(),
-                                "rows": 1,
-                            }
-                        ],
-                    }
-                ],
-            }
-        )
+    manifest_path = write_normalization_fixture(
+        tmp_path,
+        canonical_root=root,
+        shard=shard,
+        source_id="diavgeia",
+        repo_id="glossAPI/diavgeia",
+        revision="a" * 40,
+        rows=1,
     )
     requests = tmp_path / "requests.jsonl"
     requests.write_text(
@@ -1046,11 +1843,13 @@ def test_sample_export_omits_raw_source_document_identifier(tmp_path: Path) -> N
     )
     packet = tmp_path / "complete.jsonl"
     packet_receipt = tmp_path / "complete-receipt.json"
+    site_attestation = tmp_path / "complete-site-attestation.json"
     assert (
         EXPORTER.export_samples(
             SimpleNamespace(
                 output=packet,
                 receipt=packet_receipt,
+                site_attestation=site_attestation,
                 resume=False,
                 review_requests=requests,
                 normalization_manifest=manifest_path,
@@ -1091,13 +1890,24 @@ def test_sample_export_omits_raw_source_document_identifier(tmp_path: Path) -> N
             / "dataset_review_complete_sample_packet_receipt.schema.json"
         ).read_text()
     )
+    attestation_schema = json.loads(
+        (
+            HERE
+            / "schemas"
+            / "dataset_review_complete_sample_site_attestation.schema.json"
+        ).read_text()
+    )
     jsonschema.Draft202012Validator(packet_schema).validate(row)
     jsonschema.Draft202012Validator(receipt_schema).validate(receipt_value)
+    jsonschema.Draft202012Validator(attestation_schema).validate(
+        json.loads(site_attestation.read_text())
+    )
     assert (
         EXPORTER.export_samples(
             SimpleNamespace(
                 output=packet,
                 receipt=packet_receipt,
+                site_attestation=site_attestation,
                 resume=True,
                 review_requests=requests,
                 normalization_manifest=manifest_path,
@@ -1126,6 +1936,9 @@ def test_clariden_wrapper_is_cpu_only_resumable_and_4096_bounded() -> None:
     assert 'phase04_stage_require_upstream "30-review-packet"' in wrapper
     assert "--review-sample-packet" in wrapper
     assert '--checkpoint-dir "$PHASE04_STAGE_DIR/sample-export-checkpoints"' in wrapper
+    assert "--site-attestation" in wrapper
+    assert "--review-sample-attestation" in wrapper
+    assert "--site-handoff" in wrapper
     assert 'phase04_stage_bind_parameter scan_mode "$QUALITY_MODE"' in wrapper
     assert "--resume" in wrapper
     assert 'CUDA_VISIBLE_DEVICES=""' in wrapper
@@ -1150,9 +1963,13 @@ def test_new_json_schemas_are_parseable_and_versioned() -> None:
         "glossapi_rust_quality_build_receipt.schema.json": "glossapi_rust_quality_build_receipt_v1",
         "dataset_quality_document.schema.json": "dataset_quality_document_v1",
         "dataset_quality_summary.schema.json": "dataset_quality_summary_v1",
+        "dataset_quality_site_handoff.schema.json": "dataset_quality_site_handoff_v1",
         "dataset_review_complete_sample.schema.json": "dataset_review_complete_sample_v1",
         "dataset_review_complete_sample_packet_receipt.schema.json": (
             "dataset_review_complete_sample_packet_receipt_v1"
+        ),
+        "dataset_review_complete_sample_site_attestation.schema.json": (
+            "dataset_review_complete_sample_site_attestation_v1"
         ),
         "dataset_review_sample_export_contract.schema.json": (
             "dataset_review_sample_export_contract_v1"
