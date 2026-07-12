@@ -28,13 +28,14 @@ import os
 import platform
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Iterable, Mapping, Sequence
 
 from profile_source_quality import (
@@ -253,6 +254,270 @@ def require_nonnegative_int(value: Any, *, context: str) -> int:
     return value
 
 
+def safe_relative_path(value: Any, *, context: str) -> Path:
+    """Return one canonical POSIX relative path without traversal syntax."""
+
+    if not isinstance(value, str) or not value or "\\" in value:
+        raise ValueError(f"{context}: expected a canonical relative path")
+    pure = PurePosixPath(value)
+    if (
+        pure.is_absolute()
+        or pure.as_posix() != value
+        or not pure.parts
+        or any(part in {"", ".", ".."} for part in pure.parts)
+    ):
+        raise ValueError(f"{context}: expected a canonical relative path")
+    return Path(*pure.parts)
+
+
+def lexical_absolute(path: Path) -> Path:
+    """Absolutize without resolving symlinks away before they are inspected."""
+
+    return Path(os.path.abspath(os.path.expanduser(str(path))))
+
+
+def _directory_flags() -> int:
+    return os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0)
+
+
+def _open_directory_nofollow(path: Path, *, create: bool, context: str) -> int:
+    """Open an absolute directory by walking every component with ``O_NOFOLLOW``."""
+
+    absolute = lexical_absolute(path)
+    descriptor = os.open(
+        absolute.anchor,
+        os.O_RDONLY | os.O_DIRECTORY | getattr(os, "O_CLOEXEC", 0),
+    )
+    try:
+        for part in absolute.parts[1:]:
+            try:
+                child = os.open(part, _directory_flags(), dir_fd=descriptor)
+            except FileNotFoundError:
+                if not create:
+                    raise ValueError(f"{context}: missing directory component {part!r}")
+                try:
+                    os.mkdir(part, mode=0o700, dir_fd=descriptor)
+                except FileExistsError:
+                    pass
+                child = os.open(part, _directory_flags(), dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child
+        return descriptor
+    except OSError as exc:
+        os.close(descriptor)
+        raise ValueError(f"{context}: unsafe directory path {absolute}: {exc}") from exc
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def prepare_secure_directory(path: Path, *, context: str) -> Path:
+    """Create a directory only through non-symlink path components."""
+
+    absolute = lexical_absolute(path)
+    descriptor = _open_directory_nofollow(absolute, create=True, context=context)
+    os.close(descriptor)
+    return absolute
+
+
+def secure_directory_under_root(directory: Path, *, root: Path, context: str) -> Path:
+    """Validate an existing non-symlink directory contained by ``root``."""
+
+    root_absolute = lexical_absolute(root)
+    directory_absolute = lexical_absolute(directory)
+    try:
+        directory_absolute.relative_to(root_absolute)
+    except ValueError as exc:
+        raise ValueError(f"{context}: directory escapes expected root") from exc
+    root_descriptor = _open_directory_nofollow(
+        root_absolute, create=False, context=f"{context} root"
+    )
+    os.close(root_descriptor)
+    directory_descriptor = _open_directory_nofollow(
+        directory_absolute, create=False, context=context
+    )
+    os.close(directory_descriptor)
+    return directory_absolute
+
+
+def _open_relative_regular_nofollow(
+    root: Path, relative: Path, *, context: str
+) -> tuple[int, Path]:
+    root_absolute = lexical_absolute(root)
+    descriptor = _open_directory_nofollow(
+        root_absolute, create=False, context=f"{context} root"
+    )
+    try:
+        for part in relative.parts[:-1]:
+            child = os.open(part, _directory_flags(), dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child
+        file_descriptor = os.open(
+            relative.parts[-1],
+            os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0),
+            dir_fd=descriptor,
+        )
+        file_stat = os.fstat(file_descriptor)
+        if not stat.S_ISREG(file_stat.st_mode):
+            os.close(file_descriptor)
+            raise ValueError(f"{context}: expected a regular file")
+        return file_descriptor, root_absolute / relative
+    except OSError as exc:
+        raise ValueError(f"{context}: unsafe relative file path: {exc}") from exc
+    finally:
+        os.close(descriptor)
+
+
+def _fd_identity(value: os.stat_result) -> tuple[int, int, int, int, int]:
+    return (
+        value.st_size,
+        value.st_dev,
+        value.st_ino,
+        value.st_mtime_ns,
+        value.st_ctime_ns,
+    )
+
+
+def _verify_relative_path_identity(
+    root: Path,
+    relative: Path,
+    expected: os.stat_result,
+    *,
+    context: str,
+) -> None:
+    """Reopen a relative path no-follow and require the same inode identity."""
+
+    descriptor, _ = _open_relative_regular_nofollow(
+        root, relative, context=f"{context} identity recheck"
+    )
+    try:
+        if _fd_identity(os.fstat(descriptor)) != _fd_identity(expected):
+            raise ValueError(f"{context}: path identity changed while reading")
+    finally:
+        os.close(descriptor)
+
+
+def _sha256_fd(descriptor: int, chunk_size: int = 16 * 1024 * 1024) -> str:
+    digest = hashlib.sha256()
+    os.lseek(descriptor, 0, os.SEEK_SET)
+    while chunk := os.read(descriptor, chunk_size):
+        digest.update(chunk)
+    os.lseek(descriptor, 0, os.SEEK_SET)
+    return digest.hexdigest()
+
+
+def load_relative_bytes_nofollow(
+    root: Path, value: Any, *, context: str
+) -> tuple[Path, bytes, int, str]:
+    """Read and hash bytes through one stable no-follow file descriptor."""
+
+    relative = safe_relative_path(value, context=context)
+    descriptor, path = _open_relative_regular_nofollow(root, relative, context=context)
+    try:
+        before = os.fstat(descriptor)
+        chunks: list[bytes] = []
+        digest = hashlib.sha256()
+        while chunk := os.read(descriptor, 1024 * 1024):
+            digest.update(chunk)
+            chunks.append(chunk)
+        after = os.fstat(descriptor)
+        if _fd_identity(before) != _fd_identity(after):
+            raise ValueError(f"{context}: file changed while reading")
+        _verify_relative_path_identity(root, relative, after, context=context)
+        return path, b"".join(chunks), after.st_size, digest.hexdigest()
+    finally:
+        os.close(descriptor)
+
+
+def load_relative_json_nofollow(
+    root: Path, value: Any, *, context: str
+) -> tuple[Path, dict[str, Any], int, str]:
+    """Read and hash JSON through one stable no-follow file descriptor."""
+
+    path, data, size, digest = load_relative_bytes_nofollow(
+        root, value, context=context
+    )
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError(f"{context}: JSON is not UTF-8") from exc
+    parsed = strict_json_loads(text, context=str(path))
+    if not isinstance(parsed, dict):
+        raise ValueError(f"{context}: JSON root must be an object")
+    return path, parsed, size, digest
+
+
+def validate_relative_file_receipt_nofollow(
+    root: Path,
+    value: Any,
+    receipt: Mapping[str, Any],
+    *,
+    context: str,
+    rows: int | None = None,
+) -> Path:
+    """Validate a receipt and optional Parquet rows on one stable no-follow fd."""
+
+    relative = safe_relative_path(value, context=f"{context}.path")
+    descriptor, path = _open_relative_regular_nofollow(root, relative, context=context)
+    try:
+        before = os.fstat(descriptor)
+        if before.st_size != int(receipt.get("bytes", -1)):
+            raise ValueError(f"byte-size drift for {path}")
+        if _sha256_fd(descriptor) != str(receipt.get("sha256", "")):
+            raise ValueError(f"SHA-256 drift for {path}")
+        expected_rows = rows if rows is not None else receipt.get("rows")
+        if expected_rows is not None:
+            import pyarrow.parquet as pq
+
+            with os.fdopen(os.dup(descriptor), "rb") as handle:
+                if pq.ParquetFile(handle).metadata.num_rows != int(expected_rows):
+                    raise ValueError(f"row-count drift for {path}")
+        after = os.fstat(descriptor)
+        if _fd_identity(before) != _fd_identity(after):
+            raise ValueError(f"{context}: file changed while validating")
+        _verify_relative_path_identity(root, relative, after, context=context)
+        return path
+    finally:
+        os.close(descriptor)
+
+
+def secure_relative_file(
+    root: Path,
+    value: Any,
+    *,
+    context: str,
+    expected: str | None = None,
+) -> Path:
+    """Resolve a canonical relative regular file beneath a secure root."""
+
+    relative = safe_relative_path(value, context=context)
+    if expected is not None and relative.as_posix() != expected:
+        raise ValueError(f"{context}: expected {expected!r}")
+    descriptor, candidate = _open_relative_regular_nofollow(
+        root, relative, context=context
+    )
+    os.close(descriptor)
+    return candidate
+
+
+def secure_file_under_root(path: Path, *, root: Path, context: str) -> Path:
+    """Validate an explicitly named regular file beneath a secure root."""
+
+    root_absolute = secure_directory_under_root(
+        root, root=root, context=f"{context} root"
+    )
+    absolute = lexical_absolute(path)
+    try:
+        relative = absolute.relative_to(root_absolute)
+    except ValueError as exc:
+        raise ValueError(f"{context}: file escapes expected root") from exc
+    descriptor, candidate = _open_relative_regular_nofollow(
+        root_absolute, relative, context=context
+    )
+    os.close(descriptor)
+    return candidate
+
+
 def require_finite_number(
     value: Any, *, context: str, nullable: bool = False
 ) -> float | None:
@@ -293,6 +558,160 @@ def validate_receipt_object(
             value["rows"], context=f"{context}.rows"
         )
     return result
+
+
+def validate_checkpoint_inventory_coverage(
+    inventory: Any,
+    *,
+    input_shards: Sequence[Mapping[str, Any]],
+    scan_mode: str,
+) -> list[dict[str, Any]]:
+    """Validate checkpoint identities, canonical paths, and exact row coverage."""
+
+    if not isinstance(inventory, list) or not inventory:
+        raise ValueError("quality_summary.batch_checkpoints.inventory: expected list")
+    normalized: list[dict[str, Any]] = []
+    seen_receipt_paths: set[str] = set()
+    seen_batches: set[tuple[str, str, str, int]] = set()
+    for index, row in enumerate(inventory):
+        context = f"quality_summary.batch_checkpoints.inventory[{index}]"
+        if not isinstance(row, Mapping):
+            raise ValueError(f"{context}: expected object")
+        require_exact_keys(
+            row,
+            required=(
+                "receipt_path",
+                "receipt_sha256",
+                "output_sha256",
+                "rows",
+                "input_shard_source_id",
+                "input_shard_path",
+                "input_shard_sha256",
+                "batch_index",
+                "row_start",
+                "row_end_exclusive",
+            ),
+            context=context,
+        )
+        receipt_path = safe_relative_path(
+            row["receipt_path"], context=f"{context}.receipt_path"
+        ).as_posix()
+        input_shard_source_id = str(row["input_shard_source_id"])
+        if not input_shard_source_id:
+            raise ValueError(f"{context}.input_shard_source_id: empty")
+        input_shard_path = safe_relative_path(
+            row["input_shard_path"], context=f"{context}.input_shard_path"
+        ).as_posix()
+        receipt_sha256 = require_sha256(
+            row["receipt_sha256"], context=f"{context}.receipt_sha256"
+        )
+        output_sha256 = require_sha256(
+            row["output_sha256"], context=f"{context}.output_sha256"
+        )
+        input_shard_sha256 = require_sha256(
+            row["input_shard_sha256"], context=f"{context}.input_shard_sha256"
+        )
+        rows = require_nonnegative_int(row["rows"], context=f"{context}.rows")
+        batch_index = require_nonnegative_int(
+            row["batch_index"], context=f"{context}.batch_index"
+        )
+        row_start = require_nonnegative_int(
+            row["row_start"], context=f"{context}.row_start"
+        )
+        row_end = require_nonnegative_int(
+            row["row_end_exclusive"], context=f"{context}.row_end_exclusive"
+        )
+        if rows < 1 or row_end <= row_start or row_end - row_start != rows:
+            raise ValueError(f"{context}: invalid checkpoint row interval")
+        identity = (
+            input_shard_source_id,
+            input_shard_path,
+            input_shard_sha256,
+            batch_index,
+        )
+        if receipt_path in seen_receipt_paths:
+            raise ValueError("quality_summary: duplicate checkpoint receipt path")
+        if identity in seen_batches:
+            raise ValueError("quality_summary: duplicate input-shard batch identity")
+        seen_receipt_paths.add(receipt_path)
+        seen_batches.add(identity)
+        normalized.append(
+            {
+                "receipt_path": receipt_path,
+                "receipt_sha256": receipt_sha256,
+                "output_sha256": output_sha256,
+                "rows": rows,
+                "input_shard_source_id": input_shard_source_id,
+                "input_shard_path": input_shard_path,
+                "input_shard_sha256": input_shard_sha256,
+                "batch_index": batch_index,
+                "row_start": row_start,
+                "row_end_exclusive": row_end,
+            }
+        )
+
+    canonical = sorted(
+        normalized,
+        key=lambda row: (
+            str(row["input_shard_source_id"]),
+            str(row["input_shard_path"]),
+            str(row["input_shard_sha256"]),
+            int(row["batch_index"]),
+            str(row["receipt_path"]),
+        ),
+    )
+    if normalized != canonical:
+        raise ValueError("quality_summary: checkpoint inventory is not canonical")
+
+    grouped: dict[tuple[str, str, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in normalized:
+        grouped[
+            (
+                str(row["input_shard_source_id"]),
+                str(row["input_shard_path"]),
+                str(row["input_shard_sha256"]),
+            )
+        ].append(row)
+    for identity, rows in grouped.items():
+        cursor = 0
+        for expected_batch_index, row in enumerate(rows):
+            if (
+                int(row["batch_index"]) != expected_batch_index
+                or int(row["row_start"]) != cursor
+            ):
+                raise ValueError(
+                    "quality_summary: checkpoint coverage is noncontiguous for "
+                    f"{identity}"
+                )
+            cursor = int(row["row_end_exclusive"])
+
+    if scan_mode == "full_scan":
+        declared: dict[tuple[str, str, str], Mapping[str, Any]] = {}
+        for index, shard in enumerate(input_shards):
+            context = f"quality_summary.input_shards[{index}]"
+            identity = (
+                str(shard["source_id"]),
+                safe_relative_path(shard["path"], context=f"{context}.path").as_posix(),
+                str(shard["sha256"]),
+            )
+            if identity in declared:
+                raise ValueError("quality_summary: duplicate full-scan shard identity")
+            if "batches" not in shard:
+                raise ValueError("quality_summary: full-scan shard lacks batch count")
+            declared[identity] = shard
+        if set(grouped) != set(declared):
+            raise ValueError(
+                "quality_summary: full-scan checkpoint/shard identity coverage drift"
+            )
+        for identity, shard in declared.items():
+            rows = grouped[identity]
+            if int(rows[-1]["row_end_exclusive"]) != int(shard["rows"]) or len(
+                rows
+            ) != int(shard["batches"]):
+                raise ValueError(
+                    f"quality_summary: incomplete full-scan row coverage for {identity}"
+                )
+    return normalized
 
 
 def _validate_distribution(value: Any, *, context: str) -> dict[str, Any]:
@@ -534,7 +953,16 @@ def validate_and_project_quality_summary(value: Any) -> dict[str, Any]:
     if scan_mode not in {"review_sample", "full_scan"}:
         raise ValueError("quality_summary.scan_mode: invalid")
     require_sha256(value["contract_sha256"], context="quality_summary.contract_sha256")
-    validate_receipt_object(value["contract"], context="quality_summary.contract")
+    contract_receipt = validate_receipt_object(
+        value["contract"], context="quality_summary.contract"
+    )
+    if (
+        safe_relative_path(
+            contract_receipt["path"], context="quality_summary.contract.path"
+        ).as_posix()
+        != "contract.json"
+    ):
+        raise ValueError("quality_summary.contract.path: expected contract.json")
     validate_receipt_object(
         value["normalization_manifest"],
         context="quality_summary.normalization_manifest",
@@ -581,7 +1009,9 @@ def validate_and_project_quality_summary(value: Any) -> dict[str, Any]:
             context=f"quality_summary.input_shards[{index}]",
         )
         source_id = str(row["source_id"])
-        path = str(row["path"])
+        path = safe_relative_path(
+            row["path"], context=f"quality_summary.input_shards[{index}].path"
+        ).as_posix()
         if not source_id or not path:
             raise ValueError("quality_summary.input_shards: empty identity")
         item = {
@@ -606,6 +1036,13 @@ def validate_and_project_quality_summary(value: Any) -> dict[str, Any]:
         normalized_shards, key=lambda row: (str(row["source_id"]), str(row["path"]))
     ):
         raise ValueError("quality_summary.input_shards: inventory is not canonical")
+    if len(
+        {
+            (str(row["source_id"]), str(row["path"]), str(row["sha256"]))
+            for row in normalized_shards
+        }
+    ) != len(normalized_shards):
+        raise ValueError("quality_summary.input_shards: duplicate shard identity")
 
     checkpoints = value["batch_checkpoints"]
     if not isinstance(checkpoints, Mapping):
@@ -628,31 +1065,11 @@ def validate_and_project_quality_summary(value: Any) -> dict[str, Any]:
     inventory = checkpoints["inventory"]
     if not isinstance(inventory, list) or len(inventory) != checkpoint_count:
         raise ValueError("quality_summary.batch_checkpoints: count/inventory drift")
-    for index, row in enumerate(inventory):
-        if not isinstance(row, Mapping):
-            raise ValueError(
-                "quality_summary.batch_checkpoints.inventory: expected objects"
-            )
-        require_exact_keys(
-            row,
-            required=(
-                "receipt_path",
-                "receipt_sha256",
-                "output_sha256",
-                "rows",
-                "input_shard_sha256",
-                "batch_index",
-            ),
-            context=f"quality_summary.batch_checkpoints.inventory[{index}]",
-        )
-        if not str(row["receipt_path"]):
-            raise ValueError("quality_summary: empty checkpoint receipt path")
-        for name in ("receipt_sha256", "output_sha256", "input_shard_sha256"):
-            require_sha256(row[name], context=f"quality_summary.checkpoint.{name}")
-        require_nonnegative_int(row["rows"], context="quality_summary.checkpoint.rows")
-        require_nonnegative_int(
-            row["batch_index"], context="quality_summary.checkpoint.batch_index"
-        )
+    validated_inventory = validate_checkpoint_inventory_coverage(
+        inventory,
+        input_shards=normalized_shards,
+        scan_mode=scan_mode,
+    )
     if sha256_json(inventory) != checkpoints["inventory_sha256"]:
         raise ValueError("quality_summary: checkpoint inventory hash drift")
 
@@ -661,6 +1078,13 @@ def validate_and_project_quality_summary(value: Any) -> dict[str, Any]:
         context="quality_summary.document_output",
         require_rows=True,
     )
+    if (
+        safe_relative_path(
+            document_output["path"], context="quality_summary.document_output.path"
+        ).as_posix()
+        != f"{DOCUMENT_SCHEMA}.parquet"
+    ):
+        raise ValueError("quality_summary.document_output.path: unexpected output")
     global_validated, _ = _validate_statistics(
         value["global"], context="quality_summary.global", require_repo_id=False
     )
@@ -693,12 +1117,18 @@ def validate_and_project_quality_summary(value: Any) -> dict[str, Any]:
             require_nonnegative_int(
                 row["rows"], context="quality_summary.checkpoint.rows"
             )
-            for row in inventory
+            for row in validated_inventory
         )
     ):
         raise ValueError(
             "quality_summary: document/checkpoint/repository denominator drift"
         )
+    if scan_mode == "full_scan" and (
+        documents != sum(int(row["rows"]) for row in normalized_shards)
+        or list(selected)
+        != sorted({str(row["source_id"]) for row in normalized_shards})
+    ):
+        raise ValueError("quality_summary: incomplete full-scan document coverage")
     if (
         global_validated["characters"]
         != sum(row["characters"] for row in validated_repositories)
@@ -1085,15 +1515,40 @@ def build_quality_site_handoff(
 ) -> dict[str, Any]:
     """Revalidate the full on-cluster closure and emit a compact site handoff."""
 
-    summary = read_json(summary_path)
+    output_root = secure_directory_under_root(
+        output_root, root=output_root, context="quality output root"
+    )
+    summary_path = secure_file_under_root(
+        summary_path, root=output_root, context="quality summary"
+    )
+    summary_relative = summary_path.relative_to(output_root).as_posix()
+    summary_path, summary, _, _ = load_relative_json_nofollow(
+        output_root, summary_relative, context="quality summary"
+    )
     projection = validate_and_project_quality_summary(summary)
-    contract = read_json(contract_path)
+    declared_contract_path, contract, contract_bytes, contract_file_sha256 = (
+        load_relative_json_nofollow(
+            output_root,
+            summary["contract"]["path"],
+            context="quality summary contract",
+        )
+    )
+    passed_contract_path = secure_file_under_root(
+        contract_path, root=output_root, context="quality contract"
+    )
+    if declared_contract_path != passed_contract_path:
+        raise ValueError("quality summary contract path drift")
+    contract_path = declared_contract_path
+    if contract_bytes != int(
+        summary["contract"]["bytes"]
+    ) or contract_file_sha256 != str(summary["contract"]["sha256"]):
+        raise ValueError("quality summary contract receipt drift")
     if contract.get("schema_version") != CONTRACT_SCHEMA:
         raise ValueError("quality contract schema drift")
     contract_sha256 = sha256_json(contract)
     if (
         contract_sha256 != summary["contract_sha256"]
-        or sha256_file(contract_path) != summary["contract"]["sha256"]
+        or contract_file_sha256 != summary["contract"]["sha256"]
         or sha256_file(normalization_manifest)
         != summary["normalization_manifest"]["sha256"]
         or sha256_file(build_receipt) != summary["glossapi_build_receipt"]["sha256"]
@@ -1115,30 +1570,59 @@ def build_quality_site_handoff(
     ):
         raise ValueError("quality contract/summary semantic drift")
 
-    document_path = output_root / str(summary["document_output"]["path"])
-    validate_file_receipt(document_path, summary["document_output"])
+    validate_relative_file_receipt_nofollow(
+        output_root,
+        summary["document_output"]["path"],
+        summary["document_output"],
+        context="quality consolidated document output",
+    )
     checkpoints = summary["batch_checkpoints"]
     receipt_closure: list[dict[str, Any]] = []
     for item in checkpoints["inventory"]:
-        receipt_path = output_root / str(item["receipt_path"])
-        if sha256_file(receipt_path) != item["receipt_sha256"]:
+        receipt_path, receipt_value, receipt_bytes, receipt_sha256 = (
+            load_relative_json_nofollow(
+                output_root,
+                item["receipt_path"],
+                context="quality checkpoint receipt",
+            )
+        )
+        if receipt_sha256 != item["receipt_sha256"]:
             raise ValueError(f"checkpoint receipt drift: {receipt_path}")
-        receipt_value = read_json(receipt_path)
+        input_shard = receipt_value.get("input_shard", {})
         if (
             receipt_value.get("schema_version") != BATCH_RECEIPT_SCHEMA
             or receipt_value.get("contract_sha256") != contract_sha256
             or receipt_value.get("output", {}).get("sha256") != item["output_sha256"]
             or int(receipt_value.get("output", {}).get("rows", -1)) != item["rows"]
-            or receipt_value.get("input_shard", {}).get("sha256")
-            != item["input_shard_sha256"]
+            or input_shard.get("source_id") != item["input_shard_source_id"]
+            or input_shard.get("path") != item["input_shard_path"]
+            or input_shard.get("sha256") != item["input_shard_sha256"]
             or int(receipt_value.get("batch_index", -1)) != item["batch_index"]
+            or int(receipt_value.get("row_start", -1)) != item["row_start"]
+            or int(receipt_value.get("row_end_exclusive", -1))
+            != item["row_end_exclusive"]
         ):
             raise ValueError(f"checkpoint receipt semantic drift: {receipt_path}")
-        output_path = receipt_path.parent / str(receipt_value["output"]["path"])
+        output_relative = safe_relative_path(
+            receipt_value["output"]["path"],
+            context=f"{receipt_path}: checkpoint output path",
+        )
+        if output_relative.as_posix() != "documents.parquet":
+            raise ValueError(f"{receipt_path}: invalid checkpoint output path")
+        receipt_relative = safe_relative_path(
+            item["receipt_path"], context="quality checkpoint receipt path"
+        )
+        output_root_relative = (receipt_relative.parent / output_relative).as_posix()
+        output_path = validate_relative_file_receipt_nofollow(
+            output_root,
+            output_root_relative,
+            receipt_value["output"],
+            context="quality checkpoint document output",
+            rows=int(item["rows"]),
+        )
         if (
-            not output_path.is_file()
-            or output_path.stat().st_size != int(receipt_value["output"]["bytes"])
-            or sha256_file(output_path) != item["output_sha256"]
+            receipt_bytes < 1
+            or str(receipt_value["output"]["sha256"]) != item["output_sha256"]
         ):
             raise ValueError(f"checkpoint output stat drift: {output_path}")
         receipt_closure.append(
@@ -1146,8 +1630,12 @@ def build_quality_site_handoff(
                 "receipt_sha256": str(item["receipt_sha256"]),
                 "output_sha256": str(item["output_sha256"]),
                 "rows": int(item["rows"]),
+                "input_shard_source_id": str(item["input_shard_source_id"]),
+                "input_shard_path": str(item["input_shard_path"]),
                 "input_shard_sha256": str(item["input_shard_sha256"]),
                 "batch_index": int(item["batch_index"]),
+                "row_start": int(item["row_start"]),
+                "row_end_exclusive": int(item["row_end_exclusive"]),
             }
         )
     build = read_json(build_receipt)
@@ -1260,15 +1748,31 @@ def snapshot_quality_handoff_outputs(
     snapshotted before they are parsed to discover their checkpoint outputs.
     """
 
-    summary = read_json(summary_path)
-    document_path = output_root / str(
-        summary.get("document_output", {}).get("path", "")
+    output_root = secure_directory_under_root(
+        output_root, root=output_root, context="quality output root"
+    )
+    summary_path = secure_file_under_root(
+        summary_path, root=output_root, context="quality summary"
+    )
+    _, summary, _, _ = load_relative_json_nofollow(
+        output_root,
+        summary_path.relative_to(output_root).as_posix(),
+        context="quality summary",
+    )
+    document_path = secure_relative_file(
+        output_root,
+        summary.get("document_output", {}).get("path", ""),
+        context="quality consolidated document output",
     )
     inventory = summary.get("batch_checkpoints", {}).get("inventory", [])
     if not isinstance(inventory, list):
         raise ValueError("quality summary checkpoint inventory must be a list")
     receipt_paths = [
-        output_root / str(row.get("receipt_path", ""))
+        secure_relative_file(
+            output_root,
+            row.get("receipt_path", ""),
+            context="quality checkpoint receipt",
+        )
         for row in inventory
         if isinstance(row, Mapping)
     ]
@@ -1277,11 +1781,26 @@ def snapshot_quality_handoff_outputs(
     snapshots = snapshot_inputs((document_path, *receipt_paths))
     output_paths: list[Path] = []
     for receipt_path in receipt_paths:
-        checkpoint = read_json(receipt_path)
+        _, checkpoint, _, _ = load_relative_json_nofollow(
+            output_root,
+            receipt_path.relative_to(output_root).as_posix(),
+            context="quality checkpoint receipt",
+        )
         output = checkpoint.get("output")
         if not isinstance(output, Mapping) or not str(output.get("path", "")):
             raise ValueError(f"{receipt_path}: checkpoint output path missing")
-        output_paths.append(receipt_path.parent / str(output["path"]))
+        output_relative = safe_relative_path(
+            output["path"], context=f"{receipt_path}: checkpoint output path"
+        )
+        if output_relative.as_posix() != "documents.parquet":
+            raise ValueError(f"{receipt_path}: invalid checkpoint output path")
+        output_paths.append(
+            secure_file_under_root(
+                receipt_path.parent / output_relative,
+                root=output_root,
+                context="quality checkpoint document output",
+            )
+        )
     snapshots.update(snapshot_inputs(output_paths))
     return snapshots
 
@@ -1662,36 +2181,35 @@ class InputSnapshot:
 
 
 def snapshot_input(path: Path) -> InputSnapshot:
-    resolved = path.expanduser().resolve()
-    if path.is_symlink() or not resolved.is_file():
-        raise ValueError(f"input must be a regular non-symlinked file: {path}")
-    before = resolved.stat()
-    digest = sha256_file(resolved)
-    after = resolved.stat()
-    identity = (
-        before.st_size,
-        before.st_dev,
-        before.st_ino,
-        before.st_mtime_ns,
-        before.st_ctime_ns,
+    absolute = lexical_absolute(path)
+    descriptor, opened_path = _open_relative_regular_nofollow(
+        absolute.parent,
+        Path(absolute.name),
+        context="snapshotted input",
     )
-    if identity != (
-        after.st_size,
-        after.st_dev,
-        after.st_ino,
-        after.st_mtime_ns,
-        after.st_ctime_ns,
-    ):
-        raise ValueError(f"input changed while hashing: {resolved}")
-    return InputSnapshot(
-        path=resolved,
-        bytes=after.st_size,
-        sha256=digest,
-        device=after.st_dev,
-        inode=after.st_ino,
-        mtime_ns=after.st_mtime_ns,
-        ctime_ns=after.st_ctime_ns,
-    )
+    try:
+        before = os.fstat(descriptor)
+        digest = _sha256_fd(descriptor)
+        after = os.fstat(descriptor)
+        if _fd_identity(before) != _fd_identity(after):
+            raise ValueError(f"input changed while hashing: {opened_path}")
+        _verify_relative_path_identity(
+            absolute.parent,
+            Path(absolute.name),
+            after,
+            context="snapshotted input",
+        )
+        return InputSnapshot(
+            path=opened_path,
+            bytes=after.st_size,
+            sha256=digest,
+            device=after.st_dev,
+            inode=after.st_ino,
+            mtime_ns=after.st_mtime_ns,
+            ctime_ns=after.st_ctime_ns,
+        )
+    finally:
+        os.close(descriptor)
 
 
 def snapshot_inputs(paths: Iterable[Path | None]) -> dict[Path, InputSnapshot]:
@@ -2648,17 +3166,26 @@ def batch_directory(output: Path, shard: ShardBinding, batch_index: int) -> Path
 def validate_batch_checkpoint(
     directory: Path,
     *,
+    output_root: Path,
     contract_sha256: str,
     shard: ShardBinding,
     batch_index: int,
     row_start: int,
     row_end: int,
 ) -> dict[str, Any]:
-    receipt_path = directory / "receipt.json"
-    output_path = directory / "documents.parquet"
-    if not receipt_path.is_file() or not output_path.is_file():
-        raise ValueError(f"incomplete Rust quality checkpoint: {directory}")
-    receipt = read_json(receipt_path)
+    output_root = secure_directory_under_root(
+        output_root, root=output_root, context="quality output root"
+    )
+    directory = secure_directory_under_root(
+        directory, root=output_root, context="Rust quality checkpoint"
+    )
+    directory_relative = directory.relative_to(output_root)
+    receipt_relative = (directory_relative / "receipt.json").as_posix()
+    receipt_path, receipt, receipt_bytes, receipt_sha256 = load_relative_json_nofollow(
+        output_root,
+        receipt_relative,
+        context="Rust quality checkpoint receipt",
+    )
     expected = {
         "schema_version": BATCH_RECEIPT_SCHEMA,
         "contract_sha256": contract_sha256,
@@ -2673,8 +3200,23 @@ def validate_batch_checkpoint(
     output = receipt.get("output")
     if not isinstance(output, dict) or output.get("path") != "documents.parquet":
         raise ValueError(f"{receipt_path}: invalid output receipt")
-    validate_file_receipt(output_path, output, rows=row_end - row_start)
-    return {**receipt, "receipt": file_receipt(receipt_path)}
+    output_path = validate_relative_file_receipt_nofollow(
+        output_root,
+        (directory_relative / "documents.parquet").as_posix(),
+        output,
+        context="Rust quality checkpoint output",
+        rows=row_end - row_start,
+    )
+    if output_path.parent != receipt_path.parent:
+        raise ValueError(f"{receipt_path}: checkpoint output directory drift")
+    return {
+        **receipt,
+        "receipt": {
+            "path": str(receipt_path),
+            "bytes": receipt_bytes,
+            "sha256": receipt_sha256,
+        },
+    }
 
 
 def process_batch(
@@ -2689,11 +3231,15 @@ def process_batch(
     runtime: RustRuntime,
     threads: int,
 ) -> dict[str, Any]:
+    output_root = secure_directory_under_root(
+        output_root, root=output_root, context="quality output root"
+    )
     final = batch_directory(output_root, shard, batch_index)
     row_end = row_start + len(rows)
-    if final.exists():
+    if final.exists() or final.is_symlink():
         return validate_batch_checkpoint(
             final,
+            output_root=output_root,
             contract_sha256=contract_sha256,
             shard=shard,
             batch_index=batch_index,
@@ -2701,11 +3247,16 @@ def process_batch(
             row_end=row_end,
         )
 
-    final.parent.mkdir(parents=True, exist_ok=True)
+    prepare_secure_directory(final.parent, context="quality checkpoint parent")
     partial = final.parent / f".{final.name}.partial-{os.getpid()}"
-    if partial.exists():
+    if partial.exists() or partial.is_symlink():
+        secure_directory_under_root(
+            partial,
+            root=output_root,
+            context="partial Rust quality checkpoint",
+        )
         shutil.rmtree(partial)
-    partial.mkdir()
+    prepare_secure_directory(partial, context="partial Rust quality checkpoint")
     try:
         with tempfile.TemporaryDirectory(
             prefix="glossapi-rust-quality-", dir=scratch_root
@@ -2862,7 +3413,15 @@ def process_batch(
         }
         write_json_atomic(partial / "receipt.json", receipt, immutable=True)
         os.replace(partial, final)
-        return {**receipt, "receipt": file_receipt(final / "receipt.json")}
+        return validate_batch_checkpoint(
+            final,
+            output_root=output_root,
+            contract_sha256=contract_sha256,
+            shard=shard,
+            batch_index=batch_index,
+            row_start=row_start,
+            row_end=row_end,
+        )
     except BaseException:
         shutil.rmtree(partial, ignore_errors=True)
         raise
@@ -3036,6 +3595,9 @@ def consolidate_batches(
 ) -> tuple[dict[str, Any], dict[str, Any], list[dict[str, Any]]]:
     import pyarrow.parquet as pq
 
+    output_root = secure_directory_under_root(
+        output_root, root=output_root, context="quality output root"
+    )
     final = output_root / f"{DOCUMENT_SCHEMA}.parquet"
     temporary = output_root / f".{final.name}.partial-{os.getpid()}"
     temporary.unlink(missing_ok=True)
@@ -3052,23 +3614,52 @@ def consolidate_batches(
                 int(row["batch_index"]),
             ),
         ):
-            receipt_path = Path(str(receipt["receipt"]["path"])).resolve()
-            data_path = receipt_path.parent / "documents.parquet"
-            validate_file_receipt(data_path, receipt["output"])
-            parquet = pq.ParquetFile(data_path)
-            for batch in parquet.iter_batches(batch_size=8192):
-                import pyarrow as pa
+            receipt_path = secure_file_under_root(
+                Path(str(receipt["receipt"]["path"])),
+                root=output_root,
+                context="quality checkpoint receipt",
+            )
+            data_relative = (
+                receipt_path.parent.relative_to(output_root) / "documents.parquet"
+            )
+            descriptor, data_path = _open_relative_regular_nofollow(
+                output_root,
+                data_relative,
+                context="quality checkpoint document output",
+            )
+            try:
+                before = os.fstat(descriptor)
+                if before.st_size != int(
+                    receipt["output"].get("bytes", -1)
+                ) or _sha256_fd(descriptor) != str(receipt["output"].get("sha256", "")):
+                    raise ValueError(f"checkpoint output receipt drift: {data_path}")
+                with os.fdopen(os.dup(descriptor), "rb") as handle:
+                    parquet = pq.ParquetFile(handle)
+                    for batch in parquet.iter_batches(batch_size=8192):
+                        import pyarrow as pa
 
-                table = pa.Table.from_batches([batch], schema=batch.schema)
-                if writer is None:
-                    writer = pq.ParquetWriter(
-                        temporary, table.schema, compression="zstd"
-                    )
-                writer.write_table(table, row_group_size=min(8192, table.num_rows))
-                for row in table.to_pylist():
-                    groups[str(row["source_repo_id"])].add(row)
-                    global_group.add(row)
-                    rows += 1
+                        table = pa.Table.from_batches([batch], schema=batch.schema)
+                        if writer is None:
+                            writer = pq.ParquetWriter(
+                                temporary, table.schema, compression="zstd"
+                            )
+                        writer.write_table(
+                            table, row_group_size=min(8192, table.num_rows)
+                        )
+                        for row in table.to_pylist():
+                            groups[str(row["source_repo_id"])].add(row)
+                            global_group.add(row)
+                            rows += 1
+                if _fd_identity(before) != _fd_identity(os.fstat(descriptor)):
+                    raise ValueError(f"checkpoint output changed: {data_path}")
+                _verify_relative_path_identity(
+                    output_root,
+                    data_relative,
+                    before,
+                    context="quality checkpoint document output",
+                )
+            finally:
+                os.close(descriptor)
         if writer is None:
             raise ValueError("no batch documents to consolidate")
         writer.close()
@@ -3086,7 +3677,15 @@ def consolidate_batches(
 def validate_completed_summary(
     path: Path, output_root: Path, contract_sha256: str
 ) -> dict[str, Any]:
-    value = read_json(path)
+    output_root = secure_directory_under_root(
+        output_root, root=output_root, context="quality output root"
+    )
+    path = secure_file_under_root(path, root=output_root, context="quality summary")
+    _, value, _, _ = load_relative_json_nofollow(
+        output_root,
+        path.relative_to(output_root).as_posix(),
+        context="quality summary",
+    )
     if value.get("schema_version") != SUMMARY_SCHEMA or value.get("status") != "passed":
         raise ValueError(f"{path}: unsupported or incomplete summary")
     if value.get("contract_sha256") != contract_sha256:
@@ -3094,8 +3693,13 @@ def validate_completed_summary(
     output = value.get("document_output")
     if not isinstance(output, dict):
         raise ValueError(f"{path}: missing document output receipt")
-    output_path = output_root / str(output.get("path", ""))
-    validate_file_receipt(output_path, output)
+    validate_and_project_quality_summary(value)
+    validate_relative_file_receipt_nofollow(
+        output_root,
+        output.get("path", ""),
+        output,
+        context="quality consolidated document output",
+    )
     return value
 
 
@@ -3228,12 +3832,16 @@ def run_diagnostics(args: argparse.Namespace) -> int:
         sample_contract=sample_contract,
     )
     contract_sha256 = sha256_json(contract)
-    output_root = args.output_dir.resolve()
-    output_root.mkdir(parents=True, exist_ok=True)
+    output_root = prepare_secure_directory(
+        args.output_dir, context="quality output root"
+    )
     contract_path = output_root / "contract.json"
-    if contract_path.exists():
+    if contract_path.exists() or contract_path.is_symlink():
         input_snapshots.update(snapshot_inputs((contract_path,)))
-        if read_json(contract_path) != contract:
+        _, existing_contract, _, _ = load_relative_json_nofollow(
+            output_root, "contract.json", context="quality contract"
+        )
+        if existing_contract != contract:
             raise ValueError(f"{contract_path}: resume contract drift")
         if not args.resume:
             raise FileExistsError(
@@ -3296,7 +3904,9 @@ def run_diagnostics(args: argparse.Namespace) -> int:
                 raise ValueError(f"canonical shard receipt drift: {shard.path}")
         input_snapshots.update(canonical_shard_snapshots)
 
-    args.scratch_dir.mkdir(parents=True, exist_ok=True)
+    args.scratch_dir = prepare_secure_directory(
+        args.scratch_dir, context="quality scratch root"
+    )
     batch_receipts: list[dict[str, Any]] = []
     shard_inventory: list[dict[str, Any]] = []
     if sample_rows is not None:
@@ -3395,8 +4005,12 @@ def run_diagnostics(args: argparse.Namespace) -> int:
             "receipt_sha256": str(row["receipt"]["sha256"]),
             "output_sha256": str(row["output"]["sha256"]),
             "rows": int(row["output"]["rows"]),
+            "input_shard_source_id": str(row["input_shard"]["source_id"]),
+            "input_shard_path": str(row["input_shard"]["path"]),
             "input_shard_sha256": str(row["input_shard"]["sha256"]),
             "batch_index": int(row["batch_index"]),
+            "row_start": int(row["row_start"]),
+            "row_end_exclusive": int(row["row_end_exclusive"]),
         }
         for row in sorted(
             batch_receipts,
@@ -3459,6 +4073,7 @@ def run_diagnostics(args: argparse.Namespace) -> int:
             ),
         },
     }
+    validate_and_project_quality_summary(payload)
     verify_input_snapshots(input_snapshots)
     write_json_atomic(summary_path, payload, immutable=True)
     # The summary is now the terminal receipt for the full-corpus read.  The

@@ -24,11 +24,16 @@ from typing import Any, Mapping
 from build_source_review_packet import redact_direct_identifiers
 from greek_pii import mask_greek_identifiers
 from profile_dataset_quality_rust import (
+    lexical_absolute,
     load_normalized_shards,
+    load_relative_bytes_nofollow,
+    load_relative_json_nofollow,
     metadata_flags,
     normalization_dependency_receipt_paths,
     normalization_identity_closure,
+    prepare_secure_directory,
     read_json,
+    secure_directory_under_root,
     sha256_file,
     sha256_json,
     snapshot_inputs,
@@ -146,14 +151,26 @@ def file_output(path: Path, *, rows: int) -> dict[str, Any]:
 def validate_checkpoint(
     directory: Path,
     *,
+    checkpoint_root: Path,
     contract_sha256: str,
     shard_receipt: dict[str, Any],
 ) -> dict[str, Any]:
-    receipt_path = directory / "receipt.json"
-    fragment = directory / "samples.jsonl"
-    if not receipt_path.is_file() or not fragment.is_file():
-        raise ValueError(f"incomplete sample-export checkpoint: {directory}")
-    value = read_json(receipt_path)
+    checkpoint_root = secure_directory_under_root(
+        checkpoint_root,
+        root=checkpoint_root,
+        context="sample-export checkpoint root",
+    )
+    directory = secure_directory_under_root(
+        directory,
+        root=checkpoint_root,
+        context="sample-export checkpoint",
+    )
+    directory_relative = directory.relative_to(checkpoint_root)
+    receipt_path, value, _, _ = load_relative_json_nofollow(
+        checkpoint_root,
+        (directory_relative / "receipt.json").as_posix(),
+        context="sample-export checkpoint receipt",
+    )
     if not isinstance(value, dict):
         raise ValueError(f"{receipt_path}: checkpoint root must be an object")
     if (
@@ -167,13 +184,22 @@ def validate_checkpoint(
     output = value.get("output")
     if not isinstance(output, dict) or output.get("path") != "samples.jsonl":
         raise ValueError(f"{receipt_path}: invalid checkpoint output")
-    if (
-        int(output.get("bytes", -1)) != fragment.stat().st_size
-        or str(output.get("sha256", "")) != sha256_file(fragment)
-        or int(output.get("rows", -1))
-        != len(
-            [line for line in fragment.read_text(encoding="utf-8").splitlines() if line]
+    fragment, fragment_bytes, fragment_size, fragment_sha256 = (
+        load_relative_bytes_nofollow(
+            checkpoint_root,
+            (directory_relative / "samples.jsonl").as_posix(),
+            context="sample-export checkpoint output",
         )
+    )
+    try:
+        fragment_text = fragment_bytes.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError(f"{fragment}: checkpoint output is not UTF-8") from exc
+    if (
+        int(output.get("bytes", -1)) != fragment_size
+        or str(output.get("sha256", "")) != fragment_sha256
+        or int(output.get("rows", -1))
+        != len([line for line in fragment_text.splitlines() if line])
     ):
         raise ValueError(f"{receipt_path}: checkpoint output drift")
     return value
@@ -223,6 +249,26 @@ def build_site_attestation(
     primary_sample_ids: set[str],
     redaction_totals: Mapping[str, int],
 ) -> dict[str, Any]:
+    checkpoint_root = secure_directory_under_root(
+        checkpoint_root,
+        root=checkpoint_root,
+        context="sample-export checkpoint root",
+    )
+    contract_relative = contract_path.relative_to(checkpoint_root).as_posix()
+    contract_path, stored_contract, contract_bytes, contract_file_sha256 = (
+        load_relative_json_nofollow(
+            checkpoint_root,
+            contract_relative,
+            context="sample-export contract",
+        )
+    )
+    if stored_contract != contract:
+        raise ValueError("sample export stored contract drift")
+    contract_portable_receipt = {
+        "path": contract_path.relative_to(receipt_root).as_posix(),
+        "bytes": contract_bytes,
+        "sha256": contract_file_sha256,
+    }
     normalization = normalization_identity_closure(normalization_manifest)
     normalized_shards = normalization.pop("_normalized_shards")
     normalized_by_identity = {
@@ -263,12 +309,18 @@ def build_site_attestation(
         directory = checkpoint_root / checkpoint_key
         checkpoint = validate_checkpoint(
             directory,
+            checkpoint_root=checkpoint_root,
             contract_sha256=contract_sha256,
             shard_receipt=shard,
         )
+        _, _, _, checkpoint_receipt_sha256 = load_relative_json_nofollow(
+            checkpoint_root,
+            (directory.relative_to(checkpoint_root) / "receipt.json").as_posix(),
+            context="sample-export checkpoint receipt",
+        )
         expected_inventory = {
             "input_shard_sha256": str(shard["sha256"]),
-            "checkpoint_receipt_sha256": sha256_file(directory / "receipt.json"),
+            "checkpoint_receipt_sha256": checkpoint_receipt_sha256,
             "output_sha256": str(checkpoint["output"]["sha256"]),
             "selected_rows": int(checkpoint["output"]["rows"]),
         }
@@ -315,7 +367,7 @@ def build_site_attestation(
             "input_shard_inventory_sha256": sha256_json(input_shards),
         },
         "export_contract": {
-            "receipt": portable_receipt(contract_path, root=receipt_root),
+            "receipt": contract_portable_receipt,
             "canonical_sha256": contract_sha256,
             "value": contract,
         },
@@ -343,7 +395,9 @@ def build_site_attestation(
 
 
 def export_samples(args: argparse.Namespace) -> int:
-    receipt_root = args.receipt.resolve().parent
+    receipt_root = prepare_secure_directory(
+        args.receipt.parent, context="sample packet directory"
+    )
     if (
         args.output.resolve().parent != receipt_root
         or args.site_attestation.resolve().parent != receipt_root
@@ -484,23 +538,25 @@ def export_samples(args: argparse.Namespace) -> int:
     scratch = args.scratch_dir.resolve()
     scratch.mkdir(parents=True, exist_ok=True)
     checkpoint_root_value = getattr(args, "checkpoint_dir", None)
-    checkpoint_root = (
-        Path(checkpoint_root_value).resolve()
+    checkpoint_candidate = lexical_absolute(
+        Path(checkpoint_root_value)
         if checkpoint_root_value is not None
-        else (args.output.parent / f".{args.output.name}.checkpoints").resolve()
+        else args.output.parent / f".{args.output.name}.checkpoints"
+    )
+    try:
+        checkpoint_candidate.relative_to(receipt_root)
+    except ValueError as exc:
+        raise ValueError(
+            "checkpoint directory must be below the packet directory"
+        ) from exc
+    checkpoint_root = prepare_secure_directory(
+        checkpoint_candidate, context="sample-export checkpoint root"
     )
     if checkpoint_root.exists() and any(checkpoint_root.iterdir()) and not args.resume:
         raise FileExistsError(
             f"sample-export checkpoints exist; use --resume: {checkpoint_root}"
         )
-    checkpoint_root.mkdir(parents=True, exist_ok=True, mode=0o700)
     checkpoint_root.chmod(0o700)
-    try:
-        checkpoint_root.relative_to(receipt_root)
-    except ValueError as exc:
-        raise ValueError(
-            "checkpoint directory must be below the packet directory"
-        ) from exc
     contract = {
         "schema_version": EXPORT_CONTRACT_SCHEMA,
         "normalization_manifest_sha256": sha256_file(args.normalization_manifest),
@@ -525,8 +581,12 @@ def export_samples(args: argparse.Namespace) -> int:
         canonical_json(contract).encode("utf-8")
     ).hexdigest()
     contract_path = checkpoint_root / "contract.json"
-    if contract_path.exists():
-        current = read_json(contract_path)
+    if contract_path.exists() or contract_path.is_symlink():
+        _, current, _, _ = load_relative_json_nofollow(
+            checkpoint_root,
+            "contract.json",
+            context="sample-export contract",
+        )
         if current != contract:
             raise ValueError(f"{contract_path}: sample-export resume contract drift")
     else:
@@ -557,9 +617,10 @@ def export_samples(args: argparse.Namespace) -> int:
             canonical_json(shard_receipt).encode("utf-8")
         ).hexdigest()[:24]
         final = checkpoint_root / checkpoint_key
-        if final.exists():
+        if final.exists() or final.is_symlink():
             checkpoint = validate_checkpoint(
                 final,
+                checkpoint_root=checkpoint_root,
                 contract_sha256=contract_sha256,
                 shard_receipt=shard_receipt,
             )
@@ -571,9 +632,16 @@ def export_samples(args: argparse.Namespace) -> int:
                     f"{shard.path}: missing canonical columns {missing_columns}"
                 )
             partial = checkpoint_root / f".{checkpoint_key}.partial-{os.getpid()}"
-            if partial.exists():
+            if partial.exists() or partial.is_symlink():
+                secure_directory_under_root(
+                    partial,
+                    root=checkpoint_root,
+                    context="partial sample-export checkpoint",
+                )
                 shutil.rmtree(partial)
-            partial.mkdir(mode=0o700)
+            prepare_secure_directory(
+                partial, context="partial sample-export checkpoint"
+            )
             selected_rows: list[dict[str, Any]] = []
             shard_redactions: Counter[str] = Counter()
             row_start = 0
@@ -674,14 +742,27 @@ def export_samples(args: argparse.Namespace) -> int:
                 write_json_atomic(partial / "receipt.json", checkpoint, immutable=True)
                 (partial / "receipt.json").chmod(0o600)
                 os.replace(partial, final)
+                checkpoint = validate_checkpoint(
+                    final,
+                    checkpoint_root=checkpoint_root,
+                    contract_sha256=contract_sha256,
+                    shard_receipt=shard_receipt,
+                )
             except BaseException:
                 shutil.rmtree(partial, ignore_errors=True)
                 raise
 
-        fragment = final / "samples.jsonl"
-        for line_number, line in enumerate(
-            fragment.read_text(encoding="utf-8").splitlines(), 1
-        ):
+        checkpoint_relative = final.relative_to(checkpoint_root)
+        fragment, fragment_bytes, _, _ = load_relative_bytes_nofollow(
+            checkpoint_root,
+            (checkpoint_relative / "samples.jsonl").as_posix(),
+            context="sample-export checkpoint output",
+        )
+        try:
+            fragment_text = fragment_bytes.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise ValueError(f"{fragment}: checkpoint output is not UTF-8") from exc
+        for line_number, line in enumerate(fragment_text.splitlines(), 1):
             if not line:
                 continue
             row = strict_json_loads(line, context=f"{fragment}:{line_number}")
@@ -710,10 +791,15 @@ def export_samples(args: argparse.Namespace) -> int:
             samples_by_id[uid] = canonical_json(row) + "\n"
             found.add(uid)
             redaction_totals.update(row.get("redaction_counts", {}))
+        _, _, _, checkpoint_receipt_sha256 = load_relative_json_nofollow(
+            checkpoint_root,
+            (checkpoint_relative / "receipt.json").as_posix(),
+            context="sample-export checkpoint receipt",
+        )
         checkpoint_inventory.append(
             {
                 "input_shard_sha256": shard.sha256,
-                "checkpoint_receipt_sha256": sha256_file(final / "receipt.json"),
+                "checkpoint_receipt_sha256": checkpoint_receipt_sha256,
                 "output_sha256": str(checkpoint["output"]["sha256"]),
                 "selected_rows": int(checkpoint["output"]["rows"]),
             }
@@ -764,6 +850,15 @@ def export_samples(args: argparse.Namespace) -> int:
     verify_input_snapshots(input_snapshots)
     write_json_atomic(args.site_attestation, attestation, immutable=True)
     args.site_attestation.chmod(0o600)
+    _, stored_contract, contract_bytes, contract_file_sha256 = (
+        load_relative_json_nofollow(
+            checkpoint_root,
+            contract_path.relative_to(checkpoint_root).as_posix(),
+            context="sample-export contract",
+        )
+    )
+    if stored_contract != contract:
+        raise ValueError("sample export stored contract drift")
     payload = {
         "schema_version": RECEIPT_SCHEMA,
         "status": "passed",
@@ -779,9 +874,9 @@ def export_samples(args: argparse.Namespace) -> int:
             "sha256": sha256_file(args.review_requests),
         },
         "export_contract": {
-            "path": contract_path.resolve().relative_to(receipt_root).as_posix(),
-            "bytes": contract_path.stat().st_size,
-            "sha256": sha256_file(contract_path),
+            "path": contract_path.relative_to(receipt_root).as_posix(),
+            "bytes": contract_bytes,
+            "sha256": contract_file_sha256,
             "contract_sha256": contract_sha256,
         },
         "site_attestation": portable_receipt(args.site_attestation, root=receipt_root),

@@ -98,9 +98,11 @@ implementation hashes, and persistent per-shard export checkpoints. The packet
 receipt also points to a compact, text-free site attestation. Before emitting
 that attestation on Clariden, the exporter rehashes every checkpoint fragment,
 revalidates the exact normalization/acquisition identity closure, and records
-the current masking implementation hashes. The packet, receipt, and attestation
-are inputs to the Rust profiler, so the usual 100/200 per exact-source sampling
-strata remain intact.
+the current masking implementation hashes. Its contract, checkpoint directories,
+receipts, and fragments must remain beneath the packet checkpoint root and are
+opened component-by-component without following symlinks. The packet, receipt,
+and attestation are inputs to the Rust profiler, so the usual 100/200 per
+exact-source sampling strata remain intact.
 
 For the optional population scan:
 
@@ -113,6 +115,16 @@ Full scan checkpoints are immutable 4,096-document batch directories bound to
 the normalized shard SHA. Resume with `submit.sh resume dataset-quality-full`.
 Set `INCLUDE_NANOCHAT_BASE=1` only for an intentional 54-million-document base
 audit; the default scans candidates, not Nanochat.
+
+Checkpoint receipts and outputs are opened by walking every path component with
+`O_NOFOLLOW`; absolute, non-canonical, traversal, duplicate, and symlinked paths
+are rejected. Each checkpoint inventory entry binds the source ID, canonical
+shard path and SHA, batch index, and half-open row interval. A `full_scan`
+summary is valid only when those intervals start at zero, are contiguous and
+non-overlapping, end at every selected shard's declared row count, and sum to
+the consolidated document and repository denominators. The compact site
+handoff repeats this validation and reopens each receipt/output beneath the
+quality output root before attesting it.
 
 The zero-badness/zero-Greek case is an explicit guard state because the current
 Rust noise scorer can return zero when no Greek remains after table filtering.

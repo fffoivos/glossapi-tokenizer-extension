@@ -356,8 +356,13 @@ def write_quality_summary_and_handoff(
             "bytes": 10,
             "sha256": hashlib.sha256(f"quality-shard:{source_id}".encode()).hexdigest(),
             "rows": 1,
+            **({"batches": 1} if scan_mode == "full_scan" else {}),
         }
         for source_id, _, _ in sorted(repositories)
+    ]
+    contract_shards = [
+        {key: shard[key] for key in ("source_id", "path", "bytes", "sha256", "rows")}
+        for shard in shards
     ]
     checkpoint_inventory = [
         {
@@ -365,8 +370,12 @@ def write_quality_summary_and_handoff(
             "receipt_sha256": hashlib.sha256(f"receipt:{index}".encode()).hexdigest(),
             "output_sha256": hashlib.sha256(f"output:{index}".encode()).hexdigest(),
             "rows": 1,
+            "input_shard_source_id": str(shard["source_id"]),
+            "input_shard_path": str(shard["path"]),
             "input_shard_sha256": shard["sha256"],
-            "batch_index": index,
+            "batch_index": 0,
+            "row_start": 0,
+            "row_end_exclusive": 1,
         }
         for index, shard in enumerate(shards)
     ]
@@ -497,7 +506,9 @@ def write_quality_summary_and_handoff(
             "source_identity_inventory_sha256": QUALITY.sha256_json(identities),
             "normalized_shard_inventory_sha256": "7" * 64,
             "selected_normalized_source_ids": selected_sources,
-            "selected_normalized_shard_inventory_sha256": QUALITY.sha256_json(shards),
+            "selected_normalized_shard_inventory_sha256": QUALITY.sha256_json(
+                contract_shards
+            ),
         },
         "build": {
             "receipt_sha256": build_receipt["sha256"],
@@ -517,7 +528,7 @@ def write_quality_summary_and_handoff(
             "receipt": contract_receipt,
             "canonical_sha256": summary["contract_sha256"],
             "schema_version": "dataset_quality_rust_contract_v1",
-            "selected_shard_inventory_sha256": QUALITY.sha256_json(shards),
+            "selected_shard_inventory_sha256": QUALITY.sha256_json(contract_shards),
             "excluded_source_ids": summary["excluded_source_ids"],
             "profiler_script_sha256": "b" * 64,
             "review_sample": review_sample,
@@ -1074,6 +1085,100 @@ def test_full_quality_scope_is_selected_population_not_corpus_wide(
     path.write_text(json.dumps(value))
     with pytest.raises(ValueError, match="overlap"):
         SITE.load_quality(path, handoff)
+
+
+def test_quality_summary_rejects_checkpoint_path_traversal_with_rehashed_inventory(
+    tmp_path: Path,
+) -> None:
+    summary_path, _ = write_quality_summary_and_handoff(tmp_path)
+    summary = json.loads(summary_path.read_text())
+    inventory = summary["batch_checkpoints"]["inventory"]
+    inventory[0]["receipt_path"] = "../outside/receipt.json"
+    summary["batch_checkpoints"]["inventory_sha256"] = QUALITY.sha256_json(inventory)
+    with pytest.raises(ValueError, match="canonical relative path"):
+        QUALITY.validate_and_project_quality_summary(summary)
+
+    for receipt_name, bad_path in (
+        ("contract", "../outside/contract.json"),
+        ("document_output", "/outside/documents.parquet"),
+    ):
+        summary = json.loads(summary_path.read_text())
+        summary[receipt_name]["path"] = bad_path
+        with pytest.raises(ValueError, match="canonical relative path"):
+            QUALITY.validate_and_project_quality_summary(summary)
+
+
+def test_quality_summary_rejects_duplicate_checkpoint_paths_and_batch_identities(
+    tmp_path: Path,
+) -> None:
+    summary_path, _ = write_quality_summary_and_handoff(tmp_path)
+    summary = json.loads(summary_path.read_text())
+    inventory = summary["batch_checkpoints"]["inventory"]
+    inventory[1]["receipt_path"] = inventory[0]["receipt_path"]
+    summary["batch_checkpoints"]["inventory_sha256"] = QUALITY.sha256_json(inventory)
+    with pytest.raises(ValueError, match="duplicate checkpoint receipt path"):
+        QUALITY.validate_and_project_quality_summary(summary)
+
+    identity_root = tmp_path / "identity"
+    identity_root.mkdir()
+    summary_path, _ = write_quality_summary_and_handoff(identity_root)
+    summary = json.loads(summary_path.read_text())
+    inventory = summary["batch_checkpoints"]["inventory"]
+    for key in (
+        "input_shard_source_id",
+        "input_shard_path",
+        "input_shard_sha256",
+        "batch_index",
+    ):
+        inventory[1][key] = inventory[0][key]
+    summary["batch_checkpoints"]["inventory_sha256"] = QUALITY.sha256_json(inventory)
+    with pytest.raises(ValueError, match="duplicate input-shard batch identity"):
+        QUALITY.validate_and_project_quality_summary(summary)
+
+
+def test_full_scan_rejects_partial_selected_shard_coverage(tmp_path: Path) -> None:
+    summary_path, _ = write_quality_summary_and_handoff(
+        tmp_path,
+        repositories=[("alpha", "owner/alpha", "a" * 40)],
+        scan_mode="full_scan",
+    )
+    summary = json.loads(summary_path.read_text())
+    summary["input_shards"][0]["rows"] = 100
+    with pytest.raises(ValueError, match="incomplete full-scan row coverage"):
+        QUALITY.validate_and_project_quality_summary(summary)
+
+
+@pytest.mark.parametrize("second_start", [0, 2])
+def test_full_scan_rejects_overlapping_or_gapped_checkpoint_intervals(
+    tmp_path: Path, second_start: int
+) -> None:
+    summary_path, _ = write_quality_summary_and_handoff(
+        tmp_path,
+        repositories=[("alpha", "owner/alpha", "a" * 40)],
+        scan_mode="full_scan",
+    )
+    summary = json.loads(summary_path.read_text())
+    summary["input_shards"][0].update({"rows": 3, "batches": 2})
+    inventory = summary["batch_checkpoints"]["inventory"]
+    second = {
+        **inventory[0],
+        "receipt_path": "batches/alpha/second/receipt.json",
+        "receipt_sha256": "1" * 64,
+        "output_sha256": "2" * 64,
+        "batch_index": 1,
+        "row_start": second_start,
+        "row_end_exclusive": second_start + 1,
+    }
+    inventory.append(second)
+    summary["batch_checkpoints"].update(
+        {
+            "count": 2,
+            "rows": 2,
+            "inventory_sha256": QUALITY.sha256_json(inventory),
+        }
+    )
+    with pytest.raises(ValueError, match="checkpoint coverage is noncontiguous"):
+        QUALITY.validate_and_project_quality_summary(summary)
 
 
 def test_quality_summary_rejects_unconstrained_preview_or_raw_identifier_keys(
@@ -1670,6 +1775,62 @@ def test_rust_batch_checkpoint_and_zero_greek_guard(tmp_path: Path) -> None:
         threads=2,
     )
     assert resumed["output"]["sha256"] == receipt["output"]["sha256"]
+
+    checkpoint_directory = Path(receipt["receipt"]["path"]).parent
+    external = tmp_path / "external-checkpoint"
+    external.mkdir()
+    for name in ("receipt.json", "documents.parquet"):
+        (external / name).write_bytes((checkpoint_directory / name).read_bytes())
+
+    directory_link = output / "linked-checkpoint"
+    directory_link.symlink_to(external, target_is_directory=True)
+    with pytest.raises(ValueError, match="unsafe directory path"):
+        QUALITY.validate_batch_checkpoint(
+            directory_link,
+            output_root=output,
+            contract_sha256="c" * 64,
+            shard=shard,
+            batch_index=0,
+            row_start=0,
+            row_end=2,
+        )
+
+    receipt_link_checkpoint = output / "receipt-link-checkpoint"
+    receipt_link_checkpoint.mkdir()
+    (receipt_link_checkpoint / "receipt.json").symlink_to(external / "receipt.json")
+    (receipt_link_checkpoint / "documents.parquet").write_bytes(
+        (external / "documents.parquet").read_bytes()
+    )
+    with pytest.raises(ValueError, match="unsafe relative file path"):
+        QUALITY.validate_batch_checkpoint(
+            receipt_link_checkpoint,
+            output_root=output,
+            contract_sha256="c" * 64,
+            shard=shard,
+            batch_index=0,
+            row_start=0,
+            row_end=2,
+        )
+
+    output_link_checkpoint = output / "output-link-checkpoint"
+    output_link_checkpoint.mkdir()
+    (output_link_checkpoint / "receipt.json").write_bytes(
+        (external / "receipt.json").read_bytes()
+    )
+    (output_link_checkpoint / "documents.parquet").symlink_to(
+        external / "documents.parquet"
+    )
+    with pytest.raises(ValueError, match="unsafe relative file path"):
+        QUALITY.validate_batch_checkpoint(
+            output_link_checkpoint,
+            output_root=output,
+            contract_sha256="c" * 64,
+            shard=shard,
+            batch_index=0,
+            row_start=0,
+            row_end=2,
+        )
+
     document_output, global_summary, repositories = QUALITY.consolidate_batches(
         [receipt], output_root=output, reservoir_size=100
     )
@@ -1683,6 +1844,37 @@ def test_rust_batch_checkpoint_and_zero_greek_guard(tmp_path: Path) -> None:
         output / "dataset_quality_document_v1.parquet"
     ).to_pylist():
         jsonschema.Draft202012Validator(document_contract).validate(row)
+
+
+def test_nofollow_reader_rejects_path_swap_during_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = tmp_path / "root"
+    root.mkdir()
+    receipt = root / "receipt.json"
+    receipt.write_text('{"status":"passed"}')
+    replacement = tmp_path / "replacement.json"
+    replacement.write_text('{"status":"forged"}')
+    original_read = QUALITY.os.read
+    swapped = False
+
+    def swapping_read(descriptor: int, size: int) -> bytes:
+        nonlocal swapped
+        data = original_read(descriptor, size)
+        if data and not swapped:
+            swapped = True
+            receipt.rename(root / "receipt.original.json")
+            receipt.symlink_to(replacement)
+        return data
+
+    monkeypatch.setattr(QUALITY.os, "read", swapping_read)
+    with pytest.raises(
+        ValueError,
+        match="file changed while reading|identity recheck|unsafe relative file path",
+    ):
+        QUALITY.load_relative_json_nofollow(
+            root, "receipt.json", context="swap fixture"
+        )
 
 
 def test_build_receipt_can_bind_staged_modules_to_atomic_publish_paths(
@@ -1751,6 +1943,73 @@ def test_complete_sample_redaction_covers_identity_ipv6_and_email() -> None:
     assert "2001:0db8" not in redacted
     assert "ΑΒ123456" not in redacted
     assert counts["email"] == counts["ipv6"] == counts["identity"] == 1
+
+
+def test_sample_export_checkpoint_rejects_symlinked_directory_and_files(
+    tmp_path: Path,
+) -> None:
+    checkpoint_root = tmp_path / "checkpoints"
+    checkpoint_root.mkdir()
+    external = tmp_path / "external"
+    external.mkdir()
+    fragment = external / "samples.jsonl"
+    fragment.write_text('{"sample_id":"one"}\n')
+    shard_receipt = {
+        "source_id": "candidate",
+        "path": "candidate/part.parquet",
+        "bytes": 10,
+        "sha256": "a" * 64,
+        "rows": 1,
+    }
+    checkpoint = {
+        "schema_version": EXPORTER.CHECKPOINT_SCHEMA,
+        "status": "passed",
+        "contract_sha256": "c" * 64,
+        "input_shard": shard_receipt,
+        "rows_scanned": 1,
+        "redaction_totals": {},
+        "output": {
+            "path": "samples.jsonl",
+            "bytes": fragment.stat().st_size,
+            "sha256": QUALITY.sha256_file(fragment),
+            "rows": 1,
+        },
+    }
+    (external / "receipt.json").write_text(json.dumps(checkpoint))
+
+    directory_link = checkpoint_root / "directory-link"
+    directory_link.symlink_to(external, target_is_directory=True)
+    with pytest.raises(ValueError, match="unsafe directory path"):
+        EXPORTER.validate_checkpoint(
+            directory_link,
+            checkpoint_root=checkpoint_root,
+            contract_sha256="c" * 64,
+            shard_receipt=shard_receipt,
+        )
+
+    receipt_link = checkpoint_root / "receipt-link"
+    receipt_link.mkdir()
+    (receipt_link / "receipt.json").symlink_to(external / "receipt.json")
+    (receipt_link / "samples.jsonl").write_bytes(fragment.read_bytes())
+    with pytest.raises(ValueError, match="unsafe relative file path"):
+        EXPORTER.validate_checkpoint(
+            receipt_link,
+            checkpoint_root=checkpoint_root,
+            contract_sha256="c" * 64,
+            shard_receipt=shard_receipt,
+        )
+
+    output_link = checkpoint_root / "output-link"
+    output_link.mkdir()
+    (output_link / "receipt.json").write_text(json.dumps(checkpoint))
+    (output_link / "samples.jsonl").symlink_to(fragment)
+    with pytest.raises(ValueError, match="unsafe relative file path"):
+        EXPORTER.validate_checkpoint(
+            output_link,
+            checkpoint_root=checkpoint_root,
+            contract_sha256="c" * 64,
+            shard_receipt=shard_receipt,
+        )
 
 
 @pytest.mark.parametrize(
