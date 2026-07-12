@@ -147,3 +147,4 @@ def test_acquisition_merge_is_first_class_and_prepare_loads_paths() -> None:
     assert "MDC_ACQUISITION_RECEIPT" in merge
     assert "MERGED_ACQUISITION_RECEIPT" in merge
     assert prepare.index('source "$HERE/paths.env"') < prepare.index("$SOURCE_CONFIG")
+    assert "--with jsonschema" in prepare
