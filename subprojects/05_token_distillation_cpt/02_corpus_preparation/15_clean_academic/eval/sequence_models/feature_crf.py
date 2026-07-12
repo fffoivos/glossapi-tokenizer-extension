@@ -11,8 +11,12 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
+import platform
 import random
 import sys
+import tempfile
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
@@ -21,9 +25,14 @@ import numpy as np
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from sequence_models.contract import (
-        GoldDocument, read_gold, sha256_file, validate_silver,
+    from sequence_models.bib_ladder import (
+        configure_runtime,
+        peak_rss_bytes,
+        select_shared_calibration,
+        verify_selection_bundle,
     )
+    from sequence_models.contract import GoldDocument, sha256_file
+    from sequence_models.evaluate import evaluate, read_predictions
     from sequence_models.features import (
         TAGS,
         FeatureEncoder,
@@ -32,7 +41,14 @@ if __package__ in (None, ""):
         document_tag_ids,
     )
 else:
-    from .contract import GoldDocument, read_gold, sha256_file, validate_silver
+    from .bib_ladder import (
+        configure_runtime,
+        peak_rss_bytes,
+        select_shared_calibration,
+        verify_selection_bundle,
+    )
+    from .contract import GoldDocument, sha256_file
+    from .evaluate import evaluate, read_predictions
     from .features import (
         TAGS,
         FeatureEncoder,
@@ -41,12 +57,16 @@ else:
         document_tag_ids,
     )
 
-NEG_INF = -1.0e30
+NEG_INF = -np.inf
 
 
 def _logsumexp(values: np.ndarray, axis: int | None = None) -> np.ndarray:
     maximum = np.max(values, axis=axis, keepdims=True)
-    result = maximum + np.log(np.sum(np.exp(values - maximum), axis=axis, keepdims=True))
+    finite = np.isfinite(maximum)
+    safe_maximum = np.where(finite, maximum, 0.0)
+    total = np.sum(np.exp(values - safe_maximum), axis=axis, keepdims=True)
+    with np.errstate(divide="ignore"):
+        result = np.where(finite, maximum + np.log(total), NEG_INF)
     if axis is None:
         return result.reshape(())
     return np.squeeze(result, axis=axis)
@@ -112,36 +132,84 @@ class LinearChainCRF:
         length = emissions.shape[0]
         if length == 0:
             raise ValueError("CRF sequences cannot be empty")
-        transition, start, end = self._masked_parameters()
-        alpha = np.empty((length, self.n_tags), dtype=np.float64)
-        alpha[0] = start + emissions[0]
+        active = np.flatnonzero(self.active_tag_mask)
+        local_emissions = emissions[:, active]
+        local_transition_mask = self.transition_mask[np.ix_(active, active)]
+        local_start_mask = self.start_mask[active]
+        local_end_mask = self.end_mask[active]
+        if (
+            not local_start_mask.any()
+            or not local_end_mask.any()
+            or not local_transition_mask.any(axis=0).all()
+            or not local_transition_mask.any(axis=1).all()
+        ):
+            raise ValueError("active CRF graph is not a complete BIOES state machine")
+        transition = np.where(
+            local_transition_mask,
+            self.transition[np.ix_(active, active)],
+            NEG_INF,
+        )
+        start = np.where(local_start_mask, self.start[active], NEG_INF)
+        end = np.where(local_end_mask, self.end[active], NEG_INF)
+        alpha_local = np.empty((length, len(active)), dtype=np.float64)
+        alpha_local[0] = start + local_emissions[0]
         for t in range(1, length):
-            alpha[t] = emissions[t] + _logsumexp(alpha[t - 1][:, None] + transition, axis=0)
-        log_z = float(_logsumexp(alpha[-1] + end))
-
-        beta = np.empty_like(alpha)
-        beta[-1] = end
-        for t in range(length - 2, -1, -1):
-            beta[t] = _logsumexp(
-                transition + emissions[t + 1][None, :] + beta[t + 1][None, :], axis=1
+            alpha_local[t] = local_emissions[t] + _logsumexp(
+                alpha_local[t - 1][:, None] + transition, axis=0
             )
-        node = np.exp(alpha + beta - log_z)
-        edge = np.empty((max(0, length - 1), self.n_tags, self.n_tags), dtype=np.float64)
+        log_z = float(_logsumexp(alpha_local[-1, local_end_mask] + end[local_end_mask]))
+
+        beta_local = np.empty_like(alpha_local)
+        beta_local[-1] = end
+        for t in range(length - 2, -1, -1):
+            beta_local[t] = _logsumexp(
+                transition
+                + local_emissions[t + 1][None, :]
+                + beta_local[t + 1][None, :],
+                axis=1,
+            )
+        node_local = np.exp(alpha_local + beta_local - log_z)
+        edge_local = np.empty(
+            (max(0, length - 1), len(active), len(active)), dtype=np.float64
+        )
         for t in range(1, length):
-            edge[t - 1] = np.exp(
-                alpha[t - 1][:, None]
+            edge_local[t - 1] = np.exp(
+                alpha_local[t - 1][:, None]
                 + transition
-                + emissions[t][None, :]
-                + beta[t][None, :]
+                + local_emissions[t][None, :]
+                + beta_local[t][None, :]
                 - log_z
             )
-        start_marginal = np.exp(start + emissions[0] + beta[0] - log_z)
-        end_marginal = np.exp(alpha[-1] + end - log_z)
-        return log_z, alpha, beta, node, edge, np.stack((start_marginal, end_marginal))
+        start_marginal = np.exp(start + local_emissions[0] + beta_local[0] - log_z)
+        end_marginal = np.exp(alpha_local[-1] + end - log_z)
+
+        alpha = np.full((length, self.n_tags), NEG_INF, dtype=np.float64)
+        beta = np.full_like(alpha, NEG_INF)
+        node = np.zeros_like(alpha)
+        edge = np.zeros(
+            (max(0, length - 1), self.n_tags, self.n_tags), dtype=np.float64
+        )
+        boundary = np.zeros((2, self.n_tags), dtype=np.float64)
+        alpha[:, active] = alpha_local
+        beta[:, active] = beta_local
+        node[:, active] = node_local
+        edge[:, active[:, None], active[None, :]] = edge_local
+        boundary[0, active] = start_marginal
+        boundary[1, active] = end_marginal
+        return log_z, alpha, beta, node, edge, boundary
 
     def nll_and_grad(
         self, rows: Sequence[Mapping[int, float]], gold: np.ndarray
     ) -> tuple[float, dict[int, np.ndarray], np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        if len(rows) != len(gold) or not len(gold):
+            raise ValueError("gold tag sequence must match a non-empty feature sequence")
+        if (
+            not self.start_mask[gold[0]]
+            or not self.end_mask[gold[-1]]
+            or not self.active_tag_mask[gold].all()
+            or any(not self.transition_mask[left, right] for left, right in zip(gold, gold[1:]))
+        ):
+            raise ValueError("gold tag sequence contains an illegal BIOES path")
         emissions = self.emission_scores(rows)
         log_z, _alpha, _beta, node, edge, boundary = self._forward_backward(emissions)
         transition, start, end = self._masked_parameters()
@@ -174,53 +242,128 @@ class LinearChainCRF:
         return nll, emission_grad, bias_grad, transition_grad, start_grad, end_grad
 
     def viterbi(self, rows: Sequence[Mapping[int, float]], *, deletion_bias: float = 0.0) -> np.ndarray:
+        if not rows:
+            raise ValueError("CRF sequences cannot be empty")
         emissions = self.emission_scores(rows).copy()
         # A single conservative deletion penalty is calibrated on validation.
         # It shifts both structure classes without invalidating BIOES paths.
         for index, tag in enumerate(TAGS):
             if tag != "O":
                 emissions[:, index] -= float(deletion_bias)
-        transition, start, end = self._masked_parameters()
+        active = np.flatnonzero(self.active_tag_mask)
+        emissions = emissions[:, active]
+        transition_mask = self.transition_mask[np.ix_(active, active)]
+        start_mask = self.start_mask[active]
+        end_mask = self.end_mask[active]
+        transition = np.where(
+            transition_mask,
+            self.transition[np.ix_(active, active)],
+            NEG_INF,
+        )
+        start = np.where(start_mask, self.start[active], NEG_INF)
+        end = np.where(end_mask, self.end[active], NEG_INF)
         length = len(rows)
-        score = np.empty((length, self.n_tags), dtype=np.float64)
-        back = np.zeros((length, self.n_tags), dtype=np.int16)
+        score = np.empty((length, len(active)), dtype=np.float64)
+        back = np.zeros((length, len(active)), dtype=np.int16)
         score[0] = start + emissions[0]
         for t in range(1, length):
             candidates = score[t - 1][:, None] + transition
             back[t] = np.argmax(candidates, axis=0)
             score[t] = emissions[t] + np.max(candidates, axis=0)
         tags = np.empty(length, dtype=np.int64)
-        tags[-1] = int(np.argmax(score[-1] + end))
+        allowed_end = np.flatnonzero(end_mask)
+        tags[-1] = int(allowed_end[np.argmax(score[-1, allowed_end] + end[allowed_end])])
         for t in range(length - 1, 0, -1):
             tags[t - 1] = back[t, tags[t]]
-        return tags
+        return active[tags]
 
     def save(self, path: str | Path, metadata: Mapping[str, Any]) -> None:
         path = Path(path)
-        np.savez_compressed(
-            path,
-            emission=self.emission,
-            emission_bias=self.emission_bias,
-            transition=self.transition,
-            start=self.start,
-            end=self.end,
-            active_tag_mask=self.active_tag_mask,
-            metadata=np.asarray(json.dumps(metadata, ensure_ascii=False, sort_keys=True)),
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if path.exists() or path.is_symlink():
+            raise FileExistsError(f"refusing to overwrite immutable model {path}")
+        descriptor, temporary = tempfile.mkstemp(
+            prefix=f".{path.name}.", suffix=".partial", dir=path.parent
         )
+        try:
+            with os.fdopen(descriptor, "wb") as handle:
+                np.savez_compressed(
+                    handle,
+                    emission=self.emission,
+                    emission_bias=self.emission_bias,
+                    transition=self.transition,
+                    start=self.start,
+                    end=self.end,
+                    active_tag_mask=self.active_tag_mask,
+                    metadata=np.asarray(
+                        json.dumps(metadata, ensure_ascii=False, sort_keys=True)
+                    ),
+                )
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.link(temporary, path)
+            os.unlink(temporary)
+        except BaseException:
+            try:
+                os.unlink(temporary)
+            except FileNotFoundError:
+                pass
+            raise
 
     @classmethod
     def load(cls, path: str | Path) -> tuple["LinearChainCRF", dict[str, Any]]:
-        values = np.load(path, allow_pickle=False)
-        metadata = json.loads(str(values["metadata"]))
-        model = cls(
-            values["emission"].shape[0],
-            active_classes=metadata.get("active_classes", ("BIB", "TOC")),
-        )
-        model.emission = values["emission"].astype(np.float64)
-        model.emission_bias = values["emission_bias"].astype(np.float64)
-        model.transition = values["transition"].astype(np.float64)
-        model.start = values["start"].astype(np.float64)
-        model.end = values["end"].astype(np.float64)
+        required = {
+            "emission",
+            "emission_bias",
+            "transition",
+            "start",
+            "end",
+            "active_tag_mask",
+            "metadata",
+        }
+        with np.load(path, allow_pickle=False) as values:
+            if set(values.files) != required:
+                raise ValueError("feature checkpoint has an unexpected array inventory")
+            metadata = json.loads(str(values["metadata"]))
+            if not isinstance(metadata, dict):
+                raise ValueError("feature checkpoint metadata is not an object")
+            emission = values["emission"].astype(np.float64)
+            bias = values["emission_bias"].astype(np.float64)
+            transition = values["transition"].astype(np.float64)
+            start = values["start"].astype(np.float64)
+            end = values["end"].astype(np.float64)
+            active_mask = values["active_tag_mask"].astype(bool)
+        n_tags = len(TAGS)
+        if (
+            emission.ndim != 2
+            or emission.shape[1] != n_tags
+            or bias.shape != (n_tags,)
+            or transition.shape != (n_tags, n_tags)
+            or start.shape != (n_tags,)
+            or end.shape != (n_tags,)
+            or active_mask.shape != (n_tags,)
+        ):
+            raise ValueError("feature checkpoint array shapes are invalid")
+        for name, value in (
+            ("emission", emission),
+            ("emission_bias", bias),
+            ("transition", transition),
+            ("start", start),
+            ("end", end),
+        ):
+            if not np.isfinite(value).all():
+                raise ValueError(f"feature checkpoint {name} contains non-finite values")
+        active_classes = metadata.get("active_classes")
+        if not isinstance(active_classes, list) or not active_classes:
+            raise ValueError("feature checkpoint active_classes are missing")
+        model = cls(emission.shape[0], active_classes=active_classes)
+        if not np.array_equal(active_mask, model.active_tag_mask):
+            raise ValueError("feature checkpoint active-tag mask differs from metadata")
+        model.emission = emission
+        model.emission_bias = bias
+        model.transition = transition
+        model.start = start
+        model.end = end
         return model, metadata
 
 
@@ -306,7 +449,7 @@ def train_model(
 
 
 def _token_metrics(examples: Sequence[SequenceExample], model: LinearChainCRF, bias: float) -> dict[str, float]:
-    predicted = correct = prose = false_prose = 0
+    predicted = correct = gold_action = action_tp = prose = false_prose = 0
     gold_by_class = {"BIB": 0, "TOC": 0}
     tp_by_class = {"BIB": 0, "TOC": 0}
     for example in examples:
@@ -317,6 +460,9 @@ def _token_metrics(examples: Sequence[SequenceExample], model: LinearChainCRF, b
             if guess != "O":
                 predicted += weight
                 correct += weight * int(line.label != "O")
+            if line.label != "O":
+                gold_action += weight
+                action_tp += weight * int(guess != "O")
             if line.is_running_prose:
                 prose += weight
                 false_prose += weight * int(guess != "O")
@@ -324,7 +470,9 @@ def _token_metrics(examples: Sequence[SequenceExample], model: LinearChainCRF, b
                 gold_by_class[line.label] += weight
                 tp_by_class[line.label] += weight * int(guess == line.label)
     return {
-        "deletion_precision": correct / predicted if predicted else 1.0,
+        "action_precision": correct / predicted if predicted else 1.0,
+        "action_recall": action_tp / gold_action if gold_action else 0.0,
+        "predicted_action_tokens": predicted,
         "prose_contamination": false_prose / prose if prose else 0.0,
         "bib_recall": tp_by_class["BIB"] / gold_by_class["BIB"] if gold_by_class["BIB"] else 0.0,
         "toc_recall": tp_by_class["TOC"] / gold_by_class["TOC"] if gold_by_class["TOC"] else 0.0,
@@ -336,21 +484,49 @@ def calibrate_deletion_bias(
     model: LinearChainCRF,
     candidates: Sequence[float],
     *,
-    minimum_precision: float,
-    maximum_contamination: float,
-) -> tuple[float, dict[str, float]]:
-    rows = []
+    reference_action_precision: float,
+) -> dict[str, Any]:
+    rows: list[dict[str, Any]] = []
     for candidate in candidates:
         metrics = _token_metrics(examples, model, float(candidate))
-        rows.append((float(candidate), metrics))
-    eligible = [
-        row for row in rows
-        if row[1]["deletion_precision"] >= minimum_precision
-        and row[1]["prose_contamination"] <= maximum_contamination
-    ]
-    if not eligible:
-        raise RuntimeError("no validation deletion bias satisfies the safety floor")
-    return max(eligible, key=lambda row: (row[1]["bib_recall"] + row[1]["toc_recall"], -row[0]))
+        rows.append(
+            {
+                "deletion_bias": float(candidate),
+                "action_precision": metrics["action_precision"],
+                "action_recall": metrics["action_recall"],
+                "bib_recall": metrics["bib_recall"],
+                "predicted_action_tokens": int(metrics["predicted_action_tokens"]),
+            }
+        )
+    return select_shared_calibration(
+        rows, reference_action_precision=reference_action_precision
+    )
+
+
+def predict_documents(
+    documents: Sequence[GoldDocument],
+    encoder: FeatureEncoder,
+    model: LinearChainCRF,
+    *,
+    deletion_bias: float,
+) -> dict[str, list[str]]:
+    result: dict[str, list[str]] = {}
+    for document in documents:
+        features = encoder.encode_document(document)
+        classes = ["O"] * len(document.lines)
+        start = 0
+        while start < len(document.lines):
+            while start < len(document.lines) and document.lines[start].label == "UNKNOWN":
+                start += 1
+            end = start
+            while end < len(document.lines) and document.lines[end].label != "UNKNOWN":
+                end += 1
+            if end > start:
+                tags = model.viterbi(features[start:end], deletion_bias=deletion_bias)
+                classes[start:end] = bioes_to_classes([TAGS[x] for x in tags])
+            start = end + 1
+        result[document.document_id] = classes
+    return result
 
 
 def write_predictions(
@@ -362,34 +538,43 @@ def write_predictions(
     model_id: str,
     deletion_bias: float,
 ) -> None:
-    with Path(path).open("w", encoding="utf-8") as handle:
-        for document in documents:
-            features = encoder.encode_document(document)
-            classes = ["O"] * len(document.lines)
-            start = 0
-            while start < len(document.lines):
-                while start < len(document.lines) and document.lines[start].label == "UNKNOWN":
-                    start += 1
-                end = start
-                while end < len(document.lines) and document.lines[end].label != "UNKNOWN":
-                    end += 1
-                if end > start:
-                    tags = model.viterbi(features[start:end], deletion_bias=deletion_bias)
-                    classes[start:end] = bioes_to_classes([TAGS[x] for x in tags])
-                start = end + 1
-            row = {
-                "schema_version": "academic-structure-predictions-v1",
-                "model_id": model_id,
-                "document_id": document.document_id,
-                "work_id": document.work_id,
-                "source": document.source,
-                "split": document.split,
-                "lines": [
-                    {"line_id": line.line_id, "abs_idx": line.abs_idx, "prediction": guess}
-                    for line, guess in zip(document.lines, classes)
-                ],
-            }
-            handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+    output = Path(path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if output.exists() or output.is_symlink():
+        raise FileExistsError(f"refusing to overwrite immutable predictions {output}")
+    predictions = predict_documents(
+        documents, encoder, model, deletion_bias=deletion_bias
+    )
+    descriptor, temporary = tempfile.mkstemp(
+        prefix=f".{output.name}.", suffix=".partial", dir=output.parent
+    )
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            for document in documents:
+                classes = predictions[document.document_id]
+                row = {
+                    "schema_version": "academic-structure-predictions-v1",
+                    "model_id": model_id,
+                    "document_id": document.document_id,
+                    "work_id": document.work_id,
+                    "source": document.source,
+                    "split": document.split,
+                    "lines": [
+                        {"line_id": line.line_id, "abs_idx": line.abs_idx, "prediction": guess}
+                        for line, guess in zip(document.lines, classes)
+                    ],
+                }
+                handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.link(temporary, output)
+        os.unlink(temporary)
+    except BaseException:
+        try:
+            os.unlink(temporary)
+        except FileNotFoundError:
+            pass
+        raise
 
 
 def _architecture(config: Mapping[str, Any], architecture_id: str) -> Mapping[str, Any]:
@@ -401,41 +586,112 @@ def _architecture(config: Mapping[str, Any], architecture_id: str) -> Mapping[st
     raise ValueError(f"unknown architecture {architecture_id!r}")
 
 
+def _atomic_json(path: str | Path, value: Mapping[str, Any]) -> None:
+    output = Path(path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if output.exists() or output.is_symlink():
+        raise FileExistsError(f"refusing to overwrite immutable receipt {output}")
+    payload = (
+        json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+    ).encode("utf-8")
+    descriptor, temporary = tempfile.mkstemp(
+        prefix=f".{output.name}.", suffix=".partial", dir=output.parent
+    )
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.link(temporary, output)
+        os.unlink(temporary)
+    except BaseException:
+        try:
+            os.unlink(temporary)
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def _scrub_silver_safety(metrics: dict[str, Any]) -> None:
+    for row in [metrics, *metrics.get("by_source", {}).values()]:
+        row["token"]["prose_contamination"] = None
+        row["token"]["true_main_text_retention"] = None
+        row["token"]["toc_recall"] = None
+        row["line"]["toc_recall"] = None
+        row["span"]["toc"] = {key: None for key in row["span"]["toc"]}
+        row["document"]["catastrophic_prose_deletions"] = None
+        row["document"]["maximum_contiguous_false_deletion_tokens"] = None
+    metrics["metric_availability"] = {
+        "LLM_silver_agreement": True,
+        "independent_running_prose_safety": False,
+        "toc_supervision": False,
+    }
+
+
+def _require_clariden_cpu(confirmed: bool, config: Mapping[str, Any]) -> None:
+    execution = config.get("execution", {})
+    if (
+        execution.get("fit_location") != "Clariden CPU node only"
+        or execution.get("accelerator") != "none"
+        or execution.get("local_training_forbidden") is not True
+    ):
+        raise RuntimeError("feature CRF config must forbid local or accelerated fitting")
+    if not confirmed:
+        raise RuntimeError("feature CRF fitting requires --confirm-clariden-cpu-only")
+    if not os.environ.get("SLURM_JOB_ID"):
+        raise RuntimeError("feature CRF fitting is forbidden outside a Clariden Slurm allocation")
+    if os.environ.get("SLURM_JOB_PARTITION") not in {"normal", "debug"}:
+        raise RuntimeError("feature CRF fitting requires a Clariden compute partition")
+    if platform.machine() != "aarch64":
+        raise RuntimeError("feature CRF fitting requires the Clariden aarch64 CPU runtime")
+    if os.environ.get("CUDA_VISIBLE_DEVICES") not in {"", "-1"}:
+        raise RuntimeError("feature CRF fitting requires CUDA_VISIBLE_DEVICES to disable accelerators")
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--silver", required=True, help="reconstructed LLM/Opus silver JSONL")
+    parser.add_argument("--selection-silver", required=True)
+    parser.add_argument("--selection-manifest", required=True)
+    parser.add_argument("--validation-silver", required=True)
+    parser.add_argument("--selection-receipt", required=True)
     parser.add_argument("--config", required=True)
-    parser.add_argument("--split-manifest", required=True)
     parser.add_argument("--architecture", required=True,
                         choices=("c1-feature-bioes-crf", "c2-char-ngram-feature-bioes-crf"))
+    parser.add_argument("--reference-predictions", required=True)
     parser.add_argument("--model-out", required=True)
     parser.add_argument("--validation-predictions", required=True)
-    parser.add_argument("--test-predictions", help="write only after architecture/calibration are frozen")
-    parser.add_argument("--seed", type=int)
-    parser.add_argument("--target", choices=("joint", "bib"), default="bib")
+    parser.add_argument("--receipt-out", required=True)
+    parser.add_argument("--uenv", required=True)
+    parser.add_argument("--confirm-clariden-cpu-only", action="store_true")
     args = parser.parse_args(argv)
 
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    _require_clariden_cpu(args.confirm_clariden_cpu_only, config)
     architecture = _architecture(config, args.architecture)
-    seed = int(config["execution"]["seed"] if args.seed is None else args.seed)
-    documents = read_gold(args.silver)
-    split_manifest = json.loads(Path(args.split_manifest).read_text(encoding="utf-8"))
-    contract_receipt = validate_silver(
-        documents, config["silver_contract"], split_manifest=split_manifest
+    seed = int(config["execution"]["seed"])
+    runtime = configure_runtime(config, uenv=args.uenv, effective_seed=seed)
+    documents, validation_docs, selection_receipt = verify_selection_bundle(
+        selection_silver_path=args.selection_silver,
+        selection_manifest_path=args.selection_manifest,
+        validation_silver_path=args.validation_silver,
+        selection_receipt_path=args.selection_receipt,
+        config_path=args.config,
     )
     scopes = {document.task_scope for document in documents}
-    if args.target == "joint":
-        if scopes != {"bibliography_toc_windows"}:
-            raise RuntimeError("joint silver fitting requires explicit BIB/TOC task supervision")
-        active_classes = ("BIB", "TOC")
-    else:
-        if any(line.label == "TOC" for doc in documents for line in doc.lines):
-            raise RuntimeError("BIB-only fitting cannot mask observed TOC targets")
-        active_classes = ("BIB",)
+    if scopes != {"bibliography_binary_windows"} or any(
+        line.label == "TOC" for doc in documents for line in doc.lines
+    ):
+        raise RuntimeError("operational feature fitting accepts only BIB-supervised SPAN silver")
+    active_classes = ("BIB",)
     train_docs = [doc for doc in documents if doc.split == "train"]
-    validation_docs = [doc for doc in documents if doc.split == "validation"]
     if not train_docs or not validation_docs:
         raise RuntimeError("feature CRF requires non-empty train and validation splits")
+    reference_predictions = read_predictions(args.reference_predictions, validation_docs)
+    reference_metrics, _ = evaluate(
+        validation_docs, reference_predictions, split="validation"
+    )
+    reference_precision = float(reference_metrics["token"]["action_precision"])
+    started = time.perf_counter()
     encoder = FeatureEncoder(
         char_hash_dim=int(architecture.get("char_hash_dim", 0)),
         char_ngram_min=int(architecture.get("char_ngram_min", 2)),
@@ -454,25 +710,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         seed=seed,
     )
     calibration = config["calibration"]
-    # Silver has no independent running-prose judgment, so its calibration is
-    # explicitly comparison-only. It must not be presented as a safety result.
-    minimum_precision = 0.0
-    maximum_contamination = 1.0
-    deletion_bias, validation_metrics = calibrate_deletion_bias(
+    calibration_receipt = calibrate_deletion_bias(
         validation_examples,
         model,
         calibration["deletion_bias_grid"],
-        minimum_precision=minimum_precision,
-        maximum_contamination=maximum_contamination,
+        reference_action_precision=reference_precision,
     )
-    validation_metrics["prose_contamination"] = None
+    deletion_bias = float(calibration_receipt["selected"]["deletion_bias"])
     metadata = {
         "schema_version": "academic-structure-feature-crf-v1",
         "architecture_id": args.architecture,
         "config_sha256": sha256_file(args.config),
-        "silver_sha256": sha256_file(args.silver),
-        "split_manifest_sha256": sha256_file(args.split_manifest),
-        "contract_inventory_sha256": contract_receipt["inventory_sha256"],
+        "silver_sha256": sha256_file(args.selection_silver),
+        "split_manifest_sha256": sha256_file(args.selection_manifest),
+        "validation_silver_sha256": sha256_file(args.validation_silver),
+        "selection_receipt_sha256": sha256_file(args.selection_receipt),
+        "reference_predictions_sha256": sha256_file(args.reference_predictions),
+        "contract_inventory_sha256": selection_receipt["selection_contract"][
+            "inventory_sha256"
+        ],
         "feature_encoder": encoder.metadata(),
         "tags": list(TAGS),
         "active_classes": list(active_classes),
@@ -480,31 +736,63 @@ def main(argv: Sequence[str] | None = None) -> int:
         "production_eligible": False,
         "safety_metrics_available": False,
         "metric_semantics": "agreement_with_LLM_silver; not production safety",
+        "calibration": calibration_receipt,
         "deletion_bias": deletion_bias,
-        "validation_metrics": validation_metrics,
         "training_loss": history,
         "seed": seed,
+        "runtime": runtime,
         "test_used_for_training_or_calibration": False,
     }
     model.save(args.model_out, metadata)
+    loaded_model, loaded_metadata = LinearChainCRF.load(args.model_out)
+    if loaded_metadata != metadata:
+        raise RuntimeError("reloaded feature checkpoint metadata differs")
     write_predictions(
         args.validation_predictions,
         validation_docs,
         encoder,
-        model,
+        loaded_model,
         model_id=args.architecture,
         deletion_bias=deletion_bias,
     )
-    if args.test_predictions:
-        write_predictions(
-            args.test_predictions,
-            [doc for doc in documents if doc.split == "test"],
-            encoder,
-            model,
-            model_id=args.architecture,
-            deletion_bias=deletion_bias,
-        )
-    print(json.dumps(metadata, ensure_ascii=False, sort_keys=True, indent=2))
+    selected_predictions = read_predictions(args.validation_predictions, validation_docs)
+    validation_metrics, _ = evaluate(
+        validation_docs, selected_predictions, split="validation"
+    )
+    _scrub_silver_safety(validation_metrics)
+    runtime["wall_seconds"] = time.perf_counter() - started
+    runtime["peak_rss_bytes"] = peak_rss_bytes()
+    receipt = {
+        "schema_version": "academic-structure-feature-crf-training-v2",
+        "status": "passed_cpu_fit_checkpoint_reload_and_validation_prediction",
+        "architecture_id": args.architecture,
+        "target": "BIB",
+        "production_eligible": False,
+        "inputs": {
+            "selection_silver_sha256": sha256_file(args.selection_silver),
+            "selection_manifest_sha256": sha256_file(args.selection_manifest),
+            "validation_silver_sha256": sha256_file(args.validation_silver),
+            "selection_receipt_sha256": sha256_file(args.selection_receipt),
+            "config_sha256": sha256_file(args.config),
+            "reference_predictions_sha256": sha256_file(args.reference_predictions),
+        },
+        "execution": runtime,
+        "effective_seed": seed,
+        "calibration": calibration_receipt,
+        "training_loss": history,
+        "validation_metrics": validation_metrics,
+        "outputs": {
+            "model_sha256": sha256_file(args.model_out),
+            "validation_predictions_sha256": sha256_file(args.validation_predictions),
+        },
+        "historically_named_test_partition": {
+            "documents_loaded": 0,
+            "predictions_written": 0,
+            "semantics": "sealed_retrospective_comparison_not_unbiased_test",
+        },
+    }
+    _atomic_json(args.receipt_out, receipt)
+    print(json.dumps(receipt, ensure_ascii=False, sort_keys=True, indent=2))
     return 0
 
 

@@ -248,8 +248,9 @@ python3 -m sequence_models.silver_reconstruct import-legacy \
 
 This uses a metadata-only first pass, then streams one document at a time through 512-line tokenization
 batches, contract validation, and an atomic temporary JSONL. Memory is bounded by the identity ledger
-plus the largest document. It rebuilds the split instead of trusting the legacy locked test and records
-the source file hash. It does not infer an annotator or adjudication history.
+plus the largest document. It rebuilds the split instead of trusting the historically named sealed
+retrospective partition and records the source file hash. It does not infer an annotator or
+adjudication history.
 
 ## Research ladder and safety
 

@@ -662,6 +662,7 @@ def hydrate_span(args: argparse.Namespace) -> int:
     )
     receipt.update({
         "silver_sha256": silver_sha256,
+        "config_sha256": sha256_file(args.config),
         "missing_annotation_unit_ids": missing_annotation,
         "missing_annotation_policy": (
             "retain sampled present lines as O, matching historical span_seq_data.load semantics"
@@ -785,6 +786,7 @@ def import_legacy(args: argparse.Namespace) -> int:
     )
     receipt.update({
         "silver_sha256": silver_sha256,
+        "config_sha256": sha256_file(args.config),
         "legacy_input_sha256": legacy_sha256,
     })
     _write_json(Path(args.split_manifest), split_manifest)

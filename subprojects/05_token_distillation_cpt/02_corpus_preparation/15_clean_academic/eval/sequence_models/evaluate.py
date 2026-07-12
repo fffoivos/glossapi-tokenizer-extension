@@ -370,7 +370,10 @@ def promotion_report(
             "bib": token["bib_recall"] - baseline_token["bib_recall"],
             "toc": token["toc_recall"] - baseline_token["toc_recall"],
         },
-        "note": "The locked test is comparison-only; no threshold, feature, or architecture selection is permitted from this report.",
+        "note": (
+            "The historically named test partition is sealed retrospective replay evidence, "
+            "not an unbiased never-seen test or human-gold accuracy estimate."
+        ),
     }
 
 

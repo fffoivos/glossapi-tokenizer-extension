@@ -17,10 +17,11 @@ Corrected or added here:
 - work identities cannot cross splits, exact-text duplicates cannot cross splits, and work groups are
   deterministically balanced within source strata;
 - the historical LLM-labelled `STRUCT_2K` run completed and produced the surviving fitted models. If its
-  ignored raw intermediates are recovered, they remain silver only. Its locked test is
-  comparison-only and may not drive architecture, feature, calibration, or threshold selection;
-- C0 loads the tracked LR artifacts and hysteresis constants without fitting. Overlap between its two
-  heads is retained as a conflict (fail closed);
+  ignored raw intermediates are recovered, they remain silver only. Its historically named test
+  partition is retrospective replay evidence, not an unbiased never-seen test;
+- C0 loads the tracked LR artifacts and hysteresis constants without fitting. Joint decoding retains
+  overlap between its two heads as a fail-closed conflict; the current BIB-only replay follows the BIB
+  head and records overlap from the inactive ToC head without suppressing the BIB prediction;
 - scoring covers lines, pinned-token counts, spans, documents, true main-text retention, unknown-label
   coverage, per-source safety, and work-clustered bootstrap confidence intervals.
 
@@ -90,10 +91,11 @@ python3 -m sequence_models.contract validate-silver --silver SILVER.jsonl \
   --config sequence_models/config.json --split-manifest silver.split.json
 python3 -m sequence_models.contract make-split --silver SILVER.jsonl \
   --config sequence_models/config.json --output split.json
-python3 -m sequence_models.baseline --silver SILVER.jsonl --output c0.jsonl
-python3 -m sequence_models.evaluate --silver SILVER.jsonl --baseline c0.jsonl \
-  --candidate candidate.jsonl --config sequence_models/config.json \
-  --split-manifest split.json --output report.json
+python3 -m sequence_models.bib_ladder verify-selection \
+  --selection-silver selection.train-validation.jsonl \
+  --selection-manifest selection.train-validation.split.json \
+  --validation-silver selection.validation.jsonl \
+  --selection-receipt selection.receipt.json --config sequence_models/config.json
 python3 -m sequence_models.runtime parity --left python.jsonl --right cpu_runtime.jsonl
 python3 -m sequence_models.runtime benchmark-c0 --silver SILVER.jsonl
 ```
@@ -102,16 +104,11 @@ For C1/C2 fitting on the current SPAN evidence use `--target bib`; this hard-dis
 instead of learning false ToC negatives from a BIB-only annotation task. Joint comparison remains
 blocked unless the separate missing STRUCT_2K LLM-silver raw artifact is recovered.
 
-On an approved Clariden CPU allocation, the feature CRF entry point is:
-
-```bash
-python3 -m sequence_models.feature_crf --silver SILVER.jsonl --config sequence_models/config.json \
-  --split-manifest split.json --architecture c2-char-ngram-feature-bioes-crf --model-out c2.npz \
-  --validation-predictions c2.validation.jsonl --target bib
-```
-
-Do not request test predictions until architecture and deletion bias are frozen on validation. Silver
-comparison never authorizes deployment by itself. Deployment additionally requires a pre-authorized
+The operational feature CLI requires the receipt-bound train+validation selection bundle and has no
+test-prediction option or seed override. Use `BIB_LADDER_RUNBOOK.md` for the mandatory one-epoch N1
+profile and the exact detached Clariden commands. There is no human-gold dataset and no human
+annotation campaign is required or planned; every ladder result is retrospective LLM-silver replay.
+Silver comparison never authorizes deployment by itself. Deployment additionally requires a pre-authorized
 frozen policy, Stage54, the receipt-bound 100-case high-risk false-deletion review (50 ToC + 50 BIB,
 zero catastrophes), every configured deployment gate, CPU runtime parity, and the
 artifact/latency/resource receipts. The current CPT run remains `audit_only` and therefore uses
