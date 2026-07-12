@@ -27,6 +27,7 @@ phase04_require_expected_commit "$REPO_ROOT"
 ACQUISITION_RECEIPT=${ACQUISITION_RECEIPT:?set the passed Phase-04 acquisition receipt}
 SOURCE_LOCK=${SOURCE_LOCK:?set the exact source lock named by the acquisition receipt}
 GREEK_PHD_ROUTE=${GREEK_PHD_ROUTE:?choose nanochat_base, greek_phd_v2, or mdc_raw_forensic explicitly}
+OPENARCHIVES_ROUTE=${OPENARCHIVES_ROUTE:?choose nanochat_base or openarchives_current explicitly}
 KALLIPOS_ROUTE=${KALLIPOS_ROUTE:?choose kallipos_sections or nanochat_base explicitly}
 CLASSIFIER_RUN_ID=${CLASSIFIER_RUN_ID:?set an immutable classifier research run ID}
 [[ "$CLASSIFIER_RUN_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{2,79}$ ]] || {
@@ -34,6 +35,7 @@ CLASSIFIER_RUN_ID=${CLASSIFIER_RUN_ID:?set an immutable classifier research run 
     exit 101
 }
 case "$GREEK_PHD_ROUTE" in nanochat_base|greek_phd_v2|mdc_raw_forensic) ;; *) exit 102 ;; esac
+case "$OPENARCHIVES_ROUTE" in nanochat_base|openarchives_current) ;; *) exit 108 ;; esac
 case "$KALLIPOS_ROUTE" in kallipos_sections|nanochat_base) ;; *) exit 103 ;; esac
 
 OUTPUT_ROOT=${OUTPUT_ROOT:-$RUN_ROOT/classifier_research/$CLASSIFIER_RUN_ID}
@@ -73,6 +75,7 @@ echo "  acquisition_receipt=$ACQUISITION_RECEIPT"
 echo "  source_lock=$SOURCE_LOCK"
 echo "  sources_config=$SOURCE_CONFIG"
 echo "  greek_phd_route=$GREEK_PHD_ROUTE"
+echo "  openarchives_route=$OPENARCHIVES_ROUTE"
 echo "  kallipos_route=$KALLIPOS_ROUTE"
 echo "  output_root=$OUTPUT_ROOT"
 echo "  expected_snapshot_sha256=${EXPECTED_SPAN_ARTIFACT_SHA256:-unavailable_unverified}"
@@ -103,6 +106,7 @@ builder_args=(
     --source-lock "$SOURCE_LOCK"
     --sources-config "$SOURCE_CONFIG"
     --greek-phd-route "$GREEK_PHD_ROUTE"
+    --openarchives-route "$OPENARCHIVES_ROUTE"
     --kallipos-route "$KALLIPOS_ROUTE"
     --output "$SOURCE_ARTIFACTS"
 )

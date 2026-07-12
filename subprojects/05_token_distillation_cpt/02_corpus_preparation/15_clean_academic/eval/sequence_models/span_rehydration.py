@@ -534,7 +534,7 @@ def load_source_specs(
         source_format = str(raw.get("format", ""))
         allowed_formats = {
             "greek_phd": {"jsonl_documents", "parquet_documents"},
-            "openarchives": {"jsonl_documents"},
+            "openarchives": {"jsonl_documents", "parquet_documents"},
             "kallipos": {"parquet_sections", "parquet_documents"},
         }.get(name, set())
         if source_format not in allowed_formats:

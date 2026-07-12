@@ -46,7 +46,7 @@ without making a new annotation decision. This does not recreate the separate ra
 annotation export. The recovery tool accepts only explicitly listed, SHA-256-checked artifacts at
 immutable repository revisions:
 
-- Greek PhD and OpenArchives: `.jsonl` or `.jsonl.zst`, selected by `doc_id`;
+- Greek PhD and OpenArchives: document Parquet or `.jsonl[.zst]`, selected by the route-bound ID;
 - Greek PhD receipt-bound document Parquet, with explicit document-ID and text-precedence columns;
 - Kallipos: section Parquet, grouped by `filename`, ordered by `id`, and joined with the original
   two-newline separator.
@@ -98,11 +98,12 @@ python3 -m sequence_models.build_span_source_receipt \
   --source-lock "$SOURCE_LOCK" \
   --sources-config "$SOURCE_CONFIG" \
   --greek-phd-route nanochat_base \
+  --openarchives-route nanochat_base \
   --kallipos-route kallipos_sections \
   --output "$SCRATCH/span-source-artifacts.json"
 ```
 
-Both route choices are mandatory; the builder never prefers a newer artifact implicitly.
+All three source route choices are mandatory; the builder never prefers a newer artifact implicitly.
 
 - `--greek-phd-route nanochat_base` selects exactly
   `data/greek_phd.part-00000.parquet` and `part-00001.parquet`, with
@@ -136,8 +137,16 @@ and enforces all three before writing units.
 - `--kallipos-route kallipos_sections` selects `Dataset_Kallipos.parquet` and reproduces the historical
   filename/id section grouping. `--kallipos-route nanochat_base` instead selects the processed
   `data/Apothetirio_Kallipos.parquet` document representation and remains an explicit comparison route.
-- OpenArchives always selects the pinned `openarchives_current` raw `data/openarchives/**/*.jsonl.zst`
-  files with `doc_id` and the original `text`, `document`, `content` precedence.
+- `--openarchives-route nanochat_base` selects the five pinned `data/openarchives.gr*.parquet`
+  artifacts with `source_doc_id` → `text` and `source_dataset=openarchives.gr`. This retained base
+  predates the registry's current replacement/resegmentation candidate and is the preferred recovery
+  attempt, but it is still stamped snapshot-unverified.
+- `--openarchives-route openarchives_current` explicitly selects the current raw
+  `data/openarchives/**/*.jsonl.zst` replacement/resegmentation family with `doc_id` and
+  `text → document → content` precedence. It is not presumed text-equivalent: the first full recovery
+  attempt failed closed when `S01278` requested line 1,831 but the current document ended at line
+  1,797. The failed immutable run is evidence for choosing the retained base, not grounds to clip the
+  historical window.
 
 The raw forensic route adds these mandatory builder arguments:
 
@@ -154,11 +163,11 @@ The Clariden wrapper additionally requires
 `EXPECTED_SPAN_ARTIFACT_SHA256` on this route, preventing a rehydrated current object from being
 self-pinned as an independently verified historical snapshot.
 
-The inspected Phase-04 lock contains all of those path families. The already staged Nanochat Greek
-files expose `source_doc_id`/`text` with hash-shaped IDs, while the registry declares the required
-OpenArchives and Kallipos fields; the passed acquisition schema audit must confirm the latter after
-download. The Nanochat-Greek + current-OpenArchives + section-Kallipos route is therefore sufficient
-**in principle** to attempt the 3,340-unit text join without `home`. A lock or a partially downloaded
+The inspected Phase-04 lock contains all of those path families. The already staged Nanochat Greek and
+OpenArchives files expose `source_doc_id`/`text` with hash-shaped IDs, while the registry declares the
+required standalone OpenArchives and Kallipos fields; the passed acquisition schema audit confirms
+them after download. The raw MDC Greek + Nanochat-OpenArchives + section-Kallipos route is therefore
+the defensible next attempt at the 3,340-unit text join without `home`. A lock or a partially downloaded
 tree is not authorization:
 the builder requires a completed `full_cpt_acquisition_receipt_v1` with `status=passed`. Even after a
 successful exact document/coordinate join, historical label-text snapshot equivalence remains

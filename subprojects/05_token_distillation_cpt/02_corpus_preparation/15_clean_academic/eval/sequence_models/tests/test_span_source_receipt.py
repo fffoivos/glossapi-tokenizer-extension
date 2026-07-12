@@ -155,6 +155,25 @@ class SpanSourceReceiptBuilderTests(unittest.TestCase):
             nanochat_kallipos,
         )
         files["nanochat_base"].append(nanochat_kallipos)
+        for name in (
+            "openarchives.gr.parquet",
+            "openarchives.gr.part-00000.parquet",
+            "openarchives.gr.part-00001.parquet",
+            "openarchives.gr.part-00002.parquet",
+            "openarchives.gr.part-00003.parquet",
+        ):
+            nanochat_openarchives = nano_root / "data" / name
+            pq.write_table(
+                pa.table(
+                    {
+                        "source_dataset": ["openarchives.gr"],
+                        "source_doc_id": ["open-1"],
+                        "text": ["Historical OpenArchives text"],
+                    }
+                ),
+                nanochat_openarchives,
+            )
+            files["nanochat_base"].append(nanochat_openarchives)
 
         open_root = (
             self.destination
@@ -330,6 +349,7 @@ class SpanSourceReceiptBuilderTests(unittest.TestCase):
             "manifest": str(self.manifest_path),
             "annotations": str(self.annotations_path),
             "greek_phd_route": "nanochat_base",
+            "openarchives_route": "openarchives_current",
             "kallipos_route": "kallipos_sections",
             "greek_phd_document_id_column": None,
             "greek_phd_text_column": None,
@@ -481,6 +501,39 @@ class SpanSourceReceiptBuilderTests(unittest.TestCase):
             [row["repository_path"] for row in kallipos["artifacts"]],
             ["data/Apothetirio_Kallipos.parquet"],
         )
+
+    def test_openarchives_nanochat_route_is_explicit_and_path_filtered(self) -> None:
+        output = self.root / "span-source-artifacts-nanochat-openarchives.json"
+        receipt = build_span_source_receipt(
+            self._args(openarchives_route="nanochat_base", output=str(output))
+        )
+        openarchives = receipt["sources"]["openarchives"]
+        self.assertEqual(openarchives["format"], "parquet_documents")
+        self.assertEqual(openarchives["fields"]["document_id"], "source_doc_id")
+        self.assertEqual(
+            openarchives["fields"]["row_filter"],
+            {"column": "source_dataset", "equals": "openarchives.gr"},
+        )
+        self.assertEqual(
+            [row["repository_path"] for row in openarchives["artifacts"]],
+            [
+                "data/openarchives.gr.parquet",
+                "data/openarchives.gr.part-00000.parquet",
+                "data/openarchives.gr.part-00001.parquet",
+                "data/openarchives.gr.part-00002.parquet",
+                "data/openarchives.gr.part-00003.parquet",
+            ],
+        )
+        self.assertEqual(
+            receipt["derivation"]["route_choices"]["openarchives"],
+            "nanochat_base",
+        )
+        specs, artifacts = load_source_specs(
+            output, {"greek_phd", "openarchives", "kallipos"}
+        )
+        self.assertEqual(specs["openarchives"].format, "parquet_documents")
+        self.assertEqual(len(specs["openarchives"].artifacts), 5)
+        self.assertEqual(len(artifacts), 8)
 
     def test_raw_mdc_route_is_quarantine_and_audit_bound(self) -> None:
         quarantine, audit_path, observed = self._write_mdc_fixture()

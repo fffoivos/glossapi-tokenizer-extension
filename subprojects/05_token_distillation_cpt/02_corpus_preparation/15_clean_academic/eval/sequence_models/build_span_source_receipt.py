@@ -773,21 +773,49 @@ def _routes(args: argparse.Namespace, config: Mapping[str, Any]) -> list[Route]:
             ),
             document_id_alignment="paper_id_domain_compatible_unverified",
         )
-    openarchives = Route(
-        logical_source="openarchives",
-        acquisition_source_id="openarchives_current",
-        path_patterns=("data/openarchives/**/*.jsonl.zst",),
-        format="jsonl_documents",
-        fields={
-            "document_id": "doc_id",
-            "text_precedence": ["text", "document", "content"],
-        },
-        historical_source_relation=(
-            "current pinned raw OpenArchives JSONL shard family; historical snapshot revision "
-            "equivalence remains unverified"
-        ),
-        document_id_alignment="doc_id_domain_compatible_unverified",
-    )
+    if args.openarchives_route == "nanochat_base":
+        openarchives = Route(
+            logical_source="openarchives",
+            acquisition_source_id="nanochat_base",
+            path_patterns=(
+                "data/openarchives.gr.parquet",
+                "data/openarchives.gr.part-00000.parquet",
+                "data/openarchives.gr.part-00001.parquet",
+                "data/openarchives.gr.part-00002.parquet",
+                "data/openarchives.gr.part-00003.parquet",
+            ),
+            format="parquet_documents",
+            fields={
+                "document_id": "source_doc_id",
+                "text_precedence": ["text"],
+                "row_filter": {
+                    "column": "source_dataset",
+                    "equals": "openarchives.gr",
+                },
+            },
+            historical_source_relation=(
+                "OpenArchives representation retained inside the pinned Nanochat base compiled "
+                "before the current replacement/resegmentation candidate; exact historical "
+                "SPAN snapshot equivalence remains unverified"
+            ),
+            document_id_alignment="hash_domain_compatible_unverified",
+        )
+    else:
+        openarchives = Route(
+            logical_source="openarchives",
+            acquisition_source_id="openarchives_current",
+            path_patterns=("data/openarchives/**/*.jsonl.zst",),
+            format="jsonl_documents",
+            fields={
+                "document_id": "doc_id",
+                "text_precedence": ["text", "document", "content"],
+            },
+            historical_source_relation=(
+                "current replacement/resegmentation OpenArchives JSONL family; it is an explicit "
+                "comparison route and not presumed text-equivalent to the historical SPAN source"
+            ),
+            document_id_alignment="doc_id_domain_compatible_unverified",
+        )
     return [greek, openarchives, kallipos]
 
 
@@ -807,9 +835,11 @@ def _select_files(
         raise RehydrationError(
             f"{route.logical_source}: route selected no {route.acquisition_source_id} artifacts"
         )
-    if route.logical_source in {"greek_phd", "kallipos"} and len(selected_paths) != len(
-        route.path_patterns
-    ):
+    exact_path_family = route.logical_source in {"greek_phd", "kallipos"} or (
+        route.logical_source == "openarchives"
+        and route.acquisition_source_id == "nanochat_base"
+    )
+    if exact_path_family and len(selected_paths) != len(route.path_patterns):
         raise RehydrationError(
             f"{route.logical_source}: expected {len(route.path_patterns)} exact artifacts, "
             f"selected {selected_paths}"
@@ -1045,7 +1075,7 @@ def build_span_source_receipt(args: argparse.Namespace) -> dict[str, Any]:
             },
             "route_choices": {
                 "greek_phd": args.greek_phd_route,
-                "openarchives": "openarchives_current",
+                "openarchives": args.openarchives_route,
                 "kallipos": args.kallipos_route,
             },
             "schema_reports": schema_reports,
@@ -1091,6 +1121,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--kallipos-route",
         required=True,
         choices=("kallipos_sections", "nanochat_base"),
+    )
+    parser.add_argument(
+        "--openarchives-route",
+        required=True,
+        choices=("nanochat_base", "openarchives_current"),
+        help=(
+            "explicitly choose the retained Nanochat representation or the current "
+            "replacement/resegmentation comparison source"
+        ),
     )
     parser.add_argument("--greek-phd-document-id-column")
     parser.add_argument("--greek-phd-text-column", action="append")

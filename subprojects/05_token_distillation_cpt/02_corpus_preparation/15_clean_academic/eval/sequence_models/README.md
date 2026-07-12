@@ -29,7 +29,7 @@ promoted or relabelled as human gold. The exact reconstruction audit and recover
 `SILVER_RECONSTRUCTION.md`; the machine-readable receipt is `silver_inventory.json`.
 
 The missing SPAN text batches can be rebuilt on a CPU node with `silver_reconstruct
-rehydrate-span-units` from SHA-256-bound Greek PhD/OpenArchives JSONL(Zstandard) and Kallipos section
+rehydrate-span-units` from SHA-256-bound Greek PhD/OpenArchives document artifacts and Kallipos section
 Parquet artifacts. `span_rehydration_layout.json` preserves the base/extension batch boundary, and
 `hydrate-span --unit-rehydration-receipt ...` carries snapshot status into the converted silver
 receipt. Recovery never reads, invents, or alters a label. Historical snapshot equivalence is verified
@@ -50,8 +50,8 @@ or production eligibility.
 
 When using the Phase-04 Clariden acquisition, first run
 `sequence_models.build_span_source_receipt` against its passed receipt and exact lock. Greek PhD and
-Kallipos route choices are mandatory: Nanochat document Parquet and standalone replacement artifacts
-are never treated as interchangeable or silently preferred. The explicit CPU-only dry-run/execution
+OpenArchives and Kallipos route choices are mandatory: Nanochat document Parquet and standalone
+replacement artifacts are never treated as interchangeable or silently preferred. The explicit CPU-only dry-run/execution
 script is `04_full_corpus_preparation/clariden/07_rehydrate_span_silver.sbatch`; it is intentionally not
 part of the corpus-production submission DAG.
 
