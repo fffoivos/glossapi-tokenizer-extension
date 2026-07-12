@@ -13,6 +13,9 @@ from pathlib import Path
 from typing import Any
 
 
+HEX = frozenset("0123456789abcdef")
+
+
 def load_object(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
@@ -22,6 +25,16 @@ def load_object(path: Path) -> dict[str, Any]:
 
 def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def canonical_object_sha256(value: dict[str, Any]) -> str:
+    encoded = json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def write_json_atomic(path: Path, value: dict[str, Any]) -> None:
@@ -56,14 +69,17 @@ def build_receipt(
     mdc = load_object(mdc_path)
     errors: list[str] = []
     config_hash = sha256_file(sources_path)
-    expected = {
-        "nanochat_base",
-        *(
-            str(row["source_id"])
+    registry = {
+        "nanochat_base": dict(config.get("base", {})),
+        "apertus_overlap_overlay": dict(config.get("apertus_overlap_overlay", {})),
+        "modern_greek_148k_tokenizer": dict(config.get("tokenizer", {})),
+        **{
+            str(row["source_id"]): dict(row)
             for row in config.get("sources", [])
             if isinstance(row, dict) and row.get("source_id")
-        ),
+        },
     }
+    expected = set(registry)
     if hf.get("schema_version") != "full_cpt_acquisition_receipt_v1" or hf.get("status") != "passed":
         errors.append("Hugging Face acquisition receipt is not passed")
     if mdc.get("schema_version") != "full_cpt_mdc_acquisition_receipt_v1" or mdc.get("status") != "passed":
@@ -74,6 +90,7 @@ def build_receipt(
     if hf.get("code_commit") != mdc.get("code_commit"):
         errors.append("HF and MDC acquisition code commits differ")
 
+    component_ids: dict[str, set[str]] = {"HF": set(), "MDC": set()}
     rows: dict[str, dict[str, Any]] = {}
     for label, receipt in (("HF", hf), ("MDC", mdc)):
         for row in receipt.get("sources", []):
@@ -83,22 +100,43 @@ def build_receipt(
             elif source_id in rows:
                 errors.append(f"source {source_id!r} appears in multiple acquisition receipts")
             else:
+                component_ids[label].add(source_id)
                 rows[source_id] = dict(row)
-    missing = expected - set(rows)
-    if missing:
-        errors.append(f"combined acquisition is missing configured sources: {sorted(missing)}")
     external_ids = {
         str(row["source_id"])
         for row in config.get("sources", [])
         if isinstance(row, dict)
         and row.get("acquisition_kind") == "mozilla_data_collective"
     }
-    if external_ids - {
-        str(row.get("source_id")) for row in mdc.get("sources", [])
-    }:
-        errors.append("one or more MDC routes were not supplied by the MDC receipt")
+    expected_hf_ids = expected - external_ids
+    if component_ids["HF"] != expected_hf_ids:
+        errors.append(
+            "HF acquisition identities differ from the registry: "
+            f"missing={sorted(expected_hf_ids - component_ids['HF'])}, "
+            f"unexpected={sorted(component_ids['HF'] - expected_hf_ids)}"
+        )
+    if component_ids["MDC"] != external_ids:
+        errors.append(
+            "MDC acquisition identities differ from the registry: "
+            f"missing={sorted(external_ids - component_ids['MDC'])}, "
+            f"unexpected={sorted(component_ids['MDC'] - external_ids)}"
+        )
+    if set(rows) != expected:
+        errors.append(
+            "combined acquisition identities differ from the registry: "
+            f"missing={sorted(expected - set(rows))}, unexpected={sorted(set(rows) - expected)}"
+        )
     destination_root = destination_root.resolve()
     for source_id, row in rows.items():
+        tracked = registry.get(source_id, {})
+        for field in ("repo_id", "revision"):
+            if row.get(field) != tracked.get(field):
+                errors.append(f"{source_id}: acquisition {field} differs from sources.json")
+        if source_id in external_ids:
+            if row.get("mdc_dataset_id") != tracked.get("mdc_dataset_id"):
+                errors.append(f"{source_id}: acquisition MDC dataset ID differs from sources.json")
+            if row.get("source_config_sha256") != canonical_object_sha256(tracked):
+                errors.append(f"{source_id}: acquisition source configuration drift")
         for file in row.get("files", []):
             path = Path(str(file.get("local_path", ""))).resolve()
             try:
@@ -108,6 +146,20 @@ def build_receipt(
                 continue
             if not path.is_file() or path.stat().st_size != int(file.get("size", -1)):
                 errors.append(f"{source_id}: acquired file is missing or size-drifted: {path}")
+                continue
+            stat = path.stat()
+            for field, actual in {
+                "device": stat.st_dev,
+                "inode": stat.st_ino,
+                "mtime_ns": stat.st_mtime_ns,
+                "ctime_ns": stat.st_ctime_ns,
+            }.items():
+                if int(file.get(field, -1)) != actual:
+                    errors.append(f"{source_id}: acquired file {field} drifted: {path}")
+            if source_id in external_ids:
+                digest = str(file.get("expected_hash", ""))
+                if file.get("hash_kind") != "sha256" or len(digest) != 64 or set(digest) - HEX:
+                    errors.append(f"{source_id}: MDC payload lacks a valid SHA-256 binding: {path}")
     if errors:
         raise ValueError("acquisition receipt merge failed:\n- " + "\n- ".join(errors))
     return {

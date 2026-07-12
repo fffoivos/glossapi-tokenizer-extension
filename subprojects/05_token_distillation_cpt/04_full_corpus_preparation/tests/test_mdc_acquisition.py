@@ -176,11 +176,16 @@ def test_merge_requires_every_configured_source(tmp_path: Path) -> None:
     write_json(
         sources,
         {
-            "base": {"source_id": "nanochat_base"},
+            "base": {"repo_id": "a/base", "revision": "1" * 40},
+            "apertus_overlap_overlay": {"repo_id": "a/overlay", "revision": "2" * 40},
+            "tokenizer": {"repo_id": "a/tokenizer", "revision": "3" * 40},
             "sources": [
                 {
                     "source_id": "external",
+                    "repo_id": "a/external",
+                    "revision": "4" * 40,
                     "acquisition_kind": "mozilla_data_collective",
+                    "mdc_dataset_id": "external-1",
                 }
             ],
         },
@@ -211,10 +216,101 @@ def test_merge_requires_every_configured_source(tmp_path: Path) -> None:
             "sources": [],
         },
     )
-    with pytest.raises(ValueError, match="missing configured sources"):
+    with pytest.raises(ValueError, match="identities differ from the registry"):
         MERGE.build_receipt(
             sources_path=sources,
             hf_path=hf,
             mdc_path=mdc,
             destination_root=tmp_path,
         )
+
+
+def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
+    sources = tmp_path / "sources.json"
+    external = {
+        "source_id": "external",
+        "repo_id": "a/external",
+        "revision": "4" * 40,
+        "acquisition_kind": "mozilla_data_collective",
+        "mdc_dataset_id": "external-1",
+    }
+    config = {
+        "base": {"repo_id": "a/base", "revision": "1" * 40},
+        "apertus_overlap_overlay": {"repo_id": "a/overlay", "revision": "2" * 40},
+        "tokenizer": {"repo_id": "a/tokenizer", "revision": "3" * 40},
+        "sources": [external],
+    }
+    write_json(sources, config)
+    config_hash = MERGE.sha256_file(sources)
+
+    def file_row(name: str) -> dict:
+        path = tmp_path / name
+        path.write_bytes(name.encode())
+        stat = path.stat()
+        return {
+            "path": name,
+            "local_path": str(path),
+            "size": stat.st_size,
+            "device": stat.st_dev,
+            "inode": stat.st_ino,
+            "mtime_ns": stat.st_mtime_ns,
+            "ctime_ns": stat.st_ctime_ns,
+            "hash_kind": "sha256",
+            "expected_hash": MDC.sha256_file(path),
+        }
+
+    hf = tmp_path / "hf.json"
+    mdc = tmp_path / "mdc.json"
+    write_json(
+        hf,
+        {
+            "schema_version": "full_cpt_acquisition_receipt_v1",
+            "status": "passed",
+            "code_commit": "a" * 40,
+            "sources_config_sha256": config_hash,
+            "sources": [
+                {
+                    "source_id": source_id,
+                    "repo_id": row["repo_id"],
+                    "revision": row["revision"],
+                    "files": [file_row(f"{source_id}.parquet")],
+                }
+                for source_id, row in (
+                    ("nanochat_base", config["base"]),
+                    ("apertus_overlap_overlay", config["apertus_overlap_overlay"]),
+                    ("modern_greek_148k_tokenizer", config["tokenizer"]),
+                )
+            ],
+        },
+    )
+    write_json(
+        mdc,
+        {
+            "schema_version": "full_cpt_mdc_acquisition_receipt_v1",
+            "status": "passed",
+            "code_commit": "a" * 40,
+            "sources_config_sha256": config_hash,
+            "sources": [
+                {
+                    "source_id": "external",
+                    "repo_id": external["repo_id"],
+                    "revision": external["revision"],
+                    "mdc_dataset_id": external["mdc_dataset_id"],
+                    "source_config_sha256": MERGE.canonical_object_sha256(external),
+                    "files": [file_row("external.parquet")],
+                }
+            ],
+        },
+    )
+    receipt = MERGE.build_receipt(
+        sources_path=sources,
+        hf_path=hf,
+        mdc_path=mdc,
+        destination_root=tmp_path,
+    )
+    assert [row["source_id"] for row in receipt["sources"]] == [
+        "apertus_overlap_overlay",
+        "external",
+        "modern_greek_148k_tokenizer",
+        "nanochat_base",
+    ]
