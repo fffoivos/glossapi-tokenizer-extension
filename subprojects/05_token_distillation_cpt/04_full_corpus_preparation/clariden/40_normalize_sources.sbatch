@@ -19,7 +19,7 @@ phase04_require_cpu_request
 phase04_require_uenv_python
 phase04_require_clean_git "$REPO_ROOT"
 phase04_require_expected_commit "$REPO_ROOT"
-phase04_require_file "${ACQUISITION_RECEIPT:?set ACQUISITION_RECEIPT to the passed receipt from job 2735235}"
+phase04_require_file "${ACQUISITION_RECEIPT:?set ACQUISITION_RECEIPT to a fresh passed merged HF+MDC receipt}"
 phase04_require_file "$NORMALIZE_SCRIPT"
 phase04_init_pipeline_run
 phase04_stage_begin "10-normalize"

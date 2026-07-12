@@ -140,26 +140,41 @@ receipt. Preserve the four paths printed by this new job.
 ### Mozilla Data Collective routes
 
 Istorima, the Modern Greek Dictionary and ERT Press are registered by exact MDC
-dataset ID, slug, filename and size. Istorima also has a pinned archive SHA-256;
-the other two fail closed until their web terms are accepted and the API exposes
-their checksums. The acquisition holds presigned URLs only in memory, supports
-Range resume, safely extracts regular files only, and hashes both the archive
-and every selected payload file.
+dataset ID, slug, filename, size and archive SHA-256 observed from authenticated
+metadata. The GET metadata checksum, POST download response and local archive
+must all match the registry pin;
+there is no unpinned checksum route. The acquisition holds presigned URLs only
+in memory, supports Range resume, safely extracts regular files only, and hashes
+both the archive and every selected payload file. It then dispatches validation from the tracked
+`mdc_format`. The current Parquet routes must open as real Parquet, contain rows,
+and expose the configured text and identifier columns in every selected shard.
+Unsupported formats fail until a source-specific validator is implemented.
 
 ```bash
 # Inject MOZILLA_DATA_COLLECTIVE_API_KEY only into the submission environment.
 CONFIRM_LAUNCH=1 bash clariden/submit.sh acquire-mdc
 ```
 
-Combine the passed HF and MDC receipts with
-`scripts/merge_acquisition_receipts.py`. Normalization consumes only that merged
-`full_cpt_acquisition_receipt_v1`.
+Combine the passed HF and MDC receipts with the first-class lightweight CPU
+stage. Choose the immutable output name before submission:
+
+```bash
+export HF_ACQUISITION_RECEIPT="$RUN_ROOT/source_locks/sources_<fresh-hf-stamp>_<hf-job>.receipt.json"
+export MDC_ACQUISITION_RECEIPT="$RUN_ROOT/source_locks/mdc_<fresh-mdc-stamp>_<mdc-job>.receipt.json"
+export MERGED_ACQUISITION_RECEIPT="$RUN_ROOT/source_locks/merged_full_corpus_v2_<date>.receipt.json"
+bash clariden/submit.sh merge-acquisition
+CONFIRM_LAUNCH=1 bash clariden/submit.sh merge-acquisition
+```
+
+The merge revalidates source identity, current configuration, local inventories
+and the passed MDC payload-schema receipts. Normalization consumes only that
+merged `full_cpt_acquisition_receipt_v1`.
 
 For the downstream chain, use only the fresh passed receipt and omit the old job
 ID entirely:
 
 ```bash
-export ACQUISITION_RECEIPT=/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/source_locks/sources_<fresh-timestamp>_<fresh-job>.receipt.json
+export ACQUISITION_RECEIPT="$MERGED_ACQUISITION_RECEIPT"
 unset ACQUISITION_JOB_ID
 ```
 
@@ -294,7 +309,7 @@ safe to lower the execution-only worker caps for that retry.
 
 ```bash
 export PIPELINE_RUN_ID=full-corpus-v2-<date>
-export ACQUISITION_RECEIPT="$RUN_ROOT/source_locks/sources_<fresh-timestamp>_<fresh-job>.receipt.json"
+export ACQUISITION_RECEIPT="$RUN_ROOT/source_locks/merged_full_corpus_v2_<date>.receipt.json"
 unset ACQUISITION_JOB_ID  # the fresh existing-only receipt already exists
 bash clariden/submit.sh chain-to-review
 CONFIRM_LAUNCH=1 bash clariden/submit.sh chain-to-review
@@ -538,9 +553,13 @@ Check or resume without inventing a new run:
 
 ```bash
 bash clariden/submit.sh status "$PIPELINE_RUN_ID"
-FINAL_CLEAN_STAGE=58-final-clean bash clariden/submit.sh resume decontam
-CONFIRM_LAUNCH=1 FINAL_CLEAN_STAGE=58-final-clean bash clariden/submit.sh resume decontam
+bash clariden/submit.sh resume decontam
+CONFIRM_LAUNCH=1 bash clariden/submit.sh resume decontam
 ```
+
+Production decontamination is hard-wired to `58-final-clean`; Stage50 is never a
+valid direct production input. Materialization independently verifies the Stage58
+identity recorded by decontamination before it reads any release inputs.
 
 A completed receipt makes a resubmitted stage a validated no-op only after the
 same structural finalization request is revalidated. An incomplete stage

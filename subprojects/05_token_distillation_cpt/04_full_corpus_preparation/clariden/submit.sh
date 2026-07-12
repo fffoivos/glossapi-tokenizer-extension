@@ -29,7 +29,7 @@ Corpus stages:
   structural-promote final-clean greekmmlu-freeze decontam dedup materialize publish
 
 Acquisition stages:
-  acquire acquire-mdc
+  acquire acquire-mdc merge-acquisition
 
 Legacy/audit stages:
   bootstrap-runtime build-detector build-quality-runtime acquire quality
@@ -49,6 +49,7 @@ stage_script() {
         build-quality-runtime) echo "$HERE/06_build_glossapi_quality_runtime.sbatch" ;;
         acquire) echo "$HERE/00_acquire_sources.sbatch" ;;
         acquire-mdc) echo "$HERE/02_acquire_mdc_sources.sbatch" ;;
+        merge-acquisition) echo "$HERE/03_merge_acquisition_receipts.sbatch" ;;
         quality) echo "$HERE/10_quality_audit.sbatch" ;;
         structural-detect) echo "$HERE/20_structural_detect.sbatch" ;;
         structural-token-loss) echo "$HERE/30_structural_token_loss.sbatch" ;;
@@ -139,6 +140,19 @@ final_admission_preflight() {
     }
 }
 
+production_stage58_preflight() {
+    local target=$1
+    case "$(canonical_stage "$target")" in
+        60-greekmmlu-decontam|80-materialize-validate)
+            if [[ "${FINAL_CLEAN_STAGE+x}" == "x" ]] && \
+                [[ "$FINAL_CLEAN_STAGE" != "58-final-clean" ]]; then
+                echo "ERROR: production decontamination/materialization requires FINAL_CLEAN_STAGE=58-final-clean." >&2
+                exit 7
+            fi
+            ;;
+    esac
+}
+
 manual_preflight() {
     local target=$1
     [[ "${CONFIRM_LAUNCH:-0}" == "1" ]] || return 0
@@ -156,6 +170,22 @@ manual_preflight() {
         acquire-mdc)
             [[ -n "${MOZILLA_DATA_COLLECTIVE_API_KEY:-}" ]] || {
                 echo "ERROR: MOZILLA_DATA_COLLECTIVE_API_KEY is required in the submission environment." >&2
+                exit 5
+            }
+            ;;
+        merge-acquisition)
+            for required in HF_ACQUISITION_RECEIPT MDC_ACQUISITION_RECEIPT; do
+                [[ -s "${!required:-}" ]] || {
+                    echo "ERROR: merge-acquisition requires a passed non-empty $required." >&2
+                    exit 5
+                }
+            done
+            [[ -n "${MERGED_ACQUISITION_RECEIPT:-}" ]] || {
+                echo "ERROR: set an immutable MERGED_ACQUISITION_RECEIPT output path." >&2
+                exit 5
+            }
+            [[ ! -e "$MERGED_ACQUISITION_RECEIPT" ]] || {
+                echo "ERROR: merged acquisition output already exists: $MERGED_ACQUISITION_RECEIPT" >&2
                 exit 5
             }
             ;;
@@ -255,6 +285,7 @@ submit_one() {
     shift 3
     local script
     script=$(stage_script "$target") || { echo "ERROR: unknown stage: $target" >&2; exit 2; }
+    production_stage58_preflight "$target"
     manual_preflight "$target"
     local export_spec="ALL,REPO_ROOT=$REPO_ROOT,PHASE04_DIR=$PHASE04_DIR,ACADEMIC_DIR=$ACADEMIC_DIR,PHASE04_CLARIDEN_DIR=$HERE,PHASE04_EXPECTED_COMMIT=$PHASE04_EXPECTED_COMMIT"
     case "$target" in

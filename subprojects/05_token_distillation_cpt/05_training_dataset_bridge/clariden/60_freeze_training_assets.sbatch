@@ -23,4 +23,7 @@ bridge_python "$TRAINING_ASSETS_SCRIPT" \
     --megatron-dir "$MEGATRON_DIR" \
     --trainer "$TRAIN_SCRIPT" \
     --training-env "$TRAINING_ENV" \
+    --common-training-env "$COMMON_TRAINING_ENV" \
+    --runtime-wrapper "$TRAIN_RUNTIME_WRAPPER" \
+    --launcher "$TRAIN_LAUNCHER" \
     --output "$TRAINING_ASSETS_RECEIPT"

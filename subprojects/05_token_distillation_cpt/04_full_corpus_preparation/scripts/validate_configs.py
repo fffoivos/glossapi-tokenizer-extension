@@ -760,13 +760,13 @@ def validate_sources(cfg: dict) -> list[str]:
             ):
                 errors.append(f"{label}: mdc_expected_bytes must be a positive integer")
             expected_hash = source.get("mdc_expected_sha256")
-            if expected_hash is not None and (
+            if (
                 not isinstance(expected_hash, str)
                 or len(expected_hash) != 64
                 or any(character not in HEX40 for character in expected_hash)
             ):
                 errors.append(
-                    f"{label}: mdc_expected_sha256 must be null or lowercase 64-hex"
+                    f"{label}: mdc_expected_sha256 must be pinned lowercase 64-hex"
                 )
         if source.get("role") not in ROLES:
             errors.append(f"{label}: invalid role {source.get('role')!r}")

@@ -31,10 +31,10 @@ DECONTAM_DIR="$PIPELINE_RUN_ROOT/stages/60-greekmmlu-decontam"
 DEDUP_DIR="$PIPELINE_RUN_ROOT/stages/70-dedup"
 phase04_require_file "$DECONTAM_DIR/final_clean_stage.txt"
 FINAL_CLEAN_STAGE=$(<"$DECONTAM_DIR/final_clean_stage.txt")
-case "$FINAL_CLEAN_STAGE" in
-    50-clean|58-final-clean) ;;
-    *) echo "ERROR: invalid recorded final cleaning stage: $FINAL_CLEAN_STAGE" >&2; exit 108 ;;
-esac
+[[ "$FINAL_CLEAN_STAGE" == "58-final-clean" ]] || {
+    echo "ERROR: production materialization requires recorded Stage58 final cleaning; got $FINAL_CLEAN_STAGE" >&2
+    exit 108
+}
 phase04_stage_require_upstream "$FINAL_CLEAN_STAGE"
 CLEAN_DIR="$PIPELINE_RUN_ROOT/stages/$FINAL_CLEAN_STAGE"
 CLEANING_MANIFEST="$CLEAN_DIR/cleaning_manifest.json"

@@ -96,11 +96,20 @@ launch assets. Final outputs are `bridge_manifest.json`,
 
 ## Receipt-gated 25B launcher
 
-The launcher re-hashes every `.bin`/`.idx`, the complete TD init checkpoint,
-the semantic layer-11 roundtrip evidence bundle, the frozen trainer/config, and
-the complete clean effective Megatron tree. The evidence must name the same
-patched checkpoint, layer 11, parallel geometry, and Megatron commit, with zero
-standard/R17/QK/xIELU tensor and logit drift.
+The launcher requires the exact clean repository root and commit frozen by the
+bridge. It re-hashes every `.bin`/`.idx`, the complete TD init checkpoint, the
+semantic layer-11 roundtrip evidence bundle, the top-level and sourced common
+training environments, trainer, runtime wrapper, launcher itself, and the
+complete clean effective Megatron tree. The evidence must name the same patched
+checkpoint, layer 11, parallel geometry, and Megatron commit, with zero
+standard/R17/QK/xIELU tensor and logit drift. The receipt-owned Megatron root is
+exported under the exact variable consumed by the trainer.
+
+The launcher verifies once before submission and exports the complete verification
+argument set into Slurm. The batch job reruns the same receipt verifier at job
+start, through the pinned uenv/runtime, before sourcing either training
+environment. The full-corpus config refuses to train without this completed
+job-start hook; legacy bakeoff jobs do not opt in and retain their existing path.
 
 ```bash
 export BRIDGE_STAGE_ROOT=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/training_bridge/full-corpus-25b-v1

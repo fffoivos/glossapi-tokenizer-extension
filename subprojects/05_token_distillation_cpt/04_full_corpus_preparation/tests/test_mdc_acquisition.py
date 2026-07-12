@@ -7,6 +7,8 @@ import tarfile
 from pathlib import Path
 
 import pytest
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 
 HERE = Path(__file__).resolve().parents[1]
@@ -56,11 +58,13 @@ def test_mdc_acquisition_binds_archive_and_never_persists_url(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     fixture_archive = tmp_path / "fixture.tar.gz"
-    parquet_bytes = b"PAR1-fixture-PAR1"
+    fixture_parquet = tmp_path / "data.parquet"
+    pq.write_table(
+        pa.table({"text": ["ένα καθαρό κείμενο"], "id": ["doc-1"]}),
+        fixture_parquet,
+    )
     with tarfile.open(fixture_archive, "w:gz") as bundle:
-        member = tarfile.TarInfo("dataset/data.parquet")
-        member.size = len(parquet_bytes)
-        bundle.addfile(member, io.BytesIO(parquet_bytes))
+        bundle.add(fixture_parquet, arcname="dataset/data.parquet")
     archive_hash = MDC.sha256_file(fixture_archive)
     source = {
         "source_id": "sample_mdc",
@@ -76,6 +80,8 @@ def test_mdc_acquisition_binds_archive_and_never_persists_url(
         "mdc_expected_sha256": archive_hash,
         "include_globs": ["**/*.parquet"],
         "role": "additive_candidate",
+        "text_columns": ["text"],
+        "id_columns": ["id"],
     }
 
     class FakeClient:
@@ -89,6 +95,7 @@ def test_mdc_acquisition_binds_archive_and_never_persists_url(
                     "name": "Sample",
                     "format": "PARQUET",
                     "sizeBytes": fixture_archive.stat().st_size,
+                    "checksum": f"sha256:{archive_hash}",
                 }
             return {
                 "filename": "sample.tar.gz",
@@ -105,6 +112,36 @@ def test_mdc_acquisition_binds_archive_and_never_persists_url(
         output.write_bytes(fixture_archive.read_bytes())
 
     monkeypatch.setattr(MDC, "download_storage", fake_download)
+
+    class DriftedMetadataClient(FakeClient):
+        def json_request(self, path: str, *, method: str = "GET") -> dict:
+            value = super().json_request(path, method=method)
+            if method == "GET":
+                value["checksum"] = "0" * 64
+            return value
+
+    with pytest.raises(ValueError, match="metadata checksum differs from registry"):
+        MDC.acquire_source(
+            source,
+            client=DriftedMetadataClient(),
+            destination=tmp_path / "metadata-drift-destination",
+            extraction_multiplier=20,
+        )
+
+    class DriftedDownloadClient(FakeClient):
+        def json_request(self, path: str, *, method: str = "GET") -> dict:
+            value = super().json_request(path, method=method)
+            if method == "POST":
+                value["checksum"] = "0" * 64
+            return value
+
+    with pytest.raises(ValueError, match="archive checksum differs from registry"):
+        MDC.acquire_source(
+            source,
+            client=DriftedDownloadClient(),
+            destination=tmp_path / "download-drift-destination",
+            extraction_multiplier=20,
+        )
     receipt = MDC.acquire_source(
         source,
         client=FakeClient(),
@@ -114,8 +151,12 @@ def test_mdc_acquisition_binds_archive_and_never_persists_url(
     serialized = json.dumps(receipt, sort_keys=True)
     assert "never-store" not in serialized
     assert receipt["archive"]["sha256"] == archive_hash
+    assert receipt["archive"]["registry_sha256"] == archive_hash
+    assert receipt["archive"]["metadata_sha256"] == archive_hash
     assert receipt["source_config_sha256"] == MDC.canonical_object_sha256(source)
     assert receipt["selected_file_count"] == 1
+    assert receipt["payload_validation"]["status"] == "passed"
+    assert receipt["payload_validation"]["total_rows"] == 1
     assert receipt["files"][0]["expected_hash"] == MDC.sha256_file(
         Path(receipt["files"][0]["local_path"])
     )
@@ -126,6 +167,25 @@ def test_mdc_acquisition_binds_archive_and_never_persists_url(
         extraction_multiplier=20,
     )
     assert resumed == receipt
+
+    source_receipt = (
+        tmp_path
+        / "destination"
+        / source["source_id"]
+        / source["revision"]
+        / "source_receipt.json"
+    )
+    drifted = json.loads(source_receipt.read_text(encoding="utf-8"))
+    drifted["payload_validation"]["total_rows"] = 2
+    write_json(source_receipt, drifted)
+    with pytest.raises(ValueError, match="payload_validation receipt drift"):
+        MDC.acquire_source(
+            source,
+            client=FakeClient(),
+            destination=tmp_path / "destination",
+            extraction_multiplier=20,
+        )
+    write_json(source_receipt, receipt)
 
     changed_source = dict(source)
     changed_source["include_globs"] = ["*.jsonl"]
@@ -145,6 +205,48 @@ def test_mdc_acquisition_binds_archive_and_never_persists_url(
             destination=tmp_path / "destination",
             extraction_multiplier=20,
         )
+
+
+def test_mdc_payload_validation_fails_closed_by_format_and_schema(
+    tmp_path: Path,
+) -> None:
+    source = {
+        "source_id": "sample",
+        "mdc_format": "PARQUET",
+        "text_columns": ["text"],
+        "id_columns": ["id"],
+    }
+    corrupt = tmp_path / "corrupt.parquet"
+    corrupt.write_bytes(b"PAR1-fixture-PAR1")
+    with pytest.raises(ValueError, match="not readable Parquet"):
+        MDC.validate_payload([corrupt], source)
+
+    missing_text = tmp_path / "missing-text.parquet"
+    pq.write_table(pa.table({"id": ["doc-1"], "body": ["x"]}), missing_text)
+    with pytest.raises(ValueError, match="candidate text columns"):
+        MDC.validate_payload([missing_text], source)
+
+    missing_id = tmp_path / "missing-id.parquet"
+    pq.write_table(pa.table({"text": ["x"]}), missing_id)
+    with pytest.raises(ValueError, match="candidate id columns"):
+        MDC.validate_payload([missing_id], source)
+
+    empty = tmp_path / "empty.parquet"
+    pq.write_table(
+        pa.table(
+            {
+                "text": pa.array([], type=pa.string()),
+                "id": pa.array([], type=pa.string()),
+            }
+        ),
+        empty,
+    )
+    with pytest.raises(ValueError, match="zero rows"):
+        MDC.validate_payload([empty], source)
+
+    unsupported = dict(source, mdc_format="JSONL")
+    with pytest.raises(ValueError, match="unsupported MDC payload format"):
+        MDC.validate_payload([missing_id], unsupported)
 
 
 def test_hf_resolver_excludes_external_routes() -> None:
@@ -233,6 +335,10 @@ def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
         "revision": "4" * 40,
         "acquisition_kind": "mozilla_data_collective",
         "mdc_dataset_id": "external-1",
+        "mdc_format": "PARQUET",
+        "mdc_expected_sha256": "f" * 64,
+        "text_columns": ["text"],
+        "id_columns": ["id"],
     }
     config = {
         "base": {"repo_id": "a/base", "revision": "1" * 40},
@@ -243,9 +349,12 @@ def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
     write_json(sources, config)
     config_hash = MERGE.sha256_file(sources)
 
-    def file_row(name: str) -> dict:
+    def file_row(name: str, *, parquet: bool = False) -> dict:
         path = tmp_path / name
-        path.write_bytes(name.encode())
+        if parquet:
+            pq.write_table(pa.table({"text": ["κείμενο"], "id": ["1"]}), path)
+        else:
+            path.write_bytes(name.encode())
         stat = path.stat()
         return {
             "path": name,
@@ -283,6 +392,10 @@ def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
             ],
         },
     )
+    external_file = file_row("external.parquet", parquet=True)
+    external_validation = MDC.validate_payload(
+        [Path(external_file["local_path"])], external
+    )
     write_json(
         mdc,
         {
@@ -297,7 +410,13 @@ def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
                     "revision": external["revision"],
                     "mdc_dataset_id": external["mdc_dataset_id"],
                     "source_config_sha256": MERGE.canonical_object_sha256(external),
-                    "files": [file_row("external.parquet")],
+                    "archive": {
+                        "sha256": external["mdc_expected_sha256"],
+                        "registry_sha256": external["mdc_expected_sha256"],
+                        "metadata_sha256": external["mdc_expected_sha256"],
+                    },
+                    "payload_validation": external_validation,
+                    "files": [external_file],
                 }
             ],
         },
@@ -314,3 +433,14 @@ def test_merge_requires_exact_hf_and_mdc_routes(tmp_path: Path) -> None:
         "modern_greek_148k_tokenizer",
         "nanochat_base",
     ]
+
+    mdc_value = json.loads(mdc.read_text(encoding="utf-8"))
+    del mdc_value["sources"][0]["payload_validation"]
+    write_json(mdc, mdc_value)
+    with pytest.raises(ValueError, match="payload validation receipt is absent"):
+        MERGE.build_receipt(
+            sources_path=sources,
+            hf_path=hf,
+            mdc_path=mdc,
+            destination_root=tmp_path,
+        )

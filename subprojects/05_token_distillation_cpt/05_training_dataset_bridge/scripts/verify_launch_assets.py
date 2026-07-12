@@ -13,6 +13,8 @@ from bridge_common import (
     read_json,
     sha256_file,
     validate_file_tree_receipt,
+    validate_frozen_repository,
+    validate_launch_dependency_receipts,
 )
 
 
@@ -32,8 +34,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--bridge-manifest", type=Path, required=True)
     parser.add_argument("--training-data-env", type=Path, required=True)
     parser.add_argument("--training-assets-receipt", type=Path, required=True)
+    parser.add_argument("--repo-root", type=Path, required=True)
     parser.add_argument("--training-env", type=Path, required=True)
+    parser.add_argument("--common-training-env", type=Path, required=True)
     parser.add_argument("--trainer", type=Path, required=True)
+    parser.add_argument("--runtime-wrapper", type=Path, required=True)
+    parser.add_argument("--launcher", type=Path, required=True)
+    parser.add_argument("--expected-load-checkpoint", type=Path, required=True)
+    parser.add_argument("--expected-megatron-dir", type=Path, required=True)
     parser.add_argument("--start-iteration", type=int, required=True)
     parser.add_argument("--probe-plan", type=Path)
     parser.add_argument("--resume-checkpoint-receipt", type=Path)
@@ -62,6 +70,9 @@ def main() -> int:
     if sha256_file(input_path) != bridge["input_receipt"]["sha256"]:
         raise ValueError("bridge input receipt drift")
     input_receipt = read_json(input_path)
+    repository = validate_frozen_repository(input_receipt, args.repo_root)
+    if assets.get("repository") != repository:
+        raise ValueError("training assets are bound to a different repository checkout")
     bound_code_sha(input_receipt, Path(__file__))
     bound_code_sha(input_receipt, Path(__file__).with_name("bridge_common.py"))
     assets_impl = Path(str(assets.get("implementation", ""))).resolve()
@@ -70,6 +81,17 @@ def main() -> int:
     ):
         raise ValueError("training-assets implementation receipt drift")
     bound_code_sha(input_receipt, assets_impl)
+
+    validate_launch_dependency_receipts(
+        assets.get("launch_dependencies"),
+        {
+            "common_training_environment": args.common_training_env,
+            "launcher": args.launcher,
+            "runtime_wrapper": args.runtime_wrapper,
+            "trainer": args.trainer,
+            "training_environment": args.training_env,
+        },
+    )
 
     if (
         sha256_file(args.training_data_env.resolve())
@@ -115,6 +137,10 @@ def main() -> int:
     init_root = validate_file_tree_receipt(assets["init_checkpoint"]["tree"])
     validate_file_tree_receipt(assets["td_layer11_evidence"]["bundle_tree"])
     megatron_root = validate_file_tree_receipt(assets["megatron"]["tree"])
+    if megatron_root != Path(str(assets["megatron"].get("root", ""))).resolve():
+        raise ValueError("runtime-selected Megatron root differs from its frozen tree")
+    if megatron_root != args.expected_megatron_dir.resolve():
+        raise ValueError("exported Megatron root differs from the frozen training asset")
     if not all(assets["td_layer11_evidence"]["semantic_checks"].values()):
         raise ValueError("TD layer-11 semantic evidence has a failed check")
     if _git(megatron_root, "rev-parse", "HEAD") != assets["megatron"]["commit"]:
@@ -172,6 +198,8 @@ def main() -> int:
         result["resume_checkpoint_receipt_sha256"] = sha256_file(
             args.resume_checkpoint_receipt.resolve()
         )
+    if Path(str(result["load_checkpoint"])).resolve() != args.expected_load_checkpoint.resolve():
+        raise ValueError("exported load checkpoint differs from the verified launch receipt")
     print(json.dumps(result, sort_keys=True))
     return 0
 

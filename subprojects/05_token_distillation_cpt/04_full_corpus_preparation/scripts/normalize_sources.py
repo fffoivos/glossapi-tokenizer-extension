@@ -865,6 +865,69 @@ def validate_embedded_route_coverage(
     }
 
 
+def validate_selected_source_coverage(
+    artifacts: list[SourceArtifact],
+    summaries: list[dict[str, Any]],
+    *,
+    bounded_smoke: bool,
+) -> dict[str, Any]:
+    """Fail closed when a production-selected text source silently emits no documents."""
+
+    summaries_by_source = {
+        str(summary["source_id"]): summary for summary in summaries
+    }
+    rows: list[dict[str, Any]] = []
+    failures: list[str] = []
+    for artifact in artifacts:
+        configured_text = sorted(
+            {
+                str(value)
+                for value in (
+                    list(artifact.config.get("text_columns", []))
+                    + list(artifact.config.get("alternate_text_columns", []))
+                )
+                if str(value)
+            }
+        )
+        if not configured_text:
+            continue
+        emitted = int(
+            summaries_by_source.get(artifact.source_id, {})
+            .get("counts", {})
+            .get("documents_emitted", 0)
+        )
+        enforced = not bounded_smoke
+        status = (
+            "passed"
+            if emitted > 0
+            else "not_enforced_bounded_smoke"
+            if bounded_smoke
+            else "failed_zero_documents"
+        )
+        rows.append(
+            {
+                "source_id": artifact.source_id,
+                "candidate_text_columns": configured_text,
+                "documents_emitted": emitted,
+                "postcondition_enforced": enforced,
+                "status": status,
+            }
+        )
+        if enforced and emitted < 1:
+            failures.append(artifact.source_id)
+    if failures:
+        raise ValueError(
+            "production normalization emitted zero documents for selected text-bearing "
+            f"sources: {sorted(failures)}"
+        )
+    return {
+        "schema_version": "full_cpt_selected_source_coverage_v1",
+        "bounded_smoke": bounded_smoke,
+        "all_enforced_sources_passed": not failures if not bounded_smoke else None,
+        "sources": rows,
+    }
+
+
 def main() -> int:
     here = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser()
@@ -1055,6 +1118,11 @@ def main() -> int:
         summaries,
         bounded_smoke=bool(args.max_rows_per_source),
     )
+    selected_source_coverage = validate_selected_source_coverage(
+        artifacts,
+        summaries,
+        bounded_smoke=bool(args.max_rows_per_source),
+    )
 
     payload = {
         "schema_version": NORMALIZATION_MANIFEST_SCHEMA,
@@ -1069,6 +1137,7 @@ def main() -> int:
         "output": str(args.output.resolve()),
         "bounded_smoke": bool(args.max_rows_per_source),
         "embedded_structural_route_coverage": route_coverage,
+        "selected_source_coverage": selected_source_coverage,
         "uid_uniqueness": uniqueness,
         "sources": summaries,
         "total_documents": sum(

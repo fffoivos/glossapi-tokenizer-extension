@@ -11,10 +11,12 @@ from typing import Any
 
 from bridge_common import (
     bound_code_sha,
+    build_launch_dependency_receipts,
     file_tree_receipt,
     read_json,
     sha256_file,
     utc_now,
+    validate_frozen_repository,
     validate_file_tree_receipt,
     write_json_atomic,
 )
@@ -37,6 +39,8 @@ def _validate_existing(
     bridge_sha: str,
     config_sha: str,
     implementation_sha: str,
+    repository: dict[str, Any],
+    launch_dependencies: dict[str, dict[str, Any]],
 ) -> bool:
     if not path.is_file():
         return False
@@ -47,6 +51,8 @@ def _validate_existing(
         or value.get("bridge_manifest_sha256") != bridge_sha
         or value.get("config_sha256") != config_sha
         or value.get("implementation_sha256") != implementation_sha
+        or value.get("repository") != repository
+        or value.get("launch_dependencies") != launch_dependencies
     ):
         raise ValueError("existing training-assets receipt has different bindings")
     validate_file_tree_receipt(value["init_checkpoint"]["tree"])
@@ -75,6 +81,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--megatron-dir", type=Path, required=True)
     parser.add_argument("--trainer", type=Path, required=True)
     parser.add_argument("--training-env", type=Path, required=True)
+    parser.add_argument("--common-training-env", type=Path, required=True)
+    parser.add_argument("--runtime-wrapper", type=Path, required=True)
+    parser.add_argument("--launcher", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
 
@@ -99,13 +108,43 @@ def main() -> int:
     if sha256_file(input_receipt_path) != bridge["input_receipt"]["sha256"]:
         raise ValueError("bridge input receipt drift")
     input_receipt = read_json(input_receipt_path)
+    repository = validate_frozen_repository(input_receipt, args.repo_root)
     implementation_sha = bound_code_sha(input_receipt, Path(__file__))
     bound_code_sha(input_receipt, Path(__file__).with_name("bridge_common.py"))
+    expected_launch_paths = {
+        "common_training_environment": args.repo_root
+        / "subprojects/05_token_distillation_cpt/03_training_experiments/configs/common_cpt.env",
+        "launcher": args.repo_root
+        / "subprojects/05_token_distillation_cpt/05_training_dataset_bridge/train/submit_25b_probe.sh",
+        "runtime_wrapper": args.repo_root
+        / "subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/megatron_patches/runtime/pretrain_gpt_te_guard.py",
+        "trainer": args.repo_root
+        / "subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/bakeoff_training/bakeoff_train.sbatch",
+        "training_environment": args.repo_root
+        / "subprojects/05_token_distillation_cpt/05_training_dataset_bridge/train/full_corpus_25b.env",
+    }
+    selected_launch_paths = {
+        "common_training_environment": args.common_training_env,
+        "launcher": args.launcher,
+        "runtime_wrapper": args.runtime_wrapper,
+        "trainer": args.trainer,
+        "training_environment": args.training_env,
+    }
+    for name, expected in expected_launch_paths.items():
+        if selected_launch_paths[name].resolve() != expected.resolve():
+            raise ValueError(
+                f"production launch dependency path override is forbidden: {name}"
+            )
+    launch_dependencies = build_launch_dependency_receipts(
+        selected_launch_paths
+    )
     if _validate_existing(
         args.output,
         bridge_sha=bridge_sha,
         config_sha=config_sha,
         implementation_sha=implementation_sha,
+        repository=repository,
+        launch_dependencies=launch_dependencies,
     ):
         print(json.dumps({"ok": True, "resumed": True, "output": str(args.output)}))
         return 0
@@ -199,6 +238,8 @@ def main() -> int:
         "config_sha256": config_sha,
         "implementation": str(Path(__file__).resolve()),
         "implementation_sha256": implementation_sha,
+        "repository": repository,
+        "launch_dependencies": launch_dependencies,
         "init_checkpoint": {
             "distillation_layer": int(assets["distillation_layer"]),
             "marker": str(assets["expected_checkpoint_marker"]),
@@ -234,12 +275,12 @@ def main() -> int:
             "tree": megatron_tree,
         },
         "trainer": {
-            "path": str(args.trainer.resolve()),
-            "sha256": sha256_file(args.trainer.resolve()),
+            "path": launch_dependencies["trainer"]["path"],
+            "sha256": launch_dependencies["trainer"]["sha256"],
         },
         "training_environment": {
-            "path": str(args.training_env.resolve()),
-            "sha256": sha256_file(args.training_env.resolve()),
+            "path": launch_dependencies["training_environment"]["path"],
+            "sha256": launch_dependencies["training_environment"]["sha256"],
         },
     }
     write_json_atomic(args.output.resolve(), payload)

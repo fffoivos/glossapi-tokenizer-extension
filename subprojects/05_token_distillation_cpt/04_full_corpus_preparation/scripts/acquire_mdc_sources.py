@@ -27,6 +27,7 @@ from typing import Any, Iterable
 
 SCHEMA = "full_cpt_mdc_acquisition_receipt_v1"
 SOURCE_SCHEMA = "full_cpt_mdc_source_receipt_v1"
+PAYLOAD_VALIDATION_SCHEMA = "full_cpt_mdc_payload_validation_v1"
 DEFAULT_API_BASE = "https://mozilladatacollective.com/api"
 HEX = frozenset("0123456789abcdef")
 
@@ -247,6 +248,106 @@ def selected_files(root: Path, includes: Iterable[str], excludes: Iterable[str])
     return rows
 
 
+def validate_parquet_payload(
+    files: list[Path], source: dict[str, Any]
+) -> dict[str, Any]:
+    try:
+        import pyarrow.parquet as pq
+    except ImportError as error:  # pragma: no cover - Clariden runtime contract
+        raise RuntimeError("pyarrow is required to validate MDC Parquet payloads") from error
+
+    source_id = str(source["source_id"])
+    candidate_text = sorted(
+        {
+            str(value)
+            for value in (
+                list(source.get("text_columns", []))
+                + list(source.get("alternate_text_columns", []))
+            )
+            if str(value)
+        }
+    )
+    required_text = sorted(
+        {str(value) for value in source.get("required_text_columns", []) if str(value)}
+    )
+    candidate_ids = sorted(
+        {str(value) for value in source.get("id_columns", []) if str(value)}
+    )
+    if not candidate_text:
+        raise ValueError(
+            f"{source_id}: PARQUET MDC route has no configured candidate text columns"
+        )
+    if not files:
+        raise ValueError(f"{source_id}: PARQUET MDC route selected no payload files")
+
+    audits: list[dict[str, Any]] = []
+    total_rows = 0
+    for path in files:
+        try:
+            parquet = pq.ParquetFile(path)
+        except Exception as error:
+            raise ValueError(
+                f"{source_id}: selected payload is not readable Parquet: {path}: "
+                f"{type(error).__name__}"
+            ) from error
+        columns = set(parquet.schema_arrow.names)
+        present_text = sorted(columns & set(candidate_text))
+        present_ids = sorted(columns & set(candidate_ids))
+        missing_required = sorted(set(required_text) - columns)
+        if missing_required:
+            raise ValueError(
+                f"{source_id}:{path.name}: missing required text columns {missing_required}"
+            )
+        if not present_text:
+            raise ValueError(
+                f"{source_id}:{path.name}: none of the candidate text columns are present: "
+                f"{candidate_text}"
+            )
+        if candidate_ids and not present_ids:
+            raise ValueError(
+                f"{source_id}:{path.name}: none of the candidate id columns are present: "
+                f"{candidate_ids}"
+            )
+        rows = int(parquet.metadata.num_rows)
+        if rows < 1:
+            raise ValueError(f"{source_id}:{path.name}: selected Parquet file has zero rows")
+        total_rows += rows
+        audits.append(
+            {
+                "local_path": str(path.resolve()),
+                "rows": rows,
+                "row_groups": int(parquet.num_row_groups),
+                "columns": sorted(columns),
+                "present_text_columns": present_text,
+                "present_id_columns": present_ids,
+            }
+        )
+    if total_rows < 1:
+        raise ValueError(f"{source_id}: selected MDC payload has zero aggregate rows")
+    return {
+        "schema_version": PAYLOAD_VALIDATION_SCHEMA,
+        "status": "passed",
+        "format": "PARQUET",
+        "source_config_sha256": canonical_object_sha256(source),
+        "selected_file_count": len(files),
+        "total_rows": total_rows,
+        "candidate_text_columns": candidate_text,
+        "required_text_columns": required_text,
+        "candidate_id_columns": candidate_ids,
+        "files": audits,
+    }
+
+
+def validate_payload(files: list[Path], source: dict[str, Any]) -> dict[str, Any]:
+    payload_format = str(source.get("mdc_format", "")).upper()
+    if payload_format == "PARQUET":
+        return validate_parquet_payload(files, source)
+    raise ValueError(
+        f"{source.get('source_id')}: unsupported MDC payload format {payload_format!r}; "
+        "add and test a format-specific validator before acquisition"
+    )
+
+
 def validate_source_receipt(path: Path, source: dict[str, Any]) -> dict[str, Any]:
     receipt = load_object(path)
     for field, expected in {
@@ -271,17 +372,44 @@ def validate_source_receipt(path: Path, source: dict[str, Any]) -> dict[str, Any
         or sha256_file(archive_path) != archive.get("sha256")
     ):
         raise ValueError(f"{path}: downloaded archive drift for {archive_path}")
-    pinned = source.get("mdc_expected_sha256")
-    if pinned is not None and archive.get("sha256") != pinned:
+    pinned = canonical_checksum(source.get("mdc_expected_sha256"))
+    if (
+        archive.get("sha256") != pinned
+        or archive.get("registry_sha256") != pinned
+        or archive.get("metadata_sha256") != pinned
+    ):
         raise ValueError(f"{path}: archive differs from pinned source checksum")
-    for row in receipt.get("files", []):
+    file_rows = receipt.get("files")
+    if not isinstance(file_rows, list) or not file_rows:
+        raise ValueError(f"{path}: source receipt has no selected payload files")
+    if int(receipt.get("selected_file_count", -1)) != len(file_rows):
+        raise ValueError(f"{path}: selected payload file-count drift")
+    selected_bytes = 0
+    local_files: list[Path] = []
+    for row in file_rows:
         local = Path(str(row.get("local_path", "")))
+        stat = local.stat() if local.is_file() else None
         if (
-            not local.is_file()
-            or local.stat().st_size != int(row.get("size", -1))
+            stat is None
+            or stat.st_size != int(row.get("size", -1))
             or sha256_file(local) != row.get("expected_hash")
         ):
             raise ValueError(f"{path}: extracted payload drift for {local}")
+        for field, actual in {
+            "device": stat.st_dev,
+            "inode": stat.st_ino,
+            "mtime_ns": stat.st_mtime_ns,
+            "ctime_ns": stat.st_ctime_ns,
+        }.items():
+            if int(row.get(field, -1)) != int(actual):
+                raise ValueError(f"{path}: extracted payload {field} drift for {local}")
+        selected_bytes += stat.st_size
+        local_files.append(local)
+    if int(receipt.get("selected_bytes", -1)) != selected_bytes:
+        raise ValueError(f"{path}: selected payload byte-count drift")
+    validation = validate_payload(local_files, source)
+    if receipt.get("payload_validation") != validation:
+        raise ValueError(f"{path}: payload_validation receipt drift")
     return receipt
 
 
@@ -298,6 +426,7 @@ def acquire_source(
         return validate_source_receipt(source_receipt, source)
 
     dataset_id = str(source["mdc_dataset_id"])
+    pinned = canonical_checksum(source.get("mdc_expected_sha256"))
     details = client.json_request(f"datasets/{dataset_id}")
     for field, expected in {
         "id": dataset_id,
@@ -309,6 +438,9 @@ def acquire_source(
             raise ValueError(f"{source['source_id']}: MDC metadata drift for {field}")
     if int(details.get("sizeBytes", -1)) != int(source["mdc_expected_bytes"]):
         raise ValueError(f"{source['source_id']}: MDC declared size drift")
+    metadata_checksum = canonical_checksum(details.get("checksum"))
+    if metadata_checksum != pinned:
+        raise ValueError(f"{source['source_id']}: MDC metadata checksum differs from registry")
 
     download = client.json_request(f"datasets/{dataset_id}/download", method="POST")
     filename = str(download.get("filename") or "")
@@ -316,8 +448,7 @@ def acquire_source(
     checksum = canonical_checksum(download.get("checksum"))
     if filename != source["mdc_expected_filename"] or size != int(source["mdc_expected_bytes"]):
         raise ValueError(f"{source['source_id']}: MDC download metadata drift")
-    pinned = source.get("mdc_expected_sha256")
-    if pinned is not None and checksum != pinned:
+    if checksum != pinned:
         raise ValueError(f"{source['source_id']}: MDC archive checksum differs from registry")
     download_url = str(download.get("downloadUrl") or "")
     if not download_url.startswith("https://"):
@@ -341,6 +472,7 @@ def acquire_source(
         source.get("include_globs", []),
         source.get("exclude_globs", []),
     )
+    payload_validation = validate_payload(files, source)
     file_rows: list[dict[str, Any]] = []
     for path in files:
         stat = path.stat()
@@ -371,11 +503,14 @@ def acquire_source(
             "local_path": str(archive.resolve()),
             "bytes": size,
             "sha256": checksum,
+            "registry_sha256": pinned,
+            "metadata_sha256": metadata_checksum,
             "content_type": download.get("contentType"),
         },
         "local_root": str(payload.resolve()),
         "selected_file_count": len(file_rows),
         "selected_bytes": sum(int(row["size"]) for row in file_rows),
+        "payload_validation": payload_validation,
         "files": file_rows,
     }
     write_json_atomic(source_receipt, receipt)

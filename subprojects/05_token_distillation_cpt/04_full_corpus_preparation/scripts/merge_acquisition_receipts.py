@@ -14,6 +14,7 @@ from typing import Any
 
 
 HEX = frozenset("0123456789abcdef")
+MDC_PAYLOAD_VALIDATION_SCHEMA = "full_cpt_mdc_payload_validation_v1"
 
 
 def load_object(path: Path) -> dict[str, Any]:
@@ -137,6 +138,100 @@ def build_receipt(
                 errors.append(f"{source_id}: acquisition MDC dataset ID differs from sources.json")
             if row.get("source_config_sha256") != canonical_object_sha256(tracked):
                 errors.append(f"{source_id}: acquisition source configuration drift")
+            archive = row.get("archive")
+            pinned_archive_sha = str(tracked.get("mdc_expected_sha256", ""))
+            if (
+                not isinstance(archive, dict)
+                or archive.get("sha256") != pinned_archive_sha
+                or archive.get("registry_sha256") != pinned_archive_sha
+                or archive.get("metadata_sha256") != pinned_archive_sha
+            ):
+                errors.append(f"{source_id}: MDC archive receipt differs from registry SHA-256")
+            audit = row.get("payload_validation")
+            tracked_format = str(tracked.get("mdc_format", "")).upper()
+            if not isinstance(audit, dict):
+                errors.append(f"{source_id}: MDC payload validation receipt is absent")
+            else:
+                if (
+                    audit.get("schema_version") != MDC_PAYLOAD_VALIDATION_SCHEMA
+                    or audit.get("status") != "passed"
+                    or audit.get("format") != tracked_format
+                    or audit.get("source_config_sha256")
+                    != canonical_object_sha256(tracked)
+                ):
+                    errors.append(f"{source_id}: MDC payload validation binding is invalid")
+                if tracked_format != "PARQUET":
+                    errors.append(
+                        f"{source_id}: unsupported MDC payload format {tracked_format!r}"
+                    )
+                elif int(audit.get("total_rows", 0)) < 1:
+                    errors.append(f"{source_id}: MDC payload validation has zero rows")
+                audit_files = audit.get("files", [])
+                if not isinstance(audit_files, list) or int(
+                    audit.get("selected_file_count", -1)
+                ) != len(audit_files):
+                    errors.append(
+                        f"{source_id}: MDC payload validation file inventory is invalid"
+                    )
+                else:
+                    configured_text = sorted(
+                        {
+                            str(value)
+                            for value in (
+                                list(tracked.get("text_columns", []))
+                                + list(tracked.get("alternate_text_columns", []))
+                            )
+                            if str(value)
+                        }
+                    )
+                    configured_ids = sorted(
+                        {
+                            str(value)
+                            for value in tracked.get("id_columns", [])
+                            if str(value)
+                        }
+                    )
+                    if audit.get("candidate_text_columns") != configured_text or audit.get(
+                        "candidate_id_columns"
+                    ) != configured_ids:
+                        errors.append(
+                            f"{source_id}: MDC payload validation column contract drift"
+                        )
+                    audited_rows = 0
+                    for file in audit_files:
+                        if not isinstance(file, dict):
+                            errors.append(
+                                f"{source_id}: MDC payload validation has an invalid file row"
+                            )
+                            continue
+                        rows_count = int(file.get("rows", 0))
+                        audited_rows += rows_count
+                        if rows_count < 1 or not file.get("present_text_columns"):
+                            errors.append(
+                                f"{source_id}: MDC payload validation has an empty/invalid Parquet shard"
+                            )
+                        if configured_ids and not file.get("present_id_columns"):
+                            errors.append(
+                                f"{source_id}: MDC payload validation shard has no configured identifier"
+                            )
+                    if audited_rows != int(audit.get("total_rows", -1)):
+                        errors.append(
+                            f"{source_id}: MDC payload validation row-count binding drift"
+                        )
+                    audited_paths = {
+                        str(Path(str(file.get("local_path", ""))).resolve())
+                        for file in audit_files
+                        if isinstance(file, dict)
+                    }
+                    acquired_paths = {
+                        str(Path(str(file.get("local_path", ""))).resolve())
+                        for file in row.get("files", [])
+                        if isinstance(file, dict)
+                    }
+                    if audited_paths != acquired_paths:
+                        errors.append(
+                            f"{source_id}: MDC payload validation inventory differs from acquisition"
+                        )
         for file in row.get("files", []):
             path = Path(str(file.get("local_path", ""))).resolve()
             try:
@@ -174,7 +269,10 @@ def build_receipt(
             {"kind": "huggingface", "path": str(hf_path.resolve()), "sha256": sha256_file(hf_path)},
             {"kind": "mozilla_data_collective", "path": str(mdc_path.resolve()), "sha256": sha256_file(mdc_path)},
         ],
-        "content_verification": "HF LFS/blob verification plus MDC archive and extracted-file SHA-256 verification",
+        "content_verification": (
+            "HF LFS/blob and schema verification plus MDC archive/extracted-file "
+            "SHA-256 and format-specific payload schema verification"
+        ),
         "sources": [rows[source_id] for source_id in sorted(rows)],
     }
 

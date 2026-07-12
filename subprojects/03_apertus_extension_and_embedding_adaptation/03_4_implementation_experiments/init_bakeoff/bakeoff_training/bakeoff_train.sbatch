@@ -34,7 +34,104 @@ set -euo pipefail
 # fallback for manual submissions from this directory.
 SCRIPT_DIR="$(cd "${SCRIPT_DIR_OVERRIDE:-${SLURM_SUBMIT_DIR:-$(pwd)}}" && pwd)"
 TRAIN_CONFIG="${TRAIN_CONFIG_OVERRIDE:-$SCRIPT_DIR/_train_config_common.env}"
+FULL_CPT_JOB_START_VERIFY_COMPLETED=0
+case "${FULL_CPT_LAUNCH_VERIFY:-0}" in
+    0)
+        # Legacy bakeoff submissions do not opt into the full-corpus receipt hook.
+        ;;
+    1)
+        for required in \
+            FULL_CPT_VERIFY_UENV FULL_CPT_VERIFY_PYTHON FULL_CPT_VERIFY_SCRIPT \
+            FULL_CPT_VERIFY_BRIDGE_MANIFEST FULL_CPT_VERIFY_TRAINING_DATA_ENV \
+            FULL_CPT_VERIFY_ASSETS_RECEIPT FULL_CPT_VERIFY_REPO_ROOT \
+            FULL_CPT_VERIFY_TRAINING_ENV FULL_CPT_VERIFY_COMMON_TRAINING_ENV \
+            FULL_CPT_VERIFY_TRAINER FULL_CPT_VERIFY_RUNTIME_WRAPPER \
+            FULL_CPT_VERIFY_LAUNCHER FULL_CPT_VERIFY_EXPECTED_LOAD_CHECKPOINT \
+            FULL_CPT_VERIFY_EXPECTED_MEGATRON_DIR FULL_CPT_VERIFY_START_ITERATION; do
+            [[ -n "${!required:-}" ]] || {
+                echo "ERROR: full-corpus job-start verification requires $required" >&2
+                exit 10
+            }
+        done
+        [[ "$FULL_CPT_VERIFY_TRAINING_ENV" == "$TRAIN_CONFIG" ]] || {
+            echo "ERROR: job training config differs from the verified full-corpus config" >&2
+            exit 10
+        }
+        [[ "$FULL_CPT_VERIFY_TRAINER" == "$SCRIPT_DIR/bakeoff_train.sbatch" ]] || {
+            echo "ERROR: job trainer differs from the verified full-corpus trainer" >&2
+            exit 10
+        }
+        EXPECTED_RUNTIME_WRAPPER="$(cd "$SCRIPT_DIR/../megatron_patches/runtime" && pwd)/pretrain_gpt_te_guard.py"
+        [[ "$FULL_CPT_VERIFY_RUNTIME_WRAPPER" == "$EXPECTED_RUNTIME_WRAPPER" ]] || {
+            echo "ERROR: job runtime wrapper differs from the verified full-corpus wrapper" >&2
+            exit 10
+        }
+        [[ "$FULL_CPT_VERIFY_START_ITERATION" =~ ^[0-9]+$ ]] || {
+            echo "ERROR: full-corpus verification start iteration must be a nonnegative integer" >&2
+            exit 10
+        }
+        verify_args=(
+            --bridge-manifest "$FULL_CPT_VERIFY_BRIDGE_MANIFEST"
+            --training-data-env "$FULL_CPT_VERIFY_TRAINING_DATA_ENV"
+            --training-assets-receipt "$FULL_CPT_VERIFY_ASSETS_RECEIPT"
+            --repo-root "$FULL_CPT_VERIFY_REPO_ROOT"
+            --training-env "$FULL_CPT_VERIFY_TRAINING_ENV"
+            --common-training-env "$FULL_CPT_VERIFY_COMMON_TRAINING_ENV"
+            --trainer "$FULL_CPT_VERIFY_TRAINER"
+            --runtime-wrapper "$FULL_CPT_VERIFY_RUNTIME_WRAPPER"
+            --launcher "$FULL_CPT_VERIFY_LAUNCHER"
+            --expected-load-checkpoint "$FULL_CPT_VERIFY_EXPECTED_LOAD_CHECKPOINT"
+            --expected-megatron-dir "$FULL_CPT_VERIFY_EXPECTED_MEGATRON_DIR"
+            --start-iteration "$FULL_CPT_VERIFY_START_ITERATION"
+        )
+        if (( FULL_CPT_VERIFY_START_ITERATION > 0 )); then
+            [[ -n "${FULL_CPT_VERIFY_PROBE_PLAN:-}" && -n "${FULL_CPT_VERIFY_RESUME_RECEIPT:-}" ]] || {
+                echo "ERROR: resumed full-corpus verification requires probe-plan and checkpoint receipts" >&2
+                exit 10
+            }
+            verify_args+=(
+                --probe-plan "$FULL_CPT_VERIFY_PROBE_PLAN"
+                --resume-checkpoint-receipt "$FULL_CPT_VERIFY_RESUME_RECEIPT"
+            )
+        elif [[ -n "${FULL_CPT_VERIFY_PROBE_PLAN:-}" || -n "${FULL_CPT_VERIFY_RESUME_RECEIPT:-}" ]]; then
+            echo "ERROR: initial full-corpus verification must not carry resume inputs" >&2
+            exit 10
+        fi
+        command -v uenv >/dev/null || { echo "ERROR: uenv is required for full-corpus verification" >&2; exit 10; }
+        uenv run "$FULL_CPT_VERIFY_UENV" --view=default -- \
+            "$FULL_CPT_VERIFY_PYTHON" "$FULL_CPT_VERIFY_SCRIPT" "${verify_args[@]}"
+        FULL_CPT_JOB_START_VERIFY_COMPLETED=1
+        ;;
+    *)
+        echo "ERROR: FULL_CPT_LAUNCH_VERIFY must be unset/0 or exactly 1" >&2
+        exit 10
+        ;;
+esac
+unset FULL_CPT_REQUIRE_JOB_START_VERIFY FULL_CPT_EFFECTIVE_COMMON_TRAINING_ENV
 source "$TRAIN_CONFIG"
+
+if [[ "${FULL_CPT_REQUIRE_JOB_START_VERIFY:-0}" == "1" ]]; then
+    [[ "$FULL_CPT_JOB_START_VERIFY_COMPLETED" == "1" ]] || {
+        echo "ERROR: full-corpus training config requires the job-start receipt verifier" >&2
+        exit 10
+    }
+    [[ "${INIT_CKPT:-}" == "$FULL_CPT_VERIFY_EXPECTED_LOAD_CHECKPOINT" ]] || {
+        echo "ERROR: effective init/load checkpoint differs from the verified receipt" >&2
+        exit 10
+    }
+    [[ "${MEGATRON_LM_SWISSAI_DIR:-}" == "$FULL_CPT_VERIFY_EXPECTED_MEGATRON_DIR" ]] || {
+        echo "ERROR: effective Megatron root differs from the verified receipt" >&2
+        exit 10
+    }
+    [[ "${BRIDGE_DATA_ENV:-}" == "$FULL_CPT_VERIFY_TRAINING_DATA_ENV" ]] || {
+        echo "ERROR: effective bridge data environment differs from the verified receipt" >&2
+        exit 10
+    }
+    [[ "${FULL_CPT_EFFECTIVE_COMMON_TRAINING_ENV:-}" == "$FULL_CPT_VERIFY_COMMON_TRAINING_ENV" ]] || {
+        echo "ERROR: effective common training environment differs from the verified receipt" >&2
+        exit 10
+    }
+fi
 
 ARM="${ARM:?ARM is required (vanilla|retok|centroid|extension|td)}"
 INIT_CKPT="${INIT_CKPT:?INIT_CKPT path is required}"

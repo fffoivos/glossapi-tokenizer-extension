@@ -267,6 +267,46 @@ def test_large_normalization_tasks_use_receipt_bound_byte_sum() -> None:
         normalize.partition_normalization_tasks(tasks, large_task_byte_threshold=0)
 
 
+def test_production_selected_text_source_must_emit_documents(tmp_path: Path) -> None:
+    normalize = load_normalize_module()
+    io = load_io_module()
+    payload = tmp_path / "source.parquet"
+    payload.write_bytes(b"fixture")
+    artifact = io.SourceArtifact(
+        source_id="selected-source",
+        repo_id="owner/source",
+        revision="d" * 40,
+        role="additive_candidate",
+        source_family_id="selected-source",
+        files=(payload,),
+        file_bindings=({},),
+        config={"text_columns": ["text"]},
+    )
+    with pytest.raises(ValueError, match="zero documents.*selected-source"):
+        normalize.validate_selected_source_coverage(
+            [artifact],
+            [{"source_id": "selected-source", "counts": {}}],
+            bounded_smoke=False,
+        )
+    smoke = normalize.validate_selected_source_coverage(
+        [artifact],
+        [{"source_id": "selected-source", "counts": {}}],
+        bounded_smoke=True,
+    )
+    assert smoke["sources"][0]["status"] == "not_enforced_bounded_smoke"
+    passed = normalize.validate_selected_source_coverage(
+        [artifact],
+        [
+            {
+                "source_id": "selected-source",
+                "counts": {"documents_emitted": 1},
+            }
+        ],
+        bounded_smoke=False,
+    )
+    assert passed["all_enforced_sources_passed"] is True
+
+
 def test_normalizer_preserves_source_names_and_groups_sectioned_works(
     tmp_path: Path,
 ) -> None:

@@ -23,11 +23,7 @@ phase04_require_file "$DECONTAM_SCRIPT"
 phase04_init_pipeline_run
 phase04_stage_begin "60-greekmmlu-decontam"
 [[ "$PHASE04_STAGE_ALREADY_DONE" == "0" ]] || exit 0
-FINAL_CLEAN_STAGE=${FINAL_CLEAN_STAGE:?set FINAL_CLEAN_STAGE to 50-clean or 58-final-clean}
-case "$FINAL_CLEAN_STAGE" in
-    50-clean|58-final-clean) ;;
-    *) echo "ERROR: unsupported FINAL_CLEAN_STAGE=$FINAL_CLEAN_STAGE" >&2; exit 107 ;;
-esac
+FINAL_CLEAN_STAGE="58-final-clean"
 phase04_stage_require_upstream "$FINAL_CLEAN_STAGE"
 phase04_stage_require_upstream "59-greekmmlu-freeze"
 GREEKMMLU_DIR="$PIPELINE_RUN_ROOT/stages/59-greekmmlu-freeze"

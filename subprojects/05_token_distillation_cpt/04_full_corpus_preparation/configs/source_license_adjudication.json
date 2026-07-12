@@ -12,7 +12,7 @@
   "default_policy": "deny_training_and_redistribution",
   "source_registry": {
     "path": "configs/sources.json",
-    "sha256": "701c2666b61092aa477deb4e79411dba1386a19a388db44c1594e36835102b72"
+    "sha256": "dd3d423d96ab68c56c35a590646e59f75c312a1102c185ae923215322cddf95d"
   },
   "decision_semantics": {
     "local_training": "Permission decision for this project's noncommercial local CPT only; it is not a conclusion about commercial model use.",

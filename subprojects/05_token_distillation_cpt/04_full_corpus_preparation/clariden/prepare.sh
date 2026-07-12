@@ -6,6 +6,7 @@ HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PHASE04_DIR=$(cd "$HERE/.." && pwd)
 REPO_ROOT=$(git -C "$PHASE04_DIR" rev-parse --show-toplevel)
 ACADEMIC_DIR="$REPO_ROOT/subprojects/05_token_distillation_cpt/02_corpus_preparation/15_clean_academic"
+source "$HERE/paths.env"
 
 python3 "$PHASE04_DIR/scripts/validate_configs.py"
 python3 "$PHASE04_DIR/scripts/validate_source_license_adjudication.py" \

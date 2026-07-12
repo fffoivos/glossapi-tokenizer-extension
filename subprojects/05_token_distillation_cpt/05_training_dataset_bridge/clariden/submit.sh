@@ -4,8 +4,16 @@ set -euo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 source "$HERE/paths.env"
-bridge_require_paths
 MODE=${1:-status}
+case "$MODE" in
+    restage) bridge_require_base ;;
+    freeze|after-freeze) bridge_require_paths ;;
+    status) bridge_require_run ;;
+    *)
+        echo "usage: $0 {restage|freeze|after-freeze|status}" >&2
+        exit 2
+        ;;
+esac
 DRY_RUN=${DRY_RUN:-1}
 CONFIRM_BUILD=${CONFIRM_BUILD:-0}
 CONFIRM_RESTAGE=${CONFIRM_RESTAGE:-}

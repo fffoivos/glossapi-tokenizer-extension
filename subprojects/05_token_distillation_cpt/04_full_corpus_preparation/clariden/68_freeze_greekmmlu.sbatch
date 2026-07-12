@@ -32,7 +32,8 @@ phase04_require_file "$FREEZER"
 phase04_stage_add_input greek_benchmark_registry "$REGISTRY"
 
 REVISION=$(
-    "$RUNTIME_VENV/bin/python" - "$REGISTRY" <<'PY'
+    uenv run "$PHASE04_UENV" --view=default -- \
+        "$RUNTIME_VENV/bin/python" - "$REGISTRY" <<'PY'
 import json
 import sys
 with open(sys.argv[1], encoding="utf-8") as handle:

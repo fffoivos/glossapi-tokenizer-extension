@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 import sys
 from decimal import Decimal
 from pathlib import Path
@@ -14,10 +16,13 @@ sys.path.insert(0, str(SCRIPTS))
 
 from bridge_common import (  # noqa: E402
     document_key,
+    build_launch_dependency_receipts,
     file_tree_receipt,
     heldout_hash,
     iter_index_lengths,
     selected_by_threshold,
+    validate_frozen_repository,
+    validate_launch_dependency_receipts,
     write_index,
 )
 from finalize_bridge import (  # noqa: E402
@@ -281,6 +286,315 @@ def test_frozen_config_and_launcher_are_25b_only() -> None:
     assert "START_ITERATION" in launcher
     assert "while (( current < TOTAL_ITER ))" not in launcher
     assert "24998051840" in launcher
+    assert "MEGATRON_LM_SWISSAI_DIR=$MEGATRON_LM_SWISSAI_DIR" in launcher
+    assert "MEGATRON_DIR=$MEGATRON_DIR" not in launcher
+    common = (ROOT.parent / "03_training_experiments" / "configs" / "common_cpt.env").read_text(
+        encoding="utf-8"
+    )
+    assert 'MEGATRON_LM_SWISSAI_DIR="${MEGATRON_LM_SWISSAI_DIR:-' in common
+
+
+def test_full_corpus_launch_revalidates_inside_batch_before_config_source() -> None:
+    launcher = (ROOT / "train" / "submit_25b_probe.sh").read_text(encoding="utf-8")
+    config = (ROOT / "train" / "full_corpus_25b.env").read_text(encoding="utf-8")
+    trainer_path = (
+        ROOT.parents[1]
+        / "03_apertus_extension_and_embedding_adaptation"
+        / "03_4_implementation_experiments"
+        / "init_bakeoff"
+        / "bakeoff_training"
+        / "bakeoff_train.sbatch"
+    )
+    trainer = trainer_path.read_text(encoding="utf-8")
+    verifier = (ROOT / "scripts" / "verify_launch_assets.py").read_text(encoding="utf-8")
+    assert 'case "${FULL_CPT_LAUNCH_VERIFY:-0}"' in trainer
+    assert trainer.index("$FULL_CPT_VERIFY_SCRIPT") < trainer.index('source "$TRAIN_CONFIG"')
+    assert 'uenv run "$FULL_CPT_VERIFY_UENV" --view=default' in trainer
+    assert "FULL_CPT_JOB_START_VERIFY_COMPLETED=1" in trainer
+    assert 'FULL_CPT_REQUIRE_JOB_START_VERIFY="1"' in config
+    assert "full-corpus training config requires the job-start receipt verifier" in trainer
+
+    required_exports = (
+        "UENV",
+        "PYTHON",
+        "SCRIPT",
+        "BRIDGE_MANIFEST",
+        "TRAINING_DATA_ENV",
+        "ASSETS_RECEIPT",
+        "REPO_ROOT",
+        "TRAINING_ENV",
+        "COMMON_TRAINING_ENV",
+        "TRAINER",
+        "RUNTIME_WRAPPER",
+        "LAUNCHER",
+        "EXPECTED_LOAD_CHECKPOINT",
+        "EXPECTED_MEGATRON_DIR",
+        "START_ITERATION",
+        "PROBE_PLAN",
+        "RESUME_RECEIPT",
+    )
+    for suffix in required_exports:
+        variable = f"FULL_CPT_VERIFY_{suffix}"
+        assert variable in launcher
+        assert variable in trainer
+    assert "--expected-load-checkpoint" in trainer
+    assert "--expected-megatron-dir" in trainer
+    assert "--expected-load-checkpoint" in launcher
+    assert "--expected-megatron-dir" in launcher
+    assert "validate_frozen_repository" in verifier
+    assert "validate_launch_dependency_receipts" in verifier
+
+
+def test_legacy_trainer_without_hook_reaches_legacy_config_unchanged(
+    tmp_path: Path,
+) -> None:
+    trainer = (
+        ROOT.parents[1]
+        / "03_apertus_extension_and_embedding_adaptation"
+        / "03_4_implementation_experiments"
+        / "init_bakeoff"
+        / "bakeoff_training"
+        / "bakeoff_train.sbatch"
+    )
+    legacy_config = tmp_path / "legacy.env"
+    legacy_config.write_text("exit 42\n", encoding="utf-8")
+    environment = os.environ.copy()
+    environment.pop("FULL_CPT_LAUNCH_VERIFY", None)
+    environment.update(
+        {
+            "SCRIPT_DIR_OVERRIDE": str(trainer.parent),
+            "TRAIN_CONFIG_OVERRIDE": str(legacy_config),
+        }
+    )
+    result = subprocess.run(
+        ["bash", str(trainer)],
+        env=environment,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 42
+    assert "job-start verification" not in result.stderr
+
+
+def test_full_corpus_config_cannot_bypass_job_start_hook(tmp_path: Path) -> None:
+    trainer = (
+        ROOT.parents[1]
+        / "03_apertus_extension_and_embedding_adaptation"
+        / "03_4_implementation_experiments"
+        / "init_bakeoff"
+        / "bakeoff_training"
+        / "bakeoff_train.sbatch"
+    )
+    bridge_env = tmp_path / "training_data.env"
+    bridge_env.write_text(
+        "\n".join(
+            [
+                'FULL_CPT_TOKENIZER_DIR="/tmp/tokenizer"',
+                'FULL_CPT_DATA_PREFIX="1 /tmp/data"',
+                'FULL_CPT_BRIDGE_MANIFEST="/tmp/bridge.json"',
+                'FULL_CPT_INPUT_RECEIPT="/tmp/input.json"',
+                'FULL_CPT_HELDOUT_MANIFEST="/tmp/heldout.json"',
+                'FULL_CPT_MIX_RECIPE="/tmp/mix.json"',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    environment = os.environ.copy()
+    environment.pop("FULL_CPT_LAUNCH_VERIFY", None)
+    environment.update(
+        {
+            "SCRIPT_DIR_OVERRIDE": str(trainer.parent),
+            "TRAIN_CONFIG_OVERRIDE": str(ROOT / "train" / "full_corpus_25b.env"),
+            "BRIDGE_DATA_ENV": str(bridge_env),
+            "INIT_CKPT": "/tmp/init",
+        }
+    )
+    result = subprocess.run(
+        ["bash", str(trainer)],
+        env=environment,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 10, result.stderr
+    assert "requires the job-start receipt verifier" in result.stderr
+
+
+@pytest.mark.parametrize(
+    ("start", "probe_plan", "resume_receipt", "expects_resume"),
+    [(0, "", "", False), (119, "/tmp/plan.json", "/tmp/resume.json", True)],
+)
+def test_job_start_hook_builds_initial_and_resume_verifier_args(
+    tmp_path: Path,
+    start: int,
+    probe_plan: str,
+    resume_receipt: str,
+    expects_resume: bool,
+) -> None:
+    trainer = (
+        ROOT.parents[1]
+        / "03_apertus_extension_and_embedding_adaptation"
+        / "03_4_implementation_experiments"
+        / "init_bakeoff"
+        / "bakeoff_training"
+        / "bakeoff_train.sbatch"
+    )
+    runtime_wrapper = (
+        trainer.parent.parent
+        / "megatron_patches"
+        / "runtime"
+        / "pretrain_gpt_te_guard.py"
+    )
+    config = tmp_path / "stop-after-hook.env"
+    config.write_text("exit 42\n", encoding="utf-8")
+    captured = tmp_path / "uenv-args.txt"
+    fake_uenv = tmp_path / "uenv"
+    fake_uenv.write_text(
+        '#!/usr/bin/env bash\nprintf "%s\\n" "$@" > "$HOOK_ARGS_FILE"\n',
+        encoding="utf-8",
+    )
+    fake_uenv.chmod(0o755)
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "PATH": f"{tmp_path}:{environment['PATH']}",
+            "HOOK_ARGS_FILE": str(captured),
+            "SCRIPT_DIR_OVERRIDE": str(trainer.parent),
+            "TRAIN_CONFIG_OVERRIDE": str(config),
+            "FULL_CPT_LAUNCH_VERIFY": "1",
+            "FULL_CPT_VERIFY_UENV": "pytorch/test:v1",
+            "FULL_CPT_VERIFY_PYTHON": "/runtime/python",
+            "FULL_CPT_VERIFY_SCRIPT": "/repo/verify_launch_assets.py",
+            "FULL_CPT_VERIFY_BRIDGE_MANIFEST": "/receipts/bridge.json",
+            "FULL_CPT_VERIFY_TRAINING_DATA_ENV": "/receipts/data.env",
+            "FULL_CPT_VERIFY_ASSETS_RECEIPT": "/receipts/assets.json",
+            "FULL_CPT_VERIFY_REPO_ROOT": "/repo",
+            "FULL_CPT_VERIFY_TRAINING_ENV": str(config),
+            "FULL_CPT_VERIFY_COMMON_TRAINING_ENV": "/repo/common.env",
+            "FULL_CPT_VERIFY_TRAINER": str(trainer),
+            "FULL_CPT_VERIFY_RUNTIME_WRAPPER": str(runtime_wrapper),
+            "FULL_CPT_VERIFY_LAUNCHER": "/repo/submit_25b_probe.sh",
+            "FULL_CPT_VERIFY_EXPECTED_LOAD_CHECKPOINT": "/checkpoints/load",
+            "FULL_CPT_VERIFY_EXPECTED_MEGATRON_DIR": "/megatron",
+            "FULL_CPT_VERIFY_START_ITERATION": str(start),
+            "FULL_CPT_VERIFY_PROBE_PLAN": probe_plan,
+            "FULL_CPT_VERIFY_RESUME_RECEIPT": resume_receipt,
+        }
+    )
+    result = subprocess.run(
+        ["bash", str(trainer)],
+        env=environment,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 42, result.stderr
+    arguments = captured.read_text(encoding="utf-8").splitlines()
+    assert arguments[0:4] == ["run", "pytorch/test:v1", "--view=default", "--"]
+    assert arguments[4:6] == ["/runtime/python", "/repo/verify_launch_assets.py"]
+    assert arguments[arguments.index("--start-iteration") + 1] == str(start)
+    if expects_resume:
+        assert arguments[arguments.index("--probe-plan") + 1] == probe_plan
+        assert (
+            arguments[arguments.index("--resume-checkpoint-receipt") + 1]
+            == resume_receipt
+        )
+    else:
+        assert "--probe-plan" not in arguments
+        assert "--resume-checkpoint-receipt" not in arguments
+
+
+def test_repository_binding_requires_exact_clean_frozen_commit(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+    subprocess.run(["git", "config", "user.email", "test@example.invalid"], cwd=repo, check=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, check=True)
+    tracked = repo / "tracked.txt"
+    tracked.write_text("frozen\n", encoding="utf-8")
+    subprocess.run(["git", "add", "tracked.txt"], cwd=repo, check=True)
+    subprocess.run(["git", "commit", "-qm", "frozen"], cwd=repo, check=True)
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=repo,
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+    ).stdout.strip()
+    receipt = {"repository": {"root": str(repo), "commit": commit}}
+    assert validate_frozen_repository(receipt, repo) == {
+        "root": str(repo.resolve()),
+        "commit": commit,
+        "clean": True,
+    }
+
+    tracked.write_text("dirty\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="dirty or has untracked"):
+        validate_frozen_repository(receipt, repo)
+    tracked.write_text("frozen\n", encoding="utf-8")
+    untracked = repo / "untracked.txt"
+    untracked.write_text("untracked\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="dirty or has untracked"):
+        validate_frozen_repository(receipt, repo)
+    untracked.unlink()
+
+    tracked.write_text("next clean commit\n", encoding="utf-8")
+    subprocess.run(["git", "add", "tracked.txt"], cwd=repo, check=True)
+    subprocess.run(["git", "commit", "-qm", "next"], cwd=repo, check=True)
+    with pytest.raises(ValueError, match="commit drift"):
+        validate_frozen_repository(receipt, repo)
+
+
+@pytest.mark.parametrize(
+    "mutated",
+    [
+        "common_training_environment",
+        "launcher",
+        "runtime_wrapper",
+        "trainer",
+        "training_environment",
+    ],
+)
+def test_all_transitive_launch_dependencies_are_receipt_bound(
+    tmp_path: Path, mutated: str
+) -> None:
+    dependencies = {}
+    for name in (
+        "common_training_environment",
+        "launcher",
+        "runtime_wrapper",
+        "trainer",
+        "training_environment",
+    ):
+        path = tmp_path / name
+        path.write_text(f"{name}\n", encoding="utf-8")
+        dependencies[name] = path
+    receipts = build_launch_dependency_receipts(dependencies)
+    assert set(validate_launch_dependency_receipts(receipts, dependencies)) == set(
+        dependencies
+    )
+    dependencies[mutated].write_text(f"{mutated} drift\n", encoding="utf-8")
+    with pytest.raises(ValueError, match=mutated):
+        validate_launch_dependency_receipts(receipts, dependencies)
+
+
+def test_clariden_submit_uses_mode_specific_and_uenv_safe_requirements() -> None:
+    submit = (ROOT / "clariden" / "submit.sh").read_text(encoding="utf-8")
+    paths = (ROOT / "clariden" / "paths.env").read_text(encoding="utf-8")
+    assert "restage) bridge_require_base" in submit
+    assert "freeze|after-freeze) bridge_require_paths" in submit
+    assert "status) bridge_require_run" in submit
+    assert 'test -x "$RUNTIME_VENV/bin/python"' not in paths
+    assert "bridge_python -c" in paths
+    greekmmlu = (
+        ROOT.parent / "04_full_corpus_preparation" / "clariden" / "68_freeze_greekmmlu.sbatch"
+    ).read_text(encoding="utf-8")
+    assert 'uenv run "$PHASE04_UENV" --view=default' in greekmmlu
 
 
 def test_replay_acquisition_pins_adjudicated_historical_revisions() -> None:

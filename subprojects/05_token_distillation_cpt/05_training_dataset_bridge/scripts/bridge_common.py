@@ -7,6 +7,7 @@ import json
 import os
 import re
 import struct
+import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any, Iterable, Iterator, Mapping, Sequence
@@ -227,6 +228,106 @@ def bound_code_sha(receipt: Mapping[str, Any], script: Path) -> str:
     if not HEX_SHA256.fullmatch(expected) or sha256_file(script) != expected:
         raise ValueError(f"executing code differs from frozen receipt: {script}")
     return expected
+
+
+def _git(repo: Path, *args: str) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    return result.stdout.strip()
+
+
+def validate_frozen_repository(
+    input_receipt: Mapping[str, Any], repo_root: Path
+) -> dict[str, Any]:
+    """Require the exact clean checkout recorded by the bridge input freeze."""
+
+    frozen = input_receipt.get("repository")
+    if not isinstance(frozen, Mapping):
+        raise ValueError("bridge input receipt has no repository binding")
+    expected_root = Path(str(frozen.get("root", ""))).resolve()
+    expected_commit = str(frozen.get("commit", ""))
+    if not HEX_COMMIT.fullmatch(expected_commit):
+        raise ValueError("bridge input receipt has an invalid repository commit")
+    requested_root = repo_root.resolve()
+    try:
+        actual_root = Path(_git(requested_root, "rev-parse", "--show-toplevel")).resolve()
+    except subprocess.CalledProcessError as error:
+        raise ValueError(f"training repository is not a Git checkout: {requested_root}") from error
+    if requested_root != actual_root or actual_root != expected_root:
+        raise ValueError(
+            "training repository root differs from the bridge freeze: "
+            f"requested={requested_root}, actual={actual_root}, frozen={expected_root}"
+        )
+    actual_commit = _git(actual_root, "rev-parse", "HEAD")
+    if actual_commit != expected_commit:
+        raise ValueError(
+            f"training repository commit drift: {actual_commit} != {expected_commit}"
+        )
+    dirty = _git(actual_root, "status", "--porcelain", "--untracked-files=all")
+    if dirty:
+        raise ValueError("training repository is dirty or has untracked files")
+    return {"root": str(actual_root), "commit": actual_commit, "clean": True}
+
+
+def absolute_file_receipt(path: Path) -> dict[str, Any]:
+    selected = path
+    path = selected.resolve()
+    if not path.is_file() or selected.is_symlink():
+        raise FileNotFoundError(f"launch dependency is absent or linked: {selected}")
+    return {
+        "path": str(path),
+        "bytes": path.stat().st_size,
+        "sha256": sha256_file(path),
+    }
+
+
+def build_launch_dependency_receipts(
+    dependencies: Mapping[str, Path],
+) -> dict[str, dict[str, Any]]:
+    if not dependencies or any(not str(name) for name in dependencies):
+        raise ValueError("launch dependencies must have non-empty names")
+    return {
+        str(name): absolute_file_receipt(path)
+        for name, path in sorted(dependencies.items())
+    }
+
+
+def validate_launch_dependency_receipts(
+    receipts: object,
+    dependencies: Mapping[str, Path],
+) -> dict[str, Path]:
+    if not isinstance(receipts, Mapping):
+        raise ValueError("training-assets receipt has no launch dependency map")
+    expected_names = {str(name) for name in dependencies}
+    if set(receipts) != expected_names:
+        raise ValueError(
+            "launch dependency identity drift: "
+            f"missing={sorted(expected_names - set(receipts))}, "
+            f"unexpected={sorted(set(receipts) - expected_names)}"
+        )
+    resolved: dict[str, Path] = {}
+    for name, selected in dependencies.items():
+        receipt = receipts[name]
+        if not isinstance(receipt, Mapping):
+            raise ValueError(f"invalid launch dependency receipt: {name}")
+        selected_path = selected
+        path = selected_path.resolve()
+        if Path(str(receipt.get("path", ""))).resolve() != path:
+            raise ValueError(f"launcher selected a different {name} path")
+        if (
+            not path.is_file()
+            or selected_path.is_symlink()
+            or path.stat().st_size != int(receipt.get("bytes", -1))
+            or sha256_file(path) != receipt.get("sha256")
+        ):
+            raise ValueError(f"frozen launch dependency drift: {name}: {path}")
+        resolved[name] = path
+    return resolved
 
 
 def document_key(

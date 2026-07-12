@@ -183,8 +183,12 @@ include stale Diavgeia and Archetai card counts. They are neither a
 ModernGreek-148k total nor net-additive mass. `configs/sources.json` now tracks
 26 candidates: 19 registered new-name families plus seven replacement/overlap
 routes. The three MDC routes use their own authenticated, checksum-bound
-acquisition path; metadata-only, empty and superseded repositories remain in
-the non-acquiring backlog.
+acquisition path with format-specific nonempty/schema/text/identifier validation.
+A registry SHA-256 is mandatory for every MDC archive; all three current hashes
+are pinned and null checksum exceptions are invalid.
+A separate lightweight `merge-acquisition` job combines passed HF and MDC
+receipts into the sole normalization input; metadata-only, empty and superseded
+repositories remain in the non-acquiring backlog.
 
 An HF metadata-only resolution on 2026-07-11 verified all pinned revisions and
 selected 26 HF registry entries (base, overlap evidence, tokenizer and 23

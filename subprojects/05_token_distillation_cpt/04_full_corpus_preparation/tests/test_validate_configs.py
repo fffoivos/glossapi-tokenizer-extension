@@ -203,6 +203,29 @@ def test_source_registry_freezes_exact_source_name_provenance() -> None:
     errors = VALIDATE.validate_sources(mutated)
     assert any("required_text_columns must be a subset" in error for error in errors)
 
+    mutated = copy.deepcopy(sources)
+    next(
+        row
+        for row in mutated["sources"]
+        if row.get("acquisition_kind") == "mozilla_data_collective"
+    )["mdc_expected_sha256"] = None
+    errors = VALIDATE.validate_sources(mutated)
+    assert any("mdc_expected_sha256 must be pinned" in error for error in errors)
+
+
+def test_all_mdc_archives_have_exact_registry_sha256_pins() -> None:
+    sources, _ = tracked_configs()
+    mdc = [
+        row
+        for row in sources["sources"]
+        if row.get("acquisition_kind") == "mozilla_data_collective"
+    ]
+    assert {row["source_id"]: row["mdc_expected_sha256"] for row in mdc} == {
+        "istorima": "21ab85d8f64ec29d1e30c18b63ace260f854a40734270f5f116239fb503304c3",
+        "modern_greek_dictionary": "7905b55117e68dccd6250ef71d02feced8c7bc0f1afe353150782af9696298d2",
+        "ert_press": "1e47de8c336ce51e1b5ffb162a804d753a7606d9d4b1c644691e3ba20ec414cc",
+    }
+
 
 def test_embedded_structural_routes_have_static_positive_coverage_proof() -> None:
     sources, _ = tracked_configs()

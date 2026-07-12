@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 import re
+import subprocess
 from pathlib import Path
 
 
@@ -89,3 +91,59 @@ def test_existing_only_acquisition_uses_authenticated_lock_and_lineage_debug_is_
         in submit
     )
     assert "phase04_stage_bind_parameter lineage_debug_exports" in lineage
+
+
+def test_production_boundary_rejects_stage50_before_sbatch() -> None:
+    environment = os.environ.copy()
+    environment.pop("CONFIRM_LAUNCH", None)
+    environment.update(
+        {
+            "PIPELINE_RUN_ID": "stage58-boundary-test",
+            "FINAL_CLEAN_STAGE": "50-clean",
+        }
+    )
+    for target in ("decontam", "materialize"):
+        result = subprocess.run(
+            ["bash", str(CLARIDEN / "submit.sh"), target],
+            cwd=PHASE,
+            env=environment,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        assert result.returncode != 0
+        assert "requires FINAL_CLEAN_STAGE=58-final-clean" in result.stderr
+        assert "COMMAND:" not in result.stderr
+    environment["FINAL_CLEAN_STAGE"] = "58-final-clean"
+    result = subprocess.run(
+        ["bash", str(CLARIDEN / "submit.sh"), "decontam"],
+        cwd=PHASE,
+        env=environment,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "70_greekmmlu_decontam.sbatch" in result.stderr
+
+
+def test_stage60_and_stage80_require_stage58_only() -> None:
+    decontam = text("70_greekmmlu_decontam.sbatch")
+    materialize = text("90_materialize_validate.sbatch")
+    assert 'FINAL_CLEAN_STAGE="58-final-clean"' in decontam
+    assert "50-clean|58-final-clean" not in decontam
+    assert '[[ "$FINAL_CLEAN_STAGE" == "58-final-clean" ]]' in materialize
+    assert "50-clean|58-final-clean" not in materialize
+
+
+def test_acquisition_merge_is_first_class_and_prepare_loads_paths() -> None:
+    submit = text("submit.sh")
+    merge = text("03_merge_acquisition_receipts.sbatch")
+    prepare = text("prepare.sh")
+    assert "merge-acquisition" in submit
+    assert "HF_ACQUISITION_RECEIPT" in merge
+    assert "MDC_ACQUISITION_RECEIPT" in merge
+    assert "MERGED_ACQUISITION_RECEIPT" in merge
+    assert prepare.index('source "$HERE/paths.env"') < prepare.index("$SOURCE_CONFIG")
