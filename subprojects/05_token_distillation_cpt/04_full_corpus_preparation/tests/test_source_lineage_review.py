@@ -285,6 +285,363 @@ def test_lineage_cli_does_not_emit_large_debug_exports_by_default(
     assert not (tmp_path / "relationships.jsonl").exists()
 
 
+def _legacy_source_novelty(connection: sqlite3.Connection) -> list[dict]:
+    """Frozen pre-optimization query shape used as a semantic oracle."""
+
+    result: list[dict] = []
+    for source_dataset, rows, total_tokens, source_ids in connection.execute(
+        """
+        SELECT source_dataset, COUNT(*), SUM(identity_word_tokens),
+               GROUP_CONCAT(DISTINCT source_id)
+        FROM rows WHERE origin = 'candidate'
+        GROUP BY source_dataset ORDER BY source_dataset
+        """
+    ):
+        unique_rows, unique_tokens = connection.execute(
+            """
+            WITH representatives AS (
+                SELECT normalized_text_sha256, MIN(stable_uid) AS stable_uid
+                FROM rows
+                WHERE origin = 'candidate' AND source_dataset = ?
+                GROUP BY normalized_text_sha256
+            )
+            SELECT COUNT(*), COALESCE(SUM(row.identity_word_tokens), 0)
+            FROM representatives representative
+            JOIN rows row ON row.stable_uid = representative.stable_uid
+            """,
+            (source_dataset,),
+        ).fetchone()
+        novel_rows, novel_tokens = connection.execute(
+            """
+            WITH representatives AS (
+                SELECT normalized_text_sha256, MIN(stable_uid) AS stable_uid
+                FROM rows
+                WHERE origin = 'candidate' AND source_dataset = ?
+                GROUP BY normalized_text_sha256
+            )
+            SELECT COUNT(*), COALESCE(SUM(row.identity_word_tokens), 0)
+            FROM representatives representative
+            JOIN rows row ON row.stable_uid = representative.stable_uid
+            LEFT JOIN resolved_actions action ON action.stable_uid = row.stable_uid
+            WHERE action.stable_uid IS NULL
+            """,
+            (source_dataset,),
+        ).fetchone()
+        action_counts = dict(
+            connection.execute(
+                """
+                SELECT action.action, COUNT(*)
+                FROM rows row
+                JOIN resolved_actions action ON action.stable_uid = row.stable_uid
+                WHERE row.origin = 'candidate' AND row.source_dataset = ?
+                GROUP BY action.action ORDER BY action.action
+                """,
+                (source_dataset,),
+            ).fetchall()
+        )
+        total_tokens = int(total_tokens or 0)
+        novel_tokens = int(novel_tokens or 0)
+        result.append(
+            {
+                "source_dataset": str(source_dataset),
+                "source_ids": sorted(str(source_ids or "").split(",")),
+                "rows": int(rows),
+                "identity_word_tokens": total_tokens,
+                "exact_unique_rows": int(unique_rows),
+                "exact_unique_word_tokens": int(unique_tokens),
+                "novel_rows_after_lineage_resolution": int(novel_rows),
+                "novel_word_tokens_after_lineage_resolution": novel_tokens,
+                "novel_token_fraction": (
+                    round(novel_tokens / total_tokens, 8) if total_tokens else 0.0
+                ),
+                "document_action_counts": action_counts,
+            }
+        )
+    return result
+
+
+def _legacy_source_summaries(
+    connection: sqlite3.Connection, registry: dict
+) -> list[dict]:
+    """Frozen pre-optimization summary queries used as a semantic oracle."""
+
+    route_by_id = {
+        entry["source_id"]: entry for entry in registry.get("candidates", [])
+    }
+    result: list[dict] = []
+    for source_id, origin, rows, names, families in connection.execute(
+        """
+        SELECT source_id, origin, COUNT(*), COUNT(DISTINCT source_dataset),
+               COUNT(DISTINCT source_family_id)
+        FROM rows GROUP BY source_id, origin ORDER BY origin, source_id
+        """
+    ):
+        cross_exact = connection.execute(
+            """
+            SELECT COUNT(*) FROM (
+                SELECT DISTINCT candidate.normalized_text_sha256
+                FROM rows candidate
+                WHERE candidate.source_id = ? AND candidate.origin = 'candidate'
+                  AND EXISTS (
+                      SELECT 1 FROM rows base
+                      WHERE base.origin = 'base'
+                        AND base.normalized_text_sha256 =
+                            candidate.normalized_text_sha256
+                  )
+            )
+            """,
+            (source_id,),
+        ).fetchone()[0]
+        cross_work = connection.execute(
+            """
+            SELECT COUNT(*) FROM (
+                SELECT DISTINCT candidate.work_key
+                FROM rows candidate
+                WHERE candidate.source_id = ? AND candidate.origin = 'candidate'
+                  AND EXISTS (
+                      SELECT 1 FROM rows base
+                      WHERE base.origin = 'base'
+                        AND base.work_key = candidate.work_key
+                  )
+            )
+            """,
+            (source_id,),
+        ).fetchone()[0]
+        route = route_by_id.get(source_id, {})
+        reasons: list[str] = []
+        if route.get("requires_base_identity_audit"):
+            reasons.append("registry_requires_base_identity_audit")
+        if route.get("requires_family_internal_dedup"):
+            reasons.append("registry_requires_family_internal_dedup")
+        if cross_exact:
+            reasons.append("observed_base_candidate_exact_text")
+        if cross_work:
+            reasons.append("observed_base_candidate_work_match")
+        if origin == "candidate" and not reasons:
+            reasons.append("new_family_still_requires_global_exact_near_dedup")
+        result.append(
+            {
+                "source_id": source_id,
+                "origin": origin,
+                "rows": int(rows),
+                "distinct_source_dataset_names": int(names),
+                "distinct_source_families": int(families),
+                "base_candidate_exact_clusters": int(cross_exact),
+                "base_candidate_work_clusters": int(cross_work),
+                "blind_append_allowed": False if origin == "candidate" else None,
+                "double_add_hazard_reasons": reasons,
+            }
+        )
+    return result
+
+
+def _reporting_fixture() -> tuple[sqlite3.Connection, dict]:
+    connection = sqlite3.connect(":memory:")
+    connection.executescript(
+        """
+        CREATE TABLE rows (
+            stable_uid TEXT PRIMARY KEY,
+            origin TEXT NOT NULL,
+            source_id TEXT NOT NULL,
+            source_dataset TEXT NOT NULL,
+            source_family_id TEXT NOT NULL,
+            normalized_text_sha256 TEXT NOT NULL,
+            work_key TEXT NOT NULL,
+            identity_word_tokens INTEGER NOT NULL
+        );
+        CREATE INDEX rows_exact_idx
+            ON rows(normalized_text_sha256, stable_uid);
+        CREATE INDEX rows_work_idx ON rows(work_key, stable_uid);
+        CREATE INDEX rows_source_idx ON rows(source_id, stable_uid);
+        CREATE TEMP TABLE resolved_actions (
+            stable_uid TEXT PRIMARY KEY,
+            source_dataset TEXT NOT NULL,
+            action TEXT NOT NULL
+        );
+        """
+    )
+    connection.executemany(
+        "INSERT INTO rows VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+            (
+                "base-shared",
+                "base",
+                "shared",
+                "base-dataset",
+                "base-family",
+                "exact-overlap",
+                "work-overlap",
+                0,
+            ),
+            (
+                "base-only",
+                "base",
+                "base-only",
+                "second-base-dataset",
+                "second-base-family",
+                "base-only-hash",
+                "base-only-work",
+                0,
+            ),
+            (
+                "candidate-a-1",
+                "candidate",
+                "shared",
+                "dataset-a",
+                "candidate-family",
+                "exact-overlap",
+                "work-overlap",
+                7,
+            ),
+            (
+                "candidate-a-2",
+                "candidate",
+                "shared",
+                "dataset-a",
+                "candidate-family",
+                "exact-overlap",
+                "work-overlap",
+                99,
+            ),
+            (
+                "candidate-a-3",
+                "candidate",
+                "shared",
+                "dataset-a",
+                "candidate-family",
+                "candidate-only-hash",
+                "candidate-only-work",
+                3,
+            ),
+            (
+                "candidate-a-4",
+                "candidate",
+                "new-source",
+                "dataset-a",
+                "second-candidate-family",
+                "second-candidate-hash",
+                "second-candidate-work",
+                2,
+            ),
+            (
+                "candidate-zero",
+                "candidate",
+                "new-source",
+                "dataset-zero",
+                "second-candidate-family",
+                "zero-token-hash",
+                "zero-token-work",
+                0,
+            ),
+        ],
+    )
+    connection.executemany(
+        "INSERT INTO resolved_actions VALUES (?, ?, ?)",
+        [
+            ("candidate-a-2", "dataset-a", "drop"),
+            ("candidate-a-3", "dataset-a", "quarantine"),
+        ],
+    )
+    registry = {
+        "candidates": [
+            {
+                "source_id": "shared",
+                "requires_base_identity_audit": True,
+                "requires_family_internal_dedup": False,
+            },
+            {
+                "source_id": "new-source",
+                "requires_base_identity_audit": False,
+                "requires_family_internal_dedup": False,
+            },
+        ]
+    }
+    return connection, registry
+
+
+def test_set_based_lineage_reports_match_legacy_without_per_source_scans(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    connection, registry = _reporting_fixture()
+    try:
+        expected_novelty = _legacy_source_novelty(connection)
+        expected_summaries = _legacy_source_summaries(connection, registry)
+        traced: list[str] = []
+        connection.set_trace_callback(traced.append)
+        BUILD.prepare_candidate_analysis_rows(connection)
+        try:
+            observed_novelty = BUILD.source_novelty(
+                connection, candidate_analysis_ready=True
+            )
+            observed_summaries = BUILD.source_summaries(
+                connection, registry, candidate_analysis_ready=True
+            )
+        finally:
+            BUILD.drop_candidate_analysis_rows(connection)
+        connection.set_trace_callback(None)
+
+        assert observed_novelty == expected_novelty
+        assert observed_summaries == expected_summaries
+        assert observed_novelty == [
+            {
+                "source_dataset": "dataset-a",
+                "source_ids": ["new-source", "shared"],
+                "rows": 4,
+                "identity_word_tokens": 111,
+                "exact_unique_rows": 3,
+                "exact_unique_word_tokens": 12,
+                "novel_rows_after_lineage_resolution": 2,
+                "novel_word_tokens_after_lineage_resolution": 9,
+                "novel_token_fraction": 0.08108108,
+                "document_action_counts": {"drop": 1, "quarantine": 1},
+            },
+            {
+                "source_dataset": "dataset-zero",
+                "source_ids": ["new-source"],
+                "rows": 1,
+                "identity_word_tokens": 0,
+                "exact_unique_rows": 1,
+                "exact_unique_word_tokens": 0,
+                "novel_rows_after_lineage_resolution": 1,
+                "novel_word_tokens_after_lineage_resolution": 0,
+                "novel_token_fraction": 0.0,
+                "document_action_counts": {},
+            },
+        ]
+
+        normalized_sql = [" ".join(statement.lower().split()) for statement in traced]
+        statements_reading_persistent_rows = [
+            statement
+            for statement in normalized_sql
+            if " from rows" in statement
+        ]
+        # One candidate projection, one base rollup, and two set-based overlap
+        # maps: this count is independent of the number of source datasets.
+        assert len(statements_reading_persistent_rows) == 4
+        assert sum(
+            "from rows not indexed" in statement
+            for statement in statements_reading_persistent_rows
+        ) == 2
+        assert not any(
+            "where candidate.source_id =" in statement
+            or (
+                "where row.origin = 'candidate'" in statement
+                and "row.source_dataset =" in statement
+            )
+            for statement in normalized_sql
+        )
+        assert connection.execute(
+            "SELECT COUNT(*) FROM sqlite_temp_master "
+            "WHERE name LIKE 'lineage_candidate_%'"
+        ).fetchone() == (0,)
+        progress = capsys.readouterr().out
+        assert "phase=candidate_analysis_projection status=completed" in progress
+        assert "phase=source_novelty status=completed" in progress
+        assert "phase=source_summaries status=completed" in progress
+    finally:
+        connection.close()
+
+
 def test_lineage_resume_contract_binds_debug_export_mode(tmp_path: Path) -> None:
     candidate = tmp_path / "candidate.jsonl"
     candidate.write_text("{}\n", encoding="utf-8")

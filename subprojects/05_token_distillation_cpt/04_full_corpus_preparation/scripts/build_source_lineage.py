@@ -36,6 +36,8 @@ RELATIONSHIP_SCHEMA = "full_cpt_lineage_relationship_membership_v1"
 SUMMARY_SCHEMA = "full_cpt_lineage_summary_v1"
 ACTION_SCHEMA = "full_cpt_lineage_document_action_v1"
 NOVELTY_SCHEMA = "full_cpt_source_novelty_v1"
+CANDIDATE_ANALYSIS_TABLE = "lineage_candidate_analysis_rows"
+CANDIDATE_REPRESENTATIVES_TABLE = "lineage_candidate_representatives"
 
 
 def config_paths(parser: argparse.ArgumentParser, here: Path) -> None:
@@ -581,75 +583,221 @@ def write_relationships(connection: sqlite3.Connection, output: Path) -> dict[st
     }
 
 
+def drop_candidate_analysis_rows(connection: sqlite3.Connection) -> None:
+    """Remove bounded TEMP state used by the post-ingest lineage reports."""
+
+    connection.execute(
+        f"DROP TABLE IF EXISTS temp.{CANDIDATE_REPRESENTATIVES_TABLE}"
+    )
+    connection.execute(f"DROP TABLE IF EXISTS temp.{CANDIDATE_ANALYSIS_TABLE}")
+
+
+def prepare_candidate_analysis_rows(connection: sqlite3.Connection) -> None:
+    """Project candidate report columns once instead of rescanning full rows.
+
+    The production ``rows`` table carries the canonical JSON record and is much
+    larger than the columns needed for novelty and source summaries.  Keeping a
+    candidate-only TEMP projection makes all per-source aggregation bounded by
+    candidate rows, while the original persistent database remains unchanged.
+    """
+
+    drop_candidate_analysis_rows(connection)
+    print(
+        "build_source_lineage: phase=candidate_analysis_projection status=started",
+        flush=True,
+    )
+    try:
+        connection.execute(
+            f"""
+            CREATE TEMP TABLE {CANDIDATE_ANALYSIS_TABLE} AS
+            SELECT stable_uid, source_id, source_dataset, source_family_id,
+                   normalized_text_sha256, work_key, identity_word_tokens
+            FROM rows NOT INDEXED
+            WHERE origin = 'candidate'
+            """
+        )
+        print(
+            "build_source_lineage: "
+            "phase=candidate_analysis_projection status=rows_materialized",
+            flush=True,
+        )
+        connection.execute(
+            f"""
+            CREATE UNIQUE INDEX temp.lineage_candidate_analysis_uid_idx
+            ON {CANDIDATE_ANALYSIS_TABLE}(stable_uid)
+            """
+        )
+        connection.execute(
+            f"""
+            CREATE INDEX temp.lineage_candidate_analysis_dataset_exact_idx
+            ON {CANDIDATE_ANALYSIS_TABLE}(
+                source_dataset, normalized_text_sha256, stable_uid
+            )
+            """
+        )
+        connection.execute(
+            f"""
+            CREATE INDEX temp.lineage_candidate_analysis_source_exact_idx
+            ON {CANDIDATE_ANALYSIS_TABLE}(source_id, normalized_text_sha256)
+            """
+        )
+        connection.execute(
+            f"""
+            CREATE INDEX temp.lineage_candidate_analysis_source_work_idx
+            ON {CANDIDATE_ANALYSIS_TABLE}(source_id, work_key)
+            """
+        )
+        print(
+            "build_source_lineage: "
+            "phase=candidate_analysis_projection status=indexes_materialized",
+            flush=True,
+        )
+    except BaseException:
+        drop_candidate_analysis_rows(connection)
+        print(
+            "build_source_lineage: "
+            "phase=candidate_analysis_projection status=failed",
+            flush=True,
+        )
+        raise
+    print(
+        "build_source_lineage: phase=candidate_analysis_projection status=completed",
+        flush=True,
+    )
+
+
 def source_summaries(
-    connection: sqlite3.Connection, registry: dict
+    connection: sqlite3.Connection,
+    registry: dict,
+    *,
+    candidate_analysis_ready: bool = False,
 ) -> list[dict[str, Any]]:
+    """Summarize sources with a constant number of corpus-wide SQL queries."""
+
+    owns_candidate_analysis = not candidate_analysis_ready
+    if owns_candidate_analysis:
+        prepare_candidate_analysis_rows(connection)
+    print(
+        "build_source_lineage: phase=source_summaries status=started",
+        flush=True,
+    )
     route_by_id = {
         entry["source_id"]: entry for entry in registry.get("candidates", [])
     }
-    result: list[dict[str, Any]] = []
-    for source_id, origin, rows, names, families in connection.execute(
-        """
-        SELECT source_id, origin, COUNT(*), COUNT(DISTINCT source_dataset),
-               COUNT(DISTINCT source_family_id)
-        FROM rows GROUP BY source_id, origin ORDER BY origin, source_id
-        """
-    ):
-        cross_exact = connection.execute(
-            """
-            SELECT COUNT(*) FROM (
-                SELECT DISTINCT candidate.normalized_text_sha256
-                FROM rows candidate
-                WHERE candidate.source_id = ? AND candidate.origin = 'candidate'
-                  AND EXISTS (
-                      SELECT 1 FROM rows base
-                      WHERE base.origin = 'base'
-                        AND base.normalized_text_sha256 = candidate.normalized_text_sha256
-                  )
+    try:
+        grouped_rows = list(
+            connection.execute(
+                """
+                SELECT source_id, origin, COUNT(*),
+                       COUNT(DISTINCT source_dataset),
+                       COUNT(DISTINCT source_family_id)
+                FROM rows NOT INDEXED
+                WHERE origin = 'base'
+                GROUP BY source_id, origin
+                """
             )
-            """,
-            (source_id,),
-        ).fetchone()[0]
-        cross_work = connection.execute(
-            """
-            SELECT COUNT(*) FROM (
-                SELECT DISTINCT candidate.work_key
-                FROM rows candidate
-                WHERE candidate.source_id = ? AND candidate.origin = 'candidate'
-                  AND EXISTS (
-                      SELECT 1 FROM rows base
-                      WHERE base.origin = 'base' AND base.work_key = candidate.work_key
-                  )
-            )
-            """,
-            (source_id,),
-        ).fetchone()[0]
-        route = route_by_id.get(source_id, {})
-        reasons: list[str] = []
-        if route.get("requires_base_identity_audit"):
-            reasons.append("registry_requires_base_identity_audit")
-        if route.get("requires_family_internal_dedup"):
-            reasons.append("registry_requires_family_internal_dedup")
-        if cross_exact:
-            reasons.append("observed_base_candidate_exact_text")
-        if cross_work:
-            reasons.append("observed_base_candidate_work_match")
-        if origin == "candidate" and not reasons:
-            reasons.append("new_family_still_requires_global_exact_near_dedup")
-        result.append(
-            {
-                "source_id": source_id,
-                "origin": origin,
-                "rows": int(rows),
-                "distinct_source_dataset_names": int(names),
-                "distinct_source_families": int(families),
-                "base_candidate_exact_clusters": int(cross_exact),
-                "base_candidate_work_clusters": int(cross_work),
-                "blind_append_allowed": False if origin == "candidate" else None,
-                "double_add_hazard_reasons": reasons,
-            }
         )
-    return result
+        grouped_rows.extend(
+            connection.execute(
+                f"""
+                SELECT source_id, 'candidate', COUNT(*),
+                       COUNT(DISTINCT source_dataset),
+                       COUNT(DISTINCT source_family_id)
+                FROM {CANDIDATE_ANALYSIS_TABLE}
+                GROUP BY source_id
+                """
+            )
+        )
+        grouped_rows.sort(key=lambda row: (str(row[1]), str(row[0])))
+
+        cross_exact_by_source = {
+            str(source_id): int(clusters)
+            for source_id, clusters in connection.execute(
+                f"""
+                SELECT candidate.source_id,
+                       COUNT(DISTINCT candidate.normalized_text_sha256)
+                FROM {CANDIDATE_ANALYSIS_TABLE} candidate
+                WHERE EXISTS (
+                    SELECT 1 FROM rows base
+                    WHERE base.origin = 'base'
+                      AND base.normalized_text_sha256 =
+                          candidate.normalized_text_sha256
+                )
+                GROUP BY candidate.source_id
+                ORDER BY candidate.source_id
+                """
+            )
+        }
+        print(
+            "build_source_lineage: phase=source_summaries "
+            "status=exact_overlap_completed",
+            flush=True,
+        )
+        cross_work_by_source = {
+            str(source_id): int(clusters)
+            for source_id, clusters in connection.execute(
+                f"""
+                SELECT candidate.source_id,
+                       COUNT(DISTINCT candidate.work_key)
+                FROM {CANDIDATE_ANALYSIS_TABLE} candidate
+                WHERE EXISTS (
+                    SELECT 1 FROM rows base
+                    WHERE base.origin = 'base'
+                      AND base.work_key = candidate.work_key
+                )
+                GROUP BY candidate.source_id
+                ORDER BY candidate.source_id
+                """
+            )
+        }
+        print(
+            "build_source_lineage: phase=source_summaries "
+            "status=work_overlap_completed",
+            flush=True,
+        )
+
+        result: list[dict[str, Any]] = []
+        for source_id, origin, rows, names, families in grouped_rows:
+            source_id = str(source_id)
+            origin = str(origin)
+            cross_exact = cross_exact_by_source.get(source_id, 0)
+            cross_work = cross_work_by_source.get(source_id, 0)
+            route = route_by_id.get(source_id, {})
+            reasons: list[str] = []
+            if route.get("requires_base_identity_audit"):
+                reasons.append("registry_requires_base_identity_audit")
+            if route.get("requires_family_internal_dedup"):
+                reasons.append("registry_requires_family_internal_dedup")
+            if cross_exact:
+                reasons.append("observed_base_candidate_exact_text")
+            if cross_work:
+                reasons.append("observed_base_candidate_work_match")
+            if origin == "candidate" and not reasons:
+                reasons.append("new_family_still_requires_global_exact_near_dedup")
+            result.append(
+                {
+                    "source_id": source_id,
+                    "origin": origin,
+                    "rows": int(rows),
+                    "distinct_source_dataset_names": int(names),
+                    "distinct_source_families": int(families),
+                    "base_candidate_exact_clusters": int(cross_exact),
+                    "base_candidate_work_clusters": int(cross_work),
+                    "blind_append_allowed": (
+                        False if origin == "candidate" else None
+                    ),
+                    "double_add_hazard_reasons": reasons,
+                }
+            )
+        print(
+            "build_source_lineage: phase=source_summaries "
+            f"status=completed sources={len(result):,}",
+            flush=True,
+        )
+        return result
+    finally:
+        if owns_candidate_analysis:
+            drop_candidate_analysis_rows(connection)
 
 
 def resolve_document_actions(
@@ -783,6 +931,8 @@ def write_actions(connection: sqlite3.Connection, path: Path) -> str:
 
 def source_novelty(
     connection: sqlite3.Connection,
+    *,
+    candidate_analysis_ready: bool = False,
 ) -> list[dict[str, Any]]:
     """Measure exact-lineage novelty with a deterministic word-token proxy.
 
@@ -792,75 +942,147 @@ def source_novelty(
     overstated here.
     """
 
-    result: list[dict[str, Any]] = []
-    for source_dataset, rows, total_tokens, source_ids in connection.execute(
-        """
-        SELECT source_dataset, COUNT(*), SUM(identity_word_tokens),
-               GROUP_CONCAT(DISTINCT source_id)
-        FROM rows WHERE origin = 'candidate'
-        GROUP BY source_dataset ORDER BY source_dataset
-        """
-    ):
-        unique_rows, unique_tokens = connection.execute(
-            """
-            WITH representatives AS (
-                SELECT normalized_text_sha256, MIN(stable_uid) AS stable_uid
-                FROM rows
-                WHERE origin = 'candidate' AND source_dataset = ?
-                GROUP BY normalized_text_sha256
-            )
-            SELECT COUNT(*), COALESCE(SUM(row.identity_word_tokens), 0)
-            FROM representatives representative
-            JOIN rows row ON row.stable_uid = representative.stable_uid
-            """,
-            (source_dataset,),
-        ).fetchone()
-        novel_rows, novel_tokens = connection.execute(
-            """
-            WITH representatives AS (
-                SELECT normalized_text_sha256, MIN(stable_uid) AS stable_uid
-                FROM rows
-                WHERE origin = 'candidate' AND source_dataset = ?
-                GROUP BY normalized_text_sha256
-            )
-            SELECT COUNT(*), COALESCE(SUM(row.identity_word_tokens), 0)
-            FROM representatives representative
-            JOIN rows row ON row.stable_uid = representative.stable_uid
-            LEFT JOIN resolved_actions action ON action.stable_uid = row.stable_uid
-            WHERE action.stable_uid IS NULL
-            """,
-            (source_dataset,),
-        ).fetchone()
-        action_counts = dict(
+    owns_candidate_analysis = not candidate_analysis_ready
+    if owns_candidate_analysis:
+        prepare_candidate_analysis_rows(connection)
+    connection.execute(
+        f"DROP TABLE IF EXISTS temp.{CANDIDATE_REPRESENTATIVES_TABLE}"
+    )
+    print(
+        "build_source_lineage: phase=source_novelty status=started",
+        flush=True,
+    )
+    try:
+        totals = list(
             connection.execute(
+                f"""
+                SELECT source_dataset, COUNT(*), SUM(identity_word_tokens),
+                       GROUP_CONCAT(DISTINCT source_id)
+                FROM {CANDIDATE_ANALYSIS_TABLE}
+                GROUP BY source_dataset
+                ORDER BY source_dataset
                 """
-                SELECT action.action, COUNT(*)
-                FROM rows row JOIN resolved_actions action ON action.stable_uid = row.stable_uid
-                WHERE row.origin = 'candidate' AND row.source_dataset = ?
-                GROUP BY action.action ORDER BY action.action
-                """,
-                (source_dataset,),
-            ).fetchall()
+            )
         )
-        total_tokens = int(total_tokens or 0)
-        novel_tokens = int(novel_tokens or 0)
-        result.append(
-            {
-                "source_dataset": str(source_dataset),
-                "source_ids": sorted(str(source_ids or "").split(",")),
-                "rows": int(rows),
-                "identity_word_tokens": total_tokens,
-                "exact_unique_rows": int(unique_rows),
-                "exact_unique_word_tokens": int(unique_tokens),
-                "novel_rows_after_lineage_resolution": int(novel_rows),
-                "novel_word_tokens_after_lineage_resolution": novel_tokens,
-                "novel_token_fraction": (
-                    round(novel_tokens / total_tokens, 8) if total_tokens else 0.0
-                ),
-                "document_action_counts": action_counts,
-            }
+        connection.execute(
+            f"""
+            CREATE TEMP TABLE {CANDIDATE_REPRESENTATIVES_TABLE} AS
+            WITH representative_ids AS (
+                SELECT source_dataset, normalized_text_sha256,
+                       MIN(stable_uid) AS stable_uid
+                FROM {CANDIDATE_ANALYSIS_TABLE}
+                GROUP BY source_dataset, normalized_text_sha256
+            )
+            SELECT representative.source_dataset,
+                   representative.normalized_text_sha256,
+                   representative.stable_uid,
+                   candidate.identity_word_tokens
+            FROM representative_ids representative
+            JOIN {CANDIDATE_ANALYSIS_TABLE} candidate
+              ON candidate.source_dataset = representative.source_dataset
+             AND candidate.normalized_text_sha256 =
+                 representative.normalized_text_sha256
+             AND candidate.stable_uid = representative.stable_uid
+            """
         )
-    return result
+        print(
+            "build_source_lineage: phase=source_novelty "
+            "status=representatives_materialized",
+            flush=True,
+        )
+        unique_by_dataset = {
+            str(source_dataset): (
+                int(unique_rows),
+                int(unique_tokens or 0),
+                int(novel_rows or 0),
+                int(novel_tokens or 0),
+            )
+            for (
+                source_dataset,
+                unique_rows,
+                unique_tokens,
+                novel_rows,
+                novel_tokens,
+            ) in connection.execute(
+                f"""
+                SELECT representative.source_dataset,
+                       COUNT(*),
+                       COALESCE(SUM(representative.identity_word_tokens), 0),
+                       COALESCE(SUM(
+                           CASE WHEN action.stable_uid IS NULL THEN 1 ELSE 0 END
+                       ), 0),
+                       COALESCE(SUM(
+                           CASE WHEN action.stable_uid IS NULL
+                                THEN representative.identity_word_tokens ELSE 0 END
+                       ), 0)
+                FROM {CANDIDATE_REPRESENTATIVES_TABLE} representative
+                LEFT JOIN resolved_actions action
+                  ON action.stable_uid = representative.stable_uid
+                GROUP BY representative.source_dataset
+                ORDER BY representative.source_dataset
+                """
+            )
+        }
+        actions_by_dataset: dict[str, dict[str, int]] = {}
+        for source_dataset, action, rows in connection.execute(
+            f"""
+            SELECT candidate.source_dataset, action.action, COUNT(*)
+            FROM resolved_actions action
+            JOIN {CANDIDATE_ANALYSIS_TABLE} candidate
+              ON candidate.stable_uid = action.stable_uid
+            GROUP BY candidate.source_dataset, action.action
+            ORDER BY candidate.source_dataset, action.action
+            """
+        ):
+            actions_by_dataset.setdefault(str(source_dataset), {})[str(action)] = int(
+                rows
+            )
+
+        result: list[dict[str, Any]] = []
+        for source_dataset, rows, total_tokens, source_ids in totals:
+            source_dataset = str(source_dataset)
+            if source_dataset not in unique_by_dataset:
+                raise ValueError(
+                    f"candidate novelty representatives missing {source_dataset!r}"
+                )
+            unique_rows, unique_tokens, novel_rows, novel_tokens = unique_by_dataset[
+                source_dataset
+            ]
+            total_tokens = int(total_tokens or 0)
+            result.append(
+                {
+                    "source_dataset": source_dataset,
+                    "source_ids": sorted(str(source_ids or "").split(",")),
+                    "rows": int(rows),
+                    "identity_word_tokens": total_tokens,
+                    "exact_unique_rows": unique_rows,
+                    "exact_unique_word_tokens": unique_tokens,
+                    "novel_rows_after_lineage_resolution": novel_rows,
+                    "novel_word_tokens_after_lineage_resolution": novel_tokens,
+                    "novel_token_fraction": (
+                        round(novel_tokens / total_tokens, 8)
+                        if total_tokens
+                        else 0.0
+                    ),
+                    "document_action_counts": actions_by_dataset.get(
+                        source_dataset, {}
+                    ),
+                }
+            )
+        print(
+            "build_source_lineage: phase=source_novelty status=completed "
+            f"source_datasets={len(result):,} "
+            f"candidate_rows={sum(int(row[1]) for row in totals):,} "
+            f"representatives={sum(row[0] for row in unique_by_dataset.values()):,}",
+            flush=True,
+        )
+        return result
+    finally:
+        connection.execute(
+            f"DROP TABLE IF EXISTS temp.{CANDIDATE_REPRESENTATIVES_TABLE}"
+        )
+        if owns_candidate_analysis:
+            drop_candidate_analysis_rows(connection)
 
 
 def normalization_bindings(path: Path | None) -> dict[Path, dict[str, Any]]:
@@ -1074,7 +1296,21 @@ def build_rows(
             }
         action_counts = resolve_document_actions(connection)
         actions_sha256 = write_actions(connection, args.actions_out)
-        novelty_sources = source_novelty(connection)
+        print(
+            "build_source_lineage: phase=document_actions status=completed "
+            f"rows={action_counts.get('total_actions', 0):,}",
+            flush=True,
+        )
+        prepare_candidate_analysis_rows(connection)
+        try:
+            novelty_sources = source_novelty(
+                connection, candidate_analysis_ready=True
+            )
+            summary_sources = source_summaries(
+                connection, registry, candidate_analysis_ready=True
+            )
+        finally:
+            drop_candidate_analysis_rows(connection)
         novelty_payload = {
             "schema_version": NOVELTY_SCHEMA,
             "method": "exact_normalized_text_plus_reviewed_same_work_word_token_proxy_v1",
@@ -1100,7 +1336,7 @@ def build_rows(
             ),
             "row_manifest": row_manifest,
             "relationship_manifest": relationship_manifest,
-            "sources": source_summaries(connection, registry),
+            "sources": summary_sources,
             "document_actions": {
                 "path": str(args.actions_out),
                 "sha256": actions_sha256,
@@ -1135,6 +1371,10 @@ def build_rows(
             ),
         }
         write_json(args.summary_out, summary)
+        print(
+            "build_source_lineage: phase=lineage_reports status=completed",
+            flush=True,
+        )
     finally:
         connection.close()
         if temporary:
