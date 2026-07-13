@@ -17,6 +17,10 @@ The current interactive feature presentation is served locally at
 `http://127.0.0.1:8767/`. Generated HTML is ignored by git; its tracked build
 receipts live under `results/bibliography_feature_explorer/`.
 
+The one-block silver bibliography document reader is served locally at
+`http://127.0.0.1:8769/`. Its tracked receipt and handoff live under
+`results/bibliography_one_block_reader/struct2k_joint_20260713t170910z/`.
+
 ## Retrospective register
 
 ### Evaluation methodology
@@ -45,6 +49,7 @@ receipts live under `results/bibliography_feature_explorer/`.
 | UX-08 | Dense overlapping boxes made the text unreadable; hovering a feature label should isolate only that feature. | **Applied.** Feature badges and sidebar labels now spotlight one feature without changing ranking. | `9faee1e`, `9f71c1a` |
 | UX-09 | These small site/regex iterations did not need Clariden. | **Applied.** The explorer can rebuild from its embedded label-blind packet locally; Clariden remains an optional clean-build wrapper. | `a57a9de` |
 | UX-10 | Replace the fixed top 100 with infinite scrolling in descending order. | **Applied.** All 14,815 lines are ranked globally and appended in batches of 100. | `6a3ec6d`; `infinite_v4_build.receipt.json` |
+| UX-11 | For the documents with exactly one silver bibliography block, show the whole document as a continuous reader: deterministic score on the right, exact match boxes over the text, feature names out of the prose on the side, a document menu, and a red mark for previously annotated `BIB` lines. | **Applied.** Clariden job `2752692` scored all 820,686 nonblank lines in the 973 qualifying documents. The reader groups the selector by source, puts feature labels in the left rail, places the unweighted feature-point score in the right rail, highlights exact feature spans, underlines silver `BIB` lines in red, and jumps to the block on load. | `4f86eef`; `results/bibliography_one_block_reader/struct2k_joint_20260713t170910z/` |
 
 ### Detector design and feature ownership
 

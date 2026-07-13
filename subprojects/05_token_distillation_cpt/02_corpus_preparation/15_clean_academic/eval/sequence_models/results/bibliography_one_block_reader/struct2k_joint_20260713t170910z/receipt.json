@@ -1,0 +1,44 @@
+{
+  "schema_version": "bibliography-one-block-reader-receipt-v1",
+  "status": "passed",
+  "code_commit": "4f86eef",
+  "slurm_job_id": "2752692",
+  "input": {
+    "input_path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/struct2k.LLM_silver.jsonl",
+    "input_sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0",
+    "input_document_count": 1392,
+    "rule": "exactly one continuous silver BIB block",
+    "selected_document_count": 973,
+    "source_counts": {
+      "greek_phd": 299,
+      "kallipos": 343,
+      "openarchives": 331
+    },
+    "coverage_counts": {
+      "annotated_windows": 313,
+      "full_document": 660
+    }
+  },
+  "feature_count": 35,
+  "selected_document_count": 973,
+  "selected_present_line_count": 820686,
+  "selected_silver_bib_line_count": 131335,
+  "packet_inventory_sha256": "78b299cd2441a831a250f6811e0603d69f82fda24dcfbc365e2760729ab81947",
+  "outputs": {
+    "index": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/bibliography_one_block_reader_20260713t170910z/index.html",
+      "sha256": "dda346ab81cc68def77a3b66e544f395d8b39fe1ca0a7af1d46263e3e3dca362",
+      "bytes": 13164
+    },
+    "manifest": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/bibliography_one_block_reader_20260713t170910z/manifest.json",
+      "sha256": "5e416696fe1ab0c3a9bbf477f53f3a5cd5afb1a6ad731d7bfa46babb1efb9f77",
+      "bytes": 568158
+    },
+    "document_packets": {
+      "directory": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/bibliography_one_block_reader_20260713t170910z/documents",
+      "count": 973,
+      "compressed_bytes": 91633136
+    }
+  }
+}
