@@ -446,6 +446,217 @@ def test_normalizer_preserves_source_names_and_groups_sectioned_works(
     assert payload["bounded_smoke"] is False
 
 
+def test_v3_normalizer_binds_roster_and_preserves_logical_route_provenance(
+    tmp_path: Path,
+) -> None:
+    """Diavgeia/OpenGov stay mixed even though their transport is Parquet."""
+
+    pa = pytest.importorskip("pyarrow")
+    pq = pytest.importorskip("pyarrow.parquet")
+    pytest.importorskip("duckdb")
+
+    def write_source(source_id: str, revision: str, *, text_column: str) -> Path:
+        path = tmp_path / "raw" / source_id / revision / f"{source_id}.parquet"
+        path.parent.mkdir(parents=True)
+        pq.write_table(
+            pa.table(
+                {
+                    "source_dataset": [source_id],
+                    "id": [f"{source_id}-1"],
+                    text_column: [f"κείμενο {source_id}"],
+                }
+            ),
+            path,
+        )
+        return path
+
+    base_path = write_source("nanochat_base", "base-rev", text_column="text")
+    diavgeia_path = write_source("diavgeia", "diavgeia-rev", text_column="markdown_text")
+    opengov_path = write_source(
+        "opengov_deliberations_v2", "opengov-rev", text_column="articles"
+    )
+    config = {
+        "base": {
+            "repo_id": "owner/base",
+            "revision": "base-rev",
+            "role": "base",
+            "text_columns": ["text"],
+            "id_columns": ["id"],
+            "source_column": "source_dataset",
+        },
+        "sources": [
+            {
+                "source_id": "diavgeia",
+                "repo_id": "owner/diavgeia",
+                "revision": "diavgeia-rev",
+                "role": "additive_candidate",
+                "source_family_id": "diavgeia",
+                "text_columns": ["markdown_text"],
+                "id_columns": ["id"],
+                # A stale physical/registry hint must not override v3's
+                # frozen logical source route.
+                "source_route": "structured",
+                "extraction_route": "structured",
+            },
+            {
+                "source_id": "opengov_deliberations_v2",
+                "repo_id": "owner/opengov",
+                "revision": "opengov-rev",
+                "role": "replacement_candidate",
+                "source_family_id": "opengov",
+                "text_columns": ["articles"],
+                "id_columns": ["id"],
+            },
+        ],
+    }
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+    aliases = tmp_path / "aliases.json"
+    aliases.write_text(json.dumps({"aliases": []}), encoding="utf-8")
+    receipt_path = tmp_path / "receipt.json"
+    receipt_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "full_cpt_acquisition_receipt_v1",
+                "status": "passed",
+                "sources_config_sha256": hashlib.sha256(config_path.read_bytes()).hexdigest(),
+                "sources": [
+                    {
+                        "source_id": "nanochat_base",
+                        "revision": "base-rev",
+                        "files": [{"local_path": str(base_path)}],
+                    },
+                    {
+                        "source_id": "diavgeia",
+                        "revision": "diavgeia-rev",
+                        "files": [{"local_path": str(diavgeia_path)}],
+                    },
+                    {
+                        "source_id": "opengov_deliberations_v2",
+                        "revision": "opengov-rev",
+                        "files": [{"local_path": str(opengov_path)}],
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    roster_path = tmp_path / "roster.json"
+    roster_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "agent1_full_corpus_v3_candidate_roster_v1",
+                "base_source_id": "nanochat_base",
+                "candidate_source_ids": ["diavgeia", "opengov_deliberations_v2"],
+                "review_routes": {
+                    "diavgeia": "mixed",
+                    "opengov_deliberations_v2": "mixed",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    output = tmp_path / "canonical"
+    manifest = tmp_path / "manifest.json"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(HERE / "scripts" / "normalize_sources.py"),
+            "--sources",
+            str(config_path),
+            "--lineage-aliases",
+            str(aliases),
+            "--acquisition-receipt",
+            str(receipt_path),
+            "--candidate-roster",
+            str(roster_path),
+            "--output",
+            str(output),
+            "--manifest",
+            str(manifest),
+            "--rows-per-shard",
+            "2",
+            "--workers",
+            "1",
+            "--duckdb-memory-limit",
+            "256MB",
+            "--duckdb-threads",
+            "1",
+        ],
+        text=True,
+        capture_output=True,
+    )
+    assert completed.returncode == 0, completed.stderr
+
+    rows = []
+    for path in sorted(output.rglob("*.parquet")):
+        rows.extend(pq.read_table(path).to_pylist())
+    base_rows = [row for row in rows if row["acquisition_source_id"] == "nanochat_base"]
+    candidate_rows = [row for row in rows if row["acquisition_source_id"] != "nanochat_base"]
+    assert len(base_rows) == 1
+    assert {
+        field: base_rows[0][field]
+        for field in ("source_route", "review_route", "extraction_route")
+    } == {
+        "source_route": None,
+        "review_route": None,
+        "extraction_route": None,
+    }
+    assert {row["acquisition_source_id"] for row in candidate_rows} == {
+        "diavgeia",
+        "opengov_deliberations_v2",
+    }
+    assert all(
+        row["source_route"] == row["review_route"] == row["extraction_route"] == "mixed"
+        for row in candidate_rows
+    )
+
+    normalized_manifest = json.loads(manifest.read_text(encoding="utf-8"))
+    assert normalized_manifest["candidate_roster"]["sha256"] == hashlib.sha256(
+        roster_path.read_bytes()
+    ).hexdigest()
+    route_coverage = normalized_manifest["candidate_roster_canonical_route_coverage"]
+    assert route_coverage["status"] == "passed"
+    assert {
+        row["source_id"]: row["source_route"] for row in route_coverage["sources"]
+    } == {"diavgeia": "mixed", "opengov_deliberations_v2": "mixed"}
+
+    drift_roster = tmp_path / "drift-roster.json"
+    drift_roster.write_text(
+        json.dumps(
+            {
+                "schema_version": "agent1_full_corpus_v3_candidate_roster_v1",
+                "base_source_id": "nanochat_base",
+                "candidate_source_ids": ["diavgeia"],
+                "review_routes": {"diavgeia": "mixed"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    drift = subprocess.run(
+        [
+            sys.executable,
+            str(HERE / "scripts" / "normalize_sources.py"),
+            "--sources",
+            str(config_path),
+            "--lineage-aliases",
+            str(aliases),
+            "--acquisition-receipt",
+            str(receipt_path),
+            "--candidate-roster",
+            str(drift_roster),
+            "--output",
+            str(tmp_path / "drift-canonical"),
+            "--manifest",
+            str(tmp_path / "drift-manifest.json"),
+        ],
+        text=True,
+        capture_output=True,
+    )
+    assert drift.returncode != 0
+    assert "candidate roster/source registry coverage drift" in drift.stderr
+
+
 def _run_normalizer(
     config: Path,
     receipt: Path,

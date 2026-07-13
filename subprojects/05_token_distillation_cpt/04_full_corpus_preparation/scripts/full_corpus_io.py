@@ -579,6 +579,7 @@ def canonical_row(
     lineage_aliases: Mapping[str, Any],
     base_families: Mapping[str, str],
     embedded_structural_routes: Sequence[Mapping[str, Any]] = (),
+    declared_routes: Mapping[str, Mapping[str, str]] | None = None,
 ) -> dict[str, Any]:
     id_columns = list(source.config.get("id_columns", []))
     id_values = [
@@ -618,6 +619,15 @@ def canonical_row(
             f"routes={[route.get('source_id') for route in embedded_matches]}"
         )
     embedded_route = embedded_matches[0] if embedded_matches else None
+    canonical_source_id = (
+        str(embedded_route["source_id"]) if embedded_route else source.source_id
+    )
+    provenance_routes = canonical_provenance_routes(
+        source=source,
+        canonical_source_id=canonical_source_id,
+        embedded_route=embedded_route,
+        declared_routes=declared_routes,
+    )
     source_row_id = f"{relative_artifact}:{artifact_row_index}:{representation_suffix}"
     source_doc_id = (
         upstream_id
@@ -667,7 +677,7 @@ def canonical_row(
     title = raw_row.get("title") or raw_row.get("titlos")
     author = raw_row.get("author") or raw_row.get("creator")
     return {
-        "source_id": str(embedded_route["source_id"]) if embedded_route else source.source_id,
+        "source_id": canonical_source_id,
         "source_dataset": exact_source,
         "source_doc_id": source_doc_id,
         "text": normalized,
@@ -690,6 +700,15 @@ def canonical_row(
         "source_artifact_path": relative_artifact,
         "source_row_id": source_row_id,
         "source_text_field": text_field,
+        # ``source_route`` describes the logical upstream representation (web
+        # scrape, PDF/OCR extraction, structured record, or an evidence-backed
+        # mixed source).  The v3 normalizer binds all three fields to the
+        # frozen candidate roster.  Keeping the review/extraction aliases in
+        # every canonical row prevents route-sensitive diagnostics from being
+        # inferred later from a repository name or file suffix.
+        "source_route": provenance_routes["source_route"],
+        "review_route": provenance_routes["review_route"],
+        "extraction_route": provenance_routes["extraction_route"],
         "original_text_sha256": original_hash,
         "normalized_text_sha256": normalized_hash,
         "stable_uid": stable_uid,
@@ -714,6 +733,66 @@ def canonical_row(
             source.config.get("training_eligibility", "inherited_base")
         ),
         "source_role": source.role,
+    }
+
+
+def canonical_provenance_routes(
+    *,
+    source: SourceArtifact,
+    canonical_source_id: str,
+    embedded_route: Mapping[str, Any] | None,
+    declared_routes: Mapping[str, Mapping[str, str]] | None,
+) -> dict[str, str | None]:
+    """Return canonical source/review/extraction provenance fields.
+
+    V3 supplies ``declared_routes`` from its immutable candidate roster, which
+    is authoritative even when the physical source happens to be a Parquet
+    file.  In particular, a PDF extraction redistributed through a web host is
+    still ``pdf_ocr`` unless the roster explicitly declares it mixed.  The
+    optional fallback keeps the general normalizer useful for legacy callers
+    which may declare route fields directly in their source registry.
+    """
+
+    route_fields = ("source_route", "review_route", "extraction_route")
+    if declared_routes is not None and canonical_source_id in declared_routes:
+        declaration = declared_routes[canonical_source_id]
+        if not isinstance(declaration, Mapping):
+            raise ValueError(
+                f"{canonical_source_id}: declared provenance route must be an object"
+            )
+        result: dict[str, str | None] = {}
+        for field in route_fields:
+            value = declaration.get(field)
+            if not isinstance(value, str) or not value:
+                raise ValueError(
+                    f"{canonical_source_id}: declared {field} must be a non-empty string"
+                )
+            result[field] = value
+        return result
+
+    # No candidate-roster declaration applies to the Nanochat base (including
+    # its embedded structural routes).  A legacy registry can still preserve a
+    # source-provided route if it has one; otherwise explicit nulls are safer
+    # than guessing from a filename or acquisition transport.
+    fallback_values: dict[str, str] = {}
+    for route_config in (embedded_route, source.config):
+        if route_config is None:
+            continue
+        for field in route_fields:
+            value = route_config.get(field)
+            if field not in fallback_values and isinstance(value, str) and value:
+                fallback_values[field] = value
+    fallback = next(
+        (
+            fallback_values[field]
+            for field in route_fields
+            if field in fallback_values
+        ),
+        None,
+    )
+    return {
+        field: str(fallback_values.get(field, fallback)) if fallback is not None else None
+        for field in route_fields
     }
 
 
@@ -765,6 +844,9 @@ def canonical_schema():
             ("source_artifact_path", pa.string()),
             ("source_row_id", pa.string()),
             ("source_text_field", pa.string()),
+            ("source_route", pa.string()),
+            ("review_route", pa.string()),
+            ("extraction_route", pa.string()),
             ("original_text_sha256", pa.string()),
             ("normalized_text_sha256", pa.string()),
             ("stable_uid", pa.string()),

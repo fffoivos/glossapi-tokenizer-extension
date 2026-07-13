@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent1_v3_anonymization_semantic_false_positive_clearance.schema.json",
+  "title": "Completed independent Agent 1 v3 anonymization semantic false-positive clearance",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "completed_at",
+    "transformation_waterfall",
+    "anonymization_audit_sha256",
+    "independence",
+    "independent_semantic_review",
+    "clearance_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "agent1_full_corpus_v3_anonymization_semantic_false_positive_clearance_v1"
+    },
+    "status": {"const": "passed"},
+    "completed_at": {"type": "string", "minLength": 1},
+    "transformation_waterfall": {"$ref": "#/$defs/file_binding"},
+    "anonymization_audit_sha256": {"$ref": "#/$defs/sha256"},
+    "independence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewer_is_independent",
+        "independent_of_automatic_policy_lineage_checks",
+        "protected_review_environment",
+        "raw_text_or_pii_in_clearance"
+      ],
+      "properties": {
+        "reviewer_is_independent": {"const": true},
+        "independent_of_automatic_policy_lineage_checks": {"const": true},
+        "protected_review_environment": {"const": true},
+        "raw_text_or_pii_in_clearance": {"const": false}
+      }
+    },
+    "independent_semantic_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "eligible_rows",
+        "reviewed_rows",
+        "unresolved_rows",
+        "false_positive_findings"
+      ],
+      "properties": {
+        "status": {"const": "cleared"},
+        "eligible_rows": {"type": "integer", "minimum": 0},
+        "reviewed_rows": {"type": "integer", "minimum": 0},
+        "unresolved_rows": {"const": 0},
+        "false_positive_findings": {"const": 0}
+      }
+    },
+    "clearance_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "file_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

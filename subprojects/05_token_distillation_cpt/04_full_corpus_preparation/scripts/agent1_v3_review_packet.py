@@ -870,7 +870,15 @@ def _source_coverage(
                 "source_id": source_id,
                 "source_dataset": str(source["source_dataset"]),
                 "source_revision": str(source["source_revision"]),
+                # ``source_route`` remains the only route sent to the compact
+                # external review request.  Keep the complete frozen triplet
+                # in the receipt so an audit can establish that logical source
+                # provenance, not Parquet transport, set the primary error
+                # model while visible secondary extraction defects remained in
+                # scope for the reviewer prompt.
                 "source_route": str(source["source_route"]),
+                "review_route": str(source["review_route"]),
+                "extraction_route": str(source["extraction_route"]),
                 "review_denominator": denominator,
                 "requested_strata": dict(source["requested_strata"]),
                 "primary_requests_by_stratum": primary_actual,

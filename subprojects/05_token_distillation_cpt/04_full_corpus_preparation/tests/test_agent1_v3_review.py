@@ -241,14 +241,102 @@ def test_sampling_rejects_missing_roster_source_without_explicit_override() -> N
 
 def test_fallback_risk_is_source_route_aware() -> None:
     metrics = {"original_characters": 500, "raw_html_tags_per_1000_chars": 3.5}
-    assert REVIEW.risk_score_from_metrics(metrics, source_route="html_web") > 3
-    assert REVIEW.risk_score_from_metrics(metrics, source_route="pdf_ocr") == 0
+    html_score = REVIEW.risk_score_from_metrics(metrics, source_route="html_web")
+    pdf_score = REVIEW.risk_score_from_metrics(metrics, source_route="pdf_ocr")
+    assert html_score > 3
+    # A visible HTML defect remains a bounded secondary signal for a logical
+    # PDF/OCR source; it must not displace its primary diagnostic model.
+    assert 0 < pdf_score < html_score
     structured = {
         "original_characters": 500,
         "structured_missing_field_count": 2,
         "repeated_parent_context_fraction": 0.5,
     }
     assert REVIEW.risk_score_from_metrics(structured, source_route="structured") > 3
+
+
+def test_logical_source_route_drives_selection_with_extraction_as_secondary_signal() -> None:
+    explicit_roster = roster("source-a")
+    explicit_roster.update(
+        {
+            "source_routes": {"source-a": "pdf_ocr"},
+            "review_routes": {"source-a": "pdf_ocr"},
+            "extraction_routes": {"source-a": "html_web"},
+            "route_policy": {"priority": "logical_source_then_observed_extraction"},
+        }
+    )
+    metrics = {
+        "original_characters": 500,
+        "raw_html_tags_per_1000_chars": 4.0,
+        "raw_mojibake_per_1000_chars": 1.0,
+    }
+    logical_pdf_score = REVIEW.risk_score_from_metrics(
+        metrics, source_route="pdf_ocr", extraction_route="html_web"
+    )
+    logical_html_score = REVIEW.risk_score_from_metrics(
+        metrics, source_route="html_web", extraction_route="pdf_ocr"
+    )
+    assert logical_pdf_score > REVIEW.risk_score_from_metrics(metrics, source_route="pdf_ocr")
+    assert logical_pdf_score < logical_html_score
+
+    row = {
+        **metric_rows(1)[0],
+        **metrics,
+        "source_route": "pdf_ocr",
+        "review_route": "pdf_ocr",
+        "extraction_route": "html_web",
+    }
+    normalized = REVIEW.normalize_metric_rows([row], explicit_roster)
+    assert normalized[0].source_route == "pdf_ocr"
+    assert normalized[0].review_route == "pdf_ocr"
+    assert normalized[0].extraction_route == "html_web"
+
+    manifest = REVIEW.build_sample_manifest([row], explicit_roster, seed="frozen-seed")
+    assert manifest["sources"][0]["source_route"] == "pdf_ocr"
+    assert manifest["sources"][0]["extraction_route"] == "html_web"
+    assert manifest["selected_documents"][0]["source_route"] == "pdf_ocr"
+    assert manifest["selected_documents"][0]["review_route"] == "pdf_ocr"
+    assert manifest["selected_documents"][0]["extraction_route"] == "html_web"
+
+
+def test_explicit_risk_base_cannot_bypass_logical_route_or_mixed_extraction_diagnostics() -> None:
+    metrics = {
+        "review_risk_score": 2.0,
+        "original_characters": 500,
+        "raw_html_tags_per_1000_chars": 4.0,
+        "raw_mojibake_per_1000_chars": 1.0,
+    }
+    logical_pdf = REVIEW.risk_score_from_metrics(metrics, source_route="pdf_ocr")
+    observed_mixed = REVIEW.risk_score_from_metrics(
+        metrics, source_route="pdf_ocr", extraction_route="mixed"
+    )
+    logical_html = REVIEW.risk_score_from_metrics(metrics, source_route="html_web")
+    assert logical_pdf > metrics["review_risk_score"]
+    assert observed_mixed > logical_pdf
+    assert observed_mixed < logical_html
+
+
+def test_metric_rows_reject_logical_or_extraction_route_drift() -> None:
+    explicit_roster = roster("source-a")
+    explicit_roster.update(
+        {
+            "source_routes": {"source-a": "pdf_ocr"},
+            "extraction_routes": {"source-a": "html_web"},
+            "route_policy": {"priority": "logical_source_then_observed_extraction"},
+        }
+    )
+    valid = {
+        **metric_rows(1)[0],
+        "source_route": "pdf_ocr",
+        "review_route": "pdf_ocr",
+        "extraction_route": "html_web",
+    }
+    source_drift = {**valid, "source_route": "html_web"}
+    with pytest.raises(ValueError, match="source_route drift"):
+        REVIEW.normalize_metric_rows([source_drift], explicit_roster)
+    extraction_drift = {**valid, "extraction_route": "pdf_ocr"}
+    with pytest.raises(ValueError, match="extraction_route drift"):
+        REVIEW.normalize_metric_rows([extraction_drift], explicit_roster)
 
 
 def test_secondary_selection_is_deterministically_stratified() -> None:

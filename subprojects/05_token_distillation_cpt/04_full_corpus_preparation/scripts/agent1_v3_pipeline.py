@@ -167,6 +167,11 @@ def _verify_stage_contract(
         raise ValueError(f"{path}: stage inputs must be an object")
     for name, binding in inputs.items():
         contract.verify_binding(f"{stage}:input:{name}", binding)
+    # Delegate the v3-specific logical/upstream/attempt-root checks to the
+    # authoritative contract implementation.  This keeps this dry-run helper
+    # compatible with a resumed stage whose successful attempt differs from
+    # the initial attempt recorded at the stage root.
+    contract.load_stage_contract(run_root, stage, dict(run_contract))
     return stage_contract
 
 
@@ -340,6 +345,7 @@ def _stage_plan(
     attempt_id: str | None = None,
     inputs: Sequence[tuple[str, Path]] = (),
     parameters: Mapping[str, Any] | None = None,
+    parameters_json: str | None = None,
     structural_inputs: Sequence[tuple[str, Path]] = (),
 ) -> dict[str, Any]:
     expected_upstream = list(
@@ -374,6 +380,8 @@ def _stage_plan(
     if parameters is not None:
         plan["parameters"] = dict(parameters)
         plan["parameters_sha256"] = _sha256_json(parameters)
+        if parameters_json is not None:
+            plan["parameters_json_sha256"] = hashlib.sha256(parameters_json.encode("utf-8")).hexdigest()
     if stage == STRUCTURAL_APPLY_STAGE:
         plan["structural_apply_gate"] = {
             "agent2_handoff_bound": "agent2_immutable_handoff" in bindings,
@@ -467,8 +475,6 @@ def begin_stage(
     run_contract = contract.load_valid_contract(root, run_id=run_id)
     progress = inspect_progress(root, run_contract)
     _require_stage_is_next(progress, stage, action="begin")
-    if contract.stage_root(root, stage).exists():
-        raise FileExistsError(f"{stage}: stage directory already exists; it must be finished or inspected")
     ordinary_inputs = _parse_input_pairs(inputs)
     structural_inputs: list[tuple[str, Path]] = []
     if stage == STRUCTURAL_APPLY_STAGE:
@@ -501,6 +507,7 @@ def begin_stage(
         attempt_id=safe_attempt_id,
         inputs=ordinary_inputs,
         parameters=parameters,
+        parameters_json=parameters_json,
         structural_inputs=structural_inputs,
     )
     if not execute:
@@ -511,7 +518,10 @@ def begin_stage(
         stage=stage,
         attempt_id=safe_attempt_id,
         input=[(name, str(path)) for name, path in [*ordinary_inputs, *structural_inputs]],
-        parameters_json=_canonical_json(parameters),
+        # The contract intentionally freezes the exact submitted JSON bytes,
+        # not merely the parsed object, so a retry cannot silently alter a
+        # parameter representation that the executor might preserve or log.
+        parameters_json=parameters_json,
     )
     # The contract remains the sole writer of stage_contract.json and the
     # attempt directory.  Suppress its CLI progress line so this CLI emits one
@@ -565,11 +575,11 @@ def finish_stage(
     if progress.in_progress != stage:
         raise ValueError(f"cannot finish {stage}: it has not been begun")
     stage_contract = _verify_stage_contract(root, stage, run_contract)
-    if stage_contract.get("attempt_id") != safe_attempt_id:
-        raise ValueError("attempt id differs from the immutable stage contract")
+    _, metadata_attempt_root, bulk_attempt_root = contract.load_stage_attempt_contract(
+        root, stage, dict(run_contract), stage_contract, safe_attempt_id
+    )
     if stage == STRUCTURAL_APPLY_STAGE:
         _verify_structural_finish_inputs(stage_contract, run_contract)
-    attempt_root = (contract.stage_root(root, stage) / "attempts" / safe_attempt_id).resolve()
     output_bindings: list[dict[str, Any]] = []
     output_values = list(outputs)
     if not output_values:
@@ -580,10 +590,11 @@ def finish_stage(
         if output in seen_outputs:
             raise ValueError(f"duplicate stage output: {output}")
         seen_outputs.add(output)
-        try:
-            output.relative_to(attempt_root)
-        except ValueError as exc:
-            raise ValueError(f"stage output must remain in its job-unique attempt directory: {output}") from exc
+        if not contract.output_is_in_stage_attempt(output, metadata_attempt_root, bulk_attempt_root):
+            raise ValueError(
+                "stage output must remain in its job-unique metadata or bulk-data attempt directory: "
+                f"{output}"
+            )
         output_bindings.append(contract.file_binding(output))
     plan: dict[str, Any] = {
         "schema_version": PIPELINE_PLAN_SCHEMA,

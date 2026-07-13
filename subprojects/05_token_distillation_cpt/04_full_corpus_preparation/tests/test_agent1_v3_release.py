@@ -5,6 +5,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -49,6 +50,18 @@ def _write_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
 
 
+def _canonical_sha(value: dict[str, object], *, omitted_key: str) -> str:
+    payload = dict(value)
+    payload.pop(omitted_key, None)
+    return hashlib.sha256(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+
+
+def _binding(path: Path) -> dict[str, object]:
+    return {"path": str(path.resolve()), "bytes": path.stat().st_size, "sha256": _sha_file(path)}
+
+
 def _tokenizer(path: Path) -> Path:
     from tokenizers import Tokenizer, models, pre_tokenizers
 
@@ -68,7 +81,178 @@ def _source_fields() -> dict[str, object]:
     }
 
 
+SITE_EVIDENCE_NAMES = (
+    "candidate_roster",
+    "review_packet",
+    "review_requests",
+    "review_responses",
+    "response_execution_receipt",
+    "adjudication_execution_receipt",
+    "stage35_review_closure",
+    "review_sample_quality_summary",
+    "review_sample_quality_handoff",
+    "quality_summary",
+    "lineage_summary",
+    "source_novelty",
+    "license_adjudication",
+    "review_aggregate",
+    "admission_confirmation",
+)
+
+
+def _release_evidence(tmp_path: Path) -> dict[str, Path]:
+    """Create a compact, receipt-bound Phase-10 evidence closure fixture."""
+
+    root = tmp_path / "phase10-evidence"
+    paths: dict[str, Path] = {}
+
+    def write(name: str, value: object) -> Path:
+        path = root / f"{name}.json"
+        _write_json(path, value)
+        paths[name] = path
+        return path
+
+    write("candidate_roster", {"schema_version": "agent1_full_corpus_v3_candidate_roster_v1"})
+    write(
+        "review_packet",
+        {
+            "schema_version": "agent1_v3_review_packet_manifest_v1",
+            "status": "materialized_no_model_invocation",
+        },
+    )
+    review_requests = root / "review_requests.jsonl"
+    review_requests.parent.mkdir(parents=True, exist_ok=True)
+    review_requests.write_text('{"schema_version":"agent1_v3_review_request_v1"}\n', encoding="utf-8")
+    paths["review_requests"] = review_requests
+    review_responses = root / "review_responses.jsonl"
+    review_responses.write_text('{"schema_version":"agent1_v3_review_response_v1"}\n', encoding="utf-8")
+    paths["review_responses"] = review_responses
+    write(
+        "response_execution_receipt",
+        {
+            "schema_version": "agent1_v3_codex_review_response_execution_receipt_v1",
+            "status": "complete",
+        },
+    )
+    write(
+        "adjudication_execution_receipt",
+        {
+            "schema_version": "agent1_v3_codex_review_adjudication_execution_receipt_v1",
+            "status": "complete",
+            "final_adjudication_manifest": {"status": "complete", "pending_count": 0},
+        },
+    )
+    write(
+        "stage35_review_closure",
+        {"schema_version": "agent1_v3_quality_review_evidence_closure_v1", "status": "passed"},
+    )
+    write(
+        "review_sample_quality_summary",
+        {"schema_version": "agent1_v3_masked_review_sample_quality_summary_v1", "status": "passed"},
+    )
+    write(
+        "review_sample_quality_handoff",
+        {"schema_version": "agent1_v3_masked_review_sample_quality_handoff_v1", "status": "passed"},
+    )
+    write(
+        "quality_summary",
+        {"schema_version": "dataset_quality_summary_v1", "status": "passed", "scan_mode": "full_scan"},
+    )
+    write("lineage_summary", {"schema_version": "full_cpt_lineage_summary_v1"})
+    write("source_novelty", {"schema_version": "full_cpt_source_novelty_v1"})
+    write(
+        "license_adjudication",
+        {"schema_version": "full_cpt_source_license_adjudication_v1", "status": "technical_audit_complete"},
+    )
+
+    aggregate_input_names = tuple(name for name in SITE_EVIDENCE_NAMES if name not in {"review_aggregate", "admission_confirmation"})
+    review_aggregate = write(
+        "review_aggregate",
+        {
+            "schema_version": "agent1_full_corpus_v3_source_review_aggregate_v1",
+            "status": "passed_review_evidence_no_admission_decision",
+            "inputs": {name: _binding(paths[name]) for name in aggregate_input_names},
+            "review_closure": {"status": "complete", "pending_count": 0},
+        },
+    )
+    admission_packet = root / "admission-packet.json"
+    _write_json(
+        admission_packet,
+        {
+            "schema_version": "agent1_full_corpus_v3_source_admission_packet_v2",
+            "status": "pending_user_confirmation",
+            "review_aggregate_sha256": _sha_file(review_aggregate),
+            "inputs": {"review_aggregate": _binding(review_aggregate)},
+        },
+    )
+    write(
+        "admission_confirmation",
+        {
+            "schema_version": "agent1_full_corpus_v3_source_admission_confirmation_v1",
+            "status": "approved",
+            "confirmation_mode": "explicit_hash_confirmed_user_confirmation",
+            "packet": _binding(admission_packet),
+            "user_confirmed_packet_sha256": _sha_file(admission_packet),
+        },
+    )
+
+    waterfall = write(
+        "transformation_waterfall",
+        {
+            "schema_version": "agent1_full_corpus_v3_token_waterfall_v1",
+            "status": "passed_with_independent_semantic_review_pending",
+            "anonymization_audit": {
+                "schema_version": "agent1_full_corpus_v3_anonymization_audit_v1",
+                "status": "automatic_checks_passed_semantic_review_pending",
+                "false_positive_audit": {
+                    "automatic_policy_lineage_checks": {"status": "passed"},
+                    "independent_semantic_review": {
+                        "status": "pending",
+                        "required_before_any_claim_of_semantic_false_positive_clearance": True,
+                        "eligible_rows": 1,
+                    },
+                },
+            },
+            "invariants": {
+                "dedup_precedes_greekmmlu": True,
+                "greekmmlu_precedes_anonymization": True,
+                "tokens_are_exact_pinned_tokenizer_counts": True,
+                "raw_text_or_pii_in_output": False,
+            },
+        },
+    )
+    waterfall_payload = json.loads(waterfall.read_text(encoding="utf-8"))
+    clearance_payload: dict[str, object] = {
+        "schema_version": "agent1_full_corpus_v3_anonymization_semantic_false_positive_clearance_v1",
+        "status": "passed",
+        "completed_at": "2026-07-13T12:00:00Z",
+        "transformation_waterfall": _binding(waterfall),
+        "anonymization_audit_sha256": _canonical_sha(
+            waterfall_payload["anonymization_audit"], omitted_key="__never_present__"
+        ),
+        "independence": {
+            "reviewer_is_independent": True,
+            "independent_of_automatic_policy_lineage_checks": True,
+            "protected_review_environment": True,
+            "raw_text_or_pii_in_clearance": False,
+        },
+        "independent_semantic_review": {
+            "status": "cleared",
+            "eligible_rows": 1,
+            "reviewed_rows": 1,
+            "unresolved_rows": 0,
+            "false_positive_findings": 0,
+        },
+    }
+    clearance_payload["clearance_sha256"] = _canonical_sha(clearance_payload, omitted_key="clearance_sha256")
+    clearance = write("anonymization_semantic_clearance", clearance_payload)
+    paths["transformation_waterfall"] = waterfall
+    paths["anonymization_semantic_clearance"] = clearance
+    return paths
+
+
 def _fixture(tmp_path: Path, *, applied_structural: bool = False) -> dict[str, Path]:
+    tmp_path.mkdir(parents=True, exist_ok=True)
     original = "email original@example.gr"
     masked = "email <email-pii>"
     original_hash = _sha_text(original)
@@ -265,6 +449,7 @@ def _fixture(tmp_path: Path, *, applied_structural: bool = False) -> dict[str, P
     structural_manifest = tmp_path / "structural-manifest.json"
     _write_json(structural_manifest, structural_manifest_value)
     tokenizer = _tokenizer(tmp_path / "tokenizer.json")
+    evidence = _release_evidence(tmp_path)
     return {
         "pool": pool,
         "dedup_ledger": dedup_ledger,
@@ -278,11 +463,12 @@ def _fixture(tmp_path: Path, *, applied_structural: bool = False) -> dict[str, P
         "structural_manifest": structural_manifest,
         "structural_ledger": structural_ledger,
         "tokenizer": tokenizer,
+        **{f"evidence_{name}": path for name, path in evidence.items()},
     }
 
 
 def _command(paths: dict[str, Path], release_root: Path) -> list[str]:
-    return [
+    command = [
         sys.executable,
         str(SCRIPT),
         "materialize",
@@ -308,6 +494,10 @@ def _command(paths: dict[str, Path], release_root: Path) -> list[str]:
         str(paths["structural_manifest"]),
         "--tokenizer-json",
         str(paths["tokenizer"]),
+        "--transformation-waterfall",
+        str(paths["evidence_transformation_waterfall"]),
+        "--anonymization-semantic-clearance",
+        str(paths["evidence_anonymization_semantic_clearance"]),
         "--work-database",
         str(release_root.parent / "release-validation.sqlite"),
         "--release-root",
@@ -315,6 +505,9 @@ def _command(paths: dict[str, Path], release_root: Path) -> list[str]:
         "--batch-rows",
         "1",
     ]
+    for name in SITE_EVIDENCE_NAMES:
+        command.extend(["--site-input", name, str(paths[f"evidence_{name}"])])
+    return command
 
 
 def _run(command: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -323,11 +516,8 @@ def _run(command: list[str], *, check: bool = True) -> subprocess.CompletedProce
 
 def test_materializes_private_noop_release_and_compact_agent3_handoff(tmp_path: Path) -> None:
     paths = _fixture(tmp_path)
-    quality = tmp_path / "quality.json"
-    _write_json(quality, {"scope": "reviewed", "score": 4})
     release_root = tmp_path / "release"
     command = _command(paths, release_root)
-    command.extend(["--site-input", "quality_summary", str(quality)])
     result = _run(command)
     assert json.loads(result.stdout)["ok"] is True
 
@@ -345,6 +535,9 @@ def test_materializes_private_noop_release_and_compact_agent3_handoff(tmp_path: 
     assert "protected_spans_json" not in handoff_path.read_text(encoding="utf-8")
     assert (release_root / "training" / "data" / "source" / "part.parquet").is_file()
     assert (release_root / "site_handoff" / "compact" / "quality_summary.json").is_file()
+    assert handoff["required_evidence"]["status"] == "passed"
+    assert handoff["required_evidence"]["anonymization_semantic_false_positive_clearance"]["status"] == "cleared"
+    assert "not_included" not in handoff_path.read_text(encoding="utf-8")
 
     recheck = _run([sys.executable, str(SCRIPT), "validate", "--release-root", str(release_root)])
     assert json.loads(recheck.stdout)["ok"] is True
@@ -375,12 +568,43 @@ def test_refuses_dedup_ledger_that_is_not_bound_to_pre_mmlu_text(tmp_path: Path)
     assert "pre-GreekMMLU" in result.stderr
 
 
-def test_refuses_private_ledger_fields_in_optional_agent3_compact_input(tmp_path: Path) -> None:
+def test_refuses_private_ledger_fields_in_required_agent3_compact_input(tmp_path: Path) -> None:
     paths = _fixture(tmp_path)
-    forbidden = tmp_path / "forbidden.json"
-    _write_json(forbidden, {"protected_spans_json": "never hand this off"})
+    _write_json(paths["evidence_review_aggregate"], {"protected_spans_json": "never hand this off"})
     command = _command(paths, tmp_path / "release")
-    command.extend(["--site-input", "review_aggregate", str(forbidden)])
     result = _run(command, check=False)
     assert result.returncode != 0
     assert "protected or benchmark-answer" in result.stderr
+
+
+def test_refuses_local_release_when_any_mandatory_review_quality_admission_execution_evidence_is_missing(
+    tmp_path: Path,
+) -> None:
+    paths = _fixture(tmp_path)
+    release_root = tmp_path / "release"
+    command = _command(paths, release_root)
+    marker = ["--site-input", "quality_summary", str(paths["evidence_quality_summary"])]
+    start = next(index for index in range(len(command)) if command[index : index + 3] == marker)
+    del command[start : start + 3]
+    result = _run(command, check=False)
+    assert result.returncode != 0
+    assert "mandatory compact handoff evidence is missing: quality_summary" in result.stderr
+    assert not release_root.exists()
+
+
+def test_refuses_pending_or_not_included_semantic_clearance_and_quality_evidence(tmp_path: Path) -> None:
+    pending_paths = _fixture(tmp_path / "pending")
+    clearance = json.loads(pending_paths["evidence_anonymization_semantic_clearance"].read_text(encoding="utf-8"))
+    clearance["status"] = "pending_independent_review"
+    _write_json(pending_paths["evidence_anonymization_semantic_clearance"], clearance)
+    pending = _run(_command(pending_paths, tmp_path / "pending-release"), check=False)
+    assert pending.returncode != 0
+    assert "semantic false-positive clearance: pending/not_included" in pending.stderr
+
+    omitted_paths = _fixture(tmp_path / "omitted")
+    quality = json.loads(omitted_paths["evidence_quality_summary"].read_text(encoding="utf-8"))
+    quality["status"] = "not_included"
+    _write_json(omitted_paths["evidence_quality_summary"], quality)
+    omitted = _run(_command(omitted_paths, tmp_path / "omitted-release"), check=False)
+    assert omitted.returncode != 0
+    assert "full GlossAPI quality summary: pending/not_included" in omitted.stderr

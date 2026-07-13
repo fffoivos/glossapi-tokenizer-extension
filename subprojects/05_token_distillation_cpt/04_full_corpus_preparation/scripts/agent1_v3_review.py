@@ -38,6 +38,7 @@ from typing import Any, Iterable, Iterator, Mapping, Sequence
 ROSTER_SCHEMA = "agent1_full_corpus_v3_candidate_roster_v1"
 POLICY_SCHEMA = "agent1_full_corpus_v3_policy_v1"
 ROUTE_VALIDATION_SCHEMA = "agent1_v3_candidate_roster_route_validation_v1"
+ROUTE_POLICY_PRIORITY = "logical_source_then_observed_extraction"
 SAMPLE_MANIFEST_SCHEMA = "agent1_v3_review_sample_manifest_v1"
 REQUEST_SCHEMA = "agent1_v3_review_request_v1"
 RESPONSE_SCHEMA = "agent1_v3_review_response_v1"
@@ -380,8 +381,44 @@ def _roster_hash(roster: Mapping[str, Any]) -> str:
     return sha256_json(dict(roster))
 
 
+def _validated_route_map(
+    roster: Mapping[str, Any],
+    *,
+    field: str,
+    candidates: Sequence[str],
+    fallback: Mapping[str, str] | None = None,
+) -> dict[str, str]:
+    value = roster.get(field)
+    if value is None:
+        if fallback is None:
+            raise ValueError(f"{field} must be an object")
+        return dict(fallback)
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{field} must be an object")
+    candidate_set = set(candidates)
+    route_set = set(value)
+    missing = sorted(candidate_set - route_set)
+    extra = sorted(route_set - candidate_set)
+    if missing or extra:
+        raise ValueError(f"candidate roster {field} coverage mismatch; missing={missing}, extra={extra}")
+    invalid = sorted(
+        source
+        for source, route in value.items()
+        if not isinstance(route, str) or route not in ALLOWED_ROUTES
+    )
+    if invalid:
+        raise ValueError(f"candidate roster has unsupported/missing {field}: {invalid}")
+    return {source: str(value[source]) for source in candidates}
+
+
 def validate_candidate_roster_routes(roster: Mapping[str, Any]) -> dict[str, Any]:
-    """Validate that every candidate is assigned exactly one supported review route."""
+    """Validate logical-first source, review, and extraction provenance.
+
+    ``source_routes`` is the primary error model.  The independently bound
+    extraction route records the representation that surfaced in a corpus;
+    it can make a secondary defect more likely but never overrides the source
+    route selected for review sampling.
+    """
 
     if roster.get("schema_version") != ROSTER_SCHEMA:
         raise ValueError(f"unsupported candidate roster schema: {roster.get('schema_version')!r}")
@@ -393,20 +430,27 @@ def validate_candidate_roster_routes(roster: Mapping[str, Any]) -> dict[str, Any
         or len(candidates) != len(set(candidates))
     ):
         raise ValueError("candidate_source_ids must be a non-empty list of unique strings")
-    routes = roster.get("review_routes")
-    if not isinstance(routes, Mapping):
-        raise ValueError("review_routes must be an object")
-    candidate_set = set(candidates)
-    route_set = set(routes)
-    missing = sorted(candidate_set - route_set)
-    extra = sorted(route_set - candidate_set)
-    if missing or extra:
-        raise ValueError(f"candidate roster route coverage mismatch; missing={missing}, extra={extra}")
-    invalid = sorted(
-        source for source, route in routes.items() if not isinstance(route, str) or route not in ALLOWED_ROUTES
+    review_routes = _validated_route_map(
+        roster, field="review_routes", candidates=candidates
     )
-    if invalid:
-        raise ValueError(f"candidate roster has unsupported/missing review routes: {invalid}")
+    source_routes = _validated_route_map(
+        roster,
+        field="source_routes",
+        candidates=candidates,
+        fallback=review_routes,
+    )
+    extraction_routes = _validated_route_map(
+        roster,
+        field="extraction_routes",
+        candidates=candidates,
+        fallback=review_routes,
+    )
+    route_policy = roster.get("route_policy")
+    if route_policy is not None and (
+        not isinstance(route_policy, Mapping)
+        or route_policy.get("priority") != ROUTE_POLICY_PRIORITY
+    ):
+        raise ValueError("candidate roster route_policy must prioritize logical source provenance")
     excluded = roster.get("inventory_only_exclusions", [])
     if not isinstance(excluded, list):
         raise ValueError("inventory_only_exclusions must be a list when present")
@@ -418,7 +462,10 @@ def validate_candidate_roster_routes(roster: Mapping[str, Any]) -> dict[str, Any
         "roster_sha256": _roster_hash(roster),
         "candidate_count": len(candidates),
         "candidate_source_ids": sorted(candidates),
-        "review_routes": {source: str(routes[source]) for source in sorted(candidates)},
+        "logical_source_priority": ROUTE_POLICY_PRIORITY,
+        "source_routes": {source: source_routes[source] for source in sorted(candidates)},
+        "review_routes": {source: review_routes[source] for source in sorted(candidates)},
+        "extraction_routes": {source: extraction_routes[source] for source in sorted(candidates)},
         "inventory_only_exclusion_count": len(excluded),
     }
 
@@ -465,18 +512,27 @@ def _cluster_id_from_row(row: Mapping[str, Any], stable_uid: str) -> str:
     return f"singleton:{stable_uid}"
 
 
-def risk_score_from_metrics(row: Mapping[str, Any], *, source_route: str | None = None) -> float:
+def risk_score_from_metrics(
+    row: Mapping[str, Any],
+    *,
+    source_route: str | None = None,
+    extraction_route: str | None = None,
+) -> float:
     """Return a deterministic, source-route-aware quality-risk score.
 
-    A quality runtime may provide ``review_risk_score``/``risk_score`` directly.
-    Otherwise this conservative fallback combines only documented full-scan
-    diagnostics and is deliberately an ordering aid, never an admission score.
+    A quality runtime may provide ``review_risk_score``/``risk_score`` as a
+    base ordering signal.  It never bypasses the route-aware diagnostics:
+    logical source provenance must still determine which documented errors get
+    primary weight.  This is deliberately an ordering aid, never an admission
+    score.
     """
 
+    explicit_score: float | None = None
     for field in ("review_risk_score", "risk_score", "quality_risk_score"):
         value = _finite_number(row.get(field))
         if value is not None:
-            return value
+            explicit_score = value
+            break
 
     def number(*names: str) -> float:
         for name in names:
@@ -488,52 +544,77 @@ def risk_score_from_metrics(row: Mapping[str, Any], *, source_route: str | None 
     def truthy(*names: str) -> float:
         return float(any(row.get(name) is True for name in names))
 
-    route = source_route or _first_string(row, ("review_route", "source_route")) or "mixed"
+    route = source_route or _first_string(row, ("source_route", "review_route")) or "mixed"
     if route not in ALLOWED_ROUTES:
         raise ValueError(f"unsupported source route for risk selection: {route!r}")
-    score = 0.0
-    if route in {"html_web", "mixed"}:
-        score += min(
-            4.0,
-            number("raw_html_tags_per_1000_chars", "html_tags_per_1000_chars", "markup_rate")
-            + number("entity_rate", "html_entity_rate")
-            + number("script_style_rate", "navigation_boilerplate_rate"),
-        )
-    if route in {"pdf_ocr", "mixed"}:
-        score += min(
+    observed_extraction = extraction_route or _first_string(row, ("extraction_route",))
+    if observed_extraction is not None and observed_extraction not in ALLOWED_ROUTES:
+        raise ValueError(f"unsupported extraction route for risk selection: {observed_extraction!r}")
+
+    html_risk = min(
+        4.0,
+        number("raw_html_tags_per_1000_chars", "html_tags_per_1000_chars", "markup_rate")
+        + number("entity_rate", "html_entity_rate")
+        + number("script_style_rate", "navigation_boilerplate_rate"),
+    )
+    ocr_risk = (
+        min(
             4.0,
             number("raw_mojibake_per_1000_chars", "mojibake_per_1000_chars")
             + number("raw_replacement_per_1000_chars", "replacement_per_1000_chars"),
         )
-        score += min(3.0, number("raw_control_per_1000_chars", "control_per_1000_chars"))
-        score += min(3.0, 4.0 * number("raw_repeated_line_fraction", "repeated_line_fraction"))
-        score += min(3.0, 4.0 * number("raw_one_token_line_fraction", "one_token_line_fraction"))
-        score += min(3.0, 3.0 * number("cleaner_removed_character_fraction"))
-        score += min(3.0, number("cleaner_badness_score", "rust_noise_badness_score"))
-        score += 1.0 * truthy("toc_header_detected", "bibliography_header_detected")
-    if route == "structured":
-        score += min(
-            4.0,
-            number("structured_missing_field_count", "missing_required_field_count", "field_flattening_failures"),
-        )
-        score += min(
-            3.0,
-            4.0
-            * number(
-                "repeated_parent_context_fraction",
-                "parent_context_template_fraction",
-                "structured_template_replay_fraction",
-            ),
-        )
-        completeness = _finite_number(row.get("schema_content_completeness"))
-        if completeness is not None:
-            score += min(3.0, 3.0 * max(0.0, 1.0 - completeness))
+        + min(3.0, number("raw_control_per_1000_chars", "control_per_1000_chars"))
+        + min(3.0, 4.0 * number("raw_repeated_line_fraction", "repeated_line_fraction"))
+        + min(3.0, 4.0 * number("raw_one_token_line_fraction", "one_token_line_fraction"))
+        + min(3.0, 3.0 * number("cleaner_removed_character_fraction"))
+        + min(3.0, number("cleaner_badness_score", "rust_noise_badness_score"))
+        + 1.0 * truthy("toc_header_detected", "bibliography_header_detected")
+    )
+    structured_risk = min(
+        4.0,
+        number("structured_missing_field_count", "missing_required_field_count", "field_flattening_failures"),
+    ) + min(
+        3.0,
+        4.0
+        * number(
+            "repeated_parent_context_fraction",
+            "parent_context_template_fraction",
+            "structured_template_replay_fraction",
+        ),
+    )
+    completeness = _finite_number(row.get("schema_content_completeness"))
+    if completeness is not None:
+        structured_risk += min(3.0, 3.0 * max(0.0, 1.0 - completeness))
+
+    # Logical source provenance is always weighted most heavily.  Still keep
+    # a bounded secondary signal: an OCR work republished on a web page can
+    # have template defects, and an HTML-derived corpus can contain an
+    # embedded extraction failure.  The observed extraction route raises only
+    # that secondary weight; it never replaces the logical source class.
+    weights = {"html_web": 0.25, "pdf_ocr": 0.25, "structured": 0.25}
+    if route == "mixed":
+        weights.update({"html_web": 1.0, "pdf_ocr": 1.0, "structured": 0.5})
+    else:
+        weights[route] = 1.0
+        if observed_extraction == "mixed":
+            # A mixed observed representation can surface either web/PDF
+            # extraction defect, but neither should outrank the logical route.
+            for secondary_route in ("html_web", "pdf_ocr"):
+                if secondary_route != route:
+                    weights[secondary_route] = max(weights[secondary_route], 0.5)
+        elif observed_extraction in weights and observed_extraction != route:
+            weights[observed_extraction] = 0.5
+    score = (
+        weights["html_web"] * html_risk
+        + weights["pdf_ocr"] * ocr_risk
+        + weights["structured"] * structured_risk
+    )
     score += 1.0 * truthy("digital_governance_footer_detected")
     score += 2.0 * truthy("private_data_true", "personnel_cue_detected")
     score += min(2.0, number("direct_identifier_match_count"))
     if number("original_characters", "characters") < 200:
         score += 1.0
-    return round(score, 9)
+    return round((explicit_score or 0.0) + score, 9)
 
 
 @dataclass(frozen=True)
@@ -543,6 +624,8 @@ class MetricRow:
     source_revision: str
     stable_uid: str
     source_route: str
+    review_route: str
+    extraction_route: str
     cluster_id: str
     risk_score: float
 
@@ -557,13 +640,15 @@ class MetricRow:
 
 def normalize_metric_rows(rows: Iterable[Mapping[str, Any]], roster: Mapping[str, Any]) -> list[MetricRow]:
     route_report = validate_candidate_roster_routes(roster)
-    routes = route_report["review_routes"]
+    source_routes = route_report["source_routes"]
+    review_routes = route_report["review_routes"]
+    extraction_routes = route_report["extraction_routes"]
     normalized: list[MetricRow] = []
     seen_uids: set[str] = set()
     for row_number, row in enumerate(rows, 1):
         if not isinstance(row, Mapping):
             raise ValueError(f"metric row {row_number} must be an object")
-        source_id = _source_id_from_row(row, routes)
+        source_id = _source_id_from_row(row, source_routes)
         source_dataset = _first_string(row, ("source_dataset", "source_id"))
         source_revision = _first_string(row, ("source_revision", "revision"))
         stable_uid = _first_string(row, ("stable_uid", "sample_id", "document_id"))
@@ -577,21 +662,31 @@ def normalize_metric_rows(rows: Iterable[Mapping[str, Any]], roster: Mapping[str
         if stable_uid in seen_uids:
             raise ValueError(f"metric row {row_number}: duplicate stable_uid {stable_uid}")
         seen_uids.add(stable_uid)
-        declared_route = _first_string(row, ("review_route", "source_route"))
-        if declared_route is not None and declared_route != routes[source_id]:
-            raise ValueError(
-                f"metric row {row_number}: source route drift for {source_id}: "
-                f"{declared_route!r} != {routes[source_id]!r}"
-            )
+        for field, declared, expected in (
+            ("source_route", row.get("source_route"), source_routes[source_id]),
+            ("review_route", row.get("review_route"), review_routes[source_id]),
+            ("extraction_route", row.get("extraction_route"), extraction_routes[source_id]),
+        ):
+            if declared is not None and declared != expected:
+                raise ValueError(
+                    f"metric row {row_number}: {field} drift for {source_id}: "
+                    f"{declared!r} != {expected!r}"
+                )
         normalized.append(
             MetricRow(
                 source_id=source_id,
                 source_dataset=source_dataset,
                 source_revision=source_revision,
                 stable_uid=stable_uid,
-                source_route=routes[source_id],
+                source_route=source_routes[source_id],
+                review_route=review_routes[source_id],
+                extraction_route=extraction_routes[source_id],
                 cluster_id=_cluster_id_from_row(row, stable_uid),
-                risk_score=risk_score_from_metrics(row, source_route=routes[source_id]),
+                risk_score=risk_score_from_metrics(
+                    row,
+                    source_route=source_routes[source_id],
+                    extraction_route=extraction_routes[source_id],
+                ),
             )
         )
     if not normalized:
@@ -721,6 +816,8 @@ def _select_source_rows(
             {
                 **row.identity(),
                 "source_route": row.source_route,
+                "review_route": row.review_route,
+                "extraction_route": row.extraction_route,
                 "sampling_stratum": stratum,
                 "risk_score": row.risk_score,
                 "review_cluster_id": row.cluster_id,
@@ -827,6 +924,8 @@ def build_sample_manifest(
                 "source_dataset": next(iter(datasets)),
                 "source_revision": next(iter(revisions)),
                 "source_route": source_rows[0].source_route,
+                "review_route": source_rows[0].review_route,
+                "extraction_route": source_rows[0].extraction_route,
                 "large_or_heterogeneous": source_id in large_sources,
                 "review_denominator": denominator,
                 "requested_strata": {stratum: quotas[stratum] for stratum in STRATA},

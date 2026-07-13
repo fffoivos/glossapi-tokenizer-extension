@@ -12,8 +12,18 @@ usage() {
 usage: agent1_v3_submit.sh <action> [sbatch args...]
 
 Phase 0 actions:
-  bootstrap-runtime acquire-hf-existing acquire-mdc merge-acquisition freeze-run
-  validate-contract status
+  bootstrap-runtime build-quality-runtime acquire-hf-existing acquire-mdc
+  merge-acquisition freeze-run validate-contract status
+
+Pre-review stage actions:
+  normalize lineage review-packet
+
+Stage 35 action:
+  quality-review-evidence
+
+Post-review ordered actions:
+  admission dedup greekmmlu-freeze decontamination
+  anonymization-sanitization prestructural-freeze
 
 All submissions are dry runs unless CONFIRM_LAUNCH=1.  A real Clariden
 submission additionally requires CONFIRM_CLARIDEN_CPU_EXCEPTION=REQTRES_NO_GPU:
@@ -33,9 +43,22 @@ require_run_id() {
 resources_for() {
     case "$1" in
         bootstrap-runtime) printf '%s\n' '--cpus-per-task=16 --mem=64G --time=01:00:00' ;;
+        build-quality-runtime) printf '%s\n' '--cpus-per-task=128 --mem=240G --time=02:00:00' ;;
         acquire-hf-existing) printf '%s\n' '--cpus-per-task=16 --mem=128G --time=12:00:00' ;;
         acquire-mdc) printf '%s\n' '--cpus-per-task=16 --mem=96G --time=12:00:00' ;;
         merge-acquisition|freeze-run|validate-contract) printf '%s\n' '--cpus-per-task=8 --mem=32G --time=02:00:00' ;;
+        normalize) printf '%s\n' '--cpus-per-task=128 --mem=450G --time=12:00:00' ;;
+        lineage) printf '%s\n' '--cpus-per-task=64 --mem=450G --time=12:00:00' ;;
+        review-packet) printf '%s\n' '--cpus-per-task=256 --mem=450G --time=12:00:00' ;;
+        quality-review-evidence) printf '%s\n' '--cpus-per-task=64 --mem=192G --time=04:00:00' ;;
+        admission) printf '%s\n' '--cpus-per-task=16 --mem=64G --time=02:00:00' ;;
+        dedup) printf '%s\n' '--cpus-per-task=256 --mem=450G --time=12:00:00' ;;
+        greekmmlu-freeze) printf '%s\n' '--cpus-per-task=16 --mem=96G --time=04:00:00' ;;
+        decontamination) printf '%s\n' '--cpus-per-task=16 --mem=160G --time=12:00:00' ;;
+        anonymization-sanitization) printf '%s\n' '--cpus-per-task=256 --mem=450G --time=12:00:00' ;;
+        # Stage 70 streams and hashes every retained partition, tokenizes the
+        # pre/post-mask corpus, and builds a full UID closure database.
+        prestructural-freeze) printf '%s\n' '--cpus-per-task=128 --mem=450G --time=12:00:00' ;;
         *) return 1 ;;
     esac
 }
@@ -69,6 +92,24 @@ case "$action" in
     acquire-hf-existing|acquire-mdc)
         [[ "${CONFIRM_ACQUIRE:-0}" == "1" ]] || {
             echo "ERROR: set CONFIRM_ACQUIRE=1 for intentional receipt-bound acquisition" >&2
+            exit 3
+        }
+        ;;
+    quality-review-evidence)
+        [[ -n "${AGENT1_V3_EXTERNAL_REVIEW_EVIDENCE_DIR:-}" ]] || {
+            echo "ERROR: Stage 35 requires AGENT1_V3_EXTERNAL_REVIEW_EVIDENCE_DIR, the compact local-Codex evidence bundle" >&2
+            exit 3
+        }
+        ;;
+    admission)
+        [[ -n "${AGENT1_V3_ADMISSION_PROPOSAL:-}" ]] || {
+            echo "ERROR: Stage 40 requires AGENT1_V3_ADMISSION_PROPOSAL; it creates a pending packet and never confirms it" >&2
+            exit 3
+        }
+        ;;
+    dedup)
+        [[ -n "${AGENT1_V3_ADMISSION_CONFIRMATION:-}" ]] || {
+            echo "ERROR: Stage 50 requires AGENT1_V3_ADMISSION_CONFIRMATION created only after explicit user SHA-256 confirmation of the Stage-40 packet" >&2
             exit 3
         }
         ;;

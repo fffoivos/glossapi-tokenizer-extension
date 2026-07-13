@@ -23,19 +23,39 @@ agent1_v3_init_paths() {
     }
     export AGENT1_V3_RUN_ROOT="$expected_run_root"
     export AGENT1_V3_DATA_ROOT="$expected_data_root"
+    case "$AGENT1_V3_RUN_ROOT" in
+        "$AGENT1_V3_DATA_ROOT"|"$AGENT1_V3_DATA_ROOT"/*)
+            echo "ERROR: v3 run metadata root must not overlap the bulk data root" >&2
+            return 2
+            ;;
+    esac
+    case "$AGENT1_V3_DATA_ROOT" in
+        "$AGENT1_V3_RUN_ROOT"|"$AGENT1_V3_RUN_ROOT"/*)
+            echo "ERROR: v3 bulk data root must not overlap the run metadata root" >&2
+            return 2
+            ;;
+    esac
     export AGENT1_V3_RUNTIME_VENV="${AGENT1_V3_RUNTIME_VENV:-$AGENT1_V3_RUN_ROOT/phase0/runtime}"
+    export AGENT1_V3_GLOSSAPI_RUNTIME_ROOT="${AGENT1_V3_GLOSSAPI_RUNTIME_ROOT:-$AGENT1_V3_DATA_ROOT/runtime/glossapi-rust-quality-$AGENT1_V3_GLOSSAPI_COMMIT}"
+    export AGENT1_V3_GLOSSAPI_BUILD_RECEIPT="${AGENT1_V3_GLOSSAPI_BUILD_RECEIPT:-$AGENT1_V3_GLOSSAPI_RUNTIME_ROOT/build_receipt.json}"
+    export AGENT1_V3_GLOSSAPI_MODULE_DIR="${AGENT1_V3_GLOSSAPI_MODULE_DIR:-$AGENT1_V3_GLOSSAPI_RUNTIME_ROOT/modules}"
+    case "$AGENT1_V3_GLOSSAPI_RUNTIME_ROOT" in
+        "$AGENT1_V3_DATA_ROOT"/*) ;;
+        *) echo "ERROR: v3 GlossAPI runtime must remain under AGENT1_V3_DATA_ROOT" >&2; return 2 ;;
+    esac
 
     # The dispatcher `exec`s the action scripts.  Keep every non-secret path
     # and runtime selector they consume in that child environment; sourcing
     # paths.env alone only creates shell-local variables.
     export REPO_ROOT PHASE04_DIR AGENT1_V3_CLARIDEN_DIR AGENT1_V3_CONTRACT_SCRIPT
     export AGENT1_V3_ACCOUNT AGENT1_V3_PARTITION AGENT1_V3_UENV
-    export AGENT1_V3_SOURCE_CONFIG AGENT1_V3_SOURCE_ALIASES
+    export AGENT1_V3_SOURCE_CONFIG AGENT1_V3_SOURCE_ALIASES AGENT1_V3_POST_CUTOFF_INVENTORY AGENT1_V3_NANOCHAT_INITIAL_ROSTER
     export AGENT1_V3_CANDIDATE_ROSTER AGENT1_V3_POLICY AGENT1_V3_REVIEW_POLICY AGENT1_V3_REVIEW_PROMPT AGENT1_V3_REVIEW_RESPONSE_SCHEMA
     export AGENT1_V3_LICENSE_ADJUDICATION AGENT1_V3_ELIGIBILITY_POLICY
     export AGENT1_V3_HF_EXISTING_DESTINATION AGENT1_V3_RAW_COMMON_ROOT
     export AGENT1_V3_TOKENIZER_REVISION AGENT1_V3_TOKENIZER_JSON
     export AGENT1_V3_GLOSSAPI_COMMIT AGENT1_V3_GLOSSAPI_ROOT
+    export AGENT1_V3_GLOSSAPI_RUNTIME_ROOT AGENT1_V3_GLOSSAPI_BUILD_RECEIPT AGENT1_V3_GLOSSAPI_MODULE_DIR
 }
 
 agent1_v3_require_compute_cpu() {
@@ -126,17 +146,27 @@ agent1_v3_begin_stage() {
     shift
     export AGENT1_V3_ATTEMPT_ID="${SLURM_JOB_ID:?SLURM_JOB_ID is required}"
     export AGENT1_V3_ALLOCATION_EVIDENCE="$AGENT1_V3_RUN_ROOT/stages/$stage/attempts/$AGENT1_V3_ATTEMPT_ID/slurm_allocation.txt"
-    "$AGENT1_V3_RUNTIME_VENV/bin/python" "$AGENT1_V3_CONTRACT_SCRIPT" begin-stage \
+    uenv run "$AGENT1_V3_UENV" --view=default -- \
+        "$AGENT1_V3_RUNTIME_VENV/bin/python" "$AGENT1_V3_CONTRACT_SCRIPT" begin-stage \
         --run-root "$AGENT1_V3_RUN_ROOT" --run-id "$AGENT1_V3_RUN_ID" \
+        --data-root "$AGENT1_V3_DATA_ROOT" \
         --stage "$stage" --attempt-id "$AGENT1_V3_ATTEMPT_ID" "$@"
     export AGENT1_V3_STAGE_DIR="$AGENT1_V3_RUN_ROOT/stages/$stage"
     export AGENT1_V3_ATTEMPT_DIR="$AGENT1_V3_STAGE_DIR/attempts/$AGENT1_V3_ATTEMPT_ID"
+    export AGENT1_V3_DATA_STAGE_DIR="$AGENT1_V3_DATA_ROOT/stages/$stage"
+    export AGENT1_V3_DATA_ATTEMPT_DIR="$AGENT1_V3_DATA_STAGE_DIR/attempts/$AGENT1_V3_ATTEMPT_ID"
+    [[ -d "$AGENT1_V3_ATTEMPT_DIR" && -d "$AGENT1_V3_DATA_ATTEMPT_DIR" ]] || {
+        echo "ERROR: v3 stage contract did not create both metadata and bulk-data attempt directories" >&2
+        return 7
+    }
 }
 
 agent1_v3_finish_stage() {
     local stage=$1
     shift
-    "$AGENT1_V3_RUNTIME_VENV/bin/python" "$AGENT1_V3_CONTRACT_SCRIPT" finish-stage \
+    uenv run "$AGENT1_V3_UENV" --view=default -- \
+        "$AGENT1_V3_RUNTIME_VENV/bin/python" "$AGENT1_V3_CONTRACT_SCRIPT" finish-stage \
         --run-root "$AGENT1_V3_RUN_ROOT" --run-id "$AGENT1_V3_RUN_ID" \
+        --data-root "$AGENT1_V3_DATA_ROOT" \
         --stage "$stage" --attempt-id "$AGENT1_V3_ATTEMPT_ID" "$@"
 }

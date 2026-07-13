@@ -40,7 +40,14 @@ def write_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, ensure_ascii=False, sort_keys=True), encoding="utf-8")
 
 
-def write_fixture(tmp_path: Path, *, count: int, opaque_quality_ids: bool) -> dict[str, object]:
+def write_fixture(
+    tmp_path: Path,
+    *,
+    count: int,
+    opaque_quality_ids: bool,
+    source_route: str = "pdf_ocr",
+    extraction_route: str | None = None,
+) -> dict[str, object]:
     pa = pytest.importorskip("pyarrow")
     pq = pytest.importorskip("pyarrow.parquet")
 
@@ -80,7 +87,7 @@ def write_fixture(tmp_path: Path, *, count: int, opaque_quality_ids: bool) -> di
             "source_id": "source-a",
             "source_dataset": "source-a",
             "source_revision": "a" * 40,
-            "review_route": "pdf_ocr",
+            "review_route": source_route,
             "normalized_text_sha256": digest(text),
             "profile_text_variant": "canonical",
             "review_risk_score": float(index),
@@ -111,7 +118,10 @@ def write_fixture(tmp_path: Path, *, count: int, opaque_quality_ids: bool) -> di
         {
             "schema_version": "agent1_full_corpus_v3_candidate_roster_v1",
             "candidate_source_ids": ["source-a"],
-            "review_routes": {"source-a": "pdf_ocr"},
+            "review_routes": {"source-a": source_route},
+            "source_routes": {"source-a": source_route},
+            "extraction_routes": {"source-a": extraction_route or source_route},
+            "route_policy": {"priority": "logical_source_then_observed_extraction"},
             "inventory_only_exclusions": [],
         },
     )
@@ -242,6 +252,14 @@ def test_opaque_full_scan_evidence_materializes_private_100_document_packet(tmp_
             assert "@example.gr" not in comparison["review_copy"]
 
     source = manifest["source_review_coverage"][0]
+    assert {
+        key: source[key]
+        for key in ("source_route", "review_route", "extraction_route")
+    } == {
+        "source_route": "pdf_ocr",
+        "review_route": "pdf_ocr",
+        "extraction_route": "pdf_ocr",
+    }
     assert source["review_denominator"]["eligible_document_count"] == 140
     assert source["review_denominator"]["minimum_requirement_status"] == "met"
     assert source["review_denominator"]["selected_unique_documents"] == 100
@@ -327,6 +345,32 @@ def test_small_source_is_exhaustive_and_native_stable_uid_evidence_is_preserved(
         and "full_scan_document_id" not in selected
         for selected in manifest["selection"]["selected_documents"]
     )
+
+
+def test_packet_keeps_observed_extraction_route_as_a_receipt_not_the_primary_review_route(
+    tmp_path: Path,
+) -> None:
+    fixture = write_fixture(
+        tmp_path,
+        count=17,
+        opaque_quality_ids=False,
+        source_route="pdf_ocr",
+        extraction_route="html_web",
+    )
+    output = tmp_path / "review-requests.jsonl"
+    manifest_path = tmp_path / "review-packet-manifest.json"
+    subprocess.run(command(fixture, output=output, manifest=manifest_path), check=True, text=True)
+    requests = read_jsonl(output)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    assert {request["source_route"] for request in requests} == {"pdf_ocr"}
+    source = manifest["source_review_coverage"][0]
+    assert source["source_route"] == "pdf_ocr"
+    assert source["review_route"] == "pdf_ocr"
+    assert source["extraction_route"] == "html_web"
+    assert {
+        selected["extraction_route"] for selected in manifest["selection"]["selected_documents"]
+    } == {"html_web"}
 
 
 @pytest.mark.parametrize("override", [{"model": "gpt-5.6"}, {"seed": "wrong-seed"}])

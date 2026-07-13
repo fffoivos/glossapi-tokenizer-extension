@@ -65,11 +65,16 @@ def _freeze(tmp_path: Path, *, run_id: str = RUN_ID, prestructural_only: bool = 
             "source_registry",
             "source_aliases",
             "candidate_roster",
+            "post_cutoff_inventory",
+            "nanochat_initial_roster",
             "acquisition_receipt",
             "tokenizer",
             "review_policy",
             "review_prompt",
             "review_response_schema",
+            "glossapi_build_receipt",
+            "license_adjudication",
+            "training_eligibility_policy",
             "policy",
         )
     }
@@ -78,6 +83,8 @@ def _freeze(tmp_path: Path, *, run_id: str = RUN_ID, prestructural_only: bool = 
         "freeze-run",
         "--run-root",
         str(root),
+        "--data-root",
+        str(tmp_path / "data" / run_id),
         "--run-id",
         run_id,
         "--code-commit",
@@ -88,6 +95,10 @@ def _freeze(tmp_path: Path, *, run_id: str = RUN_ID, prestructural_only: bool = 
         str(inputs["source_aliases"]),
         "--candidate-roster",
         str(inputs["candidate_roster"]),
+        "--post-cutoff-inventory",
+        str(inputs["post_cutoff_inventory"]),
+        "--nanochat-initial-roster",
+        str(inputs["nanochat_initial_roster"]),
         "--acquisition-receipt",
         str(inputs["acquisition_receipt"]),
         "--tokenizer",
@@ -98,6 +109,12 @@ def _freeze(tmp_path: Path, *, run_id: str = RUN_ID, prestructural_only: bool = 
         str(inputs["review_prompt"]),
         "--review-response-schema",
         str(inputs["review_response_schema"]),
+        "--glossapi-build-receipt",
+        str(inputs["glossapi_build_receipt"]),
+        "--license-adjudication",
+        str(inputs["license_adjudication"]),
+        "--training-eligibility-policy",
+        str(inputs["training_eligibility_policy"]),
         "--dedup-policy",
         str(inputs["policy"]),
         "--greekmmlu-policy",
@@ -201,6 +218,75 @@ def test_status_fails_closed_when_a_receipted_output_hash_drifts(tmp_path: Path)
     status = _pipeline("status", *_common(root), check=False)
     assert status.returncode != 0
     assert "bound input drift" in status.stderr
+
+
+def test_pipeline_wrapper_preserves_exact_retry_contract_and_finishes_retry_attempt(tmp_path: Path) -> None:
+    root = _freeze(tmp_path)
+    source = _write(tmp_path / "inputs" / "retry-source.json", "fixed input\n")
+    first = _pipeline(
+        "begin",
+        *_common(root),
+        "--stage",
+        "10-normalize",
+        "--attempt-id",
+        "failed-job",
+        "--parameters-json",
+        '{"batch_size":128}',
+        "--input",
+        "source",
+        str(source),
+        "--execute",
+    )
+    assert json.loads(first.stdout)["mode"] == "executed"
+
+    altered_bytes = _pipeline(
+        "begin",
+        *_common(root),
+        "--stage",
+        "10-normalize",
+        "--attempt-id",
+        "bad-retry",
+        "--parameters-json",
+        '{ "batch_size": 128 }',
+        "--input",
+        "source",
+        str(source),
+        "--execute",
+        check=False,
+    )
+    assert altered_bytes.returncode != 0
+    assert "not byte-identical" in altered_bytes.stderr
+
+    retry = _pipeline(
+        "begin",
+        *_common(root),
+        "--stage",
+        "10-normalize",
+        "--attempt-id",
+        "retry-job",
+        "--parameters-json",
+        '{"batch_size":128}',
+        "--input",
+        "source",
+        str(source),
+        "--execute",
+    )
+    assert json.loads(retry.stdout)["mode"] == "executed"
+    output = _write(root / "stages" / "10-normalize" / "attempts" / "retry-job" / "manifest.json")
+    completed = _pipeline(
+        "finish",
+        *_common(root),
+        "--stage",
+        "10-normalize",
+        "--attempt-id",
+        "retry-job",
+        "--output",
+        str(output),
+        "--execute",
+    )
+    assert json.loads(completed.stdout)["mode"] == "executed"
+    receipt = json.loads((root / "stages" / "10-normalize" / "stage_receipt.json").read_text())
+    assert receipt["attempt_id"] == "retry-job"
 
 
 def test_structural_apply_needs_hash_pinned_agent2_handoff_and_child_manifest(tmp_path: Path) -> None:

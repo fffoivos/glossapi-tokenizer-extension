@@ -13,6 +13,9 @@ it writes a local release:
   the generic ``representation_id`` / ``parent_representation_id`` contract;
 * the final tree is the Stage 78 structural output (or an explicit no-op over
   the anonymized tree), never an older pre-transform corpus.
+* every compact Stage 30/35/40 review, quality, admission, and execution
+  receipt is present, and the exact Stage-70 waterfall has a completed,
+  independent anonymization semantic false-positive clearance.
 
 It creates a private local training release only.  It intentionally does not
 construct a redistributable dataset or publish anything.  The accompanying
@@ -39,6 +42,25 @@ RELEASE_SCHEMA = "agent1_full_corpus_v3_release_manifest_v1"
 VALIDATION_SCHEMA = "agent1_full_corpus_v3_release_validation_v1"
 HANDOFF_SCHEMA = "agent1_full_corpus_v3_dataset_review_site_handoff_v1"
 WATERFALL_SCHEMA = "agent1_full_corpus_v3_token_waterfall_v1"
+ANONYMIZATION_AUDIT_SCHEMA = "agent1_full_corpus_v3_anonymization_audit_v1"
+SEMANTIC_CLEARANCE_SCHEMA = (
+    "agent1_full_corpus_v3_anonymization_semantic_false_positive_clearance_v1"
+)
+
+QUALITY_SUMMARY_SCHEMA = "dataset_quality_summary_v1"
+REVIEW_PACKET_SCHEMA = "agent1_v3_review_packet_manifest_v1"
+REVIEW_REQUEST_SCHEMA = "agent1_v3_review_request_v1"
+REVIEW_RESPONSE_SCHEMA = "agent1_v3_review_response_v1"
+RESPONSE_EXECUTION_RECEIPT_SCHEMA = "agent1_v3_codex_review_response_execution_receipt_v1"
+ADJUDICATION_EXECUTION_RECEIPT_SCHEMA = "agent1_v3_codex_review_adjudication_execution_receipt_v1"
+STAGE35_CLOSURE_SCHEMA = "agent1_v3_quality_review_evidence_closure_v1"
+REVIEW_SAMPLE_QUALITY_SUMMARY_SCHEMA = "agent1_v3_masked_review_sample_quality_summary_v1"
+REVIEW_SAMPLE_QUALITY_HANDOFF_SCHEMA = "agent1_v3_masked_review_sample_quality_handoff_v1"
+REVIEW_AGGREGATE_SCHEMA = "agent1_full_corpus_v3_source_review_aggregate_v1"
+ADMISSION_CONFIRMATION_SCHEMA = "agent1_full_corpus_v3_source_admission_confirmation_v1"
+LINEAGE_SUMMARY_SCHEMA = "full_cpt_lineage_summary_v1"
+SOURCE_NOVELTY_SCHEMA = "full_cpt_source_novelty_v1"
+LICENSE_ADJUDICATION_SCHEMA = "full_cpt_source_license_adjudication_v1"
 
 DEDUP_MANIFEST_SCHEMA = "agent1_full_corpus_v3_dedup_ledger_manifest_v1"
 DECONTAMINATION_MANIFEST_SCHEMA = "agent1_full_corpus_v3_decontamination_manifest_v1"
@@ -76,8 +98,39 @@ ORDERED_STAGE_NAMES = (
 AUTOMATIC_COMPACT_FILES = {
     "source_inventory": "source_inventory.json",
     "dedup_summary": "dedup_summary.json",
-    "transformation_waterfall": "transformation_waterfall.json",
 }
+
+# These are the exact compact artifacts already closed by Stage 30/35/40.
+# A local release is not a place to choose a convenient subset: it is the
+# first point at which a private training tree and an Agent-3 handoff can be
+# written, so all review, quality, admission, and execution evidence must be
+# present together.  The waterfall and semantic-clearance inputs use dedicated
+# flags because their relationship is a separate safety gate.
+REQUIRED_SITE_EVIDENCE_NAMES = (
+    "candidate_roster",
+    "review_packet",
+    "review_requests",
+    "review_responses",
+    "response_execution_receipt",
+    "adjudication_execution_receipt",
+    "stage35_review_closure",
+    "review_sample_quality_summary",
+    "review_sample_quality_handoff",
+    "quality_summary",
+    "lineage_summary",
+    "source_novelty",
+    "license_adjudication",
+    "review_aggregate",
+    "admission_confirmation",
+)
+REQUIRED_HANDOFF_EVIDENCE_NAMES = (
+    *REQUIRED_SITE_EVIDENCE_NAMES,
+    "transformation_waterfall",
+    "anonymization_semantic_clearance",
+)
+DIRECT_EVIDENCE_NAMES = frozenset(
+    {"transformation_waterfall", "anonymization_semantic_clearance"}
+)
 
 FORBIDDEN_HANDOFF_KEY_FRAGMENTS = (
     "protectedspan",
@@ -1379,7 +1432,7 @@ def validate_stage_receipt(path: Path, *, contract: Mapping[str, Any]) -> dict[s
 
 
 def parse_site_inputs(values: Sequence[Sequence[str]]) -> list[tuple[str, Path]]:
-    seen: set[str] = set(AUTOMATIC_COMPACT_FILES)
+    seen: set[str] = set(AUTOMATIC_COMPACT_FILES) | set(DIRECT_EVIDENCE_NAMES)
     result: list[tuple[str, Path]] = []
     for pair in values:
         if len(pair) != 2:
@@ -1423,6 +1476,453 @@ def validate_compact_json(path: Path) -> None:
                     validate_compact_value(json.loads(line))
                 except json.JSONDecodeError as exc:
                     raise ReleaseValidationError(f"compact JSONL site input is invalid at line {number}") from exc
+
+
+def _status_is_pending_or_omitted(value: object) -> bool:
+    """Return whether a status string advertises an incomplete handoff.
+
+    We deliberately inspect terminal *artifact* statuses rather than arbitrary
+    nested prose.  In particular, the immutable transformation waterfall
+    truthfully records that its automatic semantic audit was initially
+    pending; a separate, hash-bound clearance artifact closes that one known
+    historical state before release materialization.
+    """
+
+    if not isinstance(value, str):
+        return False
+    normalized = re.sub(r"[^a-z0-9]", "", value.casefold())
+    return "pending" in normalized or "notincluded" in normalized
+
+
+def require_terminal_status(
+    payload: Mapping[str, Any],
+    *,
+    label: str,
+    accepted: set[str],
+) -> str:
+    status = payload.get("status")
+    if _status_is_pending_or_omitted(status):
+        raise ReleaseValidationError(f"{label}: pending/not_included evidence is not releasable")
+    if status not in accepted:
+        raise ReleaseValidationError(f"{label}: unsupported terminal status")
+    return str(status)
+
+
+def _read_jsonl_objects(path: Path, *, label: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8") as handle:
+        for number, line in enumerate(handle, start=1):
+            if not line.strip():
+                continue
+            try:
+                value = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ReleaseValidationError(f"{label}: invalid JSONL row {number}") from exc
+            if not isinstance(value, dict):
+                raise ReleaseValidationError(f"{label}: JSONL row {number} is not an object")
+            validate_compact_value(value)
+            rows.append(value)
+    if not rows:
+        raise ReleaseValidationError(f"{label}: compact JSONL evidence is empty")
+    return rows
+
+
+def _assert_binding_matches_file(binding: object, path: Path, *, label: str) -> dict[str, Any]:
+    """Verify a supplied receipt binds exactly the compact file at ``path``."""
+
+    if not isinstance(binding, Mapping):
+        raise ReleaseValidationError(f"{label}: expected an immutable file binding")
+    actual = file_binding(path)
+    if binding.get("bytes") != actual["bytes"] or binding.get("sha256") != actual["sha256"]:
+        raise ReleaseValidationError(f"{label}: bytes/SHA-256 binding drift")
+    return actual
+
+
+def _require_json_schema(
+    path: Path,
+    *,
+    label: str,
+    schema: str,
+    statuses: set[str] | None = None,
+) -> dict[str, Any]:
+    payload = read_object(path)
+    validate_compact_value(payload)
+    if payload.get("schema_version") != schema:
+        raise ReleaseValidationError(f"{label}: unsupported schema")
+    if statuses is not None:
+        require_terminal_status(payload, label=label, accepted=statuses)
+    elif _status_is_pending_or_omitted(payload.get("status")):
+        raise ReleaseValidationError(f"{label}: pending/not_included evidence is not releasable")
+    return payload
+
+
+def _validate_response_rows(path: Path, *, name: str, schema: str) -> None:
+    rows = _read_jsonl_objects(path, label=name)
+    for index, row in enumerate(rows, start=1):
+        if row.get("schema_version") != schema:
+            raise ReleaseValidationError(f"{name}: row {index} has an unsupported schema")
+        if _status_is_pending_or_omitted(row.get("status")):
+            raise ReleaseValidationError(f"{name}: row {index} is pending/not_included")
+
+
+def _validate_review_aggregate(
+    payload: Mapping[str, Any],
+    *,
+    evidence_paths: Mapping[str, Path],
+) -> None:
+    require_terminal_status(
+        payload,
+        label="review aggregate",
+        accepted={"passed_review_evidence_no_admission_decision"},
+    )
+    closure = payload.get("review_closure")
+    if not isinstance(closure, Mapping) or closure.get("status") != "complete" or closure.get("pending_count") != 0:
+        raise ReleaseValidationError("review aggregate: review/adjudication closure is incomplete")
+    aggregate_inputs = payload.get("inputs")
+    expected_names = set(REQUIRED_SITE_EVIDENCE_NAMES) - {"review_aggregate", "admission_confirmation"}
+    if not isinstance(aggregate_inputs, Mapping) or set(aggregate_inputs) != expected_names:
+        raise ReleaseValidationError("review aggregate: immutable input inventory drift")
+    for name in sorted(expected_names):
+        _assert_binding_matches_file(
+            aggregate_inputs.get(name), evidence_paths[name], label=f"review aggregate input {name}"
+        )
+
+
+def _validate_admission_confirmation(
+    payload: Mapping[str, Any],
+    *,
+    aggregate_path: Path,
+) -> None:
+    require_terminal_status(payload, label="admission confirmation", accepted={"approved"})
+    if payload.get("confirmation_mode") != "explicit_hash_confirmed_user_confirmation":
+        raise ReleaseValidationError("admission confirmation lacks explicit user hash confirmation")
+    packet_binding = payload.get("packet")
+    if not isinstance(packet_binding, Mapping):
+        raise ReleaseValidationError("admission confirmation lacks its confirmed admission packet")
+    packet_path_raw = packet_binding.get("path")
+    if not isinstance(packet_path_raw, str) or not packet_path_raw:
+        raise ReleaseValidationError("admission confirmation packet path is missing")
+    packet_path = resolve_existing_file(Path(packet_path_raw), label="admission confirmation packet")
+    _assert_binding_matches_file(packet_binding, packet_path, label="admission confirmation packet")
+    packet = read_object(packet_path)
+    # A packet is necessarily created in a pending state before the user
+    # confirms its exact bytes.  It is not a releasable artifact on its own;
+    # only the surrounding approved confirmation may carry it forward.
+    if (
+        packet.get("schema_version") != "agent1_full_corpus_v3_source_admission_packet_v2"
+        or packet.get("status") != "pending_user_confirmation"
+    ):
+        raise ReleaseValidationError("admission confirmation does not bind the expected historical packet")
+    if payload.get("user_confirmed_packet_sha256") != sha256_file(packet_path):
+        raise ReleaseValidationError("admission confirmation user hash does not bind exact packet bytes")
+    packet_inputs = packet.get("inputs")
+    if not isinstance(packet_inputs, Mapping):
+        raise ReleaseValidationError("confirmed admission packet lacks immutable inputs")
+    _assert_binding_matches_file(
+        packet_inputs.get("review_aggregate"), aggregate_path, label="confirmed admission packet review aggregate"
+    )
+    if packet.get("review_aggregate_sha256") != sha256_file(aggregate_path):
+        raise ReleaseValidationError("confirmed admission packet aggregate hash drift")
+
+
+def _validate_transformation_waterfall(path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+    payload = read_object(path)
+    validate_compact_value(payload)
+    if payload.get("schema_version") != WATERFALL_SCHEMA:
+        raise ReleaseValidationError("transformation waterfall: unsupported schema")
+    # The Stage-70 producer intentionally records its automatic semantic audit
+    # as pending.  Do not mistake the automatic checks for human clearance;
+    # the companion artifact below is mandatory and binds this exact file.
+    if payload.get("status") not in {
+        "passed_with_independent_semantic_review_pending",
+        "passed_with_independent_semantic_review_cleared",
+    }:
+        raise ReleaseValidationError("transformation waterfall is not a completed v3 receipt")
+    audit = payload.get("anonymization_audit")
+    if not isinstance(audit, Mapping) or audit.get("schema_version") != ANONYMIZATION_AUDIT_SCHEMA:
+        raise ReleaseValidationError("transformation waterfall lacks the anonymization false-positive audit")
+    automatic = audit.get("false_positive_audit")
+    if not isinstance(automatic, Mapping):
+        raise ReleaseValidationError("transformation waterfall lacks false-positive audit closure")
+    policy_checks = automatic.get("automatic_policy_lineage_checks")
+    semantic = automatic.get("independent_semantic_review")
+    if (
+        not isinstance(policy_checks, Mapping)
+        or policy_checks.get("status") != "passed"
+        or not isinstance(semantic, Mapping)
+        or semantic.get("required_before_any_claim_of_semantic_false_positive_clearance") is not True
+    ):
+        raise ReleaseValidationError("transformation waterfall anonymization audit is incomplete")
+    invariants = payload.get("invariants")
+    for name in (
+        "dedup_precedes_greekmmlu",
+        "greekmmlu_precedes_anonymization",
+        "tokens_are_exact_pinned_tokenizer_counts",
+        "raw_text_or_pii_in_output",
+    ):
+        expected = False if name == "raw_text_or_pii_in_output" else True
+        if not isinstance(invariants, Mapping) or invariants.get(name) is not expected:
+            raise ReleaseValidationError("transformation waterfall invariant drift")
+    return payload, file_binding(path)
+
+
+def _clearance_digest(payload: Mapping[str, Any]) -> str:
+    value = dict(payload)
+    value.pop("clearance_sha256", None)
+    return canonical_json_sha256(value)
+
+
+def _validate_anonymization_semantic_clearance(
+    path: Path,
+    *,
+    waterfall_path: Path,
+    waterfall_payload: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    payload = _require_json_schema(
+        path,
+        label="independent anonymization semantic false-positive clearance",
+        schema=SEMANTIC_CLEARANCE_SCHEMA,
+        statuses={"passed"},
+    )
+    if payload.get("clearance_sha256") != _clearance_digest(payload):
+        raise ReleaseValidationError("anonymization semantic clearance digest drift")
+    require_text(
+        payload.get("completed_at"),
+        label="anonymization semantic clearance completion timestamp",
+    )
+    _assert_binding_matches_file(
+        payload.get("transformation_waterfall"),
+        waterfall_path,
+        label="anonymization semantic clearance waterfall",
+    )
+    audit = waterfall_payload["anonymization_audit"]
+    if payload.get("anonymization_audit_sha256") != canonical_json_sha256(audit):
+        raise ReleaseValidationError("anonymization semantic clearance audit binding drift")
+    independence = payload.get("independence")
+    if not isinstance(independence, Mapping) or any(
+        independence.get(name) is not True
+        for name in (
+            "reviewer_is_independent",
+            "independent_of_automatic_policy_lineage_checks",
+            "protected_review_environment",
+        )
+    ) or independence.get("raw_text_or_pii_in_clearance") is not False:
+        raise ReleaseValidationError("anonymization semantic clearance lacks independent protected-review evidence")
+    review = payload.get("independent_semantic_review")
+    if not isinstance(review, Mapping) or review.get("status") != "cleared":
+        raise ReleaseValidationError("anonymization semantic clearance remains pending/not_included")
+    for name in ("eligible_rows", "reviewed_rows", "unresolved_rows", "false_positive_findings"):
+        value = review.get(name)
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise ReleaseValidationError(f"anonymization semantic clearance {name} is invalid")
+    if review["unresolved_rows"] != 0 or review["false_positive_findings"] != 0:
+        raise ReleaseValidationError("anonymization semantic clearance has unresolved false-positive findings")
+    waterfall_semantic = audit["false_positive_audit"]["independent_semantic_review"]
+    eligible = waterfall_semantic.get("eligible_rows")
+    if isinstance(eligible, bool) or not isinstance(eligible, int) or eligible < 0:
+        raise ReleaseValidationError("transformation waterfall semantic-review denominator is invalid")
+    if review["eligible_rows"] != eligible or review["reviewed_rows"] > eligible:
+        raise ReleaseValidationError("anonymization semantic clearance review denominator drift")
+    if eligible and review["reviewed_rows"] == 0:
+        raise ReleaseValidationError("anonymization semantic clearance cannot clear a non-empty review scope without review")
+    return payload, file_binding(path)
+
+
+def validate_required_release_evidence(
+    *,
+    site_inputs: Sequence[tuple[str, Path]],
+    transformation_waterfall: Path,
+    anonymization_semantic_clearance: Path,
+) -> tuple[list[tuple[str, Path]], dict[str, dict[str, Any]], dict[str, Any]]:
+    """Validate the entire compact Phase-10 evidence closure before any write.
+
+    The result is the exact set of compact inputs that must be copied into the
+    Agent-3 handoff, their source receipts, and a small semantic-clearance
+    summary suitable for the local release contract.  This deliberately does
+    not accept an "optional" or "not included" category.
+    """
+
+    by_name = dict(site_inputs)
+    if len(by_name) != len(site_inputs):  # parse_site_inputs already prevents this.
+        raise ReleaseValidationError("duplicate compact evidence input")
+    if set(by_name) & DIRECT_EVIDENCE_NAMES:
+        raise ReleaseValidationError("waterfall and semantic clearance must use their dedicated arguments")
+    missing = sorted(set(REQUIRED_SITE_EVIDENCE_NAMES) - set(by_name))
+    if missing:
+        raise ReleaseValidationError(
+            "mandatory compact handoff evidence is missing: " + ", ".join(missing)
+        )
+    unexpected = sorted(set(by_name) - set(REQUIRED_SITE_EVIDENCE_NAMES))
+    if unexpected:
+        raise ReleaseValidationError(
+            "unrecognized optional evidence is forbidden in the final handoff: " + ", ".join(unexpected)
+        )
+
+    payloads: dict[str, dict[str, Any]] = {}
+    payloads["candidate_roster"] = _require_json_schema(
+        by_name["candidate_roster"],
+        label="candidate roster",
+        schema="agent1_full_corpus_v3_candidate_roster_v1",
+    )
+    payloads["review_packet"] = _require_json_schema(
+        by_name["review_packet"],
+        label="review packet",
+        schema=REVIEW_PACKET_SCHEMA,
+        statuses={"materialized_no_model_invocation"},
+    )
+    _validate_response_rows(by_name["review_requests"], name="review requests", schema=REVIEW_REQUEST_SCHEMA)
+    _validate_response_rows(by_name["review_responses"], name="review responses", schema=REVIEW_RESPONSE_SCHEMA)
+    payloads["response_execution_receipt"] = _require_json_schema(
+        by_name["response_execution_receipt"],
+        label="review response execution receipt",
+        schema=RESPONSE_EXECUTION_RECEIPT_SCHEMA,
+        statuses={"complete"},
+    )
+    payloads["adjudication_execution_receipt"] = _require_json_schema(
+        by_name["adjudication_execution_receipt"],
+        label="review adjudication execution receipt",
+        schema=ADJUDICATION_EXECUTION_RECEIPT_SCHEMA,
+        statuses={"complete"},
+    )
+    final_adjudication = payloads["adjudication_execution_receipt"].get("final_adjudication_manifest")
+    if not isinstance(final_adjudication, Mapping) or final_adjudication.get("status") != "complete" or final_adjudication.get("pending_count") != 0:
+        raise ReleaseValidationError("review adjudication execution receipt remains pending")
+    payloads["stage35_review_closure"] = _require_json_schema(
+        by_name["stage35_review_closure"],
+        label="Stage 35 review/quality execution closure",
+        schema=STAGE35_CLOSURE_SCHEMA,
+        statuses={"passed"},
+    )
+    payloads["review_sample_quality_summary"] = _require_json_schema(
+        by_name["review_sample_quality_summary"],
+        label="masked review-sample quality summary",
+        schema=REVIEW_SAMPLE_QUALITY_SUMMARY_SCHEMA,
+        statuses={"passed"},
+    )
+    payloads["review_sample_quality_handoff"] = _require_json_schema(
+        by_name["review_sample_quality_handoff"],
+        label="masked review-sample quality handoff",
+        schema=REVIEW_SAMPLE_QUALITY_HANDOFF_SCHEMA,
+        statuses={"passed"},
+    )
+    payloads["quality_summary"] = _require_json_schema(
+        by_name["quality_summary"],
+        label="full GlossAPI quality summary",
+        schema=QUALITY_SUMMARY_SCHEMA,
+        statuses={"passed"},
+    )
+    if payloads["quality_summary"].get("scan_mode") != "full_scan":
+        raise ReleaseValidationError("full GlossAPI quality summary is not a mandatory full scan")
+    payloads["lineage_summary"] = _require_json_schema(
+        by_name["lineage_summary"], label="lineage summary", schema=LINEAGE_SUMMARY_SCHEMA
+    )
+    payloads["source_novelty"] = _require_json_schema(
+        by_name["source_novelty"], label="source novelty summary", schema=SOURCE_NOVELTY_SCHEMA
+    )
+    payloads["license_adjudication"] = _require_json_schema(
+        by_name["license_adjudication"],
+        label="source license adjudication",
+        schema=LICENSE_ADJUDICATION_SCHEMA,
+        statuses={"technical_audit_complete"},
+    )
+    payloads["review_aggregate"] = _require_json_schema(
+        by_name["review_aggregate"],
+        label="source review aggregate",
+        schema=REVIEW_AGGREGATE_SCHEMA,
+    )
+    _validate_review_aggregate(payloads["review_aggregate"], evidence_paths=by_name)
+    payloads["admission_confirmation"] = _require_json_schema(
+        by_name["admission_confirmation"],
+        label="source admission confirmation",
+        schema=ADMISSION_CONFIRMATION_SCHEMA,
+    )
+    _validate_admission_confirmation(
+        payloads["admission_confirmation"], aggregate_path=by_name["review_aggregate"]
+    )
+
+    waterfall_path = resolve_existing_file(transformation_waterfall, label="transformation waterfall")
+    if waterfall_path.suffix != ".json" or waterfall_path.stat().st_size > MAX_COMPACT_INPUT_BYTES:
+        raise ReleaseValidationError("transformation waterfall must be a compact JSON artifact")
+    validate_compact_json(waterfall_path)
+    waterfall_payload, _ = _validate_transformation_waterfall(waterfall_path)
+    clearance_path = resolve_existing_file(
+        anonymization_semantic_clearance, label="anonymization semantic false-positive clearance"
+    )
+    if clearance_path.suffix != ".json" or clearance_path.stat().st_size > MAX_COMPACT_INPUT_BYTES:
+        raise ReleaseValidationError("anonymization semantic clearance must be a compact JSON artifact")
+    validate_compact_json(clearance_path)
+    clearance_payload, _ = _validate_anonymization_semantic_clearance(
+        clearance_path, waterfall_path=waterfall_path, waterfall_payload=waterfall_payload
+    )
+
+    all_inputs = [
+        *site_inputs,
+        ("transformation_waterfall", waterfall_path),
+        ("anonymization_semantic_clearance", clearance_path),
+    ]
+    bindings = {name: file_binding(path) for name, path in all_inputs}
+    return all_inputs, bindings, {
+        "status": "passed",
+        "required_categories": list(REQUIRED_HANDOFF_EVIDENCE_NAMES),
+        "anonymization_semantic_false_positive_clearance": {
+            "status": "cleared",
+            "sha256": bindings["anonymization_semantic_clearance"]["sha256"],
+            "waterfall_sha256": bindings["transformation_waterfall"]["sha256"],
+        },
+    }
+
+
+def _contains_not_included_key(value: Any) -> bool:
+    if isinstance(value, Mapping):
+        for key, nested in value.items():
+            if re.sub(r"[^a-z0-9]", "", str(key).casefold()) == "notincluded":
+                return True
+            if _contains_not_included_key(nested):
+                return True
+    elif isinstance(value, list):
+        return any(_contains_not_included_key(item) for item in value)
+    return False
+
+
+def _validate_compact_binding(value: object, *, label: str) -> dict[str, Any]:
+    if not isinstance(value, Mapping):
+        raise ReleaseValidationError(f"{label}: compact binding must be an object")
+    byte_count = value.get("bytes")
+    if isinstance(byte_count, bool) or not isinstance(byte_count, int) or byte_count < 1:
+        raise ReleaseValidationError(f"{label}: compact binding bytes are invalid")
+    return {"bytes": byte_count, "sha256": require_sha256(value.get("sha256"), label=label)}
+
+
+def validate_required_evidence_summary(value: object, *, label: str) -> dict[str, Any]:
+    """Validate the path-free evidence closure persisted in a release/handoff."""
+
+    if not isinstance(value, Mapping) or value.get("status") != "passed":
+        raise ReleaseValidationError(f"{label}: required evidence closure is not passed")
+    if _contains_not_included_key(value):
+        raise ReleaseValidationError(f"{label}: required evidence closure contains not_included content")
+    categories = value.get("required_categories")
+    if categories != list(REQUIRED_HANDOFF_EVIDENCE_NAMES):
+        raise ReleaseValidationError(f"{label}: required evidence category inventory drift")
+    source_bindings = value.get("source_bindings")
+    if not isinstance(source_bindings, Mapping) or set(source_bindings) != set(REQUIRED_HANDOFF_EVIDENCE_NAMES):
+        raise ReleaseValidationError(f"{label}: required evidence source bindings drift")
+    normalized_bindings = {
+        name: _validate_compact_binding(source_bindings[name], label=f"{label} source binding {name}")
+        for name in REQUIRED_HANDOFF_EVIDENCE_NAMES
+    }
+    clearance = value.get("anonymization_semantic_false_positive_clearance")
+    if not isinstance(clearance, Mapping) or clearance.get("status") != "cleared":
+        raise ReleaseValidationError(f"{label}: anonymization semantic false-positive clearance is incomplete")
+    if clearance.get("sha256") != normalized_bindings["anonymization_semantic_clearance"]["sha256"]:
+        raise ReleaseValidationError(f"{label}: semantic-clearance hash does not match its evidence binding")
+    if clearance.get("waterfall_sha256") != normalized_bindings["transformation_waterfall"]["sha256"]:
+        raise ReleaseValidationError(f"{label}: semantic-clearance waterfall binding drift")
+    return {
+        "status": "passed",
+        "required_categories": list(REQUIRED_HANDOFF_EVIDENCE_NAMES),
+        "source_bindings": normalized_bindings,
+        "anonymization_semantic_false_positive_clearance": dict(clearance),
+    }
 
 
 def source_inventory(connection: sqlite3.Connection) -> list[dict[str, Any]]:
@@ -1619,6 +2119,8 @@ def materialize_release(args: argparse.Namespace) -> dict[str, Any]:
         args.final_corpus_root,
         args.structural_manifest,
         args.tokenizer_json,
+        args.transformation_waterfall,
+        args.anonymization_semantic_clearance,
     )
     if args.structural_ledger is not None:
         input_paths = (*input_paths, args.structural_ledger)
@@ -1630,7 +2132,12 @@ def materialize_release(args: argparse.Namespace) -> dict[str, Any]:
     work_database = args.work_database.resolve()
     if work_database == release_root or release_root in work_database.parents or work_database in release_root.parents:
         raise ReleaseValidationError("work database must be disjoint from the immutable release root")
-    explicit_site_inputs = parse_site_inputs(args.site_input)
+    site_inputs = parse_site_inputs(args.site_input)
+    explicit_site_inputs, evidence_bindings, evidence_summary = validate_required_release_evidence(
+        site_inputs=site_inputs,
+        transformation_waterfall=args.transformation_waterfall,
+        anonymization_semantic_clearance=args.anonymization_semantic_clearance,
+    )
     tokenizer = ExactTokenizer(args.tokenizer_json)
     dedup_payload, dedup_binding = manifest_status(
         args.dedup_manifest,
@@ -1748,6 +2255,8 @@ def materialize_release(args: argparse.Namespace) -> dict[str, Any]:
         "tokenizer": tokenizer.binding,
         "dedup_ledger": file_binding(args.dedup_ledger),
     }
+    for name, binding in evidence_bindings.items():
+        input_bindings[f"evidence_{name}"] = binding
     if run_contract_binding is not None:
         input_bindings["run_contract"] = run_contract_binding
     if args.structural_ledger is not None:
@@ -1766,6 +2275,12 @@ def materialize_release(args: argparse.Namespace) -> dict[str, Any]:
             "structural_mode": structural_payload["mode"],
         },
         "upstream_bindings": input_bindings,
+        "required_evidence": {
+            **evidence_summary,
+            "source_bindings": {
+                name: compact_binding(binding) for name, binding in evidence_bindings.items()
+            },
+        },
         "source_inventory": inventory,
         "waterfall": waterfall,
         "representation_lineage": lineage,
@@ -1804,13 +2319,17 @@ def materialize_release(args: argparse.Namespace) -> dict[str, Any]:
             "schema_version": "agent1_full_corpus_v3_dedup_summary_v1",
             **dedup_summary_payload,
         },
-        "transformation_waterfall": waterfall,
     }
     compact_receipts, compact_source_bindings = copy_compact_inputs(
         release_root=release_root,
         automatic=automatic_compact,
         explicit=explicit_site_inputs,
     )
+    missing_compact_evidence = sorted(
+        set(REQUIRED_HANDOFF_EVIDENCE_NAMES) - set(compact_receipts)
+    )
+    if missing_compact_evidence:  # pragma: no cover - guarded before any copy
+        raise RuntimeError("required compact evidence was not materialized: " + ", ".join(missing_compact_evidence))
 
     validation_payload = {
         "schema_version": VALIDATION_SCHEMA,
@@ -1834,17 +2353,6 @@ def materialize_release(args: argparse.Namespace) -> dict[str, Any]:
         "sha256": sha256_file(validation_path),
     }
 
-    provided_optional_categories = sorted(compact_source_bindings)
-    expected_optional_categories = (
-        "quality_summary",
-        "review_sample_manifest",
-        "review_responses",
-        "review_aggregate",
-        "admission_confirmation",
-        "lineage_summary",
-        "novelty_summary",
-        "execution_report",
-    )
     handoff_payload = {
         "schema_version": HANDOFF_SCHEMA,
         "status": "passed",
@@ -1873,12 +2381,18 @@ def materialize_release(args: argparse.Namespace) -> dict[str, Any]:
             if name not in {"structural_ledger"}
         },
         "compact_files": compact_receipts,
-        "optional_review_and_quality_categories": {
-            "provided": provided_optional_categories,
-            "not_included": [
-                name for name in expected_optional_categories if name not in compact_source_bindings
+        "required_evidence": {
+            "status": "passed",
+            "required_categories": list(REQUIRED_HANDOFF_EVIDENCE_NAMES),
+            "compact_files": {
+                name: compact_receipts[name] for name in REQUIRED_HANDOFF_EVIDENCE_NAMES
+            },
+            "source_bindings": {
+                name: compact_source_bindings[name] for name in REQUIRED_HANDOFF_EVIDENCE_NAMES
+            },
+            "anonymization_semantic_false_positive_clearance": evidence_summary[
+                "anonymization_semantic_false_positive_clearance"
             ],
-            "source_bindings": compact_source_bindings,
         },
     }
     handoff_path = release_root / HANDOFF_RELATIVE_PATH
@@ -1947,6 +2461,7 @@ def validate_existing_release(release_root: Path) -> dict[str, Any]:
             "publish_permitted",
             "ordered_transform_contract",
             "upstream_bindings",
+            "required_evidence",
             "source_inventory",
             "waterfall",
             "representation_lineage",
@@ -1955,6 +2470,9 @@ def validate_existing_release(release_root: Path) -> dict[str, Any]:
     }
     if canonical_json_sha256(contract) != manifest.get("release_contract_sha256"):
         raise ReleaseValidationError("release manifest contract digest drift")
+    release_evidence = validate_required_evidence_summary(
+        manifest.get("required_evidence"), label="release manifest"
+    )
     data = manifest.get("final_data")
     if not isinstance(data, Mapping) or data.get("root") != TRAINING_ROOT_RELATIVE_PATH.as_posix():
         raise ReleaseValidationError("release manifest has unsafe training-data root")
@@ -2006,6 +2524,17 @@ def validate_existing_release(release_root: Path) -> dict[str, Any]:
     ):
         raise ReleaseValidationError("Agent 3 handoff does not bind the local release")
     validate_compact_value(handoff_payload)
+    handoff_evidence = validate_required_evidence_summary(
+        handoff_payload.get("required_evidence"), label="Agent 3 handoff"
+    )
+    handoff_compact_evidence = handoff_payload["required_evidence"].get("compact_files")
+    if (
+        not isinstance(handoff_compact_evidence, Mapping)
+        or set(handoff_compact_evidence) != set(REQUIRED_HANDOFF_EVIDENCE_NAMES)
+    ):
+        raise ReleaseValidationError("Agent 3 handoff required compact evidence inventory drift")
+    if handoff_evidence != release_evidence:
+        raise ReleaseValidationError("Agent 3 handoff required evidence differs from the local release")
     compact_files = handoff_payload.get("compact_files")
     if not isinstance(compact_files, Mapping):
         raise ReleaseValidationError("Agent 3 handoff lacks compact file inventory")
@@ -2021,6 +2550,13 @@ def validate_existing_release(release_root: Path) -> dict[str, Any]:
         if target.stat().st_size != receipt.get("bytes") or sha256_file(target) != require_sha256(receipt.get("sha256"), label=f"compact file {name}"):
             raise ReleaseValidationError("Agent 3 compact file receipt drift")
         validate_compact_json(target)
+    for name in REQUIRED_HANDOFF_EVIDENCE_NAMES:
+        receipt = handoff_compact_evidence[name]
+        if receipt != compact_files.get(name):
+            raise ReleaseValidationError("Agent 3 handoff required evidence receipt differs from compact inventory")
+        compact = _validate_compact_binding(receipt, label=f"Agent 3 compact evidence {name}")
+        if compact != release_evidence["source_bindings"][name]:
+            raise ReleaseValidationError("Agent 3 compact evidence differs from source binding")
     return {
         "release_root": str(root),
         "manifest": str(manifest_path),
@@ -2063,6 +2599,18 @@ def parser() -> argparse.ArgumentParser:
     materialize.add_argument("--structural-manifest", type=Path, required=True, help="Stage 78 application/no-op manifest")
     materialize.add_argument("--structural-ledger", type=Path, help="required for mode=applied structural manifest")
     materialize.add_argument("--tokenizer-json", type=Path, required=True, help="frozen exact tokenizer.json")
+    materialize.add_argument(
+        "--transformation-waterfall",
+        type=Path,
+        required=True,
+        help="completed Stage-70 compact waterfall; semantic clearance is checked separately",
+    )
+    materialize.add_argument(
+        "--anonymization-semantic-clearance",
+        type=Path,
+        required=True,
+        help="completed independent semantic false-positive clearance bound to --transformation-waterfall",
+    )
     materialize.add_argument("--work-database", type=Path, required=True, help="new job-unique SQLite validation index")
     materialize.add_argument("--release-root", type=Path, required=True, help="new immutable local release directory")
     materialize.add_argument("--batch-rows", type=int, default=2048)
@@ -2081,7 +2629,10 @@ def parser() -> argparse.ArgumentParser:
         action="append",
         default=[],
         metavar=("NAME", "PATH"),
-        help="approved compact JSON/JSONL evidence copied into the Agent 3 handoff",
+        help=(
+            "required compact review/quality/admission/execution evidence copied into the Agent 3 handoff; "
+            "all named categories are required at materialization time"
+        ),
     )
     materialize.set_defaults(func=lambda args: print(json.dumps({"ok": True, **materialize_release(args)}, sort_keys=True)))
     validate = sub.add_parser("validate", help="recheck an existing immutable local v3 release")

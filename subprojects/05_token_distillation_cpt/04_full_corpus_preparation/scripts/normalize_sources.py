@@ -12,7 +12,7 @@ import tempfile
 from collections import Counter, defaultdict
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping
 
 from full_corpus_io import (
     SourceArtifact,
@@ -26,6 +26,7 @@ from full_corpus_io import (
     iter_grouped_section_rows,
     sha256_file,
     sha256_text,
+    source_config_map,
 )
 from source_lineage import canonical_json, load_json
 
@@ -37,6 +38,9 @@ SHARD_RECEIPT_SCHEMA = "full_cpt_normalization_shard_receipt_v1"
 UNIQUENESS_RECEIPT_SCHEMA = "full_cpt_normalization_uid_uniqueness_v1"
 DEFAULT_LARGE_TASK_BYTE_THRESHOLD = 2 * 1024**3
 DEFAULT_LARGE_TASK_WORKERS = 2
+V3_CANDIDATE_ROSTER_SCHEMA = "agent1_full_corpus_v3_candidate_roster_v1"
+V3_ROUTE_FIELDS = ("source_route", "review_route", "extraction_route")
+V3_ALLOWED_ROUTES = frozenset({"html_web", "pdf_ocr", "mixed", "structured"})
 
 
 def write_json_atomic(
@@ -68,6 +72,194 @@ def read_json(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"{path}: JSON root must be an object")
     return value
+
+
+def file_binding(path: Path) -> dict[str, Any]:
+    """Return the immutable binding used for a v3 candidate-roster input."""
+
+    resolved = path.resolve()
+    if not resolved.is_file() or resolved.stat().st_size < 1:
+        raise FileNotFoundError(f"required non-empty file is missing: {resolved}")
+    return {
+        "path": str(resolved),
+        "bytes": resolved.stat().st_size,
+        "sha256": sha256_file(resolved),
+    }
+
+
+def _validate_v3_route_map(
+    *,
+    roster_path: Path,
+    field: str,
+    value: object,
+    candidates: list[str],
+    fallback: dict[str, str] | None = None,
+) -> dict[str, str]:
+    """Validate one exact candidate-to-route map from the frozen roster."""
+
+    if value is None:
+        if fallback is None:
+            raise ValueError(f"{roster_path}: missing required {field}")
+        return dict(fallback)
+    if not isinstance(value, dict):
+        raise ValueError(f"{roster_path}: {field} must be an object")
+    candidate_set = set(candidates)
+    keys = set(value)
+    missing = sorted(candidate_set - keys)
+    extra = sorted(keys - candidate_set)
+    if missing or extra:
+        raise ValueError(
+            f"{roster_path}: {field} coverage drift; missing={missing}, extra={extra}"
+        )
+    result: dict[str, str] = {}
+    for source_id in candidates:
+        route = value[source_id]
+        if not isinstance(route, str) or route not in V3_ALLOWED_ROUTES:
+            raise ValueError(
+                f"{roster_path}: unsupported {field}[{source_id!r}]={route!r}"
+            )
+        result[source_id] = route
+    return result
+
+
+def load_v3_candidate_roster(path: Path) -> dict[str, Any]:
+    """Load the route declaration that v3 canonicalization must preserve.
+
+    The frozen v3 roster declares ``source_routes`` (logical provenance),
+    ``review_routes`` (review policy), and ``extraction_routes`` (the observed
+    representation).  Legacy fixtures may omit the latter two distinctions,
+    in which case they default to the review route.  This preserves the fact
+    that a Parquet transport can still contain text logically sourced from a
+    PDF/OCR extraction or an HTML scrape.
+    """
+
+    roster_path = path.resolve()
+    roster = read_json(roster_path)
+    if roster.get("schema_version") != V3_CANDIDATE_ROSTER_SCHEMA:
+        raise ValueError(
+            f"{roster_path}: unsupported candidate roster schema "
+            f"{roster.get('schema_version')!r}"
+        )
+    base_source_id = roster.get("base_source_id")
+    if not isinstance(base_source_id, str) or not base_source_id:
+        raise ValueError(f"{roster_path}: base_source_id must be a non-empty string")
+    if base_source_id != "nanochat_base":
+        raise ValueError(f"{roster_path}: expected base_source_id 'nanochat_base'")
+    candidates = roster.get("candidate_source_ids")
+    if (
+        not isinstance(candidates, list)
+        or not candidates
+        or any(not isinstance(source, str) or not source for source in candidates)
+        or len(candidates) != len(set(candidates))
+        or base_source_id in candidates
+    ):
+        raise ValueError(
+            f"{roster_path}: candidate_source_ids must be unique non-empty strings "
+            "and exclude base_source_id"
+        )
+    candidate_ids = list(candidates)
+    review_routes = _validate_v3_route_map(
+        roster_path=roster_path,
+        field="review_routes",
+        value=roster.get("review_routes"),
+        candidates=candidate_ids,
+    )
+    source_routes = _validate_v3_route_map(
+        roster_path=roster_path,
+        field="source_routes",
+        value=roster.get("source_routes"),
+        candidates=candidate_ids,
+        fallback=review_routes,
+    )
+    extraction_routes = _validate_v3_route_map(
+        roster_path=roster_path,
+        field="extraction_routes",
+        value=roster.get("extraction_routes"),
+        candidates=candidate_ids,
+        fallback=review_routes,
+    )
+    binding = file_binding(roster_path)
+    return {
+        **binding,
+        "schema_version": V3_CANDIDATE_ROSTER_SCHEMA,
+        "base_source_id": base_source_id,
+        "candidate_source_ids": candidate_ids,
+        "review_routes": review_routes,
+        "source_routes": source_routes,
+        "extraction_routes": extraction_routes,
+        "route_declarations": {
+            source_id: {
+                "source_route": source_routes[source_id],
+                "review_route": review_routes[source_id],
+                "extraction_route": extraction_routes[source_id],
+            }
+            for source_id in candidate_ids
+        },
+    }
+
+
+def validate_v3_candidate_roster_source_coverage(
+    *,
+    roster_binding: dict[str, Any],
+    source_registry: dict[str, Any],
+    artifacts: list[SourceArtifact],
+) -> dict[str, Any]:
+    """Fail closed if frozen v3 candidates drift from registry or receipt.
+
+    Candidate omission is unsafe because it could make a later review packet
+    look complete even though its original source never reached canonical
+    normalization.  Extra normalizable sources are unsafe for the converse
+    reason: they would enter the pool without an assigned review route.
+    """
+
+    base_source_id = str(roster_binding["base_source_id"])
+    candidates = [str(source) for source in roster_binding["candidate_source_ids"]]
+    expected_ids = {base_source_id, *candidates}
+    registry_by_source = source_config_map(source_registry)
+    configured_ids = set(registry_by_source)
+    missing_registry = sorted(expected_ids - configured_ids)
+    extra_registry = sorted(configured_ids - expected_ids)
+    if missing_registry or extra_registry:
+        raise ValueError(
+            "v3 candidate roster/source registry coverage drift; "
+            f"missing={missing_registry}, extra={extra_registry}"
+        )
+    if str(registry_by_source[base_source_id].get("role", "base")) != "base":
+        raise ValueError(
+            f"v3 base source {base_source_id!r} must retain role='base' in sources registry"
+        )
+    invalid_candidate_roles = {
+        source_id: registry_by_source[source_id].get("role")
+        for source_id in candidates
+        if str(registry_by_source[source_id].get("role", "")) in {"", "base", "base_overlay"}
+    }
+    if invalid_candidate_roles:
+        raise ValueError(
+            "v3 candidate roster includes non-candidate source registry entries: "
+            f"{invalid_candidate_roles}"
+        )
+    artifact_ids = [artifact.source_id for artifact in artifacts]
+    if len(artifact_ids) != len(set(artifact_ids)):
+        raise ValueError("normalization artifacts repeat a source identity")
+    actual_artifact_ids = set(artifact_ids)
+    missing_artifacts = sorted(expected_ids - actual_artifact_ids)
+    extra_artifacts = sorted(actual_artifact_ids - expected_ids)
+    if missing_artifacts or extra_artifacts:
+        raise ValueError(
+            "v3 candidate roster/acquisition coverage drift; "
+            f"missing={missing_artifacts}, extra={extra_artifacts}"
+        )
+    return {
+        "schema_version": "agent1_v3_normalization_source_coverage_v1",
+        "status": "passed",
+        "candidate_roster": {
+            key: roster_binding[key]
+            for key in ("path", "bytes", "sha256", "schema_version", "base_source_id")
+        },
+        "candidate_source_ids": candidates,
+        "normalizable_registry_source_ids": sorted(configured_ids),
+        "acquisition_artifact_source_ids": sorted(actual_artifact_ids),
+    }
 
 
 def file_receipt_path(output: Path, source_id: str, file_index: int) -> Path:
@@ -386,6 +578,7 @@ def normalize_file(
     embedded_structural_routes: list[dict[str, Any]],
     max_documents: int,
     progress_every: int,
+    declared_routes: dict[str, dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     receipt_path = file_receipt_path(output, artifact.source_id, file_index)
     if receipt_path.exists():
@@ -447,6 +640,7 @@ def normalize_file(
                 lineage_aliases=lineage_aliases,
                 base_families=base_families,
                 embedded_structural_routes=embedded_structural_routes,
+                declared_routes=declared_routes,
             )
             emitted.append(row)
             counts["documents_emitted"] += 1
@@ -529,6 +723,7 @@ def normalize_task(payload: dict[str, Any]) -> list[dict[str, Any]]:
             lineage_aliases=payload["lineage_aliases"],
             base_families=payload["base_families"],
             embedded_structural_routes=payload["embedded_structural_routes"],
+            declared_routes=payload.get("declared_routes"),
             max_documents=remaining,
             progress_every=payload["progress_every"],
         )
@@ -606,6 +801,111 @@ def duckdb_literal(value: str) -> str:
     return "'" + value.replace("'", "''") + "'"
 
 
+def validate_candidate_canonical_route_coverage(
+    connection: Any,
+    *,
+    source_relation: str,
+    declared_routes: Mapping[str, Mapping[str, str]],
+) -> dict[str, Any]:
+    """Verify every canonical candidate row kept its frozen route declaration.
+
+    This runs inside the existing global DuckDB pass, so it does not require a
+    second corpus-scale Parquet scan.  ``acquisition_source_id`` is used as the
+    grouping key: a candidate must not silently become an embedded/base route
+    or a differently named source before it reaches quality profiling.
+    """
+
+    if not declared_routes:
+        raise ValueError("candidate route coverage requires at least one declaration")
+    candidates = sorted(declared_routes)
+    route_fields = V3_ROUTE_FIELDS
+    malformed = {
+        source_id: declaration
+        for source_id, declaration in declared_routes.items()
+        if not isinstance(declaration, Mapping)
+        or any(
+            not isinstance(declaration.get(field), str)
+            or declaration.get(field) not in V3_ALLOWED_ROUTES
+            for field in route_fields
+        )
+    }
+    if malformed:
+        raise ValueError(f"invalid frozen candidate route declarations: {malformed}")
+    candidate_sql = ",".join(duckdb_literal(source_id) for source_id in candidates)
+    try:
+        observed_rows = connection.execute(
+            f"""
+            SELECT acquisition_source_id, source_id,
+                   source_route, review_route, extraction_route,
+                   COUNT(*) AS documents
+            FROM {source_relation}
+            WHERE acquisition_source_id IN ({candidate_sql})
+            GROUP BY acquisition_source_id, source_id,
+                     source_route, review_route, extraction_route
+            ORDER BY acquisition_source_id, source_id,
+                     source_route, review_route, extraction_route
+            """
+        ).fetchall()
+    except Exception as exc:
+        raise ValueError(
+            "canonical candidate route provenance fields are missing or unreadable; "
+            "v3 normalization cannot continue"
+        ) from exc
+
+    observed: dict[str, list[dict[str, Any]]] = {source_id: [] for source_id in candidates}
+    for (
+        acquisition_source_id,
+        source_id,
+        source_route,
+        review_route,
+        extraction_route,
+        documents,
+    ) in observed_rows:
+        acquisition = str(acquisition_source_id)
+        observed.setdefault(acquisition, []).append(
+            {
+                "canonical_source_id": str(source_id),
+                "source_route": source_route,
+                "review_route": review_route,
+                "extraction_route": extraction_route,
+                "documents": int(documents),
+            }
+        )
+
+    results: list[dict[str, Any]] = []
+    failures: list[str] = []
+    for source_id in candidates:
+        expected = dict(declared_routes[source_id])
+        rows = observed[source_id]
+        documents = sum(int(row["documents"]) for row in rows)
+        valid = bool(rows) and all(
+            row["canonical_source_id"] == source_id
+            and all(row[field] == expected[field] for field in route_fields)
+            for row in rows
+        )
+        result = {
+            "source_id": source_id,
+            **expected,
+            "normalized_documents": documents,
+            "observed": rows,
+            "status": "passed" if valid else "failed",
+        }
+        results.append(result)
+        if not valid:
+            failures.append(source_id)
+    if failures:
+        raise ValueError(
+            "canonical candidate route provenance drift for "
+            f"{failures}; expected frozen roster declarations for every row"
+        )
+    return {
+        "schema_version": "agent1_v3_canonical_route_coverage_v1",
+        "status": "passed",
+        "candidate_source_ids": candidates,
+        "sources": results,
+    }
+
+
 def validate_global_canonical_inventory(
     paths: list[Path],
     *,
@@ -615,6 +915,7 @@ def validate_global_canonical_inventory(
     memory_limit: str,
     temporary_directory: Path,
     threads: int,
+    candidate_route_declarations: Mapping[str, Mapping[str, str]] | None = None,
 ) -> tuple[dict[str, dict[str, int]], dict[str, Any]]:
     import duckdb
 
@@ -652,6 +953,17 @@ def validate_global_canonical_inventory(
             or receipt.get("canonical_inventory_sha256") != inventory_sha256
         ):
             raise ValueError(f"{receipt_path}: uniqueness resume contract drift")
+        if candidate_route_declarations is not None:
+            route_coverage = receipt.get("candidate_roster_route_coverage")
+            if (
+                not isinstance(route_coverage, dict)
+                or route_coverage.get("schema_version")
+                != "agent1_v3_canonical_route_coverage_v1"
+                or route_coverage.get("status") != "passed"
+            ):
+                raise ValueError(
+                    f"{receipt_path}: missing passed v3 candidate route coverage"
+                )
         result = dict(receipt)
         result["receipt"] = receipt_entry(receipt_path)
         return dict(receipt["work_statistics"]), result
@@ -661,6 +973,7 @@ def validate_global_canonical_inventory(
         + ",".join(duckdb_literal(str(path.resolve())) for path in sorted(paths))
         + "]"
     )
+    candidate_route_coverage: dict[str, Any] | None = None
     connection = duckdb.connect()
     try:
         connection.execute(f"SET memory_limit={duckdb_literal(memory_limit)}")
@@ -696,6 +1009,12 @@ def validate_global_canonical_inventory(
             GROUP BY source_id ORDER BY source_id
             """
         ).fetchall()
+        if candidate_route_declarations is not None:
+            candidate_route_coverage = validate_candidate_canonical_route_coverage(
+                connection,
+                source_relation=source,
+                declared_routes=candidate_route_declarations,
+            )
     finally:
         connection.close()
     work_stats = {
@@ -717,6 +1036,8 @@ def validate_global_canonical_inventory(
         "engine": "duckdb_exact_distinct_spillable",
         "work_statistics": work_stats,
     }
+    if candidate_route_coverage is not None:
+        receipt["candidate_roster_route_coverage"] = candidate_route_coverage
     write_json_atomic(receipt_path, receipt, immutable=True)
     receipt["receipt"] = receipt_entry(receipt_path)
     return work_stats, receipt
@@ -726,9 +1047,14 @@ def build_contract(
     args: argparse.Namespace,
     artifacts: list[SourceArtifact],
     embedded_structural_routes: list[dict[str, Any]],
+    candidate_roster: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], str]:
     value = {
-        "schema_version": "full_cpt_normalization_contract_v2",
+        "schema_version": (
+            "full_cpt_normalization_contract_v3"
+            if candidate_roster is not None
+            else "full_cpt_normalization_contract_v2"
+        ),
         "sources_config_sha256": sha256_file(args.sources),
         "lineage_aliases_sha256": sha256_file(args.lineage_aliases),
         "acquisition_receipt_sha256": sha256_file(args.acquisition_receipt),
@@ -748,6 +1074,22 @@ def build_contract(
             for artifact in artifacts
         ],
     }
+    if candidate_roster is not None:
+        value["candidate_roster"] = {
+            key: candidate_roster[key]
+            for key in (
+                "path",
+                "bytes",
+                "sha256",
+                "schema_version",
+                "base_source_id",
+                "candidate_source_ids",
+                "review_routes",
+                "source_routes",
+                "extraction_routes",
+                "route_declarations",
+            )
+        }
     return value, sha256_text(canonical_json(value))
 
 
@@ -940,6 +1282,14 @@ def main() -> int:
         default=here / "configs" / "source_lineage_aliases.json",
     )
     parser.add_argument("--acquisition-receipt", type=Path, required=True)
+    parser.add_argument(
+        "--candidate-roster",
+        type=Path,
+        help=(
+            "immutable Agent 1 v3 roster; binds canonical source/review/extraction "
+            "routes and requires exact base/candidate source coverage"
+        ),
+    )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--source", action="append")
@@ -982,9 +1332,23 @@ def main() -> int:
             f"refusing to overwrite immutable manifest: {args.manifest}"
         )
     selected = set(args.source or []) or None
-    artifacts = artifacts_from_receipt(args.sources, args.acquisition_receipt, selected)
-    lineage_aliases = load_json(args.lineage_aliases)
     source_registry = load_json(args.sources)
+    candidate_roster = (
+        load_v3_candidate_roster(args.candidate_roster)
+        if args.candidate_roster is not None
+        else None
+    )
+    artifacts = artifacts_from_receipt(args.sources, args.acquisition_receipt, selected)
+    candidate_roster_source_coverage = (
+        validate_v3_candidate_roster_source_coverage(
+            roster_binding=candidate_roster,
+            source_registry=source_registry,
+            artifacts=artifacts,
+        )
+        if candidate_roster is not None
+        else None
+    )
+    lineage_aliases = load_json(args.lineage_aliases)
     base_families = base_family_map(source_registry, lineage_aliases)
     args.output.mkdir(parents=True, exist_ok=True)
     temporary_root = (
@@ -997,7 +1361,10 @@ def main() -> int:
         dict(route) for route in source_registry.get("embedded_structural_routes", [])
     ]
     contract, contract_sha256 = build_contract(
-        args, artifacts, embedded_structural_routes
+        args,
+        artifacts,
+        embedded_structural_routes,
+        candidate_roster=candidate_roster,
     )
     contract_path = args.output / ".receipts" / "normalization_contract.json"
     if contract_path.exists():
@@ -1014,6 +1381,11 @@ def main() -> int:
         "lineage_aliases": lineage_aliases,
         "base_families": base_families,
         "embedded_structural_routes": embedded_structural_routes,
+        "declared_routes": (
+            candidate_roster["route_declarations"]
+            if candidate_roster is not None
+            else None
+        ),
         "max_documents": args.max_rows_per_source,
         "progress_every": args.progress_every,
     }
@@ -1071,6 +1443,11 @@ def main() -> int:
         memory_limit=args.duckdb_memory_limit,
         temporary_directory=temporary_root / "duckdb",
         threads=args.duckdb_threads,
+        candidate_route_declarations=(
+            candidate_roster["route_declarations"]
+            if candidate_roster is not None
+            else None
+        ),
     )
 
     summaries: list[dict[str, Any]] = []
@@ -1104,6 +1481,17 @@ def main() -> int:
             "files": [receipt["receipt"] for receipt in receipts],
             "shards": sorted(shards, key=lambda row: row["path"]),
         }
+        if candidate_roster is not None:
+            source_payload.update(
+                candidate_roster["route_declarations"].get(
+                    artifact.source_id,
+                    {
+                        "source_route": None,
+                        "review_route": None,
+                        "extraction_route": None,
+                    },
+                )
+            )
         receipt_path = source_receipt_path(args.output, artifact.source_id)
         if receipt_path.exists():
             if read_json(receipt_path) != source_payload:
@@ -1124,7 +1512,7 @@ def main() -> int:
         bounded_smoke=bool(args.max_rows_per_source),
     )
 
-    payload = {
+    payload: dict[str, Any] = {
         "schema_version": NORMALIZATION_MANIFEST_SCHEMA,
         "contract": receipt_entry(contract_path),
         "contract_sha256": contract_sha256,
@@ -1144,6 +1532,30 @@ def main() -> int:
             row["counts"].get("documents_emitted", 0) for row in summaries
         ),
     }
+    if candidate_roster is not None:
+        payload.update(
+            {
+                "candidate_roster": {
+                    key: candidate_roster[key]
+                    for key in (
+                        "path",
+                        "bytes",
+                        "sha256",
+                        "schema_version",
+                        "base_source_id",
+                        "candidate_source_ids",
+                        "review_routes",
+                        "source_routes",
+                        "extraction_routes",
+                        "route_declarations",
+                    )
+                },
+                "candidate_roster_source_coverage": candidate_roster_source_coverage,
+                "candidate_roster_canonical_route_coverage": uniqueness[
+                    "candidate_roster_route_coverage"
+                ],
+            }
+        )
     write_json_atomic(args.manifest, payload, immutable=True)
     print(f"wrote {args.manifest}")
     return 0
