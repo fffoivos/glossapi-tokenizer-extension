@@ -60,6 +60,7 @@ cd "$EVAL_DIR"
     --model "$C2_MODEL" \
     --expected-model-sha256 "$C2_SHA256" \
     --expected-deletion-bias "$C2_BIAS" \
+    --workers 8 \
     --predictions-out "$STAGING/c2.predictions.jsonl" \
     --receipt-out "$STAGING/c2.prediction.receipt.json"
 

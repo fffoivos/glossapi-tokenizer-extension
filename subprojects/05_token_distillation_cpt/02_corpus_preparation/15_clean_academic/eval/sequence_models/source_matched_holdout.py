@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+import concurrent.futures
 import hashlib
 import heapq
 import json
@@ -205,7 +206,7 @@ def bottom_k_word_shingles(
     *,
     k: int = 256,
     ngram: int = 5,
-    maximum_tokens: int = 50000,
+    maximum_tokens: int = 12000,
 ) -> frozenset[int]:
     """Return a deterministic bounded sketch of document word shingles."""
 
@@ -568,7 +569,7 @@ def build_holdout(
         "near_duplicate": {
             "method": "bottom_k_word_5gram_v1",
             "sketch_size": 256,
-            "maximum_tokens": 50000,
+            "maximum_tokens": 12000,
             "threshold": near_duplicate_threshold,
             "same_source_only": True,
         },
@@ -648,6 +649,50 @@ def _spans(lines: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
     return spans
 
 
+_WORKER_MODEL: LinearChainCRF | None = None
+_WORKER_ENCODER: FeatureEncoder | None = None
+_WORKER_DELETION_BIAS: float | None = None
+
+
+def _initialize_prediction_worker(model_path: str, deletion_bias: float) -> None:
+    global _WORKER_MODEL, _WORKER_ENCODER, _WORKER_DELETION_BIAS
+    model, metadata = LinearChainCRF.load(model_path)
+    if metadata.get("architecture_id") != "c2-char-ngram-feature-bioes-crf":
+        raise ValueError("prediction worker received a non-C2 model")
+    if float(metadata.get("deletion_bias", -1)) != deletion_bias:
+        raise ValueError("prediction worker deletion bias differs")
+    char_hash = metadata.get("feature_encoder", {}).get("char_hash", {})
+    _WORKER_MODEL = model
+    _WORKER_ENCODER = FeatureEncoder(
+        char_hash_dim=int(char_hash.get("dimension", 0)),
+        char_ngram_min=int(char_hash.get("minimum_n", 2)),
+        char_ngram_max=int(char_hash.get("maximum_n", 5)),
+    )
+    _WORKER_DELETION_BIAS = deletion_bias
+
+
+def _predict_document_row(row: Mapping[str, Any]) -> dict[str, Any]:
+    if _WORKER_MODEL is None or _WORKER_ENCODER is None or _WORKER_DELETION_BIAS is None:
+        raise RuntimeError("prediction worker is not initialized")
+    document = _document_adapter(row)
+    features = _WORKER_ENCODER.encode_document(document)
+    tags = _WORKER_MODEL.viterbi(features, deletion_bias=_WORKER_DELETION_BIAS)
+    classes = bioes_to_classes([TAGS[int(tag)] for tag in tags])
+    line_rows = [
+        {"line_id": line.line_id, "abs_idx": line.abs_idx, "prediction": label}
+        for line, label in zip(document.lines, classes)
+    ]
+    return {
+        "schema_version": PREDICTION_SCHEMA,
+        "model_id": "c2-char-ngram-feature-bioes-crf",
+        "document_id": document.document_id,
+        "work_id": document.work_id,
+        "source": document.source,
+        "lines": line_rows,
+        "spans": _spans(line_rows),
+    }
+
+
 def predict_holdout(
     *,
     documents: str | Path,
@@ -655,6 +700,7 @@ def predict_holdout(
     model_path: str | Path,
     expected_model_sha256: str,
     expected_deletion_bias: float,
+    workers: int,
     predictions_out: str | Path,
     receipt_out: str | Path,
 ) -> dict[str, Any]:
@@ -673,41 +719,24 @@ def predict_holdout(
     deletion_bias = float(metadata.get("deletion_bias", -1))
     if deletion_bias != expected_deletion_bias:
         raise ValueError("C2 deletion bias differs from the frozen operating point")
-    feature_metadata = metadata.get("feature_encoder", {}).get("char_hash", {})
-    encoder = FeatureEncoder(
-        char_hash_dim=int(feature_metadata.get("dimension", 0)),
-        char_ngram_min=int(feature_metadata.get("minimum_n", 2)),
-        char_ngram_max=int(feature_metadata.get("maximum_n", 5)),
-    )
-    output_rows: list[dict[str, Any]] = []
+    if not 1 <= workers <= 16:
+        raise ValueError("prediction workers must be between 1 and 16")
+    document_rows = _read_holdout(documents)
+    if workers == 1:
+        _initialize_prediction_worker(str(Path(model_path).resolve()), deletion_bias)
+        output_rows = [_predict_document_row(row) for row in document_rows]
+    else:
+        with concurrent.futures.ProcessPoolExecutor(
+            max_workers=workers,
+            initializer=_initialize_prediction_worker,
+            initargs=(str(Path(model_path).resolve()), deletion_bias),
+        ) as executor:
+            output_rows = list(executor.map(_predict_document_row, document_rows, chunksize=1))
     source_counts: collections.Counter[str] = collections.Counter()
     label_counts: collections.Counter[str] = collections.Counter()
-    for row in _read_holdout(documents):
-        document = _document_adapter(row)
-        features = encoder.encode_document(document)
-        tags = model.viterbi(features, deletion_bias=deletion_bias)
-        classes = bioes_to_classes([TAGS[int(tag)] for tag in tags])
-        line_rows = [
-            {
-                "line_id": line.line_id,
-                "abs_idx": line.abs_idx,
-                "prediction": label,
-            }
-            for line, label in zip(document.lines, classes)
-        ]
-        source_counts[document.source] += 1
-        label_counts.update(classes)
-        output_rows.append(
-            {
-                "schema_version": PREDICTION_SCHEMA,
-                "model_id": metadata["architecture_id"],
-                "document_id": document.document_id,
-                "work_id": document.work_id,
-                "source": document.source,
-                "lines": line_rows,
-                "spans": _spans(line_rows),
-            }
-        )
+    for row in output_rows:
+        source_counts[str(row["source"])] += 1
+        label_counts.update(str(line["prediction"]) for line in row["lines"])
     _write_jsonl_new(predictions_out, output_rows)
     receipt = {
         "schema_version": PREDICTION_RECEIPT_SCHEMA,
@@ -739,6 +768,7 @@ def predict_holdout(
             "model_fitting_performed": False,
             "threshold_tuning_performed": False,
             "corpus_mutation_performed": False,
+            "workers": workers,
         },
     }
     _write_json_new(receipt_out, receipt)
@@ -1066,6 +1096,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     predict.add_argument("--model", required=True)
     predict.add_argument("--expected-model-sha256", required=True)
     predict.add_argument("--expected-deletion-bias", type=float, required=True)
+    predict.add_argument("--workers", type=int, default=8)
     predict.add_argument("--predictions-out", required=True)
     predict.add_argument("--receipt-out", required=True)
 
@@ -1108,6 +1139,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             model_path=args.model,
             expected_model_sha256=args.expected_model_sha256,
             expected_deletion_bias=args.expected_deletion_bias,
+            workers=args.workers,
             predictions_out=args.predictions_out,
             receipt_out=args.receipt_out,
         )
