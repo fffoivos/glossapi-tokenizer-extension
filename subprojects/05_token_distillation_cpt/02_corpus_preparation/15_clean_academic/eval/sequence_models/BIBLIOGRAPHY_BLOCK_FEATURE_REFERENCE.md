@@ -158,16 +158,31 @@ excluded by the independent text-quality review.
 - **Non-overlap:** This measures internal continuity, not total size, positive
   evidence, or any citation token.
 
-### Exact header before
+### Exact header at or before the component start
 
-- **Question:** Is an exact multilingual bibliography heading within the two
-  physical lines immediately before the component?
+- **Question:** Is an exact multilingual bibliography heading on the first
+  component line or within the two physical lines immediately before it?
 - **Representation:** One binary value.
 - **Expected direction:** Positive.
 - **Safety rule:** It is supporting evidence in a multifeature component model;
   H0 still cannot create a deletion without an entry-line proposal.
 - **Non-overlap:** This is section structure and uses no author, date,
   identifier, publication-coordinate, or page detector.
+
+### Component supervision purity
+
+- **Question:** Is accepting this particular candidate mostly a correct BIB
+  removal, regardless of how large the complete gold block is?
+- **Positive:** At least 80% of the candidate's lines are silver BIB.
+- **Negative:** At most 20% are silver BIB.
+- **Masked:** Mixed 20%–80% boundary candidates are scored during OOF decoding
+  but are not forced into either fitting class.
+- **Reason:** Span IoU was the wrong target.  A 20-line component entirely
+  inside a 200-line bibliography has low IoU with the whole block, despite
+  every proposed removal line being correct.  Purity directly represents the
+  component acceptance decision.
+- **Not a feature:** Gold purity is training supervision only and is never
+  available to the fitted classifier.
 
 ### Proposal thresholds and model threshold
 

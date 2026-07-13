@@ -7,6 +7,7 @@ from sequence_models.bibliography_entry_component_gate import (
     FEATURE_NAMES,
     _longest_true_run,
     _span_iou,
+    candidate_supervision,
     component_feature_vector,
 )
 
@@ -40,7 +41,7 @@ def test_component_features_have_one_value_per_documented_job() -> None:
     assert values[4] == 1.0
 
 
-def test_component_header_must_be_immediately_before() -> None:
+def test_component_header_must_be_at_or_immediately_before_start() -> None:
     values = component_feature_vector(
         np.asarray([0.1, 0.1, 0.8, 0.8]),
         np.asarray([20, 20, 80, 80]),
@@ -52,7 +53,31 @@ def test_component_header_must_be_immediately_before() -> None:
     )
     assert values[4] == 0.0
 
+    header_at_start = component_feature_vector(
+        np.asarray([0.1, 0.1, 0.8, 0.8]),
+        np.asarray([20, 20, 80, 80]),
+        np.asarray([0, 0, 1, 0]),
+        np.asarray([0, 9, 10, 11]),
+        2,
+        3,
+        CONFIG,
+    )
+    assert header_at_start[4] == 1.0
+
 
 def test_longest_weak_run_and_iou_are_exact() -> None:
     assert _longest_true_run(np.asarray([True, True, False, True])) == 2
     assert np.isclose(_span_iou((2, 5), (4, 7)), 1 / 3)
+
+
+def test_candidate_supervision_uses_purity_not_whole_block_iou() -> None:
+    assert candidate_supervision(np.ones(10, dtype=bool)) == 1
+    assert candidate_supervision(
+        np.asarray([True] * 8 + [False] * 2)
+    ) == 1
+    assert candidate_supervision(
+        np.asarray([True] * 2 + [False] * 8)
+    ) == 0
+    assert candidate_supervision(
+        np.asarray([True] * 5 + [False] * 5)
+    ) == -1

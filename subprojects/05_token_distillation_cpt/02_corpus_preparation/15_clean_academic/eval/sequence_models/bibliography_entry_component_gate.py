@@ -41,10 +41,12 @@ FEATURE_NAMES = (
     "log1p_strong_anchor_count",
     "median_entry_probability",
     "longest_weak_run_fraction",
-    "exact_header_before",
+    "exact_header_at_or_before_start",
 )
 EXPECTED_DIRECTIONS = (1, 1, 1, -1, 1)
 MODEL_ARMS = ("logistic_l2", "monotonic_hgb")
+POSITIVE_PURITY = 0.80
+NEGATIVE_PURITY = 0.20
 
 
 @dataclass(frozen=True)
@@ -91,6 +93,24 @@ def _longest_true_run(values: np.ndarray) -> int:
     return longest
 
 
+def candidate_supervision(gold_lines: np.ndarray) -> int:
+    """Label pure candidates and mask mixed boundary candidates.
+
+    A candidate wholly inside one long bibliography block is useful even when
+    its span IoU with that entire block is small. Candidate purity expresses
+    the actual removal decision: how much of this proposed component is BIB.
+    """
+
+    if not len(gold_lines):
+        raise ValueError("candidate supervision needs at least one line")
+    purity = float(np.mean(np.asarray(gold_lines, dtype=bool)))
+    if purity >= POSITIVE_PURITY:
+        return 1
+    if purity <= NEGATIVE_PURITY:
+        return 0
+    return -1
+
+
 def component_feature_vector(
     probability: np.ndarray,
     char_lengths: np.ndarray,
@@ -110,11 +130,13 @@ def component_feature_vector(
         lengths <= config.seed_length_limit
     )
     weak = values < config.inside_probability
-    header_before = any(
+    header_at_or_before = any(
         int(header_kinds[index]) > 0
-        and 0 < int(abs_indices[start]) - int(abs_indices[index])
+        and 0 <= int(abs_indices[start]) - int(abs_indices[index])
         <= config.header_window
-        for index in range(max(0, start - config.header_window), start)
+        for index in range(
+            max(0, start - config.header_window), start + 1
+        )
     )
     return np.asarray(
         (
@@ -122,7 +144,7 @@ def component_feature_vector(
             np.log1p(np.count_nonzero(strong)),
             np.median(values),
             _longest_true_run(weak) / len(values),
-            float(header_before),
+            float(header_at_or_before),
         ),
         dtype=np.float32,
     )
@@ -280,9 +302,7 @@ def generate_candidates(
                     table.abs_indices[doc_start:doc_end],
                 )
             )
-        gold_spans = blocks_from_mask(
-            gold_all[doc_start:doc_end], table.abs_indices[doc_start:doc_end]
-        )
+        local_gold = gold_all[doc_start:doc_end]
         for start, end in sorted(spans):
             features.append(
                 component_feature_vector(
@@ -298,14 +318,7 @@ def generate_candidates(
             document_indices.append(document_index)
             starts.append(start)
             ends.append(end)
-            labels.append(
-                int(
-                    any(
-                        _span_iou((start, end), gold_span) >= 0.5
-                        for gold_span in gold_spans
-                    )
-                )
-            )
+            labels.append(candidate_supervision(local_gold[start : end + 1]))
     if not features:
         raise ValueError(f"no component proposals for {variant}")
     return CandidateSet(
@@ -313,7 +326,7 @@ def generate_candidates(
         document_indices=np.asarray(document_indices, dtype=np.uint32),
         starts=np.asarray(starts, dtype=np.uint32),
         ends=np.asarray(ends, dtype=np.uint32),
-        labels=np.asarray(labels, dtype=np.uint8),
+        labels=np.asarray(labels, dtype=np.int8),
     )
 
 
@@ -358,13 +371,14 @@ def _crossfit_scores(
         [int(document["fold"]) for document in table.documents]
     )
     candidate_folds = document_folds[candidates.document_indices]
+    labelled = candidates.labels >= 0
     scores = np.full(len(candidates.labels), np.nan, dtype=np.float32)
     models: list[Any] = []
     fold_rows: list[dict[str, Any]] = []
     direction_ok = True
     for fold in range(int(table.manifest["n_folds"])):
         holdout = candidate_folds == fold
-        fit = ~holdout
+        fit = (candidate_folds != fold) & labelled
         model = _make_model(arm, seed + fold)
         model.fit(candidates.features[fit], candidates.labels[fit])
         scores[holdout] = model.predict_proba(
@@ -389,6 +403,9 @@ def _crossfit_scores(
                 "fold": fold,
                 "fit_candidate_count": int(np.count_nonzero(fit)),
                 "holdout_candidate_count": int(np.count_nonzero(holdout)),
+                "masked_fit_candidate_count": int(
+                    np.count_nonzero((candidate_folds != fold) & ~labelled)
+                ),
                 "coefficient_standardized": coefficient,
                 "direction_contract_satisfied": fold_direction_ok,
             }
@@ -654,7 +671,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "log1p_strong_anchor_count": "Repeated support: count normal-length lines with frozen entry probability at least 0.70.",
             "median_entry_probability": "Typical evidence: measure how bibliography-like the middle line score is, not the strongest outlier.",
             "longest_weak_run_fraction": "Internal contradiction: measure the longest uninterrupted prose-like hole as a fraction of the component.",
-            "exact_header_before": "Independent structure: record an exact multilingual bibliography heading immediately before the component.",
+            "exact_header_at_or_before_start": "Independent structure: record an exact multilingual bibliography heading on the first component line or immediately before it.",
         },
         "proposal": {
             "variants": list(args.variants),
@@ -664,8 +681,21 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 for variant, candidates in candidate_sets.items()
             },
             "positive_candidate_counts": {
-                variant: int(np.count_nonzero(candidates.labels))
+                variant: int(np.count_nonzero(candidates.labels == 1))
                 for variant, candidates in candidate_sets.items()
+            },
+            "negative_candidate_counts": {
+                variant: int(np.count_nonzero(candidates.labels == 0))
+                for variant, candidates in candidate_sets.items()
+            },
+            "masked_boundary_candidate_counts": {
+                variant: int(np.count_nonzero(candidates.labels < 0))
+                for variant, candidates in candidate_sets.items()
+            },
+            "candidate_supervision": {
+                "positive": "at least 80% of candidate lines are silver BIB",
+                "negative": "at most 20% of candidate lines are silver BIB",
+                "masked": "mixed 20%-80% boundary candidates are scored but not used for fitting"
             },
             "recall_ceilings": {
                 variant: _proposal_ceiling(
