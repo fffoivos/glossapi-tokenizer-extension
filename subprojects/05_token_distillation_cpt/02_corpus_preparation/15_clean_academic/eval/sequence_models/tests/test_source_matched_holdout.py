@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import re
+import shutil
+import subprocess
 
 import pytest
 
@@ -96,3 +99,10 @@ def test_review_site_joins_private_key_and_codex_response(tmp_path) -> None:
     assert "C2, Codex and the selection stratum stay hidden" in page
     assert "Save your own judgment before revealing the comparisons" in page
     assert "span?.start_abs_idx" not in page
+    node = shutil.which("node")
+    if node:
+        script = re.search(r"<script>(.*)</script>", page, re.DOTALL)
+        assert script is not None
+        script_path = tmp_path / "review-site.js"
+        script_path.write_text(script.group(1))
+        subprocess.run([node, "--check", script_path], check=True)
