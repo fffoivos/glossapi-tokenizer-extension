@@ -96,7 +96,10 @@ agent1_v3_require_clean_commit() {
 }
 
 agent1_v3_require_runtime() {
-    [[ -x "$AGENT1_V3_RUNTIME_VENV/bin/python" ]] || {
+    # A uenv-created venv deliberately links `bin/python` to the interpreter
+    # inside the container image.  From the host that link can look broken;
+    # validate it in uenv below instead of rejecting a valid container venv.
+    [[ -L "$AGENT1_V3_RUNTIME_VENV/bin/python" || -x "$AGENT1_V3_RUNTIME_VENV/bin/python" ]] || {
         echo "ERROR: v3 runtime is missing: $AGENT1_V3_RUNTIME_VENV" >&2
         return 6
     }
