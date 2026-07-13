@@ -67,6 +67,14 @@ ARTIFACT_TYPES = frozenset(
         "other",
     }
 )
+RESPONSE_IDENTITY_FIELDS = (
+    "request_id",
+    "source_id",
+    "source_doc_id",
+    "document_path",
+    "document_sha256",
+    "prompt_sha256",
+)
 
 
 def canonical_json(value: object) -> str:
@@ -161,6 +169,29 @@ def render_prompt(template: str, request: Mapping[str, object]) -> str:
     if "{{" in result or "}}" in result:
         raise ValueError("unresolved placeholder in Terra prompt template")
     return result
+
+
+def execution_response_schema_bytes(response_schema: Path, request: Mapping[str, object]) -> bytes:
+    """Specialize the frozen schema with this request's immutable identity.
+
+    The frozen response schema supplies the common response contract.  Codex
+    Structured Outputs must also be told the *particular* long identifiers to
+    return: their type/pattern alone does not reveal the expected value.  The
+    specialization only strengthens those six string properties with constants
+    already contained in the immutable review request; all response validation
+    remains against the original request afterwards.
+    """
+
+    schema = read_json_object(response_schema)
+    properties = schema.get("properties")
+    if not isinstance(properties, dict):
+        raise ValueError("response schema lacks properties")
+    for field in RESPONSE_IDENTITY_FIELDS:
+        value = request.get(field)
+        if not isinstance(value, str) or not value:
+            raise ValueError(f"request lacks immutable {field}")
+        properties[field] = {"type": "string", "const": value}
+    return (canonical_json(schema) + "\n").encode("utf-8")
 
 
 def _seatbelt_quote(value: str) -> str:
@@ -378,7 +409,7 @@ def _invoke_request(
         schema_path = root / "response-schema.json"
         prompt_path = root / "prompt.txt"
         _write_no_replace(request_path, (canonical_json(dict(request)) + "\n").encode("utf-8"))
-        _write_no_replace(schema_path, response_schema.read_bytes())
+        _write_no_replace(schema_path, execution_response_schema_bytes(response_schema, request))
         prompt = render_prompt(prompt_template, request)
         _write_no_replace(prompt_path, prompt.encode("utf-8"))
         runtime_tmp = root / "tmp"

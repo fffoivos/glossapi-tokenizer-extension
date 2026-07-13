@@ -40,6 +40,22 @@ def test_response_schema_has_explicit_types_for_const_and_enum() -> None:
         assert all(isinstance(fragment.get("type"), str) for fragment in fragments)
 
 
+def test_execution_schema_binds_each_frozen_request_identity() -> None:
+    request = {
+        "request_id": "1" * 64,
+        "source_id": "diavgeia",
+        "source_doc_id": "doc-1",
+        "document_path": "documents/diavgeia/" + "2" * 64 + ".txt",
+        "document_sha256": "2" * 64,
+        "prompt_sha256": "3" * 64,
+    }
+
+    specialized = json.loads(RUNNER.execution_response_schema_bytes(RESPONSE_SCHEMA, request))
+    properties = specialized["properties"]
+    for field, value in request.items():
+        assert properties[field] == {"type": "string", "const": value}
+
+
 def load_module():
     spec = importlib.util.spec_from_file_location("agent1_v4_raw_review_test", SCRIPT)
     assert spec is not None and spec.loader is not None
