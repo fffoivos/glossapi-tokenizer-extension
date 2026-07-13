@@ -25,5 +25,10 @@ python3 -m sequence_models.bibliography_feature_explorer \
   --receipt /new/output/build.receipt.json
 ```
 
+The tracked Clariden wrapper is
+`clariden/build_bibliography_feature_explorer.sbatch`. It binds a clean commit,
+hides accelerators, refuses to replace an existing output, and verifies the
+expected 7/7/6 source split before publishing the site path.
+
 Serve the resulting directory locally with any static HTTP server. The page is
 self-contained and requires no backend or external assets.
