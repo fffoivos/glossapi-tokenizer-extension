@@ -971,6 +971,7 @@ def build_review_packet(
                     "work_id": document["work_id"],
                     "source": document["source"],
                     "source_doc_id": document["source_doc_id"],
+                    "n_physical_lines": document["n_physical_lines"],
                     "line_id": target["line_id"],
                     "abs_idx": target["abs_idx"],
                     "candidate_prediction": candidate_label,

@@ -67,6 +67,7 @@ def test_review_site_joins_private_key_and_codex_response(tmp_path) -> None:
         "document_id": "doc",
         "source_doc_id": "paper_A_9999",
         "work_id": "paper_A_9999",
+        "n_physical_lines": 10,
         "stratum": "bib_high_risk",
         "candidate_prediction": "BIB",
         "candidate_spans": [],
@@ -96,14 +97,16 @@ def test_review_site_joins_private_key_and_codex_response(tmp_path) -> None:
     page = output.read_text()
     assert "paper_A_9999" in page
     assert "ToC &amp; bibliography holdout review" in page
-    assert "C2, Codex and the selection stratum stay hidden" in page
-    assert "Save your own judgment before revealing the comparisons" in page
-    assert "Save &amp; reveal" in page
-    assert "context.scrollTop=Math.max" in page
-    assert "Review choices" in page
-    assert 'data-open-case="${c.request_id}"' in page
-    assert "const machine=r?showLabel(c.model_prediction):'hidden'" in page
-    assert "span?.start_abs_idx" not in page
+    assert "One highlighted target line per case" in page
+    assert "ArrowLeft:'O'" in page
+    assert "ArrowUp:'TOC'" in page
+    assert "ArrowDown:'BIB'" in page
+    assert "ArrowRight:'UNKNOWN'" in page
+    assert "ALL 3 AGREE" in page
+    assert "C2 + CODEX AGREE" in page
+    assert "Resume undecided" in page
+    assert "position unavailable" in page
+    assert "legacy_packet_sha256" in page
     node = shutil.which("node")
     if node:
         script = re.search(r"<script>(.*)</script>", page, re.DOTALL)
