@@ -12,16 +12,17 @@ one opaque citation flag:
 - person-name shapes: Unicode Latin Extended, Cyrillic, and monotonic/polytonic
   Greek initials, initial sequences, inverted and direct-order author forms,
   surname particles, and title-cased name-word counts;
-- publication dates: years, `n.d.` / `χ.χ.`, numeric dates, month dates, and
-  access-date vocabulary;
+- publication dates: years, `n.d.` / `χ.χ.`, numeric dates, day-first and
+  month-first named dates, and access-date vocabulary;
 - identifiers: URLs, DOI, ISBN, and ISSN are independent fields;
 - citation typography: ampersands, quoted spans, numbered entries, dotted
   words, and dotted-word sequences;
 - container/publication terms: editor, translator, thesis/dissertation,
   citation-container `in`, edition, publisher, and place-publisher forms in
   English and Greek;
-- journal coordinates: volume/issue markers, year-volume sequences, dotted or
-  undotted page markers, volume/article-page coordinates, and bare page ranges.
+- journal coordinates: volume/issue/supplement labels with their numeric
+  values, year-volume sequences, dotted or undotted page markers,
+  volume/article-page coordinates, and bare page ranges.
 
 The Unicode character classes are generated from general categories rather
 than a hand-maintained list of accented letters. The covered blocks include

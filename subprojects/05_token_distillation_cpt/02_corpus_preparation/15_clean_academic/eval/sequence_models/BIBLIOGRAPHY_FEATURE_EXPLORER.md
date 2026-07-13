@@ -54,9 +54,36 @@ expected 7/7/6 source split before publishing the site path.
 Serve the resulting directory locally with any static HTTP server. The page is
 self-contained and requires no backend or external assets.
 
-## Current multilingual-format v5 build
+## Current publication-coordinate v6 build
 
-The current presentation keeps the complete 14,815-line inventory in every
+The v6 build fixes ownership of publication coordinates and a page-range
+regression identified during line review:
+
+- document `79da821b2893...`, line 1197: `vol. 35`, `no. 10`, `pp. `,
+  `2181-2195`, and `2017` now have the expected separate owners. The prior
+  range expression incorrectly rejected a normal comma after the final page;
+- document `cf9352e1db72...`, line 162: `Τόμος 64` and
+  `Συμπλήρωμα : 62` are both complete publication-coordinate matches;
+- labelled volume/issue/supplement matches consume their numeric values and an
+  optional parenthesized issue. The standalone `17(2)` fallback is suppressed
+  when the labelled owner already covers it, preserving perpendicularity;
+- month-first event dates such as `Oct. 1-2, 1990` now belong to the date
+  detector instead of becoming page-range false positives.
+
+The comma correction recovers page ranges on 181 additional lines in this
+packet after the newly recognized month-first dates are excluded. There are
+zero overlaps between volume-marker and standalone-volume spans, and zero
+overlaps between page-marker and page-range spans.
+
+This remains a 35-feature, 14,815-line presentation with descending infinite
+scroll. The current HTML SHA-256 is
+`433efe84ed62d2f5fb01892da0bb06007ad9360d3ff87fca4dda0a5e653f8413`.
+The exact build receipt is archived at
+`results/bibliography_feature_explorer/publication_coordinates_v6_build.receipt.json`.
+
+## Previous multilingual-format v5 build
+
+This presentation keeps the complete 14,815-line inventory in every
 ranking view. It renders the first 100 lines immediately and appends subsequent
 100-line batches as the reviewer scrolls, preserving descending order under the
 selected metric. Changing a detector or ranking metric starts a newly ranked
@@ -85,7 +112,7 @@ The unrequested `author_year_count` composite remains absent. Years and author
 shapes are separate evidence. `article_page_range_count`, displayed as
 “Volume/article page range”, owns both `44:1-44:14` and `34:27-39` forms.
 
-This remains a 35-feature presentation. The current HTML SHA-256 is
+This remains a 35-feature presentation. The v5 HTML SHA-256 is
 `9d052e449b96bfc1bc95649487ba15a2f68e1ab20a4636aab6b236f5cc954c2d`.
 The exact build receipt is archived at
 `results/bibliography_feature_explorer/multilingual_v5_build.receipt.json`. Its

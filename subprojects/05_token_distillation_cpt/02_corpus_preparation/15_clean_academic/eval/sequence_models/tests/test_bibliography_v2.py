@@ -102,6 +102,13 @@ def test_ocr_split_lithuanian_authors_on_document_47416_line_1142() -> None:
 
     assert inverted == ["Č iarnien ė ,  R.", "Vienažindien ė ,  M."]
     assert review.features.inverted_author_count == 2
+    volume = [
+        match.text
+        for match in review.matches
+        if match.feature == "volume_marker_count"
+    ]
+    assert volume == ["Vol. 17 (2)"]
+    assert review.features.volume_shape_count == 0
 
 
 def test_undotted_biomedical_citation_variants_have_specific_owners() -> None:
@@ -143,6 +150,45 @@ def test_undotted_biomedical_citation_variants_have_specific_owners() -> None:
     assert matches(metabolic, "edition_term_count") == ["5 th edn"]
     assert "pp " in matches(metabolic, "page_marker_count")
     assert matches(metabolic, "page_range_count") == ["622-642"]
+
+
+def test_volume_issue_values_and_comma_terminated_pages_are_owned() -> None:
+    text = (
+        "- [5] Z. Ding, X. Lei, G. K. Karagiannidis, R. Schober, J. Yuan, "
+        "and V. K. Bhargava, 'A survey on non-orthogonal multiple access for "
+        "5g networks: Research challenges and future trends,' IEEE Journal on "
+        "Selected Areas in Communications, vol. 35, no. 10, pp. 2181-2195, "
+        "2017."
+    )
+    review = extract_bibliography_feature_review(text)
+
+    def matches(feature: str) -> list[str]:
+        return [
+            match.text for match in review.matches if match.feature == feature
+        ]
+
+    assert matches("volume_marker_count") == ["vol. 35", "no. 10"]
+    assert matches("page_marker_count") == ["pp. "]
+    assert matches("page_range_count") == ["2181-2195"]
+    assert matches("year_count") == ["2017"]
+
+
+def test_greek_volume_and_supplement_values_are_owned() -> None:
+    text = (
+        "8. Ζιωτόπουλος Π ., Φακίρη Ε ., Χαραλαμποπούλου Α ., Χάψα Α ., "
+        "(2002), « Η σύγχρονη κλινικο -εργαστηριακή εικόνα των εκ "
+        "μυκοβακτηριδιώσεων πασχόντων ασθενών », Νοσοκομειακά Χρονικά , "
+        "Τόμος 64, Συμπλήρωμα : 62"
+    )
+    review = extract_bibliography_feature_review(text)
+    coordinates = [
+        match.text
+        for match in review.matches
+        if match.feature == "volume_marker_count"
+    ]
+
+    assert coordinates == ["Τόμος 64", "Συμπλήρωμα : 62"]
+    assert review.features.volume_marker_count == 2
 
 
 def test_direct_author_hypothesis_beats_spurious_inverted_fragments() -> None:
@@ -229,6 +275,16 @@ def test_dates_pages_and_years_do_not_duplicate_numeric_spans() -> None:
     assert year_range.year_count == 2
     assert year_range.page_range_count == 0
     assert year_range.numbered_entry_count == 0
+
+
+def test_month_first_event_date_range_is_not_a_page_range() -> None:
+    features = extract_bibliography_features(
+        "International Symposium, Porto Cervo, Italy, Oct. 1-2, 1990."
+    )
+
+    assert features.month_date_count == 1
+    assert features.page_range_count == 0
+    assert features.year_count == 0
 
 
 def test_article_page_range_owns_the_complete_lipics_coordinate() -> None:

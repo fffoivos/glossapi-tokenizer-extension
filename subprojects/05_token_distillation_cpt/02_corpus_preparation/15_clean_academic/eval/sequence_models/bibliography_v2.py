@@ -110,13 +110,20 @@ _NUMERIC_DATE = re.compile(
     r"(?:0?[1-9]|1[0-2])\s*(?P=date_sep_ymd)\s*(?:0?[1-9]|[12]\d|3[01])"
     r")(?!\d)"
 )
-_MONTH_DATE = re.compile(
-    r"\b(?:0?[1-9]|[12]\d|3[01])(?:\s*[-–—]\s*(?:0?[1-9]|[12]\d|3[01]))?\s+"
+_MONTH_NAME = (
     r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|"
     r"jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?|"
     r"ιαν(?:ουαρίου)?|φεβ(?:ρουαρίου)?|μαρ(?:τίου)?|απρ(?:ιλίου)?|μαΐου|ιουν(?:ίου)?|"
-    r"ιουλ(?:ίου)?|αυγ(?:ούστου)?|σεπ(?:τεμβρίου)?|οκτ(?:ωβρίου)?|νοε(?:μβρίου)?|δεκ(?:εμβρίου)?)"
-    r"\s+(?:1[5-9]\d{2}|20\d{2})\b",
+    r"ιουλ(?:ίου)?|αυγ(?:ούστου)?|σεπ(?:τεμβρίου)?|οκτ(?:ωβρίου)?|νοε(?:μβρίου)?|"
+    r"δεκ(?:εμβρίου)?)"
+)
+_MONTH_DATE = re.compile(
+    rf"\b(?:(?:0?[1-9]|[12]\d|3[01])"
+    rf"(?:\s*[-–—]\s*(?:0?[1-9]|[12]\d|3[01]))?\s+{_MONTH_NAME}\.?\s+"
+    rf"(?:1[5-9]\d{{2}}|20\d{{2}})"
+    rf"|{_MONTH_NAME}\.?\s+(?:0?[1-9]|[12]\d|3[01])"
+    rf"(?:\s*[-–—]\s*(?:0?[1-9]|[12]\d|3[01]))?\s*,?\s*"
+    rf"(?:1[5-9]\d{{2}}|20\d{{2}}))\b",
     re.I,
 )
 _ACCESS_DATE = re.compile(
@@ -199,8 +206,9 @@ _DOTTED_WORD = re.compile(
     rf"(?![{_LETTER_OR_MARK}])"
 )
 _VOLUME_MARKER = re.compile(
-    rf"(?<![{_LETTER_OR_MARK}])(?:vol(?:ume)?|issue|no|number|τόμ(?:ος|ου)?|"
-    rf"τεύχ(?:ος|ους)?|τχ)\s*\.?(?=\s*\d+)",
+    rf"(?<![{_LETTER_OR_MARK}])(?:vol(?:ume)?|issue|no|number|suppl(?:ement)?|"
+    rf"supplement|τόμ(?:ος|ου)?|τεύχ(?:ος|ους)?|τχ|συμπλήρωμα)"
+    rf"\s*\.?\s*:?\s*\d{{1,4}}(?:\s*\(\s*\d{{1,4}}\s*\))?",
     re.I,
 )
 _VOLUME_SHAPE = re.compile(
@@ -218,7 +226,7 @@ _ARTICLE_PAGE_RANGE = re.compile(
 )
 _PAGE_RANGE = re.compile(
     r"(?<![\d,])(?<!\d[,.])(?P<page_start>\d{1,5})\s*[-–—]\s*"
-    r"(?P<page_end>\d{1,5})(?![\d,])(?!\.\d)"
+    r"(?P<page_end>\d{1,5})(?!\d)(?!,\d)(?!\.\d)"
 )
 _PUBLISHER_TERMS = re.compile(
     rf"(?<![{_LETTER_OR_MARK}])(?:press|publisher|publishing|publications?|"
@@ -635,7 +643,8 @@ def _feature_spans(value: str) -> dict[str, list[_Span]]:
         spans["editor_term_count"], spans["edition_term_count"]
     )
     spans["volume_shape_count"] = _without_overlaps(
-        spans["volume_shape_count"], spans["journal_year_volume_count"]
+        spans["volume_shape_count"],
+        spans["journal_year_volume_count"] + spans["volume_marker_count"],
     )
     spans["place_name_count"] = _without_overlaps(
         spans["place_name_count"], spans["place_publisher_shape_count"]

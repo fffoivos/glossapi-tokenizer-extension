@@ -27,7 +27,7 @@ from .bibliography_v2 import (
 )
 
 
-SCHEMA_VERSION = "bibliography-line-feature-explorer-v5"
+SCHEMA_VERSION = "bibliography-line-feature-explorer-v6"
 DEFAULT_SOURCES = ("greek_phd", "kallipos", "openarchives")
 DEFAULT_SEED = "bibliography-feature-explorer-20260713"
 
@@ -66,7 +66,12 @@ FEATURE_SPECS = (
     FeatureSpec("edition_term_count", "Edition term", "Citation structure", "#d07b37"),
     FeatureSpec("dotted_word_count", "Isolated dotted word", "Citation structure", "#a56336"),
     FeatureSpec("dotted_sequence_count", "Dotted-word sequence", "Citation structure", "#bc7848"),
-    FeatureSpec("volume_marker_count", "Volume marker", "Publication details", "#a33c36"),
+    FeatureSpec(
+        "volume_marker_count",
+        "Volume / issue / supplement",
+        "Publication details",
+        "#a33c36",
+    ),
     FeatureSpec("volume_shape_count", "Standalone volume / issue shape", "Publication details", "#b54b43"),
     FeatureSpec("journal_year_volume_count", "Journal–year–volume", "Publication details", "#c25d51"),
     FeatureSpec("page_marker_count", "Page marker", "Publication details", "#8f3532"),
@@ -499,7 +504,7 @@ def run_build(args: argparse.Namespace) -> dict[str, Any]:
     receipt = Path(args.receipt) if args.receipt else output.with_suffix(".receipt.json")
     _exclusive_write(output, build_page(payload))
     receipt_data = {
-        "schema_version": "bibliography-line-feature-explorer-receipt-v5",
+        "schema_version": "bibliography-line-feature-explorer-receipt-v6",
         "status": "passed",
         "payload_sha256": payload["payload_sha256"],
         "input": {
