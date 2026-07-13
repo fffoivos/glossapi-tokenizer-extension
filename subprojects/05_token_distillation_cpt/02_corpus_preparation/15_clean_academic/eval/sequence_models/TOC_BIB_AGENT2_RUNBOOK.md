@@ -44,6 +44,38 @@ input with `row_uid`, `original_sha256`, and `original_chars`.
 
 ## Validation sequence
 
+### 0. Source-matched unseen-work holdout
+
+The independent holdout is drawn from the same canonical representations used
+to reconstruct STRUCT-2K, but from different works:
+
+- Nanochat `source_dataset=greek_phd`;
+- `kallipos_sections`, grouped to one full book per historical filename; and
+- Nanochat `source_dataset=openarchives.gr`.
+
+`source_matched_holdout.py build` requires the complete 2,000-row historical
+manifest (667 Greek PhD, 666 Kallipos, 667 OpenArchives), not the recoverable
+1,392-row training subset. It excludes historical source/work identities before
+reading candidate text, then applies a bounded same-source bottom-k word-shingle
+near-duplicate gate against historical observed text and already selected works.
+The default immutable sample is 150 Greek PhD theses, 150 Kallipos books and
+200 OpenArchives works.
+
+`predict` loads the frozen C2 checkpoint and exact deletion bias, rejects model
+hash drift, and performs inference only. `build-review` creates 200 blinded,
+source-balanced cases: 50 ToC risks, 50 bibliography risks, 50 deterministic/C2
+disagreements and 50 retained hard negatives. Model predictions and selection
+strata are confined to the private key; the Codex request sees only the target
+line and local context.
+
+On Clariden, run the three stages atomically with
+`clariden/run_source_matched_holdout.sbatch`. The job requires an exact clean
+commit, the immutable C2 path/hash, and `CONFIRM_SOURCE_HOLDOUT=1`; it never fits
+a model or mutates corpus data. After Codex review, build the local dual-review
+site with `build_holdout_review_site.py`. The site hides Codex's decision until
+the user reveals it, saves user judgments in browser local storage, and exports
+a packet-hash-bound JSON review.
+
 ### 1. Close the inherited model ladder
 
 Use only the immutable published `run.receipt.json`. Staging files and log
