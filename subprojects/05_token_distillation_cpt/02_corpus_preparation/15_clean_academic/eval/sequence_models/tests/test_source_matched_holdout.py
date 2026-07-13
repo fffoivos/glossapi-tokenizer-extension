@@ -98,6 +98,8 @@ def test_review_site_joins_private_key_and_codex_response(tmp_path) -> None:
     assert "ToC &amp; bibliography holdout review" in page
     assert "C2, Codex and the selection stratum stay hidden" in page
     assert "Save your own judgment before revealing the comparisons" in page
+    assert "Save &amp; reveal" in page
+    assert "context.scrollTop=Math.max" in page
     assert "span?.start_abs_idx" not in page
     node = shutil.which("node")
     if node:
