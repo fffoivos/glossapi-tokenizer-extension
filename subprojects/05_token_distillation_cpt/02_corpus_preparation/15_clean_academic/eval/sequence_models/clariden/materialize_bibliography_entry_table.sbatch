@@ -27,9 +27,8 @@ UENV=${UENV:-pytorch/v2.9.1:v2}
 export CUDA_VISIBLE_DEVICES="" NVIDIA_VISIBLE_DEVICES=void
 export ROCR_VISIBLE_DEVICES="" HIP_VISIBLE_DEVICES=""
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONHASHSEED=0
-export PYTHONPATH="$CODE_ROOT"
-
-uenv run "$UENV" --view=default -- python3 -m sequence_models.bibliography_entry_dataset \
+uenv run "$UENV" --view=default -- \
+  env PYTHONPATH="$CODE_ROOT" python3 -m sequence_models.bibliography_entry_dataset \
   --input "$INPUT" \
   --output-dir "$OUTPUT_DIR" \
   --split train \

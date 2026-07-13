@@ -30,9 +30,8 @@ UENV=${UENV:-pytorch/v2.9.1:v2}
 export CUDA_VISIBLE_DEVICES="" NVIDIA_VISIBLE_DEVICES=void
 export ROCR_VISIBLE_DEVICES="" HIP_VISIBLE_DEVICES=""
 export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8 OPENBLAS_NUM_THREADS=8 PYTHONHASHSEED=0
-export PYTHONPATH="$PY_DEPS:$CODE_ROOT"
-
-uenv run "$UENV" --view=default -- python3 -m sequence_models.bibliography_entry_blocks \
+uenv run "$UENV" --view=default -- \
+  env PYTHONPATH="$PY_DEPS:$CODE_ROOT" python3 -m sequence_models.bibliography_entry_blocks \
   --table-dir "$TABLE_DIR" \
   --line-oof-dir "$LINE_OOF_DIR" \
   --output-dir "$OUTPUT_DIR" \
