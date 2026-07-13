@@ -193,6 +193,8 @@ def seatbelt_profile(call_root: Path, codex_bin: Path, codex_home: Path) -> str:
             "(allow file-read* (literal \"/\"))",
             f"(allow file-read* (subpath {_seatbelt_quote(root)}))",
             f"(allow file-read* (subpath {_seatbelt_quote(home)}))",
+            # ``codex exec`` loads the machine-level requirements policy.
+            "(allow file-read* (subpath \"/etc\"))",
             # Homebrew exposes the executable through a symlink.  Both the
             # fixed launcher directory and the resolved versioned runtime are
             # executable code, never user document storage; allowing only
@@ -206,6 +208,10 @@ def seatbelt_profile(call_root: Path, codex_bin: Path, codex_home: Path) -> str:
             "(allow file-read* (subpath \"/private/var/db\"))",
             "(allow file-read* (subpath \"/Library\"))",
             f"(allow file-write* (subpath {_seatbelt_quote(root)}))",
+            # This is the authenticated client state, not review data.  Codex
+            # may refresh its own ephemeral/auth bookkeeping here; its model
+            # tools remain read-only and cannot write outside the call root.
+            f"(allow file-write* (subpath {_seatbelt_quote(home)}))",
         ]
     ) + "\n"
 
