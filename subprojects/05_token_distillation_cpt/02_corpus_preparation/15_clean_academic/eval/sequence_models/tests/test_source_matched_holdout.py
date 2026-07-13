@@ -100,6 +100,9 @@ def test_review_site_joins_private_key_and_codex_response(tmp_path) -> None:
     assert "Save your own judgment before revealing the comparisons" in page
     assert "Save &amp; reveal" in page
     assert "context.scrollTop=Math.max" in page
+    assert "Review choices" in page
+    assert 'data-open-case="${c.request_id}"' in page
+    assert "const machine=r?showLabel(c.model_prediction):'hidden'" in page
     assert "span?.start_abs_idx" not in page
     node = shutil.which("node")
     if node:
