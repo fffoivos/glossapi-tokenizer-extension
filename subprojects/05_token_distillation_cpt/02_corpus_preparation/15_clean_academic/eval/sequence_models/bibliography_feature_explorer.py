@@ -19,10 +19,13 @@ from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Any, BinaryIO, Iterable, Mapping, Sequence
 
-from .bibliography_v2 import BibliographyFeatures, extract_bibliography_features
+from .bibliography_v2 import (
+    BibliographyFeatures,
+    extract_bibliography_feature_review,
+)
 
 
-SCHEMA_VERSION = "bibliography-line-feature-explorer-v1"
+SCHEMA_VERSION = "bibliography-line-feature-explorer-v2"
 DEFAULT_SOURCES = ("greek_phd", "kallipos", "openarchives")
 DEFAULT_SEED = "bibliography-feature-explorer-20260713"
 
@@ -213,7 +216,8 @@ def build_payload(
             abs_idx = raw_line.get("abs_idx")
             if not isinstance(text, str) or not text.strip() or not isinstance(abs_idx, int):
                 continue
-            extracted = extract_bibliography_features(text)
+            review = extract_bibliography_feature_review(text)
+            extracted = review.features
             raw_features = extracted.as_dict()
             detected = {
                 spec.key: int(raw_features[spec.key])
@@ -223,6 +227,16 @@ def build_payload(
             for key, count in detected.items():
                 feature_stats[key]["line_count"] += 1
                 feature_stats[key]["occurrence_count"] += count
+            match_offsets: dict[str, list[list[int]]] = {}
+            for match in review.matches:
+                match_offsets.setdefault(match.feature, []).append(
+                    [match.start, match.end]
+                )
+            if set(match_offsets) != set(detected):
+                raise RuntimeError(
+                    f"document {document_id}, line {abs_idx}: "
+                    "review matches do not cover the detected feature inventory"
+                )
             line_rows.append(
                 {
                     "ordinal": ordinal,
@@ -230,9 +244,11 @@ def build_payload(
                     "source": source,
                     "abs_idx": abs_idx,
                     "position_percent": round(100 * abs_idx / max(1, n_physical - 1), 2),
-                    "text": text,
+                    "text": review.normalized_text,
+                    "char_length": len(review.normalized_text),
                     "token_count": extracted.token_count,
                     "features": detected,
+                    "matches": match_offsets,
                 }
             )
             ordinal += 1
@@ -282,6 +298,12 @@ def build_payload(
             "weighted_score_used": False,
             "block_decoder_used": False,
             "token_count_scored": False,
+            "review_offsets": "Unicode character offsets into the displayed NFKC text",
+            "diagnostics": [
+                "matched_character_coverage",
+                "matches_per_100_characters",
+                "feature_points_per_100_characters",
+            ],
         },
         "features": features,
         "documents": doc_rows,
@@ -311,31 +333,37 @@ def build_page(payload: Mapping[str, Any]) -> str:
 :root{--ink:#17201c;--muted:#6c756f;--paper:#eee9df;--card:#fffdf8;--line:#d8d1c3;--accent:#294f3e;--shadow:0 14px 38px rgba(38,45,40,.10)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:linear-gradient(145deg,#e9e3d7,#f8f5ed 48%,#e4ece7);color:var(--ink);font:15px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input{font:inherit}
 .top{position:sticky;top:0;z-index:30;background:rgba(249,246,239,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.topin{max-width:1500px;margin:auto;padding:15px 24px}.titleline{display:flex;align-items:end;justify-content:space-between;gap:18px}.titleline h1{font:700 25px/1.1 Georgia,serif;margin:0}.sub{font-size:12px;color:var(--muted)}.headline-score{text-align:right}.headline-score b{display:block;font:700 24px/1 Georgia,serif}.headline-score span{font-size:11px;color:var(--muted)}
-.layout{max-width:1500px;margin:20px auto 80px;padding:0 24px;display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:18px;align-items:start}.feed{display:flex;flex-direction:column;gap:12px}.card{display:grid;grid-template-columns:88px minmax(0,1fr);background:var(--card);border:1px solid #ddd6ca;border-radius:15px;box-shadow:var(--shadow);overflow:hidden;scroll-margin:105px}.scorebox{background:#eee9df;border-right:1px solid var(--line);padding:15px 10px;text-align:center}.rank{font-size:11px;color:var(--muted);font-weight:750}.score{font:700 38px/1 Georgia,serif;margin-top:13px;color:var(--accent)}.scorelabel{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.content{padding:15px 18px 17px}.meta{display:flex;gap:9px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:12px}.meta b{color:#405148}.posbar{width:95px;height:5px;background:#e1ddd3;border-radius:8px;overflow:hidden}.posbar i{display:block;height:100%;background:#527963}.context{margin:11px 0 13px;display:flex;flex-direction:column;gap:3px}.contextline{display:grid;grid-template-columns:57px minmax(0,1fr);gap:10px;padding:6px 10px;border-radius:8px;font:14px/1.4 Georgia,"Times New Roman",serif;overflow-wrap:anywhere;color:#68706b}.contextline .ln{font:10px/1.9 ui-monospace,SFMono-Regular,Menlo,monospace;color:#979187;text-align:right}.contextline.focus{background:#fff0bd;color:var(--ink);box-shadow:inset 4px 0 #b47b19;font-size:17px}.badges{display:flex;gap:6px;flex-wrap:wrap}.badge{padding:5px 8px;border-radius:7px;color:white;font-size:11px;font-weight:750;box-shadow:inset 0 -1px rgba(0,0,0,.14)}.badge small{opacity:.78;font-size:9px}.empty{font-size:12px;color:var(--muted);font-style:italic}
-.filters{position:sticky;top:105px;background:rgba(255,253,248,.97);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;max-height:calc(100vh - 125px);display:flex;flex-direction:column}.filterhead{padding:15px;border-bottom:1px solid var(--line)}.filterhead h2{font:700 19px/1.1 Georgia,serif;margin:0 0 5px}.actions{display:flex;gap:6px;margin-top:11px}.actions button{border:1px solid var(--line);background:#f4f0e7;border-radius:8px;padding:6px 9px;cursor:pointer;font-size:11px}.actions button:hover{background:#e9e3d8}.filterlist{padding:9px 12px 15px;overflow:auto}.group h3{margin:13px 3px 6px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.filter{display:grid;grid-template-columns:17px 11px minmax(0,1fr);gap:7px;align-items:start;padding:5px 3px;border-radius:7px;cursor:pointer}.filter:hover{background:#f2eee5}.filter input{margin:2px 0}.dot{width:10px;height:10px;border-radius:3px;margin-top:3px}.filtertext{font-size:12px;line-height:1.25}.filtertext small{display:block;color:var(--muted);font-size:9px;margin-top:2px}.footer-note{padding:10px 15px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);background:#f4f0e7}
+.layout{max-width:1500px;margin:20px auto 80px;padding:0 24px;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start}.feed{display:flex;flex-direction:column;gap:12px}.card{display:grid;grid-template-columns:96px minmax(0,1fr);background:var(--card);border:1px solid #ddd6ca;border-radius:15px;box-shadow:var(--shadow);overflow:hidden;scroll-margin:105px}.scorebox{background:#eee9df;border-right:1px solid var(--line);padding:15px 8px;text-align:center}.rank{font-size:11px;color:var(--muted);font-weight:750}.score{font:700 34px/1 Georgia,serif;margin-top:13px;color:var(--accent)}.scorelabel{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;overflow-wrap:anywhere}.content{padding:15px 18px 17px}.meta{display:flex;gap:9px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:12px}.meta b{color:#405148}.metric{background:#ece7dc;border-radius:6px;padding:2px 6px;color:#405148}.posbar{width:95px;height:5px;background:#e1ddd3;border-radius:8px;overflow:hidden}.posbar i{display:block;height:100%;background:#527963}.context{margin:11px 0 13px;display:flex;flex-direction:column;gap:3px}.contextline{display:grid;grid-template-columns:57px minmax(0,1fr);gap:10px;padding:6px 10px;border-radius:8px;font:14px/1.4 Georgia,"Times New Roman",serif;overflow-wrap:anywhere;color:#68706b}.contextline .ln{font:10px/1.9 ui-monospace,SFMono-Regular,Menlo,monospace;color:#979187;text-align:right}.contextline.focus{background:#fff8df;color:var(--ink);box-shadow:inset 4px 0 #b47b19;font-size:17px}.charhit{border-radius:3px;padding:1px 0;box-decoration-break:clone;-webkit-box-decoration-break:clone;box-shadow:inset 0 -2px rgba(0,0,0,.24)}.badges{display:flex;gap:6px;flex-wrap:wrap}.badge{padding:5px 8px;border-radius:7px;color:white;font-size:11px;font-weight:750;box-shadow:inset 0 -1px rgba(0,0,0,.14)}.badge small{display:block;opacity:.82;font:9px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;margin-top:2px}.empty{font-size:12px;color:var(--muted);font-style:italic}
+.filters{position:sticky;top:105px;background:rgba(255,253,248,.97);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;max-height:calc(100vh - 125px);display:flex;flex-direction:column}.filterhead{padding:15px;border-bottom:1px solid var(--line)}.filterhead h2{font:700 19px/1.1 Georgia,serif;margin:0 0 5px}.rankselect{display:block;width:100%;margin-top:10px;border:1px solid var(--line);border-radius:8px;background:#fffdf8;padding:7px 8px;color:var(--ink);font-size:12px}.actions{display:flex;gap:6px;margin-top:9px}.actions button{border:1px solid var(--line);background:#f4f0e7;border-radius:8px;padding:6px 9px;cursor:pointer;font-size:11px}.actions button:hover{background:#e9e3d8}.filterlist{padding:9px 12px 15px;overflow:auto}.group h3{margin:13px 3px 6px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}.filter{display:grid;grid-template-columns:17px 11px minmax(0,1fr);gap:7px;align-items:start;padding:5px 3px;border-radius:7px;cursor:pointer}.filter:hover{background:#f2eee5}.filter input{margin:2px 0}.dot{width:10px;height:10px;border-radius:3px;margin-top:3px}.filtertext{font-size:12px;line-height:1.25}.filtertext small{display:block;color:var(--muted);font-size:9px;margin-top:2px}.footer-note{padding:10px 15px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);background:#f4f0e7}
 @media(max-width:1050px){.layout{grid-template-columns:minmax(0,1fr) 250px;padding:0 10px}.filters{top:116px}.contextline{grid-template-columns:43px 1fr}.titleline{align-items:start}.topin{padding:12px}.headline-score b{font-size:19px}}
 @media(max-width:760px){.layout{display:flex;flex-direction:column-reverse}.filters{position:relative;top:auto;width:100%;max-height:none}.filterlist{max-height:360px}.card{grid-template-columns:62px 1fr}.scorebox{padding:12px 5px}.score{font-size:30px}.content{padding:12px}.headline-score{display:none}}
 </style></head><body>
 <header class="top"><div class="topin"><div class="titleline"><div><h1>__TITLE__</h1><div id="subtitle" class="sub"></div></div><div class="headline-score"><b id="activeCount"></b><span>active detector features</span></div></div></div></header>
-<main class="layout"><section id="feed" class="feed"></section><aside class="filters"><div class="filterhead"><h2>Feature menu</h2><div id="filterSummary" class="sub"></div><div class="actions"><button id="all">Enable all</button><button id="none">Clear all</button><button id="reset">Reset view</button></div></div><div id="filterList" class="filterlist"></div><div class="footer-note">Each checked, non-zero feature adds exactly one point. Raw occurrence counts are shown on badges but never change the score.</div></aside></main>
+<main class="layout"><section id="feed" class="feed"></section><aside class="filters"><div class="filterhead"><h2>Feature menu</h2><div id="filterSummary" class="sub"></div><select id="ranking" class="rankselect" aria-label="Ranking metric"><option value="points">Rank: feature points</option><option value="match_density">Rank: matches / 100 chars</option><option value="coverage">Rank: matched-character coverage</option><option value="point_density">Rank: points / 100 chars</option></select><div class="actions"><button id="all">Enable all</button><button id="none">Clear all</button><button id="reset">Reset view</button></div></div><div id="filterList" class="filterlist"></div><div class="footer-note">Each checked, non-zero feature adds exactly one point. Coloured boxes show exact active match spans. Offset ranges index the displayed NFKC-normalized text.</div></aside></main>
 <script>const PACKET=__DATA__;
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const featureByKey=Object.fromEntries(PACKET.features.map(f=>[f.key,f])),docById=Object.fromEntries(PACKET.documents.map(d=>[d.document_id,d]));
 const linesByDoc={};for(const line of PACKET.lines)(linesByDoc[line.document_id]??=[]).push(line);for(const lines of Object.values(linesByDoc))lines.sort((a,b)=>a.abs_idx-b.abs_idx);
 const lineIndex=new Map;for(const lines of Object.values(linesByDoc))lines.forEach((line,i)=>lineIndex.set(line.document_id+'|'+line.abs_idx,i));
 const storageKey='bib-feature-explorer:'+PACKET.payload_sha256;let stored={};try{stored=JSON.parse(localStorage.getItem(storageKey)||'{}')}catch{};
-let enabled=Object.fromEntries(PACKET.features.map(f=>[f.key,stored[f.key]!==false]));
+let enabled=Object.fromEntries(PACKET.features.map(f=>[f.key,stored.features?.[f.key]!==false])),ranking=stored.ranking||'points';
 function activeKeys(){return new Set(PACKET.features.filter(f=>enabled[f.key]).map(f=>f.key))}
 function score(line,active){let n=0;for(const key of Object.keys(line.features))if(active.has(key))n++;return n}
+function activeSpans(line,active){const spans=[];for(const [key,ranges] of Object.entries(line.matches))if(active.has(key))for(const [start,end] of ranges)spans.push({key,start,end});return spans}
+function metrics(line,active){const spans=activeSpans(line,active),points=score(line,active),length=Math.max(1,line.char_length);let covered=0,last=-1;for(const span of [...spans].sort((a,b)=>a.start-b.start||a.end-b.end)){const start=Math.max(last,span.start);if(span.end>start)covered+=span.end-start;last=Math.max(last,span.end)}return{points,match_count:spans.length,coverage:covered/length,match_density:100*spans.length/length,point_density:100*points/length}}
 function context(line){const lines=linesByDoc[line.document_id],i=lineIndex.get(line.document_id+'|'+line.abs_idx);let start=Math.max(0,i-2),end=Math.min(lines.length,start+5);start=Math.max(0,end-5);return lines.slice(start,end)}
-function contextHtml(line){return context(line).map(other=>`<div class="contextline ${other.abs_idx===line.abs_idx?'focus':''}"><span class="ln">L${other.abs_idx}</span><span>${esc(other.text)}</span></div>`).join('')}
-function badges(line,active){const keys=Object.keys(line.features).filter(key=>active.has(key));if(!keys.length)return'<span class="empty">No enabled feature fires on this line.</span>';return keys.map(key=>{const f=featureByKey[key],n=line.features[key];return`<span class="badge" style="background:${f.color}" title="${esc(f.key)}">${esc(f.label)}${n>1?` <small>×${n}</small>`:''}</span>`}).join('')}
-function card(line,rank,active){const n=score(line,active),doc=docById[line.document_id];return`<article class="card"><aside class="scorebox"><div class="rank">#${rank}</div><div class="score">${n}</div><div class="scorelabel">points</div></aside><section class="content"><div class="meta"><b>${esc(line.source)}</b><span>doc ${esc(doc.document_id_short)}</span><span>line ${line.abs_idx}</span><span>${line.position_percent.toFixed(1)}% through document</span><span class="posbar"><i style="width:${line.position_percent}%"></i></span><span>${line.token_count} tokens</span></div><div class="context">${contextHtml(line)}</div><div class="badges">${badges(line,active)}</div></section></article>`}
-function renderFeed(){const active=activeKeys(),ranked=PACKET.lines.map(line=>({line,score:score(line,active)})).sort((a,b)=>b.score-a.score||a.line.ordinal-b.line.ordinal).slice(0,100);$('feed').innerHTML=ranked.map((x,i)=>card(x.line,i+1,active)).join('');$('activeCount').textContent=active.size+' / '+PACKET.features.length;$('filterSummary').textContent=active.size+' enabled · top 100 reranked live'}
+function highlight(line,active){const chars=Array.from(line.text),spans=activeSpans(line,active);if(!spans.length)return esc(line.text);const bounds=[0,chars.length];for(const span of spans)bounds.push(span.start,span.end);const ordered=[...new Set(bounds)].sort((a,b)=>a-b);let out='';for(let i=0;i<ordered.length-1;i++){const start=ordered[i],end=ordered[i+1],text=esc(chars.slice(start,end).join('')),hits=spans.filter(span=>span.start<=start&&span.end>=end);if(!hits.length){out+=text;continue}const keys=[...new Set(hits.map(hit=>hit.key))],colors=keys.map(key=>featureByKey[key].color+'55'),background=colors.length===1?colors[0]:`linear-gradient(to bottom,${colors.map((color,j)=>`${color} ${100*j/colors.length}% ${100*(j+1)/colors.length}%`).join(',')})`,title=keys.map(key=>`${featureByKey[key].label} [${start}:${end}]`).join(' · ');out+=`<span class="charhit" style="background:${background}" title="${esc(title)}">${text}</span>`}return out}
+function contextHtml(line,active){return context(line).map(other=>{const focus=other.abs_idx===line.abs_idx;return`<div class="contextline ${focus?'focus':''}"><span class="ln">L${other.abs_idx}</span><span>${focus?highlight(line,active):esc(other.text)}</span></div>`}).join('')}
+function offsets(ranges){const visible=ranges.slice(0,6).map(([a,b])=>`${a}:${b}`).join(' · ');return ranges.length>6?visible+` · +${ranges.length-6} more`:visible}
+function badges(line,active){const keys=Object.keys(line.features).filter(key=>active.has(key));if(!keys.length)return'<span class="empty">No enabled feature fires on this line.</span>';return keys.map(key=>{const f=featureByKey[key],ranges=line.matches[key],all=ranges.map(([a,b])=>`${a}:${b}`).join(' · ');return`<span class="badge" style="background:${f.color}" title="${esc(f.key+' @ '+all)}">${esc(f.label)}<small>${esc(offsets(ranges))}</small></span>`}).join('')}
+function metricValue(m){return ranking==='points'?m.points:ranking==='coverage'?100*m.coverage:ranking==='match_density'?m.match_density:m.point_density}
+function metricDisplay(m){if(ranking==='points')return[String(m.points),'feature points'];if(ranking==='coverage')return[(100*m.coverage).toFixed(1)+'%','char coverage'];if(ranking==='match_density')return[m.match_density.toFixed(1),'matches / 100 chars'];return[m.point_density.toFixed(1),'points / 100 chars']}
+function card(line,rank,active,m){const doc=docById[line.document_id],[value,label]=metricDisplay(m);return`<article class="card"><aside class="scorebox"><div class="rank">#${rank}</div><div class="score">${value}</div><div class="scorelabel">${label}</div></aside><section class="content"><div class="meta"><b>${esc(line.source)}</b><span>doc ${esc(doc.document_id_short)}</span><span>line ${line.abs_idx}</span><span>${line.position_percent.toFixed(1)}% through document</span><span class="posbar"><i style="width:${line.position_percent}%"></i></span><span>${line.token_count} tokens · ${line.char_length} chars</span><span class="metric">${m.match_count} matches</span><span class="metric">${(100*m.coverage).toFixed(1)}% matched chars</span><span class="metric">${m.match_density.toFixed(1)} matches / 100 chars</span></div><div class="context">${contextHtml(line,active)}</div><div class="badges">${badges(line,active)}</div></section></article>`}
+function renderFeed(){const active=activeKeys(),ranked=PACKET.lines.map(line=>{const m=metrics(line,active);return{line,m,value:metricValue(m)}}).sort((a,b)=>b.value-a.value||b.m.points-a.m.points||a.line.ordinal-b.line.ordinal).slice(0,100);$('feed').innerHTML=ranked.map((x,i)=>card(x.line,i+1,active,x.m)).join('');$('activeCount').textContent=active.size+' / '+PACKET.features.length;$('filterSummary').textContent=active.size+' enabled · top 100 reranked live'}
 function renderFilters(){const groups=[];for(const f of PACKET.features){let group=groups.find(x=>x.name===f.group);if(!group){group={name:f.group,features:[]};groups.push(group)}group.features.push(f)}$('filterList').innerHTML=groups.map(group=>`<section class="group"><h3>${esc(group.name)}</h3>${group.features.map(f=>`<label class="filter"><input type="checkbox" data-feature="${esc(f.key)}" ${enabled[f.key]?'checked':''}><span class="dot" style="background:${f.color}"></span><span class="filtertext">${esc(f.label)}<small>${f.line_count.toLocaleString()} lines · ${f.occurrence_count.toLocaleString()} occurrences</small></span></label>`).join('')}</section>`).join('')}
-function persist(){localStorage.setItem(storageKey,JSON.stringify(enabled))}
+function persist(){localStorage.setItem(storageKey,JSON.stringify({features:enabled,ranking}))}
 function setAll(value){for(const f of PACKET.features)enabled[f.key]=value;persist();renderFilters();renderFeed()}
-$('filterList').onchange=e=>{const box=e.target.closest('[data-feature]');if(!box)return;enabled[box.dataset.feature]=box.checked;persist();renderFeed()};$('all').onclick=()=>setAll(true);$('none').onclick=()=>setAll(false);$('reset').onclick=()=>{localStorage.removeItem(storageKey);enabled=Object.fromEntries(PACKET.features.map(f=>[f.key,true]));renderFilters();renderFeed();window.scrollTo({top:0,behavior:'smooth'})};
+$('ranking').value=ranking;$('ranking').onchange=e=>{ranking=e.target.value;persist();renderFeed()};$('filterList').onchange=e=>{const box=e.target.closest('[data-feature]');if(!box)return;enabled[box.dataset.feature]=box.checked;persist();renderFeed()};$('all').onclick=()=>setAll(true);$('none').onclick=()=>setAll(false);$('reset').onclick=()=>{localStorage.removeItem(storageKey);enabled=Object.fromEntries(PACKET.features.map(f=>[f.key,true]));ranking='points';$('ranking').value=ranking;renderFilters();renderFeed();window.scrollTo({top:0,behavior:'smooth'})};
 const counts=Object.entries(PACKET.selection.source_counts).map(([k,v])=>`${k}: ${v}`).join(' · ');$('subtitle').textContent=`${PACKET.selection.document_count} real ${PACKET.selection.split} / ${PACKET.selection.coverage.replace('_',' ')} documents · ${PACKET.lines.length.toLocaleString()} nonblank lines · ${counts}`;renderFilters();renderFeed();
 </script></body></html>'''
     return template.replace("__TITLE__", title).replace("__DATA__", data)
@@ -377,7 +405,7 @@ def run_build(args: argparse.Namespace) -> dict[str, Any]:
     receipt = Path(args.receipt) if args.receipt else output.with_suffix(".receipt.json")
     _exclusive_write(output, build_page(payload))
     receipt_data = {
-        "schema_version": "bibliography-line-feature-explorer-receipt-v1",
+        "schema_version": "bibliography-line-feature-explorer-receipt-v2",
         "status": "passed",
         "payload_sha256": payload["payload_sha256"],
         "input": {

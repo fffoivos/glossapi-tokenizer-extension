@@ -81,6 +81,11 @@ def test_source_balanced_selection_and_payload_are_label_blind(tmp_path: Path) -
     assert citation["features"]["year_count"] == 1
     assert citation["features"]["doi_count"] == 1
     assert citation["features"]["page_range_count"] == 1
+    assert citation["char_length"] == len(citation["text"])
+    assert citation["matches"]["doi_count"] == [
+        [citation["text"].index("doi:"), len(citation["text"])]
+    ]
+    assert set(citation["matches"]) == set(citation["features"])
 
 
 def test_page_has_live_feature_filters_and_unit_scoring() -> None:
@@ -98,6 +103,9 @@ def test_page_has_live_feature_filters_and_unit_scoring() -> None:
     assert "Feature menu" in page
     assert "data-feature=" in page
     assert "one point for each enabled feature" in page
-    assert "b.score-a.score||a.line.ordinal-b.line.ordinal" in page
+    assert "Rank: matches / 100 chars" in page
+    assert "class=\"charhit\"" in page
+    assert "line.matches" in page
+    assert "b.value-a.value||b.m.points-a.m.points" in page
     assert "raw count is non-zero" not in page  # Python docstring is not rendered.
     assert "weighted_score_used" in page

@@ -11,6 +11,7 @@ from sequence_models.bibliography_v2 import (  # noqa: E402
     analyze_bibliography_line_v2,
     analyze_bibliography_lines_v2,
     decode_bibliography_blocks_v2,
+    extract_bibliography_feature_review,
     extract_bibliography_features,
 )
 from sequence_models.deterministic_structure import BibRole  # noqa: E402
@@ -32,6 +33,42 @@ def test_explicit_english_journal_features_are_independently_counted() -> None:
     assert features.page_range_count == 1
     assert features.url_count == 1
     assert features.doi_count == 1
+
+
+def test_review_matches_have_exact_offsets_and_count_parity() -> None:
+    text = (
+        'Smith, J. A. & Brown, Ph. (2021). "A title." Nat. Chem. Biol. '
+        "2006, 2, pp. 241-243. https://doi.org/10.1234/example"
+    )
+    review = extract_bibliography_feature_review(text)
+    by_feature: dict[str, list] = {}
+    for match in review.matches:
+        by_feature.setdefault(match.feature, []).append(match)
+        assert review.normalized_text[match.start : match.end] == match.text
+    for feature, count in review.features.as_dict().items():
+        if feature != "token_count":
+            assert len(by_feature.get(feature, [])) == count
+    doi = by_feature["doi_count"][0]
+    assert doi.text == "https://doi.org/10.1234/example"
+    assert (doi.start, doi.end) == (
+        review.normalized_text.index("https://doi.org"),
+        len(review.normalized_text),
+    )
+    page_range = by_feature["page_range_count"][0]
+    assert page_range.text == "241-243"
+
+
+def test_review_offsets_account_for_outer_markdown_table_bars() -> None:
+    review = extract_bibliography_feature_review(
+        " | Andreou, S. A. (1987). A method. Water Journal, 2, 3-8. | "
+    )
+    inverted = next(
+        match for match in review.matches if match.feature == "inverted_author_count"
+    )
+    assert inverted.start == review.normalized_text.index("Andreou")
+    assert inverted.text.startswith("Andreou, S.")
+    table = next(match for match in review.matches if match.feature == "table_row_count")
+    assert table.text.startswith("|") and table.text.endswith("|")
 
 
 def test_explicit_greek_publisher_editor_and_page_features() -> None:

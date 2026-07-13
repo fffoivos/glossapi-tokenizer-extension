@@ -255,6 +255,25 @@ class BibliographyFeatures:
 
 
 @dataclass(frozen=True)
+class BibliographyFeatureMatch:
+    """One review-only feature match in NFKC-normalized character offsets."""
+
+    feature: str
+    start: int
+    end: int
+    text: str
+
+
+@dataclass(frozen=True)
+class BibliographyFeatureReview:
+    """Diagnostic spans for review UIs; never used by scoring or decoding."""
+
+    normalized_text: str
+    features: BibliographyFeatures
+    matches: tuple[BibliographyFeatureMatch, ...]
+
+
+@dataclass(frozen=True)
 class BibliographyV2Evidence:
     line_index: int
     text: str
@@ -332,6 +351,149 @@ def extract_bibliography_features(text: str) -> BibliographyFeatures:
             value.strip().startswith("|") and value.strip().endswith("|")
         ),
     )
+
+
+def extract_bibliography_feature_review(text: str) -> BibliographyFeatureReview:
+    """Expose exact feature spans without changing the production extractor.
+
+    Offsets index Unicode characters in ``normalized_text``, the same NFKC
+    representation on which the feature regexes operate.  Composite and atomic
+    features may overlap deliberately (for example URL and DOI).  This function
+    is for review/calibration artifacts only and is not called by the weighted
+    line scorer or the coherent-block decoder.
+    """
+
+    if not isinstance(text, str):
+        raise TypeError("text must be a string")
+    value = unicodedata.normalize("NFKC", text)
+    features = extract_bibliography_features(text)
+    matches: list[BibliographyFeatureMatch] = []
+
+    def add(
+        feature: str,
+        pattern: re.Pattern[str],
+        target: str,
+        *,
+        offset: int = 0,
+        first_only: bool = False,
+    ) -> None:
+        iterator = pattern.finditer(target)
+        for match in iterator:
+            start, end = offset + match.start(), offset + match.end()
+            matches.append(
+                BibliographyFeatureMatch(feature, start, end, value[start:end])
+            )
+            if first_only:
+                break
+
+    stripped_start = len(value) - len(value.lstrip())
+    stripped_end = len(value.rstrip())
+    analysis_start, analysis_end = stripped_start, stripped_end
+    if (
+        analysis_start < analysis_end
+        and value[analysis_start] == "|"
+        and value[analysis_end - 1] == "|"
+    ):
+        analysis_start += 1
+        analysis_end -= 1
+        while analysis_start < analysis_end and value[analysis_start].isspace():
+            analysis_start += 1
+        while analysis_end > analysis_start and value[analysis_end - 1].isspace():
+            analysis_end -= 1
+    analysis_value = value[analysis_start:analysis_end]
+
+    page_range_text = value
+    for pattern in (_URL, _DOI, _ISBN, _ISSN, _NUMERIC_DATE):
+        page_range_text = pattern.sub(
+            lambda match: " " * len(match.group(0)), page_range_text
+        )
+
+    value_patterns = (
+        ("year_count", _YEAR),
+        ("no_date_count", _NO_DATE),
+        ("numeric_date_count", _NUMERIC_DATE),
+        ("month_date_count", _MONTH_DATE),
+        ("access_date_count", _ACCESS_DATE),
+        ("url_count", _URL),
+        ("doi_count", _DOI),
+        ("isbn_count", _ISBN),
+        ("issn_count", _ISSN),
+        ("initial_count", _INITIAL),
+        ("initial_sequence_count", _INITIAL_SEQUENCE),
+        ("proper_name_word_count", _PROPER_WORD),
+        ("ampersand_count", _AMPERSAND),
+        ("author_joiner_count", _AUTHOR_JOINER),
+        ("quoted_span_count", _QUOTED),
+        ("editor_term_count", _EDITOR_TERMS),
+        ("thesis_term_count", _THESIS_TERMS),
+        ("in_container_count", _IN_CONTAINER),
+        ("edition_term_count", _EDITION_TERMS),
+        ("dotted_word_count", _DOTTED_WORD),
+        ("dotted_sequence_count", _DOTTED_SEQUENCE),
+        ("volume_marker_count", _VOLUME_MARKER),
+        ("volume_shape_count", _VOLUME_SHAPE),
+        ("journal_year_volume_count", _JOURNAL_YEAR_VOLUME),
+        ("page_marker_count", _PAGE_MARKER),
+        ("publisher_term_count", _PUBLISHER_TERMS),
+        ("place_name_count", _PLACE_NAMES),
+        ("place_publisher_shape_count", _PLACE_PUBLISHER_SHAPE),
+    )
+    for feature, pattern in value_patterns:
+        add(feature, pattern, value)
+
+    analysis_patterns = (
+        ("inverted_author_count", _INVERTED_AUTHOR),
+        ("author_year_count", _AUTHOR_YEAR),
+        ("direct_author_count", _DIRECT_AUTHOR),
+        ("numbered_entry_count", _NUMBERED_ENTRY),
+    )
+    for feature, pattern in analysis_patterns:
+        add(feature, pattern, analysis_value, offset=analysis_start, first_only=True)
+    add(
+        "name_initial_pair_count",
+        _NAME_INITIAL_PAIR,
+        analysis_value,
+        offset=analysis_start,
+    )
+    add("page_range_count", _PAGE_RANGE, page_range_text)
+
+    punctuation = set('.,;:()[]«»“”"')
+    for index, character in enumerate(value):
+        if character in punctuation:
+            matches.append(
+                BibliographyFeatureMatch(
+                    "punctuation_count", index, index + 1, character
+                )
+            )
+    if value.strip().startswith("|") and value.strip().endswith("|"):
+        matches.append(
+            BibliographyFeatureMatch(
+                "table_row_count",
+                stripped_start,
+                stripped_end,
+                value[stripped_start:stripped_end],
+            )
+        )
+    add("prose_lead_count", _PROSE_LEAD, value, first_only=True)
+
+    expected = features.as_dict()
+    actual: dict[str, int] = {}
+    for match in matches:
+        actual[match.feature] = actual.get(match.feature, 0) + 1
+        if not (0 <= match.start < match.end <= len(value)):
+            raise RuntimeError(f"invalid review match offsets: {match}")
+        if value[match.start : match.end] != match.text:
+            raise RuntimeError(f"review match text drift: {match}")
+    for feature, count in expected.items():
+        if feature == "token_count":
+            continue
+        if actual.get(feature, 0) != count:
+            raise RuntimeError(
+                f"review match/count drift for {feature}: "
+                f"matches={actual.get(feature, 0)}, feature_count={count}"
+            )
+    matches.sort(key=lambda match: (match.start, match.end, match.feature))
+    return BibliographyFeatureReview(value, features, tuple(matches))
 
 
 def _feature_families(features: BibliographyFeatures) -> tuple[str, ...]:
