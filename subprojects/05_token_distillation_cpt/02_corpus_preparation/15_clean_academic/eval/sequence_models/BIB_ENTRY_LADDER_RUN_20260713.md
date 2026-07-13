@@ -136,6 +136,48 @@ Validation passed the frozen operating metrics but does not override the
 train-only `research_only` decision.  The comparison is against LLM-silver,
 not human gold, and this version remains forbidden from corpus deletion.
 
+## Prediction-blind extraction-quality qualification
+
+The unexpectedly low micro-averaged recall was concentrated in a small number
+of extraction failures.  A separate audit was therefore run without reading
+the bibliography predictions or labels.  It used the canonical GlossAPI Rust
+noise scorer from GlossAPI commit `6f29a2825559c540ab342fc77ae4457cf3556f2a`
+plus conservative text-only signals for extreme line fragmentation,
+character-spaced OCR, and unresolved glyph placeholders.
+
+Audit job `2755017` screened all 274 validation documents and produced nine
+review candidates.  Decisions were locked in commit `e3bbade`: six documents
+were excluded as unusable extractions and three were retained after the flag
+was found to be mathematical notation or localized encoding noise.  Final job
+`2755022` applied those locked decisions and only then recalculated metrics.
+The original frozen validation result above remains intact.
+
+| Metric | All 274 documents | Readability-qualified 268 |
+|---|---:|---:|
+| line precision | 0.997976 | 0.997976 |
+| line recall | 0.629953 | 0.821625 |
+| token precision | 0.998341 | 0.998340 |
+| token recall | 0.825239 | 0.856019 |
+| false-positive lines | 58 | 58 |
+| false-negative lines | 16,802 | 6,208 |
+
+The unchanged false-positive count is important: qualification removed
+unreadable documents, not classifier mistakes.  The six exclusions were three
+documents shattered into mostly one-word lines, two dominated by 17,349 and
+19,473 unresolved `GLYPH` placeholders, and one character-corrupted OCR
+document with canonical Rust badness `68.10 > 60`.
+
+Clariden artifact:
+
+```text
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/quality_audit_r2
+```
+
+The locked document-level decisions are in
+`bibliography_validation_quality_decisions_20260714.json`.  The receipt records
+that quality screening was prediction-blind and that labels were used only
+after the decisions were locked.
+
 ## High-risk joint-review site
 
 Review job `2754381` selected 120 proposed blocks: exactly 40 each from
@@ -193,6 +235,11 @@ acceptance check.
 - `0331e40` — parallelize independent B0 arms for future runs.
 - `e1463db` — schedule all 20 independent B1 fits in one CPU wave.
 - `a169a6b` — compare Foivos/Codex decisions and export both review records.
+- `4081d1d` — add prediction-blind validation extraction-quality auditing.
+- `2e3d6cb` — distinguish TeX variables from character-spaced OCR.
+- `e3bbade` — lock six excludes and three keeps before recomputing metrics.
+- `12e1290` — simplify the qualified failure reader and make line comparisons
+  explicit.
 
 Superseded job `2754325` failed in ten seconds before model fitting because an
 initial bundle omitted the legacy `line_lr.py` runtime sibling.  It produced no
@@ -222,30 +269,35 @@ decision; review decisions must not tune this frozen version.
 
 ## Recall-failure presentation — 2026-07-14
 
-The ten validation documents contributing the most missed bibliography tokens
-are presented as complete document readers.  Final frozen B1 decisions are
-compared line by line with the LLM-silver BIB region:
+The ten readability-qualified validation documents contributing the most
+missed bibliography tokens are presented as complete document readers.  The
+six extraction-quality exclusions cannot enter this selection.  The first
+reader is deliberately a readable partial-recall case rather than the largest
+raw numerical failure.  Final frozen B1 decisions are compared line by line
+with the LLM-silver BIB region:
 
 - green means both mark the line as BIB;
 - red means silver BIB missed by the classifier;
 - blue means classifier-only BIB; and
 - neutral means both classify the line as non-BIB.
 
-Every classifier-positive line also carries the ownership-resolved feature
-bounding boxes and probability.  The interface includes all-lines,
-decision-context, and disagreement-context modes plus previous/next error and
-first-block navigation.
+Every classifier-positive line also carries the ownership-resolved character
+feature boxes.  Each line has explicit MODEL and SILVER decisions on the left,
+and agreement/disagreement is bounded around the complete line.  Peripheral
+statistics, probabilities, character counts, and feature totals were removed.
+The interface retains all-lines, decision-context, disagreement-context,
+previous/next-error, and first-block navigation.
 
-Clariden job `2754908` completed the ten-document packet in 14 seconds:
+Clariden job `2755036` completed the qualified ten-document packet in 15
+seconds:
 
 ```text
-/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/failure_review_top10_v2
-packet sha256 01fca9350006409d3815cfd4d63e86e274ef132d3cf4ab08362ee18a3452a70f
-receipt sha256 300ecff943be85664b264cda4ae6f7b4bf6369194598c7ebd62b185cc8c75994
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/failure_review_qualified_v3
+packet sha256 fe979f561aac455190ed14c0c486feae70f14108cd22846958aba5182d6c6139
+receipt sha256 834d4a175643be3c56c1743302005c0e13887b49f1b4c8a76531948eed38f18a
 ```
 
-It contains 29,118 emitted lines and 202,121 missed BIB tokens.  The local
-presentation is:
+The local presentation is:
 
 ```text
 /Users/foivoskarounos-zamparloukos/presentations/train-apertus-with-glossapi/bibliography-recall-failures-20260714
@@ -259,7 +311,23 @@ cd /Users/foivoskarounos-zamparloukos/presentations/train-apertus-with-glossapi/
 python3 -m http.server 8772 --bind 127.0.0.1
 ```
 
+The separate nine-candidate extraction-quality reader, including all six
+excludes and three explicit keeps, is archived and served at:
+
+```text
+/Users/foivoskarounos-zamparloukos/presentations/train-apertus-with-glossapi/bibliography-validation-quality-20260714
+http://127.0.0.1:8773/
+```
+
+Both local transfers match the Clariden SHA-256 receipts and passed HTTP 200,
+content-length, packet-inventory, Python, and JavaScript syntax checks.
+Playwright was available but its Chromium executable was not installed, so no
+automated browser screenshot is claimed.
+
 Superseded job `2754894` produced a valid one-document packet because Slurm
 interpreted commas in the exported ID list as environment-variable separators.
 That artifact is incomplete and is not presented.  Commit `8b88a29` replaced
-the interface with a colon-delimited list before the successful v2 job.
+the interface with a colon-delimited list before v2.  Job `2754908` and its v2
+site are also superseded: the raw numerical top ten included three documents
+now excluded as unusable extraction artifacts, and its interface exposed
+irrelevant statistics rather than direct model/silver decisions.
