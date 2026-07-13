@@ -188,6 +188,9 @@ def seatbelt_profile(call_root: Path, codex_bin: Path, codex_home: Path) -> str:
             "(allow mach-lookup)",
             "(allow sysctl-read)",
             "(allow network-outbound)",
+            # Codex's runtime probes the filesystem root for PATH aliases.
+            # This is metadata access to '/' only, not a recursive permit.
+            "(allow file-read* (literal \"/\"))",
             f"(allow file-read* (subpath {_seatbelt_quote(root)}))",
             f"(allow file-read* (subpath {_seatbelt_quote(home)}))",
             # Homebrew exposes the executable through a symlink.  Both the

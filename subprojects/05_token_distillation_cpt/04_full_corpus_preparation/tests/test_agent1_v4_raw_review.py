@@ -383,6 +383,7 @@ def test_seatbelt_profile_allows_fixed_launcher_and_resolved_runtime_dirs(tmp_pa
 
     profile = RUNNER.seatbelt_profile(root, launcher, Path.home() / ".codex")
 
+    assert '(literal "/")' in profile
     assert f'(subpath "{launcher.parent}")' in profile
     assert f'(subpath "{runtime.parent}")' in profile
 
