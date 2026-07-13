@@ -27,7 +27,7 @@ from .bibliography_v2 import (
 )
 
 
-SCHEMA_VERSION = "bibliography-line-feature-explorer-v6"
+SCHEMA_VERSION = "bibliography-line-feature-explorer-v7"
 DEFAULT_SOURCES = ("greek_phd", "kallipos", "openarchives")
 DEFAULT_SEED = "bibliography-feature-explorer-20260713"
 
@@ -197,6 +197,8 @@ def build_payload(
     split: str,
     coverage: str,
     seed: str,
+    title: str = "Bibliography line feature explorer",
+    focus_document_id: str | None = None,
 ) -> dict[str, Any]:
     """Extract ownership-resolved counts without annotation/model labels."""
 
@@ -288,7 +290,7 @@ def build_payload(
         )
     payload_core = {
         "schema_version": SCHEMA_VERSION,
-        "title": "Bibliography line feature explorer",
+        "title": title,
         "selection": {
             "input_path": input_path,
             "input_sha256": input_sha256,
@@ -301,6 +303,7 @@ def build_payload(
                 for source in sorted({row["source"] for row in doc_rows})
             },
             "eligible_counts": dict(sorted(eligible_counts.items())),
+            "focus_document_id": focus_document_id,
         },
         "scoring": {
             "rule": "one point for each enabled feature with a resolved occurrence count greater than zero",
@@ -452,6 +455,25 @@ def documents_from_site(
     return documents, selection, hashlib.sha256(raw).hexdigest()
 
 
+def focus_documents(
+    documents: Sequence[Mapping[str, Any]], document_id: str
+) -> list[Mapping[str, Any]]:
+    """Return exactly one requested document or fail with useful context."""
+
+    matches = [
+        document
+        for document in documents
+        if str(document.get("document_id", "")) == document_id
+    ]
+    if len(matches) != 1:
+        available = [str(document.get("document_id", "")) for document in documents]
+        raise ValueError(
+            f"focus document {document_id!r} matched {len(matches)} documents; "
+            f"available={available}"
+        )
+    return matches
+
+
 def _exclusive_write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
@@ -491,6 +513,13 @@ def run_build(args: argparse.Namespace) -> dict[str, Any]:
         )
         input_path = str(Path(args.input).resolve())
         split, coverage, seed = args.split, args.coverage, args.seed
+    focus_document_id = getattr(args, "focus_document_id", None)
+    requested_title = getattr(args, "title", None)
+    title = requested_title or "Bibliography line feature explorer"
+    if focus_document_id:
+        documents = focus_documents(documents, focus_document_id)
+        if not requested_title:
+            title = f"Bibliography document focus · {focus_document_id[:12]}"
     payload = build_payload(
         documents,
         input_path=input_path,
@@ -499,12 +528,14 @@ def run_build(args: argparse.Namespace) -> dict[str, Any]:
         split=split,
         coverage=coverage,
         seed=seed,
+        title=title,
+        focus_document_id=focus_document_id,
     )
     output = Path(args.output)
     receipt = Path(args.receipt) if args.receipt else output.with_suffix(".receipt.json")
     _exclusive_write(output, build_page(payload))
     receipt_data = {
-        "schema_version": "bibliography-line-feature-explorer-receipt-v6",
+        "schema_version": "bibliography-line-feature-explorer-receipt-v7",
         "status": "passed",
         "payload_sha256": payload["payload_sha256"],
         "input": {
@@ -545,6 +576,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--split", default="train")
     parser.add_argument("--coverage", default="full_document")
     parser.add_argument("--seed", default=DEFAULT_SEED)
+    parser.add_argument(
+        "--focus-document-id",
+        help="restrict an input or reused site packet to one exact document ID",
+    )
+    parser.add_argument("--title", help="optional page title")
     return parser
 
 

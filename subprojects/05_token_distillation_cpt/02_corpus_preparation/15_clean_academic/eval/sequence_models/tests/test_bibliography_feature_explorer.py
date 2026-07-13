@@ -8,6 +8,7 @@ from sequence_models.bibliography_feature_explorer import (
     build_page,
     build_payload,
     documents_from_site,
+    focus_documents,
     select_documents,
 )
 
@@ -141,3 +142,31 @@ def test_existing_site_can_supply_the_exact_label_blind_sample(tmp_path: Path) -
     assert len(documents[0]["lines"]) == 110
     assert selection["input_sha256"] == "b" * 64
     assert len(site_sha) == 64
+
+
+def test_focus_documents_selects_one_exact_document() -> None:
+    documents = [_document("openarchives", 1), _document("openarchives", 2)]
+
+    focused = focus_documents(documents, "openarchives-2")
+
+    assert len(focused) == 1
+    assert focused[0]["document_id"] == "openarchives-2"
+
+
+def test_focused_payload_records_scope_and_title() -> None:
+    document = _document("openarchives", 1)
+    payload = build_payload(
+        [document],
+        input_path="/remote/struct2k.jsonl",
+        input_sha256="c" * 64,
+        eligible_counts={"openarchives": 10},
+        split="train",
+        coverage="full_document",
+        seed="fixed-seed",
+        title="Greek bibliography focus · openarchives",
+        focus_document_id=document["document_id"],
+    )
+
+    assert payload["title"] == "Greek bibliography focus · openarchives"
+    assert payload["selection"]["focus_document_id"] == "openarchives-1"
+    assert payload["selection"]["document_count"] == 1
