@@ -146,37 +146,56 @@ plus conservative text-only signals for extreme line fragmentation,
 character-spaced OCR, and unresolved glyph placeholders.
 
 Audit job `2755017` screened all 274 validation documents and produced nine
-review candidates.  Decisions were locked in commit `e3bbade`: six documents
-were excluded as unusable extractions and three were retained after the flag
-was found to be mathematical notation or localized encoding noise.  Final job
-`2755022` applied those locked decisions and only then recalculated metrics.
-The original frozen validation result above remains intact.
+review candidates.  Prediction-blind decisions were locked in commit
+`e3bbade`: six documents were excluded as unusable extractions and three were
+retained after the flag was found to be mathematical notation or localized
+encoding noise.  Job `2755022` applied those locked decisions and only then
+recalculated the 268-document metrics.
 
-| Metric | All 274 documents | Readability-qualified 268 |
-|---|---:|---:|
-| line precision | 0.997976 | 0.997976 |
-| line recall | 0.629953 | 0.821625 |
-| token precision | 0.998341 | 0.998340 |
-| token recall | 0.825239 | 0.856019 |
-| false-positive lines | 58 | 58 |
-| false-negative lines | 16,802 | 6,208 |
+A subsequent outcome-directed check ranked the 50 documents with the most
+missed silver-BIB tokens.  For every document, the beginning, quartiles,
+middle, end, and first/middle/last missed-BIB regions were inspected.  Text
+usability—not classifier agreement—determined the decision.  Of those 50, 44
+were usable; five confirmed earlier exclusions; and one additional document,
+`eaf30b21c052…`, was excluded because its central and bibliography regions are
+dominated by reversed or otherwise garbled encoded text.  Commit `360aab2`
+records the exclusion and `d7dab98` records that its selection was
+outcome-directed.
+
+| Metric | All 274 | Blind-qualified 268 | Follow-up-qualified 267 |
+|---|---:|---:|---:|
+| line precision | 0.997976 | 0.997976 | 0.997976 |
+| line recall | 0.629953 | 0.821625 | 0.841896 |
+| token precision | 0.998341 | 0.998340 | 0.998340 |
+| token recall | 0.825239 | 0.856019 | 0.866984 |
+| false-positive lines | 58 | 58 | 58 |
+| false-negative lines | 16,802 | 6,208 | 5,370 |
 
 The unchanged false-positive count is important: qualification removed
-unreadable documents, not classifier mistakes.  The six exclusions were three
-documents shattered into mostly one-word lines, two dominated by 17,349 and
-19,473 unresolved `GLYPH` placeholders, and one character-corrupted OCR
-document with canonical Rust badness `68.10 > 60`.
+unreadable documents, not classifier-positive lines.  The original six
+exclusions were three documents shattered into mostly one-word lines, two
+dominated by 17,349 and 19,473 unresolved `GLYPH` placeholders, and one
+character-corrupted OCR document with canonical Rust badness `68.10 > 60`.
+The seventh is the garbled document found during the worst-50 inspection.
+
+The 267-document figures are a diagnostic sensitivity analysis, not an
+unbiased held-out estimate, because the follow-up documents were selected by
+model error.  The original frozen 274-document result and the independently
+qualified 268-document result remain the appropriate leakage-safe reports.
 
 Clariden artifact:
 
 ```text
-/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/quality_audit_r2
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/quality_audit_r4
+job 2755069; quality_audit sha256 7ca0d9da8d9a70b2cd65b984d50606d5bb23903727efaba6515369a30599eb86
 ```
 
-The locked document-level decisions are in
+The document-level decisions and review provenance are in
 `bibliography_validation_quality_decisions_20260714.json`.  The receipt records
-that quality screening was prediction-blind and that labels were used only
-after the decisions were locked.
+that the automatic quality screen itself was prediction-blind; the decisions
+file separately marks the later top-50 follow-up as outcome-directed.  Duplicate
+submission `2755070` failed closed with exit 93 because the completed immutable
+`quality_audit_r4` output already existed; it produced no replacement artifact.
 
 ## High-risk joint-review site
 
@@ -240,6 +259,8 @@ acceptance check.
 - `e3bbade` — lock six excludes and three keeps before recomputing metrics.
 - `12e1290` — simplify the qualified failure reader and make line comparisons
   explicit.
+- `360aab2` — exclude the garbled document found in the worst-50 review.
+- `d7dab98` — record the outcome-directed provenance and metric caveat.
 
 Superseded job `2754325` failed in ten seconds before model fitting because an
 initial bundle omitted the legacy `line_lr.py` runtime sibling.  It produced no
@@ -271,7 +292,7 @@ decision; review decisions must not tune this frozen version.
 
 The ten readability-qualified validation documents contributing the most
 missed bibliography tokens are presented as complete document readers.  The
-six extraction-quality exclusions cannot enter this selection.  The first
+seven extraction-quality exclusions cannot enter this selection.  The first
 reader is deliberately a readable partial-recall case rather than the largest
 raw numerical failure.  Final frozen B1 decisions are compared line by line
 with the LLM-silver BIB region:
@@ -288,13 +309,13 @@ statistics, probabilities, character counts, and feature totals were removed.
 The interface retains all-lines, decision-context, disagreement-context,
 previous/next-error, and first-block navigation.
 
-Clariden job `2755036` completed the qualified ten-document packet in 15
-seconds:
+Clariden job `2755066` rebuilt the qualified ten-document packet after the
+worst-50 review in 13 seconds:
 
 ```text
-/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/failure_review_qualified_v3
-packet sha256 fe979f561aac455190ed14c0c486feae70f14108cd22846958aba5182d6c6139
-receipt sha256 834d4a175643be3c56c1743302005c0e13887b49f1b4c8a76531948eed38f18a
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/failure_review_qualified_v4
+packet sha256 2a58279f7e5ed98de66832a2fac1b762c6d0f26c5b578a1c74b1c2369bc6b3da
+receipt sha256 c5e4e6283e8d396cd9c5831edf356f6ee5f8961d248caeb2d7927c4f46ea756c
 ```
 
 The local presentation is:
@@ -311,8 +332,8 @@ cd /Users/foivoskarounos-zamparloukos/presentations/train-apertus-with-glossapi/
 python3 -m http.server 8772 --bind 127.0.0.1
 ```
 
-The separate nine-candidate extraction-quality reader, including all six
-excludes and three explicit keeps, is archived and served at:
+The separate nine-candidate automatic extraction-quality reader, including the
+original six excludes and three explicit keeps, is archived and served at:
 
 ```text
 /Users/foivoskarounos-zamparloukos/presentations/train-apertus-with-glossapi/bibliography-validation-quality-20260714
