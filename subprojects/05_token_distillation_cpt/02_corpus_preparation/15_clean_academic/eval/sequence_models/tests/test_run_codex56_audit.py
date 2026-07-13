@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -15,6 +16,14 @@ from sequence_models.run_codex56_audit import (  # noqa: E402
     validate_batch_payload,
     validate_request_manifest,
 )
+
+
+def test_codex_output_schema_const_and_enum_have_explicit_types() -> None:
+    schema_path = Path(__file__).parents[1] / "codex56_audit_batch.schema.json"
+    schema = json.loads(schema_path.read_text())
+    properties = schema["properties"]["responses"]["items"]["properties"]
+    assert properties["schema_version"]["type"] == "string"
+    assert properties["label"]["type"] == "string"
 
 
 def _request(index: int) -> dict:
