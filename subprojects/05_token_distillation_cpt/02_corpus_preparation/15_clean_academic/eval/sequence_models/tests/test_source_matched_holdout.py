@@ -107,6 +107,11 @@ def test_review_site_joins_private_key_and_codex_response(tmp_path) -> None:
     assert "Resume undecided" in page
     assert "position unavailable" in page
     assert "legacy_packet_sha256" in page
+    assert 'grid-template-areas:". up ." "left . right" ". down ."' in page
+    assert "<span>←</span><small>Keep</small>" in page
+    assert "<span>↑</span><small>ToC</small>" in page
+    assert "<span>↓</span><small>Bibliography</small>" in page
+    assert "<span>→</span><small>Uncertain</small>" in page
     node = shutil.which("node")
     if node:
         script = re.search(r"<script>(.*)</script>", page, re.DOTALL)
