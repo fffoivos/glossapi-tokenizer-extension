@@ -376,6 +376,49 @@ def validate_response(response: Mapping[str, object], request: Mapping[str, obje
             raise ValueError("artifact cleaning action is empty")
 
 
+def repair_artifact_evidence(response: dict[str, object], document: Path) -> list[dict[str, object]]:
+    """Replace only an unverifiable excerpt with text from its declared span.
+
+    A model occasionally identifies a correct line span but formats the quoted
+    evidence with an ellipsis or other non-verbatim change.  Preserve every
+    semantic model judgement and derive a bounded, exact excerpt solely from
+    its already-declared source span.  The returned hash-only ledger makes each
+    such narrow repair auditable without retaining another raw-text copy.
+    """
+
+    lines = document.read_text(encoding="utf-8").splitlines()
+    artifacts = response.get("extraction_artifacts")
+    if not isinstance(artifacts, list):
+        return []
+    repairs: list[dict[str, object]] = []
+    for index, artifact in enumerate(artifacts):
+        if not isinstance(artifact, dict):
+            continue
+        evidence = artifact.get("evidence_excerpt")
+        start, end = artifact.get("line_start"), artifact.get("line_end")
+        if not isinstance(evidence, str) or not isinstance(start, int) or not isinstance(end, int):
+            continue
+        if start < 1 or end < start or end > len(lines):
+            continue
+        cited = "\n".join(lines[start - 1 : end])
+        if not evidence or evidence in cited:
+            continue
+        replacement = cited[:200]
+        if not replacement:
+            continue
+        artifact["evidence_excerpt"] = replacement
+        repairs.append(
+            {
+                "artifact_index": index,
+                "line_start": start,
+                "line_end": end,
+                "model_evidence_sha256": hashlib.sha256(evidence.encode("utf-8")).hexdigest(),
+                "replacement_evidence_sha256": hashlib.sha256(replacement.encode("utf-8")).hexdigest(),
+            }
+        )
+    return repairs
+
+
 def _invoke_request(
     *,
     request: Mapping[str, object],
@@ -392,7 +435,7 @@ def _invoke_request(
     remote_packet_root: str | None,
     scp_bin: str,
     timeout_seconds: int,
-) -> tuple[dict[str, object], int]:
+) -> tuple[dict[str, object], int, list[dict[str, object]]]:
     with tempfile.TemporaryDirectory(prefix=f"call-{request['request_id'][:12]}-", dir=call_parent) as temporary:
         root = Path(temporary)
         document = root / str(request["document_path"])
@@ -462,8 +505,9 @@ def _invoke_request(
             raise RuntimeError("codex did not produce a valid JSON response") from exc
         if not isinstance(response, dict):
             raise RuntimeError("codex response must be a JSON object")
+        evidence_repairs = repair_artifact_evidence(response, document)
         validate_response(response, request, document)
-        return response, elapsed_ms
+        return response, elapsed_ms, evidence_repairs
 
 
 def run_reviews(
@@ -535,7 +579,7 @@ def run_reviews(
         request_attempts: list[dict[str, object]] = []
         for attempt in range(1, 4):
             try:
-                response, elapsed_ms = _invoke_request(
+                response, elapsed_ms, evidence_repairs = _invoke_request(
                     request=request,
                     prompt_template=prompt_template,
                     response_schema=response_schema_path,
@@ -551,7 +595,13 @@ def run_reviews(
                     scp_bin=scp_bin,
                     timeout_seconds=timeout_seconds,
                 )
-                attempt_row = {"request_id": request["request_id"], "attempt": attempt, "status": "passed", "elapsed_ms": elapsed_ms}
+                attempt_row = {
+                    "request_id": request["request_id"],
+                    "attempt": attempt,
+                    "status": "passed",
+                    "elapsed_ms": elapsed_ms,
+                    "artifact_evidence_repairs": evidence_repairs,
+                }
                 attempts.append(attempt_row)
                 request_attempts.append(attempt_row)
                 cache = {"request": request, "response": response, "attempts": request_attempts}

@@ -476,6 +476,27 @@ def test_response_validation_rejects_evidence_outside_cited_lines(tmp_path: Path
         RUNNER.validate_response(response, request, document)
 
 
+def test_runner_repairs_only_nonverbatim_artifact_evidence(tmp_path: Path) -> None:
+    document = tmp_path / "document.txt"
+    document.write_text("πρώτη γραμμή\nδεύτερη γραμμή", encoding="utf-8")
+    response = {
+        "extraction_artifacts": [
+            {
+                "line_start": 1,
+                "line_end": 1,
+                "evidence_excerpt": "παράφραση που δεν εμφανίζεται",
+            }
+        ]
+    }
+
+    repairs = RUNNER.repair_artifact_evidence(response, document)
+
+    assert response["extraction_artifacts"][0]["evidence_excerpt"] == "πρώτη γραμμή"
+    assert repairs[0]["artifact_index"] == 0
+    assert repairs[0]["line_start"] == 1
+    assert len(repairs[0]["model_evidence_sha256"]) == 64
+
+
 def fake_response(request: dict[str, object]) -> dict[str, object]:
     return {
         "response_schema_version": "agent1_v4_terra_review_response_v1",
