@@ -68,7 +68,12 @@ def _feature_rows(
     *,
     seed_length_limit: int,
     include_header: bool,
+    dropped_feature_names: Sequence[str] = (),
 ) -> list[dict[int, float]]:
+    unknown = set(dropped_feature_names) - set(FEATURE_NAMES_BASE)
+    if unknown:
+        raise ValueError(f"unknown B1 observations to drop: {sorted(unknown)!r}")
+    dropped = {FEATURE_NAMES_BASE.index(name) for name in dropped_feature_names}
     mean_probability, max_probability = _local_aggregates(probability)
     logits = np.log(np.clip(probability, 1.0e-6, 1 - 1.0e-6) / np.clip(1 - probability, 1.0e-6, 1.0))
     rows = []
@@ -84,7 +89,11 @@ def _feature_rows(
             float(probability[index] < 0.05),
             float(abs_indices[index]) / max(int(n_physical_lines), 1),
         )
-        row = {offset: value for offset, value in enumerate(values) if value != 0.0}
+        row = {
+            offset: value
+            for offset, value in enumerate(values)
+            if value != 0.0 and offset not in dropped
+        }
         if include_header and header_kinds[index] > 0:
             row[len(FEATURE_NAMES_BASE)] = 1.0
         rows.append(row)
@@ -98,6 +107,7 @@ def make_examples(
     *,
     seed_length_limit: int,
     include_header: bool,
+    dropped_feature_names: Sequence[str] = (),
 ) -> list[B1Example]:
     examples: list[B1Example] = []
     unknown_id = LABEL_TO_ID["UNKNOWN"]
@@ -115,6 +125,7 @@ def make_examples(
             table.header_kinds[doc_start:doc_end],
             seed_length_limit=seed_length_limit,
             include_header=include_header,
+            dropped_feature_names=dropped_feature_names,
         )
         segment_start = 0
         while segment_start < len(labels):

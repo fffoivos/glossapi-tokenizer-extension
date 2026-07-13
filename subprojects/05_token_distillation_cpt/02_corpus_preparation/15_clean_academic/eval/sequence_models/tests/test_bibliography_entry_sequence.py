@@ -43,6 +43,23 @@ def test_feature_rows_expose_header_only_in_the_ablation() -> None:
     assert len(FEATURE_NAMES_BASE) not in ablation[1]
 
 
+def test_feature_rows_can_drop_length_observations_without_dropping_evidence() -> None:
+    rows = _feature_rows(
+        np.asarray([0.9]),
+        np.asarray([900]),
+        np.asarray([8]),
+        10,
+        np.asarray([0]),
+        seed_length_limit=330,
+        include_header=False,
+        dropped_feature_names=("log1p_char_length", "over_seed_length_limit"),
+    )
+    assert FEATURE_NAMES_BASE.index("entry_probability") in rows[0]
+    assert FEATURE_NAMES_BASE.index("physical_position") in rows[0]
+    assert FEATURE_NAMES_BASE.index("log1p_char_length") not in rows[0]
+    assert FEATURE_NAMES_BASE.index("over_seed_length_limit") not in rows[0]
+
+
 def test_long_line_cannot_start_a_constrained_crf_block() -> None:
     model = LinearChainCRF(1, active_classes=("BIB",))
     model.emission[:] = 0.0
