@@ -25,7 +25,7 @@ from .bibliography_v2 import (
     hard_gap_evidence,
 )
 from .contract import GoldDocument, read_gold, sha256_file
-from .deterministic_adapter import AblationMode, _structure_decision, predict_document
+from .deterministic_adapter import _structure_decision
 from .deterministic_structure import DECODER_ID as R2_DECODER_ID
 from .deterministic_structure import RULES_ID as R2_RULES_ID
 from .deterministic_structure import BibRole, StructureKind
@@ -107,9 +107,14 @@ def _prediction_sets(
         document,
         [span for span in r2_decision.spans if span.kind == StructureKind.BIB],
     )
-    r2_safe = tuple(
-        "BIB" if label == "BIB" else "O"
-        for label in predict_document(document, AblationMode.RULES_ONLY).labels
+    r2_safe = _span_labels(
+        document,
+        [
+            span
+            for span in r2_decision.spans
+            if span.kind == StructureKind.BIB
+            and span.seed_kind != "bib_headerless_dense_run"
+        ],
     )
 
     v2_evidence = _v2_evidence(document)

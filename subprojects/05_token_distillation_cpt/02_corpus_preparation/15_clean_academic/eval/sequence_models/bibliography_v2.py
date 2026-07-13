@@ -95,6 +95,18 @@ _AUTHOR_YEAR = re.compile(
     rf"[{_UPPER}][^.!?]{{1,100}}?(?:\(|,\s*)(?:1[5-9]\d{{2}}|20\d{{2}})",
     re.I,
 )
+_NAME_INITIAL_PAIR = re.compile(
+    rf"(?<![{_LETTER}])[{_UPPER}][{_LETTER}’'\-]{{1,40}}\s+"
+    rf"(?:[{_UPPER}]{{1,3}}|(?:[{_UPPER}]\s*\.\s*){{1,3}})"
+    rf"(?=\s*(?:,|;|&|&amp;|and\b|και\b|\(|$))",
+    re.I,
+)
+_DIRECT_AUTHOR = re.compile(
+    rf"^\s*(?:[-–—•\uf0a0]\s*)?(?:\[?\d{{1,4}}\]?[.)]?\s+)?"
+    rf"(?:[{_UPPER}][{_LOWER}’'\-]{{1,30}}\s+)+"
+    rf"(?:[{_UPPER}]\s*\.\s*){{1,3}}(?:[{_UPPER}][{_LOWER}’'\-]{{1,30}})?"
+    rf"(?=\s*(?:,|\(|$))"
+)
 _NUMBERED_ENTRY = re.compile(
     r"^\s*(?:[-–—•]\s*)?(?:\[\d{1,4}\]|\(\d{1,4}\)|\d{1,4}[.)])\s+"
 )
@@ -195,6 +207,8 @@ class BibliographyFeatures:
     proper_name_word_count: int
     inverted_author_count: int
     author_year_count: int
+    name_initial_pair_count: int
+    direct_author_count: int
     numbered_entry_count: int
     ampersand_count: int
     author_joiner_count: int
@@ -215,6 +229,7 @@ class BibliographyFeatures:
     place_publisher_shape_count: int
     punctuation_count: int
     prose_lead_count: int
+    table_row_count: int
 
     def as_dict(self) -> dict[str, int]:
         return asdict(self)
@@ -269,6 +284,8 @@ def extract_bibliography_features(text: str) -> BibliographyFeatures:
         proper_name_word_count=_matches(_PROPER_WORD, value),
         inverted_author_count=int(bool(_INVERTED_AUTHOR.search(value))),
         author_year_count=int(bool(_AUTHOR_YEAR.search(value))),
+        name_initial_pair_count=_matches(_NAME_INITIAL_PAIR, value),
+        direct_author_count=int(bool(_DIRECT_AUTHOR.search(value))),
         numbered_entry_count=int(bool(_NUMBERED_ENTRY.search(value))),
         ampersand_count=_matches(_AMPERSAND, value),
         author_joiner_count=_matches(_AUTHOR_JOINER, value),
@@ -289,6 +306,9 @@ def extract_bibliography_features(text: str) -> BibliographyFeatures:
         place_publisher_shape_count=_matches(_PLACE_PUBLISHER_SHAPE, value),
         punctuation_count=sum(value.count(mark) for mark in '.,;:()[]«»“”"'),
         prose_lead_count=int(bool(_PROSE_LEAD.search(value))),
+        table_row_count=int(
+            value.strip().startswith("|") and value.strip().endswith("|")
+        ),
     )
 
 
@@ -296,7 +316,10 @@ def _feature_families(features: BibliographyFeatures) -> tuple[str, ...]:
     flags = (
         (
             "author",
-            features.inverted_author_count > 0 or features.author_year_count > 0,
+            features.inverted_author_count > 0
+            or features.author_year_count > 0
+            or features.name_initial_pair_count > 0
+            or features.direct_author_count > 0,
         ),
         ("names", features.initial_count > 0 or features.proper_name_word_count >= 2),
         ("year_date", features.year_count > 0 or features.no_date_count > 0),
@@ -348,6 +371,13 @@ def score_bibliography_features(
 
     add(features.inverted_author_count > 0, 2.8, "BIB2_AUTHOR_INVERTED")
     add(features.author_year_count > 0, 2.4, "BIB2_AUTHOR_YEAR_SKELETON")
+    add(
+        features.name_initial_pair_count >= 2,
+        2.8,
+        "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+    )
+    add(features.name_initial_pair_count == 1, 0.8, "BIB2_NAME_INITIAL_PAIR")
+    add(features.direct_author_count > 0, 1.8, "BIB2_DIRECT_AUTHOR_SHAPE")
     add(features.initial_sequence_count > 0, 1.2, "BIB2_INITIAL_SEQUENCE")
     add(features.initial_count >= 2, 0.8, "BIB2_MULTIPLE_INITIALS")
     add(features.proper_name_word_count >= 2, 0.6, "BIB2_PROPER_NAME_SHAPE")
@@ -391,6 +421,8 @@ def score_bibliography_features(
     authorish = (
         features.inverted_author_count > 0
         or features.author_year_count > 0
+        or features.name_initial_pair_count >= 2
+        or features.direct_author_count > 0
         or features.initial_count >= 2
     )
     dated = features.year_count > 0 or features.no_date_count > 0
@@ -432,6 +464,9 @@ def score_bibliography_features(
     if features.token_count >= 40 and not authorish and not publication_tail:
         score -= 1.5
         reasons.append("BIB2_NEGATIVE_LONG_UNANCHORED_PROSE")
+    if features.table_row_count:
+        score -= 2.0
+        reasons.append("BIB2_NEGATIVE_TABLE_ROW")
     return score, tuple(reasons)
 
 
@@ -487,7 +522,46 @@ def analyze_bibliography_line_v2(
             (),
             features,
         )
-    if base.hard_negative:
+    strong_table_citation = bool(
+        features.table_row_count
+        and (features.year_count or features.no_date_count)
+        and (
+            features.inverted_author_count
+            or features.author_year_count
+            or features.name_initial_pair_count >= 2
+        )
+    )
+    if (
+        features.table_row_count
+        and not strong_table_citation
+        and not (features.doi_count or features.isbn_count or features.issn_count)
+    ):
+        return BibliographyV2Evidence(
+            line_index,
+            text,
+            BibRole.HARD_OTHER,
+            -4.0,
+            ("BIB2_NEGATIVE_NONCITATION_TABLE_ROW",),
+            True,
+            features.token_count,
+            _feature_families(features),
+            (),
+            features,
+        )
+
+    base_negative_codes = {code for code in base.reason_codes if "NEGATIVE" in code}
+    override_running_prose = base_negative_codes == {
+        "BIB_NEGATIVE_RUNNING_PROSE"
+    } and bool(
+        features.name_initial_pair_count >= 2
+        or features.doi_count
+        or features.isbn_count
+        or (
+            features.journal_year_volume_count
+            and (features.page_marker_count or features.page_range_count)
+        )
+    )
+    if base.hard_negative and not override_running_prose:
         return BibliographyV2Evidence(
             line_index,
             text,
@@ -506,7 +580,12 @@ def analyze_bibliography_line_v2(
     styles: list[str] = []
     if features.numbered_entry_count:
         styles.append("numbered")
-    if features.inverted_author_count or features.author_year_count:
+    if (
+        features.inverted_author_count
+        or features.author_year_count
+        or features.name_initial_pair_count
+        or features.direct_author_count
+    ):
         styles.append("author")
     if features.author_year_count or (
         features.inverted_author_count
@@ -530,7 +609,22 @@ def analyze_bibliography_line_v2(
     anchor = bool(
         features.inverted_author_count
         or features.author_year_count
-        or features.numbered_entry_count
+        or features.name_initial_pair_count >= 2
+        or features.direct_author_count
+        or (
+            features.numbered_entry_count
+            and (
+                features.year_count
+                or features.no_date_count
+                or features.doi_count
+                or features.isbn_count
+                or features.publisher_term_count
+                or features.volume_marker_count
+                or features.volume_shape_count
+                or features.page_marker_count
+                or features.page_range_count
+            )
+        )
         or (features.initial_count >= 2 and features.year_count)
         or specific_identifier
     )

@@ -64,6 +64,41 @@ def test_dates_thesis_isbn_and_issn_are_separate_features() -> None:
     assert features.issn_count == 1
 
 
+def test_undotted_biomedical_author_lists_are_detected_as_names() -> None:
+    evidence = analyze_bibliography_line_v2(
+        "Rancic Z, Pecoraro F, Pfammatter T, Banzic I, Klein H (2012). "
+        "The use of a stent graft. Angiology 63:634-637."
+    )
+
+    assert evidence.features.name_initial_pair_count >= 4
+    assert evidence.role == BibRole.STRONG_ENTRY_START
+    assert "BIB2_REPEATED_NAME_INITIAL_PAIRS" in evidence.reason_codes
+
+
+def test_non_citation_markdown_table_rows_are_hard_barriers() -> None:
+    row = analyze_bibliography_line_v2(
+        "| Γεώργιος Ζωγράφος : Καθηγητής Χειρουργικής Ε. Κ. Π. Α. |"
+    )
+    separator = analyze_bibliography_line_v2("|-----------------------|")
+
+    assert row.role == separator.role == BibRole.HARD_OTHER
+    assert row.hard_negative and separator.hard_negative
+    assert "BIB2_NEGATIVE_NONCITATION_TABLE_ROW" in row.reason_codes
+
+
+def test_long_numbered_prose_is_not_an_anchor_without_citation_support() -> None:
+    evidence = analyze_bibliography_line_v2(
+        "1. Knowledge is the first property of products and services, and this "
+        "ordinary explanatory list item develops a long argument without any "
+        "publication coordinate or bibliographic date."
+    )
+
+    assert evidence.role not in {
+        BibRole.STRONG_ENTRY_START,
+        BibRole.WEAK_ENTRY_START,
+    }
+
+
 def test_inline_author_year_prose_retains_the_conservative_veto() -> None:
     evidence = analyze_bibliography_line_v2(
         "Όπως υποστηρίζει ο Παπαδόπουλος (2019), η ανάλυση αυτή συνεχίζεται "
