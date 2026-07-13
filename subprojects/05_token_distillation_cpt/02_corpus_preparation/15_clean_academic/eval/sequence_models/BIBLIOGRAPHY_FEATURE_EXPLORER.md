@@ -44,7 +44,25 @@ expected 7/7/6 source split before publishing the site path.
 Serve the resulting directory locally with any static HTTP server. The page is
 self-contained and requires no backend or external assets.
 
-## Current span-aware build
+## Current hover-spotlight build
+
+Clariden job `2749714` completed on 2026-07-13 from exact worker commit
+`a559e6139e6f88fec5e6612fb1e3a426c4051228`. Hovering either a feature badge
+or its sidebar label now redraws all visible target lines with only that
+feature's boxes; leaving restores every active feature without changing scores
+or ordering. The HTML SHA-256 is
+`72afc7208532d5e242dc4bc68dd51b7f721054e537cfe09a8fbd483b0f9fe424`.
+
+The immutable remote site is at:
+
+```text
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/bibliography_feature_explorers/bib_features_train20_hover_a559e61/index.html
+```
+
+The exact receipt is archived at
+`results/bibliography_feature_explorer/hover_build.receipt.json`.
+
+## Initial span-aware build
 
 Clariden job `2749627` completed on 2026-07-13 from exact worker commit
 `aa40bb0ad50986fa6a036043e6a713c8f748ebc0`. It uses the same 20 documents
