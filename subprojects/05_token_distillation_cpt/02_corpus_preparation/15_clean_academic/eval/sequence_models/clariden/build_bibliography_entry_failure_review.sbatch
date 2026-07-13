@@ -18,7 +18,7 @@ PY_DEPS=${PY_DEPS:?set pinned scikit-learn target directory}
 INPUT=${INPUT:?set physically test-stripped STRUCT-2K JSONL}
 VALIDATION_DIR=${VALIDATION_DIR:?set completed retrospective-validation directory}
 OUTPUT_DIR=${OUTPUT_DIR:?set new immutable failure-review directory}
-DOCUMENT_IDS_CSV=${DOCUMENT_IDS_CSV:?set comma-separated validation document IDs}
+DOCUMENT_IDS_COLON=${DOCUMENT_IDS_COLON:?set colon-separated validation document IDs}
 CODE_COMMIT=${CODE_COMMIT:?set source commit}
 UENV=${UENV:-pytorch/v2.9.1:v2}
 
@@ -26,7 +26,7 @@ UENV=${UENV:-pytorch/v2.9.1:v2}
 [[ -f "$VALIDATION_DIR/receipt.json" && ! -L "$VALIDATION_DIR" ]] || exit 91
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 92
 
-IFS=, read -r -a DOCUMENT_IDS <<< "$DOCUMENT_IDS_CSV"
+IFS=: read -r -a DOCUMENT_IDS <<< "$DOCUMENT_IDS_COLON"
 DOCUMENT_ARGS=()
 for document_id in "${DOCUMENT_IDS[@]}"; do
   [[ "$document_id" =~ ^[0-9a-f]{64}$ ]] || exit 93
