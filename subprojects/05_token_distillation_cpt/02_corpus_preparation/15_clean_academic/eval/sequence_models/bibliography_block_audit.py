@@ -318,7 +318,9 @@ def _plot_svg(summary: Mapping[str, Any]) -> str:
     top = list(summary["top_documents"][:15])
     maximum_blocks = max(int(item["bib_block_count"]) for item in top)
     label_width = 238
-    available = width - left - right - label_width
+    # Reserve a right gutter so the numeric value of the maximum bar remains
+    # visible instead of landing at the SVG edge.
+    available = width - left - right - label_width - 52
     row_height = (top_bottom - top_top) / len(top)
     for index, item in enumerate(top):
         y = top_top + index * row_height
@@ -461,4 +463,3 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
