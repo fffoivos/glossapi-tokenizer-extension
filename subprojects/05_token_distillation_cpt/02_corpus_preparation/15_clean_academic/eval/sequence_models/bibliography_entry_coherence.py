@@ -34,6 +34,8 @@ from .features import TAGS
 
 
 SCHEMA_VERSION = "bibliography-entry-anchored-coherence-oof-v1"
+SAFETY_MIN_LINE_PRECISION = 0.99
+SAFETY_MAX_SPURIOUS_BLOCKS_PER_ZERO_DOCUMENT = 0.02
 
 
 @dataclass(frozen=True)
@@ -176,15 +178,20 @@ def _raw_oof_prediction(
     return prediction
 
 
+def is_safe_candidate(row: Mapping[str, Any]) -> bool:
+    """Return whether a train-OOF candidate meets the frozen safety gate."""
+
+    metrics = row["metrics"]
+    return (
+        float(metrics["line_precision"]) >= SAFETY_MIN_LINE_PRECISION
+        and float(metrics["spurious_blocks_per_zero_block_document"])
+        <= SAFETY_MAX_SPURIOUS_BLOCKS_PER_ZERO_DOCUMENT
+    )
+
+
 def _selection_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
     metrics = row["metrics"]
-    safe = (
-        float(metrics["line_precision"]) >= 0.99
-        and float(metrics["spurious_blocks_per_zero_block_document"])
-        <= 0.02
-    )
     return (
-        safe,
         float(metrics["token_recall"]),
         float(metrics["line_recall"]),
         float(metrics["token_precision"]),
@@ -252,19 +259,28 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                         "metrics": evaluate_prediction(table, prediction),
                     }
                 )
-    selected = max(rows, key=_selection_key)
-    selected_config = AnchoredCoherenceConfig(**selected["config"])
-    selected_prediction = filter_anchored_components(
-        table,
-        raw_by_bias[selected_config.deletion_bias],
-        entry_probability,
-        block_config=block_config,
-        config=selected_config,
-    )
-    _save_array(output_dir / "selected_oof_prediction.npy", selected_prediction)
+    safe_rows = [row for row in rows if is_safe_candidate(row)]
+    selected = max(safe_rows, key=_selection_key) if safe_rows else None
+    diagnostic_highest_recall = max(rows, key=_selection_key)
+    if selected is not None:
+        selected_config = AnchoredCoherenceConfig(**selected["config"])
+        selected_prediction = filter_anchored_components(
+            table,
+            raw_by_bias[selected_config.deletion_bias],
+            entry_probability,
+            block_config=block_config,
+            config=selected_config,
+        )
+        _save_array(
+            output_dir / "selected_oof_prediction.npy", selected_prediction
+        )
     report = {
         "schema_version": SCHEMA_VERSION,
-        "status": "passed_train_oof_validation_unopened",
+        "status": (
+            "passed_train_oof_safety_gate_validation_unopened"
+            if selected is not None
+            else "research_only_no_candidate_met_safety_gate"
+        ),
         "arm": arm,
         "variant": variant,
         "feature_reference": {
@@ -275,8 +291,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         },
         "block_config": asdict(block_config),
         "candidate_count": len(rows),
+        "safe_candidate_count": len(safe_rows),
         "candidates": rows,
         "selected": selected,
+        "diagnostic_highest_recall_candidate": diagnostic_highest_recall,
         "selection_rule": "prefer precision>=0.99 and <=0.02 spurious blocks per zero-BIB document, then maximize token and line recall",
         "input_hashes": {
             "b1_oof_report": _sha256(b1_report_path),

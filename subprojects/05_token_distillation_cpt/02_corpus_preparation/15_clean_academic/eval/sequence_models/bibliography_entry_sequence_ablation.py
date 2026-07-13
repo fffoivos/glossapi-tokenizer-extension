@@ -26,6 +26,7 @@ from .bibliography_entry_blocks import BlockConfig, evaluate_prediction
 from .bibliography_entry_coherence import (
     AnchoredCoherenceConfig,
     filter_anchored_components,
+    is_safe_candidate,
 )
 from .bibliography_entry_models import load_table
 from .bibliography_entry_sequence import (
@@ -157,13 +158,7 @@ def _train_fold(task: tuple[Any, ...]) -> dict[str, Any]:
 
 def _selection_key(row: dict[str, Any]) -> tuple[Any, ...]:
     metrics = row["metrics"]
-    safe = (
-        float(metrics["line_precision"]) >= 0.99
-        and float(metrics["spurious_blocks_per_zero_block_document"])
-        <= 0.02
-    )
     return (
-        safe,
         float(metrics["token_recall"]),
         float(metrics["line_recall"]),
         float(metrics["token_precision"]),
@@ -276,23 +271,32 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                             "metrics": evaluate_prediction(table, prediction),
                         }
                     )
-    selected = max(rows, key=_selection_key)
-    selected_coherence = AnchoredCoherenceConfig(
-        **selected["coherence_config"]
-    )
-    selected_prediction = filter_anchored_components(
-        table,
-        raw_predictions[
-            (selected["variant"], selected_coherence.deletion_bias)
-        ],
-        probability,
-        block_config=block_config,
-        config=selected_coherence,
-    )
-    _save_array(output_dir / "selected_oof_prediction.npy", selected_prediction)
+    safe_rows = [row for row in rows if is_safe_candidate(row)]
+    selected = max(safe_rows, key=_selection_key) if safe_rows else None
+    diagnostic_highest_recall = max(rows, key=_selection_key)
+    if selected is not None:
+        selected_coherence = AnchoredCoherenceConfig(
+            **selected["coherence_config"]
+        )
+        selected_prediction = filter_anchored_components(
+            table,
+            raw_predictions[
+                (selected["variant"], selected_coherence.deletion_bias)
+            ],
+            probability,
+            block_config=block_config,
+            config=selected_coherence,
+        )
+        _save_array(
+            output_dir / "selected_oof_prediction.npy", selected_prediction
+        )
     report = {
         "schema_version": SCHEMA_VERSION,
-        "status": "passed_train_oof_validation_unopened",
+        "status": (
+            "passed_train_oof_safety_gate_validation_unopened"
+            if selected is not None
+            else "research_only_no_candidate_met_safety_gate"
+        ),
         "arm": arm,
         "variants": {
             variant: {
@@ -304,8 +308,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             for variant in args.variants
         },
         "candidate_count": len(rows),
+        "safe_candidate_count": len(safe_rows),
         "candidates": rows,
         "selected": selected,
+        "diagnostic_highest_recall_candidate": diagnostic_highest_recall,
         "selection_rule": "prefer precision>=0.99 and <=0.02 spurious blocks per zero-BIB document, then maximize token and line recall; prefer the narrower no-length ablation on ties",
         "feature_reference": {
             "no_length": "Remove line-length penalties from BIB emissions while retaining the hard rule that a long line cannot start a block.",

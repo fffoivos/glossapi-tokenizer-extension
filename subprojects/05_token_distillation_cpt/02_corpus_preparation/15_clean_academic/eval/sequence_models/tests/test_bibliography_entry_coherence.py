@@ -6,6 +6,7 @@ from sequence_models.bibliography_entry_blocks import BlockConfig
 from sequence_models.bibliography_entry_coherence import (
     AnchoredCoherenceConfig,
     filter_anchored_components,
+    is_safe_candidate,
 )
 
 
@@ -66,3 +67,27 @@ def test_filter_does_not_count_long_line_as_anchor() -> None:
         attach_headers=False,
     )
     assert not result.any()
+
+
+def test_safety_gate_requires_both_precision_and_zero_document_control() -> None:
+    safe = {
+        "metrics": {
+            "line_precision": 0.99,
+            "spurious_blocks_per_zero_block_document": 0.02,
+        }
+    }
+    low_precision = {
+        "metrics": {
+            "line_precision": 0.9899,
+            "spurious_blocks_per_zero_block_document": 0.0,
+        }
+    }
+    too_many_spurious_blocks = {
+        "metrics": {
+            "line_precision": 1.0,
+            "spurious_blocks_per_zero_block_document": 0.0201,
+        }
+    }
+    assert is_safe_candidate(safe)
+    assert not is_safe_candidate(low_precision)
+    assert not is_safe_candidate(too_many_spurious_blocks)
