@@ -15,6 +15,7 @@ import heapq
 import html
 import json
 import os
+import re
 from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Any, BinaryIO, Iterable, Mapping, Sequence
@@ -370,6 +371,72 @@ const counts=Object.entries(PACKET.selection.source_counts).map(([k,v])=>`${k}: 
     return template.replace("__TITLE__", title).replace("__DATA__", data)
 
 
+def documents_from_site(
+    path: str | Path,
+) -> tuple[list[dict[str, Any]], Mapping[str, Any], str]:
+    """Recover the exact review sample from a previously built explorer.
+
+    This supports cheap local UI/feature iterations without rescanning the
+    original corpus. The prior site already contains every displayed document
+    line and the source selection provenance, but never annotation labels.
+    """
+
+    source = Path(path)
+    raw = source.read_bytes()
+    page = raw.decode("utf-8")
+    match = re.search(r"<script>const PACKET=(.*?);\nconst \$=", page, re.S)
+    if match is None:
+        raise ValueError(f"{source}: embedded explorer packet not found")
+    packet = json.loads(match.group(1))
+    if not isinstance(packet, Mapping) or not str(packet.get("schema_version", "")).startswith(
+        "bibliography-line-feature-explorer-v"
+    ):
+        raise ValueError(f"{source}: unsupported explorer packet")
+    selection = packet.get("selection")
+    document_rows = packet.get("documents")
+    line_rows = packet.get("lines")
+    if (
+        not isinstance(selection, Mapping)
+        or not isinstance(document_rows, list)
+        or not isinstance(line_rows, list)
+    ):
+        raise ValueError(f"{source}: incomplete explorer packet")
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for line in line_rows:
+        if not isinstance(line, Mapping):
+            raise ValueError(f"{source}: invalid line row")
+        document_id = str(line.get("document_id", ""))
+        text = line.get("text")
+        abs_idx = line.get("abs_idx")
+        if not document_id or not isinstance(text, str) or not isinstance(abs_idx, int):
+            raise ValueError(f"{source}: invalid line identity")
+        grouped.setdefault(document_id, []).append(
+            {"abs_idx": abs_idx, "text": text}
+        )
+    documents: list[dict[str, Any]] = []
+    for row in document_rows:
+        if not isinstance(row, Mapping):
+            raise ValueError(f"{source}: invalid document row")
+        document_id = str(row.get("document_id", ""))
+        lines = sorted(grouped.pop(document_id, []), key=lambda line: line["abs_idx"])
+        if not document_id or not lines:
+            raise ValueError(f"{source}: missing lines for document {document_id!r}")
+        documents.append(
+            {
+                "document_id": document_id,
+                "work_id": str(row.get("work_id", "")),
+                "source": str(row.get("source", "")),
+                "split": str(selection.get("split", "")),
+                "coverage": str(selection.get("coverage", "")),
+                "n_physical_lines": int(row.get("n_physical_lines", 0)),
+                "lines": lines,
+            }
+        )
+    if grouped:
+        raise ValueError(f"{source}: lines refer to unknown documents")
+    return documents, selection, hashlib.sha256(raw).hexdigest()
+
+
 def _exclusive_write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
@@ -384,23 +451,39 @@ def _exclusive_write(path: Path, content: str) -> None:
 
 
 def run_build(args: argparse.Namespace) -> dict[str, Any]:
-    sources = tuple(part.strip() for part in args.sources.split(",") if part.strip())
-    documents, input_sha, eligible = select_documents(
-        args.input,
-        document_count=args.document_count,
-        sources=sources,
-        split=args.split,
-        coverage=args.coverage,
-        seed=args.seed,
-    )
+    rebuild_source: dict[str, Any] | None = None
+    if args.input_site:
+        documents, previous_selection, site_sha = documents_from_site(args.input_site)
+        input_path = str(previous_selection["input_path"])
+        input_sha = str(previous_selection["input_sha256"])
+        eligible = dict(previous_selection["eligible_counts"])
+        split = str(previous_selection["split"])
+        coverage = str(previous_selection["coverage"])
+        seed = str(previous_selection["seed"])
+        rebuild_source = {
+            "path": str(Path(args.input_site).resolve()),
+            "sha256": site_sha,
+        }
+    else:
+        sources = tuple(part.strip() for part in args.sources.split(",") if part.strip())
+        documents, input_sha, eligible = select_documents(
+            args.input,
+            document_count=args.document_count,
+            sources=sources,
+            split=args.split,
+            coverage=args.coverage,
+            seed=args.seed,
+        )
+        input_path = str(Path(args.input).resolve())
+        split, coverage, seed = args.split, args.coverage, args.seed
     payload = build_payload(
         documents,
-        input_path=str(Path(args.input).resolve()),
+        input_path=input_path,
         input_sha256=input_sha,
         eligible_counts=eligible,
-        split=args.split,
-        coverage=args.coverage,
-        seed=args.seed,
+        split=split,
+        coverage=coverage,
+        seed=seed,
     )
     output = Path(args.output)
     receipt = Path(args.receipt) if args.receipt else output.with_suffix(".receipt.json")
@@ -422,6 +505,8 @@ def run_build(args: argparse.Namespace) -> dict[str, Any]:
             "bytes": output.stat().st_size,
         },
     }
+    if rebuild_source is not None:
+        receipt_data["rebuild_source_site"] = rebuild_source
     try:
         _exclusive_write(receipt, json.dumps(receipt_data, ensure_ascii=False, indent=2) + "\n")
     except BaseException:
@@ -432,7 +517,12 @@ def run_build(args: argparse.Namespace) -> dict[str, Any]:
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", required=True, help="STRUCT-2K JSONL document inventory")
+    inputs = parser.add_mutually_exclusive_group(required=True)
+    inputs.add_argument("--input", help="STRUCT-2K JSONL document inventory")
+    inputs.add_argument(
+        "--input-site",
+        help="existing explorer whose exact label-blind sample should be reused",
+    )
     parser.add_argument("--output", required=True, help="new self-contained HTML output")
     parser.add_argument("--receipt", help="new receipt path (default: OUTPUT.receipt.json)")
     parser.add_argument("--document-count", type=int, default=20)

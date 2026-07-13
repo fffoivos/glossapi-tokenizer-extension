@@ -101,11 +101,6 @@ _DIRECT_AUTHOR = re.compile(
     rf"(?:{_INITIAL_ATOM}\s*){{1,3}}(?:[{_UPPER}][{_LOWER}’'\-]{{1,30}})?"
     rf"(?=\s*(?:,|\(|$))"
 )
-_NUMBERED_ENTRY = re.compile(
-    rf"^\s*(?:[^0-9{_LETTER}]\s*)*\d{{1,4}}(?!\d)"
-    rf"(?=\s|[^0-9{_LETTER}]|$)(?:\s*[^0-9{_LETTER}\s]\s*)*"
-)
-
 _AMPERSAND = re.compile(r"(?:&|&amp;)", re.I)
 _QUOTED = re.compile(r"(?:«[^»]{3,}»|“[^”]{3,}”|„[^“]{3,}“|\"[^\"]{3,}\"|'[^'\n]{3,}')")
 
@@ -284,6 +279,24 @@ def _matches(pattern: re.Pattern[str], text: str) -> int:
     return sum(1 for _ in pattern.finditer(text))
 
 
+def _numbered_entry_span(text: str) -> tuple[int, int] | None:
+    """Return a decorated leading-number span with a strict linear scan."""
+
+    index = 0
+    while index < len(text) and text[index].isspace():
+        index += 1
+    start = index
+    while index < len(text) and not text[index].isalnum():
+        index += 1
+    if index >= len(text) or not text[index].isdigit():
+        return None
+    while index < len(text) and text[index].isdigit():
+        index += 1
+    while index < len(text) and not text[index].isalnum():
+        index += 1
+    return start, index
+
+
 def extract_bibliography_features(text: str) -> BibliographyFeatures:
     """Extract the requested English/Greek bibliography signals from one line."""
 
@@ -319,7 +332,7 @@ def extract_bibliography_features(text: str) -> BibliographyFeatures:
         author_year_count=int(bool(_AUTHOR_YEAR.search(analysis_value))),
         name_initial_pair_count=_matches(_NAME_INITIAL_PAIR, analysis_value),
         direct_author_count=int(bool(_DIRECT_AUTHOR.search(analysis_value))),
-        numbered_entry_count=int(bool(_NUMBERED_ENTRY.search(analysis_value))),
+        numbered_entry_count=int(_numbered_entry_span(analysis_value) is not None),
         ampersand_count=_matches(_AMPERSAND, value),
         quoted_span_count=_matches(_QUOTED, value),
         editor_term_count=_matches(_EDITOR_TERMS, value),
@@ -439,10 +452,19 @@ def extract_bibliography_feature_review(text: str) -> BibliographyFeatureReview:
     analysis_patterns = (
         ("author_year_count", _AUTHOR_YEAR),
         ("direct_author_count", _DIRECT_AUTHOR),
-        ("numbered_entry_count", _NUMBERED_ENTRY),
     )
     for feature, pattern in analysis_patterns:
         add(feature, pattern, analysis_value, offset=analysis_start, first_only=True)
+    numbered_span = _numbered_entry_span(analysis_value)
+    if numbered_span is not None:
+        start, end = numbered_span
+        start += analysis_start
+        end += analysis_start
+        matches.append(
+            BibliographyFeatureMatch(
+                "numbered_entry_count", start, end, value[start:end]
+            )
+        )
     add(
         "name_initial_pair_count",
         _NAME_INITIAL_PAIR,

@@ -7,6 +7,7 @@ from sequence_models.bibliography_feature_explorer import (
     FEATURE_SPECS,
     build_page,
     build_payload,
+    documents_from_site,
     select_documents,
 )
 
@@ -113,3 +114,25 @@ def test_page_has_live_feature_filters_and_unit_scoring() -> None:
     assert "Hover a coloured badge or sidebar feature label" in page
     assert "raw count is non-zero" not in page  # Python docstring is not rendered.
     assert "weighted_score_used" in page
+
+
+def test_existing_site_can_supply_the_exact_label_blind_sample(tmp_path: Path) -> None:
+    payload = build_payload(
+        [_document("greek_phd", 1)],
+        input_path="/remote/struct2k.jsonl",
+        input_sha256="b" * 64,
+        eligible_counts={"greek_phd": 10},
+        split="train",
+        coverage="full_document",
+        seed="fixed-seed",
+    )
+    site = tmp_path / "index.html"
+    site.write_text(build_page(payload), encoding="utf-8")
+
+    documents, selection, site_sha = documents_from_site(site)
+
+    assert len(documents) == 1
+    assert documents[0]["document_id"] == "greek_phd-1"
+    assert len(documents[0]["lines"]) == 110
+    assert selection["input_sha256"] == "b" * 64
+    assert len(site_sha) == 64

@@ -5,10 +5,10 @@ the bibliography-v2 weighted scorer and the document-level block decoder.
 
 - It selects 20 source-balanced, `train` / `full_document` documents by a
   deterministic SHA-256 rank.
-- It evaluates every nonblank line with the 38-field
+- It evaluates every nonblank line with the current
   `BibliographyFeatures` extractor.
 - `token_count` is displayed as line context rather than treated as a detected
-  bibliography event. The remaining 37 nonzero feature counts each contribute
+  bibliography event. The remaining 35 nonzero feature counts each contribute
   exactly one point, regardless of magnitude.
 - The page retains all evaluated lines so disabling a feature reranks the whole
   inventory before rendering the top 100; it does not merely filter the
@@ -36,6 +36,16 @@ python3 -m sequence_models.bibliography_feature_explorer \
   --receipt /new/output/build.receipt.json
 ```
 
+For feature/UI iterations, the exact label-blind sample embedded in an existing
+site can be rebuilt locally without rereading or transferring STRUCT-2K:
+
+```bash
+python3 -m sequence_models.bibliography_feature_explorer \
+  --input-site /absolute/previous/index.html \
+  --output /new/output/index.html \
+  --receipt /new/output/build.receipt.json
+```
+
 The tracked Clariden wrapper is
 `clariden/build_bibliography_feature_explorer.sbatch`. It binds a clean commit,
 hides accelerators, refuses to replace an existing output, and verifies the
@@ -43,6 +53,33 @@ expected 7/7/6 source split before publishing the site path.
 
 Serve the resulting directory locally with any static HTTP server. The page is
 self-contained and requires no backend or external assets.
+
+## Current corrected local build
+
+The current presentation was rebuilt locally on 2026-07-13 from the exact
+20-document, 14,815-line label-blind packet embedded in the prior hover build.
+No Clariden compute job was required. It has 35 scored features after these
+corrections:
+
+- `inverted_author_count` captures every inverted author and all adjacent
+  initials, including `Lewis, M.A.`;
+- `initial_count` covers one- or two-letter forms such as `I.` and `Ph.`, while
+  dotted words require at least three letters, so their spans do not overlap;
+- the redundant `initial_sequence_count` and `author_joiner_count` fields were
+  removed;
+- `numbered_entry_count` marks a line when its first non-decoration character
+  is numeric, using a bounded linear scan.
+
+The current HTML SHA-256 is
+`84e7266a577a5ec27b66378fa35726854220447e91a5e4998f320bfd32e63bdd`.
+The exact local build receipt is archived at
+`results/bibliography_feature_explorer/corrected_local_build.receipt.json`.
+Its output path records the staging location before the SHA-identical file was
+promoted to `outputs/bibliography-feature-explorer/index.html`.
+
+The earlier bibliography-v2 metric reports predate these feature-definition
+changes and are historical; the scorer must be re-evaluated before those
+metrics are treated as current.
 
 ## Current hover-spotlight build
 
