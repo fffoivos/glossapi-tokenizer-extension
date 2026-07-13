@@ -96,7 +96,7 @@ def validate_human_decisions(
     decisions_path: Path,
     output: Path,
 ) -> dict[str, object]:
-    """Close Stage 20 only after all 360 documents and 18 sources are decided."""
+    """Close Stage 20 only after every frozen document and source is decided."""
 
     output = output.resolve()
     if output.exists() or output.is_symlink():
@@ -109,7 +109,13 @@ def validate_human_decisions(
     if not isinstance(scope, Mapping) or not isinstance(scope.get("source_ids"), list):
         raise ValueError("freeze receipt lacks source scope")
     source_ids = [str(value) for value in scope["source_ids"]]
-    if len(source_ids) != 18 or len(set(source_ids)) != 18 or manifest.get("logical_review_count") != 360:
+    expected_count = manifest.get("logical_review_count")
+    if (
+        len(source_ids) != 18
+        or len(set(source_ids)) != 18
+        or not isinstance(expected_count, int)
+        or scope.get("logical_review_count") != expected_count
+    ):
         raise ValueError("freeze/packet scope closure drift")
     decisions = read_json_object(decisions_path)
     expected_keys = {
@@ -154,7 +160,7 @@ def validate_human_decisions(
         admitted.append(source_id)
     requests = _read_jsonl(packet_root / "requests.jsonl")
     by_request = {str(row.get("request_id")): row for row in requests}
-    if len(by_request) != 360:
+    if len(by_request) != expected_count:
         raise ValueError("packet request closure drift")
     disposition_counts = _validate_document_decisions(decisions, by_request)
     receipt: dict[str, object] = {

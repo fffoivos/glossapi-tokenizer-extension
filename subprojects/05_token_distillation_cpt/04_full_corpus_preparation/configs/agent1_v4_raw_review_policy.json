@@ -32,6 +32,13 @@
     "openarchives_current"
   ],
   "documents_per_source": 20,
+  "approved_sample_count_exceptions": {
+    "heinrich_boell_publications": {
+      "documents_to_review": 8,
+      "eligible_document_units": 8,
+      "approval": "Foivos explicitly approved reviewing all 8 available unique raw documents on 2026-07-13; no document may be duplicated to reach 20."
+    }
+  },
   "sampling_namespace": "agent1_v4_raw_review_hmac_v1",
   "review_transport": "exact_raw_user_approved",
   "model": "gpt-5.6-terra",
@@ -39,6 +46,7 @@
   "max_attempts_per_document": 3,
   "approval": {
     "scope": "Foivos approved the 18 new-family source roster on 2026-07-13.",
-    "raw_text_review": "Foivos instructed that the review use each sampled document as is."
+    "raw_text_review": "Foivos instructed that the review use each sampled document as is.",
+    "heinrich_boell_publications_exception": "Foivos approved reviewing all 8 available unique raw documents on 2026-07-13."
   }
 }

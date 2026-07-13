@@ -297,18 +297,26 @@ def read_jsonl(path: Path) -> list[dict[str, object]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
 
 
-def test_materializes_exact_18_by_20_raw_packet_deterministically(tmp_path: Path) -> None:
+def expected_source_counts() -> dict[str, int]:
+    return V4.expected_source_counts(json.loads(POLICY.read_text(encoding="utf-8")))
+
+
+def expected_review_count() -> int:
+    return sum(expected_source_counts().values())
+
+
+def test_materializes_exact_receipt_bound_raw_packet_deterministically(tmp_path: Path) -> None:
     inputs = fixture(tmp_path)
     first = materialize(inputs, tmp_path / "first")
     second = materialize(inputs, tmp_path / "second")
 
-    assert first["logical_review_count"] == 360
-    assert first["source_counts"] == {source_id: 20 for source_id in json.loads(POLICY.read_text())["source_ids"]}
+    assert first["logical_review_count"] == expected_review_count()
+    assert first["source_counts"] == expected_source_counts()
     assert V4.validate_packet(tmp_path / "first")["status"] == "passed"
     first_requests = read_jsonl(tmp_path / "first" / "requests.jsonl")
     second_requests = read_jsonl(tmp_path / "second" / "requests.jsonl")
     assert first_requests == second_requests
-    assert len({request["sample_id"] for request in first_requests}) == 360
+    assert len({request["sample_id"] for request in first_requests}) == expected_review_count()
     assert all((tmp_path / "first" / request["document_path"]).is_file() for request in first_requests)
     assert all("alternate_text" != request["origin_locator"]["text_field"] for request in first_requests)
 
@@ -323,7 +331,8 @@ def test_blocks_when_source_has_fewer_than_twenty_unique_documents(tmp_path: Pat
     assert blocked["issues"] == [
         {
             "source_id": "istorima",
-            "reason": "fewer_than_20_unique_nonempty_raw_documents",
+            "reason": "fewer_than_required_unique_nonempty_raw_documents",
+            "required_documents": 20,
             "eligible_document_units": 19,
             "eligible_unique_documents_at_selection_cutoff": 19,
         }
@@ -440,14 +449,14 @@ def test_builds_private_raw_review_site_with_lazy_raw_documents(tmp_path: Path) 
 
     assert manifest["status"] == "passed"
     assert manifest["source_count"] == 18
-    assert manifest["document_count"] == 360
+    assert manifest["document_count"] == expected_review_count()
     assert manifest["portable_asset_bytes"] <= manifest["max_portable_assets_bytes"]
     assert all(not row["path"].startswith("data/documents/") for row in manifest["portable_assets"])
     index = json.loads((tmp_path / "review-site" / "data" / "index.json").read_text(encoding="utf-8"))
-    assert len(index["cards"]) == 360
+    assert len(index["cards"]) == expected_review_count()
     assert "text" not in index["cards"][0]
     raw_documents = list((tmp_path / "review-site" / "data" / "documents").glob("*.json"))
-    assert len(raw_documents) == 360
+    assert len(raw_documents) == expected_review_count()
     first_raw = json.loads(raw_documents[0].read_text(encoding="utf-8"))
     assert "Συνεκτικό ελληνικό κείμενο." in first_raw["text"]
     assert "Συνεκτικό ελληνικό κείμενο." not in (tmp_path / "review-site" / "data" / "index.json").read_text(encoding="utf-8")
@@ -476,7 +485,7 @@ def test_freeze_receipt_binds_inputs_but_not_sampling_seed(tmp_path: Path) -> No
     )
 
     assert receipt["status"] == "passed"
-    assert receipt["review_scope"]["logical_review_count"] == 360
+    assert receipt["review_scope"]["logical_review_count"] == expected_review_count()
     assert len(receipt["sources"]) == 18
     serialized = output.read_text(encoding="utf-8")
     assert "d" * 64 not in serialized
@@ -567,7 +576,7 @@ def test_human_gate_requires_all_document_source_and_license_decisions(tmp_path:
 
     assert receipt["status"] == "passed"
     assert len(receipt["admitted_source_ids"]) == 18
-    assert receipt["document_disposition_counts"] == {"agree": 360}
+    assert receipt["document_disposition_counts"] == {"agree": expected_review_count()}
 
 
 def test_human_gate_blocks_without_explicit_field_discovery_approval(tmp_path: Path) -> None:
@@ -603,7 +612,7 @@ def test_human_gate_blocks_without_explicit_field_discovery_approval(tmp_path: P
         )
 
 
-def test_response_bundle_validator_closes_exactly_360_responses(tmp_path: Path) -> None:
+def test_response_bundle_validator_closes_the_receipt_bound_response_count(tmp_path: Path) -> None:
     inputs = fixture(tmp_path)
     packet_root = tmp_path / "packet"
     materialize(inputs, packet_root)
@@ -622,8 +631,8 @@ def test_response_bundle_validator_closes_exactly_360_responses(tmp_path: Path) 
         output=tmp_path / "response-validation.json",
     )
     assert receipt["status"] == "passed"
-    assert receipt["logical_review_count"] == 360
-    assert set(receipt["source_counts"].values()) == {20}
+    assert receipt["logical_review_count"] == expected_review_count()
+    assert receipt["source_counts"] == expected_source_counts()
 
 
 def test_field_profiler_scans_only_admitted_receipt_bound_sources(tmp_path: Path) -> None:

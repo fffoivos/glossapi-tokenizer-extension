@@ -14,7 +14,7 @@ usage: agent1_v4_submit.sh <bootstrap-runtime|freeze|sample|validate-responses|b
 Only CSCS CPU coordination stages are available.  ``sample`` reads the passed
 acquisition receipt and produces the 18 x 20 raw-review packet.  It does not
 invoke Codex.  Terra reviews run on the authenticated Mac's isolated runner;
-``build-site`` accepts only its validated 360-response JSONL result.
+``build-site`` accepts only its validated receipt-bound Terra response JSONL result.
 
 Every invocation is a dry run until CONFIRM_LAUNCH=1.  A real submission also
 requires CONFIRM_CLARIDEN_CPU_EXCEPTION=REQTRES_NO_GPU because normal Clariden

@@ -144,10 +144,13 @@ def validate_request_manifest(requests_path: Path, packet_manifest_path: Path) -
         seen_ids.add(request_id)
         source_id = str(request["source_id"])
         source_counts[source_id] = source_counts.get(source_id, 0) + 1
-    if source_counts != manifest.get("source_counts"):
+    expected_counts = manifest.get("source_counts")
+    if not isinstance(expected_counts, Mapping) or source_counts != expected_counts:
         raise ValueError("request source counts differ from packet manifest")
-    if len(requests) != 360 or len(source_counts) != 18 or any(count != 20 for count in source_counts.values()):
-        raise ValueError("Terra lane requires exactly 18 sources and 360 requests")
+    if len(source_counts) != 18 or any(count < 1 for count in source_counts.values()):
+        raise ValueError("Terra lane requires a complete non-empty 18-source packet")
+    if manifest.get("logical_review_count") != len(requests) or sum(source_counts.values()) != len(requests):
+        raise ValueError("Terra lane request count differs from packet manifest")
     return sorted(requests, key=lambda value: (str(value["source_id"]), str(value["sample_id"])))
 
 

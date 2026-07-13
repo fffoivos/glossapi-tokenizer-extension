@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a returned 360-response Terra evidence bundle on CSCS."""
+"""Validate the receipt-bound Terra evidence bundle on CSCS."""
 
 from __future__ import annotations
 
@@ -43,10 +43,11 @@ def validate_response_bundle(
     manifest = validate_packet(packet_root, packet_manifest_path)
     requests = _read_jsonl(packet_root / "requests.jsonl")
     responses = _read_jsonl(responses_path)
-    if len(requests) != 360 or len(responses) != 360:
-        raise ValueError("Terra evidence bundle must have exactly 360 requests and responses")
+    expected_count = manifest.get("logical_review_count")
+    if not isinstance(expected_count, int) or len(requests) != expected_count or len(responses) != expected_count:
+        raise ValueError("Terra evidence bundle does not match the packet review count")
     by_request = {str(row.get("request_id")): row for row in requests}
-    if len(by_request) != 360:
+    if len(by_request) != expected_count:
         raise ValueError("packet request IDs are not unique")
     seen: set[str] = set()
     source_counts: Counter[str] = Counter()

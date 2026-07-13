@@ -170,6 +170,18 @@ def load_policy(path: Path) -> dict[str, Any]:
         raise ValueError(f"{path}: source scope has duplicates or overlap with exclusions")
     if policy.get("documents_per_source") != 20:
         raise ValueError(f"{path}: documents_per_source must be 20")
+    exceptions = policy.get("approved_sample_count_exceptions")
+    if not isinstance(exceptions, Mapping) or set(exceptions) != {"heinrich_boell_publications"}:
+        raise ValueError(f"{path}: requires the approved Heinrich eight-document exception")
+    exception = exceptions["heinrich_boell_publications"]
+    if not isinstance(exception, Mapping) or set(exception) != {
+        "documents_to_review", "eligible_document_units", "approval"
+    }:
+        raise ValueError(f"{path}: Heinrich exception has an invalid contract")
+    if exception.get("documents_to_review") != 8 or exception.get("eligible_document_units") != 8:
+        raise ValueError(f"{path}: Heinrich exception must preserve the observed eight-document closure")
+    if not isinstance(exception.get("approval"), str) or not exception["approval"].strip():
+        raise ValueError(f"{path}: Heinrich exception lacks explicit approval text")
     if policy.get("review_transport") != "exact_raw_user_approved":
         raise ValueError(f"{path}: exact raw review approval is required")
     if policy.get("model") != "gpt-5.6-terra":
@@ -177,6 +189,29 @@ def load_policy(path: Path) -> dict[str, Any]:
     if policy.get("max_attempts_per_document") != 3:
         raise ValueError(f"{path}: max attempts must remain 3")
     return policy
+
+
+def expected_source_counts(policy: Mapping[str, Any]) -> dict[str, int]:
+    """Return the receipt-bound reviewed-document denominator for each source."""
+
+    source_ids = policy.get("source_ids")
+    if not isinstance(source_ids, list):
+        raise ValueError("policy source_ids are invalid")
+    default = policy.get("documents_per_source")
+    if not isinstance(default, int) or default < 1:
+        raise ValueError("policy documents_per_source is invalid")
+    counts = {str(source_id): default for source_id in source_ids}
+    exceptions = policy.get("approved_sample_count_exceptions")
+    if not isinstance(exceptions, Mapping):
+        raise ValueError("policy sample-count exceptions are invalid")
+    for source_id, row in exceptions.items():
+        if source_id not in counts or not isinstance(row, Mapping):
+            raise ValueError("policy sample-count exception is invalid")
+        count = row.get("documents_to_review")
+        if not isinstance(count, int) or not 1 <= count < default:
+            raise ValueError("policy sample-count exception has an invalid count")
+        counts[source_id] = count
+    return counts
 
 
 def load_roster(path: Path, source_ids: Sequence[str]) -> dict[str, dict[str, str]]:
@@ -494,10 +529,10 @@ def validate_packet(packet_root: Path, manifest_path: Path | None = None) -> dic
     expected = manifest.get("source_counts")
     if source_counts != expected:
         raise ValueError("packet source counts drift")
-    if any(count != 20 for count in source_counts.values()) or len(source_counts) != 18:
-        raise ValueError("packet must close exactly 18 sources with 20 documents each")
-    if len(requests) != 360:
-        raise ValueError("packet must contain exactly 360 requests")
+    if len(source_counts) != 18 or any(not isinstance(count, int) or count < 1 for count in source_counts.values()):
+        raise ValueError("packet has an invalid source/document closure")
+    if manifest.get("logical_review_count") != len(requests) or sum(source_counts.values()) != len(requests):
+        raise ValueError("packet logical review count drift")
     return manifest
 
 
@@ -531,20 +566,21 @@ def materialize_raw_review_packet(
     if [source.source_id for source in sources] != sorted(policy["source_ids"]):
         raise ValueError("receipt/source-policy closure drift")
     routes = load_roster(roster_path, policy["source_ids"])
+    expected_counts = expected_source_counts(policy)
     selected_by_source: dict[str, list[RawCandidate]] = {}
     eligibility: dict[str, dict[str, int]] = {}
     issues: list[dict[str, object]] = []
     for source in sources:
-        selected, statistics = select_source_documents(
-            source, routes[source.source_id], seed, int(policy["documents_per_source"])
-        )
+        required_count = expected_counts[source.source_id]
+        selected, statistics = select_source_documents(source, routes[source.source_id], seed, required_count)
         selected_by_source[source.source_id] = selected
         eligibility[source.source_id] = statistics
-        if len(selected) != int(policy["documents_per_source"]):
+        if len(selected) != required_count:
             issues.append(
                 {
                     "source_id": source.source_id,
-                    "reason": "fewer_than_20_unique_nonempty_raw_documents",
+                    "reason": "fewer_than_required_unique_nonempty_raw_documents",
+                    "required_documents": required_count,
                     "eligible_document_units": statistics["eligible_document_units"],
                     "eligible_unique_documents_at_selection_cutoff": statistics[
                         "eligible_unique_documents_at_selection_cutoff"
@@ -563,6 +599,9 @@ def materialize_raw_review_packet(
         "sampling_seed_sha256": sha256_text(seed_hex),
         "review_transport": policy["review_transport"],
         "model": policy["model"],
+        "documents_per_source": policy["documents_per_source"],
+        "approved_sample_count_exceptions": policy["approved_sample_count_exceptions"],
+        "expected_source_counts": expected_counts,
     }
     if issues:
         output.mkdir(mode=0o700)
@@ -629,7 +668,6 @@ def materialize_raw_review_packet(
             "schema_version": PACKET_SCHEMA,
             "status": "passed",
             **common,
-            "documents_per_source": policy["documents_per_source"],
             "logical_review_count": len(requests),
             "source_counts": source_counts,
             "eligibility": eligibility,
