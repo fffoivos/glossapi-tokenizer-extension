@@ -42,19 +42,53 @@ views from the same documents:
 
 ### Entry-line target
 
-- `ENTRY = 1`: an emitted line labelled `BIB`, except for a recognized
-  bibliography heading or structural bibliography subheading.
+- `ENTRY = 1`: an emitted line labelled `BIB` that is not in the audited
+  header-candidate mask described below.
 - `ENTRY = 0`: emitted `O` and `TOC` lines.
-- `MASK`: `UNKNOWN`, coverage seams, and bibliography headers/subheaders.
+- `MASK`: `UNKNOWN`, coverage seams, and audited header candidates.
 
-Headers are masked, not made negative. The line model is neither rewarded nor
-penalized for recognizing `Βιβλιογραφία`, `References`, or similar headings.
-The header detector is retained separately as block-boundary evidence.
+Headers are masked, never made negative. A false header decision can therefore
+remove a training example but cannot teach the classifier that a real entry is
+prose. The raw silver `BIB` region target is never modified.
 
-Before fitting, audit a source-balanced sample of the header mask. If the
-simple heading rules cannot distinguish headings from real entries reliably,
-use contextual Codex adjudication for the ambiguous mask only; do not relabel
-the whole corpus or manufacture human-gold claims.
+Do not let a regex decide the mask. Build a deliberately high-recall candidate
+set from all silver `BIB` lines using only nomination cues:
+
+- known multilingual bibliography-heading vocabulary;
+- short, citation-sparse lines at a silver block boundary;
+- short internal lines that could be language/source subheadings such as
+  `Ελληνόγλωσση βιβλιογραφία`, `Ξενόγλωσση βιβλιογραφία`, or `Πηγές`;
+- typography and capitalization cues, without treating them as proof.
+
+Adjudicate every nominated line with document context, including neighbouring
+lines and its position inside the silver block. The contextual labels are
+`ENTRY`, `BIB_HEADER`, `BIB_SUBHEADER`, `OTHER_STRUCTURE`, and `UNCERTAIN`.
+Only `BIB_HEADER` and `BIB_SUBHEADER` are supplied to the separate block model
+as positive boundary cues. All non-`ENTRY` candidate outcomes are masked from
+the entry-classifier loss; none becomes an `O` negative.
+
+Use two independent Codex judgments for candidate adjudication. Agreement on
+`ENTRY` returns the line to the positive set; agreement on header/subheader
+masks it and enables the boundary cue; disagreement or uncertainty remains
+masked without becoming a cue. Then Foivos and Codex jointly inspect at least
+100 source- and position-balanced candidates, with special attention to short
+real citations and internal bibliography subdivisions. Freeze the mask only
+if this audit finds no real entry incorrectly promoted to a header boundary
+cue. Otherwise revise the nomination/adjudication contract and repeat with a
+fresh audit sample.
+
+These contextual labels are still LLM-assisted research labels, not human
+gold. Their receipt must preserve the prompt, model identity, responses,
+candidate hashes, agreement status, and final masking rule.
+
+If contextual adjudication is unavailable, the fallback is conservative:
+mask only exact high-confidence heading vocabulary and leave every other
+silver `BIB` line positive. Do not infer a broad header mask from line length,
+capitalization, or lack of citation features alone.
+
+The resulting high-precision header/subheader cue is retained separately as
+block-boundary evidence. The entry classifier itself is neither rewarded nor
+penalized for recognizing it.
 
 ### Region/block target
 
