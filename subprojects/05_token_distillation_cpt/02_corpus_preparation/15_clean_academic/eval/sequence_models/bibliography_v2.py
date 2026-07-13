@@ -170,8 +170,11 @@ _PLACE_NAMES = re.compile(
     re.I,
 )
 _PLACE_PUBLISHER_SHAPE = re.compile(
-    rf"\b[{_UPPER}][{_LETTER}.'’\-]*(?:\s+[{_UPPER}][{_LETTER}.'’\-]*){{0,3}}\s*:\s*"
-    rf"(?:[{_UPPER}]|(?:press|εκδ)[{_LETTER}]*)",
+    r"(?:\b(?:Athens|London|New\s+York|Boston|Cambridge|Oxford|Chicago|Paris|Berlin|"
+    r"Amsterdam|Brussels|Rome|Milan|Munich|Thessaloniki|Αθήνα|Αθήναι|Θεσσαλονίκη|"
+    r"Πάτρα|Ιωάννινα|Ηράκλειο|Λευκωσία|Ρώμη|Παρίσι|Λονδίνο|Βερολίνο|Νέα\s+Υόρκη)\s*:"
+    r"|:\s*(?:[A-ZΑ-ΩΆΈΉΊΌΎΏ][\w.'’\-]+\s+){0,3}"
+    r"(?:Press|University\s+Press|Publishing|Publisher|Εκδόσεις|Εκδ\.))",
     re.I,
 )
 
@@ -184,6 +187,23 @@ _BIB_HEADING_WORD = re.compile(
     r"^(?:bibliography|references|works\s+cited|literature\s+cited|"
     r"βιβλιογραφία|βιβλιογραφικές\s+αναφορές|πηγές(?:\s+και\s+βιβλιογραφία)?)$",
     re.I,
+)
+_BIB_EXTENDED_HEADING = re.compile(
+    r"^(?:βιβλιογραφ[ιί]α\s+κεφαλα[ιί]ου\s+[A-ZΑ-ΩΆΈΉΊΌΎΏ0-9.΄ʹ]+|"
+    r"chapter\s+[A-Z0-9.]+\s+(?:bibliography|references))$",
+    re.I,
+)
+_BIB_EXTENDED_SUBHEADING = re.compile(
+    r"^(?:(?:ελληνόγλωσσες|ξενόγλωσσες)\s+βιβλιογραφικές\s+πηγές|"
+    r"(?:greek|foreign[- ]language)\s+bibliographic\s+sources)$",
+    re.I,
+)
+_FIGURE_CAPTION_START = re.compile(
+    r"^\s*(?:[-–—•]\s*)?(?:εικ(?:όνα|\.)?|σχ(?:ήμα|\.)?|fig(?:ure|\.)?)\s*\d",
+    re.I,
+)
+_ENUMERATED_PROSE_START = re.compile(
+    r"^\s*(?:[-–—•\uf0a0]\s*)?(?:\d{1,3}|[A-Za-zΑ-Ωα-ω])\s*[.)]\s+"
 )
 
 
@@ -258,6 +278,9 @@ def extract_bibliography_features(text: str) -> BibliographyFeatures:
     if not isinstance(text, str):
         raise TypeError("text must be a string")
     value = unicodedata.normalize("NFKC", text)
+    analysis_value = value.strip()
+    if analysis_value.startswith("|") and analysis_value.endswith("|"):
+        analysis_value = analysis_value[1:-1].strip()
     tokens = re.findall(r"[^\W_]+(?:[’'\-][^\W_]+)*", value, re.UNICODE)
     page_range_text = value
     # Hyphenated dates and ISBN components are not page ranges.  Preserve
@@ -281,11 +304,11 @@ def extract_bibliography_features(text: str) -> BibliographyFeatures:
         initial_count=_matches(_INITIAL, value),
         initial_sequence_count=_matches(_INITIAL_SEQUENCE, value),
         proper_name_word_count=_matches(_PROPER_WORD, value),
-        inverted_author_count=int(bool(_INVERTED_AUTHOR.search(value))),
-        author_year_count=int(bool(_AUTHOR_YEAR.search(value))),
-        name_initial_pair_count=_matches(_NAME_INITIAL_PAIR, value),
-        direct_author_count=int(bool(_DIRECT_AUTHOR.search(value))),
-        numbered_entry_count=int(bool(_NUMBERED_ENTRY.search(value))),
+        inverted_author_count=int(bool(_INVERTED_AUTHOR.search(analysis_value))),
+        author_year_count=int(bool(_AUTHOR_YEAR.search(analysis_value))),
+        name_initial_pair_count=_matches(_NAME_INITIAL_PAIR, analysis_value),
+        direct_author_count=int(bool(_DIRECT_AUTHOR.search(analysis_value))),
+        numbered_entry_count=int(bool(_NUMBERED_ENTRY.search(analysis_value))),
         ampersand_count=_matches(_AMPERSAND, value),
         author_joiner_count=_matches(_AUTHOR_JOINER, value),
         quoted_span_count=_matches(_QUOTED, value),
@@ -479,6 +502,7 @@ def analyze_bibliography_line_v2(
     features = extract_bibliography_features(text)
     base = analyze_bib_line(text, line_index)
     stripped = unicodedata.normalize("NFKC", text).strip()
+    heading_text = stripped.lstrip("#").strip()
 
     if not stripped:
         return BibliographyV2Evidence(
@@ -504,6 +528,32 @@ def analyze_bibliography_line_v2(
             features.token_count,
             base.evidence_families,
             base.citation_styles,
+            features,
+        )
+    if _BIB_EXTENDED_HEADING.fullmatch(heading_text):
+        return BibliographyV2Evidence(
+            line_index,
+            text,
+            BibRole.HEADING,
+            4.0,
+            ("BIB2_EXTENDED_HEADING",),
+            False,
+            features.token_count,
+            (),
+            (),
+            features,
+        )
+    if _BIB_EXTENDED_SUBHEADING.fullmatch(heading_text):
+        return BibliographyV2Evidence(
+            line_index,
+            text,
+            BibRole.SUBHEADING,
+            2.5,
+            ("BIB2_EXTENDED_SUBHEADING",),
+            False,
+            features.token_count,
+            (),
+            ("formal_source",),
             features,
         )
     if _BIB_HEADING_WORD.fullmatch(
@@ -548,6 +598,46 @@ def analyze_bibliography_line_v2(
             features,
         )
 
+    author_specific = bool(
+        features.inverted_author_count
+        or features.author_year_count
+        or features.name_initial_pair_count >= 2
+    )
+    identifier_specific = bool(
+        features.doi_count or features.isbn_count or features.issn_count
+    )
+    if _FIGURE_CAPTION_START.match(stripped):
+        return BibliographyV2Evidence(
+            line_index,
+            text,
+            BibRole.HARD_OTHER,
+            -4.0,
+            ("BIB2_NEGATIVE_FIGURE_CAPTION",),
+            True,
+            features.token_count,
+            _feature_families(features),
+            (),
+            features,
+        )
+    if (
+        features.token_count >= 22
+        and _ENUMERATED_PROSE_START.match(stripped)
+        and not author_specific
+        and not identifier_specific
+    ):
+        return BibliographyV2Evidence(
+            line_index,
+            text,
+            BibRole.HARD_OTHER,
+            -4.0,
+            ("BIB2_NEGATIVE_LONG_ENUMERATED_PROSE",),
+            True,
+            features.token_count,
+            _feature_families(features),
+            (),
+            features,
+        )
+
     base_negative_codes = {code for code in base.reason_codes if "NEGATIVE" in code}
     override_running_prose = base_negative_codes == {
         "BIB_NEGATIVE_RUNNING_PROSE"
@@ -559,8 +649,21 @@ def analyze_bibliography_line_v2(
             features.journal_year_volume_count
             and (features.page_marker_count or features.page_range_count)
         )
+        or (
+            (features.publisher_term_count or features.place_publisher_shape_count)
+            and (
+                features.year_count
+                or features.page_marker_count
+                or features.page_range_count
+            )
+        )
     )
-    if base.hard_negative and not override_running_prose:
+    override_statistical_table = strong_table_citation and base_negative_codes == {
+        "BIB_NEGATIVE_STATISTICAL_TABLE"
+    }
+    if base.hard_negative and not (
+        override_running_prose or override_statistical_table
+    ):
         return BibliographyV2Evidence(
             line_index,
             text,
@@ -602,31 +705,7 @@ def analyze_bibliography_line_v2(
     ):
         styles.append("journal")
 
-    specific_identifier = bool(
-        features.doi_count or features.isbn_count or features.issn_count
-    )
-    anchor = bool(
-        features.inverted_author_count
-        or features.author_year_count
-        or features.name_initial_pair_count >= 2
-        or features.direct_author_count
-        or (
-            features.numbered_entry_count
-            and (
-                features.year_count
-                or features.no_date_count
-                or features.doi_count
-                or features.isbn_count
-                or features.publisher_term_count
-                or features.volume_marker_count
-                or features.volume_shape_count
-                or features.page_marker_count
-                or features.page_range_count
-            )
-        )
-        or (features.initial_count >= 2 and features.year_count)
-        or specific_identifier
-    )
+    specific_identifier = identifier_specific
     publication_tail = bool(
         features.url_count
         or specific_identifier
@@ -638,10 +717,20 @@ def analyze_bibliography_line_v2(
         or features.page_marker_count
         or features.page_range_count
     )
+    dated = bool(features.year_count or features.no_date_count)
+    anchor = bool(
+        features.inverted_author_count
+        or features.author_year_count
+        or (features.name_initial_pair_count >= 2 and (dated or publication_tail))
+        or (features.direct_author_count and (dated or publication_tail))
+        or (features.numbered_entry_count and (dated or publication_tail))
+        or (features.initial_count >= 2 and dated)
+        or specific_identifier
+    )
     if score >= 4.5 and anchor and len(families) >= 2:
         role = BibRole.STRONG_ENTRY_START
         reasons = reasons + ("BIB2_STRONG_MULTI_FAMILY_ENTRY",)
-    elif score >= 2.4 and (anchor or len(families) >= 2):
+    elif score >= 2.4 and anchor:
         role = BibRole.WEAK_ENTRY_START
         reasons = reasons + ("BIB2_WEAK_MULTI_FAMILY_ENTRY",)
     elif publication_tail and score >= 1.2:

@@ -104,6 +104,42 @@ def test_long_numbered_prose_is_not_an_anchor_without_citation_support() -> None
     }
 
 
+def test_generic_concept_colon_is_not_a_place_publisher_shape() -> None:
+    features = extract_bibliography_features(
+        "1. Knowledge: This is an ordinary explanation in a numbered list."
+    )
+
+    assert features.place_publisher_shape_count == 0
+
+
+def test_figure_caption_with_year_and_source_url_is_a_hard_negative() -> None:
+    evidence = analyze_bibliography_line_v2(
+        "Εικ.7.1 P. Gauguin, Οβίρι, 1891-1893. Πηγή: https://example.org/image"
+    )
+
+    assert evidence.role == BibRole.HARD_OTHER
+    assert "BIB2_NEGATIVE_FIGURE_CAPTION" in evidence.reason_codes
+
+
+def test_citation_table_rows_are_allowed_but_separators_remain_barriers() -> None:
+    citation = analyze_bibliography_line_v2(
+        "| Andreou, S. A., Marks, D. H. (1987). A method. Water Journal, 2, 3-8. |"
+    )
+    separator = analyze_bibliography_line_v2("|-----------------------|")
+
+    assert citation.role in {BibRole.STRONG_ENTRY_START, BibRole.WEAK_ENTRY_START}
+    assert not citation.hard_negative
+    assert separator.role == BibRole.HARD_OTHER
+
+
+def test_extended_chapter_heading_and_language_subheading_are_typed() -> None:
+    heading = analyze_bibliography_line_v2("ΒΙΒΛΙΟΓΡΑΦΙΑ ΚΕΦΑΛΑΙΟΥ Γ.")
+    subheading = analyze_bibliography_line_v2("Ελληνόγλωσσες Βιβλιογραφικές Πηγές")
+
+    assert heading.role == BibRole.HEADING
+    assert subheading.role == BibRole.SUBHEADING
+
+
 def test_inline_author_year_prose_retains_the_conservative_veto() -> None:
     evidence = analyze_bibliography_line_v2(
         "Όπως υποστηρίζει ο Παπαδόπουλος (2019), η ανάλυση αυτή συνεχίζεται "
