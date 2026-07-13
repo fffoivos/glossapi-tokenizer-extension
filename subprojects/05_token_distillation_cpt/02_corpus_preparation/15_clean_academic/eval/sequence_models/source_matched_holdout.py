@@ -489,6 +489,9 @@ def build_holdout(
             str(row["source"]),
             bottom_k_word_shingles(str(row["text"])),
         )
+    # The index contains only bounded sketches; release the complete observed
+    # documents before scanning canonical candidates on a memory-limited worker.
+    del historical_texts
 
     source_inputs: dict[str, Any] = {}
     source_counts: dict[str, Any] = {}
