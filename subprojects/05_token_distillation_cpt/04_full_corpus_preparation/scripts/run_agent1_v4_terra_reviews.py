@@ -176,7 +176,9 @@ def seatbelt_profile(call_root: Path, codex_bin: Path, codex_home: Path) -> str:
     """
 
     root = str(call_root.resolve())
-    codex = str(codex_bin.resolve())
+    launcher = codex_bin.absolute()
+    resolved_codex = launcher.resolve()
+    codex = str(resolved_codex)
     home = str(codex_home.resolve())
     return "\n".join(
         [
@@ -188,6 +190,13 @@ def seatbelt_profile(call_root: Path, codex_bin: Path, codex_home: Path) -> str:
             "(allow network-outbound)",
             f"(allow file-read* (subpath {_seatbelt_quote(root)}))",
             f"(allow file-read* (subpath {_seatbelt_quote(home)}))",
+            # Homebrew exposes the executable through a symlink.  Both the
+            # fixed launcher directory and the resolved versioned runtime are
+            # executable code, never user document storage; allowing only
+            # those directories keeps the model's readable data boundary at
+            # the one-document call root and Codex auth home.
+            f"(allow file-read* (subpath {_seatbelt_quote(str(launcher.parent))}))",
+            f"(allow file-read* (subpath {_seatbelt_quote(str(resolved_codex.parent))}))",
             f"(allow file-read* (literal {_seatbelt_quote(codex)}))",
             "(allow file-read* (subpath \"/System\"))",
             "(allow file-read* (subpath \"/usr\"))",

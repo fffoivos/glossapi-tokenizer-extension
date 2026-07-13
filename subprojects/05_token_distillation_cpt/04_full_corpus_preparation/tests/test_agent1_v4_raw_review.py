@@ -371,6 +371,22 @@ def test_seatbelt_profile_denies_file_outside_one_document_root(tmp_path: Path) 
     assert completed.returncode != 0
 
 
+def test_seatbelt_profile_allows_fixed_launcher_and_resolved_runtime_dirs(tmp_path: Path) -> None:
+    root = tmp_path / "call-root"
+    root.mkdir()
+    runtime = tmp_path / "runtime" / "codex"
+    runtime.parent.mkdir()
+    runtime.write_text("fixture", encoding="utf-8")
+    launcher = tmp_path / "bin" / "codex"
+    launcher.parent.mkdir()
+    launcher.symlink_to(runtime)
+
+    profile = RUNNER.seatbelt_profile(root, launcher, Path.home() / ".codex")
+
+    assert f'(subpath "{launcher.parent}")' in profile
+    assert f'(subpath "{runtime.parent}")' in profile
+
+
 def test_response_validation_rejects_evidence_outside_cited_lines(tmp_path: Path) -> None:
     document = tmp_path / "document.txt"
     document.write_text("πρώτη γραμμή\nδεύτερη γραμμή", encoding="utf-8")
