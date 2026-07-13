@@ -14,7 +14,7 @@ from typing import Any, Mapping, Sequence
 
 import numpy as np
 
-from .bibliography_entry_blocks import evaluate_prediction
+from .bibliography_entry_blocks import BlockConfig, attach_h0_document, evaluate_prediction
 from .bibliography_entry_dataset import LABEL_TO_ID, MAX_PHYSICAL_GAP
 from .bibliography_entry_models import load_table
 from .feature_crf import LinearChainCRF, train_model
@@ -325,6 +325,25 @@ def _save_array(path: Path, value: np.ndarray) -> None:
         np.save(handle, value, allow_pickle=False)
 
 
+def attach_h0_table(
+    table: Any,
+    prediction: np.ndarray,
+    probability: np.ndarray,
+    config: BlockConfig,
+) -> np.ndarray:
+    result = prediction.copy()
+    for document in table.documents:
+        start, end = int(document["line_start"]), int(document["line_end"])
+        result[start:end] = attach_h0_document(
+            result[start:end],
+            probability[start:end],
+            table.header_kinds[start:end],
+            table.abs_indices[start:end],
+            config,
+        )
+    return result
+
+
 def run(args: argparse.Namespace) -> dict[str, Any]:
     table = load_table(args.table_dir)
     block_root = Path(args.block_oof_dir).resolve()
@@ -364,6 +383,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
     variants: dict[str, Any] = {}
     for arm in retained:
+        probability = np.load(
+            Path(args.line_oof_dir) / f"{arm}.oof_probability.npy",
+            mmap_mode="r",
+            allow_pickle=False,
+        )
+        config = BlockConfig(**block_report["arms"][arm]["selected_config"])
         for variant in ("no_header", "with_header"):
             key = f"{arm}:{variant}"
             prediction = np.zeros(len(table.targets), dtype=bool)
@@ -385,6 +410,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 }
                 result["model"].save(model_dir / f"{arm}.{variant}.fold{result['fold']}.npz", metadata)
                 fold_rows.append({name: result[name] for name in ("fold", "history", "deletion_bias", "calibration", "fit_document_count", "holdout_document_count")})
+            prediction = attach_h0_table(table, prediction, probability, config)
             _save_array(output_dir / f"{arm}.{variant}.oof_prediction.npy", prediction)
             metrics = evaluate_prediction(table, prediction)
             variants[key] = {"metrics": metrics, "folds": sorted(fold_rows, key=lambda row: row["fold"])}

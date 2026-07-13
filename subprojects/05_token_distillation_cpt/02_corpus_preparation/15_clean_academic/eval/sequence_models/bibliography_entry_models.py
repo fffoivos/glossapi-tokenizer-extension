@@ -75,13 +75,15 @@ class Table:
     folds: np.ndarray
 
 
-def load_table(root: str | Path) -> Table:
+def load_table(root: str | Path, *, expected_split: str = "train") -> Table:
     root = Path(root).resolve()
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     if manifest.get("schema_version") != "bibliography-entry-feature-table-v1":
         raise ValueError("unsupported feature-table schema")
-    if manifest.get("split") != "train":
-        raise ValueError("line ladder accepts a train-only feature table")
+    if manifest.get("split") != expected_split:
+        raise ValueError(
+            f"feature table split is {manifest.get('split')!r}, expected {expected_split!r}"
+        )
     arrays = {
         name: np.load(root / f"{name}.npy", mmap_mode="r", allow_pickle=False)
         for name in (
