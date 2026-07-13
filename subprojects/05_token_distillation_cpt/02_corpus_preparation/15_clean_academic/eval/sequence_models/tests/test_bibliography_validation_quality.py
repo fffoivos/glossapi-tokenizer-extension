@@ -19,6 +19,12 @@ def test_character_spaced_text_is_a_candidate() -> None:
     assert "character_spaced_extraction" in candidate_reasons(quality, 0.0)
 
 
+def test_spaced_tex_variables_are_not_character_spaced_ocr() -> None:
+    quality = analyze_text(["$$A t t e n t i o n ( Q , K , V )$$"] * 100)
+    assert quality.lexical_word_count == 0
+    assert "character_spaced_extraction" not in candidate_reasons(quality, 0.0)
+
+
 def test_glyph_placeholders_are_candidates() -> None:
     quality = analyze_text(["GLYPH<12> GLYPH&lt;7&gt;"] * 30)
     assert quality.glyph_placeholder_count == 60

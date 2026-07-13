@@ -82,7 +82,16 @@ def analyze_text(lines: Sequence[str]) -> TextQuality:
     nonempty = [line.strip() for line in lines if line.strip()]
     word_rows = [WORD_RE.findall(line) for line in nonempty]
     word_counts = [len(words) for words in word_rows]
-    all_words = [word for words in word_rows for word in words]
+    # TeX deliberately inserts spaces around one-letter variables.  It is not
+    # character-spaced OCR, so pure display-math and markup rows must not
+    # contribute to that diagnostic.
+    prose_word_rows = [
+        words
+        for line, words in zip(nonempty, word_rows, strict=True)
+        if not (line.startswith("$$") and line.endswith("$$"))
+        and not (line.startswith("<!--") and line.endswith("-->"))
+    ]
+    all_words = [word for words in prose_word_rows for word in words]
     text = "\n".join(nonempty)
     characters = len(text)
     glyph_count = len(GLYPH_RE.findall(text))
