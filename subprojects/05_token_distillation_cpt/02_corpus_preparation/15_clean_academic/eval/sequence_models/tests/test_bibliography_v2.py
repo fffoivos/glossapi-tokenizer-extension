@@ -24,7 +24,6 @@ def test_explicit_english_journal_features_are_independently_counted() -> None:
     )
 
     assert features.initial_count >= 3
-    assert features.initial_sequence_count >= 1
     assert features.ampersand_count == 1
     assert features.quoted_span_count == 1
     assert features.dotted_sequence_count >= 1
@@ -33,6 +32,45 @@ def test_explicit_english_journal_features_are_independently_counted() -> None:
     assert features.page_range_count == 1
     assert features.url_count == 1
     assert features.doi_count == 1
+
+
+def test_initials_are_at_most_two_letters_and_do_not_overlap_dotted_words() -> None:
+    features = extract_bibliography_features("I. Ph. Pro. Nat. Chem. Biol.")
+
+    assert features.initial_count == 2
+    assert features.dotted_word_count == 4
+    assert features.dotted_sequence_count == 1
+
+
+def test_inverted_author_counts_every_author_and_includes_all_initials() -> None:
+    text = "Lewis, M.A., Haviland-Jones, J.M., & Barrett, L.F. (2008). Handbook."
+    review = extract_bibliography_feature_review(text)
+    inverted = [
+        match for match in review.matches if match.feature == "inverted_author_count"
+    ]
+
+    assert review.features.inverted_author_count == 3
+    assert [match.text.rstrip() for match in inverted] == [
+        "Lewis, M.A.",
+        "Haviland-Jones, J.M.",
+        "Barrett, L.F.",
+    ]
+    assert review.features.initial_count == 6
+
+
+def test_numbered_entry_uses_first_non_special_character() -> None:
+    positives = (
+        "1 Lewis, M.A. (2008). Handbook.",
+        "[2] Lewis, M.A. (2008). Handbook.",
+        "— (3) Lewis, M.A. (2008). Handbook.",
+        "*** #4: Lewis, M.A. (2008). Handbook.",
+    )
+    for text in positives:
+        assert extract_bibliography_features(text).numbered_entry_count == 1
+
+    assert extract_bibliography_features(
+        "Lewis, M.A. discussed 4 examples."
+    ).numbered_entry_count == 0
 
 
 def test_review_matches_have_exact_offsets_and_count_parity() -> None:

@@ -75,20 +75,15 @@ _ISBN = re.compile(
 )
 _ISSN = re.compile(r"\bISSN\s*:?[ \t]*\d{4}[ -]?\d{3}[\dX]\b", re.I)
 
-_INITIAL = re.compile(
-    rf"(?<![{_LETTER}])(?:[{_UPPER}]\s*\.|[{_UPPER}][{_LOWER}]{{1,2}}\.)(?![{_LETTER}])"
-)
-_INITIAL_SEQUENCE = re.compile(
-    rf"(?<![{_LETTER}])(?:[{_UPPER}]\s*\.\s*){{2,}}|"
-    rf"(?<![{_LETTER}])(?:[{_UPPER}][{_LOWER}]{{1,2}}\.\s*)+(?:[{_UPPER}]\s*\.)"
-)
+_INITIAL_ATOM = rf"(?:[{_UPPER}]\s*\.|[{_UPPER}][{_LOWER}]\s*\.)"
+_INITIAL = re.compile(rf"(?<![{_LETTER}]){_INITIAL_ATOM}")
 _PROPER_WORD = re.compile(
     rf"(?<![{_LETTER}])[{_UPPER}][{_LOWER}]{{2,}}(?:[-’'][{_UPPER}]?[{_LOWER}]{{2,}})?(?![{_LETTER}])"
 )
 _INVERTED_AUTHOR = re.compile(
-    rf"^\s*(?:[-–—•]\s*)?(?:\[?\d{{1,4}}\]?[.)]?\s+)?"
-    rf"[{_UPPER}][{_LETTER}’'\-]{{1,45}},\s*"
-    rf"(?:[{_UPPER}]\s*\.|[{_UPPER}][{_LOWER}]{{1,2}}\.)"
+    rf"(?<![{_LETTER}])[{_UPPER}][{_LETTER}’'\-]{{1,45}}"
+    rf"(?:\s+[{_UPPER}][{_LETTER}’'\-]{{1,45}})?"
+    rf",\s*(?:{_INITIAL_ATOM}\s*){{1,4}}"
 )
 _AUTHOR_YEAR = re.compile(
     rf"^\s*(?:[-–—•]\s*)?(?:\[?\d{{1,4}}\]?[.)]?\s+)?"
@@ -97,21 +92,21 @@ _AUTHOR_YEAR = re.compile(
 )
 _NAME_INITIAL_PAIR = re.compile(
     rf"(?<![{_LETTER}])[{_UPPER}][{_LETTER}’'\-]{{1,40}}\s+"
-    rf"(?:[{_UPPER}]{{1,3}}|(?:[{_UPPER}]\s*\.\s*){{1,3}})"
+    rf"(?:[{_UPPER}]{{1,3}}|(?:{_INITIAL_ATOM}\s*){{1,3}})"
     rf"(?=\s*(?:,|;|&|&amp;|and\b|και\b|\(|$))"
 )
 _DIRECT_AUTHOR = re.compile(
     rf"^\s*(?:[-–—•\uf0a0]\s*)?(?:\[?\d{{1,4}}\]?[.)]?\s+)?"
     rf"(?:[{_UPPER}][{_LOWER}’'\-]{{1,30}}\s+)+"
-    rf"(?:[{_UPPER}]\s*\.\s*){{1,3}}(?:[{_UPPER}][{_LOWER}’'\-]{{1,30}})?"
+    rf"(?:{_INITIAL_ATOM}\s*){{1,3}}(?:[{_UPPER}][{_LOWER}’'\-]{{1,30}})?"
     rf"(?=\s*(?:,|\(|$))"
 )
 _NUMBERED_ENTRY = re.compile(
-    r"^\s*(?:[-–—•]\s*)?(?:\[\d{1,4}\]|\(\d{1,4}\)|\d{1,4}[.)])\s+"
+    rf"^\s*(?:[^0-9{_LETTER}]\s*)*\d{{1,4}}(?!\d)"
+    rf"(?=\s|[^0-9{_LETTER}]|$)(?:\s*[^0-9{_LETTER}\s]\s*)*"
 )
 
 _AMPERSAND = re.compile(r"(?:&|&amp;)", re.I)
-_AUTHOR_JOINER = re.compile(r"\b(?:and|et\s+al\.?|και|κ\.?\s*ά\.?)\b|(?:&|&amp;)", re.I)
 _QUOTED = re.compile(r"(?:«[^»]{3,}»|“[^”]{3,}”|„[^“]{3,}“|\"[^\"]{3,}\"|'[^'\n]{3,}')")
 
 _EDITOR_TERMS = re.compile(
@@ -142,9 +137,9 @@ _EDITION_TERMS = re.compile(
 # may contribute one count, whereas journal strings such as ``Nat. Chem.
 # Biol.`` produce the more discriminative sequence feature.
 _DOTTED_WORD = re.compile(
-    rf"(?<![{_LETTER}])[{_UPPER}][{_LETTER}]{{0,5}}\.(?![{_LETTER}])"
+    rf"(?<![{_LETTER}])[{_UPPER}][{_LETTER}]{{2,5}}\.(?![{_LETTER}])"
 )
-_DOTTED_SEQUENCE = re.compile(rf"(?:[{_UPPER}][{_LETTER}]{{0,5}}\.\s*){{2,}}")
+_DOTTED_SEQUENCE = re.compile(rf"(?:[{_UPPER}][{_LETTER}]{{2,5}}\.\s*){{2,}}")
 _VOLUME_MARKER = re.compile(
     r"\b(?:vol(?:ume)?|issue|no|number|τόμ(?:ος|ου)?|τεύχ(?:ος|ους)?|τχ)\s*\.?\s*\d+",
     re.I,
@@ -222,7 +217,6 @@ class BibliographyFeatures:
     isbn_count: int
     issn_count: int
     initial_count: int
-    initial_sequence_count: int
     proper_name_word_count: int
     inverted_author_count: int
     author_year_count: int
@@ -230,7 +224,6 @@ class BibliographyFeatures:
     direct_author_count: int
     numbered_entry_count: int
     ampersand_count: int
-    author_joiner_count: int
     quoted_span_count: int
     editor_term_count: int
     thesis_term_count: int
@@ -321,15 +314,13 @@ def extract_bibliography_features(text: str) -> BibliographyFeatures:
         isbn_count=_matches(_ISBN, value),
         issn_count=_matches(_ISSN, value),
         initial_count=_matches(_INITIAL, value),
-        initial_sequence_count=_matches(_INITIAL_SEQUENCE, value),
         proper_name_word_count=_matches(_PROPER_WORD, value),
-        inverted_author_count=int(bool(_INVERTED_AUTHOR.search(analysis_value))),
+        inverted_author_count=_matches(_INVERTED_AUTHOR, analysis_value),
         author_year_count=int(bool(_AUTHOR_YEAR.search(analysis_value))),
         name_initial_pair_count=_matches(_NAME_INITIAL_PAIR, analysis_value),
         direct_author_count=int(bool(_DIRECT_AUTHOR.search(analysis_value))),
         numbered_entry_count=int(bool(_NUMBERED_ENTRY.search(analysis_value))),
         ampersand_count=_matches(_AMPERSAND, value),
-        author_joiner_count=_matches(_AUTHOR_JOINER, value),
         quoted_span_count=_matches(_QUOTED, value),
         editor_term_count=_matches(_EDITOR_TERMS, value),
         thesis_term_count=_matches(_THESIS_TERMS, value),
@@ -419,10 +410,8 @@ def extract_bibliography_feature_review(text: str) -> BibliographyFeatureReview:
         ("isbn_count", _ISBN),
         ("issn_count", _ISSN),
         ("initial_count", _INITIAL),
-        ("initial_sequence_count", _INITIAL_SEQUENCE),
         ("proper_name_word_count", _PROPER_WORD),
         ("ampersand_count", _AMPERSAND),
-        ("author_joiner_count", _AUTHOR_JOINER),
         ("quoted_span_count", _QUOTED),
         ("editor_term_count", _EDITOR_TERMS),
         ("thesis_term_count", _THESIS_TERMS),
@@ -441,8 +430,13 @@ def extract_bibliography_feature_review(text: str) -> BibliographyFeatureReview:
     for feature, pattern in value_patterns:
         add(feature, pattern, value)
 
+    add(
+        "inverted_author_count",
+        _INVERTED_AUTHOR,
+        analysis_value,
+        offset=analysis_start,
+    )
     analysis_patterns = (
-        ("inverted_author_count", _INVERTED_AUTHOR),
         ("author_year_count", _AUTHOR_YEAR),
         ("direct_author_count", _DIRECT_AUTHOR),
         ("numbered_entry_count", _NUMBERED_ENTRY),
@@ -562,8 +556,7 @@ def score_bibliography_features(
     )
     add(features.name_initial_pair_count == 1, 0.8, "BIB2_NAME_INITIAL_PAIR")
     add(features.direct_author_count > 0, 1.8, "BIB2_DIRECT_AUTHOR_SHAPE")
-    add(features.initial_sequence_count > 0, 1.2, "BIB2_INITIAL_SEQUENCE")
-    add(features.initial_count >= 2, 0.8, "BIB2_MULTIPLE_INITIALS")
+    add(features.initial_count >= 2, 1.4, "BIB2_MULTIPLE_INITIALS")
     add(features.proper_name_word_count >= 2, 0.6, "BIB2_PROPER_NAME_SHAPE")
     add(
         features.year_count > 0 or features.no_date_count > 0,
@@ -582,7 +575,6 @@ def score_bibliography_features(
     add(features.url_count > 0, 1.4, "BIB2_URL")
     add(features.numbered_entry_count > 0, 1.0, "BIB2_NUMBERED_ENTRY")
     add(features.ampersand_count > 0, 0.3, "BIB2_AMPERSAND")
-    add(features.author_joiner_count > 0, 0.4, "BIB2_AUTHOR_JOINER")
     add(features.quoted_span_count > 0, 0.6, "BIB2_QUOTED_TITLE_SHAPE")
     add(features.editor_term_count > 0, 1.1, "BIB2_EDITOR_TRANSLATOR_TERM")
     add(features.thesis_term_count > 0, 1.2, "BIB2_THESIS_TERM")

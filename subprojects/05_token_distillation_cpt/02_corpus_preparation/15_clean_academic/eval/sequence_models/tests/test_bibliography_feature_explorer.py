@@ -74,7 +74,7 @@ def test_source_balanced_selection_and_payload_are_label_blind(tmp_path: Path) -
     }
     assert len(payload["documents"]) == 6
     assert len(payload["lines"]) == 660
-    assert len(payload["features"]) == len(FEATURE_SPECS) == 37
+    assert len(payload["features"]) == len(FEATURE_SPECS) == 35
     assert all("label" not in line for line in payload["lines"])
     assert all("label" not in document for document in payload["documents"])
     citation = next(line for line in payload["lines"] if line["abs_idx"] == 10)

@@ -66,7 +66,7 @@ import sys
 path = pathlib.Path(sys.argv[1])
 receipt = json.loads(path.read_text(encoding="utf-8"))
 assert receipt["status"] == "passed"
-assert receipt["feature_count"] == 37
+assert receipt["feature_count"] == 35
 assert receipt["selection"]["document_count"] == 20
 assert receipt["selection"]["source_counts"] == {
     "greek_phd": 7,
