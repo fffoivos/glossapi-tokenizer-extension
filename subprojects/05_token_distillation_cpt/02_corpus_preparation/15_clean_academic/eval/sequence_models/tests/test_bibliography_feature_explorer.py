@@ -107,5 +107,9 @@ def test_page_has_live_feature_filters_and_unit_scoring() -> None:
     assert "class=\"charhit\"" in page
     assert "line.matches" in page
     assert "b.value-a.value||b.m.points-a.m.points" in page
+    assert "data-spotlight=" in page
+    assert "function spotlight(key)" in page
+    assert "function clearSpotlight()" in page
+    assert "Hover a coloured badge or sidebar feature label" in page
     assert "raw count is non-zero" not in page  # Python docstring is not rendered.
     assert "weighted_score_used" in page
