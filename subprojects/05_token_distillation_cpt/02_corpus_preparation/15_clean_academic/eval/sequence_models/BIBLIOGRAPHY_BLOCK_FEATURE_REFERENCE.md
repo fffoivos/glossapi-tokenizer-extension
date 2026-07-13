@@ -111,12 +111,77 @@ regex for the same citation shape.
 - **Perpendicularity:** Header vocabulary is structural evidence, not entry
   evidence; it is masked from entry-line training.
 
+## Learned component gate
+
+The fixed count gate did not pass the train-OOF safety rule: permissive B1
+proposals reached roughly 95% token recall but also retained too many false
+regions.  The next experiment therefore learns how to accept a complete
+proposed component.  It compares an L2 logistic model with a shallow
+monotonic-gradient-tree model.  Models and decisions are grouped by the
+existing work-level folds, and the five unusable training extractions are
+excluded by the independent text-quality review.
+
+### Component line count
+
+- **Question:** How large is the proposed contiguous region?
+- **Representation:** `log1p` of emitted line count.
+- **Expected direction:** Positive.  A large region is more consistent with
+  the cleaning target than one isolated citation.
+- **Non-overlap:** This measures extent only; it does not inspect line content.
+
+### Strong anchor count
+
+- **Question:** How many independently strong, normal-length entry lines occur
+  inside the component?
+- **Representation:** `log1p` of the count, using the frozen `0.70` probability
+  and `380`-character start limits.
+- **Expected direction:** Positive.
+- **Non-overlap:** Unlike component line count, this measures repeated
+  bibliographic support rather than size.
+
+### Median entry probability
+
+- **Question:** How bibliography-like is the typical line in the component?
+- **Representation:** Median frozen line-model probability.
+- **Expected direction:** Positive.
+- **Non-overlap:** A strong-anchor count measures how much strong evidence is
+  present; the median measures whether the component as a whole is supported
+  rather than being carried by a few outliers.
+
+### Longest weak run fraction
+
+- **Question:** Does the proposed component contain a long uninterrupted hole
+  of prose-like lines?
+- **Representation:** Longest consecutive run below the frozen `0.25` inside
+  probability, divided by component line count.
+- **Expected direction:** Negative.
+- **Non-overlap:** This measures internal continuity, not total size, positive
+  evidence, or any citation token.
+
+### Exact header before
+
+- **Question:** Is an exact multilingual bibliography heading within the two
+  physical lines immediately before the component?
+- **Representation:** One binary value.
+- **Expected direction:** Positive.
+- **Safety rule:** It is supporting evidence in a multifeature component model;
+  H0 still cannot create a deletion without an entry-line proposal.
+- **Non-overlap:** This is section structure and uses no author, date,
+  identifier, publication-coordinate, or page detector.
+
+### Proposal thresholds and model threshold
+
+- **Permissive deletion biases:** Calibration controls used to generate
+  candidate spans.  They are not features and are not shown to the component
+  classifier.
+- **Component probability threshold:** A calibration control swept only on
+  grouped training OOF scores.  It is not evidence and cannot change the five
+  feature meanings.
+
 ## Current experiment boundary
 
-The anchored-coherence sweep changes no deterministic line regex and adds no
-text, token length, or validation-derived feature.  It reuses frozen OOF entry
-probabilities and existing B1 checkpoints, varies proposal bias, and applies
-only the two distinct component gates above.  The sequence-ablation sweep then
-re-trains B1 with the length and position removals described above.  Candidate
-selection is based on the 1,118 grouped train documents.  Validation remains
-closed until a complete configuration is frozen.
+The anchored-coherence and learned-component experiments change no
+deterministic line regex and add no raw text, token length, source identity, or
+validation-derived feature.  They reuse frozen OOF entry probabilities and B1
+checkpoints.  Candidate selection is based on grouped train documents only.
+Validation remains closed until a complete safe configuration is frozen.
