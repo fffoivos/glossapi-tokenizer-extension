@@ -14,6 +14,11 @@
       "reason": "Canonical GlossAPI greek_badness_score is 68.10 (>60), with pervasive broken character encoding and character-spaced OCR."
     },
     {
+      "document_id": "eaf30b21c0521c0ee56830a20d4eecb5ff08c1a5a2d5626c5455e33549b571d5",
+      "decision": "exclude",
+      "reason": "Manual segment review found that the central document and bibliography region are dominated by reversed or garbled encoded text (for example ψΟΛ, /hyphenminus, and uninterpretable character sequences), so the annotated references are not usable evaluation text."
+    },
+    {
       "document_id": "d2beb0b78e45436082adba863e5cee8538d9d2b44e546ba59779777844c2698b",
       "decision": "exclude",
       "reason": "Extraction is dominated by 19,473 unresolved GLYPH placeholders, making most of the document uninterpretable."
