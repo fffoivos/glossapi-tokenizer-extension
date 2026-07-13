@@ -43,7 +43,7 @@ uenv run "$UENV" --view=default -- \
   --learning-rate 0.08 \
   --l2 0.0001 \
   --gradient-clip 5.0 \
-  --workers 10 \
+  --workers 20 \
   --seed 2718 \
   --code-commit "$CODE_COMMIT" \
   --slurm-job-id "$SLURM_JOB_ID"
