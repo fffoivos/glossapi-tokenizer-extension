@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/agent1-v4-terra-review-response-v1.json",
+  "title": "Agent 1 v4 Terra document review response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "response_schema_version",
+    "request_id",
+    "source_id",
+    "source_doc_id",
+    "document_path",
+    "document_sha256",
+    "model_id",
+    "prompt_sha256",
+    "cleanliness_score",
+    "text_quality_score",
+    "confidence",
+    "coverage_mode",
+    "summary",
+    "extraction_artifacts"
+  ],
+  "properties": {
+    "response_schema_version": {"const": "agent1_v4_terra_review_response_v1"},
+    "request_id": {"$ref": "#/$defs/sha256"},
+    "source_id": {"type": "string", "minLength": 1},
+    "source_doc_id": {"type": "string", "minLength": 1},
+    "document_path": {"type": "string", "pattern": "^documents/[A-Za-z0-9_.-]+/[a-f0-9]{64}\\.txt$"},
+    "document_sha256": {"$ref": "#/$defs/sha256"},
+    "model_id": {"const": "gpt-5.6-terra"},
+    "prompt_sha256": {"$ref": "#/$defs/sha256"},
+    "cleanliness_score": {"type": "integer", "minimum": 1, "maximum": 5},
+    "text_quality_score": {"type": "integer", "minimum": 1, "maximum": 5},
+    "confidence": {"enum": ["low", "medium", "high"]},
+    "coverage_mode": {"enum": ["full", "deterministic_windows"]},
+    "summary": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "extraction_artifacts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/artifact"}
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "severity",
+        "line_start",
+        "line_end",
+        "evidence_excerpt",
+        "explanation",
+        "deterministic_cleaning_possible",
+        "suggested_cleaning_action"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "html_tags", "html_entities", "script_style", "navigation", "boilerplate",
+            "malformed_markdown", "mojibake", "replacement_or_control_characters",
+            "ocr_corruption", "broken_words_or_hyphenation", "page_furniture",
+            "column_or_reading_order", "fragmentation", "truncation_or_incompleteness",
+            "tables_or_formulae", "repeated_or_template_text", "structured_field_loss",
+            "non_greek_drift", "placeholder_or_empty", "other"
+          ]
+        },
+        "severity": {"enum": ["minor", "moderate", "severe"]},
+        "line_start": {"type": "integer", "minimum": 1},
+        "line_end": {"type": "integer", "minimum": 1},
+        "evidence_excerpt": {"type": "string", "maxLength": 200},
+        "explanation": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "deterministic_cleaning_possible": {"type": "boolean"},
+        "suggested_cleaning_action": {"type": "string", "minLength": 1, "maxLength": 500}
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": "agent1_v4_raw_review_policy_v1",
+  "review_scope": "new_family_excluding_v2_and_replacement_audits",
+  "source_ids": [
+    "diavgeia",
+    "amna_press",
+    "psepheda",
+    "elocus",
+    "libduth",
+    "libiep",
+    "ecclesia",
+    "archetai",
+    "eellak_articles",
+    "open_council",
+    "artos_zois",
+    "e_nautilia",
+    "national_theatre_press",
+    "heinrich_boell_publications",
+    "new_sociology",
+    "istorima",
+    "modern_greek_dictionary",
+    "ert_press"
+  ],
+  "excluded_source_ids": [
+    "ellakv2",
+    "opengov_deliberations_v2",
+    "openbook_v2",
+    "greek_phd_v2",
+    "school_books_new_editions",
+    "pergamos_sections",
+    "kallipos_sections",
+    "openarchives_current"
+  ],
+  "documents_per_source": 20,
+  "sampling_namespace": "agent1_v4_raw_review_hmac_v1",
+  "review_transport": "exact_raw_user_approved",
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "low",
+  "max_attempts_per_document": 3,
+  "approval": {
+    "scope": "Foivos approved the 18 new-family source roster on 2026-07-13.",
+    "raw_text_review": "Foivos instructed that the review use each sampled document as is."
+  }
+}

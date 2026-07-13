@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/agent1-v4-human-decision-bundle-v1.json",
+  "title": "Agent 1 v4 human raw-review decision bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "packet_manifest_sha256",
+    "approval_to_begin_field_discovery",
+    "source_status",
+    "source_observations",
+    "mapping_questions",
+    "documents"
+  ],
+  "properties": {
+    "schema_version": {"const": "agent1_v4_human_decision_bundle_v1"},
+    "packet_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "approval_to_begin_field_discovery": {"type": "boolean"},
+    "source_status": {"type": "object", "additionalProperties": {"enum": ["admit", "hold", "exclude"]}},
+    "source_observations": {"type": "object", "additionalProperties": {"type": "string", "maxLength": 10000}},
+    "mapping_questions": {"type": "object", "additionalProperties": {"type": "string", "maxLength": 10000}},
+    "documents": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/document"}
+    }
+  },
+  "$defs": {
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id", "source_doc_id", "disposition", "cleanliness_score_override",
+        "text_quality_score_override", "note"
+      ],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "source_doc_id": {"type": "string", "minLength": 1},
+        "disposition": {"enum": ["agree", "override", "flag", "hold"]},
+        "cleanliness_score_override": {"type": ["integer", "null"], "minimum": 1, "maximum": 5},
+        "text_quality_score_override": {"type": ["integer", "null"], "minimum": 1, "maximum": 5},
+        "note": {"type": "string", "maxLength": 10000}
+      }
+    }
+  }
+}

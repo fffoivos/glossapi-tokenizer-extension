@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/agent1-v4-field-mapping-v1.json",
+  "title": "Approved Agent 1 v4 candidate field mapping",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "field_profile_sha256", "human_gate_receipt_sha256", "approval", "mappings"],
+  "properties": {
+    "schema_version": {"const": "agent1_v4_field_mapping_v1"},
+    "field_profile_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "human_gate_receipt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "approval": {"type": "object"},
+    "mappings": {"type": "object", "additionalProperties": {"$ref": "#/$defs/mapping"}}
+  },
+  "$defs": {
+    "mapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text_path", "title_path", "author_path", "source_dataset_path", "source_doc_id_paths"],
+      "properties": {
+        "text_path": {"type": "string", "minLength": 1},
+        "title_path": {"type": ["string", "null"]},
+        "author_path": {"type": ["string", "null"]},
+        "source_dataset_path": {"type": ["string", "null"]},
+        "source_doc_id_paths": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    }
+  }
+}
