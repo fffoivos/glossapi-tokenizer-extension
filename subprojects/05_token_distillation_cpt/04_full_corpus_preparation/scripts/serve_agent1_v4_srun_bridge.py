@@ -8,22 +8,20 @@ site-serving job, then to that job's own loopback HTTP server.  It neither
 writes nor copies review documents.
 """
 
-from __future__ import annotations
-
 import argparse
 import signal
 import socket
 import socketserver
 import subprocess
 import threading
-from typing import Sequence
+from typing import Optional, Sequence, Tuple
 
 
 class LoopbackSrunBridge(socketserver.ThreadingTCPServer):
     allow_reuse_address = True
     daemon_threads = True
 
-    def __init__(self, address: tuple[str, int], *, job_id: str, target_port: int, srun_bin: str) -> None:
+    def __init__(self, address: Tuple[str, int], *, job_id: str, target_port: int, srun_bin: str) -> None:
         if address[0] != "127.0.0.1":
             raise ValueError("bridge must bind only to 127.0.0.1")
         super().__init__(address, BridgeHandler)
@@ -92,7 +90,7 @@ class BridgeHandler(socketserver.BaseRequestHandler):
             receiver.join(timeout=1)
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--job-id", required=True, help="running Slurm job that serves the private site")
     parser.add_argument("--port", type=int, required=True, help="localhost port exposed on the Clariden login host")
