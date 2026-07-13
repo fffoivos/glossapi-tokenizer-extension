@@ -57,7 +57,10 @@ class BridgeHandler(socketserver.BaseRequestHandler):
         def receive_client() -> None:
             assert process.stdin is not None
             try:
-                while chunk := self.request.recv(65536):
+                while True:
+                    chunk = self.request.recv(65536)
+                    if not chunk:
+                        break
                     process.stdin.write(chunk)
                     process.stdin.flush()
             except (BrokenPipeError, ConnectionError):
@@ -72,7 +75,10 @@ class BridgeHandler(socketserver.BaseRequestHandler):
         receiver.start()
         assert process.stdout is not None
         try:
-            while chunk := process.stdout.read(65536):
+            while True:
+                chunk = process.stdout.read(65536)
+                if not chunk:
+                    break
                 self.request.sendall(chunk)
         except ConnectionError:
             pass
