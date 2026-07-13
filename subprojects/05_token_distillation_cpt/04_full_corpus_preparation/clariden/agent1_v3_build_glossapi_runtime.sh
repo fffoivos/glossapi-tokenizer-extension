@@ -129,6 +129,17 @@ mkdir -p "$(dirname "$scratch_root")"
 mkdir "$scratch_root"
 mkdir -p "$partial/modules" "$partial/wheels"
 
+# ``uenv run`` intentionally sanitizes the caller's PYTHONPATH.  Keep all
+# staging cleanup tied to this one job, so a failed import attestation cannot
+# strand an immutable-looking partial runtime that blocks a clean retry.
+cleanup_build() {
+    local status=$?
+    rm -rf -- "$partial" "$scratch_root" || true
+    trap - EXIT
+    exit "$status"
+}
+trap cleanup_build EXIT
+
 MATURIN_VERSION=${MATURIN_VERSION:-1.9.4}
 tool_venv="$scratch_root/maturin-venv"
 uenv run "$AGENT1_V3_UENV" --view=default -- bash -lc '
@@ -159,9 +170,10 @@ uenv run "$AGENT1_V3_UENV" --view=default -- \
 
 # Attest staged imports while recording their future immutable location.  The
 # staged root is renamed only after this receipt has been written successfully.
-export PYTHONPATH="$partial/modules${PYTHONPATH:+:$PYTHONPATH}"
+# PYTHONPATH must be set *inside* the UENV command: exporting it in this shell
+# is deliberately ineffective because UENV clears inherited PYTHONPATH.
 uenv run "$AGENT1_V3_UENV" --view=default -- \
-    "$AGENT1_V3_RUNTIME_VENV/bin/python" "$quality_script" build-receipt \
+    env "PYTHONPATH=$partial/modules" "$AGENT1_V3_RUNTIME_VENV/bin/python" "$quality_script" build-receipt \
     --glossapi-root "$AGENT1_V3_GLOSSAPI_ROOT" \
     --expected-commit "$AGENT1_V3_GLOSSAPI_COMMIT" \
     --module-root "$partial/modules" \
@@ -178,9 +190,8 @@ mv -T -n -- "$partial" "$AGENT1_V3_GLOSSAPI_RUNTIME_ROOT"
     exit 132
 }
 
-export PYTHONPATH="$AGENT1_V3_GLOSSAPI_MODULE_DIR${PYTHONPATH:+:$PYTHONPATH}"
 uenv run "$AGENT1_V3_UENV" --view=default -- \
-    "$AGENT1_V3_RUNTIME_VENV/bin/python" "$quality_script" validate-build-receipt \
+    env "PYTHONPATH=$AGENT1_V3_GLOSSAPI_MODULE_DIR" "$AGENT1_V3_RUNTIME_VENV/bin/python" "$quality_script" validate-build-receipt \
     --receipt "$AGENT1_V3_GLOSSAPI_BUILD_RECEIPT" \
     --expected-commit "$AGENT1_V3_GLOSSAPI_COMMIT"
 

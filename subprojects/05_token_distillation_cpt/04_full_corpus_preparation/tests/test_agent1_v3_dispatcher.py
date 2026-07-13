@@ -137,6 +137,9 @@ def test_glossapi_quality_builder_uses_uenv_and_no_replace_receipts() -> None:
     assert "--release --locked" in text
     assert "build-receipt" in text
     assert "validate-build-receipt" in text
+    assert 'env "PYTHONPATH=$partial/modules"' in text
+    assert 'env "PYTHONPATH=$AGENT1_V3_GLOSSAPI_MODULE_DIR"' in text
+    assert "trap cleanup_build EXIT" in text
     assert "os.O_EXCL" in text
     assert "mv -T -n --" in text
     assert "CUDA_VISIBLE_DEVICES" in text
