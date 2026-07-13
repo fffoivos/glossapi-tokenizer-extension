@@ -166,6 +166,8 @@ def cmd_freeze_run(args: argparse.Namespace) -> None:
             ("acquisition_receipt", args.acquisition_receipt),
             ("tokenizer", args.tokenizer),
             ("review_policy", args.review_policy),
+            ("review_prompt", args.review_prompt),
+            ("review_response_schema", args.review_response_schema),
             ("dedup_policy", args.dedup_policy),
             ("greekmmlu_policy", args.greekmmlu_policy),
             ("anonymization_policy", args.anonymization_policy),
@@ -354,6 +356,8 @@ def parser() -> argparse.ArgumentParser:
     freeze.add_argument("--acquisition-receipt", type=Path, required=True)
     freeze.add_argument("--tokenizer", type=Path, required=True)
     freeze.add_argument("--review-policy", type=Path, required=True)
+    freeze.add_argument("--review-prompt", type=Path, required=True)
+    freeze.add_argument("--review-response-schema", type=Path, required=True)
     freeze.add_argument("--dedup-policy", type=Path, required=True)
     freeze.add_argument("--greekmmlu-policy", type=Path, required=True)
     freeze.add_argument("--anonymization-policy", type=Path, required=True)

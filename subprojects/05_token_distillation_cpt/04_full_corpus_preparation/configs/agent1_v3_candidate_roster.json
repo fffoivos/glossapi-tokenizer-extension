@@ -67,10 +67,10 @@
     "new_sociology": "pdf_ocr",
     "school_books_new_editions": "mixed",
     "openbook_v2": "pdf_ocr",
-    "pergamos_sections": "mixed",
-    "kallipos_sections": "mixed",
+    "pergamos_sections": "pdf_ocr",
+    "kallipos_sections": "pdf_ocr",
     "greek_phd_v2": "pdf_ocr",
-    "openarchives_current": "mixed",
+    "openarchives_current": "pdf_ocr",
     "istorima": "structured",
     "modern_greek_dictionary": "structured",
     "ert_press": "html_web"

@@ -13,6 +13,8 @@ test -s "$merged"
     --acquisition-receipt "$merged" \
     --tokenizer "$AGENT1_V3_TOKENIZER_JSON" \
     --review-policy "$AGENT1_V3_REVIEW_POLICY" \
+    --review-prompt "$AGENT1_V3_REVIEW_PROMPT" \
+    --review-response-schema "$AGENT1_V3_REVIEW_RESPONSE_SCHEMA" \
     --dedup-policy "$AGENT1_V3_POLICY" \
     --greekmmlu-policy "$AGENT1_V3_POLICY" \
     --anonymization-policy "$AGENT1_V3_POLICY" \

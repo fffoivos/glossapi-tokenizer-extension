@@ -26,6 +26,8 @@ def _freeze_args(tmp_path: Path) -> list[str]:
         "acquisition_receipt",
         "tokenizer",
         "review_policy",
+        "review_prompt",
+        "review_response_schema",
         "policy",
     )}
     return [
@@ -50,6 +52,10 @@ def _freeze_args(tmp_path: Path) -> list[str]:
         str(files["tokenizer"]),
         "--review-policy",
         str(files["review_policy"]),
+        "--review-prompt",
+        str(files["review_prompt"]),
+        "--review-response-schema",
+        str(files["review_response_schema"]),
         "--dedup-policy",
         str(files["policy"]),
         "--greekmmlu-policy",
