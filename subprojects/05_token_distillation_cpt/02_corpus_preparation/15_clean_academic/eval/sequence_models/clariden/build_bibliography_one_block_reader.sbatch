@@ -44,6 +44,7 @@ export ROCR_VISIBLE_DEVICES="" HIP_VISIBLE_DEVICES=""
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONHASHSEED=0
 export PYTHONPATH="$CODE_ROOT"
 
+cd "$CODE_ROOT"
 uenv run "$UENV" --view=default -- \
     python3 -m sequence_models.bibliography_one_block_reader \
         --input "$INPUT" \
@@ -55,4 +56,3 @@ uenv run "$UENV" --view=default -- \
 
 trap - EXIT
 echo "BIBLIOGRAPHY_ONE_BLOCK_READER=$OUTPUT_DIR"
-
