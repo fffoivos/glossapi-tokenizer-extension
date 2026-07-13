@@ -187,7 +187,37 @@ def execute_batch(
                 f"Codex batch {batch['batch_id']} produced no final response"
             )
         payload = json.loads(response_path.read_text(encoding="utf-8"))
-    responses = validate_batch_payload(batch, payload, model=model)
+    try:
+        responses = validate_batch_payload(batch, payload, model=model)
+    except (TypeError, ValueError) as error:
+        payload_hash = canonical_json_sha256(payload)
+        rejection_path = batch_dir / (
+            f"{batch['batch_id']}.rejected-{payload_hash[:16]}.json"
+        )
+        rejection = {
+            "schema_version": "academic-structure-codex56-audit-rejection-v1",
+            "status": "rejected_not_accepted",
+            "batch_id": batch["batch_id"],
+            "model": model,
+            "contract": batch["contract"],
+            "validation_error_type": type(error).__name__,
+            "validation_error": str(error),
+            "payload": payload,
+            "payload_sha256": payload_hash,
+            "stdout_sha256": hashlib.sha256(completed.stdout.encode()).hexdigest(),
+            "stderr_sha256": hashlib.sha256(completed.stderr.encode()).hexdigest(),
+        }
+        if rejection_path.exists():
+            if json.loads(rejection_path.read_text(encoding="utf-8")) != rejection:
+                raise ValueError(
+                    f"existing rejected response record differs: {rejection_path}"
+                ) from error
+        else:
+            _exclusive_json(rejection_path, rejection)
+        raise ValueError(
+            f"Codex batch {batch['batch_id']} response rejected; "
+            f"preserved at {rejection_path}: {error}"
+        ) from error
     record = {
         "schema_version": BATCH_SCHEMA,
         "batch_id": batch["batch_id"],

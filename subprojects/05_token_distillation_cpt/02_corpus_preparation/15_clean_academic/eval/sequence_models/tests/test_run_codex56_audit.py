@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -12,6 +13,7 @@ sys.path.insert(0, str(EVAL_DIR))
 from sequence_models.codex56_audit import REQUEST_SCHEMA, RESPONSE_SCHEMA  # noqa: E402
 from sequence_models.contract import canonical_json_sha256  # noqa: E402
 from sequence_models.run_codex56_audit import (  # noqa: E402
+    execute_batch,
     make_batches,
     validate_batch_payload,
     validate_request_manifest,
@@ -103,6 +105,52 @@ def test_batch_validation_rejects_missing_and_wrong_model() -> None:
     bad[0]["reviewer_model"] = "fallback"
     with pytest.raises(ValueError, match="model mismatch"):
         validate_batch_payload(batch, {"responses": bad}, model="gpt-5.6-luna")
+
+
+def test_execute_batch_preserves_semantically_rejected_payload(
+    tmp_path, monkeypatch
+) -> None:
+    request = _request(1)
+    batch = make_batches(
+        [request],
+        model="gpt-5.6-luna",
+        prompt_sha256="a" * 64,
+        output_schema_sha256="b" * 64,
+    )[0]
+    invalid = _response(request, "gpt-5.6-luna")
+    invalid.update(
+        label="BIB",
+        should_remove=True,
+        start_abs_idx=0,
+        end_abs_idx=1,
+    )
+
+    def fake_run(command, **_kwargs):
+        output = Path(command[command.index("--output-last-message") + 1])
+        output.write_text(json.dumps({"responses": [invalid]}))
+        return SimpleNamespace(returncode=0, stdout="stdout", stderr="stderr")
+
+    monkeypatch.setattr("sequence_models.run_codex56_audit.subprocess.run", fake_run)
+    schema = tmp_path / "schema.json"
+    schema.write_text("{}")
+    batch_dir = tmp_path / "batches"
+    batch_dir.mkdir()
+    with pytest.raises(ValueError, match="preserved at"):
+        execute_batch(
+            batch,
+            model="gpt-5.6-luna",
+            prompt_text="review",
+            output_schema=schema,
+            batch_dir=batch_dir,
+            timeout_seconds=30,
+            reasoning_effort="low",
+        )
+    rejected = list(batch_dir.glob(f"{batch['batch_id']}.rejected-*.json"))
+    assert len(rejected) == 1
+    record = json.loads(rejected[0].read_text())
+    assert record["status"] == "rejected_not_accepted"
+    assert record["validation_error"] == "response 1: span outside supplied context"
+    assert not (batch_dir / f"{batch['batch_id']}.json").exists()
 
 
 def test_batches_recompute_request_content_hash() -> None:
