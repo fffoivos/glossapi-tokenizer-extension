@@ -51,7 +51,7 @@
             "type": "array",
             "minItems": 1,
             "items": {"type": "integer", "minimum": 0},
-            "uniqueItems": true
+            "maxItems": 64
           }
         }
       }

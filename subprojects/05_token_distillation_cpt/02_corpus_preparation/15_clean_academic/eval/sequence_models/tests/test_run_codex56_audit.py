@@ -24,6 +24,7 @@ def test_codex_output_schema_const_and_enum_have_explicit_types() -> None:
     properties = schema["properties"]["responses"]["items"]["properties"]
     assert properties["schema_version"]["type"] == "string"
     assert properties["label"]["type"] == "string"
+    assert "uniqueItems" not in properties["evidence_abs_indices"]
 
 
 def _request(index: int) -> dict:
