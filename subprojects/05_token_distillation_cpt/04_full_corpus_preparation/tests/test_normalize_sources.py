@@ -727,6 +727,21 @@ def test_observed_extraction_is_per_document_and_canonical_coverage_requires_exc
     assert row["observed_extraction_route_evidence"] == "raw_metadata:content_type=text_html"
     assert row["observed_extraction_route_priority"] == "secondary_exception_only"
 
+    with pytest.raises(ValueError, match="declared extraction route fallback must equal"):
+        io.validate_observed_extraction_route_basis(
+            observed_extraction_route="html_web",
+            observed_extraction_route_basis="declared_extraction_route_fallback",
+            declared_extraction_route="pdf_ocr",
+            context="fixture",
+        )
+    with pytest.raises(ValueError, match="unavailable observed extraction route cannot carry"):
+        io.validate_observed_extraction_route_basis(
+            observed_extraction_route="pdf_ocr",
+            observed_extraction_route_basis="unavailable",
+            declared_extraction_route="pdf_ocr",
+            context="fixture",
+        )
+
     connection = duckdb.connect()
     try:
         connection.execute(
@@ -795,6 +810,37 @@ def test_observed_extraction_is_per_document_and_canonical_coverage_requires_exc
             ('source-a', 'source-a', 'pdf_ocr', 'pdf_ocr', 'pdf_ocr',
              'structured', 'row_representation_metadata', 'raw_metadata:format=json',
              'secondary_exception_only')
+            """
+        )
+        with pytest.raises(ValueError, match="canonical candidate route provenance drift"):
+            normalize.validate_candidate_canonical_route_coverage(
+                connection,
+                source_relation="canonical_routes",
+                declared_routes=declared,
+            )
+
+        connection.execute("DELETE FROM canonical_routes")
+        connection.execute(
+            """
+            INSERT INTO canonical_routes VALUES
+            ('source-a', 'source-a', 'pdf_ocr', 'pdf_ocr', 'pdf_ocr',
+             'html_web', 'declared_extraction_route_fallback', 'roster:extraction_route',
+             'secondary_exception_only')
+            """
+        )
+        with pytest.raises(ValueError, match="canonical candidate route provenance drift"):
+            normalize.validate_candidate_canonical_route_coverage(
+                connection,
+                source_relation="canonical_routes",
+                declared_routes=declared,
+            )
+
+        connection.execute("DELETE FROM canonical_routes")
+        connection.execute(
+            """
+            INSERT INTO canonical_routes VALUES
+            ('source-a', 'source-a', 'pdf_ocr', 'pdf_ocr', 'pdf_ocr',
+             'pdf_ocr', 'unavailable', 'none', 'logical_primary')
             """
         )
         with pytest.raises(ValueError, match="canonical candidate route provenance drift"):

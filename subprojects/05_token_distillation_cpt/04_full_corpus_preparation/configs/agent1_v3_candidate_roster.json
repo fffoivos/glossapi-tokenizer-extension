@@ -48,7 +48,7 @@
     }
   ],
   "review_routes": {
-    "diavgeia": "mixed",
+    "diavgeia": "pdf_ocr",
     "amna_press": "html_web",
     "ellakv2": "html_web",
     "psepheda": "pdf_ocr",
@@ -65,7 +65,7 @@
     "national_theatre_press": "pdf_ocr",
     "heinrich_boell_publications": "pdf_ocr",
     "new_sociology": "pdf_ocr",
-    "school_books_new_editions": "mixed",
+    "school_books_new_editions": "pdf_ocr",
     "openbook_v2": "pdf_ocr",
     "pergamos_sections": "pdf_ocr",
     "kallipos_sections": "pdf_ocr",
@@ -76,7 +76,7 @@
     "ert_press": "html_web"
   },
   "source_routes": {
-    "diavgeia": "mixed",
+    "diavgeia": "pdf_ocr",
     "amna_press": "html_web",
     "ellakv2": "html_web",
     "psepheda": "pdf_ocr",
@@ -93,7 +93,7 @@
     "national_theatre_press": "pdf_ocr",
     "heinrich_boell_publications": "pdf_ocr",
     "new_sociology": "pdf_ocr",
-    "school_books_new_editions": "mixed",
+    "school_books_new_editions": "pdf_ocr",
     "openbook_v2": "pdf_ocr",
     "pergamos_sections": "pdf_ocr",
     "kallipos_sections": "pdf_ocr",
@@ -103,8 +103,89 @@
     "modern_greek_dictionary": "structured",
     "ert_press": "html_web"
   },
+  "logical_error_modes": {
+    "diavgeia": [
+      "pdf_ocr"
+    ],
+    "amna_press": [
+      "html_web"
+    ],
+    "ellakv2": [
+      "html_web"
+    ],
+    "psepheda": [
+      "pdf_ocr"
+    ],
+    "elocus": [
+      "pdf_ocr"
+    ],
+    "libduth": [
+      "pdf_ocr"
+    ],
+    "libiep": [
+      "pdf_ocr"
+    ],
+    "ecclesia": [
+      "pdf_ocr"
+    ],
+    "opengov_deliberations_v2": [
+      "html_web",
+      "structured"
+    ],
+    "archetai": [
+      "pdf_ocr"
+    ],
+    "eellak_articles": [
+      "html_web"
+    ],
+    "open_council": [
+      "structured"
+    ],
+    "artos_zois": [
+      "pdf_ocr"
+    ],
+    "e_nautilia": [
+      "pdf_ocr"
+    ],
+    "national_theatre_press": [
+      "pdf_ocr"
+    ],
+    "heinrich_boell_publications": [
+      "pdf_ocr"
+    ],
+    "new_sociology": [
+      "pdf_ocr"
+    ],
+    "school_books_new_editions": [
+      "pdf_ocr"
+    ],
+    "openbook_v2": [
+      "pdf_ocr"
+    ],
+    "pergamos_sections": [
+      "pdf_ocr"
+    ],
+    "kallipos_sections": [
+      "pdf_ocr"
+    ],
+    "greek_phd_v2": [
+      "pdf_ocr"
+    ],
+    "openarchives_current": [
+      "pdf_ocr"
+    ],
+    "istorima": [
+      "structured"
+    ],
+    "modern_greek_dictionary": [
+      "structured"
+    ],
+    "ert_press": [
+      "html_web"
+    ]
+  },
   "extraction_routes": {
-    "diavgeia": "mixed",
+    "diavgeia": "pdf_ocr",
     "amna_press": "html_web",
     "ellakv2": "html_web",
     "psepheda": "pdf_ocr",
@@ -121,7 +202,7 @@
     "national_theatre_press": "pdf_ocr",
     "heinrich_boell_publications": "pdf_ocr",
     "new_sociology": "pdf_ocr",
-    "school_books_new_editions": "mixed",
+    "school_books_new_editions": "pdf_ocr",
     "openbook_v2": "pdf_ocr",
     "pergamos_sections": "pdf_ocr",
     "kallipos_sections": "pdf_ocr",
@@ -137,20 +218,9 @@
     "semantics": "logical_acquisition_type selects the source_routes and review_routes error model. Observed extraction exceptions are representation-specific secondary diagnostics only; they never replace the logical source route.",
     "sources": {
       "diavgeia": {
-        "logical_acquisition_type": "mixed",
-        "rationale": "Diavgeia decisions are governance records that can combine rendered service-page content with attached decision documents, so neither web-template nor PDF-extraction defects may be discarded.",
-        "expected_observed_extraction_exceptions": [
-          {
-            "observed_extraction_route": "html_web",
-            "rationale": "Rendered decision pages or markdown conversions can retain navigation, signature boilerplate, and page-template text.",
-            "secondary_only": true
-          },
-          {
-            "observed_extraction_route": "pdf_ocr",
-            "rationale": "An attached decision can be a born-digital or scanned PDF with text-extraction/OCR defects.",
-            "secondary_only": true
-          }
-        ]
+        "logical_acquisition_type": "pdf_ocr",
+        "rationale": "Diavgeia's retained source representation pairs JSON metadata with original decision PDFs; markdown_text is PDF-derived/OCR body text, so document extraction is the logical primary error model.",
+        "expected_observed_extraction_exceptions": []
       },
       "amna_press": {
         "logical_acquisition_type": "html_web",
@@ -231,7 +301,7 @@
       },
       "opengov_deliberations_v2": {
         "logical_acquisition_type": "mixed",
-        "rationale": "OpenGov V2 combines native consultation articles/comments with submitted documents, so structured parent-context and PDF/HTML representation defects must both be considered.",
+        "rationale": "OpenGov V2 article bodies originate in HTML and comments are plain structured text; document objects retain id/title/url/type only, so no PDF body extraction is available for review.",
         "expected_observed_extraction_exceptions": [
           {
             "observed_extraction_route": "structured",
@@ -241,11 +311,6 @@
           {
             "observed_extraction_route": "html_web",
             "rationale": "Consultation-page markup and navigation can survive in rendered article text.",
-            "secondary_only": true
-          },
-          {
-            "observed_extraction_route": "pdf_ocr",
-            "rationale": "Submitted or linked documents can contribute PDF extraction and OCR artifacts.",
             "secondary_only": true
           }
         ]
@@ -344,17 +409,12 @@
         ]
       },
       "school_books_new_editions": {
-        "logical_acquisition_type": "mixed",
-        "rationale": "The new school-book editions span multiple text schemas and work/edition representations, including textbook document extraction, so neither structured-schema nor PDF-quality risks alone are sufficient.",
+        "logical_acquisition_type": "pdf_ocr",
+        "rationale": "The 2025 PDF_Link/book_id plain_text or markdown and the 2026 pdf_urls/pdf_files text_content or markdown_content are all PDF-linked textbook representations. Edition/schema drift is a secondary normalization risk, not a co-primary structured extraction path.",
         "expected_observed_extraction_exceptions": [
           {
             "observed_extraction_route": "structured",
             "rationale": "Edition metadata and distinct plain-text/text-content schemas can cause field-selection or inherited-context errors.",
-            "secondary_only": true
-          },
-          {
-            "observed_extraction_route": "pdf_ocr",
-            "rationale": "A textbook representation can retain PDF/OCR defects such as headers, hyphenation, tables, or formula loss.",
             "secondary_only": true
           }
         ]
@@ -471,9 +531,10 @@
   },
   "route_policy": {
     "priority": "logical_source_then_observed_extraction",
+    "logical_error_modes": "Each source's frozen logical_error_modes list, not the broad mixed label, determines the primary diagnostic weights. Observed per-document extraction is a bounded secondary signal and cannot add a primary mode.",
     "html_web": "Prioritize HTML scrape/template/navigation/markup diagnostics; retain PDF/OCR checks only when a documented representation exhibits them.",
     "pdf_ocr": "Prioritize PDF/OCR/text-extraction diagnostics even when the resulting text was posted on a web page.",
-    "mixed": "Run both logical HTML/structured-context and PDF/OCR extraction diagnostics; do not collapse to structured solely because metadata is JSON.",
+    "mixed": "Use the source-specific logical_error_modes list; do not infer HTML, PDF/OCR, or structured primacy merely from the broad mixed label or from transport metadata.",
     "structured": "Prioritize schema completeness, field flattening, and repeated parent/context template diagnostics."
   },
   "review_scope": "Every listed source with full text or replacement content is reviewed; a source with fewer than 100 eligible documents is exhaustively reviewed and carries an explicit denominator exception."

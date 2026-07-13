@@ -156,7 +156,7 @@ def _release_evidence(tmp_path: Path) -> dict[str, Path]:
     )
     write(
         "quality_summary",
-        {"schema_version": "dataset_quality_summary_v1", "status": "passed", "scan_mode": "full_scan"},
+        {"schema_version": "dataset_quality_summary_v2", "status": "passed", "scan_mode": "full_scan"},
     )
     write("lineage_summary", {"schema_version": "full_cpt_lineage_summary_v1"})
     write("source_novelty", {"schema_version": "full_cpt_source_novelty_v1"})

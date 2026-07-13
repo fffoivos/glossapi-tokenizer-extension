@@ -158,7 +158,7 @@ is lightweight coordination work:
 
 ```bash
 python scripts/build_dataset_review_site.py build \
-  --quality-summary /path/to/dataset_quality_summary_v1.json \
+  --quality-summary /path/to/dataset_quality_summary_v2.json \
   --quality-handoff-receipt /path/to/dataset_quality_site_handoff.json \
   --review-requests /path/to/requests.jsonl \
   --complete-samples /path/to/complete_review_samples.jsonl \

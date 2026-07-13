@@ -257,6 +257,10 @@
       "text_columns": ["articles", "documents"],
       "required_text_columns": ["articles", "documents"],
       "id_columns": ["consultation_id"],
+      "structured_profile_contract": {
+        "required_all_fields": ["consultation_id", "post_id", "url"],
+        "required_any_field_groups": []
+      },
       "text_strategy": "flatten_articles_and_comments_as_separate_documents_never_repeat_consultation_context",
       "cleaning_profile": "nested_comments_legal",
       "structural_policy": "disabled",
@@ -303,6 +307,10 @@
       "merge_policy": "append_candidate_then_post_clean_exact_near_dedup",
       "text_columns": ["full_transcript_text"],
       "id_columns": ["subject_id"],
+      "structured_profile_contract": {
+        "required_all_fields": ["subject_id", "meeting_id"],
+        "required_any_field_groups": []
+      },
       "text_strategy": "full_transcript_only_do_not_concatenate_generated_or_nested_representations",
       "cleaning_profile": "transcript",
       "structural_policy": "disabled",
@@ -396,6 +404,13 @@
       "text_columns": ["plain_text", "text_content"],
       "alternate_text_columns": ["markdown", "markdown_content"],
       "id_columns": ["book_id", "identifier", "handle", "mdb_code"],
+      "structured_profile_contract": {
+        "required_all_fields": [],
+        "required_any_field_groups": [
+          ["book_id", "handle", "identifier", "mdb_code"],
+          ["PDF_Link", "pdf_urls", "pdf_files"]
+        ]
+      },
       "cleaning_profile": "modern_textbook",
       "structural_policy": "shadow_after_segmentation",
       "training_eligibility": "policy_review"
@@ -502,6 +517,10 @@
       "merge_policy": "append_candidate_then_privacy_review_exact_near_dedup_and_template_cap",
       "text_columns": ["transcription"],
       "id_columns": ["id"],
+      "structured_profile_contract": {
+        "required_all_fields": ["id", "title"],
+        "required_any_field_groups": []
+      },
       "cleaning_profile": "oral_history_transcript",
       "structural_policy": "disabled",
       "training_eligibility": "noncommercial_review"
@@ -525,6 +544,10 @@
       "merge_policy": "append_candidate_then_exact_near_dedup_and_low_weight_cap",
       "text_columns": ["entry_text"],
       "id_columns": ["source_url", "lemma"],
+      "structured_profile_contract": {
+        "required_all_fields": ["lemma", "source_url"],
+        "required_any_field_groups": []
+      },
       "cleaning_profile": "dictionary_entries",
       "structural_policy": "disabled",
       "training_eligibility": "noncommercial_review"

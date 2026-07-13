@@ -67,6 +67,7 @@ def sample() -> dict:
         "source_revision": "a" * 40,
         "stable_uid": uid(1),
         "source_route": "pdf_ocr",
+        "extraction_route": "pdf_ocr",
         "observed_extraction_route": "pdf_ocr",
         "observed_extraction_route_basis": "declared_extraction_route_fallback",
         "observed_extraction_route_evidence": "roster:extraction_route",
@@ -103,6 +104,7 @@ def response_for(req: dict, **overrides: object) -> dict:
                 "source_dataset",
                 "source_revision",
                 "source_route",
+                "extraction_route",
                 "observed_extraction_route",
                 "observed_extraction_route_basis",
                 "observed_extraction_route_evidence",
@@ -324,6 +326,112 @@ def test_explicit_risk_base_cannot_bypass_logical_route_or_mixed_extraction_diag
     assert observed_mixed < logical_html
 
 
+def test_school_books_logical_modes_keep_html_and_structure_secondary_to_pdf() -> None:
+    """PDF-linked school-book fields must not invent HTML/structured primacy."""
+
+    school_modes = ["pdf_ocr"]
+    html_only = {
+        "original_characters": 1000,
+        "raw_html_entity_per_1000_chars": 4.0,
+        "raw_script_style_tag_count": 1,
+        "raw_navigation_markup_tag_count": 2,
+    }
+    pdf_only = {
+        "original_characters": 1000,
+        "raw_line_break_hyphenation_fraction": 1.0,
+        "raw_repeated_short_line_fraction": 1.0,
+    }
+    structured_only = {
+        "original_characters": 1000,
+        "structured_missing_required_field_count": 3,
+    }
+
+    school_html = REVIEW.risk_score_from_metrics(
+        html_only,
+        source_route="pdf_ocr",
+        logical_error_modes=school_modes,
+        observed_extraction_route="pdf_ocr",
+    )
+    primary_html = REVIEW.risk_score_from_metrics(
+        html_only,
+        source_route="html_web",
+        logical_error_modes=["html_web"],
+    )
+    school_pdf = REVIEW.risk_score_from_metrics(
+        pdf_only,
+        source_route="pdf_ocr",
+        logical_error_modes=school_modes,
+        observed_extraction_route="pdf_ocr",
+    )
+    html_pdf = REVIEW.risk_score_from_metrics(
+        pdf_only,
+        source_route="html_web",
+        logical_error_modes=["html_web"],
+    )
+    school_structured = REVIEW.risk_score_from_metrics(
+        structured_only,
+        source_route="pdf_ocr",
+        logical_error_modes=school_modes,
+        observed_extraction_route="pdf_ocr",
+    )
+    structured_primary = REVIEW.risk_score_from_metrics(
+        structured_only,
+        source_route="structured",
+        logical_error_modes=["structured"],
+    )
+    assert school_html < primary_html
+    assert school_pdf > html_pdf
+    assert school_structured < structured_primary
+
+    school_roster = roster("school_books_new_editions")
+    school_roster.update(
+        {
+            "source_routes": {"school_books_new_editions": "pdf_ocr"},
+            "review_routes": {"school_books_new_editions": "pdf_ocr"},
+            "extraction_routes": {"school_books_new_editions": "pdf_ocr"},
+            "logical_error_modes": {"school_books_new_editions": school_modes},
+            "route_policy": {"priority": "logical_source_then_observed_extraction"},
+        }
+    )
+    metric = {
+        **metric_rows(1, source="school_books_new_editions")[0],
+        **html_only,
+        "source_route": "pdf_ocr",
+        "review_route": "pdf_ocr",
+        "extraction_route": "pdf_ocr",
+        "observed_extraction_route": "pdf_ocr",
+        "observed_extraction_route_basis": "explicit_row_route",
+        "observed_extraction_route_evidence": "raw_field:format",
+        "observed_extraction_route_priority": "logical_primary",
+    }
+    normalized = REVIEW.normalize_metric_rows([metric], school_roster)
+    assert normalized[0].risk_score == school_html
+
+
+def test_structured_depth_requires_a_concrete_flattening_failure_to_affect_risk() -> None:
+    base = {
+        "original_characters": 1000,
+        "structured_metadata_max_depth": 12,
+    }
+    depth_only = REVIEW.risk_score_from_metrics(
+        base,
+        source_route="structured",
+        logical_error_modes=["structured"],
+    )
+    flat = REVIEW.risk_score_from_metrics(
+        {"original_characters": 1000},
+        source_route="structured",
+        logical_error_modes=["structured"],
+    )
+    with_flattening_failure = REVIEW.risk_score_from_metrics(
+        {**base, "field_flattening_failures": 1},
+        source_route="structured",
+        logical_error_modes=["structured"],
+    )
+    assert depth_only == flat
+    assert with_flattening_failure > depth_only
+
+
 def test_metric_rows_reject_logical_or_extraction_route_drift() -> None:
     explicit_roster = roster("source-a")
     explicit_roster.update(
@@ -391,6 +499,53 @@ def test_document_observed_route_requires_documented_secondary_exception() -> No
     undocumented = {**observed_html, "observed_extraction_route": "structured"}
     with pytest.raises(ValueError, match="documented secondary exception"):
         REVIEW.normalize_metric_rows([undocumented], documented)
+
+    false_declared_fallback = {
+        **observed_html,
+        "observed_extraction_route_basis": "declared_extraction_route_fallback",
+        "observed_extraction_route_evidence": "roster:extraction_route",
+    }
+    with pytest.raises(ValueError, match="declared extraction route fallback must equal"):
+        REVIEW.normalize_metric_rows([false_declared_fallback], documented)
+
+    unavailable_with_route = {
+        **observed_html,
+        "observed_extraction_route": "pdf_ocr",
+        "observed_extraction_route_basis": "unavailable",
+        "observed_extraction_route_evidence": "none",
+        "observed_extraction_route_priority": "logical_primary",
+    }
+    with pytest.raises(ValueError, match="unavailable observed extraction cannot carry"):
+        REVIEW.normalize_metric_rows([unavailable_with_route], documented)
+
+
+def test_request_provenance_rejects_false_declared_fallback_or_unavailable_route() -> None:
+    false_declared_fallback = {
+        **sample(),
+        "extraction_route": "pdf_ocr",
+        "observed_extraction_route": "html_web",
+        "observed_extraction_route_basis": "declared_extraction_route_fallback",
+        "observed_extraction_route_evidence": "roster:extraction_route",
+        "observed_extraction_route_priority": "secondary_exception_only",
+    }
+    with pytest.raises(ValueError, match="declared extraction route fallback must equal"):
+        REVIEW._request_observed_route_fields(
+            false_declared_fallback,
+            source_route="pdf_ocr",
+            extraction_route="pdf_ocr",
+        )
+
+    unavailable_with_route = {
+        **sample(),
+        "observed_extraction_route_basis": "unavailable",
+        "observed_extraction_route_evidence": "none",
+    }
+    with pytest.raises(ValueError, match="unavailable observed extraction route cannot carry"):
+        REVIEW._request_observed_route_fields(
+            unavailable_with_route,
+            source_route="pdf_ocr",
+            extraction_route="pdf_ocr",
+        )
 
 
 def test_observed_secondary_risk_bonus_is_strictly_bounded() -> None:

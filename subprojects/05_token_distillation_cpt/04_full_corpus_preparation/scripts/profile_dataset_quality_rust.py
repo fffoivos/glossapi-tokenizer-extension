@@ -51,12 +51,13 @@ from profile_source_quality import (
 
 PINNED_GLOSSAPI_COMMIT = "6f29a2825559c540ab342fc77ae4457cf3556f2a"
 BUILD_RECEIPT_SCHEMA = "glossapi_rust_quality_build_receipt_v1"
-DOCUMENT_SCHEMA = "dataset_quality_document_v1"
+DOCUMENT_SCHEMA = "dataset_quality_document_v2"
 BATCH_RECEIPT_SCHEMA = "dataset_quality_rust_batch_receipt_v1"
-SUMMARY_SCHEMA = "dataset_quality_summary_v1"
+SUMMARY_SCHEMA = "dataset_quality_summary_v2"
 CONTRACT_SCHEMA = "dataset_quality_rust_contract_v1"
-QUALITY_HANDOFF_SCHEMA = "dataset_quality_site_handoff_v1"
+QUALITY_HANDOFF_SCHEMA = "dataset_quality_site_handoff_v2"
 ROUTE_COVERAGE_SCHEMA = "dataset_quality_route_coverage_v1"
+QUALITY_DOCUMENT_ID_NAMESPACE = "dataset-quality-document-v2"
 
 # The candidate roster declares the logical source and review routes, while
 # ``extraction_route`` is the frozen source-level observed-representation
@@ -90,6 +91,27 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GREEK_RE = re.compile(r"[\u0370-\u03ff\u1f00-\u1fff]")
 LATIN_RE = re.compile(r"[A-Za-z\u00c0-\u024f]")
 HTML_RE = re.compile(r"<\s*/?\s*[A-Za-z][^>]{0,200}>")
+HTML_ENTITY_RE = re.compile(
+    r"&(?:#[0-9]{1,8}|#[xX][0-9A-Fa-f]{1,8}|[A-Za-z][A-Za-z0-9]{1,31});"
+)
+SCRIPT_STYLE_TAG_RE = re.compile(
+    r"(?is)<\s*/?\s*(?:script|style)\b[^>]{0,512}>"
+)
+# This deliberately recognizes only explicit semantic navigation/container
+# elements.  It does not infer navigation from class names or arbitrary divs.
+NAVIGATION_MARKUP_TAG_RE = re.compile(
+    r"(?is)<\s*/?\s*(?:nav|header|footer|aside|menu)\b[^>]{0,512}>"
+)
+# ``[^\W\d_]`` is Python's Unicode-aware letter class without digits or
+# underscores.  The raw diagnostic intentionally accepts only a literal ASCII
+# hyphen at a physical line break; it is a conservative OCR/PDF signal.  The
+# lookahead intentionally permits consecutive line-break candidates to share
+# the intervening letter without undercounting them.
+LINE_BREAK_HYPHENATION_RE = re.compile(r"(?u)(?=[^\W\d_]-\r?\n[^\W\d_])")
+STRUCTURED_CONTRACT_FIELD_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,127}$")
+STRUCTURED_METADATA_MAX_DEPTH = 64
+STRUCTURED_METADATA_MAX_NODES = 100_000
+REPEATED_SHORT_LINE_MAX_CHARS = 120
 MOJIBAKE_RE = re.compile(r"(?:Ã.|Â.|â€|Î[\x80-\xbf]|Ï[\x80-\xbf])")
 CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]")
 EMAIL_RE = re.compile(r"(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b")
@@ -109,6 +131,25 @@ PII_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("amka_labelled", AMKA_RE),
     ("identity_labelled", IDENTITY_RE),
 )
+
+
+@dataclass(frozen=True)
+class StructuredProfileContract:
+    """Frozen, source-specific metadata checks for structured diagnostics.
+
+    A field in ``required_all_fields`` is one required metadata field.  Each
+    member of ``required_any_field_groups`` is one logical requirement that is
+    satisfied by at least one present field in that group.  This preserves the
+    heterogeneous school-book schemas without treating every variant field as
+    universally required.
+    """
+
+    required_all_fields: tuple[str, ...]
+    required_any_field_groups: tuple[tuple[str, ...], ...]
+
+    @property
+    def required_field_count(self) -> int:
+        return len(self.required_all_fields) + len(self.required_any_field_groups)
 
 NOISE_FIELDS: tuple[str, ...] = (
     "rust_noise_badness_score",
@@ -1436,6 +1477,14 @@ def normalization_identity_closure(manifest_path: Path) -> dict[str, Any]:
             raise ValueError(
                 "sources config contains a duplicate/empty source identity"
             )
+        if "structured_profile_contract" in row:
+            # Keep the handoff identity closure strict too: a malformed
+            # contract cannot be hidden in the receipt-bound registry simply
+            # because a particular summary is being revalidated later.
+            validate_structured_profile_contract(
+                row["structured_profile_contract"],
+                context=f"{sources_config_path}.{source_id}.structured_profile_contract",
+            )
         configured_sources[source_id] = row
     acquisition_sources: dict[str, Mapping[str, Any]] = {}
     for row in acquisition.get("sources", []):
@@ -1721,6 +1770,8 @@ def build_quality_site_handoff(
     summary_path = secure_file_under_root(
         summary_path, root=output_root, context="quality summary"
     )
+    if summary_path.name != f"{SUMMARY_SCHEMA}.json":
+        raise ValueError("quality summary path/schema drift")
     summary_relative = summary_path.relative_to(output_root).as_posix()
     summary_path, summary, _, _ = load_relative_json_nofollow(
         output_root, summary_relative, context="quality summary"
@@ -1944,6 +1995,7 @@ def build_quality_site_handoff(
             "receipt": _portable_file_receipt(contract_path, label="contract.json"),
             "canonical_sha256": contract_sha256,
             "schema_version": CONTRACT_SCHEMA,
+            "document_schema": str(contract.get("document_schema", "")),
             "selected_shard_inventory_sha256": sha256_json(contract_shards),
             "excluded_source_ids": list(summary["excluded_source_ids"]),
             "profiler_script_sha256": str(contract.get("profiler_script_sha256", "")),
@@ -2037,6 +2089,8 @@ def validate_quality_site_handoff(
     """Validate the compact on-cluster attestation and return safe projections."""
 
     summary = read_json(summary_path)
+    if summary_path.name != f"{SUMMARY_SCHEMA}.json":
+        raise ValueError("quality_handoff: summary path/schema drift")
     projection = validate_and_project_quality_summary(summary)
     handoff = read_json(handoff_path)
     require_exact_keys(
@@ -2283,6 +2337,7 @@ def validate_quality_site_handoff(
             "receipt",
             "canonical_sha256",
             "schema_version",
+            "document_schema",
             "selected_shard_inventory_sha256",
             "excluded_source_ids",
             "profiler_script_sha256",
@@ -2301,6 +2356,7 @@ def validate_quality_site_handoff(
         or contract_receipt["sha256"] != summary["contract"]["sha256"]
         or contract["canonical_sha256"] != summary["contract_sha256"]
         or contract["schema_version"] != CONTRACT_SCHEMA
+        or contract["document_schema"] != DOCUMENT_SCHEMA
         or contract["excluded_source_ids"] != projection["excluded_source_ids"]
         or contract["selected_shard_inventory_sha256"]
         != normalization["selected_normalized_shard_inventory_sha256"]
@@ -2620,6 +2676,275 @@ def read_json(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"{path}: JSON root must be an object")
     return value
+
+
+def _structured_contract_field_name(value: Any, *, context: str) -> str:
+    if not isinstance(value, str) or not STRUCTURED_CONTRACT_FIELD_RE.fullmatch(value):
+        raise ValueError(
+            f"{context}: expected an ASCII source-schema field name of at most 128 characters"
+        )
+    return value
+
+
+def validate_structured_profile_contract(
+    value: Any, *, context: str
+) -> StructuredProfileContract:
+    """Validate one frozen, source-specific structured-profile contract.
+
+    ``required_all_fields`` contains independent required fields.  Each nested
+    list in ``required_any_field_groups`` is one alternative schema group.  A
+    group contributes one requirement to the per-document count when any one
+    of its fields is present.  The strict shape prevents a changing source
+    schema from silently turning into an invented completeness metric.
+    """
+
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{context}: expected an object")
+    require_exact_keys(
+        value,
+        required=("required_all_fields", "required_any_field_groups"),
+        context=context,
+    )
+    raw_all = value["required_all_fields"]
+    raw_groups = value["required_any_field_groups"]
+    if not isinstance(raw_all, list) or not isinstance(raw_groups, list):
+        raise ValueError(
+            f"{context}: required_all_fields and required_any_field_groups must be lists"
+        )
+    if len(raw_all) > 128 or len(raw_groups) > 64:
+        raise ValueError(f"{context}: contract exceeds bounded field/group limits")
+
+    required_all = tuple(
+        _structured_contract_field_name(
+            field, context=f"{context}.required_all_fields[{index}]"
+        )
+        for index, field in enumerate(raw_all)
+    )
+    if len(set(required_all)) != len(required_all):
+        raise ValueError(f"{context}.required_all_fields: duplicate field")
+
+    required_groups: list[tuple[str, ...]] = []
+    all_field_names = set(required_all)
+    seen_groups: set[tuple[str, ...]] = set()
+    total_alternative_fields = 0
+    for group_index, raw_group in enumerate(raw_groups):
+        group_context = f"{context}.required_any_field_groups[{group_index}]"
+        if not isinstance(raw_group, list) or not raw_group:
+            raise ValueError(f"{group_context}: expected a nonempty field list")
+        if len(raw_group) > 64:
+            raise ValueError(f"{group_context}: exceeds bounded field limit")
+        group = tuple(
+            _structured_contract_field_name(
+                field, context=f"{group_context}[{field_index}]"
+            )
+            for field_index, field in enumerate(raw_group)
+        )
+        if len(set(group)) != len(group):
+            raise ValueError(f"{group_context}: duplicate field")
+        if any(field in all_field_names for field in group):
+            raise ValueError(
+                f"{group_context}: field cannot be duplicated across contract requirements"
+            )
+        if group in seen_groups:
+            raise ValueError(f"{group_context}: duplicate alternative field group")
+        all_field_names.update(group)
+        seen_groups.add(group)
+        required_groups.append(group)
+        total_alternative_fields += len(group)
+
+    if not required_all and not required_groups:
+        raise ValueError(f"{context}: contract must declare at least one requirement")
+    if len(required_all) + total_alternative_fields > 256:
+        raise ValueError(f"{context}: contract exceeds bounded total field limit")
+    return StructuredProfileContract(
+        required_all_fields=required_all,
+        required_any_field_groups=tuple(required_groups),
+    )
+
+
+def _source_config_structured_profile_contracts(
+    sources_config: Mapping[str, Any], *, context: str
+) -> dict[str, StructuredProfileContract | None]:
+    """Project only verified structured contracts from a sources registry."""
+
+    if (
+        sources_config.get("schema_version") != "full_cpt_sources_v1"
+        or not isinstance(sources_config.get("base"), Mapping)
+        or not isinstance(sources_config.get("sources"), list)
+    ):
+        raise ValueError(f"{context}: unsupported sources config")
+    configured_rows: list[tuple[str, Mapping[str, Any]]] = [
+        ("nanochat_base", sources_config["base"])
+    ]
+    for index, row in enumerate(sources_config["sources"]):
+        if not isinstance(row, Mapping):
+            raise ValueError(f"{context}.sources[{index}]: expected object")
+        source_id = row.get("source_id")
+        if not isinstance(source_id, str) or not source_id:
+            raise ValueError(f"{context}.sources[{index}]: invalid source_id")
+        configured_rows.append((source_id, row))
+
+    result: dict[str, StructuredProfileContract | None] = {}
+    for source_id, row in configured_rows:
+        if source_id in result:
+            raise ValueError(f"{context}: duplicate source_id {source_id!r}")
+        if "structured_profile_contract" in row:
+            result[source_id] = validate_structured_profile_contract(
+                row["structured_profile_contract"],
+                context=f"{context}.{source_id}.structured_profile_contract",
+            )
+        else:
+            result[source_id] = None
+    return result
+
+
+def load_receipt_bound_structured_profile_contracts(
+    manifest_path: Path,
+) -> dict[str, StructuredProfileContract | None]:
+    """Load structured contracts only through the pinned normalization config.
+
+    The normalizer records both the config path and its exact SHA-256 in the
+    manifest.  Phase 2 must use that pinned config rather than a working-tree
+    registry or an inferred Parquet schema.
+    """
+
+    manifest = read_json(manifest_path)
+    if manifest.get("schema_version") != "full_cpt_normalization_manifest_v1":
+        raise ValueError(f"{manifest_path}: unsupported normalization manifest")
+    sources_config_path = Path(str(manifest.get("sources_config", ""))).resolve()
+    if (
+        not sources_config_path.is_file()
+        or sha256_file(sources_config_path) != manifest.get("sources_config_sha256")
+    ):
+        raise ValueError("normalization sources config receipt drift")
+    configured = _source_config_structured_profile_contracts(
+        read_json(sources_config_path), context=str(sources_config_path)
+    )
+    selected: dict[str, StructuredProfileContract | None] = {}
+    for index, row in enumerate(manifest.get("sources", [])):
+        if not isinstance(row, Mapping):
+            raise ValueError(
+                f"{manifest_path}.sources[{index}]: expected source object"
+            )
+        source_id = row.get("source_id")
+        if not isinstance(source_id, str) or not source_id or source_id in selected:
+            raise ValueError(
+                f"{manifest_path}.sources[{index}]: invalid/duplicate source_id"
+            )
+        if source_id not in configured:
+            raise ValueError(
+                f"{manifest_path}.sources[{index}]: source missing from pinned config"
+            )
+        selected[source_id] = configured[source_id]
+    if not selected:
+        raise ValueError(f"{manifest_path}: normalization manifest has no sources")
+    return selected
+
+
+def _structured_metadata_object(value: Any, *, context: str) -> Mapping[str, Any]:
+    if value in (None, ""):
+        return {}
+    if isinstance(value, str):
+        try:
+            value = strict_json_loads(value, context=context)
+        except ValueError as exc:
+            raise ValueError(f"{context}: invalid canonical source_metadata_json") from exc
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{context}: canonical source_metadata_json must be an object")
+    return value
+
+
+def _structured_metadata_max_depth(
+    metadata: Mapping[str, Any], *, context: str
+) -> int:
+    """Return bounded container depth without retaining metadata values."""
+
+    if not metadata:
+        return 0
+    pending: list[tuple[Any, int]] = [(metadata, 1)]
+    seen: set[int] = set()
+    nodes = 0
+    maximum = 0
+    while pending:
+        current, depth = pending.pop()
+        if not isinstance(current, (Mapping, list, tuple)):
+            continue
+        identity = id(current)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        nodes += 1
+        if nodes > STRUCTURED_METADATA_MAX_NODES:
+            raise ValueError(f"{context}: metadata exceeds bounded node count")
+        if depth > STRUCTURED_METADATA_MAX_DEPTH:
+            raise ValueError(f"{context}: metadata exceeds bounded nesting depth")
+        maximum = max(maximum, depth)
+        values = current.values() if isinstance(current, Mapping) else current
+        for child in values:
+            if isinstance(child, (Mapping, list, tuple)):
+                pending.append((child, depth + 1))
+    return maximum
+
+
+def _structured_metadata_field_present(value: Any) -> bool:
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, (Mapping, list, tuple)):
+        return bool(value)
+    return True
+
+
+def structured_profile_metrics(
+    source_metadata_json: Any,
+    *,
+    contract: StructuredProfileContract | Mapping[str, Any] | None,
+    context: str,
+) -> dict[str, Any]:
+    """Emit bounded metadata-derived facts for a configured structured source.
+
+    Legacy review samples have no canonical metadata object.  With no supplied
+    contract they therefore emit explicit zero/default facts rather than an
+    invented completeness result.
+    """
+
+    if contract is None:
+        return {
+            "structured_contract_declared": False,
+            "structured_required_field_count": 0,
+            "structured_present_required_field_count": 0,
+            "structured_missing_required_field_count": 0,
+            "structured_metadata_max_depth": 0,
+        }
+    if not isinstance(contract, StructuredProfileContract):
+        contract = validate_structured_profile_contract(
+            contract, context=f"{context}.structured_profile_contract"
+        )
+    metadata = _structured_metadata_object(source_metadata_json, context=context)
+    present_fields = {
+        field
+        for field, value in metadata.items()
+        if _structured_metadata_field_present(value)
+    }
+    required_all_present = sum(
+        field in present_fields for field in contract.required_all_fields
+    )
+    required_any_present = sum(
+        any(field in present_fields for field in group)
+        for group in contract.required_any_field_groups
+    )
+    required = contract.required_field_count
+    present = required_all_present + required_any_present
+    return {
+        "structured_contract_declared": True,
+        "structured_required_field_count": required,
+        "structured_present_required_field_count": present,
+        "structured_missing_required_field_count": required - present,
+        "structured_metadata_max_depth": _structured_metadata_max_depth(
+            metadata, context=context
+        ),
+    }
 
 
 def write_json_atomic(
@@ -3208,8 +3533,12 @@ def load_review_sample_packet(
                     "review_route": requested[sample_id]["source_route"],
                     "extraction_route": requested[sample_id]["source_route"],
                     "observed_extraction_route": requested[sample_id]["source_route"],
-                    "observed_extraction_route_basis": "unavailable",
-                    "observed_extraction_route_evidence": "none",
+                    # The masked legacy review-sample packet predates native
+                    # per-document extraction provenance.  It supplies a
+                    # source-route fallback for profiling, not an unavailable
+                    # observed route with a contradictory route value.
+                    "observed_extraction_route_basis": "legacy_canonical_without_observed_route",
+                    "observed_extraction_route_evidence": "legacy:source_route",
                     "observed_extraction_route_priority": "logical_primary",
                     "stable_uid": sample_id,
                     "normalized_text_sha256": normalized_sha,
@@ -3327,6 +3656,18 @@ def profile_route_fields(
             observed_values["observed_extraction_route_evidence"],
             context=f"{context}.observed_extraction_route_evidence",
         )
+        if (
+            basis == "declared_extraction_route_fallback"
+            and observed_route != extraction_route
+        ):
+            raise ValueError(
+                f"{context}: declared extraction route fallback must equal the "
+                "frozen extraction_route"
+            )
+        if basis == "unavailable":
+            raise ValueError(
+                f"{context}: unavailable observed extraction route cannot carry a route"
+            )
     else:
         if not allow_legacy_declared_fallback:
             raise ValueError(f"{context}: per-document observed extraction route is required")
@@ -3392,6 +3733,10 @@ def document_schema():
         ("raw_greek_letter_fraction", pa.float64()),
         ("raw_html_tags", pa.int64()),
         ("raw_html_tags_per_1000_chars", pa.float64()),
+        ("raw_html_entity_count", pa.int64()),
+        ("raw_html_entity_per_1000_chars", pa.float64()),
+        ("raw_script_style_tag_count", pa.int64()),
+        ("raw_navigation_markup_tag_count", pa.int64()),
         ("raw_mojibake_markers", pa.int64()),
         ("raw_replacement_characters", pa.int64()),
         ("raw_mojibake_per_1000_chars", pa.float64()),
@@ -3402,6 +3747,8 @@ def document_schema():
         ("raw_unique_line_fraction", pa.float64()),
         ("raw_repeated_line_fraction", pa.float64()),
         ("raw_one_token_line_fraction", pa.float64()),
+        ("raw_line_break_hyphenation_fraction", pa.float64()),
+        ("raw_repeated_short_line_fraction", pa.float64()),
         ("raw_markdown_table_lines", pa.int64()),
         ("bibliography_header_detected", pa.bool_()),
         ("toc_header_detected", pa.bool_()),
@@ -3413,6 +3760,11 @@ def document_schema():
         ("structural_template_id", pa.string()),
         ("direct_identifier_match_count", pa.int64()),
         ("direct_identifier_types", pa.string()),
+        ("structured_contract_declared", pa.bool_()),
+        ("structured_required_field_count", pa.int64()),
+        ("structured_present_required_field_count", pa.int64()),
+        ("structured_missing_required_field_count", pa.int64()),
+        ("structured_metadata_max_depth", pa.int64()),
     ]
     for name in NOISE_FIELDS:
         if name in FLOAT_NOISE_FIELDS:
@@ -3456,11 +3808,23 @@ def raw_metrics(
     latin = len(LATIN_RE.findall(text))
     letters = greek + latin
     html_tags = len(HTML_RE.findall(text))
+    html_entities = len(HTML_ENTITY_RE.findall(text))
+    script_style_tags = len(SCRIPT_STYLE_TAG_RE.findall(text))
+    navigation_markup_tags = len(NAVIGATION_MARKUP_TAG_RE.findall(text))
     mojibake = len(MOJIBAKE_RE.findall(text))
     replacement = text.count("\ufffd")
     control = len(CONTROL_RE.findall(text))
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     repeated = len(lines) - len(set(lines))
+    repeated_short_line_occurrences = sum(
+        count
+        for count in Counter(
+            line for line in lines if len(line) <= REPEATED_SHORT_LINE_MAX_CHARS
+        ).values()
+        if count > 1
+    )
+    physical_line_breaks = text.count("\n")
+    line_break_hyphenations = len(LINE_BREAK_HYPHENATION_RE.findall(text))
     unique_fraction, one_token_fraction, markdown_table_lines = line_quality(text)
     template = normalized_template(text)
     pii_counts = {name: len(pattern.findall(text)) for name, pattern in PII_PATTERNS}
@@ -3475,6 +3839,10 @@ def raw_metrics(
         "raw_greek_letter_fraction": greek / letters if letters else 0.0,
         "raw_html_tags": html_tags,
         "raw_html_tags_per_1000_chars": html_tags * 1000.0 / denominator,
+        "raw_html_entity_count": html_entities,
+        "raw_html_entity_per_1000_chars": html_entities * 1000.0 / denominator,
+        "raw_script_style_tag_count": script_style_tags,
+        "raw_navigation_markup_tag_count": navigation_markup_tags,
         "raw_mojibake_markers": mojibake,
         "raw_replacement_characters": replacement,
         "raw_mojibake_per_1000_chars": mojibake * 1000.0 / denominator,
@@ -3485,6 +3853,17 @@ def raw_metrics(
         "raw_unique_line_fraction": unique_fraction,
         "raw_repeated_line_fraction": repeated / len(lines) if lines else 0.0,
         "raw_one_token_line_fraction": one_token_fraction,
+        "raw_line_break_hyphenation_fraction": (
+            line_break_hyphenations / physical_line_breaks
+            if physical_line_breaks
+            else 0.0
+        ),
+        # This is a repeated-short-line signal only.  It is a page-furniture
+        # proxy for PDF/OCR diagnostics, never proof that a line is a header
+        # or footer and never an instruction to remove text.
+        "raw_repeated_short_line_fraction": (
+            repeated_short_line_occurrences / len(lines) if lines else 0.0
+        ),
         "raw_markdown_table_lines": markdown_table_lines,
         "bibliography_header_detected": bool(BIB_HEADER.search(text)),
         "toc_header_detected": bool(TOC_HEADER.search(text)),
@@ -3772,6 +4151,11 @@ def process_batch(
                     interpretation = "zero_score_with_greek"
                 else:
                     interpretation = "scored"
+                structured = structured_profile_metrics(
+                    source.get("source_metadata_json"),
+                    contract=source.get("structured_profile_contract"),
+                    context=f"{source['stable_uid']}.source_metadata_json",
+                )
                 documents.append(
                     {
                         "schema_version": DOCUMENT_SCHEMA,
@@ -3796,7 +4180,7 @@ def process_batch(
                         ),
                         "document_id": hashlib.sha256(
                             (
-                                "dataset-quality-document-v1\0"
+                                QUALITY_DOCUMENT_ID_NAMESPACE + "\0"
                                 + str(source["stable_uid"])
                             ).encode("utf-8")
                         ).hexdigest(),
@@ -3815,6 +4199,7 @@ def process_batch(
                             source.get("input_row_index", row_start + offset)
                         ),
                         **raw,
+                        **structured,
                         **noise_values,
                         **cleaner_values,
                         "cleaner_retained_character_ratio": retained_ratio,
@@ -4466,6 +4851,20 @@ def run_diagnostics(args: argparse.Namespace) -> int:
         include_source_ids=set(args.source_id or []),
         include_base=args.include_base,
     )
+    # Structured-profile contracts are source-registry declarations, not a
+    # heuristic inferred from a physical Parquet file.  The loader verifies
+    # that the registry is the exact one pinned by normalization.
+    structured_profile_contracts = load_receipt_bound_structured_profile_contracts(
+        args.normalization_manifest
+    )
+    missing_structured_contract_sources = sorted(
+        {shard.source_id for shard in shards} - set(structured_profile_contracts)
+    )
+    if missing_structured_contract_sources:
+        raise ValueError(
+            "selected normalized shards lack pinned structured-profile config: "
+            f"{missing_structured_contract_sources}"
+        )
     sample_rows: list[dict[str, Any]] | None = None
     sample_input_shards: list[dict[str, Any]] | None = None
     sample_contract: dict[str, Any] | None = None
@@ -4694,6 +5093,12 @@ def run_diagnostics(args: argparse.Namespace) -> int:
                     private, corrected = metadata_flags(row.get("source_metadata_json"))
                     row["private_data_true"] = private
                     row["corrected_version_present"] = corrected
+                    # Keep the frozen contract internal to this batch.  The
+                    # per-document output contains only bounded counts/depth,
+                    # never raw metadata or contract field values.
+                    row["structured_profile_contract"] = (
+                        structured_profile_contracts[shard.source_id]
+                    )
                 receipt = process_batch(
                     rows=rows,
                     shard=shard,

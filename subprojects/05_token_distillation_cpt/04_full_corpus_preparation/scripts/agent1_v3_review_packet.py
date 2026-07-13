@@ -40,8 +40,8 @@ REQUESTS_SCHEMA = review.REQUEST_SCHEMA
 CODE_COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 HEX_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 DEFAULT_COMPARISON_BUNDLE_SIZE = 4
-QUALITY_DOCUMENT_SCHEMA = "dataset_quality_document_v1"
-QUALITY_DOCUMENT_ID_NAMESPACE = "dataset-quality-document-v1"
+QUALITY_DOCUMENT_SCHEMA = "dataset_quality_document_v2"
+QUALITY_DOCUMENT_ID_NAMESPACE = "dataset-quality-document-v2"
 EVIDENCE_KEY_CANONICAL_STABLE_UID = "canonical_stable_uid"
 EVIDENCE_KEY_QUALITY_DOCUMENT_ID = "dataset_quality_document_id"
 EXPECTED_MODEL_ENVIRONMENT_VARIABLE = "CODEX_REVIEW_MODEL"
@@ -326,7 +326,7 @@ def _selection_evidence_key(row: Mapping[str, Any]) -> tuple[str, str]:
 
     Native v3 evidence contains a canonical stable UID.  The existing quality
     profiler's public full-scan schema instead contains an opaque
-    ``dataset_quality_document_v1.document_id``.  The latter is accepted only
+    ``dataset_quality_document_v2.document_id``.  The latter is accepted only
     under its exact schema and later verified against canonical text before it
     can become a review request sample ID.  This avoids treating arbitrary
     document hashes as reversible corpus identities.
@@ -1046,26 +1046,25 @@ def build_packet(
     redaction_totals, attestations = _redaction_summary(samples)
     coverage = _source_coverage(selection, primary, secondary, bundle_coverage)
     requests = [*primary, *secondary]
-    selection_by_uid = {
-        str(row["stable_uid"]): row for row in selection["selected_documents"]
-    }
     request_inventory = [
         {
             "review_id": str(request["review_id"]),
             "request_sha256": str(request["request_sha256"]),
             "sample_id": str(request["sample_id"]),
             "reviewer_slot": str(request["reviewer_slot"]),
+            "source_route": str(request["source_route"]),
+            "extraction_route": str(request["extraction_route"]),
             "observed_extraction_route": str(
-                selection_by_uid[str(request["sample_id"])]["observed_extraction_route"]
+                request["observed_extraction_route"]
             ),
             "observed_extraction_route_basis": str(
-                selection_by_uid[str(request["sample_id"])]["observed_extraction_route_basis"]
+                request["observed_extraction_route_basis"]
             ),
             "observed_extraction_route_evidence": str(
-                selection_by_uid[str(request["sample_id"])]["observed_extraction_route_evidence"]
+                request["observed_extraction_route_evidence"]
             ),
             "observed_extraction_route_priority": str(
-                selection_by_uid[str(request["sample_id"])]["observed_extraction_route_priority"]
+                request["observed_extraction_route_priority"]
             ),
         }
         for request in requests

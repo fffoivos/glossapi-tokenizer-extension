@@ -691,6 +691,12 @@ def canonical_row(
         embedded_route=embedded_route,
         declared_extraction_route=provenance_routes["extraction_route"],
     )
+    validate_observed_extraction_route_basis(
+        observed_extraction_route=observed_extraction["route"],
+        observed_extraction_route_basis=observed_extraction["basis"],
+        declared_extraction_route=provenance_routes["extraction_route"],
+        context=f"{source.source_id}: canonical observed extraction route",
+    )
     source_row_id = f"{relative_artifact}:{artifact_row_index}:{representation_suffix}"
     source_doc_id = (
         upstream_id
@@ -927,6 +933,41 @@ def _safe_route_evidence_token(value: object) -> str:
     assert isinstance(value, str)
     token = re.sub(r"[^a-z0-9]+", "_", value.strip().casefold()).strip("_")
     return token[:80] or "empty"
+
+
+def validate_observed_extraction_route_basis(
+    *,
+    observed_extraction_route: str | None,
+    observed_extraction_route_basis: str,
+    declared_extraction_route: str | None,
+    context: str,
+) -> None:
+    """Bind route-basis claims to the route they are allowed to describe.
+
+    A ``declared_extraction_route_fallback`` is not free-form evidence: it
+    specifically means that the frozen source-level extraction route was used
+    because no document-level observation was available.  Conversely,
+    ``unavailable`` means no observed route was supplied at all.  Keep this
+    small invariant at canonicalization so downstream consumers can fail
+    closed when a receipt or Parquet row is altered.
+    """
+
+    if observed_extraction_route_basis == "declared_extraction_route_fallback":
+        if (
+            declared_extraction_route is None
+            or observed_extraction_route != declared_extraction_route
+        ):
+            raise ValueError(
+                f"{context}: declared extraction route fallback must equal the "
+                "frozen extraction_route"
+            )
+    elif (
+        observed_extraction_route_basis == "unavailable"
+        and observed_extraction_route is not None
+    ):
+        raise ValueError(
+            f"{context}: unavailable observed extraction route cannot carry a route"
+        )
 
 
 def canonical_observed_extraction_route(

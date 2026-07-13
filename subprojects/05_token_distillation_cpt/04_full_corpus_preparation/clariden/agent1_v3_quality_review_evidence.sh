@@ -250,7 +250,7 @@ main() {
         "$import_receipt" "$imported_manifest" "$imported_responses" \
         "$imported_response_receipt" "$imported_adjudication_receipt" "$imported_calibration_receipt" "$closure" \
         "$sample" "$sample_receipt" "$quality_root/contract.json" \
-        "$quality_root/dataset_quality_document_v1.parquet" "$quality_summary" \
+        "$quality_root/dataset_quality_document_v2.parquet" "$quality_summary" \
         "$quality_handoff" "$AGENT1_V3_ALLOCATION_EVIDENCE"; do
         require_file "Stage 35 output" "$path"
     done
@@ -265,7 +265,7 @@ main() {
         --output "$sample" \
         --output "$sample_receipt" \
         --output "$quality_root/contract.json" \
-        --output "$quality_root/dataset_quality_document_v1.parquet" \
+        --output "$quality_root/dataset_quality_document_v2.parquet" \
         --output "$quality_summary" \
         --output "$quality_handoff" \
         --output "$AGENT1_V3_ALLOCATION_EVIDENCE"

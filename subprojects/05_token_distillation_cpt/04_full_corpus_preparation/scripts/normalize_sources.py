@@ -1033,6 +1033,21 @@ def validate_candidate_canonical_route_coverage(
             and all(row[field] == expected[field] for field in route_fields)
             and row["observed_extraction_route"] in allowed_observed_by_source[source_id]
             and row["observed_extraction_route_basis"] in V3_OBSERVED_EXTRACTION_BASES
+            # A declared fallback is a statement about the frozen source-level
+            # representation, not a way to label a different documented
+            # exception.  The latter must carry explicit row/metadata basis.
+            and (
+                row["observed_extraction_route_basis"]
+                != "declared_extraction_route_fallback"
+                or row["observed_extraction_route"] == expected["extraction_route"]
+            )
+            # ``unavailable`` means no observed route exists.  Candidate rows
+            # always need a controlled observed route, so this combination is
+            # deliberately rejected rather than converted to a fallback.
+            and (
+                row["observed_extraction_route_basis"] != "unavailable"
+                or row["observed_extraction_route"] is None
+            )
             and isinstance(row["observed_extraction_route_evidence"], str)
             and bool(row["observed_extraction_route_evidence"].strip())
             and row["observed_extraction_route_priority"]

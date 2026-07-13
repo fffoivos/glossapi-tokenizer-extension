@@ -123,8 +123,8 @@ fi
 uenv run "$PHASE04_UENV" --view=default -- \
     "$RUNTIME_VENV/bin/python" "$DATASET_QUALITY_SCRIPT" "${args[@]}"
 
-SUMMARY="$QUALITY_OUT/dataset_quality_summary_v1.json"
-DOCUMENTS="$QUALITY_OUT/dataset_quality_document_v1.parquet"
+SUMMARY="$QUALITY_OUT/dataset_quality_summary_v2.json"
+DOCUMENTS="$QUALITY_OUT/dataset_quality_document_v2.parquet"
 outputs=(
     "$PHASE04_STAGE_DIR/normalization_inventory_validation.json"
     "$QUALITY_OUT/contract.json"

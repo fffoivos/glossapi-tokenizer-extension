@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://glossapi.example/schemas/dataset-quality-site-handoff-v1.json",
-  "title": "Compact text-free quality-site dependency attestation",
+  "$id": "https://glossapi.example/schemas/dataset-quality-site-handoff-v2.json",
+  "title": "Compact text-free quality-site dependency attestation (v2)",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -10,10 +10,10 @@
     "document_output", "route_coverage", "checkpoint_closure"
   ],
   "properties": {
-    "schema_version": {"const": "dataset_quality_site_handoff_v1"},
+    "schema_version": {"const": "dataset_quality_site_handoff_v2"},
     "status": {"const": "passed"},
     "created_at": {"type": "string", "format": "date-time"},
-    "summary": {"$ref": "#/$defs/file"},
+    "summary": {"$ref": "#/$defs/summaryFile"},
     "scan_mode": {"enum": ["review_sample", "full_scan"]},
     "aggregate_projection_sha256": {"$ref": "#/$defs/sha256"},
     "normalization": {
@@ -71,13 +71,14 @@
       "type": "object", "additionalProperties": false,
       "required": [
         "receipt", "canonical_sha256", "schema_version",
-        "selected_shard_inventory_sha256", "excluded_source_ids",
+        "selected_shard_inventory_sha256", "excluded_source_ids", "document_schema",
         "profiler_script_sha256", "review_sample"
       ],
       "properties": {
         "receipt": {"$ref": "#/$defs/file"},
         "canonical_sha256": {"$ref": "#/$defs/sha256"},
         "schema_version": {"const": "dataset_quality_rust_contract_v1"},
+        "document_schema": {"const": "dataset_quality_document_v2"},
         "selected_shard_inventory_sha256": {"$ref": "#/$defs/sha256"},
         "excluded_source_ids": {
           "type": "array", "uniqueItems": true,
@@ -221,11 +222,20 @@
         "sha256": {"$ref": "#/$defs/sha256"}
       }
     },
+    "summaryFile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"const": "dataset_quality_summary_v2.json"},
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
     "fileWithRows": {
       "type": "object", "additionalProperties": false,
       "required": ["path", "bytes", "sha256", "rows"],
       "properties": {
-        "path": {"type": "string", "minLength": 1},
+        "path": {"const": "dataset_quality_document_v2.parquet"},
         "bytes": {"type": "integer", "minimum": 0},
         "sha256": {"$ref": "#/$defs/sha256"},
         "rows": {"type": "integer", "minimum": 1}

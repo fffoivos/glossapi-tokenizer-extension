@@ -67,6 +67,8 @@ REQUEST_INVENTORY_FIELDS = (
     "request_sha256",
     "sample_id",
     "reviewer_slot",
+    "source_route",
+    "extraction_route",
     *OBSERVED_ROUTE_FIELDS,
 )
 CALIBRATION_REQUEST_IDENTITY_FIELDS = (
@@ -78,6 +80,7 @@ CALIBRATION_REQUEST_IDENTITY_FIELDS = (
     "source_dataset",
     "source_revision",
     "source_route",
+    "extraction_route",
     *OBSERVED_ROUTE_FIELDS,
     "sampling_stratum",
     "original_text_sha256",
@@ -124,6 +127,7 @@ REQUEST_FIELDS = frozenset(
         "source_dataset",
         "source_revision",
         "source_route",
+        "extraction_route",
         *OBSERVED_ROUTE_FIELDS,
         "sampling_stratum",
         "original_text_sha256",
@@ -316,12 +320,15 @@ def _validate_observed_route_context(
     *,
     label: str,
     logical_source_route: str,
+    declared_extraction_route: str,
     allowed_observed_routes: Sequence[str],
 ) -> dict[str, str]:
     """Validate one compact observed-route receipt against logical provenance."""
 
     if logical_source_route not in review.ALLOWED_ROUTES:
         raise ValueError(f"{label}: logical source route is unsupported")
+    if declared_extraction_route not in review.ALLOWED_ROUTES:
+        raise ValueError(f"{label}: declared extraction route is unsupported")
     allowed = list(allowed_observed_routes)
     if (
         not allowed
@@ -340,6 +347,17 @@ def _validate_observed_route_context(
     basis = row.get("observed_extraction_route_basis")
     if basis not in review.OBSERVED_EXTRACTION_ROUTE_BASES:
         raise ValueError(f"{label}: observed extraction route basis is unsupported")
+    if basis == "unavailable":
+        raise ValueError(
+            f"{label}: unavailable observed extraction route cannot carry a route"
+        )
+    if (
+        basis == "declared_extraction_route_fallback"
+        and observed != declared_extraction_route
+    ):
+        raise ValueError(
+            f"{label}: declared extraction route fallback differs from frozen extraction route"
+        )
     evidence = row.get("observed_extraction_route_evidence")
     if (
         not isinstance(evidence, str)
@@ -499,6 +517,7 @@ def _validate_calibration_request_binding(
                     "source_revision": primary["source_revision"],
                     "stable_uid": primary["sample_id"],
                     "source_route": primary["source_route"],
+                    "extraction_route": primary["extraction_route"],
                     **{field: primary[field] for field in OBSERVED_ROUTE_FIELDS},
                     "sampling_stratum": primary["sampling_stratum"],
                 },
@@ -636,6 +655,7 @@ def _validate_packet_and_requests(
             row,
             label=f"selection.selected_documents[{index}]",
             logical_source_route=logical_routes[source_id],
+            declared_extraction_route=extraction_routes[source_id],
             allowed_observed_routes=observed_route_allowances[source_id],
         )
         if row.get("sampling_stratum") not in review.STRATA:
@@ -680,6 +700,7 @@ def _validate_packet_and_requests(
             "source_dataset",
             "source_revision",
             "source_route",
+            "extraction_route",
             *OBSERVED_ROUTE_FIELDS,
             "sampling_stratum",
         ):

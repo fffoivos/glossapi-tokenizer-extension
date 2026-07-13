@@ -208,6 +208,9 @@ candidates = roster['candidate_source_ids']
 review_routes = roster['review_routes']
 source_routes = roster.get('source_routes', review_routes)
 extraction_routes = roster.get('extraction_routes', review_routes)
+logical_error_modes = roster.get('logical_error_modes')
+if os.environ.get('FAKE_ROUTE_VALIDATION_LOGICAL_MODE_DRIFT') == '1':
+    logical_error_modes = {source: ['html_web'] for source in candidates}
 output.write_text(json.dumps({
     'schema_version': 'agent1_v3_candidate_roster_route_validation_v1',
     'roster_sha256': hashlib.sha256(roster_path.read_bytes()).hexdigest(),
@@ -217,6 +220,9 @@ output.write_text(json.dumps({
     'source_routes': {source: source_routes[source] for source in sorted(candidates)},
     'review_routes': {source: review_routes[source] for source in sorted(candidates)},
     'extraction_routes': {source: extraction_routes[source] for source in sorted(candidates)},
+    'logical_error_modes': {
+        source: logical_error_modes[source] for source in sorted(candidates)
+    },
     'allowed_observed_extraction_routes': {
         source: sorted({source_routes[source], extraction_routes[source]})
         for source in sorted(candidates)
@@ -246,20 +252,20 @@ elif args[0] == 'run':
     import pyarrow.parquet as pq
     root = Path(opt('--output-dir'))
     root.mkdir(parents=True)
-    documents = root / 'dataset_quality_document_v1.parquet'
+    documents = root / 'dataset_quality_document_v2.parquet'
     source_ids = [args[index + 1] for index, value in enumerate(args) if value == '--source-id']
     source_route = os.environ.get('FAKE_QUALITY_SOURCE_ROUTE', 'pdf_ocr')
     review_route = os.environ.get('FAKE_QUALITY_REVIEW_ROUTE', source_route)
     extraction_route = os.environ.get('FAKE_QUALITY_EXTRACTION_ROUTE', source_route)
     observed_route = os.environ.get('FAKE_QUALITY_OBSERVED_ROUTE', extraction_route)
-    observed_basis = 'explicit_row_route'
+    observed_basis = os.environ.get('FAKE_QUALITY_OBSERVED_BASIS', 'explicit_row_route')
     observed_evidence = 'raw_field:format'
     observed_priority = os.environ.get(
         'FAKE_QUALITY_OBSERVED_PRIORITY',
         'logical_primary' if observed_route == source_route else 'secondary_exception_only',
     )
     pq.write_table(pa.table({
-        'schema_version': ['dataset_quality_document_v1'] * len(source_ids),
+        'schema_version': ['dataset_quality_document_v2'] * len(source_ids),
         'source_id': source_ids,
         'source_route': [source_route] * len(source_ids),
         'review_route': [review_route] * len(source_ids),
@@ -313,8 +319,8 @@ elif args[0] == 'run':
     contract.write_text('{}', encoding='utf-8')
     contract_bytes = contract.stat().st_size
     contract_sha256 = hashlib.sha256(contract.read_bytes()).hexdigest()
-    (root / 'dataset_quality_summary_v1.json').write_text(json.dumps({
-        'schema_version': 'dataset_quality_summary_v1',
+    (root / 'dataset_quality_summary_v2.json').write_text(json.dumps({
+        'schema_version': 'dataset_quality_summary_v2',
         'status': 'passed',
         'scan_mode': 'full_scan',
         'selected_source_ids': source_ids,
@@ -332,7 +338,7 @@ elif args[0] == 'run':
         'route_coverage': route_coverage,
     }), encoding='utf-8')
     Path(opt('--site-handoff')).write_text(json.dumps({
-        'schema_version': 'dataset_quality_site_handoff_v1',
+        'schema_version': 'dataset_quality_site_handoff_v2',
         'status': 'passed',
         'scan_mode': 'full_scan',
         'route_coverage': route_coverage,
@@ -412,6 +418,7 @@ def fixture_environment(tmp_path: Path) -> tuple[dict[str, str], Path, Path]:
             "base_source_id": "nanochat_base",
             "candidate_source_ids": ["source-a"],
             "review_routes": {"source-a": "pdf_ocr"},
+            "logical_error_modes": {"source-a": ["pdf_ocr"]},
         },
     )
     policy = config / "policy.json"
@@ -554,6 +561,7 @@ def test_pre_review_executor_runs_cpu_stages_and_full_scan_before_packet(tmp_pat
     assert full_scan_validation["logical_source_priority"] == "logical_source_then_observed_extraction"
     assert full_scan_validation["source_routes"] == {"source-a": "pdf_ocr"}
     assert full_scan_validation["extraction_routes"] == {"source-a": "pdf_ocr"}
+    assert full_scan_validation["logical_error_modes"] == {"source-a": ["pdf_ocr"]}
     assert full_scan_validation["route_coverage_validated_from_document_parquet"] is True
     assert full_scan_validation["source_route_coverage"] == [
         {
@@ -582,7 +590,7 @@ def test_pre_review_executor_runs_cpu_stages_and_full_scan_before_packet(tmp_pat
     assert (review_attempt / "review_requests.jsonl").is_file()
     assert (review_attempt / "review_packet_manifest.json").is_file()
     assert (review_data_attempt / "quality-full-scan" / "contract.json").is_file()
-    assert (review_data_attempt / "quality-full-scan" / "dataset_quality_document_v1.parquet").is_file()
+    assert (review_data_attempt / "quality-full-scan" / "dataset_quality_document_v2.parquet").is_file()
     assert not (review_attempt / "quality-full-scan").exists()
 
     packet_args = json.loads(packet_args_path.read_text())
@@ -592,7 +600,7 @@ def test_pre_review_executor_runs_cpu_stages_and_full_scan_before_packet(tmp_pat
     assert option(packet_args, "--model") == "gpt-5.6-luna"
     assert option(packet_args, "--seed") == "frozen-seed"
     assert option(packet_args, "--full-scan-evidence") == str(
-        review_data_attempt / "quality-full-scan" / "dataset_quality_document_v1.parquet"
+        review_data_attempt / "quality-full-scan" / "dataset_quality_document_v2.parquet"
     )
     assert (Path(environment["FAKE_LOG"]).read_text().splitlines()) == [
         "validate-roster",
@@ -651,6 +659,26 @@ def test_pre_review_rejects_document_route_drift_even_when_static_roster_is_vali
     assert "document route triplet differs from the frozen logical-source roster" in result.stderr
 
 
+def test_pre_review_rejects_logical_error_mode_report_drift(tmp_path: Path) -> None:
+    environment, _, _ = fixture_environment(tmp_path)
+    run_action(environment, "normalize", 101)
+    run_action(environment, "lineage", 102)
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT), "review-packet"],
+        text=True,
+        capture_output=True,
+        env={
+            **environment,
+            "SLURM_JOB_ID": "103",
+            "FAKE_ROUTE_VALIDATION_LOGICAL_MODE_DRIFT": "1",
+        },
+    )
+
+    assert result.returncode != 0
+    assert "logical_error_modes differs from frozen roster" in result.stderr
+
+
 def test_pre_review_rejects_undocumented_observed_route_from_document_parquet(
     tmp_path: Path,
 ) -> None:
@@ -693,3 +721,58 @@ def test_pre_review_rejects_observed_route_priority_drift(
 
     assert result.returncode != 0
     assert "observed extraction route priority does not preserve logical-source primacy" in result.stderr
+
+
+def test_pre_review_rejects_false_declared_extraction_fallback_from_document_parquet(
+    tmp_path: Path,
+) -> None:
+    environment, _, _ = fixture_environment(tmp_path)
+    roster_path = Path(environment["AGENT1_V3_CANDIDATE_ROSTER"])
+    roster = json.loads(roster_path.read_text(encoding="utf-8"))
+    roster["source_routes"] = {"source-a": "html_web"}
+    roster["review_routes"] = {"source-a": "html_web"}
+    roster["extraction_routes"] = {"source-a": "pdf_ocr"}
+    roster["logical_error_modes"] = {"source-a": ["html_web"]}
+    write_json(roster_path, roster)
+    run_action(environment, "normalize", 101)
+    run_action(environment, "lineage", 102)
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT), "review-packet"],
+        text=True,
+        capture_output=True,
+        env={
+            **environment,
+            "SLURM_JOB_ID": "103",
+            "FAKE_QUALITY_SOURCE_ROUTE": "html_web",
+            "FAKE_QUALITY_REVIEW_ROUTE": "html_web",
+            "FAKE_QUALITY_EXTRACTION_ROUTE": "pdf_ocr",
+            "FAKE_QUALITY_OBSERVED_ROUTE": "html_web",
+            "FAKE_QUALITY_OBSERVED_BASIS": "declared_extraction_route_fallback",
+        },
+    )
+
+    assert result.returncode != 0
+    assert "declared extraction route fallback must equal the frozen extraction_route" in result.stderr
+
+
+def test_pre_review_rejects_unavailable_observed_route_with_a_document_route(
+    tmp_path: Path,
+) -> None:
+    environment, _, _ = fixture_environment(tmp_path)
+    run_action(environment, "normalize", 101)
+    run_action(environment, "lineage", 102)
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT), "review-packet"],
+        text=True,
+        capture_output=True,
+        env={
+            **environment,
+            "SLURM_JOB_ID": "103",
+            "FAKE_QUALITY_OBSERVED_BASIS": "unavailable",
+        },
+    )
+
+    assert result.returncode != 0
+    assert "unavailable observed extraction route cannot carry a route" in result.stderr

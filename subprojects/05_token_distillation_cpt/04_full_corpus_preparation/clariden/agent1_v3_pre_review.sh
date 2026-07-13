@@ -11,8 +11,8 @@ export PYTHONDONTWRITEBYTECODE=1
 readonly NORMALIZE_STAGE="10-normalize"
 readonly LINEAGE_STAGE="20-lineage"
 readonly REVIEW_PACKET_STAGE="30-review-packet"
-readonly QUALITY_DOCUMENT_SCHEMA="dataset_quality_document_v1"
-readonly QUALITY_SUMMARY_SCHEMA="dataset_quality_summary_v1"
+readonly QUALITY_DOCUMENT_SCHEMA="dataset_quality_document_v2"
+readonly QUALITY_SUMMARY_SCHEMA="dataset_quality_summary_v2"
 
 die() {
     echo "ERROR: $*" >&2
@@ -547,7 +547,7 @@ if not route_validation_path.is_file() or route_validation_path.stat().st_size <
     raise SystemExit(f"{route_validation_path}: logical route validation is missing")
 route_validation = json.loads(route_validation_path.read_text(encoding="utf-8"))
 if (
-    summary.get("schema_version") != "dataset_quality_summary_v1"
+    summary.get("schema_version") != "dataset_quality_summary_v2"
     or summary.get("status") != "passed"
     or summary.get("scan_mode") != "full_scan"
 ):
@@ -562,6 +562,7 @@ roster_sha256 = hashlib.sha256(roster_path.read_bytes()).hexdigest()
 review_routes = roster.get("review_routes")
 source_routes = roster.get("source_routes", review_routes)
 extraction_routes = roster.get("extraction_routes", review_routes)
+logical_error_modes = roster.get("logical_error_modes")
 for field, expected in (
     ("review_routes", review_routes),
     ("source_routes", source_routes),
@@ -571,6 +572,39 @@ for field, expected in (
         raise SystemExit(f"{roster_path}: invalid {field} coverage")
     if route_validation.get(field) != {source: expected[source] for source in sorted(candidates)}:
         raise SystemExit(f"{route_validation_path}: {field} differs from frozen roster")
+if not isinstance(logical_error_modes, dict) or set(logical_error_modes) != set(candidates):
+    raise SystemExit(f"{roster_path}: logical_error_modes coverage is invalid")
+PRIMARY_MODE_ROUTES = {"html_web", "pdf_ocr", "structured"}
+PRIMARY_MODE_ORDER = ("html_web", "pdf_ocr", "structured")
+EXPECTED_MIXED_LOGICAL_ERROR_MODES = {
+    "opengov_deliberations_v2": ["html_web", "structured"],
+}
+for source in candidates:
+    modes = logical_error_modes[source]
+    if (
+        not isinstance(modes, list)
+        or not modes
+        or any(mode not in PRIMARY_MODE_ROUTES for mode in modes)
+        or len(modes) != len(set(modes))
+        or modes != [mode for mode in PRIMARY_MODE_ORDER if mode in modes]
+    ):
+        raise SystemExit(f"{roster_path}: invalid logical_error_modes for {source}")
+    if source_routes[source] != "mixed" and modes != [source_routes[source]]:
+        raise SystemExit(
+            f"{roster_path}: non-mixed logical_error_modes must equal source_route for {source}"
+        )
+    expected_mixed = EXPECTED_MIXED_LOGICAL_ERROR_MODES.get(source)
+    if expected_mixed is not None and (
+        source_routes[source] != "mixed" or modes != expected_mixed
+    ):
+        raise SystemExit(f"{roster_path}: frozen mixed logical_error_modes drift for {source}")
+    if source_routes[source] == "mixed" and expected_mixed is None and len(modes) < 2:
+        raise SystemExit(f"{roster_path}: mixed logical_error_modes need at least two modes for {source}")
+expected_logical_error_modes = {
+    source: logical_error_modes[source] for source in sorted(candidates)
+}
+if route_validation.get("logical_error_modes") != expected_logical_error_modes:
+    raise SystemExit(f"{route_validation_path}: logical_error_modes differs from frozen roster")
 if (
     route_validation.get("schema_version")
     != "agent1_v3_candidate_roster_route_validation_v1"
@@ -769,7 +803,7 @@ actual_rows = 0
 for batch in parquet.iter_batches(batch_size=65536, columns=required_route_columns, use_threads=False):
     for index, row in enumerate(batch.to_pylist()):
         row_label = f"{documents_path}:route-row-{actual_rows + index}"
-        if row.get("schema_version") != "dataset_quality_document_v1":
+        if row.get("schema_version") != "dataset_quality_document_v2":
             raise SystemExit(f"{row_label}: unsupported quality document schema")
         source_id = row.get("source_id")
         if not isinstance(source_id, str) or source_id not in candidate_set:
@@ -798,6 +832,17 @@ for batch in parquet.iter_batches(batch_size=65536, columns=required_route_colum
             f"{row_label}.observed_extraction_route_basis",
             basis=True,
         )
+        if (
+            observed_basis == "declared_extraction_route_fallback"
+            and observed_route != extraction_route
+        ):
+            raise SystemExit(
+                f"{row_label}: declared extraction route fallback must equal the frozen extraction_route"
+            )
+        if observed_basis == "unavailable":
+            raise SystemExit(
+                f"{row_label}: unavailable observed extraction route cannot carry a route"
+            )
         observed_evidence = annotation(
             row.get("observed_extraction_route_evidence"),
             f"{row_label}.observed_extraction_route_evidence",
@@ -841,23 +886,26 @@ if route_coverage != actual_route_coverage:
     )
 handoff = json.loads(handoff_path.read_text(encoding="utf-8"))
 if (
-    handoff.get("schema_version") != "dataset_quality_site_handoff_v1"
+    handoff.get("schema_version") != "dataset_quality_site_handoff_v2"
     or handoff.get("status") != "passed"
     or handoff.get("scan_mode") != "full_scan"
     or handoff.get("route_coverage") != actual_route_coverage
 ):
     raise SystemExit(f"{handoff_path}: incomplete quality handoff")
 payload = {
-    "schema_version": "agent1_v3_full_scan_evidence_validation_v1",
+    "schema_version": "agent1_v3_full_scan_evidence_validation_v2",
     "status": "passed",
     "quality_contract_path": str(contract_path.resolve()),
     "quality_contract_bytes": contract_path.stat().st_size,
     "quality_contract_sha256": contract_digest,
     "quality_summary_sha256": hashlib.sha256(summary_path.read_bytes()).hexdigest(),
+    "quality_summary_schema_version": summary["schema_version"],
     "documents_path": str(documents_path.resolve()),
     "documents_bytes": documents_path.stat().st_size,
     "documents_sha256": documents_sha256,
+    "quality_document_schema_version": "dataset_quality_document_v2",
     "quality_handoff_sha256": hashlib.sha256(handoff_path.read_bytes()).hexdigest(),
+    "quality_handoff_schema_version": handoff["schema_version"],
     "candidate_roster_sha256": roster_sha256,
     "candidate_source_ids": candidates,
     "route_validation_path": str(route_validation_path.resolve()),
@@ -866,6 +914,7 @@ payload = {
     "source_routes": route_validation["source_routes"],
     "review_routes": route_validation["review_routes"],
     "extraction_routes": route_validation["extraction_routes"],
+    "logical_error_modes": route_validation["logical_error_modes"],
     "allowed_observed_extraction_routes": allowed_observed_routes,
     "route_coverage_sha256": hashlib.sha256(
         canonical_json(actual_route_coverage).encode("utf-8")

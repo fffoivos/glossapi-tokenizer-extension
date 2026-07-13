@@ -128,7 +128,7 @@ def write_fixture(
         if opaque_quality_ids:
             row.update(
                 {
-                    "schema_version": "dataset_quality_document_v1",
+                    "schema_version": "dataset_quality_document_v2",
                     "document_id": PACKET.quality_document_id(uid),
                 }
             )

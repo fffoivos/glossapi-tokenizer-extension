@@ -370,7 +370,7 @@ run_admission() {
     local responses response_receipt adjudication_receipt closure review_sample_summary review_sample_handoff
     requests=$(stage_output "$REVIEW_PACKET_STAGE" "review_requests.jsonl")
     packet=$(stage_output "$REVIEW_PACKET_STAGE" "review_packet_manifest.json")
-    quality_summary=$(stage_output "$REVIEW_PACKET_STAGE" "dataset_quality_summary_v1.json")
+    quality_summary=$(stage_output "$REVIEW_PACKET_STAGE" "dataset_quality_summary_v2.json")
     lineage_summary=$(stage_output "$LINEAGE_STAGE" "summary.json")
     novelty=$(stage_output "$LINEAGE_STAGE" "source_novelty.json")
     responses=$(stage_output "$REVIEW_EVIDENCE_STAGE" "responses.jsonl")

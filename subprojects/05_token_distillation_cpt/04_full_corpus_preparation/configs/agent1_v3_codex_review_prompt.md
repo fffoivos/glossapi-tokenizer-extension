@@ -31,11 +31,13 @@ Use the declared `source_route` as the primary error model:
   failure rather than assuming every possible mode applies.
 
 Each request also carries per-document representation provenance:
-`observed_extraction_route`, `observed_extraction_route_basis`,
+`extraction_route`, `observed_extraction_route`, `observed_extraction_route_basis`,
 `observed_extraction_route_evidence`, and
 `observed_extraction_route_priority`. These are compact, text-free audit
-codes, not additional corpus content. Treat `source_route` as logically
-primary in every judgment. `logical_primary` confirms that the observed
+codes, not additional corpus content. `extraction_route` is the frozen
+source-level fallback: when the basis says
+`declared_extraction_route_fallback`, it must match the observed route. Treat
+`source_route` as logically primary in every judgment. `logical_primary` confirms that the observed
 representation matches it; `secondary_exception_only` may add a visible
 secondary diagnostic but must never replace the primary error model.
 

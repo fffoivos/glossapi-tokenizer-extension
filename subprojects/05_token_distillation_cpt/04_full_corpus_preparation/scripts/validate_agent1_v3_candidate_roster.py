@@ -26,6 +26,11 @@ ROUTE_BASIS_SCHEMA = "agent1_v3_source_route_basis_v1"
 VALIDATION_SCHEMA = "agent1_v3_candidate_roster_route_basis_validation_v1"
 LOGICAL_SOURCE_PRIORITY = "logical_source_then_observed_extraction"
 ALLOWED_ROUTES = frozenset({"html_web", "pdf_ocr", "mixed", "structured"})
+LOGICAL_ERROR_MODE_ROUTES = frozenset({"html_web", "pdf_ocr", "structured"})
+LOGICAL_ERROR_MODE_ORDER = ("html_web", "pdf_ocr", "structured")
+EXPECTED_MIXED_LOGICAL_ERROR_MODES = {
+    "opengov_deliberations_v2": ("html_web", "structured"),
+}
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -78,6 +83,61 @@ def _route_map(
         if not isinstance(route, str) or route not in ALLOWED_ROUTES:
             raise ValueError(f"{field}[{source_id!r}] has unsupported route: {route!r}")
         result[source_id] = route
+    return result
+
+
+def _logical_error_mode_map(
+    roster: Mapping[str, Any], *, candidates: Sequence[str], source_routes: Mapping[str, str]
+) -> dict[str, list[str]]:
+    """Validate the explicit, source-logical primary diagnostic closure."""
+
+    value = roster.get("logical_error_modes")
+    if not isinstance(value, Mapping):
+        raise ValueError("logical_error_modes must be an object")
+    candidate_set = set(candidates)
+    missing = sorted(candidate_set - set(value))
+    extra = sorted(set(value) - candidate_set)
+    if missing or extra:
+        raise ValueError(
+            f"logical_error_modes coverage mismatch; missing={missing}, extra={extra}"
+        )
+    result: dict[str, list[str]] = {}
+    for source_id in candidates:
+        modes = value[source_id]
+        if not isinstance(modes, list) or not modes:
+            raise ValueError(f"logical_error_modes[{source_id!r}] must be a non-empty list")
+        if (
+            any(not isinstance(mode, str) or mode not in LOGICAL_ERROR_MODE_ROUTES for mode in modes)
+            or len(modes) != len(set(modes))
+        ):
+            raise ValueError(
+                f"logical_error_modes[{source_id!r}] has unsupported or duplicate modes"
+            )
+        canonical = [mode for mode in LOGICAL_ERROR_MODE_ORDER if mode in modes]
+        if modes != canonical:
+            raise ValueError(f"logical_error_modes[{source_id!r}] must use canonical mode order")
+        source_route = source_routes[source_id]
+        if source_route != "mixed":
+            if modes != [source_route]:
+                raise ValueError(
+                    f"{source_id}: non-mixed logical_error_modes must exactly equal source_route"
+                )
+        elif source_id in EXPECTED_MIXED_LOGICAL_ERROR_MODES:
+            expected = list(EXPECTED_MIXED_LOGICAL_ERROR_MODES[source_id])
+            if modes != expected:
+                raise ValueError(
+                    f"{source_id}: logical_error_modes differs from frozen logical acquisition modes"
+                )
+        elif len(modes) < 2:
+            raise ValueError(
+                f"{source_id}: mixed logical_error_modes must name at least two primary modes"
+            )
+        result[source_id] = list(modes)
+    for source_id in EXPECTED_MIXED_LOGICAL_ERROR_MODES:
+        if source_id in candidate_set and source_routes[source_id] != "mixed":
+            raise ValueError(
+                f"{source_id}: source_route must remain mixed for frozen logical_error_modes"
+            )
     return result
 
 
@@ -163,10 +223,10 @@ def validate_roster(
             )
 
         exceptions = entry.get("expected_observed_extraction_exceptions")
-        if not isinstance(exceptions, list) or not exceptions:
+        if not isinstance(exceptions, list):
             raise ValueError(
                 f"route_basis.sources[{source_id!r}].expected_observed_extraction_exceptions "
-                "must be a non-empty list"
+                "must be a list"
             )
         exception_routes: set[str] = set()
         for index, exception in enumerate(exceptions):
@@ -204,6 +264,12 @@ def validate_roster(
             "secondary_exception_routes": sorted(exception_routes),
         }
 
+    logical_error_modes = _logical_error_mode_map(
+        roster, candidates=candidates, source_routes=source_routes
+    )
+    for source_id in candidates:
+        report_sources[source_id]["logical_error_modes"] = logical_error_modes[source_id]
+
     source_registry_coverage_verified = False
     if source_registry is not None:
         registry_ids = _source_registry_ids(source_registry)
@@ -222,6 +288,9 @@ def validate_roster(
         "candidate_count": len(candidates),
         "candidate_source_ids": sorted(candidates),
         "logical_source_priority": LOGICAL_SOURCE_PRIORITY,
+        "logical_error_modes": {
+            source_id: logical_error_modes[source_id] for source_id in sorted(candidates)
+        },
         "source_registry_coverage_verified": source_registry_coverage_verified,
         "sources": report_sources,
     }

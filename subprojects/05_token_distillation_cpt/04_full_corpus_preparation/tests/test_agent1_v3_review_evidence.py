@@ -49,6 +49,7 @@ def response_for(request: dict[str, object]) -> dict[str, object]:
             "source_dataset",
             "source_revision",
             "source_route",
+            "extraction_route",
             "observed_extraction_route",
             "observed_extraction_route_basis",
             "observed_extraction_route_evidence",
@@ -93,6 +94,7 @@ def fixture(tmp_path: Path) -> dict[str, object]:
             "additionalProperties": False,
             "required": [
                 "schema_version",
+                "extraction_route",
                 "observed_extraction_route",
                 "observed_extraction_route_basis",
                 "observed_extraction_route_evidence",
@@ -100,6 +102,7 @@ def fixture(tmp_path: Path) -> dict[str, object]:
             ],
             "properties": {
                 "schema_version": {"const": REVIEW.RESPONSE_SCHEMA},
+                "extraction_route": {"enum": ["pdf_ocr"]},
                 "observed_extraction_route": {"enum": ["pdf_ocr"]},
                 "observed_extraction_route_basis": {
                     "enum": ["row_representation_metadata"]
@@ -139,6 +142,7 @@ def fixture(tmp_path: Path) -> dict[str, object]:
             "source_revision": "rev-a",
             "stable_uid": digest("sample-a"),
             "source_route": "pdf_ocr",
+            "extraction_route": "pdf_ocr",
             "observed_extraction_route": "pdf_ocr",
             "observed_extraction_route_basis": "row_representation_metadata",
             "observed_extraction_route_evidence": "raw_metadata:mime_type=application_pdf",
@@ -162,6 +166,7 @@ def fixture(tmp_path: Path) -> dict[str, object]:
             "source_revision": "rev-a",
             "stable_uid": digest("sample-a"),
             "source_route": "pdf_ocr",
+            "extraction_route": "pdf_ocr",
             "observed_extraction_route": "pdf_ocr",
             "observed_extraction_route_basis": "row_representation_metadata",
             "observed_extraction_route_evidence": "raw_metadata:mime_type=application_pdf",
@@ -205,6 +210,18 @@ def fixture(tmp_path: Path) -> dict[str, object]:
                 "request_sha256": request["request_sha256"],
                 "sample_id": request["sample_id"],
                 "reviewer_slot": request["reviewer_slot"],
+                "source_route": request["source_route"],
+                "extraction_route": request["extraction_route"],
+                "observed_extraction_route": request["observed_extraction_route"],
+                "observed_extraction_route_basis": request[
+                    "observed_extraction_route_basis"
+                ],
+                "observed_extraction_route_evidence": request[
+                    "observed_extraction_route_evidence"
+                ],
+                "observed_extraction_route_priority": request[
+                    "observed_extraction_route_priority"
+                ],
             }
             for request in (primary, secondary)
         ],
@@ -219,6 +236,18 @@ def fixture(tmp_path: Path) -> dict[str, object]:
                 "stable_uid": primary["sample_id"],
                 "original_text_sha256": primary["original_text_sha256"],
                 "review_copy_sha256": primary["review_copy_sha256"],
+                "source_route": primary["source_route"],
+                "extraction_route": primary["extraction_route"],
+                "observed_extraction_route": primary["observed_extraction_route"],
+                "observed_extraction_route_basis": primary[
+                    "observed_extraction_route_basis"
+                ],
+                "observed_extraction_route_evidence": primary[
+                    "observed_extraction_route_evidence"
+                ],
+                "observed_extraction_route_priority": primary[
+                    "observed_extraction_route_priority"
+                ],
                 "positions_preserved": True,
             }
         ],
@@ -246,6 +275,7 @@ def fixture(tmp_path: Path) -> dict[str, object]:
                 "source_dataset",
                 "source_revision",
                 "source_route",
+                "extraction_route",
                 "observed_extraction_route",
                 "observed_extraction_route_basis",
                 "observed_extraction_route_evidence",

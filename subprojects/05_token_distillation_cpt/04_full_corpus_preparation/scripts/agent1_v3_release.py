@@ -47,7 +47,7 @@ SEMANTIC_CLEARANCE_SCHEMA = (
     "agent1_full_corpus_v3_anonymization_semantic_false_positive_clearance_v1"
 )
 
-QUALITY_SUMMARY_SCHEMA = "dataset_quality_summary_v1"
+QUALITY_SUMMARY_SCHEMA = "dataset_quality_summary_v2"
 REVIEW_PACKET_SCHEMA = "agent1_v3_review_packet_manifest_v1"
 REVIEW_REQUEST_SCHEMA = "agent1_v3_review_request_v1"
 REVIEW_RESPONSE_SCHEMA = "agent1_v3_review_response_v1"

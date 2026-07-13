@@ -13,6 +13,7 @@
     "source_dataset",
     "source_revision",
     "source_route",
+    "extraction_route",
     "observed_extraction_route",
     "observed_extraction_route_basis",
     "observed_extraction_route_evidence",
@@ -42,6 +43,7 @@
     "source_dataset": {"type": "string", "minLength": 1},
     "source_revision": {"type": "string", "minLength": 1},
     "source_route": {"enum": ["html_web", "pdf_ocr", "mixed", "structured"]},
+    "extraction_route": {"enum": ["html_web", "pdf_ocr", "mixed", "structured"]},
     "observed_extraction_route": {"enum": ["html_web", "pdf_ocr", "mixed", "structured"]},
     "observed_extraction_route_basis": {
       "enum": [

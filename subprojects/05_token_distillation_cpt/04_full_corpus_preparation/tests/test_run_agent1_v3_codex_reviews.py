@@ -56,6 +56,7 @@ def request(
     response_schema_sha256: str,
     source: str = "source-a",
     source_route: str = "pdf_ocr",
+    extraction_route: str | None = None,
     observed_extraction_route: str | None = None,
     observed_extraction_route_basis: str = "explicit_row_route",
     observed_extraction_route_evidence: str = "raw_field:representation_kind",
@@ -64,6 +65,7 @@ def request(
     # A secondary review must bind the same sampled document as its primary;
     # only reviewer_slot changes the immutable review identity.
     stable_uid = digest(f"{source}:{text}")
+    declared_extraction_route = extraction_route or source_route
     observed_route = observed_extraction_route or source_route
     return REVIEW.make_review_request(
         {
@@ -72,6 +74,7 @@ def request(
             "source_revision": "a" * 40,
             "stable_uid": stable_uid,
             "source_route": source_route,
+            "extraction_route": declared_extraction_route,
             "observed_extraction_route": observed_route,
             "observed_extraction_route_basis": observed_extraction_route_basis,
             "observed_extraction_route_evidence": observed_extraction_route_evidence,
@@ -107,6 +110,7 @@ def response_for(request_row: dict, **overrides: object) -> dict:
                 "source_dataset",
                 "source_revision",
                 "source_route",
+                "extraction_route",
                 "observed_extraction_route",
                 "observed_extraction_route_basis",
                 "observed_extraction_route_evidence",

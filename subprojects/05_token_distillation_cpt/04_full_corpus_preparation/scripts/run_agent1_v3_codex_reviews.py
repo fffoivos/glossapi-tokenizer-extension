@@ -82,6 +82,7 @@ REQUEST_IDENTITY_FIELDS = (
     "source_dataset",
     "source_revision",
     "source_route",
+    "extraction_route",
     *OBSERVED_EXTRACTION_ROUTE_FIELDS,
     "sampling_stratum",
     "original_text_sha256",
@@ -102,6 +103,7 @@ CALIBRATION_SHARED_IDENTITY_FIELDS = (
     "source_dataset",
     "source_revision",
     "source_route",
+    "extraction_route",
     *OBSERVED_EXTRACTION_ROUTE_FIELDS,
     "sampling_stratum",
     "original_text_sha256",
@@ -365,7 +367,10 @@ def load_response_schema(path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
         or not isinstance(properties, Mapping)
         or not isinstance(required, list)
         or properties.get("schema_version", {}).get("const") != review.RESPONSE_SCHEMA
-        or any(field not in properties or field not in required for field in OBSERVED_EXTRACTION_ROUTE_FIELDS)
+        or any(
+            field not in properties or field not in required
+            for field in ("extraction_route", *OBSERVED_EXTRACTION_ROUTE_FIELDS)
+        )
     ):
         raise ValueError(f"{path}: expected strict {review.RESPONSE_SCHEMA} schema")
     # Preserve an explicit hash of the one-response normalized execution copy
@@ -419,9 +424,21 @@ def _validate_compact_observed_route_context(
     observed_route = request.get("observed_extraction_route")
     if observed_route not in review.ALLOWED_ROUTES:
         errors.append("request.observed_extraction_route is unsupported")
+    extraction_route = request.get("extraction_route")
+    if extraction_route not in review.ALLOWED_ROUTES:
+        errors.append("request.extraction_route is unsupported")
     basis = request.get("observed_extraction_route_basis")
     if basis not in review.OBSERVED_EXTRACTION_ROUTE_BASES:
         errors.append("request.observed_extraction_route_basis is unsupported")
+    elif basis == "unavailable":
+        errors.append("request.unavailable observed extraction route cannot carry a route")
+    elif (
+        basis == "declared_extraction_route_fallback"
+        and observed_route != extraction_route
+    ):
+        errors.append(
+            "request.declared extraction route fallback must equal request.extraction_route"
+        )
     evidence = request.get("observed_extraction_route_evidence")
     if (
         not isinstance(evidence, str)
@@ -1021,6 +1038,7 @@ def synthetic_preflight_request(
             "source_revision": "fixture-v1",
             "stable_uid": sample_id,
             "source_route": "structured",
+            "extraction_route": "structured",
             "observed_extraction_route": "structured",
             "observed_extraction_route_basis": "declared_extraction_route_fallback",
             "observed_extraction_route_evidence": "synthetic:preflight_fixture",
@@ -1088,6 +1106,7 @@ def _calibration_secondary_request(primary: Mapping[str, Any]) -> dict[str, Any]
             "source_revision": primary["source_revision"],
             "stable_uid": primary["sample_id"],
             "source_route": primary["source_route"],
+            "extraction_route": primary["extraction_route"],
             "observed_extraction_route": primary["observed_extraction_route"],
             "observed_extraction_route_basis": primary[
                 "observed_extraction_route_basis"

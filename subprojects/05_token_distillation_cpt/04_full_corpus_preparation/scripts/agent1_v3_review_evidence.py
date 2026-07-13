@@ -421,7 +421,10 @@ def validate_response_schema(path: Path) -> dict[str, Any]:
         or not isinstance(required, list)
         or not isinstance(properties.get("schema_version"), Mapping)
         or properties["schema_version"].get("const") != review.RESPONSE_SCHEMA
-        or any(field not in properties or field not in required for field in observed_fields)
+        or any(
+            field not in properties or field not in required
+            for field in ("extraction_route", *observed_fields)
+        )
     ):
         raise ValueError("review response schema is not the strict v3 schema")
     return file_binding(path)
@@ -515,6 +518,18 @@ def validate_packet_manifest(
             "request_sha256": str(row["request_sha256"]),
             "sample_id": str(row["sample_id"]),
             "reviewer_slot": str(row["reviewer_slot"]),
+            "source_route": str(row["source_route"]),
+            "extraction_route": str(row["extraction_route"]),
+            "observed_extraction_route": str(row["observed_extraction_route"]),
+            "observed_extraction_route_basis": str(
+                row["observed_extraction_route_basis"]
+            ),
+            "observed_extraction_route_evidence": str(
+                row["observed_extraction_route_evidence"]
+            ),
+            "observed_extraction_route_priority": str(
+                row["observed_extraction_route_priority"]
+            ),
         }
         for row in requests
     ]
@@ -550,6 +565,16 @@ def validate_packet_manifest(
         if (
             row.get("original_text_sha256") != request.get("original_text_sha256")
             or row.get("review_copy_sha256") != request.get("review_copy_sha256")
+            or row.get("source_route") != request.get("source_route")
+            or row.get("extraction_route") != request.get("extraction_route")
+            or row.get("observed_extraction_route")
+            != request.get("observed_extraction_route")
+            or row.get("observed_extraction_route_basis")
+            != request.get("observed_extraction_route_basis")
+            or row.get("observed_extraction_route_evidence")
+            != request.get("observed_extraction_route_evidence")
+            or row.get("observed_extraction_route_priority")
+            != request.get("observed_extraction_route_priority")
             or row.get("positions_preserved") is not True
         ):
             raise ValueError("Stage 30 review-copy attestation identity/position drift")
@@ -586,6 +611,7 @@ def _calibration_request_identity(value: Mapping[str, Any], *, label: str) -> di
         "source_dataset",
         "source_revision",
         "source_route",
+        "extraction_route",
         "observed_extraction_route",
         "observed_extraction_route_basis",
         "observed_extraction_route_evidence",
@@ -618,11 +644,24 @@ def _calibration_request_identity(value: Mapping[str, Any], *, label: str) -> di
         raise ValueError(f"{label}.reviewer_slot drift")
     if value.get("source_route") not in review.ALLOWED_ROUTES:
         raise ValueError(f"{label}.source_route drift")
+    extraction_route = value.get("extraction_route")
+    if extraction_route not in review.ALLOWED_ROUTES:
+        raise ValueError(f"{label}.extraction_route drift")
     observed_route = value.get("observed_extraction_route")
     if observed_route not in review.ALLOWED_ROUTES:
         raise ValueError(f"{label}.observed_extraction_route drift")
     if value.get("observed_extraction_route_basis") not in review.OBSERVED_EXTRACTION_ROUTE_BASES:
         raise ValueError(f"{label}.observed_extraction_route_basis drift")
+    if value.get("observed_extraction_route_basis") == "unavailable":
+        raise ValueError(f"{label}.unavailable observed extraction route cannot carry a route")
+    if (
+        value.get("observed_extraction_route_basis")
+        == "declared_extraction_route_fallback"
+        and observed_route != extraction_route
+    ):
+        raise ValueError(
+            f"{label}.declared extraction route fallback differs from extraction_route"
+        )
     observed_evidence = value.get("observed_extraction_route_evidence")
     if (
         not isinstance(observed_evidence, str)
@@ -755,6 +794,7 @@ def validate_calibration_receipt(
             "source_dataset",
             "source_revision",
             "source_route",
+            "extraction_route",
             "observed_extraction_route",
             "observed_extraction_route_basis",
             "observed_extraction_route_evidence",

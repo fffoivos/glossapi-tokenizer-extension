@@ -48,14 +48,22 @@ def test_production_roster_has_complete_logical_first_route_basis() -> None:
     assert report["candidate_count"] == 26
     assert report["source_registry_coverage_verified"] is True
     assert report["logical_source_priority"] == "logical_source_then_observed_extraction"
+    assert report["logical_error_modes"] == {
+        source_id: roster["logical_error_modes"][source_id]
+        for source_id in sorted(roster["candidate_source_ids"])
+    }
     assert set(report["sources"]) == set(roster["candidate_source_ids"])
     for source_id, entry in report["sources"].items():
         assert entry["logical_acquisition_type"] == roster["source_routes"][source_id]
+        assert entry["logical_error_modes"] == roster["logical_error_modes"][source_id]
         assert roster["review_routes"][source_id] == entry["logical_acquisition_type"]
         assert roster["extraction_routes"][source_id] in entry[
             "allowed_observed_extraction_routes"
         ]
-        assert entry["secondary_exception_routes"]
+        if source_id == "diavgeia":
+            assert entry["secondary_exception_routes"] == []
+        else:
+            assert entry["secondary_exception_routes"]
 
 
 def test_documented_observed_exception_is_allowed_but_secondary() -> None:
@@ -79,6 +87,24 @@ def test_documented_observed_exception_is_allowed_but_secondary() -> None:
     with pytest.raises(ValueError, match="documented secondary exception"):
         ROSTER_VALIDATOR.validate_observed_extraction_route(
             report, source_id="psepheda", observed_extraction_route="structured"
+        )
+
+    assert report["sources"]["diavgeia"]["allowed_observed_extraction_routes"] == [
+        "pdf_ocr"
+    ]
+    with pytest.raises(ValueError, match="documented secondary exception"):
+        ROSTER_VALIDATOR.validate_observed_extraction_route(
+            report, source_id="diavgeia", observed_extraction_route="html_web"
+        )
+
+    assert report["sources"]["opengov_deliberations_v2"][
+        "allowed_observed_extraction_routes"
+    ] == ["html_web", "mixed", "structured"]
+    with pytest.raises(ValueError, match="documented secondary exception"):
+        ROSTER_VALIDATOR.validate_observed_extraction_route(
+            report,
+            source_id="opengov_deliberations_v2",
+            observed_extraction_route="pdf_ocr",
         )
 
 
@@ -113,6 +139,27 @@ def test_validator_rejects_logical_route_or_registry_coverage_drift() -> None:
     with pytest.raises(ValueError, match="documented secondary observed exception"):
         ROSTER_VALIDATOR.validate_roster(
             undocumented_fallback, source_registry=production_sources()
+        )
+
+    opengov_pdf_drift = copy.deepcopy(roster)
+    opengov_pdf_drift["logical_error_modes"]["opengov_deliberations_v2"] = [
+        "html_web",
+        "pdf_ocr",
+        "structured",
+    ]
+    with pytest.raises(ValueError, match="frozen logical acquisition modes"):
+        ROSTER_VALIDATOR.validate_roster(
+            opengov_pdf_drift, source_registry=production_sources()
+        )
+
+    non_mixed_drift = copy.deepcopy(roster)
+    non_mixed_drift["logical_error_modes"]["psepheda"] = [
+        "html_web",
+        "pdf_ocr",
+    ]
+    with pytest.raises(ValueError, match="non-mixed logical_error_modes"):
+        ROSTER_VALIDATOR.validate_roster(
+            non_mixed_drift, source_registry=production_sources()
         )
 
     incomplete_registry = copy.deepcopy(production_sources())

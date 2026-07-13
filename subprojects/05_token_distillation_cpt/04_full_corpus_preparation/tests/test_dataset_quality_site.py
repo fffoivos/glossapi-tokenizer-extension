@@ -492,15 +492,15 @@ def write_quality_summary_and_handoff(
                 "review_route": "mixed",
                 "extraction_route": "mixed",
                 "observed_extraction_route": "mixed",
-                "observed_extraction_route_basis": "unavailable",
-                "observed_extraction_route_evidence": "none",
+                "observed_extraction_route_basis": "declared_extraction_route_fallback",
+                "observed_extraction_route_evidence": "roster:extraction_route",
                 "observed_extraction_route_priority": "logical_primary",
             },
             context=f"fixture.{source_id}",
         )
     route_coverage = route_accumulator.finish()
     summary = {
-        "schema_version": "dataset_quality_summary_v1",
+        "schema_version": "dataset_quality_summary_v2",
         "status": "passed",
         "created_at": "2026-07-12T00:00:00Z",
         "mode": "diagnostic_only_no_cleaned_text_persisted",
@@ -524,7 +524,7 @@ def write_quality_summary_and_handoff(
             "inventory": checkpoint_inventory,
         },
         "document_output": {
-            "path": "dataset_quality_document_v1.parquet",
+            "path": "dataset_quality_document_v2.parquet",
             "bytes": 10,
             "sha256": "9" * 64,
             "rows": documents,
@@ -542,7 +542,7 @@ def write_quality_summary_and_handoff(
             "profile_scope": "selected population",
         },
     }
-    summary_path = tmp_path / "quality.json"
+    summary_path = tmp_path / "dataset_quality_summary_v2.json"
     summary_path.write_text(json.dumps(summary), encoding="utf-8")
     projection = QUALITY.validate_and_project_quality_summary(summary)
     identities = [
@@ -594,7 +594,7 @@ def write_quality_summary_and_handoff(
             "text_variant": "high_precision_identifier_masked_review_sample",
         }
     handoff = {
-        "schema_version": "dataset_quality_site_handoff_v1",
+        "schema_version": "dataset_quality_site_handoff_v2",
         "status": "passed",
         "created_at": "2026-07-12T00:00:00Z",
         "summary": {
@@ -639,6 +639,7 @@ def write_quality_summary_and_handoff(
             "receipt": contract_receipt,
             "canonical_sha256": summary["contract_sha256"],
             "schema_version": "dataset_quality_rust_contract_v1",
+            "document_schema": "dataset_quality_document_v2",
             "selected_shard_inventory_sha256": QUALITY.sha256_json(contract_shards),
             "excluded_source_ids": summary["excluded_source_ids"],
             "profiler_script_sha256": "b" * 64,
@@ -671,6 +672,7 @@ def write_normalization_fixture(
     rows: int,
     mdc_dataset_id: str | None = None,
     acquisition_receipt_kind: str | None = None,
+    structured_profile_contract: dict[str, object] | None = None,
 ) -> Path:
     shard_sha = QUALITY.sha256_file(shard)
     configured_source: dict[str, object] = {
@@ -686,6 +688,8 @@ def write_normalization_fixture(
                 "mdc_dataset_id": mdc_dataset_id,
             }
         )
+    if structured_profile_contract is not None:
+        configured_source["structured_profile_contract"] = structured_profile_contract
     sources_config = tmp_path / "sources.json"
     sources_config.write_text(
         json.dumps(
@@ -814,6 +818,41 @@ def write_normalization_fixture(
     manifest_path = tmp_path / "normalization.json"
     manifest_path.write_text(json.dumps(manifest))
     return manifest_path
+
+
+def test_profile_route_fields_binds_declared_fallback_to_frozen_extraction_route() -> None:
+    # The logical source is HTML even when this document's representation came
+    # from the source's declared PDF extraction route.  The latter is a
+    # secondary diagnostic, never a replacement for the primary error model.
+    valid = {
+        "source_route": "html_web",
+        "review_route": "html_web",
+        "extraction_route": "pdf_ocr",
+        "observed_extraction_route": "pdf_ocr",
+        "observed_extraction_route_basis": "declared_extraction_route_fallback",
+        "observed_extraction_route_evidence": "roster:extraction_route",
+        "observed_extraction_route_priority": "secondary_exception_only",
+    }
+    routes = QUALITY.profile_route_fields(valid, context="test.valid")
+    assert routes["source_route"] == "html_web"
+    assert routes["observed_extraction_route"] == "pdf_ocr"
+    assert routes["observed_extraction_route_priority"] == "secondary_exception_only"
+
+    false_fallback = {
+        **valid,
+        "observed_extraction_route": "html_web",
+        "observed_extraction_route_priority": "logical_primary",
+    }
+    with pytest.raises(ValueError, match="declared extraction route fallback must equal"):
+        QUALITY.profile_route_fields(false_fallback, context="test.false_fallback")
+
+    unavailable_with_route = {
+        **valid,
+        "observed_extraction_route_basis": "unavailable",
+        "observed_extraction_route_evidence": "none",
+    }
+    with pytest.raises(ValueError, match="unavailable observed extraction route cannot carry"):
+        QUALITY.profile_route_fields(unavailable_with_route, context="test.unavailable")
 
 
 def test_evaluations_cover_exact_29_repository_inventory() -> None:
@@ -1340,6 +1379,29 @@ def test_quality_summary_rejects_checkpoint_path_traversal_with_rehashed_invento
         summary[receipt_name]["path"] = bad_path
         with pytest.raises(ValueError, match="canonical relative path"):
             QUALITY.validate_and_project_quality_summary(summary)
+
+
+def test_quality_v2_boundary_rejects_legacy_v1_artifacts(tmp_path: Path) -> None:
+    summary_path, handoff_path = write_quality_summary_and_handoff(
+        tmp_path, scan_mode="full_scan"
+    )
+    summary = json.loads(summary_path.read_text())
+    summary["schema_version"] = "dataset_quality_summary_v1"
+    with pytest.raises(ValueError, match="unsupported schema/status/mode"):
+        QUALITY.validate_and_project_quality_summary(summary)
+
+    summary = json.loads(summary_path.read_text())
+    summary["document_output"]["path"] = "dataset_quality_document_v1.parquet"
+    with pytest.raises(ValueError, match="unexpected output"):
+        QUALITY.validate_and_project_quality_summary(summary)
+
+    handoff = json.loads(handoff_path.read_text())
+    handoff["schema_version"] = "dataset_quality_site_handoff_v1"
+    handoff_path.write_text(json.dumps(handoff), encoding="utf-8")
+    with pytest.raises(ValueError, match="schema/status/projection drift"):
+        QUALITY.validate_quality_site_handoff(
+            summary_path=summary_path, handoff_path=handoff_path
+        )
 
 
 def test_quality_summary_rejects_duplicate_checkpoint_paths_and_batch_identities(
@@ -2156,6 +2218,150 @@ def test_raw_structural_metrics_and_replacement_character_are_not_double_counted
         QUALITY.metadata_flags("{broken")
 
 
+def test_phase2_route_metrics_are_observable_and_deterministic() -> None:
+    text = "\n".join(
+        (
+            "&amp; &#169; &copy; not-an-entity&",
+            "<script>ignored()</script><style>.x{}</style>",
+            "<nav>menu</nav><footer>legal</footer>",
+            "ανα-",
+            "φορά",
+            "REPEATED PAGE HEADER",
+            "body",
+            "REPEATED PAGE HEADER",
+        )
+    )
+    first = QUALITY.raw_metrics(text)
+    second = QUALITY.raw_metrics(text)
+    assert first == second
+    assert first["raw_html_entity_count"] == 3
+    assert first["raw_html_entity_per_1000_chars"] == pytest.approx(
+        3_000 / len(text)
+    )
+    # Opening and closing tags are observable markup events, so each explicit
+    # script/style or nav/footer pair contributes two.
+    assert first["raw_script_style_tag_count"] == 4
+    assert first["raw_navigation_markup_tag_count"] == 4
+    assert first["raw_line_break_hyphenation_fraction"] == pytest.approx(
+        1 / text.count("\n")
+    )
+    assert QUALITY.raw_metrics("α-\nβ-\nγ")[
+        "raw_line_break_hyphenation_fraction"
+    ] == pytest.approx(1.0)
+    # This is only a repeated-short-line proxy: both repeated header
+    # occurrences count, divided by all nonempty physical lines.
+    assert first["raw_repeated_short_line_fraction"] == pytest.approx(2 / 8)
+
+
+def test_frozen_structured_profile_contracts_and_metadata_facts(tmp_path: Path) -> None:
+    config = json.loads(SOURCES_CONFIG.read_text(encoding="utf-8"))
+    contracts = QUALITY._source_config_structured_profile_contracts(
+        config, context="fixture.sources"
+    )
+    assert contracts["open_council"] is not None
+    assert contracts["open_council"].required_all_fields == (
+        "subject_id",
+        "meeting_id",
+    )
+    assert contracts["istorima"].required_all_fields == ("id", "title")
+    assert contracts["modern_greek_dictionary"].required_all_fields == (
+        "lemma",
+        "source_url",
+    )
+    assert contracts["opengov_deliberations_v2"].required_all_fields == (
+        "consultation_id",
+        "post_id",
+        "url",
+    )
+    school = contracts["school_books_new_editions"]
+    assert school is not None
+    assert school.required_all_fields == ()
+    assert school.required_any_field_groups == (
+        ("book_id", "handle", "identifier", "mdb_code"),
+        ("PDF_Link", "pdf_urls", "pdf_files"),
+    )
+
+    open_council = QUALITY.structured_profile_metrics(
+        json.dumps(
+            {
+                "subject_id": "subject-1",
+                "nested": {"meeting": {"location": "Athens"}},
+            }
+        ),
+        contract=contracts["open_council"],
+        context="fixture.open_council",
+    )
+    assert open_council == {
+        "structured_contract_declared": True,
+        "structured_required_field_count": 2,
+        "structured_present_required_field_count": 1,
+        "structured_missing_required_field_count": 1,
+        "structured_metadata_max_depth": 3,
+    }
+    school_complete = QUALITY.structured_profile_metrics(
+        json.dumps({"identifier": "book-1", "pdf_files": ["book.pdf"]}),
+        contract=school,
+        context="fixture.school.complete",
+    )
+    assert school_complete["structured_required_field_count"] == 2
+    assert school_complete["structured_present_required_field_count"] == 2
+    assert school_complete["structured_missing_required_field_count"] == 0
+    school_missing_link = QUALITY.structured_profile_metrics(
+        json.dumps({"identifier": "book-1"}),
+        contract=school,
+        context="fixture.school.missing",
+    )
+    assert school_missing_link["structured_present_required_field_count"] == 1
+    assert school_missing_link["structured_missing_required_field_count"] == 1
+    assert QUALITY.structured_profile_metrics(
+        None, contract=None, context="fixture.legacy"
+    ) == {
+        "structured_contract_declared": False,
+        "structured_required_field_count": 0,
+        "structured_present_required_field_count": 0,
+        "structured_missing_required_field_count": 0,
+        "structured_metadata_max_depth": 0,
+    }
+
+    with pytest.raises(ValueError, match="nonempty field list"):
+        QUALITY.validate_structured_profile_contract(
+            {"required_all_fields": [], "required_any_field_groups": [[]]},
+            context="fixture.malformed",
+        )
+    with pytest.raises(ValueError, match="key contract drift"):
+        QUALITY.validate_structured_profile_contract(
+            {"required_all_fields": ["id"], "unexpected": []},
+            context="fixture.malformed",
+        )
+
+    shard = tmp_path / "input.parquet"
+    shard.write_bytes(b"fixture")
+    canonical_root = tmp_path / "canonical"
+    canonical_root.mkdir()
+    manifest = write_normalization_fixture(
+        tmp_path,
+        canonical_root=canonical_root,
+        shard=shard,
+        source_id="structured-fixture",
+        repo_id="owner/structured-fixture",
+        revision="a" * 40,
+        rows=1,
+        structured_profile_contract={
+            "required_all_fields": ["id"],
+            "required_any_field_groups": [],
+        },
+    )
+    receipt_bound = QUALITY.load_receipt_bound_structured_profile_contracts(manifest)
+    assert receipt_bound["structured-fixture"] is not None
+    assert receipt_bound["structured-fixture"].required_field_count == 1
+    config_path = tmp_path / "sources.json"
+    config_path.write_text(
+        config_path.read_text(encoding="utf-8") + "\n", encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match="sources config receipt drift"):
+        QUALITY.load_receipt_bound_structured_profile_contracts(manifest)
+
+
 def test_group_stats_reports_zero_rates_and_template_concentration() -> None:
     base = {
         "source_dataset": "diavgeia",
@@ -2384,6 +2590,11 @@ def test_rust_batch_checkpoint_and_zero_greek_guard(tmp_path: Path) -> None:
         "guarded_zero_score_without_greek",
         "zero_score_with_greek",
     ]
+    # Direct/legacy callers that have no canonical metadata contract remain
+    # valid and explicitly report no invented structured completeness facts.
+    assert [row["structured_contract_declared"] for row in data] == [False, False]
+    assert [row["structured_required_field_count"] for row in data] == [0, 0]
+    assert [row["structured_missing_required_field_count"] for row in data] == [0, 0]
     assert not list(scratch.iterdir())
     assert noise.calls == cleaner.calls == 1
 
@@ -2491,8 +2702,9 @@ def test_rust_batch_checkpoint_and_zero_greek_guard(tmp_path: Path) -> None:
     document_contract = json.loads(
         (HERE / "schemas" / "dataset_quality_document.schema.json").read_text()
     )
+    assert set(QUALITY.document_schema().names) == set(document_contract["required"])
     for row in pq.read_table(
-        output / "dataset_quality_document_v1.parquet"
+        output / "dataset_quality_document_v2.parquet"
     ).to_pylist():
         jsonschema.Draft202012Validator(document_contract).validate(row)
 
@@ -2998,9 +3210,9 @@ def test_clariden_wrapper_is_cpu_only_resumable_and_4096_bounded() -> None:
 def test_new_json_schemas_are_parseable_and_versioned() -> None:
     expected = {
         "glossapi_rust_quality_build_receipt.schema.json": "glossapi_rust_quality_build_receipt_v1",
-        "dataset_quality_document.schema.json": "dataset_quality_document_v1",
-        "dataset_quality_summary.schema.json": "dataset_quality_summary_v1",
-        "dataset_quality_site_handoff.schema.json": "dataset_quality_site_handoff_v1",
+        "dataset_quality_document.schema.json": "dataset_quality_document_v2",
+        "dataset_quality_summary.schema.json": "dataset_quality_summary_v2",
+        "dataset_quality_site_handoff.schema.json": "dataset_quality_site_handoff_v2",
         "dataset_review_complete_sample.schema.json": "dataset_review_complete_sample_v1",
         "dataset_review_complete_sample_packet_receipt.schema.json": (
             "dataset_review_complete_sample_packet_receipt_v1"
