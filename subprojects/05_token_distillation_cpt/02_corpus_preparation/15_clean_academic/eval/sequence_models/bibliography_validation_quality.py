@@ -35,7 +35,8 @@ CANONICAL_BADNESS_MAX = 60.0
 
 WORD_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
 GLYPH_RE = re.compile(
-    r"(?:GLYPH(?:<|&lt;)\d+(?:>|&gt;)|/(?:a|pi|uni)\d+|\ufffd)", re.IGNORECASE
+    r"(?:GLYPH(?:<|&lt;)\d+(?:>|&gt;)|/(?:a|pi|uni)\d+|/x[0-9a-f]{2}|\ufffd)",
+    re.IGNORECASE,
 )
 
 
@@ -144,6 +145,11 @@ def candidate_reasons(quality: TextQuality, rust_badness: float | None) -> list[
         or quality.glyph_placeholders_per_1000_chars >= 2.0
     ):
         reasons.append("glyph_placeholder_corruption")
+    if (
+        quality.character_count >= 1000
+        and quality.suspicious_symbol_fraction >= 0.10
+    ):
+        reasons.append("symbol_dominated_extraction")
     return reasons
 
 

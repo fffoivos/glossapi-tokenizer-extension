@@ -31,6 +31,18 @@ def test_glyph_placeholders_are_candidates() -> None:
     assert "glyph_placeholder_corruption" in candidate_reasons(quality, 0.0)
 
 
+def test_pdf_hex_escape_sequences_are_candidates() -> None:
+    quality = analyze_text(["/x41/x75/x74/x68/x6f/x72 /x32/x30/x32/x30"] * 30)
+    assert quality.glyph_placeholder_count >= 50
+    assert "glyph_placeholder_corruption" in candidate_reasons(quality, 0.0)
+
+
+def test_symbol_dominated_extraction_is_a_candidate() -> None:
+    quality = analyze_text(["✷ ❵ ✆ ❇ ✣ ◆ ❘ ✭ ✥ ★ ✮ ✧ ✻"] * 100)
+    assert quality.suspicious_symbol_fraction >= 0.10
+    assert "symbol_dominated_extraction" in candidate_reasons(quality, 0.0)
+
+
 def test_readable_prose_is_not_flagged() -> None:
     quality = analyze_text(
         [
