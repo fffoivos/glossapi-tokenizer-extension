@@ -112,6 +112,10 @@ def test_review_site_joins_private_key_and_codex_response(tmp_path) -> None:
     assert "<span>↑</span><small>ToC</small>" in page
     assert "<span>↓</span><small>Bibliography</small>" in page
     assert "<span>→</span><small>Uncertain</small>" in page
+    assert "function contextLines(c)" in page
+    assert "c.lines.slice(start,end)" in page
+    assert 'class="contextline ${l.abs_idx===c.target_abs_idx?\'focus\':\'\'}"' in page
+    assert ".case.reviewed.choice-BIB .contextline.focus" in page
     node = shutil.which("node")
     if node:
         script = re.search(r"<script>(.*)</script>", page, re.DOTALL)
