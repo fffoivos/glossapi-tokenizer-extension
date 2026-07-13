@@ -1,0 +1,131 @@
+{
+  "schema_version": "bibliography-training-quality-decisions-v1",
+  "screen_job_id": "2755131",
+  "screen_receipt_status": "passed_prediction_and_label_blind_train_quality_screen",
+  "quality_screen_sha256": "e05aadda461019f2fff9fe25dfff79c98c1e43de9809a98090670d11ca8de7d7",
+  "review_scope": "text extraction only; labels and model predictions were not used",
+  "candidate_count": 24,
+  "exclude_count": 5,
+  "decisions": [
+    {
+      "document_id": "ce097160089c20a95f138155fb2942fbd90abfe0ad4f2f894a33eb3bd277abf4",
+      "decision": "exclude",
+      "reason": "The extracted document is dominated by symbol-font garbage, one-token fragments, and missing-text placeholders."
+    },
+    {
+      "document_id": "cab64a69a86eee21b403088272252c96daefc7c85641fa6353f94709e5d52442",
+      "decision": "exclude",
+      "reason": "Most substantive text is emitted as literal /xNN byte escapes rather than readable characters."
+    },
+    {
+      "document_id": "9e0f741f3702a5ad6fe6899b51d49d688c4b0df621e44ca7ec26ba2862d9ef8f",
+      "decision": "exclude",
+      "reason": "The extraction is unresolved GLYPH placeholders and gibberish throughout the sampled document."
+    },
+    {
+      "document_id": "57ec0dd662f160aded04f7d42b452f5e4c5058e70d3e5e6b30a8ffe0ec16970d",
+      "decision": "keep",
+      "reason": "The title page is character-spaced and some polytonic characters are escaped, but the body and reference-like regions remain readable."
+    },
+    {
+      "document_id": "b5b6384f6ab1931287ce1884126e613da2efaf1c914a5a6c16c8f947a9b3fe66",
+      "decision": "keep",
+      "reason": "Replacement characters are concentrated in table-of-contents leaders; ordinary prose is readable."
+    },
+    {
+      "document_id": "87a93648d1b5d2d25194ce302b14d7d8712e935ce2ce3611b65f123ae10c8c56",
+      "decision": "keep",
+      "reason": "GLYPH placeholders occur mainly in mathematical notation; prose and references remain readable."
+    },
+    {
+      "document_id": "f44007d2c11af59e00c4d5930f3256be41c44531dd35bba865828eda920ae0e9",
+      "decision": "keep",
+      "reason": "Replacement characters act mainly as list or vocabulary separators and do not make the surrounding text unusable."
+    },
+    {
+      "document_id": "6bc16618322d331faa39cda342e6c656f71891804b382f5d7fa8c982e7f73669",
+      "decision": "keep",
+      "reason": "A small number of polytonic characters remain escaped, but the document is readable."
+    },
+    {
+      "document_id": "6f3f13b96ee7b52c249aec632a6abe18eedfd970a257dba43c82d6163a9f1b35",
+      "decision": "keep",
+      "reason": "The unresolved glyph is primarily a repeated bullet marker; the text content is readable."
+    },
+    {
+      "document_id": "e86ce9414097dbf73c96c64ac9df85d8c1011e0cbd5c715af14998ebd963dfcd",
+      "decision": "keep",
+      "reason": "Replacement characters are localized to equations; prose and bibliography entries are legible."
+    },
+    {
+      "document_id": "5dc840b35610f3980c30742d57b9f53506d11f0f27e8c32ea8f18b865dd1388d",
+      "decision": "keep",
+      "reason": "A limited bullet glyph is unresolved, but the document and reference list are readable."
+    },
+    {
+      "document_id": "505d289c839ac40d93f78a8478c9a22bd58260cce5bece08ede1166c9a92596e",
+      "decision": "keep",
+      "reason": "Localized Greek character escapes do not prevent reading the document or its references."
+    },
+    {
+      "document_id": "890d2e2f8dd3134fa2051477b635abab05e95dddab2f98be2cb225526b07acfb",
+      "decision": "keep",
+      "reason": "Some title and early structural lines use a broken symbol font, but the substantive body and long reference section are readable."
+    },
+    {
+      "document_id": "f65467e6b619daef9592b0292dc4e225c8a6982557b193c693e80ee2cede382a",
+      "decision": "keep",
+      "reason": "Replacement characters are confined to mathematical formulas; prose and references are readable."
+    },
+    {
+      "document_id": "800ab89ccf7c33919a0c5c11da1a8fbe9473db14e80af7bb81da56a4c0238c0a",
+      "decision": "keep",
+      "reason": "A few Greek characters are escaped, but the document remains readable."
+    },
+    {
+      "document_id": "9931972f38cd7c0e5e6eca7b8e85922c8a1a1e45ac5c8d61e5b8e1a0555df5ea",
+      "decision": "keep",
+      "reason": "A few footnote characters are escaped, while the surrounding text is readable."
+    },
+    {
+      "document_id": "35eead1806b4363d9ff836748f936fb9ee43fc06655728d61eaa0c447772d0cb",
+      "decision": "keep",
+      "reason": "Character spacing and glyph artifacts are isolated; the mathematical text remains readable overall."
+    },
+    {
+      "document_id": "05c81e2ca70e893fa6ca953ba3b50d087dec38c5adc850025ed54570b043adcd",
+      "decision": "keep",
+      "reason": "Equation extraction is imperfect, but ordinary prose and bibliography entries are readable."
+    },
+    {
+      "document_id": "1de32df6634a009c512f2a5eefdf231b2c400cb975bdb37e1739a2d58556b5e2",
+      "decision": "exclude",
+      "reason": "Character spacing is pervasive and becomes severe in the long reference region, splitting ordinary words into individual letters."
+    },
+    {
+      "document_id": "4887aad0f891a0d93167d6ae7018cbd026f2ecfc0867d2034e2b58dfdfa7f217",
+      "decision": "exclude",
+      "reason": "Large reference and index regions are pervasively character-spaced and fragmented, so line-level citation shapes are not reliable."
+    },
+    {
+      "document_id": "62d35dba4ef44c982e7289ab5f9a7a86120f6c86482a02b9f8c91c0959a47417",
+      "decision": "keep",
+      "reason": "Spacing reflects mathematical notation rather than a generally unusable extraction."
+    },
+    {
+      "document_id": "83add289bd4c717f3651606019901da033933ef736f59ec6a012268addeec245",
+      "decision": "keep",
+      "reason": "Legacy mu-character spacing raises the automatic noise score, but the text remains readable."
+    },
+    {
+      "document_id": "83c1cffa98f25e25a900528531c583b78598a8722e3b09dc3644fcd8c3e77871",
+      "decision": "keep",
+      "reason": "Spacing occurs in company abbreviations and tables; the document remains readable."
+    },
+    {
+      "document_id": "c69e18feea8bb6e38b678b13b3a6021b36d3611669fe75e42cf9339e7987565b",
+      "decision": "keep",
+      "reason": "The automatic spacing signal comes from mathematics and tables rather than broken prose."
+    }
+  ]
+}
