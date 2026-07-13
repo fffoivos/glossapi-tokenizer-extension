@@ -381,19 +381,15 @@ def _invoke_request(
         _write_no_replace(schema_path, response_schema.read_bytes())
         prompt = render_prompt(prompt_template, request)
         _write_no_replace(prompt_path, prompt.encode("utf-8"))
-        profile_path = root / "seatbelt.sb"
-        _write_no_replace(profile_path, seatbelt_profile(root, Path(codex_bin), codex_home).encode("utf-8"))
         runtime_tmp = root / "tmp"
         runtime_tmp.mkdir(mode=0o700)
-        _run_isolation_canary(
-            sandbox_exec=sandbox_exec,
-            profile=profile_path,
-            forbidden_path=forbidden_read_path,
-        )
+        if not forbidden_read_path.is_absolute() or not forbidden_read_path.exists():
+            raise ValueError("forbidden-read-path must name an existing absolute path")
+        # Codex's native ``read-only`` macOS sandbox is the enforcement layer
+        # for the model session.  Launching Codex inside a second seatbelt
+        # profile prevents that native sandbox from starting, so the outer
+        # canary profile is deliberately not nested around this process.
         command = [
-            sandbox_exec,
-            "-f",
-            str(profile_path),
             codex_bin,
             "exec",
             "--cd",
