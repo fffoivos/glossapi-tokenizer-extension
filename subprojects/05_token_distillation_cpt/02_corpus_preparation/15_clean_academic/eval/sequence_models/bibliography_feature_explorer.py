@@ -27,7 +27,7 @@ from .bibliography_v2 import (
 )
 
 
-SCHEMA_VERSION = "bibliography-line-feature-explorer-v4"
+SCHEMA_VERSION = "bibliography-line-feature-explorer-v5"
 DEFAULT_SOURCES = ("greek_phd", "kallipos", "openarchives")
 DEFAULT_SEED = "bibliography-feature-explorer-20260713"
 
@@ -70,7 +70,12 @@ FEATURE_SPECS = (
     FeatureSpec("volume_shape_count", "Standalone volume / issue shape", "Publication details", "#b54b43"),
     FeatureSpec("journal_year_volume_count", "Journal–year–volume", "Publication details", "#c25d51"),
     FeatureSpec("page_marker_count", "Page marker", "Publication details", "#8f3532"),
-    FeatureSpec("article_page_range_count", "Article-page range", "Publication details", "#9a3e39"),
+    FeatureSpec(
+        "article_page_range_count",
+        "Volume/article page range",
+        "Publication details",
+        "#9a3e39",
+    ),
     FeatureSpec("page_range_count", "Page range", "Publication details", "#a94740"),
     FeatureSpec("publisher_term_count", "Residual publisher term", "Publication details", "#bc594e"),
     FeatureSpec("place_name_count", "Standalone place name", "Publication details", "#8b4a3f"),
@@ -494,7 +499,7 @@ def run_build(args: argparse.Namespace) -> dict[str, Any]:
     receipt = Path(args.receipt) if args.receipt else output.with_suffix(".receipt.json")
     _exclusive_write(output, build_page(payload))
     receipt_data = {
-        "schema_version": "bibliography-line-feature-explorer-receipt-v4",
+        "schema_version": "bibliography-line-feature-explorer-receipt-v5",
         "status": "passed",
         "payload_sha256": payload["payload_sha256"],
         "input": {

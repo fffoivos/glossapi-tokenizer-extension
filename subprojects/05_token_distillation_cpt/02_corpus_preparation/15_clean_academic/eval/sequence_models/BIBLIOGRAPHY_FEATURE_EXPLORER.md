@@ -54,7 +54,7 @@ expected 7/7/6 source split before publishing the site path.
 Serve the resulting directory locally with any static HTTP server. The page is
 self-contained and requires no backend or external assets.
 
-## Current infinite-scroll v4 build
+## Current multilingual-format v5 build
 
 The current presentation keeps the complete 14,815-line inventory in every
 ranking view. It renders the first 100 lines immediately and appends subsequent
@@ -62,19 +62,44 @@ ranking view. It renders the first 100 lines immediately and appends subsequent
 selected metric. Changing a detector or ranking metric starts a newly ranked
 feed from rank 1.
 
-The unrequested `author_year_count` composite has been removed from the active
-feature vector, weighted scorer, and presentation. Years and author shapes
-remain separate evidence. A dedicated `article_page_range_count` now owns
-article-number/page coordinates such as `44:1-44:14`; this prevents the generic
-page-range fallback from incorrectly presenting only `1-44`.
+The author/name patterns now derive their case-sensitive character classes from
+Unicode categories across Latin Extended, Greek and Greek Extended, and
+Cyrillic blocks. This covers Romance and Latin-script Slavic diacritics,
+Cyrillic Slavic names, and monotonic/polytonic Greek, including remaining
+combining marks after NFKC normalization. Citation surname particles and the
+specific PDF-extraction splits seen in the review corpus are supported without
+making broad proper-name words consume ordinary whitespace.
 
-This is still a 35-feature presentation: one composite was removed and one
-specific page-coordinate detector was added. The current HTML SHA-256 is
-`3dfdb8d94a1de1f2980ca9a938dece041add91f930ebad49878f357f68964279`.
+Verified corpus corrections include:
+
+- document `47416e0142ff...`, line 1142: `Č iarnien ė , R.` and
+  `Vienažindien ė , M.` are two inverted authors;
+- document `cf9352e1db72...`, line 2394: `Enzymology.`, `(eds)`, undotted
+  `pp`, and all five undotted surname/initial pairs have owners;
+- line 2411: the complete `34:27-39` volume/page coordinate is owned rather
+  than only its numeric suffix;
+- line 2425: `5 th edn.`, `(ed)`, undotted `pp`, and `622-642` have distinct
+  owners.
+
+The unrequested `author_year_count` composite remains absent. Years and author
+shapes are separate evidence. `article_page_range_count`, displayed as
+“Volume/article page range”, owns both `44:1-44:14` and `34:27-39` forms.
+
+This remains a 35-feature presentation. The current HTML SHA-256 is
+`9d052e449b96bfc1bc95649487ba15a2f68e1ab20a4636aab6b236f5cc954c2d`.
 The exact build receipt is archived at
-`results/bibliography_feature_explorer/infinite_v4_build.receipt.json`. Its
+`results/bibliography_feature_explorer/multilingual_v5_build.receipt.json`. Its
 output path records the staging location before promotion to
 `outputs/bibliography-feature-explorer/index.html`.
+
+## Previous infinite-scroll v4 build
+
+The v4 build introduced the all-line, descending infinite feed, removed the
+author-year composite, and added the repeated article/page form
+`44:1-44:14`. Its HTML SHA-256 is
+`3dfdb8d94a1de1f2980ca9a938dece041add91f930ebad49878f357f68964279`.
+Its receipt remains at
+`results/bibliography_feature_explorer/infinite_v4_build.receipt.json`.
 
 ## Previous ownership-resolved v3 build
 

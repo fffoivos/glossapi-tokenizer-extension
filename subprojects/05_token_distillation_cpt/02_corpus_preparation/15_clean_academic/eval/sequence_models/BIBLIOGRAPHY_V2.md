@@ -9,18 +9,26 @@ data, or authorise removal.
 The line feature vector counts evidence instead of reducing it immediately to
 one opaque citation flag:
 
-- person-name shapes: Latin/Greek initials, initial sequences, inverted and
-  direct-order author forms, and title-cased name-word counts;
+- person-name shapes: Unicode Latin Extended, Cyrillic, and monotonic/polytonic
+  Greek initials, initial sequences, inverted and direct-order author forms,
+  surname particles, and title-cased name-word counts;
 - publication dates: years, `n.d.` / `χ.χ.`, numeric dates, month dates, and
   access-date vocabulary;
 - identifiers: URLs, DOI, ISBN, and ISSN are independent fields;
-- citation typography: ampersands, author joiners, quoted spans, numbered
-  entries, dotted abbreviations, and dotted abbreviation sequences;
+- citation typography: ampersands, quoted spans, numbered entries, dotted
+  words, and dotted-word sequences;
 - container/publication terms: editor, translator, thesis/dissertation,
   citation-container `in`, edition, publisher, and place-publisher forms in
   English and Greek;
-- journal coordinates: volume/issue markers, year-volume sequences, page
-  markers, article-number/page coordinates, and bare page ranges.
+- journal coordinates: volume/issue markers, year-volume sequences, dotted or
+  undotted page markers, volume/article-page coordinates, and bare page ranges.
+
+The Unicode character classes are generated from general categories rather
+than a hand-maintained list of accented letters. The covered blocks include
+Latin Extended, Greek Extended, and European Cyrillic extensions; remaining
+combining marks are accepted as part of a letter. A narrow author-only repair
+recognizes PDF-extraction splits such as `Č iarnien ė` while the broad
+proper-name fallback continues to treat whitespace as a word boundary.
 
 Every additive score contribution is emitted as a reason code. General NER is
 not a dependency: the first experiment measures cheap name/place shapes. A

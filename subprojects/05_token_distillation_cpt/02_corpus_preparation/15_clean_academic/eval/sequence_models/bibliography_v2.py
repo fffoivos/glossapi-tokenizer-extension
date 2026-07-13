@@ -34,15 +34,73 @@ RULES_ID = "deterministic_bibliography_explicit_features_v2"
 DECODER_ID = "bibliography_anchor_clusters_typed_gaps_v2"
 
 
-_LATIN_UPPER = "A-ZÀ-ÖØ-Þ"
-_LATIN_LOWER = "a-zà-öø-ÿ"
-_GREEK_UPPER = "Α-ΩΆΈΉΊΌΎΏΪΫ"
-_GREEK_LOWER = "α-ωάέήίόύώϊϋΐΰς"
-_UPPER = _LATIN_UPPER + _GREEK_UPPER
-_LOWER = _LATIN_LOWER + _GREEK_LOWER
-_LETTER = _UPPER + _LOWER
+_EUROPEAN_SCRIPT_RANGES = (
+    # Latin, including the extended blocks used by Romance and Latin-script
+    # Slavic orthographies.
+    (0x0041, 0x024F),
+    (0x1E00, 0x1EFF),
+    (0x2C60, 0x2C7F),
+    (0xA720, 0xA7FF),
+    (0xAB30, 0xAB6F),
+    (0x10780, 0x107BF),
+    # Greek and Greek Extended cover monotonic and polytonic forms.
+    (0x0370, 0x03FF),
+    (0x1F00, 0x1FFF),
+    # Cyrillic plus its European-language extensions.
+    (0x0400, 0x052F),
+    (0x1C80, 0x1C8F),
+    (0xA640, 0xA69F),
+    (0x1E030, 0x1E08F),
+)
 
-_YEAR = re.compile(r"(?<!\d)(?:1[5-9]\d{2}|20\d{2})(?:[a-zα-ω])?(?!\d)", re.I)
+
+def _script_characters(*categories: str) -> str:
+    """Return a regex-class body selected by Unicode general category."""
+
+    accepted = set(categories)
+    return "".join(
+        chr(codepoint)
+        for first, last in _EUROPEAN_SCRIPT_RANGES
+        for codepoint in range(first, last + 1)
+        if unicodedata.category(chr(codepoint)) in accepted
+    )
+
+
+_UPPER = _script_characters("Lu", "Lt")
+_LOWER = _script_characters("Ll")
+_LETTER = _UPPER + _LOWER
+# NFKC composes most accents, but retaining combining marks makes the patterns
+# safe for the remaining decomposed Latin, Cyrillic, and polytonic Greek forms.
+_MARK = "\u0300-\u036f\u1ab0-\u1aff\u1dc0-\u1dff\u20d0-\u20ff\ufe20-\ufe2f"
+_LETTER_OR_MARK = _LETTER + _MARK
+_UPPER_ATOM = rf"[{_UPPER}][{_MARK}]*"
+_LOWER_ATOM = rf"[{_LOWER}][{_MARK}]*"
+_LETTER_ATOM = rf"[{_LETTER}][{_MARK}]*"
+_NON_ASCII_UPPER = "".join(character for character in _UPPER if ord(character) > 127)
+_NAME_WORD = rf"{_UPPER_ATOM}(?:{_LETTER_ATOM}|[’'\-]){{1,45}}"
+# PDF extraction sometimes inserts spaces inside a surname around a diacritic,
+# as in ``Č iarnien ė`` or ``Vienažindien ė``. Keep this tolerance local to
+# author hypotheses; broad proper-name matching must not join ordinary words.
+_OCR_SPLIT_NAME_WORD = (
+    rf"(?:[{_NON_ASCII_UPPER}][{_MARK}]*\s+{_LOWER_ATOM}"
+    rf"(?:{_LETTER_ATOM}){{1,44}}(?:\s+{_LOWER_ATOM})?"
+    rf"|{_UPPER_ATOM}(?:{_LETTER_ATOM}){{3,44}}\s+{_LOWER_ATOM})"
+)
+_AUTHOR_NAME_WORD = rf"(?:{_OCR_SPLIT_NAME_WORD}|{_NAME_WORD})"
+_NAME_PARTICLE = (
+    r"(?:(?i:da|de|del|della|di|do|dos|du|la|le|van|von|der|den|ten|ter)\s+)"
+)
+_AUTHOR_FULL_NAME = (
+    rf"(?:{_NAME_PARTICLE}){{0,2}}{_AUTHOR_NAME_WORD}(?:\s+{_NAME_WORD})?"
+)
+_AUTHOR_JOINER = (
+    r"(?:and|And|AND|et|Et|ET|e|y|i|a|și|Și|und|Und|UND|"
+    r"και|Και|ΚΑΙ|и|И|і|І|та|Та)\b"
+)
+
+_YEAR = re.compile(
+    rf"(?<!\d)(?:1[5-9]\d{{2}}|20\d{{2}})(?:[{_LOWER}])?(?!\d)", re.I
+)
 _NO_DATE = re.compile(r"\b(?:n\s*\.\s*d\s*\.|s\s*\.\s*d\s*\.|χ\s*\.\s*χ\s*\.)", re.I)
 _NUMERIC_DATE = re.compile(
     r"(?<!\d)(?:"
@@ -77,38 +135,40 @@ _ISBN = re.compile(
 )
 _ISSN = re.compile(r"\bISSN\s*:?[ \t]*\d{4}[ -]?\d{3}[\dX]\b", re.I)
 
-_INITIAL_ATOM = rf"(?:[{_UPPER}]\s*\.|[{_UPPER}][{_LOWER}]\s*\.)"
-_INITIAL = re.compile(rf"(?<![{_LETTER}]){_INITIAL_ATOM}")
+_INITIAL_ATOM = rf"(?:{_UPPER_ATOM}\s*\.|{_UPPER_ATOM}{_LOWER_ATOM}\s*\.)"
+_INITIAL = re.compile(rf"(?<![{_LETTER_OR_MARK}]){_INITIAL_ATOM}")
 _PROPER_WORD = re.compile(
-    rf"(?<![{_LETTER}])[{_UPPER}][{_LOWER}]{{2,}}(?:[-’'][{_UPPER}]?[{_LOWER}]{{2,}})?"
-    rf"(?![{_LETTER}])(?!(?:[ \t]*\.))"
+    rf"(?<![{_LETTER_OR_MARK}]){_UPPER_ATOM}(?:{_LOWER_ATOM}){{2,}}"
+    rf"(?:[-’'](?:{_UPPER_ATOM})?(?:{_LOWER_ATOM}){{2,}})?"
+    rf"(?![{_LETTER_OR_MARK}])(?!(?:[ \t]*\.))"
 )
 _INVERTED_AUTHOR = re.compile(
-    rf"(?<![{_LETTER}])[{_UPPER}][{_LETTER}’'\-]{{1,45}}"
-    rf"(?:\s+[{_UPPER}][{_LETTER}’'\-]{{1,45}})?"
-    rf",\s*(?:{_INITIAL_ATOM}\s*){{1,4}}"
+    rf"(?<![{_LETTER_OR_MARK}]){_AUTHOR_FULL_NAME}"
+    rf"\s*,\s*(?:{_INITIAL_ATOM}\s*){{1,4}}"
 )
 _AUTHOR_PREFIX = re.compile(
     r"^\s*(?:[-–—•\uf0a0]\s*)?(?:\[?\d{1,4}\]?[.)]?\s+)?$"
 )
 _NAME_INITIAL_PAIR = re.compile(
-    rf"(?<![{_LETTER}])[{_UPPER}][{_LETTER}’'\-]{{1,40}}\s+"
-    rf"(?:[{_UPPER}]{{1,3}}|(?:{_INITIAL_ATOM}\s*){{1,3}})"
-    rf"(?=\s*(?:,|;|&|&amp;|and\b|και\b|\(|$))"
+    rf"(?<![{_LETTER_OR_MARK}]){_AUTHOR_FULL_NAME}\s+"
+    rf"(?:[{_UPPER}]{{1,2}}\s*\.?|(?:{_INITIAL_ATOM}\s*){{1,3}})"
+    rf"(?=\s*(?:,|;|&|&amp;|\(|"
+    rf"(?:1[5-9]\d{{2}}|20\d{{2}})|$))"
 )
 _DIRECT_AUTHOR = re.compile(
-    rf"(?<![{_LETTER}])(?:{_INITIAL_ATOM}\s*){{1,4}}"
-    rf"[{_UPPER}][{_LETTER}’'\-]{{1,45}}"
-    rf"(?:\s+[{_UPPER}][{_LETTER}’'\-]{{1,45}})?"
-    rf"(?=\s*(?:,|;|&|&amp;|[Aa]nd\b|[Κκ]αι\b|\(|(?:1[5-9]\d{{2}}|20\d{{2}})|$))"
+    rf"(?<![{_LETTER_OR_MARK}])(?:{_INITIAL_ATOM}\s*){{1,4}}"
+    rf"{_AUTHOR_FULL_NAME}"
+    rf"(?=\s*(?:,|;|&|&amp;|{_AUTHOR_JOINER}|\(|"
+    rf"(?:1[5-9]\d{{2}}|20\d{{2}})|$))"
 )
 _AMPERSAND = re.compile(r"(?:&|&amp;)", re.I)
 _QUOTED = re.compile(r"(?:«[^»]{3,}»|“[^”]{3,}”|„[^“]{3,}“|\"[^\"]{3,}\"|'[^'\n]{3,}')")
 
 _EDITOR_TERMS = re.compile(
-    rf"(?<![{_LETTER}])(?:eds?\.|editors?|edited\s+by|trans\.|translator|translated\s+by|"
+    rf"(?<![{_LETTER_OR_MARK}])(?:\(\s*eds?\.?\s*\)|eds?\.|editors?|edited\s+by|"
+    rf"trans\.|translator|translated\s+by|"
     r"επιμ(?:έλεια|ελητής|ελητές)?\.?|εκδ\.?\s*επιμ\.?|μτφρ\.?|μετάφραση|"
-    rf"μεταφραστ(?:ής|ές|ρια))(?![{_LETTER}])",
+    rf"μεταφραστ(?:ής|ές|ρια))(?![{_LETTER_OR_MARK}])",
     re.I,
 )
 _THESIS_TERMS = re.compile(
@@ -125,7 +185,8 @@ _IN_CONTAINER = re.compile(
     re.I,
 )
 _EDITION_TERMS = re.compile(
-    rf"(?<![{_LETTER}])(?:\d+(?:st|nd|rd|th)\s+ed(?:ition)?\.?|revised\s+edition|"
+    rf"(?<![{_LETTER_OR_MARK}])(?:\d+\s*(?:st|nd|rd|th)\s+ed(?:ition|n)?\.?|"
+    r"revised\s+edition|"
     r"edition|edn\.?|έκδ(?:οση|\.)|αναθ(?:εωρημένη|\.)\s+έκδ(?:οση|\.))\b",
     re.I,
 )
@@ -134,10 +195,11 @@ _EDITION_TERMS = re.compile(
 # may contribute one count, whereas journal strings such as ``Nat. Chem.
 # Biol.`` produce the more discriminative sequence feature.
 _DOTTED_WORD = re.compile(
-    rf"(?<![{_LETTER}])[{_UPPER}][{_LETTER}]{{2,5}}\.(?![{_LETTER}])"
+    rf"(?<![{_LETTER_OR_MARK}]){_UPPER_ATOM}(?:{_LETTER_ATOM}){{2,45}}\."
+    rf"(?![{_LETTER_OR_MARK}])"
 )
 _VOLUME_MARKER = re.compile(
-    rf"(?<![{_LETTER}])(?:vol(?:ume)?|issue|no|number|τόμ(?:ος|ου)?|"
+    rf"(?<![{_LETTER_OR_MARK}])(?:vol(?:ume)?|issue|no|number|τόμ(?:ος|ου)?|"
     rf"τεύχ(?:ος|ους)?|τχ)\s*\.?(?=\s*\d+)",
     re.I,
 )
@@ -149,19 +211,20 @@ _JOURNAL_YEAR_VOLUME = re.compile(
     r"(?P<journal_volume>\d{1,4})(?P<journal_issue>\s*\(\s*\d{1,4}\s*\))?",
     re.I,
 )
-_PAGE_MARKER = re.compile(r"(?<!\w)(?:pp?|σσ?|σελ)\s*\.\s*(?=\d)", re.I)
+_PAGE_MARKER = re.compile(r"(?<!\w)(?:pp?|σσ?|σελ)\s*\.?\s*(?=\d)", re.I)
 _ARTICLE_PAGE_RANGE = re.compile(
     r"(?<!\d)(?P<article_number>\d{1,5}):(?P<article_page_start>\d{1,5})"
-    r"\s*[-–—]\s*(?P=article_number):(?P<article_page_end>\d{1,5})(?!\d)"
+    r"\s*[-–—]\s*(?:(?P=article_number):)?(?P<article_page_end>\d{1,5})(?!\d)"
 )
 _PAGE_RANGE = re.compile(
     r"(?<![\d,])(?<!\d[,.])(?P<page_start>\d{1,5})\s*[-–—]\s*"
     r"(?P<page_end>\d{1,5})(?![\d,])(?!\.\d)"
 )
 _PUBLISHER_TERMS = re.compile(
-    rf"(?<![{_LETTER}])(?:press|publisher|publishing|publications?|εκδ(?:όσεις|οτικός|\.)|"
+    rf"(?<![{_LETTER_OR_MARK}])(?:press|publisher|publishing|publications?|"
+    r"εκδ(?:όσεις|οτικός|\.)|"
     r"πανεπιστημιακές\s+εκδόσεις|springer|elsevier|routledge|wiley|sage|"
-    rf"πατάκ(?:η|ης)|μεταίχμιο|κάκτος|παπαζήση|gutenberg)(?![{_LETTER}])",
+    rf"πατάκ(?:η|ης)|μεταίχμιο|κάκτος|παπαζήση|gutenberg)(?![{_LETTER_OR_MARK}])",
     re.I,
 )
 _PLACE_NAMES = re.compile(
@@ -172,12 +235,12 @@ _PLACE_NAMES = re.compile(
     re.I,
 )
 _PLACE_PUBLISHER_SHAPE = re.compile(
-    r"(?:\b(?:Athens|London|New\s+York|Boston|Cambridge|Oxford|Chicago|Paris|Berlin|"
+    rf"(?:\b(?:Athens|London|New\s+York|Boston|Cambridge|Oxford|Chicago|Paris|Berlin|"
     r"Amsterdam|Brussels|Rome|Milan|Munich|Thessaloniki|Αθήνα|Αθήναι|Θεσσαλονίκη|"
     r"Πάτρα|Ιωάννινα|Ηράκλειο|Λευκωσία|Ρώμη|Παρίσι|Λονδίνο|Βερολίνο|Νέα\s+Υόρκη)\s*"
-    r":\s*(?:[A-ZΑ-ΩΆΈΉΊΌΎΏ][\w.'’\-]+\s+){0,3}"
+    rf":\s*(?:{_NAME_WORD}\s+){{0,3}}"
     r"(?:Press|University\s+Press|Publishing|Publisher|Εκδόσεις|Εκδ\.)"
-    r"|:\s*(?:[A-ZΑ-ΩΆΈΉΊΌΎΏ][\w.'’\-]+\s+){0,3}"
+    rf"|:\s*(?:{_NAME_WORD}\s+){{0,3}}"
     r"(?:Press|University\s+Press|Publishing|Publisher|Εκδόσεις|Εκδ\.))",
     re.I,
 )
@@ -193,8 +256,8 @@ _BIB_HEADING_WORD = re.compile(
     re.I,
 )
 _BIB_EXTENDED_HEADING = re.compile(
-    r"^(?:βιβλιογραφ[ιί]α\s+κεφαλα[ιί]ου\s+[A-ZΑ-ΩΆΈΉΊΌΎΏ0-9.΄ʹ]+|"
-    r"chapter\s+[A-Z0-9.]+\s+(?:bibliography|references))$",
+    rf"^(?:βιβλιογραφ[ιί]α\s+κεφαλα[ιί]ου\s+[{_UPPER}0-9.΄ʹ]+|"
+    rf"chapter\s+[{_UPPER}0-9.]+\s+(?:bibliography|references))$",
     re.I,
 )
 _BIB_EXTENDED_SUBHEADING = re.compile(
@@ -207,7 +270,7 @@ _FIGURE_CAPTION_START = re.compile(
     re.I,
 )
 _ENUMERATED_PROSE_START = re.compile(
-    r"^\s*(?:[-–—•\uf0a0]\s*)?(?:\d{1,3}|[A-Za-zΑ-Ωα-ω])\s*[.)]\s+"
+    rf"^\s*(?:[-–—•\uf0a0]\s*)?(?:\d{{1,3}}|[{_LETTER}])\s*[.)]\s+"
 )
 
 
@@ -563,6 +626,7 @@ def _feature_spans(value: str) -> dict[str, list[_Span]]:
                 "isbn_count",
                 "issn_count",
                 "journal_year_volume_count",
+                "article_page_range_count",
                 "page_range_count",
             ),
         ),

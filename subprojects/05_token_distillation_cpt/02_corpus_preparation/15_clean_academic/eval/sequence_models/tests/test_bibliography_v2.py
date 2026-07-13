@@ -8,6 +8,7 @@ EVAL_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(EVAL_DIR))
 
 from sequence_models.bibliography_v2 import (  # noqa: E402
+    BibliographyFeatureReview,
     analyze_bibliography_line_v2,
     analyze_bibliography_lines_v2,
     decode_bibliography_blocks_v2,
@@ -56,6 +57,92 @@ def test_inverted_author_counts_every_author_and_includes_all_initials() -> None
         "Barrett, L.F.",
     ]
     assert review.features.initial_count == 6
+
+
+def test_european_author_scripts_and_diacritics_are_supported() -> None:
+    names = (
+        "García Márquez, G. G.",  # Romance, Latin
+        "de Gaulle, C.",  # Romance surname particle
+        "Țepeș, V.",  # Romanian
+        "Dvořák, A.",  # Czech
+        "Łukasiewicz, J.",  # Polish
+        "Šimić, M.",  # Croatian
+        "Župančič, O.",  # Slovene
+        "Čiarnienė, R.",  # Baltic Latin; the source's unsplit form
+        "Достоевский, Ф. М.",  # Russian Cyrillic
+        "Шевченко, Т. Г.",  # Ukrainian Cyrillic
+        "Његош, П. П.",  # Serbian Cyrillic
+        "Παπαδόπουλος, Ι.",  # monotonic Greek
+        "Ἀριστοτέλης, Ἀ.",  # polytonic Greek
+    )
+
+    for name in names:
+        review = extract_bibliography_feature_review(f"- {name} (2001). Title.")
+        inverted = [
+            match.text.strip()
+            for match in review.matches
+            if match.feature == "inverted_author_count"
+        ]
+        assert len(inverted) == 1, (name, review)
+        assert inverted[0] == name
+
+
+def test_ocr_split_lithuanian_authors_on_document_47416_line_1142() -> None:
+    text = (
+        "- 4) Č iarnien ė ,  R.  and  Vienažindien ė ,  M.  (2012),  "
+        "'Lean manufacturing: Theory and Practice', Economics and Management, "
+        "Vol. 17 (2), pp. 1-7."
+    )
+    review = extract_bibliography_feature_review(text)
+    inverted = [
+        match.text.strip()
+        for match in review.matches
+        if match.feature == "inverted_author_count"
+    ]
+
+    assert inverted == ["Č iarnien ė ,  R.", "Vienažindien ė ,  M."]
+    assert review.features.inverted_author_count == 2
+
+
+def test_undotted_biomedical_citation_variants_have_specific_owners() -> None:
+    methods = extract_bibliography_feature_review(
+        "8. Gotto AM, Pownall HJ, Havel RJ. 1986. Introduction to the plasma "
+        "lipoproteins. In Methods in Enzymology. Segrst P, Albers JJ (eds). "
+        "Academic Press, London, pp 3-41."
+    )
+    clinics = extract_bibliography_feature_review(
+        "23. Tamir I, Heiss G, Glueck CJ, Christensen B, Kwiterovich P, "
+        "Rifkind BM. 1981. Lipid and lipoprotein distributions in white children "
+        "ages 619 years. The Lipid Research Clinics Program Prevalence Study. "
+        "J. Clin. Dis. 34:27-39."
+    )
+    metabolic = extract_bibliography_feature_review(
+        "33. Nikkila EA. 1983. Familial lipoprotein lipase deficiency. In "
+        "Metabolic Basis of Inherited Diseas 5 th edn. Stanbury JB (ed). "
+        "McGraw Hill, New York, pp 622-642."
+    )
+
+    def matches(review: BibliographyFeatureReview, feature: str) -> list[str]:
+        return [
+            match.text
+            for match in review.matches
+            if match.feature == feature
+        ]
+
+    assert methods.features.name_initial_pair_count == 5
+    assert "Enzymology." in matches(methods, "dotted_word_count")
+    assert "(eds)" in matches(methods, "editor_term_count")
+    assert "pp " in matches(methods, "page_marker_count")
+
+    assert clinics.features.name_initial_pair_count == 6
+    assert matches(clinics, "article_page_range_count") == ["34:27-39"]
+    assert clinics.features.page_range_count == 0
+
+    assert metabolic.features.name_initial_pair_count == 2
+    assert "(ed)" in matches(metabolic, "editor_term_count")
+    assert matches(metabolic, "edition_term_count") == ["5 th edn"]
+    assert "pp " in matches(metabolic, "page_marker_count")
+    assert matches(metabolic, "page_range_count") == ["622-642"]
 
 
 def test_direct_author_hypothesis_beats_spurious_inverted_fragments() -> None:
@@ -133,7 +220,8 @@ def test_dates_pages_and_years_do_not_duplicate_numeric_spans() -> None:
     year_range = extract_bibliography_features("1980-1990")
 
     assert citation.year_count == 1
-    assert citation.page_range_count == 1
+    assert citation.article_page_range_count == 1
+    assert citation.page_range_count == 0
     assert named_date.month_date_count == 1
     assert named_date.year_count == 0
     assert named_date.page_range_count == 0
