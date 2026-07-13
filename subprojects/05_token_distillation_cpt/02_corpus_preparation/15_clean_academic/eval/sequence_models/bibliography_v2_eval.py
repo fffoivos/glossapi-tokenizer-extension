@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import collections
 import json
+import subprocess
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -37,6 +38,37 @@ ALLOWED_SPLITS = frozenset(("train", "validation"))
 def _require(condition: bool, message: str) -> None:
     if not condition:
         raise ValueError(message)
+
+
+def _git_revision() -> dict[str, Any]:
+    root = Path(__file__).resolve()
+    try:
+        repository = subprocess.run(
+            ["git", "-C", str(root.parent), "rev-parse", "--show-toplevel"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        commit = subprocess.run(
+            ["git", "-C", repository, "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        status = subprocess.run(
+            ["git", "-C", repository, "status", "--porcelain"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return {"available": False, "clean": None, "commit": None}
+    return {
+        "available": True,
+        "clean": not bool(status.strip()),
+        "commit": commit if not status.strip() else None,
+        "repository": repository,
+    }
 
 
 def _v2_evidence(document: GoldDocument) -> tuple[BibliographyV2Evidence, ...]:
@@ -332,6 +364,7 @@ def run_evaluation(silver_path: str | Path, *, split: str) -> dict[str, Any]:
             "r2": {"rules": R2_RULES_ID, "decoder": R2_DECODER_ID},
             "v2": {"rules": V2_RULES_ID, "decoder": V2_DECODER_ID},
         },
+        "code_revision": _git_revision(),
         "metrics": _evaluate(documents, prediction_rows),
         "feature_summary_by_gold_label": _feature_summary(documents, evidence_rows),
         "v2_error_examples": _error_examples(documents, prediction_rows, evidence_rows),
