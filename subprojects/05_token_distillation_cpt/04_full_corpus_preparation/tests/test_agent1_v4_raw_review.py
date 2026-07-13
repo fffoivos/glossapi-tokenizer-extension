@@ -392,6 +392,12 @@ def test_seatbelt_profile_allows_fixed_launcher_and_resolved_runtime_dirs(tmp_pa
     assert f'(subpath "{runtime.parent}")' in profile
 
 
+def test_nested_codex_sandbox_temporary_directory_is_inside_call_root() -> None:
+    source = __import__("inspect").getsource(RUNNER._invoke_request)
+    assert "runtime_tmp = root / \"tmp\"" in source
+    assert '"TMPDIR": str(runtime_tmp)' in source
+
+
 def test_response_validation_rejects_evidence_outside_cited_lines(tmp_path: Path) -> None:
     document = tmp_path / "document.txt"
     document.write_text("πρώτη γραμμή\nδεύτερη γραμμή", encoding="utf-8")

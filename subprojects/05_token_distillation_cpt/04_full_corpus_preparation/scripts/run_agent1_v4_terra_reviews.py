@@ -383,6 +383,8 @@ def _invoke_request(
         _write_no_replace(prompt_path, prompt.encode("utf-8"))
         profile_path = root / "seatbelt.sb"
         _write_no_replace(profile_path, seatbelt_profile(root, Path(codex_bin), codex_home).encode("utf-8"))
+        runtime_tmp = root / "tmp"
+        runtime_tmp.mkdir(mode=0o700)
         _run_isolation_canary(
             sandbox_exec=sandbox_exec,
             profile=profile_path,
@@ -410,9 +412,15 @@ def _invoke_request(
             prompt,
         ]
         started = time.monotonic()
+        environment = os.environ.copy()
+        # Codex's own read-only macOS sandbox writes a transient profile while
+        # starting.  Keep that transient state inside the already isolated
+        # call root rather than granting access to the host temporary tree.
+        environment.update({"TMPDIR": str(runtime_tmp), "TMP": str(runtime_tmp), "TEMP": str(runtime_tmp)})
         completed = subprocess.run(
             command,
             cwd=root,
+            env=environment,
             text=True,
             capture_output=True,
             timeout=timeout_seconds,
