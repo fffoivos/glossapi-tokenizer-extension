@@ -14,8 +14,8 @@ the bibliography-v2 weighted scorer and the document-level block decoder.
   inventory before rendering the top 100; it does not merely filter the
   already-rendered list.
 - The review-only span extractor emits exact `[start:end]` Unicode-character
-  offsets into the NFKC-normalized text displayed by the page. Every raw feature
-  count must equal the number of emitted spans for that feature or the build
+  offsets into the NFKC-normalized text displayed by the page. Every resolved
+  feature count must equal the number of emitted spans for that feature or the build
   fails. These spans are not used by the weighted scorer or block decoder.
 - The target line overlays each active match with its feature colour and prints
   the same offsets in the feature badge. Overlapping features are displayed as
@@ -54,32 +54,56 @@ expected 7/7/6 source split before publishing the site path.
 Serve the resulting directory locally with any static HTTP server. The page is
 self-contained and requires no backend or external assets.
 
-## Current corrected local build
+## Current ownership-resolved v3 build
 
 The current presentation was rebuilt locally on 2026-07-13 from the exact
 20-document, 14,815-line label-blind packet embedded in the prior hover build.
-No Clariden compute job was required. It has 35 scored features after these
-corrections:
+No Clariden compute job was required. The 35 scored features now use explicit
+ownership: specific lexical/numeric detectors claim a span before a broad
+fallback detector may count it. Structural composites may still contain their
+atomic evidence; for example an inverted-author span contains its initials.
 
-- `inverted_author_count` captures every inverted author and all adjacent
-  initials, including `Lewis, M.A.`;
-- `initial_count` covers one- or two-letter forms such as `I.` and `Ph.`, while
-  dotted words require at least three letters, so their spans do not overlap;
-- the redundant `initial_sequence_count` and `author_joiner_count` fields were
-  removed;
-- `numbered_entry_count` marks a line when its first non-decoration character
-  is numeric, using a bounded linear scan.
+The principal corrections are:
+
+- dotted words exclude editor/translator, edition, volume, page, publisher,
+  place, title-quote, identifier, and dotted-sequence spans;
+- proper-name words cannot end immediately before a dot and exclude specific
+  place, publisher, date, title, and structural-term spans;
+- DOI owns DOI URLs; composite dates and publication coordinates own their
+  years; place–publisher shapes own their shared lexical span;
+- page ranges reject decimals, thousands-separated values, full dates, and
+  year ranges; decimal-leading lines are not numbered entries;
+- `ed.` inside `2nd ed.` belongs to edition, and bare `trans` inside a
+  hyphenated word is not a translator abbreviation;
+- direct-order and inverted-order author hypotheses are evaluated across the
+  line and only the stronger eligible orientation is retained. An eligible
+  hypothesis must begin after a legal bullet/list prefix.
+
+On the same packet, the audited accidental-overlap policy fell from 6,924
+events across 46 feature pairs to zero. Proper-name matches immediately before
+a dot fell from 1,814 to zero. For document
+`a32563c98868101bfde4b1942897ca3d6c867b1ca882b116070772b0902c6235`, line
+2421 now has seven direct-order authors and zero inverted-order authors.
 
 The current HTML SHA-256 is
-`84e7266a577a5ec27b66378fa35726854220447e91a5e4998f320bfd32e63bdd`.
+`a00a8ac935adcd785f21db6669190b3aa174b824d4f83c6a33e0b4dfcf62cd4c`.
 The exact local build receipt is archived at
-`results/bibliography_feature_explorer/corrected_local_build.receipt.json`.
+`results/bibliography_feature_explorer/ownership_v3_build.receipt.json`, and
+the overlap evidence is archived at
+`results/bibliography_feature_explorer/overlap_audit_v3.json`.
 Its output path records the staging location before the SHA-identical file was
 promoted to `outputs/bibliography-feature-explorer/index.html`.
 
 The earlier bibliography-v2 metric reports predate these feature-definition
 changes and are historical; the scorer must be re-evaluated before those
 metrics are treated as current.
+
+## Previous corrected v2 local build
+
+The preceding 35-feature local build had HTML SHA-256
+`84e7266a577a5ec27b66378fa35726854220447e91a5e4998f320bfd32e63bdd`.
+Its receipt remains at
+`results/bibliography_feature_explorer/corrected_local_build.receipt.json`.
 
 ## Current hover-spotlight build
 

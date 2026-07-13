@@ -2,9 +2,10 @@
 """Build a self-contained, unweighted bibliography line-feature explorer.
 
 This is intentionally separate from the weighted bibliography-v2 scorer and
-from its document-level block decoder.  A feature contributes exactly one
-point when its raw count is non-zero.  The browser can disable any feature and
-immediately rerank the complete line inventory before showing the top 100.
+from its document-level block decoder. A feature contributes exactly one point
+when its ownership-resolved count is non-zero. The browser can disable any
+feature and immediately rerank the complete line inventory before showing the
+top 100.
 """
 
 from __future__ import annotations
@@ -26,7 +27,7 @@ from .bibliography_v2 import (
 )
 
 
-SCHEMA_VERSION = "bibliography-line-feature-explorer-v2"
+SCHEMA_VERSION = "bibliography-line-feature-explorer-v3"
 DEFAULT_SOURCES = ("greek_phd", "kallipos", "openarchives")
 DEFAULT_SEED = "bibliography-feature-explorer-20260713"
 
@@ -42,21 +43,21 @@ class FeatureSpec:
 # token_count is useful context, but it is not a detected bibliography event.
 # It is shown on every card and deliberately excluded from the unit-point score.
 FEATURE_SPECS = (
-    FeatureSpec("year_count", "Year", "Dates", "#3659a7"),
+    FeatureSpec("year_count", "Standalone year", "Dates", "#3659a7"),
     FeatureSpec("no_date_count", "No-date marker", "Dates", "#5378c4"),
     FeatureSpec("numeric_date_count", "Numeric date", "Dates", "#6b91d4"),
     FeatureSpec("month_date_count", "Named-month date", "Dates", "#2f75a6"),
     FeatureSpec("access_date_count", "Access date", "Dates", "#3e8bb8"),
-    FeatureSpec("url_count", "URL", "Identifiers", "#087f5b"),
+    FeatureSpec("url_count", "Non-DOI URL", "Identifiers", "#087f5b"),
     FeatureSpec("doi_count", "DOI", "Identifiers", "#0b6e4f"),
     FeatureSpec("isbn_count", "ISBN", "Identifiers", "#16896b"),
     FeatureSpec("issn_count", "ISSN", "Identifiers", "#2a9d78"),
     FeatureSpec("initial_count", "Initial", "Authors & names", "#7d3c98"),
-    FeatureSpec("proper_name_word_count", "Proper-name word", "Authors & names", "#ae62bd"),
-    FeatureSpec("inverted_author_count", "Inverted author", "Authors & names", "#6f3592"),
-    FeatureSpec("author_year_count", "Author–year shape", "Authors & names", "#8847a5"),
-    FeatureSpec("name_initial_pair_count", "Name + initial pair", "Authors & names", "#a155b3"),
-    FeatureSpec("direct_author_count", "Direct author shape", "Authors & names", "#ba6ac3"),
+    FeatureSpec("proper_name_word_count", "Residual proper-name word", "Authors & names", "#ae62bd"),
+    FeatureSpec("inverted_author_count", "Inverted-order author", "Authors & names", "#6f3592"),
+    FeatureSpec("author_year_count", "Author–year composite", "Authors & names", "#8847a5"),
+    FeatureSpec("name_initial_pair_count", "Surname + initial pair", "Authors & names", "#a155b3"),
+    FeatureSpec("direct_author_count", "Direct-order author", "Authors & names", "#ba6ac3"),
     FeatureSpec("ampersand_count", "Ampersand", "Authors & names", "#7b5aa6"),
     FeatureSpec("numbered_entry_count", "Numbered entry", "Citation structure", "#b85c16"),
     FeatureSpec("quoted_span_count", "Quoted span", "Citation structure", "#cc7023"),
@@ -64,17 +65,17 @@ FEATURE_SPECS = (
     FeatureSpec("thesis_term_count", "Thesis term", "Citation structure", "#a84f20"),
     FeatureSpec("in_container_count", "Container “in”", "Citation structure", "#bd682b"),
     FeatureSpec("edition_term_count", "Edition term", "Citation structure", "#d07b37"),
-    FeatureSpec("dotted_word_count", "Dotted word", "Citation structure", "#a56336"),
-    FeatureSpec("dotted_sequence_count", "Dotted abbreviation sequence", "Citation structure", "#bc7848"),
+    FeatureSpec("dotted_word_count", "Isolated dotted word", "Citation structure", "#a56336"),
+    FeatureSpec("dotted_sequence_count", "Dotted-word sequence", "Citation structure", "#bc7848"),
     FeatureSpec("volume_marker_count", "Volume marker", "Publication details", "#a33c36"),
-    FeatureSpec("volume_shape_count", "Volume / issue shape", "Publication details", "#b54b43"),
+    FeatureSpec("volume_shape_count", "Standalone volume / issue shape", "Publication details", "#b54b43"),
     FeatureSpec("journal_year_volume_count", "Journal–year–volume", "Publication details", "#c25d51"),
     FeatureSpec("page_marker_count", "Page marker", "Publication details", "#8f3532"),
     FeatureSpec("page_range_count", "Page range", "Publication details", "#a94740"),
-    FeatureSpec("publisher_term_count", "Publisher term", "Publication details", "#bc594e"),
-    FeatureSpec("place_name_count", "Place name", "Publication details", "#8b4a3f"),
+    FeatureSpec("publisher_term_count", "Residual publisher term", "Publication details", "#bc594e"),
+    FeatureSpec("place_name_count", "Standalone place name", "Publication details", "#8b4a3f"),
     FeatureSpec("place_publisher_shape_count", "Place : publisher", "Publication details", "#a15e50"),
-    FeatureSpec("punctuation_count", "Citation punctuation", "General & counter-signals", "#59625d"),
+    FeatureSpec("punctuation_count", "Unclaimed punctuation", "General & counter-signals", "#59625d"),
     FeatureSpec("prose_lead_count", "Prose lead", "General & counter-signals", "#737b76"),
     FeatureSpec("table_row_count", "Markdown table row", "General & counter-signals", "#8a908c"),
 )
@@ -187,7 +188,7 @@ def build_payload(
     coverage: str,
     seed: str,
 ) -> dict[str, Any]:
-    """Extract raw counts while excluding all annotation/model labels."""
+    """Extract ownership-resolved counts without annotation/model labels."""
 
     _validate_feature_inventory()
     feature_stats = {
@@ -292,7 +293,8 @@ def build_payload(
             "eligible_counts": dict(sorted(eligible_counts.items())),
         },
         "scoring": {
-            "rule": "one point for each enabled feature with a raw count greater than zero",
+            "rule": "one point for each enabled feature with a resolved occurrence count greater than zero",
+            "ownership": "specific lexical and numeric spans suppress broader fallback detectors",
             "count_magnitude_used": False,
             "weighted_score_used": False,
             "block_decoder_used": False,
@@ -338,7 +340,7 @@ def build_page(payload: Mapping[str, Any]) -> str:
 @media(max-width:760px){.layout{display:flex;flex-direction:column-reverse}.filters{position:relative;top:auto;width:100%;max-height:none}.filterlist{max-height:360px}.card{grid-template-columns:62px 1fr}.scorebox{padding:12px 5px}.score{font-size:30px}.content{padding:12px}.headline-score{display:none}}
 </style></head><body>
 <header class="top"><div class="topin"><div class="titleline"><div><h1>__TITLE__</h1><div id="subtitle" class="sub"></div></div><div class="headline-score"><b id="activeCount"></b><span>active detector features</span></div></div></div></header>
-<main class="layout"><section id="feed" class="feed"></section><aside class="filters"><div class="filterhead"><h2>Feature menu</h2><div id="filterSummary" class="sub"></div><select id="ranking" class="rankselect" aria-label="Ranking metric"><option value="points">Rank: feature points</option><option value="match_density">Rank: matches / 100 chars</option><option value="coverage">Rank: matched-character coverage</option><option value="point_density">Rank: points / 100 chars</option></select><div class="actions"><button id="all">Enable all</button><button id="none">Clear all</button><button id="reset">Reset view</button></div></div><div id="filterList" class="filterlist"></div><div class="footer-note">Hover a coloured badge or sidebar feature label to show only that feature’s boxes. Each checked, non-zero feature still adds exactly one point. Offset ranges index the displayed NFKC-normalized text.</div></aside></main>
+<main class="layout"><section id="feed" class="feed"></section><aside class="filters"><div class="filterhead"><h2>Feature menu</h2><div id="filterSummary" class="sub"></div><select id="ranking" class="rankselect" aria-label="Ranking metric"><option value="points">Rank: feature points</option><option value="match_density">Rank: matches / 100 chars</option><option value="coverage">Rank: matched-character coverage</option><option value="point_density">Rank: points / 100 chars</option></select><div class="actions"><button id="all">Enable all</button><button id="none">Clear all</button><button id="reset">Reset view</button></div></div><div id="filterList" class="filterlist"></div><div class="footer-note">Specific lexical and numeric detectors own their spans before broad fallback detectors. Structural composites may still overlap their atoms. Hover a coloured badge or sidebar feature label to isolate it. Each checked, non-zero feature adds one point.</div></aside></main>
 <script>const PACKET=__DATA__;
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const featureByKey=Object.fromEntries(PACKET.features.map(f=>[f.key,f])),docById=Object.fromEntries(PACKET.documents.map(d=>[d.document_id,d])),lineByOrdinal=Object.fromEntries(PACKET.lines.map(line=>[line.ordinal,line]));
@@ -489,7 +491,7 @@ def run_build(args: argparse.Namespace) -> dict[str, Any]:
     receipt = Path(args.receipt) if args.receipt else output.with_suffix(".receipt.json")
     _exclusive_write(output, build_page(payload))
     receipt_data = {
-        "schema_version": "bibliography-line-feature-explorer-receipt-v2",
+        "schema_version": "bibliography-line-feature-explorer-receipt-v3",
         "status": "passed",
         "payload_sha256": payload["payload_sha256"],
         "input": {

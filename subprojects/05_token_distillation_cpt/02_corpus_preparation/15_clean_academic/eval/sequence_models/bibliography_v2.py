@@ -46,12 +46,14 @@ _YEAR = re.compile(r"(?<!\d)(?:1[5-9]\d{2}|20\d{2})(?:[a-zα-ω])?(?!\d)", re.I)
 _NO_DATE = re.compile(r"\b(?:n\s*\.\s*d\s*\.|s\s*\.\s*d\s*\.|χ\s*\.\s*χ\s*\.)", re.I)
 _NUMERIC_DATE = re.compile(
     r"(?<!\d)(?:"
-    r"(?:0?[1-9]|[12]\d|3[01])\s*[-./]\s*(?:0?[1-9]|1[0-2])\s*[-./]\s*(?:\d{2}|\d{4})"
-    r"|(?:1[5-9]\d{2}|20\d{2})\s*[-./]\s*(?:0?[1-9]|1[0-2])\s*[-./]\s*(?:0?[1-9]|[12]\d|3[01])"
+    r"(?:0?[1-9]|[12]\d|3[01])\s*(?P<date_sep_dmy>[-./])\s*"
+    r"(?:0?[1-9]|1[0-2])\s*(?P=date_sep_dmy)\s*(?:\d{2}|\d{4})"
+    r"|(?:1[5-9]\d{2}|20\d{2})\s*(?P<date_sep_ymd>[-./])\s*"
+    r"(?:0?[1-9]|1[0-2])\s*(?P=date_sep_ymd)\s*(?:0?[1-9]|[12]\d|3[01])"
     r")(?!\d)"
 )
 _MONTH_DATE = re.compile(
-    r"\b(?:0?[1-9]|[12]\d|3[01])\s+"
+    r"\b(?:0?[1-9]|[12]\d|3[01])(?:\s*[-–—]\s*(?:0?[1-9]|[12]\d|3[01]))?\s+"
     r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|"
     r"jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?|"
     r"ιαν(?:ουαρίου)?|φεβ(?:ρουαρίου)?|μαρ(?:τίου)?|απρ(?:ιλίου)?|μαΐου|ιουν(?:ίου)?|"
@@ -78,17 +80,16 @@ _ISSN = re.compile(r"\bISSN\s*:?[ \t]*\d{4}[ -]?\d{3}[\dX]\b", re.I)
 _INITIAL_ATOM = rf"(?:[{_UPPER}]\s*\.|[{_UPPER}][{_LOWER}]\s*\.)"
 _INITIAL = re.compile(rf"(?<![{_LETTER}]){_INITIAL_ATOM}")
 _PROPER_WORD = re.compile(
-    rf"(?<![{_LETTER}])[{_UPPER}][{_LOWER}]{{2,}}(?:[-’'][{_UPPER}]?[{_LOWER}]{{2,}})?(?![{_LETTER}])"
+    rf"(?<![{_LETTER}])[{_UPPER}][{_LOWER}]{{2,}}(?:[-’'][{_UPPER}]?[{_LOWER}]{{2,}})?"
+    rf"(?![{_LETTER}])(?!(?:[ \t]*\.))"
 )
 _INVERTED_AUTHOR = re.compile(
     rf"(?<![{_LETTER}])[{_UPPER}][{_LETTER}’'\-]{{1,45}}"
     rf"(?:\s+[{_UPPER}][{_LETTER}’'\-]{{1,45}})?"
     rf",\s*(?:{_INITIAL_ATOM}\s*){{1,4}}"
 )
-_AUTHOR_YEAR = re.compile(
-    rf"^\s*(?:[-–—•]\s*)?(?:\[?\d{{1,4}}\]?[.)]?\s+)?"
-    rf"[{_UPPER}][^.!?]{{1,100}}?(?:\(|,\s*)(?:1[5-9]\d{{2}}|20\d{{2}})",
-    re.I,
+_AUTHOR_PREFIX = re.compile(
+    r"^\s*(?:[-–—•\uf0a0]\s*)?(?:\[?\d{1,4}\]?[.)]?\s+)?$"
 )
 _NAME_INITIAL_PAIR = re.compile(
     rf"(?<![{_LETTER}])[{_UPPER}][{_LETTER}’'\-]{{1,40}}\s+"
@@ -96,18 +97,18 @@ _NAME_INITIAL_PAIR = re.compile(
     rf"(?=\s*(?:,|;|&|&amp;|and\b|και\b|\(|$))"
 )
 _DIRECT_AUTHOR = re.compile(
-    rf"^\s*(?:[-–—•\uf0a0]\s*)?(?:\[?\d{{1,4}}\]?[.)]?\s+)?"
-    rf"(?:[{_UPPER}][{_LOWER}’'\-]{{1,30}}\s+)+"
-    rf"(?:{_INITIAL_ATOM}\s*){{1,3}}(?:[{_UPPER}][{_LOWER}’'\-]{{1,30}})?"
-    rf"(?=\s*(?:,|\(|$))"
+    rf"(?<![{_LETTER}])(?:{_INITIAL_ATOM}\s*){{1,4}}"
+    rf"[{_UPPER}][{_LETTER}’'\-]{{1,45}}"
+    rf"(?:\s+[{_UPPER}][{_LETTER}’'\-]{{1,45}})?"
+    rf"(?=\s*(?:,|;|&|&amp;|[Aa]nd\b|[Κκ]αι\b|\(|(?:1[5-9]\d{{2}}|20\d{{2}})|$))"
 )
 _AMPERSAND = re.compile(r"(?:&|&amp;)", re.I)
 _QUOTED = re.compile(r"(?:«[^»]{3,}»|“[^”]{3,}”|„[^“]{3,}“|\"[^\"]{3,}\"|'[^'\n]{3,}')")
 
 _EDITOR_TERMS = re.compile(
-    r"\b(?:ed(?:s|itor|itors)?\.?|edited\s+by|trans\.?|translator|translated\s+by|"
+    rf"(?<![{_LETTER}])(?:eds?\.|editors?|edited\s+by|trans\.|translator|translated\s+by|"
     r"επιμ(?:έλεια|ελητής|ελητές)?\.?|εκδ\.?\s*επιμ\.?|μτφρ\.?|μετάφραση|"
-    r"μεταφραστ(?:ής|ές|ρια))\b",
+    rf"μεταφραστ(?:ής|ές|ρια))(?![{_LETTER}])",
     re.I,
 )
 _THESIS_TERMS = re.compile(
@@ -117,13 +118,14 @@ _THESIS_TERMS = re.compile(
     re.I,
 )
 _IN_CONTAINER = re.compile(
-    r"(?:^|[,.;:]\s+)(?:in|στο|στη|στις|στων)\s+(?:[{upper}]|«|\"|')".format(
+    r"(?:^|[,.;:]\s+)(?P<container_term>in|στο|στη|στις|στων)"
+    r"(?=\s+(?:[{upper}]|«|\"|'))".format(
         upper=_UPPER
     ),
     re.I,
 )
 _EDITION_TERMS = re.compile(
-    r"\b(?:\d+(?:st|nd|rd|th)\s+ed(?:ition)?\.?|revised\s+edition|"
+    rf"(?<![{_LETTER}])(?:\d+(?:st|nd|rd|th)\s+ed(?:ition)?\.?|revised\s+edition|"
     r"edition|edn\.?|έκδ(?:οση|\.)|αναθ(?:εωρημένη|\.)\s+έκδ(?:οση|\.))\b",
     re.I,
 )
@@ -134,22 +136,28 @@ _EDITION_TERMS = re.compile(
 _DOTTED_WORD = re.compile(
     rf"(?<![{_LETTER}])[{_UPPER}][{_LETTER}]{{2,5}}\.(?![{_LETTER}])"
 )
-_DOTTED_SEQUENCE = re.compile(rf"(?:[{_UPPER}][{_LETTER}]{{2,5}}\.\s*){{2,}}")
 _VOLUME_MARKER = re.compile(
-    r"\b(?:vol(?:ume)?|issue|no|number|τόμ(?:ος|ου)?|τεύχ(?:ος|ους)?|τχ)\s*\.?\s*\d+",
+    rf"(?<![{_LETTER}])(?:vol(?:ume)?|issue|no|number|τόμ(?:ος|ου)?|"
+    rf"τεύχ(?:ος|ους)?|τχ)\s*\.?(?=\s*\d+)",
     re.I,
 )
-_VOLUME_SHAPE = re.compile(r"(?<!\d)\d{1,4}\s*\(\s*\d{1,4}\s*\)(?!\d)")
+_VOLUME_SHAPE = re.compile(
+    r"(?<!\d)(?P<volume>\d{1,4})\s*\(\s*(?P<issue>\d{1,4})\s*\)(?!\d)"
+)
 _JOURNAL_YEAR_VOLUME = re.compile(
-    r"(?:1[5-9]\d{2}|20\d{2})\s*[,;:]\s*\d{1,4}(?:\s*\(\s*\d{1,4}\s*\))?",
+    r"(?P<journal_year>1[5-9]\d{2}|20\d{2})\s*[,;]\s*"
+    r"(?P<journal_volume>\d{1,4})(?P<journal_issue>\s*\(\s*\d{1,4}\s*\))?",
     re.I,
 )
 _PAGE_MARKER = re.compile(r"(?<!\w)(?:pp?|σσ?|σελ)\s*\.\s*(?=\d)", re.I)
-_PAGE_RANGE = re.compile(r"(?<!\d)\d{1,5}\s*[-–—]\s*\d{1,5}(?!\d)")
+_PAGE_RANGE = re.compile(
+    r"(?<![\d,])(?<!\d[,.])(?P<page_start>\d{1,5})\s*[-–—]\s*"
+    r"(?P<page_end>\d{1,5})(?![\d,])(?!\.\d)"
+)
 _PUBLISHER_TERMS = re.compile(
-    r"\b(?:press|publisher|publishing|publications?|εκδ(?:όσεις|οτικός|\.)|"
+    rf"(?<![{_LETTER}])(?:press|publisher|publishing|publications?|εκδ(?:όσεις|οτικός|\.)|"
     r"πανεπιστημιακές\s+εκδόσεις|springer|elsevier|routledge|wiley|sage|"
-    r"πατάκ(?:η|ης)|μεταίχμιο|κάκτος|παπαζήση|gutenberg)\b",
+    rf"πατάκ(?:η|ης)|μεταίχμιο|κάκτος|παπαζήση|gutenberg)(?![{_LETTER}])",
     re.I,
 )
 _PLACE_NAMES = re.compile(
@@ -162,7 +170,9 @@ _PLACE_NAMES = re.compile(
 _PLACE_PUBLISHER_SHAPE = re.compile(
     r"(?:\b(?:Athens|London|New\s+York|Boston|Cambridge|Oxford|Chicago|Paris|Berlin|"
     r"Amsterdam|Brussels|Rome|Milan|Munich|Thessaloniki|Αθήνα|Αθήναι|Θεσσαλονίκη|"
-    r"Πάτρα|Ιωάννινα|Ηράκλειο|Λευκωσία|Ρώμη|Παρίσι|Λονδίνο|Βερολίνο|Νέα\s+Υόρκη)\s*:"
+    r"Πάτρα|Ιωάννινα|Ηράκλειο|Λευκωσία|Ρώμη|Παρίσι|Λονδίνο|Βερολίνο|Νέα\s+Υόρκη)\s*"
+    r":\s*(?:[A-ZΑ-ΩΆΈΉΊΌΎΏ][\w.'’\-]+\s+){0,3}"
+    r"(?:Press|University\s+Press|Publishing|Publisher|Εκδόσεις|Εκδ\.)"
     r"|:\s*(?:[A-ZΑ-ΩΆΈΉΊΌΎΏ][\w.'’\-]+\s+){0,3}"
     r"(?:Press|University\s+Press|Publishing|Publisher|Εκδόσεις|Εκδ\.))",
     re.I,
@@ -275,8 +285,66 @@ class BibliographyV2Evidence:
     features: BibliographyFeatures
 
 
-def _matches(pattern: re.Pattern[str], text: str) -> int:
-    return sum(1 for _ in pattern.finditer(text))
+_Span = tuple[int, int]
+
+
+def _pattern_spans(
+    pattern: re.Pattern[str],
+    text: str,
+    *,
+    offset: int = 0,
+    first_only: bool = False,
+    group: int | str = 0,
+) -> list[_Span]:
+    spans: list[_Span] = []
+    for match in pattern.finditer(text):
+        spans.append((offset + match.start(group), offset + match.end(group)))
+        if first_only:
+            break
+    return spans
+
+
+def _overlaps(left: _Span, right: _Span) -> bool:
+    return left[0] < right[1] and right[0] < left[1]
+
+
+def _without_overlaps(spans: Sequence[_Span], blockers: Sequence[_Span]) -> list[_Span]:
+    """Keep only spans not already owned by a more specific detector."""
+
+    return [span for span in spans if not any(_overlaps(span, hit) for hit in blockers)]
+
+
+def _dotted_sequences(value: str, dotted_words: Sequence[_Span]) -> list[_Span]:
+    """Group adjacent residual dotted words into non-overlapping sequences."""
+
+    sequences: list[_Span] = []
+    run: list[_Span] = []
+    for span in dotted_words:
+        if run and value[run[-1][1] : span[0]].strip():
+            if len(run) >= 2:
+                sequences.append((run[0][0], run[-1][1]))
+            run = []
+        run.append(span)
+    if len(run) >= 2:
+        sequences.append((run[0][0], run[-1][1]))
+    return sequences
+
+
+def _joined_spans(spans: dict[str, list[_Span]], names: Sequence[str]) -> list[_Span]:
+    return [span for name in names for span in spans[name]]
+
+
+def _analysis_bounds(value: str) -> tuple[int, int]:
+    start = len(value) - len(value.lstrip())
+    end = len(value.rstrip())
+    if start < end and value[start] == "|" and value[end - 1] == "|":
+        start += 1
+        end -= 1
+        while start < end and value[start].isspace():
+            start += 1
+        while end > start and value[end - 1].isspace():
+            end -= 1
+    return start, end
 
 
 def _numbered_entry_span(text: str) -> tuple[int, int] | None:
@@ -290,11 +358,394 @@ def _numbered_entry_span(text: str) -> tuple[int, int] | None:
         index += 1
     if index >= len(text) or not text[index].isdigit():
         return None
+    digits_start = index
     while index < len(text) and text[index].isdigit():
         index += 1
+    if (
+        index + 1 < len(text)
+        and text[index] in ".,"
+        and text[index + 1].isdigit()
+    ):
+        return None
+    # A leading four-digit year is publication/date evidence, not a list index.
+    if index - digits_start == 4 and 1500 <= int(text[digits_start:index]) <= 2099:
+        return None
     while index < len(text) and not text[index].isalnum():
         index += 1
     return start, index
+
+
+def _feature_spans(value: str) -> dict[str, list[_Span]]:
+    """Extract spans and assign broad evidence to one most-specific owner.
+
+    Relational shapes such as ``author_year`` may still contain their atomic
+    evidence. Catch-all lexical and numeric detectors are residual: a span
+    already explained by a more specific detector is not counted again.
+    """
+
+    start, end = _analysis_bounds(value)
+    analysis_value = value[start:end]
+    patterns = {
+        "year_count": _YEAR,
+        "no_date_count": _NO_DATE,
+        "numeric_date_count": _NUMERIC_DATE,
+        "month_date_count": _MONTH_DATE,
+        "access_date_count": _ACCESS_DATE,
+        "url_count": _URL,
+        "doi_count": _DOI,
+        "isbn_count": _ISBN,
+        "issn_count": _ISSN,
+        "initial_count": _INITIAL,
+        "proper_name_word_count": _PROPER_WORD,
+        "ampersand_count": _AMPERSAND,
+        "quoted_span_count": _QUOTED,
+        "editor_term_count": _EDITOR_TERMS,
+        "thesis_term_count": _THESIS_TERMS,
+        "in_container_count": _IN_CONTAINER,
+        "edition_term_count": _EDITION_TERMS,
+        "dotted_word_count": _DOTTED_WORD,
+        "volume_marker_count": _VOLUME_MARKER,
+        "volume_shape_count": _VOLUME_SHAPE,
+        "journal_year_volume_count": _JOURNAL_YEAR_VOLUME,
+        "page_marker_count": _PAGE_MARKER,
+        "publisher_term_count": _PUBLISHER_TERMS,
+        "place_name_count": _PLACE_NAMES,
+        "place_publisher_shape_count": _PLACE_PUBLISHER_SHAPE,
+        "prose_lead_count": _PROSE_LEAD,
+    }
+    spans = {name: _pattern_spans(pattern, value) for name, pattern in patterns.items()}
+    spans["dotted_sequence_count"] = []
+    spans["prose_lead_count"] = spans["prose_lead_count"][:1]
+    spans["in_container_count"] = _pattern_spans(
+        _IN_CONTAINER, value, group="container_term"
+    )
+    spans["inverted_author_count"] = _pattern_spans(
+        _INVERTED_AUTHOR, analysis_value, offset=start
+    )
+    spans["author_year_count"] = []
+    spans["name_initial_pair_count"] = _pattern_spans(
+        _NAME_INITIAL_PAIR, analysis_value, offset=start
+    )
+    spans["direct_author_count"] = _pattern_spans(
+        _DIRECT_AUTHOR, analysis_value, offset=start
+    )
+    author_noise = _joined_spans(
+        spans,
+        (
+            "url_count",
+            "doi_count",
+            "isbn_count",
+            "issn_count",
+            "no_date_count",
+            "numeric_date_count",
+            "month_date_count",
+            "quoted_span_count",
+            "editor_term_count",
+            "thesis_term_count",
+            "edition_term_count",
+            "volume_marker_count",
+            "page_marker_count",
+        ),
+    )
+    spans["inverted_author_count"] = _without_overlaps(
+        spans["inverted_author_count"], author_noise
+    )
+    spans["direct_author_count"] = _without_overlaps(
+        spans["direct_author_count"], author_noise
+    )
+    for orientation in ("inverted_author_count", "direct_author_count"):
+        hits = spans[orientation]
+        if hits and _AUTHOR_PREFIX.fullmatch(value[start : hits[0][0]]) is None:
+            spans[orientation] = []
+
+    # Comma boundaries make a direct list such as ``L. Caires, G. F.
+    # Italiano`` look locally like the inverted author ``Caires, G. F.``.
+    # Evaluate both orientations over the whole line, then retain only the
+    # hypothesis explaining more authors. Coverage and earliest occurrence are
+    # deterministic tie-breakers for equally sized hypotheses.
+    inverted = spans["inverted_author_count"]
+    direct = spans["direct_author_count"]
+    if inverted and direct:
+        inverted_key = (
+            len(inverted),
+            sum(hit_end - hit_start for hit_start, hit_end in inverted),
+            -inverted[0][0],
+        )
+        direct_key = (
+            len(direct),
+            sum(hit_end - hit_start for hit_start, hit_end in direct),
+            -direct[0][0],
+        )
+        if direct_key > inverted_key:
+            spans["inverted_author_count"] = []
+        else:
+            spans["direct_author_count"] = []
+
+    numbered = _numbered_entry_span(analysis_value)
+    spans["numbered_entry_count"] = (
+        [(start + numbered[0], start + numbered[1])] if numbered is not None else []
+    )
+
+    # Page ranges exclude identifiers and full dates. When both endpoints look
+    # like years, retain the range as pages only if another publication year is
+    # present outside it; this avoids both treating 1980–1990 as pages and
+    # treating citation pages 1535–1548 as two publication years.
+    page_blockers = _joined_spans(
+        spans,
+        (
+            "url_count",
+            "doi_count",
+            "isbn_count",
+            "issn_count",
+            "numeric_date_count",
+            "month_date_count",
+        ),
+    )
+    page_ranges: list[_Span] = []
+    raw_years = spans["year_count"]
+    for match in _PAGE_RANGE.finditer(value):
+        span = (match.start(), match.end())
+        if any(_overlaps(span, blocker) for blocker in page_blockers):
+            continue
+        page_start = int(match.group("page_start"))
+        page_end = int(match.group("page_end"))
+        both_yearlike = 1500 <= page_start <= 2099 and 1500 <= page_end <= 2099
+        outside_year = any(not _overlaps(span, year) for year in raw_years)
+        if both_yearlike and not outside_year:
+            continue
+        page_ranges.append(span)
+    spans["page_range_count"] = page_ranges
+
+    # A year followed by the first endpoint of a page range is not a genuine
+    # year-volume pair (e.g. ``1988:255-263``).
+    journal_spans: list[_Span] = []
+    for match in _JOURNAL_YEAR_VOLUME.finditer(value):
+        span = (match.start(), match.end())
+        volume_span = match.span("journal_volume")
+        overlaps_page_range = any(
+            _overlaps(span, page_range) for page_range in page_ranges
+        )
+        volume_is_page_start = any(
+            _overlaps(volume_span, page_range) for page_range in page_ranges
+        )
+        if overlaps_page_range and (
+            volume_is_page_start or match.group("journal_issue") is None
+        ):
+            continue
+        journal_spans.append(span)
+    spans["journal_year_volume_count"] = journal_spans
+
+    # Issue numbers cannot themselves be four-digit publication years.
+    spans["volume_shape_count"] = [
+        match.span()
+        for match in _VOLUME_SHAPE.finditer(value)
+        if not 1500 <= int(match.group("issue")) <= 2099
+    ]
+
+    # Build author–year only from an author hypothesis that begins after a
+    # legal list/bullet prefix. This replaces the former catch-all expression
+    # that could consume running prose up to an inline citation.
+    author_hits = spans["inverted_author_count"] + spans["direct_author_count"]
+    if not author_hits and len(spans["name_initial_pair_count"]) >= 2:
+        first_pair = spans["name_initial_pair_count"][0]
+        if _AUTHOR_PREFIX.fullmatch(value[start : first_pair[0]]) is not None:
+            author_hits = spans["name_initial_pair_count"]
+    if author_hits:
+        first_author = min(author_hits)
+        date_blockers = _joined_spans(
+            spans,
+            ("numeric_date_count", "month_date_count", "page_range_count"),
+        )
+        date_candidates = sorted(
+            span
+            for span in spans["year_count"] + spans["no_date_count"]
+            if span[0] >= first_author[1]
+            and span[0] - first_author[0] <= 350
+            and not any(_overlaps(span, blocker) for blocker in date_blockers)
+        )
+        if date_candidates:
+            spans["author_year_count"] = [
+                (first_author[0], date_candidates[0][1])
+            ]
+
+    # More-specific ownership rules. These turn the broad detectors into
+    # fallback evidence rather than repeated points for one textual event.
+    spans["url_count"] = _without_overlaps(spans["url_count"], spans["doi_count"])
+    spans["year_count"] = _without_overlaps(
+        spans["year_count"],
+        _joined_spans(
+            spans,
+            (
+                "numeric_date_count",
+                "month_date_count",
+                "url_count",
+                "doi_count",
+                "isbn_count",
+                "issn_count",
+                "journal_year_volume_count",
+                "page_range_count",
+                "author_year_count",
+            ),
+        ),
+    )
+    spans["editor_term_count"] = _without_overlaps(
+        spans["editor_term_count"], spans["edition_term_count"]
+    )
+    spans["volume_shape_count"] = _without_overlaps(
+        spans["volume_shape_count"], spans["journal_year_volume_count"]
+    )
+    spans["place_name_count"] = _without_overlaps(
+        spans["place_name_count"], spans["place_publisher_shape_count"]
+    )
+    spans["publisher_term_count"] = _without_overlaps(
+        spans["publisher_term_count"],
+        spans["place_publisher_shape_count"]
+        + spans["url_count"]
+        + spans["doi_count"],
+    )
+    spans["ampersand_count"] = _without_overlaps(
+        spans["ampersand_count"], spans["url_count"] + spans["doi_count"]
+    )
+    spans["numbered_entry_count"] = _without_overlaps(
+        spans["numbered_entry_count"],
+        _joined_spans(
+            spans,
+            ("numeric_date_count", "month_date_count", "page_range_count"),
+        ),
+    )
+    spans["initial_count"] = _without_overlaps(
+        spans["initial_count"],
+        _joined_spans(
+            spans,
+            (
+                "no_date_count",
+                "quoted_span_count",
+                "editor_term_count",
+                "thesis_term_count",
+                "edition_term_count",
+                "volume_marker_count",
+                "page_marker_count",
+            ),
+        ),
+    )
+    dotted_blockers = _joined_spans(
+        spans,
+        (
+            "url_count",
+            "doi_count",
+            "no_date_count",
+            "initial_count",
+            "quoted_span_count",
+            "editor_term_count",
+            "thesis_term_count",
+            "edition_term_count",
+            "volume_marker_count",
+            "page_marker_count",
+            "publisher_term_count",
+            "place_name_count",
+            "place_publisher_shape_count",
+        ),
+    )
+    residual_dotted = _without_overlaps(spans["dotted_word_count"], dotted_blockers)
+    spans["dotted_sequence_count"] = _dotted_sequences(value, residual_dotted)
+    spans["dotted_word_count"] = _without_overlaps(
+        residual_dotted, spans["dotted_sequence_count"]
+    )
+
+    proper_blockers = _joined_spans(
+        spans,
+        (
+            "url_count",
+            "doi_count",
+            "isbn_count",
+            "issn_count",
+            "numeric_date_count",
+            "month_date_count",
+            "access_date_count",
+            "quoted_span_count",
+            "editor_term_count",
+            "thesis_term_count",
+            "in_container_count",
+            "edition_term_count",
+            "dotted_word_count",
+            "dotted_sequence_count",
+            "volume_marker_count",
+            "page_marker_count",
+            "publisher_term_count",
+            "place_name_count",
+            "place_publisher_shape_count",
+            "prose_lead_count",
+        ),
+    )
+    spans["proper_name_word_count"] = _without_overlaps(
+        spans["proper_name_word_count"], proper_blockers
+    )
+
+    stripped_start = len(value) - len(value.lstrip())
+    stripped_end = len(value.rstrip())
+    spans["table_row_count"] = (
+        [(stripped_start, stripped_end)]
+        if value.strip().startswith("|") and value.strip().endswith("|")
+        else []
+    )
+    semantic_spans = [
+        span
+        for name, feature_spans in spans.items()
+        if name != "punctuation_count"
+        for span in feature_spans
+    ]
+    spans["punctuation_count"] = _without_overlaps(
+        [
+            (index, index + 1)
+            for index, character in enumerate(value)
+            if character in set('.,;:()[]«»“”"')
+        ],
+        semantic_spans,
+    )
+    return spans
+
+
+def _features_and_spans(value: str) -> tuple[BibliographyFeatures, dict[str, list[_Span]]]:
+    spans = _feature_spans(value)
+    tokens = re.findall(r"[^\W_]+(?:[’'\-][^\W_]+)*", value, re.UNICODE)
+    counts = {
+        "year_count": len(spans["year_count"]),
+        "no_date_count": len(spans["no_date_count"]),
+        "numeric_date_count": len(spans["numeric_date_count"]),
+        "month_date_count": len(spans["month_date_count"]),
+        "access_date_count": len(spans["access_date_count"]),
+        "url_count": len(spans["url_count"]),
+        "doi_count": len(spans["doi_count"]),
+        "isbn_count": len(spans["isbn_count"]),
+        "issn_count": len(spans["issn_count"]),
+        "initial_count": len(spans["initial_count"]),
+        "proper_name_word_count": len(spans["proper_name_word_count"]),
+        "inverted_author_count": len(spans["inverted_author_count"]),
+        "author_year_count": len(spans["author_year_count"]),
+        "name_initial_pair_count": len(spans["name_initial_pair_count"]),
+        "direct_author_count": len(spans["direct_author_count"]),
+        "numbered_entry_count": len(spans["numbered_entry_count"]),
+        "ampersand_count": len(spans["ampersand_count"]),
+        "quoted_span_count": len(spans["quoted_span_count"]),
+        "editor_term_count": len(spans["editor_term_count"]),
+        "thesis_term_count": len(spans["thesis_term_count"]),
+        "in_container_count": len(spans["in_container_count"]),
+        "edition_term_count": len(spans["edition_term_count"]),
+        "dotted_word_count": len(spans["dotted_word_count"]),
+        "dotted_sequence_count": len(spans["dotted_sequence_count"]),
+        "volume_marker_count": len(spans["volume_marker_count"]),
+        "volume_shape_count": len(spans["volume_shape_count"]),
+        "journal_year_volume_count": len(spans["journal_year_volume_count"]),
+        "page_marker_count": len(spans["page_marker_count"]),
+        "page_range_count": len(spans["page_range_count"]),
+        "publisher_term_count": len(spans["publisher_term_count"]),
+        "place_name_count": len(spans["place_name_count"]),
+        "place_publisher_shape_count": len(spans["place_publisher_shape_count"]),
+        "punctuation_count": len(spans["punctuation_count"]),
+        "prose_lead_count": len(spans["prose_lead_count"]),
+        "table_row_count": len(spans["table_row_count"]),
+    }
+    return BibliographyFeatures(token_count=len(tokens), **counts), spans
 
 
 def extract_bibliography_features(text: str) -> BibliographyFeatures:
@@ -303,213 +754,37 @@ def extract_bibliography_features(text: str) -> BibliographyFeatures:
     if not isinstance(text, str):
         raise TypeError("text must be a string")
     value = unicodedata.normalize("NFKC", text)
-    analysis_value = value.strip()
-    if analysis_value.startswith("|") and analysis_value.endswith("|"):
-        analysis_value = analysis_value[1:-1].strip()
-    tokens = re.findall(r"[^\W_]+(?:[’'\-][^\W_]+)*", value, re.UNICODE)
-    page_range_text = value
-    # Hyphenated dates and ISBN components are not page ranges.  Preserve
-    # offsets while masking them so the independent page-range feature remains
-    # semantically meaningful.
-    for pattern in (_URL, _DOI, _ISBN, _ISSN, _NUMERIC_DATE):
-        page_range_text = pattern.sub(
-            lambda match: " " * len(match.group(0)), page_range_text
-        )
-    return BibliographyFeatures(
-        token_count=len(tokens),
-        year_count=_matches(_YEAR, value),
-        no_date_count=_matches(_NO_DATE, value),
-        numeric_date_count=_matches(_NUMERIC_DATE, value),
-        month_date_count=_matches(_MONTH_DATE, value),
-        access_date_count=_matches(_ACCESS_DATE, value),
-        url_count=_matches(_URL, value),
-        doi_count=_matches(_DOI, value),
-        isbn_count=_matches(_ISBN, value),
-        issn_count=_matches(_ISSN, value),
-        initial_count=_matches(_INITIAL, value),
-        proper_name_word_count=_matches(_PROPER_WORD, value),
-        inverted_author_count=_matches(_INVERTED_AUTHOR, analysis_value),
-        author_year_count=int(bool(_AUTHOR_YEAR.search(analysis_value))),
-        name_initial_pair_count=_matches(_NAME_INITIAL_PAIR, analysis_value),
-        direct_author_count=int(bool(_DIRECT_AUTHOR.search(analysis_value))),
-        numbered_entry_count=int(_numbered_entry_span(analysis_value) is not None),
-        ampersand_count=_matches(_AMPERSAND, value),
-        quoted_span_count=_matches(_QUOTED, value),
-        editor_term_count=_matches(_EDITOR_TERMS, value),
-        thesis_term_count=_matches(_THESIS_TERMS, value),
-        in_container_count=_matches(_IN_CONTAINER, value),
-        edition_term_count=_matches(_EDITION_TERMS, value),
-        dotted_word_count=_matches(_DOTTED_WORD, value),
-        dotted_sequence_count=_matches(_DOTTED_SEQUENCE, value),
-        volume_marker_count=_matches(_VOLUME_MARKER, value),
-        volume_shape_count=_matches(_VOLUME_SHAPE, value),
-        journal_year_volume_count=_matches(_JOURNAL_YEAR_VOLUME, value),
-        page_marker_count=_matches(_PAGE_MARKER, value),
-        page_range_count=_matches(_PAGE_RANGE, page_range_text),
-        publisher_term_count=_matches(_PUBLISHER_TERMS, value),
-        place_name_count=_matches(_PLACE_NAMES, value),
-        place_publisher_shape_count=_matches(_PLACE_PUBLISHER_SHAPE, value),
-        punctuation_count=sum(value.count(mark) for mark in '.,;:()[]«»“”"'),
-        prose_lead_count=int(bool(_PROSE_LEAD.search(value))),
-        table_row_count=int(
-            value.strip().startswith("|") and value.strip().endswith("|")
-        ),
-    )
+    features, _ = _features_and_spans(value)
+    return features
 
 
 def extract_bibliography_feature_review(text: str) -> BibliographyFeatureReview:
-    """Expose exact feature spans without changing the production extractor.
-
-    Offsets index Unicode characters in ``normalized_text``, the same NFKC
-    representation on which the feature regexes operate.  Composite and atomic
-    features may overlap deliberately (for example URL and DOI).  This function
-    is for review/calibration artifacts only and is not called by the weighted
-    line scorer or the coherent-block decoder.
-    """
+    """Expose exact, ownership-resolved feature spans for review UIs."""
 
     if not isinstance(text, str):
         raise TypeError("text must be a string")
     value = unicodedata.normalize("NFKC", text)
-    features = extract_bibliography_features(text)
-    matches: list[BibliographyFeatureMatch] = []
-
-    def add(
-        feature: str,
-        pattern: re.Pattern[str],
-        target: str,
-        *,
-        offset: int = 0,
-        first_only: bool = False,
-    ) -> None:
-        iterator = pattern.finditer(target)
-        for match in iterator:
-            start, end = offset + match.start(), offset + match.end()
-            matches.append(
-                BibliographyFeatureMatch(feature, start, end, value[start:end])
-            )
-            if first_only:
-                break
-
-    stripped_start = len(value) - len(value.lstrip())
-    stripped_end = len(value.rstrip())
-    analysis_start, analysis_end = stripped_start, stripped_end
-    if (
-        analysis_start < analysis_end
-        and value[analysis_start] == "|"
-        and value[analysis_end - 1] == "|"
-    ):
-        analysis_start += 1
-        analysis_end -= 1
-        while analysis_start < analysis_end and value[analysis_start].isspace():
-            analysis_start += 1
-        while analysis_end > analysis_start and value[analysis_end - 1].isspace():
-            analysis_end -= 1
-    analysis_value = value[analysis_start:analysis_end]
-
-    page_range_text = value
-    for pattern in (_URL, _DOI, _ISBN, _ISSN, _NUMERIC_DATE):
-        page_range_text = pattern.sub(
-            lambda match: " " * len(match.group(0)), page_range_text
-        )
-
-    value_patterns = (
-        ("year_count", _YEAR),
-        ("no_date_count", _NO_DATE),
-        ("numeric_date_count", _NUMERIC_DATE),
-        ("month_date_count", _MONTH_DATE),
-        ("access_date_count", _ACCESS_DATE),
-        ("url_count", _URL),
-        ("doi_count", _DOI),
-        ("isbn_count", _ISBN),
-        ("issn_count", _ISSN),
-        ("initial_count", _INITIAL),
-        ("proper_name_word_count", _PROPER_WORD),
-        ("ampersand_count", _AMPERSAND),
-        ("quoted_span_count", _QUOTED),
-        ("editor_term_count", _EDITOR_TERMS),
-        ("thesis_term_count", _THESIS_TERMS),
-        ("in_container_count", _IN_CONTAINER),
-        ("edition_term_count", _EDITION_TERMS),
-        ("dotted_word_count", _DOTTED_WORD),
-        ("dotted_sequence_count", _DOTTED_SEQUENCE),
-        ("volume_marker_count", _VOLUME_MARKER),
-        ("volume_shape_count", _VOLUME_SHAPE),
-        ("journal_year_volume_count", _JOURNAL_YEAR_VOLUME),
-        ("page_marker_count", _PAGE_MARKER),
-        ("publisher_term_count", _PUBLISHER_TERMS),
-        ("place_name_count", _PLACE_NAMES),
-        ("place_publisher_shape_count", _PLACE_PUBLISHER_SHAPE),
-    )
-    for feature, pattern in value_patterns:
-        add(feature, pattern, value)
-
-    add(
-        "inverted_author_count",
-        _INVERTED_AUTHOR,
-        analysis_value,
-        offset=analysis_start,
-    )
-    analysis_patterns = (
-        ("author_year_count", _AUTHOR_YEAR),
-        ("direct_author_count", _DIRECT_AUTHOR),
-    )
-    for feature, pattern in analysis_patterns:
-        add(feature, pattern, analysis_value, offset=analysis_start, first_only=True)
-    numbered_span = _numbered_entry_span(analysis_value)
-    if numbered_span is not None:
-        start, end = numbered_span
-        start += analysis_start
-        end += analysis_start
-        matches.append(
-            BibliographyFeatureMatch(
-                "numbered_entry_count", start, end, value[start:end]
-            )
-        )
-    add(
-        "name_initial_pair_count",
-        _NAME_INITIAL_PAIR,
-        analysis_value,
-        offset=analysis_start,
-    )
-    add("page_range_count", _PAGE_RANGE, page_range_text)
-
-    punctuation = set('.,;:()[]«»“”"')
-    for index, character in enumerate(value):
-        if character in punctuation:
-            matches.append(
-                BibliographyFeatureMatch(
-                    "punctuation_count", index, index + 1, character
-                )
-            )
-    if value.strip().startswith("|") and value.strip().endswith("|"):
-        matches.append(
-            BibliographyFeatureMatch(
-                "table_row_count",
-                stripped_start,
-                stripped_end,
-                value[stripped_start:stripped_end],
-            )
-        )
-    add("prose_lead_count", _PROSE_LEAD, value, first_only=True)
-
-    expected = features.as_dict()
-    actual: dict[str, int] = {}
-    for match in matches:
-        actual[match.feature] = actual.get(match.feature, 0) + 1
-        if not (0 <= match.start < match.end <= len(value)):
-            raise RuntimeError(f"invalid review match offsets: {match}")
-        if value[match.start : match.end] != match.text:
-            raise RuntimeError(f"review match text drift: {match}")
-    for feature, count in expected.items():
-        if feature == "token_count":
-            continue
-        if actual.get(feature, 0) != count:
-            raise RuntimeError(
-                f"review match/count drift for {feature}: "
-                f"matches={actual.get(feature, 0)}, feature_count={count}"
-            )
+    features, spans = _features_and_spans(value)
+    matches = [
+        BibliographyFeatureMatch(feature, start, end, value[start:end])
+        for feature, feature_spans in spans.items()
+        for start, end in feature_spans
+    ]
     matches.sort(key=lambda match: (match.start, match.end, match.feature))
     return BibliographyFeatureReview(value, features, tuple(matches))
+
+
+def _has_date_evidence(features: BibliographyFeatures) -> bool:
+    """Include dates owned by composite detectors, not only residual years."""
+
+    return bool(
+        features.year_count
+        or features.no_date_count
+        or features.numeric_date_count
+        or features.month_date_count
+        or features.author_year_count
+        or features.journal_year_volume_count
+    )
 
 
 def _feature_families(features: BibliographyFeatures) -> tuple[str, ...]:
@@ -522,7 +797,15 @@ def _feature_families(features: BibliographyFeatures) -> tuple[str, ...]:
             or features.direct_author_count > 0,
         ),
         ("names", features.initial_count > 0 or features.proper_name_word_count >= 2),
-        ("year_date", features.year_count > 0 or features.no_date_count > 0),
+        (
+            "year_date",
+            bool(
+                features.year_count
+                or features.no_date_count
+                or features.author_year_count
+                or features.journal_year_volume_count
+            ),
+        ),
         ("full_date", features.numeric_date_count > 0 or features.month_date_count > 0),
         (
             "identifier",
@@ -623,7 +906,7 @@ def score_bibliography_features(
         or features.direct_author_count > 0
         or features.initial_count >= 2
     )
-    dated = features.year_count > 0 or features.no_date_count > 0
+    dated = _has_date_evidence(features)
     publication_tail = bool(
         features.publisher_term_count
         or features.place_publisher_shape_count
@@ -749,7 +1032,7 @@ def analyze_bibliography_line_v2(
         )
     strong_table_citation = bool(
         features.table_row_count
-        and (features.year_count or features.no_date_count)
+        and _has_date_evidence(features)
         and (
             features.inverted_author_count
             or features.author_year_count
@@ -828,7 +1111,7 @@ def analyze_bibliography_line_v2(
         or (
             (features.publisher_term_count or features.place_publisher_shape_count)
             and (
-                features.year_count
+                _has_date_evidence(features)
                 or features.page_marker_count
                 or features.page_range_count
             )
@@ -867,7 +1150,7 @@ def analyze_bibliography_line_v2(
         styles.append("author")
     if features.author_year_count or (
         features.inverted_author_count
-        and (features.year_count or features.no_date_count)
+        and _has_date_evidence(features)
     ):
         styles.append("author_year")
     if features.url_count:
@@ -893,7 +1176,7 @@ def analyze_bibliography_line_v2(
         or features.page_marker_count
         or features.page_range_count
     )
-    dated = bool(features.year_count or features.no_date_count)
+    dated = _has_date_evidence(features)
     anchor = bool(
         features.inverted_author_count
         or features.author_year_count
