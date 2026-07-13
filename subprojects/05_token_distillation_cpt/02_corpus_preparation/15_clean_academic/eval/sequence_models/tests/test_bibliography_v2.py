@@ -74,6 +74,11 @@ def test_undotted_biomedical_author_lists_are_detected_as_names() -> None:
     assert evidence.role == BibRole.STRONG_ENTRY_START
     assert "BIB2_REPEATED_NAME_INITIAL_PAIRS" in evidence.reason_codes
 
+    prose = extract_bibliography_features(
+        "These ordinary words as a, simple example in a, sentence are lowercase."
+    )
+    assert prose.name_initial_pair_count == 0
+
 
 def test_non_citation_markdown_table_rows_are_hard_barriers() -> None:
     row = analyze_bibliography_line_v2(

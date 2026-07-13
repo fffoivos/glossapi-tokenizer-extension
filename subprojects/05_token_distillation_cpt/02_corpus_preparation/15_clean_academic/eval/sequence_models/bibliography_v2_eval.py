@@ -302,9 +302,10 @@ def _error_examples(
     predictions: Mapping[str, Mapping[str, Sequence[str]]],
     evidence: Mapping[str, Mapping[int, BibliographyV2Evidence]],
     *,
-    limit: int = 40,
+    limit_per_source: int = 15,
 ) -> dict[str, list[dict[str, Any]]]:
     rows: dict[str, list[dict[str, Any]]] = {"false_positive": [], "false_negative": []}
+    counts: collections.Counter[tuple[str, str]] = collections.Counter()
     for document in documents:
         guesses = predictions[document.document_id]["v2_coherent_blocks"]
         for line, guess in zip(document.lines, guesses):
@@ -315,8 +316,9 @@ def _error_examples(
                 if line.label == "BIB" and guess != "BIB"
                 else None
             )
-            if kind is None or len(rows[kind]) >= limit:
+            if kind is None or counts[(kind, document.source)] >= limit_per_source:
                 continue
+            counts[(kind, document.source)] += 1
             item = evidence[document.document_id][line.abs_idx]
             rows[kind].append(
                 {
@@ -337,6 +339,49 @@ def _error_examples(
                 }
             )
     return rows
+
+
+def _error_summary(
+    documents: Sequence[GoldDocument],
+    predictions: Mapping[str, Mapping[str, Sequence[str]]],
+    evidence: Mapping[str, Mapping[int, BibliographyV2Evidence]],
+) -> dict[str, Any]:
+    summaries: dict[str, dict[str, collections.Counter[str]]] = {
+        "false_positive": {
+            "source": collections.Counter(),
+            "local_role": collections.Counter(),
+            "reason_code": collections.Counter(),
+        },
+        "false_negative": {
+            "source": collections.Counter(),
+            "local_role": collections.Counter(),
+            "reason_code": collections.Counter(),
+        },
+    }
+    for document in documents:
+        guesses = predictions[document.document_id]["v2_coherent_blocks"]
+        for line, guess in zip(document.lines, guesses):
+            kind = (
+                "false_positive"
+                if line.label != "BIB" and guess == "BIB"
+                else "false_negative"
+                if line.label == "BIB" and guess != "BIB"
+                else None
+            )
+            if kind is None:
+                continue
+            item = evidence[document.document_id][line.abs_idx]
+            summaries[kind]["source"][document.source] += 1
+            summaries[kind]["local_role"][item.role.value] += 1
+            for reason in item.reason_codes:
+                summaries[kind]["reason_code"][reason] += 1
+    return {
+        kind: {
+            dimension: dict(counter.most_common())
+            for dimension, counter in dimensions.items()
+        }
+        for kind, dimensions in summaries.items()
+    }
 
 
 def run_evaluation(silver_path: str | Path, *, split: str) -> dict[str, Any]:
@@ -372,6 +417,7 @@ def run_evaluation(silver_path: str | Path, *, split: str) -> dict[str, Any]:
         "code_revision": _git_revision(),
         "metrics": _evaluate(documents, prediction_rows),
         "feature_summary_by_gold_label": _feature_summary(documents, evidence_rows),
+        "v2_error_summary": _error_summary(documents, prediction_rows, evidence_rows),
         "v2_error_examples": _error_examples(documents, prediction_rows, evidence_rows),
         "claims": {
             "model_fitted": False,

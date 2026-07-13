@@ -98,8 +98,7 @@ _AUTHOR_YEAR = re.compile(
 _NAME_INITIAL_PAIR = re.compile(
     rf"(?<![{_LETTER}])[{_UPPER}][{_LETTER}’'\-]{{1,40}}\s+"
     rf"(?:[{_UPPER}]{{1,3}}|(?:[{_UPPER}]\s*\.\s*){{1,3}})"
-    rf"(?=\s*(?:,|;|&|&amp;|and\b|και\b|\(|$))",
-    re.I,
+    rf"(?=\s*(?:,|;|&|&amp;|and\b|και\b|\(|$))"
 )
 _DIRECT_AUTHOR = re.compile(
     rf"^\s*(?:[-–—•\uf0a0]\s*)?(?:\[?\d{{1,4}}\]?[.)]?\s+)?"
