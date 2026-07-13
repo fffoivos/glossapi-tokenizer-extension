@@ -24,6 +24,18 @@ agent1_v3_init_paths() {
     export AGENT1_V3_RUN_ROOT="$expected_run_root"
     export AGENT1_V3_DATA_ROOT="$expected_data_root"
     export AGENT1_V3_RUNTIME_VENV="${AGENT1_V3_RUNTIME_VENV:-$AGENT1_V3_RUN_ROOT/phase0/runtime}"
+
+    # The dispatcher `exec`s the action scripts.  Keep every non-secret path
+    # and runtime selector they consume in that child environment; sourcing
+    # paths.env alone only creates shell-local variables.
+    export REPO_ROOT PHASE04_DIR AGENT1_V3_CLARIDEN_DIR AGENT1_V3_CONTRACT_SCRIPT
+    export AGENT1_V3_ACCOUNT AGENT1_V3_PARTITION AGENT1_V3_UENV
+    export AGENT1_V3_SOURCE_CONFIG AGENT1_V3_SOURCE_ALIASES
+    export AGENT1_V3_CANDIDATE_ROSTER AGENT1_V3_POLICY AGENT1_V3_REVIEW_POLICY
+    export AGENT1_V3_LICENSE_ADJUDICATION AGENT1_V3_ELIGIBILITY_POLICY
+    export AGENT1_V3_HF_EXISTING_DESTINATION AGENT1_V3_RAW_COMMON_ROOT
+    export AGENT1_V3_TOKENIZER_REVISION AGENT1_V3_TOKENIZER_JSON
+    export AGENT1_V3_GLOSSAPI_COMMIT AGENT1_V3_GLOSSAPI_ROOT
 }
 
 agent1_v3_require_compute_cpu() {

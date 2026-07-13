@@ -2,6 +2,8 @@
 # Build an immutable, AArch64-only Python runtime for one Agent 1 v3 run.
 set -euo pipefail
 
+: "${PHASE04_DIR:?PHASE04_DIR must be exported by the v3 dispatcher}"
+: "${AGENT1_V3_UENV:?AGENT1_V3_UENV must be exported by the v3 dispatcher}"
 [[ ! -e "$AGENT1_V3_RUNTIME_VENV" ]] || {
     echo "ERROR: immutable v3 runtime already exists: $AGENT1_V3_RUNTIME_VENV" >&2
     exit 20
