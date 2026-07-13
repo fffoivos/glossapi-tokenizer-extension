@@ -46,6 +46,20 @@ ADJUDICATION_MANIFEST_SCHEMA = "agent1_v3_review_adjudication_manifest_v1"
 
 REQUIRED_REVIEW_MODEL = "gpt-5.6-luna"
 ALLOWED_ROUTES = frozenset({"html_web", "pdf_ocr", "mixed", "structured"})
+OBSERVED_EXTRACTION_ROUTE_BASES = frozenset(
+    {
+        "explicit_row_route",
+        "row_representation_metadata",
+        "declared_extraction_route_fallback",
+        "unavailable",
+        # Quality evidence created from legacy canonical shards may not carry
+        # the three native fields.  Phase 2 writes this explicit fallback
+        # rather than silently pretending it observed a per-document route.
+        "legacy_canonical_without_observed_route",
+    }
+)
+MAX_OBSERVED_SECONDARY_RISK_BONUS = 2.0
+OBSERVED_SECONDARY_ROUTE_WEIGHT = 0.5
 STRATA = ("random", "risk", "cluster")
 DEFAULT_QUOTAS = {"random": 60, "risk": 20, "cluster": 20}
 LARGE_QUOTAS = {"random": 100, "risk": 50, "cluster": 50}
@@ -411,6 +425,72 @@ def _validated_route_map(
     return {source: str(value[source]) for source in candidates}
 
 
+def _validated_observed_route_allowances(
+    roster: Mapping[str, Any],
+    *,
+    candidates: Sequence[str],
+    source_routes: Mapping[str, str],
+    extraction_routes: Mapping[str, str],
+) -> dict[str, list[str]]:
+    """Validate logical-primary observed-route exceptions when declared.
+
+    The route-basis block is the immutable documentation for cases such as a
+    PDF-derived work that visibly retains HTML template residue.  No raw row
+    can turn such an exception into the source's logical error model.
+    """
+
+    route_basis = roster.get("route_basis")
+    if route_basis is None:
+        # Kept only for legacy test/evidence fixtures.  The declared fallback
+        # is finite, never an implicit allowance for every route.
+        return {
+            source: sorted({source_routes[source], extraction_routes[source]})
+            for source in candidates
+        }
+    if (
+        not isinstance(route_basis, Mapping)
+        or route_basis.get("schema_version") != "agent1_v3_source_route_basis_v1"
+        or route_basis.get("priority") != ROUTE_POLICY_PRIORITY
+        or not isinstance(route_basis.get("sources"), Mapping)
+    ):
+        raise ValueError("candidate roster route_basis must document logical-primary observed exceptions")
+    sources = route_basis["sources"]
+    if set(sources) != set(candidates):
+        raise ValueError("candidate roster route_basis source coverage mismatch")
+    result: dict[str, list[str]] = {}
+    for source in candidates:
+        entry = sources[source]
+        if not isinstance(entry, Mapping):
+            raise ValueError(f"candidate roster route_basis[{source!r}] must be an object")
+        logical = entry.get("logical_acquisition_type")
+        if logical != source_routes[source]:
+            raise ValueError(f"candidate roster route_basis logical route drift for {source!r}")
+        exceptions = entry.get("expected_observed_extraction_exceptions")
+        if not isinstance(exceptions, list) or not exceptions:
+            raise ValueError(f"candidate roster route_basis exceptions missing for {source!r}")
+        exception_routes: set[str] = set()
+        for index, exception in enumerate(exceptions):
+            if not isinstance(exception, Mapping):
+                raise ValueError(f"candidate roster route_basis exception {source!r}[{index}] must be an object")
+            route = exception.get("observed_extraction_route")
+            if not isinstance(route, str) or route not in ALLOWED_ROUTES or route == logical:
+                raise ValueError(f"candidate roster route_basis exception {source!r}[{index}] is unsupported")
+            if exception.get("secondary_only") is not True:
+                raise ValueError(f"candidate roster route_basis exception {source!r}[{index}] must be secondary_only")
+            if not isinstance(exception.get("rationale"), str) or not exception["rationale"].strip():
+                raise ValueError(f"candidate roster route_basis exception {source!r}[{index}] lacks rationale")
+            if route in exception_routes:
+                raise ValueError(f"candidate roster route_basis repeats exception {route!r} for {source!r}")
+            exception_routes.add(route)
+        allowed = {logical, *exception_routes}
+        if extraction_routes[source] not in allowed:
+            raise ValueError(
+                f"candidate roster extraction fallback is not logical/documented exception for {source!r}"
+            )
+        result[source] = sorted(allowed)
+    return result
+
+
 def validate_candidate_roster_routes(roster: Mapping[str, Any]) -> dict[str, Any]:
     """Validate logical-first source, review, and extraction provenance.
 
@@ -445,6 +525,12 @@ def validate_candidate_roster_routes(roster: Mapping[str, Any]) -> dict[str, Any
         candidates=candidates,
         fallback=review_routes,
     )
+    allowed_observed_routes = _validated_observed_route_allowances(
+        roster,
+        candidates=candidates,
+        source_routes=source_routes,
+        extraction_routes=extraction_routes,
+    )
     route_policy = roster.get("route_policy")
     if route_policy is not None and (
         not isinstance(route_policy, Mapping)
@@ -466,6 +552,9 @@ def validate_candidate_roster_routes(roster: Mapping[str, Any]) -> dict[str, Any
         "source_routes": {source: source_routes[source] for source in sorted(candidates)},
         "review_routes": {source: review_routes[source] for source in sorted(candidates)},
         "extraction_routes": {source: extraction_routes[source] for source in sorted(candidates)},
+        "allowed_observed_extraction_routes": {
+            source: allowed_observed_routes[source] for source in sorted(candidates)
+        },
         "inventory_only_exclusion_count": len(excluded),
     }
 
@@ -517,6 +606,7 @@ def risk_score_from_metrics(
     *,
     source_route: str | None = None,
     extraction_route: str | None = None,
+    observed_extraction_route: str | None = None,
 ) -> float:
     """Return a deterministic, source-route-aware quality-risk score.
 
@@ -547,7 +637,15 @@ def risk_score_from_metrics(
     route = source_route or _first_string(row, ("source_route", "review_route")) or "mixed"
     if route not in ALLOWED_ROUTES:
         raise ValueError(f"unsupported source route for risk selection: {route!r}")
-    observed_extraction = extraction_route or _first_string(row, ("extraction_route",))
+    # ``extraction_route`` is retained as a backwards-compatible source-level
+    # declared fallback argument.  Native v3 rows carry the observed field
+    # separately, which must win whenever it is available.
+    observed_extraction = (
+        observed_extraction_route
+        or _first_string(row, ("observed_extraction_route",))
+        or extraction_route
+        or _first_string(row, ("extraction_route",))
+    )
     if observed_extraction is not None and observed_extraction not in ALLOWED_ROUTES:
         raise ValueError(f"unsupported extraction route for risk selection: {observed_extraction!r}")
 
@@ -586,29 +684,38 @@ def risk_score_from_metrics(
     if completeness is not None:
         structured_risk += min(3.0, 3.0 * max(0.0, 1.0 - completeness))
 
-    # Logical source provenance is always weighted most heavily.  Still keep
-    # a bounded secondary signal: an OCR work republished on a web page can
-    # have template defects, and an HTML-derived corpus can contain an
-    # embedded extraction failure.  The observed extraction route raises only
-    # that secondary weight; it never replaces the logical source class.
+    # Logical source provenance is always weighted most heavily.  All
+    # non-primary modes retain a small baseline because strange republishing
+    # paths exist.  Observed extraction evidence may add a *bounded* bonus,
+    # never enough to overwrite the source-route error model.
     weights = {"html_web": 0.25, "pdf_ocr": 0.25, "structured": 0.25}
     if route == "mixed":
         weights.update({"html_web": 1.0, "pdf_ocr": 1.0, "structured": 0.5})
     else:
         weights[route] = 1.0
-        if observed_extraction == "mixed":
-            # A mixed observed representation can surface either web/PDF
-            # extraction defect, but neither should outrank the logical route.
-            for secondary_route in ("html_web", "pdf_ocr"):
-                if secondary_route != route:
-                    weights[secondary_route] = max(weights[secondary_route], 0.5)
-        elif observed_extraction in weights and observed_extraction != route:
-            weights[observed_extraction] = 0.5
+    route_risks = {
+        "html_web": html_risk,
+        "pdf_ocr": ocr_risk,
+        "structured": structured_risk,
+    }
     score = (
         weights["html_web"] * html_risk
         + weights["pdf_ocr"] * ocr_risk
         + weights["structured"] * structured_risk
     )
+    if route != "mixed" and observed_extraction is not None and observed_extraction != route:
+        secondary_routes = (
+            ("html_web", "pdf_ocr")
+            if observed_extraction == "mixed"
+            else (observed_extraction,)
+        )
+        observed_bonus = sum(
+            max(0.0, OBSERVED_SECONDARY_ROUTE_WEIGHT - weights[secondary_route])
+            * route_risks[secondary_route]
+            for secondary_route in secondary_routes
+            if secondary_route in route_risks and secondary_route != route
+        )
+        score += min(MAX_OBSERVED_SECONDARY_RISK_BONUS, observed_bonus)
     score += 1.0 * truthy("digital_governance_footer_detected")
     score += 2.0 * truthy("private_data_true", "personnel_cue_detected")
     score += min(2.0, number("direct_identifier_match_count"))
@@ -626,6 +733,10 @@ class MetricRow:
     source_route: str
     review_route: str
     extraction_route: str
+    observed_extraction_route: str
+    observed_extraction_route_basis: str
+    observed_extraction_route_evidence: str
+    observed_extraction_route_priority: str
     cluster_id: str
     risk_score: float
 
@@ -638,11 +749,80 @@ class MetricRow:
         }
 
 
+def _observed_extraction_from_metric(
+    row: Mapping[str, Any],
+    *,
+    source_id: str,
+    logical_source_route: str,
+    declared_extraction_route: str,
+    allowed_observed_routes: Sequence[str],
+    row_number: int,
+) -> tuple[str, str, str, str]:
+    """Return per-document observed route or the immutable declared fallback."""
+
+    provided = row.get("observed_extraction_route")
+    if provided is None:
+        if declared_extraction_route not in allowed_observed_routes:
+            raise ValueError(
+                f"metric row {row_number}: declared extraction fallback is not documented for {source_id}"
+            )
+        return (
+            declared_extraction_route,
+            "declared_extraction_route_fallback",
+            "roster:extraction_route",
+            (
+                "logical_primary"
+                if declared_extraction_route == logical_source_route
+                else "secondary_exception_only"
+            ),
+        )
+    if not isinstance(provided, str) or provided not in ALLOWED_ROUTES:
+        raise ValueError(
+            f"metric row {row_number}: observed_extraction_route must be a supported route"
+        )
+    if provided not in allowed_observed_routes:
+        raise ValueError(
+            f"metric row {row_number}: observed_extraction_route {provided!r} is not "
+            f"the logical route or a documented secondary exception for {source_id}"
+        )
+    basis = row.get("observed_extraction_route_basis")
+    evidence = row.get("observed_extraction_route_evidence")
+    if not isinstance(basis, str) or basis not in OBSERVED_EXTRACTION_ROUTE_BASES:
+        raise ValueError(
+            f"metric row {row_number}: observed_extraction_route_basis is unsupported"
+        )
+    if not isinstance(evidence, str) or not evidence.strip() or len(evidence) > 200:
+        raise ValueError(
+            f"metric row {row_number}: observed_extraction_route_evidence must be a non-empty <=200-char code"
+        )
+    if basis == "unavailable":
+        raise ValueError(
+            f"metric row {row_number}: unavailable observed extraction cannot carry a candidate route"
+        )
+    expected_priority = (
+        "logical_primary"
+        if provided == logical_source_route
+        else "secondary_exception_only"
+    )
+    supplied_priority = row.get("observed_extraction_route_priority")
+    if supplied_priority is not None and supplied_priority != expected_priority:
+        raise ValueError(
+            f"metric row {row_number}: observed_extraction_route_priority reverses logical-source priority"
+        )
+    return (
+        provided,
+        basis,
+        evidence,
+        expected_priority,
+    )
+
+
 def normalize_metric_rows(rows: Iterable[Mapping[str, Any]], roster: Mapping[str, Any]) -> list[MetricRow]:
     route_report = validate_candidate_roster_routes(roster)
     source_routes = route_report["source_routes"]
     review_routes = route_report["review_routes"]
     extraction_routes = route_report["extraction_routes"]
+    allowed_observed_routes = route_report["allowed_observed_extraction_routes"]
     normalized: list[MetricRow] = []
     seen_uids: set[str] = set()
     for row_number, row in enumerate(rows, 1):
@@ -672,6 +852,19 @@ def normalize_metric_rows(rows: Iterable[Mapping[str, Any]], roster: Mapping[str
                     f"metric row {row_number}: {field} drift for {source_id}: "
                     f"{declared!r} != {expected!r}"
                 )
+        (
+            observed_extraction_route,
+            observed_extraction_route_basis,
+            observed_extraction_route_evidence,
+            observed_extraction_route_priority,
+        ) = _observed_extraction_from_metric(
+            row,
+            source_id=source_id,
+            logical_source_route=source_routes[source_id],
+            declared_extraction_route=extraction_routes[source_id],
+            allowed_observed_routes=allowed_observed_routes[source_id],
+            row_number=row_number,
+        )
         normalized.append(
             MetricRow(
                 source_id=source_id,
@@ -681,11 +874,16 @@ def normalize_metric_rows(rows: Iterable[Mapping[str, Any]], roster: Mapping[str
                 source_route=source_routes[source_id],
                 review_route=review_routes[source_id],
                 extraction_route=extraction_routes[source_id],
+                observed_extraction_route=observed_extraction_route,
+                observed_extraction_route_basis=observed_extraction_route_basis,
+                observed_extraction_route_evidence=observed_extraction_route_evidence,
+                observed_extraction_route_priority=observed_extraction_route_priority,
                 cluster_id=_cluster_id_from_row(row, stable_uid),
                 risk_score=risk_score_from_metrics(
                     row,
                     source_route=source_routes[source_id],
                     extraction_route=extraction_routes[source_id],
+                    observed_extraction_route=observed_extraction_route,
                 ),
             )
         )
@@ -818,6 +1016,10 @@ def _select_source_rows(
                 "source_route": row.source_route,
                 "review_route": row.review_route,
                 "extraction_route": row.extraction_route,
+                "observed_extraction_route": row.observed_extraction_route,
+                "observed_extraction_route_basis": row.observed_extraction_route_basis,
+                "observed_extraction_route_evidence": row.observed_extraction_route_evidence,
+                "observed_extraction_route_priority": row.observed_extraction_route_priority,
                 "sampling_stratum": stratum,
                 "risk_score": row.risk_score,
                 "review_cluster_id": row.cluster_id,
@@ -926,6 +1128,30 @@ def build_sample_manifest(
                 "source_route": source_rows[0].source_route,
                 "review_route": source_rows[0].review_route,
                 "extraction_route": source_rows[0].extraction_route,
+                "allowed_observed_extraction_routes": list(
+                    route_report["allowed_observed_extraction_routes"][source_id]
+                ),
+                "observed_extraction_route_counts": dict(
+                    sorted(
+                        Counter(
+                            row.observed_extraction_route for row in source_rows
+                        ).items()
+                    )
+                ),
+                "observed_extraction_route_basis_counts": dict(
+                    sorted(
+                        Counter(
+                            row.observed_extraction_route_basis for row in source_rows
+                        ).items()
+                    )
+                ),
+                "observed_extraction_route_priority_counts": dict(
+                    sorted(
+                        Counter(
+                            row.observed_extraction_route_priority for row in source_rows
+                        ).items()
+                    )
+                ),
                 "large_or_heterogeneous": source_id in large_sources,
                 "review_denominator": denominator,
                 "requested_strata": {stratum: quotas[stratum] for stratum in STRATA},
@@ -1032,6 +1258,51 @@ def _request_hash(request: Mapping[str, Any]) -> str:
     return sha256_json(payload)
 
 
+def _request_observed_route_fields(
+    sample: Mapping[str, Any], *, source_route: str
+) -> dict[str, str]:
+    """Validate compact observed-route context without changing logical route.
+
+    Native v3 selection records always provide all four fields.  The explicit
+    fallback keeps synthetic preflight and historical test packets executable,
+    while making their absence visible rather than silently claiming a
+    document-level observation.
+    """
+
+    observed = sample.get("observed_extraction_route")
+    if observed is None:
+        observed = sample.get("extraction_route", source_route)
+    if not isinstance(observed, str) or observed not in ALLOWED_ROUTES:
+        raise ValueError("sample.observed_extraction_route must be a supported route")
+    basis = sample.get("observed_extraction_route_basis", "unavailable")
+    if not isinstance(basis, str) or basis not in OBSERVED_EXTRACTION_ROUTE_BASES:
+        raise ValueError("sample.observed_extraction_route_basis is unsupported")
+    evidence = sample.get("observed_extraction_route_evidence", "request:source_route_fallback")
+    if (
+        not isinstance(evidence, str)
+        or not evidence
+        or len(evidence) > 256
+        or any(character.isspace() or ord(character) < 0x20 for character in evidence)
+    ):
+        raise ValueError("sample.observed_extraction_route_evidence must be a bounded non-whitespace code")
+    expected_priority = (
+        "logical_primary"
+        if observed == source_route
+        else "secondary_exception_only"
+    )
+    priority = sample.get("observed_extraction_route_priority", expected_priority)
+    if priority != expected_priority:
+        raise ValueError(
+            "sample.observed_extraction_route_priority must preserve logical-source priority"
+        )
+    return {
+        "observed_extraction_route": observed,
+        "observed_extraction_route_basis": basis,
+        "observed_extraction_route_evidence": evidence,
+        "observed_extraction_route_priority": expected_priority,
+    }
+
+
 def make_review_request(
     sample: Mapping[str, Any],
     *,
@@ -1059,6 +1330,9 @@ def make_review_request(
     source_route = sample.get("source_route")
     if source_route not in ALLOWED_ROUTES:
         raise ValueError("sample.source_route must be a supported review route")
+    observed_route_fields = _request_observed_route_fields(
+        sample, source_route=str(source_route)
+    )
     stable_uid = _require_sha256("sample.stable_uid", sample.get("stable_uid"))
     stratum = sample.get("sampling_stratum")
     if stratum not in STRATA:
@@ -1081,6 +1355,7 @@ def make_review_request(
         "source_dataset": source_dataset,
         "source_revision": source_revision,
         "source_route": source_route,
+        **observed_route_fields,
         "sampling_stratum": stratum,
         "original_text_sha256": original_text_sha256,
         "review_copy_sha256": review_copy_sha256,
@@ -1123,6 +1398,27 @@ def _validate_request_binding(request: Mapping[str, Any]) -> list[str]:
             errors.append(str(exc))
     if request.get("source_route") not in ALLOWED_ROUTES:
         errors.append("request.source_route is unsupported")
+    observed_route = request.get("observed_extraction_route")
+    if observed_route not in ALLOWED_ROUTES:
+        errors.append("request.observed_extraction_route is unsupported")
+    observed_basis = request.get("observed_extraction_route_basis")
+    if observed_basis not in OBSERVED_EXTRACTION_ROUTE_BASES:
+        errors.append("request.observed_extraction_route_basis is unsupported")
+    observed_evidence = request.get("observed_extraction_route_evidence")
+    if (
+        not isinstance(observed_evidence, str)
+        or not observed_evidence
+        or len(observed_evidence) > 256
+        or any(character.isspace() or ord(character) < 0x20 for character in observed_evidence)
+    ):
+        errors.append("request.observed_extraction_route_evidence is unsupported")
+    expected_priority = (
+        "logical_primary"
+        if observed_route == request.get("source_route")
+        else "secondary_exception_only"
+    )
+    if request.get("observed_extraction_route_priority") != expected_priority:
+        errors.append("request.observed_extraction_route_priority reverses logical-source priority")
     if request.get("sampling_stratum") not in STRATA:
         errors.append("request.sampling_stratum is unsupported")
     if request.get("reviewer_slot") not in {"primary", "secondary", "adjudicator"}:
@@ -1144,6 +1440,10 @@ RESPONSE_FIELDS = frozenset(
         "source_dataset",
         "source_revision",
         "source_route",
+        "observed_extraction_route",
+        "observed_extraction_route_basis",
+        "observed_extraction_route_evidence",
+        "observed_extraction_route_priority",
         "sampling_stratum",
         "original_text_sha256",
         "review_copy_sha256",
@@ -1198,6 +1498,27 @@ def validate_review_response(
             errors.append(str(exc))
     if response.get("source_route") not in ALLOWED_ROUTES:
         errors.append("source_route is unsupported")
+    observed_route = response.get("observed_extraction_route")
+    if observed_route not in ALLOWED_ROUTES:
+        errors.append("observed_extraction_route is unsupported")
+    observed_basis = response.get("observed_extraction_route_basis")
+    if observed_basis not in OBSERVED_EXTRACTION_ROUTE_BASES:
+        errors.append("observed_extraction_route_basis is unsupported")
+    observed_evidence = response.get("observed_extraction_route_evidence")
+    if (
+        not isinstance(observed_evidence, str)
+        or not observed_evidence
+        or len(observed_evidence) > 256
+        or any(character.isspace() or ord(character) < 0x20 for character in observed_evidence)
+    ):
+        errors.append("observed_extraction_route_evidence is unsupported")
+    expected_priority = (
+        "logical_primary"
+        if observed_route == response.get("source_route")
+        else "secondary_exception_only"
+    )
+    if response.get("observed_extraction_route_priority") != expected_priority:
+        errors.append("observed_extraction_route_priority reverses logical-source priority")
     if response.get("sampling_stratum") not in STRATA:
         errors.append("sampling_stratum is unsupported")
     if response.get("reviewer_slot") not in {"primary", "secondary", "adjudicator"}:
@@ -1248,6 +1569,10 @@ def validate_review_response(
             "source_dataset",
             "source_revision",
             "source_route",
+            "observed_extraction_route",
+            "observed_extraction_route_basis",
+            "observed_extraction_route_evidence",
+            "observed_extraction_route_priority",
             "sampling_stratum",
             "original_text_sha256",
             "review_copy_sha256",

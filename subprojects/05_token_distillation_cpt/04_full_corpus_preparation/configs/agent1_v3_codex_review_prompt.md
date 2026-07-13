@@ -30,10 +30,20 @@ Use the declared `source_route` as the primary error model:
 - `mixed`: inspect both logical source modes, but identify the actual visible
   failure rather than assuming every possible mode applies.
 
+Each request also carries per-document representation provenance:
+`observed_extraction_route`, `observed_extraction_route_basis`,
+`observed_extraction_route_evidence`, and
+`observed_extraction_route_priority`. These are compact, text-free audit
+codes, not additional corpus content. Treat `source_route` as logically
+primary in every judgment. `logical_primary` confirms that the observed
+representation matches it; `secondary_exception_only` may add a visible
+secondary diagnostic but must never replace the primary error model.
+
 Logical source provenance determines which failures deserve first attention.
 Still report a clearly visible secondary failure when it occurs (for example,
 an OCR extraction republished as HTML can show both OCR and web-template
-defects). Do not invent a defect merely because it is common for a route.
+defects). Do not invent a defect merely because it is common for a route or
+because an audit code is present.
 
 Use `include_after_cleaning` only for a narrow, deterministic repair. Use
 `low_weight` for usable but repetitive or limited material; `exclude` for

@@ -47,6 +47,7 @@ def write_fixture(
     opaque_quality_ids: bool,
     source_route: str = "pdf_ocr",
     extraction_route: str | None = None,
+    observed_extraction_route: str | None = None,
 ) -> dict[str, object]:
     pa = pytest.importorskip("pyarrow")
     pq = pytest.importorskip("pyarrow.parquet")
@@ -61,6 +62,8 @@ def write_fixture(
         )
         for index in range(count)
     }
+    declared_extraction_route = extraction_route or source_route
+    observed_route = observed_extraction_route or declared_extraction_route
     pq.write_table(
         pa.table(
             {
@@ -69,6 +72,22 @@ def write_fixture(
                 "source_id": ["source-a"] * count,
                 "source_dataset": ["source-a"] * count,
                 "source_revision": ["a" * 40] * count,
+                "source_route": [source_route] * count,
+                "review_route": [source_route] * count,
+                "extraction_route": [declared_extraction_route] * count,
+                "observed_extraction_route": [observed_route] * count,
+                "observed_extraction_route_basis": [
+                    "declared_extraction_route_fallback"
+                ]
+                * count,
+                "observed_extraction_route_evidence": ["roster:extraction_route"]
+                * count,
+                "observed_extraction_route_priority": [
+                    "logical_primary"
+                    if observed_route == source_route
+                    else "secondary_exception_only"
+                ]
+                * count,
                 "normalized_text_sha256": [digest(text) for text in texts.values()],
                 # This is deliberately not part of the packet reader's column
                 # set: raw upstream document IDs must never reach reviewers.
@@ -87,7 +106,17 @@ def write_fixture(
             "source_id": "source-a",
             "source_dataset": "source-a",
             "source_revision": "a" * 40,
+            "source_route": source_route,
             "review_route": source_route,
+            "extraction_route": declared_extraction_route,
+            "observed_extraction_route": observed_route,
+            "observed_extraction_route_basis": "declared_extraction_route_fallback",
+            "observed_extraction_route_evidence": "roster:extraction_route",
+            "observed_extraction_route_priority": (
+                "logical_primary"
+                if observed_route == source_route
+                else "secondary_exception_only"
+            ),
             "normalized_text_sha256": digest(text),
             "profile_text_variant": "canonical",
             "review_risk_score": float(index),
@@ -120,7 +149,7 @@ def write_fixture(
             "candidate_source_ids": ["source-a"],
             "review_routes": {"source-a": source_route},
             "source_routes": {"source-a": source_route},
-            "extraction_routes": {"source-a": extraction_route or source_route},
+            "extraction_routes": {"source-a": declared_extraction_route},
             "route_policy": {"priority": "logical_source_then_observed_extraction"},
             "inventory_only_exclusions": [],
         },
@@ -364,12 +393,34 @@ def test_packet_keeps_observed_extraction_route_as_a_receipt_not_the_primary_rev
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
     assert {request["source_route"] for request in requests} == {"pdf_ocr"}
+    assert {request["observed_extraction_route"] for request in requests} == {"html_web"}
+    assert {
+        request["observed_extraction_route_basis"] for request in requests
+    } == {"declared_extraction_route_fallback"}
+    assert {
+        request["observed_extraction_route_evidence"] for request in requests
+    } == {"roster:extraction_route"}
+    assert {
+        request["observed_extraction_route_priority"] for request in requests
+    } == {"secondary_exception_only"}
     source = manifest["source_review_coverage"][0]
     assert source["source_route"] == "pdf_ocr"
     assert source["review_route"] == "pdf_ocr"
     assert source["extraction_route"] == "html_web"
+    assert source["allowed_observed_extraction_routes"] == ["html_web", "pdf_ocr"]
+    assert source["observed_extraction_route_counts"] == {"html_web": 17}
+    assert source["observed_extraction_route_basis_counts"] == {
+        "declared_extraction_route_fallback": 17
+    }
+    assert source["observed_extraction_route_priority_counts"] == {
+        "secondary_exception_only": 17
+    }
     assert {
         selected["extraction_route"] for selected in manifest["selection"]["selected_documents"]
+    } == {"html_web"}
+    assert {
+        selected["observed_extraction_route"]
+        for selected in manifest["selection"]["selected_documents"]
     } == {"html_web"}
 
 

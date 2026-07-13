@@ -56,6 +56,35 @@ BATCH_RECEIPT_SCHEMA = "dataset_quality_rust_batch_receipt_v1"
 SUMMARY_SCHEMA = "dataset_quality_summary_v1"
 CONTRACT_SCHEMA = "dataset_quality_rust_contract_v1"
 QUALITY_HANDOFF_SCHEMA = "dataset_quality_site_handoff_v1"
+ROUTE_COVERAGE_SCHEMA = "dataset_quality_route_coverage_v1"
+
+# The candidate roster declares the logical source and review routes, while
+# ``extraction_route`` is the frozen source-level observed-representation
+# expectation.  Canonical rows may additionally carry an observed route for a
+# particular document (for example, a PDF-derived document published through a
+# web page).  Keep those concepts separate: the logical source route remains
+# the primary diagnostic/review model.
+ALLOWED_ROUTES = frozenset({"html_web", "pdf_ocr", "mixed", "structured"})
+OBSERVED_EXTRACTION_ROUTE_FIELDS = (
+    "observed_extraction_route",
+    "observed_extraction_route_basis",
+    "observed_extraction_route_evidence",
+)
+OBSERVED_EXTRACTION_ROUTE_PRIORITY_FIELD = "observed_extraction_route_priority"
+OBSERVED_EXTRACTION_ROUTE_PRIORITIES = frozenset(
+    {"logical_primary", "secondary_exception_only"}
+)
+OBSERVED_EXTRACTION_ROUTE_BASES = frozenset(
+    {
+        "explicit_row_route",
+        "row_representation_metadata",
+        "declared_extraction_route_fallback",
+        "unavailable",
+        # Compatibility attestation for canonical shards written before the
+        # per-document observed-route columns existed.
+        "legacy_canonical_without_observed_route",
+    }
+)
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 GREEK_RE = re.compile(r"[\u0370-\u03ff\u1f00-\u1fff]")
@@ -227,6 +256,7 @@ SUMMARY_TOP_LEVEL_KEYS = frozenset(
         "document_output",
         "global",
         "repositories",
+        "route_coverage",
         "metric_notes",
     }
 )
@@ -1208,6 +1238,12 @@ def validate_and_project_quality_summary(value: Any) -> dict[str, Any]:
             or int(validated_inventory[-1]["row_end_exclusive"]) != documents
         ):
             raise ValueError("quality_summary: review-sample checkpoint identity drift")
+    route_coverage = validate_route_coverage(
+        value["route_coverage"],
+        documents=documents,
+        selected_source_ids=[str(source_id) for source_id in selected],
+        context="quality_summary.route_coverage",
+    )
     if (
         global_validated["characters"]
         != sum(row["characters"] for row in validated_repositories)
@@ -1301,6 +1337,7 @@ def validate_and_project_quality_summary(value: Any) -> dict[str, Any]:
         "selected_source_ids": list(selected),
         "excluded_source_ids": list(excluded),
         "repositories": projected_repositories,
+        "route_coverage": route_coverage,
         "input_shard_inventory_sha256": sha256_json(normalized_shards),
         "checkpoint_inventory_sha256": str(checkpoints["inventory_sha256"]),
         "document_output": document_output,
@@ -1913,6 +1950,7 @@ def build_quality_site_handoff(
             "review_sample": contract.get("review_sample"),
         },
         "document_output": dict(projection["document_output"]),
+        "route_coverage": dict(projection["route_coverage"]),
         "checkpoint_closure": {
             "count": int(checkpoints["count"]),
             "rows": int(checkpoints["rows"]),
@@ -2014,6 +2052,7 @@ def validate_quality_site_handoff(
             "build",
             "contract",
             "document_output",
+            "route_coverage",
             "checkpoint_closure",
         ),
         context="quality_handoff",
@@ -2023,6 +2062,7 @@ def validate_quality_site_handoff(
         or handoff["status"] != "passed"
         or handoff["scan_mode"] != projection["scan_mode"]
         or handoff["aggregate_projection_sha256"] != sha256_json(projection)
+        or handoff["route_coverage"] != projection["route_coverage"]
     ):
         raise ValueError("quality_handoff: schema/status/projection drift")
     summary_receipt = validate_receipt_object(
@@ -3074,6 +3114,18 @@ def load_review_sample_packet(
                 raise ValueError(
                     f"{requests_path}:{line_number}: duplicate primary sample"
                 )
+            requested_route = row.get("source_route")
+            # Older local review-packet fixtures did not carry a route.  Those
+            # compact masked copies are not Phase-2 canonical evidence, so
+            # preserve that absence explicitly instead of guessing from a
+            # repository name.  Current packets always provide source_route.
+            if requested_route in (None, ""):
+                requested_route = "mixed"
+            else:
+                requested_route = _require_route(
+                    requested_route,
+                    context=f"{requests_path}:{line_number}.source_route",
+                )
             requested[sample_id] = {
                 "source_id": str(source.get("source_id", "")),
                 "source_dataset": str(row.get("source_dataset", "")),
@@ -3082,6 +3134,7 @@ def load_review_sample_packet(
                 "display_document_id": display_document_id(
                     str(source.get("source_doc_id", ""))
                 ),
+                "source_route": str(requested_route),
             }
     if not requested:
         raise ValueError(f"{requests_path}: no primary review samples")
@@ -3123,7 +3176,10 @@ def load_review_sample_packet(
                     "display_document_id",
                 )
             }
-            if actual != requested[sample_id]:
+            expected_identity = {
+                name: requested[sample_id][name] for name in actual
+            }
+            if actual != expected_identity:
                 raise ValueError(
                     f"{packet_path}:{line_number}: request/sample source identity drift"
                 )
@@ -3148,6 +3204,13 @@ def load_review_sample_packet(
                     "source_dataset": actual["source_dataset"],
                     "source_repo_id": actual["source_repo_id"],
                     "source_revision": actual["source_revision"],
+                    "source_route": requested[sample_id]["source_route"],
+                    "review_route": requested[sample_id]["source_route"],
+                    "extraction_route": requested[sample_id]["source_route"],
+                    "observed_extraction_route": requested[sample_id]["source_route"],
+                    "observed_extraction_route_basis": "unavailable",
+                    "observed_extraction_route_evidence": "none",
+                    "observed_extraction_route_priority": "logical_primary",
                     "stable_uid": sample_id,
                     "normalized_text_sha256": normalized_sha,
                     "profile_text_sha256": profile_sha,
@@ -3193,6 +3256,111 @@ def load_review_sample_packet(
     ]
 
 
+def _require_route(value: Any, *, context: str) -> str:
+    if not isinstance(value, str) or value not in ALLOWED_ROUTES:
+        raise ValueError(
+            f"{context}: expected one of {sorted(ALLOWED_ROUTES)}, got {value!r}"
+        )
+    return value
+
+
+def _require_observed_route_annotation(
+    value: Any,
+    *,
+    context: str,
+    basis: bool = False,
+) -> str:
+    """Validate bounded, text-free observed-route provenance metadata."""
+
+    if not isinstance(value, str) or not value or len(value) > 256:
+        raise ValueError(f"{context}: expected a nonempty bounded string")
+    if any(character.isspace() or ord(character) < 0x20 for character in value):
+        raise ValueError(f"{context}: whitespace/control characters are forbidden")
+    if basis and value not in OBSERVED_EXTRACTION_ROUTE_BASES:
+        raise ValueError(
+            f"{context}: unsupported observed extraction route basis {value!r}"
+        )
+    return value
+
+
+def profile_route_fields(
+    row: Mapping[str, Any], *, context: str, allow_legacy_declared_fallback: bool = True
+) -> dict[str, str]:
+    """Return validated profile route fields for one canonical document.
+
+    The declared triplet is compulsory for a Phase-2 canonical read.  The
+    newer per-document observed route is all-or-nothing; old canonical shards
+    without those three columns are explicitly attested as a legacy fallback
+    to the frozen source-level ``extraction_route``.  This makes the fallback
+    visible rather than silently reclassifying a logical source from filenames
+    or Parquet transport.
+    """
+
+    source_route = _require_route(row.get("source_route"), context=f"{context}.source_route")
+    review_route = _require_route(row.get("review_route"), context=f"{context}.review_route")
+    extraction_route = _require_route(
+        row.get("extraction_route"), context=f"{context}.extraction_route"
+    )
+    observed_values = {
+        field: row.get(field) for field in OBSERVED_EXTRACTION_ROUTE_FIELDS
+    }
+    supplied = {
+        field
+        for field, value in observed_values.items()
+        if value is not None and value != ""
+    }
+    if supplied:
+        if supplied != set(OBSERVED_EXTRACTION_ROUTE_FIELDS):
+            raise ValueError(
+                f"{context}: per-document observed extraction route fields must be all present or all absent"
+            )
+        observed_route = _require_route(
+            observed_values["observed_extraction_route"],
+            context=f"{context}.observed_extraction_route",
+        )
+        basis = _require_observed_route_annotation(
+            observed_values["observed_extraction_route_basis"],
+            context=f"{context}.observed_extraction_route_basis",
+            basis=True,
+        )
+        evidence = _require_observed_route_annotation(
+            observed_values["observed_extraction_route_evidence"],
+            context=f"{context}.observed_extraction_route_evidence",
+        )
+    else:
+        if not allow_legacy_declared_fallback:
+            raise ValueError(f"{context}: per-document observed extraction route is required")
+        observed_route = extraction_route
+        basis = "legacy_canonical_without_observed_route"
+        evidence = "legacy:extraction_route"
+    expected_priority = (
+        "logical_primary"
+        if observed_route == source_route
+        else "secondary_exception_only"
+    )
+    provided_priority = row.get(OBSERVED_EXTRACTION_ROUTE_PRIORITY_FIELD)
+    if provided_priority not in (None, ""):
+        if provided_priority not in OBSERVED_EXTRACTION_ROUTE_PRIORITIES:
+            raise ValueError(
+                f"{context}.{OBSERVED_EXTRACTION_ROUTE_PRIORITY_FIELD}: unsupported value "
+                f"{provided_priority!r}"
+            )
+        if provided_priority != expected_priority:
+            raise ValueError(
+                f"{context}.{OBSERVED_EXTRACTION_ROUTE_PRIORITY_FIELD}: does not match "
+                "the immutable logical-source route"
+            )
+    return {
+        "source_route": source_route,
+        "review_route": review_route,
+        "extraction_route": extraction_route,
+        "observed_extraction_route": observed_route,
+        "observed_extraction_route_basis": basis,
+        "observed_extraction_route_evidence": evidence,
+        OBSERVED_EXTRACTION_ROUTE_PRIORITY_FIELD: expected_priority,
+    }
+
+
 def document_schema():
     import pyarrow as pa
 
@@ -3202,6 +3370,13 @@ def document_schema():
         ("source_dataset", pa.string()),
         ("source_repo_id", pa.string()),
         ("source_revision", pa.string()),
+        ("source_route", pa.string()),
+        ("review_route", pa.string()),
+        ("extraction_route", pa.string()),
+        ("observed_extraction_route", pa.string()),
+        ("observed_extraction_route_basis", pa.string()),
+        ("observed_extraction_route_evidence", pa.string()),
+        ("observed_extraction_route_priority", pa.string()),
         ("document_id", pa.string()),
         ("normalized_text_sha256", pa.string()),
         ("profile_text_sha256", pa.string()),
@@ -3537,6 +3712,11 @@ def process_batch(
                     raise ValueError(
                         f"{uid}: privateData=true is forbidden in review samples"
                     )
+                route_fields = profile_route_fields(
+                    row,
+                    context=f"{shard.path}:{row_start + offset}",
+                )
+                row.update(route_fields)
                 (markdown / f"{key}.md").write_text(text, encoding="utf-8")
                 mapping[key] = (
                     {**row, "_profile_text_sha256": profile_text_sha},
@@ -3599,6 +3779,21 @@ def process_batch(
                         "source_dataset": str(source["source_dataset"]),
                         "source_repo_id": str(source["source_repo_id"]),
                         "source_revision": str(source["source_revision"]),
+                        "source_route": str(source["source_route"]),
+                        "review_route": str(source["review_route"]),
+                        "extraction_route": str(source["extraction_route"]),
+                        "observed_extraction_route": str(
+                            source["observed_extraction_route"]
+                        ),
+                        "observed_extraction_route_basis": str(
+                            source["observed_extraction_route_basis"]
+                        ),
+                        "observed_extraction_route_evidence": str(
+                            source["observed_extraction_route_evidence"]
+                        ),
+                        "observed_extraction_route_priority": str(
+                            source[OBSERVED_EXTRACTION_ROUTE_PRIORITY_FIELD]
+                        ),
                         "document_id": hashlib.sha256(
                             (
                                 "dataset-quality-document-v1\0"
@@ -3829,12 +4024,233 @@ class GroupStats:
         return result
 
 
+RouteTuple = tuple[str, str, str, str, str, str, str, str]
+
+
+def _route_count_rows(counter: Counter[str], *, key: str = "route") -> list[dict[str, Any]]:
+    return [
+        {key: value, "documents": int(counter[value])}
+        for value in sorted(counter)
+    ]
+
+
+def _build_route_coverage(tuple_counts: Mapping[RouteTuple, int]) -> dict[str, Any]:
+    """Build one canonical, source-complete route coverage receipt."""
+
+    if not tuple_counts:
+        raise ValueError("route coverage cannot be empty")
+    source_declarations: dict[str, tuple[str, str, str]] = {}
+    source_documents: Counter[str] = Counter()
+    source_observed: dict[str, Counter[str]] = defaultdict(Counter)
+    source_bases: dict[str, Counter[str]] = defaultdict(Counter)
+    source_priorities: dict[str, Counter[str]] = defaultdict(Counter)
+    source_routes: Counter[str] = Counter()
+    review_routes: Counter[str] = Counter()
+    extraction_routes: Counter[str] = Counter()
+    observed_routes: Counter[str] = Counter()
+    observed_bases: Counter[str] = Counter()
+    observed_priorities: Counter[str] = Counter()
+    route_tuples: list[dict[str, Any]] = []
+    for route_tuple, documents in sorted(tuple_counts.items()):
+        if documents < 1:
+            raise ValueError("route coverage tuple has no documents")
+        (
+            source_id,
+            source_route,
+            review_route,
+            extraction_route,
+            observed_route,
+            observed_basis,
+            observed_evidence,
+            observed_priority,
+        ) = route_tuple
+        declaration = (source_route, review_route, extraction_route)
+        prior = source_declarations.setdefault(source_id, declaration)
+        if prior != declaration:
+            raise ValueError(
+                f"{source_id}: canonical source/review/extraction declaration drift "
+                f"({prior!r} != {declaration!r})"
+            )
+        source_documents[source_id] += documents
+        source_observed[source_id][observed_route] += documents
+        source_bases[source_id][observed_basis] += documents
+        source_priorities[source_id][observed_priority] += documents
+        source_routes[source_route] += documents
+        review_routes[review_route] += documents
+        extraction_routes[extraction_route] += documents
+        observed_routes[observed_route] += documents
+        observed_bases[observed_basis] += documents
+        observed_priorities[observed_priority] += documents
+        route_tuples.append(
+            {
+                "source_id": source_id,
+                "source_route": source_route,
+                "review_route": review_route,
+                "extraction_route": extraction_route,
+                "observed_extraction_route": observed_route,
+                "observed_extraction_route_basis": observed_basis,
+                "observed_extraction_route_evidence": observed_evidence,
+                "observed_extraction_route_priority": observed_priority,
+                "documents": int(documents),
+            }
+        )
+    sources = [
+        {
+            "source_id": source_id,
+            "documents": int(source_documents[source_id]),
+            "source_route": source_declarations[source_id][0],
+            "review_route": source_declarations[source_id][1],
+            "extraction_route": source_declarations[source_id][2],
+            "observed_extraction_route_counts": _route_count_rows(
+                source_observed[source_id]
+            ),
+            "observed_extraction_route_basis_counts": _route_count_rows(
+                source_bases[source_id], key="basis"
+            ),
+            "observed_extraction_route_priority_counts": _route_count_rows(
+                source_priorities[source_id], key="priority"
+            ),
+        }
+        for source_id in sorted(source_declarations)
+    ]
+    documents = sum(source_documents.values())
+    return {
+        "schema_version": ROUTE_COVERAGE_SCHEMA,
+        "documents": int(documents),
+        "source_route_counts": _route_count_rows(source_routes),
+        "review_route_counts": _route_count_rows(review_routes),
+        "extraction_route_counts": _route_count_rows(extraction_routes),
+        "observed_extraction_route_counts": _route_count_rows(observed_routes),
+        "observed_extraction_route_basis_counts": _route_count_rows(
+            observed_bases, key="basis"
+        ),
+        "observed_extraction_route_priority_counts": _route_count_rows(
+            observed_priorities, key="priority"
+        ),
+        "sources": sources,
+        "route_tuples": route_tuples,
+    }
+
+
+@dataclass
+class RouteCoverageAccumulator:
+    """Accumulate route provenance from the written per-document metrics."""
+
+    tuple_counts: Counter[RouteTuple] = field(default_factory=Counter)
+
+    def add(self, row: Mapping[str, Any], *, context: str) -> None:
+        source_id = row.get("source_id")
+        if not isinstance(source_id, str) or not source_id:
+            raise ValueError(f"{context}.source_id: expected a nonempty string")
+        routes = profile_route_fields(row, context=context)
+        self.tuple_counts[
+            (
+                source_id,
+                routes["source_route"],
+                routes["review_route"],
+                routes["extraction_route"],
+                routes["observed_extraction_route"],
+                routes["observed_extraction_route_basis"],
+                routes["observed_extraction_route_evidence"],
+                routes[OBSERVED_EXTRACTION_ROUTE_PRIORITY_FIELD],
+            )
+        ] += 1
+
+    def finish(self) -> dict[str, Any]:
+        return _build_route_coverage(self.tuple_counts)
+
+
+def validate_route_coverage(
+    value: Any,
+    *,
+    documents: int,
+    selected_source_ids: Sequence[str],
+    context: str,
+) -> dict[str, Any]:
+    """Validate a canonical route-summary against its selected population."""
+
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{context}: expected object")
+    require_exact_keys(
+        value,
+        required=(
+            "schema_version",
+            "documents",
+            "source_route_counts",
+            "review_route_counts",
+            "extraction_route_counts",
+            "observed_extraction_route_counts",
+            "observed_extraction_route_basis_counts",
+            "observed_extraction_route_priority_counts",
+            "sources",
+            "route_tuples",
+        ),
+        context=context,
+    )
+    if value["schema_version"] != ROUTE_COVERAGE_SCHEMA:
+        raise ValueError(f"{context}: unsupported schema version")
+    if require_nonnegative_int(value["documents"], context=f"{context}.documents") != documents:
+        raise ValueError(f"{context}: document denominator drift")
+    tuples_value = value["route_tuples"]
+    if not isinstance(tuples_value, list) or not tuples_value:
+        raise ValueError(f"{context}.route_tuples: expected nonempty list")
+    tuple_counts: Counter[RouteTuple] = Counter()
+    for index, row in enumerate(tuples_value):
+        tuple_context = f"{context}.route_tuples[{index}]"
+        if not isinstance(row, Mapping):
+            raise ValueError(f"{tuple_context}: expected object")
+        require_exact_keys(
+            row,
+            required=(
+                "source_id",
+                "source_route",
+                "review_route",
+                "extraction_route",
+                "observed_extraction_route",
+                "observed_extraction_route_basis",
+                "observed_extraction_route_evidence",
+                "observed_extraction_route_priority",
+                "documents",
+            ),
+            context=tuple_context,
+        )
+        source_id = row["source_id"]
+        if not isinstance(source_id, str) or not source_id:
+            raise ValueError(f"{tuple_context}.source_id: expected nonempty string")
+        routes = profile_route_fields(row, context=tuple_context)
+        count = require_nonnegative_int(
+            row["documents"], context=f"{tuple_context}.documents"
+        )
+        if count < 1:
+            raise ValueError(f"{tuple_context}.documents: expected positive integer")
+        route_tuple: RouteTuple = (
+            source_id,
+            routes["source_route"],
+            routes["review_route"],
+            routes["extraction_route"],
+            routes["observed_extraction_route"],
+            routes["observed_extraction_route_basis"],
+            routes["observed_extraction_route_evidence"],
+            routes[OBSERVED_EXTRACTION_ROUTE_PRIORITY_FIELD],
+        )
+        if route_tuple in tuple_counts:
+            raise ValueError(f"{tuple_context}: duplicate route tuple")
+        tuple_counts[route_tuple] = count
+    expected = _build_route_coverage(tuple_counts)
+    if value != expected:
+        raise ValueError(f"{context}: count, ordering, or source coverage drift")
+    expected_sources = sorted(set(selected_source_ids))
+    if [row["source_id"] for row in expected["sources"]] != expected_sources:
+        raise ValueError(f"{context}: source coverage differs from selected population")
+    return expected
+
+
 def consolidate_batches(
     batch_receipts: Sequence[Mapping[str, Any]],
     *,
     output_root: Path,
     reservoir_size: int,
-) -> tuple[dict[str, Any], dict[str, Any], list[dict[str, Any]]]:
+) -> tuple[dict[str, Any], dict[str, Any], list[dict[str, Any]], dict[str, Any]]:
     import pyarrow.parquet as pq
 
     output_root = secure_directory_under_root(
@@ -3846,6 +4262,7 @@ def consolidate_batches(
     writer = None
     groups: dict[str, GroupStats] = defaultdict(lambda: GroupStats(reservoir_size))
     global_group = GroupStats(reservoir_size)
+    route_coverage = RouteCoverageAccumulator()
     seen_checkpoint_parents: set[str] = set()
     seen_output_paths: set[str] = set()
     seen_output_identities: set[tuple[int, int]] = set()
@@ -3911,6 +4328,13 @@ def consolidate_batches(
                         for row in table.to_pylist():
                             groups[str(row["source_repo_id"])].add(row)
                             global_group.add(row)
+                            route_coverage.add(
+                                row,
+                                context=(
+                                    "quality consolidated document "
+                                    f"{row.get('document_id', '<unknown>')}"
+                                ),
+                            )
                             rows += 1
                 if _fd_identity(before) != _fd_identity(os.fstat(descriptor)):
                     raise ValueError(f"checkpoint output changed: {data_path}")
@@ -3933,7 +4357,12 @@ def consolidate_batches(
         temporary.unlink(missing_ok=True)
         raise
     repositories = [groups[name].finish(repo_id=name) for name in sorted(groups)]
-    return file_receipt(final, rows=rows), global_group.finish(), repositories
+    return (
+        file_receipt(final, rows=rows),
+        global_group.finish(),
+        repositories,
+        route_coverage.finish(),
+    )
 
 
 def validate_completed_summary(
@@ -4204,6 +4633,9 @@ def run_diagnostics(args: argparse.Namespace) -> int:
             "source_dataset",
             "source_repo_id",
             "source_revision",
+            "source_route",
+            "review_route",
+            "extraction_route",
             "stable_uid",
             "normalized_text_sha256",
             "source_metadata_json",
@@ -4216,12 +4648,42 @@ def run_diagnostics(args: argparse.Namespace) -> int:
             missing = sorted(set(required_columns) - set(parquet.schema_arrow.names))
             if missing:
                 raise ValueError(f"{shard.path}: missing canonical columns {missing}")
+            observed_columns = {
+                name
+                for name in OBSERVED_EXTRACTION_ROUTE_FIELDS
+                if name in parquet.schema_arrow.names
+            }
+            if observed_columns and observed_columns != set(
+                OBSERVED_EXTRACTION_ROUTE_FIELDS
+            ):
+                raise ValueError(
+                    f"{shard.path}: observed extraction route columns must be all present or all absent; "
+                    f"found={sorted(observed_columns)}"
+                )
+            priority_present = (
+                OBSERVED_EXTRACTION_ROUTE_PRIORITY_FIELD
+                in parquet.schema_arrow.names
+            )
+            if priority_present and not observed_columns:
+                raise ValueError(
+                    f"{shard.path}: {OBSERVED_EXTRACTION_ROUTE_PRIORITY_FIELD} "
+                    "requires the complete observed extraction route triplet"
+                )
+            batch_columns = [
+                *required_columns,
+                *(OBSERVED_EXTRACTION_ROUTE_FIELDS if observed_columns else ()),
+                *(
+                    (OBSERVED_EXTRACTION_ROUTE_PRIORITY_FIELD,)
+                    if priority_present
+                    else ()
+                ),
+            ]
             row_start = 0
             batches = 0
             for batch_index, batch in enumerate(
                 parquet.iter_batches(
                     batch_size=args.batch_size,
-                    columns=required_columns,
+                    columns=batch_columns,
                     use_threads=False,
                 )
             ):
@@ -4252,7 +4714,12 @@ def run_diagnostics(args: argparse.Namespace) -> int:
                 )
             shard_inventory.append({**shard.receipt(), "batches": batches})
 
-    document_output, global_summary, repository_summaries = consolidate_batches(
+    (
+        document_output,
+        global_summary,
+        repository_summaries,
+        route_coverage,
+    ) = consolidate_batches(
         batch_receipts,
         output_root=output_root,
         reservoir_size=args.quantile_sample_size,
@@ -4314,6 +4781,7 @@ def run_diagnostics(args: argparse.Namespace) -> int:
         "document_output": document_output,
         "global": global_summary,
         "repositories": repository_summaries,
+        "route_coverage": route_coverage,
         "metric_notes": {
             "rust_noise_badness_score": "Raw glossapi_rs_noise score on the canonical Markdown adapter.",
             "cleaner_removed_character_fraction": (

@@ -13,6 +13,10 @@
     "source_dataset",
     "source_revision",
     "source_route",
+    "observed_extraction_route",
+    "observed_extraction_route_basis",
+    "observed_extraction_route_evidence",
+    "observed_extraction_route_priority",
     "sampling_stratum",
     "original_text_sha256",
     "review_copy_sha256",
@@ -38,6 +42,25 @@
     "source_dataset": {"type": "string", "minLength": 1},
     "source_revision": {"type": "string", "minLength": 1},
     "source_route": {"enum": ["html_web", "pdf_ocr", "mixed", "structured"]},
+    "observed_extraction_route": {"enum": ["html_web", "pdf_ocr", "mixed", "structured"]},
+    "observed_extraction_route_basis": {
+      "enum": [
+        "explicit_row_route",
+        "row_representation_metadata",
+        "declared_extraction_route_fallback",
+        "unavailable",
+        "legacy_canonical_without_observed_route"
+      ]
+    },
+    "observed_extraction_route_evidence": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/=-]{0,255}$"
+    },
+    "observed_extraction_route_priority": {
+      "enum": ["logical_primary", "secondary_exception_only"]
+    },
     "sampling_stratum": {"enum": ["random", "risk", "cluster"]},
     "original_text_sha256": {"$ref": "#/$defs/sha256"},
     "review_copy_sha256": {"$ref": "#/$defs/sha256"},

@@ -387,6 +387,18 @@ class MaterializedSample:
             "review_cluster_id": str(self.selection["review_cluster_id"]),
             "review_cluster_size": int(self.selection["review_cluster_size"]),
             "risk_score": float(self.selection["risk_score"]),
+            "observed_extraction_route": str(
+                self.selection["observed_extraction_route"]
+            ),
+            "observed_extraction_route_basis": str(
+                self.selection["observed_extraction_route_basis"]
+            ),
+            "observed_extraction_route_evidence": str(
+                self.selection["observed_extraction_route_evidence"]
+            ),
+            "observed_extraction_route_priority": str(
+                self.selection["observed_extraction_route_priority"]
+            ),
             "original_text_sha256": self.original_text_sha256,
             "review_copy_sha256": str(self.redaction_report["review_copy_sha256"]),
             "review_copy": self.review_copy,
@@ -398,6 +410,20 @@ class MaterializedSample:
             "source_id": str(self.selection["source_id"]),
             "source_dataset": str(self.selection["source_dataset"]),
             "source_revision": str(self.selection["source_revision"]),
+            "source_route": str(self.selection["source_route"]),
+            "extraction_route": str(self.selection["extraction_route"]),
+            "observed_extraction_route": str(
+                self.selection["observed_extraction_route"]
+            ),
+            "observed_extraction_route_basis": str(
+                self.selection["observed_extraction_route_basis"]
+            ),
+            "observed_extraction_route_evidence": str(
+                self.selection["observed_extraction_route_evidence"]
+            ),
+            "observed_extraction_route_priority": str(
+                self.selection["observed_extraction_route_priority"]
+            ),
             "sampling_stratum": str(self.selection["sampling_stratum"]),
             "original_text_sha256": self.original_text_sha256,
             "review_copy_sha256": str(self.redaction_report["review_copy_sha256"]),
@@ -503,10 +529,21 @@ def _validate_canonical_row(
     metric_hash = metric.get("normalized_text_sha256")
     if metric_hash is not None and str(metric_hash) != actual_hash:
         raise ValueError(f"{input_path}: {stable_uid}: full-scan text hash drift")
-    for field in ("source_id", "source_dataset", "source_revision"):
+    for field in (
+        "source_id",
+        "source_dataset",
+        "source_revision",
+        "source_route",
+        "review_route",
+        "extraction_route",
+        "observed_extraction_route",
+        "observed_extraction_route_basis",
+        "observed_extraction_route_evidence",
+        "observed_extraction_route_priority",
+    ):
         expected = selection.get(field)
         actual = row.get(field)
-        if expected is not None and actual is not None and str(expected) != str(actual):
+        if expected is not None and (actual is None or str(expected) != str(actual)):
             raise ValueError(f"{input_path}: {stable_uid}: {field} differs from selected full-scan identity")
     profile_variant = metric.get("profile_text_variant")
     if profile_variant is not None and profile_variant != "canonical":
@@ -543,7 +580,21 @@ def _materialize_selected_samples(
     recovered: dict[str, MaterializedSample] = {}
     resolved_by_key: dict[str, dict[str, Any]] = {}
     file_sha256_cache: dict[Path, str] = {}
-    required = {"stable_uid", "text", "source_id", "source_dataset", "source_revision", "normalized_text_sha256"}
+    required = {
+        "stable_uid",
+        "text",
+        "source_id",
+        "source_dataset",
+        "source_revision",
+        "source_route",
+        "review_route",
+        "extraction_route",
+        "observed_extraction_route",
+        "observed_extraction_route_basis",
+        "observed_extraction_route_evidence",
+        "observed_extraction_route_priority",
+        "normalized_text_sha256",
+    }
     for input_path, relative in files:
         parquet = pq.ParquetFile(input_path)
         missing = required - set(parquet.schema_arrow.names)
@@ -870,15 +921,25 @@ def _source_coverage(
                 "source_id": source_id,
                 "source_dataset": str(source["source_dataset"]),
                 "source_revision": str(source["source_revision"]),
-                # ``source_route`` remains the only route sent to the compact
-                # external review request.  Keep the complete frozen triplet
-                # in the receipt so an audit can establish that logical source
-                # provenance, not Parquet transport, set the primary error
-                # model while visible secondary extraction defects remained in
-                # scope for the reviewer prompt.
+                # ``source_route`` remains the primary route in the compact
+                # external request.  Per-document observed-route annotations
+                # make any secondary representation explicit without letting
+                # it replace logical provenance.
                 "source_route": str(source["source_route"]),
                 "review_route": str(source["review_route"]),
                 "extraction_route": str(source["extraction_route"]),
+                "allowed_observed_extraction_routes": list(
+                    source["allowed_observed_extraction_routes"]
+                ),
+                "observed_extraction_route_counts": dict(
+                    source["observed_extraction_route_counts"]
+                ),
+                "observed_extraction_route_basis_counts": dict(
+                    source["observed_extraction_route_basis_counts"]
+                ),
+                "observed_extraction_route_priority_counts": dict(
+                    source["observed_extraction_route_priority_counts"]
+                ),
                 "review_denominator": denominator,
                 "requested_strata": dict(source["requested_strata"]),
                 "primary_requests_by_stratum": primary_actual,
@@ -985,12 +1046,27 @@ def build_packet(
     redaction_totals, attestations = _redaction_summary(samples)
     coverage = _source_coverage(selection, primary, secondary, bundle_coverage)
     requests = [*primary, *secondary]
+    selection_by_uid = {
+        str(row["stable_uid"]): row for row in selection["selected_documents"]
+    }
     request_inventory = [
         {
             "review_id": str(request["review_id"]),
             "request_sha256": str(request["request_sha256"]),
             "sample_id": str(request["sample_id"]),
             "reviewer_slot": str(request["reviewer_slot"]),
+            "observed_extraction_route": str(
+                selection_by_uid[str(request["sample_id"])]["observed_extraction_route"]
+            ),
+            "observed_extraction_route_basis": str(
+                selection_by_uid[str(request["sample_id"])]["observed_extraction_route_basis"]
+            ),
+            "observed_extraction_route_evidence": str(
+                selection_by_uid[str(request["sample_id"])]["observed_extraction_route_evidence"]
+            ),
+            "observed_extraction_route_priority": str(
+                selection_by_uid[str(request["sample_id"])]["observed_extraction_route_priority"]
+            ),
         }
         for request in requests
     ]

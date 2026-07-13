@@ -56,11 +56,15 @@ def request(
     response_schema_sha256: str,
     source: str = "source-a",
     source_route: str = "pdf_ocr",
+    observed_extraction_route: str | None = None,
+    observed_extraction_route_basis: str = "explicit_row_route",
+    observed_extraction_route_evidence: str = "raw_field:representation_kind",
     text: str = "Καθαρό σύντομο ελληνικό κείμενο.",
 ) -> dict:
     # A secondary review must bind the same sampled document as its primary;
     # only reviewer_slot changes the immutable review identity.
     stable_uid = digest(f"{source}:{text}")
+    observed_route = observed_extraction_route or source_route
     return REVIEW.make_review_request(
         {
             "source_id": source,
@@ -68,6 +72,14 @@ def request(
             "source_revision": "a" * 40,
             "stable_uid": stable_uid,
             "source_route": source_route,
+            "observed_extraction_route": observed_route,
+            "observed_extraction_route_basis": observed_extraction_route_basis,
+            "observed_extraction_route_evidence": observed_extraction_route_evidence,
+            "observed_extraction_route_priority": (
+                "logical_primary"
+                if observed_route == source_route
+                else "secondary_exception_only"
+            ),
             "sampling_stratum": "random",
         },
         reviewer_slot=slot,
@@ -95,6 +107,10 @@ def response_for(request_row: dict, **overrides: object) -> dict:
                 "source_dataset",
                 "source_revision",
                 "source_route",
+                "observed_extraction_route",
+                "observed_extraction_route_basis",
+                "observed_extraction_route_evidence",
+                "observed_extraction_route_priority",
                 "sampling_stratum",
                 "original_text_sha256",
                 "review_copy_sha256",
@@ -117,11 +133,14 @@ def response_for(request_row: dict, **overrides: object) -> dict:
     return response
 
 
-def test_schema_normalization_adds_types_and_keeps_defs_resolvable() -> None:
+def test_schema_normalization_adds_types_and_keeps_defs_resolvable(tmp_path: Path) -> None:
     raw, binding = RUN.load_response_schema(SCHEMA_PATH)
     normalized = RUN.openai_schema_compat(raw)
     assert normalized["properties"]["schema_version"]["type"] == "string"
     assert normalized["properties"]["reviewer_slot"]["type"] == "string"
+    for field in RUN.OBSERVED_EXTRACTION_ROUTE_FIELDS:
+        assert field in raw["required"]
+        assert field in raw["properties"]
     assert binding["sha256"] == RUN.sha256_file(SCHEMA_PATH)
     assert binding["normalized_execution_schema_sha256"]
 
@@ -129,6 +148,14 @@ def test_schema_normalization_adds_types_and_keeps_defs_resolvable() -> None:
     assert batch["properties"]["responses"]["minItems"] == 2
     assert batch["$defs"]["response"]["properties"]["issues"]["items"]["$ref"] == "#/$defs/issue"
     assert batch["$defs"]["issue"]["properties"]["code"]["type"] == "string"
+
+    missing_observed_field = schema()
+    missing_observed_field["required"].remove("observed_extraction_route_evidence")
+    missing_observed_field["properties"].pop("observed_extraction_route_evidence")
+    invalid_schema = tmp_path / "missing-observed-route.schema.json"
+    invalid_schema.write_text(json.dumps(missing_observed_field), encoding="utf-8")
+    with pytest.raises(ValueError, match="expected strict"):
+        RUN.load_response_schema(invalid_schema)
 
 
 def test_model_must_be_explicit_policy_value_without_fallback() -> None:
@@ -138,6 +165,64 @@ def test_model_must_be_explicit_policy_value_without_fallback() -> None:
     with pytest.raises(ValueError, match="must equal policy required_model exactly"):
         RUN.resolve_review_model(policy, {"CODEX_REVIEW_MODEL": "another-model"})
     assert RUN.resolve_review_model(policy, {"CODEX_REVIEW_MODEL": "gpt-5.6-luna"}) == "gpt-5.6-luna"
+
+
+def test_compact_observed_route_provenance_is_bound_and_secondary_only(
+    tmp_path: Path,
+) -> None:
+    prompt = prompt_file(tmp_path)
+    row = request(
+        prompt_sha256=RUN.sha256_file(prompt),
+        response_schema_sha256=RUN.sha256_file(SCHEMA_PATH),
+        source_route="pdf_ocr",
+        observed_extraction_route="html_web",
+        observed_extraction_route_basis="row_representation_metadata",
+        observed_extraction_route_evidence="raw_metadata:mime_type=text_html",
+    )
+
+    RUN.validate_execution_request(
+        row,
+        model="gpt-5.6-luna",
+        prompt_sha256=RUN.sha256_file(prompt),
+        response_schema_sha256=RUN.sha256_file(SCHEMA_PATH),
+        initial_only=True,
+    )
+    assert row["source_route"] == "pdf_ocr"
+    assert row["observed_extraction_route"] == "html_web"
+    assert row["observed_extraction_route_priority"] == "secondary_exception_only"
+    assert all(field in RUN.REQUEST_IDENTITY_FIELDS for field in RUN.OBSERVED_EXTRACTION_ROUTE_FIELDS)
+
+    rendered = RUN.compose_prompt("Committed prompt.", [row])
+    assert "secondary_exception_only" in rendered
+    assert "raw_metadata:mime_type=text_html" in rendered
+
+    calibration_secondary = RUN._calibration_secondary_request(row)
+    for field in RUN.OBSERVED_EXTRACTION_ROUTE_FIELDS:
+        assert calibration_secondary[field] == row[field]
+
+    unbounded_or_textual = dict(row)
+    unbounded_or_textual["observed_extraction_route_evidence"] = "raw metadata text is forbidden"
+    unbounded_or_textual["request_sha256"] = REVIEW._request_hash(unbounded_or_textual)
+    with pytest.raises(ValueError, match="bounded text-free audit code"):
+        RUN.validate_execution_request(
+            unbounded_or_textual,
+            model="gpt-5.6-luna",
+            prompt_sha256=RUN.sha256_file(prompt),
+            response_schema_sha256=RUN.sha256_file(SCHEMA_PATH),
+            initial_only=True,
+        )
+
+    priority_drift = dict(row)
+    priority_drift["observed_extraction_route_priority"] = "logical_primary"
+    priority_drift["request_sha256"] = REVIEW._request_hash(priority_drift)
+    with pytest.raises(ValueError, match="preserve source_route as logical primary"):
+        RUN.validate_execution_request(
+            priority_drift,
+            model="gpt-5.6-luna",
+            prompt_sha256=RUN.sha256_file(prompt),
+            response_schema_sha256=RUN.sha256_file(SCHEMA_PATH),
+            initial_only=True,
+        )
 
 
 def test_batch_plan_isolates_slots_and_cache_never_stores_review_copy(

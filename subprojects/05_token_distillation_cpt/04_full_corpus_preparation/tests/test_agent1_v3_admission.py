@@ -56,6 +56,10 @@ def review_response(request: dict[str, object], *, recommendation: str = "includ
             "source_dataset",
             "source_revision",
             "source_route",
+            "observed_extraction_route",
+            "observed_extraction_route_basis",
+            "observed_extraction_route_evidence",
+            "observed_extraction_route_priority",
             "sampling_stratum",
             "original_text_sha256",
             "review_copy_sha256",
@@ -108,6 +112,12 @@ def make_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, o
         "source_revision": source_revision,
         "stable_uid": sample_id,
         "source_route": "structured",
+        "review_route": "structured",
+        "extraction_route": "structured",
+        "observed_extraction_route": "structured",
+        "observed_extraction_route_basis": "declared_extraction_route_fallback",
+        "observed_extraction_route_evidence": "roster:extraction_route",
+        "observed_extraction_route_priority": "logical_primary",
         "sampling_stratum": "random",
         "risk_score": 0.0,
         "review_cluster_id": "singleton:" + sample_id,
@@ -129,6 +139,14 @@ def make_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, o
         "source_dataset": "source-a",
         "source_revision": source_revision,
         "source_route": "structured",
+        "review_route": "structured",
+        "extraction_route": "structured",
+        "allowed_observed_extraction_routes": ["structured"],
+        "observed_extraction_route_counts": {"structured": 1},
+        "observed_extraction_route_basis_counts": {
+            "declared_extraction_route_fallback": 1
+        },
+        "observed_extraction_route_priority_counts": {"logical_primary": 1},
         "large_or_heterogeneous": False,
         "review_denominator": denominator,
         "requested_strata": {"random": 1, "risk": 0, "cluster": 0},
@@ -179,6 +197,14 @@ def make_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, o
         "source_dataset": "source-a",
         "source_revision": source_revision,
         "source_route": "structured",
+        "review_route": "structured",
+        "extraction_route": "structured",
+        "allowed_observed_extraction_routes": ["structured"],
+        "observed_extraction_route_counts": {"structured": 1},
+        "observed_extraction_route_basis_counts": {
+            "declared_extraction_route_fallback": 1
+        },
+        "observed_extraction_route_priority_counts": {"logical_primary": 1},
         "review_denominator": denominator,
         "requested_strata": {"random": 1, "risk": 0, "cluster": 0},
         "primary_requests_by_stratum": {"random": 1, "risk": 0, "cluster": 0},
@@ -212,7 +238,7 @@ def make_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, o
             "secondary_by_stratum": {"random": 1, "risk": 0, "cluster": 0},
         },
         "request_inventory": [
-            {key: row[key] for key in ("review_id", "request_sha256", "sample_id", "reviewer_slot")}
+            {key: row[key] for key in AGGREGATE.REQUEST_INVENTORY_FIELDS}
             for row in (primary, secondary)
         ],
     }
@@ -238,6 +264,10 @@ def make_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, o
         "source_dataset",
         "source_revision",
         "source_route",
+        "observed_extraction_route",
+        "observed_extraction_route_basis",
+        "observed_extraction_route_evidence",
+        "observed_extraction_route_priority",
         "sampling_stratum",
         "original_text_sha256",
         "review_copy_sha256",
@@ -598,6 +628,21 @@ def test_aggregate_requires_exact_stage30_stage35_closure_and_derives_source_evi
     assert source["review"]["recommendation_counts"]["include"] == 1
     assert source["review"]["issue_document_counts"] == {"template_replay": 1}
     assert source["cluster_and_template"]["quality_template_concentration"]["top_1_fraction"] == 1.0
+    assert source["source_route"] == "structured"
+    assert source["route_provenance"] == {
+        "logical_source_priority": REVIEW.ROUTE_POLICY_PRIORITY,
+        "logical_source_route": "structured",
+        "review_route": "structured",
+        "declared_extraction_route": "structured",
+        "allowed_observed_extraction_routes": ["structured"],
+        "eligible_document_observed_extraction_route_counts": {"structured": 1},
+        "eligible_document_observed_extraction_route_basis_counts": {
+            "declared_extraction_route_fallback": 1
+        },
+        "eligible_document_observed_extraction_route_priority_counts": {
+            "logical_primary": 1
+        },
+    }
     AGGREGATE.validate_aggregate(result, roster=json.loads(Path(_["roster"]).read_text(encoding="utf-8")))
 
 

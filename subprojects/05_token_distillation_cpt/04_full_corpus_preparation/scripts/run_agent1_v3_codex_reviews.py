@@ -24,6 +24,7 @@ import datetime as dt
 import hashlib
 import json
 import os
+import re
 import subprocess
 import tempfile
 from collections import Counter, defaultdict
@@ -59,6 +60,20 @@ DEFAULT_RESPONSE_SCHEMA = PHASE_ROOT / "schemas" / "agent1_v3_review_response.sc
 MODEL_ENVIRONMENT_VARIABLE = "CODEX_REVIEW_MODEL"
 INITIAL_SLOTS = frozenset({"primary", "secondary"})
 ALL_SLOTS = frozenset({"primary", "secondary", "adjudicator"})
+OBSERVED_EXTRACTION_ROUTE_FIELDS = (
+    "observed_extraction_route",
+    "observed_extraction_route_basis",
+    "observed_extraction_route_evidence",
+    "observed_extraction_route_priority",
+)
+OBSERVED_EXTRACTION_ROUTE_PRIORITIES = frozenset(
+    {"logical_primary", "secondary_exception_only"}
+)
+# This is deliberately an audit-code grammar rather than free text.  It
+# permits the compact canonical values such as ``raw_field:format``,
+# ``raw_metadata:mime_type=text_html``, and ``roster:extraction_route`` while
+# excluding whitespace, controls, and copied corpus content.
+TEXT_FREE_ROUTE_EVIDENCE_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:/=\-]{0,255}")
 REQUEST_IDENTITY_FIELDS = (
     "schema_version",
     "sample_id",
@@ -67,6 +82,7 @@ REQUEST_IDENTITY_FIELDS = (
     "source_dataset",
     "source_revision",
     "source_route",
+    *OBSERVED_EXTRACTION_ROUTE_FIELDS,
     "sampling_stratum",
     "original_text_sha256",
     "review_copy_sha256",
@@ -86,6 +102,7 @@ CALIBRATION_SHARED_IDENTITY_FIELDS = (
     "source_dataset",
     "source_revision",
     "source_route",
+    *OBSERVED_EXTRACTION_ROUTE_FIELDS,
     "sampling_stratum",
     "original_text_sha256",
     "review_copy_sha256",
@@ -341,11 +358,14 @@ def load_response_schema(path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
         raise ValueError(f"{path}: response schema must be an object")
     schema = dict(value)
     properties = schema.get("properties")
+    required = schema.get("required")
     if (
         schema.get("type") != "object"
         or schema.get("additionalProperties") is not False
         or not isinstance(properties, Mapping)
+        or not isinstance(required, list)
         or properties.get("schema_version", {}).get("const") != review.RESPONSE_SCHEMA
+        or any(field not in properties or field not in required for field in OBSERVED_EXTRACTION_ROUTE_FIELDS)
     ):
         raise ValueError(f"{path}: expected strict {review.RESPONSE_SCHEMA} schema")
     # Preserve an explicit hash of the one-response normalized execution copy
@@ -386,6 +406,44 @@ def _expected_initial_review_id(request: Mapping[str, Any]) -> str:
     return review.sha256_json({"kind": "agent1_v3_review_id", **identity})
 
 
+def _validate_compact_observed_route_context(
+    request: Mapping[str, Any], errors: list[str]
+) -> None:
+    """Require bounded per-document representation evidence in a compact request.
+
+    ``source_route`` remains the logical error model.  The observed route can
+    only be a document-level supporting signal, and its evidence is an opaque,
+    text-free audit code rather than raw field content or reviewer prose.
+    """
+
+    observed_route = request.get("observed_extraction_route")
+    if observed_route not in review.ALLOWED_ROUTES:
+        errors.append("request.observed_extraction_route is unsupported")
+    basis = request.get("observed_extraction_route_basis")
+    if basis not in review.OBSERVED_EXTRACTION_ROUTE_BASES:
+        errors.append("request.observed_extraction_route_basis is unsupported")
+    evidence = request.get("observed_extraction_route_evidence")
+    if (
+        not isinstance(evidence, str)
+        or TEXT_FREE_ROUTE_EVIDENCE_RE.fullmatch(evidence) is None
+    ):
+        errors.append(
+            "request.observed_extraction_route_evidence must be a bounded text-free audit code"
+        )
+    expected_priority = (
+        "logical_primary"
+        if observed_route == request.get("source_route")
+        else "secondary_exception_only"
+    )
+    priority = request.get("observed_extraction_route_priority")
+    if priority not in OBSERVED_EXTRACTION_ROUTE_PRIORITIES:
+        errors.append("request.observed_extraction_route_priority is unsupported")
+    elif priority != expected_priority:
+        errors.append(
+            "request.observed_extraction_route_priority must preserve source_route as logical primary"
+        )
+
+
 def validate_execution_request(
     request: Mapping[str, Any],
     *,
@@ -397,6 +455,7 @@ def validate_execution_request(
     """Fail closed unless a compact v3 request is immutable and executable."""
 
     errors = review._validate_request_binding(request)
+    _validate_compact_observed_route_context(request, errors)
     slot = request.get("reviewer_slot")
     allowed = ADJUDICATION_REQUEST_FIELDS if slot == "adjudicator" else BASE_REQUEST_FIELDS
     extra = sorted(set(request) - allowed)
@@ -962,6 +1021,10 @@ def synthetic_preflight_request(
             "source_revision": "fixture-v1",
             "stable_uid": sample_id,
             "source_route": "structured",
+            "observed_extraction_route": "structured",
+            "observed_extraction_route_basis": "declared_extraction_route_fallback",
+            "observed_extraction_route_evidence": "synthetic:preflight_fixture",
+            "observed_extraction_route_priority": "logical_primary",
             "sampling_stratum": "random",
         },
         reviewer_slot="primary",
@@ -1025,6 +1088,16 @@ def _calibration_secondary_request(primary: Mapping[str, Any]) -> dict[str, Any]
             "source_revision": primary["source_revision"],
             "stable_uid": primary["sample_id"],
             "source_route": primary["source_route"],
+            "observed_extraction_route": primary["observed_extraction_route"],
+            "observed_extraction_route_basis": primary[
+                "observed_extraction_route_basis"
+            ],
+            "observed_extraction_route_evidence": primary[
+                "observed_extraction_route_evidence"
+            ],
+            "observed_extraction_route_priority": primary[
+                "observed_extraction_route_priority"
+            ],
             "sampling_stratum": primary["sampling_stratum"],
         },
         reviewer_slot="secondary",

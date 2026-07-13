@@ -527,6 +527,7 @@ validate_full_scan_evidence() {
 import hashlib
 import json
 import sys
+from collections import Counter, defaultdict
 from pathlib import Path
 
 (
@@ -556,6 +557,7 @@ if not isinstance(candidates, list) or sorted(summary.get("selected_source_ids",
     raise SystemExit(f"{summary_path}: full-scan source coverage differs from the v3 roster")
 if not all(isinstance(source, str) and source for source in candidates):
     raise SystemExit(f"{roster_path}: invalid candidate source IDs")
+candidate_set = set(candidates)
 roster_sha256 = hashlib.sha256(roster_path.read_bytes()).hexdigest()
 review_routes = roster.get("review_routes")
 source_routes = roster.get("source_routes", review_routes)
@@ -578,6 +580,22 @@ if (
     != "logical_source_then_observed_extraction"
 ):
     raise SystemExit(f"{route_validation_path}: logical-source route validation drift")
+allowed_observed_routes = route_validation.get("allowed_observed_extraction_routes")
+if not isinstance(allowed_observed_routes, dict) or set(allowed_observed_routes) != set(candidates):
+    raise SystemExit(f"{route_validation_path}: observed-route allowance coverage drift")
+for source in candidates:
+    allowed = allowed_observed_routes[source]
+    if (
+        not isinstance(allowed, list)
+        or not allowed
+        or allowed != sorted(set(allowed))
+        or any(route not in {"html_web", "pdf_ocr", "mixed", "structured"} for route in allowed)
+        or source_routes[source] not in allowed
+        or extraction_routes[source] not in allowed
+    ):
+        raise SystemExit(
+            f"{route_validation_path}: invalid observed-route allowance for {source}"
+        )
 document_output = summary.get("document_output")
 if not isinstance(document_output, dict) or document_output.get("path") != documents_path.name:
     raise SystemExit(f"{summary_path}: consolidated document evidence path drift")
@@ -602,11 +620,231 @@ if (
     or contract_output.get("sha256") != contract_digest
 ):
     raise SystemExit(f"{summary_path}: quality contract receipt drift")
+
+# The frozen roster is only an expectation.  Recompute route coverage from the
+# actual per-document Phase-2 Parquet and compare it to the profiler's summary
+# before issuing the review-packet receipt.  This proves that the logical
+# source route was used as the primary model while per-document observed
+# extraction routes remained visible as secondary evidence.
+ALLOWED_ROUTES = {"html_web", "pdf_ocr", "mixed", "structured"}
+ALLOWED_OBSERVED_BASES = {
+    "explicit_row_route",
+    "row_representation_metadata",
+    "declared_extraction_route_fallback",
+    "unavailable",
+    "legacy_canonical_without_observed_route",
+}
+ALLOWED_OBSERVED_PRIORITIES = {"logical_primary", "secondary_exception_only"}
+ROUTE_COVERAGE_SCHEMA = "dataset_quality_route_coverage_v1"
+
+def route(value, label):
+    if not isinstance(value, str) or value not in ALLOWED_ROUTES:
+        raise SystemExit(f"{label}: unsupported route {value!r}")
+    return value
+
+def annotation(value, label, *, basis=False):
+    if (
+        not isinstance(value, str)
+        or not value
+        or len(value) > 256
+        or any(character.isspace() or ord(character) < 0x20 for character in value)
+    ):
+        raise SystemExit(f"{label}: invalid observed-route annotation")
+    if basis and value not in ALLOWED_OBSERVED_BASES:
+        raise SystemExit(f"{label}: unsupported observed-route basis {value!r}")
+    return value
+
+def canonical_json(value):
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
+
+def count_rows(counter, key="route"):
+    return [{key: value, "documents": int(counter[value])} for value in sorted(counter)]
+
+def build_route_coverage(tuple_counts):
+    if not tuple_counts:
+        raise SystemExit("full-scan document Parquet has no route tuples")
+    declarations = {}
+    source_documents = Counter()
+    source_observed = defaultdict(Counter)
+    source_bases = defaultdict(Counter)
+    source_priorities = defaultdict(Counter)
+    source_routes_count = Counter()
+    review_routes_count = Counter()
+    extraction_routes_count = Counter()
+    observed_routes_count = Counter()
+    observed_bases_count = Counter()
+    observed_priorities_count = Counter()
+    route_tuples = []
+    for route_tuple, documents in sorted(tuple_counts.items()):
+        if documents < 1:
+            raise SystemExit("full-scan route tuple has no documents")
+        (
+            source_id,
+            source_route,
+            review_route,
+            extraction_route,
+            observed_route,
+            observed_basis,
+            observed_evidence,
+            observed_priority,
+        ) = route_tuple
+        declaration = (source_route, review_route, extraction_route)
+        previous = declarations.setdefault(source_id, declaration)
+        if previous != declaration:
+            raise SystemExit(f"{source_id}: document Parquet has source-level route drift")
+        source_documents[source_id] += documents
+        source_observed[source_id][observed_route] += documents
+        source_bases[source_id][observed_basis] += documents
+        source_priorities[source_id][observed_priority] += documents
+        source_routes_count[source_route] += documents
+        review_routes_count[review_route] += documents
+        extraction_routes_count[extraction_route] += documents
+        observed_routes_count[observed_route] += documents
+        observed_bases_count[observed_basis] += documents
+        observed_priorities_count[observed_priority] += documents
+        route_tuples.append(
+            {
+                "source_id": source_id,
+                "source_route": source_route,
+                "review_route": review_route,
+                "extraction_route": extraction_route,
+                "observed_extraction_route": observed_route,
+                "observed_extraction_route_basis": observed_basis,
+                "observed_extraction_route_evidence": observed_evidence,
+                "observed_extraction_route_priority": observed_priority,
+                "documents": int(documents),
+            }
+        )
+    return {
+        "schema_version": ROUTE_COVERAGE_SCHEMA,
+        "documents": int(sum(source_documents.values())),
+        "source_route_counts": count_rows(source_routes_count),
+        "review_route_counts": count_rows(review_routes_count),
+        "extraction_route_counts": count_rows(extraction_routes_count),
+        "observed_extraction_route_counts": count_rows(observed_routes_count),
+        "observed_extraction_route_basis_counts": count_rows(observed_bases_count, "basis"),
+        "observed_extraction_route_priority_counts": count_rows(observed_priorities_count, "priority"),
+        "sources": [
+            {
+                "source_id": source_id,
+                "documents": int(source_documents[source_id]),
+                "source_route": declarations[source_id][0],
+                "review_route": declarations[source_id][1],
+                "extraction_route": declarations[source_id][2],
+                "observed_extraction_route_counts": count_rows(source_observed[source_id]),
+                "observed_extraction_route_basis_counts": count_rows(source_bases[source_id], "basis"),
+                "observed_extraction_route_priority_counts": count_rows(source_priorities[source_id], "priority"),
+            }
+            for source_id in sorted(declarations)
+        ],
+        "route_tuples": route_tuples,
+    }
+
+route_coverage = summary.get("route_coverage")
+if not isinstance(route_coverage, dict):
+    raise SystemExit(f"{summary_path}: full scan lacks route coverage")
+try:
+    import pyarrow.parquet as pq
+except ImportError as exc:
+    raise SystemExit("PyArrow is required to validate full-scan route coverage") from exc
+required_route_columns = [
+    "schema_version",
+    "source_id",
+    "source_route",
+    "review_route",
+    "extraction_route",
+    "observed_extraction_route",
+    "observed_extraction_route_basis",
+    "observed_extraction_route_evidence",
+    "observed_extraction_route_priority",
+]
+parquet = pq.ParquetFile(documents_path)
+missing_route_columns = sorted(set(required_route_columns) - set(parquet.schema_arrow.names))
+if missing_route_columns:
+    raise SystemExit(
+        f"{documents_path}: full-scan metrics lack route fields {missing_route_columns}"
+    )
+actual_tuples = Counter()
+actual_rows = 0
+for batch in parquet.iter_batches(batch_size=65536, columns=required_route_columns, use_threads=False):
+    for index, row in enumerate(batch.to_pylist()):
+        row_label = f"{documents_path}:route-row-{actual_rows + index}"
+        if row.get("schema_version") != "dataset_quality_document_v1":
+            raise SystemExit(f"{row_label}: unsupported quality document schema")
+        source_id = row.get("source_id")
+        if not isinstance(source_id, str) or source_id not in candidate_set:
+            raise SystemExit(f"{row_label}: source_id is absent from the frozen candidate roster")
+        source_route = route(row.get("source_route"), f"{row_label}.source_route")
+        review_route = route(row.get("review_route"), f"{row_label}.review_route")
+        extraction_route = route(row.get("extraction_route"), f"{row_label}.extraction_route")
+        if (
+            source_route != source_routes[source_id]
+            or review_route != review_routes[source_id]
+            or extraction_route != extraction_routes[source_id]
+        ):
+            raise SystemExit(
+                f"{row_label}: document route triplet differs from the frozen logical-source roster"
+            )
+        observed_route = route(
+            row.get("observed_extraction_route"),
+            f"{row_label}.observed_extraction_route",
+        )
+        if observed_route not in allowed_observed_routes[source_id]:
+            raise SystemExit(
+                f"{row_label}: observed extraction route is not a documented secondary exception"
+            )
+        observed_basis = annotation(
+            row.get("observed_extraction_route_basis"),
+            f"{row_label}.observed_extraction_route_basis",
+            basis=True,
+        )
+        observed_evidence = annotation(
+            row.get("observed_extraction_route_evidence"),
+            f"{row_label}.observed_extraction_route_evidence",
+        )
+        observed_priority = row.get("observed_extraction_route_priority")
+        expected_priority = (
+            "logical_primary"
+            if observed_route == source_route
+            else "secondary_exception_only"
+        )
+        if (
+            observed_priority not in ALLOWED_OBSERVED_PRIORITIES
+            or observed_priority != expected_priority
+        ):
+            raise SystemExit(
+                f"{row_label}: observed extraction route priority does not preserve logical-source primacy"
+            )
+        actual_tuples[
+            (
+                source_id,
+                source_route,
+                review_route,
+                extraction_route,
+                observed_route,
+                observed_basis,
+                observed_evidence,
+                observed_priority,
+            )
+        ] += 1
+    actual_rows += batch.num_rows
+actual_route_coverage = build_route_coverage(actual_tuples)
+if actual_rows != int(document_output.get("rows", -1)):
+    raise SystemExit(f"{documents_path}: route-coverage row count differs from document receipt")
+if actual_route_coverage["documents"] != actual_rows:
+    raise SystemExit(f"{documents_path}: route-coverage denominator drift")
+if [row["source_id"] for row in actual_route_coverage["sources"]] != sorted(candidates):
+    raise SystemExit(f"{documents_path}: route coverage is incomplete for frozen candidate sources")
+if route_coverage != actual_route_coverage:
+    raise SystemExit(
+        f"{summary_path}: route coverage does not match recomputed per-document Parquet evidence"
+    )
 handoff = json.loads(handoff_path.read_text(encoding="utf-8"))
 if (
     handoff.get("schema_version") != "dataset_quality_site_handoff_v1"
     or handoff.get("status") != "passed"
     or handoff.get("scan_mode") != "full_scan"
+    or handoff.get("route_coverage") != actual_route_coverage
 ):
     raise SystemExit(f"{handoff_path}: incomplete quality handoff")
 payload = {
@@ -628,6 +866,25 @@ payload = {
     "source_routes": route_validation["source_routes"],
     "review_routes": route_validation["review_routes"],
     "extraction_routes": route_validation["extraction_routes"],
+    "allowed_observed_extraction_routes": allowed_observed_routes,
+    "route_coverage_sha256": hashlib.sha256(
+        canonical_json(actual_route_coverage).encode("utf-8")
+    ).hexdigest(),
+    "route_coverage_validated_from_document_parquet": True,
+    "route_tuple_count": len(actual_route_coverage["route_tuples"]),
+    "source_route_coverage": actual_route_coverage["sources"],
+    "source_route_counts": actual_route_coverage["source_route_counts"],
+    "review_route_counts": actual_route_coverage["review_route_counts"],
+    "extraction_route_counts": actual_route_coverage["extraction_route_counts"],
+    "observed_extraction_route_counts": actual_route_coverage[
+        "observed_extraction_route_counts"
+    ],
+    "observed_extraction_route_basis_counts": actual_route_coverage[
+        "observed_extraction_route_basis_counts"
+    ],
+    "observed_extraction_route_priority_counts": actual_route_coverage[
+        "observed_extraction_route_priority_counts"
+    ],
 }
 output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY

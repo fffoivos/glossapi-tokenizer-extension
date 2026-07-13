@@ -52,6 +52,43 @@ LICENSE_SCHEMA = "full_cpt_source_license_adjudication_v1"
 EXPECTED_REVIEW_MODEL = "gpt-5.6-luna"
 SHA256_RE = __import__("re").compile(r"^[0-9a-f]{64}$")
 
+# ``source_route`` is the logical acquisition route and therefore controls the
+# primary error model.  These fields preserve a per-document observation about
+# the representation that reached the corpus without allowing it to replace
+# that logical route.
+OBSERVED_ROUTE_FIELDS = (
+    "observed_extraction_route",
+    "observed_extraction_route_basis",
+    "observed_extraction_route_evidence",
+    "observed_extraction_route_priority",
+)
+REQUEST_INVENTORY_FIELDS = (
+    "review_id",
+    "request_sha256",
+    "sample_id",
+    "reviewer_slot",
+    *OBSERVED_ROUTE_FIELDS,
+)
+CALIBRATION_REQUEST_IDENTITY_FIELDS = (
+    "review_id",
+    "request_sha256",
+    "reviewer_slot",
+    "sample_id",
+    "source_id",
+    "source_dataset",
+    "source_revision",
+    "source_route",
+    *OBSERVED_ROUTE_FIELDS,
+    "sampling_stratum",
+    "original_text_sha256",
+    "review_copy_sha256",
+    "prompt_sha256",
+    "response_schema_sha256",
+    "model",
+    "code_commit",
+    "attempt",
+)
+
 # An aggregate is a compact reducer, but it is not a trust boundary on its
 # own.  A later admission step must be able to reopen every one of these
 # receipt-bound inputs and deterministically reproduce the reducer output.
@@ -87,6 +124,7 @@ REQUEST_FIELDS = frozenset(
         "source_dataset",
         "source_revision",
         "source_route",
+        *OBSERVED_ROUTE_FIELDS,
         "sampling_stratum",
         "original_text_sha256",
         "review_copy_sha256",
@@ -273,6 +311,220 @@ def _assert_counts(label: str, actual: Mapping[str, int], expected: Any) -> None
         raise ValueError(f"{label}: stratum count drift; actual={dict(actual)}, expected={projected}")
 
 
+def _validate_observed_route_context(
+    row: Mapping[str, Any],
+    *,
+    label: str,
+    logical_source_route: str,
+    allowed_observed_routes: Sequence[str],
+) -> dict[str, str]:
+    """Validate one compact observed-route receipt against logical provenance."""
+
+    if logical_source_route not in review.ALLOWED_ROUTES:
+        raise ValueError(f"{label}: logical source route is unsupported")
+    allowed = list(allowed_observed_routes)
+    if (
+        not allowed
+        or allowed != sorted(set(allowed))
+        or any(route not in review.ALLOWED_ROUTES for route in allowed)
+        or logical_source_route not in allowed
+    ):
+        raise ValueError(f"{label}: allowed observed-route provenance is invalid")
+    observed = row.get("observed_extraction_route")
+    if observed not in review.ALLOWED_ROUTES:
+        raise ValueError(f"{label}: observed extraction route is unsupported")
+    if observed not in allowed:
+        raise ValueError(
+            f"{label}: observed extraction route is not the logical route or a documented secondary exception"
+        )
+    basis = row.get("observed_extraction_route_basis")
+    if basis not in review.OBSERVED_EXTRACTION_ROUTE_BASES:
+        raise ValueError(f"{label}: observed extraction route basis is unsupported")
+    evidence = row.get("observed_extraction_route_evidence")
+    if (
+        not isinstance(evidence, str)
+        or not evidence
+        or len(evidence) > 256
+        or any(character.isspace() or ord(character) < 0x20 for character in evidence)
+    ):
+        raise ValueError(f"{label}: observed extraction route evidence is not a bounded text-free code")
+    expected_priority = (
+        "logical_primary"
+        if observed == logical_source_route
+        else "secondary_exception_only"
+    )
+    if row.get("observed_extraction_route_priority") != expected_priority:
+        raise ValueError(f"{label}: observed extraction route reverses logical-source priority")
+    return {
+        "observed_extraction_route": str(observed),
+        "observed_extraction_route_basis": str(basis),
+        "observed_extraction_route_evidence": evidence,
+        "observed_extraction_route_priority": expected_priority,
+    }
+
+
+def _validate_positive_counter(
+    value: Any,
+    *,
+    label: str,
+    allowed_keys: set[str],
+    expected_total: int,
+) -> dict[str, int]:
+    """Validate the source-wide route/basis/priority count receipts."""
+
+    if not isinstance(value, Mapping) or not value:
+        raise ValueError(f"{label}: expected a non-empty count object")
+    result: dict[str, int] = {}
+    for raw_key, raw_count in value.items():
+        if not isinstance(raw_key, str) or raw_key not in allowed_keys:
+            raise ValueError(f"{label}: unsupported count key {raw_key!r}")
+        result[raw_key] = _require_int(f"{label}.{raw_key}", raw_count, minimum=1)
+    if sum(result.values()) != expected_total:
+        raise ValueError(f"{label}: count denominator drift")
+    return dict(sorted(result.items()))
+
+
+def _validate_source_route_provenance(
+    row: Mapping[str, Any],
+    *,
+    label: str,
+    logical_source_route: str,
+    review_route: str,
+    extraction_route: str,
+    allowed_observed_routes: Sequence[str],
+    eligible_documents: int,
+) -> dict[str, Any]:
+    """Validate source-level logical/observed route evidence from Stage 30."""
+
+    if row.get("source_route") != logical_source_route:
+        raise ValueError(f"{label}: logical source route drift")
+    if row.get("review_route") != review_route:
+        raise ValueError(f"{label}: review route drift")
+    if row.get("extraction_route") != extraction_route:
+        raise ValueError(f"{label}: declared extraction route drift")
+    allowed = list(allowed_observed_routes)
+    if row.get("allowed_observed_extraction_routes") != allowed:
+        raise ValueError(f"{label}: allowed observed extraction routes drift")
+    route_counts = _validate_positive_counter(
+        row.get("observed_extraction_route_counts"),
+        label=f"{label}.observed_extraction_route_counts",
+        allowed_keys=set(allowed),
+        expected_total=eligible_documents,
+    )
+    basis_counts = _validate_positive_counter(
+        row.get("observed_extraction_route_basis_counts"),
+        label=f"{label}.observed_extraction_route_basis_counts",
+        allowed_keys=set(review.OBSERVED_EXTRACTION_ROUTE_BASES),
+        expected_total=eligible_documents,
+    )
+    priority_counts = _validate_positive_counter(
+        row.get("observed_extraction_route_priority_counts"),
+        label=f"{label}.observed_extraction_route_priority_counts",
+        allowed_keys={"logical_primary", "secondary_exception_only"},
+        expected_total=eligible_documents,
+    )
+    expected_priority_counts: dict[str, int] = {}
+    primary_count = route_counts.get(logical_source_route, 0)
+    secondary_count = eligible_documents - primary_count
+    if primary_count:
+        expected_priority_counts["logical_primary"] = primary_count
+    if secondary_count:
+        expected_priority_counts["secondary_exception_only"] = secondary_count
+    if priority_counts != expected_priority_counts:
+        raise ValueError(f"{label}: observed route priority counts reverse logical-source priority")
+    return {
+        "logical_source_priority": review.ROUTE_POLICY_PRIORITY,
+        "logical_source_route": logical_source_route,
+        "review_route": review_route,
+        "declared_extraction_route": extraction_route,
+        "allowed_observed_extraction_routes": allowed,
+        "eligible_document_observed_extraction_route_counts": route_counts,
+        "eligible_document_observed_extraction_route_basis_counts": basis_counts,
+        "eligible_document_observed_extraction_route_priority_counts": priority_counts,
+    }
+
+
+def _validate_calibration_request_binding(
+    calibration: Mapping[str, Any],
+    *,
+    requests_by_id: Mapping[str, Mapping[str, Any]],
+) -> None:
+    """Bind every receipt-safe calibration summary to its Stage-30 request.
+
+    The calibration receipt intentionally omits review-copy text.  Its
+    primary and any pre-existing secondary summaries must therefore be a
+    byte-for-byte projection of Stage 30; a calibration-only secondary is
+    deterministically recreated from that primary.  This makes observed
+    extraction provenance auditable without widening the no-corpus-text
+    boundary.
+    """
+
+    selection = calibration.get("selection")
+    if not isinstance(selection, Mapping):
+        raise ValueError("Codex calibration receipt lacks selection for request binding")
+    pairs = selection.get("selected_pairs")
+    if not isinstance(pairs, list):
+        raise ValueError("Codex calibration receipt lacks selected pairs for request binding")
+    for pair_index, pair in enumerate(pairs, 1):
+        if not isinstance(pair, Mapping):
+            raise ValueError(f"Codex calibration pair {pair_index} is malformed")
+        primary_summary = pair.get("primary_request")
+        secondary_summary = pair.get("secondary_request")
+        if not isinstance(primary_summary, Mapping) or not isinstance(secondary_summary, Mapping):
+            raise ValueError(f"Codex calibration pair {pair_index} is malformed")
+        primary_id = primary_summary.get("review_id")
+        primary = requests_by_id.get(str(primary_id)) if isinstance(primary_id, str) else None
+        if primary is None or primary.get("reviewer_slot") != "primary":
+            raise ValueError(f"Codex calibration pair {pair_index}.primary_request is not a Stage-30 primary request")
+        expected_primary = {
+            field: primary[field]
+            for field in CALIBRATION_REQUEST_IDENTITY_FIELDS
+        }
+        if dict(primary_summary) != expected_primary:
+            raise ValueError(
+                f"Codex calibration pair {pair_index}.primary_request differs from its exact Stage-30 request"
+            )
+
+        secondary_id = secondary_summary.get("review_id")
+        secondary = requests_by_id.get(str(secondary_id)) if isinstance(secondary_id, str) else None
+        if secondary is None:
+            # The runner is allowed to create a deterministic secondary only
+            # for calibration when Stage 30 did not sample that document for a
+            # full secondary review.  Recreate it from the exact primary
+            # packet rather than treating a receipt-only summary as trusted.
+            secondary = review.make_review_request(
+                {
+                    "source_id": primary["source_id"],
+                    "source_dataset": primary["source_dataset"],
+                    "source_revision": primary["source_revision"],
+                    "stable_uid": primary["sample_id"],
+                    "source_route": primary["source_route"],
+                    **{field: primary[field] for field in OBSERVED_ROUTE_FIELDS},
+                    "sampling_stratum": primary["sampling_stratum"],
+                },
+                reviewer_slot="secondary",
+                original_text_sha256=str(primary["original_text_sha256"]),
+                review_copy_sha256=str(primary["review_copy_sha256"]),
+                prompt_sha256=str(primary["prompt_sha256"]),
+                response_schema_sha256=str(primary["response_schema_sha256"]),
+                model=str(primary["model"]),
+                code_commit=str(primary["code_commit"]),
+                attempt=int(primary["attempt"]),
+                review_copy=str(primary["review_copy"]),
+                comparison_bundle=list(primary["comparison_bundle"]),
+            )
+        if secondary.get("reviewer_slot") != "secondary":
+            raise ValueError(f"Codex calibration pair {pair_index}.secondary_request has the wrong reviewer slot")
+        expected_secondary = {
+            field: secondary[field]
+            for field in CALIBRATION_REQUEST_IDENTITY_FIELDS
+        }
+        if dict(secondary_summary) != expected_secondary:
+            raise ValueError(
+                f"Codex calibration pair {pair_index}.secondary_request differs from its exact request"
+            )
+
+
 def _packet_digest(packet: Mapping[str, Any]) -> str:
     copy = dict(packet)
     copy.pop("manifest_sha256", None)
@@ -298,7 +550,10 @@ def _validate_packet_and_requests(
 
     route_validation = review.validate_candidate_roster_routes(roster)
     candidates = list(route_validation["candidate_source_ids"])
-    routes = dict(route_validation["review_routes"])
+    logical_routes = dict(route_validation["source_routes"])
+    review_routes = dict(route_validation["review_routes"])
+    extraction_routes = dict(route_validation["extraction_routes"])
+    observed_route_allowances = dict(route_validation["allowed_observed_extraction_routes"])
     packet_inputs = packet.get("inputs")
     if not isinstance(packet_inputs, Mapping):
         raise ValueError("review packet lacks input bindings")
@@ -365,8 +620,24 @@ def _validate_packet_and_requests(
         source_id = _require_nonempty_string(f"selection.selected_documents[{index}].source_id", row.get("source_id"))
         if uid in selected_by_uid:
             raise ValueError("review packet selection repeats a stable_uid")
-        if source_id not in selection_sources or row.get("source_route") != routes[source_id]:
+        source = selection_sources.get(source_id)
+        if source is None:
             raise ValueError(f"{uid}: review packet selection source/route drift")
+        for field in ("source_dataset", "source_revision"):
+            if row.get(field) != source.get(field):
+                raise ValueError(f"{uid}: review packet selection identity drift: {field}")
+        if (
+            row.get("source_route") != logical_routes[source_id]
+            or row.get("review_route") != review_routes[source_id]
+            or row.get("extraction_route") != extraction_routes[source_id]
+        ):
+            raise ValueError(f"{uid}: review packet selection route provenance drift")
+        _validate_observed_route_context(
+            row,
+            label=f"selection.selected_documents[{index}]",
+            logical_source_route=logical_routes[source_id],
+            allowed_observed_routes=observed_route_allowances[source_id],
+        )
         if row.get("sampling_stratum") not in review.STRATA:
             raise ValueError(f"{uid}: unsupported selection sampling stratum")
         selected_by_uid[uid] = row
@@ -404,7 +675,14 @@ def _validate_packet_and_requests(
         sample = selected_by_uid.get(sample_id)
         if sample is None:
             raise ValueError("review request is not part of Stage 30 selection")
-        for field in ("source_id", "source_dataset", "source_revision", "source_route", "sampling_stratum"):
+        for field in (
+            "source_id",
+            "source_dataset",
+            "source_revision",
+            "source_route",
+            *OBSERVED_ROUTE_FIELDS,
+            "sampling_stratum",
+        ):
             if row.get(field) != sample.get(field):
                 raise ValueError(f"{sample_id}: review request selection identity drift: {field}")
         if not isinstance(row.get("review_copy"), str) or not isinstance(row.get("comparison_bundle"), list):
@@ -412,14 +690,7 @@ def _validate_packet_and_requests(
         request_by_id[review_id] = row
         request_by_sample_slot[(sample_id, slot)] = row
         initial_requests.append(row)
-        request_inventory.append(
-            {
-                "review_id": review_id,
-                "request_sha256": str(row["request_sha256"]),
-                "sample_id": sample_id,
-                "reviewer_slot": slot,
-            }
-        )
+        request_inventory.append({field: str(row[field]) for field in REQUEST_INVENTORY_FIELDS})
     if packet.get("request_inventory") != request_inventory:
         raise ValueError("review packet request inventory does not match exact request JSONL")
     request_counts = packet.get("request_counts")
@@ -444,6 +715,7 @@ def _validate_packet_and_requests(
     if len({str(row["sample_id"]) for row in secondary}) != len(secondary):
         raise ValueError("secondary review sample identities repeat")
 
+    source_route_provenance: dict[str, dict[str, Any]] = {}
     for source_id in candidates:
         source = selection_sources[source_id]
         coverage = coverage_sources[source_id]
@@ -454,14 +726,33 @@ def _validate_packet_and_requests(
         coverage_denominator = coverage.get("review_denominator")
         if coverage_denominator != denominator:
             raise ValueError(f"{source_id}: coverage denominator drift")
-        for field in ("source_dataset", "source_revision", "source_route"):
+        for field in ("source_dataset", "source_revision"):
             if source.get(field) != coverage.get(field):
                 raise ValueError(f"{source_id}: coverage identity drift: {field}")
-        if source.get("source_route") != routes[source_id]:
-            raise ValueError(f"{source_id}: packet route differs from roster")
         eligible = _require_int(f"{source_id}.eligible_document_count", denominator.get("eligible_document_count"), minimum=1)
         selected_total = _require_int(f"{source_id}.selected_unique_documents", denominator.get("selected_unique_documents"), minimum=1)
         configured = _require_int(f"{source_id}.configured_review_target", denominator.get("configured_review_target"), minimum=1)
+        selection_provenance = _validate_source_route_provenance(
+            source,
+            label=f"selection.sources[{source_id!r}]",
+            logical_source_route=logical_routes[source_id],
+            review_route=review_routes[source_id],
+            extraction_route=extraction_routes[source_id],
+            allowed_observed_routes=observed_route_allowances[source_id],
+            eligible_documents=eligible,
+        )
+        coverage_provenance = _validate_source_route_provenance(
+            coverage,
+            label=f"source_review_coverage[{source_id!r}]",
+            logical_source_route=logical_routes[source_id],
+            review_route=review_routes[source_id],
+            extraction_route=extraction_routes[source_id],
+            allowed_observed_routes=observed_route_allowances[source_id],
+            eligible_documents=eligible,
+        )
+        if coverage_provenance != selection_provenance:
+            raise ValueError(f"{source_id}: coverage observed-route provenance drift")
+        source_route_provenance[source_id] = selection_provenance
         if selected_total != len(selected) or selected_total != sum(_counter_by_stratum(selected).values()):
             raise ValueError(f"{source_id}: selected document denominator drift")
         if selected_total != min(eligible, configured):
@@ -495,6 +786,7 @@ def _validate_packet_and_requests(
         "packet": dict(packet),
         "selection_sources": selection_sources,
         "coverage_sources": coverage_sources,
+        "source_route_provenance": source_route_provenance,
         "selected_by_uid": selected_by_uid,
         "selected_by_source": {key: list(value) for key, value in selected_by_source.items()},
         "initial_requests": initial_requests,
@@ -712,6 +1004,10 @@ def _validate_stage35_closure(
         model=EXPECTED_REVIEW_MODEL,
         code_commit=expected_commit,
         expected_routes={str(row["source_route"]) for row in proof["primary"]},
+    )
+    _validate_calibration_request_binding(
+        calibration,
+        requests_by_id=proof["request_by_id"],
     )
     calibration_receipt_sha = _require_sha256(
         "Stage 35 calibration receipt_sha256", calibration.get("receipt_sha256")
@@ -1209,7 +1505,7 @@ def build_aggregate(
     source_results: list[dict[str, Any]] = []
     for source_id in candidates:
         coverage = coverage_sources[source_id]
-        selection_source = proof["selection_sources"][source_id]
+        route_provenance = proof["source_route_provenance"][source_id]
         denominator = dict(coverage["review_denominator"])
         eligible_documents = _require_int(
             f"{source_id}.review_denominator.eligible_document_count",
@@ -1263,6 +1559,10 @@ def build_aggregate(
             "source_dataset": str(coverage["source_dataset"]),
             "source_revision": str(coverage["source_revision"]),
             "source_route": str(coverage["source_route"]),
+            # The logical source route remains the primary error model.
+            # Source-wide observed-route counts are retained as secondary,
+            # receipt-bound representation evidence for later human review.
+            "route_provenance": route_provenance,
             "review_denominator": denominator,
             "review_strata": {
                 "requested": dict(coverage["requested_strata"]),
@@ -1353,6 +1653,21 @@ def _validate_aggregate_structure(value: Mapping[str, Any], *, roster: Mapping[s
             raise ValueError("aggregate route validation differs from supplied candidate roster")
     if value.get("source_ids") != candidates or value.get("source_count") != len(candidates):
         raise ValueError("aggregate source list/count drift")
+    logical_routes = route_validation.get("source_routes")
+    review_routes = route_validation.get("review_routes")
+    extraction_routes = route_validation.get("extraction_routes")
+    observed_route_allowances = route_validation.get("allowed_observed_extraction_routes")
+    if not all(
+        isinstance(route_map, Mapping)
+        and set(route_map) == set(candidates)
+        for route_map in (
+            logical_routes,
+            review_routes,
+            extraction_routes,
+            observed_route_allowances,
+        )
+    ):
+        raise ValueError("aggregate route provenance maps are incomplete")
     rows = value.get("sources")
     if not isinstance(rows, list):
         raise ValueError("aggregate sources must be a list")
@@ -1373,6 +1688,62 @@ def _validate_aggregate_structure(value: Mapping[str, Any], *, roster: Mapping[s
         license_evidence = row.get("license")
         if not isinstance(denominator, Mapping) or not isinstance(review_evidence, Mapping) or not isinstance(license_evidence, Mapping):
             raise ValueError(f"{source_id}: aggregate source evidence is incomplete")
+        eligible_documents = _require_int(
+            f"{source_id}.review_denominator.eligible_document_count",
+            denominator.get("eligible_document_count"),
+            minimum=1,
+        )
+        logical_source_route = logical_routes[source_id]
+        if row.get("source_route") != logical_source_route:
+            raise ValueError(f"{source_id}: aggregate source route is not logical-primary")
+        route_provenance = row.get("route_provenance")
+        expected_route_provenance_keys = {
+            "logical_source_priority",
+            "logical_source_route",
+            "review_route",
+            "declared_extraction_route",
+            "allowed_observed_extraction_routes",
+            "eligible_document_observed_extraction_route_counts",
+            "eligible_document_observed_extraction_route_basis_counts",
+            "eligible_document_observed_extraction_route_priority_counts",
+        }
+        if not isinstance(route_provenance, Mapping) or set(route_provenance) != expected_route_provenance_keys:
+            raise ValueError(f"{source_id}: aggregate route provenance is incomplete")
+        allowed_observed_routes = observed_route_allowances[source_id]
+        if (
+            route_provenance.get("logical_source_priority") != review.ROUTE_POLICY_PRIORITY
+            or route_provenance.get("logical_source_route") != logical_source_route
+            or route_provenance.get("review_route") != review_routes[source_id]
+            or route_provenance.get("declared_extraction_route") != extraction_routes[source_id]
+            or route_provenance.get("allowed_observed_extraction_routes") != allowed_observed_routes
+        ):
+            raise ValueError(f"{source_id}: aggregate logical/observed route provenance drift")
+        route_counts = _validate_positive_counter(
+            route_provenance.get("eligible_document_observed_extraction_route_counts"),
+            label=f"{source_id}.aggregate.observed_extraction_route_counts",
+            allowed_keys=set(allowed_observed_routes),
+            expected_total=eligible_documents,
+        )
+        _validate_positive_counter(
+            route_provenance.get("eligible_document_observed_extraction_route_basis_counts"),
+            label=f"{source_id}.aggregate.observed_extraction_route_basis_counts",
+            allowed_keys=set(review.OBSERVED_EXTRACTION_ROUTE_BASES),
+            expected_total=eligible_documents,
+        )
+        priority_counts = _validate_positive_counter(
+            route_provenance.get("eligible_document_observed_extraction_route_priority_counts"),
+            label=f"{source_id}.aggregate.observed_extraction_route_priority_counts",
+            allowed_keys={"logical_primary", "secondary_exception_only"},
+            expected_total=eligible_documents,
+        )
+        expected_priority_counts: dict[str, int] = {}
+        logical_count = route_counts.get(str(logical_source_route), 0)
+        if logical_count:
+            expected_priority_counts["logical_primary"] = logical_count
+        if eligible_documents - logical_count:
+            expected_priority_counts["secondary_exception_only"] = eligible_documents - logical_count
+        if priority_counts != expected_priority_counts:
+            raise ValueError(f"{source_id}: aggregate observed-route priority counts drift")
         if review_evidence.get("resolved_documents") != denominator.get("selected_unique_documents"):
             raise ValueError(f"{source_id}: aggregate response denominator drift")
         if not isinstance(license_evidence.get("local_training", {}).get("eligible"), bool):

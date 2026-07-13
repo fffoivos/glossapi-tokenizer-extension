@@ -217,6 +217,10 @@ output.write_text(json.dumps({
     'source_routes': {source: source_routes[source] for source in sorted(candidates)},
     'review_routes': {source: review_routes[source] for source in sorted(candidates)},
     'extraction_routes': {source: extraction_routes[source] for source in sorted(candidates)},
+    'allowed_observed_extraction_routes': {
+        source: sorted({source_routes[source], extraction_routes[source]})
+        for source in sorted(candidates)
+    },
     'inventory_only_exclusion_count': 0,
 }), encoding='utf-8')
 with Path(os.environ['FAKE_LOG']).open('a', encoding='utf-8') as handle:
@@ -238,13 +242,73 @@ if args[0] == 'validate-build-receipt':
     log.write_text(log.read_text(encoding='utf-8') + 'validate-build\\n', encoding='utf-8')
 elif args[0] == 'run':
     def opt(name): return args[args.index(name) + 1]
+    import pyarrow as pa
+    import pyarrow.parquet as pq
     root = Path(opt('--output-dir'))
     root.mkdir(parents=True)
     documents = root / 'dataset_quality_document_v1.parquet'
-    documents.write_text('metric parquet placeholder', encoding='utf-8')
+    source_ids = [args[index + 1] for index, value in enumerate(args) if value == '--source-id']
+    source_route = os.environ.get('FAKE_QUALITY_SOURCE_ROUTE', 'pdf_ocr')
+    review_route = os.environ.get('FAKE_QUALITY_REVIEW_ROUTE', source_route)
+    extraction_route = os.environ.get('FAKE_QUALITY_EXTRACTION_ROUTE', source_route)
+    observed_route = os.environ.get('FAKE_QUALITY_OBSERVED_ROUTE', extraction_route)
+    observed_basis = 'explicit_row_route'
+    observed_evidence = 'raw_field:format'
+    observed_priority = os.environ.get(
+        'FAKE_QUALITY_OBSERVED_PRIORITY',
+        'logical_primary' if observed_route == source_route else 'secondary_exception_only',
+    )
+    pq.write_table(pa.table({
+        'schema_version': ['dataset_quality_document_v1'] * len(source_ids),
+        'source_id': source_ids,
+        'source_route': [source_route] * len(source_ids),
+        'review_route': [review_route] * len(source_ids),
+        'extraction_route': [extraction_route] * len(source_ids),
+        'observed_extraction_route': [observed_route] * len(source_ids),
+        'observed_extraction_route_basis': [observed_basis] * len(source_ids),
+        'observed_extraction_route_evidence': [observed_evidence] * len(source_ids),
+        'observed_extraction_route_priority': [observed_priority] * len(source_ids),
+    }), documents)
     document_bytes = documents.stat().st_size
     document_sha256 = hashlib.sha256(documents.read_bytes()).hexdigest()
-    source_ids = [args[index + 1] for index, value in enumerate(args) if value == '--source-id']
+    route_tuples = [
+        {
+            'source_id': source_id,
+            'source_route': source_route,
+            'review_route': review_route,
+            'extraction_route': extraction_route,
+            'observed_extraction_route': observed_route,
+            'observed_extraction_route_basis': observed_basis,
+            'observed_extraction_route_evidence': observed_evidence,
+            'observed_extraction_route_priority': observed_priority,
+            'documents': 1,
+        }
+        for source_id in sorted(source_ids)
+    ]
+    route_coverage = {
+        'schema_version': 'dataset_quality_route_coverage_v1',
+        'documents': len(source_ids),
+        'source_route_counts': [{'route': source_route, 'documents': len(source_ids)}],
+        'review_route_counts': [{'route': review_route, 'documents': len(source_ids)}],
+        'extraction_route_counts': [{'route': extraction_route, 'documents': len(source_ids)}],
+        'observed_extraction_route_counts': [{'route': observed_route, 'documents': len(source_ids)}],
+        'observed_extraction_route_basis_counts': [{'basis': observed_basis, 'documents': len(source_ids)}],
+        'observed_extraction_route_priority_counts': [{'priority': observed_priority, 'documents': len(source_ids)}],
+        'sources': [
+            {
+                'source_id': source_id,
+                'documents': 1,
+                'source_route': source_route,
+                'review_route': review_route,
+                'extraction_route': extraction_route,
+                'observed_extraction_route_counts': [{'route': observed_route, 'documents': 1}],
+                'observed_extraction_route_basis_counts': [{'basis': observed_basis, 'documents': 1}],
+                'observed_extraction_route_priority_counts': [{'priority': observed_priority, 'documents': 1}],
+            }
+            for source_id in sorted(source_ids)
+        ],
+        'route_tuples': route_tuples,
+    }
     contract = root / 'contract.json'
     contract.write_text('{}', encoding='utf-8')
     contract_bytes = contract.stat().st_size
@@ -263,12 +327,15 @@ elif args[0] == 'run':
             'path': documents.name,
             'bytes': document_bytes,
             'sha256': document_sha256,
+            'rows': len(source_ids),
         },
+        'route_coverage': route_coverage,
     }), encoding='utf-8')
     Path(opt('--site-handoff')).write_text(json.dumps({
         'schema_version': 'dataset_quality_site_handoff_v1',
         'status': 'passed',
         'scan_mode': 'full_scan',
+        'route_coverage': route_coverage,
     }), encoding='utf-8')
     log.write_text(log.read_text(encoding='utf-8') + 'full-scan\\n', encoding='utf-8')
 else:
@@ -323,6 +390,8 @@ echo 'JobId=1 ReqTRES=cpu=4,mem=4G AllocTRES=cpu=4'
 
 
 def fixture_environment(tmp_path: Path) -> tuple[dict[str, str], Path, Path]:
+    import pyarrow
+
     phase = tmp_path / "phase"
     make_fake_scripts(phase)
     commands = make_fake_commands(tmp_path)
@@ -393,9 +462,14 @@ def fixture_environment(tmp_path: Path) -> tuple[dict[str, str], Path, Path]:
     log = tmp_path / "log.txt"
     log.write_text("", encoding="utf-8")
     packet_args = tmp_path / "packet-args.json"
+    pyarrow_site_packages = str(Path(pyarrow.__file__).resolve().parents[1])
+    inherited_pythonpath = os.environ.get("PYTHONPATH", "")
     environment = {
         **os.environ,
         "PATH": f"{commands}:{os.environ['PATH']}",
+        "PYTHONPATH": ":".join(
+            part for part in (pyarrow_site_packages, inherited_pythonpath) if part
+        ),
         "REPO_ROOT": str(repo),
         "PHASE04_DIR": str(phase),
         "AGENT1_V3_CONTRACT_SCRIPT": str(contract),
@@ -480,6 +554,31 @@ def test_pre_review_executor_runs_cpu_stages_and_full_scan_before_packet(tmp_pat
     assert full_scan_validation["logical_source_priority"] == "logical_source_then_observed_extraction"
     assert full_scan_validation["source_routes"] == {"source-a": "pdf_ocr"}
     assert full_scan_validation["extraction_routes"] == {"source-a": "pdf_ocr"}
+    assert full_scan_validation["route_coverage_validated_from_document_parquet"] is True
+    assert full_scan_validation["source_route_coverage"] == [
+        {
+            "source_id": "source-a",
+            "documents": 1,
+            "source_route": "pdf_ocr",
+            "review_route": "pdf_ocr",
+            "extraction_route": "pdf_ocr",
+            "observed_extraction_route_counts": [
+                {"route": "pdf_ocr", "documents": 1}
+            ],
+            "observed_extraction_route_basis_counts": [
+                {"basis": "explicit_row_route", "documents": 1}
+            ],
+            "observed_extraction_route_priority_counts": [
+                {"priority": "logical_primary", "documents": 1}
+            ],
+        }
+    ]
+    assert full_scan_validation["observed_extraction_route_counts"] == [
+        {"route": "pdf_ocr", "documents": 1}
+    ]
+    assert full_scan_validation["observed_extraction_route_priority_counts"] == [
+        {"priority": "logical_primary", "documents": 1}
+    ]
     assert (review_attempt / "review_requests.jsonl").is_file()
     assert (review_attempt / "review_packet_manifest.json").is_file()
     assert (review_data_attempt / "quality-full-scan" / "contract.json").is_file()
@@ -528,3 +627,69 @@ def test_pre_review_script_uses_uenv_for_stage_contract_and_has_no_model_invocat
     assert "agent1_v3_begin_stage" in source
     assert "agent1_v3_finish_stage" in source
     assert "codex exec" not in source
+
+
+def test_pre_review_rejects_document_route_drift_even_when_static_roster_is_valid(
+    tmp_path: Path,
+) -> None:
+    environment, _, _ = fixture_environment(tmp_path)
+    run_action(environment, "normalize", 101)
+    run_action(environment, "lineage", 102)
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT), "review-packet"],
+        text=True,
+        capture_output=True,
+        env={
+            **environment,
+            "SLURM_JOB_ID": "103",
+            "FAKE_QUALITY_SOURCE_ROUTE": "html_web",
+        },
+    )
+
+    assert result.returncode != 0
+    assert "document route triplet differs from the frozen logical-source roster" in result.stderr
+
+
+def test_pre_review_rejects_undocumented_observed_route_from_document_parquet(
+    tmp_path: Path,
+) -> None:
+    environment, _, _ = fixture_environment(tmp_path)
+    run_action(environment, "normalize", 101)
+    run_action(environment, "lineage", 102)
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT), "review-packet"],
+        text=True,
+        capture_output=True,
+        env={
+            **environment,
+            "SLURM_JOB_ID": "103",
+            "FAKE_QUALITY_OBSERVED_ROUTE": "structured",
+        },
+    )
+
+    assert result.returncode != 0
+    assert "observed extraction route is not a documented secondary exception" in result.stderr
+
+
+def test_pre_review_rejects_observed_route_priority_drift(
+    tmp_path: Path,
+) -> None:
+    environment, _, _ = fixture_environment(tmp_path)
+    run_action(environment, "normalize", 101)
+    run_action(environment, "lineage", 102)
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT), "review-packet"],
+        text=True,
+        capture_output=True,
+        env={
+            **environment,
+            "SLURM_JOB_ID": "103",
+            "FAKE_QUALITY_OBSERVED_PRIORITY": "secondary_exception_only",
+        },
+    )
+
+    assert result.returncode != 0
+    assert "observed extraction route priority does not preserve logical-source primacy" in result.stderr

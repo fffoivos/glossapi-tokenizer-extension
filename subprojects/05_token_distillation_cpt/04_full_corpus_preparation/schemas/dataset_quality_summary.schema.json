@@ -10,7 +10,7 @@
     "normalization_schema_version", "glossapi_build_receipt", "glossapi_commit",
     "batch_size", "threads", "quantile_sample_size", "selected_source_ids",
     "excluded_source_ids", "input_shards", "batch_checkpoints", "document_output",
-    "global", "repositories", "metric_notes"
+    "global", "repositories", "route_coverage", "metric_notes"
   ],
   "properties": {
     "schema_version": {"const": "dataset_quality_summary_v1"},
@@ -52,6 +52,7 @@
       "type": "array", "minItems": 1,
       "items": {"$ref": "#/$defs/repositoryStatistics"}
     },
+    "route_coverage": {"$ref": "#/$defs/routeCoverage"},
     "metric_notes": {
       "type": "object", "additionalProperties": false,
       "required": [
@@ -76,6 +77,116 @@
     "nonemptyStringSet": {
       "type": "array", "minItems": 1, "uniqueItems": true,
       "items": {"type": "string", "minLength": 1}
+    },
+    "route": {
+      "enum": ["html_web", "pdf_ocr", "mixed", "structured"]
+    },
+    "observedRouteBasis": {
+      "enum": [
+        "explicit_row_route", "row_representation_metadata",
+        "declared_extraction_route_fallback", "unavailable",
+        "legacy_canonical_without_observed_route"
+      ]
+    },
+    "observedRouteEvidence": {
+      "type": "string", "minLength": 1, "maxLength": 256,
+      "pattern": "^[^\\s\\u0000-\\u001f]+$"
+    },
+    "observedRoutePriority": {
+      "enum": ["logical_primary", "secondary_exception_only"]
+    },
+    "routeCount": {
+      "type": "object", "additionalProperties": false,
+      "required": ["route", "documents"],
+      "properties": {
+        "route": {"$ref": "#/$defs/route"},
+        "documents": {"type": "integer", "minimum": 1}
+      }
+    },
+    "routeBasisCount": {
+      "type": "object", "additionalProperties": false,
+      "required": ["basis", "documents"],
+      "properties": {
+        "basis": {"$ref": "#/$defs/observedRouteBasis"},
+        "documents": {"type": "integer", "minimum": 1}
+      }
+    },
+    "routePriorityCount": {
+      "type": "object", "additionalProperties": false,
+      "required": ["priority", "documents"],
+      "properties": {
+        "priority": {"$ref": "#/$defs/observedRoutePriority"},
+        "documents": {"type": "integer", "minimum": 1}
+      }
+    },
+    "routeSource": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "source_id", "documents", "source_route", "review_route",
+        "extraction_route", "observed_extraction_route_counts",
+        "observed_extraction_route_basis_counts",
+        "observed_extraction_route_priority_counts"
+      ],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "documents": {"type": "integer", "minimum": 1},
+        "source_route": {"$ref": "#/$defs/route"},
+        "review_route": {"$ref": "#/$defs/route"},
+        "extraction_route": {"$ref": "#/$defs/route"},
+        "observed_extraction_route_counts": {
+          "type": "array", "minItems": 1,
+          "items": {"$ref": "#/$defs/routeCount"}
+        },
+        "observed_extraction_route_basis_counts": {
+          "type": "array", "minItems": 1,
+          "items": {"$ref": "#/$defs/routeBasisCount"}
+        },
+        "observed_extraction_route_priority_counts": {
+          "type": "array", "minItems": 1,
+          "items": {"$ref": "#/$defs/routePriorityCount"}
+        }
+      }
+    },
+    "routeTuple": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "source_id", "source_route", "review_route", "extraction_route",
+        "observed_extraction_route", "observed_extraction_route_basis",
+        "observed_extraction_route_evidence", "observed_extraction_route_priority",
+        "documents"
+      ],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "source_route": {"$ref": "#/$defs/route"},
+        "review_route": {"$ref": "#/$defs/route"},
+        "extraction_route": {"$ref": "#/$defs/route"},
+        "observed_extraction_route": {"$ref": "#/$defs/route"},
+        "observed_extraction_route_basis": {"$ref": "#/$defs/observedRouteBasis"},
+        "observed_extraction_route_evidence": {"$ref": "#/$defs/observedRouteEvidence"},
+        "observed_extraction_route_priority": {"$ref": "#/$defs/observedRoutePriority"},
+        "documents": {"type": "integer", "minimum": 1}
+      }
+    },
+    "routeCoverage": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema_version", "documents", "source_route_counts", "review_route_counts",
+        "extraction_route_counts", "observed_extraction_route_counts",
+        "observed_extraction_route_basis_counts",
+        "observed_extraction_route_priority_counts", "sources", "route_tuples"
+      ],
+      "properties": {
+        "schema_version": {"const": "dataset_quality_route_coverage_v1"},
+        "documents": {"type": "integer", "minimum": 1},
+        "source_route_counts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/routeCount"}},
+        "review_route_counts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/routeCount"}},
+        "extraction_route_counts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/routeCount"}},
+        "observed_extraction_route_counts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/routeCount"}},
+        "observed_extraction_route_basis_counts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/routeBasisCount"}},
+        "observed_extraction_route_priority_counts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/routePriorityCount"}},
+        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/routeSource"}},
+        "route_tuples": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/routeTuple"}}
+      }
     },
     "file": {
       "type": "object", "additionalProperties": false,

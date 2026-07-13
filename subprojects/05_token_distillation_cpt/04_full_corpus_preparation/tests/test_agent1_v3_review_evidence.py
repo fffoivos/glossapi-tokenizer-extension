@@ -49,6 +49,10 @@ def response_for(request: dict[str, object]) -> dict[str, object]:
             "source_dataset",
             "source_revision",
             "source_route",
+            "observed_extraction_route",
+            "observed_extraction_route_basis",
+            "observed_extraction_route_evidence",
+            "observed_extraction_route_priority",
             "sampling_stratum",
             "original_text_sha256",
             "review_copy_sha256",
@@ -87,7 +91,28 @@ def fixture(tmp_path: Path) -> dict[str, object]:
         {
             "type": "object",
             "additionalProperties": False,
-            "properties": {"schema_version": {"const": REVIEW.RESPONSE_SCHEMA}},
+            "required": [
+                "schema_version",
+                "observed_extraction_route",
+                "observed_extraction_route_basis",
+                "observed_extraction_route_evidence",
+                "observed_extraction_route_priority",
+            ],
+            "properties": {
+                "schema_version": {"const": REVIEW.RESPONSE_SCHEMA},
+                "observed_extraction_route": {"enum": ["pdf_ocr"]},
+                "observed_extraction_route_basis": {
+                    "enum": ["row_representation_metadata"]
+                },
+                "observed_extraction_route_evidence": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                },
+                "observed_extraction_route_priority": {
+                    "enum": ["logical_primary"]
+                },
+            },
         },
     )
     policy = tmp_path / "policy.json"
@@ -114,6 +139,10 @@ def fixture(tmp_path: Path) -> dict[str, object]:
             "source_revision": "rev-a",
             "stable_uid": digest("sample-a"),
             "source_route": "pdf_ocr",
+            "observed_extraction_route": "pdf_ocr",
+            "observed_extraction_route_basis": "row_representation_metadata",
+            "observed_extraction_route_evidence": "raw_metadata:mime_type=application_pdf",
+            "observed_extraction_route_priority": "logical_primary",
             "sampling_stratum": "random",
         },
         reviewer_slot="primary",
@@ -133,6 +162,10 @@ def fixture(tmp_path: Path) -> dict[str, object]:
             "source_revision": "rev-a",
             "stable_uid": digest("sample-a"),
             "source_route": "pdf_ocr",
+            "observed_extraction_route": "pdf_ocr",
+            "observed_extraction_route_basis": "row_representation_metadata",
+            "observed_extraction_route_evidence": "raw_metadata:mime_type=application_pdf",
+            "observed_extraction_route_priority": "logical_primary",
             "sampling_stratum": "random",
         },
         reviewer_slot="secondary",
@@ -213,6 +246,10 @@ def fixture(tmp_path: Path) -> dict[str, object]:
                 "source_dataset",
                 "source_revision",
                 "source_route",
+                "observed_extraction_route",
+                "observed_extraction_route_basis",
+                "observed_extraction_route_evidence",
+                "observed_extraction_route_priority",
                 "sampling_stratum",
                 "original_text_sha256",
                 "review_copy_sha256",

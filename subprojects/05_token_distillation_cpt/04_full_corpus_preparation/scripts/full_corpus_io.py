@@ -39,6 +39,63 @@ URL_PREFIX = re.compile(r"(?i)^https?://(?:www\.)?")
 URL_TRAILING = re.compile(r"[/?#].*$")
 
 
+# ``source_route`` is immutable logical provenance.  This separate vocabulary
+# describes the representation visible for one canonical document, which can
+# legitimately differ (for example, an OCR work republished in an HTML page).
+# Do not derive logical provenance from these fields or from a Parquet suffix.
+ALLOWED_EXTRACTION_ROUTES = frozenset({"html_web", "pdf_ocr", "mixed", "structured"})
+OBSERVED_EXTRACTION_ROUTE_BASES = frozenset(
+    {
+        "explicit_row_route",
+        "row_representation_metadata",
+        "declared_extraction_route_fallback",
+        "unavailable",
+    }
+)
+
+# These aliases are intentionally narrow and representation-oriented.  A URL
+# alone is not evidence that an OCR/PDF work is logically an HTML source, so
+# URL fields are deliberately not inferred here.  Source-level logical route
+# remains the primary error model in all cases.
+_EXTRACTION_ROUTE_ALIASES = {
+    "html": "html_web",
+    "html_web": "html_web",
+    "web": "html_web",
+    "web_html": "html_web",
+    "text_html": "html_web",
+    "application_xhtml_xml": "html_web",
+    "xhtml": "html_web",
+    "pdf": "pdf_ocr",
+    "pdf_ocr": "pdf_ocr",
+    "ocr": "pdf_ocr",
+    "pdf_text": "pdf_ocr",
+    "application_pdf": "pdf_ocr",
+    "structured": "structured",
+    "json": "structured",
+    "application_json": "structured",
+    "jsonl": "structured",
+    "csv": "structured",
+    "xml": "structured",
+    "mixed": "mixed",
+    "hybrid": "mixed",
+}
+_DEFAULT_EXPLICIT_OBSERVED_ROUTE_FIELDS = (
+    "observed_extraction_route",
+    "observed_route",
+    "extraction_route",
+)
+_DEFAULT_OBSERVED_ROUTE_METADATA_FIELDS = (
+    "observed_extraction_format",
+    "extraction_format",
+    "extraction_method",
+    "extraction_type",
+    "document_mime_type",
+    "mime_type",
+    "content_type",
+    "file_format",
+)
+
+
 @dataclass(frozen=True)
 class SourceArtifact:
     source_id: str
@@ -579,7 +636,7 @@ def canonical_row(
     lineage_aliases: Mapping[str, Any],
     base_families: Mapping[str, str],
     embedded_structural_routes: Sequence[Mapping[str, Any]] = (),
-    declared_routes: Mapping[str, Mapping[str, str]] | None = None,
+    declared_routes: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     id_columns = list(source.config.get("id_columns", []))
     id_values = [
@@ -627,6 +684,12 @@ def canonical_row(
         canonical_source_id=canonical_source_id,
         embedded_route=embedded_route,
         declared_routes=declared_routes,
+    )
+    observed_extraction = canonical_observed_extraction_route(
+        raw_row=raw_row,
+        source=source,
+        embedded_route=embedded_route,
+        declared_extraction_route=provenance_routes["extraction_route"],
     )
     source_row_id = f"{relative_artifact}:{artifact_row_index}:{representation_suffix}"
     source_doc_id = (
@@ -700,15 +763,30 @@ def canonical_row(
         "source_artifact_path": relative_artifact,
         "source_row_id": source_row_id,
         "source_text_field": text_field,
-        # ``source_route`` describes the logical upstream representation (web
-        # scrape, PDF/OCR extraction, structured record, or an evidence-backed
-        # mixed source).  The v3 normalizer binds all three fields to the
-        # frozen candidate roster.  Keeping the review/extraction aliases in
-        # every canonical row prevents route-sensitive diagnostics from being
-        # inferred later from a repository name or file suffix.
+        # ``source_route`` describes immutable logical upstream provenance
+        # (web scrape, PDF/OCR extraction, structured record, or a mixed
+        # source).  ``extraction_route`` remains its frozen source-level
+        # declared fallback.  The observed annotation below is per-document
+        # representation evidence: it may differ, but can only affect
+        # secondary diagnostics and must never replace source_route.
         "source_route": provenance_routes["source_route"],
         "review_route": provenance_routes["review_route"],
         "extraction_route": provenance_routes["extraction_route"],
+        "observed_extraction_route": observed_extraction["route"],
+        "observed_extraction_route_basis": observed_extraction["basis"],
+        "observed_extraction_route_evidence": observed_extraction["evidence"],
+        # This is derived, rather than an independently editable annotation:
+        # a document whose visible representation differs from the immutable
+        # logical source remains a secondary exception for all downstream
+        # error-model and review decisions.
+        "observed_extraction_route_priority": (
+            "logical_primary"
+            if observed_extraction["route"] == provenance_routes["source_route"]
+            and observed_extraction["route"] is not None
+            else "secondary_exception_only"
+            if observed_extraction["route"] is not None
+            else None
+        ),
         "original_text_sha256": original_hash,
         "normalized_text_sha256": normalized_hash,
         "stable_uid": stable_uid,
@@ -741,7 +819,7 @@ def canonical_provenance_routes(
     source: SourceArtifact,
     canonical_source_id: str,
     embedded_route: Mapping[str, Any] | None,
-    declared_routes: Mapping[str, Mapping[str, str]] | None,
+    declared_routes: Mapping[str, Mapping[str, Any]] | None,
 ) -> dict[str, str | None]:
     """Return canonical source/review/extraction provenance fields.
 
@@ -763,9 +841,9 @@ def canonical_provenance_routes(
         result: dict[str, str | None] = {}
         for field in route_fields:
             value = declaration.get(field)
-            if not isinstance(value, str) or not value:
+            if not isinstance(value, str) or value not in ALLOWED_EXTRACTION_ROUTES:
                 raise ValueError(
-                    f"{canonical_source_id}: declared {field} must be a non-empty string"
+                    f"{canonical_source_id}: declared {field} must be a supported route"
                 )
             result[field] = value
         return result
@@ -790,9 +868,139 @@ def canonical_provenance_routes(
         ),
         None,
     )
-    return {
+    result = {
         field: str(fallback_values.get(field, fallback)) if fallback is not None else None
         for field in route_fields
+    }
+    for field, value in result.items():
+        if value is not None and value not in ALLOWED_EXTRACTION_ROUTES:
+            raise ValueError(
+                f"{canonical_source_id}: fallback {field} must be a supported route, got {value!r}"
+            )
+    return result
+
+
+def _configured_route_fields(
+    config: Mapping[str, Any],
+    *,
+    singular: str,
+    plural: str,
+    default: Sequence[str],
+) -> tuple[str, ...]:
+    """Return a stable list of raw fields allowed to carry route evidence."""
+
+    raw: object = config.get(plural)
+    if raw is None:
+        raw = config.get(singular)
+    if raw is None:
+        return tuple(default)
+    values = [raw] if isinstance(raw, str) else raw
+    if not isinstance(values, Sequence) or isinstance(values, (bytes, bytearray)):
+        raise ValueError(f"source config {plural} must be a string or a list of strings")
+    fields = tuple(str(value) for value in values if isinstance(value, str) and value)
+    if len(fields) != len(values) or not fields:
+        raise ValueError(f"source config {plural} must contain non-empty string field names")
+    return fields
+
+
+def _normalized_route_token(value: object) -> str | None:
+    """Map a documented raw representation value to the controlled route set."""
+
+    if not isinstance(value, str) or not value.strip():
+        return None
+    token = re.sub(r"[^a-z0-9]+", "_", value.strip().casefold()).strip("_")
+    if not token:
+        return None
+    route = _EXTRACTION_ROUTE_ALIASES.get(token)
+    if route is not None:
+        return route
+    # MIME values sometimes preserve parameters (for example
+    # ``application/pdf; charset=binary``).  Parameters are transport facts,
+    # not logical-source evidence, so only use their base MIME type.
+    base = token.split("_charset_", 1)[0]
+    return _EXTRACTION_ROUTE_ALIASES.get(base)
+
+
+def _safe_route_evidence_token(value: object) -> str:
+    """Return a finite audit token without retaining arbitrary row content."""
+
+    assert isinstance(value, str)
+    token = re.sub(r"[^a-z0-9]+", "_", value.strip().casefold()).strip("_")
+    return token[:80] or "empty"
+
+
+def canonical_observed_extraction_route(
+    *,
+    raw_row: Mapping[str, Any],
+    source: SourceArtifact,
+    embedded_route: Mapping[str, Any] | None,
+    declared_extraction_route: str | None,
+) -> dict[str, str | None]:
+    """Resolve one document's observed extraction representation with evidence.
+
+    Raw rows can explicitly declare a controlled route or expose a known
+    representation metadata field.  Both are *observations*, not permission to
+    rewrite the immutable logical source class.  If a document carries no
+    trustworthy observation, use the frozen source-level declared extraction
+    route as an auditable fallback rather than guessing from a file name.
+    """
+
+    route_config: Mapping[str, Any] = embedded_route or source.config
+    explicit_fields = _configured_route_fields(
+        route_config,
+        singular="observed_extraction_route_field",
+        plural="observed_extraction_route_fields",
+        default=_DEFAULT_EXPLICIT_OBSERVED_ROUTE_FIELDS,
+    )
+    for field in explicit_fields:
+        value = raw_row.get(field)
+        if value is None or (isinstance(value, str) and not value.strip()):
+            continue
+        route = _normalized_route_token(value)
+        if route is None:
+            raise ValueError(
+                f"{source.source_id}: raw {field!r} declares unsupported observed extraction route {value!r}"
+            )
+        return {
+            "route": route,
+            "basis": "explicit_row_route",
+            "evidence": f"raw_field:{_safe_route_evidence_token(field)}",
+        }
+
+    metadata_fields = _configured_route_fields(
+        route_config,
+        singular="observed_extraction_metadata_field",
+        plural="observed_extraction_metadata_fields",
+        default=_DEFAULT_OBSERVED_ROUTE_METADATA_FIELDS,
+    )
+    for field in metadata_fields:
+        value = raw_row.get(field)
+        route = _normalized_route_token(value)
+        if route is None:
+            continue
+        return {
+            "route": route,
+            "basis": "row_representation_metadata",
+            "evidence": (
+                f"raw_metadata:{_safe_route_evidence_token(field)}="
+                f"{_safe_route_evidence_token(value)}"
+            ),
+        }
+
+    if declared_extraction_route is not None:
+        if declared_extraction_route not in ALLOWED_EXTRACTION_ROUTES:
+            raise ValueError(
+                f"{source.source_id}: declared extraction route is unsupported: {declared_extraction_route!r}"
+            )
+        return {
+            "route": declared_extraction_route,
+            "basis": "declared_extraction_route_fallback",
+            "evidence": "roster:extraction_route",
+        }
+    return {
+        "route": None,
+        "basis": "unavailable",
+        "evidence": "none",
     }
 
 
@@ -847,6 +1055,10 @@ def canonical_schema():
             ("source_route", pa.string()),
             ("review_route", pa.string()),
             ("extraction_route", pa.string()),
+            ("observed_extraction_route", pa.string()),
+            ("observed_extraction_route_basis", pa.string()),
+            ("observed_extraction_route_evidence", pa.string()),
+            ("observed_extraction_route_priority", pa.string()),
             ("original_text_sha256", pa.string()),
             ("normalized_text_sha256", pa.string()),
             ("stable_uid", pa.string()),

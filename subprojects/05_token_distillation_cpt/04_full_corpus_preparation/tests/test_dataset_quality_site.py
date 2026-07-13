@@ -483,6 +483,22 @@ def write_quality_summary_and_handoff(
     global_statistics["source_datasets"] = sorted(
         {repo_id.rsplit("/", 1)[-1] for _, repo_id, _ in repositories}
     )
+    route_accumulator = QUALITY.RouteCoverageAccumulator()
+    for source_id, _, _ in repositories:
+        route_accumulator.add(
+            {
+                "source_id": source_id,
+                "source_route": "mixed",
+                "review_route": "mixed",
+                "extraction_route": "mixed",
+                "observed_extraction_route": "mixed",
+                "observed_extraction_route_basis": "unavailable",
+                "observed_extraction_route_evidence": "none",
+                "observed_extraction_route_priority": "logical_primary",
+            },
+            context=f"fixture.{source_id}",
+        )
+    route_coverage = route_accumulator.finish()
     summary = {
         "schema_version": "dataset_quality_summary_v1",
         "status": "passed",
@@ -517,6 +533,7 @@ def write_quality_summary_and_handoff(
         "repositories": [
             quality_statistics(repo_id, 1) for _, repo_id, _ in repositories
         ],
+        "route_coverage": route_coverage,
         "metric_notes": {
             "rust_noise_badness_score": "diagnostic",
             "cleaner_removed_character_fraction": "diagnostic",
@@ -628,6 +645,7 @@ def write_quality_summary_and_handoff(
             "review_sample": review_sample,
         },
         "document_output": summary["document_output"],
+        "route_coverage": route_coverage,
         "checkpoint_closure": {
             "count": len(checkpoint_inventory),
             "rows": documents,
@@ -2310,6 +2328,13 @@ def test_rust_batch_checkpoint_and_zero_greek_guard(tmp_path: Path) -> None:
                 "source_dataset": "candidate",
                 "source_repo_id": "glossAPI/candidate",
                 "source_revision": "b" * 40,
+                "source_route": "pdf_ocr",
+                "review_route": "pdf_ocr",
+                "extraction_route": "html_web",
+                "observed_extraction_route": "html_web",
+                "observed_extraction_route_basis": "explicit_row_route",
+                "observed_extraction_route_evidence": "raw_field:format",
+                "observed_extraction_route_priority": "secondary_exception_only",
                 "source_doc_id": str(index),
                 "stable_uid": hashlib.sha256(f"uid-{index}".encode()).hexdigest(),
                 "normalized_text_sha256": hashlib.sha256(text.encode()).hexdigest(),
@@ -2439,11 +2464,29 @@ def test_rust_batch_checkpoint_and_zero_greek_guard(tmp_path: Path) -> None:
             row_end=2,
         )
 
-    document_output, global_summary, repositories = QUALITY.consolidate_batches(
+    document_output, global_summary, repositories, route_coverage = QUALITY.consolidate_batches(
         [receipt], output_root=output, reservoir_size=100
     )
     assert document_output["rows"] == global_summary["documents"] == 2
     assert repositories[0]["repo_id"] == "glossAPI/candidate"
+    assert route_coverage["sources"] == [
+        {
+            "source_id": "candidate",
+            "documents": 2,
+            "source_route": "pdf_ocr",
+            "review_route": "pdf_ocr",
+            "extraction_route": "html_web",
+            "observed_extraction_route_counts": [
+                {"route": "html_web", "documents": 2}
+            ],
+            "observed_extraction_route_basis_counts": [
+                {"basis": "explicit_row_route", "documents": 2}
+            ],
+            "observed_extraction_route_priority_counts": [
+                {"priority": "secondary_exception_only", "documents": 2}
+            ],
+        }
+    ]
     jsonschema = pytest.importorskip("jsonschema")
     document_contract = json.loads(
         (HERE / "schemas" / "dataset_quality_document.schema.json").read_text()

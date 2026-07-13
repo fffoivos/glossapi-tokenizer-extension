@@ -596,11 +596,23 @@ def test_v3_normalizer_binds_roster_and_preserves_logical_route_provenance(
     assert len(base_rows) == 1
     assert {
         field: base_rows[0][field]
-        for field in ("source_route", "review_route", "extraction_route")
+        for field in (
+            "source_route",
+            "review_route",
+            "extraction_route",
+            "observed_extraction_route",
+            "observed_extraction_route_basis",
+            "observed_extraction_route_evidence",
+            "observed_extraction_route_priority",
+        )
     } == {
         "source_route": None,
         "review_route": None,
         "extraction_route": None,
+        "observed_extraction_route": None,
+        "observed_extraction_route_basis": "unavailable",
+        "observed_extraction_route_evidence": "none",
+        "observed_extraction_route_priority": None,
     }
     assert {row["acquisition_source_id"] for row in candidate_rows} == {
         "diavgeia",
@@ -608,6 +620,14 @@ def test_v3_normalizer_binds_roster_and_preserves_logical_route_provenance(
     }
     assert all(
         row["source_route"] == row["review_route"] == row["extraction_route"] == "mixed"
+        for row in candidate_rows
+    )
+    assert all(
+        row["observed_extraction_route"] == "mixed"
+        and row["observed_extraction_route_basis"]
+        == "declared_extraction_route_fallback"
+        and row["observed_extraction_route_evidence"] == "roster:extraction_route"
+        and row["observed_extraction_route_priority"] == "logical_primary"
         for row in candidate_rows
     )
 
@@ -620,6 +640,11 @@ def test_v3_normalizer_binds_roster_and_preserves_logical_route_provenance(
     assert {
         row["source_id"]: row["source_route"] for row in route_coverage["sources"]
     } == {"diavgeia": "mixed", "opengov_deliberations_v2": "mixed"}
+    assert all(
+        row["allowed_observed_extraction_routes"] == ["mixed"]
+        and row["observed_extraction_route_counts"] == {"mixed": 1}
+        for row in route_coverage["sources"]
+    )
 
     drift_roster = tmp_path / "drift-roster.json"
     drift_roster.write_text(
@@ -655,6 +680,131 @@ def test_v3_normalizer_binds_roster_and_preserves_logical_route_provenance(
     )
     assert drift.returncode != 0
     assert "candidate roster/source registry coverage drift" in drift.stderr
+
+
+def test_observed_extraction_is_per_document_and_canonical_coverage_requires_exception(
+    tmp_path: Path,
+) -> None:
+    io = load_io_module()
+    normalize = load_normalize_module()
+    duckdb = pytest.importorskip("duckdb")
+
+    artifact_path = tmp_path / "raw" / "source-a" / "rev" / "rows.parquet"
+    artifact_path.parent.mkdir(parents=True)
+    artifact_path.touch()
+    artifact = io.SourceArtifact(
+        source_id="source-a",
+        repo_id="owner/source-a",
+        revision="rev",
+        role="additive_candidate",
+        source_family_id="source-a",
+        files=(artifact_path,),
+        file_bindings=(),
+        config={"id_columns": ["id"], "text_columns": ["text"]},
+    )
+    row = io.canonical_row(
+        source=artifact,
+        artifact_path=artifact_path,
+        artifact_row_index=0,
+        raw_row={"id": "one", "content_type": "text/html"},
+        representation_suffix="0",
+        text_field="text",
+        raw_text="κείμενο",
+        lineage_aliases={"aliases": []},
+        base_families={},
+        declared_routes={
+            "source-a": {
+                "source_route": "pdf_ocr",
+                "review_route": "pdf_ocr",
+                "extraction_route": "pdf_ocr",
+            }
+        },
+    )
+    assert row["source_route"] == "pdf_ocr"
+    assert row["extraction_route"] == "pdf_ocr"
+    assert row["observed_extraction_route"] == "html_web"
+    assert row["observed_extraction_route_basis"] == "row_representation_metadata"
+    assert row["observed_extraction_route_evidence"] == "raw_metadata:content_type=text_html"
+    assert row["observed_extraction_route_priority"] == "secondary_exception_only"
+
+    connection = duckdb.connect()
+    try:
+        connection.execute(
+            """
+            CREATE TABLE canonical_routes (
+                acquisition_source_id VARCHAR,
+                source_id VARCHAR,
+                source_route VARCHAR,
+                review_route VARCHAR,
+                extraction_route VARCHAR,
+                observed_extraction_route VARCHAR,
+                observed_extraction_route_basis VARCHAR,
+                observed_extraction_route_evidence VARCHAR,
+                observed_extraction_route_priority VARCHAR
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO canonical_routes VALUES
+            ('source-a', 'source-a', 'pdf_ocr', 'pdf_ocr', 'pdf_ocr',
+             'html_web', 'row_representation_metadata', 'raw_metadata:content_type=text_html',
+             'secondary_exception_only')
+            """
+        )
+        declared = {
+            "source-a": {
+                "source_route": "pdf_ocr",
+                "review_route": "pdf_ocr",
+                "extraction_route": "pdf_ocr",
+                "allowed_observed_extraction_routes": ["pdf_ocr", "html_web"],
+            }
+        }
+        coverage = normalize.validate_candidate_canonical_route_coverage(
+            connection,
+            source_relation="canonical_routes",
+            declared_routes=declared,
+        )
+        assert coverage["sources"][0]["observed_extraction_route_counts"] == {
+            "html_web": 1
+        }
+        assert coverage["sources"][0]["observed"][0]["observed_route_priority"] == (
+            "secondary_exception_only"
+        )
+
+        connection.execute("DELETE FROM canonical_routes")
+        connection.execute(
+            """
+            INSERT INTO canonical_routes VALUES
+            ('source-a', 'source-a', 'pdf_ocr', 'pdf_ocr', 'pdf_ocr',
+             'html_web', 'row_representation_metadata', 'raw_metadata:content_type=text_html',
+             'logical_primary')
+            """
+        )
+        with pytest.raises(ValueError, match="canonical candidate route provenance drift"):
+            normalize.validate_candidate_canonical_route_coverage(
+                connection,
+                source_relation="canonical_routes",
+                declared_routes=declared,
+            )
+
+        connection.execute("DELETE FROM canonical_routes")
+        connection.execute(
+            """
+            INSERT INTO canonical_routes VALUES
+            ('source-a', 'source-a', 'pdf_ocr', 'pdf_ocr', 'pdf_ocr',
+             'structured', 'row_representation_metadata', 'raw_metadata:format=json',
+             'secondary_exception_only')
+            """
+        )
+        with pytest.raises(ValueError, match="canonical candidate route provenance drift"):
+            normalize.validate_candidate_canonical_route_coverage(
+                connection,
+                source_relation="canonical_routes",
+                declared_routes=declared,
+            )
+    finally:
+        connection.close()
 
 
 def _run_normalizer(

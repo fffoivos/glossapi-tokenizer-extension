@@ -6,6 +6,9 @@
   "additionalProperties": false,
   "required": [
     "schema_version", "source_id", "source_dataset", "source_repo_id", "source_revision",
+    "source_route", "review_route", "extraction_route", "observed_extraction_route",
+    "observed_extraction_route_basis", "observed_extraction_route_evidence",
+    "observed_extraction_route_priority",
     "document_id", "normalized_text_sha256", "profile_text_sha256",
     "profile_text_variant", "input_shard_path",
     "input_shard_sha256", "input_row_index", "original_characters", "original_bytes_utf8",
@@ -39,6 +42,13 @@
     "source_dataset": {"$ref": "#/$defs/nonempty"},
     "source_repo_id": {"$ref": "#/$defs/nonempty"},
     "source_revision": {"$ref": "#/$defs/nonempty"},
+    "source_route": {"$ref": "#/$defs/route"},
+    "review_route": {"$ref": "#/$defs/route"},
+    "extraction_route": {"$ref": "#/$defs/route"},
+    "observed_extraction_route": {"$ref": "#/$defs/route"},
+    "observed_extraction_route_basis": {"$ref": "#/$defs/observedRouteBasis"},
+    "observed_extraction_route_evidence": {"$ref": "#/$defs/observedRouteEvidence"},
+    "observed_extraction_route_priority": {"$ref": "#/$defs/observedRoutePriority"},
     "document_id": {"$ref": "#/$defs/sha256"},
     "normalized_text_sha256": {"$ref": "#/$defs/sha256"},
     "profile_text_sha256": {"$ref": "#/$defs/sha256"},
@@ -111,6 +121,21 @@
   },
   "$defs": {
     "nonempty": {"type": "string", "minLength": 1},
+    "route": {"enum": ["html_web", "pdf_ocr", "mixed", "structured"]},
+    "observedRouteBasis": {
+      "enum": [
+        "explicit_row_route", "row_representation_metadata",
+        "declared_extraction_route_fallback", "unavailable",
+        "legacy_canonical_without_observed_route"
+      ]
+    },
+    "observedRouteEvidence": {
+      "type": "string", "minLength": 1, "maxLength": 256,
+      "pattern": "^[^\\s\\u0000-\\u001f]+$"
+    },
+    "observedRoutePriority": {
+      "enum": ["logical_primary", "secondary_exception_only"]
+    },
     "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "count": {"type": "integer", "minimum": 0},
     "number": {"type": "number"},

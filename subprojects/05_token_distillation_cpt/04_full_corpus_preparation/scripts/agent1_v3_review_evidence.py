@@ -407,12 +407,21 @@ def validate_policy(path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
 def validate_response_schema(path: Path) -> dict[str, Any]:
     value = read_json(path, label="review response schema")
     properties = value.get("properties")
+    required = value.get("required")
+    observed_fields = (
+        "observed_extraction_route",
+        "observed_extraction_route_basis",
+        "observed_extraction_route_evidence",
+        "observed_extraction_route_priority",
+    )
     if (
         value.get("type") != "object"
         or value.get("additionalProperties") is not False
         or not isinstance(properties, Mapping)
+        or not isinstance(required, list)
         or not isinstance(properties.get("schema_version"), Mapping)
         or properties["schema_version"].get("const") != review.RESPONSE_SCHEMA
+        or any(field not in properties or field not in required for field in observed_fields)
     ):
         raise ValueError("review response schema is not the strict v3 schema")
     return file_binding(path)
@@ -577,6 +586,10 @@ def _calibration_request_identity(value: Mapping[str, Any], *, label: str) -> di
         "source_dataset",
         "source_revision",
         "source_route",
+        "observed_extraction_route",
+        "observed_extraction_route_basis",
+        "observed_extraction_route_evidence",
+        "observed_extraction_route_priority",
         "sampling_stratum",
         "original_text_sha256",
         "review_copy_sha256",
@@ -605,6 +618,26 @@ def _calibration_request_identity(value: Mapping[str, Any], *, label: str) -> di
         raise ValueError(f"{label}.reviewer_slot drift")
     if value.get("source_route") not in review.ALLOWED_ROUTES:
         raise ValueError(f"{label}.source_route drift")
+    observed_route = value.get("observed_extraction_route")
+    if observed_route not in review.ALLOWED_ROUTES:
+        raise ValueError(f"{label}.observed_extraction_route drift")
+    if value.get("observed_extraction_route_basis") not in review.OBSERVED_EXTRACTION_ROUTE_BASES:
+        raise ValueError(f"{label}.observed_extraction_route_basis drift")
+    observed_evidence = value.get("observed_extraction_route_evidence")
+    if (
+        not isinstance(observed_evidence, str)
+        or not observed_evidence
+        or len(observed_evidence) > 256
+        or any(character.isspace() or ord(character) < 0x20 for character in observed_evidence)
+    ):
+        raise ValueError(f"{label}.observed_extraction_route_evidence drift")
+    expected_priority = (
+        "logical_primary"
+        if observed_route == value.get("source_route")
+        else "secondary_exception_only"
+    )
+    if value.get("observed_extraction_route_priority") != expected_priority:
+        raise ValueError(f"{label}.observed_extraction_route_priority drift")
     if value.get("sampling_stratum") not in review.STRATA:
         raise ValueError(f"{label}.sampling_stratum drift")
     if not isinstance(value.get("attempt"), int) or isinstance(value["attempt"], bool) or value["attempt"] < 1:
@@ -722,6 +755,10 @@ def validate_calibration_receipt(
             "source_dataset",
             "source_revision",
             "source_route",
+            "observed_extraction_route",
+            "observed_extraction_route_basis",
+            "observed_extraction_route_evidence",
+            "observed_extraction_route_priority",
             "sampling_stratum",
             "original_text_sha256",
             "review_copy_sha256",

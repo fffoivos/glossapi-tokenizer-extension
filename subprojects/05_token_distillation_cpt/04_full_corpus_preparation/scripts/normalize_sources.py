@@ -29,6 +29,10 @@ from full_corpus_io import (
     source_config_map,
 )
 from source_lineage import canonical_json, load_json
+from validate_agent1_v3_candidate_roster import (
+    validate_observed_extraction_route,
+    validate_roster as validate_route_basis_roster,
+)
 
 
 NORMALIZATION_MANIFEST_SCHEMA = "full_cpt_normalization_manifest_v1"
@@ -40,7 +44,24 @@ DEFAULT_LARGE_TASK_BYTE_THRESHOLD = 2 * 1024**3
 DEFAULT_LARGE_TASK_WORKERS = 2
 V3_CANDIDATE_ROSTER_SCHEMA = "agent1_full_corpus_v3_candidate_roster_v1"
 V3_ROUTE_FIELDS = ("source_route", "review_route", "extraction_route")
+V3_OBSERVED_EXTRACTION_FIELDS = (
+    "observed_extraction_route",
+    "observed_extraction_route_basis",
+    "observed_extraction_route_evidence",
+    "observed_extraction_route_priority",
+)
 V3_ALLOWED_ROUTES = frozenset({"html_web", "pdf_ocr", "mixed", "structured"})
+V3_OBSERVED_EXTRACTION_BASES = frozenset(
+    {
+        "explicit_row_route",
+        "row_representation_metadata",
+        "declared_extraction_route_fallback",
+        "unavailable",
+    }
+)
+V3_OBSERVED_EXTRACTION_PRIORITIES = frozenset(
+    {"logical_primary", "secondary_exception_only"}
+)
 
 
 def write_json_atomic(
@@ -122,15 +143,93 @@ def _validate_v3_route_map(
     return result
 
 
+def _observed_route_allowances(
+    roster: Mapping[str, Any],
+    *,
+    candidates: list[str],
+    source_routes: Mapping[str, str],
+    extraction_routes: Mapping[str, str],
+) -> tuple[dict[str, list[str]], dict[str, dict[str, Any]]]:
+    """Return per-source observed-route allowances from frozen route basis.
+
+    V3 production rosters must carry the route-basis declaration.  A narrow
+    compatibility fallback supports historical unit fixtures without treating
+    a source-level extraction fallback as an unbounded document-level route.
+    """
+
+    if roster.get("route_basis") is None:
+        return (
+            {
+                source_id: sorted({source_routes[source_id], extraction_routes[source_id]})
+                for source_id in candidates
+            },
+            {
+                source_id: {
+                    "logical_acquisition_type": source_routes[source_id],
+                    "declared_extraction_route_fallback": extraction_routes[source_id],
+                    "allowed_observed_extraction_routes": sorted(
+                        {source_routes[source_id], extraction_routes[source_id]}
+                    ),
+                    "observed_route_priorities": {
+                        route: (
+                            "logical_primary"
+                            if route == source_routes[source_id]
+                            else "secondary_exception_only"
+                        )
+                        for route in sorted(
+                            {source_routes[source_id], extraction_routes[source_id]}
+                        )
+                    },
+                }
+                for source_id in candidates
+            },
+        )
+    report = validate_route_basis_roster(roster)
+    sources = report.get("sources")
+    if not isinstance(sources, Mapping):
+        raise ValueError("candidate roster route-basis validation produced no source map")
+    allowances: dict[str, list[str]] = {}
+    route_metadata: dict[str, dict[str, Any]] = {}
+    for source_id in candidates:
+        entry = sources.get(source_id)
+        if not isinstance(entry, Mapping):
+            raise ValueError(f"candidate roster route-basis lacks {source_id!r}")
+        allowed = entry.get("allowed_observed_extraction_routes")
+        if (
+            not isinstance(allowed, list)
+            or not allowed
+            or any(not isinstance(route, str) or route not in V3_ALLOWED_ROUTES for route in allowed)
+        ):
+            raise ValueError(f"candidate roster route-basis has invalid observed-route allowance for {source_id!r}")
+        # Exercise the validator itself for all declared allowances, so this
+        # consumer cannot accidentally reinterpret an exception as primary.
+        priorities = {
+            route: validate_observed_extraction_route(
+                report, source_id=source_id, observed_extraction_route=route
+            )["observed_route_priority"]
+            for route in allowed
+        }
+        allowances[source_id] = sorted(allowed)
+        route_metadata[source_id] = {
+            "logical_acquisition_type": str(entry["logical_acquisition_type"]),
+            "declared_extraction_route_fallback": str(entry["declared_extraction_route_fallback"]),
+            "allowed_observed_extraction_routes": sorted(allowed),
+            "observed_route_priorities": priorities,
+        }
+    return allowances, route_metadata
+
+
 def load_v3_candidate_roster(path: Path) -> dict[str, Any]:
     """Load the route declaration that v3 canonicalization must preserve.
 
     The frozen v3 roster declares ``source_routes`` (logical provenance),
-    ``review_routes`` (review policy), and ``extraction_routes`` (the observed
-    representation).  Legacy fixtures may omit the latter two distinctions,
-    in which case they default to the review route.  This preserves the fact
-    that a Parquet transport can still contain text logically sourced from a
-    PDF/OCR extraction or an HTML scrape.
+    ``review_routes`` (review policy), and ``extraction_routes`` (the
+    source-level declared observed-route fallback).  Every canonical row then
+    records its own observed extraction route, basis, and evidence.  Legacy
+    fixtures may omit the latter two distinctions, in which case they default
+    to the review route.  This preserves the fact that a Parquet transport can
+    still contain text logically sourced from a PDF/OCR extraction or an HTML
+    scrape.
     """
 
     roster_path = path.resolve()
@@ -178,6 +277,12 @@ def load_v3_candidate_roster(path: Path) -> dict[str, Any]:
         candidates=candidate_ids,
         fallback=review_routes,
     )
+    observed_route_allowances, route_basis_metadata = _observed_route_allowances(
+        roster,
+        candidates=candidate_ids,
+        source_routes=source_routes,
+        extraction_routes=extraction_routes,
+    )
     binding = file_binding(roster_path)
     return {
         **binding,
@@ -187,11 +292,14 @@ def load_v3_candidate_roster(path: Path) -> dict[str, Any]:
         "review_routes": review_routes,
         "source_routes": source_routes,
         "extraction_routes": extraction_routes,
+        "allowed_observed_extraction_routes": observed_route_allowances,
+        "route_basis_metadata": route_basis_metadata,
         "route_declarations": {
             source_id: {
                 "source_route": source_routes[source_id],
                 "review_route": review_routes[source_id],
                 "extraction_route": extraction_routes[source_id],
+                **route_basis_metadata[source_id],
             }
             for source_id in candidate_ids
         },
@@ -578,7 +686,7 @@ def normalize_file(
     embedded_structural_routes: list[dict[str, Any]],
     max_documents: int,
     progress_every: int,
-    declared_routes: dict[str, dict[str, str]] | None = None,
+    declared_routes: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     receipt_path = file_receipt_path(output, artifact.source_id, file_index)
     if receipt_path.exists():
@@ -805,20 +913,33 @@ def validate_candidate_canonical_route_coverage(
     connection: Any,
     *,
     source_relation: str,
-    declared_routes: Mapping[str, Mapping[str, str]],
+    declared_routes: Mapping[str, Mapping[str, Any]],
 ) -> dict[str, Any]:
-    """Verify every canonical candidate row kept its frozen route declaration.
+    """Verify logical route declarations and per-document extraction evidence.
 
     This runs inside the existing global DuckDB pass, so it does not require a
     second corpus-scale Parquet scan.  ``acquisition_source_id`` is used as the
     grouping key: a candidate must not silently become an embedded/base route
     or a differently named source before it reaches quality profiling.
+    Observed extraction may differ from the declared source fallback, but must
+    always have a controlled route plus auditable basis and evidence code.
     """
 
     if not declared_routes:
         raise ValueError("candidate route coverage requires at least one declaration")
     candidates = sorted(declared_routes)
     route_fields = V3_ROUTE_FIELDS
+    allowed_observed_by_source: dict[str, set[str]] = {}
+    for source_id in candidates:
+        declaration = declared_routes[source_id]
+        if not isinstance(declaration, Mapping):
+            continue
+        allowed = declaration.get("allowed_observed_extraction_routes")
+        if not isinstance(allowed, list):
+            continue
+        allowed_observed_by_source[source_id] = {
+            route for route in allowed if isinstance(route, str)
+        }
     malformed = {
         source_id: declaration
         for source_id, declaration in declared_routes.items()
@@ -828,6 +949,9 @@ def validate_candidate_canonical_route_coverage(
             or declaration.get(field) not in V3_ALLOWED_ROUTES
             for field in route_fields
         )
+        or not allowed_observed_by_source.get(source_id)
+        or not allowed_observed_by_source[source_id] <= V3_ALLOWED_ROUTES
+        or declaration.get("source_route") not in allowed_observed_by_source[source_id]
     }
     if malformed:
         raise ValueError(f"invalid frozen candidate route declarations: {malformed}")
@@ -837,13 +961,25 @@ def validate_candidate_canonical_route_coverage(
             f"""
             SELECT acquisition_source_id, source_id,
                    source_route, review_route, extraction_route,
+                   observed_extraction_route,
+                   observed_extraction_route_basis,
+                   observed_extraction_route_evidence,
+                   observed_extraction_route_priority,
                    COUNT(*) AS documents
             FROM {source_relation}
             WHERE acquisition_source_id IN ({candidate_sql})
             GROUP BY acquisition_source_id, source_id,
-                     source_route, review_route, extraction_route
+                     source_route, review_route, extraction_route,
+                     observed_extraction_route,
+                     observed_extraction_route_basis,
+                     observed_extraction_route_evidence,
+                     observed_extraction_route_priority
             ORDER BY acquisition_source_id, source_id,
-                     source_route, review_route, extraction_route
+                     source_route, review_route, extraction_route,
+                     observed_extraction_route,
+                     observed_extraction_route_basis,
+                     observed_extraction_route_evidence,
+                     observed_extraction_route_priority
             """
         ).fetchall()
     except Exception as exc:
@@ -859,6 +995,10 @@ def validate_candidate_canonical_route_coverage(
         source_route,
         review_route,
         extraction_route,
+        observed_extraction_route,
+        observed_extraction_route_basis,
+        observed_extraction_route_evidence,
+        observed_extraction_route_priority,
         documents,
     ) in observed_rows:
         acquisition = str(acquisition_source_id)
@@ -868,6 +1008,16 @@ def validate_candidate_canonical_route_coverage(
                 "source_route": source_route,
                 "review_route": review_route,
                 "extraction_route": extraction_route,
+                "observed_extraction_route": observed_extraction_route,
+                "observed_extraction_route_basis": observed_extraction_route_basis,
+                "observed_extraction_route_evidence": observed_extraction_route_evidence,
+                "observed_extraction_route_priority": observed_extraction_route_priority,
+                "observed_route_priority": (
+                    "logical_primary"
+                    if observed_extraction_route
+                    == declared_routes[acquisition]["source_route"]
+                    else "secondary_exception_only"
+                ),
                 "documents": int(documents),
             }
         )
@@ -881,12 +1031,41 @@ def validate_candidate_canonical_route_coverage(
         valid = bool(rows) and all(
             row["canonical_source_id"] == source_id
             and all(row[field] == expected[field] for field in route_fields)
+            and row["observed_extraction_route"] in allowed_observed_by_source[source_id]
+            and row["observed_extraction_route_basis"] in V3_OBSERVED_EXTRACTION_BASES
+            and isinstance(row["observed_extraction_route_evidence"], str)
+            and bool(row["observed_extraction_route_evidence"].strip())
+            and row["observed_extraction_route_priority"]
+            in V3_OBSERVED_EXTRACTION_PRIORITIES
+            and row["observed_extraction_route_priority"]
+            == row["observed_route_priority"]
             for row in rows
+        )
+        observed_route_counts = dict(
+            sorted(
+                (
+                    str(route),
+                    sum(
+                        int(row["documents"])
+                        for row in rows
+                        if row["observed_extraction_route"] == route
+                    ),
+                )
+                for route in {
+                    row["observed_extraction_route"]
+                    for row in rows
+                    if row["observed_extraction_route"] in V3_ALLOWED_ROUTES
+                }
+            )
         )
         result = {
             "source_id": source_id,
             **expected,
+            "allowed_observed_extraction_routes": sorted(
+                allowed_observed_by_source[source_id]
+            ),
             "normalized_documents": documents,
+            "observed_extraction_route_counts": observed_route_counts,
             "observed": rows,
             "status": "passed" if valid else "failed",
         }
@@ -1061,6 +1240,17 @@ def build_contract(
         "rows_per_shard": args.rows_per_shard,
         "max_rows_per_source": args.max_rows_per_source,
         "embedded_structural_routes": embedded_structural_routes,
+        # Bind the canonical schema-affecting provenance extension into the
+        # immutable resume contract.  A pre-observation shard must never be
+        # accepted as a resumed v3 run merely because the source inputs match.
+        "canonical_observed_extraction_contract": {
+            "schema_version": "agent1_v3_per_document_observed_extraction_v2",
+            "fields": list(V3_OBSERVED_EXTRACTION_FIELDS),
+            "allowed_routes": sorted(V3_ALLOWED_ROUTES),
+            "allowed_bases": sorted(V3_OBSERVED_EXTRACTION_BASES),
+            "allowed_priorities": sorted(V3_OBSERVED_EXTRACTION_PRIORITIES),
+            "logical_source_route_primary": True,
+        },
         "sources": [
             {
                 "source_id": artifact.source_id,
@@ -1087,6 +1277,8 @@ def build_contract(
                 "review_routes",
                 "source_routes",
                 "extraction_routes",
+                "allowed_observed_extraction_routes",
+                "route_basis_metadata",
                 "route_declarations",
             )
         }
@@ -1547,6 +1739,8 @@ def main() -> int:
                         "review_routes",
                         "source_routes",
                         "extraction_routes",
+                        "allowed_observed_extraction_routes",
+                        "route_basis_metadata",
                         "route_declarations",
                     )
                 },

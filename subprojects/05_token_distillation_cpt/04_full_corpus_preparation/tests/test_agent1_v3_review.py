@@ -67,6 +67,10 @@ def sample() -> dict:
         "source_revision": "a" * 40,
         "stable_uid": uid(1),
         "source_route": "pdf_ocr",
+        "observed_extraction_route": "pdf_ocr",
+        "observed_extraction_route_basis": "declared_extraction_route_fallback",
+        "observed_extraction_route_evidence": "roster:extraction_route",
+        "observed_extraction_route_priority": "logical_primary",
         "sampling_stratum": "random",
     }
 
@@ -99,6 +103,10 @@ def response_for(req: dict, **overrides: object) -> dict:
                 "source_dataset",
                 "source_revision",
                 "source_route",
+                "observed_extraction_route",
+                "observed_extraction_route_basis",
+                "observed_extraction_route_evidence",
+                "observed_extraction_route_priority",
                 "sampling_stratum",
                 "original_text_sha256",
                 "review_copy_sha256",
@@ -339,6 +347,72 @@ def test_metric_rows_reject_logical_or_extraction_route_drift() -> None:
         REVIEW.normalize_metric_rows([extraction_drift], explicit_roster)
 
 
+def test_document_observed_route_requires_documented_secondary_exception() -> None:
+    documented = roster("source-a")
+    documented.update(
+        {
+            "source_routes": {"source-a": "pdf_ocr"},
+            "review_routes": {"source-a": "pdf_ocr"},
+            "extraction_routes": {"source-a": "pdf_ocr"},
+            "route_policy": {"priority": "logical_source_then_observed_extraction"},
+            "route_basis": {
+                "schema_version": "agent1_v3_source_route_basis_v1",
+                "priority": "logical_source_then_observed_extraction",
+                "sources": {
+                    "source-a": {
+                        "logical_acquisition_type": "pdf_ocr",
+                        "rationale": "PDF extraction is the logical source.",
+                        "expected_observed_extraction_exceptions": [
+                            {
+                                "observed_extraction_route": "html_web",
+                                "rationale": "A repository shell can remain in text.",
+                                "secondary_only": True,
+                            }
+                        ],
+                    }
+                },
+            },
+        }
+    )
+    observed_html = {
+        **metric_rows(1)[0],
+        "source_route": "pdf_ocr",
+        "review_route": "pdf_ocr",
+        "extraction_route": "pdf_ocr",
+        "observed_extraction_route": "html_web",
+        "observed_extraction_route_basis": "row_representation_metadata",
+        "observed_extraction_route_evidence": "raw_metadata:mime_type=text_html",
+    }
+    normalized = REVIEW.normalize_metric_rows([observed_html], documented)
+    assert normalized[0].source_route == "pdf_ocr"
+    assert normalized[0].observed_extraction_route == "html_web"
+    assert normalized[0].observed_extraction_route_priority == "secondary_exception_only"
+
+    undocumented = {**observed_html, "observed_extraction_route": "structured"}
+    with pytest.raises(ValueError, match="documented secondary exception"):
+        REVIEW.normalize_metric_rows([undocumented], documented)
+
+
+def test_observed_secondary_risk_bonus_is_strictly_bounded() -> None:
+    metrics = {
+        "original_characters": 1000,
+        "raw_mojibake_per_1000_chars": 4.0,
+        "raw_control_per_1000_chars": 3.0,
+        "raw_repeated_line_fraction": 1.0,
+        "raw_one_token_line_fraction": 1.0,
+        "cleaner_removed_character_fraction": 1.0,
+        "cleaner_badness_score": 3.0,
+        "toc_header_detected": True,
+    }
+    logical_html = REVIEW.risk_score_from_metrics(metrics, source_route="html_web")
+    observed_pdf = REVIEW.risk_score_from_metrics(
+        metrics,
+        source_route="html_web",
+        observed_extraction_route="pdf_ocr",
+    )
+    assert 0 < observed_pdf - logical_html <= REVIEW.MAX_OBSERVED_SECONDARY_RISK_BONUS
+
+
 def test_secondary_selection_is_deterministically_stratified() -> None:
     manifest = REVIEW.build_sample_manifest(metric_rows(140), roster("source-a"), seed="frozen-seed")
     first = REVIEW.select_secondary_samples(manifest["selected_documents"], seed="second-seed")
@@ -365,6 +439,11 @@ def test_strict_response_requires_one_to_five_and_exact_request_binding() -> Non
     assert any("unexpected fields" in error for error in REVIEW.validate_review_response(bad_extra, req))
     bad_identity = response_for(req, source_revision="c" * 40)
     assert any("response/request identity drift: source_revision" == error for error in REVIEW.validate_review_response(bad_identity, req))
+    bad_priority = response_for(req, observed_extraction_route_priority="secondary_exception_only")
+    assert any(
+        "observed_extraction_route_priority reverses logical-source priority" in error
+        for error in REVIEW.validate_review_response(bad_priority, req)
+    )
 
 
 def test_adjudication_manifest_blocks_low_confidence_and_material_disagreement() -> None:
