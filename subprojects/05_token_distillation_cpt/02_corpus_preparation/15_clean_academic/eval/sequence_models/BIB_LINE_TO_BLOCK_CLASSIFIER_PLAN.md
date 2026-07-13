@@ -42,17 +42,26 @@ views from the same documents:
 
 ### Entry-line target
 
-- `ENTRY = 1`: an emitted line labelled `BIB` that is not in the audited
-  header-candidate mask described below.
+- `ENTRY = 1`: an emitted line labelled `BIB` that is neither an exact
+  high-confidence structural heading nor a contextually adjudicated
+  non-entry line.
 - `ENTRY = 0`: emitted `O` and `TOC` lines.
-- `MASK`: `UNKNOWN`, coverage seams, and audited header candidates.
+- `MASK`: `UNKNOWN`, coverage seams, exact high-confidence structural
+  headings, and contextually adjudicated non-entry/uncertain candidates.
 
 Headers are masked, never made negative. A false header decision can therefore
 remove a training example but cannot teach the classifier that a real entry is
 prose. The raw silver `BIB` region target is never modified.
 
-Do not let a regex decide the mask. Build a deliberately high-recall candidate
-set from all silver `BIB` lines using only nomination cues:
+The verified conservative exception is the exact multilingual heading and
+subheading lexicon, applied only to silver `BIB` lines. A 2026-07-13 audit
+found zero `ENTRY` votes from either of two contextual reviewers across 60
+source-balanced exact-rule cases. These exact lines may be masked directly,
+but this result does not authorize any broader short-line or sparse-line mask.
+
+For recall beyond that exact lexicon, do not let a regex decide the mask.
+Build a candidate set from all remaining silver `BIB` lines using nomination
+cues:
 
 - known multilingual bibliography-heading vocabulary;
 - short, citation-sparse lines at a silver block boundary;
@@ -60,17 +69,19 @@ set from all silver `BIB` lines using only nomination cues:
   `Ελληνόγλωσση βιβλιογραφία`, `Ξενόγλωσση βιβλιογραφία`, or `Πηγές`;
 - typography and capitalization cues, without treating them as proof.
 
-Adjudicate every nominated line with document context, including neighbouring
-lines and its position inside the silver block. The contextual labels are
+Candidates are diagnostic until they are individually adjudicated with
+document context, including neighbouring lines and position inside the silver
+block. Unreviewed probes remain `ENTRY` positives; nomination alone never
+masks them. The contextual labels are
 `ENTRY`, `BIB_HEADER`, `BIB_SUBHEADER`, `OTHER_STRUCTURE`, and `UNCERTAIN`.
-Only `BIB_HEADER` and `BIB_SUBHEADER` are supplied to the separate block model
-as positive boundary cues. All non-`ENTRY` candidate outcomes are masked from
-the entry-classifier loss; none becomes an `O` negative.
+All agreed non-`ENTRY` outcomes are masked from the entry-classifier loss;
+none becomes an `O` negative.
 
 Use two independent Codex judgments for candidate adjudication. Agreement on
 `ENTRY` returns the line to the positive set; agreement on header/subheader
-masks it and enables the boundary cue; disagreement or uncertainty remains
-masked without becoming a cue. Then Foivos and Codex jointly inspect at least
+masks it. Agreement on `OTHER_STRUCTURE`, disagreement, or uncertainty also
+remains masked, but none of those outcomes becomes a header cue. Then Foivos
+and Codex jointly inspect at least
 100 source- and position-balanced candidates, with special attention to short
 real citations and internal bibliography subdivisions. Freeze the mask only
 if this audit finds no real entry incorrectly promoted to a header boundary
@@ -81,14 +92,15 @@ These contextual labels are still LLM-assisted research labels, not human
 gold. Their receipt must preserve the prompt, model identity, responses,
 candidate hashes, agreement status, and final masking rule.
 
-If contextual adjudication is unavailable, the fallback is conservative:
-mask only exact high-confidence heading vocabulary and leave every other
-silver `BIB` line positive. Do not infer a broad header mask from line length,
-capitalization, or lack of citation features alone.
+If contextual adjudication is unavailable, use only the verified exact mask
+and leave every other silver `BIB` line positive. Do not infer a broad header
+mask from line length, capitalization, block-start position, or lack of
+citation features alone. In the audit, 21/30 block-start probes and at least
+27/30 internal sparse probes were real entries.
 
-The resulting high-precision header/subheader cue is retained separately as
-block-boundary evidence. The entry classifier itself is neither rewarded nor
-penalized for recognizing it.
+Retain adjudicated header/subheader identity for a third, post-block stage.
+The entry classifier itself is neither rewarded nor penalized for recognizing
+headers.
 
 ### Region/block target
 
@@ -217,8 +229,8 @@ This is the first and most inspectable implementation.
 4. Once a block is established, weaker and long lines may be included between
    or immediately adjacent to anchors.
 5. Long lines may never create or extend an unconfirmed block on their own.
-6. Header cues may extend a confirmed block boundary but may not establish a
-   block without entry anchors.
+6. The primary B0 comparison does not use a header cue. It establishes blocks
+   from entry anchors only.
 7. Coverage seams and strong prose/barrier runs terminate blocks.
 
 The presentation-derived initial seed-length limit is approximately 330
@@ -236,11 +248,28 @@ Tune only a bounded set of parameters on out-of-fold train predictions:
 - adjacent expansion distance;
 - number/strength of barrier lines needed to terminate.
 
+### H0: post-block header and subheader attachment
+
+After B0 has independently established an entry block, run a small structural
+detector over the block and a narrow preceding boundary window. H0 may:
+
+- attach an overall bibliography/references heading immediately before a
+  confirmed block;
+- mark internal language/source subdivisions as subheaders; and
+- mark repeated running headings as other structure.
+
+H0 may not create a bibliography block. This makes a mistaken header decision
+incapable of deleting unrelated prose on its own. Compare exact rules with a
+contextual classifier trained only on adjudicated structural candidates.
+Report header attachment precision/recall separately from entry-block
+precision/recall. Only after this comparison may a header cue be tested inside
+B1 as an explicit ablation.
+
 ### B1: constrained linear-chain CRF
 
 Train a small CRF over states such as `O`, `BIB_START`, `BIB_INSIDE`, and
-`BIB_GAP`. Observations are the frozen line-model logit, header cue, barrier
-cue, character length, and local score aggregates. Add a hard transition mask
+`BIB_GAP`. Primary observations are the frozen line-model logit, barrier cue,
+character length, and local score aggregates. Add a hard transition mask
 so a line over the seed-length limit cannot transition from `O` into
 `BIB_START`; it may transition within an already established block.
 
@@ -332,8 +361,9 @@ ported into the corpus-cleaning pipeline, initially in audit/no-delete mode.
 1. Freeze and audit the entry/header/region label contract.
 2. Materialize the receipt-bound feature table and five grouped folds.
 3. Fit L0–L4 and D1; emit out-of-fold line predictions.
-4. Compare all retained line arms through B0.
-5. Train B1 on the two strongest interpretable arms.
+4. Compare all retained line arms through B0, then evaluate H0 attachment.
+5. Train B1 on the two strongest interpretable arms; test header evidence only
+   as a labelled ablation after the no-header-cue baseline.
 6. Decide from error analysis whether B2 is warranted.
 7. Freeze one complete line-to-block configuration.
 8. Run the single retrospective validation and build the joint-review site.

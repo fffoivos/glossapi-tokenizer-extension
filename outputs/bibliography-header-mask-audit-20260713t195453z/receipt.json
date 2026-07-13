@@ -1,0 +1,55 @@
+{
+  "bib_block_count": 1632,
+  "bib_line_count": 139243,
+  "candidate_count": 15427,
+  "candidate_counts_by_source": {
+    "greek_phd": 9884,
+    "kallipos": 1353,
+    "openarchives": 4190
+  },
+  "candidate_counts_by_stratum": {
+    "block_start_probe": 2636,
+    "exact_heading": 586,
+    "exact_subheading": 210,
+    "internal_sparse_probe": 11995
+  },
+  "code_commit": "672d804d0fd6624451c70ee846a1f2d8e328ccca",
+  "context_radius": 3,
+  "document_count": 1118,
+  "input": {
+    "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/struct2k.LLM_silver.jsonl",
+    "sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "max_physical_gap": 64,
+  "outputs": {
+    "audit_sample.json": {
+      "bytes": 434359,
+      "sha256": "f606ad2544ea5aa1b91e1654aba6a1cb6d2f5c5a18f941861ad2395e06ef5d06"
+    },
+    "candidates.jsonl": {
+      "bytes": 35802663,
+      "sha256": "19100635f7469b49bb5c67f7fe5c611feae9034d6ca5a368c94402dbd0dd326f"
+    },
+    "summary.json": {
+      "bytes": 1117,
+      "sha256": "33c0f113a449786ef95410bab87bf58bbfacac251df8124d56d43e3223845476"
+    }
+  },
+  "sample_count": 120,
+  "sample_counts_by_source": {
+    "greek_phd": 50,
+    "kallipos": 25,
+    "openarchives": 45
+  },
+  "sample_counts_by_stratum": {
+    "block_start_probe": 30,
+    "exact_heading": 30,
+    "exact_subheading": 30,
+    "internal_sparse_probe": 30
+  },
+  "sampling_seed": "bibliography-header-mask-audit-v1",
+  "schema_version": "bibliography-header-mask-audit-v1",
+  "slurm_job_id": "2753862",
+  "split": "train",
+  "status": "passed_candidate_generation_only_no_mask_decision"
+}
