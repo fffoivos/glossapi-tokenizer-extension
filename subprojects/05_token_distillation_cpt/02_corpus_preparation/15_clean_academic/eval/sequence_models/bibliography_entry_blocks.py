@@ -9,6 +9,7 @@ never create a block.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
 from dataclasses import asdict, dataclass
@@ -380,6 +381,54 @@ def _h0_attachment_metrics(
     }
 
 
+def _evaluate_arm_task(
+    task: tuple[str, str, str],
+) -> tuple[str, list[dict[str, Any]], dict[str, Any], np.ndarray, np.ndarray, dict[str, Any]]:
+    table_dir, line_oof_dir, arm = task
+    table = load_table(table_dir)
+    probability = np.load(
+        Path(line_oof_dir) / f"{arm}.oof_probability.npy",
+        mmap_mode="r",
+        allow_pickle=False,
+    )
+    candidates = []
+    best: tuple[
+        tuple[Any, ...],
+        BlockConfig,
+        np.ndarray,
+        np.ndarray,
+        dict[str, Any],
+        dict[str, Any],
+    ] | None = None
+    for config in _grid():
+        b0 = decode_table(table, probability, config, attach_headers=False)
+        h0 = decode_table(table, probability, config, attach_headers=True)
+        b0_metrics = evaluate_prediction(table, b0)
+        h0_metrics = evaluate_prediction(table, h0)
+        candidates.append(
+            {
+                "config": asdict(config),
+                "b0": b0_metrics,
+                "b0_plus_h0": h0_metrics,
+                "h0_attachment": _h0_attachment_metrics(table, b0, h0),
+            }
+        )
+        bundle = (_selection_key(h0_metrics), config, b0, h0, b0_metrics, h0_metrics)
+        if best is None or bundle[0] > best[0]:
+            best = bundle
+    assert best is not None
+    _key, config, b0, h0, b0_metrics, h0_metrics = best
+    row = {
+        "selected_config": asdict(config),
+        "selected_b0_metrics": b0_metrics,
+        "selected_b0_plus_h0_metrics": h0_metrics,
+        "selected_h0_attachment_metrics": _h0_attachment_metrics(table, b0, h0),
+        **_breakdowns(table, h0),
+        "grid": candidates,
+    }
+    return arm, candidates, asdict(config), b0, h0, row
+
+
 def run(args: argparse.Namespace) -> dict[str, Any]:
     table = load_table(args.table_dir)
     line_root = Path(args.line_oof_dir).resolve()
@@ -391,38 +440,19 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         raise FileExistsError(f"immutable output exists: {output_dir}")
     output_dir.mkdir(parents=True)
 
+    tasks = [
+        (str(table.root), str(line_root), arm)
+        for arm in ALL_ARMS
+    ]
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=min(int(args.workers), len(tasks))
+    ) as executor:
+        results = list(executor.map(_evaluate_arm_task, tasks, chunksize=1))
     arm_rows: dict[str, Any] = {}
-    for arm in ALL_ARMS:
-        probability = np.load(line_root / f"{arm}.oof_probability.npy", mmap_mode="r", allow_pickle=False)
-        candidates = []
-        best: tuple[tuple[Any, ...], BlockConfig, np.ndarray, np.ndarray, dict[str, Any], dict[str, Any]] | None = None
-        for config in _grid():
-            b0 = decode_table(table, probability, config, attach_headers=False)
-            h0 = decode_table(table, probability, config, attach_headers=True)
-            b0_metrics = evaluate_prediction(table, b0)
-            h0_metrics = evaluate_prediction(table, h0)
-            row = {
-                "config": asdict(config),
-                "b0": b0_metrics,
-                "b0_plus_h0": h0_metrics,
-                "h0_attachment": _h0_attachment_metrics(table, b0, h0),
-            }
-            candidates.append(row)
-            bundle = (_selection_key(h0_metrics), config, b0, h0, b0_metrics, h0_metrics)
-            if best is None or bundle[0] > best[0]:
-                best = bundle
-        assert best is not None
-        _key, config, b0, h0, b0_metrics, h0_metrics = best
+    for arm, _candidates, _config, b0, h0, row in results:
         _save_array(output_dir / f"{arm}.b0_prediction.npy", b0)
         _save_array(output_dir / f"{arm}.b0_h0_prediction.npy", h0)
-        arm_rows[arm] = {
-            "selected_config": asdict(config),
-            "selected_b0_metrics": b0_metrics,
-            "selected_b0_plus_h0_metrics": h0_metrics,
-            "selected_h0_attachment_metrics": _h0_attachment_metrics(table, b0, h0),
-            **_breakdowns(table, h0),
-            "grid": candidates,
-        }
+        arm_rows[arm] = row
 
     ranked = sorted(ALL_ARMS, key=lambda arm: _selection_key(arm_rows[arm]["selected_b0_plus_h0_metrics"]), reverse=True)
     best_recall = float(arm_rows[ranked[0]]["selected_b0_plus_h0_metrics"]["token_recall"])
@@ -466,6 +496,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--table-dir", required=True)
     parser.add_argument("--line-oof-dir", required=True)
     parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--workers", type=int, default=6)
     parser.add_argument("--code-commit", required=True)
     parser.add_argument("--slurm-job-id", required=True)
     return parser.parse_args(argv)

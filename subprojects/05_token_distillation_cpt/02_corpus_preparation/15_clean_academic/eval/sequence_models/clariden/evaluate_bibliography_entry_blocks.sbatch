@@ -35,6 +35,7 @@ uenv run "$UENV" --view=default -- \
   --table-dir "$TABLE_DIR" \
   --line-oof-dir "$LINE_OOF_DIR" \
   --output-dir "$OUTPUT_DIR" \
+  --workers 6 \
   --code-commit "$CODE_COMMIT" \
   --slurm-job-id "$SLURM_JOB_ID"
 
