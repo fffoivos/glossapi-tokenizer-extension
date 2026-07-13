@@ -219,3 +219,47 @@ showed that 20 fits could safely use 20 rather than 10 workers.  Its empty
 The implementation and execution chain are complete.  The remaining work is
 the separate Foivos/Codex review itself and the resulting retain/revise/shadow
 decision; review decisions must not tune this frozen version.
+
+## Recall-failure presentation — 2026-07-14
+
+The ten validation documents contributing the most missed bibliography tokens
+are presented as complete document readers.  Final frozen B1 decisions are
+compared line by line with the LLM-silver BIB region:
+
+- green means both mark the line as BIB;
+- red means silver BIB missed by the classifier;
+- blue means classifier-only BIB; and
+- neutral means both classify the line as non-BIB.
+
+Every classifier-positive line also carries the ownership-resolved feature
+bounding boxes and probability.  The interface includes all-lines,
+decision-context, and disagreement-context modes plus previous/next error and
+first-block navigation.
+
+Clariden job `2754908` completed the ten-document packet in 14 seconds:
+
+```text
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/failure_review_top10_v2
+packet sha256 01fca9350006409d3815cfd4d63e86e274ef132d3cf4ab08362ee18a3452a70f
+receipt sha256 300ecff943be85664b264cda4ae6f7b4bf6369194598c7ebd62b185cc8c75994
+```
+
+It contains 29,118 emitted lines and 202,121 missed BIB tokens.  The local
+presentation is:
+
+```text
+/Users/foivoskarounos-zamparloukos/presentations/train-apertus-with-glossapi/bibliography-recall-failures-20260714
+http://127.0.0.1:8772/
+```
+
+Restart command:
+
+```bash
+cd /Users/foivoskarounos-zamparloukos/presentations/train-apertus-with-glossapi/bibliography-recall-failures-20260714
+python3 -m http.server 8772 --bind 127.0.0.1
+```
+
+Superseded job `2754894` produced a valid one-document packet because Slurm
+interpreted commas in the exported ID list as environment-variable separators.
+That artifact is incomplete and is not presented.  Commit `8b88a29` replaced
+the interface with a colon-delimited list before the successful v2 job.
