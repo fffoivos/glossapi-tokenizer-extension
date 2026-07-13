@@ -291,7 +291,8 @@ def _plot_svg(summary: Mapping[str, Any]) -> str:
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">',
         "<title id=\"title\">Silver bibliography block distribution</title>",
         f'<desc id="desc">Histogram for {summary["document_count"]} documents and the fifteen documents with the most continuous BIB blocks.</desc>',
-        "<style>:root{color-scheme:light dark}text{font-family:system-ui,sans-serif;fill:#17201c}.axis{stroke:#6c756f;stroke-width:1}.grid{stroke:#d8d1c3;stroke-width:1}.bar{fill:#527963}.tail{fill:#a15e50}.small{font-size:12px}.label{font-size:14px}.heading{font-size:20px;font-weight:600}@media(prefers-color-scheme:dark){text{fill:#ecefe9}.axis{stroke:#a8b0aa}.grid{stroke:#46504a}.bar{fill:#74a88e}.tail{fill:#d08a78}}</style>",
+        "<style>:root{color-scheme:light dark}.background{fill:#fff}text{font-family:system-ui,sans-serif;fill:#17201c}.axis{stroke:#6c756f;stroke-width:1}.grid{stroke:#d8d1c3;stroke-width:1}.bar{fill:#527963}.tail{fill:#a15e50}.small{font-size:12px}.label{font-size:14px}.heading{font-size:20px;font-weight:600}@media(prefers-color-scheme:dark){.background{fill:#111411}text{fill:#ecefe9}.axis{stroke:#a8b0aa}.grid{stroke:#46504a}.bar{fill:#74a88e}.tail{fill:#d08a78}}</style>",
+        f'<rect class="background" width="{width}" height="{height}"/>',
         '<text class="heading" x="78" y="34">Continuous silver BIB blocks per document</text>',
         f'<text class="label" x="78" y="57">n={summary["document_count"]} · mean={summary["mean"]:.2f} · median={summary["median"]} · p95={summary["p95"]} · max={summary["maximum"]}</text>',
     ]
