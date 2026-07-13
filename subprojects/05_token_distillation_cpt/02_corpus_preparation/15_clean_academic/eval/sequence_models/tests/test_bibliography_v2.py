@@ -143,6 +143,22 @@ def test_dates_pages_and_years_do_not_duplicate_numeric_spans() -> None:
     assert year_range.numbered_entry_count == 0
 
 
+def test_article_page_range_owns_the_complete_lipics_coordinate() -> None:
+    text = "vol. 66, pp. 44:1-44:14, Schloss Dagstuhl, 2017."
+    review = extract_bibliography_feature_review(text)
+    article_pages = [
+        match
+        for match in review.matches
+        if match.feature == "article_page_range_count"
+    ]
+
+    assert review.features.article_page_range_count == 1
+    assert review.features.page_range_count == 0
+    assert len(article_pages) == 1
+    assert article_pages[0].text == "44:1-44:14"
+    assert article_pages[0].start == text.index("44:1")
+
+
 def test_editor_abbreviations_do_not_claim_edition_or_hyphenated_trans() -> None:
     features = extract_bibliography_features(
         "All-trans-retinoic acid. 2nd ed. Editor. Trans."
@@ -152,14 +168,13 @@ def test_editor_abbreviations_do_not_claim_edition_or_hyphenated_trans() -> None
     assert features.editor_term_count == 2
 
 
-def test_inline_author_page_is_not_an_entry_author_year_or_journal_volume() -> None:
+def test_inline_author_page_is_not_a_journal_volume() -> None:
     features = extract_bibliography_features(
         "Σύμφωνα με τον Gerler (2013: 275), ένα από τα βασικά χαρακτηριστικά "
         "μιας κρίσης είναι το γεγονός ότι γίνεται αντιληπτή αρνητικά."
     )
 
     assert features.prose_lead_count == 1
-    assert features.author_year_count == 0
     assert features.journal_year_volume_count == 0
     assert features.year_count == 1
 
@@ -339,7 +354,7 @@ def test_extended_chapter_heading_and_language_subheading_are_typed() -> None:
     assert subheading.role == BibRole.SUBHEADING
 
 
-def test_inline_author_year_prose_retains_the_conservative_veto() -> None:
+def test_inline_citation_prose_retains_the_conservative_veto() -> None:
     evidence = analyze_bibliography_line_v2(
         "Όπως υποστηρίζει ο Παπαδόπουλος (2019), η ανάλυση αυτή συνεχίζεται "
         "στο επόμενο τμήμα του κεφαλαίου."

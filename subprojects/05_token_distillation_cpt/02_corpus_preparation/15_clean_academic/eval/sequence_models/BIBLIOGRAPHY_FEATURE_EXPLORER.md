@@ -11,8 +11,8 @@ the bibliography-v2 weighted scorer and the document-level block decoder.
   bibliography event. The remaining 35 nonzero feature counts each contribute
   exactly one point, regardless of magnitude.
 - The page retains all evaluated lines so disabling a feature reranks the whole
-  inventory before rendering the top 100; it does not merely filter the
-  already-rendered list.
+  inventory. It displays every line in descending order through an infinite
+  feed, appending 100 lines at a time rather than truncating the result.
 - The review-only span extractor emits exact `[start:end]` Unicode-character
   offsets into the NFKC-normalized text displayed by the page. Every resolved
   feature count must equal the number of emitted spans for that feature or the build
@@ -54,9 +54,31 @@ expected 7/7/6 source split before publishing the site path.
 Serve the resulting directory locally with any static HTTP server. The page is
 self-contained and requires no backend or external assets.
 
-## Current ownership-resolved v3 build
+## Current infinite-scroll v4 build
 
-The current presentation was rebuilt locally on 2026-07-13 from the exact
+The current presentation keeps the complete 14,815-line inventory in every
+ranking view. It renders the first 100 lines immediately and appends subsequent
+100-line batches as the reviewer scrolls, preserving descending order under the
+selected metric. Changing a detector or ranking metric starts a newly ranked
+feed from rank 1.
+
+The unrequested `author_year_count` composite has been removed from the active
+feature vector, weighted scorer, and presentation. Years and author shapes
+remain separate evidence. A dedicated `article_page_range_count` now owns
+article-number/page coordinates such as `44:1-44:14`; this prevents the generic
+page-range fallback from incorrectly presenting only `1-44`.
+
+This is still a 35-feature presentation: one composite was removed and one
+specific page-coordinate detector was added. The current HTML SHA-256 is
+`3dfdb8d94a1de1f2980ca9a938dece041add91f930ebad49878f357f68964279`.
+The exact build receipt is archived at
+`results/bibliography_feature_explorer/infinite_v4_build.receipt.json`. Its
+output path records the staging location before promotion to
+`outputs/bibliography-feature-explorer/index.html`.
+
+## Previous ownership-resolved v3 build
+
+This presentation was rebuilt locally on 2026-07-13 from the exact
 20-document, 14,815-line label-blind packet embedded in the prior hover build.
 No Clariden compute job was required. The 35 scored features now use explicit
 ownership: specific lexical/numeric detectors claim a span before a broad
@@ -85,7 +107,7 @@ a dot fell from 1,814 to zero. For document
 `a32563c98868101bfde4b1942897ca3d6c867b1ca882b116070772b0902c6235`, line
 2421 now has seven direct-order authors and zero inverted-order authors.
 
-The current HTML SHA-256 is
+The v3 HTML SHA-256 is
 `a00a8ac935adcd785f21db6669190b3aa174b824d4f83c6a33e0b4dfcf62cd4c`.
 The exact local build receipt is archived at
 `results/bibliography_feature_explorer/ownership_v3_build.receipt.json`, and

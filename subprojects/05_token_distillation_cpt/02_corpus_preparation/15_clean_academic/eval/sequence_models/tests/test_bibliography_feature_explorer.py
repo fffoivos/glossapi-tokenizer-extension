@@ -79,8 +79,7 @@ def test_source_balanced_selection_and_payload_are_label_blind(tmp_path: Path) -
     assert all("label" not in line for line in payload["lines"])
     assert all("label" not in document for document in payload["documents"])
     citation = next(line for line in payload["lines"] if line["abs_idx"] == 10)
-    assert citation["features"]["author_year_count"] == 1
-    assert citation["features"].get("year_count", 0) == 0
+    assert citation["features"]["year_count"] == 1
     assert citation["features"]["doi_count"] == 1
     assert citation["features"]["page_range_count"] == 1
     assert citation["char_length"] == len(citation["text"])
@@ -115,6 +114,11 @@ def test_page_has_live_feature_filters_and_unit_scoring() -> None:
     assert "Hover a coloured badge or sidebar feature label" in page
     assert "raw count is non-zero" not in page  # Python docstring is not rendered.
     assert "weighted_score_used" in page
+    assert "IntersectionObserver" in page
+    assert "function appendNextBatch()" in page
+    assert "batchSize=100" in page
+    assert ".slice(0,100)" not in page
+    assert "· descending" in page
 
 
 def test_existing_site_can_supply_the_exact_label_blind_sample(tmp_path: Path) -> None:

@@ -9,8 +9,8 @@ data, or authorise removal.
 The line feature vector counts evidence instead of reducing it immediately to
 one opaque citation flag:
 
-- person-name shapes: Latin/Greek initials, initial sequences, inverted author
-  forms, author-year forms, and title-cased name-word counts;
+- person-name shapes: Latin/Greek initials, initial sequences, inverted and
+  direct-order author forms, and title-cased name-word counts;
 - publication dates: years, `n.d.` / `χ.χ.`, numeric dates, month dates, and
   access-date vocabulary;
 - identifiers: URLs, DOI, ISBN, and ISSN are independent fields;
@@ -20,7 +20,7 @@ one opaque citation flag:
   citation-container `in`, edition, publisher, and place-publisher forms in
   English and Greek;
 - journal coordinates: volume/issue markers, year-volume sequences, page
-  markers, and bare page ranges.
+  markers, article-number/page coordinates, and bare page ranges.
 
 Every additive score contribution is emitted as a reason code. General NER is
 not a dependency: the first experiment measures cheap name/place shapes. A

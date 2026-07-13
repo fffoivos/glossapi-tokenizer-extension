@@ -150,6 +150,10 @@ _JOURNAL_YEAR_VOLUME = re.compile(
     re.I,
 )
 _PAGE_MARKER = re.compile(r"(?<!\w)(?:pp?|σσ?|σελ)\s*\.\s*(?=\d)", re.I)
+_ARTICLE_PAGE_RANGE = re.compile(
+    r"(?<!\d)(?P<article_number>\d{1,5}):(?P<article_page_start>\d{1,5})"
+    r"\s*[-–—]\s*(?P=article_number):(?P<article_page_end>\d{1,5})(?!\d)"
+)
 _PAGE_RANGE = re.compile(
     r"(?<![\d,])(?<!\d[,.])(?P<page_start>\d{1,5})\s*[-–—]\s*"
     r"(?P<page_end>\d{1,5})(?![\d,])(?!\.\d)"
@@ -224,7 +228,6 @@ class BibliographyFeatures:
     initial_count: int
     proper_name_word_count: int
     inverted_author_count: int
-    author_year_count: int
     name_initial_pair_count: int
     direct_author_count: int
     numbered_entry_count: int
@@ -240,6 +243,7 @@ class BibliographyFeatures:
     volume_shape_count: int
     journal_year_volume_count: int
     page_marker_count: int
+    article_page_range_count: int
     page_range_count: int
     publisher_term_count: int
     place_name_count: int
@@ -378,9 +382,9 @@ def _numbered_entry_span(text: str) -> tuple[int, int] | None:
 def _feature_spans(value: str) -> dict[str, list[_Span]]:
     """Extract spans and assign broad evidence to one most-specific owner.
 
-    Relational shapes such as ``author_year`` may still contain their atomic
-    evidence. Catch-all lexical and numeric detectors are residual: a span
-    already explained by a more specific detector is not counted again.
+    Author-list shapes may still contain their atomic evidence. Catch-all
+    lexical and numeric detectors are residual: a span already explained by a
+    more specific detector is not counted again.
     """
 
     start, end = _analysis_bounds(value)
@@ -408,6 +412,7 @@ def _feature_spans(value: str) -> dict[str, list[_Span]]:
         "volume_shape_count": _VOLUME_SHAPE,
         "journal_year_volume_count": _JOURNAL_YEAR_VOLUME,
         "page_marker_count": _PAGE_MARKER,
+        "article_page_range_count": _ARTICLE_PAGE_RANGE,
         "publisher_term_count": _PUBLISHER_TERMS,
         "place_name_count": _PLACE_NAMES,
         "place_publisher_shape_count": _PLACE_PUBLISHER_SHAPE,
@@ -422,7 +427,6 @@ def _feature_spans(value: str) -> dict[str, list[_Span]]:
     spans["inverted_author_count"] = _pattern_spans(
         _INVERTED_AUTHOR, analysis_value, offset=start
     )
-    spans["author_year_count"] = []
     spans["name_initial_pair_count"] = _pattern_spans(
         _NAME_INITIAL_PAIR, analysis_value, offset=start
     )
@@ -439,6 +443,7 @@ def _feature_spans(value: str) -> dict[str, list[_Span]]:
             "no_date_count",
             "numeric_date_count",
             "month_date_count",
+            "article_page_range_count",
             "quoted_span_count",
             "editor_term_count",
             "thesis_term_count",
@@ -499,6 +504,7 @@ def _feature_spans(value: str) -> dict[str, list[_Span]]:
             "issn_count",
             "numeric_date_count",
             "month_date_count",
+            "article_page_range_count",
         ),
     )
     page_ranges: list[_Span] = []
@@ -542,32 +548,6 @@ def _feature_spans(value: str) -> dict[str, list[_Span]]:
         if not 1500 <= int(match.group("issue")) <= 2099
     ]
 
-    # Build author–year only from an author hypothesis that begins after a
-    # legal list/bullet prefix. This replaces the former catch-all expression
-    # that could consume running prose up to an inline citation.
-    author_hits = spans["inverted_author_count"] + spans["direct_author_count"]
-    if not author_hits and len(spans["name_initial_pair_count"]) >= 2:
-        first_pair = spans["name_initial_pair_count"][0]
-        if _AUTHOR_PREFIX.fullmatch(value[start : first_pair[0]]) is not None:
-            author_hits = spans["name_initial_pair_count"]
-    if author_hits:
-        first_author = min(author_hits)
-        date_blockers = _joined_spans(
-            spans,
-            ("numeric_date_count", "month_date_count", "page_range_count"),
-        )
-        date_candidates = sorted(
-            span
-            for span in spans["year_count"] + spans["no_date_count"]
-            if span[0] >= first_author[1]
-            and span[0] - first_author[0] <= 350
-            and not any(_overlaps(span, blocker) for blocker in date_blockers)
-        )
-        if date_candidates:
-            spans["author_year_count"] = [
-                (first_author[0], date_candidates[0][1])
-            ]
-
     # More-specific ownership rules. These turn the broad detectors into
     # fallback evidence rather than repeated points for one textual event.
     spans["url_count"] = _without_overlaps(spans["url_count"], spans["doi_count"])
@@ -584,7 +564,6 @@ def _feature_spans(value: str) -> dict[str, list[_Span]]:
                 "issn_count",
                 "journal_year_volume_count",
                 "page_range_count",
-                "author_year_count",
             ),
         ),
     )
@@ -610,7 +589,12 @@ def _feature_spans(value: str) -> dict[str, list[_Span]]:
         spans["numbered_entry_count"],
         _joined_spans(
             spans,
-            ("numeric_date_count", "month_date_count", "page_range_count"),
+            (
+                "numeric_date_count",
+                "month_date_count",
+                "article_page_range_count",
+                "page_range_count",
+            ),
         ),
     )
     spans["initial_count"] = _without_overlaps(
@@ -721,7 +705,6 @@ def _features_and_spans(value: str) -> tuple[BibliographyFeatures, dict[str, lis
         "initial_count": len(spans["initial_count"]),
         "proper_name_word_count": len(spans["proper_name_word_count"]),
         "inverted_author_count": len(spans["inverted_author_count"]),
-        "author_year_count": len(spans["author_year_count"]),
         "name_initial_pair_count": len(spans["name_initial_pair_count"]),
         "direct_author_count": len(spans["direct_author_count"]),
         "numbered_entry_count": len(spans["numbered_entry_count"]),
@@ -737,6 +720,7 @@ def _features_and_spans(value: str) -> tuple[BibliographyFeatures, dict[str, lis
         "volume_shape_count": len(spans["volume_shape_count"]),
         "journal_year_volume_count": len(spans["journal_year_volume_count"]),
         "page_marker_count": len(spans["page_marker_count"]),
+        "article_page_range_count": len(spans["article_page_range_count"]),
         "page_range_count": len(spans["page_range_count"]),
         "publisher_term_count": len(spans["publisher_term_count"]),
         "place_name_count": len(spans["place_name_count"]),
@@ -782,7 +766,6 @@ def _has_date_evidence(features: BibliographyFeatures) -> bool:
         or features.no_date_count
         or features.numeric_date_count
         or features.month_date_count
-        or features.author_year_count
         or features.journal_year_volume_count
     )
 
@@ -792,7 +775,6 @@ def _feature_families(features: BibliographyFeatures) -> tuple[str, ...]:
         (
             "author",
             features.inverted_author_count > 0
-            or features.author_year_count > 0
             or features.name_initial_pair_count > 0
             or features.direct_author_count > 0,
         ),
@@ -802,7 +784,6 @@ def _feature_families(features: BibliographyFeatures) -> tuple[str, ...]:
             bool(
                 features.year_count
                 or features.no_date_count
-                or features.author_year_count
                 or features.journal_year_volume_count
             ),
         ),
@@ -829,7 +810,12 @@ def _feature_families(features: BibliographyFeatures) -> tuple[str, ...]:
             or features.volume_shape_count > 0
             or features.journal_year_volume_count > 0,
         ),
-        ("pages", features.page_marker_count > 0 or features.page_range_count > 0),
+        (
+            "pages",
+            features.page_marker_count > 0
+            or features.article_page_range_count > 0
+            or features.page_range_count > 0,
+        ),
         ("abbreviations", features.dotted_sequence_count > 0),
         ("quoted_title", features.quoted_span_count > 0),
         ("thesis", features.thesis_term_count > 0),
@@ -853,7 +839,6 @@ def score_bibliography_features(
             reasons.append(code)
 
     add(features.inverted_author_count > 0, 2.8, "BIB2_AUTHOR_INVERTED")
-    add(features.author_year_count > 0, 2.4, "BIB2_AUTHOR_YEAR_SKELETON")
     add(
         features.name_initial_pair_count >= 2,
         2.8,
@@ -894,6 +879,11 @@ def score_bibliography_features(
     )
     add(features.journal_year_volume_count > 0, 1.5, "BIB2_YEAR_VOLUME_SEQUENCE")
     add(features.page_marker_count > 0, 0.9, "BIB2_PAGE_MARKER")
+    add(
+        features.article_page_range_count > 0,
+        0.9,
+        "BIB2_ARTICLE_PAGE_RANGE",
+    )
     add(features.page_range_count > 0, 0.9, "BIB2_PAGE_RANGE")
     add(features.publisher_term_count > 0, 0.9, "BIB2_PUBLISHER_TERM")
     add(features.place_name_count > 0, 0.4, "BIB2_PLACE_LEXICON")
@@ -901,7 +891,6 @@ def score_bibliography_features(
 
     authorish = (
         features.inverted_author_count > 0
-        or features.author_year_count > 0
         or features.name_initial_pair_count >= 2
         or features.direct_author_count > 0
         or features.initial_count >= 2
@@ -913,6 +902,7 @@ def score_bibliography_features(
         or features.volume_marker_count
         or features.volume_shape_count
         or features.page_marker_count
+        or features.article_page_range_count
         or features.page_range_count
         or features.doi_count
         or features.isbn_count
@@ -1035,7 +1025,6 @@ def analyze_bibliography_line_v2(
         and _has_date_evidence(features)
         and (
             features.inverted_author_count
-            or features.author_year_count
             or features.name_initial_pair_count >= 2
         )
     )
@@ -1059,7 +1048,6 @@ def analyze_bibliography_line_v2(
 
     author_specific = bool(
         features.inverted_author_count
-        or features.author_year_count
         or features.name_initial_pair_count >= 2
     )
     identifier_specific = bool(
@@ -1106,13 +1094,18 @@ def analyze_bibliography_line_v2(
         or features.isbn_count
         or (
             features.journal_year_volume_count
-            and (features.page_marker_count or features.page_range_count)
+            and (
+                features.page_marker_count
+                or features.article_page_range_count
+                or features.page_range_count
+            )
         )
         or (
             (features.publisher_term_count or features.place_publisher_shape_count)
             and (
                 _has_date_evidence(features)
                 or features.page_marker_count
+                or features.article_page_range_count
                 or features.page_range_count
             )
         )
@@ -1143,16 +1136,10 @@ def analyze_bibliography_line_v2(
         styles.append("numbered")
     if (
         features.inverted_author_count
-        or features.author_year_count
         or features.name_initial_pair_count
         or features.direct_author_count
     ):
         styles.append("author")
-    if features.author_year_count or (
-        features.inverted_author_count
-        and _has_date_evidence(features)
-    ):
-        styles.append("author_year")
     if features.url_count:
         styles.append("web")
     if features.doi_count or features.isbn_count or features.issn_count:
@@ -1174,12 +1161,12 @@ def analyze_bibliography_line_v2(
         or features.volume_shape_count
         or features.journal_year_volume_count
         or features.page_marker_count
+        or features.article_page_range_count
         or features.page_range_count
     )
     dated = _has_date_evidence(features)
     anchor = bool(
         features.inverted_author_count
-        or features.author_year_count
         or (features.name_initial_pair_count >= 2 and (dated or publication_tail))
         or (features.direct_author_count and (dated or publication_tail))
         or (features.numbered_entry_count and (dated or publication_tail))
