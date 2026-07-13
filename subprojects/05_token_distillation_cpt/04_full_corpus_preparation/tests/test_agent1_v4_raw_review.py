@@ -15,6 +15,31 @@ PROMPT = HERE / "configs" / "agent1_v4_terra_review_prompt.md"
 RESPONSE_SCHEMA = HERE / "schemas" / "agent1_v4_terra_review_response.schema.json"
 
 
+def _schemas_with_keyword(value: object, keyword: str) -> list[dict[str, object]]:
+    """Return every nested JSON-Schema object containing ``keyword``."""
+
+    found: list[dict[str, object]] = []
+    if isinstance(value, dict):
+        if keyword in value:
+            found.append(value)
+        for nested in value.values():
+            found.extend(_schemas_with_keyword(nested, keyword))
+    elif isinstance(value, list):
+        for nested in value:
+            found.extend(_schemas_with_keyword(nested, keyword))
+    return found
+
+
+def test_response_schema_has_explicit_types_for_const_and_enum() -> None:
+    """Codex Structured Outputs rejects untyped const/enum schema fragments."""
+
+    schema = json.loads(RESPONSE_SCHEMA.read_text(encoding="utf-8"))
+    for keyword in ("const", "enum"):
+        fragments = _schemas_with_keyword(schema, keyword)
+        assert fragments
+        assert all(isinstance(fragment.get("type"), str) for fragment in fragments)
+
+
 def load_module():
     spec = importlib.util.spec_from_file_location("agent1_v4_raw_review_test", SCRIPT)
     assert spec is not None and spec.loader is not None
