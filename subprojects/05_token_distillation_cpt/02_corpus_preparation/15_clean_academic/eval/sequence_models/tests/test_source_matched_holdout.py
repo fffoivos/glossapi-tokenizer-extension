@@ -93,4 +93,6 @@ def test_review_site_joins_private_key_and_codex_response(tmp_path) -> None:
     page = output.read_text()
     assert "paper_A_9999" in page
     assert "ToC &amp; bibliography holdout review" in page
-
+    assert "C2, Codex and the selection stratum stay hidden" in page
+    assert "Save your own judgment before revealing the comparisons" in page
+    assert "span?.start_abs_idx" not in page
