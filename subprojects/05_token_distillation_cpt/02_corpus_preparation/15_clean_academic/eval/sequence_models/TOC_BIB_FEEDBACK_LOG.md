@@ -72,6 +72,7 @@ The one-block silver bibliography document reader is served locally at
 | DET-15 | Restoring comma-terminated page ranges must not turn event dates into page evidence. | **Applied during regression analysis.** Month-first ranges such as `Oct. 1-2, 1990` and `June 6-11, 1988` now belong to the named-date owner. | `4255845`; named-date regression test |
 | DET-16 | Greek references also use fully capitalized `ΤΟΜΟΣ` and alphabetic volume numbering, including `ΤΟΜΟΣ 37:298-304` and polytonic/OCR-spaced `ΤΟΜΟΣ Α ́ (1):5`. | **Open; examples recorded without changing the detector.** Revisit the ownership and normalization rules together before adapting the volume feature. | Exact reviewed examples below |
 | DET-17 | Most genuine bibliography entries fit within roughly three wrapped lines in the current presentation; substantially longer lines often remain false positives even with a high raw feature score. | **Open calibration hypothesis.** Evaluate a length-sensitive penalty or a requirement for stronger match coverage/density on long lines. Do not impose a hard character cutoff because long author lists, OCR line joining, and embedded references are legitimate exceptions. | Reviewer observation on the focused Greek document; compare `char_length`, matched-character coverage, and block context |
+| DET-18 | Do not use the roughly three-line length observation to suppress the local line classifier. Apply it at a second coherence level: a long line outside a block is excluded, while a long line inside a block established by surrounding citation evidence may be included. | **Planned with an explicit non-circular constraint.** The line arms use only binary/count deterministic features. The first block decoder tests an approximately 330-character seed limit (about 110 characters per rendered line times three): long lines cannot seed an unconfirmed block but can be absorbed by an independently established block. Learned CRF and semi-Markov successors retain the same constraint. | `BIB_LINE_TO_BLOCK_CLASSIFIER_PLAN.md` |
 
 ### Pending Greek volume examples
 
@@ -90,6 +91,7 @@ no adaptation has yet been applied.
 | O-02 | Convert useful deterministic evidence into a final hybrid classifier/decoder policy. | Compare deterministic-only, learned-only, and hybrid arms on untouched source-held-out documents reviewed independently by Foivos and Codex. |
 | O-03 | Re-evaluate weighted bibliography-v2 metrics after the feature-definition changes. | Freeze the current feature definitions, rerun train/validation reports, and archive new immutable receipts. Historical reports must not be presented as current. |
 | O-04 | Repeat the same feature-ownership review for ToC-specific patterns. | Build an equivalent inspectable ToC packet, log reviewer feedback here, and add source-held-out regression cases. |
+| O-05 | Train and compare the entry-line weighted-feature arms and port their out-of-fold scores into block models. | Complete the frozen label contract, L0–L4/D1 line comparison, B0/B1 block comparison, retrospective validation, and joint high-risk review defined in `BIB_LINE_TO_BLOCK_CLASSIFIER_PLAN.md`. |
 
 ## Maintenance rule
 
