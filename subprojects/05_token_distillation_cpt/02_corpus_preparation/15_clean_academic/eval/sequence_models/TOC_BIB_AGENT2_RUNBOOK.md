@@ -72,9 +72,9 @@ On Clariden, run the three stages atomically with
 `clariden/run_source_matched_holdout.sbatch`. The job requires an exact clean
 commit, the immutable C2 path/hash, and `CONFIRM_SOURCE_HOLDOUT=1`; it never fits
 a model or mutates corpus data. After Codex review, build the local dual-review
-site with `build_holdout_review_site.py`. The site hides Codex's decision until
-the user reveals it, saves user judgments in browser local storage, and exports
-a packet-hash-bound JSON review.
+site with `build_holdout_review_site.py`. The site hides C2, Codex, and the
+selection stratum until the user has saved an independent judgment, stores user
+judgments in browser local storage, and exports a packet-hash-bound JSON review.
 
 ### 1. Close the inherited model ladder
 
