@@ -66,3 +66,74 @@ sbatch \
 
 Use `SPLIT=train` while selecting features and thresholds. Run
 `SPLIT=validation` only after those choices are frozen.
+
+## 2026-07-13 result
+
+The conservative detector was developed on the 1,118-document train split and
+then frozen before one evaluation on the 274-document validation split. The
+608-document historical test partition was physically absent and was not read.
+All targets remain GPT-generated LLM-silver rather than human gold.
+
+| Detector | Split | Precision | Recall | F1 |
+|---|---:|---:|---:|---:|
+| R2 all coherent proposals | train | 0.9917 | 0.1786 | 0.3026 |
+| v2 balanced development iteration | train | 0.9607 | 0.3201 | 0.4802 |
+| v2 conservative frozen detector | train | 0.9755 | 0.2575 | 0.4075 |
+| R2 all coherent proposals | validation | 0.9970 | 0.1584 | 0.2734 |
+| v2 conservative frozen detector | validation | 0.9919 | 0.2169 | 0.3560 |
+
+The validation result is a real improvement in deterministic BIB agreement:
+v2 recovers substantially more bibliography lines while retaining high
+precision. It is not a production removal policy. Validation still contains 80
+false-positive lines by the LLM-silver target, including genuine running
+narrative that happens to contain dense author-year citations. Conversely,
+some apparent false positives are citation lists or bibliographic-reference
+metadata labelled `O`, illustrating that the silver target is not an
+independent truth source.
+
+The local-evidence-only v2 arm reached validation precision 0.9361, recall
+0.4080, and F1 0.5683. That is evidence that the features carry useful signal,
+but also evidence that line features must not be used directly: coherence
+raises precision to 0.9919 at the cost of recall.
+
+Exact archived reports, including per-source metrics, feature prevalence,
+error summaries, and source-stratified examples:
+
+- `results/bibliography_v2/train.report.json` — SHA-256
+  `7cd24a17ba01e62a4863857cfe52c2334b3b6d5c3639f029d23f05be99667c08`;
+- `results/bibliography_v2/validation.report.json` — SHA-256
+  `1529c9e01d61919b0b14a1b9adafd2ea6974357eedc9dece4da4b2d05f2f6102`.
+
+Clariden jobs and immutable originals:
+
+- final train job `2747210`,
+  `.../bibliography_v2/bib_v2_train_62ab462c/report.json`;
+- frozen validation job `2748298`,
+  `.../bibliography_v2/bib_v2_validation_62ab462c/report.json`;
+- exact clean Clariden code commit
+  `62ab462c91bf38acb49605f27543cd14036850f3` (the same patch series is local
+  on branch `codex/toc-bib-agent2`).
+
+## Interpretation and next use
+
+The strongest next experiment is to add this explicit vector to the learned
+line/sequence model and use deterministic evidence as features, vetoes, and
+block priors. The deterministic detector by itself should remain a proposal or
+agreement channel.
+
+General person/place NER is feasible, but it should be an optional feature
+producer rather than a direct bibliography decision. Citation-specific name
+shapes were far more discriminative than generic title-cased words, and a
+pretrained Greek/multilingual NER model may fail on initials, OCR spacing, and
+non-Greek references. Evaluate it first on source-held-out lines; retain it
+only if it improves precision/recall beyond the explicit name-pair features.
+
+Useful deterministic follow-ups are:
+
+1. distinguish taxonomic/statistical tables from bibliography tables;
+2. add Greek/English narrative-verb evidence around author-year expressions;
+3. type footnote shorthand such as `Βλ.`, `ό.π.`, `ibid.`, and `op. cit.`;
+4. distinguish a book's front-matter ISBN/recommended-citation block from a
+   bibliography;
+5. expose conservative and balanced thresholds as named policies, then assess
+   their hybrid agreement with the learned model on fresh-source documents.
