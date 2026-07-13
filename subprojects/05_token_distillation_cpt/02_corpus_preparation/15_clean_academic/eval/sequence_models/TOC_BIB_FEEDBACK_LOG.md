@@ -63,6 +63,16 @@ receipts live under `results/bibliography_feature_explorer/`.
 | DET-13 | In the Ding citation, `vol. 35` and `no. 10` did not include their values, and `2181-2195` had regressed. | **Applied.** Labelled volume/issue spans now own their numeric values. The page-range comma veto now rejects only comma-digit continuations, not normal citation punctuation. The fix recovers 181 additional page-range lines after date exclusions. | `4255845`; `publication_coordinates_v6_build.receipt.json` |
 | DET-14 | Greek `Τόμος 64, Συμπλήρωμα : 62` should also be recognized. | **Applied.** The publication-coordinate owner now covers English/Greek volume, issue, number, and supplement labels with values and optional parenthesized issues. Labelled coordinates suppress the standalone numeric-shape fallback. | `4255845`; document `cf9352e1db72...`, line 162 |
 | DET-15 | Restoring comma-terminated page ranges must not turn event dates into page evidence. | **Applied during regression analysis.** Month-first ranges such as `Oct. 1-2, 1990` and `June 6-11, 1988` now belong to the named-date owner. | `4255845`; named-date regression test |
+| DET-16 | Greek references also use fully capitalized `ΤΟΜΟΣ` and alphabetic volume numbering, including `ΤΟΜΟΣ 37:298-304` and polytonic/OCR-spaced `ΤΟΜΟΣ Α ́ (1):5`. | **Open; examples recorded without changing the detector.** Revisit the ownership and normalization rules together before adapting the volume feature. | Exact reviewed examples below |
+
+### Pending Greek volume examples
+
+These examples were found by Foivos in the earlier review documents on
+2026-07-13. They are preserved here for the next detector-design discussion;
+no adaptation has yet been applied.
+
+1. `2. Σ . Ν . Νανάς , Α . Α . Πανταζοπούλου , Α . Χαραλαμποπούλου , Α . Χ . Ράπτη , ∆ . Σ . Μουλοπούλου , Μ . Γ . Μανδηλαρά , Α . Α . Παπαδάτου , Κ . Η . Ματσούκη , Ι . Π . Χατζηγεωργίου , Σ . Α . Κοντογιάννης , Π . Ν . Αδαμόπουλος , Σ . Π . Μουλόπουλος , (1996), « Επιδημιολογία της λιποπρωτεΐνης α σε τυχαίο δείγμα 976 ενηλίκων Αθηναίων ανδρών και γυναικών », ΕΛΛΗΝΙΚΗ ΚΑΡ∆ΙΟΛΟΓΙΚΗ ΕΠΙΘΕΩΡΗΣΗ , ΤΟΜΟΣ 37:298-304`
+2. `3. Μ . Γιαλαμπουκίδης , Χ . Χουμπλιός , Α . Χαραλαμποπούλου , Α . Καπετάνιου , (1998), « Περίπτωση Ελονοσίας από Πλασμώδιο Falciparum», ΙΑΤΡΙΚΑ ΑΝΑΛΕΚΤΑ ( Τριμηνιαία Έκδοση του θεραπευτηρίου ΥΓΕΙΑ ), ΤΟΜΟΣ Α ́ (1):5 Ιούνιος -Σεπτέμβριος 1998`
 
 ## Open items
 
