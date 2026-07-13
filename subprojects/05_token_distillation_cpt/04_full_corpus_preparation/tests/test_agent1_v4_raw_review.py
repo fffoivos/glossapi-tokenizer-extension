@@ -385,6 +385,8 @@ def test_seatbelt_profile_allows_fixed_launcher_and_resolved_runtime_dirs(tmp_pa
 
     assert '(literal "/")' in profile
     assert '(subpath "/etc")' in profile
+    assert '(subpath "/private/etc")' in profile
+    assert '(subpath "/var")' in profile
     assert f'(allow file-write* (subpath "{Path.home() / ".codex"}"))' in profile
     assert f'(subpath "{launcher.parent}")' in profile
     assert f'(subpath "{runtime.parent}")' in profile

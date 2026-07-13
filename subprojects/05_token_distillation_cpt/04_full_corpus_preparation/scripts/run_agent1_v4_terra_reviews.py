@@ -193,8 +193,12 @@ def seatbelt_profile(call_root: Path, codex_bin: Path, codex_home: Path) -> str:
             "(allow file-read* (literal \"/\"))",
             f"(allow file-read* (subpath {_seatbelt_quote(root)}))",
             f"(allow file-read* (subpath {_seatbelt_quote(home)}))",
-            # ``codex exec`` loads the machine-level requirements policy.
+            # ``codex exec`` loads machine-level requirements/TLS policy and
+            # macOS resolver state.  These are operating-system paths only;
+            # neither exposes the review corpus or user document tree.
             "(allow file-read* (subpath \"/etc\"))",
+            "(allow file-read* (subpath \"/private/etc\"))",
+            "(allow file-read* (subpath \"/var\"))",
             # Homebrew exposes the executable through a symlink.  Both the
             # fixed launcher directory and the resolved versioned runtime are
             # executable code, never user document storage; allowing only
