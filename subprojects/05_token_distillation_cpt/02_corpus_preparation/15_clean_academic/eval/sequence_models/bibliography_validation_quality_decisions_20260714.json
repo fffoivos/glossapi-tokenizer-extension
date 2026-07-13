@@ -1,7 +1,11 @@
 {
   "schema_version": "bibliography-validation-quality-decisions-v1",
   "criteria_version": "text-only-conservative-v1",
-  "reviewed_without_predictions_or_labels": true,
+  "reviewed_without_predictions_or_labels": false,
+  "initial_automatic_review_prediction_blind": true,
+  "manual_followup_selection": "top_50_documents_by_missed_bibliography_tokens",
+  "manual_followup_decisions_text_only": true,
+  "metric_interpretation": "diagnostic_sensitivity_analysis_not_an_unbiased_heldout_estimate_after_outcome_directed_followup",
   "documents": [
     {
       "document_id": "6a3b5b03d5974ba5a5247de89eec9bc819a3fc10c8a71ecd1a76e209f3ab6107",
