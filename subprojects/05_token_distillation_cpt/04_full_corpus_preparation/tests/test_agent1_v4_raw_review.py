@@ -439,6 +439,12 @@ def test_nested_codex_sandbox_temporary_directory_is_inside_call_root() -> None:
     assert '"TMPDIR": str(runtime_tmp)' in source
 
 
+def test_runner_exposes_bounded_parallel_review_workers() -> None:
+    source = __import__("inspect").getsource(RUNNER.run_reviews)
+    assert "ThreadPoolExecutor(max_workers=max_parallel" in source
+    assert "1 <= max_parallel <= 16" in source
+
+
 def test_response_validation_rejects_evidence_outside_cited_lines(tmp_path: Path) -> None:
     document = tmp_path / "document.txt"
     document.write_text("πρώτη γραμμή\nδεύτερη γραμμή", encoding="utf-8")

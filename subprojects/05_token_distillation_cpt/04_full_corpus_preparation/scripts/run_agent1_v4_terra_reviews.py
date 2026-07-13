@@ -19,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -527,6 +528,7 @@ def run_reviews(
     remote_packet_root: str | None = None,
     scp_bin: str = "scp",
     timeout_seconds: int = 1800,
+    max_parallel: int = 6,
 ) -> dict[str, object]:
     requests = validate_request_manifest(requests_path, packet_manifest_path)
     packet_manifest = read_json_object(packet_manifest_path)
@@ -559,8 +561,11 @@ def run_reviews(
         raise FileNotFoundError(f"codex executable not found: {codex_bin}")
     codex_home = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
     prompt_template = prompt_path.read_text(encoding="utf-8")
+    if not 1 <= max_parallel <= 16:
+        raise ValueError("max_parallel must be between 1 and 16")
     completed_rows: list[dict[str, object]] = []
     attempts: list[dict[str, object]] = []
+    pending: list[dict[str, object]] = []
     for request in requests:
         cache_path = responses_dir / f"{request['request_id']}.json"
         if cache_path.exists():
@@ -575,6 +580,13 @@ def run_reviews(
             completed_rows.append(response)
             attempts.extend(cached.get("attempts", []))
             continue
+
+        pending.append(request)
+
+    def run_one_request(request: dict[str, object]) -> tuple[dict[str, object], list[dict[str, object]]]:
+        """Run one isolated review with retries; safe to execute in a thread."""
+
+        cache_path = responses_dir / f"{request['request_id']}.json"
         failures: list[str] = []
         request_attempts: list[dict[str, object]] = []
         for attempt in range(1, 4):
@@ -602,24 +614,36 @@ def run_reviews(
                     "elapsed_ms": elapsed_ms,
                     "artifact_evidence_repairs": evidence_repairs,
                 }
-                attempts.append(attempt_row)
                 request_attempts.append(attempt_row)
                 cache = {"request": request, "response": response, "attempts": request_attempts}
                 _write_json_no_replace(cache_path, cache)
-                completed_rows.append(response)
-                break
+                return response, request_attempts
             except Exception as exc:  # transport/schema failures are retriable only twice
                 failures.append(str(exc))
                 attempt_row = {"request_id": request["request_id"], "attempt": attempt, "status": "failed", "error": str(exc)[:2000]}
-                attempts.append(attempt_row)
                 request_attempts.append(attempt_row)
                 if attempt < 3:
                     time.sleep(5 * attempt)
-        else:
-            raise RuntimeError(
-                f"terminal Terra failure for source {request['source_id']} request {request['request_id']}: {failures[-1]}"
-            )
+        raise RuntimeError(
+            f"terminal Terra failure for source {request['source_id']} request {request['request_id']}: {failures[-1]}"
+        )
+
+    terminal_failures: list[str] = []
+    if pending:
+        with ThreadPoolExecutor(max_workers=max_parallel, thread_name_prefix="terra-review") as executor:
+            futures = {executor.submit(run_one_request, request): request for request in pending}
+            for future in as_completed(futures):
+                try:
+                    response, request_attempts = future.result()
+                except Exception as exc:
+                    terminal_failures.append(str(exc))
+                    continue
+                completed_rows.append(response)
+                attempts.extend(request_attempts)
+    if terminal_failures:
+        raise RuntimeError("; ".join(sorted(terminal_failures)))
     completed_rows.sort(key=lambda row: (str(row["source_id"]), str(row["request_id"])))
+    attempts.sort(key=lambda row: (str(row.get("request_id", "")), int(row.get("attempt", 0))))
     payload = b"".join((canonical_json(row) + "\n").encode("utf-8") for row in completed_rows)
     _write_no_replace(output, payload)
     receipt = {
@@ -632,6 +656,8 @@ def run_reviews(
         "response_schema": schema_binding,
         "responses": file_binding(output),
         "model": model,
+        "runner_script": file_binding(Path(__file__)),
+        "max_parallel": max_parallel,
         "logical_review_count": len(completed_rows),
         "billable_invocation_count": len(attempts),
         "attempts": attempts,
@@ -659,6 +685,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--sandbox-exec", default="/usr/bin/sandbox-exec")
     parser.add_argument("--forbidden-read-path", type=Path, required=True)
     parser.add_argument("--timeout-seconds", type=int, default=1800)
+    parser.add_argument("--max-parallel", type=int, default=6, help="bounded simultaneous isolated Codex calls (1-16)")
     args = parser.parse_args(argv)
     receipt = run_reviews(
         requests_path=args.requests,
@@ -676,6 +703,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         remote_packet_root=args.remote_packet_root,
         scp_bin=args.scp_bin,
         timeout_seconds=args.timeout_seconds,
+        max_parallel=args.max_parallel,
     )
     print(json.dumps({"ok": True, "logical_review_count": receipt["logical_review_count"]}, sort_keys=True))
     return 0
