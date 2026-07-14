@@ -31,6 +31,7 @@ from sequence_models.bibliography_role_dataset import (  # noqa: E402
     validate_overlay,
 )
 from sequence_models.bibliography_role_profile import (  # noqa: E402
+    _review_chunk_ranges,
     profile_document,
     select_review_blocks,
 )
@@ -186,3 +187,14 @@ def test_role_profiler_keeps_selection_prediction_blind_and_work_distinct() -> N
     assert len({row["work_id"] for row in selected}) == 5
     assert all("strata" in row for row in selected)
     assert profiles[0]["line_profiles"][1]["exact_header_kind"] == "HEADER"
+
+
+def test_review_chunks_bound_lines_and_characters_with_overlap() -> None:
+    lines = [{"text": "x" * 20, "abs_idx": index} for index in range(14)]
+    ranges = _review_chunk_ranges(
+        lines, maximum_lines=6, maximum_characters=100, overlap_lines=2
+    )
+
+    assert ranges == [(0, 5), (3, 8), (6, 11), (9, 14)]
+    assert all(end - start <= 6 for start, end in ranges)
+    assert all(sum(len(lines[index]["text"]) for index in range(start, end)) <= 100 for start, end in ranges)

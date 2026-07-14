@@ -312,6 +312,39 @@ def _context_lines(
     return blind, provenance
 
 
+def _review_chunk_ranges(
+    lines: Sequence[Mapping[str, Any]],
+    *,
+    maximum_lines: int,
+    maximum_characters: int,
+    overlap_lines: int,
+) -> list[tuple[int, int]]:
+    """Return bounded half-open chunks with deterministic line overlap."""
+
+    if maximum_lines < 2 or maximum_characters < 100:
+        raise ValueError("review chunk limits are too small")
+    if not 0 <= overlap_lines < maximum_lines:
+        raise ValueError("review overlap must be smaller than maximum_lines")
+    ranges: list[tuple[int, int]] = []
+    start = 0
+    while start < len(lines):
+        end = start
+        characters = 0
+        while end < len(lines) and end - start < maximum_lines:
+            line_characters = len(str(lines[end]["text"]))
+            if end > start and characters + line_characters > maximum_characters:
+                break
+            characters += line_characters
+            end += 1
+        if end == start:
+            end += 1
+        ranges.append((start, end))
+        if end == len(lines):
+            break
+        start = max(start + 1, end - overlap_lines)
+    return ranges
+
+
 def run(args: argparse.Namespace) -> dict[str, Any]:
     input_path = Path(args.input).resolve()
     output_dir = Path(args.output_dir).resolve()
@@ -367,28 +400,53 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         blind_lines, source_labels = _context_lines(
             raw, block, context_lines=int(args.context_lines)
         )
-        case_id = hashlib.sha256(
+        block_case_id = hashlib.sha256(
             f"bibliography-role-review-v1\0{block['block_id']}".encode("utf-8")
         ).hexdigest()[:24]
-        blind_cases.append(
-            {
-                "case_id": case_id,
-                "document_id": document_id,
-                "work_id": str(block["work_id"]),
-                "source": str(block["source"]),
-                "n_physical_lines": int(raw.get("n_physical_lines", 0)),
-                "lines": blind_lines,
-            }
+        chunk_ranges = _review_chunk_ranges(
+            blind_lines,
+            maximum_lines=int(args.maximum_review_lines),
+            maximum_characters=int(args.maximum_review_characters),
+            overlap_lines=int(args.review_overlap_lines),
         )
+        chunk_provenance: list[dict[str, Any]] = []
+        for chunk_index, (chunk_start, chunk_end) in enumerate(chunk_ranges):
+            case_id = hashlib.sha256(
+                f"{block_case_id}\0{chunk_index}\0{chunk_start}\0{chunk_end}".encode(
+                    "utf-8"
+                )
+            ).hexdigest()[:24]
+            blind_cases.append(
+                {
+                    "case_id": case_id,
+                    "block_case_id": block_case_id,
+                    "chunk_index": chunk_index,
+                    "chunk_count": len(chunk_ranges),
+                    "document_id": document_id,
+                    "work_id": str(block["work_id"]),
+                    "source": str(block["source"]),
+                    "n_physical_lines": int(raw.get("n_physical_lines", 0)),
+                    "lines": blind_lines[chunk_start:chunk_end],
+                }
+            )
+            chunk_provenance.append(
+                {
+                    "case_id": case_id,
+                    "chunk_index": chunk_index,
+                    "chunk_start": chunk_start,
+                    "chunk_end": chunk_end,
+                    "context_source_labels": source_labels[chunk_start:chunk_end],
+                }
+            )
         line_profile_lookup = {
             int(line["abs_idx"]): line
             for line in profile_by_document[document_id]["line_profiles"]
         }
         selection_cases.append(
             {
-                "case_id": case_id,
+                "block_case_id": block_case_id,
                 **dict(block),
-                "context_source_labels": source_labels,
+                "review_chunks": chunk_provenance,
                 "block_line_profiles": [
                     line_profile_lookup[int(line["abs_idx"])]
                     for line in raw["lines"][
@@ -429,10 +487,19 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         },
         "selection": {
             "case_count": len(blind_cases),
+            "block_count": len(selected),
             "blocks_per_source": int(args.blocks_per_source),
             "review_coverage": str(args.review_coverage),
             "context_lines_each_side": int(args.context_lines),
-            "source_counts": dict(sorted(collections.Counter(case["source"] for case in blind_cases).items())),
+            "maximum_review_lines": int(args.maximum_review_lines),
+            "maximum_review_characters": int(args.maximum_review_characters),
+            "review_overlap_lines": int(args.review_overlap_lines),
+            "source_block_counts": dict(
+                sorted(collections.Counter(block["source"] for block in selected).items())
+            ),
+            "source_chunk_counts": dict(
+                sorted(collections.Counter(case["source"] for case in blind_cases).items())
+            ),
             "seed": str(args.seed),
         },
         "cases": blind_cases,
@@ -474,6 +541,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "source_block_counts": dict(sorted(source_block_counts.items())),
         "block_strata_counts": dict(sorted(strata_counts.items())),
         "selected_block_count": len(selected),
+        "review_chunk_count": len(blind_cases),
         "selected_block_strata_counts": dict(sorted(selected_strata_counts.items())),
         "max_physical_gap": MAX_PHYSICAL_GAP,
         "prediction_inputs_loaded": False,
@@ -514,6 +582,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--sources", default=",".join(SOURCES))
     parser.add_argument("--blocks-per-source", type=int, default=20)
     parser.add_argument("--context-lines", type=int, default=5)
+    parser.add_argument("--maximum-review-lines", type=int, default=80)
+    parser.add_argument("--maximum-review-characters", type=int, default=20000)
+    parser.add_argument("--review-overlap-lines", type=int, default=5)
     parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--seed", default="bibliography-role-pilot-v1")
     parser.add_argument(

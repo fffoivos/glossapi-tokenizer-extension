@@ -76,6 +76,9 @@ uenv run "$UENV" --view=default -- \
         --sources greek_phd,kallipos,openarchives \
         --blocks-per-source 20 \
         --context-lines 5 \
+        --maximum-review-lines 80 \
+        --maximum-review-characters 20000 \
+        --review-overlap-lines 5 \
         --workers 16 \
         --seed bibliography-role-pilot-v1 \
         --code-commit "$EXPECTED_COMMIT" \
@@ -98,12 +101,18 @@ assert receipt["review_coverage"] == "full_document"
 assert receipt["prediction_inputs_loaded"] is False
 assert receipt["model_outcomes_used_for_selection"] is False
 packet = json.loads((path.parent / "role_review_packet.blind.json").read_text(encoding="utf-8"))
-assert packet["selection"]["source_counts"] == {
+assert packet["selection"]["source_block_counts"] == {
     "greek_phd": 20,
     "kallipos": 20,
     "openarchives": 20,
 }
 assert all(packet["blinding"].values())
+assert all(len(case["lines"]) <= 80 for case in packet["cases"])
+assert all(
+    sum(len(line["text"]) for line in case["lines"]) <= 20000
+    or len(case["lines"]) == 1
+    for case in packet["cases"]
+)
 PY
 
 trap - EXIT
