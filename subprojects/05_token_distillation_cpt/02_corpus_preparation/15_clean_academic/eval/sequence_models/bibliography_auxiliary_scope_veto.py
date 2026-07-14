@@ -94,7 +94,7 @@ def is_archive_type_subheading(text: str) -> bool:
 
 
 def materialize_auxiliary_headings(
-    table: Any, input_path: Path
+    table: Any, input_path: Path, *, expected_split: str = "train"
 ) -> tuple[np.ndarray, np.ndarray]:
     expected = {
         str(document["document_id"]): (
@@ -106,10 +106,12 @@ def materialize_auxiliary_headings(
     headings = np.zeros(len(table.targets), dtype=bool)
     scope = np.zeros(len(table.targets), dtype=bool)
     completed: set[str] = set()
+    split_marker = f'"split": "{expected_split}"'
     with input_path.open("r", encoding="utf-8") as handle:
         for raw in handle:
-            # Fail closed before parsing: validation rows are never deserialized.
-            if '"split": "train"' not in raw:
+            # Fail closed before parsing: only the explicitly requested split
+            # is deserialized.
+            if split_marker not in raw:
                 continue
             row = json.loads(raw)
             document_id = str(row.get("document_id"))

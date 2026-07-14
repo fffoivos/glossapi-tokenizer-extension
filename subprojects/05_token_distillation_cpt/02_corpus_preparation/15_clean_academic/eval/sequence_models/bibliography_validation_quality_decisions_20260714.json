@@ -4,6 +4,11 @@
   "reviewed_without_predictions_or_labels": false,
   "initial_automatic_review_prediction_blind": true,
   "manual_followup_selection": "top_50_documents_by_missed_bibliography_tokens",
+  "manual_followup_review_method": "text-only slices from the beginning, quartiles, end, and first/middle/last missed-silver-BIB regions",
+  "manual_followup_reviewed_document_count": 50,
+  "manual_followup_excluded_document_count": 6,
+  "additional_prediction_blind_exclusion_count": 1,
+  "manual_followup_review_record": "BIB_VALIDATION_WORST50_REVIEW_20260714.md",
   "manual_followup_decisions_text_only": true,
   "metric_interpretation": "diagnostic_sensitivity_analysis_not_an_unbiased_heldout_estimate_after_outcome_directed_followup",
   "documents": [

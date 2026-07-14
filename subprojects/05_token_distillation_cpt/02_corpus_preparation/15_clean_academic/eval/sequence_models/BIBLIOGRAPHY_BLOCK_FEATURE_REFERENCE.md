@@ -460,6 +460,30 @@ best line-precision-above-0.99 point was 99.02% precision / 78.58% recall, while
 the best high-recall point remained effectively unchanged at 98.16% / 86.46%.
 The barrier arm is rejected.
 
+The separately registered high-recall anchor grid then tested whether the
+same block rule had simply been anchored too conservatively.  This changed no
+line feature and did not inspect validation.  Its best train-OOF point above
+90% line precision uses the following plain-language rule:
+
+- **Block evidence:** at least two lines with contextual probability 0.30 or
+  greater must occur within a 16-line physical neighbourhood.  One line can
+  never establish a block.
+- **Interior continuity:** after those anchors establish the region, lines
+  scoring at least 0.10 may bridge a gap of no more than eight physical lines.
+- **Boundary allowance:** at most two adjacent lines may be attached at each
+  edge.  This is a boundary repair, not independent line evidence.
+- **Exact scope veto and header attachment:** the audited non-bibliography
+  scope can only remove a proposed block, and an exact bibliography header is
+  attached only after the block exists.
+
+This point reaches 91.75% line precision / 94.29% line recall and 91.43%
+token precision / 96.86% token recall.  The more conservative train-OOF point
+above 95% line precision reaches 95.04% precision / 92.78% recall and 94.89%
+token precision / 95.86% recall.  Neither satisfies the original 99% raw-silver
+safety gate; both remain diagnostic candidates.  Their complete 288-setting
+grid is archived as `signal_recall_blocks_r1`.  The thresholds and decoder
+settings were frozen before signal-TCN validation.
+
 Manual inspection explains the apparent safety failure.  Of the 50 components
 with the most silver-non-BIB tokens, 12 are clear silver omissions, 21 are real
 bibliography blocks with small boundary overruns, 9 are genuine whole-block
