@@ -121,32 +121,40 @@ monotonic-gradient-tree model.  Models and decisions are grouped by the
 existing work-level folds, and the five unusable training extractions are
 excluded by the independent text-quality review.
 
-### Component line count
+### Minimum component size
 
-- **Question:** How large is the proposed contiguous region?
-- **Representation:** `log1p` of emitted line count.
-- **Expected direction:** Positive.  A large region is more consistent with
-  the cleaning target than one isolated citation.
+- **Question:** Is the proposed contiguous region large enough not to be an
+  isolated citation?
+- **Representation:** One binary value for at least five emitted lines.
+- **Expected direction:** Positive.
+- **Reason for using a minimum instead of raw size:** Permissive proposals can
+  merge long stretches of citation-rich prose.  Such false components were
+  often larger than true bibliographies, so “ever larger is safer” was not a
+  valid monotonic rule.  The five-line minimum preserves the intended
+  isolation safeguard without rewarding pathological expansion.
 - **Non-overlap:** This measures extent only; it does not inspect line content.
 
-### Strong anchor count
+### Strong anchor fraction
 
-- **Question:** How many independently strong, normal-length entry lines occur
-  inside the component?
-- **Representation:** `log1p` of the count, using the frozen `0.70` probability
-  and `380`-character start limits.
+- **Question:** What share of the component consists of independently strong,
+  normal-length entry lines?
+- **Representation:** Strong-anchor count divided by component line count,
+  using the frozen `0.70` probability and `380`-character start limits.
 - **Expected direction:** Positive.
-- **Non-overlap:** Unlike component line count, this measures repeated
-  bibliographic support rather than size.
+- **Reason for density instead of count:** A 300-line prose region can contain
+  more citation-like lines than a short true bibliography.  Density asks
+  whether bibliographic support repeats throughout the proposed region.
+- **Non-overlap:** Unlike minimum component size, this measures repeated
+  bibliographic support rather than structural extent.
 
 ### Median entry probability
 
 - **Question:** How bibliography-like is the typical line in the component?
 - **Representation:** Median frozen line-model probability.
 - **Expected direction:** Positive.
-- **Non-overlap:** A strong-anchor count measures how much strong evidence is
-  present; the median measures whether the component as a whole is supported
-  rather than being carried by a few outliers.
+- **Non-overlap:** Strong-anchor fraction measures how many lines cross a
+  trusted evidence threshold; the median measures the typical continuous
+  score and distinguishes distributions with the same threshold fraction.
 
 ### Longest weak run fraction
 

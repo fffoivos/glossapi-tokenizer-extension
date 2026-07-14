@@ -37,8 +37,8 @@ from .features import TAGS
 
 SCHEMA_VERSION = "bibliography-entry-component-gate-oof-v1"
 FEATURE_NAMES = (
-    "log1p_component_line_count",
-    "log1p_strong_anchor_count",
+    "component_has_at_least_five_lines",
+    "strong_anchor_fraction",
     "median_entry_probability",
     "longest_weak_run_fraction",
     "exact_header_at_or_before_start",
@@ -140,8 +140,8 @@ def component_feature_vector(
     )
     return np.asarray(
         (
-            np.log1p(len(values)),
-            np.log1p(np.count_nonzero(strong)),
+            float(len(values) >= 5),
+            np.count_nonzero(strong) / len(values),
             np.median(values),
             _longest_true_run(weak) / len(values),
             float(header_at_or_before),
@@ -667,8 +667,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "feature_names": list(FEATURE_NAMES),
         "expected_feature_directions": list(EXPECTED_DIRECTIONS),
         "feature_reference": {
-            "log1p_component_line_count": "Structural extent: larger coherent regions are more plausible bibliography blocks than isolated citations.",
-            "log1p_strong_anchor_count": "Repeated support: count normal-length lines with frozen entry probability at least 0.70.",
+            "component_has_at_least_five_lines": "Minimum extent: distinguish a plausible document region from one isolated citation without assuming that ever-larger spans are safer.",
+            "strong_anchor_fraction": "Evidence density: measure the share of component lines that are normal-length and have frozen entry probability at least 0.70.",
             "median_entry_probability": "Typical evidence: measure how bibliography-like the middle line score is, not the strongest outlier.",
             "longest_weak_run_fraction": "Internal contradiction: measure the longest uninterrupted prose-like hole as a fraction of the component.",
             "exact_header_at_or_before_start": "Independent structure: record an exact multilingual bibliography heading on the first component line or immediately before it.",

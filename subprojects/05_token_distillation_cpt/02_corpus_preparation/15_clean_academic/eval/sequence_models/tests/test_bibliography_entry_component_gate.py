@@ -34,8 +34,8 @@ def test_component_features_have_one_value_per_documented_job() -> None:
         CONFIG,
     )
     assert len(values) == len(FEATURE_NAMES) == 5
-    assert np.isclose(values[0], np.log1p(4))
-    assert np.isclose(values[1], np.log1p(2))
+    assert values[0] == 0.0
+    assert np.isclose(values[1], 0.5)
     assert np.isclose(values[2], 0.7)
     assert np.isclose(values[3], 0.25)
     assert values[4] == 1.0
