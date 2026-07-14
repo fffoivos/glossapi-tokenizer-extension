@@ -340,6 +340,21 @@ validation rows are absent.  Five document-held-out models produce OOF scores;
 the audited exact-scope veto and unchanged safety gate apply downstream.
 Clariden job `2758175` runs this experiment as `signal_tcn_r1`.
 
+Job `2758175` completed in 2m47s.  The contextual scores are useful, but plain
+line thresholding is the wrong decoder: threshold 0.40 reached 0.950512 line
+precision / 0.931134 line recall and 0.949836 token precision / 0.960967 token
+recall, while leaving 0.436090 spurious blocks per silver-zero document.  The
+only strict-safe threshold was 0.999, which emitted no lines.  That empty point
+is not treated as a model win.
+
+Commit `244aac9` ports these frozen OOF scores to the intended block level.
+Two or three high-score anchors in a bounded window must first establish a
+region.  Weaker or long lines can then be included only between anchors or
+directly beside the region; an isolated high-score line cannot start deletion.
+Length is not an input.  The exact-scope veto and H0 remain downstream.  Job
+`2758177` evaluates the predeclared anchored grid as `signal_blocks_r1`, with
+validation still closed.
+
 ## High-risk joint-review site
 
 Review job `2754381` selected 120 proposed blocks: exactly 40 each from

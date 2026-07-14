@@ -431,3 +431,17 @@ the exact auxiliary-scope veto then removes scoped components and H0 may attach
 an exact header only after a component already exists.  The same 99% line
 precision and 0.02 spurious-block safety gate applies before this candidate can
 be retained.
+
+The first plain per-line threshold evaluation is not retained.  At threshold
+0.40 it reached 95.05% line precision / 93.11% line recall and 94.98% token
+precision / 96.10% token recall, proving that the contextual ranking is useful.
+But independent line thresholding fragmented true regions and left 0.436
+spurious blocks per silver-zero document.  The only configuration satisfying
+the strict safety gate was threshold 0.999, which emitted no lines.
+
+The registered second-level decoder therefore requires two or three high-score
+anchors in a bounded window before a block can exist.  Weak or long lines may
+then be filled only between those anchors or immediately beside the established
+region.  Line length remains absent, an isolated high-scoring line cannot start
+a deletion, exact scope can only veto, and H0 remains downstream.  This is the
+active `signal_blocks_r1` experiment.
