@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gfm_transformation_review_response.schema.json",
+  "title": "GFM transformation region review",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "review_id",
+    "region_id",
+    "reviewer_slot",
+    "source_dataset",
+    "text_preservation",
+    "artifact_removal",
+    "gfm_validity",
+    "table_outcome",
+    "unintended_change",
+    "verdict",
+    "confidence",
+    "evidence"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "gfm_transformation_review_response_v1"
+    },
+    "review_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "region_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "reviewer_slot": {
+      "type": "string",
+      "enum": ["primary", "secondary", "adjudicator"]
+    },
+    "source_dataset": {
+      "type": "string",
+      "minLength": 1
+    },
+    "text_preservation": {
+      "type": "string",
+      "enum": ["pass", "fail", "uncertain"]
+    },
+    "artifact_removal": {
+      "type": "string",
+      "enum": ["pass", "fail", "not_applicable", "uncertain"]
+    },
+    "gfm_validity": {
+      "type": "string",
+      "enum": ["pass", "fail", "uncertain"]
+    },
+    "table_outcome": {
+      "type": "string",
+      "enum": ["valid_gfm", "readable_fallback", "not_applicable", "broken", "uncertain"]
+    },
+    "unintended_change": {
+      "type": "string",
+      "enum": ["none", "minor", "major", "uncertain"]
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["pass", "fail", "needs_human"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+    "evidence": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 800
+    }
+  }
+}

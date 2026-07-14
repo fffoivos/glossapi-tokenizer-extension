@@ -4,16 +4,18 @@ Status: dry-run sample prototype. This has **not** been ported into the GlossAPI
 
 ## Outcome on the 348 reviewed documents
 
-The prototype first runs GlossAPI's complex-repetition cleaner and then converts recognized HTML into HTML-free GitHub-Flavored Markdown (GFM). The completed audit reports:
+The prototype runs deterministic extraction-artifact cleaning before converting recognized HTML into HTML-free GitHub-Flavored Markdown (GFM). The completed audit reports:
 
-- 348 documents checked; 165 changed and 183 remained byte-identical.
+- 348 documents checked; 158 changed and 190 remained byte-identical.
 - 147 documents contained recognized HTML.
-- 117,881 HTML start tags were handled; zero recognized HTML tags remain.
-- 1,730 top-level HTML tables became GFM pipe tables; one nested table was flattened inside its parent cell.
-- 74,551 source table cells were retained structurally exactly once in 18,427 emitted rows; eight cells in one unrepresentable nested table and eight malformed orphan cells were flattened without dropping their text.
-- 25 runaway-repetition spans in 22 documents became `<!-- repeating-text-removed -->`, removing 156,320 repeated characters.
+- 117,880 HTML start tags were handled; zero recognized HTML tags remain.
+- 1,722 HTML tables became GFM pipe tables. Nine damaged or nested tables were downgraded to readable lines rather than emitted as invalid GFM.
+- 73,990 source table cells were retained structurally in 18,799 emitted rows; another 577 fallback-table cells were retained as readable text.
+- 40 runaway-repetition spans in 23 documents became `<!-- repeating-text-removed -->`, removing 164,259 repeated characters.
+- 4,792 generated extraction-image references were removed while retaining their readable alt text, removing 230,979 filename/target characters.
 - Only 64 non-repetition characters were removed: two `<!-- Table content goes here -->` placeholder comments.
 - The normalizer is idempotent on all 348 outputs.
+- Luna validated all 100 sampled critical regions; there are zero failed or unresolved regions.
 
 The presentation is `normalization.html` in the local review site. It shows the policy, aggregate counts, and lazy-loaded raw text, normalized Markdown, and sandboxed rendering for every changed document.
 
@@ -30,7 +32,7 @@ The current GlossAPI code already does useful Markdown cleanup, but it does not 
 
 The intended production order is therefore:
 
-`complex repetition removal → HTML-to-GFM conversion → canonicalize_markdown → Rust GFM table validation/removal → existing downstream phases`
+`complex-repetition pass → generated-image artifact cleanup → follow-up repetition pass → HTML-to-GFM conversion → canonicalize_markdown → Rust GFM table validation/removal → existing downstream phases`
 
 The dry run deliberately stops after the first two operations so it can demonstrate the converter without silently duplicating or changing existing GlossAPI canonicalization.
 
@@ -40,19 +42,20 @@ GFM pipe tables require a header row plus a delimiter row, permit inline content
 
 | Observed element(s) | Conversion | Loss decision |
 | --- | --- | --- |
-| `table`, `thead`, `tbody`, `tfoot`, `tr`, `th`, `td` | GFM pipe table | Retain each source cell once. Expand `rowspan`/`colspan` with empty geometry cells instead of repeating text. Merge multiple leading header rows per column with ` / `. If no header exists, emit an empty header row rather than inventing labels. Preserve a consistent left/center/right alignment in delimiter colons; discard conflicting alignment. Escape cell pipes. |
+| `table`, `thead`, `tbody`, `tfoot`, `tr`, `th`, `td` | GFM pipe table or readable line fallback | Retain each source cell once. Expand `rowspan`/`colspan` with empty geometry cells instead of repeating text. Use the first header row and retain additional header rows in the body. If no header exists, emit an empty header row rather than inventing labels. Preserve consistent alignment and escape cell pipes. Nested or damaged geometry becomes one cell per line with blank source rows retained. |
 | `caption` | Italic paragraph before the table | Retain caption text because GFM has no table-caption field. |
 | `b`, `strong` | `**bold**` | Retain content. |
 | `i`, `em` | `*italic*` | Retain content. |
 | `del`, `s`, `strike` | `~~strikethrough~~` | Retain content. |
-| `br` | Markdown hard break outside tables; `; ` inside cells | Preserve the boundary. A semicolon is used in cells because GFM table cells cannot contain block-level line breaks. |
+| `br` | Markdown hard break outside tables; whitespace inside cells | Preserve the boundary without inventing visible punctuation. |
 | `p`, `div`, `section`, and other block wrappers | Blank-line Markdown block boundary | Retain content and existing Markdown; discard HTML layout attributes. |
-| `ul`, `ol`, `li` | `-` or numbered Markdown list | Retain order and items. Flatten lists with `; ` separators only when they occur inside table cells. |
+| `ul`, `ol`, `li` | `-` or numbered Markdown list | Retain order and items. Inside table cells, retain item text separated by whitespace because block lists are not valid there. |
 | `sup`, `sub`, `u`, `span` | Plain inline content | Remove the unexpressible style and all attributes, but retain the textual payload. GitHub documents superscript/subscript using raw HTML, so a zero-HTML target has no faithful equivalent. Deleting the text itself would corrupt mathematical symbols, citations, and words. A separating space is added only when a flattened `sup`/`sub` immediately follows a closing Markdown delimiter and adjacency would otherwise break that emphasis/code token. See [GitHub basic formatting](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax). |
 | `math` | `$…$` or `$$…$$` | Retain the existing TeX-like payload, following [GitHub mathematical-expression syntax](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/writing-mathematical-expressions). |
-| `img` | `![alt](src)` | Convert the five images with a source. Remove seven source-less decorative image elements completely. Do not invent captions or descriptions. |
+| `img` and Markdown image syntax | Markdown image or readable alt text | Remove generated extraction-image filenames/targets, including bare and parenthesized references, while retaining existing alt text. Convert non-artifact HTML sources to Markdown images. Do not invent captions or descriptions. |
 | `input` | Removed | Both observed inline checkbox elements are OCR/manuscript artifacts, not Markdown task-list items. |
-| `script`, `style`, embedded media, forms, and executable elements | Removed with content | No safe corpus-text representation. None occurred in this sample, but the conservative fallback is implemented and tested. |
+| `script`, `style`, `canvas`, `svg`, `head`, `template` | Removed with content | Executable, styling, vector-path, metadata, and template payloads have no plain-document-text representation. |
+| Unsupported containers such as `iframe`, media, form controls, `title`, `noscript` | Plain block content | Remove the container and attributes but retain readable fallback text nodes. |
 | HTML comments | Removed, except approved removal markers | Preserve `<!-- repeating-text-removed -->`, `<!-- table-removed -->`, and `<!-- text-missing -->`; remove ordinary comments. |
 | Unknown angle-bracket text | Escaped literal text | Preserve OCR citations and pseudo-tags such as `<<εταιρία>>` as text. Preserve valid GFM URI/email autolinks unchanged. Nested angle pairs are resolved in one pass. |
 
@@ -67,9 +70,9 @@ Documents with no recognized HTML or repetition replacement remain byte-identica
 | Existing ATX headings | 6,625 | 6,625 | Preserved |
 | Existing fence lines | 22 | 22 | Preserved |
 | Existing Markdown links | 147 | 147 | Preserved |
-| Markdown images | 5,383 | 5,388 | Five HTML images converted |
-| GFM table delimiter rows | 18 | 1,748 | 1,730 HTML tables converted |
-| Strong-emphasis delimiter pairs | 8,438 | 10,003 | Existing pairs preserved; HTML bold and body-header cells added |
+| Markdown images | 594 | 598 | Generated image targets removed; four non-artifact HTML images converted |
+| GFM table delimiter rows | 18 | 1,740 | 1,722 HTML tables converted and two existing GFM tables repaired |
+| Strong-emphasis delimiter pairs | 8,438 | 11,980 | Existing pairs preserved; HTML bold and additional header rows represented |
 
 Each normalized output is normalized a second time and must be byte-identical. The audit also rejects any residual recognized HTML, loss of existing headings/fences/links, missing existing images or tables, inconsistent table column counts, and unsafe rendered elements.
 
@@ -84,27 +87,37 @@ The aggregate semantic-token closure is:
 | Indented code blocks | 66 | 66 |
 | Inline code | 2 | 2 |
 | Links | 1,694 | 1,694 |
-| Images | 5,385 | 5,390 |
-| Unordered lists | 898 | 898 |
-| Ordered lists | 10,386 | 10,419 |
+| Images | 594 | 598 |
+| Unordered lists | 898 | 911 |
+| Ordered lists | 10,386 | 10,433 |
 | Blockquotes | 62 | 62 |
-| Strong emphasis | 8,349 | 9,914 |
-| Emphasis | 17,013 | 17,240 |
+| Strong emphasis | 8,349 | 11,890 |
+| Emphasis | 17,013 | 17,242 |
 | Strikethrough | 4 | 4 |
-| GFM tables | 17 | 1,747 |
+| GFM tables | 17 | 1,740 |
 
 Flattening `sup`/`sub` required 228 boundary spaces to prevent a footnote or exponent from attaching to a preceding closing Markdown delimiter and disabling that existing emphasis/code span.
 
 ## Table-specific edge cases observed
 
-- 808 data-only tables received a synthetic empty header row.
-- 263 multirow headers were merged without duplicating their text.
-- 641 cells used `colspan`; 511 used `rowspan`.
+- 806 data-only tables received a synthetic empty header row.
+- 491 additional leading header rows were retained as table body rows without duplicating their text.
+- 630 cells used `colspan`; 511 used `rowspan`.
 - Three columns contained conflicting source alignment declarations, so their Markdown alignment was left unspecified.
 - Forty-two lists inside cells were flattened.
-- One nested table (eight cells) was flattened with explicit ` / ` cell and `; ` row separators because GFM cannot nest a block table inside a table cell.
-- Eight malformed orphan `td`/`th` elements had no recoverable table geometry, so their content was retained inline and the structural downgrade was recorded.
+- Eight fallback events covered nine tables and 577 cells: two malformed tables, one nested-table event, and five impossible-rowspan events. Every fallback emits one readable cell per line and a blank line between source rows.
 - Two repetition markers occurred between HTML table rows rather than inside cells. A GFM table cannot contain a comment between pipe rows, so each marker is retained exactly once immediately after its converted table.
+- One table header interrupted by a repetition marker was padded so the remaining pipe table is valid GFM. Two pre-existing ragged GFM tables were repaired, padding nine cells.
+
+## Luna critical-region validation
+
+The validation packet is deterministic and risk-stratified. It selects 100 regions spanning every transformation family, supplies the exact local document path and before/after evidence, and asks Luna only about text preservation, extraction-artifact removal, GFM validity, and table outcome. It does not ask Luna to judge document semantics or general data quality.
+
+- 100/100 regions validated; zero failed or unresolved.
+- 158 recorded Luna judgments after targeted revalidation; high-risk regions receive independent primary and secondary reviews.
+- Eight regions required adjudication during iteration.
+- Coverage: 40 complex-repetition removals, 10 generated-image cleanups, 15 valid-table conversions, eight damaged-table fallbacks, two table-structure recoveries, and 25 block/inline/other-markup regions.
+- Fallback-table evidence is anchored by the parser's exact source line and column, preventing repeated cell labels elsewhere in long documents from selecting the wrong table.
 
 ## Presentation and artifacts
 
