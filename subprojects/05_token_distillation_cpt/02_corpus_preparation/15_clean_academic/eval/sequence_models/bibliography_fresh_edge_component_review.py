@@ -195,6 +195,36 @@ def _line_payload(line: Mapping[str, Any], *, target: bool) -> dict[str, Any]:
     }
 
 
+def balance_edge_controls(
+    cases: Sequence[Mapping[str, Any]], *, minimum_controls_per_source: int = 20
+) -> list[dict[str, Any]]:
+    """Keep every removal and a bounded deterministic retained-control sample."""
+
+    selected: list[dict[str, Any]] = []
+    for source in SOURCES:
+        local = [dict(row) for row in cases if row["source"] == source]
+        removed = [row for row in local if row["frozen_action"] == "remove"]
+        controls = [row for row in local if row["frozen_action"] == "keep"]
+        control_limit = min(
+            len(controls), max(minimum_controls_per_source, len(removed))
+        )
+        controls.sort(
+            key=lambda row: hashlib.sha256(
+                f"fresh-edge-control-v1\0{row['case_id']}".encode()
+            ).hexdigest()
+        )
+        selected.extend(removed)
+        selected.extend(controls[:control_limit])
+    selected.sort(
+        key=lambda row: (
+            SOURCES.index(str(row["source"])),
+            str(row["document_id"]),
+            int(row["abs_idx"]),
+        )
+    )
+    return selected
+
+
 def build_edge_packet(
     original_rows: Sequence[Mapping[str, Any]],
     table: Any,
@@ -259,7 +289,14 @@ def build_edge_packet(
                     ],
                 }
             )
-    cases.sort(key=lambda row: (SOURCES.index(row["source"]), row["document_id"], row["abs_idx"]))
+    cases = balance_edge_controls(cases)
+    case_counts = collections.Counter(row["document_id"] for row in cases)
+    removed_counts = collections.Counter(
+        row["document_id"] for row in cases if row["frozen_action"] == "remove"
+    )
+    for document in documents:
+        document["case_count"] = case_counts[document["document_id"]]
+        document["removed_case_count"] = removed_counts[document["document_id"]]
     return {
         "schema_version": EDGE_PACKET_SCHEMA,
         "mode": "edge",
@@ -273,6 +310,10 @@ def build_edge_packet(
         "cases": cases,
         "source_counts": dict(collections.Counter(row["source"] for row in documents)),
         "case_source_counts": dict(collections.Counter(row["source"] for row in cases)),
+        "retained_control_sampling": (
+            "all removed lines; per source, deterministic retained boundary controls "
+            "equal to the removed count or 20, whichever is larger"
+        ),
         "selection_summary": dict(selection_summary),
         "frozen_edge": dict(frozen_edge),
         "refinement_provenance": dict(provenance),

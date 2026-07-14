@@ -5,6 +5,7 @@ import numpy as np
 from sequence_models.bibliography_fresh_edge_component_review import (
     REVIEW_HTML,
     _boundary_controls,
+    balance_edge_controls,
     balanced_component_quota,
     load_prior_exclusions,
     select_component_cases,
@@ -39,6 +40,36 @@ def test_boundary_controls_cover_kept_side_of_transitions():
 def test_unchanged_block_samples_both_ends():
     base = np.ones(8, dtype=bool)
     assert _boundary_controls(base, base, 0, 7) == {0, 1, 6, 7}
+
+
+def test_edge_control_sampling_keeps_every_removal_and_balances_controls():
+    cases = []
+    for source in ("greek_phd", "kallipos", "openarchives"):
+        for index in range(5):
+            cases.append(
+                {
+                    "source": source,
+                    "document_id": source,
+                    "abs_idx": index,
+                    "case_id": f"{source}:r{index}",
+                    "frozen_action": "remove",
+                }
+            )
+        for index in range(30):
+            cases.append(
+                {
+                    "source": source,
+                    "document_id": source,
+                    "abs_idx": 100 + index,
+                    "case_id": f"{source}:k{index}",
+                    "frozen_action": "keep",
+                }
+            )
+    selected = balance_edge_controls(cases, minimum_controls_per_source=7)
+    for source in ("greek_phd", "kallipos", "openarchives"):
+        local = [row for row in selected if row["source"] == source]
+        assert sum(row["frozen_action"] == "remove" for row in local) == 5
+        assert sum(row["frozen_action"] == "keep" for row in local) == 7
 
 
 def test_component_selection_is_balanced_and_disjoint():
