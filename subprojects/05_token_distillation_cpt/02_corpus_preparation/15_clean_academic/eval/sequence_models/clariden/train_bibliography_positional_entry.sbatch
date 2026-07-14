@@ -23,12 +23,13 @@ UENV=${UENV:-pytorch/v2.9.1:v2}
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 90
 trap 'rm -rf "$OUTPUT_DIR"' EXIT
 export CUDA_VISIBLE_DEVICES="" NVIDIA_VISIBLE_DEVICES=void ROCR_VISIBLE_DEVICES="" HIP_VISIBLE_DEVICES=""
-export OMP_NUM_THREADS="$SLURM_CPUS_PER_TASK" MKL_NUM_THREADS="$SLURM_CPUS_PER_TASK" OPENBLAS_NUM_THREADS="$SLURM_CPUS_PER_TASK"
+export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 uenv run "$UENV" --view=default -- env PYTHONPATH="$CODE_ROOT:$PY_DEPS" \
   python3 -m sequence_models.bibliography_positional_models \
     --base-table-dir "$BASE_TABLE_DIR" --positional-table-dir "$POSITIONAL_TABLE_DIR" \
     --role-target-dir "$ROLE_TARGET_DIR" --output-dir "$OUTPUT_DIR" \
     --c-grid 0.03 0.1 0.3 1.0 --seed 20260714 \
+    --parallel-folds 5 \
     --code-commit "$EXPECTED_COMMIT" --slurm-job-id "$SLURM_JOB_ID"
 trap - EXIT
 echo "BIBLIOGRAPHY_POSITIONAL_ENTRY=$OUTPUT_DIR"

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import json
 import pickle
 from dataclasses import dataclass
@@ -148,12 +149,13 @@ def _predict(
 def _fit_nested_linear(
     arm: str, counts: np.ndarray, position: np.ndarray, gaps: np.ndarray,
     targets: np.ndarray, folds: np.ndarray, labelled: np.ndarray, *, n_folds: int,
-    c_grid: Sequence[float], seed: int, model_dir: Path,
+    c_grid: Sequence[float], seed: int, model_dir: Path, parallel_folds: int,
 ) -> tuple[np.ndarray, list[dict[str, Any]]]:
     probability = np.full(len(targets), np.nan, dtype=np.float32)
     reports: list[dict[str, Any]] = []
     average_precision = _sklearn()["average_precision"]
-    for outer in range(n_folds):
+
+    def fit_outer(outer: int) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
         inner = (outer + 1) % n_folds
         inner_fit = np.flatnonzero(labelled & (folds != outer) & (folds != inner))
         inner_holdout = np.flatnonzero(labelled & (folds == inner))
@@ -177,32 +179,40 @@ def _fit_nested_linear(
             arm, counts, position, gaps, targets, fit,
             c_value=float(selected["C"]), seed=seed + outer,
         )
-        probability[holdout] = _predict(model, transform, counts, position, gaps, holdout)
+        outer_prediction = _predict(
+            model, transform, counts, position, gaps, holdout
+        )
         with (model_dir / f"{arm}.fold{outer}.pkl").open("xb") as handle:
             pickle.dump((model, transform), handle, protocol=5)
-        reports.append(
-            {
-                "outer_fold": outer,
-                "inner_holdout_fold": inner,
-                "fit_labelled_lines": len(fit),
-                "outer_holdout_all_lines": len(holdout),
-                "selected_C": selected["C"],
-                "candidates": candidates,
-                "iterations": int(np.max(model.n_iter_)),
-                "feature_count": len(feature_names(arm)),
-            }
-        )
+        return holdout, outer_prediction, {
+            "outer_fold": outer,
+            "inner_holdout_fold": inner,
+            "fit_labelled_lines": len(fit),
+            "outer_holdout_all_lines": len(holdout),
+            "selected_C": selected["C"],
+            "candidates": candidates,
+            "iterations": int(np.max(model.n_iter_)),
+            "feature_count": len(feature_names(arm)),
+        }
+
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=min(n_folds, parallel_folds)
+    ) as executor:
+        for holdout, prediction, report in executor.map(fit_outer, range(n_folds)):
+            probability[holdout] = prediction
+            reports.append(report)
+    reports.sort(key=lambda row: int(row["outer_fold"]))
     return probability, reports
 
 
 def _fit_p0d(
     counts: np.ndarray, targets: np.ndarray, folds: np.ndarray, labelled: np.ndarray,
-    *, n_folds: int, seed: int, model_dir: Path,
+    *, n_folds: int, seed: int, model_dir: Path, parallel_folds: int,
 ) -> tuple[np.ndarray, list[dict[str, Any]]]:
     probability = np.full(len(targets), np.nan, dtype=np.float32)
     reports = []
     features = np.concatenate(((counts > 0).astype(np.float32), np.log1p(counts.astype(np.float32))), axis=1)
-    for fold in range(n_folds):
+    def fit_outer(fold: int) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
         fit = labelled & (folds != fold)
         holdout = folds == fold
         model = _sklearn()["hist"](
@@ -210,13 +220,22 @@ def _fit_p0d(
             l2_regularization=1.0, early_stopping=False, random_state=seed + fold,
         )
         model.fit(features[fit], targets[fit])
-        probability[holdout] = model.predict_proba(features[holdout])[:, 1]
+        outer_prediction = model.predict_proba(features[holdout])[:, 1]
         with (model_dir / f"P0D.fold{fold}.pkl").open("xb") as handle:
             pickle.dump(model, handle, protocol=5)
-        reports.append(
-            {"outer_fold": fold, "fit_labelled_lines": int(np.count_nonzero(fit)),
-             "outer_holdout_all_lines": int(np.count_nonzero(holdout)), "feature_count": features.shape[1]}
-        )
+        return np.flatnonzero(holdout), outer_prediction, {
+            "outer_fold": fold, "fit_labelled_lines": int(np.count_nonzero(fit)),
+            "outer_holdout_all_lines": int(np.count_nonzero(holdout)),
+            "feature_count": features.shape[1],
+        }
+
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=min(n_folds, parallel_folds)
+    ) as executor:
+        for holdout, prediction, report in executor.map(fit_outer, range(n_folds)):
+            probability[holdout] = prediction
+            reports.append(report)
+    reports.sort(key=lambda row: int(row["outer_fold"]))
     return probability, reports
 
 
@@ -255,6 +274,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     model_dir = output / "models"
     model_dir.mkdir()
     n_folds = int(table.manifest["n_folds"])
+    if not 1 <= int(args.parallel_folds) <= n_folds:
+        raise ValueError("parallel folds must be between one and the fold count")
     results: dict[str, Any] = {}
     probabilities: dict[str, np.ndarray] = {}
     c_grid = tuple(float(value) for value in args.c_grid)
@@ -263,11 +284,13 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             arm, table.counts, positional.position_summaries, positional.gap_summaries,
             targets, table.folds, labelled, n_folds=n_folds, c_grid=c_grid,
             seed=int(args.seed) + index * 1000, model_dir=model_dir,
+            parallel_folds=int(args.parallel_folds),
         )
         probabilities[arm], results[arm] = probability, {"folds": folds}
     probability, folds = _fit_p0d(
         table.counts, targets, table.folds, labelled, n_folds=n_folds,
         seed=int(args.seed) + 9000, model_dir=model_dir,
+        parallel_folds=int(args.parallel_folds),
     )
     probabilities["P0D"], results["P0D"] = probability, {"folds": folds}
     for arm in ALL_ARMS:
@@ -296,6 +319,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "negative_line_count": int(np.count_nonzero(targets == 0)),
         "masked_line_count": int(np.count_nonzero(targets == -1)),
         "c_grid": list(c_grid),
+        "parallel_folds": int(args.parallel_folds),
         "selection": "one work-grouped inner fold per outer fold; identical grid for each linear arm",
         "arms": results,
         "validation_opened": False,
@@ -319,6 +343,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--c-grid", nargs="+", type=float, default=(0.03, 0.1, 0.3, 1.0))
     parser.add_argument("--seed", type=int, default=20260714)
+    parser.add_argument("--parallel-folds", type=int, default=5)
     parser.add_argument("--code-commit", required=True)
     parser.add_argument("--slurm-job-id", required=True)
     return parser.parse_args(argv)
