@@ -279,10 +279,43 @@ not added to the gate:
   grouped training OOF scores.  It is not evidence and cannot change the five
   feature meanings.
 
+## Core-only block expansion
+
+The learned component gate is deliberately conservative: at the frozen safety
+threshold it may recognize only the strongest portion of a long bibliography.
+The core-expansion experiment tests whether weaker neighbouring proposals can
+recover the rest without permitting new isolated deletions.
+
+### Core threshold
+
+- **Question:** Is this proposed component strong enough to establish that a
+  bibliography block exists here?
+- **Representation:** A high threshold on the grouped train-OOF component-gate
+  score.
+- **Safety job:** Only a component above this threshold may start a deletion.
+- **Not evidence:** This is a calibration control over the five component
+  features above; it adds no line detector or document cue.
+
+### Expansion threshold
+
+- **Question:** Once a strong core exists, which weaker proposed components are
+  connected closely enough to belong to the same region?
+- **Representation:** A lower threshold on the same component-gate score.
+- **Coherence rule:** A lower-scored proposal is retained only when an
+  overlap-connected chain joins it to a core.  A disconnected proposal can
+  never start a block, regardless of its line features.
+- **Why this matches the target:** Long and weak bibliography lines can be kept
+  inside a region established by repeated strong entries, while an isolated
+  citation-like line in prose remains outside.
+- **Non-overlap:** This is a graph-connectivity decision over already-scored
+  spans.  It does not count authors, dates, pages, identifiers, length, or
+  headings again.
+
 ## Current experiment boundary
 
-The anchored-coherence and learned-component experiments change no
-deterministic line regex and add no raw text, token length, source identity, or
-validation-derived feature.  They reuse frozen OOF entry probabilities and B1
-checkpoints.  Candidate selection is based on grouped train documents only.
-Validation remains closed until a complete safe configuration is frozen.
+The anchored-coherence, learned-component, and core-expansion experiments
+change no deterministic line regex and add no raw text, token length, source
+identity, or validation-derived feature.  They reuse frozen OOF entry
+probabilities and B1 checkpoints.  Candidate selection is based on grouped
+train documents only.  Validation remains closed until a complete safe
+configuration is frozen.
