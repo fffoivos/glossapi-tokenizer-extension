@@ -34,6 +34,22 @@ def test_candidate_pool_is_balanced_deterministic_and_seeded():
     }
 
 
+def test_candidate_pool_excludes_prior_documents_and_works():
+    rows = _rows(count=5)
+    excluded_document = rows[0]
+    excluded_work = rows[6]
+    selected = select_candidate_pool(
+        rows,
+        per_source=2,
+        seed="fresh",
+        excluded_document_ids={excluded_document["document_id"]},
+        excluded_work_ids={excluded_work["work_id"]},
+    )
+    assert excluded_document["document_id"] not in {row["document_id"] for row in selected}
+    assert excluded_work["work_id"] not in {row["work_id"] for row in selected}
+    assert len(selected) == 6
+
+
 def test_review_selection_prefers_documents_with_predicted_blocks():
     documents = []
     cursor = 0

@@ -71,10 +71,17 @@ def _rank(seed: str, row: Mapping[str, Any]) -> str:
 
 
 def select_candidate_pool(
-    rows: Sequence[Mapping[str, Any]], *, per_source: int, seed: str
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    per_source: int,
+    seed: str,
+    excluded_document_ids: Iterable[str] = (),
+    excluded_work_ids: Iterable[str] = (),
 ) -> list[dict[str, Any]]:
     """Select an outcome-blind deterministic pool from each canonical source."""
 
+    excluded_documents = set(map(str, excluded_document_ids))
+    excluded_works = set(map(str, excluded_work_ids))
     grouped: dict[str, list[Mapping[str, Any]]] = {source: [] for source in SOURCES}
     seen: set[str] = set()
     for row in rows:
@@ -83,6 +90,8 @@ def select_candidate_pool(
         if not document_id or document_id in seen:
             raise ValueError("holdout has an empty or duplicate document ID")
         seen.add(document_id)
+        if document_id in excluded_documents or str(row.get("work_id", "")) in excluded_works:
+            continue
         if source in grouped:
             grouped[source].append(row)
     selected: list[dict[str, Any]] = []
