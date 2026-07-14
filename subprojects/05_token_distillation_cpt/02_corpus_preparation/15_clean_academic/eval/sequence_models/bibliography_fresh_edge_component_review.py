@@ -397,6 +397,25 @@ def select_component_cases(
     return selected
 
 
+def balanced_component_quota(
+    rows: Sequence[Mapping[str, Any]], *, requested_per_stratum_per_source: int
+) -> tuple[int, dict[str, int]]:
+    """Return the largest exact two-stratum quota supported by every source."""
+
+    source_counts = {
+        source: sum(row["source"] == source for row in rows) for source in SOURCES
+    }
+    effective = min(
+        requested_per_stratum_per_source,
+        *(count // 2 for count in source_counts.values()),
+    )
+    if effective < 5:
+        raise ValueError(
+            f"too few source-balanced component candidates: {source_counts!r}"
+        )
+    return effective, source_counts
+
+
 def build_component_packet(
     original_rows: Sequence[Mapping[str, Any]],
     selected: Sequence[Mapping[str, Any]],
@@ -590,8 +609,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     all_components = _component_rows(
         candidate_rows, table, base, line_probability, signal_probability, roles
     )
+    component_quota, component_pool_counts = balanced_component_quota(
+        all_components,
+        requested_per_stratum_per_source=int(args.components_per_stratum_per_source),
+    )
     selected_components = select_component_cases(
-        all_components, per_stratum_per_source=int(args.components_per_stratum_per_source)
+        all_components, per_stratum_per_source=component_quota
     )
     component_packet = _with_packet_hash(
         build_component_packet(candidate_rows, selected_components)
@@ -626,6 +649,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         },
         "component_review": {
             "candidate_components": len(all_components),
+            "candidate_source_counts": component_pool_counts,
+            "requested_per_stratum_per_source": int(
+                args.components_per_stratum_per_source
+            ),
+            "effective_per_stratum_per_source": component_quota,
             "selected_components": len(component_packet["cases"]),
             "source_counts": component_packet["source_counts"],
             "stratum_counts": component_packet["stratum_counts"],

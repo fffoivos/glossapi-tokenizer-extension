@@ -5,6 +5,7 @@ import numpy as np
 from sequence_models.bibliography_fresh_edge_component_review import (
     REVIEW_HTML,
     _boundary_controls,
+    balanced_component_quota,
     load_prior_exclusions,
     select_component_cases,
 )
@@ -69,6 +70,19 @@ def test_component_selection_is_balanced_and_disjoint():
             "citation_dense_narrative_risk",
             "bibliography_like",
         }
+
+
+def test_component_quota_uses_largest_exact_source_balance():
+    rows = [
+        {"source": source}
+        for source, count in (("greek_phd", 60), ("kallipos", 45), ("openarchives", 31))
+        for _ in range(count)
+    ]
+    quota, counts = balanced_component_quota(
+        rows, requested_per_stratum_per_source=20
+    )
+    assert quota == 15
+    assert counts == {"greek_phd": 60, "kallipos": 45, "openarchives": 31}
 
 
 def test_review_is_blind_until_decision_and_supports_separate_reviewers():
