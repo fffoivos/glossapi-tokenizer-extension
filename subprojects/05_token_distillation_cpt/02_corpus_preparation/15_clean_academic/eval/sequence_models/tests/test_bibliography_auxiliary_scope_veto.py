@@ -5,7 +5,9 @@ import numpy as np
 
 from sequence_models.bibliography_auxiliary_scope_veto import (
     has_auxiliary_scope,
+    is_exact_non_bibliography_scope_heading,
     materialize_auxiliary_headings,
+    normalized_scope_heading_key,
 )
 
 
@@ -29,6 +31,20 @@ def test_auxiliary_scope_inside_a_candidate_is_vetoed() -> None:
     auxiliary = np.asarray([False, False, True, True, False])
     absolute = np.arange(5)
     assert has_auxiliary_scope(auxiliary, absolute, 0, end=3, window=2)
+
+
+def test_numbered_auxiliary_heading_keeps_its_controlled_subtitle() -> None:
+    text = "## 3. Λίστα Επιλεγμένων Παραλλαγών: Στοιχεία Αρχείου"
+    assert normalized_scope_heading_key(text).startswith(
+        "λιστα επιλεγμενων παραλλαγων:"
+    )
+    assert is_exact_non_bibliography_scope_heading(text)
+
+
+def test_why_and_ocr_examples_are_exact_body_scopes() -> None:
+    assert is_exact_non_bibliography_scope_heading("## ΓΙΑΤΙ")
+    assert is_exact_non_bibliography_scope_heading("ΠΑΡΑ∆ΕΙΓΜΑΤΑ")
+    assert not is_exact_non_bibliography_scope_heading("## ΒΙΒΛΙΟΓΡΑΦΙΑ")
 
 
 def test_atx_auxiliary_scope_ends_at_the_next_atx_heading(tmp_path) -> None:

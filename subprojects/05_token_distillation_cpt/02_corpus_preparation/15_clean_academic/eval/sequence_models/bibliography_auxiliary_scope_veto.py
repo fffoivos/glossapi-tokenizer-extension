@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -33,7 +34,18 @@ from .bibliography_entry_models import load_table
 from .deterministic_structure import _ATX_HEADING, _heading_key
 
 
-SCHEMA_VERSION = "bibliography-auxiliary-scope-veto-oof-v1"
+SCHEMA_VERSION = "bibliography-auxiliary-scope-veto-oof-v2"
+BODY_CITATION_SCOPE_HEADINGS = {
+    "examples",
+    "why",
+    "γιατι",
+    "παραδειγματα",
+    "παρα∆ειγματα",
+}
+AUXILIARY_SCOPE_PREFIXES = (
+    "list of selected variants:",
+    "λιστα επιλεγμενων παραλλαγων:",
+)
 
 
 def _sha256(path: Path) -> str:
@@ -53,6 +65,22 @@ def _write_json(path: Path, value: Any) -> None:
 def _save_array(path: Path, value: np.ndarray) -> None:
     with path.open("xb") as handle:
         np.save(handle, value, allow_pickle=False)
+
+
+def normalized_scope_heading_key(text: str) -> str:
+    """Normalize a structural heading without broad fuzzy matching."""
+
+    key = _heading_key(text)
+    return re.sub(r"^\d+(?:\.\d+)*[.)]?\s*", "", key).strip()
+
+
+def is_exact_non_bibliography_scope_heading(text: str) -> bool:
+    key = normalized_scope_heading_key(text)
+    return (
+        key in AUXILIARY_SCOPE_HEADINGS
+        or key in BODY_CITATION_SCOPE_HEADINGS
+        or any(key.startswith(prefix) for prefix in AUXILIARY_SCOPE_PREFIXES)
+    )
 
 
 def materialize_auxiliary_headings(
@@ -88,7 +116,7 @@ def materialize_auxiliary_headings(
                 text = line.get("text") if isinstance(line, dict) else None
                 if not isinstance(text, str):
                     raise ValueError(f"{document_id}: invalid source line")
-                auxiliary_heading = _heading_key(text) in AUXILIARY_SCOPE_HEADINGS
+                auxiliary_heading = is_exact_non_bibliography_scope_heading(text)
                 headings[start + offset] = auxiliary_heading
                 if _ATX_HEADING.match(text):
                     active_atx_scope = auxiliary_heading
@@ -300,6 +328,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "model_arm": args.model_arm,
         "scope_rule": "veto a component that contains an exact auxiliary heading/scope or starts within two physical lines after one; ATX auxiliary scope remains active until the next ATX heading",
         "auxiliary_scope_headings": sorted(AUXILIARY_SCOPE_HEADINGS),
+        "body_citation_scope_headings": sorted(BODY_CITATION_SCOPE_HEADINGS),
+        "auxiliary_scope_prefixes": list(AUXILIARY_SCOPE_PREFIXES),
         "auxiliary_heading_line_count": int(np.count_nonzero(auxiliary_headings)),
         "auxiliary_scope_line_count": int(np.count_nonzero(auxiliary_scope)),
         "auxiliary_heading_inside_silver_bib_count": int(
