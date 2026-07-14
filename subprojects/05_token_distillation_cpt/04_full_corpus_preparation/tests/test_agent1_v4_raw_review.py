@@ -570,8 +570,11 @@ def test_builds_private_raw_review_site_with_lazy_source_cards_and_documents(tmp
     assert "assets/detections.js" in detections_html
     detections_js = (tmp_path / "review-site" / "assets" / "detections.js").read_text(encoding="utf-8")
     assert "data/vlm_repetition_audit.json" in detections_js
-    assert "Promise.all" in detections_js
+    assert "Promise.all" not in detections_js
+    assert "Load raw evidence" in detections_js
     assert "textContent" in detections_js
+    assert "sequence_term_count" in detections_js
+    assert "pattern_token_count" in detections_js
     html_renderer = (tmp_path / "review-site" / "assets" / "html-render.js").read_text(encoding="utf-8")
     assert "Mixed Markdown + HTML" in html_renderer
     assert "function comment(value)" in html_renderer

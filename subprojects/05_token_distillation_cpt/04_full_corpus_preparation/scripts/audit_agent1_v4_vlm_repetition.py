@@ -24,6 +24,17 @@ AUDIT_SCHEMA = "agent1_v4_vlm_repetition_audit_v1"
 SITE_SCHEMA = "agent1_v4_raw_review_site_manifest_v1"
 AUDIT_RELATIVE_PATH = Path("data/vlm_repetition_audit.json")
 DEFAULT_GLOSSAPI_ROOT = Path.home() / "Projects/glossapi-development"
+DETAIL_METADATA_FIELDS = (
+    "evidence_end_index",
+    "pattern_token_count",
+    "pattern_char_count",
+    "repeat_count",
+    "distinct_token_count",
+    "distinct_content_token_count",
+    "sequence_term_count",
+    "sequence_step",
+    "sequence_step_tolerance",
+)
 
 
 def sha256_bytes(value: bytes) -> str:
@@ -70,6 +81,20 @@ def _load_cleaning_module(glossapi_root: Path) -> tuple[object, Path]:
     return module, module_path
 
 
+def _load_repetition_module(glossapi_root: Path) -> tuple[object, Path]:
+    module_path = (glossapi_root / "src/glossapi/ocr/utils/repetition.py").resolve()
+    if not module_path.is_file():
+        raise FileNotFoundError(f"GlossAPI OCR repetition module not found: {module_path}")
+    specification = importlib.util.spec_from_file_location("agent1_v4_glossapi_repetition", module_path)
+    if specification is None or specification.loader is None:
+        raise RuntimeError(f"could not import GlossAPI OCR repetition module: {module_path}")
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    if not callable(getattr(module, "detect_complex_repetition_details", None)):
+        raise RuntimeError("GlossAPI OCR repetition module lacks detect_complex_repetition_details")
+    return module, module_path
+
+
 def _cards_by_opaque_id(site_dir: Path) -> dict[str, Mapping[str, object]]:
     cards: dict[str, Mapping[str, object]] = {}
     source_paths = sorted((site_dir / "data/sources").glob("*.json"))
@@ -107,6 +132,7 @@ def audit_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
         raise ValueError("review site manifest is not passed")
 
     cleaning, cleaning_path = _load_cleaning_module(glossapi_root)
+    repetition, repetition_path = _load_repetition_module(glossapi_root)
     cards = _cards_by_opaque_id(site_dir)
     documents_dir = site_dir / "data/documents"
     document_paths = sorted(documents_dir.glob("*.json"))
@@ -124,18 +150,25 @@ def audit_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
             raise ValueError(f"{document_path}: opaque_id does not close with source cards")
         if not isinstance(text, str):
             raise ValueError(f"{document_path}: text must be a string")
-        details = cleaning.detect_early_stop_rule_details(text)
-        if not isinstance(details, list):
+        cleaning_details = cleaning.detect_early_stop_rule_details(text)
+        complex_details = repetition.detect_complex_repetition_details(text)
+        if not isinstance(cleaning_details, list) or not isinstance(complex_details, list):
             raise RuntimeError("GlossAPI detector returned invalid rule details")
         normalized_details: list[dict[str, object]] = []
-        for detail in details:
+        for detail in [*cleaning_details, *complex_details]:
             if not isinstance(detail, Mapping) or not isinstance(detail.get("rule"), str) or not isinstance(detail.get("cut_index"), int):
                 raise RuntimeError("GlossAPI detector emitted invalid rule detail")
-            normalized_details.append({"rule": detail["rule"], "cut_index": detail["cut_index"]})
+            normalized_detail: dict[str, object] = {"rule": detail["rule"], "cut_index": detail["cut_index"]}
+            for field in DETAIL_METADATA_FIELDS:
+                value = detail.get(field)
+                if isinstance(value, (str, int, float, bool)):
+                    normalized_detail[field] = value
+            normalized_details.append(normalized_detail)
             rule_counts[str(detail["rule"])] += 1
         streaming_reason = _streaming_reason(cleaning, text)
         earliest_cut_index = min((int(detail["cut_index"]) for detail in normalized_details), default=None)
-        if cleaning.detect_early_stop_index(text) != earliest_cut_index:
+        cleaning_earliest = min((int(detail["cut_index"]) for detail in cleaning_details), default=None)
+        if cleaning.detect_early_stop_index(text) != cleaning_earliest:
             raise RuntimeError("GlossAPI early-stop detector returned inconsistent cut indices")
         card = cards[opaque_id]
         source_id = str(card["source_id"])
@@ -163,12 +196,15 @@ def audit_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
         "detector": {
             "implementation": "glossapi.ocr.utils.cleaning",
             "cleaning_module_sha256": sha256_bytes(cleaning_path.read_bytes()),
+            "complex_repetition_implementation": "glossapi.ocr.utils.repetition",
+            "complex_repetition_module_sha256": sha256_bytes(repetition_path.read_bytes()),
             "final_text_rules": [
                 "repeated_char_run",
                 "repeated_line_run",
                 "symbol_garbage",
                 "numeric_list_garbage",
-                "descending_dotted_numeric_run",
+                "repeated_token_block",
+                "regular_numeric_sequence",
             ],
             "stream_chunk_chars": 257,
             "note": "The token-ID triplet detector is not run: review samples retain text, not VLLM token IDs.",

@@ -440,7 +440,7 @@ def _detections_html() -> str:
 
 
 def _detections_css() -> str:
-    return """*{box-sizing:border-box}body{margin:0;background:#f8fafc;color:#172033;font:16px/1.5 system-ui,-apple-system,sans-serif}header,main{max-width:1450px;margin:auto;padding:1.25rem}header{background:#102a43;color:#fff;max-width:none;padding-left:max(1.25rem,calc((100% - 1450px)/2 + 1.25rem));padding-right:max(1.25rem,calc((100% - 1450px)/2 + 1.25rem))}header h1{margin:.15rem 0}header p{margin:.25rem 0}header a{color:#dbeafe}.scope,#audit-summary,.finding{background:#fff;border:1px solid #cbd5e1;padding:1rem;margin:1rem 0}.scope{border-left:4px solid #1d4ed8}.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem}.metric{background:#e8f1fa;border-radius:.35rem;padding:.7rem}.metric strong{display:block;font-size:1.55rem}.rule-list{display:flex;gap:.45rem;flex-wrap:wrap;margin:.75rem 0}.badge{display:inline-block;border-radius:999px;background:#fff1c2;border:1px solid #d39b00;padding:.1rem .55rem;font:600 .86rem/1.4 ui-monospace,SFMono-Regular,monospace}.finding{border-left:4px solid #c2410c;min-width:0}.finding h3{margin-top:0;overflow-wrap:anywhere}.metadata{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:.25rem .8rem}.metadata dt{font-weight:700}.metadata dd{margin:0;overflow-wrap:anywhere}.signal{border-top:1px solid #dbe3ee;margin-top:1rem;padding-top:1rem}.signal h4{margin:0 0 .3rem}.context-note{margin:.25rem 0;color:#475569;font-size:.9rem}.context{margin:.5rem 0 0;white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1220;color:#e5edf7;padding:1rem;max-height:38rem;overflow:auto}.context mark{background:#ffdc5d;color:#1d2939;padding:0}.streaming{background:#fff7ed;border-left:4px solid #c2410c;padding:.6rem .8rem;margin-top:.75rem}.error{background:#fef2f2;border-left:4px solid #b91c1c;padding:.75rem 1rem}@media(max-width:650px){header,main{padding:1rem}.metadata{grid-template-columns:1fr}.metadata dt{margin-top:.5rem}}"""
+    return """*{box-sizing:border-box}body{margin:0;background:#f8fafc;color:#172033;font:16px/1.5 system-ui,-apple-system,sans-serif}header,main{max-width:1450px;margin:auto;padding:1.25rem}header{background:#102a43;color:#fff;max-width:none;padding-left:max(1.25rem,calc((100% - 1450px)/2 + 1.25rem));padding-right:max(1.25rem,calc((100% - 1450px)/2 + 1.25rem))}header h1{margin:.15rem 0}header p{margin:.25rem 0}header a{color:#dbeafe}.scope,#audit-summary,.finding{background:#fff;border:1px solid #cbd5e1;padding:1rem;margin:1rem 0}.scope{border-left:4px solid #1d4ed8}.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem}.metric{background:#e8f1fa;border-radius:.35rem;padding:.7rem}.metric strong{display:block;font-size:1.55rem}.rule-list{display:flex;gap:.45rem;flex-wrap:wrap;margin:.75rem 0}.badge{display:inline-block;border-radius:999px;background:#fff1c2;border:1px solid #d39b00;padding:.1rem .55rem;font:600 .86rem/1.4 ui-monospace,SFMono-Regular,monospace}.finding{border-left:4px solid #c2410c;min-width:0}.finding h3{margin-top:0;overflow-wrap:anywhere}.metadata{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:.25rem .8rem}.metadata dt{font-weight:700}.metadata dd{margin:0;overflow-wrap:anywhere}.load-evidence{border:0;border-radius:.35rem;background:#1d4ed8;color:#fff;cursor:pointer;font:600 1rem/1.2 system-ui,-apple-system,sans-serif;padding:.65rem .9rem}.load-evidence:disabled{background:#64748b;cursor:wait}.signal{border-top:1px solid #dbe3ee;margin-top:1rem;padding-top:1rem}.signal h4{margin:0 0 .3rem}.context-note{margin:.25rem 0;color:#475569;font-size:.9rem}.context{margin:.5rem 0 0;white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1220;color:#e5edf7;padding:1rem;max-height:38rem;overflow:auto}.context mark{background:#ffdc5d;color:#1d2939;padding:0}.streaming{background:#fff7ed;border-left:4px solid #c2410c;padding:.6rem .8rem;margin-top:.75rem}.error{background:#fef2f2;border-left:4px solid #b91c1c;padding:.75rem 1rem}@media(max-width:650px){header,main{padding:1rem}.metadata{grid-template-columns:1fr}.metadata dt{margin-top:.5rem}}"""
 
 
 def _detections_js() -> str:
@@ -457,6 +457,17 @@ def _detections_js() -> str:
   function isFinding(row){return row&&((Array.isArray(row.rules)&&row.rules.length>0)||row.streaming_reason);}
   function number(value){return typeof value==='number'&&Number.isFinite(value)?value:null;}
   function metadata(label,value){return [text('dt',label),text('dd',value)];}
+  function evidenceSummary(rule){
+    var parts=[];
+    if(rule.repeat_count!=null)parts.push(String(rule.repeat_count)+' adjacent repeats');
+    if(rule.pattern_token_count!=null)parts.push(String(rule.pattern_token_count)+' tokens per pattern');
+    if(rule.pattern_char_count!=null)parts.push(String(rule.pattern_char_count)+' characters per pattern');
+    if(rule.sequence_term_count!=null)parts.push(String(rule.sequence_term_count)+' sequence terms');
+    if(rule.sequence_step!=null)parts.push('step '+String(rule.sequence_step));
+    if(rule.sequence_step_tolerance!=null&&String(rule.sequence_step_tolerance)!=='0')parts.push('display tolerance '+String(rule.sequence_step_tolerance));
+    if(rule.evidence_end_index!=null)parts.push('detected span ends at character '+String(rule.evidence_end_index));
+    return parts.join(' · ');
+  }
   function renderSummary(audit,findings){
     clear(summaryRoot);
     var summary=audit.summary||{};
@@ -466,7 +477,9 @@ def _detections_js() -> str:
     var rules=summary.rule_trigger_counts||{};
     var ruleList=document.createElement('div');ruleList.className='rule-list';Object.keys(rules).sort().forEach(function(rule){ruleList.appendChild(text('span',rule+': '+rules[rule]));ruleList.lastChild.className='badge';});
     if(ruleList.childNodes.length)summaryRoot.appendChild(ruleList);
-    summaryRoot.appendChild(text('p','GlossAPI module: '+String((audit.detector||{}).implementation||'not recorded')+'. '+findings.length+' raw documents are loaded concurrently for this page.'));
+    var detector=audit.detector||{};
+    var modules=[detector.implementation,detector.complex_repetition_implementation].filter(Boolean).join(' + ')||'not recorded';
+    summaryRoot.appendChild(text('p','GlossAPI modules: '+modules+'. '+findings.length+' flagged document cards are shown; raw evidence loads only when requested.'));
   }
   function appendExcerpt(root,raw,rule){
     var cut=number(rule.cut_index);
@@ -474,6 +487,7 @@ def _detections_js() -> str:
     if(cut===null||cut<0||cut>raw.length){section.appendChild(text('h4',String(rule.rule||'unknown rule')));section.appendChild(text('p','The audit’s cut position is unavailable for this raw document.'));root.appendChild(section);return;}
     var start=Math.max(0,cut-BEFORE),highlightEnd=Math.min(raw.length,cut+HIGHLIGHT),end=Math.min(raw.length,highlightEnd+AFTER);
     section.appendChild(text('h4',String(rule.rule||'unknown rule')+' at character '+cut));
+    var evidence=evidenceSummary(rule);if(evidence)section.appendChild(text('p',evidence));
     section.appendChild(text('p','Raw context: characters '+start+'–'+end+'; highlight begins at the recorded cut.'));
     var pre=document.createElement('pre');pre.className='context';
     pre.appendChild(document.createTextNode(raw.slice(start,cut)));
@@ -481,7 +495,7 @@ def _detections_js() -> str:
     pre.appendChild(document.createTextNode(raw.slice(highlightEnd,end)));
     section.appendChild(pre);root.appendChild(section);
   }
-  function renderFinding(row,result){
+  function renderFinding(row){
     var article=document.createElement('article');article.className='finding';
     article.appendChild(text('h3',row.source_id+' · '+row.source_doc_id));
     var meta=document.createElement('dl');meta.className='metadata';
@@ -491,8 +505,16 @@ def _detections_js() -> str:
     article.appendChild(meta);
     var badges=document.createElement('div');badges.className='rule-list';(row.rules||[]).forEach(function(rule){var badge=text('span',String(rule.rule)+' @ '+String(rule.cut_index));badge.className='badge';badges.appendChild(badge);});if(badges.childNodes.length)article.appendChild(badges);
     if(row.streaming_reason){var streaming=text('p','Streaming guard reason: '+String(row.streaming_reason));streaming.className='streaming';article.appendChild(streaming);}
-    if(!result.ok){article.appendChild(text('p','Raw document could not be loaded: '+result.message));article.lastChild.className='error';return article;}
-    (row.rules||[]).sort(function(a,b){return Number(a.cut_index)-Number(b.cut_index)||String(a.rule).localeCompare(String(b.rule));}).forEach(function(rule){appendExcerpt(article,result.text,rule);});
+    var button=text('button','Load raw evidence');button.className='load-evidence';button.type='button';
+    button.addEventListener('click',function(){
+      button.disabled=true;button.textContent='Loading raw evidence…';
+      loadRaw(row).then(function(result){
+        if(!result.ok){var error=text('p','Raw document could not be loaded: '+result.message);error.className='error';article.appendChild(error);button.disabled=false;button.textContent='Retry raw evidence';return;}
+        button.remove();
+        (row.rules||[]).sort(function(a,b){return Number(a.cut_index)-Number(b.cut_index)||String(a.rule).localeCompare(String(b.rule));}).forEach(function(rule){appendExcerpt(article,result.text,rule);});
+      });
+    });
+    article.appendChild(button);
     return article;
   }
   function loadRaw(row){return fetch('data/documents/'+encodeURIComponent(row.opaque_id)+'.json',{cache:'no-store'}).then(function(response){if(!response.ok)throw new Error('HTTP '+response.status);return response.json();}).then(function(payload){if(!payload||typeof payload.text!=='string')throw new Error('invalid document payload');return {ok:true,text:payload.text};}).catch(function(error){return {ok:false,message:error.message||'request failed'};});}
@@ -500,7 +522,7 @@ def _detections_js() -> str:
     if(!audit||!Array.isArray(audit.documents))throw new Error('invalid audit payload');
     var findings=audit.documents.filter(isFinding).sort(function(a,b){return String(a.source_id).localeCompare(String(b.source_id))||Number(a.earliest_cut_index)-Number(b.earliest_cut_index)||String(a.opaque_id).localeCompare(String(b.opaque_id));});
     renderSummary(audit,findings);clear(findingsRoot);
-    return Promise.all(findings.map(function(row){return loadRaw(row).then(function(result){return {row:row,result:result};});})).then(function(rows){rows.forEach(function(item){findingsRoot.appendChild(renderFinding(item.row,item.result));});});
+    findings.forEach(function(row){findingsRoot.appendChild(renderFinding(row));});
   }).catch(function(error){failure(summaryRoot,'Detector audit failed to load: '+error.message);failure(findingsRoot,'No detections can be presented until the audit payload is available.');});
 })();
 """
