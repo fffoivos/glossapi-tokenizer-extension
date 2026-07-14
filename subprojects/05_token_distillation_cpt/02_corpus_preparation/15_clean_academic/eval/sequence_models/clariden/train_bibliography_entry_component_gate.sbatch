@@ -20,6 +20,7 @@ LINE_OOF_DIR=${LINE_OOF_DIR:?set line OOF directory}
 BLOCK_OOF_DIR=${BLOCK_OOF_DIR:?set block OOF directory}
 SEQUENCE_OOF_DIR=${SEQUENCE_OOF_DIR:?set sequence-ablation OOF directory}
 QUALITY_DECISIONS=${QUALITY_DECISIONS:?set reviewed train-quality decisions}
+DETERMINISTIC_ROLES_DIR=${DETERMINISTIC_ROLES_DIR:?set train-only deterministic roles}
 OUTPUT_DIR=${OUTPUT_DIR:?set new immutable component-gate directory}
 CODE_COMMIT=${CODE_COMMIT:?set source commit}
 UENV=${UENV:-pytorch/v2.9.1:v2}
@@ -28,6 +29,7 @@ for receipt in "$TABLE_DIR/receipt.json" "$LINE_OOF_DIR/receipt.json" "$BLOCK_OO
   [[ -f "$receipt" && ! -L "$receipt" ]] || exit 90
 done
 [[ -f "$QUALITY_DECISIONS" && ! -L "$QUALITY_DECISIONS" ]] || exit 91
+[[ -f "$DETERMINISTIC_ROLES_DIR/receipt.json" && ! -L "$DETERMINISTIC_ROLES_DIR/receipt.json" ]] || exit 94
 [[ -d "$PY_DEPS" && ! -L "$PY_DEPS" ]] || exit 92
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 93
 
@@ -41,6 +43,7 @@ uenv run "$UENV" --view=default -- \
   --block-oof-dir "$BLOCK_OOF_DIR" \
   --sequence-oof-dir "$SEQUENCE_OOF_DIR" \
   --quality-decisions "$QUALITY_DECISIONS" \
+  --deterministic-roles-dir "$DETERMINISTIC_ROLES_DIR" \
   --output-dir "$OUTPUT_DIR" \
   --code-commit "$CODE_COMMIT" \
   --slurm-job-id "$SLURM_JOB_ID"

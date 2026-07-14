@@ -201,6 +201,27 @@ not added to the gate:
 - **Non-overlap:** This is section structure and uses no author, date,
   identifier, publication-coordinate, or page detector.
 
+### Explicit negative-role fraction
+
+- **Question:** How much of the proposed region is explicitly recognizable as
+  a different document role rather than a bibliography entry?
+- **Representation:** Share of component lines assigned exactly one frozen
+  deterministic negative role: figure caption, table/equation, negative
+  section heading, footnote, running/enumerated prose, or legal procedure.
+- **Expected direction:** Negative.
+- **Why it is not a hard veto:** The train role audit marked 30.4% of silver
+  bibliography lines, mostly because real bibliography regions can contain
+  tables, prose-like entries, and structural lines.  The learned gate therefore
+  uses the *fraction* as graded contradictory evidence rather than deleting any
+  component containing one marked line.
+- **Train-OOF justification:** At the 0.5 component operating point, accepted
+  true components had median negative-role fraction 0.215, versus 0.667 for
+  accepted false components.  This separation appeared for both the logistic
+  and shallow monotonic-tree gates.
+- **Non-overlap:** This measures the presence of an explicit competing line
+  role.  It is not the absence of positive citation evidence, component size,
+  internal weak-run continuity, or heading support.
+
 ### Component supervision purity
 
 - **Question:** Is accepting this particular candidate mostly a correct BIB
@@ -222,7 +243,7 @@ not added to the gate:
   candidate spans.  They are not features and are not shown to the component
   classifier.
 - **Component probability threshold:** A calibration control swept only on
-  grouped training OOF scores.  It is not evidence and cannot change the five
+  grouped training OOF scores.  It is not evidence and cannot change the six
   feature meanings.
 
 ## Current experiment boundary

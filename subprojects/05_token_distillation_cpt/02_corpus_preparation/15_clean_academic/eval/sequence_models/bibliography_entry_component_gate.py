@@ -35,7 +35,7 @@ from .feature_crf import LinearChainCRF
 from .features import TAGS
 
 
-SCHEMA_VERSION = "bibliography-entry-component-gate-oof-v2"
+SCHEMA_VERSION = "bibliography-entry-component-gate-oof-v3"
 EXTENT_SATURATION_LINES = 32
 FEATURE_NAMES = (
     "saturated_minimum_extent",
@@ -43,8 +43,9 @@ FEATURE_NAMES = (
     "median_entry_probability",
     "longest_weak_run_fraction",
     "exact_header_at_or_before_start",
+    "explicit_negative_role_fraction",
 )
-EXPECTED_DIRECTIONS = (1, 1, 1, -1, 1)
+EXPECTED_DIRECTIONS = (1, 1, 1, -1, 1, -1)
 MODEL_ARMS = ("logistic_l2", "monotonic_hgb")
 POSITIVE_PURITY = 0.80
 NEGATIVE_PURITY = 0.20
@@ -116,17 +117,21 @@ def component_feature_vector(
     probability: np.ndarray,
     char_lengths: np.ndarray,
     header_kinds: np.ndarray,
+    hard_negative: np.ndarray,
     abs_indices: np.ndarray,
     start: int,
     end: int,
     config: BlockConfig,
 ) -> np.ndarray:
-    """Return five non-redundant structural measurements for one component."""
+    """Return non-redundant structural measurements for one component."""
 
     values = np.asarray(probability[start : end + 1], dtype=np.float64)
     lengths = np.asarray(char_lengths[start : end + 1])
+    negative_values = np.asarray(hard_negative[start : end + 1], dtype=bool)
     if not len(values):
         raise ValueError("component must contain at least one line")
+    if len(negative_values) != len(values):
+        raise ValueError("deterministic roles do not align with component lines")
     strong = (values >= config.anchor_probability) & (
         lengths <= config.seed_length_limit
     )
@@ -147,6 +152,7 @@ def component_feature_vector(
             np.median(values),
             _longest_true_run(weak) / len(values),
             float(header_at_or_before),
+            np.count_nonzero(negative_values) / len(values),
         ),
         dtype=np.float32,
     )
@@ -277,6 +283,7 @@ def _proposal_masks(
 def generate_candidates(
     table: Any,
     probability: np.ndarray,
+    hard_negative: np.ndarray,
     masks: Mapping[tuple[str, float], np.ndarray],
     *,
     variant: str,
@@ -311,6 +318,7 @@ def generate_candidates(
                     probability[doc_start:doc_end],
                     table.char_lengths[doc_start:doc_end],
                     table.header_kinds[doc_start:doc_end],
+                    hard_negative[doc_start:doc_end],
                     table.abs_indices[doc_start:doc_end],
                     start,
                     end,
@@ -525,6 +533,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     sequence_root = Path(args.sequence_oof_dir).resolve()
     block_root = Path(args.block_oof_dir).resolve()
     quality_path = Path(args.quality_decisions).resolve()
+    deterministic_roles_root = Path(args.deterministic_roles_dir).resolve()
     sequence_report_path = sequence_root / "sequence_ablation_oof_report.json"
     block_report_path = block_root / "block_oof_report.json"
     sequence_report = json.loads(
@@ -537,6 +546,18 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     config = BlockConfig(**block_report["arms"][arm]["selected_config"])
     probability_path = line_root / f"{arm}.oof_probability.npy"
     probability = np.load(probability_path, mmap_mode="r", allow_pickle=False)
+    deterministic_roles_report_path = (
+        deterministic_roles_root / "deterministic_roles_report.json"
+    )
+    deterministic_roles_report = json.loads(
+        deterministic_roles_report_path.read_text(encoding="utf-8")
+    )
+    if deterministic_roles_report.get("validation_opened") is not False:
+        raise ValueError("deterministic role input is not validation isolated")
+    hard_negative_path = deterministic_roles_root / "hard_negative.npy"
+    hard_negative = np.load(hard_negative_path, mmap_mode="r", allow_pickle=False)
+    if hard_negative.shape != table.targets.shape:
+        raise ValueError("deterministic roles do not align with the train table")
     excluded_ids, quality_packet = _load_quality_exclusions(quality_path)
     known_ids = {str(document["document_id"]) for document in table.documents}
     if not excluded_ids <= known_ids:
@@ -564,6 +585,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         variant: generate_candidates(
             table,
             probability,
+            hard_negative,
             masks,
             variant=variant,
             deletion_biases=args.deletion_biases,
@@ -674,6 +696,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "median_entry_probability": "Typical evidence: measure how bibliography-like the middle line score is, not the strongest outlier.",
             "longest_weak_run_fraction": "Internal contradiction: measure the longest uninterrupted prose-like hole as a fraction of the component.",
             "exact_header_at_or_before_start": "Independent structure: record an exact multilingual bibliography heading on the first component line or immediately before it.",
+            "explicit_negative_role_fraction": "Contradictory structure: measure the share of component lines assigned one explicit deterministic non-bibliography role, such as a figure caption, footnote, table/equation, negative section heading, running/enumerated prose, or legal procedure.",
         },
         "feature_constants": {
             "extent_saturation_lines": EXTENT_SATURATION_LINES,
@@ -729,6 +752,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "block_oof_report": _sha256(block_report_path),
             "line_oof_probability": _sha256(probability_path),
             "quality_decisions": _sha256(quality_path),
+            "deterministic_roles_report": _sha256(
+                deterministic_roles_report_path
+            ),
+            "deterministic_hard_negative": _sha256(hard_negative_path),
         },
         "code_commit": str(args.code_commit),
         "slurm_job_id": str(args.slurm_job_id),
@@ -756,6 +783,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--block-oof-dir", required=True)
     parser.add_argument("--sequence-oof-dir", required=True)
     parser.add_argument("--quality-decisions", required=True)
+    parser.add_argument("--deterministic-roles-dir", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--arm", default="D1")
     parser.add_argument(
