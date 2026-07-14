@@ -229,6 +229,46 @@ def test_recorded_repetition_passes_recover_each_coordinate_space() -> None:
     assert inputs[("after_generated_image_cleanup", 1)] == "<!-- repeating-text-removed -->c<!-- repeating-text-removed -->defYY"
 
 
+def test_image_cleanup_input_replays_only_the_pre_image_passes() -> None:
+    details = [
+        {
+            "cleaning_stage": "before_generated_image_cleanup",
+            "pass_index": 1,
+            "spans": [{"start_index": 3, "end_index": 7}],
+        },
+        {
+            "cleaning_stage": "after_generated_image_cleanup",
+            "pass_index": 1,
+            "spans": [{"start_index": 0, "end_index": 2}],
+        },
+    ]
+
+    recovered = PACKET.image_cleanup_input("abcXXXXdef", details)
+
+    assert recovered == "abc<!-- repeating-text-removed -->def"
+
+
+def test_long_focus_excerpt_is_clipped_on_line_boundaries() -> None:
+    source = "\n".join(f"complete-row-{index:03d}" for index in range(100))
+
+    excerpt = PACKET.around(source, 0, len(source), maximum=240)
+
+    assert "[… focus span middle omitted from review excerpt …]" in excerpt
+    assert "complete-row-000" in excerpt
+    assert "complete-row-099" in excerpt
+    assert "complete-row-00\n" not in excerpt
+
+
+def test_nth_index_localizes_repeated_image_descriptions() -> None:
+    value = "before <!-- removed-image-description: repeated --> middle " \
+        "<!-- removed-image-description: repeated --> after"
+    needle = "<!-- removed-image-description: repeated -->"
+
+    assert PACKET.nth_index(value, needle, 0) == value.index(needle)
+    assert PACKET.nth_index(value, needle, 1) == value.rindex(needle)
+    assert PACKET.nth_index(value, needle, 2) == -1
+
+
 def test_request_carries_exact_focus_anchor() -> None:
     region = {
         "region_id": "a" * 64,

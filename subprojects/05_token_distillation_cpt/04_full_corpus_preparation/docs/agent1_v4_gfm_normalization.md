@@ -6,13 +6,15 @@ Status: dry-run sample prototype. This has **not** been ported into the GlossAPI
 
 The prototype runs deterministic extraction-artifact cleaning before converting recognized HTML into HTML-free GitHub-Flavored Markdown (GFM). The completed audit reports:
 
-- 348 documents checked; 158 changed and 190 remained byte-identical.
+- 348 documents checked; 177 changed and 171 remained byte-identical.
 - 147 documents contained recognized HTML.
-- 117,880 HTML start tags were handled; zero recognized HTML tags remain.
+- 117,875 HTML start tags were handled; zero recognized HTML tags remain.
 - 1,722 HTML tables became GFM pipe tables. Nine damaged or nested tables were downgraded to readable lines rather than emitted as invalid GFM.
 - 73,990 source table cells were retained structurally in 18,799 emitted rows; another 577 fallback-table cells were retained as readable text.
-- 40 runaway-repetition spans in 23 documents became `<!-- repeating-text-removed -->`, removing 164,259 repeated characters.
-- 4,792 generated extraction-image references were removed while retaining their readable alt text, removing 230,979 filename/target characters.
+- 40 runaway-repetition spans in 23 documents became `<!-- repeating-text-removed -->`, removing 167,933 repeated characters.
+- 4,799 generated extraction-image artifacts were removed, including 4,716 image-description elements and 83 parenthesized filename targets. Generated filenames/wrappers accounted for 231,154 removed characters.
+- The 4,716 image-description elements emitted 4,720 `<!-- removed-image-description: … -->` comments; four descriptions were split around existing pipeline markers. Follow-up repetition cleaning retained 4,621 comments and removed 99 only when the complete comment was itself part of detected repetitive output.
+- The retained descriptions contain 918,431 source characters. They remain in the corpus as tokenizable provenance comments but are hidden by Markdown rendering.
 - Only 64 non-repetition characters were removed: two `<!-- Table content goes here -->` placeholder comments.
 - The normalizer is idempotent on all 348 outputs.
 - Luna validated all 100 sampled critical regions; there are zero failed or unresolved regions.
@@ -34,7 +36,7 @@ The intended production order is therefore:
 
 `complex-repetition pass → generated-image artifact cleanup → follow-up repetition pass → HTML-to-GFM conversion → canonicalize_markdown → Rust GFM table validation/removal → existing downstream phases`
 
-The dry run deliberately stops after the first two operations so it can demonstrate the converter without silently duplicating or changing existing GlossAPI canonicalization.
+The dry run deliberately stops after the converter so it can demonstrate the new cleaning and structural normalization without silently duplicating or changing existing GlossAPI canonicalization.
 
 ## Decisions for every observed HTML element
 
@@ -52,14 +54,22 @@ GFM pipe tables require a header row plus a delimiter row, permit inline content
 | `ul`, `ol`, `li` | `-` or numbered Markdown list | Retain order and items. Inside table cells, retain item text separated by whitespace because block lists are not valid there. |
 | `sup`, `sub`, `u`, `span` | Plain inline content | Remove the unexpressible style and all attributes, but retain the textual payload. GitHub documents superscript/subscript using raw HTML, so a zero-HTML target has no faithful equivalent. Deleting the text itself would corrupt mathematical symbols, citations, and words. A separating space is added only when a flattened `sup`/`sub` immediately follows a closing Markdown delimiter and adjacency would otherwise break that emphasis/code token. See [GitHub basic formatting](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax). |
 | `math` | `$…$` or `$$…$$` | Retain the existing TeX-like payload, following [GitHub mathematical-expression syntax](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/writing-mathematical-expressions). |
-| `img` and Markdown image syntax | Markdown image or readable alt text | Remove generated extraction-image filenames/targets, including bare and parenthesized references, while retaining existing alt text. Convert non-artifact HTML sources to Markdown images. Do not invent captions or descriptions. |
+| `img` and Markdown image syntax | Provenance comment or Markdown image | Convert generated Markdown/HTML image descriptions to `<!-- removed-image-description: existing description -->`, removing only the generated filename and wrapper. Source-less HTML image alt text receives the same marker; an empty description becomes `<!-- removed-image-description -->`. Convert non-artifact HTML sources to Markdown images and leave existing non-artifact Markdown images unchanged. Do not alter adjacent VLM prose or invent captions/descriptions. |
 | `input` | Removed | Both observed inline checkbox elements are OCR/manuscript artifacts, not Markdown task-list items. |
 | `script`, `style`, `canvas`, `svg`, `head`, `template` | Removed with content | Executable, styling, vector-path, metadata, and template payloads have no plain-document-text representation. |
 | Unsupported containers such as `iframe`, media, form controls, `title`, `noscript` | Plain block content | Remove the container and attributes but retain readable fallback text nodes. |
-| HTML comments | Removed, except approved removal markers | Preserve `<!-- repeating-text-removed -->`, `<!-- table-removed -->`, and `<!-- text-missing -->`; remove ordinary comments. |
-| Unknown angle-bracket text | Escaped literal text | Preserve OCR citations and pseudo-tags such as `<<εταιρία>>` as text. Preserve valid GFM URI/email autolinks unchanged. Nested angle pairs are resolved in one pass. |
+| HTML comments | Removed, except approved removal markers | Preserve `<!-- repeating-text-removed -->`, `<!-- removed-image-description: … -->`, `<!-- table-removed -->`, and `<!-- text-missing -->`; remove ordinary comments. |
+| Unknown angle-bracket text | Escaped literal text | Preserve OCR citations and pseudo-tags such as `<<εταιρία>>` as text. Escape unmatched pseudo-tag openers before parsing so text such as `<proles-is = …` cannot consume later paragraphs/comments. Preserve valid GFM URI/email autolinks unchanged. Nested angle pairs are resolved in one pass. |
 
 Common but unobserved elements also have conservative mappings: `h1`–`h6` to ATX headings, `a` to Markdown links when the destination is safe, `code`/`pre` to inline/fenced code, `blockquote` to `>`, and `hr` to `---`. Unknown executable or layout markup is never passed through as raw HTML.
+
+### Image-description provenance details
+
+- The comment payload is exactly the existing image description after whitespace is folded to one line. No semantic cleanup is applied.
+- `<` and `>` are entity-encoded and `--` is encoded as `&#45;&#45;`, preventing a source description from closing or nesting the HTML comment.
+- Existing fixed pipeline markers inside a description remain separate comments. For example, description text around `<!-- repeating-text-removed -->` becomes two image-description comments with the repetition marker between them.
+- The follow-up repetition detector may select part of a provenance comment. Its span is expanded to complete comment boundaries before replacement, so partial comments can never survive.
+- Bare and parenthesized generated filenames without descriptions are removed without inventing an empty provenance marker. Ordinary links and non-generated images are unchanged.
 
 ## Existing Markdown preservation
 
@@ -89,10 +99,10 @@ The aggregate semantic-token closure is:
 | Links | 1,694 | 1,694 |
 | Images | 594 | 598 |
 | Unordered lists | 898 | 911 |
-| Ordered lists | 10,386 | 10,433 |
+| Ordered lists | 10,387 | 10,434 |
 | Blockquotes | 62 | 62 |
 | Strong emphasis | 8,349 | 11,890 |
-| Emphasis | 17,013 | 17,242 |
+| Emphasis | 17,012 | 17,241 |
 | Strikethrough | 4 | 4 |
 | GFM tables | 17 | 1,740 |
 
@@ -114,10 +124,12 @@ Flattening `sup`/`sub` required 228 boundary spaces to prevent a footnote or exp
 The validation packet is deterministic and risk-stratified. It selects 100 regions spanning every transformation family, supplies the exact local document path and before/after evidence, and asks Luna only about text preservation, extraction-artifact removal, GFM validity, and table outcome. It does not ask Luna to judge document semantics or general data quality.
 
 - 100/100 regions validated; zero failed or unresolved.
-- 158 recorded Luna judgments after targeted revalidation; high-risk regions receive independent primary and secondary reviews.
-- Eight regions required adjudication during iteration.
-- Coverage: 40 complex-repetition removals, 10 generated-image cleanups, 15 valid-table conversions, eight damaged-table fallbacks, two table-structure recoveries, and 25 block/inline/other-markup regions.
+- 151 recorded Luna judgments; high-risk regions receive independent primary and secondary reviews.
+- One high-risk region required adjudication because two passing reviewers differed on a secondary classification field.
+- Coverage: 40 complex-repetition removals, eight image-description provenance transformations, one other generated-image cleanup, 16 valid-table conversions, eight damaged-table fallbacks, two table-structure recoveries, and 25 block/inline/other-markup regions.
+- All eight sampled image-description provenance regions passed.
 - Fallback-table evidence is anchored by the parser's exact source line and column, preventing repeated cell labels elsewhere in long documents from selecting the wrong table.
+- Artifact-only deletions with an empty replacement are closed by deterministic accounting/idempotence checks rather than misleading Luna excerpts without a stable post-normalization anchor. Long review excerpts are clipped only at line boundaries and carry an explicit review-only omission marker.
 
 ## Presentation and artifacts
 

@@ -143,7 +143,7 @@ def test_flattens_table_lists_and_converts_math_bold_and_italics() -> None:
     assert "| **first** *second* | $F=ma$ |" in normalized
 
 
-def test_generated_image_artifacts_are_removed_without_losing_readable_text() -> None:
+def test_generated_image_artifacts_become_provenance_comments_without_losing_descriptions() -> None:
     digest = "9511aaaa0e3447cf006946fe2f6e6aa2"
     source = (
         f"![Readable alt]({digest}_3_img.webp) "
@@ -155,16 +155,92 @@ def test_generated_image_artifacts_are_removed_without_losing_readable_text() ->
 
     cleaned = NORMALIZER.clean_generated_image_artifacts(source, metrics=metrics)
 
-    assert cleaned == "Readable alt linked label   HTML alt"
+    assert cleaned == (
+        "<!-- removed-image-description: Readable alt --> linked label   "
+        "<!-- removed-image-description: HTML alt -->"
+    )
     assert digest not in cleaned
     assert metrics["generated_image_artifact_count"] == 5
     assert metrics["generated_image_rule_counts"] == {
         "bare_generated_image_target_removed": 1,
-        "html_generated_image_to_alt_text": 1,
+        "html_generated_image_to_description_comment": 1,
         "markdown_generated_image_link_to_label": 1,
-        "markdown_generated_image_to_alt_text": 1,
+        "markdown_generated_image_to_description_comment": 1,
         "parenthesized_generated_image_target_removed": 1,
     }
+    assert metrics["image_description_elements_commented"] == 2
+    assert metrics["image_description_comments_emitted"] == 2
+    assert metrics["image_description_characters_preserved"] == len("Readable altHTML alt")
+    assert metrics["empty_image_description_comments"] == 0
+
+
+def test_image_description_comments_are_safe_empty_and_never_nested() -> None:
+    digest = "9511aaaa0e3447cf006946fe2f6e6aa2"
+    source = (
+        f"![]({digest}_1_img.webp) "
+        f"![before <!-- repeating-text-removed --> after -- value <x>]({digest}_2_img.webp)"
+    )
+    metrics: dict[str, object] = {}
+
+    cleaned = NORMALIZER.clean_generated_image_artifacts(source, metrics=metrics)
+    normalized, markup = normalize(cleaned)
+
+    assert cleaned.startswith("<!-- removed-image-description --> ")
+    assert "<!-- removed-image-description: before -->" in cleaned
+    assert "<!-- repeating-text-removed -->" in cleaned
+    assert "<!-- removed-image-description: after &#45;&#45; value &lt;x&gt; -->" in cleaned
+    assert "<!-- removed-image-description: before <!--" not in cleaned
+    assert normalized == cleaned
+    assert markup["comments_preserved"] == 4
+    assert metrics["image_description_elements_commented"] == 2
+    assert metrics["image_description_comments_emitted"] == 3
+    assert metrics["empty_image_description_comments"] == 1
+    assert metrics["image_descriptions_split_around_pipeline_markers"] == 1
+    assert metrics["pipeline_markers_preserved_inside_image_descriptions"] == 1
+
+
+def test_follow_up_repetition_expands_partial_cut_to_whole_description_comment() -> None:
+    source = "prefix <!-- removed-image-description: repeated repeated repeated --> suffix"
+
+    def detector(value: str, *, metrics: dict[str, object]) -> str:
+        start = value.find("repeated")
+        if start < 0:
+            metrics.update(
+                {
+                    "complex_repetition_replacement_details": [],
+                    "complex_repetition_preserved_findings": [],
+                }
+            )
+            return value
+        end = value.rfind("repeated") + len("repeated")
+        metrics.update(
+            {
+                "complex_repetition_replacement_details": [
+                    {
+                        "pass_index": 1,
+                        "spans": [
+                            {
+                                "start_index": start,
+                                "end_index": end,
+                                "removed_char_count": end - start,
+                                "rules": ["repeated_token_block"],
+                                "findings": [],
+                            }
+                        ],
+                    }
+                ],
+                "complex_repetition_preserved_findings": [],
+            }
+        )
+        return value
+
+    cleaned, metrics = NORMALIZER._replace_repetitions_comment_safe(source, detector)
+
+    assert cleaned == "prefix <!-- repeating-text-removed --> suffix"
+    span = metrics["complex_repetition_replacement_details"][0]["spans"][0]
+    assert span["start_index"] == source.index("<!-- removed-image-description")
+    assert span["end_index"] == source.index("-->") + 3
+    assert span["comment_boundary_expansion"]["original_start_index"] == source.index("repeated")
 
 
 def test_non_artifact_markdown_and_html_images_remain_expressible() -> None:
@@ -173,6 +249,20 @@ def test_non_artifact_markdown_and_html_images_remain_expressible() -> None:
     normalized, _ = normalize(cleaned)
 
     assert normalized == "![existing](asset.webp) ![photo](photo.png)"
+
+
+def test_source_less_html_image_description_becomes_comment_but_empty_image_is_removed() -> None:
+    source = '<img alt="Solid blue line"> <img alt="">'
+    metrics: dict[str, object] = {}
+
+    cleaned = NORMALIZER.clean_generated_image_artifacts(source, metrics=metrics)
+    normalized, _ = normalize(cleaned)
+
+    assert cleaned == '<!-- removed-image-description: Solid blue line --> <img alt="">'
+    assert normalized == "<!-- removed-image-description: Solid blue line --> "
+    assert metrics["generated_image_rule_counts"] == {
+        "source_less_html_image_to_description_comment": 1
+    }
 
 
 def test_repetition_damaged_table_falls_back_without_losing_marker() -> None:
@@ -201,11 +291,11 @@ def test_removes_unexpressible_elements_but_retains_textual_content_for_flattene
 
     assert "A2 Bn underlined red text" in normalized
     assert "![kept](asset.png)" in normalized
-    assert "decorative" in normalized
+    assert "<!-- removed-image-description: decorative -->" in normalized
     assert "checkbox" not in normalized
     assert "danger" not in normalized
     assert "<sup>" not in normalized
-    assert metrics["transformations"]["source_less_images_to_alt_text"] == 1
+    assert metrics["transformations"]["source_less_images_to_description_comment"] == 1
     assert metrics["transformations"]["inline_inputs_removed"] == 1
     assert metrics["transformations"]["unsupported_elements_removed_with_content"] == 1
 
@@ -231,6 +321,21 @@ def test_preserves_gfm_autolinks_and_escapes_non_html_angle_text() -> None:
     assert "&lt;οιδατε οτι&gt;" in normalized
     assert "&lt;&lt;εταιρία&gt;&gt;" in normalized
     assert metrics["pseudo_tags_escaped"] == 4
+
+
+def test_unclosed_pseudo_tag_cannot_swallow_later_provenance_comment() -> None:
+    source = (
+        "Proletarius (<proles-is = descendant): readable etymology.\n\n"
+        "<!-- removed-image-description: A decorative flourish. -->\n\n"
+        "Later footnote<sup>25</sup>."
+    )
+
+    normalized, metrics = normalize(source)
+
+    assert "Proletarius (&lt;proles-is = descendant)" in normalized
+    assert normalized.count("<!-- removed-image-description: A decorative flourish. -->") == 1
+    assert "Later footnote25." in normalized
+    assert metrics["comments_preserved"] == 1
 
 
 def test_preserves_bare_ampersands_without_inventing_entity_semicolons() -> None:
@@ -313,6 +418,9 @@ def test_normalization_presentation_is_lazy_text_safe_and_sandboxed() -> None:
     assert "synchronizeTextScroll" in javascript
     assert "synchronizeTextScrollGroup" in javascript
     assert "After deterministic artifact cleaning" in javascript
+    assert "normalization-image-descriptions" in html
+    assert "imageDescriptionFilter" in javascript
+    assert "removed-image-description" in html
     assert "data/gfm_luna_validation.json" in javascript
     assert "source.scrollTop/sourceRange" in javascript
     assert "requestAnimationFrame" in javascript

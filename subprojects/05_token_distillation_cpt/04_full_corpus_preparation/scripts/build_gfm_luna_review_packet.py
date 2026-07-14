@@ -97,7 +97,19 @@ def around(value: str, start: int, end: int, maximum: int = MAX_EXCERPT_CHARACTE
     end = max(start, min(end, len(value)))
     if end - start >= maximum // 2:
         edge = maximum // 4
-        body = value[start : start + edge] + "\n[… removed-span middle …]\n" + value[max(start, end - edge) : end]
+        prefix_end = min(end, start + edge)
+        prefix_line_end = value.rfind("\n", start, prefix_end)
+        if prefix_line_end > start + edge // 2:
+            prefix_end = prefix_line_end + 1
+        suffix_start = max(start, end - edge)
+        suffix_line_start = value.find("\n", suffix_start, end)
+        if 0 <= suffix_line_start < end - edge // 2:
+            suffix_start = suffix_line_start + 1
+        body = (
+            value[start:prefix_end]
+            + "\n[… focus span middle omitted from review excerpt …]\n"
+            + value[suffix_start:end]
+        )
     else:
         body = value[start:end]
     remaining = max(0, maximum - len(body))
@@ -321,6 +333,36 @@ def apply_recorded_repetition_pass(text: str, pass_record: Mapping[str, object])
     return "".join(pieces)
 
 
+def image_cleanup_input(raw: str, details: Sequence[Mapping[str, object]]) -> str:
+    """Recover the exact text immediately before generated-image cleanup."""
+
+    current = raw
+    passes = sorted(
+        (
+            record
+            for record in details
+            if str(record["cleaning_stage"]) == "before_generated_image_cleanup"
+        ),
+        key=lambda value: int(value["pass_index"]),
+    )
+    for pass_record in passes:
+        current = apply_recorded_repetition_pass(current, pass_record)
+    return current
+
+
+def nth_index(value: str, needle: str, ordinal: int) -> int:
+    """Find a deterministic occurrence without confusing repeated captions."""
+
+    if not needle or ordinal < 0:
+        return -1
+    position = -1
+    for _ in range(ordinal + 1):
+        position = value.find(needle, position + 1)
+        if position < 0:
+            return -1
+    return position
+
+
 def repetition_pass_inputs(
     raw: str,
     details: Sequence[Mapping[str, object]],
@@ -370,6 +412,7 @@ def build_candidates(
         marker_positions = [match.start() for match in re.finditer(re.escape("<!-- repeating-text-removed -->"), normalized)]
         repetition_details = [dict(value) for value in row.get("repetition_details", [])]
         pass_inputs = repetition_pass_inputs(raw, repetition_details, normalizer=normalizer)
+        image_input = image_cleanup_input(raw, repetition_details)
         for pass_record in repetition_details:
             stage = str(pass_record["cleaning_stage"])
             pass_index = int(pass_record["pass_index"])
@@ -447,40 +490,61 @@ def build_candidates(
                     )
                 )
 
+        before_occurrences: Counter[str] = Counter()
+        after_occurrences: Counter[str] = Counter()
         for ordinal, event_value in enumerate(row.get("generated_image_events", [])):
             event = dict(event_value)
             original = str(event.get("original", ""))
-            position = raw.find(original)
-            position = 0 if position < 0 else position
             replacement = str(event.get("replacement", ""))
-            anchor = ""
-            before_position = position
-            after_position = -1
-            if replacement and raw.count(replacement) == 1 and normalized.count(replacement) == 1:
-                anchor = replacement
-                before_position = raw.find(anchor)
-                after_position = normalized.find(anchor)
-            if after_position < 0:
-                fragment = raw[max(0, position - 1_500) : min(len(raw), position + len(original) + 1_500)]
-                for candidate in _candidate_visible_anchors(fragment):
-                    if raw.count(candidate) == 1 and normalized.count(candidate) == 1:
-                        anchor = candidate
-                        before_position = raw.find(candidate)
-                        after_position = normalized.find(candidate)
-                        break
+            if not replacement:
+                # A deletion has no reliable post-normalization anchor.  Its
+                # exact artifact-only behavior is closed by deterministic
+                # audit; Luna samples only events it can compare locally.
+                continue
+            before_position = nth_index(image_input, original, before_occurrences[original])
+            before_occurrences[original] += 1
+            after_position = nth_index(normalized, replacement, after_occurrences[replacement])
+            after_occurrences[replacement] += 1
+            is_description = bool(event.get("image_description_commented"))
+            if is_description and after_position < 0:
+                # A separately audited follow-up repetition span can remove a
+                # complete repeated provenance comment.  Do not mis-localize
+                # that image event to the beginning of the document.
+                continue
+            before_position = max(0, before_position)
             after_position = max(0, after_position)
+            focus_end = min(len(normalized), after_position + max(1, min(len(replacement), 400)))
+            anchor = unique_context_anchor(normalized, after_position, focus_end) if replacement else ""
             candidates.append(
                 make_region(
                     row=row,
                     card=card,
-                    family="generated_image_cleanup",
+                    family=(
+                        "removed_image_description_provenance"
+                        if is_description
+                        else "generated_image_cleanup"
+                    ),
                     rules=[str(event["rule"])],
                     risk_tier="routine",
                     ordinal=ordinal,
-                    before=around(raw, before_position, before_position + len(anchor), maximum=2_600),
-                    after=around(normalized, after_position, after_position + len(anchor), maximum=2_600),
+                    before=around(
+                        image_input,
+                        before_position,
+                        before_position + len(original),
+                        maximum=2_600,
+                    ),
+                    after=around(
+                        normalized,
+                        after_position,
+                        after_position + len(replacement),
+                        maximum=2_600,
+                    ),
                     focus_anchor=anchor,
-                    expected="Remove the generated image filename and its Markdown/HTML wrapper while keeping existing readable alt or label text and adding no narration.",
+                    expected=(
+                        "Remove only the generated image filename and wrapper; preserve the complete existing description inside valid removed-image-description comments, keep embedded pipeline markers unnested, and add no narration."
+                        if is_description
+                        else "Remove the generated image target and wrapper while preserving any ordinary link label and adding no narration."
+                    ),
                 )
             )
 

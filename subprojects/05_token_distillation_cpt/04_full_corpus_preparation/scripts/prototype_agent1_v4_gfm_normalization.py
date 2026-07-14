@@ -25,13 +25,14 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, MutableMapping, Sequence
 
 
-SCHEMA = "agent1_v4_gfm_normalization_audit_v2"
-DOCUMENT_SCHEMA = "agent1_v4_gfm_normalized_document_v2"
+SCHEMA = "agent1_v4_gfm_normalization_audit_v3"
+DOCUMENT_SCHEMA = "agent1_v4_gfm_normalized_document_v3"
 SITE_SCHEMA = "agent1_v4_raw_review_site_manifest_v1"
 AUDIT_RELATIVE_PATH = Path("data/gfm_normalization_audit.json")
 OUTPUT_DOCUMENT_DIR = Path("data/gfm/documents")
 DEFAULT_GLOSSAPI_ROOT = Path.home() / "Projects/glossapi-development"
 REPETITION_COMMENT = "<!-- repeating-text-removed -->"
+REMOVED_IMAGE_DESCRIPTION_COMMENT = "<!-- removed-image-description -->"
 LITERAL_AMPERSAND_SENTINEL = "\ue000GFM_LITERAL_AMPERSAND\ue001"
 PORTABLE_BULK_PREFIXES = ("data/documents/", "data/gfm/documents/")
 PRESERVED_MARKDOWN_TOKEN_TYPES = (
@@ -54,12 +55,22 @@ AUTOLINK_RE = re.compile(
     r"^<(?:[A-Za-z][A-Za-z0-9+.-]{1,31}:[^<>\s]*|"
     r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?)>$"
 )
+FIXED_PIPELINE_COMMENT_PATTERN = r"(?:repeating-text-removed|text-missing|table-removed)"
+REMOVED_IMAGE_DESCRIPTION_PATTERN = r"removed-image-description(?:[ \t]*:[ \t]*[^\r\n]*?)?"
 ALLOWED_COMMENT_RE = re.compile(
-    r"^<!--\s*(?:repeating-text-removed|text-missing|table-removed)\s*-->$",
+    rf"^<!--[ \t]*(?:{FIXED_PIPELINE_COMMENT_PATTERN}|{REMOVED_IMAGE_DESCRIPTION_PATTERN})[ \t]*-->$",
     re.IGNORECASE,
 )
 ALLOWED_COMMENT_TOKEN_RE = re.compile(
-    r"<!--\s*(?:repeating-text-removed|text-missing|table-removed)\s*-->",
+    rf"<!--[ \t]*(?:{FIXED_PIPELINE_COMMENT_PATTERN}|{REMOVED_IMAGE_DESCRIPTION_PATTERN})[ \t]*-->",
+    re.IGNORECASE,
+)
+REMOVED_IMAGE_DESCRIPTION_TOKEN_RE = re.compile(
+    rf"<!--[ \t]*{REMOVED_IMAGE_DESCRIPTION_PATTERN}[ \t]*-->",
+    re.IGNORECASE,
+)
+FIXED_PIPELINE_COMMENT_TOKEN_RE = re.compile(
+    rf"<!--[ \t]*{FIXED_PIPELINE_COMMENT_PATTERN}[ \t]*-->",
     re.IGNORECASE,
 )
 RESIDUAL_ANGLE_RE = re.compile(r"<[^<>\n]+>")
@@ -230,8 +241,8 @@ TRANSFORMATION_POLICY: list[dict[str, object]] = [
     },
     {
         "tags": ["img"],
-        "target": "![alt](source) or alt text",
-        "content_policy": "Generated extraction-image targets are removed while readable alt text remains. Non-artifact sources become Markdown images; source-less elements are removed.",
+        "target": "removed-image-description provenance comment or ![alt](source)",
+        "content_policy": "Generated extraction images and source-less image alt text become hidden provenance comments. Non-artifact sources remain Markdown images; adjacent prose is never classified semantically.",
     },
     {
         "tags": ["input"],
@@ -256,7 +267,7 @@ TRANSFORMATION_POLICY: list[dict[str, object]] = [
     {
         "tags": ["HTML comments"],
         "target": "removed",
-        "content_policy": "Preserve only explicit GlossAPI removal markers, including <!-- repeating-text-removed -->.",
+        "content_policy": "Preserve only explicit GlossAPI removal markers and removed-image-description provenance comments.",
     },
 ]
 
@@ -332,20 +343,92 @@ class _SingleImageParser(HTMLParser):
     handle_startendtag = handle_starttag
 
 
+def _normalize_image_description(value: str) -> str:
+    """Make image alt text readable and safe inside one HTML comment line."""
+
+    normalized = re.sub(r"\s+", " ", html.unescape(value)).strip()
+    normalized = normalized.replace("<", "&lt;").replace(">", "&gt;")
+    return normalized.replace("--", "&#45;&#45;")
+
+
+def _image_description_comment(value: str) -> tuple[str, dict[str, int | bool]]:
+    """Wrap a description without nesting existing pipeline comments."""
+
+    pieces: list[str] = []
+    description_characters = 0
+    comment_count = 0
+    pipeline_marker_count = 0
+    cursor = 0
+    for marker in FIXED_PIPELINE_COMMENT_TOKEN_RE.finditer(value):
+        description = _normalize_image_description(value[cursor : marker.start()])
+        if description:
+            pieces.append(f"<!-- removed-image-description: {description} -->")
+            description_characters += len(description)
+            comment_count += 1
+        pieces.append(marker.group(0))
+        pipeline_marker_count += 1
+        cursor = marker.end()
+    description = _normalize_image_description(value[cursor:])
+    if description:
+        pieces.append(f"<!-- removed-image-description: {description} -->")
+        description_characters += len(description)
+        comment_count += 1
+    empty_description = not pieces
+    if empty_description:
+        pieces.append(REMOVED_IMAGE_DESCRIPTION_COMMENT)
+        comment_count = 1
+    return " ".join(pieces), {
+        "description_character_count": description_characters,
+        "description_comment_count": comment_count,
+        "pipeline_marker_count": pipeline_marker_count,
+        "description_split_around_pipeline_marker": pipeline_marker_count > 0,
+        "empty_description": empty_description,
+    }
+
+
+def _image_event(
+    *,
+    rule: str,
+    original: str,
+    replacement: str,
+    artifact_characters_removed: int,
+    comment_metrics: Mapping[str, int | bool] | None = None,
+) -> dict[str, object]:
+    event: dict[str, object] = {
+        "rule": rule,
+        "original": original,
+        "replacement": replacement,
+        "artifact_characters_removed": max(0, artifact_characters_removed),
+    }
+    if comment_metrics is not None:
+        event.update(comment_metrics)
+        event["image_description_commented"] = True
+    return event
+
+
 def _clean_html_artifact_images(text: str, events: list[dict[str, object]]) -> str:
     def replace(match: re.Match[str]) -> str:
         parser = _SingleImageParser()
         parser.feed(match.group(0))
         source = parser.attrs.get("src", "")
-        if not _generated_image_destination(source):
+        alt = parser.attrs.get("alt", "").strip()
+        generated_source = _generated_image_destination(source)
+        source_less_description = not source and bool(alt)
+        if not generated_source and not source_less_description:
             return match.group(0)
-        replacement = html.unescape(parser.attrs.get("alt", "")).strip()
+        replacement, comment_metrics = _image_description_comment(alt)
         events.append(
-            {
-                "rule": "html_generated_image_to_alt_text",
-                "original": match.group(0),
-                "replacement": replacement,
-            }
+            _image_event(
+                rule=(
+                    "html_generated_image_to_description_comment"
+                    if generated_source
+                    else "source_less_html_image_to_description_comment"
+                ),
+                original=match.group(0),
+                replacement=replacement,
+                artifact_characters_removed=len(match.group(0)) - len(html.unescape(alt)),
+                comment_metrics=comment_metrics,
+            )
         )
         return replacement
 
@@ -380,14 +463,23 @@ def _clean_markdown_artifact_destinations(text: str, events: list[dict[str, obje
             index = destination_end + 1
             continue
         label = text[label_start:label_end]
-        pieces.extend((text[cursor:index], label))
         original = text[index : destination_end + 1]
+        if image:
+            replacement, comment_metrics = _image_description_comment(label)
+            rule = "markdown_generated_image_to_description_comment"
+        else:
+            replacement = label
+            comment_metrics = None
+            rule = "markdown_generated_image_link_to_label"
+        pieces.extend((text[cursor:index], replacement))
         events.append(
-            {
-                "rule": "markdown_generated_image_to_alt_text" if image else "markdown_generated_image_link_to_label",
-                "original": original,
-                "replacement": label,
-            }
+            _image_event(
+                rule=rule,
+                original=original,
+                replacement=replacement,
+                artifact_characters_removed=len(original) - len(label),
+                comment_metrics=comment_metrics,
+            )
         )
         cursor = destination_end + 1
         index = cursor
@@ -398,7 +490,7 @@ def _clean_markdown_artifact_destinations(text: str, events: list[dict[str, obje
 def clean_generated_image_artifacts(
     text: str, *, metrics: MutableMapping[str, object] | None = None
 ) -> str:
-    """Remove deterministic generated-image targets while retaining labels/alt text."""
+    """Remove generated-image targets and mark image descriptions as provenance."""
 
     events: list[dict[str, object]] = []
     cleaned = _clean_html_artifact_images(str(text or ""), events)
@@ -410,11 +502,12 @@ def clean_generated_image_artifacts(
 
     def remove_parenthesized(match: re.Match[str]) -> str:
         events.append(
-            {
-                "rule": "parenthesized_generated_image_target_removed",
-                "original": match.group(0),
-                "replacement": "",
-            }
+            _image_event(
+                rule="parenthesized_generated_image_target_removed",
+                original=match.group(0),
+                replacement="",
+                artifact_characters_removed=len(match.group(0)),
+            )
         )
         return ""
 
@@ -422,11 +515,12 @@ def clean_generated_image_artifacts(
 
     def remove_bare(match: re.Match[str]) -> str:
         events.append(
-            {
-                "rule": "bare_generated_image_target_removed",
-                "original": match.group(0),
-                "replacement": "",
-            }
+            _image_event(
+                rule="bare_generated_image_target_removed",
+                original=match.group(0),
+                replacement="",
+                artifact_characters_removed=len(match.group(0)),
+            )
         )
         return ""
 
@@ -440,7 +534,25 @@ def clean_generated_image_artifacts(
                 "generated_image_rule_counts": dict(sorted(counts.items())),
                 "generated_image_events": events,
                 "generated_image_characters_removed": sum(
-                    len(str(event["original"])) - len(str(event["replacement"])) for event in events
+                    int(event["artifact_characters_removed"]) for event in events
+                ),
+                "image_description_elements_commented": sum(
+                    bool(event.get("image_description_commented")) for event in events
+                ),
+                "image_description_comments_emitted": sum(
+                    int(event.get("description_comment_count", 0)) for event in events
+                ),
+                "image_description_characters_preserved": sum(
+                    int(event.get("description_character_count", 0)) for event in events
+                ),
+                "empty_image_description_comments": sum(
+                    bool(event.get("empty_description")) for event in events
+                ),
+                "image_descriptions_split_around_pipeline_markers": sum(
+                    bool(event.get("description_split_around_pipeline_marker")) for event in events
+                ),
+                "pipeline_markers_preserved_inside_image_descriptions": sum(
+                    int(event.get("pipeline_marker_count", 0)) for event in events
                 ),
             }
         )
@@ -1038,8 +1150,9 @@ def _render_node(value: Node | str, metrics: NormalizationMetrics, context: Rend
         if not source:
             alt = value.attrs.get("alt", "").strip()
             if alt:
-                metrics.transformations["source_less_images_to_alt_text"] += 1
-                return alt
+                replacement, _ = _image_description_comment(alt)
+                metrics.transformations["source_less_images_to_description_comment"] += 1
+                return replacement
             metrics.transformations["source_less_images_removed"] += 1
             return ""
         alt = value.attrs.get("alt", "").replace("[", "\\[").replace("]", "\\]")
@@ -1094,6 +1207,70 @@ def _protect_literal_ampersands(text: str) -> str:
         else:
             output.append(LITERAL_AMPERSAND_SENTINEL)
         cursor = ampersand + 1
+    return "".join(output)
+
+
+def _protect_non_html_angle_syntax(text: str, metrics: NormalizationMetrics) -> str:
+    """Escape pseudo-tags before HTMLParser can consume later document content.
+
+    ``HTMLParser`` permits a start tag to span newlines.  A literal unmatched
+    expression such as ``<proles-is = source)`` can therefore absorb many
+    paragraphs and a later ``>`` as one unknown tag, including approved
+    provenance comments between those points.  First escape complete same-line
+    angle expressions that are neither HTML nor GFM autolinks, then shield any
+    remaining ``<`` that cannot begin recognized HTML syntax.
+    """
+
+    def escape_complete(match: re.Match[str]) -> str:
+        raw = match.group(0)
+        if (
+            AUTOLINK_RE.fullmatch(raw)
+            or KNOWN_HTML_TAG_RE.fullmatch(raw)
+            or raw.startswith("<!--")
+            or raw.startswith("<!")
+            or raw.startswith("<?")
+        ):
+            return raw
+        metrics.pseudo_tags_escaped += 1
+        return _escape_angle(raw)
+
+    # Iterate so nested OCR brackets such as ``<<name>>`` are fully escaped.
+    while True:
+        escaped = RESIDUAL_ANGLE_RE.sub(escape_complete, text)
+        if escaped == text:
+            break
+        text = escaped
+
+    known_prefix = re.compile(
+        r"</?(?:"
+        + "|".join(sorted(map(re.escape, KNOWN_HTML_TAGS), key=len, reverse=True))
+        + r")(?=[\s/>])",
+        re.IGNORECASE,
+    )
+    output: list[str] = []
+    cursor = 0
+    while cursor < len(text):
+        opener = text.find("<", cursor)
+        if opener < 0:
+            output.append(text[cursor:])
+            break
+        output.append(text[cursor:opener])
+        suffix = text[opener:]
+        line_end = suffix.find("\n")
+        candidate_end = suffix.find(">", 1) if line_end < 0 else suffix.find(">", 1, line_end)
+        candidate = suffix[: candidate_end + 1] if candidate_end >= 0 else ""
+        if (
+            suffix.startswith("<!--")
+            or suffix.startswith("<!")
+            or suffix.startswith("<?")
+            or known_prefix.match(suffix)
+            or (candidate and AUTOLINK_RE.fullmatch(candidate))
+        ):
+            output.append("<")
+        else:
+            output.append("&lt;")
+            metrics.pseudo_tags_escaped += 1
+        cursor = opener + 1
     return "".join(output)
 
 
@@ -1178,7 +1355,8 @@ def normalize_mixed_markup_to_gfm(text: str, *, metrics: MutableMapping[str, obj
     """Convert recognized HTML to a conservative, HTML-free GFM representation."""
     state = NormalizationMetrics()
     parser = MixedMarkupParser(state)
-    protected = _protect_literal_ampersands(str(text or ""))
+    protected = _protect_non_html_angle_syntax(str(text or ""), state)
+    protected = _protect_literal_ampersands(protected)
     parser.feed(protected)
     parser.close()
     root = parser.finish()
@@ -1194,6 +1372,109 @@ def normalize_mixed_markup_to_gfm(text: str, *, metrics: MutableMapping[str, obj
     return normalized
 
 
+def _apply_comment_safe_repetition_pass(
+    text: str,
+    pass_record: Mapping[str, object],
+    *,
+    pass_index: int,
+) -> tuple[str, dict[str, object]]:
+    """Expand repetition cuts to whole provenance comments before replacing."""
+
+    comment_intervals = [
+        (match.start(), match.end()) for match in REMOVED_IMAGE_DESCRIPTION_TOKEN_RE.finditer(text)
+    ]
+    adjusted: list[dict[str, object]] = []
+    for span_value in pass_record.get("spans", []):
+        span = dict(span_value)
+        original_start = int(span["start_index"])
+        original_end = int(span["end_index"])
+        start = original_start
+        end = original_end
+        for comment_start, comment_end in comment_intervals:
+            if comment_start < start < comment_end:
+                start = comment_start
+            if comment_start < end < comment_end:
+                end = comment_end
+        span["start_index"] = start
+        span["end_index"] = end
+        span["removed_char_count"] = end - start
+        if start != original_start or end != original_end:
+            span["comment_boundary_expansion"] = {
+                "original_start_index": original_start,
+                "original_end_index": original_end,
+                "expanded_start_index": start,
+                "expanded_end_index": end,
+            }
+        if adjusted and start <= int(adjusted[-1]["end_index"]):
+            prior = adjusted[-1]
+            prior["end_index"] = max(int(prior["end_index"]), end)
+            prior["removed_char_count"] = int(prior["end_index"]) - int(prior["start_index"])
+            prior["rules"] = sorted(set(map(str, prior.get("rules", []))) | set(map(str, span.get("rules", []))))
+            prior["findings"] = [*prior.get("findings", []), *span.get("findings", [])]
+            prior.setdefault("merged_comment_boundary_spans", []).append(
+                {
+                    "start_index": start,
+                    "end_index": end,
+                }
+            )
+        else:
+            adjusted.append(span)
+
+    pieces: list[str] = []
+    cursor = 0
+    for span in adjusted:
+        start = int(span["start_index"])
+        end = int(span["end_index"])
+        if start < cursor or end <= start or end > len(text):
+            raise RuntimeError(f"invalid comment-safe repetition span: {start}:{end}")
+        pieces.extend((text[cursor:start], REPETITION_COMMENT))
+        cursor = end
+    pieces.append(text[cursor:])
+    return "".join(pieces), {"pass_index": pass_index, "spans": adjusted}
+
+
+def _replace_repetitions_comment_safe(text: str, repetition_cleaner: object) -> tuple[str, dict[str, object]]:
+    """Run the detector while preventing cuts through provenance comments."""
+
+    current = text
+    details: list[dict[str, object]] = []
+    rule_counts: Counter[str] = Counter()
+    preserved_findings: list[dict[str, object]] = []
+    for pass_index in range(1, 33):
+        detected_metrics: dict[str, object] = {}
+        repetition_cleaner(current, metrics=detected_metrics)
+        pass_records = list(detected_metrics["complex_repetition_replacement_details"])
+        if not pass_records:
+            preserved_findings = [
+                dict(value) for value in detected_metrics["complex_repetition_preserved_findings"]
+            ]
+            break
+        current, adjusted_record = _apply_comment_safe_repetition_pass(
+            current,
+            dict(pass_records[0]),
+            pass_index=pass_index,
+        )
+        if not adjusted_record["spans"]:
+            raise RuntimeError("repetition detector reported a pass without replaceable spans")
+        details.append(adjusted_record)
+        for span in adjusted_record["spans"]:
+            rule_counts.update(map(str, span.get("rules", [])))
+    else:
+        raise RuntimeError("comment-safe repetition cleaning exceeded 32 passes")
+    return current, {
+        "complex_repetition_passes": len(details),
+        "complex_repetition_replacements": sum(len(record["spans"]) for record in details),
+        "complex_repetition_characters_removed": sum(
+            int(span["removed_char_count"])
+            for record in details
+            for span in record["spans"]
+        ),
+        "complex_repetition_rule_counts": dict(sorted(rule_counts.items())),
+        "complex_repetition_replacement_details": details,
+        "complex_repetition_preserved_findings": preserved_findings,
+    }
+
+
 def clean_then_normalize_to_gfm(text: str, *, repetition_cleaner: object) -> dict[str, object]:
     """Apply the frozen extraction-artifact cleaning order and emit audited GFM."""
 
@@ -1203,8 +1484,18 @@ def clean_then_normalize_to_gfm(text: str, *, repetition_cleaner: object) -> dic
     repeated_cleaned = repetition_cleaner(str(text or ""), metrics=first_repetition_metrics)
     image_metrics: dict[str, object] = {}
     image_cleaned = clean_generated_image_artifacts(repeated_cleaned, metrics=image_metrics)
-    second_repetition_metrics: dict[str, object] = {}
-    cleaned_text = repetition_cleaner(image_cleaned, metrics=second_repetition_metrics)
+    cleaned_text, second_repetition_metrics = _replace_repetitions_comment_safe(
+        image_cleaned,
+        repetition_cleaner,
+    )
+    retained_image_comments = cleaned_text.count("<!-- removed-image-description")
+    emitted_image_comments = int(image_metrics["image_description_comments_emitted"])
+    if retained_image_comments > emitted_image_comments:
+        raise RuntimeError("follow-up repetition cleaning invented image-description comments")
+    image_metrics["image_description_comments_retained_after_repetition"] = retained_image_comments
+    image_metrics["image_description_comments_removed_as_repetition"] = (
+        emitted_image_comments - retained_image_comments
+    )
 
     repetition_details: list[dict[str, object]] = []
     repetition_rule_counts: Counter[str] = Counter()
@@ -1357,6 +1648,14 @@ def normalize_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
     comments_preserved = 0
     generated_image_artifacts_removed = 0
     generated_image_characters_removed = 0
+    image_description_elements_commented = 0
+    image_description_comments_emitted = 0
+    image_description_comments_retained_after_repetition = 0
+    image_description_comments_removed_as_repetition = 0
+    image_description_characters_preserved = 0
+    empty_image_description_comments = 0
+    image_descriptions_split_around_pipeline_markers = 0
+    pipeline_markers_preserved_inside_image_descriptions = 0
     aggregate_generated_image_rules: Counter[str] = Counter()
 
     for document_index, document_path in enumerate(document_paths, 1):
@@ -1385,6 +1684,19 @@ def normalize_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
             raise RuntimeError(f"{document_path}: recognized HTML remains")
         if normalized.count(REPETITION_COMMENT) != cleaned_text.count(REPETITION_COMMENT):
             raise RuntimeError(f"{document_path}: repetition removal comment was not preserved")
+        cleaned_image_comments = cleaned_text.count("<!-- removed-image-description")
+        if cleaned_image_comments != int(
+            generated_image_metrics["image_description_comments_retained_after_repetition"]
+        ):
+            raise RuntimeError(f"{document_path}: retained image-description comment accounting did not close")
+        if normalized.count("<!-- removed-image-description") != cleaned_image_comments:
+            raise RuntimeError(f"{document_path}: image-description provenance comment was not preserved")
+        if re.search(
+            r"<!--\s*removed-image-description:(?:(?!-->)[^\r\n])*<!--",
+            normalized,
+            re.IGNORECASE,
+        ):
+            raise RuntimeError(f"{document_path}: image-description provenance contains a nested comment")
         if len(ALLOWED_COMMENT_TOKEN_RE.findall(normalized)) != int(markup_metrics["comments_preserved"]):
             raise RuntimeError(f"{document_path}: approved removal comments were not preserved exactly once")
         before_structures = markdown_structure_counts(cleaned_text)
@@ -1442,6 +1754,30 @@ def normalize_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
         comments_preserved += int(markup_metrics["comments_preserved"])
         generated_image_artifacts_removed += int(generated_image_metrics["generated_image_artifact_count"])
         generated_image_characters_removed += int(generated_image_metrics["generated_image_characters_removed"])
+        image_description_elements_commented += int(
+            generated_image_metrics["image_description_elements_commented"]
+        )
+        image_description_comments_emitted += int(
+            generated_image_metrics["image_description_comments_emitted"]
+        )
+        image_description_comments_retained_after_repetition += int(
+            generated_image_metrics["image_description_comments_retained_after_repetition"]
+        )
+        image_description_comments_removed_as_repetition += int(
+            generated_image_metrics["image_description_comments_removed_as_repetition"]
+        )
+        image_description_characters_preserved += int(
+            generated_image_metrics["image_description_characters_preserved"]
+        )
+        empty_image_description_comments += int(
+            generated_image_metrics["empty_image_description_comments"]
+        )
+        image_descriptions_split_around_pipeline_markers += int(
+            generated_image_metrics["image_descriptions_split_around_pipeline_markers"]
+        )
+        pipeline_markers_preserved_inside_image_descriptions += int(
+            generated_image_metrics["pipeline_markers_preserved_inside_image_descriptions"]
+        )
         aggregate_generated_image_rules.update(
             {
                 str(key): int(value)
@@ -1497,6 +1833,30 @@ def normalize_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
                 ),
                 "generated_image_rule_counts": generated_image_metrics["generated_image_rule_counts"],
                 "generated_image_events": generated_image_metrics["generated_image_events"],
+                "image_description_elements_commented": int(
+                    generated_image_metrics["image_description_elements_commented"]
+                ),
+                "image_description_comments_emitted": int(
+                    generated_image_metrics["image_description_comments_emitted"]
+                ),
+                "image_description_comments_retained_after_repetition": int(
+                    generated_image_metrics["image_description_comments_retained_after_repetition"]
+                ),
+                "image_description_comments_removed_as_repetition": int(
+                    generated_image_metrics["image_description_comments_removed_as_repetition"]
+                ),
+                "image_description_characters_preserved": int(
+                    generated_image_metrics["image_description_characters_preserved"]
+                ),
+                "empty_image_description_comments": int(
+                    generated_image_metrics["empty_image_description_comments"]
+                ),
+                "image_descriptions_split_around_pipeline_markers": int(
+                    generated_image_metrics["image_descriptions_split_around_pipeline_markers"]
+                ),
+                "pipeline_markers_preserved_inside_image_descriptions": int(
+                    generated_image_metrics["pipeline_markers_preserved_inside_image_descriptions"]
+                ),
                 "table_fallback_events": markup_metrics["table_fallback_events"],
                 "repetition_replacements": repetition_replacements,
                 "repetition_characters_removed": int(repetition_metrics["complex_repetition_characters_removed"]),
@@ -1579,6 +1939,14 @@ def normalize_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
             "generated_image_artifacts_removed": generated_image_artifacts_removed,
             "generated_image_characters_removed": generated_image_characters_removed,
             "generated_image_rule_counts": dict(sorted(aggregate_generated_image_rules.items())),
+            "image_description_elements_commented": image_description_elements_commented,
+            "image_description_comments_emitted": image_description_comments_emitted,
+            "image_description_comments_retained_after_repetition": image_description_comments_retained_after_repetition,
+            "image_description_comments_removed_as_repetition": image_description_comments_removed_as_repetition,
+            "image_description_characters_preserved": image_description_characters_preserved,
+            "empty_image_description_comments": empty_image_description_comments,
+            "image_descriptions_split_around_pipeline_markers": image_descriptions_split_around_pipeline_markers,
+            "pipeline_markers_preserved_inside_image_descriptions": pipeline_markers_preserved_inside_image_descriptions,
             "residual_recognized_html_tags": 0,
             "uncovered_html_tags": uncovered_tags,
             "normalization_idempotence_failures": 0,
