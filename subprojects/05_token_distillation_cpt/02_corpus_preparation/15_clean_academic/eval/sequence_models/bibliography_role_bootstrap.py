@@ -206,7 +206,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "cases": blind_cases,
     }
     used_works = {str(row["work_id"]) for row in initial["cases"]} | {str(row["work_id"]) for row in selected}
-    controls = []
+    control_candidates: dict[str, list[Mapping[str, Any]]] = {}
     for source_name in SOURCES:
         candidates = [
             row for row in rows if row.get("source") == source_name
@@ -219,10 +219,22 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             if row["work_id"] in works:
                 continue
             chosen.append(row); works.add(row["work_id"])
-            if len(chosen) == 10:
-                break
-        if len(chosen) != 10:
-            raise ValueError(f"{source_name}: fewer than ten zero-BIB controls")
+        control_candidates[source_name] = chosen
+    allocation = {
+        source_name: min(10, len(control_candidates[source_name])) for source_name in SOURCES
+    }
+    while sum(allocation.values()) < 30:
+        eligible = [
+            source_name for source_name in SOURCES
+            if allocation[source_name] < len(control_candidates[source_name])
+        ]
+        if not eligible:
+            raise ValueError("fewer than 30 work-distinct full-document zero-BIB controls")
+        source_name = min(eligible, key=lambda value: (allocation[value], value))
+        allocation[source_name] += 1
+    controls = []
+    for source_name in SOURCES:
+        chosen = control_candidates[source_name][: allocation[source_name]]
         controls.extend(
             {"source": source_name, "document_id": row["document_id"], "work_id": row["work_id"],
              "line_count": len(row["lines"]), "n_physical_lines": row.get("n_physical_lines")}
