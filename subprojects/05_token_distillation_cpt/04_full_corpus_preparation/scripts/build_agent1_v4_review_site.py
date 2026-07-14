@@ -248,32 +248,106 @@ fetch('data/index.json',{cache:'no-store'}).then(function(response){if(!response
 
 
 def _html_renderer_js() -> str:
-    """Add a safe, on-demand rendering view for embedded HTML in raw OCR text."""
+    """Add safe raw-HTML and hybrid Markdown/HTML views for OCR output."""
 
     return r"""'use strict';
 (function(){
   var root=document.getElementById('document');
   if(!root)return;
-  function frameDocument(raw){
+  var TOKEN_OPEN='\uE000agent1-html-';
+  var TOKEN_CLOSE='\uE001';
+  var TOKEN_RE=/\uE000agent1-html-(\d+)\uE001/g;
+  var TOKEN_PART_RE=/^\uE000agent1-html-\d+\uE001$/;
+  var IMAGE_RE=/!\[([^\]]*)\]\(([^)\n]+)\)/g;
+  function escapeHtml(value){return String(value||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+  function reserveHtml(raw){
+    var saved=[];
+    function save(value){saved.push(value);return TOKEN_OPEN+(saved.length-1)+TOKEN_CLOSE;}
+    var text=raw.replace(/<table\b[^>]*>[\s\S]*?<\/table\s*>/gi,save);
+    text=text.replace(/<\/?[A-Za-z][A-Za-z0-9:-]*(?:\s[^<>]*)?>/g,save);
+    return {text:text,saved:saved};
+  }
+  function escapeTokenized(value){
+    return String(value||'').split(/(\uE000agent1-html-\d+\uE001)/g).map(function(part){return TOKEN_PART_RE.test(part)?part:escapeHtml(part);}).join('');
+  }
+  function restoreHtml(value,saved){return value.replace(TOKEN_RE,function(_,index){return saved[Number(index)]||'';});}
+  function inline(value,saved){
+    var out=escapeTokenized(value);
+    out=out.replace(/`([^`]+)`/g,'<code>$1</code>');
+    out=out.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    out=out.replace(/__([^_]+)__/g,'<strong>$1</strong>');
+    out=out.replace(/\*([^*\n]+)\*/g,'<em>$1</em>');
+    out=out.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+|mailto:[^)\s]+)\)/g,'<a href="$2" rel="noreferrer noopener">$1</a>');
+    return restoreHtml(out,saved);
+  }
+  function tokenOnly(value,saved){
+    var match=String(value||'').trim().match(/^\uE000agent1-html-(\d+)\uE001$/);
+    return match?saved[Number(match[1])]:null;
+  }
+  function textBlock(value,saved){
+    var block=String(value||'').trim();
+    if(!block)return '';
+    var rawHtml=tokenOnly(block,saved);
+    if(rawHtml&&/^<table\b/i.test(rawHtml))return rawHtml;
+    var heading=block.match(/^(#{1,6})\s+([^\n]+)$/);
+    if(heading){var level=heading[1].length;return '<h'+level+'>'+inline(heading[2],saved)+'</h'+level+'>';}
+    var lines=block.split('\n');
+    if(lines.length>1&&lines.every(function(line){return /^\s*[-*+]\s+/.test(line);})){return '<ul>'+lines.map(function(line){return '<li>'+inline(line.replace(/^\s*[-*+]\s+/,''),saved)+'</li>';}).join('')+'</ul>';}
+    if(lines.length>1&&lines.every(function(line){return /^\s*\d+[.)]\s+/.test(line);})){return '<ol>'+lines.map(function(line){return '<li>'+inline(line.replace(/^\s*\d+[.)]\s+/,''),saved)+'</li>';}).join('')+'</ol>';}
+    return '<p>'+inline(block.replace(/\n+/g,' '),saved)+'</p>';
+  }
+  function figure(alt,asset){
+    return '<figure class="ocr-image-ref"><figcaption><strong>VLM image description</strong><span>'+escapeHtml(alt)+'</span><code>'+escapeHtml(asset)+'</code></figcaption></figure>';
+  }
+  function mixedMarkup(raw){
+    var protectedHtml=reserveHtml(String(raw||'').replace(/\r\n?/g,'\n'));
+    var blocks=protectedHtml.text.split(/\n{2,}/);
+    var out=['<aside class="mixed-note">Mixed OCR rendering: Markdown and embedded HTML are rendered together. Extracted image files were not packaged with this review sample, so image references are shown as VLM-description cards.</aside>'];
+    var previousWasFigure=false;
+    blocks.forEach(function(block){
+      var cursor=0,match,emittedFigure=false;
+      function addText(value,afterFigure){
+        var trailing=String(value||'').trim();
+        if(!trailing)return;
+        if(afterFigure&&/^this image(?:\s|,|\.)/i.test(trailing))out.push('<details class="synth-caption"><summary>Additional VLM image description</summary>'+textBlock(trailing,protectedHtml.saved)+'</details>');
+        else out.push(textBlock(trailing,protectedHtml.saved));
+      }
+      IMAGE_RE.lastIndex=0;
+      while((match=IMAGE_RE.exec(block))!==null){
+        addText(block.slice(cursor,match.index),previousWasFigure||emittedFigure);
+        out.push(figure(match[1],match[2]));
+        cursor=IMAGE_RE.lastIndex;emittedFigure=true;
+      }
+      var trailing=block.slice(cursor).trim();
+      addText(trailing,previousWasFigure||emittedFigure);
+      previousWasFigure=emittedFigure&&!trailing;
+    });
+    return out.join('');
+  }
+  function frameDocument(raw,view){
     var csp="default-src 'none'; img-src data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
-    var css="body{margin:1rem;color:#172033;font:16px/1.45 system-ui,-apple-system,sans-serif;overflow-wrap:anywhere}table{border-collapse:collapse;max-width:100%;margin:1rem 0}th,td{border:1px solid #94a3b8;padding:.35rem .5rem;text-align:left;vertical-align:top}img{max-width:100%;height:auto}pre{white-space:pre-wrap;overflow-wrap:anywhere}";
-    return '<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="'+csp+'"><style>'+css+'</style></head><body>'+raw+'</body></html>';
+    var css="body{margin:1rem;color:#172033;font:16px/1.5 system-ui,-apple-system,sans-serif;overflow-wrap:anywhere}p{margin:.65rem 0}h1,h2,h3,h4,h5,h6{line-height:1.2}table{border-collapse:collapse;max-width:100%;margin:1rem 0}th,td{border:1px solid #94a3b8;padding:.35rem .5rem;text-align:left;vertical-align:top}img{max-width:100%;height:auto}pre{white-space:pre-wrap;overflow-wrap:anywhere}code{font:12px ui-monospace,monospace}.mixed-note{display:block;background:#eff6ff;border-left:4px solid #2563eb;padding:.6rem .75rem;margin:0 0 1rem}.ocr-image-ref{margin:.8rem 0;padding:.65rem .8rem;border-left:4px solid #7c3aed;background:#f5f3ff}.ocr-image-ref figcaption{display:grid;gap:.25rem}.ocr-image-ref span{font-style:italic}.synth-caption{margin:.65rem 0;padding:.45rem .65rem;background:#f8fafc;border:1px solid #cbd5e1}.synth-caption summary{cursor:pointer;font-weight:600}";
+    var body=view==='mixed'?mixedMarkup(raw):raw;
+    return '<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="'+csp+'"><style>'+css+'</style></head><body>'+body+'</body></html>';
   }
   function addViewer(pre){
     if(pre.dataset.htmlViewer==='ready')return;
     pre.dataset.htmlViewer='ready';
     var controls=document.createElement('div');
     controls.className='document-view-controls';
-    controls.appendChild((function(){var label=document.createElement('span');label.textContent='View embedded OCR HTML:';return label;})());
+    controls.appendChild((function(){var label=document.createElement('span');label.textContent='View OCR output:';return label;})());
     var rawButton=document.createElement('button');
     rawButton.type='button';rawButton.textContent='Raw text';rawButton.setAttribute('aria-pressed','true');
     var htmlButton=document.createElement('button');
-    htmlButton.type='button';htmlButton.textContent='Rendered HTML';htmlButton.setAttribute('aria-pressed','false');
+    htmlButton.type='button';htmlButton.textContent='HTML only';htmlButton.setAttribute('aria-pressed','false');
+    var mixedButton=document.createElement('button');
+    mixedButton.type='button';mixedButton.textContent='Mixed Markdown + HTML';mixedButton.setAttribute('aria-pressed','false');
     var frame=document.createElement('iframe');
-    frame.className='html-render-frame';frame.hidden=true;frame.setAttribute('sandbox','');frame.setAttribute('referrerpolicy','no-referrer');frame.title='Sandboxed rendering of embedded OCR HTML';
-    rawButton.addEventListener('click',function(){pre.hidden=false;frame.hidden=true;rawButton.setAttribute('aria-pressed','true');htmlButton.setAttribute('aria-pressed','false');});
-    htmlButton.addEventListener('click',function(){if(!frame.srcdoc)frame.srcdoc=frameDocument(pre.textContent||'');pre.hidden=true;frame.hidden=false;rawButton.setAttribute('aria-pressed','false');htmlButton.setAttribute('aria-pressed','true');});
-    controls.appendChild(rawButton);controls.appendChild(htmlButton);pre.parentNode.insertBefore(controls,pre);pre.parentNode.insertBefore(frame,pre.nextSibling);
+    frame.className='html-render-frame';frame.hidden=true;frame.setAttribute('sandbox','');frame.setAttribute('referrerpolicy','no-referrer');frame.title='Sandboxed rendering of OCR output';
+    function showRaw(){pre.hidden=false;frame.hidden=true;rawButton.setAttribute('aria-pressed','true');htmlButton.setAttribute('aria-pressed','false');mixedButton.setAttribute('aria-pressed','false');}
+    function showFrame(view){if(frame.dataset.view!==view){frame.srcdoc=frameDocument(pre.textContent||'',view);frame.dataset.view=view;}pre.hidden=true;frame.hidden=false;rawButton.setAttribute('aria-pressed','false');htmlButton.setAttribute('aria-pressed',view==='html'?'true':'false');mixedButton.setAttribute('aria-pressed',view==='mixed'?'true':'false');}
+    rawButton.addEventListener('click',showRaw);htmlButton.addEventListener('click',function(){showFrame('html');});mixedButton.addEventListener('click',function(){showFrame('mixed');});
+    controls.appendChild(rawButton);controls.appendChild(htmlButton);controls.appendChild(mixedButton);pre.parentNode.insertBefore(controls,pre);pre.parentNode.insertBefore(frame,pre.nextSibling);
   }
   function enhance(){root.querySelectorAll('pre.raw').forEach(addViewer);}
   new MutationObserver(enhance).observe(root,{childList:true,subtree:true});
