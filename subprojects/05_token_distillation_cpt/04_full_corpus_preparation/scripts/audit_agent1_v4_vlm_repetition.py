@@ -168,6 +168,7 @@ def audit_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
                 "repeated_line_run",
                 "symbol_garbage",
                 "numeric_list_garbage",
+                "descending_dotted_numeric_run",
             ],
             "stream_chunk_chars": 257,
             "note": "The token-ID triplet detector is not run: review samples retain text, not VLLM token IDs.",
