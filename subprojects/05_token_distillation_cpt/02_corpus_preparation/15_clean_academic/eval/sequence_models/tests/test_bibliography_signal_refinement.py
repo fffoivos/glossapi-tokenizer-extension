@@ -4,11 +4,13 @@ import numpy as np
 
 from sequence_models.bibliography_deterministic_roles import ROLE_NAMES
 from sequence_models.bibliography_entry_blocks import BlockConfig
+from sequence_models.bibliography_entry_component_gate import CandidateSet
 from sequence_models.bibliography_signal_refinement import (
     EXPECTED_DIRECTIONS,
     FEATURE_NAMES,
     _split_span_at_headings,
     component_feature_vector,
+    decode_component_candidates,
     refine_outer_edges,
 )
 
@@ -96,3 +98,29 @@ def test_component_features_are_fixed_structural_summaries() -> None:
     assert features[FEATURE_NAMES.index("starts_with_generic_heading")] == 1
     assert features[FEATURE_NAMES.index("exact_header_at_or_before_start")] == 0
     assert np.isclose(features[FEATURE_NAMES.index("role_footnote_fraction")], 0.25)
+
+
+def test_component_gate_cannot_add_a_header_outside_frozen_proposal() -> None:
+    table = SimpleNamespace(
+        targets=np.zeros(6, dtype=np.int8),
+        documents=({"line_start": 0, "line_end": 6},),
+        abs_indices=np.arange(6, dtype=np.uint32),
+        header_kinds=np.asarray([0, 1, 0, 0, 0, 0], dtype=np.uint8),
+    )
+    candidates = CandidateSet(
+        features=np.zeros((1, len(FEATURE_NAMES)), dtype=np.float32),
+        document_indices=np.asarray([0], dtype=np.uint32),
+        starts=np.asarray([2], dtype=np.uint32),
+        ends=np.asarray([4], dtype=np.uint32),
+        labels=np.asarray([1], dtype=np.int8),
+    )
+    prediction = decode_component_candidates(
+        table,
+        candidates,
+        np.asarray([0.9]),
+        np.asarray([0.0, 0.0, 0.8, 0.8, 0.8, 0.0]),
+        BlockConfig(0.3, 1, 2, 16, 8, 0.05, 2, 2),
+        threshold=0.5,
+        qualified_documents={0},
+    )
+    assert prediction.tolist() == [False, False, True, True, True, False]

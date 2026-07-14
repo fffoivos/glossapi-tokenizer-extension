@@ -392,9 +392,11 @@ def decode_component_candidates(
         document = table.documents[document_index]
         doc_start, doc_end = int(document["line_start"]), int(document["line_end"])
         local = np.zeros(doc_end - doc_start, dtype=bool)
-        rows = np.flatnonzero(
-            (candidates.document_indices == document_index) & (scores >= threshold)
-        )
+        document_rows = np.flatnonzero(candidates.document_indices == document_index)
+        available = np.zeros_like(local)
+        for row in document_rows:
+            available[int(candidates.starts[row]) : int(candidates.ends[row]) + 1] = True
+        rows = document_rows[scores[document_rows] >= threshold]
         for row in rows:
             local[int(candidates.starts[row]) : int(candidates.ends[row]) + 1] = True
         local = attach_h0_document(
@@ -404,6 +406,10 @@ def decode_component_candidates(
             table.abs_indices[doc_start:doc_end],
             config,
         )
+        # A component gate is reject-only.  Header attachment may restore a
+        # header that was already in the frozen proposal, but can never add a
+        # line outside the proposal candidates.
+        local &= available
         result[doc_start:doc_end] = local
     return result
 
