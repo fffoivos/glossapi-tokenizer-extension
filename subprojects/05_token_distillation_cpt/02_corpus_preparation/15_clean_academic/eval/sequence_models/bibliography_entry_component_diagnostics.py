@@ -102,6 +102,37 @@ def _line_fraction(
     return float(np.mean(present))
 
 
+def _outside_context_probability(
+    probability: np.ndarray,
+    abs_indices: np.ndarray,
+    doc_start: int,
+    doc_end: int,
+    start: int,
+    end: int,
+    *,
+    physical_window: int = 8,
+) -> float:
+    """Median frozen probability immediately outside a component."""
+
+    absolute_start = doc_start + start
+    absolute_end = doc_start + end
+    left = np.arange(max(doc_start, absolute_start - physical_window), absolute_start)
+    right = np.arange(
+        absolute_end + 1,
+        min(doc_end, absolute_end + physical_window + 1),
+    )
+    if len(left):
+        left = left[
+            abs_indices[absolute_start] - abs_indices[left] <= physical_window
+        ]
+    if len(right):
+        right = right[
+            abs_indices[right] - abs_indices[absolute_end] <= physical_window
+        ]
+    context = np.concatenate((left, right))
+    return float(np.median(probability[context])) if len(context) else 0.0
+
+
 def _proposal_groups(starts: np.ndarray, ends: np.ndarray) -> int:
     """Count non-overlapping proposal islands in one document."""
 
@@ -132,6 +163,13 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         mmap_mode="r",
         allow_pickle=False,
     )
+    line_probability = np.load(
+        Path(args.line_oof_dir).resolve() / f"{args.line_arm}.oof_probability.npy",
+        mmap_mode="r",
+        allow_pickle=False,
+    )
+    if len(line_probability) != len(table.targets):
+        raise ValueError("line OOF probability does not match the feature table")
     chosen = _chosen_rows(
         candidates["document_indices"],
         candidates["starts"],
@@ -219,6 +257,17 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         end = int(candidates["ends"][row])
         line_count = end - start + 1
         local_gold = gold[doc_start + start : doc_start + end + 1]
+        outside_probability = _outside_context_probability(
+            line_probability,
+            table.abs_indices,
+            doc_start,
+            doc_end,
+            start,
+            end,
+        )
+        inside_probability = float(
+            np.median(line_probability[doc_start + start : doc_start + end + 1])
+        )
         rows.append(
             {
                 "row": row,
@@ -263,6 +312,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 "document_proposal_island_count": int(
                     proposal_groups_by_doc[document_index]
                 ),
+                "outside_context_median_probability": outside_probability,
+                "inside_minus_outside_probability": (
+                    inside_probability - outside_probability
+                ),
             }
         )
 
@@ -276,6 +329,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "publication_tail_fraction",
         "document_candidate_count",
         "document_proposal_island_count",
+        "outside_context_median_probability",
+        "inside_minus_outside_probability",
     )
     groups = {
         "supervised_positive": [row for row in rows if row["supervision"] == 1],
@@ -342,6 +397,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "document_candidate_count": "Number of distinct permissive spans proposed in the document across all frozen deletion biases.",
             "document_proposal_island_count": "Number of disconnected regions covered by any permissive proposal in the document; many islands indicate scattered citation-like text rather than one large bibliography region.",
             "document_coverage_fraction": "Share of all document lines covered by this one component.",
+            "outside_context_median_probability": "Typical frozen entry probability in the emitted lines immediately outside the component and within eight physical lines; low values support a section boundary.",
+            "inside_minus_outside_probability": "Difference between typical frozen entry probability inside the component and immediately outside it; positive values indicate a bibliography-like box rather than uniform running text.",
         },
         "summaries": summaries,
         "chosen_false_documents": sorted(
@@ -358,6 +415,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--table-dir", required=True)
     parser.add_argument("--component-dir", required=True)
+    parser.add_argument("--line-oof-dir", required=True)
+    parser.add_argument("--line-arm", default="D1")
     parser.add_argument("--variant", default="no_length")
     parser.add_argument(
         "--model-arm", choices=("logistic_l2", "monotonic_hgb"), default="logistic_l2"

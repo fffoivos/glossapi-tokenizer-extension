@@ -16,6 +16,7 @@ umask 077
 CODE_ROOT=${CODE_ROOT:?set immutable code-bundle root}
 TABLE_DIR=${TABLE_DIR:?set train-only feature table}
 COMPONENT_DIR=${COMPONENT_DIR:?set train-OOF component-gate directory}
+LINE_OOF_DIR=${LINE_OOF_DIR:?set frozen train-OOF line-model directory}
 OUTPUT_PATH=${OUTPUT_PATH:?set new diagnostic JSON path}
 VARIANT=${VARIANT:-no_length}
 MODEL_ARM=${MODEL_ARM:-logistic_l2}
@@ -33,6 +34,7 @@ uenv run "$UENV" --view=default -- \
   env PYTHONPATH="$CODE_ROOT" python3 -m sequence_models.bibliography_entry_component_diagnostics \
   --table-dir "$TABLE_DIR" \
   --component-dir "$COMPONENT_DIR" \
+  --line-oof-dir "$LINE_OOF_DIR" \
   --variant "$VARIANT" \
   --model-arm "$MODEL_ARM" \
   --threshold "$THRESHOLD" \

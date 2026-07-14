@@ -3,6 +3,7 @@ import numpy as np
 from sequence_models.bibliography_entry_component_diagnostics import (
     _chosen_rows,
     _line_fraction,
+    _outside_context_probability,
     _proposal_groups,
 )
 
@@ -35,3 +36,20 @@ def test_line_fraction_counts_each_line_once_across_columns() -> None:
         ]
     )
     assert _line_fraction(counts, 0, 0, 3, [1, 2]) == 0.5
+
+
+def test_outside_context_uses_only_nearby_physical_lines() -> None:
+    probability = np.asarray([0.9, 0.1, 0.8, 0.8, 0.2, 0.7])
+    abs_indices = np.asarray([0, 20, 21, 22, 23, 40])
+    assert np.isclose(
+        _outside_context_probability(
+            probability,
+            abs_indices,
+            0,
+            6,
+            2,
+            3,
+            physical_window=8,
+        ),
+        0.15,
+    )
