@@ -7,6 +7,7 @@ from sequence_models.bibliography_fresh_edge_component_review import (
     _boundary_controls,
     balance_edge_controls,
     balanced_component_quota,
+    build_component_packet,
     load_prior_exclusions,
     select_component_cases,
 )
@@ -114,6 +115,39 @@ def test_component_quota_uses_largest_exact_source_balance():
     )
     assert quota == 15
     assert counts == {"greek_phd": 60, "kallipos": 45, "openarchives": 31}
+
+
+def test_long_component_packet_shows_first_middle_last_windows(monkeypatch):
+    monkeypatch.setattr(
+        "sequence_models.bibliography_fresh_edge_component_review._feature_payload",
+        lambda text: (text, {}, {}),
+    )
+    document = {
+        "document_id": "doc",
+        "lines": [{"abs_idx": index, "text": f"line {index}"} for index in range(120)],
+    }
+    selected = [
+        {
+            "document_id": "doc",
+            "work_id": "work",
+            "source": "greek_phd",
+            "local_start": 5,
+            "local_end": 104,
+            "abs_start": 5,
+            "abs_end": 104,
+            "line_count": 100,
+            "selection_stratum": "bibliography_like",
+            "citation_line_fraction": 1.0,
+            "hard_negative_role_fraction": 0.0,
+            "entry_positive_fraction": 1.0,
+            "signal_median": 1.0,
+            "mean_characters": 10.0,
+        }
+    ]
+    case = build_component_packet([document], selected)["cases"][0]
+    assert case["displayed_component_line_count"] == 60
+    assert sum(row.get("omitted_count", 0) for row in case["context"]) == 40
+    assert [row["abs_idx"] for row in case["context"] if row.get("target") and "abs_idx" in row][:2] == [5, 6]
 
 
 def test_review_is_blind_until_decision_and_supports_separate_reviewers():
