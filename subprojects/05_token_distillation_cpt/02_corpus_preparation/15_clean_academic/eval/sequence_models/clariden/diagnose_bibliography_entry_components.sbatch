@@ -21,6 +21,7 @@ OUTPUT_PATH=${OUTPUT_PATH:?set new diagnostic JSON path}
 VARIANT=${VARIANT:-no_length}
 MODEL_ARM=${MODEL_ARM:-logistic_l2}
 THRESHOLD=${THRESHOLD:-0.5}
+DETERMINISTIC_ROLES_DIR=${DETERMINISTIC_ROLES_DIR:-}
 UENV=${UENV:-pytorch/v2.9.1:v2}
 
 [[ -f "$TABLE_DIR/receipt.json" && ! -L "$TABLE_DIR/receipt.json" ]] || exit 90
@@ -30,6 +31,12 @@ UENV=${UENV:-pytorch/v2.9.1:v2}
 export CUDA_VISIBLE_DEVICES="" NVIDIA_VISIBLE_DEVICES=void
 export ROCR_VISIBLE_DEVICES="" HIP_VISIBLE_DEVICES="" PYTHONHASHSEED=0
 
+ROLE_ARGS=()
+if [[ -n "$DETERMINISTIC_ROLES_DIR" ]]; then
+  [[ -f "$DETERMINISTIC_ROLES_DIR/receipt.json" && ! -L "$DETERMINISTIC_ROLES_DIR/receipt.json" ]] || exit 93
+  ROLE_ARGS+=(--deterministic-roles-dir "$DETERMINISTIC_ROLES_DIR")
+fi
+
 uenv run "$UENV" --view=default -- \
   env PYTHONPATH="$CODE_ROOT" python3 -m sequence_models.bibliography_entry_component_diagnostics \
   --table-dir "$TABLE_DIR" \
@@ -38,6 +45,7 @@ uenv run "$UENV" --view=default -- \
   --variant "$VARIANT" \
   --model-arm "$MODEL_ARM" \
   --threshold "$THRESHOLD" \
+  "${ROLE_ARGS[@]}" \
   --output-path "$OUTPUT_PATH"
 
 echo "BIBLIOGRAPHY_COMPONENT_DIAGNOSTICS=$OUTPUT_PATH"

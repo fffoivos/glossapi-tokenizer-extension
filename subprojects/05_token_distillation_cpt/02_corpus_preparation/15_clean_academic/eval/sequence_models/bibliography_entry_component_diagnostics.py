@@ -170,6 +170,23 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     )
     if len(line_probability) != len(table.targets):
         raise ValueError("line OOF probability does not match the feature table")
+    negative_roles = None
+    negative_role_names: tuple[str, ...] = ()
+    if args.deterministic_roles_dir:
+        roles_root = Path(args.deterministic_roles_dir).resolve()
+        roles_report = json.loads(
+            (roles_root / "deterministic_roles_report.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        if roles_report.get("validation_opened") is not False:
+            raise ValueError("deterministic roles are not train isolated")
+        negative_roles = np.load(
+            roles_root / "negative_roles.npy", mmap_mode="r", allow_pickle=False
+        )
+        negative_role_names = tuple(roles_report["role_names"])
+        if negative_roles.shape != (len(table.targets), len(negative_role_names)):
+            raise ValueError("deterministic roles do not match the feature table")
     chosen = _chosen_rows(
         candidates["document_indices"],
         candidates["starts"],
@@ -316,6 +333,35 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 "inside_minus_outside_probability": (
                     inside_probability - outside_probability
                 ),
+                **(
+                    {
+                        "explicit_negative_role_fraction": float(
+                            np.mean(
+                                np.any(
+                                    negative_roles[
+                                        doc_start + start : doc_start + end + 1
+                                    ]
+                                    > 0,
+                                    axis=1,
+                                )
+                            )
+                        ),
+                        **{
+                            f"negative_role_{name}_fraction": float(
+                                np.mean(
+                                    negative_roles[
+                                        doc_start + start : doc_start + end + 1,
+                                        role_index,
+                                    ]
+                                    > 0
+                                )
+                            )
+                            for role_index, name in enumerate(negative_role_names)
+                        },
+                    }
+                    if negative_roles is not None
+                    else {}
+                ),
             }
         )
 
@@ -331,6 +377,13 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "document_proposal_island_count",
         "outside_context_median_probability",
         "inside_minus_outside_probability",
+    ) + (
+        (
+            "explicit_negative_role_fraction",
+            *(f"negative_role_{name}_fraction" for name in negative_role_names),
+        )
+        if negative_roles is not None
+        else ()
     )
     groups = {
         "supervised_positive": [row for row in rows if row["supervision"] == 1],
@@ -399,6 +452,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "document_coverage_fraction": "Share of all document lines covered by this one component.",
             "outside_context_median_probability": "Typical frozen entry probability in the emitted lines immediately outside the component and within eight physical lines; low values support a section boundary.",
             "inside_minus_outside_probability": "Difference between typical frozen entry probability inside the component and immediately outside it; positive values indicate a bibliography-like box rather than uniform running text.",
+            "explicit_negative_role_fraction": "Share of component lines assigned one explicit deterministic non-bibliography role; this is contradictory structural evidence, not absence of citation evidence.",
+            **{
+                f"negative_role_{name}_fraction": f"Share of component lines assigned the mutually exclusive deterministic role: {name}."
+                for name in negative_role_names
+            },
         },
         "summaries": summaries,
         "chosen_false_documents": sorted(
@@ -417,6 +475,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--component-dir", required=True)
     parser.add_argument("--line-oof-dir", required=True)
     parser.add_argument("--line-arm", default="D1")
+    parser.add_argument("--deterministic-roles-dir")
     parser.add_argument("--variant", default="no_length")
     parser.add_argument(
         "--model-arm", choices=("logistic_l2", "monotonic_hgb"), default="logistic_l2"
