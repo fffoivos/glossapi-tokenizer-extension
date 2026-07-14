@@ -219,6 +219,32 @@ fetch('data/index.json',{cache:'no-store'}).then(response=>{if(!response.ok)thro
 """
 
 
+def _lazy_js() -> str:
+    """Client that fetches only the selected source's review cards."""
+
+    return r"""'use strict';
+var state={index:null,cards:[],visible:[],source_ids:[],source_counts:{},source_files:{},artifact_counts:{},active_source:'',decisions:{schema_version:'agent1_v4_human_decision_bundle_v1',packet_manifest_sha256:'',approval_to_begin_field_discovery:false,source_status:{},source_observations:{},mapping_questions:{},documents:{}}};
+var $=function(id){return document.getElementById(id);};
+var text=function(tag,value){var node=document.createElement(tag);node.textContent=String(value==null?'':value);return node;};
+var clear=function(node){while(node.firstChild)node.removeChild(node.firstChild);};
+function select(id,values,label){var el=$(id);clear(el);el.appendChild(new Option(label,''));values.forEach(function(value){el.appendChild(new Option(value,value));});}
+function setMessage(value){var article=$('document');clear(article);article.appendChild(text('p',value));}
+function initializeDecisions(documents){state.source_ids.forEach(function(source){state.decisions.source_status[source]='';state.decisions.source_observations[source]='';state.decisions.mapping_questions[source]='';});documents.forEach(function(card){state.decisions.documents[card.request_id]={source_id:card.source_id,source_doc_id:card.source_doc_id,disposition:'unreviewed',cleanliness_score_override:null,text_quality_score_override:null,note:''};});}
+function sourceSummary(){var ids=state.source_ids;select('source-filter',ids,'choose a source');select('confidence-filter',['low','medium','high'],'all confidence');$('coverage').textContent=ids.length+' sources · '+state.index.document_count+' reviewed raw documents · cards load one source at a time';var overview=$('overview');clear(overview);ids.forEach(function(source){var artifacts=Object.keys(state.artifact_counts[source]||{}).reduce(function(total,key){return total+state.artifact_counts[source][key];},0);overview.appendChild(text('span',source+': '+state.source_counts[source]+' · '+artifacts+' artifacts'));});}
+function artifactOptions(){var seen={};state.cards.forEach(function(card){(card.extraction_artifacts||[]).forEach(function(artifact){seen[artifact.type]=true;});});select('artifact-filter',Object.keys(seen).sort(),'all artifacts');}
+function loadSource(source){if(!source){state.cards=[];state.visible=[];renderList();setMessage('Choose a source to load its review cards.');return;}state.active_source=source;state.cards=[];state.visible=[];renderList();setMessage('Loading '+source+' review cards…');fetch(state.source_files[source],{cache:'no-store'}).then(function(response){if(!response.ok)throw new Error('source cards could not be loaded');return response.json();}).then(function(payload){if(state.active_source!==source)return;if(payload.source_id!==source||!Array.isArray(payload.cards))throw new Error('source-card payload failed validation');state.cards=payload.cards;artifactOptions();filter();}).catch(function(error){if(state.active_source===source)setMessage('Source cards failed validation: '+error.message);});}
+function filter(){var artifact=$('artifact-filter').value,confidence=$('confidence-filter').value,clean=Number($('cleanliness-filter').value),quality=Number($('quality-filter').value);state.visible=state.cards.filter(function(card){return (!artifact||(card.extraction_artifacts||[]).some(function(item){return item.type===artifact;}))&&(!confidence||card.confidence===confidence)&&card.cleanliness_score>=clean&&card.text_quality_score>=quality;});renderList();if(state.visible.length)show(state.visible[0]);else setMessage('No documents match these filters.');}
+function renderList(){var list=$('document-list');clear(list);state.visible.forEach(function(card){var button=document.createElement('button');button.type='button';button.appendChild(text('strong',card.source_id));button.appendChild(document.createElement('br'));button.appendChild(text('span','clean '+card.cleanliness_score+'/5 · quality '+card.text_quality_score+'/5'));button.addEventListener('click',function(){show(card);});var item=document.createElement('li');item.appendChild(button);list.appendChild(item);});}
+function labeled(label,value){return [text('dt',label),text('dd',value)];}
+function scoreValue(id){var value=$(id).value;return value===''?null:Number(value);}
+function setDecisionControls(card){var decision=state.decisions.documents[card.request_id];$('source-status').value=state.decisions.source_status[card.source_id];$('source-observation').value=state.decisions.source_observations[card.source_id];$('mapping-question').value=state.decisions.mapping_questions[card.source_id];$('document-disposition').value=decision.disposition;$('cleanliness-override').value=decision.cleanliness_score_override==null?'':decision.cleanliness_score_override;$('quality-override').value=decision.text_quality_score_override==null?'':decision.text_quality_score_override;$('note').value=decision.note;$('field-discovery-approval').checked=state.decisions.approval_to_begin_field_discovery;}
+function show(card){state.index=card;var article=$('document');clear(article);article.appendChild(text('h2',card.source_id+' · '+card.source_doc_id));var scores=document.createElement('p');['Cleanliness '+card.cleanliness_score+'/5','Text quality '+card.text_quality_score+'/5',card.confidence,card.coverage_mode].forEach(function(value){var badge=text('span',value);badge.className='score';scores.appendChild(badge);});article.appendChild(scores);var meta=document.createElement('dl');[['Repository',card.origin_locator.repo_id],['Dataset',card.source_dataset],['Revision',card.source_revision],['Logical route',card.source_route],['Observed route',card.extraction_route],['Packet path',card.document_path],['Origin',card.origin_locator.artifact_path+':'+card.origin_locator.row_index+' ('+card.origin_locator.text_field+')']].forEach(function(pair){labeled(pair[0],pair[1]).forEach(function(node){meta.appendChild(node);});});meta.className='meta';article.appendChild(meta);article.appendChild(text('p',card.summary));article.appendChild(text('h3','Extraction artifacts'));if(!(card.extraction_artifacts||[]).length)article.appendChild(text('p','No material extraction artifact reported.'));(card.extraction_artifacts||[]).forEach(function(artifact){var box=document.createElement('section');box.className='artifact';box.appendChild(text('strong',artifact.type+' · '+artifact.severity+' · lines '+artifact.line_start+'-'+artifact.line_end));box.appendChild(text('p',artifact.explanation));box.appendChild(text('pre',artifact.evidence_excerpt));box.appendChild(text('p','Cleaning: '+(artifact.deterministic_cleaning_possible?'deterministic':'manual/uncertain')+' — '+artifact.suggested_cleaning_action));article.appendChild(box);});article.appendChild(text('h3','Exact raw reviewed document'));setDecisionControls(card);fetch('data/documents/'+card.opaque_id+'.json',{cache:'no-store'}).then(function(response){if(!response.ok)throw new Error('raw document could not be loaded');return response.json();}).then(function(payload){if(state.index!==card)return;var pre=text('pre',payload.text);pre.className='raw';article.appendChild(pre);}).catch(function(error){if(state.index===card)article.appendChild(text('p','Raw document failed to load: '+error.message));});}
+function saveDecision(){var card=state.index;if(!card)return;var disposition=$('document-disposition').value;var cleanliness=disposition==='override'?scoreValue('cleanliness-override'):null;var quality=disposition==='override'?scoreValue('quality-override'):null;state.decisions.source_status[card.source_id]=$('source-status').value;state.decisions.source_observations[card.source_id]=$('source-observation').value;state.decisions.mapping_questions[card.source_id]=$('mapping-question').value;state.decisions.documents[card.request_id]={source_id:card.source_id,source_doc_id:card.source_doc_id,disposition:disposition,cleanliness_score_override:cleanliness,text_quality_score_override:quality,note:$('note').value};}
+$('source-filter').addEventListener('change',function(){loadSource(this.value);});['artifact-filter','confidence-filter','cleanliness-filter','quality-filter'].forEach(function(id){$(id).addEventListener('change',filter);});['source-status','source-observation','mapping-question','document-disposition','cleanliness-override','quality-override','note'].forEach(function(id){$(id).addEventListener(id==='note'||id.indexOf('observation')>=0||id.indexOf('question')>=0?'input':'change',saveDecision);});$('field-discovery-approval').addEventListener('change',function(){state.decisions.approval_to_begin_field_discovery=this.checked;});$('agree').addEventListener('click',function(){if(!state.index)return;$('document-disposition').value='agree';$('cleanliness-override').value='';$('quality-override').value='';saveDecision();$('agree').textContent='Scores marked agreed';});$('export').addEventListener('click',function(){saveDecision();var blob=new Blob([JSON.stringify(state.decisions,null,2)+'\n'],{type:'application/json'});var link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='agent1_v4_human_decisions.json';link.click();URL.revokeObjectURL(link.href);});
+fetch('data/index.json',{cache:'no-store'}).then(function(response){if(!response.ok)throw new Error('index could not be loaded');return response.json();}).then(function(index){if(!index||!Array.isArray(index.documents)||!index.source_counts||!index.source_files)throw new Error('index failed validation');state.index=index;state.source_counts=index.source_counts;state.source_files=index.source_files;state.artifact_counts=index.artifact_counts||{};state.source_ids=Object.keys(index.source_counts).sort();state.index.document_count=index.documents.length;initializeDecisions(index.documents);sourceSummary();var first=state.source_ids[0]||'';$('source-filter').value=first;loadSource(first);}).catch(function(error){setMessage('Site data failed validation: '+error.message);});
+"""
+
+
 def _tree_inventory(root: Path) -> list[dict[str, object]]:
     records: list[dict[str, object]] = []
     for path in sorted(root.rglob("*")):
@@ -257,6 +283,7 @@ def build_site(
     try:
         os.chmod(staging, 0o700)
         cards: list[dict[str, object]] = []
+        cards_by_source: dict[str, list[dict[str, object]]] = defaultdict(list)
         source_counts: Counter[str] = Counter()
         artifact_counts: dict[str, Counter[str]] = defaultdict(Counter)
         for request in sorted(requests, key=lambda row: (str(row["source_id"]), str(row["sample_id"]))):
@@ -270,25 +297,47 @@ def build_site(
             )
             card = _index_card(request, response, opaque_id)
             cards.append(card)
-            source_counts[str(request["source_id"])] += 1
-            artifact_counts[str(request["source_id"])].update(_artifact_count(card))
+            source_id = str(request["source_id"])
+            cards_by_source[source_id].append(card)
+            source_counts[source_id] += 1
+            artifact_counts[source_id].update(_artifact_count(card))
         if (
             len(cards) != manifest.get("logical_review_count")
             or len(source_counts) != 18
             or dict(sorted(source_counts.items())) != manifest.get("source_counts")
         ):
             raise ValueError("site source/document closure failed")
+        source_files: dict[str, str] = {}
+        for source_id, source_cards in sorted(cards_by_source.items()):
+            source_file = f"{hashlib.sha256(source_id.encode('utf-8')).hexdigest()[:24]}.json"
+            source_files[source_id] = f"data/sources/{source_file}"
+            _write_json(
+                staging / "data" / "sources" / source_file,
+                {
+                    "schema_version": "agent1_v4_raw_review_site_source_cards_v1",
+                    "source_id": source_id,
+                    "cards": source_cards,
+                },
+            )
         index = {
             "schema_version": SITE_INDEX_SCHEMA,
             "packet_manifest_sha256": file_binding(packet_manifest)["sha256"],
             "source_counts": dict(sorted(source_counts.items())),
             "artifact_counts": {source_id: dict(sorted(counts.items())) for source_id, counts in sorted(artifact_counts.items())},
-            "cards": cards,
+            "source_files": source_files,
+            "documents": [
+                {
+                    "request_id": card["request_id"],
+                    "source_id": card["source_id"],
+                    "source_doc_id": card["source_doc_id"],
+                }
+                for card in cards
+            ],
         }
         _write_json(staging / "data" / "index.json", index)
         _write_file(staging / "index.html", _html().encode("utf-8"))
         _write_file(staging / "assets" / "site.css", _css().encode("utf-8"))
-        _write_file(staging / "assets" / "site.js", _js().encode("utf-8"))
+        _write_file(staging / "assets" / "site.js", _lazy_js().encode("utf-8"))
         inventory = _tree_inventory(staging)
         portable_assets = [
             item for item in inventory

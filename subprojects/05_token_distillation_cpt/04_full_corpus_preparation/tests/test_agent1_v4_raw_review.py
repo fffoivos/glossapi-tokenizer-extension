@@ -522,7 +522,7 @@ def fake_response(request: dict[str, object]) -> dict[str, object]:
     }
 
 
-def test_builds_private_raw_review_site_with_lazy_raw_documents(tmp_path: Path) -> None:
+def test_builds_private_raw_review_site_with_lazy_source_cards_and_documents(tmp_path: Path) -> None:
     inputs = fixture(tmp_path)
     packet_root = tmp_path / "packet"
     materialize(inputs, packet_root)
@@ -548,13 +548,20 @@ def test_builds_private_raw_review_site_with_lazy_raw_documents(tmp_path: Path) 
     assert manifest["portable_asset_bytes"] <= manifest["max_portable_assets_bytes"]
     assert all(not row["path"].startswith("data/documents/") for row in manifest["portable_assets"])
     index = json.loads((tmp_path / "review-site" / "data" / "index.json").read_text(encoding="utf-8"))
-    assert len(index["cards"]) == expected_review_count()
-    assert "text" not in index["cards"][0]
+    assert "cards" not in index
+    assert len(index["documents"]) == expected_review_count()
+    assert len(index["source_files"]) == 18
+    assert (tmp_path / "review-site" / "data" / "index.json").stat().st_size < 200_000
+    source_payloads = list((tmp_path / "review-site" / "data" / "sources").glob("*.json"))
+    assert len(source_payloads) == 18
+    source_cards = json.loads(source_payloads[0].read_text(encoding="utf-8"))["cards"]
+    assert source_cards and "text" not in source_cards[0]
     raw_documents = list((tmp_path / "review-site" / "data" / "documents").glob("*.json"))
     assert len(raw_documents) == expected_review_count()
     first_raw = json.loads(raw_documents[0].read_text(encoding="utf-8"))
     assert "Συνεκτικό ελληνικό κείμενο." in first_raw["text"]
     assert "Συνεκτικό ελληνικό κείμενο." not in (tmp_path / "review-site" / "data" / "index.json").read_text(encoding="utf-8")
+    assert "loadSource" in (tmp_path / "review-site" / "assets" / "site.js").read_text(encoding="utf-8")
     with pytest.raises(ValueError, match="127.0.0.1"):
         SITE.serve_site(tmp_path / "review-site", port=8765, bind="0.0.0.0")
 
