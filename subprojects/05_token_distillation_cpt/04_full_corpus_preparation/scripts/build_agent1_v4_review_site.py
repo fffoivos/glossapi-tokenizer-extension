@@ -284,44 +284,54 @@ def _html_renderer_js() -> str:
     var match=String(value||'').trim().match(/^\uE000agent1-html-(\d+)\uE001$/);
     return match?saved[Number(match[1])]:null;
   }
-  function textBlock(value,saved){
-    var block=String(value||'').trim();
-    if(!block)return '';
-    var rawHtml=tokenOnly(block,saved);
-    if(rawHtml&&/^<table\b/i.test(rawHtml))return rawHtml;
-    var heading=block.match(/^(#{1,6})\s+([^\n]+)$/);
-    if(heading){var level=heading[1].length;return '<h'+level+'>'+inline(heading[2],saved)+'</h'+level+'>';}
-    var lines=block.split('\n');
-    if(lines.length>1&&lines.every(function(line){return /^\s*[-*+]\s+/.test(line);})){return '<ul>'+lines.map(function(line){return '<li>'+inline(line.replace(/^\s*[-*+]\s+/,''),saved)+'</li>';}).join('')+'</ul>';}
-    if(lines.length>1&&lines.every(function(line){return /^\s*\d+[.)]\s+/.test(line);})){return '<ol>'+lines.map(function(line){return '<li>'+inline(line.replace(/^\s*\d+[.)]\s+/,''),saved)+'</li>';}).join('')+'</ol>';}
-    return '<p>'+inline(block.replace(/\n+/g,' '),saved)+'</p>';
-  }
   function figure(alt,asset){
     return '<figure class="ocr-image-ref"><figcaption><strong>VLM image description</strong><span>'+escapeHtml(alt)+'</span><code>'+escapeHtml(asset)+'</code></figcaption></figure>';
   }
   function mixedMarkup(raw){
     var protectedHtml=reserveHtml(String(raw||'').replace(/\r\n?/g,'\n'));
-    var blocks=protectedHtml.text.split(/\n{2,}/);
     var out=['<aside class="mixed-note">Mixed OCR rendering: Markdown and embedded HTML are rendered together. Extracted image files were not packaged with this review sample, so image references are shown as VLM-description cards.</aside>'];
     var previousWasFigure=false;
-    blocks.forEach(function(block){
-      var cursor=0,match,emittedFigure=false;
-      function addText(value,afterFigure){
-        var trailing=String(value||'').trim();
-        if(!trailing)return;
-        if(afterFigure&&/^this image(?:\s|,|\.)/i.test(trailing))out.push('<details class="synth-caption"><summary>Additional VLM image description</summary>'+textBlock(trailing,protectedHtml.saved)+'</details>');
-        else out.push(textBlock(trailing,protectedHtml.saved));
-      }
+    var paragraph=[];
+    var list=null;
+    function blockInline(lines){return inline(lines.join('\n'),protectedHtml.saved).replace(/\n/g,'<br>');}
+    function flushList(){
+      if(!list)return;
+      out.push('<'+list.type+'>'+list.items.map(function(item){return '<li>'+blockInline(item)+'</li>';}).join('')+'</'+list.type+'>');
+      list=null;
+    }
+    function flushParagraph(){
+      if(!paragraph.length)return;
+      var value=paragraph.join('\n').trim();paragraph=[];
+      if(previousWasFigure&&/^this image(?:\s|,|\.)/i.test(value))out.push('<details class="synth-caption"><summary>Additional VLM image description</summary><p>'+blockInline([value])+'</p></details>');
+      else out.push('<p>'+blockInline([value])+'</p>');
+      previousWasFigure=false;
+    }
+    function addTextLine(value){
+      var text=String(value||'').trim();
+      if(!text)return;
+      if(previousWasFigure&&!paragraph.length&&/^this image(?:\s|,|\.)/i.test(text)){out.push('<details class="synth-caption"><summary>Additional VLM image description</summary><p>'+blockInline([text])+'</p></details>');previousWasFigure=false;return;}
+      paragraph.push(text);previousWasFigure=false;
+    }
+    function addImage(alt,asset){flushList();flushParagraph();out.push(figure(alt,asset));previousWasFigure=true;}
+    protectedHtml.text.split('\n').forEach(function(line){
+      var rawHtml=tokenOnly(line,protectedHtml.saved);
+      if(rawHtml&&/^<table\b/i.test(rawHtml)){flushList();flushParagraph();out.push(rawHtml);previousWasFigure=false;return;}
+      if(!line.trim()){flushList();flushParagraph();return;}
+      var heading=line.match(/^\s*(#{1,6})\s+(.+?)\s*$/);
+      if(heading){flushList();flushParagraph();var level=heading[1].length;out.push('<h'+level+'>'+inline(heading[2],protectedHtml.saved)+'</h'+level+'>');previousWasFigure=false;return;}
+      if(/^\s*(?:---+|\*\*\*+|___+)\s*$/.test(line)){flushList();flushParagraph();out.push('<hr>');previousWasFigure=false;return;}
+      var unordered=line.match(/^\s*[-*+]\s+(.+)$/);
+      var ordered=line.match(/^\s*\d+[.)]\s+(.+)$/);
+      var continuation=line.match(/^\s{2,}(.+)$/);
+      if(unordered||ordered){flushParagraph();var type=unordered?'ul':'ol';if(!list||list.type!==type){flushList();list={type:type,items:[]};}list.items.push([unordered?unordered[1]:ordered[1]]);previousWasFigure=false;return;}
+      if(continuation&&list){list.items[list.items.length-1].push(continuation[1]);previousWasFigure=false;return;}
+      if(list)flushList();
+      var cursor=0,match;
       IMAGE_RE.lastIndex=0;
-      while((match=IMAGE_RE.exec(block))!==null){
-        addText(block.slice(cursor,match.index),previousWasFigure||emittedFigure);
-        out.push(figure(match[1],match[2]));
-        cursor=IMAGE_RE.lastIndex;emittedFigure=true;
-      }
-      var trailing=block.slice(cursor).trim();
-      addText(trailing,previousWasFigure||emittedFigure);
-      previousWasFigure=emittedFigure&&!trailing;
+      while((match=IMAGE_RE.exec(line))!==null){addTextLine(line.slice(cursor,match.index));addImage(match[1],match[2]);cursor=IMAGE_RE.lastIndex;}
+      addTextLine(line.slice(cursor));
     });
+    flushList();flushParagraph();
     return out.join('');
   }
   function frameDocument(raw,view){
