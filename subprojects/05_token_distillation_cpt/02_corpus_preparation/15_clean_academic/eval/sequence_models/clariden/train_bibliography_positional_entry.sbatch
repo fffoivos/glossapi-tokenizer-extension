@@ -13,6 +13,7 @@
 set -euo pipefail
 umask 077
 CODE_ROOT=${CODE_ROOT:?set immutable code bundle root}
+PY_DEPS=${PY_DEPS:?set pinned scikit-learn target directory}
 BASE_TABLE_DIR=${BASE_TABLE_DIR:?set frozen entry table}
 POSITIONAL_TABLE_DIR=${POSITIONAL_TABLE_DIR:?set positional feature table}
 ROLE_TARGET_DIR=${ROLE_TARGET_DIR:?set reviewed role target view}
@@ -23,7 +24,7 @@ UENV=${UENV:-pytorch/v2.9.1:v2}
 trap 'rm -rf "$OUTPUT_DIR"' EXIT
 export CUDA_VISIBLE_DEVICES="" NVIDIA_VISIBLE_DEVICES=void ROCR_VISIBLE_DEVICES="" HIP_VISIBLE_DEVICES=""
 export OMP_NUM_THREADS="$SLURM_CPUS_PER_TASK" MKL_NUM_THREADS="$SLURM_CPUS_PER_TASK" OPENBLAS_NUM_THREADS="$SLURM_CPUS_PER_TASK"
-uenv run "$UENV" --view=default -- env PYTHONPATH="$CODE_ROOT" \
+uenv run "$UENV" --view=default -- env PYTHONPATH="$CODE_ROOT:$PY_DEPS" \
   python3 -m sequence_models.bibliography_positional_models \
     --base-table-dir "$BASE_TABLE_DIR" --positional-table-dir "$POSITIONAL_TABLE_DIR" \
     --role-target-dir "$ROLE_TARGET_DIR" --output-dir "$OUTPUT_DIR" \
