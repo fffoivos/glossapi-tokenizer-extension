@@ -151,6 +151,27 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     expected_indices = np.flatnonzero(np.asarray(targets) != -1)
     if not np.array_equal(labelled_indices, expected_indices):
         raise ValueError("sparse map/target row alignment mismatch")
+    summaries = _load_array(positional, "position_summaries")
+    maximum_match_integral_error = 0.0
+    for channel in range(len(FEATURE_NAMES)):
+        observed = np.asarray(
+            matrix[:, channel * bins : (channel + 1) * bins].sum(axis=1)
+        ).ravel() / bins
+        expected = np.asarray(summaries[labelled_indices, channel, 3])
+        maximum_match_integral_error = max(
+            maximum_match_integral_error,
+            float(np.max(np.abs(observed - expected), initial=0.0)),
+        )
+    nonmatch_start = len(FEATURE_NAMES) * bins
+    observed_unmatched = np.asarray(matrix[:, nonmatch_start:].sum(axis=1)).ravel() / bins
+    expected_unmatched = np.asarray(
+        _load_array(positional, "gap_summaries")[labelled_indices, 0]
+    )
+    maximum_nonmatch_integral_error = float(
+        np.max(np.abs(observed_unmatched - expected_unmatched), initial=0.0)
+    )
+    if maximum_match_integral_error > 1.0e-5 or maximum_nonmatch_integral_error > 1.0e-5:
+        raise ValueError("sparse raster integral parity failed")
     counts = np.asarray(base.counts[labelled_indices], dtype=np.float32)
     gaps = np.asarray(_load_array(positional, "gap_summaries")[labelled_indices], dtype=np.float32)
     gaps[:, 5] = np.log1p(gaps[:, 5])
@@ -173,6 +194,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "map_nnz": int(matrix.nnz),
         "scalar_shape": list(scalars.shape),
         "scalar_nnz": int(scalars.nnz),
+        "maximum_match_integral_error": maximum_match_integral_error,
+        "maximum_nonmatch_integral_error": maximum_nonmatch_integral_error,
+        "raster_integral_parity": True,
         "base_table_manifest_sha256": base_sha,
         "positional_table_manifest_sha256": sha256_file(positional / "manifest.json"),
         "role_target_manifest_sha256": sha256_file(Path(args.role_target_dir).resolve() / "manifest.json"),
