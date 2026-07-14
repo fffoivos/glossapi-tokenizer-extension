@@ -13,6 +13,10 @@ from sequence_models.bibliography_signal_refinement import (
     decode_component_candidates,
     refine_outer_edges,
 )
+from sequence_models.bibliography_signal_refinement_unseen import (
+    _core_prediction,
+    _summarize,
+)
 
 
 def _table(length: int):
@@ -124,3 +128,31 @@ def test_component_gate_cannot_add_a_header_outside_frozen_proposal() -> None:
         qualified_documents={0},
     )
     assert prediction.tolist() == [False, False, True, True, True, False]
+
+
+def test_unseen_core_reconstruction_drops_only_expansion_fringe() -> None:
+    base = np.asarray([False, True, True, True, True, True, False])
+    signal = np.asarray([0.0, 0.1, 0.8, 0.1, 0.8, 0.1, 0.0])
+    core = _core_prediction(
+        base,
+        signal,
+        np.zeros(7),
+        np.zeros(7, dtype=np.uint8),
+        np.arange(7, dtype=np.uint32),
+        BlockConfig(0.3, 1, 2, 16, 8, 0.05, 2, 2),
+    )
+    assert core.tolist() == [False, False, True, True, True, False, False]
+
+
+def test_unseen_summary_keeps_marks_distinct_from_unreviewed_removals() -> None:
+    summary = _summarize(
+        {"a", "b", "c", "d"},
+        {"b", "d"},
+        {"a", "b"},
+        {"d"},
+        {"a"},
+    )
+    assert summary["marked_wrong_removed"] == 1
+    assert summary["marked_wrong_retained"] == 1
+    assert summary["unmarked_prediction_removed_review_risk"] == 1
+    assert summary["marked_whole_block_wrong_removed"] == 1
