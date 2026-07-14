@@ -445,11 +445,17 @@ textbook chapters, which the large-block policy intentionally does not target.
 Lowering the anchor threshold after seeing these validation examples would be
 validation tuning and was not attempted.
 
+Reporting-only job `2758240` records all three populations and their per-source
+breakdowns directly in the canonical receipt.  Its anchored prediction is
+byte-identical to job `2758231` (SHA-256
+`84179ec0d45dbbf5c5ad1c78fd20b7ed2b82ead70c7287180bf3ed024e9a6d5a`),
+so the provenance addition changed no classification.
+
 Immutable Clariden artifacts:
 
 ```text
 /capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/signal_recall_blocks_r3
-/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/signal_validation_r3
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/signal_validation_r4
 ```
 
 ### Whole-source robustness audit
@@ -564,6 +570,8 @@ acceptance check.
   poison pill for neighbouring blocks.
 - `0f7a34e` — add the selection-ineligible whole-source contextual-model
   robustness audit.
+- `b49a359` — record prediction-blind and outcome-directed validation
+  populations separately in the canonical receipt.
 
 Superseded job `2754325` failed in ten seconds before model fitting because an
 initial bundle omitted the legacy `line_lr.py` runtime sibling.  It produced no
