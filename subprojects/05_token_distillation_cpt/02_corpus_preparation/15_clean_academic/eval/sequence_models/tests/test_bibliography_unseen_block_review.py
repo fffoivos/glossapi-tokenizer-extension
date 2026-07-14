@@ -67,7 +67,7 @@ def test_reader_has_bidirectional_block_navigation():
     assert "↑ Previous BIB block" in HTML
     assert "↓ Next BIB block" in HTML
     assert "ArrowUp" in HTML and "ArrowDown" in HTML
-    assert "scrollIntoView" in HTML
+    assert "window.scrollBy" in HTML
     assert "toggleWrong" in HTML
     assert "toggleBlockWrong" in HTML
     assert "Mark whole block WRONG" in HTML
@@ -75,4 +75,9 @@ def test_reader_has_bidirectional_block_navigation():
     assert "bib-unseen-weird-docs-v1" in HTML
     assert "Mark document WEIRD" in HTML
     assert "bib-unseen-wrong-lines-v1" in HTML
+    assert "bib-unseen-should-bib-lines-v1" in HTML
+    assert "SHOULD BE BIB" in HTML
+    assert "directionalBlock" in HTML
+    assert "alignCurrentBlock" in HTML
+    assert "content-visibility" not in HTML
     assert "aria-pressed" in HTML
