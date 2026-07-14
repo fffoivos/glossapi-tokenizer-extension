@@ -263,12 +263,15 @@ def validate_review_payload(
         lines = case.get("lines")
         if not isinstance(lines, list) or len(lines) != len(expected_lines):
             raise ValueError(f"case {case_id}: review omits or invents lines")
-        for position, (line, expected) in enumerate(zip(lines, expected_lines)):
+        observed_by_id: dict[str, dict[str, Any]] = {}
+        for position, line in enumerate(lines):
             required = {"line_id", "abs_idx", "role", "boundary_flag", "confidence", "reason"}
             if not isinstance(line, dict) or set(line) != required:
                 raise ValueError(f"case {case_id}: line {position} has invalid fields")
-            if line.get("line_id") != expected["line_id"] or line.get("abs_idx") != expected["abs_idx"]:
-                raise ValueError(f"case {case_id}: line identity/order mismatch")
+            line_id = line.get("line_id")
+            if not isinstance(line_id, str) or not line_id or line_id in observed_by_id:
+                raise ValueError(f"case {case_id}: repeated or empty line identity")
+            observed_by_id[line_id] = line
             if line.get("role") not in ROLES or line.get("boundary_flag") not in BOUNDARIES:
                 raise ValueError(f"case {case_id}: invalid role or boundary")
             confidence = line.get("confidence")
@@ -280,9 +283,18 @@ def validate_review_payload(
                 or not line["reason"].strip()
             ):
                 raise ValueError(f"case {case_id}: invalid confidence or reason")
+        expected_by_id = {str(line["line_id"]): line for line in expected_lines}
+        if set(observed_by_id) != set(expected_by_id):
+            raise ValueError(f"case {case_id}: review omits or invents line identities")
+        canonical_lines = []
+        for expected in expected_lines:
+            line = observed_by_id[str(expected["line_id"])]
+            if line.get("abs_idx") != expected["abs_idx"]:
+                raise ValueError(f"case {case_id}: line coordinate mismatch")
+            canonical_lines.append(line)
         if not isinstance(case.get("notes"), str):
             raise ValueError(f"case {case_id}: notes must be a string")
-        normalized.append(case)
+        normalized.append({"case_id": case_id, "lines": canonical_lines, "notes": case["notes"]})
     if seen_cases != set(expected_cases):
         raise ValueError("review response case set mismatch")
     normalized.sort(key=lambda row: str(row["case_id"]))

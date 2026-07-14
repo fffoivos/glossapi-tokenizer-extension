@@ -126,7 +126,7 @@ def test_pass_order_and_batch_contracts_are_distinct() -> None:
     ]
 
 
-def test_review_validation_fails_closed_on_line_reordering() -> None:
+def test_review_validation_canonicalizes_order_and_fails_on_invented_id() -> None:
     case = _case("case", "block")
     batch = make_batches(
         [case], pass_id="pass-a", reviewer_id="a", model="gpt-5.6-sol",
@@ -135,7 +135,12 @@ def test_review_validation_fails_closed_on_line_reordering() -> None:
     review = _review(case, "a")
     assert validate_review_payload(batch, review, reviewer_id="a")["reviewer"] == "a"
     review["cases"][0]["lines"].reverse()
-    with pytest.raises(ValueError, match="identity/order"):
+    normalized = validate_review_payload(batch, review, reviewer_id="a")
+    assert [line["line_id"] for line in normalized["cases"][0]["lines"]] == [
+        line["line_id"] for line in case["lines"]
+    ]
+    review["cases"][0]["lines"][0]["line_id"] = "invented"
+    with pytest.raises(ValueError, match="omits or invents"):
         validate_review_payload(batch, review, reviewer_id="a")
 
 
