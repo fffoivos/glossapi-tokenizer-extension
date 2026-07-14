@@ -218,7 +218,9 @@ The dependency-safe continuation is implemented in commits:
 - `05f274e` — 240-block source-balanced bootstrap and 30 zero-BIB controls;
 - `1f9d866` — human decision importer/adjudicator;
 - `e390944` — continue valid batches when another batch is rejected; and
-- `b61630a` — explicit per-role/source readiness gates.
+- `b61630a` — explicit per-role/source readiness gates; and
+- `45d5fef` — bounded near-copy repair for long opaque line IDs when the
+  complete absolute-coordinate inventory is an exact one-to-one match.
 
 ### Calibration result
 
@@ -250,17 +252,33 @@ are:
 ```
 
 The executor fails closed on missing, duplicated, or invented identities. A
-pure output permutation is canonicalized by the supplied IDs; a mistyped ID
-is preserved as a rejection and retried without rerunning accepted batches.
+pure output permutation is canonicalized by the supplied IDs. A long opaque
+ID with at most three copy edits may be repaired only when every absolute
+line coordinate is present exactly once; arbitrary IDs and coordinate errors
+still fail. Rejected payloads are retained, and accepted batches are never
+rerun.
 Each Codex process receives only the blinded cases in an empty, read-only
 workspace. Neither pass receives the other pass, the provenance manifest,
 source labels, detector features, or model predictions.
 
-After both passes finish, run `bibliography_role_adjudication.py` on the full
-packet and its provenance manifest. It merges five-line chunk overlaps within
-each reviewer before comparing reviewers. Role and boundary agreement are
-resolved independently in `bibliography-role-overlay-v2`; disagreement in one
-does not erase agreement in the other.
+Both passes are complete. Each contains 52 accepted batches, 104 cases, and
+5,677 line responses under the pinned packet hash. Their receipts and merged
+responses are under `full-review/pass-a/` and `full-review/pass-b/`.
+
+Full adjudication merges five-line chunk overlaps within each reviewer before
+comparing reviewers. It produced 5,457 unique lines and passed both frozen
+agreement gates:
+
+- exact seven-role agreement: 97.764%;
+- entry-seed eligibility agreement: 98.992%;
+- attachable operational agreement: 99.579%; and
+- exact boundary agreement: 99.414%.
+
+Per-source exact role agreement is 99.410% Greek PhD, 100% Kallipos, and
+95.603% OpenArchives. The overlay and report are under
+`full-review/adjudication/`. Role and boundary agreement are resolved
+independently in `bibliography-role-overlay-v2`; disagreement in one does not
+erase agreement in the other.
 
 ### One-time positional geometry
 
@@ -285,13 +303,30 @@ locally under `bibliography-role-pilot-20260714/positional-table/receipts`.
 Role corrections therefore require only regenerating the small target view;
 they do not trigger another all-line geometry pass.
 
-### Remaining gate before fitting
+### Human gate before fitting
 
-Do not fit or report P0-P1G yet. The automatic full overlay must first exist,
-then the 30-block audit site must be built and Foivos's decisions applied.
+Do not fit or report P0-P1G yet. The automatic full overlay exists and the
+30-block audit site has been built at:
+
+```text
+/Users/foivoskarounos-zamparloukos/presentations/train-apertus-with-glossapi/bibliography-role-pilot-20260714/human-audit/index.html
+```
+
+It contains 10 blocks per source and 3,524 contextual lines. Reviewer outputs
+remain hidden until Foivos records an independent decision. The exported
+human decisions must still be applied.
+
 Only `AGREED_REVIEW` and `ADJUDICATED` roles can create entry targets.
 Unreviewed silver `BIB` remains masked; silver `O`/`TOC` remains an entry
 negative unless trusted review corrects it.
+
+The current readiness report is
+`full-review/adjudication/readiness.report.json`. It passes entry-anchor,
+overall continuation/filler, OpenArchives role, and boundary-stop gates. It
+still lacks 2 Kallipos continuations, 19 Kallipos fillers, 4 Greek PhD
+headers/subheaders, and 47 Kallipos headers/subheaders. The prepared 240-block
+bootstrap is the next source of targeted examples after the human audit
+confirms the role taxonomy.
 
 ### Additional bootstrap prepared
 
