@@ -205,3 +205,90 @@ Do not fit P0-P3 yet. First:
 4. adjudicate agreements/disagreements into the provenance-bound overlay;
 5. jointly review the initial 30 blocks (10/source); and
 6. only then materialize the corrected positional table and fit P0/P0D.
+
+## Dual-review and positional-table continuation
+
+The dependency-safe continuation is implemented in commits:
+
+- `b47e2bb` — schema-bound dual Codex executor, independent role/boundary
+  adjudication, overlay v2, and tests;
+- `4b5ee81` — prediction-blind-first 30-block human audit site;
+- `6854ce4` — geometry-only positional table and cheap role target view;
+- `ddfbde7` — nested work-grouped corrected P0/P0D/P1/P1G ladder;
+- `05f274e` — 240-block source-balanced bootstrap and 30 zero-BIB controls;
+- `1f9d866` — human decision importer/adjudicator;
+- `e390944` — continue valid batches when another batch is rejected; and
+- `b61630a` — explicit per-role/source readiness gates.
+
+### Calibration result
+
+The fixed three-source calibration is under:
+
+```text
+/Users/foivoskarounos-zamparloukos/presentations/train-apertus-with-glossapi/bibliography-role-pilot-20260714/calibration
+```
+
+It contains one Greek PhD, one Kallipos, and one OpenArchives block (107
+unique displayed lines). Two ephemeral `gpt-5.6-sol` passes at high reasoning
+covered every requested line. The independent executions agreed on all 107
+roles, all entry-seed decisions, and all boundary flags. Calibration hashes
+and the v2 overlay are preserved in `reviews/` and `adjudication/`.
+
+The calibration did not contain `CONTINUATION` or `FILLER`; this is why it was
+not accepted as a sufficient role dataset. Those roles occur in the full
+packet and have explicit readiness gates.
+
+### Full automatic pilot review
+
+The two full executions use the same 104 blinded chunks but distinct pass IDs,
+reviewer identities, and deterministic ordering. Their immutable batch roots
+are:
+
+```text
+.../bibliography-role-pilot-20260714/full-review/pass-a/batches
+.../bibliography-role-pilot-20260714/full-review/pass-b/batches
+```
+
+The executor fails closed on missing, duplicated, or invented identities. A
+pure output permutation is canonicalized by the supplied IDs; a mistyped ID
+is preserved as a rejection and retried without rerunning accepted batches.
+Each Codex process receives only the blinded cases in an empty, read-only
+workspace. Neither pass receives the other pass, the provenance manifest,
+source labels, detector features, or model predictions.
+
+After both passes finish, run `bibliography_role_adjudication.py` on the full
+packet and its provenance manifest. It merges five-line chunk overlaps within
+each reviewer before comparing reviewers. Role and boundary agreement are
+resolved independently in `bibliography-role-overlay-v2`; disagreement in one
+does not erase agreement in the other.
+
+### One-time positional geometry
+
+Clariden CPU job `2760592` completed in 57 seconds on commit `6854ce4` with
+exit `0:0` and about 14 GB maximum resident memory. Authoritative root:
+
+```text
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_role_position_20260714/positional_table_6854ce4_r1
+```
+
+The target-free extension contains:
+
+- 939,014 aligned lines from 1,118 documents;
+- 8,266,123 ownership-resolved detector spans;
+- 52,500,315 typed non-match runs;
+- exact count/span parity with the frozen v1 entry table;
+- normalized 35 x 4 positional summaries; and
+- seven unmatched-gap summaries.
+
+The artifact is about 1.12 GB. Receipts, but not the bulk arrays, are mirrored
+locally under `bibliography-role-pilot-20260714/positional-table/receipts`.
+Role corrections therefore require only regenerating the small target view;
+they do not trigger another all-line geometry pass.
+
+### Remaining gate before fitting
+
+Do not fit or report P0-P1G yet. The automatic full overlay must first exist,
+then the 30-block audit site must be built and Foivos's decisions applied.
+Only `AGREED_REVIEW` and `ADJUDICATED` roles can create entry targets.
+Unreviewed silver `BIB` remains masked; silver `O`/`TOC` remains an entry
+negative unless trusted review corrects it.
