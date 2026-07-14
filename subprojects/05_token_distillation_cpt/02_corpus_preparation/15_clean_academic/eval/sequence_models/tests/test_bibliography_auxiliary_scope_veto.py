@@ -47,6 +47,12 @@ def test_why_and_ocr_examples_are_exact_body_scopes() -> None:
     assert not is_exact_non_bibliography_scope_heading("## ΒΙΒΛΙΟΓΡΑΦΙΑ")
 
 
+def test_abbreviations_is_a_line_role_but_not_a_section_veto() -> None:
+    assert not is_exact_non_bibliography_scope_heading("## ΣΥΝΤΟΜΟΓΡΑΦΙΕΣ")
+    assert not is_exact_non_bibliography_scope_heading("## List of Abbreviations")
+    assert is_exact_non_bibliography_scope_heading("## RELATED MATERIAL")
+
+
 def test_atx_auxiliary_scope_ends_at_the_next_atx_heading(tmp_path) -> None:
     source = tmp_path / "train.jsonl"
     source.write_text(
@@ -103,3 +109,32 @@ def test_selected_variants_scope_persists_through_atu_subheading(tmp_path) -> No
     headings, scope = materialize_auxiliary_headings(table, source)
     assert headings.tolist() == [True, False, False, False, False]
     assert scope.tolist() == [True, True, True, False, False]
+
+
+def test_requested_validation_split_is_materialized_without_train_rows(
+    tmp_path,
+) -> None:
+    source = tmp_path / "joint.jsonl"
+    source.write_text(
+        "\n".join(
+            json.dumps(
+                {
+                    "split": split,
+                    "document_id": document_id,
+                    "lines": [{"text": "## RELATED MATERIAL"}, {"text": "item"}],
+                }
+            )
+            for split, document_id in (("train", "train-doc"), ("validation", "val-doc"))
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    table = SimpleNamespace(
+        targets=np.zeros(2, dtype=np.uint8),
+        documents=({"document_id": "val-doc", "line_start": 0, "line_end": 2},),
+    )
+    headings, scope = materialize_auxiliary_headings(
+        table, source, expected_split="validation"
+    )
+    assert headings.tolist() == [True, False]
+    assert scope.tolist() == [True, True]

@@ -46,6 +46,18 @@ AUXILIARY_SCOPE_PREFIXES = (
     "list of selected variants:",
     "λιστα επιλεγμενων παραλλαγων:",
 )
+# An abbreviations heading describes the notation used below, not the semantic
+# kind of the rows below.  In academic books it can introduce ordinary acronym
+# expansions, but it can also introduce citation keys expanded to full
+# references.  It remains a negative role for the heading line itself; it is
+# deliberately not allowed to veto the surrounding section.
+AMBIGUOUS_FORMAT_HEADINGS = {
+    "abbreviations",
+    "list of abbreviations",
+    "συντομογραφιες",
+    "καταλογος συντομογραφιων",
+}
+SECTION_VETO_HEADINGS = AUXILIARY_SCOPE_HEADINGS - AMBIGUOUS_FORMAT_HEADINGS
 
 
 def _sha256(path: Path) -> str:
@@ -77,7 +89,7 @@ def normalized_scope_heading_key(text: str) -> str:
 def is_exact_non_bibliography_scope_heading(text: str) -> bool:
     key = normalized_scope_heading_key(text)
     return (
-        key in AUXILIARY_SCOPE_HEADINGS
+        key in SECTION_VETO_HEADINGS
         or key in BODY_CITATION_SCOPE_HEADINGS
         or any(key.startswith(prefix) for prefix in AUXILIARY_SCOPE_PREFIXES)
     )

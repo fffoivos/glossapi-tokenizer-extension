@@ -402,6 +402,29 @@ precision / 80.47% line recall and 99.16% token precision / 85.40% token
 recall, with 0.0150 spurious blocks per silver-zero document.  This is the
 current retained train-only point in `auxiliary_scope_veto_r6`.
 
+### Abbreviations are not a section veto
+
+The first signal validation attempt stopped before metric evaluation because
+one document placed 971 silver bibliography lines under the exact heading
+`ΣΥΝΤΟΜΟΓΡΑΦΙΕΣ`.  Those lines expand short citation keys into complete
+references.  This exposes a semantic mistake in the original scope rule:
+“abbreviations” describes the **format** of the following items, not whether
+the items are bibliographic.
+
+The corrected ownership is perpendicular:
+
+- the abbreviations heading itself remains an explicit structural/non-entry
+  line role;
+- `abbreviations`, `list of abbreviations`, `συντομογραφίες`, and `κατάλογος
+  συντομογραφιών` can no longer establish a hard negative section scope; and
+- the block model must decide from repeated citation evidence below the
+  heading.  No document identity, source identity, position, or fuzzy heading
+  match is used.
+
+This is a generic rule change rather than an exception for the observed
+document.  The grouped train-OOF decoder must be rerun before the corrected
+veto is evaluated again.
+
 ## Rich component gate (rejected)
 
 A shallow monotonic tree and an unconstrained logistic model tested ten
