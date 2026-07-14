@@ -376,3 +376,53 @@ blocks. The 30 negative controls are therefore truthfully allocated as 4 Greek
 PhD, 13 Kallipos, and 13 OpenArchives; the unavailable 10/10/10 symmetry is
 not fabricated. The complete packet, provenance, controls, and receipts are
 mirrored locally under `bibliography-role-pilot-20260714/bootstrap`.
+
+## Targeted Kallipos role closure
+
+The bootstrap was not reviewed wholesale. A prediction-blind exact subset
+selected only the 10 Kallipos continuation-proxy blocks and 10 Kallipos
+filler-proxy blocks. It contains 20 previously unused works, 32 bounded
+chunks, and 1,356 requested line responses per reviewer. The packet SHA-256
+is `689cf331a6c06ff32e494e6c9d10029f0f726665bdf6f0aa7b08e2a3629c254e`.
+
+Two independent `gpt-5.6-sol` high-reasoning passes completed all 16 immutable
+batches each. Malformed attempts were retained as rejected artifacts and only
+those batches were retried. The successful response hashes are:
+
+- pass A: `09fe8a7b057166f40ba3f3514d2e89e4f749b396299cd1bf9218d28009af2301`;
+- pass B: `5d03b756d9e7695ac6a827c3bf62ede899b48e3ddc0b857e5ff403a8940258bd`.
+
+After overlap canonicalization, the passes covered 1,296 unique lines and
+passed every automatic agreement gate:
+
+- exact seven-role agreement: 99.614%;
+- entry-seed eligibility agreement: 99.691%;
+- attachable operational agreement: 100%; and
+- exact boundary agreement: 99.923%.
+
+The targeted overlay is at
+`kallipos-targeted/adjudication/overlay.v2.jsonl` in the local handoff root;
+its SHA-256 is
+`f2bec8619e41891a34e5850dd1be1f747612588a568c09fa702adc5b4d333b80`.
+
+The fail-closed union with Foivos's human-audited overlay contains 6,753 rows,
+of which 6,637 carry trusted roles. There were no duplicate lines between the
+initial and targeted packets. The combined overlay is:
+
+```text
+/Users/foivoskarounos-zamparloukos/presentations/train-apertus-with-glossapi/bibliography-role-pilot-20260714/combined/overlay.v2.jsonl
+sha256 d8a63c4780e730099e69283430ce4bad2a9a4d6f02298c15b5309dba2f998a8c
+```
+
+The readiness policy is now opportunity-aware for bibliography headings:
+at least 100 trusted headers/subheaders overall and at least two sources with
+30 or more. It does not invent a Kallipos quota when the 80-block Kallipos
+bootstrap contains no exact header opportunity. Continuation and filler still
+require at least 200 overall and at least 30 per source.
+
+`combined/readiness.report.json` passes every gate. In particular, Kallipos
+now has 141 trusted continuations and 66 trusted fillers. The combined role
+inventory is 5,164 entry anchors, 535 continuations, 278 fillers, 117
+headers/subheaders, and 543 non-bibliography lines, plus 512 trusted boundary
+stops. This authorizes corrected train-target materialization and the sealed
+train-OOF positional ladder; it does not authorize corpus deletion.
