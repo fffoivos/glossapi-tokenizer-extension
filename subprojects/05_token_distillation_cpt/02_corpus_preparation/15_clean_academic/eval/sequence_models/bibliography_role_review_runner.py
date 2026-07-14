@@ -421,8 +421,25 @@ def run_reviews(args: argparse.Namespace) -> int:
             timeout_seconds=args.timeout_seconds, reasoning_effort=args.reasoning_effort,
         )
 
+    records: list[dict[str, Any]] = []
+    failures: list[tuple[str, BaseException]] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
-        records = list(executor.map(runner, batches))
+        future_to_batch = {executor.submit(runner, batch): batch for batch in batches}
+        for future in concurrent.futures.as_completed(future_to_batch):
+            batch = future_to_batch[future]
+            try:
+                records.append(future.result())
+            except BaseException as error:
+                failures.append((str(batch["batch_id"]), error))
+    if failures:
+        summary = "; ".join(
+            f"{batch_id}: {type(error).__name__}: {error}"
+            for batch_id, error in sorted(failures)
+        )
+        raise RuntimeError(
+            f"{len(failures)} review batches failed after all other batches completed; "
+            f"resume the same immutable run to retry only failures: {summary}"
+        )
     cases = [case for record in records for case in record["review"]["cases"]]
     cases.sort(key=lambda row: str(row["case_id"]))
     aggregate = {"schema_version": REVIEW_SCHEMA, "reviewer": args.reviewer_id, "cases": cases}
