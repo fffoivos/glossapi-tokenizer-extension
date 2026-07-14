@@ -39,7 +39,7 @@ from .bibliography_entry_component_gate import (
     _load_quality_exclusions,
     candidate_supervision,
 )
-from .bibliography_entry_dataset import LABEL_TO_ID
+from .bibliography_entry_dataset import HEADER_NONE, LABEL_TO_ID
 from .bibliography_entry_models import PINNED_SKLEARN_VERSION, load_table
 from .bibliography_entry_role_sequence import _validate_role_matrix
 from .bibliography_signal_block_decode import (
@@ -49,7 +49,7 @@ from .bibliography_signal_block_decode import (
 from .bibliography_signal_tcn import SCHEMA_VERSION as SIGNAL_SCHEMA
 
 
-SCHEMA_VERSION = "bibliography-signal-refinement-oof-v1"
+SCHEMA_VERSION = "bibliography-signal-refinement-oof-v2"
 EDGE_ROLE_ARMS = {
     "none": (),
     "headings": (
@@ -87,7 +87,7 @@ FEATURE_NAMES = (
     "longest_entry_run_fraction",
     "longest_hard_negative_run_fraction",
     "hard_negative_transition_fraction",
-    "starts_with_generic_heading",
+    "starts_with_structural_non_bib_heading",
     "exact_header_at_or_before_start",
     *(f"role_{name}_fraction" for name in ROLE_NAMES),
 )
@@ -185,6 +185,38 @@ def refine_outer_edges(
     return result
 
 
+def refine_outer_edges_asymmetric(
+    table: Any,
+    base_prediction: np.ndarray,
+    core_prediction: np.ndarray,
+    roles: np.ndarray,
+    *,
+    left_role_names: Sequence[str],
+    right_role_names: Sequence[str],
+    qualified_documents: set[int],
+) -> np.ndarray:
+    """Apply independently chosen left and right fringe policies."""
+
+    left = refine_outer_edges(
+        table,
+        base_prediction,
+        core_prediction,
+        roles,
+        role_names=left_role_names,
+        side="left",
+        qualified_documents=qualified_documents,
+    )
+    return refine_outer_edges(
+        table,
+        left,
+        core_prediction,
+        roles,
+        role_names=right_role_names,
+        side="right",
+        qualified_documents=qualified_documents,
+    )
+
+
 def _split_span_at_headings(
     start: int, end: int, generic_heading: np.ndarray
 ) -> list[tuple[int, int]]:
@@ -224,7 +256,10 @@ def component_feature_vector(
     hard = np.any(local_roles, axis=1)
     entry_positive = entry >= 0.5
     transitions = np.count_nonzero(hard[1:] != hard[:-1]) if len(hard) > 1 else 0
-    generic = ROLE_NAMES.index("generic_markdown_heading")
+    heading_roles = [
+        ROLE_NAMES.index("exact_negative_scope_heading"),
+        ROLE_NAMES.index("generic_markdown_heading"),
+    ]
     header_start = max(0, start - int(config.header_window))
     return np.asarray(
         (
@@ -235,7 +270,10 @@ def component_feature_vector(
             _longest_true_run(entry_positive) / len(entry_positive),
             _longest_true_run(hard) / len(hard),
             transitions / max(len(hard) - 1, 1),
-            float(local_roles[0, generic]),
+            float(
+                np.any(local_roles[0, heading_roles])
+                and int(header_kinds[start]) == HEADER_NONE
+            ),
             float(np.any(header_kinds[header_start : start + 1] > 0)),
             *np.mean(local_roles, axis=0),
         ),
@@ -385,6 +423,7 @@ def decode_component_candidates(
     config: BlockConfig,
     *,
     threshold: float,
+    heading_threshold: float | None = None,
     qualified_documents: set[int],
 ) -> np.ndarray:
     result = np.zeros(len(table.targets), dtype=bool)
@@ -396,7 +435,14 @@ def decode_component_candidates(
         available = np.zeros_like(local)
         for row in document_rows:
             available[int(candidates.starts[row]) : int(candidates.ends[row]) + 1] = True
-        rows = document_rows[scores[document_rows] >= threshold]
+        minimum = np.full(len(document_rows), float(threshold))
+        if heading_threshold is not None:
+            heading = candidates.features[
+                document_rows,
+                FEATURE_NAMES.index("starts_with_structural_non_bib_heading"),
+            ] > 0.5
+            minimum[heading] = max(float(threshold), float(heading_threshold))
+        rows = document_rows[scores[document_rows] >= minimum]
         for row in rows:
             local[int(candidates.starts[row]) : int(candidates.ends[row]) + 1] = True
         local = attach_h0_document(
@@ -508,33 +554,32 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
     edge_rows: list[dict[str, Any]] = []
     edge_predictions: dict[tuple[str, str], np.ndarray] = {}
-    for role_arm in args.edge_role_arms:
-        sides = ("both",) if role_arm == "none" else args.edge_sides
-        for side in sides:
-            prediction = refine_outer_edges(
+    for left_arm in args.edge_role_arms:
+        for right_arm in args.edge_role_arms:
+            prediction = refine_outer_edges_asymmetric(
                 table,
                 base_prediction,
                 core_prediction,
                 roles,
-                role_names=EDGE_ROLE_ARMS[role_arm],
-                side=side,
+                left_role_names=EDGE_ROLE_ARMS[left_arm],
+                right_role_names=EDGE_ROLE_ARMS[right_arm],
                 qualified_documents=qualified_documents,
             )
             removed = base_prediction & ~prediction
             row = {
-                "role_arm": role_arm,
-                "side": side,
+                "left_role_arm": left_arm,
+                "right_role_arm": right_arm,
                 "removed_line_count": int(np.count_nonzero(removed)),
                 "removed_silver_bib_line_count": int(np.count_nonzero(removed & gold)),
                 "removed_silver_non_bib_line_count": int(np.count_nonzero(removed & ~gold)),
                 "metrics": evaluate_prediction(table, prediction, document_subset=qualified_documents),
             }
             edge_rows.append(row)
-            edge_predictions[(role_arm, side)] = prediction
+            edge_predictions[(left_arm, right_arm)] = prediction
     edge_safe = [
         row
         for row in edge_rows
-        if row["role_arm"] != "none"
+        if (row["left_role_arm"], row["right_role_arm"]) != ("none", "none")
         and row["metrics"]["line_fp"] < baseline_metrics["line_fp"]
         and row["metrics"]["line_recall"] >= baseline_metrics["line_recall"] - float(args.edge_line_recall_budget)
         and row["metrics"]["token_recall"] >= baseline_metrics["token_recall"] - float(args.edge_token_recall_budget)
@@ -552,7 +597,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     if edge_selected is not None:
         _save_array(
             output_dir / "selected_edge_oof_prediction.npy",
-            edge_predictions[(edge_selected["role_arm"], edge_selected["side"])],
+            edge_predictions[(edge_selected["left_role_arm"], edge_selected["right_role_arm"])],
         )
 
     component_rows: list[dict[str, Any]] = []
@@ -599,23 +644,42 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 "masked_candidate_count": int(np.count_nonzero(~labelled)),
             }
             for threshold in args.thresholds:
-                prediction = decode_component_candidates(
-                    table,
-                    candidates,
-                    scores,
-                    entry,
-                    config,
-                    threshold=float(threshold),
-                    qualified_documents=qualified_documents,
+                heading_thresholds = (
+                    (float(threshold),)
+                    if variant == "whole"
+                    else tuple(
+                        sorted(
+                            {
+                                float(threshold),
+                                *(
+                                    float(value)
+                                    for value in args.heading_thresholds
+                                    if float(value) >= float(threshold)
+                                ),
+                            }
+                        )
+                    )
                 )
-                component_rows.append(
-                    {
-                        "variant": variant,
-                        "model_arm": model_arm,
-                        "threshold": float(threshold),
-                        "metrics": evaluate_prediction(table, prediction, document_subset=qualified_documents),
-                    }
-                )
+                for heading_threshold in heading_thresholds:
+                    prediction = decode_component_candidates(
+                        table,
+                        candidates,
+                        scores,
+                        entry,
+                        config,
+                        threshold=float(threshold),
+                        heading_threshold=heading_threshold,
+                        qualified_documents=qualified_documents,
+                    )
+                    component_rows.append(
+                        {
+                            "variant": variant,
+                            "model_arm": model_arm,
+                            "threshold": float(threshold),
+                            "heading_threshold": heading_threshold,
+                            "metrics": evaluate_prediction(table, prediction, document_subset=qualified_documents),
+                        }
+                    )
     component_safe = [
         row
         for row in component_rows
@@ -633,6 +697,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             entry,
             config,
             threshold=float(component_selected["threshold"]),
+            heading_threshold=float(component_selected["heading_threshold"]),
             qualified_documents=qualified_documents,
         )
         _save_array(output_dir / "selected_component_oof_prediction.npy", selected_prediction)
@@ -657,6 +722,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "expected_directions": list(EXPECTED_DIRECTIONS),
             "variants": list(args.component_variants),
             "model_arms": list(args.model_arms),
+            "heading_thresholds": list(args.heading_thresholds),
             "line_recall_budget": float(args.component_line_recall_budget),
             "token_recall_budget": float(args.component_token_recall_budget),
             "models": model_reports,
@@ -682,6 +748,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "code_commit": str(args.code_commit),
         "slurm_job_id": str(args.slurm_job_id),
         "unseen_review_used_for_fitting_or_selection": False,
+        "development_review_informed_experiment_design": True,
+        "independent_fresh_unseen_evaluation_required": True,
         "validation_opened": False,
         "production_eligible": False,
     }
@@ -711,10 +779,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--line-arm", default="D1")
     parser.add_argument("--candidate", default="diagnostic_highest_recall_candidate")
     parser.add_argument("--edge-role-arms", nargs="+", choices=tuple(EDGE_ROLE_ARMS), default=tuple(EDGE_ROLE_ARMS))
-    parser.add_argument("--edge-sides", nargs="+", choices=("left", "right", "both"), default=("left", "right", "both"))
     parser.add_argument("--component-variants", nargs="+", choices=COMPONENT_VARIANTS, default=COMPONENT_VARIANTS)
     parser.add_argument("--model-arms", nargs="+", choices=MODEL_ARMS, default=MODEL_ARMS)
     parser.add_argument("--thresholds", type=float, nargs="+", default=(0.05, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.95, 0.98, 0.99))
+    parser.add_argument("--heading-thresholds", type=float, nargs="+", default=(0.10, 0.20, 0.30, 0.50))
     parser.add_argument("--edge-line-recall-budget", type=float, default=0.0025)
     parser.add_argument("--edge-token-recall-budget", type=float, default=0.001)
     parser.add_argument("--component-line-recall-budget", type=float, default=0.0025)

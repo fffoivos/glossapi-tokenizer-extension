@@ -12,6 +12,7 @@ from sequence_models.bibliography_signal_refinement import (
     component_feature_vector,
     decode_component_candidates,
     refine_outer_edges,
+    refine_outer_edges_asymmetric,
 )
 from sequence_models.bibliography_signal_refinement_unseen import (
     _core_prediction,
@@ -99,7 +100,9 @@ def test_component_features_are_fixed_structural_summaries() -> None:
     assert np.isclose(
         features[FEATURE_NAMES.index("longest_hard_negative_run_fraction")], 0.25
     )
-    assert features[FEATURE_NAMES.index("starts_with_generic_heading")] == 1
+    assert features[
+        FEATURE_NAMES.index("starts_with_structural_non_bib_heading")
+    ] == 1
     assert features[FEATURE_NAMES.index("exact_header_at_or_before_start")] == 0
     assert np.isclose(features[FEATURE_NAMES.index("role_footnote_fraction")], 0.25)
 
@@ -128,6 +131,55 @@ def test_component_gate_cannot_add_a_header_outside_frozen_proposal() -> None:
         qualified_documents={0},
     )
     assert prediction.tolist() == [False, False, True, True, True, False]
+
+
+def test_structural_heading_component_can_require_a_higher_threshold() -> None:
+    features = np.zeros((1, len(FEATURE_NAMES)), dtype=np.float32)
+    features[0, FEATURE_NAMES.index("starts_with_structural_non_bib_heading")] = 1
+    candidates = CandidateSet(
+        features=features,
+        document_indices=np.asarray([0], dtype=np.uint32),
+        starts=np.asarray([1], dtype=np.uint32),
+        ends=np.asarray([3], dtype=np.uint32),
+        labels=np.asarray([0], dtype=np.int8),
+    )
+    table = SimpleNamespace(
+        targets=np.zeros(5, dtype=np.int8),
+        documents=({"line_start": 0, "line_end": 5},),
+        abs_indices=np.arange(5, dtype=np.uint32),
+        header_kinds=np.zeros(5, dtype=np.uint8),
+    )
+    prediction = decode_component_candidates(
+        table,
+        candidates,
+        np.asarray([0.2]),
+        np.zeros(5),
+        BlockConfig(0.3, 1, 2, 16, 8, 0.05, 2, 2),
+        threshold=0.1,
+        heading_threshold=0.3,
+        qualified_documents={0},
+    )
+    assert not prediction.any()
+
+
+def test_asymmetric_edge_policy_can_be_strict_left_and_heading_only_right() -> None:
+    table = _table(8)
+    base = np.asarray([True, True, True, True, True, True, True, False])
+    core = np.asarray([False, False, True, True, True, False, False, False])
+    roles = _roles(8)
+    roles[0, ROLE_NAMES.index("footnote")] = 1
+    roles[5, ROLE_NAMES.index("running_or_enumerated_prose")] = 1
+    roles[6, ROLE_NAMES.index("generic_markdown_heading")] = 1
+    result = refine_outer_edges_asymmetric(
+        table,
+        base,
+        core,
+        roles,
+        left_role_names=ROLE_NAMES,
+        right_role_names=("generic_markdown_heading",),
+        qualified_documents={0},
+    )
+    assert result.tolist() == [False, True, True, True, True, True, False, False]
 
 
 def test_unseen_core_reconstruction_drops_only_expansion_fringe() -> None:

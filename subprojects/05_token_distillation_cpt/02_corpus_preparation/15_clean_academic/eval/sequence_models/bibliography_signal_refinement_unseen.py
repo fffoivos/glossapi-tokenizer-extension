@@ -27,10 +27,11 @@ from .bibliography_entry_blocks import (
 )
 from .bibliography_entry_dataset import HEADER_EXACT, HEADER_NONE, SUBHEADER_EXACT
 from .bibliography_signal_refinement import (
+    FEATURE_NAMES,
     SCHEMA_VERSION as REFINEMENT_SCHEMA,
     _split_span_at_headings,
     component_feature_vector,
-    refine_outer_edges,
+    refine_outer_edges_asymmetric,
 )
 from .deterministic_structure import BibRole, analyze_bib_line
 
@@ -99,16 +100,17 @@ def _edge_prediction(
         documents=({"line_start": 0, "line_end": len(base)},),
         abs_indices=absolute,
     )
-    role_names = selected.get("role_names")
-    if role_names is None:
-        raise ValueError("selected edge row lacks its frozen role-name expansion")
-    return refine_outer_edges(
+    left_role_names = selected.get("left_role_names")
+    right_role_names = selected.get("right_role_names")
+    if left_role_names is None or right_role_names is None:
+        raise ValueError("selected edge row lacks its frozen role-name expansions")
+    return refine_outer_edges_asymmetric(
         table,
         base,
         core,
         roles,
-        role_names=tuple(role_names),
-        side=str(selected["side"]),
+        left_role_names=tuple(left_role_names),
+        right_role_names=tuple(right_role_names),
         qualified_documents={0},
     )
 
@@ -154,8 +156,11 @@ def _component_prediction(
     prediction = np.zeros(len(base), dtype=bool)
     decisions = []
     threshold = float(selected["threshold"])
-    for (start, end), score in zip(spans, scores, strict=True):
-        accepted = float(score) >= threshold
+    heading_threshold = float(selected["heading_threshold"])
+    heading_feature = FEATURE_NAMES.index("starts_with_structural_non_bib_heading")
+    for row, ((start, end), score) in enumerate(zip(spans, scores, strict=True)):
+        minimum = heading_threshold if features[row, heading_feature] > 0.5 else threshold
+        accepted = float(score) >= minimum
         if accepted:
             prediction[start : end + 1] = True
         decisions.append(
@@ -230,7 +235,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     if edge_selected is not None:
         edge_selected = {
             **edge_selected,
-            "role_names": refinement["edge_experiment"]["role_arms"][edge_selected["role_arm"]],
+            "left_role_names": refinement["edge_experiment"]["role_arms"][edge_selected["left_role_arm"]],
+            "right_role_names": refinement["edge_experiment"]["role_arms"][edge_selected["right_role_arm"]],
         }
     component_selected = refinement["component_experiment"].get("selected")
     model = None
@@ -328,6 +334,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "refinement_report": _sha256(refinement_path),
         },
         "human_review_used_for_fitting_or_selection": False,
+        "development_review_informed_experiment_design": bool(
+            refinement.get("development_review_informed_experiment_design")
+        ),
+        "independent_fresh_unseen_evaluation_required": True,
     }
     output_path = Path(args.output).resolve()
     with output_path.open("x", encoding="utf-8") as handle:
