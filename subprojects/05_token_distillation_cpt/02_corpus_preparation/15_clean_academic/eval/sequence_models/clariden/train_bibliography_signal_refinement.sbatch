@@ -36,6 +36,9 @@ done
 [[ -f "$QUALITY_DECISIONS" && ! -L "$QUALITY_DECISIONS" ]] || exit 91
 [[ -d "$PY_DEPS" && -f "$PY_DEPS/sklearn/__init__.py" && ! -L "$PY_DEPS" ]] || exit 92
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 93
+for module in line_lr.py span_signals.py span_seq_data.py; do
+  [[ -f "$CODE_ROOT/$module" && ! -L "$CODE_ROOT/$module" ]] || exit 94
+done
 
 export CUDA_VISIBLE_DEVICES="" NVIDIA_VISIBLE_DEVICES=void
 export ROCR_VISIBLE_DEVICES="" HIP_VISIBLE_DEVICES="" PYTHONHASHSEED=0
