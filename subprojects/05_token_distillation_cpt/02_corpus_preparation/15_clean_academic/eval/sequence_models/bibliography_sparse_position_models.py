@@ -65,7 +65,7 @@ def _fit_arm(
     def model(alpha: float, local_seed: int) -> Any:
         return classifier(
             loss="log_loss", penalty="elasticnet", l1_ratio=0.25,
-            alpha=float(alpha), max_iter=30, tol=1.0e-4, shuffle=True,
+            alpha=float(alpha), max_iter=75, tol=1.0e-4, shuffle=True,
             random_state=local_seed, average=True, n_jobs=1,
         )
 
