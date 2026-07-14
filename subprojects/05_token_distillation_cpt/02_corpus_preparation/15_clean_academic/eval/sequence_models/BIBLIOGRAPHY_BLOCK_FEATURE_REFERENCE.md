@@ -232,7 +232,7 @@ not added to the gate:
   role.  It is not the absence of positive citation evidence, component size,
   internal weak-run continuity, or heading support.
 
-### Exact negative scope at or before the component start
+### Exact negative scope at or before the component start (not retained)
 
 - **Question:** Does an explicit non-bibliography section begin where the
   proposed component begins?
@@ -249,6 +249,11 @@ not added to the gate:
   in silver-zero documents.
 - **Non-overlap:** Negative-role fraction describes the composition of the
   whole component.  This feature describes the section boundary and scope.
+- **Why rejected:** Despite strong aggregate separation, its learned
+  coefficient reversed sign in one of five held-out work folds and the OOF
+  precision/recall frontier did not improve.  Exact/generic heading roles stay
+  materialized for diagnostics, but this cue is not an input to the selected
+  gate.
 
 ### Component supervision purity
 
@@ -271,7 +276,7 @@ not added to the gate:
   candidate spans.  They are not features and are not shown to the component
   classifier.
 - **Component probability threshold:** A calibration control swept only on
-  grouped training OOF scores.  It is not evidence and cannot change the six
+  grouped training OOF scores.  It is not evidence and cannot change the five
   feature meanings.
 
 ## Current experiment boundary

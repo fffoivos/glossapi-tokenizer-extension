@@ -29,26 +29,23 @@ def test_component_features_have_one_value_per_documented_job() -> None:
         np.asarray([0.01, 0.8, 0.9, 0.1, 0.6]),
         np.asarray([1, 0, 0, 0, 0]),
         np.asarray([False, False, True, False, True]),
-        np.asarray([True, False, False, False, False]),
         np.arange(5),
         1,
         4,
         CONFIG,
     )
-    assert len(values) == len(FEATURE_NAMES) == 6
+    assert len(values) == len(FEATURE_NAMES) == 5
     assert np.isclose(values[0], 4 / EXTENT_SATURATION_LINES)
     assert np.isclose(values[1], 0.7)
     assert np.isclose(values[2], 0.25)
     assert values[3] == 1.0
     assert np.isclose(values[4], 0.5)
-    assert values[5] == 1.0
 
 
 def test_minimum_extent_saturates_without_rewarding_giant_merges() -> None:
     values = component_feature_vector(
         np.full(50, 0.8),
         np.zeros(50),
-        np.zeros(50, dtype=bool),
         np.zeros(50, dtype=bool),
         np.arange(50),
         0,
@@ -63,7 +60,6 @@ def test_component_header_must_be_at_or_immediately_before_start() -> None:
         np.asarray([0.1, 0.1, 0.8, 0.8]),
         np.asarray([1, 0, 0, 0]),
         np.zeros(4, dtype=bool),
-        np.zeros(4, dtype=bool),
         np.asarray([0, 9, 10, 11]),
         2,
         3,
@@ -74,7 +70,6 @@ def test_component_header_must_be_at_or_immediately_before_start() -> None:
     header_at_start = component_feature_vector(
         np.asarray([0.1, 0.1, 0.8, 0.8]),
         np.asarray([0, 0, 1, 0]),
-        np.zeros(4, dtype=bool),
         np.zeros(4, dtype=bool),
         np.asarray([0, 9, 10, 11]),
         2,
