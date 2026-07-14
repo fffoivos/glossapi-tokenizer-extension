@@ -84,7 +84,8 @@
       "type": "string"
     },
     "schema_version": {
-      "const": "bibliography-role-review-v1"
+      "const": "bibliography-role-review-v1",
+      "type": "string"
     }
   },
   "required": [

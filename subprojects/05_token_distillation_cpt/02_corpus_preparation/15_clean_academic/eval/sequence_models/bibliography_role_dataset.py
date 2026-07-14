@@ -21,6 +21,7 @@ from .contract import canonical_json_sha256, sha256_file
 
 
 SCHEMA_VERSION = "bibliography-role-overlay-v1"
+SCHEMA_VERSION_V2 = "bibliography-role-overlay-v2"
 REVIEW_SCHEMA_VERSION = "bibliography-role-review-v1"
 CONTRACT_SCHEMA_VERSION = "bibliography-role-contract-v1"
 TARGET_MASK = -1
@@ -79,16 +80,21 @@ def load_role_contract(path: str | Path) -> RoleContract:
 
 
 def entry_anchor_target(
-    *, role: str, label_status: str, contract: RoleContract,
+    *, role: str, label_status: str | None = None, role_status: str | None = None,
+    contract: RoleContract,
     mask_in_block_nonanchors: bool = False,
 ) -> int:
     """Return the primary one-vs-rest anchor target or its mask ablation."""
 
+    if (label_status is None) == (role_status is None):
+        raise ValueError("supply exactly one of label_status or role_status")
+    status = role_status if role_status is not None else label_status
+    assert status is not None
     if role not in contract.roles:
         raise ValueError(f"unknown bibliography role: {role}")
-    if label_status not in contract.label_statuses:
-        raise ValueError(f"unknown bibliography label status: {label_status}")
-    if label_status not in contract.trusted_statuses or role in contract.masked_roles:
+    if status not in contract.label_statuses:
+        raise ValueError(f"unknown bibliography label status: {status}")
+    if status not in contract.trusted_statuses or role in contract.masked_roles:
         return TARGET_MASK
     if role in contract.positive_roles:
         return TARGET_ENTRY_ANCHOR
@@ -149,15 +155,22 @@ def validate_overlay(
     seen: set[tuple[str, str]] = set()
     role_counts: collections.Counter[str] = collections.Counter()
     status_counts: collections.Counter[str] = collections.Counter()
+    boundary_status_counts: collections.Counter[str] = collections.Counter()
     boundary_counts: collections.Counter[str] = collections.Counter()
     target_counts: collections.Counter[int] = collections.Counter()
     target_mask_ablation_counts: collections.Counter[int] = collections.Counter()
     origins: collections.Counter[str] = collections.Counter()
 
     rows = 0
+    overlay_schema: str | None = None
     for row_number, row in _iter_jsonl(overlay_path):
-        if row.get("schema_version") != SCHEMA_VERSION:
+        row_schema = row.get("schema_version")
+        if row_schema not in {SCHEMA_VERSION, SCHEMA_VERSION_V2}:
             raise ValueError(f"overlay row {row_number}: unsupported schema_version")
+        if overlay_schema is None:
+            overlay_schema = str(row_schema)
+        elif row_schema != overlay_schema:
+            raise ValueError("overlay mixes schema versions")
         document_id, line_id = row.get("document_id"), row.get("line_id")
         if not isinstance(document_id, str) or not isinstance(line_id, str):
             raise ValueError(f"overlay row {row_number}: invalid line identity")
@@ -172,10 +185,18 @@ def validate_overlay(
             if row.get(field) != expected[field]:
                 raise ValueError(f"overlay row {row_number}: stale or mismatched {field}")
         role = str(row.get("role", ""))
-        status = str(row.get("label_status", ""))
+        status = str(
+            row.get("role_status", "")
+            if row_schema == SCHEMA_VERSION_V2
+            else row.get("label_status", "")
+        )
         boundary = str(row.get("boundary_flag", ""))
         origin = row.get("label_origin")
-        confidence = row.get("confidence")
+        confidence = (
+            row.get("role_confidence")
+            if row_schema == SCHEMA_VERSION_V2
+            else row.get("confidence")
+        )
         reviewers = row.get("reviewers")
         if role not in contract.roles or status not in contract.label_statuses:
             raise ValueError(f"overlay row {row_number}: invalid role/status")
@@ -193,17 +214,52 @@ def validate_overlay(
             raise ValueError(f"overlay row {row_number}: adjudication lacks review provenance")
         if status == "PROVISIONAL" and origin not in {"deterministic", "model_oof", "model_final"}:
             raise ValueError(f"overlay row {row_number}: invalid provisional origin")
+        if row_schema == SCHEMA_VERSION_V2:
+            boundary_status = str(row.get("boundary_status", ""))
+            boundary_confidence = row.get("boundary_confidence")
+            if boundary_status not in contract.label_statuses:
+                raise ValueError(f"overlay row {row_number}: invalid boundary_status")
+            if (
+                not isinstance(boundary_confidence, (int, float))
+                or isinstance(boundary_confidence, bool)
+                or not 0 <= boundary_confidence <= 1
+            ):
+                raise ValueError(
+                    f"overlay row {row_number}: boundary_confidence must be in [0,1]"
+                )
+            if boundary_status in {"AGREED_REVIEW", "ADJUDICATED"} and len(set(reviewers)) < 2:
+                raise ValueError(
+                    f"overlay row {row_number}: trusted boundary needs two reviewers"
+                )
+            for vote_field in ("raw_role_votes", "raw_boundary_votes"):
+                votes = row.get(vote_field)
+                if not isinstance(votes, Mapping) or set(votes) != set(reviewers):
+                    raise ValueError(
+                        f"overlay row {row_number}: {vote_field} must cover reviewers"
+                    )
+                if not all(isinstance(value, list) and value for value in votes.values()):
+                    raise ValueError(
+                        f"overlay row {row_number}: {vote_field} values must be lists"
+                    )
+            review_case_ids = row.get("review_case_ids")
+            if not isinstance(review_case_ids, list) or not all(
+                isinstance(value, str) and value for value in review_case_ids
+            ):
+                raise ValueError(
+                    f"overlay row {row_number}: review_case_ids must be a string list"
+                )
+            boundary_status_counts[boundary_status] += 1
 
         rows += 1
         role_counts[role] += 1
         status_counts[status] += 1
         boundary_counts[boundary] += 1
         origins[origin] += 1
-        target_counts[entry_anchor_target(role=role, label_status=status, contract=contract)] += 1
+        target_counts[entry_anchor_target(role=role, role_status=status, contract=contract)] += 1
         target_mask_ablation_counts[
             entry_anchor_target(
                 role=role,
-                label_status=status,
+                role_status=status,
                 contract=contract,
                 mask_in_block_nonanchors=True,
             )
@@ -212,7 +268,11 @@ def validate_overlay(
     if rows == 0:
         raise ValueError("overlay is empty")
     return {
-        "schema_version": "bibliography-role-overlay-validation-v1",
+        "schema_version": (
+            "bibliography-role-overlay-validation-v2"
+            if overlay_schema == SCHEMA_VERSION_V2
+            else "bibliography-role-overlay-validation-v1"
+        ),
         "status": "passed",
         "source": {"path": str(source_path), "sha256": sha256_file(source_path)},
         "overlay": {"path": str(overlay_path), "sha256": sha256_file(overlay_path)},
@@ -223,6 +283,7 @@ def validate_overlay(
         ),
         "role_counts": dict(sorted(role_counts.items())),
         "label_status_counts": dict(sorted(status_counts.items())),
+        "boundary_status_counts": dict(sorted(boundary_status_counts.items())),
         "boundary_flag_counts": dict(sorted(boundary_counts.items())),
         "label_origin_counts": dict(sorted(origins.items())),
         "entry_anchor_target_counts": {str(key): value for key, value in sorted(target_counts.items())},
