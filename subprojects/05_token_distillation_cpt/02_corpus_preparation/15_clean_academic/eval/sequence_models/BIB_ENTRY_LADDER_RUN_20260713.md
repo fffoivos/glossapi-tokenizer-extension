@@ -197,6 +197,90 @@ file separately marks the later top-50 follow-up as outcome-directed.  Duplicate
 submission `2755070` failed closed with exit 93 because the completed immutable
 `quality_audit_r4` output already existed; it produced no replacement artifact.
 
+## Train-only block-recall research — 2026-07-14
+
+The retrospective validation results above were not used to fit or choose the
+next model.  All experiments in this section use grouped out-of-fold predictions
+for 1,113 readable training documents; validation remains closed until one
+complete configuration is frozen.
+
+The proposal ceiling established that candidate generation is not the limiting
+step.  With line length removed from B1 emissions, the candidate union can reach
+99.80% of silver-BIB lines and 99.96% of silver-BIB tokens.  Removing both line
+length and document position raises the ceiling to 99.99% of lines and 99.99%
+of tokens.  The problem is selecting true bibliography regions without deleting
+citation-like prose, tables, captions, footnotes, or auxiliary lists.
+
+Manual inspection of high-scoring false train-OOF components found seven common
+failure shapes: merged running prose after a bibliography mention, lists of
+figures/tables, abbreviation or source lists, footnotes interleaved with prose,
+figure captions, tables of article metadata, and related-material/archive lists.
+The inspection packet is:
+
+```text
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/component_diagnostics_r2/false_component_contexts.json
+job 2756398
+```
+
+The deterministic line system was then reused only to assign competing document
+roles—not to duplicate bibliography features.  Figure captions and footnotes
+were strongly negative individually, but the combined role detector also marked
+30.4% of silver-BIB lines, so it is unsafe as a hard veto.  The component gate
+therefore receives only the fraction of lines with an explicit competing role.
+Exact negative-section headings were also tested, but their coefficient reversed
+direction in one work-level fold and the precision/recall frontier did not
+improve; they remain diagnostic metadata rather than a selected feature.
+
+The final stable component schema (`v5`) has five plain-language inputs:
+
+1. extent that rises to 32 lines and then saturates;
+2. median frozen entry-line probability;
+3. longest uninterrupted weak-line run as a fraction of the component;
+4. exact bibliography header at or immediately before the start; and
+5. fraction of lines assigned an explicit competing deterministic role.
+
+Every expected direction held in all five grouped OOF folds.  Clariden job
+`2757450` wrote the immutable `component_gate_r7` artifact.  Its selected safety
+point is the `no_length` logistic gate at threshold `0.995`:
+
+| Metric | Train OOF |
+|---|---:|
+| line precision | 0.992836 |
+| line recall | 0.583454 |
+| token precision | 0.996294 |
+| token recall | 0.626076 |
+| spurious blocks / zero-BIB document | 0.007519 |
+
+The same gate can reach 92.55% line recall / 96.52% token recall above 95% line
+precision, demonstrating that the remaining trade-off is component calibration,
+not line-feature reach.  The exact feature meanings, rejected additions, and
+non-overlap rules are in `BIBLIOGRAPHY_BLOCK_FEATURE_REFERENCE.md`.
+
+The next registered experiment permits a high-confidence component to establish
+a block and lets lower-confidence proposal spans expand it only through an
+overlap-connected chain.  A weak or disconnected proposal can never create a
+deletion.  This directly tests the intended rule that long/weak lines may be
+kept inside a bibliography block but must be rejected in isolation.
+
+Clariden job `2757451` completed that experiment as `component_expansion_r1`.
+It rejected the overlap-chain design.  For the stable no-length logistic gate,
+even an equal `0.995` core/expansion threshold joined overlapping alternative
+proposals: 2,329 lines were added, line recall moved only from 0.583454 to
+0.587509, and line precision fell from 0.992836 to 0.971403.  Lower expansion
+thresholds caused larger false tails.  Only two expanded candidates passed the
+safety rule, and both had substantially lower recall than the unexpanded stable
+gate.  This result is retained as negative evidence and is not eligible for
+validation.
+
+The next train-only candidate moves the already-materialized perpendicular
+deterministic roles into B1 as one-hot sequence observations.  A figure caption,
+footnote, table/equation, exact negative scope, generic heading, prose,
+legal/procedural line, or other explicit negative role is learned in context;
+none is a hard veto.  This lets the CRF use repeated competing structure to stop
+a region while still retaining an occasional marked line inside a coherent
+bibliography.  The positive citation summary remains the frozen entry
+probability, so no author/date/page feature is duplicated.
+
 ## High-risk joint-review site
 
 Review job `2754381` selected 120 proposed blocks: exactly 40 each from
@@ -261,6 +345,16 @@ acceptance check.
   explicit.
 - `360aab2` — exclude the garbled document found in the worst-50 review.
 - `d7dab98` — record the outcome-directed provenance and metric caveat.
+- `c00cdbe` — add grouped train-OOF component-structure diagnostics.
+- `0dd445f` — replace unbounded component size with saturated extent evidence.
+- `595be17` — test and reject proposal-boundary probability contrast.
+- `1f5f712` — materialize complete contexts for high-scoring false components.
+- `0365969` — materialize perpendicular deterministic competing-line roles.
+- `3c93403` — measure those roles inside true and false proposed components.
+- `f344db3` — add the graded explicit-negative-role fraction to the gate.
+- `b5a2f15` — separate exact negative scope from generic document headings.
+- `fc444e5` — retain only five fold-stable block features.
+- `5d74c6d` — add core-only connected expansion for weaker neighbouring spans.
 
 Superseded job `2754325` failed in ten seconds before model fitting because an
 initial bundle omitted the legacy `line_lr.py` runtime sibling.  It produced no

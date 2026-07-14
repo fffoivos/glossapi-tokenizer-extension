@@ -60,6 +60,23 @@ def test_feature_rows_can_drop_length_observations_without_dropping_evidence() -
     assert FEATURE_NAMES_BASE.index("over_seed_length_limit") not in rows[0]
 
 
+def test_extra_observations_have_distinct_offsets_before_header() -> None:
+    rows = _feature_rows(
+        np.asarray([0.9]),
+        np.asarray([100]),
+        np.asarray([8]),
+        10,
+        np.asarray([1]),
+        seed_length_limit=330,
+        include_header=True,
+        extra_features=np.asarray([[1.0, 0.0, 2.0]], dtype=np.float32),
+    )
+    assert rows[0][len(FEATURE_NAMES_BASE)] == 1.0
+    assert len(FEATURE_NAMES_BASE) + 1 not in rows[0]
+    assert rows[0][len(FEATURE_NAMES_BASE) + 2] == 2.0
+    assert rows[0][len(FEATURE_NAMES_BASE) + 3] == 1.0
+
+
 def test_long_line_cannot_start_a_constrained_crf_block() -> None:
     model = LinearChainCRF(1, active_classes=("BIB",))
     model.emission[:] = 0.0

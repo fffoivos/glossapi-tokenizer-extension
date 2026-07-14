@@ -58,6 +58,36 @@ regex for the same citation shape.
   overlap any author, date, title, identifier, or publication-coordinate
   detector.
 
+## Competing-role sequence observations
+
+The role-aware B1 experiment gives the sequence model one-hot observations for
+explicit non-bibliography line roles.  These are not hard vetoes: the CRF can
+retain a marked line inside a strongly supported bibliography sequence.  They
+are also not citation detectors and do not add a second author/date/page rule.
+
+Each line can have at most one of these eight observations:
+
+- **Figure caption:** explicitly begins as a numbered figure or image caption.
+- **Table or equation:** explicitly has table-row or equation structure.
+- **Exact negative-scope heading:** names a known non-bibliography section such
+  as notes, abbreviations, figure/table lists, or related material.
+- **Generic Markdown heading:** is a heading whose scope is unknown; kept
+  separate because a bibliography can contain source/language subheadings.
+- **Footnote:** has an explicit footnote shape and is not also a valid numbered
+  bibliography entry.
+- **Running or enumerated prose:** has an explicit narrative, inline-citation,
+  or long enumerated-prose shape.
+- **Legal or procedural line:** explicitly begins as legal/procedural body text
+  without a legal bibliography-citation form.
+- **Other explicit negative role:** one of the remaining deterministic
+  non-bibliography shapes not owned by the seven specific roles above.
+
+The two calibration controls remain **deletion bias** and the independent
+**minimum anchors / minimum component lines** gate.  They are swept on grouped
+train OOF predictions.  The experiment compares the same no-length and
+no-length-plus-no-position B1 variants, so the new evidence is isolated to
+these role observations.
+
 ## Anchored-component gates
 
 ### Strong anchor
@@ -310,6 +340,17 @@ recover the rest without permitting new isolated deletions.
 - **Non-overlap:** This is a graph-connectivity decision over already-scored
   spans.  It does not count authors, dates, pages, identifiers, length, or
   headings again.
+
+### Train-OOF result
+
+The first overlap-chain implementation was rejected.  At equal core and
+expansion thresholds, overlapping alternate proposals could already extend a
+selected core; for the stable logistic gate this added 2,329 lines while
+raising line recall only from 58.35% to 58.75% and reducing precision from
+99.28% to 97.14%.  Lower thresholds caused larger spillover.  No expanded
+candidate improved on the stable gate while satisfying the frozen safety rule.
+The failed experiment remains archived as `component_expansion_r1`; it is not
+a candidate for validation or corpus cleaning.
 
 ## Current experiment boundary
 

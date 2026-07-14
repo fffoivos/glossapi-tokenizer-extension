@@ -69,11 +69,18 @@ def _feature_rows(
     seed_length_limit: int,
     include_header: bool,
     dropped_feature_names: Sequence[str] = (),
+    extra_features: np.ndarray | None = None,
 ) -> list[dict[int, float]]:
     unknown = set(dropped_feature_names) - set(FEATURE_NAMES_BASE)
     if unknown:
         raise ValueError(f"unknown B1 observations to drop: {sorted(unknown)!r}")
     dropped = {FEATURE_NAMES_BASE.index(name) for name in dropped_feature_names}
+    if extra_features is None:
+        extra = np.empty((len(probability), 0), dtype=np.float32)
+    else:
+        extra = np.asarray(extra_features)
+        if extra.ndim != 2 or len(extra) != len(probability):
+            raise ValueError("extra B1 observations must be a line-aligned matrix")
     mean_probability, max_probability = _local_aggregates(probability)
     logits = np.log(np.clip(probability, 1.0e-6, 1 - 1.0e-6) / np.clip(1 - probability, 1.0e-6, 1.0))
     rows = []
@@ -94,8 +101,11 @@ def _feature_rows(
             for offset, value in enumerate(values)
             if value != 0.0 and offset not in dropped
         }
+        for extra_offset, value in enumerate(extra[index]):
+            if float(value) != 0.0:
+                row[len(FEATURE_NAMES_BASE) + extra_offset] = float(value)
         if include_header and header_kinds[index] > 0:
-            row[len(FEATURE_NAMES_BASE)] = 1.0
+            row[len(FEATURE_NAMES_BASE) + extra.shape[1]] = 1.0
         rows.append(row)
     return rows
 
@@ -108,10 +118,13 @@ def make_examples(
     seed_length_limit: int,
     include_header: bool,
     dropped_feature_names: Sequence[str] = (),
+    extra_features: np.ndarray | None = None,
 ) -> list[B1Example]:
     examples: list[B1Example] = []
     unknown_id = LABEL_TO_ID["UNKNOWN"]
     bib_id = LABEL_TO_ID["BIB"]
+    if extra_features is not None and len(extra_features) != len(table.targets):
+        raise ValueError("extra B1 observations do not align with the feature table")
     for document_index in document_indices:
         document = table.documents[document_index]
         doc_start, doc_end = int(document["line_start"]), int(document["line_end"])
@@ -126,6 +139,11 @@ def make_examples(
             seed_length_limit=seed_length_limit,
             include_header=include_header,
             dropped_feature_names=dropped_feature_names,
+            extra_features=(
+                None
+                if extra_features is None
+                else extra_features[doc_start:doc_end]
+            ),
         )
         segment_start = 0
         while segment_start < len(labels):
