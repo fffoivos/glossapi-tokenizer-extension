@@ -292,3 +292,31 @@ then the 30-block audit site must be built and Foivos's decisions applied.
 Only `AGREED_REVIEW` and `ADJUDICATED` roles can create entry targets.
 Unreviewed silver `BIB` remains masked; silver `O`/`TOC` remains an entry
 negative unless trusted review corrects it.
+
+### Additional bootstrap prepared
+
+Clariden CPU job `2760968` completed in 22 seconds on commit `37cce53` and
+published:
+
+```text
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_role_position_20260714/role_bootstrap_37cce53_r1
+```
+
+The immutable result contains 240 additional blocks (80 per source) split
+into 434 bounded blind chunks:
+
+- 120 prediction-blind hard proxies;
+- 30 long/continuation proxies;
+- 30 low-match/filler proxies; and
+- 60 random blocks.
+
+The blocks do not reuse any of the initial 60 review works. Greek PhD has only
+76 unused full-document works containing bibliography blocks, so four of its
+80 additions are second blocks from those otherwise unused works. Kallipos
+and OpenArchives remain fully work-distinct.
+
+There are only four Greek PhD full documents with zero silver bibliography
+blocks. The 30 negative controls are therefore truthfully allocated as 4 Greek
+PhD, 13 Kallipos, and 13 OpenArchives; the unavailable 10/10/10 symmetry is
+not fabricated. The complete packet, provenance, controls, and receipts are
+mirrored locally under `bibliography-role-pilot-20260714/bootstrap`.
