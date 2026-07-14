@@ -80,4 +80,7 @@ def test_reader_has_bidirectional_block_navigation():
     assert "directionalBlock" in HTML
     assert "alignCurrentBlock" in HTML
     assert "content-visibility" not in HTML
+    assert "Export review JSON" in HTML
+    assert "bibliography-unseen-review-v1" in HTML
+    assert "wrong_predicted_lines" in HTML
     assert "aria-pressed" in HTML
