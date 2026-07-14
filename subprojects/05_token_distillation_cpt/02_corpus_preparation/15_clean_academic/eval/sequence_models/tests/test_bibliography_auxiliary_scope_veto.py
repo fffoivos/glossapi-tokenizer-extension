@@ -74,3 +74,32 @@ def test_atx_auxiliary_scope_ends_at_the_next_atx_heading(tmp_path) -> None:
     headings, scope = materialize_auxiliary_headings(table, source)
     assert headings.tolist() == [True, False, False, False, False]
     assert scope.tolist() == [True, True, True, False, False]
+
+
+def test_selected_variants_scope_persists_through_atu_subheading(tmp_path) -> None:
+    source = tmp_path / "train.jsonl"
+    source.write_text(
+        json.dumps(
+            {
+                "split": "train",
+                "document_id": "d1",
+                "lines": [
+                    {"text": "## 3. Λίστα Επιλεγμένων Παραλλαγών: Στοιχεία Αρχείου"},
+                    {"text": "## ΑΤ/ATU 709: Χιονάτη"},
+                    {"text": "1. archive record"},
+                    {"text": "## 4. Επόμενη ενότητα"},
+                    {"text": "body"},
+                ],
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    table = SimpleNamespace(
+        targets=np.zeros(5, dtype=np.uint8),
+        documents=({"document_id": "d1", "line_start": 0, "line_end": 5},),
+    )
+    headings, scope = materialize_auxiliary_headings(table, source)
+    assert headings.tolist() == [True, False, False, False, False]
+    assert scope.tolist() == [True, True, True, False, False]

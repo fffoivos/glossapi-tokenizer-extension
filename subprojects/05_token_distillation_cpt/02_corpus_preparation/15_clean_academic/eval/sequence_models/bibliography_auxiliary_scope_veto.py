@@ -83,6 +83,16 @@ def is_exact_non_bibliography_scope_heading(text: str) -> bool:
     )
 
 
+def is_persistent_archive_scope_heading(text: str) -> bool:
+    key = normalized_scope_heading_key(text)
+    return any(key.startswith(prefix) for prefix in AUXILIARY_SCOPE_PREFIXES)
+
+
+def is_archive_type_subheading(text: str) -> bool:
+    key = normalized_scope_heading_key(text)
+    return bool(re.match(r"^(?:ατ|at)(?:/atu)?\s+\d", key, re.IGNORECASE))
+
+
 def materialize_auxiliary_headings(
     table: Any, input_path: Path
 ) -> tuple[np.ndarray, np.ndarray]:
@@ -112,6 +122,7 @@ def materialize_auxiliary_headings(
             if not isinstance(lines, list) or len(lines) != end - start:
                 raise ValueError(f"{document_id}: source/table line alignment failure")
             active_atx_scope = False
+            persistent_archive_scope = False
             for offset, line in enumerate(lines):
                 text = line.get("text") if isinstance(line, dict) else None
                 if not isinstance(text, str):
@@ -119,7 +130,17 @@ def materialize_auxiliary_headings(
                 auxiliary_heading = is_exact_non_bibliography_scope_heading(text)
                 headings[start + offset] = auxiliary_heading
                 if _ATX_HEADING.match(text):
-                    active_atx_scope = auxiliary_heading
+                    if auxiliary_heading:
+                        active_atx_scope = True
+                        persistent_archive_scope = (
+                            is_persistent_archive_scope_heading(text)
+                        )
+                    elif not (
+                        persistent_archive_scope
+                        and is_archive_type_subheading(text)
+                    ):
+                        active_atx_scope = False
+                        persistent_archive_scope = False
                 scope[start + offset] = active_atx_scope or auxiliary_heading
             completed.add(document_id)
     if completed != set(expected):
@@ -326,7 +347,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ),
         "variant": args.variant,
         "model_arm": args.model_arm,
-        "scope_rule": "veto a component that contains an exact auxiliary heading/scope or starts within two physical lines after one; ATX auxiliary scope remains active until the next ATX heading",
+        "scope_rule": "veto a component that contains an exact auxiliary/body-citation heading scope or starts within two physical lines after one; ordinary ATX scope ends at the next ATX heading, while a selected-variants archive scope persists through exact AT/ATU type subheadings",
         "auxiliary_scope_headings": sorted(AUXILIARY_SCOPE_HEADINGS),
         "body_citation_scope_headings": sorted(BODY_CITATION_SCOPE_HEADINGS),
         "auxiliary_scope_prefixes": list(AUXILIARY_SCOPE_PREFIXES),
