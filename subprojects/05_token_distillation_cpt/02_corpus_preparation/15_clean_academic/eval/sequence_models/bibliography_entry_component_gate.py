@@ -35,17 +35,17 @@ from .feature_crf import LinearChainCRF
 from .features import TAGS
 
 
-SCHEMA_VERSION = "bibliography-entry-component-gate-oof-v3"
+SCHEMA_VERSION = "bibliography-entry-component-gate-oof-v4"
 EXTENT_SATURATION_LINES = 32
 FEATURE_NAMES = (
     "saturated_minimum_extent",
-    "strong_anchor_fraction",
     "median_entry_probability",
     "longest_weak_run_fraction",
     "exact_header_at_or_before_start",
     "explicit_negative_role_fraction",
+    "exact_negative_scope_at_or_before_start",
 )
-EXPECTED_DIRECTIONS = (1, 1, 1, -1, 1, -1)
+EXPECTED_DIRECTIONS = (1, 1, -1, 1, -1, -1)
 MODEL_ARMS = ("logistic_l2", "monotonic_hgb")
 POSITIVE_PURITY = 0.80
 NEGATIVE_PURITY = 0.20
@@ -115,9 +115,9 @@ def candidate_supervision(gold_lines: np.ndarray) -> int:
 
 def component_feature_vector(
     probability: np.ndarray,
-    char_lengths: np.ndarray,
     header_kinds: np.ndarray,
     hard_negative: np.ndarray,
+    exact_negative_scope: np.ndarray,
     abs_indices: np.ndarray,
     start: int,
     end: int,
@@ -126,15 +126,16 @@ def component_feature_vector(
     """Return non-redundant structural measurements for one component."""
 
     values = np.asarray(probability[start : end + 1], dtype=np.float64)
-    lengths = np.asarray(char_lengths[start : end + 1])
     negative_values = np.asarray(hard_negative[start : end + 1], dtype=bool)
+    negative_scope_values = np.asarray(
+        exact_negative_scope[start : end + 1], dtype=bool
+    )
     if not len(values):
         raise ValueError("component must contain at least one line")
     if len(negative_values) != len(values):
         raise ValueError("deterministic roles do not align with component lines")
-    strong = (values >= config.anchor_probability) & (
-        lengths <= config.seed_length_limit
-    )
+    if len(negative_scope_values) != len(values):
+        raise ValueError("negative scope does not align with component lines")
     weak = values < config.inside_probability
     header_at_or_before = any(
         int(header_kinds[index]) > 0
@@ -144,15 +145,20 @@ def component_feature_vector(
             max(0, start - config.header_window), start + 1
         )
     )
+    negative_scope_at_or_before = any(
+        bool(exact_negative_scope[index])
+        and 0 <= int(abs_indices[start]) - int(abs_indices[index]) <= config.header_window
+        for index in range(max(0, start - config.header_window), start + 1)
+    )
     return np.asarray(
         (
             min(len(values), EXTENT_SATURATION_LINES)
             / EXTENT_SATURATION_LINES,
-            np.count_nonzero(strong) / len(values),
             np.median(values),
             _longest_true_run(weak) / len(values),
             float(header_at_or_before),
             np.count_nonzero(negative_values) / len(values),
+            float(negative_scope_at_or_before),
         ),
         dtype=np.float32,
     )
@@ -284,6 +290,7 @@ def generate_candidates(
     table: Any,
     probability: np.ndarray,
     hard_negative: np.ndarray,
+    exact_negative_scope: np.ndarray,
     masks: Mapping[tuple[str, float], np.ndarray],
     *,
     variant: str,
@@ -316,9 +323,9 @@ def generate_candidates(
             features.append(
                 component_feature_vector(
                     probability[doc_start:doc_end],
-                    table.char_lengths[doc_start:doc_end],
                     table.header_kinds[doc_start:doc_end],
                     hard_negative[doc_start:doc_end],
+                    exact_negative_scope[doc_start:doc_end],
                     table.abs_indices[doc_start:doc_end],
                     start,
                     end,
@@ -558,6 +565,17 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     hard_negative = np.load(hard_negative_path, mmap_mode="r", allow_pickle=False)
     if hard_negative.shape != table.targets.shape:
         raise ValueError("deterministic roles do not align with the train table")
+    negative_roles_path = deterministic_roles_root / "negative_roles.npy"
+    negative_roles = np.load(
+        negative_roles_path, mmap_mode="r", allow_pickle=False
+    )
+    role_names = tuple(deterministic_roles_report["role_names"])
+    if negative_roles.shape != (len(table.targets), len(role_names)):
+        raise ValueError("deterministic role categories do not align with the train table")
+    exact_negative_scope = np.asarray(
+        negative_roles[:, role_names.index("exact_negative_scope_heading")],
+        dtype=bool,
+    )
     excluded_ids, quality_packet = _load_quality_exclusions(quality_path)
     known_ids = {str(document["document_id"]) for document in table.documents}
     if not excluded_ids <= known_ids:
@@ -586,6 +604,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             table,
             probability,
             hard_negative,
+            exact_negative_scope,
             masks,
             variant=variant,
             deletion_biases=args.deletion_biases,
@@ -692,11 +711,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "expected_feature_directions": list(EXPECTED_DIRECTIONS),
         "feature_reference": {
             "saturated_minimum_extent": "Minimum extent: rise linearly from zero to full structural evidence at 32 lines, then stop increasing so a pathological prose merge is not rewarded for being ever larger.",
-            "strong_anchor_fraction": "Evidence density: measure the share of component lines that are normal-length and have frozen entry probability at least 0.70.",
             "median_entry_probability": "Typical evidence: measure how bibliography-like the middle line score is, not the strongest outlier.",
             "longest_weak_run_fraction": "Internal contradiction: measure the longest uninterrupted prose-like hole as a fraction of the component.",
             "exact_header_at_or_before_start": "Independent structure: record an exact multilingual bibliography heading on the first component line or immediately before it.",
             "explicit_negative_role_fraction": "Contradictory structure: measure the share of component lines assigned one explicit deterministic non-bibliography role, such as a figure caption, footnote, table/equation, negative section heading, running/enumerated prose, or legal procedure.",
+            "exact_negative_scope_at_or_before_start": "Competing section scope: record an exact notes, CV/publications, body, abbreviations, figure/table-list, or related-material heading on the first component line or within the previous two physical lines; generic unknown Markdown headings do not count.",
         },
         "feature_constants": {
             "extent_saturation_lines": EXTENT_SATURATION_LINES,
@@ -756,6 +775,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 deterministic_roles_report_path
             ),
             "deterministic_hard_negative": _sha256(hard_negative_path),
+            "deterministic_negative_roles": _sha256(negative_roles_path),
         },
         "code_commit": str(args.code_commit),
         "slurm_job_id": str(args.slurm_job_id),

@@ -163,27 +163,32 @@ not added to the gate:
   classifier.  Adding them at block level would violate the one-job ownership
   rule unless a future ablation proves independent structural information.
 
-### Strong anchor fraction
+### Strong anchor fraction (removed from the learned gate)
 
 - **Question:** What share of the component consists of independently strong,
   normal-length entry lines?
 - **Representation:** Strong-anchor count divided by component line count,
   using the frozen `0.70` probability and `380`-character start limits.
-- **Expected direction:** Positive.
+- **Historical expected direction:** Positive.
 - **Reason for density instead of count:** A 300-line prose region can contain
   more citation-like lines than a short true bibliography.  Density asks
   whether bibliographic support repeats throughout the proposed region.
-- **Non-overlap:** Unlike minimum component size, this measures repeated
-  bibliographic support rather than structural extent.
+- **Why removed:** It overlapped median entry probability.  After adding the
+  independent deterministic-role fraction, one of five work-level folds gave
+  anchor fraction a small negative coefficient while median probability
+  remained strongly positive.  The gate now keeps the continuous median and
+  removes the redundant thresholded summary.  Strong anchors still retain
+  their separate hard job in sequence proposal: a long line cannot start a
+  block.
 
 ### Median entry probability
 
 - **Question:** How bibliography-like is the typical line in the component?
 - **Representation:** Median frozen line-model probability.
 - **Expected direction:** Positive.
-- **Non-overlap:** Strong-anchor fraction measures how many lines cross a
-  trusted evidence threshold; the median measures the typical continuous
-  score and distinguishes distributions with the same threshold fraction.
+- **Non-overlap:** This is the gate's only aggregate positive line-score
+  summary.  It measures typical internal evidence rather than extent,
+  continuity, or section scope.
 
 ### Longest weak run fraction
 
@@ -226,6 +231,24 @@ not added to the gate:
 - **Non-overlap:** This measures the presence of an explicit competing line
   role.  It is not the absence of positive citation evidence, component size,
   internal weak-run continuity, or heading support.
+
+### Exact negative scope at or before the component start
+
+- **Question:** Does an explicit non-bibliography section begin where the
+  proposed component begins?
+- **Representation:** One binary value for an exact negative-scope heading on
+  the first candidate line or within the preceding two physical lines.  Scope
+  includes notes, CV/publications, ordinary body chapters, abbreviations,
+  figure/table lists, and related-material sections.
+- **Expected direction:** Negative.
+- **Generic-heading safeguard:** An unknown Markdown heading does not count.
+  This matters because genuine bibliography regions contain unenumerated
+  subheadings such as source types and language divisions.
+- **Train-OOF justification:** The cue occurred at 0.96% of accepted true
+  component starts, 23.0% of accepted false starts, and 58.5% of false starts
+  in silver-zero documents.
+- **Non-overlap:** Negative-role fraction describes the composition of the
+  whole component.  This feature describes the section boundary and scope.
 
 ### Component supervision purity
 
