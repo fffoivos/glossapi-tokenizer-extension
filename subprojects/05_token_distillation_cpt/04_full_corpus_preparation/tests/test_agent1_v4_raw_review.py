@@ -562,6 +562,12 @@ def test_builds_private_raw_review_site_with_lazy_source_cards_and_documents(tmp
     assert "Συνεκτικό ελληνικό κείμενο." in first_raw["text"]
     assert "Συνεκτικό ελληνικό κείμενο." not in (tmp_path / "review-site" / "data" / "index.json").read_text(encoding="utf-8")
     assert "loadSource" in (tmp_path / "review-site" / "assets" / "site.js").read_text(encoding="utf-8")
+    assert "html-render.js" in (tmp_path / "review-site" / "index.html").read_text(encoding="utf-8")
+    assert "vlm-repetition.js" in (tmp_path / "review-site" / "index.html").read_text(encoding="utf-8")
+    html_renderer = (tmp_path / "review-site" / "assets" / "html-render.js").read_text(encoding="utf-8")
+    assert "Rendered HTML" in html_renderer
+    assert "sandbox" in html_renderer
+    assert "VLM-output guard" in (tmp_path / "review-site" / "assets" / "vlm-repetition.js").read_text(encoding="utf-8")
     with pytest.raises(ValueError, match="127.0.0.1"):
         SITE.serve_site(tmp_path / "review-site", port=8765, bind="0.0.0.0")
 
