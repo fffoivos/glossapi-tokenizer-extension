@@ -190,6 +190,8 @@ def profile_document(row: Mapping[str, Any]) -> dict[str, Any]:
             "document_id": document_id,
             "work_id": work_id,
             "source": source,
+            "split": str(row.get("split", "")),
+            "coverage": str(row.get("coverage", "")),
             "block_index": block_index,
             "start_line_offset": members[0],
             "end_line_offset": members[-1],
@@ -216,6 +218,8 @@ def profile_document(row: Mapping[str, Any]) -> dict[str, Any]:
         "document_id": document_id,
         "work_id": work_id,
         "source": source,
+        "split": str(row.get("split", "")),
+        "coverage": str(row.get("coverage", "")),
         "n_physical_lines": int(row.get("n_physical_lines", 0)),
         "line_profiles": line_profiles,
         "blocks": blocks,
@@ -332,7 +336,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         row
         for row in _iter_rows(input_path)
         if row.get("split") == args.split
-        and row.get("coverage") == args.coverage
+        and (args.coverage == "all" or row.get("coverage") == args.coverage)
         and row.get("source") in sources
     ]
     if not rows:
@@ -341,8 +345,13 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
         profiles = list(executor.map(profile_document, rows, chunksize=1))
     block_inventory = [block for profile in profiles for block in profile["blocks"]]
+    review_block_inventory = [
+        block
+        for block in block_inventory
+        if args.review_coverage == "all" or block["coverage"] == args.review_coverage
+    ]
     selected = select_review_blocks(
-        block_inventory,
+        review_block_inventory,
         sources=sources,
         per_source=int(args.blocks_per_source),
         seed=str(args.seed),
@@ -391,7 +400,13 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
     output_dir.mkdir(parents=True)
     line_profile_rows = (
-        {"source": profile["source"], "work_id": profile["work_id"], **line}
+        {
+            "source": profile["source"],
+            "work_id": profile["work_id"],
+            "split": profile["split"],
+            "coverage": profile["coverage"],
+            **line,
+        }
         for profile in profiles
         for line in profile["line_profiles"]
     )
@@ -415,6 +430,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "selection": {
             "case_count": len(blind_cases),
             "blocks_per_source": int(args.blocks_per_source),
+            "review_coverage": str(args.review_coverage),
             "context_lines_each_side": int(args.context_lines),
             "source_counts": dict(sorted(collections.Counter(case["source"] for case in blind_cases).items())),
             "seed": str(args.seed),
@@ -432,6 +448,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     )
 
     source_document_counts = collections.Counter(profile["source"] for profile in profiles)
+    coverage_document_counts = collections.Counter(profile["coverage"] for profile in profiles)
     source_block_counts = collections.Counter(block["source"] for block in block_inventory)
     strata_counts = collections.Counter(
         stratum for block in block_inventory for stratum in block["strata"]
@@ -448,10 +465,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "slurm_job_id": str(args.slurm_job_id),
         "split": str(args.split),
         "coverage": str(args.coverage),
+        "review_coverage": str(args.review_coverage),
         "document_count": len(profiles),
         "line_count": sum(len(profile["line_profiles"]) for profile in profiles),
         "block_count": len(block_inventory),
         "source_document_counts": dict(sorted(source_document_counts.items())),
+        "coverage_document_counts": dict(sorted(coverage_document_counts.items())),
         "source_block_counts": dict(sorted(source_block_counts.items())),
         "block_strata_counts": dict(sorted(strata_counts.items())),
         "selected_block_count": len(selected),
@@ -482,7 +501,16 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--input", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--split", default="train")
-    parser.add_argument("--coverage", default="full_document")
+    parser.add_argument(
+        "--coverage",
+        default="all",
+        help="coverage mode to profile, or 'all' for the complete split",
+    )
+    parser.add_argument(
+        "--review-coverage",
+        default="full_document",
+        help="coverage mode eligible for the contextual review packet, or 'all'",
+    )
     parser.add_argument("--sources", default=",".join(SOURCES))
     parser.add_argument("--blocks-per-source", type=int, default=20)
     parser.add_argument("--context-lines", type=int, default=5)

@@ -71,7 +71,8 @@ uenv run "$UENV" --view=default -- \
         --output-dir "$OUTPUT_DIR" \
         --role-contract "$ROLE_CONTRACT" \
         --split train \
-        --coverage full_document \
+        --coverage all \
+        --review-coverage full_document \
         --sources greek_phd,kallipos,openarchives \
         --blocks-per-source 20 \
         --context-lines 5 \
@@ -91,6 +92,9 @@ assert receipt["status"] == "passed_prediction_blind_profile"
 assert receipt["code_commit"] == sys.argv[2]
 assert receipt["slurm_job_id"] == sys.argv[3]
 assert receipt["selected_block_count"] == 60
+assert receipt["document_count"] == 1118
+assert receipt["line_count"] == 939014
+assert receipt["review_coverage"] == "full_document"
 assert receipt["prediction_inputs_loaded"] is False
 assert receipt["model_outcomes_used_for_selection"] is False
 packet = json.loads((path.parent / "role_review_packet.blind.json").read_text(encoding="utf-8"))

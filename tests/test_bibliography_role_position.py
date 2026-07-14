@@ -164,6 +164,8 @@ def _document(document_id: str, work_id: str, source: str) -> dict[str, object]:
         "document_id": document_id,
         "work_id": work_id,
         "source": source,
+        "split": "train",
+        "coverage": "full_document",
         "n_physical_lines": len(lines),
         "lines": lines,
     }
