@@ -564,6 +564,14 @@ def test_builds_private_raw_review_site_with_lazy_source_cards_and_documents(tmp
     assert "loadSource" in (tmp_path / "review-site" / "assets" / "site.js").read_text(encoding="utf-8")
     assert "html-render.js" in (tmp_path / "review-site" / "index.html").read_text(encoding="utf-8")
     assert "vlm-repetition.js" in (tmp_path / "review-site" / "index.html").read_text(encoding="utf-8")
+    assert "detections.html" in (tmp_path / "review-site" / "index.html").read_text(encoding="utf-8")
+    detections_html = (tmp_path / "review-site" / "detections.html").read_text(encoding="utf-8")
+    assert "assets/detections.css" in detections_html
+    assert "assets/detections.js" in detections_html
+    detections_js = (tmp_path / "review-site" / "assets" / "detections.js").read_text(encoding="utf-8")
+    assert "data/vlm_repetition_audit.json" in detections_js
+    assert "Promise.all" in detections_js
+    assert "textContent" in detections_js
     html_renderer = (tmp_path / "review-site" / "assets" / "html-render.js").read_text(encoding="utf-8")
     assert "Mixed Markdown + HTML" in html_renderer
     assert "function comment(value)" in html_renderer

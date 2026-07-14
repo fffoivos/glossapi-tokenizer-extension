@@ -161,7 +161,7 @@ def _html() -> str:
   <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
-  <header><h1>Apertus raw-document review</h1><p id="coverage"></p><div id="overview"></div></header>
+  <header><h1>Apertus raw-document review</h1><p><a class="header-link" href="detections.html">VLM repetition detections</a></p><p id="coverage"></p><div id="overview"></div></header>
   <main>
     <section class="controls" aria-label="Document filters">
       <label>Source <select id="source-filter"></select></label>
@@ -197,7 +197,7 @@ def _html() -> str:
 
 
 def _css() -> str:
-    return """*{box-sizing:border-box}body{margin:0;background:#f8fafc;color:#152238;font:16px/1.45 system-ui,-apple-system,sans-serif}header,main{max-width:1500px;margin:auto;padding:1rem 1.25rem}header{background:#102a43;color:#fff;max-width:none;padding-left:max(1.25rem,calc((100% - 1500px)/2 + 1.25rem))}.controls{display:flex;gap:1rem;flex-wrap:wrap;background:#e8f1fa;padding:1rem}.controls label,.decisions label{display:grid;gap:.3rem}.layout{display:grid;grid-template-columns:minmax(260px,28%) 1fr;gap:1rem;margin-top:1rem}.layout nav{max-height:74vh;overflow:auto;background:#fff;border:1px solid #cbd5e1}.layout ol{margin:0;padding:0;list-style:none}.layout button{width:100%;text-align:left;border:0;border-bottom:1px solid #e2e8f0;background:#fff;padding:.7rem;cursor:pointer}.layout button:hover,.layout button:focus{background:#dceeff}.card{background:#fff;border:1px solid #cbd5e1;padding:1rem;min-width:0}.meta{display:grid;grid-template-columns:max-content 1fr;gap:.25rem .75rem}.score{display:inline-block;border-radius:.25rem;padding:.15rem .45rem;background:#dbeafe;margin-right:.5rem}.artifact,.vlm-audit{border-left:4px solid #c2410c;padding:.5rem .75rem;margin:.7rem 0;background:#fff7ed}.vlm-audit.clear{border-left-color:#15803d;background:#f0fdf4}.artifact pre,.raw{white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1220;color:#e5edf7;padding:1rem}.document-view-controls{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin:.75rem 0}.document-view-controls button{width:auto;text-align:center;border:1px solid #94a3b8;border-radius:.25rem;background:#fff;padding:.35rem .6rem}.document-view-controls button[aria-pressed=true]{background:#1f4d78;color:#fff}.html-render-frame{width:100%;height:48rem;border:1px solid #94a3b8;background:#fff}.decisions{margin-top:1rem;background:#fff;border:1px solid #cbd5e1;padding:1rem;display:grid;gap:.7rem}.decisions button{width:max-content;padding:.5rem .8rem}#overview{display:flex;gap:.5rem;flex-wrap:wrap;font-size:.85rem}#overview span{background:#1f4d78;padding:.2rem .45rem;border-radius:.2rem}@media(max-width:850px){.layout{grid-template-columns:1fr}.layout nav{max-height:30vh}.html-render-frame{height:36rem}}"""
+    return """*{box-sizing:border-box}body{margin:0;background:#f8fafc;color:#152238;font:16px/1.45 system-ui,-apple-system,sans-serif}header,main{max-width:1500px;margin:auto;padding:1rem 1.25rem}header{background:#102a43;color:#fff;max-width:none;padding-left:max(1.25rem,calc((100% - 1500px)/2 + 1.25rem))}.header-link{color:#dbeafe}.controls{display:flex;gap:1rem;flex-wrap:wrap;background:#e8f1fa;padding:1rem}.controls label,.decisions label{display:grid;gap:.3rem}.layout{display:grid;grid-template-columns:minmax(260px,28%) 1fr;gap:1rem;margin-top:1rem}.layout nav{max-height:74vh;overflow:auto;background:#fff;border:1px solid #cbd5e1}.layout ol{margin:0;padding:0;list-style:none}.layout button{width:100%;text-align:left;border:0;border-bottom:1px solid #e2e8f0;background:#fff;padding:.7rem;cursor:pointer}.layout button:hover,.layout button:focus{background:#dceeff}.card{background:#fff;border:1px solid #cbd5e1;padding:1rem;min-width:0}.meta{display:grid;grid-template-columns:max-content 1fr;gap:.25rem .75rem}.score{display:inline-block;border-radius:.25rem;padding:.15rem .45rem;background:#dbeafe;margin-right:.5rem}.artifact,.vlm-audit{border-left:4px solid #c2410c;padding:.5rem .75rem;margin:.7rem 0;background:#fff7ed}.vlm-audit.clear{border-left-color:#15803d;background:#f0fdf4}.artifact pre,.raw{white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1220;color:#e5edf7;padding:1rem}.document-view-controls{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin:.75rem 0}.document-view-controls button{width:auto;text-align:center;border:1px solid #94a3b8;border-radius:.25rem;background:#fff;padding:.35rem .6rem}.document-view-controls button[aria-pressed=true]{background:#1f4d78;color:#fff}.html-render-frame{width:100%;height:48rem;border:1px solid #94a3b8;background:#fff}.decisions{margin-top:1rem;background:#fff;border:1px solid #cbd5e1;padding:1rem;display:grid;gap:.7rem}.decisions button{width:max-content;padding:.5rem .8rem}#overview{display:flex;gap:.5rem;flex-wrap:wrap;font-size:.85rem}#overview span{background:#1f4d78;padding:.2rem .45rem;border-radius:.2rem}@media(max-width:850px){.layout{grid-template-columns:1fr}.layout nav{max-height:30vh}.html-render-frame{height:36rem}}"""
 
 
 def _js() -> str:
@@ -403,6 +403,109 @@ def _vlm_repetition_viewer_js() -> str:
 """
 
 
+def _detections_html() -> str:
+    """Standalone presentation of finalized-text VLM repetition detector findings."""
+
+    return """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src 'self'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>Apertus VLM repetition detections</title>
+  <link rel="stylesheet" href="assets/detections.css">
+</head>
+<body>
+  <header>
+    <p><a href="index.html">← Raw-document review</a></p>
+    <h1>VLM repetition detections</h1>
+    <p>Evidence presentation from the finalized-text guards used by the GlossAPI corpus OCR path.</p>
+  </header>
+  <main>
+    <section class="scope" aria-labelledby="scope-title">
+      <h2 id="scope-title">What this page shows</h2>
+      <p>Each card is a detector signal, not an automatic deletion decision. The raw-text excerpt is preserved exactly; the highlighted span starts at the detector’s reported character cut position.</p>
+      <p>The exact VLLM token-triplet loop detector is not included because these archived review documents retain text, not VLLM token IDs.</p>
+    </section>
+    <section id="audit-summary" aria-live="polite"><p>Loading detector audit…</p></section>
+    <section aria-labelledby="findings-title">
+      <h2 id="findings-title">Flagged documents</h2>
+      <div id="findings"><p>Loading raw evidence…</p></div>
+    </section>
+  </main>
+  <script src="assets/detections.js"></script>
+</body>
+</html>
+"""
+
+
+def _detections_css() -> str:
+    return """*{box-sizing:border-box}body{margin:0;background:#f8fafc;color:#172033;font:16px/1.5 system-ui,-apple-system,sans-serif}header,main{max-width:1450px;margin:auto;padding:1.25rem}header{background:#102a43;color:#fff;max-width:none;padding-left:max(1.25rem,calc((100% - 1450px)/2 + 1.25rem));padding-right:max(1.25rem,calc((100% - 1450px)/2 + 1.25rem))}header h1{margin:.15rem 0}header p{margin:.25rem 0}header a{color:#dbeafe}.scope,#audit-summary,.finding{background:#fff;border:1px solid #cbd5e1;padding:1rem;margin:1rem 0}.scope{border-left:4px solid #1d4ed8}.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem}.metric{background:#e8f1fa;border-radius:.35rem;padding:.7rem}.metric strong{display:block;font-size:1.55rem}.rule-list{display:flex;gap:.45rem;flex-wrap:wrap;margin:.75rem 0}.badge{display:inline-block;border-radius:999px;background:#fff1c2;border:1px solid #d39b00;padding:.1rem .55rem;font:600 .86rem/1.4 ui-monospace,SFMono-Regular,monospace}.finding{border-left:4px solid #c2410c;min-width:0}.finding h3{margin-top:0;overflow-wrap:anywhere}.metadata{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:.25rem .8rem}.metadata dt{font-weight:700}.metadata dd{margin:0;overflow-wrap:anywhere}.signal{border-top:1px solid #dbe3ee;margin-top:1rem;padding-top:1rem}.signal h4{margin:0 0 .3rem}.context-note{margin:.25rem 0;color:#475569;font-size:.9rem}.context{margin:.5rem 0 0;white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1220;color:#e5edf7;padding:1rem;max-height:38rem;overflow:auto}.context mark{background:#ffdc5d;color:#1d2939;padding:0}.streaming{background:#fff7ed;border-left:4px solid #c2410c;padding:.6rem .8rem;margin-top:.75rem}.error{background:#fef2f2;border-left:4px solid #b91c1c;padding:.75rem 1rem}@media(max-width:650px){header,main{padding:1rem}.metadata{grid-template-columns:1fr}.metadata dt{margin-top:.5rem}}"""
+
+
+def _detections_js() -> str:
+    """Browser-only renderer for the small, lazily loaded detector audit presentation."""
+
+    return r"""'use strict';
+(function(){
+  var summaryRoot=document.getElementById('audit-summary');
+  var findingsRoot=document.getElementById('findings');
+  var BEFORE=420, HIGHLIGHT=180, AFTER=720;
+  function text(tag,value){var node=document.createElement(tag);node.textContent=String(value==null?'':value);return node;}
+  function clear(node){while(node.firstChild)node.removeChild(node.firstChild);}
+  function failure(root,message){clear(root);var box=text('p',message);box.className='error';root.appendChild(box);}
+  function isFinding(row){return row&&((Array.isArray(row.rules)&&row.rules.length>0)||row.streaming_reason);}
+  function number(value){return typeof value==='number'&&Number.isFinite(value)?value:null;}
+  function metadata(label,value){return [text('dt',label),text('dd',value)];}
+  function renderSummary(audit,findings){
+    clear(summaryRoot);
+    var summary=audit.summary||{};
+    var grid=document.createElement('div');grid.className='summary-grid';
+    [[summary.document_count,'documents scanned'],[summary.documents_with_any_trigger,'documents flagged'],[(summary.rule_trigger_counts&&Object.values(summary.rule_trigger_counts).reduce(function(total,count){return total+Number(count||0);},0))||0,'rule detections']].forEach(function(metric){var box=document.createElement('div');box.className='metric';box.appendChild(text('strong',metric[0]));box.appendChild(text('span',metric[1]));grid.appendChild(box);});
+    summaryRoot.appendChild(grid);
+    var rules=summary.rule_trigger_counts||{};
+    var ruleList=document.createElement('div');ruleList.className='rule-list';Object.keys(rules).sort().forEach(function(rule){ruleList.appendChild(text('span',rule+': '+rules[rule]));ruleList.lastChild.className='badge';});
+    if(ruleList.childNodes.length)summaryRoot.appendChild(ruleList);
+    summaryRoot.appendChild(text('p','GlossAPI module: '+String((audit.detector||{}).implementation||'not recorded')+'. '+findings.length+' raw documents are loaded concurrently for this page.'));
+  }
+  function appendExcerpt(root,raw,rule){
+    var cut=number(rule.cut_index);
+    var section=document.createElement('section');section.className='signal';
+    if(cut===null||cut<0||cut>raw.length){section.appendChild(text('h4',String(rule.rule||'unknown rule')));section.appendChild(text('p','The audit’s cut position is unavailable for this raw document.'));root.appendChild(section);return;}
+    var start=Math.max(0,cut-BEFORE),highlightEnd=Math.min(raw.length,cut+HIGHLIGHT),end=Math.min(raw.length,highlightEnd+AFTER);
+    section.appendChild(text('h4',String(rule.rule||'unknown rule')+' at character '+cut));
+    section.appendChild(text('p','Raw context: characters '+start+'–'+end+'; highlight begins at the recorded cut.'));
+    var pre=document.createElement('pre');pre.className='context';
+    pre.appendChild(document.createTextNode(raw.slice(start,cut)));
+    var mark=document.createElement('mark');mark.textContent=raw.slice(cut,highlightEnd);pre.appendChild(mark);
+    pre.appendChild(document.createTextNode(raw.slice(highlightEnd,end)));
+    section.appendChild(pre);root.appendChild(section);
+  }
+  function renderFinding(row,result){
+    var article=document.createElement('article');article.className='finding';
+    article.appendChild(text('h3',row.source_id+' · '+row.source_doc_id));
+    var meta=document.createElement('dl');meta.className='metadata';
+    metadata('Opaque review document',row.opaque_id).forEach(function(node){meta.appendChild(node);});
+    metadata('Text SHA-256',row.text_sha256).forEach(function(node){meta.appendChild(node);});
+    metadata('Earliest reported cut',row.earliest_cut_index).forEach(function(node){meta.appendChild(node);});
+    article.appendChild(meta);
+    var badges=document.createElement('div');badges.className='rule-list';(row.rules||[]).forEach(function(rule){var badge=text('span',String(rule.rule)+' @ '+String(rule.cut_index));badge.className='badge';badges.appendChild(badge);});if(badges.childNodes.length)article.appendChild(badges);
+    if(row.streaming_reason){var streaming=text('p','Streaming guard reason: '+String(row.streaming_reason));streaming.className='streaming';article.appendChild(streaming);}
+    if(!result.ok){article.appendChild(text('p','Raw document could not be loaded: '+result.message));article.lastChild.className='error';return article;}
+    (row.rules||[]).sort(function(a,b){return Number(a.cut_index)-Number(b.cut_index)||String(a.rule).localeCompare(String(b.rule));}).forEach(function(rule){appendExcerpt(article,result.text,rule);});
+    return article;
+  }
+  function loadRaw(row){return fetch('data/documents/'+encodeURIComponent(row.opaque_id)+'.json',{cache:'no-store'}).then(function(response){if(!response.ok)throw new Error('HTTP '+response.status);return response.json();}).then(function(payload){if(!payload||typeof payload.text!=='string')throw new Error('invalid document payload');return {ok:true,text:payload.text};}).catch(function(error){return {ok:false,message:error.message||'request failed'};});}
+  fetch('data/vlm_repetition_audit.json',{cache:'no-store'}).then(function(response){if(!response.ok)throw new Error('HTTP '+response.status);return response.json();}).then(function(audit){
+    if(!audit||!Array.isArray(audit.documents))throw new Error('invalid audit payload');
+    var findings=audit.documents.filter(isFinding).sort(function(a,b){return String(a.source_id).localeCompare(String(b.source_id))||Number(a.earliest_cut_index)-Number(b.earliest_cut_index)||String(a.opaque_id).localeCompare(String(b.opaque_id));});
+    renderSummary(audit,findings);clear(findingsRoot);
+    return Promise.all(findings.map(function(row){return loadRaw(row).then(function(result){return {row:row,result:result};});})).then(function(rows){rows.forEach(function(item){findingsRoot.appendChild(renderFinding(item.row,item.result));});});
+  }).catch(function(error){failure(summaryRoot,'Detector audit failed to load: '+error.message);failure(findingsRoot,'No detections can be presented until the audit payload is available.');});
+})();
+"""
+
+
 def _tree_inventory(root: Path) -> list[dict[str, object]]:
     records: list[dict[str, object]] = []
     for path in sorted(root.rglob("*")):
@@ -494,10 +597,13 @@ def build_site(
         }
         _write_json(staging / "data" / "index.json", index)
         _write_file(staging / "index.html", _html().encode("utf-8"))
+        _write_file(staging / "detections.html", _detections_html().encode("utf-8"))
         _write_file(staging / "assets" / "site.css", _css().encode("utf-8"))
         _write_file(staging / "assets" / "site.js", _lazy_js().encode("utf-8"))
         _write_file(staging / "assets" / "html-render.js", _html_renderer_js().encode("utf-8"))
         _write_file(staging / "assets" / "vlm-repetition.js", _vlm_repetition_viewer_js().encode("utf-8"))
+        _write_file(staging / "assets" / "detections.css", _detections_css().encode("utf-8"))
+        _write_file(staging / "assets" / "detections.js", _detections_js().encode("utf-8"))
         inventory = _tree_inventory(staging)
         portable_assets = [
             item for item in inventory
