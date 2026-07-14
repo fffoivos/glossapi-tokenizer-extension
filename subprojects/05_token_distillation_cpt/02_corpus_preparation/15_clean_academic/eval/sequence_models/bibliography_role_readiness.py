@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Report whether trusted role labels satisfy the frozen scaling gates."""
+"""Report whether trusted role labels satisfy opportunity-aware scaling gates."""
 
 from __future__ import annotations
 
@@ -60,19 +60,29 @@ def evaluate(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
             gates.append(
                 {"gate": f"{role}:{source}", "observed": role_by_source[source][role], "required": 30}
             )
-    for source in SOURCES:
-        headers = role_by_source[source]["HEADER"] + role_by_source[source]["SUBHEADER"]
-        gates.append({"gate": f"HEADER_OR_SUBHEADER:{source}", "observed": headers, "required": 50})
+    header_by_source = {
+        source: role_by_source[source]["HEADER"] + role_by_source[source]["SUBHEADER"]
+        for source in SOURCES
+    }
+    gates.append(
+        {"gate": "HEADER_OR_SUBHEADER:overall", "observed": sum(header_by_source.values()),
+         "required": 100}
+    )
+    gates.append(
+        {"gate": "HEADER_OR_SUBHEADER:sources_ge_30",
+         "observed": sum(value >= 30 for value in header_by_source.values()), "required": 2}
+    )
     gates.append({"gate": "BOUNDARY_STOPS:overall", "observed": boundary_stops, "required": 100})
     for gate in gates:
         gate["passed"] = int(gate["observed"]) >= int(gate["required"])
         gate["deficit"] = max(0, int(gate["required"]) - int(gate["observed"]))
     return {
-        "schema_version": "bibliography-role-readiness-v1",
+        "schema_version": "bibliography-role-readiness-v2",
         "status": "ready" if all(row["passed"] for row in gates) else "more_review_required",
         "trusted_line_count": trusted_rows,
         "role_totals": dict(sorted(role_totals.items())),
         "role_by_source": {source: dict(sorted(role_by_source[source].items())) for source in SOURCES},
+        "header_or_subheader_by_source": header_by_source,
         "trusted_boundary_stop_count": boundary_stops,
         "gates": gates,
         "failed_gates": [row["gate"] for row in gates if not row["passed"]],
@@ -82,19 +92,28 @@ def evaluate(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--overlay", required=True)
-    parser.add_argument("--packet", required=True, help="blind packet used to recover source by line identity")
+    parser.add_argument(
+        "--packet", action="append", required=True,
+        help="blind packet used to recover source by line identity; repeat for overlay unions",
+    )
     parser.add_argument("--output", required=True)
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
-    overlay_path, packet_path = Path(args.overlay).resolve(), Path(args.packet).resolve()
-    packet = json.loads(packet_path.read_text(encoding="utf-8"))
-    source_by_key = {
-        (str(case["document_id"]), str(line["line_id"])): str(case["source"])
-        for case in packet["cases"] for line in case["lines"]
-    }
+    overlay_path = Path(args.overlay).resolve()
+    packet_paths = [Path(value).resolve() for value in args.packet]
+    source_by_key: dict[tuple[str, str], str] = {}
+    for packet_path in packet_paths:
+        packet = json.loads(packet_path.read_text(encoding="utf-8"))
+        for case in packet["cases"]:
+            for line in case["lines"]:
+                key = (str(case["document_id"]), str(line["line_id"]))
+                source = str(case["source"])
+                if key in source_by_key and source_by_key[key] != source:
+                    raise ValueError(f"packet source conflict for {key}")
+                source_by_key[key] = source
     rows = []
     for row in _rows(overlay_path):
         local = dict(row)
@@ -105,7 +124,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         rows.append(local)
     report = evaluate(rows)
     report["inputs"] = {
-        "overlay_sha256": sha256_file(overlay_path), "packet_sha256": sha256_file(packet_path)
+        "overlay_sha256": sha256_file(overlay_path),
+        "packet_sha256": [sha256_file(path) for path in packet_paths],
     }
     output = Path(args.output).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
