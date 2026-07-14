@@ -313,8 +313,29 @@ Do not fit or report P0-P1G yet. The automatic full overlay exists and the
 ```
 
 It contains 10 blocks per source and 3,524 contextual lines. Reviewer outputs
-remain hidden until Foivos records an independent decision. The exported
-human decisions must still be applied.
+remain hidden until Foivos records an independent decision. Exported human
+decisions are applied through the provenance-bound adjudicator.
+
+Foivos subsequently reviewed 252 lines from three Greek PhD documents. The
+validated export and human-adjudicated overlay are under
+`human-audit/export/` and `human-audit/adjudication/` in the local handoff
+root. Results:
+
+- all three reviewers agreed on 226/252 exact roles (89.68%);
+- the automatic passes agreed with each other on 241/252 roles, and Foivos
+  confirmed 226/241 of those agreements (93.78%);
+- on all 11 automatic role disagreements, Foivos selected one of the two
+  proposed roles (pass A seven times, pass B four times), never a third role;
+- all 15 corrections to automatic consensus were within the
+  `ENTRY_ANCHOR`/`CONTINUATION`/`FILLER` distinction; there was no correction
+  between bibliography material and `NON_BIB`;
+- the automatic passes agreed on all 252 boundary flags, and Foivos confirmed
+  242/252 (96.03%).
+
+The human overlay contains 5,346 trusted role lines. It does not manufacture
+cross-source coverage: this audit covered Greek PhD only, so the remaining
+readiness deficits are still 2 Kallipos continuations, 19 Kallipos fillers,
+2 Greek PhD headers/subheaders, and 47 Kallipos headers/subheaders.
 
 Only `AGREED_REVIEW` and `ADJUDICATED` roles can create entry targets.
 Unreviewed silver `BIB` remains masked; silver `O`/`TOC` remains an entry
