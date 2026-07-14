@@ -209,6 +209,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     report = {
         "schema_version": SCHEMA_VERSION,
         "status": "passed_train_oof_advancement_validation_unopened",
+        "code_commit": args.code_commit,
+        "slurm_job_id": args.slurm_job_id,
         "precision_target": args.precision_target,
         "maximum_source_recall_loss": args.maximum_source_recall_loss,
         "work_count": len(unique_works),
@@ -250,6 +252,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--maximum-source-recall-loss", type=float, default=0.01)
     parser.add_argument("--bootstrap-replicates", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=20260714)
+    parser.add_argument("--code-commit", required=True)
+    parser.add_argument("--slurm-job-id", required=True)
     return parser.parse_args(argv)
 
 
