@@ -14,6 +14,7 @@ set -euo pipefail
 umask 077
 
 CODE_ROOT=${CODE_ROOT:?set immutable code-bundle root}
+PY_DEPS=${PY_DEPS:?set pinned scikit-learn target directory}
 DOCUMENTS=${DOCUMENTS:?set source-matched documents JSONL}
 SELECTION_MANIFEST=${SELECTION_MANIFEST:?set source-matched selection manifest}
 LINE_MODEL=${LINE_MODEL:?set frozen final D1 line model}
@@ -29,13 +30,14 @@ done
 for receipt in "$SIGNAL_TCN_DIR/receipt.json" "$RECALL_BLOCK_DIR/receipt.json"; do
   [[ -f "$receipt" && ! -L "$receipt" ]] || exit 91
 done
+[[ -d "$PY_DEPS" && -f "$PY_DEPS/sklearn/__init__.py" && ! -L "$PY_DEPS" ]] || exit 92
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 93
 
 export CUDA_VISIBLE_DEVICES="" NVIDIA_VISIBLE_DEVICES=void ROCR_VISIBLE_DEVICES="" HIP_VISIBLE_DEVICES=""
 export PYTHONHASHSEED=0 OMP_NUM_THREADS=16 MKL_NUM_THREADS=16 OPENBLAS_NUM_THREADS=16
 
 uenv run "$UENV" --view=default -- \
-  env PYTHONPATH="$CODE_ROOT" python3 -m sequence_models.bibliography_unseen_block_review \
+  env PYTHONPATH="$PY_DEPS:$CODE_ROOT" python3 -m sequence_models.bibliography_unseen_block_review \
   --documents "$DOCUMENTS" \
   --selection-manifest "$SELECTION_MANIFEST" \
   --line-model "$LINE_MODEL" \
