@@ -4,6 +4,7 @@ import numpy as np
 
 from sequence_models.bibliography_entry_blocks import BlockConfig
 from sequence_models.bibliography_entry_component_gate import (
+    EXTENT_SATURATION_LINES,
     FEATURE_NAMES,
     _longest_true_run,
     _span_iou,
@@ -34,11 +35,24 @@ def test_component_features_have_one_value_per_documented_job() -> None:
         CONFIG,
     )
     assert len(values) == len(FEATURE_NAMES) == 5
-    assert values[0] == 0.0
+    assert np.isclose(values[0], 4 / EXTENT_SATURATION_LINES)
     assert np.isclose(values[1], 0.5)
     assert np.isclose(values[2], 0.7)
     assert np.isclose(values[3], 0.25)
     assert values[4] == 1.0
+
+
+def test_minimum_extent_saturates_without_rewarding_giant_merges() -> None:
+    values = component_feature_vector(
+        np.full(50, 0.8),
+        np.full(50, 80),
+        np.zeros(50),
+        np.arange(50),
+        0,
+        49,
+        CONFIG,
+    )
+    assert values[0] == 1.0
 
 
 def test_component_header_must_be_at_or_immediately_before_start() -> None:

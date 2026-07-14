@@ -35,9 +35,10 @@ from .feature_crf import LinearChainCRF
 from .features import TAGS
 
 
-SCHEMA_VERSION = "bibliography-entry-component-gate-oof-v1"
+SCHEMA_VERSION = "bibliography-entry-component-gate-oof-v2"
+EXTENT_SATURATION_LINES = 32
 FEATURE_NAMES = (
-    "component_has_at_least_five_lines",
+    "saturated_minimum_extent",
     "strong_anchor_fraction",
     "median_entry_probability",
     "longest_weak_run_fraction",
@@ -140,7 +141,8 @@ def component_feature_vector(
     )
     return np.asarray(
         (
-            float(len(values) >= 5),
+            min(len(values), EXTENT_SATURATION_LINES)
+            / EXTENT_SATURATION_LINES,
             np.count_nonzero(strong) / len(values),
             np.median(values),
             _longest_true_run(weak) / len(values),
@@ -667,11 +669,14 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "feature_names": list(FEATURE_NAMES),
         "expected_feature_directions": list(EXPECTED_DIRECTIONS),
         "feature_reference": {
-            "component_has_at_least_five_lines": "Minimum extent: distinguish a plausible document region from one isolated citation without assuming that ever-larger spans are safer.",
+            "saturated_minimum_extent": "Minimum extent: rise linearly from zero to full structural evidence at 32 lines, then stop increasing so a pathological prose merge is not rewarded for being ever larger.",
             "strong_anchor_fraction": "Evidence density: measure the share of component lines that are normal-length and have frozen entry probability at least 0.70.",
             "median_entry_probability": "Typical evidence: measure how bibliography-like the middle line score is, not the strongest outlier.",
             "longest_weak_run_fraction": "Internal contradiction: measure the longest uninterrupted prose-like hole as a fraction of the component.",
             "exact_header_at_or_before_start": "Independent structure: record an exact multilingual bibliography heading on the first component line or immediately before it.",
+        },
+        "feature_constants": {
+            "extent_saturation_lines": EXTENT_SATURATION_LINES,
         },
         "proposal": {
             "variants": list(args.variants),

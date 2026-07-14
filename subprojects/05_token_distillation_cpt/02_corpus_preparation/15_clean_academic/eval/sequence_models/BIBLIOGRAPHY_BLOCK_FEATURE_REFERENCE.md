@@ -121,18 +121,42 @@ monotonic-gradient-tree model.  Models and decisions are grouped by the
 existing work-level folds, and the five unusable training extractions are
 excluded by the independent text-quality review.
 
-### Minimum component size
+### Saturated minimum extent
 
 - **Question:** Is the proposed contiguous region large enough not to be an
   isolated citation?
-- **Representation:** One binary value for at least five emitted lines.
+- **Representation:** Component line count divided by 32 and capped at `1.0`.
+  A 10-line component receives `0.3125`, a 32-line component receives `1.0`,
+  and a 400-line component still receives only `1.0`.
 - **Expected direction:** Positive.
-- **Reason for using a minimum instead of raw size:** Permissive proposals can
-  merge long stretches of citation-rich prose.  Such false components were
-  often larger than true bibliographies, so “ever larger is safer” was not a
-  valid monotonic rule.  The five-line minimum preserves the intended
-  isolation safeguard without rewarding pathological expansion.
+- **Reason for the 32-line saturation:** In the train-OOF diagnostic, accepted
+  true components had median extent 34 lines, while accepted false components
+  had median extent 10 and 75% were at or below roughly 21 lines.  Thirty-two
+  is a round structural scale between those groups.  It is not a hard cutoff:
+  short real bibliographies retain partial positive evidence.
+- **Reason for saturation instead of raw size:** Permissive proposals can merge
+  long stretches of citation-rich prose.  Such false components were often
+  larger than true bibliographies, so “ever larger is safer” is not a valid
+  monotonic rule.  Saturation rewards reaching a substantial region but gives
+  no extra credit to pathological expansion.
 - **Non-overlap:** This measures extent only; it does not inspect line content.
+
+### Rejected exploratory additions (2026-07-14)
+
+These measurements were evaluated on train OOF components but deliberately
+not added to the gate:
+
+- **Table-row fraction:** true and false accepted components had nearly the
+  same mean, and both had median zero.  It does not explain the general error.
+- **Prose-lead fraction:** almost always zero in both groups, so it adds no
+  useful block discrimination.
+- **Proposal-island count:** both true and false components usually belonged
+  to one or two permissive proposal islands.  It did not identify scattered
+  false regions reliably.
+- **Author-start and publication-tail fractions:** these separate the broad
+  candidate classes, but repeat evidence already consumed by the frozen line
+  classifier.  Adding them at block level would violate the one-job ownership
+  rule unless a future ablation proves independent structural information.
 
 ### Strong anchor fraction
 
