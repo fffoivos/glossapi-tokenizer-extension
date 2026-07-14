@@ -1,5 +1,11 @@
 # Bibliography line-to-block classifier plan
 
+> **2026-07-14 successor:**
+> [BIB_POSITIONAL_ROLE_PIPELINE_PLAN_20260714.md](BIB_POSITIONAL_ROLE_PIPELINE_PLAN_20260714.md)
+> corrects the conflated entry target, adds intra-line positional experiments,
+> and separates entry, continuation, filler, header, and boundary stages. This
+> document remains the frozen count-only/B0/H0 baseline plan.
+
 ## Objective
 
 Build an interpretable bibliography-entry line classifier from the 35 current
