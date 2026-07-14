@@ -137,9 +137,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     if len(source_rows) != len(base.documents):
         raise ValueError("source/base document count mismatch")
     for index, (row, document) in enumerate(zip(source_rows, base.documents, strict=True)):
+        start, end = int(document["line_start"]), int(document["line_end"])
+        source_abs = np.asarray([line.get("abs_idx") for line in row.get("lines", [])])
         if (
             row.get("document_id") != document["document_id"]
             or len(row.get("lines", [])) != int(document["line_count"])
+            or not np.array_equal(source_abs, base.abs_indices[start:end])
         ):
             raise ValueError(f"source/base document alignment mismatch at {index}")
     tasks = [(index, row, str(chunks)) for index, row in enumerate(source_rows)]

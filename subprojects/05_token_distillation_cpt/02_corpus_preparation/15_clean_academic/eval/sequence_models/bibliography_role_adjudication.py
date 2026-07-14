@@ -230,7 +230,8 @@ def merge_reviews(
     entry_rate = entry_agreement / denominator
     report = {
         "schema_version": REPORT_SCHEMA,
-        "status": "calibration_passed" if exact_role_rate >= 0.85 and entry_rate >= 0.95 else "calibration_failed",
+        "status": "agreement_gates_passed" if exact_role_rate >= 0.85 and entry_rate >= 0.95 else "agreement_gates_failed",
+        "agreement_gates_passed": exact_role_rate >= 0.85 and entry_rate >= 0.95,
         "gates": {
             "complete_line_coverage_required": True,
             "exact_seven_role_agreement_minimum": 0.85,

@@ -34,6 +34,7 @@ ROLE_TO_ID = {name: index for index, name in enumerate(ROLE_NAMES)}
 STATUS_TO_ID = {name: index for index, name in enumerate(STATUS_NAMES)}
 BOUNDARY_TO_ID = {name: index for index, name in enumerate(BOUNDARY_NAMES)}
 TRUSTED = frozenset({"AGREED_REVIEW", "ADJUDICATED"})
+SOURCE_LABEL_TO_ID = {"O": 0, "BIB": 1, "TOC": 2, "UNKNOWN": 3}
 
 
 def _iter_jsonl(path: Path) -> Iterable[Mapping[str, Any]]:
@@ -110,6 +111,16 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ):
             raise ValueError(f"source/base alignment mismatch at document {document_index}")
         start = int(document["line_start"])
+        source_abs = np.asarray([line.get("abs_idx") for line in lines])
+        source_labels = np.asarray(
+            [SOURCE_LABEL_TO_ID.get(str(line.get("label")), -1) for line in lines]
+        )
+        end = int(document["line_end"])
+        if (
+            not np.array_equal(source_abs, base.abs_indices[start:end])
+            or not np.array_equal(source_labels, base.original_labels[start:end])
+        ):
+            raise ValueError(f"source/base line alignment mismatch at document {document_index}")
         for offset, line in enumerate(lines):
             line_id = str(line.get("line_id") or f"{document_id}:{int(line['abs_idx'])}")
             key = (document_id, line_id)
