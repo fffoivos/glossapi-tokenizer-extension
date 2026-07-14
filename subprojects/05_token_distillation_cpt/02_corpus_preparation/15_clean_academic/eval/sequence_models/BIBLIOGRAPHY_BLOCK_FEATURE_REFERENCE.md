@@ -449,6 +449,25 @@ cue perpendicular to bibliography evidence: the cue owns only its explicitly
 scoped region, while repeated citation evidence owns neighbouring regions.
 The grouped train-OOF grid must again be rerun before validation.
 
+### Frozen anchors and low-confidence islands
+
+The recall-first decoder chosen on grouped train OOF uses a contextual score
+of 0.30 as an anchor.  At least two anchors must occur within 16 emitted lines
+before a block can exist.  Once they do, weak lines can be bridged over an
+eight-line gap and two weak boundary lines can be attached when their score is
+at least 0.05.  These numbers are decoder settings selected on train OOF, not
+new line features.
+
+After the scope-wall correction, every large remaining validation miss had
+fewer than two 0.30 anchors in the required window.  Examples include long
+lists of legal memoranda, ancient authors and works, archival sources, and
+author publications.  That diagnosis does **not** justify lowering 0.30 on
+validation: doing so could admit isolated citation-like prose and would tune
+against the held-out result.  A future change must be proposed and selected on
+train/source-held-out evidence, then evaluated on fresh documents.  Sparse
+two-line reading lists embedded in textbook chapters remain outside the
+large-block target even when each line looks bibliographic.
+
 ## Rich component gate (rejected)
 
 A shallow monotonic tree and an unconstrained logistic model tested ten

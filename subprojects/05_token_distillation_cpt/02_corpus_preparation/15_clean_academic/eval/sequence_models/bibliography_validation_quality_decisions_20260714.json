@@ -8,6 +8,17 @@
   "manual_followup_reviewed_document_count": 50,
   "manual_followup_excluded_document_count": 6,
   "additional_prediction_blind_exclusion_count": 1,
+  "prediction_blind_excluded_document_ids": [
+    "6a3b5b03d5974ba5a5247de89eec9bc819a3fc10c8a71ecd1a76e209f3ab6107",
+    "182b139ccd8e9c9cb12672b86b464402174ae2a06b95664edc496a74d7252e8f",
+    "d2beb0b78e45436082adba863e5cee8538d9d2b44e546ba59779777844c2698b",
+    "4a588842e2037c1b2f645f9d711a29f908b884fe54d9ebd8837d663edd2f6e04",
+    "485835e733365d7ed8369e55c87ef82f08bff8333c15559efb087ddf48b1a2d7",
+    "2ce6f4062432a423eaa65b624ae1b46010263332868546c17306ee444b4aee1a"
+  ],
+  "outcome_directed_additional_excluded_document_ids": [
+    "eaf30b21c0521c0ee56830a20d4eecb5ff08c1a5a2d5626c5455e33549b571d5"
+  ],
   "manual_followup_review_record": "BIB_VALIDATION_WORST50_REVIEW_20260714.md",
   "manual_followup_decisions_text_only": true,
   "metric_interpretation": "diagnostic_sensitivity_analysis_not_an_unbiased_heldout_estimate_after_outcome_directed_followup",

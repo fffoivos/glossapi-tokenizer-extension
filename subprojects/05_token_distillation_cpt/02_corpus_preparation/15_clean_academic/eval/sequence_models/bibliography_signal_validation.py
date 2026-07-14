@@ -69,7 +69,9 @@ def _save_array(path: Path, value: np.ndarray) -> None:
         np.save(handle, value, allow_pickle=False)
 
 
-def _validation_quality_exclusions(path: Path) -> tuple[set[str], dict[str, Any]]:
+def _validation_quality_exclusions(
+    path: Path,
+) -> tuple[set[str], set[str], set[str], dict[str, Any]]:
     packet = json.loads(path.read_text(encoding="utf-8"))
     if packet.get("schema_version") != "bibliography-validation-quality-decisions-v1":
         raise ValueError("unsupported validation-quality decisions")
@@ -79,11 +81,28 @@ def _validation_quality_exclusions(path: Path) -> tuple[set[str], dict[str, Any]
     ids = [str(row["document_id"]) for row in rows]
     if len(ids) != len(set(ids)):
         raise ValueError("validation-quality decisions contain duplicate documents")
-    return {
+    excluded = {
         str(row["document_id"])
         for row in rows
         if row.get("decision") == "exclude"
-    }, packet
+    }
+    prediction_blind = {
+        str(value)
+        for value in packet.get("prediction_blind_excluded_document_ids", ())
+    }
+    outcome_directed = {
+        str(value)
+        for value in packet.get(
+            "outcome_directed_additional_excluded_document_ids", ()
+        )
+    }
+    if (
+        not prediction_blind
+        or prediction_blind & outcome_directed
+        or prediction_blind | outcome_directed != excluded
+    ):
+        raise ValueError("validation-quality exclusion provenance is inconsistent")
+    return excluded, prediction_blind, outcome_directed, packet
 
 
 def _materialize_roles(
@@ -219,9 +238,13 @@ def select_train_recall_candidate(report: dict[str, Any]) -> dict[str, Any]:
 
 
 def _breakdowns(
-    table: Any, prediction: np.ndarray, qualified: set[int]
+    table: Any,
+    prediction: np.ndarray,
+    qualified: set[int],
+    prediction_blind_qualified: set[int],
 ) -> dict[str, Any]:
     by_source: dict[str, Any] = {}
+    prediction_blind_by_source: dict[str, Any] = {}
     for source in sorted({str(document.get("source")) for document in table.documents}):
         subset = {
             index
@@ -231,11 +254,23 @@ def _breakdowns(
         by_source[source] = evaluate_prediction(
             table, prediction, document_subset=subset
         )
+        blind_subset = {
+            index
+            for index in prediction_blind_qualified
+            if str(table.documents[index].get("source")) == source
+        }
+        prediction_blind_by_source[source] = evaluate_prediction(
+            table, prediction, document_subset=blind_subset
+        )
     return {
         "full": evaluate_prediction(table, prediction),
+        "prediction_blind_extraction_qualified": evaluate_prediction(
+            table, prediction, document_subset=prediction_blind_qualified
+        ),
         "extraction_qualified": evaluate_prediction(
             table, prediction, document_subset=qualified
         ),
+        "prediction_blind_qualified_by_source": prediction_blind_by_source,
         "qualified_by_source": by_source,
     }
 
@@ -324,7 +359,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     )
     recall_report = json.loads(recall_report_path.read_text(encoding="utf-8"))
     anchored_row = select_train_recall_candidate(recall_report)
-    quality_excluded, quality_packet = _validation_quality_exclusions(
+    (
+        quality_excluded,
+        prediction_blind_excluded,
+        outcome_directed_excluded,
+        quality_packet,
+    ) = _validation_quality_exclusions(
         Path(args.quality_decisions).resolve()
     )
     known_ids = {str(document["document_id"]) for document in table.documents}
@@ -334,6 +374,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         index
         for index, document in enumerate(table.documents)
         if str(document["document_id"]) not in quality_excluded
+    }
+    prediction_blind_qualified = {
+        index
+        for index, document in enumerate(table.documents)
+        if str(document["document_id"]) not in prediction_blind_excluded
     }
     output_dir = Path(args.output_dir).resolve()
     if output_dir.exists() or output_dir.is_symlink():
@@ -403,7 +448,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         _save_array(output_dir / f"{name}.prediction.npy", prediction)
         candidates[name] = {
             "train_oof_frozen_row": train_rows[name],
-            "validation": _breakdowns(table, prediction, qualified),
+            "validation": _breakdowns(
+                table, prediction, qualified, prediction_blind_qualified
+            ),
             "worst_qualified_misses": _worst_misses(
                 table, prediction, qualified
             ),
@@ -421,6 +468,15 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "decision_schema": quality_packet["schema_version"],
             "excluded_document_count": len(quality_excluded),
             "qualified_document_count": len(qualified),
+            "prediction_blind_excluded_document_count": len(
+                prediction_blind_excluded
+            ),
+            "prediction_blind_qualified_document_count": len(
+                prediction_blind_qualified
+            ),
+            "outcome_directed_additional_excluded_document_count": len(
+                outcome_directed_excluded
+            ),
             "interpretation": quality_packet.get("metric_interpretation"),
         },
         "input_hashes": {

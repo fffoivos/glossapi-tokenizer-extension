@@ -381,6 +381,110 @@ into more raw-silver spurious blocks.  This arm is rejected.  Further model
 tuning is paused at the label-completeness and policy boundary; validation is
 still unopened.
 
+## Recall-first block continuation — 2026-07-14
+
+The later recall-first work did not relax the requirement that an isolated
+citation-looking line cannot start deletion.  It reused the frozen signal TCN
+and searched the predeclared train-OOF anchored grid for the highest line
+recall at a minimum 0.90 raw-silver line precision.  Two or more anchors within
+a bounded window must still establish a block.
+
+The first validation attempt, job `2758212`, failed closed before computing
+metrics.  The exact heading `ΣΥΝΤΟΜΟΓΡΑΦΙΕΣ` enclosed 971 silver-BIB lines in
+one document.  Abbreviation lists can expand citation keys into complete
+entries, so abbreviation headings remain a competing structural line role but
+no longer establish a hard negative section scope.  This is a semantic rule,
+not a document exception.  Corrected train job `2758219` and validation job
+`2758220` then completed.
+
+Failure review of that validation exposed a second generic decoder bug.  A
+valid bibliography immediately before a `List of Figures`/`List of Tables`
+region and a publication list immediately after it were both discarded when
+boundary expansion touched the intervening negative scope.  Commit `8656787`
+makes exact negative scope a wall: anchors, weak-line bridging, and header
+attachment operate independently on each side; scope lines cannot be emitted;
+and a neighbouring coherent block survives.  Sixteen focused tests passed in
+the immutable Clariden runtime before the revised metric run.
+
+Train-only job `2758230` selected the same recall-first configuration family:
+anchor probability 0.30, two anchors within 16 lines, bridge gap 8, inside
+probability 0.05, and two-line boundary expansion.  Against the previous
+scope implementation, train-OOF line recall rose from 0.952948 to 0.954082 and
+token recall from 0.979891 to 0.981018.  Line precision was 0.913932 and token
+precision 0.910663.  No validation-derived threshold or model weight changed.
+
+Validation job `2758231` evaluated the frozen candidate.  Three populations
+must be kept distinct:
+
+| Reporting population | Documents | Line precision | Line recall | Token precision | Token recall |
+|---|---:|---:|---:|---:|---:|
+| all LLM-silver validation rows, including unusable extractions | 274 | 0.941128 | 0.750975 | 0.941929 | 0.961685 |
+| prediction-blind extraction-qualified | 268 | 0.944981 | 0.967273 | 0.951407 | 0.980736 |
+| outcome-directed worst-50 diagnostic-qualified | 267 | 0.944981 | 0.991138 | 0.951407 | 0.993298 |
+
+The 267-document number is the requested readability sensitivity analysis,
+not a replacement for the raw 274-document result or an untouched estimate.
+The worst-50 text audit inspected the beginning, quartiles, end, and three
+missed-BIB regions of every selected document.  It retained 44/50 and excluded
+six unusable extractions; a seventh prediction-blind exclusion lies outside
+the worst 50.  The one extra outcome-directed exclusion is a garbled encoded
+document in which the classifier emitted no lines, which is why precision is
+identical in the 267- and 268-document rows.
+
+On the 267 readable documents, line recall is independently high for every
+source: 0.988376 for Greek PhD, 0.994786 for Kallipos, and 0.998216 for
+OpenArchives.  Their token recalls are 0.990995, 0.995790, and 0.999373.
+
+The largest remaining valid missed runs were inspected line by line.  Every
+one lacks two signal scores at or above the frozen 0.30 anchor threshold within
+16 lines; none is caused by the corrected scope barrier.  The dominant cases
+are low-confidence but coherent legal-memorandum, archival-source,
+ancient-author, and author-publication sub-blocks next to detected material.
+Several much smaller misses are isolated two-line reading lists inside
+textbook chapters, which the large-block policy intentionally does not target.
+Lowering the anchor threshold after seeing these validation examples would be
+validation tuning and was not attempted.
+
+Immutable Clariden artifacts:
+
+```text
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/signal_recall_blocks_r3
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/signal_validation_r3
+```
+
+### Whole-source robustness audit
+
+Commit `0f7a34e` adds a selection-ineligible robustness path.  It preserves all
+frozen line features and labels but assigns Greek PhD, Kallipos, and
+OpenArchives to three complete source folds.  Job `2758234` materialized that
+fold view.  Job `2758235` fitted three otherwise identical signal TCNs, each
+without any document from its held-out source.  Job `2758239` applied the
+already-selected recall-first decoder from job `2758230`; no threshold was
+searched on the source-held-out predictions.
+
+Overall source-held-out signal-TCN performance was 0.920972 line precision /
+0.954707 line recall and 0.914799 token precision / 0.980904 token recall.
+Line recall is therefore essentially unchanged from the ordinary grouped
+train-OOF result of 0.954082.  Held-out-source results were:
+
+| Entire TCN source held out | Documents | Line precision | Line recall | Token precision | Token recall |
+|---|---:|---:|---:|---:|---:|
+| Greek PhD | 370 | 0.928390 | 0.954084 | 0.922336 | 0.986576 |
+| Kallipos | 369 | 0.919225 | 0.972396 | 0.910617 | 0.973817 |
+| OpenArchives | 374 | 0.898386 | 0.947274 | 0.890540 | 0.964593 |
+
+This is a robustness check for the contextual block model, not a full
+unseen-source estimate.  Its frozen entry-probability input is document-OOF
+but was not retrained with the complete source removed.  The result nevertheless
+shows that the contextual recall gain does not depend on access to other
+documents from the held-out source.
+
+```text
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/source_holdout_table_r1
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/signal_tcn_source_holdout_r1
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z/signal_source_holdout_eval_r1
+```
+
 ## High-risk joint-review site
 
 Review job `2754381` selected 120 proposed blocks: exactly 40 each from
@@ -456,6 +560,10 @@ acceptance check.
 - `fc444e5` — retain only five fold-stable block features.
 - `5d74c6d` — add core-only connected expansion for weaker neighbouring spans.
 - `e7ffff3` — train grouped OOF B1 models with deterministic competing roles.
+- `8656787` — treat exact negative scope as a hard barrier rather than a
+  poison pill for neighbouring blocks.
+- `0f7a34e` — add the selection-ineligible whole-source contextual-model
+  robustness audit.
 
 Superseded job `2754325` failed in ten seconds before model fitting because an
 initial bundle omitted the legacy `line_lr.py` runtime sibling.  It produced no
