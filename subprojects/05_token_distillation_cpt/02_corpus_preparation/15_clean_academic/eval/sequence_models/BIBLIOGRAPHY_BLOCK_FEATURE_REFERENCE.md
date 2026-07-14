@@ -445,3 +445,28 @@ then be filled only between those anchors or immediately beside the established
 region.  Line length remains absent, an isolated high-scoring line cannot start
 a deletion, exact scope can only veto, and H0 remains downstream.  This is the
 active `signal_blocks_r1` experiment.
+
+The anchored grid did not beat the retained exact-scope candidate.  Its best
+strict-safe nonempty point reached 99.71% line precision but only 19.38% line
+recall.  Its useful diagnostic point reached 98.13% precision / 86.46% recall
+and 98.44% token precision / 91.10% token recall, but raw silver counted 0.0451
+spurious blocks per zero-BIB document.
+
+A subsequent barrier experiment tested exact/generic headings, figure captions,
+footnotes, and sustained runs of very-low TCN probability as split points.
+Stable-negative barriers could not create or expand a deletion.  They did not
+improve the high-recall frontier and produced no strict-safe candidate.  The
+best line-precision-above-0.99 point was 99.02% precision / 78.58% recall, while
+the best high-recall point remained effectively unchanged at 98.16% / 86.46%.
+The barrier arm is rejected.
+
+Manual inspection explains the apparent safety failure.  Of the 50 components
+with the most silver-non-BIB tokens, 12 are clear silver omissions, 21 are real
+bibliography blocks with small boundary overruns, 9 are genuine whole-block
+errors, 7 are policy-sensitive structured lists, and 1 has extraction/lineage
+corruption.  In particular, five of six apparent blocks in silver-zero
+documents are genuine numbered annotated bibliographies in one Kallipos book.
+The case register and immutable packet are documented in
+`BIB_SIGNAL_FALSE50_REVIEW_20260714.md`.  Raw-silver metrics remain necessary
+for comparability, but further tuning against them alone would teach the model
+to suppress correct bibliography detections.

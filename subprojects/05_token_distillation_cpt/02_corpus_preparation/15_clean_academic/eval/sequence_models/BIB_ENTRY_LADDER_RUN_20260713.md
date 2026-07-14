@@ -355,6 +355,32 @@ Length is not an input.  The exact-scope veto and H0 remain downstream.  Job
 `2758177` evaluates the predeclared anchored grid as `signal_blocks_r1`, with
 validation still closed.
 
+Job `2758177` completed the 384-configuration anchored grid in 1m37s.  The best
+strict-safe nonempty configuration reached 0.997122 line precision but only
+0.193771 line recall.  The useful high-recall point reached 0.981289 precision /
+0.864608 recall and 0.984414 token precision / 0.910997 token recall, with
+0.045113 raw-silver spurious blocks per zero-BIB document.  It does not replace
+`auxiliary_scope_veto_r6`.
+
+Job `2758181` then materialized complete contexts for the 50 apparent false
+components with the most disagreeing tokens.  The Codex first pass found 12
+clear silver omissions, 21 mostly-correct blocks with boundary overruns, 9
+genuine non-bibliography blocks, 7 policy-sensitive publication/endnote/reading
+lists, and one extraction/lineage issue.  Five of the six apparent blocks in
+silver-zero documents are genuine numbered annotated bibliographies in
+Kallipos document `802cdb75649e...`; the sixth is genuine prose.  Full evidence
+and the case register are in `BIB_SIGNAL_FALSE50_REVIEW_20260714.md`.
+
+Commit `c414769` tested split barriers from stable-negative headings, figure
+captions, footnotes, and sustained very-low contextual probability.  Job
+`2758188` completed 480 configurations in 1m44s.  No candidate met the strict
+safety gate.  The useful frontier was effectively unchanged at 0.981560 line
+precision / 0.864608 recall; the best point above 0.99 precision reached
+0.990178 / 0.785776.  Barriers also split the mislabeled Kallipos bibliographies
+into more raw-silver spurious blocks.  This arm is rejected.  Further model
+tuning is paused at the label-completeness and policy boundary; validation is
+still unopened.
+
 ## High-risk joint-review site
 
 Review job `2754381` selected 120 proposed blocks: exactly 40 each from
