@@ -239,6 +239,28 @@ def make_batches(
     return batches
 
 
+def _near_copy(left: str, right: str, *, max_edits: int = 3) -> bool:
+    """Return whether two long opaque IDs differ by only a small copy error."""
+
+    if left == right:
+        return True
+    if min(len(left), len(right)) < 32 or abs(len(left) - len(right)) > max_edits:
+        return False
+    previous = list(range(len(right) + 1))
+    for row_index, left_char in enumerate(left, start=1):
+        current = [row_index]
+        for column_index, right_char in enumerate(right, start=1):
+            current.append(
+                min(
+                    current[-1] + 1,
+                    previous[column_index] + 1,
+                    previous[column_index - 1] + (left_char != right_char),
+                )
+            )
+        previous = current
+    return previous[-1] <= max_edits
+
+
 def validate_review_payload(
     batch: Mapping[str, Any], payload: Mapping[str, Any], *, reviewer_id: str
 ) -> dict[str, Any]:
@@ -285,7 +307,27 @@ def validate_review_payload(
                 raise ValueError(f"case {case_id}: invalid confidence or reason")
         expected_by_id = {str(line["line_id"]): line for line in expected_lines}
         if set(observed_by_id) != set(expected_by_id):
-            raise ValueError(f"case {case_id}: review omits or invents line identities")
+            expected_by_abs = {line["abs_idx"]: line for line in expected_lines}
+            observed_by_abs = {line.get("abs_idx"): line for line in lines}
+            repairable = (
+                len(expected_by_abs) == len(expected_lines)
+                and len(observed_by_abs) == len(lines)
+                and set(expected_by_abs) == set(observed_by_abs)
+                and all(
+                    _near_copy(
+                        str(observed_by_abs[abs_idx]["line_id"]),
+                        str(expected["line_id"]),
+                    )
+                    for abs_idx, expected in expected_by_abs.items()
+                )
+            )
+            if not repairable:
+                raise ValueError(f"case {case_id}: review omits or invents line identities")
+            observed_by_id = {}
+            for abs_idx, expected in expected_by_abs.items():
+                repaired = dict(observed_by_abs[abs_idx])
+                repaired["line_id"] = str(expected["line_id"])
+                observed_by_id[repaired["line_id"]] = repaired
         canonical_lines = []
         for expected in expected_lines:
             line = observed_by_id[str(expected["line_id"])]

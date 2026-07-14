@@ -144,6 +144,23 @@ def test_review_validation_canonicalizes_order_and_fails_on_invented_id() -> Non
         validate_review_payload(batch, review, reviewer_id="a")
 
 
+def test_review_validation_repairs_near_copy_id_only_with_exact_coordinates() -> None:
+    case = _case("case", "block")
+    case["lines"][0]["line_id"] = "a" * 35 + "135" + "b" * 26
+    batch = make_batches(
+        [case], pass_id="pass-a", reviewer_id="a", model="gpt-5.6-sol",
+        prompt_sha256="a" * 64, output_schema_sha256="b" * 64, batch_size=1,
+    )[0]
+    review = _review(case, "a")
+    review["cases"][0]["lines"][0]["line_id"] = "a" * 35 + "b" * 26
+    normalized = validate_review_payload(batch, review, reviewer_id="a")
+    assert normalized["cases"][0]["lines"][0]["line_id"] == case["lines"][0]["line_id"]
+
+    review["cases"][0]["lines"][0]["abs_idx"] += 1
+    with pytest.raises(ValueError, match="omits or invents"):
+        validate_review_payload(batch, review, reviewer_id="a")
+
+
 def test_merge_agrees_role_and_boundary_independently() -> None:
     case = _case("case", "block")
     packet = _packet([case])
