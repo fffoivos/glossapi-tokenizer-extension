@@ -426,3 +426,48 @@ inventory is 5,164 entry anchors, 535 continuations, 278 fillers, 117
 headers/subheaders, and 543 non-bibliography lines, plus 512 trusted boundary
 stops. This authorizes corrected train-target materialization and the sealed
 train-OOF positional ladder; it does not authorize corpus deletion.
+
+## Corrected target view and P0-P1G result
+
+Clariden job `2762432` materialized the combined overlay in 15 seconds. Its
+immutable target root is:
+
+```text
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_role_position_20260714/role_targets_d2306cc_r1
+```
+
+The 939,014 aligned lines contain 5,164 trusted entry positives, 800,678
+negatives, and 133,172 masked unreviewed bibliography lines. The manifest
+SHA-256 is
+`62f8010a9f13c1390ceee492964385ba9de2994fabdd0718794f0f335942e2c0`.
+
+The first ladder submission (`2762435`) failed before fitting because its
+launcher omitted the pinned scikit-learn path. The cleanup trap removed its
+partial output. A compute-node smoke job (`2762437`) then verified
+scikit-learn 1.9.0 from the pinned dependency directory. Serial retry
+`2762440` was cancelled after four minutes when accounting showed that it was
+using fewer than one CPU core on a full-node allocation; its partial output
+was also removed.
+
+Commit `680b33b` runs the five disjoint outer work folds concurrently with one
+numerical thread per fit. Job `2762448` completed all 20 outer-fold models in
+21m06s with validation unopened. Authoritative root:
+
+```text
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_role_position_20260714/positional_entry_680b33b_r1
+```
+
+Train-OOF PR-AUC is 0.3521 for P0, 0.5125 for nonlinear count-only P0D,
+0.4037 for P1, and 0.4149 for P1G. The position summaries improve ordinary
+ranking over linear P0, but the paired high-precision advancement job
+`2762495` found no secure positional recall gain: both P1 and P1G have a zero
+lower 95% recall-delta bound at precision at least 0.99. P0D is the current
+strongest count-only control, recovering 144/5,164 positives at 99.31%
+precision. P2 must therefore beat P0D as well as its shuffled-location
+controls before any P3 neural arm is permitted.
+
+Report hashes:
+
+- ladder report: `5d09e9297aceba4946c8c53ce5390834ef37818c29d73da44193ee1ebc2337c0`;
+- ladder receipt: `fb7ec42e47bd12ea0343ff71569f88777be088f437b787a398ba9740c713f0c8`;
+- advancement report: `10ac0b490982e180bd6c7449eebff14674a34274805999a3674716c941be84ba`.
