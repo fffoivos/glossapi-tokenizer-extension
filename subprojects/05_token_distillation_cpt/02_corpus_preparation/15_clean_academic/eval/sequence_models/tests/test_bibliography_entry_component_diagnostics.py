@@ -5,6 +5,7 @@ from sequence_models.bibliography_entry_component_diagnostics import (
     _line_fraction,
     _outside_context_probability,
     _proposal_groups,
+    _role_at_or_before_start,
 )
 
 
@@ -53,3 +54,13 @@ def test_outside_context_uses_only_nearby_physical_lines() -> None:
         ),
         0.15,
     )
+
+
+def test_negative_role_scope_requires_physical_proximity() -> None:
+    role = np.asarray([True, True, False, False])
+    abs_indices = np.asarray([0, 8, 9, 10])
+    assert _role_at_or_before_start(role, abs_indices, 0, 2) == 1.0
+    assert _role_at_or_before_start(role, abs_indices, 0, 3) == 1.0
+    assert _role_at_or_before_start(
+        role, np.asarray([0, 1, 9, 10]), 0, 2
+    ) == 0.0

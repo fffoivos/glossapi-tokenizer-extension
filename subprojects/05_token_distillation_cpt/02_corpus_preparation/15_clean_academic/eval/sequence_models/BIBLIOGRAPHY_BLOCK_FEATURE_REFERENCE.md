@@ -153,6 +153,11 @@ not added to the gate:
 - **Proposal-island count:** both true and false components usually belonged
   to one or two permissive proposal islands.  It did not identify scattered
   false regions reliably.
+- **Outside-boundary probability:** the permissive decoder already stops where
+  frozen line probabilities fall, so both true and false chosen components had
+  nearly identical low probability immediately outside their boundaries.
+  Adding this would mostly restate how the proposal was generated rather than
+  provide independent evidence.
 - **Author-start and publication-tail fractions:** these separate the broad
   candidate classes, but repeat evidence already consumed by the frozen line
   classifier.  Adding them at block level would violate the one-job ownership

@@ -133,6 +133,27 @@ def _outside_context_probability(
     return float(np.median(probability[context])) if len(context) else 0.0
 
 
+def _role_at_or_before_start(
+    role: np.ndarray,
+    abs_indices: np.ndarray,
+    doc_start: int,
+    start: int,
+    *,
+    physical_window: int = 2,
+) -> float:
+    absolute_start = doc_start + start
+    first = max(doc_start, absolute_start - physical_window)
+    return float(
+        any(
+            bool(role[index])
+            and 0
+            <= int(abs_indices[absolute_start]) - int(abs_indices[index])
+            <= physical_window
+            for index in range(first, absolute_start + 1)
+        )
+    )
+
+
 def _proposal_groups(starts: np.ndarray, ends: np.ndarray) -> int:
     """Count non-overlapping proposal islands in one document."""
 
@@ -358,6 +379,16 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                             )
                             for role_index, name in enumerate(negative_role_names)
                         },
+                        "negative_section_heading_at_or_before_start": (
+                            _role_at_or_before_start(
+                                negative_roles[:, negative_role_names.index(
+                                    "negative_section_heading"
+                                )],
+                                table.abs_indices,
+                                doc_start,
+                                start,
+                            )
+                        ),
                     }
                     if negative_roles is not None
                     else {}
@@ -381,6 +412,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         (
             "explicit_negative_role_fraction",
             *(f"negative_role_{name}_fraction" for name in negative_role_names),
+            "negative_section_heading_at_or_before_start",
         )
         if negative_roles is not None
         else ()
@@ -457,6 +489,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 f"negative_role_{name}_fraction": f"Share of component lines assigned the mutually exclusive deterministic role: {name}."
                 for name in negative_role_names
             },
+            "negative_section_heading_at_or_before_start": "One when a mutually exclusive deterministic non-bibliography section heading is on the candidate's first line or within the previous two physical lines; a negative section-scope cue.",
         },
         "summaries": summaries,
         "chosen_false_documents": sorted(
