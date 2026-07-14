@@ -104,12 +104,18 @@ def has_auxiliary_scope(
     abs_indices: np.ndarray,
     start: int,
     *,
+    end: int | None = None,
     window: int,
 ) -> bool:
     """Return whether an exact auxiliary heading immediately scopes a span."""
 
     if not 0 <= start < len(auxiliary) or len(auxiliary) != len(abs_indices):
         raise ValueError("auxiliary scope arrays or start are invalid")
+    span_end = start if end is None else int(end)
+    if not start <= span_end < len(auxiliary):
+        raise ValueError("auxiliary scope end is invalid")
+    if np.any(auxiliary[start : span_end + 1]):
+        return True
     for index in range(max(0, start - window), start + 1):
         if (
             bool(auxiliary[index])
@@ -166,6 +172,7 @@ def decode_with_auxiliary_veto(
                 local_auxiliary,
                 local_absolute,
                 span[0],
+                end=span[1],
                 window=config.header_window,
             ):
                 vetoed_rows.append(int(row))
@@ -291,7 +298,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ),
         "variant": args.variant,
         "model_arm": args.model_arm,
-        "scope_rule": "for ATX headings, veto from a pre-existing exact auxiliary-scope heading until the next ATX heading; for a non-ATX exact auxiliary heading, veto only the heading and candidates starting within the next two physical lines",
+        "scope_rule": "veto a component that contains an exact auxiliary heading/scope or starts within two physical lines after one; ATX auxiliary scope remains active until the next ATX heading",
         "auxiliary_scope_headings": sorted(AUXILIARY_SCOPE_HEADINGS),
         "auxiliary_heading_line_count": int(np.count_nonzero(auxiliary_headings)),
         "auxiliary_scope_line_count": int(np.count_nonzero(auxiliary_scope)),

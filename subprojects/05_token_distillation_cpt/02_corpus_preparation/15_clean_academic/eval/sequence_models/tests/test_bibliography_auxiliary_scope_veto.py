@@ -25,6 +25,12 @@ def test_auxiliary_scope_does_not_cross_a_physical_gap() -> None:
     assert not has_auxiliary_scope(auxiliary, absolute, 1, window=2)
 
 
+def test_auxiliary_scope_inside_a_candidate_is_vetoed() -> None:
+    auxiliary = np.asarray([False, False, True, True, False])
+    absolute = np.arange(5)
+    assert has_auxiliary_scope(auxiliary, absolute, 0, end=3, window=2)
+
+
 def test_atx_auxiliary_scope_ends_at_the_next_atx_heading(tmp_path) -> None:
     source = tmp_path / "train.jsonl"
     source.write_text(
