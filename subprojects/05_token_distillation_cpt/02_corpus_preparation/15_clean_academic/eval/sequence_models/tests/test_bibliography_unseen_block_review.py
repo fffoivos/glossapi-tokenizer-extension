@@ -71,5 +71,8 @@ def test_reader_has_bidirectional_block_navigation():
     assert "toggleWrong" in HTML
     assert "toggleBlockWrong" in HTML
     assert "Mark whole block WRONG" in HTML
+    assert "toggleDocWeird" in HTML
+    assert "bib-unseen-weird-docs-v1" in HTML
+    assert "Mark document WEIRD" in HTML
     assert "bib-unseen-wrong-lines-v1" in HTML
     assert "aria-pressed" in HTML
