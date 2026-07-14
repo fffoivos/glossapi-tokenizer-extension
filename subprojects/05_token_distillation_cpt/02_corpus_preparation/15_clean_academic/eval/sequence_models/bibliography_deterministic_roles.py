@@ -15,18 +15,40 @@ import numpy as np
 from .bibliography_entry_dataset import LABEL_TO_ID
 from .bibliography_entry_models import load_table
 from .bibliography_v2 import analyze_bibliography_line_v2
+from .deterministic_structure import _heading_key
 
 
-SCHEMA_VERSION = "bibliography-deterministic-negative-roles-v1"
+SCHEMA_VERSION = "bibliography-deterministic-negative-roles-v2"
 ROLE_NAMES = (
     "figure_caption",
     "table_or_equation",
-    "negative_section_heading",
+    "exact_negative_scope_heading",
+    "generic_markdown_heading",
     "footnote",
     "running_or_enumerated_prose",
     "legal_procedure",
     "other_explicit_negative",
 )
+AUXILIARY_SCOPE_HEADINGS = {
+    "abbreviations",
+    "list of abbreviations",
+    "list of figures",
+    "list of illustrations",
+    "list of tables",
+    "related links",
+    "related material",
+    "related resources",
+    "συντομογραφιες",
+    "καταλογος συντομογραφιων",
+    "καταλογος εικονων",
+    "καταλογος πινακων",
+    "καταλογος πινακων και προελευση εικονων",
+    "καταλογος σχηματων",
+    "λιστα επιλεγμενων παραλλαγων",
+    "σχετικοι συνδεσμοι",
+    "σχετιζομενο υλικο",
+    "σχετιζομενα χναρια",
+}
 
 
 def _sha256(path: Path) -> str:
@@ -43,10 +65,20 @@ def _role_index(reason_codes: Sequence[str]) -> int:
         return 0
     if "TABLE" in joined or "EQUATION" in joined:
         return 1
-    if "HEADING" in joined:
+    if any(
+        marker in joined
+        for marker in (
+            "CV_PUBLICATIONS_HEADING",
+            "NOTES_HEADING",
+            "AUXILIARY_HEADING",
+            "BODY_HEADING",
+        )
+    ):
         return 2
-    if "FOOTNOTE" in joined:
+    if "NONSTRUCTURAL_MARKDOWN_HEADING" in joined:
         return 3
+    if "FOOTNOTE" in joined:
+        return 4
     if any(
         marker in joined
         for marker in (
@@ -56,10 +88,10 @@ def _role_index(reason_codes: Sequence[str]) -> int:
             "LONG_ENUMERATED_PROSE",
         )
     ):
-        return 4
-    if "LEGAL_PROCEDURE" in joined:
         return 5
-    return 6
+    if "LEGAL_PROCEDURE" in joined:
+        return 6
+    return 7
 
 
 def _analyze_document(
@@ -75,7 +107,11 @@ def _analyze_document(
         evidence = analyze_bibliography_line_v2(text, line_index)
         if not evidence.hard_negative:
             continue
-        role = _role_index(evidence.reason_codes)
+        role = (
+            ROLE_NAMES.index("exact_negative_scope_heading")
+            if _heading_key(text) in AUXILIARY_SCOPE_HEADINGS
+            else _role_index(evidence.reason_codes)
+        )
         roles[line_index, role] = 1
         counts[ROLE_NAMES[role]] += 1
     return document_id, roles, counts
@@ -192,7 +228,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "role_reference": {
             "figure_caption": "Line explicitly begins as a numbered figure or image caption.",
             "table_or_equation": "Line is explicitly formatted as a table row or equation rather than a bibliography entry.",
-            "negative_section_heading": "Exact structural heading denotes notes, publications/CV, body content, or another non-bibliography section.",
+            "exact_negative_scope_heading": "Exact structural heading denotes notes, publications/CV, body content, abbreviations, figure/table lists, related material, or another explicit non-bibliography section.",
+            "generic_markdown_heading": "Unknown Markdown heading; retained separately because an unlisted bibliography subheading is not safely negative scope.",
             "footnote": "Line has an explicit footnote shape that is not also a valid numbered bibliography entry.",
             "running_or_enumerated_prose": "Line has an explicit running, narrative-citation, inline-citation, or long enumerated-prose shape.",
             "legal_procedure": "Line begins as legal/procedural body text without a legal bibliography citation.",

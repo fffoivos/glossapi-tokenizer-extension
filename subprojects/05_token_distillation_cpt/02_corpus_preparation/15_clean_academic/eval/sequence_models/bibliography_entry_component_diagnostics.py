@@ -379,10 +379,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                             )
                             for role_index, name in enumerate(negative_role_names)
                         },
-                        "negative_section_heading_at_or_before_start": (
+                        "exact_negative_scope_heading_at_or_before_start": (
                             _role_at_or_before_start(
                                 negative_roles[:, negative_role_names.index(
-                                    "negative_section_heading"
+                                    "exact_negative_scope_heading"
                                 )],
                                 table.abs_indices,
                                 doc_start,
@@ -412,7 +412,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         (
             "explicit_negative_role_fraction",
             *(f"negative_role_{name}_fraction" for name in negative_role_names),
-            "negative_section_heading_at_or_before_start",
+            "exact_negative_scope_heading_at_or_before_start",
         )
         if negative_roles is not None
         else ()
@@ -489,7 +489,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 f"negative_role_{name}_fraction": f"Share of component lines assigned the mutually exclusive deterministic role: {name}."
                 for name in negative_role_names
             },
-            "negative_section_heading_at_or_before_start": "One when a mutually exclusive deterministic non-bibliography section heading is on the candidate's first line or within the previous two physical lines; a negative section-scope cue.",
+            "exact_negative_scope_heading_at_or_before_start": "One when an exact deterministic non-bibliography scope heading is on the candidate's first line or within the previous two physical lines; generic unknown Markdown headings are deliberately excluded.",
         },
         "summaries": summaries,
         "chosen_false_documents": sorted(
