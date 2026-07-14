@@ -30,7 +30,7 @@ from .bibliography_entry_component_gate import (
 )
 from .bibliography_entry_dataset import LABEL_TO_ID
 from .bibliography_entry_models import load_table
-from .deterministic_structure import _heading_key
+from .deterministic_structure import _ATX_HEADING, _heading_key
 
 
 SCHEMA_VERSION = "bibliography-auxiliary-scope-veto-oof-v1"
@@ -55,7 +55,9 @@ def _save_array(path: Path, value: np.ndarray) -> None:
         np.save(handle, value, allow_pickle=False)
 
 
-def materialize_auxiliary_headings(table: Any, input_path: Path) -> np.ndarray:
+def materialize_auxiliary_headings(
+    table: Any, input_path: Path
+) -> tuple[np.ndarray, np.ndarray]:
     expected = {
         str(document["document_id"]): (
             int(document["line_start"]),
@@ -63,7 +65,8 @@ def materialize_auxiliary_headings(table: Any, input_path: Path) -> np.ndarray:
         )
         for document in table.documents
     }
-    result = np.zeros(len(table.targets), dtype=bool)
+    headings = np.zeros(len(table.targets), dtype=bool)
+    scope = np.zeros(len(table.targets), dtype=bool)
     completed: set[str] = set()
     with input_path.open("r", encoding="utf-8") as handle:
         for raw in handle:
@@ -80,17 +83,20 @@ def materialize_auxiliary_headings(table: Any, input_path: Path) -> np.ndarray:
             lines = row.get("lines")
             if not isinstance(lines, list) or len(lines) != end - start:
                 raise ValueError(f"{document_id}: source/table line alignment failure")
+            active_atx_scope = False
             for offset, line in enumerate(lines):
                 text = line.get("text") if isinstance(line, dict) else None
                 if not isinstance(text, str):
                     raise ValueError(f"{document_id}: invalid source line")
-                result[start + offset] = (
-                    _heading_key(text) in AUXILIARY_SCOPE_HEADINGS
-                )
+                auxiliary_heading = _heading_key(text) in AUXILIARY_SCOPE_HEADINGS
+                headings[start + offset] = auxiliary_heading
+                if _ATX_HEADING.match(text):
+                    active_atx_scope = auxiliary_heading
+                scope[start + offset] = active_atx_scope or auxiliary_heading
             completed.add(document_id)
     if completed != set(expected):
         raise ValueError("auxiliary-scope materialization is incomplete")
-    return result
+    return headings, scope
 
 
 def has_auxiliary_scope(
@@ -203,7 +209,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         Path(args.line_oof_dir).resolve() / f"{args.line_arm}.oof_probability.npy"
     )
     probability = np.load(probability_path, mmap_mode="r", allow_pickle=False)
-    auxiliary = materialize_auxiliary_headings(table, Path(args.input).resolve())
+    auxiliary_headings, auxiliary_scope = materialize_auxiliary_headings(
+        table, Path(args.input).resolve()
+    )
     excluded_ids, quality_packet = _load_quality_exclusions(
         Path(args.quality_decisions).resolve()
     )
@@ -216,7 +224,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     if output_dir.exists() or output_dir.is_symlink():
         raise FileExistsError(output_dir)
     output_dir.mkdir(parents=True)
-    _save_array(output_dir / "auxiliary_scope_heading.npy", auxiliary)
+    _save_array(output_dir / "auxiliary_scope_heading.npy", auxiliary_headings)
+    _save_array(output_dir / "auxiliary_scope_active.npy", auxiliary_scope)
 
     rows = []
     selected_predictions: dict[float, np.ndarray] = {}
@@ -227,7 +236,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             candidates,
             scores,
             probability,
-            auxiliary,
+            auxiliary_scope,
             config,
             threshold=threshold,
             qualified_documents=qualified_documents,
@@ -238,7 +247,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             candidates,
             scores,
             probability,
-            auxiliary,
+            auxiliary_scope,
             config,
             threshold=threshold,
             qualified_documents=qualified_documents,
@@ -282,12 +291,20 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ),
         "variant": args.variant,
         "model_arm": args.model_arm,
-        "scope_rule": "veto only when a pre-existing exact auxiliary-scope heading occurs on the candidate start or within the preceding two physical lines",
+        "scope_rule": "for ATX headings, veto from a pre-existing exact auxiliary-scope heading until the next ATX heading; for a non-ATX exact auxiliary heading, veto only the heading and candidates starting within the next two physical lines",
         "auxiliary_scope_headings": sorted(AUXILIARY_SCOPE_HEADINGS),
-        "auxiliary_heading_line_count": int(np.count_nonzero(auxiliary)),
+        "auxiliary_heading_line_count": int(np.count_nonzero(auxiliary_headings)),
+        "auxiliary_scope_line_count": int(np.count_nonzero(auxiliary_scope)),
         "auxiliary_heading_inside_silver_bib_count": int(
             np.count_nonzero(
-                auxiliary & (table.original_labels == LABEL_TO_ID["BIB"])
+                auxiliary_headings
+                & (table.original_labels == LABEL_TO_ID["BIB"])
+            )
+        ),
+        "auxiliary_scope_inside_silver_bib_count": int(
+            np.count_nonzero(
+                auxiliary_scope
+                & (table.original_labels == LABEL_TO_ID["BIB"])
             )
         ),
         "unique_vetoed_candidate_count": len(all_vetoed),
