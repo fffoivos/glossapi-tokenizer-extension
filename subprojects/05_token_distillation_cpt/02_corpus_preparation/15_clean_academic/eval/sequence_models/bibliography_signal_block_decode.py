@@ -21,14 +21,10 @@ from typing import Any, Sequence
 
 import numpy as np
 
-from .bibliography_auxiliary_scope_veto import (
-    has_auxiliary_scope,
-    materialize_auxiliary_headings,
-)
+from .bibliography_auxiliary_scope_veto import materialize_auxiliary_headings
 from .bibliography_entry_blocks import (
     BlockConfig,
     attach_h0_document,
-    blocks_from_mask,
     decode_b0_document,
     evaluate_prediction,
 )
@@ -39,7 +35,7 @@ from .bibliography_entry_models import load_table
 from .bibliography_signal_tcn import SCHEMA_VERSION as SIGNAL_SCHEMA
 
 
-SCHEMA_VERSION = "bibliography-signal-block-decode-oof-v1"
+SCHEMA_VERSION = "bibliography-signal-block-decode-oof-v2"
 
 
 def _sha256(path: Path) -> str:
@@ -71,44 +67,59 @@ def decode_signal_blocks(
     qualified_documents: set[int],
     apply_veto: bool,
 ) -> tuple[np.ndarray, int]:
-    """Establish anchored regions, apply exact scope, and attach H0."""
+    """Establish anchored regions between exact scope barriers and attach H0."""
 
     prediction = np.zeros(len(table.targets), dtype=bool)
-    vetoed = 0
+    scope_barrier_intervals = 0
     for document_index in sorted(qualified_documents):
         document = table.documents[document_index]
         start, end = int(document["line_start"]), int(document["line_end"])
         local_absolute = table.abs_indices[start:end]
-        # Length is intentionally absent from this decoder.  The all-zero
-        # placeholder makes every line eligible as an anchor by length, while
-        # the TCN score and multi-anchor rule establish the block.
-        local = decode_b0_document(
-            signal_probability[start:end],
-            np.zeros(end - start, dtype=np.uint8),
-            local_absolute,
-            config,
+        local_scope = (
+            np.asarray(auxiliary_scope[start:end], dtype=bool)
+            if apply_veto
+            else np.zeros(end - start, dtype=bool)
         )
-        if apply_veto:
-            local_scope = auxiliary_scope[start:end]
-            for block_start, block_end in blocks_from_mask(local, local_absolute):
-                if has_auxiliary_scope(
-                    local_scope,
-                    local_absolute,
-                    block_start,
-                    end=block_end,
-                    window=config.header_window,
+        local = np.zeros(end - start, dtype=bool)
+        segment_start = 0
+        while segment_start < len(local):
+            if local_scope[segment_start]:
+                scope_barrier_intervals += 1
+                while (
+                    segment_start < len(local) and local_scope[segment_start]
                 ):
-                    local[block_start : block_end + 1] = False
-                    vetoed += 1
-        local = attach_h0_document(
-            local,
-            frozen_entry_probability[start:end],
-            table.header_kinds[start:end],
-            local_absolute,
-            config,
-        )
+                    segment_start += 1
+                continue
+            segment_end = segment_start + 1
+            while segment_end < len(local) and not local_scope[segment_end]:
+                segment_end += 1
+            # Length is intentionally absent from this decoder.  The all-zero
+            # placeholder makes every line eligible as an anchor by length,
+            # while the TCN score and multi-anchor rule establish the block.
+            segment_prediction = decode_b0_document(
+                signal_probability[start + segment_start : start + segment_end],
+                np.zeros(segment_end - segment_start, dtype=np.uint8),
+                local_absolute[segment_start:segment_end],
+                config,
+            )
+            # Header attachment is also segment-local.  Running H0 on the
+            # whole document would let a heading jump across a short scope
+            # interval even though bibliography anchors cannot cross it.
+            local[segment_start:segment_end] = attach_h0_document(
+                segment_prediction,
+                frozen_entry_probability[
+                    start + segment_start : start + segment_end
+                ],
+                table.header_kinds[start + segment_start : start + segment_end],
+                local_absolute[segment_start:segment_end],
+                config,
+            )
+            segment_start = segment_end
+        # This assertion-by-assignment also protects against a future decoder
+        # implementation accidentally emitting a scope line.
+        local[local_scope] = False
         prediction[start:end] = local
-    return prediction, vetoed
+    return prediction, scope_barrier_intervals
 
 
 def _evaluate_task(task: tuple[Any, ...]) -> dict[str, Any]:
@@ -129,7 +140,7 @@ def _evaluate_task(task: tuple[Any, ...]) -> dict[str, Any]:
     )
     auxiliary_scope = np.load(scope_path, mmap_mode="r", allow_pickle=False)
     config = BlockConfig(**config_payload)
-    prediction, vetoed = decode_signal_blocks(
+    prediction, scope_barrier_intervals = decode_signal_blocks(
         table,
         signal_probability,
         frozen_probability,
@@ -140,7 +151,7 @@ def _evaluate_task(task: tuple[Any, ...]) -> dict[str, Any]:
     )
     return {
         "config": asdict(config),
-        "vetoed_component_count": vetoed,
+        "scope_barrier_interval_count": scope_barrier_intervals,
         "metrics": evaluate_prediction(
             table, prediction, document_subset=set(qualified_documents)
         ),
@@ -276,7 +287,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             if selected is not None
             else "research_only_no_candidate_met_safety_gate"
         ),
-        "decoder_contract": "multiple high-confidence signal lines establish a block; weak/long lines may be filled only between or directly beside established anchors; line length is not an input",
+        "decoder_contract": "multiple high-confidence signal lines establish a block; weak/long lines may be filled only between or directly beside established anchors; exact negative scopes are hard walls decoded independently on each side; line length is not an input",
         "grid": {
             "anchor_probabilities": list(args.anchor_probabilities),
             "anchors_required": list(args.anchors_required),

@@ -425,6 +425,30 @@ This is a generic rule change rather than an exception for the observed
 document.  The grouped train-OOF decoder must be rerun before the corrected
 veto is evaluated again.
 
+### Exact negative scope is a wall, not a poison pill
+
+The next validation diagnostic exposed a separate block-decoder error.  A
+high-confidence bibliography ended immediately before an exact `List of
+Figures`/`List of Tables` region, and another publication list began
+immediately after it.  Boundary expansion touched one or two scoped lines.
+The old all-or-nothing veto then discarded both otherwise coherent
+bibliography blocks.
+
+The corrected block rule is:
+
+- an exact negative scope is a **hard wall**;
+- the anchor decoder runs independently on each contiguous non-scope segment,
+  so anchors and weak-line bridges can never cross the wall;
+- scope lines themselves can never be emitted, including by downstream header
+  attachment; and
+- a coherent block on either side survives.  Merely touching a negative scope
+  no longer poisons the entire block.
+
+This changes no line feature or threshold.  It makes the deterministic scope
+cue perpendicular to bibliography evidence: the cue owns only its explicitly
+scoped region, while repeated citation evidence owns neighbouring regions.
+The grouped train-OOF grid must again be rerun before validation.
+
 ## Rich component gate (rejected)
 
 A shallow monotonic tree and an unconstrained logistic model tested ten

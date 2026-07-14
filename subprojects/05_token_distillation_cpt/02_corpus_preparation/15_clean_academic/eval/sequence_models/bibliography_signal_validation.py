@@ -47,7 +47,7 @@ from .bibliography_signal_tcn import (
 
 
 SCHEMA_VERSION = "bibliography-signal-validation-v1"
-POLICY_SCHEMA = "bibliography-signal-validation-policy-v2"
+POLICY_SCHEMA = "bibliography-signal-validation-policy-v3"
 
 
 def _sha256(path: Path) -> str:
@@ -298,7 +298,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     if (
         policy.get("schema_version") != POLICY_SCHEMA
         or policy.get("status")
-        != "frozen_after_validation_scope_collision_before_metric_evaluation"
+        != "frozen_after_scope_poison_pill_diagnosis"
     ):
         raise ValueError("signal validation policy is not frozen")
     signal_root = Path(args.signal_tcn_dir).resolve()
