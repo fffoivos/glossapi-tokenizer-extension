@@ -1,0 +1,88 @@
+{
+  "schema_version": "bibliography-role-contract-v1",
+  "description": "A provenance-bound role overlay on immutable STRUCT-2K regional labels.",
+  "immutable_source_label_field": "original_region_label",
+  "roles": {
+    "CONTINUATION": {
+      "attachable": true,
+      "definition": "Citation content broken across lines or too incomplete to establish an entry alone.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": true
+    },
+    "ENTRY_ANCHOR": {
+      "attachable": true,
+      "definition": "A recognizable bibliographic record that supplies independent entry evidence.",
+      "entry_seed_eligible": true,
+      "remove_with_confirmed_block": true
+    },
+    "FILLER": {
+      "attachable": true,
+      "definition": "A separator, Markdown/table rule, OCR fragment, or other non-citation layout material included only inside a confirmed bibliography region.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": true
+    },
+    "HEADER": {
+      "attachable": true,
+      "definition": "An overall bibliography or references heading.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": true
+    },
+    "NON_BIB": {
+      "attachable": false,
+      "definition": "Ordinary material outside the bibliography region, including citation-heavy prose.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": false
+    },
+    "SUBHEADER": {
+      "attachable": true,
+      "definition": "An internal language, source, or category subdivision inside a bibliography.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": true
+    },
+    "UNKNOWN": {
+      "attachable": false,
+      "definition": "Insufficient evidence, unusable extraction, or unresolved reviewer disagreement.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": false
+    }
+  },
+  "boundary_flags": {
+    "HARD_STOP": "A line or physical gap that must terminate block growth.",
+    "NONE": "No independent boundary assertion.",
+    "SOFT_STOP": "Evidence against block growth that requires contextual confirmation."
+  },
+  "label_statuses": {
+    "ADJUDICATED": "A trusted resolution based on preserved independent review evidence.",
+    "AGREED_REVIEW": "Two independent contextual reviews agree.",
+    "PROVISIONAL": "A deterministic or model-derived bootstrap label; never independent evaluation truth.",
+    "SINGLE_REVIEW": "One contextual review; eligible for development diagnostics only.",
+    "UNRESOLVED": "Disagreement or insufficient evidence; masked from supervised losses."
+  },
+  "entry_anchor_target": {
+    "masked_roles": [
+      "UNKNOWN"
+    ],
+    "negative_roles": [
+      "CONTINUATION",
+      "FILLER",
+      "HEADER",
+      "NON_BIB",
+      "SUBHEADER"
+    ],
+    "positive_roles": [
+      "ENTRY_ANCHOR"
+    ],
+    "trusted_statuses": [
+      "ADJUDICATED",
+      "AGREED_REVIEW"
+    ]
+  },
+  "invariants": [
+    "The original regional label and block identity are immutable.",
+    "Only ENTRY_ANCHOR may seed a bibliography block.",
+    "HEADER and SUBHEADER may attach only to an independently confirmed entry region.",
+    "FILLER may bridge an interior anchored gap but may not seed or extend an outer boundary.",
+    "Model-only PROVISIONAL labels are never counted as independent evaluation truth.",
+    "UNKNOWN and UNRESOLVED examples are masked from every supervised loss."
+  ]
+}

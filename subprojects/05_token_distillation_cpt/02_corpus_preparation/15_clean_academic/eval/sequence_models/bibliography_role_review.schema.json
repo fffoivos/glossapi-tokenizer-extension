@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cases": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "case_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "abs_idx": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "boundary_flag": {
+                  "enum": [
+                    "NONE",
+                    "SOFT_STOP",
+                    "HARD_STOP"
+                  ],
+                  "type": "string"
+                },
+                "confidence": {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                "line_id": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "reason": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "role": {
+                  "enum": [
+                    "ENTRY_ANCHOR",
+                    "CONTINUATION",
+                    "FILLER",
+                    "HEADER",
+                    "SUBHEADER",
+                    "NON_BIB",
+                    "UNKNOWN"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "line_id",
+                "abs_idx",
+                "role",
+                "boundary_flag",
+                "confidence",
+                "reason"
+              ],
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_id",
+          "lines",
+          "notes"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "reviewer": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "bibliography-role-review-v1"
+    }
+  },
+  "required": [
+    "schema_version",
+    "reviewer",
+    "cases"
+  ],
+  "type": "object"
+}
