@@ -575,6 +575,10 @@ def test_builds_private_raw_review_site_with_lazy_source_cards_and_documents(tmp
     assert "textContent" in detections_js
     assert "sequence_term_count" in detections_js
     assert "pattern_token_count" in detections_js
+    assert "cleaning_preview" in detections_js
+    assert "replacement_details" in detections_js
+    assert "<!-- text-removed -->" in detections_js
+    assert "Preserved structural repetitions" in detections_js
     html_renderer = (tmp_path / "review-site" / "assets" / "html-render.js").read_text(encoding="utf-8")
     assert "Mixed Markdown + HTML" in html_renderer
     assert "function comment(value)" in html_renderer

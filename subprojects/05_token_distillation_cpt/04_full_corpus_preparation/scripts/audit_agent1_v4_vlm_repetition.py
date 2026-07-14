@@ -20,12 +20,13 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 
-AUDIT_SCHEMA = "agent1_v4_vlm_repetition_audit_v1"
+AUDIT_SCHEMA = "agent1_v4_vlm_repetition_audit_v2"
 SITE_SCHEMA = "agent1_v4_raw_review_site_manifest_v1"
 AUDIT_RELATIVE_PATH = Path("data/vlm_repetition_audit.json")
 DEFAULT_GLOSSAPI_ROOT = Path.home() / "Projects/glossapi-development"
 DETAIL_METADATA_FIELDS = (
     "evidence_end_index",
+    "removal_end_index",
     "pattern_token_count",
     "pattern_char_count",
     "repeat_count",
@@ -34,6 +35,9 @@ DETAIL_METADATA_FIELDS = (
     "sequence_term_count",
     "sequence_step",
     "sequence_step_tolerance",
+    "trailing_partial_token_count",
+    "trailing_partial_fragment",
+    "trailing_partial_number",
 )
 
 
@@ -90,8 +94,11 @@ def _load_repetition_module(glossapi_root: Path) -> tuple[object, Path]:
         raise RuntimeError(f"could not import GlossAPI OCR repetition module: {module_path}")
     module = importlib.util.module_from_spec(specification)
     specification.loader.exec_module(module)
-    if not callable(getattr(module, "detect_complex_repetition_details", None)):
-        raise RuntimeError("GlossAPI OCR repetition module lacks detect_complex_repetition_details")
+    for name in ("detect_complex_repetition_details", "replace_complex_repetitions"):
+        if not callable(getattr(module, name, None)):
+            raise RuntimeError(f"GlossAPI OCR repetition module lacks {name}")
+    if getattr(module, "TEXT_REMOVED_COMMENT", None) != "<!-- text-removed -->":
+        raise RuntimeError("GlossAPI OCR repetition module has an unexpected removal marker")
     return module, module_path
 
 
@@ -142,6 +149,11 @@ def audit_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
     rows: list[dict[str, object]] = []
     rule_counts: Counter[str] = Counter()
     source_hit_counts: Counter[str] = Counter()
+    source_cleaned_counts: Counter[str] = Counter()
+    cleaned_document_count = 0
+    replacement_count = 0
+    removed_character_count = 0
+    preserved_finding_count = 0
     for document_path in document_paths:
         payload = _read_json(document_path)
         opaque_id = payload.get("opaque_id")
@@ -170,10 +182,39 @@ def audit_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
         cleaning_earliest = min((int(detail["cut_index"]) for detail in cleaning_details), default=None)
         if cleaning.detect_early_stop_index(text) != cleaning_earliest:
             raise RuntimeError("GlossAPI early-stop detector returned inconsistent cut indices")
+        replacement_metrics: dict[str, object] = {}
+        cleaned_text = repetition.replace_complex_repetitions(text, metrics=replacement_metrics)
+        required_metrics = (
+            "complex_repetition_passes",
+            "complex_repetition_replacements",
+            "complex_repetition_characters_removed",
+            "complex_repetition_rule_counts",
+            "complex_repetition_replacement_details",
+            "complex_repetition_preserved_findings",
+        )
+        if any(name not in replacement_metrics for name in required_metrics):
+            raise RuntimeError("GlossAPI repetition cleaner returned incomplete metrics")
+        changed = cleaned_text != text
+        replacements = int(replacement_metrics["complex_repetition_replacements"])
+        removed_characters = int(replacement_metrics["complex_repetition_characters_removed"])
+        replacement_details = replacement_metrics["complex_repetition_replacement_details"]
+        preserved_findings = replacement_metrics["complex_repetition_preserved_findings"]
+        if not isinstance(replacement_details, list) or not isinstance(preserved_findings, list):
+            raise RuntimeError("GlossAPI repetition cleaner returned invalid detail metrics")
+        if changed != (replacements > 0):
+            raise RuntimeError("GlossAPI repetition cleaner change/replacement metrics disagree")
+        if len(cleaned_text) != len(text) - removed_characters + replacements * len(repetition.TEXT_REMOVED_COMMENT):
+            raise RuntimeError("GlossAPI repetition cleaner character accounting does not close")
         card = cards[opaque_id]
         source_id = str(card["source_id"])
         if normalized_details or streaming_reason is not None:
             source_hit_counts[source_id] += 1
+        if changed:
+            cleaned_document_count += 1
+            source_cleaned_counts[source_id] += 1
+        replacement_count += replacements
+        removed_character_count += removed_characters
+        preserved_finding_count += len(preserved_findings)
         rows.append(
             {
                 "opaque_id": opaque_id,
@@ -184,6 +225,19 @@ def audit_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
                 "rules": normalized_details,
                 "earliest_cut_index": earliest_cut_index,
                 "streaming_reason": streaming_reason,
+                "cleaning_preview": {
+                    "changed": changed,
+                    "replacement_marker": repetition.TEXT_REMOVED_COMMENT,
+                    "original_char_count": len(text),
+                    "cleaned_char_count": len(cleaned_text),
+                    "cleaned_text_sha256": sha256_bytes(cleaned_text.encode("utf-8")),
+                    "passes": int(replacement_metrics["complex_repetition_passes"]),
+                    "replacement_count": replacements,
+                    "characters_removed": removed_characters,
+                    "rule_counts": replacement_metrics["complex_repetition_rule_counts"],
+                    "replacement_details": replacement_details,
+                    "preserved_findings": preserved_findings,
+                },
             }
         )
 
@@ -207,13 +261,20 @@ def audit_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
                 "regular_numeric_sequence",
             ],
             "stream_chunk_chars": 257,
-            "note": "The token-ID triplet detector is not run: review samples retain text, not VLLM token IDs.",
+            "complex_repetition_replacement_marker": repetition.TEXT_REMOVED_COMMENT,
+            "preserve_structural_headers": True,
+            "note": "Cleaning is a dry-run preview: complex repetitions become one explicit HTML comment per removed span, while repeated structural table headers are preserved. The token-ID triplet detector is not run because archived review samples retain text, not VLLM token IDs.",
         },
         "summary": {
             "document_count": len(rows),
             "documents_with_any_trigger": hit_count,
             "rule_trigger_counts": dict(sorted(rule_counts.items())),
             "documents_with_any_trigger_by_source": dict(sorted(source_hit_counts.items())),
+            "documents_changed_by_cleaner": cleaned_document_count,
+            "cleaning_replacement_count": replacement_count,
+            "cleaning_characters_removed": removed_character_count,
+            "cleaning_preserved_finding_count": preserved_finding_count,
+            "documents_changed_by_cleaner_by_source": dict(sorted(source_cleaned_counts.items())),
         },
         "documents": rows,
     }
