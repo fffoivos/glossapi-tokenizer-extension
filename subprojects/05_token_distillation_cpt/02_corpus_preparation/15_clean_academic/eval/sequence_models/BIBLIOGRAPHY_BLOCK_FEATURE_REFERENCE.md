@@ -88,6 +88,22 @@ train OOF predictions.  The experiment compares the same no-length and
 no-length-plus-no-position B1 variants, so the new evidence is isolated to
 these role observations.
 
+### Train-OOF result
+
+The role effects were strongly fold-stable for captions, tables/equations,
+exact negative headings, generic headings, footnotes, and running/enumerated
+prose: every fold learned a negative BIB emission contrast.  The legal role was
+weak and reversed in one fold; the catch-all other role was effectively zero
+and changed sign.  Those two cues require an ablation before they can be
+trusted as final features.
+
+The role-aware CRF improved the permissive frontier to 93.14% line recall and
+96.84% token recall at 96.07% line precision.  It did not meet the frozen
+safety rule because it still created 0.308 spurious blocks per silver-zero
+document.  It is therefore a higher-quality proposal model, not an accepted
+removal policy.  The registered next test applies the stable five-feature
+component gate to these proposals.
+
 ## Anchored-component gates
 
 ### Strong anchor

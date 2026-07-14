@@ -281,6 +281,21 @@ a region while still retaining an occasional marked line inside a coherent
 bibliography.  The positive citation summary remains the frozen entry
 probability, so no author/date/page feature is duplicated.
 
+Clariden job `2757460` completed `role_sequence_r1`.  No candidate passed the
+full safety gate, chiefly because isolated proposals remained in silver-zero
+documents.  Its best point above 95% line precision was the no-length role CRF
+with no extra anchor/count filter: line precision 0.960729, line recall
+0.931406, token precision 0.961731, and token recall 0.968379.  The spurious
+zero-document rate was 0.308271, so this is a proposal model only.
+
+Six role effects were negative in every fold: figure caption, table/equation,
+exact negative-scope heading, generic heading, footnote, and running/enumerated
+prose.  Legal/procedural evidence reversed weakly in one fold, and the catch-all
+other role stayed effectively zero with sign changes.  The next experiment
+therefore composes the improved role-aware proposals with the already-stable
+five-feature component gate; it does not weaken the safety thresholds or open
+validation.
+
 ## High-risk joint-review site
 
 Review job `2754381` selected 120 proposed blocks: exactly 40 each from
@@ -355,6 +370,7 @@ acceptance check.
 - `b5a2f15` — separate exact negative scope from generic document headings.
 - `fc444e5` — retain only five fold-stable block features.
 - `5d74c6d` — add core-only connected expansion for weaker neighbouring spans.
+- `e7ffff3` — train grouped OOF B1 models with deterministic competing roles.
 
 Superseded job `2754325` failed in ten seconds before model fitting because an
 initial bundle omitted the legacy `line_lr.py` runtime sibling.  It produced no
