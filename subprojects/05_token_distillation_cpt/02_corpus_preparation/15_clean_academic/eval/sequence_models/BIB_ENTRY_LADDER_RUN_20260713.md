@@ -296,6 +296,50 @@ therefore composes the improved role-aware proposals with the already-stable
 five-feature component gate; it does not weaken the safety thresholds or open
 validation.
 
+Clariden job `2757761` completed that composition as
+`role_component_gate_r1`.  The strict safe point improved only modestly, while
+the 0.95 threshold exposed a much more useful diagnostic: all 23 spurious
+blocks came from one silver-zero OpenArchives document containing repeated
+source lists under exact related-material/archive headings.  This was a
+section-scope failure, not a generic citation-feature failure.
+
+Jobs `2757865` through `2758154` narrowed and audited an exact deterministic
+scope veto.  The retained `auxiliary_scope_veto_r6` recognizes only the
+pre-existing exact auxiliary headings, exact Greek/English `WHY`/`EXAMPLES`
+forms, and the exact selected-variants archive prefix.  Generic headings and
+fuzzy matches are forbidden.  It may only reject an already-proposed component.
+The scope covers 12,292 train lines and overlaps zero silver-BIB lines.  Its
+selected 0.90 point is:
+
+| Metric | Train OOF |
+|---|---:|
+| line precision | 0.991728 |
+| line recall | 0.804743 |
+| token precision | 0.991565 |
+| token recall | 0.854008 |
+| spurious blocks / zero-BIB document | 0.015038 |
+
+At 0.95 the safe role/component model had left 23 spurious blocks; after the
+exact veto, only two allowed silver-zero patterns remain at the selected point:
+an author's publications/presentations section and footnotes.  Neither was
+converted into a new one-off lexical exception.
+
+Job `2758164` tested `rich_component_gate_r1`: q10/q90 entry probability,
+minimum boundary probability, and eight separate role fractions were added to
+a monotonic shallow tree and a logistic comparison.  It was rejected.  The
+safe monotonic candidate regressed to 0.992897 precision / 0.563795 recall.
+The logistic comparison reached 0.950717 precision / 0.891920 recall, but q10
+and minimum boundary probability repeatedly took the wrong sign; negative
+heading roles also reversed in one fold.  Validation remained unopened.
+
+Commit `bd1ccc3` adds the next genuinely different candidate: a 32-hidden-unit
+residual TCN over a 31-line neighbourhood.  It sees only the frozen entry
+probability, the eight mutually exclusive deterministic roles, and the exact
+header flag.  Raw text, line length, document position, source identity, and
+validation rows are absent.  Five document-held-out models produce OOF scores;
+the audited exact-scope veto and unchanged safety gate apply downstream.
+Clariden job `2758175` runs this experiment as `signal_tcn_r1`.
+
 ## High-risk joint-review site
 
 Review job `2754381` selected 120 proposed blocks: exactly 40 each from

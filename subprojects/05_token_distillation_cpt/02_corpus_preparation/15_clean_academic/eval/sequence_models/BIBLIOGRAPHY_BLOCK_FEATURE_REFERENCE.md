@@ -376,3 +376,58 @@ identity, or validation-derived feature.  They reuse frozen OOF entry
 probabilities and B1 checkpoints.  Candidate selection is based on grouped
 train documents only.  Validation remains closed until a complete safe
 configuration is frozen.
+
+## Exact auxiliary-scope veto
+
+The false-component review found that all 23 spurious blocks at the permissive
+0.95 role-gate threshold came from one silver-zero OpenArchives document.  They
+were repeated source lists under exact `ΣΧΕΤΙΖΟΜΕΝΑ ΧΝΑΡΙΑ`, `WHY`,
+`EXAMPLES`, or selected-variant archive headings, rather than ordinary prose.
+
+The retained deterministic rule is deliberately narrow:
+
+- it recognizes only the pre-existing exact auxiliary headings, exact
+  Greek/English `WHY` and `EXAMPLES` forms (including the observed OCR delta),
+  and the exact selected-variants archive prefix;
+- numbered heading prefixes are normalized, but generic or fuzzy headings are
+  never promoted;
+- ordinary ATX scope ends at the next ATX heading; a selected-variants archive
+  persists only through exact AT/ATU type subheadings; and
+- it may veto a proposed component that contains the scope or begins within
+  the preceding two physical lines.  It cannot create or expand a deletion.
+
+This scope covers 12,292 training lines and overlaps zero silver-BIB lines.
+After the veto, the safe role-aware gate at threshold 0.90 reaches 99.17% line
+precision / 80.47% line recall and 99.16% token precision / 85.40% token
+recall, with 0.0150 spurious blocks per silver-zero document.  This is the
+current retained train-only point in `auxiliary_scope_veto_r6`.
+
+## Rich component gate (rejected)
+
+A shallow monotonic tree and an unconstrained logistic model tested ten
+additional component summaries: entry-probability q10/q90, minimum boundary
+probability, and the eight individual competing-role fractions.  The safe
+monotonic-tree point regressed to 99.29% line precision / 56.38% line recall.
+The logistic arm could reach 95.07% precision / 89.19% recall, but violated the
+predeclared direction contract in every fold: q10 and minimum boundary
+probability repeatedly took negative weights, and two negative heading roles
+also reversed in one fold.  The rich gate is therefore archived as
+`rich_component_gate_r1` and rejected; it is not eligible for validation.
+
+## Signal-only line TCN (active experiment)
+
+The next architecture learns block membership directly over a 31-line
+neighbourhood.  Its input per line is intentionally restricted to:
+
+1. the frozen out-of-fold entry probability;
+2. the eight mutually exclusive deterministic competing roles; and
+3. the exact bibliography-header flag.
+
+It receives no text, line length, document position, source identity, or
+validation data.  Five document-grouped models make out-of-fold predictions,
+so a model never scores a document on which it fitted.  A small residual TCN
+(32 hidden units, dilations 1/2/4/8, dropout 0.10) predicts entry membership;
+the exact auxiliary-scope veto then removes scoped components and H0 may attach
+an exact header only after a component already exists.  The same 99% line
+precision and 0.02 spurious-block safety gate applies before this candidate can
+be retained.
