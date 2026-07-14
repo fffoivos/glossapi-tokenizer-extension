@@ -565,6 +565,7 @@ def test_builds_private_raw_review_site_with_lazy_source_cards_and_documents(tmp
     assert "html-render.js" in (tmp_path / "review-site" / "index.html").read_text(encoding="utf-8")
     assert "vlm-repetition.js" in (tmp_path / "review-site" / "index.html").read_text(encoding="utf-8")
     assert "detections.html" in (tmp_path / "review-site" / "index.html").read_text(encoding="utf-8")
+    assert "normalization.html" in (tmp_path / "review-site" / "index.html").read_text(encoding="utf-8")
     detections_html = (tmp_path / "review-site" / "detections.html").read_text(encoding="utf-8")
     assert "assets/detections.css" in detections_html
     assert "assets/detections.js" in detections_html
@@ -577,8 +578,20 @@ def test_builds_private_raw_review_site_with_lazy_source_cards_and_documents(tmp
     assert "pattern_token_count" in detections_js
     assert "cleaning_preview" in detections_js
     assert "replacement_details" in detections_js
-    assert "<!-- text-removed -->" in detections_js
+    assert "<!-- repeating-text-removed -->" in detections_js
     assert "Preserved structural repetitions" in detections_js
+    normalization_html = (tmp_path / "review-site" / "normalization.html").read_text(encoding="utf-8")
+    assert "assets/normalization.css" in normalization_html
+    assert "assets/normalization.js" in normalization_html
+    assert "<!-- repeating-text-removed -->" not in normalization_html
+    assert "&lt;!-- repeating-text-removed --&gt;" in normalization_html
+    normalization_js = (tmp_path / "review-site" / "assets" / "normalization.js").read_text(encoding="utf-8")
+    assert "data/gfm_normalization_audit.json" in normalization_js
+    assert "data/gfm/documents/" in normalization_js
+    assert "Promise.all" in normalization_js
+    assert "Load raw, Markdown, and rendering" in normalization_js
+    assert "textContent" in normalization_js
+    assert "setAttribute('sandbox','')" in normalization_js
     html_renderer = (tmp_path / "review-site" / "assets" / "html-render.js").read_text(encoding="utf-8")
     assert "Mixed Markdown + HTML" in html_renderer
     assert "function comment(value)" in html_renderer

@@ -97,7 +97,7 @@ def _load_repetition_module(glossapi_root: Path) -> tuple[object, Path]:
     for name in ("detect_complex_repetition_details", "replace_complex_repetitions"):
         if not callable(getattr(module, name, None)):
             raise RuntimeError(f"GlossAPI OCR repetition module lacks {name}")
-    if getattr(module, "TEXT_REMOVED_COMMENT", None) != "<!-- text-removed -->":
+    if getattr(module, "TEXT_REMOVED_COMMENT", None) != "<!-- repeating-text-removed -->":
         raise RuntimeError("GlossAPI OCR repetition module has an unexpected removal marker")
     return module, module_path
 
@@ -303,7 +303,11 @@ def write_audit(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
     manifest_path = site_dir / "site_manifest.json"
     manifest = _read_json(manifest_path)
     inventory = _inventory_without_manifest(site_dir)
-    portable_assets = [item for item in inventory if not str(item["path"]).startswith("data/documents/")]
+    portable_assets = [
+        item
+        for item in inventory
+        if not str(item["path"]).startswith(("data/documents/", "data/gfm/documents/"))
+    ]
     portable_asset_bytes = sum(int(item["bytes"]) for item in portable_assets)
     max_bytes = int(manifest["max_portable_assets_bytes"])
     if portable_asset_bytes > max_bytes:

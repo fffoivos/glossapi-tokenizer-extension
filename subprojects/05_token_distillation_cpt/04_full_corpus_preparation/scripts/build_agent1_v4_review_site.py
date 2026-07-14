@@ -161,7 +161,7 @@ def _html() -> str:
   <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
-  <header><h1>Apertus raw-document review</h1><p><a class="header-link" href="detections.html">VLM repetition detections</a></p><p id="coverage"></p><div id="overview"></div></header>
+  <header><h1>Apertus raw-document review</h1><p><a class="header-link" href="detections.html">VLM repetition detections</a> · <a class="header-link" href="normalization.html">HTML → GitHub Markdown normalization</a></p><p id="coverage"></p><div id="overview"></div></header>
   <main>
     <section class="controls" aria-label="Document filters">
       <label>Source <select id="source-filter"></select></label>
@@ -417,14 +417,14 @@ def _detections_html() -> str:
 </head>
 <body>
   <header>
-    <p><a href="index.html">← Raw-document review</a></p>
+    <p><a href="index.html">← Raw-document review</a> · <a href="normalization.html">HTML → GitHub Markdown normalization</a></p>
     <h1>VLM repetition detections</h1>
     <p>Evidence presentation from the finalized-text guards used by the GlossAPI corpus OCR path.</p>
   </header>
   <main>
     <section class="scope" aria-labelledby="scope-title">
       <h2 id="scope-title">What this page shows</h2>
-      <p>Each card shows both the raw detector evidence and a dry-run cleaning preview. Runaway complex repetitions are replaced by exactly <code>&lt;!-- text-removed --&gt;</code>; no source document is changed by this presentation.</p>
+      <p>Each card shows both the raw detector evidence and a dry-run cleaning preview. Runaway complex repetitions are replaced by exactly <code>&lt;!-- repeating-text-removed --&gt;</code>; no source document is changed by this presentation.</p>
       <p>Repeated structural table headers are preserved rather than cleaned and are listed explicitly so that the distinction remains reviewable.</p>
       <p>Signals from the older early-stop guards—such as single-character runs, repeated blank lines, or repeated empty table cells—remain visible but are not automatically removed by this complex-pattern cleaner.</p>
       <p>The exact VLLM token-triplet loop detector is not included because these archived review documents retain text, not VLLM token IDs.</p>
@@ -438,6 +438,109 @@ def _detections_html() -> str:
   <script src="assets/detections.js"></script>
 </body>
 </html>
+"""
+
+
+def _normalization_html() -> str:
+    """Presentation of dry-run HTML-to-GFM decisions and lazy document previews."""
+
+    return """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src 'self'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>Apertus HTML to GitHub Markdown normalization</title>
+  <link rel="stylesheet" href="assets/normalization.css">
+</head>
+<body>
+  <header>
+    <p><a href="index.html">← Raw-document review</a> · <a href="detections.html">VLM repetition detections</a></p>
+    <h1>HTML → GitHub Markdown normalization</h1>
+    <p>Dry-run structures, transformation decisions, and rendered results for the reviewed sample.</p>
+  </header>
+  <main>
+    <section class="scope" aria-labelledby="scope-title">
+      <h2 id="scope-title">Scope and safety</h2>
+      <p>The immutable raw documents are untouched. Each preview first applies the current GlossAPI complex-repetition cleaner, inserting exactly <code>&lt;!-- repeating-text-removed --&gt;</code>, then converts recognized HTML structure to HTML-free GitHub-Flavored Markdown.</p>
+      <p>Existing Markdown is preserved. Where GFM has no non-HTML styling equivalent—such as superscript, subscript, underline, or arbitrary spans—the element and attributes are removed but their textual payload is retained. Embedded or executable elements are removed with their content.</p>
+      <p>The rendered pane is a local Markdown approximation for review, isolated in a script-free sandbox. It is not new corpus text and image fetching is disabled.</p>
+    </section>
+    <section id="normalization-summary" aria-live="polite"><p>Loading normalization audit…</p></section>
+    <section aria-labelledby="decisions-title">
+      <h2 id="decisions-title">Transformation decisions</h2>
+      <div class="table-scroll">
+        <table class="decisions-table">
+          <thead><tr><th>HTML element(s)</th><th>Observed starts</th><th>GitHub Markdown result</th><th>Content decision</th></tr></thead>
+          <tbody id="decision-rows"></tbody>
+        </table>
+      </div>
+    </section>
+    <section aria-labelledby="documents-title">
+      <h2 id="documents-title">Document previews</h2>
+      <div class="controls">
+        <label>Source <select id="normalization-source"><option value="">all sources</option></select></label>
+        <label>HTML element <select id="normalization-tag"><option value="">all elements</option></select></label>
+        <label class="checkbox"><input id="normalization-unchanged" type="checkbox"> Include byte-identical documents</label>
+      </div>
+      <p id="normalization-results"></p>
+      <div id="normalization-documents"><p>Loading normalized-document index…</p></div>
+    </section>
+  </main>
+  <script src="assets/normalization.js"></script>
+</body>
+</html>
+"""
+
+
+def _normalization_css() -> str:
+    return """*{box-sizing:border-box}body{margin:0;background:#f8fafc;color:#172033;font:16px/1.5 system-ui,-apple-system,sans-serif}header,main{max-width:1500px;margin:auto;padding:1.25rem}header{background:#102a43;color:#fff;max-width:none;padding-left:max(1.25rem,calc((100% - 1500px)/2 + 1.25rem));padding-right:max(1.25rem,calc((100% - 1500px)/2 + 1.25rem))}header h1{margin:.15rem 0}header p{margin:.25rem 0}header a{color:#dbeafe}.scope,#normalization-summary,#normalization-documents,.table-scroll{background:#fff;border:1px solid #cbd5e1;padding:1rem;margin:1rem 0}.scope{border-left:4px solid #1d4ed8}.scope code{background:#e2e8f0;color:#0f172a;padding:.1rem .3rem}.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem}.metric{background:#e8f1fa;border-radius:.35rem;padding:.7rem}.metric strong{display:block;font-size:1.5rem}.reuse{border-left:4px solid #15803d;background:#f0fdf4;padding:.7rem 1rem;margin-top:1rem}.table-scroll{overflow-x:auto;padding:0}.decisions-table{width:100%;border-collapse:collapse}.decisions-table th,.decisions-table td{border:1px solid #cbd5e1;padding:.55rem .7rem;text-align:left;vertical-align:top}.decisions-table th{background:#e8f1fa}.decisions-table code{white-space:nowrap}.controls{display:flex;gap:1rem;align-items:end;flex-wrap:wrap;background:#e8f1fa;padding:1rem}.controls label{display:grid;gap:.3rem}.controls .checkbox{display:flex;align-items:center;padding-bottom:.25rem}.normalization-card{border:1px solid #cbd5e1;border-left:4px solid #7c3aed;padding:1rem;margin:1rem 0;min-width:0}.normalization-card h3{margin:.1rem 0;overflow-wrap:anywhere}.metadata{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:.2rem .75rem}.metadata dt{font-weight:700}.metadata dd{margin:0;overflow-wrap:anywhere}.badges{display:flex;gap:.4rem;flex-wrap:wrap;margin:.65rem 0}.badge{background:#ede9fe;border:1px solid #c4b5fd;border-radius:999px;padding:.1rem .55rem;font:600 .82rem/1.4 ui-monospace,SFMono-Regular,monospace}.load-preview{border:0;border-radius:.35rem;background:#5b21b6;color:#fff;cursor:pointer;font:600 1rem/1.2 system-ui,-apple-system,sans-serif;padding:.65rem .9rem}.load-preview:disabled{background:#64748b;cursor:wait}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}.source-pane{min-width:0}.source-pane h4{margin:.25rem 0}.source-text{white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1220;color:#e5edf7;padding:1rem;max-height:42rem;overflow:auto}.render-pane{grid-column:1/-1}.render-frame{width:100%;height:46rem;border:1px solid #94a3b8;background:#fff}.unchanged-note{background:#f1f5f9;padding:.7rem}.error{background:#fef2f2;border-left:4px solid #b91c1c;padding:.75rem 1rem}@media(max-width:850px){header,main{padding:1rem}.comparison{grid-template-columns:1fr}.render-frame{height:36rem}.metadata{grid-template-columns:1fr}.metadata dt{margin-top:.4rem}}"""
+
+
+def _normalization_js() -> str:
+    """Lazy, text-safe renderer for the normalization decision presentation."""
+
+    return r"""'use strict';
+(function(){
+  var audit=null;
+  var summaryRoot=document.getElementById('normalization-summary');
+  var decisionsRoot=document.getElementById('decision-rows');
+  var documentsRoot=document.getElementById('normalization-documents');
+  var resultsRoot=document.getElementById('normalization-results');
+  var sourceFilter=document.getElementById('normalization-source');
+  var tagFilter=document.getElementById('normalization-tag');
+  var unchangedFilter=document.getElementById('normalization-unchanged');
+  function text(tag,value){var node=document.createElement(tag);node.textContent=String(value==null?'':value);return node;}
+  function clear(node){while(node.firstChild)node.removeChild(node.firstChild);}
+  function formatted(value){var number=Number(value);return Number.isFinite(number)?number.toLocaleString('en-US'):String(value==null?0:value);}
+  function metadata(root,label,value){root.appendChild(text('dt',label));root.appendChild(text('dd',value));}
+  function option(select,value,label){select.appendChild(new Option(label,value));}
+  function failure(root,message){clear(root);var node=text('p',message);node.className='error';root.appendChild(node);}
+  function renderSummary(){
+    clear(summaryRoot);var summary=audit.summary||{},grid=document.createElement('div');grid.className='summary-grid';
+    [[summary.document_count,'documents audited'],[summary.documents_changed,'documents changed'],[summary.documents_with_recognized_html,'documents with HTML'],[summary.html_start_tag_count,'HTML start tags'],[(summary.transformation_counts||{}).html_tables_to_gfm||0,'tables converted'],[(summary.transformation_counts||{}).html_table_cells_preserved||0,'table cells kept structurally'],[(summary.transformation_counts||{}).nested_table_cells_flattened||0,'nested table cells flattened'],[(summary.transformation_counts||{}).orphan_table_cells_flattened||0,'orphan table cells flattened'],[summary.repetition_replacement_count,'repetition comments'],[summary.repetition_characters_removed,'repeating characters removed'],[summary.content_characters_removed,'other content characters removed'],[summary.residual_recognized_html_tags,'recognized HTML left']].forEach(function(metric){var box=document.createElement('div');box.className='metric';box.appendChild(text('strong',formatted(metric[0])));box.appendChild(text('span',metric[1]));grid.appendChild(box);});summaryRoot.appendChild(grid);
+    var before=summary.markdown_structures_before||{},after=summary.markdown_structures_after||{};summaryRoot.appendChild(text('p','Existing Markdown checks: headings '+formatted(before.atx_headings)+' → '+formatted(after.atx_headings)+', fence lines '+formatted(before.fence_lines)+' → '+formatted(after.fence_lines)+', links '+formatted(before.markdown_links)+' → '+formatted(after.markdown_links)+', images '+formatted(before.markdown_images)+' → '+formatted(after.markdown_images)+', and table delimiters '+formatted(before.gfm_table_delimiters)+' → '+formatted(after.gfm_table_delimiters)+'. Increases come only from converted HTML structures. Parser-token gates also require non-loss of emphasis, strikethrough, inline and block code, lists, blockquotes, links, images, headings, and existing tables.'));
+    var reuse=audit.glossapi_reuse_review||{},box=document.createElement('div');box.className='reuse';box.appendChild(text('strong','GlossAPI integration decision'));box.appendChild(text('p',String(reuse.must_precede||'')));box.appendChild(text('p','Reused in this dry run: '+(reuse.reused_now||[]).join('; ')+'. Reuse after structural conversion: '+(reuse.reuse_when_ported||[]).join('; ')+'.'));summaryRoot.appendChild(box);
+  }
+  function renderDecisions(){
+    clear(decisionsRoot);(audit.transformation_decisions||[]).forEach(function(row){var tr=document.createElement('tr'),tags=document.createElement('td');(row.tags||[]).forEach(function(tag,index){if(index)tags.appendChild(document.createTextNode(', '));tags.appendChild(text('code',tag));});tr.appendChild(tags);tr.appendChild(text('td',formatted(row.observed_start_tag_count)));tr.appendChild(text('td',row.target));tr.appendChild(text('td',row.content_policy));decisionsRoot.appendChild(tr);});
+  }
+  function initializeFilters(){
+    var sources=new Set(),tags=new Set();(audit.documents||[]).forEach(function(row){sources.add(String(row.source_id));Object.keys(row.tag_counts||{}).forEach(function(tag){tags.add(tag);});});Array.from(sources).sort().forEach(function(source){option(sourceFilter,source,source);});Array.from(tags).sort().forEach(function(tag){option(tagFilter,tag,tag+' ('+formatted((audit.summary.html_tag_counts||{})[tag]||0)+')');});
+  }
+  function badges(row){var root=document.createElement('div');root.className='badges';Object.keys(row.transformations||{}).sort().forEach(function(key){var badge=text('span',key+': '+row.transformations[key]);badge.className='badge';root.appendChild(badge);});if(row.repetition_replacements){var repetition=text('span','repetition replacements: '+row.repetition_replacements);repetition.className='badge';root.appendChild(repetition);}return root;}
+  function previewDocument(rendered){return '<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src \'none\'; base-uri \'none\'; form-action \'none\'"><style>body{max-width:1000px;margin:0 auto;padding:1.25rem;color:#172033;font:16px/1.55 system-ui,-apple-system,sans-serif;overflow-wrap:anywhere}table{border-collapse:collapse;display:block;max-width:100%;overflow:auto}th,td{border:1px solid #94a3b8;padding:.35rem .55rem;text-align:left}th{background:#e8f1fa}pre{white-space:pre-wrap;background:#f1f5f9;padding:.8rem}code{background:#f1f5f9}blockquote{border-left:4px solid #94a3b8;margin-left:0;padding-left:1rem;color:#475569}img{max-width:100%}</style></head><body>'+rendered+'</body></html>';}
+  function sourcePane(titleValue,bodyValue){var pane=document.createElement('section');pane.className='source-pane';pane.appendChild(text('h4',titleValue));var pre=text('pre',bodyValue);pre.className='source-text';pane.appendChild(pre);return pane;}
+  function loadPreview(row,card,button){
+    button.disabled=true;button.textContent='Loading preview…';var rawRequest=fetch('data/documents/'+encodeURIComponent(row.opaque_id)+'.json',{cache:'no-store'}).then(function(response){if(!response.ok)throw new Error('raw HTTP '+response.status);return response.json();});
+    var normalizedRequest=row.changed?fetch('data/gfm/documents/'+encodeURIComponent(row.opaque_id)+'.json',{cache:'no-store'}).then(function(response){if(!response.ok)throw new Error('normalized HTTP '+response.status);return response.json();}):Promise.resolve(null);
+    Promise.all([rawRequest,normalizedRequest]).then(function(payloads){var raw=payloads[0],normalized=payloads[1];if(!raw||typeof raw.text!=='string')throw new Error('invalid raw payload');var comparison=document.createElement('div');comparison.className='comparison';comparison.appendChild(sourcePane('Exact raw reviewed text',raw.text));if(normalized){if(typeof normalized.normalized_markdown!=='string'||typeof normalized.rendered_html!=='string')throw new Error('invalid normalized payload');comparison.appendChild(sourcePane('Normalized GitHub Markdown',normalized.normalized_markdown));var rendered=document.createElement('section');rendered.className='render-pane';rendered.appendChild(text('h4','Rendered normalized Markdown'));var frame=document.createElement('iframe');frame.className='render-frame';frame.title='Rendered normalized Markdown';frame.setAttribute('sandbox','');frame.referrerPolicy='no-referrer';frame.srcdoc=previewDocument(normalized.rendered_html);rendered.appendChild(frame);comparison.appendChild(rendered);}else{var unchanged=text('p','This document is byte-identical after normalization, so no duplicate normalized artifact was written.');unchanged.className='unchanged-note';comparison.appendChild(unchanged);}button.remove();card.appendChild(comparison);}).catch(function(error){button.disabled=false;button.textContent='Retry preview';var existing=card.querySelector('.error');if(existing)existing.remove();var node=text('p','Preview could not be loaded: '+error.message);node.className='error';card.appendChild(node);});
+  }
+  function renderCard(row){var card=document.createElement('article');card.className='normalization-card';card.appendChild(text('h3',row.source_id+' · '+row.source_doc_id));var meta=document.createElement('dl');meta.className='metadata';metadata(meta,'Opaque review document',row.opaque_id);metadata(meta,'Changed',row.changed?'yes':'no');metadata(meta,'Recognized HTML',row.has_recognized_html?'yes':'no');metadata(meta,'Characters',formatted(row.original_char_count)+' raw → '+formatted(row.normalized_char_count)+' normalized');metadata(meta,'Repetition removal',formatted(row.repetition_replacements)+' replacement(s), '+formatted(row.repetition_characters_removed)+' characters');metadata(meta,'Non-repetition content removed',formatted(row.content_characters_removed)+' characters');metadata(meta,'Escaped OCR angle-text spans',formatted(row.pseudo_tags_escaped));card.appendChild(meta);card.appendChild(badges(row));var button=text('button','Load raw, Markdown, and rendering');button.type='button';button.className='load-preview';button.addEventListener('click',function(){loadPreview(row,card,button);},{once:false});card.appendChild(button);return card;}
+  function filter(){var source=sourceFilter.value,tag=tagFilter.value,includeUnchanged=unchangedFilter.checked,rows=(audit.documents||[]).filter(function(row){return (includeUnchanged||row.changed)&&(!source||row.source_id===source)&&(!tag||Number((row.tag_counts||{})[tag]||0)>0);});rows.sort(function(a,b){return String(a.source_id).localeCompare(String(b.source_id))||String(a.source_doc_id).localeCompare(String(b.source_doc_id));});resultsRoot.textContent=formatted(rows.length)+' documents shown; source and normalized text are fetched only when a preview is opened.';clear(documentsRoot);if(!rows.length){documentsRoot.appendChild(text('p','No documents match these filters.'));return;}rows.forEach(function(row){documentsRoot.appendChild(renderCard(row));});}
+  [sourceFilter,tagFilter,unchangedFilter].forEach(function(control){control.addEventListener('change',filter);});
+  fetch('data/gfm_normalization_audit.json',{cache:'no-store'}).then(function(response){if(!response.ok)throw new Error('HTTP '+response.status);return response.json();}).then(function(payload){if(!payload||payload.status!=='passed'||!Array.isArray(payload.documents))throw new Error('invalid audit payload');audit=payload;renderSummary();renderDecisions();initializeFilters();filter();}).catch(function(error){failure(summaryRoot,'Normalization audit failed to load: '+error.message);failure(documentsRoot,'No normalization previews can be presented until the audit is available.');});
+})();
 """
 
 
@@ -538,7 +641,7 @@ def _detections_js() -> str:
       root.appendChild(kept);
     }
     if(!preview.changed)return;
-    var marker=String(preview.replacement_marker||'<!-- text-removed -->');
+    var marker=String(preview.replacement_marker||'<!-- repeating-text-removed -->');
     var passes=Array.isArray(preview.replacement_details)?preview.replacement_details.slice():[];
     passes.sort(function(a,b){return Number(a.pass_index)-Number(b.pass_index);});
     var current=raw;
@@ -680,16 +783,19 @@ def build_site(
         _write_json(staging / "data" / "index.json", index)
         _write_file(staging / "index.html", _html().encode("utf-8"))
         _write_file(staging / "detections.html", _detections_html().encode("utf-8"))
+        _write_file(staging / "normalization.html", _normalization_html().encode("utf-8"))
         _write_file(staging / "assets" / "site.css", _css().encode("utf-8"))
         _write_file(staging / "assets" / "site.js", _lazy_js().encode("utf-8"))
         _write_file(staging / "assets" / "html-render.js", _html_renderer_js().encode("utf-8"))
         _write_file(staging / "assets" / "vlm-repetition.js", _vlm_repetition_viewer_js().encode("utf-8"))
         _write_file(staging / "assets" / "detections.css", _detections_css().encode("utf-8"))
         _write_file(staging / "assets" / "detections.js", _detections_js().encode("utf-8"))
+        _write_file(staging / "assets" / "normalization.css", _normalization_css().encode("utf-8"))
+        _write_file(staging / "assets" / "normalization.js", _normalization_js().encode("utf-8"))
         inventory = _tree_inventory(staging)
         portable_assets = [
             item for item in inventory
-            if not str(item["path"]).startswith("data/documents/")
+            if not str(item["path"]).startswith(("data/documents/", "data/gfm/documents/"))
         ]
         portable_asset_bytes = sum(int(item["bytes"]) for item in portable_assets)
         if portable_asset_bytes > max_portable_assets_bytes:

@@ -1,0 +1,1160 @@
+#!/usr/bin/env python3
+"""Prototype loss-aware HTML-to-GFM normalization on the Agent 1 review sample.
+
+This is deliberately outside GlossAPI.  It reads the immutable raw-review site,
+applies the current GlossAPI complex-repetition cleaner, converts recognized HTML
+structure to GitHub-Flavored Markdown, and writes lazy presentation artifacts.
+Raw review documents are never overwritten.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import importlib.util
+import json
+import os
+import re
+import tempfile
+from collections import Counter, defaultdict
+from dataclasses import dataclass, field
+from html.parser import HTMLParser
+from pathlib import Path
+from typing import Any, Iterable, Mapping, MutableMapping, Sequence
+
+
+SCHEMA = "agent1_v4_gfm_normalization_audit_v1"
+DOCUMENT_SCHEMA = "agent1_v4_gfm_normalized_document_v1"
+SITE_SCHEMA = "agent1_v4_raw_review_site_manifest_v1"
+AUDIT_RELATIVE_PATH = Path("data/gfm_normalization_audit.json")
+OUTPUT_DOCUMENT_DIR = Path("data/gfm/documents")
+DEFAULT_GLOSSAPI_ROOT = Path.home() / "Projects/glossapi-development"
+REPETITION_COMMENT = "<!-- repeating-text-removed -->"
+PORTABLE_BULK_PREFIXES = ("data/documents/", "data/gfm/documents/")
+PRESERVED_MARKDOWN_TOKEN_TYPES = (
+    "heading_open",
+    "fence",
+    "code_block",
+    "code_inline",
+    "link_open",
+    "image",
+    "bullet_list_open",
+    "ordered_list_open",
+    "blockquote_open",
+    "strong_open",
+    "em_open",
+    "s_open",
+    "table_open",
+)
+
+AUTOLINK_RE = re.compile(
+    r"^<(?:[A-Za-z][A-Za-z0-9+.-]{1,31}:[^<>\s]*|"
+    r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?)>$"
+)
+ALLOWED_COMMENT_RE = re.compile(
+    r"^<!--\s*(?:repeating-text-removed|text-missing|table-removed)\s*-->$",
+    re.IGNORECASE,
+)
+ALLOWED_COMMENT_TOKEN_RE = re.compile(
+    r"<!--\s*(?:repeating-text-removed|text-missing|table-removed)\s*-->",
+    re.IGNORECASE,
+)
+RESIDUAL_ANGLE_RE = re.compile(r"<[^<>\n]+>")
+ALIGN_RE = re.compile(r"text-align\s*:\s*(left|center|right)", re.IGNORECASE)
+
+TABLE_TAGS = {"table", "thead", "tbody", "tfoot", "tr", "th", "td", "caption"}
+VOID_TAGS = {"br", "hr", "img", "input", "meta", "link", "source", "track", "wbr"}
+DROP_WITH_CONTENT_TAGS = {
+    "script",
+    "style",
+    "iframe",
+    "object",
+    "embed",
+    "video",
+    "audio",
+    "canvas",
+    "svg",
+    "picture",
+    "form",
+    "button",
+    "select",
+    "option",
+    "textarea",
+    "title",
+    "head",
+    "noscript",
+    "template",
+}
+BLOCK_WRAPPER_TAGS = {
+    "address",
+    "article",
+    "aside",
+    "center",
+    "details",
+    "dialog",
+    "div",
+    "figcaption",
+    "figure",
+    "footer",
+    "header",
+    "main",
+    "nav",
+    "p",
+    "section",
+    "summary",
+}
+FLATTEN_TAGS = {
+    "abbr",
+    "acronym",
+    "big",
+    "cite",
+    "dfn",
+    "font",
+    "ins",
+    "kbd",
+    "mark",
+    "q",
+    "ruby",
+    "rp",
+    "rt",
+    "samp",
+    "small",
+    "span",
+    "time",
+    "u",
+    "var",
+}
+INLINE_TAGS = {"a", "b", "strong", "i", "em", "del", "s", "strike", "code", "sup", "sub", "math"}
+LIST_TAGS = {"ul", "ol", "li", "dl", "dt", "dd"}
+HEADING_TAGS = {f"h{level}" for level in range(1, 7)}
+KNOWN_HTML_TAGS = (
+    TABLE_TAGS
+    | VOID_TAGS
+    | DROP_WITH_CONTENT_TAGS
+    | BLOCK_WRAPPER_TAGS
+    | FLATTEN_TAGS
+    | INLINE_TAGS
+    | LIST_TAGS
+    | HEADING_TAGS
+    | {"blockquote", "pre"}
+)
+KNOWN_HTML_TAG_RE = re.compile(
+    r"</?(?:" + "|".join(sorted(map(re.escape, KNOWN_HTML_TAGS), key=len, reverse=True)) + r")(?:\s[^<>]*?)?/?>",
+    re.IGNORECASE,
+)
+
+
+TRANSFORMATION_POLICY: list[dict[str, object]] = [
+    {
+        "tags": ["table", "thead", "tbody", "tfoot", "tr", "th", "td"],
+        "target": "GFM pipe table",
+        "content_policy": "Keep every cell once; expand row/column spans with empty geometry cells; merge leading header rows; synthesize an empty header only when HTML has none.",
+    },
+    {
+        "tags": ["caption"],
+        "target": "italic paragraph before table",
+        "content_policy": "Keep caption text because GFM tables have no caption field.",
+    },
+    {
+        "tags": ["b", "strong"],
+        "target": "**strong emphasis**",
+        "content_policy": "Keep content and surrounding whitespace.",
+    },
+    {
+        "tags": ["i", "em"],
+        "target": "*emphasis*",
+        "content_policy": "Keep content and surrounding whitespace.",
+    },
+    {
+        "tags": ["del", "s", "strike"],
+        "target": "~~strikethrough~~",
+        "content_policy": "Keep content.",
+    },
+    {
+        "tags": ["br"],
+        "target": "GFM hard break; semicolon inside table cells",
+        "content_policy": "Keep the boundary without retaining raw <br> HTML; GFM cells cannot contain block-level line breaks.",
+    },
+    {
+        "tags": ["p", "div", "section", "article", "main", "header", "footer", "aside", "center"],
+        "target": "Markdown paragraph/block boundary",
+        "content_policy": "Keep textual and Markdown content; discard layout attributes.",
+    },
+    {
+        "tags": ["h1", "h2", "h3", "h4", "h5", "h6"],
+        "target": "# through ###### ATX headings",
+        "content_policy": "Keep heading level and content; discard HTML attributes.",
+    },
+    {
+        "tags": ["ul", "ol", "li"],
+        "target": "Markdown list",
+        "content_policy": "Keep list order and items; flatten nested lists with separators inside table cells.",
+    },
+    {
+        "tags": ["a"],
+        "target": "[label](destination)",
+        "content_policy": "Keep safe destinations; flatten links with missing, javascript:, or data: destinations to their labels.",
+    },
+    {
+        "tags": ["code", "pre"],
+        "target": "inline code or fenced code block",
+        "content_policy": "Choose a delimiter longer than any backtick run already in the payload.",
+    },
+    {
+        "tags": ["blockquote", "hr"],
+        "target": "> block quote or --- thematic break",
+        "content_policy": "Keep quoted content and structural boundaries.",
+    },
+    {
+        "tags": ["sup", "sub", "u", "span"],
+        "target": "plain inline content",
+        "content_policy": "GFM has no pure non-HTML equivalent for these styles; remove the element and attributes but retain its text to avoid corpus loss.",
+    },
+    {
+        "tags": ["math"],
+        "target": "$inline math$ or $$display math$$",
+        "content_policy": "Keep the existing TeX-like payload.",
+    },
+    {
+        "tags": ["img"],
+        "target": "![alt](source)",
+        "content_policy": "Convert only when src exists; remove source-less decorative image elements completely.",
+    },
+    {
+        "tags": ["input"],
+        "target": "removed",
+        "content_policy": "The observed checkboxes are inline OCR artifacts, not GFM task-list items.",
+    },
+    {
+        "tags": ["script", "style", "iframe", "object", "embed", "video", "audio", "canvas", "svg", "form"],
+        "target": "removed with content",
+        "content_policy": "No safe corpus-text representation; none are observed in the current sample.",
+    },
+    {
+        "tags": ["unknown tag-like angle text"],
+        "target": "escaped literal text",
+        "content_policy": "Preserve OCR text and angle-bracketed citations literally; preserve valid GFM URI/email autolinks unchanged.",
+    },
+    {
+        "tags": ["HTML comments"],
+        "target": "removed",
+        "content_policy": "Preserve only explicit GlossAPI removal markers, including <!-- repeating-text-removed -->.",
+    },
+]
+
+
+def sha256_bytes(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def _write_json(path: Path, value: object) -> None:
+    payload = (json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(temporary, 0o600)
+        os.replace(temporary, path)
+        os.chmod(path, 0o600)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def _read_json(path: Path) -> dict[str, Any]:
+    with path.open(encoding="utf-8") as handle:
+        value = json.load(handle)
+    if not isinstance(value, dict):
+        raise ValueError(f"{path}: expected a JSON object")
+    return value
+
+
+@dataclass
+class Node:
+    tag: str | None
+    attrs: dict[str, str] = field(default_factory=dict)
+    children: list[Node | str] = field(default_factory=list)
+
+
+@dataclass
+class RenderContext:
+    in_table_cell: bool = False
+    list_depth: int = 0
+
+
+@dataclass
+class NormalizationMetrics:
+    tag_counts: Counter[str] = field(default_factory=Counter)
+    attribute_counts: Counter[str] = field(default_factory=Counter)
+    transformations: Counter[str] = field(default_factory=Counter)
+    pseudo_tags_escaped: int = 0
+    comments_removed: int = 0
+    comments_preserved: int = 0
+    content_characters_removed: int = 0
+    parser_unmatched_end_tags: int = 0
+    parser_implicitly_closed_tags: int = 0
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "tag_counts": dict(sorted(self.tag_counts.items())),
+            "attribute_counts": dict(sorted(self.attribute_counts.items())),
+            "transformations": dict(sorted(self.transformations.items())),
+            "pseudo_tags_escaped": self.pseudo_tags_escaped,
+            "comments_removed": self.comments_removed,
+            "comments_preserved": self.comments_preserved,
+            "content_characters_removed": self.content_characters_removed,
+            "parser_unmatched_end_tags": self.parser_unmatched_end_tags,
+            "parser_implicitly_closed_tags": self.parser_implicitly_closed_tags,
+        }
+
+
+def _escape_angle(value: str) -> str:
+    return value.replace("<", "&lt;").replace(">", "&gt;")
+
+
+class MixedMarkupParser(HTMLParser):
+    def __init__(self, metrics: NormalizationMetrics):
+        super().__init__(convert_charrefs=False)
+        self.metrics = metrics
+        self.root = Node(None)
+        self.stack = [self.root]
+
+    def _append(self, value: Node | str) -> None:
+        self.stack[-1].children.append(value)
+
+    def _start(self, tag: str, attrs: list[tuple[str, str | None]], *, self_closing: bool) -> None:
+        raw = self.get_starttag_text() or f"<{tag}>"
+        if AUTOLINK_RE.fullmatch(raw):
+            self._append(raw)
+            self.metrics.transformations["gfm_autolinks_preserved"] += 1
+            return
+        if tag not in KNOWN_HTML_TAGS:
+            self._append(_escape_angle(raw))
+            self.metrics.pseudo_tags_escaped += 1
+            return
+        normalized_attrs = {key.casefold(): value or "" for key, value in attrs}
+        self.metrics.tag_counts[tag] += 1
+        self.metrics.attribute_counts.update(f"{tag}.{key}" for key in normalized_attrs)
+        node = Node(tag, normalized_attrs)
+        self._append(node)
+        if not self_closing and tag not in VOID_TAGS:
+            self.stack.append(node)
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self._start(tag.casefold(), attrs, self_closing=False)
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self._start(tag.casefold(), attrs, self_closing=True)
+
+    def handle_endtag(self, tag: str) -> None:
+        tag = tag.casefold()
+        if tag not in KNOWN_HTML_TAGS:
+            self._append(f"&lt;/{tag}&gt;")
+            self.metrics.pseudo_tags_escaped += 1
+            return
+        matching = next((index for index in range(len(self.stack) - 1, 0, -1) if self.stack[index].tag == tag), None)
+        if matching is None:
+            self.metrics.parser_unmatched_end_tags += 1
+            return
+        self.metrics.parser_implicitly_closed_tags += len(self.stack) - matching - 1
+        del self.stack[matching:]
+
+    def handle_data(self, data: str) -> None:
+        self._append(data)
+
+    def handle_entityref(self, name: str) -> None:
+        self._append(f"&{name};")
+
+    def handle_charref(self, name: str) -> None:
+        self._append(f"&#{name};")
+
+    def handle_comment(self, data: str) -> None:
+        raw = f"<!--{data}-->"
+        if ALLOWED_COMMENT_RE.fullmatch(raw):
+            self._append(raw)
+            self.metrics.comments_preserved += 1
+        else:
+            self.metrics.comments_removed += 1
+            self.metrics.content_characters_removed += len(raw)
+
+    def handle_decl(self, decl: str) -> None:
+        self.metrics.transformations["declarations_removed"] += 1
+        self.metrics.content_characters_removed += len(decl) + 3
+
+    def handle_pi(self, data: str) -> None:
+        self.metrics.transformations["processing_instructions_removed"] += 1
+        self.metrics.content_characters_removed += len(data) + 4
+
+    def finish(self) -> Node:
+        self.metrics.parser_implicitly_closed_tags += max(0, len(self.stack) - 1)
+        self.stack = [self.root]
+        return self.root
+
+
+def _plain_text(value: Node | str) -> str:
+    if isinstance(value, str):
+        return value
+    return "".join(_plain_text(child) for child in value.children)
+
+
+def _block(value: str) -> str:
+    content = value.strip()
+    return f"\n\n{content}\n\n" if content else ""
+
+
+def _wrap_inline(value: str, marker: str) -> str:
+    if not value or not value.strip():
+        return value
+    leading = value[: len(value) - len(value.lstrip())]
+    trailing = value[len(value.rstrip()) :]
+    core = value.strip()
+    return f"{leading}{marker}{core}{marker}{trailing}"
+
+
+def _escape_destination(value: str) -> str:
+    return value.strip().replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)").replace(" ", "%20")
+
+
+def _escape_table_pipes(value: str) -> str:
+    output: list[str] = []
+    for character in value:
+        if character == "|":
+            slash_count = 0
+            for prior in reversed(output):
+                if prior != "\\":
+                    break
+                slash_count += 1
+            if slash_count % 2 == 0:
+                output.append("\\")
+        output.append(character)
+    return "".join(output)
+
+
+def _normalize_cell(value: str) -> str:
+    compact = re.sub(r"\s*\n\s*", " ", value.replace("\r", " "))
+    compact = re.sub(r"[ \t]{2,}", " ", compact).strip()
+    return _escape_table_pipes(compact)
+
+
+def _alignment(attrs: Mapping[str, str]) -> str | None:
+    direct = attrs.get("align", "").casefold()
+    if direct in {"left", "center", "right"}:
+        return direct
+    match = ALIGN_RE.search(attrs.get("style", ""))
+    return match.group(1).casefold() if match else None
+
+
+@dataclass
+class TableCell:
+    content: str
+    header: bool
+    alignment: str | None
+
+
+def _row_nodes(table: Node) -> list[tuple[Node, bool]]:
+    rows: list[tuple[Node, bool]] = []
+
+    def visit(node: Node, in_head: bool = False) -> None:
+        for child in node.children:
+            if not isinstance(child, Node):
+                continue
+            if child.tag == "table":
+                continue
+            child_in_head = in_head or child.tag == "thead"
+            if child.tag == "tr":
+                rows.append((child, child_in_head))
+            else:
+                visit(child, child_in_head)
+
+    visit(table)
+    return rows
+
+
+def _cell_nodes(row: Node) -> list[Node]:
+    cells: list[Node] = []
+    for child in row.children:
+        if isinstance(child, Node) and child.tag in {"th", "td"}:
+            cells.append(child)
+    return cells
+
+
+def _table_comments_outside_cells(table: Node) -> list[str]:
+    comments: list[str] = []
+
+    def visit(value: Node | str, in_cell: bool = False) -> None:
+        if isinstance(value, str):
+            if not in_cell:
+                comments.extend(match.group(0) for match in ALLOWED_COMMENT_TOKEN_RE.finditer(value))
+            return
+        child_in_cell = in_cell or value.tag in {"th", "td"}
+        for child in value.children:
+            visit(child, child_in_cell)
+
+    visit(table)
+    return comments
+
+
+def _positive_span(value: str) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return 1
+    return parsed if 1 <= parsed <= 100 else 1
+
+
+def _render_children(node: Node, metrics: NormalizationMetrics, context: RenderContext) -> str:
+    rendered = [[child, _render_node(child, metrics, context)] for child in node.children]
+    for index, (child, value) in enumerate(rendered):
+        if not isinstance(child, Node) or child.tag not in {"sup", "sub"} or not value:
+            continue
+        prior = next((str(piece[1]) for piece in reversed(rendered[:index]) if piece[1]), "")
+        prefix = " " if prior.rstrip().endswith(("*", "_", "~", "`")) and value[0].isalnum() else ""
+        if prefix:
+            metrics.transformations["flattened_style_markdown_boundaries_spaced"] += 1
+            rendered[index][1] = prefix + value
+    return "".join(str(piece[1]) for piece in rendered)
+
+
+def _render_list(node: Node, metrics: NormalizationMetrics, context: RenderContext) -> str:
+    ordered = node.tag == "ol"
+    items = [child for child in node.children if isinstance(child, Node) and child.tag == "li"]
+    if context.in_table_cell:
+        rendered = []
+        for index, item in enumerate(items, 1):
+            content = _normalize_cell(_render_children(item, metrics, RenderContext(True, context.list_depth + 1)))
+            if content:
+                rendered.append(f"{index}. {content}" if ordered else f"• {content}")
+        metrics.transformations["lists_flattened_inside_table_cells"] += int(bool(rendered))
+        return "; ".join(rendered)
+    lines: list[str] = []
+    for index, item in enumerate(items, 1):
+        content = _render_children(item, metrics, RenderContext(False, context.list_depth + 1)).strip()
+        if not content:
+            continue
+        prefix = f"{index}. " if ordered else "- "
+        parts = content.splitlines()
+        lines.append(prefix + parts[0])
+        lines.extend("  " + part for part in parts[1:] if part.strip())
+    return _block("\n".join(lines))
+
+
+def _render_table(table: Node, metrics: NormalizationMetrics, context: RenderContext) -> str:
+    out_of_cell_comments = _table_comments_outside_cells(table)
+    if context.in_table_cell:
+        metrics.transformations["nested_tables_flattened"] += 1
+        nested_rows: list[str] = []
+        nested_cell_count = 0
+        for row, _ in _row_nodes(table):
+            cells = _cell_nodes(row)
+            nested_cell_count += len(cells)
+            rendered_cells = [
+                _normalize_cell(_render_children(cell, metrics, RenderContext(True, context.list_depth)))
+                for cell in cells
+            ]
+            if rendered_cells:
+                nested_rows.append(" / ".join(rendered_cells))
+        metrics.transformations["nested_table_cells_flattened"] += nested_cell_count
+        flattened = "; ".join(nested_rows) if nested_rows else _normalize_cell(_plain_text(table))
+        if out_of_cell_comments:
+            metrics.transformations["table_comments_relocated_after_table"] += len(out_of_cell_comments)
+            flattened = "; ".join([flattened, *out_of_cell_comments])
+        return flattened
+
+    captions = [child for child in table.children if isinstance(child, Node) and child.tag == "caption"]
+    caption = " / ".join(
+        value for value in (_normalize_cell(_render_children(node, metrics, RenderContext())) for node in captions) if value
+    )
+    source_rows = _row_nodes(table)
+    if not source_rows:
+        metrics.transformations["empty_tables_removed"] += 1
+        metrics.content_characters_removed += len(ALLOWED_COMMENT_TOKEN_RE.sub("", _plain_text(table)))
+        if out_of_cell_comments:
+            metrics.transformations["table_comments_relocated_after_table"] += len(out_of_cell_comments)
+            return _block("\n".join(out_of_cell_comments))
+        return ""
+
+    occupied: dict[tuple[int, int], TableCell] = {}
+    grid: list[list[TableCell | None]] = []
+    header_flags: list[bool] = []
+    alignments: defaultdict[int, list[str]] = defaultdict(list)
+    for row_index, (row, in_thead) in enumerate(source_rows):
+        cells = _cell_nodes(row)
+        row_values: list[TableCell | None] = []
+
+        def ensure(column: int) -> None:
+            while len(row_values) <= column:
+                row_values.append(None)
+
+        for (occupied_row, column), value in sorted(occupied.items()):
+            if occupied_row == row_index:
+                ensure(column)
+                row_values[column] = value
+        column = 0
+        for cell_node in cells:
+            while (row_index, column) in occupied:
+                column += 1
+            colspan = _positive_span(cell_node.attrs.get("colspan", "1"))
+            rowspan = _positive_span(cell_node.attrs.get("rowspan", "1"))
+            content = _normalize_cell(_render_children(cell_node, metrics, RenderContext(True, context.list_depth)))
+            value = TableCell(content, cell_node.tag == "th", _alignment(cell_node.attrs))
+            ensure(column + colspan - 1)
+            row_values[column] = value
+            for offset in range(1, colspan):
+                row_values[column + offset] = TableCell("", value.header, value.alignment)
+            for row_offset in range(1, rowspan):
+                for column_offset in range(colspan):
+                    occupied[(row_index + row_offset, column + column_offset)] = TableCell("", value.header, value.alignment)
+            if colspan > 1:
+                metrics.transformations["colspan_cells_expanded"] += 1
+            if rowspan > 1:
+                metrics.transformations["rowspan_cells_expanded"] += 1
+            for offset in range(colspan):
+                if value.alignment:
+                    alignments[column + offset].append(value.alignment)
+            column += colspan
+        grid.append(row_values)
+        header_flags.append(in_thead or bool(cells) and all(cell.tag == "th" for cell in cells))
+
+    column_count = max((len(row) for row in grid), default=0)
+    if column_count == 0:
+        metrics.transformations["empty_tables_removed"] += 1
+        if out_of_cell_comments:
+            metrics.transformations["table_comments_relocated_after_table"] += len(out_of_cell_comments)
+            return _block("\n".join(out_of_cell_comments))
+        return ""
+    blank = TableCell("", False, None)
+    normalized_grid: list[list[TableCell]] = [
+        [cell if cell is not None else blank for cell in row + [None] * (column_count - len(row))]
+        for row in grid
+    ]
+    leading_header_count = 0
+    for flag in header_flags:
+        if not flag:
+            break
+        leading_header_count += 1
+    if leading_header_count:
+        headers = []
+        for column in range(column_count):
+            parts: list[str] = []
+            for row in normalized_grid[:leading_header_count]:
+                if row[column].content and row[column].content not in parts:
+                    parts.append(row[column].content)
+            headers.append(" / ".join(parts))
+        body = normalized_grid[leading_header_count:]
+        if leading_header_count > 1:
+            metrics.transformations["multirow_headers_merged"] += 1
+    else:
+        headers = ["" for _ in range(column_count)]
+        body = normalized_grid
+        metrics.transformations["synthetic_empty_table_headers"] += 1
+
+    body_rows: list[list[str]] = []
+    for row in body:
+        body_rows.append([
+            _wrap_inline(cell.content, "**") if cell.header and cell.content else cell.content
+            for cell in row
+        ])
+    delimiters = []
+    for column in range(column_count):
+        values = alignments.get(column, [])
+        alignment = values[0] if values and all(value == values[0] for value in values) else None
+        if values and alignment is None:
+            metrics.transformations["conflicting_table_alignments_dropped"] += 1
+        delimiters.append({"left": ":---", "center": ":---:", "right": "---:"}.get(alignment, "---"))
+
+    def line(cells: Sequence[str]) -> str:
+        return "| " + " | ".join(cells) + " |"
+
+    lines = [line(headers), line(delimiters), *(line(row) for row in body_rows)]
+    if any(len(row) != column_count for row in [headers, delimiters, *body_rows]):
+        raise RuntimeError("generated GFM table has inconsistent columns")
+    metrics.transformations["html_tables_to_gfm"] += 1
+    metrics.transformations["html_table_rows_emitted"] += len(lines) - 1
+    metrics.transformations["html_table_cells_preserved"] += sum(len(_cell_nodes(row)) for row, _ in source_rows)
+    table_markdown = "\n".join(lines)
+    if caption:
+        table_markdown = f"*{caption}*\n\n{table_markdown}"
+        metrics.transformations["table_captions_preserved"] += 1
+    if out_of_cell_comments:
+        metrics.transformations["table_comments_relocated_after_table"] += len(out_of_cell_comments)
+        table_markdown += "\n\n" + "\n".join(out_of_cell_comments)
+    return _block(table_markdown)
+
+
+def _render_node(value: Node | str, metrics: NormalizationMetrics, context: RenderContext) -> str:
+    if isinstance(value, str):
+        return value
+    tag = value.tag
+    if tag is None:
+        return _render_children(value, metrics, context)
+    if tag in DROP_WITH_CONTENT_TAGS or tag in {"meta", "link", "source", "track"}:
+        removed = _plain_text(value)
+        metrics.content_characters_removed += len(removed)
+        metrics.transformations["unsupported_elements_removed_with_content"] += 1
+        return ""
+    if tag == "table":
+        return _render_table(value, metrics, context)
+    if tag in TABLE_TAGS:
+        if tag in {"th", "td"}:
+            # Malformed OCR HTML can leave cells outside any table.  There is
+            # no recoverable rectangular geometry, so preserve their content
+            # inline and account for the structural downgrade explicitly.
+            metrics.transformations["orphan_table_cells_flattened"] += 1
+        return _render_children(value, metrics, context)
+    content = _render_children(value, metrics, context)
+    if tag in {"b", "strong"}:
+        return _wrap_inline(content, "**")
+    if tag in {"i", "em"}:
+        return _wrap_inline(content, "*")
+    if tag in {"del", "s", "strike"}:
+        return _wrap_inline(content, "~~")
+    if tag in {"sup", "sub", "u", "span", "ins"}:
+        metrics.transformations[f"{tag}_formatting_flattened"] += 1
+        return content
+    if tag == "math":
+        payload = content.strip()
+        if not payload:
+            return ""
+        metrics.transformations["math_to_github_math"] += 1
+        if value.attrs.get("display", "").casefold() == "block" and not context.in_table_cell:
+            return _block(f"$$\n{payload}\n$$")
+        return f"${payload}$"
+    if tag == "br":
+        metrics.transformations["html_breaks_converted"] += 1
+        return "; " if context.in_table_cell else "  \n"
+    if tag == "hr":
+        return _block("---")
+    if tag in BLOCK_WRAPPER_TAGS:
+        if context.in_table_cell:
+            return content.strip() + ("; " if content.strip() else "")
+        return _block(content)
+    if tag in HEADING_TAGS:
+        level = int(tag[1])
+        return _block(f"{'#' * level} {content.strip()}")
+    if tag in {"ul", "ol"}:
+        return _render_list(value, metrics, context)
+    if tag == "li":
+        return content
+    if tag in {"dl", "dt", "dd"}:
+        return _block(content) if not context.in_table_cell else content
+    if tag == "blockquote":
+        lines = content.strip().splitlines()
+        return _block("\n".join(f"> {line}" if line else ">" for line in lines))
+    if tag == "code":
+        fence = "`" * (max((len(match.group(0)) for match in re.finditer(r"`+", content)), default=0) + 1)
+        fence = fence if len(fence) >= 1 else "`"
+        return f"{fence}{content.strip()}{fence}"
+    if tag == "pre":
+        payload = _plain_text(value).strip("\n")
+        fence = "`" * max(3, max((len(match.group(0)) for match in re.finditer(r"`+", payload)), default=0) + 1)
+        return _block(f"{fence}\n{payload}\n{fence}")
+    if tag == "a":
+        label = content.strip()
+        href = value.attrs.get("href", "").strip()
+        if label and href and not href.casefold().startswith(("javascript:", "data:")):
+            return f"[{label}]({_escape_destination(href)})"
+        metrics.transformations["links_flattened_without_safe_destination"] += 1
+        return label
+    if tag == "img":
+        source = value.attrs.get("src", "").strip()
+        if not source:
+            metrics.transformations["source_less_images_removed"] += 1
+            return ""
+        alt = value.attrs.get("alt", "").replace("[", "\\[").replace("]", "\\]")
+        metrics.transformations["html_images_to_markdown"] += 1
+        return f"![{alt}]({_escape_destination(source)})"
+    if tag == "input":
+        metrics.transformations["inline_inputs_removed"] += 1
+        return ""
+    if tag in FLATTEN_TAGS:
+        return content
+    return content
+
+
+def _escape_residual_angles(text: str, metrics: NormalizationMetrics) -> str:
+    def replace(match: re.Match[str]) -> str:
+        raw = match.group(0)
+        if AUTOLINK_RE.fullmatch(raw) or ALLOWED_COMMENT_RE.fullmatch(raw):
+            return raw
+        metrics.pseudo_tags_escaped += 1
+        return _escape_angle(raw)
+
+    # OCR commonly emits doubled or nested guillemet-like ASCII brackets such
+    # as ``<<company name>>``.  A single regex pass sees only the inner pair;
+    # iterate until every non-autolink layer is escaped in this same pass.
+    while True:
+        escaped = RESIDUAL_ANGLE_RE.sub(replace, text)
+        if escaped == text:
+            return escaped
+        text = escaped
+
+
+def normalize_mixed_markup_to_gfm(text: str, *, metrics: MutableMapping[str, object] | None = None) -> str:
+    """Convert recognized HTML to a conservative, HTML-free GFM representation."""
+    state = NormalizationMetrics()
+    parser = MixedMarkupParser(state)
+    parser.feed(str(text or ""))
+    parser.close()
+    root = parser.finish()
+    normalized = _render_node(root, state, RenderContext())
+    normalized = _escape_residual_angles(normalized, state)
+    if KNOWN_HTML_TAG_RE.search(normalized):
+        raise RuntimeError("recognized HTML tag remains after GFM normalization")
+    if metrics is not None:
+        metrics.clear()
+        metrics.update(state.as_dict())
+    return normalized
+
+
+def markdown_structure_counts(text: str) -> dict[str, int]:
+    lines = text.splitlines()
+    return {
+        "atx_headings": sum(bool(re.match(r"^ {0,3}#{1,6}\s+\S", line)) for line in lines),
+        "fence_lines": sum(bool(re.match(r"^ {0,3}(?:`{3,}|~{3,})", line)) for line in lines),
+        "gfm_table_delimiters": sum(bool(re.match(r"^\s*\|?\s*:?-{3,}", line)) and "|" in line for line in lines),
+        "markdown_images": len(re.findall(r"!\[[^\]\n]*\]\([^\n)]*\)", text)),
+        "markdown_links": len(re.findall(r"(?<!!)\[[^\]\n]+\]\([^\n)]*\)", text)),
+        "strong_delimiter_pairs": text.count("**") // 2,
+    }
+
+
+def markdown_token_counts(renderer: object, text: str) -> dict[str, int]:
+    counts: Counter[str] = Counter()
+
+    def visit(tokens: Iterable[object]) -> None:
+        for token in tokens:
+            token_type = str(getattr(token, "type", ""))
+            if token_type in PRESERVED_MARKDOWN_TOKEN_TYPES:
+                counts[token_type] += 1
+            children = getattr(token, "children", None)
+            if children:
+                visit(children)
+
+    visit(renderer.parse(text))
+    return {token_type: counts[token_type] for token_type in PRESERVED_MARKDOWN_TOKEN_TYPES}
+
+
+def _load_repetition_module(glossapi_root: Path) -> tuple[object, Path]:
+    module_path = (glossapi_root / "src/glossapi/ocr/utils/repetition.py").resolve()
+    specification = importlib.util.spec_from_file_location("agent1_v4_gfm_glossapi_repetition", module_path)
+    if specification is None or specification.loader is None:
+        raise RuntimeError(f"could not import GlossAPI repetition module: {module_path}")
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    if not callable(getattr(module, "replace_complex_repetitions", None)):
+        raise RuntimeError("GlossAPI repetition module lacks replace_complex_repetitions")
+    if getattr(module, "TEXT_REMOVED_COMMENT", None) != REPETITION_COMMENT:
+        raise RuntimeError("GlossAPI repetition marker does not match the normalization contract")
+    return module, module_path
+
+
+def _cards_by_opaque_id(site_dir: Path) -> dict[str, Mapping[str, object]]:
+    cards: dict[str, Mapping[str, object]] = {}
+    for source_path in sorted((site_dir / "data/sources").glob("*.json")):
+        for card in _read_json(source_path).get("cards", []):
+            if not isinstance(card, Mapping):
+                raise ValueError(f"{source_path}: invalid source card")
+            opaque_id = card.get("opaque_id")
+            if not isinstance(opaque_id, str) or opaque_id in cards:
+                raise ValueError(f"{source_path}: invalid or duplicate opaque_id")
+            cards[opaque_id] = card
+    return cards
+
+
+def _markdown_renderer() -> tuple[object, str]:
+    from markdown_it import MarkdownIt, __version__ as markdown_it_version
+
+    renderer = MarkdownIt("commonmark", {"html": True, "linkify": True}).enable("table").enable("strikethrough")
+    return renderer, f"markdown-it-py {markdown_it_version}; commonmark + table + strikethrough"
+
+
+def _inventory_without_manifest(root: Path) -> list[dict[str, object]]:
+    records: list[dict[str, object]] = []
+    for path in sorted(root.rglob("*")):
+        relative = path.relative_to(root).as_posix()
+        if relative == "site_manifest.json":
+            continue
+        if path.is_symlink():
+            raise ValueError(f"review site contains a forbidden symlink: {relative}")
+        if path.is_file():
+            payload = path.read_bytes()
+            records.append({"path": relative, "bytes": len(payload), "sha256": sha256_bytes(payload)})
+    return records
+
+
+def _is_bulk_asset(path: str) -> bool:
+    return any(path.startswith(prefix) for prefix in PORTABLE_BULK_PREFIXES)
+
+
+def normalize_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
+    site_dir = site_dir.resolve()
+    manifest = _read_json(site_dir / "site_manifest.json")
+    if manifest.get("schema_version") != SITE_SCHEMA or manifest.get("status") != "passed":
+        raise ValueError("review site manifest is not passed")
+    cards = _cards_by_opaque_id(site_dir)
+    document_paths = sorted((site_dir / "data/documents").glob("*.json"))
+    if len(document_paths) != len(cards):
+        raise ValueError("review site card/document count mismatch")
+    repetition, repetition_path = _load_repetition_module(glossapi_root)
+    renderer, renderer_description = _markdown_renderer()
+
+    rows: list[dict[str, object]] = []
+    aggregate_tags: Counter[str] = Counter()
+    aggregate_attributes: Counter[str] = Counter()
+    aggregate_transformations: Counter[str] = Counter()
+    aggregate_markdown_before: Counter[str] = Counter()
+    aggregate_markdown_after: Counter[str] = Counter()
+    aggregate_markdown_tokens_before: Counter[str] = Counter()
+    aggregate_markdown_tokens_after: Counter[str] = Counter()
+    changed_by_source: Counter[str] = Counter()
+    documents_with_html = 0
+    documents_changed = 0
+    documents_with_repetition_replacement = 0
+    replacement_count = 0
+    repetition_characters_removed = 0
+    content_characters_removed = 0
+    pseudo_tags_escaped = 0
+    comments_removed = 0
+    comments_preserved = 0
+
+    for document_path in document_paths:
+        payload = _read_json(document_path)
+        opaque_id = payload.get("opaque_id")
+        raw_text = payload.get("text")
+        if not isinstance(opaque_id, str) or document_path.stem != opaque_id or opaque_id not in cards:
+            raise ValueError(f"{document_path}: opaque identity mismatch")
+        if not isinstance(raw_text, str):
+            raise ValueError(f"{document_path}: text must be a string")
+
+        repetition_metrics: dict[str, object] = {}
+        repeated_cleaned = repetition.replace_complex_repetitions(raw_text, metrics=repetition_metrics)
+        markup_metrics: dict[str, object] = {}
+        normalized = normalize_mixed_markup_to_gfm(repeated_cleaned, metrics=markup_metrics)
+        if "<!-- text-removed -->" in normalized:
+            raise RuntimeError("obsolete repetition marker remains in normalized output")
+        if KNOWN_HTML_TAG_RE.search(normalized):
+            raise RuntimeError(f"{document_path}: recognized HTML remains")
+        if normalized.count(REPETITION_COMMENT) != repeated_cleaned.count(REPETITION_COMMENT):
+            raise RuntimeError(f"{document_path}: repetition removal comment was not preserved")
+        if len(ALLOWED_COMMENT_TOKEN_RE.findall(normalized)) != int(markup_metrics["comments_preserved"]):
+            raise RuntimeError(f"{document_path}: approved removal comments were not preserved exactly once")
+        before_structures = markdown_structure_counts(repeated_cleaned)
+        after_structures = markdown_structure_counts(normalized)
+        before_tokens = markdown_token_counts(renderer, repeated_cleaned)
+        after_tokens = markdown_token_counts(renderer, normalized)
+        idempotence_metrics: dict[str, object] = {}
+        if normalize_mixed_markup_to_gfm(normalized, metrics=idempotence_metrics) != normalized:
+            raise RuntimeError(f"{document_path}: GFM normalization is not idempotent")
+        aggregate_markdown_before.update(before_structures)
+        aggregate_markdown_after.update(after_structures)
+        aggregate_markdown_tokens_before.update(before_tokens)
+        aggregate_markdown_tokens_after.update(after_tokens)
+
+        tag_counts = Counter({str(key): int(value) for key, value in dict(markup_metrics["tag_counts"]).items()})
+        attribute_counts = Counter({str(key): int(value) for key, value in dict(markup_metrics["attribute_counts"]).items()})
+        transformations = Counter({str(key): int(value) for key, value in dict(markup_metrics["transformations"]).items()})
+        for structure in ("atx_headings", "fence_lines", "markdown_links"):
+            if after_structures[structure] != before_structures[structure]:
+                raise RuntimeError(f"{document_path}: existing {structure} were not preserved")
+        if after_structures["markdown_images"] != before_structures["markdown_images"] + transformations.get("html_images_to_markdown", 0):
+            raise RuntimeError(f"{document_path}: existing Markdown images were not preserved")
+        if after_structures["gfm_table_delimiters"] != before_structures["gfm_table_delimiters"] + transformations.get("html_tables_to_gfm", 0):
+            raise RuntimeError(f"{document_path}: existing or converted GFM tables did not close")
+        if after_structures["strong_delimiter_pairs"] < before_structures["strong_delimiter_pairs"]:
+            raise RuntimeError(f"{document_path}: existing strong-emphasis structures were lost")
+        for token_type in PRESERVED_MARKDOWN_TOKEN_TYPES:
+            if after_tokens[token_type] < before_tokens[token_type]:
+                raise RuntimeError(f"{document_path}: existing Markdown token {token_type} was lost")
+        aggregate_tags.update(tag_counts)
+        aggregate_attributes.update(attribute_counts)
+        aggregate_transformations.update(transformations)
+        has_html = bool(tag_counts)
+        changed = normalized != raw_text
+        repetition_replacements = int(repetition_metrics["complex_repetition_replacements"])
+        if has_html:
+            documents_with_html += 1
+        if changed:
+            documents_changed += 1
+            source_id = str(cards[opaque_id]["source_id"])
+            changed_by_source[source_id] += 1
+        if repetition_replacements:
+            documents_with_repetition_replacement += 1
+        replacement_count += repetition_replacements
+        repetition_characters_removed += int(repetition_metrics["complex_repetition_characters_removed"])
+        content_characters_removed += int(markup_metrics["content_characters_removed"])
+        pseudo_tags_escaped += int(markup_metrics["pseudo_tags_escaped"])
+        comments_removed += int(markup_metrics["comments_removed"])
+        comments_preserved += int(markup_metrics["comments_preserved"])
+
+        output_relative: str | None = None
+        normalized_sha = sha256_bytes(normalized.encode("utf-8"))
+        if changed:
+            rendered_html = renderer.render(normalized)
+            if re.search(r"<(?:script|style|iframe|object|embed)\b", rendered_html, re.IGNORECASE):
+                raise RuntimeError(f"{document_path}: unsafe element reached the Markdown preview")
+            output_path = site_dir / OUTPUT_DOCUMENT_DIR / f"{opaque_id}.json"
+            _write_json(
+                output_path,
+                {
+                    "schema_version": DOCUMENT_SCHEMA,
+                    "opaque_id": opaque_id,
+                    "original_text_sha256": sha256_bytes(raw_text.encode("utf-8")),
+                    "normalized_markdown_sha256": normalized_sha,
+                    "normalized_markdown": normalized,
+                    "rendered_html": rendered_html,
+                    "renderer": renderer_description,
+                },
+            )
+            output_relative = output_path.relative_to(site_dir).as_posix()
+
+        card = cards[opaque_id]
+        rows.append(
+            {
+                "opaque_id": opaque_id,
+                "source_id": str(card["source_id"]),
+                "source_doc_id": str(card["source_doc_id"]),
+                "changed": changed,
+                "has_recognized_html": has_html,
+                "normalized_document_path": output_relative,
+                "original_char_count": len(raw_text),
+                "normalized_char_count": len(normalized),
+                "normalized_markdown_sha256": normalized_sha,
+                "tag_counts": dict(sorted(tag_counts.items())),
+                "transformations": dict(sorted(transformations.items())),
+                "content_characters_removed": int(markup_metrics["content_characters_removed"]),
+                "pseudo_tags_escaped": int(markup_metrics["pseudo_tags_escaped"]),
+                "comments_removed": int(markup_metrics["comments_removed"]),
+                "repetition_replacements": repetition_replacements,
+                "repetition_characters_removed": int(repetition_metrics["complex_repetition_characters_removed"]),
+                "markdown_structures_before": before_structures,
+                "markdown_structures_after": after_structures,
+                "markdown_tokens_before": before_tokens,
+                "markdown_tokens_after": after_tokens,
+            }
+        )
+
+    if len(rows) != int(manifest.get("document_count", -1)):
+        raise ValueError("normalization document count does not close with site manifest")
+    policy_tags = {
+        tag
+        for policy in TRANSFORMATION_POLICY
+        for tag in map(str, policy["tags"])
+        if tag not in {"unknown tag-like angle text", "HTML comments"}
+    }
+    uncovered_tags = sorted(set(aggregate_tags) - policy_tags)
+    if uncovered_tags:
+        raise RuntimeError(f"observed HTML tags lack an explicit transformation decision: {uncovered_tags}")
+    handled_tables = sum(
+        aggregate_transformations.get(key, 0)
+        for key in ("html_tables_to_gfm", "nested_tables_flattened", "empty_tables_removed")
+    )
+    if handled_tables != aggregate_tags.get("table", 0):
+        raise RuntimeError("HTML table handling count does not close")
+    handled_cells = (
+        aggregate_transformations.get("html_table_cells_preserved", 0)
+        + aggregate_transformations.get("nested_table_cells_flattened", 0)
+        + aggregate_transformations.get("orphan_table_cells_flattened", 0)
+    )
+    if handled_cells != aggregate_tags.get("td", 0) + aggregate_tags.get("th", 0):
+        raise RuntimeError("HTML table-cell handling count does not close")
+    decision_rows = []
+    for policy in TRANSFORMATION_POLICY:
+        tags = [str(tag) for tag in policy["tags"]]
+        if tags == ["unknown tag-like angle text"]:
+            observed = pseudo_tags_escaped
+        elif tags == ["HTML comments"]:
+            observed = comments_removed + comments_preserved
+        else:
+            observed = sum(aggregate_tags.get(tag, 0) for tag in tags)
+        decision_rows.append({**policy, "observed_start_tag_count": observed})
+    return {
+        "schema_version": SCHEMA,
+        "status": "passed",
+        "prototype_scope": "Dry-run review sample only; no source or raw-review document was overwritten.",
+        "renderer": renderer_description,
+        "glossapi_reuse_review": {
+            "reused_now": [
+                "glossapi.ocr.utils.repetition.replace_complex_repetitions",
+            ],
+            "reuse_when_ported": [
+                "glossapi.ocr.utils.cleaning.canonicalize_markdown for whitespace, dehyphenation, placeholder-cell and empty-table cleanup after structural conversion",
+                "glossapi_rs_cleaner.table_analysis_module for validation of emitted pipe tables",
+                "glossapi.gloss_section for downstream consumption of existing GFM headings, lists, and tables",
+            ],
+            "must_precede": "Run HTML-to-GFM conversion before Rust strip_tags_custom; that Rust function removes tags but does not preserve their structure.",
+            "do_not_reuse_for_conversion": "The Rust malformed-table stage removes tables; it does not convert HTML tables.",
+            "complex_repetition_module_sha256": sha256_bytes(repetition_path.read_bytes()),
+        },
+        "transformation_decisions": decision_rows,
+        "summary": {
+            "document_count": len(rows),
+            "documents_changed": documents_changed,
+            "documents_with_recognized_html": documents_with_html,
+            "documents_with_repetition_replacement": documents_with_repetition_replacement,
+            "repetition_replacement_count": replacement_count,
+            "repetition_characters_removed": repetition_characters_removed,
+            "html_start_tag_count": sum(aggregate_tags.values()),
+            "html_tag_counts": dict(sorted(aggregate_tags.items())),
+            "html_attribute_counts": dict(sorted(aggregate_attributes.items())),
+            "transformation_counts": dict(sorted(aggregate_transformations.items())),
+            "content_characters_removed": content_characters_removed,
+            "pseudo_tags_escaped": pseudo_tags_escaped,
+            "html_comments_removed": comments_removed,
+            "html_comments_preserved": comments_preserved,
+            "residual_recognized_html_tags": 0,
+            "uncovered_html_tags": uncovered_tags,
+            "normalization_idempotence_failures": 0,
+            "markdown_structures_before": dict(sorted(aggregate_markdown_before.items())),
+            "markdown_structures_after": dict(sorted(aggregate_markdown_after.items())),
+            "markdown_tokens_before": dict(sorted(aggregate_markdown_tokens_before.items())),
+            "markdown_tokens_after": dict(sorted(aggregate_markdown_tokens_after.items())),
+            "documents_changed_by_source": dict(sorted(changed_by_source.items())),
+        },
+        "documents": rows,
+    }
+
+
+def write_normalization(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
+    site_dir = site_dir.resolve()
+    audit = normalize_site(site_dir=site_dir, glossapi_root=glossapi_root)
+    audit_path = site_dir / AUDIT_RELATIVE_PATH
+    _write_json(audit_path, audit)
+    manifest_path = site_dir / "site_manifest.json"
+    manifest = _read_json(manifest_path)
+    inventory = _inventory_without_manifest(site_dir)
+    portable_assets = [item for item in inventory if not _is_bulk_asset(str(item["path"]))]
+    portable_asset_bytes = sum(int(item["bytes"]) for item in portable_assets)
+    if portable_asset_bytes > int(manifest["max_portable_assets_bytes"]):
+        raise ValueError("portable site assets exceed the frozen size limit")
+    audit_payload = audit_path.read_bytes()
+    manifest["gfm_normalization_audit"] = {
+        "path": AUDIT_RELATIVE_PATH.as_posix(),
+        "sha256": sha256_bytes(audit_payload),
+        "bytes": len(audit_payload),
+    }
+    manifest["portable_assets"] = portable_assets
+    manifest["portable_asset_bytes"] = portable_asset_bytes
+    manifest["files"] = inventory
+    _write_json(manifest_path, manifest)
+    return audit
+
+
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--site-dir", type=Path, required=True)
+    parser.add_argument("--glossapi-root", type=Path, default=DEFAULT_GLOSSAPI_ROOT)
+    return parser.parse_args(argv)
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = parse_args(argv)
+    audit = write_normalization(site_dir=args.site_dir, glossapi_root=args.glossapi_root)
+    print(json.dumps(audit["summary"], ensure_ascii=False, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
