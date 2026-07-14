@@ -284,12 +284,13 @@ def _html_renderer_js() -> str:
     var match=String(value||'').trim().match(/^\uE000agent1-html-(\d+)\uE001$/);
     return match?saved[Number(match[1])]:null;
   }
-  function figure(alt,asset){
-    return '<figure class="ocr-image-ref"><figcaption><strong>VLM image description</strong><span>'+escapeHtml(alt)+'</span><code>'+escapeHtml(asset)+'</code></figcaption></figure>';
+  function comment(value){return '<!-- '+String(value||'').replace(/--/g,'—')+' -->';}
+  function figure(alt){
+    return comment(alt);
   }
   function mixedMarkup(raw){
     var protectedHtml=reserveHtml(String(raw||'').replace(/\r\n?/g,'\n'));
-    var out=['<aside class="mixed-note">Mixed OCR rendering: Markdown and embedded HTML are rendered together. Extracted image files were not packaged with this review sample, so image references are shown as VLM-description cards.</aside>'];
+    var out=[];
     var previousWasFigure=false;
     var paragraph=[];
     var list=null;
@@ -302,17 +303,17 @@ def _html_renderer_js() -> str:
     function flushParagraph(){
       if(!paragraph.length)return;
       var value=paragraph.join('\n').trim();paragraph=[];
-      if(previousWasFigure&&/^this image(?:\s|,|\.)/i.test(value))out.push('<details class="synth-caption"><summary>Additional VLM image description</summary><p>'+blockInline([value])+'</p></details>');
+      if(previousWasFigure&&/^this image(?:\s|,|\.)/i.test(value))out.push(comment(value));
       else out.push('<p>'+blockInline([value])+'</p>');
       previousWasFigure=false;
     }
     function addTextLine(value){
       var text=String(value||'').trim();
       if(!text)return;
-      if(previousWasFigure&&!paragraph.length&&/^this image(?:\s|,|\.)/i.test(text)){out.push('<details class="synth-caption"><summary>Additional VLM image description</summary><p>'+blockInline([text])+'</p></details>');previousWasFigure=false;return;}
+      if(previousWasFigure&&!paragraph.length&&/^this image(?:\s|,|\.)/i.test(text)){out.push(comment(text));previousWasFigure=false;return;}
       paragraph.push(text);previousWasFigure=false;
     }
-    function addImage(alt,asset){flushList();flushParagraph();out.push(figure(alt,asset));previousWasFigure=true;}
+    function addImage(alt){flushList();flushParagraph();out.push(figure(alt));previousWasFigure=true;}
     protectedHtml.text.split('\n').forEach(function(line){
       var rawHtml=tokenOnly(line,protectedHtml.saved);
       if(rawHtml&&/^<table\b/i.test(rawHtml)){flushList();flushParagraph();out.push(rawHtml);previousWasFigure=false;return;}
@@ -328,7 +329,7 @@ def _html_renderer_js() -> str:
       if(list)flushList();
       var cursor=0,match;
       IMAGE_RE.lastIndex=0;
-      while((match=IMAGE_RE.exec(line))!==null){addTextLine(line.slice(cursor,match.index));addImage(match[1],match[2]);cursor=IMAGE_RE.lastIndex;}
+      while((match=IMAGE_RE.exec(line))!==null){addTextLine(line.slice(cursor,match.index));addImage(match[1]);cursor=IMAGE_RE.lastIndex;}
       addTextLine(line.slice(cursor));
     });
     flushList();flushParagraph();
@@ -336,7 +337,7 @@ def _html_renderer_js() -> str:
   }
   function frameDocument(raw,view){
     var csp="default-src 'none'; img-src data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
-    var css="body{margin:1rem;color:#172033;font:16px/1.5 system-ui,-apple-system,sans-serif;overflow-wrap:anywhere}p{margin:.65rem 0}h1,h2,h3,h4,h5,h6{line-height:1.2}table{border-collapse:collapse;max-width:100%;margin:1rem 0}th,td{border:1px solid #94a3b8;padding:.35rem .5rem;text-align:left;vertical-align:top}img{max-width:100%;height:auto}pre{white-space:pre-wrap;overflow-wrap:anywhere}code{font:12px ui-monospace,monospace}.mixed-note{display:block;background:#eff6ff;border-left:4px solid #2563eb;padding:.6rem .75rem;margin:0 0 1rem}.ocr-image-ref{margin:.8rem 0;padding:.65rem .8rem;border-left:4px solid #7c3aed;background:#f5f3ff}.ocr-image-ref figcaption{display:grid;gap:.25rem}.ocr-image-ref span{font-style:italic}.synth-caption{margin:.65rem 0;padding:.45rem .65rem;background:#f8fafc;border:1px solid #cbd5e1}.synth-caption summary{cursor:pointer;font-weight:600}";
+    var css="body{margin:1rem;color:#172033;font:16px/1.5 system-ui,-apple-system,sans-serif;overflow-wrap:anywhere}p{margin:.65rem 0}h1,h2,h3,h4,h5,h6{line-height:1.2}table{border-collapse:collapse;max-width:100%;margin:1rem 0}th,td{border:1px solid #94a3b8;padding:.35rem .5rem;text-align:left;vertical-align:top}img{max-width:100%;height:auto}pre{white-space:pre-wrap;overflow-wrap:anywhere}code{font:12px ui-monospace,monospace}";
     var body=view==='mixed'?mixedMarkup(raw):raw;
     return '<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="'+csp+'"><style>'+css+'</style></head><body>'+body+'</body></html>';
   }

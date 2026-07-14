@@ -566,7 +566,8 @@ def test_builds_private_raw_review_site_with_lazy_source_cards_and_documents(tmp
     assert "vlm-repetition.js" in (tmp_path / "review-site" / "index.html").read_text(encoding="utf-8")
     html_renderer = (tmp_path / "review-site" / "assets" / "html-render.js").read_text(encoding="utf-8")
     assert "Mixed Markdown + HTML" in html_renderer
-    assert "VLM image description" in html_renderer
+    assert "function comment(value)" in html_renderer
+    assert "VLM image description" not in html_renderer
     assert "sandbox" in html_renderer
     assert "VLM-output guard" in (tmp_path / "review-site" / "assets" / "vlm-repetition.js").read_text(encoding="utf-8")
     with pytest.raises(ValueError, match="127.0.0.1"):
