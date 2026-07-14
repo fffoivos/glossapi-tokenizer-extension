@@ -190,6 +190,10 @@ def test_normalization_presentation_is_lazy_text_safe_and_sandboxed() -> None:
     assert "data/documents/" in javascript
     assert "data/gfm/documents/" in javascript
     assert "Promise.all" in javascript
+    assert "synchronizeTextScroll" in javascript
+    assert "source.scrollTop/sourceRange" in javascript
+    assert "requestAnimationFrame" in javascript
+    assert "passive:true" in javascript
     assert "textContent" in javascript
     assert ".innerHTML" not in javascript
     assert "setAttribute('sandbox','')" in javascript

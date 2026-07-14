@@ -112,6 +112,7 @@ Flattening `sup`/`sub` required 228 boundary spaces to prevent a footnote or exp
 - Changed-document payloads: `data/gfm/documents/<opaque_id>.json`.
 - Each changed payload contains the raw-text hash, normalized Markdown hash, normalized Markdown source, renderer identifier, and pre-rendered review HTML.
 - The browser fetches raw and normalized payloads only when the reviewer opens a card.
+- The raw and normalized source panes scroll together in either direction, using proportional positions so documents with different post-cleaning lengths stay comparable.
 - Rendering occurs in a script-free sandbox with external image loading disabled. The render is presentation-only and is never fed back into the corpus.
 
 The local renderer is `markdown-it-py` in CommonMark mode with table and strikethrough extensions. GitHub rendering may differ slightly, so source Markdown—not the preview HTML—is the normalization artifact.

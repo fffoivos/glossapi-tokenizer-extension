@@ -589,6 +589,8 @@ def test_builds_private_raw_review_site_with_lazy_source_cards_and_documents(tmp
     assert "data/gfm_normalization_audit.json" in normalization_js
     assert "data/gfm/documents/" in normalization_js
     assert "Promise.all" in normalization_js
+    assert "synchronizeTextScroll" in normalization_js
+    assert "source.scrollTop/sourceRange" in normalization_js
     assert "Load raw, Markdown, and rendering" in normalization_js
     assert "textContent" in normalization_js
     assert "setAttribute('sandbox','')" in normalization_js
