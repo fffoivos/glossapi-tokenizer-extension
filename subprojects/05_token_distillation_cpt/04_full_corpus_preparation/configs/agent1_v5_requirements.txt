@@ -14,3 +14,4 @@ loguru==0.7.3
 multiprocess==0.70.18
 tqdm==4.67.1
 Deprecated==1.2.18
+xxhash==3.5.0
