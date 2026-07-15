@@ -17,7 +17,7 @@ import numpy as np
 
 from .bibliography_entry_models import load_table
 from .bibliography_role_dataset import text_sha256
-from .bibliography_role_features import broad_heading_candidate
+from .bibliography_role_features import broad_heading_candidate, candidate_window_mask
 from .bibliography_role_v2 import OVERLAY_SCHEMA, TRUSTED_STATUSES, migrate_row
 from .contract import canonical_json_sha256, sha256_file
 
@@ -79,6 +79,7 @@ def build_inventory(
     cases: list[dict[str, Any]] = []
     provenance: list[dict[str, Any]] = []
     trusted_headings = recovered_trusted = 0
+    document_wide_broad_count = contextual_broad_count = forced_trusted_count = 0
     source_counts: dict[str, int] = {}
     for document_index, (source, metadata) in enumerate(zip(documents, table.documents, strict=True)):
         if source.get("document_id") != metadata["document_id"] or source.get("work_id") != metadata["work_id"]:
@@ -86,7 +87,13 @@ def build_inventory(
         lines = source.get("lines")
         if not isinstance(lines, list) or len(lines) != int(metadata["line_count"]):
             raise ValueError(f"source/base line mismatch at document {document_index}")
-        start = int(metadata["line_start"])
+        start, end = int(metadata["line_start"]), int(metadata["line_end"])
+        local_entry = entry_probability[start:end]
+        local_abs = table.abs_indices[start:end]
+        entry_neighbourhood = candidate_window_mask(
+            local_entry, np.zeros(len(local_entry), dtype=bool), local_abs,
+            entry_threshold=0.25, radius=30,
+        )
         for offset, line in enumerate(lines):
             text = str(line.get("text", ""))
             line_id = str(line.get("line_id") or f"{metadata['document_id']}:{line['abs_idx']}")
@@ -94,6 +101,7 @@ def build_inventory(
             previous_blank = offset > 0 and not str(lines[offset - 1].get("text", "")).strip()
             next_blank = offset + 1 < len(lines) and not str(lines[offset + 1].get("text", "")).strip()
             broad = broad_heading_candidate(text, previous_blank=previous_blank, next_blank=next_blank)
+            document_wide_broad_count += int(broad)
             existing = overlay.get(key)
             existing_role = str(existing.get("role", "")) if existing else ""
             trusted_existing = bool(existing and existing.get("role_status") in TRUSTED_STATUSES)
@@ -102,7 +110,10 @@ def build_inventory(
             }
             trusted_headings += int(is_trusted_heading)
             recovered_trusted += int(is_trusted_heading and broad)
-            if not (broad or is_trusted_heading):
+            contextual_broad = broad and bool(entry_neighbourhood[offset])
+            contextual_broad_count += int(contextual_broad)
+            forced_trusted_count += int(is_trusted_heading and not contextual_broad)
+            if not (contextual_broad or is_trusted_heading):
                 continue
             absolute = start + offset
             text_hash = text_sha256(text)
@@ -145,8 +156,12 @@ def build_inventory(
     }
     report = {
         "schema_version": "bibliography-heading-inventory-v1",
-        "status": "passed_complete_broad_heading_inventory",
+        "status": "passed_contextual_heading_inventory",
         "candidate_count": len(cases), "candidate_counts_by_source": source_counts,
+        "document_wide_broad_candidate_count": document_wide_broad_count,
+        "contextual_broad_candidate_count": contextual_broad_count,
+        "forced_trusted_candidate_count": forced_trusted_count,
+        "selection_policy": "broad_heading_within_30_physical_lines_of_p0d_025_or_trusted",
         "trusted_heading_count": trusted_headings,
         "broad_predicate_trusted_heading_recall": (
             recovered_trusted / trusted_headings if trusted_headings else 1.0

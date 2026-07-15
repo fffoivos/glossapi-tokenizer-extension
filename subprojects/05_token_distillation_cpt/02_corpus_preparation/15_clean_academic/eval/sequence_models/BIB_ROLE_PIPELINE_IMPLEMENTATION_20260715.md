@@ -23,10 +23,13 @@ The machine-readable contract is `bibliography_role_contract_v2.json`.
 
 ### 1. Typed heading inventory and review
 
-`bibliography_heading_review.py` mines a document-wide, high-recall inventory
-of heading-shaped lines. It verifies that the inventory recovers every existing
-trusted heading, emits a prediction-blinded packet with five raw context lines
-on each side, and keeps source identity and P0D probability only in a separate
+`bibliography_heading_review.py` first applies a document-wide, high-recall
+heading predicate, then retains heading-shaped lines within 30 physical lines
+of frozen OOF P0D evidence. This is the region in which a heading can affect the
+block decoder; document-wide unrelated chapter headings are not a useful review
+target. Every existing trusted heading is included as a recall backstop. The
+stage emits a prediction-blinded packet with five raw context lines on each
+side, and keeps source identity and P0D probability only in a separate
 provenance file.
 
 Two independent `gpt-5.6-luna` Codex passes see neither each other nor the old
