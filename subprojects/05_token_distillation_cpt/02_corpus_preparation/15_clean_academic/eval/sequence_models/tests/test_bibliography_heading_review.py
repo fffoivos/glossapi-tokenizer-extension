@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from sequence_models.bibliography_heading_review import adjudicate, validate_review
+from sequence_models.bibliography_heading_review import (
+    adjudicate, select_review_subset, validate_review,
+)
 
 
 def _provenance() -> dict:
@@ -57,3 +59,36 @@ def test_not_header_preserves_an_existing_trusted_nonheading_role() -> None:
     )
     assert rows[0]["role"] == "ENTRY"
     assert rows[1]["role"] == "OTHER"
+
+
+def test_review_selection_is_stratified_and_keeps_mandatory_headings() -> None:
+    cases = [
+        {"candidate_id": f"c{index}", "context": [
+            {"line_id": f"l{index}", "abs_idx": index, "text": text, "target": True},
+        ]}
+        for index, text in enumerate((
+            "ΒΙΒΛΙΟΓΡΑΦΙΑ", "Chapter One", "2. Methods", "TITLE", "Another Title", "Final Title",
+        ))
+    ]
+    packet = {
+        "schema_version": "bibliography-heading-review-packet-v1",
+        "blinding": {"old_labels_hidden": True}, "cases": cases,
+    }
+    provenance = {
+        "schema_version": "bibliography-heading-review-provenance-v1",
+        "cases": [
+            {
+                "candidate_id": f"c{index}", "text": case["context"][0]["text"],
+                "source": "s", "fold": index % 2, "entry_probability": index / 10,
+                "existing_trusted_role": "BIB_HEADER" if index == 0 else None,
+            }
+            for index, case in enumerate(cases)
+        ],
+    }
+    selected_packet, _, receipt = select_review_subset(
+        packet, provenance, per_source_quota=3, code_commit="abc", slurm_job_id="7",
+    )
+    selected_ids = {row["candidate_id"] for row in selected_packet["cases"]}
+    assert "c0" in selected_ids
+    assert len(selected_ids) >= 3
+    assert receipt["selected_candidate_count"] == len(selected_ids)

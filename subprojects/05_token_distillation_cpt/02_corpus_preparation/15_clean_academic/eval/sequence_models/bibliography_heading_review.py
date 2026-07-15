@@ -4,12 +4,15 @@
 from __future__ import annotations
 
 import argparse
+import collections
 import concurrent.futures
 import hashlib
 import json
 import os
+import re
 import subprocess
 import tempfile
+import unicodedata
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -20,6 +23,7 @@ from .bibliography_role_dataset import text_sha256
 from .bibliography_role_features import broad_heading_candidate, candidate_window_mask
 from .bibliography_role_v2 import OVERLAY_SCHEMA, TRUSTED_STATUSES, migrate_row
 from .contract import canonical_json_sha256, sha256_file
+from .deterministic_structure import BibRole, analyze_bib_line
 
 
 PACKET_SCHEMA = "bibliography-heading-review-packet-v1"
@@ -27,7 +31,11 @@ PROVENANCE_SCHEMA = "bibliography-heading-review-provenance-v1"
 REVIEW_SCHEMA = "bibliography-heading-review-v1"
 RUN_SCHEMA = "bibliography-heading-review-run-v1"
 ADJUDICATION_SCHEMA = "bibliography-heading-adjudication-v1"
+SELECTION_SCHEMA = "bibliography-heading-review-selection-v1"
 LABELS = frozenset({"BIB_HEADER", "BIB_SUBHEADER", "NON_BIB_HEADER", "NOT_HEADER", "UNKNOWN"})
+_NUMBERED_PREFIX = re.compile(
+    r"^\s*(?:\d+(?:\.\d+)*|[IVXLCDM]+|[Α-Ωʹ]+)[.)\]:-]\s+\S", re.IGNORECASE,
+)
 
 
 def _iter_jsonl(path: Path) -> Iterable[dict[str, Any]]:
@@ -180,6 +188,106 @@ def _ordered_cases(cases: Sequence[Mapping[str, Any]], pass_id: str) -> list[dic
     if pass_id == "pass-b":
         return [dict(row) for row in sorted(cases, key=lambda row: hashlib.sha256(str(row["candidate_id"]).encode()).digest(), reverse=True)]
     raise ValueError("pass-id must be pass-a or pass-b")
+
+
+def _selection_kind(case: Mapping[str, Any], provenance: Mapping[str, Any]) -> str:
+    text = str(provenance["text"])
+    deterministic = analyze_bib_line(text, 0).role
+    if deterministic in {BibRole.HEADING, BibRole.SUBHEADING}:
+        return "deterministic_heading"
+    normalized = unicodedata.normalize("NFKC", text).strip()
+    if normalized.startswith("#"):
+        return "markdown_heading"
+    if _NUMBERED_PREFIX.match(normalized):
+        return "numbered_heading"
+    letters = [character for character in normalized if character.isalpha()]
+    if letters and sum(character.isupper() for character in letters) / len(letters) >= 0.75:
+        return "uppercase_heading"
+    context = list(case["context"])
+    target = next(index for index, row in enumerate(context) if row.get("target"))
+    previous_blank = target > 0 and not str(context[target - 1].get("text", "")).strip()
+    next_blank = target + 1 < len(context) and not str(context[target + 1].get("text", "")).strip()
+    if previous_blank or next_blank:
+        return "isolated_title"
+    return "other_heading_shape"
+
+
+def select_review_subset(
+    packet: Mapping[str, Any], provenance: Mapping[str, Any], *, per_source_quota: int,
+    code_commit: str, slurm_job_id: str,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    if per_source_quota <= 0:
+        raise ValueError("per-source quota must be positive")
+    if packet.get("schema_version") != PACKET_SCHEMA or provenance.get("schema_version") != PROVENANCE_SCHEMA:
+        raise ValueError("unsupported heading inventory inputs")
+    packet_by_id = {str(row["candidate_id"]): row for row in packet["cases"]}
+    provenance_by_id = {str(row["candidate_id"]): row for row in provenance["cases"]}
+    if len(packet_by_id) != len(packet["cases"]) or set(packet_by_id) != set(provenance_by_id):
+        raise ValueError("heading packet/provenance inventories differ")
+    traits: dict[str, tuple[str, int, str, int]] = {}
+    mandatory: set[str] = set()
+    trusted_heading_roles = {"BIB_HEADER", "BIB_SUBHEADER", "NON_BIB_HEADER"}
+    for candidate_id, row in provenance_by_id.items():
+        kind = _selection_kind(packet_by_id[candidate_id], row)
+        probability = float(row["entry_probability"])
+        probability_bin = 0 if probability < 0.05 else 1 if probability < 0.25 else 2 if probability < 0.5 else 3
+        traits[candidate_id] = (str(row["source"]), int(row["fold"]), kind, probability_bin)
+        if row.get("existing_trusted_role") in trusted_heading_roles or kind == "deterministic_heading":
+            mandatory.add(candidate_id)
+    selected = set(mandatory)
+    sources = sorted({value[0] for value in traits.values()})
+    for source in sources:
+        source_selected = {candidate_id for candidate_id in selected if traits[candidate_id][0] == source}
+        target = max(per_source_quota, len(source_selected))
+        buckets: dict[tuple[int, str, int], collections.deque[str]] = {}
+        for candidate_id, (candidate_source, fold, kind, probability_bin) in traits.items():
+            if candidate_source != source or candidate_id in selected:
+                continue
+            buckets.setdefault((fold, kind, probability_bin), collections.deque()).append(candidate_id)
+        for key, values in buckets.items():
+            buckets[key] = collections.deque(sorted(
+                values,
+                key=lambda value: hashlib.sha256(f"heading-selection-v1\0{value}".encode()).digest(),
+            ))
+        active = sorted(buckets)
+        while len(source_selected) < target and active:
+            next_active = []
+            for key in active:
+                if len(source_selected) >= target:
+                    break
+                if buckets[key]:
+                    candidate_id = buckets[key].popleft()
+                    selected.add(candidate_id)
+                    source_selected.add(candidate_id)
+                if buckets[key]:
+                    next_active.append(key)
+            active = next_active
+    selected_ids = sorted(selected)
+    selected_packet = {
+        "schema_version": PACKET_SCHEMA, "blinding": dict(packet["blinding"]),
+        "cases": [packet_by_id[candidate_id] for candidate_id in selected_ids],
+    }
+    selected_provenance = {
+        **{key: value for key, value in provenance.items() if key != "cases"},
+        "selection_schema": SELECTION_SCHEMA,
+        "parent_packet_content_sha256": canonical_json_sha256(packet),
+        "parent_provenance_content_sha256": canonical_json_sha256(provenance),
+        "per_source_quota": per_source_quota,
+        "cases": [provenance_by_id[candidate_id] for candidate_id in selected_ids],
+    }
+    source_counts = collections.Counter(traits[candidate_id][0] for candidate_id in selected_ids)
+    kind_counts = collections.Counter(traits[candidate_id][2] for candidate_id in selected_ids)
+    receipt = {
+        "schema_version": SELECTION_SCHEMA, "status": "passed_stratified_heading_review_selection",
+        "parent_candidate_count": len(packet_by_id), "selected_candidate_count": len(selected_ids),
+        "mandatory_candidate_count": len(mandatory), "per_source_quota": per_source_quota,
+        "selected_counts_by_source": dict(sorted(source_counts.items())),
+        "selected_counts_by_kind": dict(sorted(kind_counts.items())),
+        "packet_content_sha256": canonical_json_sha256(selected_packet),
+        "provenance_content_sha256": canonical_json_sha256(selected_provenance),
+        "code_commit": code_commit, "slurm_job_id": slurm_job_id,
+    }
+    return selected_packet, selected_provenance, receipt
 
 
 def validate_review(payload: Mapping[str, Any], expected: Mapping[str, Mapping[str, Any]], reviewer: str) -> dict[str, Any]:
@@ -342,6 +450,15 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     inventory.add_argument("--receipt-out", type=Path, required=True)
     inventory.add_argument("--code-commit", required=True)
     inventory.add_argument("--slurm-job-id", required=True)
+    select = sub.add_parser("select")
+    select.add_argument("--packet", type=Path, required=True)
+    select.add_argument("--provenance", type=Path, required=True)
+    select.add_argument("--per-source-quota", type=int, default=500)
+    select.add_argument("--packet-out", type=Path, required=True)
+    select.add_argument("--provenance-out", type=Path, required=True)
+    select.add_argument("--receipt-out", type=Path, required=True)
+    select.add_argument("--code-commit", required=True)
+    select.add_argument("--slurm-job-id", required=True)
     run = sub.add_parser("run")
     run.add_argument("--packet", required=True)
     run.add_argument("--pass-id", choices=("pass-a", "pass-b"), required=True)
@@ -375,6 +492,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         _write_json_new(args.packet_out.resolve(), packet)
         _write_json_new(args.provenance_out.resolve(), provenance)
+        _write_json_new(args.receipt_out.resolve(), receipt)
+    elif args.command == "select":
+        packet = json.loads(args.packet.read_text(encoding="utf-8"))
+        provenance = json.loads(args.provenance.read_text(encoding="utf-8"))
+        selected_packet, selected_provenance, receipt = select_review_subset(
+            packet, provenance, per_source_quota=args.per_source_quota,
+            code_commit=args.code_commit, slurm_job_id=args.slurm_job_id,
+        )
+        _write_json_new(args.packet_out.resolve(), selected_packet)
+        _write_json_new(args.provenance_out.resolve(), selected_provenance)
         _write_json_new(args.receipt_out.resolve(), receipt)
     elif args.command == "run":
         run_reviews(args)

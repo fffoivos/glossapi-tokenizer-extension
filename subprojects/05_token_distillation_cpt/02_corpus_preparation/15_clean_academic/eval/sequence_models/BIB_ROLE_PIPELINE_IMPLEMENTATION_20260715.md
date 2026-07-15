@@ -32,6 +32,15 @@ stage emits a prediction-blinded packet with five raw context lines on each
 side, and keeps source identity and P0D probability only in a separate
 provenance file.
 
+The complete contextual inventory is not sent blindly to Codex. A second CPU
+gate keeps every trusted or deterministic heading candidate, then fills a
+source quota by round-robin sampling across work folds, heading-shape families,
+and P0D-probability bins. The initial quota is 500 per source; sources with
+fewer candidates are reviewed completely. This gives the heading expert broad
+negative coverage without paying to dual-review tens of thousands of likely
+non-headings. High-scoring unreviewed candidates can be audited in a later
+active-learning round.
+
 Two independent `gpt-5.6-luna` Codex passes see neither each other nor the old
 labels. Exact agreement is trusted. Disagreements become `UNKNOWN`; there is no
 silent majority rule or deterministic adjudication. An agreed `NOT_HEADER`
@@ -115,17 +124,19 @@ All table materialization and fitting uses CPU Slurm jobs. The MacBook is used
 only for code, review-call coordination, and small review artifacts.
 
 1. `clariden/inventory_bibliography_headings.sbatch`
-2. inspect the candidate count and estimated dual-pass call budget;
-3. run independent heading review passes A and B;
-4. adjudicate the typed heading overlay;
-5. `clariden/materialize_bibliography_role_expert_table.sbatch` with
+2. inspect the candidate count and run
+   `clariden/select_bibliography_heading_review.sbatch`;
+3. inspect the selected source/shape counts and estimated dual-pass call budget;
+4. run independent heading review passes A and B;
+5. adjudicate the typed heading overlay;
+6. `clariden/materialize_bibliography_role_expert_table.sbatch` with
    `COMMAND=heading`;
-6. `clariden/train_bibliography_role_expert.sbatch` with `KIND=heading`;
-7. materialize the connector table with the same table launcher and
+7. `clariden/train_bibliography_role_expert.sbatch` with `KIND=heading`;
+8. materialize the connector table with the same table launcher and
    `COMMAND=connector`;
-8. train the connector expert with `KIND=connector`;
-9. `clariden/materialize_bibliography_role_block_table.sbatch`; and
-10. `clariden/train_bibliography_role_block.sbatch`.
+9. train the connector expert with `KIND=connector`;
+10. `clariden/materialize_bibliography_role_block_table.sbatch`; and
+11. `clariden/train_bibliography_role_block.sbatch`.
 
 Each stage is a gate: downstream work is not submitted if class coverage,
 candidate-window coverage, provenance, or grouped OOF completeness fails.
