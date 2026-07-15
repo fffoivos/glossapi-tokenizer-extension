@@ -260,9 +260,9 @@ def test_long_focus_excerpt_is_clipped_on_line_boundaries() -> None:
 
 
 def test_nth_index_localizes_repeated_image_descriptions() -> None:
-    value = "before <!-- removed-image-description: repeated --> middle " \
-        "<!-- removed-image-description: repeated --> after"
-    needle = "<!-- removed-image-description: repeated -->"
+    value = "before <!-- description-of-removed-image: repeated --> middle " \
+        "<!-- description-of-removed-image: repeated --> after"
+    needle = "<!-- description-of-removed-image: repeated -->"
 
     assert PACKET.nth_index(value, needle, 0) == value.index(needle)
     assert PACKET.nth_index(value, needle, 1) == value.rindex(needle)

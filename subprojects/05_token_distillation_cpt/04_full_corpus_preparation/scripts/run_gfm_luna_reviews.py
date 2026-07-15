@@ -132,7 +132,7 @@ def review_prompt(requests: Sequence[Mapping[str, object]]) -> str:
         "(1) readable text outside the explicitly named artifact was retained without invented prose; "
         "(2) the named generated-image or repetition artifact was removed as expected; "
         "(3) remaining structure is valid GFM without raw HTML; and (4) tables are either valid pipe "
-        "tables or readable line-based fallbacks. Repeating-text-removed and removed-image-description "
+        "tables or readable line-based fallbacks. Repeating-text-removed and description-of-removed-image "
         "HTML comments are approved pipeline markers, not residual HTML. An image-description comment must "
         "contain only the description already visible in the source image element; it is not invented prose. "
         "Redaction placeholders are expected. Use not_applicable for "

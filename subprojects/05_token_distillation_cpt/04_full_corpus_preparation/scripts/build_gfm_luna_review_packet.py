@@ -541,7 +541,7 @@ def build_candidates(
                     ),
                     focus_anchor=anchor,
                     expected=(
-                        "Remove only the generated image filename and wrapper; preserve the complete existing description inside valid removed-image-description comments, keep embedded pipeline markers unnested, and add no narration."
+                        "Remove only the generated image filename and wrapper; preserve the complete existing description inside valid description-of-removed-image comments, keep embedded pipeline markers unnested, and add no narration."
                         if is_description
                         else "Remove the generated image target and wrapper while preserving any ordinary link label and adding no narration."
                     ),

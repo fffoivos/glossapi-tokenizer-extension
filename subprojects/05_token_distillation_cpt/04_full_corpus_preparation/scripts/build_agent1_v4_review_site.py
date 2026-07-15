@@ -460,7 +460,7 @@ def _normalization_html() -> str:
   <main>
     <section class="scope" aria-labelledby="scope-title">
       <h2 id="scope-title">Scope and safety</h2>
-      <p>The immutable raw documents are untouched. Each preview first applies the current GlossAPI complex-repetition cleaner, inserting exactly <code>&lt;!-- repeating-text-removed --&gt;</code>. Generated extraction-image descriptions become <code>&lt;!-- removed-image-description: … --&gt;</code> provenance comments, so they remain explicit in training text but hidden in Markdown rendering. The pipeline then converts recognized HTML structure to HTML-free GitHub-Flavored Markdown.</p>
+      <p>The immutable raw documents are untouched. Each preview first applies the current GlossAPI complex-repetition cleaner, inserting exactly <code>&lt;!-- repeating-text-removed --&gt;</code>. Generated extraction-image descriptions become <code>&lt;!-- description-of-removed-image: … --&gt;</code> provenance comments, so they remain explicit in training text but hidden in Markdown rendering. The pipeline then converts recognized HTML structure to HTML-free GitHub-Flavored Markdown.</p>
       <p>Existing Markdown is preserved. Where GFM has no non-HTML styling equivalent—such as superscript, subscript, underline, or arbitrary spans—the element and attributes are removed but their textual payload is retained. Embedded or executable elements are removed with their content.</p>
       <p>The rendered pane is a local Markdown approximation for review, isolated in a script-free sandbox. It is not new corpus text and image fetching is disabled.</p>
     </section>

@@ -25,14 +25,14 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, MutableMapping, Sequence
 
 
-SCHEMA = "agent1_v4_gfm_normalization_audit_v3"
-DOCUMENT_SCHEMA = "agent1_v4_gfm_normalized_document_v3"
+SCHEMA = "agent1_v4_gfm_normalization_audit_v4"
+DOCUMENT_SCHEMA = "agent1_v4_gfm_normalized_document_v4"
 SITE_SCHEMA = "agent1_v4_raw_review_site_manifest_v1"
 AUDIT_RELATIVE_PATH = Path("data/gfm_normalization_audit.json")
 OUTPUT_DOCUMENT_DIR = Path("data/gfm/documents")
 DEFAULT_GLOSSAPI_ROOT = Path.home() / "Projects/glossapi-development"
 REPETITION_COMMENT = "<!-- repeating-text-removed -->"
-REMOVED_IMAGE_DESCRIPTION_COMMENT = "<!-- removed-image-description -->"
+DESCRIPTION_OF_REMOVED_IMAGE_COMMENT = "<!-- description-of-removed-image -->"
 LITERAL_AMPERSAND_SENTINEL = "\ue000GFM_LITERAL_AMPERSAND\ue001"
 PORTABLE_BULK_PREFIXES = ("data/documents/", "data/gfm/documents/")
 PRESERVED_MARKDOWN_TOKEN_TYPES = (
@@ -56,17 +56,17 @@ AUTOLINK_RE = re.compile(
     r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?)>$"
 )
 FIXED_PIPELINE_COMMENT_PATTERN = r"(?:repeating-text-removed|text-missing|table-removed)"
-REMOVED_IMAGE_DESCRIPTION_PATTERN = r"removed-image-description(?:[ \t]*:[ \t]*[^\r\n]*?)?"
+DESCRIPTION_OF_REMOVED_IMAGE_PATTERN = r"description-of-removed-image(?:[ \t]*:[ \t]*[^\r\n]*?)?"
 ALLOWED_COMMENT_RE = re.compile(
-    rf"^<!--[ \t]*(?:{FIXED_PIPELINE_COMMENT_PATTERN}|{REMOVED_IMAGE_DESCRIPTION_PATTERN})[ \t]*-->$",
+    rf"^<!--[ \t]*(?:{FIXED_PIPELINE_COMMENT_PATTERN}|{DESCRIPTION_OF_REMOVED_IMAGE_PATTERN})[ \t]*-->$",
     re.IGNORECASE,
 )
 ALLOWED_COMMENT_TOKEN_RE = re.compile(
-    rf"<!--[ \t]*(?:{FIXED_PIPELINE_COMMENT_PATTERN}|{REMOVED_IMAGE_DESCRIPTION_PATTERN})[ \t]*-->",
+    rf"<!--[ \t]*(?:{FIXED_PIPELINE_COMMENT_PATTERN}|{DESCRIPTION_OF_REMOVED_IMAGE_PATTERN})[ \t]*-->",
     re.IGNORECASE,
 )
-REMOVED_IMAGE_DESCRIPTION_TOKEN_RE = re.compile(
-    rf"<!--[ \t]*{REMOVED_IMAGE_DESCRIPTION_PATTERN}[ \t]*-->",
+DESCRIPTION_OF_REMOVED_IMAGE_TOKEN_RE = re.compile(
+    rf"<!--[ \t]*{DESCRIPTION_OF_REMOVED_IMAGE_PATTERN}[ \t]*-->",
     re.IGNORECASE,
 )
 FIXED_PIPELINE_COMMENT_TOKEN_RE = re.compile(
@@ -241,7 +241,7 @@ TRANSFORMATION_POLICY: list[dict[str, object]] = [
     },
     {
         "tags": ["img"],
-        "target": "removed-image-description provenance comment or ![alt](source)",
+        "target": "description-of-removed-image provenance comment or ![alt](source)",
         "content_policy": "Generated extraction images and source-less image alt text become hidden provenance comments. Non-artifact sources remain Markdown images; adjacent prose is never classified semantically.",
     },
     {
@@ -267,7 +267,7 @@ TRANSFORMATION_POLICY: list[dict[str, object]] = [
     {
         "tags": ["HTML comments"],
         "target": "removed",
-        "content_policy": "Preserve only explicit GlossAPI removal markers and removed-image-description provenance comments.",
+        "content_policy": "Preserve only explicit GlossAPI removal markers and description-of-removed-image provenance comments.",
     },
 ]
 
@@ -362,7 +362,7 @@ def _image_description_comment(value: str) -> tuple[str, dict[str, int | bool]]:
     for marker in FIXED_PIPELINE_COMMENT_TOKEN_RE.finditer(value):
         description = _normalize_image_description(value[cursor : marker.start()])
         if description:
-            pieces.append(f"<!-- removed-image-description: {description} -->")
+            pieces.append(f"<!-- description-of-removed-image: {description} -->")
             description_characters += len(description)
             comment_count += 1
         pieces.append(marker.group(0))
@@ -370,12 +370,12 @@ def _image_description_comment(value: str) -> tuple[str, dict[str, int | bool]]:
         cursor = marker.end()
     description = _normalize_image_description(value[cursor:])
     if description:
-        pieces.append(f"<!-- removed-image-description: {description} -->")
+        pieces.append(f"<!-- description-of-removed-image: {description} -->")
         description_characters += len(description)
         comment_count += 1
     empty_description = not pieces
     if empty_description:
-        pieces.append(REMOVED_IMAGE_DESCRIPTION_COMMENT)
+        pieces.append(DESCRIPTION_OF_REMOVED_IMAGE_COMMENT)
         comment_count = 1
     return " ".join(pieces), {
         "description_character_count": description_characters,
@@ -1381,7 +1381,7 @@ def _apply_comment_safe_repetition_pass(
     """Expand repetition cuts to whole provenance comments before replacing."""
 
     comment_intervals = [
-        (match.start(), match.end()) for match in REMOVED_IMAGE_DESCRIPTION_TOKEN_RE.finditer(text)
+        (match.start(), match.end()) for match in DESCRIPTION_OF_REMOVED_IMAGE_TOKEN_RE.finditer(text)
     ]
     adjusted: list[dict[str, object]] = []
     for span_value in pass_record.get("spans", []):
@@ -1488,7 +1488,7 @@ def clean_then_normalize_to_gfm(text: str, *, repetition_cleaner: object) -> dic
         image_cleaned,
         repetition_cleaner,
     )
-    retained_image_comments = cleaned_text.count("<!-- removed-image-description")
+    retained_image_comments = cleaned_text.count("<!-- description-of-removed-image")
     emitted_image_comments = int(image_metrics["image_description_comments_emitted"])
     if retained_image_comments > emitted_image_comments:
         raise RuntimeError("follow-up repetition cleaning invented image-description comments")
@@ -1616,6 +1616,26 @@ def _is_bulk_asset(path: str) -> bool:
     return any(path.startswith(prefix) for prefix in PORTABLE_BULK_PREFIXES)
 
 
+def _remove_stale_normalized_documents(
+    site_dir: Path, expected_relative_paths: Iterable[str]
+) -> int:
+    """Remove generated payloads no longer referenced by the current audit."""
+
+    expected = set(expected_relative_paths)
+    output_dir = site_dir / OUTPUT_DOCUMENT_DIR
+    if not output_dir.exists():
+        return 0
+    removed = 0
+    for path in sorted(output_dir.glob("*.json")):
+        if path.is_symlink() or not path.is_file():
+            raise ValueError(f"invalid generated normalized-document artifact: {path}")
+        relative = path.relative_to(site_dir).as_posix()
+        if relative not in expected:
+            path.unlink()
+            removed += 1
+    return removed
+
+
 def normalize_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
     site_dir = site_dir.resolve()
     manifest = _read_json(site_dir / "site_manifest.json")
@@ -1684,15 +1704,15 @@ def normalize_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
             raise RuntimeError(f"{document_path}: recognized HTML remains")
         if normalized.count(REPETITION_COMMENT) != cleaned_text.count(REPETITION_COMMENT):
             raise RuntimeError(f"{document_path}: repetition removal comment was not preserved")
-        cleaned_image_comments = cleaned_text.count("<!-- removed-image-description")
+        cleaned_image_comments = cleaned_text.count("<!-- description-of-removed-image")
         if cleaned_image_comments != int(
             generated_image_metrics["image_description_comments_retained_after_repetition"]
         ):
             raise RuntimeError(f"{document_path}: retained image-description comment accounting did not close")
-        if normalized.count("<!-- removed-image-description") != cleaned_image_comments:
+        if normalized.count("<!-- description-of-removed-image") != cleaned_image_comments:
             raise RuntimeError(f"{document_path}: image-description provenance comment was not preserved")
         if re.search(
-            r"<!--\s*removed-image-description:(?:(?!-->)[^\r\n])*<!--",
+            r"<!--\s*description-of-removed-image:(?:(?!-->)[^\r\n])*<!--",
             normalized,
             re.IGNORECASE,
         ):
@@ -1870,6 +1890,14 @@ def normalize_site(*, site_dir: Path, glossapi_root: Path) -> dict[str, object]:
 
     if len(rows) != int(manifest.get("document_count", -1)):
         raise ValueError("normalization document count does not close with site manifest")
+    _remove_stale_normalized_documents(
+        site_dir,
+        (
+            str(row["normalized_document_path"])
+            for row in rows
+            if row["normalized_document_path"] is not None
+        ),
+    )
     policy_tags = {
         tag
         for policy in TRANSFORMATION_POLICY
