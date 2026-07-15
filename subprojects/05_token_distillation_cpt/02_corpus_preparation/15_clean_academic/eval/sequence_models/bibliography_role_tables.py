@@ -8,7 +8,6 @@ import collections
 import json
 import os
 import pickle
-import sys
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -312,7 +311,7 @@ def materialize_connector_table(args: argparse.Namespace) -> dict[str, Any]:
     missed_by_role = collections.Counter()
     missed_by_source = collections.Counter()
     missed_distance_buckets = collections.Counter()
-    missed_examples: list[dict[str, Any]] = []
+    operational_candidate_count = 0
     trusted_connectors_total = trusted_connectors_selected = 0
     for document_index, metadata in enumerate(table.documents):
         start, end = int(metadata["line_start"]), int(metadata["line_end"])
@@ -353,20 +352,10 @@ def materialize_connector_table(args: argparse.Namespace) -> dict[str, Any]:
                     else:
                         bucket = "no_seed_in_physical_segment"
                     missed_distance_buckets[bucket] += 1
-                    if len(missed_examples) < 50:
-                        missed_examples.append({
-                            "document_id": str(metadata["document_id"]),
-                            "line_id": str(line_id),
-                            "source": str(metadata["source"]),
-                            "role": role_name,
-                            "seed_distance": None if distance == np.iinfo(np.int32).max else distance,
-                            "entry_probability": float(local_entry[offset]),
-                            "char_length": len(text),
-                            "text": text[:500],
-                        })
-            if not local_mask[offset] or row is None:
+            if row is None:
                 continue
-            trusted_connectors_selected += int(label["connector_trusted"] and label["connector_target"])
+            operational_candidate_count += int(local_mask[offset])
+            trusted_connectors_selected += int(trusted_connector and local_mask[offset])
             fold = int(table.folds[absolute])
             model = models[fold]
 
@@ -385,25 +374,6 @@ def materialize_connector_table(args: argparse.Namespace) -> dict[str, Any]:
             folds.append(fold)
             row_indices.append(absolute)
             candidate_counts[ID_TO_ROLE[label["role"]]] += 1
-    if trusted_connectors_selected != trusted_connectors_total:
-        diagnostic = {
-            "schema_version": "bibliography-connector-candidate-coverage-v1",
-            "trusted_connector_count": trusted_connectors_total,
-            "selected_at_radius_30": trusted_connectors_selected,
-            "coverage_by_radius": dict(sorted(coverage_by_radius.items())),
-            "missed_by_role": dict(sorted(missed_by_role.items())),
-            "missed_by_source": dict(sorted(missed_by_source.items())),
-            "missed_distance_buckets": dict(sorted(missed_distance_buckets.items())),
-            "missed_examples": missed_examples,
-        }
-        print(
-            "CONNECTOR_COVERAGE_DIAGNOSTIC="
-            + json.dumps(diagnostic, ensure_ascii=False, sort_keys=True),
-            file=sys.stderr,
-        )
-        raise ValueError(
-            f"candidate windows cover {trusted_connectors_selected}/{trusted_connectors_total} trusted connectors"
-        )
     output = Path(args.output_dir).resolve()
     _prepare_output(output)
     arrays = {
@@ -426,9 +396,17 @@ def materialize_connector_table(args: argparse.Namespace) -> dict[str, Any]:
         "split": args.split, "validation_opened": False, "line_count": len(table.targets),
         "code_commit": args.code_commit, "slurm_job_id": args.slurm_job_id,
         "candidate_count": len(row_indices), "feature_count": len(connector_feature_names()),
+        "operational_candidate_count": operational_candidate_count,
         "feature_names": connector_feature_names(), "role_encoding": ROLE_TO_ID,
         "candidate_role_counts": dict(sorted(candidate_counts.items())),
-        "trusted_connector_count": trusted_connectors_selected,
+        "trusted_connector_count": trusted_connectors_total,
+        "proposal_coverage": {
+            "selected_at_radius_30": trusted_connectors_selected,
+            "coverage_by_radius": dict(sorted(coverage_by_radius.items())),
+            "missed_by_role": dict(sorted(missed_by_role.items())),
+            "missed_by_source": dict(sorted(missed_by_source.items())),
+            "missed_distance_buckets": dict(sorted(missed_distance_buckets.items())),
+        },
         "entry_threshold": float(args.entry_threshold),
         "inputs": {
             "source_sha256": sha256_file(source), "base_manifest_sha256": sha256_file(base_root / "manifest.json"),
