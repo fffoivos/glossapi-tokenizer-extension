@@ -7,17 +7,12 @@ acquisition receipt with destination stat identities and the original pinned
 Hugging Face SHA-256 values.
 """
 
-from __future__ import annotations
-
 import argparse
+import datetime
 import hashlib
 import json
 import os
 from pathlib import Path, PurePosixPath
-from typing import Any, Sequence
-
-
-from agent1_v5_pipeline import canonical_json, load_config, sha256_file, utc_now, write_json_atomic
 
 
 SCHEMA = "agent1_v5_capstor_acquisition_staging_v1"
@@ -25,21 +20,61 @@ ACQUISITION_SCHEMA = "full_cpt_acquisition_receipt_v1"
 CHUNK_BYTES = 16 * 1024 * 1024
 
 
-def read_object(path: Path) -> dict[str, Any]:
+def canonical_json(value):
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def load_config(path):
+    return read_object(path)
+
+
+def sha256_file(path):
+    hasher = hashlib.sha256()
+    with path.open("rb") as handle:
+        while True:
+            chunk = handle.read(CHUNK_BYTES)
+            if not chunk:
+                break
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def utc_now():
+    return datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+
+
+def write_json_atomic(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    temporary = path.with_name(".%s.partial-%s" % (path.name, os.getpid()))
+    payload = (json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    try:
+        with temporary.open("xb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(str(temporary), 0o600)
+        temporary.replace(path)
+    except BaseException:
+        if temporary.exists():
+            temporary.unlink()
+        raise
+
+
+def read_object(path):
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
         raise ValueError(f"{path}: expected JSON object")
     return value
 
 
-def safe_relative(value: str) -> Path:
+def safe_relative(value):
     pure = PurePosixPath(value)
     if pure.is_absolute() or not pure.parts or ".." in pure.parts:
         raise ValueError(f"unsafe acquisition artifact path: {value!r}")
     return Path(*pure.parts)
 
 
-def stat_binding(path: Path) -> dict[str, int]:
+def stat_binding(path):
     stat_result = path.stat()
     return {
         "size": stat_result.st_size,
@@ -50,7 +85,7 @@ def stat_binding(path: Path) -> dict[str, int]:
     }
 
 
-def copy_verified(source: Path, destination: Path, expected_sha256: str) -> None:
+def copy_verified(source, destination, expected_sha256):
     destination.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     if destination.exists():
         if destination.is_symlink() or sha256_file(destination) != expected_sha256:
@@ -60,7 +95,10 @@ def copy_verified(source: Path, destination: Path, expected_sha256: str) -> None
     hasher = hashlib.sha256()
     try:
         with source.open("rb") as reader, temporary.open("xb") as writer:
-            while chunk := reader.read(CHUNK_BYTES):
+            while True:
+                chunk = reader.read(CHUNK_BYTES)
+                if not chunk:
+                    break
                 hasher.update(chunk)
                 writer.write(chunk)
             writer.flush()
@@ -70,11 +108,12 @@ def copy_verified(source: Path, destination: Path, expected_sha256: str) -> None
         os.chmod(temporary, 0o600)
         temporary.replace(destination)
     except BaseException:
-        temporary.unlink(missing_ok=True)
+        if temporary.exists():
+            temporary.unlink()
         raise
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--acquisition-receipt", type=Path, required=True)
@@ -86,7 +125,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if source_receipt.get("schema_version") != ACQUISITION_SCHEMA or source_receipt.get("status") != "passed":
         raise ValueError("source acquisition receipt is not passed")
     by_id = {str(row["source_id"]): row for row in source_receipt["sources"]}
-    selected_ids = [*config["sources"], "nanochat_base"]
+    selected_ids = list(config["sources"]) + ["nanochat_base"]
     output_root = args.output_root.resolve()
     output_root.mkdir(parents=True, exist_ok=True, mode=0o700)
     staged_sources = []
@@ -156,7 +195,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "selected_bytes": sum(int(row["size"]) for row in staged_files),
             }
         )
-    result: dict[str, Any] = {
+    result = {
         "schema_version": ACQUISITION_SCHEMA,
         "status": "passed",
         "created_at": utc_now(),
