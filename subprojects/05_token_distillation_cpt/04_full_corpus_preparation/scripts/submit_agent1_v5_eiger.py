@@ -74,6 +74,19 @@ def command_output(*command: str) -> str:
 
 
 def root_job_state(job_id: str) -> tuple[str, str]:
+    queued = subprocess.run(
+        ["squeue", "-h", "-j", job_id, "-o", "%T"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        check=False,
+    ).stdout.splitlines()
+    queued_states = [state.strip().split()[0].split("+")[0] for state in queued if state.strip()]
+    if queued_states:
+        for preferred in ("RUNNING", "COMPLETING", "CONFIGURING", "PENDING"):
+            if preferred in queued_states:
+                return preferred, ""
+        return queued_states[0], ""
     output = command_output(
         "sacct",
         "-j",
@@ -82,18 +95,34 @@ def root_job_state(job_id: str) -> tuple[str, str]:
         "--parsable2",
         "--format=JobIDRaw,State,ExitCode",
     )
+    accounting: list[tuple[str, str]] = []
     for line in output.splitlines():
         fields = line.split("|")
-        if fields and fields[0] == job_id:
-            return fields[1].split()[0].split("+")[0], fields[2]
-    queued = subprocess.run(
-        ["squeue", "-h", "-j", job_id, "-o", "%T"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        text=True,
-        check=False,
-    ).stdout.strip()
-    return (queued.splitlines()[0] if queued else "UNKNOWN"), ""
+        if len(fields) >= 3:
+            accounting.append((fields[1].split()[0].split("+")[0], fields[2]))
+    for state, exit_code in accounting:
+        if state in TERMINAL_FAILURE:
+            return state, exit_code
+    if accounting and all(state in TERMINAL_SUCCESS for state, _ in accounting):
+        return "COMPLETED", "0:0"
+    for preferred in ("RUNNING", "COMPLETING", "CONFIGURING", "PENDING"):
+        for state, exit_code in accounting:
+            if state == preferred:
+                return state, exit_code
+    if accounting:
+        return accounting[0]
+    return "UNKNOWN", ""
+
+
+def unresolved_dependencies(job_ids: Sequence[str]) -> list[str]:
+    unresolved = []
+    for job_id in job_ids:
+        state, exit_code = root_job_state(job_id)
+        if state in TERMINAL_FAILURE:
+            raise RuntimeError(f"dependency {job_id} failed: {state} {exit_code}")
+        if state not in TERMINAL_SUCCESS:
+            unresolved.append(job_id)
+    return unresolved
 
 
 def wait_for_jobs(job_ids: Sequence[str], poll_seconds: int) -> dict[str, tuple[str, str]]:
@@ -262,8 +291,9 @@ class Submitter:
         account = str(self.args.account or "").strip()
         if account:
             sbatch.append(f"--account={account}")
-        if dependency:
-            sbatch.append("--dependency=afterok:" + ":".join(dependency))
+        active_dependencies = unresolved_dependencies(dependency)
+        if active_dependencies:
+            sbatch.append("--dependency=afterok:" + ":".join(active_dependencies))
         if array:
             sbatch.append(f"--array={array}")
         sbatch.append(str(command or self.stage_script))

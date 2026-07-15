@@ -200,6 +200,22 @@ def test_submitter_resume_reuses_only_matching_persisted_jobs(tmp_path: Path) ->
         raise AssertionError("mismatched resume state was accepted")
 
 
+def test_completed_dependencies_are_not_resubmitted_to_slurm(monkeypatch) -> None:
+    states = {
+        "complete": ("COMPLETED", "0:0"),
+        "active": ("RUNNING", ""),
+        "failed": ("FAILED", "1:0"),
+    }
+    monkeypatch.setattr(submitter, "root_job_state", states.__getitem__)
+    assert submitter.unresolved_dependencies(["complete", "active"]) == ["active"]
+    try:
+        submitter.unresolved_dependencies(["failed"])
+    except RuntimeError as error:
+        assert "FAILED" in str(error)
+    else:  # pragma: no cover
+        raise AssertionError("failed dependency was accepted")
+
+
 def test_bundle_runs_every_task_and_propagates_child_failure(tmp_path: Path) -> None:
     pipeline_root = tmp_path / "pipeline"
     stage = pipeline_root / "slurm" / "agent1_v5_eiger" / "stage.sh"
