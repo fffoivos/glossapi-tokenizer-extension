@@ -1,0 +1,89 @@
+{
+  "schema_version": "bibliography-role-contract-v2",
+  "description": "Operational bibliography roles for frozen entry evidence, contextual connectors, typed headings, and structured block decoding.",
+  "immutable_source_label_field": "original_region_label",
+  "roles": {
+    "BIB_HEADER": {
+      "block_action": "include_and_stop_upward",
+      "definition": "The overall heading introducing a bibliography or references region.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": true
+    },
+    "BIB_SUBHEADER": {
+      "block_action": "include_and_connect",
+      "definition": "An internal language, source, period, or category heading connecting bibliography regions.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": true
+    },
+    "CONTINUATION": {
+      "block_action": "attach_to_confirmed_region",
+      "definition": "Citation content broken across lines or too incomplete to establish an entry alone.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": true
+    },
+    "ENTRY": {
+      "block_action": "seed_or_extend",
+      "definition": "A recognizable bibliographic record that supplies independent entry evidence.",
+      "entry_seed_eligible": true,
+      "remove_with_confirmed_block": true
+    },
+    "FILLER": {
+      "block_action": "bridge_supported_regions",
+      "definition": "Non-citation layout or extraction material included only between supported bibliography evidence.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": true
+    },
+    "NON_BIB_HEADER": {
+      "block_action": "exclude_and_stop",
+      "definition": "A heading for document material outside the bibliography; it terminates growth in the direction encountered.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": false
+    },
+    "OTHER": {
+      "block_action": "exclude",
+      "definition": "Ordinary material that is not one of the operational bibliography roles.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": false
+    },
+    "UNKNOWN": {
+      "block_action": "mask",
+      "definition": "Insufficient evidence or unresolved reviewer disagreement; never a prediction target.",
+      "entry_seed_eligible": false,
+      "remove_with_confirmed_block": false
+    }
+  },
+  "boundary_flags": {
+    "HARD_STOP": "A trusted line or physical gap that must terminate block growth.",
+    "NONE": "No independent boundary assertion.",
+    "SOFT_STOP": "Evidence against growth that remains contextual."
+  },
+  "label_statuses": {
+    "ADJUDICATED": "A trusted resolution based on preserved independent review evidence.",
+    "AGREED_REVIEW": "Two independent contextual reviews agree.",
+    "PROVISIONAL": "A deterministic or model-derived bootstrap label; never independent evaluation truth.",
+    "SINGLE_REVIEW": "One contextual review; eligible for development diagnostics only.",
+    "UNRESOLVED": "Disagreement or insufficient evidence; masked from supervised losses."
+  },
+  "entry_anchor_target": {
+    "masked_roles": ["UNKNOWN"],
+    "negative_roles": [
+      "BIB_HEADER",
+      "BIB_SUBHEADER",
+      "CONTINUATION",
+      "FILLER",
+      "NON_BIB_HEADER",
+      "OTHER"
+    ],
+    "positive_roles": ["ENTRY"],
+    "trusted_statuses": ["ADJUDICATED", "AGREED_REVIEW"]
+  },
+  "invariants": [
+    "The frozen entry classifier and original regional label are immutable.",
+    "Only ENTRY may seed a bibliography block.",
+    "BIB_HEADER is included and terminates upward growth.",
+    "BIB_SUBHEADER connects independently supported bibliography regions.",
+    "NON_BIB_HEADER remains outside and terminates growth in the direction encountered.",
+    "CONTINUATION and FILLER may attach but never seed.",
+    "UNKNOWN and unresolved examples are masked from every supervised loss."
+  ]
+}

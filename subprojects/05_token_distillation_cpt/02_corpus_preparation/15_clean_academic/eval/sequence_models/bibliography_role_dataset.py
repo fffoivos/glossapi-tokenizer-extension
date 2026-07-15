@@ -23,7 +23,9 @@ from .contract import canonical_json_sha256, sha256_file
 SCHEMA_VERSION = "bibliography-role-overlay-v1"
 SCHEMA_VERSION_V2 = "bibliography-role-overlay-v2"
 REVIEW_SCHEMA_VERSION = "bibliography-role-review-v1"
-CONTRACT_SCHEMA_VERSION = "bibliography-role-contract-v1"
+CONTRACT_SCHEMA_VERSIONS = frozenset(
+    {"bibliography-role-contract-v1", "bibliography-role-contract-v2"}
+)
 TARGET_MASK = -1
 TARGET_NEGATIVE = 0
 TARGET_ENTRY_ANCHOR = 1
@@ -48,7 +50,7 @@ def text_sha256(text: str) -> str:
 def load_role_contract(path: str | Path) -> RoleContract:
     contract_path = Path(path).resolve()
     raw = json.loads(contract_path.read_text(encoding="utf-8"))
-    if not isinstance(raw, Mapping) or raw.get("schema_version") != CONTRACT_SCHEMA_VERSION:
+    if not isinstance(raw, Mapping) or raw.get("schema_version") not in CONTRACT_SCHEMA_VERSIONS:
         raise ValueError(f"unsupported bibliography role contract: {contract_path}")
     roles = raw.get("roles")
     boundaries = raw.get("boundary_flags")
@@ -98,7 +100,7 @@ def entry_anchor_target(
         return TARGET_MASK
     if role in contract.positive_roles:
         return TARGET_ENTRY_ANCHOR
-    if mask_in_block_nonanchors and role != "NON_BIB":
+    if mask_in_block_nonanchors and role not in {"NON_BIB", "OTHER", "NON_BIB_HEADER"}:
         return TARGET_MASK
     if role in contract.negative_roles:
         return TARGET_NEGATIVE

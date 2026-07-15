@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cases": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": {"minLength": 1, "type": "string"},
+          "confidence": {"maximum": 1, "minimum": 0, "type": "number"},
+          "label": {
+            "enum": ["BIB_HEADER", "BIB_SUBHEADER", "NON_BIB_HEADER", "NOT_HEADER", "UNKNOWN"],
+            "type": "string"
+          },
+          "reason": {"minLength": 1, "type": "string"}
+        },
+        "required": ["candidate_id", "label", "confidence", "reason"],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "reviewer": {"minLength": 1, "type": "string"},
+    "schema_version": {"const": "bibliography-heading-review-v1", "type": "string"}
+  },
+  "required": ["schema_version", "reviewer", "cases"],
+  "type": "object"
+}
