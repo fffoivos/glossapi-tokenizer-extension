@@ -342,39 +342,60 @@ def run_reviews(args: argparse.Namespace) -> dict[str, Any]:
             if stored.get("contract") != contract:
                 raise ValueError("existing heading batch contract mismatch")
             return validate_review(stored["review"], expected, args.reviewer_id)
-        envelope = {
-            "reviewer": args.reviewer_id, "independence": "No other pass is supplied.",
-            "cases": batch,
-        }
-        review: dict[str, Any] | None = None
-        errors = []
-        for attempt in range(1, args.attempts + 1):
-            with tempfile.TemporaryDirectory(prefix="bib-heading-review-") as directory:
-                response = Path(directory) / "response.json"
-                workspace = Path(directory) / "empty"
-                workspace.mkdir()
-                command = [
-                    "codex", "exec", "--model", args.model, "--sandbox", "read-only", "--ephemeral",
-                    "--skip-git-repo-check", "--cd", str(workspace), "--config",
-                    f'model_reasoning_effort="{args.reasoning_effort}"', "--output-schema", str(schema_path),
-                    "--output-last-message", str(response), "-",
-                ]
-                completed = subprocess.run(
-                    command, input=prompt.rstrip() + "\n\n" + json.dumps(envelope, ensure_ascii=False),
-                    text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                    timeout=args.timeout_seconds, check=False,
-                )
-                try:
-                    if completed.returncode != 0 or not response.is_file():
-                        raise RuntimeError(completed.stderr[-2000:])
-                    review = validate_review(
-                        json.loads(response.read_text(encoding="utf-8")), expected, args.reviewer_id,
+        def request(request_cases: list[dict[str, Any]]) -> dict[str, Any]:
+            request_expected = {str(row["candidate_id"]): row for row in request_cases}
+            envelope = {
+                "reviewer": args.reviewer_id, "independence": "No other pass is supplied.",
+                "cases": request_cases,
+            }
+            errors = []
+            for attempt in range(1, args.attempts + 1):
+                with tempfile.TemporaryDirectory(prefix="bib-heading-review-") as directory:
+                    response = Path(directory) / "response.json"
+                    workspace = Path(directory) / "empty"
+                    workspace.mkdir()
+                    command = [
+                        "codex", "exec", "--model", args.model, "--sandbox", "read-only",
+                        "--ephemeral", "--skip-git-repo-check", "--cd", str(workspace),
+                        "--config", f'model_reasoning_effort="{args.reasoning_effort}"',
+                        "--output-schema", str(schema_path), "--output-last-message", str(response), "-",
+                    ]
+                    completed = subprocess.run(
+                        command,
+                        input=prompt.rstrip() + "\n\n" + json.dumps(envelope, ensure_ascii=False),
+                        text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                        timeout=args.timeout_seconds, check=False,
                     )
-                    break
-                except (ValueError, RuntimeError, json.JSONDecodeError) as error:
-                    errors.append(f"attempt {attempt}: {type(error).__name__}: {error}")
-        if review is None:
-            raise RuntimeError("heading review batch exhausted retries: " + " | ".join(errors))
+                    try:
+                        if completed.returncode != 0 or not response.is_file():
+                            raise RuntimeError(completed.stderr[-2000:])
+                        return validate_review(
+                            json.loads(response.read_text(encoding="utf-8")),
+                            request_expected, args.reviewer_id,
+                        )
+                    except (ValueError, RuntimeError, json.JSONDecodeError) as error:
+                        errors.append(f"attempt {attempt}: {type(error).__name__}: {error}")
+            raise RuntimeError("heading review request exhausted retries: " + " | ".join(errors))
+
+        def request_resilient(request_cases: list[dict[str, Any]]) -> dict[str, Any]:
+            try:
+                return request(request_cases)
+            except RuntimeError:
+                if len(request_cases) == 1:
+                    raise
+                middle = len(request_cases) // 2
+                parts = (
+                    request_resilient(request_cases[:middle]),
+                    request_resilient(request_cases[middle:]),
+                )
+                combined = {
+                    "schema_version": REVIEW_SCHEMA, "reviewer": args.reviewer_id,
+                    "cases": [row for part in parts for row in part["cases"]],
+                }
+                local_expected = {str(row["candidate_id"]): row for row in request_cases}
+                return validate_review(combined, local_expected, args.reviewer_id)
+
+        review = request_resilient(batch)
         _write_json_new(final, {"schema_version": "bibliography-heading-review-batch-v1", "contract": contract, "review": review})
         return review
 
