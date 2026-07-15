@@ -60,9 +60,12 @@ opening validation data.
 
 ### 3. Continuation/filler expert
 
-`bibliography_role_features.py` and `bibliography_role_tables.py` create
-candidate windows of ±30 physical lines around frozen entry evidence or heading
-candidates. The expert sees:
+`bibliography_role_features.py` and `bibliography_role_tables.py` train on every
+reviewed line, while separately marking the operational windows around frozen
+entry evidence or heading candidates. This keeps line-role supervision distinct
+from block-proposal reachability: reviewed continuations in unusually long or
+broken bibliographies are not silently discarded merely because the current
+proposal policy cannot yet reach them. The expert sees:
 
 - binary presence and log-counts of the 35 deterministic citation features;
 - Unicode line shape, punctuation, script, whitespace, length, and indentation;
@@ -86,21 +89,22 @@ head.
 
 `bibliography_role_block.py` implements a cost-sensitive linear semi-Markov
 decoder over the seven OOF role probabilities. It requires two short P0D entry
-seeds, proposes spans only within 30 lines of supported clusters, includes a
+seeds, compares proposal radii 30 and 50 inside grouped inner folds, includes a
 main bibliography heading only at the upper edge, permits subheaders inside,
 and never crosses a predicted non-bibliography heading. Heading barriers are
 decided inside the heading head and cannot be defeated by a high entry score on
 the same line.
 
-The structured-margin fit tunes false-positive and spurious-fragment costs by
-grouped inner folds. Seed-unreachable gold sequences are measured in the
-coverage ceiling and evaluation, but excluded from parameter fitting because
-their target cannot be emitted by the conservative decoder. Reports include
-line and character precision/recall, exact-document rate, mean IoU, source
-slices, zero-bibliography spurious blocks, hard-stop crossings, and seed
-coverage. The initial gate requires at least 0.99 line and character precision,
-0.95 line and character recall, zero trusted hard-stop crossings, and no more
-than 0.02 spurious blocks per reviewed zero-bibliography sequence.
+The structured-margin fit tunes proposal radius, false-positive cost, and
+spurious-fragment cost by grouped inner folds. Gold sequences whose exact block
+cannot be emitted by a candidate policy are measured but excluded from that
+policy's parameter fitting; zero-bibliography sequences remain valid empty
+paths and are always included. Reports include line and character
+precision/recall, exact-document rate, mean IoU, source slices,
+zero-bibliography spurious blocks, hard-stop crossings, and both seed and exact
+proposal reachability. The gate requires at least 0.99 line and character
+precision, 0.95 line and character recall, zero trusted hard-stop crossings,
+and no more than 0.02 spurious blocks per reviewed zero-bibliography sequence.
 
 This is deliberately supervised structured prediction, not reinforcement
 learning. RL remains unnecessary unless the interpretable cost-sensitive model
@@ -139,11 +143,13 @@ only for code, review-call coordination, and small review artifacts.
 11. `clariden/train_bibliography_role_block.sbatch`.
 
 Each stage is a gate: downstream work is not submitted if class coverage,
-candidate-window coverage, provenance, or grouped OOF completeness fails.
+provenance, or grouped OOF completeness fails. Candidate-window coverage is
+reported separately from line-expert supervision and is enforced by the block
+proposal/evaluation stage.
 
 ## Verification before Clariden submission
 
-- 20 focused unit tests pass for role migration, heading adjudication,
+- 29 focused unit tests pass for role migration, heading adjudication,
   Unicode/positional features, supervision masking, and hard block boundaries.
 - Ruff and `git diff --check` pass.
 - Every Slurm launcher passes `bash -n`.
@@ -153,7 +159,14 @@ candidate-window coverage, provenance, or grouped OOF completeness fails.
 
 ## Current run state
 
-The code is implemented locally. The next irreversible-cost gate is the
-Clariden heading inventory. No dual Codex review should be launched until its
-candidate count has been inspected, because the inventory deliberately favors
-recall and may be substantially larger than the trusted role overlay.
+The complete train-only run has executed. The durable local summary and report
+archive is `results/bibliography_role_pipeline/20260715/README.md`; full model
+binaries remain under the Clariden artifact root recorded there.
+
+The final grouped OOF model is intentionally **not deployment-approved**. It
+achieved 0.999431 line precision and 0.999698 character precision with no
+trusted hard-stop crossings and no spurious zero-BIB blocks, but recall was
+0.943087 by line and 0.943466 by character, below the 0.95 gate. Validation was
+not opened. The next experiment should target proposal reachability or entry
+seed recall using fresh predeclared train-only arms; it must not weaken the
+recorded gate or tune on validation.

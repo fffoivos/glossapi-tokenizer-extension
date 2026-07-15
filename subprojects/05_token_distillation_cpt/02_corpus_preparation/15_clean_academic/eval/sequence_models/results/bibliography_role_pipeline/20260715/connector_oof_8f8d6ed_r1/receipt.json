@@ -1,0 +1,538 @@
+{
+  "code_commit": "8f8d6ed05b4c2f7c94c72fc65250293840a0881d",
+  "folds": [
+    {
+      "candidates": [
+        {
+          "arm": "logistic",
+          "c_value": 0.1,
+          "connector_brier": 0.0997684034107222,
+          "connector_pr_auc": 0.7572990558533393,
+          "mean_pr_auc": 0.8810865536566803,
+          "other_brier": 0.07745310475778931,
+          "other_pr_auc": 0.8859606051167017,
+          "subtype_brier": 0.014214364720309182,
+          "subtype_pr_auc": 0.9999999999999998
+        },
+        {
+          "arm": "logistic",
+          "c_value": 1.0,
+          "connector_brier": 0.0996156640600322,
+          "connector_pr_auc": 0.7497558188741202,
+          "mean_pr_auc": 0.8768637000149161,
+          "other_brier": 0.08461991650766029,
+          "other_pr_auc": 0.8811177670463346,
+          "subtype_brier": 0.016288713409643454,
+          "subtype_pr_auc": 0.9997175141242937
+        },
+        {
+          "arm": "logistic",
+          "c_value": 10.0,
+          "connector_brier": 0.0993351139436759,
+          "connector_pr_auc": 0.7492351629538592,
+          "mean_pr_auc": 0.876061486676004,
+          "other_brier": 0.08494314822522935,
+          "other_pr_auc": 0.8807469344650106,
+          "subtype_brier": 0.025249075841438994,
+          "subtype_pr_auc": 0.9982023626091423
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.09127922233926741,
+          "connector_pr_auc": 0.7051748422425421,
+          "max_depth": 2,
+          "mean_pr_auc": 0.88418423260797,
+          "min_samples_leaf": 20,
+          "other_brier": 0.04389351071517037,
+          "other_pr_auc": 0.9473778555813677,
+          "subtype_brier": 0.01492406266339431,
+          "subtype_pr_auc": 1.0
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.09162109310032425,
+          "connector_pr_auc": 0.7096759873893076,
+          "max_depth": 2,
+          "mean_pr_auc": 0.8856912093234937,
+          "min_samples_leaf": 40,
+          "other_brier": 0.04378051217545979,
+          "other_pr_auc": 0.9473976405811735,
+          "subtype_brier": 0.015471742647336932,
+          "subtype_pr_auc": 1.0
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.08611074989230681,
+          "connector_pr_auc": 0.66085341036023,
+          "max_depth": 3,
+          "mean_pr_auc": 0.8736051098508181,
+          "min_samples_leaf": 20,
+          "other_brier": 0.03313895405490147,
+          "other_pr_auc": 0.9599619191922243,
+          "subtype_brier": 0.0145710525494967,
+          "subtype_pr_auc": 0.9999999999999998
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.08597445450253452,
+          "connector_pr_auc": 0.6893179718826254,
+          "max_depth": 3,
+          "mean_pr_auc": 0.8834901778252915,
+          "min_samples_leaf": 40,
+          "other_brier": 0.032172869520542186,
+          "other_pr_auc": 0.9611525615932494,
+          "subtype_brier": 0.015065926997381072,
+          "subtype_pr_auc": 0.9999999999999998
+        }
+      ],
+      "fit_labelled_candidates": 6606,
+      "holdout_candidates": 1327,
+      "inner_fold": 1,
+      "outer_fold": 0,
+      "selected": {
+        "arm": "hist",
+        "max_depth": 2,
+        "min_samples_leaf": 40
+      }
+    },
+    {
+      "candidates": [
+        {
+          "arm": "logistic",
+          "c_value": 0.1,
+          "connector_brier": 0.07196026948930072,
+          "connector_pr_auc": 0.606954217076066,
+          "mean_pr_auc": 0.8011704855338516,
+          "other_brier": 0.1119528909583921,
+          "other_pr_auc": 0.7976461451324478,
+          "subtype_brier": 0.052309701984834825,
+          "subtype_pr_auc": 0.9989110943930412
+        },
+        {
+          "arm": "logistic",
+          "c_value": 1.0,
+          "connector_brier": 0.07042224922672188,
+          "connector_pr_auc": 0.6069268098682101,
+          "mean_pr_auc": 0.8017001950827535,
+          "other_brier": 0.11804729766218103,
+          "other_pr_auc": 0.7998924813322688,
+          "subtype_brier": 0.061405196580264686,
+          "subtype_pr_auc": 0.9982812940477813
+        },
+        {
+          "arm": "logistic",
+          "c_value": 10.0,
+          "connector_brier": 0.0705876723320758,
+          "connector_pr_auc": 0.6051532810544328,
+          "mean_pr_auc": 0.8008288547790267,
+          "other_brier": 0.11883280330801503,
+          "other_pr_auc": 0.7999450468756677,
+          "subtype_brier": 0.06738641784365922,
+          "subtype_pr_auc": 0.9973882364069797
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.0820239665144674,
+          "connector_pr_auc": 0.6351126832294135,
+          "max_depth": 2,
+          "mean_pr_auc": 0.8577359418157714,
+          "min_samples_leaf": 20,
+          "other_brier": 0.04522958248734998,
+          "other_pr_auc": 0.9397915112000165,
+          "subtype_brier": 0.04024638541811259,
+          "subtype_pr_auc": 0.998303631017884
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.08212387355850952,
+          "connector_pr_auc": 0.6364242944680558,
+          "max_depth": 2,
+          "mean_pr_auc": 0.857023648584256,
+          "min_samples_leaf": 40,
+          "other_brier": 0.045900134055292835,
+          "other_pr_auc": 0.9365138124091716,
+          "subtype_brier": 0.03958572450587521,
+          "subtype_pr_auc": 0.9981328388755405
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.07371092735699264,
+          "connector_pr_auc": 0.6865444483158487,
+          "max_depth": 3,
+          "mean_pr_auc": 0.8708829737354854,
+          "min_samples_leaf": 20,
+          "other_brier": 0.04516781792700763,
+          "other_pr_auc": 0.9285919508283939,
+          "subtype_brier": 0.04861115469646075,
+          "subtype_pr_auc": 0.9975125220622136
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.07649581915344837,
+          "connector_pr_auc": 0.6712440884614839,
+          "max_depth": 3,
+          "mean_pr_auc": 0.8651307820047359,
+          "min_samples_leaf": 40,
+          "other_brier": 0.04573404156909317,
+          "other_pr_auc": 0.9266493762821164,
+          "subtype_brier": 0.04821321908258445,
+          "subtype_pr_auc": 0.9974988812706074
+        }
+      ],
+      "fit_labelled_candidates": 7090,
+      "holdout_candidates": 838,
+      "inner_fold": 2,
+      "outer_fold": 1,
+      "selected": {
+        "arm": "hist",
+        "max_depth": 3,
+        "min_samples_leaf": 20
+      }
+    },
+    {
+      "candidates": [
+        {
+          "arm": "logistic",
+          "c_value": 0.1,
+          "connector_brier": 0.1180303036730723,
+          "connector_pr_auc": 0.435305782609694,
+          "mean_pr_auc": 0.6588764210804408,
+          "other_brier": 0.23198744259047732,
+          "other_pr_auc": 0.6253772707041425,
+          "subtype_brier": 0.12774578426052993,
+          "subtype_pr_auc": 0.9159462099274858
+        },
+        {
+          "arm": "logistic",
+          "c_value": 1.0,
+          "connector_brier": 0.1287605854282655,
+          "connector_pr_auc": 0.40162079138167744,
+          "mean_pr_auc": 0.6369145798553801,
+          "other_brier": 0.22714700396469653,
+          "other_pr_auc": 0.620058563150264,
+          "subtype_brier": 0.17250936987354004,
+          "subtype_pr_auc": 0.889064385034199
+        },
+        {
+          "arm": "logistic",
+          "c_value": 10.0,
+          "connector_brier": 0.12959822035741483,
+          "connector_pr_auc": 0.40113814914219453,
+          "mean_pr_auc": 0.6316283150706848,
+          "other_brier": 0.2284494268549202,
+          "other_pr_auc": 0.6192895566328168,
+          "subtype_brier": 0.19669579202311913,
+          "subtype_pr_auc": 0.8744572394370435
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.08241306400484999,
+          "connector_pr_auc": 0.6411881390938413,
+          "max_depth": 2,
+          "mean_pr_auc": 0.7602262514481946,
+          "min_samples_leaf": 20,
+          "other_brier": 0.19971380032306496,
+          "other_pr_auc": 0.7639227578157897,
+          "subtype_brier": 0.17974512850990995,
+          "subtype_pr_auc": 0.8755678574349526
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.08316710670037358,
+          "connector_pr_auc": 0.6339941428949463,
+          "max_depth": 2,
+          "mean_pr_auc": 0.7544463816954456,
+          "min_samples_leaf": 40,
+          "other_brier": 0.20052641548880595,
+          "other_pr_auc": 0.7587070468963858,
+          "subtype_brier": 0.22635860782609535,
+          "subtype_pr_auc": 0.8706379552950048
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.08824588373957758,
+          "connector_pr_auc": 0.5772712879263335,
+          "max_depth": 3,
+          "mean_pr_auc": 0.7323536047291509,
+          "min_samples_leaf": 20,
+          "other_brier": 0.24229998330508823,
+          "other_pr_auc": 0.7493875785336818,
+          "subtype_brier": 0.23656034117511862,
+          "subtype_pr_auc": 0.8704019477274374
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.08847578878286656,
+          "connector_pr_auc": 0.5807011363354712,
+          "max_depth": 3,
+          "mean_pr_auc": 0.733135646423348,
+          "min_samples_leaf": 40,
+          "other_brier": 0.23305312430970693,
+          "other_pr_auc": 0.7623345448371647,
+          "subtype_brier": 0.27266441875516295,
+          "subtype_pr_auc": 0.8563712580974083
+        }
+      ],
+      "fit_labelled_candidates": 6111,
+      "holdout_candidates": 1820,
+      "inner_fold": 3,
+      "outer_fold": 2,
+      "selected": {
+        "arm": "hist",
+        "max_depth": 2,
+        "min_samples_leaf": 20
+      }
+    },
+    {
+      "candidates": [
+        {
+          "arm": "logistic",
+          "c_value": 0.1,
+          "connector_brier": 0.047879188542731085,
+          "connector_pr_auc": 0.8409794978684869,
+          "mean_pr_auc": 0.8702978385225357,
+          "other_brier": 0.12351599842696223,
+          "other_pr_auc": 0.8187146004400377,
+          "subtype_brier": 0.13559840052363925,
+          "subtype_pr_auc": 0.9511994172590825
+        },
+        {
+          "arm": "logistic",
+          "c_value": 1.0,
+          "connector_brier": 0.04511797507058878,
+          "connector_pr_auc": 0.8443059305894569,
+          "mean_pr_auc": 0.8708747545521934,
+          "other_brier": 0.1265028597043238,
+          "other_pr_auc": 0.8212138272938558,
+          "subtype_brier": 0.16503726858320988,
+          "subtype_pr_auc": 0.9471045057732674
+        },
+        {
+          "arm": "logistic",
+          "c_value": 10.0,
+          "connector_brier": 0.04514224179685362,
+          "connector_pr_auc": 0.8429050967407962,
+          "mean_pr_auc": 0.8671019652415736,
+          "other_brier": 0.12695380835422268,
+          "other_pr_auc": 0.8201642733704324,
+          "subtype_brier": 0.18256858060215417,
+          "subtype_pr_auc": 0.938236525613492
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.05858936293443182,
+          "connector_pr_auc": 0.8304960076932021,
+          "max_depth": 2,
+          "mean_pr_auc": 0.8730531658563162,
+          "min_samples_leaf": 20,
+          "other_brier": 0.07139124141044818,
+          "other_pr_auc": 0.8938742480789261,
+          "subtype_brier": 0.12195003718188875,
+          "subtype_pr_auc": 0.8947892417968202
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.057050565042759654,
+          "connector_pr_auc": 0.8359789479736928,
+          "max_depth": 2,
+          "mean_pr_auc": 0.8793735450513646,
+          "min_samples_leaf": 40,
+          "other_brier": 0.07135467855627947,
+          "other_pr_auc": 0.8942953780921957,
+          "subtype_brier": 0.11155054259937108,
+          "subtype_pr_auc": 0.9078463090882049
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.04324150396918627,
+          "connector_pr_auc": 0.8411304150168571,
+          "max_depth": 3,
+          "mean_pr_auc": 0.8833471695211966,
+          "min_samples_leaf": 20,
+          "other_brier": 0.08023434348519565,
+          "other_pr_auc": 0.8948846056835279,
+          "subtype_brier": 0.10191460738657657,
+          "subtype_pr_auc": 0.9140264878632045
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.042417385837304714,
+          "connector_pr_auc": 0.8459781772269295,
+          "max_depth": 3,
+          "mean_pr_auc": 0.8893160936529699,
+          "min_samples_leaf": 40,
+          "other_brier": 0.0782362517513334,
+          "other_pr_auc": 0.8938106816010258,
+          "subtype_brier": 0.11918254709970263,
+          "subtype_pr_auc": 0.9281594221309546
+        }
+      ],
+      "fit_labelled_candidates": 5302,
+      "holdout_candidates": 2679,
+      "inner_fold": 4,
+      "outer_fold": 3,
+      "selected": {
+        "arm": "hist",
+        "max_depth": 3,
+        "min_samples_leaf": 40
+      }
+    },
+    {
+      "candidates": [
+        {
+          "arm": "logistic",
+          "c_value": 0.1,
+          "connector_brier": 0.0821755765087836,
+          "connector_pr_auc": 0.6270129061712351,
+          "mean_pr_auc": 0.8008702591836326,
+          "other_brier": 0.09005927090370959,
+          "other_pr_auc": 0.7813750141005941,
+          "subtype_brier": 0.03768092461640408,
+          "subtype_pr_auc": 0.9942228572790688
+        },
+        {
+          "arm": "logistic",
+          "c_value": 1.0,
+          "connector_brier": 0.08145735884483682,
+          "connector_pr_auc": 0.6237107039229088,
+          "mean_pr_auc": 0.7981582265816591,
+          "other_brier": 0.09335493791550885,
+          "other_pr_auc": 0.7830350281974202,
+          "subtype_brier": 0.09982516107261963,
+          "subtype_pr_auc": 0.9877289476246481
+        },
+        {
+          "arm": "logistic",
+          "c_value": 10.0,
+          "connector_brier": 0.08158465444137213,
+          "connector_pr_auc": 0.6186519028933175,
+          "mean_pr_auc": 0.7961065065134604,
+          "other_brier": 0.09336067783236683,
+          "other_pr_auc": 0.783286094258698,
+          "subtype_brier": 0.13642195920762756,
+          "subtype_pr_auc": 0.9863815223883655
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.07003767223002784,
+          "connector_pr_auc": 0.7066260571421509,
+          "max_depth": 2,
+          "mean_pr_auc": 0.8602409286391461,
+          "min_samples_leaf": 20,
+          "other_brier": 0.05787358075863358,
+          "other_pr_auc": 0.8755104580780756,
+          "subtype_brier": 0.03004781752557527,
+          "subtype_pr_auc": 0.9985862706972118
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.07225505869885539,
+          "connector_pr_auc": 0.6974198738623837,
+          "max_depth": 2,
+          "mean_pr_auc": 0.8587099624446052,
+          "min_samples_leaf": 40,
+          "other_brier": 0.057051206395627704,
+          "other_pr_auc": 0.8799327223702753,
+          "subtype_brier": 0.027392989626917934,
+          "subtype_pr_auc": 0.9987772911011567
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.06420626083456928,
+          "connector_pr_auc": 0.7299076980919496,
+          "max_depth": 3,
+          "mean_pr_auc": 0.8722973576250338,
+          "min_samples_leaf": 20,
+          "other_brier": 0.05597960298085754,
+          "other_pr_auc": 0.8881507615370527,
+          "subtype_brier": 0.02759396661864193,
+          "subtype_pr_auc": 0.998833613246099
+        },
+        {
+          "arm": "hist",
+          "connector_brier": 0.06881124011733933,
+          "connector_pr_auc": 0.7071596786729224,
+          "max_depth": 3,
+          "mean_pr_auc": 0.8655484364317583,
+          "min_samples_leaf": 40,
+          "other_brier": 0.05535803950504936,
+          "other_pr_auc": 0.8906154943392308,
+          "subtype_brier": 0.027025070153999794,
+          "subtype_pr_auc": 0.9988701362831215
+        }
+      ],
+      "fit_labelled_candidates": 6551,
+      "holdout_candidates": 1376,
+      "inner_fold": 0,
+      "outer_fold": 4,
+      "selected": {
+        "arm": "hist",
+        "max_depth": 3,
+        "min_samples_leaf": 20
+      }
+    }
+  ],
+  "kind": "connector",
+  "oof_metrics": {
+    "connector": {
+      "brier": 0.07424945463808032,
+      "pr_auc": 0.6452527734481568
+    },
+    "continuation_given_connector": {
+      "brier": 0.0794192125821237,
+      "pr_auc": 0.9708817388481168
+    },
+    "other": {
+      "brier": 0.11756810491352745,
+      "pr_auc": 0.7650424832262229
+    },
+    "trusted_connector_head_count": 7915,
+    "trusted_other_head_count": 7852,
+    "trusted_subtype_head_count": 813
+  },
+  "outputs": {
+    "models/fold0.pkl": {
+      "bytes": 497492,
+      "sha256": "e785ebbdd143e1d9a4692d7dbb9d2a2cad789dba68bd0af90cd58c82fa2f72ac"
+    },
+    "models/fold1.pkl": {
+      "bytes": 669719,
+      "sha256": "5a2da6d8d896e756f96bbc99291b2a7c1202fb107b1be08336eaa9d3504b989a"
+    },
+    "models/fold2.pkl": {
+      "bytes": 501538,
+      "sha256": "a7e55deea1ef72998a26a72f926af5801592f35bcbb6815b90fd7bb92d065254"
+    },
+    "models/fold3.pkl": {
+      "bytes": 641771,
+      "sha256": "fc82b0fbd61213dda9340bfd76873929877ea182bcabcebc3573ee987a97eacf"
+    },
+    "models/fold4.pkl": {
+      "bytes": 666526,
+      "sha256": "6f03bbe71ba03b6b27e3a7aeac1a39d72d8b6897f276bc830fe441a8b159bdce"
+    },
+    "oof_probability.npy": {
+      "bytes": 128768,
+      "sha256": "226492bcd7640e894748abcc96a03d853af2f2516cf202cc247d5c954311dae1"
+    },
+    "report.json": {
+      "bytes": 17093,
+      "sha256": "201da84b78e4754ea12606e84a4eb31be6787e2993780edc0bac2cb43202e6df"
+    },
+    "row_indices.npy": {
+      "bytes": 32288,
+      "sha256": "f1fcd5085791720948d8826f1ed966a7f65cead35de2c0efbb8c9fdebad8e0ae"
+    }
+  },
+  "probability_columns": [
+    "connector",
+    "continuation",
+    "filler",
+    "other"
+  ],
+  "schema_version": "bibliography-connector-expert-oof-v1",
+  "slurm_job_id": "2766811",
+  "status": "passed_grouped_oof_expert_training",
+  "table_manifest_sha256": "540c6f8b29a922a7ddd44106a3d41fc73021de625b49992359d72a415c6a87e5",
+  "validation_opened": false
+}

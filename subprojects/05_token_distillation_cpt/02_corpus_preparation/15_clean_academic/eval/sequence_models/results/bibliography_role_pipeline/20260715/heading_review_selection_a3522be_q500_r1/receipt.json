@@ -1,0 +1,24 @@
+{
+  "code_commit": "a3522be0107cf17af28c595d1f42e23b740cc350",
+  "mandatory_candidate_count": 812,
+  "packet_content_sha256": "5a94f64b09091946d97dc5d88961a18b6df79c18f9284cfb99cd9293500ec193",
+  "parent_candidate_count": 24616,
+  "per_source_quota": 500,
+  "provenance_content_sha256": "b1d5079601f28fe3ab2f253276c7e97d6a34c11ee7ed5f8fd3eb7ba092ae7bc2",
+  "schema_version": "bibliography-heading-review-selection-v1",
+  "selected_candidate_count": 1419,
+  "selected_counts_by_kind": {
+    "deterministic_heading": 748,
+    "markdown_heading": 107,
+    "numbered_heading": 227,
+    "other_heading_shape": 1,
+    "uppercase_heading": 336
+  },
+  "selected_counts_by_source": {
+    "greek_phd": 500,
+    "kallipos": 419,
+    "openarchives": 500
+  },
+  "slurm_job_id": "2766183",
+  "status": "passed_stratified_heading_review_selection"
+}

@@ -1,0 +1,21 @@
+{
+  "broad_predicate_trusted_heading_recall": 0.9914529914529915,
+  "candidate_count": 24616,
+  "candidate_counts_by_source": {
+    "greek_phd": 16549,
+    "kallipos": 419,
+    "openarchives": 7648
+  },
+  "code_commit": "277693393f46fd17126e0e851cf88bcb03d7a9e3",
+  "contextual_broad_candidate_count": 24605,
+  "document_wide_broad_candidate_count": 117667,
+  "forced_trusted_candidate_count": 11,
+  "inventory_trusted_heading_recall": 1.0,
+  "packet_content_sha256": "034a47de4aea9eec9265252ef1fe511da4654e5722323a574b3c17749f4f9099",
+  "provenance_content_sha256": "005d7857dd24115293164fa8622520373d48dd1ff9a329e269e2f4419c488f4c",
+  "schema_version": "bibliography-heading-inventory-v1",
+  "selection_policy": "broad_heading_within_30_physical_lines_of_p0d_025_or_trusted",
+  "slurm_job_id": "2766168",
+  "status": "passed_contextual_heading_inventory",
+  "trusted_heading_count": 117
+}
