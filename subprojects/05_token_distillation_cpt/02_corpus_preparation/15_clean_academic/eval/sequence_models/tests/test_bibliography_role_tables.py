@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from sequence_models.bibliography_role_tables import _connector_supervision
+import pytest
+
+from sequence_models.bibliography_role_dataset import text_sha256
+from sequence_models.bibliography_role_tables import _connector_supervision, _verify_overlay
 from sequence_models.bibliography_role_v2 import ROLE_TO_ID
 
 
@@ -36,3 +39,14 @@ def test_non_connector_disagreement_remains_fully_masked() -> None:
         }
     )
     assert result["connector_trusted"] == 0
+
+
+def test_overlay_verification_binds_line_identity_and_text() -> None:
+    index = {("d", "l"): (0, 0, 0)}
+    _verify_overlay(
+        {("d", "l"): {"text_sha256": text_sha256("same")}}, index, [["same"]],
+    )
+    with pytest.raises(ValueError, match="text hash mismatch"):
+        _verify_overlay(
+            {("d", "l"): {"text_sha256": text_sha256("different")}}, index, [["same"]],
+        )

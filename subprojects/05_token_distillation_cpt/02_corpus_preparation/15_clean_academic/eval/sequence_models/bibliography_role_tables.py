@@ -15,6 +15,7 @@ import numpy as np
 
 from .bibliography_entry_models import load_table
 from .bibliography_entry_dataset import MAX_PHYSICAL_GAP
+from .bibliography_role_dataset import text_sha256
 from .bibliography_positional_models import load_positional_table
 from .bibliography_role_experts import (
     CONNECTOR_PROBABILITY_COLUMNS, HEADING_PROBABILITY_COLUMNS,
@@ -124,6 +125,20 @@ def _prepare_output(path: Path) -> None:
     path.mkdir(parents=True)
 
 
+def _verify_overlay(
+    overlay: Mapping[tuple[str, str], Mapping[str, Any]],
+    source_index: Mapping[tuple[str, str], tuple[int, int, int]],
+    texts_by_doc: Sequence[Sequence[str]],
+) -> None:
+    for key, row in overlay.items():
+        if key not in source_index:
+            raise ValueError(f"overlay line is absent from source: {key}")
+        document_index, offset, _ = source_index[key]
+        expected_hash = text_sha256(texts_by_doc[document_index][offset])
+        if row.get("text_sha256") != expected_hash:
+            raise ValueError(f"overlay/source text hash mismatch: {key}")
+
+
 def materialize_heading_table(args: argparse.Namespace) -> dict[str, Any]:
     source, base_root = Path(args.source).resolve(), Path(args.base_table_dir).resolve()
     table = load_table(base_root, expected_split=args.split)
@@ -136,6 +151,21 @@ def materialize_heading_table(args: argparse.Namespace) -> dict[str, Any]:
     provenance_path = Path(args.inventory_provenance).resolve()
     provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
     texts_by_doc, _, _, source_index = _aligned_source(source, table, args.split)
+    _verify_overlay(overlay, source_index, texts_by_doc)
+    expected_provenance_inputs = {
+        "source": sha256_file(source),
+        "base": sha256_file(base_root / "manifest.json"),
+        "entry": sha256_file(entry_path),
+        "overlay": sha256_file(Path(args.overlay).resolve()),
+    }
+    observed_provenance_inputs = {
+        "source": provenance.get("source", {}).get("sha256"),
+        "base": provenance.get("base_table_manifest_sha256"),
+        "entry": provenance.get("entry_oof_sha256"),
+        "overlay": provenance.get("overlay_sha256"),
+    }
+    if observed_provenance_inputs != expected_provenance_inputs:
+        raise ValueError("heading inventory provenance does not bind the requested inputs")
     features, roles, trusted, folds, row_indices, text_rows = [], [], [], [], [], []
     for candidate in provenance["cases"]:
         key = (str(candidate["document_id"]), str(candidate["line_id"]))
@@ -145,6 +175,14 @@ def materialize_heading_table(args: argparse.Namespace) -> dict[str, Any]:
         metadata = table.documents[document_index]
         start, end = int(metadata["line_start"]), int(metadata["line_end"])
         text = texts_by_doc[document_index][offset]
+        if (
+            candidate.get("text_sha256") != text_sha256(text)
+            or int(candidate.get("abs_idx", -1)) != int(table.abs_indices[absolute])
+            or candidate.get("work_id") != metadata["work_id"]
+            or candidate.get("source") != metadata["source"]
+            or int(candidate.get("fold", -1)) != int(table.folds[absolute])
+        ):
+            raise ValueError(f"heading candidate provenance mismatch: {key}")
         above = entry_probability[max(start, absolute - 30) : absolute]
         below = entry_probability[absolute + 1 : min(end, absolute + 31)]
         previous_blank = offset > 0 and not texts_by_doc[document_index][offset - 1].strip()
@@ -261,7 +299,8 @@ def materialize_connector_table(args: argparse.Namespace) -> dict[str, Any]:
     heading_candidate_mask[heading_candidate_rows] = True
     heading_overlay = Path(args.heading_overlay).resolve() if args.heading_overlay else None
     overlay = _merged_overlay(Path(args.overlay).resolve(), heading_overlay)
-    texts_by_doc, ids_by_doc, _, _ = _aligned_source(source, table, args.split)
+    texts_by_doc, ids_by_doc, _, source_index = _aligned_source(source, table, args.split)
+    _verify_overlay(overlay, source_index, texts_by_doc)
     models = _load_p0d_models(entry_root, int(table.manifest["n_folds"]))
     feature_rows: list[np.ndarray] = []
     supervision: list[dict[str, int]] = []
@@ -417,7 +456,8 @@ def materialize_block_table(args: argparse.Namespace) -> dict[str, Any]:
     table = load_table(base_root, expected_split=args.split)
     heading_overlay = Path(args.heading_overlay).resolve() if args.heading_overlay else None
     overlay = _merged_overlay(Path(args.overlay).resolve(), heading_overlay)
-    _, ids_by_doc, _, _ = _aligned_source(source, table, args.split)
+    texts_by_doc, ids_by_doc, _, source_index = _aligned_source(source, table, args.split)
+    _verify_overlay(overlay, source_index, texts_by_doc)
     entry_path = Path(args.entry_oof_dir).resolve() / "P0D.oof_probability.npy"
     entry = np.load(entry_path, mmap_mode="r", allow_pickle=False)
     if entry.shape != (len(table.targets),):
