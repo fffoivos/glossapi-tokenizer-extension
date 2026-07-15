@@ -261,10 +261,23 @@ def _nearest_anchor(
     return 31, 0.0
 
 
-def _window_values(values: np.ndarray, index: int, radius: int, direction: int) -> np.ndarray:
+def _window_values(
+    values: np.ndarray, abs_indices: np.ndarray, index: int, radius: int, direction: int,
+) -> np.ndarray:
+    selected: list[float] = []
+    cursor = index
+    for _ in range(radius):
+        candidate = cursor + direction
+        if candidate < 0 or candidate >= len(values):
+            break
+        low, high = sorted((cursor, candidate))
+        if int(abs_indices[high]) - int(abs_indices[low]) > MAX_PHYSICAL_GAP:
+            break
+        selected.append(float(values[candidate]))
+        cursor = candidate
     if direction < 0:
-        return values[max(0, index - radius) : index]
-    return values[index + 1 : min(len(values), index + radius + 1)]
+        selected.reverse()
+    return np.asarray(selected, dtype=np.float32)
 
 
 def _pair_features(left: str, right: str) -> np.ndarray:
@@ -361,7 +374,9 @@ def connector_feature_row(
     context: list[float] = []
     for direction in (-1, 1):
         for radius in WINDOW_RADII:
-            values = _window_values(entry_probability, index, radius, direction)
+            values = _window_values(
+                entry_probability, abs_indices, index, radius, direction,
+            )
             context.extend((
                 float(values.max(initial=0.0)), float(values.mean()) if len(values) else 0.0,
                 float(np.count_nonzero(values >= entry_threshold)),

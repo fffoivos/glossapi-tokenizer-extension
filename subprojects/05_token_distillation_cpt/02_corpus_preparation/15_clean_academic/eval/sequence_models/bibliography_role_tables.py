@@ -131,9 +131,8 @@ def materialize_heading_table(args: argparse.Namespace) -> dict[str, Any]:
     entry_probability = np.load(entry_path, mmap_mode="r", allow_pickle=False)
     if entry_probability.shape != (len(table.targets),) or not np.isfinite(entry_probability).all():
         raise ValueError("entry OOF probability is malformed")
-    overlay = _merged_overlay(
-        Path(args.overlay).resolve(), Path(args.heading_overlay).resolve() if args.heading_overlay else None
-    )
+    heading_overlay = Path(args.heading_overlay).resolve() if args.heading_overlay else None
+    overlay = _merged_overlay(Path(args.overlay).resolve(), heading_overlay)
     provenance_path = Path(args.inventory_provenance).resolve()
     provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
     texts_by_doc, _, _, source_index = _aligned_source(source, table, args.split)
@@ -180,11 +179,13 @@ def materialize_heading_table(args: argparse.Namespace) -> dict[str, Any]:
     manifest = {
         "schema_version": HEADING_TABLE_SCHEMA, "status": "passed_heading_table_materialization",
         "split": args.split, "validation_opened": False, "line_count": len(table.targets),
+        "code_commit": args.code_commit, "slurm_job_id": args.slurm_job_id,
         "candidate_count": len(row_indices), "trusted_candidate_count": int(np.count_nonzero(arrays["trusted"])),
         "role_encoding": ROLE_TO_ID,
         "inputs": {
             "source_sha256": sha256_file(source), "base_manifest_sha256": sha256_file(base_root / "manifest.json"),
             "entry_oof_sha256": sha256_file(entry_path), "overlay_sha256": sha256_file(Path(args.overlay).resolve()),
+            "heading_overlay_sha256": sha256_file(heading_overlay) if heading_overlay else None,
             "inventory_provenance_sha256": sha256_file(provenance_path),
         },
     }
@@ -258,9 +259,8 @@ def materialize_connector_table(args: argparse.Namespace) -> dict[str, Any]:
     full_heading[heading_candidate_rows] = heading_candidate_probability[:, 1:]
     heading_candidate_mask = np.zeros(len(table.targets), dtype=bool)
     heading_candidate_mask[heading_candidate_rows] = True
-    overlay = _merged_overlay(
-        Path(args.overlay).resolve(), Path(args.heading_overlay).resolve() if args.heading_overlay else None
-    )
+    heading_overlay = Path(args.heading_overlay).resolve() if args.heading_overlay else None
+    overlay = _merged_overlay(Path(args.overlay).resolve(), heading_overlay)
     texts_by_doc, ids_by_doc, _, _ = _aligned_source(source, table, args.split)
     models = _load_p0d_models(entry_root, int(table.manifest["n_folds"]))
     feature_rows: list[np.ndarray] = []
@@ -329,6 +329,7 @@ def materialize_connector_table(args: argparse.Namespace) -> dict[str, Any]:
     manifest = {
         "schema_version": CONNECTOR_TABLE_SCHEMA, "status": "passed_connector_table_materialization",
         "split": args.split, "validation_opened": False, "line_count": len(table.targets),
+        "code_commit": args.code_commit, "slurm_job_id": args.slurm_job_id,
         "candidate_count": len(row_indices), "feature_count": len(connector_feature_names()),
         "feature_names": connector_feature_names(), "role_encoding": ROLE_TO_ID,
         "candidate_role_counts": dict(sorted(candidate_counts.items())),
@@ -339,7 +340,11 @@ def materialize_connector_table(args: argparse.Namespace) -> dict[str, Any]:
             "positional_manifest_sha256": sha256_file(Path(args.positional_table_dir).resolve() / "manifest.json"),
             "entry_oof_sha256": sha256_file(entry_path),
             "heading_report_sha256": sha256_file(heading_root / "report.json"),
+            "heading_receipt_sha256": sha256_file(heading_root / "receipt.json"),
+            "heading_oof_probability_sha256": sha256_file(heading_root / "oof_probability.npy"),
+            "heading_row_indices_sha256": sha256_file(heading_root / "row_indices.npy"),
             "overlay_sha256": sha256_file(Path(args.overlay).resolve()),
+            "heading_overlay_sha256": sha256_file(heading_overlay) if heading_overlay else None,
         },
     }
     _write_json_new(output / "manifest.json", manifest)
@@ -410,9 +415,8 @@ def _trusted_runs(trusted: np.ndarray, abs_indices: np.ndarray) -> list[tuple[in
 def materialize_block_table(args: argparse.Namespace) -> dict[str, Any]:
     source, base_root = Path(args.source).resolve(), Path(args.base_table_dir).resolve()
     table = load_table(base_root, expected_split=args.split)
-    overlay = _merged_overlay(
-        Path(args.overlay).resolve(), Path(args.heading_overlay).resolve() if args.heading_overlay else None
-    )
+    heading_overlay = Path(args.heading_overlay).resolve() if args.heading_overlay else None
+    overlay = _merged_overlay(Path(args.overlay).resolve(), heading_overlay)
     _, ids_by_doc, _, _ = _aligned_source(source, table, args.split)
     entry_path = Path(args.entry_oof_dir).resolve() / "P0D.oof_probability.npy"
     entry = np.load(entry_path, mmap_mode="r", allow_pickle=False)
@@ -522,6 +526,7 @@ def materialize_block_table(args: argparse.Namespace) -> dict[str, Any]:
     manifest = {
         "schema_version": BLOCK_TABLE_SCHEMA, "status": "passed_fully_reviewed_block_table",
         "split": args.split, "validation_opened": False, "n_folds": int(table.manifest["n_folds"]),
+        "code_commit": args.code_commit, "slurm_job_id": args.slurm_job_id,
         "sequence_count": len(document_rows), "line_count": cursor,
         "sequence_counts_by_source": dict(sorted(by_source.items())),
         "gold_block_count": gold_blocks, "seed_reachable_gold_block_count": seed_reachable,
@@ -533,8 +538,15 @@ def materialize_block_table(args: argparse.Namespace) -> dict[str, Any]:
             "source_sha256": sha256_file(source), "base_manifest_sha256": sha256_file(base_root / "manifest.json"),
             "entry_oof_sha256": sha256_file(entry_path),
             "heading_report_sha256": sha256_file(heading_root / "report.json"),
+            "heading_receipt_sha256": sha256_file(heading_root / "receipt.json"),
+            "heading_oof_probability_sha256": sha256_file(heading_root / "oof_probability.npy"),
+            "heading_row_indices_sha256": sha256_file(heading_root / "row_indices.npy"),
             "connector_report_sha256": sha256_file(connector_root / "report.json"),
+            "connector_receipt_sha256": sha256_file(connector_root / "receipt.json"),
+            "connector_oof_probability_sha256": sha256_file(connector_root / "oof_probability.npy"),
+            "connector_row_indices_sha256": sha256_file(connector_root / "row_indices.npy"),
             "overlay_sha256": sha256_file(Path(args.overlay).resolve()),
+            "heading_overlay_sha256": sha256_file(heading_overlay) if heading_overlay else None,
         },
     }
     _write_json_new(output / "manifest.json", manifest)
@@ -558,6 +570,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         command.add_argument("--heading-overlay")
         command.add_argument("--split", default="train")
         command.add_argument("--output-dir", required=True)
+        command.add_argument("--code-commit", required=True)
+        command.add_argument("--slurm-job-id", required=True)
     heading.add_argument("--entry-oof", required=True)
     heading.add_argument("--inventory-provenance", required=True)
     connector.add_argument("--positional-table-dir", required=True)

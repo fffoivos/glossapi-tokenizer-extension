@@ -21,6 +21,7 @@ ENTRY_OOF_DIR=${ENTRY_OOF_DIR:?set frozen P0D result root}
 HEADING_OOF_DIR=${HEADING_OOF_DIR:?set heading OOF result root}
 CONNECTOR_OOF_DIR=${CONNECTOR_OOF_DIR:?set connector OOF result root}
 OUTPUT_DIR=${OUTPUT_DIR:?set new immutable block table root}
+EXPECTED_COMMIT=${EXPECTED_COMMIT:?set exact code commit}
 UENV=${UENV:-pytorch/v2.9.1:v2}
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 90
 trap 'rm -rf "$OUTPUT_DIR"' EXIT
@@ -30,6 +31,7 @@ uenv run "$UENV" --view=default -- env PYTHONPATH="$CODE_ROOT" \
     --source "$SOURCE" --base-table-dir "$BASE_TABLE_DIR" --overlay "$OVERLAY" \
     --heading-overlay "$HEADING_OVERLAY" --entry-oof-dir "$ENTRY_OOF_DIR" \
     --heading-oof-dir "$HEADING_OOF_DIR" --connector-oof-dir "$CONNECTOR_OOF_DIR" \
-    --output-dir "$OUTPUT_DIR"
+    --output-dir "$OUTPUT_DIR" --code-commit "$EXPECTED_COMMIT" \
+    --slurm-job-id "$SLURM_JOB_ID"
 trap - EXIT
 echo "BIBLIOGRAPHY_ROLE_BLOCK_TABLE=$OUTPUT_DIR"

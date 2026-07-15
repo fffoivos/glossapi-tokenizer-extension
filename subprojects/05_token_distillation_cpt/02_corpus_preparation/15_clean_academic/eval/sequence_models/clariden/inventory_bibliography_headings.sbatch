@@ -18,6 +18,7 @@ BASE_TABLE_DIR=${BASE_TABLE_DIR:?set frozen entry table}
 ENTRY_OOF=${ENTRY_OOF:?set frozen P0D OOF probability}
 OVERLAY=${OVERLAY:?set combined trusted role overlay}
 OUTPUT_DIR=${OUTPUT_DIR:?set new immutable inventory root}
+EXPECTED_COMMIT=${EXPECTED_COMMIT:?set exact code commit}
 UENV=${UENV:-pytorch/v2.9.1:v2}
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 90
 mkdir "$OUTPUT_DIR"
@@ -29,6 +30,7 @@ uenv run "$UENV" --view=default -- env PYTHONPATH="$CODE_ROOT" \
     --overlay "$OVERLAY" --split train \
     --packet-out "$OUTPUT_DIR/packet.json" \
     --provenance-out "$OUTPUT_DIR/provenance.json" \
-    --receipt-out "$OUTPUT_DIR/receipt.json"
+    --receipt-out "$OUTPUT_DIR/receipt.json" \
+    --code-commit "$EXPECTED_COMMIT" --slurm-job-id "$SLURM_JOB_ID"
 trap - EXIT
 echo "BIBLIOGRAPHY_HEADING_INVENTORY=$OUTPUT_DIR"

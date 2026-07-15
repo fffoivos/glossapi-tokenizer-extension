@@ -66,7 +66,7 @@ def _candidate_id(document_id: str, line_id: str, text_hash: str) -> str:
 
 def build_inventory(
     *, source_path: Path, base_table_dir: Path, entry_oof_path: Path,
-    overlay_path: Path, split: str,
+    overlay_path: Path, split: str, code_commit: str, slurm_job_id: str,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     table = load_table(base_table_dir, expected_split=split)
     entry_probability = np.load(entry_oof_path, mmap_mode="r", allow_pickle=False)
@@ -153,6 +153,7 @@ def build_inventory(
         "candidate_count": len(cases), "candidate_counts_by_source": source_counts,
         "trusted_heading_count": trusted_headings,
         "trusted_heading_candidate_recall": recovered_trusted / trusted_headings if trusted_headings else 1.0,
+        "code_commit": code_commit, "slurm_job_id": slurm_job_id,
         "packet_content_sha256": canonical_json_sha256(packet),
         "provenance_content_sha256": canonical_json_sha256(provenance_value),
     }
@@ -325,6 +326,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     inventory.add_argument("--packet-out", type=Path, required=True)
     inventory.add_argument("--provenance-out", type=Path, required=True)
     inventory.add_argument("--receipt-out", type=Path, required=True)
+    inventory.add_argument("--code-commit", required=True)
+    inventory.add_argument("--slurm-job-id", required=True)
     run = sub.add_parser("run")
     run.add_argument("--packet", required=True)
     run.add_argument("--pass-id", choices=("pass-a", "pass-b"), required=True)
@@ -354,6 +357,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         packet, provenance, receipt = build_inventory(
             source_path=args.source.resolve(), base_table_dir=args.base_table_dir.resolve(),
             entry_oof_path=args.entry_oof.resolve(), overlay_path=args.overlay.resolve(), split=args.split,
+            code_commit=args.code_commit, slurm_job_id=args.slurm_job_id,
         )
         _write_json_new(args.packet_out.resolve(), packet)
         _write_json_new(args.provenance_out.resolve(), provenance)

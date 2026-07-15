@@ -509,8 +509,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     _write_json_new(output / "receipt.json", {
         **report,
         "outputs": {
-            path.name: {"bytes": path.stat().st_size, "sha256": sha256_file(path)}
-            for path in sorted(output.iterdir()) if path.is_file()
+            str(path.relative_to(output)): {
+                "bytes": path.stat().st_size, "sha256": sha256_file(path),
+            }
+            for path in sorted(output.rglob("*")) if path.is_file()
         },
     })
     return report

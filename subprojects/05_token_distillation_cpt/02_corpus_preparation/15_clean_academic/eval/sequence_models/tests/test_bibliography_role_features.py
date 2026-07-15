@@ -82,6 +82,20 @@ def test_candidate_edge_distance_is_local_to_the_contiguous_window() -> None:
     assert row.values[edge_index] == 1
 
 
+def test_connector_context_does_not_cross_a_physical_gap() -> None:
+    counts = np.zeros((2, len(FEATURE_NAMES)), dtype=np.uint32)
+    gaps = np.zeros((2, len(GAP_SUMMARY_NAMES)), dtype=np.float32)
+    row = connector_feature_row(
+        index=1, texts=["Smith J. 2020.", "ordinary line"], counts=counts,
+        gap_summaries=gaps, abs_indices=np.asarray([0, 100], dtype=np.uint32),
+        entry_probability=np.asarray([0.9, 0.0], dtype=np.float32),
+        heading_probability=np.zeros((2, len(HEADING_PROBABILITY_NAMES)), dtype=np.float32),
+        candidate_mask=np.ones(2, dtype=bool), score_counts=lambda _: 0.0,
+    )
+    above_index = connector_feature_names().index("entry_above_r1_max")
+    assert row.values[above_index] == 0
+
+
 def test_p0d_transform_is_presence_plus_log_counts() -> None:
     counts = np.zeros((2, len(FEATURE_NAMES)), dtype=np.uint32)
     counts[1, 0] = 3
