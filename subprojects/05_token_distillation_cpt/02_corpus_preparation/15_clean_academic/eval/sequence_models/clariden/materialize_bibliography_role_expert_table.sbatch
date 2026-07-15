@@ -35,10 +35,12 @@ if [[ "$COMMAND" == heading ]]; then
       --inventory-provenance "$INVENTORY_PROVENANCE" --output-dir "$OUTPUT_DIR" \
       --code-commit "$EXPECTED_COMMIT" --slurm-job-id "$SLURM_JOB_ID"
 else
+  PY_DEPS=${PY_DEPS:?set pinned scikit-learn dependency root}
+  [[ -d "$PY_DEPS" && -f "$PY_DEPS/sklearn/__init__.py" && ! -L "$PY_DEPS" ]] || exit 92
   POSITIONAL_TABLE_DIR=${POSITIONAL_TABLE_DIR:?set positional table}
   ENTRY_OOF_DIR=${ENTRY_OOF_DIR:?set frozen P0D result root}
   HEADING_OOF_DIR=${HEADING_OOF_DIR:?set heading OOF result root}
-  uenv run "$UENV" --view=default -- env PYTHONPATH="$CODE_ROOT" \
+  uenv run "$UENV" --view=default -- env PYTHONPATH="$PY_DEPS:$CODE_ROOT" \
     python3 -m sequence_models.bibliography_role_tables connector \
       --source "$SOURCE" --base-table-dir "$BASE_TABLE_DIR" --overlay "$OVERLAY" \
       --heading-overlay "$HEADING_OVERLAY" --positional-table-dir "$POSITIONAL_TABLE_DIR" \
