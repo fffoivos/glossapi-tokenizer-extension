@@ -109,6 +109,17 @@ def test_config_locks_all_eighteen_source_adapters_and_schema() -> None:
     assert config["pins"]["glossapi_bundle"].endswith("glossapi-a2aace04fbae.bundle")
 
 
+def test_clariden_wrapper_isolates_venv_and_setup_avoids_unused_glossapi_extras() -> None:
+    slurm = ROOT / "slurm" / "agent1_v5_eiger"
+    for name in ("clariden_debug_stage.sh", "clariden_debug_bundle.sh"):
+        wrapper = (slurm / name).read_text(encoding="utf-8")
+        assert "env -u PYTHONPATH -u PYTHONHOME" in wrapper
+    setup = (slurm / "stage.sh").read_text(encoding="utf-8")
+    assert 'pip install --no-deps -e "${GLOSSAPI_ROOT}"' not in setup
+    assert '"${GLOSSAPI_ROOT}/rust/glossapi_rs_cleaner"' in setup
+    assert '"${GLOSSAPI_ROOT}/rust/glossapi_rs_noise"' in setup
+
+
 def test_nested_source_mapping_extracts_fields_and_keeps_remaining_metadata() -> None:
     config = pipeline.load_config(ROOT / "configs" / "agent1_v5_eiger_pipeline.json")
     mapping = config["sources"]["diavgeia"]

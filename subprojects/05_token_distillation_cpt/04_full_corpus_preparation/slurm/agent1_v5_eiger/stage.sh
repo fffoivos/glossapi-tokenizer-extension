@@ -49,7 +49,9 @@ case "${STAGE}" in
     "${PYTHON}" -m pip install --upgrade pip
     "${PYTHON}" -m pip install -r "${PIPELINE_ROOT}/configs/agent1_v5_requirements.txt"
     "${PYTHON}" -m pip install --no-deps -e "${DATATROVE_ROOT}"
-    "${PYTHON}" -m pip install --no-deps -e "${GLOSSAPI_ROOT}"
+    # The pipeline imports the pinned GlossAPI source tree directly. Installing
+    # the full package would pull unrelated OCR/PDF/web dependencies that these
+    # two Rust-backed cleaning stages never import.
     "${PYTHON}" -m pip install -e "${GLOSSAPI_ROOT}/rust/glossapi_rs_cleaner"
     "${PYTHON}" -m pip install -e "${GLOSSAPI_ROOT}/rust/glossapi_rs_noise"
     "${PYTHON}" -m pip check
