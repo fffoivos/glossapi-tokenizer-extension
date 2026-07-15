@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import hashlib
 import json
 import math
 import os
@@ -38,6 +39,14 @@ def read_object(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"{path}: expected JSON object")
     return value
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def write_atomic(path: Path, value: Mapping[str, Any]) -> None:
@@ -128,7 +137,6 @@ class Submitter:
     def __init__(self, args: argparse.Namespace, config: Mapping[str, Any]):
         self.args = args
         self.config = config
-        self.jobs: dict[str, dict[str, Any]] = {}
         cluster = str(config["execution"]["cluster"])
         if cluster == "clariden":
             self.stage_script = args.pipeline_root / "slurm" / "agent1_v5_eiger" / "clariden_debug_stage.sh"
@@ -143,7 +151,35 @@ class Submitter:
         self.glossapi_root = self.runtime_root / "glossapi"
         self.datatrove_root = self.runtime_root / "datatrove"
         self.state_path = self.coord_root / "submission_state.json"
+        self.bindings = {
+            "pipeline_root": str(args.pipeline_root),
+            "config_path": str(args.config),
+            "config_sha256": sha256_file(args.config),
+            "acquisition_receipt_path": str(args.acquisition_receipt),
+            "acquisition_receipt_sha256": sha256_file(args.acquisition_receipt),
+            "account": str(args.account or ""),
+        }
         self.log_root.mkdir(parents=True, exist_ok=True, mode=0o700)
+        if args.resume:
+            state = read_object(self.state_path)
+            if state.get("run_id") != args.run_id:
+                raise ValueError("resume state run_id does not match the requested run")
+            if Path(str(state.get("run_root", ""))).resolve() != args.run_root:
+                raise ValueError("resume state run_root does not match the requested run")
+            if state.get("bindings") != self.bindings:
+                raise ValueError("resume state input bindings do not match the requested run")
+            jobs = state.get("jobs")
+            if not isinstance(jobs, Mapping):
+                raise ValueError("resume state has no jobs mapping")
+            self.jobs = {
+                str(name): dict(row)
+                for name, row in jobs.items()
+                if isinstance(row, Mapping)
+            }
+            if len(self.jobs) != len(jobs):
+                raise ValueError("resume state contains an invalid job record")
+        else:
+            self.jobs: dict[str, dict[str, Any]] = {}
 
     def environment(self, extra: Mapping[str, object] | None = None) -> str:
         values: dict[str, object] = {
@@ -175,6 +211,7 @@ class Submitter:
                 "updated_at": utc_now(),
                 "run_id": self.args.run_id,
                 "run_root": str(self.args.run_root),
+                "bindings": self.bindings,
                 "jobs": self.jobs,
             },
         )
@@ -193,7 +230,21 @@ class Submitter:
         extra: Mapping[str, object] | None = None,
     ) -> str:
         if name in self.jobs:
-            return str(self.jobs[name]["job_id"])
+            prior = self.jobs[name]
+            expected = {
+                "stage": stage,
+                "partition": partition,
+                "walltime": walltime,
+                "dependency": list(dependency),
+                "array": array,
+            }
+            observed = {key: prior.get(key) for key in expected}
+            if observed != expected:
+                raise ValueError(
+                    f"resume job definition mismatch for {name}: "
+                    f"expected {expected}, observed {observed}"
+                )
+            return str(prior["job_id"])
         sbatch = [
             "sbatch",
             "--parsable",
@@ -276,9 +327,9 @@ def submit_dag(args: argparse.Namespace) -> dict[str, Any]:
     compute_partition = str(execution["production_partition"])
     transfer_partition = str(execution["transfer_partition"])
     maximum_walltime = str(execution["max_walltime"])
-    if submitter.state_path.exists():
+    if submitter.state_path.exists() and not args.resume:
         raise FileExistsError(
-            f"submission state already exists: {submitter.state_path}; use --monitor-state"
+            f"submission state already exists: {submitter.state_path}; use --resume"
         )
     setup = submitter.submit("setup", "setup", partition=compute_partition, walltime=maximum_walltime, cpus=32)
     wait_for_jobs([setup], args.poll_seconds)
@@ -448,6 +499,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--hf-token-file", type=Path)
     parser.add_argument("--account", default=None)
     parser.add_argument("--poll-seconds", type=int, default=60)
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="resume the receipt-bound DAG from its persisted submission state",
+    )
     parser.add_argument("--monitor", action="store_true")
     parser.add_argument("--monitor-state", type=Path)
     args = parser.parse_args(argv)
@@ -462,7 +518,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     args.acquisition_receipt = args.acquisition_receipt.resolve()
     args.run_root = args.run_root.resolve()
     args.hf_token_file = args.hf_token_file.resolve()
-    if args.run_root.exists():
+    state_path = args.run_root.parent / f".{args.run_id}.coord" / "submission_state.json"
+    if args.resume and not state_path.is_file():
+        parser.error(f"resume state does not exist: {state_path}")
+    if args.run_root.exists() and not args.resume:
         parser.error(f"run root must not exist: {args.run_root}")
     if not args.hf_token_file.is_file() or (args.hf_token_file.stat().st_mode & 0o077):
         parser.error("Hugging Face token file must exist and be mode 600")

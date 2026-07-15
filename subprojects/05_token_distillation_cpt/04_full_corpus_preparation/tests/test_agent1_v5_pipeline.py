@@ -135,6 +135,71 @@ def test_debug_bundle_batches_preserve_task_width_and_qos_limit() -> None:
     assert submitter.bundle_batches(3, 8, 2) == [(0, 0)]
 
 
+def test_submitter_resume_reuses_only_matching_persisted_jobs(tmp_path: Path) -> None:
+    run_root = (tmp_path / "run").resolve()
+    pipeline_root = tmp_path / "pipeline"
+    config_path = tmp_path / "config.json"
+    acquisition_receipt = tmp_path / "acquisition.json"
+    write_json(config_path, {"execution": {"cluster": "clariden"}})
+    write_json(acquisition_receipt, {"status": "passed"})
+    bindings = {
+        "pipeline_root": str(pipeline_root),
+        "config_path": str(config_path),
+        "config_sha256": submitter.sha256_file(config_path),
+        "acquisition_receipt_path": str(acquisition_receipt),
+        "acquisition_receipt_sha256": submitter.sha256_file(acquisition_receipt),
+        "account": "a0140",
+    }
+    state_path = tmp_path / ".resume-test.coord" / "submission_state.json"
+    write_json(
+        state_path,
+        {
+            "schema_version": "agent1_v5_eiger_submission_state_v1",
+            "run_id": "resume-test",
+            "run_root": str(run_root),
+            "bindings": bindings,
+            "jobs": {
+                "setup": {
+                    "job_id": "12345",
+                    "stage": "setup",
+                    "partition": "debug",
+                    "walltime": "01:25:00",
+                    "dependency": [],
+                    "array": None,
+                }
+            },
+        },
+    )
+    args = argparse.Namespace(
+        pipeline_root=pipeline_root,
+        config=config_path,
+        acquisition_receipt=acquisition_receipt,
+        run_root=run_root,
+        run_id="resume-test",
+        resume=True,
+        account="a0140",
+    )
+    config = {"execution": {"cluster": "clariden"}}
+    resumed = submitter.Submitter(args, config)
+    assert resumed.jobs["setup"]["job_id"] == "12345"
+    assert resumed.submit(
+        "setup",
+        "setup",
+        partition="debug",
+        walltime="01:25:00",
+    ) == "12345"
+
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state["run_id"] = "different-run"
+    write_json(state_path, state)
+    try:
+        submitter.Submitter(args, config)
+    except ValueError as error:
+        assert "run_id" in str(error)
+    else:  # pragma: no cover
+        raise AssertionError("mismatched resume state was accepted")
+
+
 def test_bundle_runs_every_task_and_propagates_child_failure(tmp_path: Path) -> None:
     pipeline_root = tmp_path / "pipeline"
     stage = pipeline_root / "slurm" / "agent1_v5_eiger" / "stage.sh"
