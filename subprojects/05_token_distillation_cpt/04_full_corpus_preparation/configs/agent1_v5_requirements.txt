@@ -1,0 +1,15 @@
+# Direct Python runtime pins for the Eiger x86_64 environment.
+numpy==2.2.6
+pyarrow==20.0.0
+spacy==3.8.7
+huggingface-hub==0.36.0
+maturin==1.9.4
+regex==2024.11.6
+tokenizers==0.21.2
+click==8.2.1
+dill==0.4.0
+fsspec==2025.5.1
+humanize==4.12.3
+loguru==0.7.3
+multiprocess==0.70.18
+tqdm==4.67.1

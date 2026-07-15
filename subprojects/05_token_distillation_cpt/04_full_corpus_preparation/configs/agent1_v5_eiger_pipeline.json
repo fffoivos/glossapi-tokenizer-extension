@@ -1,0 +1,196 @@
+{
+  "schema_version": "agent1_v5_eiger_pipeline_config_v1",
+  "execution": {
+    "cluster": "eiger",
+    "account": "a0140",
+    "canary_partitions": ["debug", "prepost"],
+    "production_partition": "normal",
+    "transfer_partition": "xfer",
+    "max_walltime": "23:30:00",
+    "target_task_bytes": 268435456,
+    "transform_batch_rows": 256,
+    "glossapi_batch_rows": 256,
+    "max_transient_retries": 2,
+    "jaccard_verifier_tasks": 128,
+    "max_array_parallelism": 128
+  },
+  "pins": {
+    "nanochat_repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+    "nanochat_revision": "e1d54136a880ed1df2ed95a5445dabd230453207",
+    "glossapi_commit": "a2aace04fbae61ed58931be1a1237a52d1b8ddb3",
+    "datatrove_version": "0.9.0",
+    "datatrove_commit": "87f7bad5c4a56ec648265fbf0b91d7d226bad428"
+  },
+  "release": {
+    "owner": "fffoivos",
+    "pre_dedup_name_prefix": "greek-nanochat-plus-new-pre-dedup",
+    "dedup_name_prefix": "greek-nanochat-plus-new-dedup",
+    "private_only": true,
+    "license_override": {
+      "approved_by": "Foivos Karounos-Zamparloukos",
+      "approved_at": "2026-07-15",
+      "scope": "All 18 configured candidate sources may be included in these two private, versioned Hugging Face releases only.",
+      "does_not_modify_general_license_policy": true
+    }
+  },
+  "dedup": {
+    "library": "huggingface-datatrove",
+    "language": "ell_Grek",
+    "preserve_greek_diacritics": true,
+    "shingle_size": 5,
+    "num_permutations": 128,
+    "num_buckets": 32,
+    "hashes_per_bucket": 4,
+    "seed": 1,
+    "hash_precision": 64,
+    "verified_jaccard_threshold": 0.85,
+    "max_bucket_documents": 5000,
+    "protected_source_id": "nanochat_base"
+  },
+  "sources": {
+    "diavgeia": {
+      "repo_id": "glossAPI/diavgeia",
+      "revision": "ce873e49bfd8068bcf2d8692b1eb176b523ab193",
+      "text_path": "markdown_text",
+      "title_path": "metadata_json.subject",
+      "author_path": null,
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["id"]}
+    },
+    "amna_press": {
+      "repo_id": "glossAPI/amna-press",
+      "revision": "25f0da0935ea3f972386e080070109d0e6b42f56",
+      "text_path": "text_markdown",
+      "title_path": "title",
+      "author_path": "author",
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["id"]}
+    },
+    "psepheda": {
+      "repo_id": "glossAPI/psepheda",
+      "revision": "fba42b5e0ee030c15f337b926527acc98693641b",
+      "text_path": "content",
+      "title_path": "title",
+      "author_path": "creator",
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["handle_url", "pdf_url"]}
+    },
+    "elocus": {
+      "repo_id": "glossAPI/elocus",
+      "revision": "2a3c659924453661578ca2d29aa801b48365263b",
+      "text_path": "content",
+      "title_path": "title",
+      "author_path": "author",
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["url", "pdf_url"]}
+    },
+    "libduth": {
+      "repo_id": "glossAPI/libduth",
+      "revision": "359623de339aa7bca01cc707620ec763dfb3ab8e",
+      "text_path": "content",
+      "title_path": "title",
+      "author_path": "author",
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["url", "pdf_url"]}
+    },
+    "libiep": {
+      "repo_id": "glossAPI/libiep",
+      "revision": "aeb7ecda4a9d9906c065771cf98ba24c6d2ed39a",
+      "text_path": "content",
+      "title_path": "title",
+      "author_path": "author",
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["url", "pdf_url"]}
+    },
+    "ecclesia": {
+      "repo_id": "glossAPI/ecclesia",
+      "revision": "f07fcf567e723bc3dbaf5f1fef81eb80eec05c1b",
+      "text_path": "content",
+      "title_path": "title",
+      "author_path": null,
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["pdf_url"]}
+    },
+    "archetai": {
+      "repo_id": "glossAPI/archetai",
+      "revision": "bd1901ced177c6eedacafa2afc2399f7f797ddc9",
+      "text_path": "content",
+      "title_path": null,
+      "author_path": null,
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["pdf_url"]}
+    },
+    "eellak_articles": {
+      "repo_id": "glossAPI/eellak-articles",
+      "revision": "59fd681c483e6bdcdabe7c1a1f8685c5eebf7883",
+      "text_path": "content",
+      "title_path": "post_title",
+      "author_path": null,
+      "source_doc_id": {"mode": "join_nonblank", "paths": ["site", "id"]}
+    },
+    "open_council": {
+      "repo_id": "glossAPI/OpenCouncil",
+      "revision": "305a9e102814ca9bcca51b5a36f1cec52152b2e4",
+      "text_path": "full_transcript_text",
+      "title_path": "subject_name",
+      "author_path": null,
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["subject_id"]}
+    },
+    "artos_zois": {
+      "repo_id": "glossAPI/artos-zois",
+      "revision": "97115ecacdb7435c5e529e0cf56c68b0290751b6",
+      "text_path": "content",
+      "title_path": "title",
+      "author_path": null,
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["pdf_url"]}
+    },
+    "e_nautilia": {
+      "repo_id": "glossAPI/e-nautilia",
+      "revision": "5c8cbbb80976a3fa0c6f59e1cecb7d1bb86ed352",
+      "text_path": "content",
+      "title_path": "title",
+      "author_path": null,
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["pdf_url"]}
+    },
+    "national_theatre_press": {
+      "repo_id": "glossAPI/greek-national-theatre-corpus",
+      "revision": "a4debd3ca0e0cde06c49b7633158a2a88c0b6eb5",
+      "text_path": "content",
+      "title_path": "title",
+      "author_path": "author",
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["id"]}
+    },
+    "heinrich_boell_publications": {
+      "repo_id": "glossAPI/heinrich_boell_stiftung",
+      "revision": "e222522ba0ea00d819344f70a640d58522d55af5",
+      "text_path": "content",
+      "title_path": "title",
+      "author_path": null,
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["document_id", "sha256"]}
+    },
+    "new_sociology": {
+      "repo_id": "glossAPI/new-sociology",
+      "revision": "db183139ea0826a2dfb197c6259cbdf26f314376",
+      "text_path": "content",
+      "title_path": "title",
+      "author_path": null,
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["download_link"]}
+    },
+    "istorima": {
+      "repo_id": "glossAPI/istorima",
+      "revision": "0f3f32db50235b0e42e130983e6a06c709835e16",
+      "text_path": "transcription",
+      "title_path": "title",
+      "author_path": null,
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["id"]}
+    },
+    "modern_greek_dictionary": {
+      "repo_id": "glossAPI/modern-greek-dictionary",
+      "revision": "bafabdb324584e562a0d1352be1befc3cf538df4",
+      "text_path": "entry_text",
+      "title_path": "lemma",
+      "author_path": null,
+      "source_doc_id": {"mode": "join_nonblank", "paths": ["source_url", "lemma"]}
+    },
+    "ert_press": {
+      "repo_id": "glossAPI/ert-press",
+      "revision": "fb4d3c957deaad38d3a037c3c69e615aa5464f14",
+      "text_path": "text",
+      "title_path": "title",
+      "author_path": null,
+      "source_doc_id": {"mode": "first_nonblank", "paths": ["url"]}
+    }
+  }
+}

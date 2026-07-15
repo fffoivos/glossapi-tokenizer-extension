@@ -1,0 +1,432 @@
+#!/usr/bin/env python3
+"""Submit and babysit the receipt-bound Agent-1 v5 Eiger CPU DAG."""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import math
+import os
+import subprocess
+import time
+from pathlib import Path
+from typing import Any, Mapping, Sequence
+
+
+TERMINAL_SUCCESS = {"COMPLETED"}
+TERMINAL_FAILURE = {
+    "BOOT_FAIL",
+    "CANCELLED",
+    "DEADLINE",
+    "FAILED",
+    "NODE_FAIL",
+    "OUT_OF_MEMORY",
+    "PREEMPTED",
+    "REVOKED",
+    "SPECIAL_EXIT",
+    "TIMEOUT",
+}
+
+
+def utc_now() -> str:
+    return dt.datetime.now(dt.timezone.utc).isoformat()
+
+
+def read_object(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict):
+        raise ValueError(f"{path}: expected JSON object")
+    return value
+
+
+def write_atomic(path: Path, value: Mapping[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    temporary = path.with_name(f".{path.name}.partial-{os.getpid()}")
+    temporary.write_text(json.dumps(value, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    os.chmod(temporary, 0o600)
+    temporary.replace(path)
+
+
+def command_output(*command: str) -> str:
+    return subprocess.run(
+        command,
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    ).stdout.strip()
+
+
+def root_job_state(job_id: str) -> tuple[str, str]:
+    output = command_output(
+        "sacct",
+        "-j",
+        job_id,
+        "--noheader",
+        "--parsable2",
+        "--format=JobIDRaw,State,ExitCode",
+    )
+    for line in output.splitlines():
+        fields = line.split("|")
+        if fields and fields[0] == job_id:
+            return fields[1].split()[0].split("+")[0], fields[2]
+    queued = subprocess.run(
+        ["squeue", "-h", "-j", job_id, "-o", "%T"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        check=False,
+    ).stdout.strip()
+    return (queued.splitlines()[0] if queued else "UNKNOWN"), ""
+
+
+def wait_for_jobs(job_ids: Sequence[str], poll_seconds: int) -> dict[str, tuple[str, str]]:
+    pending = set(job_ids)
+    final: dict[str, tuple[str, str]] = {}
+    last_summary = None
+    while pending:
+        current = {}
+        for job_id in sorted(pending, key=int):
+            state, exit_code = root_job_state(job_id)
+            current[job_id] = state
+            if state in TERMINAL_SUCCESS | TERMINAL_FAILURE:
+                final[job_id] = (state, exit_code)
+        summary = tuple(sorted(Counter(current.values()).items()))
+        if summary != last_summary:
+            print(json.dumps({"at": utc_now(), "states": dict(summary)}, sort_keys=True), flush=True)
+            last_summary = summary
+        failures = {job: final[job] for job in final if final[job][0] in TERMINAL_FAILURE}
+        if failures:
+            raise RuntimeError(f"Slurm DAG failed: {failures}")
+        pending -= set(final)
+        if pending:
+            time.sleep(poll_seconds)
+    return final
+
+
+from collections import Counter  # noqa: E402  (kept by state reporter)
+
+
+class Submitter:
+    def __init__(self, args: argparse.Namespace, config: Mapping[str, Any]):
+        self.args = args
+        self.config = config
+        self.jobs: dict[str, dict[str, Any]] = {}
+        self.stage_script = args.pipeline_root / "slurm" / "agent1_v5_eiger" / "stage.sh"
+        self.bundle_script = args.pipeline_root / "slurm" / "agent1_v5_eiger" / "bundle.sh"
+        self.coord_root = args.run_root.parent / f".{args.run_id}.coord"
+        self.log_root = self.coord_root / "slurm"
+        self.runtime_root = self.coord_root / "runtime"
+        self.venv_root = self.runtime_root / "venv"
+        self.glossapi_root = self.runtime_root / "glossapi"
+        self.datatrove_root = self.runtime_root / "datatrove"
+        self.state_path = self.coord_root / "submission_state.json"
+        self.log_root.mkdir(parents=True, exist_ok=True, mode=0o700)
+
+    def environment(self, extra: Mapping[str, object] | None = None) -> str:
+        values: dict[str, object] = {
+            "PIPELINE_ROOT": self.args.pipeline_root,
+            "RUN_ROOT": self.args.run_root,
+            "RUN_ID": self.args.run_id,
+            "CONFIG": self.args.config,
+            "ACQUISITION_RECEIPT": self.args.acquisition_receipt,
+            "RUNTIME_ROOT": self.runtime_root,
+            "VENV_ROOT": self.venv_root,
+            "GLOSSAPI_ROOT": self.glossapi_root,
+            "DATATROVE_ROOT": self.datatrove_root,
+            "HF_TOKEN_FILE": self.args.hf_token_file,
+            "SCRATCH_ROOT": self.args.run_root / "task-scratch",
+        }
+        if extra:
+            values.update(extra)
+        for key, value in values.items():
+            if "," in str(value) or "\n" in str(value):
+                raise ValueError(f"unsafe Slurm export value for {key}")
+        return "ALL," + ",".join(f"{key}={value}" for key, value in values.items())
+
+    def persist(self) -> None:
+        write_atomic(
+            self.state_path,
+            {
+                "schema_version": "agent1_v5_eiger_submission_state_v1",
+                "updated_at": utc_now(),
+                "run_id": self.args.run_id,
+                "run_root": str(self.args.run_root),
+                "jobs": self.jobs,
+            },
+        )
+
+    def submit(
+        self,
+        name: str,
+        stage: str,
+        *,
+        partition: str,
+        walltime: str,
+        dependency: Sequence[str] = (),
+        cpus: int = 8,
+        array: str | None = None,
+        command: Path | None = None,
+        extra: Mapping[str, object] | None = None,
+    ) -> str:
+        if name in self.jobs:
+            return str(self.jobs[name]["job_id"])
+        sbatch = [
+            "sbatch",
+            "--parsable",
+            f"--job-name=a1v5-{name}",
+            f"--partition={partition}",
+            f"--time={walltime}",
+            "--nodes=1",
+            "--ntasks=1",
+            f"--cpus-per-task={cpus}",
+            f"--output={self.log_root}/%x-%A_%a.out",
+            f"--error={self.log_root}/%x-%A_%a.err",
+            f"--export={self.environment({'STAGE': stage, **(extra or {})})}",
+        ]
+        account = str(self.args.account or "").strip()
+        if account:
+            sbatch.append(f"--account={account}")
+        if dependency:
+            sbatch.append("--dependency=afterok:" + ":".join(dependency))
+        if array:
+            sbatch.append(f"--array={array}")
+        sbatch.append(str(command or self.stage_script))
+        job_id = command_output(*sbatch).split(";", 1)[0]
+        self.jobs[name] = {
+            "job_id": job_id,
+            "stage": stage,
+            "partition": partition,
+            "walltime": walltime,
+            "dependency": list(dependency),
+            "array": array,
+        }
+        self.persist()
+        print(json.dumps({"submitted": name, "job_id": job_id}, sort_keys=True), flush=True)
+        return job_id
+
+    def bundled(
+        self,
+        name: str,
+        stage: str,
+        task_count: int,
+        tasks_per_node: int,
+        dependency: Sequence[str],
+        *,
+        partition: str = "normal",
+        walltime: str = "23:30:00",
+        max_parallel_nodes: int | None = None,
+        extra: Mapping[str, object] | None = None,
+    ) -> str:
+        bundles = math.ceil(task_count / tasks_per_node)
+        if bundles <= 0:
+            raise ValueError(f"{stage}: no tasks")
+        maximum = max_parallel_nodes or int(self.config["execution"]["max_array_parallelism"])
+        return self.submit(
+            name,
+            stage,
+            partition=partition,
+            walltime=walltime,
+            dependency=dependency,
+            cpus=128,
+            array=f"0-{bundles - 1}%{min(bundles, maximum)}",
+            command=self.bundle_script,
+            extra={"TASK_COUNT": task_count, "TASKS_PER_NODE": tasks_per_node, **(extra or {})},
+        )
+
+
+def submit_dag(args: argparse.Namespace) -> dict[str, Any]:
+    config = read_object(args.config)
+    submitter = Submitter(args, config)
+    if submitter.state_path.exists():
+        raise FileExistsError(
+            f"submission state already exists: {submitter.state_path}; use --monitor-state"
+        )
+    setup = submitter.submit("setup", "setup", partition="normal", walltime="02:00:00", cpus=32)
+    wait_for_jobs([setup], args.poll_seconds)
+    bootstrap = submitter.submit(
+        "bootstrap",
+        "bootstrap",
+        partition="prepost",
+        walltime="00:30:00",
+        dependency=[setup],
+        cpus=8,
+    )
+    wait_for_jobs([bootstrap], args.poll_seconds)
+    transform_tasks = int(read_object(args.run_root / "transform_tasks.json")["task_count"])
+    base_tasks = int(read_object(args.run_root / "base_tasks.json")["task_count"])
+    combined_tasks = transform_tasks + base_tasks
+    verifier_tasks = int(config["execution"]["jaccard_verifier_tasks"])
+    bucket_tasks = int(config["dedup"]["num_buckets"])
+
+    transform_canary = submitter.submit(
+        "transform-canary", "transform", partition="debug", walltime="00:30:00", dependency=[bootstrap], extra={"TASK_INDEX": 0}
+    )
+    transform = submitter.bundled("transform", "transform", transform_tasks, 32, [transform_canary])
+    merge_transform = submitter.submit(
+        "merge-transform", "merge-transform", partition="prepost", walltime="00:30:00", dependency=[transform]
+    )
+    glossapi_canary = submitter.submit(
+        "glossapi-canary", "glossapi", partition="debug", walltime="00:30:00", dependency=[merge_transform], cpus=16, extra={"TASK_INDEX": 0, "GLOSSAPI_THREADS": 8}
+    )
+    glossapi = submitter.bundled("glossapi", "glossapi", transform_tasks, 8, [glossapi_canary])
+    merge_glossapi = submitter.submit(
+        "merge-glossapi", "merge-glossapi", partition="prepost", walltime="00:30:00", dependency=[glossapi]
+    )
+    envelope_plan = submitter.submit(
+        "plan-envelope", "plan-envelope", partition="normal", walltime="04:00:00", dependency=[merge_glossapi], cpus=16
+    )
+    envelope = submitter.bundled("envelope", "envelope", transform_tasks, 16, [envelope_plan])
+    merge_envelope = submitter.submit(
+        "merge-envelope", "merge-envelope", partition="prepost", walltime="00:30:00", dependency=[envelope]
+    )
+
+    base_canary = submitter.submit(
+        "base-canary", "base", partition="debug", walltime="00:30:00", dependency=[bootstrap], extra={"TASK_INDEX": 0}
+    )
+    base = submitter.bundled("base", "base", base_tasks, 16, [base_canary])
+    merge_base = submitter.submit(
+        "merge-base", "merge-base", partition="prepost", walltime="00:30:00", dependency=[base]
+    )
+    combine = submitter.submit(
+        "combine", "combine", partition="prepost", walltime="00:30:00", dependency=[merge_envelope, merge_base]
+    )
+    publish_pre = submitter.submit(
+        "publish-pre", "publish-pre", partition="xfer", walltime="23:30:00", dependency=[combine], cpus=8
+    )
+
+    exact_canary = submitter.submit(
+        "exact-canary", "exact-index", partition="debug", walltime="00:30:00", dependency=[publish_pre], extra={"TASK_INDEX": 0}
+    )
+    exact = submitter.bundled("exact", "exact-index", combined_tasks, 16, [exact_canary])
+    merge_exact = submitter.submit(
+        "merge-exact", "merge-exact", partition="prepost", walltime="00:30:00", dependency=[exact]
+    )
+    signature_canary = submitter.submit(
+        "signature-canary", "signature", partition="debug", walltime="00:30:00", dependency=[publish_pre], cpus=16, extra={"TASK_INDEX": 0}
+    )
+    signature = submitter.bundled("signature", "signature", combined_tasks, 8, [signature_canary])
+    merge_signatures = submitter.submit(
+        "merge-signatures", "merge-signatures", partition="prepost", walltime="00:30:00", dependency=[signature]
+    )
+    bucket_canary = submitter.submit(
+        "bucket-canary", "bucket", partition="debug", walltime="00:30:00", dependency=[merge_signatures], cpus=32, extra={"TASK_INDEX": 0}
+    )
+    buckets = submitter.bundled("buckets", "bucket", bucket_tasks, 1, [bucket_canary], max_parallel_nodes=32)
+    pairs = submitter.submit(
+        "merge-pairs", "merge-pairs", partition="normal", walltime="23:30:00", dependency=[buckets], cpus=32
+    )
+    shingles = submitter.bundled("shingles", "shingles", combined_tasks, 8, [pairs])
+    merge_shingles = submitter.submit(
+        "merge-shingles", "merge-shingles", partition="prepost", walltime="00:30:00", dependency=[shingles]
+    )
+    verify_canary = submitter.submit(
+        "verify-canary", "verify", partition="debug", walltime="00:30:00", dependency=[merge_shingles], cpus=32, extra={"TASK_INDEX": 0, "VERIFY_TASKS": verifier_tasks}
+    )
+    verify = submitter.bundled(
+        "verify",
+        "verify",
+        verifier_tasks,
+        32,
+        [verify_canary],
+        max_parallel_nodes=128,
+        extra={"VERIFY_TASKS": verifier_tasks},
+    )
+    merge_verified = submitter.submit(
+        "merge-verified", "merge-verified", partition="prepost", walltime="00:30:00", dependency=[verify], extra={"VERIFY_TASKS": verifier_tasks}
+    )
+    cluster = submitter.submit(
+        "cluster", "cluster", partition="normal", walltime="23:30:00", dependency=[merge_exact, merge_verified], cpus=64
+    )
+    filter_job = submitter.bundled("filter", "filter", combined_tasks, 16, [cluster])
+    merge_filtered = submitter.submit(
+        "merge-filtered", "merge-filtered", partition="prepost", walltime="00:30:00", dependency=[filter_job]
+    )
+    publish_dedup = submitter.submit(
+        "publish-dedup", "publish-dedup", partition="xfer", walltime="23:30:00", dependency=[merge_filtered], cpus=8
+    )
+    submitter.persist()
+    graph_path = args.run_root / "slurm_job_graph.json"
+    write_atomic(
+        graph_path,
+        {
+            "schema_version": "agent1_v5_eiger_job_graph_v1",
+            "status": "submitted",
+            "created_at": utc_now(),
+            "run_id": args.run_id,
+            "counts": {
+                "transform_tasks": transform_tasks,
+                "base_tasks": base_tasks,
+                "combined_tasks": combined_tasks,
+                "bucket_tasks": bucket_tasks,
+                "verifier_tasks": verifier_tasks,
+            },
+            "jobs": submitter.jobs,
+            "terminal_job_id": publish_dedup,
+        },
+    )
+    return read_object(graph_path)
+
+
+def monitor_state(state_path: Path, poll_seconds: int) -> dict[str, tuple[str, str]]:
+    state = read_object(state_path)
+    jobs = state.get("jobs")
+    if not isinstance(jobs, Mapping) or not jobs:
+        raise ValueError("submission state has no jobs")
+    return wait_for_jobs([str(row["job_id"]) for row in jobs.values()], poll_seconds)
+
+
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--pipeline-root", type=Path)
+    parser.add_argument("--config", type=Path)
+    parser.add_argument("--acquisition-receipt", type=Path)
+    parser.add_argument("--run-root", type=Path)
+    parser.add_argument("--run-id")
+    parser.add_argument("--hf-token-file", type=Path)
+    parser.add_argument("--account", default=None)
+    parser.add_argument("--poll-seconds", type=int, default=60)
+    parser.add_argument("--monitor", action="store_true")
+    parser.add_argument("--monitor-state", type=Path)
+    args = parser.parse_args(argv)
+    if args.monitor_state:
+        return args
+    required = ("pipeline_root", "config", "acquisition_receipt", "run_root", "run_id", "hf_token_file")
+    missing = [name for name in required if getattr(args, name) is None]
+    if missing:
+        parser.error(f"submission requires: {', '.join(missing)}")
+    args.pipeline_root = args.pipeline_root.resolve()
+    args.config = args.config.resolve()
+    args.acquisition_receipt = args.acquisition_receipt.resolve()
+    args.run_root = args.run_root.resolve()
+    args.hf_token_file = args.hf_token_file.resolve()
+    if args.run_root.exists():
+        parser.error(f"run root must not exist: {args.run_root}")
+    if not args.hf_token_file.is_file() or (args.hf_token_file.stat().st_mode & 0o077):
+        parser.error("Hugging Face token file must exist and be mode 600")
+    if args.account is None:
+        args.account = read_object(args.config)["execution"].get("account")
+    return args
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = parse_args(argv)
+    if args.monitor_state:
+        final = monitor_state(args.monitor_state.resolve(), args.poll_seconds)
+        print(json.dumps({"ok": True, "final": final}, sort_keys=True))
+        return 0
+    graph = submit_dag(args)
+    if args.monitor:
+        state_path = args.run_root.parent / f".{args.run_id}.coord" / "submission_state.json"
+        final = monitor_state(state_path, args.poll_seconds)
+        graph["status"] = "completed"
+        graph["completed_at"] = utc_now()
+        graph["final_states"] = final
+        write_atomic(args.run_root / "slurm_job_graph.completed.json", graph)
+    print(json.dumps({"ok": True, "jobs": len(graph["jobs"]), "monitor": args.monitor}, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
