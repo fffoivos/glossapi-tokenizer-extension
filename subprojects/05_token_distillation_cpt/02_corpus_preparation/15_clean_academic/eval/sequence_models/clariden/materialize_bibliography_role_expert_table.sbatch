@@ -25,6 +25,7 @@ UENV=${UENV:-pytorch/v2.9.1:v2}
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 90
 trap 'rm -rf "$OUTPUT_DIR"' EXIT
 export CUDA_VISIBLE_DEVICES="" NVIDIA_VISIBLE_DEVICES=void ROCR_VISIBLE_DEVICES="" HIP_VISIBLE_DEVICES=""
+export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 if [[ "$COMMAND" == heading ]]; then
   ENTRY_OOF=${ENTRY_OOF:?set frozen P0D OOF probability}
   INVENTORY_PROVENANCE=${INVENTORY_PROVENANCE:?set heading inventory provenance}
