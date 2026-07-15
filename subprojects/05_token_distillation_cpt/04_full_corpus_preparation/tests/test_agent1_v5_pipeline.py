@@ -277,6 +277,164 @@ def test_bundle_runs_every_task_and_propagates_child_failure(tmp_path: Path) -> 
     ]
 
 
+def test_bundled_stage_requeues_timeout_while_receipts_advance(
+    tmp_path: Path, monkeypatch
+) -> None:
+    instance = object.__new__(submitter.Submitter)
+    instance.args = argparse.Namespace(run_root=tmp_path / "run")
+    instance.config = {
+        "execution": {
+            "production_partition": "debug",
+            "max_walltime": "01:25:00",
+            "max_array_parallelism": 2,
+            "max_transient_retries": 2,
+        }
+    }
+    instance.bundle_script = tmp_path / "bundle.sh"
+    submitted = []
+
+    def fake_submit(self, name, stage, **kwargs):
+        submitted.append((name, stage, kwargs))
+        return str(100 + len(submitted))
+
+    progress = iter([154, 154, 160])
+    monkeypatch.setattr(submitter.Submitter, "submit", fake_submit)
+    monkeypatch.setattr(submitter.Submitter, "checkpoint_progress", lambda self, stage: next(progress))
+    outcomes = iter([False, False, True])
+
+    def fake_wait(job_ids, poll_seconds):
+        if not next(outcomes):
+            raise RuntimeError("timeout")
+        return {job_ids[0]: ("COMPLETED", "0:0")}
+
+    monkeypatch.setattr(submitter, "wait_for_jobs", fake_wait)
+    monkeypatch.setattr(submitter, "root_job_state", lambda job_id: ("TIMEOUT", "0:0"))
+    assert instance.bundled(
+        "transform",
+        "transform",
+        32,
+        32,
+        ["canary"],
+        poll_seconds=1,
+    )[-1] == "103"
+    assert [row[0] for row in submitted] == [
+        "transform-part000",
+        "transform-part000-retry001",
+        "transform-part000-retry002",
+    ]
+
+
+def test_transform_task_checkpoints_and_resumes_without_recleaning(
+    tmp_path: Path, monkeypatch
+) -> None:
+    config = json.loads(
+        (ROOT / "configs" / "agent1_v5_eiger_pipeline.json").read_text(encoding="utf-8")
+    )
+    config["execution"]["transform_batch_rows"] = 2
+    config_path = tmp_path / "config.json"
+    write_json(config_path, config)
+    input_path = tmp_path / "input.parquet"
+    pq.write_table(
+        pa.table(
+            {
+                "id": [f"doc-{index}" for index in range(5)],
+                "markdown_text": [f"κείμενο {index}" for index in range(5)],
+                "metadata_json": [json.dumps({"subject": f"τίτλος {index}"}) for index in range(5)],
+            }
+        ),
+        input_path,
+    )
+    run_root = tmp_path / "run"
+    contract_path = run_root / "run_contract.json"
+    write_json(
+        contract_path,
+        {
+            "schema_version": pipeline.CONTRACT_SCHEMA,
+            "status": "passed",
+            "run_root": str(run_root),
+            "glossapi": {"root": str(tmp_path / "glossapi")},
+        },
+    )
+    task = {
+        "task_index": 0,
+        "source_id": "diavgeia",
+        "repo_id": "glossAPI/diavgeia",
+        "revision": "a" * 40,
+        "artifact_path": "input.parquet",
+        "input_path": str(input_path),
+        "input_expected_hash": pipeline.sha256_file(input_path),
+        "input_hash_kind": "sha256",
+        "row_groups": [0],
+        "row_start": 0,
+        "rows": 5,
+        "uncompressed_bytes": 100,
+    }
+    tasks_path = run_root / "transform_tasks.json"
+    write_json(
+        tasks_path,
+        {
+            "schema_version": pipeline.TASK_MANIFEST_SCHEMA,
+            "task_count": 1,
+            "tasks": [task],
+        },
+    )
+    repetition_path = tmp_path / "repetition.py"
+    repetition_path.write_text("# pinned test module\n", encoding="utf-8")
+
+    class Repetition:
+        @staticmethod
+        def replace_complex_repetitions(text, metrics=None):
+            return text
+
+    monkeypatch.setattr(
+        pipeline.gfm,
+        "_load_repetition_module",
+        lambda root: (Repetition(), repetition_path),
+    )
+    clean_calls = []
+
+    def fake_clean(text, *, repetition_cleaner):
+        clean_calls.append(text)
+        return {
+            "normalized_markdown": text,
+            "repetition_metrics": {
+                "complex_repetition_replacements": 0,
+                "complex_repetition_characters_removed": 0,
+                "complex_repetition_rule_counts": {},
+            },
+            "generated_image_metrics": {
+                "generated_image_artifact_count": 0,
+                "generated_image_characters_removed": 0,
+                "image_description_comments_emitted": 0,
+            },
+            "markup_metrics": {"tag_counts": {}, "transformations": {}},
+        }
+
+    monkeypatch.setattr(pipeline.gfm, "clean_then_normalize_to_gfm", fake_clean)
+    args = argparse.Namespace(
+        config=config_path,
+        contract=contract_path,
+        tasks=tasks_path,
+        task_index=0,
+    )
+    assert pipeline.transform_task(args) == 0
+    assert clean_calls == [f"κείμενο {index}" for index in range(5)]
+    checkpoint_root = run_root / "10-transform" / "checkpoints" / "task-000000"
+    assert len(list(checkpoint_root.glob("part-*.receipt.json"))) == 3
+    output_path = run_root / "10-transform" / "shards" / "task-000000.parquet"
+    receipt_path = run_root / "10-transform" / "receipts" / "task-000000.json"
+    assert pq.read_table(output_path).column("source_row_index").to_pylist() == list(range(5))
+
+    receipt_path.unlink()
+    output_path.unlink()
+    (run_root / "10-transform" / "audits" / "task-000000.jsonl.gz").unlink()
+    (run_root / "10-transform" / "issues" / "task-000000.jsonl.gz").unlink()
+    clean_calls.clear()
+    assert pipeline.transform_task(args) == 0
+    assert clean_calls == []
+    assert pq.read_table(output_path).num_rows == 5
+
+
 def test_nested_source_mapping_extracts_fields_and_keeps_remaining_metadata() -> None:
     config = pipeline.load_config(ROOT / "configs" / "agent1_v5_eiger_pipeline.json")
     mapping = config["sources"]["diavgeia"]

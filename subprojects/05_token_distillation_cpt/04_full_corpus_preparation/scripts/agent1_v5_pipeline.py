@@ -39,6 +39,7 @@ CONFIG_SCHEMA = "agent1_v5_eiger_pipeline_config_v1"
 CONTRACT_SCHEMA = "agent1_v5_run_contract_v1"
 TASK_MANIFEST_SCHEMA = "agent1_v5_transform_task_manifest_v1"
 TRANSFORM_RECEIPT_SCHEMA = "agent1_v5_transform_task_receipt_v1"
+TRANSFORM_CHECKPOINT_RECEIPT_SCHEMA = "agent1_v5_transform_checkpoint_receipt_v1"
 TRANSFORM_MANIFEST_SCHEMA = "agent1_v5_transform_manifest_v1"
 GLOSSAPI_RECEIPT_SCHEMA = "agent1_v5_glossapi_task_receipt_v1"
 GLOSSAPI_MANIFEST_SCHEMA = "agent1_v5_glossapi_manifest_v1"
@@ -613,6 +614,60 @@ def _task_output_paths(run_root: Path, stage: str, task_index: int) -> tuple[Pat
     return directory / "shards" / f"task-{task_index:06d}.parquet", directory / "receipts" / f"task-{task_index:06d}.json"
 
 
+def _transform_checkpoint_paths(
+    run_root: Path, task_index: int, part_index: int
+) -> tuple[Path, Path, Path, Path]:
+    root = run_root / "10-transform" / "checkpoints" / f"task-{task_index:06d}"
+    stem = f"part-{part_index:06d}"
+    return (
+        root / f"{stem}.parquet",
+        root / f"{stem}.audit.jsonl.gz",
+        root / f"{stem}.issues.jsonl.gz",
+        root / f"{stem}.receipt.json",
+    )
+
+
+def _remove_unreceipted_output(path: Path) -> None:
+    """Remove only output files that have no immutable receipt."""
+
+    path.unlink(missing_ok=True)
+    for temporary in path.parent.glob(f".{path.name}.partial-*"):
+        temporary.unlink(missing_ok=True)
+
+
+def _write_jsonl_gzip_atomic(path: Path, rows: Sequence[Mapping[str, Any]]) -> None:
+    path = path.resolve()
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    if path.exists():
+        raise FileExistsError(f"immutable output exists: {path}")
+    temporary = path.with_name(f".{path.name}.partial-{os.getpid()}")
+    try:
+        with gzip.open(temporary, "wt", encoding="utf-8") as handle:
+            for row in rows:
+                handle.write(canonical_json(row) + "\n")
+        temporary.replace(path)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
+def _concatenate_atomic(path: Path, inputs: Sequence[Path]) -> None:
+    path = path.resolve()
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    if path.exists():
+        raise FileExistsError(f"immutable output exists: {path}")
+    temporary = path.with_name(f".{path.name}.partial-{os.getpid()}")
+    try:
+        with temporary.open("wb") as destination:
+            for source in inputs:
+                with source.open("rb") as handle:
+                    shutil.copyfileobj(handle, destination, length=1024 * 1024)
+        temporary.replace(path)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
 def transform_task(args: argparse.Namespace) -> int:
     import pyarrow.parquet as pq
 
@@ -630,129 +685,224 @@ def transform_task(args: argparse.Namespace) -> int:
     repetition, repetition_path = gfm._load_repetition_module(Path(run["glossapi"]["root"]))
     run_root = Path(str(run["run_root"]))
     output, receipt_path = _task_output_paths(run_root, "10-transform", task_index)
+    task_sha256 = sha256_json(task)
     if receipt_path.exists():
         receipt = read_json_object(receipt_path)
-        if receipt.get("schema_version") == TRANSFORM_RECEIPT_SCHEMA:
+        if (
+            receipt.get("schema_version") == TRANSFORM_RECEIPT_SCHEMA
+            and receipt.get("task_sha256") == task_sha256
+        ):
             validate_file_receipt(receipt["output"], root=run_root)
+            validate_file_receipt(receipt["audit"], root=run_root)
+            validate_file_receipt(receipt["issues"], root=run_root)
             print(canonical_json({"ok": True, "reused": True, "task": task_index}))
             return 0
         raise ValueError(f"invalid pre-existing receipt: {receipt_path}")
 
     audit_path = run_root / "10-transform" / "audits" / f"task-{task_index:06d}.jsonl.gz"
     issue_path = run_root / "10-transform" / "issues" / f"task-{task_index:06d}.jsonl.gz"
-    audit_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    issue_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    audit_tmp = audit_path.with_name(f".{audit_path.name}.partial-{os.getpid()}")
-    issue_tmp = issue_path.with_name(f".{issue_path.name}.partial-{os.getpid()}")
+    for incomplete in (output, audit_path, issue_path):
+        _remove_unreceipted_output(incomplete)
+
     parquet = pq.ParquetFile(Path(str(task["input_path"])))
-    counters: Counter[str] = Counter()
+    checkpoint_rows = int(cfg["execution"]["transform_batch_rows"])
+    if checkpoint_rows <= 0:
+        raise ValueError("transform checkpoint size must be positive")
+    run_contract_sha256 = sha256_file(args.contract)
+    implementation = {
+        "pipeline_sha256": sha256_file(Path(__file__).resolve()),
+        "normalizer_sha256": sha256_file(Path(gfm.__file__).resolve()),
+        "repetition_sha256": sha256_file(repetition_path),
+    }
+    checkpoint_receipts: list[dict[str, Any]] = []
+    current_index = int(task["row_start"])
 
-    def rows() -> Iterable[list[dict[str, Any]]]:
+    for part_index, batch in enumerate(
+        parquet.iter_batches(
+            batch_size=checkpoint_rows,
+            row_groups=[int(value) for value in task["row_groups"]],
+        )
+    ):
+        part_input_rows = int(batch.num_rows)
+        part_identity = {
+            "task_sha256": task_sha256,
+            "part_index": part_index,
+            "row_start": current_index,
+            "input_rows": part_input_rows,
+            "run_contract_sha256": run_contract_sha256,
+            **implementation,
+        }
+        part_sha256 = sha256_json(part_identity)
+        part_output, part_audit, part_issues, part_receipt_path = _transform_checkpoint_paths(
+            run_root, task_index, part_index
+        )
+        if part_receipt_path.exists():
+            part_receipt = read_json_object(part_receipt_path)
+            if (
+                part_receipt.get("schema_version") != TRANSFORM_CHECKPOINT_RECEIPT_SCHEMA
+                or part_receipt.get("checkpoint_sha256") != part_sha256
+            ):
+                raise ValueError(f"transform checkpoint drift: {part_receipt_path}")
+            validate_file_receipt(part_receipt["output"], root=run_root)
+            validate_file_receipt(part_receipt["audit"], root=run_root)
+            validate_file_receipt(part_receipt["issues"], root=run_root)
+            checkpoint_receipts.append(part_receipt)
+            current_index += part_input_rows
+            continue
+
+        for incomplete in (part_output, part_audit, part_issues):
+            _remove_unreceipted_output(incomplete)
+        _remove_unreceipted_output(part_receipt_path)
+        part_counters: Counter[str] = Counter()
         output_rows: list[dict[str, Any]] = []
-        current_index = int(task["row_start"])
-        with gzip.open(audit_tmp, "wt", encoding="utf-8") as audit, gzip.open(issue_tmp, "wt", encoding="utf-8") as issues:
-            for row_group in task["row_groups"]:
-                table = parquet.read_row_group(int(row_group))
-                for row in table.to_pylist():
-                    row_index = current_index
-                    current_index += 1
-                    counters["input_rows"] += 1
-                    raw_text = optional_text(read_path(row, mapping["text_path"]))
-                    if raw_text is None:
-                        counters["quarantined_blank_text"] += 1
-                        issues.write(canonical_json({
-                            "source_id": source_id,
-                            "artifact_path": task["artifact_path"],
-                            "row_index": row_index,
-                            "reason": "blank_selected_text",
-                            "text_path": mapping["text_path"],
-                        }) + "\n")
-                        continue
-                    original_sha = sha256_text(raw_text)
-                    result = gfm.clean_then_normalize_to_gfm(
-                        raw_text, repetition_cleaner=repetition.replace_complex_repetitions
-                    )
-                    normalized = str(result["normalized_markdown"])
-                    if RECOGNIZED_HTML_RE.search(normalized) or GENERATED_IMAGE_RE.search(normalized):
-                        raise RuntimeError(f"{source_id}:{row_index}: transformation postcondition failed")
-                    if not normalized.strip():
-                        counters["quarantined_empty_after_transform"] += 1
-                        issues.write(canonical_json({
-                            "source_id": source_id,
-                            "artifact_path": task["artifact_path"],
-                            "row_index": row_index,
-                            "reason": "empty_after_transform",
-                            "original_text_sha256": original_sha,
-                        }) + "\n")
-                        continue
-                    transformed_sha = sha256_text(normalized)
-                    candidate_id, synthetic = source_doc_id(
-                        row,
-                        mapping,
-                        source_id=source_id,
-                        revision=str(task["revision"]),
-                        artifact_path=str(task["artifact_path"]),
-                        row_index=row_index,
-                        text_sha256=original_sha,
-                    )
-                    uid = sha256_json({
-                        "namespace": "agent1_v5_source_row_uid_v1",
-                        "source_id": source_id,
-                        "revision": task["revision"],
-                        "artifact_path": task["artifact_path"],
-                        "row_index": row_index,
-                        "original_text_sha256": original_sha,
-                    })
-                    compact = compact_transform_metrics(result, raw_text, normalized)
-                    output_rows.append({
-                        "source_id": source_id,
-                        "source_repo_id": task["repo_id"],
-                        "source_revision": task["revision"],
-                        "source_dataset": task["repo_id"],
-                        "source_doc_id_candidate": candidate_id,
-                        "source_doc_id_was_synthetic": synthetic,
-                        "source_artifact_path": task["artifact_path"],
-                        "source_row_index": row_index,
-                        "source_row_uid": uid,
-                        "transformed_text": normalized,
-                        "title": optional_text(read_path(row, mapping.get("title_path"))),
-                        "author": optional_text(read_path(row, mapping.get("author_path")), author=True),
-                        "source_metadata_json": metadata_json(row, mapping),
-                        "original_text_sha256": original_sha,
-                        "transformed_text_sha256": transformed_sha,
-                        "transform_metrics_json": canonical_json(compact),
-                    })
-                    counters["output_rows"] += 1
-                    counters["synthetic_source_doc_ids"] += int(synthetic)
-                    if original_sha != transformed_sha:
-                        counters["changed_rows"] += 1
-                    if any((
-                        compact["complex_repetition_replacements"],
-                        compact["generated_image_artifact_count"],
-                        compact["recognized_html_start_tags"],
-                    )):
-                        audit.write(canonical_json({
-                            "source_row_uid": uid,
-                            "source_id": source_id,
-                            "source_doc_id_candidate": candidate_id,
-                            "original_text_sha256": original_sha,
-                            "transformed_text_sha256": transformed_sha,
-                            "repetition_metrics": result["repetition_metrics"],
-                            "generated_image_metrics": result["generated_image_metrics"],
-                            "markup_metrics": result["markup_metrics"],
-                        }) + "\n")
-                        counters["audited_changed_rows"] += 1
-                    if len(output_rows) >= int(cfg["execution"]["transform_batch_rows"]):
-                        yield output_rows
-                        output_rows = []
-            if current_index != int(task["row_start"]) + int(task["rows"]):
-                raise ValueError("row-group row count drift")
-            if output_rows:
-                yield output_rows
+        audit_rows: list[dict[str, Any]] = []
+        issue_rows: list[dict[str, Any]] = []
+        for row_offset, row in enumerate(batch.to_pylist()):
+            row_index = current_index + row_offset
+            part_counters["input_rows"] += 1
+            raw_text = optional_text(read_path(row, mapping["text_path"]))
+            if raw_text is None:
+                part_counters["quarantined_blank_text"] += 1
+                issue_rows.append({
+                    "source_id": source_id,
+                    "artifact_path": task["artifact_path"],
+                    "row_index": row_index,
+                    "reason": "blank_selected_text",
+                    "text_path": mapping["text_path"],
+                })
+                continue
+            original_sha = sha256_text(raw_text)
+            result = gfm.clean_then_normalize_to_gfm(
+                raw_text, repetition_cleaner=repetition.replace_complex_repetitions
+            )
+            normalized = str(result["normalized_markdown"])
+            if RECOGNIZED_HTML_RE.search(normalized) or GENERATED_IMAGE_RE.search(normalized):
+                raise RuntimeError(f"{source_id}:{row_index}: transformation postcondition failed")
+            if not normalized.strip():
+                part_counters["quarantined_empty_after_transform"] += 1
+                issue_rows.append({
+                    "source_id": source_id,
+                    "artifact_path": task["artifact_path"],
+                    "row_index": row_index,
+                    "reason": "empty_after_transform",
+                    "original_text_sha256": original_sha,
+                })
+                continue
+            transformed_sha = sha256_text(normalized)
+            candidate_id, synthetic = source_doc_id(
+                row,
+                mapping,
+                source_id=source_id,
+                revision=str(task["revision"]),
+                artifact_path=str(task["artifact_path"]),
+                row_index=row_index,
+                text_sha256=original_sha,
+            )
+            uid = sha256_json({
+                "namespace": "agent1_v5_source_row_uid_v1",
+                "source_id": source_id,
+                "revision": task["revision"],
+                "artifact_path": task["artifact_path"],
+                "row_index": row_index,
+                "original_text_sha256": original_sha,
+            })
+            compact = compact_transform_metrics(result, raw_text, normalized)
+            output_rows.append({
+                "source_id": source_id,
+                "source_repo_id": task["repo_id"],
+                "source_revision": task["revision"],
+                "source_dataset": task["repo_id"],
+                "source_doc_id_candidate": candidate_id,
+                "source_doc_id_was_synthetic": synthetic,
+                "source_artifact_path": task["artifact_path"],
+                "source_row_index": row_index,
+                "source_row_uid": uid,
+                "transformed_text": normalized,
+                "title": optional_text(read_path(row, mapping.get("title_path"))),
+                "author": optional_text(read_path(row, mapping.get("author_path")), author=True),
+                "source_metadata_json": metadata_json(row, mapping),
+                "original_text_sha256": original_sha,
+                "transformed_text_sha256": transformed_sha,
+                "transform_metrics_json": canonical_json(compact),
+            })
+            part_counters["output_rows"] += 1
+            part_counters["synthetic_source_doc_ids"] += int(synthetic)
+            if original_sha != transformed_sha:
+                part_counters["changed_rows"] += 1
+            if any((
+                compact["complex_repetition_replacements"],
+                compact["generated_image_artifact_count"],
+                compact["recognized_html_start_tags"],
+            )):
+                audit_rows.append({
+                    "source_row_uid": uid,
+                    "source_id": source_id,
+                    "source_doc_id_candidate": candidate_id,
+                    "original_text_sha256": original_sha,
+                    "transformed_text_sha256": transformed_sha,
+                    "repetition_metrics": result["repetition_metrics"],
+                    "generated_image_metrics": result["generated_image_metrics"],
+                    "markup_metrics": result["markup_metrics"],
+                })
+                part_counters["audited_changed_rows"] += 1
 
-    output_rows = write_parquet_atomic(output, transform_schema(), rows())
-    audit_tmp.replace(audit_path)
-    issue_tmp.replace(issue_path)
+        part_output_rows = write_parquet_atomic(part_output, transform_schema(), [output_rows])
+        _write_jsonl_gzip_atomic(part_audit, audit_rows)
+        _write_jsonl_gzip_atomic(part_issues, issue_rows)
+        if (
+            part_output_rows != part_counters["output_rows"]
+            or part_counters["input_rows"] != part_input_rows
+        ):
+            raise ValueError("transform checkpoint row closure failed")
+        part_receipt = {
+            "schema_version": TRANSFORM_CHECKPOINT_RECEIPT_SCHEMA,
+            "status": "passed",
+            "created_at": utc_now(),
+            "task_index": task_index,
+            "part_index": part_index,
+            "checkpoint_sha256": part_sha256,
+            "identity": part_identity,
+            "output": file_receipt(part_output, root=run_root, rows=part_output_rows),
+            "audit": file_receipt(part_audit, root=run_root),
+            "issues": file_receipt(part_issues, root=run_root),
+            "counters": dict(part_counters),
+        }
+        write_json_atomic(part_receipt_path, part_receipt)
+        checkpoint_receipts.append(part_receipt)
+        current_index += part_input_rows
+
+    if current_index != int(task["row_start"]) + int(task["rows"]):
+        raise ValueError("row-group row count drift")
+    if not checkpoint_receipts:
+        raise ValueError("transform task produced no checkpoints")
+
+    counters: Counter[str] = Counter()
+    checkpoint_outputs: list[Path] = []
+    checkpoint_audits: list[Path] = []
+    checkpoint_issues: list[Path] = []
+    checkpoint_receipt_bindings: list[dict[str, object]] = []
+    for part_index, part_receipt in enumerate(checkpoint_receipts):
+        if int(part_receipt["part_index"]) != part_index:
+            raise ValueError("transform checkpoint ordering drift")
+        checkpoint_outputs.append(validate_file_receipt(part_receipt["output"], root=run_root))
+        checkpoint_audits.append(validate_file_receipt(part_receipt["audit"], root=run_root))
+        checkpoint_issues.append(validate_file_receipt(part_receipt["issues"], root=run_root))
+        counters.update({str(key): int(value) for key, value in part_receipt["counters"].items()})
+        checkpoint_receipt_bindings.append(
+            file_receipt(
+                _transform_checkpoint_paths(run_root, task_index, part_index)[3],
+                root=run_root,
+            )
+        )
+
+    def checkpoint_output_batches() -> Iterable[list[dict[str, Any]]]:
+        for path in checkpoint_outputs:
+            for batch in pq.ParquetFile(path).iter_batches(batch_size=checkpoint_rows):
+                yield batch.to_pylist()
+
+    output_rows = write_parquet_atomic(output, transform_schema(), checkpoint_output_batches())
+    _concatenate_atomic(audit_path, checkpoint_audits)
+    _concatenate_atomic(issue_path, checkpoint_issues)
     if output_rows != counters["output_rows"] or counters["input_rows"] != int(task["rows"]):
         raise ValueError("transform row closure failed")
     receipt: dict[str, object] = {
@@ -760,9 +910,15 @@ def transform_task(args: argparse.Namespace) -> int:
         "status": "passed",
         "created_at": utc_now(),
         "task_index": task_index,
-        "task_sha256": sha256_json(task),
-        "run_contract_sha256": sha256_file(args.contract),
+        "task_sha256": task_sha256,
+        "run_contract_sha256": run_contract_sha256,
         "repetition_module": file_receipt(repetition_path),
+        "transform_implementation": implementation,
+        "checkpointing": {
+            "rows_per_checkpoint": checkpoint_rows,
+            "checkpoint_count": len(checkpoint_receipts),
+            "checkpoint_receipts": checkpoint_receipt_bindings,
+        },
         "input": {key: task[key] for key in ("source_id", "input_path", "artifact_path", "row_groups", "row_start", "rows")},
         "output": file_receipt(output, root=run_root, rows=output_rows),
         "audit": file_receipt(audit_path, root=run_root),
@@ -770,7 +926,13 @@ def transform_task(args: argparse.Namespace) -> int:
         "counters": dict(counters),
     }
     write_json_atomic(receipt_path, receipt)
-    print(canonical_json({"ok": True, "task": task_index, "rows": output_rows, "issues": counters["quarantined_blank_text"] + counters["quarantined_empty_after_transform"]}))
+    print(canonical_json({
+        "ok": True,
+        "task": task_index,
+        "rows": output_rows,
+        "checkpoints": len(checkpoint_receipts),
+        "issues": counters["quarantined_blank_text"] + counters["quarantined_empty_after_transform"],
+    }))
     return 0
 
 

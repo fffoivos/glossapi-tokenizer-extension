@@ -28,6 +28,7 @@ TERMINAL_FAILURE = {
     "SPECIAL_EXIT",
     "TIMEOUT",
 }
+TRANSIENT_RETRY_STATES = {"BOOT_FAIL", "NODE_FAIL", "PREEMPTED", "REVOKED", "TIMEOUT"}
 
 
 def utc_now() -> str:
@@ -246,6 +247,18 @@ class Submitter:
             },
         )
 
+    def checkpoint_progress(self, stage: str) -> int:
+        """Count immutable progress units that survive a debug-node timeout."""
+
+        if stage != "transform":
+            return 0
+        transform = self.args.run_root / "10-transform"
+        task_receipts = sum(1 for _ in (transform / "receipts").glob("task-*.json"))
+        part_receipts = sum(
+            1 for _ in (transform / "checkpoints").glob("task-*/part-*.receipt.json")
+        )
+        return task_receipts + part_receipts
+
     def submit(
         self,
         name: str,
@@ -330,24 +343,66 @@ class Submitter:
         batches = bundle_batches(task_count, tasks_per_node, maximum)
         job_ids = []
         for batch_index, (start, end) in enumerate(batches):
-            job_id = self.submit(
-                f"{name}-part{batch_index:03d}",
-                stage,
-                partition=partition or str(self.config["execution"]["production_partition"]),
-                walltime=walltime or str(self.config["execution"]["max_walltime"]),
-                dependency=dependency,
-                cpus=128,
-                array=f"{start}-{end}%{maximum}",
-                command=self.bundle_script,
-                extra={
-                    "TASK_COUNT": task_count,
-                    "TASKS_PER_NODE": tasks_per_node,
-                    "TASK_CONCURRENCY": tasks_per_node,
-                    **(extra or {}),
-                },
-            )
-            wait_for_jobs([job_id], poll_seconds)
-            job_ids.append(job_id)
+            attempt = 0
+            no_progress_retries = 0
+            previous_progress = self.checkpoint_progress(stage)
+            while True:
+                base_name = f"{name}-part{batch_index:03d}"
+                attempt_name = base_name if attempt == 0 else f"{base_name}-retry{attempt:03d}"
+                job_id = self.submit(
+                    attempt_name,
+                    stage,
+                    partition=partition or str(self.config["execution"]["production_partition"]),
+                    walltime=walltime or str(self.config["execution"]["max_walltime"]),
+                    dependency=dependency,
+                    cpus=128,
+                    array=f"{start}-{end}%{maximum}",
+                    command=self.bundle_script,
+                    extra={
+                        "TASK_COUNT": task_count,
+                        "TASKS_PER_NODE": tasks_per_node,
+                        "TASK_CONCURRENCY": tasks_per_node,
+                        **(extra or {}),
+                    },
+                )
+                try:
+                    wait_for_jobs([job_id], poll_seconds)
+                except RuntimeError:
+                    state, exit_code = root_job_state(job_id)
+                    if state not in TRANSIENT_RETRY_STATES:
+                        raise
+                    current_progress = self.checkpoint_progress(stage)
+                    if current_progress > previous_progress:
+                        no_progress_retries = 0
+                    else:
+                        no_progress_retries += 1
+                    maximum_stalled = int(
+                        self.config["execution"].get("max_transient_retries", 2)
+                    )
+                    if no_progress_retries > maximum_stalled:
+                        raise RuntimeError(
+                            f"{attempt_name} repeatedly made no receipt progress: "
+                            f"{state} {exit_code}"
+                        )
+                    print(
+                        json.dumps(
+                            {
+                                "at": utc_now(),
+                                "retrying": attempt_name,
+                                "state": state,
+                                "exit_code": exit_code,
+                                "checkpoint_progress_before": previous_progress,
+                                "checkpoint_progress_after": current_progress,
+                            },
+                            sort_keys=True,
+                        ),
+                        flush=True,
+                    )
+                    previous_progress = current_progress
+                    attempt += 1
+                    continue
+                job_ids.append(job_id)
+                break
         return job_ids
 
 
