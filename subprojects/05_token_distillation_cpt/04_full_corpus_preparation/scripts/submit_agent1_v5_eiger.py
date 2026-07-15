@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Submit and babysit the receipt-bound Agent-1 v5 Eiger CPU DAG."""
+"""Submit and babysit the receipt-bound Agent-1 v5 CPU DAG."""
 
 from __future__ import annotations
 
@@ -113,8 +113,13 @@ class Submitter:
         self.args = args
         self.config = config
         self.jobs: dict[str, dict[str, Any]] = {}
-        self.stage_script = args.pipeline_root / "slurm" / "agent1_v5_eiger" / "stage.sh"
-        self.bundle_script = args.pipeline_root / "slurm" / "agent1_v5_eiger" / "bundle.sh"
+        cluster = str(config["execution"]["cluster"])
+        if cluster == "clariden":
+            self.stage_script = args.pipeline_root / "slurm" / "agent1_v5_eiger" / "clariden_debug_stage.sh"
+            self.bundle_script = args.pipeline_root / "slurm" / "agent1_v5_eiger" / "clariden_debug_bundle.sh"
+        else:
+            self.stage_script = args.pipeline_root / "slurm" / "agent1_v5_eiger" / "stage.sh"
+            self.bundle_script = args.pipeline_root / "slurm" / "agent1_v5_eiger" / "bundle.sh"
         self.coord_root = args.run_root.parent / f".{args.run_id}.coord"
         self.log_root = self.coord_root / "slurm"
         self.runtime_root = self.coord_root / "runtime"
@@ -214,20 +219,21 @@ class Submitter:
         tasks_per_node: int,
         dependency: Sequence[str],
         *,
-        partition: str = "normal",
-        walltime: str = "23:30:00",
+        partition: str | None = None,
+        walltime: str | None = None,
         max_parallel_nodes: int | None = None,
         extra: Mapping[str, object] | None = None,
     ) -> str:
         bundles = math.ceil(task_count / tasks_per_node)
         if bundles <= 0:
             raise ValueError(f"{stage}: no tasks")
-        maximum = max_parallel_nodes or int(self.config["execution"]["max_array_parallelism"])
+        configured_maximum = int(self.config["execution"]["max_array_parallelism"])
+        maximum = min(max_parallel_nodes or configured_maximum, configured_maximum)
         return self.submit(
             name,
             stage,
-            partition=partition,
-            walltime=walltime,
+            partition=partition or str(self.config["execution"]["production_partition"]),
+            walltime=walltime or str(self.config["execution"]["max_walltime"]),
             dependency=dependency,
             cpus=128,
             array=f"0-{bundles - 1}%{min(bundles, maximum)}",
@@ -239,16 +245,20 @@ class Submitter:
 def submit_dag(args: argparse.Namespace) -> dict[str, Any]:
     config = read_object(args.config)
     submitter = Submitter(args, config)
+    execution = config["execution"]
+    compute_partition = str(execution["production_partition"])
+    transfer_partition = str(execution["transfer_partition"])
+    maximum_walltime = str(execution["max_walltime"])
     if submitter.state_path.exists():
         raise FileExistsError(
             f"submission state already exists: {submitter.state_path}; use --monitor-state"
         )
-    setup = submitter.submit("setup", "setup", partition="normal", walltime="02:00:00", cpus=32)
+    setup = submitter.submit("setup", "setup", partition=compute_partition, walltime=maximum_walltime, cpus=32)
     wait_for_jobs([setup], args.poll_seconds)
     bootstrap = submitter.submit(
         "bootstrap",
         "bootstrap",
-        partition="prepost",
+        partition=compute_partition,
         walltime="00:30:00",
         dependency=[setup],
         cpus=8,
@@ -261,68 +271,68 @@ def submit_dag(args: argparse.Namespace) -> dict[str, Any]:
     bucket_tasks = int(config["dedup"]["num_buckets"])
 
     transform_canary = submitter.submit(
-        "transform-canary", "transform", partition="debug", walltime="00:30:00", dependency=[bootstrap], extra={"TASK_INDEX": 0}
+        "transform-canary", "transform", partition=compute_partition, walltime="00:30:00", dependency=[bootstrap], extra={"TASK_INDEX": 0}
     )
     transform = submitter.bundled("transform", "transform", transform_tasks, 32, [transform_canary])
     merge_transform = submitter.submit(
-        "merge-transform", "merge-transform", partition="prepost", walltime="00:30:00", dependency=[transform]
+        "merge-transform", "merge-transform", partition=compute_partition, walltime="00:30:00", dependency=[transform]
     )
     glossapi_canary = submitter.submit(
-        "glossapi-canary", "glossapi", partition="debug", walltime="00:30:00", dependency=[merge_transform], cpus=16, extra={"TASK_INDEX": 0, "GLOSSAPI_THREADS": 8}
+        "glossapi-canary", "glossapi", partition=compute_partition, walltime="00:30:00", dependency=[merge_transform], cpus=16, extra={"TASK_INDEX": 0, "GLOSSAPI_THREADS": 8}
     )
     glossapi = submitter.bundled("glossapi", "glossapi", transform_tasks, 8, [glossapi_canary])
     merge_glossapi = submitter.submit(
-        "merge-glossapi", "merge-glossapi", partition="prepost", walltime="00:30:00", dependency=[glossapi]
+        "merge-glossapi", "merge-glossapi", partition=compute_partition, walltime="00:30:00", dependency=[glossapi]
     )
     envelope_plan = submitter.submit(
-        "plan-envelope", "plan-envelope", partition="normal", walltime="04:00:00", dependency=[merge_glossapi], cpus=16
+        "plan-envelope", "plan-envelope", partition=compute_partition, walltime=maximum_walltime, dependency=[merge_glossapi], cpus=16
     )
     envelope = submitter.bundled("envelope", "envelope", transform_tasks, 16, [envelope_plan])
     merge_envelope = submitter.submit(
-        "merge-envelope", "merge-envelope", partition="prepost", walltime="00:30:00", dependency=[envelope]
+        "merge-envelope", "merge-envelope", partition=compute_partition, walltime="00:30:00", dependency=[envelope]
     )
 
     base_canary = submitter.submit(
-        "base-canary", "base", partition="debug", walltime="00:30:00", dependency=[bootstrap], extra={"TASK_INDEX": 0}
+        "base-canary", "base", partition=compute_partition, walltime="00:30:00", dependency=[bootstrap], extra={"TASK_INDEX": 0}
     )
     base = submitter.bundled("base", "base", base_tasks, 16, [base_canary])
     merge_base = submitter.submit(
-        "merge-base", "merge-base", partition="prepost", walltime="00:30:00", dependency=[base]
+        "merge-base", "merge-base", partition=compute_partition, walltime="00:30:00", dependency=[base]
     )
     combine = submitter.submit(
-        "combine", "combine", partition="prepost", walltime="00:30:00", dependency=[merge_envelope, merge_base]
+        "combine", "combine", partition=compute_partition, walltime="00:30:00", dependency=[merge_envelope, merge_base]
     )
     publish_pre = submitter.submit(
-        "publish-pre", "publish-pre", partition="xfer", walltime="23:30:00", dependency=[combine], cpus=8
+        "publish-pre", "publish-pre", partition=transfer_partition, walltime=maximum_walltime, dependency=[combine], cpus=8
     )
 
     exact_canary = submitter.submit(
-        "exact-canary", "exact-index", partition="debug", walltime="00:30:00", dependency=[publish_pre], extra={"TASK_INDEX": 0}
+        "exact-canary", "exact-index", partition=compute_partition, walltime="00:30:00", dependency=[publish_pre], extra={"TASK_INDEX": 0}
     )
     exact = submitter.bundled("exact", "exact-index", combined_tasks, 16, [exact_canary])
     merge_exact = submitter.submit(
-        "merge-exact", "merge-exact", partition="prepost", walltime="00:30:00", dependency=[exact]
+        "merge-exact", "merge-exact", partition=compute_partition, walltime="00:30:00", dependency=[exact]
     )
     signature_canary = submitter.submit(
-        "signature-canary", "signature", partition="debug", walltime="00:30:00", dependency=[publish_pre], cpus=16, extra={"TASK_INDEX": 0}
+        "signature-canary", "signature", partition=compute_partition, walltime="00:30:00", dependency=[publish_pre], cpus=16, extra={"TASK_INDEX": 0}
     )
     signature = submitter.bundled("signature", "signature", combined_tasks, 8, [signature_canary])
     merge_signatures = submitter.submit(
-        "merge-signatures", "merge-signatures", partition="prepost", walltime="00:30:00", dependency=[signature]
+        "merge-signatures", "merge-signatures", partition=compute_partition, walltime="00:30:00", dependency=[signature]
     )
     bucket_canary = submitter.submit(
-        "bucket-canary", "bucket", partition="debug", walltime="00:30:00", dependency=[merge_signatures], cpus=32, extra={"TASK_INDEX": 0}
+        "bucket-canary", "bucket", partition=compute_partition, walltime="00:30:00", dependency=[merge_signatures], cpus=32, extra={"TASK_INDEX": 0}
     )
     buckets = submitter.bundled("buckets", "bucket", bucket_tasks, 1, [bucket_canary], max_parallel_nodes=32)
     pairs = submitter.submit(
-        "merge-pairs", "merge-pairs", partition="normal", walltime="23:30:00", dependency=[buckets], cpus=32
+        "merge-pairs", "merge-pairs", partition=compute_partition, walltime=maximum_walltime, dependency=[buckets], cpus=32
     )
     shingles = submitter.bundled("shingles", "shingles", combined_tasks, 8, [pairs])
     merge_shingles = submitter.submit(
-        "merge-shingles", "merge-shingles", partition="prepost", walltime="00:30:00", dependency=[shingles]
+        "merge-shingles", "merge-shingles", partition=compute_partition, walltime="00:30:00", dependency=[shingles]
     )
     verify_canary = submitter.submit(
-        "verify-canary", "verify", partition="debug", walltime="00:30:00", dependency=[merge_shingles], cpus=32, extra={"TASK_INDEX": 0, "VERIFY_TASKS": verifier_tasks}
+        "verify-canary", "verify", partition=compute_partition, walltime="00:30:00", dependency=[merge_shingles], cpus=32, extra={"TASK_INDEX": 0, "VERIFY_TASKS": verifier_tasks}
     )
     verify = submitter.bundled(
         "verify",
@@ -334,17 +344,17 @@ def submit_dag(args: argparse.Namespace) -> dict[str, Any]:
         extra={"VERIFY_TASKS": verifier_tasks},
     )
     merge_verified = submitter.submit(
-        "merge-verified", "merge-verified", partition="prepost", walltime="00:30:00", dependency=[verify], extra={"VERIFY_TASKS": verifier_tasks}
+        "merge-verified", "merge-verified", partition=compute_partition, walltime="00:30:00", dependency=[verify], extra={"VERIFY_TASKS": verifier_tasks}
     )
     cluster = submitter.submit(
-        "cluster", "cluster", partition="normal", walltime="23:30:00", dependency=[merge_exact, merge_verified], cpus=64
+        "cluster", "cluster", partition=compute_partition, walltime=maximum_walltime, dependency=[merge_exact, merge_verified], cpus=64
     )
     filter_job = submitter.bundled("filter", "filter", combined_tasks, 16, [cluster])
     merge_filtered = submitter.submit(
-        "merge-filtered", "merge-filtered", partition="prepost", walltime="00:30:00", dependency=[filter_job]
+        "merge-filtered", "merge-filtered", partition=compute_partition, walltime="00:30:00", dependency=[filter_job]
     )
     publish_dedup = submitter.submit(
-        "publish-dedup", "publish-dedup", partition="xfer", walltime="23:30:00", dependency=[merge_filtered], cpus=8
+        "publish-dedup", "publish-dedup", partition=transfer_partition, walltime=maximum_walltime, dependency=[merge_filtered], cpus=8
     )
     submitter.persist()
     graph_path = args.run_root / "slurm_job_graph.json"

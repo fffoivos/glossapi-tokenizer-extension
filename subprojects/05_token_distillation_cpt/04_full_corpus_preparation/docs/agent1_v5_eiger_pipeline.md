@@ -1,4 +1,4 @@
-# Agent 1 v5: Eiger CPU production pipeline
+# Agent 1 v5: Clariden debug-node pipeline
 
 This is the executable handoff for the 18 new sources plus the pinned Nanochat
 base. It implements the user-approved order:
@@ -31,12 +31,26 @@ The original Nanochat base always wins a mixed duplicate component. Among new
 documents, the representative ordering is quality score, cleaning loss, text
 length, then stable source/document identity.
 
+## Clariden debug execution profile
+
+The operator-approved production target for this run is Clariden `debug`, not
+Eiger. Every compute, merge and publication job therefore requests `debug`, no
+GPU/GRES, at most 85 minutes, and the arrays are throttled to four concurrent
+nodes. This is an explicit run-specific override of the repository's usual
+policy that reserves `debug` for bounded smokes. Per-task immutable receipts
+make shard arrays safely restartable; global stages are inspected and resumed
+by the babysitter if they reach the debug wall-time.
+
+Jobs enter the pinned `pytorch/v2.6.0:v1` uenv. Setup installs the pinned Rust
+1.85.1 toolchain into the run coordination directory before building the two
+GlossAPI Rust extensions. No Eiger or HPC Platform authorization is required.
+
 ## Storage bridge
 
-The acquisition receipt currently points to MLP Iopsstor. Eiger is on HPCP and
-uses Capstor, so the selected 18 sources plus Nanochat must first be staged by a
-Clariden `xfer` job. The staging program hashes every copied source against its
-pinned LFS/blob SHA-256 and emits an Eiger-visible narrowed acquisition receipt.
+The acquisition receipt originally pointed to MLP Iopsstor. The selected 18
+sources plus Nanochat have been staged to Capstor so every debug-node task uses
+one immutable input inventory. The staging program hashes every copied source
+against its pinned LFS/blob SHA-256 and emits a narrowed acquisition receipt.
 
 ```bash
 sbatch --account=a0140 --partition=xfer --time=23:30:00 \
@@ -46,8 +60,9 @@ sbatch --account=a0140 --partition=xfer --time=23:30:00 \
 
 ## Submit and babysit
 
-The Eiger-side Hugging Face token file must be mode 600. Its contents are read
-only inside `xfer` jobs and are never placed in an sbatch argument or receipt.
+The Clariden-side Hugging Face token file must be mode 600. Its contents are
+read only inside publication jobs and are never placed in an sbatch argument or
+receipt.
 
 ```bash
 python3 scripts/submit_agent1_v5_eiger.py \
@@ -62,11 +77,11 @@ python3 scripts/submit_agent1_v5_eiger.py \
 ```
 
 Setup and bootstrap are waited on before the dynamic arrays are sized. Each
-major expensive implementation has a `debug` canary. Production work runs in
-bundles on Eiger `normal`, publication on `xfer`, and receipts/merge gates use
-`prepost` where they fit the 30-minute limit. Any missing text, empty post-clean
-text, receipt mismatch, schema drift, incomplete task coverage, row-waterfall
-failure, public HF repository, or remote checksum mismatch stops the DAG.
+major expensive implementation has a canary before its four-node-throttled
+array. All stages run on Clariden `debug` under the 90-minute partition limit.
+Any missing text, empty post-clean text, receipt mismatch, schema drift,
+incomplete task coverage, row-waterfall failure, public HF repository, or
+remote checksum mismatch stops the DAG.
 
 The submission state is written outside the not-yet-created run root at
 `.<run-id>.coord/submission_state.json`. It can be reattached with:

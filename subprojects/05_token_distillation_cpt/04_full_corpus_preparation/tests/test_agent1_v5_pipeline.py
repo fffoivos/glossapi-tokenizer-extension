@@ -101,6 +101,11 @@ def test_config_locks_all_eighteen_source_adapters_and_schema() -> None:
     assert config["dedup"]["num_buckets"] * config["dedup"]["hashes_per_bucket"] == 128
     assert pipeline.canonical_schema().names == list(pipeline.CANONICAL_FIELD_NAMES)
     assert pipeline.canonical_schema().names[:6] == list(pipeline.ENVELOPE_FIELDS)
+    assert config["execution"]["cluster"] == "clariden"
+    assert config["execution"]["production_partition"] == "debug"
+    assert config["execution"]["transfer_partition"] == "debug"
+    assert config["execution"]["max_walltime"] == "01:25:00"
+    assert config["execution"]["max_array_parallelism"] == 4
 
 
 def test_nested_source_mapping_extracts_fields_and_keeps_remaining_metadata() -> None:

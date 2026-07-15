@@ -20,6 +20,7 @@ case "${STAGE}" in
     : "${DATATROVE_ROOT:?DATATROVE_ROOT is required}"
     GLOSSAPI_COMMIT="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["pins"]["glossapi_commit"])' "${CONFIG}")"
     DATATROVE_COMMIT="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["pins"]["datatrove_commit"])' "${CONFIG}")"
+    RUST_TOOLCHAIN="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["pins"]["rust_toolchain"])' "${CONFIG}")"
     if [[ ! -d "${GLOSSAPI_ROOT}/.git" ]]; then
       git clone https://github.com/eellak/glossAPI.git "${GLOSSAPI_ROOT}"
     fi
@@ -32,11 +33,15 @@ case "${STAGE}" in
     git -C "${DATATROVE_ROOT}" checkout --detach "${DATATROVE_COMMIT}"
     test -z "$(git -C "${GLOSSAPI_ROOT}" status --porcelain)"
     test -z "$(git -C "${DATATROVE_ROOT}" status --porcelain)"
-    command -v cargo >/dev/null || {
-      echo "cargo is required to build pinned GlossAPI Rust extensions on Eiger x86_64" >&2
-      exit 2
-    }
     mkdir -p "${RUNTIME_ROOT}"
+    export CARGO_HOME="${RUNTIME_ROOT}/cargo"
+    export RUSTUP_HOME="${RUNTIME_ROOT}/rustup"
+    export PATH="${CARGO_HOME}/bin:${PATH}"
+    if [[ ! -x "${CARGO_HOME}/bin/cargo" ]]; then
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
+        sh -s -- -y --no-modify-path --profile minimal --default-toolchain "${RUST_TOOLCHAIN}"
+    fi
+    test "$(rustc --version | awk '{print $2}')" = "${RUST_TOOLCHAIN}"
     python3 -m venv "${VENV_ROOT}"
     "${PYTHON}" -m pip install --upgrade pip
     "${PYTHON}" -m pip install -r "${PIPELINE_ROOT}/configs/agent1_v5_requirements.txt"

@@ -1,25 +1,26 @@
 {
   "schema_version": "agent1_v5_eiger_pipeline_config_v1",
   "execution": {
-    "cluster": "eiger",
+    "cluster": "clariden",
     "account": "a0140",
-    "canary_partitions": ["debug", "prepost"],
-    "production_partition": "normal",
-    "transfer_partition": "xfer",
-    "max_walltime": "23:30:00",
+    "canary_partitions": ["debug"],
+    "production_partition": "debug",
+    "transfer_partition": "debug",
+    "max_walltime": "01:25:00",
     "target_task_bytes": 268435456,
     "transform_batch_rows": 256,
     "glossapi_batch_rows": 256,
     "max_transient_retries": 2,
     "jaccard_verifier_tasks": 128,
-    "max_array_parallelism": 128
+    "max_array_parallelism": 4
   },
   "pins": {
     "nanochat_repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
     "nanochat_revision": "e1d54136a880ed1df2ed95a5445dabd230453207",
     "glossapi_commit": "a2aace04fbae61ed58931be1a1237a52d1b8ddb3",
     "datatrove_version": "0.9.0",
-    "datatrove_commit": "87f7bad5c4a56ec648265fbf0b91d7d226bad428"
+    "datatrove_commit": "87f7bad5c4a56ec648265fbf0b91d7d226bad428",
+    "rust_toolchain": "1.85.1"
   },
   "release": {
     "owner": "fffoivos",
