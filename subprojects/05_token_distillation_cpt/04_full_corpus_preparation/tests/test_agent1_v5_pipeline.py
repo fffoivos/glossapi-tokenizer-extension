@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -131,6 +133,40 @@ def test_debug_bundle_batches_preserve_task_width_and_qos_limit() -> None:
     assert submitter.bundle_batches(273, 16, 2)[-1] == (16, 17)
     assert submitter.bundle_batches(32, 1, 2)[-1] == (30, 31)
     assert submitter.bundle_batches(3, 8, 2) == [(0, 0)]
+
+
+def test_bundle_runs_every_task_and_propagates_child_failure(tmp_path: Path) -> None:
+    pipeline_root = tmp_path / "pipeline"
+    stage = pipeline_root / "slurm" / "agent1_v5_eiger" / "stage.sh"
+    stage.parent.mkdir(parents=True)
+    stage.write_text(
+        "#!/usr/bin/env bash\n"
+        "mkdir -p \"${RUN_ROOT}/seen\"\n"
+        "printf '%s\\n' \"${TASK_INDEX}\" > \"${RUN_ROOT}/seen/${TASK_INDEX}\"\n"
+        "if [[ \"${FAIL_TASK:-}\" == \"${TASK_INDEX}\" ]]; then exit 9; fi\n",
+        encoding="utf-8",
+    )
+    stage.chmod(0o755)
+    bundle = ROOT / "slurm" / "agent1_v5_eiger" / "bundle.sh"
+    base_env = {
+        **os.environ,
+        "TASK_COUNT": "5",
+        "TASKS_PER_NODE": "5",
+        "TASK_CONCURRENCY": "2",
+        "SLURM_ARRAY_TASK_ID": "0",
+        "PIPELINE_ROOT": str(pipeline_root),
+        "RUN_ROOT": str(tmp_path / "run"),
+        "STAGE": "test",
+    }
+    assert subprocess.run([bundle], env=base_env, check=False).returncode == 0
+    assert sorted(path.name for path in (tmp_path / "run" / "seen").iterdir()) == [
+        "0", "1", "2", "3", "4"
+    ]
+    failed_env = {**base_env, "RUN_ROOT": str(tmp_path / "failed"), "FAIL_TASK": "2"}
+    assert subprocess.run([bundle], env=failed_env, check=False).returncode == 1
+    assert sorted(path.name for path in (tmp_path / "failed" / "seen").iterdir()) == [
+        "0", "1", "2", "3", "4"
+    ]
 
 
 def test_nested_source_mapping_extracts_fields_and_keeps_remaining_metadata() -> None:
