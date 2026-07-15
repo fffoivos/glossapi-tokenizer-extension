@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import agent1_v5_datatrove as dedup  # noqa: E402
 import agent1_v5_pipeline as pipeline  # noqa: E402
+import prototype_agent1_v4_gfm_normalization as gfm  # noqa: E402
 import submit_agent1_v5_eiger as submitter  # noqa: E402
 
 
@@ -231,6 +232,15 @@ def test_root_job_state_excludes_diagnostic_job_steps(monkeypatch) -> None:
     monkeypatch.setattr(submitter, "command_output", accounting)
     assert submitter.root_job_state("123") == ("COMPLETED", "0:0")
     assert "-X" in commands[0]
+
+
+def test_unterminated_known_tag_prefix_is_escaped_before_later_php_close() -> None:
+    source = "<a href=](images/example\nlater ?>)"
+    metrics = gfm.NormalizationMetrics()
+    escaped = gfm._escape_residual_angles(source, metrics)
+    assert escaped == "&lt;a href=](images/example\nlater ?>)"
+    assert gfm.KNOWN_HTML_TAG_RE.search(escaped) is None
+    assert metrics.pseudo_tags_escaped == 1
 
 
 def test_bundle_runs_every_task_and_propagates_child_failure(tmp_path: Path) -> None:

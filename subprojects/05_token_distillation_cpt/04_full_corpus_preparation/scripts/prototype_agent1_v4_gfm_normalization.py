@@ -1180,8 +1180,33 @@ def _escape_residual_angles(text: str, metrics: NormalizationMetrics) -> str:
     while True:
         escaped = RESIDUAL_ANGLE_RE.sub(replace, text)
         if escaped == text:
-            return escaped
+            break
         text = escaped
+
+    # A malformed link emitted from damaged source markup can contain an
+    # unterminated known-tag prefix such as ``<a href=`` and only encounter a
+    # ``>`` many lines later in embedded PHP.  The same-line regex above must
+    # not consume across those lines, so shield every remaining ``<`` unless
+    # the complete same-line candidate is an approved comment or GFM autolink.
+    output: list[str] = []
+    cursor = 0
+    while cursor < len(text):
+        opener = text.find("<", cursor)
+        if opener < 0:
+            output.append(text[cursor:])
+            break
+        output.append(text[cursor:opener])
+        suffix = text[opener:]
+        line_end = suffix.find("\n")
+        candidate_end = suffix.find(">", 1) if line_end < 0 else suffix.find(">", 1, line_end)
+        candidate = suffix[: candidate_end + 1] if candidate_end >= 0 else ""
+        if candidate and (AUTOLINK_RE.fullmatch(candidate) or ALLOWED_COMMENT_RE.fullmatch(candidate)):
+            output.append("<")
+        else:
+            output.append("&lt;")
+            metrics.pseudo_tags_escaped += 1
+        cursor = opener + 1
+    return "".join(output)
 
 
 def _protect_literal_ampersands(text: str) -> str:
