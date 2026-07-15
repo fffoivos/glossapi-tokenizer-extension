@@ -91,6 +91,7 @@ def root_job_state(job_id: str) -> tuple[str, str]:
         "sacct",
         "-j",
         job_id,
+        "-X",
         "--noheader",
         "--parsable2",
         "--format=JobIDRaw,State,ExitCode",

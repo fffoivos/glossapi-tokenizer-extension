@@ -216,6 +216,23 @@ def test_completed_dependencies_are_not_resubmitted_to_slurm(monkeypatch) -> Non
         raise AssertionError("failed dependency was accepted")
 
 
+def test_root_job_state_excludes_diagnostic_job_steps(monkeypatch) -> None:
+    commands = []
+
+    class QueueResult:
+        stdout = ""
+
+    monkeypatch.setattr(submitter.subprocess, "run", lambda *args, **kwargs: QueueResult())
+
+    def accounting(*command: str) -> str:
+        commands.append(command)
+        return "123|COMPLETED|0:0"
+
+    monkeypatch.setattr(submitter, "command_output", accounting)
+    assert submitter.root_job_state("123") == ("COMPLETED", "0:0")
+    assert "-X" in commands[0]
+
+
 def test_bundle_runs_every_task_and_propagates_child_failure(tmp_path: Path) -> None:
     pipeline_root = tmp_path / "pipeline"
     stage = pipeline_root / "slurm" / "agent1_v5_eiger" / "stage.sh"
