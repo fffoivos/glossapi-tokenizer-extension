@@ -12,7 +12,7 @@
     "glossapi_batch_rows": 256,
     "max_transient_retries": 2,
     "jaccard_verifier_tasks": 128,
-    "max_array_parallelism": 4
+    "max_array_parallelism": 2
   },
   "pins": {
     "nanochat_repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",

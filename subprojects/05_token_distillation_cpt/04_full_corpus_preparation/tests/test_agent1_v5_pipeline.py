@@ -106,7 +106,7 @@ def test_config_locks_all_eighteen_source_adapters_and_schema() -> None:
     assert config["execution"]["production_partition"] == "debug"
     assert config["execution"]["transfer_partition"] == "debug"
     assert config["execution"]["max_walltime"] == "01:25:00"
-    assert config["execution"]["max_array_parallelism"] == 4
+    assert config["execution"]["max_array_parallelism"] == 2
     assert config["pins"]["glossapi_bundle"].endswith("glossapi-a2aace04fbae.bundle")
 
 
@@ -121,11 +121,11 @@ def test_clariden_wrapper_isolates_venv_and_setup_avoids_unused_glossapi_extras(
     assert '"${GLOSSAPI_ROOT}/rust/glossapi_rs_noise"' in setup
 
 
-def test_debug_bundle_layout_stays_within_four_submitted_array_elements() -> None:
-    assert submitter.bundle_layout(158, 32, 4) == (4, 40)
-    assert submitter.bundle_layout(273, 16, 4) == (4, 69)
-    assert submitter.bundle_layout(32, 1, 4) == (4, 8)
-    assert submitter.bundle_layout(3, 8, 4) == (1, 8)
+def test_debug_bundle_batches_preserve_task_width_and_qos_limit() -> None:
+    assert submitter.bundle_batches(158, 32, 2) == [(0, 1), (2, 3), (4, 4)]
+    assert submitter.bundle_batches(273, 16, 2)[-1] == (16, 17)
+    assert submitter.bundle_batches(32, 1, 2)[-1] == (30, 31)
+    assert submitter.bundle_batches(3, 8, 2) == [(0, 0)]
 
 
 def test_nested_source_mapping_extracts_fields_and_keeps_remaining_metadata() -> None:
