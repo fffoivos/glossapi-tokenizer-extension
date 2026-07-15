@@ -323,7 +323,7 @@ def gold_is_proposal_reachable(example: BlockExample, config: DecoderConfig) -> 
     """Whether every gold block can be emitted by the frozen proposal mechanism."""
     gold_spans = _contiguous_spans(example.gold_inside, example.abs_indices)
     candidates = set(candidate_spans(example, config))
-    return bool(gold_spans) and all(span in candidates for span in gold_spans)
+    return all(span in candidates for span in gold_spans)
 
 
 def evaluate(examples: Sequence[BlockExample], models: Mapping[int, StructuredModel]) -> dict[str, Any]:

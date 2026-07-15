@@ -100,3 +100,8 @@ def test_proposal_reachability_accounts_for_candidate_radius() -> None:
     assert gold_is_seed_reachable(item, DecoderConfig(candidate_radius=3))
     assert not gold_is_proposal_reachable(item, DecoderConfig(candidate_radius=3))
     assert gold_is_proposal_reachable(item, DecoderConfig(candidate_radius=5))
+
+
+def test_zero_bibliography_sequence_has_a_reachable_empty_path() -> None:
+    item = example([{"OTHER": .9}, {"OTHER": .9}], ["OTHER", "OTHER"])
+    assert gold_is_proposal_reachable(item, DecoderConfig())
