@@ -49,13 +49,19 @@ def write_atomic(path: Path, value: Mapping[str, Any]) -> None:
 
 
 def command_output(*command: str) -> str:
-    return subprocess.run(
-        command,
-        check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    ).stdout.strip()
+    try:
+        return subprocess.run(
+            command,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        ).stdout.strip()
+    except subprocess.CalledProcessError as error:
+        stderr = (error.stderr or "").strip()
+        raise RuntimeError(
+            f"command failed ({error.returncode}): {' '.join(command)}\n{stderr}"
+        ) from error
 
 
 def root_job_state(job_id: str) -> tuple[str, str]:
@@ -180,6 +186,7 @@ class Submitter:
         sbatch = [
             "sbatch",
             "--parsable",
+            "--uenv-passthrough=ignore",
             f"--job-name=a1v5-{name}",
             f"--partition={partition}",
             f"--time={walltime}",
