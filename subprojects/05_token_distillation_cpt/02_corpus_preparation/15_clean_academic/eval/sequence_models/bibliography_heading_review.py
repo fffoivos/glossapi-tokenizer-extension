@@ -315,6 +315,8 @@ def validate_review(payload: Mapping[str, Any], expected: Mapping[str, Mapping[s
 
 
 def run_reviews(args: argparse.Namespace) -> dict[str, Any]:
+    if args.batch_size <= 0 or args.workers <= 0 or args.attempts <= 0:
+        raise ValueError("batch size, workers, and attempts must be positive")
     packet_path = Path(args.packet).resolve()
     packet = json.loads(packet_path.read_text(encoding="utf-8"))
     if packet.get("schema_version") != PACKET_SCHEMA:
@@ -344,24 +346,35 @@ def run_reviews(args: argparse.Namespace) -> dict[str, Any]:
             "reviewer": args.reviewer_id, "independence": "No other pass is supplied.",
             "cases": batch,
         }
-        with tempfile.TemporaryDirectory(prefix="bib-heading-review-") as directory:
-            response = Path(directory) / "response.json"
-            workspace = Path(directory) / "empty"
-            workspace.mkdir()
-            command = [
-                "codex", "exec", "--model", args.model, "--sandbox", "read-only", "--ephemeral",
-                "--skip-git-repo-check", "--cd", str(workspace), "--config",
-                f'model_reasoning_effort="{args.reasoning_effort}"', "--output-schema", str(schema_path),
-                "--output-last-message", str(response), "-",
-            ]
-            completed = subprocess.run(
-                command, input=prompt.rstrip() + "\n\n" + json.dumps(envelope, ensure_ascii=False),
-                text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                timeout=args.timeout_seconds, check=False,
-            )
-            if completed.returncode != 0 or not response.is_file():
-                raise RuntimeError(f"heading review batch failed: {completed.stderr[-2000:]}")
-            review = validate_review(json.loads(response.read_text(encoding="utf-8")), expected, args.reviewer_id)
+        review: dict[str, Any] | None = None
+        errors = []
+        for attempt in range(1, args.attempts + 1):
+            with tempfile.TemporaryDirectory(prefix="bib-heading-review-") as directory:
+                response = Path(directory) / "response.json"
+                workspace = Path(directory) / "empty"
+                workspace.mkdir()
+                command = [
+                    "codex", "exec", "--model", args.model, "--sandbox", "read-only", "--ephemeral",
+                    "--skip-git-repo-check", "--cd", str(workspace), "--config",
+                    f'model_reasoning_effort="{args.reasoning_effort}"', "--output-schema", str(schema_path),
+                    "--output-last-message", str(response), "-",
+                ]
+                completed = subprocess.run(
+                    command, input=prompt.rstrip() + "\n\n" + json.dumps(envelope, ensure_ascii=False),
+                    text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    timeout=args.timeout_seconds, check=False,
+                )
+                try:
+                    if completed.returncode != 0 or not response.is_file():
+                        raise RuntimeError(completed.stderr[-2000:])
+                    review = validate_review(
+                        json.loads(response.read_text(encoding="utf-8")), expected, args.reviewer_id,
+                    )
+                    break
+                except (ValueError, RuntimeError, json.JSONDecodeError) as error:
+                    errors.append(f"attempt {attempt}: {type(error).__name__}: {error}")
+        if review is None:
+            raise RuntimeError("heading review batch exhausted retries: " + " | ".join(errors))
         _write_json_new(final, {"schema_version": "bibliography-heading-review-batch-v1", "contract": contract, "review": review})
         return review
 
@@ -473,6 +486,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     run.add_argument("--batch-size", type=int, default=8)
     run.add_argument("--workers", type=int, default=2)
     run.add_argument("--timeout-seconds", type=int, default=1800)
+    run.add_argument("--attempts", type=int, default=3)
     adj = sub.add_parser("adjudicate")
     adj.add_argument("--provenance", type=Path, required=True)
     adj.add_argument("--review-a", type=Path, required=True)
