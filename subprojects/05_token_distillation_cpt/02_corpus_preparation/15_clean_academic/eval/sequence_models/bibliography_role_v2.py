@@ -84,7 +84,7 @@ def apply_heading_overrides(
         if override is not None:
             role = str(override.get("role", ""))
             status = str(override.get("role_status", ""))
-            if role not in {"BIB_HEADER", "BIB_SUBHEADER", "NON_BIB_HEADER", "OTHER", "UNKNOWN"}:
+            if role not in ANNOTATION_ROLES:
                 raise ValueError(f"invalid heading override role for {key}: {role}")
             if status in TRUSTED_STATUSES or role == "UNKNOWN":
                 for field in (

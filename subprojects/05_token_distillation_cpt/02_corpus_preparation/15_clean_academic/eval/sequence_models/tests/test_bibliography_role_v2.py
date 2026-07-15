@@ -65,3 +65,20 @@ def test_heading_override_cannot_silently_drop_absent_lines() -> None:
     )
     assert result[0]["role"] == "NON_BIB_HEADER"
     assert result[0]["heading_override_applied"] is True
+
+
+def test_not_heading_override_may_preserve_a_trusted_entry_role() -> None:
+    migrated = migrate_row(_row("ENTRY_ANCHOR"))
+    result = apply_heading_overrides(
+        [migrated],
+        {
+            ("d", "l"): {
+                "role": "ENTRY", "role_status": "AGREED_REVIEW",
+                "role_confidence": 1.0, "reviewers": ["x", "y"],
+                "raw_role_votes": {"x": ["NOT_HEADER"], "y": ["NOT_HEADER"]},
+                "label_origin": "dual_heading_review",
+            }
+        },
+    )
+    assert result[0]["role"] == "ENTRY"
+    assert result[0]["heading_override_applied"] is True
