@@ -114,6 +114,13 @@ def wait_for_jobs(job_ids: Sequence[str], poll_seconds: int) -> dict[str, tuple[
 from collections import Counter  # noqa: E402  (kept by state reporter)
 
 
+def bundle_layout(task_count: int, task_concurrency: int, maximum_elements: int) -> tuple[int, int]:
+    if task_count <= 0 or task_concurrency <= 0 or maximum_elements <= 0:
+        raise ValueError("bundle layout values must be positive")
+    bundle_width = max(task_concurrency, math.ceil(task_count / maximum_elements))
+    return math.ceil(task_count / bundle_width), bundle_width
+
+
 class Submitter:
     def __init__(self, args: argparse.Namespace, config: Mapping[str, Any]):
         self.args = args
@@ -232,11 +239,9 @@ class Submitter:
         max_parallel_nodes: int | None = None,
         extra: Mapping[str, object] | None = None,
     ) -> str:
-        bundles = math.ceil(task_count / tasks_per_node)
-        if bundles <= 0:
-            raise ValueError(f"{stage}: no tasks")
         configured_maximum = int(self.config["execution"]["max_array_parallelism"])
         maximum = min(max_parallel_nodes or configured_maximum, configured_maximum)
+        bundles, bundle_width = bundle_layout(task_count, tasks_per_node, maximum)
         return self.submit(
             name,
             stage,
@@ -246,7 +251,12 @@ class Submitter:
             cpus=128,
             array=f"0-{bundles - 1}%{min(bundles, maximum)}",
             command=self.bundle_script,
-            extra={"TASK_COUNT": task_count, "TASKS_PER_NODE": tasks_per_node, **(extra or {})},
+            extra={
+                "TASK_COUNT": task_count,
+                "TASKS_PER_NODE": bundle_width,
+                "TASK_CONCURRENCY": tasks_per_node,
+                **(extra or {}),
+            },
         )
 
 
@@ -281,67 +291,93 @@ def submit_dag(args: argparse.Namespace) -> dict[str, Any]:
     transform_canary = submitter.submit(
         "transform-canary", "transform", partition=compute_partition, walltime="00:30:00", dependency=[bootstrap], extra={"TASK_INDEX": 0}
     )
+    wait_for_jobs([transform_canary], args.poll_seconds)
     transform = submitter.bundled("transform", "transform", transform_tasks, 32, [transform_canary])
+    wait_for_jobs([transform], args.poll_seconds)
     merge_transform = submitter.submit(
         "merge-transform", "merge-transform", partition=compute_partition, walltime="00:30:00", dependency=[transform]
     )
+    wait_for_jobs([merge_transform], args.poll_seconds)
     glossapi_canary = submitter.submit(
         "glossapi-canary", "glossapi", partition=compute_partition, walltime="00:30:00", dependency=[merge_transform], cpus=16, extra={"TASK_INDEX": 0, "GLOSSAPI_THREADS": 8}
     )
+    wait_for_jobs([glossapi_canary], args.poll_seconds)
     glossapi = submitter.bundled("glossapi", "glossapi", transform_tasks, 8, [glossapi_canary])
+    wait_for_jobs([glossapi], args.poll_seconds)
     merge_glossapi = submitter.submit(
         "merge-glossapi", "merge-glossapi", partition=compute_partition, walltime="00:30:00", dependency=[glossapi]
     )
+    wait_for_jobs([merge_glossapi], args.poll_seconds)
     envelope_plan = submitter.submit(
         "plan-envelope", "plan-envelope", partition=compute_partition, walltime=maximum_walltime, dependency=[merge_glossapi], cpus=16
     )
+    wait_for_jobs([envelope_plan], args.poll_seconds)
     envelope = submitter.bundled("envelope", "envelope", transform_tasks, 16, [envelope_plan])
+    wait_for_jobs([envelope], args.poll_seconds)
     merge_envelope = submitter.submit(
         "merge-envelope", "merge-envelope", partition=compute_partition, walltime="00:30:00", dependency=[envelope]
     )
+    wait_for_jobs([merge_envelope], args.poll_seconds)
 
     base_canary = submitter.submit(
         "base-canary", "base", partition=compute_partition, walltime="00:30:00", dependency=[bootstrap], extra={"TASK_INDEX": 0}
     )
+    wait_for_jobs([base_canary], args.poll_seconds)
     base = submitter.bundled("base", "base", base_tasks, 16, [base_canary])
+    wait_for_jobs([base], args.poll_seconds)
     merge_base = submitter.submit(
         "merge-base", "merge-base", partition=compute_partition, walltime="00:30:00", dependency=[base]
     )
+    wait_for_jobs([merge_base], args.poll_seconds)
     combine = submitter.submit(
         "combine", "combine", partition=compute_partition, walltime="00:30:00", dependency=[merge_envelope, merge_base]
     )
+    wait_for_jobs([combine], args.poll_seconds)
     publish_pre = submitter.submit(
         "publish-pre", "publish-pre", partition=transfer_partition, walltime=maximum_walltime, dependency=[combine], cpus=8
     )
+    wait_for_jobs([publish_pre], args.poll_seconds)
 
     exact_canary = submitter.submit(
         "exact-canary", "exact-index", partition=compute_partition, walltime="00:30:00", dependency=[publish_pre], extra={"TASK_INDEX": 0}
     )
+    wait_for_jobs([exact_canary], args.poll_seconds)
     exact = submitter.bundled("exact", "exact-index", combined_tasks, 16, [exact_canary])
+    wait_for_jobs([exact], args.poll_seconds)
     merge_exact = submitter.submit(
         "merge-exact", "merge-exact", partition=compute_partition, walltime="00:30:00", dependency=[exact]
     )
+    wait_for_jobs([merge_exact], args.poll_seconds)
     signature_canary = submitter.submit(
         "signature-canary", "signature", partition=compute_partition, walltime="00:30:00", dependency=[publish_pre], cpus=16, extra={"TASK_INDEX": 0}
     )
+    wait_for_jobs([signature_canary], args.poll_seconds)
     signature = submitter.bundled("signature", "signature", combined_tasks, 8, [signature_canary])
+    wait_for_jobs([signature], args.poll_seconds)
     merge_signatures = submitter.submit(
         "merge-signatures", "merge-signatures", partition=compute_partition, walltime="00:30:00", dependency=[signature]
     )
+    wait_for_jobs([merge_signatures], args.poll_seconds)
     bucket_canary = submitter.submit(
         "bucket-canary", "bucket", partition=compute_partition, walltime="00:30:00", dependency=[merge_signatures], cpus=32, extra={"TASK_INDEX": 0}
     )
+    wait_for_jobs([bucket_canary], args.poll_seconds)
     buckets = submitter.bundled("buckets", "bucket", bucket_tasks, 1, [bucket_canary], max_parallel_nodes=32)
+    wait_for_jobs([buckets], args.poll_seconds)
     pairs = submitter.submit(
         "merge-pairs", "merge-pairs", partition=compute_partition, walltime=maximum_walltime, dependency=[buckets], cpus=32
     )
+    wait_for_jobs([pairs], args.poll_seconds)
     shingles = submitter.bundled("shingles", "shingles", combined_tasks, 8, [pairs])
+    wait_for_jobs([shingles], args.poll_seconds)
     merge_shingles = submitter.submit(
         "merge-shingles", "merge-shingles", partition=compute_partition, walltime="00:30:00", dependency=[shingles]
     )
+    wait_for_jobs([merge_shingles], args.poll_seconds)
     verify_canary = submitter.submit(
         "verify-canary", "verify", partition=compute_partition, walltime="00:30:00", dependency=[merge_shingles], cpus=32, extra={"TASK_INDEX": 0, "VERIFY_TASKS": verifier_tasks}
     )
+    wait_for_jobs([verify_canary], args.poll_seconds)
     verify = submitter.bundled(
         "verify",
         "verify",
@@ -351,27 +387,34 @@ def submit_dag(args: argparse.Namespace) -> dict[str, Any]:
         max_parallel_nodes=128,
         extra={"VERIFY_TASKS": verifier_tasks},
     )
+    wait_for_jobs([verify], args.poll_seconds)
     merge_verified = submitter.submit(
         "merge-verified", "merge-verified", partition=compute_partition, walltime="00:30:00", dependency=[verify], extra={"VERIFY_TASKS": verifier_tasks}
     )
+    wait_for_jobs([merge_verified], args.poll_seconds)
     cluster = submitter.submit(
         "cluster", "cluster", partition=compute_partition, walltime=maximum_walltime, dependency=[merge_exact, merge_verified], cpus=64
     )
+    wait_for_jobs([cluster], args.poll_seconds)
     filter_job = submitter.bundled("filter", "filter", combined_tasks, 16, [cluster])
+    wait_for_jobs([filter_job], args.poll_seconds)
     merge_filtered = submitter.submit(
         "merge-filtered", "merge-filtered", partition=compute_partition, walltime="00:30:00", dependency=[filter_job]
     )
+    wait_for_jobs([merge_filtered], args.poll_seconds)
     publish_dedup = submitter.submit(
         "publish-dedup", "publish-dedup", partition=transfer_partition, walltime=maximum_walltime, dependency=[merge_filtered], cpus=8
     )
+    wait_for_jobs([publish_dedup], args.poll_seconds)
     submitter.persist()
     graph_path = args.run_root / "slurm_job_graph.json"
     write_atomic(
         graph_path,
         {
             "schema_version": "agent1_v5_eiger_job_graph_v1",
-            "status": "submitted",
+            "status": "completed",
             "created_at": utc_now(),
+            "completed_at": utc_now(),
             "run_id": args.run_id,
             "counts": {
                 "transform_tasks": transform_tasks,

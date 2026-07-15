@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import agent1_v5_datatrove as dedup  # noqa: E402
 import agent1_v5_pipeline as pipeline  # noqa: E402
+import submit_agent1_v5_eiger as submitter  # noqa: E402
 
 
 def write_json(path: Path, value: object) -> None:
@@ -118,6 +119,13 @@ def test_clariden_wrapper_isolates_venv_and_setup_avoids_unused_glossapi_extras(
     assert 'pip install --no-deps -e "${GLOSSAPI_ROOT}"' not in setup
     assert '"${GLOSSAPI_ROOT}/rust/glossapi_rs_cleaner"' in setup
     assert '"${GLOSSAPI_ROOT}/rust/glossapi_rs_noise"' in setup
+
+
+def test_debug_bundle_layout_stays_within_four_submitted_array_elements() -> None:
+    assert submitter.bundle_layout(158, 32, 4) == (4, 40)
+    assert submitter.bundle_layout(273, 16, 4) == (4, 69)
+    assert submitter.bundle_layout(32, 1, 4) == (4, 8)
+    assert submitter.bundle_layout(3, 8, 4) == (1, 8)
 
 
 def test_nested_source_mapping_extracts_fields_and_keeps_remaining_metadata() -> None:
