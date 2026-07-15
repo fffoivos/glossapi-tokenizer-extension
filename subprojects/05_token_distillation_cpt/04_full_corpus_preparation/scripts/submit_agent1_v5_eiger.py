@@ -145,6 +145,7 @@ class Submitter:
             "RUNTIME_ROOT": self.runtime_root,
             "VENV_ROOT": self.venv_root,
             "GLOSSAPI_ROOT": self.glossapi_root,
+            "GLOSSAPI_BUNDLE": self.config["pins"]["glossapi_bundle"],
             "DATATROVE_ROOT": self.datatrove_root,
             "HF_TOKEN_FILE": self.args.hf_token_file,
             "SCRATCH_ROOT": self.args.run_root / "task-scratch",

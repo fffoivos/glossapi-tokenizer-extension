@@ -27,7 +27,10 @@ case "${STAGE}" in
     if [[ ! -d "${DATATROVE_ROOT}/.git" ]]; then
       git clone https://github.com/huggingface/datatrove.git "${DATATROVE_ROOT}"
     fi
-    git -C "${GLOSSAPI_ROOT}" fetch --quiet origin "${GLOSSAPI_COMMIT}"
+    : "${GLOSSAPI_BUNDLE:?GLOSSAPI_BUNDLE is required}"
+    test -f "${GLOSSAPI_BUNDLE}"
+    git -C "${GLOSSAPI_ROOT}" fetch --quiet "${GLOSSAPI_BUNDLE}" refs/heads/development
+    git -C "${GLOSSAPI_ROOT}" cat-file -e "${GLOSSAPI_COMMIT}^{commit}"
     git -C "${GLOSSAPI_ROOT}" checkout --detach "${GLOSSAPI_COMMIT}"
     git -C "${DATATROVE_ROOT}" fetch --quiet origin "${DATATROVE_COMMIT}"
     git -C "${DATATROVE_ROOT}" checkout --detach "${DATATROVE_COMMIT}"

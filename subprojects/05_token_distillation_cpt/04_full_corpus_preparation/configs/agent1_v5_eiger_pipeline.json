@@ -18,6 +18,7 @@
     "nanochat_repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
     "nanochat_revision": "e1d54136a880ed1df2ed95a5445dabd230453207",
     "glossapi_commit": "a2aace04fbae61ed58931be1a1237a52d1b8ddb3",
+    "glossapi_bundle": "/capstor/scratch/cscs/fffoivos/agent1-v5-runtime-pins/glossapi-a2aace04fbae.bundle",
     "datatrove_version": "0.9.0",
     "datatrove_commit": "87f7bad5c4a56ec648265fbf0b91d7d226bad428",
     "rust_toolchain": "1.85.1"

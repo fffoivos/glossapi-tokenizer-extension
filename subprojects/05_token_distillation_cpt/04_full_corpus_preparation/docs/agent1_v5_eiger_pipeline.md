@@ -43,7 +43,10 @@ by the babysitter if they reach the debug wall-time.
 
 Jobs enter the pinned `pytorch/v2.6.0:v1` uenv. Setup installs the pinned Rust
 1.85.1 toolchain into the run coordination directory before building the two
-GlossAPI Rust extensions. No Eiger or HPC Platform authorization is required.
+GlossAPI Rust extensions. The four local repetition-cleaning commits are
+transported as a small incremental Git bundle and setup still checks out the
+exact pinned `a2aace0` commit. No Eiger or HPC Platform authorization is
+required.
 
 ## Storage bridge
 

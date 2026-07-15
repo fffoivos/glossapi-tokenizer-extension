@@ -106,6 +106,7 @@ def test_config_locks_all_eighteen_source_adapters_and_schema() -> None:
     assert config["execution"]["transfer_partition"] == "debug"
     assert config["execution"]["max_walltime"] == "01:25:00"
     assert config["execution"]["max_array_parallelism"] == 4
+    assert config["pins"]["glossapi_bundle"].endswith("glossapi-a2aace04fbae.bundle")
 
 
 def test_nested_source_mapping_extracts_fields_and_keeps_remaining_metadata() -> None:
