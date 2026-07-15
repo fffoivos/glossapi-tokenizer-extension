@@ -4,7 +4,8 @@ import numpy as np
 
 from sequence_models.bibliography_role_block import (
     FEATURE_NAMES, BlockExample, DecoderConfig, StructuredConfig, StructuredModel,
-    candidate_spans, decode, gold_is_seed_reachable, prediction_mask,
+    candidate_spans, decode, gold_is_proposal_reachable, gold_is_seed_reachable,
+    prediction_mask,
 )
 from sequence_models.bibliography_role_v2 import OPERATIONAL_ROLES, ROLE_TO_ID
 
@@ -82,3 +83,20 @@ def test_decoder_never_emits_span_without_two_entry_seeds() -> None:
     assert decode(item, model) == []
     assert not prediction_mask(3, []).any()
     assert not gold_is_seed_reachable(item, DecoderConfig())
+
+
+def test_proposal_reachability_accounts_for_candidate_radius() -> None:
+    item = example(
+        [
+            {"BIB_HEADER": .9}, {"CONTINUATION": .9}, {"CONTINUATION": .9},
+            {"ENTRY": .9}, {"ENTRY": .9}, {"CONTINUATION": .9},
+            {"CONTINUATION": .9}, {"CONTINUATION": .9}, {"CONTINUATION": .9},
+        ],
+        [
+            "BIB_HEADER", "CONTINUATION", "CONTINUATION", "ENTRY", "ENTRY",
+            "CONTINUATION", "CONTINUATION", "CONTINUATION", "CONTINUATION",
+        ],
+    )
+    assert gold_is_seed_reachable(item, DecoderConfig(candidate_radius=3))
+    assert not gold_is_proposal_reachable(item, DecoderConfig(candidate_radius=3))
+    assert gold_is_proposal_reachable(item, DecoderConfig(candidate_radius=5))

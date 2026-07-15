@@ -319,6 +319,13 @@ def gold_is_seed_reachable(example: BlockExample, config: DecoderConfig) -> bool
     return True
 
 
+def gold_is_proposal_reachable(example: BlockExample, config: DecoderConfig) -> bool:
+    """Whether every gold block can be emitted by the frozen proposal mechanism."""
+    gold_spans = _contiguous_spans(example.gold_inside, example.abs_indices)
+    candidates = set(candidate_spans(example, config))
+    return bool(gold_spans) and all(span in candidates for span in gold_spans)
+
+
 def evaluate(examples: Sequence[BlockExample], models: Mapping[int, StructuredModel]) -> dict[str, Any]:
     tp = fp = fn = spurious_zero = zero_documents = hard_stop_crossings = 0
     char_tp = char_fp = char_fn = 0
@@ -442,54 +449,88 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     outer_models: dict[int, StructuredModel] = {}
     reports = []
     n_folds = int(manifest["n_folds"])
-    decoder = DecoderConfig()
+    decoder_grid = [DecoderConfig(candidate_radius=radius) for radius in (30, 50)]
     grid = [StructuredConfig(fp, fragment) for fp in (2.0, 4.0, 8.0) for fragment in (0.0, 1.0, 2.0)]
     for outer in range(n_folds):
         inner = (outer + 1) % n_folds
         train_all = [row for row in examples if row.fold not in {outer, inner}]
-        train = [row for row in train_all if gold_is_seed_reachable(row, decoder)]
         tune = [row for row in examples if row.fold == inner]
-        if not train or not tune:
+        if not tune:
             raise ValueError(f"fold {outer} has an empty train or tune partition")
         candidates = []
-        for offset, config in enumerate(grid):
-            model = train_structured(train, decoder, config, seed=args.seed + outer * 100 + offset)
-            metrics = evaluate(tune, {inner: model})
-            candidates.append({"config": config.__dict__, "metrics": metrics})
+        for decoder_offset, decoder in enumerate(decoder_grid):
+            train = [row for row in train_all if gold_is_proposal_reachable(row, decoder)]
+            if not train:
+                continue
+            for config_offset, config in enumerate(grid):
+                model = train_structured(
+                    train, decoder, config,
+                    seed=args.seed + outer * 1000 + decoder_offset * 100 + config_offset,
+                )
+                metrics = evaluate(tune, {inner: model})
+                candidates.append({
+                    "decoder": decoder.__dict__, "config": config.__dict__, "metrics": metrics,
+                    "train_sequence_count": len(train),
+                    "train_excluded_proposal_unreachable": len(train_all) - len(train),
+                })
+        if not candidates:
+            raise ValueError(f"fold {outer} has no proposal-reachable training partition")
         eligible = [
             row for row in candidates
             if row["metrics"]["line_precision"] >= 0.99
+            and row["metrics"]["char_precision"] >= 0.99
             and row["metrics"]["trusted_hard_stop_crossings"] == 0
+            and row["metrics"]["spurious_blocks_per_zero_document"] <= 0.02
         ]
-        pool = eligible or candidates
-        selected = max(pool, key=lambda row: (
-            row["metrics"]["line_recall"], row["metrics"]["line_precision"],
-            -row["config"]["false_positive_cost"], -row["config"]["fragmentation_cost"],
-        ))
+        if eligible:
+            selected = max(eligible, key=lambda row: (
+                min(row["metrics"]["line_recall"], row["metrics"]["char_recall"]),
+                row["metrics"]["char_recall"], row["metrics"]["line_recall"],
+                -row["decoder"]["candidate_radius"],
+                -row["config"]["false_positive_cost"], -row["config"]["fragmentation_cost"],
+            ))
+        else:
+            selected = max(candidates, key=lambda row: (
+                min(row["metrics"]["line_precision"], row["metrics"]["char_precision"]),
+                min(row["metrics"]["line_recall"], row["metrics"]["char_recall"]),
+                -row["decoder"]["candidate_radius"],
+                -row["config"]["false_positive_cost"], -row["config"]["fragmentation_cost"],
+            ))
+        decoder = DecoderConfig(**selected["decoder"])
         config = StructuredConfig(**selected["config"])
         fit_all = [row for row in examples if row.fold != outer]
-        fit = [row for row in fit_all if gold_is_seed_reachable(row, decoder)]
+        fit = [row for row in fit_all if gold_is_proposal_reachable(row, decoder)]
         model = train_structured(fit, decoder, config, seed=args.seed + outer)
         outer_models[outer] = model
         with (output / f"fold{outer}.pkl").open("xb") as handle:
             pickle.dump(model, handle, protocol=5)
         reports.append({
             "outer_fold": outer, "inner_fold": inner, "selected": selected,
-            "inner_train_sequence_count": len(train),
-            "inner_train_excluded_seed_unreachable": len(train_all) - len(train),
             "outer_fit_sequence_count": len(fit),
-            "outer_fit_excluded_seed_unreachable": len(fit_all) - len(fit),
+            "outer_fit_excluded_proposal_unreachable": len(fit_all) - len(fit),
             "candidates": candidates,
         })
     metrics = evaluate(examples, outer_models)
     report = {
         "schema_version": SCHEMA_VERSION, "status": "passed_grouped_oof_structured_training",
         "validation_opened": False, "code_commit": args.code_commit, "slurm_job_id": args.slurm_job_id,
-        "feature_names": FEATURE_NAMES, "decoder_config": decoder.__dict__,
+        "feature_names": FEATURE_NAMES,
+        "decoder_grid": [row.__dict__ for row in decoder_grid],
+        "selected_decoder_by_fold": {
+            str(row["outer_fold"]): row["selected"]["decoder"] for row in reports
+        },
         "folds": reports, "oof_metrics": metrics,
-        "seed_reachable_sequence_count": sum(
-            gold_is_seed_reachable(row, decoder) for row in examples
-        ),
+        "reachability_by_decoder": {
+            str(row.candidate_radius): {
+                "seed_reachable_sequence_count": sum(
+                    gold_is_seed_reachable(example, row) for example in examples
+                ),
+                "proposal_reachable_sequence_count": sum(
+                    gold_is_proposal_reachable(example, row) for example in examples
+                ),
+            }
+            for row in decoder_grid
+        },
         "table_manifest_sha256": sha256_file(table_root / "manifest.json"),
         "deployment_gate_passed": (
             metrics["line_precision"] >= 0.99
