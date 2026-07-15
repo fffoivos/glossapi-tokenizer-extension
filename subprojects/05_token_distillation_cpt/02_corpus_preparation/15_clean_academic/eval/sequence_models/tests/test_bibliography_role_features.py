@@ -7,6 +7,7 @@ from sequence_models.bibliography_role_features import (
     HEADING_PROBABILITY_NAMES,
     LINE_SHAPE_NAMES,
     broad_heading_candidate,
+    candidate_seed_distances,
     candidate_window_mask,
     connector_feature_names,
     connector_feature_row,
@@ -41,6 +42,16 @@ def test_candidate_windows_merge_and_respect_physical_gaps() -> None:
     assert mask[:5].all()
     assert mask[5:11].all()
     assert not mask[11]
+
+
+def test_candidate_seed_distances_are_exact_and_do_not_cross_gaps() -> None:
+    probability = np.zeros(7, dtype=np.float32)
+    probability[1] = 0.8
+    headings = np.asarray([False, False, False, False, False, True, False])
+    abs_indices = np.asarray([0, 1, 2, 3, 100, 101, 102])
+    distances = candidate_seed_distances(probability, headings, abs_indices)
+    assert distances[:4].tolist() == [1, 0, 1, 2]
+    assert distances[4:].tolist() == [1, 0, 1]
 
 
 def test_connector_join_features_measure_entry_gain() -> None:

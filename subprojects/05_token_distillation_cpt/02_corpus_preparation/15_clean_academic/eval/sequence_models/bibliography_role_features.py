@@ -224,25 +224,43 @@ def candidate_window_mask(
     entry_probability: np.ndarray, heading_candidates: np.ndarray,
     abs_indices: np.ndarray, *, entry_threshold: float = 0.25, radius: int = 30,
 ) -> np.ndarray:
+    return candidate_seed_distances(
+        entry_probability, heading_candidates, abs_indices,
+        entry_threshold=entry_threshold,
+    ) <= radius
+
+
+def candidate_seed_distances(
+    entry_probability: np.ndarray, heading_candidates: np.ndarray,
+    abs_indices: np.ndarray, *, entry_threshold: float = 0.25,
+) -> np.ndarray:
+    """Return line distance to the nearest proposal seed without crossing physical gaps."""
     if not (
         entry_probability.shape == heading_candidates.shape == abs_indices.shape
         and entry_probability.ndim == 1
     ):
         raise ValueError("candidate-window arrays must be aligned vectors")
-    seeds = np.flatnonzero((entry_probability >= entry_threshold) | heading_candidates.astype(bool))
-    mask = np.zeros(len(entry_probability), dtype=bool)
-    for seed in seeds:
-        left = right = int(seed)
-        while left > 0 and seed - left < radius:
-            if int(abs_indices[left]) - int(abs_indices[left - 1]) > MAX_PHYSICAL_GAP:
-                break
-            left -= 1
-        while right + 1 < len(mask) and right - seed < radius:
-            if int(abs_indices[right + 1]) - int(abs_indices[right]) > MAX_PHYSICAL_GAP:
-                break
-            right += 1
-        mask[left : right + 1] = True
-    return mask
+    size = len(entry_probability)
+    sentinel = np.iinfo(np.int32).max
+    distances = np.full(size, sentinel, dtype=np.int32)
+    seeds = (entry_probability >= entry_threshold) | heading_candidates.astype(bool)
+    previous: int | None = None
+    for index in range(size):
+        if index and int(abs_indices[index]) - int(abs_indices[index - 1]) > MAX_PHYSICAL_GAP:
+            previous = None
+        if seeds[index]:
+            previous = index
+        if previous is not None:
+            distances[index] = index - previous
+    following: int | None = None
+    for index in range(size - 1, -1, -1):
+        if index + 1 < size and int(abs_indices[index + 1]) - int(abs_indices[index]) > MAX_PHYSICAL_GAP:
+            following = None
+        if seeds[index]:
+            following = index
+        if following is not None:
+            distances[index] = min(int(distances[index]), following - index)
+    return distances
 
 
 def _nearest_anchor(

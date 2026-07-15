@@ -8,6 +8,7 @@ import collections
 import json
 import os
 import pickle
+import sys
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -21,8 +22,8 @@ from .bibliography_role_experts import (
     CONNECTOR_PROBABILITY_COLUMNS, HEADING_PROBABILITY_COLUMNS,
 )
 from .bibliography_role_features import (
-    HEADING_PROBABILITY_NAMES, candidate_window_mask, connector_feature_names,
-    connector_feature_row, heading_numeric_features, p0d_matrix,
+    HEADING_PROBABILITY_NAMES, candidate_seed_distances, candidate_window_mask,
+    connector_feature_names, connector_feature_row, heading_numeric_features, p0d_matrix,
 )
 from .bibliography_role_v2 import (
     ID_TO_ROLE, OVERLAY_SCHEMA, ROLE_TO_ID, TRUSTED_STATUSES,
@@ -307,6 +308,11 @@ def materialize_connector_table(args: argparse.Namespace) -> dict[str, Any]:
     folds: list[int] = []
     row_indices: list[int] = []
     candidate_counts = collections.Counter()
+    coverage_by_radius = collections.Counter()
+    missed_by_role = collections.Counter()
+    missed_by_source = collections.Counter()
+    missed_distance_buckets = collections.Counter()
+    missed_examples: list[dict[str, Any]] = []
     trusted_connectors_total = trusted_connectors_selected = 0
     for document_index, metadata in enumerate(table.documents):
         start, end = int(metadata["line_start"]), int(metadata["line_end"])
@@ -318,11 +324,46 @@ def materialize_connector_table(args: argparse.Namespace) -> dict[str, Any]:
             local_entry, local_headings, local_abs,
             entry_threshold=float(args.entry_threshold), radius=30,
         )
+        local_seed_distance = candidate_seed_distances(
+            local_entry, local_headings, local_abs,
+            entry_threshold=float(args.entry_threshold),
+        )
         for offset, (text, line_id) in enumerate(zip(texts, ids_by_doc[document_index], strict=True)):
             absolute = start + offset
             row = overlay.get((str(metadata["document_id"]), line_id))
             label = _connector_supervision(row)
-            trusted_connectors_total += int(label["connector_trusted"] and label["connector_target"])
+            trusted_connector = bool(label["connector_trusted"] and label["connector_target"])
+            trusted_connectors_total += int(trusted_connector)
+            if trusted_connector:
+                distance = int(local_seed_distance[offset])
+                for radius in (30, 50, 100, 200):
+                    coverage_by_radius[str(radius)] += int(distance <= radius)
+                if not local_mask[offset]:
+                    role_name = ID_TO_ROLE[label["role"]]
+                    missed_by_role[role_name] += 1
+                    missed_by_source[str(metadata["source"])] += 1
+                    if distance <= 50:
+                        bucket = "31-50"
+                    elif distance <= 100:
+                        bucket = "51-100"
+                    elif distance <= 200:
+                        bucket = "101-200"
+                    elif distance < np.iinfo(np.int32).max:
+                        bucket = ">200"
+                    else:
+                        bucket = "no_seed_in_physical_segment"
+                    missed_distance_buckets[bucket] += 1
+                    if len(missed_examples) < 50:
+                        missed_examples.append({
+                            "document_id": str(metadata["document_id"]),
+                            "line_id": str(line_id),
+                            "source": str(metadata["source"]),
+                            "role": role_name,
+                            "seed_distance": None if distance == np.iinfo(np.int32).max else distance,
+                            "entry_probability": float(local_entry[offset]),
+                            "char_length": len(text),
+                            "text": text[:500],
+                        })
             if not local_mask[offset] or row is None:
                 continue
             trusted_connectors_selected += int(label["connector_trusted"] and label["connector_target"])
@@ -345,6 +386,21 @@ def materialize_connector_table(args: argparse.Namespace) -> dict[str, Any]:
             row_indices.append(absolute)
             candidate_counts[ID_TO_ROLE[label["role"]]] += 1
     if trusted_connectors_selected != trusted_connectors_total:
+        diagnostic = {
+            "schema_version": "bibliography-connector-candidate-coverage-v1",
+            "trusted_connector_count": trusted_connectors_total,
+            "selected_at_radius_30": trusted_connectors_selected,
+            "coverage_by_radius": dict(sorted(coverage_by_radius.items())),
+            "missed_by_role": dict(sorted(missed_by_role.items())),
+            "missed_by_source": dict(sorted(missed_by_source.items())),
+            "missed_distance_buckets": dict(sorted(missed_distance_buckets.items())),
+            "missed_examples": missed_examples,
+        }
+        print(
+            "CONNECTOR_COVERAGE_DIAGNOSTIC="
+            + json.dumps(diagnostic, ensure_ascii=False, sort_keys=True),
+            file=sys.stderr,
+        )
         raise ValueError(
             f"candidate windows cover {trusted_connectors_selected}/{trusted_connectors_total} trusted connectors"
         )
