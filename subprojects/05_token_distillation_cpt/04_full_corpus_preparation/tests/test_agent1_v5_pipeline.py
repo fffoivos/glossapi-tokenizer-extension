@@ -119,6 +119,11 @@ def test_clariden_wrapper_isolates_venv_and_setup_avoids_unused_glossapi_extras(
     assert 'pip install --no-deps -e "${GLOSSAPI_ROOT}"' not in setup
     assert '"${GLOSSAPI_ROOT}/rust/glossapi_rs_cleaner"' in setup
     assert '"${GLOSSAPI_ROOT}/rust/glossapi_rs_noise"' in setup
+    bundle = (slurm / "bundle.sh").read_text(encoding="utf-8")
+    assert 'mkdir -p "${RUN_ROOT}/slurm"' in bundle
+    assert 'pids+=("$!")' in bundle
+    assert 'wait "${pid}"' in bundle
+    assert "jobs -pr" not in bundle
 
 
 def test_debug_bundle_batches_preserve_task_width_and_qos_limit() -> None:

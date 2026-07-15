@@ -10,15 +10,21 @@ set -euo pipefail
 START=$((SLURM_ARRAY_TASK_ID * TASKS_PER_NODE))
 END=$((START + TASKS_PER_NODE))
 if (( END > TASK_COUNT )); then END="${TASK_COUNT}"; fi
+mkdir -p "${RUN_ROOT}/slurm"
 
 status=0
-for ((task=START; task<END; task++)); do
-  TASK_INDEX="${task}" "${PIPELINE_ROOT}/slurm/agent1_v5_eiger/stage.sh" > "${RUN_ROOT}/slurm/task-${STAGE}-${task}.out" 2> "${RUN_ROOT}/slurm/task-${STAGE}-${task}.err" &
-  while (( $(jobs -pr | wc -l) >= TASK_CONCURRENCY )); do
-    if ! wait -n; then status=1; fi
+for ((wave_start=START; wave_start<END; wave_start+=TASK_CONCURRENCY)); do
+  wave_end=$((wave_start + TASK_CONCURRENCY))
+  if (( wave_end > END )); then wave_end="${END}"; fi
+  pids=()
+  for ((task=wave_start; task<wave_end; task++)); do
+    TASK_INDEX="${task}" "${PIPELINE_ROOT}/slurm/agent1_v5_eiger/stage.sh" \
+      > "${RUN_ROOT}/slurm/task-${STAGE}-${task}.out" \
+      2> "${RUN_ROOT}/slurm/task-${STAGE}-${task}.err" &
+    pids+=("$!")
   done
-done
-while (( $(jobs -pr | wc -l) > 0 )); do
-  if ! wait -n; then status=1; fi
+  for pid in "${pids[@]}"; do
+    if ! wait "${pid}"; then status=1; fi
+  done
 done
 exit "${status}"
