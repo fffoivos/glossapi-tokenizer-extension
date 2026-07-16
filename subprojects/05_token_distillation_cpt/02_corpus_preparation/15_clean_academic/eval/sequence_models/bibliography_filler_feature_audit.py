@@ -12,10 +12,20 @@ from typing import Any, Mapping, Sequence
 
 import numpy as np
 
+from .bibliography_role_experts import ConnectorBundle
 from .contract import sha256_file
 
 
 SCHEMA_VERSION = "bibliography-filler-feature-audit-v1"
+
+
+class _HistoricalConnectorUnpickler(pickle.Unpickler):
+    """Load bundles written by the historical ``python -m`` training entry point."""
+
+    def find_class(self, module: str, name: str) -> Any:
+        if module == "__main__" and name == "ConnectorBundle":
+            return ConnectorBundle
+        return super().find_class(module, name)
 
 
 def feature_group(name: str) -> str:
@@ -113,7 +123,7 @@ def _permutation_audit(
     for fold in sorted(int(value) for value in np.unique(folds)):
         rows = np.flatnonzero(trusted & (folds == fold))
         with (model_dir / "models" / f"fold{fold}.pkl").open("rb") as handle:
-            bundle = pickle.load(handle)
+            bundle = _HistoricalConnectorUnpickler(handle).load()
         probability = bundle.predict(features[rows])
         filler_probability = 1.0 - _conditional_continuation(probability)
         score = float(average_precision(filler[rows], filler_probability))
