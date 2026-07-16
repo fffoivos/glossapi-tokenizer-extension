@@ -639,3 +639,62 @@ def test_merge_transform_records_quarantined_blank_rows_without_blocking(
             "rows": 1,
         }
     ]
+
+
+def test_merge_glossapi_records_empty_rows_without_blocking(tmp_path: Path) -> None:
+    run_root = tmp_path / "run"
+    contract = run_root / "run_contract.json"
+    write_json(
+        contract,
+        {
+            "schema_version": pipeline.CONTRACT_SCHEMA,
+            "status": "passed",
+            "run_root": str(run_root),
+        },
+    )
+    transform_shard = run_root / "10-transform" / "shards" / "task-000000.parquet"
+    transform_shard.parent.mkdir(parents=True, exist_ok=True)
+    pq.write_table(
+        pa.Table.from_pylist([{"source_id": "candidate"}], schema=pipeline.transform_schema()), transform_shard
+    )
+    transform_manifest = run_root / "transform_manifest.json"
+    write_json(
+        transform_manifest,
+        {
+            "schema_version": pipeline.TRANSFORM_MANIFEST_SCHEMA,
+            "status": "passed",
+            "output_rows": 2,
+            "shards": [pipeline.file_receipt(transform_shard, root=run_root, rows=2)],
+        },
+    )
+    output_shard, receipt_path = pipeline._task_output_paths(run_root, "20-glossapi", 0)
+    output_shard.parent.mkdir(parents=True, exist_ok=True)
+    pq.write_table(
+        pa.Table.from_pylist([canonical_row("candidate", "doc", "κείμενο")], schema=pipeline.canonical_schema()),
+        output_shard,
+    )
+    issues = run_root / "20-glossapi" / "issues" / "task-000000.jsonl.gz"
+    issues.parent.mkdir(parents=True, exist_ok=True)
+    issues.write_bytes(b"")
+    write_json(
+        receipt_path,
+        {
+            "schema_version": pipeline.GLOSSAPI_RECEIPT_SCHEMA,
+            "input": {"sha256": pipeline.file_receipt(transform_shard, root=run_root, rows=2)["sha256"]},
+            "output": pipeline.file_receipt(output_shard, root=run_root, rows=1),
+            "issues": pipeline.file_receipt(issues, root=run_root),
+            "counters": {"input_rows": 2, "output_rows": 1, "quarantined_empty_after_glossapi": 1},
+        },
+    )
+    output = run_root / "glossapi_manifest.json"
+    assert pipeline.merge_glossapi(
+        argparse.Namespace(contract=contract, transform_manifest=transform_manifest, output=output)
+    ) == 0
+
+    manifest = json.loads(output.read_text(encoding="utf-8"))
+    assert manifest["status"] == "passed"
+    assert manifest["blocking_issues"] == []
+    assert manifest["quarantined_rows"] == 1
+    assert manifest["quarantine_issues"] == [
+        {"reason": "empty_after_glossapi_rows_quarantined", "rows": 1}
+    ]

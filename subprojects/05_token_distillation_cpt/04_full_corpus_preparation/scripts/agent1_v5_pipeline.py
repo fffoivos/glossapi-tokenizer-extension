@@ -1259,9 +1259,10 @@ def merge_glossapi(args: argparse.Namespace) -> int:
     if counters["input_rows"] != int(transform["output_rows"]):
         raise ValueError("GlossAPI manifest input closure failed")
     blocking = []
+    quarantines = []
     if counters["quarantined_empty_after_glossapi"]:
-        blocking.append({
-            "reason": "empty_after_glossapi_rows_require_user_review",
+        quarantines.append({
+            "reason": "empty_after_glossapi_rows_quarantined",
             "rows": counters["quarantined_empty_after_glossapi"],
         })
     result: dict[str, object] = {
@@ -1274,6 +1275,8 @@ def merge_glossapi(args: argparse.Namespace) -> int:
         "input_rows": counters["input_rows"],
         "output_rows": counters["output_rows"],
         "counters": dict(counters),
+        "quarantined_rows": sum(int(issue["rows"]) for issue in quarantines),
+        "quarantine_issues": quarantines,
         "blocking_issues": blocking,
         "shards": [receipt["output"] for receipt in receipts],
     }
