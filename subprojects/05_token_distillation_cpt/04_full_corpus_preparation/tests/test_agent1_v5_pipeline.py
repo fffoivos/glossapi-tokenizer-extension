@@ -563,3 +563,79 @@ def test_exact_cluster_protects_nanochat_and_filters_candidate(tmp_path: Path) -
     candidate = pq.read_table(output / "data" / "000001.parquet").to_pylist()
     assert [row["source_doc_id"] for row in result] == ["base-duplicate"]
     assert [row["source_doc_id"] for row in candidate] == ["candidate-unique"]
+
+
+def test_merge_transform_records_quarantined_blank_rows_without_blocking(
+    monkeypatch, tmp_path: Path
+) -> None:
+    run_root = tmp_path / "run"
+    contract = run_root / "run_contract.json"
+    write_json(
+        contract,
+        {
+            "schema_version": pipeline.CONTRACT_SCHEMA,
+            "status": "passed",
+            "run_root": str(run_root),
+        },
+    )
+    tasks = {
+        "task_count": 2,
+        "tasks": [
+            {"task_index": 0, "source_id": "complete_source"},
+            {"task_index": 1, "source_id": "partially_blank_source"},
+        ],
+    }
+    task_path = run_root / "transform_tasks.json"
+    write_json(task_path, tasks)
+    for task, counters in zip(
+        tasks["tasks"],
+        (
+            {"input_rows": 1, "output_rows": 1},
+            {"input_rows": 2, "output_rows": 1, "quarantined_blank_text": 1},
+        ),
+    ):
+        index = task["task_index"]
+        shard, receipt_path = pipeline._task_output_paths(run_root, "10-transform", index)
+        shard.parent.mkdir(parents=True, exist_ok=True)
+        pq.write_table(
+            pa.Table.from_pylist([{"source_id": task["source_id"]}], schema=pipeline.transform_schema()), shard
+        )
+        audit = run_root / "10-transform" / "audits" / f"task-{index:06d}.jsonl.gz"
+        issues = run_root / "10-transform" / "issues" / f"task-{index:06d}.jsonl.gz"
+        audit.parent.mkdir(parents=True, exist_ok=True)
+        issues.parent.mkdir(parents=True, exist_ok=True)
+        audit.write_bytes(b"")
+        issues.write_bytes(b"")
+        write_json(
+            receipt_path,
+            {
+                "schema_version": pipeline.TRANSFORM_RECEIPT_SCHEMA,
+                "task_sha256": pipeline.sha256_json(task),
+                "output": pipeline.file_receipt(shard, root=run_root, rows=1),
+                "audit": pipeline.file_receipt(audit, root=run_root),
+                "issues": pipeline.file_receipt(issues, root=run_root),
+                "counters": counters,
+            },
+        )
+
+    monkeypatch.setattr(
+        pipeline,
+        "load_config",
+        lambda _path: {"sources": {"complete_source": {}, "partially_blank_source": {}}},
+    )
+    output = run_root / "transform_manifest.json"
+    assert pipeline.merge_transform(
+        argparse.Namespace(config=tmp_path / "config.json", contract=contract, tasks=task_path, output=output)
+    ) == 0
+
+    manifest = json.loads(output.read_text(encoding="utf-8"))
+    assert manifest["status"] == "passed"
+    assert manifest["blocking_issues"] == []
+    assert manifest["quarantined_rows"] == 1
+    assert manifest["quarantine_issues"] == [
+        {
+            "source_id": "partially_blank_source",
+            "reason": "missing_or_empty_text_rows_quarantined",
+            "rows": 1,
+        }
+    ]

@@ -957,12 +957,19 @@ def merge_transform(args: argparse.Namespace) -> int:
     if len(receipts) != int(tasks["task_count"]):
         raise ValueError("transform task coverage mismatch")
     blocking = []
+    quarantines = []
     for source_id, counts in source_counts.items():
         if counts["output_rows"] == 0:
             blocking.append({"source_id": source_id, "reason": "source_has_zero_usable_text_rows"})
         missing = counts["quarantined_blank_text"] + counts["quarantined_empty_after_transform"]
         if missing:
-            blocking.append({"source_id": source_id, "reason": "missing_or_empty_text_rows_require_user_review", "rows": missing})
+            quarantines.append(
+                {
+                    "source_id": source_id,
+                    "reason": "missing_or_empty_text_rows_quarantined",
+                    "rows": missing,
+                }
+            )
         if counts["input_rows"] != counts["output_rows"] + missing:
             raise ValueError(f"{source_id}: transform row waterfall does not close")
     result: dict[str, object] = {
@@ -975,6 +982,8 @@ def merge_transform(args: argparse.Namespace) -> int:
         "source_counts": {key: dict(value) for key, value in source_counts.items()},
         "input_rows": sum(value["input_rows"] for value in source_counts.values()),
         "output_rows": sum(value["output_rows"] for value in source_counts.values()),
+        "quarantined_rows": sum(int(issue["rows"]) for issue in quarantines),
+        "quarantine_issues": quarantines,
         "blocking_issues": blocking,
         "shards": [receipt["output"] for receipt in receipts],
     }
