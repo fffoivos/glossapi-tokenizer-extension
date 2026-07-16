@@ -13,6 +13,7 @@ import argparse
 import json
 import os
 import tempfile
+import time
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -29,6 +30,8 @@ from agent1_v5_pipeline import (
 
 PUBLICATION_SCHEMA = "agent1_v5_private_hf_publication_receipt_v1"
 ALLOWED_REMOTE_SYSTEM_FILES = {".gitattributes"}
+HUB_RATE_LIMIT_BACKOFF_SECONDS = 310
+HUB_UPLOAD_WORKERS = 2
 
 
 def _field(value: object, name: str, default: Any = None) -> Any:
@@ -151,6 +154,62 @@ def remote_lfs_sha(row: object) -> str | None:
     return value if isinstance(value, str) and value else None
 
 
+def _http_status_code(error: BaseException) -> int | None:
+    response = getattr(error, "response", None)
+    value = getattr(response, "status_code", None)
+    return value if isinstance(value, int) else None
+
+
+def _retry_after_seconds(error: BaseException) -> int:
+    """Wait out Hub rate-limit windows instead of hot-looping on HTTP 429.
+
+    ``upload_large_folder`` persists its own per-file state, but version 0.26
+    immediately requeues a failed final commit when its other queues are
+    empty.  That behaviour continuously refreshes a rolling Hub rate-limit
+    window.  Wrapping only ``create_commit`` preserves that resumable state
+    while making a 429 an in-place, bounded pause.
+    """
+    response = getattr(error, "response", None)
+    headers = getattr(response, "headers", None)
+    retry_after = headers.get("Retry-After") if headers is not None else None
+    try:
+        hinted = int(float(retry_after))
+    except (TypeError, ValueError):
+        hinted = 0
+    return max(HUB_RATE_LIMIT_BACKOFF_SECONDS, hinted)
+
+
+def upload_large_folder_with_rate_limit_backoff(api: Any, **kwargs: Any) -> None:
+    """Call the Hub uploader with deliberate recovery from commit API 429s."""
+    original_create_commit = api.create_commit
+    rate_limit_events = 0
+
+    def create_commit_with_backoff(*args: Any, **commit_kwargs: Any) -> Any:
+        nonlocal rate_limit_events
+        while True:
+            try:
+                return original_create_commit(*args, **commit_kwargs)
+            except Exception as error:
+                if _http_status_code(error) != 429:
+                    raise
+                rate_limit_events += 1
+                delay = _retry_after_seconds(error)
+                print(
+                    canonical_json(
+                        {
+                            "event": "huggingface_rate_limit_backoff",
+                            "attempt": rate_limit_events,
+                            "sleep_seconds": delay,
+                        }
+                    ),
+                    flush=True,
+                )
+                time.sleep(delay)
+
+    api.create_commit = create_commit_with_backoff
+    api.upload_large_folder(num_workers=HUB_UPLOAD_WORKERS, **kwargs)
+
+
 def verify_remote(
     api: Any,
     repo_id: str,
@@ -252,7 +311,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     if extras:
         raise RuntimeError(f"remote repository contains unexpected payload: {sorted(extras)}")
     build_or_validate_staging(args.release.resolve(), args.staging.resolve(), inventory)
-    api.upload_large_folder(
+    upload_large_folder_with_rate_limit_backoff(
+        api,
         repo_id=args.repo_id,
         repo_type="dataset",
         folder_path=str(args.staging.resolve()),

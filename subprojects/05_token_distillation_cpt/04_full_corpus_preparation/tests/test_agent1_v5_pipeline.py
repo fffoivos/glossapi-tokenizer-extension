@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import agent1_v5_datatrove as dedup  # noqa: E402
 import agent1_v5_pipeline as pipeline  # noqa: E402
+import publish_private_agent1_v5 as publisher  # noqa: E402
 import prototype_agent1_v4_gfm_normalization as gfm  # noqa: E402
 import submit_agent1_v5_eiger as submitter  # noqa: E402
 
@@ -698,3 +699,41 @@ def test_merge_glossapi_records_empty_rows_without_blocking(tmp_path: Path) -> N
     assert manifest["quarantine_issues"] == [
         {"reason": "empty_after_glossapi_rows_quarantined", "rows": 1}
     ]
+
+
+def test_publisher_waits_out_hub_rate_limit_without_requeueing(monkeypatch) -> None:
+    class Response:
+        status_code = 429
+        headers = {"Retry-After": "1"}
+
+    class RateLimited(Exception):
+        response = Response()
+
+    class Api:
+        def __init__(self) -> None:
+            self.commit_calls = 0
+            self.upload_kwargs: dict[str, object] = {}
+
+        def create_commit(self, *_args: object, **_kwargs: object) -> str:
+            self.commit_calls += 1
+            if self.commit_calls == 1:
+                raise RateLimited("rate limited")
+            return "commit-sha"
+
+        def upload_large_folder(self, **kwargs: object) -> None:
+            self.upload_kwargs = kwargs
+            assert self.create_commit() == "commit-sha"
+
+    pauses: list[int] = []
+    monkeypatch.setattr(publisher.time, "sleep", pauses.append)
+    api = Api()
+    publisher.upload_large_folder_with_rate_limit_backoff(
+        api,
+        repo_id="owner/private",
+        repo_type="dataset",
+        folder_path="/tmp/staging",
+    )
+
+    assert pauses == [publisher.HUB_RATE_LIMIT_BACKOFF_SECONDS]
+    assert api.commit_calls == 2
+    assert api.upload_kwargs["num_workers"] == publisher.HUB_UPLOAD_WORKERS
