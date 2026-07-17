@@ -342,6 +342,14 @@ def run(args: argparse.Namespace) -> Mapping[str, Any]:
                 key = f"{regime}__{size_label}__{arm}"
                 predictions[key] = probability
                 thresholds[key] = threshold
+                metrics = report["oof_metrics"]
+                print(
+                    "GAP_SCREEN_CONFIG "
+                    f"key={key} break_ap={metrics['break_pr_auc']:.6f} "
+                    f"false_connects={metrics['false_connect_count']} "
+                    f"connect_recall={metrics['connect_recall']:.6f}",
+                    flush=True,
+                )
 
     best_break = max(float(row["oof_metrics"]["break_pr_auc"]) for row in reports)
     best_report = max(reports, key=lambda row: float(row["oof_metrics"]["break_pr_auc"]))

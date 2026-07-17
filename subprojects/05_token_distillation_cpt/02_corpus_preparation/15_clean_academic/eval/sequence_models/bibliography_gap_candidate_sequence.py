@@ -387,6 +387,12 @@ def _run_configuration(
                 "epoch_candidates": epoch_reports,
                 "threshold_selection": selection,
             })
+            print(
+                "GAP_SEQUENCE_FOLD "
+                f"configuration={config_key} arm={arm} outer_fold={outer} "
+                f"epochs={selected_epochs}",
+                flush=True,
+            )
 
     targets = table.targets[genuine_rows]
     sources = np.asarray([table.metadata[index]["source"] for index in genuine_rows])
