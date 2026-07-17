@@ -290,6 +290,48 @@ def _source_and_document_profile(
     }
 
 
+def _continuation_source_profiles(
+    *, rows: np.ndarray, metadata: Sequence[Mapping[str, Any]],
+    features: np.ndarray, names: Sequence[str], entry_probability: np.ndarray,
+    subtype_probability: np.ndarray,
+) -> dict[str, Any]:
+    source_to_rows: dict[str, list[int]] = defaultdict(list)
+    for row in rows:
+        source_to_rows[str(metadata[int(row)]["source"])].append(int(row))
+    selected_features = (
+        "char_length", "token_count", "gap:unmatched_fraction",
+        "joined_previous_probability_gain", "joined_previous_distinct_feature_gain",
+        "joined_next_probability_gain", "joined_next_distinct_feature_gain",
+        "inside_anchor_gap",
+    )
+    result = {}
+    for source, source_row_list in sorted(source_to_rows.items()):
+        source_rows = np.asarray(source_row_list, dtype=np.int64)
+        result[source] = {
+            "line_count": len(source_rows),
+            "document_count": len({metadata[row]["document_id"] for row in source_rows}),
+            "current_entry_probability": numeric_summary(entry_probability[source_rows]),
+            "continuation_probability_given_connector": numeric_summary(
+                subtype_probability[source_rows]
+            ),
+            "selected_features": {
+                name: numeric_summary(features[source_rows, _feature_column(names, name)])
+                for name in selected_features
+            },
+            "prototypes": _prototype_counts(
+                rows=source_rows, features=features, names=names,
+                entry_probability=entry_probability,
+            ),
+            "deterministic_presence_rates": {
+                name.removeprefix("presence:"): float(np.mean(
+                    features[source_rows, column] > 0
+                ))
+                for column, name in enumerate(names) if name.startswith("presence:")
+            },
+        }
+    return result
+
+
 def _examples(
     *, continuation_rows: np.ndarray, metadata: Sequence[Mapping[str, Any]],
     features: np.ndarray, names: Sequence[str], entry_probability: np.ndarray,
@@ -480,6 +522,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "continuation_count": int(len(continuation_rows)),
         "filler_count": int(len(role_rows["FILLER"])),
         "oof_continuation_average_precision_fold_weighted": baseline,
+        "oof_continuation_average_precision_pooled": float(_sklearn()[0](
+            continuation[subtype_rows], subtype_probability[subtype_rows]
+        )),
         "oof_continuation_probability": numeric_summary(
             subtype_probability[continuation_rows]
         ),
@@ -500,6 +545,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ),
         "continuation_corpus_profile": _source_and_document_profile(
             rows=continuation_rows, metadata=metadata
+        ),
+        "continuation_source_profiles": _continuation_source_profiles(
+            rows=continuation_rows, metadata=metadata, features=features,
+            names=names, entry_probability=entry_probability,
+            subtype_probability=subtype_probability,
         ),
         "examples": _examples(
             continuation_rows=continuation_rows, metadata=metadata,
