@@ -397,6 +397,155 @@ def signature_task(args: argparse.Namespace) -> int:
     return 0
 
 
+def _signature_dtype(step: Any) -> Any:
+    """Return DataTrove's on-disk MinHash record dtype."""
+
+    import numpy as np
+
+    return np.dtype(
+        [
+            (f"field{i + 1}", f"<{step.config.hash_config.struct_format}")
+            for i in range(step.config.hashes_per_bucket)
+        ]
+        + [(f"field{step.config.hashes_per_bucket + 1}", "<I")]
+    )
+
+
+def _signature_partial_paths(run_root: Path, rank: int, row_group: int) -> tuple[Path, Path]:
+    root = run_root / "60-dedup" / "minhash-signatures"
+    partial = root / "partials" / f"{rank:05d}" / f"group-{row_group:03d}"
+    receipt = root / "partial-receipts" / f"{rank:05d}" / f"group-{row_group:03d}.json"
+    return partial, receipt
+
+
+def signature_row_group_task(args: argparse.Namespace) -> int:
+    """Create one durable, sorted MinHash-signature row-group partial.
+
+    A few legacy NanoChat parquet files contain very large text rows.  The
+    stock DataTrove step treats the full file as one non-checkpointed unit,
+    which cannot fit in Clariden's debug walltime.  This uses the identical
+    tokenizer, signature calculation, binary layout, and sort order, but
+    checkpoints each parquet row group before the final rank-level merge.
+    """
+
+    import pyarrow.parquet as pq
+    from datatrove.pipeline.dedup import MinhashDedupSignature
+
+    config = load_config(args.config)
+    _verify_runtime(args.runtime_receipt, config)
+    run = contract(args.contract)
+    combined, root = _load_release(args.combined_manifest)
+    rank = int(args.task_index)
+    row_group = int(args.row_group)
+    run_root = Path(str(run["run_root"]))
+    source = root / str(combined["files"][rank]["path"])
+    parquet = pq.ParquetFile(source)
+    if not 0 <= row_group < parquet.metadata.num_row_groups:
+        raise ValueError(f"row group out of range: rank={rank} row_group={row_group}")
+    partial_root, receipt_path = _signature_partial_paths(run_root, rank, row_group)
+    if receipt_path.exists():
+        receipt = read_object(receipt_path)
+        if receipt.get("status") != "passed":
+            raise ValueError(f"invalid signature partial receipt: {receipt_path}")
+        for binding in receipt["outputs"]:
+            validate_file_receipt(binding, root=run_root)
+        print(canonical_json({"ok": True, "reused": True, "task": rank, "row_group": row_group}))
+        return 0
+
+    step = MinhashDedupSignature(
+        output_folder=str(partial_root),
+        config=_minhash_config(config),
+        language=str(config["dedup"]["language"]),
+    )
+    dtype = _signature_dtype(step)
+    row_offset = sum(parquet.metadata.row_group(i).num_rows for i in range(row_group))
+    texts = parquet.read_row_group(row_group, columns=["text"]).column("text").to_pylist()
+    records: list[list[tuple[Any, ...]]] = [[] for _ in range(int(config["dedup"]["num_buckets"]))]
+    for document_index, text in enumerate(texts, start=row_offset):
+        shingles = step.get_shingles(str(text))
+        if shingles.size == 0:
+            continue
+        for bucket, signature in enumerate(step.get_signature(shingles)):
+            records[bucket].append((*signature, document_index))
+
+    outputs = []
+    for bucket, values in enumerate(records):
+        path = partial_root / f"bucket_{bucket:03d}" / f"{rank:05d}.minhash.sig"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        array = __import__("numpy").array(values, dtype=dtype)
+        array.sort(order=dtype.names)
+        temporary = path.with_suffix(path.suffix + ".partial")
+        temporary.write_bytes(array.tobytes())
+        os.replace(temporary, path)
+        outputs.append(file_receipt(path, root=run_root))
+    write_json_atomic(
+        receipt_path,
+        {
+            "schema_version": "agent1_v5_minhash_signature_partial_v1",
+            "status": "passed",
+            "created_at": utc_now(),
+            "task_index": rank,
+            "row_group": row_group,
+            "rows": len(texts),
+            "outputs": outputs,
+        },
+    )
+    print(canonical_json({"ok": True, "task": rank, "row_group": row_group, "files": len(outputs)}))
+    return 0
+
+
+def merge_signature_row_groups(args: argparse.Namespace) -> int:
+    """Merge durable signature row-group partials into the normal rank output."""
+
+    import numpy as np
+    import pyarrow.parquet as pq
+    from datatrove.pipeline.dedup import MinhashDedupSignature
+
+    config = load_config(args.config)
+    _verify_runtime(args.runtime_receipt, config)
+    run = contract(args.contract)
+    combined, root = _load_release(args.combined_manifest)
+    rank = int(args.task_index)
+    run_root = Path(str(run["run_root"]))
+    output_root = run_root / "60-dedup" / "minhash-signatures"
+    _, receipt_path = _dedup_paths(run_root, "minhash-signatures", rank, ".unused")
+    if receipt_path.exists():
+        print(canonical_json({"ok": True, "reused": True, "task": rank}))
+        return 0
+    parquet = pq.ParquetFile(root / str(combined["files"][rank]["path"]))
+    step = MinhashDedupSignature(output_folder=str(output_root), config=_minhash_config(config), language=str(config["dedup"]["language"]))
+    dtype = _signature_dtype(step)
+    partials = []
+    for row_group in range(parquet.metadata.num_row_groups):
+        _, partial_receipt = _signature_partial_paths(run_root, rank, row_group)
+        value = read_object(partial_receipt)
+        if value.get("status") != "passed" or value.get("row_group") != row_group:
+            raise ValueError(f"missing or invalid signature partial: {partial_receipt}")
+        partials.append(value)
+    outputs = []
+    for bucket in range(int(config["dedup"]["num_buckets"])):
+        chunks = []
+        for partial in partials:
+            binding = partial["outputs"][bucket]
+            validate_file_receipt(binding, root=run_root)
+            chunks.append(np.frombuffer((run_root / str(binding["path"])).read_bytes(), dtype=dtype))
+        merged = np.concatenate(chunks) if chunks else np.array([], dtype=dtype)
+        merged.sort(order=dtype.names)
+        path = output_root / f"bucket_{bucket:03d}" / f"{rank:05d}.minhash.sig"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_suffix(path.suffix + ".partial")
+        temporary.write_bytes(merged.tobytes())
+        os.replace(temporary, path)
+        outputs.append(file_receipt(path, root=run_root))
+    write_json_atomic(receipt_path, {
+        "schema_version": SIGNATURE_RECEIPT_SCHEMA, "status": "passed", "created_at": utc_now(),
+        "task_index": rank, "runtime_receipt_sha256": sha256_file(args.runtime_receipt),
+        "combined_manifest_sha256": sha256_file(args.combined_manifest), "input": combined["files"][rank], "outputs": outputs,
+    })
+    print(canonical_json({"ok": True, "task": rank, "files": len(outputs)}))
+    return 0
+
+
 def merge_signatures(args: argparse.Namespace) -> int:
     config = load_config(args.config)
     run = contract(args.contract)
@@ -1448,6 +1597,23 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--runtime-receipt", type=Path, required=True)
     command.add_argument("--task-index", type=int, required=True)
     command.set_defaults(func=signature_task)
+
+    command = subparsers.add_parser("signature-row-group-task")
+    command.add_argument("--config", type=Path, default=root / "configs" / "agent1_v5_eiger_pipeline.json")
+    command.add_argument("--contract", type=Path, required=True)
+    command.add_argument("--combined-manifest", type=Path, required=True)
+    command.add_argument("--runtime-receipt", type=Path, required=True)
+    command.add_argument("--task-index", type=int, required=True)
+    command.add_argument("--row-group", type=int, required=True)
+    command.set_defaults(func=signature_row_group_task)
+
+    command = subparsers.add_parser("merge-signature-row-groups")
+    command.add_argument("--config", type=Path, default=root / "configs" / "agent1_v5_eiger_pipeline.json")
+    command.add_argument("--contract", type=Path, required=True)
+    command.add_argument("--combined-manifest", type=Path, required=True)
+    command.add_argument("--runtime-receipt", type=Path, required=True)
+    command.add_argument("--task-index", type=int, required=True)
+    command.set_defaults(func=merge_signature_row_groups)
 
     command = subparsers.add_parser("merge-signatures")
     command.add_argument("--config", type=Path, default=root / "configs" / "agent1_v5_eiger_pipeline.json")
