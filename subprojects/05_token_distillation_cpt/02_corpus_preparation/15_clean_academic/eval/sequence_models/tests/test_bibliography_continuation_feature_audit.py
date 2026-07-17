@@ -1,6 +1,9 @@
+import json
+
 import numpy as np
 
 from sequence_models.bibliography_continuation_feature_audit import (
+    _candidate_metadata,
     deterministic_profiles,
     numeric_summary,
 )
@@ -32,3 +35,27 @@ def test_deterministic_profiles_compare_continuation_to_other_roles() -> None:
     assert np.isclose(report[0]["continuation_mean_count"], 1.5)
     assert report[0]["continuation_minus_filler_presence"] == 0.0
     assert report[0]["continuation_minus_other_presence"] == 1.0
+
+
+def test_candidate_metadata_rejoins_only_the_frozen_split(tmp_path) -> None:
+    source = tmp_path / "source.jsonl"
+    documents = [
+        {
+            "split": "train", "document_id": "train-doc", "source": "oa",
+            "lines": [
+                {"line_id": "l0", "abs_idx": 0, "text": "zero"},
+                {"line_id": "l1", "abs_idx": 1, "text": "one"},
+            ],
+        },
+        {
+            "split": "test", "document_id": "test-doc", "source": "oa",
+            "lines": [{"line_id": "t0", "abs_idx": 0, "text": "test"}],
+        },
+    ]
+    source.write_text("".join(json.dumps(doc) + "\n" for doc in documents))
+    result = _candidate_metadata(
+        source_jsonl=source, row_indices=np.asarray([1]), expected_line_count=2,
+        expected_split="train",
+    )
+    assert result[0]["document_id"] == "train-doc"
+    assert result[0]["text"] == "one"

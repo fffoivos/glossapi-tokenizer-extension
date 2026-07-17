@@ -237,6 +237,7 @@ def _subtype_permutation_audit(
 
 def _candidate_metadata(
     *, source_jsonl: Path, row_indices: np.ndarray, expected_line_count: int,
+    expected_split: str,
 ) -> list[dict[str, Any]]:
     if len(row_indices) and not np.all(row_indices[1:] > row_indices[:-1]):
         raise ValueError("candidate row indices must be strictly increasing")
@@ -245,6 +246,8 @@ def _candidate_metadata(
     with source_jsonl.open("r", encoding="utf-8") as handle:
         for raw in handle:
             document = json.loads(raw)
+            if document["split"] != expected_split:
+                continue
             lines = document["lines"]
             document_end = cursor + len(lines)
             while candidate_cursor < len(row_indices):
@@ -434,6 +437,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     metadata = _candidate_metadata(
         source_jsonl=source_jsonl, row_indices=row_indices,
         expected_line_count=len(full_entry_probability),
+        expected_split=manifest["split"],
     )
 
     role_score_profiles = {}
