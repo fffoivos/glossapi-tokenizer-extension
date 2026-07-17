@@ -30,6 +30,16 @@ def test_unconnected_components_remain_separate_supported_blocks() -> None:
     assert prediction.tolist() == [True, True, False, False, True, True]
 
 
+def test_oracle_and_baseline_can_share_components_without_state_leakage() -> None:
+    components = [(0, 0), (2, 2), (4, 4)]
+    baseline = decode_components(components, {}, line_count=5)
+    oracle = decode_components(
+        components, {(0, 2): True, (2, 4): True}, line_count=5,
+    )
+    assert not np.any(baseline)
+    assert oracle.tolist() == [True, True, True, True, True]
+
+
 def test_main_bibliography_header_attaches_only_above_existing_block() -> None:
     prediction = np.asarray([False, False, True, True])
     heading = np.asarray([

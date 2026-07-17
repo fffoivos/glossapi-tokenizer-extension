@@ -125,15 +125,21 @@ def run(args: argparse.Namespace) -> Mapping[str, Any]:
     if probability.shape != thresholds.shape or probability.shape != (len(genuine_rows),):
         raise ValueError("candidate OOF probability/threshold arrays are misaligned")
     edge_by_document: dict[str, dict[tuple[int, int], bool]] = {}
+    oracle_edge_by_document: dict[str, dict[tuple[int, int], bool]] = {}
     for local, candidate_index in enumerate(genuine_rows):
         row = candidates.metadata[int(candidate_index)]
-        edges = edge_by_document.setdefault(str(row["document_id"]), {})
+        document_id = str(row["document_id"])
+        edges = edge_by_document.setdefault(document_id, {})
+        oracle_edges = oracle_edge_by_document.setdefault(document_id, {})
         edge = (int(row["left_local_index"]), int(row["right_local_index"]))
         if edge in edges:
             raise ValueError("duplicate genuine deployment edge")
         edges[edge] = bool(probability[local] >= thresholds[local])
+        oracle_edges[edge] = bool(row["target_connect"])
 
     prediction = np.zeros(len(table.targets), dtype=bool)
+    baseline_prediction = np.zeros(len(table.targets), dtype=bool)
+    oracle_prediction = np.zeros(len(table.targets), dtype=bool)
     hard_stop_crossings = 0
     for document_index, metadata in enumerate(table.documents):
         start, end = int(metadata["line_start"]), int(metadata["line_end"])
@@ -148,20 +154,31 @@ def run(args: argparse.Namespace) -> Mapping[str, Any]:
             threshold=args.entry_threshold,
             seed_length_limit=args.seed_length_limit,
         )
+        decode_arguments = {
+            "components": components,
+            "line_count": end - start,
+            "minimum_anchor_lines": args.minimum_anchor_lines,
+        }
         local = decode_components(
-            components,
-            edge_by_document.get(str(metadata["document_id"]), {}),
-            line_count=end - start,
-            minimum_anchor_lines=args.minimum_anchor_lines,
+            edge_connect=edge_by_document.get(str(metadata["document_id"]), {}),
+            **decode_arguments,
         )
-        local = attach_main_bib_headers(
-            local,
-            local_heading,
-            table.abs_indices[start:end],
-            scope,
-            threshold=args.heading_threshold,
-            window=args.header_window,
+        baseline_local = decode_components(edge_connect={}, **decode_arguments)
+        oracle_local = decode_components(
+            edge_connect=oracle_edge_by_document.get(str(metadata["document_id"]), {}),
+            **decode_arguments,
         )
+        decoded = []
+        for values in (local, baseline_local, oracle_local):
+            decoded.append(attach_main_bib_headers(
+                values,
+                local_heading,
+                table.abs_indices[start:end],
+                scope,
+                threshold=args.heading_threshold,
+                window=args.header_window,
+            ))
+        local, baseline_local, oracle_local = decoded
         non_bib = (
             (local_heading[:, 2] >= args.heading_threshold)
             & (local_heading[:, 2] >= local_heading[:, 0])
@@ -169,9 +186,15 @@ def run(args: argparse.Namespace) -> Mapping[str, Any]:
         )
         hard_stop_crossings += int(np.count_nonzero(local & (scope | non_bib)))
         prediction[start:end] = local
+        baseline_prediction[start:end] = baseline_local
+        oracle_prediction[start:end] = oracle_local
 
     metrics = evaluate_prediction(table, prediction)
+    baseline_metrics = evaluate_prediction(table, baseline_prediction)
+    oracle_metrics = evaluate_prediction(table, oracle_prediction)
     by_source = {}
+    baseline_by_source = {}
+    oracle_by_source = {}
     for source_name in sorted({str(row["source"]) for row in table.documents}):
         documents = {
             index for index, row in enumerate(table.documents)
@@ -180,8 +203,18 @@ def run(args: argparse.Namespace) -> Mapping[str, Any]:
         by_source[source_name] = evaluate_prediction(
             table, prediction, document_subset=documents
         )
+        baseline_by_source[source_name] = evaluate_prediction(
+            table, baseline_prediction, document_subset=documents
+        )
+        oracle_by_source[source_name] = evaluate_prediction(
+            table, oracle_prediction, document_subset=documents
+        )
     with (output / "prediction.npy").open("xb") as handle:
         np.save(handle, prediction.astype(np.uint8), allow_pickle=False)
+    with (output / "baseline_prediction.npy").open("xb") as handle:
+        np.save(handle, baseline_prediction.astype(np.uint8), allow_pickle=False)
+    with (output / "oracle_candidate_prediction.npy").open("xb") as handle:
+        np.save(handle, oracle_prediction.astype(np.uint8), allow_pickle=False)
     report = {
         "schema_version": SCHEMA_VERSION,
         "status": "passed_gap_end_to_end_oof",
@@ -191,8 +224,19 @@ def run(args: argparse.Namespace) -> Mapping[str, Any]:
         "slurm_job_id": args.slurm_job_id,
         "configuration_key": args.configuration_key,
         "metrics": metrics,
+        "seed_only_baseline_metrics": baseline_metrics,
+        "oracle_candidate_ceiling_metrics": oracle_metrics,
+        "delta_vs_seed_only": {
+            key: float(metrics[key]) - float(baseline_metrics[key])
+            for key in (
+                "line_precision", "line_recall", "token_precision", "token_recall",
+                "iou50_block_precision", "iou50_block_recall",
+            )
+        },
         "trusted_hard_stop_crossings": hard_stop_crossings,
         "by_source": by_source,
+        "seed_only_baseline_by_source": baseline_by_source,
+        "oracle_candidate_ceiling_by_source": oracle_by_source,
         "gates": {
             "line_precision_at_least_0_99": metrics["line_precision"] >= 0.99,
             "line_recall_at_least_0_95": metrics["line_recall"] >= 0.95,
