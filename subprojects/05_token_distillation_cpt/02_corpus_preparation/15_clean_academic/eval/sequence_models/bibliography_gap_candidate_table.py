@@ -34,7 +34,6 @@ from .bibliography_gap_connect_table import (
     typed_heading_barrier,
 )
 from .bibliography_positional_models import load_positional_table
-from .bibliography_role_experts import CONNECTOR_PROBABILITY_COLUMNS
 from .bibliography_role_features import (
     candidate_window_mask,
     connector_feature_row,
