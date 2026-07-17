@@ -1,0 +1,150 @@
+{
+  "code_commit": "9f91b845fd5bfabb0fb214ec804dafaa5421a5b6",
+  "deployment_approved": false,
+  "gold_block_seed_inventory": {
+    "0": 193,
+    "1": 111,
+    "2_plus": 1328
+  },
+  "inputs": {
+    "base_manifest_sha256": "be8e146647470384fca9edcb601369f22fa4964f826977f8a9af5ae09571f498",
+    "entry_oof_sha256": "e0af1449b21f8aab49108f21a931e8869e287f0c1599d5b553bbbd1d2be75e37",
+    "heading_report_sha256": "25a624c83e88667def68b22a5ef14aca1f281a3985c45fb187139e6eb35c3754",
+    "oracle_prediction_sha256": "cb51a193e1a356ae71b800d5c7858bb6ee3708dbd8d74b041c6c766dfc3c5377",
+    "source_sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "misses": {
+    "internal_unreachable_between_seeds": {
+      "document_count": 57,
+      "line_count": 2668,
+      "token_count": 77967
+    },
+    "leading_edge_outside_seed_extent": {
+      "document_count": 448,
+      "line_count": 5496,
+      "token_count": 233496
+    },
+    "no_eligible_seed_in_gold_block": {
+      "document_count": 126,
+      "line_count": 6025,
+      "token_count": 415481
+    },
+    "single_eligible_seed_in_gold_block": {
+      "document_count": 90,
+      "line_count": 3096,
+      "token_count": 153565
+    },
+    "trailing_edge_outside_seed_extent": {
+      "document_count": 478,
+      "line_count": 6007,
+      "token_count": 292420
+    }
+  },
+  "misses_by_source": {
+    "greek_phd": {
+      "internal_unreachable_between_seeds": {
+        "document_count": 41,
+        "line_count": 2025,
+        "token_count": 52585
+      },
+      "leading_edge_outside_seed_extent": {
+        "document_count": 210,
+        "line_count": 3574,
+        "token_count": 144563
+      },
+      "no_eligible_seed_in_gold_block": {
+        "document_count": 32,
+        "line_count": 3895,
+        "token_count": 221959
+      },
+      "single_eligible_seed_in_gold_block": {
+        "document_count": 20,
+        "line_count": 517,
+        "token_count": 25617
+      },
+      "trailing_edge_outside_seed_extent": {
+        "document_count": 212,
+        "line_count": 3098,
+        "token_count": 163521
+      }
+    },
+    "kallipos": {
+      "internal_unreachable_between_seeds": {
+        "document_count": 0,
+        "line_count": 0,
+        "token_count": 0
+      },
+      "leading_edge_outside_seed_extent": {
+        "document_count": 98,
+        "line_count": 664,
+        "token_count": 36377
+      },
+      "no_eligible_seed_in_gold_block": {
+        "document_count": 45,
+        "line_count": 657,
+        "token_count": 32752
+      },
+      "single_eligible_seed_in_gold_block": {
+        "document_count": 40,
+        "line_count": 568,
+        "token_count": 31838
+      },
+      "trailing_edge_outside_seed_extent": {
+        "document_count": 97,
+        "line_count": 756,
+        "token_count": 41142
+      }
+    },
+    "openarchives": {
+      "internal_unreachable_between_seeds": {
+        "document_count": 16,
+        "line_count": 643,
+        "token_count": 25382
+      },
+      "leading_edge_outside_seed_extent": {
+        "document_count": 140,
+        "line_count": 1258,
+        "token_count": 52556
+      },
+      "no_eligible_seed_in_gold_block": {
+        "document_count": 49,
+        "line_count": 1473,
+        "token_count": 160770
+      },
+      "single_eligible_seed_in_gold_block": {
+        "document_count": 30,
+        "line_count": 2011,
+        "token_count": 96110
+      },
+      "trailing_edge_outside_seed_extent": {
+        "document_count": 169,
+        "line_count": 2153,
+        "token_count": 87757
+      }
+    }
+  },
+  "outputs": {
+    "report.json": {
+      "bytes": 4145,
+      "sha256": "8dd4a5760e68f6a5a548bb69c4df385d2c2e56c4f42c31c6368eb085634dc22e"
+    }
+  },
+  "policy": {
+    "entry_threshold": 0.25,
+    "heading_threshold": 0.5,
+    "reason_partition": [
+      "no_eligible_seed_in_gold_block",
+      "single_eligible_seed_in_gold_block",
+      "leading_edge_outside_seed_extent",
+      "trailing_edge_outside_seed_extent",
+      "internal_unreachable_between_seeds"
+    ],
+    "seed_length_limit": 330
+  },
+  "schema_version": "bibliography-gap-reachability-audit-v1",
+  "slurm_job_id": "2784457",
+  "status": "passed_oracle_reachability_audit",
+  "total_missed_lines": 23292,
+  "total_missed_tokens": 1172929,
+  "validation_opened": false
+}

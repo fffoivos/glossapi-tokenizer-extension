@@ -1,0 +1,29 @@
+{
+  "selected_for_sequence": [
+    {
+      "arm": "pooled_hist",
+      "regime": "threshold_ladder",
+      "size": "1000"
+    },
+    {
+      "arm": "pooled_hist",
+      "regime": "deployment_real",
+      "size": "500"
+    }
+  ],
+  "selected_pooled": {
+    "arm": "pooled_hist",
+    "regime": "threshold_ladder",
+    "size": "1000"
+  },
+  "selection": {
+    "best_break_pr_auc": 0.8457191757614823,
+    "best_break_pr_auc_se": 0.02277647632107948,
+    "one_se_floor": 0.8229426994404028,
+    "source_safety_reference": {
+      "greek_phd": 3,
+      "kallipos": 0,
+      "openarchives": 2
+    }
+  }
+}
