@@ -11,13 +11,21 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import re
 from pathlib import Path
 from typing import Any, Sequence
 
 import numpy as np
 
-from .bibliography_deterministic_roles import AUXILIARY_SCOPE_HEADINGS
+from .bibliography_scope_rules import (
+    AUXILIARY_SCOPE_HEADINGS,
+    AUXILIARY_SCOPE_PREFIXES,
+    BODY_CITATION_SCOPE_HEADINGS,
+    auxiliary_scope_mask,
+    is_archive_type_subheading,
+    is_exact_non_bibliography_scope_heading,
+    is_persistent_archive_scope_heading,
+    normalized_scope_heading_key,
+)
 from .bibliography_entry_blocks import (
     BlockConfig,
     attach_h0_document,
@@ -31,33 +39,7 @@ from .bibliography_entry_component_gate import (
 )
 from .bibliography_entry_dataset import LABEL_TO_ID
 from .bibliography_entry_models import load_table
-from .deterministic_structure import _ATX_HEADING, _heading_key
-
-
 SCHEMA_VERSION = "bibliography-auxiliary-scope-veto-oof-v2"
-BODY_CITATION_SCOPE_HEADINGS = {
-    "examples",
-    "why",
-    "γιατι",
-    "παραδειγματα",
-    "παρα∆ειγματα",
-}
-AUXILIARY_SCOPE_PREFIXES = (
-    "list of selected variants:",
-    "λιστα επιλεγμενων παραλλαγων:",
-)
-# An abbreviations heading describes the notation used below, not the semantic
-# kind of the rows below.  In academic books it can introduce ordinary acronym
-# expansions, but it can also introduce citation keys expanded to full
-# references.  It remains a negative role for the heading line itself; it is
-# deliberately not allowed to veto the surrounding section.
-AMBIGUOUS_FORMAT_HEADINGS = {
-    "abbreviations",
-    "list of abbreviations",
-    "συντομογραφιες",
-    "καταλογος συντομογραφιων",
-}
-SECTION_VETO_HEADINGS = AUXILIARY_SCOPE_HEADINGS - AMBIGUOUS_FORMAT_HEADINGS
 
 
 def _sha256(path: Path) -> str:
@@ -77,32 +59,6 @@ def _write_json(path: Path, value: Any) -> None:
 def _save_array(path: Path, value: np.ndarray) -> None:
     with path.open("xb") as handle:
         np.save(handle, value, allow_pickle=False)
-
-
-def normalized_scope_heading_key(text: str) -> str:
-    """Normalize a structural heading without broad fuzzy matching."""
-
-    key = _heading_key(text)
-    return re.sub(r"^\d+(?:\.\d+)*[.)]?\s*", "", key).strip()
-
-
-def is_exact_non_bibliography_scope_heading(text: str) -> bool:
-    key = normalized_scope_heading_key(text)
-    return (
-        key in SECTION_VETO_HEADINGS
-        or key in BODY_CITATION_SCOPE_HEADINGS
-        or any(key.startswith(prefix) for prefix in AUXILIARY_SCOPE_PREFIXES)
-    )
-
-
-def is_persistent_archive_scope_heading(text: str) -> bool:
-    key = normalized_scope_heading_key(text)
-    return any(key.startswith(prefix) for prefix in AUXILIARY_SCOPE_PREFIXES)
-
-
-def is_archive_type_subheading(text: str) -> bool:
-    key = normalized_scope_heading_key(text)
-    return bool(re.match(r"^(?:ατ|at)(?:/atu)?\s+\d", key, re.IGNORECASE))
 
 
 def materialize_auxiliary_headings(
@@ -135,27 +91,14 @@ def materialize_auxiliary_headings(
             lines = row.get("lines")
             if not isinstance(lines, list) or len(lines) != end - start:
                 raise ValueError(f"{document_id}: source/table line alignment failure")
-            active_atx_scope = False
-            persistent_archive_scope = False
+            texts = []
             for offset, line in enumerate(lines):
                 text = line.get("text") if isinstance(line, dict) else None
                 if not isinstance(text, str):
                     raise ValueError(f"{document_id}: invalid source line")
-                auxiliary_heading = is_exact_non_bibliography_scope_heading(text)
-                headings[start + offset] = auxiliary_heading
-                if _ATX_HEADING.match(text):
-                    if auxiliary_heading:
-                        active_atx_scope = True
-                        persistent_archive_scope = (
-                            is_persistent_archive_scope_heading(text)
-                        )
-                    elif not (
-                        persistent_archive_scope
-                        and is_archive_type_subheading(text)
-                    ):
-                        active_atx_scope = False
-                        persistent_archive_scope = False
-                scope[start + offset] = active_atx_scope or auxiliary_heading
+                texts.append(text)
+                headings[start + offset] = is_exact_non_bibliography_scope_heading(text)
+            scope[start:end] = auxiliary_scope_mask(texts)
             completed.add(document_id)
     if completed != set(expected):
         raise ValueError("auxiliary-scope materialization is incomplete")

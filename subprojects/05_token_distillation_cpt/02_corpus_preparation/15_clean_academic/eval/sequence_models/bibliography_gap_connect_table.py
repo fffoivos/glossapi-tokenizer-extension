@@ -22,7 +22,6 @@ from typing import Any, Mapping, Sequence
 
 import numpy as np
 
-from .bibliography_auxiliary_scope_veto import materialize_auxiliary_headings
 from .bibliography_entry_dataset import MAX_PHYSICAL_GAP
 from .bibliography_entry_models import load_table
 from .bibliography_filler_feature_audit import _HistoricalConnectorUnpickler
@@ -42,6 +41,7 @@ from .bibliography_role_tables import (
     _save,
     _write_json_new,
 )
+from .bibliography_scope_rules import auxiliary_scope_mask
 from .contract import sha256_file
 
 
@@ -178,7 +178,7 @@ def _scatter_heading_probability(root: Path, line_count: int) -> np.ndarray:
 def _pair_inventory(
     *, table: Any, labels_by_doc: Sequence[Sequence[int]],
     entry_probability: np.ndarray,
-    heading_probability: np.ndarray, auxiliary_scope: np.ndarray,
+    heading_probability: np.ndarray, auxiliary_scope_by_doc: Sequence[Sequence[bool]],
     entry_threshold: float, seed_length_limit: int, heading_threshold: float,
     max_gap_lines: int,
 ) -> tuple[list[GapPair], dict[str, Any]]:
@@ -195,7 +195,9 @@ def _pair_inventory(
         heading_barrier = typed_heading_barrier(
             heading_probability[start:end], threshold=heading_threshold,
         )
-        auxiliary = auxiliary_scope[start:end].astype(bool)
+        auxiliary = np.asarray(auxiliary_scope_by_doc[document_index], dtype=bool)
+        if auxiliary.shape != (end - start,):
+            raise ValueError("auxiliary scope is not aligned to its document")
         seeds = np.flatnonzero(
             (entry >= entry_threshold) & (lengths <= seed_length_limit)
         )
@@ -269,7 +271,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("entry OOF probability is malformed")
     heading_probability = _scatter_heading_probability(heading_root, len(table.targets))
     texts_by_doc, _, labels_by_doc, _ = _aligned_source(source, table, args.split)
-    _, auxiliary_scope = materialize_auxiliary_headings(table, source, expected_split=args.split)
+    auxiliary_scope_by_doc = [auxiliary_scope_mask(texts) for texts in texts_by_doc]
     n_folds = int(table.manifest["n_folds"])
     p0d_models = _load_p0d_models(entry_root, n_folds)
     connector_models = _load_connector_models(connector_root, n_folds)
@@ -277,7 +279,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     inventory, inventory_report = _pair_inventory(
         table=table, labels_by_doc=labels_by_doc,
         entry_probability=entry_probability, heading_probability=heading_probability,
-        auxiliary_scope=auxiliary_scope, entry_threshold=args.entry_threshold,
+        auxiliary_scope_by_doc=auxiliary_scope_by_doc, entry_threshold=args.entry_threshold,
         seed_length_limit=args.seed_length_limit,
         heading_threshold=args.heading_threshold, max_gap_lines=args.max_gap_lines,
     )

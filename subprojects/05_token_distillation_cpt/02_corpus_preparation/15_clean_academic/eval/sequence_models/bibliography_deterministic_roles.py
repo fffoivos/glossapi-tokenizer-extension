@@ -15,6 +15,7 @@ import numpy as np
 from .bibliography_entry_dataset import LABEL_TO_ID
 from .bibliography_entry_models import load_table
 from .bibliography_v2 import analyze_bibliography_line_v2
+from .bibliography_scope_rules import AUXILIARY_SCOPE_HEADINGS
 from .deterministic_structure import _heading_key
 
 
@@ -29,28 +30,6 @@ ROLE_NAMES = (
     "legal_procedure",
     "other_explicit_negative",
 )
-AUXILIARY_SCOPE_HEADINGS = {
-    "abbreviations",
-    "list of abbreviations",
-    "list of figures",
-    "list of illustrations",
-    "list of tables",
-    "related links",
-    "related material",
-    "related resources",
-    "συντομογραφιες",
-    "καταλογος συντομογραφιων",
-    "καταλογος εικονων",
-    "καταλογος πινακων",
-    "καταλογος πινακων και προελευση εικονων",
-    "καταλογος σχηματων",
-    "λιστα επιλεγμενων παραλλαγων",
-    "σχετικοι συνδεσμοι",
-    "σχετιζομενο υλικο",
-    "σχετιζομενα χναρια",
-}
-
-
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:

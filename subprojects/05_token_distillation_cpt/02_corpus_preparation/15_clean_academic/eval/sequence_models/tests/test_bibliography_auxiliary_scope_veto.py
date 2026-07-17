@@ -9,6 +9,7 @@ from sequence_models.bibliography_auxiliary_scope_veto import (
     materialize_auxiliary_headings,
     normalized_scope_heading_key,
 )
+from sequence_models.bibliography_scope_rules import auxiliary_scope_mask
 
 
 def test_auxiliary_scope_requires_an_exact_nearby_physical_heading() -> None:
@@ -51,6 +52,26 @@ def test_abbreviations_is_a_line_role_but_not_a_section_veto() -> None:
     assert not is_exact_non_bibliography_scope_heading("## ΣΥΝΤΟΜΟΓΡΑΦΙΕΣ")
     assert not is_exact_non_bibliography_scope_heading("## List of Abbreviations")
     assert is_exact_non_bibliography_scope_heading("## RELATED MATERIAL")
+
+
+def test_dependency_light_scope_mask_matches_section_semantics() -> None:
+    texts = [
+        "## RELATED MATERIAL",
+        "citation-shaped item",
+        "## NEXT CHAPTER",
+        "body",
+    ]
+    assert auxiliary_scope_mask(texts) == [True, True, False, False]
+
+
+def test_dependency_light_scope_mask_preserves_archive_subheadings() -> None:
+    texts = [
+        "## Λίστα Επιλεγμένων Παραλλαγών: Στοιχεία Αρχείου",
+        "## ΑΤ/ATU 709: Χιονάτη",
+        "1. archive record",
+        "## Επόμενη ενότητα",
+    ]
+    assert auxiliary_scope_mask(texts) == [True, True, True, False]
 
 
 def test_atx_auxiliary_scope_ends_at_the_next_atx_heading(tmp_path) -> None:
