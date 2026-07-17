@@ -49,6 +49,7 @@ from .bibliography_role_tables import (
 )
 from .bibliography_scope_rules import auxiliary_scope_mask
 from .bibliography_entry_models import load_table
+from .bibliography_entry_dataset import MAX_PHYSICAL_GAP
 from .contract import sha256_file
 
 
@@ -226,6 +227,27 @@ def _work_balanced_weights(candidates: Sequence[GapCandidate]) -> np.ndarray:
     return weights
 
 
+def _gold_block_group_id(
+    document_id: str, labels: np.ndarray, abs_indices: np.ndarray, left: int, right: int,
+) -> str | None:
+    if not np.all(labels[left : right + 1] == LABEL_BIB):
+        return None
+    start, end = left, right
+    while (
+        start > 0
+        and labels[start - 1] == LABEL_BIB
+        and int(abs_indices[start]) - int(abs_indices[start - 1]) <= MAX_PHYSICAL_GAP
+    ):
+        start -= 1
+    while (
+        end + 1 < len(labels)
+        and labels[end + 1] == LABEL_BIB
+        and int(abs_indices[end + 1]) - int(abs_indices[end]) <= MAX_PHYSICAL_GAP
+    ):
+        end += 1
+    return f"{document_id}:gold:{start}:{end}"
+
+
 def run(args: argparse.Namespace) -> Mapping[str, Any]:
     source = Path(args.source).resolve()
     base_root = Path(args.base_table_dir).resolve()
@@ -360,6 +382,9 @@ def run(args: argparse.Namespace) -> Mapping[str, Any]:
                 "original_gap_line_count": row.gap_length,
                 "model_line_count": length,
                 "target_connect": row.target,
+                "gold_block_group_id": _gold_block_group_id(
+                    row.context.document_id, local_labels, local_abs, row.left, row.right,
+                ),
                 "regime": row.regime,
                 "generation_thresholds": row.generation_thresholds,
                 "synthetic_kind": row.synthetic_kind,
