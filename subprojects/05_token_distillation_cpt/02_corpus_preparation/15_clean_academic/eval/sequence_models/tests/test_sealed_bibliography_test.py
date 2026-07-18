@@ -50,6 +50,7 @@ from sequence_models.sealed_bibliography_test import (
     freeze,
     export_quality_batch,
     ingest_batch,
+    import_role_run_prefix,
     load_public_exclusions,
     load_exclusions,
     prepare_run,
@@ -983,6 +984,62 @@ def test_terra_medium_runtime_is_bound_to_the_run_contract(tmp_path: Path) -> No
     )
     assert contract["model"] == "gpt-5.6-terra"
     assert contract["reasoning_effort"] == "medium"
+
+
+def test_verified_sol_prefix_is_reused_with_explicit_runtime_provenance(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    packet = tmp_path / "packet.jsonl"
+    _dump_rows(packet, [_chunk()])
+    prompt = tmp_path / "prompt.md"
+    schema = tmp_path / "schema.json"
+    prompt.write_text("prompt", encoding="utf-8")
+    schema.write_text("{}", encoding="utf-8")
+    source_run = tmp_path / "source-run"
+    destination_run = tmp_path / "destination-run"
+    common = {
+        "packet": str(packet), "pass_id": "pass-a", "prompt": str(prompt),
+        "output_schema": str(schema), "batch_size": 1,
+    }
+    prepare_run(
+        argparse.Namespace(
+            **common, reviewer_id="sol-a", model="gpt-5.6-sol",
+            reasoning_effort="high", run_dir=str(source_run),
+        )
+    )
+    payload = {
+        "schema_version": ROLE_RESPONSE_SCHEMA, "reviewer": "sol-a",
+        "chunks": [{
+            "chunk_id": "ch_test", "notes": "",
+            "runs": [{"start_offset": 0, "end_offset": 3, "role": "ENTRY", "confidence": 0.9}],
+        }],
+    }
+    monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps(payload)))
+    ingest_batch(argparse.Namespace(packet=str(packet), run_dir=str(source_run), batch_index=0))
+    prepare_run(
+        argparse.Namespace(
+            **common, reviewer_id="hybrid-a", model="gpt-5.6-terra",
+            reasoning_effort="high", run_dir=str(destination_run),
+        )
+    )
+    receipt = import_role_run_prefix(
+        argparse.Namespace(
+            packet=str(packet), source_run_dir=str(source_run),
+            destination_run_dir=str(destination_run), batch_count=1,
+        )
+    )
+    assert receipt["source_model"] == "gpt-5.6-sol"
+    output = finalize_pass(
+        argparse.Namespace(
+            packet=str(packet), run_dir=str(destination_run),
+            output=str(tmp_path / "pass.json"),
+        )
+    )
+    assert output["lines"][0]["role"] == "ENTRY"
+    assert output["annotation_runtime_batches"] == [{
+        "model": "gpt-5.6-sol", "reasoning_effort": "high",
+        "imported": True, "batch_count": 1,
+    }]
 
 
 def test_unknown_review_model_is_rejected(tmp_path: Path) -> None:

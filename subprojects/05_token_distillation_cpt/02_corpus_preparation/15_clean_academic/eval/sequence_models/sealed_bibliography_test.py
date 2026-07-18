@@ -2351,10 +2351,111 @@ def ingest_batch(args: argparse.Namespace) -> dict[str, Any]:
         "contract_sha256": sha256_file(run_dir / "run.contract.json"),
         "review": review,
         "review_sha256": canonical_json_sha256(review),
+        "annotation_runtime": {
+            "model": contract["model"],
+            "reasoning_effort": contract["reasoning_effort"],
+            "reviewer_id": contract["reviewer_id"],
+            "imported": False,
+        },
     }
     path = run_dir / "responses" / f"{batch_id}.json"
     _same_or_write(path, record)
     return {"status": "accepted", "batch_id": batch_id, "review_sha256": record["review_sha256"]}
+
+
+def import_role_run_prefix(args: argparse.Namespace) -> dict[str, Any]:
+    """Rebind a verified completed prefix into a continuation run.
+
+    The semantic review payload is preserved exactly except for the envelope's
+    reviewer identifier. Every destination record retains hashes and runtime
+    identity for the source contract and source record.
+    """
+
+    packet_path = Path(args.packet).resolve()
+    source_run_dir = Path(args.source_run_dir).resolve()
+    destination_run_dir = Path(args.destination_run_dir).resolve()
+    source_contract = _run_contract(source_run_dir)
+    destination_contract = _run_contract(destination_run_dir)
+    for contract in (source_contract, destination_contract):
+        if contract.get("kind") != "role":
+            raise ValueError("continuation import requires role run contracts")
+        if contract.get("packet_sha256") != sha256_file(packet_path):
+            raise ValueError("continuation packet differs from a run contract")
+    immutable_fields = ("pass_id", "batch_size", "batch_count")
+    if any(source_contract[field] != destination_contract[field] for field in immutable_fields):
+        raise ValueError("source and destination run shapes differ")
+    if not 0 < args.batch_count <= int(source_contract["batch_count"]):
+        raise ValueError("batch-count is outside the source run")
+
+    chunks = _load_chunks(packet_path)
+    batches = _batches(chunks, int(source_contract["batch_size"]))
+    source_contract_path = source_run_dir / "run.contract.json"
+    destination_contract_path = destination_run_dir / "run.contract.json"
+    imported: list[dict[str, Any]] = []
+    for index in range(args.batch_count):
+        batch = batches[index]
+        source_batch_id = str(source_contract["batch_ids"][index])
+        source_record_path = source_run_dir / "responses" / f"{source_batch_id}.json"
+        if not source_record_path.is_file():
+            raise ValueError(f"source prefix is incomplete at batch {index}")
+        source_record = _json(source_record_path)
+        if (
+            source_record.get("batch_id") != source_batch_id
+            or source_record.get("contract_sha256") != sha256_file(source_contract_path)
+            or source_record.get("review_sha256")
+            != canonical_json_sha256(source_record.get("review"))
+        ):
+            raise ValueError(f"source response record is invalid at batch {index}")
+        source_review = validate_role_response(
+            batch, source_record["review"], str(source_contract["reviewer_id"])
+        )
+        destination_review = dict(source_review)
+        destination_review["reviewer"] = str(destination_contract["reviewer_id"])
+        destination_review = validate_role_response(
+            batch, destination_review, str(destination_contract["reviewer_id"])
+        )
+        destination_batch_id = str(destination_contract["batch_ids"][index])
+        destination_record = {
+            "schema_version": RUN_RECORD_SCHEMA,
+            "batch_id": destination_batch_id,
+            "contract_sha256": sha256_file(destination_contract_path),
+            "review": destination_review,
+            "review_sha256": canonical_json_sha256(destination_review),
+            "annotation_runtime": {
+                "model": source_contract["model"],
+                "reasoning_effort": source_contract["reasoning_effort"],
+                "reviewer_id": source_contract["reviewer_id"],
+                "imported": True,
+                "source_contract_sha256": sha256_file(source_contract_path),
+                "source_record_sha256": sha256_file(source_record_path),
+                "source_batch_id": source_batch_id,
+            },
+        }
+        destination_record_path = (
+            destination_run_dir / "responses" / f"{destination_batch_id}.json"
+        )
+        _same_or_write(destination_record_path, destination_record)
+        imported.append(
+            {
+                "batch_index": index,
+                "source_record_sha256": sha256_file(source_record_path),
+                "destination_record_sha256": sha256_file(destination_record_path),
+            }
+        )
+    receipt = {
+        "schema_version": "bibliography-sealed-role-continuation-import-v1",
+        "status": "passed",
+        "batch_count": args.batch_count,
+        "source_model": source_contract["model"],
+        "source_reasoning_effort": source_contract["reasoning_effort"],
+        "destination_model": destination_contract["model"],
+        "destination_reasoning_effort": destination_contract["reasoning_effort"],
+        "source_contract_sha256": sha256_file(source_contract_path),
+        "destination_contract_sha256": sha256_file(destination_contract_path),
+        "record_inventory_sha256": canonical_json_sha256(imported),
+    }
+    _same_or_write(destination_run_dir / "continuation.import.receipt.json", receipt)
+    return receipt
 
 
 def finalize_pass(args: argparse.Namespace) -> dict[str, Any]:
@@ -2369,6 +2470,7 @@ def finalize_pass(args: argparse.Namespace) -> dict[str, Any]:
     batches = _batches(chunks, int(contract["batch_size"]))
     results: dict[str, dict[str, Any]] = {}
     record_hashes: list[str] = []
+    runtime_counts: collections.Counter[tuple[str, str, bool]] = collections.Counter()
     for index, batch in enumerate(batches):
         batch_id = str(contract["batch_ids"][index])
         path = run_dir / "responses" / f"{batch_id}.json"
@@ -2382,6 +2484,20 @@ def finalize_pass(args: argparse.Namespace) -> dict[str, Any]:
         ):
             raise ValueError("review response record has the wrong batch ID")
         review = validate_role_response(batch, record["review"], str(contract["reviewer_id"]))
+        runtime = record.get("annotation_runtime")
+        if not isinstance(runtime, dict):
+            runtime = {
+                "model": contract["model"],
+                "reasoning_effort": contract["reasoning_effort"],
+                "imported": False,
+            }
+        runtime_counts[
+            (
+                str(runtime["model"]),
+                str(runtime["reasoning_effort"]),
+                bool(runtime.get("imported", False)),
+            )
+        ] += 1
         record_hashes.append(sha256_file(path))
         for result in review["chunks"]:
             results[str(result["chunk_id"])] = result
@@ -2438,6 +2554,15 @@ def finalize_pass(args: argparse.Namespace) -> dict[str, Any]:
         "reviewer": contract["reviewer_id"],
         "model": contract["model"],
         "reasoning_effort": contract["reasoning_effort"],
+        "annotation_runtime_batches": [
+            {
+                "model": model,
+                "reasoning_effort": effort,
+                "imported": imported,
+                "batch_count": count,
+            }
+            for (model, effort, imported), count in sorted(runtime_counts.items())
+        ],
         "packet_sha256": sha256_file(packet_path),
         "run_contract_sha256": sha256_file(run_dir / "run.contract.json"),
         "record_inventory_sha256": canonical_json_sha256(record_hashes),
@@ -3049,6 +3174,15 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     ingest.add_argument("--run-dir", required=True)
     ingest.add_argument("--batch-index", type=int, required=True)
 
+    continuation = commands.add_parser(
+        "import-role-run-prefix",
+        help="verify and rebind a completed role-run prefix for model continuation",
+    )
+    continuation.add_argument("--packet", required=True)
+    continuation.add_argument("--source-run-dir", required=True)
+    continuation.add_argument("--destination-run-dir", required=True)
+    continuation.add_argument("--batch-count", type=int, required=True)
+
     quality_export = commands.add_parser(
         "export-quality-batch", help="stream one bounded quality batch as JSON"
     )
@@ -3119,6 +3253,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "prepare-quality-run": prepare_quality_run,
         "export-batch": export_batch,
         "ingest-batch": ingest_batch,
+        "import-role-run-prefix": import_role_run_prefix,
         "export-quality-batch": export_quality_batch,
         "ingest-quality-batch": ingest_quality_batch,
         "finalize-pass": finalize_pass,

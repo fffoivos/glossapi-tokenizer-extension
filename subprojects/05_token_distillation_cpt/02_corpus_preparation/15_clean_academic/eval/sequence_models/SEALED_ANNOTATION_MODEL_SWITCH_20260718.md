@@ -1,11 +1,11 @@
 # Sealed annotation model switch — 2026-07-18
 
-## Decision
+## Corrected decision
 
-The canonical exhaustive A/B role annotation uses two independent
-`gpt-5.6-terra` passes at `medium` reasoning, one worker per pass. The switch
-reduces annotation usage while preserving packet blindness, immutable run
-contracts, schema validation, and independent A/B review.
+The canonical exhaustive A/B role annotation preserves every accepted
+`gpt-5.6-sol`/high batch and uses `gpt-5.6-terra`/high only to complete the
+remaining batches, one worker per pass. The Sol prefixes are the output of the
+stronger model and are not re-annotated.
 
 The completed quality gate remains historical `gpt-5.6-sol`/high evidence. It
 is not rerun by this switch.
@@ -23,36 +23,38 @@ Terra. Their last persisted remote state was:
 The sealed root is
 `/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718`.
 
-These partial responses are immutable aborted-run evidence. They must not be
-resumed and must never be used in pass aggregation, adjudication, label merge,
-freeze, model selection, or test reporting.
+These responses are immutable source evidence for the continuation. They are
+verified against their original contracts and packets, rebound into the
+canonical continuation contracts, and retain hashes identifying the original
+contract, response record, model, effort, reviewer, and batch ID.
 
-## Canonical Terra runs
+## Canonical continuation runs
 
 | Lane | Packet | Run directory | Aggregate | Reviewer |
 |---|---|---|---|---|
-| Terra A | `10_sealed_inputs/pass-a.packet.private.jsonl` | `22_role_terra_a/run` | `22_role_terra_a/pass.json` | `sealed-role-terra-a-v1` |
-| Terra B | `10_sealed_inputs/pass-b.packet.private.jsonl` | `23_role_terra_b/run` | `23_role_terra_b/pass.json` | `sealed-role-terra-b-v1` |
+| Hybrid A | `10_sealed_inputs/pass-a.packet.private.jsonl` | `24_role_sol_terra_high_a/run` | `24_role_sol_terra_high_a/pass.json` | `sealed-role-sol-terra-high-a-v1` |
+| Hybrid B | `10_sealed_inputs/pass-b.packet.private.jsonl` | `25_role_sol_terra_high_b/run` | `25_role_sol_terra_high_b/pass.json` | `sealed-role-sol-terra-high-b-v1` |
 
-Every Terra contract must record model `gpt-5.6-terra`, reasoning effort
-`medium`, sandbox `read-only`, and `ephemeral: true`. Lane A starts with one
-bounded preflight batch. Once accepted, A resumes from that same contract and B
-starts from its own fresh contract. Both run with one worker.
+Every continuation contract records model `gpt-5.6-terra`, reasoning effort
+`high`, sandbox `read-only`, and `ephemeral: true` for newly produced batches.
+The import receipt binds 174 Sol/high batches for A and 176 Sol/high batches for
+B. Terra starts at the next batch index, so the prefixes are not sent to a
+model again. Both continuations run with one worker.
 
 All downstream commands must consume only the Terra aggregate paths above.
-If A/B disagree, adjudication uses a fresh `gpt-5.6-terra`/medium reviewer
-`sealed-role-terra-c-v1` that receives only the label-blind adjudication packet.
+If A/B disagree, adjudication uses a fresh `gpt-5.6-terra`/high reviewer
+`sealed-role-terra-high-c-v1` that receives only the label-blind adjudication
+packet.
 
 ## Verification
 
-- Focused sealed-suite test: 32 passed.
-- Terra A's bounded preflight batch was accepted. A then resumed from the same
-  358-batch immutable contract; Terra B started from an independent 388-batch
-  contract. Both coordinators are active with one worker as of this update.
-- Process inspection showed two `gpt-5.6-terra`/medium calls and no active Sol
-  call.
+- Focused sealed-suite test: 33 passed.
+- The mistakenly started medium Terra runs stopped after 10 batches in each
+  lane. They overlap the retained Sol prefixes and are not canonical inputs.
 - The coordinator now requires an explicit supported model and binds the exact
   model/reasoning effort into the remote immutable contract.
 - Finalized pass and quality receipts report the model/reasoning values from
   their run contract rather than global constants.
+- Finalized role passes report batch counts for every actual annotation runtime,
+  distinguishing imported Sol/high batches from direct Terra/high batches.
 - Unknown review models and reasoning levels are rejected.

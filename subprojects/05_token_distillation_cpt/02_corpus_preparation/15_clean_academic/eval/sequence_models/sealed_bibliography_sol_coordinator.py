@@ -246,11 +246,15 @@ def run(args: argparse.Namespace) -> int:
             != args.quality_batch_max_characters
         ):
             raise RuntimeError("remote quality character caps differ from the local request")
-    count = int(contract["batch_count"])
+    total_count = int(contract["batch_count"])
+    if not 0 <= args.start_batch_index < total_count:
+        raise ValueError("start-batch-index is outside the run contract")
+    stop_index = total_count
     if args.maximum_batches is not None:
         if args.maximum_batches <= 0:
             raise ValueError("maximum-batches must be positive")
-        count = min(count, args.maximum_batches)
+        stop_index = min(total_count, args.start_batch_index + args.maximum_batches)
+    batch_indices = range(args.start_batch_index, stop_index)
     results: list[dict[str, Any]] = []
     failures: list[tuple[int, BaseException]] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
@@ -258,7 +262,7 @@ def run(args: argparse.Namespace) -> int:
             executor.submit(
                 _run_one, args, index=index, prompt=prompt, schema=schema_path
             ): index
-            for index in range(count)
+            for index in batch_indices
         }
         for future in concurrent.futures.as_completed(future_to_index):
             index = future_to_index[future]
@@ -305,7 +309,16 @@ def run(args: argparse.Namespace) -> int:
             )
         )
     else:
-        print(json.dumps({"status": "bounded_preflight_complete", "batches": count}, sort_keys=True))
+        print(
+            json.dumps(
+                {
+                    "status": "bounded_preflight_complete",
+                    "start_batch_index": args.start_batch_index,
+                    "batches": len(batch_indices),
+                },
+                sort_keys=True,
+            )
+        )
     return 0
 
 
@@ -342,6 +355,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--workers", type=int, choices=(1, 2), default=2)
     parser.add_argument("--maximum-batches", type=int)
+    parser.add_argument("--start-batch-index", type=int, default=0)
     parser.add_argument("--ssh-timeout-seconds", type=int, default=120)
     parser.add_argument("--codex-timeout-seconds", type=int, default=1800)
     return parser.parse_args(argv)
