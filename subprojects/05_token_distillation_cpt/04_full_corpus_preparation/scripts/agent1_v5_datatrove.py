@@ -50,6 +50,7 @@ RUNTIME_SCHEMA = "agent1_v5_datatrove_runtime_v1"
 EXACT_RECEIPT_SCHEMA = "agent1_v5_exact_index_task_receipt_v1"
 EXACT_MANIFEST_SCHEMA = "agent1_v5_exact_index_manifest_v1"
 SIGNATURE_RECEIPT_SCHEMA = "agent1_v5_minhash_signature_task_receipt_v1"
+FULL_INPUT_AUDIT_SCHEMA = "agent1_v5_dedup_full_input_audit_v1"
 SIGNATURE_MANIFEST_SCHEMA = "agent1_v5_minhash_signature_manifest_v1"
 BUCKET_RECEIPT_SCHEMA = "agent1_v5_minhash_bucket_task_receipt_v1"
 PAIR_MANIFEST_SCHEMA = "agent1_v5_lsh_pair_manifest_v1"
@@ -101,6 +102,20 @@ def decode_ref(reference: int) -> tuple[int, int]:
 
 
 def _load_release(manifest_path: Path) -> tuple[dict[str, Any], Path]:
+    value, root = _load_release_structure(manifest_path)
+    for row in value["files"]:
+        validate_file_receipt(row, root=root)
+    return value, root
+
+
+def _load_release_structure(manifest_path: Path) -> tuple[dict[str, Any], Path]:
+    """Validate immutable inventory shape without rereading every payload.
+
+    The legacy path deliberately calls :func:`_load_release` and keeps its
+    full-file validation.  Acceleration commands use this structural path only
+    after a separately immutable, full-input audit receipt has passed.
+    """
+
     value = read_object(manifest_path)
     if value.get("schema_version") != COMBINED_MANIFEST_SCHEMA or value.get("status") != "passed":
         raise ValueError("combined release manifest is not passed")
@@ -110,9 +125,228 @@ def _load_release(manifest_path: Path) -> tuple[dict[str, Any], Path]:
     files = value.get("files")
     if not isinstance(files, list) or [int(row["rank"]) for row in files] != list(range(len(files))):
         raise ValueError("combined release inventory ranks must be contiguous from zero")
-    for row in files:
-        validate_file_receipt(row, root=root)
     return value, root
+
+
+def _immutable_receipt(path: Path, value: Mapping[str, Any]) -> dict[str, Any]:
+    """Write or safely reuse a canonical immutable JSON receipt."""
+
+    def compatible(existing: Mapping[str, Any]) -> bool:
+        # ``created_at`` is evidence of the first successful materialization,
+        # not an input to the receipt.  Ignoring it makes an interrupted
+        # command safely resumable while every meaningful binding stays
+        # immutable.
+        comparable_existing = dict(existing)
+        comparable_value = dict(value)
+        comparable_existing.pop("created_at", None)
+        comparable_value.pop("created_at", None)
+        return canonical_json(comparable_existing) == canonical_json(comparable_value)
+
+    if path.exists():
+        existing = read_object(path)
+        if not compatible(existing):
+            raise FileExistsError(f"immutable receipt differs: {path}")
+        return existing
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    temporary = path.with_name(f".{path.name}.partial-{os.getpid()}")
+    try:
+        with os.fdopen(os.open(temporary, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600), "w", encoding="utf-8") as handle:
+            handle.write(json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n")
+        try:
+            os.link(temporary, path)
+        except FileExistsError:
+            existing = read_object(path)
+            if not compatible(existing):
+                raise FileExistsError(f"immutable receipt differs: {path}")
+            return existing
+    finally:
+        temporary.unlink(missing_ok=True)
+    return dict(value)
+
+
+def audit_signature_inputs(args: argparse.Namespace) -> int:
+    """Perform the one full payload audit required by accelerated signatures."""
+
+    config = load_config(args.config)
+    _verify_runtime(args.runtime_receipt, config)
+    run = contract(args.contract)
+    combined, _ = _load_release(args.combined_manifest)
+    result: dict[str, Any] = {
+        "schema_version": FULL_INPUT_AUDIT_SCHEMA,
+        "status": "passed",
+        "created_at": utc_now(),
+        "run_contract_sha256": sha256_file(args.contract),
+        "combined_manifest_sha256": sha256_file(args.combined_manifest),
+        "runtime_receipt_sha256": sha256_file(args.runtime_receipt),
+        "run_id": run["run_id"],
+        "files": combined["files"],
+        "rows": combined["rows"],
+        "task_count": len(combined["files"]),
+    }
+    _immutable_receipt(args.output, result)
+    print(canonical_json({"ok": True, "tasks": result["task_count"], "rows": result["rows"]}))
+    return 0
+
+
+def _validate_full_input_audit(
+    path: Path,
+    *,
+    contract_path: Path,
+    manifest_path: Path,
+    runtime_path: Path,
+    combined: Mapping[str, Any],
+) -> dict[str, Any]:
+    receipt = read_object(path)
+    if receipt.get("schema_version") != FULL_INPUT_AUDIT_SCHEMA or receipt.get("status") != "passed":
+        raise ValueError("full-input audit is not passed")
+    expected = {
+        "run_contract_sha256": sha256_file(contract_path),
+        "combined_manifest_sha256": sha256_file(manifest_path),
+        "runtime_receipt_sha256": sha256_file(runtime_path),
+    }
+    for key, value in expected.items():
+        if receipt.get(key) != value:
+            raise ValueError(f"full-input audit binding drift: {key}")
+    if receipt.get("files") != combined.get("files") or receipt.get("rows") != combined.get("rows"):
+        raise ValueError("full-input audit inventory drift")
+    return receipt
+
+
+def _claim_signature_rank(run_root: Path, rank: int, token: str) -> Path:
+    if not token or len(token) > 256:
+        raise ValueError("claim token is required")
+    path = run_root / "60-dedup" / "minhash-signatures" / "claims" / f"{rank:06d}.json"
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    value = canonical_json({"claim_token": token, "created_at": utc_now(), "pid": os.getpid(), "rank": rank}) + "\n"
+    try:
+        fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    except FileExistsError:
+        existing = read_object(path)
+        if existing.get("claim_token") != token or int(existing.get("rank", -1)) != rank:
+            raise RuntimeError(f"rank {rank} already has a foreign claim")
+        return path
+    with os.fdopen(fd, "w", encoding="utf-8") as handle:
+        handle.write(value)
+    return path
+
+
+def _quarantine_unreceipted_signature_outputs(run_root: Path, rank: int, buckets: int) -> list[Path]:
+    """Preserve stale partial signature files instead of overwriting them.
+
+    A rank without a receipt is never trusted.  DataTrove may otherwise append
+    to or replace a partial file left by an interrupted worker, which makes
+    forensic recovery needlessly difficult.  The caller holds the exclusive
+    rank claim while this function moves those files into a unique quarantine
+    directory on the same filesystem.
+    """
+
+    output_root = run_root / "60-dedup" / "minhash-signatures"
+    present = [
+        output_root / f"bucket_{bucket:03d}" / f"{rank:05d}.minhash.sig"
+        for bucket in range(buckets)
+    ]
+    present = [path for path in present if path.exists()]
+    if not present:
+        return []
+    stamp = utc_now().replace(":", "").replace("+", "_")
+    quarantine = output_root / "quarantine" / f"rank-{rank:06d}-{stamp}-{os.getpid()}"
+    moved: list[Path] = []
+    for source in present:
+        target = quarantine / source.parent.name / source.name
+        target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        source.replace(target)
+        moved.append(target)
+    return moved
+
+
+def accelerated_signature_task(args: argparse.Namespace) -> int:
+    """Run a receipt-bound signature rank without redundant full-corpus I/O."""
+
+    from datatrove.pipeline.dedup import MinhashDedupSignature
+    from datatrove.pipeline.readers import ParquetReader
+
+    config = load_config(args.config)
+    _verify_runtime(args.runtime_receipt, config)
+    run = contract(args.contract)
+    combined, root = _load_release_structure(args.combined_manifest)
+    _validate_full_input_audit(
+        args.full_input_audit,
+        contract_path=args.contract,
+        manifest_path=args.combined_manifest,
+        runtime_path=args.runtime_receipt,
+        combined=combined,
+    )
+    rank = int(args.task_index)
+    if not 0 <= rank < len(combined["files"]):
+        raise ValueError(f"signature rank out of range: {rank}")
+    input_binding = combined["files"][rank]
+    validate_file_receipt(input_binding, root=root)
+    run_root = Path(str(run["run_root"]))
+    output_root = run_root / "60-dedup" / "minhash-signatures"
+    _, receipt_path = _dedup_paths(run_root, "minhash-signatures", rank, ".unused")
+    if receipt_path.exists():
+        receipt = read_object(receipt_path)
+        if receipt.get("schema_version") != SIGNATURE_RECEIPT_SCHEMA:
+            raise ValueError(f"invalid signature receipt: {receipt_path}")
+        if receipt.get("status") != "passed" or int(receipt.get("task_index", -1)) != rank:
+            raise ValueError(f"signature receipt is not a passed receipt for rank {rank}")
+        if receipt.get("input", {}).get("sha256") != input_binding.get("sha256"):
+            raise ValueError(f"signature receipt input drift: {receipt_path}")
+        if not isinstance(receipt.get("outputs"), list) or len(receipt["outputs"]) != int(config["dedup"]["num_buckets"]):
+            raise ValueError(f"signature receipt output closure failed: {receipt_path}")
+        for binding in receipt["outputs"]:
+            validate_file_receipt(binding, root=run_root)
+        print(canonical_json({"ok": True, "reused": True, "task": rank}))
+        return 0
+
+    claim = _claim_signature_rank(run_root, rank, args.claim_token)
+    try:
+        _quarantine_unreceipted_signature_outputs(
+            run_root, rank, int(config["dedup"]["num_buckets"])
+        )
+        reader = ParquetReader(
+            str(root / "data"),
+            text_key="text",
+            id_key="source_doc_id",
+            read_metadata=False,
+            recursive=False,
+            glob_pattern="*.parquet",
+            file_progress=False,
+            doc_progress=False,
+        )
+        step = MinhashDedupSignature(
+            output_folder=str(output_root),
+            config=_minhash_config(config),
+            language=str(config["dedup"]["language"]),
+        )
+        world_size = len(combined["files"])
+        step.run(reader.run(rank=rank, world_size=world_size), rank=rank, world_size=world_size)
+        outputs = []
+        for bucket in range(int(config["dedup"]["num_buckets"])):
+            path = output_root / f"bucket_{bucket:03d}" / f"{rank:05d}.minhash.sig"
+            outputs.append(file_receipt(path, root=run_root))
+        receipt: dict[str, Any] = {
+            "schema_version": SIGNATURE_RECEIPT_SCHEMA,
+            "status": "passed",
+            "created_at": utc_now(),
+            "task_index": rank,
+            "runtime_receipt_sha256": sha256_file(args.runtime_receipt),
+            "combined_manifest_sha256": sha256_file(args.combined_manifest),
+            "full_input_audit_sha256": sha256_file(args.full_input_audit),
+            "deployed_code_sha256": sha256_file(Path(__file__)),
+            "config_sha256": sha256_file(args.config),
+            "input_validation": "assigned_input_after_full_audit",
+            "input": input_binding,
+            "outputs": outputs,
+        }
+        write_json_atomic(receipt_path, receipt)
+    except BaseException:
+        # Preserve the claim as a durable signal for explicit rollback/quarantine.
+        raise
+    else:
+        claim.unlink(missing_ok=True)
+    print(canonical_json({"ok": True, "task": rank, "files": len(outputs), "accelerated": True}))
+    return 0
 
 
 def _dedup_paths(run_root: Path, stage: str, task: int, suffix: str) -> tuple[Path, Path]:
@@ -1597,6 +1831,24 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--runtime-receipt", type=Path, required=True)
     command.add_argument("--task-index", type=int, required=True)
     command.set_defaults(func=signature_task)
+
+    command = subparsers.add_parser("audit-signature-inputs")
+    command.add_argument("--config", type=Path, default=root / "configs" / "agent1_v5_eiger_pipeline.json")
+    command.add_argument("--contract", type=Path, required=True)
+    command.add_argument("--combined-manifest", type=Path, required=True)
+    command.add_argument("--runtime-receipt", type=Path, required=True)
+    command.add_argument("--output", type=Path, required=True)
+    command.set_defaults(func=audit_signature_inputs)
+
+    command = subparsers.add_parser("accelerated-signature-task")
+    command.add_argument("--config", type=Path, default=root / "configs" / "agent1_v5_eiger_pipeline.json")
+    command.add_argument("--contract", type=Path, required=True)
+    command.add_argument("--combined-manifest", type=Path, required=True)
+    command.add_argument("--runtime-receipt", type=Path, required=True)
+    command.add_argument("--full-input-audit", type=Path, required=True)
+    command.add_argument("--task-index", type=int, required=True)
+    command.add_argument("--claim-token", required=True)
+    command.set_defaults(func=accelerated_signature_task)
 
     command = subparsers.add_parser("signature-row-group-task")
     command.add_argument("--config", type=Path, default=root / "configs" / "agent1_v5_eiger_pipeline.json")
