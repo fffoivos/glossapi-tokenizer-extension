@@ -98,8 +98,15 @@ def select_presentation_rows(
     return np.asarray(selected, dtype=np.int64)
 
 
-def _display_indices(left: int, right: int, *, context: int, maximum_gap: int) -> list[int | None]:
-    if not 0 <= left < right:
+def _display_indices(
+    left: int,
+    right: int,
+    *,
+    line_count: int,
+    context: int,
+    maximum_gap: int,
+) -> list[int | None]:
+    if not 0 <= left < right < line_count:
         raise ValueError("invalid candidate endpoints")
     before = list(range(max(0, left - context), left + 1))
     interior = list(range(left + 1, right))
@@ -112,7 +119,7 @@ def _display_indices(left: int, right: int, *, context: int, maximum_gap: int) -
         ]
     else:
         interior_display = interior
-    after = list(range(right, right + context + 1))
+    after = list(range(right, min(line_count, right + context + 1)))
     return [*before, *interior_display, *after]
 
 
@@ -147,7 +154,13 @@ def _case(
         raise ValueError(f"{row['document_id']}: right endpoint provenance mismatch")
 
     display = []
-    for local_index in _display_indices(left, right, context=context, maximum_gap=maximum_gap):
+    for local_index in _display_indices(
+        left,
+        right,
+        line_count=len(raw_lines),
+        context=context,
+        maximum_gap=maximum_gap,
+    ):
         if local_index is None:
             display.append({
                 "role": "omission",

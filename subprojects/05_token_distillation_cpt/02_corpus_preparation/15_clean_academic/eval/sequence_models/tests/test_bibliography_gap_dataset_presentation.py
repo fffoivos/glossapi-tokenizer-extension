@@ -50,13 +50,21 @@ def test_presentation_selection_is_balanced_and_deterministic() -> None:
 
 
 def test_long_gap_display_keeps_endpoints_and_marks_omission() -> None:
-    indices = _display_indices(5, 56, context=2, maximum_gap=10)
+    indices = _display_indices(
+        5, 56, line_count=80, context=2, maximum_gap=10
+    )
     assert indices[:3] == [3, 4, 5]
     assert indices[-3:] == [56, 57, 58]
     assert indices.count(None) == 1
     assert [value for value in indices if value is not None and 5 < value < 56] == [
         6, 7, 8, 9, 10, 51, 52, 53, 54, 55
     ]
+
+
+def test_display_context_is_clipped_at_document_end() -> None:
+    assert _display_indices(
+        2, 4, line_count=5, context=5, maximum_gap=10
+    ) == [0, 1, 2, 3, 4]
 
 
 def test_case_marks_only_the_gap_as_training_span() -> None:
