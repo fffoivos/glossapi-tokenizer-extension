@@ -1,5 +1,6 @@
 {
   "CODE_COMMIT": "0123456789abcdef0123456789abcdef01234567",
+  "LEAKAGE_POLICY_SHA256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
   "BASELINE_LOCK": "/capstor/REPLACE/evolution/baseline.lock.json",
   "BASELINE_ROOT": "/capstor/REPLACE/bib_entry_oof_20260713t204926z",
   "VALIDATION_TABLE_DIR": "/capstor/REPLACE/validation_r3/validation_table",

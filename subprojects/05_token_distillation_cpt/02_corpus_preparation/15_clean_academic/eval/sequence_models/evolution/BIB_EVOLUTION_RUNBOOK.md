@@ -14,6 +14,8 @@ Do not copy a single receipt hash onto a directory row. Directory inputs use a r
 export EVAL=/path/to/repo/subprojects/05_token_distillation_cpt/02_corpus_preparation/15_clean_academic/eval
 export PYTHONPATH="$EVAL"
 export CODE_COMMIT=$(git -C "$EVAL" rev-parse HEAD)
+export LEAKAGE_POLICY="$EVAL/sequence_models/evolution/leakage.policy.json"
+export LEAKAGE_POLICY_SHA256=$(python -m sequence_models.bibliography_evolution hash-policy --path "$LEAKAGE_POLICY")
 test -z "$(git -C "$EVAL" status --porcelain --untracked-files=all)"
 
 python -m sequence_models.bibliography_evolution hash-input \
@@ -113,7 +115,7 @@ The parent verifier recursively rechecks the finalized parent, spec hash, curren
 
 ## 4. Render and run G0–G5
 
-Fill a binding JSON with the paths required by the selected template and exactly one of `G0_INPUT_RECEIPTS` through `G5_INPUT_RECEIPTS`. Render one generation at a time:
+Fill a binding JSON with `CODE_COMMIT`, the canonical parsed-JSON `LEAKAGE_POLICY_SHA256` reported by `hash-policy`, the paths required by the selected template, and exactly one of `G0_INPUT_RECEIPTS` through `G5_INPUT_RECEIPTS`. The policy digest is part of every candidate ID; `hash-input` reports a different raw-file digest and must not be used for this field. Render one generation at a time:
 
 ```bash
 python -m sequence_models.bibliography_evolution render-queue \
@@ -125,7 +127,7 @@ python -m sequence_models.bibliography_evolution render-queue \
 QUEUE_SHA256=$(sha256sum queue.g0.jsonl | awk '{print $1}')
 N=$(wc -l < queue.g0.jsonl)
 sbatch --array="0-$((N-1))%8" \
-  --export=ALL,CODE_ROOT="$EVAL",QUEUE_JSONL="$PWD/queue.g0.jsonl",QUEUE_SHA256="$QUEUE_SHA256",LEAKAGE_POLICY="$EVAL/sequence_models/evolution/leakage.policy.json",CANDIDATE_ROOT="$CANDIDATE_ROOT" \
+  --export=ALL,CODE_ROOT="$EVAL",QUEUE_JSONL="$PWD/queue.g0.jsonl",QUEUE_SHA256="$QUEUE_SHA256",LEAKAGE_POLICY="$LEAKAGE_POLICY",CANDIDATE_ROOT="$CANDIDATE_ROOT" \
   "$EVAL/sequence_models/clariden/run_bibliography_evolution_cpu.sbatch"
 ```
 
@@ -159,20 +161,21 @@ python -m sequence_models.bibliography_evolution build-registry \
 
 The registry minimizes four objectives: token FP, token FN, spurious blocks per zero-block document, and mean emitted-line boundary error. Exact objective ties collapse deterministically by earlier generation then candidate ID. Keep the entire nondominated set; do not choose on the sealed set.
 
-## 6. One-shot sealed 150 evaluation
+## 6. Sealed 150 boundary (evaluation intentionally blocked)
 
-Before opening labels, materialize predictions for every frozen Pareto candidate on the same 150 unlabeled documents. Freeze those prediction file hashes into one request. The sealed feature-table owner creates a FROZEN receipt with this exact schema:
+The annotation lane creates `documents.private.jsonl`, `labels.private.jsonl`, its consensus receipt, and `FROZEN.receipt.json`. `freeze-pareto` binds those exact artifacts and freshly rebuilds the development Pareto frontier before any model evaluation:
 
 ```json
 {
-  "schema_version": "bibliography-evolution-sealed-inventory-freeze-v1",
-  "status": "frozen",
-  "labels_sealed": true,
+  "schema_version": "bibliography-sealed-freeze-v1",
+  "status": "frozen_prediction_blind_test_set",
   "document_count": 150,
-  "inventory_path": "/sealed/inventory.json",
-  "inventory_sha256": "...",
-  "sealed_table_path": "/sealed/feature_table",
-  "sealed_table_tree_sha256": "..."
+  "source_document_counts": {"greek_phd": 50, "kallipos": 50, "openarchives": 50},
+  "sealed_hashes": {
+    "documents_sha256": "...",
+    "labels_sha256": "...",
+    "consensus_receipt_sha256": "..."
+  }
 }
 ```
 
@@ -181,19 +184,15 @@ Freeze the development Pareto manifest only after that receipt exists:
 ```bash
 python -m sequence_models.bibliography_evolution freeze-pareto \
   --registry registry.$CODE_COMMIT.json \
-  --sealed-inventory /sealed/inventory.json \
-  --sealed-freeze-receipt /sealed/FROZEN.json \
+  --sealed-documents /sealed/documents.private.jsonl \
+  --sealed-labels /sealed/labels.private.jsonl \
+  --sealed-consensus-receipt /sealed/consensus.receipt.json \
+  --sealed-freeze-receipt /sealed/FROZEN.receipt.json \
   --output pareto.frozen.json
 ```
 
-`freeze-pareto` revalidates every candidate spec, leakage/input lineage, receipt, prediction, `all_rows`, and artifact byte immediately before freezing. Construct one request containing the manifest ID/hash, both sealed hashes, the exact ordered `candidate_ids`, and a `prediction_inputs` mapping with a path/SHA for every ID. Subsets and missing predictions fail before the no-rerun fuse is created.
+`freeze-pareto` revalidates every candidate spec, leakage/input lineage, receipt, prediction, `all_rows`, artifact byte, annotation hash, 150 unique document IDs, and the exact 50/source quota.
 
-```bash
-python -m sequence_models.bibliography_evolution evaluate-sealed-batch \
-  --manifest pareto.frozen.json \
-  --request sealed.request.json \
-  --batch-root /sealed/results-once \
-  --iterations 10000
-```
+Final evaluation is deliberately unavailable in this commit. Development candidates currently own validation-sized predictions, not candidate-specific inference recipes for a sealed feature table. Accepting caller-supplied `.npy` files would not prove that each prediction came from the frozen candidate on the frozen 150 documents. Both `begin-sealed-batch` and `evaluate-sealed-batch` fail before reading labels or creating a no-rerun fuse.
 
-This command evaluates all candidates in one process over exactly 150 inventory IDs, reports per-source and per-work metrics, and computes source-stratified work-bootstrap intervals with Bonferroni familywise 95% coverage across all candidate/objective cells. The batch directory is exclusive; partial, incremental, subset, drifted, or repeated evaluation is rejected.
+Before the sealed set can be opened, implement and test an inference bridge that reconstructs every frozen G0–G5 candidate from its receipt on a label-free sealed feature table, emits candidate-bound prediction receipts, preflights all 150/50-per-source shapes without labels, and only then opens all labels once for the simultaneous comparison and multiplicity-adjusted intervals.

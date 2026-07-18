@@ -35,7 +35,7 @@ from .bibliography_evolution_contract import (
 
 SEALED_MANIFEST_SCHEMA = "bibliography-evolution-frozen-pareto-manifest-v1"
 SEALED_REQUEST_SCHEMA = "bibliography-evolution-sealed-batch-request-v1"
-SEALED_FREEZE_SCHEMA = "bibliography-evolution-sealed-inventory-freeze-v1"
+SEALED_FREEZE_SCHEMA = "bibliography-sealed-freeze-v1"
 SEALED_RESULTS_SCHEMA = "bibliography-evolution-sealed-results-v1"
 
 RUNNER_BY_COMPONENT = {
@@ -512,87 +512,67 @@ def _attest_git_checkout(cwd: Path, expected_commit: str) -> dict[str, Any]:
     return {"status": "passed", "head": head, "clean": True}
 
 
-def _sealed_inventory_ids(path: Path) -> list[str]:
-    path = Path(path).resolve()
-    raw = path.read_text(encoding="utf-8")
-    ids: list[str]
-    try:
-        packet = json.loads(raw)
-    except json.JSONDecodeError:
-        packet = None
-    if isinstance(packet, Mapping):
-        values = packet.get("document_ids")
-        if not isinstance(values, list):
-            raise ContractError("sealed inventory JSON requires document_ids")
-        ids = [str(value) for value in values]
-    else:
-        ids = []
-        for line_number, line in enumerate(raw.splitlines(), start=1):
-            if not line.strip():
-                continue
-            row = json.loads(line)
-            value = row.get("document_id") if isinstance(row, Mapping) else None
-            if not isinstance(value, str) or not value:
-                raise ContractError(f"invalid sealed inventory row {line_number}")
-            ids.append(value)
-    if len(ids) != 150 or len(set(ids)) != 150 or any(not value for value in ids):
-        raise ContractError("sealed inventory must contain exactly 150 unique document ids")
-    return ids
-
-
-def _verify_sealed_freeze(inventory_path: Path, receipt_path: Path) -> dict[str, Any]:
-    inventory_path = Path(inventory_path).resolve()
-    receipt_path = Path(receipt_path).resolve()
+def _verify_sealed_freeze(
+    documents_path: Path,
+    labels_path: Path,
+    consensus_path: Path,
+    receipt_path: Path,
+) -> dict[str, Any]:
+    paths = [Path(value).resolve() for value in (documents_path, labels_path, consensus_path, receipt_path)]
+    if any(not path.is_file() or path.is_symlink() for path in paths):
+        raise ContractError("sealed annotation artifact is missing or a symlink")
+    documents_path, labels_path, consensus_path, receipt_path = paths
+    documents = _jsonl(documents_path)
+    document_ids = [str(row.get("document_id", "")) for row in documents]
+    source_counts: dict[str, int] = {}
+    for row in documents:
+        source = str(row.get("source", ""))
+        source_counts[source] = source_counts.get(source, 0) + 1
     if (
-        not inventory_path.is_file()
-        or inventory_path.is_symlink()
-        or not receipt_path.is_file()
-        or receipt_path.is_symlink()
+        len(documents) != 150
+        or len(set(document_ids)) != 150
+        or any(len(value) != 64 or any(char not in "0123456789abcdef" for char in value) for value in document_ids)
+        or source_counts != {"greek_phd": 50, "kallipos": 50, "openarchives": 50}
     ):
-        raise ContractError("sealed inventory/freeze receipt is missing or a symlink")
-    ids = _sealed_inventory_ids(inventory_path)
+        raise ContractError("sealed documents must contain 150 unique SHA-256 IDs and exactly 50/source")
     receipt = load_json(receipt_path)
+    hashes = receipt.get("sealed_hashes", {})
     if (
         receipt.get("schema_version") != SEALED_FREEZE_SCHEMA
-        or receipt.get("status") != "frozen"
-        or receipt.get("labels_sealed") is not True
+        or receipt.get("status") != "frozen_prediction_blind_test_set"
         or int(receipt.get("document_count", -1)) != 150
+        or receipt.get("source_document_counts") != source_counts
+        or hashes.get("documents_sha256") != sha256_file(documents_path)
+        or hashes.get("labels_sha256") != sha256_file(labels_path)
+        or hashes.get("consensus_receipt_sha256") != sha256_file(consensus_path)
     ):
-        raise ContractError("sealed inventory receipt is not a 150-document FROZEN receipt")
-    inventory_sha = sha256_file(inventory_path)
-    if (
-        Path(str(receipt.get("inventory_path", ""))).resolve() != inventory_path
-        or receipt.get("inventory_sha256") != inventory_sha
-    ):
-        raise ContractError("sealed inventory receipt does not bind the inventory bytes")
-    table_path = Path(str(receipt.get("sealed_table_path", ""))).resolve()
-    if not table_path.is_dir() or table_path.is_symlink():
-        raise ContractError("sealed table directory is missing or a symlink")
-    table_sha = sha256_directory(table_path)
-    if receipt.get("sealed_table_tree_sha256") != table_sha:
-        raise ContractError("sealed feature table changed after FROZEN receipt")
+        raise ContractError("annotation-lane FROZEN receipt does not bind sealed bytes")
     return {
         "status": "passed",
-        "document_ids": ids,
-        "inventory": {"path": str(inventory_path), "sha256": inventory_sha, "document_count": 150},
+        "document_ids": document_ids,
+        "documents": {"path": str(documents_path), "sha256": sha256_file(documents_path)},
+        "labels": {"path": str(labels_path), "sha256": sha256_file(labels_path)},
+        "consensus_receipt": {"path": str(consensus_path), "sha256": sha256_file(consensus_path)},
         "freeze_receipt": {"path": str(receipt_path), "sha256": sha256_file(receipt_path)},
-        "sealed_table": {
-            "path": str(table_path),
-            "sha256": table_sha,
-            "digest_kind": "recursive_tree_sha256_v1",
-        },
+        "source_document_counts": source_counts,
     }
 
 
 def _freeze_manifest(
     registry_path: Path,
     output: Path,
-    sealed_inventory_path: Path,
+    sealed_documents_path: Path,
+    sealed_labels_path: Path,
+    sealed_consensus_receipt_path: Path,
     sealed_freeze_receipt_path: Path,
 ) -> None:
     registry = load_json(registry_path)
     if registry.get("schema_version") != REGISTRY_SCHEMA:
         raise ContractError("unsupported evolution registry")
+    receipt_paths = [Path(row["receipt_path"]) for row in registry.get("candidates", ())]
+    rebuilt = build_registry(receipt_paths)
+    if rebuilt != registry:
+        raise ContractError("stored development registry differs from a fresh frontier rebuild")
     pareto_ids = list(registry.get("pareto_candidate_ids", ()))
     if not pareto_ids:
         raise ContractError("cannot freeze an empty Pareto set")
@@ -626,17 +606,24 @@ def _freeze_manifest(
                 "verified_inventory": verification,
             }
         )
-    sealed = _verify_sealed_freeze(sealed_inventory_path, sealed_freeze_receipt_path)
+    sealed = _verify_sealed_freeze(
+        sealed_documents_path,
+        sealed_labels_path,
+        sealed_consensus_receipt_path,
+        sealed_freeze_receipt_path,
+    )
     core = {
         "schema_version": SEALED_MANIFEST_SCHEMA,
-        "status": "frozen_before_sealed_labels_opened",
+        "status": "frozen_before_model_evaluation",
         "evaluation_mode": "one_simultaneous_batch_all_pareto_candidates",
         "incremental_evaluation_allowed": False,
         "registry_path": str(registry_path.resolve()),
         "registry_sha256": sha256_file(registry_path),
-        "sealed_inventory": sealed["inventory"],
+        "sealed_documents": sealed["documents"],
+        "sealed_labels": sealed["labels"],
+        "sealed_consensus_receipt": sealed["consensus_receipt"],
         "sealed_freeze_receipt": sealed["freeze_receipt"],
-        "sealed_table": sealed["sealed_table"],
+        "sealed_source_document_counts": sealed["source_document_counts"],
         "candidate_ids": pareto_ids,
         "candidates": candidates,
     }
@@ -646,75 +633,20 @@ def _freeze_manifest(
 
 def _begin_sealed_batch(manifest_path: Path, request_path: Path, batch_root: Path) -> Path:
     manifest = load_json(manifest_path)
-    request = load_json(request_path)
     if manifest.get("schema_version") != SEALED_MANIFEST_SCHEMA:
         raise ContractError("unsupported frozen Pareto manifest")
-    if manifest.get("status") != "frozen_before_sealed_labels_opened":
-        raise ContractError("Pareto manifest was not frozen before test access")
-    if manifest.get("incremental_evaluation_allowed") is not False:
-        raise ContractError("manifest does not forbid incremental test evaluation")
-    if request.get("schema_version") != SEALED_REQUEST_SCHEMA:
-        raise ContractError("unsupported sealed batch request")
-    if request.get("evaluation_mode") != "one_simultaneous_batch_all_pareto_candidates":
-        raise ContractError("sealed evaluation must be simultaneous")
-    if request.get("frozen_manifest_id") != manifest.get("frozen_manifest_id"):
-        raise ContractError("sealed request targets a different frozen manifest")
-    if request.get("manifest_sha256") != sha256_file(manifest_path):
-        raise ContractError("sealed request manifest hash changed")
-    sealed = _verify_sealed_freeze(
-        Path(manifest["sealed_inventory"]["path"]),
-        Path(manifest["sealed_freeze_receipt"]["path"]),
+    frozen_id = manifest.get("frozen_manifest_id")
+    core = {key: value for key, value in manifest.items() if key != "frozen_manifest_id"}
+    recomputed = hashlib.sha256(canonical_json_bytes(core)).hexdigest()
+    if frozen_id != recomputed:
+        raise ContractError("frozen manifest ID does not match its current bytes")
+    # Fail before creating a fuse or opening labels.  Development candidates
+    # currently own validation-sized predictions, not a candidate-specific
+    # inference recipe for the sealed feature table.  Accepting arbitrary
+    # prediction files here would make the final comparison unauditable.
+    raise ContractError(
+        "sealed evaluation blocked: candidate-specific sealed inference bridge is not implemented"
     )
-    if (
-        sealed["inventory"]["sha256"] != manifest["sealed_inventory"]["sha256"]
-        or sealed["freeze_receipt"]["sha256"] != manifest["sealed_freeze_receipt"]["sha256"]
-        or sealed["sealed_table"]["sha256"] != manifest["sealed_table"]["sha256"]
-    ):
-        raise ContractError("sealed inventory/FROZEN receipt/table drifted")
-    if request.get("sealed_inventory_sha256") != manifest["sealed_inventory"]["sha256"]:
-        raise ContractError("sealed request targets a different inventory")
-    if request.get("sealed_freeze_receipt_sha256") != manifest["sealed_freeze_receipt"]["sha256"]:
-        raise ContractError("sealed request targets a different FROZEN receipt")
-    if request.get("candidate_ids") != manifest.get("candidate_ids"):
-        raise ContractError(
-            "incremental/subset test run rejected: request must contain every frozen Pareto candidate"
-        )
-    if len(set(request["candidate_ids"])) != len(request["candidate_ids"]):
-        raise ContractError("sealed request duplicates a candidate")
-    inputs = request.get("prediction_inputs")
-    if not isinstance(inputs, Mapping) or set(inputs) != set(manifest["candidate_ids"]):
-        raise ContractError("sealed request must freeze predictions for every Pareto candidate")
-    for candidate_id, row in sorted(inputs.items()):
-        if not isinstance(row, Mapping):
-            raise ContractError(f"invalid sealed prediction input: {candidate_id}")
-        path = Path(str(row.get("path", ""))).resolve()
-        expected = str(row.get("sha256", ""))
-        if not path.is_file() or path.is_symlink() or sha256_file(path) != expected:
-            raise ContractError(f"sealed prediction changed or is missing: {candidate_id}")
-    manifest_candidates = {row["candidate_id"]: row for row in manifest["candidates"]}
-    for candidate_id in manifest["candidate_ids"]:
-        verification = verify_finalized_receipt(
-            Path(manifest_candidates[candidate_id]["receipt_path"])
-        )
-        if verification["receipt_sha256"] != manifest_candidates[candidate_id]["receipt_sha256"]:
-            raise ContractError(f"frozen candidate drifted before sealed batch: {candidate_id}")
-    batch_dir = batch_root.resolve() / str(manifest["frozen_manifest_id"])
-    # This exclusive directory is the no-peeking fuse: the same frozen batch
-    # cannot be restarted after observing partial test results.
-    batch_root.resolve().mkdir(parents=True, exist_ok=True)
-    batch_dir.mkdir()
-    write_json_exclusive(batch_dir / "manifest.json", manifest)
-    write_json_exclusive(batch_dir / "request.json", request)
-    write_json_exclusive(
-        batch_dir / "state.json",
-        {
-            "schema_version": "bibliography-evolution-sealed-batch-state-v1",
-            "state": "begun_all_candidates_atomically",
-            "candidate_count": len(request["candidate_ids"]),
-        },
-    )
-    print(batch_dir)
-    return batch_dir
 
 
 def _sealed_work_rows(table: Any, prediction: Any, selected: set[int]) -> list[dict[str, Any]]:
@@ -818,73 +750,11 @@ def _evaluate_sealed_batch(
     iterations: int,
     seed: int,
 ) -> Path:
-    import numpy as np
-
-    from .bibliography_entry_blocks import evaluate_prediction
-    from .bibliography_entry_models import load_table
-
-    batch_dir = _begin_sealed_batch(manifest_path, request_path, batch_root)
-    manifest = load_json(manifest_path)
-    request = load_json(request_path)
-    table_root = Path(manifest["sealed_table"]["path"])
-    table_manifest = load_json(table_root / "manifest.json")
-    table = load_table(table_root, expected_split=str(table_manifest.get("split")))
-    wanted = set(_sealed_inventory_ids(Path(manifest["sealed_inventory"]["path"])))
-    document_index = {str(row["document_id"]): index for index, row in enumerate(table.documents)}
-    if set(document_index) != wanted or len(document_index) != 150:
-        raise ContractError("sealed feature table does not exactly match the 150-document inventory")
-    selected = set(document_index.values())
-    by_source: dict[str, set[int]] = {}
-    for index in selected:
-        by_source.setdefault(str(table.documents[index]["source"]), set()).add(index)
-    results: dict[str, Any] = {}
-    rows_by_candidate: dict[str, list[dict[str, Any]]] = {}
-    for candidate_id in manifest["candidate_ids"]:
-        prediction = np.load(
-            request["prediction_inputs"][candidate_id]["path"], allow_pickle=False
-        ).astype(bool)
-        if prediction.shape != (len(table.targets),):
-            raise ContractError(f"sealed prediction does not align: {candidate_id}")
-        rows = _sealed_work_rows(table, prediction, selected)
-        rows_by_candidate[candidate_id] = rows
-        results[candidate_id] = {
-            "metrics": evaluate_prediction(table, prediction, document_subset=selected),
-            "metrics_by_source": {
-                source: evaluate_prediction(table, prediction, document_subset=indices)
-                for source, indices in sorted(by_source.items())
-            },
-            "work_rows": rows,
-            "prediction_sha256": sha256_file(
-                Path(request["prediction_inputs"][candidate_id]["path"])
-            ),
-        }
-    report = {
-        "schema_version": SEALED_RESULTS_SCHEMA,
-        "status": "completed_once_all_frozen_pareto_candidates",
-        "manifest_sha256": sha256_file(manifest_path),
-        "request_sha256": sha256_file(request_path),
-        "document_count": 150,
-        "candidate_ids": manifest["candidate_ids"],
-        "results": results,
-        "simultaneous_intervals": _simultaneous_sealed_intervals(
-            rows_by_candidate, iterations=iterations, seed=seed
-        ),
-    }
-    output = batch_dir / "sealed_results.json"
-    write_json_exclusive(output, report)
-    write_json_exclusive(
-        batch_dir / "completed.json",
-        {
-            "schema_version": "bibliography-evolution-sealed-batch-completion-v1",
-            "status": "complete_no_rerun_allowed",
-            "results_sha256": sha256_file(output),
-        },
-    )
-    for path in batch_dir.rglob("*"):
-        if path.is_file() and not path.is_symlink():
-            path.chmod(0o444)
-    print(output)
-    return output
+    # Parameters remain in the CLI so a future implementation can be added
+    # without silently changing the frozen interface.  The call always raises
+    # before opening labels or creating a batch directory.
+    _ = (iterations, seed)
+    return _begin_sealed_batch(manifest_path, request_path, batch_root)
 
 
 def _make_input_row(
@@ -1042,7 +912,9 @@ def _parser() -> argparse.ArgumentParser:
 
     freeze = sub.add_parser("freeze-pareto")
     freeze.add_argument("--registry", type=Path, required=True)
-    freeze.add_argument("--sealed-inventory", type=Path, required=True)
+    freeze.add_argument("--sealed-documents", type=Path, required=True)
+    freeze.add_argument("--sealed-labels", type=Path, required=True)
+    freeze.add_argument("--sealed-consensus-receipt", type=Path, required=True)
     freeze.add_argument("--sealed-freeze-receipt", type=Path, required=True)
     freeze.add_argument("--output", type=Path, required=True)
 
@@ -1060,6 +932,9 @@ def _parser() -> argparse.ArgumentParser:
 
     digest = sub.add_parser("hash-input")
     digest.add_argument("--path", type=Path, required=True)
+
+    policy_digest = sub.add_parser("hash-policy")
+    policy_digest.add_argument("--path", type=Path, required=True)
 
     input_row = sub.add_parser("make-input-row")
     input_row.add_argument("--path", type=Path, required=True)
@@ -1187,7 +1062,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         _freeze_manifest(
             args.registry,
             args.output,
-            args.sealed_inventory,
+            args.sealed_documents,
+            args.sealed_labels,
+            args.sealed_consensus_receipt,
             args.sealed_freeze_receipt,
         )
         return 0
@@ -1216,6 +1093,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                 sort_keys=True,
             )
         )
+        return 0
+    if args.command == "hash-policy":
+        policy = load_json(args.path)
+        if policy.get("schema_version") != "bibliography-evolution-leakage-policy-v1":
+            raise ContractError("unsupported leakage policy")
+        print(hashlib.sha256(canonical_json_bytes(policy)).hexdigest())
         return 0
     if args.command == "make-input-row":
         write_json_exclusive(

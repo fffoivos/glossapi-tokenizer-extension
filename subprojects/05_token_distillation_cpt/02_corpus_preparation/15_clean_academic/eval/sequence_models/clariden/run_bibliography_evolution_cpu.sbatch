@@ -28,10 +28,15 @@ PYTHON_DEPS=${PYTHON_DEPS:-/capstor/scratch/cscs/fffoivos/runs/05_token_distilla
 [[ -d "$PYTHON_DEPS" && ! -L "$PYTHON_DEPS" ]] || exit 94
 [[ "$(sha256sum "$QUEUE_JSONL" | awk '{print $1}')" == "$QUEUE_SHA256" ]] || exit 92
 [[ -n "${SLURM_ARRAY_TASK_ID:-}" ]] || exit 93
-python3 - "$QUEUE_JSONL" "$SLURM_ARRAY_TASK_ID" <<'PY'
-import json, sys
+python3 - "$QUEUE_JSONL" "$LEAKAGE_POLICY" "$SLURM_ARRAY_TASK_ID" <<'PY'
+import hashlib, json, sys
 rows=[json.loads(line) for line in open(sys.argv[1], encoding="utf-8") if line.strip()]
-if rows[int(sys.argv[2])]["changed_component"].startswith("signal."):
+policy=json.load(open(sys.argv[2], encoding="utf-8"))
+canonical=(json.dumps(policy, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)+"\n").encode()
+policy_sha=hashlib.sha256(canonical).hexdigest()
+if any(row.get("leakage_policy_sha256") != policy_sha for row in rows):
+    raise SystemExit("queue is bound to a different leakage policy")
+if rows[int(sys.argv[3])]["changed_component"].startswith("signal."):
     raise SystemExit("CPU evolution runner refuses signal-model training")
 PY
 

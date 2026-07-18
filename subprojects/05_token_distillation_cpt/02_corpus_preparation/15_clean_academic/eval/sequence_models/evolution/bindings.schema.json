@@ -3,9 +3,10 @@
   "$id": "bibliography-evolution-bindings-v1",
   "title": "Generation-specific bibliography evolution template bindings",
   "type": "object",
-  "required": ["CODE_COMMIT"],
+  "required": ["CODE_COMMIT", "LEAKAGE_POLICY_SHA256"],
   "properties": {
     "CODE_COMMIT": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "LEAKAGE_POLICY_SHA256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "G0_INPUT_RECEIPTS": {"$ref": "#/$defs/inputs"},
     "G1_INPUT_RECEIPTS": {"$ref": "#/$defs/inputs"},
     "G2_INPUT_RECEIPTS": {"$ref": "#/$defs/inputs"},

@@ -327,6 +327,7 @@ def validate_candidate_spec(spec: Mapping[str, Any]) -> None:
     code_commit = str(spec.get("code_commit", ""))
     if not re.fullmatch(r"[0-9a-f]{40}", code_commit):
         raise ContractError("code_commit must be a full Git commit")
+    _require_sha256(spec.get("leakage_policy_sha256"), "leakage_policy_sha256")
     inputs = spec.get("input_receipts")
     if not isinstance(inputs, Mapping) or not inputs:
         raise ContractError("input_receipts are required")
@@ -638,6 +639,9 @@ def enforce_leakage_barrier(
     validate_candidate_spec(spec)
     if policy.get("schema_version") != LEAKAGE_SCHEMA:
         raise ContractError("unsupported leakage policy")
+    policy_sha256 = hashlib.sha256(canonical_json_bytes(policy)).hexdigest()
+    if spec.get("leakage_policy_sha256") != policy_sha256:
+        raise ContractError("candidate identity is bound to a different leakage policy")
     status = policy.get("sealed_test_status")
     if status not in {"not_materialized", "sealed"}:
         raise ContractError("leakage policy has no valid sealed-test status")
@@ -736,7 +740,7 @@ def enforce_leakage_barrier(
     lineage = verify_parent_lineage(spec)
     return {
         "status": "passed",
-        "policy_sha256": hashlib.sha256(canonical_json_bytes(policy)).hexdigest(),
+        "policy_sha256": policy_sha256,
         "sealed_test_status": status,
         "checked_inputs": checked,
         "parent_lineage": lineage,

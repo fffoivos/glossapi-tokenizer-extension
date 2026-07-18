@@ -6,7 +6,7 @@
     "schema_version", "candidate_id", "generation", "parent_candidate_ids",
     "hypothesis", "changed_component", "parameter_family", "changes",
     "fixed_modules", "sweep_grid", "sweep_point", "seeds",
-    "expected_direction", "acceptance_rule", "code_commit", "input_receipts",
+    "expected_direction", "acceptance_rule", "code_commit", "leakage_policy_sha256", "input_receipts",
     "runner"
   ],
   "properties": {
@@ -25,6 +25,7 @@
     "expected_direction": {"type": "object", "minProperties": 1},
     "acceptance_rule": {"type": "object", "minProperties": 1},
     "code_commit": {"pattern": "^[0-9a-f]{40}$"},
+    "leakage_policy_sha256": {"pattern": "^[0-9a-f]{64}$"},
     "input_receipts": {
       "type": "object",
       "minProperties": 1,

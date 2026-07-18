@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import subprocess
 import sys
 from pathlib import Path
@@ -66,6 +67,9 @@ def _g0_spec() -> dict:
             "expected_direction": {"token_fp": "nonincrease"},
             "acceptance_rule": {"headline_documents": 268},
             "code_commit": "a" * 40,
+            "leakage_policy_sha256": hashlib.sha256(
+                evolution.canonical_json_bytes(_policy())
+            ).hexdigest(),
             "input_receipts": _input_receipts(),
             "runner": {
                 "module": "sequence_models.bibliography_evolution_g0_replay",
@@ -156,6 +160,9 @@ def _spec(tmp_path: Path, *, generation: str = "G1", value: float = 0.3) -> dict
             "expected_direction": {"token_fp": "decrease"},
             "acceptance_rule": {"headline_documents": 268},
             "code_commit": "a" * 40,
+            "leakage_policy_sha256": hashlib.sha256(
+                evolution.canonical_json_bytes(_policy())
+            ).hexdigest(),
             "input_receipts": inputs,
             "runner": {
                 "module": module,
@@ -246,6 +253,11 @@ def test_leakage_barrier_and_candidate_store_are_fail_closed(tmp_path: Path) -> 
     store = CandidateStore(tmp_path / "candidates")
     spec = _spec(tmp_path)
     candidate = store.create(spec, _policy())
+    relaxed = _policy(allowed_development_scopes=[
+        "prediction_blind_extraction_qualified_268", "aggregate_no_rows", "anything"
+    ])
+    with pytest.raises(ContractError, match="different leakage policy"):
+        CandidateStore(tmp_path / "relaxed-store").create(spec, relaxed)
     with pytest.raises(FileExistsError):
         store.create(spec, _policy())
     result = _result(candidate, (10, 20, 0.0, 1.0))
@@ -474,6 +486,7 @@ def test_all_templates_expand_to_valid_executable_specs() -> None:
         return result
     bindings.update({
         "CODE_COMMIT": "a" * 40, "CPU_WORKERS": 20, "G0_CANDIDATE_ID": "g0-parent",
+        "LEAKAGE_POLICY_SHA256": "c" * 64,
         "G1_PARENT_ID": "g1-parent", "G2_PARENT_ID": "g2-parent", "G3_PARENT_ID": "g3-parent",
         "LEFT_PARETO_ID": "g4-left", "RIGHT_PARETO_ID": "g4-right", "MODEL_SEED": 20260718,
         "SLURM_JOB_ID": "dry-run",
@@ -546,6 +559,8 @@ def test_queue_execution_auto_finalizes_immutable_discoverable_receipt(
     queue = tmp_path / "queue.jsonl"
     queue.write_bytes(evolution.canonical_json_bytes(spec))
     candidate_root = tmp_path / "executed"
+    policy_path = tmp_path / "leakage.policy.json"
+    policy_path.write_bytes(evolution.canonical_json_bytes(_policy()))
 
     def fake_command(_spec_value: dict, *, candidate_dir: Path | None = None) -> list[str]:
         assert candidate_dir is not None
@@ -587,7 +602,7 @@ def test_queue_execution_auto_finalizes_immutable_discoverable_receipt(
     assert evolution.main(
         [
             "execute-queue-index", "--queue", str(queue), "--index", "0",
-            "--leakage-policy", str(Path(__file__).parents[1] / "evolution/leakage.policy.json"),
+            "--leakage-policy", str(policy_path),
             "--candidate-root", str(candidate_root), "--cwd", str(tmp_path),
         ]
     ) == 0
@@ -598,7 +613,7 @@ def test_queue_execution_auto_finalizes_immutable_discoverable_receipt(
     assert registry["candidates"][0]["candidate_id"] == spec["candidate_id"]
 
 
-def test_sealed_batch_rejects_subset_and_reuse(tmp_path: Path) -> None:
+def test_sealed_freeze_binds_annotation_lane_and_evaluation_is_blocked(tmp_path: Path) -> None:
     store = CandidateStore(tmp_path / "candidates")
     paths = []
     for index, vector in enumerate(((10, 20, 1, 2), (8, 25, 1, 2))):
@@ -608,54 +623,64 @@ def test_sealed_batch_rejects_subset_and_reuse(tmp_path: Path) -> None:
     registry = build_registry(paths)
     registry_path = tmp_path / "registry.json"
     registry_path.write_text(json.dumps(registry), encoding="utf-8")
-    inventory_path = tmp_path / "sealed_inventory.json"
-    inventory_path.write_text(
-        json.dumps({"document_ids": [f"sealed-{index:03d}" for index in range(150)]}),
+    documents_path = tmp_path / "documents.private.jsonl"
+    sources = ("greek_phd", "kallipos", "openarchives")
+    documents_path.write_text(
+        "".join(
+            json.dumps({"document_id": f"{index + 1:064x}", "source": sources[index // 50]}) + "\n"
+            for index in range(150)
+        ),
         encoding="utf-8",
     )
-    sealed_table = tmp_path / "sealed_table"
-    sealed_table.mkdir()
-    (sealed_table / "marker").write_text("frozen\n", encoding="utf-8")
+    labels_path = tmp_path / "labels.private.jsonl"
+    labels_path.write_text('{"line":"x","label":"OTHER"}\n', encoding="utf-8")
+    consensus_path = tmp_path / "consensus.receipt.json"
+    consensus_path.write_text('{"status":"passed"}\n', encoding="utf-8")
     freeze_receipt = tmp_path / "sealed.FROZEN.json"
     freeze_receipt.write_text(
         json.dumps(
             {
-                "schema_version": "bibliography-evolution-sealed-inventory-freeze-v1",
-                "status": "frozen",
-                "labels_sealed": True,
+                "schema_version": "bibliography-sealed-freeze-v1",
+                "status": "frozen_prediction_blind_test_set",
                 "document_count": 150,
-                "inventory_path": str(inventory_path.resolve()),
-                "inventory_sha256": sha256_file(inventory_path),
-                "sealed_table_path": str(sealed_table.resolve()),
-                "sealed_table_tree_sha256": sha256_directory(sealed_table),
+                "source_document_counts": {
+                    "greek_phd": 50, "kallipos": 50, "openarchives": 50
+                },
+                "sealed_hashes": {
+                    "documents_sha256": sha256_file(documents_path),
+                    "labels_sha256": sha256_file(labels_path),
+                    "consensus_receipt_sha256": sha256_file(consensus_path),
+                },
             }
         ),
         encoding="utf-8",
     )
     manifest_path = tmp_path / "manifest.json"
-    _freeze_manifest(registry_path, manifest_path, inventory_path, freeze_receipt)
+    _freeze_manifest(
+        registry_path, manifest_path, documents_path, labels_path, consensus_path, freeze_receipt
+    )
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    prediction_inputs = {}
-    for candidate_id in manifest["candidate_ids"]:
-        path = tmp_path / f"{candidate_id}.prediction.npy"
-        path.write_bytes(candidate_id.encode("utf-8"))
-        prediction_inputs[candidate_id] = {"path": str(path), "sha256": sha256_file(path)}
     request = {
         "schema_version": SEALED_REQUEST_SCHEMA,
         "evaluation_mode": "one_simultaneous_batch_all_pareto_candidates",
         "frozen_manifest_id": manifest["frozen_manifest_id"],
-        "manifest_sha256": sha256_file(manifest_path),
-        "sealed_inventory_sha256": sha256_file(inventory_path),
-        "sealed_freeze_receipt_sha256": sha256_file(freeze_receipt),
-        "candidate_ids": manifest["candidate_ids"][:1],
-        "prediction_inputs": prediction_inputs,
     }
     request_path = tmp_path / "request.json"
     request_path.write_text(json.dumps(request), encoding="utf-8")
-    with pytest.raises(ContractError, match="subset"):
+    with pytest.raises(ContractError, match="inference bridge"):
         _begin_sealed_batch(manifest_path, request_path, tmp_path / "batches")
-    request["candidate_ids"] = manifest["candidate_ids"]
-    request_path.write_text(json.dumps(request), encoding="utf-8")
-    _begin_sealed_batch(manifest_path, request_path, tmp_path / "batches")
-    with pytest.raises(FileExistsError):
+    assert not (tmp_path / "batches").exists()
+    manifest["frozen_manifest_id"] = "0" * 64
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ContractError, match="manifest ID"):
         _begin_sealed_batch(manifest_path, request_path, tmp_path / "batches")
+
+    # Duplicate/151-row document inventory cannot be frozen even though the
+    # evaluator itself is blocked.
+    with documents_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps({"document_id": f"{1:064x}", "source": "greek_phd"}) + "\n")
+    with pytest.raises(ContractError, match="150 unique"):
+        _freeze_manifest(
+            registry_path, tmp_path / "bad-manifest.json", documents_path,
+            labels_path, consensus_path, freeze_receipt,
+        )
