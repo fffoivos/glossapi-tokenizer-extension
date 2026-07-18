@@ -159,7 +159,8 @@ def _run_one(
         raise RuntimeError(f"batch {index}: unexpected remote status {export.get('status')!r}")
     attempt_prompt = prompt
     response: dict[str, Any]
-    accepted: dict[str, Any]
+    accepted: dict[str, Any] | None = None
+    validation_error: RuntimeError | None = None
     for attempt in range(args.validation_retries + 1):
         response = _codex(
             attempt_prompt,
@@ -189,7 +190,8 @@ def _run_one(
             break
         except RuntimeError as error:
             if attempt >= args.validation_retries:
-                raise
+                validation_error = error
+                break
             attempt_prompt = (
                 prompt.rstrip()
                 + "\n\nCORRECTION REQUIRED\n"
@@ -201,6 +203,58 @@ def _run_one(
                 + "Rejected JSON:\n"
                 + json.dumps(response, ensure_ascii=False)
             )
+    if accepted is None and args.split_batch_fallback and len(export.get("chunks", [])) > 1:
+        split_results: list[dict[str, Any]] = []
+        schema_version: str | None = None
+        reviewer: str | None = None
+        for chunk in export["chunks"]:
+            split_envelope = dict(export)
+            split_envelope["chunks"] = [chunk]
+            split_prompt = (
+                prompt.rstrip()
+                + "\n\nSPLIT-BATCH FALLBACK\n"
+                + "This envelope contains one chunk from a batch that was too large to "
+                + "label reliably as a pair. Return complete contiguous RLE coverage for "
+                + "this one chunk, including all context lines from its first through last offset."
+            )
+            part = _codex(
+                split_prompt,
+                schema,
+                split_envelope,
+                args.codex_timeout_seconds,
+                args.model,
+                args.reasoning_effort,
+            )
+            if len(part.get("chunks", [])) != 1:
+                raise RuntimeError("split-batch response did not contain exactly one chunk")
+            split_results.extend(part["chunks"])
+            schema_version = str(part.get("schema_version"))
+            reviewer = str(part.get("reviewer"))
+        response = {
+            "schema_version": schema_version,
+            "reviewer": reviewer,
+            "chunks": split_results,
+        }
+        accepted = _json_output(
+            _remote_command(
+                args,
+                [
+                    ingest_command,
+                    "--packet",
+                    args.remote_packet,
+                    "--run-dir",
+                    args.remote_run_dir,
+                    "--batch-index",
+                    str(index),
+                ],
+                stdin=json.dumps(response, ensure_ascii=False),
+            ),
+            f"ingest split batch {index}",
+        )
+    if accepted is None:
+        if validation_error is not None:
+            raise validation_error
+        raise RuntimeError(f"batch {index}: no accepted response was produced")
     if accepted.get("status") != "accepted":
         raise RuntimeError(f"batch {index}: remote validator did not accept the response")
     return {"batch_index": index, "status": "accepted", "batch_id": accepted["batch_id"]}
@@ -399,6 +453,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--ssh-timeout-seconds", type=int, default=120)
     parser.add_argument("--codex-timeout-seconds", type=int, default=1800)
     parser.add_argument("--validation-retries", type=int, choices=range(0, 6), default=0)
+    parser.add_argument("--split-batch-fallback", action="store_true")
     return parser.parse_args(argv)
 
 
