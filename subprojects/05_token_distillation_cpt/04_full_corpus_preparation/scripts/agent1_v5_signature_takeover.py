@@ -63,7 +63,7 @@ def _write_immutable(path: Path, value: Mapping[str, Any]) -> None:
             pass
 
 
-def _binding(path: Path) -> dict[str, str]:
+def _binding(path: Path) -> Mapping[str, str]:
     return {"path": canonical_path(path), "sha256": sha256_file(path)}
 
 
