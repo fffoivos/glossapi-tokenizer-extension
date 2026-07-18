@@ -7,11 +7,14 @@ import sys
 from pathlib import Path
 
 import pytest
+import numpy as np
 import sequence_models.bibliography_evolution as evolution
+import sequence_models.bibliography_evolution_sealed_inference as sealed_inference
 
 from sequence_models.bibliography_evolution import (
     SEALED_REQUEST_SCHEMA,
     _begin_sealed_batch,
+    _evaluate_sealed_batch,
     _freeze_manifest,
     _attest_git_checkout,
     _validate_runner,
@@ -33,6 +36,12 @@ from sequence_models.bibliography_evolution_contract import (
     with_candidate_id,
 )
 from sequence_models.bibliography_evolution_core_decode import decoding_document_subset
+from sequence_models.bibliography_evolution_sealed_inference import (
+    DERIVATION_SCHEMA,
+    INFERENCE_SCHEMA,
+    load_candidate_graph,
+    materialize_unlabelled_table,
+)
 
 
 def _input_receipts() -> dict:
@@ -613,7 +622,9 @@ def test_queue_execution_auto_finalizes_immutable_discoverable_receipt(
     assert registry["candidates"][0]["candidate_id"] == spec["candidate_id"]
 
 
-def test_sealed_freeze_binds_annotation_lane_and_evaluation_is_blocked(tmp_path: Path) -> None:
+def test_sealed_freeze_binds_annotation_lane_and_request_is_fail_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     store = CandidateStore(tmp_path / "candidates")
     paths = []
     for index, vector in enumerate(((10, 20, 1, 2), (8, 25, 1, 2))):
@@ -627,13 +638,43 @@ def test_sealed_freeze_binds_annotation_lane_and_evaluation_is_blocked(tmp_path:
     sources = ("greek_phd", "kallipos", "openarchives")
     documents_path.write_text(
         "".join(
-            json.dumps({"document_id": f"{index + 1:064x}", "source": sources[index // 50]}) + "\n"
+            json.dumps(
+                {
+                    "document_id": f"{index + 1:064x}",
+                    "source": sources[index // 50],
+                    "work_id": f"sealed-work-{index}",
+                    "n_physical_lines": 1,
+                    "lines": [
+                        {
+                            "line_id": f"{index + 1001:064x}",
+                            "abs_idx": 0,
+                            "text": f"Reference {index}. Author, A. 2020. pp. 1-2.",
+                        }
+                    ],
+                }
+            )
+            + "\n"
             for index in range(150)
         ),
         encoding="utf-8",
     )
     labels_path = tmp_path / "labels.private.jsonl"
-    labels_path.write_text('{"line":"x","label":"OTHER"}\n', encoding="utf-8")
+    labels_path.write_text(
+        "".join(
+            json.dumps(
+                {
+                    "document_id": f"{index + 1:064x}",
+                    "line_id": f"{index + 1001:064x}",
+                    "abs_idx": 0,
+                    "role": "OTHER",
+                    "binary_label": "NON_BIB",
+                }
+            )
+            + "\n"
+            for index in range(150)
+        ),
+        encoding="utf-8",
+    )
     consensus_path = tmp_path / "consensus.receipt.json"
     consensus_path.write_text('{"status":"passed"}\n', encoding="utf-8")
     freeze_receipt = tmp_path / "sealed.FROZEN.json"
@@ -656,9 +697,24 @@ def test_sealed_freeze_binds_annotation_lane_and_evaluation_is_blocked(tmp_path:
         encoding="utf-8",
     )
     manifest_path = tmp_path / "manifest.json"
-    _freeze_manifest(
-        registry_path, manifest_path, documents_path, labels_path, consensus_path, freeze_receipt
-    )
+    protected = {labels_path.resolve(), consensus_path.resolve()}
+    real_sha256_file = evolution.sha256_file
+
+    def prediction_blind_sha256(path: Path) -> str:
+        if Path(path).resolve() in protected:
+            raise AssertionError("frontier freeze touched sealed labels/consensus")
+        return real_sha256_file(path)
+
+    with monkeypatch.context() as freeze_guard:
+        freeze_guard.setattr(evolution, "sha256_file", prediction_blind_sha256)
+        _freeze_manifest(
+            registry_path,
+            manifest_path,
+            documents_path,
+            labels_path,
+            consensus_path,
+            freeze_receipt,
+        )
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     request = {
         "schema_version": SEALED_REQUEST_SCHEMA,
@@ -667,9 +723,212 @@ def test_sealed_freeze_binds_annotation_lane_and_evaluation_is_blocked(tmp_path:
     }
     request_path = tmp_path / "request.json"
     request_path.write_text(json.dumps(request), encoding="utf-8")
-    with pytest.raises(ContractError, match="inference bridge"):
+    with pytest.raises(ContractError, match="request has missing"):
         _begin_sealed_batch(manifest_path, request_path, tmp_path / "batches")
     assert not (tmp_path / "batches").exists()
+
+    # A complete prediction-only receipt is accepted only when every frontier
+    # prediction is recursively tied to its exact candidate spec and parents.
+    inference_root = tmp_path / "sealed-inference"
+    inference_root.mkdir()
+    table_root = inference_root / "feature_table"
+    document_rows = [json.loads(line) for line in documents_path.read_text().splitlines()]
+    materialize_unlabelled_table(document_rows, documents_path, table_root)
+    graph = load_candidate_graph(manifest)
+    prediction_root = inference_root / "predictions"
+    prediction_root.mkdir()
+    hashes: dict[str, str] = {}
+    lineage = []
+    for candidate_id in sorted(
+        graph, key=lambda value: (int(graph[value].spec["generation"][1:]), value)
+    ):
+        node = graph[candidate_id]
+        candidate_root = prediction_root / candidate_id
+        candidate_root.mkdir()
+        prediction_path = candidate_root / "prediction.npy"
+        prediction = np.zeros(150, dtype=bool)
+        prediction[hashlib.sha256(candidate_id.encode()).digest()[0] % 2 :: 2] = True
+        with prediction_path.open("xb") as handle:
+            np.save(handle, prediction, allow_pickle=False)
+        barrier_path = candidate_root / "combined_barriers.npz"
+        with barrier_path.open("xb") as handle:
+            np.savez(
+                handle,
+                hard_wall=np.zeros(150, dtype=bool),
+                upward_stop=np.zeros(150, dtype=bool),
+                downward_stop=np.zeros(150, dtype=bool),
+            )
+        proof = {
+            "schema_version": DERIVATION_SCHEMA,
+            "candidate_id": candidate_id,
+            "generation": node.spec["generation"],
+            "changed_component": node.spec["changed_component"],
+            "candidate_receipt": {
+                "path": str(node.receipt_path), "sha256": sha256_file(node.receipt_path)
+            },
+            "candidate_spec": {
+                "path": str(node.receipt_path.parent / "spec.json"),
+                "sha256": sha256_file(node.receipt_path.parent / "spec.json"),
+            },
+            "parent_candidate_ids": node.spec["parent_candidate_ids"],
+            "parent_prediction_sha256": [hashes[parent] for parent in node.spec["parent_candidate_ids"]],
+            "algorithm": {
+                "module": node.spec["runner"]["module"],
+                "sweep_point": node.spec["sweep_point"],
+            },
+            "model_artifacts": [],
+            "prediction_sha256": sha256_file(prediction_path),
+            "barrier_sha256": sha256_file(barrier_path),
+            "line_count": 150,
+        }
+        proof_path = candidate_root / "derivation.json"
+        proof_path.write_text(json.dumps(proof, sort_keys=True) + "\n", encoding="utf-8")
+        hashes[candidate_id] = proof["prediction_sha256"]
+
+        def artifact(path: Path) -> dict:
+            return {"path": str(path), "bytes": path.stat().st_size, "sha256": sha256_file(path)}
+
+        lineage.append(
+            {
+                "candidate_id": candidate_id,
+                "frontier": candidate_id in manifest["candidate_ids"],
+                "prediction": artifact(prediction_path),
+                "barriers": artifact(barrier_path),
+                "derivation": artifact(proof_path),
+            }
+        )
+    lineage_by_id = {row["candidate_id"]: row for row in lineage}
+    g0_node = next(node for node in graph.values() if node.spec["generation"] == "G0")
+    g0_bound_path = Path(next(iter(g0_node.spec["input_receipts"].values()))["path"])
+    g0_bound_artifact = {
+        "path": str(g0_bound_path),
+        "bytes": g0_bound_path.stat().st_size,
+        "sha256": sha256_file(g0_bound_path),
+    }
+    inference_receipt = {
+        "schema_version": INFERENCE_SCHEMA,
+        "status": "passed_predictions_before_label_access",
+        "labels_opened": False,
+        "frozen_manifest_id": manifest["frozen_manifest_id"],
+        "frozen_manifest": {"path": str(manifest_path), "sha256": sha256_file(manifest_path)},
+        "annotation_frozen": {"path": str(freeze_receipt), "sha256": sha256_file(freeze_receipt)},
+        "sealed_documents": {"path": str(documents_path), "sha256": sha256_file(documents_path)},
+        "annotation_label_sha256_bound_but_not_opened": sha256_file(labels_path),
+        "source_document_counts": {"greek_phd": 50, "kallipos": 50, "openarchives": 50},
+        "document_count": 150,
+        "line_count": 150,
+        "feature_table": {
+            "path": str(table_root), "sha256": sha256_directory(table_root),
+            "receipt_sha256": sha256_file(table_root / "receipt.json"),
+        },
+        "candidate_ids": manifest["candidate_ids"],
+        "candidate_count": len(manifest["candidate_ids"]),
+        "candidates": [lineage_by_id[value] for value in manifest["candidate_ids"]],
+        "foundation": {
+            "derivation_graph": lineage,
+            "baseline_lock": g0_bound_artifact,
+            "line_model_artifacts": [g0_bound_artifact],
+            "baseline_signal_model_artifacts": [g0_bound_artifact],
+        },
+        "runtime_code": manifest["sealed_inference_runtime_code"],
+        "bridge_code": {
+            "path": str(Path(sealed_inference.__file__).resolve()),
+            "sha256": sha256_file(Path(sealed_inference.__file__).resolve()),
+        },
+    }
+    inference_path = inference_root / "receipt.json"
+    inference_path.write_text(json.dumps(inference_receipt, sort_keys=True) + "\n", encoding="utf-8")
+    valid_request = {
+        "schema_version": SEALED_REQUEST_SCHEMA,
+        "evaluation_mode": "one_simultaneous_batch_all_pareto_candidates",
+        "frozen_manifest_id": manifest["frozen_manifest_id"],
+        "candidate_ids": manifest["candidate_ids"],
+        "sealed_inference_receipt": {
+            "path": str(inference_path), "sha256": sha256_file(inference_path)
+        },
+        "bootstrap": {
+            "method": "source_stratified_work_bootstrap_bonferroni_simultaneous",
+            "iterations": 20,
+            "seed": 7,
+        },
+    }
+    valid_request_path = tmp_path / "request.valid.json"
+    valid_request_path.write_text(json.dumps(valid_request), encoding="utf-8")
+    canonical_batch = Path(manifest["canonical_batch_root"])
+
+    # A structurally perfect proof with predictions that differ from an
+    # independent candidate replay must fail before the final fuse.
+    replay_foundation = dict(inference_receipt["foundation"])
+    wrong_lineage = json.loads(json.dumps(lineage))
+    wrong_prediction_path = tmp_path / "wrong-replay.npy"
+    with wrong_prediction_path.open("xb") as handle:
+        np.save(handle, np.zeros(150, dtype=bool), allow_pickle=False)
+    wrong_lineage[0]["prediction"] = artifact(wrong_prediction_path)
+    replay_foundation["derivation_graph"] = wrong_lineage
+    monkeypatch.setattr(
+        sealed_inference,
+        "run_inference",
+        lambda *_args, **_kwargs: (inference_receipt["candidates"], replay_foundation),
+    )
+    with pytest.raises(ContractError, match="not reproduced"):
+        _begin_sealed_batch(manifest_path, valid_request_path, canonical_batch)
+    assert not canonical_batch.exists()
+
+    replay_foundation = dict(inference_receipt["foundation"])
+    replay_foundation["derivation_graph"] = lineage
+    monkeypatch.setattr(
+        sealed_inference,
+        "run_inference",
+        lambda *_args, **_kwargs: (inference_receipt["candidates"], replay_foundation),
+    )
+    with pytest.raises(ContractError, match="CLI bootstrap values"):
+        _evaluate_sealed_batch(
+            manifest_path,
+            valid_request_path,
+            canonical_batch,
+            iterations=21,
+            seed=7,
+        )
+    assert not canonical_batch.exists()
+    fuse = _begin_sealed_batch(manifest_path, valid_request_path, canonical_batch)
+    assert fuse.is_file()
+    assert json.loads(fuse.read_text())["candidate_ids"] == manifest["candidate_ids"]
+    # The exact same request resumes the one canonical fuse; an alternate
+    # output directory cannot create a second final batch.
+    assert _begin_sealed_batch(manifest_path, valid_request_path, canonical_batch) == fuse
+    with pytest.raises(ContractError, match="not canonical"):
+        _begin_sealed_batch(manifest_path, valid_request_path, tmp_path / "other-batch")
+    copied_manifest = tmp_path / "copied" / "manifest.json"
+    copied_manifest.parent.mkdir()
+    copied_manifest.write_bytes(manifest_path.read_bytes())
+    assert _begin_sealed_batch(
+        copied_manifest, valid_request_path, canonical_batch
+    ) == fuse
+    with pytest.raises(ContractError, match="not canonical"):
+        _begin_sealed_batch(
+            copied_manifest,
+            valid_request_path,
+            copied_manifest.parent / "second-evaluation",
+        )
+    result_path = _evaluate_sealed_batch(
+        manifest_path,
+        valid_request_path,
+        canonical_batch,
+        iterations=20,
+        seed=7,
+    )
+    result = json.loads(result_path.read_text())
+    assert result["status"] == "passed_one_simultaneous_batch_all_pareto_candidates"
+    assert result["candidate_ids"] == manifest["candidate_ids"]
+    assert (canonical_batch / "sealed_results.receipt.json").is_file()
+    # Exact resume returns the sealed result rather than parsing labels again.
+    assert _evaluate_sealed_batch(
+        manifest_path,
+        valid_request_path,
+        canonical_batch,
+        iterations=20,
+        seed=7,
+    ) == result_path
     manifest["frozen_manifest_id"] = "0" * 64
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     with pytest.raises(ContractError, match="manifest ID"):

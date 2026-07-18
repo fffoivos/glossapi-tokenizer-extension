@@ -161,7 +161,7 @@ python -m sequence_models.bibliography_evolution build-registry \
 
 The registry minimizes four objectives: token FP, token FN, spurious blocks per zero-block document, and mean emitted-line boundary error. Exact objective ties collapse deterministically by earlier generation then candidate ID. Keep the entire nondominated set; do not choose on the sealed set.
 
-## 6. Sealed 150 boundary (evaluation intentionally blocked)
+## 6. Sealed 150 boundary and prediction-only inference
 
 The annotation lane creates `documents.private.jsonl`, `labels.private.jsonl`, its consensus receipt, and `FROZEN.receipt.json`. `freeze-pareto` binds those exact artifacts and freshly rebuilds the development Pareto frontier before any model evaluation:
 
@@ -191,8 +191,47 @@ python -m sequence_models.bibliography_evolution freeze-pareto \
   --output pareto.frozen.json
 ```
 
-`freeze-pareto` revalidates every candidate spec, leakage/input lineage, receipt, prediction, `all_rows`, artifact byte, annotation hash, 150 unique document IDs, and the exact 50/source quota.
+`freeze-pareto` revalidates every candidate spec, leakage/input lineage, receipt, prediction, `all_rows`, artifact byte, the sealed document hash, 150 unique document IDs, and the exact 50/source quota. It binds the label and consensus hashes supplied by the terminal annotation seal without reading those two files. It also hashes the complete source-file inventory used by sealed feature extraction and G0–G5 replay; later source drift invalidates the manifest.
 
-Final evaluation is deliberately unavailable in this commit. Development candidates currently own validation-sized predictions, not candidate-specific inference recipes for a sealed feature table. Accepting caller-supplied `.npy` files would not prove that each prediction came from the frozen candidate on the frozen 150 documents. Both `begin-sealed-batch` and `evaluate-sealed-batch` fail before reading labels or creating a no-rerun fuse.
+Next derive all predictions without passing a labels path:
 
-Before the sealed set can be opened, implement and test an inference bridge that reconstructs every frozen G0–G5 candidate from its receipt on a label-free sealed feature table, emits candidate-bound prediction receipts, preflights all 150/50-per-source shapes without labels, and only then opens all labels once for the simultaneous comparison and multiplicity-adjusted intervals.
+```bash
+python -m sequence_models.bibliography_evolution prepare-sealed-inference \
+  --manifest pareto.frozen.json \
+  --sealed-documents /sealed/documents.private.jsonl \
+  --sealed-freeze-receipt /sealed/FROZEN.receipt.json \
+  --output-root /sealed/predictions-$CODE_COMMIT
+```
+
+This command fails if `FROZEN.receipt.json` is absent, but never opens the label or consensus files. It materializes the 150-document unlabeled feature table, verifies the exact 50/source document and line inventory, derives D1 and signal-TCN probabilities from G0-bound model bytes, and recursively replays the G0–G5 candidate graph. Every frontier prediction has a derivation receipt binding the candidate spec, finalized receipt, parent prediction hashes, algorithm parameters, model artifacts, table, and annotation document hash. Caller-supplied prediction arrays are not an input. A learned-header G2 remains fail-closed unless its finalized candidate owns a deployable inference model; a validation-sized role-ID array is not accepted as a model.
+
+## 7. One canonical final batch
+
+Create one exact request after the prediction receipt exists:
+
+```bash
+MANIFEST_ID=$(jq -r .frozen_manifest_id pareto.frozen.json)
+INFERENCE_RECEIPT=/sealed/predictions-$CODE_COMMIT/receipt.json
+jq -n \
+  --arg id "$MANIFEST_ID" \
+  --arg path "$INFERENCE_RECEIPT" \
+  --arg sha "$(sha256sum "$INFERENCE_RECEIPT" | awk '{print $1}')" \
+  --slurpfile manifest pareto.frozen.json \
+  '{schema_version:"bibliography-evolution-sealed-batch-request-v1",
+    evaluation_mode:"one_simultaneous_batch_all_pareto_candidates",
+    frozen_manifest_id:$id,
+    candidate_ids:$manifest[0].candidate_ids,
+    sealed_inference_receipt:{path:$path,sha256:$sha},
+    bootstrap:{method:"source_stratified_work_bootstrap_bonferroni_simultaneous",
+               iterations:10000,seed:20260718}}' \
+  > sealed.request.json
+
+BATCH_ROOT=$(jq -r .canonical_batch_root pareto.frozen.json)
+python -m sequence_models.bibliography_evolution evaluate-sealed-batch \
+  --manifest pareto.frozen.json \
+  --request sealed.request.json \
+  --batch-root "$BATCH_ROOT" \
+  --iterations 10000 --seed 20260718
+```
+
+Before the fuse is written, the evaluator freshly rebuilds the Pareto frontier and rechecks candidate cardinality/order, all prediction derivations, bool shapes, barrier shapes, table/document hashes, FROZEN hash, and 50/source balance. It independently rematerializes the unlabeled table from sealed text and reruns every candidate and ancestor from the frozen model/spec bytes; a merely well-formed receipt with arbitrary arrays fails. It also hash-preflights the label and consensus files. The fuse has exactly one canonical location bound inside the hashed frozen manifest, so moving or copying the manifest cannot create a second final batch; its payload also binds the requested bootstrap method, iterations, and seed. Only after that fuse exists are labels parsed for the simultaneous comparison and multiplicity-adjusted source-stratified work bootstrap. Work rows support byte-exact crash recovery, and a final `sealed_results.receipt.json` binds the completed result. Repeating the exact completed request returns the existing result without parsing labels again.
