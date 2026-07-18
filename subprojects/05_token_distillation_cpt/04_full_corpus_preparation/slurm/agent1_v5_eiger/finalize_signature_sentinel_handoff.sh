@@ -9,8 +9,7 @@ fi
 run=$(realpath "$1")
 coord=$(realpath "$2")
 pipeline=$(realpath "$3")
-python="$coord/runtime/venv/bin/python"
-helper="$pipeline/scripts/agent1_v5_dedup_acceleration.py"
+helper="$pipeline/scripts/finalize_signature_sentinel_cutover.py"
 request="$run/dedup_acceleration_takeover_request.json"
 arm="$run/dedup_acceleration_takeover_arm.json"
 stop="$run/dedup_acceleration_sentinel_stop.json"
@@ -31,6 +30,5 @@ with os.fdopen(fd, "w", encoding="utf-8") as handle:
     json.dump(payload, handle, sort_keys=True); handle.write("\n")
 os.link(temporary, path); os.unlink(temporary)
 PY
-uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME \
-  "$python" "$helper" finalize-sentinel-cutover --request "$request" --arm-receipt "$arm" \
+python3 "$helper" --request "$request" --arm-receipt "$arm" \
   --stop-receipt "$stop" --queue-evidence "$queue" --combined-manifest "$manifest" --output "$cutover"
