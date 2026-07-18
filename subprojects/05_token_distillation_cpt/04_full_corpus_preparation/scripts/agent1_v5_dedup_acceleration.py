@@ -33,6 +33,10 @@ BENCHMARK_SCHEMA = "agent1_v5_dedup_acceleration_benchmark_v1"
 CHUNK_PLAN_SCHEMA = "agent1_v5_dedup_acceleration_chunk_plan_v1"
 SUBMISSION_SCHEMA = "agent1_v5_dedup_acceleration_submission_v1"
 RELEASE_AUTHORIZATION_SCHEMA = "agent1_v5_dedup_acceleration_release_authorization_v1"
+SENTINEL_REQUEST_SCHEMA = "agent1_v5_dedup_acceleration_takeover_request_v1"
+SENTINEL_ARM_SCHEMA = "agent1_v5_dedup_acceleration_takeover_arm_v1"
+SENTINEL_STOP_SCHEMA = "agent1_v5_dedup_acceleration_sentinel_stop_v1"
+SENTINEL_QUEUE_SCHEMA = "agent1_v5_dedup_acceleration_sentinel_queue_evidence_v1"
 
 
 def _read(path: Path) -> dict[str, Any]:
@@ -320,6 +324,77 @@ def finalize_cutover(args: argparse.Namespace) -> int:
     return 0
 
 
+def finalize_sentinel_cutover(args: argparse.Namespace) -> int:
+    """Finalize a serial handoff that stopped itself instead of using a QoS fence.
+
+    The scheduler check is performed by the shell controller immediately before
+    this command.  This function validates the immutable evidence and every
+    signature receipt through the stop rank before exposing the standard
+    cutover schema consumed by benchmark and production planning.
+    """
+
+    request = _validate_receipt(args.request, SENTINEL_REQUEST_SCHEMA)
+    arm = _validate_receipt(args.arm_receipt, SENTINEL_ARM_SCHEMA)
+    stop = _validate_receipt(args.stop_receipt, SENTINEL_STOP_SCHEMA)
+    queue = _validate_receipt(args.queue_evidence, SENTINEL_QUEUE_SCHEMA)
+    run_root = Path(request.get("run_root", "")).resolve()
+    if not run_root.is_dir():
+        raise ValueError("sentinel request run root is unavailable")
+    stop_rank = int(request.get("stop_after_rank", -1))
+    if stop_rank < 0:
+        raise ValueError("sentinel request stop rank is invalid")
+    manifest = args.combined_manifest.resolve()
+    if request.get("combined_manifest_sha256") != sha256_file(manifest):
+        raise ValueError("sentinel request manifest binding drift")
+    if arm.get("request_sha256") != sha256_file(args.request):
+        raise ValueError("sentinel arm does not bind request")
+    if int(arm.get("stop_after_rank", -1)) != stop_rank:
+        raise ValueError("sentinel arm stop rank drift")
+    if stop.get("request_sha256") != sha256_file(args.request):
+        raise ValueError("sentinel stop does not bind request")
+    if int(stop.get("stopped_after_rank", -1)) != stop_rank:
+        raise ValueError("sentinel stop rank drift")
+    if int(stop.get("first_missing_rank", -1)) != stop_rank + 1:
+        raise ValueError("sentinel first missing rank drift")
+    if stop.get("successor_submitted") is not False:
+        raise ValueError("sentinel stop claims a successor submission")
+    if arm.get("active_helper_sha256") != request.get("guarded_helper_sha256"):
+        raise ValueError("armed helper does not bind requested guard")
+    if stop.get("active_helper_sha256") != request.get("guarded_helper_sha256"):
+        raise ValueError("stop helper does not bind requested guard")
+    if arm.get("takeover_tool_sha256") != request.get("takeover_tool_sha256"):
+        raise ValueError("armed takeover tool drift")
+    if stop.get("takeover_tool_sha256") != request.get("takeover_tool_sha256"):
+        raise ValueError("stop takeover tool drift")
+    receipt_binding = stop.get("signature_receipt")
+    expected_receipt = run_root / "60-dedup" / "minhash-signatures" / "receipts" / f"{stop_rank:06d}.json"
+    if not isinstance(receipt_binding, Mapping):
+        raise ValueError("sentinel stop receipt binding missing")
+    if receipt_binding.get("path") != str(expected_receipt.resolve()) or receipt_binding.get("sha256") != sha256_file(expected_receipt):
+        raise ValueError("sentinel stop receipt binding drift")
+    if queue.get("debug_signature_queue_empty") is not True or queue.get("legacy_successor_present") is not False:
+        raise ValueError("sentinel queue evidence is incomplete")
+    receipts = _validate_receipts(run_root, stop_rank)
+    value: dict[str, Any] = {
+        "schema_version": CUTOVER_SCHEMA,
+        "status": "passed",
+        "created_at": _now(),
+        "method": "sentinel",
+        "run_root": str(run_root),
+        "request_sha256": sha256_file(args.request),
+        "arm_receipt_sha256": sha256_file(args.arm_receipt),
+        "stop_receipt_sha256": sha256_file(args.stop_receipt),
+        "queue_evidence_sha256": sha256_file(args.queue_evidence),
+        "final_legacy_rank": stop_rank,
+        "first_missing_rank": stop_rank + 1,
+        "legacy_receipt_count": len(receipts),
+        "combined_manifest_sha256": sha256_file(manifest),
+    }
+    _write_immutable(args.output, value)
+    print(canonical_json({"ok": True, "first_missing_rank": value["first_missing_rank"], "method": "sentinel"}))
+    return 0
+
+
 def make_benchmark_plan(args: argparse.Namespace) -> int:
     """Freeze 1→2→4→5 worker canary inputs before any benchmark starts."""
 
@@ -335,24 +410,56 @@ def make_benchmark_plan(args: argparse.Namespace) -> int:
     if not isinstance(files, list):
         raise ValueError("combined manifest files missing")
     rank_count = int(args.rank_count)
-    if rank_count != 24:
-        raise ValueError("benchmark must freeze exactly 24 ranks")
-    selected = files[first : first + rank_count]
-    if len(selected) != rank_count:
-        raise ValueError("not enough remaining ranks for benchmark")
-    for expected_rank, row in enumerate(selected, start=first):
-        if int(row.get("rank", -1)) != expected_rank:
-            raise ValueError("benchmark ranks are not contiguous")
-        if row.get("origin") != "nanochat_base" or int(row.get("rows", -1)) != 196608:
-            raise ValueError("benchmark ranks must be homogeneous full NanoChat shards")
-    phases = []
-    cursor = 0
-    for index, (workers, count, name) in enumerate(
-        ((1, 2, "baseline"), (2, 4, "two_worker"), (4, 8, "four_worker"), (5, 10, "five_worker"))
-    ):
-        ranks = [int(row["rank"]) for row in selected[cursor : cursor + count]]
-        phases.append({"index": index, "name": name, "workers": workers, "ranks": ranks})
-        cursor += count
+    phase_specs = list(args.phase_ranks or [])
+    expected_phases = ((1, 2, "baseline"), (2, 4, "two_worker"), (4, 8, "four_worker"), (5, 10, "five_worker"))
+    row_by_rank = {int(row.get("rank", -1)): row for row in files}
+    excluded: list[dict[str, Any]] = []
+    if phase_specs:
+        if len(phase_specs) != len(expected_phases):
+            raise ValueError("explicit benchmark ranks require exactly four phase lists")
+        parsed = []
+        for raw, (_, count, _) in zip(phase_specs, expected_phases):
+            ranks = [int(item) for item in raw.split(",") if item]
+            if len(ranks) != count or len(set(ranks)) != len(ranks):
+                raise ValueError("explicit benchmark phase has an invalid rank count or duplicate")
+            parsed.append(ranks)
+        flat = [rank for ranks in parsed for rank in ranks]
+        if len(set(flat)) != 24 or min(flat) != first:
+            raise ValueError("explicit benchmark must start at first missing rank and contain 24 unique ranks")
+        for rank in flat:
+            row = row_by_rank.get(rank)
+            if row is None:
+                raise ValueError(f"benchmark rank is absent from manifest: {rank}")
+            if row.get("origin") != "nanochat_base" or int(row.get("rows", -1)) != 196608:
+                raise ValueError("benchmark ranks must be homogeneous full NanoChat shards")
+        selected = [row_by_rank[rank] for rank in flat]
+        for rank in range(first, max(flat) + 1):
+            if rank in flat:
+                continue
+            row = row_by_rank.get(rank)
+            if row is None or row.get("origin") == "nanochat_base" and int(row.get("rows", -1)) == 196608:
+                raise ValueError("explicit benchmark may skip only non-full NanoChat shards")
+            excluded.append({"rank": rank, "bytes": row["bytes"], "rows": row["rows"], "sha256": row["sha256"], "reason": "non_full_nanochat_shard"})
+    else:
+        if rank_count != 24:
+            raise ValueError("benchmark must freeze exactly 24 ranks")
+        selected = files[first : first + rank_count]
+        if len(selected) != rank_count:
+            raise ValueError("not enough remaining ranks for benchmark")
+        for expected_rank, row in enumerate(selected, start=first):
+            if int(row.get("rank", -1)) != expected_rank:
+                raise ValueError("benchmark ranks are not contiguous")
+            if row.get("origin") != "nanochat_base" or int(row.get("rows", -1)) != 196608:
+                raise ValueError("benchmark ranks must be homogeneous full NanoChat shards")
+        parsed = []
+        cursor = 0
+        for _, count, _ in expected_phases:
+            parsed.append([int(row["rank"]) for row in selected[cursor : cursor + count]])
+            cursor += count
+    phases = [
+        {"index": index, "name": name, "workers": workers, "ranks": parsed[index]}
+        for index, (workers, _, name) in enumerate(expected_phases)
+    ]
     value: dict[str, Any] = {
         "schema_version": BENCHMARK_PLAN_SCHEMA,
         "status": "passed",
@@ -363,13 +470,14 @@ def make_benchmark_plan(args: argparse.Namespace) -> int:
         "combined_manifest_sha256": sha256_file(args.combined_manifest),
         "first_missing_rank": first,
         "phases": phases,
+        "explicit_nonbenchmark_exclusions": excluded,
         "rank_inventory": [
             {"rank": row["rank"], "bytes": row["bytes"], "rows": row["rows"], "sha256": row["sha256"]}
             for row in selected
         ],
     }
     _write_immutable(args.output, value)
-    print(canonical_json({"ok": True, "phases": len(phases), "ranks": rank_count}))
+    print(canonical_json({"ok": True, "phases": len(phases), "ranks": len(selected), "excluded": len(excluded)}))
     return 0
 
 
@@ -709,12 +817,22 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--output", type=Path, required=True)
     command.set_defaults(func=finalize_cutover)
 
+    command = commands.add_parser("finalize-sentinel-cutover")
+    command.add_argument("--request", type=Path, required=True)
+    command.add_argument("--arm-receipt", type=Path, required=True)
+    command.add_argument("--stop-receipt", type=Path, required=True)
+    command.add_argument("--queue-evidence", type=Path, required=True)
+    command.add_argument("--combined-manifest", type=Path, required=True)
+    command.add_argument("--output", type=Path, required=True)
+    command.set_defaults(func=finalize_sentinel_cutover)
+
     command = commands.add_parser("make-benchmark-plan")
     command.add_argument("--run-root", type=Path, required=True)
     command.add_argument("--full-input-audit", type=Path, required=True)
     command.add_argument("--cutover-receipt", type=Path, required=True)
     command.add_argument("--combined-manifest", type=Path, required=True)
     command.add_argument("--rank-count", type=int, default=24)
+    command.add_argument("--phase-ranks", action="append", default=[], metavar="RANK[,RANK...]")
     command.add_argument("--output", type=Path, required=True)
     command.set_defaults(func=make_benchmark_plan)
 

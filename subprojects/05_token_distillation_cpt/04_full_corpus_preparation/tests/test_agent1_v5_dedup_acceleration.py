@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
+import importlib.util
 from pathlib import Path
 
 
@@ -10,6 +11,15 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import agent1_v5_datatrove as dedup  # noqa: E402
 import agent1_v5_dedup_acceleration as acceleration  # noqa: E402
+
+
+TAKEOVER_SPEC = importlib.util.spec_from_file_location(
+    "agent1_v5_signature_takeover", ROOT / "scripts" / "agent1_v5_signature_takeover.py"
+)
+assert TAKEOVER_SPEC and TAKEOVER_SPEC.loader
+takeover = importlib.util.module_from_spec(TAKEOVER_SPEC)
+sys.modules[TAKEOVER_SPEC.name] = takeover
+TAKEOVER_SPEC.loader.exec_module(takeover)
 
 
 def write_json(path: Path, value: object) -> None:
@@ -226,3 +236,153 @@ def test_benchmark_selection_prefers_five_after_all_gates(tmp_path: Path) -> Non
     value = json.loads(output.read_text(encoding="utf-8"))
     assert value["approved"] is True
     assert value["selected_workers"] == 5
+
+
+def test_explicit_benchmark_skips_only_partial_nanochat_shard(tmp_path: Path) -> None:
+    run = tmp_path / "run"
+    manifest = tmp_path / "manifest.json"
+    files = [
+        {
+            "rank": rank,
+            "origin": "nanochat_base",
+            "rows": 118001 if rank == 76 else 196608,
+            "bytes": 10,
+            "sha256": f"sha-{rank}",
+        }
+        for rank in range(68, 93)
+    ]
+    write_json(manifest, {"files": files})
+    audit = tmp_path / "audit.json"
+    write_json(
+        audit,
+        {
+            "schema_version": dedup.FULL_INPUT_AUDIT_SCHEMA,
+            "status": "passed",
+            "combined_manifest_sha256": dedup.sha256_file(manifest),
+        },
+    )
+    cutover = tmp_path / "cutover.json"
+    write_json(
+        cutover,
+        {
+            "schema_version": acceleration.CUTOVER_SCHEMA,
+            "status": "passed",
+            "first_missing_rank": 68,
+            "combined_manifest_sha256": dedup.sha256_file(manifest),
+        },
+    )
+    output = tmp_path / "benchmark.json"
+    assert acceleration.main(
+        [
+            "make-benchmark-plan",
+            "--run-root",
+            str(run),
+            "--full-input-audit",
+            str(audit),
+            "--cutover-receipt",
+            str(cutover),
+            "--combined-manifest",
+            str(manifest),
+            "--phase-ranks",
+            "68,69",
+            "--phase-ranks",
+            "70,71,72,73",
+            "--phase-ranks",
+            "74,75,77,78,79,80,81,82",
+            "--phase-ranks",
+            "83,84,85,86,87,88,89,90,91,92",
+            "--output",
+            str(output),
+        ]
+    ) == 0
+    value = json.loads(output.read_text(encoding="utf-8"))
+    assert value["phases"][2]["ranks"] == [74, 75, 77, 78, 79, 80, 81, 82]
+    assert value["explicit_nonbenchmark_exclusions"] == [
+        {"rank": 76, "bytes": 10, "rows": 118001, "sha256": "sha-76", "reason": "non_full_nanochat_shard"}
+    ]
+
+
+def test_takeover_request_fails_closed_on_wrong_rank_and_checksum_drift(tmp_path: Path) -> None:
+    run = tmp_path / "run"
+    coord = tmp_path / "coord"
+    legacy = tmp_path / "legacy"
+    active = tmp_path / "active-helper.sh"
+    guarded = tmp_path / "guarded-helper.sh"
+    tool = tmp_path / "agent1_v5_signature_takeover.py"
+    for path, contents in {
+        run / "run_contract.json": b"contract",
+        run / "release-pre-dedup" / "manifests" / "combined_manifest.json": b"manifest",
+        run / "datatrove_runtime.json": b"runtime",
+        active: b"original helper",
+        guarded: b"guarded helper",
+        tool: b"tool",
+    }.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(contents)
+    write_json(
+        run / "dedup_full_input_audit.json",
+        {
+            "schema_version": dedup.FULL_INPUT_AUDIT_SCHEMA,
+            "status": "passed",
+            "combined_manifest_sha256": dedup.sha256_file(run / "release-pre-dedup" / "manifests" / "combined_manifest.json"),
+        },
+    )
+    request = run / "request.json"
+    assert takeover.main(
+        [
+            "create-request",
+            "--run-root",
+            str(run),
+            "--coord-root",
+            str(coord),
+            "--legacy-pipeline-root",
+            str(legacy),
+            "--active-helper",
+            str(active),
+            "--original-helper",
+            str(active),
+            "--guarded-helper",
+            str(guarded),
+            "--takeover-tool",
+            str(tool),
+            "--stop-after-rank",
+            "67",
+            "--output",
+            str(request),
+        ]
+    ) == 0
+    active.write_bytes(guarded.read_bytes())
+    active_tool = active.parent / tool.name
+    active_tool.write_bytes(tool.read_bytes())
+    valid_args = [
+        "validate-request",
+        "--request",
+        str(request),
+        "--run-root",
+        str(run),
+        "--coord-root",
+        str(coord),
+        "--legacy-pipeline-root",
+        str(legacy),
+        "--active-helper",
+        str(active),
+        "--takeover-tool",
+        str(active_tool),
+        "--task-index",
+        "67",
+    ]
+    assert takeover.main(valid_args) == 0
+    wrong_rank = valid_args[:-1] + ["68"]
+    try:
+        takeover.main(wrong_rank)
+    except ValueError as error:
+        assert "stop rank" in str(error)
+    else:  # pragma: no cover
+        raise AssertionError("wrong stop rank was accepted")
+    active.write_bytes(b"drift")
+    try:
+        takeover.main(valid_args)
+    except ValueError as error:
+        assert "checksum drift" in str(error)
+    else:  # pragma: no cover
+        raise AssertionError("guarded helper checksum drift was accepted")
