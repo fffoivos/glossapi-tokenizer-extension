@@ -22,6 +22,11 @@ tool_active="$(dirname -- "$active")/$(basename -- "$tool_source")"
 request="$run/dedup_acceleration_takeover_request.json"
 arm="$run/dedup_acceleration_takeover_arm.json"
 
+run_takeover_tool() {
+  uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME \
+    "$coord/runtime/venv/bin/python" "$@"
+}
+
 [[ -f "$guarded" && -f "$tool_source" && -x "$guarded" ]] || { echo "accelerated handoff files are missing" >&2; exit 1; }
 [[ ! -e "$request" && ! -e "$arm" && ! -e "$tool_active" ]] || { echo "takeover artifacts already exist; refusing re-arm" >&2; exit 1; }
 mapfile -t jobs < <(squeue -h -u fffoivos -p debug -o '%i|%j|%T|%a')
@@ -40,7 +45,7 @@ expected_original_sha="af43fd90829ea36b9db58f7b43e66853bdfe1bc5b471369ccf5292dca
 backup="${active}.original-${original_sha}"
 [[ ! -e "$backup" ]] || { echo "checksum-qualified legacy backup already exists" >&2; exit 1; }
 
-python3 "$tool_source" create-request --run-root "$run" --coord-root "$coord" \
+run_takeover_tool "$tool_source" create-request --run-root "$run" --coord-root "$coord" \
   --legacy-pipeline-root "$legacy_pipeline" --active-helper "$active" --original-helper "$active" \
   --guarded-helper "$guarded" --takeover-tool "$tool_source" --stop-after-rank "$stop_after" --output "$request"
 
@@ -55,7 +60,7 @@ mv -f "$tool_tmp" "$tool_active"
 install -m 0755 "$guarded" "$helper_tmp"
 [[ "$(sha256sum "$helper_tmp" | awk '{print $1}')" == "$(jq -r .guarded_helper_sha256 "$request")" ]] || { echo "guarded helper checksum mismatch" >&2; exit 1; }
 mv -f "$helper_tmp" "$active"
-python3 "$tool_active" write-arm --request "$request" --run-root "$run" --coord-root "$coord" \
+run_takeover_tool "$tool_active" write-arm --request "$request" --run-root "$run" --coord-root "$coord" \
   --legacy-pipeline-root "$legacy_pipeline" --active-helper "$active" --takeover-tool "$tool_active" \
   --stop-after-rank "$stop_after" --output "$arm"
 printf 'armed sentinel handoff: rank %s -> rank %s stops\n' "$expected_rank" "$stop_after"

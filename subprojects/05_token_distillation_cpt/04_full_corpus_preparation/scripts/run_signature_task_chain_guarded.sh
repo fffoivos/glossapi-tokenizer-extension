@@ -25,6 +25,11 @@ stop_receipt="$run/dedup_acceleration_sentinel_stop.json"
 
 [[ -f "$tool" ]] || { echo "missing signature takeover verifier: $tool" >&2; exit 1; }
 
+run_takeover_tool() {
+  uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME \
+    "$coord/runtime/venv/bin/python" "$tool" "$@"
+}
+
 uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME \
   "$coord/runtime/venv/bin/python" "$pipeline/scripts/agent1_v5_datatrove.py" \
   signature-task --config "$config" --contract "$run/run_contract.json" \
@@ -56,10 +61,10 @@ PY
 # A present request is intentionally fail-closed.  It is checked after the
 # rank's durable output closure and before any successor submission.
 if [[ -e "$request" ]]; then
-  python3 "$tool" validate-request --request "$request" --run-root "$run" \
+  run_takeover_tool validate-request --request "$request" --run-root "$run" \
     --coord-root "$coord" --legacy-pipeline-root "$pipeline" \
     --active-helper "$self" --takeover-tool "$tool" --task-index "$task"
-  python3 "$tool" write-stop --request "$request" --run-root "$run" \
+  run_takeover_tool write-stop --request "$request" --run-root "$run" \
     --coord-root "$coord" --legacy-pipeline-root "$pipeline" \
     --active-helper "$self" --takeover-tool "$tool" --task-index "$task" \
     --signature-receipt "$receipt" --output "$stop_receipt"
