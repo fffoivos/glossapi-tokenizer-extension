@@ -249,12 +249,31 @@ def run(args: argparse.Namespace) -> int:
     total_count = int(contract["batch_count"])
     if not 0 <= args.start_batch_index < total_count:
         raise ValueError("start-batch-index is outside the run contract")
-    stop_index = total_count
+    if args.pending_only:
+        pending = _json_output(
+            _remote_command(
+                args,
+                [
+                    "pending-role-batches",
+                    "--packet",
+                    args.remote_packet,
+                    "--run-dir",
+                    args.remote_run_dir,
+                ],
+            ),
+            "list pending batches",
+        )
+        batch_indices = [
+            int(index)
+            for index in pending["pending_batch_indices"]
+            if int(index) >= args.start_batch_index
+        ]
+    else:
+        batch_indices = list(range(args.start_batch_index, total_count))
     if args.maximum_batches is not None:
         if args.maximum_batches <= 0:
             raise ValueError("maximum-batches must be positive")
-        stop_index = min(total_count, args.start_batch_index + args.maximum_batches)
-    batch_indices = range(args.start_batch_index, stop_index)
+        batch_indices = batch_indices[: args.maximum_batches]
     results: list[dict[str, Any]] = []
     failures: list[tuple[int, BaseException]] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
@@ -356,6 +375,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--workers", type=int, choices=(1, 2), default=2)
     parser.add_argument("--maximum-batches", type=int)
     parser.add_argument("--start-batch-index", type=int, default=0)
+    parser.add_argument("--pending-only", action="store_true")
     parser.add_argument("--ssh-timeout-seconds", type=int, default=120)
     parser.add_argument("--codex-timeout-seconds", type=int, default=1800)
     return parser.parse_args(argv)

@@ -2363,8 +2363,8 @@ def ingest_batch(args: argparse.Namespace) -> dict[str, Any]:
     return {"status": "accepted", "batch_id": batch_id, "review_sha256": record["review_sha256"]}
 
 
-def import_role_run_prefix(args: argparse.Namespace) -> dict[str, Any]:
-    """Rebind a verified completed prefix into a continuation run.
+def import_role_run_records(args: argparse.Namespace) -> dict[str, Any]:
+    """Rebind verified completed records into a continuation run.
 
     The semantic review payload is preserved exactly except for the envelope's
     reviewer identifier. Every destination record retains hashes and runtime
@@ -2384,20 +2384,28 @@ def import_role_run_prefix(args: argparse.Namespace) -> dict[str, Any]:
     immutable_fields = ("pass_id", "batch_size", "batch_count")
     if any(source_contract[field] != destination_contract[field] for field in immutable_fields):
         raise ValueError("source and destination run shapes differ")
-    if not 0 < args.batch_count <= int(source_contract["batch_count"]):
-        raise ValueError("batch-count is outside the source run")
+    if not 0 < args.expected_record_count <= int(source_contract["batch_count"]):
+        raise ValueError("expected-record-count is outside the source run")
 
     chunks = _load_chunks(packet_path)
     batches = _batches(chunks, int(source_contract["batch_size"]))
     source_contract_path = source_run_dir / "run.contract.json"
     destination_contract_path = destination_run_dir / "run.contract.json"
     imported: list[dict[str, Any]] = []
-    for index in range(args.batch_count):
+    available_indices = [
+        index
+        for index, batch_id in enumerate(source_contract["batch_ids"])
+        if (source_run_dir / "responses" / f"{batch_id}.json").is_file()
+    ]
+    if len(available_indices) != args.expected_record_count:
+        raise ValueError(
+            "source record count differs from expected-record-count: "
+            f"{len(available_indices)} != {args.expected_record_count}"
+        )
+    for index in available_indices:
         batch = batches[index]
         source_batch_id = str(source_contract["batch_ids"][index])
         source_record_path = source_run_dir / "responses" / f"{source_batch_id}.json"
-        if not source_record_path.is_file():
-            raise ValueError(f"source prefix is incomplete at batch {index}")
         source_record = _json(source_record_path)
         if (
             source_record.get("batch_id") != source_batch_id
@@ -2443,9 +2451,10 @@ def import_role_run_prefix(args: argparse.Namespace) -> dict[str, Any]:
             }
         )
     receipt = {
-        "schema_version": "bibliography-sealed-role-continuation-import-v1",
+        "schema_version": "bibliography-sealed-role-continuation-import-v2",
         "status": "passed",
-        "batch_count": args.batch_count,
+        "record_count": len(imported),
+        "batch_indices": available_indices,
         "source_model": source_contract["model"],
         "source_reasoning_effort": source_contract["reasoning_effort"],
         "destination_model": destination_contract["model"],
@@ -2456,6 +2465,27 @@ def import_role_run_prefix(args: argparse.Namespace) -> dict[str, Any]:
     }
     _same_or_write(destination_run_dir / "continuation.import.receipt.json", receipt)
     return receipt
+
+
+def pending_role_batches(args: argparse.Namespace) -> dict[str, Any]:
+    packet_path = Path(args.packet).resolve()
+    run_dir = Path(args.run_dir).resolve()
+    contract = _run_contract(run_dir)
+    if contract.get("kind") != "role":
+        raise ValueError("run contract is not a role run")
+    if contract.get("packet_sha256") != sha256_file(packet_path):
+        raise ValueError("role packet differs from the immutable run contract")
+    pending = [
+        index
+        for index, batch_id in enumerate(contract["batch_ids"])
+        if not (run_dir / "responses" / f"{batch_id}.json").is_file()
+    ]
+    return {
+        "batch_count": int(contract["batch_count"]),
+        "complete_count": int(contract["batch_count"]) - len(pending),
+        "pending_count": len(pending),
+        "pending_batch_indices": pending,
+    }
 
 
 def finalize_pass(args: argparse.Namespace) -> dict[str, Any]:
@@ -3175,13 +3205,19 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     ingest.add_argument("--batch-index", type=int, required=True)
 
     continuation = commands.add_parser(
-        "import-role-run-prefix",
-        help="verify and rebind a completed role-run prefix for model continuation",
+        "import-role-run-records",
+        help="verify and rebind completed role-run records for model continuation",
     )
     continuation.add_argument("--packet", required=True)
     continuation.add_argument("--source-run-dir", required=True)
     continuation.add_argument("--destination-run-dir", required=True)
-    continuation.add_argument("--batch-count", type=int, required=True)
+    continuation.add_argument("--expected-record-count", type=int, required=True)
+
+    pending = commands.add_parser(
+        "pending-role-batches", help="list missing immutable role-run batch indices"
+    )
+    pending.add_argument("--packet", required=True)
+    pending.add_argument("--run-dir", required=True)
 
     quality_export = commands.add_parser(
         "export-quality-batch", help="stream one bounded quality batch as JSON"
@@ -3253,7 +3289,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         "prepare-quality-run": prepare_quality_run,
         "export-batch": export_batch,
         "ingest-batch": ingest_batch,
-        "import-role-run-prefix": import_role_run_prefix,
+        "import-role-run-records": import_role_run_records,
+        "pending-role-batches": pending_role_batches,
         "export-quality-batch": export_quality_batch,
         "ingest-quality-batch": ingest_quality_batch,
         "finalize-pass": finalize_pass,

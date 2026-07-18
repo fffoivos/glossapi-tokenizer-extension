@@ -50,7 +50,8 @@ from sequence_models.sealed_bibliography_test import (
     freeze,
     export_quality_batch,
     ingest_batch,
-    import_role_run_prefix,
+    import_role_run_records,
+    pending_role_batches,
     load_public_exclusions,
     load_exclusions,
     prepare_run,
@@ -1022,13 +1023,16 @@ def test_verified_sol_prefix_is_reused_with_explicit_runtime_provenance(
             reasoning_effort="high", run_dir=str(destination_run),
         )
     )
-    receipt = import_role_run_prefix(
+    receipt = import_role_run_records(
         argparse.Namespace(
             packet=str(packet), source_run_dir=str(source_run),
-            destination_run_dir=str(destination_run), batch_count=1,
+            destination_run_dir=str(destination_run), expected_record_count=1,
         )
     )
     assert receipt["source_model"] == "gpt-5.6-sol"
+    assert pending_role_batches(
+        argparse.Namespace(packet=str(packet), run_dir=str(destination_run))
+    )["pending_count"] == 0
     output = finalize_pass(
         argparse.Namespace(
             packet=str(packet), run_dir=str(destination_run),

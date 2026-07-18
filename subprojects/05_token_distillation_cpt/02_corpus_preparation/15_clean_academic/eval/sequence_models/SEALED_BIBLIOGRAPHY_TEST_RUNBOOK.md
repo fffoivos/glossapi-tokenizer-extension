@@ -229,8 +229,9 @@ RSCHEMA="$REMOTE_EVAL/sequence_models/sealed_bibliography_role.schema.json"
 
 The earlier Sol A/B coordinators were stopped on 2026-07-18. Their immutable
 responses remain in `20_role_a/run` (174 accepted batches) and `21_role_b/run`
-(176 accepted batches). They are canonical source evidence for the prefixes.
-Do not mutate those directories or finalize them directly.
+(176 accepted batches). They are canonical source evidence. Completed indices
+are sparse because the two-worker runs finished out of order. Do not mutate
+those directories or finalize them directly.
 
 The canonical continuation uses fresh Terra/high contracts. For A, use packet
 `10_sealed_inputs/pass-a.packet.private.jsonl`, run directory
@@ -238,9 +239,9 @@ The canonical continuation uses fresh Terra/high contracts. For A, use packet
 pass ID `pass-a`, and reviewer `sealed-role-sol-terra-high-a-v1`. For B, use the
 corresponding pass-B packet, `25_role_sol_terra_high_b/run`, `pass-b`, and
 `sealed-role-sol-terra-high-b-v1`. Prepare each contract, then run
-`import-role-run-prefix` with source `20_role_a/run` and count 174 for A, and
-source `21_role_b/run` and count 176 for B. Require each immutable import
-receipt to pass before starting the coordinator.
+`import-role-run-records` with source `20_role_a/run` and expected record count
+174 for A, and source `21_role_b/run` and expected record count 176 for B.
+Require each immutable import receipt to pass before starting the coordinator.
 
 ```bash
 python3 "$COORD" --kind role --ssh-host clariden \
@@ -253,12 +254,12 @@ python3 "$COORD" --kind role --ssh-host clariden \
   --model gpt-5.6-terra --reasoning-effort high \
   --local-prompt "$LPROMPT" --remote-prompt "$RPROMPT" \
   --local-output-schema "$LSCHEMA" --remote-output-schema "$RSCHEMA" \
-  --batch-size 2 --workers 1 --start-batch-index 174
+  --batch-size 2 --workers 1 --pending-only
 ```
 
 Start B with the B packet, `25_role_sol_terra_high_b` paths,
 `--pass-id pass-b`, reviewer `sealed-role-sol-terra-high-b-v1`, and
-`--start-batch-index 176`. Do not expose either pass to the other. The mistaken
+`--pending-only`. Do not expose either pass to the other. The mistaken
 medium-Terra directories `22_role_terra_a` and `23_role_terra_b` each contain 10
 overlapping batches and are excluded because the Sol prefixes take precedence.
 

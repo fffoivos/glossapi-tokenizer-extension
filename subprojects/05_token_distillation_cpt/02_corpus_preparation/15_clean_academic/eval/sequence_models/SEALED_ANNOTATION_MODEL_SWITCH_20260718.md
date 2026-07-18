@@ -4,8 +4,9 @@
 
 The canonical exhaustive A/B role annotation preserves every accepted
 `gpt-5.6-sol`/high batch and uses `gpt-5.6-terra`/high only to complete the
-remaining batches, one worker per pass. The Sol prefixes are the output of the
-stronger model and are not re-annotated.
+remaining batches, one worker per pass. The accepted Sol records are the output
+of the stronger model and are not re-annotated. They form sparse batch sets
+because the original two-worker runs completed out of order.
 
 The completed quality gate remains historical `gpt-5.6-sol`/high evidence. It
 is not rerun by this switch.
@@ -37,9 +38,10 @@ contract, response record, model, effort, reviewer, and batch ID.
 
 Every continuation contract records model `gpt-5.6-terra`, reasoning effort
 `high`, sandbox `read-only`, and `ephemeral: true` for newly produced batches.
-The import receipt binds 174 Sol/high batches for A and 176 Sol/high batches for
-B. Terra starts at the next batch index, so the prefixes are not sent to a
-model again. Both continuations run with one worker.
+The import receipt binds the actual 174 Sol/high batch indices for A and 176
+Sol/high batch indices for B. Terra receives only indices reported missing, so
+accepted Sol batches are not sent to a model again. Both continuations run with
+one worker.
 
 All downstream commands must consume only the Terra aggregate paths above.
 If A/B disagree, adjudication uses a fresh `gpt-5.6-terra`/high reviewer
