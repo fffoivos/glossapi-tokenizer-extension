@@ -22,11 +22,13 @@ NORMALIZATION_SHA=${SEALED_BIB_NORMALIZATION_SHA:-ccd6c2f6212ef597a63900b8015b9a
 STRUCT_ROOT=${SEALED_BIB_STRUCT_ROOT:-/iopsstor/scratch/cscs/fffoivos/inputs/APERTUS_CLASSIFIER_HANDOFF_20260712/STRUCT_2K}
 STRUCT_MANIFEST=${SEALED_BIB_STRUCT_MANIFEST:-$STRUCT_ROOT/manifest.jsonl}
 STRUCT_MANIFEST_SHA=${SEALED_BIB_STRUCT_MANIFEST_SHA:-c08611352517ff40668eb1a74daf1c5bb645f3acf03eec4c002bb2b3f222621c}
+STRUCT_INVENTORY_SHA=${SEALED_BIB_STRUCT_INVENTORY_SHA:-e6b58e3cbd57d0bf7df7a01ee8655748850151efebd37d835abc06431edf942a}
 PRIOR500=${SEALED_BIB_PRIOR500:-/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/source_matched_holdouts/source_matched_c2_20260713_43cf377_a/documents.jsonl}
 PRIOR500_SHA=${SEALED_BIB_PRIOR500_SHA:-377b21a1cdc6a41d31264a7ad459d0539d29894285bda79c9f3cb33eb3a0dd25}
 RUNTIME_VENV=${SEALED_BIB_RUNTIME_VENV:-/iopsstor/scratch/cscs/fffoivos/python_envs/full_corpus_v2}
 UENV=${SEALED_BIB_UENV:-pytorch/v2.9.1:v2}
 RUST_DEP=${SEALED_BIB_RUST_DEP:-/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/python_deps/glossapi_rs_noise_6f29a2825559c540-py312}
+RUST_INVENTORY_SHA=${SEALED_BIB_RUST_INVENTORY_SHA:-1626b10b5bce0b87a36654c4de04decef38d0bfbfca35250a8b764027490792c}
 SEALED_ROOT=${SEALED_BIB_ROOT:-/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718}
 FINAL="$SEALED_ROOT/00_candidate_selection"
 STAGING="$SEALED_ROOT/.00_candidate_selection.partial-${SLURM_JOB_ID}"
@@ -51,7 +53,9 @@ cd "$EVAL_DIR"
   --normalization-root "$NORMALIZATION_ROOT" \
   --historical-manifest "$STRUCT_MANIFEST" \
   --historical-root "$STRUCT_ROOT" \
+  --expected-historical-inventory-sha256 "$STRUCT_INVENTORY_SHA" \
   --previous-documents "$PRIOR500" \
+  --expected-rust-inventory-sha256 "$RUST_INVENTORY_SHA" \
   --quota greek_phd=50 --quota kallipos=50 --quota openarchives=50 \
   --oversample 4 \
   --seed bibliography-sealed-150-v1-20260718 \

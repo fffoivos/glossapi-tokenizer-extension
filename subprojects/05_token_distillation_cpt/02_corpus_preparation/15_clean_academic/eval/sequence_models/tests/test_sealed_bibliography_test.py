@@ -23,15 +23,20 @@ from sequence_models.sealed_bibliography_test import (
     QUALITY_CONSENSUS_SCHEMA,
     QUALITY_BATCH_MAX_CHARS,
     QUALITY_DOCUMENT_MAX_CHARS,
+    CONSENSUS_SCHEMA,
     Exclusions,
     GlobalSketchIndex,
     _dedup_candidate,
+    _directory_inventory_sha256,
     _document_id,
     _load_chunks,
     _public_exclusion_manifest,
+    _merge_shard_inventory,
     _quality_batches,
     _quality_sample,
+    _require_expected_sha256,
     _validate_quality_packet_row,
+    _verify_consumed_shards,
     _row_identity_hashes,
     _ownership,
     _line_id,
@@ -46,6 +51,7 @@ from sequence_models.sealed_bibliography_test import (
     export_quality_batch,
     ingest_batch,
     load_public_exclusions,
+    load_exclusions,
     prepare_run,
     prepare_annotation,
     prepare_quality_run,
@@ -519,7 +525,9 @@ def test_finalize_selection_emits_private_provenance_but_public_hashes_only(tmp_
     assert "private/path" not in public.read_text()
 
 
-def test_public_exclusion_round_trip_rejects_cross_field_alias(tmp_path: Path) -> None:
+def test_public_exclusion_round_trip_rejects_cross_field_alias_and_exact_copies(
+    tmp_path: Path,
+) -> None:
     shared_alias = "source-doc-exposed-later-as-work-id"
     row = {
         "document_id": "1" * 64,
@@ -538,7 +546,196 @@ def test_public_exclusion_round_trip_rejects_cross_field_alias(tmp_path: Path) -
 
     assert loaded.rejects("greek_phd", {"work_id": shared_alias})
     assert not loaded.rejects("kallipos", {"work_id": shared_alias})
+    assert loaded.rejects(
+        "kallipos",
+        {"work_id": "new-work", "normalized_text_sha256": "2" * 64},
+    )
+    assert loaded.rejects(
+        "openarchives",
+        {"stable_uid": "new-stable", "materialized_text_sha256": "3" * 64},
+    )
     assert shared_alias not in manifest_path.read_text(encoding="utf-8")
+
+
+def _descriptor(path: Path) -> dict[str, object]:
+    path = path.resolve()
+    return {"path": str(path), "bytes": path.stat().st_size, "sha256": _hash(path)}
+
+
+def _pinned_route(
+    tmp_path: Path, *, receipt_count: int = 1
+) -> tuple[list[Path], list[Path], Path, Path]:
+    root = (tmp_path / "normalization").resolve()
+    canonical = root / "canonical"
+    source_receipt = canonical / ".receipts" / "sources" / "route.json"
+    source_receipt.parent.mkdir(parents=True)
+    _dump(source_receipt, {"schema_version": "source-receipt-v1"})
+    shards: list[Path] = []
+    receipts: list[Path] = []
+    shard_descriptors = []
+    receipt_descriptors = []
+    for index in range(receipt_count):
+        shard = canonical / "route" / f"part-{index:05d}.parquet"
+        shard.parent.mkdir(parents=True, exist_ok=True)
+        shard.write_bytes(f"PAR1-shard-{index}".encode())
+        shard_descriptor = _descriptor(shard)
+        receipt = canonical / ".receipts" / "files" / "route" / f"file-{index:05d}.json"
+        receipt.parent.mkdir(parents=True, exist_ok=True)
+        _dump(
+            receipt,
+            {
+                "exact_source_dataset_counts": {"dataset": 1},
+                "shards": [{"output": shard_descriptor}],
+            },
+        )
+        shards.append(shard)
+        receipts.append(receipt)
+        shard_descriptors.append(shard_descriptor)
+        receipt_descriptors.append(_descriptor(receipt))
+    manifest = root / "normalization_manifest.json"
+    _dump(
+        manifest,
+        {
+            "schema_version": "full_cpt_normalization_manifest_v1",
+            "output": str(canonical),
+            "sources": [
+                {
+                    "source_id": "route",
+                    "receipt": _descriptor(source_receipt),
+                    "files": receipt_descriptors,
+                    "shards": shard_descriptors,
+                }
+            ],
+        },
+    )
+    return shards, receipts, manifest, root
+
+
+@pytest.mark.parametrize("replacement", [b"PAR1-changed", b"longer-than-the-original"])
+def test_consumed_shard_verification_rejects_hash_or_size_drift(
+    tmp_path: Path, replacement: bytes
+) -> None:
+    shards, receipts, manifest, root = _pinned_route(tmp_path)
+    shards[0].write_bytes(replacement)
+    with pytest.raises(ValueError, match="bytes differ from the normalization manifest"):
+        _verify_consumed_shards(
+            shards,
+            receipts,
+            normalization_manifest=manifest,
+            normalization_root=root,
+            receipt_source="route",
+            source_dataset="dataset",
+        )
+
+
+def test_consumed_shard_verification_rejects_symlink_and_duplicate_paths(
+    tmp_path: Path,
+) -> None:
+    shards, receipts, manifest, root = _pinned_route(tmp_path)
+    original = shards[0].read_bytes()
+    target = tmp_path / "symlink-target.parquet"
+    target.write_bytes(original)
+    shards[0].unlink()
+    shards[0].symlink_to(target)
+    with pytest.raises(ValueError, match="linked/non-canonical"):
+        _verify_consumed_shards(
+            shards,
+            receipts,
+            normalization_manifest=manifest,
+            normalization_root=root,
+            receipt_source="route",
+            source_dataset="dataset",
+        )
+
+    shards, receipts, manifest, root = _pinned_route(tmp_path / "duplicate")
+    with pytest.raises(ValueError, match="duplicated"):
+        _verify_consumed_shards(
+            [shards[0], shards[0]],
+            receipts,
+            normalization_manifest=manifest,
+            normalization_root=root,
+            receipt_source="route",
+            source_dataset="dataset",
+        )
+
+
+def test_consumed_shards_require_every_pinned_relevant_receipt(tmp_path: Path) -> None:
+    shards, receipts, manifest, root = _pinned_route(tmp_path, receipt_count=2)
+    receipts[1].unlink()
+    with pytest.raises(ValueError, match="normalization file receipt is absent"):
+        _verify_consumed_shards(
+            shards[:1],
+            receipts[:1],
+            normalization_manifest=manifest,
+            normalization_root=root,
+            receipt_source="route",
+            source_dataset="dataset",
+        )
+
+
+def test_identical_shared_route_shards_are_deduplicated_in_global_inventory(
+    tmp_path: Path,
+) -> None:
+    shards, receipts, manifest, root = _pinned_route(tmp_path)
+    inventory = _verify_consumed_shards(
+        shards,
+        receipts,
+        normalization_manifest=manifest,
+        normalization_root=root,
+        receipt_source="route",
+        source_dataset="dataset",
+    )
+    combined: dict[str, dict] = {}
+    _merge_shard_inventory(combined, inventory)
+    _merge_shard_inventory(combined, inventory)
+    assert list(combined.values()) == inventory
+
+
+def test_historical_text_inventory_must_match_expected_sha256(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from sequence_models import source_matched_holdout
+
+    historical_manifest = tmp_path / "historical.jsonl"
+    previous = tmp_path / "previous.jsonl"
+    historical_manifest.write_text("", encoding="utf-8")
+    previous.write_text("", encoding="utf-8")
+    historical_rows = [{"source": "greek_phd", "doc_id": "historical"}]
+
+    def fake_manifest(_path: Path) -> tuple[list[dict], dict]:
+        return historical_rows, {}
+
+    def fake_texts(_rows: list[dict], _root: Path) -> list[dict]:
+        fake_texts.inventory_sha256 = "a" * 64
+        return [{"source": "greek_phd", "doc_id": "historical", "text": "text"}]
+
+    monkeypatch.setattr(source_matched_holdout, "load_historical_manifest", fake_manifest)
+    monkeypatch.setattr(source_matched_holdout, "load_historical_texts", fake_texts)
+    with pytest.raises(ValueError, match="historical text inventory SHA256 drift"):
+        load_exclusions(
+            historical_manifest=historical_manifest,
+            historical_root=tmp_path,
+            previous_documents=previous,
+            expected_historical_inventory_sha256="b" * 64,
+            expected_historical=1,
+            expected_previous=0,
+        )
+
+
+def test_rust_package_inventory_ignores_mutable_python_cache(tmp_path: Path) -> None:
+    package = tmp_path / "glossapi_rs_noise"
+    package.mkdir()
+    (package / "__init__.py").write_text("version = 1\n", encoding="utf-8")
+    (package / "glossapi_rs_noise.abi3.so").write_bytes(b"rust-extension")
+    before = _directory_inventory_sha256(package)
+    cache = package / "__pycache__"
+    cache.mkdir()
+    (cache / "__init__.cpython-312.pyc").write_bytes(b"mutable cache")
+    assert _directory_inventory_sha256(package) == before
+    with pytest.raises(ValueError, match="GlossAPI Rust package inventory SHA256 drift"):
+        _require_expected_sha256(
+            before, "0" * 64, label="GlossAPI Rust package inventory"
+        )
 
 
 def _freeze_inputs(tmp_path: Path) -> tuple[argparse.Namespace, Path]:
@@ -570,7 +767,19 @@ def _freeze_inputs(tmp_path: Path) -> tuple[argparse.Namespace, Path]:
                 }
             )
             labels.append(
-                {"document_id": document_id, "line_id": line_id, "role": "OTHER"}
+                {
+                    "schema_version": MERGED_SCHEMA,
+                    "document_id": document_id,
+                    "line_id": line_id,
+                    "line_alias": f"line-{number}",
+                    "abs_idx": 0,
+                    "source": source,
+                    "role": "OTHER",
+                    "binary_label": "NON_BIB",
+                    "votes": ["OTHER", "OTHER"],
+                    "consensus_count": 2,
+                    "label_origin": "dual_sol",
+                }
             )
 
     documents_path = tmp_path / "documents.jsonl"
@@ -583,10 +792,31 @@ def _freeze_inputs(tmp_path: Path) -> tuple[argparse.Namespace, Path]:
     _dump(
         consensus_path,
         {
+            "schema_version": CONSENSUS_SCHEMA,
             "status": "passed",
+            "label_semantics": "dual-Sol LLM-silver; not human gold",
+            "line_count": len(labels),
+            "a_b_binary_agreement_overall": 1.0,
+            "a_b_binary_agreement_by_source": {
+                "greek_phd": 1.0,
+                "kallipos": 1.0,
+                "openarchives": 1.0,
+            },
+            "unresolved_count": 0,
             "labels_sha256": _hash(labels_path),
             "unresolved_fraction": 0.0,
-            "gates": {},
+            "gates": {
+                "complete_coverage": True,
+                "binary_agreement_overall_gte_0_98": True,
+                "binary_agreement_each_source_gte_0_95": True,
+                "unresolved_fraction_lte_0_005": True,
+            },
+            "inputs": {
+                "line_key_sha256": "1" * 64,
+                "pass_a_sha256": "2" * 64,
+                "pass_b_sha256": "3" * 64,
+                "adjudication_sha256": None,
+            },
         },
     )
     return (
@@ -620,6 +850,87 @@ def test_freeze_rejects_structurally_valid_public_manifest_drift(
     load_public_exclusions(public_path)
 
     with pytest.raises(ValueError, match="differ from the sealed private documents"):
+        freeze(args)
+
+
+def test_freeze_rejects_missing_or_false_terminal_gate(tmp_path: Path) -> None:
+    args, _ = _freeze_inputs(tmp_path)
+    consensus_path = Path(args.consensus_receipt)
+    consensus = json.loads(consensus_path.read_text(encoding="utf-8"))
+    consensus["gates"]["complete_coverage"] = False
+    _dump(consensus_path, consensus)
+    with pytest.raises(ValueError, match="every passed terminal gate"):
+        freeze(args)
+
+
+def test_freeze_recomputes_role_from_votes(tmp_path: Path) -> None:
+    args, _ = _freeze_inputs(tmp_path)
+    labels_path = Path(args.labels)
+    labels = [json.loads(line) for line in labels_path.read_text().splitlines()]
+    labels[0]["role"] = "UNKNOWN"
+    labels[0]["binary_label"] = None
+    labels[0]["consensus_count"] = 0
+    _dump_rows(labels_path, labels)
+    consensus_path = Path(args.consensus_receipt)
+    consensus = json.loads(consensus_path.read_text(encoding="utf-8"))
+    consensus["labels_sha256"] = _hash(labels_path)
+    _dump(consensus_path, consensus)
+    with pytest.raises(ValueError, match="role/consensus differs from its votes"):
+        freeze(args)
+
+
+def test_freeze_recomputes_binary_agreement_from_votes(tmp_path: Path) -> None:
+    args, _ = _freeze_inputs(tmp_path)
+    consensus_path = Path(args.consensus_receipt)
+    consensus = json.loads(consensus_path.read_text(encoding="utf-8"))
+    consensus["a_b_binary_agreement_overall"] = 0.99
+    _dump(consensus_path, consensus)
+    with pytest.raises(ValueError, match="metrics differ from sealed votes"):
+        freeze(args)
+
+
+def test_freeze_recomputes_unknown_count_and_fraction(tmp_path: Path) -> None:
+    args, _ = _freeze_inputs(tmp_path)
+    labels_path = Path(args.labels)
+    labels = [json.loads(line) for line in labels_path.read_text().splitlines()]
+    labels[0].update(
+        {
+            "role": "UNKNOWN",
+            "binary_label": None,
+            "votes": ["UNKNOWN", "ENTRY", "FILLER"],
+            "consensus_count": 0,
+            "label_origin": "dual_sol_plus_de_novo_third",
+        }
+    )
+    _dump_rows(labels_path, labels)
+    consensus_path = Path(args.consensus_receipt)
+    consensus = json.loads(consensus_path.read_text(encoding="utf-8"))
+    consensus["labels_sha256"] = _hash(labels_path)
+    consensus["a_b_binary_agreement_overall"] = 149 / 150
+    consensus["a_b_binary_agreement_by_source"]["greek_phd"] = 49 / 50
+    consensus["inputs"]["adjudication_sha256"] = "4" * 64
+    _dump(consensus_path, consensus)
+    with pytest.raises(ValueError, match="unresolved count/fraction differs"):
+        freeze(args)
+
+
+def test_freeze_rejects_impossible_adjudication_structure(tmp_path: Path) -> None:
+    args, _ = _freeze_inputs(tmp_path)
+    labels_path = Path(args.labels)
+    labels = [json.loads(line) for line in labels_path.read_text().splitlines()]
+    labels[0].update(
+        {
+            "votes": ["OTHER", "OTHER", "ENTRY"],
+            "label_origin": "dual_sol_plus_de_novo_third",
+        }
+    )
+    _dump_rows(labels_path, labels)
+    consensus_path = Path(args.consensus_receipt)
+    consensus = json.loads(consensus_path.read_text(encoding="utf-8"))
+    consensus["labels_sha256"] = _hash(labels_path)
+    consensus["inputs"]["adjudication_sha256"] = "4" * 64
+    _dump(consensus_path, consensus)
+    with pytest.raises(ValueError, match="impossible A/B/adjudication"):
         freeze(args)
 
 

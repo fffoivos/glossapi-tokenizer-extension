@@ -48,6 +48,7 @@ LINE_KEY_SCHEMA = "bibliography-sealed-line-key-v1"
 ROLE_RESPONSE_SCHEMA = "bibliography-sealed-role-response-v1"
 PASS_SCHEMA = "bibliography-sealed-role-pass-v1"
 MERGED_SCHEMA = "bibliography-sealed-merged-labels-v1"
+CONSENSUS_SCHEMA = "bibliography-sealed-consensus-receipt-v1"
 FREEZE_SCHEMA = "bibliography-sealed-freeze-v1"
 RUN_CONTRACT_SCHEMA = "bibliography-sealed-sol-run-contract-v1"
 RUN_RECORD_SCHEMA = "bibliography-sealed-sol-batch-record-v1"
@@ -77,6 +78,14 @@ ROLE_NAMES = (
 )
 BIB_ROLES = frozenset(
     {"ENTRY", "CONTINUATION", "FILLER", "BIB_HEADER", "BIB_SUBHEADER"}
+)
+CONSENSUS_GATES = frozenset(
+    {
+        "complete_coverage",
+        "binary_agreement_overall_gte_0_98",
+        "binary_agreement_each_source_gte_0_95",
+        "unresolved_fraction_lte_0_005",
+    }
 )
 QUALITY_DECISIONS = frozenset({"KEEP", "UNUSABLE"})
 MODEL = "gpt-5.6-sol"
@@ -148,9 +157,21 @@ def _directory_inventory_sha256(root: Path) -> str:
             "sha256": sha256_file(path),
         }
         for path in sorted(root.rglob("*"))
-        if path.is_file() and not path.is_symlink()
+        if (
+            path.is_file()
+            and not path.is_symlink()
+            and "__pycache__" not in path.relative_to(root).parts
+            and path.suffix != ".pyc"
+        )
     ]
     return canonical_json_sha256(rows)
+
+
+def _require_expected_sha256(actual: str, expected: str, *, label: str) -> None:
+    if not _HEX64.fullmatch(expected):
+        raise ValueError(f"expected {label} SHA256 is invalid")
+    if actual != expected:
+        raise ValueError(f"{label} SHA256 drift: expected {expected}, got {actual}")
 
 
 def _json(path: Path) -> dict[str, Any]:
@@ -367,6 +388,7 @@ def load_exclusions(
     historical_manifest: Path,
     historical_root: Path,
     previous_documents: Path,
+    expected_historical_inventory_sha256: str,
     expected_historical: int = 2000,
     expected_previous: int = 500,
 ) -> Exclusions:
@@ -386,6 +408,14 @@ def load_exclusions(
     index = GlobalSketchIndex()
 
     historical_texts = load_historical_texts(historical_rows, historical_root)
+    historical_inventory_sha256 = str(
+        getattr(load_historical_texts, "inventory_sha256", "")
+    )
+    _require_expected_sha256(
+        historical_inventory_sha256,
+        expected_historical_inventory_sha256,
+        label="historical text inventory",
+    )
     for manifest_row, text_row in zip(historical_rows, historical_texts, strict=True):
         source = str(manifest_row["source"])
         identities.update(_row_identity_hashes(source, manifest_row))
@@ -432,7 +462,8 @@ def load_exclusions(
             {
                 "kind": "struct2k_text_inventory",
                 "rows": len(historical_rows),
-                "sha256": getattr(load_historical_texts, "inventory_sha256"),
+                "sha256": historical_inventory_sha256,
+                "expected_sha256": expected_historical_inventory_sha256,
             },
             {
                 "kind": "previous_holdout_documents",
@@ -667,6 +698,156 @@ def _candidate_document(candidate: CandidateRow, text: str, rust_module: Any) ->
     }
 
 
+def _descriptor_map(rows: Any, *, label: str) -> dict[str, Mapping[str, Any]]:
+    if not isinstance(rows, list) or not rows:
+        raise ValueError(f"normalization manifest has no {label} inventory")
+    result: dict[str, Mapping[str, Any]] = {}
+    for row in rows:
+        if not isinstance(row, dict) or not isinstance(row.get("path"), str):
+            raise ValueError(f"normalization manifest has an invalid {label} descriptor")
+        path = str(row["path"])
+        if not path or path in result:
+            raise ValueError(f"normalization manifest has duplicate {label} paths")
+        result[path] = row
+    return result
+
+
+def _verify_pinned_file(descriptor: Mapping[str, Any], *, label: str) -> dict[str, Any]:
+    raw_path = descriptor.get("path")
+    expected_bytes = descriptor.get("bytes")
+    expected_sha256 = descriptor.get("sha256")
+    if (
+        not isinstance(raw_path, str)
+        or not raw_path
+        or not isinstance(expected_bytes, int)
+        or isinstance(expected_bytes, bool)
+        or expected_bytes < 0
+        or not isinstance(expected_sha256, str)
+        or not _HEX64.fullmatch(expected_sha256)
+    ):
+        raise ValueError(f"{label} descriptor lacks path/bytes/SHA256")
+    declared_path = Path(raw_path)
+    try:
+        resolved_path = declared_path.resolve(strict=True)
+    except OSError as error:
+        raise ValueError(f"{label} is absent: {declared_path}") from error
+    if (
+        not declared_path.is_absolute()
+        or declared_path != resolved_path
+        or not resolved_path.is_file()
+    ):
+        raise ValueError(f"{label} is linked/non-canonical/non-regular: {declared_path}")
+    actual_bytes = resolved_path.stat().st_size
+    actual_sha256 = sha256_file(resolved_path)
+    if actual_bytes != expected_bytes or actual_sha256 != expected_sha256:
+        raise ValueError(f"{label} bytes differ from the normalization manifest: {resolved_path}")
+    return {"path": str(resolved_path), "bytes": actual_bytes, "sha256": actual_sha256}
+
+
+def _verify_consumed_shards(
+    shards: Sequence[Path],
+    receipts: Sequence[Path],
+    *,
+    normalization_manifest: Path,
+    normalization_root: Path,
+    receipt_source: str,
+    source_dataset: str,
+) -> list[dict[str, Any]]:
+    """Bind consumed Parquet bytes through file/source receipts to the pinned manifest."""
+
+    manifest = _json(normalization_manifest)
+    expected_output = normalization_root / "canonical"
+    if (
+        manifest.get("schema_version") != "full_cpt_normalization_manifest_v1"
+        or manifest.get("output") != str(expected_output)
+    ):
+        raise ValueError("normalization manifest schema/output differs from the selected root")
+    sources = manifest.get("sources")
+    if not isinstance(sources, list):
+        raise ValueError("normalization manifest has no source inventory")
+    matching_sources = [
+        row
+        for row in sources
+        if isinstance(row, dict) and row.get("source_id") == receipt_source
+    ]
+    if len(matching_sources) != 1:
+        raise ValueError(f"normalization manifest does not uniquely pin {receipt_source}")
+    source_entry = matching_sources[0]
+    source_receipt = source_entry.get("receipt")
+    if not isinstance(source_receipt, dict):
+        raise ValueError("normalization manifest source receipt is invalid")
+    _verify_pinned_file(source_receipt, label="normalization source receipt")
+    manifest_files = _descriptor_map(source_entry.get("files"), label="file receipt")
+    manifest_shards = _descriptor_map(source_entry.get("shards"), label="shard")
+
+    expected_receipts: set[Path] = set()
+    declared_paths: set[Path] = set()
+    inventory: list[dict[str, Any]] = []
+    for descriptor in manifest_files.values():
+        receipt_record = _verify_pinned_file(descriptor, label="normalization file receipt")
+        canonical_receipt = Path(receipt_record["path"])
+        receipt = _json(canonical_receipt)
+        exact_counts = receipt.get("exact_source_dataset_counts")
+        if not isinstance(exact_counts, dict):
+            raise ValueError(f"source file receipt has invalid dataset counts: {canonical_receipt}")
+        if int(exact_counts.get(source_dataset, 0)) <= 0:
+            continue
+        expected_receipts.add(canonical_receipt)
+        entries = receipt.get("shards")
+        if not isinstance(entries, list) or not entries:
+            raise ValueError(f"source file receipt has no shard declarations: {canonical_receipt}")
+        for entry in entries:
+            output = entry.get("output") if isinstance(entry, dict) else None
+            if not isinstance(output, dict) or not isinstance(output.get("path"), str):
+                raise ValueError(f"source file receipt has an invalid shard: {canonical_receipt}")
+            pinned = manifest_shards.get(str(output["path"]))
+            if pinned is None:
+                raise ValueError("source file receipt names a shard absent from normalization manifest")
+            if output.get("bytes") != pinned.get("bytes") or output.get("sha256") != pinned.get(
+                "sha256"
+            ):
+                raise ValueError("source file receipt shard declaration differs from manifest")
+            record = _verify_pinned_file(pinned, label="normalization shard")
+            resolved_path = Path(record["path"])
+            if resolved_path in declared_paths:
+                raise ValueError(f"source shard is duplicated: {resolved_path}")
+            declared_paths.add(resolved_path)
+            inventory.append(record)
+
+    if not expected_receipts or not declared_paths:
+        raise ValueError(f"normalization manifest has no shards for {source_dataset}")
+    consumed_receipts = []
+    for path in receipts:
+        try:
+            consumed_receipts.append(path.resolve(strict=True))
+        except OSError as error:
+            raise ValueError(f"source file receipt is absent: {path}") from error
+    if (
+        len(consumed_receipts) != len(set(consumed_receipts))
+        or set(consumed_receipts) != expected_receipts
+        or any(path != resolved for path, resolved in zip(receipts, consumed_receipts, strict=True))
+    ):
+        raise ValueError("resolved source receipts differ from the pinned route inventory")
+    consumed_paths = [Path(path).resolve(strict=True) for path in shards]
+    if len(consumed_paths) != len(set(consumed_paths)) or set(consumed_paths) != declared_paths:
+        raise ValueError("consumed source shards are duplicated or absent from pinned receipts")
+    return sorted(inventory, key=lambda row: row["path"])
+
+
+def _merge_shard_inventory(
+    target: dict[str, dict[str, Any]], inventory: Sequence[Mapping[str, Any]]
+) -> None:
+    """Deduplicate identical shared route inputs while rejecting conflicting claims."""
+
+    for row in inventory:
+        path = str(row["path"])
+        normalized = dict(row)
+        previous = target.get(path)
+        if previous is not None and previous != normalized:
+            raise ValueError(f"conflicting consumed shard inventory for {path}")
+        target[path] = normalized
+
+
 def select_candidates(args: argparse.Namespace) -> dict[str, Any]:
     from .source_matched_holdout import _load_candidate_texts, _resolve_source_shards
 
@@ -683,6 +864,7 @@ def select_candidates(args: argparse.Namespace) -> dict[str, Any]:
         historical_manifest=Path(args.historical_manifest).resolve(),
         historical_root=Path(args.historical_root).resolve(),
         previous_documents=Path(args.previous_documents).resolve(),
+        expected_historical_inventory_sha256=args.expected_historical_inventory_sha256,
         expected_historical=args.expected_historical,
         expected_previous=args.expected_previous,
     )
@@ -691,11 +873,27 @@ def select_candidates(args: argparse.Namespace) -> dict[str, Any]:
     rust_version = importlib.metadata.version("glossapi-rs-noise")
     if rust_version != "0.1.0" or not hasattr(rust_module, "score_markdown_file_detailed"):
         raise ValueError("unexpected GlossAPI Rust scorer contract")
+    rust_inventory_sha256 = _directory_inventory_sha256(rust_root)
+    _require_expected_sha256(
+        rust_inventory_sha256,
+        args.expected_rust_inventory_sha256,
+        label="GlossAPI Rust package inventory",
+    )
     ranked: dict[str, list[CandidateRow]] = {}
     source_audits: dict[str, Any] = {}
     texts_by_source: dict[str, dict[str, str]] = {}
+    consumed_shard_inventory: dict[str, dict[str, Any]] = {}
     for source in SOURCES:
         shards, receipts = _resolve_source_shards(root, source)
+        shard_inventory = _verify_consumed_shards(
+            shards,
+            receipts,
+            normalization_manifest=normalization_manifest,
+            normalization_root=root,
+            receipt_source=str(SOURCE_SPECS[source]["receipt_source"]),
+            source_dataset=str(SOURCE_SPECS[source]["source_dataset"]),
+        )
+        _merge_shard_inventory(consumed_shard_inventory, shard_inventory)
         rows, counts = _scan_ranked_works(
             shards,
             source=source,
@@ -709,6 +907,7 @@ def select_candidates(args: argparse.Namespace) -> dict[str, Any]:
         source_audits[source] = {
             "scan_counts": counts,
             "shard_count": len(shards),
+            "consumed_shard_inventory_sha256": canonical_json_sha256(shard_inventory),
             "receipt_inventory_sha256": canonical_json_sha256(
                 [sha256_file(path) for path in sorted(receipts)]
             ),
@@ -805,10 +1004,17 @@ def select_candidates(args: argparse.Namespace) -> dict[str, Any]:
         "representation_choice": "minimum (representation_generation, stable_uid), text blind",
         "exclusions": exclusions.input_hashes,
         "normalization_manifest_sha256": sha256_file(normalization_manifest),
+        "consumed_shard_inventory": {
+            "shard_count": len(consumed_shard_inventory),
+            "sha256": canonical_json_sha256(
+                sorted(consumed_shard_inventory.values(), key=lambda row: row["path"])
+            ),
+        },
         "quality_scorer": {
             "distribution": "glossapi-rs-noise",
             "version": rust_version,
-            "package_inventory_sha256": _directory_inventory_sha256(rust_root),
+            "package_inventory_sha256": rust_inventory_sha256,
+            "expected_package_inventory_sha256": args.expected_rust_inventory_sha256,
         },
         "source_audits": source_audits,
         "outputs": {
@@ -1146,7 +1352,18 @@ class PublicExclusions:
     materialized_hashes: frozenset[str]
 
     def rejects(self, source: str, row: Mapping[str, Any]) -> bool:
-        return any(value in self.identities for value in _row_identity_hashes(source, row))
+        if any(value in self.identities for value in _row_identity_hashes(source, row)):
+            return True
+        for field, known in (
+            ("normalized_text_sha256", self.normalized_hashes),
+            ("materialized_text_sha256", self.materialized_hashes),
+        ):
+            value = str(row.get(field) or "")
+            if value and not _HEX64.fullmatch(value):
+                raise ValueError(f"invalid {field}")
+            if value in known:
+                return True
+        return False
 
 
 def load_public_exclusions(path: Path) -> PublicExclusions:
@@ -2473,7 +2690,7 @@ def merge_labels(args: argparse.Namespace) -> dict[str, Any]:
         "unresolved_fraction_lte_0_005": unresolved_fraction <= 0.005,
     }
     receipt = {
-        "schema_version": "bibliography-sealed-consensus-receipt-v1",
+        "schema_version": CONSENSUS_SCHEMA,
         "status": "passed" if all(gates.values()) else "blocked",
         "label_semantics": "dual-Sol LLM-silver; not human gold",
         "line_count": total,
@@ -2499,6 +2716,174 @@ def merge_labels(args: argparse.Namespace) -> dict[str, Any]:
     return receipt
 
 
+def _validate_terminal_consensus(
+    documents: Sequence[Mapping[str, Any]],
+    labels: Sequence[Mapping[str, Any]],
+    consensus: Mapping[str, Any],
+    *,
+    labels_sha256: str,
+) -> dict[str, bool]:
+    consensus_fields = {
+        "schema_version", "status", "label_semantics", "line_count",
+        "a_b_binary_agreement_overall", "a_b_binary_agreement_by_source",
+        "unresolved_count", "unresolved_fraction", "gates", "inputs", "labels_sha256",
+    }
+    if set(consensus) != consensus_fields or consensus.get("schema_version") != CONSENSUS_SCHEMA:
+        raise ValueError("consensus receipt schema is invalid")
+    if (
+        consensus.get("status") != "passed"
+        or consensus.get("label_semantics") != "dual-Sol LLM-silver; not human gold"
+        or consensus.get("labels_sha256") != labels_sha256
+        or consensus.get("line_count") != len(labels)
+    ):
+        raise ValueError("consensus receipt is blocked, unbound, or has the wrong line count")
+    gates = consensus.get("gates")
+    if (
+        not isinstance(gates, dict)
+        or set(gates) != CONSENSUS_GATES
+        or any(value is not True for value in gates.values())
+    ):
+        raise ValueError("consensus receipt does not contain every passed terminal gate")
+    inputs = consensus.get("inputs")
+    if not isinstance(inputs, dict) or set(inputs) != {
+        "line_key_sha256", "pass_a_sha256", "pass_b_sha256", "adjudication_sha256"
+    }:
+        raise ValueError("consensus input inventory is invalid")
+    for field in ("line_key_sha256", "pass_a_sha256", "pass_b_sha256"):
+        if not isinstance(inputs[field], str) or not _HEX64.fullmatch(inputs[field]):
+            raise ValueError("consensus input inventory has an invalid SHA256")
+    adjudication_sha256 = inputs["adjudication_sha256"]
+    if adjudication_sha256 is not None and (
+        not isinstance(adjudication_sha256, str) or not _HEX64.fullmatch(adjudication_sha256)
+    ):
+        raise ValueError("consensus adjudication SHA256 is invalid")
+
+    overall = consensus.get("a_b_binary_agreement_overall")
+    per_source = consensus.get("a_b_binary_agreement_by_source")
+    if (
+        not isinstance(overall, (int, float))
+        or isinstance(overall, bool)
+        or not 0.98 <= overall <= 1.0
+        or not isinstance(per_source, dict)
+        or set(per_source) != set(SOURCES)
+        or any(
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not 0.95 <= value <= 1.0
+            for value in per_source.values()
+        )
+    ):
+        raise ValueError("consensus binary-agreement metrics do not satisfy the gates")
+
+    expected: dict[tuple[str, str], tuple[str, int]] = {}
+    for document in documents:
+        document_id = str(document["document_id"])
+        source = str(document["source"])
+        for line in document["lines"]:
+            expected[(document_id, str(line["line_id"]))] = (source, int(line["abs_idx"]))
+    label_fields = {
+        "schema_version", "document_id", "line_id", "line_alias", "abs_idx", "source",
+        "role", "binary_label", "votes", "consensus_count", "label_origin",
+    }
+    observed: set[tuple[str, str]] = set()
+    aliases: set[str] = set()
+    unresolved = 0
+    binary_totals: collections.Counter[str] = collections.Counter()
+    binary_by_source: dict[str, collections.Counter[str]] = collections.defaultdict(
+        collections.Counter
+    )
+    saw_adjudication = False
+    for row in labels:
+        if set(row) != label_fields or row.get("schema_version") != MERGED_SCHEMA:
+            raise ValueError("sealed label row schema is invalid")
+        key = (str(row["document_id"]), str(row["line_id"]))
+        alias = str(row["line_alias"])
+        if key not in expected or key in observed or not alias or alias in aliases:
+            raise ValueError("sealed labels omit, invent, or duplicate a line identity")
+        expected_source, expected_abs_idx = expected[key]
+        if row.get("source") != expected_source or row.get("abs_idx") != expected_abs_idx:
+            raise ValueError("sealed label source/coordinate differs from its document line")
+        role = row.get("role")
+        if role not in ROLE_NAMES:
+            raise ValueError("sealed label has an invalid role")
+        expected_binary = None if role == "UNKNOWN" else (
+            "BIB" if role in BIB_ROLES else "NON_BIB"
+        )
+        if row.get("binary_label") != expected_binary:
+            raise ValueError("sealed label binary value differs from its role")
+        votes = row.get("votes")
+        origin = row.get("label_origin")
+        consensus_count = row.get("consensus_count")
+        if (
+            not isinstance(votes, list)
+            or len(votes) not in {2, 3}
+            or any(vote not in ROLE_NAMES for vote in votes)
+            or origin
+            != ("dual_sol" if len(votes) == 2 else "dual_sol_plus_de_novo_third")
+            or not isinstance(consensus_count, int)
+            or isinstance(consensus_count, bool)
+        ):
+            raise ValueError("sealed label vote/consensus metadata is invalid")
+        first, second = votes[:2]
+        if (len(votes) == 2 and (first != second or first == "UNKNOWN")) or (
+            len(votes) == 3 and first == second and first != "UNKNOWN"
+        ):
+            raise ValueError("sealed label has an impossible A/B/adjudication vote structure")
+        saw_adjudication = saw_adjudication or len(votes) == 3
+        vote_counts = collections.Counter(votes)
+        winner, frequency = vote_counts.most_common(1)[0]
+        if first == second and first != "UNKNOWN":
+            expected_role = first
+        elif len(votes) == 3 and frequency >= 2 and winner != "UNKNOWN":
+            expected_role = winner
+        else:
+            expected_role = "UNKNOWN"
+        if role != expected_role or consensus_count != (
+            0 if expected_role == "UNKNOWN" else vote_counts[expected_role]
+        ):
+            raise ValueError("sealed label role/consensus differs from its votes")
+        binary_agree = _binary(first) is not None and _binary(first) == _binary(second)
+        binary_totals["agree" if binary_agree else "disagree"] += 1
+        binary_by_source[expected_source]["agree" if binary_agree else "disagree"] += 1
+        unresolved += role == "UNKNOWN"
+        observed.add(key)
+        aliases.add(alias)
+    if observed != set(expected):
+        raise ValueError("labels do not exactly cover the sealed documents")
+    if (adjudication_sha256 is not None) != saw_adjudication:
+        raise ValueError("consensus adjudication input differs from sealed vote structure")
+    derived_overall = binary_totals["agree"] / max(len(labels), 1)
+    derived_per_source = {
+        source: values["agree"] / max(sum(values.values()), 1)
+        for source, values in binary_by_source.items()
+    }
+    if (
+        not math.isclose(float(overall), derived_overall, rel_tol=0.0, abs_tol=1e-15)
+        or set(derived_per_source) != set(SOURCES)
+        or any(
+            not math.isclose(
+                float(per_source[source]), value, rel_tol=0.0, abs_tol=1e-15
+            )
+            for source, value in derived_per_source.items()
+        )
+    ):
+        raise ValueError("consensus binary-agreement metrics differ from sealed votes")
+    unresolved_fraction = unresolved / max(len(labels), 1)
+    recorded_count = consensus.get("unresolved_count")
+    recorded_fraction = consensus.get("unresolved_fraction")
+    if (
+        not isinstance(recorded_count, int)
+        or isinstance(recorded_count, bool)
+        or recorded_count != unresolved
+        or not isinstance(recorded_fraction, (int, float))
+        or isinstance(recorded_fraction, bool)
+        or not math.isclose(recorded_fraction, unresolved_fraction, rel_tol=0.0, abs_tol=1e-15)
+        or unresolved_fraction > 0.005
+    ):
+        raise ValueError("consensus unresolved count/fraction differs from sealed labels")
+    return dict(gates)
+
+
 def freeze(args: argparse.Namespace) -> dict[str, Any]:
     documents_path = Path(args.documents).resolve()
     public_path = Path(args.public_exclusions).resolve()
@@ -2509,17 +2894,12 @@ def freeze(args: argparse.Namespace) -> dict[str, Any]:
     labels = _read_jsonl(labels_path)
     consensus = _json(consensus_path)
     load_public_exclusions(public_path)
-    if consensus.get("status") != "passed" or consensus.get("labels_sha256") != sha256_file(labels_path):
-        raise ValueError("consensus receipt is blocked or unbound")
     counts = collections.Counter(str(row["source"]) for row in documents)
     if dict(counts) != DEFAULT_QUOTAS or len(documents) != 150:
         raise ValueError(f"sealed test must contain exactly 50/source, got {dict(counts)}")
-    expected_lines = {(row["document_id"], line["line_id"]) for row in documents for line in row["lines"]}
-    label_lines = {(row.get("document_id"), row.get("line_id")) for row in labels}
-    if expected_lines != label_lines or len(label_lines) != len(labels):
-        raise ValueError("labels do not exactly cover the sealed documents")
-    if any(row.get("role") == "UNKNOWN" for row in labels) and consensus["unresolved_fraction"] > 0.005:
-        raise ValueError("unresolved labels exceed the frozen gate")
+    gates = _validate_terminal_consensus(
+        documents, labels, consensus, labels_sha256=sha256_file(labels_path)
+    )
     if public != _public_exclusion_manifest(documents):
         raise ValueError("public exclusions differ from the sealed private documents")
     frozen = {
@@ -2536,7 +2916,7 @@ def freeze(args: argparse.Namespace) -> dict[str, Any]:
             "consensus_receipt_sha256": sha256_file(consensus_path),
         },
         "public_hashes": {"exclusions_sha256": sha256_file(public_path)},
-        "gates": consensus["gates"],
+        "gates": gates,
         "code_sha256": sha256_file(__file__),
     }
     output_path = Path(args.output).resolve()
@@ -2558,7 +2938,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     select.add_argument("--normalization-root", required=True)
     select.add_argument("--historical-manifest", required=True)
     select.add_argument("--historical-root", required=True)
+    select.add_argument("--expected-historical-inventory-sha256", required=True)
     select.add_argument("--previous-documents", required=True)
+    select.add_argument("--expected-rust-inventory-sha256", required=True)
     select.add_argument("--expected-historical", type=int, default=2000)
     select.add_argument("--expected-previous", type=int, default=500)
     select.add_argument("--quota", action="append", default=[])

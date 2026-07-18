@@ -51,13 +51,19 @@ Use the full hashes, not prefixes:
 |---|---|---|
 | Normalization manifest | `/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/pipeline_runs/full-corpus-v2-20260712-d076a59/stages/10-normalize/normalization_manifest.json` | `ccd6c2f6212ef597a63900b8015b9a432e820fe2fea8a41d7a62ac713470bc45` |
 | STRUCT-2K manifest | `/iopsstor/scratch/cscs/fffoivos/inputs/APERTUS_CLASSIFIER_HANDOFF_20260712/STRUCT_2K/manifest.jsonl` | `c08611352517ff40668eb1a74daf1c5bb645f3acf03eec4c002bb2b3f222621c` |
+| STRUCT-2K batch inventory (canonical path/bytes/content inventory) | `/iopsstor/scratch/cscs/fffoivos/inputs/APERTUS_CLASSIFIER_HANDOFF_20260712/STRUCT_2K/batch_*.json` | `e6b58e3cbd57d0bf7df7a01ee8655748850151efebd37d835abc06431edf942a` |
 | Prior-500 documents | `/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/source_matched_holdouts/source_matched_c2_20260713_43cf377_a/documents.jsonl` | `377b21a1cdc6a41d31264a7ad459d0539d29894285bda79c9f3cb33eb3a0dd25` |
 | Prior-500 selection manifest (audit only) | `/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/source_matched_holdouts/source_matched_c2_20260713_43cf377_a/selection.manifest.json` | `781096358f1c3b0fc89e309df8a2b15c124bebc848c4cf266499cbfe10f93344` |
+| GlossAPI Rust package inventory (cache files excluded) | `/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/python_deps/glossapi_rs_noise_6f29a2825559c540-py312/glossapi_rs_noise` | `1626b10b5bce0b87a36654c4de04decef38d0bfbfca35250a8b764027490792c` |
 
 The canonical Rust dependency is
 `/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/python_deps/glossapi_rs_noise_6f29a2825559c540-py312`.
 The selector injects it *after* the uenv `--` boundary, verifies distribution
-version `0.1.0`, and verifies `score_markdown_file_detailed` before scanning.
+version `0.1.0`, verifies `score_markdown_file_detailed`, and requires the
+cache-independent package inventory hash above before scanning. It also binds
+every consumed Parquet shard through its file/source receipts to the pinned
+normalization manifest, and checks the STRUCT-2K batch inventory before building
+the near-duplicate exclusion index.
 
 The default sealed root is:
 
