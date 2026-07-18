@@ -7,8 +7,6 @@ safe to run in the existing debug job after the signature computation, without
 depending on the accelerated pipeline environment.
 """
 
-from __future__ import annotations
-
 import argparse
 import datetime as dt
 import hashlib
@@ -17,7 +15,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping, Optional, Sequence
 
 
 REQUEST_SCHEMA = "agent1_v5_dedup_acceleration_takeover_request_v1"
@@ -37,7 +35,7 @@ def canonical_path(path: Path) -> str:
     return str(path.resolve())
 
 
-def _read(path: Path) -> dict[str, Any]:
+def _read(path: Path) -> Mapping[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
         raise ValueError(f"{path}: expected a JSON object")
@@ -59,7 +57,10 @@ def _write_immutable(path: Path, value: Mapping[str, Any]) -> None:
             handle.write("\n")
         os.link(temporary, path)
     finally:
-        Path(temporary).unlink(missing_ok=True)
+        try:
+            Path(temporary).unlink()
+        except FileNotFoundError:
+            pass
 
 
 def _binding(path: Path) -> dict[str, str]:
@@ -75,7 +76,7 @@ def _validate_request(
     active_helper: Path,
     takeover_tool: Path,
     task_index: int,
-) -> dict[str, Any]:
+) -> Mapping[str, Any]:
     request = _read(request_path)
     if request.get("schema_version") != REQUEST_SCHEMA or request.get("status") != "passed":
         raise ValueError("takeover request is not a passed request")
@@ -232,7 +233,7 @@ def write_stop(args: argparse.Namespace) -> int:
     return 0
 
 
-def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
 
@@ -266,7 +267,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parse_args(argv)
     return int(args.func(args))
 

@@ -23,8 +23,7 @@ request="$run/dedup_acceleration_takeover_request.json"
 arm="$run/dedup_acceleration_takeover_arm.json"
 
 run_takeover_tool() {
-  uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME \
-    "$coord/runtime/venv/bin/python" "$@"
+  python3 "$@"
 }
 
 [[ -f "$guarded" && -f "$tool_source" && -x "$guarded" ]] || { echo "accelerated handoff files are missing" >&2; exit 1; }
