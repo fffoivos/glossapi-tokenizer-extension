@@ -32,6 +32,10 @@ Classify the line's structural role, not whether it contains a citation-like
 token in isolation. A bibliography heading is not an entry. A wrapped reference
 fragment is continuation, not filler. Ordinary citation-heavy prose remains
 OTHER. Use the continuous context, physical indices, and document position.
+An exceptionally long physical line may be shown as a bounded prefix and suffix
+around `⟦DISPLAY TRUNCATED⟧`; its full source text and line identity remain
+unchanged in the sealed data. Classify from the visible evidence and use UNKNOWN
+only when the omitted middle genuinely prevents a sound decision.
 For an adjudication envelope, `target_offsets` merely identify which decisions
 will be consumed; still label the whole displayed context from scratch. Do not
 guess or discuss hidden labels. Put only short batch-level caveats in `notes`.

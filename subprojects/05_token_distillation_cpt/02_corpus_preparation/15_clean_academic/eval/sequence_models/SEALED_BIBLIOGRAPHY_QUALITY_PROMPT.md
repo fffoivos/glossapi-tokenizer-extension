@@ -13,4 +13,6 @@ bibliography evaluation misleading: extreme one-token fragmentation,
 character-spaced OCR, pervasive glyph placeholders/mojibake, or symbol-dominated
 text. Choose `KEEP` for imperfect but readable material, unusual typography,
 math, tables, multilingual text, or localized OCR defects. The automatic flags
-nominate cases; they are not decisions. Give a confidence and concise reasons.
+nominate cases; they are not decisions. A very long sampled line may be shown as
+a bounded prefix/suffix around `⟦DISPLAY TRUNCATED⟧`; this is display-only and
+does not itself make the source unusable. Give a confidence and concise reasons.

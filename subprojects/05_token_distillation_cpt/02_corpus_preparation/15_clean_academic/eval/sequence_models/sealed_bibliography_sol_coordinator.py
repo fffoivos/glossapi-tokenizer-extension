@@ -23,6 +23,8 @@ from typing import Any, Mapping, Sequence
 MODEL = "gpt-5.6-sol"
 EFFORT = "high"
 REMOTE_MODULE = "sequence_models.sealed_bibliography_test"
+QUALITY_DOCUMENT_MAX_CHARS = 100_000
+QUALITY_BATCH_MAX_CHARS = 180_000
 
 
 def _sha256(path: Path) -> str:
@@ -180,31 +182,38 @@ def run(args: argparse.Namespace) -> int:
     schema_path = Path(args.local_output_schema).resolve()
     prompt = prompt_path.read_text(encoding="utf-8")
     prepare_command = "prepare-run" if args.kind == "role" else "prepare-quality-run"
-    contract = _json_output(
-        _remote_command(
-            args,
+    prepare_arguments = [
+        prepare_command,
+        "--packet",
+        args.remote_packet,
+        "--pass-id",
+        args.pass_id,
+        "--reviewer-id",
+        args.reviewer_id,
+        "--model",
+        MODEL,
+        "--reasoning-effort",
+        EFFORT,
+        "--prompt",
+        args.remote_prompt,
+        "--output-schema",
+        args.remote_output_schema,
+        "--batch-size",
+        str(args.batch_size),
+        "--run-dir",
+        args.remote_run_dir,
+    ]
+    if args.kind == "quality":
+        prepare_arguments.extend(
             [
-                prepare_command,
-                "--packet",
-                args.remote_packet,
-                "--pass-id",
-                args.pass_id,
-                "--reviewer-id",
-                args.reviewer_id,
-                "--model",
-                MODEL,
-                "--reasoning-effort",
-                EFFORT,
-                "--prompt",
-                args.remote_prompt,
-                "--output-schema",
-                args.remote_output_schema,
-                "--batch-size",
-                str(args.batch_size),
-                "--run-dir",
-                args.remote_run_dir,
-            ],
-        ),
+                "--max-document-characters",
+                str(args.quality_document_max_characters),
+                "--max-batch-characters",
+                str(args.quality_batch_max_characters),
+            ]
+        )
+    contract = _json_output(
+        _remote_command(args, prepare_arguments),
         "prepare run",
     )
     if contract.get("model") != MODEL or contract.get("reasoning_effort") != EFFORT:
@@ -213,6 +222,15 @@ def run(args: argparse.Namespace) -> int:
         raise RuntimeError("local and remote prompts differ")
     if contract.get("output_schema_sha256") != _sha256(schema_path):
         raise RuntimeError("local and remote output schemas differ")
+    if args.kind == "quality":
+        caps = contract.get("quality_character_caps", {})
+        if (
+            int(caps.get("serialized_per_document", -1))
+            != args.quality_document_max_characters
+            or int(caps.get("serialized_per_batch", -1))
+            != args.quality_batch_max_characters
+        ):
+            raise RuntimeError("remote quality character caps differ from the local request")
     count = int(contract["batch_count"])
     if args.maximum_batches is not None:
         if args.maximum_batches <= 0:
@@ -297,6 +315,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--local-output-schema", required=True)
     parser.add_argument("--remote-output-schema", required=True)
     parser.add_argument("--batch-size", type=int, choices=(1, 2), default=2)
+    parser.add_argument(
+        "--quality-document-max-characters", type=int, default=QUALITY_DOCUMENT_MAX_CHARS
+    )
+    parser.add_argument(
+        "--quality-batch-max-characters", type=int, default=QUALITY_BATCH_MAX_CHARS
+    )
     parser.add_argument("--workers", type=int, choices=(1, 2), default=2)
     parser.add_argument("--maximum-batches", type=int)
     parser.add_argument("--ssh-timeout-seconds", type=int, default=120)

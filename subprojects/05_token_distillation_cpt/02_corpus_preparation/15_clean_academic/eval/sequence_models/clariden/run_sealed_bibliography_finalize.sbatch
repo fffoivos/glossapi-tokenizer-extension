@@ -67,7 +67,7 @@ packets=json.loads((root/'annotation-packets.receipt.json').read_text())
 assert selection['status']=='passed_150_document_quality_gated_selection'
 assert selection['source_counts']=={'greek_phd':50,'kallipos':50,'openarchives':50}
 assert packets['document_count']==150 and packets['line_count']>0
-assert packets['chunk_policy']=={'max_lines':400,'max_characters':80000,'overlap_lines':15,'pass_a':'ordinary forward boundaries','pass_b':'half-chunk staggered boundaries, reversed chunk presentation'}
+assert packets['chunk_policy']=={'max_lines':400,'max_characters':80000,'max_display_characters_per_line':20000,'overlap_lines':15,'pass_a':'ordinary forward boundaries','pass_b':'half-chunk staggered boundaries, reversed chunk presentation'}
 files=[]
 for path in sorted(root.iterdir()):
     if path.name=='run.receipt.json' or not path.is_file(): continue

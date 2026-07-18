@@ -81,6 +81,12 @@ BIB_ROLES = frozenset(
 QUALITY_DECISIONS = frozenset({"KEEP", "UNUSABLE"})
 MODEL = "gpt-5.6-sol"
 REASONING_EFFORT = "high"
+QUALITY_SAMPLE_MAX_LINES = 120
+QUALITY_SAMPLE_DISPLAY_MAX_CHARS = 40_000
+QUALITY_DOCUMENT_MAX_CHARS = 100_000
+QUALITY_BATCH_MAX_CHARS = 180_000
+QUALITY_BATCH_ENVELOPE_RESERVE = 4_096
+ROLE_LINE_DISPLAY_MAX_CHARS = 20_000
 _HEX64 = re.compile(r"^[0-9a-f]{64}$")
 _WORD = re.compile(r"[0-9A-Za-zΑ-Ωα-ωΆ-ώϊϋΐΰἀ-῾]+", re.UNICODE)
 
@@ -294,24 +300,28 @@ def _dedup_candidate(
     normalized_hash: str,
     exclusions: "Exclusions",
     accepted_index: GlobalSketchIndex,
-    accepted_exact_hashes: set[str],
+    accepted_normalized_hashes: set[str],
+    accepted_materialized_hashes: set[str],
     threshold: float,
 ) -> tuple[str | None, dict[str, Any], frozenset[int], str]:
     """Apply exact and global near-copy gates without consulting a source label."""
 
     text_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
-    if text_hash in exclusions.materialized_hashes or normalized_hash in exclusions.normalized_hashes:
-        return "excluded_exact_prior_text", {}, frozenset(), normalized_hash or text_hash
-    exact_key = normalized_hash or text_hash
-    if exact_key in accepted_exact_hashes:
-        return "excluded_exact_selected_text", {}, frozenset(), exact_key
+    if normalized_hash in exclusions.normalized_hashes:
+        return "excluded_exact_prior_normalized_text", {}, frozenset(), text_hash
+    if text_hash in exclusions.materialized_hashes:
+        return "excluded_exact_prior_materialized_text", {}, frozenset(), text_hash
+    if normalized_hash in accepted_normalized_hashes:
+        return "excluded_exact_selected_normalized_text", {}, frozenset(), text_hash
+    if text_hash in accepted_materialized_hashes:
+        return "excluded_exact_selected_materialized_text", {}, frozenset(), text_hash
     signature = bottom_k_word_shingles(text)
     old_id, old_score = exclusions.sketches.closest(signature)
     if old_score >= threshold:
-        return "excluded_global_prior_near_duplicate", {}, signature, exact_key
+        return "excluded_global_prior_near_duplicate", {}, signature, text_hash
     selected_id, selected_score = accepted_index.closest(signature)
     if selected_score >= threshold:
-        return "excluded_global_selected_near_duplicate", {}, signature, exact_key
+        return "excluded_global_selected_near_duplicate", {}, signature, text_hash
     return (
         None,
         {
@@ -323,7 +333,7 @@ def _dedup_candidate(
             "selected_similarity": selected_score,
         },
         signature,
-        exact_key,
+        text_hash,
     )
 
 
@@ -528,16 +538,96 @@ def _line_rows(document_id: str, text: str) -> tuple[list[dict[str, Any]], int]:
     return lines, len(physical)
 
 
-def _quality_sample(lines: Sequence[Mapping[str, Any]], limit: int = 240) -> list[dict[str, Any]]:
-    if len(lines) <= limit:
-        return [dict(row) for row in lines]
-    # Deterministic head/middle/tail coverage; no detector predictions are used.
-    third = limit // 3
-    middle = max(0, (len(lines) - third) // 2)
-    positions = list(range(third))
-    positions += list(range(middle, min(middle + third, len(lines))))
-    positions += list(range(max(0, len(lines) - (limit - 2 * third)), len(lines)))
-    return [dict(lines[position]) for position in sorted(set(positions))]
+def _quality_sample_positions(line_count: int, limit: int) -> list[int]:
+    if line_count <= limit:
+        return list(range(line_count))
+    head = limit // 3
+    middle_count = limit // 3
+    tail = limit - head - middle_count
+    middle_start = max(head, (line_count - middle_count) // 2)
+    positions = list(range(head))
+    positions += list(range(middle_start, middle_start + middle_count))
+    positions += list(range(line_count - tail, line_count))
+    result = sorted(set(positions))
+    if len(result) != limit:
+        raise AssertionError("head/middle/tail sampling did not produce the requested size")
+    return result
+
+
+def _display_truncate(text: str, limit: int) -> str:
+    marker = " …⟦DISPLAY TRUNCATED⟧… "
+    if len(text) <= limit:
+        return text
+    if limit < len(marker) + 2:
+        raise ValueError("review display allocation is too small for safe truncation")
+    remainder = limit - len(marker)
+    head = remainder // 2
+    tail = remainder - head
+    return text[:head] + marker + text[-tail:]
+
+
+def _display_line(line: Mapping[str, Any], limit: int) -> dict[str, Any]:
+    original = str(line["text"])
+    display = _display_truncate(original, limit)
+    return {
+        "line_id": line["line_id"],
+        "abs_idx": line["abs_idx"],
+        "text": display,
+        "display_truncated": len(display) != len(original),
+        "original_character_count": len(original),
+        "display_character_count": len(display),
+        "original_text_sha256": hashlib.sha256(original.encode("utf-8")).hexdigest(),
+    }
+
+
+def _quality_sample(
+    lines: Sequence[Mapping[str, Any]],
+    *,
+    limit: int = QUALITY_SAMPLE_MAX_LINES,
+    max_chars: int = QUALITY_SAMPLE_DISPLAY_MAX_CHARS,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    if limit <= 0 or max_chars <= 0 or not lines:
+        raise ValueError("quality sampling requires positive limits and nonempty lines")
+    positions = _quality_sample_positions(len(lines), limit)
+    newline_characters = max(len(positions) - 1, 0)
+    text_budget = max_chars - newline_characters
+    minimum = len(" …⟦DISPLAY TRUNCATED⟧… ") + 2
+    if text_budget < minimum * len(positions):
+        raise ValueError("quality document character cap is too small for its line cap")
+    per_line_cap = text_budget // len(positions)
+    sampled = []
+    for position in positions:
+        sampled.append(_display_line(lines[position], per_line_cap))
+    display_characters = _chunk_character_count(sampled)
+    if display_characters > max_chars:
+        raise AssertionError("quality sample exceeded its character budget")
+    policy = {
+        "selection": "deterministic_head_middle_tail_v1",
+        "max_lines": limit,
+        "max_display_characters": max_chars,
+        "selected_line_count": len(sampled),
+        "display_character_count": display_characters,
+        "truncated_line_count": sum(row["display_truncated"] for row in sampled),
+        "source_text_modified": False,
+    }
+    return sampled, policy
+
+
+def _quality_review_rust_metrics(metrics: Mapping[str, Any]) -> dict[str, Any]:
+    """Bound the scorer's diagnostic strings without changing scored values."""
+
+    result = dict(metrics)
+    longest_word = result.get("longest_word")
+    if isinstance(longest_word, str) and len(longest_word) > 512:
+        result["longest_word"] = _display_truncate(longest_word, 512)
+        result["longest_word_display_metadata"] = {
+            "display_truncated": True,
+            "original_character_count": len(longest_word),
+            "original_text_sha256": hashlib.sha256(
+                longest_word.encode("utf-8")
+            ).hexdigest(),
+        }
+    return result
 
 
 def _candidate_document(candidate: CandidateRow, text: str, rust_module: Any) -> dict[str, Any]:
@@ -634,7 +724,8 @@ def select_candidates(args: argparse.Namespace) -> dict[str, Any]:
         key=lambda row: (row.rank, row.source, str(row.metadata["stable_uid"])),
     )
     accepted_index = GlobalSketchIndex()
-    exact_hashes: set[str] = set()
+    selected_normalized_hashes: set[str] = set()
+    selected_materialized_hashes: set[str] = set()
     counts: collections.Counter[str] = collections.Counter()
     source_counts: collections.Counter[str] = collections.Counter()
     candidates: list[dict[str, Any]] = []
@@ -645,12 +736,13 @@ def select_candidates(args: argparse.Namespace) -> dict[str, Any]:
             continue
         text = texts_by_source[source][str(candidate.metadata["stable_uid"])]
         normalized_hash = str(candidate.metadata.get("normalized_text_sha256") or "")
-        reason, audit, signature, exact_key = _dedup_candidate(
+        reason, audit, signature, materialized_hash = _dedup_candidate(
             text=text,
             normalized_hash=normalized_hash,
             exclusions=exclusions,
             accepted_index=accepted_index,
-            accepted_exact_hashes=exact_hashes,
+            accepted_normalized_hashes=selected_normalized_hashes,
+            accepted_materialized_hashes=selected_materialized_hashes,
             threshold=args.near_duplicate_threshold,
         )
         if reason is not None:
@@ -660,7 +752,8 @@ def select_candidates(args: argparse.Namespace) -> dict[str, Any]:
         document["near_duplicate_audit"] = audit
         candidates.append(document)
         source_counts[source] += 1
-        exact_hashes.add(exact_key)
+        selected_normalized_hashes.add(normalized_hash)
+        selected_materialized_hashes.add(materialized_hash)
         accepted_index.add(str(document["document_id"]), signature)
     if dict(source_counts) != pool_target:
         raise ValueError(f"candidate pool shortfall: got {dict(source_counts)}, need {pool_target}")
@@ -674,20 +767,24 @@ def select_candidates(args: argparse.Namespace) -> dict[str, Any]:
     for row in candidates:
         if not row["quality"]["flagged_for_dual_sol"]:
             continue
-        quality_rows.append(
-            {
-                "schema_version": QUALITY_PACKET_SCHEMA,
-                "document_alias": "q_" + row["document_id"],
-                "source": row["source"],
-                "n_physical_lines": row["n_physical_lines"],
-                "n_present_lines": row["n_present_lines"],
-                "text_characters": row["text_characters"],
-                "automatic_reasons": row["quality"]["automatic_reasons"],
-                "text_quality": row["quality"]["text"],
-                "rust_metrics": row["quality"]["rust"],
-                "sample_lines": _quality_sample(row["lines"]),
-            }
+        sample_lines, sample_policy = _quality_sample(row["lines"])
+        quality_row = {
+            "schema_version": QUALITY_PACKET_SCHEMA,
+            "document_alias": "q_" + row["document_id"],
+            "source": row["source"],
+            "n_physical_lines": row["n_physical_lines"],
+            "n_present_lines": row["n_present_lines"],
+            "text_characters": row["text_characters"],
+            "automatic_reasons": row["quality"]["automatic_reasons"],
+            "text_quality": row["quality"]["text"],
+            "rust_metrics": _quality_review_rust_metrics(row["quality"]["rust"]),
+            "sample_policy": sample_policy,
+            "sample_lines": sample_lines,
+        }
+        _validate_quality_packet_row(
+            quality_row, max_document_characters=QUALITY_DOCUMENT_MAX_CHARS
         )
+        quality_rows.append(quality_row)
     _write_jsonl_new(quality_packet_out, quality_rows)
     receipt = {
         "schema_version": SELECTION_RECEIPT_SCHEMA,
@@ -697,6 +794,12 @@ def select_candidates(args: argparse.Namespace) -> dict[str, Any]:
         "oversample": args.oversample,
         "pool_counts": dict(sorted(source_counts.items())),
         "flagged_quality_documents": len(quality_rows),
+        "quality_review_display_caps": {
+            "max_sample_lines_per_document": QUALITY_SAMPLE_MAX_LINES,
+            "max_sample_text_characters_per_document": QUALITY_SAMPLE_DISPLAY_MAX_CHARS,
+            "max_serialized_characters_per_document": QUALITY_DOCUMENT_MAX_CHARS,
+            "max_serialized_characters_per_batch": QUALITY_BATCH_MAX_CHARS,
+        },
         "global_deduplication": {
             "threshold": args.near_duplicate_threshold,
             "same_source_only": False,
@@ -768,11 +871,143 @@ def validate_quality_response(
     }
 
 
+def _quality_serialized_characters(row: Mapping[str, Any]) -> int:
+    return len(json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(",", ":")))
+
+
+def _validate_quality_packet_row(
+    row: Mapping[str, Any], *, max_document_characters: int
+) -> int:
+    if row.get("schema_version") != QUALITY_PACKET_SCHEMA:
+        raise ValueError("unsupported quality packet row")
+    policy = row.get("sample_policy")
+    lines = row.get("sample_lines")
+    if not isinstance(policy, dict) or not isinstance(lines, list) or not lines:
+        raise ValueError("quality packet row lacks sample policy/lines")
+    if (
+        policy.get("selection") != "deterministic_head_middle_tail_v1"
+        or policy.get("source_text_modified") is not False
+        or int(policy.get("max_lines", -1)) != QUALITY_SAMPLE_MAX_LINES
+        or int(policy.get("max_display_characters", -1))
+        != QUALITY_SAMPLE_DISPLAY_MAX_CHARS
+        or int(policy.get("selected_line_count", -1)) != len(lines)
+        or len(lines) > QUALITY_SAMPLE_MAX_LINES
+    ):
+        raise ValueError("quality packet sample policy differs from the frozen contract")
+    observed_display = _chunk_character_count(lines)
+    if (
+        observed_display != int(policy.get("display_character_count", -1))
+        or observed_display > QUALITY_SAMPLE_DISPLAY_MAX_CHARS
+    ):
+        raise ValueError("quality packet sample exceeds/differs from its display cap")
+    previous_abs_idx = -1
+    truncated = 0
+    required = {
+        "line_id", "abs_idx", "text", "display_truncated", "original_character_count",
+        "display_character_count", "original_text_sha256",
+    }
+    for line in lines:
+        if not isinstance(line, dict) or set(line) != required:
+            raise ValueError("quality sample line has unexpected fields")
+        text = str(line["text"])
+        abs_idx = int(line["abs_idx"])
+        original_count = int(line["original_character_count"])
+        display_count = int(line["display_character_count"])
+        is_truncated = line["display_truncated"]
+        if (
+            not isinstance(is_truncated, bool)
+            or abs_idx <= previous_abs_idx
+            or display_count != len(text)
+            or original_count < display_count
+            or is_truncated != (original_count > display_count)
+            or not _HEX64.fullmatch(str(line["line_id"]))
+            or not _HEX64.fullmatch(str(line["original_text_sha256"]))
+        ):
+            raise ValueError("quality sample line truncation/identity metadata is invalid")
+        if is_truncated and "⟦DISPLAY TRUNCATED⟧" not in text:
+            raise ValueError("truncated quality line lacks the explicit display marker")
+        if (
+            not is_truncated
+            and hashlib.sha256(text.encode("utf-8")).hexdigest()
+            != str(line["original_text_sha256"])
+        ):
+            raise ValueError("untruncated quality display hash differs from its text")
+        truncated += int(is_truncated)
+        previous_abs_idx = abs_idx
+    if truncated != int(policy.get("truncated_line_count", -1)):
+        raise ValueError("quality packet truncated-line count differs")
+    serialized = _quality_serialized_characters(row)
+    if serialized > max_document_characters:
+        raise ValueError(
+            f"quality document envelope has {serialized} characters, cap is {max_document_characters}"
+        )
+    return serialized
+
+
+def _load_quality_packet(path: Path, *, max_document_characters: int) -> list[dict[str, Any]]:
+    rows = _read_jsonl(path)
+    aliases: set[str] = set()
+    for row in rows:
+        _validate_quality_packet_row(
+            row, max_document_characters=max_document_characters
+        )
+        alias = str(row.get("document_alias") or "")
+        if not alias or alias in aliases:
+            raise ValueError("quality packet has empty/duplicate document aliases")
+        aliases.add(alias)
+    return rows
+
+
+def _quality_batches(
+    documents: Sequence[Mapping[str, Any]],
+    *,
+    batch_size: int,
+    max_document_characters: int,
+    max_batch_characters: int,
+) -> list[list[dict[str, Any]]]:
+    if batch_size not in (1, 2):
+        raise ValueError("quality batch-size must be 1 or 2")
+    if max_batch_characters < max_document_characters:
+        raise ValueError("quality batch cap must be at least the document cap")
+    document_payload_cap = max_batch_characters - QUALITY_BATCH_ENVELOPE_RESERVE
+    if document_payload_cap < max_document_characters:
+        raise ValueError("quality batch cap leaves insufficient envelope overhead")
+    batches: list[list[dict[str, Any]]] = []
+    current: list[dict[str, Any]] = []
+    current_characters = 0
+    for document in documents:
+        characters = _validate_quality_packet_row(
+            document, max_document_characters=max_document_characters
+        )
+        separator = 1 if current else 0
+        if current and (
+            len(current) >= batch_size
+            or current_characters + separator + characters > document_payload_cap
+        ):
+            batches.append(current)
+            current = []
+            current_characters = 0
+            separator = 0
+        if characters > document_payload_cap:
+            raise ValueError("one quality document exceeds the complete batch cap")
+        current.append(dict(document))
+        current_characters += separator + characters
+    if current:
+        batches.append(current)
+    for batch in batches:
+        characters = sum(_quality_serialized_characters(row) for row in batch) + max(
+            len(batch) - 1, 0
+        )
+        if len(batch) > batch_size or characters > document_payload_cap:
+            raise AssertionError("quality batch builder exceeded a frozen cap")
+    return batches
+
+
 def merge_quality(args: argparse.Namespace) -> dict[str, Any]:
     packet_path = Path(args.packet).resolve()
-    packet = _read_jsonl(packet_path)
-    if any(row.get("schema_version") != QUALITY_PACKET_SCHEMA for row in packet):
-        raise ValueError("unsupported quality packet")
+    packet = _load_quality_packet(
+        packet_path, max_document_characters=QUALITY_DOCUMENT_MAX_CHARS
+    )
     response_paths = [Path(value).resolve() for value in args.response]
     reviewer_ids = list(args.reviewer_id)
     if len(response_paths) not in (2, 3) or len(response_paths) != len(reviewer_ids):
@@ -848,7 +1083,9 @@ def merge_quality(args: argparse.Namespace) -> dict[str, Any]:
 
 def build_quality_adjudication_packet(args: argparse.Namespace) -> dict[str, Any]:
     packet_path = Path(args.packet).resolve()
-    packet = _read_jsonl(packet_path)
+    packet = _load_quality_packet(
+        packet_path, max_document_characters=QUALITY_DOCUMENT_MAX_CHARS
+    )
     response_a_path = Path(args.response_a).resolve()
     response_b_path = Path(args.response_b).resolve()
     first = validate_quality_response(packet, _json(response_a_path), args.reviewer_a)
@@ -969,6 +1206,8 @@ def finalize_selection(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("selected set has more than one representation of a work")
     if len({str(row["normalized_text_sha256"]) for row in selected}) != len(selected):
         raise ValueError("selected set has an exact normalized-text duplicate")
+    if len({str(row["materialized_text_sha256"]) for row in selected}) != len(selected):
+        raise ValueError("selected set has an exact materialized-text duplicate")
 
     documents_out = Path(args.documents_out).resolve()
     public_out = Path(args.public_exclusions_out).resolve()
@@ -1040,6 +1279,67 @@ def _ranges_from(
     return ranges
 
 
+def _chunk_character_count(lines: Sequence[Mapping[str, Any]]) -> int:
+    return sum(len(str(line["text"])) for line in lines) + max(len(lines) - 1, 0)
+
+
+def _validate_chunk_caps(chunk: Mapping[str, Any]) -> None:
+    lines = chunk.get("lines")
+    max_lines = chunk.get("max_lines")
+    max_chars = chunk.get("max_characters")
+    line_cap = chunk.get("max_display_characters_per_line")
+    if (
+        not isinstance(lines, list)
+        or not lines
+        or not isinstance(max_lines, int)
+        or isinstance(max_lines, bool)
+        or max_lines <= 0
+        or not isinstance(max_chars, int)
+        or isinstance(max_chars, bool)
+        or max_chars <= 0
+        or not isinstance(line_cap, int)
+        or isinstance(line_cap, bool)
+        or line_cap <= 0
+        or line_cap > max_chars
+    ):
+        raise ValueError("role chunk lacks valid line/character caps")
+    if len(lines) > max_lines:
+        raise ValueError(
+            f"role chunk {chunk.get('chunk_id')} has {len(lines)} lines, cap is {max_lines}"
+        )
+    characters = _chunk_character_count(lines)
+    if characters > max_chars:
+        raise ValueError(
+            f"role chunk {chunk.get('chunk_id')} has {characters} characters, cap is {max_chars}"
+        )
+    required = {
+        "offset", "line_alias", "abs_idx", "document_position_percent", "text",
+        "display_truncated", "original_character_count", "display_character_count",
+        "original_text_sha256",
+    }
+    for line in lines:
+        if not isinstance(line, dict) or set(line) != required:
+            raise ValueError("role display line has unexpected fields")
+        text = str(line["text"])
+        original_count = int(line["original_character_count"])
+        display_count = int(line["display_character_count"])
+        truncated = line["display_truncated"]
+        original_hash = str(line["original_text_sha256"])
+        if (
+            not isinstance(truncated, bool)
+            or display_count != len(text)
+            or display_count > line_cap
+            or original_count < display_count
+            or truncated != (original_count > display_count)
+            or not _HEX64.fullmatch(original_hash)
+        ):
+            raise ValueError("role display line truncation metadata is invalid")
+        if truncated and "⟦DISPLAY TRUNCATED⟧" not in text:
+            raise ValueError("truncated role line lacks the explicit display marker")
+        if not truncated and hashlib.sha256(text.encode("utf-8")).hexdigest() != original_hash:
+            raise ValueError("untruncated role display hash differs from its text")
+
+
 def chunk_ranges(
     lines: Sequence[Mapping[str, Any]],
     *,
@@ -1061,8 +1361,13 @@ def chunk_ranges(
         return ordinary
     if pass_id != "pass-b":
         raise ValueError("pass-id must be pass-a or pass-b")
-    offset = max(overlap + 1, ordinary[0][1] // 2)
-    prefix_end = min(len(lines), offset + overlap)
+    # Keep the synthetic prefix wholly inside the first already validated
+    # ordinary range.  With unusually long early lines the first range may
+    # contain far fewer than 2*overlap lines; extending by line count here used
+    # to bypass the character cap.
+    first_end = ordinary[0][1]
+    offset = max(1, first_end // 2)
+    prefix_end = min(first_end, offset + overlap)
     staggered = [(0, prefix_end)] + _ranges_from(
         lines, start=offset, max_lines=max_lines, max_chars=max_chars, overlap=overlap
     )
@@ -1163,6 +1468,8 @@ def _packet_for_pass(
         document_id = str(document["document_id"])
         document_alias = _alias(secret, "doc", document_id)
         lines = list(document["lines"])
+        line_display_cap = min(ROLE_LINE_DISPLAY_MAX_CHARS, max_chars)
+        display_lines = [_display_line(line, line_display_cap) for line in lines]
         aliases = [_alias(secret, "ln", str(line["line_id"])) for line in lines]
         if pass_id == "pass-a":
             for line, line_alias in zip(lines, aliases, strict=True):
@@ -1178,7 +1485,7 @@ def _packet_for_pass(
                     }
                 )
         ranges = chunk_ranges(
-            lines,
+            display_lines,
             pass_id=pass_id,
             max_lines=max_lines,
             max_chars=max_chars,
@@ -1196,12 +1503,15 @@ def _packet_for_pass(
                 "document_alias": document_alias,
                 "start": start,
                 "end": end,
+                "max_lines": max_lines,
+                "max_characters": max_chars,
+                "max_display_characters_per_line": line_display_cap,
                 "line_aliases": aliases[start:end],
             }
             chunk_id = "ch_" + canonical_json_sha256(content_contract)[:32]
             chunk_lines = []
             denominator = max(int(document["n_physical_lines"]) - 1, 1)
-            for offset, line in enumerate(lines[start:end]):
+            for offset, line in enumerate(display_lines[start:end]):
                 chunk_lines.append(
                     {
                         "offset": offset,
@@ -1209,27 +1519,34 @@ def _packet_for_pass(
                         "abs_idx": int(line["abs_idx"]),
                         "document_position_percent": round(100 * int(line["abs_idx"]) / denominator, 4),
                         "text": str(line["text"]),
+                        "display_truncated": line["display_truncated"],
+                        "original_character_count": line["original_character_count"],
+                        "display_character_count": line["display_character_count"],
+                        "original_text_sha256": line["original_text_sha256"],
                     }
                 )
-            document_chunks.append(
-                {
-                    "schema_version": CHUNK_SCHEMA,
-                    "kind": "full_document_role_pass",
-                    "pass_id": pass_id,
-                    "chunk_id": chunk_id,
-                    "document_alias": document_alias,
-                    "source": document["source"],
-                    "presentation_index": presentation_index,
-                    "start_present_position": start,
-                    "end_present_position_exclusive": end,
-                    "owned_start_offset": owned_start,
-                    "owned_end_offset_exclusive": owned_end,
-                    "target_offsets": [],
-                    "n_physical_lines": document["n_physical_lines"],
-                    "n_present_lines": len(lines),
-                    "lines": chunk_lines,
-                }
-            )
+            chunk = {
+                "schema_version": CHUNK_SCHEMA,
+                "kind": "full_document_role_pass",
+                "pass_id": pass_id,
+                "chunk_id": chunk_id,
+                "document_alias": document_alias,
+                "source": document["source"],
+                "presentation_index": presentation_index,
+                "start_present_position": start,
+                "end_present_position_exclusive": end,
+                "owned_start_offset": owned_start,
+                "owned_end_offset_exclusive": owned_end,
+                "target_offsets": [],
+                "max_lines": max_lines,
+                "max_characters": max_chars,
+                "max_display_characters_per_line": line_display_cap,
+                "n_physical_lines": document["n_physical_lines"],
+                "n_present_lines": len(lines),
+                "lines": chunk_lines,
+            }
+            _validate_chunk_caps(chunk)
+            document_chunks.append(chunk)
         chunks.extend(document_chunks)
     chunks.sort(
         key=lambda row: (
@@ -1285,6 +1602,9 @@ def prepare_annotation(args: argparse.Namespace) -> dict[str, Any]:
         "chunk_policy": {
             "max_lines": args.max_lines,
             "max_characters": args.max_chars,
+            "max_display_characters_per_line": min(
+                ROLE_LINE_DISPLAY_MAX_CHARS, args.max_chars
+            ),
             "overlap_lines": args.overlap,
             "pass_a": "ordinary forward boundaries",
             "pass_b": "half-chunk staggered boundaries, reversed chunk presentation",
@@ -1320,6 +1640,7 @@ def _load_chunks(path: Path) -> list[dict[str, Any]]:
             raise ValueError("role chunk has no lines")
         if [line.get("offset") for line in lines] != list(range(len(lines))):
             raise ValueError("role chunk offsets are not contiguous")
+        _validate_chunk_caps(row)
     return rows
 
 
@@ -1465,20 +1786,24 @@ def prepare_run(args: argparse.Namespace) -> dict[str, Any]:
 
 def prepare_quality_run(args: argparse.Namespace) -> dict[str, Any]:
     packet_path = Path(args.packet).resolve()
-    documents = _read_jsonl(packet_path)
-    if any(row.get("schema_version") != QUALITY_PACKET_SCHEMA for row in documents):
-        raise ValueError("unsupported quality packet")
-    aliases = [str(row.get("document_alias") or "") for row in documents]
-    if "" in aliases or len(aliases) != len(set(aliases)):
-        raise ValueError("quality packet has empty/duplicate aliases")
+    if (
+        args.max_document_characters != QUALITY_DOCUMENT_MAX_CHARS
+        or args.max_batch_characters != QUALITY_BATCH_MAX_CHARS
+    ):
+        raise ValueError("quality review character caps are frozen and cannot be relaxed")
+    documents = _load_quality_packet(
+        packet_path, max_document_characters=args.max_document_characters
+    )
     if args.model != MODEL or args.reasoning_effort != REASONING_EFFORT:
         raise ValueError(f"sealed reviews are pinned to {MODEL}/high")
     prompt_path = Path(args.prompt).resolve()
     schema_path = Path(args.output_schema).resolve()
-    batches = [
-        documents[start : start + args.batch_size]
-        for start in range(0, len(documents), args.batch_size)
-    ]
+    batches = _quality_batches(
+        documents,
+        batch_size=args.batch_size,
+        max_document_characters=args.max_document_characters,
+        max_batch_characters=args.max_batch_characters,
+    )
     contract = {
         "schema_version": RUN_CONTRACT_SCHEMA,
         "kind": "quality",
@@ -1493,6 +1818,12 @@ def prepare_quality_run(args: argparse.Namespace) -> dict[str, Any]:
         "output_schema_sha256": sha256_file(schema_path),
         "code_sha256": sha256_file(__file__),
         "batch_size": args.batch_size,
+        "quality_character_caps": {
+            "sample_display_per_document": QUALITY_SAMPLE_DISPLAY_MAX_CHARS,
+            "serialized_per_document": args.max_document_characters,
+            "serialized_per_batch": args.max_batch_characters,
+            "batch_envelope_reserve": QUALITY_BATCH_ENVELOPE_RESERVE,
+        },
         "batch_count": len(batches),
         "batch_ids": [
             canonical_json_sha256(
@@ -1520,11 +1851,27 @@ def _bound_quality_batch(
         raise ValueError("run contract is not a quality run")
     if sha256_file(packet_path) != contract["packet_sha256"]:
         raise ValueError("quality packet differs from the immutable run contract")
-    documents = _read_jsonl(packet_path)
-    batches = [
-        documents[start : start + int(contract["batch_size"])]
-        for start in range(0, len(documents), int(contract["batch_size"]))
-    ]
+    caps = contract.get("quality_character_caps", {})
+    document_cap = int(caps.get("serialized_per_document", -1))
+    batch_cap = int(caps.get("serialized_per_batch", -1))
+    if (
+        int(caps.get("sample_display_per_document", -1))
+        != QUALITY_SAMPLE_DISPLAY_MAX_CHARS
+        or document_cap != QUALITY_DOCUMENT_MAX_CHARS
+        or batch_cap != QUALITY_BATCH_MAX_CHARS
+        or int(caps.get("batch_envelope_reserve", -1))
+        != QUALITY_BATCH_ENVELOPE_RESERVE
+    ):
+        raise ValueError("quality run sample-display cap differs from the frozen contract")
+    documents = _load_quality_packet(
+        packet_path, max_document_characters=document_cap
+    )
+    batches = _quality_batches(
+        documents,
+        batch_size=int(contract["batch_size"]),
+        max_document_characters=document_cap,
+        max_batch_characters=batch_cap,
+    )
     if not 0 <= batch_index < len(batches):
         raise ValueError("batch-index is out of range")
     return contract, batches[batch_index], str(contract["batch_ids"][batch_index])
@@ -1538,7 +1885,7 @@ def export_quality_batch(args: argparse.Namespace) -> dict[str, Any]:
     if record_path.exists():
         record = _json(record_path)
         return {"status": "complete", "batch_id": batch_id, "review_sha256": record["review_sha256"]}
-    return {
+    envelope = {
         "status": "pending",
         "batch_id": batch_id,
         "pass_id": contract["pass_id"],
@@ -1546,6 +1893,19 @@ def export_quality_batch(args: argparse.Namespace) -> dict[str, Any]:
         "independence": "No predictions, labels, or other reviewer output are supplied.",
         "documents": documents,
     }
+    envelope["envelope_character_count"] = 0
+    for _ in range(3):
+        envelope_characters = len(
+            json.dumps(envelope, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        )
+        envelope["envelope_character_count"] = envelope_characters
+    envelope_characters = len(
+        json.dumps(envelope, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    )
+    envelope["envelope_character_count"] = envelope_characters
+    if envelope_characters > int(contract["quality_character_caps"]["serialized_per_batch"]):
+        raise ValueError("quality export envelope exceeds the immutable batch character cap")
+    return envelope
 
 
 def ingest_quality_batch(args: argparse.Namespace) -> dict[str, Any]:
@@ -1575,11 +1935,27 @@ def finalize_quality_pass(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("run contract is not a quality run")
     if sha256_file(packet_path) != contract.get("packet_sha256"):
         raise ValueError("quality packet differs from the immutable run contract")
-    documents = _read_jsonl(packet_path)
-    batches = [
-        documents[start : start + int(contract["batch_size"])]
-        for start in range(0, len(documents), int(contract["batch_size"]))
-    ]
+    caps = contract.get("quality_character_caps", {})
+    document_cap = int(caps.get("serialized_per_document", -1))
+    batch_cap = int(caps.get("serialized_per_batch", -1))
+    if (
+        int(caps.get("sample_display_per_document", -1))
+        != QUALITY_SAMPLE_DISPLAY_MAX_CHARS
+        or document_cap != QUALITY_DOCUMENT_MAX_CHARS
+        or batch_cap != QUALITY_BATCH_MAX_CHARS
+        or int(caps.get("batch_envelope_reserve", -1))
+        != QUALITY_BATCH_ENVELOPE_RESERVE
+    ):
+        raise ValueError("quality run sample-display cap differs from the frozen contract")
+    documents = _load_quality_packet(
+        packet_path, max_document_characters=document_cap
+    )
+    batches = _quality_batches(
+        documents,
+        batch_size=int(contract["batch_size"]),
+        max_document_characters=document_cap,
+        max_batch_characters=batch_cap,
+    )
     rows = []
     record_hashes = []
     for index, batch in enumerate(batches):
@@ -1681,6 +2057,8 @@ def finalize_pass(args: argparse.Namespace) -> dict[str, Any]:
     contract = _run_contract(run_dir)
     if contract.get("kind") != "role":
         raise ValueError("run contract is not a role run")
+    if sha256_file(packet_path) != contract.get("packet_sha256"):
+        raise ValueError("role packet differs from the immutable run contract")
     chunks = _load_chunks(packet_path)
     batches = _batches(chunks, int(contract["batch_size"]))
     results: dict[str, dict[str, Any]] = {}
@@ -1816,6 +2194,8 @@ def build_adjudication_packet(args: argparse.Namespace) -> dict[str, Any]:
     for document_id, target_abs_indices in sorted(targets_by_document.items()):
         document = document_by_id[document_id]
         lines = list(document["lines"])
+        line_display_cap = min(ROLE_LINE_DISPLAY_MAX_CHARS, args.max_chars)
+        display_lines = [_display_line(line, line_display_cap) for line in lines]
         position_by_abs = {int(row["abs_idx"]): position for position, row in enumerate(lines)}
         target_positions = sorted(position_by_abs[value] for value in target_abs_indices)
         groups: list[list[int]] = []
@@ -1826,7 +2206,7 @@ def build_adjudication_packet(args: argparse.Namespace) -> dict[str, Any]:
             proposed = groups[-1] + [position]
             start = max(0, proposed[0] - context_radius)
             end = min(len(lines), proposed[-1] + context_radius + 1)
-            characters = sum(len(str(row["text"])) + 1 for row in lines[start:end])
+            characters = _chunk_character_count(display_lines[start:end])
             if end - start <= args.max_lines and characters <= args.max_chars:
                 groups[-1] = proposed
             else:
@@ -1835,8 +2215,8 @@ def build_adjudication_packet(args: argparse.Namespace) -> dict[str, Any]:
             start = max(0, group[0] - context_radius)
             end = min(len(lines), group[-1] + context_radius + 1)
             # Shrink context symmetrically if a pathological local window hits a cap.
-            while end - start > args.max_lines or sum(
-                len(str(row["text"])) + 1 for row in lines[start:end]
+            while end - start > args.max_lines or _chunk_character_count(
+                display_lines[start:end]
             ) > args.max_chars:
                 if start < group[0]:
                     start += 1
@@ -1844,14 +2224,14 @@ def build_adjudication_packet(args: argparse.Namespace) -> dict[str, Any]:
                     end -= 1
                 if start == group[0] and end == group[-1] + 1:
                     break
-            characters = sum(len(str(row["text"])) + 1 for row in lines[start:end])
+            characters = _chunk_character_count(display_lines[start:end])
             if end - start > args.max_lines or characters > args.max_chars:
                 raise ValueError("adjudication target group cannot fit within the chunk caps")
             document_alias = document_aliases[document_id]
             target_offsets = [position - start for position in group]
             line_rows = []
             denominator = max(int(document["n_physical_lines"]) - 1, 1)
-            for offset, line in enumerate(lines[start:end]):
+            for offset, line in enumerate(display_lines[start:end]):
                 alias = aliases_by_line_id[str(line["line_id"])]
                 line_rows.append(
                     {
@@ -1860,6 +2240,10 @@ def build_adjudication_packet(args: argparse.Namespace) -> dict[str, Any]:
                         "abs_idx": int(line["abs_idx"]),
                         "document_position_percent": round(100 * int(line["abs_idx"]) / denominator, 4),
                         "text": str(line["text"]),
+                        "display_truncated": line["display_truncated"],
+                        "original_character_count": line["original_character_count"],
+                        "display_character_count": line["display_character_count"],
+                        "original_text_sha256": line["original_text_sha256"],
                     }
                 )
             contract = {
@@ -1868,26 +2252,32 @@ def build_adjudication_packet(args: argparse.Namespace) -> dict[str, Any]:
                 "group_index": group_index,
                 "line_aliases": [row["line_alias"] for row in line_rows],
                 "target_offsets": target_offsets,
+                "max_lines": args.max_lines,
+                "max_characters": args.max_chars,
+                "max_display_characters_per_line": line_display_cap,
             }
-            chunks.append(
-                {
-                    "schema_version": CHUNK_SCHEMA,
-                    "kind": "disagreement_adjudication",
-                    "pass_id": "adjudication",
-                    "chunk_id": "ch_" + canonical_json_sha256(contract)[:32],
-                    "document_alias": document_alias,
-                    "source": document["source"],
-                    "presentation_index": group_index,
-                    "start_present_position": start,
-                    "end_present_position_exclusive": end,
-                    "owned_start_offset": -1,
-                    "owned_end_offset_exclusive": -1,
-                    "target_offsets": target_offsets,
-                    "n_physical_lines": document["n_physical_lines"],
-                    "n_present_lines": len(lines),
-                    "lines": line_rows,
-                }
-            )
+            chunk = {
+                "schema_version": CHUNK_SCHEMA,
+                "kind": "disagreement_adjudication",
+                "pass_id": "adjudication",
+                "chunk_id": "ch_" + canonical_json_sha256(contract)[:32],
+                "document_alias": document_alias,
+                "source": document["source"],
+                "presentation_index": group_index,
+                "start_present_position": start,
+                "end_present_position_exclusive": end,
+                "owned_start_offset": -1,
+                "owned_end_offset_exclusive": -1,
+                "target_offsets": target_offsets,
+                "max_lines": args.max_lines,
+                "max_characters": args.max_chars,
+                "max_display_characters_per_line": line_display_cap,
+                "n_physical_lines": document["n_physical_lines"],
+                "n_present_lines": len(lines),
+                "lines": line_rows,
+            }
+            _validate_chunk_caps(chunk)
+            chunks.append(chunk)
     chunks.sort(key=lambda row: (row["source"], row["document_alias"], row["presentation_index"]))
     packet_out = Path(args.packet_out).resolve()
     receipt_out = Path(args.receipt_out).resolve()
@@ -2185,6 +2575,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     quality_run.add_argument("--prompt", required=True)
     quality_run.add_argument("--output-schema", required=True)
     quality_run.add_argument("--batch-size", type=int, choices=(1, 2), default=2)
+    quality_run.add_argument(
+        "--max-document-characters", type=int, default=QUALITY_DOCUMENT_MAX_CHARS
+    )
+    quality_run.add_argument(
+        "--max-batch-characters", type=int, default=QUALITY_BATCH_MAX_CHARS
+    )
     quality_run.add_argument("--run-dir", required=True)
 
     export = commands.add_parser("export-batch", help="stream one bounded pending batch as JSON")

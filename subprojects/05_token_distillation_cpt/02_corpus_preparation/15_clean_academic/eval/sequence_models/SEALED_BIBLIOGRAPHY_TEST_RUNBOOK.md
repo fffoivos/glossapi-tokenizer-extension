@@ -23,11 +23,18 @@ Pareto candidates have been frozen simultaneously.
   flagged documents are sent to two independent Sol quality reviews. A/B
   disagreements receive a third de-novo review of a direct, label-blind packet
   subset.
+- Quality display is bounded to a deterministic 120-line head/middle/tail
+  sample, 40,000 displayed text characters, 100,000 serialized characters per
+  document and 180,000 per batch. Overlong lines use an explicit display-only
+  prefix/suffix marker; sealed source text is unchanged.
 - Annotate every present physical line twice with independent
   `gpt-5.6-sol`/high executions. Packets contain at most 400 lines or 80,000
   text characters and 15 context-overlap lines. Every line belongs to exactly
   one core interval per pass; overlap is context only.
 - Pass B uses half-chunk-staggered boundaries and reversed chunk presentation.
+- A physical line longer than a packet budget is represented by a bounded
+  20,000-character prefix/suffix display with full-text hash/truncation metadata;
+  its full-text line ID and sealed source remain unchanged.
 - A third Sol execution sees only label-blind context around A/B role
   disagreements/UNKNOWNs. Exact 2/3 role agreement wins; otherwise the line is
   `UNKNOWN`.

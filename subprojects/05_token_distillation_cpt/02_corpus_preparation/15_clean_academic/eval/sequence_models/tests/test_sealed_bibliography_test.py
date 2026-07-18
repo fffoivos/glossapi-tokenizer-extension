@@ -21,9 +21,15 @@ from sequence_models.sealed_bibliography_test import (
     SELECTION_CANDIDATE_SCHEMA,
     SELECTION_RECEIPT_SCHEMA,
     QUALITY_CONSENSUS_SCHEMA,
+    QUALITY_BATCH_MAX_CHARS,
+    QUALITY_DOCUMENT_MAX_CHARS,
     Exclusions,
     GlobalSketchIndex,
     _dedup_candidate,
+    _load_chunks,
+    _quality_batches,
+    _quality_sample,
+    _validate_quality_packet_row,
     _row_identity_hashes,
     _ownership,
     _line_id,
@@ -33,9 +39,12 @@ from sequence_models.sealed_bibliography_test import (
     merge_labels,
     merge_quality,
     finalize_selection,
+    finalize_pass,
+    export_quality_batch,
     ingest_batch,
     prepare_run,
     prepare_annotation,
+    prepare_quality_run,
     validate_role_response,
 )
 
@@ -80,20 +89,29 @@ def test_historical_aliases_and_prior_pool_dedup_are_global() -> None:
     accepted = GlobalSketchIndex()
     reason, _, _, _ = _dedup_candidate(
         text=copied, normalized_hash="1" * 64, exclusions=exclusions,
-        accepted_index=accepted, accepted_exact_hashes=set(), threshold=0.8,
+        accepted_index=accepted, accepted_normalized_hashes=set(),
+        accepted_materialized_hashes=set(), threshold=0.8,
     )
     assert reason == "excluded_global_prior_near_duplicate"
 
     novel = " ".join(f"νέο{i % 47}" for i in range(1000))
-    reason, _, signature, exact_key = _dedup_candidate(
+    reason, _, signature, materialized_hash = _dedup_candidate(
         text=novel, normalized_hash="2" * 64, exclusions=exclusions,
-        accepted_index=accepted, accepted_exact_hashes=set(), threshold=0.8,
+        accepted_index=accepted, accepted_normalized_hashes=set(),
+        accepted_materialized_hashes=set(), threshold=0.8,
     )
     assert reason is None
     accepted.add("fresh:greek_phd", signature)
     reason, _, _, _ = _dedup_candidate(
         text=novel, normalized_hash="3" * 64, exclusions=exclusions,
-        accepted_index=accepted, accepted_exact_hashes={exact_key}, threshold=0.8,
+        accepted_index=accepted, accepted_normalized_hashes={"2" * 64},
+        accepted_materialized_hashes={materialized_hash}, threshold=0.8,
+    )
+    assert reason == "excluded_exact_selected_materialized_text"
+    reason, _, _, _ = _dedup_candidate(
+        text="prefix " + novel, normalized_hash="4" * 64, exclusions=exclusions,
+        accepted_index=accepted, accepted_normalized_hashes={"2" * 64},
+        accepted_materialized_hashes={materialized_hash}, threshold=0.8,
     )
     assert reason == "excluded_global_selected_near_duplicate"
 
@@ -119,6 +137,23 @@ def test_staggered_chunks_have_one_core_owner_and_different_boundaries() -> None
         assert all(end - start <= 400 for start, end in ranges)
 
 
+def test_staggered_prefix_respects_character_cap_with_pathologically_long_lines() -> None:
+    lines = [
+        {"line_id": f"l{index}", "text": f"{index}:" + "x" * 29_995}
+        for index in range(40)
+    ]
+    ranges = chunk_ranges(
+        lines, pass_id="pass-b", max_lines=400, max_chars=80_000, overlap=15
+    )
+    assert ranges
+    assert all(
+        sum(len(row["text"]) for row in lines[start:end]) + max(end - start - 1, 0)
+        <= 80_000
+        for start, end in ranges
+    )
+    assert all(end - start <= 400 for start, end in ranges)
+
+
 def _chunk() -> dict:
     return {
         "schema_version": CHUNK_SCHEMA,
@@ -133,6 +168,9 @@ def _chunk() -> dict:
         "owned_start_offset": 0,
         "owned_end_offset_exclusive": 4,
         "target_offsets": [],
+        "max_lines": 400,
+        "max_characters": 80_000,
+        "max_display_characters_per_line": 20_000,
         "n_physical_lines": 4,
         "n_present_lines": 4,
         "lines": [
@@ -142,6 +180,12 @@ def _chunk() -> dict:
                 "abs_idx": index,
                 "document_position_percent": index * 25.0,
                 "text": f"line {index}",
+                "display_truncated": False,
+                "original_character_count": len(f"line {index}"),
+                "display_character_count": len(f"line {index}"),
+                "original_text_sha256": hashlib.sha256(
+                    f"line {index}".encode("utf-8")
+                ).hexdigest(),
             }
             for index in range(4)
         ],
@@ -167,6 +211,16 @@ def test_rle_validation_requires_exact_complete_coverage() -> None:
     payload["chunks"][0]["runs"][1]["start_offset"] = 3
     with pytest.raises(ValueError, match="exactly and contiguously"):
         validate_role_response([_chunk()], payload, "sol-a")
+
+
+def test_packet_loader_rechecks_declared_line_and_character_caps(tmp_path: Path) -> None:
+    chunk = _chunk()
+    chunk["max_characters"] = 20
+    chunk["max_display_characters_per_line"] = 20
+    packet = tmp_path / "over-cap.jsonl"
+    _dump_rows(packet, [chunk])
+    with pytest.raises(ValueError, match="characters, cap is"):
+        _load_chunks(packet)
 
 
 def test_prepare_annotation_stable_aliases_and_complete_core_coverage(tmp_path: Path) -> None:
@@ -230,6 +284,50 @@ def test_prepare_annotation_stable_aliases_and_complete_core_coverage(tmp_path: 
         assert len(owners) == len(set(owners))
 
 
+def test_role_packet_bounds_overlong_line_but_key_and_sealed_text_remain_full(tmp_path: Path) -> None:
+    document_id = "b" * 64
+    original = "Αρχή " + "β" * 200_000 + " τέλος"
+    line_id = _line_id(document_id, 0, original)
+    documents = tmp_path / "documents.jsonl"
+    _dump_rows(
+        documents,
+        [{
+            "schema_version": PRIVATE_DOCUMENT_SCHEMA, "document_id": document_id,
+            "source": "openarchives", "n_physical_lines": 1, "n_present_lines": 1,
+            "lines": [{"line_id": line_id, "abs_idx": 0, "text": original}],
+        }],
+    )
+    selection = tmp_path / "selection.json"
+    _dump(selection, {"sealed_outputs": {"documents_sha256": _hash(documents)}})
+    secret = tmp_path / "alias.key"
+    secret.write_bytes(b"k" * 32)
+    secret.chmod(0o600)
+    pass_a, pass_b, key, receipt = (
+        tmp_path / "a.jsonl", tmp_path / "b.jsonl", tmp_path / "key.jsonl",
+        tmp_path / "receipt.json",
+    )
+    prepare_annotation(
+        argparse.Namespace(
+            documents=str(documents), selection_receipt=str(selection), alias_secret=str(secret),
+            max_lines=400, max_chars=80_000, overlap=15, pass_a_out=str(pass_a),
+            pass_b_out=str(pass_b), line_key_out=str(key), receipt_out=str(receipt),
+        )
+    )
+    packet = json.loads(pass_a.read_text().splitlines()[0])
+    display = packet["lines"][0]
+    assert display["display_truncated"] is True
+    assert display["original_character_count"] == len(original)
+    assert display["display_character_count"] <= 20_000
+    assert "⟦DISPLAY TRUNCATED⟧" in display["text"]
+    assert json.loads(key.read_text().splitlines()[0])["line_id"] == line_id
+    assert json.loads(documents.read_text().splitlines()[0])["lines"][0]["text"] == original
+    assert all(
+        sum(len(line["text"]) for line in row["lines"]) + max(len(row["lines"]) - 1, 0)
+        <= 80_000
+        for row in (json.loads(value) for value in pass_b.read_text().splitlines())
+    )
+
+
 def _quality_response(reviewer: str, rows: list[tuple[str, str]]) -> dict:
     return {
         "schema_version": QUALITY_RESPONSE_SCHEMA,
@@ -241,11 +339,76 @@ def _quality_response(reviewer: str, rows: list[tuple[str, str]]) -> dict:
     }
 
 
+def _quality_packet_row(alias: str, text: str = "sample") -> dict:
+    line = {"line_id": hashlib.sha256(alias.encode()).hexdigest(), "abs_idx": 0, "text": text}
+    sample, policy = _quality_sample([line])
+    return {
+        "schema_version": QUALITY_PACKET_SCHEMA,
+        "document_alias": alias,
+        "sample_policy": policy,
+        "sample_lines": sample,
+    }
+
+
+def test_quality_sampling_bounds_overlong_display_without_mutating_source() -> None:
+    original = "α" * 500_000
+    row = _quality_packet_row("q_long", original)
+    sample = row["sample_lines"][0]
+    assert sample["display_truncated"] is True
+    assert sample["original_character_count"] == len(original)
+    assert "⟦DISPLAY TRUNCATED⟧" in sample["text"]
+    assert original == "α" * 500_000
+    serialized = _validate_quality_packet_row(
+        row, max_document_characters=QUALITY_DOCUMENT_MAX_CHARS
+    )
+    assert serialized <= QUALITY_DOCUMENT_MAX_CHARS
+    batches = _quality_batches(
+        [row, _quality_packet_row("q_short")], batch_size=2,
+        max_document_characters=QUALITY_DOCUMENT_MAX_CHARS,
+        max_batch_characters=QUALITY_BATCH_MAX_CHARS,
+    )
+    assert all(len(batch) <= 2 for batch in batches)
+    assert all(
+        sum(len(json.dumps(item, ensure_ascii=False, sort_keys=True, separators=(",", ":"))) for item in batch)
+        + max(len(batch) - 1, 0)
+        <= QUALITY_BATCH_MAX_CHARS
+        for batch in batches
+    )
+
+
+def test_quality_run_binds_caps_and_export_revalidates_bounded_envelope(tmp_path: Path) -> None:
+    packet = tmp_path / "quality.jsonl"
+    _dump_rows(packet, [_quality_packet_row("q_long", "α" * 500_000), _quality_packet_row("q_2")])
+    prompt = tmp_path / "prompt.md"
+    schema = tmp_path / "schema.json"
+    prompt.write_text("prompt", encoding="utf-8")
+    schema.write_text("{}", encoding="utf-8")
+    run_dir = tmp_path / "run"
+    contract = prepare_quality_run(
+        argparse.Namespace(
+            packet=str(packet), pass_id="quality-a", reviewer_id="quality-sol-a",
+            model="gpt-5.6-sol", reasoning_effort="high", prompt=str(prompt),
+            output_schema=str(schema), batch_size=2,
+            max_document_characters=QUALITY_DOCUMENT_MAX_CHARS,
+            max_batch_characters=QUALITY_BATCH_MAX_CHARS, run_dir=str(run_dir),
+        )
+    )
+    assert contract["quality_character_caps"]["serialized_per_document"] == QUALITY_DOCUMENT_MAX_CHARS
+    envelope = export_quality_batch(
+        argparse.Namespace(packet=str(packet), run_dir=str(run_dir), batch_index=0)
+    )
+    assert envelope["status"] == "pending"
+    assert envelope["envelope_character_count"] <= QUALITY_BATCH_MAX_CHARS
+    assert envelope["envelope_character_count"] == len(
+        json.dumps(envelope, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    )
+
+
 def test_quality_third_packet_is_blind_disagreement_subset_and_merges(tmp_path: Path) -> None:
     packet = tmp_path / "quality.jsonl"
     packet_rows = [
-        {"schema_version": QUALITY_PACKET_SCHEMA, "document_alias": "q_a", "sample_lines": []},
-        {"schema_version": QUALITY_PACKET_SCHEMA, "document_alias": "q_b", "sample_lines": []},
+        _quality_packet_row("q_a"),
+        _quality_packet_row("q_b"),
     ]
     _dump_rows(packet, packet_rows)
     a = tmp_path / "a.json"
@@ -384,6 +547,32 @@ def test_immutable_remote_ingest_rejects_changed_response(tmp_path: Path, monkey
     monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps(payload)))
     with pytest.raises(ValueError, match="immutable artifact differs"):
         ingest_batch(arguments)
+
+
+def test_finalize_pass_rejects_packet_drift_before_aggregation(tmp_path: Path) -> None:
+    packet = tmp_path / "packet.jsonl"
+    _dump_rows(packet, [_chunk()])
+    prompt = tmp_path / "prompt.md"
+    schema = tmp_path / "schema.json"
+    prompt.write_text("prompt", encoding="utf-8")
+    schema.write_text("{}", encoding="utf-8")
+    run_dir = tmp_path / "run"
+    prepare_run(
+        argparse.Namespace(
+            packet=str(packet), pass_id="pass-a", reviewer_id="sol-a",
+            model="gpt-5.6-sol", reasoning_effort="high", prompt=str(prompt),
+            output_schema=str(schema), batch_size=1, run_dir=str(run_dir),
+        )
+    )
+    changed = _chunk()
+    changed["source"] = "openarchives"
+    packet.write_text(json.dumps(changed) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="differs from the immutable run contract"):
+        finalize_pass(
+            argparse.Namespace(
+                packet=str(packet), run_dir=str(run_dir), output=str(tmp_path / "pass.json")
+            )
+        )
 
 
 def _pass(path: Path, pass_id: str, reviewer: str, roles: dict[str, str]) -> None:
