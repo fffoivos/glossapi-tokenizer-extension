@@ -129,3 +129,22 @@ approval: the complete decoder still fails recall and zero-document spurious
 block gates. The next model-development stage should target outward block
 edges and zero/one-seed block proposals, while preserving the pooled connector
 as one input rather than expanding the internal-gap dataset further.
+
+## Training-dataset presentation
+
+Clariden job `2789232` restored source text for 180 examples selected from the
+exact 3,000-row winning training subset: 30 `CONNECT` and 30 `BREAK` examples
+per source, spread across work folds and gap-length buckets. The presentation
+marks the two seed endpoints as excluded and highlights only the strictly
+interior span that supplied the model input. It also shows the underlying
+silver line labels, which is important because a `BREAK` span may contain some
+silver `BIB` lines while still being an invalid connection as a whole.
+
+The source packet and receipt are `training-presentation.packet.json` and
+`training-presentation.receipt.json` in this directory. The rendered local
+reader is:
+
+```text
+http://127.0.0.1:8775/
+/Users/foivoskarounos-zamparloukos/presentations/train-apertus-with-glossapi/bibliography-gap-training-dataset-20260718/index.html
+```
