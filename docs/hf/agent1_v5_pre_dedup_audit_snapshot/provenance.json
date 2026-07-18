@@ -1,0 +1,195 @@
+{
+  "schema_version": "agent1_v5_sanitized_dataset_provenance_v2",
+  "release": {
+    "repo_id": "fffoivos/greek-nanochat-plus-new-pre-dedup-agent1-v5-clariden-debug-20260715T111552Z-30c72e9",
+    "visibility": "private",
+    "kind": "pre_dedup_intermediate",
+    "run_id": "agent1-v5-clariden-debug-20260715T111552Z-30c72e9",
+    "base_data_revision": "362d99a79dece48e2c54a8924cf4419e02e3bee0",
+    "implementation_revision": "30c72e99f6949b85b4db176e4753f69b932d2f7a",
+    "construction_status": "passed",
+    "deduplication_status": "in_progress_healthy",
+    "pretraining_ready": false,
+    "pretraining_ready_reason": "deduplication_in_progress"
+  },
+  "storage": {
+    "rows": 53046533,
+    "nanochat_base_rows": 49474947,
+    "candidate_rows": 3571586,
+    "parquet_shards": 431,
+    "nanochat_base_shards": 273,
+    "candidate_shards": 158,
+    "parquet_payload_bytes": 149746029389,
+    "authored_files": 435,
+    "authored_bytes": 149746154488,
+    "hub_tree_entries_at_base_revision": 436,
+    "hub_tree_bytes_at_base_revision": 149746156992,
+    "publication_verification": {
+      "lfs_sha256_objects": 432,
+      "downloaded_sha256_objects": 3
+    }
+  },
+  "construction": {
+    "status": "passed",
+    "candidate_input_rows": 3576290,
+    "transform_quarantined_rows": 4703,
+    "transform_survivor_rows": 3571587,
+    "glossapi_quarantined_rows": 1,
+    "candidate_release_rows": 3571586,
+    "quarantines_recorded_in_manifests": true,
+    "metadata_lineage_status": "passed"
+  },
+  "integrity": {
+    "base_publication_receipt_sha256": "ebad0b3374b7863c558b9f1ac6eb128fe8a1abaf4e89b8bd46aea67ad62bd681",
+    "combined_manifest": {
+      "path": "manifests/combined_manifest.json",
+      "sha256": "4ff9f598f0e592324ae08c139e7f241344bdd180497b39f011d810a990ffdacf"
+    },
+    "dedup_input_inventory": {
+      "path": "manifests/dedup_input_inventory.parquet",
+      "sha256": "065ec2d92b761d89ad8ec397bb0cbf70aee4f0571b1e848bae6f207a9c719521"
+    },
+    "license_receipt": {
+      "path": "manifests/license_override_receipt.json",
+      "sha256": "efb4de6179f5580611cc26ac31d0b748f98e10fa0b66628b8e92eaf5ea060b77"
+    },
+    "run_contract_sha256": "4edc50a7a88377f6be46447afc744850de115e6591ec9eabfa8e13ed770a744c"
+  },
+  "runtime_pins": {
+    "nanochat": {
+      "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset",
+      "revision": "e1d54136a880ed1df2ed95a5445dabd230453207"
+    },
+    "glossapi_commit": "a2aace04fbae61ed58931be1a1237a52d1b8ddb3",
+    "datatrove_version": "0.9.0",
+    "datatrove_commit": "87f7bad5c4a56ec648265fbf0b91d7d226bad428",
+    "rust_toolchain": "1.85.1"
+  },
+  "candidate_sources": [
+    {"source_id": "diavgeia", "repo_id": "glossAPI/diavgeia", "revision": "ce873e49bfd8068bcf2d8692b1eb176b523ab193"},
+    {"source_id": "amna_press", "repo_id": "glossAPI/amna-press", "revision": "25f0da0935ea3f972386e080070109d0e6b42f56"},
+    {"source_id": "psepheda", "repo_id": "glossAPI/psepheda", "revision": "fba42b5e0ee030c15f337b926527acc98693641b"},
+    {"source_id": "elocus", "repo_id": "glossAPI/elocus", "revision": "2a3c659924453661578ca2d29aa801b48365263b"},
+    {"source_id": "libduth", "repo_id": "glossAPI/libduth", "revision": "359623de339aa7bca01cc707620ec763dfb3ab8e"},
+    {"source_id": "libiep", "repo_id": "glossAPI/libiep", "revision": "aeb7ecda4a9d9906c065771cf98ba24c6d2ed39a"},
+    {"source_id": "ecclesia", "repo_id": "glossAPI/ecclesia", "revision": "f07fcf567e723bc3dbaf5f1fef81eb80eec05c1b"},
+    {"source_id": "archetai", "repo_id": "glossAPI/archetai", "revision": "bd1901ced177c6eedacafa2afc2399f7f797ddc9"},
+    {"source_id": "eellak_articles", "repo_id": "glossAPI/eellak-articles", "revision": "59fd681c483e6bdcdabe7c1a1f8685c5eebf7883"},
+    {"source_id": "open_council", "repo_id": "glossAPI/OpenCouncil", "revision": "305a9e102814ca9bcca51b5a36f1cec52152b2e4"},
+    {"source_id": "artos_zois", "repo_id": "glossAPI/artos-zois", "revision": "97115ecacdb7435c5e529e0cf56c68b0290751b6"},
+    {"source_id": "e_nautilia", "repo_id": "glossAPI/e-nautilia", "revision": "5c8cbbb80976a3fa0c6f59e1cecb7d1bb86ed352"},
+    {"source_id": "national_theatre_press", "repo_id": "glossAPI/greek-national-theatre-corpus", "revision": "a4debd3ca0e0cde06c49b7633158a2a88c0b6eb5"},
+    {"source_id": "heinrich_boell_publications", "repo_id": "glossAPI/heinrich_boell_stiftung", "revision": "e222522ba0ea00d819344f70a640d58522d55af5"},
+    {"source_id": "new_sociology", "repo_id": "glossAPI/new-sociology", "revision": "db183139ea0826a2dfb197c6259cbdf26f314376"},
+    {"source_id": "istorima", "repo_id": "glossAPI/istorima", "revision": "0f3f32db50235b0e42e130983e6a06c709835e16"},
+    {"source_id": "modern_greek_dictionary", "repo_id": "glossAPI/modern-greek-dictionary", "revision": "bafabdb324584e562a0d1352be1befc3cf538df4"},
+    {"source_id": "ert_press", "repo_id": "glossAPI/ert-press", "revision": "fb4d3c957deaad38d3a037c3c69e615aa5464f14"}
+  ],
+  "schema": {
+    "field_count": 44,
+    "manifest_path": "manifests/combined_manifest.json",
+    "envelope_fields": [
+      "source_dataset",
+      "source_doc_id",
+      "text",
+      "title",
+      "author",
+      "source_metadata_json"
+    ],
+    "source_metadata_json_semantics": "Compact JSON of non-null upstream fields after removal of the selected text, title, and author paths.",
+    "alternate_text_metadata_risk_disclosed": true,
+    "nullable_unsynthesized_fields": ["title", "author"]
+  },
+  "audits": {
+    "acquisition_integrity": {
+      "status": "passed",
+      "receipt_sha256": "7b975687e0a8e3f3869a8c5cef4600cf55865523472ef150303c860e598f4f5c",
+      "script_sha256": "4181f528a9b02d24894767a734eddf083037474da83275db29a2400db84635e9",
+      "acquired_files": 293,
+      "acquired_bytes": 153031751003,
+      "verified_files": 293,
+      "task_input_lineage_closed": true,
+      "scope_limit": "Retroactive integrity evidence; the transform implementation did not rehash its input at task start."
+    },
+    "candidate_quality_and_lineage": {
+      "receipt_status": "blocked",
+      "operational_disposition": "metadata_lineage_passed_quality_observations_deferred_nonblocking",
+      "receipt_sha256": "4fdeaa54283fcb90d30302bf3b73a412bb949db035300d9265e743c39f134ad0",
+      "script_sha256": "737ae62776e69a369b0de7a09bc35b3cac6f12e5996042875fa3d11d7a7e3138",
+      "candidate_files": 158,
+      "candidate_rows": 3571586,
+      "metadata_lineage_tasks": 158,
+      "metadata_lineage_passed_tasks": 158,
+      "duplicate_source_doc_id_keys": 52,
+      "collision_ids_rewritten": 105,
+      "structural_observations": {
+        "control_character": 10728,
+        "replacement_character": 389,
+        "residual_recognized_html": 29,
+        "residual_generated_image_token": 0
+      }
+    }
+  },
+  "quality": {
+    "status": "deferred_nonblocking",
+    "dedup_execution_effect": "none",
+    "candidate_rows_with_non_ok_filter": 275816,
+    "candidate_filter_counts": {"greek>60": 275816},
+    "flag_fraction_of_candidate_rows": 0.077225,
+    "flag_concentration": {
+      "glossAPI/diavgeia": 270034,
+      "glossAPI/modern-greek-dictionary": 5372,
+      "all_other_sources": 410
+    },
+    "filter_semantics": "greek_badness_score greater than 60; not Greek character percentage greater than 60",
+    "blanket_filter_deletion_approved": false,
+    "deferred_followup": [
+      "hard_corruption_quarantine",
+      "document_language_routing",
+      "source_specific_length_and_assembly_rules",
+      "polytonic_math_music_dictionary_profiles",
+      "stratified_human_threshold_review"
+    ]
+  },
+  "operational_scope": {
+    "dataset_construction": "passed",
+    "metadata_lineage": "passed",
+    "hf_storage": "passed",
+    "deduplication": "in_progress_healthy",
+    "quality_policy": "deferred_nonblocking",
+    "blocking_operational_findings": [],
+    "stop_work_required": false,
+    "execution_directive": "continue_active_dedup_until_deliberate_safe_boundary_migration",
+    "remaining_operations": [
+      "complete_near_deduplication",
+      "materialize_deduplicated_dataset",
+      "publish_and_verify_final_private_hf_repository"
+    ]
+  },
+  "deduplication": {
+    "status": "in_progress_healthy",
+    "exact_index_manifest_status": "passed",
+    "language": "ell_Grek",
+    "shingle_size": 5,
+    "num_permutations": 128,
+    "num_buckets": 32,
+    "hashes_per_bucket": 4,
+    "seed": 1,
+    "hash_precision": 64,
+    "verified_jaccard_threshold": 0.85,
+    "preserve_unicode_diacritics": true,
+    "protected_source": "nanochat_base"
+  },
+  "license": {
+    "hf_license_tag": "other",
+    "repository_visibility": "private",
+    "dedup_execution_effect": "none"
+  },
+  "sanitization": {
+    "absolute_worker_paths_included": false,
+    "cluster_account_identifiers_included": false,
+    "scheduler_job_identifiers_included": false,
+    "credentials_or_tokens_included": false,
+    "private_text_samples_included": false
+  }
+}

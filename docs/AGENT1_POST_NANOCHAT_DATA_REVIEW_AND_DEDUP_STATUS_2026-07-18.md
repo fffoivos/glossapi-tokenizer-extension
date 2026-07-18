@@ -2,6 +2,17 @@
 
 **Status timestamp:** 2026-07-18, while Clariden job `2789351` (`a1v5-signature-chain-r44`) was running.
 
+> **Operational clarification (2026-07-18):** dataset construction through the
+> combined pre-dedup release passed, document-to-metadata lineage passed, and
+> private HF storage was verified object by object. Deduplication is healthy
+> and still running. The `greek>60` quality flags and related content-quality
+> findings are explicitly deferred and are **not** a stop condition for the
+> current construction or dedup run. See
+> `AGENT1_V5_DATASET_AND_HF_READINESS_AUDIT_2026-07-18.md` for the operational
+> evidence and `AGENT1_V5_CSCS_DEDUP_ACCELERATION_PLAN_2026-07-18.md` for the
+> performance-only acceleration plan. Execution agents must continue the live
+> chain unless carrying out the plan's deliberate safe-boundary migration.
+
 This is the operational handoff for the new GlossAPI candidate datasets: their review, structural cleaning, GFM normalization, GlossAPI preparation, NanoChat envelope, pre-dedup release, and current Datatrove deduplication run. It separates durable evidence from historical interactive review artifacts.
 
 ## Scope and source roster
@@ -37,7 +48,7 @@ The review stack samples candidate records, prepares per-document Codex/Terra re
 
 ### Evidence and limitation
 
-The current worktree retains the complete executable review stack and its schemas. The downstream run’s durable `candidate_manifest.json` and `glossapi_manifest.json` exist in the run directory listed below, demonstrating that admitted candidates progressed into the build. The browser-hosted review sites and local forwarded sessions used during manual inspection were transient; a durable exported HTML packet was not found in the current worktree during this review. Do not claim a particular historical review-site URL as durable evidence; regenerate it from the scripts above when needed.
+The current worktree retains the complete executable review stack and its schemas. The downstream run’s durable `candidate_manifest.json` and `glossapi_manifest.json` exist in the run directory listed below, demonstrating that configured candidate rows progressed into the build. The browser-hosted review sites and local forwarded sessions used during manual inspection were transient; a durable exported HTML packet was not found in the current worktree during this review. Do not claim a particular historical review-site URL as durable evidence; regenerate it from the scripts above when needed.
 
 ## 2. Repetition removal, image cleanup, and HTML-to-GFM normalization
 
@@ -113,7 +124,7 @@ license_override_receipt.json
 datatrove_runtime.json
 ```
 
-The presence of these files is completion evidence for the prerequisite stages, not evidence that deduplication is complete.
+The presence of these files is completion evidence for the represented construction stages. Deduplication is separately in progress.
 
 ## 4. Pre-dedup release and current deduplication
 
@@ -141,7 +152,7 @@ subprojects/05_token_distillation_cpt/04_full_corpus_preparation/scripts/run_sig
 Deployed copy used by the live chain:
 
 ```text
-/capstor/scratch/cscs/fffoivos/agent1-v5-code/942b8d2/subprojects/05_token_distillation_cpt/04_full_corpus_preparation/scripts/run_signature_task_chain.sh
+/capstor/scratch/cscs/fffoivos/agent1-v5-code/signature-chain/subprojects/05_token_distillation_cpt/04_full_corpus_preparation/scripts/run_signature_task_chain.sh
 ```
 
 ### Current operational evidence
@@ -197,7 +208,7 @@ The plan must include all of the following:
 1. **Partition and resource discovery.** Record the `a0140` normal-partition association, any project/user limits, fair-share implications, job-size guidance, and storage/network policy. Current evidence shows `normal` is up with a 12-hour limit and substantial free capacity; that is not permission to saturate it.
 2. **A staged bandwidth/concurrency experiment.** Use only independent, not-yet-started signature ranks. Establish a one-worker baseline from current jobs, then test 2 workers, 4 workers, and a proposed 4–5-worker steady state. Measure per-rank elapsed time, sustained read/write bandwidth, CPU and RSS, metadata-operation rate if available, queue delay, and impact on the existing run.
 3. **Safety gates.** Define pre-authorized stop/back-off triggers: material per-worker slowdown, filesystem/client saturation, error-rate increase, queue-policy warnings, or evidence of adverse impact on shared services. Do not exceed the tested fan-out merely because nodes are visible as idle.
-4. **Safe orchestration.** Replace the serial self-chain only at a receipt boundary. Cancel only the automatically queued successor, never a running validated rank. Submit non-overlapping rank ranges or an array with durable per-rank receipts, idempotent reruns, collision-free log paths, and a final manifest-count check.
+4. **Safe orchestration.** Replace the serial self-chain only at a receipt boundary using the held-QoS fence described in the reviewed acceleration plan. The helper normally has no queued successor to cancel. Never cancel a running validated rank. Submit non-overlapping rank ranges or an array with durable per-rank receipts, idempotent reruns, collision-free log paths, and a final manifest-count check.
 5. **Target.** Recommend a sustainable 4–5× speed-up, not maximum possible cluster consumption. Show expected elapsed time, node count, CPU allocation, storage/network budget, and how throughput will be monitored continuously.
 6. **Validation and rollback.** Require a first-wave receipt audit before continuing. Roll back to the previous serial chain if the gates are exceeded; preserve every completed receipt and signature file.
 
@@ -218,4 +229,3 @@ ssh clariden 'jq . /capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/agent1-v5-
 # Current Slurm chain
 ssh clariden 'squeue -u fffoivos -o "%.18i %.35j %.8T %.10M %.10l %.24R"'
 ```
-
