@@ -26,6 +26,8 @@ from sequence_models.bibliography_evolution_contract import (
     LEAKAGE_SCHEMA,
     CandidateStore,
     ContractError,
+    atomic_write_bytes_exact_resume,
+    atomic_write_bytes_exclusive,
     build_registry,
     expand_template,
     paired_work_bootstrap,
@@ -42,6 +44,78 @@ from sequence_models.bibliography_evolution_sealed_inference import (
     load_candidate_graph,
     materialize_unlabelled_table,
 )
+
+
+CODE_COMMIT = subprocess.run(
+    ["git", "rev-parse", "HEAD"],
+    check=True,
+    text=True,
+    stdout=subprocess.PIPE,
+).stdout.strip()
+
+
+def test_atomic_publication_is_absent_or_complete_and_exact_resume_only(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    target = tmp_path / "receipt.json"
+    real_link = evolution.os.link
+
+    def interrupted_link(_source: Path, _target: Path) -> None:
+        raise OSError("simulated publication interruption")
+
+    monkeypatch.setattr(
+        "sequence_models.bibliography_evolution_contract.os.link", interrupted_link
+    )
+    with pytest.raises(OSError, match="interruption"):
+        atomic_write_bytes_exclusive(target, b'{"complete":true}\n')
+    assert not target.exists()
+    assert list(tmp_path.iterdir()) == []
+
+    monkeypatch.setattr(
+        "sequence_models.bibliography_evolution_contract.os.link", real_link
+    )
+    atomic_write_bytes_exclusive(target, b'{"complete":true}\n')
+    assert target.read_bytes() == b'{"complete":true}\n'
+    atomic_write_bytes_exact_resume(target, b'{"complete":true}\n', label="test receipt")
+    with pytest.raises(ContractError, match="differs"):
+        atomic_write_bytes_exact_resume(target, b'{"complete":false}\n', label="test receipt")
+
+
+def test_fuse_directory_publication_is_atomic_and_exactly_resumable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manifest_path = tmp_path / "manifest.json"
+    request_path = tmp_path / "request.json"
+    manifest_path.write_text("{}\n", encoding="utf-8")
+    request_path.write_text("{}\n", encoding="utf-8")
+    root = tmp_path / "canonical-final-evaluation"
+    manifest = {"frozen_manifest_id": "f" * 64}
+    request = {"candidate_ids": ["c" * 64], "bootstrap": {"iterations": 1}}
+    inference = {"receipt_sha256": "a" * 64, "line_count": 12}
+    real_publish = evolution.atomic_write_bytes_exclusive
+
+    def interrupted_publish(*_args: object, **_kwargs: object) -> None:
+        raise OSError("simulated fuse interruption")
+
+    monkeypatch.setattr(evolution, "atomic_write_bytes_exclusive", interrupted_publish)
+    with pytest.raises(OSError, match="interruption"):
+        evolution._commit_sealed_fuse(
+            manifest_path, request_path, root, manifest, request, inference
+        )
+    assert not root.exists()
+    assert not list(tmp_path.glob(".canonical-final-evaluation.atomic-*"))
+
+    monkeypatch.setattr(evolution, "atomic_write_bytes_exclusive", real_publish)
+    fuse = evolution._commit_sealed_fuse(
+        manifest_path, request_path, root, manifest, request, inference
+    )
+    assert fuse.is_file()
+    assert (
+        evolution._commit_sealed_fuse(
+            manifest_path, request_path, root, manifest, request, inference
+        )
+        == fuse
+    )
 
 
 def _input_receipts() -> dict:
@@ -75,7 +149,7 @@ def _g0_spec() -> dict:
             "seeds": [20260718],
             "expected_direction": {"token_fp": "nonincrease"},
             "acceptance_rule": {"headline_documents": 268},
-            "code_commit": "a" * 40,
+            "code_commit": CODE_COMMIT,
             "leakage_policy_sha256": hashlib.sha256(
                 evolution.canonical_json_bytes(_policy())
             ).hexdigest(),
@@ -90,7 +164,7 @@ def _g0_spec() -> dict:
                     "--validation-scope-mask", str(artifact),
                     "--qualified-documents", str(artifact),
                     "--output-dir", "@CANDIDATE_DIR@/backend",
-                    "--code-commit", "a" * 40, "--slurm-job-id", "@SLURM_JOB_ID@",
+                    "--code-commit", CODE_COMMIT, "--slurm-job-id", "@SLURM_JOB_ID@",
                 ],
             },
         }
@@ -144,7 +218,7 @@ def _spec(tmp_path: Path, *, generation: str = "G1", value: float = 0.3) -> dict
             "--anchors-required", "2", "--anchor-window", "16",
             "--maximum-bridge-gap", "8", "--inside-probability", "0.05",
             "--adjacent-expansion", "2", "--header-window", "2",
-            "--output-dir", "@CANDIDATE_DIR@/backend", "--code-commit", "a" * 40,
+            "--output-dir", "@CANDIDATE_DIR@/backend", "--code-commit", CODE_COMMIT,
             "--slurm-job-id", "@SLURM_JOB_ID@",
         ]
     )
@@ -168,7 +242,7 @@ def _spec(tmp_path: Path, *, generation: str = "G1", value: float = 0.3) -> dict
             "seeds": [20260718],
             "expected_direction": {"token_fp": "decrease"},
             "acceptance_rule": {"headline_documents": 268},
-            "code_commit": "a" * 40,
+            "code_commit": CODE_COMMIT,
             "leakage_policy_sha256": hashlib.sha256(
                 evolution.canonical_json_bytes(_policy())
             ).hexdigest(),
@@ -235,7 +309,7 @@ def _result(candidate_dir: Path, metrics: tuple[float, float, float, float]) -> 
         },
         "runtime": {"wall_seconds": 1.0},
         "job": {"slurm_job_id": "1"},
-        "tests": {"status": "passed", "code_commit": "a" * 40},
+        "tests": {"status": "passed", "code_commit": CODE_COMMIT},
         "selection": {"eligible_for_pareto": True, "acceptance": {"passed": True, "checks": {}}},
         "rejection": {"reasons": []},
     }
@@ -385,7 +459,7 @@ def test_g3_acceptance_uses_executed_active_trace_not_static_order() -> None:
         "generation": "G3",
         "changed_component": "decoder.outward_edge",
         "acceptance_rule": {"headline_documents": 268, "runs_after_boundary_trim": True},
-        "code_commit": "a" * 40,
+        "code_commit": CODE_COMMIT,
         "parent_candidate_ids": ["parent"],
     }
     paired = {
@@ -402,14 +476,14 @@ def test_g3_acceptance_uses_executed_active_trace_not_static_order() -> None:
     }
     acceptance, reasons = _evaluate_acceptance(
         spec, {"module_trace": trace}, {"document_count": 268}, paired,
-        {"status": "passed", "code_commit": "a" * 40}, {},
+        {"status": "passed", "code_commit": CODE_COMMIT}, {},
     )
     assert acceptance["passed"] and not reasons
     trace[1]["status"] = "disabled_identity"
     # A forged no-op trace is not the canonical active reference pipeline.
     acceptance, reasons = _evaluate_acceptance(
         spec, {"module_trace": trace}, {"document_count": 268}, paired,
-        {"status": "passed", "code_commit": "a" * 40}, {},
+        {"status": "passed", "code_commit": CODE_COMMIT}, {},
     )
     assert not acceptance["passed"]
 
@@ -494,7 +568,41 @@ def test_all_templates_expand_to_valid_executable_specs() -> None:
             }
         return result
     bindings.update({
-        "CODE_COMMIT": "a" * 40, "CPU_WORKERS": 20, "G0_CANDIDATE_ID": "g0-parent",
+        "LEFT_PREDICTION": "/bound/g4-left/prediction.npy",
+        "LEFT_BARRIER_ARTIFACT": "/bound/g4-left/combined_barriers.npz",
+        "RIGHT_PREDICTION": "/bound/g4-right/prediction.npy",
+        "RIGHT_BARRIER_ARTIFACT": "/bound/g4-right/combined_barriers.npz",
+    })
+    g5_inputs = inputs_for("g4-left", "g4-right", registry=True)
+    for name, path, parent_id, data_class in (
+        (
+            "left_prediction", bindings["LEFT_PREDICTION"], "g4-left",
+            "parent_prediction",
+        ),
+        (
+            "left_barrier", bindings["LEFT_BARRIER_ARTIFACT"], "g4-left",
+            "parent_barrier_artifact",
+        ),
+        (
+            "right_prediction", bindings["RIGHT_PREDICTION"], "g4-right",
+            "parent_prediction",
+        ),
+        (
+            "right_barrier", bindings["RIGHT_BARRIER_ARTIFACT"], "g4-right",
+            "parent_barrier_artifact",
+        ),
+    ):
+        g5_inputs[name] = {
+            "path": path,
+            "sha256": "3" * 64,
+            "data_class": data_class,
+            "split": "development",
+            "document_scope": "prediction_blind_extraction_qualified_268",
+            "contains_labels": False,
+            "parent_candidate_id": parent_id,
+        }
+    bindings.update({
+        "CODE_COMMIT": CODE_COMMIT, "CPU_WORKERS": 20, "G0_CANDIDATE_ID": "g0-parent",
         "LEAKAGE_POLICY_SHA256": "c" * 64,
         "G1_PARENT_ID": "g1-parent", "G2_PARENT_ID": "g2-parent", "G3_PARENT_ID": "g3-parent",
         "LEFT_PARETO_ID": "g4-left", "RIGHT_PARETO_ID": "g4-right", "MODEL_SEED": 20260718,
@@ -504,7 +612,7 @@ def test_all_templates_expand_to_valid_executable_specs() -> None:
         "G2_INPUT_RECEIPTS": inputs_for("g1-parent"),
         "G3_INPUT_RECEIPTS": inputs_for("g2-parent"),
         "G4_INPUT_RECEIPTS": inputs_for("g0-parent"),
-        "G5_INPUT_RECEIPTS": inputs_for("g4-left", "g4-right", registry=True),
+        "G5_INPUT_RECEIPTS": g5_inputs,
     })
     specs = [spec for template in packet["templates"] for spec in expand_template(template, bindings)]
     assert specs
@@ -547,7 +655,7 @@ def test_queue_execution_auto_finalizes_immutable_discoverable_receipt(
     tests.write_text(
         json.dumps(
             {
-                "status": "passed", "code_commit": "a" * 40,
+                "status": "passed", "code_commit": CODE_COMMIT,
                 "invariants": {"physical_gap_walls": True, "header_roles_non_seed": True},
             }
         ) + "\n",
@@ -716,6 +824,62 @@ def test_sealed_freeze_binds_annotation_lane_and_request_is_fail_closed(
             freeze_receipt,
         )
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    # The reservation is output-independent: the identical frontier may be
+    # replayed to another manifest path, while a different frontier under the
+    # same terminal seal is rejected globally before a second manifest exists.
+    resumed_manifest_path = tmp_path / "manifest.exact-resume.json"
+    with monkeypatch.context() as freeze_guard:
+        freeze_guard.setattr(evolution, "sha256_file", prediction_blind_sha256)
+        _freeze_manifest(
+            registry_path,
+            resumed_manifest_path,
+            documents_path,
+            labels_path,
+            consensus_path,
+            freeze_receipt,
+        )
+    assert resumed_manifest_path.read_bytes() == manifest_path.read_bytes()
+    assert Path(manifest["sealed_frontier_lock"]["path"]).is_file()
+
+    alternate_registry_path = tmp_path / "registry.different.json"
+    alternate_registry_path.write_text(
+        json.dumps(build_registry([paths[0]])), encoding="utf-8"
+    )
+    rejected_manifest_path = tmp_path / "manifest.different.json"
+    with monkeypatch.context() as freeze_guard:
+        freeze_guard.setattr(evolution, "sha256_file", prediction_blind_sha256)
+        with pytest.raises(ContractError, match="frontier lock differs"):
+            _freeze_manifest(
+                alternate_registry_path,
+                rejected_manifest_path,
+                documents_path,
+                labels_path,
+                consensus_path,
+                freeze_receipt,
+            )
+    assert not rejected_manifest_path.exists()
+
+    incompatible_runtime = json.loads(
+        json.dumps(manifest["sealed_inference_runtime_code"])
+    )
+    incompatible_runtime["git_commit"] = (
+        "f" * 40 if CODE_COMMIT != "f" * 40 else "e" * 40
+    )
+    with monkeypatch.context() as runtime_guard:
+        runtime_guard.setattr(
+            sealed_inference, "runtime_code_inventory", lambda: incompatible_runtime
+        )
+        with pytest.raises(ContractError, match="candidate code commit is incompatible"):
+            _freeze_manifest(
+                registry_path,
+                tmp_path / "manifest.incompatible-commit.json",
+                documents_path,
+                labels_path,
+                consensus_path,
+                freeze_receipt,
+            )
+
     request = {
         "schema_version": SEALED_REQUEST_SCHEMA,
         "evaluation_mode": "one_simultaneous_batch_all_pareto_candidates",
@@ -856,6 +1020,20 @@ def test_sealed_freeze_binds_annotation_lane_and_request_is_fail_closed(
     valid_request_path.write_text(json.dumps(valid_request), encoding="utf-8")
     canonical_batch = Path(manifest["canonical_batch_root"])
 
+    live_runtime = sealed_inference.runtime_code_inventory()
+    assert set(live_runtime["environment"]) == {
+        "python", "numpy", "scikit_learn", "torch"
+    }
+    drifted_runtime = json.loads(json.dumps(live_runtime))
+    drifted_runtime["environment"]["torch"] = "different-runtime"
+    with monkeypatch.context() as runtime_guard:
+        runtime_guard.setattr(
+            sealed_inference, "runtime_code_inventory", lambda: drifted_runtime
+        )
+        with pytest.raises(ContractError, match="runtime source changed"):
+            _begin_sealed_batch(manifest_path, valid_request_path, canonical_batch)
+    assert not canonical_batch.exists()
+
     # A structurally perfect proof with predictions that differ from an
     # independent candidate replay must fail before the final fuse.
     replay_foundation = dict(inference_receipt["foundation"])
@@ -890,7 +1068,19 @@ def test_sealed_freeze_binds_annotation_lane_and_request_is_fail_closed(
             seed=7,
         )
     assert not canonical_batch.exists()
-    fuse = _begin_sealed_batch(manifest_path, valid_request_path, canonical_batch)
+
+    def forbidden_sealed_read(*_args: object, **_kwargs: object) -> bytes:
+        raise AssertionError("label/consensus byte reader ran before the fuse")
+
+    with monkeypatch.context() as blind_preflight:
+        blind_preflight.setattr(evolution, "sha256_file", prediction_blind_sha256)
+        blind_preflight.setattr(
+            sealed_inference, "sha256_file", prediction_blind_sha256
+        )
+        blind_preflight.setattr(evolution, "_read_exact_bytes", forbidden_sealed_read)
+        fuse = _begin_sealed_batch(
+            manifest_path, valid_request_path, canonical_batch
+        )
     assert fuse.is_file()
     assert json.loads(fuse.read_text())["candidate_ids"] == manifest["candidate_ids"]
     # The exact same request resumes the one canonical fuse; an alternate
@@ -910,6 +1100,45 @@ def test_sealed_freeze_binds_annotation_lane_and_request_is_fail_closed(
             valid_request_path,
             copied_manifest.parent / "second-evaluation",
         )
+
+    real_commit_fuse = evolution._commit_sealed_fuse
+
+    def assert_post_fuse_drift_rejected(target: Path, message: str) -> None:
+        original = target.read_bytes()
+
+        def mutate_after_fuse(*args: object, **kwargs: object) -> Path:
+            committed = real_commit_fuse(*args, **kwargs)
+            target.write_bytes(original + b"\npost-fuse-drift")
+            return committed
+
+        try:
+            with monkeypatch.context() as drift_guard:
+                drift_guard.setattr(
+                    evolution, "_commit_sealed_fuse", mutate_after_fuse
+                )
+                with pytest.raises(ContractError, match=message):
+                    _evaluate_sealed_batch(
+                        manifest_path,
+                        valid_request_path,
+                        canonical_batch,
+                        iterations=20,
+                        seed=7,
+                    )
+        finally:
+            target.write_bytes(original)
+
+    assert_post_fuse_drift_rejected(labels_path, "sealed labels bytes changed")
+    assert_post_fuse_drift_rejected(
+        consensus_path, "sealed consensus receipt bytes changed"
+    )
+    assert_post_fuse_drift_rejected(
+        table_root / "targets.npy", "sealed feature table changed after the fuse"
+    )
+    first_prediction = Path(
+        lineage_by_id[manifest["candidate_ids"][0]]["prediction"]["path"]
+    )
+    assert_post_fuse_drift_rejected(first_prediction, "sealed prediction .* bytes changed")
+
     result_path = _evaluate_sealed_batch(
         manifest_path,
         valid_request_path,
@@ -930,6 +1159,7 @@ def test_sealed_freeze_binds_annotation_lane_and_request_is_fail_closed(
         seed=7,
     ) == result_path
     manifest["frozen_manifest_id"] = "0" * 64
+    manifest_path.chmod(0o640)
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     with pytest.raises(ContractError, match="manifest ID"):
         _begin_sealed_batch(manifest_path, request_path, tmp_path / "batches")

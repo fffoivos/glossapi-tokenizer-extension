@@ -12,8 +12,10 @@ import hashlib
 import itertools
 import json
 import math
+import os
 import random
 import re
+import tempfile
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
@@ -163,6 +165,78 @@ def canonical_json_bytes(value: Any) -> bytes:
     ).encode("utf-8")
 
 
+def _fsync_directory(path: Path) -> None:
+    """Persist directory-entry changes made by an atomic publication."""
+
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+    descriptor = os.open(path, flags)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def atomic_write_bytes_exclusive(
+    path: Path, payload: bytes, *, mode: int = 0o644
+) -> None:
+    """Publish complete bytes without an overwrite or partial-target state.
+
+    The temporary file is created in the target directory, flushed, linked to
+    the final name with no-overwrite semantics, and followed by a directory
+    fsync.  A crash can therefore leave an orphaned hidden temporary file, but
+    the named artifact is always either absent or complete.
+    """
+
+    path = Path(path)
+    parent = path.parent
+    if parent.is_symlink() or not parent.is_dir():
+        raise ContractError(f"atomic output parent is not a real directory: {parent}")
+    if path.exists() or path.is_symlink():
+        raise FileExistsError(path)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.atomic-", dir=parent
+    )
+    temporary = Path(temporary_name)
+    published = False
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(temporary, mode)
+        os.link(temporary, path)
+        published = True
+    finally:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+        _fsync_directory(parent)
+    if not published:  # pragma: no cover - defensive; os.link raises first
+        raise ContractError(f"atomic publication did not create {path}")
+
+
+def atomic_write_bytes_exact_resume(
+    path: Path,
+    payload: bytes,
+    *,
+    mode: int = 0o644,
+    label: str = "exact-resume artifact",
+) -> None:
+    """Publish once, or accept an already-complete byte-identical artifact."""
+
+    path = Path(path)
+    if path.exists() or path.is_symlink():
+        if path.is_symlink() or not path.is_file() or path.read_bytes() != payload:
+            raise ContractError(f"existing {label} differs: {path}")
+        return
+    try:
+        atomic_write_bytes_exclusive(path, payload, mode=mode)
+    except FileExistsError:
+        if path.is_symlink() or not path.is_file() or path.read_bytes() != payload:
+            raise ContractError(f"concurrent {label} differs: {path}")
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -219,8 +293,7 @@ def sha256_input_path(path: Path) -> str:
 
 
 def write_json_exclusive(path: Path, value: Any) -> None:
-    with path.open("x", encoding="utf-8") as handle:
-        handle.write(canonical_json_bytes(value).decode("utf-8"))
+    atomic_write_bytes_exclusive(path, canonical_json_bytes(value))
 
 
 def _without_candidate_id(spec: Mapping[str, Any]) -> dict[str, Any]:
@@ -629,6 +702,35 @@ def _reconcile_runner_paths(
             index += 2
             continue
         index += 1
+    if spec["generation"] == "G5":
+        parents = set(spec["parent_candidate_ids"])
+
+        def owner(flag: str) -> str:
+            flag_index = argv.index(flag)
+            path = Path(argv[flag_index + 1]).resolve()
+            owners = {
+                str(row.get("parent_candidate_id"))
+                for row in declared[path]
+                if row.get("parent_candidate_id") is not None
+            }
+            if len(owners) != 1 or next(iter(owners)) not in parents:
+                raise ContractError(f"{flag} has ambiguous G5 parent ownership")
+            return next(iter(owners))
+
+        left_prediction = owner("--left-prediction")
+        left_barrier = owner("--left-barrier-artifact")
+        right_prediction = owner("--right-prediction")
+        right_barrier = owner("--right-barrier-artifact")
+        if (
+            left_prediction != left_barrier
+            or right_prediction != right_barrier
+            or left_prediction == right_prediction
+            or {left_prediction, right_prediction} != parents
+            or len(parents) != 2
+        ):
+            raise ContractError(
+                "G5 left/right prediction and barrier inputs do not bind two ordered parents"
+            )
 
 
 def enforce_leakage_barrier(

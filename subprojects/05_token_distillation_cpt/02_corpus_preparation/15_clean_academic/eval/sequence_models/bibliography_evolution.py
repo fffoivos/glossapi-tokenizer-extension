@@ -6,10 +6,12 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import hashlib
+import io
 import json
 import os
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -18,6 +20,8 @@ from .bibliography_evolution_contract import (
     CandidateStore,
     ContractError,
     REGISTRY_SCHEMA,
+    atomic_write_bytes_exact_resume,
+    atomic_write_bytes_exclusive,
     build_registry,
     canonical_json_bytes,
     expand_template,
@@ -39,6 +43,7 @@ SEALED_REQUEST_SCHEMA = "bibliography-evolution-sealed-batch-request-v1"
 SEALED_FREEZE_SCHEMA = "bibliography-sealed-freeze-v1"
 SEALED_RESULTS_SCHEMA = "bibliography-evolution-sealed-results-v1"
 SEALED_RESULTS_RECEIPT_SCHEMA = "bibliography-evolution-sealed-results-receipt-v1"
+SEALED_FRONTIER_LOCK_SCHEMA = "bibliography-evolution-sealed-frontier-lock-v1"
 
 
 def _regular_file(path: Path | str, label: str) -> Path:
@@ -46,6 +51,14 @@ def _regular_file(path: Path | str, label: str) -> Path:
     if raw.is_symlink() or not raw.is_file():
         raise ContractError(f"{label} is missing or a symlink")
     return raw.resolve()
+
+
+def _fsync_directory(path: Path) -> None:
+    descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
 
 RUNNER_BY_COMPONENT = {
     "baseline.replay": "sequence_models.bibliography_evolution_g0_replay",
@@ -465,20 +478,42 @@ def _jsonl(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def _jsonl_bytes(payload: bytes, label: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    try:
+        text = payload.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise ContractError(f"{label} is not UTF-8") from error
+    for line_number, raw in enumerate(text.splitlines(), 1):
+        if not raw.strip():
+            continue
+        try:
+            row = json.loads(raw)
+        except json.JSONDecodeError as error:
+            raise ContractError(f"{label}:{line_number}: invalid JSON") from error
+        if not isinstance(row, dict):
+            raise ContractError(f"{label}:{line_number}: expected an object")
+        rows.append(row)
+    return rows
+
+
+def _read_exact_bytes(path: Path | str, expected_sha256: str, label: str) -> bytes:
+    source = _regular_file(path, label)
+    payload = source.read_bytes()
+    if hashlib.sha256(payload).hexdigest() != expected_sha256:
+        raise ContractError(f"{label} bytes changed")
+    return payload
+
+
 def _write_jsonl_exclusive(path: Path, rows: Sequence[Mapping[str, Any]]) -> None:
-    with path.open("x", encoding="utf-8") as handle:
-        for row in rows:
-            handle.write(canonical_json_bytes(row).decode("utf-8"))
+    atomic_write_bytes_exclusive(
+        path, b"".join(canonical_json_bytes(row) for row in rows)
+    )
 
 
 def _write_jsonl_exact_resume(path: Path, rows: Sequence[Mapping[str, Any]]) -> None:
     payload = b"".join(canonical_json_bytes(row) for row in rows)
-    if path.exists() or path.is_symlink():
-        if path.is_symlink() or not path.is_file() or path.read_bytes() != payload:
-            raise ContractError(f"partial sealed output differs on exact resume: {path}")
-        return
-    with path.open("xb") as handle:
-        handle.write(payload)
+    atomic_write_bytes_exact_resume(path, payload)
 
 
 def _validate_runner(
@@ -540,7 +575,7 @@ def _verify_sealed_freeze(
     # The prediction lane may read the sealed documents and terminal FROZEN
     # receipt, but it must not touch label or consensus bytes. Their expected
     # hashes come from the annotation seal and are checked only after the
-    # candidate replay preflight, immediately before the final fuse.
+    # candidate replay preflight has durably committed the final fuse.
     documents_path = _regular_file(documents_path, "sealed documents")
     receipt_path = _regular_file(receipt_path, "annotation FROZEN receipt")
     labels_path = _regular_file(labels_path, "sealed labels")
@@ -591,6 +626,71 @@ def _verify_sealed_freeze(
     }
 
 
+def _sealed_frontier_paths(freeze_receipt_path: Path) -> tuple[Path, Path]:
+    """Return the one output-independent lock and evaluation root for a seal."""
+
+    parent = _regular_file(
+        freeze_receipt_path, "annotation FROZEN receipt"
+    ).parent
+    return (
+        parent / "BIBLIOGRAPHY_EVOLUTION_FINAL_FRONTIER.lock.json",
+        parent / "BIBLIOGRAPHY_EVOLUTION_FINAL_EVALUATION",
+    )
+
+
+def _frontier_lock_payload(
+    *,
+    registry_path: Path,
+    registry_sha256: str,
+    candidates: Sequence[Mapping[str, Any]],
+    sealed: Mapping[str, Any],
+    runtime_code: Mapping[str, Any],
+    canonical_batch_root: Path,
+) -> dict[str, Any]:
+    core = {
+        "schema_version": SEALED_FRONTIER_LOCK_SCHEMA,
+        "status": "reserved_exact_frontier_before_sealed_evaluation",
+        "canonical_batch_root": str(canonical_batch_root.resolve()),
+        "runtime_code": runtime_code,
+        "registry": {
+            "path": str(registry_path.resolve()),
+            "sha256": registry_sha256,
+        },
+        "terminal_seal": sealed["freeze_receipt"],
+        "sealed_documents": sealed["documents"],
+        "sealed_labels": sealed["labels"],
+        "sealed_consensus_receipt": sealed["consensus_receipt"],
+        "source_document_counts": sealed["source_document_counts"],
+        "candidates": [
+            {
+                "candidate_id": row["candidate_id"],
+                "generation": row["generation"],
+                "code_commit": row["code_commit"],
+                "receipt_sha256": row["receipt_sha256"],
+                "spec_sha256": row["spec_sha256"],
+            }
+            for row in candidates
+        ],
+    }
+    return {
+        **core,
+        "frontier_id": hashlib.sha256(canonical_json_bytes(core)).hexdigest(),
+    }
+
+
+def _reserve_exact_frontier(lock_path: Path, payload: Mapping[str, Any]) -> None:
+    """Atomically reserve the terminal seal for one immutable frontier."""
+
+    atomic_write_bytes_exact_resume(
+        lock_path,
+        canonical_json_bytes(payload),
+        mode=0o440,
+        label="sealed frontier lock",
+    )
+    if lock_path.is_symlink() or not lock_path.is_file():
+        raise ContractError("sealed frontier lock is not a regular file")
+
+
 def _freeze_manifest(
     registry_path: Path,
     output: Path,
@@ -601,12 +701,10 @@ def _freeze_manifest(
 ) -> None:
     from .bibliography_evolution_sealed_inference import runtime_code_inventory
 
-    output = output.resolve()
-    canonical_batch_root = (
-        output.parent / f"{output.name}.sealed-evaluation"
-    ).resolve()
-    if canonical_batch_root.exists() or canonical_batch_root.is_symlink():
-        raise ContractError("canonical sealed batch root already exists at freeze time")
+    raw_output = Path(output).expanduser()
+    if raw_output.is_symlink():
+        raise ContractError("frozen Pareto manifest output cannot be a symlink")
+    output = raw_output.resolve()
     registry_path = _regular_file(registry_path, "development registry")
     registry = load_json(registry_path)
     if registry.get("schema_version") != REGISTRY_SCHEMA:
@@ -621,6 +719,8 @@ def _freeze_manifest(
     indexed = {row["candidate_id"]: row for row in registry["candidates"]}
     if set(pareto_ids) - set(indexed):
         raise ContractError("registry Pareto inventory is inconsistent")
+    runtime_code = runtime_code_inventory()
+    runtime_commit = str(runtime_code["git_commit"])
     candidates = []
     for candidate_id in pareto_ids:
         row = indexed[candidate_id]
@@ -634,6 +734,10 @@ def _freeze_manifest(
         spec = load_json(receipt_path.parent / "spec.json")
         if verification["candidate_id"] != candidate_id:
             raise ContractError("candidate verification identity differs from registry")
+        if spec.get("code_commit") != runtime_commit:
+            raise ContractError(
+                f"candidate code commit is incompatible with sealed runtime: {candidate_id}"
+            )
         candidates.append(
             {
                 "candidate_id": candidate_id,
@@ -654,6 +758,18 @@ def _freeze_manifest(
         sealed_consensus_receipt_path,
         sealed_freeze_receipt_path,
     )
+    frontier_lock_path, canonical_batch_root = _sealed_frontier_paths(
+        Path(sealed["freeze_receipt"]["path"])
+    )
+    frontier_lock = _frontier_lock_payload(
+        registry_path=registry_path,
+        registry_sha256=sha256_file(registry_path),
+        candidates=candidates,
+        sealed=sealed,
+        runtime_code=runtime_code,
+        canonical_batch_root=canonical_batch_root,
+    )
+    _reserve_exact_frontier(frontier_lock_path, frontier_lock)
     core = {
         "schema_version": SEALED_MANIFEST_SCHEMA,
         "status": "frozen_before_model_evaluation",
@@ -663,7 +779,12 @@ def _freeze_manifest(
         # manifest itself. Deriving it from the manifest's current path would
         # allow a copied manifest to mint a second fuse elsewhere.
         "canonical_batch_root": str(canonical_batch_root),
-        "sealed_inference_runtime_code": runtime_code_inventory(),
+        "sealed_frontier_lock": {
+            "path": str(frontier_lock_path),
+            "sha256": sha256_file(frontier_lock_path),
+            "frontier_id": frontier_lock["frontier_id"],
+        },
+        "sealed_inference_runtime_code": runtime_code,
         "registry_path": str(registry_path.resolve()),
         "registry_sha256": sha256_file(registry_path),
         "sealed_documents": sealed["documents"],
@@ -675,7 +796,7 @@ def _freeze_manifest(
         "candidates": candidates,
     }
     core["frozen_manifest_id"] = hashlib.sha256(canonical_json_bytes(core)).hexdigest()
-    write_json_exclusive(output, core)
+    atomic_write_bytes_exact_resume(output, canonical_json_bytes(core), mode=0o440)
 
 
 def _verify_frozen_manifest_fresh(manifest_path: Path) -> dict[str, Any]:
@@ -728,18 +849,29 @@ def _verify_frozen_manifest_fresh(manifest_path: Path) -> dict[str, Any]:
     ):
         raise ContractError("frozen candidate inventory/cardinality differs from fresh Pareto")
     registry_rows = {row["candidate_id"]: row for row in registry["candidates"]}
+    runtime_commit = str(manifest["sealed_inference_runtime_code"].get("git_commit", ""))
     for row in candidates:
         candidate_id = row["candidate_id"]
         current = registry_rows.get(candidate_id, {})
         receipt_path = _regular_file(
             str(row.get("receipt_path", "")), "frozen Pareto candidate receipt"
         )
+        receipt = load_json(receipt_path)
+        spec_path = _regular_file(
+            receipt_path.parent / "spec.json", "frozen Pareto candidate spec"
+        )
+        spec = load_json(spec_path)
         if (
             not current.get("pareto")
             or not current.get("eligible")
             or receipt_path != Path(str(current.get("receipt_path", ""))).resolve()
             or sha256_file(receipt_path) != row.get("receipt_sha256")
             or row.get("receipt_sha256") != current.get("receipt_sha256")
+            or row.get("spec_sha256") != sha256_file(spec_path)
+            or receipt.get("spec_sha256") != row.get("spec_sha256")
+            or row.get("generation") != spec.get("generation")
+            or row.get("code_commit") != runtime_commit
+            or spec.get("code_commit") != runtime_commit
         ):
             raise ContractError(f"frozen Pareto candidate changed: {candidate_id}")
     if manifest.get("sealed_source_document_counts") != {
@@ -767,6 +899,37 @@ def _verify_frozen_manifest_fresh(manifest_path: Path) -> dict[str, Any]:
         != manifest.get("sealed_consensus_receipt", {}).get("sha256")
     ):
         raise ContractError("annotation FROZEN receipt differs from the manifest")
+    expected_lock_path, expected_batch_root = _sealed_frontier_paths(freeze_path)
+    if (
+        Path(str(manifest.get("canonical_batch_root", ""))) != expected_batch_root
+    ):
+        raise ContractError("canonical batch root is not tied to the terminal seal")
+    sealed_view = {
+        "documents": manifest["sealed_documents"],
+        "labels": manifest["sealed_labels"],
+        "consensus_receipt": manifest["sealed_consensus_receipt"],
+        "freeze_receipt": manifest["sealed_freeze_receipt"],
+        "source_document_counts": manifest["sealed_source_document_counts"],
+    }
+    expected_lock = _frontier_lock_payload(
+        registry_path=registry_path,
+        registry_sha256=sha256_file(registry_path),
+        candidates=candidates,
+        sealed=sealed_view,
+        runtime_code=manifest["sealed_inference_runtime_code"],
+        canonical_batch_root=expected_batch_root,
+    )
+    lock_row = manifest.get("sealed_frontier_lock", {})
+    lock_path = _regular_file(
+        str(lock_row.get("path", "")), "sealed frontier lock"
+    )
+    if (
+        lock_path != expected_lock_path
+        or sha256_file(lock_path) != lock_row.get("sha256")
+        or lock_row.get("frontier_id") != expected_lock["frontier_id"]
+        or load_json(lock_path) != expected_lock
+    ):
+        raise ContractError("sealed frontier lock differs from the exact frozen frontier")
     return manifest
 
 
@@ -822,14 +985,6 @@ def _preflight_sealed_batch(
     manifest = _verify_frozen_manifest_fresh(manifest_path)
     request, inference_path = _sealed_request(manifest, request_path)
     inference = verify_inference_receipt(manifest, inference_path)
-    # Prediction shape/table/frontier proof is complete above.  Only now may
-    # the final lane read label bytes for a hash preflight; it still does not
-    # parse labels until after the fuse is durably created.
-    for field in ("sealed_labels", "sealed_consensus_receipt"):
-        row = manifest[field]
-        path = _regular_file(str(row["path"]), field)
-        if sha256_file(path) != row["sha256"]:
-            raise ContractError(f"{field} bytes changed")
     requested_root = Path(batch_root).expanduser()
     declared_root = Path(manifest["canonical_batch_root"])
     if requested_root.is_symlink() or declared_root.is_symlink():
@@ -851,7 +1006,10 @@ def _commit_sealed_fuse(
     request: Mapping[str, Any],
     inference: Mapping[str, Any],
 ) -> Path:
-    batch_root = batch_root.resolve()
+    raw_root = Path(batch_root).expanduser()
+    if raw_root.is_symlink():
+        raise ContractError("canonical final-evaluation root is a symlink")
+    batch_root = raw_root.resolve()
     fuse = batch_root / "FINAL_EVALUATION_FUSE.json"
     payload = {
         "schema_version": "bibliography-evolution-sealed-evaluation-fuse-v1",
@@ -865,12 +1023,46 @@ def _commit_sealed_fuse(
         "line_count": inference["line_count"],
         "bootstrap": request["bootstrap"],
     }
-    if batch_root.exists():
+    if batch_root.exists() or batch_root.is_symlink():
         if not fuse.is_file() or fuse.is_symlink() or load_json(fuse) != payload:
             raise ContractError("canonical final-evaluation fuse differs or is incomplete")
         return fuse
-    batch_root.mkdir(parents=True)
-    write_json_exclusive(fuse, payload)
+    parent = batch_root.parent
+    if parent.is_symlink() or not parent.is_dir():
+        raise ContractError("canonical final-evaluation parent is not a real directory")
+    stage = Path(
+        tempfile.mkdtemp(prefix=f".{batch_root.name}.atomic-", dir=parent)
+    )
+    stage_fuse = stage / fuse.name
+    try:
+        atomic_write_bytes_exclusive(
+            stage_fuse, canonical_json_bytes(payload), mode=0o440
+        )
+        _fsync_directory(stage)
+        try:
+            os.rename(stage, batch_root)
+            _fsync_directory(parent)
+        except OSError:
+            if (
+                not batch_root.is_symlink()
+                and (batch_root / fuse.name).is_file()
+                and not (batch_root / fuse.name).is_symlink()
+                and load_json(batch_root / fuse.name) == payload
+            ):
+                stage_fuse.unlink(missing_ok=True)
+                stage.rmdir()
+            else:
+                raise
+    finally:
+        if stage.exists():
+            stage_fuse.unlink(missing_ok=True)
+            try:
+                stage.rmdir()
+            except OSError:
+                pass
+    fuse = batch_root / fuse.name
+    if fuse.is_symlink() or not fuse.is_file() or load_json(fuse) != payload:
+        raise ContractError("atomic final-evaluation fuse publication failed")
     return fuse
 
 
@@ -1050,14 +1242,53 @@ def _evaluate_sealed_batch(
             return result_path
     elif completion_path.exists() or completion_path.is_symlink():
         raise ContractError("sealed result receipt exists without its result")
-    # The fuse now exists.  From this point onward the run may parse labels,
-    # but a second or incremental evaluation cannot pass `_begin`.
-    table = load_table(inference["feature_table"], expected_split="sealed_unlabelled")
-    line_rows = _jsonl(Path(inference["feature_table"]) / "lines.jsonl")
-    labels_path = _regular_file(
-        str(manifest["sealed_labels"]["path"]), "sealed labels"
+    # The fuse now exists. Only this side of the durable boundary may touch
+    # label or consensus bytes. Every consumed artifact is loaded from the
+    # exact byte snapshot whose hash is checked here, rather than reopened by
+    # path after a time-of-check/time-of-use gap.
+    labels_payload = _read_exact_bytes(
+        manifest["sealed_labels"]["path"],
+        manifest["sealed_labels"]["sha256"],
+        "sealed labels",
     )
-    labels = _jsonl(labels_path)
+    consensus_payload = _read_exact_bytes(
+        manifest["sealed_consensus_receipt"]["path"],
+        manifest["sealed_consensus_receipt"]["sha256"],
+        "sealed consensus receipt",
+    )
+    try:
+        consensus = json.loads(consensus_payload)
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise ContractError("sealed consensus receipt is invalid JSON") from error
+    if not isinstance(consensus, Mapping):
+        raise ContractError("sealed consensus receipt is not an object")
+    labels = _jsonl_bytes(labels_payload, "sealed labels")
+
+    table_root = Path(inference["feature_table"])
+    expected_table_sha256 = str(inference["feature_table_sha256"])
+    if (
+        table_root.is_symlink()
+        or not table_root.is_dir()
+        or sha256_directory(table_root) != expected_table_sha256
+    ):
+        raise ContractError("sealed feature table changed after the fuse")
+    mapped_table = load_table(table_root, expected_split="sealed_unlabelled")
+    line_rows = _jsonl(table_root / "lines.jsonl")
+    table = dataclasses.replace(
+        mapped_table,
+        counts=np.array(mapped_table.counts, copy=True),
+        targets=np.array(mapped_table.targets, copy=True),
+        original_labels=np.array(mapped_table.original_labels, copy=True),
+        header_kinds=np.array(mapped_table.header_kinds, copy=True),
+        abs_indices=np.array(mapped_table.abs_indices, copy=True),
+        token_counts=np.array(mapped_table.token_counts, copy=True),
+        char_lengths=np.array(mapped_table.char_lengths, copy=True),
+        block_indices=np.array(mapped_table.block_indices, copy=True),
+        document_indices=np.array(mapped_table.document_indices, copy=True),
+        folds=np.array(mapped_table.folds, copy=True),
+    )
+    if sha256_directory(table_root) != expected_table_sha256:
+        raise ContractError("sealed feature table drifted while being consumed")
     expected = {
         (str(row["document_id"]), str(row["line_id"])): (index, int(row["abs_idx"]))
         for index, row in enumerate(line_rows)
@@ -1092,12 +1323,21 @@ def _evaluate_sealed_batch(
     selected = set(range(len(labelled_table.documents)))
     rows_by_candidate: dict[str, list[dict[str, Any]]] = {}
     metrics: dict[str, Any] = {}
+    consumed_prediction_sha256: dict[str, str] = {}
     batch_root = batch_root.resolve()
     for candidate_id in manifest["candidate_ids"]:
-        prediction_path = Path(inference["prediction_paths"][candidate_id])
-        prediction = np.load(prediction_path, allow_pickle=False)
+        expected_prediction_sha256 = inference["prediction_sha256"][candidate_id]
+        prediction_payload = _read_exact_bytes(
+            inference["prediction_paths"][candidate_id],
+            expected_prediction_sha256,
+            f"sealed prediction {candidate_id}",
+        )
+        prediction = np.load(io.BytesIO(prediction_payload), allow_pickle=False)
         if prediction.shape != (len(labelled_table.targets),) or prediction.dtype != np.bool_:
             raise ContractError("sealed prediction changed after the fuse")
+        consumed_prediction_sha256[candidate_id] = hashlib.sha256(
+            prediction_payload
+        ).hexdigest()
         rows = _sealed_work_rows(labelled_table, prediction, selected)
         rows_by_candidate[candidate_id] = rows
         rows_path = batch_root / f"{candidate_id}.work_objectives.jsonl"
@@ -1144,7 +1384,12 @@ def _evaluate_sealed_batch(
             "manifest_sha256": sha256_file(manifest_path),
             "request_sha256": sha256_file(request_path),
             "inference_receipt_sha256": inference["receipt_sha256"],
-            "labels_sha256": sha256_file(labels_path),
+            "feature_table_sha256": expected_table_sha256,
+            "prediction_sha256": consumed_prediction_sha256,
+            "labels_sha256": hashlib.sha256(labels_payload).hexdigest(),
+            "consensus_receipt_sha256": hashlib.sha256(
+                consensus_payload
+            ).hexdigest(),
         },
     }
     result_path = batch_root / "sealed_results.json"

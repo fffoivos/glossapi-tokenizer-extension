@@ -17,8 +17,13 @@ from __future__ import annotations
 
 import collections
 import hashlib
+import importlib.metadata
+import io
 import json
 import pickle
+import platform
+import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -40,6 +45,7 @@ from .bibliography_evolution_composition import (
 )
 from .bibliography_evolution_contract import (
     ContractError,
+    atomic_write_bytes_exclusive,
     canonical_json_bytes,
     load_json,
     sha256_directory,
@@ -70,24 +76,6 @@ TABLE_RECEIPT_SCHEMA = "bibliography-evolution-sealed-feature-table-v1"
 DERIVATION_SCHEMA = "bibliography-evolution-sealed-candidate-derivation-v1"
 EXPECTED_SOURCES = {"greek_phd": 50, "kallipos": 50, "openarchives": 50}
 HEX64 = frozenset("0123456789abcdef")
-RUNTIME_CODE_FILES = (
-    "bibliography_evolution.py",
-    "bibliography_evolution_sealed_inference.py",
-    "bibliography_evolution_contract.py",
-    "bibliography_evolution_composition.py",
-    "bibliography_evolution_headers.py",
-    "bibliography_evolution_postprocess.py",
-    "bibliography_entry_blocks.py",
-    "bibliography_entry_dataset.py",
-    "bibliography_entry_models.py",
-    "bibliography_signal_block_decode.py",
-    "bibliography_signal_tcn.py",
-    "bibliography_signal_validation.py",
-    "bibliography_deterministic_roles.py",
-    "bibliography_scope_rules.py",
-    "bibliography_v2.py",
-    "deterministic_structure.py",
-)
 
 
 def _require(condition: bool, message: str) -> None:
@@ -106,18 +94,60 @@ def _is_sha256(value: object) -> bool:
 
 
 def runtime_code_inventory() -> dict[str, Any]:
-    """Hash the complete source surface used by sealed prediction replay."""
+    """Bind all package sources and replay-critical dependency versions."""
 
     root = Path(__file__).resolve().parent
+    git_root = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "--show-toplevel"],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ).stdout.strip()
+    commit = subprocess.run(
+        ["git", "-C", git_root, "rev-parse", "HEAD"],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ).stdout.strip()
+    dirty = subprocess.run(
+        ["git", "-C", git_root, "status", "--porcelain", "--untracked-files=all"],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    ).stdout
+    _require(len(commit) == 40 and set(commit) <= HEX64, "runtime Git commit is invalid")
+    _require(not dirty.strip(), "sealed runtime Git checkout is not clean")
     files = []
-    for name in RUNTIME_CODE_FILES:
-        path = root / name
-        _require(path.is_file() and not path.is_symlink(), f"runtime source is missing: {name}")
-        files.append({"path": name, "bytes": path.stat().st_size, "sha256": sha256_file(path)})
+    for path in sorted(root.glob("*.py"), key=lambda value: value.name):
+        _require(
+            path.is_file() and not path.is_symlink(),
+            f"runtime package source is not a regular file: {path.name}",
+        )
+        files.append(
+            {"path": path.name, "bytes": path.stat().st_size, "sha256": sha256_file(path)}
+        )
+    _require(bool(files), "sealed runtime package source inventory is empty")
+    environment = {
+        "python": {
+            "implementation": platform.python_implementation(),
+            "version": platform.python_version(),
+            "cache_tag": sys.implementation.cache_tag,
+        },
+        "numpy": importlib.metadata.version("numpy"),
+        "scikit_learn": importlib.metadata.version("scikit-learn"),
+        "torch": importlib.metadata.version("torch"),
+    }
+    identity = {"git_commit": commit, "files": files, "environment": environment}
     return {
-        "schema_version": "bibliography-evolution-sealed-runtime-code-v1",
+        "schema_version": "bibliography-evolution-sealed-runtime-code-v2",
+        "git_commit": commit,
+        "git_clean": True,
         "files": files,
-        "inventory_sha256": hashlib.sha256(canonical_json_bytes(files)).hexdigest(),
+        "environment": environment,
+        "inventory_sha256": hashlib.sha256(canonical_json_bytes(identity)).hexdigest(),
     }
 
 
@@ -135,24 +165,26 @@ def _jsonl(path: Path) -> list[dict[str, Any]]:
 
 
 def _write_jsonl_exclusive(path: Path, rows: Sequence[Mapping[str, Any]]) -> None:
-    with path.open("xb") as handle:
-        for row in rows:
-            handle.write(canonical_json_bytes(row))
+    atomic_write_bytes_exclusive(
+        path, b"".join(canonical_json_bytes(row) for row in rows)
+    )
 
 
 def _save_array(path: Path, value: np.ndarray) -> None:
-    with path.open("xb") as handle:
-        np.save(handle, value, allow_pickle=False)
+    handle = io.BytesIO()
+    np.save(handle, value, allow_pickle=False)
+    atomic_write_bytes_exclusive(path, handle.getvalue())
 
 
 def _save_barriers(path: Path, barriers: Mapping[str, np.ndarray]) -> None:
-    with path.open("xb") as handle:
-        np.savez(
-            handle,
-            hard_wall=np.asarray(barriers["hard_wall"], dtype=bool),
-            upward_stop=np.asarray(barriers["upward_stop"], dtype=bool),
-            downward_stop=np.asarray(barriers["downward_stop"], dtype=bool),
-        )
+    handle = io.BytesIO()
+    np.savez(
+        handle,
+        hard_wall=np.asarray(barriers["hard_wall"], dtype=bool),
+        upward_stop=np.asarray(barriers["upward_stop"], dtype=bool),
+        downward_stop=np.asarray(barriers["downward_stop"], dtype=bool),
+    )
+    atomic_write_bytes_exclusive(path, handle.getvalue())
 
 
 def _arg(spec: Mapping[str, Any], flag: str) -> str:
@@ -458,6 +490,13 @@ def load_candidate_graph(manifest: Mapping[str, Any]) -> dict[str, CandidateNode
 
     nodes: dict[str, CandidateNode] = {}
     visiting: set[str] = set()
+    runtime_commit = str(
+        manifest.get("sealed_inference_runtime_code", {}).get("git_commit", "")
+    )
+    _require(
+        len(runtime_commit) == 40 and set(runtime_commit) <= HEX64,
+        "frozen manifest has no valid runtime Git commit",
+    )
 
     def visit(receipt_path: Path, expected_id: str) -> None:
         receipt_path = _regular_file(receipt_path, "candidate lineage receipt")
@@ -472,7 +511,8 @@ def load_candidate_graph(manifest: Mapping[str, Any]) -> dict[str, CandidateNode
         _require(
             verification["candidate_id"] == expected_id
             and receipt.get("candidate_id") == expected_id
-            and spec.get("candidate_id") == expected_id,
+            and spec.get("candidate_id") == expected_id
+            and spec.get("code_commit") == runtime_commit,
             "candidate lineage identity mismatch",
         )
         nodes[expected_id] = CandidateNode(
@@ -629,6 +669,38 @@ def _owned_artifacts(node: CandidateNode) -> dict[str, str]:
     }
 
 
+def _composition_parent_ids(spec: Mapping[str, Any]) -> tuple[str, str]:
+    """Return the exact parents bound to G5's left and right runner inputs."""
+
+    parents = set(str(value) for value in spec["parent_candidate_ids"])
+
+    def owner(*flags: str) -> str:
+        observed: list[str] = []
+        for flag in flags:
+            path = Path(_arg(spec, flag)).resolve()
+            owners = {
+                str(row.get("parent_candidate_id", ""))
+                for row in spec["input_receipts"].values()
+                if Path(str(row.get("path", ""))).resolve() == path
+                and row.get("parent_candidate_id") is not None
+            }
+            _require(
+                len(owners) == 1 and next(iter(owners)) in parents,
+                f"{flag} is not bound to exactly one declared parent",
+            )
+            observed.append(next(iter(owners)))
+        _require(len(set(observed)) == 1, "prediction/barrier orientation differs")
+        return observed[0]
+
+    left = owner("--left-prediction", "--left-barrier-artifact")
+    right = owner("--right-prediction", "--right-barrier-artifact")
+    _require(
+        left != right and len(parents) == 2 and {left, right} == parents,
+        "G5 left/right artifacts do not bind the exact two parents",
+    )
+    return left, right
+
+
 def run_inference(
     manifest: Mapping[str, Any],
     documents: Sequence[Mapping[str, Any]],
@@ -684,6 +756,7 @@ def run_inference(
         generation = str(spec["generation"])
         component = str(spec["changed_component"])
         model_proofs: list[dict[str, Any]] = []
+        composition_orientation: dict[str, str] | None = None
         if generation == "G0":
             prediction, barrier = _decode(
                 table, base_signal, line, scope, _mapping_block_config(lock["decoder_config"])
@@ -719,18 +792,32 @@ def run_inference(
             model_proofs.append(_artifact_proof(report_path))
         elif generation == "G5":
             _require(len(parents) == 2, "G5 requires two parents")
-            combined = combine_parent_barriers(parents[0][1], parents[1][1], (len(table.targets),))
+            left_id, right_id = _composition_parent_ids(spec)
+            parent_by_id = {
+                parent_id: value
+                for parent_id, value in zip(
+                    spec["parent_candidate_ids"], parents, strict=True
+                )
+            }
+            left, right = parent_by_id[left_id], parent_by_id[right_id]
+            combined = combine_parent_barriers(
+                left[1], right[1], (len(table.targets),)
+            )
             operation = _arg(spec, "--operation")
             if operation == "union":
-                prediction = parents[0][0] | parents[1][0]
+                prediction = left[0] | right[0]
             elif operation == "intersection":
-                prediction = parents[0][0] & parents[1][0]
+                prediction = left[0] & right[0]
             elif operation == "left_minus_right":
-                prediction = parents[0][0] & ~parents[1][0]
+                prediction = left[0] & ~right[0]
             else:
                 raise ContractError(f"unsupported frozen G5 operation: {operation}")
             prediction = enforce_combined_barriers(prediction, combined)
             barrier = combined
+            composition_orientation = {
+                "left_parent_id": left_id,
+                "right_parent_id": right_id,
+            }
         else:
             raise ContractError(f"unsupported candidate generation: {generation}")
         _require(
@@ -755,6 +842,7 @@ def run_inference(
             "parent_candidate_ids": list(spec["parent_candidate_ids"]),
             "algorithm": {"module": str(spec["runner"]["module"]), "sweep_point": spec["sweep_point"]},
             "model_artifacts": model_proofs,
+            "composition_orientation": composition_orientation,
         }
         computed[candidate_id] = prediction, barrier, proof
         return computed[candidate_id]
@@ -808,7 +896,7 @@ def prepare_inference(
 
     from .bibliography_evolution import _verify_frozen_manifest_fresh
 
-    manifest_path = manifest_path.resolve()
+    manifest_path = _regular_file(manifest_path, "frozen Pareto manifest")
     manifest = _verify_frozen_manifest_fresh(manifest_path)
     documents, frozen = _verified_annotation_inputs(
         documents_path,
@@ -1025,6 +1113,17 @@ def verify_inference_receipt(
         node = nodes[candidate_id]
         spec = node.spec
         expected_parents = list(spec["parent_candidate_ids"])
+        orientation_ids = (
+            _composition_parent_ids(spec) if spec["generation"] == "G5" else None
+        )
+        expected_orientation = (
+            {
+                "left_parent_id": orientation_ids[0],
+                "right_parent_id": orientation_ids[1],
+            }
+            if orientation_ids is not None
+            else None
+        )
         _require(
             proof.get("schema_version") == DERIVATION_SCHEMA
             and proof.get("candidate_id") == candidate_id
@@ -1039,7 +1138,8 @@ def verify_inference_receipt(
             and proof.get("candidate_spec", {}).get("sha256")
             == sha256_file(node.receipt_path.parent / "spec.json")
             and proof.get("algorithm")
-            == {"module": spec["runner"]["module"], "sweep_point": spec["sweep_point"]},
+            == {"module": spec["runner"]["module"], "sweep_point": spec["sweep_point"]}
+            and proof.get("composition_orientation") == expected_orientation,
             "candidate derivation proof does not follow its frozen spec/parents",
         )
         model_artifacts = proof.get("model_artifacts")
@@ -1146,6 +1246,8 @@ def verify_inference_receipt(
         "receipt_path": str(receipt_path),
         "receipt_sha256": sha256_file(receipt_path),
         "feature_table": str(table_root),
+        "feature_table_sha256": str(feature_row["sha256"]),
+        "feature_table_receipt_sha256": str(feature_row["receipt_sha256"]),
         "line_count": len(table.targets),
         "candidate_ids": candidate_ids,
         "prediction_paths": {
