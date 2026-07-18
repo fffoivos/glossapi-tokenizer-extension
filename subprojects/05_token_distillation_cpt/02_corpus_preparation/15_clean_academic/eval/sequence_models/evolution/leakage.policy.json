@@ -1,0 +1,24 @@
+{
+  "schema_version": "bibliography-evolution-leakage-policy-v1",
+  "sealed_test_status": "not_materialized",
+  "allowed_development_scopes": [
+    "struct2k_train_oof_1118",
+    "retrospective_validation_274",
+    "prediction_blind_extraction_qualified_268",
+    "aggregate_no_rows",
+    "frozen_model_no_rows"
+  ],
+  "forbidden_data_classes": [
+    "sealed_document",
+    "sealed_label",
+    "sealed_prediction"
+  ],
+  "forbidden_path_tokens": [
+    "sealed_test",
+    "final_test",
+    "fresh_150",
+    "holdout_150"
+  ],
+  "sealed_roots": [],
+  "sealed_artifact_sha256": []
+}

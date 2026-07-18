@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bibliography-evolution-bindings-v1",
+  "title": "Generation-specific bibliography evolution template bindings",
+  "type": "object",
+  "required": ["CODE_COMMIT"],
+  "properties": {
+    "CODE_COMMIT": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "G0_INPUT_RECEIPTS": {"$ref": "#/$defs/inputs"},
+    "G1_INPUT_RECEIPTS": {"$ref": "#/$defs/inputs"},
+    "G2_INPUT_RECEIPTS": {"$ref": "#/$defs/inputs"},
+    "G3_INPUT_RECEIPTS": {"$ref": "#/$defs/inputs"},
+    "G4_INPUT_RECEIPTS": {"$ref": "#/$defs/inputs"},
+    "G5_INPUT_RECEIPTS": {"$ref": "#/$defs/inputs"}
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "inputs": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "path", "sha256", "digest_kind", "data_class", "split",
+          "document_scope", "contains_labels"
+        ],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "digest_kind": {"enum": ["file_sha256", "recursive_tree_sha256_v1"]},
+          "data_class": {"type": "string", "minLength": 1},
+          "split": {"type": "string", "minLength": 1},
+          "document_scope": {"type": "string", "minLength": 1},
+          "contains_labels": {"type": "boolean"},
+          "candidate_id": {"type": "string"},
+          "parent_candidate_id": {"type": "string"}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "CODE_COMMIT": "0123456789abcdef0123456789abcdef01234567",
+  "BASELINE_LOCK": "/capstor/REPLACE/evolution/baseline.lock.json",
+  "BASELINE_ROOT": "/capstor/REPLACE/bib_entry_oof_20260713t204926z",
+  "VALIDATION_TABLE_DIR": "/capstor/REPLACE/validation_r3/validation_table",
+  "VALIDATION_SIGNAL_PROBABILITY": "/capstor/REPLACE/validation_r3/signal_probability.npy",
+  "VALIDATION_LINE_PROBABILITY": "/capstor/REPLACE/validation_r3/line_probability.npy",
+  "VALIDATION_SCOPE_MASK": "/capstor/REPLACE/validation_r3/scope_mask.npy",
+  "QUALIFIED_268_IDS": "/capstor/REPLACE/qualified_268.json",
+  "G0_INPUT_RECEIPTS": {
+    "validation_table": {
+      "path": "/capstor/REPLACE/validation_r3/validation_table",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "digest_kind": "recursive_tree_sha256_v1",
+      "data_class": "development_table",
+      "split": "validation",
+      "document_scope": "prediction_blind_extraction_qualified_268",
+      "contains_labels": true
+    }
+  },
+  "NOTE": "Generate complete rows with make-input-row and parent rows with make-parent-inputs; never run this placeholder file. G1-G5 use G1_INPUT_RECEIPTS through G5_INPUT_RECEIPTS respectively."
+}
