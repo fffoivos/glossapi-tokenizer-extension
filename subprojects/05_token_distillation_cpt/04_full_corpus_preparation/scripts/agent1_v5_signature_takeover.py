@@ -235,7 +235,7 @@ def write_stop(args: argparse.Namespace) -> int:
 
 def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    commands = parser.add_subparsers(dest="command", required=True)
+    commands = parser.add_subparsers(dest="command")
 
     command = commands.add_parser("create-request")
     command.add_argument("--run-root", type=Path, required=True)
@@ -264,7 +264,10 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
             command.add_argument("--signature-receipt", type=Path, required=True)
         command.add_argument("--output", type=Path, required=name != "validate-request")
         command.set_defaults(func=function)
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if not args.command:
+        parser.error("a command is required")
+    return args
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
