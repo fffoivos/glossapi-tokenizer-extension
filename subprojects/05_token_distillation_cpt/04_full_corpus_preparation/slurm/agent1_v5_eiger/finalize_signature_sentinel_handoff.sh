@@ -17,10 +17,13 @@ queue="$run/dedup_acceleration_sentinel_queue_evidence.json"
 cutover="$run/dedup_acceleration_cutover.json"
 manifest="$run/release-pre-dedup/manifests/combined_manifest.json"
 [[ -f "$helper" && -f "$request" && -f "$arm" && -f "$stop" && -f "$manifest" ]] || { echo "sentinel evidence is incomplete" >&2; exit 1; }
-[[ ! -e "$queue" && ! -e "$cutover" ]] || { echo "sentinel finalization artifacts already exist" >&2; exit 1; }
+[[ ! -e "$cutover" ]] || { echo "sentinel cutover already exists" >&2; exit 1; }
 
 mapfile -t active < <(squeue -h -u fffoivos -p debug -o '%j' | grep -E '^a1v5-signature-chain-r[0-9]+$' || true)
 (( ${#active[@]} == 0 )) || { echo "legacy signature successor exists: ${active[*]}" >&2; exit 1; }
+if [[ -e "$queue" ]]; then
+  jq -e '.schema_version == "agent1_v5_dedup_acceleration_sentinel_queue_evidence_v1" and .status == "passed" and .debug_signature_queue_empty == true and .legacy_successor_present == false' "$queue" >/dev/null
+else
 python3 - "$queue" <<'PY'
 import json, os, sys, tempfile
 path = sys.argv[1]
@@ -30,5 +33,6 @@ with os.fdopen(fd, "w", encoding="utf-8") as handle:
     json.dump(payload, handle, sort_keys=True); handle.write("\n")
 os.link(temporary, path); os.unlink(temporary)
 PY
+fi
 python3 "$helper" --request "$request" --arm-receipt "$arm" \
   --stop-receipt "$stop" --queue-evidence "$queue" --combined-manifest "$manifest" --output "$cutover"
