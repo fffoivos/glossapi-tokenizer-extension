@@ -207,14 +207,15 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         getattr(args, "heading_documents", None),
         getattr(args, "heading_entry_probability", None),
     )
+    header_roles_path = getattr(args, "header_roles", None)
     learned_heading = any(value is not None for value in learned_heading_values)
     if learned_heading != all(value is not None for value in learned_heading_values):
         raise ValueError("learned heading inference requires its complete five-input contract")
-    if learned_heading and args.header_roles:
+    if learned_heading and header_roles_path:
         raise ValueError("learned and precomputed header roles are mutually exclusive")
-    if args.operation == "header_controller" and not (learned_heading or args.header_roles):
+    if args.operation == "header_controller" and not (learned_heading or header_roles_path):
         raise ValueError("header controller requires deterministic or learned roles")
-    if args.operation != "header_controller" and (learned_heading or args.header_roles):
+    if args.operation != "header_controller" and (learned_heading or header_roles_path):
         raise ValueError("heading inputs are reserved for the header controller")
     output = Path(args.output_dir).resolve()
     if output.exists() or output.is_symlink():
@@ -263,7 +264,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "training_inference_work_overlap": 0,
         }
     else:
-        header_roles = _load_array(args.header_roles, n, dtype=np.uint8)
+        header_roles = _load_array(header_roles_path, n, dtype=np.uint8)
         if args.operation == "header_controller":
             heading_inference = {"backend": "deterministic", "mode": "precomputed_exact_roles"}
     upward_stop = np.zeros(n, dtype=bool)
