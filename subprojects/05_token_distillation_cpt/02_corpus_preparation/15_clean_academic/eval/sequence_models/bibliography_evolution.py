@@ -80,6 +80,9 @@ RUNNER_FLAGS = {
         "--table-dir", "--baseline-prediction", "--signal-probability", "--scope-mask",
         "--barrier-artifact", "--header-roles", "--qualified-documents", "--operation",
         "--threshold", "--max-lines", "--output-dir", "--code-commit", "--slurm-job-id",
+        "--heading-model-dir", "--heading-training-table-dir",
+        "--heading-training-base-table-dir", "--heading-documents",
+        "--heading-entry-probability", "--heading-assignment-threshold",
     },
     "sequence_models.bibliography_evolution_signal_pipeline": {
         "--input", "--train-table-dir", "--line-oof-dir", "--block-oof-dir",
@@ -128,14 +131,46 @@ def _validate_runner_schema(spec: Mapping[str, Any]) -> None:
             if index >= len(argv) or str(argv[index]).startswith("--"):
                 raise ContractError(f"runner flag requires exactly one value: {flag}")
             index += 1
-    required = RUNNER_FLAGS[module] - ({"--header-roles"} if module.endswith("postprocess") else set())
+    learned_heading_flags = {
+        "--heading-model-dir", "--heading-training-table-dir",
+        "--heading-training-base-table-dir", "--heading-documents",
+        "--heading-entry-probability", "--heading-assignment-threshold",
+    }
+    optional = (
+        {"--header-roles", *learned_heading_flags}
+        if module.endswith("postprocess")
+        else set()
+    )
+    required = RUNNER_FLAGS[module] - optional
     if not required.issubset(seen):
         raise ContractError(f"runner misses required flags: {sorted(required - seen)}")
     if module.endswith("postprocess"):
         operation = argv[argv.index("--operation") + 1]
-        has_headers = "--header-roles" in seen
-        if (operation == "header_controller") != has_headers:
-            raise ContractError("header_controller alone requires --header-roles")
+        deterministic = "--header-roles" in seen
+        learned_count = len(learned_heading_flags & seen)
+        learned = learned_count > 0
+        if learned and learned_count != len(learned_heading_flags):
+            raise ContractError("learned header controller requires its complete inference contract")
+        if operation == "header_controller":
+            if deterministic == learned:
+                raise ContractError("header_controller requires exactly one heading backend")
+            backend = str(
+                spec["changes"]["headers.role_controller"]["parameters"].get("backend")
+            )
+            if (backend == "deterministic") != deterministic or (
+                backend == "learned_argmax"
+            ) != learned:
+                raise ContractError("heading backend flags differ from changed parameters")
+            if learned:
+                parameters = spec["changes"]["headers.role_controller"]["parameters"]
+                threshold = float(argv[argv.index("--heading-assignment-threshold") + 1])
+                if (
+                    threshold != float(parameters.get("heading_assignment_threshold", -1))
+                    or parameters.get("inference_mode") != "unseen_ensemble_mean"
+                ):
+                    raise ContractError("learned heading threshold/mode differs from candidate spec")
+        elif deterministic or learned:
+            raise ContractError("heading inputs are reserved for header_controller")
 
 
 def _artifact_row(path: Path, candidate_dir: Path) -> dict[str, Any]:
@@ -362,6 +397,8 @@ def _compute_invariants(
     header_inputs: list[Path] = []
     if "--header-roles" in runner_argv:
         header_inputs.append(Path(runner_argv[runner_argv.index("--header-roles") + 1]))
+    elif "--heading-model-dir" in runner_argv:
+        header_inputs.append(candidate_dir / "backend" / "learned_heading_role_ids.npy")
     if header_inputs:
         roles = np.load(header_inputs[0], allow_pickle=False)
         if roles.shape != prediction.shape:

@@ -7,6 +7,10 @@
   "VALIDATION_SIGNAL_PROBABILITY": "/capstor/REPLACE/validation_r3/signal_probability.npy",
   "VALIDATION_LINE_PROBABILITY": "/capstor/REPLACE/validation_r3/line_probability.npy",
   "VALIDATION_SCOPE_MASK": "/capstor/REPLACE/validation_r3/scope_mask.npy",
+  "VALIDATION_DOCUMENTS": "/capstor/REPLACE/STRUCT_2K/documents.jsonl",
+  "HEADING_OOF_DIR": "/capstor/REPLACE/bib_role_pipeline_20260715/heading_oof_6b28e4c_r1",
+  "HEADING_TRAINING_TABLE_DIR": "/capstor/REPLACE/bib_role_pipeline_20260715/heading_table_6b28e4c_r1",
+  "HEADING_TRAINING_BASE_TABLE_DIR": "/capstor/REPLACE/bib_entry_oof_20260713t204926z/table",
   "QUALIFIED_268_IDS": "/capstor/REPLACE/qualified_268.json",
   "G0_INPUT_RECEIPTS": {
     "validation_table": {
