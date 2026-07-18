@@ -53,6 +53,7 @@ def materialize_code_test_attestation(
     eval_root: Path,
     code_commit: str,
     job_id: str,
+    lane: str = "g2",
 ) -> Path:
     """Run the pinned CPU suite and emit a receipt for this exact commit."""
 
@@ -65,10 +66,12 @@ def materialize_code_test_attestation(
         write_json_exclusive,
     )
 
+    if not re.fullmatch(r"[a-z][a-z0-9-]{1,31}", lane):
+        raise ValueError("invalid code-test attestation lane")
     output = (
         launch_root
         / "attestations"
-        / f"g2-code-tests-{code_commit[:8]}-{job_id}"
+        / f"{lane}-code-tests-{code_commit[:8]}-{job_id}"
     )
     if output.exists() or output.is_symlink():
         raise FileExistsError(output)
@@ -86,6 +89,7 @@ def materialize_code_test_attestation(
             "sequence_models/tests/test_bibliography_evolution_contract.py",
             "sequence_models/tests/test_bibliography_evolution_headers.py",
             "sequence_models/tests/test_bibliography_evolution_header_role_generation.py",
+            "sequence_models/tests/test_bibliography_evolution_prepare_g1_full.py",
         ]
         test_command = [sys.executable, "-m", "pytest", "-q", *test_paths]
         commands = (
@@ -381,6 +385,7 @@ def main() -> int:
         eval_root=eval_root,
         code_commit=code_commit,
         job_id=job_id,
+        lane="g2",
     )
     packet_name = f"g2-deterministic-{code_commit[:8]}-prep-{job_id}"
     packet_root = launch_root / "packets" / packet_name
