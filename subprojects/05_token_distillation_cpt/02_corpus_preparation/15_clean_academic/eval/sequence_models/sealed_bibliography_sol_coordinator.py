@@ -161,7 +161,10 @@ def _run_one(
     response: dict[str, Any]
     accepted: dict[str, Any] | None = None
     validation_error: RuntimeError | None = None
-    for attempt in range(args.validation_retries + 1):
+    attempts: Sequence[int] = (
+        () if args.force_split_batch else range(args.validation_retries + 1)
+    )
+    for attempt in attempts:
         response = _codex(
             attempt_prompt,
             schema,
@@ -203,7 +206,11 @@ def _run_one(
                 + "Rejected JSON:\n"
                 + json.dumps(response, ensure_ascii=False)
             )
-    if accepted is None and args.split_batch_fallback and len(export.get("chunks", [])) > 1:
+    if (
+        accepted is None
+        and (args.split_batch_fallback or args.force_split_batch)
+        and len(export.get("chunks", [])) > 1
+    ):
         split_results: list[dict[str, Any]] = []
         schema_version: str | None = None
         reviewer: str | None = None
@@ -454,6 +461,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--codex-timeout-seconds", type=int, default=1800)
     parser.add_argument("--validation-retries", type=int, choices=range(0, 6), default=0)
     parser.add_argument("--split-batch-fallback", action="store_true")
+    parser.add_argument("--force-split-batch", action="store_true")
     return parser.parse_args(argv)
 
 
