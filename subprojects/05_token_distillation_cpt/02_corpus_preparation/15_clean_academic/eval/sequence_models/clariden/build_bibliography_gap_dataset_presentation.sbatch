@@ -18,6 +18,9 @@ TABLE_DIR=${TABLE_DIR:?set immutable candidate table root}
 SOURCE_JSONL=${SOURCE_JSONL:?set immutable Struct2K source JSONL}
 OUTPUT_DIR=${OUTPUT_DIR:?set new immutable presentation packet root}
 EXPECTED_COMMIT=${EXPECTED_COMMIT:?set exact code commit}
+PRESENTATION_PER_SOURCE_LABEL=${PRESENTATION_PER_SOURCE_LABEL:-30}
+CONTEXT_LINES=${CONTEXT_LINES:-4}
+MAXIMUM_DISPLAY_GAP_LINES=${MAXIMUM_DISPLAY_GAP_LINES:-16}
 UENV=${UENV:-pytorch/v2.9.1:v2}
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 90
 trap 'rm -rf "$OUTPUT_DIR"' EXIT
@@ -26,7 +29,10 @@ export OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4
 uenv run "$UENV" --view=default -- env PYTHONPATH="$CODE_ROOT:$PY_DEPS" \
   python3 -m sequence_models.bibliography_gap_dataset_presentation \
     --table-dir "$TABLE_DIR" --source-jsonl "$SOURCE_JSONL" \
-    --output-dir "$OUTPUT_DIR" --code-commit "$EXPECTED_COMMIT" \
-    --slurm-job-id "$SLURM_JOB_ID"
+    --output-dir "$OUTPUT_DIR" \
+    --per-source-label "$PRESENTATION_PER_SOURCE_LABEL" \
+    --context-lines "$CONTEXT_LINES" \
+    --maximum-display-gap-lines "$MAXIMUM_DISPLAY_GAP_LINES" \
+    --code-commit "$EXPECTED_COMMIT" --slurm-job-id "$SLURM_JOB_ID"
 trap - EXIT
 echo "BIBLIOGRAPHY_GAP_PRESENTATION=$OUTPUT_DIR"
