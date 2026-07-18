@@ -30,7 +30,7 @@ Pareto candidates have been frozen simultaneously.
   document and 180,000 per batch. Overlong lines use an explicit display-only
   prefix/suffix marker; sealed source text is unchanged.
 - Annotate every present physical line twice with independent lanes. Preserve
-  the accepted `gpt-5.6-sol`/high prefixes and use `gpt-5.6-terra`/high only for
+  the accepted `gpt-5.6-sol`/high records and use `gpt-5.6-terra`/high only for
   each lane's remaining batches. Packets contain at most 400 lines or 80,000
   text characters and 15 context-overlap lines. Every line belongs to exactly
   one core interval per pass; overlap is context only.
@@ -235,9 +235,9 @@ those directories or finalize them directly.
 
 The canonical continuation uses fresh Terra/high contracts. For A, use packet
 `10_sealed_inputs/pass-a.packet.private.jsonl`, run directory
-`24_role_sol_terra_high_a/run`, output `24_role_sol_terra_high_a/pass.json`,
+`26_role_sol_terra_high_a/run`, output `26_role_sol_terra_high_a/pass.json`,
 pass ID `pass-a`, and reviewer `sealed-role-sol-terra-high-a-v1`. For B, use the
-corresponding pass-B packet, `25_role_sol_terra_high_b/run`, `pass-b`, and
+corresponding pass-B packet, `27_role_sol_terra_high_b/run`, `pass-b`, and
 `sealed-role-sol-terra-high-b-v1`. Prepare each contract, then run
 `import-role-run-records` with source `20_role_a/run` and expected record count
 174 for A, and source `21_role_b/run` and expected record count 176 for B.
@@ -248,8 +248,8 @@ python3 "$COORD" --kind role --ssh-host clariden \
   --remote-uenv pytorch/v2.9.1:v2 --remote-python "$REMOTE_PY" \
   --remote-pythonpath "$REMOTE_EVAL" \
   --remote-packet "$ROOT/10_sealed_inputs/pass-a.packet.private.jsonl" \
-  --remote-run-dir "$ROOT/24_role_sol_terra_high_a/run" \
-  --remote-pass-output "$ROOT/24_role_sol_terra_high_a/pass.json" \
+  --remote-run-dir "$ROOT/26_role_sol_terra_high_a/run" \
+  --remote-pass-output "$ROOT/26_role_sol_terra_high_a/pass.json" \
   --pass-id pass-a --reviewer-id sealed-role-sol-terra-high-a-v1 \
   --model gpt-5.6-terra --reasoning-effort high \
   --local-prompt "$LPROMPT" --remote-prompt "$RPROMPT" \
@@ -257,11 +257,13 @@ python3 "$COORD" --kind role --ssh-host clariden \
   --batch-size 2 --workers 1 --pending-only
 ```
 
-Start B with the B packet, `25_role_sol_terra_high_b` paths,
+Start B with the B packet, `27_role_sol_terra_high_b` paths,
 `--pass-id pass-b`, reviewer `sealed-role-sol-terra-high-b-v1`, and
 `--pending-only`. Do not expose either pass to the other. The mistaken
 medium-Terra directories `22_role_terra_a` and `23_role_terra_b` each contain 10
-overlapping batches and are excluded because the Sol prefixes take precedence.
+overlapping batches and are excluded because the Sol records take precedence.
+The failed contiguous-import attempt under `24_role_sol_terra_high_a` and
+`25_role_sol_terra_high_b` is also non-canonical.
 
 ## 6. Build and run de-novo role adjudication
 
@@ -276,7 +278,7 @@ ssh clariden srun --account=a0140 --partition=normal --time=01:00:00 \
   adjudication-packet \
   --documents "$ROOT/10_sealed_inputs/documents.private.jsonl" \
   --line-key "$ROOT/10_sealed_inputs/line-key.private.jsonl" \
-  --pass-a "$ROOT/24_role_sol_terra_high_a/pass.json" --pass-b "$ROOT/25_role_sol_terra_high_b/pass.json" \
+  --pass-a "$ROOT/26_role_sol_terra_high_a/pass.json" --pass-b "$ROOT/27_role_sol_terra_high_b/pass.json" \
   --context-radius 30 --max-lines 400 --max-chars 80000 \
   --packet-out "$ROOT/30_adjudication/packet.private.jsonl" \
   --receipt-out "$ROOT/30_adjudication/packet.receipt.json"
@@ -299,7 +301,7 @@ ssh clariden srun --account=a0140 --partition=normal --time=00:30:00 \
   uenv run pytorch/v2.9.1:v2 --view=default -- \
   env PYTHONPATH="$REMOTE_EVAL" "$REMOTE_PY" -m sequence_models.sealed_bibliography_test \
   merge-labels --line-key "$ROOT/10_sealed_inputs/line-key.private.jsonl" \
-  --pass-a "$ROOT/24_role_sol_terra_high_a/pass.json" --pass-b "$ROOT/25_role_sol_terra_high_b/pass.json" \
+  --pass-a "$ROOT/26_role_sol_terra_high_a/pass.json" --pass-b "$ROOT/27_role_sol_terra_high_b/pass.json" \
   --adjudication "$ROOT/30_adjudication/pass.json" \
   --output "$ROOT/40_frozen/labels.private.jsonl" \
   --receipt-out "$ROOT/40_frozen/consensus.receipt.json"
@@ -328,8 +330,8 @@ one-shot Pareto evaluation.
 - Sealed text: `10_sealed_inputs/documents.private.jsonl`.
 - Private alias mapping: `10_sealed_inputs/line-key.private.jsonl`.
 - Canonical independent raw pass aggregates:
-  `24_role_sol_terra_high_a/pass.json`, `25_role_sol_terra_high_b/pass.json`.
-- Canonical Sol prefix evidence: `20_role_a/run`, `21_role_b/run`.
+  `26_role_sol_terra_high_a/pass.json`, `27_role_sol_terra_high_b/pass.json`.
+- Canonical Sol record evidence: `20_role_a/run`, `21_role_b/run`.
 - Non-canonical overlapping medium-Terra evidence: `22_role_terra_a/run`,
   `23_role_terra_b/run`.
 - Third-pass aggregate when needed: `30_adjudication/pass.json`.

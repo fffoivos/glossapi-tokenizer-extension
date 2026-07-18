@@ -33,8 +33,8 @@ contract, response record, model, effort, reviewer, and batch ID.
 
 | Lane | Packet | Run directory | Aggregate | Reviewer |
 |---|---|---|---|---|
-| Hybrid A | `10_sealed_inputs/pass-a.packet.private.jsonl` | `24_role_sol_terra_high_a/run` | `24_role_sol_terra_high_a/pass.json` | `sealed-role-sol-terra-high-a-v1` |
-| Hybrid B | `10_sealed_inputs/pass-b.packet.private.jsonl` | `25_role_sol_terra_high_b/run` | `25_role_sol_terra_high_b/pass.json` | `sealed-role-sol-terra-high-b-v1` |
+| Hybrid A | `10_sealed_inputs/pass-a.packet.private.jsonl` | `26_role_sol_terra_high_a/run` | `26_role_sol_terra_high_a/pass.json` | `sealed-role-sol-terra-high-a-v1` |
+| Hybrid B | `10_sealed_inputs/pass-b.packet.private.jsonl` | `27_role_sol_terra_high_b/run` | `27_role_sol_terra_high_b/pass.json` | `sealed-role-sol-terra-high-b-v1` |
 
 Every continuation contract records model `gpt-5.6-terra`, reasoning effort
 `high`, sandbox `read-only`, and `ephemeral: true` for newly produced batches.
@@ -52,7 +52,14 @@ packet.
 
 - Focused sealed-suite test: 33 passed.
 - The mistakenly started medium Terra runs stopped after 10 batches in each
-  lane. They overlap the retained Sol prefixes and are not canonical inputs.
+  lane. They overlap the retained Sol records and are not canonical inputs.
+- An initial continuation-import attempt under `24_role_sol_terra_high_a` and
+  `25_role_sol_terra_high_b` assumed a contiguous prefix and failed closed. The
+  corrected sparse-record contracts are `26_role_sol_terra_high_a` and
+  `27_role_sol_terra_high_b`.
+- Both corrected imports passed, preserving exactly 174 A and 176 B Sol/high
+  records. Terra/high then accepted missing batch 111 for A and missing batch
+  154 for B; both one-worker continuations are active.
 - The coordinator now requires an explicit supported model and binds the exact
   model/reasoning effort into the remote immutable contract.
 - Finalized pass and quality receipts report the model/reasoning values from
