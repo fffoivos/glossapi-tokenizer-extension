@@ -109,10 +109,24 @@ for phase in plan["phases"]:
         errors.append("fewer than two five-minute resource samples")
     if any(value is None or value[0] is None or value[1] is None for value in parsed):
         errors.append("unparseable sstat disk sample")
-    # sstat reports average disk read/write rate for the batch step.  Taking
-    # the largest five-minute sample is deliberately conservative.
-    reads = [value[0] for value in parsed if value and value[0] is not None]
-    writes = [value[1] for value in parsed if value and value[1] is not None]
+    # AveDiskRead/AveDiskWrite are byte counts, not rates.  A five-minute
+    # rate is therefore computed only from adjacent sampler points 240–330 s
+    # apart.  This avoids treating a cumulative accounting value as B/s.
+    ordered = sorted(
+        (
+            (sample, value) for sample, value in zip(local_samples, parsed)
+            if value is not None and value[0] is not None and value[1] is not None
+        ),
+        key=lambda item: int(item[0]["epoch"]),
+    )
+    read_rates, write_rates = [], []
+    for (before, before_values), (after, after_values) in zip(ordered, ordered[1:]):
+        elapsed = int(after["epoch"]) - int(before["epoch"])
+        if 240 <= elapsed <= 330:
+            read_rates.append(max(0.0, after_values[0] - before_values[0]) / elapsed)
+            write_rates.append(max(0.0, after_values[1] - before_values[1]) / elapsed)
+    if not read_rates or not write_rates:
+        errors.append("no adjacent five-minute sstat interval")
     wall = max(metric["finished_epoch"] for metric in metrics) - min(metric["started_epoch"] for metric in metrics)
     if wall <= 0:
         errors.append("non-positive phase wall time")
@@ -127,8 +141,8 @@ for phase in plan["phases"]:
         "phase_index": index,
         "sample_count": len(local_samples),
         "aggregate_rss_bytes": sum(int(metric.get("max_rss_kib", 0)) * 1024 for metric in metrics),
-        "read_peak_5m_bps": max(reads, default=math.inf),
-        "write_peak_5m_bps": max(writes, default=math.inf),
+        "read_peak_5m_bps": max(read_rates, default=math.inf),
+        "write_peak_5m_bps": max(write_rates, default=math.inf),
         "max_cpu_cores": cpu / wall,
         "warnings": [],
         "errors": errors,
