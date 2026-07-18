@@ -553,6 +553,8 @@ def record_submission(args: argparse.Namespace) -> int:
         raise ValueError("chunk plan cutover binding drift")
     if plan.get("full_input_audit_sha256") != bindings["full_input_audit_sha256"]:
         raise ValueError("chunk plan audit binding drift")
+    if plan.get("runner_sha256") != bindings["runner_sha256"]:
+        raise ValueError("chunk plan runner binding drift")
     if plan.get("combined_manifest_sha256") != audit.get("combined_manifest_sha256"):
         raise ValueError("chunk plan manifest binding drift")
     if str(observation.get("array_job_id")) != job_id or observation.get("submission_nonce") != args.submission_nonce:
