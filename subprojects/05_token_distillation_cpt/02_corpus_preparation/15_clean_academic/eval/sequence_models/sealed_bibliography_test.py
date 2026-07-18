@@ -9,8 +9,8 @@ content hashes, never text or labels.
 The workflow is deliberately split into immutable stages:
 
 ``select-candidates`` -> dual quality review -> ``finalize-selection`` ->
-``prepare-annotation`` -> two independent Sol passes -> ``adjudication-packet``
--> third Sol pass -> ``merge-labels`` -> ``freeze``.
+``prepare-annotation`` -> two independent Codex passes -> ``adjudication-packet``
+-> third Codex pass -> ``merge-labels`` -> ``freeze``.
 
 Every writer uses O_EXCL and every downstream stage binds its inputs by SHA256.
 Running a stage twice is therefore either an exact resume or a hard failure.
@@ -90,6 +90,10 @@ CONSENSUS_GATES = frozenset(
 QUALITY_DECISIONS = frozenset({"KEEP", "UNUSABLE"})
 MODEL = "gpt-5.6-sol"
 REASONING_EFFORT = "high"
+ALLOWED_REVIEW_MODELS = frozenset({"gpt-5.6-sol", "gpt-5.6-terra"})
+ALLOWED_REASONING_EFFORTS = frozenset(
+    {"low", "medium", "high", "xhigh", "max", "ultra"}
+)
 QUALITY_SAMPLE_MAX_LINES = 120
 QUALITY_SAMPLE_DISPLAY_MAX_CHARS = 40_000
 QUALITY_DOCUMENT_MAX_CHARS = 100_000
@@ -2032,8 +2036,17 @@ def _batches(chunks: Sequence[Mapping[str, Any]], batch_size: int) -> list[list[
 def _run_contract(run_dir: Path) -> dict[str, Any]:
     value = _json(run_dir / "run.contract.json")
     if value.get("schema_version") != RUN_CONTRACT_SCHEMA:
-        raise ValueError("unsupported Sol run contract")
+        raise ValueError("unsupported sealed review run contract")
     return value
+
+
+def _validate_review_runtime(model: str, reasoning_effort: str) -> None:
+    if model not in ALLOWED_REVIEW_MODELS:
+        raise ValueError(f"unsupported sealed-review model: {model}")
+    if reasoning_effort not in ALLOWED_REASONING_EFFORTS:
+        raise ValueError(
+            f"unsupported sealed-review reasoning effort: {reasoning_effort}"
+        )
 
 
 def prepare_run(args: argparse.Namespace) -> dict[str, Any]:
@@ -2041,8 +2054,7 @@ def prepare_run(args: argparse.Namespace) -> dict[str, Any]:
     chunks = _load_chunks(packet_path)
     if {str(row["pass_id"]) for row in chunks} != {args.pass_id}:
         raise ValueError("packet pass ID differs from requested pass")
-    if args.model != MODEL or args.reasoning_effort != REASONING_EFFORT:
-        raise ValueError(f"sealed reviews are pinned to {MODEL}/high")
+    _validate_review_runtime(args.model, args.reasoning_effort)
     prompt_path = Path(args.prompt).resolve()
     schema_path = Path(args.output_schema).resolve()
     batches = _batches(chunks, args.batch_size)
@@ -2051,8 +2063,8 @@ def prepare_run(args: argparse.Namespace) -> dict[str, Any]:
         "kind": "role",
         "pass_id": args.pass_id,
         "reviewer_id": args.reviewer_id,
-        "model": MODEL,
-        "reasoning_effort": REASONING_EFFORT,
+        "model": args.model,
+        "reasoning_effort": args.reasoning_effort,
         "sandbox": "read-only",
         "ephemeral": True,
         "packet_sha256": sha256_file(packet_path),
@@ -2089,8 +2101,7 @@ def prepare_quality_run(args: argparse.Namespace) -> dict[str, Any]:
     documents = _load_quality_packet(
         packet_path, max_document_characters=args.max_document_characters
     )
-    if args.model != MODEL or args.reasoning_effort != REASONING_EFFORT:
-        raise ValueError(f"sealed reviews are pinned to {MODEL}/high")
+    _validate_review_runtime(args.model, args.reasoning_effort)
     prompt_path = Path(args.prompt).resolve()
     schema_path = Path(args.output_schema).resolve()
     batches = _quality_batches(
@@ -2104,8 +2115,8 @@ def prepare_quality_run(args: argparse.Namespace) -> dict[str, Any]:
         "kind": "quality",
         "pass_id": args.pass_id,
         "reviewer_id": args.reviewer_id,
-        "model": MODEL,
-        "reasoning_effort": REASONING_EFFORT,
+        "model": args.model,
+        "reasoning_effort": args.reasoning_effort,
         "sandbox": "read-only",
         "ephemeral": True,
         "packet_sha256": sha256_file(packet_path),
@@ -2282,8 +2293,8 @@ def finalize_quality_pass(args: argparse.Namespace) -> dict[str, Any]:
         "schema_version": "bibliography-sealed-quality-pass-receipt-v1",
         "status": "passed",
         "reviewer": contract["reviewer_id"],
-        "model": MODEL,
-        "reasoning_effort": REASONING_EFFORT,
+        "model": contract["model"],
+        "reasoning_effort": contract["reasoning_effort"],
         "document_count": len(rows),
         "packet_sha256": sha256_file(packet_path),
         "run_contract_sha256": sha256_file(run_dir / "run.contract.json"),
@@ -2362,14 +2373,14 @@ def finalize_pass(args: argparse.Namespace) -> dict[str, Any]:
         batch_id = str(contract["batch_ids"][index])
         path = run_dir / "responses" / f"{batch_id}.json"
         if not path.is_file():
-            raise ValueError(f"Sol pass is incomplete; missing batch {index}")
+            raise ValueError(f"review pass is incomplete; missing batch {index}")
         record = _json(path)
         if (
             record.get("batch_id") != batch_id
             or record.get("contract_sha256") != sha256_file(run_dir / "run.contract.json")
             or record.get("review_sha256") != canonical_json_sha256(record.get("review"))
         ):
-            raise ValueError("Sol response record has the wrong batch ID")
+            raise ValueError("review response record has the wrong batch ID")
         review = validate_role_response(batch, record["review"], str(contract["reviewer_id"]))
         record_hashes.append(sha256_file(path))
         for result in review["chunks"]:
@@ -2425,8 +2436,8 @@ def finalize_pass(args: argparse.Namespace) -> dict[str, Any]:
         "schema_version": PASS_SCHEMA,
         "pass_id": contract["pass_id"],
         "reviewer": contract["reviewer_id"],
-        "model": MODEL,
-        "reasoning_effort": REASONING_EFFORT,
+        "model": contract["model"],
+        "reasoning_effort": contract["reasoning_effort"],
         "packet_sha256": sha256_file(packet_path),
         "run_contract_sha256": sha256_file(run_dir / "run.contract.json"),
         "record_inventory_sha256": canonical_json_sha256(record_hashes),
@@ -2627,7 +2638,7 @@ def merge_labels(args: argparse.Namespace) -> dict[str, Any]:
     adjudication_sha: str | None = None
     if disagreements:
         if not args.adjudication:
-            raise ValueError("pass disagreements require the de-novo third Sol pass")
+            raise ValueError("pass disagreements require the de-novo third review pass")
         adjudication_path = Path(args.adjudication).resolve()
         adjudication, c_lines = _pass_lines(adjudication_path, "adjudication")
         adjudication_sha = sha256_file(adjudication_path)
@@ -2692,7 +2703,7 @@ def merge_labels(args: argparse.Namespace) -> dict[str, Any]:
     receipt = {
         "schema_version": CONSENSUS_SCHEMA,
         "status": "passed" if all(gates.values()) else "blocked",
-        "label_semantics": "dual-Sol LLM-silver; not human gold",
+        "label_semantics": "dual-Codex LLM-silver; not human gold",
         "line_count": total,
         "a_b_binary_agreement_overall": overall_agreement,
         "a_b_binary_agreement_by_source": per_source,
@@ -2732,7 +2743,7 @@ def _validate_terminal_consensus(
         raise ValueError("consensus receipt schema is invalid")
     if (
         consensus.get("status") != "passed"
-        or consensus.get("label_semantics") != "dual-Sol LLM-silver; not human gold"
+        or consensus.get("label_semantics") != "dual-Codex LLM-silver; not human gold"
         or consensus.get("labels_sha256") != labels_sha256
         or consensus.get("line_count") != len(labels)
     ):
@@ -2905,7 +2916,7 @@ def freeze(args: argparse.Namespace) -> dict[str, Any]:
     frozen = {
         "schema_version": FREEZE_SCHEMA,
         "status": "frozen_prediction_blind_test_set",
-        "label_semantics": "dual-Sol LLM-silver; not human gold",
+        "label_semantics": "dual-Codex LLM-silver; not human gold",
         "document_count": len(documents),
         "line_count": len(labels),
         "source_document_counts": dict(sorted(counts.items())),
@@ -2998,7 +3009,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     prepare.add_argument("--line-key-out", required=True)
     prepare.add_argument("--receipt-out", required=True)
 
-    run = commands.add_parser("prepare-run", help="bind a packet to an immutable Sol run")
+    run = commands.add_parser("prepare-run", help="bind a packet to an immutable Codex run")
     run.add_argument("--packet", required=True)
     run.add_argument("--pass-id", choices=("pass-a", "pass-b", "adjudication"), required=True)
     run.add_argument("--reviewer-id", required=True)
@@ -3010,7 +3021,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     run.add_argument("--run-dir", required=True)
 
     quality_run = commands.add_parser(
-        "prepare-quality-run", help="bind flagged documents to an immutable quality Sol run"
+        "prepare-quality-run", help="bind flagged documents to an immutable quality Codex run"
     )
     quality_run.add_argument("--packet", required=True)
     quality_run.add_argument("--pass-id", choices=("quality-a", "quality-b", "quality-c"), required=True)
@@ -3052,7 +3063,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     quality_ingest.add_argument("--run-dir", required=True)
     quality_ingest.add_argument("--batch-index", type=int, required=True)
 
-    pass_parser = commands.add_parser("finalize-pass", help="prove coverage and aggregate a Sol pass")
+    pass_parser = commands.add_parser("finalize-pass", help="prove coverage and aggregate a Codex pass")
     pass_parser.add_argument("--packet", required=True)
     pass_parser.add_argument("--run-dir", required=True)
     pass_parser.add_argument("--output", required=True)

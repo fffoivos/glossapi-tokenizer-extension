@@ -3,8 +3,9 @@
 
 The coordinator never downloads a packet or document.  It requests at most
 two chunks over SSH, keeps that bounded envelope in memory, runs an ephemeral
-read-only ``gpt-5.6-sol`` call at high reasoning effort, and streams the JSON
-response back to Clariden for semantic validation and immutable storage.
+read-only Codex call using an explicitly selected model and reasoning effort,
+and streams the JSON response back to Clariden for semantic validation and
+immutable storage.
 """
 
 from __future__ import annotations
@@ -20,8 +21,8 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 
-MODEL = "gpt-5.6-sol"
-EFFORT = "high"
+ALLOWED_MODELS = ("gpt-5.6-sol", "gpt-5.6-terra")
+ALLOWED_EFFORTS = ("low", "medium", "high", "xhigh", "max", "ultra")
 REMOTE_MODULE = "sequence_models.sealed_bibliography_test"
 QUALITY_DOCUMENT_MAX_CHARS = 100_000
 QUALITY_BATCH_MAX_CHARS = 180_000
@@ -75,9 +76,16 @@ def _json_output(text: str, operation: str) -> dict[str, Any]:
     return value
 
 
-def _codex(prompt: str, schema: Path, envelope: Mapping[str, Any], timeout: int) -> dict[str, Any]:
+def _codex(
+    prompt: str,
+    schema: Path,
+    envelope: Mapping[str, Any],
+    timeout: int,
+    model: str,
+    reasoning_effort: str,
+) -> dict[str, Any]:
     full_prompt = prompt.rstrip() + "\n\n" + json.dumps(envelope, ensure_ascii=False) + "\n"
-    with tempfile.TemporaryDirectory(prefix="sealed-bib-sol-") as directory:
+    with tempfile.TemporaryDirectory(prefix="sealed-bib-codex-") as directory:
         workspace = Path(directory) / "empty-read-only-workspace"
         workspace.mkdir()
         response_path = Path(directory) / "response.json"
@@ -85,7 +93,7 @@ def _codex(prompt: str, schema: Path, envelope: Mapping[str, Any], timeout: int)
             "codex",
             "exec",
             "--model",
-            MODEL,
+            model,
             "--sandbox",
             "read-only",
             "--ephemeral",
@@ -93,7 +101,7 @@ def _codex(prompt: str, schema: Path, envelope: Mapping[str, Any], timeout: int)
             "--cd",
             str(workspace),
             "--config",
-            'model_reasoning_effort="high"',
+            f'model_reasoning_effort="{reasoning_effort}"',
             "--output-schema",
             str(schema),
             "--output-last-message",
@@ -149,7 +157,14 @@ def _run_one(
         return {"batch_index": index, "status": "already_complete", "batch_id": export["batch_id"]}
     if export.get("status") != "pending":
         raise RuntimeError(f"batch {index}: unexpected remote status {export.get('status')!r}")
-    response = _codex(prompt, schema, export, args.codex_timeout_seconds)
+    response = _codex(
+        prompt,
+        schema,
+        export,
+        args.codex_timeout_seconds,
+        args.model,
+        args.reasoning_effort,
+    )
     accepted = _json_output(
         _remote_command(
             args,
@@ -191,9 +206,9 @@ def run(args: argparse.Namespace) -> int:
         "--reviewer-id",
         args.reviewer_id,
         "--model",
-        MODEL,
+        args.model,
         "--reasoning-effort",
-        EFFORT,
+        args.reasoning_effort,
         "--prompt",
         args.remote_prompt,
         "--output-schema",
@@ -216,8 +231,8 @@ def run(args: argparse.Namespace) -> int:
         _remote_command(args, prepare_arguments),
         "prepare run",
     )
-    if contract.get("model") != MODEL or contract.get("reasoning_effort") != EFFORT:
-        raise RuntimeError("remote contract is not pinned to gpt-5.6-sol/high")
+    if contract.get("model") != args.model or contract.get("reasoning_effort") != args.reasoning_effort:
+        raise RuntimeError("remote contract differs from the requested model/reasoning effort")
     if contract.get("prompt_sha256") != _sha256(prompt_path):
         raise RuntimeError("local and remote prompts differ")
     if contract.get("output_schema_sha256") != _sha256(schema_path):
@@ -310,6 +325,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         required=True,
     )
     parser.add_argument("--reviewer-id", required=True)
+    parser.add_argument("--model", choices=ALLOWED_MODELS, required=True)
+    parser.add_argument(
+        "--reasoning-effort", choices=ALLOWED_EFFORTS, default="medium"
+    )
     parser.add_argument("--local-prompt", required=True)
     parser.add_argument("--remote-prompt", required=True)
     parser.add_argument("--local-output-schema", required=True)

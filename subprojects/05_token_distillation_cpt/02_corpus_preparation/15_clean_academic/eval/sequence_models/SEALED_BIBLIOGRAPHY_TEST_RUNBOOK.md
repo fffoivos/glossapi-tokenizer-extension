@@ -4,7 +4,9 @@ This runbook creates the final, prediction-blind test set for bibliography
 pipeline selection. It is separate from the repeatedly inspected 274-document
 development split and excludes the complete earlier 500-document holdout.
 
-The terminal label is **dual-Sol LLM-silver, not human gold**. No candidate
+The terminal label is **dual-Codex LLM-silver, not human gold**. The canonical
+role annotation passes use Terra; the already completed quality review used
+Sol. No candidate
 model may run on the test documents until `FROZEN.receipt.json` exists and all
 Pareto candidates have been frozen simultaneously.
 
@@ -28,14 +30,14 @@ Pareto candidates have been frozen simultaneously.
   document and 180,000 per batch. Overlong lines use an explicit display-only
   prefix/suffix marker; sealed source text is unchanged.
 - Annotate every present physical line twice with independent
-  `gpt-5.6-sol`/high executions. Packets contain at most 400 lines or 80,000
+  `gpt-5.6-terra`/medium executions. Packets contain at most 400 lines or 80,000
   text characters and 15 context-overlap lines. Every line belongs to exactly
   one core interval per pass; overlap is context only.
 - Pass B uses half-chunk-staggered boundaries and reversed chunk presentation.
 - A physical line longer than a packet budget is represented by a bounded
   20,000-character prefix/suffix display with full-text hash/truncation metadata;
   its full-text line ID and sealed source remain unchanged.
-- A third Sol execution sees only label-blind context around A/B role
+- A third Terra execution sees only label-blind context around A/B role
   disagreements/UNKNOWNs. Exact 2/3 role agreement wins; otherwise the line is
   `UNKNOWN`.
 - Freeze only at 100% A/B coverage, >= 98% A/B binary agreement overall,
@@ -107,7 +109,8 @@ Slurm logs are not evidence.
 
 ## 3. Run independent quality A/B reviews from the Mac coordinator
 
-The coordinator pins `gpt-5.6-sol`, reasoning `high`, `--ephemeral`, an empty
+The completed quality-review contracts pin `gpt-5.6-sol`, reasoning `high`,
+`--ephemeral`, an empty
 read-only workspace, the prompt SHA and schema SHA. It fetches at most two
 flagged documents at a time over SSH, keeps them only in memory, and streams
 validated label JSON back to Clariden. No packet or corpus file is written on
@@ -132,6 +135,7 @@ python3 "$COORD" --kind quality --ssh-host clariden \
   --remote-run-dir "$ROOT/05_quality/a-run" \
   --remote-pass-output "$ROOT/05_quality/a.response.json" \
   --pass-id quality-a --reviewer-id sealed-quality-sol-a-v1 \
+  --model gpt-5.6-sol --reasoning-effort high \
   --local-prompt "$LPROMPT" --remote-prompt "$RPROMPT" \
   --local-output-schema "$LSCHEMA" --remote-output-schema "$RSCHEMA" \
   --workers 1 --maximum-batches 1
@@ -142,6 +146,7 @@ python3 "$COORD" --kind quality --ssh-host clariden \
   --remote-run-dir "$ROOT/05_quality/a-run" \
   --remote-pass-output "$ROOT/05_quality/a.response.json" \
   --pass-id quality-a --reviewer-id sealed-quality-sol-a-v1 \
+  --model gpt-5.6-sol --reasoning-effort high \
   --local-prompt "$LPROMPT" --remote-prompt "$RPROMPT" \
   --local-output-schema "$LSCHEMA" --remote-output-schema "$RSCHEMA" \
   --workers 2
@@ -156,6 +161,7 @@ python3 "$COORD" --kind quality --ssh-host clariden \
   --remote-run-dir "$ROOT/05_quality/b-run" \
   --remote-pass-output "$ROOT/05_quality/b.response.json" \
   --pass-id quality-b --reviewer-id sealed-quality-sol-b-v1 \
+  --model gpt-5.6-sol --reasoning-effort high \
   --local-prompt "$LPROMPT" --remote-prompt "$RPROMPT" \
   --local-output-schema "$LSCHEMA" --remote-output-schema "$RSCHEMA" \
   --workers 2
@@ -220,13 +226,38 @@ RPROMPT="$REMOTE_EVAL/sequence_models/SEALED_BIBLIOGRAPHY_ROLE_PROMPT.md"
 RSCHEMA="$REMOTE_EVAL/sequence_models/sealed_bibliography_role.schema.json"
 ```
 
-For A, use packet `10_sealed_inputs/pass-a.packet.private.jsonl`, run directory
-`20_role_a/run`, output `20_role_a/pass.json`, pass ID `pass-a`, and reviewer
-`sealed-role-sol-a-v1`. For B, use the corresponding pass-B packet, `21_role_b`,
-`pass-b`, and `sealed-role-sol-b-v1`. The coordinator invocation is the same as
-quality review except `--kind role`. Preflight one A batch with one worker, then
-resume; run B independently with a new contract. Batch size defaults to two and
-workers may not exceed two.
+The earlier Sol A/B coordinators were stopped on 2026-07-18. Their immutable
+partial evidence remains in `20_role_a/run` (174 accepted batches) and
+`21_role_b/run` (176 accepted batches). Neither directory has a completed
+`pass.json`. They are aborted evidence only: never resume, aggregate, merge,
+adjudicate, or freeze from them.
+
+The canonical replacement uses fresh Terra contracts. For A, use packet
+`10_sealed_inputs/pass-a.packet.private.jsonl`, run directory
+`22_role_terra_a/run`, output `22_role_terra_a/pass.json`, pass ID `pass-a`, and
+reviewer `sealed-role-terra-a-v1`. For B, use the corresponding pass-B packet,
+`23_role_terra_b/run`, `pass-b`, and `sealed-role-terra-b-v1`. Both use
+`gpt-5.6-terra`, reasoning `medium`, batch size two, and one worker to limit
+usage. Preflight exactly one A batch, inspect acceptance, then resume A and
+start B independently:
+
+```bash
+python3 "$COORD" --kind role --ssh-host clariden \
+  --remote-uenv pytorch/v2.9.1:v2 --remote-python "$REMOTE_PY" \
+  --remote-pythonpath "$REMOTE_EVAL" \
+  --remote-packet "$ROOT/10_sealed_inputs/pass-a.packet.private.jsonl" \
+  --remote-run-dir "$ROOT/22_role_terra_a/run" \
+  --remote-pass-output "$ROOT/22_role_terra_a/pass.json" \
+  --pass-id pass-a --reviewer-id sealed-role-terra-a-v1 \
+  --model gpt-5.6-terra --reasoning-effort medium \
+  --local-prompt "$LPROMPT" --remote-prompt "$RPROMPT" \
+  --local-output-schema "$LSCHEMA" --remote-output-schema "$RSCHEMA" \
+  --batch-size 2 --workers 1 --maximum-batches 1
+```
+
+Resume A by repeating that command without `--maximum-batches`. Start B with
+the B packet, `23_role_terra_b` paths, `--pass-id pass-b`, and reviewer
+`sealed-role-terra-b-v1`. Do not expose either pass to the other.
 
 ## 6. Build and run de-novo role adjudication
 
@@ -241,15 +272,16 @@ ssh clariden srun --account=a0140 --partition=normal --time=01:00:00 \
   adjudication-packet \
   --documents "$ROOT/10_sealed_inputs/documents.private.jsonl" \
   --line-key "$ROOT/10_sealed_inputs/line-key.private.jsonl" \
-  --pass-a "$ROOT/20_role_a/pass.json" --pass-b "$ROOT/21_role_b/pass.json" \
+  --pass-a "$ROOT/22_role_terra_a/pass.json" --pass-b "$ROOT/23_role_terra_b/pass.json" \
   --context-radius 30 --max-lines 400 --max-chars 80000 \
   --packet-out "$ROOT/30_adjudication/packet.private.jsonl" \
   --receipt-out "$ROOT/30_adjudication/packet.receipt.json"
 ```
 
 If targets exist, run the coordinator with `--kind role`, pass ID
-`adjudication`, reviewer `sealed-role-sol-c-v1`, and `30_adjudication` packet/run
-paths. The C envelope identifies target offsets but contains no A/B labels; Sol
+`adjudication`, reviewer `sealed-role-terra-c-v1`, model `gpt-5.6-terra`,
+reasoning `medium`, and `30_adjudication` packet/run paths. The C envelope
+identifies target offsets but contains no A/B labels; Terra
 labels the displayed context from scratch.
 
 ## 7. Merge, gate and freeze
@@ -263,7 +295,7 @@ ssh clariden srun --account=a0140 --partition=normal --time=00:30:00 \
   uenv run pytorch/v2.9.1:v2 --view=default -- \
   env PYTHONPATH="$REMOTE_EVAL" "$REMOTE_PY" -m sequence_models.sealed_bibliography_test \
   merge-labels --line-key "$ROOT/10_sealed_inputs/line-key.private.jsonl" \
-  --pass-a "$ROOT/20_role_a/pass.json" --pass-b "$ROOT/21_role_b/pass.json" \
+  --pass-a "$ROOT/22_role_terra_a/pass.json" --pass-b "$ROOT/23_role_terra_b/pass.json" \
   --adjudication "$ROOT/30_adjudication/pass.json" \
   --output "$ROOT/40_frozen/labels.private.jsonl" \
   --receipt-out "$ROOT/40_frozen/consensus.receipt.json"
@@ -291,7 +323,9 @@ one-shot Pareto evaluation.
   `10_sealed_inputs/exclusions.public.json` (opaque IDs/hashes only).
 - Sealed text: `10_sealed_inputs/documents.private.jsonl`.
 - Private alias mapping: `10_sealed_inputs/line-key.private.jsonl`.
-- Independent raw pass aggregates: `20_role_a/pass.json`, `21_role_b/pass.json`.
+- Canonical independent raw pass aggregates: `22_role_terra_a/pass.json`,
+  `23_role_terra_b/pass.json`.
+- Aborted, non-canonical Sol evidence: `20_role_a/run`, `21_role_b/run`.
 - Third-pass aggregate when needed: `30_adjudication/pass.json`.
 - Sealed labels: `40_frozen/labels.private.jsonl`.
 - Terminal seal: `40_frozen/FROZEN.receipt.json`.

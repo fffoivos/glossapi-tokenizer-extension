@@ -794,7 +794,7 @@ def _freeze_inputs(tmp_path: Path) -> tuple[argparse.Namespace, Path]:
         {
             "schema_version": CONSENSUS_SCHEMA,
             "status": "passed",
-            "label_semantics": "dual-Sol LLM-silver; not human gold",
+            "label_semantics": "dual-Codex LLM-silver; not human gold",
             "line_count": len(labels),
             "a_b_binary_agreement_overall": 1.0,
             "a_b_binary_agreement_by_source": {
@@ -965,6 +965,42 @@ def test_immutable_remote_ingest_rejects_changed_response(tmp_path: Path, monkey
     monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps(payload)))
     with pytest.raises(ValueError, match="immutable artifact differs"):
         ingest_batch(arguments)
+
+
+def test_terra_medium_runtime_is_bound_to_the_run_contract(tmp_path: Path) -> None:
+    packet = tmp_path / "packet.jsonl"
+    _dump_rows(packet, [_chunk()])
+    prompt = tmp_path / "prompt.md"
+    schema = tmp_path / "schema.json"
+    prompt.write_text("prompt", encoding="utf-8")
+    schema.write_text("{}", encoding="utf-8")
+    contract = prepare_run(
+        argparse.Namespace(
+            packet=str(packet), pass_id="pass-a", reviewer_id="terra-a",
+            model="gpt-5.6-terra", reasoning_effort="medium", prompt=str(prompt),
+            output_schema=str(schema), batch_size=1, run_dir=str(tmp_path / "run"),
+        )
+    )
+    assert contract["model"] == "gpt-5.6-terra"
+    assert contract["reasoning_effort"] == "medium"
+
+
+def test_unknown_review_model_is_rejected(tmp_path: Path) -> None:
+    packet = tmp_path / "packet.jsonl"
+    _dump_rows(packet, [_chunk()])
+    prompt = tmp_path / "prompt.md"
+    schema = tmp_path / "schema.json"
+    prompt.write_text("prompt", encoding="utf-8")
+    schema.write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError, match="unsupported sealed-review model"):
+        prepare_run(
+            argparse.Namespace(
+                packet=str(packet), pass_id="pass-a", reviewer_id="reviewer-a",
+                model="not-a-review-model", reasoning_effort="medium",
+                prompt=str(prompt), output_schema=str(schema), batch_size=1,
+                run_dir=str(tmp_path / "run"),
+            )
+        )
 
 
 def test_finalize_pass_rejects_packet_drift_before_aggregation(tmp_path: Path) -> None:
