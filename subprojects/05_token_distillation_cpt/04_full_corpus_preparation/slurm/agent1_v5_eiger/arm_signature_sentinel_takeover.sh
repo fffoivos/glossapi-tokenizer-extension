@@ -29,12 +29,17 @@ run_takeover_tool() {
 
 [[ -f "$guarded" && -f "$tool_source" && -x "$guarded" ]] || { echo "accelerated handoff files are missing" >&2; exit 1; }
 [[ ! -e "$request" && ! -e "$arm" && ! -e "$tool_active" ]] || { echo "takeover artifacts already exist; refusing re-arm" >&2; exit 1; }
-mapfile -t jobs < <(squeue -h -u fffoivos -p debug -o '%i|%j|%T|%a')
-(( ${#jobs[@]} == 1 )) || { echo "expected exactly one debug job before arming" >&2; exit 1; }
+# A predecessor can remain in COMPLETING very briefly after it has already
+# submitted the next serial rank.  It is not an active chain job, so require
+# exactly one *running* chain rank and separately reject queued successors.
+mapfile -t jobs < <(squeue -h -u fffoivos -p debug -t RUNNING -o '%i|%j|%T|%a')
+(( ${#jobs[@]} == 1 )) || { echo "expected exactly one running debug job before arming" >&2; exit 1; }
 IFS='|' read -r job_id job_name job_state account <<<"${jobs[0]}"
 [[ "$job_name" == "a1v5-signature-chain-r${expected_rank}" && "$job_state" == RUNNING && "$account" == a0140 ]] || {
   echo "serial boundary moved; expected running rank ${expected_rank}, found ${job_name}/${job_state}" >&2; exit 1;
 }
+mapfile -t queued_chain < <(squeue -h -u fffoivos -p debug -t PENDING -o '%j' | grep -E '^a1v5-signature-chain-r[0-9]+$' || true)
+(( ${#queued_chain[@]} == 0 )) || { echo "queued serial successor exists: ${queued_chain[*]}" >&2; exit 1; }
 raw="$(scontrol show job -o "$job_id")"
 [[ "$raw" == *"UserId=fffoivos("* && "$raw" == *"Account=a0140 "* && "$raw" == *"Partition=debug "* && "$raw" == *"QOS=normal "* ]] || {
   echo "running serial job identity drift" >&2; exit 1;
