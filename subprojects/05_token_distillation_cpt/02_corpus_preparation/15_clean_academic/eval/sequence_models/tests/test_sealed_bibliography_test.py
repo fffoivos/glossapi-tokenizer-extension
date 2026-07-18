@@ -26,7 +26,9 @@ from sequence_models.sealed_bibliography_test import (
     Exclusions,
     GlobalSketchIndex,
     _dedup_candidate,
+    _document_id,
     _load_chunks,
+    _public_exclusion_manifest,
     _quality_batches,
     _quality_sample,
     _validate_quality_packet_row,
@@ -40,8 +42,10 @@ from sequence_models.sealed_bibliography_test import (
     merge_quality,
     finalize_selection,
     finalize_pass,
+    freeze,
     export_quality_batch,
     ingest_batch,
+    load_public_exclusions,
     prepare_run,
     prepare_annotation,
     prepare_quality_run,
@@ -507,13 +511,116 @@ def test_finalize_selection_emits_private_provenance_but_public_hashes_only(tmp_
     assert public_value["document_count"] == 150
     assert all(
         set(row) == {
-            "document_id", "source_identity_sha256", "source_doc_identity_sha256",
-            "work_identity_sha256", "stable_identity_sha256", "normalized_text_sha256",
+            "document_id", "canonical_identity_sha256s", "normalized_text_sha256",
             "materialized_text_sha256",
         }
         for row in public_value["documents"]
     )
     assert "private/path" not in public.read_text()
+
+
+def test_public_exclusion_round_trip_rejects_cross_field_alias(tmp_path: Path) -> None:
+    shared_alias = "source-doc-exposed-later-as-work-id"
+    row = {
+        "document_id": "1" * 64,
+        "source": "greek_phd",
+        "source_doc_id": shared_alias,
+        "work_id": "work-id",
+        "work_key": "work-key",
+        "stable_uid": "stable-id",
+        "normalized_text_sha256": "2" * 64,
+        "materialized_text_sha256": "3" * 64,
+    }
+    manifest_path = tmp_path / "public.json"
+    _dump(manifest_path, _public_exclusion_manifest([row]))
+
+    loaded = load_public_exclusions(manifest_path)
+
+    assert loaded.rejects("greek_phd", {"work_id": shared_alias})
+    assert not loaded.rejects("kallipos", {"work_id": shared_alias})
+    assert shared_alias not in manifest_path.read_text(encoding="utf-8")
+
+
+def _freeze_inputs(tmp_path: Path) -> tuple[argparse.Namespace, Path]:
+    documents = []
+    labels = []
+    for source_index, source in enumerate(("greek_phd", "kallipos", "openarchives")):
+        for index in range(50):
+            number = source_index * 50 + index
+            stable_uid = f"stable-{number}"
+            materialized_hash = hashlib.sha256(f"materialized-{number}".encode()).hexdigest()
+            document_id = _document_id(source, stable_uid, materialized_hash)
+            text = f"line {number}"
+            line_id = _line_id(document_id, 0, text)
+            documents.append(
+                {
+                    "schema_version": PRIVATE_DOCUMENT_SCHEMA,
+                    "document_id": document_id,
+                    "source": source,
+                    "source_doc_id": f"source-{number}",
+                    "work_id": f"work-{number}",
+                    "work_key": f"work-{number}",
+                    "stable_uid": stable_uid,
+                    "normalized_text_sha256": hashlib.sha256(
+                        f"normalized-{number}".encode()
+                    ).hexdigest(),
+                    "materialized_text_sha256": materialized_hash,
+                    "n_present_lines": 1,
+                    "lines": [{"line_id": line_id, "abs_idx": 0, "text": text}],
+                }
+            )
+            labels.append(
+                {"document_id": document_id, "line_id": line_id, "role": "OTHER"}
+            )
+
+    documents_path = tmp_path / "documents.jsonl"
+    labels_path = tmp_path / "labels.jsonl"
+    public_path = tmp_path / "public.json"
+    consensus_path = tmp_path / "consensus.json"
+    _dump_rows(documents_path, documents)
+    _dump_rows(labels_path, labels)
+    _dump(public_path, _public_exclusion_manifest(documents))
+    _dump(
+        consensus_path,
+        {
+            "status": "passed",
+            "labels_sha256": _hash(labels_path),
+            "unresolved_fraction": 0.0,
+            "gates": {},
+        },
+    )
+    return (
+        argparse.Namespace(
+            documents=str(documents_path),
+            public_exclusions=str(public_path),
+            labels=str(labels_path),
+            consensus_receipt=str(consensus_path),
+            output=str(tmp_path / "freeze.json"),
+            lock_inputs=False,
+        ),
+        public_path,
+    )
+
+
+@pytest.mark.parametrize("corruption", ["identity_hash", "source_counts"])
+def test_freeze_rejects_structurally_valid_public_manifest_drift(
+    tmp_path: Path, corruption: str
+) -> None:
+    args, public_path = _freeze_inputs(tmp_path)
+    public = json.loads(public_path.read_text(encoding="utf-8"))
+    if corruption == "identity_hash":
+        identities = set(public["documents"][0]["canonical_identity_sha256s"])
+        identities.remove(next(iter(identities)))
+        identities.add(hashlib.sha256(b"corrupted public identity").hexdigest())
+        public["documents"][0]["canonical_identity_sha256s"] = sorted(identities)
+    else:
+        public["source_counts"]["greek_phd"] -= 1
+        public["source_counts"]["kallipos"] += 1
+    _dump(public_path, public)
+    load_public_exclusions(public_path)
+
+    with pytest.raises(ValueError, match="differ from the sealed private documents"):
+        freeze(args)
 
 
 def test_immutable_remote_ingest_rejects_changed_response(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

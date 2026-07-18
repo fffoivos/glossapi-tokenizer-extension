@@ -39,7 +39,7 @@ from .contract import canonical_json_sha256, sha256_file
 SELECTION_CANDIDATE_SCHEMA = "bibliography-sealed-candidate-v1"
 SELECTION_RECEIPT_SCHEMA = "bibliography-sealed-selection-receipt-v1"
 PRIVATE_DOCUMENT_SCHEMA = "bibliography-sealed-document-v1"
-PUBLIC_EXCLUSION_SCHEMA = "bibliography-sealed-public-exclusions-v1"
+PUBLIC_EXCLUSION_SCHEMA = "bibliography-sealed-public-exclusions-v2"
 QUALITY_PACKET_SCHEMA = "bibliography-sealed-quality-packet-v1"
 QUALITY_RESPONSE_SCHEMA = "bibliography-sealed-quality-response-v1"
 QUALITY_CONSENSUS_SCHEMA = "bibliography-sealed-quality-consensus-v1"
@@ -183,10 +183,6 @@ def _parse_quotas(values: Sequence[str]) -> dict[str, int]:
     if set(result) != set(SOURCES):
         raise ValueError("quotas must cover greek_phd, kallipos, and openarchives")
     return result
-
-
-def _identity_hash(source: str, kind: str, value: str) -> str:
-    return hashlib.sha256(f"{source}\0{kind}\0{value}".encode("utf-8")).hexdigest()
 
 
 def _exclusion_identity_hash(source: str, value: str) -> str:
@@ -1132,20 +1128,111 @@ def _private_document(row: Mapping[str, Any]) -> dict[str, Any]:
     return result
 
 
-def _public_exclusion(row: Mapping[str, Any]) -> dict[str, str]:
+def _public_exclusion(row: Mapping[str, Any]) -> dict[str, Any]:
     source = str(row["source"])
     return {
         "document_id": str(row["document_id"]),
-        "source_identity_sha256": _identity_hash(source, "source", source),
-        "source_doc_identity_sha256": _identity_hash(
-            source, "source_doc_id", str(row["source_doc_id"])
-        ),
-        "work_identity_sha256": _identity_hash(source, "work_key", str(row["work_key"])),
-        "stable_identity_sha256": _identity_hash(
-            source, "stable_uid", str(row["stable_uid"])
-        ),
+        "canonical_identity_sha256s": sorted(set(_row_identity_hashes(source, row))),
         "normalized_text_sha256": str(row["normalized_text_sha256"]),
         "materialized_text_sha256": str(row["materialized_text_sha256"]),
+    }
+
+
+@dataclass(frozen=True)
+class PublicExclusions:
+    document_ids: frozenset[str]
+    identities: frozenset[str]
+    normalized_hashes: frozenset[str]
+    materialized_hashes: frozenset[str]
+
+    def rejects(self, source: str, row: Mapping[str, Any]) -> bool:
+        return any(value in self.identities for value in _row_identity_hashes(source, row))
+
+
+def load_public_exclusions(path: Path) -> PublicExclusions:
+    """Load the public manifest using the selector's field-agnostic identity contract."""
+
+    value = _json(path)
+    if (
+        not isinstance(value, dict)
+        or set(value)
+        != {"schema_version", "purpose", "document_count", "source_counts", "documents"}
+        or value.get("schema_version") != PUBLIC_EXCLUSION_SCHEMA
+    ):
+        raise ValueError("unsupported public exclusions")
+    rows = value.get("documents")
+    document_count = value.get("document_count")
+    source_counts = value.get("source_counts")
+    if (
+        not isinstance(rows, list)
+        or not isinstance(document_count, int)
+        or isinstance(document_count, bool)
+        or document_count != len(rows)
+        or not isinstance(source_counts, dict)
+        or not source_counts
+        or not set(source_counts).issubset(SOURCES)
+        or any(
+            not isinstance(count, int) or isinstance(count, bool) or count < 0
+            for count in source_counts.values()
+        )
+        or sum(source_counts.values()) != document_count
+    ):
+        raise ValueError("public exclusion inventory is invalid")
+
+    document_ids: set[str] = set()
+    identities: set[str] = set()
+    normalized_hashes: set[str] = set()
+    materialized_hashes: set[str] = set()
+    expected_fields = {
+        "document_id", "canonical_identity_sha256s", "normalized_text_sha256",
+        "materialized_text_sha256",
+    }
+    for row in rows:
+        if not isinstance(row, dict) or set(row) != expected_fields:
+            raise ValueError("public exclusion row has unexpected fields")
+        document_id = row["document_id"]
+        canonical = row["canonical_identity_sha256s"]
+        normalized_hash = row["normalized_text_sha256"]
+        materialized_hash = row["materialized_text_sha256"]
+        if (
+            not isinstance(document_id, str)
+            or not _HEX64.fullmatch(document_id)
+            or document_id in document_ids
+            or not isinstance(canonical, list)
+            or not canonical
+            or any(not isinstance(item, str) or not _HEX64.fullmatch(item) for item in canonical)
+            or canonical != sorted(set(canonical))
+            or not isinstance(normalized_hash, str)
+            or not _HEX64.fullmatch(normalized_hash)
+            or normalized_hash in normalized_hashes
+            or not isinstance(materialized_hash, str)
+            or not _HEX64.fullmatch(materialized_hash)
+            or materialized_hash in materialized_hashes
+        ):
+            raise ValueError("public exclusion row has invalid/duplicate hashes")
+        document_ids.add(document_id)
+        identities.update(canonical)
+        normalized_hashes.add(normalized_hash)
+        materialized_hashes.add(materialized_hash)
+    return PublicExclusions(
+        document_ids=frozenset(document_ids),
+        identities=frozenset(identities),
+        normalized_hashes=frozenset(normalized_hashes),
+        materialized_hashes=frozenset(materialized_hashes),
+    )
+
+
+def _public_exclusion_manifest(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    source_counts = collections.Counter(str(row["source"]) for row in rows)
+    public_rows = sorted(
+        (_public_exclusion(row) for row in rows), key=lambda row: row["document_id"]
+    )
+    return {
+        "schema_version": PUBLIC_EXCLUSION_SCHEMA,
+        "purpose": "future leakage exclusion only; contains opaque IDs and hashes, no text or labels",
+        "document_count": len(public_rows),
+        "source_counts": dict(sorted(source_counts.items())),
+        "documents": public_rows,
     }
 
 
@@ -1214,16 +1301,7 @@ def finalize_selection(args: argparse.Namespace) -> dict[str, Any]:
     receipt_out = Path(args.receipt_out).resolve()
     selected.sort(key=lambda row: (row["source"], row["document_id"]))
     _write_jsonl_new(documents_out, selected)
-    public_rows = sorted(
-        (_public_exclusion(row) for row in selected), key=lambda row: row["document_id"]
-    )
-    public_manifest = {
-        "schema_version": PUBLIC_EXCLUSION_SCHEMA,
-        "purpose": "future leakage exclusion only; contains opaque IDs and hashes, no text or labels",
-        "document_count": len(public_rows),
-        "source_counts": dict(sorted(source_counts.items())),
-        "documents": public_rows,
-    }
+    public_manifest = _public_exclusion_manifest(selected)
     _write_json_new(public_out, public_manifest, mode=0o644)
     final_receipt = {
         "schema_version": SELECTION_RECEIPT_SCHEMA,
@@ -2430,8 +2508,7 @@ def freeze(args: argparse.Namespace) -> dict[str, Any]:
     public = _json(public_path)
     labels = _read_jsonl(labels_path)
     consensus = _json(consensus_path)
-    if public.get("schema_version") != PUBLIC_EXCLUSION_SCHEMA:
-        raise ValueError("unsupported public exclusions")
+    load_public_exclusions(public_path)
     if consensus.get("status") != "passed" or consensus.get("labels_sha256") != sha256_file(labels_path):
         raise ValueError("consensus receipt is blocked or unbound")
     counts = collections.Counter(str(row["source"]) for row in documents)
@@ -2443,22 +2520,8 @@ def freeze(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("labels do not exactly cover the sealed documents")
     if any(row.get("role") == "UNKNOWN" for row in labels) and consensus["unresolved_fraction"] > 0.005:
         raise ValueError("unresolved labels exceed the frozen gate")
-    public_entries = public.get("documents")
-    if not isinstance(public_entries, list) or {
-        str(row["document_id"]) for row in public_entries
-    } != {str(row["document_id"]) for row in documents}:
-        raise ValueError("public exclusion IDs differ from the sealed documents")
-    public_fields = {
-        "document_id", "source_identity_sha256", "source_doc_identity_sha256",
-        "work_identity_sha256", "stable_identity_sha256", "normalized_text_sha256",
-        "materialized_text_sha256",
-    }
-    if any(
-        set(row) != public_fields
-        or any(not _HEX64.fullmatch(str(value)) for value in row.values())
-        for row in public_entries
-    ):
-        raise ValueError("public exclusion rows may contain only the fixed opaque hash fields")
+    if public != _public_exclusion_manifest(documents):
+        raise ValueError("public exclusions differ from the sealed private documents")
     frozen = {
         "schema_version": FREEZE_SCHEMA,
         "status": "frozen_prediction_blind_test_set",
