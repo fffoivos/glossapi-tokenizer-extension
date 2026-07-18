@@ -157,30 +157,50 @@ def _run_one(
         return {"batch_index": index, "status": "already_complete", "batch_id": export["batch_id"]}
     if export.get("status") != "pending":
         raise RuntimeError(f"batch {index}: unexpected remote status {export.get('status')!r}")
-    response = _codex(
-        prompt,
-        schema,
-        export,
-        args.codex_timeout_seconds,
-        args.model,
-        args.reasoning_effort,
-    )
-    accepted = _json_output(
-        _remote_command(
-            args,
-            [
-                ingest_command,
-                "--packet",
-                args.remote_packet,
-                "--run-dir",
-                args.remote_run_dir,
-                "--batch-index",
-                str(index),
-            ],
-            stdin=json.dumps(response, ensure_ascii=False),
-        ),
-        f"ingest batch {index}",
-    )
+    attempt_prompt = prompt
+    response: dict[str, Any]
+    accepted: dict[str, Any]
+    for attempt in range(args.validation_retries + 1):
+        response = _codex(
+            attempt_prompt,
+            schema,
+            export,
+            args.codex_timeout_seconds,
+            args.model,
+            args.reasoning_effort,
+        )
+        try:
+            accepted = _json_output(
+                _remote_command(
+                    args,
+                    [
+                        ingest_command,
+                        "--packet",
+                        args.remote_packet,
+                        "--run-dir",
+                        args.remote_run_dir,
+                        "--batch-index",
+                        str(index),
+                    ],
+                    stdin=json.dumps(response, ensure_ascii=False),
+                ),
+                f"ingest batch {index}",
+            )
+            break
+        except RuntimeError as error:
+            if attempt >= args.validation_retries:
+                raise
+            attempt_prompt = (
+                prompt.rstrip()
+                + "\n\nCORRECTION REQUIRED\n"
+                + "Your previous JSON was rejected by the sealed semantic validator. "
+                + "Return a complete replacement for the same envelope. For every chunk, "
+                + "RLE runs must begin at the chunk's first offset, end exactly after its "
+                + "last offset, and contain no gaps or overlaps. Do not omit trailing lines.\n"
+                + f"Validator error:\n{str(error)[-2000:]}\n"
+                + "Rejected JSON:\n"
+                + json.dumps(response, ensure_ascii=False)
+            )
     if accepted.get("status") != "accepted":
         raise RuntimeError(f"batch {index}: remote validator did not accept the response")
     return {"batch_index": index, "status": "accepted", "batch_id": accepted["batch_id"]}
@@ -378,6 +398,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--pending-only", action="store_true")
     parser.add_argument("--ssh-timeout-seconds", type=int, default=120)
     parser.add_argument("--codex-timeout-seconds", type=int, default=1800)
+    parser.add_argument("--validation-retries", type=int, choices=range(0, 6), default=0)
     return parser.parse_args(argv)
 
 
