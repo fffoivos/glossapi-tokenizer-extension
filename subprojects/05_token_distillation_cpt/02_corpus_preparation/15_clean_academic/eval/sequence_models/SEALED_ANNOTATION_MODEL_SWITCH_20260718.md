@@ -46,6 +46,11 @@ If A/B disagree, adjudication uses a fresh `gpt-5.6-terra`/medium reviewer
 ## Verification
 
 - Focused sealed-suite test: 32 passed.
+- Terra A's bounded preflight batch was accepted. A then resumed from the same
+  358-batch immutable contract; Terra B started from an independent 388-batch
+  contract. Both coordinators are active with one worker as of this update.
+- Process inspection showed two `gpt-5.6-terra`/medium calls and no active Sol
+  call.
 - The coordinator now requires an explicit supported model and binds the exact
   model/reasoning effort into the remote immutable contract.
 - Finalized pass and quality receipts report the model/reasoning values from
