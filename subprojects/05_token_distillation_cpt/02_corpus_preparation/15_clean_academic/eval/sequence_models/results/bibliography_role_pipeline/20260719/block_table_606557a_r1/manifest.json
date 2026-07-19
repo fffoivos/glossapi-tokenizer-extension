@@ -1,0 +1,57 @@
+{
+  "code_commit": "606557a",
+  "continuation_override": {
+    "block_line_without_eligible_continuation_probability": 3243,
+    "column": 1,
+    "connector_probability_rule": "max(frozen_connector, dedicated_continuation)",
+    "eligible_probability_count": 2688,
+    "mean_probability_delta": 0.0026578511810256794,
+    "median_probability_delta": -0.026077356189489365,
+    "other_role_probabilities_changed": false,
+    "overridden_block_line_count": 1139
+  },
+  "gold_block_count": 67,
+  "inputs": {
+    "base_block_manifest_sha256": "97491c7da280228028d014814cc0e5d25785604f7f07a506b723456f12e303af",
+    "base_manifest_sha256": "be8e146647470384fca9edcb601369f22fa4964f826977f8a9af5ae09571f498",
+    "connector_oof_probability_sha256": "226492bcd7640e894748abcc96a03d853af2f2516cf202cc247d5c954311dae1",
+    "connector_receipt_sha256": "a7f2049e7070e0404cf327dc36f2dd98657a6918302c52648eba034829aa93c6",
+    "connector_report_sha256": "201da84b78e4754ea12606e84a4eb31be6787e2993780edc0bac2cb43202e6df",
+    "connector_row_indices_sha256": "f1fcd5085791720948d8826f1ed966a7f65cead35de2c0efbb8c9fdebad8e0ae",
+    "connector_table_manifest_sha256": "540c6f8b29a922a7ddd44106a3d41fc73021de625b49992359d72a415c6a87e5",
+    "continuation_probability_sha256": "7bac8fa3730a585e73a987632e7777f54381c1c6b67563c0a4c9ee0a6a9ba46a",
+    "continuation_report_sha256": "be80f2198b4a5694b2b2790a2321c0339b5e9dcd4ddfec26106aae2cae457e58",
+    "entry_oof_sha256": "e0af1449b21f8aab49108f21a931e8869e287f0c1599d5b553bbbd1d2be75e37",
+    "heading_oof_probability_sha256": "6b7dc8e9f2bf8986e508792745a961fd71c49ac0c4d039b0c622dfff0426b4ba",
+    "heading_overlay_sha256": "b09f23610eaabd6352d9c2c2d3b448a1b359c1cba4a79df81785fe8cda8aff37",
+    "heading_receipt_sha256": "bc26867ba770f3724b3305e767630ed9645dea086d80d52f6f3fad10f75261e8",
+    "heading_report_sha256": "25a624c83e88667def68b22a5ef14aca1f281a3985c45fb187139e6eb35c3754",
+    "heading_row_indices_sha256": "90c44600b16b2e9bb334aa06b30e94f016427ede51977c22a9234624fd89b31c",
+    "overlay_sha256": "d8a63c4780e730099e69283430ce4bad2a9a4d6f02298c15b5309dba2f998a8c",
+    "source_sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "line_count": 4382,
+  "n_folds": 5,
+  "role_probability_columns": [
+    "ENTRY",
+    "CONTINUATION",
+    "FILLER",
+    "BIB_HEADER",
+    "BIB_SUBHEADER",
+    "NON_BIB_HEADER",
+    "OTHER"
+  ],
+  "schema_version": "bibliography-continuation-block-table-ablation-v1",
+  "seed_reachable_gold_block_count": 57,
+  "seed_recall_ceiling": 0.8507462686567164,
+  "sequence_count": 103,
+  "sequence_counts_by_source": {
+    "greek_phd": 16,
+    "kallipos": 73,
+    "openarchives": 14
+  },
+  "slurm_job_id": "2798804",
+  "split": "train",
+  "status": "passed_train_only_continuation_block_table_ablation",
+  "validation_opened": false
+}
