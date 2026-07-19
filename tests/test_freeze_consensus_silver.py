@@ -17,6 +17,7 @@ from sequence_models.audit_consensus_silver import audit  # noqa: E402
 from sequence_models.contract import sha256_file  # noqa: E402
 from sequence_models.freeze_consensus_silver import (  # noqa: E402
     FREEZE_STATUS,
+    _task_metrics,
     freeze_consensus_silver,
 )
 from sequence_models.materialize_consensus_silver import materialize  # noqa: E402
@@ -140,13 +141,20 @@ def test_freeze_preserves_original_failure_and_locks_consensus(tmp_path: Path) -
 
     assert result["status"] == FREEZE_STATUS
     assert all(result["gates"].values())
-    assert result["task_coverage"]["bibliography_membership"]["trusted_fraction"] == 1.0
-    assert result["task_coverage"]["fine_role"]["unresolved_count"] == 1
+    assert result["task_metrics"]["bibliography_membership"]["agreement_rate_on_comparable"] == 1.0
+    assert result["task_metrics"]["fine_role"]["disagreement_count"] == 1
     assert result["original_150_document_attempt"]["status"] == "blocked"
     assert result["sealed_hashes"]["independent_audit_sha256"] == sha256_file(audit_path)
     assert stat.S_IMODE(output.stat().st_mode) == 0o440
     assert stat.S_IMODE((artifact / "labels.task-consensus.jsonl").stat().st_mode) == 0o440
     assert stat.S_IMODE(audit_path.stat().st_mode) == 0o440
+
+
+def test_task_metrics_do_not_count_unknown_votes_as_disagreement() -> None:
+    metrics = _task_metrics({"agreement": 98, "disagreement": 2, "unavailable": 5})
+    assert metrics["agreement_rate_on_comparable"] == 0.98
+    assert metrics["trusted_coverage_fraction"] == 98 / 105
+    assert metrics["unresolved_fraction"] == 7 / 105
 
 
 def test_freeze_rejects_a_nonblocked_original_attempt(tmp_path: Path) -> None:

@@ -35,7 +35,7 @@ from .materialize_consensus_silver import (
 )
 
 
-FREEZE_SCHEMA = "bibliography-consensus-silver-freeze-v1"
+FREEZE_SCHEMA = "bibliography-consensus-silver-freeze-v2"
 FREEZE_STATUS = "frozen_posthoc_consensus_silver_evaluation_set"
 BLOCKED_STATUS = "blocked_consensus_silver_freeze"
 PRIMARY_TASK = "bibliography_membership"
@@ -98,6 +98,28 @@ def _parse_expected_source_counts(value: str) -> dict[str, int]:
     ):
         raise argparse.ArgumentTypeError("expected a non-empty JSON object of positive counts")
     return dict(sorted(parsed.items()))
+
+
+def _task_metrics(counts: Mapping[str, int]) -> dict[str, int | float]:
+    """Keep inter-annotator agreement distinct from trusted-label coverage."""
+
+    agreement = int(counts.get("agreement", 0))
+    disagreement = int(counts.get("disagreement", 0))
+    unavailable = int(counts.get("unavailable", 0))
+    comparable = agreement + disagreement
+    total = comparable + unavailable
+    unresolved = disagreement + unavailable
+    return {
+        "line_count": total,
+        "comparable_count": comparable,
+        "agreement_count": agreement,
+        "disagreement_count": disagreement,
+        "unavailable_count": unavailable,
+        "agreement_rate_on_comparable": agreement / max(comparable, 1),
+        "trusted_coverage_fraction": agreement / max(total, 1),
+        "unresolved_count": unresolved,
+        "unresolved_fraction": unresolved / max(total, 1),
+    }
 
 
 def freeze_consensus_silver(
@@ -202,7 +224,9 @@ def freeze_consensus_silver(
         raise ValueError("materialization exclusion count differs")
 
     task_totals = {task: collections.Counter() for task in TASK_NAMES}
-    source_primary = collections.defaultdict(collections.Counter)
+    source_task_totals = collections.defaultdict(
+        lambda: {task: collections.Counter() for task in TASK_NAMES}
+    )
     identities: set[tuple[str, str]] = set()
     aliases: set[str] = set()
     for key, label in zip(line_keys, labels, strict=True):
@@ -225,6 +249,11 @@ def freeze_consensus_silver(
         tasks = label.get("tasks")
         if not isinstance(tasks, dict) or set(tasks) != set(TASK_NAMES):
             raise ValueError(f"task inventory mismatch: {identity}")
+        raw_vote_unavailable = "UNKNOWN" in {
+            str(label.get("pass_a_role") or ""),
+            str(label.get("pass_b_role") or ""),
+        }
+        source = str(label["source"])
         for task in TASK_NAMES:
             decision = tasks[task]
             if (
@@ -235,34 +264,32 @@ def freeze_consensus_silver(
                 or decision["trusted"] != (decision["label"] != "UNKNOWN")
             ):
                 raise ValueError(f"malformed task decision: {identity} {task}")
-            task_totals[task]["trusted" if decision["trusted"] else "unresolved"] += 1
-        source = str(label["source"])
-        primary = tasks[PRIMARY_TASK]
-        source_primary[source]["trusted" if primary["trusted"] else "unresolved"] += 1
+            outcome = (
+                "unavailable"
+                if raw_vote_unavailable
+                else ("agreement" if decision["trusted"] else "disagreement")
+            )
+            task_totals[task][outcome] += 1
+            source_task_totals[source][task][outcome] += 1
         identities.add(identity)
         aliases.add(alias)
 
-    task_coverage = {}
-    for task, counts in task_totals.items():
-        total = sum(counts.values())
-        task_coverage[task] = {
-            "trusted_count": counts["trusted"],
-            "unresolved_count": counts["unresolved"],
-            "trusted_fraction": counts["trusted"] / max(total, 1),
-            "unresolved_fraction": counts["unresolved"] / max(total, 1),
-        }
-    overall_primary = task_coverage[PRIMARY_TASK]["trusted_fraction"]
-    unresolved_primary = task_coverage[PRIMARY_TASK]["unresolved_fraction"]
-    source_primary_metrics = {
-        source: {
-            "line_count": sum(counts.values()),
-            "trusted_count": counts["trusted"],
-            "unresolved_count": counts["unresolved"],
-            "agreement_fraction": counts["trusted"] / max(sum(counts.values()), 1),
-        }
-        for source, counts in sorted(source_primary.items())
+    task_metrics = {
+        task: _task_metrics(counts) for task, counts in task_totals.items()
     }
-    if set(source_primary_metrics) != set(expected_sources):
+    task_metrics_by_source = {
+        source: {
+            task: _task_metrics(counts) for task, counts in tasks.items()
+        }
+        for source, tasks in sorted(source_task_totals.items())
+    }
+    overall_primary = float(task_metrics[PRIMARY_TASK]["agreement_rate_on_comparable"])
+    unresolved_primary = float(task_metrics[PRIMARY_TASK]["unresolved_fraction"])
+    source_primary_metrics = {
+        source: tasks[PRIMARY_TASK]
+        for source, tasks in task_metrics_by_source.items()
+    }
+    if set(task_metrics_by_source) != set(expected_sources):
         raise ValueError("primary-task source inventory differs")
 
     gates = {
@@ -276,7 +303,7 @@ def freeze_consensus_silver(
             overall_primary >= OVERALL_AGREEMENT_MINIMUM
         ),
         "membership_agreement_each_source_gte_0_95": all(
-            details["agreement_fraction"] >= SOURCE_AGREEMENT_MINIMUM
+            details["agreement_rate_on_comparable"] >= SOURCE_AGREEMENT_MINIMUM
             for details in source_primary_metrics.values()
         ),
         "membership_unresolved_fraction_lte_0_005": (
@@ -304,7 +331,8 @@ def freeze_consensus_silver(
         "line_count": len(labels),
         "source_document_counts": source_document_counts,
         "source_membership_metrics": source_primary_metrics,
-        "task_coverage": task_coverage,
+        "task_metrics": task_metrics,
+        "task_metrics_by_source": task_metrics_by_source,
         "thresholds": {
             "membership_agreement_overall_minimum": OVERALL_AGREEMENT_MINIMUM,
             "membership_agreement_each_source_minimum": SOURCE_AGREEMENT_MINIMUM,
