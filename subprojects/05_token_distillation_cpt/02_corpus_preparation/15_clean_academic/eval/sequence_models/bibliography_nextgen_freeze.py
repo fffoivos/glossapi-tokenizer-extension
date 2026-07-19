@@ -11,6 +11,7 @@ from typing import Any, Mapping, Sequence
 
 from .bibliography_nextgen_decode import SCHEMA_VERSION as DECODER_SCHEMA
 from .bibliography_nextgen_models import SCHEMA_VERSION as MODEL_SCHEMA
+from .bibliography_nextgen_scope import SCHEMA_VERSION as SCOPE_SCHEMA
 from .contract import sha256_file
 
 
@@ -24,14 +25,21 @@ def _write_json_new(path: Path, value: Mapping[str, Any]) -> None:
         handle.write("\n")
 
 
-def _parse_candidate(raw: str) -> tuple[str, Path, Path]:
+def _parse_candidate(raw: str) -> tuple[str, Path, Path, Path | None]:
     parts = raw.split("=", 1)
     if len(parts) != 2 or not parts[0]:
         raise ValueError(f"invalid candidate: {raw!r}")
-    paths = parts[1].split("::", 1)
-    if len(paths) != 2:
-        raise ValueError("candidate format is NAME=MODEL_DIR::DECODER_DIR")
-    return parts[0], Path(paths[0]).resolve(), Path(paths[1]).resolve()
+    paths = parts[1].split("::")
+    if len(paths) not in (2, 3):
+        raise ValueError(
+            "candidate format is NAME=MODEL_DIR::DECODER_DIR[::SCOPE_MODEL_DIR]"
+        )
+    return (
+        parts[0],
+        Path(paths[0]).resolve(),
+        Path(paths[1]).resolve(),
+        Path(paths[2]).resolve() if len(paths) == 3 else None,
+    )
 
 
 def run(args: argparse.Namespace) -> dict[str, Any]:
@@ -48,7 +56,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     rows = []
     names: set[str] = set()
     for raw in args.candidate:
-        name, model_root, decoder_root = _parse_candidate(raw)
+        name, model_root, decoder_root, scope_root = _parse_candidate(raw)
         if name in names:
             raise ValueError(f"duplicate candidate name: {name}")
         names.add(name)
@@ -67,23 +75,51 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             or not isinstance(selected, Mapping)
         ):
             raise ValueError(f"candidate is not a selected development-only model: {name}")
-        rows.append(
-            {
-                "name": name,
-                "model_dir": str(model_root),
-                "model_kind": model["kind"],
-                "model_receipt_sha256": sha256_file(model_root / "receipt.json"),
-                "model_probability_sha256": sha256_file(
-                    model_root / "oof_probability.npy"
-                ),
-                "decoder_dir": str(decoder_root),
-                "decoder_receipt_sha256": sha256_file(decoder_root / "receipt.json"),
-                "decoder_config": selected["config"],
-                "development_metrics": selected["metrics"],
-                "development_gate_passed": selection_tier == "deployment_gate",
-                "development_selection_tier": selection_tier,
-            }
-        )
+        row = {
+            "name": name,
+            "model_dir": str(model_root),
+            "model_kind": model["kind"],
+            "model_receipt_sha256": sha256_file(model_root / "receipt.json"),
+            "model_probability_sha256": sha256_file(model_root / "oof_probability.npy"),
+            "decoder_dir": str(decoder_root),
+            "decoder_receipt_sha256": sha256_file(decoder_root / "receipt.json"),
+            "decoder_config": selected["config"],
+            "development_metrics": selected["metrics"],
+            "development_gate_passed": selection_tier == "deployment_gate",
+            "development_selection_tier": selection_tier,
+        }
+        if scope_root is not None:
+            scope = json.loads((scope_root / "report.json").read_text(encoding="utf-8"))
+            scope_selected = scope.get("selected")
+            scope_tier = "deployment_gate"
+            if not isinstance(scope_selected, Mapping):
+                scope_selected = scope.get("deployment_near_miss")
+                scope_tier = "predeclared_research_near_miss"
+            if (
+                scope.get("schema_version") != SCOPE_SCHEMA
+                or scope.get("test_opened") is not False
+                or not isinstance(scope_selected, Mapping)
+                or scope.get("inputs", {}).get("line_model_receipt_sha256")
+                != row["model_receipt_sha256"]
+                or scope.get("inputs", {}).get("decoder_receipt_sha256")
+                != row["decoder_receipt_sha256"]
+            ):
+                raise ValueError(f"invalid component-scope model: {name}")
+            row.update(
+                scope_model_dir=str(scope_root),
+                scope_model_receipt_sha256=sha256_file(scope_root / "receipt.json"),
+                scope_model_folds=[
+                    {"path": str(path), "sha256": sha256_file(path)}
+                    for path in sorted((scope_root / "models").glob("fold*.pkl"))
+                ],
+                scope_threshold=float(scope_selected["threshold"]),
+                development_metrics=scope_selected["metrics"],
+                development_gate_passed=scope_tier == "deployment_gate",
+                development_selection_tier=f"component_scope:{scope_tier}",
+            )
+            if not row["scope_model_folds"]:
+                raise ValueError(f"component-scope model lacks folds: {name}")
+        rows.append(row)
     if not rows:
         raise ValueError("at least one frozen candidate is required")
     result = {

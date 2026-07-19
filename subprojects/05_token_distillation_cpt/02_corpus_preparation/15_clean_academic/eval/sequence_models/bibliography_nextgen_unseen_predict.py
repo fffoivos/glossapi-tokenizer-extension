@@ -21,6 +21,11 @@ from .bibliography_entry_dataset import MAX_PHYSICAL_GAP
 from .bibliography_nextgen_decode import DecoderConfig, decode_table
 from .bibliography_nextgen_freeze import SCHEMA_VERSION as FREEZE_SCHEMA
 from .bibliography_nextgen_models import build_context_features
+from .bibliography_nextgen_scope import (
+    apply_component_threshold,
+    build_component_table,
+    predict_component_probability,
+)
 from .bibliography_nextgen_table import SCHEMA_VERSION as TABLE_SCHEMA
 from .bibliography_nextgen_tcn import FeatureTCN
 from .bibliography_nextgen_unseen_features import UnseenTable
@@ -160,6 +165,40 @@ def _model_probability(
     return value
 
 
+def _apply_scope_model(
+    scope_root: Path,
+    frozen_folds: Sequence[Mapping[str, Any]],
+    table: UnseenTable,
+    prediction: np.ndarray,
+    probability: np.ndarray,
+    features: np.ndarray,
+    names: Sequence[str],
+    threshold: float,
+) -> tuple[np.ndarray, int, int]:
+    paths = [Path(row["path"]).resolve() for row in frozen_folds]
+    if not paths:
+        raise ValueError(f"no component-scope folds: {scope_root}")
+    models = []
+    for path, frozen in zip(paths, frozen_folds, strict=True):
+        if path.parent != (scope_root / "models").resolve() or sha256_file(path) != frozen[
+            "sha256"
+        ]:
+            raise ValueError(f"frozen component-scope fold drift: {path}")
+        with path.open("rb") as handle:
+            bundle = pickle.load(handle)
+        if not isinstance(bundle, dict) or set(bundle) != {"kind", "scaler", "model"}:
+            raise ValueError(f"unexpected component-scope bundle: {path}")
+        models.append(bundle)
+    x, _documents, bounds, _target = build_component_table(
+        table, prediction, probability, features, names
+    )
+    component_probability = predict_component_probability(models, x)
+    scoped = apply_component_threshold(
+        prediction, bounds, component_probability, threshold
+    )
+    return scoped, len(bounds), int(np.count_nonzero(component_probability >= threshold))
+
+
 def run(args: argparse.Namespace) -> dict[str, Any]:
     table_root = Path(args.feature_table_dir).resolve()
     freeze_path = Path(args.candidate_freeze).resolve()
@@ -211,6 +250,23 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             DecoderConfig(**candidate["decoder_config"]),
             auxiliary_scope,
         )
+        component_count = kept_component_count = None
+        if candidate.get("scope_model_dir"):
+            scope_root = Path(candidate["scope_model_dir"]).resolve()
+            if sha256_file(scope_root / "receipt.json") != candidate[
+                "scope_model_receipt_sha256"
+            ]:
+                raise ValueError(f"frozen scope-model receipt drift: {candidate['name']}")
+            prediction, component_count, kept_component_count = _apply_scope_model(
+                scope_root,
+                candidate["scope_model_folds"],
+                table,
+                prediction,
+                probability,
+                features,
+                names,
+                float(candidate["scope_threshold"]),
+            )
         probability_path = output / f"{candidate['name']}.probability.npy"
         prediction_path = output / f"{candidate['name']}.prediction.npy"
         with probability_path.open("xb") as handle:
@@ -222,6 +278,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 "name": candidate["name"],
                 "model_kind": candidate["model_kind"],
                 "predicted_line_count": int(np.count_nonzero(prediction)),
+                "component_count_before_scope": component_count,
+                "component_count_after_scope": kept_component_count,
                 "probability_path": str(probability_path),
                 "probability_sha256": sha256_file(probability_path),
                 "prediction_path": str(prediction_path),

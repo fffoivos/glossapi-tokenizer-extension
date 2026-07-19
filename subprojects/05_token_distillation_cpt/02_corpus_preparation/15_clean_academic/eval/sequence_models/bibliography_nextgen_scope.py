@@ -157,7 +157,8 @@ def build_component_table(
     """Return component features, document indices, inclusive bounds, and targets."""
 
     if not (
-        prediction.shape == probability.shape == (len(table.targets),)
+        prediction.shape == probability.shape
+        and prediction.ndim == 1
         and features.shape[0] == len(prediction)
     ):
         raise ValueError("component inputs are not line aligned")
@@ -169,7 +170,12 @@ def build_component_table(
     document_indices: list[int] = []
     bounds: list[tuple[int, int]] = []
     targets: list[bool] = []
-    gold = table.original_labels == LABEL_TO_ID["BIB"]
+    original_labels = getattr(table, "original_labels", None)
+    gold = (
+        np.asarray(original_labels) == LABEL_TO_ID["BIB"]
+        if original_labels is not None
+        else np.zeros(len(prediction), dtype=bool)
+    )
     for document_index, document in enumerate(table.documents):
         doc_start, doc_end = int(document["line_start"]), int(document["line_end"])
         doc_length = doc_end - doc_start
