@@ -494,6 +494,119 @@ def test_actual_jaccard_uses_full_unique_shingle_sets() -> None:
     assert dedup._jaccard_sorted(np.array([], dtype="<u8"), right) == 0.0
 
 
+def test_merge_lsh_pairs_blocks_unresolved_oversized_groups(tmp_path: Path) -> None:
+    run_root, contract, combined = make_combined(tmp_path)
+    config = json.loads((ROOT / "configs" / "agent1_v5_eiger_pipeline.json").read_text())
+    config["dedup"].update(
+        {
+            "num_buckets": 1,
+            "hashes_per_bucket": 128,
+            "max_bucket_documents": 2,
+        }
+    )
+    config_path = tmp_path / "config.json"
+    write_json(config_path, config)
+
+    bucket = run_root / "60-dedup" / "minhash-buckets" / "00000_00.dups"
+    bucket.parent.mkdir(parents=True)
+    bucket.write_bytes(
+        dedup.PAIR_STRUCT.pack(0, 0, 0, 1)
+        + dedup.PAIR_STRUCT.pack(0, 1, 0, 2)
+    )
+    bucket_receipt = bucket.parent / "receipts" / "000000.json"
+    write_json(
+        bucket_receipt,
+        {
+            "schema_version": dedup.BUCKET_RECEIPT_SCHEMA,
+            "status": "passed",
+            "output": pipeline.file_receipt(bucket, root=run_root),
+        },
+    )
+
+    database = run_root / "lsh-pairs.sqlite"
+    try:
+        dedup.merge_lsh_pairs(
+            argparse.Namespace(
+                config=config_path,
+                contract=contract,
+                combined_manifest=combined,
+                output=database,
+            )
+        )
+    except RuntimeError as error:
+        assert "unresolved oversized LSH group" in str(error)
+    else:  # pragma: no cover
+        raise AssertionError("oversized LSH group did not block pair-manifest release")
+
+    assert not database.exists()
+    blocked_database = database.with_suffix(database.suffix + ".blocked")
+    assert blocked_database.is_file()
+    oversized = json.loads(database.with_suffix(".oversized.json").read_text())
+    assert oversized["status"] == "blocked"
+    assert oversized["groups"] == [{"bucket": 0, "documents": 3, "edges": 2}]
+    manifest = json.loads(database.with_suffix(".manifest.json").read_text())
+    assert manifest["status"] == "blocked"
+    assert manifest["reason"] == "unresolved_oversized_lsh_groups"
+    assert manifest["pairs_excluding_oversized_groups"] == 0
+    try:
+        dedup._pair_manifest(database)
+    except ValueError as error:
+        assert "not passed" in str(error)
+    else:  # pragma: no cover
+        raise AssertionError("downstream stage accepted a blocked pair manifest")
+
+
+def test_merge_lsh_pairs_promotes_candidate_when_groups_are_bounded(tmp_path: Path) -> None:
+    run_root, contract, combined = make_combined(tmp_path)
+    config = json.loads((ROOT / "configs" / "agent1_v5_eiger_pipeline.json").read_text())
+    config["dedup"].update(
+        {
+            "num_buckets": 1,
+            "hashes_per_bucket": 128,
+            "max_bucket_documents": 3,
+        }
+    )
+    config_path = tmp_path / "config.json"
+    write_json(config_path, config)
+
+    bucket = run_root / "60-dedup" / "minhash-buckets" / "00000_00.dups"
+    bucket.parent.mkdir(parents=True)
+    bucket.write_bytes(
+        dedup.PAIR_STRUCT.pack(0, 0, 0, 1)
+        + dedup.PAIR_STRUCT.pack(0, 1, 0, 2)
+    )
+    write_json(
+        bucket.parent / "receipts" / "000000.json",
+        {
+            "schema_version": dedup.BUCKET_RECEIPT_SCHEMA,
+            "status": "passed",
+            "output": pipeline.file_receipt(bucket, root=run_root),
+        },
+    )
+
+    database = run_root / "lsh-pairs.sqlite"
+    assert (
+        dedup.merge_lsh_pairs(
+            argparse.Namespace(
+                config=config_path,
+                contract=contract,
+                combined_manifest=combined,
+                output=database,
+            )
+        )
+        == 0
+    )
+    assert database.is_file()
+    assert not database.with_suffix(database.suffix + ".partial").exists()
+    assert not database.with_suffix(database.suffix + ".blocked").exists()
+    manifest = dedup._pair_manifest(database)
+    assert manifest["status"] == "passed"
+    assert manifest["pairs"] == 2
+    oversized = json.loads(database.with_suffix(".oversized.json").read_text())
+    assert oversized["status"] == "passed"
+    assert oversized["groups"] == []
+
+
 def test_exact_cluster_protects_nanochat_and_filters_candidate(tmp_path: Path) -> None:
     run_root, contract, combined = make_combined(tmp_path)
     for rank in range(2):

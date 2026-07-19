@@ -876,8 +876,13 @@ def merge_lsh_pairs(args: argparse.Namespace) -> int:
     database = args.output.resolve()
     if database.exists():
         raise FileExistsError(database)
+    candidate_database = database.with_suffix(database.suffix + ".partial")
+    blocked_database = database.with_suffix(database.suffix + ".blocked")
+    for path in (candidate_database, blocked_database):
+        if path.exists():
+            raise FileExistsError(path)
     database.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    connection = sqlite3.connect(database)
+    connection = sqlite3.connect(candidate_database)
     connection.execute("PRAGMA journal_mode=OFF")
     connection.execute("PRAGMA synchronous=OFF")
     connection.execute("PRAGMA temp_store=FILE")
@@ -936,6 +941,39 @@ def merge_lsh_pairs(args: argparse.Namespace) -> int:
     if pair_count != counters["unique_pairs"]:
         raise ValueError("LSH pair database closure failed")
     oversized_path = database.with_suffix(".oversized.json")
+    manifest_path = database.with_suffix(".manifest.json")
+    if oversized:
+        candidate_database.replace(blocked_database)
+        write_json_atomic(
+            oversized_path,
+            {
+                "schema_version": "agent1_v5_oversized_lsh_groups_v1",
+                "status": "blocked",
+                "created_at": utc_now(),
+                "max_documents": max_documents,
+                "groups": oversized,
+            },
+        )
+        write_json_atomic(
+            manifest_path,
+            {
+                "schema_version": PAIR_MANIFEST_SCHEMA,
+                "status": "blocked",
+                "created_at": utc_now(),
+                "reason": "unresolved_oversized_lsh_groups",
+                "combined_manifest_sha256": sha256_file(args.combined_manifest),
+                "database_candidate": file_receipt(blocked_database),
+                "oversized_groups": file_receipt(oversized_path),
+                "pairs_excluding_oversized_groups": pair_count,
+                "counters": dict(counters),
+            },
+        )
+        print(canonical_json({"ok": False, "blocked": True, "oversized": len(oversized)}))
+        raise RuntimeError(
+            f"dedup release blocked by {len(oversized)} unresolved oversized LSH group(s)"
+        )
+
+    candidate_database.replace(database)
     write_json_atomic(
         oversized_path,
         {
@@ -946,7 +984,6 @@ def merge_lsh_pairs(args: argparse.Namespace) -> int:
             "groups": oversized,
         },
     )
-    manifest_path = database.with_suffix(".manifest.json")
     result: dict[str, Any] = {
         "schema_version": PAIR_MANIFEST_SCHEMA,
         "status": "passed",
