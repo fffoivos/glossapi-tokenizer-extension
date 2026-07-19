@@ -20,13 +20,13 @@ from typing import Any
 import numpy as np
 
 
-EXPECTED_PARENT_ID = "g1-e47e74768f652e91f3cd7f73"
-EXPECTED_PARENT_RECEIPT_SHA = "7a1cebdc322f75e76e5d7ca9271dc9cece94d9dc5521fe0ffa81f4df9ac4453a"
+EXPECTED_PARENT_ID = "g1-1909806a497053bb7ac4c964"
+EXPECTED_PARENT_RECEIPT_SHA = "9ae3ce4f3d80676ef7d561e429c835e12c65690f9004da15e0dc4e0a0e4479fb"
 EXPECTED_PARENT_PREDICTION_SHA = "58c4f0a4108f1c7c461782c81274363bb29e83fea2b9151dcd7751aecd6da684"
 EXPECTED_PARENT_BARRIER_SHA = "540ad1326cc282aed13f4c13458d002bc13288fba3d765cbb78ff48fbb2c09b1"
-EXPECTED_REGISTRY_SHA = "b47274355800fae4a8b8fdcfaaf2dce11fb5104ba8c7ea1b5ad3c7b6b7949ea8"
-EXPECTED_REGISTRY_RECEIPT_SHA = "dcf3ae403bf231589b2a8239a9259275224cfdf11754fc81fca8a286d7b8991c"
-EXPECTED_RECOMMENDATION_SHA = "6d4eed0ac5172474d6fab3d807ad24e63bf23894161ad42aaa093e41bcb4f473"
+EXPECTED_REGISTRY_SHA = "eb6f229e8ce0b8df68c06461d580a9db807840a1f546b7955c961cfd0ec7285b"
+EXPECTED_REGISTRY_RECEIPT_SHA = "46ac1604fbe8e48c977b5388b3ac02d3afdb1b256902045435be24041eb757bf"
+EXPECTED_RECOMMENDATION_SHA = "a54756342d63668ebd38bbaa15c724a91fa2655c82a7367399ff470e51d78b79"
 EXPECTED_WINDOWS = [1, 2, 3, 4]
 EXPECTED_ROLE_COUNTS = {
     "NONE": 258672,
@@ -346,7 +346,7 @@ def main() -> int:
     registry_receipt = load_json(registry_receipt_path)
     recommendation = load_json(recommendation_path)
     if (
-        registry.get("candidate_count") != 6
+        registry.get("candidate_count") != 33
         or recommendation.get("recommended_parent_candidate_id") != EXPECTED_PARENT_ID
         or registry_receipt.get("g2_parent_recommendation", {}).get("candidate_id")
         != EXPECTED_PARENT_ID
