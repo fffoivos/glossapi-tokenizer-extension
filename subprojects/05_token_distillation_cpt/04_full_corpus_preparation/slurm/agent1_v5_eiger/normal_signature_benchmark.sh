@@ -17,7 +17,7 @@ metrics_root="$RUN_ROOT/60-dedup/minhash-signatures/accelerated-metrics"
 sample_root="$RUN_ROOT/60-dedup/minhash-signatures/benchmark-samples"
 sample_file="$sample_root/${SLURM_JOB_ID:-local}-${BENCHMARK_NONCE}.ndjson"
 phase_file="$sample_root/${SLURM_JOB_ID:-local}-${BENCHMARK_NONCE}.phase"
-observations="$RUN_ROOT/dedup_acceleration_benchmark_observations.json"
+observations="${BENCHMARK_OBSERVATIONS:-$RUN_ROOT/dedup_acceleration_benchmark_observations.json}"
 stop_sentinel="${STOP_SENTINEL:-$RUN_ROOT/dedup_acceleration.stop}"
 mkdir -p "$sample_root"
 [[ ! -e "$observations" ]] || { echo "immutable observations already exist: $observations" >&2; exit 2; }
@@ -26,7 +26,7 @@ sample_once() {
   local epoch phase raw status
   epoch="$(date +%s)"
   phase="$(cat "$phase_file" 2>/dev/null || printf '%s' -1)"
-  if raw="$(sstat -n -P -j "${SLURM_JOB_ID}.batch" --format=JobID,AveRSS,MaxRSS,AveDiskRead,AveDiskWrite,TotalCPU 2>&1)"; then
+  if raw="$(sstat -n -P -j "${SLURM_JOB_ID}.batch" --format=JobID,AveRSS,MaxRSS,AveDiskRead,AveDiskWrite 2>&1)"; then
     status=passed
   else
     status=failed

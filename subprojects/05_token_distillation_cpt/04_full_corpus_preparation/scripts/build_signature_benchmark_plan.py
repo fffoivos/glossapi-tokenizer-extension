@@ -67,6 +67,7 @@ def main(argv=None):
     parser.add_argument("--full-input-audit", required=True)
     parser.add_argument("--cutover-receipt", required=True)
     parser.add_argument("--combined-manifest", required=True)
+    parser.add_argument("--benchmark-start-rank", type=int)
     parser.add_argument("--phase-ranks", action="append", required=True, metavar="RANK[,RANK...]")
     parser.add_argument("--output", required=True)
     args = parser.parse_args(argv)
@@ -88,8 +89,11 @@ def main(argv=None):
         raise ValueError("exactly four benchmark phase lists are required")
     parsed = [phase_ranks(raw, count) for raw, (_, count, _) in zip(args.phase_ranks, PHASES)]
     flat = [rank for ranks in parsed for rank in ranks]
-    if len(flat) != 24 or len(set(flat)) != 24 or min(flat) != first:
-        raise ValueError("benchmark must start at first missing rank and contain 24 unique ranks")
+    benchmark_start = first if args.benchmark_start_rank is None else int(args.benchmark_start_rank)
+    if benchmark_start < first:
+        raise ValueError("benchmark start rank precedes the first missing rank")
+    if len(flat) != 24 or len(set(flat)) != 24 or min(flat) != benchmark_start:
+        raise ValueError("benchmark must start at the requested rank and contain 24 unique ranks")
     files = manifest.get("files")
     if not isinstance(files, list):
         raise ValueError("combined manifest files missing")
@@ -101,7 +105,7 @@ def main(argv=None):
         if row.get("origin") != "nanochat_base" or int(row.get("rows", -1)) != 196608:
             raise ValueError("benchmark ranks must be homogeneous full NanoChat shards")
     excluded = []
-    for rank in range(first, max(flat) + 1):
+    for rank in range(benchmark_start, max(flat) + 1):
         if rank in flat:
             continue
         row = by_rank.get(rank)
@@ -117,6 +121,8 @@ def main(argv=None):
         "cutover_receipt_sha256": sha256_file(args.cutover_receipt),
         "combined_manifest_sha256": manifest_sha,
         "first_missing_rank": first,
+        "benchmark_start_rank": benchmark_start,
+        "is_rebenchmark": benchmark_start != first,
         "phases": [{"index": index, "name": name, "workers": workers, "ranks": parsed[index]} for index, (workers, _, name) in enumerate(PHASES)],
         "explicit_nonbenchmark_exclusions": excluded,
         "rank_inventory": [{"rank": by_rank[rank]["rank"], "bytes": by_rank[rank]["bytes"], "rows": by_rank[rank]["rows"], "sha256": by_rank[rank]["sha256"]} for rank in flat],
