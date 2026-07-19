@@ -221,6 +221,11 @@ def test_bounded_stage_runner_executes_each_task_once_and_emits_metrics(tmp_path
         "ATTEMPT_ID": "test-bounded",
         "TIME_BIN": str(fake_time),
     }
+    # The unit fixture controls its own lifetime and stop sentinel.  A test
+    # launched inside Slurm must not inherit the enclosing allocation's drain
+    # window or an operator sentinel intended for a production run.
+    environment.pop("SLURM_JOB_END_TIME", None)
+    environment.pop("STOP_SENTINEL", None)
     subprocess.run([str(runner)], check=True, env=environment)
     assert sorted((run_root / "tasks.txt").read_text().splitlines()) == ["2", "3", "4"]
     metrics = sorted((attempt / "metrics").glob("*.json"))
