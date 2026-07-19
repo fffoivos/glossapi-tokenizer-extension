@@ -82,6 +82,26 @@ pass cannot repair it. The threshold must not be relaxed or tuned after seeing
 sealed annotations. `40_frozen/FROZEN.receipt.json` therefore does not exist,
 and the generated merged labels are not a frozen test set.
 
+## A/B visual comparison
+
+The annotation-QA reader is under
+`45_ab_comparison_site/site-76cd045/`. It shows all 150 documents and all
+194,273 lines with pass A and pass B side by side, uses a single aligned scroll,
+colours each detailed role, highlights binary disagreements, and sorts the
+document menu from worst to best agreement. Previous/next controls jump between
+binary disagreements. The reader contains no model predictions and is not an
+input to development selection.
+
+- Generator commit: `76cd045ff3c411accac93fe287fb5d925a53c4f2`.
+- Focused Clariden test job `2794043`: 3 passed.
+- Clariden build job `2794044`: `COMPLETED 0:0`; empty stderr.
+- Receipt SHA-256:
+  `5cb94f3afc801e6dc6b4849c35a5d0a74aefd72754292344c690c6753255a396`.
+- Manifest SHA-256:
+  `7254a75c1aaa021ef65ba006f720f2e9a4851dbaf006278fe186bf6cd96b13ac`.
+- Visual QA was performed at 1800 by 1200 pixels after correcting the sticky
+  column-heading alignment.
+
 ## Verification
 
 - Focused sealed-suite test: 33 passed.
