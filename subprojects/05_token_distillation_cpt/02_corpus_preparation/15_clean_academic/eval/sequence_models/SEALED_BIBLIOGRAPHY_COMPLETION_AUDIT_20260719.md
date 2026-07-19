@@ -27,28 +27,32 @@ described as the original 150-document prediction-blind freeze.
 | Do not misrepresent the failed original attempt | absence of `40_frozen/FROZEN.receipt.json`; blocked receipt SHA `9665af25...` | Passed: no original terminal seal exists and the failure is preserved |
 | Apply the later agreement-only decision | `48_consensus_silver/run-4256753/receipt.json`; job `2798789` | Passed: 143 retained + 7 excluded, 173,609 lines, task-specific masks, no C or implicit adjudicator |
 | Independently reconstruct and audit the successor | `48_consensus_silver/audit-a612390.receipt.json`; job `2798796` | Passed: source/output hashes, partition, identities, order, coverage and every task decision reproduced |
-| Freeze and lock the successor transparently | `FROZEN.consensus-silver.receipt.json`; job `2799088`; commit `b9f27cd` | Passed: all primary membership gates true; every bound cohort file and receipt mode `0440` |
+| Freeze and lock the successor transparently | `FROZEN.consensus-silver-v2.receipt.json`; job `2799787`; commit `3bfee86` | Passed: agreement and coverage use distinct denominators, all primary membership gates true, and every bound cohort file and receipt mode `0440` |
 | Keep the evaluation set unopened during continued model development | continuation experiment receipts and `BIB_CONTINUATION_HEAD_RUN_20260719.md` | Passed for the recorded experiment: grouped train-only evidence was used; validation and consensus labels were unopened |
-| Leave no annotation/coordinator jobs running | Mac process audit and Clariden queue audit after job `2799088` | Passed: no matching coordinator process or sealed annotation job remained |
+| Leave no annotation/coordinator jobs running | Mac process audit and Clariden queue audit after the seal jobs | Passed: no matching coordinator process or sealed annotation job remained |
 
 ## Canonical terminal metrics
 
 The successor's primary target is `bibliography_membership`:
 
-| scope | trusted | total | trusted fraction |
-|---|---:|---:|---:|
-| all | 172,905 | 173,609 | 99.5945% |
-| Greek PhD | 92,978 | 93,047 | 99.9258% |
-| Kallipos | 29,683 | 29,693 | 99.9663% |
-| OpenArchives | 50,244 | 50,869 | 98.7714% |
+| scope | agreements | comparable | agreement | trusted coverage over all lines |
+|---|---:|---:|---:|---:|
+| all | 172,905 | 173,055 | 99.9133% | 99.5945% |
+| Greek PhD | 92,978 | 93,047 | 99.9258% | 99.9258% |
+| Kallipos | 29,683 | 29,693 | 99.9663% | 99.9663% |
+| OpenArchives | 50,244 | 50,315 | 99.8589% | 98.7714% |
 
 Unresolved primary labels are 704 / 173,609 = 0.4055%. Thus the unchanged
 98% overall, 95% per-source, and 0.5% unresolved numerical thresholds all pass
 for the successor's primary target.
 
-Auxiliary trusted coverage is 99.5167% for entry seed, 99.4966% for context
-role, 98.9931% for heading type, and 98.7754% for exact fine role. These are
-masked evaluation channels, not fully adjudicated targets.
+Auxiliary agreement on comparable lines is 99.8353% for entry seed, 99.8151%
+for context role, 99.3100% for heading type, and 99.0916% for exact fine role.
+Trusted coverage is reported separately. Category-sensitive metrics after both
+repairs and the drop are 87.62% header detection with 99.87% conditional header
+subtype agreement, and 83.97% continuation/filler detection with 98.86%
+conditional subtype agreement. These are masked evaluation channels, not fully
+adjudicated targets.
 
 ## Paths
 
@@ -73,5 +77,7 @@ Repository-local receipt archive, containing no sealed text or line labels:
   reasoning level, imported/direct batch counts, line counts, and packet hashes.
 - Verified every successor data/metadata file and the independent audit is
   mode `0440`.
-- Verified Clariden job `2799088` completed in 11 seconds with exit code 0.
-- Ran the combined sealed workflow and consensus test set: 52 tests passed.
+- Verified corrected seal job `2799787` and agreement-analysis job `2799790`
+  completed with exit code 0.
+- Ran the combined sealed workflow and consensus test set after the correction:
+  55 tests passed.

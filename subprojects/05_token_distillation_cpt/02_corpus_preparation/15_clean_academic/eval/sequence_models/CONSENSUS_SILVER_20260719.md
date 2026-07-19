@@ -79,28 +79,58 @@ The original inputs and repaired passes remain unchanged under
 
 ## Terminal seal
 
-Clariden CPU job `2799088` wrote and locked:
+Clariden CPU job `2799787` wrote and locked the canonical v2 seal:
 
-`run-4256753/FROZEN.consensus-silver.receipt.json`
+`run-4256753/FROZEN.consensus-silver-v2.receipt.json`
 
-The seal was produced by commit `b9f27cd`. It rechecked the independent audit,
+The seal was produced by commit `3bfee86`. It rechecked the independent audit,
 every artifact hash, exact retained-line identity and coverage, the 143 + 7 =
 150 document partition, and the unchanged numerical terminal thresholds for
 the primary `BIB`/`NON_BIB` membership target. All cohort files, the
 materialization receipt, independent audit, and terminal seal are mode `0440`.
 
-| terminal membership gate | result | passed |
+The earlier v1 seal from job `2799088` incorrectly called trusted-label
+coverage “agreement.” It is preserved read-only for audit but superseded. V2
+uses comparable repaired A/B votes for agreement and all retained lines for
+coverage/unresolved rates.
+
+| terminal membership gate | corrected result | passed |
 |---|---:|---:|
-| overall trusted A/B membership | 172,905 / 173,609 = 99.5945% | yes (`>= 98%`) |
+| overall A/B agreement | 172,905 / 173,055 comparable = 99.9133% | yes (`>= 98%`) |
 | Greek PhD | 92,978 / 93,047 = 99.9258% | yes (`>= 95%`) |
 | Kallipos | 29,683 / 29,693 = 99.9663% | yes (`>= 95%`) |
-| OpenArchives | 50,244 / 50,869 = 98.7714% | yes (`>= 95%`) |
-| unresolved membership | 704 / 173,609 = 0.4055% | yes (`<= 0.5%`) |
+| OpenArchives agreement | 50,244 / 50,315 comparable = 99.8589% | yes (`>= 95%`) |
+| trusted-label coverage | 172,905 / 173,609 = 99.5945% | reported separately |
+| unresolved coverage | 704 / 173,609 = 0.4055% | yes (`<= 0.5%`) |
+
+### Effect of the repairs and document exclusion
+
+These are three genuinely different states, not the same old calculation:
+
+| metric | original 150 | both repairs, 150 | both repairs, seven dropped |
+|---|---:|---:|---:|
+| BIB/non-BIB agreement | 98.04% | 98.93% | **99.9133%** |
+| header detection, both / union | 85.91% | 88.22% | **87.62%** |
+| header subtype, conditional on both | 99.85% | 99.85% | **99.87%** |
+| continuation/filler detection, both / union | 51.02% | 74.82% | **83.97%** |
+| continuation/filler subtype, conditional on both | 99.26% | 99.00% | **98.86%** |
+
+Dropping the seven footnote-confusion documents raises binary membership by
+almost a full percentage point beyond the repairs and raises contextual-line
+detection by another 9.15 points. Header detection falls slightly because the
+dropped documents were not the main header-disagreement contributors; header
+subtype agreement remains almost perfect once both annotators detect a header.
+
+The exact post-drop analysis is locked at:
+
+`run-4256753/agreement-analysis-v1.receipt.json`
 
 Auxiliary masks remain intentionally incomplete and are recorded rather than
-hidden: entry seed is 99.5167% trusted, context role 99.4966%, heading type
-98.9931%, and exact fine role 98.7754%. These are evaluation masks, not claims
-that the original exact-role adjudication protocol passed.
+hidden. On comparable lines, exact task agreement is 99.8353% for entry seed,
+99.8151% for context role, 99.3100% for heading type, and 99.0916% for exact
+fine role. Their all-line trusted coverage is lower because 554 OpenArchives
+lines contain an `UNKNOWN` vote. These are evaluation masks, not claims that
+the original exact-role adjudication protocol passed.
 
 The terminal status is
 `frozen_posthoc_consensus_silver_evaluation_set`. It does **not** rewrite the

@@ -199,19 +199,23 @@ After the two deterministic annotation repairs and review of the documents
 dominating residual disagreement, Foivos directed that seven problematic
 documents be excluded and that only repaired A/B task agreements be retained.
 The resulting 143-document consensus-silver cohort was materialized by job
-`2798789`, independently audited by job `2798796`, and terminally sealed by job
-`2799088` using commit `b9f27cd`.
+`2798789`, independently audited by job `2798796`, and terminally sealed with
+corrected agreement denominators by job `2799787` using commit `3bfee86`.
 
 The terminal file is:
 
-`48_consensus_silver/run-4256753/FROZEN.consensus-silver.receipt.json`
+`48_consensus_silver/run-4256753/FROZEN.consensus-silver-v2.receipt.json`
 
 It reports status `frozen_posthoc_consensus_silver_evaluation_set`, locks all
 bound cohort files mode `0440`, preserves the hash and failure of the original
 150-document receipt, and passes the unchanged numerical membership gates:
-99.5945% overall trusted coverage, at least 98.7714% in every source, and
-0.4055% unresolved. See `CONSENSUS_SILVER_20260719.md` for task-specific
-coverage and exact artifact paths.
+99.9133% agreement on comparable repaired votes, at least 99.8589% in every
+source, and 0.4055% unresolved over all retained lines. Trusted-label coverage
+is separately 99.5945%. See `CONSENSUS_SILVER_20260719.md` for task-specific
+agreement, coverage, detection metrics, and exact artifact paths.
+
+The previous v1 seal from job `2799088` is preserved but superseded: it used
+the strict trusted-coverage fraction as if it were inter-annotator agreement.
 
 ## Verification
 

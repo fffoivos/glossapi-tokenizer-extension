@@ -354,17 +354,24 @@ Its explicit terminal status is
 above remains authoritative for the original attempt.
 
 The successor cohort is under `48_consensus_silver/run-4256753/`. Independent
-audit job `2798796` passed. Terminal seal job `2799088`, from commit `b9f27cd`,
+audit job `2798796` passed. Canonical terminal seal job `2799787`, from commit `3bfee86`,
 then rechecked every content hash, the 143 retained + 7 excluded document
 partition, exact retained-line coverage, and the unchanged 98% overall, 95%
 per-source, and 0.5% unresolved gates for the primary bibliography-membership
 target. It locked every derived input and receipt mode `0440`.
 
-Primary membership coverage is 172,905 / 173,609 = 99.5945%; by source it is
-99.9258% Greek PhD, 99.9663% Kallipos, and 98.7714% OpenArchives. Unresolved
-membership is 704 / 173,609 = 0.4055%. Auxiliary task masks and their lower
-coverage are recorded in the terminal receipt and must not be described as
-fully adjudicated labels.
+Primary membership agreement is 172,905 / 173,055 comparable lines = 99.9133%;
+by source it is 99.9258% Greek PhD, 99.9663% Kallipos, and 99.8589%
+OpenArchives. Trusted-label coverage is separately 172,905 / 173,609 =
+99.5945%, and unresolved membership is 704 / 173,609 = 0.4055%. Auxiliary task
+masks and their lower coverage are recorded in the terminal receipt and must
+not be described as fully adjudicated labels.
+
+Job `2799790` produced the locked post-drop agreement analysis. Compared with
+the fully repaired 150-document state, dropping seven documents raises
+BIB/non-BIB agreement from 98.93% to 99.9133% and continuation/filler detection
+from 74.82% to 83.97%. Header detection is 87.62% (slightly below the repaired
+150-document 88.22%), while conditional header subtype agreement is 99.87%.
 
 ## Artifact map
 
@@ -381,11 +388,14 @@ fully adjudicated labels.
 - Sealed labels: `40_frozen/labels.private.jsonl`.
 - Terminal seal: `40_frozen/FROZEN.receipt.json`.
 - User-directed successor seal:
-  `48_consensus_silver/run-4256753/FROZEN.consensus-silver.receipt.json`.
+  `48_consensus_silver/run-4256753/FROZEN.consensus-silver-v2.receipt.json`.
+- Corrected agreement analysis:
+  `48_consensus_silver/run-4256753/agreement-analysis-v1.receipt.json`.
 
 The first terminal-seal path is intentionally absent because the original
-attempt failed. The second exists and must always be described with its
-post-hoc consensus-silver semantics.
+attempt failed. The successor exists and must always be described with its
+post-hoc consensus-silver semantics. The locked v1 successor seal from job
+`2799088` is superseded because it conflated agreement with trusted coverage.
 
 Never publish the sealed text, line key, pass files, or labels before the final
 model comparison is complete.

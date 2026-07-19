@@ -12,8 +12,14 @@ key, or line labels.
   hash audit.
 - `consensus-silver.exclusions.json` records the seven explicit document
   exclusions without document text.
-- `consensus-silver.FROZEN.receipt.json` is the terminal seal from Clariden job
-  `2799088` and code commit `b9f27cd`.
+- `consensus-silver.FROZEN-v2.receipt.json` is the canonical terminal seal from
+  Clariden job `2799787` and code commit `3bfee86`. It keeps comparable-vote
+  agreement separate from all-line trusted coverage.
+- `consensus-silver.agreement-analysis.receipt.json` contains the exact
+  post-repair, post-drop task, header-detection and continuation/filler metrics
+  from job `2799790` and commit `1a536f1`.
+- `consensus-silver.FROZEN.superseded-v1.receipt.json` is retained to document
+  the earlier reporting bug: v1 mislabeled trusted-label coverage as agreement.
 
 The large mode-`0440` sealed artifacts remain only on Clariden at:
 
