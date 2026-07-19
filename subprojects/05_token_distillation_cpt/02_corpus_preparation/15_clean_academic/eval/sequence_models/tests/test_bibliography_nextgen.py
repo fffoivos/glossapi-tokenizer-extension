@@ -131,3 +131,18 @@ def test_strict_decoder_can_use_but_not_emit_markdown_subheader() -> None:
         _config(emit_markdown_headings=False),
     )
     assert predicted.tolist() == [True, True, False, True, True]
+
+
+def test_auxiliary_scope_veto_removes_only_scoped_component() -> None:
+    probability = np.asarray((0.9, 0.9, 0.0, 0.9, 0.9), dtype=np.float32)
+    features = _features(len(probability))
+    predicted = decode_document(
+        probability,
+        features,
+        NAMES,
+        np.asarray((100, 100, 10, 100, 100), dtype=np.uint32),
+        np.arange(len(probability), dtype=np.uint32),
+        _config(apply_auxiliary_scope_veto=True),
+        np.asarray((True, True, False, False, False)),
+    )
+    assert predicted.tolist() == [False, False, False, True, True]

@@ -15,6 +15,7 @@ from typing import Any, Mapping, Sequence
 import numpy as np
 
 from .bibliography_entry_blocks import blocks_from_mask, evaluate_prediction
+from .bibliography_auxiliary_scope_veto import has_auxiliary_scope
 from .bibliography_entry_dataset import LABEL_TO_ID, MAX_PHYSICAL_GAP
 from .bibliography_entry_models import load_table
 from .bibliography_nextgen_models import SCHEMA_VERSION as MODEL_SCHEMA
@@ -41,6 +42,7 @@ class DecoderConfig:
     header_attachment_window: int = 3
     connector_expansion_threshold: float = 0.65
     emit_markdown_headings: bool = True
+    apply_auxiliary_scope_veto: bool = False
 
 
 def _physical_segments(abs_indices: np.ndarray) -> list[tuple[int, int]]:
@@ -100,6 +102,7 @@ def decode_document(
     char_lengths: np.ndarray,
     abs_indices: np.ndarray,
     config: DecoderConfig,
+    auxiliary_scope: np.ndarray | None = None,
 ) -> np.ndarray:
     """Decode a document while enforcing heading and terminal-tail invariants."""
 
@@ -107,6 +110,10 @@ def decode_document(
         len(probability) == len(features) == len(char_lengths) == len(abs_indices)
     ):
         raise ValueError("decoder arrays are not aligned")
+    if auxiliary_scope is None:
+        auxiliary_scope = np.zeros(len(probability), dtype=bool)
+    elif auxiliary_scope.shape != probability.shape:
+        raise ValueError("auxiliary scope is not line aligned")
     names = {name: index for index, name in enumerate(feature_names)}
     required = {
         "probability:bib_header",
@@ -239,6 +246,16 @@ def decode_document(
             result[index] = False
     if not config.emit_markdown_headings:
         result[markdown] = False
+    if config.apply_auxiliary_scope_veto:
+        for start, end in blocks_from_mask(result, abs_indices):
+            if has_auxiliary_scope(
+                auxiliary_scope,
+                abs_indices,
+                start,
+                end=end,
+                window=config.header_attachment_window,
+            ):
+                result[start : end + 1] = False
     return result
 
 
@@ -248,6 +265,7 @@ def decode_table(
     features: np.ndarray,
     feature_names: Sequence[str],
     config: DecoderConfig,
+    auxiliary_scope: np.ndarray | None = None,
 ) -> np.ndarray:
     prediction = np.zeros(len(probability), dtype=bool)
     for document in table.documents:
@@ -259,6 +277,7 @@ def decode_table(
             table.char_lengths[start:end],
             table.abs_indices[start:end],
             config,
+            None if auxiliary_scope is None else auxiliary_scope[start:end],
         )
     return prediction
 
@@ -315,14 +334,21 @@ def evaluate(
     return result
 
 
-def _task(payload: tuple[str, str, str, dict[str, Any]]) -> dict[str, Any]:
-    base_root, table_root, probability_path, config_payload = payload
+def _task(payload: tuple[str, str, str, str | None, dict[str, Any]]) -> dict[str, Any]:
+    base_root, table_root, probability_path, auxiliary_path, config_payload = payload
     table = load_table(base_root, expected_split="train")
     manifest = json.loads((Path(table_root) / "manifest.json").read_text(encoding="utf-8"))
     features = np.load(Path(table_root) / "features.npy", mmap_mode="r", allow_pickle=False)
     probability = np.load(probability_path, mmap_mode="r", allow_pickle=False)
+    auxiliary = (
+        np.load(auxiliary_path, mmap_mode="r", allow_pickle=False).astype(bool)
+        if auxiliary_path
+        else None
+    )
     config = DecoderConfig(**config_payload)
-    prediction = decode_table(table, probability, features, manifest["feature_names"], config)
+    prediction = decode_table(
+        table, probability, features, manifest["feature_names"], config, auxiliary
+    )
     return {"config": config_payload, "metrics": evaluate(table, prediction, features, manifest["feature_names"])}
 
 
@@ -359,6 +385,7 @@ def _grid() -> list[DecoderConfig]:
             single,
             anchors_required=anchors,
             emit_markdown_headings=emit_headings,
+            apply_auxiliary_scope_veto=True,
         )
         for anchor, inside, window, bridge, expansion, single, anchors, emit_headings in itertools.product(
             (0.75, 0.90, 0.95, 0.98),
@@ -387,10 +414,16 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("unsupported nextgen feature table")
     if model_report.get("schema_version") != MODEL_SCHEMA or model_report.get("test_opened") is not False:
         raise ValueError("decoder requires development-only OOF probabilities")
+    table = load_table(base_root, expected_split="train")
     probability_path = model_root / "oof_probability.npy"
+    auxiliary_path = str(Path(args.auxiliary_scope).resolve()) if args.auxiliary_scope else None
+    if auxiliary_path:
+        auxiliary = np.load(auxiliary_path, mmap_mode="r", allow_pickle=False)
+        if auxiliary.shape != (len(table.targets),):
+            raise ValueError("auxiliary scope array is not aligned to the base table")
     configs = _grid()
     tasks = [
-        (str(base_root), str(table_root), str(probability_path), asdict(config))
+        (str(base_root), str(table_root), str(probability_path), auxiliary_path, asdict(config))
         for config in configs
     ]
     with concurrent.futures.ProcessPoolExecutor(max_workers=int(args.workers)) as executor:
@@ -400,7 +433,6 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     highest_recall = max(rows, key=_selection_key)
     output.mkdir(parents=True)
     if selected is not None:
-        table = load_table(base_root, expected_split="train")
         features = np.load(table_root / "features.npy", mmap_mode="r", allow_pickle=False)
         probability = np.load(probability_path, mmap_mode="r", allow_pickle=False)
         prediction = decode_table(
@@ -409,6 +441,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             features,
             table_manifest["feature_names"],
             DecoderConfig(**selected["config"]),
+            None
+            if auxiliary_path is None
+            else np.load(auxiliary_path, mmap_mode="r", allow_pickle=False).astype(bool),
         )
         with (output / "selected_oof_prediction.npy").open("xb") as handle:
             np.save(handle, prediction, allow_pickle=False)
@@ -431,6 +466,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "model_receipt_sha256": sha256_file(model_root / "receipt.json"),
             "probability_sha256": sha256_file(probability_path),
             "base_manifest_sha256": sha256_file(base_root / "manifest.json"),
+            "auxiliary_scope_sha256": sha256_file(Path(auxiliary_path))
+            if auxiliary_path
+            else None,
         },
     }
     _write_json_new(output / "report.json", report)
@@ -460,6 +498,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--table-dir", required=True)
     parser.add_argument("--base-table-dir", required=True)
     parser.add_argument("--model-dir", required=True)
+    parser.add_argument("--auxiliary-scope")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--workers", type=int, default=16)
     parser.add_argument("--code-commit", required=True)

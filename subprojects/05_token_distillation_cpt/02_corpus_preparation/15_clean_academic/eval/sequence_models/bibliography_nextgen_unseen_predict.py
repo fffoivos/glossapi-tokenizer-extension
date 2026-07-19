@@ -186,6 +186,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     char_lengths = np.load(
         table_root / "char_lengths.npy", mmap_mode="r", allow_pickle=False
     )
+    auxiliary_scope = np.load(
+        table_root / "auxiliary_scope.npy", mmap_mode="r", allow_pickle=False
+    ).astype(bool)
     documents = list(_iter_jsonl(table_root / "documents.jsonl"))
     table = UnseenTable(
         documents, abs_indices, char_lengths, tuple(manifest["feature_names"])
@@ -206,6 +209,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             features,
             names,
             DecoderConfig(**candidate["decoder_config"]),
+            auxiliary_scope,
         )
         probability_path = output / f"{candidate['name']}.probability.npy"
         prediction_path = output / f"{candidate['name']}.prediction.npy"

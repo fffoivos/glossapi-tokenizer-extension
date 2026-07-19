@@ -43,6 +43,7 @@ from .bibliography_role_features import (
     p0d_matrix,
 )
 from .bibliography_signal_tcn import SignalTCN, build_signal_features
+from .bibliography_scope_rules import auxiliary_scope_mask
 from .contract import sha256_file
 from .deterministic_structure import BibRole, analyze_bib_line
 
@@ -410,6 +411,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     shapes = np.concatenate([document.shapes for document in extracted])
     absolute = np.concatenate([document.abs_indices for document in extracted])
     lengths = np.concatenate([document.char_lengths for document in extracted])
+    auxiliary_scope = np.concatenate(
+        [np.asarray(auxiliary_scope_mask(document.texts), dtype=bool) for document in extracted]
+    )
     p0d_root = Path(args.entry_model_dir).resolve()
     p0d_models = [
         _load_pickle(path)
@@ -472,6 +476,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ("features.npy", features),
         ("abs_indices.npy", absolute),
         ("char_lengths.npy", lengths),
+        ("auxiliary_scope.npy", auxiliary_scope),
     ):
         with (output / name).open("xb") as handle:
             np.save(handle, value, allow_pickle=False)
@@ -507,6 +512,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "feature_names": names,
         "heading_candidate_count": int(np.count_nonzero(heading_candidate)),
         "connector_candidate_count": connector_count,
+        "auxiliary_scope_line_count": int(np.count_nonzero(auxiliary_scope)),
         "continuation_specialist_policy": "frozen_connector_continuation_fallback",
         "code_commit": args.code_commit,
         "slurm_job_id": args.slurm_job_id,

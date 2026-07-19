@@ -17,15 +17,19 @@ BASE_TABLE_DIR=${BASE_TABLE_DIR:?set entry feature table}
 MODEL_DIR=${MODEL_DIR:?set nextgen OOF model root}
 OUTPUT_DIR=${OUTPUT_DIR:?set new immutable decode root}
 EXPECTED_COMMIT=${EXPECTED_COMMIT:?set exact code commit}
+AUXILIARY_SCOPE=${AUXILIARY_SCOPE:-}
 UENV=${UENV:-pytorch/v2.9.1:v2}
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 90
 trap 'rm -rf "$OUTPUT_DIR"' EXIT
 export CUDA_VISIBLE_DEVICES="" NVIDIA_VISIBLE_DEVICES=void ROCR_VISIBLE_DEVICES="" HIP_VISIBLE_DEVICES=""
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
+ARGS=(
+  --table-dir "$TABLE_DIR" --base-table-dir "$BASE_TABLE_DIR"
+  --model-dir "$MODEL_DIR" --output-dir "$OUTPUT_DIR" --workers 20
+  --code-commit "$EXPECTED_COMMIT" --slurm-job-id "$SLURM_JOB_ID"
+)
+[[ -z "$AUXILIARY_SCOPE" ]] || ARGS+=(--auxiliary-scope "$AUXILIARY_SCOPE")
 uenv run "$UENV" --view=default -- env PYTHONPATH="$CODE_ROOT" \
-  python3 -m sequence_models.bibliography_nextgen_decode \
-    --table-dir "$TABLE_DIR" --base-table-dir "$BASE_TABLE_DIR" \
-    --model-dir "$MODEL_DIR" --output-dir "$OUTPUT_DIR" --workers 20 \
-    --code-commit "$EXPECTED_COMMIT" --slurm-job-id "$SLURM_JOB_ID"
+  python3 -m sequence_models.bibliography_nextgen_decode "${ARGS[@]}"
 trap - EXIT
 echo "BIBLIOGRAPHY_NEXTGEN_DECODE=$OUTPUT_DIR"
