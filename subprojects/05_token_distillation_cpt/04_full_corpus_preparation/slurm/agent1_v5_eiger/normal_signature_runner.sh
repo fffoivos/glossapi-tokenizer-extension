@@ -26,7 +26,10 @@ contract="$RUN_ROOT/run_contract.json"
 manifest="$RUN_ROOT/release-pre-dedup/manifests/combined_manifest.json"
 runtime="$RUN_ROOT/datatrove_runtime.json"
 coord="$(dirname "$RUN_ROOT")/.${RUN_ROOT##*/}.coord"
-venv="$coord/runtime/venv/bin/python"
+python_cmd=(
+  uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME
+  "$coord/runtime/venv/bin/python"
+)
 metrics_root="$RUN_ROOT/60-dedup/minhash-signatures/accelerated-metrics"
 logs_root="$RUN_ROOT/60-dedup/minhash-signatures/accelerated-rank-logs"
 stop_sentinel="${STOP_SENTINEL:-$RUN_ROOT/dedup_acceleration.stop}"
@@ -36,7 +39,7 @@ if [[ "$benchmark_mode" == 0 ]]; then
   : "${SUBMISSION_RECEIPT:?SUBMISSION_RECEIPT is required for production work}"
   : "${RELEASE_AUTHORIZATION:?RELEASE_AUTHORIZATION is required for production work}"
   : "${SLURM_ARRAY_JOB_ID:?array job ID is required for production work}"
-  "$venv" "$acceleration" validate-worker-authorization \
+  "${python_cmd[@]}" "$acceleration" validate-worker-authorization \
     --submission-receipt "$SUBMISSION_RECEIPT" \
     --release-authorization "$RELEASE_AUTHORIZATION" \
     --array-job-id "$SLURM_ARRAY_JOB_ID" \
@@ -93,7 +96,7 @@ run_rank() {
   err_log="$logs_root/chunk-$(printf '%04d' "$chunk_index")-rank-$(printf '%06d' "$rank").err"
   if /usr/bin/time -v -o "$time_report" \
       uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME \
-      "$venv" "$dedup" accelerated-signature-task \
+      "${python_cmd[@]}" "$dedup" accelerated-signature-task \
       --config "$config" --contract "$contract" --combined-manifest "$manifest" \
       --runtime-receipt "$runtime" --full-input-audit "$FULL_INPUT_AUDIT" \
       --task-index "$rank" --claim-token "$token" >"$out_log" 2>"$err_log"; then
