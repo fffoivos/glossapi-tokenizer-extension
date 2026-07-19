@@ -4,9 +4,10 @@
 
 The canonical exhaustive A/B role annotation preserves every accepted
 `gpt-5.6-sol`/high batch and uses `gpt-5.6-terra`/high only to complete the
-remaining batches, one worker per pass. The accepted Sol records are the output
-of the stronger model and are not re-annotated. They form sparse batch sets
-because the original two-worker runs completed out of order.
+remaining batches. The accepted Sol records are the output of the stronger
+model and were not re-annotated. They form sparse batch sets because the
+original two-worker runs completed out of order. Both hybrid passes are now
+complete and finalized.
 
 The completed quality gate remains historical `gpt-5.6-sol`/high evidence. It
 is not rerun by this switch.
@@ -40,13 +41,46 @@ Every continuation contract records model `gpt-5.6-terra`, reasoning effort
 `high`, sandbox `read-only`, and `ephemeral: true` for newly produced batches.
 The import receipt binds the actual 174 Sol/high batch indices for A and 176
 Sol/high batch indices for B. Terra receives only indices reported missing, so
-accepted Sol batches are not sent to a model again. Both continuations run with
-one worker.
+accepted Sol batches were not sent to a model again.
 
 All downstream commands must consume only the Terra aggregate paths above.
-If A/B disagree, adjudication uses a fresh `gpt-5.6-terra`/high reviewer
+Where A/B disagree or return `UNKNOWN`, adjudication uses a fresh
+`gpt-5.6-terra`/high reviewer
 `sealed-role-terra-high-c-v1` that receives only the label-blind adjudication
 packet.
+
+## Completed canonical receipts
+
+- Hybrid A finalized all 358 batches and 194,273 lines. Its
+  `overlap_exact_role_agreement` is `0.9734982332155477`; aggregate SHA-256 is
+  `9d254ed0806fcb9c83059504479bf08fe3cc19ad24a9efb04123c4040c9cc067`.
+- Hybrid B finalized all 388 batches and 194,273 lines. Its
+  `overlap_exact_role_agreement` is `0.9771733333333333`; aggregate SHA-256 is
+  `890366c3b952f599f9cb1d35adb4f5606f8581c41d306d7e6f442607bc63bb0c`.
+- The label-blind C packet contains 333 context chunks and 6,286 target lines.
+  Terra/high completed all 167 batches with reviewer
+  `sealed-role-terra-high-c-v1`. The aggregate SHA-256 is
+  `3852ae7f784b55d6098c5b79ca0aa750a888273670eabd0b352de9a90610fa30`.
+
+## Frozen-gate result
+
+The merge ran as Clariden CPU job `2793742` and failed closed as designed. The
+preserved receipt is `40_frozen/consensus.receipt.json`; its status is
+`blocked`. Exact results are:
+
+| Gate | Result | Passed |
+|---|---:|---|
+| Complete 194,273-line coverage | complete | yes |
+| Overall A/B binary agreement | `0.9775830918346863` (required `>= 0.98`) | **no** |
+| Greek PhD agreement | `0.983506626638354` (required `>= 0.95`) | yes |
+| Kallipos agreement | `0.9966995588185767` (required `>= 0.95`) | yes |
+| OpenArchives agreement | `0.955625045188345` (required `>= 0.95`) | yes |
+| Unresolved after C | 690 / 194,273 = `0.003551703015859126` (required `<= 0.005`) | yes |
+
+The overall raw A/B agreement gate is independent of C adjudication, so the C
+pass cannot repair it. The threshold must not be relaxed or tuned after seeing
+sealed annotations. `40_frozen/FROZEN.receipt.json` therefore does not exist,
+and the generated merged labels are not a frozen test set.
 
 ## Verification
 
@@ -58,8 +92,8 @@ packet.
   corrected sparse-record contracts are `26_role_sol_terra_high_a` and
   `27_role_sol_terra_high_b`.
 - Both corrected imports passed, preserving exactly 174 A and 176 B Sol/high
-  records. Terra/high then accepted missing batch 111 for A and missing batch
-  154 for B; both one-worker continuations are active.
+  records. Terra/high completed every missing batch and both canonical
+  aggregates finalized.
 - The coordinator now requires an explicit supported model and binds the exact
   model/reasoning effort into the remote immutable contract.
 - Finalized pass and quality receipts report the model/reasoning values from

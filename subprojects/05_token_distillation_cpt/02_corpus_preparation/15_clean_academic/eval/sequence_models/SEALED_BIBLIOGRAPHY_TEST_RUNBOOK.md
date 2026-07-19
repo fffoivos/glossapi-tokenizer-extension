@@ -323,6 +323,22 @@ gate fails. Do not relax a gate after seeing test labels. `freeze` re-verifies
 consensus gates. Its content hashes are the only allowed inputs to the later
 one-shot Pareto evaluation.
 
+### Executed terminal state — 2026-07-19
+
+The canonical A and B aggregates completed, followed by a label-blind
+Terra/high C pass over 6,286 disagreement/`UNKNOWN` targets. The merge was then
+executed as Clariden job `2793742`. It failed closed and preserved
+`40_frozen/consensus.receipt.json` with `status: blocked` because overall raw
+A/B binary agreement was `0.9775830918346863`, below the frozen `0.98` gate.
+Coverage was complete, all three source-specific `0.95` gates passed, and the
+post-adjudication unresolved fraction was `0.003551703015859126`, below its
+`0.005` gate.
+
+Do not run `freeze` for this attempt. The C pass cannot change raw A/B
+agreement, and rerunning reviewers or adjusting the threshold after observing
+this receipt would invalidate the sealed protocol. No
+`40_frozen/FROZEN.receipt.json` exists for this attempt.
+
 ## Artifact map
 
 - Public future-leakage exclusion list:
