@@ -783,7 +783,14 @@ def merge_signature_row_groups(args: argparse.Namespace) -> int:
 def merge_signatures(args: argparse.Namespace) -> int:
     config = load_config(args.config)
     run = contract(args.contract)
-    combined, _ = _load_release(args.combined_manifest)
+    combined, _ = _load_release_structure(args.combined_manifest)
+    _validate_full_input_audit(
+        args.full_input_audit,
+        contract_path=args.contract,
+        manifest_path=args.combined_manifest,
+        runtime_path=args.runtime_receipt,
+        combined=combined,
+    )
     run_root = Path(str(run["run_root"]))
     receipts = []
     bytes_total = 0
@@ -1908,6 +1915,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--config", type=Path, default=root / "configs" / "agent1_v5_eiger_pipeline.json")
     command.add_argument("--contract", type=Path, required=True)
     command.add_argument("--combined-manifest", type=Path, required=True)
+    command.add_argument("--runtime-receipt", type=Path, required=True)
+    command.add_argument("--full-input-audit", type=Path, required=True)
     command.add_argument("--output", type=Path, required=True)
     command.set_defaults(func=merge_signatures)
 

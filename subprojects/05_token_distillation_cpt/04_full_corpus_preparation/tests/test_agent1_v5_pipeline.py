@@ -608,6 +608,69 @@ def test_merge_lsh_pairs_blocks_unresolved_oversized_groups(tmp_path: Path) -> N
         raise AssertionError("downstream stage accepted a blocked pair manifest")
 
 
+def test_merge_signatures_reuses_full_input_audit_without_payload_rehash(
+    monkeypatch, tmp_path: Path
+) -> None:
+    run_root, contract, combined_path = make_combined(tmp_path)
+    combined = json.loads(combined_path.read_text())
+    runtime = run_root / "datatrove_runtime.json"
+    write_json(runtime, {"status": "passed", "runtime": "test"})
+    full_audit = run_root / "dedup_full_input_audit.json"
+    write_json(
+        full_audit,
+        {
+            "schema_version": dedup.FULL_INPUT_AUDIT_SCHEMA,
+            "status": "passed",
+            "run_contract_sha256": pipeline.sha256_file(contract),
+            "combined_manifest_sha256": pipeline.sha256_file(combined_path),
+            "runtime_receipt_sha256": pipeline.sha256_file(runtime),
+            "run_id": "agent1-v5-test",
+            "files": combined["files"],
+            "rows": combined["rows"],
+            "task_count": len(combined["files"]),
+        },
+    )
+    for inventory in combined["files"]:
+        rank = int(inventory["rank"])
+        signature = run_root / "60-dedup" / "minhash-signatures" / f"sig-{rank}.bin"
+        signature.parent.mkdir(parents=True, exist_ok=True)
+        signature.write_bytes(f"rank-{rank}".encode())
+        binding = pipeline.file_receipt(signature, root=run_root)
+        write_json(
+            signature.parent / "receipts" / f"{rank:06d}.json",
+            {
+                "schema_version": dedup.SIGNATURE_RECEIPT_SCHEMA,
+                "status": "passed",
+                "task_index": rank,
+                "input": inventory,
+                "outputs": [binding] * 32,
+            },
+        )
+
+    def reject_legacy_payload_validation(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("merge-signatures reread the combined payload")
+
+    monkeypatch.setattr(dedup, "_load_release", reject_legacy_payload_validation)
+    output = run_root / "signature_manifest.json"
+    assert (
+        dedup.merge_signatures(
+            argparse.Namespace(
+                config=ROOT / "configs" / "agent1_v5_eiger_pipeline.json",
+                contract=contract,
+                combined_manifest=combined_path,
+                runtime_receipt=runtime,
+                full_input_audit=full_audit,
+                output=output,
+            )
+        )
+        == 0
+    )
+    manifest = json.loads(output.read_text())
+    assert manifest["status"] == "passed"
+    assert manifest["task_count"] == 2
+    assert manifest["bucket_count"] == 32
+
+
 def test_merge_lsh_pairs_promotes_candidate_when_groups_are_bounded(tmp_path: Path) -> None:
     run_root, contract, combined = make_combined(tmp_path)
     config = json.loads((ROOT / "configs" / "agent1_v5_eiger_pipeline.json").read_text())

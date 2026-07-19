@@ -119,7 +119,7 @@ case "${STAGE}" in
     "${PYTHON}" "${DEDUP}" signature-task --config "${CONFIG}" --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --task-index "${TASK_INDEX}"
     ;;
   merge-signatures)
-    "${PYTHON}" "${DEDUP}" merge-signatures --config "${CONFIG}" --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --output "${RUN_ROOT}/signature_manifest.json"
+    "${PYTHON}" "${DEDUP}" merge-signatures --config "${CONFIG}" --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --full-input-audit "${RUN_ROOT}/dedup_full_input_audit.json" --output "${RUN_ROOT}/signature_manifest.json"
     ;;
   bucket)
     "${PYTHON}" "${DEDUP}" bucket-task --config "${CONFIG}" --contract "${CONTRACT}" --signature-manifest "${RUN_ROOT}/signature_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --task-index "${TASK_INDEX}"
