@@ -52,6 +52,15 @@ last_chunk="$(jq -er --argjson workers "$workers" --arg benchmark "$benchmark_sh
     and .cutover_receipt_sha256 == $cutover and .full_input_audit_sha256 == $audit
     and .runner_sha256 == $runner) | .last_chunk | select(. >= 0 and floor == .)' "$chunks")"
 array_spec="0-${last_chunk}%1"
+array_range="${array_spec%%%*}"
+array_throttle="${array_spec##*%}"
+array_first="${array_range%%-*}"
+array_last="${array_range##*-}"
+scontrol_array_spec="$array_spec"
+if [[ "$array_first" == "$array_last" ]]; then
+  # Slurm renders a single-index 0-0%1 request as ArrayTaskId=0%1.
+  scontrol_array_spec="${array_first}%${array_throttle}"
+fi
 nonce="${SUBMISSION_NONCE_OVERRIDE:-$(tr -d '-' < /proc/sys/kernel/random/uuid)}"
 [[ "$nonce" =~ ^[A-Za-z0-9._-]{12,128}$ ]] || { echo "invalid submission nonce" >&2; exit 2; }
 
@@ -79,7 +88,7 @@ verify_held_array() {
   [[ "$raw" == *"UserId=fffoivos("* && "$raw" == *"Account=a0140 "* && "$raw" == *"Partition=normal "* ]] || return 1
   [[ "$raw" == *"JobName=a1v5-signature-normal-c${workers} "* && "$raw" == *"Comment=agent1-v5-dedup-accel:${nonce}"* ]] || return 1
   [[ "$raw" == *"JobState=PENDING "* && "$raw" == *"Reason=JobHeldUser "* ]] || return 1
-  [[ "$raw" == *"ArrayTaskId=${array_spec} "* && "$raw" == *"StdOut=${coord}/slurm/"* && "$raw" == *"StdErr=${coord}/slurm/"* ]] || return 1
+  [[ "$raw" == *"ArrayTaskId=${scontrol_array_spec} "* && "$raw" == *"StdOut=${coord}/slurm/"* && "$raw" == *"StdErr=${coord}/slurm/"* ]] || return 1
   printf '%s\n' "$raw"
 }
 
@@ -117,7 +126,7 @@ array_job_id="${submitted%%;*}"
 armed=1
 raw="$(verify_held_array "$array_job_id")" || { echo "held-array identity validation failed" >&2; exit 1; }
 
-evidence_payload="$(jq -cn --arg id "$array_job_id" --arg nonce "$nonce" --arg attempt "$attempt_id" --arg array "$array_spec" --arg coord "$(realpath "$coord")" --arg raw "$raw" --argjson workers "$workers" '{schema_version:"agent1_v5_dedup_acceleration_held_array_evidence_v1",status:"passed",array_job_id:$id,submission_nonce:$nonce,attempt_id:$attempt,owner:"fffoivos",account:"a0140",partition:"normal",job_name:("a1v5-signature-normal-c" + ($workers|tostring)),array_spec:$array,coord_root:$coord,state:"PENDING",reason:"JobHeldUser",scontrol_raw:$raw}' )"
+evidence_payload="$(jq -cn --arg id "$array_job_id" --arg nonce "$nonce" --arg attempt "$attempt_id" --arg array "$array_spec" --arg scontrol_array "$scontrol_array_spec" --arg coord "$(realpath "$coord")" --arg raw "$raw" --argjson workers "$workers" '{schema_version:"agent1_v5_dedup_acceleration_held_array_evidence_v1",status:"passed",array_job_id:$id,submission_nonce:$nonce,attempt_id:$attempt,owner:"fffoivos",account:"a0140",partition:"normal",job_name:("a1v5-signature-normal-c" + ($workers|tostring)),array_spec:$array,scontrol_array_spec:$scontrol_array,coord_root:$coord,state:"PENDING",reason:"JobHeldUser",scontrol_raw:$raw}' )"
 write_json_exclusive "$evidence" "$evidence_payload"
 
 "${uenv_python[@]}" "$helper" record-submission \

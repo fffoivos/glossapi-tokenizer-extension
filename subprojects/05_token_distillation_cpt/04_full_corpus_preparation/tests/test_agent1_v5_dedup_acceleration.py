@@ -533,6 +533,8 @@ def test_signature_shells_use_single_uenv_and_safe_cleanup() -> None:
     assert '"$python" "$dedup" accelerated-signature-task' in runner
     assert '"${uenv_python[@]}" "$dedup"' not in runner
     assert 'if [[ "$armed" != 1 || -z "$array_job_id" ]]; then' in submitter
+    assert 'scontrol_array_spec="${array_first}%${array_throttle}"' in submitter
+    assert '"ArrayTaskId=${scontrol_array_spec} "' in submitter
 
 
 def test_benchmark_selection_prefers_five_after_all_gates(tmp_path: Path) -> None:
