@@ -3,6 +3,54 @@
 # The production path accepts work only from a nonce-bound held array receipt.
 set -eEuo pipefail
 
+run_bounded_rank_pool() {
+  local workers="$1"
+  shift
+  local -a pool_ranks=("$@") pids=() next_pids=()
+  local rank pid rc status=0 stop_launch=0
+
+  for rank in "${pool_ranks[@]}"; do
+    if should_drain; then
+      echo "drain requested before rank $rank" >&2
+      stop_launch=1
+      break
+    fi
+    while (( ${#pids[@]} >= workers )); do
+      # Clariden has Bash 4.4: wait -n is available, but wait -n -p is not.
+      # Reap whichever child finished, then identify every completed PID and
+      # collect each status explicitly. This keeps all worker slots occupied
+      # without silently losing a failure status.
+      if wait -n "${pids[@]}"; then :; else :; fi
+      next_pids=()
+      for pid in "${pids[@]}"; do
+        if kill -0 "$pid" 2>/dev/null; then
+          next_pids+=("$pid")
+          continue
+        fi
+        rc=0
+        wait "$pid" || rc=$?
+        if (( rc != 0 && status == 0 )); then status="$rc"; fi
+      done
+      pids=("${next_pids[@]}")
+      if (( status != 0 )) || should_drain; then
+        stop_launch=1
+        break
+      fi
+    done
+    (( stop_launch == 0 )) || break
+    run_rank "$rank" &
+    pids+=("$!")
+  done
+
+  for pid in "${pids[@]}"; do
+    rc=0
+    wait "$pid" || rc=$?
+    if (( rc != 0 && status == 0 )); then status="$rc"; fi
+  done
+  return "$status"
+}
+
+main() {
 : "${RUN_ROOT:?RUN_ROOT is required}"
 : "${PIPELINE_ROOT:?PIPELINE_ROOT is required}"
 : "${CHUNK_PLAN:?CHUNK_PLAN is required}"
@@ -170,24 +218,15 @@ if should_drain; then
   exit 75
 fi
 
-pids=()
-for rank in "${ranks[@]}"; do
-  if should_drain; then
-    echo "drain requested before rank $rank" >&2
-    break
-  fi
-  run_rank "$rank" &
-  pids+=("$!")
-  if (( ${#pids[@]} >= WORKERS )); then
-    wait "${pids[0]}"
-    pids=("${pids[@]:1}")
-  fi
-done
-
-for pid in "${pids[@]}"; do
-  wait "$pid"
-done
+pool_status=0
+run_bounded_rank_pool "$WORKERS" "${ranks[@]}" || pool_status=$?
+(( pool_status == 0 )) || exit "$pool_status"
 
 if should_drain; then
   exit 75
+fi
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  main "$@"
 fi

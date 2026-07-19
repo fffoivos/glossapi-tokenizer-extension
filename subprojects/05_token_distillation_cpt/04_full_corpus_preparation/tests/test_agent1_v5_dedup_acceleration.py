@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import shlex
+import subprocess
 import sys
 import importlib.util
 from pathlib import Path
@@ -535,6 +537,53 @@ def test_signature_shells_use_single_uenv_and_safe_cleanup() -> None:
     assert 'if [[ "$armed" != 1 || -z "$array_job_id" ]]; then' in submitter
     assert 'scontrol_array_spec="${array_first}%${array_throttle}"' in submitter
     assert '"ArrayTaskId=${scontrol_array_spec} "' in submitter
+
+
+def test_signature_runner_refills_the_first_available_worker(tmp_path: Path) -> None:
+    runner = ROOT / "slurm" / "agent1_v5_eiger" / "normal_signature_runner.sh"
+    event_log = tmp_path / "events.log"
+    script = f"""
+source {shlex.quote(str(runner))}
+should_drain() {{ return 1; }}
+run_rank() {{
+  printf 'start:%s\\n' "$1" >> {shlex.quote(str(event_log))}
+  case "$1" in
+    1) sleep 0.30 ;;
+    *) sleep 0.05 ;;
+  esac
+  printf 'done:%s\\n' "$1" >> {shlex.quote(str(event_log))}
+}}
+run_bounded_rank_pool 2 1 2 3
+"""
+    subprocess.run(["bash", "-c", script], check=True)
+    events = event_log.read_text(encoding="utf-8").splitlines()
+    assert events.index("start:3") < events.index("done:1")
+
+
+def test_signature_runner_stops_new_launches_after_worker_failure(tmp_path: Path) -> None:
+    runner = ROOT / "slurm" / "agent1_v5_eiger" / "normal_signature_runner.sh"
+    event_log = tmp_path / "events.log"
+    script = f"""
+source {shlex.quote(str(runner))}
+should_drain() {{ return 1; }}
+run_rank() {{
+  printf 'start:%s\\n' "$1" >> {shlex.quote(str(event_log))}
+  case "$1" in
+    1) sleep 0.15 ;;
+    2) sleep 0.03; return 7 ;;
+  esac
+  printf 'done:%s\\n' "$1" >> {shlex.quote(str(event_log))}
+}}
+set +e
+run_bounded_rank_pool 2 1 2 3
+rc=$?
+set -e
+printf 'rc:%s\\n' "$rc" >> {shlex.quote(str(event_log))}
+"""
+    subprocess.run(["bash", "-c", script], check=True)
+    events = event_log.read_text(encoding="utf-8").splitlines()
+    assert "start:3" not in events
+    assert "rc:7" in events
 
 
 def test_benchmark_selection_prefers_five_after_all_gates(tmp_path: Path) -> None:
