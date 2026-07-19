@@ -16,6 +16,7 @@ TABLE_DIR=${TABLE_DIR:?set nextgen feature table}
 BASE_TABLE_DIR=${BASE_TABLE_DIR:?set entry feature table}
 OUTPUT_DIR=${OUTPUT_DIR:?set new immutable model root}
 EXPECTED_COMMIT=${EXPECTED_COMMIT:?set exact code commit}
+MAXIMUM_POSITIVE_WEIGHT=${MAXIMUM_POSITIVE_WEIGHT:-1}
 UENV=${UENV:-pytorch/v2.9.1:v2}
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 90
 trap 'rm -rf "$OUTPUT_DIR"' EXIT
@@ -25,6 +26,7 @@ uenv run "$UENV" --view=default -- env PYTHONPATH="$CODE_ROOT" \
   python3 -m sequence_models.bibliography_nextgen_tcn \
     --table-dir "$TABLE_DIR" --base-table-dir "$BASE_TABLE_DIR" \
     --output-dir "$OUTPUT_DIR" --cpus "$SLURM_CPUS_PER_TASK" \
+    --maximum-positive-weight "$MAXIMUM_POSITIVE_WEIGHT" \
     --code-commit "$EXPECTED_COMMIT" --slurm-job-id "$SLURM_JOB_ID"
 trap - EXIT
 echo "BIBLIOGRAPHY_NEXTGEN_TCN=$OUTPUT_DIR"
