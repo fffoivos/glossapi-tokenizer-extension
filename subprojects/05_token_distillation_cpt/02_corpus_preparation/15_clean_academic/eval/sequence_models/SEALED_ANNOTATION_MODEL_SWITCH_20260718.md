@@ -169,6 +169,19 @@ are entirely `Terra -> Terra`. Greek PhD contains 93,264 `Sol -> Sol`, 6,038
 Source differences therefore must not be interpreted as clean Sol-versus-Terra
 model differences.
 
+### Post-hoc contextual-role repair
+
+The later review found `FILLER` and a few `CONTINUATION` labels in components
+with no bibliography entry. A derived, fully audited repair changes only those
+logically impossible contextual labels to `OTHER`; the canonical passes remain
+unchanged. It raises filler/continuation detection agreement from 51.02% to
+74.82% and bibliography-membership agreement from 98.04% to 98.93%.
+
+The full rule, hashes, counts, before/after figures, and analysis of the
+remaining heading disagreement are recorded in
+`CONTEXTUAL_ROLE_REPAIR_20260719.md`. This is a post-hoc annotation audit and
+does not retroactively change the frozen-gate result.
+
 The current reader is `45_ab_comparison_site/site-cab8d7f/`, built by Clariden
 CPU job `2794761` after six focused tests passed in job `2794755`. Its manifest
 SHA-256 is
