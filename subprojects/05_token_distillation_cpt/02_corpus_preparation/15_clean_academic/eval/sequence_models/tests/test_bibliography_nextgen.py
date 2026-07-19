@@ -10,6 +10,11 @@ from sequence_models.bibliography_nextgen_models import (
     build_context_features,
     context_feature_names,
 )
+from sequence_models.bibliography_nextgen_scope import (
+    SIGNALS,
+    apply_component_threshold,
+    build_component_table,
+)
 from sequence_models.bibliography_nextgen_table import _load_specialist
 
 
@@ -179,3 +184,30 @@ def test_context_features_encode_document_and_segment_position() -> None:
         result[:, result_names.index("document:physical_segment_relative_position")],
         (0.0, 0.5, 1.0),
     )
+
+
+def test_component_scope_features_and_veto_are_component_aligned() -> None:
+    names = SIGNALS
+    features = np.zeros((4, len(names)), dtype=np.float32)
+    table = SimpleNamespace(
+        targets=np.zeros(4, dtype=np.uint8),
+        original_labels=np.asarray((1, 1, 0, 0), dtype=np.uint8),
+        char_lengths=np.asarray((10, 20, 30, 40), dtype=np.uint32),
+        abs_indices=np.asarray((0, 1, 2, 3), dtype=np.uint32),
+        documents=({"line_start": 0, "line_end": 4},),
+    )
+    prediction = np.asarray((True, True, False, True))
+    probability = np.asarray((0.9, 0.8, 0.1, 0.7), dtype=np.float32)
+
+    matrix, documents, bounds, target = build_component_table(
+        table, prediction, probability, features, names
+    )
+    scoped = apply_component_threshold(
+        prediction, bounds, np.asarray((0.9, 0.1), dtype=np.float32), 0.5
+    )
+
+    assert matrix.shape[0] == 2
+    assert documents.tolist() == [0, 0]
+    assert bounds.tolist() == [[0, 1], [3, 3]]
+    assert target.tolist() == [True, False]
+    assert scoped.tolist() == [True, True, False, False]
