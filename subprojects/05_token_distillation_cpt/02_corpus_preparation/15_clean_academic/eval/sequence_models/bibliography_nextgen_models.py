@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import collections
 import json
+import math
 import os
 import pickle
 from dataclasses import dataclass
@@ -89,6 +90,12 @@ def context_feature_names(base_names: Sequence[str]) -> tuple[str, ...]:
             "context:nearest_entry_anchor_below",
             "context:markdown_heading_above_3",
             "context:markdown_heading_below_3",
+            "document:relative_line_position",
+            "document:relative_lines_remaining",
+            "document:log_position_fraction",
+            "document:log_remaining_fraction",
+            "document:log1p_line_count",
+            "document:physical_segment_relative_position",
         )
     )
     return tuple(result)
@@ -138,6 +145,9 @@ def build_context_features(
     result[:, : len(names)] = features
     for document in table.documents:
         doc_start, doc_end = int(document["line_start"]), int(document["line_end"])
+        doc_length = doc_end - doc_start
+        doc_denominator = max(1, doc_length - 1)
+        log_doc_length = math.log1p(max(1, doc_length))
         local_abs = table.abs_indices[doc_start:doc_end]
         for segment_start, segment_end in _physical_slices(local_abs):
             absolute_start, absolute_end = doc_start + segment_start, doc_start + segment_end
@@ -159,6 +169,8 @@ def build_context_features(
                 if following_anchor is not None:
                     below_distance[index] = min(31, following_anchor - index)
             for index in range(len(local)):
+                document_offset = absolute_start + index - doc_start
+                remaining = doc_length - document_offset - 1
                 values: list[float] = []
                 for signal in CONTEXT_SIGNALS:
                     signal_values = local[:, name_to_index[signal]]
@@ -181,6 +193,12 @@ def build_context_features(
                         float(below_distance[index]),
                         float(markdown[max(0, index - 3) : index].max(initial=0.0)),
                         float(markdown[index + 1 : min(len(local), index + 4)].max(initial=0.0)),
+                        document_offset / doc_denominator,
+                        remaining / doc_denominator,
+                        math.log1p(document_offset) / log_doc_length,
+                        math.log1p(remaining) / log_doc_length,
+                        log_doc_length,
+                        index / max(1, len(local) - 1),
                     )
                 )
                 result[absolute_start + index, len(names) :] = np.asarray(

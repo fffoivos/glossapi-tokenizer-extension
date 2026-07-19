@@ -1,8 +1,15 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import numpy as np
 
 from sequence_models.bibliography_nextgen_decode import DecoderConfig, decode_document
+from sequence_models.bibliography_nextgen_models import (
+    CONTEXT_SIGNALS,
+    build_context_features,
+    context_feature_names,
+)
 from sequence_models.bibliography_nextgen_table import _load_specialist
 
 
@@ -146,3 +153,29 @@ def test_auxiliary_scope_veto_removes_only_scoped_component() -> None:
         np.asarray((True, True, False, False, False)),
     )
     assert predicted.tolist() == [False, False, False, True, True]
+
+
+def test_context_features_encode_document_and_segment_position() -> None:
+    names = (*CONTEXT_SIGNALS, "structure:markdown_heading")
+    features = np.zeros((3, len(names)), dtype=np.float32)
+    table = SimpleNamespace(
+        documents=({"line_start": 0, "line_end": 3},),
+        abs_indices=np.asarray((10, 11, 12), dtype=np.uint32),
+    )
+
+    result = build_context_features(features, names, table)
+    result_names = context_feature_names(names)
+
+    assert result.shape == (3, len(result_names))
+    np.testing.assert_allclose(
+        result[:, result_names.index("document:relative_line_position")],
+        (0.0, 0.5, 1.0),
+    )
+    np.testing.assert_allclose(
+        result[:, result_names.index("document:relative_lines_remaining")],
+        (1.0, 0.5, 0.0),
+    )
+    np.testing.assert_allclose(
+        result[:, result_names.index("document:physical_segment_relative_position")],
+        (0.0, 0.5, 1.0),
+    )
