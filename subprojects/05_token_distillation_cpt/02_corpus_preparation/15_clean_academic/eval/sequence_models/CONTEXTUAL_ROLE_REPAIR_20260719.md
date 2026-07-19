@@ -93,6 +93,10 @@ replace the frozen sealed gate.
 
 ## Why “heading found” remains low
 
+> Subsequent correction: this section described the result before enforcing
+> the intended Markdown-only header eligibility rule. The drop-only repair and
+> new measurements are recorded in `MARKDOWN_HEADER_ROLE_REPAIR_20260719.md`.
+
 The contextual repair leaves heading labels unchanged, as intended. There are
 1,654 heading-detection misses over 92 documents. Of these:
 
