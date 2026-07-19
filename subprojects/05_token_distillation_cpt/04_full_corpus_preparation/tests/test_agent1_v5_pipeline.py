@@ -137,6 +137,58 @@ def test_debug_bundle_batches_preserve_task_width_and_qos_limit() -> None:
     assert submitter.bundle_batches(3, 8, 2) == [(0, 0)]
 
 
+def test_bounded_stage_runner_executes_each_task_once_and_emits_metrics(tmp_path: Path) -> None:
+    pipeline_root = tmp_path / "pipeline"
+    runner_dir = pipeline_root / "slurm" / "agent1_v5_eiger"
+    runner_dir.mkdir(parents=True)
+    source_runner = ROOT / "slurm" / "agent1_v5_eiger" / "bounded_stage_runner.sh"
+    runner = runner_dir / "bounded_stage_runner.sh"
+    runner.write_text(source_runner.read_text(encoding="utf-8"), encoding="utf-8")
+    runner.chmod(0o755)
+    stage = runner_dir / "stage.sh"
+    stage.write_text(
+        "#!/usr/bin/env bash\n"
+        "set -euo pipefail\n"
+        "printf '%s\\n' \"$TASK_INDEX\" >> \"$RUN_ROOT/tasks.txt\"\n",
+        encoding="utf-8",
+    )
+    stage.chmod(0o755)
+    fake_time = tmp_path / "time"
+    fake_time.write_text(
+        "#!/usr/bin/env bash\n"
+        "set -euo pipefail\n"
+        "test \"$1\" = -v; test \"$2\" = -o; report=$3; shift 3\n"
+        "printf 'Maximum resident set size (kbytes): 42\\n' > \"$report\"\n"
+        "exec \"$@\"\n",
+        encoding="utf-8",
+    )
+    fake_time.chmod(0o755)
+    run_root = tmp_path / "run"
+    run_root.mkdir()
+    attempt = tmp_path / "attempt"
+    environment = {
+        **os.environ,
+        "STAGE": "bucket",
+        "PIPELINE_ROOT": str(pipeline_root),
+        "RUN_ROOT": str(run_root),
+        "TASK_START": "2",
+        "TASK_END": "5",
+        "TASK_CONCURRENCY": "2",
+        "ATTEMPT_ROOT": str(attempt),
+        "ATTEMPT_ID": "test-bounded",
+        "TIME_BIN": str(fake_time),
+    }
+    subprocess.run([str(runner)], check=True, env=environment)
+    assert sorted((run_root / "tasks.txt").read_text().splitlines()) == ["2", "3", "4"]
+    metrics = sorted((attempt / "metrics").glob("*.json"))
+    assert len(metrics) == 3
+    values = [json.loads(path.read_text()) for path in metrics]
+    assert [row["task_index"] for row in values] == [2, 3, 4]
+    assert all(row["status"] == "passed" for row in values)
+    assert all(row["workers"] == 2 for row in values)
+    assert all(row["attempt_id"] == "test-bounded" for row in values)
+
+
 def test_submitter_resume_reuses_only_matching_persisted_jobs(tmp_path: Path) -> None:
     run_root = (tmp_path / "run").resolve()
     pipeline_root = tmp_path / "pipeline"
