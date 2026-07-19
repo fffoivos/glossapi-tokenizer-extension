@@ -79,9 +79,14 @@ def derive(
     *, base_block_table: Path, connector_table: Path, source_path: Path,
     continuation_probability_path: Path, continuation_report_path: Path,
     output_dir: Path, code_commit: str, slurm_job_id: str,
+    blend_alpha: float = 1.0, connector_rule: str = "max",
 ) -> dict[str, Any]:
     if output_dir.exists() or output_dir.is_symlink():
         raise FileExistsError(output_dir)
+    if not 0 < blend_alpha <= 1:
+        raise ValueError("blend_alpha must be in (0,1]")
+    if connector_rule not in {"preserve", "max"}:
+        raise ValueError("connector_rule must be preserve or max")
     base_manifest = json.loads((base_block_table / "manifest.json").read_text(encoding="utf-8"))
     connector_manifest = json.loads((connector_table / "manifest.json").read_text(encoding="utf-8"))
     continuation_report = json.loads(continuation_report_path.read_text(encoding="utf-8"))
@@ -134,9 +139,11 @@ def derive(
                 missing += 1
                 continue
             old = float(roles[index, CONTINUATION_COLUMN])
-            roles[index, CONTINUATION_COLUMN] = probability
-            connector[index] = max(float(connector[index]), probability)
-            deltas.append(probability - old)
+            blended = (1.0 - blend_alpha) * old + blend_alpha * probability
+            roles[index, CONTINUATION_COLUMN] = blended
+            if connector_rule == "max":
+                connector[index] = max(float(connector[index]), blended)
+            deltas.append(blended - old)
             overridden += 1
     if not overridden or not np.isfinite(roles).all() or not np.isfinite(connector).all():
         raise ValueError("continuation override did not produce a valid block table")
@@ -156,12 +163,13 @@ def derive(
         "validation_opened": False,
         "continuation_override": {
             "column": CONTINUATION_COLUMN,
+            "blend_alpha": blend_alpha,
             "eligible_probability_count": len(by_coordinate),
             "overridden_block_line_count": overridden,
             "block_line_without_eligible_continuation_probability": missing,
             "mean_probability_delta": float(np.mean(deltas)),
             "median_probability_delta": float(np.median(deltas)),
-            "connector_probability_rule": "max(frozen_connector, dedicated_continuation)",
+            "connector_probability_rule": connector_rule,
             "other_role_probabilities_changed": False,
         },
         "inputs": {
@@ -192,6 +200,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--continuation-probability", type=Path, required=True)
     parser.add_argument("--continuation-report", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--blend-alpha", type=float, default=1.0)
+    parser.add_argument("--connector-rule", choices=("preserve", "max"), default="max")
     parser.add_argument("--code-commit", required=True)
     parser.add_argument("--slurm-job-id", default=os.environ.get("SLURM_JOB_ID", ""))
     return parser.parse_args(argv)
@@ -208,6 +218,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         output_dir=args.output_dir.resolve(),
         code_commit=args.code_commit,
         slurm_job_id=args.slurm_job_id,
+        blend_alpha=args.blend_alpha,
+        connector_rule=args.connector_rule,
     )
     print(json.dumps(result["continuation_override"], sort_keys=True))
     return 0
