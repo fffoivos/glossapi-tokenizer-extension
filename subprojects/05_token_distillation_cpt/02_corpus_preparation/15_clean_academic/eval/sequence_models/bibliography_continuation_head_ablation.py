@@ -12,7 +12,6 @@ from typing import Any, Mapping, Sequence
 
 import numpy as np
 
-from .bibliography_continuation_feature_audit import _candidate_metadata
 from .contract import sha256_file
 
 
@@ -82,6 +81,43 @@ def _write_json_new(path: Path, value: Mapping[str, Any]) -> None:
 def _save(path: Path, value: np.ndarray) -> None:
     with path.open("xb") as handle:
         np.save(handle, value, allow_pickle=False)
+
+
+def _candidate_metadata(
+    *, source_jsonl: Path, row_indices: np.ndarray, expected_line_count: int,
+    expected_split: str,
+) -> list[dict[str, Any]]:
+    if len(row_indices) and not np.all(row_indices[1:] > row_indices[:-1]):
+        raise ValueError("candidate row indices must be strictly increasing")
+    metadata: list[dict[str, Any] | None] = [None] * len(row_indices)
+    cursor = candidate_cursor = 0
+    with source_jsonl.open("r", encoding="utf-8") as handle:
+        for raw in handle:
+            document = json.loads(raw)
+            if document["split"] != expected_split:
+                continue
+            lines = document["lines"]
+            document_end = cursor + len(lines)
+            while candidate_cursor < len(row_indices):
+                global_index = int(row_indices[candidate_cursor])
+                if global_index >= document_end:
+                    break
+                if global_index < cursor:
+                    raise ValueError("candidate/source ordering mismatch")
+                line = lines[global_index - cursor]
+                metadata[candidate_cursor] = {
+                    "document_id": document["document_id"],
+                    "source": document["source"],
+                    "line_id": line["line_id"],
+                    "abs_idx": int(line["abs_idx"]),
+                }
+                candidate_cursor += 1
+            cursor = document_end
+    if cursor != expected_line_count or candidate_cursor != len(row_indices):
+        raise ValueError("candidate metadata does not cover the source table")
+    if any(value is None for value in metadata):
+        raise ValueError("candidate metadata contains unresolved rows")
+    return [value for value in metadata if value is not None]
 
 
 def _columns(names: Sequence[str], predicate: Any) -> list[int]:
