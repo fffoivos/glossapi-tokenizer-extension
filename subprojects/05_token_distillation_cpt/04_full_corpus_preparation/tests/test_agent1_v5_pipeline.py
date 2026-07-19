@@ -98,6 +98,43 @@ def make_combined(tmp_path: Path) -> tuple[Path, Path, Path]:
     return run_root, contract, manifest
 
 
+def make_dedup_input_audit(
+    run_root: Path,
+    contract: Path,
+    combined_path: Path,
+    *,
+    config_path: Path = ROOT / "configs" / "agent1_v5_eiger_pipeline.json",
+) -> tuple[Path, Path]:
+    config = pipeline.load_config(config_path)
+    combined = json.loads(combined_path.read_text(encoding="utf-8"))
+    runtime = run_root / "datatrove_runtime.json"
+    write_json(
+        runtime,
+        {
+            "schema_version": dedup.RUNTIME_SCHEMA,
+            "status": "passed",
+            "version": config["pins"]["datatrove_version"],
+            "commit": config["pins"]["datatrove_commit"],
+        },
+    )
+    full_audit = run_root / "dedup_full_input_audit.json"
+    write_json(
+        full_audit,
+        {
+            "schema_version": dedup.FULL_INPUT_AUDIT_SCHEMA,
+            "status": "passed",
+            "run_contract_sha256": pipeline.sha256_file(contract),
+            "combined_manifest_sha256": pipeline.sha256_file(combined_path),
+            "runtime_receipt_sha256": pipeline.sha256_file(runtime),
+            "run_id": "agent1-v5-test",
+            "files": combined["files"],
+            "rows": combined["rows"],
+            "task_count": len(combined["files"]),
+        },
+    )
+    return runtime, full_audit
+
+
 def test_config_locks_all_eighteen_source_adapters_and_schema() -> None:
     config = pipeline.load_config(ROOT / "configs" / "agent1_v5_eiger_pipeline.json")
     assert len(config["sources"]) == 18
@@ -128,6 +165,12 @@ def test_clariden_wrapper_isolates_venv_and_setup_avoids_unused_glossapi_extras(
     assert 'pids+=("$!")' in bundle
     assert 'wait "${pid}"' in bundle
     assert "jobs -pr" not in bundle
+
+    for stage_name in ("audit-pairs", "audit-cluster"):
+        assert f"  {stage_name})" in setup
+    assert '--pair-audit "${RUN_ROOT}/lsh_pairs.audit.json"' in setup
+    assert '--cluster-audit "${RUN_ROOT}/removals.audit.json"' in setup
+    assert setup.count('--full-input-audit "${RUN_ROOT}/dedup_full_input_audit.json"') >= 5
 
 
 def test_debug_bundle_batches_preserve_task_width_and_qos_limit() -> None:
@@ -575,6 +618,9 @@ def test_merge_lsh_pairs_blocks_unresolved_oversized_groups(tmp_path: Path) -> N
     )
     config_path = tmp_path / "config.json"
     write_json(config_path, config)
+    runtime, full_audit = make_dedup_input_audit(
+        run_root, contract, combined, config_path=config_path
+    )
 
     bucket = run_root / "60-dedup" / "minhash-buckets" / "00000_00.dups"
     bucket.parent.mkdir(parents=True)
@@ -599,6 +645,8 @@ def test_merge_lsh_pairs_blocks_unresolved_oversized_groups(tmp_path: Path) -> N
                 config=config_path,
                 contract=contract,
                 combined_manifest=combined,
+                runtime_receipt=runtime,
+                full_input_audit=full_audit,
                 output=database,
             )
         )
@@ -700,6 +748,9 @@ def test_merge_lsh_pairs_promotes_candidate_when_groups_are_bounded(tmp_path: Pa
     )
     config_path = tmp_path / "config.json"
     write_json(config_path, config)
+    runtime, full_audit = make_dedup_input_audit(
+        run_root, contract, combined, config_path=config_path
+    )
 
     bucket = run_root / "60-dedup" / "minhash-buckets" / "00000_00.dups"
     bucket.parent.mkdir(parents=True)
@@ -723,6 +774,8 @@ def test_merge_lsh_pairs_promotes_candidate_when_groups_are_bounded(tmp_path: Pa
                 config=config_path,
                 contract=contract,
                 combined_manifest=combined,
+                runtime_receipt=runtime,
+                full_input_audit=full_audit,
                 output=database,
             )
         )
@@ -737,10 +790,30 @@ def test_merge_lsh_pairs_promotes_candidate_when_groups_are_bounded(tmp_path: Pa
     oversized = json.loads(database.with_suffix(".oversized.json").read_text())
     assert oversized["status"] == "passed"
     assert oversized["groups"] == []
+    pair_audit = run_root / "lsh_pairs.audit.json"
+    assert (
+        dedup.audit_pair_database(
+            argparse.Namespace(pair_database=database, output=pair_audit)
+        )
+        == 0
+    )
+    assert dedup._pair_manifest_after_audit(database, pair_audit)["pairs"] == 2
+    stat_result = database.stat()
+    os.utime(
+        database,
+        ns=(stat_result.st_atime_ns, stat_result.st_mtime_ns + 1_000_000_000),
+    )
+    try:
+        dedup._pair_manifest_after_audit(database, pair_audit)
+    except ValueError as error:
+        assert "audited file identity drift" in str(error)
+    else:  # pragma: no cover
+        raise AssertionError("pair database stat drift was not detected")
 
 
 def test_exact_cluster_protects_nanochat_and_filters_candidate(tmp_path: Path) -> None:
     run_root, contract, combined = make_combined(tmp_path)
+    runtime, full_audit = make_dedup_input_audit(run_root, contract, combined)
     for rank in range(2):
         dedup.exact_index_task(
             argparse.Namespace(contract=contract, combined_manifest=combined, task_index=rank)
@@ -780,6 +853,8 @@ def test_exact_cluster_protects_nanochat_and_filters_candidate(tmp_path: Path) -
         argparse.Namespace(
             contract=contract,
             combined_manifest=combined,
+            runtime_receipt=runtime,
+            full_input_audit=full_audit,
             exact_manifest=exact_manifest,
             verified_manifest=verified_manifest,
             output=removals,
@@ -787,12 +862,19 @@ def test_exact_cluster_protects_nanochat_and_filters_candidate(tmp_path: Path) -
     )
     cluster_manifest = json.loads(removals.with_suffix(".manifest.json").read_text())
     assert cluster_manifest["removed_rows"] == 1
+    cluster_audit = run_root / "removals.audit.json"
+    dedup.audit_cluster_database(
+        argparse.Namespace(removal_database=removals, output=cluster_audit)
+    )
     for rank in range(2):
         dedup.filter_task(
             argparse.Namespace(
                 contract=contract,
                 combined_manifest=combined,
+                runtime_receipt=runtime,
+                full_input_audit=full_audit,
                 removal_database=removals,
+                cluster_audit=cluster_audit,
                 task_index=rank,
             )
         )
@@ -801,7 +883,10 @@ def test_exact_cluster_protects_nanochat_and_filters_candidate(tmp_path: Path) -
         argparse.Namespace(
             contract=contract,
             combined_manifest=combined,
+            runtime_receipt=runtime,
+            full_input_audit=full_audit,
             removal_database=removals,
+            cluster_audit=cluster_audit,
             output=output,
         )
     )
@@ -809,6 +894,18 @@ def test_exact_cluster_protects_nanochat_and_filters_candidate(tmp_path: Path) -
     candidate = pq.read_table(output / "data" / "000001.parquet").to_pylist()
     assert [row["source_doc_id"] for row in result] == ["base-duplicate"]
     assert [row["source_doc_id"] for row in candidate] == ["candidate-unique"]
+    ledger = Path(cluster_manifest["decision_ledger"]["path"])
+    stat_result = ledger.stat()
+    os.utime(
+        ledger,
+        ns=(stat_result.st_atime_ns, stat_result.st_mtime_ns + 1_000_000_000),
+    )
+    try:
+        dedup._cluster_manifest_after_audit(removals, cluster_audit)
+    except ValueError as error:
+        assert "audited file identity drift" in str(error)
+    else:  # pragma: no cover
+        raise AssertionError("cluster ledger stat drift was not detected")
 
 
 def test_merge_transform_records_quarantined_blank_rows_without_blocking(

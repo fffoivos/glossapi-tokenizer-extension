@@ -125,28 +125,34 @@ case "${STAGE}" in
     "${PYTHON}" "${DEDUP}" bucket-task --config "${CONFIG}" --contract "${CONTRACT}" --signature-manifest "${RUN_ROOT}/signature_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --task-index "${TASK_INDEX}"
     ;;
   merge-pairs)
-    "${PYTHON}" "${DEDUP}" merge-lsh-pairs --config "${CONFIG}" --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --output "${RUN_ROOT}/lsh_pairs.sqlite"
+    "${PYTHON}" "${DEDUP}" merge-lsh-pairs --config "${CONFIG}" --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --full-input-audit "${RUN_ROOT}/dedup_full_input_audit.json" --output "${RUN_ROOT}/lsh_pairs.sqlite"
+    ;;
+  audit-pairs)
+    "${PYTHON}" "${DEDUP}" audit-pair-database --pair-database "${RUN_ROOT}/lsh_pairs.sqlite" --output "${RUN_ROOT}/lsh_pairs.audit.json"
     ;;
   shingles)
-    "${PYTHON}" "${DEDUP}" shingle-task --config "${CONFIG}" --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --pair-database "${RUN_ROOT}/lsh_pairs.sqlite" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --task-index "${TASK_INDEX}"
+    "${PYTHON}" "${DEDUP}" shingle-task --config "${CONFIG}" --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --pair-database "${RUN_ROOT}/lsh_pairs.sqlite" --pair-audit "${RUN_ROOT}/lsh_pairs.audit.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --full-input-audit "${RUN_ROOT}/dedup_full_input_audit.json" --task-index "${TASK_INDEX}"
     ;;
   merge-shingles)
-    "${PYTHON}" "${DEDUP}" merge-shingles --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --pair-database "${RUN_ROOT}/lsh_pairs.sqlite" --output "${RUN_ROOT}/shingle_manifest.json"
+    "${PYTHON}" "${DEDUP}" merge-shingles --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --pair-database "${RUN_ROOT}/lsh_pairs.sqlite" --pair-audit "${RUN_ROOT}/lsh_pairs.audit.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --full-input-audit "${RUN_ROOT}/dedup_full_input_audit.json" --output "${RUN_ROOT}/shingle_manifest.json"
     ;;
   verify)
-    "${PYTHON}" "${DEDUP}" verify-task --config "${CONFIG}" --contract "${CONTRACT}" --pair-database "${RUN_ROOT}/lsh_pairs.sqlite" --shingle-manifest "${RUN_ROOT}/shingle_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --task-index "${TASK_INDEX}" --tasks "${VERIFY_TASKS}"
+    "${PYTHON}" "${DEDUP}" verify-task --config "${CONFIG}" --contract "${CONTRACT}" --pair-database "${RUN_ROOT}/lsh_pairs.sqlite" --pair-audit "${RUN_ROOT}/lsh_pairs.audit.json" --shingle-manifest "${RUN_ROOT}/shingle_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --task-index "${TASK_INDEX}" --tasks "${VERIFY_TASKS}"
     ;;
   merge-verified)
-    "${PYTHON}" "${DEDUP}" merge-verified --contract "${CONTRACT}" --pair-database "${RUN_ROOT}/lsh_pairs.sqlite" --tasks "${VERIFY_TASKS}" --output "${RUN_ROOT}/verified_manifest.json"
+    "${PYTHON}" "${DEDUP}" merge-verified --contract "${CONTRACT}" --pair-database "${RUN_ROOT}/lsh_pairs.sqlite" --pair-audit "${RUN_ROOT}/lsh_pairs.audit.json" --tasks "${VERIFY_TASKS}" --output "${RUN_ROOT}/verified_manifest.json"
     ;;
   cluster)
-    "${PYTHON}" "${DEDUP}" cluster --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --exact-manifest "${RUN_ROOT}/exact_manifest.json" --verified-manifest "${RUN_ROOT}/verified_manifest.json" --output "${RUN_ROOT}/removals.sqlite"
+    "${PYTHON}" "${DEDUP}" cluster --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --full-input-audit "${RUN_ROOT}/dedup_full_input_audit.json" --exact-manifest "${RUN_ROOT}/exact_manifest.json" --verified-manifest "${RUN_ROOT}/verified_manifest.json" --output "${RUN_ROOT}/removals.sqlite"
+    ;;
+  audit-cluster)
+    "${PYTHON}" "${DEDUP}" audit-cluster-database --removal-database "${RUN_ROOT}/removals.sqlite" --output "${RUN_ROOT}/removals.audit.json"
     ;;
   filter)
-    "${PYTHON}" "${DEDUP}" filter-task --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --removal-database "${RUN_ROOT}/removals.sqlite" --task-index "${TASK_INDEX}"
+    "${PYTHON}" "${DEDUP}" filter-task --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --full-input-audit "${RUN_ROOT}/dedup_full_input_audit.json" --removal-database "${RUN_ROOT}/removals.sqlite" --cluster-audit "${RUN_ROOT}/removals.audit.json" --task-index "${TASK_INDEX}"
     ;;
   merge-filtered)
-    "${PYTHON}" "${DEDUP}" merge-filtered-release --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --removal-database "${RUN_ROOT}/removals.sqlite" --output "${RUN_ROOT}/release-deduplicated"
+    "${PYTHON}" "${DEDUP}" merge-filtered-release --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --full-input-audit "${RUN_ROOT}/dedup_full_input_audit.json" --removal-database "${RUN_ROOT}/removals.sqlite" --cluster-audit "${RUN_ROOT}/removals.audit.json" --output "${RUN_ROOT}/release-deduplicated"
     ;;
   publish-dedup)
     : "${HF_TOKEN_FILE:?HF_TOKEN_FILE is required for publication}"

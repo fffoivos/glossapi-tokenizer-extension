@@ -507,7 +507,11 @@ def submit_dag(args: argparse.Namespace) -> dict[str, Any]:
         "merge-pairs", "merge-pairs", partition=compute_partition, walltime=maximum_walltime, dependency=buckets, cpus=32
     )
     wait_for_jobs([pairs], args.poll_seconds)
-    shingles = submitter.bundled("shingles", "shingles", combined_tasks, 8, [pairs], poll_seconds=args.poll_seconds)
+    pair_audit = submitter.submit(
+        "audit-pairs", "audit-pairs", partition=compute_partition, walltime=maximum_walltime, dependency=[pairs], cpus=16
+    )
+    wait_for_jobs([pair_audit], args.poll_seconds)
+    shingles = submitter.bundled("shingles", "shingles", combined_tasks, 8, [pair_audit], poll_seconds=args.poll_seconds)
     merge_shingles = submitter.submit(
         "merge-shingles", "merge-shingles", partition=compute_partition, walltime="00:30:00", dependency=shingles
     )
@@ -534,7 +538,11 @@ def submit_dag(args: argparse.Namespace) -> dict[str, Any]:
         "cluster", "cluster", partition=compute_partition, walltime=maximum_walltime, dependency=[merge_exact, merge_verified], cpus=64
     )
     wait_for_jobs([cluster], args.poll_seconds)
-    filter_job = submitter.bundled("filter", "filter", combined_tasks, 16, [cluster], poll_seconds=args.poll_seconds)
+    cluster_audit = submitter.submit(
+        "audit-cluster", "audit-cluster", partition=compute_partition, walltime=maximum_walltime, dependency=[cluster], cpus=16
+    )
+    wait_for_jobs([cluster_audit], args.poll_seconds)
+    filter_job = submitter.bundled("filter", "filter", combined_tasks, 16, [cluster_audit], poll_seconds=args.poll_seconds)
     merge_filtered = submitter.submit(
         "merge-filtered", "merge-filtered", partition=compute_partition, walltime="00:30:00", dependency=filter_job
     )

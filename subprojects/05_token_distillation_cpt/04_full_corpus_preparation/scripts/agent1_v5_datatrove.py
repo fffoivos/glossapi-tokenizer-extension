@@ -54,11 +54,13 @@ FULL_INPUT_AUDIT_SCHEMA = "agent1_v5_dedup_full_input_audit_v1"
 SIGNATURE_MANIFEST_SCHEMA = "agent1_v5_minhash_signature_manifest_v1"
 BUCKET_RECEIPT_SCHEMA = "agent1_v5_minhash_bucket_task_receipt_v1"
 PAIR_MANIFEST_SCHEMA = "agent1_v5_lsh_pair_manifest_v1"
+PAIR_AUDIT_SCHEMA = "agent1_v5_lsh_pair_database_audit_v1"
 SHINGLE_RECEIPT_SCHEMA = "agent1_v5_shingle_task_receipt_v1"
 SHINGLE_MANIFEST_SCHEMA = "agent1_v5_shingle_manifest_v1"
 VERIFY_RECEIPT_SCHEMA = "agent1_v5_jaccard_verify_task_receipt_v1"
 VERIFY_MANIFEST_SCHEMA = "agent1_v5_jaccard_verify_manifest_v1"
 CLUSTER_MANIFEST_SCHEMA = "agent1_v5_dedup_cluster_manifest_v1"
+CLUSTER_AUDIT_SCHEMA = "agent1_v5_dedup_cluster_database_audit_v1"
 FILTER_RECEIPT_SCHEMA = "agent1_v5_dedup_filter_task_receipt_v1"
 DEDUP_MANIFEST_SCHEMA = "agent1_v5_deduplicated_release_manifest_v1"
 
@@ -126,6 +128,46 @@ def _load_release_structure(manifest_path: Path) -> tuple[dict[str, Any], Path]:
     if not isinstance(files, list) or [int(row["rank"]) for row in files] != list(range(len(files))):
         raise ValueError("combined release inventory ranks must be contiguous from zero")
     return value, root
+
+
+def _load_release_after_full_audit(
+    *,
+    contract_path: Path,
+    manifest_path: Path,
+    runtime_path: Path,
+    audit_path: Path,
+) -> tuple[dict[str, Any], Path]:
+    combined, root = _load_release_structure(manifest_path)
+    _validate_full_input_audit(
+        audit_path,
+        contract_path=contract_path,
+        manifest_path=manifest_path,
+        runtime_path=runtime_path,
+        combined=combined,
+    )
+    return combined, root
+
+
+def _stat_binding(path: Path) -> dict[str, Any]:
+    path = path.resolve()
+    if not path.is_file() or path.is_symlink():
+        raise ValueError(f"audit target is not a regular file: {path}")
+    result = path.stat()
+    return {
+        "path": str(path),
+        "bytes": result.st_size,
+        "device": result.st_dev,
+        "inode": result.st_ino,
+        "mtime_ns": result.st_mtime_ns,
+        "ctime_ns": result.st_ctime_ns,
+    }
+
+
+def _validate_stat_binding(binding: Mapping[str, Any]) -> Path:
+    path = Path(str(binding.get("path", ""))).resolve()
+    if _stat_binding(path) != dict(binding):
+        raise ValueError(f"audited file identity drift: {path}")
+    return path
 
 
 def _immutable_receipt(path: Path, value: Mapping[str, Any]) -> dict[str, Any]:
@@ -878,7 +920,12 @@ def _iter_pairs(path: Path) -> Iterable[tuple[int, int, int, int]]:
 def merge_lsh_pairs(args: argparse.Namespace) -> int:
     config = load_config(args.config)
     run = contract(args.contract)
-    combined, _ = _load_release(args.combined_manifest)
+    combined, _ = _load_release_after_full_audit(
+        contract_path=args.contract,
+        manifest_path=args.combined_manifest,
+        runtime_path=args.runtime_receipt,
+        audit_path=args.full_input_audit,
+    )
     run_root = Path(str(run["run_root"]))
     database = args.output.resolve()
     if database.exists():
@@ -1015,6 +1062,56 @@ def _pair_manifest(database: Path) -> dict[str, Any]:
     return manifest
 
 
+def audit_pair_database(args: argparse.Namespace) -> int:
+    database = args.pair_database.resolve()
+    manifest_path = database.with_suffix(".manifest.json")
+    manifest = _pair_manifest(database)
+    oversized_path = validate_file_receipt(manifest["oversized_groups"])
+    oversized = read_object(oversized_path)
+    if oversized.get("status") != "passed" or oversized.get("groups") != []:
+        raise ValueError("pair database has unresolved oversized LSH groups")
+    result: dict[str, Any] = {
+        "schema_version": PAIR_AUDIT_SCHEMA,
+        "status": "passed",
+        "created_at": utc_now(),
+        "pair_manifest_sha256": sha256_file(manifest_path),
+        "database": manifest["database"],
+        "database_stat": _stat_binding(database),
+        "oversized_groups": manifest["oversized_groups"],
+        "pairs": int(manifest["pairs"]),
+    }
+    _immutable_receipt(args.output, result)
+    print(canonical_json({"ok": True, "pairs": result["pairs"]}))
+    return 0
+
+
+def _pair_manifest_after_audit(database: Path, audit_path: Path) -> dict[str, Any]:
+    database = database.resolve()
+    manifest_path = database.with_suffix(".manifest.json")
+    manifest = read_object(manifest_path)
+    audit = read_object(audit_path)
+    if manifest.get("schema_version") != PAIR_MANIFEST_SCHEMA or manifest.get("status") != "passed":
+        raise ValueError("LSH pair manifest is not passed")
+    if audit.get("schema_version") != PAIR_AUDIT_SCHEMA or audit.get("status") != "passed":
+        raise ValueError("LSH pair database audit is not passed")
+    expected = {
+        "pair_manifest_sha256": sha256_file(manifest_path),
+        "database": manifest.get("database"),
+        "oversized_groups": manifest.get("oversized_groups"),
+        "pairs": int(manifest.get("pairs", -1)),
+    }
+    for key, value in expected.items():
+        if audit.get(key) != value:
+            raise ValueError(f"pair database audit binding drift: {key}")
+    if _validate_stat_binding(audit["database_stat"]) != database:
+        raise ValueError("pair database audit path drift")
+    oversized_path = validate_file_receipt(manifest["oversized_groups"])
+    oversized = read_object(oversized_path)
+    if oversized.get("status") != "passed" or oversized.get("groups") != []:
+        raise ValueError("pair database has unresolved oversized LSH groups")
+    return manifest
+
+
 def shingle_task(args: argparse.Namespace) -> int:
     import numpy as np
     import pyarrow.parquet as pq
@@ -1023,8 +1120,13 @@ def shingle_task(args: argparse.Namespace) -> int:
     config = load_config(args.config)
     _verify_runtime(args.runtime_receipt, config)
     run = contract(args.contract)
-    combined, root = _load_release(args.combined_manifest)
-    pairs = _pair_manifest(args.pair_database)
+    combined, root = _load_release_after_full_audit(
+        contract_path=args.contract,
+        manifest_path=args.combined_manifest,
+        runtime_path=args.runtime_receipt,
+        audit_path=args.full_input_audit,
+    )
+    pairs = _pair_manifest_after_audit(args.pair_database, args.pair_audit)
     rank = int(args.task_index)
     run_root = Path(str(run["run_root"]))
     output, receipt_path = _dedup_paths(run_root, "shingles", rank, ".sqlite")
@@ -1101,8 +1203,13 @@ def shingle_task(args: argparse.Namespace) -> int:
 
 def merge_shingles(args: argparse.Namespace) -> int:
     run = contract(args.contract)
-    combined, _ = _load_release(args.combined_manifest)
-    pair_manifest = _pair_manifest(args.pair_database)
+    combined, _ = _load_release_after_full_audit(
+        contract_path=args.contract,
+        manifest_path=args.combined_manifest,
+        runtime_path=args.runtime_receipt,
+        audit_path=args.full_input_audit,
+    )
+    pair_manifest = _pair_manifest_after_audit(args.pair_database, args.pair_audit)
     run_root = Path(str(run["run_root"]))
     receipts = []
     documents = 0
@@ -1197,7 +1304,7 @@ def verify_task(args: argparse.Namespace) -> int:
     config = load_config(args.config)
     _verify_runtime(args.runtime_receipt, config)
     run = contract(args.contract)
-    _pair_manifest(args.pair_database)
+    _pair_manifest_after_audit(args.pair_database, args.pair_audit)
     shingle_manifest = read_object(args.shingle_manifest)
     if shingle_manifest.get("schema_version") != SHINGLE_MANIFEST_SCHEMA or shingle_manifest.get("status") != "passed":
         raise ValueError("shingle manifest is not passed")
@@ -1285,7 +1392,7 @@ def merge_verified(args: argparse.Namespace) -> int:
     import pyarrow.parquet as pq
 
     run = contract(args.contract)
-    pair_manifest = _pair_manifest(args.pair_database)
+    pair_manifest = _pair_manifest_after_audit(args.pair_database, args.pair_audit)
     run_root = Path(str(run["run_root"]))
     receipts = []
     counters: Counter[str] = Counter()
@@ -1416,7 +1523,12 @@ def cluster_duplicates(args: argparse.Namespace) -> int:
     import pyarrow.parquet as pq
 
     run = contract(args.contract)
-    combined, _ = _load_release(args.combined_manifest)
+    combined, _ = _load_release_after_full_audit(
+        contract_path=args.contract,
+        manifest_path=args.combined_manifest,
+        runtime_path=args.runtime_receipt,
+        audit_path=args.full_input_audit,
+    )
     exact_manifest = read_object(args.exact_manifest)
     verified_manifest = read_object(args.verified_manifest)
     if exact_manifest.get("schema_version") != EXACT_MANIFEST_SCHEMA or exact_manifest.get("status") != "passed":
@@ -1669,12 +1781,68 @@ def _cluster_manifest(database: Path) -> dict[str, Any]:
     return manifest
 
 
+def audit_cluster_database(args: argparse.Namespace) -> int:
+    database = args.removal_database.resolve()
+    manifest_path = database.with_suffix(".manifest.json")
+    manifest = _cluster_manifest(database)
+    ledger = Path(str(manifest["decision_ledger"]["path"])).resolve()
+    result: dict[str, Any] = {
+        "schema_version": CLUSTER_AUDIT_SCHEMA,
+        "status": "passed",
+        "created_at": utc_now(),
+        "cluster_manifest_sha256": sha256_file(manifest_path),
+        "removal_database": manifest["removal_database"],
+        "removal_database_stat": _stat_binding(database),
+        "decision_ledger": manifest["decision_ledger"],
+        "decision_ledger_stat": _stat_binding(ledger),
+        "input_rows": int(manifest["input_rows"]),
+        "removed_rows": int(manifest["removed_rows"]),
+        "retained_rows": int(manifest["retained_rows"]),
+    }
+    _immutable_receipt(args.output, result)
+    print(canonical_json({"ok": True, "removed": result["removed_rows"]}))
+    return 0
+
+
+def _cluster_manifest_after_audit(database: Path, audit_path: Path) -> dict[str, Any]:
+    database = database.resolve()
+    manifest_path = database.with_suffix(".manifest.json")
+    manifest = read_object(manifest_path)
+    audit = read_object(audit_path)
+    if manifest.get("schema_version") != CLUSTER_MANIFEST_SCHEMA or manifest.get("status") != "passed":
+        raise ValueError("dedup cluster manifest is not passed")
+    if audit.get("schema_version") != CLUSTER_AUDIT_SCHEMA or audit.get("status") != "passed":
+        raise ValueError("dedup cluster database audit is not passed")
+    expected = {
+        "cluster_manifest_sha256": sha256_file(manifest_path),
+        "removal_database": manifest.get("removal_database"),
+        "decision_ledger": manifest.get("decision_ledger"),
+        "input_rows": int(manifest.get("input_rows", -1)),
+        "removed_rows": int(manifest.get("removed_rows", -1)),
+        "retained_rows": int(manifest.get("retained_rows", -1)),
+    }
+    for key, value in expected.items():
+        if audit.get(key) != value:
+            raise ValueError(f"cluster database audit binding drift: {key}")
+    if _validate_stat_binding(audit["removal_database_stat"]) != database:
+        raise ValueError("cluster database audit path drift")
+    ledger = Path(str(manifest["decision_ledger"]["path"])).resolve()
+    if _validate_stat_binding(audit["decision_ledger_stat"]) != ledger:
+        raise ValueError("cluster ledger audit path drift")
+    return manifest
+
+
 def filter_task(args: argparse.Namespace) -> int:
     import pyarrow.parquet as pq
 
     run = contract(args.contract)
-    combined, root = _load_release(args.combined_manifest)
-    _cluster_manifest(args.removal_database)
+    combined, root = _load_release_after_full_audit(
+        contract_path=args.contract,
+        manifest_path=args.combined_manifest,
+        runtime_path=args.runtime_receipt,
+        audit_path=args.full_input_audit,
+    )
+    _cluster_manifest_after_audit(args.removal_database, args.cluster_audit)
     rank = int(args.task_index)
     inventory = combined["files"][rank]
     source = validate_file_receipt(inventory, root=root)
@@ -1749,8 +1917,13 @@ def merge_filtered_release(args: argparse.Namespace) -> int:
     import pyarrow.parquet as pq
 
     run = contract(args.contract)
-    combined, _ = _load_release(args.combined_manifest)
-    cluster = _cluster_manifest(args.removal_database)
+    combined, _ = _load_release_after_full_audit(
+        contract_path=args.contract,
+        manifest_path=args.combined_manifest,
+        runtime_path=args.runtime_receipt,
+        audit_path=args.full_input_audit,
+    )
+    cluster = _cluster_manifest_after_audit(args.removal_database, args.cluster_audit)
     run_root = Path(str(run["run_root"]))
     release_root = args.output.resolve()
     release_root.mkdir(parents=True, exist_ok=False, mode=0o700)
@@ -1932,15 +2105,24 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--config", type=Path, default=root / "configs" / "agent1_v5_eiger_pipeline.json")
     command.add_argument("--contract", type=Path, required=True)
     command.add_argument("--combined-manifest", type=Path, required=True)
+    command.add_argument("--runtime-receipt", type=Path, required=True)
+    command.add_argument("--full-input-audit", type=Path, required=True)
     command.add_argument("--output", type=Path, required=True)
     command.set_defaults(func=merge_lsh_pairs)
+
+    command = subparsers.add_parser("audit-pair-database")
+    command.add_argument("--pair-database", type=Path, required=True)
+    command.add_argument("--output", type=Path, required=True)
+    command.set_defaults(func=audit_pair_database)
 
     command = subparsers.add_parser("shingle-task")
     command.add_argument("--config", type=Path, default=root / "configs" / "agent1_v5_eiger_pipeline.json")
     command.add_argument("--contract", type=Path, required=True)
     command.add_argument("--combined-manifest", type=Path, required=True)
     command.add_argument("--pair-database", type=Path, required=True)
+    command.add_argument("--pair-audit", type=Path, required=True)
     command.add_argument("--runtime-receipt", type=Path, required=True)
+    command.add_argument("--full-input-audit", type=Path, required=True)
     command.add_argument("--task-index", type=int, required=True)
     command.set_defaults(func=shingle_task)
 
@@ -1948,6 +2130,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--contract", type=Path, required=True)
     command.add_argument("--combined-manifest", type=Path, required=True)
     command.add_argument("--pair-database", type=Path, required=True)
+    command.add_argument("--pair-audit", type=Path, required=True)
+    command.add_argument("--runtime-receipt", type=Path, required=True)
+    command.add_argument("--full-input-audit", type=Path, required=True)
     command.add_argument("--output", type=Path, required=True)
     command.set_defaults(func=merge_shingles)
 
@@ -1955,6 +2140,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--config", type=Path, default=root / "configs" / "agent1_v5_eiger_pipeline.json")
     command.add_argument("--contract", type=Path, required=True)
     command.add_argument("--pair-database", type=Path, required=True)
+    command.add_argument("--pair-audit", type=Path, required=True)
     command.add_argument("--shingle-manifest", type=Path, required=True)
     command.add_argument("--runtime-receipt", type=Path, required=True)
     command.add_argument("--task-index", type=int, required=True)
@@ -1965,6 +2151,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command = subparsers.add_parser("merge-verified")
     command.add_argument("--contract", type=Path, required=True)
     command.add_argument("--pair-database", type=Path, required=True)
+    command.add_argument("--pair-audit", type=Path, required=True)
     command.add_argument("--tasks", type=int, required=True)
     command.add_argument("--output", type=Path, required=True)
     command.set_defaults(func=merge_verified)
@@ -1972,22 +2159,35 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command = subparsers.add_parser("cluster")
     command.add_argument("--contract", type=Path, required=True)
     command.add_argument("--combined-manifest", type=Path, required=True)
+    command.add_argument("--runtime-receipt", type=Path, required=True)
+    command.add_argument("--full-input-audit", type=Path, required=True)
     command.add_argument("--exact-manifest", type=Path, required=True)
     command.add_argument("--verified-manifest", type=Path, required=True)
     command.add_argument("--output", type=Path, required=True)
     command.set_defaults(func=cluster_duplicates)
 
+    command = subparsers.add_parser("audit-cluster-database")
+    command.add_argument("--removal-database", type=Path, required=True)
+    command.add_argument("--output", type=Path, required=True)
+    command.set_defaults(func=audit_cluster_database)
+
     command = subparsers.add_parser("filter-task")
     command.add_argument("--contract", type=Path, required=True)
     command.add_argument("--combined-manifest", type=Path, required=True)
+    command.add_argument("--runtime-receipt", type=Path, required=True)
+    command.add_argument("--full-input-audit", type=Path, required=True)
     command.add_argument("--removal-database", type=Path, required=True)
+    command.add_argument("--cluster-audit", type=Path, required=True)
     command.add_argument("--task-index", type=int, required=True)
     command.set_defaults(func=filter_task)
 
     command = subparsers.add_parser("merge-filtered-release")
     command.add_argument("--contract", type=Path, required=True)
     command.add_argument("--combined-manifest", type=Path, required=True)
+    command.add_argument("--runtime-receipt", type=Path, required=True)
+    command.add_argument("--full-input-audit", type=Path, required=True)
     command.add_argument("--removal-database", type=Path, required=True)
+    command.add_argument("--cluster-audit", type=Path, required=True)
     command.add_argument("--output", type=Path, required=True)
     command.set_defaults(func=merge_filtered_release)
     return parser.parse_args(argv)
