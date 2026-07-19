@@ -356,7 +356,14 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         )
         probability[holdout] = bundle.predict(features[holdout])
         with (model_root / f"fold{fold}.pkl").open("xb") as handle:
-            pickle.dump(bundle, handle, protocol=5)
+            # A built-in container remains loadable when this module was run
+            # through ``python -m``; pickling the local dataclass would bind it
+            # to ``__main__.ModelBundle``.
+            pickle.dump(
+                {"kind": bundle.kind, "scaler": bundle.scaler, "model": bundle.model},
+                handle,
+                protocol=5,
+            )
         fold_reports.append(
             {
                 "fold": fold,

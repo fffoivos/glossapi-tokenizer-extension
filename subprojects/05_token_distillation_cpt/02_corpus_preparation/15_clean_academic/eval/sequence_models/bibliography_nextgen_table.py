@@ -107,17 +107,21 @@ def _load_specialist(
     fallback: np.ndarray,
     line_count: int,
     filename: str,
-) -> tuple[np.ndarray, str | None]:
+) -> tuple[np.ndarray, str | None, int]:
     result = np.asarray(fallback, dtype=np.float32).copy()
     if root is None:
-        return result, None
+        return result, None, 0
     indices = np.load(connector_root / "row_indices.npy", mmap_mode="r", allow_pickle=False)
     probability_path = root / filename
     probability = np.load(probability_path, mmap_mode="r", allow_pickle=False)
     if probability.shape != (len(indices),) or np.any(indices >= line_count):
         raise ValueError("continuation specialist is not aligned to connector candidates")
-    result[indices] = probability
-    return result, sha256_file(probability_path)
+    # This ablation intentionally emits predictions only for continuation/filler
+    # examples and records NaN elsewhere. Keep the frozen connector probability
+    # for those unscored rows rather than poisoning the full-document table.
+    finite = np.isfinite(probability)
+    result[indices[finite]] = probability[finite]
+    return result, sha256_file(probability_path), int(np.count_nonzero(finite))
 
 
 def run(args: argparse.Namespace) -> dict[str, Any]:
@@ -160,7 +164,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         columns=len(CONNECTOR_PROBABILITY_COLUMNS),
         default=(0.0, 0.0, 0.0, 1.0),
     )
-    continuation, continuation_sha = _load_specialist(
+    continuation, continuation_sha, continuation_prediction_count = _load_specialist(
         continuation_root,
         connector_root,
         connector[:, 1],
@@ -267,6 +271,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "heading_receipt_sha256": sha256_file(heading_root / "receipt.json"),
             "connector_receipt_sha256": sha256_file(connector_root / "receipt.json"),
             "continuation_probability_sha256": continuation_sha,
+            "continuation_specialist_prediction_count": continuation_prediction_count,
         },
     }
     _write_json_new(output / "manifest.json", manifest)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 
 from sequence_models.bibliography_nextgen_decode import DecoderConfig, decode_document
+from sequence_models.bibliography_nextgen_table import _load_specialist
 
 
 NAMES = (
@@ -93,3 +94,24 @@ def test_image_marker_is_internal_only() -> None:
         _config(),
     )
     assert predicted.tolist() == [True, True, False]
+
+
+def test_sparse_continuation_specialist_preserves_fallback(tmp_path) -> None:
+    connector = tmp_path / "connector"
+    specialist = tmp_path / "specialist"
+    connector.mkdir()
+    specialist.mkdir()
+    np.save(connector / "row_indices.npy", np.asarray([1, 3, 4], dtype=np.int64))
+    np.save(
+        specialist / "special.npy",
+        np.asarray([0.8, np.nan, 0.2], dtype=np.float32),
+    )
+    fallback = np.asarray([0.1, 0.2, 0.3, 0.4, 0.5], dtype=np.float32)
+
+    result, digest, count = _load_specialist(
+        specialist, connector, fallback, 5, "special.npy"
+    )
+
+    np.testing.assert_allclose(result, [0.1, 0.8, 0.3, 0.4, 0.2])
+    assert digest is not None
+    assert count == 2
