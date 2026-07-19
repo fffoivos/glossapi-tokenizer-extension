@@ -41,7 +41,21 @@ SIGNALS = (
     "structure:markdown_heading",
     "structure:table_row",
 )
-THRESHOLDS = (0.02, 0.05, 0.10, 0.20, 0.35, 0.50, 0.70, 0.85)
+THRESHOLDS = (
+    0.02,
+    0.05,
+    0.10,
+    0.20,
+    0.35,
+    0.50,
+    0.70,
+    0.85,
+    0.90,
+    0.95,
+    0.98,
+    0.99,
+    0.995,
+)
 
 
 def _sklearn() -> dict[str, Any]:
