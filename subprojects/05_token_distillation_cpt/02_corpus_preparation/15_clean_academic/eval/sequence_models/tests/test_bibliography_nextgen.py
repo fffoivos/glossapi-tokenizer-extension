@@ -141,7 +141,7 @@ def test_auxiliary_scope_veto_removes_only_scoped_component() -> None:
         features,
         NAMES,
         np.asarray((100, 100, 10, 100, 100), dtype=np.uint32),
-        np.arange(len(probability), dtype=np.uint32),
+        np.asarray((0, 1, 100, 101, 102), dtype=np.uint32),
         _config(apply_auxiliary_scope_veto=True),
         np.asarray((True, True, False, False, False)),
     )
