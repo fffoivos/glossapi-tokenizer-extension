@@ -189,6 +189,21 @@ def test_bounded_stage_runner_executes_each_task_once_and_emits_metrics(tmp_path
     assert all(row["attempt_id"] == "test-bounded" for row in values)
 
 
+def test_signature_finalizer_orders_scheduler_execution_and_manifest_closure() -> None:
+    script = (
+        ROOT
+        / "slurm"
+        / "agent1_v5_eiger"
+        / "finalize_accelerated_signatures_and_merge.sh"
+    ).read_text(encoding="utf-8")
+    capture = script.index('"$capture" "$ARRAY_JOB_ID"')
+    execution = script.index("validate-attempt-execution")
+    merge = script.index("STAGE=merge-signatures")
+    closure = script.index(".task_count == 431")
+    assert capture < execution < merge < closure
+    assert '[[ ! -e "$RUN_ROOT/signature_manifest.json" ]]' in script
+
+
 def test_submitter_resume_reuses_only_matching_persisted_jobs(tmp_path: Path) -> None:
     run_root = (tmp_path / "run").resolve()
     pipeline_root = tmp_path / "pipeline"
