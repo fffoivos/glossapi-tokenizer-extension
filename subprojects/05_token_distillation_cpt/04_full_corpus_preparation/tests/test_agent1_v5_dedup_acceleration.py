@@ -420,6 +420,181 @@ def test_failed_array_recovery_proves_prework_failure(tmp_path: Path) -> None:
         acceleration.main(retry_args)
 
 
+def test_pending_array_replacement_closes_held_suffix_and_retained_prefix(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    run = tmp_path / "run"
+    old_attempt = run / "dedup-acceleration-attempts" / "old-production"
+    old_attempt.mkdir(parents=True)
+    old_pipeline = tmp_path / "old-pipeline"
+    new_pipeline = tmp_path / "new-pipeline"
+    relative_runner = Path("slurm/agent1_v5_eiger/normal_signature_runner.sh")
+    old_runner = old_pipeline / relative_runner
+    new_runner = new_pipeline / relative_runner
+    old_runner.parent.mkdir(parents=True)
+    new_runner.parent.mkdir(parents=True)
+    old_runner.write_text("old runner\n", encoding="utf-8")
+    new_runner.write_text("new runner\n", encoding="utf-8")
+    plan = old_attempt / "chunks.json"
+    write_json(
+        plan,
+        {
+            "schema_version": acceleration.CHUNK_PLAN_SCHEMA,
+            "status": "passed",
+            "first_rank": 0,
+            "last_rank": 3,
+            "canary_rank": 0,
+            "last_chunk": 3,
+            "chunk_size": 1,
+            "selected_workers": 5,
+            "attempt_id": "old-production",
+            "benchmark_receipt_sha256": "benchmark",
+            "cutover_receipt_sha256": "cutover",
+            "full_input_audit_sha256": "audit",
+            "combined_manifest_sha256": "manifest",
+            "deployed_code_root": str(old_pipeline.resolve()),
+            "runner_sha256": dedup.sha256_file(old_runner),
+            "reused_benchmark_or_completed_ranks": [],
+            "chunks": [
+                {"index": 0, "ranks": [0]},
+                {"index": 1, "ranks": [1]},
+                {"index": 2, "ranks": [2]},
+                {"index": 3, "ranks": [3]},
+            ],
+        },
+    )
+    submission = old_attempt / "submission.json"
+    write_json(
+        submission,
+        {
+            "schema_version": acceleration.SUBMISSION_SCHEMA,
+            "status": "passed",
+            "array_job_id": "123",
+            "run_root": str(run.resolve()),
+            "array_spec": "0-3%1",
+            "attempt_id": "old-production",
+            "submission_nonce": "nonce-123456789",
+            "chunk_plan_sha256": dedup.sha256_file(plan),
+            "runner_sha256": dedup.sha256_file(old_runner),
+        },
+    )
+    authorization = old_attempt / "release_authorization.json"
+    write_json(
+        authorization,
+        {
+            "schema_version": acceleration.RELEASE_AUTHORIZATION_SCHEMA,
+            "status": "passed",
+            "array_job_id": "123",
+            "submission_receipt_sha256": dedup.sha256_file(submission),
+        },
+    )
+    write_json(
+        old_attempt / "release_observation.json",
+        {
+            "schema_version": "agent1_v5_dedup_acceleration_release_observation_v1",
+            "status": "passed",
+            "array_job_id": "123",
+            "submission_nonce": "nonce-123456789",
+            "release_requested": True,
+        },
+    )
+    scontrol = (
+        "JobId=123 ArrayJobId=123 ArrayTaskId=2-3%1 UserId=fffoivos(1) "
+        "Account=a0140 QOS=normal JobState=PENDING Reason=JobHeldUser "
+        "RunTime=00:00:00 Partition=normal "
+        f"Command={old_runner.resolve()} Comment=agent1-v5-dedup-accel:nonce-123456789\n"
+        "JobId=456 ArrayJobId=123 ArrayTaskId=1 UserId=fffoivos(1) "
+        "Account=a0140 QOS=normal JobState=RUNNING Reason=None "
+        f"RunTime=00:00:30 Partition=normal Command={old_runner.resolve()} "
+        "Comment=agent1-v5-dedup-accel:nonce-123456789\n"
+    )
+    running_sacct = (
+        "123_0|COMPLETED|0:0|00:01:00|signature|a0140|normal\n"
+        "123_1|RUNNING|0:0|00:00:30|signature|a0140|normal\n"
+    )
+    monkeypatch.setattr(
+        acceleration,
+        "_scheduler_output",
+        lambda command: scontrol if command[0] == "scontrol" else running_sacct,
+    )
+    replacement = run / "dedup-acceleration-attempts" / "replacement"
+    recovery = replacement / "recovery.json"
+    replacement_plan = replacement / "chunks.json"
+    assert acceleration.main(
+        [
+            "prepare-pending-array-replacement",
+            "--run-root", str(run),
+            "--old-attempt-root", str(old_attempt),
+            "--replace-from-task", "2",
+            "--new-pipeline-root", str(new_pipeline),
+            "--new-runner", str(new_runner),
+            "--recovery-id", "pending-replacement",
+            "--attempt-id", "replacement",
+            "--recovery-output", str(recovery),
+            "--chunk-plan-output", str(replacement_plan),
+        ]
+    ) == 0
+    recovery_value = json.loads(recovery.read_text(encoding="utf-8"))
+    plan_value = json.loads(replacement_plan.read_text(encoding="utf-8"))
+    assert recovery_value["retained_task_indices"] == [0, 1]
+    assert recovery_value["replaced_task_indices"] == [2, 3]
+    assert recovery_value["pending_replacement_ranks"] == [2, 3]
+    assert recovery_value["predecessor_dependency"] == "afterok:456"
+    assert plan_value["chunks"] == [
+        {"index": 0, "ranks": [2]},
+        {"index": 1, "ranks": [3]},
+    ]
+    assert plan_value["pending_replacement"]["predecessor_dependency"] == "afterok:456"
+
+    metrics_root = old_attempt / "metrics"
+    for rank in (0, 1):
+        outputs = [
+            binding(
+                run / "60-dedup" / "minhash-signatures" / f"bucket_{bucket:03d}" / f"{rank:05d}.sig",
+                run,
+            )
+            for bucket in range(32)
+        ]
+        write_json(
+            run / "60-dedup" / "minhash-signatures" / "receipts" / f"{rank:06d}.json",
+            {
+                "schema_version": dedup.SIGNATURE_RECEIPT_SCHEMA,
+                "status": "passed",
+                "task_index": rank,
+                "outputs": outputs,
+            },
+        )
+        write_json(
+            metrics_root / f"chunk-{rank:04d}-rank-{rank:06d}.json",
+            {
+                "status": "passed",
+                "rank": rank,
+                "attempt_id": "old-production",
+                "array_job_id": "123",
+                "submission_nonce": "nonce-123456789",
+                "chunk_plan_sha256": dedup.sha256_file(plan),
+            },
+        )
+    terminal_sacct = (
+        "123_0|COMPLETED|0:0|00:01:00|signature|a0140|normal\n"
+        "123_1|COMPLETED|0:0|00:01:00|signature|a0140|normal\n"
+        "123_[2-3]|CANCELLED by 1|0:0|00:00:00|signature|a0140|normal\n"
+    )
+    monkeypatch.setattr(acceleration, "_scheduler_output", lambda command: terminal_sacct)
+    predecessor = replacement / "predecessor-execution.json"
+    assert acceleration.main(
+        [
+            "validate-pending-replacement-predecessor",
+            "--run-root", str(run),
+            "--recovery-receipt", str(recovery),
+            "--output", str(predecessor),
+        ]
+    ) == 0
+    predecessor_value = json.loads(predecessor.read_text(encoding="utf-8"))
+    assert predecessor_value["rank_count"] == 2
+    assert predecessor_value["cancelled_replaced_task_indices"] == [2, 3]
+
+
 def test_attempt_execution_closes_scheduler_authorization_metrics_and_receipt(tmp_path: Path) -> None:
     run = tmp_path / "run"
     outputs = [
@@ -537,6 +712,13 @@ def test_signature_shells_use_single_uenv_and_safe_cleanup() -> None:
     assert 'if [[ "$armed" != 1 || -z "$array_job_id" ]]; then' in submitter
     assert 'scontrol_array_spec="${array_first}%${array_throttle}"' in submitter
     assert '"ArrayTaskId=${scontrol_array_spec} "' in submitter
+    assert 'sbatch_dependency=(--dependency="$predecessor_dependency")' in submitter
+    finalizer = (
+        ROOT / "slurm" / "agent1_v5_eiger" / "finalize_accelerated_signatures_and_merge.sh"
+    ).read_text(encoding="utf-8")
+    assert finalizer.index("validate-pending-replacement-predecessor") < finalizer.index(
+        "validate-attempt-execution"
+    )
 
 
 def test_signature_runner_refills_the_first_available_worker(tmp_path: Path) -> None:

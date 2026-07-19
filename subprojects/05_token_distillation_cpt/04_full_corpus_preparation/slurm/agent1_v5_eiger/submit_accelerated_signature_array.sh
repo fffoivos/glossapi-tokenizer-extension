@@ -32,6 +32,13 @@ journal="$attempt_dir/submission.pending.json"
 evidence="$attempt_dir/held_array_evidence.json"
 metrics_root="$attempt_dir/metrics"
 logs_root="$attempt_dir/rank-logs"
+predecessor_dependency="${PREDECESSOR_DEPENDENCY:-}"
+if [[ -n "$predecessor_dependency" ]]; then
+  [[ "$predecessor_dependency" =~ ^afterok:[0-9]+$ ]] || {
+    echo "invalid predecessor dependency: $predecessor_dependency" >&2
+    exit 2
+  }
+fi
 
 [[ -x "$runner" && -f "$helper" && -f "$benchmark" && -f "$cutover" && -f "$audit" && -f "$recovery" && -f "$chunks" ]]
 [[ ! -e "$submission" && ! -e "$authorization" && ! -e "$journal" && ! -e "$evidence" ]] || {
@@ -89,6 +96,9 @@ verify_held_array() {
   [[ "$raw" == *"JobName=a1v5-signature-normal-c${workers} "* && "$raw" == *"Comment=agent1-v5-dedup-accel:${nonce}"* ]] || return 1
   [[ "$raw" == *"JobState=PENDING "* && "$raw" == *"Reason=JobHeldUser "* ]] || return 1
   [[ "$raw" == *"ArrayTaskId=${scontrol_array_spec} "* && "$raw" == *"StdOut=${coord}/slurm/"* && "$raw" == *"StdErr=${coord}/slurm/"* ]] || return 1
+  if [[ -n "$predecessor_dependency" ]]; then
+    [[ "$raw" == *"Dependency=${predecessor_dependency}"* ]] || return 1
+  fi
   printf '%s\n' "$raw"
 }
 
@@ -107,15 +117,20 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM ERR
 
-pending_payload="$(jq -cn --arg run "$run" --arg coord "$coord" --arg pipeline "$pipeline" --arg attempt "$attempt_id" --arg recovery "$recovery_sha" --arg nonce "$nonce" --arg benchmark "$benchmark_sha" --arg cutover "$cutover_sha" --arg audit "$audit_sha" --arg chunks "$chunks_sha" --arg runner "$runner_sha" --arg array "$array_spec" --argjson workers "$workers" '{schema_version:"agent1_v5_dedup_acceleration_submission_pending_v1",status:"pending",run_root:$run,coord_root:$coord,pipeline_root:$pipeline,attempt_id:$attempt,recovery_receipt_sha256:$recovery,submission_nonce:$nonce,benchmark_receipt_sha256:$benchmark,cutover_receipt_sha256:$cutover,full_input_audit_sha256:$audit,chunk_plan_sha256:$chunks,runner_sha256:$runner,array_spec:$array,selected_workers:$workers}')"
+pending_payload="$(jq -cn --arg run "$run" --arg coord "$coord" --arg pipeline "$pipeline" --arg attempt "$attempt_id" --arg recovery "$recovery_sha" --arg nonce "$nonce" --arg benchmark "$benchmark_sha" --arg cutover "$cutover_sha" --arg audit "$audit_sha" --arg chunks "$chunks_sha" --arg runner "$runner_sha" --arg array "$array_spec" --arg dependency "$predecessor_dependency" --argjson workers "$workers" '{schema_version:"agent1_v5_dedup_acceleration_submission_pending_v1",status:"pending",run_root:$run,coord_root:$coord,pipeline_root:$pipeline,attempt_id:$attempt,recovery_receipt_sha256:$recovery,submission_nonce:$nonce,benchmark_receipt_sha256:$benchmark,cutover_receipt_sha256:$cutover,full_input_audit_sha256:$audit,chunk_plan_sha256:$chunks,runner_sha256:$runner,array_spec:$array,predecessor_dependency:(if $dependency == "" then null else $dependency end),selected_workers:$workers}')"
 write_json_exclusive "$journal" "$pending_payload"
 
+sbatch_dependency=()
+if [[ -n "$predecessor_dependency" ]]; then
+  sbatch_dependency=(--dependency="$predecessor_dependency")
+fi
 submitted="$(
   sbatch --parsable --hold --uenv-passthrough=ignore \
     --account=a0140 --partition=normal \
     --comment="agent1-v5-dedup-accel:${nonce}" \
     --nodes=1 --ntasks=1 --cpus-per-task=32 --mem=64G \
     --time=11:30:00 --signal=B:USR1@900 --array="$array_spec" \
+    "${sbatch_dependency[@]}" \
     --job-name="a1v5-signature-normal-c${workers}" \
     --output="$coord/slurm/%x-%A_%a.out" --error="$coord/slurm/%x-%A_%a.err" \
     --export=ALL,RUN_ROOT="$run",PIPELINE_ROOT="$pipeline",CHUNK_PLAN="$chunks",CHUNK_PLAN_SHA256="$chunks_sha",FULL_INPUT_AUDIT="$audit",WORKERS="$workers",SUBMISSION_NONCE="$nonce",SUBMISSION_RECEIPT="$submission",RELEASE_AUTHORIZATION="$authorization",ATTEMPT_ID="$attempt_id",RECOVERY_RECEIPT_SHA256="$recovery_sha",METRICS_ROOT="$metrics_root",LOGS_ROOT="$logs_root",STOP_SENTINEL="$run/dedup_acceleration.stop" \
@@ -126,7 +141,7 @@ array_job_id="${submitted%%;*}"
 armed=1
 raw="$(verify_held_array "$array_job_id")" || { echo "held-array identity validation failed" >&2; exit 1; }
 
-evidence_payload="$(jq -cn --arg id "$array_job_id" --arg nonce "$nonce" --arg attempt "$attempt_id" --arg array "$array_spec" --arg scontrol_array "$scontrol_array_spec" --arg coord "$(realpath "$coord")" --arg raw "$raw" --argjson workers "$workers" '{schema_version:"agent1_v5_dedup_acceleration_held_array_evidence_v1",status:"passed",array_job_id:$id,submission_nonce:$nonce,attempt_id:$attempt,owner:"fffoivos",account:"a0140",partition:"normal",job_name:("a1v5-signature-normal-c" + ($workers|tostring)),array_spec:$array,scontrol_array_spec:$scontrol_array,coord_root:$coord,state:"PENDING",reason:"JobHeldUser",scontrol_raw:$raw}' )"
+evidence_payload="$(jq -cn --arg id "$array_job_id" --arg nonce "$nonce" --arg attempt "$attempt_id" --arg array "$array_spec" --arg scontrol_array "$scontrol_array_spec" --arg coord "$(realpath "$coord")" --arg dependency "$predecessor_dependency" --arg raw "$raw" --argjson workers "$workers" '{schema_version:"agent1_v5_dedup_acceleration_held_array_evidence_v1",status:"passed",array_job_id:$id,submission_nonce:$nonce,attempt_id:$attempt,owner:"fffoivos",account:"a0140",partition:"normal",job_name:("a1v5-signature-normal-c" + ($workers|tostring)),array_spec:$array,scontrol_array_spec:$scontrol_array,coord_root:$coord,state:"PENDING",reason:"JobHeldUser",predecessor_dependency:(if $dependency == "" then null else $dependency end),scontrol_raw:$raw}' )"
 write_json_exclusive "$evidence" "$evidence_payload"
 
 "${uenv_python[@]}" "$helper" record-submission \

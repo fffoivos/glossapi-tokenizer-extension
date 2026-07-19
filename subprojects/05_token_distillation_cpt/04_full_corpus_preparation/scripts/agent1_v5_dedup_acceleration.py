@@ -9,10 +9,12 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import hashlib
 import json
 import os
 import re
 import statistics
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -41,6 +43,7 @@ SENTINEL_REQUEST_SCHEMA = "agent1_v5_dedup_acceleration_takeover_request_v1"
 SENTINEL_ARM_SCHEMA = "agent1_v5_dedup_acceleration_takeover_arm_v1"
 SENTINEL_STOP_SCHEMA = "agent1_v5_dedup_acceleration_sentinel_stop_v1"
 SENTINEL_QUEUE_SCHEMA = "agent1_v5_dedup_acceleration_sentinel_queue_evidence_v1"
+RETAINED_PREFIX_EXECUTION_SCHEMA = "agent1_v5_dedup_acceleration_retained_prefix_execution_v1"
 
 
 def _read(path: Path) -> dict[str, Any]:
@@ -106,6 +109,36 @@ def _require_within(path: Path, root: Path, *, label: str) -> None:
         path.resolve().relative_to(root.resolve())
     except ValueError as error:
         raise ValueError(f"{label} escapes run root: {path}") from error
+
+
+def _scheduler_output(command: Sequence[str]) -> str:
+    return subprocess.run(command, check=True, capture_output=True, text=True).stdout
+
+
+def _sacct_array_tasks(raw: str, array_job_id: str) -> dict[int, dict[str, Any]]:
+    pattern = re.compile(rf"^{re.escape(array_job_id)}_([0-9]+)$")
+    tasks: dict[int, dict[str, Any]] = {}
+    for line in raw.splitlines():
+        fields = line.split("|")
+        if len(fields) < 7:
+            continue
+        match = pattern.fullmatch(fields[0])
+        if match is None:
+            continue
+        index = int(match.group(1))
+        if index in tasks:
+            raise ValueError(f"duplicate scheduler task evidence for {array_job_id}_{index}")
+        tasks[index] = {
+            "job_id": fields[0],
+            "task_index": index,
+            "state": fields[1].split()[0],
+            "exit_code": fields[2],
+            "elapsed": fields[3],
+            "job_name": fields[4],
+            "account": fields[5],
+            "partition": fields[6],
+        }
+    return tasks
 
 
 def _validate_receipts(run_root: Path, through_rank: int) -> list[dict[str, Any]]:
@@ -321,6 +354,366 @@ def record_failed_array_recovery(args: argparse.Namespace) -> int:
     }
     _write_immutable(args.output, value)
     print(canonical_json({"ok": True, "recovery_id": recovery_id, "receipts": len(receipts)}))
+    return 0
+
+
+def prepare_pending_array_replacement(args: argparse.Namespace) -> int:
+    """Freeze a no-overlap replacement for user-held pending array tasks."""
+
+    run_root = args.run_root.resolve()
+    old_attempt = args.old_attempt_root.resolve()
+    _require_within(old_attempt, run_root / "dedup-acceleration-attempts", label="old attempt")
+    recovery_id = _validate_identifier(args.recovery_id, label="recovery ID")
+    attempt_id = _validate_identifier(args.attempt_id, label="attempt ID")
+    submission_path = old_attempt / "submission.json"
+    authorization_path = old_attempt / "release_authorization.json"
+    release_path = old_attempt / "release_observation.json"
+    old_plan_path = old_attempt / "chunks.json"
+    old_metrics_root = old_attempt / "metrics"
+    submission = _validate_receipt(submission_path, SUBMISSION_SCHEMA)
+    authorization = _validate_receipt(authorization_path, RELEASE_AUTHORIZATION_SCHEMA)
+    release = _validate_receipt(
+        release_path, "agent1_v5_dedup_acceleration_release_observation_v1"
+    )
+    old_plan = _validate_receipt(old_plan_path, CHUNK_PLAN_SCHEMA)
+    array_job_id = str(submission.get("array_job_id", ""))
+    if not array_job_id.isdigit() or submission.get("run_root") != str(run_root):
+        raise ValueError("old submission identity drift")
+    if authorization.get("submission_receipt_sha256") != sha256_file(submission_path):
+        raise ValueError("old authorization does not bind submission")
+    if (
+        release.get("array_job_id") != array_job_id
+        or release.get("submission_nonce") != submission.get("submission_nonce")
+        or release.get("release_requested") is not True
+    ):
+        raise ValueError("old release observation identity drift")
+    if submission.get("chunk_plan_sha256") != sha256_file(old_plan_path):
+        raise ValueError("old submission does not bind chunk plan")
+
+    old_chunks = old_plan.get("chunks")
+    if not isinstance(old_chunks, list) or not old_chunks:
+        raise ValueError("old chunk plan has no chunks")
+    indices = [int(chunk.get("index", -1)) for chunk in old_chunks]
+    if indices != list(range(len(old_chunks))):
+        raise ValueError("old chunk indices are not contiguous")
+    replace_from = int(args.replace_from_task)
+    if not 1 <= replace_from < len(old_chunks):
+        raise ValueError("replacement boundary does not split old chunks")
+    old_array_spec = str(submission.get("array_spec", ""))
+    expected_old_indices = _array_indices(old_array_spec)
+    if expected_old_indices != indices:
+        raise ValueError("old scheduler array does not match old chunk indices")
+    retained_indices = indices[:replace_from]
+    replaced_indices = indices[replace_from:]
+    replaced_ranks = [
+        int(rank) for chunk in old_chunks[replace_from:] for rank in chunk.get("ranks", [])
+    ]
+    if not replaced_ranks or len(set(replaced_ranks)) != len(replaced_ranks):
+        raise ValueError("replacement ranks are empty or duplicated")
+
+    old_pipeline = Path(str(old_plan.get("deployed_code_root", ""))).resolve()
+    old_runner = old_pipeline / "slurm" / "agent1_v5_eiger" / "normal_signature_runner.sh"
+    if not old_runner.is_file() or sha256_file(old_runner) != submission.get("runner_sha256"):
+        raise ValueError("old runner binding drift")
+    new_pipeline = args.new_pipeline_root.resolve()
+    new_runner = args.new_runner.resolve()
+    try:
+        new_runner.relative_to(new_pipeline)
+    except ValueError as error:
+        raise ValueError("new runner escapes new pipeline root") from error
+    if not new_runner.is_file() or sha256_file(new_runner) == sha256_file(old_runner):
+        raise ValueError("replacement requires a distinct corrected runner")
+
+    pending_first = replaced_indices[0]
+    pending_last = replaced_indices[-1]
+    pending_spec = f"{pending_first}-{pending_last}%1"
+    scontrol_raw = _scheduler_output(["scontrol", "show", "job", "-o", array_job_id])
+    pending_lines = [
+        line
+        for line in scontrol_raw.splitlines()
+        if f"ArrayJobId={array_job_id} " in line and f"ArrayTaskId={pending_spec} " in line
+    ]
+    if len(pending_lines) != 1:
+        raise ValueError("scheduler does not expose the exact pending replacement range")
+    pending_line = pending_lines[0]
+    expected_pending_fragments = (
+        "UserId=fffoivos(",
+        "Account=a0140 ",
+        "Partition=normal ",
+        "JobState=PENDING ",
+        "Reason=JobHeldUser ",
+        "RunTime=00:00:00 ",
+        f"Command={old_runner} ",
+        f"Comment=agent1-v5-dedup-accel:{submission['submission_nonce']}",
+    )
+    if any(fragment not in pending_line for fragment in expected_pending_fragments):
+        raise ValueError("pending replacement scheduler identity drift")
+    predecessor_lines = [
+        line
+        for line in scontrol_raw.splitlines()
+        if f"ArrayJobId={array_job_id} " in line
+        and f"ArrayTaskId={retained_indices[-1]} " in line
+    ]
+    if len(predecessor_lines) != 1:
+        raise ValueError("scheduler does not expose the retained running predecessor")
+    predecessor_line = predecessor_lines[0]
+    predecessor_match = re.search(r"(?:^| )JobId=([0-9]+)(?: |$)", predecessor_line)
+    if (
+        predecessor_match is None
+        or "JobState=RUNNING " not in predecessor_line
+        or f"Command={old_runner} " not in predecessor_line
+    ):
+        raise ValueError("retained running predecessor identity drift")
+    predecessor_job_id = predecessor_match.group(1)
+    predecessor_dependency = f"afterok:{predecessor_job_id}"
+
+    sacct_raw = _scheduler_output(
+        [
+            "sacct",
+            "-j",
+            array_job_id,
+            "--noheader",
+            "--parsable2",
+            "--format=JobID,State,ExitCode,Elapsed,JobName,Account,Partition",
+        ]
+    )
+    scheduler_tasks = _sacct_array_tasks(sacct_raw, array_job_id)
+    if set(scheduler_tasks) != set(retained_indices):
+        raise ValueError("old array has executed outside the retained task prefix")
+    for index in retained_indices:
+        task = scheduler_tasks[index]
+        expected_states = {"COMPLETED"} if index < retained_indices[-1] else {"RUNNING", "COMPLETED"}
+        if (
+            task["state"] not in expected_states
+            or task["exit_code"] != "0:0"
+            or task["account"] != "a0140"
+            or task["partition"] != "normal"
+        ):
+            raise ValueError(f"retained predecessor task identity drift: {task}")
+
+    receipt_root = run_root / "60-dedup" / "minhash-signatures" / "receipts"
+    claim_root = run_root / "60-dedup" / "minhash-signatures" / "claims"
+    collisions = [
+        rank
+        for rank in replaced_ranks
+        if (receipt_root / f"{rank:06d}.json").exists()
+        or (claim_root / f"{rank:06d}.json").exists()
+    ]
+    if collisions:
+        raise ValueError(f"replacement ranks already have work: {collisions[:10]}")
+
+    recovery_value: dict[str, Any] = {
+        "schema_version": RECOVERY_SCHEMA,
+        "status": "passed",
+        "created_at": _now(),
+        "recovery_id": recovery_id,
+        "recovery_mode": "pending_array_replacement",
+        "run_root": str(run_root),
+        "old_attempt_root": str(old_attempt),
+        "old_array_job_id": array_job_id,
+        "old_array_spec": old_array_spec,
+        "old_submission": _binding(submission_path),
+        "old_release_authorization": _binding(authorization_path),
+        "old_release_observation": _binding(release_path),
+        "old_chunk_plan": _binding(old_plan_path),
+        "old_metrics_root": str(old_metrics_root),
+        "old_runner_sha256": sha256_file(old_runner),
+        "new_runner_sha256": sha256_file(new_runner),
+        "new_pipeline_root": str(new_pipeline),
+        "retained_task_indices": retained_indices,
+        "replaced_task_indices": replaced_indices,
+        "failed_pending_ranks": replaced_ranks,
+        "pending_replacement_ranks": replaced_ranks,
+        "pending_array_spec": pending_spec,
+        "predecessor_job_id": predecessor_job_id,
+        "predecessor_dependency": predecessor_dependency,
+        "scheduler_tasks_at_hold": [scheduler_tasks[index] for index in retained_indices],
+        "scontrol_sha256": hashlib.sha256(scontrol_raw.encode()).hexdigest(),
+        "sacct_sha256": hashlib.sha256(sacct_raw.encode()).hexdigest(),
+        "active_claim_count": 0,
+        "pending_receipt_count": 0,
+    }
+    _write_immutable(args.recovery_output, recovery_value)
+
+    new_chunks = [
+        {"index": index, "ranks": [int(rank) for rank in old_chunk.get("ranks", [])]}
+        for index, old_chunk in enumerate(old_chunks[replace_from:])
+    ]
+    plan_value: dict[str, Any] = {
+        "schema_version": CHUNK_PLAN_SCHEMA,
+        "status": "passed",
+        "created_at": _now(),
+        "first_rank": int(old_plan["first_rank"]),
+        "last_rank": int(old_plan["last_rank"]),
+        "canary_rank": replaced_ranks[0],
+        "last_chunk": len(new_chunks) - 1,
+        "chunk_size": int(old_plan["chunk_size"]),
+        "selected_workers": int(old_plan["selected_workers"]),
+        "attempt_id": attempt_id,
+        "recovery_receipt_sha256": sha256_file(args.recovery_output),
+        "predecessor_execution_sha256": None,
+        "benchmark_receipt_sha256": old_plan["benchmark_receipt_sha256"],
+        "cutover_receipt_sha256": old_plan["cutover_receipt_sha256"],
+        "full_input_audit_sha256": old_plan["full_input_audit_sha256"],
+        "combined_manifest_sha256": old_plan["combined_manifest_sha256"],
+        "deployed_code_root": str(new_pipeline),
+        "runner_sha256": sha256_file(new_runner),
+        "reused_benchmark_or_completed_ranks": list(
+            old_plan.get("reused_benchmark_or_completed_ranks", [])
+        ),
+        "pending_replacement": {
+            "recovery_receipt_path": str(args.recovery_output.resolve()),
+            "old_array_job_id": array_job_id,
+            "retained_task_indices": retained_indices,
+            "replaced_task_indices": replaced_indices,
+            "predecessor_dependency": predecessor_dependency,
+        },
+        "chunks": new_chunks,
+    }
+    _write_immutable(args.chunk_plan_output, plan_value)
+    print(
+        canonical_json(
+            {
+                "ok": True,
+                "old_array_job_id": array_job_id,
+                "retained_tasks": retained_indices,
+                "replacement_tasks": len(new_chunks),
+                "replacement_ranks": len(replaced_ranks),
+            }
+        )
+    )
+    return 0
+
+
+def validate_pending_replacement_predecessor(args: argparse.Namespace) -> int:
+    """Close the retained prefix of an array whose pending suffix was replaced."""
+
+    run_root = args.run_root.resolve()
+    recovery = _validate_receipt(args.recovery_receipt, RECOVERY_SCHEMA)
+    if recovery.get("recovery_mode") != "pending_array_replacement":
+        raise ValueError("recovery receipt is not a pending-array replacement")
+    if recovery.get("run_root") != str(run_root):
+        raise ValueError("predecessor recovery run-root drift")
+
+    def bound_path(field: str) -> Path:
+        binding = recovery.get(field)
+        if not isinstance(binding, Mapping):
+            raise ValueError(f"recovery receipt lacks {field} binding")
+        path = Path(str(binding.get("path", ""))).resolve()
+        if not path.is_file() or binding.get("sha256") != sha256_file(path):
+            raise ValueError(f"recovery {field} binding drift")
+        return path
+
+    submission_path = bound_path("old_submission")
+    authorization_path = bound_path("old_release_authorization")
+    old_plan_path = bound_path("old_chunk_plan")
+    submission = _validate_receipt(submission_path, SUBMISSION_SCHEMA)
+    authorization = _validate_receipt(authorization_path, RELEASE_AUTHORIZATION_SCHEMA)
+    old_plan = _validate_receipt(old_plan_path, CHUNK_PLAN_SCHEMA)
+    array_job_id = str(recovery.get("old_array_job_id", ""))
+    if (
+        submission.get("array_job_id") != array_job_id
+        or authorization.get("submission_receipt_sha256") != sha256_file(submission_path)
+    ):
+        raise ValueError("retained predecessor authorization drift")
+    retained_indices = [int(index) for index in recovery.get("retained_task_indices", [])]
+    replaced_indices = [int(index) for index in recovery.get("replaced_task_indices", [])]
+    if not retained_indices or not replaced_indices:
+        raise ValueError("retained/replaced task partition is empty")
+
+    sacct_raw = _scheduler_output(
+        [
+            "sacct",
+            "-j",
+            array_job_id,
+            "--noheader",
+            "--parsable2",
+            "--format=JobID,State,ExitCode,Elapsed,JobName,Account,Partition",
+        ]
+    )
+    scheduler_tasks = _sacct_array_tasks(sacct_raw, array_job_id)
+    if set(scheduler_tasks) != set(retained_indices):
+        raise ValueError("old array executed outside its retained prefix")
+    for index in retained_indices:
+        task = scheduler_tasks[index]
+        if (
+            task["state"] != "COMPLETED"
+            or task["exit_code"] != "0:0"
+            or task["account"] != "a0140"
+            or task["partition"] != "normal"
+        ):
+            raise ValueError(f"retained predecessor task did not pass: {task}")
+    aggregate_pattern = re.compile(
+        rf"^{re.escape(array_job_id)}_\[{replaced_indices[0]}-{replaced_indices[-1]}(?:%1)?\]"
+    )
+    aggregate_rows = [line.split("|") for line in sacct_raw.splitlines() if aggregate_pattern.match(line)]
+    if len(aggregate_rows) != 1 or not aggregate_rows[0][1].startswith("CANCELLED"):
+        raise ValueError("replaced old task suffix lacks cancelled scheduler closure")
+
+    chunks = old_plan.get("chunks")
+    expected_ranks = [
+        int(rank)
+        for chunk in chunks
+        if int(chunk.get("index", -1)) in retained_indices
+        for rank in chunk.get("ranks", [])
+    ]
+    metrics_root = Path(str(recovery.get("old_metrics_root", ""))).resolve()
+    metric_paths = list(metrics_root.glob("*.json"))
+    if len(metric_paths) != len(expected_ranks):
+        raise ValueError("retained predecessor metric directory does not close exact ranks")
+    receipt_root = run_root / "60-dedup" / "minhash-signatures" / "receipts"
+    metrics: list[dict[str, Any]] = []
+    for rank in expected_ranks:
+        receipt_path = receipt_root / f"{rank:06d}.json"
+        receipt = _read(receipt_path)
+        outputs = receipt.get("outputs")
+        if (
+            receipt.get("schema_version") != dedup.SIGNATURE_RECEIPT_SCHEMA
+            or receipt.get("status") != "passed"
+            or int(receipt.get("task_index", -1)) != rank
+            or not isinstance(outputs, list)
+            or len(outputs) != 32
+        ):
+            raise ValueError(f"retained rank {rank} lacks a passed 32-output receipt")
+        for output in outputs:
+            dedup.validate_file_receipt(output, root=run_root)
+        matches = list(metrics_root.glob(f"*-rank-{rank:06d}.json"))
+        if len(matches) != 1:
+            raise ValueError(f"retained rank {rank} lacks exactly one metric")
+        metric = _read(matches[0])
+        if (
+            metric.get("status") != "passed"
+            or metric.get("attempt_id") != submission.get("attempt_id")
+            or metric.get("array_job_id") != array_job_id
+            or metric.get("submission_nonce") != submission.get("submission_nonce")
+            or metric.get("chunk_plan_sha256") != sha256_file(old_plan_path)
+            or int(metric.get("rank", -1)) != rank
+        ):
+            raise ValueError(f"retained metric binding drift for rank {rank}")
+        metrics.append(
+            {
+                "rank": rank,
+                "metric_sha256": sha256_file(matches[0]),
+                "receipt_sha256": sha256_file(receipt_path),
+            }
+        )
+    value: dict[str, Any] = {
+        "schema_version": RETAINED_PREFIX_EXECUTION_SCHEMA,
+        "status": "passed",
+        "created_at": _now(),
+        "run_root": str(run_root),
+        "old_array_job_id": array_job_id,
+        "retained_task_indices": retained_indices,
+        "cancelled_replaced_task_indices": replaced_indices,
+        "recovery_receipt_sha256": sha256_file(args.recovery_receipt),
+        "old_submission_sha256": sha256_file(submission_path),
+        "old_chunk_plan_sha256": sha256_file(old_plan_path),
+        "rank_count": len(expected_ranks),
+        "ranks": metrics,
+        "scheduler_tasks": [scheduler_tasks[index] for index in retained_indices],
+    }
+    _write_immutable(args.output, value)
+    print(canonical_json({"ok": True, "retained_ranks": len(expected_ranks)}))
     return 0
 
 
@@ -845,6 +1238,16 @@ def record_submission(args: argparse.Namespace) -> int:
     for key, expected in expected_identity.items():
         if observation.get(key) != expected:
             raise ValueError(f"held array evidence drift for {key}")
+    pending_replacement = plan.get("pending_replacement")
+    predecessor_dependency = None
+    if isinstance(pending_replacement, Mapping):
+        predecessor_dependency = pending_replacement.get("predecessor_dependency")
+        if (
+            not isinstance(predecessor_dependency, str)
+            or re.fullmatch(r"afterok:[0-9]+", predecessor_dependency) is None
+            or observation.get("predecessor_dependency") != predecessor_dependency
+        ):
+            raise ValueError("held array evidence lacks the exact predecessor dependency")
     value: dict[str, Any] = {
         "schema_version": SUBMISSION_SCHEMA,
         "status": "passed",
@@ -856,6 +1259,7 @@ def record_submission(args: argparse.Namespace) -> int:
         "recovery_receipt_sha256": sha256_file(args.recovery_receipt),
         "selected_workers": workers,
         "array_spec": args.array_spec,
+        "predecessor_dependency": predecessor_dependency,
         "job_evidence_sha256": sha256_file(args.job_evidence),
         **bindings,
     }
@@ -883,6 +1287,7 @@ def authorize_release(args: argparse.Namespace) -> int:
         "chunk_plan_sha256": submission["chunk_plan_sha256"],
         "runner_sha256": submission["runner_sha256"],
         "selected_workers": submission["selected_workers"],
+        "predecessor_dependency": submission.get("predecessor_dependency"),
     }
     _write_immutable(args.output, value)
     print(canonical_json({"ok": True, "array_job_id": job_id, "authorized": True}))
@@ -1183,6 +1588,24 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--chunk-size", type=int, default=60)
     command.add_argument("--output", type=Path, required=True)
     command.set_defaults(func=make_chunk_plan)
+
+    command = commands.add_parser("prepare-pending-array-replacement")
+    command.add_argument("--run-root", type=Path, required=True)
+    command.add_argument("--old-attempt-root", type=Path, required=True)
+    command.add_argument("--replace-from-task", type=int, required=True)
+    command.add_argument("--new-pipeline-root", type=Path, required=True)
+    command.add_argument("--new-runner", type=Path, required=True)
+    command.add_argument("--recovery-id", required=True)
+    command.add_argument("--attempt-id", required=True)
+    command.add_argument("--recovery-output", type=Path, required=True)
+    command.add_argument("--chunk-plan-output", type=Path, required=True)
+    command.set_defaults(func=prepare_pending_array_replacement)
+
+    command = commands.add_parser("validate-pending-replacement-predecessor")
+    command.add_argument("--run-root", type=Path, required=True)
+    command.add_argument("--recovery-receipt", type=Path, required=True)
+    command.add_argument("--output", type=Path, required=True)
+    command.set_defaults(func=validate_pending_replacement_predecessor)
 
     command = commands.add_parser("validate-worker-authorization")
     command.add_argument("--submission-receipt", type=Path, required=True)

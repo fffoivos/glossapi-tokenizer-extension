@@ -24,11 +24,24 @@ submission="$PRODUCTION_ATTEMPT_ROOT/submission.json"
 authorization="$PRODUCTION_ATTEMPT_ROOT/release_authorization.json"
 chunk_plan="$PRODUCTION_ATTEMPT_ROOT/chunks.json"
 metrics_root="$PRODUCTION_ATTEMPT_ROOT/metrics"
+replacement_recovery="$(jq -r '.pending_replacement.recovery_receipt_path // empty' "$chunk_plan" 2>/dev/null || true)"
 
 for path in "$python" "$acceleration" "$capture" "$stage" "$submission" \
   "$authorization" "$chunk_plan"; do
   [[ -e "$path" ]] || { echo "required closure input is missing: $path" >&2; exit 2; }
 done
+if [[ -n "$replacement_recovery" ]]; then
+  [[ -f "$replacement_recovery" ]] || { echo "pending replacement recovery is missing" >&2; exit 2; }
+  predecessor_execution="$PRODUCTION_ATTEMPT_ROOT/predecessor-execution.json"
+  if [[ ! -e "$predecessor_execution" ]]; then
+    uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME \
+      "$python" "$acceleration" validate-pending-replacement-predecessor \
+      --run-root "$RUN_ROOT" \
+      --recovery-receipt "$replacement_recovery" \
+      --output "$predecessor_execution"
+  fi
+  jq -e '.status == "passed" and .rank_count > 0' "$predecessor_execution" >/dev/null
+fi
 if [[ -e "$scheduler_evidence" ]]; then
   jq -e --arg job "$ARRAY_JOB_ID" --arg spec "$ARRAY_SPEC" --arg attempt "$ATTEMPT_ID" \
     '.status == "passed" and .array_job_id == $job and .array_spec == $spec
