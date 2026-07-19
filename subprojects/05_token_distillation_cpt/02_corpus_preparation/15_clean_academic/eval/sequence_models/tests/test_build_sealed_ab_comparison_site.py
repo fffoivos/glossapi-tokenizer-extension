@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 
@@ -228,3 +229,38 @@ def test_build_site_labels_actual_models(tmp_path: Path) -> None:
     payload = json.loads((output / "data" / "doc-good.json").read_text())
     assert payload["lines"][0]["annotator_pair"] == "Sol->Terra"
     assert "task_agreement_by_annotator_pair" in manifest
+
+
+def test_build_site_compares_original_and_repaired_roles(tmp_path: Path) -> None:
+    documents, keys, original_a, original_b = _fixtures()
+    repaired_a = copy.deepcopy(original_a)
+    next(row for row in repaired_a["lines"] if row["line_alias"] == "a3")["role"] = "OTHER"
+    documents_path, key_path = tmp_path / "documents.jsonl", tmp_path / "keys.jsonl"
+    repaired_a_path, repaired_b_path = tmp_path / "repaired-a.json", tmp_path / "repaired-b.json"
+    original_a_path, original_b_path = tmp_path / "original-a.json", tmp_path / "original-b.json"
+    _write_jsonl(documents_path, documents)
+    _write_jsonl(key_path, keys)
+    _write_json(repaired_a_path, repaired_a)
+    _write_json(repaired_b_path, original_b)
+    _write_json(original_a_path, original_a)
+    _write_json(original_b_path, original_b)
+    output = tmp_path / "comparison"
+    build_site(
+        documents_path=documents_path,
+        line_key_path=key_path,
+        pass_a_path=repaired_a_path,
+        pass_b_path=repaired_b_path,
+        original_pass_a_path=original_a_path,
+        original_pass_b_path=original_b_path,
+        output_dir=output,
+    )
+    manifest = json.loads((output / "manifest.json").read_text())
+    bad = next(row for row in manifest["documents"] if row["document_id"] == "doc-bad")
+    assert bad["pass_a_repaired_line_count"] == 1
+    assert bad["pass_b_repaired_line_count"] == 0
+    payload = json.loads((output / "data" / "doc-bad.json").read_text())
+    changed = payload["lines"][0]
+    assert changed["pass_a_original_role"] == "FILLER"
+    assert changed["pass_a_role"] == "OTHER"
+    assert changed["pass_a_repaired"] is True
+    assert manifest["original_task_agreement"] != manifest["task_agreement"]
