@@ -432,19 +432,35 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     selected = max(eligible, key=_selection_key) if eligible else None
     highest_recall = max(rows, key=_selection_key)
     output.mkdir(parents=True)
+    features = np.load(table_root / "features.npy", mmap_mode="r", allow_pickle=False)
+    probability = np.load(probability_path, mmap_mode="r", allow_pickle=False)
+    auxiliary = (
+        None
+        if auxiliary_path is None
+        else np.load(auxiliary_path, mmap_mode="r", allow_pickle=False).astype(bool)
+    )
+    diagnostic_prediction = decode_table(
+        table,
+        probability,
+        features,
+        table_manifest["feature_names"],
+        DecoderConfig(**highest_recall["config"]),
+        auxiliary,
+    )
+    with (output / "highest_recall_diagnostic_oof_prediction.npy").open("xb") as handle:
+        np.save(handle, diagnostic_prediction, allow_pickle=False)
     if selected is not None:
-        features = np.load(table_root / "features.npy", mmap_mode="r", allow_pickle=False)
-        probability = np.load(probability_path, mmap_mode="r", allow_pickle=False)
-        prediction = decode_table(
-            table,
-            probability,
-            features,
-            table_manifest["feature_names"],
-            DecoderConfig(**selected["config"]),
-            None
-            if auxiliary_path is None
-            else np.load(auxiliary_path, mmap_mode="r", allow_pickle=False).astype(bool),
-        )
+        if selected["config"] == highest_recall["config"]:
+            prediction = diagnostic_prediction
+        else:
+            prediction = decode_table(
+                table,
+                probability,
+                features,
+                table_manifest["feature_names"],
+                DecoderConfig(**selected["config"]),
+                auxiliary,
+            )
         with (output / "selected_oof_prediction.npy").open("xb") as handle:
             np.save(handle, prediction, allow_pickle=False)
     report = {

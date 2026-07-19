@@ -228,6 +228,15 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     absolute = np.load(feature_root / "abs_indices.npy", mmap_mode="r", allow_pickle=False)
     if not (len(line_keys) == len(labels) == len(feature_lines) == len(lengths)):
         raise ValueError("sealed evaluation line inventories differ")
+    if len(source_documents) != len(feature_documents):
+        raise ValueError("sealed evaluation document inventories differ")
+    for index, (source_document, feature_document) in enumerate(
+        zip(source_documents, feature_documents, strict=True)
+    ):
+        if str(source_document.get("document_id")) != str(
+            feature_document.get("document_id")
+        ):
+            raise ValueError(f"sealed document alignment failure at {index}")
     truth = np.zeros(len(labels), dtype=bool)
     trusted = np.zeros(len(labels), dtype=bool)
     for index, (key, label, feature_line) in enumerate(
