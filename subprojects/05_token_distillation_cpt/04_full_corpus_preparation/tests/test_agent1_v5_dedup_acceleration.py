@@ -144,6 +144,7 @@ def test_chunk_plan_requires_approved_four_or_five_worker_benchmark(tmp_path: Pa
             "recovery_id": "recovery-002",
             "new_runner_sha256": dedup.sha256_file(runner),
             "new_pipeline_root": str(ROOT.resolve()),
+            "failed_pending_ranks": list(range(7, 15)),
         },
     )
     canary_outputs = [
@@ -201,11 +202,86 @@ def test_chunk_plan_requires_approved_four_or_five_worker_benchmark(tmp_path: Pa
     assert value["selected_workers"] == 5
     assert value["attempt_id"] == attempt_id
     assert value["recovery_receipt_sha256"] == dedup.sha256_file(recovery)
+    assert value["canary_rank"] == 7
     assert value["chunks"] == [
         {"index": 0, "ranks": [8, 9, 10]},
         {"index": 1, "ranks": [11, 12, 13]},
         {"index": 2, "ranks": [14]},
     ]
+
+
+def test_canary_plan_uses_first_recovery_pending_rank_after_sparse_benchmark_receipts(tmp_path: Path) -> None:
+    run_root = tmp_path / "run"
+    runner = ROOT / "slurm" / "agent1_v5_eiger" / "normal_signature_runner.sh"
+    manifest = tmp_path / "combined.json"
+    write_json(manifest, {"files": [{"rank": rank} for rank in range(12)]})
+    audit = tmp_path / "audit.json"
+    write_json(
+        audit,
+        {
+            "schema_version": dedup.FULL_INPUT_AUDIT_SCHEMA,
+            "status": "passed",
+            "combined_manifest_sha256": dedup.sha256_file(manifest),
+        },
+    )
+    cutover = tmp_path / "cutover.json"
+    write_json(
+        cutover,
+        {
+            "schema_version": acceleration.CUTOVER_SCHEMA,
+            "status": "passed",
+            "first_missing_rank": 7,
+            "combined_manifest_sha256": dedup.sha256_file(manifest),
+        },
+    )
+    benchmark = tmp_path / "benchmark.json"
+    write_json(
+        benchmark,
+        {"schema_version": acceleration.BENCHMARK_SCHEMA, "status": "passed", "approved": True, "selected_workers": 5},
+    )
+    for rank in (7, 8, 9):
+        outputs = [
+            binding(run_root / "60-dedup" / "minhash-signatures" / f"bucket_{bucket:03d}" / f"{rank:05d}.sig", run_root)
+            for bucket in range(32)
+        ]
+        write_json(
+            run_root / "60-dedup" / "minhash-signatures" / "receipts" / f"{rank:06d}.json",
+            {"schema_version": dedup.SIGNATURE_RECEIPT_SCHEMA, "status": "passed", "task_index": rank, "outputs": outputs},
+        )
+    recovery = tmp_path / "recovery.json"
+    write_json(
+        recovery,
+        {
+            "schema_version": acceleration.RECOVERY_SCHEMA,
+            "status": "passed",
+            "run_root": str(run_root.resolve()),
+            "new_runner_sha256": dedup.sha256_file(runner),
+            "new_pipeline_root": str(ROOT.resolve()),
+            "failed_pending_ranks": [10, 11],
+        },
+    )
+    output = tmp_path / "canary-chunks.json"
+    assert acceleration.main(
+        [
+            "make-chunk-plan",
+            "--benchmark-receipt", str(benchmark),
+            "--cutover-receipt", str(cutover),
+            "--full-input-audit", str(audit),
+            "--run-root", str(run_root),
+            "--pipeline-root", str(ROOT),
+            "--runner", str(runner),
+            "--recovery-receipt", str(recovery),
+            "--attempt-id", "attempt-003-canary",
+            "--last-rank", "10",
+            "--chunk-size", "1",
+            "--output", str(output),
+        ]
+    ) == 0
+    value = json.loads(output.read_text(encoding="utf-8"))
+    assert value["first_rank"] == 7
+    assert value["canary_rank"] == 10
+    assert value["chunks"] == [{"index": 0, "ranks": [10]}]
+    assert [entry["rank"] for entry in value["reused_benchmark_or_completed_ranks"]] == [7, 8, 9]
 
 
 def test_worker_authorization_rejects_drift_in_either_receipt(tmp_path: Path) -> None:

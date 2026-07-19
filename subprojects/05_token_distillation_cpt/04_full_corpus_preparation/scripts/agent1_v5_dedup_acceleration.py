@@ -910,6 +910,15 @@ def make_chunk_plan(args: argparse.Namespace) -> int:
         raise ValueError("recovery receipt does not bind corrected runner")
     if recovery.get("new_pipeline_root") != str(args.pipeline_root.resolve()):
         raise ValueError("recovery receipt does not bind corrected pipeline")
+    raw_failed_pending = recovery.get("failed_pending_ranks")
+    if not isinstance(raw_failed_pending, list) or not raw_failed_pending:
+        raise ValueError("recovery receipt does not identify failed pending ranks")
+    failed_pending = [int(rank) for rank in raw_failed_pending]
+    if len(set(failed_pending)) != len(failed_pending) or min(failed_pending) < first:
+        raise ValueError("recovery receipt pending-rank closure drift")
+    canary_rank = min(failed_pending)
+    if last < canary_rank:
+        raise ValueError("chunk plan ends before the recovery canary rank")
     predecessor_execution_sha256 = None
     if args.predecessor_execution is not None:
         predecessor = _validate_receipt(args.predecessor_execution, EXECUTION_SCHEMA)
@@ -922,14 +931,14 @@ def make_chunk_plan(args: argparse.Namespace) -> int:
             predecessor.get("rank_count") != 1
             or not isinstance(predecessor_ranks, list)
             or len(predecessor_ranks) != 1
-            or int(predecessor_ranks[0].get("rank", -1)) != first
+            or int(predecessor_ranks[0].get("rank", -1)) != canary_rank
         ):
             raise ValueError("predecessor execution is not the single boundary-rank canary")
-        canary_receipt = run_root / "60-dedup" / "minhash-signatures" / "receipts" / f"{first:06d}.json"
+        canary_receipt = run_root / "60-dedup" / "minhash-signatures" / "receipts" / f"{canary_rank:06d}.json"
         if predecessor_ranks[0].get("receipt_sha256") != sha256_file(canary_receipt):
             raise ValueError("predecessor canary receipt changed after execution validation")
         predecessor_execution_sha256 = sha256_file(args.predecessor_execution)
-    elif last > first:
+    elif last != canary_rank:
         raise ValueError("multi-rank production planning requires a passed boundary-rank canary")
     pending: list[int] = []
     reused: list[dict[str, Any]] = []
@@ -958,6 +967,7 @@ def make_chunk_plan(args: argparse.Namespace) -> int:
         "created_at": _now(),
         "first_rank": first,
         "last_rank": last,
+        "canary_rank": canary_rank,
         "last_chunk": len(chunks) - 1,
         "chunk_size": chunk_size,
         "selected_workers": workers,
