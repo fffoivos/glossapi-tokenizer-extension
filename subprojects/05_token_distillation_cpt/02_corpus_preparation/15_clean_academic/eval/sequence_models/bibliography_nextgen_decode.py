@@ -40,6 +40,7 @@ class DecoderConfig:
     subheader_support_radius: int = 30
     header_attachment_window: int = 3
     connector_expansion_threshold: float = 0.65
+    emit_markdown_headings: bool = True
 
 
 def _physical_segments(abs_indices: np.ndarray) -> list[tuple[int, int]]:
@@ -236,6 +237,8 @@ def decode_document(
             and result[index + 1 : min(len(result), index + 2)].any()
         ):
             result[index] = False
+    if not config.emit_markdown_headings:
+        result[markdown] = False
     return result
 
 
@@ -347,13 +350,24 @@ def _selection_key(row: Mapping[str, Any]) -> tuple[float, ...]:
 
 def _grid() -> list[DecoderConfig]:
     return [
-        DecoderConfig(anchor, inside, window, bridge, expansion, single)
-        for anchor, inside, window, bridge, expansion, single in itertools.product(
-            (0.60, 0.75, 0.90),
-            (0.15, 0.30, 0.45),
+        DecoderConfig(
+            anchor,
+            inside,
+            window,
+            bridge,
+            expansion,
+            single,
+            anchors_required=anchors,
+            emit_markdown_headings=emit_headings,
+        )
+        for anchor, inside, window, bridge, expansion, single, anchors, emit_headings in itertools.product(
+            (0.75, 0.90, 0.95, 0.98),
+            (0.30, 0.60),
             (8, 16),
-            (8, 16),
+            (4, 8),
             (0, 1),
+            (False, True),
+            (2, 3),
             (False, True),
         )
         if inside < anchor

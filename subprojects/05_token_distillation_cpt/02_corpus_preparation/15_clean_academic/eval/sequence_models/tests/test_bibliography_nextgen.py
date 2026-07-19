@@ -115,3 +115,19 @@ def test_sparse_continuation_specialist_preserves_fallback(tmp_path) -> None:
     np.testing.assert_allclose(result, [0.1, 0.8, 0.3, 0.4, 0.2])
     assert digest is not None
     assert count == 2
+
+
+def test_strict_decoder_can_use_but_not_emit_markdown_subheader() -> None:
+    probability = np.asarray((0.9, 0.9, 0.05, 0.9, 0.9), dtype=np.float32)
+    features = _features(len(probability))
+    features[2, NAMES.index("structure:markdown_heading")] = 1
+    features[2, NAMES.index("probability:bib_subheader")] = 0.9
+    predicted = decode_document(
+        probability,
+        features,
+        NAMES,
+        np.asarray((100, 100, 20, 100, 100), dtype=np.uint32),
+        np.arange(len(probability), dtype=np.uint32),
+        _config(emit_markdown_headings=False),
+    )
+    assert predicted.tolist() == [True, True, False, True, True]

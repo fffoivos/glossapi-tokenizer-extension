@@ -213,33 +213,49 @@ def _fit_inventory(
         positive = np.flatnonzero(target[start:end])
         for index in positive:
             near[start + max(0, int(index) - 30) : start + min(end - start, int(index) + 31)] = True
-    eligible = trusted & (target | hard | near)
-    positive_count = int(np.count_nonzero(eligible & target))
+    core = trusted & (target | hard | near)
+    eligible = core.copy()
+    positive_count = int(np.count_nonzero(trusted & target))
     allowed_negative = int(maximum_negative_ratio * positive_count)
-    negative = np.flatnonzero(eligible & ~target)
-    if len(negative) > allowed_negative:
+    core_negative_count = int(np.count_nonzero(core & ~target))
+    if core_negative_count > allowed_negative:
+        negative = np.flatnonzero(core & ~target)
         rng = np.random.default_rng(seed)
         keep = rng.choice(negative, size=allowed_negative, replace=False)
         eligible[negative] = False
         eligible[keep] = True
+    elif core_negative_count < allowed_negative:
+        background = np.flatnonzero(trusted & ~target & ~core)
+        add_count = min(len(background), allowed_negative - core_negative_count)
+        if add_count:
+            rng = np.random.default_rng(seed)
+            eligible[
+                rng.choice(background, size=add_count, replace=False)
+            ] = True
     return eligible
 
 
-def _weights(indices: np.ndarray, target: np.ndarray, documents: np.ndarray) -> np.ndarray:
+def _weights(
+    indices: np.ndarray,
+    target: np.ndarray,
+    documents: np.ndarray,
+    mode: str,
+) -> np.ndarray:
+    if mode == "none":
+        return np.ones(len(indices), dtype=np.float64)
     doc_counts = collections.Counter(int(documents[index]) for index in indices)
-    class_counts = np.bincount(target[indices].astype(np.uint8), minlength=2)
-    if np.any(class_counts == 0):
-        raise ValueError("training partition needs both classes")
     result = np.asarray(
-        [
-            1.0
-            / doc_counts[int(documents[index])]
-            * len(indices)
-            / (2.0 * class_counts[int(target[index])])
-            for index in indices
-        ],
-        dtype=np.float64,
+        [1.0 / doc_counts[int(documents[index])] for index in indices], dtype=np.float64
     )
+    if mode == "document_class_balanced":
+        class_counts = np.bincount(target[indices].astype(np.uint8), minlength=2)
+        if np.any(class_counts == 0):
+            raise ValueError("training partition needs both classes")
+        result *= np.asarray(
+            [len(indices) / (2.0 * class_counts[int(target[index])]) for index in indices]
+        )
+    elif mode != "document":
+        raise ValueError(f"unknown weighting mode: {mode}")
     return result / result.mean()
 
 
@@ -266,9 +282,10 @@ def _fit(
     documents: np.ndarray,
     *,
     seed: int,
+    weighting: str,
 ) -> ModelBundle:
     tools = _sklearn()
-    weights = _weights(indices, target, documents)
+    weights = _weights(indices, target, documents, weighting)
     if kind == "linear":
         scaler = tools["scaler"]().fit(features[indices], sample_weight=weights)
         transformed = scaler.transform(features[indices]).astype(np.float32)
@@ -353,6 +370,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             fit,
             table.document_indices,
             seed=int(args.seed) + fold,
+            weighting=args.weighting,
         )
         probability[holdout] = bundle.predict(features[holdout])
         with (model_root / f"fold{fold}.pkl").open("xb") as handle:
@@ -389,6 +407,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "eligible_fit_line_count": int(np.count_nonzero(eligible)),
         "eligible_positive_count": int(np.count_nonzero(eligible & target)),
         "maximum_negative_ratio": float(args.maximum_negative_ratio),
+        "weighting": args.weighting,
         "folds": fold_reports,
         "oof_metrics_before_block_decoding": _raw_metrics(target, probability, trusted),
         "inputs": {
@@ -423,6 +442,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--kind", choices=("linear", "hist"), required=True)
     parser.add_argument("--maximum-negative-ratio", type=float, default=5.0)
+    parser.add_argument(
+        "--weighting",
+        choices=("none", "document", "document_class_balanced"),
+        default="document",
+    )
     parser.add_argument("--seed", type=int, default=20260720)
     parser.add_argument("--code-commit", required=True)
     parser.add_argument("--slurm-job-id", required=True)
