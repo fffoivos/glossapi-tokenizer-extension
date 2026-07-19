@@ -26,12 +26,15 @@ contract="$RUN_ROOT/run_contract.json"
 manifest="$RUN_ROOT/release-pre-dedup/manifests/combined_manifest.json"
 runtime="$RUN_ROOT/datatrove_runtime.json"
 coord="$(dirname "$RUN_ROOT")/.${RUN_ROOT##*/}.coord"
-python_cmd=(
+python="$coord/runtime/venv/bin/python"
+uenv_python=(
   uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME
-  "$coord/runtime/venv/bin/python"
+  "$python"
 )
-metrics_root="$RUN_ROOT/60-dedup/minhash-signatures/accelerated-metrics"
-logs_root="$RUN_ROOT/60-dedup/minhash-signatures/accelerated-rank-logs"
+attempt_id="${ATTEMPT_ID:-benchmark}"
+recovery_receipt_sha256="${RECOVERY_RECEIPT_SHA256:-benchmark}"
+metrics_root="${METRICS_ROOT:-$RUN_ROOT/60-dedup/minhash-signatures/accelerated-metrics}"
+logs_root="${LOGS_ROOT:-$RUN_ROOT/60-dedup/minhash-signatures/accelerated-rank-logs}"
 stop_sentinel="${STOP_SENTINEL:-$RUN_ROOT/dedup_acceleration.stop}"
 mkdir -p "$metrics_root" "$logs_root"
 
@@ -39,14 +42,18 @@ if [[ "$benchmark_mode" == 0 ]]; then
   : "${SUBMISSION_RECEIPT:?SUBMISSION_RECEIPT is required for production work}"
   : "${RELEASE_AUTHORIZATION:?RELEASE_AUTHORIZATION is required for production work}"
   : "${SLURM_ARRAY_JOB_ID:?array job ID is required for production work}"
-  "${python_cmd[@]}" "$acceleration" validate-worker-authorization \
+  : "${ATTEMPT_ID:?ATTEMPT_ID is required for production work}"
+  : "${RECOVERY_RECEIPT_SHA256:?RECOVERY_RECEIPT_SHA256 is required for production work}"
+  "${uenv_python[@]}" "$acceleration" validate-worker-authorization \
     --submission-receipt "$SUBMISSION_RECEIPT" \
     --release-authorization "$RELEASE_AUTHORIZATION" \
     --array-job-id "$SLURM_ARRAY_JOB_ID" \
     --submission-nonce "$SUBMISSION_NONCE" \
     --chunk-plan-sha256 "$CHUNK_PLAN_SHA256" \
     --runner "${BASH_SOURCE[0]}" \
-    --workers "$WORKERS"
+    --workers "$WORKERS" \
+    --attempt-id "$ATTEMPT_ID" \
+    --recovery-receipt-sha256 "$RECOVERY_RECEIPT_SHA256"
 fi
 
 if [[ "$benchmark_mode" == 1 ]]; then
@@ -96,7 +103,7 @@ run_rank() {
   err_log="$logs_root/chunk-$(printf '%04d' "$chunk_index")-rank-$(printf '%06d' "$rank").err"
   if /usr/bin/time -v -o "$time_report" \
       uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME \
-      "${python_cmd[@]}" "$dedup" accelerated-signature-task \
+      "$python" "$dedup" accelerated-signature-task \
       --config "$config" --contract "$contract" --combined-manifest "$manifest" \
       --runtime-receipt "$runtime" --full-input-audit "$FULL_INPUT_AUDIT" \
       --task-index "$rank" --claim-token "$token" >"$out_log" 2>"$err_log"; then
@@ -107,11 +114,13 @@ run_rank() {
   end="$(date +%s)"
   metric="$metrics_root/chunk-$(printf '%04d' "$chunk_index")-rank-$(printf '%06d' "$rank").json"
   python3 - "$metric" "$rank" "$start" "$end" "$status" "$chunk_index" "$WORKERS" \
-    "$input_bytes" "$input_rows" "$time_report" "$benchmark_mode" "$CHUNK_PLAN_SHA256" "$out_log" "$err_log" <<'PY'
+    "$input_bytes" "$input_rows" "$time_report" "$benchmark_mode" "$CHUNK_PLAN_SHA256" "$out_log" "$err_log" \
+    "$attempt_id" "${SLURM_ARRAY_JOB_ID:-${SLURM_JOB_ID:-local}}" "$SUBMISSION_NONCE" <<'PY'
 import json, os, re, sys, tempfile
 (
     path, rank, start, end, status, chunk, workers, input_bytes, input_rows,
-    time_report, benchmark_mode, plan_sha, out_log, err_log,
+    time_report, benchmark_mode, plan_sha, out_log, err_log, attempt_id,
+    array_job_id, submission_nonce,
 ) = sys.argv[1:]
 values = {}
 for raw in open(time_report, encoding="utf-8", errors="replace"):
@@ -139,6 +148,10 @@ payload = {
     "filesystem_input_kib": integer("File system inputs"),
     "filesystem_output_kib": integer("File system outputs"),
     "benchmark_plan_sha256": plan_sha if benchmark_mode == "1" else None,
+    "chunk_plan_sha256": plan_sha if benchmark_mode == "0" else None,
+    "attempt_id": attempt_id,
+    "array_job_id": array_job_id,
+    "submission_nonce": submission_nonce,
     "stdout": out_log,
     "stderr": err_log,
 }

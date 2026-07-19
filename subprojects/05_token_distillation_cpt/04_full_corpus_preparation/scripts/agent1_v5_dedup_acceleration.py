@@ -11,6 +11,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import statistics
 import sys
 from pathlib import Path
@@ -33,6 +34,9 @@ BENCHMARK_SCHEMA = "agent1_v5_dedup_acceleration_benchmark_v1"
 CHUNK_PLAN_SCHEMA = "agent1_v5_dedup_acceleration_chunk_plan_v1"
 SUBMISSION_SCHEMA = "agent1_v5_dedup_acceleration_submission_v1"
 RELEASE_AUTHORIZATION_SCHEMA = "agent1_v5_dedup_acceleration_release_authorization_v1"
+ARRAY_EXECUTION_EVIDENCE_SCHEMA = "agent1_v5_dedup_acceleration_array_execution_evidence_v1"
+RECOVERY_SCHEMA = "agent1_v5_dedup_acceleration_recovery_v1"
+EXECUTION_SCHEMA = "agent1_v5_dedup_acceleration_execution_v1"
 SENTINEL_REQUEST_SCHEMA = "agent1_v5_dedup_acceleration_takeover_request_v1"
 SENTINEL_ARM_SCHEMA = "agent1_v5_dedup_acceleration_takeover_arm_v1"
 SENTINEL_STOP_SCHEMA = "agent1_v5_dedup_acceleration_sentinel_stop_v1"
@@ -170,6 +174,154 @@ def _validate_receipt(path: Path, schema: str) -> dict[str, Any]:
     if value.get("schema_version") != schema or value.get("status") != "passed":
         raise ValueError(f"required receipt is not passed: {path}")
     return value
+
+
+def _array_indices(array_spec: str) -> list[int]:
+    match = re.fullmatch(r"([0-9]+)-([0-9]+)%([1-9][0-9]*)", array_spec)
+    if match is None:
+        raise ValueError(f"invalid array specification: {array_spec}")
+    first, last = int(match.group(1)), int(match.group(2))
+    if first < 0 or last < first:
+        raise ValueError(f"invalid array bounds: {array_spec}")
+    return list(range(first, last + 1))
+
+
+def _validate_identifier(value: str, *, label: str) -> str:
+    if re.fullmatch(r"[a-z0-9][a-z0-9._-]{5,63}", value) is None:
+        raise ValueError(f"invalid {label}: {value!r}")
+    return value
+
+
+def _passed_signature_receipts(run_root: Path, last_rank: int) -> list[dict[str, Any]]:
+    receipts: list[dict[str, Any]] = []
+    receipt_root = run_root / "60-dedup" / "minhash-signatures" / "receipts"
+    for rank in range(last_rank + 1):
+        path = receipt_root / f"{rank:06d}.json"
+        if not path.exists():
+            continue
+        receipt = _read(path)
+        if receipt.get("schema_version") != dedup.SIGNATURE_RECEIPT_SCHEMA:
+            raise ValueError(f"signature receipt schema mismatch: {path}")
+        if receipt.get("status") != "passed" or int(receipt.get("task_index", -1)) != rank:
+            raise ValueError(f"signature receipt is not passed for rank {rank}")
+        outputs = receipt.get("outputs")
+        if not isinstance(outputs, list) or len(outputs) != 32:
+            raise ValueError(f"signature receipt output closure failed for rank {rank}")
+        for output in outputs:
+            dedup.validate_file_receipt(output, root=run_root)
+        receipts.append({"rank": rank, "receipt_sha256": sha256_file(path)})
+    return receipts
+
+
+def record_failed_array_recovery(args: argparse.Namespace) -> int:
+    """Prove that a released array failed before producing canonical work."""
+
+    run_root = args.run_root.resolve()
+    recovery_id = _validate_identifier(args.recovery_id, label="recovery ID")
+    submission = _validate_receipt(args.failed_submission, SUBMISSION_SCHEMA)
+    authorization = _validate_receipt(args.failed_release_authorization, RELEASE_AUTHORIZATION_SCHEMA)
+    release = _validate_receipt(args.failed_release_observation, "agent1_v5_dedup_acceleration_release_observation_v1")
+    plan = _validate_receipt(args.failed_chunk_plan, CHUNK_PLAN_SCHEMA)
+    evidence = _validate_receipt(args.scheduler_evidence, ARRAY_EXECUTION_EVIDENCE_SCHEMA)
+    job_id = str(submission.get("array_job_id", ""))
+    if not job_id.isdigit() or evidence.get("array_job_id") != job_id or release.get("array_job_id") != job_id:
+        raise ValueError("failed-array job identity drift")
+    if submission.get("run_root") != str(run_root):
+        raise ValueError("failed submission run-root drift")
+    if authorization.get("submission_receipt_sha256") != sha256_file(args.failed_submission):
+        raise ValueError("failed release authorization does not bind submission receipt")
+    if (
+        authorization.get("array_job_id") != job_id
+        or authorization.get("submission_nonce") != submission.get("submission_nonce")
+    ):
+        raise ValueError("failed release authorization identity drift")
+    if release.get("submission_nonce") != submission.get("submission_nonce") or release.get("release_requested") is not True:
+        raise ValueError("failed release observation nonce drift")
+    if submission.get("chunk_plan_sha256") != sha256_file(args.failed_chunk_plan):
+        raise ValueError("failed submission chunk-plan binding drift")
+    expected_tasks = _array_indices(str(submission.get("array_spec", "")))
+    if (
+        evidence.get("attempt_id") != recovery_id
+        or
+        evidence.get("array_spec") != submission.get("array_spec")
+        or evidence.get("expected_state") != "FAILED"
+        or evidence.get("expected_exit_code") != "127:0"
+    ):
+        raise ValueError("failed-array scheduler evidence binding drift")
+    tasks = evidence.get("tasks")
+    if not isinstance(tasks, list) or sorted(int(task.get("task_index", -1)) for task in tasks) != expected_tasks:
+        raise ValueError("failed-array scheduler evidence does not close every task")
+    for task in tasks:
+        if task.get("state") != "FAILED" or task.get("exit_code") != "127:0":
+            raise ValueError("failed-array task did not fail with the expected pre-work exit 127")
+        if task.get("account") != "a0140" or task.get("partition") != "normal":
+            raise ValueError("failed-array scheduler identity drift")
+        if task.get("job_id") != f"{job_id}_{int(task['task_index'])}":
+            raise ValueError("failed-array scheduler task ID drift")
+    raw_planned_ranks = [
+        int(rank)
+        for chunk in plan.get("chunks", [])
+        for rank in chunk.get("ranks", [])
+    ]
+    planned_ranks = set(raw_planned_ranks)
+    if not planned_ranks or len(planned_ranks) != len(raw_planned_ranks):
+        raise ValueError("failed chunk plan has empty or duplicate ranks")
+    if min(planned_ranks) < 0 or max(planned_ranks) > int(plan["last_rank"]):
+        raise ValueError("failed chunk plan rank bounds drift")
+    metrics_root = args.metrics_root.resolve()
+    expected_metrics_root = run_root / "60-dedup" / "minhash-signatures" / "accelerated-metrics"
+    if metrics_root != expected_metrics_root:
+        raise ValueError("failed-array metrics root is not the canonical production path")
+    production_metrics = []
+    for path in metrics_root.glob("*.json"):
+        metric = _read(path)
+        if metric.get("benchmark_plan_sha256") is None:
+            production_metrics.append(path)
+    if production_metrics:
+        raise ValueError("failed array produced production metrics; automatic pre-work recovery is unsafe")
+    receipts = _passed_signature_receipts(run_root, int(plan["last_rank"]))
+    if len(receipts) != int(args.expected_receipt_count):
+        raise ValueError("canonical receipt count changed after failed array")
+    receipt_ranks = {int(receipt["rank"]) for receipt in receipts}
+    if receipt_ranks & planned_ranks:
+        raise ValueError("failed array completed a rank from its pending plan")
+    claim_root = run_root / "60-dedup" / "minhash-signatures" / "claims"
+    active_claims = [rank for rank in planned_ranks if (claim_root / f"{rank:06d}.json").exists()]
+    if active_claims:
+        raise ValueError(f"failed array left active claims: {active_claims[:10]}")
+    old_runner_sha = str(submission.get("runner_sha256", ""))
+    new_runner_sha = sha256_file(args.new_runner)
+    if not old_runner_sha or old_runner_sha == new_runner_sha:
+        raise ValueError("recovery requires a distinct corrected runner")
+    new_pipeline_root = args.new_pipeline_root.resolve()
+    try:
+        args.new_runner.resolve().relative_to(new_pipeline_root)
+    except ValueError as error:
+        raise ValueError("corrected runner is outside the corrected pipeline root") from error
+    value: dict[str, Any] = {
+        "schema_version": RECOVERY_SCHEMA,
+        "status": "passed",
+        "created_at": _now(),
+        "recovery_id": recovery_id,
+        "run_root": str(run_root),
+        "failed_array_job_id": job_id,
+        "failed_submission_sha256": sha256_file(args.failed_submission),
+        "failed_release_authorization_sha256": sha256_file(args.failed_release_authorization),
+        "failed_release_observation_sha256": sha256_file(args.failed_release_observation),
+        "failed_chunk_plan_sha256": sha256_file(args.failed_chunk_plan),
+        "scheduler_evidence_sha256": sha256_file(args.scheduler_evidence),
+        "old_runner_sha256": old_runner_sha,
+        "new_runner_sha256": new_runner_sha,
+        "new_pipeline_root": str(new_pipeline_root),
+        "failed_pending_ranks": sorted(planned_ranks),
+        "canonical_receipt_count": len(receipts),
+        "canonical_receipts": receipts,
+        "production_metric_count": 0,
+        "active_claim_count": 0,
+    }
+    _write_immutable(args.output, value)
+    print(canonical_json({"ok": True, "recovery_id": recovery_id, "receipts": len(receipts)}))
+    return 0
 
 
 def build_preflight(args: argparse.Namespace) -> int:
@@ -618,18 +770,20 @@ def validate_worker_authorization(args: argparse.Namespace) -> int:
     job_id = str(args.array_job_id)
     if not job_id.isdigit() or submission.get("array_job_id") != job_id:
         raise ValueError("array job ID does not match immutable submission")
+    if authorization.get("submission_receipt_sha256") != sha256_file(args.submission_receipt):
+        raise ValueError("release authorization does not bind immutable submission")
     expected = {
-        "submission_receipt_sha256": sha256_file(args.submission_receipt),
         "array_job_id": job_id,
         "submission_nonce": args.submission_nonce,
         "chunk_plan_sha256": args.chunk_plan_sha256,
         "runner_sha256": sha256_file(args.runner),
+        "attempt_id": args.attempt_id,
+        "recovery_receipt_sha256": args.recovery_receipt_sha256,
+        "selected_workers": int(args.workers),
     }
     for key, value in expected.items():
-        if submission.get(key) != value and authorization.get(key) != value:
+        if submission.get(key) != value or authorization.get(key) != value:
             raise ValueError(f"submission/authorization binding drift: {key}")
-    if int(submission.get("selected_workers", -1)) != int(args.workers):
-        raise ValueError("worker count differs from submission authorization")
     print(canonical_json({"ok": True, "array_job_id": job_id}))
     return 0
 
@@ -638,9 +792,10 @@ def record_submission(args: argparse.Namespace) -> int:
     """Record an already identity-checked held normal array submission."""
 
     benchmark = _validate_receipt(args.benchmark_receipt, BENCHMARK_SCHEMA)
-    cutover = _validate_receipt(args.cutover_receipt, CUTOVER_SCHEMA)
+    _validate_receipt(args.cutover_receipt, CUTOVER_SCHEMA)
     audit = _validate_receipt(args.full_input_audit, dedup.FULL_INPUT_AUDIT_SCHEMA)
     plan = _validate_receipt(args.chunk_plan, CHUNK_PLAN_SCHEMA)
+    recovery = _validate_receipt(args.recovery_receipt, RECOVERY_SCHEMA)
     observation = _passed(args.job_evidence, label="held array job evidence")
     job_id = str(args.array_job_id)
     if not job_id.isdigit():
@@ -655,6 +810,10 @@ def record_submission(args: argparse.Namespace) -> int:
         "chunk_plan_sha256": sha256_file(args.chunk_plan),
         "runner_sha256": sha256_file(args.runner),
     }
+    if recovery.get("run_root") != str(args.run_root.resolve()):
+        raise ValueError("recovery receipt run-root drift")
+    if recovery.get("new_runner_sha256") != bindings["runner_sha256"]:
+        raise ValueError("recovery receipt corrected-runner drift")
     if plan.get("benchmark_receipt_sha256") != bindings["benchmark_receipt_sha256"]:
         raise ValueError("chunk plan benchmark binding drift")
     if plan.get("cutover_receipt_sha256") != bindings["cutover_receipt_sha256"]:
@@ -665,8 +824,14 @@ def record_submission(args: argparse.Namespace) -> int:
         raise ValueError("chunk plan runner binding drift")
     if plan.get("combined_manifest_sha256") != audit.get("combined_manifest_sha256"):
         raise ValueError("chunk plan manifest binding drift")
+    if plan.get("attempt_id") != args.attempt_id:
+        raise ValueError("attempt identity drift")
+    if plan.get("recovery_receipt_sha256") != sha256_file(args.recovery_receipt):
+        raise ValueError("chunk plan recovery binding drift")
     if str(observation.get("array_job_id")) != job_id or observation.get("submission_nonce") != args.submission_nonce:
         raise ValueError("held array evidence identity drift")
+    if observation.get("attempt_id") != args.attempt_id:
+        raise ValueError("held array evidence attempt drift")
     if observation.get("state") != "PENDING" or observation.get("reason") != "JobHeldUser":
         raise ValueError("array is not user-held")
     expected_identity = {
@@ -687,6 +852,8 @@ def record_submission(args: argparse.Namespace) -> int:
         "run_root": str(args.run_root.resolve()),
         "array_job_id": job_id,
         "submission_nonce": args.submission_nonce,
+        "attempt_id": args.attempt_id,
+        "recovery_receipt_sha256": sha256_file(args.recovery_receipt),
         "selected_workers": workers,
         "array_spec": args.array_spec,
         "job_evidence_sha256": sha256_file(args.job_evidence),
@@ -711,6 +878,8 @@ def authorize_release(args: argparse.Namespace) -> int:
         "submission_receipt_sha256": sha256_file(args.submission_receipt),
         "array_job_id": job_id,
         "submission_nonce": args.submission_nonce,
+        "attempt_id": submission["attempt_id"],
+        "recovery_receipt_sha256": submission["recovery_receipt_sha256"],
         "chunk_plan_sha256": submission["chunk_plan_sha256"],
         "runner_sha256": submission["runner_sha256"],
         "selected_workers": submission["selected_workers"],
@@ -727,12 +896,41 @@ def make_chunk_plan(args: argparse.Namespace) -> int:
         raise ValueError("benchmark receipt does not select four or five approved workers")
     boundary = _validate_receipt(args.cutover_receipt, CUTOVER_SCHEMA)
     audit = _validate_receipt(args.full_input_audit, dedup.FULL_INPUT_AUDIT_SCHEMA)
+    recovery = _validate_receipt(args.recovery_receipt, RECOVERY_SCHEMA)
+    attempt_id = _validate_identifier(args.attempt_id, label="attempt ID")
     first = int(boundary["first_missing_rank"])
     last = int(args.last_rank)
     chunk_size = int(args.chunk_size)
     if last < first or not 1 <= chunk_size <= 60:
         raise ValueError("invalid remaining rank range or chunk size")
     run_root = args.run_root.resolve()
+    if recovery.get("run_root") != str(run_root):
+        raise ValueError("recovery receipt run drift")
+    if recovery.get("new_runner_sha256") != sha256_file(args.runner):
+        raise ValueError("recovery receipt does not bind corrected runner")
+    if recovery.get("new_pipeline_root") != str(args.pipeline_root.resolve()):
+        raise ValueError("recovery receipt does not bind corrected pipeline")
+    predecessor_execution_sha256 = None
+    if args.predecessor_execution is not None:
+        predecessor = _validate_receipt(args.predecessor_execution, EXECUTION_SCHEMA)
+        if predecessor.get("run_root") != str(run_root):
+            raise ValueError("predecessor execution run-root drift")
+        if predecessor.get("recovery_receipt_sha256") != sha256_file(args.recovery_receipt):
+            raise ValueError("predecessor execution recovery binding drift")
+        predecessor_ranks = predecessor.get("ranks")
+        if (
+            predecessor.get("rank_count") != 1
+            or not isinstance(predecessor_ranks, list)
+            or len(predecessor_ranks) != 1
+            or int(predecessor_ranks[0].get("rank", -1)) != first
+        ):
+            raise ValueError("predecessor execution is not the single boundary-rank canary")
+        canary_receipt = run_root / "60-dedup" / "minhash-signatures" / "receipts" / f"{first:06d}.json"
+        if predecessor_ranks[0].get("receipt_sha256") != sha256_file(canary_receipt):
+            raise ValueError("predecessor canary receipt changed after execution validation")
+        predecessor_execution_sha256 = sha256_file(args.predecessor_execution)
+    elif last > first:
+        raise ValueError("multi-rank production planning requires a passed boundary-rank canary")
     pending: list[int] = []
     reused: list[dict[str, Any]] = []
     for rank in range(first, last + 1):
@@ -763,6 +961,9 @@ def make_chunk_plan(args: argparse.Namespace) -> int:
         "last_chunk": len(chunks) - 1,
         "chunk_size": chunk_size,
         "selected_workers": workers,
+        "attempt_id": attempt_id,
+        "recovery_receipt_sha256": sha256_file(args.recovery_receipt),
+        "predecessor_execution_sha256": predecessor_execution_sha256,
         "benchmark_receipt_sha256": sha256_file(args.benchmark_receipt),
         "cutover_receipt_sha256": sha256_file(args.cutover_receipt),
         "full_input_audit_sha256": sha256_file(args.full_input_audit),
@@ -774,6 +975,121 @@ def make_chunk_plan(args: argparse.Namespace) -> int:
     }
     _write_immutable(args.output, value)
     print(canonical_json({"ok": True, "chunks": len(chunks), "workers": workers, "ranks": len(pending), "reused": len(reused)}))
+    return 0
+
+
+def validate_attempt_execution(args: argparse.Namespace) -> int:
+    submission = _validate_receipt(args.submission_receipt, SUBMISSION_SCHEMA)
+    authorization = _validate_receipt(args.release_authorization, RELEASE_AUTHORIZATION_SCHEMA)
+    plan = _validate_receipt(args.chunk_plan, CHUNK_PLAN_SCHEMA)
+    evidence = _validate_receipt(args.scheduler_evidence, ARRAY_EXECUTION_EVIDENCE_SCHEMA)
+    job_id = str(submission.get("array_job_id", ""))
+    if not job_id.isdigit() or evidence.get("array_job_id") != job_id or evidence.get("attempt_id") != submission.get("attempt_id"):
+        raise ValueError("execution evidence job identity drift")
+    authorization_bindings = {
+        "submission_receipt_sha256": sha256_file(args.submission_receipt),
+        "array_job_id": job_id,
+        "submission_nonce": submission.get("submission_nonce"),
+        "attempt_id": submission.get("attempt_id"),
+        "recovery_receipt_sha256": submission.get("recovery_receipt_sha256"),
+        "chunk_plan_sha256": submission.get("chunk_plan_sha256"),
+        "runner_sha256": submission.get("runner_sha256"),
+        "selected_workers": submission.get("selected_workers"),
+    }
+    for key, expected in authorization_bindings.items():
+        if authorization.get(key) != expected:
+            raise ValueError(f"execution authorization binding drift: {key}")
+    if submission.get("chunk_plan_sha256") != sha256_file(args.chunk_plan):
+        raise ValueError("execution submission does not bind chunk plan")
+    if submission.get("attempt_id") != plan.get("attempt_id"):
+        raise ValueError("execution attempt identity drift")
+    if submission.get("run_root") != str(args.run_root.resolve()):
+        raise ValueError("execution submission run-root drift")
+    if submission.get("recovery_receipt_sha256") != plan.get("recovery_receipt_sha256"):
+        raise ValueError("execution recovery binding drift")
+    expected_tasks = _array_indices(str(submission.get("array_spec", "")))
+    if (
+        evidence.get("array_spec") != submission.get("array_spec")
+        or evidence.get("expected_state") != "COMPLETED"
+        or evidence.get("expected_exit_code") != "0:0"
+    ):
+        raise ValueError("execution scheduler evidence binding drift")
+    tasks = evidence.get("tasks")
+    if not isinstance(tasks, list) or sorted(int(task.get("task_index", -1)) for task in tasks) != expected_tasks:
+        raise ValueError("execution evidence does not close every array task")
+    for task in tasks:
+        if task.get("state") != "COMPLETED" or task.get("exit_code") != "0:0":
+            raise ValueError("array execution did not complete successfully")
+        if task.get("account") != "a0140" or task.get("partition") != "normal":
+            raise ValueError("array execution scheduler identity drift")
+        if task.get("job_id") != f"{job_id}_{int(task['task_index'])}":
+            raise ValueError("array execution scheduler task ID drift")
+    chunks = plan.get("chunks")
+    if not isinstance(chunks, list) or [int(chunk.get("index", -1)) for chunk in chunks] != expected_tasks:
+        raise ValueError("execution chunk indices do not match scheduler array")
+    raw_expected_ranks = [
+        int(rank)
+        for chunk in chunks
+        for rank in chunk.get("ranks", [])
+    ]
+    expected_ranks = sorted(raw_expected_ranks)
+    if not expected_ranks or len(set(expected_ranks)) != len(expected_ranks):
+        raise ValueError("execution chunk plan has empty or duplicate ranks")
+    run_root = args.run_root.resolve()
+    receipt_root = run_root / "60-dedup" / "minhash-signatures" / "receipts"
+    metric_root = args.metrics_root.resolve()
+    all_metric_paths = list(metric_root.glob("*.json"))
+    if len(all_metric_paths) != len(expected_ranks):
+        raise ValueError("attempt metric directory does not exactly close planned ranks")
+    metrics: list[dict[str, Any]] = []
+    for rank in expected_ranks:
+        receipt_path = receipt_root / f"{rank:06d}.json"
+        receipt = _read(receipt_path)
+        if (
+            receipt.get("schema_version") != dedup.SIGNATURE_RECEIPT_SCHEMA
+            or receipt.get("status") != "passed"
+            or int(receipt.get("task_index", -1)) != rank
+        ):
+            raise ValueError(f"attempt rank {rank} lacks a passed receipt")
+        outputs = receipt.get("outputs")
+        if not isinstance(outputs, list) or len(outputs) != 32:
+            raise ValueError(f"attempt rank {rank} has incomplete output closure")
+        for output in outputs:
+            dedup.validate_file_receipt(output, root=run_root)
+        matches = list(metric_root.glob(f"*-rank-{rank:06d}.json"))
+        if len(matches) != 1:
+            raise ValueError(f"attempt rank {rank} does not have exactly one metric")
+        metric = _read(matches[0])
+        if (
+            metric.get("status") != "passed"
+            or metric.get("attempt_id") != submission.get("attempt_id")
+            or metric.get("array_job_id") != job_id
+            or metric.get("submission_nonce") != submission.get("submission_nonce")
+            or metric.get("chunk_plan_sha256") != sha256_file(args.chunk_plan)
+            or metric.get("benchmark_plan_sha256") is not None
+            or int(metric.get("rank", -1)) != rank
+        ):
+            raise ValueError(f"attempt metric binding drift for rank {rank}")
+        metrics.append({"rank": rank, "metric_sha256": sha256_file(matches[0]), "receipt_sha256": sha256_file(receipt_path)})
+    value: dict[str, Any] = {
+        "schema_version": EXECUTION_SCHEMA,
+        "status": "passed",
+        "created_at": _now(),
+        "attempt_id": submission["attempt_id"],
+        "run_root": str(run_root),
+        "array_job_id": job_id,
+        "submission_nonce": submission["submission_nonce"],
+        "recovery_receipt_sha256": submission["recovery_receipt_sha256"],
+        "selected_workers": submission["selected_workers"],
+        "submission_receipt_sha256": sha256_file(args.submission_receipt),
+        "release_authorization_sha256": sha256_file(args.release_authorization),
+        "chunk_plan_sha256": sha256_file(args.chunk_plan),
+        "scheduler_evidence_sha256": sha256_file(args.scheduler_evidence),
+        "rank_count": len(expected_ranks),
+        "ranks": metrics,
+    }
+    _write_immutable(args.output, value)
+    print(canonical_json({"ok": True, "attempt_id": submission["attempt_id"], "ranks": len(expected_ranks)}))
     return 0
 
 
@@ -850,6 +1166,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--run-root", type=Path, required=True)
     command.add_argument("--pipeline-root", type=Path, required=True)
     command.add_argument("--runner", type=Path, required=True)
+    command.add_argument("--recovery-receipt", type=Path, required=True)
+    command.add_argument("--attempt-id", required=True)
+    command.add_argument("--predecessor-execution", type=Path)
     command.add_argument("--last-rank", type=int, required=True)
     command.add_argument("--chunk-size", type=int, default=60)
     command.add_argument("--output", type=Path, required=True)
@@ -863,6 +1182,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--chunk-plan-sha256", required=True)
     command.add_argument("--runner", type=Path, required=True)
     command.add_argument("--workers", type=int, required=True)
+    command.add_argument("--attempt-id", required=True)
+    command.add_argument("--recovery-receipt-sha256", required=True)
     command.set_defaults(func=validate_worker_authorization)
 
     command = commands.add_parser("record-submission")
@@ -871,6 +1192,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--cutover-receipt", type=Path, required=True)
     command.add_argument("--full-input-audit", type=Path, required=True)
     command.add_argument("--chunk-plan", type=Path, required=True)
+    command.add_argument("--recovery-receipt", type=Path, required=True)
+    command.add_argument("--attempt-id", required=True)
     command.add_argument("--runner", type=Path, required=True)
     command.add_argument("--job-evidence", type=Path, required=True)
     command.add_argument("--array-job-id", required=True)
@@ -886,6 +1209,31 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--submission-nonce", required=True)
     command.add_argument("--output", type=Path, required=True)
     command.set_defaults(func=authorize_release)
+
+    command = commands.add_parser("record-failed-array-recovery")
+    command.add_argument("--run-root", type=Path, required=True)
+    command.add_argument("--failed-submission", type=Path, required=True)
+    command.add_argument("--failed-release-authorization", type=Path, required=True)
+    command.add_argument("--failed-release-observation", type=Path, required=True)
+    command.add_argument("--failed-chunk-plan", type=Path, required=True)
+    command.add_argument("--scheduler-evidence", type=Path, required=True)
+    command.add_argument("--metrics-root", type=Path, required=True)
+    command.add_argument("--expected-receipt-count", type=int, required=True)
+    command.add_argument("--new-pipeline-root", type=Path, required=True)
+    command.add_argument("--new-runner", type=Path, required=True)
+    command.add_argument("--recovery-id", required=True)
+    command.add_argument("--output", type=Path, required=True)
+    command.set_defaults(func=record_failed_array_recovery)
+
+    command = commands.add_parser("validate-attempt-execution")
+    command.add_argument("--run-root", type=Path, required=True)
+    command.add_argument("--submission-receipt", type=Path, required=True)
+    command.add_argument("--release-authorization", type=Path, required=True)
+    command.add_argument("--chunk-plan", type=Path, required=True)
+    command.add_argument("--scheduler-evidence", type=Path, required=True)
+    command.add_argument("--metrics-root", type=Path, required=True)
+    command.add_argument("--output", type=Path, required=True)
+    command.set_defaults(func=validate_attempt_execution)
     return parser.parse_args(argv)
 
 
