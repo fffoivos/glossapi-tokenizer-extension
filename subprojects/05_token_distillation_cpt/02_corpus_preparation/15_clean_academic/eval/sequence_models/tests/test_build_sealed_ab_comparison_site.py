@@ -107,6 +107,8 @@ def test_build_site_writes_static_reader_and_receipt(tmp_path: Path) -> None:
     assert "binary-disagree" in (output / "styles.css").read_text()
     manifest = json.loads((output / "manifest.json").read_text())
     assert manifest["documents"][0]["document_id"] == "doc-bad"
+    assert "task_agreement" in manifest["documents"][0]
+    assert "task_agreement" in manifest["source_summary"]["openarchives"]
     assert len(list((output / "data").glob("*.json"))) == 2
 
 
@@ -184,9 +186,11 @@ def test_task_agreement_uses_downstream_recodings() -> None:
     result = build_task_agreement(lines)
     assert result["bibliography_membership"]["exact_agreement"] == 0.75
     heading = result["heading_types"]
+    assert heading["detection_agreement"] == 0.5
     assert heading["candidate_union_including_missed_headings"]["line_count"] == 2
     assert heading["both_identified_a_heading"]["line_count"] == 1
     gap = result["gap_line_types"]
+    assert gap["detection_agreement"] == 0.5
     assert gap["candidate_union_including_missed_gap_lines"]["line_count"] == 2
     assert gap["both_identified_a_gap_line"]["line_count"] == 1
 

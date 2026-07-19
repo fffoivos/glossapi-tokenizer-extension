@@ -54,6 +54,7 @@ INDEX_HTML = """<!doctype html>
   </header>
   <main class="layout">
     <aside class="sidebar">
+      <div id="dataset-agreement" class="dataset-agreement"></div>
       <div class="side-heading">
         <strong>Documents</strong>
         <span class="muted">Worst agreement first</span>
@@ -61,6 +62,7 @@ INDEX_HTML = """<!doctype html>
       <nav id="documents" aria-label="Sealed documents"></nav>
     </aside>
     <section class="reader" aria-live="polite">
+      <div id="document-task-summary" class="document-task-summary"></div>
       <div class="column-heads">
         <div class="pass-head"><strong>Pass A</strong><span id="pass-a-model">annotator</span></div>
         <span>line</span>
@@ -93,8 +95,8 @@ button{font:inherit;cursor:pointer}
 .actions{display:flex;gap:7px;justify-content:flex-end}.actions button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 10px;color:var(--ink)}.actions button:hover{background:#eee9df}
 .legend{grid-column:1/-1;display:flex;gap:6px 10px;flex-wrap:wrap}.legend-item{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--muted)}.swatch{width:11px;height:11px;border-radius:3px;background:var(--role-bg);border-left:4px solid var(--role)}
 .layout{max-width:1900px;margin:14px auto 70px;display:grid;grid-template-columns:280px minmax(0,1fr);gap:14px;padding:0 14px}
-.sidebar{position:sticky;top:112px;max-height:calc(100vh - 128px);overflow:auto;background:#faf7f0;border:1px solid var(--line);border-radius:13px;padding:9px}.side-heading{padding:5px 6px 9px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}.doc{display:block;width:100%;text-align:left;margin:4px 0;border:0;background:#ebe6dc;padding:8px 9px;border-radius:8px;color:var(--ink)}.doc:hover{background:#dfd8ca}.doc.active{background:#24372d;color:#fff}.doc strong,.doc small{display:block}.doc strong{font-size:12px}.doc small{opacity:.75;font-size:10px;margin-top:2px}
-.reader{background:var(--card);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);overflow:visible}.column-heads{position:sticky;top:80px;z-index:10;display:grid;grid-template-columns:minmax(0,1fr) 74px minmax(0,1fr);gap:8px;padding:10px 12px;background:#fffdf8f2;border-bottom:1px solid var(--line);border-radius:14px 14px 0 0;backdrop-filter:blur(12px);text-align:center}.column-heads strong{font:700 17px Georgia,serif}.column-heads span{color:var(--muted);font-size:11px}.pass-head{display:flex;justify-content:center;align-items:baseline;gap:8px;flex-wrap:wrap}.pass-head span{background:#e7e1d5;color:var(--ink);border-radius:999px;padding:2px 7px;font-weight:700}
+.sidebar{position:sticky;top:112px;max-height:calc(100vh - 128px);overflow:auto;background:#faf7f0;border:1px solid var(--line);border-radius:13px;padding:9px}.dataset-agreement{padding:4px 5px 10px;border-bottom:1px solid var(--line);margin-bottom:5px}.dataset-agreement strong{display:block;font:700 14px Georgia,serif;margin-bottom:6px}.dataset-row{padding:6px 0;border-top:1px solid #ded7ca}.dataset-row:first-of-type{border-top:0}.dataset-row b{display:block;font-size:11px}.task-values{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;margin-top:3px}.task-values span{font-size:9px;line-height:1.2;text-align:center;color:var(--muted)}.task-values em{display:block;color:var(--ink);font-style:normal;font-weight:800}.side-heading{padding:5px 6px 9px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}.doc{display:block;width:100%;text-align:left;margin:4px 0;border:0;background:#ebe6dc;padding:8px 9px;border-radius:8px;color:var(--ink)}.doc:hover{background:#dfd8ca}.doc.active{background:#24372d;color:#fff}.doc strong,.doc small{display:block}.doc strong{font-size:12px}.doc small{opacity:.75;font-size:10px;margin-top:2px}
+.reader{background:var(--card);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);overflow:visible}.document-task-summary{padding:10px 12px 8px;border-bottom:1px solid var(--line)}.document-task-summary>strong{display:block;font:700 13px Georgia,serif}.document-task-summary .task-values{max-width:720px}.column-heads{position:sticky;top:80px;z-index:10;display:grid;grid-template-columns:minmax(0,1fr) 74px minmax(0,1fr);gap:8px;padding:10px 12px;background:#fffdf8f2;border-bottom:1px solid var(--line);backdrop-filter:blur(12px);text-align:center}.column-heads strong{font:700 17px Georgia,serif}.column-heads span{color:var(--muted);font-size:11px}.pass-head{display:flex;justify-content:center;align-items:baseline;gap:8px;flex-wrap:wrap}.pass-head span{background:#e7e1d5;color:var(--ink);border-radius:999px;padding:2px 7px;font-weight:700}
 .lines{padding:9px}.compare-row{display:grid;grid-template-columns:minmax(0,1fr) 74px minmax(0,1fr);gap:8px;align-items:stretch;margin:2px 0;scroll-margin-top:170px}.annotation{position:relative;display:grid;grid-template-columns:110px minmax(0,1fr);gap:9px;padding:7px 9px;border-radius:8px;background:var(--role-bg);border-left:5px solid var(--role);min-width:0}.labels{align-self:start;display:grid;gap:4px}.role{border-radius:6px;background:var(--role);color:#fff;padding:4px 6px;font-size:10px;font-weight:800;letter-spacing:.025em;text-align:center;overflow-wrap:anywhere}.model{color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.04em;text-align:center;text-transform:uppercase}.text{font:15px/1.42 Georgia,"Times New Roman",serif;overflow-wrap:anywhere;white-space:pre-wrap}.line-marker{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font:10px/1.25 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}.line-marker b{font:800 16px/1 system-ui;color:var(--bad)}.compare-row.binary-agree .line-marker b{color:var(--good)}.compare-row.exact-agree .line-marker b{opacity:.28}.compare-row.binary-disagree{background:#f7e3e04d;border-radius:9px}.compare-row.binary-disagree .line-marker{background:#f8dfdc;border-radius:7px;color:#7e302c}
 .role-ENTRY{--role:var(--entry);--role-bg:var(--entry-bg)}.role-CONTINUATION{--role:var(--continuation);--role-bg:var(--continuation-bg)}.role-FILLER{--role:var(--filler);--role-bg:var(--filler-bg)}.role-BIB_HEADER{--role:var(--bib-header);--role-bg:var(--bib-header-bg)}.role-BIB_SUBHEADER{--role:var(--bib-subheader);--role-bg:var(--bib-subheader-bg)}.role-NON_BIB_HEADER{--role:var(--non-bib-header);--role-bg:var(--non-bib-header-bg)}.role-OTHER{--role:var(--other);--role-bg:var(--other-bg)}.role-UNKNOWN{--role:var(--unknown);--role-bg:var(--unknown-bg)}
 .loading,.empty{padding:40px;text-align:center;color:var(--muted)}
@@ -110,16 +112,19 @@ let manifest=null,current=null,currentIndex=0,disagreements=[],disagreementIndex
 function roleClass(role){return 'role-'+String(role).replace(/[^A-Z_]/g,'')}
 function shortId(doc){return doc.source_doc_id.length>22?doc.source_doc_id.slice(0,12)+'…':doc.source_doc_id}
 function renderLegend(){$('legend').innerHTML=roles.map(r=>`<span class="legend-item ${roleClass(r)}"><i class="swatch"></i>${r.replaceAll('_',' ')}</span>`).join('')}
+function pct(value){return `${(100*value).toFixed(1)}%`}
+function taskValues(tasks){const h=tasks.heading_types,g=tasks.gap_line_types;return `<div class="task-values"><span title="BIB versus non-BIB agreement"><em>${pct(tasks.bibliography_membership.exact_agreement)}</em>BIB</span><span title="Both found a heading among lines where either found one"><em>${pct(h.detection_agreement)}</em>head found</span><span title="Heading subtype agreement when both found a heading"><em>${pct(h.both_identified_a_heading.exact_agreement)}</em>head type</span><span title="Both found a filler or continuation among lines where either found one"><em>${pct(g.detection_agreement)}</em>gap found</span><span title="Filler versus continuation agreement when both found a gap line"><em>${pct(g.both_identified_a_gap_line.exact_agreement)}</em>gap type</span></div>`}
+function renderDatasetAgreement(){$('dataset-agreement').innerHTML=`<strong>Agreement by dataset</strong>`+Object.entries(manifest.source_summary).map(([source,value])=>`<div class="dataset-row"><b>${esc(source.replaceAll('_',' '))} · ${value.document_count} docs</b>${taskValues(value.task_agreement)}</div>`).join('')}
 function renderDocuments(){$('documents').innerHTML=manifest.documents.map((d,i)=>`<button type="button" class="doc ${i===currentIndex?'active':''}" data-index="${i}"><strong>${i+1}. ${esc(d.source)} · ${esc(shortId(d))}</strong><small>A: ${esc(d.pass_a_model)} · B: ${esc(d.pass_b_model)} · ${(100*d.binary_agreement).toFixed(2)}% agreement · ${d.binary_disagreements.toLocaleString()} disagreements · ${d.line_count.toLocaleString()} lines</small></button>`).join('')}
 function annotation(role,text,model){return `<div class="annotation ${roleClass(role)}"><span class="labels"><span class="role">${esc(role.replaceAll('_',' '))}</span><span class="model">${esc(model)}</span></span><span class="text">${esc(text)}</span></div>`}
 function renderLine(line,index){const state=line.exact_agree?'exact-agree binary-agree':line.binary_agree?'binary-agree role-disagree':'binary-disagree';const mark=line.exact_agree?'=':line.binary_agree?'≈':'≠';const title=line.exact_agree?'Exact role agreement':line.binary_agree?'Same BIB/NON-BIB decision; detailed roles differ':'Binary BIB/NON-BIB disagreement';return `<div id="line-${index}" class="compare-row ${state}" data-line="${index}">${annotation(line.pass_a_role,line.text,line.pass_a_model)}<span class="line-marker" title="${title}">L${line.abs_idx}<b>${mark}</b></span>${annotation(line.pass_b_role,line.text,line.pass_b_model)}</div>`}
-function renderCurrent(){renderDocuments();disagreements=[];current.lines.forEach((line,i)=>{if(!line.binary_agree)disagreements.push(i)});$('lines').innerHTML=current.lines.map(renderLine).join('');const d=manifest.documents[currentIndex];$('pass-a-model').textContent=d.pass_a_model_details;$('pass-b-model').textContent=d.pass_b_model_details;$('doc-summary').textContent=`${d.source} · ${shortId(d)} · A: ${d.pass_a_model} · B: ${d.pass_b_model} · ${(100*d.binary_agreement).toFixed(2)}% agreement · ${d.binary_disagreements.toLocaleString()} disagreements / ${d.line_count.toLocaleString()} lines`;document.title=`${(100*d.binary_agreement).toFixed(2)}% · ${shortId(d)} · A/B comparison`;disagreementIndex=-1;window.scrollTo({top:0,behavior:'instant'});history.replaceState(null,'','#'+d.document_id)}
+function renderCurrent(){renderDocuments();disagreements=[];current.lines.forEach((line,i)=>{if(!line.binary_agree)disagreements.push(i)});$('lines').innerHTML=current.lines.map(renderLine).join('');const d=manifest.documents[currentIndex];$('document-task-summary').innerHTML=`<strong>This document · ${esc(d.source)} · ${esc(shortId(d))}</strong>${taskValues(d.task_agreement)}`;$('pass-a-model').textContent=d.pass_a_model_details;$('pass-b-model').textContent=d.pass_b_model_details;$('doc-summary').textContent=`${d.source} · ${shortId(d)} · A: ${d.pass_a_model} · B: ${d.pass_b_model} · ${(100*d.binary_agreement).toFixed(2)}% agreement · ${d.binary_disagreements.toLocaleString()} disagreements / ${d.line_count.toLocaleString()} lines`;document.title=`${(100*d.binary_agreement).toFixed(2)}% · ${shortId(d)} · A/B comparison`;disagreementIndex=-1;window.scrollTo({top:0,behavior:'instant'});history.replaceState(null,'','#'+d.document_id)}
 async function loadDocument(index){currentIndex=Math.max(0,Math.min(manifest.documents.length-1,index));$('lines').innerHTML='<div class="loading">Loading document…</div>';renderDocuments();const d=manifest.documents[currentIndex];const response=await fetch('data/'+d.document_id+'.json');if(!response.ok)throw new Error('Could not load '+d.document_id);current=await response.json();renderCurrent()}
 function jump(direction){if(!disagreements.length)return;const visible=disagreements.findIndex(i=>document.getElementById('line-'+i)?.getBoundingClientRect().top>170);if(direction>0){disagreementIndex=visible>=0?visible:0}else{const y=window.scrollY+170;let previous=-1;disagreements.forEach((line,i)=>{if(document.getElementById('line-'+line)?.offsetTop<y)previous=i});disagreementIndex=previous>0?previous-1:disagreements.length-1}document.getElementById('line-'+disagreements[disagreementIndex])?.scrollIntoView({behavior:'smooth',block:'center'})}
 document.addEventListener('click',event=>{const button=event.target.closest('[data-index]');if(button)loadDocument(Number(button.dataset.index))});
 $('previous-disagreement').onclick=()=>jump(-1);$('next-disagreement').onclick=()=>jump(1);
 document.addEventListener('keydown',event=>{if(event.key.toLowerCase()==='n')jump(1);if(event.key.toLowerCase()==='p')jump(-1)});
-async function start(){renderLegend();const response=await fetch('manifest.json');manifest=await response.json();const wanted=location.hash.slice(1);const index=Math.max(0,manifest.documents.findIndex(d=>d.document_id===wanted));await loadDocument(index)}
+async function start(){renderLegend();const response=await fetch('manifest.json');manifest=await response.json();renderDatasetAgreement();const wanted=location.hash.slice(1);const index=Math.max(0,manifest.documents.findIndex(d=>d.document_id===wanted));await loadDocument(index)}
 start().catch(error=>{$('lines').innerHTML=`<div class="empty">${esc(error.message)}</div>`});
 """
 
@@ -298,12 +303,16 @@ def build_task_agreement(lines: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     return {
         "bibliography_membership": _agreement_metrics(binary_pairs, ("BIB", "NON_BIB")),
         "heading_types": {
+            "detection_agreement": (
+                len(heading_both) / len(heading_union) if heading_union else 1.0
+            ),
             "candidate_union_including_missed_headings": _agreement_metrics(
                 heading_union, (*heading_labels, "NON_HEADER")
             ),
             "both_identified_a_heading": _agreement_metrics(heading_both, heading_labels),
         },
         "gap_line_types": {
+            "detection_agreement": len(gap_both) / len(gap_union) if gap_union else 1.0,
             "candidate_union_including_missed_gap_lines": _agreement_metrics(
                 gap_union, (*gap_labels, "OTHER")
             ),
@@ -454,6 +463,7 @@ def build_documents(
                 {"pair": pair, "count": count}
                 for pair, count in disagreement_pairs.most_common(5)
             ],
+            "task_agreement": build_task_agreement(output_lines),
         }
         manifest_rows.append(summary)
         payloads.append({"schema_version": SITE_SCHEMA, "document": summary, "lines": output_lines})
@@ -554,20 +564,25 @@ def build_site(
         lines_by_annotator_pair: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for line in all_lines:
             lines_by_annotator_pair[str(line["annotator_pair"])].append(line)
-        source_summary = {
-            source: {
-                "document_count": sum(row["source"] == source for row in manifest_rows),
-                "line_count": sum(
-                    row["line_count"]
-                    for row in manifest_rows
-                    if row["source"] == source
-                ),
+        source_summary: dict[str, dict[str, Any]] = {}
+        for source in sorted({row["source"] for row in manifest_rows}):
+            source_rows = [row for row in manifest_rows if row["source"] == source]
+            source_lines = [
+                line
+                for payload in payloads
+                if payload["document"]["source"] == source
+                for line in payload["lines"]
+            ]
+            pair_counts = Counter(str(line["annotator_pair"]) for line in source_lines)
+            source_summary[source] = {
+                "document_count": len(source_rows),
+                "line_count": sum(row["line_count"] for row in source_rows),
                 "binary_disagreements": sum(
-                    row["binary_disagreements"] for row in manifest_rows if row["source"] == source
+                    row["binary_disagreements"] for row in source_rows
                 ),
+                "annotator_pair_line_counts": dict(sorted(pair_counts.items())),
+                "task_agreement": build_task_agreement(source_lines),
             }
-            for source in sorted({row["source"] for row in manifest_rows})
-        }
         manifest = {
             "schema_version": SITE_SCHEMA,
             "status": "passed",
