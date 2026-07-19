@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 
-EXPECTED_CODE_COMMIT = "c5b79d98bf58cf9111d49103d889d990be9018c6"
+EXPECTED_G1_CODE_COMMIT = "c5b79d98bf58cf9111d49103d889d990be9018c6"
 EXPECTED_QUEUE_SHA256 = "b56cb01317dd8408aaefef4a1ce6f1fe1cd1c221281a09f46169a855597cafca"
 EXPECTED_REGISTRY_SHA256 = "eb6f229e8ce0b8df68c06461d580a9db807840a1f546b7955c961cfd0ec7285b"
 EXPECTED_PARENT_ID = "g1-1909806a497053bb7ac4c964"
@@ -130,8 +130,21 @@ def main() -> int:
     job_id = os.environ.get("SLURM_JOB_ID")
     if not job_id:
         raise RuntimeError("full G1 finalization must run on a Slurm compute node")
-    if _git(repo_root, "rev-parse", "HEAD") != EXPECTED_CODE_COMMIT:
-        raise RuntimeError("deployed checkout differs from the audited full G1 commit")
+    finalizer_commit = _git(repo_root, "rev-parse", "HEAD")
+    ancestor_check = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo_root),
+            "merge-base",
+            "--is-ancestor",
+            EXPECTED_G1_CODE_COMMIT,
+            finalizer_commit,
+        ],
+        check=False,
+    )
+    if ancestor_check.returncode:
+        raise RuntimeError("finalizer checkout does not descend from audited full G1 code")
     if _git(repo_root, "status", "--porcelain", "--untracked-files=all"):
         raise RuntimeError("deployed full G1 checkout is dirty")
     if sha256_file(queue_path) != EXPECTED_QUEUE_SHA256:
@@ -142,7 +155,7 @@ def main() -> int:
     queue_rows = _load_jsonl(queue_path)
     if any(
         row.get("generation") != "G1"
-        or row.get("code_commit") != EXPECTED_CODE_COMMIT
+        or row.get("code_commit") != EXPECTED_G1_CODE_COMMIT
         for row in queue_rows
     ):
         raise RuntimeError("full G1 queue contract drift")
@@ -227,7 +240,8 @@ def main() -> int:
         receipt = {
             "schema_version": "bibliography-evolution-full-g1-registry-receipt-v1",
             "status": "passed_full_receipt_verification_registry_frozen",
-            "code_commit": EXPECTED_CODE_COMMIT,
+            "full_g1_code_commit": EXPECTED_G1_CODE_COMMIT,
+            "finalizer_code_commit": finalizer_commit,
             "slurm_job_id": job_id,
             "candidate_receipt_sha256": receipt_hashes,
             "full_g1_queue": {
