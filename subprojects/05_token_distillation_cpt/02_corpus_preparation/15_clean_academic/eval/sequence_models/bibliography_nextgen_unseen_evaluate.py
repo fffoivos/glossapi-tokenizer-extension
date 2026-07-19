@@ -272,6 +272,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             {
                 "name": frozen["name"],
                 "model_kind": frozen["model_kind"],
+                "development_gate_passed": frozen["development_gate_passed"],
+                "development_selection_tier": frozen["development_selection_tier"],
                 "development_metrics": frozen["development_metrics"],
                 "test_metrics": _evaluate_candidate(
                     prediction,

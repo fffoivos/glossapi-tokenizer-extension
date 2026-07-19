@@ -55,6 +55,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         model = json.loads((model_root / "report.json").read_text(encoding="utf-8"))
         decoder = json.loads((decoder_root / "report.json").read_text(encoding="utf-8"))
         selected = decoder.get("selected")
+        selection_tier = "deployment_gate"
+        if not isinstance(selected, Mapping):
+            selected = decoder.get("deployment_near_miss")
+            selection_tier = "predeclared_research_near_miss"
         if (
             model.get("schema_version") != MODEL_SCHEMA
             or model.get("test_opened") is not False
@@ -76,6 +80,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 "decoder_receipt_sha256": sha256_file(decoder_root / "receipt.json"),
                 "decoder_config": selected["config"],
                 "development_metrics": selected["metrics"],
+                "development_gate_passed": selection_tier == "deployment_gate",
+                "development_selection_tier": selection_tier,
             }
         )
     if not rows:
@@ -86,8 +92,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "test_opened": False,
         "test_labels_opened": False,
         "selection_protocol": (
-            "one-shot joint test of candidates frozen from grouped development OOF; "
-            "no post-test threshold or topology selection"
+            "one-shot joint test of deployment-gated or explicitly preserved "
+            "development near-miss candidates frozen from grouped development OOF; "
+            "no post-test threshold, topology selection, or candidate reranking"
         ),
         "selection_rule": args.selection_rule,
         "candidate_count": len(rows),
