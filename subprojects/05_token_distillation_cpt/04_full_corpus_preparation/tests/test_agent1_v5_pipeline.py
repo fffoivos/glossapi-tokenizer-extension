@@ -202,6 +202,8 @@ def test_signature_finalizer_orders_scheduler_execution_and_manifest_closure() -
     closure = script.index(".task_count == 431")
     assert capture < execution < merge < closure
     assert '[[ ! -e "$RUN_ROOT/signature_manifest.json" ]]' in script
+    assert 'if [[ -e "$scheduler_evidence" ]]' in script
+    assert 'if [[ -e "$execution_receipt" ]]' in script
 
 
 def test_submitter_resume_reuses_only_matching_persisted_jobs(tmp_path: Path) -> None:

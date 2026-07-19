@@ -29,30 +29,45 @@ for path in "$python" "$acceleration" "$capture" "$stage" "$submission" \
   "$authorization" "$chunk_plan"; do
   [[ -e "$path" ]] || { echo "required closure input is missing: $path" >&2; exit 2; }
 done
-[[ ! -e "$scheduler_evidence" ]]
-[[ ! -e "$execution_receipt" ]]
-[[ ! -e "$RUN_ROOT/signature_manifest.json" ]]
+if [[ -e "$scheduler_evidence" ]]; then
+  jq -e --arg job "$ARRAY_JOB_ID" --arg spec "$ARRAY_SPEC" --arg attempt "$ATTEMPT_ID" \
+    '.status == "passed" and .array_job_id == $job and .array_spec == $spec
+     and .attempt_id == $attempt and .expected_state == "COMPLETED"
+     and .expected_exit_code == "0:0"' "$scheduler_evidence" >/dev/null
+else
+  "$capture" "$ARRAY_JOB_ID" "$ARRAY_SPEC" "$ATTEMPT_ID" COMPLETED 0:0 \
+    "$scheduler_evidence"
+fi
 
-"$capture" "$ARRAY_JOB_ID" "$ARRAY_SPEC" "$ATTEMPT_ID" COMPLETED 0:0 \
-  "$scheduler_evidence"
-
-uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME \
-  "$python" "$acceleration" validate-attempt-execution \
-  --run-root "$RUN_ROOT" \
-  --submission-receipt "$submission" \
-  --release-authorization "$authorization" \
-  --chunk-plan "$chunk_plan" \
-  --scheduler-evidence "$scheduler_evidence" \
-  --metrics-root "$metrics_root" \
-  --output "$execution_receipt"
+if [[ -e "$execution_receipt" ]]; then
+  chunk_sha="$(sha256sum "$chunk_plan" | awk '{print $1}')"
+  expected_ranks="$(jq '[.chunks[].ranks[]] | length' "$chunk_plan")"
+  jq -e --arg job "$ARRAY_JOB_ID" --arg attempt "$ATTEMPT_ID" \
+    --arg run "$RUN_ROOT" --arg chunk_sha "$chunk_sha" --argjson ranks "$expected_ranks" \
+    '.status == "passed" and .array_job_id == $job and .attempt_id == $attempt
+     and .run_root == $run and .chunk_plan_sha256 == $chunk_sha
+     and .rank_count == $ranks' "$execution_receipt" >/dev/null
+else
+  uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME \
+    "$python" "$acceleration" validate-attempt-execution \
+    --run-root "$RUN_ROOT" \
+    --submission-receipt "$submission" \
+    --release-authorization "$authorization" \
+    --chunk-plan "$chunk_plan" \
+    --scheduler-evidence "$scheduler_evidence" \
+    --metrics-root "$metrics_root" \
+    --output "$execution_receipt"
+fi
 
 # merge-signatures performs the final 431-receipt / 13,792-output hash closure.
-uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME \
-  STAGE=merge-signatures \
-  PIPELINE_ROOT="$PIPELINE_ROOT" \
-  RUN_ROOT="$RUN_ROOT" \
-  VENV_ROOT="$coord_root/runtime/venv" \
-  "$stage"
+if [[ ! -e "$RUN_ROOT/signature_manifest.json" ]]; then
+  uenv run pytorch/v2.6.0:v1 --view=default -- env -u PYTHONPATH -u PYTHONHOME \
+    STAGE=merge-signatures \
+    PIPELINE_ROOT="$PIPELINE_ROOT" \
+    RUN_ROOT="$RUN_ROOT" \
+    VENV_ROOT="$coord_root/runtime/venv" \
+    "$stage"
+fi
 
 jq -e '.status == "passed" and .task_count == 431 and .bucket_count == 32' \
   "$RUN_ROOT/signature_manifest.json" >/dev/null
