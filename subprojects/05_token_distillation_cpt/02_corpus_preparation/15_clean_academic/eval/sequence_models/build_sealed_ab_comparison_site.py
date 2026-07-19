@@ -426,6 +426,8 @@ def build_documents(
             counts = dict(value.get("chunk_counts") or {})
             if not counts:
                 return model
+            if len(counts) == 1:
+                return f"{model} · {next(iter(counts.values()))} chunks"
             chunks = ", ".join(f"{name} {count}" for name, count in sorted(counts.items()))
             return f"{model} · {chunks} chunks"
 

@@ -102,6 +102,46 @@ input to development selection.
 - Visual QA was performed at 1800 by 1200 pixels after correcting the sticky
   column-heading alignment.
 
+### Actual annotator provenance and task-specific agreement
+
+The comparison reader was extended to resolve every owned packet line through
+its immutable response record. It now identifies the actual annotation model
+(`Sol`, `Terra`, or `Mixed`) for each document and shows the actual model beside
+every displayed line. This is distinct from the aggregate reviewer ID, which
+describes the combined pass rather than the model that produced a particular
+response.
+
+The same build computes symmetric A/B agreement after recoding the seven roles
+for the three downstream learning tasks. Neither pass is treated as ground
+truth. Per-class agreement is therefore reported as symmetric F1, alongside
+the A-to-B confusion matrix, observed agreement, and Cohen's kappa.
+
+- Bibliography membership maps `ENTRY`, `CONTINUATION`, `FILLER`,
+  `BIB_HEADER`, and `BIB_SUBHEADER` to `BIB`; `NON_BIB_HEADER` and `OTHER` map
+  to `NON_BIB`. Lines with `UNKNOWN` in either pass are excluded. On 193,718
+  comparable lines, agreement is `0.9803838569466957`, kappa is
+  `0.9149675418331754`, BIB symmetric F1 is `0.9262708575863408`, and NON-BIB
+  symmetric F1 is `0.9886869745397385`.
+- Heading review uses the three heading types plus a diagnostic `NON_HEADER`
+  bucket. Across the 11,738-line union where either pass saw a heading, exact
+  agreement is `0.8578122337706594`. On the 10,084 lines where both passes saw
+  a heading, exact heading-type agreement rises to `0.9985124950416502`:
+  symmetric F1 is `0.9735099337748344` for `BIB_HEADER`,
+  `0.973404255319149` for `BIB_SUBHEADER`, and `0.9993842996408414` for
+  `NON_BIB_HEADER`.
+- Gap-line review maps all roles other than `FILLER` and `CONTINUATION` to a
+  diagnostic `OTHER` bucket. Across the 4,784-line union where either pass saw
+  a gap line, exact agreement is `0.5064799331103679`. On the 2,441 lines where
+  both passes saw a gap line, filler/continuation type agreement is
+  `0.9926259729619009`: symmetric F1 is `0.9929022082018928` for `FILLER` and
+  `0.9923273657289002` for `CONTINUATION`.
+
+The interpretation is clear: once both annotators detect a heading or a gap
+line, they almost never disagree about its subtype. The material annotation
+uncertainty is the detection boundary--whether a special heading or gap line is
+present at all--rather than the subtype distinction. That boundary should be
+the focus of annotation review and model evaluation.
+
 ## Verification
 
 - Focused sealed-suite test: 33 passed.
