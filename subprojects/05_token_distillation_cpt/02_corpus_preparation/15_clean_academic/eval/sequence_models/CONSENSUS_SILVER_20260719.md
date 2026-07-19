@@ -77,9 +77,44 @@ Independent audit:
 The original inputs and repaired passes remain unchanged under
 `10_sealed_inputs/` and `47_markdown_header_repair/`.
 
+## Terminal seal
+
+Clariden CPU job `2799088` wrote and locked:
+
+`run-4256753/FROZEN.consensus-silver.receipt.json`
+
+The seal was produced by commit `b9f27cd`. It rechecked the independent audit,
+every artifact hash, exact retained-line identity and coverage, the 143 + 7 =
+150 document partition, and the unchanged numerical terminal thresholds for
+the primary `BIB`/`NON_BIB` membership target. All cohort files, the
+materialization receipt, independent audit, and terminal seal are mode `0440`.
+
+| terminal membership gate | result | passed |
+|---|---:|---:|
+| overall trusted A/B membership | 172,905 / 173,609 = 99.5945% | yes (`>= 98%`) |
+| Greek PhD | 92,978 / 93,047 = 99.9258% | yes (`>= 95%`) |
+| Kallipos | 29,683 / 29,693 = 99.9663% | yes (`>= 95%`) |
+| OpenArchives | 50,244 / 50,869 = 98.7714% | yes (`>= 95%`) |
+| unresolved membership | 704 / 173,609 = 0.4055% | yes (`<= 0.5%`) |
+
+Auxiliary masks remain intentionally incomplete and are recorded rather than
+hidden: entry seed is 99.5167% trusted, context role 99.4966%, heading type
+98.9931%, and exact fine role 98.7754%. These are evaluation masks, not claims
+that the original exact-role adjudication protocol passed.
+
+The terminal status is
+`frozen_posthoc_consensus_silver_evaluation_set`. It does **not** rewrite the
+failed original 150-document prediction-blind attempt. The original
+`40_frozen/consensus.receipt.json` remains blocked at 97.7583% raw A/B binary
+agreement, and the new seal binds its hash and failed-gate provenance.
+
+Small receipts and the exclusion manifest are also archived in the repository
+under `results/sealed_bibliography/20260719/`. Sealed text, the private line
+key, and line-level labels remain only on Clariden.
+
 ## Use in the remaining plan
 
-This artifact is reserved for the final source-matched comparison. It must not
+This frozen artifact is reserved for the final source-matched comparison. It must not
 be used to choose features, thresholds, decoder costs, or candidate ordering.
 Development resumes on grouped train-only OOF evidence. When a small Pareto set
 of candidates is frozen, the evaluation adapter will score each candidate on

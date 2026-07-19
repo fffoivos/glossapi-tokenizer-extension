@@ -339,6 +339,33 @@ agreement, and rerunning reviewers or adjusting the threshold after observing
 this receipt would invalidate the sealed protocol. No
 `40_frozen/FROZEN.receipt.json` exists for this attempt.
 
+### User-directed successor cohort — 2026-07-19
+
+Subsequent annotation-QA review repaired logically impossible contextual roles
+and non-Markdown heading labels without mutating the canonical A/B evidence.
+At Foivos's direction, seven documents responsible for systematic
+footnote-versus-bibliography disagreement were then excluded, and only repaired
+A/B agreements were retained separately for each downstream task. No new
+adjudicator or majority rule was introduced.
+
+This successor is **not** the original 150-document prediction-blind freeze.
+Its explicit terminal status is
+`frozen_posthoc_consensus_silver_evaluation_set`. The original blocked receipt
+above remains authoritative for the original attempt.
+
+The successor cohort is under `48_consensus_silver/run-4256753/`. Independent
+audit job `2798796` passed. Terminal seal job `2799088`, from commit `b9f27cd`,
+then rechecked every content hash, the 143 retained + 7 excluded document
+partition, exact retained-line coverage, and the unchanged 98% overall, 95%
+per-source, and 0.5% unresolved gates for the primary bibliography-membership
+target. It locked every derived input and receipt mode `0440`.
+
+Primary membership coverage is 172,905 / 173,609 = 99.5945%; by source it is
+99.9258% Greek PhD, 99.9663% Kallipos, and 98.7714% OpenArchives. Unresolved
+membership is 704 / 173,609 = 0.4055%. Auxiliary task masks and their lower
+coverage are recorded in the terminal receipt and must not be described as
+fully adjudicated labels.
+
 ## Artifact map
 
 - Public future-leakage exclusion list:
@@ -353,6 +380,12 @@ this receipt would invalidate the sealed protocol. No
 - Third-pass aggregate when needed: `30_adjudication/pass.json`.
 - Sealed labels: `40_frozen/labels.private.jsonl`.
 - Terminal seal: `40_frozen/FROZEN.receipt.json`.
+- User-directed successor seal:
+  `48_consensus_silver/run-4256753/FROZEN.consensus-silver.receipt.json`.
+
+The first terminal-seal path is intentionally absent because the original
+attempt failed. The second exists and must always be described with its
+post-hoc consensus-silver semantics.
 
 Never publish the sealed text, line key, pass files, or labels before the final
 model comparison is complete.

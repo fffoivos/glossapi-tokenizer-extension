@@ -1,0 +1,205 @@
+{
+  "binary_agreed_line_count": 172905,
+  "binary_agreement_rate_on_comparable": 0.9991332235416486,
+  "binary_disagreement_count": 150,
+  "code_commit": "4256753",
+  "comparable_binary_line_count": 173055,
+  "document_count": 143,
+  "exact_role_agreed_line_count": 171483,
+  "excluded_document_count": 7,
+  "human_gold": false,
+  "inputs": {
+    "documents": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718/10_sealed_inputs/documents.private.jsonl",
+      "sha256": "b75c036e62c22825dc503615035e9edc2bde12d38d4ff9159ecf567a6efa855c"
+    },
+    "line_key": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718/10_sealed_inputs/line-key.private.jsonl",
+      "sha256": "5297f3eb732e29894ad39c48b630aea6f0ee25b8b19ca75c064cc13a34c32401"
+    },
+    "pass_a": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718/47_markdown_header_repair/pass-a-8c864f1/pass.markdown-header-repaired.json",
+      "sha256": "f5e4310ba57a6ed12886d3d7c38cb98262c9180360b0ef487069da235d56329b"
+    },
+    "pass_b": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718/47_markdown_header_repair/pass-b-8c864f1/pass.markdown-header-repaired.json",
+      "sha256": "500f4df058886e4766df2a4a5e1a2865740564aca4342a787d9bcb177d7cb46e"
+    }
+  },
+  "invariants": {
+    "disagreements_adjudicated": false,
+    "every_included_source_line_emitted_once": true,
+    "excluded_documents_absent_from_all_training_outputs": true,
+    "original_inputs_mutated": false,
+    "task_labels_require_recoded_a_b_agreement": true,
+    "third_pass_used": false
+  },
+  "label_semantics": "dual-Codex consensus-silver after deterministic contextual-role and Markdown-header repairs; disagreements are masked per task; not human gold",
+  "line_count": 173609,
+  "line_with_unknown_vote_count": 554,
+  "outputs": {
+    "documents": {
+      "bytes": 77237315,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718/48_consensus_silver/run-4256753/documents.consensus-silver.jsonl",
+      "sha256": "5143c6d259e80a91f8c369f491f39b0606854560f39f1899dbc7d00403d20061"
+    },
+    "exclusions": {
+      "bytes": 2373,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718/48_consensus_silver/run-4256753/exclusions.json",
+      "sha256": "736fdacd30ba21be1c8f7f8311d92a81e5c9ae5c3c67cd28c5a868eb7c694319"
+    },
+    "labels": {
+      "bytes": 191698957,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718/48_consensus_silver/run-4256753/labels.task-consensus.jsonl",
+      "sha256": "d065465ebd007a7ca8aeb7f6c7de6da06915028163add1642d53aeab24998a1f"
+    },
+    "line_key": {
+      "bytes": 63758668,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718/48_consensus_silver/run-4256753/line-key.consensus-silver.jsonl",
+      "sha256": "8990bba4d04e6c2f16ebd8f61ccbcd29e38231b217c9194d4059d02c893a71b0"
+    },
+    "overlay": {
+      "bytes": 291779847,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718/48_consensus_silver/run-4256753/fine-role.overlay-v3.jsonl",
+      "sha256": "a93f13b7f823b0815d36668a77c9619f312dac5b04991e64aec08d8d8d44b940"
+    }
+  },
+  "schema_version": "bibliography-task-consensus-silver-receipt-v1",
+  "slurm_job_id": "2798789",
+  "status": "passed_task_specific_consensus_materialization",
+  "task_label_counts": {
+    "bibliography_membership": {
+      "BIB": 20560,
+      "NON_BIB": 152345,
+      "UNKNOWN": 704
+    },
+    "context_role": {
+      "CONTINUATION": 1022,
+      "FILLER": 542,
+      "OTHER": 171171,
+      "UNKNOWN": 874
+    },
+    "entry_seed": {
+      "ENTRY": 18488,
+      "NOT_ENTRY": 154282,
+      "UNKNOWN": 839
+    },
+    "fine_role": {
+      "BIB_HEADER": 131,
+      "BIB_SUBHEADER": 131,
+      "CONTINUATION": 1022,
+      "ENTRY": 18488,
+      "FILLER": 542,
+      "NON_BIB_HEADER": 8098,
+      "OTHER": 143071,
+      "UNKNOWN": 2126
+    },
+    "heading_type": {
+      "BIB_HEADER": 131,
+      "BIB_SUBHEADER": 131,
+      "NON_BIB_HEADER": 8098,
+      "NOT_HEADER": 163501,
+      "UNKNOWN": 1748
+    }
+  },
+  "task_label_counts_by_source": {
+    "greek_phd": {
+      "bibliography_membership": {
+        "BIB": 12338,
+        "NON_BIB": 80640,
+        "UNKNOWN": 69
+      },
+      "context_role": {
+        "CONTINUATION": 604,
+        "FILLER": 194,
+        "OTHER": 92115,
+        "UNKNOWN": 134
+      },
+      "entry_seed": {
+        "ENTRY": 11253,
+        "NOT_ENTRY": 81655,
+        "UNKNOWN": 139
+      },
+      "fine_role": {
+        "BIB_HEADER": 92,
+        "BIB_SUBHEADER": 81,
+        "CONTINUATION": 604,
+        "ENTRY": 11253,
+        "FILLER": 194,
+        "NON_BIB_HEADER": 5392,
+        "OTHER": 74636,
+        "UNKNOWN": 795
+      },
+      "heading_type": {
+        "BIB_HEADER": 92,
+        "BIB_SUBHEADER": 81,
+        "NON_BIB_HEADER": 5392,
+        "NOT_HEADER": 86858,
+        "UNKNOWN": 624
+      }
+    },
+    "kallipos": {
+      "bibliography_membership": {
+        "BIB": 2942,
+        "NON_BIB": 26741,
+        "UNKNOWN": 10
+      },
+      "context_role": {
+        "CONTINUATION": 67,
+        "FILLER": 20,
+        "OTHER": 29581,
+        "UNKNOWN": 25
+      },
+      "entry_seed": {
+        "ENTRY": 2830,
+        "NOT_ENTRY": 26828,
+        "UNKNOWN": 35
+      },
+      "fine_role": {
+        "CONTINUATION": 67,
+        "ENTRY": 2830,
+        "FILLER": 20,
+        "OTHER": 26741,
+        "UNKNOWN": 35
+      },
+      "heading_type": {
+        "NOT_HEADER": 29693
+      }
+    },
+    "openarchives": {
+      "bibliography_membership": {
+        "BIB": 5280,
+        "NON_BIB": 44964,
+        "UNKNOWN": 625
+      },
+      "context_role": {
+        "CONTINUATION": 351,
+        "FILLER": 328,
+        "OTHER": 49475,
+        "UNKNOWN": 715
+      },
+      "entry_seed": {
+        "ENTRY": 4405,
+        "NOT_ENTRY": 45799,
+        "UNKNOWN": 665
+      },
+      "fine_role": {
+        "BIB_HEADER": 39,
+        "BIB_SUBHEADER": 50,
+        "CONTINUATION": 351,
+        "ENTRY": 4405,
+        "FILLER": 328,
+        "NON_BIB_HEADER": 2706,
+        "OTHER": 41694,
+        "UNKNOWN": 1296
+      },
+      "heading_type": {
+        "BIB_HEADER": 39,
+        "BIB_SUBHEADER": 50,
+        "NON_BIB_HEADER": 2706,
+        "NOT_HEADER": 46950,
+        "UNKNOWN": 1124
+      }
+    }
+  }
+}

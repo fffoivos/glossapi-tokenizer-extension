@@ -190,6 +190,29 @@ The reader shows the five task-specific agreement values for every source and
 for the currently selected document, and identifies the actual model beside
 each pass and each line.
 
+## Final user-directed consensus successor
+
+The original 150-document attempt remains blocked exactly as reported above.
+It was not rescued by changing the 0.98 threshold or rerunning the annotators.
+
+After the two deterministic annotation repairs and review of the documents
+dominating residual disagreement, Foivos directed that seven problematic
+documents be excluded and that only repaired A/B task agreements be retained.
+The resulting 143-document consensus-silver cohort was materialized by job
+`2798789`, independently audited by job `2798796`, and terminally sealed by job
+`2799088` using commit `b9f27cd`.
+
+The terminal file is:
+
+`48_consensus_silver/run-4256753/FROZEN.consensus-silver.receipt.json`
+
+It reports status `frozen_posthoc_consensus_silver_evaluation_set`, locks all
+bound cohort files mode `0440`, preserves the hash and failure of the original
+150-document receipt, and passes the unchanged numerical membership gates:
+99.5945% overall trusted coverage, at least 98.7714% in every source, and
+0.4055% unresolved. See `CONSENSUS_SILVER_20260719.md` for task-specific
+coverage and exact artifact paths.
+
 ## Verification
 
 - Focused sealed-suite test: 33 passed.
