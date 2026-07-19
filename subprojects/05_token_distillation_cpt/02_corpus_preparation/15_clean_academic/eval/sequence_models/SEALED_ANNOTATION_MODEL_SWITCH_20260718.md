@@ -142,6 +142,41 @@ uncertainty is the detection boundary--whether a special heading or gap line is
 present at all--rather than the subtype distinction. That boundary should be
 the focus of annotation review and model evaluation.
 
+The source-specific results make the difference clearer:
+
+| Source | Comparable lines | BIB/non-BIB agreement | Heading detected by both / union | Heading-type agreement | Gap line detected by both / union | Filler/continuation agreement |
+|---|---:|---:|---:|---:|---:|---:|
+| Greek PhD | 109,255 | 98.35% | 6,926 / 7,782 = 89.00% | 99.84% | 917 / 1,512 = 60.65% | 99.02% |
+| Kallipos | 29,693 | 99.67% | 12 / 13 = 92.31% | 100.00% | 100 / 213 = 46.95% | 100.00% |
+| OpenArchives | 54,770 | 96.53% | 3,146 / 3,943 = 79.79% | 99.87% | 1,424 / 3,059 = 46.55% | 99.37% |
+
+The conditional symmetric F1 values by subtype are:
+
+| Source | BIB | NON-BIB | BIB header | BIB subheader | NON-BIB header | Filler | Continuation |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Greek PhD | 94.08% | 99.04% | 96.71% | 97.05% | 99.94% | 97.83% | 99.37% |
+| Kallipos | 98.37% | 99.82% | 100.00% | 100.00% | 100.00% | 100.00% | 100.00% |
+| OpenArchives | 87.42% | 97.99% | 98.85% | 97.81% | 99.93% | 99.56% | 98.87% |
+
+Heading-subtype F1 is conditional on both passes identifying a heading;
+filler/continuation F1 is conditional on both identifying a gap line. Detection
+agreement is reported separately so a dominant `OTHER` or `NON_HEADER` class
+cannot hide missed special lines.
+
+Actual model pairing is not balanced across sources. Kallipos and OpenArchives
+are entirely `Terra -> Terra`. Greek PhD contains 93,264 `Sol -> Sol`, 6,038
+`Sol -> Terra`, 1,459 `Terra -> Sol`, and 8,495 `Terra -> Terra` owned lines.
+Source differences therefore must not be interpreted as clean Sol-versus-Terra
+model differences.
+
+The current reader is `45_ab_comparison_site/site-cab8d7f/`, built by Clariden
+CPU job `2794761` after six focused tests passed in job `2794755`. Its manifest
+SHA-256 is
+`a81a1155302689dac2b09494e4a9dba0e2ca4ac7b312d0cee19e690d6d8515c3`.
+The reader shows the five task-specific agreement values for every source and
+for the currently selected document, and identifies the actual model beside
+each pass and each line.
+
 ## Verification
 
 - Focused sealed-suite test: 33 passed.
