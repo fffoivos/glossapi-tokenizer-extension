@@ -362,6 +362,17 @@ def _eligible(row: Mapping[str, Any]) -> bool:
     )
 
 
+def _deployment_near_miss(row: Mapping[str, Any]) -> bool:
+    """Retain the best candidate before the zero-BIB spurious-block gate."""
+
+    metrics = row["metrics"]
+    return (
+        metrics["line_precision"] >= 0.98
+        and metrics["char_precision"] >= 0.98
+        and metrics["non_bib_markdown_heading_crossings"] == 0
+    )
+
+
 def _selection_key(row: Mapping[str, Any]) -> tuple[float, ...]:
     metrics = row["metrics"]
     return (
@@ -429,7 +440,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     with concurrent.futures.ProcessPoolExecutor(max_workers=int(args.workers)) as executor:
         rows = list(executor.map(_task, tasks, chunksize=1))
     eligible = [row for row in rows if _eligible(row)]
+    near_misses = [row for row in rows if _deployment_near_miss(row)]
     selected = max(eligible, key=_selection_key) if eligible else None
+    deployment_near_miss = max(near_misses, key=_selection_key) if near_misses else None
     highest_recall = max(rows, key=_selection_key)
     output.mkdir(parents=True)
     features = np.load(table_root / "features.npy", mmap_mode="r", allow_pickle=False)
@@ -449,6 +462,20 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     )
     with (output / "highest_recall_diagnostic_oof_prediction.npy").open("xb") as handle:
         np.save(handle, diagnostic_prediction, allow_pickle=False)
+    if deployment_near_miss is not None:
+        if deployment_near_miss["config"] == highest_recall["config"]:
+            near_miss_prediction = diagnostic_prediction
+        else:
+            near_miss_prediction = decode_table(
+                table,
+                probability,
+                features,
+                table_manifest["feature_names"],
+                DecoderConfig(**deployment_near_miss["config"]),
+                auxiliary,
+            )
+        with (output / "deployment_near_miss_oof_prediction.npy").open("xb") as handle:
+            np.save(handle, near_miss_prediction, allow_pickle=False)
     if selected is not None:
         if selected["config"] == highest_recall["config"]:
             prediction = diagnostic_prediction
@@ -473,6 +500,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "candidate_count": len(rows),
         "eligible_candidate_count": len(eligible),
         "selected": selected,
+        "deployment_near_miss": deployment_near_miss,
         "highest_recall_diagnostic": highest_recall,
         "candidates": rows,
         "code_commit": args.code_commit,
