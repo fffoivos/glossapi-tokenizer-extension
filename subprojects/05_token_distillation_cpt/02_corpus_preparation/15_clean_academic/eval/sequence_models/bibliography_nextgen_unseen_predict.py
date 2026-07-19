@@ -139,6 +139,12 @@ def _model_probability(
         value = _sklearn_probability(model_root, context)
     elif kind == "tcn":
         value = _tcn_probability(model_root, features, table)
+    elif kind.startswith("feature_baseline:"):
+        feature = str(report["feature"])
+        # The feature contract is frozen by the candidate's development report;
+        # the unseen table has the identical ordered schema validated by run().
+        names = table.feature_names
+        value = np.asarray(features[:, names.index(feature)], dtype=np.float32)
     elif report.get("status") == "passed_aligned_development_oof_ensemble":
         value = np.zeros(len(features), dtype=np.float64)
         for member in report["members"]:
@@ -181,7 +187,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         table_root / "char_lengths.npy", mmap_mode="r", allow_pickle=False
     )
     documents = list(_iter_jsonl(table_root / "documents.jsonl"))
-    table = UnseenTable(documents, abs_indices, char_lengths)
+    table = UnseenTable(
+        documents, abs_indices, char_lengths, tuple(manifest["feature_names"])
+    )
     names = tuple(manifest["feature_names"])
     context = build_context_features(np.asarray(features), names, table)
     output.mkdir(parents=True)

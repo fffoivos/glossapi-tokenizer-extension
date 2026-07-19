@@ -72,6 +72,7 @@ class UnseenTable:
     documents: list[dict[str, Any]]
     abs_indices: np.ndarray
     char_lengths: np.ndarray
+    feature_names: tuple[str, ...] = ()
 
 
 def _iter_jsonl(path: Path) -> Iterable[dict[str, Any]]:
