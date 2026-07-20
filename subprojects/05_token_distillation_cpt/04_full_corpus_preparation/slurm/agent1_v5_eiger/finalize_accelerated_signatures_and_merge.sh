@@ -26,10 +26,14 @@ chunk_plan="$PRODUCTION_ATTEMPT_ROOT/chunks.json"
 metrics_root="$PRODUCTION_ATTEMPT_ROOT/metrics"
 replacement_recovery="$(jq -r '.pending_replacement.recovery_receipt_path // empty' "$chunk_plan" 2>/dev/null || true)"
 
-for path in "$python" "$acceleration" "$capture" "$stage" "$submission" \
+for path in "$acceleration" "$capture" "$stage" "$submission" \
   "$authorization" "$chunk_plan"; do
   [[ -e "$path" ]] || { echo "required closure input is missing: $path" >&2; exit 2; }
 done
+uenv run pytorch/v2.6.0:v1 --view=default -- test -x "$python" || {
+  echo "required closure Python is unavailable inside uenv: $python" >&2
+  exit 2
+}
 if [[ -n "$replacement_recovery" ]]; then
   [[ -f "$replacement_recovery" ]] || { echo "pending replacement recovery is missing" >&2; exit 2; }
   predecessor_execution="$PRODUCTION_ATTEMPT_ROOT/predecessor-execution.json"

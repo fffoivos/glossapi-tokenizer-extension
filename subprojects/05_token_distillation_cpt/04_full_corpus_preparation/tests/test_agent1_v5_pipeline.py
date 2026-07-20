@@ -252,6 +252,9 @@ def test_signature_finalizer_orders_scheduler_execution_and_manifest_closure() -
     assert '[[ ! -e "$RUN_ROOT/signature_manifest.json" ]]' in script
     assert 'if [[ -e "$scheduler_evidence" ]]' in script
     assert 'if [[ -e "$execution_receipt" ]]' in script
+    assert 'for path in "$acceleration" "$capture" "$stage" "$submission"' in script
+    assert 'for path in "$python"' not in script
+    assert 'uenv run pytorch/v2.6.0:v1 --view=default -- test -x "$python"' in script
 
 
 def test_submitter_resume_reuses_only_matching_persisted_jobs(tmp_path: Path) -> None:
