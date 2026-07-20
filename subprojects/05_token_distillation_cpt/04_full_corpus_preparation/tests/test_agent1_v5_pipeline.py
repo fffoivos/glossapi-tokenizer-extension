@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import agent1_v5_datatrove as dedup  # noqa: E402
+import agent1_v5_pair_capacity_canary as pair_capacity  # noqa: E402
 import agent1_v5_pipeline as pipeline  # noqa: E402
 import publish_private_agent1_v5 as publisher  # noqa: E402
 import prototype_agent1_v4_gfm_normalization as gfm  # noqa: E402
@@ -878,6 +879,35 @@ def test_merge_lsh_pairs_checksum_promotes_node_local_work_database(tmp_path: Pa
     }
     assert not (work_directory / "lsh-pairs.sqlite.partial").exists()
     assert not database.with_suffix(database.suffix + ".promoting").exists()
+
+
+def test_pair_capacity_canary_checks_durable_io_and_sqlite(tmp_path: Path) -> None:
+    work = tmp_path / "node-local" / "canary"
+    output = tmp_path / "receipt.json"
+    assert (
+        pair_capacity.main(
+            [
+                "--work-directory",
+                str(work),
+                "--output",
+                str(output),
+                "--required-free-bytes",
+                "1",
+                "--probe-bytes",
+                str(1024 * 1024),
+                "--sqlite-rows",
+                "1000",
+            ]
+        )
+        == 0
+    )
+    receipt = json.loads(output.read_text())
+    assert receipt["status"] == "passed"
+    assert receipt["durable_probe"]["bytes"] == 1024 * 1024
+    assert receipt["sqlite_probe"]["rows"] == 1000
+    assert receipt["sqlite_probe"]["integrity_check"] == "ok"
+    assert receipt["cleaned_up"] is True
+    assert not work.exists()
 
 
 def test_exact_cluster_protects_nanochat_and_filters_candidate(tmp_path: Path) -> None:
