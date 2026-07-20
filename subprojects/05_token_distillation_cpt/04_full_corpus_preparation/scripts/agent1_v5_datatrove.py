@@ -917,6 +917,42 @@ def _iter_pairs(path: Path) -> Iterable[tuple[int, int, int, int]]:
             yield PAIR_STRUCT.unpack(data)
 
 
+def _promote_work_database(source: Path, destination: Path) -> dict[str, Any]:
+    """Checksum-copy a node-local SQLite database into its canonical path."""
+
+    if not source.is_file() or source.is_symlink():
+        raise ValueError(f"pair work database is not a regular file: {source}")
+    if destination.exists():
+        raise FileExistsError(destination)
+    promotion = destination.with_suffix(destination.suffix + ".promoting")
+    if promotion.exists():
+        raise FileExistsError(promotion)
+    source_bytes = source.stat().st_size
+    source_sha256 = sha256_file(source)
+    destination.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    with source.open("rb") as reader, promotion.open("xb") as writer:
+        shutil.copyfileobj(reader, writer, length=16 * 1024 * 1024)
+        writer.flush()
+        os.fsync(writer.fileno())
+    if promotion.stat().st_size != source_bytes or sha256_file(promotion) != source_sha256:
+        raise ValueError("node-local pair database promotion checksum drift")
+    os.replace(promotion, destination)
+    directory_fd = os.open(str(destination.parent), os.O_RDONLY)
+    try:
+        os.fsync(directory_fd)
+    finally:
+        os.close(directory_fd)
+    source.unlink()
+    return {
+        "schema_version": "agent1_v5_pair_database_promotion_v1",
+        "status": "passed",
+        "source_path": str(source),
+        "destination_path": str(destination),
+        "bytes": source_bytes,
+        "sha256": source_sha256,
+    }
+
+
 def merge_lsh_pairs(args: argparse.Namespace) -> int:
     config = load_config(args.config)
     run = contract(args.contract)
@@ -930,11 +966,23 @@ def merge_lsh_pairs(args: argparse.Namespace) -> int:
     database = args.output.resolve()
     if database.exists():
         raise FileExistsError(database)
-    candidate_database = database.with_suffix(database.suffix + ".partial")
+    canonical_candidate = database.with_suffix(database.suffix + ".partial")
     blocked_database = database.with_suffix(database.suffix + ".blocked")
-    for path in (candidate_database, blocked_database):
+    for path in (canonical_candidate, blocked_database):
         if path.exists():
             raise FileExistsError(path)
+    requested_work_directory = getattr(args, "work_directory", None)
+    work_directory = requested_work_directory.resolve() if requested_work_directory else None
+    if work_directory is not None:
+        work_directory.mkdir(parents=True, exist_ok=True, mode=0o700)
+        candidate_database = work_directory / f"{database.name}.partial"
+        local_blocked_database = work_directory / f"{database.name}.blocked"
+        for path in (candidate_database, local_blocked_database):
+            if path.exists():
+                raise FileExistsError(path)
+    else:
+        candidate_database = canonical_candidate
+        local_blocked_database = blocked_database
     database.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     connection = sqlite3.connect(candidate_database)
     connection.execute("PRAGMA journal_mode=OFF")
@@ -997,7 +1045,10 @@ def merge_lsh_pairs(args: argparse.Namespace) -> int:
     oversized_path = database.with_suffix(".oversized.json")
     manifest_path = database.with_suffix(".manifest.json")
     if oversized:
-        candidate_database.replace(blocked_database)
+        candidate_database.replace(local_blocked_database)
+        promotion = None
+        if work_directory is not None:
+            promotion = _promote_work_database(local_blocked_database, blocked_database)
         write_json_atomic(
             oversized_path,
             {
@@ -1017,6 +1068,9 @@ def merge_lsh_pairs(args: argparse.Namespace) -> int:
                 "reason": "unresolved_oversized_lsh_groups",
                 "combined_manifest_sha256": sha256_file(args.combined_manifest),
                 "database_candidate": file_receipt(blocked_database),
+                "database_built_in_work_directory": work_directory is not None,
+                "work_directory": str(work_directory) if work_directory is not None else None,
+                "promotion": promotion,
                 "oversized_groups": file_receipt(oversized_path),
                 "pairs_excluding_oversized_groups": pair_count,
                 "counters": dict(counters),
@@ -1027,7 +1081,11 @@ def merge_lsh_pairs(args: argparse.Namespace) -> int:
             f"dedup release blocked by {len(oversized)} unresolved oversized LSH group(s)"
         )
 
-    candidate_database.replace(database)
+    promotion = None
+    if work_directory is not None:
+        promotion = _promote_work_database(candidate_database, database)
+    else:
+        candidate_database.replace(database)
     write_json_atomic(
         oversized_path,
         {
@@ -1044,6 +1102,9 @@ def merge_lsh_pairs(args: argparse.Namespace) -> int:
         "created_at": utc_now(),
         "combined_manifest_sha256": sha256_file(args.combined_manifest),
         "database": file_receipt(database),
+        "database_built_in_work_directory": work_directory is not None,
+        "work_directory": str(work_directory) if work_directory is not None else None,
+        "promotion": promotion,
         "oversized_groups": file_receipt(oversized_path),
         "pairs": pair_count,
         "counters": dict(counters),
@@ -2108,6 +2169,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     command.add_argument("--runtime-receipt", type=Path, required=True)
     command.add_argument("--full-input-audit", type=Path, required=True)
     command.add_argument("--output", type=Path, required=True)
+    command.add_argument(
+        "--work-directory",
+        type=Path,
+        help="build SQLite in node-local storage, checksum-copy, then atomically promote",
+    )
     command.set_defaults(func=merge_lsh_pairs)
 
     command = subparsers.add_parser("audit-pair-database")

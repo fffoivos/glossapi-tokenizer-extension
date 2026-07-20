@@ -125,7 +125,11 @@ case "${STAGE}" in
     "${PYTHON}" "${DEDUP}" bucket-task --config "${CONFIG}" --contract "${CONTRACT}" --signature-manifest "${RUN_ROOT}/signature_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --task-index "${TASK_INDEX}"
     ;;
   merge-pairs)
-    "${PYTHON}" "${DEDUP}" merge-lsh-pairs --config "${CONFIG}" --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --full-input-audit "${RUN_ROOT}/dedup_full_input_audit.json" --output "${RUN_ROOT}/lsh_pairs.sqlite"
+    pair_work_args=()
+    if [[ -n "${PAIR_WORK_DIRECTORY:-}" ]]; then
+      pair_work_args=(--work-directory "${PAIR_WORK_DIRECTORY}")
+    fi
+    "${PYTHON}" "${DEDUP}" merge-lsh-pairs --config "${CONFIG}" --contract "${CONTRACT}" --combined-manifest "${RUN_ROOT}/release-pre-dedup/manifests/combined_manifest.json" --runtime-receipt "${RUN_ROOT}/datatrove_runtime.json" --full-input-audit "${RUN_ROOT}/dedup_full_input_audit.json" --output "${RUN_ROOT}/lsh_pairs.sqlite" "${pair_work_args[@]}"
     ;;
   audit-pairs)
     "${PYTHON}" "${DEDUP}" audit-pair-database --pair-database "${RUN_ROOT}/lsh_pairs.sqlite" --output "${RUN_ROOT}/lsh_pairs.audit.json"

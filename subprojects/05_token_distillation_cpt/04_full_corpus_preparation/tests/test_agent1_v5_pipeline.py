@@ -819,6 +819,67 @@ def test_merge_lsh_pairs_promotes_candidate_when_groups_are_bounded(tmp_path: Pa
         raise AssertionError("pair database stat drift was not detected")
 
 
+def test_merge_lsh_pairs_checksum_promotes_node_local_work_database(tmp_path: Path) -> None:
+    run_root, contract, combined = make_combined(tmp_path)
+    config = json.loads((ROOT / "configs" / "agent1_v5_eiger_pipeline.json").read_text())
+    config["dedup"].update(
+        {
+            "num_buckets": 1,
+            "hashes_per_bucket": 128,
+            "max_bucket_documents": 3,
+        }
+    )
+    config_path = tmp_path / "config.json"
+    write_json(config_path, config)
+    runtime, full_audit = make_dedup_input_audit(
+        run_root, contract, combined, config_path=config_path
+    )
+    bucket = run_root / "60-dedup" / "minhash-buckets" / "00000_00.dups"
+    bucket.parent.mkdir(parents=True)
+    bucket.write_bytes(
+        dedup.PAIR_STRUCT.pack(0, 0, 0, 1)
+        + dedup.PAIR_STRUCT.pack(0, 1, 0, 2)
+    )
+    write_json(
+        bucket.parent / "receipts" / "000000.json",
+        {
+            "schema_version": dedup.BUCKET_RECEIPT_SCHEMA,
+            "status": "passed",
+            "output": pipeline.file_receipt(bucket, root=run_root),
+        },
+    )
+    work_directory = tmp_path / "node-local"
+    database = run_root / "lsh-pairs.sqlite"
+    assert (
+        dedup.merge_lsh_pairs(
+            argparse.Namespace(
+                config=config_path,
+                contract=contract,
+                combined_manifest=combined,
+                runtime_receipt=runtime,
+                full_input_audit=full_audit,
+                output=database,
+                work_directory=work_directory,
+            )
+        )
+        == 0
+    )
+    manifest = dedup._pair_manifest(database)
+    assert manifest["status"] == "passed"
+    assert manifest["database_built_in_work_directory"] is True
+    assert manifest["work_directory"] == str(work_directory.resolve())
+    assert manifest["promotion"] == {
+        "schema_version": "agent1_v5_pair_database_promotion_v1",
+        "status": "passed",
+        "source_path": str(work_directory / "lsh-pairs.sqlite.partial"),
+        "destination_path": str(database.resolve()),
+        "bytes": database.stat().st_size,
+        "sha256": pipeline.sha256_file(database),
+    }
+    assert not (work_directory / "lsh-pairs.sqlite.partial").exists()
+    assert not database.with_suffix(database.suffix + ".promoting").exists()
+
+
 def test_exact_cluster_protects_nanochat_and_filters_candidate(tmp_path: Path) -> None:
     run_root, contract, combined = make_combined(tmp_path)
     runtime, full_audit = make_dedup_input_audit(run_root, contract, combined)
