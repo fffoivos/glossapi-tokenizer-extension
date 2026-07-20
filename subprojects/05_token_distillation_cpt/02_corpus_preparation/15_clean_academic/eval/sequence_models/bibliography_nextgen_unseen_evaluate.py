@@ -239,23 +239,31 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             raise ValueError(f"sealed document alignment failure at {index}")
     truth = np.zeros(len(labels), dtype=bool)
     trusted = np.zeros(len(labels), dtype=bool)
-    for index, (key, label, feature_line) in enumerate(
-        zip(line_keys, labels, feature_lines, strict=True)
-    ):
+    decisions: dict[tuple[str, str, int], Mapping[str, Any]] = {}
+    for index, (key, label) in enumerate(zip(line_keys, labels, strict=True)):
         identity = (str(key["document_id"]), str(key["line_id"]), int(key["abs_idx"]))
         if identity != (
             str(label["document_id"]),
             str(label["line_id"]),
             int(label["abs_idx"]),
-        ) or identity != (
+        ):
+            raise ValueError(f"sealed key/label alignment failure at {index}")
+        if identity in decisions:
+            raise ValueError(f"duplicate sealed line identity at {index}")
+        decisions[identity] = label["tasks"]["bibliography_membership"]
+    for index, feature_line in enumerate(feature_lines):
+        identity = (
             str(feature_line["document_id"]),
             str(feature_line["line_id"]),
             int(feature_line["abs_idx"]),
-        ):
-            raise ValueError(f"sealed line alignment failure at {index}")
-        decision = label["tasks"]["bibliography_membership"]
+        )
+        decision = decisions.pop(identity, None)
+        if decision is None:
+            raise ValueError(f"sealed feature line lacks a label at {index}")
         trusted[index] = bool(decision["trusted"])
         truth[index] = decision["label"] == "BIB"
+    if decisions:
+        raise ValueError("sealed labels contain lines absent from the feature table")
     candidate_metrics = []
     by_name = {row["name"]: row for row in prediction_report["candidates"]}
     for frozen in freeze["candidates"]:
