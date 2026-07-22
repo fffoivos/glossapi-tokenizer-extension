@@ -91,8 +91,8 @@ shards. High-precision identifier patterns are masked; this is not a claim that
 generic names, addresses, or identifying context have been anonymized. Raw
 `source_doc_id` values are not persisted. Complete `http://`, `https://`, and
 `www.` URL spans in exported sample text are masked, including their query and
-fragment material. This targeted masking still does not make the samples
-anonymous or safe to publish. The relocatable packet receipt binds the exact
+fragment material. This targeted masking is a review-packet transformation, not
+the corpus-wide anonymization decision. The relocatable packet receipt binds the exact
 Stage30 request hash, canonical shards, profile-text hashes, redaction
 implementation hashes, and persistent per-shard export checkpoints. The packet
 receipt also points to a compact, text-free site attestation. Before emitting
@@ -158,7 +158,9 @@ transformation; neither label makes a confidentiality claim about public source
 data.
 
 Build a staging site from the handoff while Agent 1 is running (a fixture
-handoff produces `UI/fixture ready` only):
+handoff produces `UI/fixture ready` only). A bounded packet produced by
+`fetch_public_dataset_review_samples.py` can also be supplied as public-source
+samples; these remain distinct from identifier-masked pipeline review samples:
 
 ```bash
 RUN_ID=full-corpus-v3-YYYYMMDD

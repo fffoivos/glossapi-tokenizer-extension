@@ -75,6 +75,90 @@ def tracked_inventory() -> dict:
     return json.loads((HERE / "configs" / "post_december_inventory.json").read_text())
 
 
+def write_public_preview_packet(path: Path) -> Path:
+    inventory = tracked_inventory()
+    entries = [
+        *inventory["post_cutoff_repositories"],
+        *inventory["older_repositories_with_material_post_cutoff_changes"],
+    ]
+    repo_id = "glossAPI/e-nautilia"
+    row = next(value for value in entries if value["repo_id"] == repo_id)
+    revision = str(row["revision"])
+    text = "Δημόσιο δείγμα <b>κειμένου</b> για οπτική επιθεώρηση."
+    source_sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    sample_id = QUALITY.sha256_json(
+        {
+            "repo_id": repo_id,
+            "revision": revision,
+            "config": "default",
+            "split": "train",
+            "row_index": 0,
+            "source_text_sha256": source_sha,
+        }
+    )
+    unavailable = [
+        {
+            "repo_id": str(value["repo_id"]),
+            "source_revision": str(value.get("revision") or value.get("current_revision")),
+            "reason": "preview_unavailable",
+            "detail": "Worker acquisition required for this bounded preview.",
+        }
+        for value in entries
+        if value["repo_id"] != repo_id
+    ]
+    packet = {
+        "schema_version": "dataset_review_public_sample_packet_v1",
+        "generated_at": "2026-07-12T00:00:00Z",
+        "mode": "bounded_public_source_preview",
+        "inventory_sha256": QUALITY.sha256_file(
+            HERE / "configs" / "post_december_inventory.json"
+        ),
+        "sources_config_sha256": QUALITY.sha256_file(SOURCES_CONFIG),
+        "samples_per_repository_requested": 1,
+        "max_text_chars": 16000,
+        "sampled_repositories": [repo_id],
+        "unavailable_repositories": unavailable,
+        "samples": [
+            {
+                "schema_version": "dataset_review_public_sample_v1",
+                "sample_id": sample_id,
+                "repo_id": repo_id,
+                "source_revision": revision,
+                "head_before": revision,
+                "source_url": f"https://huggingface.co/datasets/{repo_id}/tree/{revision}",
+                "dataset_server_config": "default",
+                "dataset_server_split": "train",
+                "row_index": 0,
+                "dataset_server_row_index": 0,
+                "dataset_server_truncated_cells": [],
+                "retrieved_at": "2026-07-12T00:00:00Z",
+                "dataset_server_row_sha256": "a" * 64,
+                "source_document_id": "public-doc-1",
+                "text_column": "content",
+                "source_text_characters": len(text),
+                "displayed_text_characters": len(text),
+                "displayed_text_is_excerpt": False,
+                "source_text_sha256": source_sha,
+                "displayed_text_sha256": source_sha,
+                "metadata": {"title": "Public sample"},
+                "preview_metrics": {
+                    "characters": len(text),
+                    "lines": 1,
+                    "greek_letter_fraction": 0.6,
+                    "html_tag_like_count": 2,
+                    "mojibake_marker_count": 0,
+                    "replacement_character_count": 0,
+                    "repeated_nonblank_line_fraction": 0.0,
+                },
+                "text": text,
+                "head_after": revision,
+            }
+        ],
+    }
+    path.write_text(json.dumps(packet), encoding="utf-8")
+    return path
+
+
 def review_request(
     uid: str,
     *,
@@ -3240,6 +3324,12 @@ def test_new_json_schemas_are_parseable_and_versioned() -> None:
             "dataset_review_sample_export_shard_checkpoint_v1"
         ),
         "dataset_review_site_sample.schema.json": "dataset_review_site_sample_v1",
+        "dataset_review_public_sample_packet.schema.json": (
+            "dataset_review_public_sample_packet_v1"
+        ),
+        "dataset_review_public_site_sample.schema.json": (
+            "dataset_review_public_site_sample_v1"
+        ),
         "dataset_review_site_manifest.schema.json": "dataset_review_site_manifest_v1",
         "dataset_review_presentation_handoff.schema.json": (
             "dataset_review_presentation_handoff_v1"

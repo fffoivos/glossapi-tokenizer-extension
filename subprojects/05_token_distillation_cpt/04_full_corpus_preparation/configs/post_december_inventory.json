@@ -84,7 +84,7 @@
       "relation_to_first_nanochat": "new_source_family_external_release",
       "first_nanochat_source_dataset": null,
       "disposition": "candidate_after_mdc_acquisition_privacy_review_and_template_audit",
-      "notes": ["The HF repository is a pointer; the registered MDC release is receipt-bound by dataset ID, slug, filename, size and SHA-256.", "The oral histories include names, locations, sensitive narratives, and age-restricted interviews; privacy, PII and no-reidentification policy remain admission gates."]
+      "notes": ["The HF repository is a pointer; the registered MDC release is receipt-bound by dataset ID, slug, filename, size and SHA-256.", "The oral-history material needs an explicit corpus-wide anonymization, speaker-metadata, and template-variation review before training admission."]
     },
     {
       "repo_id": "glossAPI/pandemos",

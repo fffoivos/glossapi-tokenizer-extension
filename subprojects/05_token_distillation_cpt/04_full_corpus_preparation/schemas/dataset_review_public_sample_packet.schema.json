@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/dataset-review-public-sample-packet-v1.json",
+  "title": "Bounded public-source dataset review sample packet",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "generated_at", "mode", "inventory_sha256",
+    "sources_config_sha256", "samples_per_repository_requested",
+    "max_text_chars", "sampled_repositories", "unavailable_repositories", "samples"
+  ],
+  "properties": {
+    "schema_version": {"const": "dataset_review_public_sample_packet_v1"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "mode": {"const": "bounded_public_source_preview"},
+    "inventory_sha256": {"$ref": "#/$defs/sha256"},
+    "sources_config_sha256": {"$ref": "#/$defs/sha256"},
+    "samples_per_repository_requested": {"type": "integer", "minimum": 1, "maximum": 5},
+    "max_text_chars": {"type": "integer", "minimum": 1000, "maximum": 100000},
+    "sampled_repositories": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "unavailable_repositories": {"type": "array", "items": {"$ref": "#/$defs/unavailable"}},
+    "samples": {"type": "array", "items": {"$ref": "#/$defs/sample"}}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "unavailable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repo_id", "source_revision", "reason", "detail"],
+      "properties": {
+        "repo_id": {"type": "string", "minLength": 1},
+        "source_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "reason": {"const": "preview_unavailable"},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 500}
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "characters", "lines", "greek_letter_fraction", "html_tag_like_count",
+        "mojibake_marker_count", "replacement_character_count", "repeated_nonblank_line_fraction"
+      ],
+      "properties": {
+        "characters": {"type": "integer", "minimum": 0},
+        "lines": {"type": "integer", "minimum": 0},
+        "greek_letter_fraction": {"type": "number", "minimum": 0, "maximum": 1},
+        "html_tag_like_count": {"type": "integer", "minimum": 0},
+        "mojibake_marker_count": {"type": "integer", "minimum": 0},
+        "replacement_character_count": {"type": "integer", "minimum": 0},
+        "repeated_nonblank_line_fraction": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "sample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "sample_id", "repo_id", "source_revision", "head_before",
+        "source_url", "dataset_server_config", "dataset_server_split", "row_index",
+        "dataset_server_row_index", "dataset_server_truncated_cells", "retrieved_at",
+        "dataset_server_row_sha256", "source_document_id", "text_column",
+        "source_text_characters", "displayed_text_characters", "displayed_text_is_excerpt",
+        "source_text_sha256", "displayed_text_sha256", "metadata", "preview_metrics",
+        "text", "head_after"
+      ],
+      "properties": {
+        "schema_version": {"const": "dataset_review_public_sample_v1"},
+        "sample_id": {"$ref": "#/$defs/sha256"},
+        "repo_id": {"type": "string", "minLength": 1},
+        "source_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "head_before": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "head_after": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "source_url": {"type": "string", "pattern": "^https://huggingface\\.co/datasets/"},
+        "dataset_server_config": {"type": "string", "minLength": 1},
+        "dataset_server_split": {"type": "string", "minLength": 1},
+        "row_index": {"type": "integer", "minimum": 0},
+        "dataset_server_row_index": {"type": "integer", "minimum": 0},
+        "dataset_server_truncated_cells": {"type": ["object", "array"]},
+        "retrieved_at": {"type": "string", "format": "date-time"},
+        "dataset_server_row_sha256": {"$ref": "#/$defs/sha256"},
+        "source_document_id": {"type": "string", "minLength": 1},
+        "text_column": {"type": "string", "minLength": 1},
+        "source_text_characters": {"type": "integer", "minimum": 0},
+        "displayed_text_characters": {"type": "integer", "minimum": 1},
+        "displayed_text_is_excerpt": {"type": "boolean"},
+        "source_text_sha256": {"$ref": "#/$defs/sha256"},
+        "displayed_text_sha256": {"$ref": "#/$defs/sha256"},
+        "metadata": {"type": "object", "additionalProperties": {"type": "string"}},
+        "preview_metrics": {"$ref": "#/$defs/metrics"},
+        "text": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

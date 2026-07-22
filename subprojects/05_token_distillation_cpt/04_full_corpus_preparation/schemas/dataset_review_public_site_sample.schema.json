@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/dataset-review-public-site-sample-v1.json",
+  "title": "Public-source dataset review site sample",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "sample_kind", "sample_id", "source_repo_id", "source_revision",
+    "source_url", "dataset_server_config", "dataset_server_split", "row_index",
+    "source_document_id", "text_column", "source_text_characters",
+    "displayed_text_is_excerpt", "metadata", "preview_metrics", "text"
+  ],
+  "properties": {
+    "schema_version": {"const": "dataset_review_public_site_sample_v1"},
+    "sample_kind": {"const": "public_source_preview"},
+    "sample_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_repo_id": {"type": "string", "minLength": 1},
+    "source_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "source_url": {"type": "string", "pattern": "^https://huggingface\\.co/datasets/"},
+    "dataset_server_config": {"type": "string", "minLength": 1},
+    "dataset_server_split": {"type": "string", "minLength": 1},
+    "row_index": {"type": "integer", "minimum": 0},
+    "source_document_id": {"type": "string", "minLength": 1},
+    "text_column": {"type": "string", "minLength": 1},
+    "source_text_characters": {"type": "integer", "minimum": 0},
+    "displayed_text_is_excerpt": {"type": "boolean"},
+    "metadata": {"type": "object", "additionalProperties": {"type": "string"}},
+    "preview_metrics": {"type": "object"},
+    "text": {"type": "string", "minLength": 1}
+  }
+}

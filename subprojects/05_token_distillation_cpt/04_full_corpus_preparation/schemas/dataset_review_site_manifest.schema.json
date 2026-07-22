@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": [
     "schema_version", "status", "generated_at", "output_root", "repository_count",
-    "dataset_page_count", "complete_sample_count", "inputs", "security", "files"
+    "dataset_page_count", "complete_sample_count", "public_source_sample_count", "inputs", "security", "files"
   ],
   "properties": {
     "schema_version": {"const": "dataset_review_site_manifest_v1"},
@@ -16,13 +16,14 @@
     "repository_count": {"type": "integer", "minimum": 0},
     "dataset_page_count": {"type": "integer", "minimum": 0},
     "complete_sample_count": {"type": "integer", "minimum": 0},
+    "public_source_sample_count": {"type": "integer", "minimum": 0},
     "inputs": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "presentation_handoff", "inventory", "evaluations", "sources_config", "quality_summary", "quality_handoff_receipt",
         "review_requests", "review_responses", "admission", "novelty",
-        "complete_samples", "complete_samples_receipt", "complete_samples_attestation", "public_previews", "pipeline_waterfall"
+        "complete_samples", "complete_samples_receipt", "complete_samples_attestation", "public_previews", "public_samples", "pipeline_waterfall"
       ],
       "properties": {
         "presentation_handoff": {"$ref": "#/$defs/nullableInputFile"},
@@ -39,6 +40,7 @@
         "complete_samples_receipt": {"$ref": "#/$defs/nullableInputFile"},
         "complete_samples_attestation": {"$ref": "#/$defs/nullableInputFile"},
         "public_previews": {"$ref": "#/$defs/nullableInputFile"},
+        "public_samples": {"$ref": "#/$defs/nullableInputFile"},
         "pipeline_waterfall": {"$ref": "#/$defs/nullableInputFile"}
       }
     },

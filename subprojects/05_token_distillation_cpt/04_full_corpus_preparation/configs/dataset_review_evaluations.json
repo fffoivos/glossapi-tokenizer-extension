@@ -16,9 +16,9 @@
     },
     {
       "repo_id": "glossAPI/istorima",
-      "assessment": "Potentially high-value oral and conversational Greek with distinctive registers, provided the external payload is acquired and privacy controls pass.",
+      "assessment": "Potentially high-value oral and conversational Greek with distinctive registers, provided the external payload is acquired and corpus-wide anonymization and template checks pass.",
       "recommended_action": "conditional_candidate",
-      "main_risks": ["direct identifiers", "sensitive narratives", "speaker-template repetition"]
+      "main_risks": ["anonymization policy", "speaker and transcript variation", "speaker-template repetition"]
     },
     {
       "repo_id": "glossAPI/pandemos",
