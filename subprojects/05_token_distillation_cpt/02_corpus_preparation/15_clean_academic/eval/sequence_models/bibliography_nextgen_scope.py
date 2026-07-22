@@ -448,12 +448,17 @@ def apply_component_threshold(
     return result
 
 
-def _eligible(metrics: Mapping[str, Any], max_spurious: float = 0.02) -> bool:
+def _eligible(
+    metrics: Mapping[str, Any],
+    max_spurious: float = 0.02,
+    max_body_char_loss: float = 1.0,
+) -> bool:
     return (
         metrics["line_precision"] >= 0.98
         and metrics["char_precision"] >= 0.98
         and metrics["non_bib_markdown_heading_crossings"] == 0
         and metrics["spurious_blocks_per_zero_block_document"] <= max_spurious
+        and metrics["body_char_loss_rate"] <= max_body_char_loss
     )
 
 
@@ -583,7 +588,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 "metrics": evaluate(table, scoped, features, manifest["feature_names"]),
             }
         )
-    eligible = [row for row in rows if _eligible(row["metrics"], args.max_spurious_blocks)]
+    eligible = [row for row in rows if _eligible(row["metrics"], args.max_spurious_blocks, args.max_body_char_loss)]
     selected = max(eligible, key=_selection_key) if eligible else None
     near = [
         row
@@ -641,6 +646,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "image_fraction_veto": args.image_fraction_veto,
         "rule_fraction_veto": args.rule_fraction_veto,
         "max_spurious_blocks_per_zero_block_document": args.max_spurious_blocks,
+        "max_body_char_loss_rate": args.max_body_char_loss,
         "proposal_pool_enabled": bool(args.proposal_pool),
         "proposal_pool_decoder_configs": [
             config.__dict__ for config in high_recall_proposal_configs()
@@ -700,6 +706,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--rule-fraction-veto", type=float, default=0.05)
     parser.add_argument("--proposal-pool", action="store_true")
     parser.add_argument("--max-spurious-blocks", type=float, default=0.02)
+    parser.add_argument("--max-body-char-loss", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=1701)
     parser.add_argument("--code-commit", required=True)
     parser.add_argument("--slurm-job-id", required=True)

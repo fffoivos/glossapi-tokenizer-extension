@@ -26,6 +26,7 @@ IMAGE_FRACTION_VETO=${IMAGE_FRACTION_VETO:-0.15}
 RULE_FRACTION_VETO=${RULE_FRACTION_VETO:-0.05}
 PROPOSAL_POOL=${PROPOSAL_POOL:-1}
 MAX_SPURIOUS_BLOCKS=${MAX_SPURIOUS_BLOCKS:-0.02}
+MAX_BODY_CHAR_LOSS=${MAX_BODY_CHAR_LOSS:-1.0}
 EXPECTED_COMMIT=${EXPECTED_COMMIT:?set exact code commit}
 UENV=${UENV:-pytorch/v2.9.1:v2}
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 90
@@ -42,6 +43,7 @@ ARGS=(
   --image-fraction-veto "$IMAGE_FRACTION_VETO"
   --rule-fraction-veto "$RULE_FRACTION_VETO"
   --max-spurious-blocks "$MAX_SPURIOUS_BLOCKS"
+  --max-body-char-loss "$MAX_BODY_CHAR_LOSS"
   --code-commit "$EXPECTED_COMMIT" --slurm-job-id "$SLURM_JOB_ID"
 )
 [[ "$PROPOSAL_POOL" == 1 ]] && ARGS+=(--proposal-pool)
