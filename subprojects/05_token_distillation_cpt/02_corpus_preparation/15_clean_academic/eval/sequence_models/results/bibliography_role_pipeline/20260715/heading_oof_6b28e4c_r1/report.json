@@ -1,0 +1,145 @@
+{
+  "code_commit": "6b28e4c72927394513722bcc7c5267b9a0dbbe37",
+  "folds": [
+    {
+      "candidates": [
+        {
+          "C": 0.1,
+          "any_header_pr_auc": 0.9944221684712646,
+          "type_macro_pr_auc": 0.8087842122075876
+        },
+        {
+          "C": 1.0,
+          "any_header_pr_auc": 0.993752019084776,
+          "type_macro_pr_auc": 0.850621576083121
+        },
+        {
+          "C": 10.0,
+          "any_header_pr_auc": 0.993632014771274,
+          "type_macro_pr_auc": 0.8600121889633381
+        }
+      ],
+      "fit_labelled_candidates": 1789,
+      "holdout_candidates": 4281,
+      "inner_fold": 1,
+      "outer_fold": 0,
+      "selected_C": 0.1
+    },
+    {
+      "candidates": [
+        {
+          "C": 0.1,
+          "any_header_pr_auc": 0.9652409199871973,
+          "type_macro_pr_auc": 0.7120563259997549
+        },
+        {
+          "C": 1.0,
+          "any_header_pr_auc": 0.9491976551644521,
+          "type_macro_pr_auc": 0.7186098398145598
+        },
+        {
+          "C": 10.0,
+          "any_header_pr_auc": 0.94089539084267,
+          "type_macro_pr_auc": 0.7290062845382473
+        }
+      ],
+      "fit_labelled_candidates": 1880,
+      "holdout_candidates": 5044,
+      "inner_fold": 2,
+      "outer_fold": 1,
+      "selected_C": 0.1
+    },
+    {
+      "candidates": [
+        {
+          "C": 0.1,
+          "any_header_pr_auc": 0.9790273570998383,
+          "type_macro_pr_auc": 0.7342846268719284
+        },
+        {
+          "C": 1.0,
+          "any_header_pr_auc": 0.9781129434972362,
+          "type_macro_pr_auc": 0.7630235768281125
+        },
+        {
+          "C": 10.0,
+          "any_header_pr_auc": 0.9777239932781486,
+          "type_macro_pr_auc": 0.7668720356013982
+        }
+      ],
+      "fit_labelled_candidates": 1713,
+      "holdout_candidates": 4616,
+      "inner_fold": 3,
+      "outer_fold": 2,
+      "selected_C": 0.1
+    },
+    {
+      "candidates": [
+        {
+          "C": 0.1,
+          "any_header_pr_auc": 0.9931916239194992,
+          "type_macro_pr_auc": 0.7286470184031724
+        },
+        {
+          "C": 1.0,
+          "any_header_pr_auc": 0.9939549122481188,
+          "type_macro_pr_auc": 0.8035453694804556
+        },
+        {
+          "C": 10.0,
+          "any_header_pr_auc": 0.9939646886437076,
+          "type_macro_pr_auc": 0.8034840011471348
+        }
+      ],
+      "fit_labelled_candidates": 1473,
+      "holdout_candidates": 5362,
+      "inner_fold": 4,
+      "outer_fold": 3,
+      "selected_C": 10.0
+    },
+    {
+      "candidates": [
+        {
+          "C": 0.1,
+          "any_header_pr_auc": 0.922713576129587,
+          "type_macro_pr_auc": 0.8554899150615088
+        },
+        {
+          "C": 1.0,
+          "any_header_pr_auc": 0.9221717903725174,
+          "type_macro_pr_auc": 0.857100275407156
+        },
+        {
+          "C": 10.0,
+          "any_header_pr_auc": 0.922328431382639,
+          "type_macro_pr_auc": 0.8652709360715299
+        }
+      ],
+      "fit_labelled_candidates": 1693,
+      "holdout_candidates": 5313,
+      "inner_fold": 0,
+      "outer_fold": 4,
+      "selected_C": 0.1
+    }
+  ],
+  "kind": "heading",
+  "oof_metrics": {
+    "any_header": {
+      "brier": 0.04321028568151296,
+      "pr_auc": 0.9690248289398008
+    },
+    "heading_type_macro_pr_auc": 0.7651037342106791,
+    "trusted_candidate_count": 2137
+  },
+  "probability_columns": [
+    "any_header",
+    "bib_header",
+    "bib_subheader",
+    "non_bib_header"
+  ],
+  "schema_version": "bibliography-heading-expert-oof-v1",
+  "slurm_job_id": "2766684",
+  "status": "passed_grouped_oof_expert_training",
+  "table_manifest_sha256": "5db5f4e1c35f2099195b81e5c5ef23396feb96332c758a0a60dfc719f03ab03a",
+  "validation_opened": false
+}

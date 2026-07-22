@@ -1,0 +1,77 @@
+{
+  "schema_version": "bibliography-validation-quality-decisions-v1",
+  "criteria_version": "text-only-conservative-v1",
+  "reviewed_without_predictions_or_labels": false,
+  "initial_automatic_review_prediction_blind": true,
+  "manual_followup_selection": "top_50_documents_by_missed_bibliography_tokens",
+  "manual_followup_review_method": "text-only slices from the beginning, quartiles, end, and first/middle/last missed-silver-BIB regions",
+  "manual_followup_reviewed_document_count": 50,
+  "manual_followup_excluded_document_count": 6,
+  "additional_prediction_blind_exclusion_count": 1,
+  "prediction_blind_excluded_document_ids": [
+    "6a3b5b03d5974ba5a5247de89eec9bc819a3fc10c8a71ecd1a76e209f3ab6107",
+    "182b139ccd8e9c9cb12672b86b464402174ae2a06b95664edc496a74d7252e8f",
+    "d2beb0b78e45436082adba863e5cee8538d9d2b44e546ba59779777844c2698b",
+    "4a588842e2037c1b2f645f9d711a29f908b884fe54d9ebd8837d663edd2f6e04",
+    "485835e733365d7ed8369e55c87ef82f08bff8333c15559efb087ddf48b1a2d7",
+    "2ce6f4062432a423eaa65b624ae1b46010263332868546c17306ee444b4aee1a"
+  ],
+  "outcome_directed_additional_excluded_document_ids": [
+    "eaf30b21c0521c0ee56830a20d4eecb5ff08c1a5a2d5626c5455e33549b571d5"
+  ],
+  "manual_followup_review_record": "BIB_VALIDATION_WORST50_REVIEW_20260714.md",
+  "manual_followup_decisions_text_only": true,
+  "metric_interpretation": "diagnostic_sensitivity_analysis_not_an_unbiased_heldout_estimate_after_outcome_directed_followup",
+  "documents": [
+    {
+      "document_id": "6a3b5b03d5974ba5a5247de89eec9bc819a3fc10c8a71ecd1a76e209f3ab6107",
+      "decision": "exclude",
+      "reason": "Extreme extraction fragmentation: 91.28% of nonempty lines contain at most one lexical word, including runs of 176 consecutive fragments."
+    },
+    {
+      "document_id": "182b139ccd8e9c9cb12672b86b464402174ae2a06b95664edc496a74d7252e8f",
+      "decision": "exclude",
+      "reason": "Canonical GlossAPI greek_badness_score is 68.10 (>60), with pervasive broken character encoding and character-spaced OCR."
+    },
+    {
+      "document_id": "eaf30b21c0521c0ee56830a20d4eecb5ff08c1a5a2d5626c5455e33549b571d5",
+      "decision": "exclude",
+      "reason": "Manual segment review found that the central document and bibliography region are dominated by reversed or garbled encoded text (for example ψΟΛ, /hyphenminus, and uninterpretable character sequences), so the annotated references are not usable evaluation text."
+    },
+    {
+      "document_id": "d2beb0b78e45436082adba863e5cee8538d9d2b44e546ba59779777844c2698b",
+      "decision": "exclude",
+      "reason": "Extraction is dominated by 19,473 unresolved GLYPH placeholders, making most of the document uninterpretable."
+    },
+    {
+      "document_id": "4a588842e2037c1b2f645f9d711a29f908b884fe54d9ebd8837d663edd2f6e04",
+      "decision": "exclude",
+      "reason": "Extreme extraction fragmentation: 92.71% of nonempty lines contain at most one lexical word, including runs of 142 consecutive fragments."
+    },
+    {
+      "document_id": "485835e733365d7ed8369e55c87ef82f08bff8333c15559efb087ddf48b1a2d7",
+      "decision": "exclude",
+      "reason": "Extraction is dominated by 17,349 unresolved GLYPH placeholders; readable material is only a minority of the document."
+    },
+    {
+      "document_id": "2ce6f4062432a423eaa65b624ae1b46010263332868546c17306ee444b4aee1a",
+      "decision": "exclude",
+      "reason": "Extreme extraction fragmentation: 88.01% of nonempty lines contain at most one lexical word, including runs of 242 consecutive fragments."
+    },
+    {
+      "document_id": "90c444a2bfed5331b0ceb9bfeac9a765fd89e792f0ae18317151e41103987f69",
+      "decision": "keep",
+      "reason": "The one-character-word signal comes from legitimate mathematical variables embedded in coherent Greek prose; extraction is readable."
+    },
+    {
+      "document_id": "0639d1c61a07d0788b44f88b1272eba3ae293299455c7240120025bc4a5296c3",
+      "decision": "keep",
+      "reason": "Escaped Unicode markers are localized; the surrounding Greek prose remains coherent and usable."
+    },
+    {
+      "document_id": "e3f6e3142a27252bd9bfefe9b5dda81d3af836deff5b0edf91faa134f319986d",
+      "decision": "keep",
+      "reason": "The 100 encoded markers are sparse across 1,600 lines; the document remains coherent and readable."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "candidate_count": 24616,
+  "code_commit": "6b28e4c72927394513722bcc7c5267b9a0dbbe37",
+  "inputs": {
+    "base_manifest_sha256": "be8e146647470384fca9edcb601369f22fa4964f826977f8a9af5ae09571f498",
+    "entry_oof_sha256": "e0af1449b21f8aab49108f21a931e8869e287f0c1599d5b553bbbd1d2be75e37",
+    "heading_overlay_sha256": "b09f23610eaabd6352d9c2c2d3b448a1b359c1cba4a79df81785fe8cda8aff37",
+    "inventory_provenance_sha256": "eb09424b142547534ec0cbeb8430de50174995d07c886a8d62561adc1fc9676a",
+    "overlay_sha256": "d8a63c4780e730099e69283430ce4bad2a9a4d6f02298c15b5309dba2f998a8c",
+    "source_sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "line_count": 939014,
+  "role_encoding": {
+    "BIB_HEADER": 3,
+    "BIB_SUBHEADER": 4,
+    "CONTINUATION": 1,
+    "ENTRY": 0,
+    "FILLER": 2,
+    "NON_BIB_HEADER": 5,
+    "OTHER": 6,
+    "UNKNOWN": 7
+  },
+  "schema_version": "bibliography-heading-expert-table-v1",
+  "slurm_job_id": "2766683",
+  "split": "train",
+  "status": "passed_heading_table_materialization",
+  "trusted_candidate_count": 2137,
+  "validation_opened": false
+}

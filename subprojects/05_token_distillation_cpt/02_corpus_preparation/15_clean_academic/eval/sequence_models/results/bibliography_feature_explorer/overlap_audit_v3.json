@@ -1,0 +1,66 @@
+{
+  "schema_version": "bibliography-feature-overlap-audit-v1",
+  "status": "passed",
+  "sample": {
+    "document_count": 20,
+    "line_count": 14815,
+    "source_counts": {
+      "greek_phd": 7,
+      "kallipos": 7,
+      "openarchives": 6
+    },
+    "input_sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "baseline": {
+    "site_sha256": "84e7266a577a5ec27b66378fa35726854220447e91a5e4998f320bfd32e63bdd",
+    "forbidden_overlap_events": 6924,
+    "forbidden_pair_types": 46,
+    "proper_name_before_dot": 1814
+  },
+  "final": {
+    "site_sha256": "a00a8ac935adcd785f21db6669190b3aa174b824d4f83c6a33e0b4dfcf62cd4c",
+    "payload_sha256": "2fbfd077640bb51ec5bdc8a069709acfad409b82f066c4c432d7153223a9e244",
+    "forbidden_overlap_events": 0,
+    "forbidden_pair_types": 0,
+    "proper_name_before_dot": 0
+  },
+  "policy": {
+    "scope": "broad lexical/numeric detectors versus their more-specific owners",
+    "structural_composites": "allowed to overlap their atoms",
+    "table_row_counter_signal": "allowed to contain positive feature spans"
+  },
+  "target_regression": {
+    "document_id": "a32563c98868101bfde4b1942897ca3d6c867b1ca882b116070772b0902c6235",
+    "abs_idx": 2421,
+    "direct_author_count": 7,
+    "inverted_author_count": 0,
+    "direct_author_spans": [
+      [8, 15],
+      [20, 28],
+      [118, 127],
+      [129, 143],
+      [145, 156],
+      [158, 172],
+      [178, 185]
+    ]
+  },
+  "secondary_false_positive_reductions": {
+    "comparison_site_sha256": "642d571fd7228d6345ce245500e12a5cb58c1c2ce39ef948fddaa62399083027",
+    "journal_year_volume_lines": {
+      "before": 591,
+      "after": 474
+    },
+    "direct_author_lines": {
+      "before": 584,
+      "after": 283
+    },
+    "page_range_lines": {
+      "before": 1887,
+      "after": 1635
+    },
+    "numeric_date_lines": {
+      "before": 44,
+      "after": 39
+    }
+  }
+}

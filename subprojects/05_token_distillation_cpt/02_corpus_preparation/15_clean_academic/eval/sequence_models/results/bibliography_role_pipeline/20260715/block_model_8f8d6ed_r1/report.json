@@ -1,0 +1,3460 @@
+{
+  "code_commit": "8f8d6ed05b4c2f7c94c72fc65250293840a0881d",
+  "decoder_config": {
+    "anchors_required": 2,
+    "candidate_radius": 30,
+    "heading_assignment_threshold": 0.5,
+    "seed_length_limit": 330,
+    "seed_threshold": 0.25
+  },
+  "deployment_gate_passed": false,
+  "feature_names": [
+    "role_mean:ENTRY",
+    "role_mean:CONTINUATION",
+    "role_mean:FILLER",
+    "role_mean:BIB_HEADER",
+    "role_mean:BIB_SUBHEADER",
+    "role_mean:NON_BIB_HEADER",
+    "role_mean:OTHER",
+    "first_role:ENTRY",
+    "first_role:CONTINUATION",
+    "first_role:FILLER",
+    "first_role:BIB_HEADER",
+    "first_role:BIB_SUBHEADER",
+    "first_role:NON_BIB_HEADER",
+    "first_role:OTHER",
+    "last_role:ENTRY",
+    "last_role:CONTINUATION",
+    "last_role:FILLER",
+    "last_role:BIB_HEADER",
+    "last_role:BIB_SUBHEADER",
+    "last_role:NON_BIB_HEADER",
+    "last_role:OTHER",
+    "connector_mean",
+    "entry_max",
+    "entry_min",
+    "entry_anchor_count_log1p",
+    "entry_anchor_density",
+    "span_line_count_log1p",
+    "span_char_count_log1p",
+    "bib_header_at_start",
+    "bib_subheader_internal_max",
+    "non_bib_header_internal_max",
+    "other_internal_mean",
+    "block_bias"
+  ],
+  "folds": [
+    {
+      "candidates": [
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 979,
+                "char_fp": 68,
+                "char_precision": 0.9651995905834186,
+                "char_recall": 0.6582897033158813,
+                "char_tp": 1886,
+                "fn": 5,
+                "fp": 5,
+                "precision": 0.5454545454545454,
+                "recall": 0.5454545454545454,
+                "tp": 6
+              },
+              "kallipos": {
+                "char_fn": 844,
+                "char_fp": 10737,
+                "char_precision": 0.7739293384427507,
+                "char_recall": 0.9775537884630728,
+                "char_tp": 36757,
+                "fn": 9,
+                "fp": 10,
+                "precision": 0.9530516431924883,
+                "recall": 0.9575471698113207,
+                "tp": 203
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 12209,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 93
+              }
+            },
+            "char_fn": 1823,
+            "char_fp": 10805,
+            "char_precision": 0.8247563131517913,
+            "char_recall": 0.965391551969625,
+            "char_tp": 50852,
+            "exact_document_rate": 0.7058823529411765,
+            "fn": 14,
+            "fp": 15,
+            "gold_block_count": 7,
+            "line_precision": 0.9526813880126183,
+            "line_recall": 0.9556962025316456,
+            "mean_line_iou": 0.8817381921321988,
+            "predicted_block_count": 6,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 302,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 979,
+                "char_fp": 68,
+                "char_precision": 0.9651995905834186,
+                "char_recall": 0.6582897033158813,
+                "char_tp": 1886,
+                "fn": 5,
+                "fp": 5,
+                "precision": 0.5454545454545454,
+                "recall": 0.5454545454545454,
+                "tp": 6
+              },
+              "kallipos": {
+                "char_fn": 844,
+                "char_fp": 10737,
+                "char_precision": 0.7739293384427507,
+                "char_recall": 0.9775537884630728,
+                "char_tp": 36757,
+                "fn": 9,
+                "fp": 10,
+                "precision": 0.9530516431924883,
+                "recall": 0.9575471698113207,
+                "tp": 203
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 12209,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 93
+              }
+            },
+            "char_fn": 1823,
+            "char_fp": 10805,
+            "char_precision": 0.8247563131517913,
+            "char_recall": 0.965391551969625,
+            "char_tp": 50852,
+            "exact_document_rate": 0.7058823529411765,
+            "fn": 14,
+            "fp": 15,
+            "gold_block_count": 7,
+            "line_precision": 0.9526813880126183,
+            "line_recall": 0.9556962025316456,
+            "mean_line_iou": 0.8817381921321988,
+            "predicted_block_count": 6,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 302,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 979,
+                "char_fp": 68,
+                "char_precision": 0.9651995905834186,
+                "char_recall": 0.6582897033158813,
+                "char_tp": 1886,
+                "fn": 5,
+                "fp": 5,
+                "precision": 0.5454545454545454,
+                "recall": 0.5454545454545454,
+                "tp": 6
+              },
+              "kallipos": {
+                "char_fn": 844,
+                "char_fp": 10737,
+                "char_precision": 0.7739293384427507,
+                "char_recall": 0.9775537884630728,
+                "char_tp": 36757,
+                "fn": 9,
+                "fp": 10,
+                "precision": 0.9530516431924883,
+                "recall": 0.9575471698113207,
+                "tp": 203
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 12209,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 93
+              }
+            },
+            "char_fn": 1823,
+            "char_fp": 10805,
+            "char_precision": 0.8247563131517913,
+            "char_recall": 0.965391551969625,
+            "char_tp": 50852,
+            "exact_document_rate": 0.7058823529411765,
+            "fn": 14,
+            "fp": 15,
+            "gold_block_count": 7,
+            "line_precision": 0.9526813880126183,
+            "line_recall": 0.9556962025316456,
+            "mean_line_iou": 0.8817381921321988,
+            "predicted_block_count": 6,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 302,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 979,
+                "char_fp": 68,
+                "char_precision": 0.9651995905834186,
+                "char_recall": 0.6582897033158813,
+                "char_tp": 1886,
+                "fn": 5,
+                "fp": 5,
+                "precision": 0.5454545454545454,
+                "recall": 0.5454545454545454,
+                "tp": 6
+              },
+              "kallipos": {
+                "char_fn": 869,
+                "char_fp": 10737,
+                "char_precision": 0.7738102761802439,
+                "char_recall": 0.9768889125289221,
+                "char_tp": 36732,
+                "fn": 10,
+                "fp": 10,
+                "precision": 0.9528301886792453,
+                "recall": 0.9528301886792453,
+                "tp": 202
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 12209,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 93
+              }
+            },
+            "char_fn": 1848,
+            "char_fp": 10805,
+            "char_precision": 0.8246852284527518,
+            "char_recall": 0.9649169435215947,
+            "char_tp": 50827,
+            "exact_document_rate": 0.7058823529411765,
+            "fn": 15,
+            "fp": 15,
+            "gold_block_count": 7,
+            "line_precision": 0.9525316455696202,
+            "line_recall": 0.9525316455696202,
+            "mean_line_iou": 0.8809538784067086,
+            "predicted_block_count": 6,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 301,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 979,
+                "char_fp": 68,
+                "char_precision": 0.9651995905834186,
+                "char_recall": 0.6582897033158813,
+                "char_tp": 1886,
+                "fn": 5,
+                "fp": 5,
+                "precision": 0.5454545454545454,
+                "recall": 0.5454545454545454,
+                "tp": 6
+              },
+              "kallipos": {
+                "char_fn": 844,
+                "char_fp": 10737,
+                "char_precision": 0.7739293384427507,
+                "char_recall": 0.9775537884630728,
+                "char_tp": 36757,
+                "fn": 9,
+                "fp": 10,
+                "precision": 0.9530516431924883,
+                "recall": 0.9575471698113207,
+                "tp": 203
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 12209,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 93
+              }
+            },
+            "char_fn": 1823,
+            "char_fp": 10805,
+            "char_precision": 0.8247563131517913,
+            "char_recall": 0.965391551969625,
+            "char_tp": 50852,
+            "exact_document_rate": 0.7058823529411765,
+            "fn": 14,
+            "fp": 15,
+            "gold_block_count": 7,
+            "line_precision": 0.9526813880126183,
+            "line_recall": 0.9556962025316456,
+            "mean_line_iou": 0.8817381921321988,
+            "predicted_block_count": 6,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 302,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 979,
+                "char_fp": 68,
+                "char_precision": 0.9651995905834186,
+                "char_recall": 0.6582897033158813,
+                "char_tp": 1886,
+                "fn": 5,
+                "fp": 5,
+                "precision": 0.5454545454545454,
+                "recall": 0.5454545454545454,
+                "tp": 6
+              },
+              "kallipos": {
+                "char_fn": 844,
+                "char_fp": 10737,
+                "char_precision": 0.7739293384427507,
+                "char_recall": 0.9775537884630728,
+                "char_tp": 36757,
+                "fn": 9,
+                "fp": 10,
+                "precision": 0.9530516431924883,
+                "recall": 0.9575471698113207,
+                "tp": 203
+              },
+              "openarchives": {
+                "char_fn": 71,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9941846179048243,
+                "char_tp": 12138,
+                "fn": 2,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.978494623655914,
+                "tp": 91
+              }
+            },
+            "char_fn": 1894,
+            "char_fp": 10805,
+            "char_precision": 0.8245542818172962,
+            "char_recall": 0.9640436639772187,
+            "char_tp": 50781,
+            "exact_document_rate": 0.6470588235294118,
+            "fn": 16,
+            "fp": 15,
+            "gold_block_count": 7,
+            "line_precision": 0.9523809523809523,
+            "line_recall": 0.9493670886075949,
+            "mean_line_iou": 0.8804731699943114,
+            "predicted_block_count": 6,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 300,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 979,
+                "char_fp": 68,
+                "char_precision": 0.9651995905834186,
+                "char_recall": 0.6582897033158813,
+                "char_tp": 1886,
+                "fn": 5,
+                "fp": 5,
+                "precision": 0.5454545454545454,
+                "recall": 0.5454545454545454,
+                "tp": 6
+              },
+              "kallipos": {
+                "char_fn": 889,
+                "char_fp": 9752,
+                "char_precision": 0.7901170798898072,
+                "char_recall": 0.9763570117816015,
+                "char_tp": 36712,
+                "fn": 11,
+                "fp": 5,
+                "precision": 0.9757281553398058,
+                "recall": 0.9481132075471698,
+                "tp": 201
+              },
+              "openarchives": {
+                "char_fn": 454,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9628143173069047,
+                "char_tp": 11755,
+                "fn": 10,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8924731182795699,
+                "tp": 83
+              }
+            },
+            "char_fn": 2322,
+            "char_fp": 9820,
+            "char_precision": 0.8368038821398301,
+            "char_recall": 0.9559183673469388,
+            "char_tp": 50353,
+            "exact_document_rate": 0.6470588235294118,
+            "fn": 26,
+            "fp": 10,
+            "gold_block_count": 7,
+            "line_precision": 0.9666666666666667,
+            "line_recall": 0.9177215189873418,
+            "mean_line_iou": 0.8789526670883409,
+            "predicted_block_count": 6,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 290,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 979,
+                "char_fp": 68,
+                "char_precision": 0.9651995905834186,
+                "char_recall": 0.6582897033158813,
+                "char_tp": 1886,
+                "fn": 5,
+                "fp": 5,
+                "precision": 0.5454545454545454,
+                "recall": 0.5454545454545454,
+                "tp": 6
+              },
+              "kallipos": {
+                "char_fn": 889,
+                "char_fp": 9752,
+                "char_precision": 0.7901170798898072,
+                "char_recall": 0.9763570117816015,
+                "char_tp": 36712,
+                "fn": 11,
+                "fp": 5,
+                "precision": 0.9757281553398058,
+                "recall": 0.9481132075471698,
+                "tp": 201
+              },
+              "openarchives": {
+                "char_fn": 71,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9941846179048243,
+                "char_tp": 12138,
+                "fn": 2,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.978494623655914,
+                "tp": 91
+              }
+            },
+            "char_fn": 1939,
+            "char_fp": 9820,
+            "char_precision": 0.8378360525794306,
+            "char_recall": 0.9631893687707641,
+            "char_tp": 50736,
+            "exact_document_rate": 0.6470588235294118,
+            "fn": 18,
+            "fp": 10,
+            "gold_block_count": 7,
+            "line_precision": 0.9675324675324676,
+            "line_recall": 0.9430379746835443,
+            "mean_line_iou": 0.8840127556398905,
+            "predicted_block_count": 6,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 298,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 979,
+                "char_fp": 68,
+                "char_precision": 0.9651995905834186,
+                "char_recall": 0.6582897033158813,
+                "char_tp": 1886,
+                "fn": 5,
+                "fp": 5,
+                "precision": 0.5454545454545454,
+                "recall": 0.5454545454545454,
+                "tp": 6
+              },
+              "kallipos": {
+                "char_fn": 889,
+                "char_fp": 9752,
+                "char_precision": 0.7901170798898072,
+                "char_recall": 0.9763570117816015,
+                "char_tp": 36712,
+                "fn": 11,
+                "fp": 5,
+                "precision": 0.9757281553398058,
+                "recall": 0.9481132075471698,
+                "tp": 201
+              },
+              "openarchives": {
+                "char_fn": 454,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9628143173069047,
+                "char_tp": 11755,
+                "fn": 10,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8924731182795699,
+                "tp": 83
+              }
+            },
+            "char_fn": 2322,
+            "char_fp": 9820,
+            "char_precision": 0.8368038821398301,
+            "char_recall": 0.9559183673469388,
+            "char_tp": 50353,
+            "exact_document_rate": 0.6470588235294118,
+            "fn": 26,
+            "fp": 10,
+            "gold_block_count": 7,
+            "line_precision": 0.9666666666666667,
+            "line_recall": 0.9177215189873418,
+            "mean_line_iou": 0.8789526670883409,
+            "predicted_block_count": 6,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 290,
+            "trusted_hard_stop_crossings": 0
+          }
+        }
+      ],
+      "inner_fold": 1,
+      "inner_train_excluded_seed_unreachable": 5,
+      "inner_train_sequence_count": 65,
+      "outer_fit_excluded_seed_unreachable": 6,
+      "outer_fit_sequence_count": 81,
+      "outer_fold": 0,
+      "selected": {
+        "config": {
+          "epochs": 20,
+          "false_negative_cost": 1.0,
+          "false_positive_cost": 2.0,
+          "fragmentation_cost": 0.0,
+          "l2": 0.0001,
+          "learning_rate": 0.05
+        },
+        "metrics": {
+          "by_source": {
+            "greek_phd": {
+              "char_fn": 979,
+              "char_fp": 68,
+              "char_precision": 0.9651995905834186,
+              "char_recall": 0.6582897033158813,
+              "char_tp": 1886,
+              "fn": 5,
+              "fp": 5,
+              "precision": 0.5454545454545454,
+              "recall": 0.5454545454545454,
+              "tp": 6
+            },
+            "kallipos": {
+              "char_fn": 844,
+              "char_fp": 10737,
+              "char_precision": 0.7739293384427507,
+              "char_recall": 0.9775537884630728,
+              "char_tp": 36757,
+              "fn": 9,
+              "fp": 10,
+              "precision": 0.9530516431924883,
+              "recall": 0.9575471698113207,
+              "tp": 203
+            },
+            "openarchives": {
+              "char_fn": 0,
+              "char_fp": 0,
+              "char_precision": 1.0,
+              "char_recall": 1.0,
+              "char_tp": 12209,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 93
+            }
+          },
+          "char_fn": 1823,
+          "char_fp": 10805,
+          "char_precision": 0.8247563131517913,
+          "char_recall": 0.965391551969625,
+          "char_tp": 50852,
+          "exact_document_rate": 0.7058823529411765,
+          "fn": 14,
+          "fp": 15,
+          "gold_block_count": 7,
+          "line_precision": 0.9526813880126183,
+          "line_recall": 0.9556962025316456,
+          "mean_line_iou": 0.8817381921321988,
+          "predicted_block_count": 6,
+          "spurious_blocks_per_zero_document": 0.0,
+          "tp": 302,
+          "trusted_hard_stop_crossings": 0
+        }
+      }
+    },
+    {
+      "candidates": [
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1691,
+                "char_fp": 88,
+                "char_precision": 0.9980877048111608,
+                "char_recall": 0.9644904558913084,
+                "char_tp": 45930,
+                "fn": 12,
+                "fp": 5,
+                "precision": 0.9793388429752066,
+                "recall": 0.9518072289156626,
+                "tp": 237
+              },
+              "kallipos": {
+                "char_fn": 17847,
+                "char_fp": 380,
+                "char_precision": 0.9962648790508861,
+                "char_recall": 0.8502818697359149,
+                "char_tp": 101357,
+                "fn": 42,
+                "fp": 2,
+                "precision": 0.9943661971830986,
+                "recall": 0.8936708860759494,
+                "tp": 353
+              },
+              "openarchives": {
+                "char_fn": 7895,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.5021440282507252,
+                "char_tp": 7963,
+                "fn": 65,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.49612403100775193,
+                "tp": 64
+              }
+            },
+            "char_fn": 27433,
+            "char_fp": 468,
+            "char_precision": 0.9969945671020691,
+            "char_recall": 0.8498327704274617,
+            "char_tp": 155250,
+            "exact_document_rate": 0.6,
+            "fn": 119,
+            "fp": 7,
+            "gold_block_count": 16,
+            "line_precision": 0.989409984871407,
+            "line_recall": 0.8460543337645536,
+            "mean_line_iou": 0.8194528444489227,
+            "predicted_block_count": 10,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 654,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1488,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9687532811154743,
+                "char_tp": 46133,
+                "fn": 10,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9598393574297188,
+                "tp": 239
+              },
+              "kallipos": {
+                "char_fn": 17847,
+                "char_fp": 380,
+                "char_precision": 0.9962648790508861,
+                "char_recall": 0.8502818697359149,
+                "char_tp": 101357,
+                "fn": 42,
+                "fp": 2,
+                "precision": 0.9943661971830986,
+                "recall": 0.8936708860759494,
+                "tp": 353
+              },
+              "openarchives": {
+                "char_fn": 7895,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.5021440282507252,
+                "char_tp": 7963,
+                "fn": 65,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.49612403100775193,
+                "tp": 64
+              }
+            },
+            "char_fn": 27230,
+            "char_fp": 380,
+            "char_precision": 0.9975614921101436,
+            "char_recall": 0.8509439849356536,
+            "char_tp": 155453,
+            "exact_document_rate": 0.6333333333333333,
+            "fn": 117,
+            "fp": 2,
+            "gold_block_count": 16,
+            "line_precision": 0.9969604863221885,
+            "line_recall": 0.8486416558861578,
+            "mean_line_iou": 0.8213825052021129,
+            "predicted_block_count": 10,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 656,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1691,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9644904558913084,
+                "char_tp": 45930,
+                "fn": 12,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9518072289156626,
+                "tp": 237
+              },
+              "kallipos": {
+                "char_fn": 17847,
+                "char_fp": 380,
+                "char_precision": 0.9962648790508861,
+                "char_recall": 0.8502818697359149,
+                "char_tp": 101357,
+                "fn": 42,
+                "fp": 2,
+                "precision": 0.9943661971830986,
+                "recall": 0.8936708860759494,
+                "tp": 353
+              },
+              "openarchives": {
+                "char_fn": 7895,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.5021440282507252,
+                "char_tp": 7963,
+                "fn": 65,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.49612403100775193,
+                "tp": 64
+              }
+            },
+            "char_fn": 27433,
+            "char_fp": 380,
+            "char_precision": 0.9975583113795541,
+            "char_recall": 0.8498327704274617,
+            "char_tp": 155250,
+            "exact_document_rate": 0.6333333333333333,
+            "fn": 119,
+            "fp": 2,
+            "gold_block_count": 16,
+            "line_precision": 0.9969512195121951,
+            "line_recall": 0.8460543337645536,
+            "mean_line_iou": 0.8208534046730125,
+            "predicted_block_count": 10,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 654,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1691,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9644904558913084,
+                "char_tp": 45930,
+                "fn": 12,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9518072289156626,
+                "tp": 237
+              },
+              "kallipos": {
+                "char_fn": 18879,
+                "char_fp": 380,
+                "char_precision": 0.9962266024527084,
+                "char_recall": 0.8416244421328143,
+                "char_tp": 100325,
+                "fn": 45,
+                "fp": 2,
+                "precision": 0.9943181818181818,
+                "recall": 0.8860759493670886,
+                "tp": 350
+              },
+              "openarchives": {
+                "char_fn": 7895,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.5021440282507252,
+                "char_tp": 7963,
+                "fn": 65,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.49612403100775193,
+                "tp": 64
+              }
+            },
+            "char_fn": 28465,
+            "char_fp": 380,
+            "char_precision": 0.9975420121864449,
+            "char_recall": 0.8441836405138956,
+            "char_tp": 154218,
+            "exact_document_rate": 0.6,
+            "fn": 122,
+            "fp": 2,
+            "gold_block_count": 16,
+            "line_precision": 0.996937212863706,
+            "line_recall": 0.8421733505821475,
+            "mean_line_iou": 0.8166867380063458,
+            "predicted_block_count": 10,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 651,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1691,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9644904558913084,
+                "char_tp": 45930,
+                "fn": 12,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9518072289156626,
+                "tp": 237
+              },
+              "kallipos": {
+                "char_fn": 18879,
+                "char_fp": 380,
+                "char_precision": 0.9962266024527084,
+                "char_recall": 0.8416244421328143,
+                "char_tp": 100325,
+                "fn": 45,
+                "fp": 2,
+                "precision": 0.9943181818181818,
+                "recall": 0.8860759493670886,
+                "tp": 350
+              },
+              "openarchives": {
+                "char_fn": 7895,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.5021440282507252,
+                "char_tp": 7963,
+                "fn": 65,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.49612403100775193,
+                "tp": 64
+              }
+            },
+            "char_fn": 28465,
+            "char_fp": 380,
+            "char_precision": 0.9975420121864449,
+            "char_recall": 0.8441836405138956,
+            "char_tp": 154218,
+            "exact_document_rate": 0.6,
+            "fn": 122,
+            "fp": 2,
+            "gold_block_count": 16,
+            "line_precision": 0.996937212863706,
+            "line_recall": 0.8421733505821475,
+            "mean_line_iou": 0.8166867380063458,
+            "predicted_block_count": 10,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 651,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1691,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9644904558913084,
+                "char_tp": 45930,
+                "fn": 12,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9518072289156626,
+                "tp": 237
+              },
+              "kallipos": {
+                "char_fn": 18879,
+                "char_fp": 380,
+                "char_precision": 0.9962266024527084,
+                "char_recall": 0.8416244421328143,
+                "char_tp": 100325,
+                "fn": 45,
+                "fp": 2,
+                "precision": 0.9943181818181818,
+                "recall": 0.8860759493670886,
+                "tp": 350
+              },
+              "openarchives": {
+                "char_fn": 7895,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.5021440282507252,
+                "char_tp": 7963,
+                "fn": 65,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.49612403100775193,
+                "tp": 64
+              }
+            },
+            "char_fn": 28465,
+            "char_fp": 380,
+            "char_precision": 0.9975420121864449,
+            "char_recall": 0.8441836405138956,
+            "char_tp": 154218,
+            "exact_document_rate": 0.6,
+            "fn": 122,
+            "fp": 2,
+            "gold_block_count": 16,
+            "line_precision": 0.996937212863706,
+            "line_recall": 0.8421733505821475,
+            "mean_line_iou": 0.8166867380063458,
+            "predicted_block_count": 10,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 651,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1691,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9644904558913084,
+                "char_tp": 45930,
+                "fn": 12,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9518072289156626,
+                "tp": 237
+              },
+              "kallipos": {
+                "char_fn": 19129,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8395271970739236,
+                "char_tp": 100075,
+                "fn": 49,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8759493670886076,
+                "tp": 346
+              },
+              "openarchives": {
+                "char_fn": 7895,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.5021440282507252,
+                "char_tp": 7963,
+                "fn": 65,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.49612403100775193,
+                "tp": 64
+              }
+            },
+            "char_fn": 28715,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.8428151497402605,
+            "char_tp": 153968,
+            "exact_document_rate": 0.5666666666666667,
+            "fn": 126,
+            "fp": 0,
+            "gold_block_count": 16,
+            "line_precision": 1.0,
+            "line_recall": 0.8369987063389392,
+            "mean_line_iou": 0.8129669312430607,
+            "predicted_block_count": 10,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 647,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1691,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9644904558913084,
+                "char_tp": 45930,
+                "fn": 12,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9518072289156626,
+                "tp": 237
+              },
+              "kallipos": {
+                "char_fn": 19129,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8395271970739236,
+                "char_tp": 100075,
+                "fn": 49,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8759493670886076,
+                "tp": 346
+              },
+              "openarchives": {
+                "char_fn": 7895,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.5021440282507252,
+                "char_tp": 7963,
+                "fn": 65,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.49612403100775193,
+                "tp": 64
+              }
+            },
+            "char_fn": 28715,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.8428151497402605,
+            "char_tp": 153968,
+            "exact_document_rate": 0.5666666666666667,
+            "fn": 126,
+            "fp": 0,
+            "gold_block_count": 16,
+            "line_precision": 1.0,
+            "line_recall": 0.8369987063389392,
+            "mean_line_iou": 0.8129669312430607,
+            "predicted_block_count": 10,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 647,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1691,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9644904558913084,
+                "char_tp": 45930,
+                "fn": 12,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9518072289156626,
+                "tp": 237
+              },
+              "kallipos": {
+                "char_fn": 18987,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8407184322673735,
+                "char_tp": 100217,
+                "fn": 47,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8810126582278481,
+                "tp": 348
+              },
+              "openarchives": {
+                "char_fn": 7895,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.5021440282507252,
+                "char_tp": 7963,
+                "fn": 65,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.49612403100775193,
+                "tp": 64
+              }
+            },
+            "char_fn": 28573,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.8435924524996853,
+            "char_tp": 154110,
+            "exact_document_rate": 0.5666666666666667,
+            "fn": 124,
+            "fp": 0,
+            "gold_block_count": 16,
+            "line_precision": 1.0,
+            "line_recall": 0.8395860284605433,
+            "mean_line_iou": 0.8137076719838013,
+            "predicted_block_count": 10,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 649,
+            "trusted_hard_stop_crossings": 0
+          }
+        }
+      ],
+      "inner_fold": 2,
+      "inner_train_excluded_seed_unreachable": 2,
+      "inner_train_sequence_count": 54,
+      "outer_fit_excluded_seed_unreachable": 6,
+      "outer_fit_sequence_count": 80,
+      "outer_fold": 1,
+      "selected": {
+        "config": {
+          "epochs": 20,
+          "false_negative_cost": 1.0,
+          "false_positive_cost": 2.0,
+          "fragmentation_cost": 1.0,
+          "l2": 0.0001,
+          "learning_rate": 0.05
+        },
+        "metrics": {
+          "by_source": {
+            "greek_phd": {
+              "char_fn": 1488,
+              "char_fp": 0,
+              "char_precision": 1.0,
+              "char_recall": 0.9687532811154743,
+              "char_tp": 46133,
+              "fn": 10,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 0.9598393574297188,
+              "tp": 239
+            },
+            "kallipos": {
+              "char_fn": 17847,
+              "char_fp": 380,
+              "char_precision": 0.9962648790508861,
+              "char_recall": 0.8502818697359149,
+              "char_tp": 101357,
+              "fn": 42,
+              "fp": 2,
+              "precision": 0.9943661971830986,
+              "recall": 0.8936708860759494,
+              "tp": 353
+            },
+            "openarchives": {
+              "char_fn": 7895,
+              "char_fp": 0,
+              "char_precision": 1.0,
+              "char_recall": 0.5021440282507252,
+              "char_tp": 7963,
+              "fn": 65,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 0.49612403100775193,
+              "tp": 64
+            }
+          },
+          "char_fn": 27230,
+          "char_fp": 380,
+          "char_precision": 0.9975614921101436,
+          "char_recall": 0.8509439849356536,
+          "char_tp": 155453,
+          "exact_document_rate": 0.6333333333333333,
+          "fn": 117,
+          "fp": 2,
+          "gold_block_count": 16,
+          "line_precision": 0.9969604863221885,
+          "line_recall": 0.8486416558861578,
+          "mean_line_iou": 0.8213825052021129,
+          "predicted_block_count": 10,
+          "spurious_blocks_per_zero_document": 0.0,
+          "tp": 656,
+          "trusted_hard_stop_crossings": 0
+        }
+      }
+    },
+    {
+      "candidates": [
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 2302,
+                "char_fp": 870,
+                "char_precision": 0.986445008802954,
+                "char_recall": 0.9649165587137087,
+                "char_tp": 63313,
+                "fn": 8,
+                "fp": 5,
+                "precision": 0.9886363636363636,
+                "recall": 0.981941309255079,
+                "tp": 435
+              },
+              "kallipos": {
+                "char_fn": 5530,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.948805776708017,
+                "char_tp": 102490,
+                "fn": 9,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9763779527559056,
+                "tp": 372
+              },
+              "openarchives": {
+                "char_fn": 153,
+                "char_fp": 506,
+                "char_precision": 0.9841090383769864,
+                "char_recall": 0.9951411604052208,
+                "char_tp": 31336,
+                "fn": 1,
+                "fp": 5,
+                "precision": 0.9800796812749004,
+                "recall": 0.9959514170040485,
+                "tp": 246
+              }
+            },
+            "char_fn": 7985,
+            "char_fp": 1376,
+            "char_precision": 0.9930685338639398,
+            "char_recall": 0.9610723269827032,
+            "char_tp": 197139,
+            "exact_document_rate": 0.5909090909090909,
+            "fn": 18,
+            "fp": 10,
+            "gold_block_count": 18,
+            "line_precision": 0.9905926622765757,
+            "line_recall": 0.9831932773109243,
+            "mean_line_iou": 0.9403515446925023,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 1053,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 2302,
+                "char_fp": 870,
+                "char_precision": 0.986445008802954,
+                "char_recall": 0.9649165587137087,
+                "char_tp": 63313,
+                "fn": 8,
+                "fp": 5,
+                "precision": 0.9886363636363636,
+                "recall": 0.981941309255079,
+                "tp": 435
+              },
+              "kallipos": {
+                "char_fn": 6259,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9420570264765784,
+                "char_tp": 101761,
+                "fn": 10,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.973753280839895,
+                "tp": 371
+              },
+              "openarchives": {
+                "char_fn": 153,
+                "char_fp": 136,
+                "char_precision": 0.9956786985256736,
+                "char_recall": 0.9951411604052208,
+                "char_tp": 31336,
+                "fn": 1,
+                "fp": 4,
+                "precision": 0.984,
+                "recall": 0.9959514170040485,
+                "tp": 246
+              }
+            },
+            "char_fn": 8714,
+            "char_fp": 1006,
+            "char_precision": 0.9949041617700694,
+            "char_recall": 0.9575183791267721,
+            "char_tp": 196410,
+            "exact_document_rate": 0.5909090909090909,
+            "fn": 19,
+            "fp": 9,
+            "gold_block_count": 18,
+            "line_precision": 0.9915174363807728,
+            "line_recall": 0.9822595704948646,
+            "mean_line_iou": 0.9410909204318778,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 1052,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 2302,
+                "char_fp": 870,
+                "char_precision": 0.986445008802954,
+                "char_recall": 0.9649165587137087,
+                "char_tp": 63313,
+                "fn": 8,
+                "fp": 5,
+                "precision": 0.9886363636363636,
+                "recall": 0.981941309255079,
+                "tp": 435
+              },
+              "kallipos": {
+                "char_fn": 6259,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9420570264765784,
+                "char_tp": 101761,
+                "fn": 10,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.973753280839895,
+                "tp": 371
+              },
+              "openarchives": {
+                "char_fn": 153,
+                "char_fp": 136,
+                "char_precision": 0.9956786985256736,
+                "char_recall": 0.9951411604052208,
+                "char_tp": 31336,
+                "fn": 1,
+                "fp": 4,
+                "precision": 0.984,
+                "recall": 0.9959514170040485,
+                "tp": 246
+              }
+            },
+            "char_fn": 8714,
+            "char_fp": 1006,
+            "char_precision": 0.9949041617700694,
+            "char_recall": 0.9575183791267721,
+            "char_tp": 196410,
+            "exact_document_rate": 0.5909090909090909,
+            "fn": 19,
+            "fp": 9,
+            "gold_block_count": 18,
+            "line_precision": 0.9915174363807728,
+            "line_recall": 0.9822595704948646,
+            "mean_line_iou": 0.9410909204318778,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 1052,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 2302,
+                "char_fp": 647,
+                "char_precision": 0.9898843026891807,
+                "char_recall": 0.9649165587137087,
+                "char_tp": 63313,
+                "fn": 8,
+                "fp": 3,
+                "precision": 0.9931506849315068,
+                "recall": 0.981941309255079,
+                "tp": 435
+              },
+              "kallipos": {
+                "char_fn": 6600,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9389002036659878,
+                "char_tp": 101420,
+                "fn": 11,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9711286089238845,
+                "tp": 370
+              },
+              "openarchives": {
+                "char_fn": 153,
+                "char_fp": 136,
+                "char_precision": 0.9956786985256736,
+                "char_recall": 0.9951411604052208,
+                "char_tp": 31336,
+                "fn": 1,
+                "fp": 4,
+                "precision": 0.984,
+                "recall": 0.9959514170040485,
+                "tp": 246
+              }
+            },
+            "char_fn": 9055,
+            "char_fp": 783,
+            "char_precision": 0.9960223924572775,
+            "char_recall": 0.955855970047386,
+            "char_tp": 196069,
+            "exact_document_rate": 0.6363636363636364,
+            "fn": 20,
+            "fp": 7,
+            "gold_block_count": 18,
+            "line_precision": 0.9933837429111532,
+            "line_recall": 0.9813258636788048,
+            "mean_line_iou": 0.9400565631368003,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 1051,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 2302,
+                "char_fp": 870,
+                "char_precision": 0.986445008802954,
+                "char_recall": 0.9649165587137087,
+                "char_tp": 63313,
+                "fn": 8,
+                "fp": 5,
+                "precision": 0.9886363636363636,
+                "recall": 0.981941309255079,
+                "tp": 435
+              },
+              "kallipos": {
+                "char_fn": 6600,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9389002036659878,
+                "char_tp": 101420,
+                "fn": 11,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9711286089238845,
+                "tp": 370
+              },
+              "openarchives": {
+                "char_fn": 153,
+                "char_fp": 136,
+                "char_precision": 0.9956786985256736,
+                "char_recall": 0.9951411604052208,
+                "char_tp": 31336,
+                "fn": 1,
+                "fp": 4,
+                "precision": 0.984,
+                "recall": 0.9959514170040485,
+                "tp": 246
+              }
+            },
+            "char_fn": 9055,
+            "char_fp": 1006,
+            "char_precision": 0.9948953444120259,
+            "char_recall": 0.955855970047386,
+            "char_tp": 196069,
+            "exact_document_rate": 0.5909090909090909,
+            "fn": 20,
+            "fp": 9,
+            "gold_block_count": 18,
+            "line_precision": 0.9915094339622641,
+            "line_recall": 0.9813258636788048,
+            "mean_line_iou": 0.9397135099635583,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 1051,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 2302,
+                "char_fp": 870,
+                "char_precision": 0.986445008802954,
+                "char_recall": 0.9649165587137087,
+                "char_tp": 63313,
+                "fn": 8,
+                "fp": 5,
+                "precision": 0.9886363636363636,
+                "recall": 0.981941309255079,
+                "tp": 435
+              },
+              "kallipos": {
+                "char_fn": 6259,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9420570264765784,
+                "char_tp": 101761,
+                "fn": 10,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.973753280839895,
+                "tp": 371
+              },
+              "openarchives": {
+                "char_fn": 153,
+                "char_fp": 136,
+                "char_precision": 0.9956786985256736,
+                "char_recall": 0.9951411604052208,
+                "char_tp": 31336,
+                "fn": 1,
+                "fp": 4,
+                "precision": 0.984,
+                "recall": 0.9959514170040485,
+                "tp": 246
+              }
+            },
+            "char_fn": 8714,
+            "char_fp": 1006,
+            "char_precision": 0.9949041617700694,
+            "char_recall": 0.9575183791267721,
+            "char_tp": 196410,
+            "exact_document_rate": 0.5909090909090909,
+            "fn": 19,
+            "fp": 9,
+            "gold_block_count": 18,
+            "line_precision": 0.9915174363807728,
+            "line_recall": 0.9822595704948646,
+            "mean_line_iou": 0.9410909204318778,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 1052,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 2302,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9649165587137087,
+                "char_tp": 63313,
+                "fn": 8,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.981941309255079,
+                "tp": 435
+              },
+              "kallipos": {
+                "char_fn": 12005,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8888631734863914,
+                "char_tp": 96015,
+                "fn": 23,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9396325459317585,
+                "tp": 358
+              },
+              "openarchives": {
+                "char_fn": 153,
+                "char_fp": 56,
+                "char_precision": 0.9982161060142711,
+                "char_recall": 0.9951411604052208,
+                "char_tp": 31336,
+                "fn": 1,
+                "fp": 2,
+                "precision": 0.9919354838709677,
+                "recall": 0.9959514170040485,
+                "tp": 246
+              }
+            },
+            "char_fn": 14460,
+            "char_fp": 56,
+            "char_precision": 0.9997063758389262,
+            "char_recall": 0.929506054874125,
+            "char_tp": 190664,
+            "exact_document_rate": 0.7272727272727273,
+            "fn": 32,
+            "fp": 2,
+            "gold_block_count": 18,
+            "line_precision": 0.9980787704130644,
+            "line_recall": 0.9701213818860878,
+            "mean_line_iou": 0.9306667593921577,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 1039,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 2302,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9649165587137087,
+                "char_tp": 63313,
+                "fn": 8,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.981941309255079,
+                "tp": 435
+              },
+              "kallipos": {
+                "char_fn": 12005,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8888631734863914,
+                "char_tp": 96015,
+                "fn": 23,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9396325459317585,
+                "tp": 358
+              },
+              "openarchives": {
+                "char_fn": 153,
+                "char_fp": 56,
+                "char_precision": 0.9982161060142711,
+                "char_recall": 0.9951411604052208,
+                "char_tp": 31336,
+                "fn": 1,
+                "fp": 2,
+                "precision": 0.9919354838709677,
+                "recall": 0.9959514170040485,
+                "tp": 246
+              }
+            },
+            "char_fn": 14460,
+            "char_fp": 56,
+            "char_precision": 0.9997063758389262,
+            "char_recall": 0.929506054874125,
+            "char_tp": 190664,
+            "exact_document_rate": 0.7272727272727273,
+            "fn": 32,
+            "fp": 2,
+            "gold_block_count": 18,
+            "line_precision": 0.9980787704130644,
+            "line_recall": 0.9701213818860878,
+            "mean_line_iou": 0.9306667593921577,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 1039,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 2302,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9649165587137087,
+                "char_tp": 63313,
+                "fn": 8,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.981941309255079,
+                "tp": 435
+              },
+              "kallipos": {
+                "char_fn": 7631,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9293556748750231,
+                "char_tp": 100389,
+                "fn": 17,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9553805774278216,
+                "tp": 364
+              },
+              "openarchives": {
+                "char_fn": 718,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.977198386738226,
+                "char_tp": 30771,
+                "fn": 7,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.97165991902834,
+                "tp": 240
+              }
+            },
+            "char_fn": 10651,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.9480753105438662,
+            "char_tp": 194473,
+            "exact_document_rate": 0.7727272727272727,
+            "fn": 32,
+            "fp": 0,
+            "gold_block_count": 18,
+            "line_precision": 1.0,
+            "line_recall": 0.9701213818860878,
+            "mean_line_iou": 0.9329056430743404,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 1039,
+            "trusted_hard_stop_crossings": 0
+          }
+        }
+      ],
+      "inner_fold": 3,
+      "inner_train_excluded_seed_unreachable": 2,
+      "inner_train_sequence_count": 49,
+      "outer_fit_excluded_seed_unreachable": 3,
+      "outer_fit_sequence_count": 70,
+      "outer_fold": 2,
+      "selected": {
+        "config": {
+          "epochs": 20,
+          "false_negative_cost": 1.0,
+          "false_positive_cost": 2.0,
+          "fragmentation_cost": 0.0,
+          "l2": 0.0001,
+          "learning_rate": 0.05
+        },
+        "metrics": {
+          "by_source": {
+            "greek_phd": {
+              "char_fn": 2302,
+              "char_fp": 870,
+              "char_precision": 0.986445008802954,
+              "char_recall": 0.9649165587137087,
+              "char_tp": 63313,
+              "fn": 8,
+              "fp": 5,
+              "precision": 0.9886363636363636,
+              "recall": 0.981941309255079,
+              "tp": 435
+            },
+            "kallipos": {
+              "char_fn": 5530,
+              "char_fp": 0,
+              "char_precision": 1.0,
+              "char_recall": 0.948805776708017,
+              "char_tp": 102490,
+              "fn": 9,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 0.9763779527559056,
+              "tp": 372
+            },
+            "openarchives": {
+              "char_fn": 153,
+              "char_fp": 506,
+              "char_precision": 0.9841090383769864,
+              "char_recall": 0.9951411604052208,
+              "char_tp": 31336,
+              "fn": 1,
+              "fp": 5,
+              "precision": 0.9800796812749004,
+              "recall": 0.9959514170040485,
+              "tp": 246
+            }
+          },
+          "char_fn": 7985,
+          "char_fp": 1376,
+          "char_precision": 0.9930685338639398,
+          "char_recall": 0.9610723269827032,
+          "char_tp": 197139,
+          "exact_document_rate": 0.5909090909090909,
+          "fn": 18,
+          "fp": 10,
+          "gold_block_count": 18,
+          "line_precision": 0.9905926622765757,
+          "line_recall": 0.9831932773109243,
+          "mean_line_iou": 0.9403515446925023,
+          "predicted_block_count": 15,
+          "spurious_blocks_per_zero_document": 0.0,
+          "tp": 1053,
+          "trusted_hard_stop_crossings": 0
+        }
+      }
+    },
+    {
+      "candidates": [
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 48343,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 381
+              },
+              "kallipos": {
+                "char_fn": 453,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9902288561506438,
+                "char_tp": 45908,
+                "fn": 3,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9828571428571429,
+                "tp": 172
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 32160,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 130
+              }
+            },
+            "char_fn": 453,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.9964292470677261,
+            "char_tp": 126411,
+            "exact_document_rate": 0.9444444444444444,
+            "fn": 3,
+            "fp": 0,
+            "gold_block_count": 12,
+            "line_precision": 1.0,
+            "line_recall": 0.9956268221574344,
+            "mean_line_iou": 0.9907407407407409,
+            "predicted_block_count": 12,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 683,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 48343,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 381
+              },
+              "kallipos": {
+                "char_fn": 453,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9902288561506438,
+                "char_tp": 45908,
+                "fn": 3,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9828571428571429,
+                "tp": 172
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 32160,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 130
+              }
+            },
+            "char_fn": 453,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.9964292470677261,
+            "char_tp": 126411,
+            "exact_document_rate": 0.9444444444444444,
+            "fn": 3,
+            "fp": 0,
+            "gold_block_count": 12,
+            "line_precision": 1.0,
+            "line_recall": 0.9956268221574344,
+            "mean_line_iou": 0.9907407407407409,
+            "predicted_block_count": 12,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 683,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 48343,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 381
+              },
+              "kallipos": {
+                "char_fn": 453,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9902288561506438,
+                "char_tp": 45908,
+                "fn": 3,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9828571428571429,
+                "tp": 172
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 32160,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 130
+              }
+            },
+            "char_fn": 453,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.9964292470677261,
+            "char_tp": 126411,
+            "exact_document_rate": 0.9444444444444444,
+            "fn": 3,
+            "fp": 0,
+            "gold_block_count": 12,
+            "line_precision": 1.0,
+            "line_recall": 0.9956268221574344,
+            "mean_line_iou": 0.9907407407407409,
+            "predicted_block_count": 12,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 683,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 48343,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 381
+              },
+              "kallipos": {
+                "char_fn": 453,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9902288561506438,
+                "char_tp": 45908,
+                "fn": 3,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9828571428571429,
+                "tp": 172
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 32160,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 130
+              }
+            },
+            "char_fn": 453,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.9964292470677261,
+            "char_tp": 126411,
+            "exact_document_rate": 0.9444444444444444,
+            "fn": 3,
+            "fp": 0,
+            "gold_block_count": 12,
+            "line_precision": 1.0,
+            "line_recall": 0.9956268221574344,
+            "mean_line_iou": 0.9907407407407409,
+            "predicted_block_count": 12,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 683,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 48343,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 381
+              },
+              "kallipos": {
+                "char_fn": 453,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9902288561506438,
+                "char_tp": 45908,
+                "fn": 3,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9828571428571429,
+                "tp": 172
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 32160,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 130
+              }
+            },
+            "char_fn": 453,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.9964292470677261,
+            "char_tp": 126411,
+            "exact_document_rate": 0.9444444444444444,
+            "fn": 3,
+            "fp": 0,
+            "gold_block_count": 12,
+            "line_precision": 1.0,
+            "line_recall": 0.9956268221574344,
+            "mean_line_iou": 0.9907407407407409,
+            "predicted_block_count": 12,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 683,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 48343,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 381
+              },
+              "kallipos": {
+                "char_fn": 453,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9902288561506438,
+                "char_tp": 45908,
+                "fn": 3,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9828571428571429,
+                "tp": 172
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 32160,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 130
+              }
+            },
+            "char_fn": 453,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.9964292470677261,
+            "char_tp": 126411,
+            "exact_document_rate": 0.9444444444444444,
+            "fn": 3,
+            "fp": 0,
+            "gold_block_count": 12,
+            "line_precision": 1.0,
+            "line_recall": 0.9956268221574344,
+            "mean_line_iou": 0.9907407407407409,
+            "predicted_block_count": 12,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 683,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 499,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9896779264836688,
+                "char_tp": 47844,
+                "fn": 4,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.989501312335958,
+                "tp": 377
+              },
+              "kallipos": {
+                "char_fn": 453,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9902288561506438,
+                "char_tp": 45908,
+                "fn": 3,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9828571428571429,
+                "tp": 172
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 32160,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 130
+              }
+            },
+            "char_fn": 952,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.9924959011224619,
+            "char_tp": 125912,
+            "exact_document_rate": 0.8888888888888888,
+            "fn": 7,
+            "fp": 0,
+            "gold_block_count": 12,
+            "line_precision": 1.0,
+            "line_recall": 0.9897959183673469,
+            "mean_line_iou": 0.9886039886039887,
+            "predicted_block_count": 12,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 679,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1703,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9647725627288335,
+                "char_tp": 46640,
+                "fn": 6,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.984251968503937,
+                "tp": 375
+              },
+              "kallipos": {
+                "char_fn": 1181,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9745260024589634,
+                "char_tp": 45180,
+                "fn": 5,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9714285714285714,
+                "tp": 170
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 32160,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 130
+              }
+            },
+            "char_fn": 2884,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.9772669945768697,
+            "char_tp": 123980,
+            "exact_document_rate": 0.8333333333333334,
+            "fn": 11,
+            "fp": 0,
+            "gold_block_count": 12,
+            "line_precision": 1.0,
+            "line_recall": 0.9839650145772595,
+            "mean_line_iou": 0.9810422602089268,
+            "predicted_block_count": 12,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 675,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1703,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9647725627288335,
+                "char_tp": 46640,
+                "fn": 6,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.984251968503937,
+                "tp": 375
+              },
+              "kallipos": {
+                "char_fn": 1181,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9745260024589634,
+                "char_tp": 45180,
+                "fn": 5,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.9714285714285714,
+                "tp": 170
+              },
+              "openarchives": {
+                "char_fn": 0,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 1.0,
+                "char_tp": 32160,
+                "fn": 0,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 1.0,
+                "tp": 130
+              }
+            },
+            "char_fn": 2884,
+            "char_fp": 0,
+            "char_precision": 1.0,
+            "char_recall": 0.9772669945768697,
+            "char_tp": 123980,
+            "exact_document_rate": 0.8333333333333334,
+            "fn": 11,
+            "fp": 0,
+            "gold_block_count": 12,
+            "line_precision": 1.0,
+            "line_recall": 0.9839650145772595,
+            "mean_line_iou": 0.9810422602089268,
+            "predicted_block_count": 12,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 675,
+            "trusted_hard_stop_crossings": 0
+          }
+        }
+      ],
+      "inner_fold": 4,
+      "inner_train_excluded_seed_unreachable": 6,
+      "inner_train_sequence_count": 57,
+      "outer_fit_excluded_seed_unreachable": 6,
+      "outer_fit_sequence_count": 75,
+      "outer_fold": 3,
+      "selected": {
+        "config": {
+          "epochs": 20,
+          "false_negative_cost": 1.0,
+          "false_positive_cost": 2.0,
+          "fragmentation_cost": 0.0,
+          "l2": 0.0001,
+          "learning_rate": 0.05
+        },
+        "metrics": {
+          "by_source": {
+            "greek_phd": {
+              "char_fn": 0,
+              "char_fp": 0,
+              "char_precision": 1.0,
+              "char_recall": 1.0,
+              "char_tp": 48343,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 381
+            },
+            "kallipos": {
+              "char_fn": 453,
+              "char_fp": 0,
+              "char_precision": 1.0,
+              "char_recall": 0.9902288561506438,
+              "char_tp": 45908,
+              "fn": 3,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 0.9828571428571429,
+              "tp": 172
+            },
+            "openarchives": {
+              "char_fn": 0,
+              "char_fp": 0,
+              "char_precision": 1.0,
+              "char_recall": 1.0,
+              "char_tp": 32160,
+              "fn": 0,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 1.0,
+              "tp": 130
+            }
+          },
+          "char_fn": 453,
+          "char_fp": 0,
+          "char_precision": 1.0,
+          "char_recall": 0.9964292470677261,
+          "char_tp": 126411,
+          "exact_document_rate": 0.9444444444444444,
+          "fn": 3,
+          "fp": 0,
+          "gold_block_count": 12,
+          "line_precision": 1.0,
+          "line_recall": 0.9956268221574344,
+          "mean_line_iou": 0.9907407407407409,
+          "predicted_block_count": 12,
+          "spurious_blocks_per_zero_document": 0.0,
+          "tp": 683,
+          "trusted_hard_stop_crossings": 0
+        }
+      }
+    },
+    {
+      "candidates": [
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1638,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8943430303812165,
+                "char_tp": 13865,
+                "fn": 20,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8461538461538461,
+                "tp": 110
+              },
+              "kallipos": {
+                "char_fn": 8647,
+                "char_fp": 1819,
+                "char_precision": 0.9858275937295478,
+                "char_recall": 0.9360315440610759,
+                "char_tp": 126529,
+                "fn": 32,
+                "fp": 7,
+                "precision": 0.9826732673267327,
+                "recall": 0.9254079254079254,
+                "tp": 397
+              },
+              "openarchives": {
+                "char_fn": 1247,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9804361468465642,
+                "char_tp": 62493,
+                "fn": 6,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.98125,
+                "tp": 314
+              }
+            },
+            "char_fn": 11532,
+            "char_fp": 1819,
+            "char_precision": 0.9911140855666175,
+            "char_recall": 0.946217452744393,
+            "char_tp": 202887,
+            "exact_document_rate": 0.25,
+            "fn": 58,
+            "fp": 7,
+            "gold_block_count": 14,
+            "line_precision": 0.9915458937198067,
+            "line_recall": 0.9340159271899886,
+            "mean_line_iou": 0.8652170562819641,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 821,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1638,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8943430303812165,
+                "char_tp": 13865,
+                "fn": 20,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8461538461538461,
+                "tp": 110
+              },
+              "kallipos": {
+                "char_fn": 8647,
+                "char_fp": 1819,
+                "char_precision": 0.9858275937295478,
+                "char_recall": 0.9360315440610759,
+                "char_tp": 126529,
+                "fn": 32,
+                "fp": 7,
+                "precision": 0.9826732673267327,
+                "recall": 0.9254079254079254,
+                "tp": 397
+              },
+              "openarchives": {
+                "char_fn": 1247,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9804361468465642,
+                "char_tp": 62493,
+                "fn": 6,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.98125,
+                "tp": 314
+              }
+            },
+            "char_fn": 11532,
+            "char_fp": 1819,
+            "char_precision": 0.9911140855666175,
+            "char_recall": 0.946217452744393,
+            "char_tp": 202887,
+            "exact_document_rate": 0.25,
+            "fn": 58,
+            "fp": 7,
+            "gold_block_count": 14,
+            "line_precision": 0.9915458937198067,
+            "line_recall": 0.9340159271899886,
+            "mean_line_iou": 0.8652170562819641,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 821,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 2.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1638,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8943430303812165,
+                "char_tp": 13865,
+                "fn": 20,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8461538461538461,
+                "tp": 110
+              },
+              "kallipos": {
+                "char_fn": 8647,
+                "char_fp": 1819,
+                "char_precision": 0.9858275937295478,
+                "char_recall": 0.9360315440610759,
+                "char_tp": 126529,
+                "fn": 32,
+                "fp": 7,
+                "precision": 0.9826732673267327,
+                "recall": 0.9254079254079254,
+                "tp": 397
+              },
+              "openarchives": {
+                "char_fn": 1247,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9804361468465642,
+                "char_tp": 62493,
+                "fn": 6,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.98125,
+                "tp": 314
+              }
+            },
+            "char_fn": 11532,
+            "char_fp": 1819,
+            "char_precision": 0.9911140855666175,
+            "char_recall": 0.946217452744393,
+            "char_tp": 202887,
+            "exact_document_rate": 0.25,
+            "fn": 58,
+            "fp": 7,
+            "gold_block_count": 14,
+            "line_precision": 0.9915458937198067,
+            "line_recall": 0.9340159271899886,
+            "mean_line_iou": 0.8652170562819641,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 821,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1638,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8943430303812165,
+                "char_tp": 13865,
+                "fn": 20,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8461538461538461,
+                "tp": 110
+              },
+              "kallipos": {
+                "char_fn": 9315,
+                "char_fp": 1819,
+                "char_precision": 0.9857534461152883,
+                "char_recall": 0.9310898384328579,
+                "char_tp": 125861,
+                "fn": 34,
+                "fp": 7,
+                "precision": 0.9825870646766169,
+                "recall": 0.9207459207459208,
+                "tp": 395
+              },
+              "openarchives": {
+                "char_fn": 1247,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9804361468465642,
+                "char_tp": 62493,
+                "fn": 6,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.98125,
+                "tp": 314
+              }
+            },
+            "char_fn": 12200,
+            "char_fp": 1819,
+            "char_precision": 0.9910849939717111,
+            "char_recall": 0.9431020571870963,
+            "char_tp": 202219,
+            "exact_document_rate": 0.25,
+            "fn": 60,
+            "fp": 7,
+            "gold_block_count": 14,
+            "line_precision": 0.9915254237288136,
+            "line_recall": 0.931740614334471,
+            "mean_line_iou": 0.863673846405421,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 819,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1638,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8943430303812165,
+                "char_tp": 13865,
+                "fn": 20,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8461538461538461,
+                "tp": 110
+              },
+              "kallipos": {
+                "char_fn": 9315,
+                "char_fp": 1819,
+                "char_precision": 0.9857534461152883,
+                "char_recall": 0.9310898384328579,
+                "char_tp": 125861,
+                "fn": 34,
+                "fp": 7,
+                "precision": 0.9825870646766169,
+                "recall": 0.9207459207459208,
+                "tp": 395
+              },
+              "openarchives": {
+                "char_fn": 1247,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9804361468465642,
+                "char_tp": 62493,
+                "fn": 6,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.98125,
+                "tp": 314
+              }
+            },
+            "char_fn": 12200,
+            "char_fp": 1819,
+            "char_precision": 0.9910849939717111,
+            "char_recall": 0.9431020571870963,
+            "char_tp": 202219,
+            "exact_document_rate": 0.25,
+            "fn": 60,
+            "fp": 7,
+            "gold_block_count": 14,
+            "line_precision": 0.9915254237288136,
+            "line_recall": 0.931740614334471,
+            "mean_line_iou": 0.863673846405421,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 819,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 4.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1638,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8943430303812165,
+                "char_tp": 13865,
+                "fn": 20,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8461538461538461,
+                "tp": 110
+              },
+              "kallipos": {
+                "char_fn": 9315,
+                "char_fp": 1819,
+                "char_precision": 0.9857534461152883,
+                "char_recall": 0.9310898384328579,
+                "char_tp": 125861,
+                "fn": 34,
+                "fp": 7,
+                "precision": 0.9825870646766169,
+                "recall": 0.9207459207459208,
+                "tp": 395
+              },
+              "openarchives": {
+                "char_fn": 1247,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9804361468465642,
+                "char_tp": 62493,
+                "fn": 6,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.98125,
+                "tp": 314
+              }
+            },
+            "char_fn": 12200,
+            "char_fp": 1819,
+            "char_precision": 0.9910849939717111,
+            "char_recall": 0.9431020571870963,
+            "char_tp": 202219,
+            "exact_document_rate": 0.25,
+            "fn": 60,
+            "fp": 7,
+            "gold_block_count": 14,
+            "line_precision": 0.9915254237288136,
+            "line_recall": 0.931740614334471,
+            "mean_line_iou": 0.863673846405421,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 819,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 0.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1638,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8943430303812165,
+                "char_tp": 13865,
+                "fn": 20,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8461538461538461,
+                "tp": 110
+              },
+              "kallipos": {
+                "char_fn": 9315,
+                "char_fp": 1819,
+                "char_precision": 0.9857534461152883,
+                "char_recall": 0.9310898384328579,
+                "char_tp": 125861,
+                "fn": 34,
+                "fp": 7,
+                "precision": 0.9825870646766169,
+                "recall": 0.9207459207459208,
+                "tp": 395
+              },
+              "openarchives": {
+                "char_fn": 1247,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9804361468465642,
+                "char_tp": 62493,
+                "fn": 6,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.98125,
+                "tp": 314
+              }
+            },
+            "char_fn": 12200,
+            "char_fp": 1819,
+            "char_precision": 0.9910849939717111,
+            "char_recall": 0.9431020571870963,
+            "char_tp": 202219,
+            "exact_document_rate": 0.25,
+            "fn": 60,
+            "fp": 7,
+            "gold_block_count": 14,
+            "line_precision": 0.9915254237288136,
+            "line_recall": 0.931740614334471,
+            "mean_line_iou": 0.863673846405421,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 819,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 1.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1638,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8943430303812165,
+                "char_tp": 13865,
+                "fn": 20,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8461538461538461,
+                "tp": 110
+              },
+              "kallipos": {
+                "char_fn": 9315,
+                "char_fp": 1819,
+                "char_precision": 0.9857534461152883,
+                "char_recall": 0.9310898384328579,
+                "char_tp": 125861,
+                "fn": 34,
+                "fp": 7,
+                "precision": 0.9825870646766169,
+                "recall": 0.9207459207459208,
+                "tp": 395
+              },
+              "openarchives": {
+                "char_fn": 1247,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9804361468465642,
+                "char_tp": 62493,
+                "fn": 6,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.98125,
+                "tp": 314
+              }
+            },
+            "char_fn": 12200,
+            "char_fp": 1819,
+            "char_precision": 0.9910849939717111,
+            "char_recall": 0.9431020571870963,
+            "char_tp": 202219,
+            "exact_document_rate": 0.25,
+            "fn": 60,
+            "fp": 7,
+            "gold_block_count": 14,
+            "line_precision": 0.9915254237288136,
+            "line_recall": 0.931740614334471,
+            "mean_line_iou": 0.863673846405421,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 819,
+            "trusted_hard_stop_crossings": 0
+          }
+        },
+        {
+          "config": {
+            "epochs": 20,
+            "false_negative_cost": 1.0,
+            "false_positive_cost": 8.0,
+            "fragmentation_cost": 2.0,
+            "l2": 0.0001,
+            "learning_rate": 0.05
+          },
+          "metrics": {
+            "by_source": {
+              "greek_phd": {
+                "char_fn": 1638,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.8943430303812165,
+                "char_tp": 13865,
+                "fn": 20,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.8461538461538461,
+                "tp": 110
+              },
+              "kallipos": {
+                "char_fn": 9315,
+                "char_fp": 1819,
+                "char_precision": 0.9857534461152883,
+                "char_recall": 0.9310898384328579,
+                "char_tp": 125861,
+                "fn": 34,
+                "fp": 7,
+                "precision": 0.9825870646766169,
+                "recall": 0.9207459207459208,
+                "tp": 395
+              },
+              "openarchives": {
+                "char_fn": 1247,
+                "char_fp": 0,
+                "char_precision": 1.0,
+                "char_recall": 0.9804361468465642,
+                "char_tp": 62493,
+                "fn": 6,
+                "fp": 0,
+                "precision": 1.0,
+                "recall": 0.98125,
+                "tp": 314
+              }
+            },
+            "char_fn": 12200,
+            "char_fp": 1819,
+            "char_precision": 0.9910849939717111,
+            "char_recall": 0.9431020571870963,
+            "char_tp": 202219,
+            "exact_document_rate": 0.25,
+            "fn": 60,
+            "fp": 7,
+            "gold_block_count": 14,
+            "line_precision": 0.9915254237288136,
+            "line_recall": 0.931740614334471,
+            "mean_line_iou": 0.863673846405421,
+            "predicted_block_count": 15,
+            "spurious_blocks_per_zero_document": 0.0,
+            "tp": 819,
+            "trusted_hard_stop_crossings": 0
+          }
+        }
+      ],
+      "inner_fold": 0,
+      "inner_train_excluded_seed_unreachable": 6,
+      "inner_train_sequence_count": 63,
+      "outer_fit_excluded_seed_unreachable": 7,
+      "outer_fit_sequence_count": 78,
+      "outer_fold": 4,
+      "selected": {
+        "config": {
+          "epochs": 20,
+          "false_negative_cost": 1.0,
+          "false_positive_cost": 2.0,
+          "fragmentation_cost": 0.0,
+          "l2": 0.0001,
+          "learning_rate": 0.05
+        },
+        "metrics": {
+          "by_source": {
+            "greek_phd": {
+              "char_fn": 1638,
+              "char_fp": 0,
+              "char_precision": 1.0,
+              "char_recall": 0.8943430303812165,
+              "char_tp": 13865,
+              "fn": 20,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 0.8461538461538461,
+              "tp": 110
+            },
+            "kallipos": {
+              "char_fn": 8647,
+              "char_fp": 1819,
+              "char_precision": 0.9858275937295478,
+              "char_recall": 0.9360315440610759,
+              "char_tp": 126529,
+              "fn": 32,
+              "fp": 7,
+              "precision": 0.9826732673267327,
+              "recall": 0.9254079254079254,
+              "tp": 397
+            },
+            "openarchives": {
+              "char_fn": 1247,
+              "char_fp": 0,
+              "char_precision": 1.0,
+              "char_recall": 0.9804361468465642,
+              "char_tp": 62493,
+              "fn": 6,
+              "fp": 0,
+              "precision": 1.0,
+              "recall": 0.98125,
+              "tp": 314
+            }
+          },
+          "char_fn": 11532,
+          "char_fp": 1819,
+          "char_precision": 0.9911140855666175,
+          "char_recall": 0.946217452744393,
+          "char_tp": 202887,
+          "exact_document_rate": 0.25,
+          "fn": 58,
+          "fp": 7,
+          "gold_block_count": 14,
+          "line_precision": 0.9915458937198067,
+          "line_recall": 0.9340159271899886,
+          "mean_line_iou": 0.8652170562819641,
+          "predicted_block_count": 15,
+          "spurious_blocks_per_zero_document": 0.0,
+          "tp": 821,
+          "trusted_hard_stop_crossings": 0
+        }
+      }
+    }
+  ],
+  "oof_metrics": {
+    "by_source": {
+      "greek_phd": {
+        "char_fn": 7814,
+        "char_fp": 803,
+        "char_precision": 0.9953566637368737,
+        "char_recall": 0.9565761029636504,
+        "char_tp": 172133,
+        "fn": 47,
+        "fp": 13,
+        "precision": 0.9889830508474576,
+        "recall": 0.9612850082372323,
+        "tp": 1167
+      },
+      "kallipos": {
+        "char_fn": 35467,
+        "char_fp": 2199,
+        "char_precision": 0.9946767563799038,
+        "char_recall": 0.9205420712336624,
+        "char_tp": 410895,
+        "fn": 100,
+        "fp": 9,
+        "precision": 0.9940039973351099,
+        "recall": 0.9371859296482412,
+        "tp": 1492
+      },
+      "openarchives": {
+        "char_fn": 8217,
+        "char_fp": 195,
+        "char_precision": 0.9986773742827298,
+        "char_recall": 0.9471425998353232,
+        "char_tp": 147239,
+        "fn": 62,
+        "fp": 7,
+        "precision": 0.9918981481481481,
+        "recall": 0.9325353645266594,
+        "tp": 857
+      }
+    },
+    "char_fn": 51498,
+    "char_fp": 3197,
+    "char_precision": 0.9956412311988045,
+    "char_recall": 0.9341259841512475,
+    "char_tp": 730267,
+    "exact_document_rate": 0.6407766990291263,
+    "fn": 209,
+    "fp": 29,
+    "gold_block_count": 67,
+    "line_precision": 0.9918194640338505,
+    "line_recall": 0.9438926174496645,
+    "mean_line_iou": 0.8976613909722698,
+    "predicted_block_count": 58,
+    "spurious_blocks_per_zero_document": 0.0,
+    "tp": 3516,
+    "trusted_hard_stop_crossings": 0
+  },
+  "schema_version": "bibliography-role-semimarkov-oof-v1",
+  "seed_reachable_sequence_count": 96,
+  "slurm_job_id": "2766830",
+  "status": "passed_grouped_oof_structured_training",
+  "table_manifest_sha256": "97491c7da280228028d014814cc0e5d25785604f7f07a506b723456f12e303af",
+  "validation_opened": false
+}

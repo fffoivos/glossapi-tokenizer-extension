@@ -1,0 +1,2903 @@
+{
+  "schema_version": "bibliography-explicit-feature-evaluation-v1",
+  "status": "comparison_only",
+  "evidence_tier": "LLM_silver",
+  "split": "validation",
+  "document_count": 274,
+  "source_counts": {
+    "greek_phd": 93,
+    "kallipos": 92,
+    "openarchives": 89
+  },
+  "input": {
+    "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/struct2k.LLM_silver.jsonl",
+    "sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "components": {
+    "r2": {
+      "rules": "deterministic_structural_rules_v1",
+      "decoder": "confirmed_blocks_typed_gaps_v1"
+    },
+    "v2": {
+      "rules": "deterministic_bibliography_explicit_features_v2",
+      "decoder": "bibliography_anchor_clusters_typed_gaps_v2"
+    }
+  },
+  "code_revision": {
+    "available": true,
+    "clean": true,
+    "commit": "62ab462c91bf38acb49605f27543cd14036850f3",
+    "repository": "/iopsstor/scratch/cscs/fffoivos/repo/train-apertus-toc-bib-agent2-2c21586"
+  },
+  "metrics": {
+    "r2_safe_action": {
+      "overall": {
+        "line": {
+          "precision": 1.0,
+          "recall": 0.02039422971038432,
+          "f1": 0.039973236062247744,
+          "tp": 926,
+          "fp": 0,
+          "fn": 44479
+        },
+        "token": {
+          "precision": 1.0,
+          "recall": 0.02526937152902063,
+          "f1": 0.049293136478534456
+        },
+        "span": {
+          "exact_precision": 0.16666666666666666,
+          "exact_recall": 0.01643835616438356,
+          "iou50_precision": 0.2777777777777778,
+          "iou50_recall": 0.0273972602739726,
+          "predicted": 36,
+          "gold": 365
+        },
+        "document_without_false_positive_fraction": 1.0
+      },
+      "by_source": {
+        "greek_phd": {
+          "line": {
+            "precision": 1.0,
+            "recall": 0.014856081708449397,
+            "f1": 0.0292772186642269,
+            "tp": 496,
+            "fp": 0,
+            "fn": 32891
+          },
+          "token": {
+            "precision": 1.0,
+            "recall": 0.01944339287868045,
+            "f1": 0.03814511529429144
+          },
+          "span": {
+            "exact_precision": 0.15384615384615385,
+            "exact_recall": 0.016666666666666666,
+            "iou50_precision": 0.23076923076923078,
+            "iou50_recall": 0.025,
+            "predicted": 13,
+            "gold": 120
+          },
+          "document_without_false_positive_fraction": 1.0
+        },
+        "kallipos": {
+          "line": {
+            "precision": 1.0,
+            "recall": 0.004634994206257242,
+            "f1": 0.009227220299884658,
+            "tp": 16,
+            "fp": 0,
+            "fn": 3436
+          },
+          "token": {
+            "precision": 1.0,
+            "recall": 0.003066632474248835,
+            "f1": 0.006114513981358189
+          },
+          "span": {
+            "exact_precision": 1.0,
+            "exact_recall": 0.006493506493506494,
+            "iou50_precision": 1.0,
+            "iou50_recall": 0.006493506493506494,
+            "predicted": 1,
+            "gold": 154
+          },
+          "document_without_false_positive_fraction": 1.0
+        },
+        "openarchives": {
+          "line": {
+            "precision": 1.0,
+            "recall": 0.04833060938594443,
+            "f1": 0.09220489977728286,
+            "tp": 414,
+            "fp": 0,
+            "fn": 8152
+          },
+          "token": {
+            "precision": 1.0,
+            "recall": 0.05122078697827223,
+            "f1": 0.0974501029902692
+          },
+          "span": {
+            "exact_precision": 0.13636363636363635,
+            "exact_recall": 0.03296703296703297,
+            "iou50_precision": 0.2727272727272727,
+            "iou50_recall": 0.06593406593406594,
+            "predicted": 22,
+            "gold": 91
+          },
+          "document_without_false_positive_fraction": 1.0
+        }
+      }
+    },
+    "r2_all_proposals": {
+      "overall": {
+        "line": {
+          "precision": 0.9969507969507969,
+          "recall": 0.1584186763572294,
+          "f1": 0.2733941467122767,
+          "tp": 7193,
+          "fp": 22,
+          "fn": 38212
+        },
+        "token": {
+          "precision": 0.9942672547080226,
+          "recall": 0.2155081563707252,
+          "f1": 0.35423550692081407
+        },
+        "span": {
+          "exact_precision": 0.08351648351648351,
+          "exact_recall": 0.10410958904109589,
+          "iou50_precision": 0.17362637362637362,
+          "iou50_recall": 0.21643835616438356,
+          "predicted": 455,
+          "gold": 365
+        },
+        "document_without_false_positive_fraction": 0.9854014598540146
+      },
+      "by_source": {
+        "greek_phd": {
+          "line": {
+            "precision": 1.0,
+            "recall": 0.10905442237996825,
+            "f1": 0.19666198552446795,
+            "tp": 3641,
+            "fp": 0,
+            "fn": 29746
+          },
+          "token": {
+            "precision": 1.0,
+            "recall": 0.16747155020779173,
+            "f1": 0.2868961563611283
+          },
+          "span": {
+            "exact_precision": 0.010362694300518135,
+            "exact_recall": 0.016666666666666666,
+            "iou50_precision": 0.031088082901554404,
+            "iou50_recall": 0.05,
+            "predicted": 193,
+            "gold": 120
+          },
+          "document_without_false_positive_fraction": 1.0
+        },
+        "kallipos": {
+          "line": {
+            "precision": 0.9871299871299871,
+            "recall": 0.4443800695249131,
+            "f1": 0.61286456252497,
+            "tp": 1534,
+            "fp": 20,
+            "fn": 1918
+          },
+          "token": {
+            "precision": 0.9703112787365235,
+            "recall": 0.4178420310296192,
+            "f1": 0.5841384126462493
+          },
+          "span": {
+            "exact_precision": 0.26229508196721313,
+            "exact_recall": 0.2077922077922078,
+            "iou50_precision": 0.47540983606557374,
+            "iou50_recall": 0.37662337662337664,
+            "predicted": 122,
+            "gold": 154
+          },
+          "document_without_false_positive_fraction": 0.967391304347826
+        },
+        "openarchives": {
+          "line": {
+            "precision": 0.999009900990099,
+            "recall": 0.23558253560588371,
+            "f1": 0.38125826563385606,
+            "tp": 2018,
+            "fp": 2,
+            "fn": 6548
+          },
+          "token": {
+            "precision": 0.9983648766628687,
+            "recall": 0.279866348092287,
+            "f1": 0.4371802639209727
+          },
+          "span": {
+            "exact_precision": 0.02857142857142857,
+            "exact_recall": 0.04395604395604396,
+            "iou50_precision": 0.10714285714285714,
+            "iou50_recall": 0.16483516483516483,
+            "predicted": 140,
+            "gold": 91
+          },
+          "document_without_false_positive_fraction": 0.9887640449438202
+        }
+      }
+    },
+    "v2_local_evidence": {
+      "overall": {
+        "line": {
+          "precision": 0.9361293582617484,
+          "recall": 0.4080167382446867,
+          "f1": 0.5683257918552036,
+          "tp": 18526,
+          "fp": 1264,
+          "fn": 26879
+        },
+        "token": {
+          "precision": 0.9132508355019373,
+          "recall": 0.5493358584166036,
+          "f1": 0.6860194117123267
+        },
+        "span": {
+          "exact_precision": 0.010013479684190255,
+          "exact_recall": 0.14246575342465753,
+          "iou50_precision": 0.019449258617369534,
+          "iou50_recall": 0.27671232876712326,
+          "predicted": 5193,
+          "gold": 365
+        },
+        "document_without_false_positive_fraction": 0.41605839416058393
+      },
+      "by_source": {
+        "greek_phd": {
+          "line": {
+            "precision": 0.9470218497455851,
+            "recall": 0.37906969778656363,
+            "f1": 0.5414215738700776,
+            "tp": 12656,
+            "fp": 708,
+            "fn": 20731
+          },
+          "token": {
+            "precision": 0.9312763637539676,
+            "recall": 0.5621098894357031,
+            "f1": 0.701063978251768
+          },
+          "span": {
+            "exact_precision": 0.0,
+            "exact_recall": 0.0,
+            "iou50_precision": 0.0014463407578825572,
+            "iou50_recall": 0.041666666666666664,
+            "predicted": 3457,
+            "gold": 120
+          },
+          "document_without_false_positive_fraction": 0.21505376344086022
+        },
+        "kallipos": {
+          "line": {
+            "precision": 0.9221949221949222,
+            "recall": 0.6523754345307068,
+            "f1": 0.7641669494401084,
+            "tp": 2252,
+            "fp": 190,
+            "fn": 1200
+          },
+          "token": {
+            "precision": 0.8770763875089238,
+            "recall": 0.6366788477155191,
+            "f1": 0.737789004144882
+          },
+          "span": {
+            "exact_precision": 0.08169934640522876,
+            "exact_recall": 0.3246753246753247,
+            "iou50_precision": 0.14052287581699346,
+            "iou50_recall": 0.5584415584415584,
+            "predicted": 612,
+            "gold": 154
+          },
+          "document_without_false_positive_fraction": 0.5652173913043478
+        },
+        "openarchives": {
+          "line": {
+            "precision": 0.9081325301204819,
+            "recall": 0.422367499416297,
+            "f1": 0.5765737051792829,
+            "tp": 3618,
+            "fp": 366,
+            "fn": 4948
+          },
+          "token": {
+            "precision": 0.872718587211198,
+            "recall": 0.4774260185669131,
+            "f1": 0.6172058291214758
+          },
+          "span": {
+            "exact_precision": 0.0017793594306049821,
+            "exact_recall": 0.02197802197802198,
+            "iou50_precision": 0.008896797153024912,
+            "iou50_recall": 0.10989010989010989,
+            "predicted": 1124,
+            "gold": 91
+          },
+          "document_without_false_positive_fraction": 0.47191011235955055
+        }
+      }
+    },
+    "v2_coherent_blocks": {
+      "overall": {
+        "line": {
+          "precision": 0.9919427938362373,
+          "recall": 0.2169144367360423,
+          "f1": 0.3559836628474356,
+          "tp": 9849,
+          "fp": 80,
+          "fn": 35556
+        },
+        "token": {
+          "precision": 0.9911068077817828,
+          "recall": 0.2948652678884229,
+          "f1": 0.4545090518086215
+        },
+        "span": {
+          "exact_precision": 0.04339622641509434,
+          "exact_recall": 0.12602739726027398,
+          "iou50_precision": 0.08679245283018867,
+          "iou50_recall": 0.25205479452054796,
+          "predicted": 1060,
+          "gold": 365
+        },
+        "document_without_false_positive_fraction": 0.9416058394160584
+      },
+      "by_source": {
+        "greek_phd": {
+          "line": {
+            "precision": 0.9981128514814116,
+            "recall": 0.15841495192739688,
+            "f1": 0.2734322493925451,
+            "tp": 5289,
+            "fp": 10,
+            "fn": 28098
+          },
+          "token": {
+            "precision": 0.9991189602594236,
+            "recall": 0.24508825832125486,
+            "f1": 0.39361984429741814
+          },
+          "span": {
+            "exact_precision": 0.0,
+            "exact_recall": 0.0,
+            "iou50_precision": 0.006700167504187605,
+            "iou50_recall": 0.03333333333333333,
+            "predicted": 597,
+            "gold": 120
+          },
+          "document_without_false_positive_fraction": 0.989247311827957
+        },
+        "kallipos": {
+          "line": {
+            "precision": 0.9761789013125911,
+            "recall": 0.5816917728852838,
+            "f1": 0.72898892721002,
+            "tp": 2008,
+            "fp": 49,
+            "fn": 1444
+          },
+          "token": {
+            "precision": 0.9631091235996496,
+            "recall": 0.5580523143992819,
+            "f1": 0.7066511969313096
+          },
+          "span": {
+            "exact_precision": 0.23232323232323232,
+            "exact_recall": 0.2987012987012987,
+            "iou50_precision": 0.3939393939393939,
+            "iou50_recall": 0.5064935064935064,
+            "predicted": 198,
+            "gold": 154
+          },
+          "document_without_false_positive_fraction": 0.8804347826086957
+        },
+        "openarchives": {
+          "line": {
+            "precision": 0.9918383210260396,
+            "recall": 0.29792201727760914,
+            "f1": 0.4582098931681479,
+            "tp": 2552,
+            "fp": 21,
+            "fn": 6014
+          },
+          "token": {
+            "precision": 0.9924196665861319,
+            "recall": 0.3407771057849457,
+            "f1": 0.5073428149721788
+          },
+          "span": {
+            "exact_precision": 0.0,
+            "exact_recall": 0.0,
+            "iou50_precision": 0.03773584905660377,
+            "iou50_recall": 0.10989010989010989,
+            "predicted": 265,
+            "gold": 91
+          },
+          "document_without_false_positive_fraction": 0.9550561797752809
+        }
+      }
+    }
+  },
+  "feature_summary_by_gold_label": {
+    "BIB": {
+      "line_count": 45405,
+      "mean_per_line": {
+        "access_date_count": 0.01772932496421099,
+        "ampersand_count": 0.16163418125757076,
+        "author_joiner_count": 0.6824358550820394,
+        "author_year_count": 0.030635392577909922,
+        "direct_author_count": 0.07811914987336196,
+        "doi_count": 0.023235326505891423,
+        "dotted_sequence_count": 0.45574275960797267,
+        "dotted_word_count": 1.8023345446536725,
+        "edition_term_count": 0.013787027860367802,
+        "editor_term_count": 0.05371655104063429,
+        "in_container_count": 0.03136218478141174,
+        "initial_count": 1.5477810813787027,
+        "initial_sequence_count": 0.40328157691884153,
+        "inverted_author_count": 0.21649598061887457,
+        "isbn_count": 0.007333994053518335,
+        "issn_count": 0.00019821605550049553,
+        "journal_year_volume_count": 0.09661931505340822,
+        "month_date_count": 0.010109018830525273,
+        "name_initial_pair_count": 0.6597731527364827,
+        "no_date_count": 0.0027970487831736595,
+        "numbered_entry_count": 0.25012663803545865,
+        "numeric_date_count": 0.021715670080387623,
+        "page_marker_count": 0.09672943508424182,
+        "page_range_count": 0.375068825019271,
+        "place_name_count": 0.15421209117938553,
+        "place_publisher_shape_count": 0.05237308666446427,
+        "proper_name_word_count": 5.970025327607091,
+        "prose_lead_count": 2.2024006166721726e-05,
+        "publisher_term_count": 0.07618103733069045,
+        "punctuation_count": 9.74275960797269,
+        "quoted_span_count": 0.14540248871269684,
+        "table_row_count": 0.08040964651470102,
+        "thesis_term_count": 0.0070256579671842305,
+        "token_count": 18.078559629996697,
+        "url_count": 0.060257680872150644,
+        "volume_marker_count": 0.07675366149102522,
+        "volume_shape_count": 0.1421209117938553,
+        "year_count": 0.8481224534742869
+      }
+    },
+    "O": {
+      "line_count": 198976,
+      "mean_per_line": {
+        "access_date_count": 0.0021258845287873912,
+        "ampersand_count": 0.34884609199099387,
+        "author_joiner_count": 1.1133000964940496,
+        "author_year_count": 0.007146590543583146,
+        "direct_author_count": 0.0018846494049533612,
+        "doi_count": 7.036024445159216e-05,
+        "dotted_sequence_count": 0.02494773238983596,
+        "dotted_word_count": 0.12550759890640079,
+        "edition_term_count": 0.0015026937922161467,
+        "editor_term_count": 0.002794306851077517,
+        "in_container_count": 0.04420633644258604,
+        "initial_count": 0.10282144580250885,
+        "initial_sequence_count": 0.02540507397877131,
+        "inverted_author_count": 0.0008392972016725635,
+        "isbn_count": 0.00010554036667738822,
+        "issn_count": 1.0051463493084593e-05,
+        "journal_year_volume_count": 0.0062771389514313285,
+        "month_date_count": 0.0011207381794789322,
+        "name_initial_pair_count": 0.014162512061756193,
+        "no_date_count": 0.00038698134448375684,
+        "numbered_entry_count": 0.03216970890961724,
+        "numeric_date_count": 0.007166693470569315,
+        "page_marker_count": 0.01776596172402702,
+        "page_range_count": 0.05716267288517208,
+        "place_name_count": 0.009182011900932777,
+        "place_publisher_shape_count": 0.0004724187841749759,
+        "proper_name_word_count": 1.785642489546478,
+        "prose_lead_count": 0.00728731103248633,
+        "publisher_term_count": 0.002502814409778064,
+        "punctuation_count": 6.074370778385333,
+        "quoted_span_count": 0.10087648761659698,
+        "table_row_count": 0.19430986651656482,
+        "thesis_term_count": 0.005679076873592795,
+        "token_count": 26.56443490672242,
+        "url_count": 0.0041814088131231905,
+        "volume_marker_count": 0.0014323335477645545,
+        "volume_shape_count": 0.0069857671276937925,
+        "year_count": 0.16483897555484078
+      }
+    },
+    "TOC": {
+      "line_count": 14686,
+      "mean_per_line": {
+        "access_date_count": 0.00013618412093149938,
+        "ampersand_count": 0.00864769167915021,
+        "author_joiner_count": 0.18323573471333243,
+        "author_year_count": 0.0002042761813972491,
+        "direct_author_count": 0.00013618412093149938,
+        "doi_count": 0.0,
+        "dotted_sequence_count": 0.007353942530300967,
+        "dotted_word_count": 0.07537791093558491,
+        "edition_term_count": 0.0004085523627944982,
+        "editor_term_count": 0.0009532888465204957,
+        "in_container_count": 0.0005447364837259975,
+        "initial_count": 0.05433746425166826,
+        "initial_sequence_count": 0.009124336102410459,
+        "inverted_author_count": 0.0,
+        "isbn_count": 0.0,
+        "issn_count": 0.0,
+        "journal_year_volume_count": 6.809206046574969e-05,
+        "month_date_count": 0.0,
+        "name_initial_pair_count": 0.0036769712651504834,
+        "no_date_count": 0.0,
+        "numbered_entry_count": 0.07027100640065369,
+        "numeric_date_count": 0.0023832221163012394,
+        "page_marker_count": 0.020631894321122158,
+        "page_range_count": 0.017227291297834672,
+        "place_name_count": 0.001566117390712243,
+        "place_publisher_shape_count": 0.0,
+        "proper_name_word_count": 1.380566525943075,
+        "prose_lead_count": 0.0,
+        "publisher_term_count": 0.00013618412093149938,
+        "punctuation_count": 66.54957102001907,
+        "quoted_span_count": 0.01770393572109492,
+        "table_row_count": 0.8910527032548005,
+        "thesis_term_count": 0.0027236824186299877,
+        "token_count": 8.912842162603841,
+        "url_count": 0.0,
+        "volume_marker_count": 0.0002042761813972491,
+        "volume_shape_count": 0.0,
+        "year_count": 0.013822688274547188
+      }
+    }
+  },
+  "v2_error_summary": {
+    "false_positive": {
+      "source": {
+        "kallipos": 49,
+        "openarchives": 21,
+        "greek_phd": 10
+      },
+      "local_role": {
+        "STRONG_ENTRY_START": 49,
+        "WEAK_ENTRY_START": 28,
+        "OTHER": 2,
+        "POSSIBLE_CONTINUATION": 1
+      },
+      "reason_code": {
+        "BIB2_YEAR_OR_NO_DATE": 68,
+        "BIB2_PROPER_NAME_SHAPE": 64,
+        "BIB2_INTERACTION_AUTHOR_DATE": 55,
+        "BIB2_STRONG_MULTI_FAMILY_ENTRY": 49,
+        "BIB2_AUTHOR_YEAR_SKELETON": 48,
+        "BIB2_AUTHOR_JOINER": 38,
+        "BIB2_WEAK_MULTI_FAMILY_ENTRY": 28,
+        "BIB2_INTERACTION_DATE_PUBLICATION": 21,
+        "BIB2_NEGATIVE_TABLE_ROW": 20,
+        "BIB2_NUMBERED_ENTRY": 20,
+        "BIB2_PAGE_RANGE": 13,
+        "BIB2_AMPERSAND": 12,
+        "BIB2_MULTIPLE_INITIALS": 11,
+        "BIB2_PUBLISHER_TERM": 6,
+        "BIB2_PLACE_LEXICON": 6,
+        "BIB2_URL": 6,
+        "BIB2_DOTTED_WORD_DENSITY": 6,
+        "BIB2_ISBN": 5,
+        "BIB2_DOI": 5,
+        "BIB2_YEAR_VOLUME_SEQUENCE": 4,
+        "BIB2_PAGE_MARKER": 4,
+        "BIB2_QUOTED_TITLE_SHAPE": 4,
+        "BIB2_INTERACTION_QUOTED_CITATION": 4,
+        "BIB2_IN_CONTAINER": 3,
+        "BIB2_PLACE_PUBLISHER_SHAPE": 3,
+        "BIB2_REPEATED_NAME_INITIAL_PAIRS": 2,
+        "BIB2_THESIS_TERM": 1,
+        "BIB2_ACCESS_DATE": 1,
+        "BIB2_PUBLICATION_TAIL": 1,
+        "BIB2_FULL_DATE": 1,
+        "BIB2_INITIAL_SEQUENCE": 1,
+        "BIB2_DOTTED_ABBREVIATION_SEQUENCE": 1
+      }
+    },
+    "false_negative": {
+      "source": {
+        "greek_phd": 28098,
+        "openarchives": 6014,
+        "kallipos": 1444
+      },
+      "local_role": {
+        "POSSIBLE_CONTINUATION": 12426,
+        "HARD_OTHER": 10760,
+        "STRONG_ENTRY_START": 8742,
+        "OTHER": 3254,
+        "WEAK_ENTRY_START": 242,
+        "BIB_HEADING": 95,
+        "BIB_SUBHEADING": 37
+      },
+      "reason_code": {
+        "BIB2_PROPER_NAME_SHAPE": 12590,
+        "BIB2_YEAR_OR_NO_DATE": 12183,
+        "BIB2_SHORT_WRAPPED_FRAGMENT": 10012,
+        "BIB2_STRONG_MULTI_FAMILY_ENTRY": 8742,
+        "BIB2_INTERACTION_AUTHOR_DATE": 8484,
+        "BIB2_INTERACTION_DATE_PUBLICATION": 8062,
+        "BIB2_AUTHOR_JOINER": 6707,
+        "BIB2_NEGATIVE_RUNNING_PROSE": 6633,
+        "BIB2_YEAR": 6536,
+        "BIB2_PAGE_RANGE": 5732,
+        "BIB2_MULTIPLE_INITIALS": 5514,
+        "BIB2_AUTHOR_INVERTED": 4602,
+        "BIB2_DOTTED_ABBREVIATION_SEQUENCE": 4364,
+        "BIB2_DOTTED_WORD_DENSITY": 4123,
+        "BIB2_INITIAL_SEQUENCE": 3910,
+        "BIB2_PLACE_LEXICON": 3267,
+        "BIB2_VOLUME_ISSUE": 2511,
+        "BIB2_REPEATED_NAME_INITIAL_PAIRS": 2434,
+        "BIB2_JOURNAL_PAGES": 2416,
+        "BIB2_PUBLICATION_TAIL": 2414,
+        "BIB2_NUMBERED_ENTRY": 2263,
+        "BIB2_QUOTED_TITLE_SHAPE": 2211,
+        "BIB2_NEGATIVE_NONCITATION_TABLE_ROW": 2006,
+        "BIB2_INTERACTION_QUOTED_CITATION": 1954,
+        "BIB2_NEGATIVE_STATISTICAL_TABLE": 1758,
+        "BIB2_PUBLISHER_TERM": 1728,
+        "BIB2_AMPERSAND": 1682,
+        "BIB2_DIRECT_AUTHOR_SHAPE": 1587,
+        "BIB2_NEGATIVE_LONG_ENUMERATED_PROSE": 1405,
+        "BIB2_NAME_INITIAL_PAIR": 1385,
+        "BIB2_PLACE_PUBLISHER_SHAPE": 1150,
+        "BIB2_EDITOR_TRANSLATOR_TERM": 1149,
+        "BIB2_YEAR_VOLUME_SEQUENCE": 1130,
+        "BIB2_PAGE_MARKER": 1064,
+        "BIB2_NO_LOCAL_EVIDENCE": 1017,
+        "BIB2_URL": 919,
+        "BIB2_IDENTIFIER": 861,
+        "BIB2_AUTHOR_YEAR_SKELETON": 807,
+        "BIB2_IN_CONTAINER": 621,
+        "BIB2_INTERACTION_JOURNAL_DATE_VOLUME": 620,
+        "BIB2_FULL_DATE": 477,
+        "BIB2_NEGATIVE_NONSTRUCTURAL_MARKDOWN_HEADING": 331,
+        "BIB2_ACCESS_DATE": 285,
+        "BIB2_PUBLISHER_PLACE": 267,
+        "BIB2_INTERACTION_URL_ACCESS_DATE": 246,
+        "BIB2_WEAK_MULTI_FAMILY_ENTRY": 242,
+        "BIB2_DOI": 225,
+        "BIB2_EDITION_TERM": 214,
+        "BIB2_NEGATIVE_TABLE_ROW": 127,
+        "BIB2_NEGATIVE_EQUATION": 114,
+        "BIB2_EXACT_HEADING": 95,
+        "BIB2_THESIS_TERM": 85,
+        "BIB2_AUTHOR": 67,
+        "BIB2_NEGATIVE_FOOTNOTE": 61,
+        "BIB2_NUMBERED": 52,
+        "BIB2_ISBN": 46,
+        "BIB2_TYPED_SUBHEADING": 37,
+        "BIB2_NEGATIVE_INLINE_CITATION_PROSE": 30,
+        "BIB2_NEGATIVE_LONG_UNANCHORED_PROSE": 16,
+        "BIB2_NEGATIVE_CV_PUBLICATIONS_HEADING": 13,
+        "BIB2_NEGATIVE_NARRATIVE_AUTHOR_YEAR_PROSE": 8,
+        "BIB2_NEGATIVE_BODY_HEADING": 2,
+        "BIB2_ISSN": 1,
+        "BIB2_NEGATIVE_PROSE_LEAD": 1
+      }
+    }
+  },
+  "v2_error_examples": {
+    "false_positive": [
+      {
+        "document_id": "739d687dec1b43b38cc64c92514bdcd0302dab5b2ef43e9bbcaac0fb6983ef62",
+        "source": "greek_phd",
+        "abs_idx": 437,
+        "text": "| Podarcis gaigeae                     | (Werner, 1930)                       | Νησιωτικό συγκρότη µ α Σκύρου                               |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.5,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 9,
+          "year_count": 1,
+          "proper_name_word_count": 4,
+          "author_year_count": 1,
+          "punctuation_count": 3,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "739d687dec1b43b38cc64c92514bdcd0302dab5b2ef43e9bbcaac0fb6983ef62",
+        "source": "greek_phd",
+        "abs_idx": 438,
+        "text": "| Podarcis milensis                    | (Bedriaga, 1882)                     | Νησιωτικό συγκρότη µ α Μήλου                                |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.5,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 9,
+          "year_count": 1,
+          "proper_name_word_count": 4,
+          "author_year_count": 1,
+          "punctuation_count": 3,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "739d687dec1b43b38cc64c92514bdcd0302dab5b2ef43e9bbcaac0fb6983ef62",
+        "source": "greek_phd",
+        "abs_idx": 439,
+        "text": "| Podarcis wagleriana                  | Gistel, 1868                         | Σικελία και νησίδες γύρω από αυτήν                          |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.9000000000000004,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 10,
+          "year_count": 1,
+          "proper_name_word_count": 3,
+          "author_year_count": 1,
+          "author_joiner_count": 1,
+          "punctuation_count": 1,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "739d687dec1b43b38cc64c92514bdcd0302dab5b2ef43e9bbcaac0fb6983ef62",
+        "source": "greek_phd",
+        "abs_idx": 440,
+        "text": "| Podarcis melisellensis               | (Braun, 1877)                        | ∆αλ µ ατικές ακτές                                          |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.5,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 8,
+          "year_count": 1,
+          "proper_name_word_count": 2,
+          "author_year_count": 1,
+          "punctuation_count": 3,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "739d687dec1b43b38cc64c92514bdcd0302dab5b2ef43e9bbcaac0fb6983ef62",
+        "source": "greek_phd",
+        "abs_idx": 442,
+        "text": "| Podarcis muralis                     | (Laurenti, 1768)                     | Νότια και Κεντρική Ευρώπη  ( απών από τα νησιά )            |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.9000000000000004,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "year_count": 1,
+          "proper_name_word_count": 5,
+          "author_year_count": 1,
+          "author_joiner_count": 1,
+          "punctuation_count": 5,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "739d687dec1b43b38cc64c92514bdcd0302dab5b2ef43e9bbcaac0fb6983ef62",
+        "source": "greek_phd",
+        "abs_idx": 443,
+        "text": "| Podarcis raffonei                    | (Mertens, 1952)                      | Αιόλια νησιά                                                |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.5,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 6,
+          "year_count": 1,
+          "proper_name_word_count": 3,
+          "author_year_count": 1,
+          "punctuation_count": 3,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "739d687dec1b43b38cc64c92514bdcd0302dab5b2ef43e9bbcaac0fb6983ef62",
+        "source": "greek_phd",
+        "abs_idx": 444,
+        "text": "| Podarcis tiliguerta                  | (Gmelin, 1789)                       | Κορσική ,  Σαρδηνία                                         |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.5,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 6,
+          "year_count": 1,
+          "proper_name_word_count": 4,
+          "author_year_count": 1,
+          "punctuation_count": 4,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "739d687dec1b43b38cc64c92514bdcd0302dab5b2ef43e9bbcaac0fb6983ef62",
+        "source": "greek_phd",
+        "abs_idx": 445,
+        "text": "| Podarcis lilfordi                    | (Günther, 1874)                      | Βαλεαρίδες νήσοι                                            |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.5,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 6,
+          "year_count": 1,
+          "proper_name_word_count": 3,
+          "author_year_count": 1,
+          "punctuation_count": 3,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "739d687dec1b43b38cc64c92514bdcd0302dab5b2ef43e9bbcaac0fb6983ef62",
+        "source": "greek_phd",
+        "abs_idx": 446,
+        "text": "| Podarcis filfolensis                 | (Bedriaga, 1876)                     | Αρχιπέλαγος Μάλτας                                          |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.5,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 6,
+          "year_count": 1,
+          "proper_name_word_count": 4,
+          "author_year_count": 1,
+          "punctuation_count": 3,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "739d687dec1b43b38cc64c92514bdcd0302dab5b2ef43e9bbcaac0fb6983ef62",
+        "source": "greek_phd",
+        "abs_idx": 447,
+        "text": "| Podarcis pityusensis                 | (Bosca, 1883)                        | Βαλεαρίδες νήσοι                                            |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.5,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 6,
+          "year_count": 1,
+          "proper_name_word_count": 3,
+          "author_year_count": 1,
+          "punctuation_count": 3,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "6b30e8070fe4be0ab61c1897dfc6280e4418722f24cf9c46c7091b558b177a40",
+        "source": "openarchives",
+        "abs_idx": 1066,
+        "text": "ουσίες, τη θεραπεία απεξάρτησης και την υποτροπή",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "OTHER",
+        "score": 0.4,
+        "reason_codes": [
+          "BIB2_AUTHOR_JOINER"
+        ],
+        "nonzero_features": {
+          "token_count": 7,
+          "author_joiner_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "6b30e8070fe4be0ab61c1897dfc6280e4418722f24cf9c46c7091b558b177a40",
+        "source": "openarchives",
+        "abs_idx": 1118,
+        "text": "ουσίες, τη θεραπεία απεξάρτησης και την υποτροπή",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "OTHER",
+        "score": 0.4,
+        "reason_codes": [
+          "BIB2_AUTHOR_JOINER"
+        ],
+        "nonzero_features": {
+          "token_count": 7,
+          "author_joiner_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "337757b4dcc698a43134e6c1b74d07c23aea3e08d0a962814e979a658d61a502",
+        "source": "openarchives",
+        "abs_idx": 132,
+        "text": "Ο Erwin, ο Cyr και ο Rogers (2000) αναφέρουν τη διδασκαλία της μηχανικής με τα τούβλα LEGO σε μαθητές από 5 έως 50 ετών. Η άποψη των συγγραφέων είναι τεχνοκεντρική δεδομένου ότι  χρησιμοποιούν  τη  ρομποτική  ως  εργαλείο  για  την  ανάπτυξη  τεχνικών  δεξιοτήτων.  Εκτός αυτού, υποστηρίζουν ότι καθώς οι μαθητές σχεδιάζουν και χτίζουν τα έργα τους, έχουν κίνητρα να μάθουν τα μαθηματικά και την επιστήμη που χρειάζονται για να βελτιστοποιήσουν το έργο τους.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 5.9,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 72,
+          "year_count": 1,
+          "proper_name_word_count": 4,
+          "author_year_count": 1,
+          "author_joiner_count": 3,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "337757b4dcc698a43134e6c1b74d07c23aea3e08d0a962814e979a658d61a502",
+        "source": "openarchives",
+        "abs_idx": 134,
+        "text": "Στο άρθρο των Denis &amp; Hubert (2001) η ρομποτική φαίνεται να λειτουργεί ως εργαλείο που υποστηρίζει τη συνεργατική μάθηση. Οι μαθητές δουλεύουν σε μικρές ομάδες και η δουλειά τους είναι να κατασκευάσουν  και να προγραμματίσουν ένα ρομπότ. Δουλεύουν σε ένα εποικοδομητικό πλαίσιο με θετικά αποτελέσματα όσον αφορά τη συνεργασία τους.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.7,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_IN_CONTAINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 50,
+          "year_count": 1,
+          "proper_name_word_count": 4,
+          "author_year_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 3,
+          "in_container_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "337757b4dcc698a43134e6c1b74d07c23aea3e08d0a962814e979a658d61a502",
+        "source": "openarchives",
+        "abs_idx": 136,
+        "text": "Ο  Hacker (2003) στη διατριβή του αναφέρεται σχετικά με την εποικοδομητική προσέγγιση της εκπαιδευτικής  ρομποτικής  προτείνοντάς  την  ως  εργαλείο  μάθησης  της  επιστήμης  και  της μηχανικής. Από τη μελέτη η οποία ακολουθεί το εποικοδομητικό μοντέλο προκύπτουν θετικά μαθησιακά αποτελέσματα από τη συνεργασία των παιδιών πρωτοβάθμιας εκπαίδευσης και των εκπαιδευτικών  τους  και  αναφορές  σχετικά  με  την  αποτελεσματική  κατανόηση  των  βασικών εννοιών της επιστήμης και της μηχανικής.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 7.1000000000000005,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_THESIS_TERM",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 64,
+          "year_count": 1,
+          "proper_name_word_count": 2,
+          "author_year_count": 1,
+          "author_joiner_count": 4,
+          "thesis_term_count": 1,
+          "punctuation_count": 4
+        }
+      },
+      {
+        "document_id": "337757b4dcc698a43134e6c1b74d07c23aea3e08d0a962814e979a658d61a502",
+        "source": "openarchives",
+        "abs_idx": 293,
+        "text": "Στην έρευνα των Cuban,, Kirkpatrick &amp; Peck (2001), επισημαίνεται η έλλειψη εξοπλισμού ως πρωταρχικός  κατασταλτικός  παράγοντας  για  την  αποτελεσματική  χρήση  και  αξιοποίηση  της τεχνολογίας στα σχολεία. Η διοίκηση του σχολείου οφείλει να συνεργάζεται και να στηρίζει τους εκπαιδευτικούς με αντικατάσταση ή επιδιόρθωση του υλικοτεχνικού εξοπλισμού που προορίζεται να ενσωματωθεί στην διδασκαλία.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.2,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 51,
+          "year_count": 1,
+          "proper_name_word_count": 4,
+          "author_year_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 3,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "337757b4dcc698a43134e6c1b74d07c23aea3e08d0a962814e979a658d61a502",
+        "source": "openarchives",
+        "abs_idx": 295,
+        "text": "Η μελέτη του Khanlari (2016) έδειξε ότι στα εμπόδια και τις προκλήσεις περιλαμβάνονται η ανεπαρκής πρόσβαση σε υποστηρικτικά υλικά, η ανεπαρκής τεχνική διοικητική και διδακτική υποστήριξη,  η  έλλειψη  χρόνου  προετοιμασίας  και  διδασκαλίας,  η  έλλειψη  γνώσεων  των δασκάλων  σχετικά  με  τη  ρομποτική  και  η  έλλειψη  αυτοπεποίθησης  στις  τεχνολογικές  τους ικανότητες. H  έρευνα  επίσης  αποκαλύπτει  ότι  η  κατάρτιση  θεωρείται  η  σημαντικότερη υποστήριξη  που  χρειάζονται  οι  εκπαιδευτικοί  και  ακολουθούν  τα  υλικά,  οι  οδηγοί  και  τα εγχειρίδια.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.1000000000000005,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_ACCESS_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 73,
+          "year_count": 1,
+          "access_date_count": 1,
+          "proper_name_word_count": 1,
+          "author_year_count": 1,
+          "author_joiner_count": 6,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "337757b4dcc698a43134e6c1b74d07c23aea3e08d0a962814e979a658d61a502",
+        "source": "openarchives",
+        "abs_idx": 297,
+        "text": "Στη μελέτη του Makgato (2014), οι εκπαιδευτικοί που συμμετείχαν είπαν ότι δεν διαθέτουν πόρους όπως πρακτικά υλικά για να διδάξουν αποτελεσματικά την τεχνολογία. Μελέτες έδειξαν ότι η αποτελεσματική διδασκαλία και μάθηση δεν εξαρτάται πλήρως από τη διαθεσιμότητα των πόρων. Θα μπορούσαν να υπάρχουν πολλά νέα υλικά στο εργαστήριο, αλλά αν οι εκπαιδευτικοί δεν ξέρουν πώς να τα χρησιμοποιούν, οι πόροι αυτοί είναι άχρηστοι. Οι κατάλληλες γνώσεις, δεξιότητες και στάση των εκπαιδευτικών έχουν ως αποτέλεσμα την αποτελεσματική διδασκαλία και μάθηση. Τα ιδρύματα τριτοβάθμιας εκπαίδευσης και κατάρτισης των εκπαιδευτικών πρέπει να  εντείνουν  τις  πρακτικές  δεξιότητες  και  τις  γνώσεις  χρήσης  των  υλικών  και  των  πόρων προκειμένου να παραχθούν δημιουργικοί και κριτικά σκεπτόμενοι εκπαιδευτικοί. Τα εκπαιδευτικά  τμήματα  πρέπει  παρέχουν  επαρκή  υλικά και πόρους  για  την  εξασφάλιση αποτελεσματικής διδασκαλίας και μάθησης στην τάξη της τεχνολογίας.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.4,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_IN_CONTAINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 130,
+          "year_count": 1,
+          "proper_name_word_count": 3,
+          "author_year_count": 1,
+          "author_joiner_count": 9,
+          "in_container_count": 1,
+          "punctuation_count": 12
+        }
+      },
+      {
+        "document_id": "7ea5dc042c273d3604bc3ff98f0e44edeaec04ef939a6dc414070e7d030dd109",
+        "source": "openarchives",
+        "abs_idx": 550,
+        "text": "13. Lightfoot C, Cole M &amp; Cole SR. Η ανάπτυξη των παιδιών. Αθήνα: Gutenberg: 2014.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 10.900000000000002,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_PLACE_PUBLISHER_SHAPE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 15,
+          "year_count": 1,
+          "proper_name_word_count": 5,
+          "name_initial_pair_count": 2,
+          "numbered_entry_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 1,
+          "dotted_word_count": 1,
+          "publisher_term_count": 1,
+          "place_name_count": 1,
+          "place_publisher_shape_count": 1,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "7ea5dc042c273d3604bc3ff98f0e44edeaec04ef939a6dc414070e7d030dd109",
+        "source": "openarchives",
+        "abs_idx": 552,
+        "text": "14. Παπάζογλου Α. Ο ρόλος της οικογένειας και των συνομήλικων στη διαμόρφωση της ταυτότητας των εφήβων. Έρκυνα. 2014; 3: 177-193.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.4,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_YEAR_VOLUME_SEQUENCE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 20,
+          "year_count": 1,
+          "initial_count": 1,
+          "proper_name_word_count": 2,
+          "numbered_entry_count": 1,
+          "author_joiner_count": 1,
+          "dotted_word_count": 2,
+          "journal_year_volume_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 7
+        }
+      },
+      {
+        "document_id": "7ea5dc042c273d3604bc3ff98f0e44edeaec04ef939a6dc414070e7d030dd109",
+        "source": "openarchives",
+        "abs_idx": 554,
+        "text": "15.  Μακρή-  Μπότσαρη    Ε.  Σύγχρονα  προβλήματα  εφηβείας.  Παιδαγωγική  επιμόρφωση  εκπαιδευτικών  του ΟΑΕΔ. Αθήνα: ΕΚΠΑ-ΑΣΠΑΙΤΕ: 2008. Available from:",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 5.0,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_PLACE_PUBLISHER_SHAPE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 17,
+          "year_count": 1,
+          "initial_count": 1,
+          "proper_name_word_count": 6,
+          "numbered_entry_count": 1,
+          "dotted_word_count": 2,
+          "place_name_count": 1,
+          "place_publisher_shape_count": 1,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "5e227300691b10f3e213dcd646dd0af332ab47d0ad0f6716ad03d4c01fff9396",
+        "source": "openarchives",
+        "abs_idx": 1571,
+        "text": "| Διάγραμμα 2 - 4: Διακύμανση δαπανών (Πηγή:  The Art Market, 2020;2021;2022)  .....................................................  25                               |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.9,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_YEAR_VOLUME_SEQUENCE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 13,
+          "year_count": 3,
+          "proper_name_word_count": 6,
+          "author_year_count": 1,
+          "journal_year_volume_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 60,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "5e227300691b10f3e213dcd646dd0af332ab47d0ad0f6716ad03d4c01fff9396",
+        "source": "openarchives",
+        "abs_idx": 1572,
+        "text": "| Διάγραμμα 2 - 5: Κατανομή εκατομμυριούχων (Πηγή:  Global Wealth Report, 2022)  ..................................................  26                                |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 5.4,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 11,
+          "year_count": 1,
+          "proper_name_word_count": 6,
+          "author_year_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 55,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "5e227300691b10f3e213dcd646dd0af332ab47d0ad0f6716ad03d4c01fff9396",
+        "source": "openarchives",
+        "abs_idx": 1573,
+        "text": "| Διάγραμμα 2 - 6: Διεθνείς πωλήσεις δημοπρασιών έργων τέχνης (Πηγή:  Art Basel,2022 p.123)  ................................  27                                      |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.300000000000001,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PAGE_MARKER",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 15,
+          "year_count": 1,
+          "proper_name_word_count": 5,
+          "author_year_count": 1,
+          "page_marker_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 38,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "5e227300691b10f3e213dcd646dd0af332ab47d0ad0f6716ad03d4c01fff9396",
+        "source": "openarchives",
+        "abs_idx": 1574,
+        "text": "| Διάγραμμα 2 - 7: Περιοχική κατανομή εμπορικών γκαλερί (Πηγή: The Art Market,2022) ...........................................  29                                    |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 5.4,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 13,
+          "year_count": 1,
+          "proper_name_word_count": 6,
+          "author_year_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 48,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "8e0488b3dedc073668c91f7f0d3564ad43a67e4b0947753d789c4591127d7ff5",
+        "source": "kallipos",
+        "abs_idx": 12,
+        "text": "Οι  Noe  &  Bishop  (2005)  αξιολόγησαν  έναν  online  οδηγό  πληροφοριακής  παιδείας  (TILT-Tiger Information Literacy Tutorial)που αναπτύχθηκε στις βιβλιοθήκες του Πανεπιστημίου Auburn των ΗΠΑ. Οι ερευνήτριες κατέληξαν στο συμπέρασμα ότι ο οδηγός ήταν αποτελεσματικός, αλλά απαιτούσε επιμέρους βελτιώσεις. Συγκεκριμένα, έπρεπε να επανεξεταστούν οι ενότητες του TILT, ώστε οι έννοιες να αποδίδονται με μεγαλύτερη ακρίβεια και τα παραδείγματα να έχουν περισσότερη συνάφεια με τις εργασίες των φοιτητών.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.2,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 65,
+          "year_count": 1,
+          "proper_name_word_count": 9,
+          "author_year_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 2,
+          "dotted_word_count": 1,
+          "punctuation_count": 10
+        }
+      },
+      {
+        "document_id": "8e0488b3dedc073668c91f7f0d3564ad43a67e4b0947753d789c4591127d7ff5",
+        "source": "kallipos",
+        "abs_idx": 13,
+        "text": "Οι  Wong,  Chan  &  Chu  (2006)  προσπάθησαν  να  αξιολογήσουν  τα  αποτελέσματα  σεμιναρίου πληροφοριακής  παιδείας  που  είχε  οργανώσει  η  Βιβλιοθήκη  του  Hong  Kong  University  of  Science  and Technology. Η έρευνα, στην οποία συμμετείχαν 688 φοιτητές, έγινε με ερωτηματολόγιο που συμπληρώθηκε τέσσερις  έως  οκτώ  εβδομάδες  μετά  την  ολοκλήρωση  των  σεμιναρίων.  Αποδείχτηκε  ότι  οι  περισσότεροι συμμετέχοντες βρήκαν χρήσιμη την εκπαίδευση, καθώς και ότι διατήρησαν και συνέχισαν να χρησιμοποιούν και μετά το σεμινάριο τις δεξιότητες που έμαθαν σε αυτό. Επίσης, οι φοιτητές βαθμολόγησαν το μάθημα και τον εκπαιδευτή με αρκετά υψηλό βαθμό, συγκρίσιμο με αυτόν που έδωσαν όταν αξιολόγησαν τα μαθήματα που  παρακολουθούσαν  στο  πανεπιστήμιο.  Βασισμένοι  στα  αποτελέσματα  της  έρευνας,  οι  περισσότεροι βιβλιοθηκονόμοι επανεξέτασαν το περιεχόμενο του σεμιναρίου και προέβησαν σε αλλαγές, οι κυριότερες από τις οποίες ήταν η μείωση της διάρκειας του μαθήματος, η μείωση του αριθμού των συμμετεχόντων σε κάθε τμήμα,  η  βελτίωση  του  εκπαιδευτικού  υλικού  και  η  αλλαγή  στον  τρόπο  διδασκαλίας  με  ενσωμάτωση περισσότερης πρακτικής εξάσκησης και διαδραστικότητας.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.2,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 156,
+          "year_count": 1,
+          "proper_name_word_count": 12,
+          "author_year_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 9,
+          "punctuation_count": 17
+        }
+      },
+      {
+        "document_id": "8e0488b3dedc073668c91f7f0d3564ad43a67e4b0947753d789c4591127d7ff5",
+        "source": "kallipos",
+        "abs_idx": 14,
+        "text": "Οι  Bailey  et  al  (2007)  μελέτησαν  την  επίδραση  εργαστηριακών  μαθημάτων  που  οργάνωσε  η βιβλιοθήκη του Northumbria University στο Newcastle, ως συμπλήρωμα της online εκπαίδευσης φοιτητών νοσηλευτικής  σε  θέματα  πληροφοριακής  παιδείας.  Τα  αποτελέσματα  έδειξαν  ότι  όλοι  οι  σπουδαστές  που παρακολούθησαν έστω και ένα εργαστηριακό μάθημα βελτίωσαν τον βαθμό τους στην επόμενη εργασία τους, ενώ αυξήθηκε η αυτοπεποίθησή τους και γενικά το επίπεδο των πληροφοριακών τους δεξιοτήτων.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 5.9,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 65,
+          "year_count": 1,
+          "proper_name_word_count": 4,
+          "author_year_count": 1,
+          "author_joiner_count": 3,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "8e0488b3dedc073668c91f7f0d3564ad43a67e4b0947753d789c4591127d7ff5",
+        "source": "kallipos",
+        "abs_idx": 15,
+        "text": "Οι  Craig  &  Corall  (2007),  χρησιμοποιώντας  διάφορες  τεχνικές,  προσπάθησαν  να  καταγράψουν  τις αλλαγές που επήλθαν στις δεξιότητες φοιτητών Νοσηλευτικής σε πανεπιστήμιο της Μεγάλης Βρετανίας μετά από δύο περιόδους εκπαίδευσης σε θέματα πληροφοριακής παιδείας. Επίσης εξετάστηκαν οι παράγοντες που επηρέασαν  την  αυτοπεποίθηση  των  φοιτητών  κατά  τη  διαδικασία  αναζήτησης  πληροφοριών.  Η  έρευνα κατέδειξε  την  αποτελεσματικότητα  της  εκπαίδευσης  στην  ανάπτυξη  της ικανότητας των σπουδαστών να αναγνωρίζουν,  να  εντοπίζουν  και  να  αξιολογούν  την  πληροφορία,  καθώς και τη βελτίωση του επιπέδου αυτοπεποίθησής τους. Η έρευνα επίσης έδειξε ότι πρέπει να δοθεί μεγαλύτερη βαρύτητα σε κάποιους τομείς της πληροφοριακής εκπαίδευσης, όπως π.χ. στην ανάδειξη της σχετικής αξίας των μηχανών αναζήτησης και άλλων πηγών.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.2,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 107,
+          "year_count": 1,
+          "proper_name_word_count": 6,
+          "author_year_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 4,
+          "punctuation_count": 13
+        }
+      },
+      {
+        "document_id": "8e0488b3dedc073668c91f7f0d3564ad43a67e4b0947753d789c4591127d7ff5",
+        "source": "kallipos",
+        "abs_idx": 16,
+        "text": "Οι Emmett & Emde (2007) περιγράφουν τον σχεδιασμό και την ανάπτυξη ενός εργαλείου για την αξιολόγηση των δεξιοτήτων πληροφοριακής παιδείας μεταπτυχιακών φοιτητών χημείας, με βάση το πρότυπο της ACRL «Information literacy competency standards for higher education». Η αξιολόγηση εφαρμόστηκε για μια περίοδο τριών χρόνων και τα αποτελέσματα έδειξαν ότι υπήρξε σαφής βελτίωση στον μέσο όρο απόδοσης των φοιτητών που παρακολούθησαν προγράμματα πληροφοριακής παιδείας.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 7.3999999999999995,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_QUOTED_TITLE_SHAPE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_QUOTED_CITATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 62,
+          "year_count": 1,
+          "proper_name_word_count": 3,
+          "author_year_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 3,
+          "quoted_span_count": 1,
+          "punctuation_count": 7
+        }
+      },
+      {
+        "document_id": "8e0488b3dedc073668c91f7f0d3564ad43a67e4b0947753d789c4591127d7ff5",
+        "source": "kallipos",
+        "abs_idx": 17,
+        "text": "Ο Katz (2013) παρουσιάζει το iSkills, ένα τεστ δεξιοτήτων πληροφοριακής παιδείας που αναπτύχθηκε από  την  Υπηρεσία  Εκπαιδευτικών  Τεστ  (Educational  Test  Service  -  ETS)  των  Ηνωμένων  Πολιτειών.  Το συγκεκριμένο  τεστ,  που  γίνεται  μέσω  Διαδικτύου,  αξιολογεί  την  ικανότητα  των  μαθητευόμενων  να ανακτήσουν, να  οργανώσουν  και  να  μεταδώσουν  την  πληροφορία  στο  σύγχρονο  τεχνολογικό  περιβάλλον, δίνοντας έμφαση στις γνωστικές δεξιότητες επίλυσης προβλημάτων και κριτικής σκέψης. Το τεστ διανεμήθηκε αρχικά σε 6.500 περίπου μαθητές και φοιτητές σε 63 ιδρύματα και  τα  αποτελέσματα  έδειξαν  μειωμένες ικανότητες,  ιδιαίτερα  στη  διαμόρφωση  του  θέματος  μιας  ερευνητικής  εργασίας,  στην  αναζήτηση,  την αξιολόγηση και την παρουσίαση των πληροφοριών.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 5.9,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 97,
+          "year_count": 1,
+          "proper_name_word_count": 10,
+          "author_year_count": 1,
+          "author_joiner_count": 5,
+          "punctuation_count": 16
+        }
+      },
+      {
+        "document_id": "e078d96112f9caab923922e5235fde941556c3660db3b70f6a15b026b1ddb6c2",
+        "source": "kallipos",
+        "abs_idx": 17,
+        "text": "ΚΑΛΛΙΠΟΣ Εθνικό Μετσόβιο Πολυτεχνείο Ηρώων Πολυτεχνείου 9, 15780 Ζωγράφου",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 9,
+          "proper_name_word_count": 6,
+          "author_year_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "e078d96112f9caab923922e5235fde941556c3660db3b70f6a15b026b1ddb6c2",
+        "source": "kallipos",
+        "abs_idx": 18,
+        "text": "ISBN: 978-618-5726-57-7",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_ISBN",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 2,
+          "isbn_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "e078d96112f9caab923922e5235fde941556c3660db3b70f6a15b026b1ddb6c2",
+        "source": "kallipos",
+        "abs_idx": 19,
+        "text": "Βιβλιογραφική Αναφορά: Θεολόγου, Κ. (2023). Χώρος και Πολίτης. Διερευνώντας τη σημασία του δημοσίου χώρου για την ιδιότητα του πολίτη [ Μονογραφία ]. Κάλλιπος, Ανοικτές Ακαδημαϊκές Εκδόσεις. http://dx.doi.org/10.57713/kallipos-176",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 8.500000000000002,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_DOI",
+          "BIB2_URL",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 31,
+          "year_count": 1,
+          "url_count": 1,
+          "doi_count": 1,
+          "initial_count": 1,
+          "proper_name_word_count": 11,
+          "author_joiner_count": 1,
+          "dotted_word_count": 1,
+          "publisher_term_count": 1,
+          "punctuation_count": 16
+        }
+      },
+      {
+        "document_id": "e078d96112f9caab923922e5235fde941556c3660db3b70f6a15b026b1ddb6c2",
+        "source": "kallipos",
+        "abs_idx": 1075,
+        "text": "Παρατηρώντας ως θετικός επιστήμονας στο εργαστήριό του τις αντιδράσεις ή τις συμπεριφορές των υλικών σωμάτων των συμπατριωτών μας, οδηγήθηκα και μάλλον κατέληξα σε δύο βασικές διαπιστώσεις, τις οποίες παραθέτω  αμέσως:  α)  στην  έλλειψη  των  χαρακτηριστικών  της  ιδιότητας  του  πολίτη  (πολιτότητα, citizenship)  και β) στην κυριαρχία της αντίληψης του ιδιώδημου στη νοοτροπία μας και στην καθημερινότητά μας.  Ο  νεολογισμός  μου  «ιδιώδημον»  (ή  priblic),  τον  οποίο  εισηγήθηκα  σε  πανελλήνιο  συνέδριο  το  2011 (Θεολόγου -Βενετή,  2011:  17 -29)  και  εξηγώ  παρακάτω,  παράγεται  από  τη  σύνθεση  των  λέξεων  ιδιωτικός (private)  και  δημόσιος  (public).  Η  ιδιότητα  του  πολίτη  και  ο  σεβασμός  του  δημοσίου  χώρου αποτελούν θεμελιακά  και  συγκροτητικά  συστατικά  μιας  νεωτερικής  κοινωνίας  και  ενός  νεωτερικού  κράτους.  Στην Ελλάδα, για διάφορους λόγους, δεν σχεδιάστηκε η θεσμοθέτηση ενός τέτοιου νομοθετικού πλαισίου, ώστε να ευδοκιμήσει σε αυτό η ιδιότητα του πολίτη και να καλλιεργηθεί ο σεβασμός του δημοσίου ή του κοινόχρηστου χώρου. Καταλυτικός παράγοντας αυτής της νεοελληνικής αδυναμίας είναι η διαρκής εδαφική αναοριοθέτηση (18271947) της χώρας, με αναπόφευκτες δημογραφικές προσθήκες, νοοτροπίες και πολιτικές κουλτούρες από  πρώην  οθωμανικές  περιοχές  με  κοινοτική  οργάνωση  της  πολιτικής  και  κοινωνικής  ζωής.  Η  εργασία λαμβάνει υπόψη της τους συγκεκριμένους ιστορικούς λόγους, με τα ποικίλα πολιτισμικά πρότυπα και τους ασαφείς  αξιακούς  κώδικες  που  έχουν  συμβάλει  σε  αυτή  την  εκτρωματική  ανάπτυξη  ιδιοτήτων  που  είναι αφενός απολιτικές και αντικοινωνικές και αφετέρου βαθιά συντηρητικές, εφόσον συντηρούν την ιδιοτέλεια και τα πελατειακά χαρακτηριστικά του πολιτικού συστήματος.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 6.6,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_QUOTED_TITLE_SHAPE",
+          "BIB2_YEAR_VOLUME_SEQUENCE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_INTERACTION_QUOTED_CITATION",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 227,
+          "year_count": 2,
+          "proper_name_word_count": 6,
+          "author_joiner_count": 15,
+          "quoted_span_count": 1,
+          "journal_year_volume_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 37
+        }
+      },
+      {
+        "document_id": "d01239a2d4847c0692f0806652be012c8654c62acac319a722d6ab424a9d4e9f",
+        "source": "kallipos",
+        "abs_idx": 20,
+        "text": "ΚΑΛΛΙΠΟΣ Εθνικό Μετσόβιο Πολυτεχνείο Ηρώων Πολυτεχνείου 9, 15780 Ζωγράφου",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 9,
+          "proper_name_word_count": 6,
+          "author_year_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "d01239a2d4847c0692f0806652be012c8654c62acac319a722d6ab424a9d4e9f",
+        "source": "kallipos",
+        "abs_idx": 21,
+        "text": "ISBN: 978-618-228-180-2",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_ISBN",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 2,
+          "isbn_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "d01239a2d4847c0692f0806652be012c8654c62acac319a722d6ab424a9d4e9f",
+        "source": "kallipos",
+        "abs_idx": 22,
+        "text": "Βιβλιογραφική  Αναφορά: Χανδρινός,  Α.,  Τζαμουράνης,  Δ.-Δ.,  Μουζάκα,  Α.,  &  Καρέτσος,  Γ.  (2024). Οπτική τεχνολογία [Προπτυχιακό εγχειρίδιο]. Κάλλιπος, Ανοικτές Ακαδημαϊκές Εκδόσεις. http://dx.doi.org/10.57713/kallipos-412",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 11.6,
+        "reason_codes": [
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_DOI",
+          "BIB2_URL",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 27,
+          "year_count": 1,
+          "url_count": 1,
+          "doi_count": 1,
+          "initial_count": 5,
+          "proper_name_word_count": 12,
+          "ampersand_count": 1,
+          "author_joiner_count": 1,
+          "dotted_word_count": 5,
+          "publisher_term_count": 1,
+          "punctuation_count": 25
+        }
+      },
+      {
+        "document_id": "1328064816dfebbdfcb89cdc07fd99b8c9505849c5844cf87bed48f7ef3d699e",
+        "source": "kallipos",
+        "abs_idx": 1581,
+        "text": "- 21. Sheikhpour et al. 2017. Biomimetics in drug delivery systems.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 10,
+          "year_count": 1,
+          "proper_name_word_count": 2,
+          "numbered_entry_count": 1,
+          "author_joiner_count": 1,
+          "punctuation_count": 4
+        }
+      },
+      {
+        "document_id": "1328064816dfebbdfcb89cdc07fd99b8c9505849c5844cf87bed48f7ef3d699e",
+        "source": "kallipos",
+        "abs_idx": 1582,
+        "text": "- 22. Shen et al. 2020. Impact performance of a plate structure with coconut-inspired microchannels.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 14,
+          "year_count": 1,
+          "proper_name_word_count": 2,
+          "numbered_entry_count": 1,
+          "author_joiner_count": 1,
+          "punctuation_count": 4
+        }
+      }
+    ],
+    "false_negative": [
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 173,
+        "text": "## ΔΗΜΟΣΙΕΥΣΕΙΣ",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_CV_PUBLICATIONS_HEADING"
+        ],
+        "nonzero_features": {
+          "token_count": 1
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 175,
+        "text": "## Α . ΔΗΜΟΣΙΕΥΣΕΙΣ ΣΕ ΞΕΝΟΓΛΩΣΣΑ ΠΕΡΙΟΔΙΚΑ",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONSTRUCTURAL_MARKDOWN_HEADING"
+        ],
+        "nonzero_features": {
+          "token_count": 5,
+          "initial_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 177,
+        "text": "- Midtrimester amniotic fluid concentrations of angiogenic factors in relation to maternal, gestational and neonatal characteristics in normal pregnancies",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 0.4,
+        "reason_codes": [
+          "BIB2_AUTHOR_JOINER"
+        ],
+        "nonzero_features": {
+          "token_count": 18,
+          "proper_name_word_count": 1,
+          "author_joiner_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 179,
+        "text": "Papapostolou  T,  Briana  DD,  Boutsikou  M,  Iavazzo  C,  Puchner  KP,  Gourgiotis  D, Marmarinos A, Malamitsi-Puchner A. J Matern Fetal Neonatal Med. 2013 Jan;26(1):75-8",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 9.6,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_VOLUME_ISSUE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 26,
+          "year_count": 1,
+          "initial_count": 2,
+          "proper_name_word_count": 13,
+          "name_initial_pair_count": 7,
+          "dotted_word_count": 2,
+          "volume_shape_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 13
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 181,
+        "text": "- -Oral progestogens vs levonorgestrel-releasing intrauterine system for endometrial hyperplasia: a systematic review and metaanalysis.",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 0.4,
+        "reason_codes": [
+          "BIB2_AUTHOR_JOINER"
+        ],
+        "nonzero_features": {
+          "token_count": 14,
+          "proper_name_word_count": 1,
+          "author_joiner_count": 1,
+          "punctuation_count": 2
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 183,
+        "text": "Gallos ID, Shehmar M, Thangaratinam S, Papapostolou TK, Coomarasamy A, Gupta JK.",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 3.4,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "proper_name_word_count": 6,
+          "name_initial_pair_count": 5,
+          "dotted_word_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 185,
+        "text": "Am J Obstet Gynecol. 2010 Dec; 203(6):547:1-10",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 4.5,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_VOLUME_ISSUE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 10,
+          "year_count": 1,
+          "proper_name_word_count": 3,
+          "volume_shape_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 187,
+        "text": "## Β . ΑΝΑΚΟΙΝΩΣΕΙΣ ΣΕ ΞΕΝΑ ΚΑΙ ΕΛΛΗΝΙΚΑ ΣΥΝΕΔΡΙΑ",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONSTRUCTURAL_MARKDOWN_HEADING"
+        ],
+        "nonzero_features": {
+          "token_count": 7,
+          "initial_count": 1,
+          "author_joiner_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 189,
+        "text": "- 1) Midtrimester amniotic fluid concentrations of angiogenic factors in relation to maternal, gestational and neonatal characteristics in normal pregnancies",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 1.4,
+        "reason_codes": [
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_AUTHOR_JOINER"
+        ],
+        "nonzero_features": {
+          "token_count": 19,
+          "proper_name_word_count": 1,
+          "numbered_entry_count": 1,
+          "author_joiner_count": 1,
+          "punctuation_count": 2
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 191,
+        "text": "Papapostolou  T,  Briana  DD,  Boutsikou  M,  Iavazzo  C,  Puchner  KP,  Gourgiotis  D, Marmarinos A, Malamitsi-Puchner A.",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 3.4,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE"
+        ],
+        "nonzero_features": {
+          "token_count": 16,
+          "initial_count": 1,
+          "proper_name_word_count": 8,
+          "name_initial_pair_count": 8,
+          "dotted_word_count": 1,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 193,
+        "text": "-XXIII European Congress of Perinatal Medicine, Paris, France, 13-16/6/2012 - Oral",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 2.6999999999999997,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_FULL_DATE",
+          "BIB2_PLACE_LEXICON"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "year_count": 1,
+          "numeric_date_count": 1,
+          "proper_name_word_count": 7,
+          "place_name_count": 1,
+          "punctuation_count": 3
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 195,
+        "text": "Presentation",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {
+          "token_count": 1,
+          "proper_name_word_count": 1
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 197,
+        "text": "-11th  World  Congress  in  Fetal  Medicine,  Kos,  Greece  ,  24-28/6/2012  -  Poster",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 2.3,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_FULL_DATE"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "year_count": 1,
+          "numeric_date_count": 1,
+          "proper_name_word_count": 7,
+          "punctuation_count": 3
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 199,
+        "text": "Presentation",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {
+          "token_count": 1,
+          "proper_name_word_count": 1
+        }
+      },
+      {
+        "document_id": "48df9887fa982d0a4b989c57be5d8237c34c2cb33e161313f656abbeef098667",
+        "source": "greek_phd",
+        "abs_idx": 201,
+        "text": "## 2) Deadly injuries in the regions of Hrakleion and Lasithi of Crete.",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONSTRUCTURAL_MARKDOWN_HEADING"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "proper_name_word_count": 4,
+          "author_joiner_count": 1,
+          "dotted_word_count": 1,
+          "punctuation_count": 2
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1543,
+        "text": "## ΕΛΛΗΝΙΚΗ   BIBΛΙΟΓΡΑΦΙΑ",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONSTRUCTURAL_MARKDOWN_HEADING"
+        ],
+        "nonzero_features": {
+          "token_count": 2
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1545,
+        "text": "-  Αλιεία (1989), Κέντρο Προγραμματισμού και Οικονομικών Ερευνών (ΚΕΠΕ)",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 2.0,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER"
+        ],
+        "nonzero_features": {
+          "token_count": 8,
+          "year_count": 1,
+          "proper_name_word_count": 5,
+          "author_joiner_count": 1,
+          "punctuation_count": 5
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1546,
+        "text": "-  Ασωνίτης Γ.(1995), Η σύμβαση των Ηνωμένων Εθνών για το δίκαιο της θάλασσας, εκδόσεις Παπαζήση, Αθήνα",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 4.699999999999999,
+        "reason_codes": [
+          "BIB2_NAME_INITIAL_PAIR",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 16,
+          "year_count": 1,
+          "initial_count": 1,
+          "proper_name_word_count": 5,
+          "name_initial_pair_count": 1,
+          "dotted_word_count": 1,
+          "publisher_term_count": 2,
+          "place_name_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1551,
+        "text": "-  Δεκλερή Μ. (1996), Ο δωδεκάδελτος του περιβάλλοντος, Εγκόλπιο Βιωσίμου Αναπτύξεως, εκδ. Α.Σάκκουλα, Αθήνα - Κομοτηνή",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_PUBLISHER_PLACE",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 15,
+          "year_count": 1,
+          "initial_count": 1,
+          "proper_name_word_count": 7,
+          "name_initial_pair_count": 1,
+          "dotted_word_count": 1,
+          "place_name_count": 1,
+          "punctuation_count": 9
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1552,
+        "text": "-  Δίπλα Χ., Ροζάκης Χ. (2004), Το δίκαιο της θάλασσας και η εφαρμογή του",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 7.1,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 13,
+          "year_count": 1,
+          "initial_count": 2,
+          "proper_name_word_count": 2,
+          "name_initial_pair_count": 2,
+          "author_joiner_count": 1,
+          "dotted_word_count": 2,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1553,
+        "text": "-  στην Ελλάδα, εκδόσεις Ι. Σίδερης",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 1.5,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 5,
+          "initial_count": 1,
+          "proper_name_word_count": 2,
+          "dotted_word_count": 1,
+          "publisher_term_count": 1,
+          "punctuation_count": 2
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1554,
+        "text": "-  Ευρωπαϊκή Επιτροπή (2001), Πράσινη Βίβλος: Το μέλλον της κοινής αλιευτικής πολιτικής, Υπηρεσία Επισήμων Εκδόσεων των Ευρωπαϊκών Κοινοτήτων, Λουξεμβούργο, Τόμοι Ι και ΙΙ",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 22,
+          "year_count": 1,
+          "proper_name_word_count": 11,
+          "name_initial_pair_count": 1,
+          "author_joiner_count": 1,
+          "punctuation_count": 7
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1555,
+        "text": "-  Ενοποιημένη απόδοση της Συνθήκης περί ιδρύσεως της Ευρωπαϊκής Κοινότητας-Βρυξέλλες, 6 Οκτώβρη 1997",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 1.6,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "year_count": 1,
+          "proper_name_word_count": 5,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1556,
+        "text": "-  Ευρωπαϊκή Αλιεία, αριθ. 4, Οκτώβριος 2000, έκδοση της Ευρωπαϊκής Επιτροπής - Γενική Διεύθυνση Αλιείας",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 13,
+          "year_count": 1,
+          "proper_name_word_count": 8,
+          "edition_term_count": 1,
+          "punctuation_count": 4
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1558,
+        "text": "-  Ευρωπαϊκή Αλιεία, αριθ. 14, Οκτώβριος 2002, έκδοση της Ευρωπαϊκής Επιτροπής - Γενική Διεύθυνση Αλιείας",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 13,
+          "year_count": 1,
+          "proper_name_word_count": 8,
+          "edition_term_count": 1,
+          "punctuation_count": 4
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1559,
+        "text": "-  Καράγιωργα Π. (1979), Δημόσια Οικονομική 1, Οικονομικές Λειτουργίες του κράτους, Αθήνα , εκδόσεις Παπαζήσης",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 4.699999999999999,
+        "reason_codes": [
+          "BIB2_NAME_INITIAL_PAIR",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 13,
+          "year_count": 1,
+          "initial_count": 1,
+          "proper_name_word_count": 7,
+          "name_initial_pair_count": 1,
+          "dotted_word_count": 1,
+          "publisher_term_count": 1,
+          "place_name_count": 1,
+          "punctuation_count": 7
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1560,
+        "text": "-  Καρακώστας Ι. (2000), Περιβάλλον και Δίκαιο, εκδόσεις Α.Ν. Σάκκουλα, Αθήνα - Κομοτηνή",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 9.8,
+        "reason_codes": [
+          "BIB2_NAME_INITIAL_PAIR",
+          "BIB2_INITIAL_SEQUENCE",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_DOTTED_ABBREVIATION_SEQUENCE",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "year_count": 1,
+          "initial_count": 2,
+          "initial_sequence_count": 1,
+          "proper_name_word_count": 6,
+          "name_initial_pair_count": 1,
+          "author_joiner_count": 1,
+          "dotted_word_count": 2,
+          "dotted_sequence_count": 1,
+          "publisher_term_count": 1,
+          "place_name_count": 1,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1561,
+        "text": "-  Καρακωστανόγλου Β. (2001), Η αποκλειστική οικονομική ζώνη στο νέο δίκαιο της Θάλασσας: το νομικό καθεστώς με έμφαση στην αλιεία, εκδόσεις Σάκκουλα, Αθήνα",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 4.699999999999999,
+        "reason_codes": [
+          "BIB2_NAME_INITIAL_PAIR",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 22,
+          "year_count": 1,
+          "initial_count": 1,
+          "proper_name_word_count": 4,
+          "name_initial_pair_count": 1,
+          "dotted_word_count": 1,
+          "publisher_term_count": 1,
+          "place_name_count": 1,
+          "punctuation_count": 7
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1562,
+        "text": "-  Κώττη Γ., Πετράκη Α. (1995), Σύγχρονα οικονομικά θέματα, Εκδόσεις Παπαζήση, Αθήνα",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 9.0,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 11,
+          "year_count": 1,
+          "initial_count": 2,
+          "proper_name_word_count": 6,
+          "name_initial_pair_count": 2,
+          "dotted_word_count": 2,
+          "publisher_term_count": 2,
+          "place_name_count": 1,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "393b13cc9864cbabc829119b5bdbc0db465f2101e3fa536fa6e6d33b0e303db8",
+        "source": "openarchives",
+        "abs_idx": 1563,
+        "text": "-  Νεοφύτου Χ. (1997), Ιχθυολογία, εκδόσεις University Studio Press,Θεσσαλονίκη",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 4.699999999999999,
+        "reason_codes": [
+          "BIB2_NAME_INITIAL_PAIR",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 9,
+          "year_count": 1,
+          "initial_count": 1,
+          "proper_name_word_count": 6,
+          "name_initial_pair_count": 1,
+          "dotted_word_count": 1,
+          "publisher_term_count": 2,
+          "place_name_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 76,
+        "text": "- 1 N.S. Jaffe, D.S. Light : Vitreous changes produced by cataract surgery: a study of 1058 aphakic eyes. Arch Ophthalmol 76:541-553, 1966",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 24,
+          "year_count": 1,
+          "initial_count": 2,
+          "initial_sequence_count": 2,
+          "proper_name_word_count": 5,
+          "dotted_word_count": 2,
+          "dotted_sequence_count": 2,
+          "page_range_count": 1,
+          "punctuation_count": 10
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 77,
+        "text": "- 2 Z. Friedman, E Neumann, S. Hyams : Vitreous and peripheral retina in aphakia: a study of 200 non-myopic aphakic eyes. Br J Ophthalmol 57:52-57,1973",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 26,
+          "year_count": 1,
+          "initial_count": 2,
+          "proper_name_word_count": 5,
+          "author_joiner_count": 1,
+          "dotted_word_count": 2,
+          "page_range_count": 1,
+          "punctuation_count": 9
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 78,
+        "text": "- 3 R.Y. Foos : Posterior vitreous detachment. Trans Am Acad Ophthalmol Otolaryngol 76:480-497,1972",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 7.0,
+        "reason_codes": [
+          "BIB2_INITIAL_SEQUENCE",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_EDITOR_TRANSLATOR_TERM",
+          "BIB2_DOTTED_ABBREVIATION_SEQUENCE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 15,
+          "year_count": 1,
+          "initial_count": 1,
+          "initial_sequence_count": 1,
+          "proper_name_word_count": 6,
+          "editor_term_count": 1,
+          "dotted_word_count": 1,
+          "dotted_sequence_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 79,
+        "text": "- 4 P.J. McDonnell, A. Patel, W.R. Green :  Comparison of intracapsular and extracapsular cataract surgery;",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 16,
+          "initial_count": 3,
+          "initial_sequence_count": 2,
+          "proper_name_word_count": 3,
+          "author_joiner_count": 1,
+          "dotted_word_count": 3,
+          "dotted_sequence_count": 2,
+          "punctuation_count": 9
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 80,
+        "text": "- histopathologic study of eyes obtained postmortem. Ophthalmology 92:1208-1223, 1985",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 2.9,
+        "reason_codes": [
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 10,
+          "year_count": 1,
+          "proper_name_word_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 3
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 81,
+        "text": "- 5 J.C. Folk, T.C. Burton: Bilateral aphakic retinal detachment. Ophthalmology 89:815-820,1982",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 8.2,
+        "reason_codes": [
+          "BIB2_INITIAL_SEQUENCE",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_DOTTED_ABBREVIATION_SEQUENCE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 15,
+          "year_count": 1,
+          "initial_count": 2,
+          "initial_sequence_count": 2,
+          "proper_name_word_count": 4,
+          "dotted_word_count": 2,
+          "dotted_sequence_count": 2,
+          "page_range_count": 1,
+          "punctuation_count": 9
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 82,
+        "text": "- 6 H.G. Scheie, P.H. Morse, A. Aminari : Incidence of retinal detachment following cataract extraction. Arch Ophthalmol 89:293-295,1973",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 21,
+          "year_count": 1,
+          "initial_count": 3,
+          "initial_sequence_count": 2,
+          "proper_name_word_count": 6,
+          "dotted_word_count": 3,
+          "dotted_sequence_count": 2,
+          "page_range_count": 1,
+          "punctuation_count": 11
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 83,
+        "text": "- 7 P.  Coonan,  W.E.  Fung,  R.G.  Webster  jr,  A.W.  Allen  jr,  R.L.  Abbott : The  incidence  of  retinal detachment following extracapsular  cataract  extraction.  A  ten-year  study. Ophthalmology 92:10961101,1985",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 33,
+          "year_count": 1,
+          "initial_count": 5,
+          "initial_sequence_count": 4,
+          "proper_name_word_count": 7,
+          "dotted_word_count": 5,
+          "dotted_sequence_count": 4,
+          "punctuation_count": 18
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 84,
+        "text": "- 8 P.W.    Smith,  W.J.  Stark,  A.E.  Maumenee,  C.L.  Enger,  R.G.  Michels,  B.M.  Glaser,  R.D.  Bonham : Retinal  detachment  after  extracapsular  cataract  extraction  with  posterior  chamber  intraocular  lens. Ophthalmology 94:495-504,1987",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 37,
+          "year_count": 1,
+          "initial_count": 7,
+          "initial_sequence_count": 7,
+          "proper_name_word_count": 9,
+          "dotted_word_count": 7,
+          "dotted_sequence_count": 7,
+          "page_range_count": 1,
+          "punctuation_count": 24
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 85,
+        "text": "- 9 C.P. Wilkinson : Visual results following scleral buckling for retinal detachments sparing the macula. Retina 1:113-116,1981",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 5.9,
+        "reason_codes": [
+          "BIB2_INITIAL_SEQUENCE",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_DOTTED_ABBREVIATION_SEQUENCE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 19,
+          "year_count": 1,
+          "initial_count": 1,
+          "initial_sequence_count": 1,
+          "proper_name_word_count": 3,
+          "dotted_word_count": 1,
+          "dotted_sequence_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 86,
+        "text": "- 10 Ch.L. Schepens : Retinal detachment and allied diseases. Saunders, Philadelphia, 1983, pp 639-666",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 6.3,
+        "reason_codes": [
+          "BIB2_INITIAL_SEQUENCE",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_DOTTED_ABBREVIATION_SEQUENCE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 14,
+          "year_count": 1,
+          "initial_count": 1,
+          "initial_sequence_count": 1,
+          "proper_name_word_count": 4,
+          "author_joiner_count": 1,
+          "dotted_word_count": 1,
+          "dotted_sequence_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 7
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 87,
+        "text": "- 11 P.C. Ho, F.I. Tolentino : Pseudophakic retinal detachment surgical succes rate with various types of IOLs. Ophthalmology 91:847-852,1984",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 22,
+          "year_count": 1,
+          "initial_count": 2,
+          "initial_sequence_count": 2,
+          "proper_name_word_count": 3,
+          "dotted_word_count": 3,
+          "dotted_sequence_count": 2,
+          "page_range_count": 1,
+          "punctuation_count": 9
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 88,
+        "text": "- 12 T.M. Ashrafzadeh, Ch.L. Schepens, I.I. Elzeneiny, R. Moura,P. Morse,M.F. Kraushar :  Aphakic and phakic retinal detachment. I. Preoperative findings. Arch Ophthalmol 89:476-483,1973",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 30,
+          "year_count": 1,
+          "initial_count": 7,
+          "initial_sequence_count": 4,
+          "proper_name_word_count": 10,
+          "author_joiner_count": 1,
+          "dotted_word_count": 7,
+          "dotted_sequence_count": 4,
+          "page_range_count": 1,
+          "punctuation_count": 21
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 89,
+        "text": "- 13 C.P. Wilikinson : Pseudophakic retinal detachments. Retina 5:1-4,1985",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 5.9,
+        "reason_codes": [
+          "BIB2_INITIAL_SEQUENCE",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_DOTTED_ABBREVIATION_SEQUENCE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 11,
+          "year_count": 1,
+          "initial_count": 1,
+          "initial_sequence_count": 1,
+          "proper_name_word_count": 3,
+          "dotted_word_count": 1,
+          "dotted_sequence_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "376ef60c8b749358a68e2e9b374bd5beed9ff5cf6b4455c7d51619eed6023c7e",
+        "source": "kallipos",
+        "abs_idx": 90,
+        "text": "- 14 H.M.  Clayman,  N.S.  Jaffe,  D.S.  Light: Intraocular  lenses,  axial  length  and  retinal  detachment. Am  J Ophthalmol 92:778-780,1981",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 23,
+          "year_count": 1,
+          "initial_count": 3,
+          "initial_sequence_count": 3,
+          "proper_name_word_count": 5,
+          "author_joiner_count": 1,
+          "dotted_word_count": 3,
+          "dotted_sequence_count": 3,
+          "page_range_count": 1,
+          "punctuation_count": 13
+        }
+      }
+    ]
+  },
+  "claims": {
+    "model_fitted": false,
+    "test_or_sealed_data_accessed": false,
+    "human_gold_used": false,
+    "production_eligible": false,
+    "corpus_mutated": false
+  },
+  "caveats": [
+    "Metrics measure agreement with GPT-labelled LLM-silver, not human-gold accuracy.",
+    "The train split is exploratory; validation must be run only after rule choices are frozen.",
+    "V2 is a research proposal and cannot authorise bibliography removal."
+  ]
+}

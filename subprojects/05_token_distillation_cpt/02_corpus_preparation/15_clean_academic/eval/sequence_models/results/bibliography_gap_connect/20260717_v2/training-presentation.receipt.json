@@ -1,0 +1,134 @@
+{
+  "code_commit": "6836df59c9c7e290e48cb72e2bac855a1a70a650",
+  "inputs": {
+    "source_jsonl_sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0",
+    "table_manifest_sha256": "3a5e53360153b1443edd7aa6a9312889170d127393bb18bb58c2a2699d8cfc52"
+  },
+  "label_tier": "LLM_silver_region",
+  "outputs": {
+    "packet.json": {
+      "bytes": 1865371,
+      "sha256": "4ddb7414d1969c24ecca80d0020697f36d45f61993446615823742715eae4c77"
+    }
+  },
+  "presentation_summary": {
+    "break_count": 90,
+    "by_fold_label": {
+      "fold_0:break": 17,
+      "fold_0:connect": 16,
+      "fold_1:break": 18,
+      "fold_1:connect": 19,
+      "fold_2:break": 18,
+      "fold_2:connect": 17,
+      "fold_3:break": 17,
+      "fold_3:connect": 19,
+      "fold_4:break": 20,
+      "fold_4:connect": 19
+    },
+    "by_gap_length_label": {
+      "11-30:break": 12,
+      "11-30:connect": 13,
+      "121-200:break": 8,
+      "121-200:connect": 7,
+      "1:break": 15,
+      "1:connect": 13,
+      "2:break": 8,
+      "2:connect": 15,
+      "3-5:break": 10,
+      "3-5:connect": 10,
+      "31-60:break": 8,
+      "31-60:connect": 12,
+      "6-10:break": 10,
+      "6-10:connect": 14,
+      "61-120:break": 9,
+      "61-120:connect": 5,
+      ">200:break": 10,
+      ">200:connect": 1
+    },
+    "by_regime_label": {
+      "deployment_real:break": 25,
+      "deployment_real:connect": 32,
+      "threshold_ladder:break": 65,
+      "threshold_ladder:connect": 58
+    },
+    "by_source_label": {
+      "greek_phd:break": 30,
+      "greek_phd:connect": 30,
+      "kallipos:break": 30,
+      "kallipos:connect": 30,
+      "openarchives:break": 30,
+      "openarchives:connect": 30
+    },
+    "connect_count": 90,
+    "document_count": 140,
+    "training_example_count": 180,
+    "work_count": 140
+  },
+  "schema_version": "bibliography-gap-training-presentation-v1",
+  "selection": {
+    "context_lines": 4,
+    "maximum_display_gap_lines": 16,
+    "maximum_positive_per_gold_block": 4,
+    "negative_boundary_limit": 1000,
+    "positive_per_negative": 2,
+    "presentation_per_source_label": 30,
+    "regime": "threshold_ladder",
+    "seed": 20260717
+  },
+  "slurm_job_id": "2789232",
+  "status": "passed_selected_training_dataset_presentation",
+  "training_summary": {
+    "break_count": 1000,
+    "by_fold_label": {
+      "fold_0:break": 213,
+      "fold_0:connect": 404,
+      "fold_1:break": 204,
+      "fold_1:connect": 429,
+      "fold_2:break": 178,
+      "fold_2:connect": 358,
+      "fold_3:break": 146,
+      "fold_3:connect": 393,
+      "fold_4:break": 259,
+      "fold_4:connect": 416
+    },
+    "by_gap_length_label": {
+      "11-30:break": 182,
+      "11-30:connect": 375,
+      "121-200:break": 54,
+      "121-200:connect": 17,
+      "1:break": 129,
+      "1:connect": 560,
+      "2:break": 69,
+      "2:connect": 258,
+      "3-5:break": 137,
+      "3-5:connect": 388,
+      "31-60:break": 132,
+      "31-60:connect": 81,
+      "6-10:break": 148,
+      "6-10:connect": 297,
+      "61-120:break": 103,
+      "61-120:connect": 23,
+      ">200:break": 46,
+      ">200:connect": 1
+    },
+    "by_regime_label": {
+      "deployment_real:break": 318,
+      "deployment_real:connect": 686,
+      "threshold_ladder:break": 682,
+      "threshold_ladder:connect": 1314
+    },
+    "by_source_label": {
+      "greek_phd:break": 392,
+      "greek_phd:connect": 1103,
+      "kallipos:break": 223,
+      "kallipos:connect": 256,
+      "openarchives:break": 385,
+      "openarchives:connect": 641
+    },
+    "connect_count": 2000,
+    "document_count": 698,
+    "training_example_count": 3000,
+    "work_count": 698
+  },
+  "validation_opened": false
+}

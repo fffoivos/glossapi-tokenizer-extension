@@ -1,0 +1,38 @@
+{
+  "schema_version": "bibliography-line-feature-explorer-receipt-v6",
+  "status": "passed",
+  "payload_sha256": "79175990e12f0ddf935b71690a02aed2dc6a8a16968f8dfe3e4d84260dac16a4",
+  "input": {
+    "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/struct2k.LLM_silver.jsonl",
+    "sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "selection": {
+    "input_path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/struct2k.LLM_silver.jsonl",
+    "input_sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0",
+    "split": "train",
+    "coverage": "full_document",
+    "seed": "bibliography-feature-explorer-20260713",
+    "document_count": 20,
+    "source_counts": {
+      "greek_phd": 7,
+      "kallipos": 7,
+      "openarchives": 6
+    },
+    "eligible_counts": {
+      "greek_phd": 100,
+      "kallipos": 315,
+      "openarchives": 293
+    }
+  },
+  "feature_count": 35,
+  "line_count": 14815,
+  "output": {
+    "path": "/Users/foivoskarounos-zamparloukos/Projects/train-apertus-toc-bib-agent2/outputs/bibliography-feature-explorer-v6-staging/index.html",
+    "sha256": "433efe84ed62d2f5fb01892da0bb06007ad9360d3ff87fca4dda0a5e653f8413",
+    "bytes": 10659178
+  },
+  "rebuild_source_site": {
+    "path": "/Users/foivoskarounos-zamparloukos/Projects/train-apertus-toc-bib-agent2/outputs/bibliography-feature-explorer/index.html",
+    "sha256": "9d052e449b96bfc1bc95649487ba15a2f68e1ab20a4636aab6b236f5cc954c2d"
+  }
+}

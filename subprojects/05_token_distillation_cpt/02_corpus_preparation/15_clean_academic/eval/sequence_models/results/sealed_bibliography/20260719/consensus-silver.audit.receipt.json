@@ -1,0 +1,67 @@
+{
+  "binary_agreed_line_count": 172905,
+  "binary_disagreement_count": 150,
+  "checks": {
+    "all_task_labels_recomputed_from_repaired_a_b_votes": true,
+    "excluded_documents_absent_from_outputs": true,
+    "fine_role_overlay_matches_exact_agreement_only": true,
+    "human_gold": false,
+    "included_and_excluded_documents_partition_source": true,
+    "line_identity_order_and_coverage_match": true,
+    "output_hashes_match": true,
+    "source_hashes_match": true,
+    "third_pass_used": false
+  },
+  "comparable_binary_line_count": 173055,
+  "document_count": 143,
+  "exact_role_agreed_line_count": 171483,
+  "excluded_document_count": 7,
+  "line_count": 173609,
+  "line_with_unknown_vote_count": 554,
+  "materialization_receipt_sha256": "19b941857213025f744c44d1a37a8dc77711abb150625ea92bc8c0a1a2658a2e",
+  "schema_version": "bibliography-task-consensus-silver-audit-v1",
+  "slurm_job_id": "2798796",
+  "status": "passed_independent_consensus_silver_audit",
+  "task_label_counts": {
+    "bibliography_membership": {
+      "BIB": 20560,
+      "NON_BIB": 152345,
+      "UNKNOWN": 704
+    },
+    "context_role": {
+      "CONTINUATION": 1022,
+      "FILLER": 542,
+      "OTHER": 171171,
+      "UNKNOWN": 874
+    },
+    "entry_seed": {
+      "ENTRY": 18488,
+      "NOT_ENTRY": 154282,
+      "UNKNOWN": 839
+    },
+    "fine_role": {
+      "BIB_HEADER": 131,
+      "BIB_SUBHEADER": 131,
+      "CONTINUATION": 1022,
+      "ENTRY": 18488,
+      "FILLER": 542,
+      "NON_BIB_HEADER": 8098,
+      "OTHER": 143071,
+      "UNKNOWN": 2126
+    },
+    "heading_type": {
+      "BIB_HEADER": 131,
+      "BIB_SUBHEADER": 131,
+      "NON_BIB_HEADER": 8098,
+      "NOT_HEADER": 163501,
+      "UNKNOWN": 1748
+    }
+  },
+  "verified_output_sha256": {
+    "documents": "5143c6d259e80a91f8c369f491f39b0606854560f39f1899dbc7d00403d20061",
+    "exclusions": "736fdacd30ba21be1c8f7f8311d92a81e5c9ae5c3c67cd28c5a868eb7c694319",
+    "labels": "d065465ebd007a7ca8aeb7f6c7de6da06915028163add1642d53aeab24998a1f",
+    "line_key": "8990bba4d04e6c2f16ebd8f61ccbcd29e38231b217c9194d4059d02c893a71b0",
+    "overlay": "a93f13b7f823b0815d36668a77c9619f312dac5b04991e64aec08d8d8d44b940"
+  }
+}

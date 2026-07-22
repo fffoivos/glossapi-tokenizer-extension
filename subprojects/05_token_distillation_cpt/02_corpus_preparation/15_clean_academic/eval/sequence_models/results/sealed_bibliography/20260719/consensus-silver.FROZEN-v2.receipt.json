@@ -1,0 +1,315 @@
+{
+  "code_commit": "3bfee86",
+  "code_sha256": "c019f39d0c9abb0fc6426ede57abe1eeeed1d082c9bbfbcb8ee69ab9de7f31e4",
+  "document_count": 143,
+  "excluded_document_count": 7,
+  "gates": {
+    "complete_retained_line_coverage": true,
+    "independent_audit_passed": true,
+    "membership_agreement_each_source_gte_0_95": true,
+    "membership_agreement_overall_gte_0_98": true,
+    "membership_unresolved_fraction_lte_0_005": true,
+    "original_failed_150_document_freeze_preserved": true,
+    "retained_and_excluded_documents_reconstruct_original_150": true
+  },
+  "human_gold": false,
+  "label_semantics": "post-repair dual-Codex task-specific consensus silver; only exact repaired A/B task agreement is trusted",
+  "line_count": 173609,
+  "lock_policy": "all derived cohort data, labels, manifests, receipts, audit and seal are mode 0440",
+  "original_150_document_attempt": {
+    "a_b_binary_agreement_overall": 0.9775830918346863,
+    "failed_gate": "binary_agreement_overall_gte_0_98",
+    "receipt_path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718/40_frozen/consensus.receipt.json",
+    "status": "blocked"
+  },
+  "primary_evaluation_task": "bibliography_membership",
+  "protocol_semantics": "user-directed post-hoc 143-document consensus cohort; this does not convert the failed original 150-document prediction-blind attempt into a passed freeze",
+  "schema_version": "bibliography-consensus-silver-freeze-v2",
+  "sealed_hashes": {
+    "documents_sha256": "5143c6d259e80a91f8c369f491f39b0606854560f39f1899dbc7d00403d20061",
+    "exclusions_sha256": "736fdacd30ba21be1c8f7f8311d92a81e5c9ae5c3c67cd28c5a868eb7c694319",
+    "independent_audit_sha256": "88a7f1d1d165a637a3fdc9c553772701d90a8ebb1d26c41553aefbe69749f7b0",
+    "labels_sha256": "d065465ebd007a7ca8aeb7f6c7de6da06915028163add1642d53aeab24998a1f",
+    "line_key_sha256": "8990bba4d04e6c2f16ebd8f61ccbcd29e38231b217c9194d4059d02c893a71b0",
+    "materialization_receipt_sha256": "19b941857213025f744c44d1a37a8dc77711abb150625ea92bc8c0a1a2658a2e",
+    "original_blocked_consensus_receipt_sha256": "9665af2550150a884f4f763d37f22e1c5542c63e4000133c1f4d7cf8c910b229",
+    "overlay_sha256": "a93f13b7f823b0815d36668a77c9619f312dac5b04991e64aec08d8d8d44b940"
+  },
+  "slurm_job_id": "2799787",
+  "source_document_counts": {
+    "greek_phd": 45,
+    "kallipos": 50,
+    "openarchives": 48
+  },
+  "source_membership_metrics": {
+    "greek_phd": {
+      "agreement_count": 92978,
+      "agreement_rate_on_comparable": 0.9992584392833729,
+      "comparable_count": 93047,
+      "disagreement_count": 69,
+      "line_count": 93047,
+      "trusted_coverage_fraction": 0.9992584392833729,
+      "unavailable_count": 0,
+      "unresolved_count": 69,
+      "unresolved_fraction": 0.000741560716627081
+    },
+    "kallipos": {
+      "agreement_count": 29683,
+      "agreement_rate_on_comparable": 0.9996632202876099,
+      "comparable_count": 29693,
+      "disagreement_count": 10,
+      "line_count": 29693,
+      "trusted_coverage_fraction": 0.9996632202876099,
+      "unavailable_count": 0,
+      "unresolved_count": 10,
+      "unresolved_fraction": 0.0003367797123901256
+    },
+    "openarchives": {
+      "agreement_count": 50244,
+      "agreement_rate_on_comparable": 0.9985888899930438,
+      "comparable_count": 50315,
+      "disagreement_count": 71,
+      "line_count": 50869,
+      "trusted_coverage_fraction": 0.9877135386974385,
+      "unavailable_count": 554,
+      "unresolved_count": 625,
+      "unresolved_fraction": 0.012286461302561481
+    }
+  },
+  "status": "frozen_posthoc_consensus_silver_evaluation_set",
+  "task_metrics": {
+    "bibliography_membership": {
+      "agreement_count": 172905,
+      "agreement_rate_on_comparable": 0.9991332235416486,
+      "comparable_count": 173055,
+      "disagreement_count": 150,
+      "line_count": 173609,
+      "trusted_coverage_fraction": 0.995944910690114,
+      "unavailable_count": 554,
+      "unresolved_count": 704,
+      "unresolved_fraction": 0.004055089309886008
+    },
+    "context_role": {
+      "agreement_count": 172735,
+      "agreement_rate_on_comparable": 0.9981508768888504,
+      "comparable_count": 173055,
+      "disagreement_count": 320,
+      "line_count": 173609,
+      "trusted_coverage_fraction": 0.9949656987828972,
+      "unavailable_count": 554,
+      "unresolved_count": 874,
+      "unresolved_fraction": 0.0050343012171028
+    },
+    "entry_seed": {
+      "agreement_count": 172770,
+      "agreement_rate_on_comparable": 0.9983531247291324,
+      "comparable_count": 173055,
+      "disagreement_count": 285,
+      "line_count": 173609,
+      "trusted_coverage_fraction": 0.995167301234383,
+      "unavailable_count": 554,
+      "unresolved_count": 839,
+      "unresolved_fraction": 0.00483269876561699
+    },
+    "fine_role": {
+      "agreement_count": 171483,
+      "agreement_rate_on_comparable": 0.9909161827164774,
+      "comparable_count": 173055,
+      "disagreement_count": 1572,
+      "line_count": 173609,
+      "trusted_coverage_fraction": 0.9877540910897477,
+      "unavailable_count": 554,
+      "unresolved_count": 2126,
+      "unresolved_fraction": 0.012245908910252349
+    },
+    "heading_type": {
+      "agreement_count": 171861,
+      "agreement_rate_on_comparable": 0.9931004593915229,
+      "comparable_count": 173055,
+      "disagreement_count": 1194,
+      "line_count": 173609,
+      "trusted_coverage_fraction": 0.9899313975657944,
+      "unavailable_count": 554,
+      "unresolved_count": 1748,
+      "unresolved_fraction": 0.0100686024342056
+    }
+  },
+  "task_metrics_by_source": {
+    "greek_phd": {
+      "bibliography_membership": {
+        "agreement_count": 92978,
+        "agreement_rate_on_comparable": 0.9992584392833729,
+        "comparable_count": 93047,
+        "disagreement_count": 69,
+        "line_count": 93047,
+        "trusted_coverage_fraction": 0.9992584392833729,
+        "unavailable_count": 0,
+        "unresolved_count": 69,
+        "unresolved_fraction": 0.000741560716627081
+      },
+      "context_role": {
+        "agreement_count": 92913,
+        "agreement_rate_on_comparable": 0.9985598675937967,
+        "comparable_count": 93047,
+        "disagreement_count": 134,
+        "line_count": 93047,
+        "trusted_coverage_fraction": 0.9985598675937967,
+        "unavailable_count": 0,
+        "unresolved_count": 134,
+        "unresolved_fraction": 0.0014401324062033166
+      },
+      "entry_seed": {
+        "agreement_count": 92908,
+        "agreement_rate_on_comparable": 0.9985061313099831,
+        "comparable_count": 93047,
+        "disagreement_count": 139,
+        "line_count": 93047,
+        "trusted_coverage_fraction": 0.9985061313099831,
+        "unavailable_count": 0,
+        "unresolved_count": 139,
+        "unresolved_fraction": 0.0014938686900168733
+      },
+      "fine_role": {
+        "agreement_count": 92252,
+        "agreement_rate_on_comparable": 0.9914559308736445,
+        "comparable_count": 93047,
+        "disagreement_count": 795,
+        "line_count": 93047,
+        "trusted_coverage_fraction": 0.9914559308736445,
+        "unavailable_count": 0,
+        "unresolved_count": 795,
+        "unresolved_fraction": 0.008544069126355499
+      },
+      "heading_type": {
+        "agreement_count": 92423,
+        "agreement_rate_on_comparable": 0.9932937117800681,
+        "comparable_count": 93047,
+        "disagreement_count": 624,
+        "line_count": 93047,
+        "trusted_coverage_fraction": 0.9932937117800681,
+        "unavailable_count": 0,
+        "unresolved_count": 624,
+        "unresolved_fraction": 0.006706288219931862
+      }
+    },
+    "kallipos": {
+      "bibliography_membership": {
+        "agreement_count": 29683,
+        "agreement_rate_on_comparable": 0.9996632202876099,
+        "comparable_count": 29693,
+        "disagreement_count": 10,
+        "line_count": 29693,
+        "trusted_coverage_fraction": 0.9996632202876099,
+        "unavailable_count": 0,
+        "unresolved_count": 10,
+        "unresolved_fraction": 0.0003367797123901256
+      },
+      "context_role": {
+        "agreement_count": 29668,
+        "agreement_rate_on_comparable": 0.9991580507190246,
+        "comparable_count": 29693,
+        "disagreement_count": 25,
+        "line_count": 29693,
+        "trusted_coverage_fraction": 0.9991580507190246,
+        "unavailable_count": 0,
+        "unresolved_count": 25,
+        "unresolved_fraction": 0.000841949280975314
+      },
+      "entry_seed": {
+        "agreement_count": 29658,
+        "agreement_rate_on_comparable": 0.9988212710066345,
+        "comparable_count": 29693,
+        "disagreement_count": 35,
+        "line_count": 29693,
+        "trusted_coverage_fraction": 0.9988212710066345,
+        "unavailable_count": 0,
+        "unresolved_count": 35,
+        "unresolved_fraction": 0.0011787289933654396
+      },
+      "fine_role": {
+        "agreement_count": 29658,
+        "agreement_rate_on_comparable": 0.9988212710066345,
+        "comparable_count": 29693,
+        "disagreement_count": 35,
+        "line_count": 29693,
+        "trusted_coverage_fraction": 0.9988212710066345,
+        "unavailable_count": 0,
+        "unresolved_count": 35,
+        "unresolved_fraction": 0.0011787289933654396
+      },
+      "heading_type": {
+        "agreement_count": 29693,
+        "agreement_rate_on_comparable": 1.0,
+        "comparable_count": 29693,
+        "disagreement_count": 0,
+        "line_count": 29693,
+        "trusted_coverage_fraction": 1.0,
+        "unavailable_count": 0,
+        "unresolved_count": 0,
+        "unresolved_fraction": 0.0
+      }
+    },
+    "openarchives": {
+      "bibliography_membership": {
+        "agreement_count": 50244,
+        "agreement_rate_on_comparable": 0.9985888899930438,
+        "comparable_count": 50315,
+        "disagreement_count": 71,
+        "line_count": 50869,
+        "trusted_coverage_fraction": 0.9877135386974385,
+        "unavailable_count": 554,
+        "unresolved_count": 625,
+        "unresolved_fraction": 0.012286461302561481
+      },
+      "context_role": {
+        "agreement_count": 50154,
+        "agreement_rate_on_comparable": 0.9968001589983106,
+        "comparable_count": 50315,
+        "disagreement_count": 161,
+        "line_count": 50869,
+        "trusted_coverage_fraction": 0.9859442882698697,
+        "unavailable_count": 554,
+        "unresolved_count": 715,
+        "unresolved_fraction": 0.014055711730130335
+      },
+      "entry_seed": {
+        "agreement_count": 50204,
+        "agreement_rate_on_comparable": 0.9977938984398291,
+        "comparable_count": 50315,
+        "disagreement_count": 111,
+        "line_count": 50869,
+        "trusted_coverage_fraction": 0.9869272051740746,
+        "unavailable_count": 554,
+        "unresolved_count": 665,
+        "unresolved_fraction": 0.013072794825925417
+      },
+      "fine_role": {
+        "agreement_count": 49573,
+        "agreement_rate_on_comparable": 0.9852529066878665,
+        "comparable_count": 50315,
+        "disagreement_count": 742,
+        "line_count": 50869,
+        "trusted_coverage_fraction": 0.9745227938430086,
+        "unavailable_count": 554,
+        "unresolved_count": 1296,
+        "unresolved_fraction": 0.025477206156991488
+      },
+      "heading_type": {
+        "agreement_count": 49745,
+        "agreement_rate_on_comparable": 0.9886713703666898,
+        "comparable_count": 50315,
+        "disagreement_count": 570,
+        "line_count": 50869,
+        "trusted_coverage_fraction": 0.9779040279934734,
+        "unavailable_count": 554,
+        "unresolved_count": 1124,
+        "unresolved_fraction": 0.02209597200652657
+      }
+    }
+  },
+  "thresholds": {
+    "membership_agreement_each_source_minimum": 0.95,
+    "membership_agreement_overall_minimum": 0.98,
+    "membership_unresolved_fraction_maximum": 0.005
+  }
+}

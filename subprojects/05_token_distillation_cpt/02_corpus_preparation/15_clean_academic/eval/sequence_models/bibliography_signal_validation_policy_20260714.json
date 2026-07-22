@@ -1,0 +1,50 @@
+{
+  "schema_version": "bibliography-signal-validation-policy-v1",
+  "status": "frozen_before_signal_tcn_validation",
+  "target": "standalone bibliography-like regions rather than isolated citation-looking lines",
+  "removal_policy": {
+    "remove": [
+      "bibliography and reference lists",
+      "standalone annotated bibliographies",
+      "standalone author publication lists",
+      "standalone conference-publication lists",
+      "standalone assigned-reading and resource lists"
+    ],
+    "retain": [
+      "ordinary prose with inline citations",
+      "mixed narrative endnotes and explanatory footnotes",
+      "research-summary tables whose rows describe studies rather than list references",
+      "chronological narrative timelines"
+    ],
+    "headers": "attach exact bibliography headers only after a bibliography-like block exists"
+  },
+  "model_inputs": [
+    "frozen out-of-fold bibliography-entry probability",
+    "eight mutually exclusive deterministic competing roles",
+    "exact bibliography-header flag"
+  ],
+  "forbidden_shortcuts": [
+    "raw document identity",
+    "source identity",
+    "document position",
+    "line length",
+    "validation-derived fitting"
+  ],
+  "validation_candidates": {
+    "precision_first_plain": {
+      "threshold": 0.4,
+      "train_oof_selection": "highest recall plain contextual threshold with raw-silver line precision at least 0.95"
+    },
+    "recall_first_plain": {
+      "threshold": 0.1,
+      "train_oof_selection": "highest-recall threshold in the predeclared plain contextual grid"
+    },
+    "recall_first_anchored": {
+      "selection": "highest train-OOF line recall with raw-silver line precision at least 0.90 from the separately registered low-anchor grid",
+      "minimum_anchor_count": 2,
+      "purpose": "retain high recall while forbidding isolated line deletion"
+    }
+  },
+  "validation_selection_rule": "report every frozen candidate; validation may diagnose failures but may not select a threshold that was not registered here",
+  "label_caveat": "LLM-silver misses real bibliography blocks; preserve raw-silver metrics and separately adjudicate reviewed blocks without silently rewriting historical labels"
+}

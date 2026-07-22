@@ -1,0 +1,331 @@
+{
+  "by_source": {
+    "greek_phd": {
+      "category_metrics": {
+        "context_line": {
+          "both_detected_count": 807,
+          "detection_agreement_on_union": 0.8658798283261803,
+          "exact_subtype_agreement_count": 798,
+          "one_detected_count": 125,
+          "subtype_agreement_conditional_on_both": 0.9888475836431226,
+          "unavailable_count": 0,
+          "union_detected_count": 932
+        },
+        "heading": {
+          "both_detected_count": 5575,
+          "detection_agreement_on_union": 0.9007917272580385,
+          "exact_subtype_agreement_count": 5565,
+          "one_detected_count": 614,
+          "subtype_agreement_conditional_on_both": 0.9982062780269059,
+          "unavailable_count": 0,
+          "union_detected_count": 6189
+        }
+      },
+      "task_metrics": {
+        "bibliography_membership": {
+          "agreement_count": 92978,
+          "agreement_rate_on_comparable": 0.9992584392833729,
+          "comparable_count": 93047,
+          "disagreement_count": 69,
+          "line_count": 93047,
+          "trusted_coverage_fraction": 0.9992584392833729,
+          "unavailable_count": 0,
+          "unresolved_count": 69,
+          "unresolved_fraction": 0.000741560716627081
+        },
+        "context_role": {
+          "agreement_count": 92913,
+          "agreement_rate_on_comparable": 0.9985598675937967,
+          "comparable_count": 93047,
+          "disagreement_count": 134,
+          "line_count": 93047,
+          "trusted_coverage_fraction": 0.9985598675937967,
+          "unavailable_count": 0,
+          "unresolved_count": 134,
+          "unresolved_fraction": 0.0014401324062033166
+        },
+        "entry_seed": {
+          "agreement_count": 92908,
+          "agreement_rate_on_comparable": 0.9985061313099831,
+          "comparable_count": 93047,
+          "disagreement_count": 139,
+          "line_count": 93047,
+          "trusted_coverage_fraction": 0.9985061313099831,
+          "unavailable_count": 0,
+          "unresolved_count": 139,
+          "unresolved_fraction": 0.0014938686900168733
+        },
+        "fine_role": {
+          "agreement_count": 92252,
+          "agreement_rate_on_comparable": 0.9914559308736445,
+          "comparable_count": 93047,
+          "disagreement_count": 795,
+          "line_count": 93047,
+          "trusted_coverage_fraction": 0.9914559308736445,
+          "unavailable_count": 0,
+          "unresolved_count": 795,
+          "unresolved_fraction": 0.008544069126355499
+        },
+        "heading_type": {
+          "agreement_count": 92423,
+          "agreement_rate_on_comparable": 0.9932937117800681,
+          "comparable_count": 93047,
+          "disagreement_count": 624,
+          "line_count": 93047,
+          "trusted_coverage_fraction": 0.9932937117800681,
+          "unavailable_count": 0,
+          "unresolved_count": 624,
+          "unresolved_fraction": 0.006706288219931862
+        }
+      }
+    },
+    "kallipos": {
+      "category_metrics": {
+        "context_line": {
+          "both_detected_count": 87,
+          "detection_agreement_on_union": 0.7767857142857143,
+          "exact_subtype_agreement_count": 87,
+          "one_detected_count": 25,
+          "subtype_agreement_conditional_on_both": 1.0,
+          "unavailable_count": 0,
+          "union_detected_count": 112
+        },
+        "heading": {
+          "both_detected_count": 0,
+          "detection_agreement_on_union": 0.0,
+          "exact_subtype_agreement_count": 0,
+          "one_detected_count": 0,
+          "subtype_agreement_conditional_on_both": 0.0,
+          "unavailable_count": 0,
+          "union_detected_count": 0
+        }
+      },
+      "task_metrics": {
+        "bibliography_membership": {
+          "agreement_count": 29683,
+          "agreement_rate_on_comparable": 0.9996632202876099,
+          "comparable_count": 29693,
+          "disagreement_count": 10,
+          "line_count": 29693,
+          "trusted_coverage_fraction": 0.9996632202876099,
+          "unavailable_count": 0,
+          "unresolved_count": 10,
+          "unresolved_fraction": 0.0003367797123901256
+        },
+        "context_role": {
+          "agreement_count": 29668,
+          "agreement_rate_on_comparable": 0.9991580507190246,
+          "comparable_count": 29693,
+          "disagreement_count": 25,
+          "line_count": 29693,
+          "trusted_coverage_fraction": 0.9991580507190246,
+          "unavailable_count": 0,
+          "unresolved_count": 25,
+          "unresolved_fraction": 0.000841949280975314
+        },
+        "entry_seed": {
+          "agreement_count": 29658,
+          "agreement_rate_on_comparable": 0.9988212710066345,
+          "comparable_count": 29693,
+          "disagreement_count": 35,
+          "line_count": 29693,
+          "trusted_coverage_fraction": 0.9988212710066345,
+          "unavailable_count": 0,
+          "unresolved_count": 35,
+          "unresolved_fraction": 0.0011787289933654396
+        },
+        "fine_role": {
+          "agreement_count": 29658,
+          "agreement_rate_on_comparable": 0.9988212710066345,
+          "comparable_count": 29693,
+          "disagreement_count": 35,
+          "line_count": 29693,
+          "trusted_coverage_fraction": 0.9988212710066345,
+          "unavailable_count": 0,
+          "unresolved_count": 35,
+          "unresolved_fraction": 0.0011787289933654396
+        },
+        "heading_type": {
+          "agreement_count": 29693,
+          "agreement_rate_on_comparable": 1.0,
+          "comparable_count": 29693,
+          "disagreement_count": 0,
+          "line_count": 29693,
+          "trusted_coverage_fraction": 1.0,
+          "unavailable_count": 0,
+          "unresolved_count": 0,
+          "unresolved_fraction": 0.0
+        }
+      }
+    },
+    "openarchives": {
+      "category_metrics": {
+        "context_line": {
+          "both_detected_count": 688,
+          "detection_agreement_on_union": 0.819047619047619,
+          "exact_subtype_agreement_count": 679,
+          "one_detected_count": 152,
+          "subtype_agreement_conditional_on_both": 0.9869186046511628,
+          "unavailable_count": 554,
+          "union_detected_count": 840
+        },
+        "heading": {
+          "both_detected_count": 2796,
+          "detection_agreement_on_union": 0.8309063893016345,
+          "exact_subtype_agreement_count": 2795,
+          "one_detected_count": 569,
+          "subtype_agreement_conditional_on_both": 0.9996423462088698,
+          "unavailable_count": 554,
+          "union_detected_count": 3365
+        }
+      },
+      "task_metrics": {
+        "bibliography_membership": {
+          "agreement_count": 50244,
+          "agreement_rate_on_comparable": 0.9985888899930438,
+          "comparable_count": 50315,
+          "disagreement_count": 71,
+          "line_count": 50869,
+          "trusted_coverage_fraction": 0.9877135386974385,
+          "unavailable_count": 554,
+          "unresolved_count": 625,
+          "unresolved_fraction": 0.012286461302561481
+        },
+        "context_role": {
+          "agreement_count": 50154,
+          "agreement_rate_on_comparable": 0.9968001589983106,
+          "comparable_count": 50315,
+          "disagreement_count": 161,
+          "line_count": 50869,
+          "trusted_coverage_fraction": 0.9859442882698697,
+          "unavailable_count": 554,
+          "unresolved_count": 715,
+          "unresolved_fraction": 0.014055711730130335
+        },
+        "entry_seed": {
+          "agreement_count": 50204,
+          "agreement_rate_on_comparable": 0.9977938984398291,
+          "comparable_count": 50315,
+          "disagreement_count": 111,
+          "line_count": 50869,
+          "trusted_coverage_fraction": 0.9869272051740746,
+          "unavailable_count": 554,
+          "unresolved_count": 665,
+          "unresolved_fraction": 0.013072794825925417
+        },
+        "fine_role": {
+          "agreement_count": 49573,
+          "agreement_rate_on_comparable": 0.9852529066878665,
+          "comparable_count": 50315,
+          "disagreement_count": 742,
+          "line_count": 50869,
+          "trusted_coverage_fraction": 0.9745227938430086,
+          "unavailable_count": 554,
+          "unresolved_count": 1296,
+          "unresolved_fraction": 0.025477206156991488
+        },
+        "heading_type": {
+          "agreement_count": 49745,
+          "agreement_rate_on_comparable": 0.9886713703666898,
+          "comparable_count": 50315,
+          "disagreement_count": 570,
+          "line_count": 50869,
+          "trusted_coverage_fraction": 0.9779040279934734,
+          "unavailable_count": 554,
+          "unresolved_count": 1124,
+          "unresolved_fraction": 0.02209597200652657
+        }
+      }
+    }
+  },
+  "category_metrics": {
+    "context_line": {
+      "both_detected_count": 1582,
+      "detection_agreement_on_union": 0.8397027600849257,
+      "exact_subtype_agreement_count": 1564,
+      "one_detected_count": 302,
+      "subtype_agreement_conditional_on_both": 0.988621997471555,
+      "unavailable_count": 554,
+      "union_detected_count": 1884
+    },
+    "heading": {
+      "both_detected_count": 8371,
+      "detection_agreement_on_union": 0.8761775172702533,
+      "exact_subtype_agreement_count": 8360,
+      "one_detected_count": 1183,
+      "subtype_agreement_conditional_on_both": 0.9986859395532195,
+      "unavailable_count": 554,
+      "union_detected_count": 9554
+    }
+  },
+  "code_commit": "1a536f1",
+  "code_sha256": "32367019279f20a760d9ba4a717d4d17266704b27b4f167cff05af5a6b47e841",
+  "denominator_semantics": {
+    "category_detection": "union where either comparable vote detects the category",
+    "conditional_subtype": "lines where both comparable votes detect the category",
+    "task_agreement": "both raw repaired votes are non-UNKNOWN",
+    "trusted_coverage": "all retained physical lines"
+  },
+  "labels_sha256": "d065465ebd007a7ca8aeb7f6c7de6da06915028163add1642d53aeab24998a1f",
+  "line_count": 173609,
+  "schema_version": "bibliography-consensus-agreement-analysis-v1",
+  "slurm_job_id": "2799790",
+  "status": "passed_repaired_retained_agreement_analysis",
+  "task_metrics": {
+    "bibliography_membership": {
+      "agreement_count": 172905,
+      "agreement_rate_on_comparable": 0.9991332235416486,
+      "comparable_count": 173055,
+      "disagreement_count": 150,
+      "line_count": 173609,
+      "trusted_coverage_fraction": 0.995944910690114,
+      "unavailable_count": 554,
+      "unresolved_count": 704,
+      "unresolved_fraction": 0.004055089309886008
+    },
+    "context_role": {
+      "agreement_count": 172735,
+      "agreement_rate_on_comparable": 0.9981508768888504,
+      "comparable_count": 173055,
+      "disagreement_count": 320,
+      "line_count": 173609,
+      "trusted_coverage_fraction": 0.9949656987828972,
+      "unavailable_count": 554,
+      "unresolved_count": 874,
+      "unresolved_fraction": 0.0050343012171028
+    },
+    "entry_seed": {
+      "agreement_count": 172770,
+      "agreement_rate_on_comparable": 0.9983531247291324,
+      "comparable_count": 173055,
+      "disagreement_count": 285,
+      "line_count": 173609,
+      "trusted_coverage_fraction": 0.995167301234383,
+      "unavailable_count": 554,
+      "unresolved_count": 839,
+      "unresolved_fraction": 0.00483269876561699
+    },
+    "fine_role": {
+      "agreement_count": 171483,
+      "agreement_rate_on_comparable": 0.9909161827164774,
+      "comparable_count": 173055,
+      "disagreement_count": 1572,
+      "line_count": 173609,
+      "trusted_coverage_fraction": 0.9877540910897477,
+      "unavailable_count": 554,
+      "unresolved_count": 2126,
+      "unresolved_fraction": 0.012245908910252349
+    },
+    "heading_type": {
+      "agreement_count": 171861,
+      "agreement_rate_on_comparable": 0.9931004593915229,
+      "comparable_count": 173055,
+      "disagreement_count": 1194,
+      "line_count": 173609,
+      "trusted_coverage_fraction": 0.9899313975657944,
+      "unavailable_count": 554,
+      "unresolved_count": 1748,
+      "unresolved_fraction": 0.0100686024342056
+    }
+  }
+}

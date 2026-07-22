@@ -1,0 +1,333 @@
+<section id="bib-gap-training-vis" aria-label="Bibliography gap training dataset explorer">
+  <style>
+    #bib-gap-training-vis {
+      color: var(--foreground);
+      display: grid;
+      gap: 1rem;
+    }
+    #bib-gap-training-vis .dataset-summary {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    #bib-gap-training-vis .dataset-controls {
+      align-items: end;
+    }
+    #bib-gap-training-vis .case-status {
+      display: grid;
+      gap: .55rem;
+    }
+    #bib-gap-training-vis .case-status-top,
+    #bib-gap-training-vis .case-status-meta,
+    #bib-gap-training-vis .reader-legend {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .55rem 1rem;
+    }
+    #bib-gap-training-vis .case-status-top {
+      justify-content: space-between;
+    }
+    #bib-gap-training-vis .training-label {
+      font-weight: 500;
+    }
+    #bib-gap-training-vis .reader-legend {
+      color: var(--muted-foreground);
+    }
+    #bib-gap-training-vis .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+    }
+    #bib-gap-training-vis .legend-swatch {
+      width: .75rem;
+      height: .75rem;
+      border-radius: 2px;
+      background: var(--muted);
+    }
+    #bib-gap-training-vis .legend-swatch.anchor {
+      background: color-mix(in srgb, var(--viz-series-1) 28%, var(--background));
+    }
+    #bib-gap-training-vis .legend-swatch.connect {
+      background: color-mix(in srgb, var(--viz-series-3) 28%, var(--background));
+    }
+    #bib-gap-training-vis .legend-swatch.break {
+      background: color-mix(in srgb, var(--destructive) 24%, var(--background));
+    }
+    #bib-gap-training-vis .document-reader {
+      display: grid;
+      gap: 1px;
+      padding: .5rem 0;
+    }
+    #bib-gap-training-vis .document-line {
+      display: grid;
+      grid-template-columns: 7.5rem minmax(0, 1fr) 4.5rem;
+      gap: .75rem;
+      align-items: start;
+      padding: .55rem .7rem;
+      border-inline-start: 4px solid transparent;
+    }
+    #bib-gap-training-vis .document-line.context {
+      color: var(--muted-foreground);
+    }
+    #bib-gap-training-vis .document-line.anchor {
+      color: var(--foreground);
+      background: color-mix(in srgb, var(--viz-series-1) 11%, transparent);
+      border-inline-start-color: var(--viz-series-1);
+    }
+    #bib-gap-training-vis .document-line.training-connect {
+      color: var(--foreground);
+      background: color-mix(in srgb, var(--viz-series-3) 13%, transparent);
+      border-inline-start-color: var(--viz-series-3);
+    }
+    #bib-gap-training-vis .document-line.training-break {
+      color: var(--foreground);
+      background: color-mix(in srgb, var(--destructive) 11%, transparent);
+      border-inline-start-color: var(--destructive);
+    }
+    #bib-gap-training-vis .line-role,
+    #bib-gap-training-vis .line-silver {
+      color: var(--muted-foreground);
+      font-variant-numeric: tabular-nums;
+    }
+    #bib-gap-training-vis .line-role strong,
+    #bib-gap-training-vis .line-silver strong {
+      color: var(--foreground);
+      font-weight: 500;
+    }
+    #bib-gap-training-vis .line-text {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    #bib-gap-training-vis .omission .line-text {
+      color: var(--muted-foreground);
+      font-style: italic;
+    }
+    #bib-gap-training-vis .empty-state {
+      padding: 1rem 0;
+      color: var(--muted-foreground);
+    }
+    @media (max-width: 620px) {
+      #bib-gap-training-vis .dataset-summary {
+        grid-template-columns: 1fr;
+      }
+      #bib-gap-training-vis .document-line {
+        grid-template-columns: 5rem minmax(0, 1fr);
+      }
+      #bib-gap-training-vis .line-silver {
+        grid-column: 2;
+      }
+    }
+  </style>
+
+  <div class="viz-grid dataset-summary" aria-label="Selected training dataset summary">
+    <div class="card viz-stat">
+      <div class="text-muted">Selected training examples</div>
+      <div class="viz-stat-value" id="gap-total">—</div>
+      <div class="text-small text-muted" id="gap-works">—</div>
+    </div>
+    <div class="card viz-stat">
+      <div class="text-muted">BIB / CONNECT</div>
+      <div class="viz-stat-value" id="gap-connect">—</div>
+      <div class="text-small text-muted">interior spans within one BIB block</div>
+    </div>
+    <div class="card viz-stat">
+      <div class="text-muted">NOT BIB / BREAK</div>
+      <div class="viz-stat-value" id="gap-break">—</div>
+      <div class="text-small text-muted">boundaries the model must not cross</div>
+    </div>
+  </div>
+
+  <div class="viz-controls dataset-controls" aria-label="Dataset filters">
+    <label class="form-label" for="gap-source-filter">Source
+      <select class="form-select" id="gap-source-filter">
+        <option value="all">All sources</option>
+        <option value="greek_phd">Greek PhD</option>
+        <option value="kallipos">Kallipos</option>
+        <option value="openarchives">OpenArchives</option>
+      </select>
+    </label>
+    <label class="form-label" for="gap-label-filter">Training label
+      <select class="form-select" id="gap-label-filter">
+        <option value="all">Both labels</option>
+        <option value="1">BIB / CONNECT</option>
+        <option value="0">NOT BIB / BREAK</option>
+      </select>
+    </label>
+    <label class="form-label" for="gap-length-filter">Gap length
+      <select class="form-select" id="gap-length-filter">
+        <option value="all">All lengths</option>
+      </select>
+    </label>
+    <label class="form-label" for="gap-case-select">Example
+      <select class="form-select" id="gap-case-select"></select>
+    </label>
+    <button type="button" class="btn" id="gap-previous">Previous</button>
+    <button type="button" class="btn btn-primary" id="gap-next">Next</button>
+  </div>
+
+  <div class="card case-status" id="gap-case-status" aria-live="polite">
+    <div class="case-status-top">
+      <strong class="training-label" id="gap-training-label">—</strong>
+      <span class="text-small text-muted" id="gap-case-count">—</span>
+    </div>
+    <div class="case-status-meta text-small" id="gap-case-meta"></div>
+    <div class="reader-legend text-small" aria-label="Reader legend">
+      <span class="legend-item"><span class="legend-swatch anchor"></span>seed endpoint, excluded from training input</span>
+      <span class="legend-item"><span class="legend-swatch connect"></span>training span labelled BIB / CONNECT</span>
+      <span class="legend-item"><span class="legend-swatch break"></span>training span labelled NOT BIB / BREAK</span>
+    </div>
+  </div>
+
+  <div class="document-reader" id="gap-document-reader" aria-label="Selected document excerpt"></div>
+  <div class="empty-state" id="gap-empty" hidden>No examples match these filters.</div>
+
+  <script type="application/json" id="bib-gap-training-data">
+__PACKET_JSON__
+  </script>
+  <script>
+    (() => {
+      const root = document.getElementById('bib-gap-training-vis');
+      const data = JSON.parse(document.getElementById('bib-gap-training-data').textContent);
+      const sourceFilter = document.getElementById('gap-source-filter');
+      const labelFilter = document.getElementById('gap-label-filter');
+      const lengthFilter = document.getElementById('gap-length-filter');
+      const caseSelect = document.getElementById('gap-case-select');
+      const previous = document.getElementById('gap-previous');
+      const next = document.getElementById('gap-next');
+      const reader = document.getElementById('gap-document-reader');
+      const empty = document.getElementById('gap-empty');
+      const trainingLabel = document.getElementById('gap-training-label');
+      const caseCount = document.getElementById('gap-case-count');
+      const caseMeta = document.getElementById('gap-case-meta');
+      let filtered = [];
+      let cursor = 0;
+
+      const summary = data.training_summary;
+      document.getElementById('gap-total').textContent = summary.training_example_count.toLocaleString();
+      document.getElementById('gap-connect').textContent = summary.connect_count.toLocaleString();
+      document.getElementById('gap-break').textContent = summary.break_count.toLocaleString();
+      document.getElementById('gap-works').textContent = `${summary.work_count.toLocaleString()} canonical works`;
+
+      const buckets = [...new Set(data.cases.map(item => item.gap_length_bucket))];
+      const bucketOrder = ['1', '2', '3-5', '6-10', '11-30', '31-60', '61-120', '121-200', '>200'];
+      buckets.sort((a, b) => bucketOrder.indexOf(a) - bucketOrder.indexOf(b));
+      for (const bucket of buckets) {
+        const option = document.createElement('option');
+        option.value = bucket;
+        option.textContent = `${bucket} lines`;
+        lengthFilter.append(option);
+      }
+
+      function addMeta(label, value) {
+        const span = document.createElement('span');
+        const strong = document.createElement('strong');
+        strong.textContent = `${label}: `;
+        span.append(strong, document.createTextNode(value));
+        caseMeta.append(span);
+      }
+
+      function renderLine(line, target) {
+        const row = document.createElement('div');
+        const role = document.createElement('div');
+        const text = document.createElement('div');
+        const silver = document.createElement('div');
+        row.className = 'document-line';
+        role.className = 'line-role text-small';
+        text.className = 'line-text';
+        silver.className = 'line-silver text-small';
+
+        if (line.role === 'omission') {
+          row.classList.add(target ? 'training-connect' : 'training-break', 'omission');
+          role.textContent = 'TRAIN';
+          text.textContent = `… ${line.omitted_line_count.toLocaleString()} interior training lines omitted from this display …`;
+          silver.textContent = '—';
+        } else {
+          if (line.role === 'training_span') {
+            row.classList.add(target ? 'training-connect' : 'training-break');
+            role.innerHTML = '<strong>TRAIN</strong>';
+          } else if (line.role === 'left_anchor' || line.role === 'right_anchor') {
+            row.classList.add('anchor');
+            role.innerHTML = '<strong>SEED</strong><br>excluded';
+          } else {
+            row.classList.add('context');
+            role.textContent = 'CONTEXT';
+          }
+          text.textContent = line.text || ' ';
+          const strong = document.createElement('strong');
+          strong.textContent = line.silver_label;
+          silver.append(strong, document.createTextNode(` · L${line.abs_idx}`));
+        }
+        row.append(role, text, silver);
+        return row;
+      }
+
+      function render() {
+        reader.replaceChildren();
+        caseMeta.replaceChildren();
+        const hasCases = filtered.length > 0;
+        empty.hidden = hasCases;
+        reader.hidden = !hasCases;
+        document.getElementById('gap-case-status').hidden = !hasCases;
+        previous.disabled = !hasCases || filtered.length < 2;
+        next.disabled = !hasCases || filtered.length < 2;
+        if (!hasCases) return;
+
+        cursor = Math.max(0, Math.min(cursor, filtered.length - 1));
+        const item = filtered[cursor];
+        caseSelect.value = item.variant_id;
+        trainingLabel.textContent = item.training_label;
+        trainingLabel.className = 'training-label';
+        caseCount.textContent = `${cursor + 1} of ${filtered.length} matching · ${data.presentation_summary.training_example_count} source/label-balanced excerpts`;
+        addMeta('Source', item.source);
+        addMeta('Gap', `${item.gap_line_count} lines`);
+        addMeta('Fold', String(item.fold));
+        addMeta('Regime', item.regime);
+        addMeta('Silver labels inside', Object.entries(item.gap_silver_labels).map(([key, value]) => `${key} ${value}`).join(', '));
+        addMeta('Document', item.document_id.slice(0, 12));
+        for (const line of item.lines) reader.append(renderLine(line, item.target_connect));
+      }
+
+      function applyFilters(preferredId) {
+        filtered = data.cases.filter(item =>
+          (sourceFilter.value === 'all' || item.source === sourceFilter.value) &&
+          (labelFilter.value === 'all' || String(item.target_connect) === labelFilter.value) &&
+          (lengthFilter.value === 'all' || item.gap_length_bucket === lengthFilter.value)
+        );
+        caseSelect.replaceChildren();
+        for (const item of filtered) {
+          const option = document.createElement('option');
+          option.value = item.variant_id;
+          option.textContent = `${item.target_connect ? 'BIB' : 'NOT BIB'} · ${item.source} · ${item.gap_line_count} lines · ${item.document_id.slice(0, 8)}`;
+          caseSelect.append(option);
+        }
+        const preferred = filtered.findIndex(item => item.variant_id === preferredId);
+        cursor = preferred >= 0 ? preferred : 0;
+        render();
+      }
+
+      for (const control of [sourceFilter, labelFilter, lengthFilter]) {
+        control.addEventListener('change', () => applyFilters(filtered[cursor]?.variant_id));
+      }
+      caseSelect.addEventListener('change', () => {
+        const index = filtered.findIndex(item => item.variant_id === caseSelect.value);
+        if (index >= 0) {
+          cursor = index;
+          render();
+        }
+      });
+      previous.addEventListener('click', () => {
+        if (filtered.length) {
+          cursor = (cursor - 1 + filtered.length) % filtered.length;
+          render();
+        }
+      });
+      next.addEventListener('click', () => {
+        if (filtered.length) {
+          cursor = (cursor + 1) % filtered.length;
+          render();
+        }
+      });
+
+      applyFilters();
+    })();
+  </script>
+</section>

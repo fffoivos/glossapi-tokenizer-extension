@@ -1,0 +1,102 @@
+{
+  "code_commit": "b9f27cd",
+  "code_sha256": "aeab573c99f8c15d2b5a6dc733f6676e86989b471e6d7e1c965b0bbe2677750b",
+  "document_count": 143,
+  "excluded_document_count": 7,
+  "gates": {
+    "complete_retained_line_coverage": true,
+    "independent_audit_passed": true,
+    "membership_agreement_each_source_gte_0_95": true,
+    "membership_agreement_overall_gte_0_98": true,
+    "membership_unresolved_fraction_lte_0_005": true,
+    "original_failed_150_document_freeze_preserved": true,
+    "retained_and_excluded_documents_reconstruct_original_150": true
+  },
+  "human_gold": false,
+  "label_semantics": "post-repair dual-Codex task-specific consensus silver; only exact repaired A/B task agreement is trusted",
+  "line_count": 173609,
+  "lock_policy": "all derived cohort data, labels, manifests, receipts, audit and seal are mode 0440",
+  "original_150_document_attempt": {
+    "a_b_binary_agreement_overall": 0.9775830918346863,
+    "failed_gate": "binary_agreement_overall_gte_0_98",
+    "receipt_path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718/40_frozen/consensus.receipt.json",
+    "status": "blocked"
+  },
+  "primary_evaluation_task": "bibliography_membership",
+  "protocol_semantics": "user-directed post-hoc 143-document consensus cohort; this does not convert the failed original 150-document prediction-blind attempt into a passed freeze",
+  "schema_version": "bibliography-consensus-silver-freeze-v1",
+  "sealed_hashes": {
+    "documents_sha256": "5143c6d259e80a91f8c369f491f39b0606854560f39f1899dbc7d00403d20061",
+    "exclusions_sha256": "736fdacd30ba21be1c8f7f8311d92a81e5c9ae5c3c67cd28c5a868eb7c694319",
+    "independent_audit_sha256": "88a7f1d1d165a637a3fdc9c553772701d90a8ebb1d26c41553aefbe69749f7b0",
+    "labels_sha256": "d065465ebd007a7ca8aeb7f6c7de6da06915028163add1642d53aeab24998a1f",
+    "line_key_sha256": "8990bba4d04e6c2f16ebd8f61ccbcd29e38231b217c9194d4059d02c893a71b0",
+    "materialization_receipt_sha256": "19b941857213025f744c44d1a37a8dc77711abb150625ea92bc8c0a1a2658a2e",
+    "original_blocked_consensus_receipt_sha256": "9665af2550150a884f4f763d37f22e1c5542c63e4000133c1f4d7cf8c910b229",
+    "overlay_sha256": "a93f13b7f823b0815d36668a77c9619f312dac5b04991e64aec08d8d8d44b940"
+  },
+  "slurm_job_id": "2799088",
+  "source_document_counts": {
+    "greek_phd": 45,
+    "kallipos": 50,
+    "openarchives": 48
+  },
+  "source_membership_metrics": {
+    "greek_phd": {
+      "agreement_fraction": 0.9992584392833729,
+      "line_count": 93047,
+      "trusted_count": 92978,
+      "unresolved_count": 69
+    },
+    "kallipos": {
+      "agreement_fraction": 0.9996632202876099,
+      "line_count": 29693,
+      "trusted_count": 29683,
+      "unresolved_count": 10
+    },
+    "openarchives": {
+      "agreement_fraction": 0.9877135386974385,
+      "line_count": 50869,
+      "trusted_count": 50244,
+      "unresolved_count": 625
+    }
+  },
+  "status": "frozen_posthoc_consensus_silver_evaluation_set",
+  "task_coverage": {
+    "bibliography_membership": {
+      "trusted_count": 172905,
+      "trusted_fraction": 0.995944910690114,
+      "unresolved_count": 704,
+      "unresolved_fraction": 0.004055089309886008
+    },
+    "context_role": {
+      "trusted_count": 172735,
+      "trusted_fraction": 0.9949656987828972,
+      "unresolved_count": 874,
+      "unresolved_fraction": 0.0050343012171028
+    },
+    "entry_seed": {
+      "trusted_count": 172770,
+      "trusted_fraction": 0.995167301234383,
+      "unresolved_count": 839,
+      "unresolved_fraction": 0.00483269876561699
+    },
+    "fine_role": {
+      "trusted_count": 171483,
+      "trusted_fraction": 0.9877540910897477,
+      "unresolved_count": 2126,
+      "unresolved_fraction": 0.012245908910252349
+    },
+    "heading_type": {
+      "trusted_count": 171861,
+      "trusted_fraction": 0.9899313975657944,
+      "unresolved_count": 1748,
+      "unresolved_fraction": 0.0100686024342056
+    }
+  },
+  "thresholds": {
+    "membership_agreement_each_source_minimum": 0.95,
+    "membership_agreement_overall_minimum": 0.98,
+    "membership_unresolved_fraction_maximum": 0.005
+  }
+}

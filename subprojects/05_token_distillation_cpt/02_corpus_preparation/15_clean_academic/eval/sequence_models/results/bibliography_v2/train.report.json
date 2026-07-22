@@ -1,0 +1,2997 @@
+{
+  "schema_version": "bibliography-explicit-feature-evaluation-v1",
+  "status": "comparison_only",
+  "evidence_tier": "LLM_silver",
+  "split": "train",
+  "document_count": 1118,
+  "source_counts": {
+    "greek_phd": 373,
+    "kallipos": 369,
+    "openarchives": 376
+  },
+  "input": {
+    "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/struct2k.LLM_silver.jsonl",
+    "sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "components": {
+    "r2": {
+      "rules": "deterministic_structural_rules_v1",
+      "decoder": "confirmed_blocks_typed_gaps_v1"
+    },
+    "v2": {
+      "rules": "deterministic_bibliography_explicit_features_v2",
+      "decoder": "bibliography_anchor_clusters_typed_gaps_v2"
+    }
+  },
+  "code_revision": {
+    "available": true,
+    "clean": true,
+    "commit": "62ab462c91bf38acb49605f27543cd14036850f3",
+    "repository": "/iopsstor/scratch/cscs/fffoivos/repo/train-apertus-toc-bib-agent2-2c21586"
+  },
+  "metrics": {
+    "r2_safe_action": {
+      "overall": {
+        "line": {
+          "precision": 0.9997324772605671,
+          "recall": 0.026837973901740125,
+          "f1": 0.052272679586798244,
+          "tp": 3737,
+          "fp": 1,
+          "fn": 135506
+        },
+        "token": {
+          "precision": 0.9999906212045186,
+          "recall": 0.026251308903101653,
+          "f1": 0.051159598779386126
+        },
+        "span": {
+          "exact_precision": 0.22839506172839505,
+          "exact_recall": 0.02267156862745098,
+          "iou50_precision": 0.2962962962962963,
+          "iou50_recall": 0.029411764705882353,
+          "predicted": 162,
+          "gold": 1632
+        },
+        "document_without_false_positive_fraction": 0.9991055456171736
+      },
+      "by_source": {
+        "greek_phd": {
+          "line": {
+            "precision": 0.9994761655316919,
+            "recall": 0.02003296830213244,
+            "f1": 0.03927865612648221,
+            "tp": 1908,
+            "fp": 1,
+            "fn": 93335
+          },
+          "token": {
+            "precision": 0.9999820863973058,
+            "recall": 0.019866648160406567,
+            "f1": 0.03895929191063842
+          },
+          "span": {
+            "exact_precision": 0.25,
+            "exact_recall": 0.022082018927444796,
+            "iou50_precision": 0.35714285714285715,
+            "iou50_recall": 0.031545741324921134,
+            "predicted": 56,
+            "gold": 634
+          },
+          "document_without_false_positive_fraction": 0.9973190348525469
+        },
+        "kallipos": {
+          "line": {
+            "precision": 1.0,
+            "recall": 0.0023058172475130113,
+            "f1": 0.004601025371368477,
+            "tp": 35,
+            "fp": 0,
+            "fn": 15144
+          },
+          "token": {
+            "precision": 1.0,
+            "recall": 0.0018115317956497103,
+            "f1": 0.0036165121645240312
+          },
+          "span": {
+            "exact_precision": 0.0,
+            "exact_recall": 0.0,
+            "iou50_precision": 0.0,
+            "iou50_recall": 0.0,
+            "predicted": 3,
+            "gold": 591
+          },
+          "document_without_false_positive_fraction": 1.0
+        },
+        "openarchives": {
+          "line": {
+            "precision": 1.0,
+            "recall": 0.06224627875507442,
+            "f1": 0.11719745222929936,
+            "tp": 1794,
+            "fp": 0,
+            "fn": 27027
+          },
+          "token": {
+            "precision": 1.0,
+            "recall": 0.06022573743805159,
+            "f1": 0.11360927265090195
+          },
+          "span": {
+            "exact_precision": 0.22330097087378642,
+            "exact_recall": 0.056511056511056514,
+            "iou50_precision": 0.27184466019417475,
+            "iou50_recall": 0.0687960687960688,
+            "predicted": 103,
+            "gold": 407
+          },
+          "document_without_false_positive_fraction": 1.0
+        }
+      }
+    },
+    "r2_all_proposals": {
+      "overall": {
+        "line": {
+          "precision": 0.9917431192660551,
+          "recall": 0.17855834763686504,
+          "f1": 0.30262973714800406,
+          "tp": 24863,
+          "fp": 207,
+          "fn": 114380
+        },
+        "token": {
+          "precision": 0.9922180445786571,
+          "recall": 0.18913745224488732,
+          "f1": 0.31771231187836474
+        },
+        "span": {
+          "exact_precision": 0.06880733944954129,
+          "exact_recall": 0.06433823529411764,
+          "iou50_precision": 0.17234600262123198,
+          "iou50_recall": 0.16115196078431374,
+          "predicted": 1526,
+          "gold": 1632
+        },
+        "document_without_false_positive_fraction": 0.9856887298747764
+      },
+      "by_source": {
+        "greek_phd": {
+          "line": {
+            "precision": 0.9882835383714118,
+            "recall": 0.12398811461209748,
+            "f1": 0.22033360698559593,
+            "tp": 11809,
+            "fp": 140,
+            "fn": 83434
+          },
+          "token": {
+            "precision": 0.9928688090623938,
+            "recall": 0.1414905013061149,
+            "f1": 0.2476843170261572
+          },
+          "span": {
+            "exact_precision": 0.03063063063063063,
+            "exact_recall": 0.026813880126182965,
+            "iou50_precision": 0.08828828828828829,
+            "iou50_recall": 0.07728706624605679,
+            "predicted": 555,
+            "gold": 634
+          },
+          "document_without_false_positive_fraction": 0.9812332439678284
+        },
+        "kallipos": {
+          "line": {
+            "precision": 0.9976777420507325,
+            "recall": 0.36794255221029054,
+            "f1": 0.5376137074649854,
+            "tp": 5585,
+            "fp": 13,
+            "fn": 9594
+          },
+          "token": {
+            "precision": 0.9951481303424268,
+            "recall": 0.3467046157830153,
+            "f1": 0.5142478579319507
+          },
+          "span": {
+            "exact_precision": 0.13276231263383298,
+            "exact_recall": 0.10490693739424704,
+            "iou50_precision": 0.31049250535331907,
+            "iou50_recall": 0.24534686971235195,
+            "predicted": 467,
+            "gold": 591
+          },
+          "document_without_false_positive_fraction": 0.991869918699187
+        },
+        "openarchives": {
+          "line": {
+            "precision": 0.9928220124950153,
+            "recall": 0.2591513132785122,
+            "f1": 0.41101694915254244,
+            "tp": 7469,
+            "fp": 54,
+            "fn": 21352
+          },
+          "token": {
+            "precision": 0.9891793615471136,
+            "recall": 0.27045222713362804,
+            "f1": 0.42476826362417075
+          },
+          "span": {
+            "exact_precision": 0.051587301587301584,
+            "exact_recall": 0.06388206388206388,
+            "iou50_precision": 0.13690476190476192,
+            "iou50_recall": 0.16953316953316952,
+            "predicted": 504,
+            "gold": 407
+          },
+          "document_without_false_positive_fraction": 0.9840425531914894
+        }
+      }
+    },
+    "v2_local_evidence": {
+      "overall": {
+        "line": {
+          "precision": 0.9271800751640232,
+          "recall": 0.5226761847992358,
+          "f1": 0.6685006751233133,
+          "tp": 72779,
+          "fp": 5716,
+          "fn": 66464
+        },
+        "token": {
+          "precision": 0.8973764096036341,
+          "recall": 0.5665365949979897,
+          "f1": 0.6945721145044608
+        },
+        "span": {
+          "exact_precision": 0.0088715953307393,
+          "exact_recall": 0.10477941176470588,
+          "iou50_precision": 0.0208041504539559,
+          "iou50_recall": 0.24571078431372548,
+          "predicted": 19275,
+          "gold": 1632
+        },
+        "document_without_false_positive_fraction": 0.41144901610017887
+      },
+      "by_source": {
+        "greek_phd": {
+          "line": {
+            "precision": 0.9479112944816916,
+            "recall": 0.5210461661224447,
+            "f1": 0.672457248163907,
+            "tp": 49626,
+            "fp": 2727,
+            "fn": 45617
+          },
+          "token": {
+            "precision": 0.9245899083284035,
+            "recall": 0.5740271757311752,
+            "f1": 0.7083059968188641
+          },
+          "span": {
+            "exact_precision": 0.0011432591680590977,
+            "exact_recall": 0.02050473186119874,
+            "iou50_precision": 0.0076510421247031925,
+            "iou50_recall": 0.13722397476340695,
+            "predicted": 11371,
+            "gold": 634
+          },
+          "document_without_false_positive_fraction": 0.26273458445040215
+        },
+        "kallipos": {
+          "line": {
+            "precision": 0.921875,
+            "recall": 0.5869293102312405,
+            "f1": 0.7172241677736182,
+            "tp": 8909,
+            "fp": 755,
+            "fn": 6270
+          },
+          "token": {
+            "precision": 0.8655008917308278,
+            "recall": 0.5908860350498736,
+            "f1": 0.702302912561046
+          },
+          "span": {
+            "exact_precision": 0.05609284332688588,
+            "exact_recall": 0.24534686971235195,
+            "iou50_precision": 0.09903288201160541,
+            "iou50_recall": 0.43316412859560066,
+            "predicted": 2585,
+            "gold": 591
+          },
+          "document_without_false_positive_fraction": 0.5880758807588076
+        },
+        "openarchives": {
+          "line": {
+            "precision": 0.8644252943318363,
+            "recall": 0.49422296242323305,
+            "f1": 0.6288880549239497,
+            "tp": 14244,
+            "fp": 2234,
+            "fn": 14577
+          },
+          "token": {
+            "precision": 0.8254047418452866,
+            "recall": 0.5288677320639238,
+            "f1": 0.6446707619987998
+          },
+          "span": {
+            "exact_precision": 0.0024440684339161497,
+            "exact_recall": 0.03194103194103194,
+            "iou50_precision": 0.010904305320548976,
+            "iou50_recall": 0.14250614250614252,
+            "predicted": 5319,
+            "gold": 407
+          },
+          "document_without_false_positive_fraction": 0.38563829787234044
+        }
+      }
+    },
+    "v2_coherent_blocks": {
+      "overall": {
+        "line": {
+          "precision": 0.9754637941352483,
+          "recall": 0.25753538777532803,
+          "f1": 0.4074884236243288,
+          "tp": 35860,
+          "fp": 902,
+          "fn": 103383
+        },
+        "token": {
+          "precision": 0.9807689437340041,
+          "recall": 0.2750294403175886,
+          "f1": 0.42959178336536824
+        },
+        "span": {
+          "exact_precision": 0.03359880537580886,
+          "exact_recall": 0.08272058823529412,
+          "iou50_precision": 0.08387257341961175,
+          "iou50_recall": 0.20649509803921567,
+          "predicted": 4018,
+          "gold": 1632
+        },
+        "document_without_false_positive_fraction": 0.9203935599284436
+      },
+      "by_source": {
+        "greek_phd": {
+          "line": {
+            "precision": 0.9818017747029628,
+            "recall": 0.20562141049735938,
+            "f1": 0.34002951645108087,
+            "tp": 19584,
+            "fp": 363,
+            "fn": 75659
+          },
+          "token": {
+            "precision": 0.9883732560456702,
+            "recall": 0.2303515121749838,
+            "f1": 0.37362541577921166
+          },
+          "span": {
+            "exact_precision": 0.0027198549410698096,
+            "exact_recall": 0.00946372239747634,
+            "iou50_precision": 0.024478694469628286,
+            "iou50_recall": 0.08517350157728706,
+            "predicted": 2206,
+            "gold": 634
+          },
+          "document_without_false_positive_fraction": 0.938337801608579
+        },
+        "kallipos": {
+          "line": {
+            "precision": 0.9787416004886988,
+            "recall": 0.5277686277093353,
+            "f1": 0.6857558637219655,
+            "tp": 8011,
+            "fp": 174,
+            "fn": 7168
+          },
+          "token": {
+            "precision": 0.9775632029456032,
+            "recall": 0.5254261851278585,
+            "f1": 0.6834875994746195
+          },
+          "span": {
+            "exact_precision": 0.13567251461988303,
+            "exact_recall": 0.19627749576988154,
+            "iou50_precision": 0.2608187134502924,
+            "iou50_recall": 0.377326565143824,
+            "predicted": 855,
+            "gold": 591
+          },
+          "document_without_false_positive_fraction": 0.8888888888888888
+        },
+        "openarchives": {
+          "line": {
+            "precision": 0.9577056778679026,
+            "recall": 0.286770063495368,
+            "f1": 0.441376732263491,
+            "tp": 8265,
+            "fp": 365,
+            "fn": 20556
+          },
+          "token": {
+            "precision": 0.9642693709764989,
+            "recall": 0.29927392103703215,
+            "f1": 0.45678003660354055
+          },
+          "span": {
+            "exact_precision": 0.013584117032392894,
+            "exact_recall": 0.03194103194103194,
+            "iou50_precision": 0.06269592476489028,
+            "iou50_recall": 0.14742014742014742,
+            "predicted": 957,
+            "gold": 407
+          },
+          "document_without_false_positive_fraction": 0.9335106382978723
+        }
+      }
+    }
+  },
+  "feature_summary_by_gold_label": {
+    "BIB": {
+      "line_count": 139243,
+      "mean_per_line": {
+        "access_date_count": 0.018298945009803006,
+        "ampersand_count": 0.3203895348419669,
+        "author_joiner_count": 0.9820385943997185,
+        "author_year_count": 0.049453114339679555,
+        "direct_author_count": 0.07288696738794768,
+        "doi_count": 0.03623880554139167,
+        "dotted_sequence_count": 0.5108694871555483,
+        "dotted_word_count": 2.109642854577968,
+        "edition_term_count": 0.01585717055794546,
+        "editor_term_count": 0.06371594981435333,
+        "in_container_count": 0.04122289809900677,
+        "initial_count": 1.8379236299131734,
+        "initial_sequence_count": 0.46711145264034815,
+        "inverted_author_count": 0.2837485546849752,
+        "isbn_count": 0.0019821463197431826,
+        "issn_count": 0.00030881265126433646,
+        "journal_year_volume_count": 0.13665318902925103,
+        "month_date_count": 0.012797770803559245,
+        "name_initial_pair_count": 0.8477625446162464,
+        "no_date_count": 0.0035621180238862996,
+        "numbered_entry_count": 0.2962662395955272,
+        "numeric_date_count": 0.020618630739067674,
+        "page_marker_count": 0.12186609021638431,
+        "page_range_count": 0.496671286886953,
+        "place_name_count": 0.15999368011318343,
+        "place_publisher_shape_count": 0.06607872568100372,
+        "proper_name_word_count": 7.3238582909015175,
+        "prose_lead_count": 7.181689564286894e-06,
+        "publisher_term_count": 0.08583555367235696,
+        "punctuation_count": 11.913697636505965,
+        "quoted_span_count": 0.1589164266785404,
+        "table_row_count": 0.09234934610716518,
+        "thesis_term_count": 0.007914221899844157,
+        "token_count": 22.858197539553156,
+        "url_count": 0.07009329014744009,
+        "volume_marker_count": 0.06253815272581027,
+        "volume_shape_count": 0.1861350301271877,
+        "year_count": 1.041804614953714
+      }
+    },
+    "O": {
+      "line_count": 739228,
+      "mean_per_line": {
+        "access_date_count": 0.0036768087788882457,
+        "ampersand_count": 0.06288858106024123,
+        "author_joiner_count": 0.9402417116234775,
+        "author_year_count": 0.008548106944001039,
+        "direct_author_count": 0.001431222843290568,
+        "doi_count": 0.00027055252236116595,
+        "dotted_sequence_count": 0.023722045160627033,
+        "dotted_word_count": 0.1395009388172526,
+        "edition_term_count": 0.002823215570838767,
+        "editor_term_count": 0.003906778422895237,
+        "in_container_count": 0.05192038180371956,
+        "initial_count": 0.12020242739723062,
+        "initial_sequence_count": 0.02578230261840731,
+        "inverted_author_count": 0.0006587953919494392,
+        "isbn_count": 0.00011904310983891302,
+        "issn_count": 1.4880388729864128e-05,
+        "journal_year_volume_count": 0.01549589571823578,
+        "month_date_count": 0.0020480825942740264,
+        "name_initial_pair_count": 0.016188510175480366,
+        "no_date_count": 0.0011349678313050914,
+        "numbered_entry_count": 0.03377848241679157,
+        "numeric_date_count": 0.012833658898201908,
+        "page_marker_count": 0.018298819849897462,
+        "page_range_count": 0.0691234639380543,
+        "place_name_count": 0.010877564161530679,
+        "place_publisher_shape_count": 0.001256716466367616,
+        "proper_name_word_count": 2.1959273728808975,
+        "prose_lead_count": 0.007943422056523833,
+        "publisher_term_count": 0.002610831840785252,
+        "punctuation_count": 6.337259952274535,
+        "quoted_span_count": 0.11180582986575184,
+        "table_row_count": 0.22606421834670765,
+        "thesis_term_count": 0.007928541667793968,
+        "token_count": 29.61688545347308,
+        "url_count": 0.0061185452931977686,
+        "volume_marker_count": 0.0016003181697662968,
+        "volume_shape_count": 0.004763077156168327,
+        "year_count": 0.21845222313007623
+      }
+    },
+    "TOC": {
+      "line_count": 60543,
+      "mean_per_line": {
+        "access_date_count": 0.0002147234197182168,
+        "ampersand_count": 0.00693721817551162,
+        "author_joiner_count": 0.18210197710718,
+        "author_year_count": 0.0006276530730224799,
+        "direct_author_count": 0.0,
+        "doi_count": 0.0,
+        "dotted_sequence_count": 0.005714946401731001,
+        "dotted_word_count": 0.07148638158003402,
+        "edition_term_count": 0.00024775779198255786,
+        "editor_term_count": 0.0010570999124589135,
+        "in_container_count": 0.0005946187007581388,
+        "initial_count": 0.053069719042663895,
+        "initial_sequence_count": 0.006408668219282163,
+        "inverted_author_count": 0.0,
+        "isbn_count": 0.0,
+        "issn_count": 0.0,
+        "journal_year_volume_count": 0.00016517186132170524,
+        "month_date_count": 0.00011562030292519366,
+        "name_initial_pair_count": 0.005351568306823249,
+        "no_date_count": 3.3034372264341046e-05,
+        "numbered_entry_count": 0.06103100275837008,
+        "numeric_date_count": 0.00815948994929224,
+        "page_marker_count": 0.026377946253076327,
+        "page_range_count": 0.013312852022529442,
+        "place_name_count": 0.0013709264489701535,
+        "place_publisher_shape_count": 3.3034372264341046e-05,
+        "proper_name_word_count": 1.369126075681747,
+        "prose_lead_count": 0.0,
+        "publisher_term_count": 0.0004459640255686041,
+        "punctuation_count": 61.524817072163586,
+        "quoted_span_count": 0.01760732041689378,
+        "table_row_count": 0.915630213236873,
+        "thesis_term_count": 0.003088713806715888,
+        "token_count": 8.36892786944816,
+        "url_count": 0.00031382653651123996,
+        "volume_marker_count": 1.6517186132170523e-05,
+        "volume_shape_count": 0.00011562030292519366,
+        "year_count": 0.018499248468030985
+      }
+    }
+  },
+  "v2_error_summary": {
+    "false_positive": {
+      "source": {
+        "openarchives": 365,
+        "greek_phd": 363,
+        "kallipos": 174
+      },
+      "local_role": {
+        "WEAK_ENTRY_START": 452,
+        "STRONG_ENTRY_START": 390,
+        "OTHER": 39,
+        "POSSIBLE_CONTINUATION": 21
+      },
+      "reason_code": {
+        "BIB2_PROPER_NAME_SHAPE": 799,
+        "BIB2_YEAR_OR_NO_DATE": 774,
+        "BIB2_INTERACTION_AUTHOR_DATE": 606,
+        "BIB2_AUTHOR_YEAR_SKELETON": 509,
+        "BIB2_WEAK_MULTI_FAMILY_ENTRY": 452,
+        "BIB2_STRONG_MULTI_FAMILY_ENTRY": 390,
+        "BIB2_NEGATIVE_TABLE_ROW": 317,
+        "BIB2_NUMBERED_ENTRY": 285,
+        "BIB2_AUTHOR_JOINER": 237,
+        "BIB2_INTERACTION_DATE_PUBLICATION": 226,
+        "BIB2_PAGE_RANGE": 182,
+        "BIB2_PAGE_MARKER": 136,
+        "BIB2_MULTIPLE_INITIALS": 119,
+        "BIB2_QUOTED_TITLE_SHAPE": 104,
+        "BIB2_INTERACTION_QUOTED_CITATION": 103,
+        "BIB2_EDITION_TERM": 85,
+        "BIB2_DOTTED_WORD_DENSITY": 83,
+        "BIB2_REPEATED_NAME_INITIAL_PAIRS": 69,
+        "BIB2_PLACE_LEXICON": 52,
+        "BIB2_AMPERSAND": 51,
+        "BIB2_URL": 48,
+        "BIB2_PUBLISHER_TERM": 40,
+        "BIB2_DOTTED_ABBREVIATION_SEQUENCE": 31,
+        "BIB2_DIRECT_AUTHOR_SHAPE": 29,
+        "BIB2_INITIAL_SEQUENCE": 28,
+        "BIB2_ISBN": 28,
+        "BIB2_NAME_INITIAL_PAIR": 24,
+        "BIB2_DOI": 22,
+        "BIB2_VOLUME_ISSUE": 20,
+        "BIB2_EDITOR_TRANSLATOR_TERM": 19,
+        "BIB2_FULL_DATE": 18,
+        "BIB2_NO_LOCAL_EVIDENCE": 17,
+        "BIB2_PUBLICATION_TAIL": 16,
+        "BIB2_YEAR_VOLUME_SEQUENCE": 15,
+        "BIB2_IN_CONTAINER": 5,
+        "BIB2_SHORT_WRAPPED_FRAGMENT": 5,
+        "BIB2_AUTHOR_INVERTED": 4,
+        "BIB2_THESIS_TERM": 2,
+        "BIB2_PLACE_PUBLISHER_SHAPE": 2
+      }
+    },
+    "false_negative": {
+      "source": {
+        "greek_phd": 75659,
+        "openarchives": 20556,
+        "kallipos": 7168
+      },
+      "local_role": {
+        "HARD_OTHER": 40846,
+        "STRONG_ENTRY_START": 37069,
+        "POSSIBLE_CONTINUATION": 12216,
+        "OTHER": 11600,
+        "WEAK_ENTRY_START": 1016,
+        "BIB_HEADING": 458,
+        "BIB_SUBHEADING": 178
+      },
+      "reason_code": {
+        "BIB2_PROPER_NAME_SHAPE": 50891,
+        "BIB2_YEAR_OR_NO_DATE": 48264,
+        "BIB2_STRONG_MULTI_FAMILY_ENTRY": 37069,
+        "BIB2_INTERACTION_AUTHOR_DATE": 35683,
+        "BIB2_INTERACTION_DATE_PUBLICATION": 33595,
+        "BIB2_AUTHOR_JOINER": 28933,
+        "BIB2_NEGATIVE_RUNNING_PROSE": 24531,
+        "BIB2_PAGE_RANGE": 24520,
+        "BIB2_YEAR": 24069,
+        "BIB2_MULTIPLE_INITIALS": 22518,
+        "BIB2_AUTHOR_INVERTED": 20534,
+        "BIB2_DOTTED_WORD_DENSITY": 16665,
+        "BIB2_DOTTED_ABBREVIATION_SEQUENCE": 15827,
+        "BIB2_INITIAL_SEQUENCE": 14926,
+        "BIB2_PLACE_LEXICON": 10495,
+        "BIB2_VOLUME_ISSUE": 10378,
+        "BIB2_REPEATED_NAME_INITIAL_PAIRS": 9709,
+        "BIB2_AMPERSAND": 8939,
+        "BIB2_JOURNAL_PAGES": 8824,
+        "BIB2_NUMBERED_ENTRY": 8705,
+        "BIB2_PUBLICATION_TAIL": 8332,
+        "BIB2_QUOTED_TITLE_SHAPE": 7781,
+        "BIB2_INTERACTION_QUOTED_CITATION": 7324,
+        "BIB2_NEGATIVE_NONCITATION_TABLE_ROW": 6993,
+        "BIB2_PUBLISHER_TERM": 6416,
+        "BIB2_NEGATIVE_STATISTICAL_TABLE": 6222,
+        "BIB2_NEGATIVE_LONG_ENUMERATED_PROSE": 5684,
+        "BIB2_PLACE_PUBLISHER_SHAPE": 5628,
+        "BIB2_PAGE_MARKER": 5353,
+        "BIB2_NO_LOCAL_EVIDENCE": 4896,
+        "BIB2_URL": 4791,
+        "BIB2_YEAR_VOLUME_SEQUENCE": 4779,
+        "BIB2_NAME_INITIAL_PAIR": 4328,
+        "BIB2_DIRECT_AUTHOR_SHAPE": 4064,
+        "BIB2_EDITOR_TRANSLATOR_TERM": 4008,
+        "BIB2_SHORT_WRAPPED_FRAGMENT": 3884,
+        "BIB2_AUTHOR_YEAR_SKELETON": 3441,
+        "BIB2_IN_CONTAINER": 2728,
+        "BIB2_DOI": 2580,
+        "BIB2_NEGATIVE_NONSTRUCTURAL_MARKDOWN_HEADING": 2208,
+        "BIB2_IDENTIFIER": 1935,
+        "BIB2_FULL_DATE": 1811,
+        "BIB2_INTERACTION_JOURNAL_DATE_VOLUME": 1481,
+        "BIB2_ACCESS_DATE": 1052,
+        "BIB2_WEAK_MULTI_FAMILY_ENTRY": 1016,
+        "BIB2_EDITION_TERM": 926,
+        "BIB2_INTERACTION_URL_ACCESS_DATE": 869,
+        "BIB2_PUBLISHER_PLACE": 652,
+        "BIB2_NEGATIVE_EQUATION": 552,
+        "BIB2_NEGATIVE_TABLE_ROW": 458,
+        "BIB2_EXACT_HEADING": 452,
+        "BIB2_NEGATIVE_FOOTNOTE": 379,
+        "BIB2_THESIS_TERM": 337,
+        "BIB2_AUTHOR": 239,
+        "BIB2_NUMBERED": 210,
+        "BIB2_NEGATIVE_INLINE_CITATION_PROSE": 179,
+        "BIB2_TYPED_SUBHEADING": 177,
+        "BIB2_NEGATIVE_LONG_UNANCHORED_PROSE": 152,
+        "BIB2_ISBN": 96,
+        "BIB2_NEGATIVE_CV_PUBLICATIONS_HEADING": 36,
+        "BIB2_NEGATIVE_FIGURE_CAPTION": 36,
+        "BIB2_ISSN": 18,
+        "BIB2_NEGATIVE_NARRATIVE_AUTHOR_YEAR_PROSE": 18,
+        "BIB2_NEGATIVE_BODY_HEADING": 8,
+        "BIB2_EXTENDED_HEADING": 6,
+        "BIB2_NEGATIVE_LEGAL_PROCEDURE": 4,
+        "BIB2_LEGAL_SOURCE": 2,
+        "BIB2_NEGATIVE_PROSE_LEAD": 1,
+        "BIB2_EXTENDED_SUBHEADING": 1,
+        "BIB2_NEGATIVE_NOTES_HEADING": 1
+      }
+    }
+  },
+  "v2_error_examples": {
+    "false_positive": [
+      {
+        "document_id": "cc620a9f380716d317494a2a2fa9b6063be0a176022c4f7f7f6d338db8cb903f",
+        "source": "greek_phd",
+        "abs_idx": 362,
+        "text": "- 31 Βλ. Μπιτζιλέκη Ν. , ό.π., σελ. 6-7, Μυλωνόπουλου Χ. , ό.π., σελ. 31.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.5,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_PAGE_MARKER",
+          "BIB2_PAGE_RANGE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 14,
+          "initial_count": 3,
+          "proper_name_word_count": 2,
+          "name_initial_pair_count": 2,
+          "dotted_word_count": 3,
+          "page_marker_count": 2,
+          "page_range_count": 1,
+          "punctuation_count": 15
+        }
+      },
+      {
+        "document_id": "cc620a9f380716d317494a2a2fa9b6063be0a176022c4f7f7f6d338db8cb903f",
+        "source": "greek_phd",
+        "abs_idx": 363,
+        "text": "- 32 Βλ. Κιούπη  Δ. ,  ό.π.,  υποσημ.  11, Μανωλεδάκη  Ι. ,  ό.π.,  σελ.  386  (:  ο  συγγραφέας παρατηρεί ότι οι «σχετικές» απόψεις, στη λαχτάρα τους να δώσουν βαρύτητα στο σκοπό της ποινής, ξέχασαν ολότελα τη φύση της).",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 7.299999999999999,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_QUOTED_TITLE_SHAPE",
+          "BIB2_IN_CONTAINER",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_PAGE_MARKER",
+          "BIB2_INTERACTION_QUOTED_CITATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 36,
+          "initial_count": 3,
+          "proper_name_word_count": 2,
+          "name_initial_pair_count": 2,
+          "quoted_span_count": 1,
+          "in_container_count": 1,
+          "dotted_word_count": 3,
+          "page_marker_count": 1,
+          "punctuation_count": 22
+        }
+      },
+      {
+        "document_id": "cc620a9f380716d317494a2a2fa9b6063be0a176022c4f7f7f6d338db8cb903f",
+        "source": "greek_phd",
+        "abs_idx": 364,
+        "text": "- 33 Βλ. Κουράκη Ν. , ό.π., σελ. 820-821, Μυλωνόπουλου Χ. , ό.π., σελ. 32, Παρασκευόπουλου Ν. , ό.π., σελ. 21 [: ο ίδιος συγγραφέας παρατηρεί (βλ. ό.π., σελ. 20) εύλογα ότι οι απόλυτες θεωρίες,  για  να  δικαιολογήσουν  την  ποινή,  ανατρέχουν  στο  παρελθόν∙  στον  αντίποδα,  οι σχετικές αποβλέπουν στο μέλλον].",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.5,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_PAGE_MARKER",
+          "BIB2_PAGE_RANGE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 49,
+          "initial_count": 4,
+          "proper_name_word_count": 3,
+          "name_initial_pair_count": 3,
+          "dotted_word_count": 4,
+          "page_marker_count": 4,
+          "page_range_count": 1,
+          "punctuation_count": 35
+        }
+      },
+      {
+        "document_id": "cc620a9f380716d317494a2a2fa9b6063be0a176022c4f7f7f6d338db8cb903f",
+        "source": "greek_phd",
+        "abs_idx": 601,
+        "text": "- 98 Βλ.  ενδεικτ. Νίκα  Ν. ,  ό.π.,  σελ.  460  επ., Νικολόπουλου  Γ. ,  ό.π.,  σελ.  1755,  ΕφΛαρ 1057/1989, ΝοΒ 1991.98, ΕφΑθ 2659/1992, Δ/νη 1994.456",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 9.1,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_PAGE_MARKER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 29,
+          "year_count": 5,
+          "initial_count": 3,
+          "proper_name_word_count": 2,
+          "name_initial_pair_count": 2,
+          "dotted_word_count": 3,
+          "page_marker_count": 2,
+          "punctuation_count": 22
+        }
+      },
+      {
+        "document_id": "cc620a9f380716d317494a2a2fa9b6063be0a176022c4f7f7f6d338db8cb903f",
+        "source": "greek_phd",
+        "abs_idx": 602,
+        "text": "- 99 Βλ. Κεραμέα Κ. ,  Γνμδ, Δ 1973, σελ. 141-142, Νικολόπουλου Γ. ,  ό.π.,  ΕφΑθ 2170/1978, Αρμ 1978.843.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 10.0,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_PAGE_MARKER",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 19,
+          "year_count": 3,
+          "initial_count": 3,
+          "proper_name_word_count": 4,
+          "name_initial_pair_count": 2,
+          "dotted_word_count": 3,
+          "page_marker_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 15
+        }
+      },
+      {
+        "document_id": "cc620a9f380716d317494a2a2fa9b6063be0a176022c4f7f7f6d338db8cb903f",
+        "source": "greek_phd",
+        "abs_idx": 603,
+        "text": "- 100 Βλ. Γέσιου-Φαλτσή  Π. ,  (ό.π.,  σελ.  181),  η  οποία  βασίζει  το  χαρακτηρισμό  αυτό  στο γεγονός ότι η ανακοπή παρέχει στο βλαπτόμενο πρόσωπο τη δυνατότητα προσφυγής ενώπιον των  δικαστηρίων.  Η  εν  λόγώ  διαδικαστική  πρόβλεψη,  κατά  την  ίδια,  δεν  αποτελεί  ένδικο μέσο, διότι δε στρέφεται κατά δικαστικής απόφασης, αλλά κατά πράξεων των οργάνων της εκτέλεσης∙ βλ. επίσης, Νικολόπουλου Γ. , ό.π., σελ. 1772",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 9.1,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_PAGE_MARKER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 62,
+          "year_count": 1,
+          "initial_count": 3,
+          "proper_name_word_count": 2,
+          "name_initial_pair_count": 2,
+          "dotted_word_count": 3,
+          "page_marker_count": 2,
+          "punctuation_count": 23
+        }
+      },
+      {
+        "document_id": "0821a0a49712b4cfda905a5ad4c25fd3c6e871fcd481f467abd5c0eb914dd34e",
+        "source": "greek_phd",
+        "abs_idx": 393,
+        "text": "- Receptive  One-Word  Picture  Vocabulary  Test-4 th   Edition  (ROWPVT-4)  (Martin  & Brownell, 2010): εκτίμηση προσληπτικού λεξιλογίου (2 -80 ετών)",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 8.8,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_EDITION_TERM",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 17,
+          "year_count": 1,
+          "proper_name_word_count": 8,
+          "author_year_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 1,
+          "edition_term_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "0821a0a49712b4cfda905a5ad4c25fd3c6e871fcd481f467abd5c0eb914dd34e",
+        "source": "greek_phd",
+        "abs_idx": 394,
+        "text": "- Expressive  One-Word  Picture  Vocabulary  Test-4 th   Edition  (EOWPVT-4)  (Martin  & Brownell, 2010): εκτίμηση εκφραστικού λεξιλογίου (2 -80 ετών)",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 8.8,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_EDITION_TERM",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 17,
+          "year_count": 1,
+          "proper_name_word_count": 8,
+          "author_year_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 1,
+          "edition_term_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "0821a0a49712b4cfda905a5ad4c25fd3c6e871fcd481f467abd5c0eb914dd34e",
+        "source": "greek_phd",
+        "abs_idx": 395,
+        "text": "- Word Finding Vocabulary Test (Renfrew, 1995): εκτίμηση εκφραστικού λεξιλογίου (3 -8 ετών)",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 7.4,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "year_count": 1,
+          "proper_name_word_count": 5,
+          "author_year_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "0821a0a49712b4cfda905a5ad4c25fd3c6e871fcd481f467abd5c0eb914dd34e",
+        "source": "greek_phd",
+        "abs_idx": 396,
+        "text": "- Action Picture Test (Revised Edition) (Renfrew, 2010): εκτίμηση γραμματικών δομών στο λόγο (3 -8 ετών)",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 8.100000000000001,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_EDITION_TERM",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 15,
+          "year_count": 1,
+          "proper_name_word_count": 6,
+          "author_year_count": 1,
+          "edition_term_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "19e6e95abb497c277873c3c716801c3d9f8429b6a8ec474305a6b7d2daa72cc7",
+        "source": "greek_phd",
+        "abs_idx": 4124,
+        "text": "1. Αλεξόπουλος, Θεριανός, Κώνστας: «Ερευνώ το Φυσικό κόσμο» Ζ' 'Έκδοση 1993 ΟΕΔΒ",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 4.5,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_QUOTED_TITLE_SHAPE",
+          "BIB2_EDITION_TERM",
+          "BIB2_INTERACTION_QUOTED_CITATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "year_count": 1,
+          "proper_name_word_count": 6,
+          "numbered_entry_count": 1,
+          "quoted_span_count": 1,
+          "edition_term_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "19e6e95abb497c277873c3c716801c3d9f8429b6a8ec474305a6b7d2daa72cc7",
+        "source": "greek_phd",
+        "abs_idx": 4125,
+        "text": "2. Αποστολάκης, Κορόζης, Παναγόπουλος, Πετρέα, Σάββας: «Ερευνώ και ανακαλύπτω». Α' Έκδοση 2002, ΟΕΔΒ",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 4.8999999999999995,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_QUOTED_TITLE_SHAPE",
+          "BIB2_EDITION_TERM",
+          "BIB2_INTERACTION_QUOTED_CITATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 13,
+          "year_count": 1,
+          "proper_name_word_count": 7,
+          "numbered_entry_count": 1,
+          "author_joiner_count": 1,
+          "quoted_span_count": 1,
+          "edition_term_count": 1,
+          "punctuation_count": 10
+        }
+      },
+      {
+        "document_id": "19e6e95abb497c277873c3c716801c3d9f8429b6a8ec474305a6b7d2daa72cc7",
+        "source": "greek_phd",
+        "abs_idx": 4126,
+        "text": "3. Αποστολάκης, Κορόζης, Παναγόπουλος, Πετρέα, Σάββας: «Ερευνώ και ανακαλύπτω». Στ' Έκδοση, 2005 ΟΕΔΒ",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 4.8999999999999995,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_QUOTED_TITLE_SHAPE",
+          "BIB2_EDITION_TERM",
+          "BIB2_INTERACTION_QUOTED_CITATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 13,
+          "year_count": 1,
+          "proper_name_word_count": 7,
+          "numbered_entry_count": 1,
+          "author_joiner_count": 1,
+          "quoted_span_count": 1,
+          "edition_term_count": 1,
+          "punctuation_count": 10
+        }
+      },
+      {
+        "document_id": "19e6e95abb497c277873c3c716801c3d9f8429b6a8ec474305a6b7d2daa72cc7",
+        "source": "greek_phd",
+        "abs_idx": 4127,
+        "text": "4. Βελιαρούτης, Οικονόμου, Αμίλλης: «Φυσική Ιστορία Ε' Δημοτικού» Α' Έκδοση, 1975 ΟΕΔΒ",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 8.4,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_QUOTED_TITLE_SHAPE",
+          "BIB2_EDITION_TERM",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_QUOTED_CITATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "year_count": 1,
+          "proper_name_word_count": 7,
+          "author_year_count": 1,
+          "numbered_entry_count": 1,
+          "quoted_span_count": 1,
+          "edition_term_count": 1,
+          "punctuation_count": 7
+        }
+      },
+      {
+        "document_id": "19e6e95abb497c277873c3c716801c3d9f8429b6a8ec474305a6b7d2daa72cc7",
+        "source": "greek_phd",
+        "abs_idx": 4128,
+        "text": "5. Βελιαρούτης, Οικονόμου, Αμίλλης: «Φυσική Ιστορία Ε' Δημοτικού» Δ' Έκδοση, 1978, ΟΕΔΒ",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 8.4,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_QUOTED_TITLE_SHAPE",
+          "BIB2_EDITION_TERM",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_QUOTED_CITATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "year_count": 1,
+          "proper_name_word_count": 7,
+          "author_year_count": 1,
+          "numbered_entry_count": 1,
+          "quoted_span_count": 1,
+          "edition_term_count": 1,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "dafa8d1ef11c1c45fd1fbc1a30ff82773f2ac21b2c52dbeb0f514cc72e126796",
+        "source": "openarchives",
+        "abs_idx": 902,
+        "text": "<!-- image -->",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {
+          "token_count": 1
+        }
+      },
+      {
+        "document_id": "dafa8d1ef11c1c45fd1fbc1a30ff82773f2ac21b2c52dbeb0f514cc72e126796",
+        "source": "openarchives",
+        "abs_idx": 922,
+        "text": "<!-- image -->",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {
+          "token_count": 1
+        }
+      },
+      {
+        "document_id": "dafa8d1ef11c1c45fd1fbc1a30ff82773f2ac21b2c52dbeb0f514cc72e126796",
+        "source": "openarchives",
+        "abs_idx": 944,
+        "text": "<!-- image -->",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {
+          "token_count": 1
+        }
+      },
+      {
+        "document_id": "dafa8d1ef11c1c45fd1fbc1a30ff82773f2ac21b2c52dbeb0f514cc72e126796",
+        "source": "openarchives",
+        "abs_idx": 966,
+        "text": "<!-- image -->",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {
+          "token_count": 1
+        }
+      },
+      {
+        "document_id": "dafa8d1ef11c1c45fd1fbc1a30ff82773f2ac21b2c52dbeb0f514cc72e126796",
+        "source": "openarchives",
+        "abs_idx": 990,
+        "text": "<!-- image -->",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {
+          "token_count": 1
+        }
+      },
+      {
+        "document_id": "dafa8d1ef11c1c45fd1fbc1a30ff82773f2ac21b2c52dbeb0f514cc72e126796",
+        "source": "openarchives",
+        "abs_idx": 1012,
+        "text": "<!-- image -->",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {
+          "token_count": 1
+        }
+      },
+      {
+        "document_id": "dafa8d1ef11c1c45fd1fbc1a30ff82773f2ac21b2c52dbeb0f514cc72e126796",
+        "source": "openarchives",
+        "abs_idx": 1036,
+        "text": "<!-- image -->",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {
+          "token_count": 1
+        }
+      },
+      {
+        "document_id": "dafa8d1ef11c1c45fd1fbc1a30ff82773f2ac21b2c52dbeb0f514cc72e126796",
+        "source": "openarchives",
+        "abs_idx": 1058,
+        "text": "<!-- image -->",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {
+          "token_count": 1
+        }
+      },
+      {
+        "document_id": "2fdeeee9942c03e6afaec0751f827783743d2d61c01e920146ae6fff33031d7f",
+        "source": "openarchives",
+        "abs_idx": 270,
+        "text": "23. Γκόβαρης Χ. Ό.π, σελ. 60.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 4.300000000000001,
+        "reason_codes": [
+          "BIB2_INITIAL_SEQUENCE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_DOTTED_ABBREVIATION_SEQUENCE",
+          "BIB2_PAGE_MARKER",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 7,
+          "initial_count": 1,
+          "initial_sequence_count": 1,
+          "proper_name_word_count": 1,
+          "numbered_entry_count": 1,
+          "dotted_word_count": 1,
+          "dotted_sequence_count": 1,
+          "page_marker_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "2fdeeee9942c03e6afaec0751f827783743d2d61c01e920146ae6fff33031d7f",
+        "source": "openarchives",
+        "abs_idx": 272,
+        "text": "24. Robert J . Γνωστική ψυχολογία .  Αθήνα, Ατραπός, 2007,  σελ. 509 -510.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 5.800000000000001,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_PAGE_MARKER",
+          "BIB2_PAGE_RANGE",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 11,
+          "year_count": 1,
+          "initial_count": 1,
+          "proper_name_word_count": 4,
+          "numbered_entry_count": 1,
+          "page_marker_count": 1,
+          "page_range_count": 1,
+          "place_name_count": 1,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "2fdeeee9942c03e6afaec0751f827783743d2d61c01e920146ae6fff33031d7f",
+        "source": "openarchives",
+        "abs_idx": 273,
+        "text": "25. Αντωνοπούλου Χ. Ψυχολογία . Αθήνα, Παιδαγωγικό Ινστιτούτο, ; ,  σελ. 164 -165.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.8,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_NUMBERED_ENTRY",
+          "BIB2_PAGE_MARKER",
+          "BIB2_PAGE_RANGE",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 10,
+          "initial_count": 1,
+          "proper_name_word_count": 5,
+          "numbered_entry_count": 1,
+          "dotted_word_count": 1,
+          "page_marker_count": 1,
+          "page_range_count": 1,
+          "place_name_count": 1,
+          "punctuation_count": 9
+        }
+      },
+      {
+        "document_id": "0394aad271f8b2e7934e7ba2875a999fa861defaf3a144052f26138f3ae99ae6",
+        "source": "openarchives",
+        "abs_idx": 76,
+        "text": "| Εικόνα 2: Paul Gauguin,  Από πού ερχόμαστε; Τι είμαστε; Πού πάμε; , 1897-98    |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 5.4,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "year_count": 1,
+          "proper_name_word_count": 5,
+          "author_year_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 6,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "0394aad271f8b2e7934e7ba2875a999fa861defaf3a144052f26138f3ae99ae6",
+        "source": "openarchives",
+        "abs_idx": 77,
+        "text": "| Εικόνα 3: Paul Gauguin,  Η Αγορά (Ta Matete) , 1892                            |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.5,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 9,
+          "year_count": 1,
+          "proper_name_word_count": 5,
+          "author_year_count": 1,
+          "punctuation_count": 5,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "0394aad271f8b2e7934e7ba2875a999fa861defaf3a144052f26138f3ae99ae6",
+        "source": "openarchives",
+        "abs_idx": 78,
+        "text": "| Εικόνα 4:  Μουσείο του Νιούαρκ , 2015                                          |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.5,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 6,
+          "year_count": 1,
+          "proper_name_word_count": 3,
+          "author_year_count": 1,
+          "punctuation_count": 2,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "0394aad271f8b2e7934e7ba2875a999fa861defaf3a144052f26138f3ae99ae6",
+        "source": "openarchives",
+        "abs_idx": 79,
+        "text": "| Εικόνα 5:  Διεθνής έκθεση Dada,  1920                                          |",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.5,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 6,
+          "year_count": 1,
+          "proper_name_word_count": 3,
+          "author_year_count": 1,
+          "punctuation_count": 2,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "9fad184dbb08a4ef1f25ddfcdba19eca76976c6cbc311486dfaa336eda97acf3",
+        "source": "kallipos",
+        "abs_idx": 21,
+        "text": "Εθνικό Μετσόβιο Πολυτεχνείο Ηρώων Πολυτεχνείου 9, 15780 Ζωγράφου",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 8,
+          "proper_name_word_count": 6,
+          "author_year_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "9fad184dbb08a4ef1f25ddfcdba19eca76976c6cbc311486dfaa336eda97acf3",
+        "source": "kallipos",
+        "abs_idx": 22,
+        "text": "ISBN: 978-618-228-286-1",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_ISBN",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 2,
+          "isbn_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "9fad184dbb08a4ef1f25ddfcdba19eca76976c6cbc311486dfaa336eda97acf3",
+        "source": "kallipos",
+        "abs_idx": 23,
+        "text": "Βιβλιογραφική Αναφορά: Γεωργόπουλος, Ν., Μαρκαντές, Γ. (Επιμ.). (2024). Η σεξουαλικότητα και οι διαταραχές της [Προπτυχιακό εγχειρίδιο]. Κάλλιπος, Ανοικτές Ακαδημαϊκές Εκδόσεις. http://dx.doi.org/10.57713/kallipos-1037",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 12.4,
+        "reason_codes": [
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_DOI",
+          "BIB2_URL",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_EDITOR_TRANSLATOR_TERM",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 27,
+          "year_count": 1,
+          "url_count": 1,
+          "doi_count": 1,
+          "initial_count": 2,
+          "proper_name_word_count": 10,
+          "author_joiner_count": 1,
+          "editor_term_count": 1,
+          "dotted_word_count": 3,
+          "publisher_term_count": 1,
+          "punctuation_count": 22
+        }
+      },
+      {
+        "document_id": "2aa2b9bbb63fae43318b976f38e0f4230250295e49c4f62eb71937b71d664c0e",
+        "source": "kallipos",
+        "abs_idx": 15,
+        "text": "ISBN:978-960-603-424-4",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_ISBN",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 2,
+          "isbn_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "2aa2b9bbb63fae43318b976f38e0f4230250295e49c4f62eb71937b71d664c0e",
+        "source": "kallipos",
+        "abs_idx": 16,
+        "text": "Copyright © ΣΕΑΒ, 2015",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 4.9,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 3,
+          "year_count": 1,
+          "proper_name_word_count": 1,
+          "author_year_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "2aa2b9bbb63fae43318b976f38e0f4230250295e49c4f62eb71937b71d664c0e",
+        "source": "kallipos",
+        "abs_idx": 17,
+        "text": "Το παρόν έργο αδειοδοτείται υπό τους όρους της άδειας Creative Commons Αναφορά Δημιουργού - Μη Εμπορική Χρήση Παρόμοια Διανομή 3.0. Για να δείτε ένα αντίγραφο της άδειας αυτής επισκεφτείτε τον ιστότοπο https://creativecommons.org/licenses/by-nc-sa/3.0/gr/",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 2.0,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_URL",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 39,
+          "url_count": 1,
+          "proper_name_word_count": 9,
+          "punctuation_count": 5
+        }
+      },
+      {
+        "document_id": "2aa2b9bbb63fae43318b976f38e0f4230250295e49c4f62eb71937b71d664c0e",
+        "source": "kallipos",
+        "abs_idx": 18,
+        "text": "Σύνδεσμος Ελληνικών Ακαδημαϊκών Βιβλιοθηκών Εθνικό Μετσόβιο Πολυτεχνείο Ηρώων Πολυτεχνείου 9, 15780 Ζωγράφου",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 12,
+          "proper_name_word_count": 10,
+          "author_year_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "76d641a1481ce044ebc03b7034106ccfb4b03e84e679d7049ed5bc3b810667e1",
+        "source": "kallipos",
+        "abs_idx": 172,
+        "text": "Η εξέλιξη της διαχείρισης του ψηφιακού περιεχομένου - Δρ Δάφνη Κυριάκη-Μάνεση",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "OTHER",
+        "score": 0.6,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE"
+        ],
+        "nonzero_features": {
+          "token_count": 10,
+          "proper_name_word_count": 2
+        }
+      },
+      {
+        "document_id": "3746e0a35ebad2aa58bbbfc72f974ae8ffc00e2daba1986b662988d4fb5e0149",
+        "source": "kallipos",
+        "abs_idx": 18,
+        "text": "Εθνικό Μετσόβιο Πολυτεχνείο Ηρώων Πολυτεχνείου 9, 15780 Ζωγράφου",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 8,
+          "proper_name_word_count": 6,
+          "author_year_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "3746e0a35ebad2aa58bbbfc72f974ae8ffc00e2daba1986b662988d4fb5e0149",
+        "source": "kallipos",
+        "abs_idx": 19,
+        "text": "ISBN: 978-618-5726-63-8",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_ISBN",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 2,
+          "isbn_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "3746e0a35ebad2aa58bbbfc72f974ae8ffc00e2daba1986b662988d4fb5e0149",
+        "source": "kallipos",
+        "abs_idx": 20,
+        "text": "Βιβλιογραφική  Αναφορά: Μεράντζας,  Χ.,  Τσιόδουλος,  Σ.,  &  Χουλιαράς,  Ι.  (2022). Η  δυαδική αντίθεση  παραδείσου  και  κόλασης [Προπτυχιακό  εγχειρίδιο].  Κάλλιπος,  Ανοικτές  Ακαδημαϊκές Εκδόσεις. http://dx.doi.org/10.57713/kallipos-181",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 11.6,
+        "reason_codes": [
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_DOI",
+          "BIB2_URL",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 28,
+          "year_count": 1,
+          "url_count": 1,
+          "doi_count": 1,
+          "initial_count": 3,
+          "proper_name_word_count": 10,
+          "ampersand_count": 1,
+          "author_joiner_count": 2,
+          "dotted_word_count": 3,
+          "publisher_term_count": 1,
+          "punctuation_count": 21
+        }
+      },
+      {
+        "document_id": "3746e0a35ebad2aa58bbbfc72f974ae8ffc00e2daba1986b662988d4fb5e0149",
+        "source": "kallipos",
+        "abs_idx": 2467,
+        "text": "Η δυαδική αντίθεση παραδείσου και κόλασης.",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 0.4,
+        "reason_codes": [
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_SHORT_WRAPPED_FRAGMENT"
+        ],
+        "nonzero_features": {
+          "token_count": 6,
+          "author_joiner_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "f9a2a3ffbca14dbe6f998db28a602872d39e9a2d1de686b758a7b41c297892f6",
+        "source": "kallipos",
+        "abs_idx": 20,
+        "text": "ΚΑΛΛΙΠΟΣ Εθνικό Μετσόβιο Πολυτεχνείο Ηρώων Πολυτεχνείου 9, 15780 Ζωγράφου",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 9,
+          "proper_name_word_count": 6,
+          "author_year_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "f9a2a3ffbca14dbe6f998db28a602872d39e9a2d1de686b758a7b41c297892f6",
+        "source": "kallipos",
+        "abs_idx": 21,
+        "text": "ISBN: 978-618-5726-08-9",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 3.0,
+        "reason_codes": [
+          "BIB2_ISBN",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 2,
+          "isbn_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "f9a2a3ffbca14dbe6f998db28a602872d39e9a2d1de686b758a7b41c297892f6",
+        "source": "kallipos",
+        "abs_idx": 22,
+        "text": "Βιβλιογραφική  Αναφορά: Παπαδοπούλου,  Α.,  Ροβίθης,  Ε.,  &  Παναγόπουλος,  Ι.  (2023). Η Παιγνιώδης Σοβαρότητα: Serious Film Games S.FI.GA. - Σύμμεικτες ιδιότητες, τρόποι και λειτουργίες στην εκπαίδευση [Προπτυχιακό εγχειρίδιο]. Κάλλιπος, Ανοικτές Ακαδημαϊκές Εκδόσεις. http://dx.doi.org/10.57713/kallipos-131",
+        "gold": "O",
+        "predicted": "BIB",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 12.8,
+        "reason_codes": [
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_DOI",
+          "BIB2_URL",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_DOTTED_ABBREVIATION_SEQUENCE",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 38,
+          "year_count": 1,
+          "url_count": 1,
+          "doi_count": 1,
+          "initial_count": 3,
+          "proper_name_word_count": 16,
+          "ampersand_count": 1,
+          "author_joiner_count": 2,
+          "dotted_word_count": 4,
+          "dotted_sequence_count": 1,
+          "publisher_term_count": 1,
+          "punctuation_count": 26
+        }
+      }
+    ],
+    "false_negative": [
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 230,
+        "text": "## ΣΥΓΓΡΑΦΙΚΟ ΕΡΓΟ",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONSTRUCTURAL_MARKDOWN_HEADING"
+        ],
+        "nonzero_features": {
+          "token_count": 2
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 232,
+        "text": "## Δημοσιεύσεις σε Διεθνή Επιστημονικά Περιοδικά ( με κριτές )",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONSTRUCTURAL_MARKDOWN_HEADING"
+        ],
+        "nonzero_features": {
+          "token_count": 7,
+          "proper_name_word_count": 4,
+          "punctuation_count": 2
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 234,
+        "text": "-  Rancic Z, Pecoraro F, Pfammatter T, Banzic I, Klein H, Kyriakidis K, Mayer D,  Lachat  M  (2012)  The  use  of  Endurant  stent  graft  for  abdominal  aortic aneurysm.  (The  story  about  extension  of  Instruction  for  Use  with  persistent good results of stent graft latest generation). J Cardiovasc Surg (accepted )",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 5.9,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 48,
+          "year_count": 1,
+          "proper_name_word_count": 15,
+          "name_initial_pair_count": 8,
+          "punctuation_count": 15
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 235,
+        "text": "-  Antoniadis  PN,  Kyriakidis  KD,  Paraskevas  KI  (2012)  A  simple  booklet  for patient  follow-  up  after  endovascular  abdominal  aortic  aneurysm  repair procedures. Angiology63:634-7",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 7.800000000000001,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 23,
+          "year_count": 1,
+          "proper_name_word_count": 4,
+          "name_initial_pair_count": 3,
+          "page_range_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 236,
+        "text": "-  Tiligada E, Kyriakidis K, Chazot PL, Passani MB  (2011) Histamine pharmacology and new CNS drug targets. CNS Neurosci Ther 17:620-8",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 8.200000000000001,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 21,
+          "year_count": 1,
+          "proper_name_word_count": 7,
+          "name_initial_pair_count": 4,
+          "author_joiner_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 7
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 237,
+        "text": "-  Kyriakidis  K,  Zampeli  E,  Tiligada  E  (2009)  Histamine  levels  in  whole peripheral  blood  from  women  with  ductal  breast  cancer:  A  pilot  study. Inflamm Res 58(S)1: 73-4",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 7.800000000000001,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 28,
+          "year_count": 1,
+          "proper_name_word_count": 6,
+          "name_initial_pair_count": 3,
+          "page_range_count": 1,
+          "punctuation_count": 9
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 238,
+        "text": "-  Kyriakidis  DA,  Theodorou  MC,  Filippou  PS,  Kyriakidis  KD,  Tiligada  E (2008)  Effect  of  histamine  on  the  signal  transduction  of  the  AtoS-AtoC  two component system and involvement in poly-(R)-3-hydroxybutyrate biosynthesis in Escherichia coli . Amino Acids 35:45-52",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 8.200000000000001,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 38,
+          "year_count": 1,
+          "proper_name_word_count": 9,
+          "name_initial_pair_count": 5,
+          "author_joiner_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 10
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 240,
+        "text": "## Περιλήψεις σε διεθνή επιστημονικά περιοδικά",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONSTRUCTURAL_MARKDOWN_HEADING"
+        ],
+        "nonzero_features": {
+          "token_count": 5,
+          "proper_name_word_count": 1
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 242,
+        "text": "-  Zampeli E, Kakavas S, Kyriakidis K, Tiligada E (2007) Histamine levels in the conjunctiva,  costosternal  cartilage  and  brain  of  normal  and  cromolyn-treated rats. Amino Acids 33:XLV",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.300000000000001,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 27,
+          "year_count": 1,
+          "proper_name_word_count": 7,
+          "name_initial_pair_count": 4,
+          "author_joiner_count": 2,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 243,
+        "text": "-  Liakopoulou  M,  Psomas  SK, Kyriakidis  KD (2004)  Characterization  of Xanthan gum produced by Xanthomonas campestris in synthetic and chemically defined media. CHISA 5:2087",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.300000000000001,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 24,
+          "year_count": 2,
+          "proper_name_word_count": 6,
+          "name_initial_pair_count": 3,
+          "author_joiner_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 245,
+        "text": "## Περιλήψεις σε διεθνή Συνέδρια",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONSTRUCTURAL_MARKDOWN_HEADING"
+        ],
+        "nonzero_features": {
+          "token_count": 4,
+          "proper_name_word_count": 2
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 247,
+        "text": "-  Kyriakidis  K,  Antoniadis  P,  Papi  R  (2012)  Determination  of  the  levels  of enzymes,  reactive  oxygen  species  and  metabolic  products  in  carotid  plaque and correlation with the types of carotid plaque classification. Proceedings of the ISVS Congress , 9-11.3.2012, Miami, USA",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 7.000000000000001,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_FULL_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 41,
+          "year_count": 2,
+          "numeric_date_count": 1,
+          "proper_name_word_count": 7,
+          "name_initial_pair_count": 3,
+          "author_joiner_count": 2,
+          "punctuation_count": 11
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 248,
+        "text": "-  Antoniadis  PN,  Kyriakidis  KD  (2011)  Guide  to  long  term  management  of endovascular interventions. Proceedings of the 5 th annual Veiths Symposium, ISVS , poster session, 11.2011, New York, USA",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.300000000000001,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 29,
+          "year_count": 2,
+          "proper_name_word_count": 8,
+          "name_initial_pair_count": 2,
+          "place_name_count": 1,
+          "punctuation_count": 10
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 249,
+        "text": "-  Kyriakidis K, Antoniadis P, Kardoulas D, Staramos D, Argitis V, Tambakis C, Dervisis K (2011) Long-term follow up with Colour Doppler ultrasonography and Power Doppler after EVAR in a single- center experience. Proceedings of the IVEC/ ISVS Congress 27-29.10.2011, Milan, Italy",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 7.400000000000001,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_FULL_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 43,
+          "year_count": 2,
+          "numeric_date_count": 1,
+          "proper_name_word_count": 16,
+          "name_initial_pair_count": 7,
+          "author_joiner_count": 1,
+          "place_name_count": 1,
+          "punctuation_count": 13
+        }
+      },
+      {
+        "document_id": "ad8a74937a806430d815b4eb474b8bdca67b82eee8368b5378ddc2af8614def8",
+        "source": "greek_phd",
+        "abs_idx": 250,
+        "text": "-  Argitis  V,  Kyriakidis  K,  Tabakis  H,  Dervisis  K  (2011)  Popliteal  artery percutaneous  tranluminal  angioplasty  for  chronic  critical  limb  ischemia  and diabetes mellitus lesions. Analysis of a single-center experience. Proceedings of  the  1 st Annual  joint  conference  of  the  HASDF  and  MEET , Porto  Heli, Greece",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 6.300000000000001,
+        "reason_codes": [
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 44,
+          "year_count": 1,
+          "proper_name_word_count": 11,
+          "name_initial_pair_count": 4,
+          "author_joiner_count": 2,
+          "punctuation_count": 9
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3289,
+        "text": "ΒΙΒΛΙΟΓΡΑΦΙΑ ΚΕΦΑΛΑΙΟΥ Γ.",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "BIB_HEADING",
+        "score": 4.0,
+        "reason_codes": [
+          "BIB2_EXTENDED_HEADING"
+        ],
+        "nonzero_features": {
+          "token_count": 3,
+          "initial_count": 1,
+          "name_initial_pair_count": 1,
+          "dotted_word_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3291,
+        "text": "Ελληνόγλωσσες Βιβλιογραφικές Πηγές Αβδελά, Φ. (2019). Στρατηγική Βιώσιμης Αστικής Αναγέννησης: Σενάρια επανάχρησης στο εγκαταλελειμμένο αστικό απόθεμα της Δυτικής Θεσσαλονίκης. Θεσσαλονίκη: Πτυχιακή εργασία, Τμήμα Μηχανικών Χωροταξίας και Ανάπτυξης, Πολυτεχνική Σχολή, Αριστοτέλειο Πανεπιστήμιο Θεσσαλονίκης",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 4.4,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_PLACE_PUBLISHER_SHAPE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 32,
+          "year_count": 1,
+          "initial_count": 1,
+          "proper_name_word_count": 22,
+          "author_joiner_count": 1,
+          "dotted_word_count": 1,
+          "place_name_count": 1,
+          "place_publisher_shape_count": 1,
+          "punctuation_count": 11
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3293,
+        "text": "Αθανασίου, Ε., Αλεξοπούλου, Α., Λαδά, Σ. &amp; Χριστοδούλου, Χ. (2013). Εργαστήρια",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 7.8999999999999995,
+        "reason_codes": [
+          "BIB2_AUTHOR_INVERTED",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 11,
+          "year_count": 1,
+          "initial_count": 4,
+          "proper_name_word_count": 5,
+          "inverted_author_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 1,
+          "dotted_word_count": 4,
+          "punctuation_count": 14
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3295,
+        "text": "Αστικού",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {
+          "token_count": 1,
+          "proper_name_word_count": 1
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3297,
+        "text": "-",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {}
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3299,
+        "text": "Πολεοδομικού Σχεδιασμού στη Συνθήκη της Κρίσης: Διερεύνηση των Ορίων. Πρακτικά Συνεδρίου: «Μεταβολές κι Ανασηματοδοτήσεις του Χώρου στην Ελλάδα της Κρίσης». Βόλος: Τμήμα Αρχιτεκτόνων Μηχανικών, Πανεπιστήμιο Θεσσαλίας. Αθανασίου, Ε. (2015). Βιώσιμες αστικές μορφές και μετασχηματισμοί της υπάρχουσας πόλης. Στο: Αθανασίου, Ε. (επιμ.). Πόλη και φύση: Θεωρήσεις της φύσης στον πολεοδομικό σχεδιασμό . Αθήνα: Σύνδεσμος Ελληνικών Ακαδημαϊκών Βιβλιοθηκών. Ανανιάδου -Τζημοπούλου, Μ. (1992). Αρχιτεκτονική Τοπίου. Σχεδιασμός Αστικών Χώρων: Κριτική και θεωρία. Σύγχρονες τάσεις σχεδιασμού τοπίου (Τόμος Α'). Θεσσαλονίκη: Ζήτη. Ανανιάδου -Τζημοπούλου, Μ. &amp; Κουλούρη Μ. (2009). Αστικά ή μητροπολιτικά πάρκα και δίκτυα πράσινων χώρων. Θεσσαλονίκη: Στο: Τσιούρης, Σ.Ε. &amp; Ανανιάδου -Τζημοπούλου, Μ. (εκδ.).",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 13.0,
+        "reason_codes": [
+          "BIB2_NAME_INITIAL_PAIR",
+          "BIB2_INITIAL_SEQUENCE",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_QUOTED_TITLE_SHAPE",
+          "BIB2_EDITOR_TRANSLATOR_TERM",
+          "BIB2_DOTTED_ABBREVIATION_SEQUENCE",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_PLACE_PUBLISHER_SHAPE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_INTERACTION_QUOTED_CITATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 100,
+          "year_count": 3,
+          "initial_count": 7,
+          "initial_sequence_count": 1,
+          "proper_name_word_count": 51,
+          "name_initial_pair_count": 1,
+          "ampersand_count": 2,
+          "author_joiner_count": 6,
+          "quoted_span_count": 1,
+          "editor_term_count": 1,
+          "dotted_word_count": 10,
+          "dotted_sequence_count": 1,
+          "place_name_count": 3,
+          "place_publisher_shape_count": 3,
+          "punctuation_count": 59
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3301,
+        "text": "Κλιματική",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {
+          "token_count": 1,
+          "proper_name_word_count": 1
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3303,
+        "text": "3 ο",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_FOOTNOTE"
+        ],
+        "nonzero_features": {
+          "token_count": 2
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3305,
+        "text": "Αλλαγή, Βιώσιμη Ανάπτυξη και Ανανεώσιμες Πηγές Ενέργειας",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 1.0,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_AUTHOR_JOINER"
+        ],
+        "nonzero_features": {
+          "token_count": 7,
+          "proper_name_word_count": 6,
+          "author_joiner_count": 1,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3307,
+        "text": ". Συμβούλιο Περιβάλλοντος.",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 0.6,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_SHORT_WRAPPED_FRAGMENT"
+        ],
+        "nonzero_features": {
+          "token_count": 2,
+          "proper_name_word_count": 2,
+          "punctuation_count": 2
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3309,
+        "text": "Πανελλήνιο Συνέδριο. Θεσσαλονίκη: Αριστοτέλειο Πανεπιστήμιο Θεσσαλονίκης, Εκδόσεις Ζήτη.",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "POSSIBLE_CONTINUATION",
+        "score": 2.9,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_PLACE_PUBLISHER_SHAPE",
+          "BIB2_PUBLICATION_TAIL"
+        ],
+        "nonzero_features": {
+          "token_count": 8,
+          "proper_name_word_count": 8,
+          "dotted_word_count": 1,
+          "publisher_term_count": 1,
+          "place_name_count": 1,
+          "place_publisher_shape_count": 1,
+          "punctuation_count": 4
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3311,
+        "text": "Ανανιάδου -Τζημοπούλου, Μ. (2009). ΑΡΧΙΤΕΚΤΟΝΙΚΗ ΤΟΠΙΟΥ. 100 ΕΡΓΑ ΓΙΑ ΤΗΝ ΠΟΛΗ. ΘΕΣΣΑΛΟΝΙΚΗ 2012 . Τεύχος 10/445. Θεσσαλονίκη: Εκδόσεις Ζήτη. ΔΠΜΣ Αρχιτεκτονική Τοπίου και Τμήμα Αρχιτεκτόνων, Π.Σ. ΑΠΘ. Ανδρικοπούλου, Ε., Γιαννακού, Α., Καυκαλάς, Γ. &amp; Πιτσιάβα, Μ. (2014). Πόλη και πολεοδομικές πρακτικές. Για τη βιώσιμη αστική ανάπτυξη . Αθήνα: Κριτική. Βιτοπούλου, A. (2004). Εγκαταλελειμμένες αστικές εκτάσεις. Στο: Καραδήμου -Γερόλυμπου, Α. &amp; Βιτοπούλου, Α. (εκδ.). Αστικός Σχεδιασμός &amp; Τοπίο , 69 -112, Διδακτικές σημειώσεις, Θεσσαλονίκη:",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 14.100000000000001,
+        "reason_codes": [
+          "BIB2_INITIAL_SEQUENCE",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_DOTTED_ABBREVIATION_SEQUENCE",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_VOLUME_ISSUE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_PUBLISHER_TERM",
+          "BIB2_PLACE_LEXICON",
+          "BIB2_PLACE_PUBLISHER_SHAPE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_INTERACTION_JOURNAL_DATE_VOLUME",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 72,
+          "year_count": 4,
+          "initial_count": 9,
+          "initial_sequence_count": 1,
+          "proper_name_word_count": 29,
+          "ampersand_count": 3,
+          "author_joiner_count": 5,
+          "dotted_word_count": 13,
+          "dotted_sequence_count": 1,
+          "volume_marker_count": 1,
+          "page_range_count": 1,
+          "publisher_term_count": 1,
+          "place_name_count": 3,
+          "place_publisher_shape_count": 3,
+          "punctuation_count": 54
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3313,
+        "text": "ΔΠΜΣ Αρχιτεκτονική Τοπίου, Αριστοτέλειο Πανεπιστήμιο Θεσσαλονίκης",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 0.6,
+        "reason_codes": [
+          "BIB2_PROPER_NAME_SHAPE"
+        ],
+        "nonzero_features": {
+          "token_count": 6,
+          "proper_name_word_count": 5,
+          "punctuation_count": 1
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3315,
+        "text": "Βιτοπούλου, Α. &amp; Καραδήμου",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "WEAK_ENTRY_START",
+        "score": 4.1,
+        "reason_codes": [
+          "BIB2_AUTHOR_INVERTED",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_WEAK_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 4,
+          "initial_count": 1,
+          "proper_name_word_count": 2,
+          "inverted_author_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 1,
+          "dotted_word_count": 1,
+          "punctuation_count": 3
+        }
+      },
+      {
+        "document_id": "4e472ecf40b1d9c7574bff2714373326d39bdd8da8a2986d9f26ce6cd93b8ee2",
+        "source": "openarchives",
+        "abs_idx": 3317,
+        "text": "-",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "OTHER",
+        "score": 0.0,
+        "reason_codes": [
+          "BIB2_NO_LOCAL_EVIDENCE"
+        ],
+        "nonzero_features": {}
+      },
+      {
+        "document_id": "362ef59d9ab01f1eee6d3ef8e8126bde44281f67ba8a8b686903eec753053a41",
+        "source": "kallipos",
+        "abs_idx": 56,
+        "text": "Hammond GR, Balla T (2015) Polyphosphoinositide binding domains: key to inositol lipid biology. Biochim Biophys Acta , 1851:746-758.",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 11.7,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_REPEATED_NAME_INITIAL_PAIRS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_YEAR_VOLUME_SEQUENCE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 18,
+          "year_count": 2,
+          "proper_name_word_count": 6,
+          "author_year_count": 1,
+          "name_initial_pair_count": 2,
+          "journal_year_volume_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 8
+        }
+      },
+      {
+        "document_id": "362ef59d9ab01f1eee6d3ef8e8126bde44281f67ba8a8b686903eec753053a41",
+        "source": "kallipos",
+        "abs_idx": 57,
+        "text": "Lemmon MA (2008) Membrane recognition by phospholipid-binding domains. Nat Rev Mol Cell Biol , 9:99-111.",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 8.200000000000001,
+        "reason_codes": [
+          "BIB2_AUTHOR_YEAR_SKELETON",
+          "BIB2_NAME_INITIAL_PAIR",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_PAGE_RANGE",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_INTERACTION_DATE_PUBLICATION",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 15,
+          "year_count": 1,
+          "proper_name_word_count": 7,
+          "author_year_count": 1,
+          "name_initial_pair_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 6
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 317,
+        "text": "| Andreou, S.A., Marks, D.H., &amp; Clark, R.M. (1987). New methodology for modelling break failure patterns in  deteriorating water distribution systems: Applications.  Advances in Water Resources AWREDI ,  10 , 2-                                                                                                                                               |",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_STATISTICAL_TABLE",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 31,
+          "year_count": 1,
+          "initial_count": 3,
+          "initial_sequence_count": 3,
+          "proper_name_word_count": 8,
+          "inverted_author_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 1,
+          "dotted_word_count": 3,
+          "dotted_sequence_count": 3,
+          "punctuation_count": 19,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 318,
+        "text": "|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONCITATION_TABLE_ROW"
+        ],
+        "nonzero_features": {
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 319,
+        "text": "| Arregui, F., Cabrera, E.Jr., Cobacho, R., &amp; Garcia-Serra, J. (2005). Key factors affecting water meter accuracy.  Proceedings of the Leakage 2005 Conference , Halifax, Canada.                                                                                                                                                                                 |",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_STATISTICAL_TABLE",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 25,
+          "year_count": 2,
+          "initial_count": 4,
+          "proper_name_word_count": 10,
+          "inverted_author_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 1,
+          "dotted_word_count": 5,
+          "dotted_sequence_count": 1,
+          "punctuation_count": 20,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 320,
+        "text": "| Arregui, F.J., Cabrera, E., Cobacho, R., &amp; Garcia-Serra, J. (2006a). Reducing apparent losses caused by meters  inaccuracies.  Water Practice &amp; Technology, 1 (4), doi:10.2166/WPT.2006093.                                                                                                                                                                     |",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_IDENTIFIER",
+          "BIB2_NEGATIVE_STATISTICAL_TABLE",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 29,
+          "year_count": 1,
+          "doi_count": 1,
+          "initial_count": 4,
+          "initial_sequence_count": 1,
+          "proper_name_word_count": 8,
+          "inverted_author_count": 1,
+          "ampersand_count": 2,
+          "author_joiner_count": 2,
+          "dotted_word_count": 5,
+          "dotted_sequence_count": 1,
+          "volume_shape_count": 1,
+          "punctuation_count": 26,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 321,
+        "text": "| Arregui, F.J, Cabrera, E.Jr., &amp; Cobacho, R. (2006b).  Integrated water meter management .  IWA Publishing,  London, UK.                                                                                                                                                                                                                                         |",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_STATISTICAL_TABLE",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 18,
+          "year_count": 1,
+          "initial_count": 2,
+          "proper_name_word_count": 6,
+          "inverted_author_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 1,
+          "dotted_word_count": 3,
+          "dotted_sequence_count": 1,
+          "publisher_term_count": 1,
+          "place_name_count": 1,
+          "punctuation_count": 17,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 322,
+        "text": "| Arregui, F.J., Pardo, M.A., Parra, J.C., &amp; Soriano, J. (2007). Quantification of meter errors of domestic users: a  case study.  Proceedings of the Water Loss 2007 Conference , Bucharest, September 23-26.                                                                                                                                                    |",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_STATISTICAL_TABLE",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 33,
+          "year_count": 2,
+          "initial_count": 4,
+          "initial_sequence_count": 3,
+          "proper_name_word_count": 11,
+          "inverted_author_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 1,
+          "dotted_word_count": 4,
+          "dotted_sequence_count": 3,
+          "page_range_count": 1,
+          "punctuation_count": 23,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 323,
+        "text": "| Aslani, P. (2003).  Hazard rate modelling and risk analysis of water mains . MSc. thesis, Polytechnic University.                                                                                                                                                                                                                                               |",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_STATISTICAL_TABLE",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 16,
+          "year_count": 1,
+          "initial_count": 1,
+          "proper_name_word_count": 4,
+          "inverted_author_count": 1,
+          "author_joiner_count": 1,
+          "thesis_term_count": 1,
+          "dotted_word_count": 2,
+          "punctuation_count": 9,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 324,
+        "text": "| AWWA. (2006).  Near  Final  Draft  for  Water  Loss  Comittee  Review:  AWWA  M36  Publication  Rewrite.                                                                                                                                                                                                                                                        |",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONCITATION_TABLE_ROW"
+        ],
+        "nonzero_features": {
+          "token_count": 14,
+          "year_count": 1,
+          "proper_name_word_count": 9,
+          "dotted_word_count": 1,
+          "publisher_term_count": 1,
+          "punctuation_count": 6,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 325,
+        "text": "| AWWA. (2009). Manual of Water Supply Practices. (3rd ed.), M36. Water Audits and Loss Control Programs.  Denver.                                                                                                                                                                                                                                                |",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONCITATION_TABLE_ROW"
+        ],
+        "nonzero_features": {
+          "token_count": 17,
+          "year_count": 1,
+          "proper_name_word_count": 10,
+          "author_joiner_count": 1,
+          "editor_term_count": 1,
+          "edition_term_count": 1,
+          "dotted_word_count": 2,
+          "punctuation_count": 12,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 326,
+        "text": "| Christodoulou, S. (2009). Water network assessment and reliability analysis by use of survival analysis.  7th  International Conference of EWRA 'Water Resources Conservancy and Risk Reduction Under Climatic  Uncertainty' , Limassol, Cyprus.  Christodoulou, S., Aslani, P., &amp; Deligianni, A. (2006). Integrated GIS-based management of water distribution |",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -3.0,
+        "reason_codes": [
+          "BIB2_YEAR",
+          "BIB2_NEGATIVE_STATISTICAL_TABLE",
+          "BIB2_NEGATIVE_RUNNING_PROSE"
+        ],
+        "nonzero_features": {
+          "token_count": 44,
+          "year_count": 2,
+          "initial_count": 4,
+          "proper_name_word_count": 18,
+          "inverted_author_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 3,
+          "quoted_span_count": 1,
+          "dotted_word_count": 5,
+          "punctuation_count": 21,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 327,
+        "text": "| networks.  International  Conference  on  Computing  and  Decision-Making  in  Civil  and  Building  Engineering . Montreal. Canada. ASCE.  Christodoulou, S., Aslani, P., &amp; Vanrenterghem, A. (2003). A risk analysis framework for evaluating structural                                                                                                      |",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONCITATION_TABLE_ROW"
+        ],
+        "nonzero_features": {
+          "token_count": 30,
+          "year_count": 1,
+          "initial_count": 3,
+          "proper_name_word_count": 12,
+          "ampersand_count": 1,
+          "author_joiner_count": 3,
+          "dotted_word_count": 5,
+          "dotted_sequence_count": 1,
+          "punctuation_count": 17,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 328,
+        "text": "| degradation  of  water  mains  in  urban  settings,  using  neurofuzzy  systems  and  statistical  modeling  techniques.  World  Water  &amp;  Environmental  Resources  Congress  2003  and  Related  Symposia ,  Pennsylvania, USA.  Journal of AWWA , 81-87.                                                                                                     |",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "HARD_OTHER",
+        "score": -4.0,
+        "reason_codes": [
+          "BIB2_NEGATIVE_NONCITATION_TABLE_ROW"
+        ],
+        "nonzero_features": {
+          "token_count": 30,
+          "year_count": 1,
+          "proper_name_word_count": 9,
+          "ampersand_count": 1,
+          "author_joiner_count": 3,
+          "dotted_word_count": 1,
+          "page_range_count": 1,
+          "punctuation_count": 8,
+          "table_row_count": 1
+        }
+      },
+      {
+        "document_id": "1b7f74f564f57030880a46df54e26a667285d2e8702af7f24a794548cf25cb88",
+        "source": "kallipos",
+        "abs_idx": 329,
+        "text": "| Clark, R., &amp; Goodrich, J. (1989). Developing a Data Base on Infrastructure Needs.                                                                                                                                                                                                                                                                               |",
+        "gold": "BIB",
+        "predicted": "O",
+        "local_role": "STRONG_ENTRY_START",
+        "score": 5.8999999999999995,
+        "reason_codes": [
+          "BIB2_AUTHOR_INVERTED",
+          "BIB2_MULTIPLE_INITIALS",
+          "BIB2_PROPER_NAME_SHAPE",
+          "BIB2_YEAR_OR_NO_DATE",
+          "BIB2_AMPERSAND",
+          "BIB2_AUTHOR_JOINER",
+          "BIB2_DOTTED_WORD_DENSITY",
+          "BIB2_INTERACTION_AUTHOR_DATE",
+          "BIB2_NEGATIVE_TABLE_ROW",
+          "BIB2_STRONG_MULTI_FAMILY_ENTRY"
+        ],
+        "nonzero_features": {
+          "token_count": 13,
+          "year_count": 1,
+          "initial_count": 2,
+          "proper_name_word_count": 7,
+          "inverted_author_count": 1,
+          "ampersand_count": 1,
+          "author_joiner_count": 1,
+          "dotted_word_count": 3,
+          "punctuation_count": 10,
+          "table_row_count": 1
+        }
+      }
+    ]
+  },
+  "claims": {
+    "model_fitted": false,
+    "test_or_sealed_data_accessed": false,
+    "human_gold_used": false,
+    "production_eligible": false,
+    "corpus_mutated": false
+  },
+  "caveats": [
+    "Metrics measure agreement with GPT-labelled LLM-silver, not human-gold accuracy.",
+    "The train split is exploratory; validation must be run only after rule choices are frozen.",
+    "V2 is a research proposal and cannot authorise bibliography removal."
+  ]
+}

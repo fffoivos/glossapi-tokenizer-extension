@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codex 5.6 structural audit response batch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["responses"],
+  "properties": {
+    "responses": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "request_id",
+          "request_sha256",
+          "reviewer_model",
+          "label",
+          "start_abs_idx",
+          "end_abs_idx",
+          "should_remove",
+          "confidence",
+          "structural_cues",
+          "evidence_abs_indices"
+        ],
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "academic-structure-codex56-audit-response-v1"
+          },
+          "request_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "request_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "reviewer_model": {"type": "string", "minLength": 1},
+          "label": {
+            "type": "string",
+            "enum": ["BIB", "TOC", "OTHER", "UNKNOWN"]
+          },
+          "start_abs_idx": {"type": ["integer", "null"], "minimum": 0},
+          "end_abs_idx": {"type": ["integer", "null"], "minimum": 0},
+          "should_remove": {"type": "boolean"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "structural_cues": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 1},
+            "maxItems": 12
+          },
+          "evidence_abs_indices": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "integer", "minimum": 0},
+            "maxItems": 64
+          }
+        }
+      }
+    }
+  }
+}

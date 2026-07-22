@@ -1,0 +1,40 @@
+{
+  "schema_version": "bibliography-silver-block-audit-receipt-v1",
+  "status": "passed",
+  "input": {
+    "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/struct2k.LLM_silver.jsonl",
+    "sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "document_count": 1392,
+  "known_line_count": 1198081,
+  "max_physical_gap": 64,
+  "code_commit": "8505ef0",
+  "slurm_job_id": "2752607",
+  "artifacts": {
+    "documents_jsonl": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/bibliography_block_audit_20260713t164526z/documents.jsonl",
+      "sha256": "8565dd73d8d88689067f28d650de190fca3dd46e04bb4b6b4b0d97f7f05a224b",
+      "bytes": 1040739
+    },
+    "documents_csv": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/bibliography_block_audit_20260713t164526z/documents.csv",
+      "sha256": "46acd512b78f2368a27a094bfdef28436ebd701f7045494d9b1a53e20ee88d41",
+      "bytes": 291835
+    },
+    "summary": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/bibliography_block_audit_20260713t164526z/summary.json",
+      "sha256": "a15bdca0cf913443d300ba5d2e0eb9d5dc1431b66ae4e8a24cf1bfbbb6d261bf",
+      "bytes": 64055
+    },
+    "report": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/bibliography_block_audit_20260713t164526z/report.md",
+      "sha256": "58fb9692c57a4e26caf00971135c2e4768257a3896523b8633296b9cf02efc8c",
+      "bytes": 4123
+    },
+    "plot": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/bibliography_block_audit_20260713t164526z/distribution.svg",
+      "sha256": "870920365479e3d6f60fe2fe1f520d0d8ecda18cc62d60503624fa51d9392de8",
+      "bytes": 8104
+    }
+  }
+}

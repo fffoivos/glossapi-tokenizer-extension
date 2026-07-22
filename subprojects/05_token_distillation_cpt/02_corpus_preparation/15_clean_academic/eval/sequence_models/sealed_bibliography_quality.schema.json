@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "bibliography-sealed-quality-response-v1",
+      "type": "string"
+    },
+    "reviewer": {"type": "string", "minLength": 1},
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "document_alias": {"type": "string", "minLength": 1},
+          "decision": {"type": "string", "enum": ["KEEP", "UNUSABLE"]},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "reasons": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          }
+        },
+        "required": ["document_alias", "decision", "confidence", "reasons"]
+      }
+    }
+  },
+  "required": ["schema_version", "reviewer", "documents"],
+  "type": "object"
+}

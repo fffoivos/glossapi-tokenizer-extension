@@ -1,0 +1,36 @@
+{
+  "code_commit": "e6052c9243e2ed7a18e50d355ddbfb91b20629f5",
+  "feature_count": 37,
+  "input": {
+    "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/struct2k.LLM_silver.jsonl",
+    "sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "line_count": 14815,
+  "output": {
+    "bytes": 8434904,
+    "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/bibliography_feature_explorers/bib_features_train20_e6052c9/index.html",
+    "sha256": "fd6e7ba1c3fbcb24b02d48047a0b5962dce0485e2d6cbab99c6efb91b33b4bb6"
+  },
+  "payload_sha256": "0e6137a647aae274a1fa85fd9ce7936dcb44d377eaa2784ecb060c96c11a2cb0",
+  "schema_version": "bibliography-line-feature-explorer-receipt-v1",
+  "selection": {
+    "coverage": "full_document",
+    "document_count": 20,
+    "eligible_counts": {
+      "greek_phd": 100,
+      "kallipos": 315,
+      "openarchives": 293
+    },
+    "input_path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/struct2k.LLM_silver.jsonl",
+    "input_sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0",
+    "seed": "bibliography-feature-explorer-20260713",
+    "source_counts": {
+      "greek_phd": 7,
+      "kallipos": 7,
+      "openarchives": 6
+    },
+    "split": "train"
+  },
+  "slurm_job_id": "2749470",
+  "status": "passed"
+}

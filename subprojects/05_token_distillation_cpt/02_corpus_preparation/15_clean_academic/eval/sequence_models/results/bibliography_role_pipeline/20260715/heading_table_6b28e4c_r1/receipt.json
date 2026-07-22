@@ -1,0 +1,59 @@
+{
+  "candidate_count": 24616,
+  "code_commit": "6b28e4c72927394513722bcc7c5267b9a0dbbe37",
+  "inputs": {
+    "base_manifest_sha256": "be8e146647470384fca9edcb601369f22fa4964f826977f8a9af5ae09571f498",
+    "entry_oof_sha256": "e0af1449b21f8aab49108f21a931e8869e287f0c1599d5b553bbbd1d2be75e37",
+    "heading_overlay_sha256": "b09f23610eaabd6352d9c2c2d3b448a1b359c1cba4a79df81785fe8cda8aff37",
+    "inventory_provenance_sha256": "eb09424b142547534ec0cbeb8430de50174995d07c886a8d62561adc1fc9676a",
+    "overlay_sha256": "d8a63c4780e730099e69283430ce4bad2a9a4d6f02298c15b5309dba2f998a8c",
+    "source_sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "line_count": 939014,
+  "outputs": {
+    "features.npy": {
+      "bytes": 4234080,
+      "sha256": "00efc57be6684c6b84c3ba672a6496c53d47b9228c3a3ec537cc7e10cf7dab71"
+    },
+    "folds.npy": {
+      "bytes": 24744,
+      "sha256": "577ac82dad37052e49b2551321f47ee1ca3a4caf633f078bc0f46f4b8b8d0fc2"
+    },
+    "manifest.json": {
+      "bytes": 1113,
+      "sha256": "5db5f4e1c35f2099195b81e5c5ef23396feb96332c758a0a60dfc719f03ab03a"
+    },
+    "roles.npy": {
+      "bytes": 24744,
+      "sha256": "aabdb74b87fa763ed24e42ae6c4e5c25e6cd16d65f458e1176e4c8d9d518d7fa"
+    },
+    "row_indices.npy": {
+      "bytes": 98592,
+      "sha256": "90c44600b16b2e9bb334aa06b30e94f016427ede51977c22a9234624fd89b31c"
+    },
+    "texts.jsonl": {
+      "bytes": 3085012,
+      "sha256": "db27814ee3de6d5e37bb4267d5530d3b411e43f50c1ebbbdf0e2848420d083fa"
+    },
+    "trusted.npy": {
+      "bytes": 24744,
+      "sha256": "6057708790fc2e6d7b9830e7f58ab62b5f69417922052a95d3bde21d8146d097"
+    }
+  },
+  "role_encoding": {
+    "BIB_HEADER": 3,
+    "BIB_SUBHEADER": 4,
+    "CONTINUATION": 1,
+    "ENTRY": 0,
+    "FILLER": 2,
+    "NON_BIB_HEADER": 5,
+    "OTHER": 6,
+    "UNKNOWN": 7
+  },
+  "schema_version": "bibliography-heading-expert-table-v1",
+  "slurm_job_id": "2766683",
+  "split": "train",
+  "status": "passed_heading_table_materialization",
+  "trusted_candidate_count": 2137,
+  "validation_opened": false
+}

@@ -1,0 +1,11 @@
+{
+  "agreement_count": 1347,
+  "agreement_rate": 0.9492600422832981,
+  "candidate_count": 1419,
+  "masked_disagreement_count": 72,
+  "overlay_content_sha256": "7617eb12d3f27cd8c5ebee3f32b3fb8ed567e52323d7fdd911f340c329c88750",
+  "overlay_sha256": "b09f23610eaabd6352d9c2c2d3b448a1b359c1cba4a79df81785fe8cda8aff37",
+  "schema_version": "bibliography-heading-adjudication-v1",
+  "status": "passed_exact_agreement_only",
+  "trusted_count": 1347
+}

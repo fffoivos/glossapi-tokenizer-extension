@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "bibliography-sealed-role-response-v1",
+      "type": "string"
+    },
+    "reviewer": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "chunks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "chunk_id": {"type": "string", "minLength": 1},
+          "runs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "start_offset": {"type": "integer", "minimum": 0},
+                "end_offset": {"type": "integer", "minimum": 0},
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "ENTRY",
+                    "CONTINUATION",
+                    "FILLER",
+                    "BIB_HEADER",
+                    "BIB_SUBHEADER",
+                    "NON_BIB_HEADER",
+                    "OTHER",
+                    "UNKNOWN"
+                  ]
+                },
+                "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+              },
+              "required": ["start_offset", "end_offset", "role", "confidence"]
+            }
+          },
+          "notes": {"type": "string"}
+        },
+        "required": ["chunk_id", "runs", "notes"]
+      }
+    }
+  },
+  "required": ["schema_version", "reviewer", "chunks"],
+  "type": "object"
+}

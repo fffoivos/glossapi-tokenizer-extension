@@ -1,0 +1,55 @@
+{
+  "documents": [
+    {
+      "document_id": "009007924306a42611e6cbaf3e4dbe6ec7f0ea2f7a7214f442185d6e709367b6",
+      "line_count": 1701,
+      "reason": "removed_by_user_after_post_repair_disagreement_review",
+      "source": "greek_phd",
+      "source_doc_id": "3e6467d1cb195e0502a674f7ab6872b822dfce680350333c53735306ecbb0b6c"
+    },
+    {
+      "document_id": "071463c85082fd0190964548c515078edc8ad3f119006472b65b7ab8575806b4",
+      "line_count": 1909,
+      "reason": "removed_by_user_after_post_repair_disagreement_review",
+      "source": "greek_phd",
+      "source_doc_id": "aefd3a37bec3c2ee2779249d0983d0efd9f01f7e769f3ee6ce7d6df2fabafcd6"
+    },
+    {
+      "document_id": "0bee91d555ac0a7fde0c23103a15cd4b5e366f25580edc54e6337dbd73113437",
+      "line_count": 3531,
+      "reason": "removed_by_user_after_post_repair_disagreement_review",
+      "source": "openarchives",
+      "source_doc_id": "56a9a83209e1dcb2633fefa6614d00129c3fd82d6ae5a23306348c6d30dc7ca6"
+    },
+    {
+      "document_id": "2944c6c820ae2545cff7f7a0ce2338d8e423e2f63c30810bbc1298ea617a93b5",
+      "line_count": 5748,
+      "reason": "removed_by_user_after_post_repair_disagreement_review",
+      "source": "greek_phd",
+      "source_doc_id": "dd3208b7ea3bd1cf5666a6f8f955648f49755e24921657d9fdb43c6908a27d22"
+    },
+    {
+      "document_id": "7c6b95509f09221feae996e4a43f0accbe69adadee7ac9332a062fc8d237c39e",
+      "line_count": 3850,
+      "reason": "removed_by_user_after_post_repair_disagreement_review",
+      "source": "greek_phd",
+      "source_doc_id": "7f690a13162ee9e16c9cc61c59e0fb6ca56e20ec6296858a92cb7fa8d0097c30"
+    },
+    {
+      "document_id": "be9d332ba080e8fe9f3b7ef2ebb354d73c7aeb0e42dcde16c704c8d64bc11c1c",
+      "line_count": 3001,
+      "reason": "removed_by_user_after_post_repair_disagreement_review",
+      "source": "greek_phd",
+      "source_doc_id": "6b18ba611c1da6a216d1d3f78055136bf2e97a00f6da2ab32f66abfe9519e2f9"
+    },
+    {
+      "document_id": "de447fab30e3fa005a8daca32049feb080061a1a524cef82322f906b7929ad3f",
+      "line_count": 924,
+      "reason": "removed_by_user_after_post_repair_disagreement_review",
+      "source": "openarchives",
+      "source_doc_id": "f48d6b322a37737450bf5377da4439c2ba9940dbb92ca99dafdbb018748a18d9"
+    }
+  ],
+  "excluded_document_count": 7,
+  "schema_version": "bibliography-task-consensus-silver-exclusions-v1"
+}

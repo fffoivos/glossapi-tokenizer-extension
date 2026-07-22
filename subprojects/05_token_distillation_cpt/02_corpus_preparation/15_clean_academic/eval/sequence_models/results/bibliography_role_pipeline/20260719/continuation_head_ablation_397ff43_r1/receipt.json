@@ -1,0 +1,1491 @@
+{
+  "arms": {
+    "all_177": {
+      "feature_count": 177,
+      "folds": [
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.9718487430534553,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.9739527856112314,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.9465937414565133,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.9367912529118612,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2155,
+          "holdout_count": 533,
+          "inner_fold": 1,
+          "outer_fold": 0,
+          "selected": {
+            "C": 1.0,
+            "inner_pr_auc": 0.9739527856112314,
+            "kind": "logistic"
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.8585964081363463,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.8323735264419452,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.9628979526254801,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.9800387065359107,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2303,
+          "holdout_count": 385,
+          "inner_fold": 2,
+          "outer_fold": 1,
+          "selected": {
+            "inner_pr_auc": 0.9800387065359107,
+            "kind": "hist",
+            "max_depth": 3,
+            "min_samples_leaf": 20
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.6621763859971349,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.6449542427139681,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.6725231125124004,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.6629675406156659,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2098,
+          "holdout_count": 590,
+          "inner_fold": 3,
+          "outer_fold": 2,
+          "selected": {
+            "inner_pr_auc": 0.6725231125124004,
+            "kind": "hist",
+            "max_depth": 2,
+            "min_samples_leaf": 20
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.8476866558169747,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.8322689716744249,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.8613287803710837,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.8606856957817854,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 1977,
+          "holdout_count": 711,
+          "inner_fold": 4,
+          "outer_fold": 3,
+          "selected": {
+            "inner_pr_auc": 0.8613287803710837,
+            "kind": "hist",
+            "max_depth": 2,
+            "min_samples_leaf": 20
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.7603616016332717,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.7679085883044209,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.8968460279356572,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.9007119258941663,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2219,
+          "holdout_count": 469,
+          "inner_fold": 0,
+          "outer_fold": 4,
+          "selected": {
+            "inner_pr_auc": 0.9007119258941663,
+            "kind": "hist",
+            "max_depth": 3,
+            "min_samples_leaf": 20
+          }
+        }
+      ]
+    },
+    "compact_core": {
+      "feature_count": 87,
+      "folds": [
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.9609035516662091,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.9511530638240312,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.9762148269218642,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.9796087476648043,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2155,
+          "holdout_count": 533,
+          "inner_fold": 1,
+          "outer_fold": 0,
+          "selected": {
+            "inner_pr_auc": 0.9796087476648043,
+            "kind": "hist",
+            "max_depth": 3,
+            "min_samples_leaf": 20
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.858257987836225,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.8432509347098837,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.8848043892457289,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.8945704506823513,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2303,
+          "holdout_count": 385,
+          "inner_fold": 2,
+          "outer_fold": 1,
+          "selected": {
+            "inner_pr_auc": 0.8945704506823513,
+            "kind": "hist",
+            "max_depth": 3,
+            "min_samples_leaf": 20
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.7120838427809141,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.6679221767856235,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.6055966983411128,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.5996554644614573,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2098,
+          "holdout_count": 590,
+          "inner_fold": 3,
+          "outer_fold": 2,
+          "selected": {
+            "C": 0.1,
+            "inner_pr_auc": 0.7120838427809141,
+            "kind": "logistic"
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.8974048261075862,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.9018898571053883,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.898668400287539,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.87171678021768,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 1977,
+          "holdout_count": 711,
+          "inner_fold": 4,
+          "outer_fold": 3,
+          "selected": {
+            "C": 1.0,
+            "inner_pr_auc": 0.9018898571053883,
+            "kind": "logistic"
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.7893061414974126,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.8167336016031111,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.8326736575852964,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.855669708539653,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2219,
+          "holdout_count": 469,
+          "inner_fold": 0,
+          "outer_fold": 4,
+          "selected": {
+            "inner_pr_auc": 0.855669708539653,
+            "kind": "hist",
+            "max_depth": 3,
+            "min_samples_leaf": 20
+          }
+        }
+      ]
+    },
+    "compact_join_table_interactions": {
+      "feature_count": 110,
+      "folds": [
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.9595163529921925,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.9632694700654192,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.9772742866184281,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.9774433430888847,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2155,
+          "holdout_count": 533,
+          "inner_fold": 1,
+          "outer_fold": 0,
+          "selected": {
+            "inner_pr_auc": 0.9774433430888847,
+            "kind": "hist",
+            "max_depth": 3,
+            "min_samples_leaf": 20
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.8770006088633842,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.8688221504318329,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.9047588208275259,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.9194923090678007,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2303,
+          "holdout_count": 385,
+          "inner_fold": 2,
+          "outer_fold": 1,
+          "selected": {
+            "inner_pr_auc": 0.9194923090678007,
+            "kind": "hist",
+            "max_depth": 3,
+            "min_samples_leaf": 20
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.7172067098732837,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.6641962180174744,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.6347130614646156,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.6218283480100355,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2098,
+          "holdout_count": 590,
+          "inner_fold": 3,
+          "outer_fold": 2,
+          "selected": {
+            "C": 0.1,
+            "inner_pr_auc": 0.7172067098732837,
+            "kind": "logistic"
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.9044534040674715,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.8904033594574858,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.9009850213459694,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.9077854003959144,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 1977,
+          "holdout_count": 711,
+          "inner_fold": 4,
+          "outer_fold": 3,
+          "selected": {
+            "inner_pr_auc": 0.9077854003959144,
+            "kind": "hist",
+            "max_depth": 3,
+            "min_samples_leaf": 20
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.8209145900290225,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.8346906306380769,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.8535758880629362,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.8569001729463392,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2219,
+          "holdout_count": 469,
+          "inner_fold": 0,
+          "outer_fold": 4,
+          "selected": {
+            "inner_pr_auc": 0.8569001729463392,
+            "kind": "hist",
+            "max_depth": 3,
+            "min_samples_leaf": 20
+          }
+        }
+      ]
+    },
+    "compact_plus_directional_join": {
+      "feature_count": 95,
+      "folds": [
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.9678654631330741,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.9656322046612571,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.975048190574024,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.9717720716175523,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2155,
+          "holdout_count": 533,
+          "inner_fold": 1,
+          "outer_fold": 0,
+          "selected": {
+            "inner_pr_auc": 0.975048190574024,
+            "kind": "hist",
+            "max_depth": 2,
+            "min_samples_leaf": 20
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.8819482112565091,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.8700089613571007,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.90488168276019,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.9104608449955186,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2303,
+          "holdout_count": 385,
+          "inner_fold": 2,
+          "outer_fold": 1,
+          "selected": {
+            "inner_pr_auc": 0.9104608449955186,
+            "kind": "hist",
+            "max_depth": 3,
+            "min_samples_leaf": 20
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.7196560392093292,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.6676929516872072,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.6250404142509254,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.6135829567651931,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2098,
+          "holdout_count": 590,
+          "inner_fold": 3,
+          "outer_fold": 2,
+          "selected": {
+            "C": 0.1,
+            "inner_pr_auc": 0.7196560392093292,
+            "kind": "logistic"
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.8906902149961474,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.8935931544607896,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.8926450453716083,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.8981551504976458,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 1977,
+          "holdout_count": 711,
+          "inner_fold": 4,
+          "outer_fold": 3,
+          "selected": {
+            "inner_pr_auc": 0.8981551504976458,
+            "kind": "hist",
+            "max_depth": 3,
+            "min_samples_leaf": 20
+          }
+        },
+        {
+          "candidates": [
+            {
+              "C": 0.1,
+              "inner_pr_auc": 0.8030480606020166,
+              "kind": "logistic"
+            },
+            {
+              "C": 1.0,
+              "inner_pr_auc": 0.827061594859993,
+              "kind": "logistic"
+            },
+            {
+              "inner_pr_auc": 0.8518705068360118,
+              "kind": "hist",
+              "max_depth": 2,
+              "min_samples_leaf": 20
+            },
+            {
+              "inner_pr_auc": 0.8535952512844504,
+              "kind": "hist",
+              "max_depth": 3,
+              "min_samples_leaf": 20
+            }
+          ],
+          "fit_count": 2219,
+          "holdout_count": 469,
+          "inner_fold": 0,
+          "outer_fold": 4,
+          "selected": {
+            "inner_pr_auc": 0.8535952512844504,
+            "kind": "hist",
+            "max_depth": 3,
+            "min_samples_leaf": 20
+          }
+        }
+      ]
+    }
+  },
+  "code_commit": "397ff43",
+  "continuation_line_count": 535,
+  "document_count": 597,
+  "eligible_line_count": 2688,
+  "feature_names": {
+    "all_177": [
+      "presence:year_count",
+      "presence:no_date_count",
+      "presence:numeric_date_count",
+      "presence:month_date_count",
+      "presence:access_date_count",
+      "presence:url_count",
+      "presence:doi_count",
+      "presence:isbn_count",
+      "presence:issn_count",
+      "presence:initial_count",
+      "presence:proper_name_word_count",
+      "presence:inverted_author_count",
+      "presence:name_initial_pair_count",
+      "presence:direct_author_count",
+      "presence:ampersand_count",
+      "presence:numbered_entry_count",
+      "presence:quoted_span_count",
+      "presence:editor_term_count",
+      "presence:thesis_term_count",
+      "presence:in_container_count",
+      "presence:edition_term_count",
+      "presence:dotted_word_count",
+      "presence:dotted_sequence_count",
+      "presence:volume_marker_count",
+      "presence:volume_shape_count",
+      "presence:journal_year_volume_count",
+      "presence:page_marker_count",
+      "presence:article_page_range_count",
+      "presence:page_range_count",
+      "presence:publisher_term_count",
+      "presence:place_name_count",
+      "presence:place_publisher_shape_count",
+      "presence:punctuation_count",
+      "presence:prose_lead_count",
+      "presence:table_row_count",
+      "log1p:year_count",
+      "log1p:no_date_count",
+      "log1p:numeric_date_count",
+      "log1p:month_date_count",
+      "log1p:access_date_count",
+      "log1p:url_count",
+      "log1p:doi_count",
+      "log1p:isbn_count",
+      "log1p:issn_count",
+      "log1p:initial_count",
+      "log1p:proper_name_word_count",
+      "log1p:inverted_author_count",
+      "log1p:name_initial_pair_count",
+      "log1p:direct_author_count",
+      "log1p:ampersand_count",
+      "log1p:numbered_entry_count",
+      "log1p:quoted_span_count",
+      "log1p:editor_term_count",
+      "log1p:thesis_term_count",
+      "log1p:in_container_count",
+      "log1p:edition_term_count",
+      "log1p:dotted_word_count",
+      "log1p:dotted_sequence_count",
+      "log1p:volume_marker_count",
+      "log1p:volume_shape_count",
+      "log1p:journal_year_volume_count",
+      "log1p:page_marker_count",
+      "log1p:article_page_range_count",
+      "log1p:page_range_count",
+      "log1p:publisher_term_count",
+      "log1p:place_name_count",
+      "log1p:place_publisher_shape_count",
+      "log1p:punctuation_count",
+      "log1p:prose_lead_count",
+      "log1p:table_row_count",
+      "char_length",
+      "log1p_char_length",
+      "token_count",
+      "log1p_token_count",
+      "mean_token_length",
+      "maximum_token_length",
+      "leading_whitespace",
+      "trailing_whitespace",
+      "letter_fraction",
+      "digit_fraction",
+      "uppercase_fraction_of_letters",
+      "lowercase_fraction_of_letters",
+      "greek_fraction_of_letters",
+      "latin_fraction_of_letters",
+      "punctuation_fraction",
+      "symbol_fraction",
+      "whitespace_fraction",
+      "other_fraction",
+      "starts_lowercase",
+      "starts_uppercase",
+      "starts_digit",
+      "starts_bullet_or_number",
+      "ends_sentence_terminal",
+      "ends_opening_terminal",
+      "parenthesis_balance",
+      "bracket_balance",
+      "quote_parity",
+      "is_blank",
+      "is_repeated_rule",
+      "is_table_rule",
+      "is_page_number",
+      "is_bullet_only",
+      "has_html_fragment",
+      "has_replacement_character",
+      "gap:unmatched_fraction",
+      "gap:unmatched_prefix_fraction",
+      "gap:unmatched_suffix_fraction",
+      "gap:longest_unmatched_fraction",
+      "gap:longest_unmatched_center",
+      "gap:unmatched_run_count",
+      "gap:mean_unmatched_run_fraction",
+      "nearest_anchor_above_distance",
+      "nearest_anchor_above_probability",
+      "nearest_anchor_below_distance",
+      "nearest_anchor_below_probability",
+      "entry_above_r1_max",
+      "entry_above_r1_mean",
+      "entry_above_r1_count025",
+      "entry_above_r3_max",
+      "entry_above_r3_mean",
+      "entry_above_r3_count025",
+      "entry_above_r5_max",
+      "entry_above_r5_mean",
+      "entry_above_r5_count025",
+      "entry_above_r10_max",
+      "entry_above_r10_mean",
+      "entry_above_r10_count025",
+      "entry_above_r30_max",
+      "entry_above_r30_mean",
+      "entry_above_r30_count025",
+      "entry_below_r1_max",
+      "entry_below_r1_mean",
+      "entry_below_r1_count025",
+      "entry_below_r3_max",
+      "entry_below_r3_mean",
+      "entry_below_r3_count025",
+      "entry_below_r5_max",
+      "entry_below_r5_mean",
+      "entry_below_r5_count025",
+      "entry_below_r10_max",
+      "entry_below_r10_mean",
+      "entry_below_r10_count025",
+      "entry_below_r30_max",
+      "entry_below_r30_mean",
+      "entry_below_r30_count025",
+      "previous_pair:right_to_left_length_ratio",
+      "previous_pair:indentation_difference",
+      "previous_pair:greek_fraction_difference",
+      "previous_pair:latin_fraction_difference",
+      "previous_pair:left_ends_opening_terminal",
+      "previous_pair:right_starts_lowercase",
+      "previous_pair:joined_parenthesis_imbalance",
+      "previous_pair:joined_bracket_imbalance",
+      "previous_pair:joined_quote_parity",
+      "next_pair:right_to_left_length_ratio",
+      "next_pair:indentation_difference",
+      "next_pair:greek_fraction_difference",
+      "next_pair:latin_fraction_difference",
+      "next_pair:left_ends_opening_terminal",
+      "next_pair:right_starts_lowercase",
+      "next_pair:joined_parenthesis_imbalance",
+      "next_pair:joined_bracket_imbalance",
+      "next_pair:joined_quote_parity",
+      "joined_previous_entry_probability",
+      "joined_previous_probability_gain",
+      "joined_previous_distinct_feature_gain",
+      "joined_previous_unmatched_fraction_gain",
+      "joined_next_entry_probability",
+      "joined_next_probability_gain",
+      "joined_next_distinct_feature_gain",
+      "joined_next_unmatched_fraction_gain",
+      "bib_header_probability",
+      "bib_subheader_probability",
+      "non_bib_header_probability",
+      "heading_probability_max",
+      "inside_anchor_gap",
+      "candidate_window_edge_distance"
+    ],
+    "compact_core": [
+      "family_any:author_name",
+      "family_count:author_name",
+      "family_any:date",
+      "family_count:date",
+      "family_any:locator",
+      "family_count:locator",
+      "family_any:identifier",
+      "family_count:identifier",
+      "family_any:container",
+      "family_count:container",
+      "family_any:citation_punctuation",
+      "family_count:citation_punctuation",
+      "family_any:table",
+      "family_count:table",
+      "char_length",
+      "log1p_char_length",
+      "token_count",
+      "log1p_token_count",
+      "mean_token_length",
+      "maximum_token_length",
+      "leading_whitespace",
+      "trailing_whitespace",
+      "letter_fraction",
+      "digit_fraction",
+      "uppercase_fraction_of_letters",
+      "lowercase_fraction_of_letters",
+      "greek_fraction_of_letters",
+      "latin_fraction_of_letters",
+      "punctuation_fraction",
+      "symbol_fraction",
+      "whitespace_fraction",
+      "other_fraction",
+      "starts_lowercase",
+      "starts_uppercase",
+      "starts_digit",
+      "starts_bullet_or_number",
+      "ends_sentence_terminal",
+      "ends_opening_terminal",
+      "parenthesis_balance",
+      "bracket_balance",
+      "quote_parity",
+      "is_blank",
+      "is_repeated_rule",
+      "is_table_rule",
+      "is_page_number",
+      "is_bullet_only",
+      "has_html_fragment",
+      "has_replacement_character",
+      "gap:unmatched_fraction",
+      "gap:unmatched_prefix_fraction",
+      "gap:unmatched_suffix_fraction",
+      "gap:longest_unmatched_fraction",
+      "gap:longest_unmatched_center",
+      "gap:unmatched_run_count",
+      "gap:mean_unmatched_run_fraction",
+      "entry_above_r1_max",
+      "entry_above_r1_mean",
+      "entry_above_r1_count025",
+      "entry_above_r3_max",
+      "entry_above_r3_mean",
+      "entry_above_r3_count025",
+      "entry_below_r1_max",
+      "entry_below_r1_mean",
+      "entry_below_r1_count025",
+      "entry_below_r3_max",
+      "entry_below_r3_mean",
+      "entry_below_r3_count025",
+      "previous_pair:right_to_left_length_ratio",
+      "previous_pair:indentation_difference",
+      "previous_pair:greek_fraction_difference",
+      "previous_pair:latin_fraction_difference",
+      "previous_pair:left_ends_opening_terminal",
+      "previous_pair:right_starts_lowercase",
+      "previous_pair:joined_parenthesis_imbalance",
+      "previous_pair:joined_bracket_imbalance",
+      "previous_pair:joined_quote_parity",
+      "next_pair:right_to_left_length_ratio",
+      "next_pair:indentation_difference",
+      "next_pair:greek_fraction_difference",
+      "next_pair:latin_fraction_difference",
+      "next_pair:left_ends_opening_terminal",
+      "next_pair:right_starts_lowercase",
+      "next_pair:joined_parenthesis_imbalance",
+      "next_pair:joined_bracket_imbalance",
+      "next_pair:joined_quote_parity",
+      "inside_anchor_gap",
+      "candidate_window_edge_distance"
+    ],
+    "compact_join_table_interactions": [
+      "family_any:author_name",
+      "family_count:author_name",
+      "family_any:date",
+      "family_count:date",
+      "family_any:locator",
+      "family_count:locator",
+      "family_any:identifier",
+      "family_count:identifier",
+      "family_any:container",
+      "family_count:container",
+      "family_any:citation_punctuation",
+      "family_count:citation_punctuation",
+      "family_any:table",
+      "family_count:table",
+      "char_length",
+      "log1p_char_length",
+      "token_count",
+      "log1p_token_count",
+      "mean_token_length",
+      "maximum_token_length",
+      "leading_whitespace",
+      "trailing_whitespace",
+      "letter_fraction",
+      "digit_fraction",
+      "uppercase_fraction_of_letters",
+      "lowercase_fraction_of_letters",
+      "greek_fraction_of_letters",
+      "latin_fraction_of_letters",
+      "punctuation_fraction",
+      "symbol_fraction",
+      "whitespace_fraction",
+      "other_fraction",
+      "starts_lowercase",
+      "starts_uppercase",
+      "starts_digit",
+      "starts_bullet_or_number",
+      "ends_sentence_terminal",
+      "ends_opening_terminal",
+      "parenthesis_balance",
+      "bracket_balance",
+      "quote_parity",
+      "is_blank",
+      "is_repeated_rule",
+      "is_table_rule",
+      "is_page_number",
+      "is_bullet_only",
+      "has_html_fragment",
+      "has_replacement_character",
+      "gap:unmatched_fraction",
+      "gap:unmatched_prefix_fraction",
+      "gap:unmatched_suffix_fraction",
+      "gap:longest_unmatched_fraction",
+      "gap:longest_unmatched_center",
+      "gap:unmatched_run_count",
+      "gap:mean_unmatched_run_fraction",
+      "entry_above_r1_max",
+      "entry_above_r1_mean",
+      "entry_above_r1_count025",
+      "entry_above_r3_max",
+      "entry_above_r3_mean",
+      "entry_above_r3_count025",
+      "entry_below_r1_max",
+      "entry_below_r1_mean",
+      "entry_below_r1_count025",
+      "entry_below_r3_max",
+      "entry_below_r3_mean",
+      "entry_below_r3_count025",
+      "previous_pair:right_to_left_length_ratio",
+      "previous_pair:indentation_difference",
+      "previous_pair:greek_fraction_difference",
+      "previous_pair:latin_fraction_difference",
+      "previous_pair:left_ends_opening_terminal",
+      "previous_pair:right_starts_lowercase",
+      "previous_pair:joined_parenthesis_imbalance",
+      "previous_pair:joined_bracket_imbalance",
+      "previous_pair:joined_quote_parity",
+      "next_pair:right_to_left_length_ratio",
+      "next_pair:indentation_difference",
+      "next_pair:greek_fraction_difference",
+      "next_pair:latin_fraction_difference",
+      "next_pair:left_ends_opening_terminal",
+      "next_pair:right_starts_lowercase",
+      "next_pair:joined_parenthesis_imbalance",
+      "next_pair:joined_bracket_imbalance",
+      "next_pair:joined_quote_parity",
+      "inside_anchor_gap",
+      "candidate_window_edge_distance",
+      "joined_previous_entry_probability",
+      "joined_previous_probability_gain",
+      "joined_previous_distinct_feature_gain",
+      "joined_previous_unmatched_fraction_gain",
+      "joined_next_entry_probability",
+      "joined_next_probability_gain",
+      "joined_next_distinct_feature_gain",
+      "joined_next_unmatched_fraction_gain",
+      "table_x:char_length",
+      "table_x:token_count",
+      "table_x:whitespace_fraction",
+      "table_x:punctuation_fraction",
+      "table_x:gap:unmatched_fraction",
+      "table_x:gap:unmatched_prefix_fraction",
+      "table_x:gap:unmatched_suffix_fraction",
+      "table_x:joined_previous_entry_probability",
+      "table_x:joined_previous_probability_gain",
+      "table_x:joined_previous_distinct_feature_gain",
+      "table_x:joined_previous_unmatched_fraction_gain",
+      "table_x:joined_next_entry_probability",
+      "table_x:joined_next_probability_gain",
+      "table_x:joined_next_distinct_feature_gain",
+      "table_x:joined_next_unmatched_fraction_gain"
+    ],
+    "compact_plus_directional_join": [
+      "family_any:author_name",
+      "family_count:author_name",
+      "family_any:date",
+      "family_count:date",
+      "family_any:locator",
+      "family_count:locator",
+      "family_any:identifier",
+      "family_count:identifier",
+      "family_any:container",
+      "family_count:container",
+      "family_any:citation_punctuation",
+      "family_count:citation_punctuation",
+      "family_any:table",
+      "family_count:table",
+      "char_length",
+      "log1p_char_length",
+      "token_count",
+      "log1p_token_count",
+      "mean_token_length",
+      "maximum_token_length",
+      "leading_whitespace",
+      "trailing_whitespace",
+      "letter_fraction",
+      "digit_fraction",
+      "uppercase_fraction_of_letters",
+      "lowercase_fraction_of_letters",
+      "greek_fraction_of_letters",
+      "latin_fraction_of_letters",
+      "punctuation_fraction",
+      "symbol_fraction",
+      "whitespace_fraction",
+      "other_fraction",
+      "starts_lowercase",
+      "starts_uppercase",
+      "starts_digit",
+      "starts_bullet_or_number",
+      "ends_sentence_terminal",
+      "ends_opening_terminal",
+      "parenthesis_balance",
+      "bracket_balance",
+      "quote_parity",
+      "is_blank",
+      "is_repeated_rule",
+      "is_table_rule",
+      "is_page_number",
+      "is_bullet_only",
+      "has_html_fragment",
+      "has_replacement_character",
+      "gap:unmatched_fraction",
+      "gap:unmatched_prefix_fraction",
+      "gap:unmatched_suffix_fraction",
+      "gap:longest_unmatched_fraction",
+      "gap:longest_unmatched_center",
+      "gap:unmatched_run_count",
+      "gap:mean_unmatched_run_fraction",
+      "entry_above_r1_max",
+      "entry_above_r1_mean",
+      "entry_above_r1_count025",
+      "entry_above_r3_max",
+      "entry_above_r3_mean",
+      "entry_above_r3_count025",
+      "entry_below_r1_max",
+      "entry_below_r1_mean",
+      "entry_below_r1_count025",
+      "entry_below_r3_max",
+      "entry_below_r3_mean",
+      "entry_below_r3_count025",
+      "previous_pair:right_to_left_length_ratio",
+      "previous_pair:indentation_difference",
+      "previous_pair:greek_fraction_difference",
+      "previous_pair:latin_fraction_difference",
+      "previous_pair:left_ends_opening_terminal",
+      "previous_pair:right_starts_lowercase",
+      "previous_pair:joined_parenthesis_imbalance",
+      "previous_pair:joined_bracket_imbalance",
+      "previous_pair:joined_quote_parity",
+      "next_pair:right_to_left_length_ratio",
+      "next_pair:indentation_difference",
+      "next_pair:greek_fraction_difference",
+      "next_pair:latin_fraction_difference",
+      "next_pair:left_ends_opening_terminal",
+      "next_pair:right_starts_lowercase",
+      "next_pair:joined_parenthesis_imbalance",
+      "next_pair:joined_bracket_imbalance",
+      "next_pair:joined_quote_parity",
+      "inside_anchor_gap",
+      "candidate_window_edge_distance",
+      "joined_previous_entry_probability",
+      "joined_previous_probability_gain",
+      "joined_previous_distinct_feature_gain",
+      "joined_previous_unmatched_fraction_gain",
+      "joined_next_entry_probability",
+      "joined_next_probability_gain",
+      "joined_next_distinct_feature_gain",
+      "joined_next_unmatched_fraction_gain"
+    ]
+  },
+  "inputs": {
+    "frozen_connector_oof_sha256": "226492bcd7640e894748abcc96a03d853af2f2516cf202cc247d5c954311dae1",
+    "frozen_connector_report_sha256": "201da84b78e4754ea12606e84a4eb31be6787e2993780edc0bac2cb43202e6df",
+    "source_jsonl_sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0",
+    "table_manifest_sha256": "540c6f8b29a922a7ddd44106a3d41fc73021de625b49992359d72a415c6a87e5"
+  },
+  "metrics": {
+    "all_177": {
+      "at_threshold_0_5": {
+        "fn": 197,
+        "fp": 59,
+        "precision": 0.8513853904282116,
+        "recall": 0.6317757009345795,
+        "tp": 338
+      },
+      "by_source": {
+        "greek_phd": {
+          "line_count": 860,
+          "positive_count": 209,
+          "pr_auc": 0.7538898425185159
+        },
+        "kallipos": {
+          "line_count": 900,
+          "positive_count": 141,
+          "pr_auc": 0.962974073482759
+        },
+        "openarchives": {
+          "line_count": 928,
+          "positive_count": 185,
+          "pr_auc": 0.7584471512725893
+        }
+      },
+      "diagnostic_max_f1": {
+        "f1": 0.7506799637352675,
+        "not_for_downstream_selection": true,
+        "precision": 0.7288732394366197,
+        "recall": 0.7738317757009345,
+        "threshold": 0.15060824155807495
+      },
+      "document_macro_count": 50,
+      "document_macro_pr_auc": 0.9568221438025536,
+      "line_count": 2688,
+      "pooled_pr_auc": 0.8093451126102326,
+      "positive_count": 535
+    },
+    "compact_core": {
+      "at_threshold_0_5": {
+        "fn": 163,
+        "fp": 116,
+        "precision": 0.7622950819672131,
+        "recall": 0.6953271028037383,
+        "tp": 372
+      },
+      "by_source": {
+        "greek_phd": {
+          "line_count": 860,
+          "positive_count": 209,
+          "pr_auc": 0.8073636372505062
+        },
+        "kallipos": {
+          "line_count": 900,
+          "positive_count": 141,
+          "pr_auc": 0.9305461689077921
+        },
+        "openarchives": {
+          "line_count": 928,
+          "positive_count": 185,
+          "pr_auc": 0.6927517651048354
+        }
+      },
+      "diagnostic_max_f1": {
+        "f1": 0.7438330170777987,
+        "not_for_downstream_selection": true,
+        "precision": 0.7552986512524085,
+        "recall": 0.7327102803738318,
+        "threshold": 0.4398426115512848
+      },
+      "document_macro_count": 50,
+      "document_macro_pr_auc": 0.939596845637796,
+      "line_count": 2688,
+      "pooled_pr_auc": 0.8105595880274057,
+      "positive_count": 535
+    },
+    "compact_join_table_interactions": {
+      "at_threshold_0_5": {
+        "fn": 188,
+        "fp": 56,
+        "precision": 0.8610421836228288,
+        "recall": 0.6485981308411215,
+        "tp": 347
+      },
+      "by_source": {
+        "greek_phd": {
+          "line_count": 860,
+          "positive_count": 209,
+          "pr_auc": 0.8358436610529109
+        },
+        "kallipos": {
+          "line_count": 900,
+          "positive_count": 141,
+          "pr_auc": 0.9353216449535665
+        },
+        "openarchives": {
+          "line_count": 928,
+          "positive_count": 185,
+          "pr_auc": 0.7479393361577172
+        }
+      },
+      "diagnostic_max_f1": {
+        "f1": 0.746987951807229,
+        "not_for_downstream_selection": true,
+        "precision": 0.806941431670282,
+        "recall": 0.6953271028037383,
+        "threshold": 0.31822025775909424
+      },
+      "document_macro_count": 50,
+      "document_macro_pr_auc": 0.9396139478324931,
+      "line_count": 2688,
+      "pooled_pr_auc": 0.8380788384264369,
+      "positive_count": 535
+    },
+    "compact_plus_directional_join": {
+      "at_threshold_0_5": {
+        "fn": 195,
+        "fp": 56,
+        "precision": 0.8585858585858586,
+        "recall": 0.6355140186915887,
+        "tp": 340
+      },
+      "by_source": {
+        "greek_phd": {
+          "line_count": 860,
+          "positive_count": 209,
+          "pr_auc": 0.825337264782298
+        },
+        "kallipos": {
+          "line_count": 900,
+          "positive_count": 141,
+          "pr_auc": 0.9330130994238396
+        },
+        "openarchives": {
+          "line_count": 928,
+          "positive_count": 185,
+          "pr_auc": 0.7442218821804714
+        }
+      },
+      "diagnostic_max_f1": {
+        "f1": 0.7450199203187251,
+        "not_for_downstream_selection": true,
+        "precision": 0.7974413646055437,
+        "recall": 0.6990654205607477,
+        "threshold": 0.30441078543663025
+      },
+      "document_macro_count": 50,
+      "document_macro_pr_auc": 0.94026076425021,
+      "line_count": 2688,
+      "pooled_pr_auc": 0.829802168431017,
+      "positive_count": 535
+    },
+    "frozen_connector_cascade": {
+      "at_threshold_0_5": {
+        "fn": 246,
+        "fp": 55,
+        "precision": 0.8401162790697675,
+        "recall": 0.5401869158878505,
+        "tp": 289
+      },
+      "by_source": {
+        "greek_phd": {
+          "line_count": 860,
+          "positive_count": 209,
+          "pr_auc": 0.7896942723044218
+        },
+        "kallipos": {
+          "line_count": 900,
+          "positive_count": 141,
+          "pr_auc": 0.9136249072018754
+        },
+        "openarchives": {
+          "line_count": 928,
+          "positive_count": 185,
+          "pr_auc": 0.7219227459309902
+        }
+      },
+      "diagnostic_max_f1": {
+        "f1": 0.720754716981132,
+        "not_for_downstream_selection": true,
+        "precision": 0.7276190476190476,
+        "recall": 0.7140186915887851,
+        "threshold": 0.3055388331413269
+      },
+      "document_macro_count": 50,
+      "document_macro_pr_auc": 0.8913108054471219,
+      "line_count": 2688,
+      "pooled_pr_auc": 0.7820051489696811,
+      "positive_count": 535
+    }
+  },
+  "negative_line_count": 2153,
+  "outputs": {
+    "all_177.oof_probability.npy": {
+      "bytes": 32288,
+      "sha256": "dbd106048d69039c3be06f520397803703e912ae5bf3ba2d8466a0e5cc213b7b"
+    },
+    "compact_core.oof_probability.npy": {
+      "bytes": 32288,
+      "sha256": "2c1c2233b12b9e684c77daa4ea65c9ddc3e75ac9546924d51151d7ec9faa0f69"
+    },
+    "compact_join_table_interactions.oof_probability.npy": {
+      "bytes": 32288,
+      "sha256": "7bac8fa3730a585e73a987632e7777f54381c1c6b67563c0a4c9ee0a6a9ba46a"
+    },
+    "compact_plus_directional_join.oof_probability.npy": {
+      "bytes": 32288,
+      "sha256": "1b0e067ad1d08b6c337772ea058a4a7d4d0f142df5b2aaa8d166cf9b06e5cbef"
+    },
+    "frozen_connector_cascade.oof_probability.npy": {
+      "bytes": 32288,
+      "sha256": "24a0b9a880417b52b2a04db0bbe5d1dbaf450c9c7fea3a7ec983bf7a06677d06"
+    },
+    "report.json": {
+      "bytes": 43240,
+      "sha256": "be80f2198b4a5694b2b2790a2321c0339b5e9dcd4ddfec26106aae2cae457e58"
+    }
+  },
+  "restrictions": {
+    "may_replace_frozen_connector_without_block_evaluation": false,
+    "sealed_consensus_opened": false,
+    "validation_opened": false
+  },
+  "schema_version": "bibliography-continuation-head-ablation-oof-v1",
+  "selected_learned_arm": "compact_join_table_interactions",
+  "selected_modal_model_config_for_source_audit": {
+    "inner_pr_auc": 0.9774433430888847,
+    "kind": "hist",
+    "max_depth": 3,
+    "min_samples_leaf": 20
+  },
+  "selection_rule": "highest pooled train OOF PR-AUC, then document-macro PR-AUC, then fewer features",
+  "sklearn_version": "1.9.0",
+  "slurm_job_id": "2798800",
+  "source_counts": {
+    "greek_phd": 860,
+    "kallipos": 900,
+    "openarchives": 928
+  },
+  "source_holdout_audit_for_selected_arm": {
+    "greek_phd": {
+      "fit_count": 1828,
+      "holdout_count": 860,
+      "positive_count": 209,
+      "pr_auc": 0.8474084885568387
+    },
+    "kallipos": {
+      "fit_count": 1788,
+      "holdout_count": 900,
+      "positive_count": 141,
+      "pr_auc": 0.8906046293595964
+    },
+    "openarchives": {
+      "fit_count": 1760,
+      "holdout_count": 928,
+      "positive_count": 185,
+      "pr_auc": 0.7454544937800329
+    }
+  },
+  "status": "passed_train_only_continuation_head_ablation",
+  "target_contract": "CONTINUATION versus trusted non-ENTRY candidates; ENTRY remains owned by P0D; UNKNOWN is masked",
+  "validation_opened": false
+}

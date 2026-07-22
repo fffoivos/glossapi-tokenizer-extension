@@ -1,0 +1,401 @@
+# Fresh 150-document sealed bibliography test
+
+This runbook creates the final, prediction-blind test set for bibliography
+pipeline selection. It is separate from the repeatedly inspected 274-document
+development split and excludes the complete earlier 500-document holdout.
+
+The terminal label is **dual-Codex LLM-silver, not human gold**. The canonical
+role annotation passes use Terra; the already completed quality review used
+Sol. No candidate
+model may run on the test documents until `FROZEN.receipt.json` exists and all
+Pareto candidates have been frozen simultaneously.
+
+## Fixed design
+
+- 50 works each from Greek PhD, Kallipos and OpenArchives (150 total).
+- Exclude every historical STRUCT-2K identity and all 500 previous holdout
+  identities before admission.
+- Exclude exact normalized/materialized-text copies globally.
+- Exclude bottom-k word-5-gram near copies at similarity >= 0.80 globally:
+  across source names, against both excluded pools, and among fresh candidates.
+- Select one canonical representation per `(source, work_key)` without looking
+  at text quality or model output.
+- Rank deterministically, retain a 4x oversample, then apply the quality gate.
+- Run the canonical GlossAPI Rust scorer on every candidate. Only automatically
+  flagged documents are sent to two independent Sol quality reviews. A/B
+  disagreements receive a third de-novo review of a direct, label-blind packet
+  subset.
+- Quality display is bounded to a deterministic 120-line head/middle/tail
+  sample, 40,000 displayed text characters, 100,000 serialized characters per
+  document and 180,000 per batch. Overlong lines use an explicit display-only
+  prefix/suffix marker; sealed source text is unchanged.
+- Annotate every present physical line twice with independent lanes. Preserve
+  the accepted `gpt-5.6-sol`/high records and use `gpt-5.6-terra`/high only for
+  each lane's remaining batches. Packets contain at most 400 lines or 80,000
+  text characters and 15 context-overlap lines. Every line belongs to exactly
+  one core interval per pass; overlap is context only.
+- Pass B uses half-chunk-staggered boundaries and reversed chunk presentation.
+- A physical line longer than a packet budget is represented by a bounded
+  20,000-character prefix/suffix display with full-text hash/truncation metadata;
+  its full-text line ID and sealed source remain unchanged.
+- A third Terra/high execution sees only label-blind context around A/B role
+  disagreements/UNKNOWNs. Exact 2/3 role agreement wins; otherwise the line is
+  `UNKNOWN`.
+- Freeze only at 100% A/B coverage, >= 98% A/B binary agreement overall,
+  >= 95% within every source, and <= 0.5% unresolved after adjudication.
+- Do not manufacture a zero-bibliography cohort. Report the naturally occurring
+  zero-BIB subset after the one-shot model evaluation.
+
+## Pinned Clariden inputs
+
+Use the full hashes, not prefixes:
+
+| Input | Path | SHA-256 |
+|---|---|---|
+| Normalization manifest | `/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/pipeline_runs/full-corpus-v2-20260712-d076a59/stages/10-normalize/normalization_manifest.json` | `ccd6c2f6212ef597a63900b8015b9a432e820fe2fea8a41d7a62ac713470bc45` |
+| STRUCT-2K manifest | `/iopsstor/scratch/cscs/fffoivos/inputs/APERTUS_CLASSIFIER_HANDOFF_20260712/STRUCT_2K/manifest.jsonl` | `c08611352517ff40668eb1a74daf1c5bb645f3acf03eec4c002bb2b3f222621c` |
+| STRUCT-2K batch inventory (canonical path/bytes/content inventory) | `/iopsstor/scratch/cscs/fffoivos/inputs/APERTUS_CLASSIFIER_HANDOFF_20260712/STRUCT_2K/batch_*.json` | `e6b58e3cbd57d0bf7df7a01ee8655748850151efebd37d835abc06431edf942a` |
+| Prior-500 documents | `/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/source_matched_holdouts/source_matched_c2_20260713_43cf377_a/documents.jsonl` | `377b21a1cdc6a41d31264a7ad459d0539d29894285bda79c9f3cb33eb3a0dd25` |
+| Prior-500 selection manifest (audit only) | `/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/source_matched_holdouts/source_matched_c2_20260713_43cf377_a/selection.manifest.json` | `781096358f1c3b0fc89e309df8a2b15c124bebc848c4cf266499cbfe10f93344` |
+| GlossAPI Rust package inventory (cache files excluded) | `/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/python_deps/glossapi_rs_noise_6f29a2825559c540-py312/glossapi_rs_noise` | `1626b10b5bce0b87a36654c4de04decef38d0bfbfca35250a8b764027490792c` |
+
+The canonical Rust dependency is
+`/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/python_deps/glossapi_rs_noise_6f29a2825559c540-py312`.
+The selector injects it *after* the uenv `--` boundary, verifies distribution
+version `0.1.0`, verifies `score_markdown_file_detailed`, and requires the
+cache-independent package inventory hash above before scanning. It also binds
+every consumed Parquet shard through its file/source receipts to the pinned
+normalization manifest, and checks the STRUCT-2K batch inventory before building
+the near-duplicate exclusion index.
+
+The default sealed root is:
+
+```text
+/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718
+```
+
+## 1. Publish a clean reviewed checkout
+
+Set these shell variables locally. The remote checkout must be clean and at
+the exact reviewed commit; every Slurm stage verifies both facts.
+
+```bash
+LOCAL_REPO=/Users/foivoskarounos-zamparloukos/Projects/train-apertus-toc-bib-annotation
+LOCAL_EVAL="$LOCAL_REPO/subprojects/05_token_distillation_cpt/02_corpus_preparation/15_clean_academic/eval"
+REMOTE_REPO=/absolute/clean/clariden/checkout
+REMOTE_EVAL="$REMOTE_REPO/subprojects/05_token_distillation_cpt/02_corpus_preparation/15_clean_academic/eval"
+COMMIT=$(git -C "$LOCAL_REPO" rev-parse HEAD)
+ROOT=/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/sealed_tests/bibliography_150_20260718
+REMOTE_PY=/iopsstor/scratch/cscs/fffoivos/python_envs/full_corpus_v2/bin/python
+```
+
+Do not transfer corpus data to the MacBook. Only source code, receipts, hashes,
+and bounded in-memory review envelopes cross the SSH connection.
+
+## 2. Select and quality-score the 4x candidate pool on a CPU node
+
+The job requests 32 CPUs and 160 GiB. It emits 200 globally de-duplicated
+candidates per source plus a packet containing only Rust/text-quality flags.
+It does not access classifier predictions.
+
+```bash
+ssh clariden sbatch \
+  --export=ALL,SEALED_BIB_REPO_ROOT="$REMOTE_REPO",SEALED_BIB_EXPECTED_COMMIT="$COMMIT",CONFIRM_SEALED_BIB_SELECT=1 \
+  "$REMOTE_EVAL/sequence_models/clariden/run_sealed_bibliography_select.sbatch"
+```
+
+Accept only `00_candidate_selection/run.receipt.json` with status `passed` and
+`selection.receipt.json` with pool counts 200/200/200. Staging directories and
+Slurm logs are not evidence.
+
+## 3. Run independent quality A/B reviews from the Mac coordinator
+
+The completed quality-review contracts pin `gpt-5.6-sol`, reasoning `high`,
+`--ephemeral`, an empty
+read-only workspace, the prompt SHA and schema SHA. It fetches at most two
+flagged documents at a time over SSH, keeps them only in memory, and streams
+validated label JSON back to Clariden. No packet or corpus file is written on
+the Mac.
+
+```bash
+COORD="$LOCAL_EVAL/sequence_models/sealed_bibliography_sol_coordinator.py"
+QPACKET="$ROOT/00_candidate_selection/quality.flagged.private.jsonl"
+LPROMPT="$LOCAL_EVAL/sequence_models/SEALED_BIBLIOGRAPHY_QUALITY_PROMPT.md"
+LSCHEMA="$LOCAL_EVAL/sequence_models/sealed_bibliography_quality.schema.json"
+RPROMPT="$REMOTE_EVAL/sequence_models/SEALED_BIBLIOGRAPHY_QUALITY_PROMPT.md"
+RSCHEMA="$REMOTE_EVAL/sequence_models/sealed_bibliography_quality.schema.json"
+```
+
+Run one immutable preflight batch for A, then resume the same contract without
+`--maximum-batches`. Do not reroll the preflight.
+
+```bash
+python3 "$COORD" --kind quality --ssh-host clariden \
+  --remote-uenv pytorch/v2.9.1:v2 --remote-python "$REMOTE_PY" \
+  --remote-pythonpath "$REMOTE_EVAL" --remote-packet "$QPACKET" \
+  --remote-run-dir "$ROOT/05_quality/a-run" \
+  --remote-pass-output "$ROOT/05_quality/a.response.json" \
+  --pass-id quality-a --reviewer-id sealed-quality-sol-a-v1 \
+  --model gpt-5.6-sol --reasoning-effort high \
+  --local-prompt "$LPROMPT" --remote-prompt "$RPROMPT" \
+  --local-output-schema "$LSCHEMA" --remote-output-schema "$RSCHEMA" \
+  --workers 1 --maximum-batches 1
+
+python3 "$COORD" --kind quality --ssh-host clariden \
+  --remote-uenv pytorch/v2.9.1:v2 --remote-python "$REMOTE_PY" \
+  --remote-pythonpath "$REMOTE_EVAL" --remote-packet "$QPACKET" \
+  --remote-run-dir "$ROOT/05_quality/a-run" \
+  --remote-pass-output "$ROOT/05_quality/a.response.json" \
+  --pass-id quality-a --reviewer-id sealed-quality-sol-a-v1 \
+  --model gpt-5.6-sol --reasoning-effort high \
+  --local-prompt "$LPROMPT" --remote-prompt "$RPROMPT" \
+  --local-output-schema "$LSCHEMA" --remote-output-schema "$RSCHEMA" \
+  --workers 2
+```
+
+Run B in a new run directory and with a distinct reviewer identity:
+
+```bash
+python3 "$COORD" --kind quality --ssh-host clariden \
+  --remote-uenv pytorch/v2.9.1:v2 --remote-python "$REMOTE_PY" \
+  --remote-pythonpath "$REMOTE_EVAL" --remote-packet "$QPACKET" \
+  --remote-run-dir "$ROOT/05_quality/b-run" \
+  --remote-pass-output "$ROOT/05_quality/b.response.json" \
+  --pass-id quality-b --reviewer-id sealed-quality-sol-b-v1 \
+  --model gpt-5.6-sol --reasoning-effort high \
+  --local-prompt "$LPROMPT" --remote-prompt "$RPROMPT" \
+  --local-output-schema "$LSCHEMA" --remote-output-schema "$RSCHEMA" \
+  --workers 2
+```
+
+Create a direct packet subset for A/B disagreements on a CPU allocation. It
+contains no earlier decisions:
+
+```bash
+ssh clariden srun --account=a0140 --partition=normal --time=00:20:00 \
+  --cpus-per-task=2 --mem=8G \
+  uenv run pytorch/v2.9.1:v2 --view=default -- \
+  env PYTHONPATH="$REMOTE_EVAL" "$REMOTE_PY" -m sequence_models.sealed_bibliography_test \
+  quality-adjudication-packet --packet "$QPACKET" \
+  --response-a "$ROOT/05_quality/a.response.json" --reviewer-a sealed-quality-sol-a-v1 \
+  --response-b "$ROOT/05_quality/b.response.json" --reviewer-b sealed-quality-sol-b-v1 \
+  --output "$ROOT/05_quality/c.packet.private.jsonl" \
+  --receipt-out "$ROOT/05_quality/c.packet.receipt.json"
+```
+
+If `document_count` is nonzero, run the coordinator with `--kind quality`,
+`--pass-id quality-c`, reviewer `sealed-quality-sol-c-v1`, the C packet, and new
+C paths. Then merge A/B plus C. If it is zero, merge A/B only:
+
+```bash
+# Add the C --response/--reviewer-id pair only when C ran.
+ssh clariden srun --account=a0140 --partition=normal --time=00:10:00 \
+  --cpus-per-task=2 --mem=8G \
+  uenv run pytorch/v2.9.1:v2 --view=default -- \
+  env PYTHONPATH="$REMOTE_EVAL" "$REMOTE_PY" -m sequence_models.sealed_bibliography_test \
+  merge-quality --packet "$QPACKET" \
+  --response "$ROOT/05_quality/a.response.json" --reviewer-id sealed-quality-sol-a-v1 \
+  --response "$ROOT/05_quality/b.response.json" --reviewer-id sealed-quality-sol-b-v1 \
+  --output "$ROOT/05_quality/quality.consensus.json"
+```
+
+## 4. Admit 50/source and create private A/B packets
+
+Hash `quality.consensus.json`, then submit the packet stage. It creates the
+private documents, an opaque public exclusion manifest, a mode-0600 alias
+secret/key, and pass A/B packets. The public manifest has IDs/hashes only; text,
+source provenance and labels remain below the sealed root.
+
+```bash
+QSHA=$(ssh clariden sha256sum "$ROOT/05_quality/quality.consensus.json" | awk '{print $1}')
+ssh clariden sbatch \
+  --export=ALL,SEALED_BIB_REPO_ROOT="$REMOTE_REPO",SEALED_BIB_EXPECTED_COMMIT="$COMMIT",SEALED_BIB_QUALITY_CONSENSUS="$ROOT/05_quality/quality.consensus.json",SEALED_BIB_QUALITY_CONSENSUS_SHA="$QSHA",CONFIRM_SEALED_BIB_PACKETS=1 \
+  "$REMOTE_EVAL/sequence_models/clariden/run_sealed_bibliography_finalize.sbatch"
+```
+
+Require `10_sealed_inputs/run.receipt.json`, exactly 150 documents, and source
+counts 50/50/50.
+
+## 5. Run exhaustive independent role passes A and B
+
+Set role prompt/schema paths:
+
+```bash
+LPROMPT="$LOCAL_EVAL/sequence_models/SEALED_BIBLIOGRAPHY_ROLE_PROMPT.md"
+LSCHEMA="$LOCAL_EVAL/sequence_models/sealed_bibliography_role.schema.json"
+RPROMPT="$REMOTE_EVAL/sequence_models/SEALED_BIBLIOGRAPHY_ROLE_PROMPT.md"
+RSCHEMA="$REMOTE_EVAL/sequence_models/sealed_bibliography_role.schema.json"
+```
+
+The earlier Sol A/B coordinators were stopped on 2026-07-18. Their immutable
+responses remain in `20_role_a/run` (174 accepted batches) and `21_role_b/run`
+(176 accepted batches). They are canonical source evidence. Completed indices
+are sparse because the two-worker runs finished out of order. Do not mutate
+those directories or finalize them directly.
+
+The canonical continuation uses fresh Terra/high contracts. For A, use packet
+`10_sealed_inputs/pass-a.packet.private.jsonl`, run directory
+`26_role_sol_terra_high_a/run`, output `26_role_sol_terra_high_a/pass.json`,
+pass ID `pass-a`, and reviewer `sealed-role-sol-terra-high-a-v1`. For B, use the
+corresponding pass-B packet, `27_role_sol_terra_high_b/run`, `pass-b`, and
+`sealed-role-sol-terra-high-b-v1`. Prepare each contract, then run
+`import-role-run-records` with source `20_role_a/run` and expected record count
+174 for A, and source `21_role_b/run` and expected record count 176 for B.
+Require each immutable import receipt to pass before starting the coordinator.
+
+```bash
+python3 "$COORD" --kind role --ssh-host clariden \
+  --remote-uenv pytorch/v2.9.1:v2 --remote-python "$REMOTE_PY" \
+  --remote-pythonpath "$REMOTE_EVAL" \
+  --remote-packet "$ROOT/10_sealed_inputs/pass-a.packet.private.jsonl" \
+  --remote-run-dir "$ROOT/26_role_sol_terra_high_a/run" \
+  --remote-pass-output "$ROOT/26_role_sol_terra_high_a/pass.json" \
+  --pass-id pass-a --reviewer-id sealed-role-sol-terra-high-a-v1 \
+  --model gpt-5.6-terra --reasoning-effort high \
+  --local-prompt "$LPROMPT" --remote-prompt "$RPROMPT" \
+  --local-output-schema "$LSCHEMA" --remote-output-schema "$RSCHEMA" \
+  --batch-size 2 --workers 1 --pending-only
+```
+
+Start B with the B packet, `27_role_sol_terra_high_b` paths,
+`--pass-id pass-b`, reviewer `sealed-role-sol-terra-high-b-v1`, and
+`--pending-only`. Do not expose either pass to the other. The mistaken
+medium-Terra directories `22_role_terra_a` and `23_role_terra_b` each contain 10
+overlapping batches and are excluded because the Sol records take precedence.
+The failed contiguous-import attempt under `24_role_sol_terra_high_a` and
+`25_role_sol_terra_high_b` is also non-canonical.
+
+## 6. Build and run de-novo role adjudication
+
+After both full pass receipts exist, build the disagreement packet on a CPU
+node:
+
+```bash
+ssh clariden srun --account=a0140 --partition=normal --time=01:00:00 \
+  --cpus-per-task=4 --mem=32G \
+  uenv run pytorch/v2.9.1:v2 --view=default -- \
+  env PYTHONPATH="$REMOTE_EVAL" "$REMOTE_PY" -m sequence_models.sealed_bibliography_test \
+  adjudication-packet \
+  --documents "$ROOT/10_sealed_inputs/documents.private.jsonl" \
+  --line-key "$ROOT/10_sealed_inputs/line-key.private.jsonl" \
+  --pass-a "$ROOT/26_role_sol_terra_high_a/pass.json" --pass-b "$ROOT/27_role_sol_terra_high_b/pass.json" \
+  --context-radius 30 --max-lines 400 --max-chars 80000 \
+  --packet-out "$ROOT/30_adjudication/packet.private.jsonl" \
+  --receipt-out "$ROOT/30_adjudication/packet.receipt.json"
+```
+
+If targets exist, run the coordinator with `--kind role`, pass ID
+`adjudication`, reviewer `sealed-role-terra-high-c-v1`, model `gpt-5.6-terra`,
+reasoning `high`, and `30_adjudication` packet/run paths. The C envelope
+identifies target offsets but contains no A/B labels; Terra
+labels the displayed context from scratch.
+
+## 7. Merge, gate and freeze
+
+Run these commands on a CPU allocation. Omit `--adjudication` only when the
+adjudication receipt says no targets.
+
+```bash
+ssh clariden srun --account=a0140 --partition=normal --time=00:30:00 \
+  --cpus-per-task=4 --mem=32G \
+  uenv run pytorch/v2.9.1:v2 --view=default -- \
+  env PYTHONPATH="$REMOTE_EVAL" "$REMOTE_PY" -m sequence_models.sealed_bibliography_test \
+  merge-labels --line-key "$ROOT/10_sealed_inputs/line-key.private.jsonl" \
+  --pass-a "$ROOT/26_role_sol_terra_high_a/pass.json" --pass-b "$ROOT/27_role_sol_terra_high_b/pass.json" \
+  --adjudication "$ROOT/30_adjudication/pass.json" \
+  --output "$ROOT/40_frozen/labels.private.jsonl" \
+  --receipt-out "$ROOT/40_frozen/consensus.receipt.json"
+
+ssh clariden srun --account=a0140 --partition=normal --time=00:20:00 \
+  --cpus-per-task=2 --mem=16G \
+  uenv run pytorch/v2.9.1:v2 --view=default -- \
+  env PYTHONPATH="$REMOTE_EVAL" "$REMOTE_PY" -m sequence_models.sealed_bibliography_test \
+  freeze --documents "$ROOT/10_sealed_inputs/documents.private.jsonl" \
+  --public-exclusions "$ROOT/10_sealed_inputs/exclusions.public.json" \
+  --labels "$ROOT/40_frozen/labels.private.jsonl" \
+  --consensus-receipt "$ROOT/40_frozen/consensus.receipt.json" \
+  --output "$ROOT/40_frozen/FROZEN.receipt.json" --lock-inputs
+```
+
+`merge-labels` deliberately preserves a blocked receipt and exits nonzero if a
+gate fails. Do not relax a gate after seeing test labels. `freeze` re-verifies
+50/source, exact line coverage, public/private document identity parity and all
+consensus gates. Its content hashes are the only allowed inputs to the later
+one-shot Pareto evaluation.
+
+### Executed terminal state — 2026-07-19
+
+The canonical A and B aggregates completed, followed by a label-blind
+Terra/high C pass over 6,286 disagreement/`UNKNOWN` targets. The merge was then
+executed as Clariden job `2793742`. It failed closed and preserved
+`40_frozen/consensus.receipt.json` with `status: blocked` because overall raw
+A/B binary agreement was `0.9775830918346863`, below the frozen `0.98` gate.
+Coverage was complete, all three source-specific `0.95` gates passed, and the
+post-adjudication unresolved fraction was `0.003551703015859126`, below its
+`0.005` gate.
+
+Do not run `freeze` for this attempt. The C pass cannot change raw A/B
+agreement, and rerunning reviewers or adjusting the threshold after observing
+this receipt would invalidate the sealed protocol. No
+`40_frozen/FROZEN.receipt.json` exists for this attempt.
+
+### User-directed successor cohort — 2026-07-19
+
+Subsequent annotation-QA review repaired logically impossible contextual roles
+and non-Markdown heading labels without mutating the canonical A/B evidence.
+At Foivos's direction, seven documents responsible for systematic
+footnote-versus-bibliography disagreement were then excluded, and only repaired
+A/B agreements were retained separately for each downstream task. No new
+adjudicator or majority rule was introduced.
+
+This successor is **not** the original 150-document prediction-blind freeze.
+Its explicit terminal status is
+`frozen_posthoc_consensus_silver_evaluation_set`. The original blocked receipt
+above remains authoritative for the original attempt.
+
+The successor cohort is under `48_consensus_silver/run-4256753/`. Independent
+audit job `2798796` passed. Canonical terminal seal job `2799787`, from commit `3bfee86`,
+then rechecked every content hash, the 143 retained + 7 excluded document
+partition, exact retained-line coverage, and the unchanged 98% overall, 95%
+per-source, and 0.5% unresolved gates for the primary bibliography-membership
+target. It locked every derived input and receipt mode `0440`.
+
+Primary membership agreement is 172,905 / 173,055 comparable lines = 99.9133%;
+by source it is 99.9258% Greek PhD, 99.9663% Kallipos, and 99.8589%
+OpenArchives. Trusted-label coverage is separately 172,905 / 173,609 =
+99.5945%, and unresolved membership is 704 / 173,609 = 0.4055%. Auxiliary task
+masks and their lower coverage are recorded in the terminal receipt and must
+not be described as fully adjudicated labels.
+
+Job `2799790` produced the locked post-drop agreement analysis. Compared with
+the fully repaired 150-document state, dropping seven documents raises
+BIB/non-BIB agreement from 98.93% to 99.9133% and continuation/filler detection
+from 74.82% to 83.97%. Header detection is 87.62% (slightly below the repaired
+150-document 88.22%), while conditional header subtype agreement is 99.87%.
+
+## Artifact map
+
+- Public future-leakage exclusion list:
+  `10_sealed_inputs/exclusions.public.json` (opaque IDs/hashes only).
+- Sealed text: `10_sealed_inputs/documents.private.jsonl`.
+- Private alias mapping: `10_sealed_inputs/line-key.private.jsonl`.
+- Canonical independent raw pass aggregates:
+  `26_role_sol_terra_high_a/pass.json`, `27_role_sol_terra_high_b/pass.json`.
+- Canonical Sol record evidence: `20_role_a/run`, `21_role_b/run`.
+- Non-canonical overlapping medium-Terra evidence: `22_role_terra_a/run`,
+  `23_role_terra_b/run`.
+- Third-pass aggregate when needed: `30_adjudication/pass.json`.
+- Sealed labels: `40_frozen/labels.private.jsonl`.
+- Terminal seal: `40_frozen/FROZEN.receipt.json`.
+- User-directed successor seal:
+  `48_consensus_silver/run-4256753/FROZEN.consensus-silver-v2.receipt.json`.
+- Corrected agreement analysis:
+  `48_consensus_silver/run-4256753/agreement-analysis-v1.receipt.json`.
+
+The first terminal-seal path is intentionally absent because the original
+attempt failed. The successor exists and must always be described with its
+post-hoc consensus-silver semantics. The locked v1 successor seal from job
+`2799088` is superseded because it conflated agreement with trusted coverage.
+
+Never publish the sealed text, line key, pass files, or labels before the final
+model comparison is complete.

@@ -1,0 +1,2360 @@
+{
+  "schema_version": "bibliography-silver-block-audit-v1",
+  "score_definition": "number of continuous emitted BIB-label runs per document",
+  "continuity": {
+    "ordinary_rule": "a block starts on an O/TOC-to-BIB transition and ends before the next non-BIB emitted line",
+    "blank_lines": "absent blank physical lines do not split a block",
+    "window_seam_guard": "a large absolute-coordinate gap splits adjacent BIB rows"
+  },
+  "document_count": 1392,
+  "documents_with_no_bib_block": 160,
+  "documents_with_one_bib_block": 973,
+  "documents_with_multiple_bib_blocks": 259,
+  "mean": 1.434626,
+  "median": 1.0,
+  "p90": 3,
+  "p95": 5,
+  "p99": 9,
+  "maximum": 19,
+  "histogram": [
+    {
+      "bib_block_count": 0,
+      "document_count": 160
+    },
+    {
+      "bib_block_count": 1,
+      "document_count": 973
+    },
+    {
+      "bib_block_count": 2,
+      "document_count": 116
+    },
+    {
+      "bib_block_count": 3,
+      "document_count": 39
+    },
+    {
+      "bib_block_count": 4,
+      "document_count": 31
+    },
+    {
+      "bib_block_count": 5,
+      "document_count": 24
+    },
+    {
+      "bib_block_count": 6,
+      "document_count": 11
+    },
+    {
+      "bib_block_count": 7,
+      "document_count": 11
+    },
+    {
+      "bib_block_count": 8,
+      "document_count": 9
+    },
+    {
+      "bib_block_count": 9,
+      "document_count": 5
+    },
+    {
+      "bib_block_count": 10,
+      "document_count": 4
+    },
+    {
+      "bib_block_count": 11,
+      "document_count": 0
+    },
+    {
+      "bib_block_count": 12,
+      "document_count": 2
+    },
+    {
+      "bib_block_count": 13,
+      "document_count": 3
+    },
+    {
+      "bib_block_count": 14,
+      "document_count": 0
+    },
+    {
+      "bib_block_count": 15,
+      "document_count": 1
+    },
+    {
+      "bib_block_count": 16,
+      "document_count": 1
+    },
+    {
+      "bib_block_count": 17,
+      "document_count": 0
+    },
+    {
+      "bib_block_count": 18,
+      "document_count": 1
+    },
+    {
+      "bib_block_count": 19,
+      "document_count": 1
+    }
+  ],
+  "by_source": {
+    "greek_phd": {
+      "document_count": 466,
+      "mean": 1.618026,
+      "median": 1.0,
+      "maximum": 19
+    },
+    "kallipos": {
+      "document_count": 461,
+      "mean": 1.616052,
+      "median": 1,
+      "maximum": 18
+    },
+    "openarchives": {
+      "document_count": 465,
+      "mean": 1.070968,
+      "median": 1,
+      "maximum": 13
+    }
+  },
+  "by_split": {
+    "train": {
+      "document_count": 1118,
+      "mean": 1.45975,
+      "median": 1.0,
+      "maximum": 19
+    },
+    "validation": {
+      "document_count": 274,
+      "mean": 1.332117,
+      "median": 1.0,
+      "maximum": 10
+    }
+  },
+  "by_coverage": {
+    "annotated_windows": {
+      "document_count": 512,
+      "mean": 1.996094,
+      "median": 1.0,
+      "maximum": 19
+    },
+    "full_document": {
+      "document_count": 880,
+      "mean": 1.107955,
+      "median": 1.0,
+      "maximum": 16
+    }
+  },
+  "top_documents": [
+    {
+      "rank": 1,
+      "document_id": "9ea3e3138b74a83ec131052029fc045b567cb1ef0ab867471e700a400b571ccd",
+      "work_id": "26e48a2e8799a02cb53da68c971443097f6d62690efaf96ff2b7d52f13bacbfd",
+      "source": "greek_phd",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 19,
+      "bib_line_count": 207,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 2755,
+          "end_abs_idx": 2771,
+          "present_line_count": 9,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 2775,
+          "end_abs_idx": 2815,
+          "present_line_count": 21,
+          "physical_span_line_count": 41
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 2819,
+          "end_abs_idx": 2833,
+          "present_line_count": 8,
+          "physical_span_line_count": 15
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 2837,
+          "end_abs_idx": 2841,
+          "present_line_count": 3,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 3107,
+          "end_abs_idx": 3143,
+          "present_line_count": 19,
+          "physical_span_line_count": 37
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 3147,
+          "end_abs_idx": 3159,
+          "present_line_count": 7,
+          "physical_span_line_count": 13
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 3163,
+          "end_abs_idx": 3179,
+          "present_line_count": 9,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 3183,
+          "end_abs_idx": 3197,
+          "present_line_count": 8,
+          "physical_span_line_count": 15
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 3201,
+          "end_abs_idx": 3215,
+          "present_line_count": 8,
+          "physical_span_line_count": 15
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 3219,
+          "end_abs_idx": 3245,
+          "present_line_count": 14,
+          "physical_span_line_count": 27
+        },
+        {
+          "block_index": 10,
+          "start_abs_idx": 3570,
+          "end_abs_idx": 3588,
+          "present_line_count": 10,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 11,
+          "start_abs_idx": 3592,
+          "end_abs_idx": 3608,
+          "present_line_count": 9,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 12,
+          "start_abs_idx": 3612,
+          "end_abs_idx": 3628,
+          "present_line_count": 9,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 13,
+          "start_abs_idx": 3632,
+          "end_abs_idx": 3650,
+          "present_line_count": 10,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 14,
+          "start_abs_idx": 3654,
+          "end_abs_idx": 3670,
+          "present_line_count": 9,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 15,
+          "start_abs_idx": 3674,
+          "end_abs_idx": 3692,
+          "present_line_count": 10,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 16,
+          "start_abs_idx": 3696,
+          "end_abs_idx": 3714,
+          "present_line_count": 10,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 17,
+          "start_abs_idx": 3718,
+          "end_abs_idx": 3740,
+          "present_line_count": 12,
+          "physical_span_line_count": 23
+        },
+        {
+          "block_index": 18,
+          "start_abs_idx": 3768,
+          "end_abs_idx": 3798,
+          "present_line_count": 22,
+          "physical_span_line_count": 31
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "document_id": "bdae35f0737e73bf5d7f64f36fcfeb636101d20814935b06d3cd98660d63eede",
+      "work_id": "0b569f437bfcde9b1088e3240531955fab6fc02598742718c0964581eaf97526",
+      "source": "kallipos",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 18,
+      "bib_line_count": 60,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 257,
+          "end_abs_idx": 258,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 277,
+          "end_abs_idx": 278,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 288,
+          "end_abs_idx": 289,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 354,
+          "end_abs_idx": 357,
+          "present_line_count": 4,
+          "physical_span_line_count": 4
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 370,
+          "end_abs_idx": 371,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 510,
+          "end_abs_idx": 516,
+          "present_line_count": 7,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 527,
+          "end_abs_idx": 528,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1277,
+          "end_abs_idx": 1280,
+          "present_line_count": 4,
+          "physical_span_line_count": 4
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 1293,
+          "end_abs_idx": 1294,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 1454,
+          "end_abs_idx": 1458,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 10,
+          "start_abs_idx": 1468,
+          "end_abs_idx": 1469,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 11,
+          "start_abs_idx": 1588,
+          "end_abs_idx": 1592,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 12,
+          "start_abs_idx": 1603,
+          "end_abs_idx": 1604,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 13,
+          "start_abs_idx": 1698,
+          "end_abs_idx": 1701,
+          "present_line_count": 4,
+          "physical_span_line_count": 4
+        },
+        {
+          "block_index": 14,
+          "start_abs_idx": 1712,
+          "end_abs_idx": 1713,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 15,
+          "start_abs_idx": 1894,
+          "end_abs_idx": 1898,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 16,
+          "start_abs_idx": 1910,
+          "end_abs_idx": 1911,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 17,
+          "start_abs_idx": 2012,
+          "end_abs_idx": 2017,
+          "present_line_count": 6,
+          "physical_span_line_count": 6
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "document_id": "edbb74f5988af45550f57a331e61381df85c78b90e5759dffdaeb742422a64b3",
+      "work_id": "a8292e9afe10112c7cb68e01eaaf8e7dbf3afd8eb389e9c16a98e35da025eb6c",
+      "source": "kallipos",
+      "split": "train",
+      "coverage": "full_document",
+      "bib_block_count": 16,
+      "bib_line_count": 21,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 508,
+          "end_abs_idx": 512,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 687,
+          "end_abs_idx": 687,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 808,
+          "end_abs_idx": 808,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 933,
+          "end_abs_idx": 933,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 1043,
+          "end_abs_idx": 1043,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 1183,
+          "end_abs_idx": 1183,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 1317,
+          "end_abs_idx": 1317,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1491,
+          "end_abs_idx": 1491,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 1631,
+          "end_abs_idx": 1631,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 1766,
+          "end_abs_idx": 1766,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 10,
+          "start_abs_idx": 1871,
+          "end_abs_idx": 1871,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 11,
+          "start_abs_idx": 2019,
+          "end_abs_idx": 2019,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 12,
+          "start_abs_idx": 2075,
+          "end_abs_idx": 2076,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 13,
+          "start_abs_idx": 2096,
+          "end_abs_idx": 2096,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 14,
+          "start_abs_idx": 2183,
+          "end_abs_idx": 2183,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 15,
+          "start_abs_idx": 2234,
+          "end_abs_idx": 2234,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "document_id": "415f8322a0ba6105a16ece2e6562c7ca256adf757ed61a8eb222e9f8345a4a8e",
+      "work_id": "f5fc687a5b2457dd4a1c592304659c0e79342617120376a6d2fd29a7bf72780e",
+      "source": "greek_phd",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 15,
+      "bib_line_count": 228,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 180,
+          "end_abs_idx": 185,
+          "present_line_count": 5,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 303,
+          "end_abs_idx": 307,
+          "present_line_count": 4,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 411,
+          "end_abs_idx": 424,
+          "present_line_count": 13,
+          "physical_span_line_count": 14
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 481,
+          "end_abs_idx": 490,
+          "present_line_count": 9,
+          "physical_span_line_count": 10
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 581,
+          "end_abs_idx": 584,
+          "present_line_count": 3,
+          "physical_span_line_count": 4
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 808,
+          "end_abs_idx": 848,
+          "present_line_count": 40,
+          "physical_span_line_count": 41
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 990,
+          "end_abs_idx": 1011,
+          "present_line_count": 21,
+          "physical_span_line_count": 22
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1091,
+          "end_abs_idx": 1097,
+          "present_line_count": 6,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 1107,
+          "end_abs_idx": 1111,
+          "present_line_count": 4,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 1186,
+          "end_abs_idx": 1210,
+          "present_line_count": 22,
+          "physical_span_line_count": 25
+        },
+        {
+          "block_index": 10,
+          "start_abs_idx": 3210,
+          "end_abs_idx": 3245,
+          "present_line_count": 33,
+          "physical_span_line_count": 36
+        },
+        {
+          "block_index": 11,
+          "start_abs_idx": 3611,
+          "end_abs_idx": 3621,
+          "present_line_count": 11,
+          "physical_span_line_count": 11
+        },
+        {
+          "block_index": 12,
+          "start_abs_idx": 3772,
+          "end_abs_idx": 3793,
+          "present_line_count": 20,
+          "physical_span_line_count": 22
+        },
+        {
+          "block_index": 13,
+          "start_abs_idx": 4031,
+          "end_abs_idx": 4041,
+          "present_line_count": 10,
+          "physical_span_line_count": 11
+        },
+        {
+          "block_index": 14,
+          "start_abs_idx": 4727,
+          "end_abs_idx": 4770,
+          "present_line_count": 27,
+          "physical_span_line_count": 44
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "document_id": "5dc840b35610f3980c30742d57b9f53506d11f0f27e8c32ea8f18b865dd1388d",
+      "work_id": "c7f5f54144d8818afb07226cd476b1386e062012adb2afab8672efd5d22d912d",
+      "source": "openarchives",
+      "split": "train",
+      "coverage": "full_document",
+      "bib_block_count": 13,
+      "bib_line_count": 231,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 50,
+          "end_abs_idx": 70,
+          "present_line_count": 18,
+          "physical_span_line_count": 21
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 587,
+          "end_abs_idx": 592,
+          "present_line_count": 5,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 596,
+          "end_abs_idx": 619,
+          "present_line_count": 24,
+          "physical_span_line_count": 24
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 1134,
+          "end_abs_idx": 1145,
+          "present_line_count": 11,
+          "physical_span_line_count": 12
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 1149,
+          "end_abs_idx": 1173,
+          "present_line_count": 25,
+          "physical_span_line_count": 25
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 1177,
+          "end_abs_idx": 1193,
+          "present_line_count": 17,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 1399,
+          "end_abs_idx": 1408,
+          "present_line_count": 9,
+          "physical_span_line_count": 10
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1412,
+          "end_abs_idx": 1418,
+          "present_line_count": 7,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 1527,
+          "end_abs_idx": 1534,
+          "present_line_count": 7,
+          "physical_span_line_count": 8
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 1884,
+          "end_abs_idx": 1922,
+          "present_line_count": 37,
+          "physical_span_line_count": 39
+        },
+        {
+          "block_index": 10,
+          "start_abs_idx": 2113,
+          "end_abs_idx": 2150,
+          "present_line_count": 34,
+          "physical_span_line_count": 38
+        },
+        {
+          "block_index": 11,
+          "start_abs_idx": 2508,
+          "end_abs_idx": 2542,
+          "present_line_count": 33,
+          "physical_span_line_count": 35
+        },
+        {
+          "block_index": 12,
+          "start_abs_idx": 2588,
+          "end_abs_idx": 2592,
+          "present_line_count": 4,
+          "physical_span_line_count": 5
+        }
+      ]
+    },
+    {
+      "rank": 6,
+      "document_id": "7dc44e348122b1efe8f07550505ac9ac0f53819a6ca5f10f4051c58fcd4c7ead",
+      "work_id": "4185418616bd6c5432a53cc7426f5d4b80c4af764315b72bb9d1496995a59553",
+      "source": "kallipos",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 13,
+      "bib_line_count": 192,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 331,
+          "end_abs_idx": 371,
+          "present_line_count": 41,
+          "physical_span_line_count": 41
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 2253,
+          "end_abs_idx": 2269,
+          "present_line_count": 17,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 2456,
+          "end_abs_idx": 2466,
+          "present_line_count": 11,
+          "physical_span_line_count": 11
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 2573,
+          "end_abs_idx": 2594,
+          "present_line_count": 22,
+          "physical_span_line_count": 22
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 2677,
+          "end_abs_idx": 2688,
+          "present_line_count": 12,
+          "physical_span_line_count": 12
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 2753,
+          "end_abs_idx": 2767,
+          "present_line_count": 15,
+          "physical_span_line_count": 15
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 2800,
+          "end_abs_idx": 2809,
+          "present_line_count": 10,
+          "physical_span_line_count": 10
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 2853,
+          "end_abs_idx": 2859,
+          "present_line_count": 7,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 2888,
+          "end_abs_idx": 2892,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 2911,
+          "end_abs_idx": 2918,
+          "present_line_count": 8,
+          "physical_span_line_count": 8
+        },
+        {
+          "block_index": 10,
+          "start_abs_idx": 2965,
+          "end_abs_idx": 2977,
+          "present_line_count": 13,
+          "physical_span_line_count": 13
+        },
+        {
+          "block_index": 11,
+          "start_abs_idx": 3017,
+          "end_abs_idx": 3033,
+          "present_line_count": 17,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 12,
+          "start_abs_idx": 3076,
+          "end_abs_idx": 3089,
+          "present_line_count": 14,
+          "physical_span_line_count": 14
+        }
+      ]
+    },
+    {
+      "rank": 7,
+      "document_id": "cfefc9244f76f2e5da54638dd53679e0ae4ee0f383790c7f5011148e95deff22",
+      "work_id": "1c8d36ff41cb8b5c319a71c5b781036e14a6f13fe0f76a02b9a1890107c05c0e",
+      "source": "openarchives",
+      "split": "train",
+      "coverage": "full_document",
+      "bib_block_count": 13,
+      "bib_line_count": 121,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 916,
+          "end_abs_idx": 936,
+          "present_line_count": 11,
+          "physical_span_line_count": 21
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 940,
+          "end_abs_idx": 954,
+          "present_line_count": 8,
+          "physical_span_line_count": 15
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 958,
+          "end_abs_idx": 976,
+          "present_line_count": 10,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 980,
+          "end_abs_idx": 1000,
+          "present_line_count": 11,
+          "physical_span_line_count": 21
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 1004,
+          "end_abs_idx": 1026,
+          "present_line_count": 12,
+          "physical_span_line_count": 23
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 1030,
+          "end_abs_idx": 1044,
+          "present_line_count": 8,
+          "physical_span_line_count": 15
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 1048,
+          "end_abs_idx": 1062,
+          "present_line_count": 8,
+          "physical_span_line_count": 15
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1066,
+          "end_abs_idx": 1080,
+          "present_line_count": 8,
+          "physical_span_line_count": 15
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 1084,
+          "end_abs_idx": 1102,
+          "present_line_count": 10,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 1106,
+          "end_abs_idx": 1122,
+          "present_line_count": 9,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 10,
+          "start_abs_idx": 1126,
+          "end_abs_idx": 1142,
+          "present_line_count": 9,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 11,
+          "start_abs_idx": 1146,
+          "end_abs_idx": 1164,
+          "present_line_count": 10,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 12,
+          "start_abs_idx": 1168,
+          "end_abs_idx": 1180,
+          "present_line_count": 7,
+          "physical_span_line_count": 13
+        }
+      ]
+    },
+    {
+      "rank": 8,
+      "document_id": "d60ed9b41196bee554978e6728d9113126d616a0e503410811e52584f5da37e6",
+      "work_id": "1ee3e481058b06896ee3a424a3450ad7c280a859de5971baf5adf46471967538",
+      "source": "greek_phd",
+      "split": "train",
+      "coverage": "full_document",
+      "bib_block_count": 12,
+      "bib_line_count": 157,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 346,
+          "end_abs_idx": 363,
+          "present_line_count": 17,
+          "physical_span_line_count": 18
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 369,
+          "end_abs_idx": 384,
+          "present_line_count": 16,
+          "physical_span_line_count": 16
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 388,
+          "end_abs_idx": 402,
+          "present_line_count": 15,
+          "physical_span_line_count": 15
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 406,
+          "end_abs_idx": 440,
+          "present_line_count": 32,
+          "physical_span_line_count": 35
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 446,
+          "end_abs_idx": 451,
+          "present_line_count": 6,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 574,
+          "end_abs_idx": 577,
+          "present_line_count": 3,
+          "physical_span_line_count": 4
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 801,
+          "end_abs_idx": 817,
+          "present_line_count": 16,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 984,
+          "end_abs_idx": 999,
+          "present_line_count": 15,
+          "physical_span_line_count": 16
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 1003,
+          "end_abs_idx": 1009,
+          "present_line_count": 6,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 1312,
+          "end_abs_idx": 1327,
+          "present_line_count": 15,
+          "physical_span_line_count": 16
+        },
+        {
+          "block_index": 10,
+          "start_abs_idx": 1333,
+          "end_abs_idx": 1338,
+          "present_line_count": 5,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 11,
+          "start_abs_idx": 1633,
+          "end_abs_idx": 1653,
+          "present_line_count": 11,
+          "physical_span_line_count": 21
+        }
+      ]
+    },
+    {
+      "rank": 9,
+      "document_id": "fcfbd070651734312374b09b63aec1190450422179f1206d81d2e5741679464c",
+      "work_id": "be922f5fa23d26c5f7be6c08632b7e5ff231bda8516a22aba1a4f6969cf4379f",
+      "source": "kallipos",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 12,
+      "bib_line_count": 70,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 262,
+          "end_abs_idx": 266,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 328,
+          "end_abs_idx": 333,
+          "present_line_count": 6,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 420,
+          "end_abs_idx": 425,
+          "present_line_count": 6,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 1104,
+          "end_abs_idx": 1106,
+          "present_line_count": 3,
+          "physical_span_line_count": 3
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 1173,
+          "end_abs_idx": 1178,
+          "present_line_count": 6,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 1247,
+          "end_abs_idx": 1254,
+          "present_line_count": 8,
+          "physical_span_line_count": 8
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 1367,
+          "end_abs_idx": 1377,
+          "present_line_count": 11,
+          "physical_span_line_count": 11
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1505,
+          "end_abs_idx": 1510,
+          "present_line_count": 6,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 1617,
+          "end_abs_idx": 1621,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 1708,
+          "end_abs_idx": 1714,
+          "present_line_count": 7,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 10,
+          "start_abs_idx": 1819,
+          "end_abs_idx": 1822,
+          "present_line_count": 4,
+          "physical_span_line_count": 4
+        },
+        {
+          "block_index": 11,
+          "start_abs_idx": 1845,
+          "end_abs_idx": 1847,
+          "present_line_count": 3,
+          "physical_span_line_count": 3
+        }
+      ]
+    },
+    {
+      "rank": 10,
+      "document_id": "3ceab08822d91194a58959c11baf18a6d688ee625ff2e70fe00452db7188aedd",
+      "work_id": "4eb208ac68f5765f1e6c8a2621f994dc60cd619dd5ec0c1abac57fd112b30b7b",
+      "source": "kallipos",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 10,
+      "bib_line_count": 245,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 219,
+          "end_abs_idx": 255,
+          "present_line_count": 36,
+          "physical_span_line_count": 37
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 1416,
+          "end_abs_idx": 1436,
+          "present_line_count": 21,
+          "physical_span_line_count": 21
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 1438,
+          "end_abs_idx": 1478,
+          "present_line_count": 40,
+          "physical_span_line_count": 41
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 1480,
+          "end_abs_idx": 1480,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 1667,
+          "end_abs_idx": 1701,
+          "present_line_count": 35,
+          "physical_span_line_count": 35
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 1703,
+          "end_abs_idx": 1740,
+          "present_line_count": 37,
+          "physical_span_line_count": 38
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 1742,
+          "end_abs_idx": 1743,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1952,
+          "end_abs_idx": 1969,
+          "present_line_count": 18,
+          "physical_span_line_count": 18
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 1971,
+          "end_abs_idx": 2006,
+          "present_line_count": 36,
+          "physical_span_line_count": 36
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 2008,
+          "end_abs_idx": 2027,
+          "present_line_count": 19,
+          "physical_span_line_count": 20
+        }
+      ]
+    },
+    {
+      "rank": 11,
+      "document_id": "af693b43b50c273b5ef1296eb3c27808aa78a7d2e4e75647a455bcc674acf4c7",
+      "work_id": "38d13d669b2bd490855a7f5ca8ad0006b32550dbf9212e6ee284cee38d0158e1",
+      "source": "kallipos",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 10,
+      "bib_line_count": 136,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 105,
+          "end_abs_idx": 107,
+          "present_line_count": 3,
+          "physical_span_line_count": 3
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 225,
+          "end_abs_idx": 227,
+          "present_line_count": 3,
+          "physical_span_line_count": 3
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 232,
+          "end_abs_idx": 232,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 279,
+          "end_abs_idx": 279,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 409,
+          "end_abs_idx": 443,
+          "present_line_count": 34,
+          "physical_span_line_count": 35
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 496,
+          "end_abs_idx": 500,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 570,
+          "end_abs_idx": 581,
+          "present_line_count": 12,
+          "physical_span_line_count": 12
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1517,
+          "end_abs_idx": 1582,
+          "present_line_count": 66,
+          "physical_span_line_count": 66
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 1617,
+          "end_abs_idx": 1622,
+          "present_line_count": 6,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 1630,
+          "end_abs_idx": 1634,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        }
+      ]
+    },
+    {
+      "rank": 12,
+      "document_id": "d01239a2d4847c0692f0806652be012c8654c62acac319a722d6ab424a9d4e9f",
+      "work_id": "a785674eb7dcd32199ae392c69292b310a86edba0dc9e4268d985a7180c5607c",
+      "source": "kallipos",
+      "split": "validation",
+      "coverage": "annotated_windows",
+      "bib_block_count": 10,
+      "bib_line_count": 106,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 297,
+          "end_abs_idx": 300,
+          "present_line_count": 4,
+          "physical_span_line_count": 4
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 1750,
+          "end_abs_idx": 1800,
+          "present_line_count": 51,
+          "physical_span_line_count": 51
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 1858,
+          "end_abs_idx": 1868,
+          "present_line_count": 10,
+          "physical_span_line_count": 11
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 1966,
+          "end_abs_idx": 1972,
+          "present_line_count": 7,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 2013,
+          "end_abs_idx": 2018,
+          "present_line_count": 6,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 2187,
+          "end_abs_idx": 2190,
+          "present_line_count": 4,
+          "physical_span_line_count": 4
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 2275,
+          "end_abs_idx": 2279,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 2319,
+          "end_abs_idx": 2323,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 2473,
+          "end_abs_idx": 2477,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 2621,
+          "end_abs_idx": 2629,
+          "present_line_count": 9,
+          "physical_span_line_count": 9
+        }
+      ]
+    },
+    {
+      "rank": 13,
+      "document_id": "0587a44e1a2008bd4dd92baabfe43c7bcde57244b3df06aa8b39d18a9fd0559c",
+      "work_id": "402148e77ff59bdbe182050a9a8618e3dba21aa51cc7bd58c37eb7e6e0a96163",
+      "source": "kallipos",
+      "split": "validation",
+      "coverage": "annotated_windows",
+      "bib_block_count": 10,
+      "bib_line_count": 19,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 2187,
+          "end_abs_idx": 2187,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 2333,
+          "end_abs_idx": 2334,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 2472,
+          "end_abs_idx": 2473,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 2573,
+          "end_abs_idx": 2573,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 2704,
+          "end_abs_idx": 2705,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 2821,
+          "end_abs_idx": 2822,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 2949,
+          "end_abs_idx": 2949,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 3068,
+          "end_abs_idx": 3070,
+          "present_line_count": 3,
+          "physical_span_line_count": 3
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 3248,
+          "end_abs_idx": 3249,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 9,
+          "start_abs_idx": 3373,
+          "end_abs_idx": 3375,
+          "present_line_count": 3,
+          "physical_span_line_count": 3
+        }
+      ]
+    },
+    {
+      "rank": 14,
+      "document_id": "336cbeddc1c1eb2bd08bc443b1266424205666c9fcbf52729070ac2417fac9b6",
+      "work_id": "a32563327ece7b0851539b6c86071535cf8ecc8927608b28ed8f82bf51e37b24",
+      "source": "openarchives",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 9,
+      "bib_line_count": 282,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 560,
+          "end_abs_idx": 794,
+          "present_line_count": 118,
+          "physical_span_line_count": 235
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 3181,
+          "end_abs_idx": 3259,
+          "present_line_count": 40,
+          "physical_span_line_count": 79
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 3263,
+          "end_abs_idx": 3297,
+          "present_line_count": 18,
+          "physical_span_line_count": 35
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 3301,
+          "end_abs_idx": 3331,
+          "present_line_count": 16,
+          "physical_span_line_count": 31
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 3335,
+          "end_abs_idx": 3365,
+          "present_line_count": 16,
+          "physical_span_line_count": 31
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 3369,
+          "end_abs_idx": 3381,
+          "present_line_count": 7,
+          "physical_span_line_count": 13
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 3940,
+          "end_abs_idx": 3976,
+          "present_line_count": 19,
+          "physical_span_line_count": 37
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 3980,
+          "end_abs_idx": 4014,
+          "present_line_count": 18,
+          "physical_span_line_count": 35
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 4018,
+          "end_abs_idx": 4076,
+          "present_line_count": 30,
+          "physical_span_line_count": 59
+        }
+      ]
+    },
+    {
+      "rank": 15,
+      "document_id": "cca838e7d044aa54790d1d5e6b5c1ed7b31ff7d8c9cc32af9b97a78e7d0fde82",
+      "work_id": "dd2dac757938e9dd969c5a717cf011f3908236ec46fd1c7a2cde06a4becc250d",
+      "source": "greek_phd",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 9,
+      "bib_line_count": 196,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 2758,
+          "end_abs_idx": 2774,
+          "present_line_count": 16,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 2778,
+          "end_abs_idx": 2803,
+          "present_line_count": 26,
+          "physical_span_line_count": 26
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 2807,
+          "end_abs_idx": 2832,
+          "present_line_count": 26,
+          "physical_span_line_count": 26
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 2836,
+          "end_abs_idx": 2864,
+          "present_line_count": 28,
+          "physical_span_line_count": 29
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 2868,
+          "end_abs_idx": 2885,
+          "present_line_count": 18,
+          "physical_span_line_count": 18
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 3267,
+          "end_abs_idx": 3303,
+          "present_line_count": 32,
+          "physical_span_line_count": 37
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 3307,
+          "end_abs_idx": 3333,
+          "present_line_count": 26,
+          "physical_span_line_count": 27
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 3337,
+          "end_abs_idx": 3344,
+          "present_line_count": 8,
+          "physical_span_line_count": 8
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 3395,
+          "end_abs_idx": 3411,
+          "present_line_count": 16,
+          "physical_span_line_count": 17
+        }
+      ]
+    },
+    {
+      "rank": 16,
+      "document_id": "590ea1074b09c9bbf7718f0ffb6bf596458591f2842215049265476a2337d873",
+      "work_id": "85e37938b98ccb7dfe7fb312224d6d42c130c4072bc0c9d466001518432198df",
+      "source": "kallipos",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 9,
+      "bib_line_count": 115,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 201,
+          "end_abs_idx": 203,
+          "present_line_count": 3,
+          "physical_span_line_count": 3
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 271,
+          "end_abs_idx": 277,
+          "present_line_count": 7,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 635,
+          "end_abs_idx": 641,
+          "present_line_count": 7,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 714,
+          "end_abs_idx": 718,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 787,
+          "end_abs_idx": 796,
+          "present_line_count": 9,
+          "physical_span_line_count": 10
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 866,
+          "end_abs_idx": 869,
+          "present_line_count": 4,
+          "physical_span_line_count": 4
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 933,
+          "end_abs_idx": 938,
+          "present_line_count": 6,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1018,
+          "end_abs_idx": 1022,
+          "present_line_count": 5,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 1031,
+          "end_abs_idx": 1106,
+          "present_line_count": 69,
+          "physical_span_line_count": 76
+        }
+      ]
+    },
+    {
+      "rank": 17,
+      "document_id": "dafa8d1ef11c1c45fd1fbc1a30ff82773f2ac21b2c52dbeb0f514cc72e126796",
+      "work_id": "391d15e236c3f926b44b886c28214a9326934efef3f4359c35ab5f45b5e119c2",
+      "source": "openarchives",
+      "split": "train",
+      "coverage": "full_document",
+      "bib_block_count": 9,
+      "bib_line_count": 85,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 882,
+          "end_abs_idx": 900,
+          "present_line_count": 10,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 904,
+          "end_abs_idx": 920,
+          "present_line_count": 9,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 924,
+          "end_abs_idx": 942,
+          "present_line_count": 10,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 946,
+          "end_abs_idx": 964,
+          "present_line_count": 10,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 968,
+          "end_abs_idx": 988,
+          "present_line_count": 11,
+          "physical_span_line_count": 21
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 992,
+          "end_abs_idx": 1010,
+          "present_line_count": 10,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 1014,
+          "end_abs_idx": 1034,
+          "present_line_count": 11,
+          "physical_span_line_count": 21
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1038,
+          "end_abs_idx": 1056,
+          "present_line_count": 10,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 1060,
+          "end_abs_idx": 1066,
+          "present_line_count": 4,
+          "physical_span_line_count": 7
+        }
+      ]
+    },
+    {
+      "rank": 18,
+      "document_id": "2aa2b9bbb63fae43318b976f38e0f4230250295e49c4f62eb71937b71d664c0e",
+      "work_id": "d3b7f5f17d2a5c482178865919de584d2bd2fda40fbbd3a15abf90c309cd8674",
+      "source": "kallipos",
+      "split": "train",
+      "coverage": "full_document",
+      "bib_block_count": 9,
+      "bib_line_count": 67,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 448,
+          "end_abs_idx": 465,
+          "present_line_count": 16,
+          "physical_span_line_count": 18
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 677,
+          "end_abs_idx": 685,
+          "present_line_count": 7,
+          "physical_span_line_count": 9
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 756,
+          "end_abs_idx": 760,
+          "present_line_count": 4,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 832,
+          "end_abs_idx": 841,
+          "present_line_count": 8,
+          "physical_span_line_count": 10
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 903,
+          "end_abs_idx": 908,
+          "present_line_count": 5,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 963,
+          "end_abs_idx": 969,
+          "present_line_count": 6,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 1012,
+          "end_abs_idx": 1017,
+          "present_line_count": 5,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1069,
+          "end_abs_idx": 1078,
+          "present_line_count": 9,
+          "physical_span_line_count": 10
+        },
+        {
+          "block_index": 8,
+          "start_abs_idx": 1124,
+          "end_abs_idx": 1132,
+          "present_line_count": 7,
+          "physical_span_line_count": 9
+        }
+      ]
+    },
+    {
+      "rank": 19,
+      "document_id": "e4dca959e7eb0ce223314581a1b83c0d812cf1ee2c32db6fc73d28bfdbcb21bc",
+      "work_id": "9dee52427dc2ace41d5b9b52bf0b96d5a2ecbf0c7a91f1385260c3e5a017aadc",
+      "source": "kallipos",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 8,
+      "bib_line_count": 375,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 235,
+          "end_abs_idx": 356,
+          "present_line_count": 122,
+          "physical_span_line_count": 122
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 406,
+          "end_abs_idx": 419,
+          "present_line_count": 14,
+          "physical_span_line_count": 14
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 732,
+          "end_abs_idx": 781,
+          "present_line_count": 50,
+          "physical_span_line_count": 50
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 979,
+          "end_abs_idx": 1002,
+          "present_line_count": 24,
+          "physical_span_line_count": 24
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 1061,
+          "end_abs_idx": 1068,
+          "present_line_count": 8,
+          "physical_span_line_count": 8
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 1189,
+          "end_abs_idx": 1196,
+          "present_line_count": 8,
+          "physical_span_line_count": 8
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 1259,
+          "end_abs_idx": 1359,
+          "present_line_count": 101,
+          "physical_span_line_count": 101
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1406,
+          "end_abs_idx": 1453,
+          "present_line_count": 48,
+          "physical_span_line_count": 48
+        }
+      ]
+    },
+    {
+      "rank": 20,
+      "document_id": "09a90c16ac477b6712d1a313a3b1e247efe2371df3676ade382fe8e6939c4a3c",
+      "work_id": "5cf7bc7afdda015374d4322c0f436e9513ab96bf2c522b415e4aa0833e0ef824",
+      "source": "greek_phd",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 8,
+      "bib_line_count": 344,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 117,
+          "end_abs_idx": 133,
+          "present_line_count": 11,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 789,
+          "end_abs_idx": 859,
+          "present_line_count": 67,
+          "physical_span_line_count": 71
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 1015,
+          "end_abs_idx": 1128,
+          "present_line_count": 96,
+          "physical_span_line_count": 114
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 1378,
+          "end_abs_idx": 1412,
+          "present_line_count": 34,
+          "physical_span_line_count": 35
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 1558,
+          "end_abs_idx": 1575,
+          "present_line_count": 17,
+          "physical_span_line_count": 18
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 1583,
+          "end_abs_idx": 1589,
+          "present_line_count": 6,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 1663,
+          "end_abs_idx": 1676,
+          "present_line_count": 13,
+          "physical_span_line_count": 14
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1899,
+          "end_abs_idx": 2042,
+          "present_line_count": 100,
+          "physical_span_line_count": 144
+        }
+      ]
+    },
+    {
+      "rank": 21,
+      "document_id": "9852f819e8d17f446807284656f7d9eee604dcbb9a55a9457ea2c1c2a62ecee0",
+      "work_id": "95ae9f337ab6a69cb98702e7b2d7742532a5f04e14e7abe86b9133fe39418d1a",
+      "source": "greek_phd",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 8,
+      "bib_line_count": 307,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 215,
+          "end_abs_idx": 248,
+          "present_line_count": 32,
+          "physical_span_line_count": 34
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 430,
+          "end_abs_idx": 436,
+          "present_line_count": 6,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 1901,
+          "end_abs_idx": 1905,
+          "present_line_count": 3,
+          "physical_span_line_count": 5
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 2188,
+          "end_abs_idx": 2193,
+          "present_line_count": 5,
+          "physical_span_line_count": 6
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 2197,
+          "end_abs_idx": 2197,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 2201,
+          "end_abs_idx": 2202,
+          "present_line_count": 2,
+          "physical_span_line_count": 2
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 2206,
+          "end_abs_idx": 2206,
+          "present_line_count": 1,
+          "physical_span_line_count": 1
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 2342,
+          "end_abs_idx": 2611,
+          "present_line_count": 257,
+          "physical_span_line_count": 270
+        }
+      ]
+    },
+    {
+      "rank": 22,
+      "document_id": "9fad184dbb08a4ef1f25ddfcdba19eca76976c6cbc311486dfaa336eda97acf3",
+      "work_id": "e7a8cd23c8b466c8de7e038179f078aef32916152b66c58d47253fe50301d35d",
+      "source": "kallipos",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 8,
+      "bib_line_count": 219,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 374,
+          "end_abs_idx": 380,
+          "present_line_count": 7,
+          "physical_span_line_count": 7
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 447,
+          "end_abs_idx": 456,
+          "present_line_count": 10,
+          "physical_span_line_count": 10
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 3538,
+          "end_abs_idx": 3614,
+          "present_line_count": 77,
+          "physical_span_line_count": 77
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 3666,
+          "end_abs_idx": 3718,
+          "present_line_count": 53,
+          "physical_span_line_count": 53
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 3792,
+          "end_abs_idx": 3806,
+          "present_line_count": 15,
+          "physical_span_line_count": 15
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 3849,
+          "end_abs_idx": 3865,
+          "present_line_count": 17,
+          "physical_span_line_count": 17
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 3924,
+          "end_abs_idx": 3951,
+          "present_line_count": 28,
+          "physical_span_line_count": 28
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 4110,
+          "end_abs_idx": 4121,
+          "present_line_count": 12,
+          "physical_span_line_count": 12
+        }
+      ]
+    },
+    {
+      "rank": 23,
+      "document_id": "e0dc07c6febae59e4d34c27a5200b67c00307892e5788ee4ce68ef11a4de2a2e",
+      "work_id": "5e2f203a4f8d5c9fa2c5511fd086431d5edef32600134a14885abe755acebbad",
+      "source": "greek_phd",
+      "split": "validation",
+      "coverage": "annotated_windows",
+      "bib_block_count": 8,
+      "bib_line_count": 183,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 275,
+          "end_abs_idx": 288,
+          "present_line_count": 12,
+          "physical_span_line_count": 14
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 694,
+          "end_abs_idx": 707,
+          "present_line_count": 13,
+          "physical_span_line_count": 14
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 850,
+          "end_abs_idx": 882,
+          "present_line_count": 23,
+          "physical_span_line_count": 33
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 1318,
+          "end_abs_idx": 1356,
+          "present_line_count": 35,
+          "physical_span_line_count": 39
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 2195,
+          "end_abs_idx": 2221,
+          "present_line_count": 20,
+          "physical_span_line_count": 27
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 2228,
+          "end_abs_idx": 2246,
+          "present_line_count": 19,
+          "physical_span_line_count": 19
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 2744,
+          "end_abs_idx": 2806,
+          "present_line_count": 54,
+          "physical_span_line_count": 63
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 2864,
+          "end_abs_idx": 2872,
+          "present_line_count": 7,
+          "physical_span_line_count": 9
+        }
+      ]
+    },
+    {
+      "rank": 24,
+      "document_id": "17ccb7cebb1b931de1b3a0ba2877e29a0ce0f64142cbabae3faf8222f8a1219b",
+      "work_id": "87061761d05658949cf91c6c9efc214303fe5c5a7220e2285f314f55cfa12e5f",
+      "source": "greek_phd",
+      "split": "train",
+      "coverage": "full_document",
+      "bib_block_count": 8,
+      "bib_line_count": 152,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 204,
+          "end_abs_idx": 217,
+          "present_line_count": 12,
+          "physical_span_line_count": 14
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 311,
+          "end_abs_idx": 318,
+          "present_line_count": 7,
+          "physical_span_line_count": 8
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 354,
+          "end_abs_idx": 363,
+          "present_line_count": 9,
+          "physical_span_line_count": 10
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 457,
+          "end_abs_idx": 478,
+          "present_line_count": 20,
+          "physical_span_line_count": 22
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 583,
+          "end_abs_idx": 610,
+          "present_line_count": 25,
+          "physical_span_line_count": 28
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 729,
+          "end_abs_idx": 759,
+          "present_line_count": 28,
+          "physical_span_line_count": 31
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 892,
+          "end_abs_idx": 924,
+          "present_line_count": 28,
+          "physical_span_line_count": 33
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 1108,
+          "end_abs_idx": 1133,
+          "present_line_count": 23,
+          "physical_span_line_count": 26
+        }
+      ]
+    },
+    {
+      "rank": 25,
+      "document_id": "6186c2201b45e2d21d754f90c1e99c41e447236de98a2880844f8eaa2ab4577f",
+      "work_id": "97993d70d8cca5d9f91be09d4486ce19a016cf72ee0456c09e91aaf3342b8096",
+      "source": "greek_phd",
+      "split": "train",
+      "coverage": "annotated_windows",
+      "bib_block_count": 8,
+      "bib_line_count": 116,
+      "blocks": [
+        {
+          "block_index": 0,
+          "start_abs_idx": 394,
+          "end_abs_idx": 404,
+          "present_line_count": 10,
+          "physical_span_line_count": 11
+        },
+        {
+          "block_index": 1,
+          "start_abs_idx": 1781,
+          "end_abs_idx": 1800,
+          "present_line_count": 18,
+          "physical_span_line_count": 20
+        },
+        {
+          "block_index": 2,
+          "start_abs_idx": 2152,
+          "end_abs_idx": 2181,
+          "present_line_count": 23,
+          "physical_span_line_count": 30
+        },
+        {
+          "block_index": 3,
+          "start_abs_idx": 2329,
+          "end_abs_idx": 2337,
+          "present_line_count": 8,
+          "physical_span_line_count": 9
+        },
+        {
+          "block_index": 4,
+          "start_abs_idx": 2426,
+          "end_abs_idx": 2434,
+          "present_line_count": 8,
+          "physical_span_line_count": 9
+        },
+        {
+          "block_index": 5,
+          "start_abs_idx": 2498,
+          "end_abs_idx": 2506,
+          "present_line_count": 8,
+          "physical_span_line_count": 9
+        },
+        {
+          "block_index": 6,
+          "start_abs_idx": 2659,
+          "end_abs_idx": 2680,
+          "present_line_count": 16,
+          "physical_span_line_count": 22
+        },
+        {
+          "block_index": 7,
+          "start_abs_idx": 2780,
+          "end_abs_idx": 2812,
+          "present_line_count": 25,
+          "physical_span_line_count": 33
+        }
+      ]
+    }
+  ],
+  "input": {
+    "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/struct2k.LLM_silver.jsonl",
+    "sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "max_physical_gap": 64
+}

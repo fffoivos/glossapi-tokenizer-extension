@@ -1,0 +1,38 @@
+{
+  "bib_block_count": 1632,
+  "bib_line_count": 139243,
+  "candidate_count": 15427,
+  "candidate_counts_by_source": {
+    "greek_phd": 9884,
+    "kallipos": 1353,
+    "openarchives": 4190
+  },
+  "candidate_counts_by_stratum": {
+    "block_start_probe": 2636,
+    "exact_heading": 586,
+    "exact_subheading": 210,
+    "internal_sparse_probe": 11995
+  },
+  "context_radius": 3,
+  "document_count": 1118,
+  "input": {
+    "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/struct2k_sources/struct2k_joint_20260712b/struct2k.LLM_silver.jsonl",
+    "sha256": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0"
+  },
+  "max_physical_gap": 64,
+  "sample_count": 120,
+  "sample_counts_by_source": {
+    "greek_phd": 50,
+    "kallipos": 25,
+    "openarchives": 45
+  },
+  "sample_counts_by_stratum": {
+    "block_start_probe": 30,
+    "exact_heading": 30,
+    "exact_subheading": 30,
+    "internal_sparse_probe": 30
+  },
+  "sampling_seed": "bibliography-header-mask-audit-v1",
+  "schema_version": "bibliography-header-mask-audit-v1",
+  "split": "train"
+}
