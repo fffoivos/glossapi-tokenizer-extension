@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://glossapi.example/schemas/dataset-review-site-sample-v1.json",
-  "title": "Private escaped-text site sample",
+  "title": "Escaped-text dataset-review site sample",
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema_version", "site_sample_id", "site_document_id", "source_repo_id", "source_dataset",
+    "schema_version", "site_sample_id", "site_document_id", "source_repo_id", "source_dataset", "variant", "label",
     "high_precision_identifier_patterns_masked", "redaction_counts",
     "characters", "text"
   ],
@@ -15,7 +15,9 @@
     "site_document_id": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
     "source_repo_id": {"type": "string", "minLength": 1},
     "source_dataset": {"type": "string", "minLength": 1},
-    "high_precision_identifier_patterns_masked": {"const": true},
+    "variant": {"enum": ["public_source_excerpt", "identifier_masked_pipeline_review_sample"]},
+    "label": {"enum": ["public source excerpt", "identifier-masked pipeline review sample"]},
+    "high_precision_identifier_patterns_masked": {"type": "boolean"},
     "redaction_counts": {
       "type": "object",
       "propertyNames": {"enum": ["email", "ipv4", "iban", "afm", "amka", "phone", "url", "ipv6", "identity"]},

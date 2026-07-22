@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glossapi.example/schemas/dataset-review-presentation-handoff-v1.json",
+  "title": "Immutable compact dataset-review presentation handoff",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "run_id", "producer_commit", "created_at", "handoff_kind", "files"],
+  "properties": {
+    "schema_version": {"const": "dataset_review_presentation_handoff_v1"},
+    "status": {"enum": ["passed", "READY"]},
+    "run_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+    "producer_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "handoff_kind": {"enum": ["fixture", "agent1"]},
+    "files": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/file"}
+    }
+  },
+  "$defs": {
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "bytes", "sha256", "schema_version"],
+      "properties": {
+        "role": {"enum": ["inventory", "evaluations", "sources_config", "quality_summary", "quality_handoff_receipt", "review_requests", "review_responses", "admission", "novelty", "complete_samples", "complete_samples_receipt", "complete_samples_attestation", "public_preview", "pipeline_waterfall"]},
+        "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "schema_version": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

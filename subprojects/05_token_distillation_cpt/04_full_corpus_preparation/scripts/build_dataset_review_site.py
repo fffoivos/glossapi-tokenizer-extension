@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Build or serve the private, offline full-corpus dataset review site.
 
-The generated site has no remote dependencies.  Dataset text is written only
-to per-sample JSON files, fetched on demand, and rendered with ``textContent``.
-The input sample packet must carry a validated masking/provenance receipt.
-High-precision identifier patterns are masked, but generic names and addresses
-can remain; generated material is therefore always treated as sensitive.
+The generated site has no remote dependencies. Dataset text is written only to
+per-sample JSON files, fetched on demand, and rendered with ``textContent``.
+The input packet must carry a validated provenance receipt. Public source
+excerpts retain their public-source label; transformed review copies explicitly
+state that high-precision identifiers were masked.
 """
 
 from __future__ import annotations
@@ -414,6 +414,7 @@ def source_identity_map(sources: Mapping[str, Any]) -> dict[str, dict[str, Any]]
             raise ValueError(f"{source_id}: non-MDC source declares mdc_dataset_id")
         canonical_config = {"source_id": source_id, **dict(row)}
         result[source_id] = {
+            **dict(row),
             "source_id": source_id,
             "repo_id": repo_id,
             "revision": revision,
@@ -444,14 +445,8 @@ def load_inventory(path: Path) -> list[dict[str, Any]]:
                 {**row, "inventory_group": group, "inventory_position": position}
             )
     repo_ids = [str(row.get("repo_id", "")) for row in entries]
-    if (
-        len(entries) != 29
-        or len(set(repo_ids)) != 29
-        or any(not name for name in repo_ids)
-    ):
-        raise ValueError(
-            "dataset review site requires exactly 29 unique inventory repositories"
-        )
+    if not entries or len(set(repo_ids)) != len(entries) or any(not name for name in repo_ids):
+        raise ValueError("dataset review site requires a non-empty unique inventory")
     return entries
 
 
@@ -595,11 +590,21 @@ def load_requests(
             "site_sample_id": opaque_site_id(
                 site_key, "sample", repo_id, revision, sample_id
             ),
+            "source_repo_id": repo_id,
             "site_document_id": opaque_site_id(
                 site_key, "document", repo_id, revision, raw_doc_id
             ),
+            "canonical_display_document_id": canonical_display_document_id(raw_doc_id),
             "source_dataset": dataset,
             "sampling_stratum": str(row.get("sampling_stratum", "")),
+            "source_revision": revision,
+            "source_metadata": (
+                dict(row.get("source_metadata", {}))
+                if isinstance(row.get("source_metadata"), dict)
+                else {}
+            ),
+            "review": None,
+            "variants": [],
             "complete_document_available": False,
             "complete_document_path": None,
         }
@@ -691,6 +696,55 @@ def load_review_responses(
             "mean_quality_score": (
                 sum(scores[repo_id]) / len(scores[repo_id]) if scores[repo_id] else None
             ),
+        }
+    return result
+
+
+def load_sample_review_evidence(
+    path: Path | None,
+    requests: Mapping[str, Mapping[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """Return bounded per-sample evidence for the document browser.
+
+    Aggregate review statistics are intentionally kept separate.  The browser
+    needs only the primary review's scoring, issue flags and concise evidence;
+    it never needs a canonical document identifier or an unbounded model trace.
+    """
+    if path is None:
+        return {}
+    result: dict[str, dict[str, Any]] = {}
+    for line_number, row in iter_jsonl(path):
+        if row.get("schema_version") != "source_quality_review_response_v1":
+            raise ValueError(f"{path}:{line_number}: unsupported review response")
+        sample_id = str(row.get("sample_id", ""))
+        if sample_id not in requests or row.get("reviewer_slot") != "primary":
+            continue
+        if sample_id in result:
+            raise ValueError(f"{path}:{line_number}: duplicate primary review evidence")
+        defects = row.get("defects")
+        variability = row.get("variability")
+        if not isinstance(defects, dict) or not isinstance(variability, dict):
+            raise ValueError(f"{path}:{line_number}: review evidence is malformed")
+        issue_flags = sorted(
+            str(name) for name, severity in defects.items() if severity not in ("none", None)
+        )
+        evidence = str(row.get("evidence", "")).strip()
+        if not evidence or len(evidence) > 1000:
+            raise ValueError(f"{path}:{line_number}: invalid review evidence")
+        result[sample_id] = {
+            "quality_score": site_nonnegative_int(
+                row.get("quality_score"), context=f"{path}:{line_number}.quality_score"
+            ),
+            "action": str(row.get("action", "")),
+            "substantive_training_value": str(row.get("substantive_training_value", "")),
+            "language_register": str(row.get("language_register", "")),
+            "issue_flags": issue_flags,
+            "template_similarity": str(variability.get("template_similarity", "")),
+            "substantive_variation": str(variability.get("substantive_variation", "")),
+            "reviewer": str(row.get("reviewer", "Codex")),
+            "model": str(row.get("model", "not supplied")),
+            "prompt_revision": str(row.get("prompt_revision", "not supplied")),
+            "rationale": evidence,
         }
     return result
 
@@ -798,6 +852,43 @@ def load_novelty(
         key: sorted(rows, key=lambda row: str(row.get("source_dataset")))
         for key, rows in result.items()
     }
+
+
+def load_pipeline_waterfall(path: Path | None) -> dict[str, Any] | None:
+    """Load the optional compact post-processing waterfall.
+
+    The input is a summary, not a shard ledger.  Its role receipt in the
+    top-level handoff is the authoritative provenance binding.
+    """
+    if path is None:
+        return None
+    value = read_json(path)
+    if set(value) != {"schema_version", "stages"} or not isinstance(
+        value.get("schema_version"), str
+    ):
+        raise ValueError(f"{path}: unsupported pipeline waterfall")
+    stages = value.get("stages")
+    if not isinstance(stages, list) or not stages:
+        raise ValueError(f"{path}: pipeline waterfall stages must be non-empty")
+    result: list[dict[str, Any]] = []
+    for index, stage in enumerate(stages):
+        if not isinstance(stage, dict) or set(stage) != {"label", "documents", "tokens"}:
+            raise ValueError(f"{path}.stages[{index}]: invalid waterfall stage")
+        label = stage.get("label")
+        if not isinstance(label, str) or not label:
+            raise ValueError(f"{path}.stages[{index}]: invalid waterfall label")
+        result.append(
+            {
+                "label": label,
+                "documents": site_nonnegative_int(
+                    stage.get("documents"), context=f"{path}.stages[{index}].documents"
+                ),
+                "tokens": site_nonnegative_int(
+                    stage.get("tokens"), context=f"{path}.stages[{index}].tokens"
+                ),
+            }
+        )
+    return {"schema_version": value["schema_version"], "stages": result}
 
 
 def payload_state(row: Mapping[str, Any]) -> str:
@@ -1549,6 +1640,8 @@ def write_complete_samples(
             "site_document_id": str(site_record["site_document_id"]),
             "source_repo_id": repo_id,
             "source_dataset": dataset,
+            "variant": "identifier_masked_pipeline_review_sample",
+            "label": "identifier-masked pipeline review sample",
             "high_precision_identifier_patterns_masked": True,
             "redaction_counts": dict(redaction_counts),
             "characters": len(text),
@@ -1558,6 +1651,15 @@ def write_complete_samples(
         relative = sample_path.relative_to(output).as_posix()
         site_record["complete_document_available"] = True
         site_record["complete_document_path"] = relative
+        site_record["variants"].append(
+            {
+                "kind": "identifier_masked_pipeline_review_sample",
+                "label": "identifier-masked pipeline review sample",
+                "path": relative,
+                "characters": len(text),
+                "transformation": "High-confidence identifiers were masked for pipeline review.",
+            }
+        )
         written.append(receipt(sample_path, output))
     if seen != set(requests) or len(seen) != int(declared_output["rows"]):
         raise ValueError(
@@ -1566,6 +1668,122 @@ def write_complete_samples(
     if dict(sorted(observed_redactions.items())) != packet_receipt["redaction_totals"]:
         raise ValueError(f"{path}: per-row redaction totals differ from receipt")
     return written, excluded_outside_inventory
+
+
+def write_public_previews(
+    path: Path | None,
+    *,
+    output: Path,
+    by_repo: dict[str, list[dict[str, Any]]],
+    tracked_sources: Mapping[str, Mapping[str, Any]],
+    site_key: bytes,
+) -> list[dict[str, Any]]:
+    """Emit bounded public excerpts without treating them as confidential data.
+
+    A public preview may be attached to an existing review sample only when its
+    source/revision/document binding agrees.  Otherwise it remains a separate
+    browseable public excerpt with no invented reviewer evidence.
+    """
+    if path is None:
+        return []
+    packet = read_json(path)
+    if packet.get("schema_version") != "dataset_review_public_sample_packet_v1":
+        raise ValueError(f"{path}: unsupported public preview packet")
+    samples = packet.get("samples")
+    if not isinstance(samples, list):
+        raise ValueError(f"{path}: public preview samples must be an array")
+    tracked_by_repo = {str(value["repo_id"]): value for value in tracked_sources.values()}
+    written: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for index, row in enumerate(samples):
+        if not isinstance(row, dict):
+            raise ValueError(f"{path}.samples[{index}]: expected object")
+        required = {
+            "schema_version", "sample_id", "repo_id", "source_revision",
+            "source_document_id", "displayed_text_is_excerpt",
+            "displayed_text_characters", "displayed_text_sha256", "text",
+        }
+        if not required.issubset(row):
+            raise ValueError(f"{path}.samples[{index}]: missing public preview fields")
+        if row.get("schema_version") != "dataset_review_public_sample_v1":
+            raise ValueError(f"{path}.samples[{index}]: unsupported public preview schema")
+        repo_id = str(row["repo_id"])
+        revision = str(row["source_revision"])
+        document_id = str(row["source_document_id"])
+        sample_id = str(row["sample_id"])
+        text = row.get("text")
+        if (
+            repo_id not in tracked_by_repo
+            or revision != tracked_by_repo[repo_id]["revision"]
+            or not SHA256_RE.fullmatch(sample_id)
+            or not document_id
+            or row.get("displayed_text_is_excerpt") is not True
+            or not isinstance(text, str)
+            or int(row.get("displayed_text_characters", -1)) != len(text)
+            or hashlib.sha256(text.encode("utf-8")).hexdigest()
+            != row.get("displayed_text_sha256")
+        ):
+            raise ValueError(f"{path}.samples[{index}]: public preview identity/text drift")
+        key = (repo_id, sample_id)
+        if key in seen:
+            raise ValueError(f"{path}.samples[{index}]: duplicate public preview")
+        seen.add(key)
+        canonical_document_id = canonical_display_document_id(document_id)
+        record = next(
+            (
+                item
+                for item in by_repo.get(repo_id, [])
+                if item.get("site_document_id")
+                and item.get("canonical_display_document_id") == canonical_document_id
+            ),
+            None,
+        )
+        if record is None:
+            record = {
+                "site_sample_id": opaque_site_id(site_key, "public", repo_id, revision, sample_id),
+                "source_repo_id": repo_id,
+                "site_document_id": opaque_site_id(site_key, "document", repo_id, revision, document_id),
+                "canonical_display_document_id": canonical_document_id,
+                "source_dataset": str(row.get("dataset_server_config", "public preview")),
+                "sampling_stratum": "public source excerpt",
+                "source_revision": revision,
+                "source_metadata": dict(row.get("metadata", {})) if isinstance(row.get("metadata"), dict) else {},
+                "review": None,
+                "variants": [],
+                "complete_document_available": False,
+                "complete_document_path": None,
+            }
+            by_repo.setdefault(repo_id, []).append(record)
+        site_sample_id = str(record["site_sample_id"])
+        sample_path = output / "samples" / f"{site_sample_id}-public.json"
+        payload = {
+            "schema_version": SITE_SAMPLE_SCHEMA,
+            "site_sample_id": site_sample_id,
+            "site_document_id": str(record["site_document_id"]),
+            "source_repo_id": repo_id,
+            "source_dataset": str(record["source_dataset"]),
+            "variant": "public_source_excerpt",
+            "label": "public source excerpt",
+            "high_precision_identifier_patterns_masked": False,
+            "redaction_counts": {},
+            "characters": len(text),
+            "text": text,
+        }
+        write_private(sample_path, safe_json(payload))
+        relative = sample_path.relative_to(output).as_posix()
+        record["variants"].append(
+            {
+                "kind": "public_source_excerpt",
+                "label": "public source excerpt",
+                "path": relative,
+                "characters": len(text),
+                "transformation": "Bounded public excerpt supplied by the source-preview packet.",
+            }
+        )
+        written.append(receipt(sample_path, output))
+    for rows in by_repo.values():
+        rows.sort(key=lambda item: (str(item.get("site_document_id")), str(item.get("site_sample_id"))))
+    return written
 
 
 def html_shell(
@@ -1626,6 +1844,38 @@ if(page==='overview')renderOverview();else if(page==='detail')renderDetail();
 """.strip()
 
 
+PRESENTATION_CSS = r"""
+.primary-link{display:inline-block;background:var(--accent);color:white;padding:10px 14px;border-radius:9px;text-decoration:none;font-weight:700}.primary-link:focus,.sample button:focus,.toolbar input:focus,.toolbar select:focus{outline:3px solid #d89227;outline-offset:2px}.browser-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}.browser-controls button,.browser-controls select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}.browser-metadata{margin:12px 0}.browser-note{border-left:4px solid var(--accent);padding-left:12px}.coverage-table{min-width:650px}.coverage-yes{color:var(--good);font-weight:700}.coverage-no{color:var(--muted)}.limitations{border-color:var(--warn)}.waterfall-table td:last-child,.waterfall-table th:last-child{text-align:right}@media(max-width:650px){dd{overflow-wrap:anywhere}.browser-controls select{max-width:100%}.coverage-table{min-width:0;table-layout:fixed}.coverage-table th,.coverage-table td{padding:8px 4px;overflow-wrap:anywhere;word-break:break-word}.primary-link{width:100%;text-align:center}}
+""".strip()
+
+
+PRESENTATION_JS = r"""
+(()=>{'use strict';
+const body=document.body,base=body.dataset.base||'',page=body.dataset.page;
+const e=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n};
+const num=n=>n===null||n===undefined?'—':new Intl.NumberFormat('en',{maximumFractionDigits:2}).format(n);
+const pc=n=>n===null||n===undefined?'—':new Intl.NumberFormat('en',{style:'percent',maximumFractionDigits:2}).format(n);
+const safeObject=v=>v&&typeof v==='object'?v:{};
+async function data(){const r=await fetch(base+'site_data.json',{cache:'no-store'});if(!r.ok)throw new Error('site data '+r.status);return r.json()}
+function definition(dl,label,value){dl.append(e('dt',null,label),e('dd',null,value??'—'))}
+function selectVariant(sample){return (sample.variants||[])[0]||null}
+function browser(root,samples,allData){
+  root.replaceChildren();if(!samples.length){root.append(e('p','muted','No browseable document is supplied for this source. Missing evidence is recorded as unavailable.'));return}
+  let index=0,variantIndex=0;const heading=e('h3',null,'Browse documents'),position=e('p','label'),controls=e('div','browser-controls'),previous=e('button',null,'Previous'),next=e('button',null,'Next'),chooser=e('select'),variant=e('select'),metadata=e('dl','browser-metadata'),rationale=e('p','browser-note'),text=e('pre','document');text.tabIndex=0;
+  controls.append(previous,next,chooser,variant);root.append(heading,position,controls,metadata,rationale,text);
+  const load=async()=>{const item=samples[index],entry=(item.variants||[])[variantIndex]||selectVariant(item);position.textContent=`${index+1}/${samples.length} · ${entry?entry.label:'Document unavailable'}`;previous.disabled=index===0;next.disabled=index===samples.length-1;metadata.replaceChildren();definition(metadata,'Source',item.source_repo_id||item.repo_id||'—');definition(metadata,'Revision',item.source_revision);definition(metadata,'Sampling stratum',item.sampling_stratum);definition(metadata,'Document length',entry?num(entry.characters)+' characters':'—');const review=safeObject(item.review);definition(metadata,'Review score',review.quality_score===undefined?'Not reviewed':review.quality_score+' / 4');definition(metadata,'Issue flags',(review.issue_flags||[]).join(' · ')||'None supplied');definition(metadata,'Reviewer/model/prompt',[review.reviewer,review.model,review.prompt_revision].filter(Boolean).join(' · ')||'Not supplied');rationale.textContent=review.rationale?`Reviewer rationale: ${review.rationale}`:'No per-document reviewer rationale is supplied.';variant.replaceChildren();for(let i=0;i<(item.variants||[]).length;i++){const choice=item.variants[i],opt=e('option',null,choice.label);opt.value=String(i);variant.append(opt)}variant.hidden=(item.variants||[]).length<2;variantIndex=Math.min(variantIndex,Math.max(0,(item.variants||[]).length-1));variant.value=String(variantIndex);text.textContent='Loading document…';if(!entry){text.textContent='Document unavailable.';return}try{const r=await fetch(base+entry.path,{cache:'no-store'});if(!r.ok)throw new Error(String(r.status));const doc=await r.json();text.textContent=doc.text}catch(error){text.textContent='Document could not be loaded: '+error.message}}
+  const render=()=>{chooser.replaceChildren();samples.forEach((item,i)=>{const opt=e('option',null,`${i+1}. ${item.source_dataset||item.repo_id||'document'}`);opt.value=String(i);chooser.append(opt)});chooser.value=String(index);load()};
+  previous.addEventListener('click',()=>{if(index>0){index--;variantIndex=0;render()}});next.addEventListener('click',()=>{if(index+1<samples.length){index++;variantIndex=0;render()}});chooser.addEventListener('change',()=>{index=Number(chooser.value);variantIndex=0;render()});variant.addEventListener('change',()=>{variantIndex=Number(variant.value);load()});document.addEventListener('keydown',event=>{if(event.target&&/INPUT|SELECT|TEXTAREA/.test(event.target.tagName))return;if(event.key==='n'||event.key==='ArrowRight')next.click();if(event.key==='N'||event.key==='ArrowLeft')previous.click()});render();
+}
+function overview(d){const root=document.getElementById('provenance');if(root){const p=safeObject(d.provenance);root.replaceChildren(e('h2',null,'Provenance and limitations'));const dl=e('dl');definition(dl,'Run ID',p.run_id);definition(dl,'Producer commit',p.producer_commit);definition(dl,'Handoff digest',p.handoff_sha256);definition(dl,'Generated-file verification',p.site_verification||'Pending');root.append(dl,e('p','limitations panel','What this site does not establish: sample-only review results are not corpus-wide claims; missing evidence is not a favourable result; admission remains receipt-bound.'))}const waterfall=document.getElementById('waterfall');if(waterfall&&d.pipeline_waterfall){const table=e('table','waterfall-table'),thead=e('thead'),hr=e('tr');for(const h of ['Pipeline stage','Documents','Tokens'])hr.append(e('th',null,h));thead.append(hr);const tbody=e('tbody');for(const stage of d.pipeline_waterfall.stages){const tr=e('tr');tr.append(e('td',null,stage.label),e('td',null,num(stage.documents)),e('td',null,num(stage.tokens)));tbody.append(tr)}table.append(thead,tbody);waterfall.replaceChildren(table)}
+ const search=document.getElementById('search'),state=document.getElementById('state'),route=document.getElementById('route-filter'),issue=document.getElementById('issue-filter'),admission=document.getElementById('admission-filter'),score=document.getElementById('min-score'),tbody=document.querySelector('#repo-table tbody');if(!tbody)return;for(const r of d.repositories){if(route&&!Array.from(route.options).some(o=>o.value===r.source_route)){const o=e('option',null,r.source_route);o.value=r.source_route;route.append(o)}};const refresh=()=>{const q=(search?.value||'').toLocaleLowerCase(),min=Number(score?.value||0);tbody.replaceChildren();for(const r of d.repositories){const review=safeObject(r.review),risks=(r.evaluation.main_risks||[]).join(' ').toLocaleLowerCase(),ad=(r.admissions||[]).map(x=>x.decision).join(' ');if(q&&!JSON.stringify([r.repo_id,r.source_id,r.source_route,r.evaluation,r.admissions]).toLocaleLowerCase().includes(q))continue;if(state?.value&&r.payload_state!==state.value)continue;if(route?.value&&r.source_route!==route.value)continue;if(issue?.value&&!risks.includes(issue.value))continue;if(admission?.value&&!ad.includes(admission.value))continue;if(score?.value&&Number(review.mean_quality_score??-1)<min)continue;const tr=e('tr');for(const value of [r.repo_id,r.source_id||'—',r.source_route,r.payload_state,r.recommended_action,num(r.quality?.documents),num(review.mean_quality_score),num(r.samples?.length)])tr.append(e('td',null,value));const a=e('a',null,'Open');a.href='datasets/'+r.slug+'.html';const link=e('td');link.append(a);tr.append(link);tbody.append(tr)}};[search,state,route,issue,admission,score].forEach(x=>x&&x.addEventListener('input',refresh));refresh()}
+function detail(d){const r=d.repositories[Number(body.dataset.repoIndex)];if(!r)return;const samples=document.getElementById('samples');if(samples)browser(samples,r.samples||[],d);const coverage=document.getElementById('coverage');if(coverage){const table=e('table','coverage-table'),head=e('thead'),row=e('tr');for(const title of ['Inventory','Acquired','Profiled','Sampled','Reviewed','Admitted'])row.append(e('th',null,title));head.append(row);const b=e('tbody'),values=['inventory','acquired','profiled','sampled','reviewed','admitted'];const tr=e('tr');for(const key of values)tr.append(e('td',r.coverage?.[key]?'coverage-yes':'coverage-no',r.coverage?.[key]?'Yes':'No'));b.append(tr);table.append(head,b);coverage.replaceChildren(table)}}
+function documents(d){const root=document.getElementById('document-browser');const samples=d.repositories.flatMap(r=>(r.samples||[]).map(s=>({...s,repo_id:r.repo_id})));browser(root,samples,d)}
+window.addEventListener('load',()=>data().then(d=>{if(page==='overview')overview(d);if(page==='detail')detail(d);if(page==='documents')documents(d)}).catch(error=>{const p=e('pre');p.textContent='Dataset review site failed safely: '+error.message;document.body.append(p)}));
+})();
+""".strip()
+
+
 def build_site(args: argparse.Namespace) -> int:
     output = lexical_absolute(args.output_dir)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -1639,6 +1889,7 @@ def build_site(args: argparse.Namespace) -> int:
     stable_inputs_root.chmod(0o700)
     try:
         input_names = (
+            "presentation_handoff",
             "inventory",
             "evaluations",
             "sources_config",
@@ -1651,6 +1902,8 @@ def build_site(args: argparse.Namespace) -> int:
             "complete_samples",
             "complete_samples_receipt",
             "complete_samples_attestation",
+            "public_previews",
+            "pipeline_waterfall",
         )
         original_inputs = {name: getattr(args, name, None) for name in input_names}
         input_snapshots, stable_paths = snapshot_site_inputs(
@@ -1666,13 +1919,22 @@ def build_site(args: argparse.Namespace) -> int:
         evaluations = load_evaluations(args.evaluations, repos)
         sources = read_json(args.sources_config)
         tracked_sources = source_identity_map(sources)
+        source_by_repo = {
+            str(value["repo_id"]): {"source_id": source_id, **dict(value)}
+            for source_id, value in tracked_sources.items()
+        }
         quality, quality_scope, acquired_identities = load_quality(
             args.quality_summary,
             getattr(args, "quality_handoff_receipt", None),
             sources_config_path=args.sources_config,
         )
         supplemental_quality_repositories = sorted(set(quality) - repos)
-        site_key = secrets.token_bytes(32)
+        configured_site_key = getattr(args, "site_key", None)
+        site_key = (
+            configured_site_key
+            if isinstance(configured_site_key, bytes) and len(configured_site_key) >= 32
+            else secrets.token_bytes(32)
+        )
         requests, dataset_to_repo, by_repo = load_requests(
             args.review_requests, tracked_sources, site_key
         )
@@ -1685,8 +1947,14 @@ def build_site(args: argparse.Namespace) -> int:
         if len(opaque_ids) != len(set(opaque_ids)):
             raise ValueError("site-local opaque identifier collision")
         responses = load_review_responses(args.review_responses, requests)
+        sample_evidence = load_sample_review_evidence(args.review_responses, requests)
+        for sample_id, request in requests.items():
+            request["site_record"]["review"] = sample_evidence.get(sample_id)
         admissions = load_admission(args.admission, dataset_to_repo)
         novelty = load_novelty(args.novelty, dataset_to_repo)
+        pipeline_waterfall = load_pipeline_waterfall(
+            getattr(args, "pipeline_waterfall", None)
+        )
 
         sample_receipts, excluded_complete_samples = write_complete_samples(
             args.complete_samples,
@@ -1699,10 +1967,18 @@ def build_site(args: argparse.Namespace) -> int:
             local_sources_config_sha256=sha256_file(args.sources_config),
             visible_repositories=repos,
         )
+        public_preview_receipts = write_public_previews(
+            getattr(args, "public_previews", None),
+            output=temporary,
+            by_repo=by_repo,
+            tracked_sources=tracked_sources,
+            site_key=site_key,
+        )
         repositories: list[dict[str, Any]] = []
         for index, row in enumerate(inventory):
             repo_id = str(row["repo_id"])
             evaluation = evaluations[repo_id]
+            source = source_by_repo.get(repo_id, {})
             state = payload_state(row)
             if state == "external_unavailable" and has_external_acquisition_evidence(
                 row,
@@ -1717,6 +1993,12 @@ def build_site(args: argparse.Namespace) -> int:
             repositories.append(
                 {
                     "repo_id": repo_id,
+                    "source_id": source.get("source_id"),
+                    "source_route": str(
+                        row.get("source_route")
+                        or source.get("source_route")
+                        or "not declared"
+                    ),
                     "slug": slug(index, repo_id),
                     "inventory_group": row["inventory_group"],
                     "payload_state": state,
@@ -1743,18 +2025,23 @@ def build_site(args: argparse.Namespace) -> int:
                     "admissions": admissions.get(repo_id, []),
                     "novelty": novelty.get(repo_id, []),
                     "samples": by_repo.get(repo_id, []),
+                    "coverage": {
+                        "inventory": True,
+                        "acquired": state in {"text_available", "material_change", "external_acquired"},
+                        "profiled": repo_id in quality,
+                        "sampled": bool(by_repo.get(repo_id)),
+                        "reviewed": repo_id in responses,
+                        "admitted": bool(admissions.get(repo_id)),
+                    },
                 }
             )
 
         state_counts = Counter(row["payload_state"] for row in repositories)
         site_data = {
             "schema_version": SITE_DATA_SCHEMA,
-            "generated_at": utc_now(),
-            "privacy": {
+            "generated_at": getattr(args, "generated_at", None) or utc_now(),
+            "presentation": {
                 "local_only": True,
-                "sensitive_do_not_share": True,
-                "high_precision_identifier_patterns_masked": True,
-                "generic_names_and_addresses_may_remain": True,
                 "sample_rendering": "JSON fetched on demand and assigned with textContent",
                 "external_resources": False,
             },
@@ -1776,6 +2063,7 @@ def build_site(args: argparse.Namespace) -> int:
                     row["review"] is not None for row in repositories
                 ),
                 "complete_samples": len(sample_receipts),
+                "public_source_excerpts": len(public_preview_receipts),
                 "complete_samples_excluded_outside_inventory": excluded_complete_samples,
                 "supplemental_profiled_repositories_outside_inventory": (
                     supplemental_quality_repositories
@@ -1783,16 +2071,22 @@ def build_site(args: argparse.Namespace) -> int:
                 "quality_scope": quality_scope,
             },
             "repositories": repositories,
+            "provenance": getattr(args, "presentation_provenance", None),
+            "pipeline_waterfall": pipeline_waterfall,
         }
         write_private(temporary / "site_data.json", safe_json(site_data))
-        write_private(temporary / "assets" / "site.css", CSS + "\n")
-        write_private(temporary / "assets" / "site.js", JS + "\n")
+        write_private(
+            temporary / "assets" / "site.css", CSS + "\n" + PRESENTATION_CSS + "\n"
+        )
+        write_private(
+            temporary / "assets" / "site.js", JS + "\n" + PRESENTATION_JS + "\n"
+        )
 
         overview_body = """
-<header><div class="eyebrow">Greek Apertus · full-corpus review</div><h1>What is in the new data?</h1><p class="lede">A private, receipt-backed view of all 29 post-cutoff or materially changed dataset repositories. Rust metrics are diagnostic; admission remains a lineage, quality, privacy, and cleaning decision.</p></header>
-<main><p class="panel privacy-warning">Sensitive local review material — do not share. High-precision identifier patterns are masked, but generic names, addresses, and identifying context may remain.</p><section class="cards"><div class="card"><div id="repo-count" class="kpi">—</div><div class="label">inventory repositories</div></div><div class="card"><div id="text-count" class="kpi">—</div><div class="label">available or materially changed text repositories</div></div><div class="card"><div id="profiled-count" class="kpi">—</div><div class="label">Rust-profiled repositories</div></div><div class="card"><div id="sample-count" class="kpi">—</div><div class="label">complete local samples</div></div></section><p id="scope-banner" class="panel"></p>
-<h2>Comparison</h2><div class="toolbar"><input id="search" type="search" placeholder="Filter repositories or evaluations"><select id="state"><option value="">All payload states</option></select></div><div class="table-wrap"><table id="repo-table"><thead><tr><th data-sort="repo_id">Repository</th><th data-sort="payload_state">Payload</th><th data-sort="recommended_action">Evaluation</th><th>Rows</th><th>Bytes</th><th>Profiled docs</th><th>HTML rate</th><th>Median Rust badness</th><th>Samples</th></tr></thead><tbody></tbody></table></div>
-<h2>Dataset cards</h2><section id="repo-grid" class="repo-grid"></section></main><footer>Local-only static report. No CDN, analytics, remote fonts, or external requests.</footer>
+<header><div class="eyebrow">Greek Apertus · full-corpus review</div><h1>What is in the new data?</h1><p class="lede">A receipt-backed view of the frozen inventory, acquired payloads, and reviewed document populations. Every claim names its denominator and scope.</p><a class="primary-link" href="documents.html">Browse documents</a></header>
+<main><section class="cards"><div class="card"><div id="repo-count" class="kpi">—</div><div class="label">frozen-inventory repositories</div></div><div class="card"><div id="text-count" class="kpi">—</div><div class="label">sources with acquired payloads</div></div><div class="card"><div id="profiled-count" class="kpi">—</div><div class="label">sources with profile evidence</div></div><div class="card"><div id="sample-count" class="kpi">—</div><div class="label">browseable review documents</div></div></section><p id="scope-banner" class="panel"></p>
+<h2>Source explorer</h2><div class="toolbar"><input id="search" type="search" placeholder="Repository, source ID, assessment"><select id="state"><option value="">All payload states</option></select><select id="route-filter"><option value="">All source routes</option></select><input id="issue-filter" type="search" placeholder="Issue flag"><input id="admission-filter" type="search" placeholder="Admission state"><input id="min-score" type="number" min="0" max="4" step="1" placeholder="Minimum score"></div><div class="table-wrap"><table id="repo-table"><thead><tr><th>Repository</th><th>Source ID</th><th>Route</th><th>Payload</th><th>Assessment</th><th>Profiled docs</th><th>Mean review score</th><th>Documents</th><th>Open</th></tr></thead><tbody></tbody></table></div>
+<section id="waterfall" class="panel"><h2>Pipeline waterfall</h2><p class="muted">Pending until a receipt-bound pipeline summary is supplied.</p></section><section id="provenance" class="panel"></section><h2>Dataset cards</h2><section id="repo-grid" class="repo-grid"></section></main><footer>Local-only static report. No CDN, analytics, remote fonts, or automatic external requests.</footer>
 """.strip()
         write_private(
             temporary / "index.html",
@@ -1803,10 +2097,23 @@ def build_site(args: argparse.Namespace) -> int:
                 page="overview",
             ),
         )
+        documents_body = """
+<header><a class="back" href="index.html">← Source explorer</a><div class="eyebrow">Dataset review</div><h1>Browse documents</h1><p class="lede">Documents are ordered by their receipt-bound site-local identifiers. Use the selector, previous/next controls, or N/Shift+N keyboard navigation.</p></header>
+<main><section class="panel"><div id="document-browser"></div></section></main><footer>Static local document browser. Sample text is loaded on demand and inserted as plain text.</footer>
+""".strip()
+        write_private(
+            temporary / "documents.html",
+            html_shell(
+                title="Browse documents · Dataset review",
+                body=documents_body,
+                base="",
+                page="documents",
+            ),
+        )
         for index, row in enumerate(repositories):
             detail_body = """
-<header><a class="back" href="../index.html">← All datasets</a><div class="eyebrow">Dataset review</div><h1 id="repo-title">Loading…</h1><div id="badges"></div><p id="assessment" class="lede"></p></header>
-<main id="detail"><p class="panel privacy-warning">Sensitive local review material — do not share. High-precision patterns are masked; generic names, addresses, and identifying context may remain.</p><section class="panel"><h2>Inventory and evaluation</h2><dl id="facts"></dl></section><section class="panel"><h2>Cleanliness and Rust diagnostics</h2><div id="quality"></div><p class="muted">Approximate quantiles use a deterministic bounded sample. ToC/BIB values are simple header heuristics, not classifier accuracy or removal authorization. Template concentration is an edge-template diagnostic. A zero badness score with zero Greek characters is explicitly guarded, not labelled clean.</p></section><section class="panel"><h2>Reviewer, variability, and lineage evidence</h2><div id="review-evidence"></div></section><section class="panel"><h2>Inventory notes</h2><ul id="notes"></ul></section><section class="panel"><h2>Review documents</h2><p class="muted">Complete documents have high-precision identifier patterns masked, are stored outside HTML, fetched only when requested, and rendered as plain text. Generic names and addresses may remain.</p><div id="samples"></div></section></main><footer>Diagnostic review page; no cleaning or training admission is implied.</footer>
+<header><a class="back" href="../index.html">← All datasets</a><a class="primary-link" href="../documents.html">Browse documents</a><div class="eyebrow">Dataset review</div><h1 id="repo-title">Loading…</h1><div id="badges"></div><p id="assessment" class="lede"></p></header>
+<main id="detail"><section class="panel"><h2>Inventory and evaluation</h2><dl id="facts"></dl></section><section class="panel"><h2>Review coverage</h2><div id="coverage"></div></section><section class="panel"><h2>Cleanliness and Rust diagnostics</h2><div id="quality"></div><p class="muted">Approximate quantiles use a deterministic bounded sample. ToC/BIB values are simple header heuristics, not classifier accuracy or removal authorization. Template concentration is an edge-template diagnostic. A zero badness score with zero Greek characters is explicitly guarded, not labelled clean.</p></section><section class="panel"><h2>Reviewer, variability, and lineage evidence</h2><div id="review-evidence"></div></section><section class="panel"><h2>Inventory notes</h2><ul id="notes"></ul></section><section class="panel"><p class="muted">A public source excerpt is shown as supplied. An identifier-masked pipeline review sample states its transformation. Text is loaded on demand and rendered as plain text.</p><div id="samples"></div></section></main><footer>Diagnostic review page; no cleaning or training admission is implied.</footer>
 """.strip()
             write_private(
                 temporary / "datasets" / f"{row['slug']}.html",
@@ -1819,6 +2126,19 @@ def build_site(args: argparse.Namespace) -> int:
                 ),
             )
 
+        acceptance_report = getattr(args, "acceptance_report", None)
+        if isinstance(acceptance_report, str) and acceptance_report:
+            acceptance_report += (
+                "\n## Site counts\n\n"
+                f"- Frozen-inventory repositories: {len(repositories)}\n"
+                f"- Acquired payload repositories: {site_data['overview']['text_bearing_or_changed_repositories']}\n"
+                f"- Profiled repositories: {site_data['overview']['profiled_repositories']}\n"
+                f"- Reviewed repositories: {site_data['overview']['reviewed_repositories']}\n"
+                f"- Identifier-masked pipeline review samples: {len(sample_receipts)}\n"
+                f"- Public source excerpts: {len(public_preview_receipts)}\n"
+            )
+            write_private(temporary / "site_acceptance_report.md", acceptance_report)
+
         files = [
             receipt(path, temporary)
             for path in sorted(temporary.rglob("*"))
@@ -1827,12 +2147,15 @@ def build_site(args: argparse.Namespace) -> int:
         manifest = {
             "schema_version": SITE_SCHEMA,
             "status": "passed",
-            "generated_at": utc_now(),
-            "output_root": str(output),
+            "generated_at": getattr(args, "generated_at", None) or utc_now(),
+            "output_root": getattr(args, "manifest_output_root", None) or ".",
             "repository_count": len(repositories),
             "dataset_page_count": len(repositories),
             "complete_sample_count": len(sample_receipts),
             "inputs": {
+                "presentation_handoff": input_receipt(
+                    original_inputs["presentation_handoff"], input_snapshots
+                ),
                 "inventory": input_receipt(
                     original_inputs["inventory"], input_snapshots
                 ),
@@ -1867,6 +2190,12 @@ def build_site(args: argparse.Namespace) -> int:
                 "complete_samples_attestation": input_receipt(
                     original_inputs["complete_samples_attestation"], input_snapshots
                 ),
+                "public_previews": input_receipt(
+                    original_inputs["public_previews"], input_snapshots
+                ),
+                "pipeline_waterfall": input_receipt(
+                    original_inputs["pipeline_waterfall"], input_snapshots
+                ),
             },
             "security": {
                 "bind_address": "127.0.0.1",
@@ -1875,7 +2204,7 @@ def build_site(args: argparse.Namespace) -> int:
                 "sample_text_inserted_with_text_content": True,
                 "file_mode": "0600",
                 "directory_mode": "0700",
-                "sensitive_do_not_share": True,
+                "public_source_material": bool(public_preview_receipts),
                 "opaque_id_key_sha256": hashlib.sha256(site_key).hexdigest(),
             },
             "files": files,
@@ -2067,6 +2396,8 @@ def parse_args() -> argparse.Namespace:
         help="receipt binding the complete sample packet and review requests",
     )
     build.add_argument("--complete-samples-attestation", type=Path)
+    build.add_argument("--public-previews", type=Path)
+    build.add_argument("--pipeline-waterfall", type=Path)
     build.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     build.add_argument("--replace", action="store_true")
     build.set_defaults(function=build_site)

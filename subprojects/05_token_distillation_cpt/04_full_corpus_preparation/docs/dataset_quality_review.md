@@ -1,4 +1,4 @@
-# Dataset quality diagnostics and private review site
+# Dataset quality diagnostics and review site
 
 This lane answers two different questions without conflating them:
 
@@ -145,43 +145,51 @@ cleaner loss. The ToC/BIB header heuristics are not classifier accuracy or
 authorization to delete text; receipt-bound trained-classifier results remain
 pending in the separate structural-cleaning lane.
 
-## Private local site
+## Dataset-review presentation site
 
-Transfer only these compact/private Stage 35 artifacts to the Mac: the quality
-summary, `dataset_quality_site_handoff.json`, Stage30 requests, the masked
-complete-sample packet, its packet receipt, and
-`complete_review_samples_site_attestation.json`. Do not transfer quality
-checkpoint Parquets, sample-export checkpoint fragments, normalized shards, or
-corpus directories. The two compact attestations are generated on Clariden
-after those large dependencies have been rehashed there. Site generation itself
-is lightweight coordination work:
+Agent 3 accepts one compact immutable directory, headed by
+`dataset_review_site_handoff.json`. It contains only receipts, summaries,
+review documents, and any bounded public-preview packet—never Parquet shards,
+corpus exports, checkpoints, or model files. Every member is role-, byte-,
+SHA-256-, schema-, run-ID-, and producer-commit-bound before the static site
+opens it. Public material is labelled **public source excerpt**. A transformed
+copy is labelled **identifier-masked pipeline review sample** and states the
+transformation; neither label makes a confidentiality claim about public source
+data.
+
+Build a staging site from the handoff while Agent 1 is running (a fixture
+handoff produces `UI/fixture ready` only):
 
 ```bash
-python scripts/build_dataset_review_site.py build \
-  --quality-summary /path/to/dataset_quality_summary_v2.json \
-  --quality-handoff-receipt /path/to/dataset_quality_site_handoff.json \
-  --review-requests /path/to/requests.jsonl \
-  --complete-samples /path/to/complete_review_samples.jsonl \
-  --complete-samples-receipt /path/to/complete_review_samples_receipt.json \
-  --complete-samples-attestation /path/to/complete_review_samples_site_attestation.json
+RUN_ID=full-corpus-v3-YYYYMMDD
+STAGING="$HOME/presentations/train-apertus-with-glossapi/full-corpus-v3-dataset-review.staging-$RUN_ID"
+python scripts/build_dataset_review_presentation.py build \
+  --handoff-dir /path/to/agent1-handoff \
+  --output-dir "$STAGING"
 
-python scripts/build_dataset_review_site.py serve
+python scripts/build_dataset_review_site.py serve \
+  --site-dir "$STAGING" --port 8767
 ```
 
-The default target is
-`~/presentations/train-apertus-with-glossapi/full-corpus-v2-dataset-review`.
-The server binds only `127.0.0.1`. The site has 29 dataset pages, no CDN or
-external resources, a restrictive CSP, percentage-formatted rates, and an
-unmissable sample/full-scan scope label. Complete documents live in separate
-mode-0600 JSON files, are fetched only on request, and are inserted with DOM
-`textContent`; corpus HTML never executes. Canonical sample/document IDs never
-enter the site: each build uses an ephemeral random HMAC key to derive opaque
-site-local IDs and filenames. The builder rejects quality fields outside the
-strict aggregate contract, requires exact acquired/normalized identity evidence
-before upgrading an external repository's availability state, and reruns the
-current masker idempotently on every complete document immediately before site
-emission. It snapshots and hashes every local input before parsing, then rehashes
-the same inputs immediately before atomic publication. The manifest binds every
-input and every emitted file, and the local server refuses tampered, extra, or
-symlinked content before binding to `127.0.0.1`. The material remains sensitive
-and must not be shared.
+Publication performs a fresh full handoff rehash, refuses fixture/incomplete
+handoffs and existing targets, verifies every emitted file, and atomically
+renames the staging directory:
+
+```bash
+FINAL="$HOME/presentations/train-apertus-with-glossapi/full-corpus-v3-dataset-review"
+python scripts/build_dataset_review_presentation.py publish \
+  --handoff-dir /path/to/agent1-handoff \
+  --staging-dir "$STAGING" \
+  --output-dir "$FINAL"
+
+python scripts/build_dataset_review_site.py serve \
+  --site-dir "$FINAL" --port 8766
+```
+
+The server binds only `127.0.0.1`. The generated site has no CDN, analytics,
+web fonts, or automatic external requests; uses a strict CSP; keeps opaque
+site-local sample IDs; fetches text JSON only on demand; inserts it with DOM
+`textContent`; and refuses a tampered, extra, or symlinked site file before
+serving. The `site_manifest.json` binds all inputs and output files, while
+`site_acceptance_report.md` provides exact receipts, missing-evidence state,
+commands, and the browser/screenshot checklist.

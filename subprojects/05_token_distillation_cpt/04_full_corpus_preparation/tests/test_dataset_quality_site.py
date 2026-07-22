@@ -39,6 +39,10 @@ EXPORTER = load_module(
     "phase04_export_dataset_review_samples",
     HERE / "scripts" / "export_dataset_review_samples.py",
 )
+PRESENTATION = load_module(
+    "phase04_dataset_review_presentation",
+    HERE / "scripts" / "build_dataset_review_presentation.py",
+)
 SOURCES_CONFIG = HERE / "configs" / "sources.json"
 
 
@@ -879,6 +883,15 @@ def test_evaluations_cover_exact_29_repository_inventory() -> None:
         )
         == "external_unavailable"
     )
+
+
+def test_inventory_loader_accepts_receipt_bound_roster_changes(tmp_path: Path) -> None:
+    inventory = tracked_inventory()
+    inventory["post_cutoff_repositories"] = inventory["post_cutoff_repositories"][:-1]
+    path = tmp_path / "inventory.json"
+    path.write_text(json.dumps(inventory), encoding="utf-8")
+    loaded = SITE.load_inventory(path)
+    assert len(loaded) == 28
 
 
 def test_site_build_is_offline_complete_and_safe_for_hostile_sample(
@@ -3228,9 +3241,154 @@ def test_new_json_schemas_are_parseable_and_versioned() -> None:
         ),
         "dataset_review_site_sample.schema.json": "dataset_review_site_sample_v1",
         "dataset_review_site_manifest.schema.json": "dataset_review_site_manifest_v1",
+        "dataset_review_presentation_handoff.schema.json": (
+            "dataset_review_presentation_handoff_v1"
+        ),
     }
     for name, version in expected.items():
         value = json.loads((HERE / "schemas" / name).read_text())
         assert value["$schema"].endswith("2020-12/schema")
         schema_version = value["properties"]["schema_version"]
         assert schema_version["const"] == version
+
+
+def write_presentation_handoff(tmp_path: Path, *, kind: str = "fixture") -> Path:
+    handoff = tmp_path / "handoff"
+    handoff.mkdir()
+    entries = []
+    for role, source, schema_version in (
+        ("inventory", HERE / "configs" / "post_december_inventory.json", "post_december_glossapi_inventory_v1"),
+        ("evaluations", HERE / "configs" / "dataset_review_evaluations.json", "dataset_review_evaluations_v1"),
+        ("sources_config", SOURCES_CONFIG, "full_cpt_sources_v1"),
+    ):
+        target = handoff / source.name
+        shutil.copy2(source, target)
+        entries.append(
+            {
+                "role": role,
+                "path": target.name,
+                "bytes": target.stat().st_size,
+                "sha256": QUALITY.sha256_file(target),
+                "schema_version": schema_version,
+            }
+        )
+    (handoff / "dataset_review_site_handoff.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "dataset_review_presentation_handoff_v1",
+                "status": "passed",
+                "run_id": "fixture-20260712",
+                "producer_commit": "a" * 40,
+                "created_at": "2026-07-12T00:00:00Z",
+                "handoff_kind": kind,
+                "files": entries,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return handoff
+
+
+def test_presentation_handoff_build_is_deterministic_and_closed(tmp_path: Path) -> None:
+    handoff = write_presentation_handoff(tmp_path)
+    first = tmp_path / "first"
+    second = tmp_path / "second"
+    assert PRESENTATION.build(
+        SimpleNamespace(handoff_dir=handoff, output_dir=first)
+    ) == 0
+    assert PRESENTATION.build(
+        SimpleNamespace(handoff_dir=handoff, output_dir=second)
+    ) == 0
+    assert PRESENTATION.validate_site_directory(first)["status"] == "passed"
+    first_files = {
+        item.relative_to(first): QUALITY.sha256_file(item)
+        for item in first.rglob("*")
+        if item.is_file()
+    }
+    second_files = {
+        item.relative_to(second): QUALITY.sha256_file(item)
+        for item in second.rglob("*")
+        if item.is_file()
+    }
+    assert first_files == second_files
+    report = (first / "site_acceptance_report.md").read_text(encoding="utf-8")
+    assert "fixture-20260712" in report
+    assert "public/masked variant toggle" in report
+    assert 'href="documents.html"' in (first / "index.html").read_text()
+    assert "textContent=doc.text" in (first / "assets" / "site.js").read_text()
+    stylesheet = (first / "assets" / "site.css").read_text()
+    assert "dd{overflow-wrap:anywhere}" in stylesheet
+    assert ".coverage-table{min-width:0;table-layout:fixed}" in stylesheet
+
+
+def test_presentation_handoff_rejects_extra_file_and_symlink(tmp_path: Path) -> None:
+    handoff = write_presentation_handoff(tmp_path)
+    (handoff / "extra.json").write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError, match="directory closure"):
+        PRESENTATION.accept_handoff(handoff, require_complete=False)
+    (handoff / "extra.json").unlink()
+    (handoff / "linked.json").symlink_to(handoff / "post_december_inventory.json")
+    with pytest.raises(ValueError, match="symlink"):
+        PRESENTATION.accept_handoff(handoff, require_complete=False)
+
+
+def test_fixture_handoff_cannot_be_published(tmp_path: Path) -> None:
+    handoff = write_presentation_handoff(tmp_path)
+    with pytest.raises(ValueError, match="only an Agent-1 handoff"):
+        PRESENTATION.accept_handoff(handoff, require_complete=True)
+
+
+def test_public_preview_is_plainly_labelled_and_browseable(tmp_path: Path) -> None:
+    source = source_identities()["diavgeia"]
+    text = "</script><img src=x onerror=alert(1)> δημόσιο δείγμα"
+    sample_id = hashlib.sha256(b"public-preview").hexdigest()
+    previews = tmp_path / "public-previews.json"
+    previews.write_text(
+        json.dumps(
+            {
+                "schema_version": "dataset_review_public_sample_packet_v1",
+                "samples": [
+                    {
+                        "schema_version": "dataset_review_public_sample_v1",
+                        "sample_id": sample_id,
+                        "repo_id": "glossAPI/diavgeia",
+                        "source_revision": source["revision"],
+                        "source_document_id": "public-document-1",
+                        "displayed_text_is_excerpt": True,
+                        "displayed_text_characters": len(text),
+                        "displayed_text_sha256": hashlib.sha256(text.encode()).hexdigest(),
+                        "text": text,
+                        "metadata": {"kind": "fixture"},
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    output = tmp_path / "site"
+    SITE.build_site(
+        SimpleNamespace(
+            inventory=HERE / "configs" / "post_december_inventory.json",
+            evaluations=HERE / "configs" / "dataset_review_evaluations.json",
+            sources_config=SOURCES_CONFIG,
+            quality_summary=None,
+            quality_handoff_receipt=None,
+            review_requests=None,
+            review_responses=None,
+            admission=None,
+            novelty=None,
+            complete_samples=None,
+            complete_samples_receipt=None,
+            complete_samples_attestation=None,
+            public_previews=previews,
+            pipeline_waterfall=None,
+            output_dir=output,
+            replace=False,
+        )
+    )
+    sample = json.loads(next((output / "samples").glob("*-public.json")).read_text())
+    assert sample["label"] == "public source excerpt"
+    assert sample["high_precision_identifier_patterns_masked"] is False
+    assert text not in (output / "documents.html").read_text()
+    assert "Browse documents" in (output / "documents.html").read_text()
+    assert "textContent=doc.text" in (output / "assets" / "site.js").read_text()
