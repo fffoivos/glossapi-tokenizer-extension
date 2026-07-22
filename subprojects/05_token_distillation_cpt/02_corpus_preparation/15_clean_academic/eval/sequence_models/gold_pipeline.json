@@ -1,0 +1,42 @@
+{
+  "schema_version": "academic-structure-gold-pipeline-v1",
+  "seed": "academic-structure-human-gold-20260712",
+  "documents_per_source": 500,
+  "candidate_reserve_multiplier": 4,
+  "minimum_test_documents_per_source": 150,
+  "minimum_double_annotated_test_fraction": 0.2,
+  "packet_schema_version": "academic-structure-human-packet-v1",
+  "annotation_schema_version": "academic-structure-human-annotation-v1",
+  "adjudication_schema_version": "academic-structure-human-adjudication-v1",
+  "human_attestation": "I attest that these judgments were made by a human reviewer without using model-generated labels as human evidence.",
+  "routes": [
+    {
+      "phase04_route_id": "greek_phd",
+      "gold_source": "greek_phd"
+    },
+    {
+      "phase04_route_id": "openarchives",
+      "gold_source": "openarchives.gr"
+    },
+    {
+      "phase04_route_id": "kallipos",
+      "gold_source": "Apothetirio_Kallipos"
+    },
+    {
+      "phase04_route_id": "pergamos",
+      "gold_source": "Apothetirio_Pergamos"
+    }
+  ],
+  "identity_contract": {
+    "document_id": "sha256(academic-structure-document-v1\\0gold_source\\0source_doc_id)",
+    "work_id": "sha256(academic-structure-work-v1\\0gold_source\\0work_key_or_source_doc_id)",
+    "representation_id": "sha256(academic-structure-representation-v1\\0route_revision\\0artifact_path\\0row_group\\0row_offset\\0text_sha256)",
+    "exact_text_hash": "sha256(utf8_text)",
+    "sample_priority": "sha256(seed\\0gold_source\\0source_doc_id\\0text_sha256)"
+  },
+  "tokenizer": {
+    "id": "ModernGreek-148k",
+    "revision": "a4826df7f76b54cdd6dc21d09fe97283c466999b",
+    "tokenizer_json_sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394"
+  }
+}

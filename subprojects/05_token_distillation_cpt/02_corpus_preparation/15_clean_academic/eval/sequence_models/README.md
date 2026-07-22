@@ -56,6 +56,12 @@ replacement artifacts are never treated as interchangeable or silently preferred
 script is `04_full_corpus_preparation/clariden/07_rehydrate_span_silver.sbatch`; it is intentionally not
 part of the corpus-production submission DAG.
 
+## Human-gold replacement workflow
+
+The operational replacement workflow is [HUMAN_GOLD_RUNBOOK.md](HUMAN_GOLD_RUNBOOK.md). It streams the
+four receipt-bound canonical Phase-04 Parquet routes into blind, full-physical-line human packets and
+imports only independently attested human annotations plus required human adjudication.
+
 ## Evidence contracts
 
 `LLM_silver` is fit/comparison evidence only. It uses immutable identities, exact-text leak checks,
