@@ -86,6 +86,9 @@ INPUT_PATH_FLAGS = frozenset(
         "--train-table-dir", "--train-quality-decisions", "--validation-quality-decisions",
         "--validation-policy",
         "--barrier-artifact", "--left-barrier-artifact", "--right-barrier-artifact",
+        "--heading-model-dir", "--heading-training-table-dir",
+        "--heading-training-base-table-dir", "--heading-documents",
+        "--heading-entry-probability",
     }
 )
 OUTPUT_PATH_FLAGS = frozenset({"--output", "--output-dir", "--output-rows", "--output-report"})
@@ -131,6 +134,9 @@ ALLOWED_RUNNER_FLAGS = {
         "--table-dir", "--baseline-prediction", "--signal-probability", "--scope-mask",
         "--barrier-artifact", "--header-roles", "--qualified-documents", "--operation",
         "--threshold", "--max-lines", "--output-dir", "--code-commit", "--slurm-job-id",
+        "--heading-model-dir", "--heading-training-table-dir",
+        "--heading-training-base-table-dir", "--heading-documents",
+        "--heading-entry-probability", "--heading-assignment-threshold",
     },
     "sequence_models.bibliography_evolution_signal_pipeline": {
         "--input", "--train-table-dir", "--line-oof-dir", "--block-oof-dir",
@@ -462,15 +468,47 @@ def validate_candidate_spec(spec: Mapping[str, Any]) -> None:
             if index >= len(argv) or argv[index].startswith("--"):
                 raise ContractError(f"runner flag requires one value: {flag}")
             index += 1
-    optional = {"--header-roles"} if module.endswith("postprocess") else set()
+    heading_learned_flags = {
+        "--heading-model-dir", "--heading-training-table-dir",
+        "--heading-training-base-table-dir", "--heading-documents",
+        "--heading-entry-probability", "--heading-assignment-threshold",
+    }
+    optional = (
+        {"--header-roles", *heading_learned_flags}
+        if module.endswith("postprocess")
+        else set()
+    )
     if not (allowed_flags - optional).issubset(seen_flags):
         raise ContractError(
             f"runner misses required flags: {sorted((allowed_flags - optional) - seen_flags)}"
         )
     if module.endswith("postprocess"):
         operation = argv[argv.index("--operation") + 1]
-        if (operation == "header_controller") != ("--header-roles" in seen_flags):
-            raise ContractError("header_controller alone requires --header-roles")
+        deterministic = "--header-roles" in seen_flags
+        learned_count = len(heading_learned_flags & seen_flags)
+        learned = learned_count > 0
+        if learned and learned_count != len(heading_learned_flags):
+            raise ContractError("learned header controller requires its complete inference contract")
+        if operation == "header_controller":
+            if deterministic == learned:
+                raise ContractError("header_controller requires exactly one heading backend")
+            backend = str(
+                spec["changes"]["headers.role_controller"]["parameters"].get("backend")
+            )
+            if (backend == "deterministic") != deterministic or (
+                backend == "learned_argmax"
+            ) != learned:
+                raise ContractError("heading backend flags differ from the changed parameters")
+            if learned:
+                parameters = spec["changes"]["headers.role_controller"]["parameters"]
+                threshold = float(argv[argv.index("--heading-assignment-threshold") + 1])
+                if (
+                    threshold != float(parameters.get("heading_assignment_threshold", -1))
+                    or parameters.get("inference_mode") != "unseen_ensemble_mean"
+                ):
+                    raise ContractError("learned heading threshold/mode differs from candidate spec")
+        elif deterministic or learned:
+            raise ContractError("heading inputs are reserved for header_controller")
     unresolved = _UNRESOLVED.search(json.dumps(spec, sort_keys=True))
     if unresolved:
         raise ContractError(f"unresolved template binding: {unresolved.group(0)}")

@@ -200,7 +200,73 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     baseline = _load_array(args.baseline_prediction, n, dtype=bool)
     signal = _load_array(args.signal_probability, n, dtype=np.float32)
     scope = _load_array(args.scope_mask, n, dtype=bool)
-    header_roles = _load_array(args.header_roles, n, dtype=np.uint8)
+    learned_heading_values = (
+        getattr(args, "heading_model_dir", None),
+        getattr(args, "heading_training_table_dir", None),
+        getattr(args, "heading_training_base_table_dir", None),
+        getattr(args, "heading_documents", None),
+        getattr(args, "heading_entry_probability", None),
+    )
+    header_roles_path = getattr(args, "header_roles", None)
+    learned_heading = any(value is not None for value in learned_heading_values)
+    if learned_heading != all(value is not None for value in learned_heading_values):
+        raise ValueError("learned heading inference requires its complete five-input contract")
+    if learned_heading and header_roles_path:
+        raise ValueError("learned and precomputed header roles are mutually exclusive")
+    if args.operation == "header_controller" and not (learned_heading or header_roles_path):
+        raise ValueError("header controller requires deterministic or learned roles")
+    if args.operation != "header_controller" and (learned_heading or header_roles_path):
+        raise ValueError("heading inputs are reserved for the header controller")
+    output = Path(args.output_dir).resolve()
+    if output.exists() or output.is_symlink():
+        raise FileExistsError(output)
+    heading_inference: dict[str, Any] | None = None
+    if learned_heading:
+        from .bibliography_heading_deployment import (
+            deployment_proofs,
+            load_document_rows,
+            materialize_deployment,
+            predict_documents,
+        )
+
+        output.mkdir(parents=True)
+        deployment_root = output / "heading_deployment"
+        deployment_receipt = materialize_deployment(
+            Path(args.heading_model_dir),
+            Path(args.heading_training_table_dir),
+            Path(args.heading_training_base_table_dir),
+            deployment_root,
+        )
+        entry_probability = _load_array(
+            args.heading_entry_probability, n, dtype=np.float32
+        )
+        header_roles, heading_probability, heading_candidates = predict_documents(
+            deployment_root,
+            table,
+            load_document_rows(Path(args.heading_documents)),
+            entry_probability,
+            assignment_threshold=float(getattr(args, "heading_assignment_threshold", 0.5)),
+        )
+        with (output / "learned_heading_probability.npy").open("xb") as handle:
+            np.save(handle, heading_probability, allow_pickle=False)
+        with (output / "learned_heading_candidate_mask.npy").open("xb") as handle:
+            np.save(handle, heading_candidates, allow_pickle=False)
+        with (output / "learned_heading_role_ids.npy").open("xb") as handle:
+            np.save(handle, header_roles, allow_pickle=False)
+        heading_inference = {
+            "backend": "learned_argmax",
+            "mode": "unseen_ensemble_mean",
+            "assignment_threshold": float(getattr(args, "heading_assignment_threshold", 0.5)),
+            "candidate_count": int(np.count_nonzero(heading_candidates)),
+            "assigned_count": int(np.count_nonzero(header_roles)),
+            "deployment_receipt_sha256": _sha256(deployment_receipt),
+            "deployment_file_count": len(deployment_proofs(deployment_root)),
+            "training_inference_work_overlap": 0,
+        }
+    else:
+        header_roles = _load_array(header_roles_path, n, dtype=np.uint8)
+        if args.operation == "header_controller":
+            heading_inference = {"backend": "deterministic", "mode": "precomputed_exact_roles"}
     upward_stop = np.zeros(n, dtype=bool)
     downward_stop = np.zeros(n, dtype=bool)
     if args.barrier_artifact:
@@ -263,10 +329,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             }
         )
     prediction[:] = current
-    output = Path(args.output_dir).resolve()
-    if output.exists() or output.is_symlink():
-        raise FileExistsError(output)
-    output.mkdir(parents=True)
+    if not output.exists():
+        output.mkdir(parents=True)
     prediction_path = output / "prediction.npy"
     with prediction_path.open("xb") as handle:
         np.save(handle, prediction, allow_pickle=False)
@@ -287,6 +351,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "module_trace": trace,
         "threshold": float(args.threshold),
         "max_lines": int(args.max_lines),
+        "heading_inference": heading_inference,
         "code_commit": args.code_commit,
         "slurm_job_id": args.slurm_job_id,
         "inputs": {
@@ -320,6 +385,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--signal-probability", required=True)
     parser.add_argument("--scope-mask", required=True)
     parser.add_argument("--header-roles")
+    parser.add_argument("--heading-model-dir")
+    parser.add_argument("--heading-training-table-dir")
+    parser.add_argument("--heading-training-base-table-dir")
+    parser.add_argument("--heading-documents")
+    parser.add_argument("--heading-entry-probability")
+    parser.add_argument("--heading-assignment-threshold", type=float, default=0.5)
     parser.add_argument("--barrier-artifact")
     parser.add_argument("--qualified-documents", required=True)
     parser.add_argument("--operation", choices=OPERATIONS, required=True)

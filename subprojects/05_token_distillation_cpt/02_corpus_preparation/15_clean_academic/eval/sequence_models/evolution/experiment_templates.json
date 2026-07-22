@@ -121,14 +121,14 @@
       "hypothesis": "Changing only the heading-role backend from deterministic to learned probabilities improves multilingual boundary decisions without allowing headings to seed blocks.",
       "changed_component": "headers.role_controller",
       "parameter_family": "learned_heading_windows",
-      "changes": {"headers.role_controller": {"parameter_family": "learned_heading_windows", "parameters": {"header_window": "${header_window}", "backend": "learned_argmax"}}},
-      "sweep_grid": {"header_window": [1, 2, 3, 4]},
+      "changes": {"headers.role_controller": {"parameter_family": "learned_heading_windows", "parameters": {"header_window": "${header_window}", "backend": "learned_argmax", "heading_assignment_threshold": "${heading_assignment_threshold}", "inference_mode": "unseen_ensemble_mean"}}},
+      "sweep_grid": {"header_window": [1, 2, 3, 4], "heading_assignment_threshold": [0.3, 0.4, 0.5, 0.6, 0.7]},
       "seeds": [20260718],
       "expected_direction": {"token_fp": "decrease", "mean_boundary_error_emitted_lines": "decrease"},
       "acceptance_rule": {"headline_documents": 268, "headers_are_non_seeds": true, "non_bib_headers_never_included": true, "pareto_eligible": true},
       "code_commit": "${CODE_COMMIT}", "leakage_policy_sha256": "${LEAKAGE_POLICY_SHA256}",
       "input_receipts": "${G2_INPUT_RECEIPTS}",
-      "runner": {"module": "sequence_models.bibliography_evolution_postprocess", "argv": ["--table-dir", "${VALIDATION_TABLE_DIR}", "--baseline-prediction", "${PARENT_PREDICTION}", "--signal-probability", "${VALIDATION_SIGNAL_PROBABILITY}", "--scope-mask", "${VALIDATION_SCOPE_MASK}", "--barrier-artifact", "${PARENT_BARRIER_ARTIFACT}", "--header-roles", "${LEARNED_HEADER_ROLE_IDS}", "--qualified-documents", "${QUALIFIED_268_IDS}", "--operation", "header_controller", "--threshold", "0", "--max-lines", "${header_window}", "--output-dir", "@CANDIDATE_DIR@/backend", "--code-commit", "${CODE_COMMIT}", "--slurm-job-id", "@SLURM_JOB_ID@"]}
+      "runner": {"module": "sequence_models.bibliography_evolution_postprocess", "argv": ["--table-dir", "${VALIDATION_TABLE_DIR}", "--baseline-prediction", "${PARENT_PREDICTION}", "--signal-probability", "${VALIDATION_SIGNAL_PROBABILITY}", "--scope-mask", "${VALIDATION_SCOPE_MASK}", "--barrier-artifact", "${PARENT_BARRIER_ARTIFACT}", "--heading-model-dir", "${HEADING_OOF_DIR}", "--heading-training-table-dir", "${HEADING_TRAINING_TABLE_DIR}", "--heading-training-base-table-dir", "${HEADING_TRAINING_BASE_TABLE_DIR}", "--heading-documents", "${VALIDATION_DOCUMENTS}", "--heading-entry-probability", "${VALIDATION_LINE_PROBABILITY}", "--heading-assignment-threshold", "${heading_assignment_threshold}", "--qualified-documents", "${QUALIFIED_268_IDS}", "--operation", "header_controller", "--threshold", "0", "--max-lines", "${header_window}", "--output-dir", "@CANDIDATE_DIR@/backend", "--code-commit", "${CODE_COMMIT}", "--slurm-job-id", "@SLURM_JOB_ID@"]}
     },
     {
       "schema_version": "bibliography-evolution-candidate-v1",

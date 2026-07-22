@@ -76,6 +76,27 @@ TABLE_RECEIPT_SCHEMA = "bibliography-evolution-sealed-feature-table-v1"
 DERIVATION_SCHEMA = "bibliography-evolution-sealed-candidate-derivation-v1"
 EXPECTED_SOURCES = {"greek_phd": 50, "kallipos": 50, "openarchives": 50}
 HEX64 = frozenset("0123456789abcdef")
+RUNTIME_CODE_FILES = (
+    "bibliography_evolution.py",
+    "bibliography_evolution_sealed_inference.py",
+    "bibliography_evolution_contract.py",
+    "bibliography_evolution_composition.py",
+    "bibliography_evolution_headers.py",
+    "bibliography_evolution_postprocess.py",
+    "bibliography_heading_deployment.py",
+    "bibliography_role_experts.py",
+    "bibliography_role_features.py",
+    "bibliography_entry_blocks.py",
+    "bibliography_entry_dataset.py",
+    "bibliography_entry_models.py",
+    "bibliography_signal_block_decode.py",
+    "bibliography_signal_tcn.py",
+    "bibliography_signal_validation.py",
+    "bibliography_deterministic_roles.py",
+    "bibliography_scope_rules.py",
+    "bibliography_v2.py",
+    "deterministic_structure.py",
+)
 
 
 def _require(condition: bool, message: str) -> None:
@@ -624,11 +645,6 @@ def _postprocess(
     max_lines = int(_arg(spec, "--max-lines"))
     barriers = {name: np.asarray(value, dtype=bool).copy() for name, value in parent_barriers.items()}
     if operation == "header_controller":
-        backend = str(spec["changes"]["headers.role_controller"]["parameters"].get("backend"))
-        _require(
-            backend == "deterministic",
-            "learned header candidate has no receipt-bound deployable inference model",
-        )
         from .bibliography_evolution_headers import predecoder_walls
 
         upward, downward = predecoder_walls(header_roles)
@@ -766,8 +782,37 @@ def run_inference(
             prediction, barrier = _decode(table, base_signal, line, scope, _runner_block_config(spec))
         elif generation in {"G2", "G3"}:
             _require(len(parents) == 1, f"{generation} requires one parent")
+            local_header_roles = header_roles
+            if generation == "G2" and component == "headers.role_controller":
+                parameters = spec["changes"]["headers.role_controller"]["parameters"]
+                backend = str(parameters.get("backend"))
+                if backend == "learned_argmax":
+                    from .bibliography_heading_deployment import (
+                        deployment_proofs,
+                        predict_documents,
+                    )
+
+                    deployment_root = node.receipt_path.parent / "backend" / "heading_deployment"
+                    local_header_roles, _heading_probability, _heading_candidates = predict_documents(
+                        deployment_root,
+                        table,
+                        documents,
+                        line,
+                        assignment_threshold=float(
+                            parameters.get("heading_assignment_threshold", 0.5)
+                        ),
+                    )
+                    model_proofs = deployment_proofs(deployment_root)
+                    owned = _owned_artifacts(node)
+                    for proof in model_proofs:
+                        _require(
+                            owned.get(str(Path(proof["path"]))) == proof["sha256"],
+                            "learned G2 heading artifact is not candidate-owned",
+                        )
+                else:
+                    _require(backend == "deterministic", "unsupported G2 heading backend")
             prediction, barrier = _postprocess(
-                table, parents[0][0], parents[0][1], base_signal, header_roles, spec
+                table, parents[0][0], parents[0][1], base_signal, local_header_roles, spec
             )
         elif generation == "G4":
             _require(len(parents) == 1 and component.startswith("signal."), "G4 lineage invalid")
@@ -1154,10 +1199,22 @@ def verify_inference_receipt(
                 and owned.get(str(path)) == artifact.get("sha256"),
                 "candidate-specific model artifact is not receipt-owned",
             )
-        if spec["generation"] == "G4":
-            _require(bool(model_artifacts), "G4 prediction lacks candidate-owned model proof")
+        learned_g2 = (
+            spec["generation"] == "G2"
+            and spec["changed_component"] == "headers.role_controller"
+            and spec["changes"]["headers.role_controller"]["parameters"].get("backend")
+            == "learned_argmax"
+        )
+        if spec["generation"] == "G4" or learned_g2:
+            _require(
+                bool(model_artifacts),
+                "learned candidate prediction lacks candidate-owned model proof",
+            )
         else:
-            _require(not model_artifacts, "non-G4 candidate unexpectedly substitutes a model")
+            _require(
+                not model_artifacts,
+                "model-free candidate unexpectedly substitutes a model",
+            )
         prediction_hashes[candidate_id] = sha256_file(prediction_path)
 
     frontier_rows = receipt.get("candidates")

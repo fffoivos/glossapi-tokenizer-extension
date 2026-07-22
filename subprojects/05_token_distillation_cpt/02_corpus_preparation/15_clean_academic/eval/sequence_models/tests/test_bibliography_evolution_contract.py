@@ -551,6 +551,8 @@ def test_all_templates_expand_to_valid_executable_specs() -> None:
         "VALIDATION_TABLE_DIR", "PARENT_BARRIER_ARTIFACT", "LEFT_BARRIER_ARTIFACT",
         "RIGHT_BARRIER_ARTIFACT", "TRAIN_RECALL_BLOCK_DIR",
         "VALIDATION_QUALITY_DECISIONS", "VALIDATION_POLICY",
+        "VALIDATION_DOCUMENTS", "HEADING_OOF_DIR", "HEADING_TRAINING_TABLE_DIR",
+        "HEADING_TRAINING_BASE_TABLE_DIR",
     )}
     def inputs_for(*parent_ids: str, registry: bool = False) -> dict:
         result = _input_receipts()
