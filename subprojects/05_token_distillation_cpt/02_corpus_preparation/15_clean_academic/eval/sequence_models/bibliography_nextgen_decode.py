@@ -23,7 +23,7 @@ from .bibliography_nextgen_table import SCHEMA_VERSION as TABLE_SCHEMA
 from .contract import sha256_file
 
 
-SCHEMA_VERSION = "bibliography-nextgen-block-oof-v4"
+SCHEMA_VERSION = "bibliography-nextgen-block-oof-v5"
 
 
 @dataclass(frozen=True)
@@ -44,6 +44,7 @@ class DecoderConfig:
     emit_markdown_headings: bool = True
     gated_bib_heading_window: int = 0
     gated_bib_heading_require_lexicon: bool = False
+    sandwiched_subheader_probability: float = 1.01
     conditioned_long_line_expansion: bool = False
     apply_auxiliary_scope_veto: bool = False
 
@@ -278,11 +279,20 @@ def decode_document(
             # Main bibliography headings may be emitted only immediately above
             # a kept component, with no kept line above. Subheadings are
             # connectors and survive only when sandwiched inside the component.
-            eligible_subheaders = subheaders & (
+            # A subheading sandwiched between accepted bibliography lines is
+            # almost always part of the bibliography even when its text is not
+            # in the lexicon; development shows 1,897 gold against 25 non-gold,
+            # and none at all above a 0.7 subheader probability.
+            lexicon_ok = (
                 bib_heading_lexicon
                 if config.gated_bib_heading_require_lexicon
                 else np.ones(len(result), dtype=bool)
             )
+            probable_ok = (
+                features[:, names["probability:bib_subheader"]]
+                >= config.sandwiched_subheader_probability
+            )
+            eligible_subheaders = subheaders & (lexicon_ok | probable_ok)
             allowed |= (
                 eligible_subheaders
                 & np.r_[False, result[:-1]]
@@ -465,6 +475,13 @@ def _selection_key(row: Mapping[str, Any]) -> tuple[float, ...]:
     )
 
 
+_HEADING_VARIANTS = (
+    (0, False, 1.01),
+    (2, True, 1.01),
+    (2, True, 0.70),
+)
+
+
 def _grid() -> list[DecoderConfig]:
     return [
         DecoderConfig(
@@ -476,12 +493,13 @@ def _grid() -> list[DecoderConfig]:
             single,
             anchors_required=anchors,
             emit_markdown_headings=False,
-            gated_bib_heading_window=heading_window,
-            gated_bib_heading_require_lexicon=bool(heading_window),
+            gated_bib_heading_window=heading[0],
+            gated_bib_heading_require_lexicon=heading[1],
+            sandwiched_subheader_probability=heading[2],
             conditioned_long_line_expansion=True,
             apply_auxiliary_scope_veto=True,
         )
-        for anchor, inside, window, bridge, expansion, single, anchors, heading_window in itertools.product(
+        for anchor, inside, window, bridge, expansion, single, anchors, heading in itertools.product(
             (0.75, 0.90, 0.95, 0.98),
             (0.30, 0.60),
             (8, 16),
@@ -489,7 +507,7 @@ def _grid() -> list[DecoderConfig]:
             (0, 1),
             (False, True),
             (2, 3),
-            (0, 2),
+            _HEADING_VARIANTS,
         )
         if inside < anchor
     ]

@@ -23,7 +23,7 @@ from numpy.lib.format import open_memmap
 from .bibliography_entry_dataset import FEATURE_NAMES, LABEL_TO_ID
 from .bibliography_entry_models import load_table
 from .bibliography_positional_models import load_positional_table
-from .deterministic_structure import BibRole, analyze_bib_line
+from .deterministic_structure import BibRole, _heading_key, analyze_bib_line
 from .bibliography_role_experts import (
     CONNECTOR_PROBABILITY_COLUMNS,
     HEADING_PROBABILITY_COLUMNS,
@@ -32,7 +32,7 @@ from .bibliography_role_features import GAP_SUMMARY_NAMES, LINE_SHAPE_NAMES, lin
 from .contract import sha256_file
 
 
-SCHEMA_VERSION = "bibliography-nextgen-full-table-v2"
+SCHEMA_VERSION = "bibliography-nextgen-full-table-v3"
 ROLE_PROBABILITY_NAMES = (
     "entry",
     "continuation",
@@ -45,6 +45,67 @@ ROLE_PROBABILITY_NAMES = (
 _MARKDOWN_HEADING = re.compile(r"^\s*#{1,6}\s+\S")
 _IMAGE_MARKER = re.compile(r"^\s*<!--\s*image\s*-->\s*$", re.IGNORECASE)
 _RULE_LINE = re.compile(r"^[\s_—–\-.]{4,}$")
+# `_heading_key` strips an ATX prefix but not a section number, so headings such
+# as "## 5. References" and "## [ΒΙΒΛΙΟΓΡΑΦΙΑ]" never reach the lexicon. These
+# retries are local to the next-generation table so that every other consumer of
+# `analyze_bib_line` keeps its exact frozen behaviour.
+_ATX_PREFIX = re.compile(r"^\s*#{1,6}\s*")
+_SECTION_PREFIX = re.compile(
+    r"^\s*(?:#{1,6}\s*)?"
+    r"(?:(?:\(?[0-9]+(?:[.\-][0-9]+)*\)?|\(?[IVXLCivxlc]+\)?|\(?[Α-ΩA-Za-zα-ω]\)?)[.):]?\s+)+"
+)
+_WRAPPERS = re.compile(r"^[\s\[\(«\"'`.\-–—]+|[\s\]\)»\"'`.\-–—]+$")
+# Bibliography subheadings observed as gold BIB section headings in development
+# with no non-BIB occurrence. Registered as subheadings, not headings, so they
+# are only ever emitted when sandwiched inside an accepted component.
+_EXTRA_BIB_SUBHEADINGS = frozenset(
+    {
+        "βιβλια",
+        "books",
+        "κεφαλαια σε βιβλια",
+        "αρθρα",
+        "αρχεια",
+        "διαδικτυο",
+        "διαδικτυακες πηγες",
+        "διαδικτυακοι τοποι",
+        "ιστοτοποι",
+        "αλλες πηγες",
+        "βιβλιογραφικες πηγες",
+        "βιβλιογραφια κεφαλαιου",
+        "διεθνης βιβλιογραφια",
+        "ξενη",
+        "ξενογλωσσα",
+        "ελληνικα",
+        "βοηθηματα",
+        "list of references",
+    }
+)
+
+
+def bib_heading_lexicon_match(text: str, abs_idx: int) -> bool:
+    """Return whether a line is a bibliography heading by exact lexicon match."""
+
+    if analyze_bib_line(text, abs_idx).role in {BibRole.HEADING, BibRole.SUBHEADING}:
+        return True
+    body = _ATX_PREFIX.sub("", text)
+    candidates = (
+        _SECTION_PREFIX.sub("", text),
+        _WRAPPERS.sub("", body),
+        _WRAPPERS.sub("", _SECTION_PREFIX.sub("", text)),
+    )
+    for candidate in candidates:
+        candidate = candidate.strip()
+        if not candidate or candidate == body.strip():
+            continue
+        if analyze_bib_line(f"## {candidate}", abs_idx).role in {
+            BibRole.HEADING,
+            BibRole.SUBHEADING,
+        }:
+            return True
+    for candidate in (body, *candidates):
+        if _heading_key(candidate) in _EXTRA_BIB_SUBHEADINGS:
+            return True
+    return False
 
 
 def feature_names() -> tuple[str, ...]:
@@ -210,9 +271,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             image = int(bool(_IMAGE_MARKER.match(text)))
             table_row = int(bool(table.counts[absolute, table_feature]))
             rule_line = int(bool(_RULE_LINE.fullmatch(text)))
-            bib_role = analyze_bib_line(text, int(line["abs_idx"])).role
             bib_heading_lexicon = int(
-                markdown and bib_role in {BibRole.HEADING, BibRole.SUBHEADING}
+                markdown and bib_heading_lexicon_match(text, int(line["abs_idx"]))
             )
             markdown_count += markdown
             image_count += image
