@@ -23,6 +23,7 @@ from numpy.lib.format import open_memmap
 from .bibliography_entry_dataset import FEATURE_NAMES, LABEL_TO_ID
 from .bibliography_entry_models import load_table
 from .bibliography_positional_models import load_positional_table
+from .deterministic_structure import BibRole, analyze_bib_line
 from .bibliography_role_experts import (
     CONNECTOR_PROBABILITY_COLUMNS,
     HEADING_PROBABILITY_COLUMNS,
@@ -31,7 +32,7 @@ from .bibliography_role_features import GAP_SUMMARY_NAMES, LINE_SHAPE_NAMES, lin
 from .contract import sha256_file
 
 
-SCHEMA_VERSION = "bibliography-nextgen-full-table-v1"
+SCHEMA_VERSION = "bibliography-nextgen-full-table-v2"
 ROLE_PROBABILITY_NAMES = (
     "entry",
     "continuation",
@@ -43,6 +44,7 @@ ROLE_PROBABILITY_NAMES = (
 )
 _MARKDOWN_HEADING = re.compile(r"^\s*#{1,6}\s+\S")
 _IMAGE_MARKER = re.compile(r"^\s*<!--\s*image\s*-->\s*$", re.IGNORECASE)
+_RULE_LINE = re.compile(r"^[\s_—–\-.]{4,}$")
 
 
 def feature_names() -> tuple[str, ...]:
@@ -59,6 +61,8 @@ def feature_names() -> tuple[str, ...]:
         "structure:markdown_heading",
         "structure:image_marker",
         "structure:table_row",
+        "structure:rule_line",
+        "structure:bib_heading_lexicon",
     )
 
 
@@ -182,7 +186,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("source/base document count mismatch")
     table_feature = FEATURE_NAMES.index("table_row_count")
     cursor = 0
-    markdown_count = image_count = table_count = 0
+    markdown_count = image_count = table_count = rule_line_count = 0
+    bib_heading_lexicon_count = 0
     for document_index, (document, metadata) in enumerate(
         zip(documents, table.documents, strict=True)
     ):
@@ -204,9 +209,16 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             markdown = int(bool(_MARKDOWN_HEADING.match(text)))
             image = int(bool(_IMAGE_MARKER.match(text)))
             table_row = int(bool(table.counts[absolute, table_feature]))
+            rule_line = int(bool(_RULE_LINE.fullmatch(text)))
+            bib_role = analyze_bib_line(text, int(line["abs_idx"])).role
+            bib_heading_lexicon = int(
+                markdown and bib_role in {BibRole.HEADING, BibRole.SUBHEADING}
+            )
             markdown_count += markdown
             image_count += image
             table_count += table_row
+            rule_line_count += rule_line
+            bib_heading_lexicon_count += bib_heading_lexicon
             counts = np.asarray(table.counts[absolute], dtype=np.float32)
             row = np.concatenate(
                 (
@@ -229,7 +241,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                     np.log1p(counts),
                     line_shape(text),
                     np.asarray(positional.gap_summaries[absolute], dtype=np.float32),
-                    np.asarray((markdown, image, table_row), dtype=np.float32),
+                    np.asarray(
+                        (markdown, image, table_row, rule_line, bib_heading_lexicon),
+                        dtype=np.float32,
+                    ),
                 )
             )
             if row.shape != (len(names),) or not np.isfinite(row).all():
@@ -254,6 +269,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "markdown_heading_count": markdown_count,
         "image_marker_count": image_count,
         "table_row_count": table_count,
+        "rule_line_count": rule_line_count,
+        "bib_heading_lexicon_count": bib_heading_lexicon_count,
         "binary_bibliography_line_count": int(
             np.count_nonzero(table.original_labels == LABEL_TO_ID["BIB"])
         ),

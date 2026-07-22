@@ -1,0 +1,218 @@
+{
+  "schema_version": "bibliography-nextgen-worst-documents-analysis-v1",
+  "candidate": "position_hist_component_scope",
+  "documents": {
+    "dbc9447c04b88170d3fca3208a2015c42c80289eaefa31b2f7100f37d6cfaca6": {
+      "summary": "Composite thesis/CV document produces both scope overreach and whole-block misses.",
+      "false_positives": ["A contents-like opening list containing repeated bibliography labels is absorbed as bibliography.", "CV employment, research, leadership and project-history sections contain dates, institutions and publication-like phrases that trigger large false components."],
+      "false_negatives": ["A conventional local bibliography at L1117–L1134 and another at L1478–L1484 are rejected as components.", "Conference presentations and the author's publication list are consensus-labeled BIB but only partially recovered."],
+      "interpretation": "The document mixes a thesis, CV and embedded paper-like chapters. It exposes a real scope problem, but also a policy ambiguity: publication and conference lists are labeled BIB even though we may not want to remove every CV section.",
+      "tags": ["contents false positive", "CV scope", "local bibliography miss", "label-policy ambiguity"]
+    },
+    "78ebbe15bb757d5c9e96ab209f2530c69ed5f0a1631227d0144943b5c5563273": {
+      "summary": "Polytonic humanities thesis confuses footnotes and an author index with bibliography while missing reference apparatus.",
+      "false_positives": ["Dense scholarly footnotes at L433–L463 and L3960–L3976 look like citation entries but occur in body text.", "The alphabetical name index at L5327–L5362 is treated as a bibliography."],
+      "false_negatives": ["The abbreviations table and translated-title/reference apparatus at L4592–L4660 are missed.", "The primary-works section beginning 'Gregorii Nysseni Opera' at L4670 is largely rejected."],
+      "interpretation": "The main failure is document-section identity: citation-shaped footnotes and indexes are accepted, while unusual but genuinely bibliographic tables and primary-source lists are vetoed.",
+      "tags": ["footnotes", "name index", "abbreviation table", "polytonic Greek"]
+    },
+    "f42ce4b7ea2fd5c2fe17253aa7b458b8960478272c6a2f4246224ac458f3623d": {
+      "summary": "Medical CV/publication material is inconsistently scoped.",
+      "false_positives": ["Professional memberships and article front matter are accepted because they contain organizations, authors and numbered affiliations.", "A figure-caption/body fragment is included as a small spurious component."],
+      "false_negatives": ["Long oral-presentation and publication lists in the CV are missed even though consensus labels them BIB.", "A REFERENCES heading and several short publication fragments are missed."],
+      "interpretation": "This is primarily a policy-boundary case rather than weak citation recognition: the silver labels treat CV publications and presentations as bibliography, while nearby CV material is non-BIB.",
+      "tags": ["CV publications", "conference presentations", "affiliations", "label-policy ambiguity"]
+    },
+    "c71fcf4915d1c0ae61bc97a44aedf804ac96aa6430a24fde0b2cc9fea18ef443": {
+      "summary": "A real bibliography is fragmented into Markdown-looking author headings and is conservatively rejected.",
+      "false_positives": [],
+      "false_negatives": ["Dozens of entries begin with lines parsed as headings such as '## 17. Dewhurst G. J. 1957'.", "Entry bodies are split across short title, journal and page lines, so valid components have weak continuity."],
+      "interpretation": "The heading guard and component veto are too aggressive for OCR/Markdown conversions that promote numbered author lines to headings.",
+      "tags": ["Markdown misparse", "fragmented entries", "component veto"]
+    },
+    "dab1ddd9d739dcfb199c4f0c4fcbbfdcc3957efad34ca1f9703933e551e4e5de": {
+      "summary": "Several explicit, clean bibliography/publication components are rejected wholesale.",
+      "false_positives": [],
+      "false_negatives": ["Two sections explicitly headed 'Bibliography' at L1672 and L1730 are mostly missed.", "The later Journals and Book Chapters publication lists are also rejected despite strong citation structure."],
+      "interpretation": "This is a clear false veto by component scope or seeding, not a lack of recognizable bibliography features. Explicit positive headings need more authority in scope acceptance.",
+      "tags": ["explicit heading", "whole-component miss", "scope veto"]
+    },
+    "7cc8b62817111ad2197f2f65543233c4e2064355d48878e5f129aea38491ef8c": {
+      "summary": "Bibliography tables and a CV publication block are missed; a contact-information block is falsely absorbed.",
+      "false_positives": ["Telephone, email and personal contact lines form a CV-like false component."],
+      "false_negatives": ["The bibliography table beginning at L1708 is largely missed.", "A publication list around L3269–L3284 and several isolated bibliography headings are not connected to accepted entries."],
+      "interpretation": "The model needs better handling of table-formatted citations and a stronger distinction between CV contact metadata and publication records.",
+      "tags": ["table bibliography", "contact metadata", "publication list"]
+    },
+    "50370e28f534b9fbdc5e26aeb698d35a36f9644cc38b6dcbaaae8e863980c312": {
+      "summary": "URL-only webography is the dominant recall failure.",
+      "false_positives": [],
+      "false_negatives": ["A long table of bare or nearly bare URLs at L2252–L2305 is rejected.", "The 'Internet sources' heading, last-access note and a later publications subsection are missed."],
+      "interpretation": "URL density is strong evidence inside an explicitly named webography, but weak evidence in isolation. The block model should combine the heading and collective URL pattern.",
+      "tags": ["webography", "URL-only entries", "table formatting"]
+    },
+    "a6d586aecfda5430363d94caf774ddb10f3eabb71952f41457c7796cace5ed33": {
+      "summary": "Most substantive references are correct; residual errors are OCR filler and two ambiguous 'Web References' lines.",
+      "false_positives": ["A body-prose component around a figure is overextended.", "Two isolated 'Web References' lines are marked BIB by the model but not by silver."],
+      "false_negatives": ["Most missed lines are image markers, single-character OCR debris or page-transition filler inside silver bibliography blocks."],
+      "interpretation": "The line-error count overstates cleaning impact here: the candidate captures the citations, while consensus membership includes non-content filler lines inside the block.",
+      "tags": ["OCR filler", "image markers", "boundary accounting"]
+    },
+    "14654d589c50bb3256740f1251e19575882ac3c4a73d9eb057f240492563d2e0": {
+      "summary": "Institutional documents and heterogeneous source subsections are missed near the end of the bibliography.",
+      "false_positives": ["One descriptive line naming books, articles and studies is included without the surrounding source block."],
+      "false_negatives": ["Bibliographic and electronic-source headings are missed.", "The large 'Other sources' run consists of institutional reports, memoranda and web resources with weaker author-title punctuation than ordinary references."],
+      "interpretation": "The model recognizes conventional citations better than government/institutional source lists and fails to use the section hierarchy to retain them.",
+      "tags": ["institutional sources", "section hierarchy", "electronic sources"]
+    },
+    "45807cca47b7301ba63362bd6b7599712eeda047198d463a9d978a1bd626dc93": {
+      "summary": "An entire Greek-language bibliography subsection is vetoed late in a very long document.",
+      "false_positives": [],
+      "false_negatives": ["The English/Greek bibliography headings at L9966–L9968 are missed.", "The Greek bibliography from L10498–L10582 has OCR-spaced Greek text and is rejected almost wholesale."],
+      "interpretation": "Position is favorable and the heading is explicit, so the failure points to script/OCR feature degradation or a component-scope veto rather than lack of section evidence.",
+      "tags": ["Greek bibliography", "OCR spacing", "whole-component miss"]
+    },
+
+    "e83a537f4bc563f0f56f20a6700f1f464ba250dde981ae09e09b93593a379424": {
+      "summary": "A textbook alternates real chapter bibliographies with examples teaching citation formatting.",
+      "false_positives": ["Citation examples and prose explaining how to format journal and book references are classified as bibliography.", "A statistics chapter and figure-list fragments form smaller false components."],
+      "false_negatives": ["Multiple repeated chapter bibliographies are rejected in large 14–15-line runs.", "The same core reading list appears repeatedly, but component scope does not exploit that repetition."],
+      "interpretation": "This is the strongest Kallipos scope case: line appearance alone cannot distinguish a real reading list from citation-format demonstrations; chapter structure and explanatory prose are necessary.",
+      "tags": ["citation examples", "chapter bibliographies", "textbook structure"]
+    },
+    "e7abf3e1eecbc89bd0e9617272e8ace4f5423c674e04f8d825d4c05e9ebef887": {
+      "summary": "A compact 65-item dash-numbered bibliography is almost completely missed.",
+      "false_positives": [],
+      "false_negatives": ["Book-style citations from L214–L259 are rejected as one large component.", "The final URL entry is also missed."],
+      "interpretation": "The lines have strong author/title/year/publisher evidence. This is another clear component acceptance failure rather than a line-feature failure.",
+      "tags": ["whole-component miss", "dash numbering", "book citations"]
+    },
+    "07d68241cf7432da8033cbaa834c5fd5ade8603151099c02c2bf673922199d96": {
+      "summary": "Structured exercises and metadata tables are overextended as bibliography.",
+      "false_positives": ["Dublin Core metadata examples contain author names, URIs and classification labels that resemble citations.", "Enumerated exercises, answer choices and ordinary structured lists become several false components."],
+      "false_negatives": ["Only three isolated bibliography lines are missed."],
+      "interpretation": "The problem is scope precision in a highly structured instructional book. Table/list shape plus bibliographic tokens is insufficient without a bibliography-section signal.",
+      "tags": ["metadata tables", "enumerated exercises", "structured-list FP"]
+    },
+    "bebdae0b26cf94a3be9efdcec4350037bce9373c0f53b753ba5e6356fd327850": {
+      "summary": "Short per-chapter reference lists using alphanumeric citation keys are entirely rejected.",
+      "false_positives": [],
+      "false_negatives": ["Reference blocks use keys such as [Bis07], [Hay96] and [MRT12].", "Many blocks are short and distributed throughout the textbook rather than forming one end bibliography."],
+      "interpretation": "The candidate is poorly adapted to local, keyed chapter bibliographies. A citation-key feature and chapter-local scope model would directly target this pattern.",
+      "tags": ["citation keys", "per-chapter bibliography", "short components"]
+    },
+    "141624cfebf90f6d30c3426081f871ff2d8de9c9c3b0a0d24a96430c9756cc72": {
+      "summary": "Multiline webography continuations are dropped.",
+      "false_positives": [],
+      "false_negatives": ["Titles, repository names, URLs and 'last accessed' notes are split across separate short lines.", "The block anchors are partly recognized, but 25 continuation/filler lines are excluded."],
+      "interpretation": "This is primarily a within-block continuation problem. Collective sequence evidence should retain title/URL/access-date triplets after a webography anchor.",
+      "tags": ["webography", "continuation lines", "multiline entries"]
+    },
+    "224e6e495455a326255f424580421354197cccf3d4b58bcf8efa9adb96ed7e4a": {
+      "summary": "Legal footnotes are mistaken for bibliography.",
+      "false_positives": ["Long numbered legal notes quote statutes, cases and scholarly sources inside the body.", "A small bilingual glossary/table fragment is also absorbed."],
+      "false_negatives": [],
+      "interpretation": "The entry detector is doing what its local features suggest, but the section scope is wrong. Footnote/endnote structure needs an explicit negative role when the intended cleaner targets bibliography sections only.",
+      "tags": ["legal footnotes", "scope false positive", "glossary table"]
+    },
+    "e1a12987f5da09015c61e32411d1bb7920a8590bdfb4588ad14ed217157b364e": {
+      "summary": "Ordinary pedagogical lists are mistaken for a bibliography component.",
+      "false_positives": ["A numbered leadership-skills list is absorbed despite being ordinary prose fragments.", "Game/activity lists and a sentence with an inline parenthetical citation form smaller false components."],
+      "false_negatives": [],
+      "interpretation": "The component model overweights list regularity and isolated bibliographic cues without enough section-level citation density.",
+      "tags": ["ordinary lists", "pedagogical prose", "scope false positive"]
+    },
+    "d47b193c4a2063fd21fb65a4012eaaa65aea83ebaa146847d30c664289cbb18d": {
+      "summary": "An unheaded 14-line film-studies bibliography is missed completely.",
+      "false_positives": [],
+      "false_negatives": ["The compact list contains standard author, year, title and publisher patterns but no strong nearby bibliography heading."],
+      "interpretation": "The precision-first scope layer rejects a genuine small component when heading evidence is absent. This is the direct trade-off of the current component gate.",
+      "tags": ["unheaded bibliography", "small component", "scope veto"]
+    },
+    "dc5dc185840465d3f71cccbf95a8575d8c6b7c67664cbf1b2feecd9c20c83881": {
+      "summary": "The tail of a bibliography shifts to corporate/legal authors and loses recall.",
+      "false_positives": [],
+      "false_negatives": ["UNESCO, World Bank, TRIPS and UN declarations have institutional rather than personal authors.", "One Greek institutional subsection and a final web resource are also missed."],
+      "interpretation": "The line model and/or component boundary favors personal-author citation form and truncates when the bibliography changes register.",
+      "tags": ["corporate authors", "legal documents", "downward truncation"]
+    },
+    "92e16ea08065a78245d0bf30c2b4efab55d32db516e56d9585b8acd1d905e61a": {
+      "summary": "Two very short bibliography components are rejected.",
+      "false_positives": [],
+      "false_negatives": ["Two opening recommended-book lines and an 11-line numbered end bibliography are missed.", "The citations contain OCR/mojibake punctuation but otherwise recognizable author-year-title patterns."],
+      "interpretation": "Component size and OCR damage together push both short lists below the precision-first acceptance threshold.",
+      "tags": ["short components", "OCR/mojibake", "numbered bibliography"]
+    },
+
+    "09172b1ae1f4d0a0a1e267e2eb24cb6033e6c5e5f19df07a39c8027eb3185b92": {
+      "summary": "A bibliography component expands into footnotes and far into the following figure appendix.",
+      "false_positives": ["Numbered scholarly footnotes/endnotes immediately before the bibliography are accepted as entries.", "The much larger error is downward overextension from the bibliography into a figure/image appendix at L1995–L2179."],
+      "false_negatives": ["Eleven genuine numbered Greek bibliography entries near L1957–L1967 are skipped inside the otherwise accepted region."],
+      "interpretation": "This combines section-scope confusion with a severe lower-boundary failure. The appendix heading and image/figure sequence should be a hard stop.",
+      "tags": ["footnotes", "appendix overrun", "hard-stop failure"]
+    },
+    "8804e889b64a46798b95024eff5fcd7f1b7d3241f25bae05693ec840bdc45f53": {
+      "summary": "Roughly half of an explicit Greek legal bibliography is rejected.",
+      "false_positives": [],
+      "false_negatives": ["The Greek section, foreign section and case-law list are broken into several missed runs.", "Short legal citations and numbered court decisions have weaker conventional title/year patterns."],
+      "interpretation": "The explicit bibliography headings are not strong enough to carry heterogeneous legal subsections through the component gate.",
+      "tags": ["Greek legal bibliography", "case law", "subsections"]
+    },
+    "0d9bc88ee44a9cb4b62a5f450522e257399b3d80cd1ff07ea8d1407a1cd7afda": {
+      "summary": "An explicit 67-line Greek legal bibliography is missed completely.",
+      "false_positives": [],
+      "false_negatives": ["The block starts with '## ΒΙΒΛΙΟΓΡΑΦΙΑ / ΑΡΘΡΟΓΡΑΦΙΑ' and contains ordinary author/title/edition/publisher entries.", "No part of the component is accepted."],
+      "interpretation": "This is the clearest OpenArchives scope-veto failure. A strong positive Markdown heading should prevent wholesale rejection unless there is compelling contradictory structure.",
+      "tags": ["explicit heading", "Greek legal bibliography", "whole-component miss"]
+    },
+    "378e9f682417e1c38efa229ea9df9aa8e18f97ae29e62d3890a417045cf68009": {
+      "summary": "Most errors are CV conference and publication lists that consensus labels as bibliography.",
+      "false_positives": [],
+      "false_negatives": ["Greek and international conference communications near the front are missed.", "A publication list and one later bibliography heading are also excluded."],
+      "interpretation": "As with the Greek-PhD CV cases, this reveals a cleaning-policy question: silver says these publication/presentation lists are BIB, but automatic removal from a CV-like document may be undesirable.",
+      "tags": ["conference list", "CV publications", "label-policy ambiguity"]
+    },
+    "7c048fafb9ed089cfe3cf819b7986508d77ed6f06c3c25ab6c75c67f1afc2967": {
+      "summary": "Scattered numbered footnotes are consensus-labeled BIB but rejected by the block-oriented model.",
+      "false_positives": [],
+      "false_negatives": ["Citation notes occur between prose paragraphs throughout the document rather than in a bibliography section.", "Several entries span two or three OCR lines."],
+      "interpretation": "The model behavior may be preferable for the intended cleaner. The dominant disagreement is label semantics: removing body footnotes is not the same task as removing bibliography sections.",
+      "tags": ["body footnotes", "label-policy mismatch", "scattered citations"]
+    },
+    "36994f1c46b463a2eea85f91a1401f99787f5db4133294594d0ad64bf123fdae": {
+      "summary": "The model crosses the bibliography boundary into an appendix and also absorbs fragmented body prose.",
+      "false_positives": ["A 27-line appendix/figure sequence after the bibliography is retained.", "A badly fragmented body sentence with citations becomes a 13-line false component.", "The bibliography heading itself is labeled non-BIB and emitted as one additional line."],
+      "false_negatives": [],
+      "interpretation": "The appendix heading is an obvious downward hard stop. OCR fragmentation also creates artificial line-level citation density that the component model mistakes for a list.",
+      "tags": ["appendix overrun", "OCR fragmentation", "header inclusion"]
+    },
+    "0169eea0b47613bf6f75a9fa8f6a2025b65f996fc878ba0d8740091fdd0dff39": {
+      "summary": "A clean, explicit, multi-subsection bibliography is missed in full.",
+      "false_positives": [],
+      "false_negatives": ["The section begins '## 7. Βιβλιογραφία' and continues through printed sources, electronic sources and dictionaries.", "Mixed Greek, Spanish, English and long URL lines are all rejected as one component."],
+      "interpretation": "This is a strong counterexample to the component gate. Positive heading evidence and coherent subheadings should dominate language/style heterogeneity.",
+      "tags": ["explicit heading", "multilingual bibliography", "subheadings", "whole-component miss"]
+    },
+    "086aeb5912f40413cf1aaab61d55ecda816211e9f7b2a78fc9449ac8d69a48a1": {
+      "summary": "The document is OCR-noisy; most counted errors are filler rather than citations.",
+      "false_positives": ["Four isolated symbol-only OCR lines are emitted."],
+      "false_negatives": ["A long run contains page number, single characters, image markers and then genuine bibliography headings.", "Other misses are image markers and Markdown-promoted continuation fragments inside the bibliography."],
+      "interpretation": "This document should be treated separately in model diagnosis. Its 34 line errors do not represent 34 missed or wrongly removed references; many are corrupted layout artifacts included by block-level silver membership.",
+      "tags": ["OCR noise", "filler lines", "metric distortion"]
+    },
+    "400dc270a27d1f556b59f213072ff286a311a2cae016eedff3e3e48bbe13fe31": {
+      "summary": "A URL-only electronic bibliography is almost entirely missed.",
+      "false_positives": [],
+      "false_negatives": ["The 'Electronic bibliography' heading and 29 URL/table continuation lines are rejected.", "Several URLs are split across table rows or physical lines."],
+      "interpretation": "Like the Greek-PhD webography case, the heading plus repeated URL structure should define the component even when individual lines have few conventional citation features.",
+      "tags": ["webography", "URL-only entries", "table continuations"]
+    },
+    "748975b30baf928847908da44a4650edfb33150505055c91a3dbce7e6cf3184c": {
+      "summary": "The main bibliography is recovered; residual misses are headings and split URL continuations.",
+      "false_positives": [],
+      "false_negatives": ["Sources/web-sources/book subheadings are excluded.", "Long percent-encoded URLs are broken across lines and their continuation pieces fall outside predictions."],
+      "interpretation": "This is a modest boundary/filler problem rather than component failure. A within-block continuation rule can fix most errors without broadening scope elsewhere.",
+      "tags": ["URL continuation", "subheadings", "within-block filler"]
+    }
+  }
+}

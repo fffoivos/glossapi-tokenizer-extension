@@ -14,6 +14,7 @@ from sequence_models.bibliography_nextgen_scope import (
     SIGNALS,
     apply_component_threshold,
     build_component_table,
+    component_feature_names,
 )
 from sequence_models.bibliography_nextgen_table import _load_specialist
 
@@ -23,7 +24,12 @@ NAMES = (
     "probability:bib_subheader",
     "probability:continuation_specialist",
     "presence:numbered_entry_count",
+    "presence:year_count",
+    "presence:url_count",
+    "presence:doi_count",
+    "presence:page_range_count",
     "structure:markdown_heading",
+    "structure:bib_heading_lexicon",
     "structure:image_marker",
     "structure:table_row",
 )
@@ -145,6 +151,77 @@ def test_strict_decoder_can_use_but_not_emit_markdown_subheader() -> None:
     assert predicted.tolist() == [True, True, False, True, True]
 
 
+def test_gated_heading_emits_only_bibliography_heading_attached_to_block() -> None:
+    probability = np.asarray((0.05, 0.9, 0.9, 0.05), dtype=np.float32)
+    features = _features(len(probability))
+    markdown = NAMES.index("structure:markdown_heading")
+    features[[0, 3], markdown] = 1
+    features[0, NAMES.index("probability:bib_header")] = 0.9
+    features[0, NAMES.index("structure:bib_heading_lexicon")] = 1
+    predicted = decode_document(
+        probability,
+        features,
+        NAMES,
+        np.asarray((12, 100, 100, 12), dtype=np.uint32),
+        np.arange(len(probability), dtype=np.uint32),
+        _config(
+            emit_markdown_headings=False,
+            gated_bib_heading_window=2,
+            gated_bib_heading_require_lexicon=True,
+        ),
+    )
+    assert predicted.tolist() == [True, True, True, False]
+
+
+def test_lexicon_gate_rejects_model_only_heading() -> None:
+    probability = np.asarray((0.05, 0.9, 0.9), dtype=np.float32)
+    features = _features(len(probability))
+    features[0, NAMES.index("structure:markdown_heading")] = 1
+    features[0, NAMES.index("probability:bib_header")] = 0.9
+    predicted = decode_document(
+        probability,
+        features,
+        NAMES,
+        np.asarray((12, 100, 100), dtype=np.uint32),
+        np.arange(len(probability), dtype=np.uint32),
+        _config(
+            emit_markdown_headings=False,
+            gated_bib_heading_window=2,
+            gated_bib_heading_require_lexicon=True,
+        ),
+    )
+    assert predicted.tolist() == [False, True, True]
+
+
+def test_conditioned_expansion_blocks_long_evidence_free_prose() -> None:
+    probability = np.asarray((0.9, 0.9, 0.7), dtype=np.float32)
+    features = _features(len(probability))
+    predicted = decode_document(
+        probability,
+        features,
+        NAMES,
+        np.asarray((100, 100, 500), dtype=np.uint32),
+        np.arange(len(probability), dtype=np.uint32),
+        _config(conditioned_long_line_expansion=True),
+    )
+    assert predicted.tolist() == [True, True, False]
+
+
+def test_conditioned_expansion_keeps_long_line_with_bibliographic_evidence() -> None:
+    probability = np.asarray((0.9, 0.9, 0.7), dtype=np.float32)
+    features = _features(len(probability))
+    features[2, NAMES.index("presence:year_count")] = 1
+    predicted = decode_document(
+        probability,
+        features,
+        NAMES,
+        np.asarray((100, 100, 500), dtype=np.uint32),
+        np.arange(len(probability), dtype=np.uint32),
+        _config(conditioned_long_line_expansion=True),
+    )
+    assert predicted.tolist() == [True, True, True]
+
+
 def test_auxiliary_scope_veto_removes_only_scoped_component() -> None:
     probability = np.asarray((0.9, 0.9, 0.0, 0.9, 0.9), dtype=np.float32)
     features = _features(len(probability))
@@ -211,3 +288,44 @@ def test_component_scope_features_and_veto_are_component_aligned() -> None:
     assert bounds.tolist() == [[0, 1], [3, 3]]
     assert target.tolist() == [True, False]
     assert scoped.tolist() == [True, True, False, False]
+
+
+def test_component_scope_target_requires_configured_gold_purity() -> None:
+    names = SIGNALS
+    features = np.zeros((2, len(names)), dtype=np.float32)
+    table = SimpleNamespace(
+        original_labels=np.asarray((1, 0), dtype=np.uint8),
+        char_lengths=np.asarray((10, 10), dtype=np.uint32),
+        abs_indices=np.asarray((0, 1), dtype=np.uint32),
+        documents=({"line_start": 0, "line_end": 2},),
+    )
+    _, _, _, target = build_component_table(
+        table,
+        np.asarray((True, True)),
+        np.asarray((0.9, 0.8), dtype=np.float32),
+        features,
+        names,
+        target_min_gold_fraction=0.75,
+    )
+    assert target.tolist() == [False]
+
+
+def test_component_scope_heading_rescue_and_structural_veto() -> None:
+    names = component_feature_names()
+    x = np.zeros((3, len(names)), dtype=np.float32)
+    x[0, names.index("signal:structure:bib_heading_lexicon:max")] = 1
+    x[1, names.index("signal:structure:image_marker:active_fraction")] = 0.2
+    x[2, names.index("signal:structure:rule_line:active_fraction")] = 0.1
+    prediction = np.ones(3, dtype=bool)
+    bounds = np.asarray(((0, 0), (1, 1), (2, 2)), dtype=np.uint32)
+    result = apply_component_threshold(
+        prediction,
+        bounds,
+        np.asarray((0.65, 0.99, 0.99), dtype=np.float32),
+        0.9,
+        component_features=x,
+        heading_rescue_floor=0.6,
+        image_fraction_veto=0.15,
+        rule_fraction_veto=0.05,
+    )
+    assert result.tolist() == [True, False, False]

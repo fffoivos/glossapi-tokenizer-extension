@@ -16,13 +16,13 @@ import numpy as np
 from .bibliography_entry_blocks import blocks_from_mask
 from .bibliography_entry_dataset import LABEL_TO_ID
 from .bibliography_entry_models import PINNED_SKLEARN_VERSION, load_table
-from .bibliography_nextgen_decode import evaluate
+from .bibliography_nextgen_decode import DecoderConfig, decode_table, evaluate
 from .bibliography_nextgen_models import SCHEMA_VERSION as MODEL_SCHEMA
 from .bibliography_nextgen_table import SCHEMA_VERSION as TABLE_SCHEMA
 from .contract import sha256_file
 
 
-SCHEMA_VERSION = "bibliography-nextgen-component-scope-oof-v1"
+SCHEMA_VERSION = "bibliography-nextgen-component-scope-oof-v3"
 SIGNALS = (
     "probability:entry",
     "probability:signal_tcn",
@@ -39,7 +39,10 @@ SIGNALS = (
     "presence:page_range_count",
     "presence:prose_lead_count",
     "structure:markdown_heading",
+    "structure:image_marker",
     "structure:table_row",
+    "structure:rule_line",
+    "structure:bib_heading_lexicon",
 )
 THRESHOLDS = (
     0.02,
@@ -125,6 +128,7 @@ def component_feature_names() -> tuple[str, ...]:
                 f"neighbor:{side}:bib_header:max10",
                 f"neighbor:{side}:non_bib_header:max10",
                 f"neighbor:{side}:markdown_present10",
+                f"neighbor:{side}:bib_heading_lexicon:max10",
             )
         )
     return tuple(result)
@@ -153,6 +157,8 @@ def build_component_table(
     probability: np.ndarray,
     features: np.ndarray,
     feature_names: Sequence[str],
+    *,
+    target_min_gold_fraction: float = 0.5,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Return component features, document indices, inclusive bounds, and targets."""
 
@@ -243,12 +249,19 @@ def build_component_table(
                                 :, name_to_index["structure:markdown_heading"]
                             ].max(initial=0.0)
                         ),
+                        float(
+                            neighbor_features[
+                                :, name_to_index["structure:bib_heading_lexicon"]
+                            ].max(initial=0.0)
+                        ),
                     )
                 )
             rows.append(values)
             document_indices.append(document_index)
             bounds.append((start, end))
-            targets.append(bool(gold[start : end + 1].any()))
+            targets.append(
+                bool(gold[start : end + 1].mean() >= target_min_gold_fraction)
+            )
     matrix = np.asarray(rows, dtype=np.float32)
     if matrix.shape != (len(rows), len(component_feature_names())):
         raise RuntimeError("component feature schema mismatch")
@@ -259,6 +272,89 @@ def build_component_table(
         np.asarray(document_indices, dtype=np.uint32),
         np.asarray(bounds, dtype=np.uint32),
         np.asarray(targets, dtype=bool),
+    )
+
+
+def component_gold_fractions(
+    table: Any, bounds: np.ndarray
+) -> np.ndarray:
+    """Return the fraction of gold BIB lines in every decoded component."""
+
+    original_labels = getattr(table, "original_labels", None)
+    if original_labels is None:
+        return np.zeros(len(bounds), dtype=np.float32)
+    gold = np.asarray(original_labels) == LABEL_TO_ID["BIB"]
+    return np.asarray(
+        [gold[int(start) : int(end) + 1].mean() for start, end in bounds],
+        dtype=np.float32,
+    )
+
+
+def high_recall_proposal_configs() -> tuple[DecoderConfig, ...]:
+    """Loose decoders used only to expose realistic negative scope examples."""
+
+    return tuple(
+        DecoderConfig(
+            anchor_probability=anchor,
+            inside_probability=inside,
+            anchor_window=16,
+            maximum_bridge_gap=bridge,
+            adjacent_expansion=1,
+            allow_guarded_single_anchor=True,
+            anchors_required=2,
+            emit_markdown_headings=False,
+            gated_bib_heading_window=2,
+            gated_bib_heading_require_lexicon=True,
+            conditioned_long_line_expansion=True,
+            apply_auxiliary_scope_veto=False,
+        )
+        for anchor in (0.60, 0.75)
+        for inside in (0.20, 0.30)
+        for bridge in (8, 16)
+    )
+
+
+def build_proposal_pool(
+    table: Any,
+    probability: np.ndarray,
+    features: np.ndarray,
+    feature_names: Sequence[str],
+    base_prediction: np.ndarray,
+    *,
+    target_min_gold_fraction: float,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Pool unique components from the deployment and loose decoders."""
+
+    predictions = [base_prediction]
+    predictions.extend(
+        decode_table(table, probability, features, feature_names, config)
+        for config in high_recall_proposal_configs()
+    )
+    unique: dict[tuple[int, int], tuple[np.ndarray, int, bool, float]] = {}
+    for candidate in predictions:
+        x, documents, bounds, targets = build_component_table(
+            table,
+            candidate,
+            probability,
+            features,
+            feature_names,
+            target_min_gold_fraction=target_min_gold_fraction,
+        )
+        fractions = component_gold_fractions(table, bounds)
+        for row, document, bound, target, fraction in zip(
+            x, documents, bounds, targets, fractions, strict=True
+        ):
+            key = (int(bound[0]), int(bound[1]))
+            unique.setdefault(
+                key, (row, int(document), bool(target), float(fraction))
+            )
+    ordered = sorted(unique.items())
+    return (
+        np.asarray([value[0] for _, value in ordered], dtype=np.float32),
+        np.asarray([value[1] for _, value in ordered], dtype=np.uint32),
+        np.asarray([key for key, _ in ordered], dtype=np.uint32),
+        np.asarray([value[2] for _, value in ordered], dtype=bool),
+        np.asarray([value[3] for _, value in ordered], dtype=np.float32),
     )
 
 
@@ -309,20 +405,55 @@ def apply_component_threshold(
     bounds: np.ndarray,
     component_probability: np.ndarray,
     threshold: float,
+    *,
+    component_features: np.ndarray | None = None,
+    heading_rescue_floor: float | None = None,
+    image_fraction_veto: float | None = None,
+    rule_fraction_veto: float | None = None,
 ) -> np.ndarray:
     result = prediction.copy()
-    for (start, end), value in zip(bounds, component_probability, strict=True):
-        if value < threshold:
+    names = {name: index for index, name in enumerate(component_feature_names())}
+    for row_index, ((start, end), value) in enumerate(
+        zip(bounds, component_probability, strict=True)
+    ):
+        rescue = False
+        structural_veto = False
+        if component_features is not None:
+            if component_features.shape[0] != len(bounds):
+                raise ValueError("component features/bounds are not aligned")
+            row = component_features[row_index]
+            if heading_rescue_floor is not None:
+                rescue = bool(
+                    value >= heading_rescue_floor
+                    and (
+                        row[names["neighbor:before:bib_heading_lexicon:max10"]] > 0
+                        or row[
+                            names["signal:structure:bib_heading_lexicon:max"]
+                        ]
+                        > 0
+                    )
+                )
+            if image_fraction_veto is not None:
+                structural_veto |= bool(
+                    row[names["signal:structure:image_marker:active_fraction"]]
+                    > image_fraction_veto
+                )
+            if rule_fraction_veto is not None:
+                structural_veto |= bool(
+                    row[names["signal:structure:rule_line:active_fraction"]]
+                    > rule_fraction_veto
+                )
+        if structural_veto or (value < threshold and not rescue):
             result[int(start) : int(end) + 1] = False
     return result
 
 
-def _eligible(metrics: Mapping[str, Any]) -> bool:
+def _eligible(metrics: Mapping[str, Any], max_spurious: float = 0.02) -> bool:
     return (
         metrics["line_precision"] >= 0.98
         and metrics["char_precision"] >= 0.98
         and metrics["non_bib_markdown_heading_crossings"] == 0
-        and metrics["spurious_blocks_per_zero_block_document"] <= 0.02
+        and metrics["spurious_blocks_per_zero_block_document"] <= max_spurious
     )
 
 
@@ -349,28 +480,74 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     decoder_report = json.loads((decoder_root / "report.json").read_text(encoding="utf-8"))
     if manifest.get("schema_version") != TABLE_SCHEMA or model_report.get("schema_version") != MODEL_SCHEMA:
         raise ValueError("unsupported component-scope inputs")
-    selected_decoder = decoder_report.get("deployment_near_miss") or decoder_report.get("selected")
+    selected_decoder = (
+        decoder_report.get("deployment_near_miss")
+        or decoder_report.get("selected")
+        or decoder_report.get("highest_recall_diagnostic")
+    )
     if not isinstance(selected_decoder, Mapping):
         raise ValueError("decoder has no frozen development candidate")
     prediction_path = decoder_root / "deployment_near_miss_oof_prediction.npy"
     if not prediction_path.exists():
         prediction_path = decoder_root / "selected_oof_prediction.npy"
+    if not prediction_path.exists():
+        prediction_path = decoder_root / "highest_recall_diagnostic_oof_prediction.npy"
     table = load_table(base_root, expected_split="train")
     features = np.load(table_root / "features.npy", mmap_mode="r", allow_pickle=False)
     probability = np.load(model_root / "oof_probability.npy", mmap_mode="r", allow_pickle=False)
     prediction = np.load(prediction_path, mmap_mode="r", allow_pickle=False).astype(bool)
     x, component_documents, bounds, target = build_component_table(
-        table, prediction, probability, features, manifest["feature_names"]
+        table,
+        prediction,
+        probability,
+        features,
+        manifest["feature_names"],
+        target_min_gold_fraction=args.target_min_gold_fraction,
+    )
+    gold_fractions = component_gold_fractions(table, bounds)
+    # Mixed components below the purity target are unsuitable examples for the
+    # component classifier: treating any overlap as positive taught the scope
+    # model to preserve largely spurious components. Keep pure negatives and
+    # sufficiently pure positives; still score every held-out component.
+    trainable = (gold_fractions == 0) | (
+        gold_fractions >= args.target_min_gold_fraction
     )
     component_folds = table.folds[bounds[:, 0].astype(np.int64)].astype(np.uint8)
+    if args.proposal_pool:
+        pool_x, pool_documents, pool_bounds, pool_target, pool_gold_fractions = (
+            build_proposal_pool(
+                table,
+                probability,
+                features,
+                manifest["feature_names"],
+                prediction,
+                target_min_gold_fraction=args.target_min_gold_fraction,
+            )
+        )
+    else:
+        pool_x = x
+        pool_documents = component_documents
+        pool_bounds = bounds
+        pool_target = target
+        pool_gold_fractions = gold_fractions
+    pool_trainable = (pool_gold_fractions == 0) | (
+        pool_gold_fractions >= args.target_min_gold_fraction
+    )
+    pool_folds = table.folds[pool_bounds[:, 0].astype(np.int64)].astype(np.uint8)
     output.mkdir(parents=True)
     (output / "models").mkdir()
     oof = np.full(len(x), np.nan, dtype=np.float32)
     folds = []
     for fold in range(int(table.manifest["n_folds"])):
-        fit = component_folds != fold
+        fit = (pool_folds != fold) & pool_trainable
         holdout = component_folds == fold
-        bundle = _fit(args.kind, x[fit], target[fit], args.weighting, int(args.seed) + fold)
+        bundle = _fit(
+            args.kind,
+            pool_x[fit],
+            pool_target[fit],
+            args.weighting,
+            int(args.seed) + fold,
+        )
         oof[holdout] = predict_component_probability((bundle,), x[holdout])
         with (output / "models" / f"fold{fold}.pkl").open("xb") as handle:
             pickle.dump(bundle, handle, protocol=5)
@@ -379,7 +556,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 "fold": fold,
                 "fit_component_count": int(np.count_nonzero(fit)),
                 "holdout_component_count": int(np.count_nonzero(holdout)),
-                "fit_positive_count": int(np.count_nonzero(target[fit])),
+                "fit_positive_count": int(np.count_nonzero(pool_target[fit])),
                 "holdout_positive_count": int(np.count_nonzero(target[holdout])),
             }
         )
@@ -387,15 +564,26 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         raise RuntimeError("component OOF predictions are incomplete")
     rows = []
     for threshold in THRESHOLDS:
-        scoped = apply_component_threshold(prediction, bounds, oof, threshold)
+        scoped = apply_component_threshold(
+            prediction,
+            bounds,
+            oof,
+            threshold,
+            component_features=x,
+            heading_rescue_floor=args.heading_rescue_floor,
+            image_fraction_veto=args.image_fraction_veto,
+            rule_fraction_veto=args.rule_fraction_veto,
+        )
         rows.append(
             {
                 "threshold": threshold,
-                "kept_component_count": int(np.count_nonzero(oof >= threshold)),
+                "kept_component_count": int(
+                    sum(bool(scoped[int(start) : int(end) + 1].any()) for start, end in bounds)
+                ),
                 "metrics": evaluate(table, scoped, features, manifest["feature_names"]),
             }
         )
-    eligible = [row for row in rows if _eligible(row["metrics"])]
+    eligible = [row for row in rows if _eligible(row["metrics"], args.max_spurious_blocks)]
     selected = max(eligible, key=_selection_key) if eligible else None
     near = [
         row
@@ -413,9 +601,26 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         np.save(handle, oof, allow_pickle=False)
     with (output / "component_target.npy").open("xb") as handle:
         np.save(handle, target, allow_pickle=False)
+    with (output / "component_gold_fraction.npy").open("xb") as handle:
+        np.save(handle, gold_fractions, allow_pickle=False)
+    with (output / "proposal_pool_bounds.npy").open("xb") as handle:
+        np.save(handle, pool_bounds, allow_pickle=False)
+    with (output / "proposal_pool_target.npy").open("xb") as handle:
+        np.save(handle, pool_target, allow_pickle=False)
+    with (output / "proposal_pool_gold_fraction.npy").open("xb") as handle:
+        np.save(handle, pool_gold_fractions, allow_pickle=False)
     chosen = selected or near_miss
     if chosen is not None:
-        scoped = apply_component_threshold(prediction, bounds, oof, chosen["threshold"])
+        scoped = apply_component_threshold(
+            prediction,
+            bounds,
+            oof,
+            chosen["threshold"],
+            component_features=x,
+            heading_rescue_floor=args.heading_rescue_floor,
+            image_fraction_veto=args.image_fraction_veto,
+            rule_fraction_veto=args.rule_fraction_veto,
+        )
         with (output / "selected_oof_prediction.npy").open("xb") as handle:
             np.save(handle, scoped, allow_pickle=False)
     report = {
@@ -429,6 +634,26 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "component_count": len(x),
         "positive_component_count": int(np.count_nonzero(target)),
         "negative_component_count": int(np.count_nonzero(~target)),
+        "trainable_component_count": int(np.count_nonzero(trainable)),
+        "dropped_ambiguous_component_count": int(np.count_nonzero(~trainable)),
+        "target_min_gold_fraction": args.target_min_gold_fraction,
+        "heading_rescue_floor": args.heading_rescue_floor,
+        "image_fraction_veto": args.image_fraction_veto,
+        "rule_fraction_veto": args.rule_fraction_veto,
+        "max_spurious_blocks_per_zero_block_document": args.max_spurious_blocks,
+        "proposal_pool_enabled": bool(args.proposal_pool),
+        "proposal_pool_decoder_configs": [
+            config.__dict__ for config in high_recall_proposal_configs()
+        ]
+        if args.proposal_pool
+        else [],
+        "proposal_pool_component_count": len(pool_x),
+        "proposal_pool_positive_count": int(np.count_nonzero(pool_target)),
+        "proposal_pool_negative_count": int(np.count_nonzero(~pool_target)),
+        "proposal_pool_trainable_count": int(np.count_nonzero(pool_trainable)),
+        "proposal_pool_dropped_ambiguous_count": int(
+            np.count_nonzero(~pool_trainable)
+        ),
         "folds": folds,
         "threshold_candidates": rows,
         "selected": selected,
@@ -469,6 +694,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--kind", choices=("hist", "linear"), required=True)
     parser.add_argument("--weighting", choices=("none", "balanced"), default="balanced")
+    parser.add_argument("--target-min-gold-fraction", type=float, default=0.5)
+    parser.add_argument("--heading-rescue-floor", type=float, default=0.6)
+    parser.add_argument("--image-fraction-veto", type=float, default=0.15)
+    parser.add_argument("--rule-fraction-veto", type=float, default=0.05)
+    parser.add_argument("--proposal-pool", action="store_true")
+    parser.add_argument("--max-spurious-blocks", type=float, default=0.02)
     parser.add_argument("--seed", type=int, default=1701)
     parser.add_argument("--code-commit", required=True)
     parser.add_argument("--slurm-job-id", required=True)

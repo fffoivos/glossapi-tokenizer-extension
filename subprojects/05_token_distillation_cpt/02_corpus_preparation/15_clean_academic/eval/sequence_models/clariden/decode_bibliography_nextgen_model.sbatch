@@ -18,6 +18,7 @@ MODEL_DIR=${MODEL_DIR:?set nextgen OOF model root}
 OUTPUT_DIR=${OUTPUT_DIR:?set new immutable decode root}
 EXPECTED_COMMIT=${EXPECTED_COMMIT:?set exact code commit}
 AUXILIARY_SCOPE=${AUXILIARY_SCOPE:-}
+MAX_SPURIOUS_BLOCKS=${MAX_SPURIOUS_BLOCKS:-0.02}
 UENV=${UENV:-pytorch/v2.9.1:v2}
 [[ ! -e "$OUTPUT_DIR" && ! -L "$OUTPUT_DIR" ]] || exit 90
 trap 'rm -rf "$OUTPUT_DIR"' EXIT
@@ -26,6 +27,7 @@ export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 ARGS=(
   --table-dir "$TABLE_DIR" --base-table-dir "$BASE_TABLE_DIR"
   --model-dir "$MODEL_DIR" --output-dir "$OUTPUT_DIR" --workers 20
+  --max-spurious-blocks "$MAX_SPURIOUS_BLOCKS"
   --code-commit "$EXPECTED_COMMIT" --slurm-job-id "$SLURM_JOB_ID"
 )
 [[ -z "$AUXILIARY_SCOPE" ]] || ARGS+=(--auxiliary-scope "$AUXILIARY_SCOPE")
