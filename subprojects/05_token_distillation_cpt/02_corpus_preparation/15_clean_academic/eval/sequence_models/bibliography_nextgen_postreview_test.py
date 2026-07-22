@@ -19,11 +19,10 @@ from .bibliography_nextgen_scope import (
     build_component_table,
     predict_component_probability,
 )
-from .bibliography_nextgen_table import feature_names
+from .bibliography_nextgen_table import bib_heading_lexicon_match, feature_names
 from .bibliography_nextgen_unseen_evaluate import _evaluate_candidate
 from .bibliography_nextgen_unseen_features import UnseenTable
 from .contract import sha256_file
-from .deterministic_structure import BibRole, analyze_bib_line
 
 
 SCHEMA_VERSION = "bibliography-nextgen-postreview-opened-test-v1"
@@ -91,12 +90,11 @@ def _extend_features(
     for document in source_documents:
         for line in document["lines"]:
             text = str(line["text"])
-            role = analyze_bib_line(text, int(line["abs_idx"])).role
             rule.append(float(bool(_RULE_LINE.fullmatch(text))))
             heading.append(
                 float(
                     bool(_MARKDOWN_HEADING.match(text))
-                    and role in {BibRole.HEADING, BibRole.SUBHEADING}
+                    and bib_heading_lexicon_match(text, int(line["abs_idx"]))
                 )
             )
     structural = np.column_stack((rule, heading)).astype(np.float32)
