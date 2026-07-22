@@ -25,6 +25,8 @@ STRUCT_MANIFEST_SHA=${SEALED_BIB_STRUCT_MANIFEST_SHA:-c08611352517ff40668eb1a74d
 STRUCT_INVENTORY_SHA=${SEALED_BIB_STRUCT_INVENTORY_SHA:-e6b58e3cbd57d0bf7df7a01ee8655748850151efebd37d835abc06431edf942a}
 PRIOR500=${SEALED_BIB_PRIOR500:-/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/source_matched_holdouts/source_matched_c2_20260713_43cf377_a/documents.jsonl}
 PRIOR500_SHA=${SEALED_BIB_PRIOR500_SHA:-377b21a1cdc6a41d31264a7ad459d0539d29894285bda79c9f3cb33eb3a0dd25}
+PRIOR_COUNT=${SEALED_BIB_PRIOR_COUNT:-500}
+SELECTION_SEED=${SEALED_BIB_SELECTION_SEED:-bibliography-sealed-150-v1-20260718}
 RUNTIME_VENV=${SEALED_BIB_RUNTIME_VENV:-/iopsstor/scratch/cscs/fffoivos/python_envs/full_corpus_v2}
 UENV=${SEALED_BIB_UENV:-pytorch/v2.9.1:v2}
 RUST_DEP=${SEALED_BIB_RUST_DEP:-/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/python_deps/glossapi_rs_noise_6f29a2825559c540-py312}
@@ -55,10 +57,11 @@ cd "$EVAL_DIR"
   --historical-root "$STRUCT_ROOT" \
   --expected-historical-inventory-sha256 "$STRUCT_INVENTORY_SHA" \
   --previous-documents "$PRIOR500" \
+  --expected-previous "$PRIOR_COUNT" \
   --expected-rust-inventory-sha256 "$RUST_INVENTORY_SHA" \
   --quota greek_phd=50 --quota kallipos=50 --quota openarchives=50 \
   --oversample 4 \
-  --seed bibliography-sealed-150-v1-20260718 \
+  --seed "$SELECTION_SEED" \
   --near-duplicate-threshold 0.80 \
   --candidates-out "$STAGING/candidates.private.jsonl" \
   --quality-packet-out "$STAGING/quality.flagged.private.jsonl" \
