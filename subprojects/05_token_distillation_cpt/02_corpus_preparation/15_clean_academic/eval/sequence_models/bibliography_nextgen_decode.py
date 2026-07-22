@@ -23,7 +23,7 @@ from .bibliography_nextgen_table import SCHEMA_VERSION as TABLE_SCHEMA
 from .contract import sha256_file
 
 
-SCHEMA_VERSION = "bibliography-nextgen-block-oof-v5"
+SCHEMA_VERSION = "bibliography-nextgen-block-oof-v6"
 
 
 @dataclass(frozen=True)
@@ -45,6 +45,7 @@ class DecoderConfig:
     gated_bib_heading_window: int = 0
     gated_bib_heading_require_lexicon: bool = False
     sandwiched_subheader_probability: float = 1.01
+    lexicon_heading_topology: bool = False
     conditioned_long_line_expansion: bool = False
     apply_auxiliary_scope_veto: bool = False
 
@@ -72,23 +73,39 @@ def _heading_topology(
     bib_header_probability: np.ndarray,
     bib_subheader_probability: np.ndarray,
     config: DecoderConfig,
+    bib_heading_lexicon: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Return hard barriers, connectable subheaders, and attachable main headers."""
 
     barriers = np.zeros(len(anchor), dtype=bool)
     connectors = np.zeros(len(anchor), dtype=bool)
     attachable = np.zeros(len(anchor), dtype=bool)
+    # An exact lexicon match is stronger evidence than the header model, which
+    # scores 220 of the 1,034 lexicon headings below the assignment threshold on
+    # development (208 of them gold). Where enabled it substitutes for that
+    # probability rather than filtering it.
+    lexicon = (
+        bib_heading_lexicon
+        if bib_heading_lexicon is not None and config.lexicon_heading_topology
+        else np.zeros(len(anchor), dtype=bool)
+    )
     for index in np.flatnonzero(markdown):
         above = _near(anchor, int(index), config.subheader_support_radius, -1)
         below = _near(anchor, int(index), config.subheader_support_radius, 1)
         if (
-            bib_subheader_probability[index] >= config.header_assignment_threshold
+            (
+                bib_subheader_probability[index] >= config.header_assignment_threshold
+                or lexicon[index]
+            )
             and above
             and below
         ):
             connectors[index] = True
         elif (
-            bib_header_probability[index] >= config.header_assignment_threshold
+            (
+                bib_header_probability[index] >= config.header_assignment_threshold
+                or lexicon[index]
+            )
             and below
             and not above
         ):
@@ -163,6 +180,7 @@ def decode_document(
         features[:, names["probability:bib_header"]],
         features[:, names["probability:bib_subheader"]],
         config,
+        bib_heading_lexicon,
     )
     anchor = raw_anchor & ~barriers
     result = np.zeros(len(probability), dtype=bool)
@@ -475,10 +493,13 @@ def _selection_key(row: Mapping[str, Any]) -> tuple[float, ...]:
     )
 
 
+# (window, require_lexicon, sandwiched_subheader_probability, lexicon_topology)
+# The sandwiched-subheader variant was measured and rejected: it costs more
+# precision than the extra headings are worth once the grid re-tightens.
 _HEADING_VARIANTS = (
-    (0, False, 1.01),
-    (2, True, 1.01),
-    (2, True, 0.70),
+    (0, False, 1.01, False),
+    (2, True, 1.01, False),
+    (2, True, 1.01, True),
 )
 
 
@@ -496,6 +517,7 @@ def _grid() -> list[DecoderConfig]:
             gated_bib_heading_window=heading[0],
             gated_bib_heading_require_lexicon=heading[1],
             sandwiched_subheader_probability=heading[2],
+            lexicon_heading_topology=heading[3],
             conditioned_long_line_expansion=True,
             apply_auxiliary_scope_veto=True,
         )
