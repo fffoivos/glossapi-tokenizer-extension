@@ -1,0 +1,84 @@
+{
+  "schema_version": "bibliography-evolution-baseline-lock-v1",
+  "baseline_id": "G0_D1_SIGNAL_TCN_ANCHORED_20260718",
+  "evidence_scope": "retrospective_LLM_silver_development_not_final_test",
+  "authoritative_root": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research/experiments/bib_entry_oof_20260713t204926z",
+  "receipt_sha256": {
+    "table/receipt.json": "56ca93109c29dbf00d02a9b1211179d87337dbaa5c13aaa4717260e14dad3c07",
+    "line_oof/receipt.json": "11a2753f1a5ae678c5fe916fdf6ef809ce505266b00fe06a540d0332e9bcc036",
+    "deterministic_roles_r2/receipt.json": "9c069f1c854bda1934aac58f0d46ae3a75487f0f60982151d0ea2b6f3f37cba6",
+    "signal_tcn_r1/receipt.json": "1c5d0c9d58293f1af77466c52db67a8b26db62a7e1e22886a1a7ab8c3efca398",
+    "signal_recall_blocks_r3/receipt.json": "e81572f95e59bcdfccf39260dbcc1b284b3a5d524de37c01674a4522fdfbbcf3",
+    "signal_validation_r4/receipt.json": "444e4ad8a422d81c583dcfe01fd4c62bf3a08b4bab6931e771e0980ea0e365ee"
+  },
+  "receipt_code_commits": {
+    "table": "62303c58f1471d94e3fd103bb609f86783a96d61",
+    "line_oof": "62303c58f1471d94e3fd103bb609f86783a96d61",
+    "deterministic_roles": "b5a2f157cc76fdc7ab6ce72596bdd9b7f6fb7fe4",
+    "signal_tcn": "bd1ccc37d39ab6a5b58eeb07d5169beac03fe0c0",
+    "anchored_decoder": "865678733affed1a42c0c02187ae902d3af6565c",
+    "validation": "b49a359346a833cbc12c9c28eec186dd933a522b"
+  },
+  "artifact_sha256": {
+    "table/manifest.json": "be8e146647470384fca9edcb601369f22fa4964f826977f8a9af5ae09571f498",
+    "table/folds.json": "13af40edfba3d38804a371d69a54699d80315ed5f11fce87878aa1f0162a77b3",
+    "table/folds.npy": "e4b9f220b1f1fa3dafd0c1ee52f81a8b9b73c75a6ddcb7dceba8cf9bf8cc3d80",
+    "line_oof/D1.oof_probability.npy": "7a4320351da212d5076dd42c4eab652f4f88b69928477dc197db4c18e4856fdf",
+    "deterministic_roles_r2/negative_roles.npy": "db33f6e687e7f10d0d388f749535567feaf4f60a8b485183c747fbdc45b82971",
+    "signal_tcn_r1/signal_tcn_oof_probability.npy": "6d1257286f18bca8d4ed67a916197d26ac9ad3c4ec2824025b9870815ce89153",
+    "signal_validation_r4/validation_signal_ensemble_probability.npy": "6674e3a2f507552826a0a8fe6097aae11f50685de676b7de0291ab46369e7768",
+    "signal_validation_r4/recall_first_anchored.prediction.npy": "84179ec0d45dbbf5c5ad1c78fd20b7ed2b82ead70c7287180bf3ed024e9a6d5a"
+  },
+  "input_hashes": {
+    "struct2k_LLM_silver_source": "f18ef6bf3061d932ae0aaeb2349392a2e590f2778e3205cf7cbcb5c79dffa7c0",
+    "training_quality_decisions": "3d85a8b3a2e335823a1cbffb147617017f37e1b774ca2b43a64e9f66809938d3",
+    "validation_quality_decisions": "9103473590edc203492404f0fd6b0a9c89782276d616a05340b053acce6f2e8b",
+    "validation_line_probability": "f3049b54f918e4734244804d5097085587e238264bd0353f6873a347daabd0c9",
+    "validation_table_receipt": "689ecce5c7e9ede12feba6df26b0286d883f1b7e42422558fa3df605c0d6ccfd",
+    "validation_policy": "732dec41a923115c778fd488808b9952c3dc1ca4f0d4fa6136cb767e3201cc30"
+  },
+  "fold_hashes": {
+    "fold_assignment_json": "13af40edfba3d38804a371d69a54699d80315ed5f11fce87878aa1f0162a77b3",
+    "emitted_line_fold_array": "e4b9f220b1f1fa3dafd0c1ee52f81a8b9b73c75a6ddcb7dceba8cf9bf8cc3d80",
+    "feature_table_manifest": "be8e146647470384fca9edcb601369f22fa4964f826977f8a9af5ae09571f498"
+  },
+  "decoder_config": {
+    "line_arm": "D1",
+    "anchor_probability": 0.3,
+    "seed_length_limit": 1,
+    "anchors_required": 2,
+    "anchor_window": 16,
+    "maximum_bridge_gap": 8,
+    "inside_probability": 0.05,
+    "adjacent_expansion": 2,
+    "header_window": 2,
+    "exact_scope_semantics": "hard_wall_decode_each_side",
+    "physical_gap_semantics": "hard_wall",
+    "header_semantics": "H0_attach_exact_header_only_after_core_exists"
+  },
+  "headline_scope": {
+    "name": "prediction_blind_extraction_qualified",
+    "document_count": 268,
+    "source_document_counts": {
+      "greek_phd": 92,
+      "kallipos": 92,
+      "openarchives": 84
+    }
+  },
+  "headline_metrics_268": {
+    "document_count": 268,
+    "line_precision": 0.9449809117448911,
+    "line_recall": 0.9672729362411286,
+    "token_precision": 0.9514073153889994,
+    "token_recall": 0.9807361149134425,
+    "token_fp": 101547,
+    "token_fn": 39053,
+    "spurious_blocks_per_zero_block_document": 0.037037037037037035,
+    "mean_boundary_error_emitted_lines": 2.570287539936102
+  },
+  "g0_replay": {
+    "prediction_relative_path": "signal_validation_r4/recall_first_anchored.prediction.npy",
+    "prediction_sha256": "84179ec0d45dbbf5c5ad1c78fd20b7ed2b82ead70c7287180bf3ed024e9a6d5a",
+    "required_result": "byte_identical_prediction_hash"
+  }
+}
