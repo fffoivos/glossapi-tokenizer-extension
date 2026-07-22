@@ -1774,7 +1774,7 @@ def write_public_previews(
             "characters": len(text),
             "text": text,
         }
-        write_private(sample_path, safe_json(payload))
+        write_site_file(sample_path, safe_json(payload))
         relative = sample_path.relative_to(output).as_posix()
         record["variants"].append(
             {
@@ -2440,11 +2440,11 @@ def build_site(args: argparse.Namespace) -> int:
             "provenance": getattr(args, "presentation_provenance", None),
             "pipeline_waterfall": pipeline_waterfall,
         }
-        write_private(temporary / "site_data.json", safe_json(site_data))
-        write_private(
+        write_site_file(temporary / "site_data.json", safe_json(site_data))
+        write_site_file(
             temporary / "assets" / "site.css", CSS + "\n" + PRESENTATION_CSS + "\n"
         )
-        write_private(
+        write_site_file(
             temporary / "assets" / "site.js", JS + "\n" + PRESENTATION_JS + "\n"
         )
 
@@ -2467,7 +2467,7 @@ def build_site(args: argparse.Namespace) -> int:
 <header><a class="back" href="index.html">← Source explorer</a><div class="eyebrow">Dataset review</div><h1>Browse documents</h1><p class="lede">Documents are ordered by their receipt-bound site-local identifiers. Use the selector, previous/next controls, or N/Shift+N keyboard navigation.</p></header>
 <main><section class="panel"><div id="document-browser"></div></section></main><footer>Static local document browser. Sample text is loaded on demand and inserted as plain text.</footer>
 """.strip()
-        write_private(
+        write_site_file(
             temporary / "documents.html",
             html_shell(
                 title="Browse documents · Dataset review",
@@ -2503,7 +2503,7 @@ def build_site(args: argparse.Namespace) -> int:
                 f"- Identifier-masked pipeline review samples: {len(sample_receipts)}\n"
                 f"- Public source excerpts: {len(public_preview_receipts) + len(public_sample_receipts)}\n"
             )
-            write_private(temporary / "site_acceptance_report.md", acceptance_report)
+            write_site_file(temporary / "site_acceptance_report.md", acceptance_report)
 
         files = [
             receipt(path, temporary)
