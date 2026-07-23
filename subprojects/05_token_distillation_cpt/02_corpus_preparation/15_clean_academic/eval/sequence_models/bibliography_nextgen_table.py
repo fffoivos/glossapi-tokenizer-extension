@@ -82,7 +82,9 @@ _EXTRA_BIB_SUBHEADINGS = frozenset(
 )
 
 
-def bib_heading_lexicon_match(text: str, abs_idx: int) -> bool:
+def bib_heading_lexicon_match(
+    text: str, abs_idx: int, *, extra_lexicon: bool = True
+) -> bool:
     """Return whether a line is a bibliography heading by exact lexicon match."""
 
     if analyze_bib_line(text, abs_idx).role in {BibRole.HEADING, BibRole.SUBHEADING}:
@@ -102,9 +104,10 @@ def bib_heading_lexicon_match(text: str, abs_idx: int) -> bool:
             BibRole.SUBHEADING,
         }:
             return True
-    for candidate in (body, *candidates):
-        if _heading_key(candidate) in _EXTRA_BIB_SUBHEADINGS:
-            return True
+    if extra_lexicon:
+        for candidate in (body, *candidates):
+            if _heading_key(candidate) in _EXTRA_BIB_SUBHEADINGS:
+                return True
     return False
 
 
@@ -272,7 +275,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             table_row = int(bool(table.counts[absolute, table_feature]))
             rule_line = int(bool(_RULE_LINE.fullmatch(text)))
             bib_heading_lexicon = int(
-                markdown and bib_heading_lexicon_match(text, int(line["abs_idx"]))
+                markdown
+                and bib_heading_lexicon_match(
+                    text, int(line["abs_idx"]), extra_lexicon=args.extra_lexicon
+                )
             )
             markdown_count += markdown
             image_count += image
@@ -329,6 +335,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "markdown_heading_count": markdown_count,
         "image_marker_count": image_count,
         "table_row_count": table_count,
+        "extra_lexicon_enabled": bool(args.extra_lexicon),
         "rule_line_count": rule_line_count,
         "bib_heading_lexicon_count": bib_heading_lexicon_count,
         "binary_bibliography_line_count": int(
@@ -382,6 +389,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--signal-probability", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--split", default="train")
+    parser.add_argument(
+        "--no-extra-lexicon", dest="extra_lexicon", action="store_false"
+    )
     parser.add_argument("--code-commit", required=True)
     parser.add_argument("--slurm-job-id", required=True)
     return parser.parse_args(argv)

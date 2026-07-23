@@ -45,10 +45,12 @@ from .bibliography_role_features import (
 from .bibliography_signal_tcn import SignalTCN, build_signal_features
 from .bibliography_scope_rules import auxiliary_scope_mask
 from .contract import sha256_file
+from .bibliography_nextgen_table import bib_heading_lexicon_match
 from .deterministic_structure import BibRole, analyze_bib_line
 
 
 _MARKDOWN_HEADING = re.compile(r"^\s*#{1,6}\s+\S")
+_RULE_LINE = re.compile(r"^[\s_—–\-.]{4,}$")
 _IMAGE_MARKER = re.compile(r"^\s*<!--\s*image\s*-->\s*$", re.IGNORECASE)
 
 
@@ -447,6 +449,23 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     )
     table_index = FEATURE_NAMES.index("table_row_count")
     table = (counts[:, table_index] > 0).astype(np.float32)
+    rule_line = np.asarray(
+        [
+            bool(_RULE_LINE.fullmatch(text))
+            for document in extracted
+            for text in document.texts
+        ],
+        dtype=np.float32,
+    )
+    heading_lexicon = np.asarray(
+        [
+            bool(_MARKDOWN_HEADING.match(text))
+            and bib_heading_lexicon_match(text, int(abs_idx))
+            for document in extracted
+            for text, abs_idx in zip(document.texts, document.abs_indices, strict=True)
+        ],
+        dtype=np.float32,
+    )
     features = np.column_stack(
         (
             entry,
@@ -466,6 +485,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             markdown,
             image,
             table,
+            rule_line,
+            heading_lexicon,
         )
     ).astype(np.float32)
     names = feature_names()

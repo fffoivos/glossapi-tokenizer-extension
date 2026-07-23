@@ -174,6 +174,7 @@ def _apply_scope_model(
     features: np.ndarray,
     names: Sequence[str],
     threshold: float,
+    guards: Mapping[str, Any],
 ) -> tuple[np.ndarray, int, int]:
     paths = [Path(row["path"]).resolve() for row in frozen_folds]
     if not paths:
@@ -194,7 +195,14 @@ def _apply_scope_model(
     )
     component_probability = predict_component_probability(models, x)
     scoped = apply_component_threshold(
-        prediction, bounds, component_probability, threshold
+        prediction,
+        bounds,
+        component_probability,
+        threshold,
+        component_features=x,
+        heading_rescue_floor=guards.get("heading_rescue_floor"),
+        image_fraction_veto=guards.get("image_fraction_veto"),
+        rule_fraction_veto=guards.get("rule_fraction_veto"),
     )
     return scoped, len(bounds), int(np.count_nonzero(component_probability >= threshold))
 
@@ -266,6 +274,9 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 features,
                 names,
                 float(candidate["scope_threshold"]),
+                json.loads(
+                    (scope_root / "report.json").read_text(encoding="utf-8")
+                ),
             )
         probability_path = output / f"{candidate['name']}.probability.npy"
         prediction_path = output / f"{candidate['name']}.prediction.npy"
