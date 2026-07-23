@@ -12,7 +12,7 @@ from typing import Any, Mapping, Sequence
 from .bibliography_nextgen_decode import SCHEMA_VERSION as DECODER_SCHEMA
 from .bibliography_nextgen_models import SCHEMA_VERSION as MODEL_SCHEMA
 from .bibliography_nextgen_scope import SCHEMA_VERSION as SCOPE_SCHEMA
-from .contract import sha256_file
+from .contract import seal_hashes, sha256_file
 
 
 SCHEMA_VERSION = "bibliography-nextgen-candidate-freeze-v1"
@@ -145,9 +145,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             "schema_version": seal["schema_version"],
             "document_count": seal["document_count"],
             "line_count": seal["line_count"],
-            "documents_sha256": seal["sealed_hashes"]["documents_sha256"],
-            "labels_sha256": seal["sealed_hashes"]["labels_sha256"],
-            "line_key_sha256": seal["sealed_hashes"]["line_key_sha256"],
+            **seal_hashes(seal),
             "human_gold": False,
         },
         "code_commit": args.code_commit,

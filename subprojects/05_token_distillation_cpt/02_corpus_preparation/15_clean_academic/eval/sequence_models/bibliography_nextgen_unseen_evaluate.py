@@ -16,28 +16,12 @@ import numpy as np
 from .bibliography_entry_blocks import blocks_from_mask
 from .bibliography_nextgen_freeze import SCHEMA_VERSION as FREEZE_SCHEMA
 from .bibliography_nextgen_unseen_predict import SCHEMA_VERSION as PREDICTION_SCHEMA
-from .contract import sha256_file
+from .contract import seal_hashes, sha256_file
 
 
 SCHEMA_VERSION = "bibliography-nextgen-one-shot-consensus-silver-test-v1"
 _MARKDOWN_HEADING = re.compile(r"^\s*#{1,6}\s+\S")
 _IMAGE_MARKER = re.compile(r"^\s*<!--\s*image\s*-->\s*$", re.IGNORECASE)
-
-
-def _seal_hashes(seal: Mapping[str, Any]) -> dict[str, str]:
-    """Read the sealed input digests from either consensus-silver seal shape."""
-
-    if "sealed_hashes" in seal:
-        source = seal["sealed_hashes"]
-        return {
-            name: str(source[name])
-            for name in ("documents_sha256", "line_key_sha256", "labels_sha256")
-        }
-    outputs = seal["outputs"]
-    return {
-        f"{name}_sha256": str(outputs[name]["sha256"])
-        for name in ("documents", "line_key", "labels")
-    }
 
 
 def _iter_jsonl(path: Path) -> Iterable[dict[str, Any]]:
@@ -227,7 +211,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         or freeze.get("test_seal", {}).get("sha256") != sha256_file(seal_path)
     ):
         raise ValueError("prediction/freeze/test seal provenance mismatch")
-    wanted_hashes = _seal_hashes(seal)
+    wanted_hashes = seal_hashes(seal)
     observed_hashes = {
         "documents_sha256": sha256_file(documents_path),
         "line_key_sha256": sha256_file(line_key_path),

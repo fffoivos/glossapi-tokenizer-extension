@@ -520,3 +520,19 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+def seal_hashes(seal: Mapping[str, Any]) -> dict[str, str]:
+    """Read the sealed input digests from either consensus-silver seal shape."""
+
+    if "sealed_hashes" in seal:
+        source = seal["sealed_hashes"]
+        return {
+            name: str(source[name])
+            for name in ("documents_sha256", "line_key_sha256", "labels_sha256")
+        }
+    outputs = seal["outputs"]
+    return {
+        f"{name}_sha256": str(outputs[name]["sha256"])
+        for name in ("documents", "line_key", "labels")
+    }
