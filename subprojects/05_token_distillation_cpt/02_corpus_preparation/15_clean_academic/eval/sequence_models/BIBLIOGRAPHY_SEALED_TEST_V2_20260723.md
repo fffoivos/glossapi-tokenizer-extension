@@ -74,8 +74,14 @@ answers.
 - Final output: `21_role_terra_high_b/pass-b.json`
 
 Both one-batch preflights passed on the first attempt. The exhaustive runs then
-resumed those same contracts with `--pending-only`; completed batches are never
-rerun.
+resumed those same contracts with `--pending-only`; completed batches were
+never rerun. Pass A completed 376 batches and pass B completed 407 batches.
+Both final outputs cover all 210,704 lines.
+
+The final pass SHA-256 values are:
+
+- pass A: `0ae6c019f865fb71488233ad1a804f586c8603508aa12ff61fbcc7c14149bc1e`
+- pass B: `0885b4777b80652644a61c3ef1be78b95358a7dc40d8d36041c854a251bf9b03`
 
 ## Label invariants corrected for this cohort
 
@@ -88,9 +94,29 @@ rerun.
 - Bibliographic source lists, webographies, and CV publication lists may be
   bibliography components when they actually list sources or publications.
 
-## Completion gate
+## Completed annotation audit
 
-Do not call the test set labeled until both final pass receipts exist and cover
-all 210,704 keyed lines. Preserve raw pass outputs. Any contextual repair must
-be emitted as a separate derived artifact and reported; it must never overwrite
-either reviewer record.
+Clariden job `2875593` audited both complete raw passes without mutating them.
+
+- Contextual-role violations: zero in both passes. No `CONTINUATION` or
+  `FILLER` label required repair.
+- Non-Markdown heading-role violations: 20 in pass A and 34 in pass B. These
+  were changed only in separately derived audit copies under
+  `22_annotation_audit`; the raw evidence remains unchanged.
+- The side-by-side review reader and its agreement manifest are under
+  `23_ab_review_site`. Clariden job `2875604` completed the build.
+
+Agreement after the narrow Markdown-header repair:
+
+- BIB/non-BIB: 99.7328% overall, Cohen's kappa 0.9868.
+- BIB/non-BIB by source: 99.6470% Greek PhD, 99.5628% Kallipos, and 99.9966%
+  OpenArchives.
+- Heading detected by both versus either: 85.1247%.
+- Heading subtype when both detected a heading: 99.6815%.
+- Filler/continuation detected by both versus either: 86.2475%.
+- Filler versus continuation when both detected one: 98.4966%.
+
+The cohort passes the predeclared 98% overall and 95% per-source primary
+BIB/non-BIB agreement gates. The 563 primary-task disagreements remain
+unresolved; they must be masked rather than silently adjudicated. The two raw
+passes and the derived audit copies must all be preserved.
