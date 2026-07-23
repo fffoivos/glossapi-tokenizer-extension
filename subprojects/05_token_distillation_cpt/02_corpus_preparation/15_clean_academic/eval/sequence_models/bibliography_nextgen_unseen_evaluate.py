@@ -24,6 +24,22 @@ _MARKDOWN_HEADING = re.compile(r"^\s*#{1,6}\s+\S")
 _IMAGE_MARKER = re.compile(r"^\s*<!--\s*image\s*-->\s*$", re.IGNORECASE)
 
 
+def _seal_hashes(seal: Mapping[str, Any]) -> dict[str, str]:
+    """Read the sealed input digests from either consensus-silver seal shape."""
+
+    if "sealed_hashes" in seal:
+        source = seal["sealed_hashes"]
+        return {
+            name: str(source[name])
+            for name in ("documents_sha256", "line_key_sha256", "labels_sha256")
+        }
+    outputs = seal["outputs"]
+    return {
+        f"{name}_sha256": str(outputs[name]["sha256"])
+        for name in ("documents", "line_key", "labels")
+    }
+
+
 def _iter_jsonl(path: Path) -> Iterable[dict[str, Any]]:
     with path.open(encoding="utf-8") as handle:
         for number, line in enumerate(handle, 1):
@@ -211,7 +227,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         or freeze.get("test_seal", {}).get("sha256") != sha256_file(seal_path)
     ):
         raise ValueError("prediction/freeze/test seal provenance mismatch")
-    wanted_hashes = seal["sealed_hashes"]
+    wanted_hashes = _seal_hashes(seal)
     observed_hashes = {
         "documents_sha256": sha256_file(documents_path),
         "line_key_sha256": sha256_file(line_key_path),

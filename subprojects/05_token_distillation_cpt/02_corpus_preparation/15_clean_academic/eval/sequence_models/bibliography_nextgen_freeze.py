@@ -49,10 +49,14 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         raise FileExistsError(output)
     seal = json.loads(seal_path.read_text(encoding="utf-8"))
     if (
-        seal.get("status") != "frozen_posthoc_consensus_silver_evaluation_set"
+        seal.get("status")
+        not in {
+            "frozen_posthoc_consensus_silver_evaluation_set",
+            "passed_task_specific_consensus_materialization",
+        }
         or seal.get("human_gold") is not False
     ):
-        raise ValueError("expected the frozen post-hoc consensus-silver test seal")
+        raise ValueError("expected a frozen consensus-silver test seal")
     rows = []
     names: set[str] = set()
     for raw in args.candidate:
