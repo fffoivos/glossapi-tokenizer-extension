@@ -1,5 +1,13 @@
 # Lexicon heading gate and body-damage operating point (2026-07-22)
 
+> **SUPERSEDED (2026-07-23).** The deployment conclusion below is out of date.
+> On the fresh 150-document `bibliography_150_20260723_v2` cohort the incumbent is
+> *strictly dominated*: it removes 53.9% of bibliography characters while destroying
+> 0.505% of body characters, against 86.0% / 0.258% for `heading_lexgate`.
+> See `BIBLIOGRAPHY_NEXTGEN_COHORT2_BAKEOFF_20260723.md` and
+> `RECOMMENDED_BIBLIOGRAPHY_MODEL.json`. Metrics in this document are measured on
+> the 20260718 cohort, which was subsequently shown to be optimistic.
+
 ## Summary
 
 Two changes to the gating logic, both derived from development evidence:

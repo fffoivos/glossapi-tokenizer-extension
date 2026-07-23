@@ -1,0 +1,72 @@
+{
+  "schema_version": "bibliography-recommended-model-v1",
+  "status": "recommended_supersedes_incumbent",
+  "decided": "2026-07-23",
+  "name": "heading_lexgate",
+  "supersedes": "incumbent_entry",
+  "rationale": "Strictly dominates the deployed incumbent on the 20260723 cohort: removes 86.0% of bibliography characters against 53.9%, while destroying 0.258% of body characters against 0.505%. Better on both axes simultaneously.",
+  "measure_change_required": {
+    "accepted_by_owner": false,
+    "note": "This candidate does not clear the historical 0.98 line-precision gate (0.95921). The recommendation rests on replacing line precision with a character-denominated body-damage budget, because the incumbent scores 0.9788 line precision but 0.9127 character precision - its false positives are long lines. Adopting this model means adopting that change of measure."
+  },
+  "configuration": {
+    "feature_table": "experiments/bib_nextgen_devfix_20260722/full_table_v3",
+    "line_model": "experiments/bib_nextgen_devfix_20260722/line_hist_v3",
+    "decoder": "experiments/bib_nextgen_devfix_20260722/decode_v6_lextopo",
+    "component_scope": "experiments/bib_nextgen_devfix_20260722/scope_linear_v7",
+    "scope_threshold": 0.98,
+    "scope_guards": {
+      "heading_rescue_floor": 0.6,
+      "image_fraction_veto": 0.15,
+      "rule_fraction_veto": 0.05
+    },
+    "storage_root": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/classifier_research",
+    "code_bundle": "code_bundles/bib_nextgen_cohort2_ec1b5977",
+    "code_commit": "ec1b5977",
+    "branch": "codex/bib-nextgen-lexicon-gate"
+  },
+  "receipt_sha256": {
+    "feature_table": "052bf69fff41ffb0b6d58c47ab78440cb265ca7706083035efed40b650940d20",
+    "line_model": "75d28d2be076b700593e5eb25f2cec83d99534f696feda2fa5b117ebbf36fefd",
+    "decoder": "7c5fb2411a4019167685409654d6355ccb6f54aaf98cfd825d06acb9dde4f78d",
+    "component_scope": "0a597bc779d6c8536f8a929848ce3c616f19ace31cead0d1e9d77bb3dbfac6d0",
+    "candidate_freeze": "9c58d922763ca7490f56cf74794f07d926011ed6fa076f94bf41f15cc51966a7",
+    "one_shot_report": "76816d339b43c20415794494e9469e3ada0ed16ff6b78328d08cd150da474eb6"
+  },
+  "sealed_one_shot": {
+    "cohort": "sealed_tests/bibliography_150_20260723_v2/30_consensus_silver",
+    "document_count": 150,
+    "line_count": 210704,
+    "human_gold": false,
+    "label_semantics": "dual-terra-high consensus silver, binary A/B agreement 0.99733",
+    "line_precision": 0.95921,
+    "line_recall": 0.83177,
+    "char_precision": 0.97033,
+    "char_recall": 0.85954,
+    "bibliography_chars_removed_fraction": 0.85954,
+    "body_chars_destroyed_fraction": 0.00258,
+    "frozen_before_label_access": true,
+    "selection_made_against_this_cohort": false
+  },
+  "same_cohort_comparison": [
+    {"name": "incumbent_entry", "char_precision": 0.9127, "char_recall": 0.5388, "bib_removed": 0.539, "body_destroyed": 0.00505, "efficiency": 10.5},
+    {"name": "position_hist_unscoped", "char_precision": 0.9193, "char_recall": 0.9254, "bib_removed": 0.925, "body_destroyed": 0.00796, "efficiency": 11.4},
+    {"name": "orig_component_scope", "scope_threshold": 0.90, "char_precision": 0.9454, "char_recall": 0.8840, "bib_removed": 0.884, "body_destroyed": 0.00500, "efficiency": 17.3},
+    {"name": "devfix_corrected", "scope_threshold": 0.85, "char_precision": 0.9412, "char_recall": 0.9033, "bib_removed": 0.903, "body_destroyed": 0.00553, "efficiency": 16.0},
+    {"name": "heading_lexgate", "scope_threshold": 0.98, "char_precision": 0.9703, "char_recall": 0.8595, "bib_removed": 0.860, "body_destroyed": 0.00258, "efficiency": 32.7}
+  ],
+  "conditions_before_corpus_scale_use": [
+    "Corpus-scale dry run reporting per-document removal-rate distribution (no labels required)",
+    "Decide the fragmentation-scope policy explicitly",
+    "Eyeball a sample of removed spans, including bibliography abbreviation lists",
+    "Hold the scope threshold at 0.98-0.99; looser settings buy recall at roughly 1:1 body damage"
+  ],
+  "known_limitations": [
+    "Kallipos recall 0.677 at this operating point; 170 gold blocks against 91 predicted components",
+    "n=150 with heavy tails: three documents moved pooled precision by 1.8 points",
+    "Three sources only (greek_phd, kallipos, openarchives)",
+    "Cohort 2 labels are now open; a future unbiased read needs a fresh seal",
+    "The body-damage level 0.00025 was calibrated on the 20260718 cohort, not derived from a stated tolerance"
+  ],
+  "evidence": "BIBLIOGRAPHY_NEXTGEN_COHORT2_BAKEOFF_20260723.md"
+}
