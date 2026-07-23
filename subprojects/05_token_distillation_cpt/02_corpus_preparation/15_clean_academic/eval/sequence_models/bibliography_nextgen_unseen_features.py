@@ -44,7 +44,7 @@ from .bibliography_role_features import (
 )
 from .bibliography_signal_tcn import SignalTCN, build_signal_features
 from .bibliography_scope_rules import auxiliary_scope_mask
-from .contract import sha256_file
+from .contract import seal_hashes, sha256_file
 from .bibliography_nextgen_table import bib_heading_lexicon_match
 from .deterministic_structure import BibRole, analyze_bib_line
 
@@ -382,7 +382,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         or freeze.get("status") != "frozen_before_test_open"
         or freeze.get("test_labels_opened") is not False
         or freeze.get("test_seal", {}).get("sha256") != sha256_file(seal_path)
-        or sha256_file(documents_path) != seal["sealed_hashes"]["documents_sha256"]
+        or sha256_file(documents_path) != seal_hashes(seal)["documents_sha256"]
     ):
         raise ValueError("candidate freeze/test document seal mismatch")
     rows = list(_iter_jsonl(documents_path))
