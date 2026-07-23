@@ -120,3 +120,30 @@ The cohort passes the predeclared 98% overall and 95% per-source primary
 BIB/non-BIB agreement gates. The 563 primary-task disagreements remain
 unresolved; they must be masked rather than silently adjudicated. The two raw
 passes and the derived audit copies must all be preserved.
+
+## Agreement-only test labels
+
+Clariden job `2875614` materialized and independently audited the full
+150-document task-specific consensus under `30_consensus_silver`. This used
+code commit `e7ef557bc03777e7dbfe624be40f34d32bfb64cd`.
+
+- Trusted BIB: 23,694 lines.
+- Trusted NON_BIB: 186,447 lines.
+- Masked BIB/non-BIB disagreement: 563 lines.
+- Exact fine-role agreements: 207,836 lines.
+- Masked fine-role disagreements: 2,868 lines.
+- Excluded documents: zero.
+- Third annotator: none.
+
+Primary files:
+
+- `30_consensus_silver/labels.task-consensus.jsonl`
+- `30_consensus_silver/fine-role.overlay-v3.jsonl`
+- `30_consensus_silver/receipt.json`
+- `30_consensus_silver/independent-audit.json`
+
+The independent audit status is
+`passed_independent_consensus_silver_audit`. It recomputed every task label
+from the two repaired votes, verified complete line coverage and all content
+hashes, and confirmed that no third pass was used. All files in
+`30_consensus_silver` were then locked read-only with mode `0440`.
