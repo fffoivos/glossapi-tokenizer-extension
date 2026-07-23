@@ -178,8 +178,8 @@ def materialize(
     if output_dir.exists() or output_dir.is_symlink():
         raise FileExistsError(output_dir)
     excluded = frozenset(str(value) for value in excluded_document_ids)
-    if not excluded or "" in excluded or len(excluded) != len(excluded_document_ids):
-        raise ValueError("excluded document IDs must be non-empty and unique")
+    if "" in excluded or len(excluded) != len(excluded_document_ids):
+        raise ValueError("excluded document IDs must be unique and non-empty when supplied")
 
     documents = list(_iter_jsonl(documents_path))
     line_keys = list(_iter_jsonl(line_key_path))
@@ -398,7 +398,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--line-key", type=Path, required=True)
     parser.add_argument("--pass-a", type=Path, required=True)
     parser.add_argument("--pass-b", type=Path, required=True)
-    parser.add_argument("--exclude-document-id", action="append", required=True)
+    parser.add_argument("--exclude-document-id", action="append", default=[])
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--code-commit", required=True)
     parser.add_argument("--slurm-job-id", default=os.environ.get("SLURM_JOB_ID", ""))
