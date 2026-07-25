@@ -45,6 +45,7 @@ from .bibliography_role_features import (
 from .bibliography_signal_tcn import SignalTCN, build_signal_features
 from .bibliography_scope_rules import auxiliary_scope_mask
 from .contract import seal_hashes, sha256_file
+from .bibliography_citation_grammar import citation_grammar
 from .bibliography_nextgen_table import bib_heading_lexicon_match
 from .deterministic_structure import BibRole, analyze_bib_line
 
@@ -466,6 +467,10 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ],
         dtype=np.float32,
     )
+    grammar = np.asarray(
+        [citation_grammar(text) for document in extracted for text in document.texts],
+        dtype=np.float32,
+    )
     features = np.column_stack(
         (
             entry,
@@ -487,6 +492,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             table,
             rule_line,
             heading_lexicon,
+            grammar,
         )
     ).astype(np.float32)
     names = feature_names()

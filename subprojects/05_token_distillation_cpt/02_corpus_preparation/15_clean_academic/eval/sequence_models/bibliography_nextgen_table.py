@@ -20,6 +20,7 @@ from typing import Any, Iterable, Mapping, Sequence
 import numpy as np
 from numpy.lib.format import open_memmap
 
+from .bibliography_citation_grammar import CITATION_GRAMMAR_NAMES, citation_grammar
 from .bibliography_entry_dataset import FEATURE_NAMES, LABEL_TO_ID
 from .bibliography_entry_models import load_table
 from .bibliography_positional_models import load_positional_table
@@ -32,7 +33,7 @@ from .bibliography_role_features import GAP_SUMMARY_NAMES, LINE_SHAPE_NAMES, lin
 from .contract import sha256_file
 
 
-SCHEMA_VERSION = "bibliography-nextgen-full-table-v3"
+SCHEMA_VERSION = "bibliography-nextgen-full-table-v4"
 ROLE_PROBABILITY_NAMES = (
     "entry",
     "continuation",
@@ -127,6 +128,7 @@ def feature_names() -> tuple[str, ...]:
         "structure:table_row",
         "structure:rule_line",
         "structure:bib_heading_lexicon",
+        *CITATION_GRAMMAR_NAMES,
     )
 
 
@@ -311,6 +313,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                         (markdown, image, table_row, rule_line, bib_heading_lexicon),
                         dtype=np.float32,
                     ),
+                    np.asarray(citation_grammar(text), dtype=np.float32),
                 )
             )
             if row.shape != (len(names),) or not np.isfinite(row).all():
