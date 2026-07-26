@@ -382,6 +382,162 @@ fn emit_signal(args: &Args) -> Result<()> {
     Ok(())
 }
 
+/// Emit the 177-feature connector matrix for every candidate, in document order
+/// then ascending line index — the order `_connector_probabilities` appends in.
+fn emit_connector(args: &Args) -> Result<()> {
+    use bib_line_model::chain::{
+        broad_heading_candidate, heading_numeric_features, heading_probabilities,
+    };
+    use bib_line_model::connector::{
+        candidate_window_mask, connector_feature_row, joined_text, DocumentContext,
+        CANDIDATE_RADIUS, N_CONNECTOR_FEATURES,
+    };
+    use bib_line_model::predict::Tfidf;
+
+    let root = args.artifacts.as_ref().context("emit-connector needs --artifacts")?;
+    let artifacts = Artifacts::load(root)?;
+    let char_tfidf: Vec<Tfidf> = artifacts
+        .heading
+        .iter()
+        .map(|f| Tfidf::new(&f.char_tfidf))
+        .collect::<Result<_>>()?;
+    let word_tfidf: Vec<Tfidf> = artifacts
+        .heading
+        .iter()
+        .map(|f| Tfidf::new(&f.word_tfidf))
+        .collect::<Result<_>>()?;
+
+    let docs = read_documents(&args.input)?;
+    eprintln!(
+        "bib_line_detect: {} documents, {} lines, {} rayon threads",
+        docs.len(),
+        docs.iter().map(|d| d.len()).sum::<usize>(),
+        rayon::current_num_threads()
+    );
+    let start = std::time::Instant::now();
+
+    // Absolute indices are assigned across the whole corpus, so each document's
+    // base offset is the running line total.
+    let mut bases = Vec::with_capacity(docs.len());
+    let mut running = 0i64;
+    for doc in &docs {
+        bases.push(running);
+        running += doc.len() as i64;
+    }
+
+    let per_doc: Vec<(Vec<i64>, Vec<f32>)> = docs
+        .par_iter()
+        .zip(bases.par_iter())
+        .map(|(texts, base)| {
+            let n = texts.len();
+            let lines: Vec<features::Line> = texts.iter().map(|t| features::analyze(t)).collect();
+            let entry: Vec<f32> = lines
+                .iter()
+                .map(|l| chain::entry_probability(&artifacts.entry, &l.counts))
+                .collect();
+            let abs: Vec<i64> = (0..n as i64).map(|i| base + i).collect();
+
+            let mut heading_candidate = vec![false; n];
+            let mut heading = vec![[0f32; 3]; n];
+            for (offset, text) in texts.iter().enumerate() {
+                let previous_blank =
+                    offset > 0 && bib_line_model::shape::py_strip(&texts[offset - 1]).is_empty();
+                let next_blank = offset + 1 < n
+                    && bib_line_model::shape::py_strip(&texts[offset + 1]).is_empty();
+                if !broad_heading_candidate(text, previous_blank, next_blank) {
+                    continue;
+                }
+                heading_candidate[offset] = true;
+                let above = &entry[offset.saturating_sub(30)..offset];
+                let below = &entry[(offset + 1).min(n)..(offset + 31).min(n)];
+                let numeric = heading_numeric_features(
+                    text,
+                    previous_blank,
+                    next_blank,
+                    offset as f64 / (n.saturating_sub(1)).max(1) as f64,
+                    above,
+                    below,
+                );
+                let p = heading_probabilities(
+                    &artifacts.heading,
+                    &char_tfidf,
+                    &word_tfidf,
+                    text,
+                    &numeric,
+                );
+                // heading[:, 1:] — the three typed columns.
+                heading[offset] = [p[1], p[2], p[3]];
+            }
+
+            let mask = candidate_window_mask(&entry, &heading_candidate, &abs, CANDIDATE_RADIUS);
+            let ctx = DocumentContext {
+                texts,
+                lines: &lines,
+                abs_indices: &abs,
+                entry: &entry,
+                heading: &heading,
+            };
+            let mut index_out = Vec::new();
+            let mut rows_out = Vec::new();
+            for i in 0..n {
+                if !mask[i] {
+                    continue;
+                }
+                // The driver deduplicates joined lines by their count vector before
+                // scoring; P0D is a pure function of those counts, so scoring each
+                // directly gives the same numbers.
+                let joined = |neighbour: Option<usize>, left_first: bool| {
+                    neighbour.map(|nb| {
+                        let line = features::analyze(&joined_text(texts, i, nb, left_first));
+                        let score = chain::entry_probability(&artifacts.entry, &line.counts);
+                        (score, line)
+                    })
+                };
+                let prev = if i > 0 && abs[i] - abs[i - 1] <= bib_line_model::tcn::MAX_PHYSICAL_GAP
+                {
+                    Some(i - 1)
+                } else {
+                    None
+                };
+                let next = if i + 1 < n
+                    && abs[i + 1] - abs[i] <= bib_line_model::tcn::MAX_PHYSICAL_GAP
+                {
+                    Some(i + 1)
+                } else {
+                    None
+                };
+                let jp = joined(prev, true);
+                let jn = joined(next, false);
+                let row = connector_feature_row(
+                    &ctx,
+                    i,
+                    &mask,
+                    jp.as_ref().map(|(s, l)| (*s, l)),
+                    jn.as_ref().map(|(s, l)| (*s, l)),
+                );
+                index_out.push(base + i as i64);
+                rows_out.extend(row);
+            }
+            (index_out, rows_out)
+        })
+        .collect();
+
+    eprintln!("  built in {:.1}s", start.elapsed().as_secs_f64());
+    let mut index = Vec::new();
+    let mut flat = Vec::new();
+    for (i, r) in per_doc {
+        index.extend(i);
+        flat.extend(r);
+    }
+    eprintln!("  {} candidates", index.len());
+    write_npy_f32(&args.out, index.len(), N_CONNECTOR_FEATURES, &flat)?;
+    // The index goes alongside so the comparison can align on absolute line.
+    let index_f: Vec<f32> = index.iter().map(|v| *v as f32).collect();
+    write_npy_f32(&args.out.with_extension("index.npy"), index.len(), 1, &index_f)?;
+    eprintln!("  wrote {}", args.out.display());
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let args = parse_args()?;
     match args.mode.as_str() {
@@ -390,6 +546,7 @@ fn main() -> Result<()> {
         "emit-heading" => emit_heading(&args),
         "emit-roles" => emit_roles(&args),
         "emit-signal" => emit_signal(&args),
+        "emit-connector" => emit_connector(&args),
         "detect" => bail!("detect: the model layers are not ported yet"),
         other => {
             eprintln!("{}", include_str!("usage.txt"));
