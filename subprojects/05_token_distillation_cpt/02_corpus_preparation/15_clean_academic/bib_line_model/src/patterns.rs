@@ -26,13 +26,23 @@ struct PatternEntry {
     python: String,
 }
 
-/// The frozen heading lexicons, dumped alongside the patterns. `analyze_bib_line`
-/// returns HEADING or SUBHEADING only for exact members of the first two.
+/// The frozen string lexicons, dumped alongside the patterns. Kept as an open map
+/// rather than named fields: the dumper enumerates every string set in
+/// `deterministic_structure` and `bibliography_scope_rules`, so a lexicon added
+/// there should reach the port without a struct change here.
 #[derive(Deserialize, Default)]
 pub struct Lexicons {
-    pub bib_headings: Vec<String>,
-    pub bib_subheadings: Vec<String>,
-    pub extra_bib_subheadings: Vec<String>,
+    #[serde(flatten)]
+    pub all: HashMap<String, Vec<String>>,
+}
+
+impl Lexicons {
+    pub fn get(&self, name: &str) -> &[String] {
+        self.all
+            .get(name)
+            .map(Vec::as_slice)
+            .unwrap_or_else(|| panic!("lexicon {name} missing from patterns.json"))
+    }
 }
 
 #[derive(Deserialize)]

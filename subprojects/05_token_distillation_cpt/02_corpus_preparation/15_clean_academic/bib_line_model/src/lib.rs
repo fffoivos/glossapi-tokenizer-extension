@@ -21,6 +21,7 @@ pub mod features;
 pub mod gaps;
 pub mod patterns;
 pub mod predict;
+pub mod roles;
 pub mod shape;
 pub mod structure;
 pub mod table;

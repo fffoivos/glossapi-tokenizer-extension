@@ -27,13 +27,13 @@ use unicode_normalization::UnicodeNormalization;
 /// `analyze_bib_line` returns HEADING or SUBHEADING.
 static HEADING_OR_SUBHEADING: Lazy<HashSet<String>> = Lazy::new(|| {
     let mut set: HashSet<String> = HashSet::new();
-    set.extend(PATTERNS.lexicons.bib_headings.iter().cloned());
-    set.extend(PATTERNS.lexicons.bib_subheadings.iter().cloned());
+    set.extend(PATTERNS.lexicons.get("bib_headings").iter().cloned());
+    set.extend(PATTERNS.lexicons.get("bib_subheadings").iter().cloned());
     set
 });
 
 static EXTRA_BIB_SUBHEADINGS: Lazy<HashSet<String>> =
-    Lazy::new(|| PATTERNS.lexicons.extra_bib_subheadings.iter().cloned().collect());
+    Lazy::new(|| PATTERNS.lexicons.get("extra_bib_subheadings").iter().cloned().collect());
 
 /// Python `str.casefold()`, from Python's own table.
 fn casefold(text: &str) -> String {
@@ -48,7 +48,7 @@ fn casefold(text: &str) -> String {
 }
 
 /// `_fold` — casefold, NFKD, drop combining marks, then restore word-final sigma.
-fn fold(value: &str) -> String {
+pub fn fold(value: &str) -> String {
     let decomposed: String = casefold(value).nfkd().collect();
     let stripped: String = decomposed
         .chars()
@@ -58,6 +58,16 @@ fn fold(value: &str) -> String {
         .get("DS_FINAL_SIGMA")
         .replace_all(&stripped, "ς")
         .into_owned()
+}
+
+/// `unicodedata.normalize("NFKD", s).casefold().replace("\u0301", "")`.
+///
+/// The v2 exact-heading test uses this instead of `_heading_key`, and the two are
+/// genuinely different: this one removes only the combining acute, leaving every
+/// other mark in place, and does not collapse whitespace or strip decoration.
+pub fn nfkd_casefold_deacute(value: &str) -> String {
+    let decomposed: String = value.nfkd().collect();
+    casefold(&decomposed).replace('\u{301}', "")
 }
 
 /// `_heading_key` — strip decorative leading/trailing punctuation, fold, and

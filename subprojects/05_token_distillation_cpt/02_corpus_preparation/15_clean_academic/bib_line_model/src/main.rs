@@ -304,12 +304,39 @@ fn emit_heading(args: &Args) -> Result<()> {
     Ok(())
 }
 
+/// Emit the 8 negative-role flags plus the header-kind flag per line, for diffing
+/// against the reference `roles.npy` / `header_kinds.npy`.
+fn emit_roles(args: &Args) -> Result<()> {
+    use bib_line_model::roles::{negative_role, N_ROLES};
+    let texts = read_lines(&args.input)?;
+    eprintln!("bib_line_detect: {} lines", texts.len());
+    let start = std::time::Instant::now();
+    let rows: Vec<Vec<f32>> = texts
+        .par_iter()
+        .map(|t| {
+            let line = features::analyze(t);
+            let mut row = vec![0f32; N_ROLES + 1];
+            if let Some(role) = negative_role(t, &line) {
+                row[role] = 1.0;
+            }
+            row[N_ROLES] = bib_line_model::structure::is_heading_or_subheading(t) as u8 as f32;
+            row
+        })
+        .collect();
+    eprintln!("  scored in {:.1}s", start.elapsed().as_secs_f64());
+    let flat: Vec<f32> = rows.into_iter().flatten().collect();
+    write_npy_f32(&args.out, texts.len(), N_ROLES + 1, &flat)?;
+    eprintln!("  wrote {}", args.out.display());
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let args = parse_args()?;
     match args.mode.as_str() {
         "emit-table" => emit_table(&args),
         "emit-entry" => emit_entry(&args),
         "emit-heading" => emit_heading(&args),
+        "emit-roles" => emit_roles(&args),
         "detect" => bail!("detect: the model layers are not ported yet"),
         other => {
             eprintln!("{}", include_str!("usage.txt"));

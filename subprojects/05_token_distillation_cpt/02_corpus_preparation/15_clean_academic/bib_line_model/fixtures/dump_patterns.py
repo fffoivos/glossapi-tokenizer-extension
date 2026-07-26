@@ -353,13 +353,17 @@ def main() -> None:
     # anyone remembering to add it.
     import re as _re
 
+    from sequence_models import bibliography_scope_rules as _sr
     from sequence_models import deterministic_structure as _ds
 
     ds_lexicons: dict[str, list[str]] = {}
-    for name in sorted(dir(_ds)):
+    # AUXILIARY_SCOPE_HEADINGS lives in scope_rules, not deterministic_structure, but
+    # `_analyze_document` consults it before falling back to `_role_index`.
+    for module in (_ds, _sr):
+      for name in sorted(dir(module)):
         if name.startswith("__"):
             continue
-        value = getattr(_ds, name)
+        value = getattr(module, name)
         if isinstance(value, _re.Pattern):
             key = f"DS_{name.lstrip('_')}"
             if key not in entries:
@@ -372,7 +376,7 @@ def main() -> None:
         elif isinstance(value, (frozenset, set)) and value and all(
             isinstance(v, str) for v in value
         ):
-            ds_lexicons[name.lstrip("_").lower()] = sorted(value)
+            ds_lexicons.setdefault(name.lstrip("_").lower(), sorted(value))
     print(
         f"  deterministic_structure: {len(ds_lexicons)} lexicons enumerated",
         file=sys.stderr,

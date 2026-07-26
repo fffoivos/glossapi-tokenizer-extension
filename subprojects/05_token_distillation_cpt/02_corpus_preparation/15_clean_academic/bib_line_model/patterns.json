@@ -1,5 +1,31 @@
 {
  "lexicons": {
+  "ambiguous_format_headings": [
+   "abbreviations",
+   "list of abbreviations",
+   "καταλογος συντομογραφιων",
+   "συντομογραφιες"
+  ],
+  "auxiliary_scope_headings": [
+   "abbreviations",
+   "list of abbreviations",
+   "list of figures",
+   "list of illustrations",
+   "list of tables",
+   "related links",
+   "related material",
+   "related resources",
+   "καταλογος εικονων",
+   "καταλογος πινακων",
+   "καταλογος πινακων και προελευση εικονων",
+   "καταλογος συντομογραφιων",
+   "καταλογος σχηματων",
+   "λιστα επιλεγμενων παραλλαγων",
+   "συντομογραφιες",
+   "σχετιζομενα χναρια",
+   "σχετιζομενο υλικο",
+   "σχετικοι συνδεσμοι"
+  ],
   "bib_headings": [
    "bibliographic references",
    "bibliographical references",
@@ -35,6 +61,13 @@
    "ξενογλωσση",
    "ξενογλωσση βιβλιογραφια",
    "πηγες"
+  ],
+  "body_citation_scope_headings": [
+   "examples",
+   "why",
+   "γιατι",
+   "παραδειγματα",
+   "παρα∆ειγματα"
   ],
   "cv_headings": [
    "curriculum vitae",
@@ -74,6 +107,22 @@
    "σημειωσεις",
    "τελικες σημειωσεις",
    "υποσημειωσεις"
+  ],
+  "section_veto_headings": [
+   "list of figures",
+   "list of illustrations",
+   "list of tables",
+   "related links",
+   "related material",
+   "related resources",
+   "καταλογος εικονων",
+   "καταλογος πινακων",
+   "καταλογος πινακων και προελευση εικονων",
+   "καταλογος σχηματων",
+   "λιστα επιλεγμενων παραλλαγων",
+   "σχετιζομενα χναρια",
+   "σχετιζομενο υλικο",
+   "σχετικοι συνδεσμοι"
   ],
   "toc_headings": [
    "contents",
@@ -609,6 +658,6 @@
  "python_version": "3.12.12",
  "rules_id": "deterministic_bibliography_explicit_features_v2",
  "schema_version": "bib-v2-patterns-v2",
- "sha256": "d3ac2e13114e7ac6074990ebcb43068e58947bd6ac53888f5964d8374d989154",
+ "sha256": "a08b4781446c75c9686468bd1f087af4951431229ed6d81be01a01ca73df046a",
  "unicodedata_version": "15.0.0"
 }
