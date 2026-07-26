@@ -16,6 +16,7 @@
 //!     -> line model (HistGB x5) -> threshold
 
 pub mod artifacts;
+pub mod features;
 pub mod predict;
 
 pub use artifacts::{Artifacts, Manifest};
