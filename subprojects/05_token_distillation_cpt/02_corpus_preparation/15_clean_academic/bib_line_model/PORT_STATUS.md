@@ -67,9 +67,15 @@ cores per node rather than one task of 288.
      (`score_counts`), deduplicated by the count vector's bytes. That dedup is
      per-document and is the stage the plan flagged as the main algorithmic waste.
    - Deployed arm is `hist` with `mean`/`scale` both null, so no scaling.
-   - `probability:continuation_specialist` is a separate array; the receipt records
-     `continuation_specialist_policy: frozen_connector_continuation_fallback`, so
-     confirm whether it simply mirrors the connector's continuation column.
+   - **Resolved:** `probability:continuation_specialist` is `connector[:, 1]`
+     copied — `_load_specialist` returns its fallback unchanged when no specialist
+     root is configured, which is what
+     `continuation_specialist_policy: frozen_connector_continuation_fallback`
+     means. Verified against the deployed table: columns 3 and 4 are bit-identical.
+     So the stage produces **four** distinct values, not five.
+   - **Confirmed against the deployed table:** 185,478 candidates and 25,226 rows
+     sitting at the (0, 0, 0, 1) default, which matches the receipt exactly. That
+     count is the first thing to check when the port runs.
 2. **Line model** — HistGB x5 over the 126 columns, identity scaler, five-fold mean,
    threshold 0.9. Then diff the mask against
    `heading_lexgate_scope.probability.npy` — the contract, and the loop's stop
