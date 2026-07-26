@@ -73,6 +73,13 @@ const QUOTES: [char; 8] = [
     '\'', '"', '«', '»', '\u{201c}', '\u{201d}', '\u{2018}', '\u{2019}',
 ];
 
+/// Whether a character is in `_SENTENCE_TERMINAL`; see the constant's note on why
+/// the Greek member is U+0387 and can never match post-NFKC.
+#[inline]
+pub fn is_sentence_terminal(ch: char) -> bool {
+    SENTENCE_TERMINAL.contains(&ch)
+}
+
 /// `_ratio` — zero when the denominator is zero, rather than NaN.
 #[inline]
 fn ratio(numerator: f64, denominator: f64) -> f64 {

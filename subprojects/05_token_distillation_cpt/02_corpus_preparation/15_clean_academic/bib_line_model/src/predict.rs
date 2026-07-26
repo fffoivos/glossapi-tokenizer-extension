@@ -165,6 +165,45 @@ pub fn linear_accumulate_sparse(
     }
 }
 
+/// Score a linear model against a sparse feature vector.
+///
+/// The heading feature space is ~30k columns of which a line touches a few hundred,
+/// so this walks the non-zeros rather than the coefficient rows. Returns one
+/// probability per output: sigmoid for a binary model, softmax across outputs for a
+/// multiclass one.
+pub fn linear_sparse_scores(model: &Model, nonzero: &[(usize, f64)]) -> Vec<f64> {
+    let m = match model {
+        Model::Linear(m) => m,
+        Model::HistGb(_) => panic!("linear_sparse_scores called on a tree model"),
+    };
+    let mut raw: Vec<f64> = m.intercept.clone();
+    for (k, w) in m.coef.iter().enumerate() {
+        let mut acc = raw[k];
+        for (idx, value) in nonzero {
+            if let Some(wi) = w.get(*idx) {
+                acc += wi * value;
+            }
+        }
+        raw[k] = acc;
+    }
+    if m.link == "softmax" {
+        let max = raw.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+        let mut total = 0.0;
+        for v in raw.iter_mut() {
+            *v = (*v - max).exp();
+            total += *v;
+        }
+        if total > 0.0 {
+            for v in raw.iter_mut() {
+                *v /= total;
+            }
+        }
+        raw
+    } else {
+        raw.iter().map(|x| sigmoid(*x)).collect()
+    }
+}
+
 pub fn model_proba(model: &Model, features: &[f64]) -> f64 {
     match model {
         Model::HistGb(m) => hist_gb_proba(m, features),

@@ -90,6 +90,44 @@ fn write_npy_f32(path: &PathBuf, rows: usize, cols: usize, data: &[f32]) -> Resu
     Ok(())
 }
 
+/// Documents, each as its list of lines. The heading and connector stages need
+/// document boundaries: blank-neighbour flags, the position fraction and the
+/// entry-probability windows are all clipped to the document.
+fn read_documents(input: &PathBuf) -> Result<Vec<Vec<String>>> {
+    let file = std::fs::File::open(input)
+        .with_context(|| format!("opening {}", input.display()))?;
+    let reader = std::io::BufReader::new(file);
+    let mut docs = Vec::new();
+    for raw in reader.lines() {
+        let raw = raw?;
+        if raw.trim().is_empty() {
+            continue;
+        }
+        let doc: serde_json::Value = serde_json::from_str(&raw)?;
+        match doc.get("lines").and_then(|v| v.as_array()) {
+            Some(lines) => docs.push(
+                lines
+                    .iter()
+                    .map(|l| {
+                        l.get("text")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or_default()
+                            .to_string()
+                    })
+                    .collect(),
+            ),
+            None => {
+                let text = doc
+                    .get("text")
+                    .and_then(|v| v.as_str())
+                    .context("document has neither a `lines` array nor a `text` field")?;
+                docs.push(text.split('\n').map(str::to_string).collect());
+            }
+        }
+    }
+    Ok(docs)
+}
+
 fn read_lines(input: &PathBuf) -> Result<Vec<String>> {
     let file = std::fs::File::open(input)
         .with_context(|| format!("opening {}", input.display()))?;
@@ -174,11 +212,104 @@ fn emit_entry(args: &Args) -> Result<()> {
     Ok(())
 }
 
+/// Emit the four heading columns for every line, for diffing against columns
+/// 6..9 of the deployed features.npy (`bib_header`, `bib_subheader`,
+/// `non_bib_header`; column 0 of this block is the any-heading probability the
+/// connector stage consumes).
+fn emit_heading(args: &Args) -> Result<()> {
+    use bib_line_model::chain::{
+        broad_heading_candidate, heading_numeric_features, heading_probabilities,
+        N_HEADING_COLUMNS,
+    };
+    use bib_line_model::predict::Tfidf;
+
+    let root = args
+        .artifacts
+        .as_ref()
+        .context("emit-heading needs --artifacts")?;
+    let artifacts = Artifacts::load(root)
+        .with_context(|| format!("loading artifacts from {}", root.display()))?;
+    let char_tfidf: Vec<Tfidf> = artifacts
+        .heading
+        .iter()
+        .map(|f| Tfidf::new(&f.char_tfidf))
+        .collect::<Result<_>>()?;
+    let word_tfidf: Vec<Tfidf> = artifacts
+        .heading
+        .iter()
+        .map(|f| Tfidf::new(&f.word_tfidf))
+        .collect::<Result<_>>()?;
+
+    let docs = read_documents(&args.input)?;
+    let total: usize = docs.iter().map(|d| d.len()).sum();
+    eprintln!(
+        "bib_line_detect: {} documents, {} lines, {} heading folds, {} rayon threads",
+        docs.len(),
+        total,
+        artifacts.heading.len(),
+        rayon::current_num_threads()
+    );
+    let start = std::time::Instant::now();
+
+    let per_doc: Vec<Vec<f32>> = docs
+        .par_iter()
+        .map(|lines| {
+            // The entry probabilities feeding the context window are the same
+            // five-fold means already verified against column 0.
+            let entry: Vec<f32> = lines
+                .iter()
+                .map(|t| chain::entry_probability(&artifacts.entry, &features::line_counts(t)))
+                .collect();
+            let n = lines.len();
+            let mut out = vec![0f32; n * N_HEADING_COLUMNS];
+            for (offset, text) in lines.iter().enumerate() {
+                let previous_blank = offset > 0
+                    && bib_line_model::shape::py_strip(&lines[offset - 1]).is_empty();
+                let next_blank = offset + 1 < n
+                    && bib_line_model::shape::py_strip(&lines[offset + 1]).is_empty();
+                if !broad_heading_candidate(text, previous_blank, next_blank) {
+                    continue;
+                }
+                // Windows are clipped to the document, matching the Python slices
+                // `entry[max(start, absolute-30):absolute]` and
+                // `entry[absolute+1:min(end, absolute+31)]`.
+                let above = &entry[offset.saturating_sub(30)..offset];
+                let below = &entry[(offset + 1).min(n)..(offset + 31).min(n)];
+                let numeric = heading_numeric_features(
+                    text,
+                    previous_blank,
+                    next_blank,
+                    offset as f64 / (n.saturating_sub(1)).max(1) as f64,
+                    above,
+                    below,
+                );
+                let p = heading_probabilities(
+                    &artifacts.heading,
+                    &char_tfidf,
+                    &word_tfidf,
+                    text,
+                    &numeric,
+                );
+                out[offset * N_HEADING_COLUMNS..(offset + 1) * N_HEADING_COLUMNS]
+                    .copy_from_slice(&p);
+            }
+            out
+        })
+        .collect();
+
+    eprintln!("  scored in {:.1}s", start.elapsed().as_secs_f64());
+    let flat: Vec<f32> = per_doc.into_iter().flatten().collect();
+    write_npy_f32(&args.out, total, N_HEADING_COLUMNS, &flat)?;
+    eprintln!("  wrote {}", args.out.display());
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let args = parse_args()?;
     match args.mode.as_str() {
         "emit-table" => emit_table(&args),
         "emit-entry" => emit_entry(&args),
+        "emit-heading" => emit_heading(&args),
         "detect" => bail!("detect: the model layers are not ported yet"),
         other => {
             eprintln!("{}", include_str!("usage.txt"));

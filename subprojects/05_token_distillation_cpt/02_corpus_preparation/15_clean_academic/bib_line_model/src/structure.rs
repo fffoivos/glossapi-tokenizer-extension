@@ -73,7 +73,7 @@ pub fn heading_key(value: &str) -> String {
 }
 
 /// Whether `analyze_bib_line(text).role` is HEADING or SUBHEADING.
-fn is_heading_or_subheading(text: &str) -> bool {
+pub fn is_heading_or_subheading(text: &str) -> bool {
     let normalized = crate::features::normalize(text);
     let stripped = crate::shape::py_strip(&normalized);
     if stripped.is_empty() {
