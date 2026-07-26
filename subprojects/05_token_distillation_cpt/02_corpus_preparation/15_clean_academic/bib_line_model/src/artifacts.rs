@@ -112,6 +112,23 @@ pub struct ConnectorFold {
     pub other_model: Model,
 }
 
+/// One fold of the signal TCN. The tensors arrive as nested JSON arrays of
+/// differing rank, so they are kept as `Value` and flattened on load against the
+/// shapes the architecture implies.
+#[derive(Debug, Deserialize)]
+pub struct TcnFold {
+    pub feature_names: Vec<String>,
+    pub architecture: TcnArchitecture,
+    pub state_dict: HashMap<String, serde_json::Value>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TcnArchitecture {
+    pub hidden_dim: usize,
+    pub dilations: Vec<usize>,
+    pub kernel_size: usize,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct LineFold {
     pub scaler: Scaler,
@@ -137,6 +154,7 @@ pub struct Artifacts {
     pub line: Vec<LineFold>,
     pub heading: Vec<HeadingFold>,
     pub connector: Vec<ConnectorFold>,
+    pub signal_tcn: Vec<TcnFold>,
 }
 
 fn read_json<T: for<'de> Deserialize<'de>>(path: &Path) -> Result<T> {
@@ -156,14 +174,17 @@ impl Artifacts {
         let line: Folds<LineFold> = read_json(&root.join("line_model.json"))?;
         let heading: Folds<HeadingFold> = read_json(&root.join("heading_bundle.json"))?;
         let connector: Folds<ConnectorFold> = read_json(&root.join("connector_bundle.json"))?;
+        let signal_tcn: Folds<TcnFold> = read_json(&root.join("signal_tcn.json"))?;
         anyhow::ensure!(!entry.folds.is_empty(), "entry model has no folds");
         anyhow::ensure!(!line.folds.is_empty(), "line model has no folds");
+        anyhow::ensure!(!signal_tcn.folds.is_empty(), "signal TCN has no folds");
         Ok(Self {
             manifest,
             entry: entry.folds,
             line: line.folds,
             heading: heading.folds,
             connector: connector.folds,
+            signal_tcn: signal_tcn.folds,
         })
     }
 }

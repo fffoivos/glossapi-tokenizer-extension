@@ -24,6 +24,7 @@ use anyhow::{bail, Context, Result};
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 use bib_line_model::table::{deterministic_row, N_COLUMNS, N_PROBABILITY};
+use bib_line_model::{chain, features, Artifacts};
 use rayon::prelude::*;
 use std::io::{BufRead, BufWriter, Write};
 use std::path::PathBuf;
@@ -146,10 +147,38 @@ fn emit_table(args: &Args) -> Result<()> {
     Ok(())
 }
 
+/// Emit `probability:entry` for every line, for diffing against column 0 of the
+/// deployed features.npy.
+fn emit_entry(args: &Args) -> Result<()> {
+    let root = args
+        .artifacts
+        .as_ref()
+        .context("emit-entry needs --artifacts")?;
+    let artifacts = Artifacts::load(root)
+        .with_context(|| format!("loading artifacts from {}", root.display()))?;
+    let texts = read_lines(&args.input)?;
+    eprintln!(
+        "bib_line_detect: {} lines, {} entry folds, {} rayon threads",
+        texts.len(),
+        artifacts.entry.len(),
+        rayon::current_num_threads()
+    );
+    let start = std::time::Instant::now();
+    let values: Vec<f32> = texts
+        .par_iter()
+        .map(|t| chain::entry_probability(&artifacts.entry, &features::line_counts(t)))
+        .collect();
+    eprintln!("  scored in {:.1}s", start.elapsed().as_secs_f64());
+    write_npy_f32(&args.out, texts.len(), 1, &values)?;
+    eprintln!("  wrote {}", args.out.display());
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let args = parse_args()?;
     match args.mode.as_str() {
         "emit-table" => emit_table(&args),
+        "emit-entry" => emit_entry(&args),
         "detect" => bail!("detect: the model layers are not ported yet"),
         other => {
             eprintln!("{}", include_str!("usage.txt"));

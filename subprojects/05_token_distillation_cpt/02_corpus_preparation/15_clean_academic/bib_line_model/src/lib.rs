@@ -16,6 +16,7 @@
 //!     -> line model (HistGB x5) -> threshold
 
 pub mod artifacts;
+pub mod chain;
 pub mod features;
 pub mod gaps;
 pub mod patterns;
