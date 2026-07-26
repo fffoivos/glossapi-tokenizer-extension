@@ -22,7 +22,9 @@ at scale**, not against fixtures regenerated from the same code.
 | `probability:entry` | same | **bit-exact 210704/210704** |
 | heading candidate mask | same | **exact** — 28,620 both sides, matching the run receipt |
 | `bib_header` / `bib_subheader` / `non_bib_header` | same | max abs diff **1.19e-7**, 0 rows > 1e-6 |
-| **columns verified** | | **120 / 126** |
+| negative roles (8) + header kind | vs `dump_roles.py` reference matrix | **exact 210704/210704 (100.000%)** |
+| `probability:signal_tcn` | vs deployed `features.npy` | max abs diff **1.49e-7**, mean 1.8e-9, 0 rows > 1e-6 |
+| **columns verified** | | **121 / 126** |
 | TF-IDF char_wb + word | vs *fitted* sklearn vectorizers, 4,000 real lines | **0 support, 0 value mismatches** (worst rel 1.7e-7 = float32 rounding) |
 
 The three heading columns are not bit-exact and are not expected to be:
@@ -44,38 +46,34 @@ Throughput: **20,346 lines/s at 64 threads** (full cohort-2 in 18.8 s). Scaling 
 over past 64 on a 4-socket Grace node, so the corpus run should use four tasks of 72
 cores per node rather than one task of 288.
 
-## Remaining — 6 columns, then the line model
+## Remaining — 5 connector columns, then the line model
 
-**The one large job left is `analyze_bib_line`'s negative-role taxonomy.** Everything
-else is small and mechanical.
+**The one job left is the connector bundle.** Its gate is already dumped.
 
-1. **`analyze_bib_line` hard-negative verdict + reason codes**
-   (`deterministic_structure.py:638-873`, ~235 dense lines). Needed because
-   `bibliography_deterministic_roles._analyze_document` classifies each hard-negative
-   line into one of 8 mutually-exclusive roles by substring-matching the reason codes
-   (`_role_index`, `bibliography_deterministic_roles.py:41`), and those 8 flags are 8
-   of the TCN's 10 inputs.
-   - All 81 patterns and 6 lexicons of that module are already dumped into
-     `patterns.json`, so this is a control-flow port, not a transcription job.
-   - Still to locate: `AUXILIARY_SCOPE_HEADINGS`, imported by the roles module and
-     not a module-level string set in `deterministic_structure`.
-   - Note `analyze_bibliography_line_v2` (`bibliography_v2.py:1017`) wraps it and adds
-     a few v2-specific hard-negative returns plus two overrides
-     (`override_running_prose`, `override_statistical_table`) — the roles module calls
-     the **v2** function, so port that wrapper too.
-2. **TCN forward pass** — no torch needed: `Linear(10→32)` masked → 4 residual blocks
-   (`LayerNorm` → `Conv1d(32,32,k=3,dilation=d,padding=d)` → GELU → `+residual`,
-   masked) → `LayerNorm` → `Linear(32→1)`. Dropout is identity at inference. Runs per
-   **physical segment** (`_physical_segments`, split where `diff(abs_idx) >
-   MAX_PHYSICAL_GAP`), not per document. Its 10th input, `exact_bibliography_header`,
-   is `header_kinds > 0` — already available as `structure::is_heading_or_subheading`.
-3. **Connector bundle** — 5 columns (`connector`, `continuation_specialist`,
-   `continuation`, `filler`, `other`); see `_connector_probabilities`. Has its own
-   candidate gate (receipt: `connector_candidate_count: 185478`, so ~88% of lines) and
-   the deployed arm is `hist` with no scaler.
-4. **Line model** — HistGB ×5 over the 126 columns, identity scaler, five-fold mean,
+1. **Connector bundle** — the 5 remaining columns (`connector`,
+   `continuation_specialist`, `continuation`, `filler`, `other`), from
+   `_connector_probabilities` + `connector_feature_row` (**177 features**).
+   - The gate is dumped by `fixtures/dump_connector.py` into `port/connector/`:
+     `candidate_mask.npy`, `connector_rows.npy` (m x 177), `connector_index.npy`,
+     `feature_names.json`. Port against the **feature matrix**, not the four output
+     columns — a mismatch then names the feature instead of being a needle in a
+     177-dimensional haystack. This is what made the role port land 100% first try.
+   - Candidate gate is `candidate_window_mask`: lines within radius 30 of a seed,
+     where a seed is entry >= 0.25 or a heading candidate. Receipt says 185,478
+     candidates (~88% of lines).
+   - Non-candidates are **not** zero: they default to `(0, 0, 0, 1)` — i.e.
+     `other = 1.0`.
+   - Each candidate needs its neighbours' *joined* text scored through P0D again
+     (`score_counts`), deduplicated by the count vector's bytes. That dedup is
+     per-document and is the stage the plan flagged as the main algorithmic waste.
+   - Deployed arm is `hist` with `mean`/`scale` both null, so no scaling.
+   - `probability:continuation_specialist` is a separate array; the receipt records
+     `continuation_specialist_policy: frozen_connector_continuation_fallback`, so
+     confirm whether it simply mirrors the connector's continuation column.
+2. **Line model** — HistGB x5 over the 126 columns, identity scaler, five-fold mean,
    threshold 0.9. Then diff the mask against
-   `heading_lexgate_scope.probability.npy` — the contract.
+   `heading_lexgate_scope.probability.npy` — the contract, and the loop's stop
+   condition.
 
 Fold aggregation everywhere follows `_batched_predict`: sum `predict_proba[:, 1]`
 over folds in **float64**, divide by the fold count, cast to **float32**.
@@ -141,6 +139,15 @@ caught by widening a gate rather than by reading harder.
    the reference never subtracts.
 8. **`[^\W\d_]` is the Python idiom for "letters"** and reduces to `L|Nl|No`, not to
    `L` — `\d` is Nd specifically, so Nl and No survive.
+9. **The same glyph, opposite codepoints, in two files.** `line_shape`'s sentence
+   terminals end in U+0387 GREEK ANO TELEIA (unreachable post-NFKC); the
+   running-prose test in `deterministic_structure` ends in U+00B7 MIDDLE DOT
+   (reachable, and the NFKC image of U+0387). Neither can be transcribed by eye.
+10. **The TCN's chunking is part of the model.** 256 central lines with 32 of
+    context, clipped to the physical segment; the convolutions are zero-padded at
+    window edges, so a whole-segment pass gives different numbers.
+11. **GELU is the erf form, not tanh** — 0.84134 vs 0.84119 at x=1, amplified by
+    four stacked blocks.
 
 ## Gates
 
