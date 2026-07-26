@@ -157,7 +157,7 @@ fn dotted_sequences(value: &str, dotted_words: &[Span]) -> Vec<Span> {
     let mut run: Vec<Span> = Vec::new();
     for span in dotted_words.iter().copied() {
         if let Some(last) = run.last() {
-            if !value[last.1..span.0].trim().is_empty() {
+            if !crate::shape::py_strip(&value[last.1..span.0]).is_empty() {
                 if run.len() >= 2 {
                     sequences.push((run[0].0, run[run.len() - 1].1));
                 }
@@ -172,25 +172,10 @@ fn dotted_sequences(value: &str, dotted_words: &[Span]) -> Vec<Span> {
     sequences
 }
 
-/// Python `str.isspace()`. Rust's `char::is_whitespace` is Unicode White_Space,
-/// which omits the four ASCII separator controls Python also treats as space.
-#[inline]
-fn py_isspace(ch: char) -> bool {
-    ch.is_whitespace() || matches!(ch, '\u{1c}'..='\u{1f}')
-}
-
-/// Python `str.isdigit()`. Approximated by `is_numeric()`, which additionally
-/// accepts Nl (e.g. Roman numeral codepoints); no such character appears in the
-/// corpus, and the fixture set is the check on that.
-#[inline]
-fn py_isdigit(ch: char) -> bool {
-    ch.is_ascii_digit() || ch.is_numeric()
-}
-
-#[inline]
-fn py_isalnum(ch: char) -> bool {
-    ch.is_alphanumeric()
-}
+// Python's character predicates come from `crate::unicode`, which carries the
+// reference interpreter's own tables. Rust's near-equivalents disagree in ways that
+// reach this corpus: `is_whitespace` omits \x1c-\x1f, and `is_numeric` accepts Nl.
+use crate::unicode::{py_isalnum, py_isdigit, py_isspace};
 
 /// `_analysis_bounds` — the author detectors run inside the pipes of a table row
 /// rather than over the row markup.

@@ -88,17 +88,24 @@ def main() -> None:
 
     lines = list(SEED_LINES)
     if args.from_jsonl:
+        # Read every line of every document first, then subsample with a fixed
+        # stride. Truncating at `--limit` while reading would sample only the
+        # opening documents, which in a source-ordered file means one source --
+        # and the failure modes worth catching are source-specific.
+        corpus: list[str] = []
         with open(args.from_jsonl, encoding="utf-8") as handle:
             for raw in handle:
                 if not raw.strip():
                     continue
                 doc = json.loads(raw)
-                for text in str(doc.get(args.text_field, "")).split("\n"):
-                    lines.append(text)
-                    if len(lines) >= args.limit:
-                        break
-                if len(lines) >= args.limit:
-                    break
+                corpus.extend(str(doc.get(args.text_field, "")).split("\n"))
+        stride = max(1, len(corpus) // max(1, args.limit))
+        sampled = corpus[::stride][: args.limit]
+        print(
+            f"  {len(corpus)} corpus lines -> stride {stride} -> {len(sampled)} sampled",
+            file=sys.stderr,
+        )
+        lines.extend(sampled)
 
     cases = []
     for text in lines:

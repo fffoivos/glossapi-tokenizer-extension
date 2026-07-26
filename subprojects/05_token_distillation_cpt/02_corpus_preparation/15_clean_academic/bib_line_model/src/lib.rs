@@ -19,5 +19,7 @@ pub mod artifacts;
 pub mod features;
 pub mod patterns;
 pub mod predict;
+pub mod shape;
+pub mod unicode;
 
 pub use artifacts::{Artifacts, Manifest};

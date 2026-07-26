@@ -29,6 +29,7 @@ import hashlib
 import json
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 # Module-level `re.Pattern` constants the Rust feature stack needs, named exactly
@@ -73,15 +74,118 @@ WANTED = [
     "_ENUMERATED_PROSE_START",
 ]
 
+# `line_shape` and the heading candidate predicate live in a second module. Names
+# are prefixed on the way out so the two namespaces cannot collide.
+WANTED_ROLE = [
+    "_WORD",
+    "_NUMBERED_HEADING",
+    "_REPEATED_RULE",
+    "_TABLE_RULE",
+    "_HTML_FRAGMENT",
+    "_PAGE_NUMBER",
+    "_BULLET_ONLY",
+]
+
 _NAMED_GROUP = re.compile(r"\(\?P<([A-Za-z_][A-Za-z0-9_]*)>")
 _NAMED_BACKREF = re.compile(r"\(\?P=([A-Za-z_][A-Za-z0-9_]*)\)")
+
+# Python and Rust disagree about what a "word character" is, and the disagreement
+# is not academic: Rust's \w is Alphabetic|M|Nd|Pc|Join_Control, so it accepts
+# combining marks, while Python's is `str.isalnum()` plus underscore, which does
+# not. On OCR'd Greek a combining tilde before a token then flips `(?<!\w)` and
+# every `\b`, silently dropping matches. CPython's SRE defines these classes via
+# the `str` predicates, and those are exactly expressible as Unicode categories:
+#
+#   str.isalnum() == category L* or N*   =>  \w == [\p{L}\p{N}_]
+#   str.isspace() == White_Space plus the four ASCII separator controls
+#
+# so every \w, \W, \s, \S and \b is rewritten to the Python definition rather than
+# left to mean whatever the Rust engine means by it. `dump_unicode_tables.py`
+# emits the same predicates as raw ranges, and `main` below asserts the two agree.
+_PY_WORD = r"\p{L}\p{N}_"
+_PY_SPACE = r"\p{White_Space}\x{1c}-\x{1f}"
+_PY_BOUNDARY = (
+    rf"(?:(?<=[{_PY_WORD}])(?![{_PY_WORD}])|(?<![{_PY_WORD}])(?=[{_PY_WORD}]))"
+)
+
+
+# `[^\W_]` is a negated class containing a negated shorthand, which the mechanical
+# rewriter below cannot expand -- but it reduces by hand exactly: "not (non-word or
+# underscore)" is the word characters minus underscore, and Python's word characters
+# are category L* or N*. Both the tokenizer in `_features_and_spans` and `_WORD` in
+# `bibliography_role_features` are this same pattern.
+HAND_REDUCED = {
+    r"[^\W_]+(?:[’'\-][^\W_]+)*": r"[\p{L}\p{N}]+(?:[’'\-][\p{L}\p{N}]+)*",
+}
+
+
+def rewrite_classes(pattern: str) -> str:
+    """Replace \\w, \\W, \\s, \\S and \\b with their Python definitions.
+
+    Character-class aware: inside `[...]` the shorthand expands to bare ranges,
+    outside it expands to a bracketed class. `\\d` is left alone -- Python's `\\d`
+    and Rust's are both exactly Nd.
+    """
+
+    out: list[str] = []
+    i = 0
+    in_class = False
+    n = len(pattern)
+    while i < n:
+        ch = pattern[i]
+        if ch == "\\" and i + 1 < n:
+            esc = pattern[i + 1]
+            if esc == "w":
+                out.append(_PY_WORD if in_class else f"[{_PY_WORD}]")
+            elif esc == "s":
+                out.append(_PY_SPACE if in_class else f"[{_PY_SPACE}]")
+            elif esc == "W":
+                if in_class:
+                    raise SystemExit(r"\W inside a character class needs a hand rewrite")
+                out.append(f"[^{_PY_WORD}]")
+            elif esc == "S":
+                if in_class:
+                    raise SystemExit(r"\S inside a character class needs a hand rewrite")
+                out.append(f"[^{_PY_SPACE}]")
+            elif esc == "b" and not in_class:
+                # `\b` inside a class means backspace in both dialects; leave it.
+                out.append(_PY_BOUNDARY)
+            elif esc == "B":
+                raise SystemExit(r"\B is not handled")
+            else:
+                out.append(pattern[i : i + 2])
+            i += 2
+            continue
+        if not in_class and ch == "[":
+            in_class = True
+            out.append(ch)
+            i += 1
+            # A `]` or `^]` directly after `[` is a literal, not the terminator.
+            if i < n and pattern[i] == "^":
+                out.append("^")
+                i += 1
+            if i < n and pattern[i] == "]":
+                out.append("]")
+                i += 1
+            continue
+        if in_class and ch == "]":
+            in_class = False
+        out.append(ch)
+        i += 1
+    if in_class:
+        raise SystemExit("unbalanced character class in pattern")
+    return "".join(out)
 
 
 def to_fancy(pattern: str, flags: int) -> str:
     """Rewrite a Python pattern into the dialect fancy-regex accepts."""
 
-    out = _NAMED_GROUP.sub(r"(?<\1>", pattern)
-    out = _NAMED_BACKREF.sub(r"\\k<\1>", out)
+    if pattern in HAND_REDUCED:
+        out = HAND_REDUCED[pattern]
+    else:
+        out = _NAMED_GROUP.sub(r"(?<\1>", pattern)
+        out = _NAMED_BACKREF.sub(r"\\k<\1>", out)
+        out = rewrite_classes(out)
     prefix = ""
     if flags & re.I:
         prefix += "i"
@@ -93,6 +197,32 @@ def to_fancy(pattern: str, flags: int) -> str:
         # None of these use verbose mode; refuse rather than mangle whitespace.
         raise SystemExit("re.X pattern encountered -- the dumper does not handle it")
     return f"(?{prefix}){out}" if prefix else out
+
+
+def assert_isalnum_equals_LN() -> None:
+    """The whole `\\w` rewrite rests on `str.isalnum() == category L* or N*`.
+
+    That identity is what lets a compact `[\\p{L}\\p{N}_]` stand in for Python's
+    word class instead of an 800-range table. Check it rather than assume it --
+    if a future Unicode edition breaks it, this should fail loudly at dump time.
+    """
+
+    bad = []
+    for cp in range(0x110000):
+        if 0xD800 <= cp <= 0xDFFF:
+            continue
+        ch = chr(cp)
+        # Parenthesised deliberately: `a != b in c` is a chained comparison.
+        if ch.isalnum() != (unicodedata.category(ch)[0] in "LN"):
+            bad.append(cp)
+            if len(bad) > 8:
+                break
+    if bad:
+        raise SystemExit(
+            "str.isalnum() no longer equals category L*/N* at "
+            + ", ".join(f"U+{cp:04X}" for cp in bad)
+            + " -- the \\w rewrite in this dumper is invalid"
+        )
 
 
 def main() -> None:
@@ -114,11 +244,36 @@ def main() -> None:
             "groups": pattern.groupindex and dict(pattern.groupindex) or {},
         }
 
-    # Also emit the token pattern used for `token_count`; it lives inline in
-    # `_features_and_spans` rather than as a constant.
+    from sequence_models import bibliography_role_features as rf
+
+    for name in WANTED_ROLE:
+        pattern = getattr(rf, name)
+        if not isinstance(pattern, re.Pattern):
+            raise SystemExit(f"role_features.{name} is not a compiled pattern")
+        entries[f"ROLE{name}"] = {
+            "python": pattern.pattern,
+            "fancy": to_fancy(pattern.pattern, pattern.flags),
+            "flags": int(pattern.flags),
+            "groups": dict(pattern.groupindex) if pattern.groupindex else {},
+        }
+
+    # `starts_bullet_or_number` also uses an inline pattern rather than a constant.
+    entries["ROLE_BULLET_PREFIX"] = {
+        "python": r"^\s*[-*•·–—]\s+",
+        "fancy": to_fancy(r"^\s*[-*•·–—]\s+", 0),
+        "flags": 0,
+        "groups": {},
+    }
+
+    # The token pattern used for `token_count` lives inline in
+    # `_features_and_spans` rather than as a constant. `[^\W_]` is a negated class
+    # containing a negated shorthand, which the class rewriter cannot expand
+    # mechanically -- but it reduces exactly: "not (non-word or underscore)" is the
+    # word characters minus underscore, and Python's word characters are L* or N*.
+    assert_isalnum_equals_LN()
     entries["_TOKEN"] = {
         "python": r"[^\W_]+(?:[’'\-][^\W_]+)*",
-        "fancy": r"[^\W_]+(?:[’'\-][^\W_]+)*",
+        "fancy": to_fancy(r"[^\W_]+(?:[’'\-][^\W_]+)*", 0),
         "flags": 0,
         "groups": {},
     }
