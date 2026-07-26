@@ -48,6 +48,36 @@
    "groups": {},
    "python": "[^\\W_]+(?:[’'\\-][^\\W_]+)*"
   },
+  "TABLE_IMAGE_MARKER": {
+   "fancy": "(?i)^[\\p{White_Space}\\x{1c}-\\x{1f}]*<!--[\\p{White_Space}\\x{1c}-\\x{1f}]*image[\\p{White_Space}\\x{1c}-\\x{1f}]*-->[\\p{White_Space}\\x{1c}-\\x{1f}]*$",
+   "flags": 34,
+   "groups": {},
+   "python": "^\\s*<!--\\s*image\\s*-->\\s*$"
+  },
+  "TABLE_MARKDOWN_HEADING": {
+   "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}]*#{1,6}[\\p{White_Space}\\x{1c}-\\x{1f}]+[^\\p{White_Space}\\x{1c}-\\x{1f}]",
+   "flags": 32,
+   "groups": {},
+   "python": "^\\s*#{1,6}\\s+\\S"
+  },
+  "TABLE_RULE_LINE": {
+   "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}_—–\\-.]{4,}$",
+   "flags": 32,
+   "groups": {},
+   "python": "^[\\s_—–\\-.]{4,}$"
+  },
+  "TABLE_SECTION_PREFIX": {
+   "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}]*(?:#{1,6}[\\p{White_Space}\\x{1c}-\\x{1f}]*)?(?:(?:\\(?[0-9]+(?:[.\\-][0-9]+)*\\)?|\\(?[IVXLCivxlc]+\\)?|\\(?[Α-ΩA-Za-zα-ω]\\)?)[.):]?[\\p{White_Space}\\x{1c}-\\x{1f}]+)+",
+   "flags": 32,
+   "groups": {},
+   "python": "^\\s*(?:#{1,6}\\s*)?(?:(?:\\(?[0-9]+(?:[.\\-][0-9]+)*\\)?|\\(?[IVXLCivxlc]+\\)?|\\(?[Α-ΩA-Za-zα-ω]\\)?)[.):]?\\s+)+"
+  },
+  "TABLE_WRAPPERS": {
+   "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}\\[\\(«\\\"'`.\\-–—]+|[\\p{White_Space}\\x{1c}-\\x{1f}\\]\\)»\\\"'`.\\-–—]+$",
+   "flags": 32,
+   "groups": {},
+   "python": "^[\\s\\[\\(«\\\"'`.\\-–—]+|[\\s\\]\\)»\\\"'`.\\-–—]+$"
+  },
   "_ACCESS_DATE": {
    "fancy": "(?i)(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(?:accessed|retrieved|last[\\p{White_Space}\\x{1c}-\\x{1f}]+access(?:ed)?|πρόσβαση|ανακτήθηκε|τελευταία[\\p{White_Space}\\x{1c}-\\x{1f}]+πρόσβαση|ημερομηνία[\\p{White_Space}\\x{1c}-\\x{1f}]+πρόσβασης)(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))",
    "flags": 34,
@@ -299,6 +329,6 @@
  "python_version": "3.12.12",
  "rules_id": "deterministic_bibliography_explicit_features_v2",
  "schema_version": "bib-v2-patterns-v1",
- "sha256": "22021279d495e6d25cd918ac39a000a74243a845c015cdd9e19dbf2f40eff639",
+ "sha256": "93f69f0dfe1b9a2816538ea0b4c8d1d386239803cc61dc515595b52f323380c9",
  "unicodedata_version": "15.0.0"
 }

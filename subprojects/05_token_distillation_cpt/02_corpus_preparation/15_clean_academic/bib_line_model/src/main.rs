@@ -1,73 +1,145 @@
 //! bib_line_detect — thin CLI runner around the line classifier.
 //!
-//!   bib_line_detect --artifacts <dir> --input <jsonl> --out-spans <jsonl>
+//! Two modes:
 //!
-//! Input is one JSON object per line with a `text` field and an id field; output
-//! is one bibliography span per line, matching the `reference_detect` convention
-//! so downstream consumers do not have to learn a second format.
+//!   bib_line_detect emit-table --input <jsonl> --out <npy>
+//!       Write the deterministic columns (10..126 of the v3 contract) for every line
+//!       of every document, in document order. This exists to be diffed against the
+//!       deployed `features.npy` — the strongest available parity gate, because it
+//!       compares against what the reference pipeline actually produced at scale
+//!       rather than against fixtures regenerated from the same code.
 //!
-//! Python is only an I/O driver around this binary.
+//!   bib_line_detect detect --artifacts <dir> --input <jsonl> --out-spans <jsonl>
+//!       The real runner. Pending the model layers.
+//!
+//! Input is one JSON object per line with a `lines` array (each `{text, abs_idx}`),
+//! matching the cohort documents.
 
-use anyhow::{Context, Result};
-use bib_line_model::Artifacts;
+use anyhow::{bail, Context, Result};
+use bib_line_model::table::{deterministic_row, N_COLUMNS, N_PROBABILITY};
+use rayon::prelude::*;
+use std::io::{BufRead, BufWriter, Write};
 use std::path::PathBuf;
 
+const DETERMINISTIC_COLUMNS: usize = N_COLUMNS - N_PROBABILITY;
+
 struct Args {
-    artifacts: PathBuf,
-    input: String,
-    out_spans: String,
-    source: String,
-    text_field: String,
-    id_field: String,
-    threshold: Option<f64>,
+    mode: String,
+    input: PathBuf,
+    out: PathBuf,
+    artifacts: Option<PathBuf>,
 }
 
 fn parse_args() -> Result<Args> {
-    let mut a = Args {
-        artifacts: PathBuf::from("artifacts"),
-        input: "-".into(),
-        out_spans: "spans.jsonl".into(),
-        source: "unknown".into(),
-        text_field: "text".into(),
-        id_field: "source_doc_id".into(),
-        threshold: None,
-    };
     let mut it = std::env::args().skip(1);
+    let mode = it.next().unwrap_or_else(|| "help".into());
+    let mut a = Args {
+        mode,
+        input: PathBuf::from("-"),
+        out: PathBuf::from("out.npy"),
+        artifacts: None,
+    };
     while let Some(key) = it.next() {
         let mut value = || it.next().context("missing value");
         match key.as_str() {
-            "--artifacts" => a.artifacts = PathBuf::from(value()?),
-            "--input" => a.input = value()?,
-            "--out-spans" => a.out_spans = value()?,
-            "--source" => a.source = value()?,
-            "--text-field" => a.text_field = value()?,
-            "--id-field" => a.id_field = value()?,
-            "--threshold" => a.threshold = Some(value()?.parse()?),
+            "--input" => a.input = PathBuf::from(value()?),
+            "--out" => a.out = PathBuf::from(value()?),
+            "--artifacts" => a.artifacts = Some(PathBuf::from(value()?)),
             "-h" | "--help" => {
                 eprintln!("{}", include_str!("usage.txt"));
                 std::process::exit(0);
             }
-            other => anyhow::bail!("unknown flag: {other}"),
+            other => bail!("unknown flag: {other}"),
         }
     }
     Ok(a)
 }
 
+/// Minimal `.npy` v1.0 writer for a C-order float32 matrix.
+fn write_npy_f32(path: &PathBuf, rows: usize, cols: usize, data: &[f32]) -> Result<()> {
+    anyhow::ensure!(data.len() == rows * cols, "data does not match shape");
+    let mut header = format!(
+        "{{'descr': '<f4', 'fortran_order': False, 'shape': ({rows}, {cols}), }}"
+    );
+    // The header (magic + version + length prefix included) must be 64-byte aligned.
+    let prefix = 10;
+    let mut total = prefix + header.len() + 1;
+    while total % 64 != 0 {
+        header.push(' ');
+        total += 1;
+    }
+    header.push('\n');
+    let file = std::fs::File::create(path)?;
+    let mut w = BufWriter::new(file);
+    w.write_all(b"\x93NUMPY")?;
+    w.write_all(&[1u8, 0u8])?;
+    w.write_all(&(header.len() as u16).to_le_bytes())?;
+    w.write_all(header.as_bytes())?;
+    for v in data {
+        w.write_all(&v.to_le_bytes())?;
+    }
+    w.flush()?;
+    Ok(())
+}
+
+fn read_lines(input: &PathBuf) -> Result<Vec<String>> {
+    let file = std::fs::File::open(input)
+        .with_context(|| format!("opening {}", input.display()))?;
+    let reader = std::io::BufReader::new(file);
+    let mut texts = Vec::new();
+    for raw in reader.lines() {
+        let raw = raw?;
+        if raw.trim().is_empty() {
+            continue;
+        }
+        let doc: serde_json::Value = serde_json::from_str(&raw)?;
+        let lines = doc
+            .get("lines")
+            .and_then(|v| v.as_array())
+            .context("document has no `lines` array")?;
+        for line in lines {
+            texts.push(
+                line.get("text")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or_default()
+                    .to_string(),
+            );
+        }
+    }
+    Ok(texts)
+}
+
+fn emit_table(args: &Args) -> Result<()> {
+    let texts = read_lines(&args.input)?;
+    eprintln!("bib_line_detect: {} lines", texts.len());
+    let start = std::time::Instant::now();
+    // `bib_heading_lexicon` needs the deterministic-structure stage, which is not
+    // ported yet; emit 0 and exclude that one column from the comparison rather than
+    // emit a guess that would read as agreement.
+    let rows: Vec<Vec<f32>> = texts
+        .par_iter()
+        .map(|t| deterministic_row(t, false))
+        .collect();
+    let elapsed = start.elapsed();
+    eprintln!(
+        "  featurized in {:.1}s ({:.0} lines/s)",
+        elapsed.as_secs_f64(),
+        texts.len() as f64 / elapsed.as_secs_f64()
+    );
+    let flat: Vec<f32> = rows.into_iter().flatten().collect();
+    write_npy_f32(&args.out, texts.len(), DETERMINISTIC_COLUMNS, &flat)?;
+    eprintln!("  wrote {} ({} cols)", args.out.display(), DETERMINISTIC_COLUMNS);
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let args = parse_args()?;
-    let artifacts = Artifacts::load(&args.artifacts)
-        .with_context(|| format!("loading artifacts from {}", args.artifacts.display()))?;
-    let threshold = args.threshold.unwrap_or(artifacts.manifest.line_threshold);
-    eprintln!(
-        "bib_line_detect: schema={} features={} threshold={} entry_folds={} line_folds={}",
-        artifacts.manifest.schema_version,
-        artifacts.manifest.feature_schema,
-        threshold,
-        artifacts.entry.len(),
-        artifacts.line.len(),
-    );
-    anyhow::bail!(
-        "feature extraction not yet ported — artifacts load cleanly, \
-         but the per-line feature stack is still to come"
-    );
+    match args.mode.as_str() {
+        "emit-table" => emit_table(&args),
+        "detect" => bail!("detect: the model layers are not ported yet"),
+        other => {
+            eprintln!("{}", include_str!("usage.txt"));
+            bail!("unknown mode: {other}")
+        }
+    }
 }

@@ -1,9 +1,10 @@
 bib_line_detect — Greek bibliography line classifier (Rust port of heading_lexgate)
 
-  --artifacts DIR    exported model stack (default: artifacts)
-  --input FILE       JSONL, one document per line ("-" for stdin)
-  --out-spans FILE   JSONL bibliography spans
-  --source NAME      source label written into each span
-  --text-field NAME  default: text
-  --id-field NAME    default: source_doc_id
-  --threshold F      override the line threshold from the manifest
+  bib_line_detect emit-table --input <docs.jsonl> --out <table.npy>
+      Emit the 116 deterministic columns (10..126 of feature contract v3) for every
+      line, in document order. For parity-checking against the deployed features.npy.
+
+  bib_line_detect detect --artifacts <dir> --input <docs.jsonl> --out <spans.jsonl>
+      Score lines and emit bibliography spans.  [model layers pending]
+
+Input: one JSON object per line with a `lines` array of {text, abs_idx}.

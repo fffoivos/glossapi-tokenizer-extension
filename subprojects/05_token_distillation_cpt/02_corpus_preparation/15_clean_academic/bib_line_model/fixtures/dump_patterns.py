@@ -86,6 +86,16 @@ WANTED_ROLE = [
     "_BULLET_ONLY",
 ]
 
+# The five `structure:` flags are assembled in the table builder, from patterns that
+# run on the RAW line rather than the normalized one.
+WANTED_TABLE = [
+    "_MARKDOWN_HEADING",
+    "_IMAGE_MARKER",
+    "_RULE_LINE",
+    "_SECTION_PREFIX",
+    "_WRAPPERS",
+]
+
 _NAMED_GROUP = re.compile(r"\(\?P<([A-Za-z_][A-Za-z0-9_]*)>")
 _NAMED_BACKREF = re.compile(r"\(\?P=([A-Za-z_][A-Za-z0-9_]*)\)")
 
@@ -251,6 +261,19 @@ def main() -> None:
         if not isinstance(pattern, re.Pattern):
             raise SystemExit(f"role_features.{name} is not a compiled pattern")
         entries[f"ROLE{name}"] = {
+            "python": pattern.pattern,
+            "fancy": to_fancy(pattern.pattern, pattern.flags),
+            "flags": int(pattern.flags),
+            "groups": dict(pattern.groupindex) if pattern.groupindex else {},
+        }
+
+    from sequence_models import bibliography_nextgen_table as nt
+
+    for name in WANTED_TABLE:
+        pattern = getattr(nt, name)
+        if not isinstance(pattern, re.Pattern):
+            raise SystemExit(f"nextgen_table.{name} is not a compiled pattern")
+        entries[f"TABLE{name}"] = {
             "python": pattern.pattern,
             "fancy": to_fancy(pattern.pattern, pattern.flags),
             "flags": int(pattern.flags),
