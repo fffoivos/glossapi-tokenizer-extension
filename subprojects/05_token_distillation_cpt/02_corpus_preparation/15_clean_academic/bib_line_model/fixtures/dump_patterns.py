@@ -129,6 +129,20 @@ HAND_REDUCED = {
 }
 
 
+# Negated shorthands *inside* a negated class cannot be expanded mechanically, but
+# the idioms that actually occur reduce exactly. Python's word class is L|N|_, so:
+#
+#   [^\W_]     = (L|N|_) - _            = L|N          ("word chars, not underscore")
+#   [^\W\d_]   = (L|N|_) - Nd - _       = L|Nl|No      ("letters")
+#
+# `\d` is Nd specifically, not all of N, which is why Nl and No survive the second
+# reduction. Applied as a literal pre-pass so the general scanner never sees them.
+NEGATED_CLASS_IDIOMS = {
+    r"[^\W\d_]": r"[\p{L}\p{Nl}\p{No}]",
+    r"[^\W_]": r"[\p{L}\p{N}]",
+}
+
+
 def rewrite_classes(pattern: str) -> str:
     """Replace \\w, \\W, \\s, \\S and \\b with their Python definitions.
 
@@ -136,6 +150,9 @@ def rewrite_classes(pattern: str) -> str:
     outside it expands to a bracketed class. `\\d` is left alone -- Python's `\\d`
     and Rust's are both exactly Nd.
     """
+
+    for idiom, replacement in NEGATED_CLASS_IDIOMS.items():
+        pattern = pattern.replace(idiom, replacement)
 
     out: list[str] = []
     i = 0
@@ -329,6 +346,38 @@ def main() -> None:
         "groups": {},
     }
 
+    # `analyze_bib_line`'s negative-role taxonomy needs every module-level pattern
+    # and string lexicon in deterministic_structure, not just the heading ones.
+    # Enumerate them rather than maintaining a hand-written list: the port has to
+    # track that module exactly, and a name added there should show up here without
+    # anyone remembering to add it.
+    import re as _re
+
+    from sequence_models import deterministic_structure as _ds
+
+    ds_lexicons: dict[str, list[str]] = {}
+    for name in sorted(dir(_ds)):
+        if name.startswith("__"):
+            continue
+        value = getattr(_ds, name)
+        if isinstance(value, _re.Pattern):
+            key = f"DS_{name.lstrip('_')}"
+            if key not in entries:
+                entries[key] = {
+                    "python": value.pattern,
+                    "fancy": to_fancy(value.pattern, value.flags),
+                    "flags": int(value.flags),
+                    "groups": dict(value.groupindex) if value.groupindex else {},
+                }
+        elif isinstance(value, (frozenset, set)) and value and all(
+            isinstance(v, str) for v in value
+        ):
+            ds_lexicons[name.lstrip("_").lower()] = sorted(value)
+    print(
+        f"  deterministic_structure: {len(ds_lexicons)} lexicons enumerated",
+        file=sys.stderr,
+    )
+
     # The heading lexicons, dumped rather than retyped. Within `analyze_bib_line`
     # the HEADING and SUBHEADING roles are reachable *only* by exact membership of
     # `_heading_key(stripped)` in these two sets (verified: those are the only two
@@ -341,9 +390,13 @@ def main() -> None:
         "bib_headings": sorted(ds._BIB_HEADINGS),
         "bib_subheadings": sorted(ds._BIB_SUBHEADINGS),
         "extra_bib_subheadings": sorted(nt._EXTRA_BIB_SUBHEADINGS),
+        # Everything else deterministic_structure keeps as a string set, so the
+        # negative-role port can look them up by their source name.
+        **{k: v for k, v in ds_lexicons.items() if k not in
+           ("bib_headings", "bib_subheadings")},
     }
-    for name, values in lexicons.items():
-        print(f"  lexicon {name}: {len(values)} entries", file=sys.stderr)
+    print(f"  {len(lexicons)} lexicons, {sum(len(v) for v in lexicons.values())} entries total",
+          file=sys.stderr)
 
     payload = {
         "lexicons": lexicons,

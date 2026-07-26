@@ -36,6 +36,16 @@
    "ξενογλωσση βιβλιογραφια",
    "πηγες"
   ],
+  "cv_headings": [
+   "curriculum vitae",
+   "publications",
+   "selected publications",
+   "ανακοινωσεις",
+   "βιογραφικο",
+   "βιογραφικο σημειωμα",
+   "δημοσιευσεις",
+   "επιλεγμενες δημοσιευσεις"
+  ],
   "extra_bib_subheadings": [
    "books",
    "list of references",
@@ -55,20 +65,208 @@
    "κεφαλαια σε βιβλια",
    "ξενη",
    "ξενογλωσσα"
+  ],
+  "notes_headings": [
+   "end notes",
+   "endnotes",
+   "footnotes",
+   "notes",
+   "σημειωσεις",
+   "τελικες σημειωσεις",
+   "υποσημειωσεις"
+  ],
+  "toc_headings": [
+   "contents",
+   "table of contents",
+   "toc",
+   "αναλυτικα περιεχομενα",
+   "περιεχομενα",
+   "πινακας περιεχομενων"
   ]
  },
  "patterns": {
+  "DS_ATX_HEADING": {
+   "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}]{0,3}#{1,6}[\\p{White_Space}\\x{1c}-\\x{1f}]+[^\\p{White_Space}\\x{1c}-\\x{1f}]",
+   "flags": 32,
+   "groups": {},
+   "python": "^\\s{0,3}#{1,6}\\s+\\S"
+  },
+  "DS_BIB_AUTHOR_COMMA": {
+   "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}]*[\\p{L}\\p{Nl}\\p{No}][\\p{L}\\p{N}_'’\\-]{1,40},[\\p{White_Space}\\x{1c}-\\x{1f}]*(?:[A-ZΑ-ΩΆΈΉΊΌΎΏ]\\.?[\\p{White_Space}\\x{1c}-\\x{1f}]*)+",
+   "flags": 32,
+   "groups": {},
+   "python": "^\\s*[^\\W\\d_][\\w'’\\-]{1,40},\\s*(?:[A-ZΑ-ΩΆΈΉΊΌΎΏ]\\.?\\s*)+"
+  },
+  "DS_BIB_AUTHOR_YEAR": {
+   "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}]*[A-ZΑ-ΩΆΈΉΊΌΎΏ][^.!?]{1,90}?[\\p{White_Space}\\x{1c}-\\x{1f}]*\\((?:1[5-9]|20)\\d{2}[a-zα-ω]?\\)",
+   "flags": 32,
+   "groups": {},
+   "python": "^\\s*[A-ZΑ-ΩΆΈΉΊΌΎΏ][^.!?]{1,90}?\\s*\\((?:1[5-9]|20)\\d{2}[a-zα-ω]?\\)"
+  },
+  "DS_BIB_IDENTIFIER": {
+   "fancy": "(?i)(?:https?://|www\\.|doi[\\p{White_Space}\\x{1c}-\\x{1f}]*:|(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))10\\.\\d{4,9}/[^\\p{White_Space}\\x{1c}-\\x{1f}]+|(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))ISBN(?:-1[03])?(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))|(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))ISSN(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_])))",
+   "flags": 34,
+   "groups": {},
+   "python": "(?:https?://|www\\.|doi\\s*:|\\b10\\.\\d{4,9}/\\S+|\\bISBN(?:-1[03])?\\b|\\bISSN\\b)"
+  },
+  "DS_BIB_JOURNAL": {
+   "fancy": "(?i)(?:(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(?:vol(?:ume)?|no\\.|issue|journal|τεύχ(?:ος|\\.)|τχ\\.|τόμ(?:ος|\\.)|vol\\.)(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))|(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))\\d+[\\p{White_Space}\\x{1c}-\\x{1f}]*\\(\\d+\\)[\\p{White_Space}\\x{1c}-\\x{1f}]*[:,][\\p{White_Space}\\x{1c}-\\x{1f}]*\\d|(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(?:pp?\\.|σσ?\\.)[\\p{White_Space}\\x{1c}-\\x{1f}]*\\d)",
+   "flags": 34,
+   "groups": {},
+   "python": "(?:\\b(?:vol(?:ume)?|no\\.|issue|journal|τεύχ(?:ος|\\.)|τχ\\.|τόμ(?:ος|\\.)|vol\\.)\\b|\\b\\d+\\s*\\(\\d+\\)\\s*[:,]\\s*\\d|\\b(?:pp?\\.|σσ?\\.)\\s*\\d)"
+  },
+  "DS_BIB_LEGAL": {
+   "fancy": "(?i)(?:(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(?:ν(?:όμος|\\.)?|law)[\\p{White_Space}\\x{1c}-\\x{1f}]*\\d+[/-]\\d{2,4}(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))|(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))ΦΕΚ[\\p{White_Space}\\x{1c}-\\x{1f}]+[A-ZΑ-Ω]?[\\p{White_Space}\\x{1c}-\\x{1f}]*\\d+[/-]\\d{2,4}(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_])))",
+   "flags": 34,
+   "groups": {},
+   "python": "(?:\\b(?:ν(?:όμος|\\.)?|law)\\s*\\d+[/-]\\d{2,4}\\b|\\bΦΕΚ\\s+[A-ZΑ-Ω]?\\s*\\d+[/-]\\d{2,4}\\b)"
+  },
+  "DS_BIB_NUMBER": {
+   "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}]*(?:\\[(?<bracket>\\d{1,4})\\]|\\((?<paren>\\d{1,4})\\)|(?<plain>\\d{1,4})[.)])[\\p{White_Space}\\x{1c}-\\x{1f}]+",
+   "flags": 32,
+   "groups": {
+    "bracket": 1,
+    "paren": 2,
+    "plain": 3
+   },
+   "python": "^\\s*(?:\\[(?P<bracket>\\d{1,4})\\]|\\((?P<paren>\\d{1,4})\\)|(?P<plain>\\d{1,4})[.)])\\s+"
+  },
+  "DS_BIB_PUBLISHER": {
+   "fancy": "(?i)(?:(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(?:εκδ(?:όσεις|\\.)?|publisher|press|μτφρ\\.|επιμ\\.)(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))|(?:Αθήνα|Θεσσαλονίκη|Athens|London|New York)[\\p{White_Space}\\x{1c}-\\x{1f}]*:)",
+   "flags": 34,
+   "groups": {},
+   "python": "(?:\\b(?:εκδ(?:όσεις|\\.)?|publisher|press|μτφρ\\.|επιμ\\.)\\b|(?:Αθήνα|Θεσσαλονίκη|Athens|London|New York)\\s*:)"
+  },
+  "DS_BIB_YEAR": {
+   "fancy": "(?i)(?:\\((?<paren>(?:1[5-9]|20)\\d{2}[a-zα-ω]?)\\)|(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(?<bare>(?:1[5-9]|20)\\d{2}[a-zα-ω]?)(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))|(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(?<nd>n\\.[\\p{White_Space}\\x{1c}-\\x{1f}]*d\\.|χ\\.[\\p{White_Space}\\x{1c}-\\x{1f}]*χ\\.))",
+   "flags": 34,
+   "groups": {
+    "bare": 2,
+    "nd": 3,
+    "paren": 1
+   },
+   "python": "(?:\\((?P<paren>(?:1[5-9]|20)\\d{2}[a-zα-ω]?)\\)|\\b(?P<bare>(?:1[5-9]|20)\\d{2}[a-zα-ω]?)\\b|\\b(?P<nd>n\\.\\s*d\\.|χ\\.\\s*χ\\.))"
+  },
+  "DS_BODY_HEADING": {
+   "fancy": "(?i)^(?:κεφαλαιο|chapter|παραρτημα|appendix|συμπερασματα|conclusions|μεθοδολογια|methodology)(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))",
+   "flags": 34,
+   "groups": {},
+   "python": "^(?:κεφαλαιο|chapter|παραρτημα|appendix|συμπερασματα|conclusions|μεθοδολογια|methodology)\\b"
+  },
+  "DS_CANONICAL_ROMAN": {
+   "fancy": "M{0,3}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})",
+   "flags": 32,
+   "groups": {},
+   "python": "M{0,3}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})"
+  },
+  "DS_CAPTION": {
+   "fancy": "(?i)^(?:πινακας|σχημα|εικονα|figure|table|fig\\.)[\\p{White_Space}\\x{1c}-\\x{1f}]+\\d+(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))",
+   "flags": 34,
+   "groups": {},
+   "python": "^(?:πινακας|σχημα|εικονα|figure|table|fig\\.)\\s+\\d+\\b"
+  },
+  "DS_DATE": {
+   "fancy": "(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(?:[0-3]?\\d[./-][01]?\\d[./-](?:19|20)?\\d{2}|(?:19|20)\\d{2})(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))",
+   "flags": 32,
+   "groups": {},
+   "python": "\\b(?:[0-3]?\\d[./-][01]?\\d[./-](?:19|20)?\\d{2}|(?:19|20)\\d{2})\\b"
+  },
+  "DS_EQUATION": {
+   "fancy": "(?:(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))[\\p{L}\\p{N}_]+[\\p{White_Space}\\x{1c}-\\x{1f}]*=[\\p{White_Space}\\x{1c}-\\x{1f}]*[-+]?\\d|[∑∫≈≤≥])",
+   "flags": 32,
+   "groups": {},
+   "python": "(?:\\b\\w+\\s*=\\s*[-+]?\\d|[∑∫≈≤≥])"
+  },
   "DS_FINAL_SIGMA": {
    "fancy": "σ(?=[^\\p{L}\\p{N}_]|$)",
    "flags": 0,
    "groups": {},
    "python": "σ(?=\\W|$)"
   },
+  "DS_FOOTNOTE": {
+   "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}]*(?:\\^?\\d{1,3}|[*†‡])[.):]?[\\p{White_Space}\\x{1c}-\\x{1f}]+",
+   "flags": 32,
+   "groups": {},
+   "python": "^\\s*(?:\\^?\\d{1,3}|[*†‡])[.):]?\\s+"
+  },
   "DS_HEADING_STRIP": {
    "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}#*_|:;\\-–—]+|[\\p{White_Space}\\x{1c}-\\x{1f}#*_|:;.!?\\-–—]+$",
    "flags": 0,
    "groups": {},
    "python": "^[\\s#*_|:;\\-–—]+|[\\s#*_|:;.!?\\-–—]+$"
+  },
+  "DS_INLINE_CITATION": {
+   "fancy": "(?i)(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(?:οπως|όπως|σύμφωνα|συμφωνα|κατα|κατά|as|according)(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_])).{0,100}\\((?:19|20)\\d{2}",
+   "flags": 34,
+   "groups": {},
+   "python": "\\b(?:οπως|όπως|σύμφωνα|συμφωνα|κατα|κατά|as|according)\\b.{0,100}\\((?:19|20)\\d{2}"
+  },
+  "DS_LEGAL_START": {
+   "fancy": "(?i)^[\\p{White_Space}\\x{1c}-\\x{1f}]*(?:(?:\\d+(?:\\.\\d+)*|[α-ω])[.)][\\p{White_Space}\\x{1c}-\\x{1f}]*)?(?:αρθρο|άρθρο|παραγραφος|παράγραφος|ο[\\p{White_Space}\\x{1c}-\\x{1f}]+αιτων|ο[\\p{White_Space}\\x{1c}-\\x{1f}]+αιτών|η[\\p{White_Space}\\x{1c}-\\x{1f}]+αιτουσα|η[\\p{White_Space}\\x{1c}-\\x{1f}]+αιτούσα)(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))",
+   "flags": 34,
+   "groups": {},
+   "python": "^\\s*(?:(?:\\d+(?:\\.\\d+)*|[α-ω])[.)]\\s*)?(?:αρθρο|άρθρο|παραγραφος|παράγραφος|ο\\s+αιτων|ο\\s+αιτών|η\\s+αιτουσα|η\\s+αιτούσα)\\b"
+  },
+  "DS_NARRATIVE_AUTHOR_YEAR": {
+   "fancy": "(?i)^[\\p{White_Space}\\x{1c}-\\x{1f}]*[\\p{L}\\p{Nl}\\p{No}][\\p{L}\\p{N}_'’\\-]{1,40}[\\p{White_Space}\\x{1c}-\\x{1f}]+\\((?:1[5-9]|20)\\d{2}[a-zα-ω]?\\)[\\p{White_Space}\\x{1c}-\\x{1f}]+[\\p{L}\\p{Nl}\\p{No}]",
+   "flags": 34,
+   "groups": {},
+   "python": "^\\s*[^\\W\\d_][\\w'’\\-]{1,40}\\s+\\((?:1[5-9]|20)\\d{2}[a-zα-ω]?\\)\\s+[^\\W\\d_]"
+  },
+  "DS_R0_ALPHA": {
+   "fancy": "[A-Za-zΑ-Ωα-ω]",
+   "flags": 32,
+   "groups": {},
+   "python": "[A-Za-zΑ-Ωα-ω]"
+  },
+  "DS_R0_NUMBER": {
+   "fancy": "(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(\\d{1,3}(?:\\.\\d+)?)(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))",
+   "flags": 32,
+   "groups": {},
+   "python": "\\b(\\d{1,3}(?:\\.\\d+)?)\\b"
+  },
+  "DS_R0_RANGE": {
+   "fancy": "(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(\\d{1,3})[\\p{White_Space}\\x{1c}-\\x{1f}]*-[\\p{White_Space}\\x{1c}-\\x{1f}]*(\\d{1,3})(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))",
+   "flags": 32,
+   "groups": {},
+   "python": "\\b(\\d{1,3})\\s*-\\s*(\\d{1,3})\\b"
+  },
+  "DS_STATISTICAL": {
+   "fancy": "(?i)(?:%|€|\\$|£|(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_]))(?:mean|median|sd|p[\\p{White_Space}\\x{1c}-\\x{1f}]*[<=>])(?:(?<=[\\p{L}\\p{N}_])(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])(?=[\\p{L}\\p{N}_])))",
+   "flags": 34,
+   "groups": {},
+   "python": "(?:%|€|\\$|£|\\b(?:mean|median|sd|p\\s*[<=>])\\b)"
+  },
+  "DS_TOC_ARABIC_TAIL": {
+   "fancy": "(?<![\\p{L}\\p{N}_])(?<first>\\d{1,5})(?:[\\p{White_Space}\\x{1c}-\\x{1f}]*[-–—][\\p{White_Space}\\x{1c}-\\x{1f}]*(?<last>\\d{1,5}))?[\\p{White_Space}\\x{1c}-\\x{1f}]*[\\]).,:;|]*[\\p{White_Space}\\x{1c}-\\x{1f}]*$",
+   "flags": 32,
+   "groups": {
+    "first": 1,
+    "last": 2
+   },
+   "python": "(?<!\\w)(?P<first>\\d{1,5})(?:\\s*[-–—]\\s*(?P<last>\\d{1,5}))?\\s*[\\]).,:;|]*\\s*$"
+  },
+  "DS_TOC_LEADER": {
+   "fancy": "(?:(?:[._…·][\\p{White_Space}\\x{1c}-\\x{1f}]*){3,})",
+   "flags": 32,
+   "groups": {},
+   "python": "(?:(?:[._…·]\\s*){3,})"
+  },
+  "DS_TOC_PREFIX": {
+   "fancy": "(?i)^[\\p{White_Space}\\x{1c}-\\x{1f}]*(?<prefix>(?:\\d+|[IVXLCDM]+)(?:[\\p{White_Space}\\x{1c}-\\x{1f}]*[.)]|(?:\\.\\d+){1,5}\\.?))[\\p{White_Space}\\x{1c}-\\x{1f}]+",
+   "flags": 34,
+   "groups": {
+    "prefix": 1
+   },
+   "python": "^\\s*(?P<prefix>(?:\\d+|[IVXLCDM]+)(?:\\s*[.)]|(?:\\.\\d+){1,5}\\.?))\\s+"
+  },
+  "DS_TOC_ROMAN_TAIL": {
+   "fancy": "(?i)(?<![\\p{L}\\p{N}_])(?<roman>[ivxlcdm]{1,10})[\\p{White_Space}\\x{1c}-\\x{1f}]*[\\]).,:;|]*[\\p{White_Space}\\x{1c}-\\x{1f}]*$",
+   "flags": 34,
+   "groups": {
+    "roman": 1
+   },
+   "python": "(?<!\\w)(?P<roman>[ivxlcdm]{1,10})\\s*[\\]).,:;|]*\\s*$"
   },
   "DS_WHITESPACE_RUN": {
    "fancy": "[\\p{White_Space}\\x{1c}-\\x{1f}]+",
@@ -411,6 +609,6 @@
  "python_version": "3.12.12",
  "rules_id": "deterministic_bibliography_explicit_features_v2",
  "schema_version": "bib-v2-patterns-v2",
- "sha256": "7239921393275786b390ff28930c6f66fd0ca1645d9f82b194698357051e560d",
+ "sha256": "d3ac2e13114e7ac6074990ebcb43068e58947bd6ac53888f5964d8374d989154",
  "unicodedata_version": "15.0.0"
 }

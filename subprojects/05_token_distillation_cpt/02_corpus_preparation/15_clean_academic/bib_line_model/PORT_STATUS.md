@@ -36,19 +36,41 @@ Throughput: **20,346 lines/s at 64 threads** (full cohort-2 in 18.8 s). Scaling 
 over past 64 on a 4-socket Grace node, so the corpus run should use four tasks of 72
 cores per node rather than one task of 288.
 
-## Remaining
+## Remaining — 6 columns, then the line model
 
-1. **TCN forward pass** — weights exported, architecture known and reimplementable
-   without torch: `Linear(10→32)` → 4 residual blocks (`LayerNorm` → `Conv1d(32,32,
-   k=3, dilation=d, padding=d)` → GELU → residual, masked) → `LayerNorm` → `Linear(32→1)`.
-   Dropout is identity at inference.
-2. **The TCN's 10 inputs** — `frozen_entry_probability` plus nine `explicit_role_*`
-   indicator flags, which need more of `deterministic_structure` than the heading
-   lexicon did.
-3. **Entry P0D inputs** (70 features), **heading numerics + candidate gate**
-   (`broad_heading_candidate`), **connector features + candidate gate**.
-4. Assemble the 10 probability columns, run the line model (HistGB ×5), threshold at
-   0.9, and diff the mask against `heading_lexgate_scope.probability.npy`.
+**The one large job left is `analyze_bib_line`'s negative-role taxonomy.** Everything
+else is small and mechanical.
+
+1. **`analyze_bib_line` hard-negative verdict + reason codes**
+   (`deterministic_structure.py:638-873`, ~235 dense lines). Needed because
+   `bibliography_deterministic_roles._analyze_document` classifies each hard-negative
+   line into one of 8 mutually-exclusive roles by substring-matching the reason codes
+   (`_role_index`, `bibliography_deterministic_roles.py:41`), and those 8 flags are 8
+   of the TCN's 10 inputs.
+   - All 81 patterns and 6 lexicons of that module are already dumped into
+     `patterns.json`, so this is a control-flow port, not a transcription job.
+   - Still to locate: `AUXILIARY_SCOPE_HEADINGS`, imported by the roles module and
+     not a module-level string set in `deterministic_structure`.
+   - Note `analyze_bibliography_line_v2` (`bibliography_v2.py:1017`) wraps it and adds
+     a few v2-specific hard-negative returns plus two overrides
+     (`override_running_prose`, `override_statistical_table`) — the roles module calls
+     the **v2** function, so port that wrapper too.
+2. **TCN forward pass** — no torch needed: `Linear(10→32)` masked → 4 residual blocks
+   (`LayerNorm` → `Conv1d(32,32,k=3,dilation=d,padding=d)` → GELU → `+residual`,
+   masked) → `LayerNorm` → `Linear(32→1)`. Dropout is identity at inference. Runs per
+   **physical segment** (`_physical_segments`, split where `diff(abs_idx) >
+   MAX_PHYSICAL_GAP`), not per document. Its 10th input, `exact_bibliography_header`,
+   is `header_kinds > 0` — already available as `structure::is_heading_or_subheading`.
+3. **Connector bundle** — 5 columns (`connector`, `continuation_specialist`,
+   `continuation`, `filler`, `other`); see `_connector_probabilities`. Has its own
+   candidate gate (receipt: `connector_candidate_count: 185478`, so ~88% of lines) and
+   the deployed arm is `hist` with no scaler.
+4. **Line model** — HistGB ×5 over the 126 columns, identity scaler, five-fold mean,
+   threshold 0.9. Then diff the mask against
+   `heading_lexgate_scope.probability.npy` — the contract.
+
+Fold aggregation everywhere follows `_batched_predict`: sum `predict_proba[:, 1]`
+over folds in **float64**, divide by the fold count, cast to **float32**.
 
 ---
 
@@ -104,6 +126,13 @@ caught by widening a gate rather than by reading harder.
 5. **Python slicing clamps an inverted range**, Rust panics. Reachable on whitespace-only
    lines, where `_analysis_bounds` legitimately returns `start > end`.
 6. **numpy sums pairwise**, not left to right, once an array reaches 8 elements.
+7. **`export_scaler` inferred `with_mean` from `mean_ is not None`.** A
+   `StandardScaler(with_mean=False)` still stores `mean_` — it needs it for the
+   variance — and merely declines to subtract it. The heading bundle is fitted that
+   way, so the artifact claimed the opposite and the port would have subtracted a mean
+   the reference never subtracts.
+8. **`[^\W\d_]` is the Python idiom for "letters"** and reduces to `L|Nl|No`, not to
+   `L` — `\d` is Nd specifically, so Nl and No survive.
 
 ## Gates
 
