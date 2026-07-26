@@ -59,10 +59,9 @@ pub fn feature_names() -> Vec<String> {
 }
 
 /// Columns 10..126 for one raw line — everything that does not need a fitted model.
-///
-/// `bib_heading_lexicon` is passed in rather than computed here because it depends on
-/// the deterministic-structure lexicon, which is a separate stage.
-pub fn deterministic_row(text: &str, bib_heading_lexicon: bool) -> Vec<f32> {
+pub fn deterministic_row(text: &str) -> Vec<f32> {
+    // `extra_lexicon` is on in the deployed configuration.
+    let bib_heading_lexicon = crate::structure::bib_heading_lexicon_match(text, true);
     let counts = features::line_counts(text);
     let mut row = Vec::with_capacity(N_COLUMNS - N_PROBABILITY);
 
@@ -103,7 +102,7 @@ mod tests {
 
     #[test]
     fn deterministic_row_is_the_tail_of_the_contract() {
-        let row = deterministic_row("Smith, J. (2020). A title. Athens: Press.", false);
+        let row = deterministic_row("Smith, J. (2020). A title. Athens: Press.");
         assert_eq!(row.len(), 116);
         assert!(row.iter().all(|v| v.is_finite()));
     }

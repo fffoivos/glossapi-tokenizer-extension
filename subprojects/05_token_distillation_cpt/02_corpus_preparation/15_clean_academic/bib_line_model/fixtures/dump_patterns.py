@@ -267,6 +267,34 @@ def main() -> None:
             "groups": dict(pattern.groupindex) if pattern.groupindex else {},
         }
 
+    # `_heading_key`/`_fold` in deterministic_structure, plus the ATX prefix the
+    # table builder strips. These drive the bibliography-heading lexicon lookup.
+    entries["DS_HEADING_STRIP"] = {
+        "python": r"^[\s#*_|:;\-–—]+|[\s#*_|:;.!?\-–—]+$",
+        "fancy": to_fancy(r"^[\s#*_|:;\-–—]+|[\s#*_|:;.!?\-–—]+$", 0),
+        "flags": 0,
+        "groups": {},
+    }
+    entries["DS_WHITESPACE_RUN"] = {
+        "python": r"\s+",
+        "fancy": to_fancy(r"\s+", 0),
+        "flags": 0,
+        "groups": {},
+    }
+    # casefold maps Greek final sigma to σ; `_fold` restores it at word boundaries.
+    entries["DS_FINAL_SIGMA"] = {
+        "python": r"σ(?=\W|$)",
+        "fancy": to_fancy(r"σ(?=\W|$)", 0),
+        "flags": 0,
+        "groups": {},
+    }
+    entries["TABLE_ATX_PREFIX"] = {
+        "python": r"^\s*#{1,6}\s*",
+        "fancy": to_fancy(r"^\s*#{1,6}\s*", 0),
+        "flags": 0,
+        "groups": {},
+    }
+
     from sequence_models import bibliography_nextgen_table as nt
 
     for name in WANTED_TABLE:
@@ -301,8 +329,25 @@ def main() -> None:
         "groups": {},
     }
 
+    # The heading lexicons, dumped rather than retyped. Within `analyze_bib_line`
+    # the HEADING and SUBHEADING roles are reachable *only* by exact membership of
+    # `_heading_key(stripped)` in these two sets (verified: those are the only two
+    # such returns in the function), so the lexicon-match predicate the table builder
+    # calls reduces to set lookups plus the candidate rewrites. Sixty-odd accented
+    # Greek strings are exactly the kind of thing that must not be hand-copied.
+    from sequence_models import deterministic_structure as ds
+
+    lexicons = {
+        "bib_headings": sorted(ds._BIB_HEADINGS),
+        "bib_subheadings": sorted(ds._BIB_SUBHEADINGS),
+        "extra_bib_subheadings": sorted(nt._EXTRA_BIB_SUBHEADINGS),
+    }
+    for name, values in lexicons.items():
+        print(f"  lexicon {name}: {len(values)} entries", file=sys.stderr)
+
     payload = {
-        "schema_version": "bib-v2-patterns-v1",
+        "lexicons": lexicons,
+        "schema_version": "bib-v2-patterns-v2",
         "rules_id": v2.RULES_ID,
         "python_version": sys.version.split()[0],
         "unicodedata_version": __import__("unicodedata").unidata_version,

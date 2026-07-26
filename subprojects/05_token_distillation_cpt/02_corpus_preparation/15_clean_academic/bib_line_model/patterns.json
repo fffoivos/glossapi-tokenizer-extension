@@ -1,5 +1,81 @@
 {
+ "lexicons": {
+  "bib_headings": [
+   "bibliographic references",
+   "bibliographical references",
+   "bibliography",
+   "literature cited",
+   "reference list",
+   "references",
+   "works cited",
+   "αναφορες",
+   "βιβλιογραφια",
+   "βιβλιογραφια και πηγες",
+   "βιβλιογραφικες αναφορες",
+   "πηγες και βιβλιογραφια"
+  ],
+  "bib_subheadings": [
+   "foreign references",
+   "further reading",
+   "greek references",
+   "primary sources",
+   "secondary sources",
+   "sources",
+   "web references",
+   "δικτυογραφια",
+   "ελληνικη",
+   "ελληνικη βιβλιογραφια",
+   "ελληνογλωσση",
+   "ελληνογλωσση βιβλιογραφια",
+   "ηλεκτρονικες πηγες",
+   "ιστοσελιδες",
+   "νομοθεσια",
+   "νομολογια",
+   "ξενη βιβλιογραφια",
+   "ξενογλωσση",
+   "ξενογλωσση βιβλιογραφια",
+   "πηγες"
+  ],
+  "extra_bib_subheadings": [
+   "books",
+   "list of references",
+   "αλλες πηγες",
+   "αρθρα",
+   "αρχεια",
+   "βιβλια",
+   "βιβλιογραφια κεφαλαιου",
+   "βιβλιογραφικες πηγες",
+   "βοηθηματα",
+   "διαδικτυακες πηγες",
+   "διαδικτυακοι τοποι",
+   "διαδικτυο",
+   "διεθνης βιβλιογραφια",
+   "ελληνικα",
+   "ιστοτοποι",
+   "κεφαλαια σε βιβλια",
+   "ξενη",
+   "ξενογλωσσα"
+  ]
+ },
  "patterns": {
+  "DS_FINAL_SIGMA": {
+   "fancy": "σ(?=[^\\p{L}\\p{N}_]|$)",
+   "flags": 0,
+   "groups": {},
+   "python": "σ(?=\\W|$)"
+  },
+  "DS_HEADING_STRIP": {
+   "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}#*_|:;\\-–—]+|[\\p{White_Space}\\x{1c}-\\x{1f}#*_|:;.!?\\-–—]+$",
+   "flags": 0,
+   "groups": {},
+   "python": "^[\\s#*_|:;\\-–—]+|[\\s#*_|:;.!?\\-–—]+$"
+  },
+  "DS_WHITESPACE_RUN": {
+   "fancy": "[\\p{White_Space}\\x{1c}-\\x{1f}]+",
+   "flags": 0,
+   "groups": {},
+   "python": "\\s+"
+  },
   "ROLE_BULLET_ONLY": {
    "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}]*(?:[-*•·–—]|\\(?\\d{1,4}[.)])[\\p{White_Space}\\x{1c}-\\x{1f}]*$",
    "flags": 32,
@@ -47,6 +123,12 @@
    "flags": 32,
    "groups": {},
    "python": "[^\\W_]+(?:[’'\\-][^\\W_]+)*"
+  },
+  "TABLE_ATX_PREFIX": {
+   "fancy": "^[\\p{White_Space}\\x{1c}-\\x{1f}]*#{1,6}[\\p{White_Space}\\x{1c}-\\x{1f}]*",
+   "flags": 0,
+   "groups": {},
+   "python": "^\\s*#{1,6}\\s*"
   },
   "TABLE_IMAGE_MARKER": {
    "fancy": "(?i)^[\\p{White_Space}\\x{1c}-\\x{1f}]*<!--[\\p{White_Space}\\x{1c}-\\x{1f}]*image[\\p{White_Space}\\x{1c}-\\x{1f}]*-->[\\p{White_Space}\\x{1c}-\\x{1f}]*$",
@@ -328,7 +410,7 @@
  },
  "python_version": "3.12.12",
  "rules_id": "deterministic_bibliography_explicit_features_v2",
- "schema_version": "bib-v2-patterns-v1",
- "sha256": "93f69f0dfe1b9a2816538ea0b4c8d1d386239803cc61dc515595b52f323380c9",
+ "schema_version": "bib-v2-patterns-v2",
+ "sha256": "7239921393275786b390ff28930c6f66fd0ca1645d9f82b194698357051e560d",
  "unicodedata_version": "15.0.0"
 }

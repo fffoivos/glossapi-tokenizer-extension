@@ -27,6 +27,10 @@ struct TableFile {
     schema_version: String,
     unicodedata_version: String,
     tables: HashMap<String, Vec<(u32, u32)>>,
+    /// Codepoint -> `str.casefold()` result, only where it differs. Keys arrive as
+    /// decimal strings because JSON object keys are strings.
+    #[serde(default)]
+    casefold: HashMap<String, String>,
 }
 
 /// One predicate as sorted disjoint `[lo, hi]` codepoint ranges.
@@ -64,6 +68,9 @@ pub struct Tables {
     pub isdigit: RangeSet,
     pub isalpha: RangeSet,
     pub isalnum: RangeSet,
+    /// Non-zero canonical combining class -- the characters `_fold` discards.
+    pub combining: RangeSet,
+    pub casefold: HashMap<u32, String>,
 }
 
 impl Tables {
@@ -71,7 +78,7 @@ impl Tables {
         let mut file: TableFile =
             serde_json::from_str(TABLES_JSON).context("parsing unicode_tables.json")?;
         anyhow::ensure!(
-            file.schema_version == "bib-unicode-tables-v1",
+            file.schema_version == "bib-unicode-tables-v2",
             "unexpected unicode_tables.json schema {}",
             file.schema_version
         );
@@ -82,6 +89,11 @@ impl Tables {
                 .with_context(|| format!("table {name} missing"))?;
             Ok(RangeSet(ranges))
         };
+        let casefold = file
+            .casefold
+            .iter()
+            .map(|(k, v)| Ok((k.parse::<u32>()?, v.clone())))
+            .collect::<Result<HashMap<u32, String>>>()?;
         Ok(Self {
             cat_l: take("cat_L")?,
             cat_n: take("cat_N")?,
@@ -95,6 +107,8 @@ impl Tables {
             isdigit: take("isdigit")?,
             isalpha: take("isalpha")?,
             isalnum: take("isalnum")?,
+            combining: take("combining")?,
+            casefold,
             unicodedata_version: file.unicodedata_version,
         })
     }

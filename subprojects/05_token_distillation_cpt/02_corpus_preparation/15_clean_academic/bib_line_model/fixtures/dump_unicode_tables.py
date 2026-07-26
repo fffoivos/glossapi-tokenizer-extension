@@ -71,6 +71,28 @@ def ranges_for(predicate) -> list[tuple[int, int]]:
     return out
 
 
+def casefold_map() -> dict[str, str]:
+    """Codepoints whose `str.casefold()` differs from themselves.
+
+    Rust has no case *folding* -- `to_lowercase` is a different operation, and the
+    difference is not exotic here: Rust's `str::to_lowercase` special-cases word-final
+    sigma to ς, which is exactly what casefold does not do, and `_fold` in
+    `deterministic_structure` depends on casefold's uniform σ before re-deriving the
+    final form itself. Python's casefold is per-character full folding, so a codepoint
+    map reproduces it exactly.
+    """
+
+    out: dict[str, str] = {}
+    for cp in range(MAX_CODEPOINT):
+        if 0xD800 <= cp <= 0xDFFF:
+            continue
+        ch = chr(cp)
+        folded = ch.casefold()
+        if folded != ch:
+            out[str(cp)] = folded
+    return out
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True)
@@ -82,11 +104,20 @@ def main() -> None:
         tables[name] = [[a, b] for a, b in rs]
         print(f"  {name:<12} {len(rs):>5} ranges", file=sys.stderr)
 
+    # `_fold` drops every character with a non-zero canonical combining class.
+    combining = ranges_for(lambda ch: unicodedata.combining(ch) != 0)
+    tables["combining"] = [[a, b] for a, b in combining]
+    print(f"  {'combining':<12} {len(combining):>5} ranges", file=sys.stderr)
+
+    folds = casefold_map()
+    print(f"  {'casefold':<12} {len(folds):>5} entries", file=sys.stderr)
+
     payload = {
-        "schema_version": "bib-unicode-tables-v1",
+        "schema_version": "bib-unicode-tables-v2",
         "python_version": sys.version.split()[0],
         "unicodedata_version": unicodedata.unidata_version,
         "tables": tables,
+        "casefold": folds,
     }
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

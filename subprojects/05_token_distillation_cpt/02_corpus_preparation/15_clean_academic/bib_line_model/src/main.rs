@@ -93,17 +93,26 @@ fn read_lines(input: &PathBuf) -> Result<Vec<String>> {
             continue;
         }
         let doc: serde_json::Value = serde_json::from_str(&raw)?;
-        let lines = doc
-            .get("lines")
-            .and_then(|v| v.as_array())
-            .context("document has no `lines` array")?;
-        for line in lines {
-            texts.push(
+        // Two document shapes are in circulation: the sealed-cohort form with an
+        // explicit `lines` array, and the corpus form carrying whole-document `text`
+        // plus a [line_start, line_end) span. For the latter the pipeline's line
+        // inventory is `text.split("\n")` — verified to reproduce the reference
+        // count exactly (210,704 over the 150 cohort-2 documents), including the
+        // empty trailing field a terminating newline produces.
+        match doc.get("lines").and_then(|v| v.as_array()) {
+            Some(lines) => texts.extend(lines.iter().map(|line| {
                 line.get("text")
                     .and_then(|v| v.as_str())
                     .unwrap_or_default()
-                    .to_string(),
-            );
+                    .to_string()
+            })),
+            None => {
+                let text = doc
+                    .get("text")
+                    .and_then(|v| v.as_str())
+                    .context("document has neither a `lines` array nor a `text` field")?;
+                texts.extend(text.split('\n').map(str::to_string));
+            }
         }
     }
     Ok(texts)
@@ -111,15 +120,13 @@ fn read_lines(input: &PathBuf) -> Result<Vec<String>> {
 
 fn emit_table(args: &Args) -> Result<()> {
     let texts = read_lines(&args.input)?;
-    eprintln!("bib_line_detect: {} lines", texts.len());
+    eprintln!(
+        "bib_line_detect: {} lines, {} rayon threads",
+        texts.len(),
+        rayon::current_num_threads()
+    );
     let start = std::time::Instant::now();
-    // `bib_heading_lexicon` needs the deterministic-structure stage, which is not
-    // ported yet; emit 0 and exclude that one column from the comparison rather than
-    // emit a guess that would read as agreement.
-    let rows: Vec<Vec<f32>> = texts
-        .par_iter()
-        .map(|t| deterministic_row(t, false))
-        .collect();
+    let rows: Vec<Vec<f32>> = texts.par_iter().map(|t| deterministic_row(t)).collect();
     let elapsed = start.elapsed();
     eprintln!(
         "  featurized in {:.1}s ({:.0} lines/s)",

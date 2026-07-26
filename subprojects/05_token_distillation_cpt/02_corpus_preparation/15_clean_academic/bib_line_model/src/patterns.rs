@@ -26,17 +26,29 @@ struct PatternEntry {
     python: String,
 }
 
+/// The frozen heading lexicons, dumped alongside the patterns. `analyze_bib_line`
+/// returns HEADING or SUBHEADING only for exact members of the first two.
+#[derive(Deserialize, Default)]
+pub struct Lexicons {
+    pub bib_headings: Vec<String>,
+    pub bib_subheadings: Vec<String>,
+    pub extra_bib_subheadings: Vec<String>,
+}
+
 #[derive(Deserialize)]
 struct PatternFile {
     schema_version: String,
     rules_id: String,
     unicodedata_version: String,
     patterns: HashMap<String, PatternEntry>,
+    #[serde(default)]
+    lexicons: Lexicons,
 }
 
 pub struct Patterns {
     pub rules_id: String,
     pub unicodedata_version: String,
+    pub lexicons: Lexicons,
     compiled: HashMap<String, Regex>,
 }
 
@@ -45,7 +57,7 @@ impl Patterns {
         let file: PatternFile =
             serde_json::from_str(PATTERNS_JSON).context("parsing patterns.json")?;
         anyhow::ensure!(
-            file.schema_version == "bib-v2-patterns-v1",
+            file.schema_version == "bib-v2-patterns-v2",
             "unexpected patterns.json schema {}",
             file.schema_version
         );
@@ -58,6 +70,7 @@ impl Patterns {
         Ok(Self {
             rules_id: file.rules_id,
             unicodedata_version: file.unicodedata_version,
+            lexicons: file.lexicons,
             compiled,
         })
     }
