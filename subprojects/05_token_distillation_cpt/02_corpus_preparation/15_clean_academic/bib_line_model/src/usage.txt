@@ -1,0 +1,9 @@
+bib_line_detect — Greek bibliography line classifier (Rust port of heading_lexgate)
+
+  --artifacts DIR    exported model stack (default: artifacts)
+  --input FILE       JSONL, one document per line ("-" for stdin)
+  --out-spans FILE   JSONL bibliography spans
+  --source NAME      source label written into each span
+  --text-field NAME  default: text
+  --id-field NAME    default: source_doc_id
+  --threshold F      override the line threshold from the manifest
