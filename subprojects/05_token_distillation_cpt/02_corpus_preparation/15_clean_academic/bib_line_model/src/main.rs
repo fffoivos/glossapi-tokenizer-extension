@@ -330,6 +330,58 @@ fn emit_roles(args: &Args) -> Result<()> {
     Ok(())
 }
 
+/// Emit `probability:signal_tcn`, for diffing against column 1.
+fn emit_signal(args: &Args) -> Result<()> {
+    use bib_line_model::roles::{negative_role, N_ROLES};
+    use bib_line_model::tcn::{signal_probabilities, Tcn};
+
+    let root = args.artifacts.as_ref().context("emit-signal needs --artifacts")?;
+    let artifacts = Artifacts::load(root)?;
+    let folds: Vec<Tcn> = artifacts
+        .signal_tcn
+        .iter()
+        .map(Tcn::new)
+        .collect::<Result<_>>()?;
+    let docs = read_documents(&args.input)?;
+    let total: usize = docs.iter().map(|d| d.len()).sum();
+    eprintln!(
+        "bib_line_detect: {} documents, {} lines, {} TCN folds, {} rayon threads",
+        docs.len(),
+        total,
+        folds.len(),
+        rayon::current_num_threads()
+    );
+    let start = std::time::Instant::now();
+    let per_doc: Vec<Vec<f32>> = docs
+        .par_iter()
+        .map(|lines| {
+            // build_signal_features: [entry, 8 role flags, header_kind > 0]
+            let rows: Vec<Vec<f64>> = lines
+                .iter()
+                .map(|t| {
+                    let line = features::analyze(t);
+                    let mut row = vec![0f64; N_ROLES + 2];
+                    row[0] = chain::entry_probability(&artifacts.entry, &line.counts) as f64;
+                    if let Some(role) = negative_role(t, &line) {
+                        row[1 + role] = 1.0;
+                    }
+                    row[N_ROLES + 1] =
+                        bib_line_model::structure::is_heading_or_subheading(t) as u8 as f64;
+                    row
+                })
+                .collect();
+            // cohort documents are contiguous, but segment generally.
+            let abs: Vec<i64> = (0..lines.len() as i64).collect();
+            signal_probabilities(&folds, &rows, &abs)
+        })
+        .collect();
+    eprintln!("  scored in {:.1}s", start.elapsed().as_secs_f64());
+    let flat: Vec<f32> = per_doc.into_iter().flatten().collect();
+    write_npy_f32(&args.out, total, 1, &flat)?;
+    eprintln!("  wrote {}", args.out.display());
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let args = parse_args()?;
     match args.mode.as_str() {
@@ -337,6 +389,7 @@ fn main() -> Result<()> {
         "emit-entry" => emit_entry(&args),
         "emit-heading" => emit_heading(&args),
         "emit-roles" => emit_roles(&args),
+        "emit-signal" => emit_signal(&args),
         "detect" => bail!("detect: the model layers are not ported yet"),
         other => {
             eprintln!("{}", include_str!("usage.txt"));

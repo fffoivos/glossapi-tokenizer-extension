@@ -25,6 +25,7 @@ pub mod roles;
 pub mod shape;
 pub mod structure;
 pub mod table;
+pub mod tcn;
 pub mod unicode;
 
 pub use artifacts::{Artifacts, Manifest};
