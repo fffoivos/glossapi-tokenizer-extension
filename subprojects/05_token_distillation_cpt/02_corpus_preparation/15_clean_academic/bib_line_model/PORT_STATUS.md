@@ -19,8 +19,16 @@ at scale**, not against fixtures regenerated from the same code.
 | 34 `line_shape` values | same | **bit-exact** |
 | 7 gap summaries | same | **bit-exact** |
 | 5 structure flags | same | **bit-exact** |
-| **columns 10..126 total** | same | **116/116 bit-exact** |
+| `probability:entry` | same | **bit-exact 210704/210704** |
+| heading candidate mask | same | **exact** — 28,620 both sides, matching the run receipt |
+| `bib_header` / `bib_subheader` / `non_bib_header` | same | max abs diff **1.19e-7**, 0 rows > 1e-6 |
+| **columns verified** | | **120 / 126** |
 | TF-IDF char_wb + word | vs *fitted* sklearn vectorizers, 4,000 real lines | **0 support, 0 value mismatches** (worst rel 1.7e-7 = float32 rounding) |
+
+The three heading columns are not bit-exact and are not expected to be:
+`HeadingTransform.apply` hstacks and L2-normalises in float32 where the port
+accumulates in f64. That is one float32 ULP, with zero rows above 1e-6 — no
+downstream tree split can resolve it. The binding check remains the end-to-end mask.
 
 Reference artifacts (Clariden):
 
