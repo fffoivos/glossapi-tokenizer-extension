@@ -96,6 +96,17 @@ pub fn py_strip(text: &str) -> &str {
     text.trim_matches(|ch| u::py_isspace(ch))
 }
 
+/// Python `str.lstrip()` / `str.rstrip()`, exposed for the joined-text builders.
+#[inline]
+pub fn py_lstrip_pub(text: &str) -> &str {
+    py_lstrip(text)
+}
+
+#[inline]
+pub fn py_rstrip_pub(text: &str) -> &str {
+    py_rstrip(text)
+}
+
 #[inline]
 fn py_lstrip(text: &str) -> &str {
     text.trim_start_matches(|ch| u::py_isspace(ch))

@@ -98,7 +98,7 @@ struct BaseVerdict {
 ///
 /// The non-negative branches (HEADING, SUBHEADING, the scored entry roles) all
 /// return `hard_negative=False`, so they collapse to a single "not negative" answer.
-fn base_verdict(text: &str, line: &Line) -> BaseVerdict {
+fn base_verdict(line: &Line) -> BaseVerdict {
     let none = || BaseVerdict {
         hard_negative: false,
         negative_codes: Vec::new(),
@@ -273,7 +273,7 @@ pub fn negative_role(text: &str, line: &Line) -> Option<usize> {
         return auxiliary().or(Some(5));
     }
 
-    let base = base_verdict(text, line);
+    let base = base_verdict(line);
     if !base.hard_negative {
         return None;
     }
