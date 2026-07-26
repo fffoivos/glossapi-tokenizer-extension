@@ -16,6 +16,13 @@
 //! matching the cohort documents.
 
 use anyhow::{bail, Context, Result};
+
+// See the Cargo.toml note: with the system allocator this binary got *slower* past
+// 64 threads on a 288-core node. The work is embarrassingly parallel, so the
+// ceiling was allocator contention rather than the algorithm.
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 use bib_line_model::table::{deterministic_row, N_COLUMNS, N_PROBABILITY};
 use rayon::prelude::*;
 use std::io::{BufRead, BufWriter, Write};

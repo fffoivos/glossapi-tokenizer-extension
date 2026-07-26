@@ -113,8 +113,11 @@ fn searches(name: &str, text: &str) -> bool {
 
 /// `line_shape(text)` — takes raw text and NFKC-normalizes, as Python does.
 pub fn line_shape(text: &str) -> [f32; N_SHAPE] {
-    let normalized = crate::features::normalize(text);
-    let normalized = normalized.as_str();
+    line_shape_normalized(&crate::features::normalize(text))
+}
+
+/// The same, when the caller already holds the NFKC-normalized line.
+pub fn line_shape_normalized(normalized: &str) -> [f32; N_SHAPE] {
     let stripped = py_strip(normalized);
 
     let token_lengths: Vec<usize> = PATTERNS

@@ -578,6 +578,33 @@ pub fn feature_spans(value: &str) -> Vec<Vec<Span>> {
     spans
 }
 
+/// One line's deterministic analysis, computed once.
+///
+/// `feature_spans` is by far the most expensive thing in the stack, and the row
+/// builder used to reach it three separate times per line (once for the counts,
+/// once for the gap summaries, once more for the table-row structure flag). It is
+/// pure, so the fix is simply to compute it once and pass it around.
+pub struct Line {
+    pub normalized: String,
+    pub spans: Vec<Vec<Span>>,
+    pub counts: [u32; N_FEATURES],
+}
+
+/// NFKC-normalize, extract the spans, and derive the counts — one pass.
+pub fn analyze(text: &str) -> Line {
+    let normalized = normalize(text);
+    let spans = feature_spans(&normalized);
+    let mut counts = [0u32; N_FEATURES];
+    for (i, s) in spans.iter().enumerate() {
+        counts[i] = s.len() as u32;
+    }
+    Line {
+        normalized,
+        spans,
+        counts,
+    }
+}
+
 /// `token_count` — not one of the 35 columns, but part of `BibliographyFeatures`.
 pub fn token_count(value: &str) -> usize {
     PATTERNS.get("_TOKEN").find_iter(value).flatten().count()
@@ -593,15 +620,9 @@ pub fn normalize(text: &str) -> String {
 }
 
 /// Compute the count row for one line. Takes raw text and normalizes, matching
-/// `extract_bibliography_features`.
+/// `extract_bibliography_features`. Convenience wrapper over [`analyze`].
 pub fn line_counts(text: &str) -> [u32; N_FEATURES] {
-    let value = normalize(text);
-    let spans = feature_spans(&value);
-    let mut counts = [0u32; N_FEATURES];
-    for (i, s) in spans.iter().enumerate() {
-        counts[i] = s.len() as u32;
-    }
-    counts
+    analyze(text).counts
 }
 
 #[cfg(test)]

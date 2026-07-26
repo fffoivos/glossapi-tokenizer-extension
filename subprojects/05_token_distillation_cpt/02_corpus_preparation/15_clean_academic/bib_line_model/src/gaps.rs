@@ -179,9 +179,14 @@ fn byte_to_char_map(text: &str) -> Vec<u32> {
 
 /// The 7 gap values for one raw line.
 pub fn line_gaps(text: &str) -> [f32; N_GAPS] {
-    let normalized = features::normalize(text);
-    let spans = features::feature_spans(&normalized);
-    let map = byte_to_char_map(&normalized);
+    gaps_from(&features::analyze(text))
+}
+
+/// The same, from an already-computed [`features::Line`].
+pub fn gaps_from(line: &features::Line) -> [f32; N_GAPS] {
+    let normalized = line.normalized.as_str();
+    let spans = &line.spans;
+    let map = byte_to_char_map(normalized);
     let semantic: Vec<Span> = spans
         .iter()
         .enumerate()
@@ -199,13 +204,17 @@ pub fn line_gaps(text: &str) -> [f32; N_GAPS] {
 /// builder passes `text` straight to the markdown/image/rule patterns — while
 /// `table_row` is read back out of the count features, which are normalized.
 pub fn line_structure(text: &str, bib_heading_lexicon: bool) -> [f32; N_STRUCTURE] {
+    structure_from(text, features::line_counts(text)[F_TABLE_ROW] > 0, bib_heading_lexicon)
+}
+
+/// The same, when the caller already knows whether the line is a table row.
+pub fn structure_from(text: &str, table_row: bool, bib_heading_lexicon: bool) -> [f32; N_STRUCTURE] {
     let markdown = matches!(PATTERNS.get("TABLE_MARKDOWN_HEADING").find(text), Ok(Some(m)) if m.start() == 0);
     let image = matches!(PATTERNS.get("TABLE_IMAGE_MARKER").find(text), Ok(Some(m)) if m.start() == 0);
     let rule = match PATTERNS.get("TABLE_RULE_LINE").find(text) {
         Ok(Some(m)) => m.start() == 0 && m.end() == text.len(),
         _ => false,
     };
-    let table_row = features::line_counts(text)[F_TABLE_ROW] > 0;
     [
         markdown as u8 as f32,
         image as u8 as f32,

@@ -60,9 +60,11 @@ pub fn feature_names() -> Vec<String> {
 
 /// Columns 10..126 for one raw line — everything that does not need a fitted model.
 pub fn deterministic_row(text: &str) -> Vec<f32> {
+    // One span extraction per line, shared by the count, gap and structure blocks.
+    let line = features::analyze(text);
     // `extra_lexicon` is on in the deployed configuration.
     let bib_heading_lexicon = crate::structure::bib_heading_lexicon_match(text, true);
-    let counts = features::line_counts(text);
+    let counts = &line.counts;
     let mut row = Vec::with_capacity(N_COLUMNS - N_PROBABILITY);
 
     // presence, then log1p — Python builds them from the same count vector, in that
@@ -70,9 +72,13 @@ pub fn deterministic_row(text: &str) -> Vec<f32> {
     row.extend(counts.iter().map(|c| if *c > 0 { 1.0f32 } else { 0.0f32 }));
     // `np.log1p` on a float32 array computes in float32.
     row.extend(counts.iter().map(|c| (*c as f32).ln_1p()));
-    row.extend(shape::line_shape(text));
-    row.extend(gaps::line_gaps(text));
-    row.extend(gaps::line_structure(text, bib_heading_lexicon));
+    row.extend(shape::line_shape_normalized(&line.normalized));
+    row.extend(gaps::gaps_from(&line));
+    row.extend(gaps::structure_from(
+        text,
+        counts[features::F_TABLE_ROW] > 0,
+        bib_heading_lexicon,
+    ));
     debug_assert_eq!(row.len(), N_COLUMNS - N_PROBABILITY);
     row
 }
