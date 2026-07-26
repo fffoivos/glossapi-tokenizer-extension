@@ -13,9 +13,40 @@
 //! divergence here is the failure mode that would be hardest to find later.
 
 use crate::artifacts::{HistGbModel, LinearModel, Model, TfidfModel, Tree};
+use fancy_regex::Regex as FancyRegex;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::collections::HashMap;
+
+/// Python's word class, `str.isalnum()` plus underscore, which is exactly category
+/// L* or N* plus `_`. See `fixtures/dump_patterns.py` for the same rewrite applied
+/// to the feature regexes and for the assertion that the identity holds.
+const PY_WORD: &str = r"\p{L}\p{N}_";
+
+/// Rewrite a fitted `token_pattern` from Python's regex dialect into one that means
+/// the same thing to the Rust engine.
+///
+/// The heading bundle's pattern is `(?u)\b[^\W_]+(?:[’'\-][^\W_]+)*\b`, and every
+/// piece of it is a place the two engines disagree:
+///
+/// * `\W` — Rust's word class is Alphabetic|M|Nd|Pc|Join_Control and so accepts
+///   combining marks, Python's does not. `[^\W_]` reduces exactly to `[\p{L}\p{N}]`.
+/// * `\b` — defined in terms of that same word class, so it inherits the difference.
+///   Expressed here as the explicit lookaround pair, which is why the tokenizer needs
+///   fancy-regex rather than the `regex` crate.
+/// * `(?u)` — a no-op for Rust, which is Unicode-aware by default.
+///
+/// Left unrewritten this cost exactly one token on one line in 4,000 — small, but the
+/// kind of difference that is invisible until it moves a probability across 0.9.
+fn python_token_pattern(pattern: &str) -> String {
+    let boundary = format!(
+        "(?:(?<=[{PY_WORD}])(?![{PY_WORD}])|(?<![{PY_WORD}])(?=[{PY_WORD}]))"
+    );
+    pattern
+        .replace("(?u)", "")
+        .replace(r"[^\W_]", r"[\p{L}\p{N}]")
+        .replace(r"\b", &boundary)
+}
 
 #[inline]
 pub fn sigmoid(x: f64) -> f64 {
@@ -149,10 +180,31 @@ pub fn model_proba(model: &Model, features: &[f64]) -> f64 {
 /// or more whitespace characters collapse to one space before analysis.
 static WHITE_SPACES: Lazy<Regex> = Lazy::new(|| Regex::new(r"\s\s+").unwrap());
 
-/// `char_wb` n-grams, reproducing sklearn's `_char_wb_ngrams`:
-/// each whitespace-split word is padded with a single leading and trailing
-/// space, then every n-gram of each requested length is taken; a word shorter
-/// than `n` contributes exactly one padded n-gram, not several.
+/// `char_wb` n-grams, reproducing sklearn's `_char_wb_ngrams` statement for
+/// statement:
+///
+/// ```python
+/// for w in text_document.split():
+///     w = " " + w + " "
+///     w_len = len(w)
+///     for n in range(min_n, max_n + 1):
+///         offset = 0
+///         ngrams.append(w[offset : offset + n])
+///         while offset + n < w_len:
+///             offset += 1
+///             ngrams.append(w[offset : offset + n])
+///         if offset == 0:   # count a short word (w_len < n) only once
+///             break
+/// ```
+///
+/// The `if offset == 0: break` is the subtle part, and getting it wrong is not
+/// harmless. It fires when the while loop never ran — that is, when `n >= w_len`,
+/// not when `n > w_len`. Treating it as the strict inequality leaves the n-loop
+/// running for larger `n`, and since `w[0:n]` saturates at the whole padded word,
+/// every extra iteration re-emits a string that is already in the output. The
+/// *support* is unchanged, so nothing looks wrong; only the term counts inflate,
+/// and with sublinear tf and L2 normalisation that quietly shifts every weight in
+/// the row. `tests/tfidf_parity.rs` caught it against the fitted vectorizer.
 fn char_wb_ngrams(text: &str, min_n: usize, max_n: usize) -> Vec<String> {
     let collapsed = WHITE_SPACES.replace_all(text, " ");
     let mut out = Vec::new();
@@ -163,16 +215,19 @@ fn char_wb_ngrams(text: &str, min_n: usize, max_n: usize) -> Vec<String> {
             .collect();
         let w_len = padded.len();
         for n in min_n..=max_n {
-            if w_len < n {
-                // sklearn still emits the whole padded word once
-                out.push(padded.iter().collect::<String>());
-                break;
-            }
             let mut offset = 0usize;
-            out.push(padded[offset..offset + n].iter().collect::<String>());
+            let take = n.min(w_len); // Python slicing clamps; Rust would panic.
+            out.push(padded[offset..take].iter().collect::<String>());
             while offset + n < w_len {
                 offset += 1;
-                out.push(padded[offset..offset + n].iter().collect::<String>());
+                out.push(
+                    padded[offset..(offset + n).min(w_len)]
+                        .iter()
+                        .collect::<String>(),
+                );
+            }
+            if offset == 0 {
+                break;
             }
         }
     }
@@ -181,8 +236,8 @@ fn char_wb_ngrams(text: &str, min_n: usize, max_n: usize) -> Vec<String> {
 
 /// Word n-grams: tokenize with the fitted `token_pattern`, then join adjacent
 /// tokens with a single space for n > 1 (sklearn `_word_ngrams`).
-fn word_ngrams(text: &str, tokenizer: &Regex, min_n: usize, max_n: usize) -> Vec<String> {
-    let tokens: Vec<&str> = tokenizer.find_iter(text).map(|m| m.as_str()).collect();
+fn word_ngrams(text: &str, tokenizer: &FancyRegex, min_n: usize, max_n: usize) -> Vec<String> {
+    let tokens: Vec<&str> = tokenizer.find_iter(text).flatten().map(|m| m.as_str()).collect();
     let mut out: Vec<String> = Vec::new();
     if min_n <= 1 && !tokens.is_empty() {
         out.extend(tokens.iter().map(|t| t.to_string()));
@@ -208,7 +263,7 @@ pub struct Tfidf {
     sublinear_tf: bool,
     l2: bool,
     char_wb: bool,
-    tokenizer: Option<Regex>,
+    tokenizer: Option<FancyRegex>,
 }
 
 impl Tfidf {
@@ -218,14 +273,11 @@ impl Tfidf {
             None
         } else {
             // sklearn's default is r"(?u)\b\w\w+\b"; the heading bundle overrides it.
-            // Rust's regex crate has no \b-with-unicode difference here, but it does
-            // not accept the inline (?u) flag, which is a no-op for us.
-            let pattern = model
+            let raw = model
                 .token_pattern
                 .clone()
-                .unwrap_or_else(|| r"\b\w\w+\b".to_string())
-                .replace("(?u)", "");
-            Some(Regex::new(&pattern)?)
+                .unwrap_or_else(|| r"\b\w\w+\b".to_string());
+            Some(FancyRegex::new(&python_token_pattern(&raw))?)
         };
         Ok(Self {
             vocabulary: model.vocabulary.clone(),
@@ -297,9 +349,26 @@ mod tests {
 
     #[test]
     fn char_wb_short_word_emitted_once() {
-        // padded "ab" is 4 chars; for n=5 the whole padded word is emitted once
+        // padded "ab" is 4 chars; for n=5 sklearn emits the clamped slice once
         let g = char_wb_ngrams("ab", 5, 5);
         assert_eq!(g, vec![" ab ".to_string()]);
+    }
+
+    #[test]
+    fn char_wb_stops_when_n_reaches_the_padded_length() {
+        // " ab " is 4 chars. sklearn's `if offset == 0: break` fires at n == 4, so
+        // n == 5 never runs and " ab " appears exactly once, not twice. Emitting it
+        // twice leaves the support identical and only inflates the term count, which
+        // is why this needed a test against the fitted vectorizer rather than a
+        // reading of the source.
+        let g = char_wb_ngrams("ab", 2, 5);
+        assert_eq!(
+            g,
+            vec![" a", "ab", "b ", " ab", "ab ", " ab "]
+                .into_iter()
+                .map(String::from)
+                .collect::<Vec<_>>()
+        );
     }
 
     #[test]
@@ -311,7 +380,10 @@ mod tests {
 
     #[test]
     fn word_ngrams_unigram_and_bigram() {
-        let rx = Regex::new(r"\b[^\W_]+(?:[’'\-][^\W_]+)*\b").unwrap();
+        let rx = FancyRegex::new(&python_token_pattern(
+            r"(?u)\b[^\W_]+(?:[’'\-][^\W_]+)*\b",
+        ))
+        .unwrap();
         let g = word_ngrams("alpha beta gamma", &rx, 1, 2);
         assert_eq!(
             g,

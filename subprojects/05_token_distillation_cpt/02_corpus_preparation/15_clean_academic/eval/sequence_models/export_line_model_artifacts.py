@@ -147,6 +147,25 @@ def export_scaler(scaler: Any) -> dict[str, Any]:
 # torch TCN
 # --------------------------------------------------------------------------
 def export_tcn(path: Path) -> dict[str, Any]:
+    """Flatten one SignalTCN fold.
+
+    The checkpoint carries no normalisation statistics -- the ten inputs are a
+    probability and nine indicator flags, all already on [0, 1], so the model
+    consumes them raw. An earlier version of this exporter assumed a mean/scale
+    pair and failed loudly on the real file, which is the behaviour wanted.
+
+    Architecture (`bibliography_signal_tcn.SignalTCN`), recorded here because the
+    port reimplements the forward pass rather than loading torch:
+
+        input_projection : Linear(input_dim -> hidden_dim), then * mask
+        blocks[i]        : LayerNorm -> Conv1d(hidden, hidden, kernel_size=3,
+                           dilation=d_i, padding=d_i) -> GELU -> + residual, * mask
+        output_norm      : LayerNorm(hidden_dim)
+        output           : Linear(hidden_dim -> 1), squeezed
+
+    Dropout is identity at inference. Padding equals dilation with kernel_size 3,
+    so each block is symmetric and length-preserving.
+    """
     import torch
 
     checkpoint = torch.load(path, map_location="cpu", weights_only=True)
@@ -154,11 +173,19 @@ def export_tcn(path: Path) -> dict[str, Any]:
         key: np.asarray(value.numpy(), dtype=np.float64).tolist()
         for key, value in checkpoint["state_dict"].items()
     }
+    architecture = dict(checkpoint["architecture"])
     return {
         "kind": "signal_tcn",
-        "architecture": checkpoint["architecture"],
-        "mean": np.asarray(checkpoint["mean"].numpy(), dtype=np.float64).tolist(),
-        "scale": np.asarray(checkpoint["scale"].numpy(), dtype=np.float64).tolist(),
+        "schema_version": checkpoint.get("schema_version"),
+        "fold": int(checkpoint.get("fold", -1)),
+        "feature_names": list(checkpoint["feature_names"]),
+        "architecture": {
+            "hidden_dim": int(architecture["hidden_dim"]),
+            "dilations": [int(d) for d in architecture["dilations"]],
+            # Retained for provenance only; inference does not apply dropout.
+            "dropout": float(architecture["dropout"]),
+            "kernel_size": 3,
+        },
         "state_dict": tensors,
     }
 
