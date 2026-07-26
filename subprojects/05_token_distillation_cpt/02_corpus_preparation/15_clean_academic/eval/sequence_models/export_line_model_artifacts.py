@@ -131,15 +131,29 @@ def export_tfidf(vec: Any) -> dict[str, Any]:
 
 
 def export_scaler(scaler: Any) -> dict[str, Any]:
+    """Export a fitted StandardScaler.
+
+    `with_mean` must be read off the estimator, not inferred from whether `mean_`
+    is populated. A `StandardScaler(with_mean=False)` still *computes and stores*
+    `mean_` -- it needs it for the variance -- and merely declines to subtract it in
+    `transform`. The heading bundle is fitted exactly that way, so inferring the flag
+    from `mean_ is not None` reports the opposite of the truth and would have the
+    port subtract a mean the reference never subtracts, shifting all 43 numeric
+    heading features and every heading probability with them.
+    """
     if scaler is None:
         return {"kind": "identity"}
     mean = getattr(scaler, "mean_", None)
     scale = getattr(scaler, "scale_", None)
+    with_mean = bool(getattr(scaler, "with_mean", mean is not None))
+    with_std = bool(getattr(scaler, "with_std", scale is not None))
     return {
         "kind": "standard_scaler",
-        "with_mean": mean is not None,
+        "with_mean": with_mean,
+        "with_std": with_std,
+        # Retained even when unused, so the artifact records what was fitted.
         "mean": np.asarray(mean, dtype=np.float64).tolist() if mean is not None else None,
-        "scale": np.asarray(scale, dtype=np.float64).tolist(),
+        "scale": np.asarray(scale, dtype=np.float64).tolist() if scale is not None else None,
     }
 
 

@@ -55,24 +55,43 @@ pub enum Scaler {
     Identity,
     #[serde(rename = "standard_scaler")]
     Standard {
+        /// Read off the fitted estimator, not inferred from `mean` being present:
+        /// `StandardScaler(with_mean=False)` still stores `mean_` (it needs it for
+        /// the variance) and simply does not subtract it. The heading bundle is
+        /// fitted that way, so trusting the presence of `mean` would subtract a mean
+        /// the reference never subtracts.
         with_mean: bool,
+        #[serde(default = "default_true")]
+        with_std: bool,
         mean: Option<Vec<f64>>,
-        scale: Vec<f64>,
+        scale: Option<Vec<f64>>,
     },
+}
+
+fn default_true() -> bool {
+    true
 }
 
 impl Scaler {
     pub fn apply(&self, row: &mut [f64]) {
-        if let Scaler::Standard { with_mean, mean, scale } = self {
+        if let Scaler::Standard {
+            with_mean,
+            with_std,
+            mean,
+            scale,
+        } = self
+        {
             for (i, x) in row.iter_mut().enumerate() {
                 if *with_mean {
                     if let Some(m) = mean.as_ref().and_then(|m| m.get(i)) {
                         *x -= m;
                     }
                 }
-                if let Some(s) = scale.get(i) {
-                    if *s != 0.0 {
-                        *x /= s;
+                if *with_std {
+                    if let Some(s) = scale.as_ref().and_then(|s| s.get(i)) {
+                        if *s != 0.0 {
+                            *x /= s;
+                        }
                     }
                 }
             }
