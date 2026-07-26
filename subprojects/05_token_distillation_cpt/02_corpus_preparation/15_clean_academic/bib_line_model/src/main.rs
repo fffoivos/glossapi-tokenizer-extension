@@ -538,6 +538,204 @@ fn emit_connector(args: &Args) -> Result<()> {
     Ok(())
 }
 
+/// The whole chain: 126 columns per line, the line model, and the mask at the
+/// manifest threshold. Emits [line_probability, mask] per line.
+fn detect(args: &Args) -> Result<()> {
+    use bib_line_model::chain::{
+        broad_heading_candidate, connector_probabilities, heading_numeric_features,
+        heading_probabilities, line_probability,
+    };
+    use bib_line_model::connector::{
+        candidate_window_mask, connector_feature_row, joined_text, DocumentContext,
+        CANDIDATE_RADIUS,
+    };
+    use bib_line_model::predict::Tfidf;
+    use bib_line_model::roles::{negative_role, N_ROLES};
+    use bib_line_model::table::{deterministic_row, N_PROBABILITY};
+    use bib_line_model::tcn::{signal_probabilities, Tcn, MAX_PHYSICAL_GAP};
+
+    let root = args.artifacts.as_ref().context("detect needs --artifacts")?;
+    let artifacts = Artifacts::load(root)?;
+    let threshold = artifacts.manifest.line_threshold as f32;
+    let char_tfidf: Vec<Tfidf> = artifacts
+        .heading
+        .iter()
+        .map(|f| Tfidf::new(&f.char_tfidf))
+        .collect::<Result<_>>()?;
+    let word_tfidf: Vec<Tfidf> = artifacts
+        .heading
+        .iter()
+        .map(|f| Tfidf::new(&f.word_tfidf))
+        .collect::<Result<_>>()?;
+    let tcn_folds: Vec<Tcn> = artifacts
+        .signal_tcn
+        .iter()
+        .map(Tcn::new)
+        .collect::<Result<_>>()?;
+
+    let docs = read_documents(&args.input)?;
+    let total: usize = docs.iter().map(|d| d.len()).sum();
+    eprintln!(
+        "bib_line_detect: {} documents, {} lines, threshold {}, {} rayon threads",
+        docs.len(),
+        total,
+        threshold,
+        rayon::current_num_threads()
+    );
+    let start = std::time::Instant::now();
+    let mut bases = Vec::with_capacity(docs.len());
+    let mut running = 0i64;
+    for doc in &docs {
+        bases.push(running);
+        running += doc.len() as i64;
+    }
+
+    let per_doc: Vec<Vec<f32>> = docs
+        .par_iter()
+        .zip(bases.par_iter())
+        .map(|(texts, base)| {
+            let n = texts.len();
+            let lines: Vec<features::Line> = texts.iter().map(|t| features::analyze(t)).collect();
+            let entry: Vec<f32> = lines
+                .iter()
+                .map(|l| chain::entry_probability(&artifacts.entry, &l.counts))
+                .collect();
+            let abs: Vec<i64> = (0..n as i64).map(|i| base + i).collect();
+
+            // --- signal TCN -------------------------------------------------
+            let signal_rows: Vec<Vec<f64>> = texts
+                .iter()
+                .zip(lines.iter())
+                .enumerate()
+                .map(|(i, (t, line))| {
+                    let mut row = vec![0f64; N_ROLES + 2];
+                    row[0] = entry[i] as f64;
+                    if let Some(role) = negative_role(t, line) {
+                        row[1 + role] = 1.0;
+                    }
+                    row[N_ROLES + 1] =
+                        bib_line_model::structure::is_heading_or_subheading(t) as u8 as f64;
+                    row
+                })
+                .collect();
+            let signal = signal_probabilities(&tcn_folds, &signal_rows, &abs);
+
+            // --- heading bundle ---------------------------------------------
+            let mut heading_candidate = vec![false; n];
+            let mut heading4 = vec![[0f32; 4]; n];
+            for (offset, text) in texts.iter().enumerate() {
+                let previous_blank =
+                    offset > 0 && bib_line_model::shape::py_strip(&texts[offset - 1]).is_empty();
+                let next_blank = offset + 1 < n
+                    && bib_line_model::shape::py_strip(&texts[offset + 1]).is_empty();
+                if !broad_heading_candidate(text, previous_blank, next_blank) {
+                    continue;
+                }
+                heading_candidate[offset] = true;
+                let numeric = heading_numeric_features(
+                    text,
+                    previous_blank,
+                    next_blank,
+                    offset as f64 / (n.saturating_sub(1)).max(1) as f64,
+                    &entry[offset.saturating_sub(30)..offset],
+                    &entry[(offset + 1).min(n)..(offset + 31).min(n)],
+                );
+                heading4[offset] = heading_probabilities(
+                    &artifacts.heading,
+                    &char_tfidf,
+                    &word_tfidf,
+                    text,
+                    &numeric,
+                );
+            }
+            let heading3: Vec<[f32; 3]> =
+                heading4.iter().map(|h| [h[1], h[2], h[3]]).collect();
+
+            // --- connector bundle -------------------------------------------
+            // Non-candidates keep the (0, 0, 0, 1) default, not zero.
+            let mut connector = vec![[0.0f32, 0.0, 0.0, 1.0]; n];
+            let mask = candidate_window_mask(&entry, &heading_candidate, &abs, CANDIDATE_RADIUS);
+            let ctx = DocumentContext {
+                texts,
+                lines: &lines,
+                abs_indices: &abs,
+                entry: &entry,
+                heading: &heading3,
+            };
+            for i in 0..n {
+                if !mask[i] {
+                    continue;
+                }
+                let joined = |neighbour: Option<usize>, left_first: bool| {
+                    neighbour.map(|nb| {
+                        let line = features::analyze(&joined_text(texts, i, nb, left_first));
+                        let score = chain::entry_probability(&artifacts.entry, &line.counts);
+                        (score, line)
+                    })
+                };
+                let prev = (i > 0 && abs[i] - abs[i - 1] <= MAX_PHYSICAL_GAP).then(|| i - 1);
+                let next =
+                    (i + 1 < n && abs[i + 1] - abs[i] <= MAX_PHYSICAL_GAP).then(|| i + 1);
+                let jp = joined(prev, true);
+                let jn = joined(next, false);
+                let row = connector_feature_row(
+                    &ctx,
+                    i,
+                    &mask,
+                    jp.as_ref().map(|(s, l)| (*s, l)),
+                    jn.as_ref().map(|(s, l)| (*s, l)),
+                );
+                let row64: Vec<f64> = row.iter().map(|v| *v as f64).collect();
+                connector[i] = connector_probabilities(&artifacts.connector, &row64);
+            }
+
+            // --- assemble the 126-column rows -------------------------------
+            let mut table_rows: Vec<Vec<f32>> = Vec::with_capacity(n);
+            for i in 0..n {
+                let mut row = Vec::with_capacity(126);
+                // Order per the v3 contract; continuation_specialist is the same
+                // value as continuation (no specialist model is configured).
+                row.extend([
+                    entry[i],
+                    signal[i],
+                    connector[i][0],
+                    connector[i][1],
+                    connector[i][1],
+                    connector[i][2],
+                    heading4[i][1],
+                    heading4[i][2],
+                    heading4[i][3],
+                    connector[i][3],
+                ]);
+                debug_assert_eq!(row.len(), N_PROBABILITY);
+                row.extend(deterministic_row(&texts[i]));
+                table_rows.push(row);
+            }
+
+            // --- context builder, then the line model -----------------------
+            // The line model is fitted on 232 features, not the table's 126: the
+            // context stage appends eight probability signals summarised over three
+            // radii in both directions, plus ten document/segment positions.
+            let context = bib_line_model::context::build_context(&table_rows, &abs);
+            let mut out = Vec::with_capacity(n * 2);
+            for row in &context {
+                let p = line_probability(&artifacts.line, row);
+                out.push(p);
+                out.push((p >= threshold) as u8 as f32);
+            }
+            out
+        })
+        .collect();
+
+    eprintln!("  scored in {:.1}s", start.elapsed().as_secs_f64());
+    let flat: Vec<f32> = per_doc.into_iter().flatten().collect();
+    let positives = flat.chunks(2).filter(|c| c[1] > 0.0).count();
+    eprintln!("  {} lines above threshold ({:.2}%)", positives, 100.0 * positives as f64 / total as f64);
+    write_npy_f32(&args.out, total, 2, &flat)?;
+    eprintln!("  wrote {}", args.out.display());
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let args = parse_args()?;
     match args.mode.as_str() {
@@ -547,7 +745,7 @@ fn main() -> Result<()> {
         "emit-roles" => emit_roles(&args),
         "emit-signal" => emit_signal(&args),
         "emit-connector" => emit_connector(&args),
-        "detect" => bail!("detect: the model layers are not ported yet"),
+        "detect" => detect(&args),
         other => {
             eprintln!("{}", include_str!("usage.txt"));
             bail!("unknown mode: {other}")

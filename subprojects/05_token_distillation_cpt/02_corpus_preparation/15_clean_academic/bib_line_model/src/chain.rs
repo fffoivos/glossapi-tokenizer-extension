@@ -249,3 +249,66 @@ mod heading_tests {
         assert!(!broad_heading_candidate("   ", false, false));
     }
 }
+
+
+// ---------------------------------------------------------------------------
+// connector bundle and the line model
+// ---------------------------------------------------------------------------
+
+use crate::artifacts::{ConnectorFold, LineFold};
+use crate::connector::N_CONNECTOR_COLUMNS;
+
+/// `ConnectorBundle.predict` — three binary models composed into four columns.
+///
+/// The deployed arm is `hist` with `mean`/`scale` both null, so `transform` is the
+/// identity; the branch is kept because the artifact records the arm.
+pub fn connector_probabilities(
+    folds: &[ConnectorFold],
+    features: &[f64],
+) -> [f32; N_CONNECTOR_COLUMNS] {
+    let mut total = [0f64; N_CONNECTOR_COLUMNS];
+    let mut scratch = Vec::new();
+    for fold in folds {
+        let view: &[f64] = match (&fold.mean, &fold.scale) {
+            (Some(mean), Some(scale)) => {
+                scratch.clear();
+                scratch.extend(
+                    features
+                        .iter()
+                        .enumerate()
+                        .map(|(i, x)| ((x - mean[i]) / scale[i]) as f32 as f64),
+                );
+                &scratch
+            }
+            _ => features,
+        };
+        let connector = model_proba(&fold.connector_model, view);
+        let continuation_conditional = model_proba(&fold.subtype_model, view);
+        let other = model_proba(&fold.other_model, view);
+        total[0] += connector;
+        total[1] += connector * continuation_conditional;
+        total[2] += connector * (1.0 - continuation_conditional);
+        total[3] += other;
+    }
+    let mut out = [0f32; N_CONNECTOR_COLUMNS];
+    for (o, t) in out.iter_mut().zip(total.iter()) {
+        *o = (*t / folds.len() as f64) as f32;
+    }
+    out
+}
+
+/// The line model: five folds over the 126-column row, averaged.
+///
+/// The deployed folds carry an identity scaler, so the row is passed through as-is;
+/// `Scaler::apply` handles the general case.
+pub fn line_probability(folds: &[LineFold], row: &[f32]) -> f32 {
+    let mut total = 0f64;
+    let mut scratch: Vec<f64> = Vec::with_capacity(row.len());
+    for fold in folds {
+        scratch.clear();
+        scratch.extend(row.iter().map(|v| *v as f64));
+        fold.scaler.apply(&mut scratch);
+        total += model_proba(&fold.model, &scratch);
+    }
+    (total / folds.len() as f64) as f32
+}

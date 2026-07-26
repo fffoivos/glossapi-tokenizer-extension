@@ -18,6 +18,7 @@
 pub mod artifacts;
 pub mod chain;
 pub mod connector;
+pub mod context;
 pub mod features;
 pub mod gaps;
 pub mod patterns;
