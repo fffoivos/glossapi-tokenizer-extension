@@ -30,10 +30,14 @@ failure=0
 
 run_unit() {
   local unit_id="$1"
+  echo "[$(date -u +%FT%TZ)] start $unit_id"
   "$PYTHON_BIN" -m \
     subprojects.05_token_distillation_cpt.02_corpus_preparation.15_clean_academic.production.run_unit \
     --contract "$CONTRACT" --plan "$PLAN" --unit-id "$unit_id" \
     --mode dry-run --glossapi-src "$GLOSSAPI_SRC" --threads "$THREADS"
+  local status=$?
+  echo "[$(date -u +%FT%TZ)] finish $unit_id exit=$status"
+  return "$status"
 }
 export -f run_unit
 export PYTHON_BIN CONTRACT PLAN TRAIN_SRC GLOSSAPI_SRC THREADS PYTHONPATH

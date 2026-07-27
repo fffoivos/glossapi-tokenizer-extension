@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import fcntl
 import hashlib
 import json
 import os
@@ -113,6 +114,13 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     receipt_path = run_root / args.mode / "receipts" / f"{args.unit_id}.json"
     ledger_path = run_root / args.mode / "ledger" / f"{args.unit_id}.parquet"
     output_path = run_root / args.mode / "fragments" / f"{args.unit_id}.parquet"
+    lock_path = run_root / args.mode / "locks" / f"{args.unit_id}.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    # Concurrent submissions must not score or publish the same unit twice. The lock
+    # is released automatically on normal return, exception, SIGTERM, or process
+    # death; a waiter then validates and reuses the first receipt.
+    unit_lock = lock_path.open("a")
+    fcntl.flock(unit_lock, fcntl.LOCK_EX)
     if receipt_path.exists():
         receipt = load_json(receipt_path)
         require_schema(receipt, RECEIPT_SCHEMA, receipt_path)

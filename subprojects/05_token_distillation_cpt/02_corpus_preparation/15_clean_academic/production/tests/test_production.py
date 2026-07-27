@@ -239,17 +239,16 @@ def test_stable_unit_id():
 def test_dryrun_writes_exact_document_ledger_and_bound_receipt(tmp_path, monkeypatch):
     contract_path, plan_path, unit_id = _fixture(tmp_path)
     monkeypatch.setattr(run_unit, "_load_cleaner", lambda *args: FakeCleaner())
-    receipt = run_unit.run(
-        Namespace(
-            contract=str(contract_path),
-            plan=str(plan_path),
-            unit_id=unit_id,
-            mode="dry-run",
-            glossapi_src=None,
-            threads=8,
-            batch_size=2,
-        )
+    args = Namespace(
+        contract=str(contract_path),
+        plan=str(plan_path),
+        unit_id=unit_id,
+        mode="dry-run",
+        glossapi_src=None,
+        threads=8,
+        batch_size=2,
     )
+    receipt = run_unit.run(args)
     assert receipt["docs"] == 2
     assert receipt["content_chars_removed"] == 8
     assert receipt["separator_chars_removed"] == 1
@@ -259,6 +258,7 @@ def test_dryrun_writes_exact_document_ledger_and_bound_receipt(tmp_path, monkeyp
     assert len(ledger) == 2
     assert ledger[0]["chars_before"] - ledger[0]["chars_after"] == 9
     assert not list((tmp_path / "run").rglob("*.partial"))
+    assert run_unit.run(args) == receipt
 
 
 def test_contract_rejects_artifact_tampering(tmp_path):
