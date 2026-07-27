@@ -36,9 +36,14 @@ def run(args: argparse.Namespace) -> dict:
         for item_id, decision in decisions.items()
         if decision["classification"] not in ALLOWED
         or not isinstance(decision["primarily_bibliography"], bool)
-        or not decision["rationale"]
+        or not isinstance(decision["rationale"], str)
+        or not decision["rationale"].strip()
     ]
-    if not review.get("reviewer") or not review.get("reviewed_utc"):
+    if (
+        review.get("status") != "complete"
+        or not review.get("reviewer")
+        or not review.get("reviewed_utc")
+    ):
         incomplete.append("<review-metadata>")
     bad = [
         item_id

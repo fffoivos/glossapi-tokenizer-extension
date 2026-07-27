@@ -14,8 +14,10 @@ import pyarrow.parquet as pq
 from .contracts import (
     QA_PACKET_SCHEMA,
     QA_REVIEW_SCHEMA,
+    SUMMARY_SCHEMA,
     atomic_write_json,
     load_json,
+    require_schema,
     sha256_file,
     validate_plan,
 )
@@ -47,6 +49,7 @@ def _even_middle_sample(rows: list[dict], count: int) -> list[dict]:
 def run(args: argparse.Namespace) -> dict[str, Any]:
     contract, _plan, contract_sha, plan_sha = validate_plan(args.contract, args.plan)
     summary = load_json(args.summary)
+    require_schema(summary, SUMMARY_SCHEMA, args.summary)
     if (
         summary["status"] != "passed"
         or summary["contract_sha256"] != contract_sha
@@ -56,7 +59,18 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
 
     rows: list[dict] = []
     ledger_dir = Path(contract["run_root"]) / contract["mode"] / "ledger"
-    for ledger_path in sorted(ledger_dir.glob("*.parquet")):
+    ledger_paths = sorted(ledger_dir.glob("*.parquet"))
+    expected_ledgers = summary["ledger_sha256"]
+    actual_ledgers = {path.stem for path in ledger_paths}
+    if actual_ledgers != set(expected_ledgers):
+        raise ValueError(
+            "ledger set changed after aggregation: "
+            f"missing={sorted(set(expected_ledgers) - actual_ledgers)}, "
+            f"extra={sorted(actual_ledgers - set(expected_ledgers))}"
+        )
+    for ledger_path in ledger_paths:
+        if sha256_file(ledger_path) != expected_ledgers[ledger_path.stem]:
+            raise ValueError(f"ledger changed after aggregation: {ledger_path}")
         rows.extend(pq.read_table(ledger_path).to_pylist())
     kallipos = [
         row

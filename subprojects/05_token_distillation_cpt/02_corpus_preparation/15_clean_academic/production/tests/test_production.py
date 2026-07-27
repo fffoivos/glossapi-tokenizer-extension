@@ -22,6 +22,14 @@ check_qa = importlib.import_module(
     "subprojects.05_token_distillation_cpt.02_corpus_preparation."
     "15_clean_academic.production.check_qa"
 )
+aggregate = importlib.import_module(
+    "subprojects.05_token_distillation_cpt.02_corpus_preparation."
+    "15_clean_academic.production.aggregate"
+)
+build_qa = importlib.import_module(
+    "subprojects.05_token_distillation_cpt.02_corpus_preparation."
+    "15_clean_academic.production.build_qa"
+)
 
 
 @dataclass
@@ -273,6 +281,41 @@ def test_contract_rejects_artifact_tampering(tmp_path):
         contracts.validate_contract(contract_path)
 
 
+def test_qa_packet_rejects_ledger_changed_after_aggregation(tmp_path, monkeypatch):
+    contract_path, plan_path, unit_id = _fixture(tmp_path)
+    monkeypatch.setattr(run_unit, "_load_cleaner", lambda *args: FakeCleaner())
+    receipt = run_unit.run(
+        Namespace(
+            contract=str(contract_path),
+            plan=str(plan_path),
+            unit_id=unit_id,
+            mode="dry-run",
+            glossapi_src=None,
+            threads=8,
+            batch_size=2,
+        )
+    )
+    summary_path = tmp_path / "run" / "dry-run" / "summary.json"
+    aggregate.run(
+        Namespace(
+            contract=str(contract_path),
+            plan=str(plan_path),
+            output=str(summary_path),
+        )
+    )
+    ledger_path = Path(receipt["ledger"]["path"])
+    pq.write_table(pq.read_table(ledger_path), ledger_path, compression="gzip")
+    with pytest.raises(ValueError, match="ledger changed after aggregation"):
+        build_qa.run(
+            Namespace(
+                contract=str(contract_path),
+                plan=str(plan_path),
+                summary=str(summary_path),
+                output=None,
+            )
+        )
+
+
 def test_qa_gate_rejects_uncertainty_and_accepts_complete_review(tmp_path):
     packet = {
         "schema_version": contracts.QA_PACKET_SCHEMA,
@@ -292,6 +335,7 @@ def test_qa_gate_rejects_uncertainty_and_accepts_complete_review(tmp_path):
     contracts.atomic_write_json(packet_path, packet)
     review = {
         "schema_version": contracts.QA_REVIEW_SCHEMA,
+        "status": "complete",
         "packet_sha256": contracts.sha256_file(packet_path),
         "reviewer": "Codex",
         "reviewed_utc": "2026-07-27T00:00:00Z",
@@ -314,6 +358,17 @@ def test_qa_gate_rejects_uncertainty_and_accepts_complete_review(tmp_path):
         )
     )
     assert result["status"] == "passed"
+    review["status"] = "incomplete"
+    contracts.atomic_write_json(review_path, review)
+    result = check_qa.run(
+        Namespace(
+            packet=str(packet_path),
+            review=str(review_path),
+            output=str(tmp_path / "gate-incomplete.json"),
+        )
+    )
+    assert result["status"] == "failed"
+    review["status"] = "complete"
     review["decisions"][0]["classification"] = "uncertain"
     contracts.atomic_write_json(review_path, review)
     result = check_qa.run(

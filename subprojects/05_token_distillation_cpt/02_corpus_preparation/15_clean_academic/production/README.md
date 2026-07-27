@@ -15,7 +15,9 @@ The sequence is deliberately fail-closed:
    `<rank>-rg<start>-<end>` and its completion receipt binds the contract, plan,
    source shard, commits, wheel and model hashes.
 6. Run `aggregate.py`, `build_qa.py`, review every packet item, then run
-   `check_qa.py`.
+   `check_qa.py`. Packet construction rechecks the exact ledger set and every
+   post-aggregation ledger hash; the gate accepts only an explicitly complete
+   review with non-empty rationales.
 
 The dry-run writes only receipts and one Parquet ledger row per analyzed document.
 It does not write cleaned corpus fragments. An apply contract is a separate run and
